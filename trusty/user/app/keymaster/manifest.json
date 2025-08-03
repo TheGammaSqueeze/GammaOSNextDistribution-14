@@ -1,0 +1,15 @@
+{
+    "uuid": "5f902ace-5e5c-4cd8-ae54-87b88c22ddaf",
+    "min_heap": 118784,
+    "min_stack": 32768,
+    "start_ports": [
+        {
+            "name": "com.android.trusty.keymaster",
+            "flags": {
+                "allow_ta_connect": false,
+                "allow_ns_connect": true
+            }
+        }
+    ]
+
+}

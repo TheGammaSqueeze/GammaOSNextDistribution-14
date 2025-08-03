@@ -1,0 +1,165 @@
+{
+  "description": "One trigger generates a report. Others generate debug reports for window-not-started and passed",
+  "phflags_override": {
+    "measurement_flexible_event_reporting_api_enabled": "true"
+  },
+  "input": {
+    "sources": [
+      {
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech1.test",
+          "source_type": "navigation",
+          "registrant": "example.1s1.test"
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "has_ad_id_permission": true,
+          "response": {
+            "Attribution-Reporting-Register-Source": {
+              "source_event_id": "111",
+              "destination": "android-app://example.2d1.test",
+              "trigger_specs": [{
+                "trigger_data": [0, 1],
+                "event_report_windows": {
+                  // One day
+                  "start_time": 86400,
+                  // Two and four days
+                  "end_times": [172800, 345600]
+                },
+                "summary_window_operator": "value_sum",
+                "summary_buckets":  [10]
+              }],
+              "max_event_level_reports": 1,
+              "trigger_data_matching": "exact"
+            },
+            "Location": null,
+            "Attribution-Reporting-Redirect": null
+          }
+        }],
+        "timestamp": "0"
+      }
+    ],
+    "triggers": [
+      {
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech1.test",
+          "registrant": "example.2d1.test"
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "has_ad_id_permission": true,
+          "response": {
+            "Attribution-Reporting-Register-Trigger": {
+              "debug_reporting": true,
+              "event_trigger_data": [
+                {
+                  "trigger_data": "0",
+                  "value": 60
+                }
+              ]
+            },
+            "Location": null,
+            "Attribution-Reporting-Redirect": null
+          }
+        }],
+        "timestamp": "3600000"
+      },
+      {
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech1.test",
+          "registrant": "example.2d1.test"
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "response": {
+            "Attribution-Reporting-Register-Trigger": {
+              "event_trigger_data": [
+                {
+                  "trigger_data": "1",
+                  "priority": "10",
+                  "value": 60
+                }
+              ]
+            },
+            "Location": null,
+            "Attribution-Reporting-Redirect": null
+          }
+        }],
+        "timestamp": "259200000"
+      },
+      {
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech1.test",
+          "registrant": "example.2d1.test"
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "has_ad_id_permission": true,
+          "response": {
+            "Attribution-Reporting-Register-Trigger": {
+              "debug_reporting": true,
+              "event_trigger_data": [
+                {
+                  "trigger_data": "1",
+                  "priority": "100",
+                  "value": 60
+                }
+              ]
+            },
+            "Location": null,
+            "Attribution-Reporting-Redirect": null
+          }
+        }],
+        "timestamp": "604800000"
+      }
+    ]
+  },
+  "output": {
+    "event_level_results": [
+      {
+        "report_time": "349200000",
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/report-event-attribution",
+        "payload": {
+          "attribution_destination": "android-app://example.2d1.test",
+          "scheduled_report_time": "349200",
+          "source_event_id": "111",
+          "trigger_data": "1",
+          "source_type": "navigation",
+          "trigger_summary_bucket": [10,4294967295],
+          "randomized_trigger_rate": 0.0000042
+        }
+      }
+    ],
+    "aggregatable_results": [],
+    "verbose_debug_reports": [
+      {
+        "payload": [
+          {
+            "body": {
+              "attribution_destination": "android-app://example.2d1.test",
+              "source_event_id": "111",
+              "source_site": "android-app://example.1s1.test"
+            },
+            "type": "trigger-event-report-window-not-started"
+          }
+        ],
+        "report_time": "3600000",
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/debug/verbose"
+      },
+      {
+        "payload": [
+          {
+            "body": {
+              "attribution_destination": "android-app://example.2d1.test",
+              "source_event_id": "111",
+              "source_site": "android-app://example.1s1.test"
+            },
+            "type": "trigger-event-report-window-passed"
+          }
+        ],
+        "report_time": "604800000",
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/debug/verbose"
+      }
+    ]
+  }
+}

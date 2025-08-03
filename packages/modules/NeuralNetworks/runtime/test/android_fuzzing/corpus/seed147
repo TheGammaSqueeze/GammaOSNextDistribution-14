@@ -1,0 +1,145 @@
+model {
+  main {
+    operands {
+      operand {
+        type: TENSOR_QUANT8_ASYMM_SIGNED
+        dimensions {
+          dimension: 1
+          dimension: 1
+          dimension: 1
+          dimension: 3
+        }
+        scale: 0.5
+        zero_point: -128
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 892485592
+        }
+      }
+      operand {
+        type: TENSOR_QUANT8_ASYMM_SIGNED
+        dimensions {
+          dimension: 3
+          dimension: 1
+          dimension: 1
+          dimension: 3
+        }
+        scale: 0.5
+        zero_point: -128
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 658645263
+        }
+      }
+      operand {
+        type: TENSOR_INT32
+        dimensions {
+          dimension: 3
+        }
+        scale: 0.25
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 3794044144
+        }
+      }
+      operand {
+        type: INT32
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 0
+        }
+      }
+      operand {
+        type: INT32
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 1
+        }
+      }
+      operand {
+        type: INT32
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 0
+        }
+      }
+      operand {
+        type: TENSOR_QUANT8_ASYMM_SIGNED
+        dimensions {
+          dimension: 1
+          dimension: 1
+          dimension: 1
+          dimension: 3
+        }
+        scale: 1
+        zero_point: -128
+        lifetime: SUBGRAPH_OUTPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 1525617997
+        }
+      }
+    }
+    operations {
+      operation {
+        type: CONV_2D
+        inputs {
+          index: 0
+          index: 1
+          index: 2
+          index: 3
+          index: 3
+          index: 3
+          index: 3
+          index: 4
+          index: 4
+          index: 5
+        }
+        outputs {
+          index: 6
+        }
+      }
+    }
+    input_indexes {
+      index: 0
+    }
+    output_indexes {
+      index: 6
+    }
+  }
+  referenced {
+  }
+}

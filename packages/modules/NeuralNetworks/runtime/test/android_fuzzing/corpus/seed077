@@ -1,0 +1,101 @@
+model {
+  main {
+    operands {
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 1
+          dimension: 3
+          dimension: 3
+          dimension: 1
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 2910631777
+        }
+      }
+      operand {
+        type: FLOAT16
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 172391055
+        }
+      }
+      operand {
+        type: FLOAT16
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 172391055
+        }
+      }
+      operand {
+        type: BOOL
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 965637500
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 1
+          dimension: 2
+          dimension: 2
+          dimension: 1
+        }
+        lifetime: SUBGRAPH_OUTPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 3659213679
+        }
+      }
+    }
+    operations {
+      operation {
+        type: RESIZE_NEAREST_NEIGHBOR
+        inputs {
+          index: 0
+          index: 1
+          index: 2
+          index: 3
+        }
+        outputs {
+          index: 4
+        }
+      }
+    }
+    input_indexes {
+      index: 0
+    }
+    output_indexes {
+      index: 4
+    }
+  }
+  referenced {
+  }
+}

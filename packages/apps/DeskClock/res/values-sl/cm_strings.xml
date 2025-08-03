@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2012-2016 The CyanogenMod Project
+     Copyright (C) 2017-2025 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="flip_action_title">Dejanje obračanja naprave</string>
+    <string name="shake_action_title">Dejanje tresenja naprave</string>
+    <string-array name="action_setting_entries">
+        <item>Dremež</item>
+        <item>Opusti</item>
+        <item>Brez</item>
+    </string-array>
+    <string name="firing_alarms_timers_channel">Opuščanje budilk in odštevalnikov</string>
+    <string name="alarm_missed_channel">Zamujene budilke</string>
+    <string name="alarm_snooze_channel">Budilke v dremežu</string>
+    <string name="alarm_upcoming_channel">Prihajajoče budilke</string>
+    <string name="stopwatch_channel">Štoparica</string>
+    <string name="timer_channel">Odštevalnik</string>
+    <string name="add_label">Dodaj oznako</string>
+    <string name="dialog_permissions_title">Dovoljenja</string>
+    <string name="dialog_permissions_ask">Ponovno vprašaj</string>
+    <string name="dialog_permissions_dismiss">Opusti</string>
+    <string name="dialog_permissions_settings">Nastavitve</string>
+    <string name="dialog_permissions_power_off_alarm">Brez tega dovoljenja, se vaša naprava ne bo zmožna samodejno vklopiti, da sproži budilko</string>
+    <string name="dialog_permissions_no_permission">Zahtevana dovoljenja so bila zavrnjena,  omogočite jih v aplikaciji Nastavitve</string>
+    <string name="dialog_permissions_post_notifications">Ta aplikacija se zanaša na obvestila. Brez njih ne mora delovati!</string>
+    <string name="selected">Izbrano</string>
+    <string name="more_options">Več možnosti</string>
+    <string name="widget_choice_title">Izberite vaš slog</string>
+    <string name="widget_name_transparent">Prosojno</string>
+    <string name="widget_name_solid">Zapolnjeno</string>
+    <string name="clock_brightness_percentage">%s%%</string>
+    <string name="night_mode_enabled_title">Omogočen</string>
+    <string name="night_mode_dnd_title">Sledi Ne moti stanju</string>
+    <string name="night_mode_dnd_summary">Nočni način sledi Ne moti stanju</string>
+    <string name="show_ampm_title">Prikaži kazalnik AM/PM</string>
+    <string name="bold_text_title">Krepko besedilo ure</string>
+    <string name="night_mode_brightness_text_title">Svetlost</string>
+    <string name="clock_color_title">Barva</string>
+    <string-array name="clock_color_entries">
+        <item>Bela</item>
+        <item>Rdeča</item>
+        <item>Zelena</item>
+        <item>Modra</item>
+    </string-array>
+    <string name="screensaver_settings_title">Ohranjevalnik zaslona</string>
+    <string name="screensaver_preview">Predogled</string>
+    <string name="screensaver_preview_summary">Zažene ohranjevalnik zaslona takoj</string>
+    <string name="screensaver_change_settings">Nastavitve</string>
+    <string name="screensaver_change_settings_summary">Odpre nastavitve urinega ohranjevalnika zaslona</string>
+    <string name="screensaver_daydream_settings">Izberi/omogoči ohranjevalnik zaslona</string>
+    <string name="screensaver_daydream_settings_summary">Odpre glavne nastavitve ohranjevalnika zaslona</string>
+</resources>

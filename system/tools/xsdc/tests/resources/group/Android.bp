@@ -1,0 +1,21 @@
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+xsd_config {
+    name: "xsdc_group_tests",
+    srcs: ["group.xsd"],
+    include_files: ["address.xsd"],
+    package_name: "group",
+    gen_writer: true,
+}
+
+xsd_config {
+    name: "xsdc_group_tinyxml_tests",
+    srcs: ["group.xsd"],
+    include_files: ["address.xsd"],
+    package_name: "group",
+    gen_writer: true,
+    tinyxml: true,
+}

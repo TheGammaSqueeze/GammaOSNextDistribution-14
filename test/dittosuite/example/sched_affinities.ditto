@@ -1,0 +1,30 @@
+main: {
+  multithreading: {
+    fork: false;
+    threads: [
+      {
+        name: "CPU 0",
+        sched_affinity: 1,
+        instruction: {
+          cpu_work: {
+            utilization: 0.2
+          }
+          repeat: 100,
+          period_us: 60000
+        },
+      },
+      {
+        name: "CPU 3"
+        sched_affinity: 4,
+        instruction: {
+          cpu_work: {
+            utilization: 0.5
+          }
+          repeat: 100,
+          period_us: 50000
+        },
+      }
+    ]
+  }
+}
+global: {}

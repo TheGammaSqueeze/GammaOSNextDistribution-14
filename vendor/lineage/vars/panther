@@ -1,0 +1,27 @@
+# Pixel 7
+
+# Usage: ${device_repos[@]}
+device_repos=(
+  # common repos in cheetah
+)
+
+# Updated semi-manually via pixel/update-any-var.sh
+
+readonly build_id="AP2A.240905.003"
+
+# Updated automatically via pixel/update-device-vars.sh
+
+readonly prev_aosp_tag="android-14.0.0_r55"
+readonly aosp_tag="android-14.0.0_r67"
+
+readonly build_number="12231197"
+
+readonly image_url="https://dl.google.com/dl/android/aosp/panther-ap2a.240905.003-factory-55a88575.zip"
+readonly image_sha256="55a8857543f686b0888dcbd5dc5621f54e327bb1c4bfbc73dcbb8eebcee3d4bc"
+
+readonly flash_url="https://flash.android.com/build/12231197?target=panther-user&signed"
+
+readonly ota_url="https://dl.google.com/dl/android/aosp/panther-ota-ap2a.240905.003-7319d2fd.zip"
+readonly ota_sha256="7319d2fdccc80f0477cc0de8804e710988d986332bf69704545722ddf8da6367"
+
+readonly security_patch="2024-09-05"

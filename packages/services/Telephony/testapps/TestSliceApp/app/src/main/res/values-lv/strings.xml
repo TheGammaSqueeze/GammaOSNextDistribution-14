@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="1265450418387661962">"TestSliceApp"</string>
+    <string name="hello_blank_fragment" msgid="1245093642770491175">"Hello blank fragment"</string>
+    <string name="request_network" msgid="8945235490804849914">"Pieprasīt tīklu"</string>
+    <string name="release_network" msgid="174252378593535238">"Atbrīvot tīklu"</string>
+    <string name="ping" msgid="7890607576220714932">"Ehotestēt"</string>
+    <string name="result_prefix" msgid="3522796186427501399">"Rezultāts:"</string>
+    <string name="latency_title" msgid="963052613947017009">"Prioritāte latentumam"</string>
+    <string name="bw_title" msgid="3902162973688221344">"Prioritāte joslas platumam"</string>
+    <string name="cbs_title" msgid="5234410535569935600">"CBS"</string>
+    <string name="purchase" msgid="7843181995697372128">"Iegādāties tīkla maksas abonementu"</string>
+    <string name="network_available" msgid="4780293262690730734">"Rezultāts: pieprasītais tīkls tagad ir pieejams."</string>
+    <string name="network_requested" msgid="5646123922691865991">"Rezultāts: tīkls ir pieprasīts."</string>
+    <string name="network_released" msgid="2992280481133877025">"Rezultāts: tīkls ir atbrīvots."</string>
+    <string name="network_release_failed" msgid="256471231420029151">"Rezultāts: neizdevās atbrīvot tīklu."</string>
+    <string name="purchase_exception" msgid="8876841120055716671">"Rezultāts: iegādājoties tīkla maksas abonementu, radās izņēmums."</string>
+    <string name="purchase_empty_result" msgid="7497824191649973928">"Rezultāts: iegādājoties tīkla maksas abonementu, tika iegūts tukšs rezultāts."</string>
+    <string name="premium_not_available" msgid="7346368693802644748">"Rezultāts: tīkla maksas abonementu nevar iegādāties."</string>
+    <string name="purchase_in_progress" msgid="5450288183685032424">"Rezultāts: notiek tīkla maksas abonementa iegāde…"</string>
+</resources>

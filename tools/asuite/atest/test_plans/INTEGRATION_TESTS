@@ -1,0 +1,115 @@
+# TODO (b/121362882): Add deviceless tests when dry-run is ready.
+###[Test Finder: MODULE, Test Runner:AtestTradefedTestRunner]###
+###Purpose: Test with finder: MODULE and runner: AtestTradefedTestRunner###
+HelloWorldTests
+hello_world_test
+
+
+###[Test Finder: MODULE_FILE_PATH, Test Runner:AtestTradefedTestRunner]###
+###Purpose: Test with finder: MODULE_FILE_PATH and runner: AtestTradefedTestRunner###
+# frameworks/base/services/tests/servicestests/src/com/android/server/wm/ScreenDecorWindowTests.java#testFlagChange
+# packages/apps/Bluetooth/tests/unit/Android.mk
+platform_testing/tests/example/native
+# platform_testing/tests/example/native/
+platform_testing/tests/example/native/Android.bp
+
+
+###[Test Finder: INTEGRATION_FILE_PATH, Test Runner:AtestTradefedTestRunner]###
+###Purpose: Test with finder: INTEGRATION_FILE_PATH and runner: AtestTradefedTestRunner###
+tools/tradefederation/core/res/config/native-benchmark.xml
+
+
+###[Test Finder: MODULE_CLASS, Test Runner:AtestTradefedTestRunner]###
+###Purpose: Test with finder: MODULE_CLASS and runner: AtestTradefedTestRunner###
+CtsAnimationTestCases:AnimatorTest
+CtsSampleDeviceTestCases:SampleDeviceTest#testSharedPreferences
+CtsSampleDeviceTestCases:android.sample.cts.SampleDeviceReportLogTest
+pts-bot:PAN/GN/MISC/UUID/BV-01-C
+
+
+###[Test Finder: QUALIFIED_CLASS, Test Runner:AtestTradefedTestRunner]###
+###Purpose: Test with finder: QUALIFIED_CLASS and runner: AtestTradefedTestRunner###
+# .java class
+android.sample.cts.SampleDeviceReportLogTest
+android.sample.cts.SampleDeviceTest#testSharedPreferences
+# .kt class
+android.security.cts.PermissionMemoryFootprintTest
+android.security.cts.PermissionMemoryFootprintTest#checkAppsCantIncreasePermissionSizeAfterCreating
+
+
+###[Test Finder: MODULE_PACKAGE, Test Runner:AtestTradefedTestRunner]###
+###Purpose: Test with finder: MODULE_PACKAGE and runner: AtestTradefedTestRunner###
+CtsSampleDeviceTestCases:android.sample.cts
+
+
+###[Test Finder: PACKAGE, Test Runner:AtestTradefedTestRunner]###
+###Purpose: Test with finder: PACKAGE and runner: AtestTradefedTestRunner###
+android.animation.cts
+
+
+###[Test Finder: CLASS, Test Runner:AtestTradefedTestRunner]###
+###Purpose: Test with finder: CLASS and runner: AtestTradefedTestRunner###
+AnimatorTest
+
+
+###[Test Finder: CC_CLASS, Test Runner:AtestTradefedTestRunner]###
+###Purpose: Test with finder: CC_CLASS and runner: AtestTradefedTestRunner###
+TeeUIUtilsTest
+TeeUIUtilsTest#intersectTest,ConvexObjectConstruction,ConvexObjectLineIntersection
+
+###[Test Finder: INTEGRATION, Test Runner:AtestTradefedTestRunner]###
+###Purpose: Test with finder: INTEGRATION and runner: AtestTradefedTestRunner###
+native-benchmark
+
+
+###[Test Finder: MODULE, Test Runner: VtsTradefedTestRunner]####
+###Purpose: Test with finder: MODULE and runner: VtsTradefedTestRunner###
+# Mark VtsCodelabHelloWorldTest due to vts10 no longer exist.
+#VtsCodelabHelloWorldTest
+
+
+###[Test Finder: MODULE, Test Runner: RobolectricTestRunner]#####
+###Purpose: Test with finder: MODULE and runner: RobolectricTestRunner###
+QuickAccessWalletRoboTests
+###Purpose: Test with input path for RobolectricTest###
+# TODO (b/302998963): Mark this test first due to there's multiple choice to run this class.
+# packages/apps/QuickAccessWallet/tests/robolectric/src/com/android/systemui/plugin/globalactions/wallet/WalletPluginServiceTest.java
+
+###[Test Finder: SUITE_PLAN, Test Runner: SuitePlanTestRunner]###
+###Purpose: Test with finder: SUITE_PLAN and runner: SuitePlanTestRunner###
+# cts-common
+
+
+###[Test Finder: SUITE_PLAN_FILE_PATH, Test Runner: SuitePlanTestRunner]###
+###Purpose: Test with finder: SUITE_PLAN_FILE_PATH and runner: SuitePlanTestRunner###
+# test/suite_harness/tools/cts-tradefed/res/config/cts.xml
+
+
+###[MULTIPLE-TESTS + AtestTradefedTestRunner]###
+###Purpose: Test with mixed testcases###
+CtsSampleDeviceTestCases CtsAnimationTestCases
+
+
+###[Paramatize GTest + AtestTradefedTestRunner]###
+###Purpose: Test with Paramatize GTest testcases###
+# Mark this due to multiple selection not support in integration test.
+# PerInstance/CameraHidlTest.startStopPreview/0_internal_0
+VtsHalCameraProviderV2_4TargetTest:PerInstance/CameraHidlTest#configureInjectionStreamsAvailableOutputs/0_internal_0
+PerInstance/CameraHidlTest#configureInjectionStreamsAvailableOutputs/0_internal_0
+
+###[Paramatize Java Test + AtestTradefedTestRunner]###
+###Purpose: Test with Paramatize Java testcases###
+CtsSecurityTestCases:android.security.cts.ActivityManagerTest#testActivityManager_registerUidChangeObserver_allPermission
+cts/tests/tests/security/src/android/security/cts/ActivityManagerTest.java#testActivityManager_registerUidChangeObserver_allPermission
+cts/tests/tests/security/src/android/security/cts/PermissionMemoryFootprintTest.kt#checkAppsCantIncreasePermissionSizeAfterCreating
+
+### Java Test ###
+####Purpose: Find the test method by traversing parent classes###
+MixedManagedProfileOwnerTest#testPasswordSufficientInitially
+
+###[Option verify]###
+--help
+
+###[Multi-device]###
+###Purpose: Test with case(s) of multiple devices in test config###
+CtsWifiAwareTestCases

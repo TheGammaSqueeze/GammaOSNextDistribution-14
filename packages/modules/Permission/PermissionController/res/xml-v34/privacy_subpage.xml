@@ -1,0 +1,67 @@
+<!--
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <com.android.permissioncontroller.safetycenter.ui.SafetyBrandChipPreference
+        android:key="subpage_brand_chip"
+        app:selectable="false"/>
+
+    <com.android.permissioncontroller.safetycenter.ui.ComparablePreferenceCategory
+        android:key="subpage_issue_group"
+        android:layout="@layout/preference_category_no_label"
+        app:selectable="false" />
+
+    <com.android.permissioncontroller.safetycenter.ui.ComparablePreferenceCategory
+        android:key="subpage_generic_entry_group"
+        app:selectable="false" />
+
+    <com.android.permissioncontroller.safetycenter.ui.ComparablePreferenceCategory
+        android:key="subpage_controls_entry_group"
+        android:title="@string/privacy_subpage_controls_header"
+        app:selectable="false">
+        <com.android.permissioncontroller.safetycenter.ui.ClickableDisabledSwitchPreference
+            android:key="privacy_camera_toggle"
+            android:title="@string/camera_toggle_title"
+            android:summary="@string/perm_toggle_description" />
+
+        <com.android.permissioncontroller.safetycenter.ui.ClickableDisabledSwitchPreference
+            android:key="privacy_mic_toggle"
+            android:title="@string/mic_toggle_title"
+            android:summary="@string/mic_toggle_description"/>
+
+        <com.android.permissioncontroller.safetycenter.ui.ClickableDisabledSwitchPreference
+            android:key="show_clip_access_notification"
+            android:title="@string/show_clip_access_notification_title"
+            android:summary="@string/show_clip_access_notification_summary" />
+
+        <com.android.permissioncontroller.safetycenter.ui.ClickableDisabledSwitchPreference
+            android:key="show_password"
+            android:title="@string/show_password_title"
+            android:summary="@string/show_password_summary"/>
+
+        <Preference
+            android:key="privacy_location_access"
+            android:title="@string/location_settings"
+          android:summary="@string/location_settings_subtitle"/>
+
+        <com.android.permissioncontroller.safetycenter.ui.ComparablePreferenceCategory
+            android:key="subpage_controls_extra_entry_group"
+            android:layout="@layout/preference_category_no_label"
+            app:selectable="false" />
+    </com.android.permissioncontroller.safetycenter.ui.ComparablePreferenceCategory>
+</PreferenceScreen>

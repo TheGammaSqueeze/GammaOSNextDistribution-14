@@ -1,0 +1,32 @@
+<application>
+  <component name="ProjectJdkTable">
+    <jdk version="2">
+      <name value="Android API 28 Platform" />
+      <type value="Android SDK" />
+      <version value="java version &quot;17.0.4&quot;" />
+      <homePath value="/path/to/Android/Sdk" />
+      <roots>
+        <annotationsPath>
+          <root type="composite" >
+            <root url="jar:///path/to/Android/Sdk/platforms/android-28/data/annotations.zip!/" type="simple" />
+          </root>
+        </annotationsPath>
+        <classPath>
+          <root type="composite">
+            <root url="jar:///path/to/Android/Sdk/platforms/android-28/android.jar!/" type="simple" />
+            <root url="file:///path/to/Android/Sdk/platforms/android-28/data/res" type="simple" />
+          </root>
+        </classPath>
+        <javadocPath>
+          <root type="composite" >
+            <root url="http://developer.android.com/reference/" type="simple" />
+          </root>
+        </javadocPath>
+        <sourcePath>
+          <root type="composite" />
+        </sourcePath>
+      </roots>
+      <additional jdk="JDK17" sdk="android-28" />
+    </jdk>
+  </component>
+</application>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    Copyright (C) 2021 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="brand_screen_header" msgid="4382251935798018352">"Este vehículo pertenece a la organización"</string>
+    <string name="contact_device_provider" msgid="338577979231875837">"Para obtener más información, ponte en contacto con <xliff:g id="IT_ADMIN">%1$s</xliff:g>."</string>
+    <string name="organization_admin" msgid="6551608903069550652">"administrador de la organización"</string>
+    <string name="if_questions_contact_admin" msgid="4645510019575736238">"Si tienes alguna duda, ponte en contacto con el administrador de la organización"</string>
+    <string name="admin_has_ability_to_monitor_device" msgid="3132155961508293345">"El administrador de la organización puede supervisar y gestionar los ajustes, el acceso corporativo, las aplicaciones, los permisos y los datos asociados a este vehículo, incluida su actividad de red, así como su ubicación.<xliff:g id="LINE_BREAK">
+
+</xliff:g>Ponte en contacto con el administrador de la organización para obtener más información y consultar las políticas de privacidad de la organización."</string>
+    <string name="contact_your_admin_for_more_info" msgid="1419852317652804536">"Ponte en contacto con el administrador de la organización para obtener más información y consultar las políticas de privacidad de la organización."</string>
+    <string name="managed_device_info" msgid="2134697391634083944">"Este es un vehículo gestionado"</string>
+    <string name="contact_your_admin_for_help" msgid="1741496631607502730">"Ponte en contacto con el administrador de la organización para obtener ayuda"</string>
+    <string name="fully_managed_device_provisioning_accept_header" msgid="8767138982035307813">"Configurar el vehículo gestionado"</string>
+    <string name="fully_managed_device_provisioning_step_1_header" msgid="8704166635032524345">"Acceder a las aplicaciones de tu organización"</string>
+    <string name="fully_managed_device_provisioning_step_1_description" msgid="5960961281295355254">"Configurando sistema de infoentretenimiento..."</string>
+    <string name="fully_managed_device_provisioning_step_2_header" msgid="5888602026900289468">"Los datos del sistema de infoentretenimiento no son privados"</string>
+    <string name="fully_managed_device_provisioning_step_2_subheader_title" msgid="1421575203782743214">"Tu actividad y tus datos"</string>
+    <string name="fully_managed_device_provisioning_step_2_subheader" msgid="4881961368653838979">"El administrador de la organización puede ver tu actividad y los datos que hay en este vehículo."</string>
+    <string name="fully_managed_device_provisioning_permissions_secondary_subheader" msgid="8955791361423166123">"El administrador de la organización puede configurar los permisos de las aplicaciones de este vehículo, como los permisos del micrófono y de la ubicación."</string>
+    <string name="fully_managed_device_with_permission_control_provisioning_summary" msgid="2503568673345133100">"Usa el sistema de infoentretenimiento de este vehículo para acceder fácilmente a las aplicaciones de trabajo. Este vehículo no es privado, por lo que el administrador de la organización puede ver tu actividad y tus datos. El administrador de la organización también puede configurar los permisos de las aplicaciones de este vehículo, como los permisos del micrófono y la ubicación."</string>
+    <string name="fully_managed_device_provisioning_summary" msgid="4323948058344613817">"Usa el sistema de infoentretenimiento de este vehículo para acceder fácilmente a las aplicaciones de trabajo. Este vehículo no es privado, por lo que el administrador de la organización puede ver tus datos y tu actividad."</string>
+    <string name="fully_managed_device_provisioning_progress_label" msgid="988594700479673633">"Configurando vehículo gestionado"</string>
+    <string name="fully_managed_device_provisioning_return_device_title" msgid="1578111657911434819">"Cancelar la configuración y devolver el vehículo"</string>
+    <string name="fully_managed_device_provisioning_return_device_subheader" msgid="5809488930429106172">"Reinicia y devuelve este vehículo al organizador de la organización, o vuelve a la pantalla anterior para continuar con la configuración."</string>
+    <string name="fully_managed_device_cancel_setup_button" msgid="4113790677940440998">"Cancelar configuración"</string>
+    <string name="fully_managed_device_reset_and_return_button" msgid="4951274590516561428">"Restablecer y devolver"</string>
+    <string name="fully_managed_device_provisioning_privacy_title" msgid="4789425994893472324">"Aviso de privacidad"</string>
+    <string name="fully_managed_device_provisioning_privacy_body" msgid="5549745709511179391">"El administrador de la organización puede ver tus datos y actividad en este vehículo."</string>
+</resources>

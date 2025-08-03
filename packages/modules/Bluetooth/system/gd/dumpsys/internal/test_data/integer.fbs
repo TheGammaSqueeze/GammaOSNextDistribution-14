@@ -1,0 +1,7 @@
+namespace testing;
+
+table TestTableInteger {
+    test_int:int;
+}
+
+root_type TestTableInteger;

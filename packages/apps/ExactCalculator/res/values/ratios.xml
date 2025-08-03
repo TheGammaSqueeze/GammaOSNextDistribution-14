@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2023 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <!-- layout_display_ratio + layout_pads_ratio = 1 -->
+    <item type="dimen" format="float" name="layout_display_ratio">0.3</item>
+    <!-- layout_pads_ratio = layout_advanced_pad_ratio + layout_input_pad_ratio -->
+    <item type="dimen" format="float" name="layout_pads_ratio">0.7</item>
+    <item type="dimen" format="float" name="layout_advanced_pad_ratio">0.2</item>
+    <item type="dimen" format="float" name="layout_input_pad_ratio">0.5</item>
+</resources>

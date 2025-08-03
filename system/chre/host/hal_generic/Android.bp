@@ -1,0 +1,98 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+soong_namespace {
+}
+
+package {
+    default_team: "trendy_team_context_hub",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_chre_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_chre_license"],
+}
+
+cc_binary {
+    name: "android.hardware.contexthub-service.generic",
+    defaults: ["chre_aidl_hal_generic_defaults"],
+    vendor: true,
+    relative_install_path: "hw",
+    srcs: [
+        ":hal_aidl_generic_srcs",
+        "aidl/service.cc",
+    ],
+    init_rc: ["aidl/android.hardware.contexthub-service.generic.rc"],
+    vintf_fragments: ["aidl/android.hardware.contexthub-service.generic.xml"],
+    visibility: ["//visibility:public"],
+}
+
+filegroup {
+    name: "hal_aidl_generic_srcs",
+    srcs: [
+        "aidl/generic_context_hub_aidl.cc",
+        "common/hal_chre_socket_connection.cc",
+        "common/permissions_util.cc",
+    ],
+}
+
+cc_defaults {
+    name: "chre_aidl_hal_generic_defaults",
+    vendor: true,
+    include_dirs: [
+        "system/chre/host/hal_generic/common/",
+        "system/chre/util/include",
+    ],
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-DCHRE_MESSAGE_TO_HOST_MAX_SIZE=4000", // Needed to import CHRE APIs.
+        "-DCHRE_HAL_SOCKET_METRICS_ENABLED",
+        "-DCHRE_IS_HOST_BUILD",
+    ],
+    header_libs: [
+        "chre_api",
+    ],
+    shared_libs: [
+        "android.frameworks.stats-V2-ndk",
+        "libcutils",
+        "libjsoncpp",
+        "liblog",
+        "libprotobuf-cpp-lite",
+        "libutils",
+        "libbase",
+        "libbinder_ndk",
+        "android.hardware.contexthub-V3-ndk",
+        "chremetrics-cpp",
+        "chre_atoms_log",
+        "chre_metrics_reporter",
+        "server_configurable_flags",
+    ],
+    static_libs: [
+        "chre_client",
+        "chre_config_util",
+        "event_logger",
+        "chre_flags_c_lib",
+    ],
+}
+
+cc_library_headers {
+    name: "chre_aidl_hal_generic",
+    vendor: true,
+    export_include_dirs: [
+        "aidl",
+    ],
+}

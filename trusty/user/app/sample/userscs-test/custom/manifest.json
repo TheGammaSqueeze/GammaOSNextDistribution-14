@@ -1,0 +1,7 @@
+{
+    "uuid": "b4573bd7-44d7-4c58-aefd-abd7daf9a329",
+    "app_name": "userscs-custom",
+    "min_heap": 4096,
+    "min_stack": 4096,
+    "min_shadow_stack": 128
+}

@@ -1,0 +1,10 @@
+{
+    "header": "scs_test_app_consts.h",
+    "constants":[
+        {
+            "name": "PORT_NAME",
+            "value": "com.android.trusty.userscs.test.disabled",
+            "type": "port"
+        }
+    ]
+}

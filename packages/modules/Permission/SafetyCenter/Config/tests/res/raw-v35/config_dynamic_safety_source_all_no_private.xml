@@ -1,0 +1,17 @@
+<safety-center-config>
+    <safety-sources-config>
+        <safety-sources-group
+            id="id"
+            title="@com.android.safetycenter.config.tests:string/reference"
+            summary="@com.android.safetycenter.config.tests:string/reference">
+            <dynamic-safety-source
+                id="id"
+                packageName="package"
+                title="@com.android.safetycenter.config.tests:string/reference"
+                titleForWork="@com.android.safetycenter.config.tests:string/reference"
+                summary="@com.android.safetycenter.config.tests:string/reference"
+                intentAction="intent"
+                profile="all_profiles"/>
+        </safety-sources-group>
+    </safety-sources-config>
+</safety-center-config>

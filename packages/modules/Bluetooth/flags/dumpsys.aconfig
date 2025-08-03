@@ -1,0 +1,9 @@
+package: "com.android.bluetooth.flags"
+container: "com.android.btservices"
+
+flag {
+    name: "dumpsys_use_passed_in_fd"
+    namespace: "bluetooth"
+    description: "Use the passed in filedescriptor to write dumpsys output"
+    bug: "319277798"
+}

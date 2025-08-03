@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="scanning_title" msgid="5424849039854311398">"Explorando"</string>
+    <string name="loading_summary" msgid="3740846439782713910">"Verificando la configuración del dispositivo…"</string>
+    <string name="overall_severity_level_ok_title" msgid="2041250138727564565">"Todo en orden"</string>
+    <string name="overall_severity_level_ok_summary" msgid="383626536912856690">"No se encontraron problemas"</string>
+    <string name="overall_severity_level_tip_summary" msgid="1935765582243024999">"{count,plural, =1{Ver recomendación}many{Ver recomendaciones}other{Ver recomendaciones}}"</string>
+    <string name="overall_severity_level_action_taken_summary" msgid="8064091657855656545">"{count,plural, =1{Se tomó una medida}many{Se tomaron medidas}other{Se tomaron medidas}}"</string>
+    <string name="overall_severity_level_ok_review_title" msgid="1494321117696765360">"Revisa la configuración"</string>
+    <string name="overall_severity_level_ok_review_summary" msgid="7743619617413076275">"Verifica la lista de configuración"</string>
+    <string name="overall_severity_level_device_recommendation_title" msgid="5250040236433061827">"El dispositivo podría estar en riesgo"</string>
+    <string name="overall_severity_level_critical_device_warning_title" msgid="5901771721834272596">"El dispositivo está en riesgo"</string>
+    <string name="overall_severity_level_data_recommendation_title" msgid="1424269714861655302">"Tus datos podrían estar en riesgo"</string>
+    <string name="overall_severity_level_critical_data_warning_title" msgid="1012704126634698604">"Tus datos están en riesgo"</string>
+    <string name="overall_severity_level_passwords_recommendation_title" msgid="8625105570296877719">"Contraseñas comprometidas (viejas)"</string>
+    <string name="overall_severity_level_critical_passwords_warning_title" msgid="7859047988648851217">"Contraseñas comprometidas (nuevas)"</string>
+    <string name="overall_severity_level_personal_recommendation_title" msgid="5493814377982623779">"Es posible que estés en peligro"</string>
+    <string name="overall_severity_level_critical_personal_warning_title" msgid="5070434468955164734">"Estás en peligro"</string>
+    <string name="overall_severity_level_safety_recommendation_title" msgid="4291797434760242793">"Se detectaron riesgos potenciales"</string>
+    <string name="overall_severity_level_critical_safety_warning_title" msgid="6666640109779586868">"Se detectaron riesgos"</string>
+    <string name="overall_severity_level_account_recommendation_title" msgid="2267542168734275090">"La cuenta podría estar en riesgo"</string>
+    <string name="overall_severity_level_critical_account_warning_title" msgid="1913235490583842004">"La cuenta está en riesgo"</string>
+    <string name="overall_severity_n_alerts_summary" msgid="3262010942295408403">"{count,plural, =1{Ver alerta}many{Ver alertas}other{Ver alertas}}"</string>
+    <string name="redirecting_error" msgid="8146983632878233202">"No se pudo abrir la página"</string>
+    <string name="resolving_action_error" msgid="371968886143262375">"No se pudo resolver la alerta"</string>
+    <string name="refresh_error" msgid="656062128422446177">"{count,plural, =1{No se pudo revisar el parámetro de configuración}many{No se pudieron revisar los parámetros de configuración}other{No se pudieron revisar los parámetros de configuración}}"</string>
+    <string name="work_profile_paused" msgid="7037400224040869079">"El perfil de trabajo está en pausa"</string>
+    <string name="group_unknown_summary" msgid="6951386960814105641">"Aún no hay información"</string>
+    <string name="notification_channel_group_name" msgid="7155072032524876859">"Seguridad y privacidad"</string>
+    <string name="notification_channel_name_information" msgid="2966444432152990166">"Recomendaciones"</string>
+    <string name="notification_channel_name_recommendation" msgid="7847408286580217922">"Advertencias"</string>
+    <string name="notification_channel_name_critical_warning" msgid="5994320322108351769">"Advertencias críticas"</string>
+</resources>

@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="2326164424236203271">"Bluetooth"</string>
+    <string name="permlab_bluetoothShareManager" msgid="5297865456717871041">"Qasu në menaxherin e shkarkimit."</string>
+    <string name="permdesc_bluetoothShareManager" msgid="1588034776955941477">"Lejon aplikacionin të ketë qasje në menaxherin \"Shpërndarje përmes bluetooth-it\" (BluetoothShare) dhe ta përdorë për transferim skedarësh."</string>
+    <string name="permlab_bluetoothAcceptlist" msgid="5785922051395856524">"Autorizimi në listën e pranimit të pajisjes me Bluetooth."</string>
+    <string name="permdesc_bluetoothAcceptlist" msgid="259308920158011885">"Lejon aplikacionin të vërë përkohësisht në listën e miratimeve një pajisje me Bluetooth, duke i lejuar asaj t\'i dërgojë skedarë kësaj pajisjeje pa konfirmimin e përdoruesit."</string>
+    <string name="bt_share_picker_label" msgid="7464438494743777696">"Bluetooth"</string>
+    <string name="unknown_device" msgid="2317679521750821654">"Pajisje e panjohur"</string>
+    <string name="unknownNumber" msgid="1245183329830158661">"I panjohur"</string>
+    <string name="not_provided" msgid="6938740494380012614">"Nuk ofrohet"</string>
+    <string name="airplane_error_title" msgid="2570111716678850860">"Modaliteti \"në aeroplan\""</string>
+    <string name="airplane_error_msg" msgid="4853111123699559578">"Nuk mund të përdorësh bluetooth në modalitetin \"në aeroplan\"."</string>
+    <string name="bt_enable_title" msgid="4484289159118416315"></string>
+    <string name="bt_enable_line1" msgid="8429910585843481489">"Për të përdorur shërbimet e bluetooth-it, së pari duhet ta aktivizosh atë."</string>
+    <string name="bt_enable_line2" msgid="1466367120348920892">"Të aktivizohet bluetooth-i tani?"</string>
+    <string name="bt_enable_cancel" msgid="6770180540581977614">"Anulo"</string>
+    <string name="bt_enable_ok" msgid="4224374055813566166">"Aktivizo"</string>
+    <string name="incoming_file_confirm_title" msgid="938251186275547290">"Transferimi i skedarit"</string>
+    <string name="incoming_file_confirm_content" msgid="6573502088511901157">"Të pranohet skedari?"</string>
+    <string name="incoming_file_confirm_cancel" msgid="9205906062663982692">"Refuzo"</string>
+    <string name="incoming_file_confirm_ok" msgid="5046926299036238623">"Prano"</string>
+    <string name="incoming_file_confirm_timeout_ok" msgid="8612187577686515660">"Në rregull"</string>
+    <string name="incoming_file_confirm_timeout_content" msgid="3221412098281076974">"Përfundoi koha e veprimit për pranimin e skedarit hyrës nga \"<xliff:g id="SENDER">%1$s</xliff:g>\""</string>
+    <string name="incoming_file_confirm_Notification_title" msgid="5381395500920804895">"Skedari në ardhje"</string>
+    <string name="incoming_file_confirm_Notification_content" msgid="2669135531488877921">"<xliff:g id="SENDER">%1$s</xliff:g> është gati të dërgojë një skedar: <xliff:g id="FILE">%2$s</xliff:g>"</string>
+    <string name="notification_receiving" msgid="8445265771083510696">"Ndarja përmes bluetooth-it: Po merret skedari <xliff:g id="FILE">%1$s</xliff:g>"</string>
+    <string name="notification_received" msgid="2330252358543000567">"Ndarja përmes bluetooth-it: U pranua skedari <xliff:g id="FILE">%1$s</xliff:g>"</string>
+    <string name="notification_received_fail" msgid="9059153354809379374">"Ndarja përmes bluetooth-it: Skedari <xliff:g id="FILE">%1$s</xliff:g> nuk u pranua"</string>
+    <string name="notification_sending" msgid="8269912843286868700">"Ndarja përmes bluetooth-it: Po dërgohet skedari <xliff:g id="FILE">%1$s</xliff:g>"</string>
+    <string name="notification_sent" msgid="2685202778935769332">"Ndarja përmes Bluetooth-it: Skedari <xliff:g id="FILE">%1$s</xliff:g> u dërgua"</string>
+    <string name="notification_sent_complete" msgid="6293391081175517098">"100% i përfunduar"</string>
+    <string name="notification_sent_fail" msgid="7449832660578001579">"Ndarja përmes Bluetooth-it: Skedari <xliff:g id="FILE">%1$s</xliff:g> nuk u dërgua"</string>
+    <string name="download_title" msgid="6449408649671518102">"Transferimi i skedarit"</string>
+    <string name="download_line1" msgid="6449220145685308846">"Nga: \"<xliff:g id="SENDER">%1$s</xliff:g>\""</string>
+    <string name="download_line2" msgid="7634316500490825390">"Skedari: <xliff:g id="FILE">%1$s</xliff:g>"</string>
+    <string name="download_line3" msgid="6722284930665532816">"Madhësia e skedarit: <xliff:g id="SIZE">%1$s</xliff:g>"</string>
+    <string name="download_line4" msgid="5234701398884321314"></string>
+    <string name="download_line5" msgid="4124272066218470715">"Po merr skedarin…"</string>
+    <string name="download_cancel" msgid="1705762428762702342">"Ndalo"</string>
+    <string name="download_ok" msgid="2404442707314575833">"Fshih"</string>
+    <string name="incoming_line1" msgid="6342300988329482408">"Nga"</string>
+    <string name="incoming_line2" msgid="2199520895444457585">"Emri i skedarit:"</string>
+    <string name="incoming_line3" msgid="8630078246326525633">"Madhësia"</string>
+    <string name="download_fail_line1" msgid="3149552664349685007">"Skedari nuk u mor"</string>
+    <string name="download_fail_line2" msgid="4289018531070750414">"Skedari: <xliff:g id="FILE">%1$s</xliff:g>"</string>
+    <string name="download_fail_line3" msgid="2214989413171231684">"Arsyeja: <xliff:g id="REASON">%1$s</xliff:g>"</string>
+    <string name="download_fail_ok" msgid="3272322648250767032">"Në rregull"</string>
+    <string name="download_succ_line5" msgid="1720346308221503270">"Skedari u mor"</string>
+    <string name="download_succ_ok" msgid="7488662808922799824">"Hap"</string>
+    <string name="upload_line1" msgid="1912803923255989287">"Për: \"<xliff:g id="RECIPIENT">%1$s</xliff:g>\""</string>
+    <string name="upload_line3" msgid="5964902647036741603">"Lloji i skedarit: <xliff:g id="TYPE">%1$s</xliff:g> (<xliff:g id="SIZE">%2$s</xliff:g>)"</string>
+    <string name="upload_line5" msgid="3477751464103201364">"Po dërgon skedarin…"</string>
+    <string name="upload_succ_line5" msgid="165979135931118211">"Skedari u dërgua"</string>
+    <string name="upload_succ_ok" msgid="6797291708604959167">"Në rregull"</string>
+    <string name="upload_fail_line1" msgid="7044307783071776426">"Skedari nuk u dërgua te \"<xliff:g id="RECIPIENT">%1$s</xliff:g>\"."</string>
+    <string name="upload_fail_line1_2" msgid="6102642590057711459">"Skedari: <xliff:g id="FILE">%1$s</xliff:g>"</string>
+    <string name="upload_fail_cancel" msgid="1632528037932779727">"Mbyll"</string>
+    <string name="bt_error_btn_ok" msgid="2802751202009957372">"Në rregull"</string>
+    <string name="unknown_file" msgid="3719981572107052685">"Skedar i panjohur"</string>
+    <string name="unknown_file_desc" msgid="9185609398960437760">"Nuk ka aplikacion për të trajtuar këtë lloj skedari. \n"</string>
+    <string name="not_exist_file" msgid="5097565588949092486">"Nuk ka skedar"</string>
+    <string name="not_exist_file_desc" msgid="250802392160941265">"Skedari nuk ekziston. \n"</string>
+    <string name="enabling_progress_title" msgid="5262637688863903594">"Qëndro në pritje..."</string>
+    <string name="enabling_progress_content" msgid="685427201206684584">"Po aktivizon bluetooth-in…"</string>
+    <string name="bt_toast_1" msgid="8791691594887576215">"Skedari do të pranohet. Kontrollo ecurinë në panelin \"Njoftimet\"."</string>
+    <string name="bt_toast_2" msgid="2041575937953174042">"Ky skedar nuk mund të pranohet."</string>
+    <string name="bt_toast_3" msgid="3053157171297761920">"Ndaloi marrjen e skedarit nga \"<xliff:g id="SENDER">%1$s</xliff:g>\""</string>
+    <string name="bt_toast_4" msgid="480365991944956695">"Po e dërgon skedarin te \"<xliff:g id="RECIPIENT">%1$s</xliff:g>\""</string>
+    <string name="bt_toast_5" msgid="4818264207982268297">"Po dërgon <xliff:g id="NUMBER">%1$s</xliff:g> skedarë te \"<xliff:g id="RECIPIENT">%2$s</xliff:g>\""</string>
+    <string name="bt_toast_6" msgid="8814166471030694787">"Ndaloi dërgimin e skedarit te \"<xliff:g id="RECIPIENT">%1$s</xliff:g>\""</string>
+    <string name="bt_sm_2_1_nosdcard" msgid="288667514869424273">"Nuk ka hapësirë të mjaftueshme në USB për të ruajtur skedarin."</string>
+    <string name="bt_sm_2_1_default" msgid="5070195264206471656">"Nuk ka hapësirë të mjaftueshme në kartën SD për ta ruajtur skedarin."</string>
+    <string name="bt_sm_2_2" msgid="6200119660562110560">"Hapësira e nevojshme: <xliff:g id="SIZE">%1$s</xliff:g>"</string>
+    <string name="ErrorTooManyRequests" msgid="5049670841391761475">"Po përpunohen shumë kërkesa. Provo sërish më vonë."</string>
+    <string name="status_pending" msgid="4781040740237733479">"Transferimi i skedarit nuk ka filluar ende."</string>
+    <string name="status_running" msgid="7419075903776657351">"Transferimi i skedarit është duke u kryer."</string>
+    <string name="status_success" msgid="7963589000098719541">"Transferimi i skedarit përfundoi me sukses."</string>
+    <string name="status_not_accept" msgid="1165798802740579658">"Përmbajtja nuk mbështetet"</string>
+    <string name="status_forbidden" msgid="4017060451358837245">"Transferimi ndalohet nga pajisja pritëse."</string>
+    <string name="status_canceled" msgid="8441679418717978515">"Transferimi u anulua nga përdoruesi."</string>
+    <string name="status_file_error" msgid="5379018888714679311">"Problem me hapësirën ruajtëse."</string>
+    <string name="status_no_sd_card_nosdcard" msgid="6445646484924125975">"Nuk ka hapësirë ruajtëse USB."</string>
+    <string name="status_no_sd_card_default" msgid="8878262565692541241">"Nuk ka kartë SD. Vendos një kartë SD për të ruajtur skedarët e transferuar."</string>
+    <string name="status_connection_error" msgid="8253709700568062220">"Lidhja ishte e pasuksesshme."</string>
+    <string name="status_protocol_error" msgid="3231573735130475654">"Kërkesa nuk mund të trajtohet si duhet."</string>
+    <string name="status_unknown_error" msgid="314676481744304866">"Gabim i panjohur."</string>
+    <string name="opp_notification_group" msgid="150067508422520653">"Ndarja përmes \"Bluetooth-it\""</string>
+    <string name="download_success" msgid="3438268368708549686">"<xliff:g id="FILE_SIZE">%1$s</xliff:g> - Marrja përfundoi."</string>
+    <string name="upload_success" msgid="143787470859042049">"<xliff:g id="FILE_SIZE">%1$s</xliff:g> Dërgimi përfundoi."</string>
+    <string name="inbound_history_title" msgid="189623888169624862">"Transferimet hyrëse"</string>
+    <string name="outbound_history_title" msgid="7614166584551065036">"Transferimet dalëse"</string>
+    <string name="no_transfers" msgid="740521199933899821">"Historiku i transferimeve është bosh."</string>
+    <string name="transfer_clear_dlg_msg" msgid="586117930961007311">"Të gjithë artikujt do të pastrohen nga lista."</string>
+    <string name="outbound_noti_title" msgid="2045560896819618979">"Ndarja përmes Bluetooth-it: Skedarët e dërguar"</string>
+    <string name="inbound_noti_title" msgid="3730993443609581977">"Ndarja përmes bluetooth-it: Skedarët e pranuar"</string>
+    <string name="noti_caption_unsuccessful" msgid="6679288016450410835">"{count,plural, =1{# nuk u nda me sukses.}other{# nuk u ndanë me sukses.}}"</string>
+    <string name="noti_caption_success" msgid="7652777514009569713">"{count,plural, =1{# u nda me sukses, %1$s}other{# u ndanë me sukses, %1$s}}"</string>
+    <string name="transfer_menu_clear_all" msgid="3014459758656427076">"Pastro listën"</string>
+    <string name="transfer_menu_open" msgid="5193344638774400131">"Hap"</string>
+    <string name="transfer_menu_clear" msgid="7213491281898188730">"Pastro nga lista"</string>
+    <string name="transfer_clear_dlg_title" msgid="128904516163257225">"Pastro"</string>
+    <string name="bluetooth_a2dp_sink_queue_name" msgid="7521243473328258997">"Po luhet tani"</string>
+    <string name="bluetooth_map_settings_save" msgid="8309113239113961550">"Ruaj"</string>
+    <string name="bluetooth_map_settings_cancel" msgid="3374494364625947793">"Anulo"</string>
+    <string name="bluetooth_map_settings_intro" msgid="4748160773998753325">"Zgjidh llogaritë që dëshiron të ndash me Bluetooth. Duhet të pranosh përsëri çdo qasje te llogaritë kur të lidhesh."</string>
+    <string name="bluetooth_map_settings_count" msgid="183013143617807702">"Fole të mbetura:"</string>
+    <string name="bluetooth_map_settings_app_icon" msgid="3501432663809664982">"Ikona e aplikacionit"</string>
+    <string name="bluetooth_map_settings_title" msgid="4226030082708590023">"Cilësimet e ndarjes së mesazheve me Bluetooth"</string>
+    <string name="bluetooth_map_settings_no_account_slots_left" msgid="755024228476065757">"Llogaria nuk mund të zgjidhet. 0 fole të mbetura"</string>
+    <string name="bluetooth_connected" msgid="5687474377090799447">"Audioja e \"bluetooth-it\" e lidhur"</string>
+    <string name="bluetooth_disconnected" msgid="6841396291728343534">"Audioja e \"bluetooth-it\" e shkëputur"</string>
+    <string name="a2dp_sink_mbs_label" msgid="6035366346569127155">"Audioja e \"bluetooth-it\""</string>
+    <string name="bluetooth_opp_file_limit_exceeded" msgid="6612109860149473930">"Skedarët më të mëdhenj se 4 GB nuk mund të transferohen"</string>
+    <string name="bluetooth_connect_action" msgid="2319449093046720209">"Lidhu me Bluetooth"</string>
+    <string name="bluetooth_enabled_apm_title" msgid="6914461147844949044">"Bluetooth-i aktiv në modalitetin e aeroplanit"</string>
+    <string name="bluetooth_enabled_apm_message" msgid="6168686193308136881">"Nëse e mban Bluetooth-in të aktivizuar, pajisja jote do të kujtohet ta mbajë të aktivizuar herën tjetër kur të jesh në modalitetin e aeroplanit"</string>
+    <string name="bluetooth_stays_on_title" msgid="39720820955212918">"Bluetooth qëndron i aktivizuar"</string>
+    <string name="bluetooth_stays_on_message" msgid="3669663452593157737">"Pajisja jote kujtohet që ta mbajë Bluetooth-in të aktivizuar në modalitetin e aeroplanit. Çaktivizo Bluetooth-in nëse nuk dëshiron që të qëndrojë i aktivizuar."</string>
+    <string name="bluetooth_and_wifi_stays_on_title" msgid="5821932798860821244">"Wi-Fi dhe Bluetooth-i qëndrojnë aktivë"</string>
+    <string name="bluetooth_and_wifi_stays_on_message" msgid="7848565203843882558">"Pajisja jote kujtohet që ta mbajë Wi-Fi dhe Bluetooth-in të aktivizuar në modalitetin e aeroplanit. Çaktivizo Wi-Fi dhe Bluetooth-in nëse nuk dëshiron që të qëndrojnë aktivë."</string>
+    <string name="bluetooth_enabled_auto_on_title" msgid="1799541656310353393">"Bluetooth-i është aktivizuar automatikisht"</string>
+    <string name="bluetooth_enabled_auto_on_message" msgid="1070556457440100730">"Rinisja automatike mund të aktivizohet/çaktivizohet te \"Cilësimet\" e Bluetooth-it."</string>
+    <string name="bluetooth_disable_auto_on" msgid="1085026923461565937">"Çaktivizo"</string>
+    <string name="bluetooth_notification_group" msgid="7251886707585872194">"Ndryshimi automatik i gjendjes së Bluetooth-it"</string>
+</resources>

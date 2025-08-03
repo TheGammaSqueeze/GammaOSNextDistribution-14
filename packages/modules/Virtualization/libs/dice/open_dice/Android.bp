@@ -1,0 +1,263 @@
+package {
+    default_visibility: [":__subpackages__"],
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_defaults {
+    name: "libdiced_open_dice_defaults",
+    crate_name: "diced_open_dice",
+    defaults: ["avf_build_flags_rust"],
+    srcs: ["src/lib.rs"],
+}
+
+rust_library_rlib {
+    name: "libdiced_open_dice_nostd",
+    defaults: ["libdiced_open_dice_defaults"],
+    rustlibs: [
+        "libopen_dice_android_bindgen_nostd",
+        "libopen_dice_cbor_bindgen_nostd",
+        "libzeroize_nostd",
+    ],
+    features: [
+        "alloc",
+    ],
+    whole_static_libs: [
+        "libopen_dice_cbor",
+        "libcrypto_baremetal",
+    ],
+    visibility: [
+        "//packages/modules/Virtualization:__subpackages__",
+        "//system/authgraph/tests:__subpackages__",
+    ],
+}
+
+rust_library {
+    name: "libdiced_open_dice",
+    defaults: ["libdiced_open_dice_defaults"],
+    host_supported: true,
+    vendor_available: true,
+    rustlibs: [
+        "libopen_dice_android_bindgen",
+        "libopen_dice_cbor_bindgen",
+        "libzeroize",
+    ],
+    features: [
+        "alloc",
+        "std",
+    ],
+    shared_libs: [
+        "libcrypto",
+    ],
+    static_libs: [
+        "libopen_dice_cbor",
+    ],
+    whole_static_libs: [
+        "libopen_dice_android",
+    ],
+    visibility: [
+        "//hardware/interfaces/security/secretkeeper/aidl/vts",
+        "//packages/modules/Virtualization:__subpackages__",
+        "//system/authgraph/tests:__subpackages__",
+        "//system/secretkeeper/client:__subpackages__",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.virt",
+    ],
+}
+
+rust_defaults {
+    name: "libdiced_open_dice_test_defaults",
+    crate_name: "diced_open_dice_test",
+    srcs: ["tests/*.rs"],
+    test_suites: ["general-tests"],
+}
+
+rust_test {
+    name: "libdiced_open_dice.integration_test",
+    defaults: ["libdiced_open_dice_test_defaults"],
+    rustlibs: [
+        "libdiced_open_dice",
+    ],
+}
+
+rust_test {
+    name: "libdiced_open_dice_nostd.integration_test",
+    defaults: ["libdiced_open_dice_test_defaults"],
+    rustlibs: [
+        "libdiced_open_dice_nostd",
+    ],
+}
+
+rust_defaults {
+    name: "libopen_dice_bindgen_nostd.rust_defaults",
+    bindgen_flags: [
+        "--use-core",
+        "--ctypes-prefix=core::ffi",
+        "--raw-line=#![no_std]",
+    ],
+    no_stdlibs: true,
+    prefer_rlib: true,
+    stdlibs: [
+        "libcore.rust_sysroot",
+        "libcompiler_builtins.rust_sysroot",
+    ],
+    target: {
+        musl: {
+            enabled: false,
+        },
+        glibc: {
+            enabled: false,
+        },
+        darwin: {
+            enabled: false,
+        },
+    },
+}
+
+rust_defaults {
+    name: "libopen_dice.rust_defaults",
+    host_supported: true,
+    vendor_available: true,
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.compos",
+        "com.android.virt",
+    ],
+}
+
+rust_defaults {
+    name: "libopen_dice_cbor_bindgen.rust_defaults",
+    wrapper_src: "bindgen/dice.h",
+    crate_name: "open_dice_cbor_bindgen",
+    source_stem: "bindings",
+    bindgen_flags: [
+        "--rustified-enum DiceConfigType",
+        "--rustified-enum DiceMode",
+        "--rustified-enum DiceResult",
+
+        // By generating only essential functions, we can make bindings concise and
+        // optimize compilation time.
+        "--allowlist-function=DiceDeriveCdiPrivateKeySeed",
+        "--allowlist-function=DiceDeriveCdiCertificateId",
+        "--allowlist-function=DiceMainFlow",
+        "--allowlist-function=DiceHash",
+        "--allowlist-function=DiceKdf",
+        "--allowlist-function=DiceKeypairFromSeed",
+        "--allowlist-function=DiceSign",
+        "--allowlist-function=DiceVerify",
+        "--allowlist-function=DiceGenerateCertificate",
+
+        // We also need some constants in addition to the functions.
+        "--allowlist-var=DICE_CDI_SIZE",
+        "--allowlist-var=DICE_HASH_SIZE",
+        "--allowlist-var=DICE_HIDDEN_SIZE",
+        "--allowlist-var=DICE_INLINE_CONFIG_SIZE",
+        "--allowlist-var=DICE_PRIVATE_KEY_SEED_SIZE",
+        "--allowlist-var=DICE_ID_SIZE",
+        "--allowlist-var=DICE_PUBLIC_KEY_SIZE",
+        "--allowlist-var=DICE_PRIVATE_KEY_SIZE",
+        "--allowlist-var=DICE_SIGNATURE_SIZE",
+    ],
+}
+
+rust_bindgen {
+    name: "libopen_dice_cbor_bindgen",
+    defaults: [
+        "libopen_dice.rust_defaults",
+        "libopen_dice_cbor_bindgen.rust_defaults",
+    ],
+    whole_static_libs: ["libopen_dice_cbor"],
+}
+
+rust_bindgen {
+    name: "libopen_dice_cbor_bindgen_nostd",
+    defaults: [
+        "libopen_dice_cbor_bindgen.rust_defaults",
+        "libopen_dice_bindgen_nostd.rust_defaults",
+    ],
+    whole_static_libs: ["libopen_dice_cbor_baremetal"],
+}
+
+rust_defaults {
+    name: "libopen_dice_android_bindgen.rust_defaults",
+    wrapper_src: "bindgen/android.h",
+    crate_name: "open_dice_android_bindgen",
+    source_stem: "bindings",
+    bindgen_flags: [
+        // By generating only essential functions, we can make bindings concise and
+        // optimize compilation time.
+        "--allowlist-function=DiceAndroidFormatConfigDescriptor",
+        "--allowlist-function=DiceAndroidMainFlow",
+        "--allowlist-function=DiceAndroidHandoverMainFlow",
+        "--allowlist-function=DiceAndroidHandoverParse",
+
+        // We also need some constants in addition to the functions.
+        "--allowlist-var=DICE_ANDROID_CONFIG_.*",
+
+        // Prevent DiceInputValues from being generated a second time and
+        // import it instead from open_dice_cbor_bindgen.
+        "--blocklist-type=DiceInputValues_",
+        "--blocklist-type=DiceInputValues",
+        "--raw-line",
+        "pub use open_dice_cbor_bindgen::DiceInputValues;",
+
+        // Prevent DiceResult from being generated a second time and
+        // import it instead from open_dice_cbor_bindgen.
+        "--blocklist-type=DiceResult",
+        "--raw-line",
+        "pub use open_dice_cbor_bindgen::DiceResult;",
+    ],
+
+}
+
+rust_bindgen {
+    name: "libopen_dice_android_bindgen",
+    defaults: [
+        "libopen_dice.rust_defaults",
+        "libopen_dice_android_bindgen.rust_defaults",
+    ],
+    rustlibs: [
+        "libopen_dice_cbor_bindgen",
+    ],
+    whole_static_libs: ["libopen_dice_android"],
+}
+
+rust_bindgen {
+    name: "libopen_dice_android_bindgen_nostd",
+    defaults: [
+        "libopen_dice_android_bindgen.rust_defaults",
+        "libopen_dice_bindgen_nostd.rust_defaults",
+    ],
+    rustlibs: [
+        "libopen_dice_cbor_bindgen_nostd",
+    ],
+    whole_static_libs: ["libopen_dice_android_baremetal"],
+}
+
+rust_test {
+    name: "libopen_dice_cbor_bindgen_test",
+    srcs: [
+        ":libopen_dice_cbor_bindgen",
+    ],
+    crate_name: "open_dice_cbor_bindgen_test",
+    test_suites: ["general-tests"],
+    auto_gen_config: true,
+    clippy_lints: "none",
+    lints: "none",
+}
+
+rust_test {
+    name: "libopen_dice_android_bindgen_test",
+    srcs: [
+        ":libopen_dice_android_bindgen",
+    ],
+    crate_name: "open_dice_android_bindgen_test",
+    rustlibs: [
+        "libopen_dice_cbor_bindgen",
+    ],
+    test_suites: ["general-tests"],
+    auto_gen_config: true,
+    clippy_lints: "none",
+    lints: "none",
+}

@@ -1,0 +1,43 @@
+module: "android.sysprop.bluetooth.Hfp"
+owner: Platform
+
+prop {
+    api_name: "hf_client_features"
+    type: Integer
+    scope: Internal
+    access: Readonly
+    prop_name: "bluetooth.hfp.hf_client_features.config"
+}
+
+prop {
+    api_name: "hf_features"
+    type: Integer
+    scope: Internal
+    access: Readonly
+    prop_name: "bluetooth.hfp.hf_features.config"
+}
+
+prop {
+    api_name: "hf_services"
+    type: Integer
+    scope: Internal
+    access: Readonly
+    prop_name: "bluetooth.hfp.hf_services_mask.config"
+}
+
+prop {
+    api_name: "version"
+    type: Integer
+    scope: Internal
+    access: Readonly
+    prop_name: "bluetooth.hfp.version.config"
+}
+
+prop {
+    api_name: "codec_aptx_voice"
+    type: Boolean
+    scope: Internal
+    access: Readonly
+    prop_name: "bluetooth.hfp.codec_aptx_voice.enabled"
+}
+

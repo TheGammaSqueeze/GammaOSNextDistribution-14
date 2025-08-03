@@ -1,0 +1,12 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+sysprop_library {
+  name: "com.android.sysprop.apex",
+  srcs: ["ApexProperties.sysprop"],
+  property_owner: "Platform",
+  api_packages: ["android.sysprop"],
+  ramdisk_available: true,
+  recovery_available: true,
+}

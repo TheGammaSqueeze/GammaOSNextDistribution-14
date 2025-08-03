@@ -1,0 +1,60 @@
+package: "com.android.wifi.flags"
+container: "com.android.wifi"
+
+flag {
+    name: "test_flag_function"
+    namespace: "wifi"
+    description: "This flag aim to test the flag release for wifi stack"
+    bug: "301145404"
+}
+
+flag {
+    name: "delay_save_to_store"
+    namespace: "wifi"
+    description: "Control the feature delay the save to store in batch to reduce the blocking time"
+    bug: "302172794"
+}
+
+flag {
+    name: "single_wifi_thread"
+    namespace: "wifi"
+    description: "Control the feature that move all Wifi service to a single thread"
+    bug: "302593617"
+}
+
+flag {
+    name: "network_provider_battery_charging_status"
+    namespace: "wifi"
+    description: "Control the API that allows setting / reading the NetworkProviderInfo's battery charging status"
+    bug: "305067231"
+}
+
+flag {
+    name: "shared_connectivity_broadcast_receiver_test_api"
+    namespace: "wifi"
+    description: "Control the test API for SharedConnectivityManager's getBroadcastReceiver() method"
+    bug: "305067231"
+}
+
+flag {
+    name: "anqp_request_wait_for_response"
+    namespace: "wifi"
+    description: "Make the ANQP request in a queue and wait for the previous response before trigger the next request"
+    bug: "310037751"
+}
+
+flag {
+    name: "android_v_wifi_api"
+    namespace: "wifi"
+    description: "For new API added to Android V"
+    bug: "319927407"
+    is_fixed_read_only: true
+}
+
+flag {
+    name: "d2d_when_infra_sta_off"
+    namespace: "wifi"
+    description: "Add new API to configure d2d when infra sta is off"
+    bug: "295792510"
+    is_fixed_read_only: true
+}

@@ -1,0 +1,6 @@
+per-file mts-art*.xml = rpl@google.com
+per-file mts-sdkextensions*.xml = file: platform/packages/modules/SdkExtensions:/OWNERS
+per-file mts-bluetooth*.xml = file: platform/packages/modules/Bluetooth/:/pandora/OWNERS
+per-file mts-media*.xml = file: platform/frameworks/av/:/media/janitors/reliability_mainline_OWNERS
+per-file mts-rkpd*.xml = file: platform/packages/modules/RemoteKeyProvisioning:/OWNERS
+per-file mts-ondevicepersonalization*.xml = file: platform/packages/modules/OnDevicePersonalization:/OWNERS

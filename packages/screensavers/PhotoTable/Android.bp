@@ -1,0 +1,11 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_app {
+    name: "PhotoTable",
+    // Only compile source java files in this apk.
+    srcs: ["src/**/*.java"],
+    product_specific: true,
+    sdk_version: "current",
+}

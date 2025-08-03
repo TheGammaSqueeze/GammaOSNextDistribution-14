@@ -1,0 +1,16 @@
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+// Build the Sample Embms Services
+android_app {
+    name: "EmbmsTestService",
+    srcs: ["src/**/*.java"],
+    platform_apis: true,
+    certificate: "platform",
+    privileged: true,
+    // Uncomment the following line to build the EmbmsTestService
+    // into the userdebug build:
+    // LOCAL_MODULE_TAGS := debug
+}

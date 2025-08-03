@@ -1,0 +1,37 @@
+genrule {
+    name: "BluetoothGeneratedPacketsL2cap_h",
+    defaults: ["BluetoothGeneratedPackets_default"],
+    srcs: ["l2cap_packets.pdl"],
+    out: ["l2cap/l2cap_packets.h"],
+    visibility: ["//visibility:private"],
+}
+
+cc_library_headers {
+    name: "libbluetooth_l2cap_pdl_header",
+    generated_headers: [
+        "BluetoothGeneratedPacketsL2cap_h",
+    ],
+    export_generated_headers: [
+        "BluetoothGeneratedPacketsL2cap_h",
+    ],
+    host_supported: true,
+    apex_available: [
+        "com.android.btservices",
+    ],
+    min_sdk_version: "33",
+}
+
+cc_library_static {
+    name: "libbluetooth_l2cap_pdl",
+    header_libs: [
+        "libbluetooth_l2cap_pdl_header",
+    ],
+    export_header_lib_headers: [
+        "libbluetooth_l2cap_pdl_header",
+    ],
+    host_supported: true,
+    apex_available: [
+        "com.android.btservices",
+    ],
+    min_sdk_version: "33",
+}

@@ -1,0 +1,331 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="me.phh.treble.app"
+4    android:persistent="true"
+5    android:sharedUserId="android.uid.system"
+6    android:versionCode="1"
+7    android:versionName="1.0" >
+8
+9    <uses-sdk
+10        android:minSdkVersion="27"
+10-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml
+11        android:targetSdkVersion="33" />
+11-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml
+12
+13    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS" />
+13-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:9:5-80
+13-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:9:22-77
+14    <uses-permission android:name="android.permission.DIAGNOSTIC" />
+14-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:10:5-69
+14-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:10:22-66
+15    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+15-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:11:5-79
+15-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:11:22-76
+16    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+16-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:12:5-83
+16-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:12:22-80
+17    <uses-permission android:name="android.permission.INSTALL_PACKAGES" />
+17-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:13:5-75
+17-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:13:22-72
+18    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+18-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:14:5-81
+18-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:14:22-78
+19    <uses-permission android:name="android.permission.VIBRATE" />
+19-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:16:5-66
+19-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:16:22-63
+20
+21    <application
+21-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:18:5-139:19
+22        android:allowBackup="true"
+22-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:19:9-35
+23        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+23-->[androidx.core:core:1.6.0] /home/gamma/.gradle/caches/transforms-3/f2b1602a0d70c866492e3e448cc616b4/transformed/core-1.6.0/AndroidManifest.xml:24:18-86
+24        android:extractNativeLibs="false"
+25        android:icon="@drawable/ic_settings"
+25-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:20:9-45
+26        android:label="@string/app_name"
+26-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:21:9-41
+27        android:supportsRtl="true" >
+27-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:22:9-35
+28        <uses-library
+28-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:25:9-91
+29            android:name="android.hidl.manager.V1_0"
+29-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:25:23-63
+30            android:required="false" />
+30-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:25:64-88
+31        <uses-library
+31-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:26:9-115
+32            android:name="vendor.huawei.hardware.biometrics.fingerprint.V2_1"
+32-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:26:23-88
+33            android:required="false" />
+33-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:26:89-113
+34        <uses-library
+34-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:27:9-95
+35            android:name="vendor.huawei.hardware.tp.V1_0"
+35-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:27:23-68
+36            android:required="false" />
+36-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:27:69-93
+37        <uses-library
+37-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:28:9-98
+38            android:name="vendor.qti.hardware.radio.am.V1_0"
+38-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:28:23-71
+39            android:required="false" />
+39-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:28:72-96
+40        <uses-library
+40-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:29:9-89
+41            android:name="vendor.qti.qcril.am.V1_0"
+41-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:29:23-62
+42            android:required="false" />
+42-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:29:63-87
+43
+44        <service android:name="me.phh.treble.app.EntryService" />
+44-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:31:9-49
+44-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:31:18-46
+45        <service android:name="me.phh.treble.app.NubiaAutoFanControlService" />
+45-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:32:9-63
+45-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:32:18-60
+46        <service
+46-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:34:9-48:19
+47            android:name="me.phh.treble.app.NubiaGameModeTilesService"
+47-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:35:13-54
+48            android:enabled="false"
+48-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:40:13-36
+49            android:exported="true"
+49-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:36:13-36
+50            android:icon="@drawable/tile_game_mode"
+50-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:37:13-52
+51            android:label="Game Mode"
+51-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:38:13-38
+52            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE" >
+52-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:39:13-77
+53            <meta-data
+53-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:41:13-43:40
+54                android:name="android.service.quicksettings.TOGGLEABLE_TILE"
+54-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:42:17-77
+55                android:value="true" />
+55-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:43:17-37
+56
+57            <intent-filter>
+57-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:45:13-47:29
+58                <action android:name="android.service.quicksettings.action.QS_TILE" />
+58-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:46:17-87
+58-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:46:25-84
+59            </intent-filter>
+60        </service>
+61        <service
+61-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:49:9-63:19
+62            android:name="me.phh.treble.app.NubiaFanControlTilesService"
+62-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:50:13-56
+63            android:enabled="false"
+63-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:55:13-36
+64            android:exported="true"
+64-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:51:13-36
+65            android:icon="@drawable/tile_fan_control"
+65-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:52:13-54
+66            android:label="Fan Control"
+66-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:53:13-40
+67            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE" >
+67-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:54:13-77
+68            <meta-data
+68-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:41:13-43:40
+69                android:name="android.service.quicksettings.TOGGLEABLE_TILE"
+69-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:42:17-77
+70                android:value="true" />
+70-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:43:17-37
+71
+72            <intent-filter>
+72-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:45:13-47:29
+73                <action android:name="android.service.quicksettings.action.QS_TILE" />
+73-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:46:17-87
+73-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:46:25-84
+74            </intent-filter>
+75        </service>
+76        <service
+76-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:64:9-78:19
+77            android:name="me.phh.treble.app.NubiaShoulderBtnTilesService"
+77-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:65:13-57
+78            android:enabled="false"
+78-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:70:13-36
+79            android:exported="true"
+79-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:66:13-36
+80            android:icon="@drawable/tile_game_mode"
+80-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:67:13-52
+81            android:label="Shoulder triggers"
+81-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:68:13-46
+82            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE" >
+82-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:69:13-77
+83            <meta-data
+83-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:41:13-43:40
+84                android:name="android.service.quicksettings.TOGGLEABLE_TILE"
+84-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:42:17-77
+85                android:value="true" />
+85-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:43:17-37
+86
+87            <intent-filter>
+87-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:45:13-47:29
+88                <action android:name="android.service.quicksettings.action.QS_TILE" />
+88-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:46:17-87
+88-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:46:25-84
+89            </intent-filter>
+90        </service>
+91
+92        <receiver
+92-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:80:9-88:20
+93            android:name="me.phh.treble.app.Starter"
+93-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:80:19-42
+94            android:exported="true" >
+94-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:81:13-36
+95            <intent-filter>
+95-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:82:13-87:29
+96                <action android:name="android.intent.action.BOOT_COMPLETED" />
+96-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:83:17-79
+96-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:83:25-76
+97                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+97-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:84:17-86
+97-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:84:25-83
+98                <action android:name="me.phh.update" />
+98-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:85:17-56
+98-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:85:25-53
+99                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+99-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:86:17-84
+99-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:86:25-81
+100            </intent-filter>
+101        </receiver>
+102
+103        <activity
+103-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:102:9-111:20
+104            android:name="me.phh.treble.app.SettingsActivity"
+104-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:103:13-45
+105            android:exported="true"
+105-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:106:13-36
+106            android:label="@string/title_activity_settings"
+106-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:104:13-60
+107            android:theme="@style/Theme.TrebleApp" >
+107-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:105:13-51
+108            <intent-filter>
+108-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:107:13-110:29
+109                <action android:name="android.intent.action.MAIN" />
+109-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:108:17-69
+109-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:108:25-66
+110
+111                <category android:name="android.intent.category.DEFAULT" />
+111-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:93:17-75
+111-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:93:27-73
+112            </intent-filter>
+113        </activity>
+114
+115        <activity-alias
+115-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:90:2-100:26
+116            android:name="me.phh.treble.app.TopLevelSettingsActivity"
+116-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:90:65-105
+117            android:enabled="true"
+117-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:90:18-40
+118            android:exported="true"
+118-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:90:41-64
+119            android:targetActivity="me.phh.treble.app.SettingsActivity" >
+119-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:90:106-148
+120            <intent-filter>
+120-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:91:13-94:29
+121                <action android:name="com.android.settings.action.IA_SETTINGS" />
+121-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:92:17-81
+121-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:92:25-79
+122
+123                <category android:name="android.intent.category.DEFAULT" />
+123-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:93:17-75
+123-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:93:27-73
+124            </intent-filter>
+125
+126            <meta-data
+126-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:95:13-128
+127                android:name="com.android.settings.category"
+127-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:95:24-68
+128                android:value="com.android.settings.category.ia.homepage" />
+128-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:95:69-126
+129            <meta-data
+129-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:96:13-120
+130                android:name="com.android.settings.summary"
+130-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:96:24-67
+131                android:resource="@string/desc_activity_top_level" />
+131-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:96:68-118
+132            <meta-data
+132-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:97:13-119
+133                android:name="com.android.settings.title"
+133-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:97:24-65
+134                android:resource="@string/title_activity_top_level" />
+134-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:97:66-117
+135            <meta-data
+135-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:98:13-107
+136                android:name="com.android.settings.icon"
+136-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:98:24-64
+137                android:resource="@drawable/ic_settings" />
+137-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:98:65-105
+138            <meta-data
+138-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:99:13-88
+139                android:name="com.android.settings.order"
+139-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:99:24-65
+140                android:value="-190" />
+140-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:99:66-86
+141        </activity-alias>
+142
+143        <activity
+143-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:113:9-123:20
+144            android:name="me.phh.treble.app.UpdaterActivity"
+144-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:114:13-44
+145            android:exported="true"
+145-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:118:13-36
+146            android:label="@string/title_activity_updater"
+146-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:115:13-59
+147            android:launchMode="singleTop"
+147-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:117:13-43
+148            android:theme="@style/Theme.TrebleApp" >
+148-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:116:13-51
+149            <intent-filter android:priority="1" >
+149-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:119:13-122:29
+149-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:119:28-48
+150                <action android:name="android.settings.SYSTEM_UPDATE_SETTINGS" />
+150-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:120:17-82
+150-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:120:25-79
+151
+152                <category android:name="android.intent.category.DEFAULT" />
+152-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:93:17-75
+152-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:93:27-73
+153            </intent-filter>
+154        </activity>
+155
+156        <service
+156-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:125:9-129:15
+157            android:name="me.phh.treble.app.REPL"
+157-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:126:13-33
+158            android:exported="true"
+158-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:127:13-36
+159            android:permission="android.permission.INTERACT_ACROSS_USERS" />
+159-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:128:13-74
+160
+161        <activity
+161-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:131:9-135:20
+162            android:name="me.phh.treble.app.DesktopInput"
+162-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:132:13-41
+163            android:launchMode="singleTask"
+163-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:133:13-44
+164            android:theme="@android:style/Theme.Material.Dialog" >
+164-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:134:13-65
+165        </activity>
+166        <activity android:name="me.phh.treble.app.DebugSensors" />
+166-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:137:9-50
+166-->/work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:137:19-47
+167
+168        <uses-library
+168-->[androidx.window:window:1.0.0] /home/gamma/.gradle/caches/transforms-3/57ca3fa706d0531e32e0a842a9463d39/transformed/window-1.0.0/AndroidManifest.xml:25:9-27:40
+169            android:name="androidx.window.extensions"
+169-->[androidx.window:window:1.0.0] /home/gamma/.gradle/caches/transforms-3/57ca3fa706d0531e32e0a842a9463d39/transformed/window-1.0.0/AndroidManifest.xml:26:13-54
+170            android:required="false" />
+170-->[androidx.window:window:1.0.0] /home/gamma/.gradle/caches/transforms-3/57ca3fa706d0531e32e0a842a9463d39/transformed/window-1.0.0/AndroidManifest.xml:27:13-37
+171        <uses-library
+171-->[androidx.window:window:1.0.0] /home/gamma/.gradle/caches/transforms-3/57ca3fa706d0531e32e0a842a9463d39/transformed/window-1.0.0/AndroidManifest.xml:28:9-30:40
+172            android:name="androidx.window.sidecar"
+172-->[androidx.window:window:1.0.0] /home/gamma/.gradle/caches/transforms-3/57ca3fa706d0531e32e0a842a9463d39/transformed/window-1.0.0/AndroidManifest.xml:29:13-51
+173            android:required="false" />
+173-->[androidx.window:window:1.0.0] /home/gamma/.gradle/caches/transforms-3/57ca3fa706d0531e32e0a842a9463d39/transformed/window-1.0.0/AndroidManifest.xml:30:13-37
+174    </application>
+175
+176</manifest>

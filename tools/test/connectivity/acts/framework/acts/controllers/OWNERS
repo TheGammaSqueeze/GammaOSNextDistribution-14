@@ -1,0 +1,5 @@
+per-file asus_axe11000_ap.py = martschneider@google.com
+per-file fuchsia_device.py = chcl@google.com, dhobsd@google.com, haydennix@google.com, jmbrenna@google.com, mnck@google.com, nickchee@google.com, sbalana@google.com, silberst@google.com, tturney@google.com
+per-file bluetooth_pts_device.py = tturney@google.com
+per-file cellular_simulator.py = iguarna@google.com, chaoyangf@google.com, codycaldwell@google.com, yixiang@google.com
+per-file openwrt_ap.py = jerrypcchen@google.com, martschneider@google.com, gmoturu@google.com, mingchenchung@google.com, alfiechen@google.com, timhuang@google.com

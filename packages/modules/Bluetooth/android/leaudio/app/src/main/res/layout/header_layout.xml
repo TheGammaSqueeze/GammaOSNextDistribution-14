@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/generic_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_weight="5"
+    android:orientation="vertical"
+    tools:showIn="@layout/le_audio_device_fragment">
+
+    <TextView
+        android:id="@+id/device_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:text="device_name"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <Switch
+            android:id="@+id/vc_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingHorizontal="5dp"
+            android:text="Vc:" />
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="3" />
+
+        <Switch
+            android:id="@+id/le_audio_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingHorizontal="5dp"
+            android:text="Le Audio:" />
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="3" />
+
+        <Switch
+            android:id="@+id/bass_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingHorizontal="5dp"
+            android:text="Bass:" />
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="3" />
+
+        <Switch
+            android:id="@+id/hap_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingHorizontal="5dp"
+            android:text="Hap:" />
+    </LinearLayout>
+</LinearLayout>

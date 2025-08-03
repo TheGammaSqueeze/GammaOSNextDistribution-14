@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2018 Google Inc.
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<configuration description="CATBox Jank Performance Test For Settings.">
+  <!-- Plan -->
+  <option name="plan" value="catbox-performance-jank-settings" />
+
+  <!-- Base File -->
+  <include name="catbox-performance-jank-base" />
+
+  <!-- Proc Load Options -->
+  <option name="compatibility:module-arg" value="AndroidAutomotiveSettingsScenarioTests:instrumentation-arg:procload-collector:per_run:=true" />
+  <option name="compatibility:module-arg" value="AndroidAutomotiveSettingsScenarioTests:instrumentation-arg:procload-collector:proc-loadavg-interval:=20000" />
+  <option name="compatibility:module-arg" value="AndroidAutomotiveSettingsScenarioTests:instrumentation-arg:procload-collector:proc-loadavg-threshold:=2.0" />
+  <option name="compatibility:module-arg" value="AndroidAutomotiveSettingsScenarioTests:instrumentation-arg:procload-collector:proc-loadavg-timeout:=900000" />
+
+  <!-- Jank Options -->
+  <option name="compatibility:module-arg" value="AndroidAutomotiveSettingsScenarioTests:instrumentation-arg:listener:=android.device.collectors.ProcLoadListener,android.device.collectors.JankListener" />
+  <option name="compatibility:module-arg" value="AndroidAutomotiveSettingsScenarioTests:instrumentation-arg:iterations:=20" />
+  <option name="compatibility:module-arg" value="AndroidAutomotiveSettingsScenarioTests:instrumentation-arg:favor-shell-commands:=true" />
+  <option name="compatibility:module-arg" value="AndroidAutomotiveSettingsScenarioTests:instrumentation-arg:rename-iterations:=true" />
+  <option name="compatibility:module-arg" value="AndroidAutomotiveSettingsScenarioTests:instrumentation-arg:iteration-separator:=$" />
+
+  <!-- Test Package -->
+  <option name="compatibility:test-arg" value="com.android.tradefed.testtype.AndroidJUnitTest:package:android.platform.test.scenario.settings" />
+
+  <!-- Test -->
+  <option name="compatibility:include-filter" value="AndroidAutomotiveSettingsScenarioTests android.platform.test.scenario.settings.ScrollInAppMicrobenchmark#testScrollDownAndUp" />
+
+  <!-- Jank Package -->
+  <option name="compatibility:module-arg" value="AndroidAutomotiveSettingsScenarioTests:instrumentation-arg:jank-package-names:=com.android.car.settings" />
+
+  <!-- Test Metrics Report Options -->
+  <option name="report-log-name" value="CatboxPerformanceTests" />
+  <option name="report-test-name-mapping" key="android.platform.test.scenario.settings.ScrollInAppMicrobenchmark#testScrollDownAndUp" value="settings_scroll_jank" />
+  <option name="report-all-metrics" value="false" />
+  <option name="report-metric-key-mapping" key="gfxinfo_com.android.car.settings_janky_frames_percent-mean" value="jank_frames_percent" />
+</configuration>

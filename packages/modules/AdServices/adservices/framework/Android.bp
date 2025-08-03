@@ -1,0 +1,97 @@
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+filegroup {
+    name: "framework-adservices-sources",
+    defaults: ["framework-sources-module-defaults"],
+    srcs: [
+        "java/**/*.aidl",
+        "java/**/*.java",
+    ],
+    visibility: [
+        "//packages/modules/AdServices/adservices:__subpackages__",
+        "//packages/modules/ExtServices/apex:__subpackages__",
+    ],
+    path: "java",
+}
+
+java_sdk_library {
+    name: "framework-adservices",
+    srcs: [":framework-adservices-sources"],
+    libs: [
+        "modules-utils-preconditions",
+        "framework-sdksandbox.impl",
+        "androidx.annotation_annotation",
+        "error_prone_annotations",
+        "adservices_flags_lib",
+    ],
+    static_libs : [
+        "adservices-shared-exceptions",
+    ],
+    sdk_version: "module_current",
+    min_sdk_version: "30",
+    permitted_packages: [
+        "com.android.adservices",
+        "android.adservices",
+        "android.app.adservices",
+    ],
+    defaults: ["framework-module-defaults"],
+    impl_library_visibility: [
+        "//packages/modules/AdServices:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.adservices",
+        "com.android.extservices",
+    ],
+    aconfig_declarations: [
+        "adservices_flags",
+    ],
+}
+
+java_library {
+    name: "framework-adservices-lib",
+    srcs: [":framework-adservices-sources"],
+    libs: [
+        "modules-utils-preconditions",
+        "framework-sdksandbox.impl",
+        "androidx.annotation_annotation",
+        "error_prone_annotations",
+        "adservices_flags_lib",
+    ],
+    static_libs : [
+        "adservices-shared-exceptions",
+    ],
+    min_sdk_version: "30",
+    defaults: ["framework-module-defaults"],
+}
+
+java_library {
+    name: "android.ext.adservices",
+    static_libs: ["framework-adservices.impl"],
+    installable: true,
+    provides_uses_lib: "android.ext.adservices",
+    sdk_version: "module_current",
+    min_sdk_version: "30",
+    max_sdk_version: "32",
+    visibility: [
+        "//packages/modules/AdServices:__subpackages__",
+        "//packages/modules/ExtServices:__subpackages__",
+        "//vendor:__subpackages__",
+    ],
+    apex_available: ["com.android.extservices"],
+}

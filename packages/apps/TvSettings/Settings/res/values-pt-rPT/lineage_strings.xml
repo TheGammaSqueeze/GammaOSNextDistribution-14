@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017-2024 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="system_reboot_confirm_cm">Reiniciar para:</string>
+    <string name="global_action_restart_system">Sistema</string>
+    <string name="global_action_restart_recovery">Recuperação</string>
+    <string name="global_action_restart_bootloader">Bootloader</string>
+    <plurals name="show_dev_countdown_cm">
+        <item quantity="one">Está agora a <xliff:g id="step_count">%1$d</xliff:g> passo de ativar as opções de programador.</item>
+        <item quantity="other">Está agora a <xliff:g id="step_count">%1$d</xliff:g> passos de ativar as opções de programador.</item>
+    </plurals>
+    <string name="show_dev_on_cm">Ativou as opções de programador!</string>
+    <string name="show_dev_already_cm">Não é necessário. Já ativou as opções de programador.</string>
+    <string name="system_buttons">Botões</string>
+    <string name="power_button_long_press_action_title">Pressão longa no botão de ligar/desligar</string>
+    <string name="power_button_long_press_for_power_menu_action">Aceder ao menu de ligar/desligar</string>
+    <string name="power_button_long_press_for_assistant_action">Abrir o Assistente</string>
+    <string name="inputs_volume_control_enabled">Controlo de Volume CEC</string>
+    <string name="inputs_volume_control_enabled_desc">Controlar volume da TV/AVR em vez do vol. interno</string>
+    <string name="enable_adb_root">Debug com root</string>
+    <string name="enable_adb_root_summary">Permitir executar o debug do Android como root</string>
+    <string name="advanced_restart_title">Reinicialização avançada</string>
+    <string name="advanced_restart_summary">Mostrar opções para reiniciar para a recuperação, bootloader ou executar um reinício suave</string>
+    <string name="adb_over_network">ADB através da rede</string>
+    <string name="adb_over_network_summary">Ativar a depuração de TCP/IP através das interfaces de rede (Wi\u2011Fi, redes USB). Esta definição é restaurada ao reiniciar</string>
+    <string name="adb_over_network_warning">Aviso: Quando o ADB através das interfaces de rede está ativado, o seu telefone fica desprotegido e pode facilitar invasões em todas as redes ligadas! \n\nUse esta funcionalidade apenas quando estiver ligado a redes de confiança.\n\nQuer mesmo ativar esta função?</string>
+    <string name="trust_category_features">Estado</string>
+    <string name="trust_feature_selinux">SELinux</string>
+    <string name="trust_feature_selinux_value_enforcing">Forçador</string>
+    <string name="trust_feature_selinux_value_disabled">Desativado</string>
+    <string name="trust_feature_selinux_explain">O SELinux dita que processos têm acesso a que ficheiros/pastas do seu dispositivo.\nIsto evita que aplicações e serviços possam aceder a ficheiros com os quais não é suposto lidarem. Desta forma um processo malicioso terá acesso limitado e assim a sua segurança é preservada.</string>
+    <string name="trust_feature_security_patches">Patches de segurança do Android</string>
+    <string name="trust_feature_security_patches_value_base">Plataforma: %1$s\nFabricante: %2$s</string>
+    <string name="trust_feature_security_patches_value_new">Atualizado</string>
+    <string name="trust_feature_security_patches_value_medium">Alguns meses desatualizado</string>
+    <string name="trust_feature_security_patches_value_old">Desatualizado</string>
+    <string name="trust_feature_security_patches_explain">Os patches de segurança são lançados mensalmente pela Google em cooperação com os fabricantes de SoC para corrigirem falhas que possam ser exploradas por aplicações maliciosas a fim de contornarem restrições de segurança e causarem danos permanentes no seu dispositivo. Os patches disponibilizados pela Google são aplicados todos os meses em todos os dispositivos suportados, mas os patches a código proprietário só podem ser aplicados pelo fabricante do seu dispositivo. Para manter o seu dispositivo seguro certifique-se de que a sua compilação LineageOS está sempre atualizada e, se aplicável, certifique-se de que a sua imagem do fabricante é atualizada para a mais recente recomendada pela equipa LineageOS.</string>
+    <string name="trust_feature_encryption">Encriptação</string>
+    <string name="trust_feature_encryption_value_enabled">Ativada</string>
+    <string name="trust_feature_encryption_value_nolock">Necessita de um ecrã de bloqueio seguro</string>
+    <string name="trust_feature_encryption_value_disabled">Desativada</string>
+    <string name="trust_feature_encryption_explain">Encriptar o seu dispositivo previne o acesso aos seus dados quando o telefone não tem o sistema operativo Android iniciado. Isto é particularmente importante se o seu telefone for roubado e previne que outros consigam ler as suas mensagens, contactos e outras informações privadas sem a palavra-passe.\nPara tornar a encriptação mais eficaz tem de definir um ecrã de bloqueio seguro.</string>
+    <string name="trust_category_tools">Privacidade</string>
+    <string name="trust_notification_alerts_title">Alertas de segurança</string>
+    <string name="trust_restrict_usb_title">Restringir USB</string>
+    <string name="trust_restrict_usb_summary">Controlar o suporte para ligações USB como auscultadores, dispositivos de armazenamento, dispositivos de entrada (ratos, teclados, joysticks) e ADB</string>
+    <string name="trust_restrict_usb_always">Negar ligações USB</string>
+    <string name="trust_restrict_usb_disabled">Permitir sempre ligações USB</string>
+    <string name="trust_onboarding_description">O Trust ajuda-o a manter o seu dispositivo seguro e protege a sua privacidade.\nO ícone do Trust aparecerá apenas quando os conteúdos da página tiverem sido verificados.</string>
+    <string name="trust_warnings_alerts_intro">Pode selecionar quais os alertas de segurança que deseja receber. Para sua segurança, recomendamos que ative todos os alertas</string>
+    <string name="trust_warnings_selinux">Estado SELinux</string>
+    <string name="trust_warnings_keys">Assinatura da compilação</string>
+    <string name="sleep_button_label">Suspender</string>
+    <string name="system_sleep_confirm">Suspender agora?</string>
+    <string name="shutdown_button_label">Desligar</string>
+    <string name="system_shutdown_confirm">Desligar agora?</string>
+    <string name="convertible_port_busy_title">Porta USB 1 em utilização</string>
+    <string name="convertible_port_busy_warning">Desconecte quaisquer dispositivos ou acessórios e tente novamente</string>
+    <string name="mtp_enable_title">Aceder a pastas SHIELD no PC através de USB</string>
+    <string name="mtp_enable_warning">A porta USB 1 está agora configurada para que o SHIELD se conecte a um PC como um dispositivo multimédia.\n\nEsta porta não detetará mais a multimédia em armazenamentos ou acessórios USB e não poderá ser usada para dispositivos de carregamento.</string>
+    <string name="mtp_retry_error">Falha. Por favor, tente novamente.</string>
+    <string name="mtp_summary">Neste modo, a porta USB não está funcional para outras utilizações</string>
+    <string name="mtp_title">Transferir ficheiros para um computador via USB</string>
+    <string name="mtp_unexpected_error">Erro inesperado. Tente novamente mais tarde.</string>
+    <string name="usb_debugging_enable_title">Depuração USB ativada</string>
+    <string name="usb_debugging_enable_warning">A porta USB 1 está agora configurada para que o SHIELD se conecte a um PC como um dispositivo multimédia.\n\nEsta porta não detetará mais a multimédia em armazenamentos ou acessórios USB e não poderá ser usada para dispositivos de carregamento.</string>
+</resources>

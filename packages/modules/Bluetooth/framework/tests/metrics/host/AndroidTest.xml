@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+  <configuration description="Bumble bluetooth tests.">
+    <option name="test-tag" value="BumbleBluetoothTests" />
+    <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
+        <option name="cleanup-apks" value="true" />
+        <option name="test-file-name" value="BluetoothMetricsTestApp.apk" />
+        <option name="install-arg" value="-r" />
+        <option name="install-arg" value="-g" />
+    </target_preparer>
+
+    <target_preparer class="com.android.tradefed.targetprep.RootTargetPreparer">
+      <option name="force-root" value="true"/>
+    </target_preparer>
+    <target_preparer class="com.android.tradefed.targetprep.PythonVirtualenvPreparer">
+        <option name="dep-module" value="grpcio==1.51.1" />
+        <option name="dep-module" value="cryptography==35" />
+        <option name="dep-module" value="click>=7.1.2" />
+    </target_preparer>
+
+    <target_preparer class="com.android.tradefed.targetprep.RunHostCommandTargetPreparer">
+      <option name="python-virtualenv" value="true"/>
+      <option name="host-setup-command" value="adb -s $SERIAL reverse tcp:7999 tcp:7999" />
+      <option name="host-setup-command" value="adb -s $SERIAL forward tcp:6211 vsock:2:7300" />
+      <option name="host-teardown-command" value="adb -s $SERIAL forward --remove tcp:6211" />
+      <option name="host-background-command"
+        value="$EXTRA_FILE(host_testcases)/BluetoothMetricsTests/bumble_pandora_server --rootcanal-port 6211"/>
+      <option name="host-teardown-command" value="adb -s $SERIAL reverse --remove tcp:7999" />
+    </target_preparer>
+    <test class="com.android.compatibility.common.tradefed.testtype.JarHostTest" >
+        <option name="jar" value="BluetoothMetricsTests.jar" />
+    </test>
+</configuration>
+

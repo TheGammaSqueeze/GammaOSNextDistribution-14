@@ -1,0 +1,38 @@
+package: "com.android.bluetooth.flags"
+container: "com.android.btservices"
+
+flag {
+    name: "airplane_ressources_in_app"
+    namespace: "bluetooth"
+    description: "User notification is done within app, not server"
+    bug: "303552318"
+}
+
+flag {
+    name: "auto_on_feature"
+    namespace: "bluetooth"
+    description: "Turn bluetooth on next morning at 5 am"
+    bug: "323060869"
+}
+
+flag {
+    name: "system_server_messenger"
+    namespace: "bluetooth"
+    description: "Replace binder call to the system server with a Messenger to enforce thread safety"
+    bug: "321804999"
+}
+
+flag {
+    name: "use_new_airplane_mode"
+    namespace: "bluetooth"
+    description: "Use the new implemention of airplane mode"
+    bug: "309033118"
+}
+
+flag {
+    name: "use_new_satellite_mode"
+    namespace: "bluetooth"
+    description: "Use the new implemention of satellite mode"
+    bug: "289584302"
+}
+

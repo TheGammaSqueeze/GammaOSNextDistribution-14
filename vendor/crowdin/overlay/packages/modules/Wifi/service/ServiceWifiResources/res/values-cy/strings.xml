@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2019 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="wifiResourcesAppLabel" product="default">Adnoddau Wi-Fi System</string>
+    <string name="wifi_available_title">Cysylltu â rhwydwaith Wi\u2011Fi agored</string>
+    <string name="wifi_available_title_connecting">Yn cysylltu â rhwydwaith Wi\u2011Fi</string>
+    <string name="wifi_available_title_connected">Wedi cysylltu â rhwydwaith Wi\u2011Fi</string>
+    <string name="wifi_available_title_failed_to_connect">Methwyd â chysylltu â rhwydwaith Wi\u2011Fi</string>
+    <string name="wifi_available_content_failed_to_connect">Tapia i weld pob rhwydwaith</string>
+    <string name="wifi_available_action_connect">Cysylltu</string>
+    <string name="wifi_available_action_all_networks">Pob rhwydwaith</string>
+    <string name="notification_channel_network_status">Statws rhwydwaith</string>
+    <string name="notification_channel_network_alerts">Hysbysiadau rhwydwaith</string>
+    <string name="notification_channel_network_available">Rhwydwaith ar gael</string>
+    <string name="wifi_suggestion_title">Caniatau\u2019r rhwydweithiau Wi\u2011Fi a awgrymir?</string>
+    <string name="wifi_suggestion_content">Awgrymodd <xliff:g id="name" example="App123">%s</xliff:g> rhwydweithiau. Gall y ddyfais gysylltu yn awtomatig. </string>
+    <string name="wifi_suggestion_action_allow_app">Caniatáu</string>
+    <string name="wifi_suggestion_action_disallow_app">Dim diolch</string>
+    <string name="wifi_suggestion_imsi_privacy_title">Cysylltu â Wi\u2011Fi <xliff:g id="carrierName" example="xxxMobile">%s</xliff:g>?</string>
+    <string name="wifi_suggestion_imsi_privacy_content">Mae\'r rhwydweithiau hyn yn derbyn ID SIM y gellir ei ddefnyddio i dracio lleoliad y ddyfais.</string>
+    <string name="wifi_suggestion_action_allow_imsi_privacy_exemption_carrier">Cysylltu</string>
+    <string name="wifi_suggestion_action_disallow_imsi_privacy_exemption_carrier">Peidio â chysylltu</string>
+    <string name="wifi_suggestion_imsi_privacy_exemption_confirmation_title">Cadarnhau cysylltiad?</string>
+    <string name="wifi_suggestion_imsi_privacy_exemption_confirmation_content">Os wyt yn cysylltu, gallai rwydweithiau Wi\u2011Fi <xliff:g id="carrierName" example="xxxMobile">%s</xliff:g> cael at neu rannu ID unigryw sy\'n gysylltiedig â dy SIM. Gall hyn ganiatáu tracio lleoliad dy ddyfais.</string>
+    <string name="wifi_suggestion_action_allow_imsi_privacy_exemption_confirmation">Cysylltu</string>
+    <string name="wifi_suggestion_action_disallow_imsi_privacy_exemption_confirmation">Peidio â chysylltu</string>
+    <string name="wifi_wakeup_onboarding_title">Bydd Wi\u2011Fi yn troi ymlaen yn awtomatig</string>
+    <string name="wifi_wakeup_onboarding_subtext">Pan fydd o fewn cyrraedd rhwydwaith ansawdd uchel wedi\'i chofio</string>
+    <string name="wifi_wakeup_onboarding_action_disable">Peidio â\'i droi ymlaen eto</string>
+    <string name="wifi_wakeup_enabled_title">Trodd Wi\u2011Fi ymlaen yn awtomatig</string>
+    <string name="wifi_wakeup_enabled_content">Rwyt o fewn cyrraedd rhwydwaith wedi\'i gofio: <xliff:g id="network_ssid">%1$s</xliff:g></string>
+    <string name="wifi_watchdog_network_disabled">Methwyd â chysylltu i\'r Wi-Fi</string>
+    <string name="wifi_watchdog_network_disabled_detailed">Mae gan \u0020 gysylltiad rhyngrwyd gwael.</string>
+    <string name="wifi_connect_alert_title">Caniatáu cysylltiad?</string>
+    <string name="wifi_connect_alert_message">Mae\'r ap %1$s eisiau cysylltu â\'r rhwydwaith Wi-Fi %2$s</string>
+    <string name="wifi_connect_default_application">Ap</string>
+    <string name="accept">Derbyn</string>
+    <string name="decline">Gwrthod</string>
+    <string name="ok">Iawn</string>
+    <string name="wifi_p2p_invitation_sent_title">Anfonwyd y gwahoddiad</string>
+    <string name="wifi_p2p_invitation_to_connect_title">Gwahoddiad i gysylltu</string>
+    <string name="wifi_p2p_from_message">Oddi wrth: </string>
+    <string name="wifi_p2p_to_message">At: </string>
+    <string name="wifi_p2p_enter_pin_message">Rho\'r PIN sydd ei angen: </string>
+    <string name="wifi_p2p_show_pin_message">PIN: </string>
+    <string name="dlg_ok">Iawn</string>
+    <string name="wifi_cannot_connect_with_randomized_mac_title">Methu â chysylltu â <xliff:g id="ssid">%1$s</xliff:g></string>
+    <string name="wifi_cannot_connect_with_randomized_mac_message">Tapia i newid gosodiadau preifatrwydd a cheisio eto</string>
+    <string name="wifi_disable_mac_randomization_dialog_title">Newid gosodiad preifatrwydd?</string>
+    <string name="wifi_disable_mac_randomization_dialog_message">I gysylltu, mae ar <xliff:g id="ssid">%1$s</xliff:g> angen defnyddio cyfeiriad MAC dy ddyfais, dynodwr unigryw. Ar hyn o bryd, mae dy osodiad preifatrwydd ar gyfer y rhwydwaith hwn yn defnyddio dynodwr ar hap.
+\n\nGall y newid hwn ganiatáu i ddyfeisiau cyfagos tracio lleoliad dy ddyfais.</string>
+    <string name="wifi_disable_mac_randomization_dialog_confirm_text">Newid gosodiad</string>
+    <string name="wifi_disable_mac_randomization_dialog_success">Diweddarwyd y gosodiad. Ceisia gysylltu eto.</string>
+    <string name="wifi_disable_mac_randomization_dialog_failure">Methu newid gosodiad preifatrwydd</string>
+    <string name="wifi_disable_mac_randomization_dialog_network_not_found">Ni chanfuwyd rhwydwaith</string>
+    <string name="wifi_eap_error_message_code_32756"><xliff:g id="ssid">%1$s</xliff:g> : gwall dilysiad EAP 32756</string>
+    <string name="wifi_eap_error_message_code_32760"><xliff:g id="ssid">%1$s</xliff:g> : Gwall dilysu EAP 32760</string>
+    <string name="wifi_eap_error_message_code_32761"><xliff:g id="ssid">%1$s</xliff:g> : Gwall dilysu EAP 32761</string>
+    <string name="wifi_eap_error_message_code_32762"><xliff:g id="ssid">%1$s</xliff:g> : Gwall dilysu EAP 32762</string>
+    <string name="wifi_eap_error_message_code_32763"><xliff:g id="ssid">%1$s</xliff:g> : Gwall dilysu EAP 32763</string>
+    <string name="wifi_eap_error_message_code_32764"><xliff:g id="ssid">%1$s</xliff:g> : Gwall dilysu EAP 32764</string>
+    <string name="wifi_eap_error_message_code_32765"><xliff:g id="ssid">%1$s</xliff:g> : Gwall dilysu EAP 32765</string>
+    <string name="wifi_eap_error_message_code_32766"><xliff:g id="ssid">%1$s</xliff:g> : Gwall dilysu EAP 32766</string>
+    <string name="wifi_eap_error_message_code_32767"><xliff:g id="ssid">%1$s</xliff:g> : gwall dilysiad EAP 32767</string>
+    <string name="wifi_eap_error_message_code_16384"><xliff:g id="ssid">%1$s</xliff:g> : gwall dilysiad EAP 16384</string>
+    <string name="wifi_eap_error_message_code_16385"><xliff:g id="ssid">%1$s</xliff:g> : gwall dilysiad EAP 16385</string>
+    <string name="wifi_eap_error_message_unknown_error_code"><xliff:g id="ssid">%1$s</xliff:g> : gwall dilysiad EAP, cod gwall anhysbys</string>
+    <string name="wifi_softap_auto_shutdown_timeout_expired_title">Llecyn Wi-Fi wedi\'i droi i ffwrdd</string>
+    <string name="wifi_softap_auto_shutdown_timeout_expired_summary">Dim dyfeisiau wedi\'u cysylltu. Tapia i addasu.</string>
+    <string name="wifi_sim_required_title">Wi\u2011Fi heb gysylltu</string>
+    <string name="wifi_sim_required_message">I gysylltu â <xliff:g id="ssid">%1$s</xliff:g>, gosoda SIM <xliff:g id="carrier_name">%2$s</xliff:g></string>
+    <string name="wifi_interface_priority_title">Mae <xliff:g id="app">%1$s</xliff:g> eisiau defnyddio adnodd rhwydweithio</string>
+    <string name="wifi_interface_priority_message">Gall hyn achosi problemau i <xliff:g id="apps">%3$s</xliff:g>.</string>
+    <string name="wifi_interface_priority_message_plural">Gall hyn achosi problemau i\'r apiau hyn: <xliff:g id="apps">%3$s</xliff:g>.</string>
+    <string name="wifi_interface_priority_approve">Caniatáu</string>
+    <string name="wifi_interface_priority_reject">Peidio â chaniatáu</string>
+    <string name="wifi_ca_cert_dialog_title">Wyt ti\'n ymddiried yn y rhwydwaith hon?</string>
+    <string name="wifi_ca_cert_dialog_continue_text">Ydw. Cysylltu.</string>
+    <string name="wifi_ca_cert_dialog_abort_text">Nac ydw. Dim cysylltu.</string>
+    <string name="wifi_ca_cert_dialog_message_hint">Rho ganiatâd i\'r rhwydwaith hon gysylltu dim ond os yw\u2019r wybodaeth isod yn edrych yn gwyir.\n\n</string>
+    <string name="wifi_ca_cert_dialog_message_server_name_text">Enw Gweinydd:\n<xliff:g id="value">%1$s</xliff:g>\n\n</string>
+    <string name="wifi_ca_cert_dialog_message_issuer_name_text">Enw Darparwr:\n<xliff:g id="value">%1$s</xliff:g>\n\n</string>
+    <string name="wifi_ca_cert_dialog_message_organization_text">Sefydliad:\n<xliff:g id="value">%1$s</xliff:g>\n\n</string>
+    <string name="wifi_ca_cert_dialog_message_expiration_text">Dyddiad Diwedd Tystysgrif:\n<xliff:g id="value">%1$s</xliff:g>\n\n</string>
+    <string name="wifi_ca_cert_dialog_message_signature_name_text">Ôl bys SHA-256:\n<xliff:g id="value">%1$s</xliff:g>\n\n</string>
+    <string name="wifi_ca_cert_dialog_message_contact_text">Cyswllt:\n<xliff:g id="value">%1$s</xliff:g>\n\n</string>
+    <string name="wifi_ca_cert_notification_title">Rhaid dilysu\u2019r rhwydwaith</string>
+    <string name="wifi_ca_cert_notification_message">Adolyga manylion rhwydwaith <xliff:g id="ssid">%1$s</xliff:g> cyn cysylltu. Tapia i barhau.</string>
+    <string name="wifi_ca_cert_failed_to_install_ca_cert">Methwyd gosod tystysgrif.</string>
+    <string name="wifi_tofu_invalid_cert_chain_title">Methu cysylltu â <xliff:g id="value">%1$s</xliff:g></string>
+    <string name="wifi_tofu_invalid_cert_chain_message">Mae cadwyn tystysgrif y gweinydd yn annilys.</string>
+    <string name="wifi_tofu_invalid_cert_chain_ok_text">Iawn</string>
+    <string name="wifi_ca_cert_dialog_preT_title">Methu dilysu\u2019r rhwydwaith hon</string>
+    <string name="wifi_ca_cert_dialog_preT_continue_text">Aros wedi cysylltu</string>
+    <string name="wifi_ca_cert_dialog_preT_abort_text">Datgysylltu nawr</string>
+    <string name="wifi_ca_cert_dialog_preT_message_hint">Mae gan y rhwydwaith <xliff:g id="ssid">%1$s</xliff:g> dystysgrif ar goll.</string>
+    <string name="wifi_ca_cert_dialog_preT_message_link">Dysgu sut i ychwanegu tystysgrifau</string>
+    <string name="wifi_ca_cert_notification_preT_title">Methu dilysu\u2019r rhwydwaith hon</string>
+    <string name="wifi_ca_cert_notification_preT_message">Mae gan y rhwydwaith <xliff:g id="ssid">%1$s</xliff:g> dystysgrif ar goll. Tapi ai ddysgu sut i ychwanegu tystysgrifau.</string>
+    <string name="wifi_ca_cert_notification_preT_continue_text">Cysylltu beth bynnag</string>
+    <string name="wifi_ca_cert_notification_preT_abort_text">Peidio â chysylltu</string>
+    <string name="wifi_enable_request_dialog_title">Caniatáu <xliff:g id="app_name" example="App123">%1$s</xliff:g> i droi Wi\u2011Fi ymlaen?</string>
+    <string name="wifi_enable_request_dialog_message">Gellir troi Wi\u2011Fi i ffwrdd yn Gosodiadau Cyflym</string>
+    <string name="wifi_enable_request_dialog_positive_button">Caniatáu</string>
+    <string name="wifi_enable_request_dialog_negative_button">Peidio â chaniatáu</string>
+</resources>

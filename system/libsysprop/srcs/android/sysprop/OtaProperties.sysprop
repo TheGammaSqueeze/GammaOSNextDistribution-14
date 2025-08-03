@@ -1,0 +1,63 @@
+# Copyright (C) 2019 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+module: "android.sysprop.OtaProperties"
+owner: Platform
+prop {
+    api_name: "warm_reset"
+    type: Boolean
+    scope: Public
+    access: ReadWrite
+    prop_name: "ota.warm_reset"
+    integer_as_bool : true
+}
+
+prop {
+    api_name: "ab_ota_partitions"
+    type: String
+    scope: Public
+    access: Readonly
+    prop_name: "ro.product.ab_ota_partitions"
+}
+
+prop {
+    api_name: "virtual_ab_enabled"
+    type: Boolean
+    scope: Public
+    access: Readonly
+    prop_name: "ro.virtual_ab.enabled",
+}
+
+prop {
+    api_name: "virtual_ab_retrofit"
+    type: Boolean
+    scope: Public
+    access: Readonly
+    prop_name: "ro.virtual_ab.retrofit",
+}
+
+# The VBMeta digest is a digest over all VBMeta structs, usually a SHA256
+# digest. Details in
+# https://android.googlesource.com/platform/external/avb/+/master/README.md#The-VBMeta-Digest
+#
+# Update_engine sets the vbmeta digest for the inactive slot, after installing
+# ota updates to the b partition of a/b devices.
+prop {
+    api_name: "other_vbmeta_digest"
+    type: String
+    scope: Internal
+    access: ReadWrite
+    prop_name: "ota.other.vbmeta_digest",
+}
+

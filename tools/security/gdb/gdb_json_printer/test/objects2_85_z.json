@@ -1,0 +1,146 @@
+{
+    "type": "pointer",
+    "ctype": "Foo1 *",
+    "address": "0x7fffffffd758",
+    "reference": {
+        "type": "struct",
+        "ctype": "Foo3",
+        "address": "0x55555556aef0",
+        "fields": [
+            {
+                "field": "d",
+                "value": {
+                    "type": "int",
+                    "ctype": "uint32_t",
+                    "address": "0x55555556af14",
+                    "value": "4"
+                }
+            }
+        ],
+        "base_classes": [
+            {
+                "base_class": "Foo1",
+                "value": {
+                    "type": "struct",
+                    "ctype": "Foo1",
+                    "address": "0x55555556aef0",
+                    "fields": [
+                        {
+                            "field": "b",
+                            "value": {
+                                "type": "int",
+                                "ctype": "uint16_t",
+                                "address": "0x55555556aefa",
+                                "value": "2"
+                            }
+                        }
+                    ],
+                    "base_classes": [
+                        {
+                            "base_class": "Foo",
+                            "value": {
+                                "type": "struct",
+                                "ctype": "Foo",
+                                "address": "0x55555556aef0",
+                                "fields": [
+                                    {
+                                        "field": "_vptr.Foo",
+                                        "value": {
+                                            "type": "pointer",
+                                            "ctype": "int (**)(void)",
+                                            "address": "0x55555556aef0",
+                                            "reference": {
+                                                "type": "pointer",
+                                                "ctype": "int (*)(void)",
+                                                "address": "0x555555557c40",
+                                                "reference": {
+                                                    "type": "extract failed"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "field": "a",
+                                        "value": {
+                                            "type": "int",
+                                            "ctype": "uint8_t",
+                                            "address": "0x55555556aef8",
+                                            "value": "1"
+                                        }
+                                    }
+                                ],
+                                "base_classes": []
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "base_class": "Foo2",
+                "value": {
+                    "type": "struct",
+                    "ctype": "Foo2",
+                    "address": "0x55555556af00",
+                    "fields": [
+                        {
+                            "field": "c",
+                            "value": {
+                                "type": "int",
+                                "ctype": "uint32_t",
+                                "address": "0x55555556af0c",
+                                "value": "3"
+                            }
+                        },
+                        {
+                            "field": "cc",
+                            "value": {
+                                "type": "int",
+                                "ctype": "uint32_t",
+                                "address": "0x55555556af10",
+                                "value": "4"
+                            }
+                        }
+                    ],
+                    "base_classes": [
+                        {
+                            "base_class": "Foo",
+                            "value": {
+                                "type": "struct",
+                                "ctype": "Foo",
+                                "address": "0x55555556af00",
+                                "fields": [
+                                    {
+                                        "field": "_vptr.Foo",
+                                        "value": {
+                                            "type": "pointer",
+                                            "ctype": "int (**)(void)",
+                                            "address": "0x55555556af00",
+                                            "reference": {
+                                                "type": "pointer",
+                                                "ctype": "int (*)(void)",
+                                                "address": "0x555555557c58",
+                                                "reference": {
+                                                    "type": "extract failed"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "field": "a",
+                                        "value": {
+                                            "type": "int",
+                                            "ctype": "uint8_t",
+                                            "address": "0x55555556af08",
+                                            "value": "1"
+                                        }
+                                    }
+                                ],
+                                "base_classes": []
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

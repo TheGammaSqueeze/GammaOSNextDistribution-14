@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="system_tracing" msgid="4719188511746319848">"Gjurmimi i sistemit"</string>
+    <string name="record_system_activity" msgid="4339462312915377825">"Regjistro aktivitetin e sistemit dhe analizoje atë më vonë për të përmirësuar cilësinë e funksionimit"</string>
+    <string name="record_trace" msgid="6416875085186661845">"Regjistro gjurmën"</string>
+    <string name="record_trace_summary" msgid="6705357754827849292">"Regjistron një gjurmim të sistemit duke përdorur konfigurimin e caktuar te \"Cilësimet e gjurmimit\""</string>
+    <string name="record_stack_samples" msgid="3498368637185702335">"Regjistro profilin e CPU-së"</string>
+    <string name="record_stack_samples_summary" msgid="7827953921526410478">"Kampionimi i grumbujve të telefonatave mund të aktivizohet gjithashtu te gjurmimet duke zgjedhur kategorinë \"cpu\""</string>
+    <string name="record_heap_dump" msgid="1688550222066812696">"Regjistro stivën e skedarëve fiktivë"</string>
+    <string name="record_heap_dump_summary_enabled" msgid="5038675257021221777">"Regjistron një stivë të skedarëve fiktivë të proceseve të zgjedhura te \"Proceset e stivës së skedarëve fiktivë\""</string>
+    <string name="record_heap_dump_summary_disabled" msgid="4640319333930345311">"Zgjidh të paktën një proces te \"Proceset e stivës së skedarëve fiktivë\" për të mbledhur stivat e skedarëve fiktivë"</string>
+    <string name="start_new_trace" msgid="8177130420802170353">"Nis një gjurmim të ri"</string>
+    <string name="winscope_tracing" msgid="5818984791154837458">"Mblidh gjurmët e Winscope"</string>
+    <string name="winscope_tracing_summary" msgid="7040550156722395894">"Përfshin të dhëna të detajuara të telemetrisë së ndërfaqes së përdoruesit (mund të shkaktojë defekte)"</string>
+    <string name="trace_debuggable_applications" msgid="7957069895298887899">"Gjurmo aplikacionet e gjurmueshme"</string>
+    <string name="categories" msgid="2280163673538611008">"Kategoritë"</string>
+    <string name="restore_default_categories" msgid="5090536794637169521">"Restauro kategoritë e parazgjedhura"</string>
+    <string name="default_categories_restored" msgid="6861683793680564181">"Kategoritë e parazgjedhura u restauruan"</string>
+    <string name="default_categories" msgid="2117679794687799407">"E parazgjedhur"</string>
+    <string name="num_categories_selected" msgid="5772630335027553995">"{count,plural, =1{Zgjedhur: #}other{Zgjedhur: #}}"</string>
+    <string name="heap_dump_processes" msgid="2500105180344901939">"Proceset e stivës së skedarëve fiktivë"</string>
+    <string name="heap_dump_processes_summary" msgid="4570434268024622765">"Duhet të zgjidhet të paktën një proces"</string>
+    <string name="clear_heap_dump_processes" msgid="295101454741555286">"Pastro proceset e stivës së skedarëve fiktivë"</string>
+    <string name="clear_heap_dump_processes_toast" msgid="3658510557596150797">"Lista e proceseve u pastrua"</string>
+    <string name="continuous_heap_dump" msgid="390369382946204224">"Profili i vazhdueshëm i grumbullit"</string>
+    <string name="continuous_heap_dump_summary" msgid="4581643248161659581">"Regjistro një stivë të skedarëve fiktivë një herë për çdo interval të specifikuar"</string>
+    <string name="continuous_heap_dump_interval" msgid="842533896492001433">"Intervali i stivës së skedarëve fiktivë"</string>
+    <string name="five_seconds" msgid="7018465440929299712">"5 sekonda"</string>
+    <string name="ten_seconds" msgid="863416601384309033">"10 sekonda"</string>
+    <string name="thirty_seconds" msgid="7945396361369598222">"30 sekonda"</string>
+    <string name="one_minute" msgid="4182508213840684258">"1 minutë"</string>
+    <string name="applications" msgid="521776761270770549">"Aplikacionet"</string>
+    <string name="no_debuggable_apps" msgid="4386209254520471208">"Nuk ka asnjë aplikacion të korrigjueshëm"</string>
+    <string name="buffer_size" msgid="3944311026715111454">"Madhësia e memories për njësi CPU"</string>
+    <string name="show_quick_settings_tile" msgid="4971147332635291585">"Pllakëza \"Shfaq cilësimet e shpejta\""</string>
+    <string name="saving_trace" msgid="1468692734770800541">"Po ruhet gjurma"</string>
+    <string name="trace_saved" msgid="5869970594780992309">"Gjurma u ruajt"</string>
+    <string name="saving_stack_samples" msgid="8174915522390525221">"Kampionet e grumbujve po ruhen"</string>
+    <string name="stack_samples_saved" msgid="8863295751647724616">"Kampionet e grumbujve u ruajtën"</string>
+    <string name="saving_heap_dump" msgid="6118616780825771824">"Stiva e skedarëve fiktivë po ruhet"</string>
+    <string name="heap_dump_saved" msgid="6720583137473857098">"Stiva e skedarëve fiktivë u ruajt"</string>
+    <string name="tap_to_share" msgid="4440713575852187545">"Trokit për të ndarë regjistrimin tënd"</string>
+    <string name="attaching_to_report" msgid="2629202947947275886">"Po bashkëngjit gjurmimin në raportin e defektit në kod"</string>
+    <string name="attached_to_report" msgid="5806905349184608870">"U bashkëngjit gjurmimi në raportin e defektit në kod"</string>
+    <string name="attached_to_report_summary" msgid="7665675771190391355">"Trokit për të hapur BetterBug"</string>
+    <string name="stop_tracing" msgid="8916938308534164152">"Ndalo gjurmimin"</string>
+    <string name="tracing_categories_unavailable" msgid="5609076391417077752">"Disa kategori gjurme nuk ofrohen:"</string>
+    <string name="trace_is_being_recorded" msgid="5947378146009337469">"Gjurma po regjistrohet"</string>
+    <string name="tap_to_stop_tracing" msgid="6533282719573871806">"Trokit për të ndaluar gjurmimin"</string>
+    <string name="stack_samples_are_being_recorded" msgid="8669254939248349583">"Kampionet e grumbujve po regjistrohen"</string>
+    <string name="tap_to_stop_stack_sampling" msgid="5911317684139059415">"Trokit për të ndaluar kampionimin e grumbujve"</string>
+    <string name="heap_dump_is_being_recorded" msgid="3789315106110524969">"Stiva e skedarëve fiktivë po regjistrohet"</string>
+    <string name="tap_to_stop_heap_dump" msgid="6475699275834526902">"Trokit për të ndaluar stivën e skedarëve fiktivë"</string>
+    <string name="clear_saved_files" msgid="9156079311231446825">"Fshi skedarët e ruajtur"</string>
+    <string name="clear_saved_files_summary" msgid="109751867417553670">"Regjistrimet fshihen pas një muaji"</string>
+    <string name="clear_saved_files_question" msgid="8586686617760838834">"Të fshihen skedarët e ruajtur?"</string>
+    <string name="all_recordings_will_be_deleted" msgid="7731693738485947891">"Të gjitha regjistrimet do të fshihen nga /data/local/traces"</string>
+    <string name="clear" msgid="5484761795406948056">"Pastro"</string>
+    <string name="system_traces_storage_title" msgid="8294090839883366871">"Gjurmët e sistemit"</string>
+    <string name="keywords" msgid="736547007949049535">"systrace, gjurmimi, cilësia e funksionimit"</string>
+    <string name="share_file" msgid="1982029143280382271">"Të ndahet skedari?"</string>
+    <string name="system_trace_sensitive_data" msgid="3069389866696009549">"Skedarët e gjurmimit të sistemit mund të përfshijnë të dhëna delikate të sistemit dhe të aplikacioneve (si p.sh. të përdorimit të aplikacioneve). Ndaji gjurmët e sistemit vetëm me personat dhe aplikacionet te të cilët ke besim."</string>
+    <string name="share" msgid="8443979083706282338">"Ndaj"</string>
+    <string name="dont_show_again" msgid="6662492041164390600">"Mos e shfaq përsëri"</string>
+    <string name="long_traces" msgid="5110949471775966329">"Gjurmët e gjata"</string>
+    <string name="long_traces_summary" msgid="419034282946761469">"Ruajtur në vazhdimësi në hapësirën ruajtëse të pajisjes"</string>
+    <string name="long_traces_summary_betterbug" msgid="445546400875135624">"Ruajtur vazhdimisht në hapësirën ruajtëse të pajisjes (nuk do të lidhet automatikisht me raportet e defekteve)"</string>
+    <string name="max_long_trace_size" msgid="1943788179787181241">"Madhësia maksimale e gjurmës së gjatë"</string>
+    <string name="max_long_trace_duration" msgid="8009837944364246785">"Kohëzgjatja maksimale e gjurmës së gjatë"</string>
+    <string name="two_hundred_mb" msgid="4950018549725084512">"200 MB"</string>
+    <string name="one_gb" msgid="590396985168692037">"1 GB"</string>
+    <string name="five_gb" msgid="7883941043220621649">"5 GB"</string>
+    <string name="ten_gb" msgid="4150452462544299276">"10 GB"</string>
+    <string name="twenty_gb" msgid="5717308686812140465">"20 GB"</string>
+    <string name="ten_minutes" msgid="7039181194343961324">"10 minuta"</string>
+    <string name="thirty_minutes" msgid="2575810799813531395">"30 minuta"</string>
+    <string name="one_hour" msgid="5219232935307966891">"1 orë"</string>
+    <string name="eight_hours" msgid="3207620892104451552">"8 orë"</string>
+    <string name="twelve_hours" msgid="4647143276394563496">"12 orë"</string>
+    <string name="twentyfour_hours" msgid="2789663313550030791">"24 orë"</string>
+    <string name="four_thousand_kb" msgid="5156346740862105703">"4096 KB"</string>
+    <string name="eight_thousand_kb" msgid="8815334985638334081">"8192 KB"</string>
+    <string name="sixteen_thousand_kb" msgid="7342517169232459259">"16384 KB"</string>
+    <string name="thirtytwo_thousand_kb" msgid="654328198799196150">"32768 KB"</string>
+    <string name="sixtyfive_thousand_kb" msgid="8168144138598305306">"65536 KB"</string>
+    <string name="stop_on_bugreport" msgid="4591832600597126422">"Ndalon regjistrimin për raporte të defekteve në kod"</string>
+    <string name="stop_on_bugreport_summary" msgid="1601834864982891381">"Përfundon regjistrimet aktive kur fillon një raport defekti në kod"</string>
+    <string name="attach_to_bug_report" msgid="5388986830016247490">"Bashkëngjit regjistrimet te raportet e defekteve në kod"</string>
+    <string name="attach_to_bug_report_summary" msgid="4213730623971240002">"Dërgo automatikisht regjistrimet në vazhdim te BetterBug kur merret një raport defektesh në kod"</string>
+    <string name="link_to_traces" msgid="1404687523304348490">"Shiko skedarët e ruajtur"</string>
+    <string name="pref_category_trace_settings" msgid="6507535407023329628">"Gjurmo cilësimet"</string>
+    <string name="pref_category_saved_files" msgid="1477491400970413291">"Skedarët e ruajtur"</string>
+    <string name="pref_category_misc" msgid="6217624054980014683">"Të ndryshme"</string>
+    <string name="pref_category_heap_dump_settings" msgid="2234681064312605310">"Cilësimet e stivës së skedarëve fiktivë"</string>
+</resources>

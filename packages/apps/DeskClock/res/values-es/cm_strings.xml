@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2012-2016 The CyanogenMod Project
+     Copyright (C) 2017-2025 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="flip_action_title">Voltear dispositivo</string>
+    <string name="shake_action_title">Agitar dispositivo</string>
+    <string-array name="action_setting_entries">
+        <item>Posponer</item>
+        <item>Descartar</item>
+        <item>Nada</item>
+    </string-array>
+    <string name="firing_alarms_timers_channel">Activar alarmas y temporizadores</string>
+    <string name="alarm_missed_channel">Alarmas perdidas</string>
+    <string name="alarm_snooze_channel">Alarmas pospuestas</string>
+    <string name="alarm_upcoming_channel">Próximas alarmas</string>
+    <string name="stopwatch_channel">Cronómetro</string>
+    <string name="timer_channel">Temporizador</string>
+    <string name="add_label">Añadir etiqueta</string>
+    <string name="dialog_permissions_title">Permisos</string>
+    <string name="dialog_permissions_ask">Preguntar de nuevo</string>
+    <string name="dialog_permissions_dismiss">Descartar</string>
+    <string name="dialog_permissions_settings">Ajustes</string>
+    <string name="dialog_permissions_power_off_alarm">Sin este permiso, tu dispositivo no podrá encenderse por sí mismo para activar una alarma</string>
+    <string name="dialog_permissions_no_permission">Se han denegado los permisos necesarios, habilítalos desde la aplicación de Ajustes</string>
+    <string name="dialog_permissions_post_notifications">Esta aplicación se basa en notificaciones. ¡Sin ellas no se puede ejecutar!</string>
+    <string name="selected">Seleccionado</string>
+    <string name="more_options">Más opciones</string>
+    <string name="widget_choice_title">Elige tu estilo</string>
+    <string name="widget_name_transparent">No respaldado</string>
+    <string name="widget_name_solid">Respaldado</string>
+    <string name="clock_brightness_percentage">%s%%</string>
+    <string name="night_mode_enabled_title">Activado</string>
+    <string name="night_mode_dnd_title">No molestar</string>
+    <string name="night_mode_dnd_summary">El modo Nocturno sigue al estado No molestar</string>
+    <string name="show_ampm_title">Mostrar indicador AM/PM</string>
+    <string name="bold_text_title">Texto de reloj en negrita</string>
+    <string name="night_mode_brightness_text_title">Brillo</string>
+    <string name="clock_color_title">Color</string>
+    <string-array name="clock_color_entries">
+        <item>Blanco</item>
+        <item>Rojo</item>
+        <item>Verde</item>
+        <item>Azul</item>
+    </string-array>
+    <string name="screensaver_settings_title">Salvapantallas</string>
+    <string name="screensaver_preview">Vista previa</string>
+    <string name="screensaver_preview_summary">Inicia el salvapantallas inmediatamente</string>
+    <string name="screensaver_change_settings">Ajustes</string>
+    <string name="screensaver_change_settings_summary">Abre la configuración del reloj del salvapantallas</string>
+    <string name="screensaver_daydream_settings">Seleccionar/activar salvapantallas</string>
+    <string name="screensaver_daydream_settings_summary">Abre la configuración principal del salvapantallas</string>
+</resources>

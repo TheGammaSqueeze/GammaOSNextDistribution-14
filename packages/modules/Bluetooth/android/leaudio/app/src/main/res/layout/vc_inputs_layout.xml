@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/vc_inputs_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:orientation="vertical"
+    tools:showIn="@layout/vc_layout">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/vc_input_foldable_icon"
+            style="@style/Widget.AppCompat.CompoundButton.RadioButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="5dp"
+            android:layout_marginRight="10dp"
+            android:layout_weight="0"
+            android:tint="#E91E63"
+            app:srcCompat="@drawable/ic_arrow_drop_up_black_24dp" />
+
+        <TextView
+            android:id="@+id/textView9"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:text="Input:" />
+
+        <Spinner
+            android:id="@+id/num_inputs_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="5dp"
+            android:layout_weight="0" />
+
+        <ImageButton
+            android:id="@+id/inputGetStateButton"
+            style="@style/Widget.AppCompat.CompoundButton.RadioButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="5dp"
+            android:layout_weight="0"
+            android:maxWidth="0dp"
+            android:maxHeight="0dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            app:srcCompat="@drawable/ic_download_black_24dp" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="5"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textView19"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"
+                android:paddingHorizontal="20dp"
+                android:text="Gain:" />
+
+            <SeekBar
+                android:id="@+id/inputGainSeekBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="5dp"
+                android:max="255"
+                android:min="-255" />
+        </LinearLayout>
+
+        <Switch
+            android:id="@+id/inputMuteSwitch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="5dp"
+            android:layout_weight="0"
+            android:text="Mute" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ext_input_foldable"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0"
+        android:animateLayoutChanges="true"
+        android:orientation="vertical"
+        android:visibility="visible">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:gravity="bottom"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/inputSetGainModeButton"
+                style="@style/Widget.AppCompat.CompoundButton.RadioButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="5dp"
+                android:layout_weight="0"
+                android:maxWidth="0dp"
+                android:maxHeight="0dp"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                app:srcCompat="@drawable/ic_upload_black_24dp" />
+
+            <TextView
+                android:id="@+id/textView20"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="5dp"
+                android:layout_weight="0"
+                android:text="Gain Mode:" />
+
+            <TextView
+                android:id="@+id/inputGainModeText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="_mode_" />
+
+            <ImageButton
+                android:id="@+id/inputGetGainPropsButton"
+                style="@style/Widget.AppCompat.CompoundButton.RadioButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="5dp"
+                android:layout_weight="0"
+                android:maxWidth="0dp"
+                android:maxHeight="0dp"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                app:srcCompat="@drawable/ic_download_black_24dp" />
+
+            <TextView
+                android:id="@+id/textView17"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="5dp"
+                android:layout_weight="0"
+                android:text="Props:" />
+
+            <TextView
+                android:id="@+id/inputGainPropsUnitText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="5dp"
+                android:layout_weight="0"
+                android:text="unit" />
+
+            <TextView
+                android:id="@+id/inputGainPropsMinText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"
+                android:text="min" />
+
+            <TextView
+                android:id="@+id/inputGainPropsMaxText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="5dp"
+                android:layout_weight="0"
+                android:text="max" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:gravity="bottom"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/inputGetTypeButton"
+                style="@style/Widget.AppCompat.CompoundButton.RadioButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="5dp"
+                android:layout_weight="0"
+                app:srcCompat="@drawable/ic_download_black_24dp" />
+
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="5dp"
+                android:layout_weight="0"
+                android:text="Type:" />
+
+            <TextView
+                android:id="@+id/inputTypeText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="5dp"
+                android:layout_weight="1"
+                android:text="_type_" />
+
+            <ImageButton
+                android:id="@+id/inputGetStatusButton"
+                style="@style/Widget.AppCompat.CompoundButton.RadioButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="5dp"
+                android:layout_weight="0"
+                app:srcCompat="@drawable/ic_download_black_24dp" />
+
+            <TextView
+                android:id="@+id/textView13"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="5dp"
+                android:layout_weight="0"
+                android:text="Status:" />
+
+            <TextView
+                android:id="@+id/inputStatusText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="5dp"
+                android:layout_weight="1"
+                android:text="_status_" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:gravity="bottom"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/inputGetDescriptionButton"
+                style="@style/Widget.AppCompat.CompoundButton.RadioButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_weight="0"
+                android:maxWidth="0dp"
+                android:maxHeight="0dp"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                app:srcCompat="@drawable/ic_download_black_24dp" />
+
+            <ImageButton
+                android:id="@+id/inputSetDescriptionButton"
+                style="@style/Widget.AppCompat.CompoundButton.RadioButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="5dp"
+                android:layout_weight="0"
+                app:srcCompat="@drawable/ic_upload_black_24dp" />
+
+            <TextView
+                android:id="@+id/textView15"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="5dp"
+                android:layout_weight="0"
+                android:text="Description:" />
+
+            <TextView
+                android:id="@+id/inputDescriptionText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="5dp"
+                android:layout_weight="1"
+                android:text="_description_" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

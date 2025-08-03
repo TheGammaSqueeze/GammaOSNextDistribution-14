@@ -1,0 +1,36 @@
+namespace com.android.federatedcompute.services.data.fbs;
+
+table TrainingConstraints {
+    requires_scheduler_idle:bool;
+    requires_scheduler_battery_not_low:bool;
+    requires_scheduler_unmetered_network:bool;
+}
+
+enum SchedulingMode : int {
+    UNDEFINED = 0,
+    // The task will be repeatedly scheduled after each run.
+    RECURRENT = 1,
+    // The task will be removed once it succeeds once.
+    ONE_TIME = 2,
+}
+
+table TrainingIntervalOptions {
+    scheduling_mode:SchedulingMode;
+    min_interval_millis: uint64;
+}
+
+enum SchedulingReason : int {
+    SCHEDULING_REASON_UNSPECIFIED = 0,
+
+    // A new task was scheduled with a call to FederatedComputeService.schedule().
+    // This also includes the case where an existing task was "replaced" because
+    // key parameters such as population name or scheduling parameters changed.
+    SCHEDULING_REASON_NEW_TASK = 1,
+
+    // A federated computation finished successfully, and the task was
+    // rescheduled using a server provided retry window.
+    SCHEDULING_REASON_FEDERATED_COMPUTATION_RETRY = 2,
+
+    // Task ended in error, and a default latency for rescheduling was used.
+    SCHEDULING_REASON_FAILURE = 3,
+}

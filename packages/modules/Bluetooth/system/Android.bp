@@ -1,0 +1,206 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_bt_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    //   SPDX-license-identifier-BSD
+    //   SPDX-license-identifier-MIT
+    //   legacy_unencumbered
+    default_applicable_licenses: ["system_bt_license"],
+}
+
+filegroup {
+    name: "BlueberryFacadeProto",
+    srcs: [
+        "blueberry/facade/common.proto",
+        "blueberry/facade/hal/hal_facade.proto",
+        "blueberry/facade/hci/acl_manager_facade.proto",
+        "blueberry/facade/hci/controller_facade.proto",
+        "blueberry/facade/hci/hci_facade.proto",
+        "blueberry/facade/hci/le_acl_manager_facade.proto",
+        "blueberry/facade/hci/le_advertising_manager_facade.proto",
+        "blueberry/facade/hci/le_initiator_address_facade.proto",
+        "blueberry/facade/hci/le_scanning_manager_facade.proto",
+        "blueberry/facade/iso/facade.proto",
+        "blueberry/facade/l2cap/classic/facade.proto",
+        "blueberry/facade/l2cap/le/facade.proto",
+        "blueberry/facade/neighbor/facade.proto",
+        "blueberry/facade/rootservice.proto",
+        "blueberry/facade/security/facade.proto",
+        "blueberry/facade/shim/facade.proto",
+        "blueberry/facade/topshim/facade.proto",
+    ],
+}
+
+genrule {
+    name: "BlueberryFacadeGeneratedStub_h",
+    tools: [
+        "aprotoc",
+        "protoc-gen-grpc-cpp-plugin",
+    ],
+    cmd: "$(location aprotoc) -Ipackages/modules/Bluetooth/system -Iexternal/protobuf/src --plugin=protoc-gen-grpc=$(location protoc-gen-grpc-cpp-plugin) $(locations :BlueberryFacadeProto) --grpc_out=$(genDir) --cpp_out=$(genDir)",
+    srcs: [
+        ":BlueberryFacadeProto",
+        ":libprotobuf-internal-protos",
+    ],
+    out: [
+        "blueberry/facade/common.grpc.pb.h",
+        "blueberry/facade/common.pb.h",
+        "blueberry/facade/hal/hal_facade.grpc.pb.h",
+        "blueberry/facade/hal/hal_facade.pb.h",
+        "blueberry/facade/hci/acl_manager_facade.grpc.pb.h",
+        "blueberry/facade/hci/acl_manager_facade.pb.h",
+        "blueberry/facade/hci/controller_facade.grpc.pb.h",
+        "blueberry/facade/hci/controller_facade.pb.h",
+        "blueberry/facade/hci/hci_facade.grpc.pb.h",
+        "blueberry/facade/hci/hci_facade.pb.h",
+        "blueberry/facade/hci/le_acl_manager_facade.grpc.pb.h",
+        "blueberry/facade/hci/le_acl_manager_facade.pb.h",
+        "blueberry/facade/hci/le_advertising_manager_facade.grpc.pb.h",
+        "blueberry/facade/hci/le_advertising_manager_facade.pb.h",
+        "blueberry/facade/hci/le_initiator_address_facade.grpc.pb.h",
+        "blueberry/facade/hci/le_initiator_address_facade.pb.h",
+        "blueberry/facade/hci/le_scanning_manager_facade.grpc.pb.h",
+        "blueberry/facade/hci/le_scanning_manager_facade.pb.h",
+        "blueberry/facade/iso/facade.grpc.pb.h",
+        "blueberry/facade/iso/facade.pb.h",
+        "blueberry/facade/l2cap/classic/facade.grpc.pb.h",
+        "blueberry/facade/l2cap/classic/facade.pb.h",
+        "blueberry/facade/l2cap/le/facade.grpc.pb.h",
+        "blueberry/facade/l2cap/le/facade.pb.h",
+        "blueberry/facade/neighbor/facade.grpc.pb.h",
+        "blueberry/facade/neighbor/facade.pb.h",
+        "blueberry/facade/rootservice.grpc.pb.h",
+        "blueberry/facade/rootservice.pb.h",
+        "blueberry/facade/security/facade.grpc.pb.h",
+        "blueberry/facade/security/facade.pb.h",
+        "blueberry/facade/shim/facade.grpc.pb.h",
+        "blueberry/facade/shim/facade.pb.h",
+    ],
+}
+
+genrule {
+    name: "BlueberryFacadeGeneratedStub_cc",
+    tools: [
+        "aprotoc",
+        "protoc-gen-grpc-cpp-plugin",
+    ],
+    cmd: "$(location aprotoc) -Ipackages/modules/Bluetooth/system -Iexternal/protobuf/src --plugin=protoc-gen-grpc=$(location protoc-gen-grpc-cpp-plugin) $(locations :BlueberryFacadeProto) --grpc_out=$(genDir) --cpp_out=$(genDir)",
+    srcs: [
+        ":BlueberryFacadeProto",
+        ":libprotobuf-internal-protos",
+    ],
+    out: [
+        "blueberry/facade/common.grpc.pb.cc",
+        "blueberry/facade/common.pb.cc",
+        "blueberry/facade/hal/hal_facade.grpc.pb.cc",
+        "blueberry/facade/hal/hal_facade.pb.cc",
+        "blueberry/facade/hci/acl_manager_facade.grpc.pb.cc",
+        "blueberry/facade/hci/acl_manager_facade.pb.cc",
+        "blueberry/facade/hci/controller_facade.grpc.pb.cc",
+        "blueberry/facade/hci/controller_facade.pb.cc",
+        "blueberry/facade/hci/hci_facade.grpc.pb.cc",
+        "blueberry/facade/hci/hci_facade.pb.cc",
+        "blueberry/facade/hci/le_acl_manager_facade.grpc.pb.cc",
+        "blueberry/facade/hci/le_acl_manager_facade.pb.cc",
+        "blueberry/facade/hci/le_advertising_manager_facade.grpc.pb.cc",
+        "blueberry/facade/hci/le_advertising_manager_facade.pb.cc",
+        "blueberry/facade/hci/le_initiator_address_facade.grpc.pb.cc",
+        "blueberry/facade/hci/le_initiator_address_facade.pb.cc",
+        "blueberry/facade/hci/le_scanning_manager_facade.grpc.pb.cc",
+        "blueberry/facade/hci/le_scanning_manager_facade.pb.cc",
+        "blueberry/facade/iso/facade.grpc.pb.cc",
+        "blueberry/facade/iso/facade.pb.cc",
+        "blueberry/facade/l2cap/classic/facade.grpc.pb.cc",
+        "blueberry/facade/l2cap/classic/facade.pb.cc",
+        "blueberry/facade/l2cap/le/facade.grpc.pb.cc",
+        "blueberry/facade/l2cap/le/facade.pb.cc",
+        "blueberry/facade/neighbor/facade.grpc.pb.cc",
+        "blueberry/facade/neighbor/facade.pb.cc",
+        "blueberry/facade/rootservice.grpc.pb.cc",
+        "blueberry/facade/rootservice.pb.cc",
+        "blueberry/facade/security/facade.grpc.pb.cc",
+        "blueberry/facade/security/facade.pb.cc",
+        "blueberry/facade/shim/facade.grpc.pb.cc",
+        "blueberry/facade/shim/facade.pb.cc",
+    ],
+}
+
+genrule {
+    name: "BlueberryFacadeAndCertGeneratedStub_py",
+    tools: [
+        "aprotoc",
+        "protoc-gen-grpc-python-plugin",
+        "soong_zip",
+    ],
+    cmd: "mkdir -p $(genDir)/files && " +
+        "$(location aprotoc) -Ipackages/modules/Bluetooth/system -Iexternal/protobuf/src --plugin=protoc-gen-grpc=$(location protoc-gen-grpc-python-plugin) $(locations :BlueberryFacadeProto) --grpc_out=$(genDir)/files --python_out=$(genDir)/files && " +
+        "find $(genDir)/files -type d -exec touch {}/__init__.py \\; &&" +
+        "$(location soong_zip) -C $(genDir)/files -D $(genDir)/files -o $(out)",
+    srcs: [
+        ":BlueberryFacadeProto",
+        ":libprotobuf-internal-protos",
+    ],
+    out: ["blueberry_facade_generated_py.zip"],
+}
+
+rust_protobuf {
+    name: "libbt_facade_proto",
+    crate_name: "bt_facade_proto",
+    protos: ["blueberry/facade/common.proto"],
+    grpc_protos: [
+        "blueberry/facade/hal/hal_facade.proto",
+        "blueberry/facade/hci/controller_facade.proto",
+        "blueberry/facade/hci/hci_facade.proto",
+        "blueberry/facade/rootservice.proto",
+    ],
+    source_stem: "facade",
+    host_supported: true,
+    apex_available: [
+        "com.android.btservices",
+    ],
+    min_sdk_version: "30",
+}
+
+rust_protobuf {
+    name: "libbt_topshim_facade_protobuf",
+    crate_name: "bt_topshim_facade_protobuf",
+    source_stem: "topshim_facade",
+    host_supported: true,
+    grpc_protos: ["blueberry/facade/topshim/facade.proto"],
+}
+
+genrule {
+    name: "libbt_topshim_facade_py_proto",
+    tools: [
+        "aprotoc",
+        "protoc-gen-grpc-python-plugin",
+        "soong_zip",
+    ],
+    cmd: "$(location aprotoc) --plugin=protoc-gen-grpc=$(location protoc-gen-grpc-python-plugin) -Iexternal/protobuf/src -Ipackages/modules/Bluetooth/system $(location blueberry/facade/topshim/facade.proto) --grpc_out=$(genDir) --python_out=$(genDir)",
+    srcs: [
+        ":libprotobuf-internal-protos",
+        "blueberry/facade/topshim/facade.proto",
+    ],
+    out: [
+        "blueberry/facade/topshim/facade_pb2.py",
+        "blueberry/facade/topshim/facade_pb2_grpc.py",
+    ],
+}
+
+// Export system headers for rules that can't simply use `include_dirs`
+cc_library_headers {
+    name: "libbluetooth_system_headers",
+    visibility: [
+        "//packages/modules/Bluetooth/system:__subpackages__",
+    ],
+    export_include_dirs: ["./"],
+    vendor_available: true,
+    host_supported: true,
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.btservices",
+    ],
+    min_sdk_version: "30",
+}

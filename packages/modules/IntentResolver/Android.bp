@@ -1,0 +1,105 @@
+//
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+    default_visibility: [":__subpackages__"],
+}
+
+java_defaults {
+    name: "Java_Defaults",
+    srcs: [
+        "java/src/**/*.java",
+        "java/src/**/*.kt",
+    ],
+    resource_dirs: [
+        "java/res",
+    ],
+    manifest: "AndroidManifest-lib.xml",
+    min_sdk_version: "current",
+    lint: {
+        strict_updatability_linting: false,
+        extra_check_modules: ["SystemUILintChecker"],
+        warning_checks: ["MissingApacheLicenseDetector"],
+    },
+}
+
+android_library {
+    name: "IntentResolver-core",
+    defaults: ["Java_Defaults"],
+    static_libs: [
+        "androidx.annotation_annotation",
+        "androidx.concurrent_concurrent-futures",
+        "androidx-constraintlayout_constraintlayout",
+        "androidx.recyclerview_recyclerview",
+        "androidx.viewpager_viewpager",
+        "androidx.lifecycle_lifecycle-common-java8",
+        "androidx.lifecycle_lifecycle-extensions",
+        "androidx.lifecycle_lifecycle-runtime-ktx",
+        "androidx.lifecycle_lifecycle-viewmodel-ktx",
+        "dagger2",
+        "hilt_android",
+        "IntentResolverFlagsLib",
+        "jsr330",
+        "kotlin-stdlib",
+        "kotlinx_coroutines",
+        "kotlinx-coroutines-android",
+        "//external/kotlinc:kotlin-annotations",
+        "guava",
+        "PlatformComposeCore",
+        "PlatformComposeSceneTransitionLayout",
+        "androidx.compose.runtime_runtime",
+        "androidx.compose.material3_material3",
+        "androidx.compose.material_material-icons-extended",
+        "androidx.activity_activity-compose",
+        "androidx.compose.animation_animation-graphics",
+        "androidx.lifecycle_lifecycle-viewmodel-compose",
+        "androidx.lifecycle_lifecycle-runtime-compose",
+    ],
+}
+
+java_defaults {
+    name: "App_Defaults",
+    min_sdk_version: "current",
+    platform_apis: true,
+    certificate: "platform",
+    privileged: true,
+    manifest: "AndroidManifest-app.xml",
+    required: [
+        "privapp_whitelist_com.android.intentresolver",
+    ],
+}
+
+android_app {
+    name: "IntentResolver",
+    defaults: ["App_Defaults"],
+    static_libs: [
+        "IntentResolver-core",
+    ],
+    optimize: {
+        enabled: true,
+        optimize: true,
+        shrink: true,
+        shrink_resources: true,
+        proguard_flags_files: ["proguard.flags"],
+    },
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.intentresolver",
+        "test_com.android.intentresolver",
+    ],
+}

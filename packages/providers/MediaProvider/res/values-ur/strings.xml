@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2009 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="uid_label" msgid="8421971615411294156">"میڈیا"</string>
+    <string name="storage_description" msgid="4081716890357580107">"مقامی اسٹوریج"</string>
+    <string name="picker_app_label" msgid="1195424381053599122">"میڈیا منتخب کنندہ"</string>
+    <string name="artist_label" msgid="8105600993099120273">"فنکار"</string>
+    <string name="unknown" msgid="2059049215682829375">"نامعلوم"</string>
+    <string name="root_images" msgid="5861633549189045666">"تصاوير"</string>
+    <string name="root_videos" msgid="8792703517064649453">"ویڈیوز"</string>
+    <string name="root_audio" msgid="3505830755201326018">"آڈیو"</string>
+    <string name="root_documents" msgid="3829103301363849237">"دستاویزات"</string>
+    <string name="permission_required" msgid="1460820436132943754">"اس آئٹم میں ترمیم کرنے اور اسے حذف کرنے کے لیے اجازت درکار ہے۔"</string>
+    <string name="permission_required_action" msgid="706370952366113539">"جاری رکھیں"</string>
+    <string name="grant_dialog_button_allow" msgid="1644287024501033471">"اجازت دیں"</string>
+    <string name="grant_dialog_button_deny" msgid="6190589471415815741">"مسترد کریں"</string>
+    <string name="permission_more_thumb" msgid="1938863829470531577">"{count,plural, =1{+<xliff:g id="COUNT_0">^1</xliff:g>}other{+<xliff:g id="COUNT_1">^1</xliff:g>}}"</string>
+    <string name="permission_more_text" msgid="2471785045095597753">"{count,plural, =1{مزید <xliff:g id="COUNT_0">^1</xliff:g> اضافی آئٹم}other{مزید <xliff:g id="COUNT_1">^1</xliff:g> اضافی آئٹمز}}"</string>
+    <string name="cache_clearing_dialog_title" msgid="8907893815183913664">"ایپ کی عارضی فائلز کو صاف کریں"</string>
+    <string name="cache_clearing_dialog_text" msgid="7057784635111940957">"<xliff:g id="APP_SEEKING_PERMISSION">%s</xliff:g> کچھ عارضی فائلز کو صاف کرنا چاہتی ہے۔ اس کی وجہ سے بیٹری یا سیلولر ڈیٹا کے استعمال میں اضافہ ہو سکتا ہے۔"</string>
+    <string name="cache_clearing_in_progress_title" msgid="6902220064511664209">"ایپ کی عارضی فائلز کو صاف کیا جا رہا ہے…"</string>
+    <string name="clear" msgid="5524638938415865915">"صاف کریں"</string>
+    <string name="allow" msgid="8885707816848569619">"اجازت دیں"</string>
+    <string name="deny" msgid="6040983710442068936">"مسترد کریں"</string>
+    <string name="picker_browse" msgid="5554477454636075934">"براؤز کریں…"</string>
+    <string name="picker_settings" msgid="6443463167344790260">"کلاؤڈ میڈیا ایپ"</string>
+    <string name="picker_settings_system_settings_menu_title" msgid="3055084757610063581">"کلاؤڈ میڈیا ایپ"</string>
+    <string name="picker_settings_title" msgid="5647700706470673258">"کلاؤڈ میڈیا ایپ"</string>
+    <string name="picker_settings_description" msgid="2916686824777214585">"اپنے کلاؤڈ میڈیا تک رسائی حاصل کریں جب کوئی ایپ یا ویب سائٹ آپ سے تصاویر یا ویڈیوز منتخب کرنے کو کہتی ہے"</string>
+    <string name="picker_settings_selection_message" msgid="245453573086488596">"اس سے کلاؤڈ میڈیا تک رسائی حاصل کریں"</string>
+    <string name="picker_settings_no_provider" msgid="2582311853680058223">"کوئی نہیں"</string>
+    <string name="picker_settings_toast_error" msgid="697274445512467469">"کلاؤڈ میڈیا ایپ کو اس وقت تبدیل نہیں کیا جا سکا۔"</string>
+    <string name="picker_sync_notification_channel" msgid="1867105708912627993">"میڈیا منتخب کنندہ"</string>
+    <string name="picker_sync_notification_title" msgid="1122713382122055246">"میڈیا منتخب کنندہ"</string>
+    <string name="picker_sync_notification_text" msgid="8204423917712309382">"میڈیا کی مطابقت پذیری کی جا رہی ہے…"</string>
+    <string name="add" msgid="2894574044585549298">"شامل کریں"</string>
+    <string name="deselect" msgid="4297825044827769490">"غیر منتخب کریں"</string>
+    <string name="deselected" msgid="8488133193326208475">"غیر منتخب کردہ"</string>
+    <string name="select" msgid="2704765470563027689">"منتخب کریں"</string>
+    <string name="selected" msgid="9151797369975828124">"منتخب کردہ"</string>
+    <string name="select_up_to" msgid="6994294169508439957">"{count,plural, =1{<xliff:g id="COUNT_0">^1</xliff:g> آئٹم تک منتخب کریں}other{<xliff:g id="COUNT_1">^1</xliff:g> آئٹمز تک منتخب کریں}}"</string>
+    <string name="recent" msgid="6694613584743207874">"حالیہ"</string>
+    <string name="picker_photos_empty_message" msgid="5980619500554575558">"کوئی تصویر یا ویڈیو نہیں"</string>
+    <string name="picker_album_media_empty_message" msgid="7061850698189881671">"کوئی تعاون یافتہ تصاویر یا ویڈیوز نہیں ہیں"</string>
+    <string name="picker_albums_empty_message" msgid="8341079772950966815">"کوئی البم نہیں"</string>
+    <string name="picker_view_selected" msgid="2266031384396143883">"منتخب کردہ دیکھیں"</string>
+    <string name="picker_photos" msgid="7415035516411087392">"تصاویر"</string>
+    <!-- no translation found for picker_videos (2886971435439047097) -->
+    <skip />
+    <string name="picker_albums" msgid="4822511902115299142">"البمز"</string>
+    <string name="picker_preview" msgid="6257414886055861039">"پیش منظر"</string>
+    <string name="picker_work_profile" msgid="2083221066869141576">"کام پر سوئچ کریں"</string>
+    <string name="picker_personal_profile" msgid="639484258397758406">"ذاتی پروفائل پر سوئچ کریں"</string>
+    <string name="picker_personal_profile_label" msgid="6189198163209597344">"ذاتی"</string>
+    <string name="picker_profile_admin_title" msgid="4172022376418293777">"آپ کے منتظم کے ذریعے مسدود کردہ ہے"</string>
+    <string name="picker_profile_admin_msg_from_personal" msgid="1941639895084555723">"ذاتی ایپ سے دفتری ڈیٹا تک رسائی کی اجازت نہیں ہے"</string>
+    <string name="picker_profile_admin_msg_from_work" msgid="8048524337462790110">"ورک ایپ سے ذاتی ڈیٹا تک رسائی کی اجازت نہیں ہے"</string>
+    <string name="picker_profile_admin_msg" msgid="4060112887923255178">"<xliff:g id="PROFILE2">%2$s</xliff:g> ایپ سے <xliff:g id="PROFILE1">%1$s</xliff:g> کے ڈیٹا تک رسائی کی اجازت نہیں ہے"</string>
+    <string name="picker_profile_switch_message" msgid="1133817927412489487">"<xliff:g id="PROFILE">%s</xliff:g> پر سوئچ کریں"</string>
+    <string name="picker_profile_work_paused_title" msgid="382212880704235925">"ورک ایپس موقوف ہیں"</string>
+    <string name="picker_profile_paused_title" msgid="2079739512895529028">"<xliff:g id="PROFILE">%s</xliff:g> ایپس موقوف ہیں"</string>
+    <string name="picker_profile_work_paused_msg" msgid="6321552322125246726">"کام کی تصاویر کھولنے کے لیے اپنی ورک ایپس آن کریں، پھر دوبارہ کوشش کریں"</string>
+    <string name="picker_profile_paused_msg" msgid="1215076898583993782">"<xliff:g id="PROFILE1">%1$s</xliff:g> کی تصاویر کھولنے کے لیے، اپنی <xliff:g id="PROFILE2">%2$s</xliff:g> ایپس کو آن کریں پھر دوبارہ کوشش کریں"</string>
+    <string name="picker_privacy_message" msgid="9132700451027116817">"یہ ایپ صرف آپ کی منتخب کردہ تصاویر تک رسائی حاصل کر سکتی ہے"</string>
+    <string name="picker_header_permissions" msgid="675872774407768495">"وہ تصاویر اور ویڈیوز منتخب کریں جن تک آپ اس ایپ کو رسائی کی اجازت دیتے ہیں"</string>
+    <string name="picker_album_item_count" msgid="4420723302534177596">"{count,plural, =1{<xliff:g id="COUNT_0">^1</xliff:g> آئٹم}other{<xliff:g id="COUNT_1">^1</xliff:g> آئٹمز}}"</string>
+    <string name="picker_add_button_multi_select" msgid="4005164092275518399">"(<xliff:g id="COUNT">^1</xliff:g>) شامل کریں"</string>
+    <string name="picker_add_button_multi_select_permissions" msgid="5138751105800138838">"(<xliff:g id="COUNT">^1</xliff:g>) کو اجازت دیں"</string>
+    <string name="picker_add_button_allow_none_option" msgid="9183772732922241035">"کسی کو اجازت نہ دیں"</string>
+    <string name="picker_category_camera" msgid="4857367052026843664">"کیمرا"</string>
+    <string name="picker_category_downloads" msgid="793866660287361900">"ڈاؤن لوڈز"</string>
+    <string name="picker_category_favorites" msgid="7008495397818966088">"پسندیدہ"</string>
+    <string name="picker_category_screenshots" msgid="7216102327587644284">"اسکرین شاٹس"</string>
+    <!-- no translation found for picker_category_videos (1478458836380241356) -->
+    <skip />
+    <string name="picker_motion_photo_text" msgid="5016603812468180816">"موشَن تصویر"</string>
+    <string name="picker_item_content_desc" msgid="7680591530155286423">"<xliff:g id="TIME">%2$s</xliff:g> پر <xliff:g id="ITEM_NAME">%1$s</xliff:g> لیا گیا"</string>
+    <string name="picker_video_item_content_desc" msgid="7828900089119214801">"<xliff:g id="TIME">%1$s</xliff:g> کو <xliff:g id="DURATION">%2$s</xliff:g> دورانیے کے ساتھ بنائی گئی ویڈیو"</string>
+    <string name="picker_photo" msgid="1739342083494962153">"تصویر"</string>
+    <string name="picker_gif" msgid="8333318083107368726">"GIF"</string>
+    <string name="picker_motion_photo" msgid="4385182195289546308">"موشَن تصویر"</string>
+    <string name="picker_mute_video" msgid="2496585809229800096">"ویڈیو خاموش کریں"</string>
+    <string name="picker_unmute_video" msgid="6611741290641963568">"ویڈیو کی آواز چالو کریں"</string>
+    <string name="picker_play_video" msgid="7106025944628666250">"چلائیں"</string>
+    <string name="picker_pause_video" msgid="1092718225234326702">"روکیں"</string>
+    <string name="picker_error_snackbar" msgid="5970192792792369203">"ویڈیو نہیں چلائی جا سکتی"</string>
+    <string name="picker_error_dialog_title" msgid="4540095603788920965">"ویڈیو چلانے میں دشواری"</string>
+    <string name="picker_error_dialog_body" msgid="2515738446802971453">"اپنا انٹرنیٹ کنکشن چیک کریں اور دوبارہ کوشش کریں"</string>
+    <string name="picker_error_dialog_positive_action" msgid="749544129082109232">"پھر کوشش کریں"</string>
+    <string name="not_selected" msgid="2244008151669896758">"غیر منتخب کردہ"</string>
+    <string name="preloading_dialog_title" msgid="4974348221848532887">"آپ کا منتخب کردہ میڈیا تیار کیا جا رہا ہے"</string>
+    <string name="preloading_progress_message" msgid="4741327138031980582">"<xliff:g id="NUMBER_TOTAL">%2$d</xliff:g> میں سے <xliff:g id="NUMBER_PRELOADED">%1$d</xliff:g> تیار ہیں"</string>
+    <string name="preloading_cancel_button" msgid="824053521307342209">"منسوخ کریں"</string>
+    <string name="picker_banner_cloud_first_time_available_title" msgid="5912973744275711595">"بیک اپ لی گئی تصاویر اب شامل ہیں"</string>
+    <string name="picker_banner_cloud_first_time_available_desc" msgid="5570916598348187607">"آپ <xliff:g id="USER_ACCOUNT">%2$s</xliff:g> کے <xliff:g id="APP_NAME">%1$s</xliff:g> اکاؤنٹ سے تصاویر منتخب کر سکتے ہیں"</string>
+    <string name="picker_banner_cloud_account_changed_title" msgid="4825058474378077327">"<xliff:g id="APP_NAME">%1$s</xliff:g> اکاؤنٹ اپ ڈیٹ کیا گیا"</string>
+    <string name="picker_banner_cloud_account_changed_desc" msgid="3433218869899792497">"<xliff:g id="USER_ACCOUNT">%1$s</xliff:g> کی تصاویر اب یہاں شامل ہیں"</string>
+    <string name="picker_banner_cloud_choose_app_title" msgid="3165966147547974251">"کلاؤڈ میڈیا ایپ کا انتخاب کریں"</string>
+    <string name="picker_banner_cloud_choose_app_desc" msgid="2359212653555524926">"بیک اپ کی گئی تصاویر کو یہاں شامل کرنے کے لیے، ترتیبات میں کلاؤڈ میڈیا ایپ کا انتخاب کریں"</string>
+    <string name="picker_banner_cloud_choose_account_title" msgid="5010901185639577685">"<xliff:g id="APP_NAME">%1$s</xliff:g> اکاؤنٹ منتخب کریں"</string>
+    <string name="picker_banner_cloud_choose_account_desc" msgid="8868134443673142712">"یہاں <xliff:g id="APP_NAME">%1$s</xliff:g> کی تصاویر شامل کرنے کے لیے، ایپ میں ایک اکاؤنٹ منتخب کریں"</string>
+    <string name="picker_banner_cloud_dismiss_button" msgid="2935903078288463882">"مسترد کریں"</string>
+    <string name="picker_banner_cloud_choose_app_button" msgid="934085679890435479">"ایپ منتخب کریں"</string>
+    <string name="picker_banner_cloud_choose_account_button" msgid="7979484877116991631">"اکاؤنٹ منتخب کریں"</string>
+    <string name="picker_banner_cloud_change_account_button" msgid="8361239765828471146">"اکاؤنٹ تبدیل کریں"</string>
+    <string name="picker_loading_photos_message" msgid="6449180084857178949">"آپ کی تمام تصاویر حاصل کی جا رہی ہیں"</string>
+    <string name="permission_write_audio" msgid="8819694245323580601">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> کو اس آڈیو فائل میں ترمیم کرنے کی اجازت دیں؟}other{<xliff:g id="APP_NAME_1">^1</xliff:g> کو <xliff:g id="COUNT">^2</xliff:g> آڈیو فائلز میں ترمیم کرنے کی اجازت دیں؟}}"</string>
+    <string name="permission_progress_write_audio" msgid="6029375427984180097">"{count,plural, =1{آڈیو فائل میں ترمیم کی جا رہی ہے…}other{<xliff:g id="COUNT">^1</xliff:g> آڈیو فائلز میں ترمیم کی جا رہی ہے…}}"</string>
+    <string name="permission_write_video" msgid="103902551603700525">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> کو اس ویڈیو میں ترمیم کرنے کی اجازت دیں؟}other{<xliff:g id="APP_NAME_1">^1</xliff:g> کو <xliff:g id="COUNT">^2</xliff:g> ویڈیوز میں ترمیم کرنے کی اجازت دیں؟}}"</string>
+    <string name="permission_progress_write_video" msgid="7014908418349819148">"{count,plural, =1{ویڈیو میں ترمیم کی جا رہی ہے…}other{<xliff:g id="COUNT">^1</xliff:g> ویڈیوز میں ترمیم کی جا رہی ہے…}}"</string>
+    <string name="permission_write_image" msgid="3518991791620523786">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> کو اس تصویر میں ترمیم کرنے کی اجازت دیں؟}other{<xliff:g id="APP_NAME_1">^1</xliff:g> کو <xliff:g id="COUNT">^2</xliff:g> تصاویر میں ترمیم کرنے کی اجازت دیں؟}}"</string>
+    <string name="permission_progress_write_image" msgid="3623580315590025262">"{count,plural, =1{تصویر میں ترمیم کی جا رہی ہے…}other{<xliff:g id="COUNT">^1</xliff:g> تصاویر میں ترمیم کی جا رہی ہے…}}"</string>
+    <string name="permission_write_generic" msgid="7431128739233656991">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> کو اس آئٹم میں ترمیم کرنے کی اجازت دیں؟}other{<xliff:g id="APP_NAME_1">^1</xliff:g> کو <xliff:g id="COUNT">^2</xliff:g> آئٹمز میں ترمیم کرنے کی اجازت دیں؟}}"</string>
+    <string name="permission_progress_write_generic" msgid="2806560971318391443">"{count,plural, =1{آئٹم میں ترمیم کی جا رہی ہے…}other{<xliff:g id="COUNT">^1</xliff:g> آئٹمز میں ترمیم کی جا رہی ہے…}}"</string>
+    <string name="permission_trash_audio" msgid="6554672354767742206">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> کو اس آڈیو فائل کو کوڑے دان میں منتقل کرنے کی اجازت دیں؟}other{<xliff:g id="APP_NAME_1">^1</xliff:g> کو <xliff:g id="COUNT">^2</xliff:g> آڈیو فائلز کو کوڑے دان میں منتقل کرنے کی اجازت دیں؟}}"</string>
+    <string name="permission_progress_trash_audio" msgid="3116279868733641329">"{count,plural, =1{آڈیو فائل کو کوڑے دان میں منتقل کیا جا رہا ہے…}other{<xliff:g id="COUNT">^1</xliff:g> آڈیو فائلز کو کوڑے دان میں منتقل کیا جا رہا ہے…}}"</string>
+    <string name="permission_trash_video" msgid="7555850843259959642">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> کو اس ویڈیو کو کوڑے دان میں منتقل کرنے کی اجازت دیں؟}other{<xliff:g id="APP_NAME_1">^1</xliff:g> کو <xliff:g id="COUNT">^2</xliff:g> ویڈیوز کو کوڑے دان میں منتقل کرنے کی اجازت دیں؟}}"</string>
+    <string name="permission_progress_trash_video" msgid="4637821778329459681">"{count,plural, =1{ویڈیو کو کوڑے دان میں منتقل کیا جا رہا ہے…}other{<xliff:g id="COUNT">^1</xliff:g> ویڈیوز کو کوڑے دان میں منتقل کیا جا رہا ہے…}}"</string>
+    <string name="permission_trash_image" msgid="3333128084684156675">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> کو اس تصویر کو کوڑے دان میں منتقل کرنے کی اجازت دیں؟}other{<xliff:g id="APP_NAME_1">^1</xliff:g> کو <xliff:g id="COUNT">^2</xliff:g> تصاویر کو کوڑے دان میں منتقل کرنے کی اجازت دیں؟}}"</string>
+    <string name="permission_progress_trash_image" msgid="3063857679090024764">"{count,plural, =1{تصویر کو کوڑے دان میں منتقل کیا جا رہا ہے…}other{<xliff:g id="COUNT">^1</xliff:g> تصاویر کو کوڑے دان میں منتقل کیا جا رہا ہے…}}"</string>
+    <string name="permission_trash_generic" msgid="5545420534785075362">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> کو اس آئٹم کو کوڑے دان میں منتقل کرنے کی اجازت دیں؟}other{<xliff:g id="APP_NAME_1">^1</xliff:g> کو <xliff:g id="COUNT">^2</xliff:g> آئٹمز کو کوڑے دان میں منتقل کرنے کی اجازت دیں؟}}"</string>
+    <string name="permission_progress_trash_generic" msgid="7815124979717814057">"{count,plural, =1{آئٹم کو کوڑے دان میں منتقل کیا جا رہا ہے…}other{<xliff:g id="COUNT">^1</xliff:g> آئٹمز کو کوڑے دان میں منتقل کیا جا رہا ہے…}}"</string>
+    <string name="permission_untrash_audio" msgid="8404597563284002472">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> کو اس آڈیو فائل کو کوڑے دان سے باہر منتقل کرنے کی اجازت دیں؟}other{<xliff:g id="APP_NAME_1">^1</xliff:g> کو <xliff:g id="COUNT">^2</xliff:g> آڈیو فائلز کو کوڑے دان سے باہر منتقل کرنے کی اجازت دیں؟}}"</string>
+    <string name="permission_progress_untrash_audio" msgid="2775372344946464508">"{count,plural, =1{آڈیو فائل کو کوڑے دان سے باہر منتقل کیا جا ریا ہے…}other{<xliff:g id="COUNT">^1</xliff:g> آڈیو فائلز کو کوڑے دان سے باہر منتقل کیا جا ریا ہے…}}"</string>
+    <string name="permission_untrash_video" msgid="3178914827607608162">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> کو اس ویڈیو کو کوڑے دان سے باہر منتقل کرنے کی اجازت دیں؟}other{<xliff:g id="APP_NAME_1">^1</xliff:g> کو <xliff:g id="COUNT">^2</xliff:g> ویڈیوز کو کوڑے دان سے باہر منتقل کرنے کی اجازت دیں؟}}"</string>
+    <string name="permission_progress_untrash_video" msgid="5500929409733841567">"{count,plural, =1{ویڈیو کو کوڑے دان سے باہر منتقل کیا جا رہا ہے…}other{<xliff:g id="COUNT">^1</xliff:g> ویڈیوز کو کوڑے دان سے باہر منتقل کیا جا رہا ہے…}}"</string>
+    <string name="permission_untrash_image" msgid="3397523279351032265">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> کو اس تصویر کو کوڑے دان سے باہر منتقل کرنے کی اجازت دیں؟}other{<xliff:g id="APP_NAME_1">^1</xliff:g> کو <xliff:g id="COUNT">^2</xliff:g> تصاویر کو کوڑے دان سے باہر منتقل کرنے کی اجازت دیں؟}}"</string>
+    <string name="permission_progress_untrash_image" msgid="5295061520504846264">"{count,plural, =1{تصویر کو کوڑے دان سے باہر منتقل کیا جا رہا ہے…}other{<xliff:g id="COUNT">^1</xliff:g> تصاویر کو کوڑے دان سے باہر منتقل کیا جا رہا ہے…}}"</string>
+    <string name="permission_untrash_generic" msgid="2118366929431671046">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> کو اس آئٹم کو کوڑے دان سے باہر منتقل کرنے کی اجازت دیں؟}other{<xliff:g id="APP_NAME_1">^1</xliff:g> کو <xliff:g id="COUNT">^2</xliff:g> آئٹمز کو کوڑے دان سے باہر منتقل کرنے کی اجازت دیں؟}}"</string>
+    <string name="permission_progress_untrash_generic" msgid="1489511601966842579">"{count,plural, =1{آئٹم کو کوڑے دان سے باہر منتقل کیا جا رہا ہے…}other{<xliff:g id="COUNT">^1</xliff:g> آئٹمز کو کوڑے دان سے باہر منتقل کیا جا رہا ہے…}}"</string>
+    <string name="permission_delete_audio" msgid="3326674742892796627">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> کو اس آڈیو فائل کو حذف کرنے کی اجازت دیں؟}other{<xliff:g id="APP_NAME_1">^1</xliff:g> کو <xliff:g id="COUNT">^2</xliff:g> آڈیو فائلز کو حذف کرنے کی اجازت دیں؟}}"</string>
+    <string name="permission_progress_delete_audio" msgid="1734871539021696401">"{count,plural, =1{آڈیو فائل حذف کی جا رہی ہے…}other{<xliff:g id="COUNT">^1</xliff:g> آڈیو فائلز حذف کی جا رہی ہیں…}}"</string>
+    <string name="permission_delete_video" msgid="604024971828349279">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> کو اس ویڈیو کو حذف کرنے کی اجازت دیں؟}other{<xliff:g id="APP_NAME_1">^1</xliff:g> کو <xliff:g id="COUNT">^2</xliff:g> ویڈیوز کو حذف کرنے کی اجازت دیں؟}}"</string>
+    <string name="permission_progress_delete_video" msgid="1846702435073793157">"{count,plural, =1{ویڈیو حذف کی جا رہی ہے…}other{<xliff:g id="COUNT">^1</xliff:g> ویڈیوز حذف کی جا رہی ہیں…}}"</string>
+    <string name="permission_delete_image" msgid="3109056012794330510">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> کو اس تصویر کو حذف کرنے کی اجازت دیں؟}other{<xliff:g id="APP_NAME_1">^1</xliff:g> کو <xliff:g id="COUNT">^2</xliff:g> تصاویر کو حذف کرنے کی اجازت دیں؟}}"</string>
+    <string name="permission_progress_delete_image" msgid="8580517204901148906">"{count,plural, =1{تصویر حذف کی جا رہی ہے…}other{<xliff:g id="COUNT">^1</xliff:g> تصاویر حذف کی جا رہی ہیں…}}"</string>
+    <string name="permission_delete_generic" msgid="7891939881065520271">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> کو اس آئٹم کو حذف کرنے کی اجازت دیں؟}other{<xliff:g id="APP_NAME_1">^1</xliff:g> کو <xliff:g id="COUNT">^2</xliff:g> آئٹمز کو حذف کرنے کی اجازت دیں؟}}"</string>
+    <string name="permission_progress_delete_generic" msgid="6709118146245087898">"{count,plural, =1{آئٹم حذف کیا جا رہا ہے…}other{<xliff:g id="COUNT">^1</xliff:g> آئٹمز حذف کئے جا رہے ہیں…}}"</string>
+    <string name="transcode_denied" msgid="6760546817138288976">"‫<xliff:g id="APP_NAME">%s</xliff:g> میڈیا فائلز پر کارروائی نہیں کر سکتی"</string>
+    <string name="transcode_processing_cancelled" msgid="5340383917746945590">"میڈیا پر کارروائی منسوخ ہو گئی"</string>
+    <string name="transcode_processing_error" msgid="8921643164508407874">"میڈیا پر کارروائی کرنے میں خرابی"</string>
+    <string name="transcode_processing_success" msgid="447288876429730122">"میڈیا پر کارروائی کامیاب ہو گئی"</string>
+    <string name="transcode_processing_started" msgid="7789086308155361523">"میڈیا پر کارروائی شروع ہو گئی"</string>
+    <string name="transcode_processing" msgid="6753136468864077258">"میڈیا پر کارروائی ہو رہی ہے…"</string>
+    <string name="transcode_cancel" msgid="8555752601907598192">"منسوخ کریں"</string>
+    <string name="transcode_wait" msgid="8909773149560697501">"انتظار کریں"</string>
+    <string name="safety_protection_icon_label" msgid="6714354052747723623">"سیفٹی پروٹیکشن"</string>
+    <string name="transcode_alert_channel" msgid="997332371757680478">"مقامی ٹرانسکوڈ کے الرٹس"</string>
+    <string name="transcode_progress_channel" msgid="6905136787933058387">"مقامی ٹرانسکوڈ کی پیشرفت"</string>
+    <string name="dialog_error_message" msgid="5120432204743681606">"بعد میں دوبارہ کوشش کریں۔ مسئلہ حل ہو جانے کے بعد آپ کی تصاویر دستیاب ہوں گی۔"</string>
+    <string name="dialog_error_title" msgid="636349284077820636">"کچھ تصاویر لوڈ نہیں کی جا سکتیں"</string>
+    <string name="dialog_button_text" msgid="351366485240852280">"سمجھ آ گئی"</string>
+    <string name="permlab_accessMediaOwnerPackageName" msgid="3849443148060165651">"میڈیا مالک کے پیکیج کے نام تک رسائی حاصل کریں"</string>
+    <string name="permdesc_accessMediaOwnerPackageName" msgid="7381563109363105371">"ایپ کو تمام قابل رسائی میڈیا فائلز کے مالک پیکیج کے ناموں تک رسائی کی اجازت دیتا ہے۔"</string>
+</resources>

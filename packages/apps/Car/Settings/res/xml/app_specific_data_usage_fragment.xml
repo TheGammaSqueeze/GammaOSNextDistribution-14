@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright 2021 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:settings="http://schemas.android.com/apk/res-auto"
+    android:title="@string/app_data_usage_title"
+    android:key="@string/psk_app_specific_data_usage">
+    <com.android.car.settings.common.EntityHeaderPreference
+        android:key="@string/pk_app_specific_usage_title"
+        settings:controller="com.android.car.settings.datausage.AppSpecificDataUsageHeaderPreferenceController"
+        settings:searchable="false"/>
+    <com.android.car.settings.common.DividerPreference/>
+    <ListPreference
+        android:key="@string/pk_app_specific_usage_cycle"
+        android:title="@string/app_data_usage_usage_history_title"
+        android:dialogTitle="@string/app_data_usage_usage_history_title"
+        settings:controller="com.android.car.settings.datausage.AppSpecificDataUsageCyclePreferenceController"/>
+    <com.android.car.settings.common.SummaryPreference
+        android:key="@string/pk_app_specific_usage_total"
+        android:title="@string/app_data_usage_total_usage"
+        android:selectable="false"
+        settings:controller="com.android.car.settings.common.UpdateSummaryPreferenceController"/>
+    <com.android.car.settings.common.SummaryPreference
+        android:key="@string/pk_app_specific_usage_foreground"
+        android:title="@string/app_data_usage_foreground"
+        android:selectable="false"
+        settings:controller="com.android.car.settings.common.UpdateSummaryPreferenceController"/>
+    <com.android.car.settings.common.SummaryPreference
+        android:key="@string/pk_app_specific_usage_background"
+        android:title="@string/app_data_usage_background"
+        android:selectable="false"
+        settings:controller="com.android.car.settings.common.UpdateSummaryPreferenceController"/>
+    <com.android.car.settings.common.DividerPreference/>
+</PreferenceScreen>

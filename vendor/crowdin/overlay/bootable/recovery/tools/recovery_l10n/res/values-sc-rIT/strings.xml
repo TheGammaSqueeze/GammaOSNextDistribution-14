@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="recovery_try_again">Torra a proare</string>
+  <string name="recovery_factory_data_reset">Riprìstinu a s\'istadu de fàbrica</string>
+  <string name="recovery_wipe_data_confirmation">Boles cantzellare totu is datos de s\'utente?\n\n
+    CUSTA ATZIONE NON SI PODET ANNULLARE!</string>
+  <string name="recovery_cancel_wipe_data">Annulla</string>
+</resources>

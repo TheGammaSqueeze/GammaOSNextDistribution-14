@@ -1,0 +1,63 @@
+model {
+  main {
+    operands {
+      operand {
+        type: TENSOR_QUANT8_ASYMM_SIGNED
+        dimensions {
+          dimension: 1
+          dimension: 2
+          dimension: 2
+          dimension: 1
+        }
+        scale: 0.5
+        zero_point: -128
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 2145684100
+        }
+      }
+      operand {
+        type: TENSOR_QUANT8_ASYMM_SIGNED
+        dimensions {
+          dimension: 1
+          dimension: 2
+          dimension: 2
+          dimension: 1
+        }
+        scale: 0.5
+        zero_point: -128
+        lifetime: SUBGRAPH_OUTPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 2189591170
+        }
+      }
+    }
+    operations {
+      operation {
+        type: RELU1
+        inputs {
+          index: 0
+        }
+        outputs {
+          index: 1
+        }
+      }
+    }
+    input_indexes {
+      index: 0
+    }
+    output_indexes {
+      index: 1
+    }
+  }
+  referenced {
+  }
+}

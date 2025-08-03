@@ -1,0 +1,14 @@
+{
+    "uuid": "STORAGE_SERVICE_UUID",
+    "min_heap": 32768,
+    "min_stack": 16384,
+    "start_ports": [
+        {
+            "name": "com.android.trusty.storage.proxy",
+            "flags": {
+                "allow_ta_connect": true,
+                "allow_ns_connect": true
+            }
+        }
+    ]
+}

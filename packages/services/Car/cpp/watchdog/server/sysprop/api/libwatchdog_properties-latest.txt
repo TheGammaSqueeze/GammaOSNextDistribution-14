@@ -1,0 +1,63 @@
+props {
+  module: "android.automotive.watchdog.sysprop"
+  prop {
+    api_name: "systemEventCollectionInterval"
+    type: Integer
+    scope: Internal
+    prop_name: "ro.carwatchdog.system_event_collection_interval"
+  }
+  prop {
+    api_name: "userSwitchTimeout"
+    type: Integer
+    scope: Internal
+    prop_name: "ro.carwatchdog.user_switch_timeout"
+  }
+  prop {
+    api_name: "postSystemEventDuration"
+    type: Integer
+    scope: Internal
+    prop_name: "ro.carwatchdog.post_system_event_duration"
+  }
+  prop {
+    api_name: "wakeUpEventDuration"
+    type: Integer
+    scope: Internal
+    prop_name: "ro.carwatchdog.wake_up_event_duration"
+  }
+  prop {
+    api_name: "periodicCollectionBufferSize"
+    type: Integer
+    scope: Internal
+    prop_name: "ro.carwatchdog.periodic_collection_buffer_size"
+  }
+  prop {
+    api_name: "periodicCollectionInterval"
+    type: Integer
+    scope: Internal
+    prop_name: "ro.carwatchdog.periodic_collection_interval"
+  }
+  prop {
+    api_name: "topNStatsPerCategory"
+    type: Integer
+    scope: Internal
+    prop_name: "ro.carwatchdog.top_n_stats_per_category"
+  }
+  prop {
+    api_name: "topNStatsPerSubcategory"
+    type: Integer
+    scope: Internal
+    prop_name: "ro.carwatchdog.top_n_stats_per_subcategory"
+  }
+  prop {
+    api_name: "maxUserSwitchEvents"
+    type: Integer
+    scope: Internal
+    prop_name: "ro.carwatchdog.max_user_switch_events"
+  }
+  prop {
+    api_name: "systemEventDataCacheDuration"
+    type: Integer
+    scope: Internal
+    prop_name: "ro.carwatchdog.system_event_data_cache_duration"
+  }
+}

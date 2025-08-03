@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- The layout for the feedback consent screen follows a similar theme as
+    the send feedback fragment in LauncherX's feedback library  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginTop="19dp"
+    android:paddingTop="81dp"
+    android:paddingBottom="36dp"
+    android:paddingStart="88dp"
+    android:paddingEnd="88dp"
+    android:baselineAligned="false"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:orientation="horizontal"
+    android:weightSum="1"
+    tools:ignore="Overdraw">
+
+  <!--  Left hand side -->
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:layout_weight="0.33"
+      android:layout_marginEnd="50dp"
+      android:clipChildren="true"
+      android:clipToPadding="false"
+      android:orientation="vertical"
+      tools:ignore="RtlSymmetry">
+
+    <!--    System logs row-->
+    <LinearLayout
+        android:id="@+id/system_logs_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:layout_marginTop="19dp"
+        android:addStatesFromChildren="true"
+        android:background="@drawable/feedback_consent_action_background"
+        android:clickable="true"
+        android:focusable="false"
+        android:orientation="horizontal"
+        android:stateListAnimator="@animator/feedback_consent_action_animator"
+        android:visibility="gone" >
+
+      <LinearLayout
+          android:id="@+id/system_logs_text"
+          android:layout_width="0dp"
+          android:layout_height="wrap_content"
+          android:layout_weight="0.2"
+          android:orientation="vertical">
+        <TextView
+            android:id="@+id/system_logs_title_text"
+            style="@style/FeedbackConsentRowTitleText"
+            android:text="@string/feedback_system_logs_title_text" />
+        <TextView
+            android:id="@+id/system_logs_legal_text"
+            style="@style/FeedbackConsentRowLegalText"
+            android:text="@string/feedback_system_logs_legal_text" />
+      </LinearLayout>
+
+      <!-- System Logs toggle -->
+      <Switch
+          android:id="@+id/system_logs_switch"
+          style="@style/FeedbackConsentSwitch"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:checked="true"
+          android:focusable="true" />
+      <!-- End: System Logs toggle -->
+
+    </LinearLayout>
+    <!-- End: System logs row-->
+
+    <!--    Bugreport row-->
+    <LinearLayout
+        android:id="@+id/bugreport_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="19dp"
+        android:padding="10dp"
+        android:addStatesFromChildren="true"
+        android:background="@drawable/feedback_consent_action_background"
+        android:clickable="true"
+        android:focusable="false"
+        android:orientation="horizontal"
+        android:stateListAnimator="@animator/feedback_consent_action_animator"
+        android:visibility="gone" >
+
+      <LinearLayout
+          android:id="@+id/bugreport_text"
+          android:layout_width="0dp"
+          android:layout_height="wrap_content"
+          android:layout_weight="0.2"
+          android:orientation="vertical">
+        <TextView
+            android:id="@+id/bugreport_title_text"
+            style="@style/FeedbackConsentRowTitleText"
+            android:text="@string/feedback_bugreport_title_text" />
+        <TextView
+            android:id="@+id/bugreport_legal_text"
+            style="@style/FeedbackConsentRowLegalText" />
+      </LinearLayout>
+
+      <!-- Bugreport toggle -->
+      <Switch
+          android:id="@+id/bugreport_switch"
+          style="@style/FeedbackConsentSwitch"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:checked="false"
+          android:focusable="true" />
+      <!-- End: Bugreport toggle -->
+
+    </LinearLayout>
+    <!--   End: Bugreport row-->
+
+  </LinearLayout>
+  <!--  End: Left hand side -->
+
+  <!-- Right hand side -->
+  <LinearLayout
+      android:id="@+id/feedback_buttons"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:layout_weight="0.67"
+      android:layout_marginTop="19dp"
+      android:clipChildren="false"
+      android:clipToPadding="false"
+      android:orientation="vertical">
+
+    <Button
+        android:id="@+id/next_button"
+        style="@style/FeedbackConsentActionButton"
+        android:text="@string/next" />
+
+    <Button
+        android:id="@+id/view_logs_button"
+        style="@style/FeedbackConsentActionButton"
+        android:layout_marginTop="19dp"
+        android:text="@string/feedback_view_system_logs_button_text"
+        android:visibility="gone" />
+
+  </LinearLayout>
+  <!--  End: Right hand side -->
+
+</LinearLayout>

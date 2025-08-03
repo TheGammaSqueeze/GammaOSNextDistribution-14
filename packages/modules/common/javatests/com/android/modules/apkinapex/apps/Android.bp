@@ -1,0 +1,53 @@
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_team: "trendy_team_mainline_modularization",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test_helper_app {
+    name: "com.android.modules.apkinapex.apps.futureminsdk",
+    target_sdk_version: "Tiramisu",
+
+    // min sdk is overridden in the AndroidManifest.xml - but it is required to have a value here
+    // so the build system uses the value from the manifest!
+    min_sdk_version: "23",
+    apex_available: ["test_com.android.modules.apkinapex"],
+    manifest: "FutureMinSdkAndroidManifest.xml",
+}
+
+android_test_helper_app {
+    name: "com.android.modules.apkinapex.apps.futuretargetsdk",
+    min_sdk_version: "33",
+    target_sdk_version: "Tiramisu",
+    apex_available: ["test_com.android.modules.apkinapex"],
+    manifest: "FutureTargetSdkAndroidManifest.xml",
+}
+
+android_test_helper_app {
+    name: "com.android.modules.apkinapex.apps.pastmaxsdk",
+    min_sdk_version: "29",
+    target_sdk_version: "Tiramisu",
+    apex_available: ["test_com.android.modules.apkinapex"],
+    manifest: "PastMaxSdkAndroidManifest.xml",
+}
+
+android_test_helper_app {
+    name: "com.android.modules.apkinapex.apps.installable",
+    target_sdk_version: "Tiramisu",
+    min_sdk_version: "23",
+    apex_available: ["test_com.android.modules.apkinapex"],
+    manifest: "InstallableAndroidManifest.xml",
+}

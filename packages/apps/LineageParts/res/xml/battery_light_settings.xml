@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2016 The CyanogenMod Project
+     SPDX-FileCopyrightText: 2017-2018,2021 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+        android:key="battery_lights"
+        android:title="@string/battery_light_title">
+
+    <lineageos.preference.LineageSystemSettingMainSwitchPreference
+        android:key="battery_light_enabled"
+        android:title="@string/battery_light_enable_title"
+        android:defaultValue="@bool/def_battery_light_enabled" />
+
+    <PreferenceCategory
+        android:key="general_section"
+        android:title="@string/notification_light_general_title">
+
+        <lineageos.preference.LineageSystemSettingSwitchPreference
+            android:key="battery_light_pulse"
+            android:title="@string/battery_low_pulse_title"
+            android:defaultValue="@bool/def_battery_light_pulse"
+            android:dependency="battery_light_enabled" />
+
+        <lineageos.preference.LineageSystemSettingSwitchPreference
+            android:key="battery_light_full_charge_disabled"
+            android:title="@string/battery_light_full_charge_disabled_title"
+            android:defaultValue="@bool/def_battery_light_full_charge_disabled"
+            android:dependency="battery_light_enabled" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="colors_list"
+        android:title="@string/battery_light_list_title"
+        android:dependency="battery_light_enabled" >
+
+        <org.lineageos.lineageparts.notificationlight.ApplicationLightPreference
+            android:key="low_color"
+            android:title="@string/battery_light_low_color_title"
+            android:persistent="false" />
+
+        <org.lineageos.lineageparts.notificationlight.ApplicationLightPreference
+            android:key="medium_color"
+            android:title="@string/battery_light_medium_color_title"
+            android:persistent="false" />
+
+        <org.lineageos.lineageparts.notificationlight.ApplicationLightPreference
+            android:key="full_color"
+            android:title="@string/battery_light_full_color_title"
+            android:persistent="false" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="brightness_section"
+        android:title="@string/light_brightness_title"
+        android:dependency="battery_light_enabled" >
+
+        <org.lineageos.lineageparts.notificationlight.BatteryBrightnessPreference
+            android:key="battery_light_brightness_level"
+            android:title="@string/battery_light_brightness_normal"
+            android:dependency="battery_light_enabled" />
+
+        <org.lineageos.lineageparts.notificationlight.BatteryBrightnessZenPreference
+            android:key="battery_light_brightness_level_zen"
+            android:title="@string/battery_light_brightness_zen"
+            android:dependency="battery_light_enabled" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

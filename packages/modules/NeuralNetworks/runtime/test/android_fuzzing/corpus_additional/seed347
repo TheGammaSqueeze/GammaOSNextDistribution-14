@@ -1,0 +1,124 @@
+model {
+  main {
+    operands {
+      operand {
+        type: TENSOR_FLOAT32
+        dimensions {
+          dimension: 6
+          dimension: 2
+          dimension: 2
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 1223338531
+        }
+      }
+      operand {
+        type: INT32
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 2
+        }
+      }
+      operand {
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 1091567616
+        }
+      }
+      operand {
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 1082130432
+        }
+      }
+      operand {
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 1056964608
+        }
+      }
+      operand {
+        type: INT32
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 0
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT32
+        dimensions {
+          dimension: 6
+          dimension: 2
+          dimension: 2
+        }
+        lifetime: SUBGRAPH_OUTPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 945258715
+        }
+      }
+    }
+    operations {
+      operation {
+        type: LOCAL_RESPONSE_NORMALIZATION
+        inputs {
+          index: 0
+          index: 1
+          index: 2
+          index: 3
+          index: 4
+          index: 5
+        }
+        outputs {
+          index: 6
+        }
+      }
+    }
+    input_indexes {
+      index: 0
+    }
+    output_indexes {
+      index: 6
+    }
+  }
+  referenced {
+  }
+}

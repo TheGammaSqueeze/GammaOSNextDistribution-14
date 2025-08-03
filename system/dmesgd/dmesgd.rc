@@ -1,0 +1,21 @@
+# Copyright (C) 2022 The Android Open Source Project
+
+# Fire once at boot time to collect early reports, if there are any.
+on property:sys.boot_completed=1
+    setprop dmesgd.start 1
+
+on property:ro.product.cpu.abilist64=* && property:bootreceiver.enable=1
+    mkdir /data/misc/dmesgd 0700 dmesgd system
+    rm /data/misc/dmesgd/sent_reports.txt
+
+# Start every time someone sets dmesgd.start=1.
+on property:ro.product.cpu.abilist64=* && property:bootreceiver.enable=1 && property:dmesgd.start=1
+    start dmesgd
+    setprop dmesgd.start 0
+
+service dmesgd /system/bin/dmesgd
+    user dmesgd
+    group system
+    class main
+    disabled
+    oneshot

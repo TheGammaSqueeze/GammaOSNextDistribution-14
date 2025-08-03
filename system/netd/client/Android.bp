@@ -1,0 +1,102 @@
+// Copyright (C) 2017 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_team: "trendy_team_fwk_core_networking",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_netd_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_netd_license"],
+}
+
+cc_defaults {
+    name: "libnetd_client_defaults",
+    srcs: [
+        "FwmarkClient.cpp",
+        "NetdClient.cpp",
+    ],
+    header_libs: [
+        "dnsproxyd_protocol_headers", // NETID_USE_LOCAL_NAMESERVERS
+        "libnetd_client_headers",
+        "libbase_headers", // for unique_fd.h
+        "libnetd_utils_headers",
+    ],
+    export_header_lib_headers: ["libnetd_client_headers"],
+    defaults: ["netd_defaults"],
+    sanitize: {
+        cfi: true,
+    },
+}
+
+cc_library_shared {
+    name: "libnetd_client",
+    defaults: ["libnetd_client_defaults"],
+    apex_available: [
+        "//apex_available:platform",
+    ],
+}
+
+cc_library_static {
+    name: "libnetd_client_static_for_test",
+    defaults: ["libnetd_client_defaults"],
+    visibility: ["//visibility:private"],
+}
+
+cc_test {
+    name: "netdclient_test",
+    srcs: [
+        "NetdClientTest.cpp",
+    ],
+    defaults: ["netd_defaults"],
+    test_suites: ["device-tests"],
+    include_dirs: [
+        "system/netd/include",
+    ],
+    static_libs: [
+        "libgmock",
+        "libbase",
+        "libnetd_client_static_for_test",
+    ],
+    sanitize: {
+        address: false,
+        recover: ["all"],
+    },
+}
+
+cc_test {
+    name: "netdclient_root_test",
+    require_root: true, // for ScopedUidChange
+    srcs: [
+        "NetdClientRootTest.cpp",
+    ],
+    defaults: [
+        "netd_aidl_interface_lateststable_cpp_static",
+        "netd_defaults",
+    ],
+    test_suites: ["device-tests"],
+    include_dirs: [
+        "system/netd/include",
+    ],
+    static_libs: [
+        "libbase",
+        "libnetd_client_static_for_test",
+        "libnetd_test_utils",
+    ],
+    sanitize: {
+        address: false,
+        recover: ["all"],
+    },
+}

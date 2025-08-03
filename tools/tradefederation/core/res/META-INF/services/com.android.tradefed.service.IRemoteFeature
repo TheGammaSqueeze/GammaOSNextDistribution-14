@@ -1,0 +1,6 @@
+com.android.tradefed.config.filter.GlobalFilterGetter
+com.android.tradefed.config.filter.CommandOptionsGetter
+com.android.tradefed.device.internal.DeviceResetFeature
+com.android.tradefed.device.internal.EarlyDeviceReleaseFeature
+com.android.tradefed.device.internal.DeviceSnapshotFeature
+com.android.tradefed.testtype.suite.ResolvePartialDownload

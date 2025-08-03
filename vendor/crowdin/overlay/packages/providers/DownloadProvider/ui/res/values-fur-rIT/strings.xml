@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2010 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label">Discjariâts</string>
+    <string name="download_title_sorted_by_date">Discjariaments - ordenâts par date</string>
+    <string name="download_title_sorted_by_size">Discjariaments - ordenâts par dimension</string>
+    <string name="no_downloads">Nissun file discjariât.</string>
+    <string name="missing_title">&lt;No cognossût&gt;</string>
+    <string name="button_sort_by_size">Ordene par dimension</string>
+    <string name="button_sort_by_date">Ordene par date</string>
+    <string name="download_queued">In code</string>
+    <string name="download_running">In cors</string>
+    <string name="download_success">Completât</string>
+    <string name="download_error">Operazion lade strucje</string>
+    <string name="dialog_title_not_available">Nol è stât pussibil discjariâ</string>
+    <string name="dialog_failed_body">Desideristu tornâ a provâ a discjariâ il file plui indevant
+          o eliminâlu de code?</string>
+    <string name="dialog_title_queued_body">File in code</string>
+    <string name="dialog_queued_body">Chest file al è in code par discjariâlu in futûr, duncje nol è ancjemò disponibil.</string>
+    <string name="dialog_file_missing_body">Impussibil cjatâ il file discjariât.</string>
+    <string name="dialog_insufficient_space_on_external">Impussibil completâ il discjariament. Nol è
+        vonde spazi te memorie esterne.</string>
+    <string name="dialog_insufficient_space_on_cache">Impussibil completâ il discjariament. Nol è vonde
+        spazi te memorie interne dedicade ai discjariâts.</string>
+    <string name="dialog_cannot_resume">Il discjariament al è stât interot e nol è pussibil ripiâlu.</string>
+    <string name="dialog_file_already_exists">Impussibil discjariâ. Il file di destinazion al esist za.
+    </string>
+    <string name="dialog_media_not_found">Impussibil discjariâ. Il supuart esterni nol è disponibil.
+    </string>
+    <string name="download_no_application_title">Impussibil vierzi il file</string>
+    <string name="remove_download">Gjave</string>
+    <string name="delete_download">Elimine</string>
+    <string name="keep_queued_download">Ten</string>
+    <string name="cancel_running_download">Anule</string>
+    <string name="retry_download">Torne prove</string>
+    <string name="start_now_download">Scomence daurman</string>
+    <string name="deselect_all">Deselezione ducj</string>
+    <string name="select_all">Selezione ducj</string>
+    <string name="selected_count">Selezionâts <xliff:g id="number" example="3">%1$d</xliff:g> di <xliff:g id="total" example="15">%2$d</xliff:g></string>
+    <string name="download_share_dialog">Condivît vie</string>
+</resources>

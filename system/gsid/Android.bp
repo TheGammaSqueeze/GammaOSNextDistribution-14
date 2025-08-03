@@ -1,0 +1,184 @@
+//
+// Copyright (C) 2019 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_binary {
+    name: "gsi_tool",
+    shared_libs: [
+        "gsi_aidl_interface-cpp",
+        "libbase",
+        "libbinder",
+        "libcutils",
+        "libgsi",
+        "liblog",
+        "libutils",
+    ],
+    static_libs: [
+        "libgsid",
+    ],
+    srcs: [
+        "gsi_tool.cpp",
+    ],
+}
+
+cc_library {
+    name: "libgsi",
+    ramdisk_available: true,
+    vendor_ramdisk_available: true,
+    recovery_available: true,
+    host_supported: true,
+    srcs: [
+        "libgsi.cpp",
+    ],
+    shared_libs: [
+        "libbase",
+    ],
+    export_include_dirs: ["include"],
+}
+
+cc_library_static {
+    name: "libgsid",
+    srcs: [
+        "libgsid.cpp",
+    ],
+    shared_libs: [
+        "gsi_aidl_interface-cpp",
+        "libbase",
+        "libbinder",
+        "libutils",
+    ],
+    export_include_dirs: ["include"],
+}
+
+cc_library_headers {
+    name: "libgsi_headers",
+    host_supported: true,
+    ramdisk_available: true,
+    vendor_ramdisk_available: true,
+    recovery_available: true,
+    vendor_available: true,
+    export_include_dirs: ["include"],
+    apex_available: [
+        "//apex_available:anyapex",
+        "//apex_available:platform",
+    ],
+    min_sdk_version: "31",
+}
+
+cc_defaults {
+    name: "gsid_defaults",
+    srcs: [
+        "gsi_service.cpp",
+        "partition_installer.cpp",
+    ],
+    shared_libs: [
+        "libbase",
+        "libbinder",
+        "libcrypto",
+        "liblog",
+    ],
+    static_libs: [
+        "gsi_aidl_interface-cpp",
+        "libavb",
+        "libcutils",
+        "libdm",
+        "libext4_utils",
+        "libfs_mgr",
+        "libgsi",
+        "libgsid",
+        "liblp",
+        "libselinux",
+        "libutils",
+        "libc++fs",
+        "libvold_binder",
+    ],
+    header_libs: [
+        "libstorage_literals_headers",
+    ],
+    target: {
+        android: {
+            shared_libs: [
+                "libprocessgroup",
+                "libvndksupport",
+            ],
+        },
+    },
+    local_include_dirs: ["include"],
+}
+
+cc_binary {
+    name: "gsid",
+    defaults: [
+        "gsid_defaults",
+    ],
+    srcs: [
+        "daemon.cpp",
+    ],
+    required: [
+        "mke2fs",
+    ],
+    init_rc: [
+        "gsid.rc",
+    ],
+}
+
+aidl_interface {
+    name: "gsi_aidl_interface",
+    unstable: true,
+    srcs: [":gsiservice_aidl"],
+    local_include_dir: "aidl",
+    backend: {
+        ndk: {
+            enabled: false,
+        },
+    },
+}
+
+filegroup {
+    name: "gsiservice_aidl",
+    srcs: [
+        "aidl/android/gsi/AvbPublicKey.aidl",
+        "aidl/android/gsi/GsiProgress.aidl",
+        "aidl/android/gsi/IGsiService.aidl",
+        "aidl/android/gsi/IGsiServiceCallback.aidl",
+        "aidl/android/gsi/IImageService.aidl",
+        "aidl/android/gsi/IProgressCallback.aidl",
+        "aidl/android/gsi/MappedImage.aidl",
+    ],
+    path: "aidl",
+}
+
+cc_fuzz {
+    name: "gsi_service_fuzzer",
+    defaults: [
+        "gsid_defaults",
+        "service_fuzzer_defaults",
+        "fuzzer_disable_leaks",
+    ],
+    srcs: [
+        "fuzzers/GsiServiceFuzzer.cpp",
+    ],
+    fuzz_config: {
+        triage_assignee: "waghpawan@google.com",
+        cc: [
+            "elsk@google.com",
+            "yochiang@google.com",
+        ]
+    },
+}

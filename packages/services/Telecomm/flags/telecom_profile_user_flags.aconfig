@@ -1,0 +1,12 @@
+package: "com.android.server.telecom.flags"
+container: "system"
+
+flag {
+  name: "profile_user_support"
+  namespace: "telecom"
+  description: "Fix issues related to the profile user like private profile"
+  bug: "326270861"
+  metadata {
+    purpose: PURPOSE_BUGFIX
+  }
+}

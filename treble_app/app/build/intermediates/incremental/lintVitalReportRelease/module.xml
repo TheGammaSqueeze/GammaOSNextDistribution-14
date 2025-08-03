@@ -1,0 +1,18 @@
+<lint-module
+    format="1"
+    dir="/work/GammaOSNextDistribution-A14/treble_app/app"
+    name=":app"
+    type="APP"
+    maven="treble_app:app:"
+    gradle="7.4.2"
+    buildFolder="build"
+    bootClassPath="/work/GammaOSNextDistribution-A14/treble_app/sdk/platforms/android-33/android.jar:/work/GammaOSNextDistribution-A14/treble_app/sdk/build-tools/30.0.3/core-lambda-stubs.jar"
+    javaSourceLevel="11"
+    compileTarget="android-33">
+  <lintOptions
+      abortOnError="true"
+      absolutePaths="true"
+      checkReleaseBuilds="true"
+      explainIssues="true"/>
+  <variant name="release"/>
+</lint-module>

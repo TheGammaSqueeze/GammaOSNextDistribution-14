@@ -1,0 +1,135 @@
+{
+  "description": "One source with source type \"navigation\" and expiry field set less than 30 days, and three matching triggers of equal priority are registered immediately after 2d, just before 7d, and just after 7d. Event report task within the expiry window sends data with report times at 7d, 7d, and provided expiry.",
+  "input": {
+    "sources": [{
+      "registration_request": {
+        "attribution_src_url": "https://www.ad-tech1.test",
+        "source_type": "navigation",
+        "registrant": "example.1s1.test"
+      },
+      "responses": [{
+        "url": "https://www.ad-tech1.test",
+        "response": {
+          "Attribution-Reporting-Register-Source": {
+            "source_event_id": "1",
+            "destination": "android-app://example.2d1.test",
+            "priority": "100",
+            "expiry": "1728000"
+          },
+          "Location": null,
+          "Attribution-Reporting-Redirect": null
+        }
+      }],
+      "timestamp": "800000000001"
+    }],
+    "triggers": [
+      {
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech1.test",
+          "registrant": "example.2d1.test"
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "response": {
+            "Attribution-Reporting-Register-Trigger": {
+              "event_trigger_data": [
+                {
+                  "trigger_data": "1",
+                  "priority": "101"
+                }
+              ]
+            },
+            "Location": null,
+            "Attribution-Reporting-Redirect": null
+          }
+        }],
+        "timestamp": "800173400001"
+      },
+      {
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech1.test",
+          "registrant": "example.2d1.test"
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "response": {
+            "Attribution-Reporting-Register-Trigger": {
+              "event_trigger_data": [
+                {
+                  "trigger_data": "2",
+                  "priority": "101"
+                }
+              ]
+            },
+            "Location": null,
+            "Attribution-Reporting-Redirect": null
+          }
+        }],
+        "timestamp": "800604200001"
+      },
+      {
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech1.test",
+          "registrant": "example.2d1.test"
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "response": {
+            "Attribution-Reporting-Register-Trigger": {
+              "event_trigger_data": [
+                {
+                  "trigger_data": "3",
+                  "priority": "101"
+                }
+              ]
+            },
+            "Location": null,
+            "Attribution-Reporting-Redirect": null
+          }
+        }],
+        "timestamp": "800605400001"
+      }
+    ]
+  },
+  "output": {
+    "event_level_results": [
+      {
+        "report_time": "800608400001",
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/report-event-attribution",
+        "payload": {
+          "attribution_destination": "android-app://example.2d1.test",
+          "scheduled_report_time": "800608400",
+          "source_event_id": "1",
+          "trigger_data": "1",
+          "source_type": "navigation",
+          "randomized_trigger_rate": 0.0024263
+        }
+      },
+      {
+        "report_time": "800608400001",
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/report-event-attribution",
+        "payload": {
+          "attribution_destination": "android-app://example.2d1.test",
+          "scheduled_report_time": "800608400",
+          "source_event_id": "1",
+          "trigger_data": "2",
+          "source_type": "navigation",
+          "randomized_trigger_rate": 0.0024263
+        }
+      },
+      {
+        "report_time": "801731600001",
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/report-event-attribution",
+        "payload": {
+          "attribution_destination": "android-app://example.2d1.test",
+          "scheduled_report_time": "801731600",
+          "source_event_id": "1",
+          "trigger_data": "3",
+          "source_type": "navigation",
+          "randomized_trigger_rate": 0.0024263
+        }
+      }
+    ],
+    "aggregatable_results": []
+  }
+}

@@ -1,0 +1,8 @@
+# Can specify scenarios to use when none are specified on the command line
+default-scenarios = ["benchmark1"]
+
+# Scenarios are run in alphabetical order
+benchmark1 {
+    title = "compose foundation processing"
+    tasks = [":integration:run"]
+}

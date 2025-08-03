@@ -1,0 +1,17 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_fuzz {
+    name: "xmt_parser_fuzzer",
+    srcs: [
+        "Fuzzer.java",
+    ],
+    host_supported: true,
+    device_supported: false,
+    static_libs: [
+        "xmp_toolkit",
+        "jazzer",
+    ],
+    corpus: ["testdata/*"],
+}

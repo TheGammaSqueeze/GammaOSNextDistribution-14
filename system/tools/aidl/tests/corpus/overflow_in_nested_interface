@@ -1,0 +1,1 @@
+\ -a\ tests/IFoo.aidl\ -t\ \ tests/IFoo.aidl\ interface oo{interface o{const int a=0/0;}}

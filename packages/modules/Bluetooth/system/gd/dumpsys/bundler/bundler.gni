@@ -1,0 +1,172 @@
+#
+#  Copyright 2021 Google, Inc.
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at:
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
+# Generate bundled flat buffers
+#
+# Args:
+#   include_dir: Path to include directory
+#   sources: Flatbuffer source files
+#   gen_header [optional]: Whether to generate headers.
+template("bt_flatc_binary_schema") {
+  action_name = "${target_name}_gen"
+  action(action_name) {
+    forward_variables_from(invoker,
+                           [
+                             "include_dir",
+                             "sources",
+                           ])
+    assert(defined(include_dir), "include_dir must be set")
+    assert(defined(sources), "sources must be set")
+
+    gen_header = defined(invoker.gen_header) && invoker.gen_header
+
+    script = "//common-mk/file_generator_wrapper.py"
+    binfile = "flatc"
+    args = [
+      binfile,
+      "-I",
+      "${include_dir}",
+      "-b",
+      "--schema",
+      "-o",
+      "${target_gen_dir}",
+    ]
+
+    bfbs_names = []
+    srclist = []
+    outputs = []
+
+    foreach(s, sources) {
+      srclist += [ rebase_path(s) ]
+
+      # bfbs get generated into ${target_gen_root} directory
+      name = string_replace(get_path_info(s, "file"), ".fbs", ".bfbs")
+      bfbs_names += [ "${target_gen_dir}/${name}" ]
+      outputs += [ "${target_gen_dir}/${name}" ]
+
+      # headers get generated ito subdirectories based on relative path
+      if (gen_header) {
+        header_name = string_replace(s, ".fbs", "_generated.h")
+        outputs += [ "${target_gen_dir}/${header_name}" ]
+      }
+    }
+
+    # Generate header file as well
+    if (gen_header) {
+      args += [ "--cpp" ]
+    }
+
+    # Actual input files at the end
+    args += srclist
+
+    metadata = {
+      bfbs_outputs = bfbs_names
+    }
+  }
+
+  all_dependent_config_name = "_${target_name}_all_dependent_config"
+  config(all_dependent_config_name) {
+    # Since each header will be generated into a subdirectory, add them to the
+    # include dirs as well
+    gen_dirs = []
+    foreach(s, invoker.sources) {
+      gen_dirs += [ get_path_info(s, "gen_dir") ]
+    }
+
+    include_dirs = [ "${target_gen_dir}" ] + gen_dirs
+  }
+
+  generated_file(target_name) {
+    outputs = [ "${target_gen_dir}/${target_name}.files" ]
+    output_conversion = "list lines"
+    data_keys = [ "bfbs_outputs" ]
+
+    all_dependent_configs = [ ":${all_dependent_config_name}" ]
+    if (defined(invoker.all_dependent_configs)) {
+      all_dependent_configs += invoker.all_dependent_configs
+    }
+
+    deps = [ ":${action_name}" ]
+    if (defined(invoker.deps)) {
+      deps += invoker.deps
+    }
+
+    if (defined(invoker.configs)) {
+      configs += invoker.configs
+    }
+  }
+}
+
+# Generate bundled header
+template("bt_flatc_bundler") {
+  action_name = "${target_name}_gen"
+  action(action_name) {
+    forward_variables_from(invoker, [ "deps" ])
+    assert(defined(deps), "deps must be set")
+    assert(defined(invoker.root_name), "root_name must be set")
+    assert(defined(invoker.filename), "filename must be set")
+    assert(defined(invoker.namespace), "namespace must be set")
+
+    files_list = []
+    foreach(s, deps) {
+      name = get_label_info(s, "name")
+      gen_dir = get_label_info(s, "target_gen_dir")
+      files_list += [ "${gen_dir}/${name}.files" ]
+    }
+
+    script = "//bt/system/gd/dumpsys/bundler/extract_files_and_call.py"
+    binfile = "${root_out_dir}/bluetooth_flatbuffer_bundler"
+    args = files_list
+    args += [
+      "--",
+      binfile,
+      "-w",
+      "-m",
+      "${invoker.root_name}",
+      "-f",
+      "${invoker.filename}",
+      "-n",
+      "${invoker.namespace}",
+      "-g",
+      "${target_gen_dir}",
+    ]
+
+    outputs = [
+      "${target_gen_dir}/${invoker.filename}.cc",
+      "${target_gen_dir}/${invoker.filename}",
+    ]
+
+    metadata = {
+      all_outputs = outputs
+    }
+  }
+
+  all_dependent_config_name = "_${target_name}_all_dependent_config"
+  config(all_dependent_config_name) {
+    include_dirs = [ "${target_gen_dir}" ]
+  }
+
+  source_set(target_name) {
+    sources = [
+      "${target_gen_dir}/${invoker.filename}.cc",
+    ]
+
+    public_deps = [ ":$action_name" ]
+
+    if (defined(invoker.configs)) {
+      configs += invoker.configs
+    }
+  }
+}

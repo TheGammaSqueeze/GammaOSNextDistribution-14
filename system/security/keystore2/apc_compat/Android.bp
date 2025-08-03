@@ -1,0 +1,77 @@
+// Copyright 2020, The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_security_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_security_license"],
+}
+
+cc_library {
+    name: "libkeystore2_apc_compat",
+    srcs: [
+        "apc_compat.cpp",
+    ],
+    shared_libs: [
+        "android.hardware.confirmationui-V1-ndk",
+        "android.hardware.confirmationui@1.0",
+        "libbase",
+        "libbinder_ndk",
+        "libhidlbase",
+        "libutils",
+    ],
+}
+
+rust_bindgen {
+    name: "libkeystore2_apc_compat_bindgen",
+    wrapper_src: "apc_compat.hpp",
+    crate_name: "keystore2_apc_compat_bindgen",
+    source_stem: "bindings",
+
+    bindgen_flags: [
+        "--allowlist-function=abortUserConfirmation",
+        "--allowlist-function=closeUserConfirmationService",
+        "--allowlist-function=promptUserConfirmation",
+        "--allowlist-function=tryGetUserConfirmationService",
+        "--allowlist-var=APC_COMPAT_.*",
+        "--allowlist-var=INVALID_SERVICE_HANDLE",
+    ],
+}
+
+rust_library {
+    name: "libkeystore2_apc_compat-rust",
+    crate_name: "keystore2_apc_compat",
+    srcs: [
+        "apc_compat.rs",
+    ],
+    rustlibs: [
+        "libkeystore2_apc_compat_bindgen",
+    ],
+    shared_libs: [
+        "libkeystore2_apc_compat",
+    ],
+}
+
+rust_test {
+    name: "libkeystore2_apc_compat_bindgen_test",
+    srcs: [":libkeystore2_apc_compat_bindgen"],
+    crate_name: "keystore2_apc_compat_bindgen_test",
+    test_suites: ["general-tests"],
+    auto_gen_config: true,
+    clippy_lints: "none",
+    lints: "none",
+}

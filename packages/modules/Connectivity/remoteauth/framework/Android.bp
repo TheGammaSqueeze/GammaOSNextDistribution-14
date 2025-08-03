@@ -1,0 +1,56 @@
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_team: "trendy_team_fwk_core_networking",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+// Sources included in the framework-connectivity jar
+filegroup {
+    name: "framework-remoteauth-java-sources",
+    srcs: [
+        "java/**/*.java",
+        "java/**/*.aidl",
+    ],
+    path: "java",
+    visibility: [
+        "//packages/modules/Connectivity/framework-t:__subpackages__",
+    ],
+}
+
+filegroup {
+    name: "framework-remoteauth-sources",
+    defaults: ["framework-sources-module-defaults"],
+    srcs: [
+        ":framework-remoteauth-java-sources",
+    ],
+}
+
+// Build of only framework-remoteauth (not as part of connectivity) for
+// unit tests
+java_library {
+    name: "framework-remoteauth-static",
+    srcs: [":framework-remoteauth-java-sources"],
+    sdk_version: "module_current",
+    libs: [
+        "androidx.annotation_annotation",
+        "framework-annotations-lib",
+        "framework-bluetooth",
+    ],
+    static_libs: [
+        "modules-utils-preconditions",
+    ],
+    visibility: ["//packages/modules/Connectivity/remoteauth/tests:__subpackages__"],
+}

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2021 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="whichApplication" msgid="2309561338625872614">"选择要使用的应用："</string>
+    <string name="whichApplicationNamed" msgid="8514249643796783492">"使用“<xliff:g id="APP">%1$s</xliff:g>”完成操作"</string>
+    <string name="whichApplicationLabel" msgid="4312929689807826793">"完成操作"</string>
+    <string name="whichViewApplication" msgid="7660051361612888119">"打开方式"</string>
+    <string name="whichViewApplicationNamed" msgid="8231810543224200555">"用“<xliff:g id="APP">%1$s</xliff:g>”打开"</string>
+    <string name="whichViewApplicationLabel" msgid="9123647023323311663">"打开"</string>
+    <string name="whichOpenHostLinksWith" msgid="6664206254809230738">"<xliff:g id="HOST">%1$s</xliff:g> 链接打开方式"</string>
+    <string name="whichOpenLinksWith" msgid="3468042265545684416">"链接打开方式"</string>
+    <string name="whichOpenLinksWithApp" msgid="8832514962474825330">"使用<xliff:g id="APPLICATION">%1$s</xliff:g>打开链接"</string>
+    <string name="whichOpenHostLinksWithApp" msgid="6626134603937682461">"使用<xliff:g id="APPLICATION">%2$s</xliff:g>打开 <xliff:g id="HOST">%1$s</xliff:g> 链接"</string>
+    <string name="whichGiveAccessToApplicationLabel" msgid="5120142857844152131">"授予访问权限"</string>
+    <string name="whichEditApplication" msgid="5097563012157950614">"编辑方式"</string>
+    <string name="whichEditApplicationNamed" msgid="3150137489226219100">"使用“<xliff:g id="APP">%1$s</xliff:g>”编辑"</string>
+    <string name="whichEditApplicationLabel" msgid="5992662938338600364">"编辑"</string>
+    <string name="whichSendApplication" msgid="59510564281035884">"分享"</string>
+    <string name="whichSendApplicationNamed" msgid="495577664218765855">"与“<xliff:g id="APP">%1$s</xliff:g>”分享"</string>
+    <string name="whichSendApplicationLabel" msgid="2391198069286568035">"分享"</string>
+    <string name="whichSendToApplication" msgid="2724450540348806267">"通过以下应用发送"</string>
+    <string name="whichSendToApplicationNamed" msgid="1996548940365954543">"通过“<xliff:g id="APP">%1$s</xliff:g>”发送"</string>
+    <string name="whichSendToApplicationLabel" msgid="6909037198280591110">"发送"</string>
+    <string name="whichHomeApplication" msgid="8797832422254564739">"选择主屏幕应用"</string>
+    <string name="whichHomeApplicationNamed" msgid="3943122502791761387">"将“<xliff:g id="APP">%1$s</xliff:g>”用作主屏幕应用"</string>
+    <string name="whichHomeApplicationLabel" msgid="2066319585322981524">"截图"</string>
+    <string name="whichImageCaptureApplication" msgid="7830965894804399333">"使用以下应用截图"</string>
+    <string name="whichImageCaptureApplicationNamed" msgid="5927801386307049780">"使用“<xliff:g id="APP">%1$s</xliff:g>”截图"</string>
+    <string name="whichImageCaptureApplicationLabel" msgid="987153638235357094">"截图"</string>
+    <string name="use_a_different_app" msgid="2062380818535918975">"使用其他应用"</string>
+    <string name="chooseActivity" msgid="6659724877523973446">"选择操作"</string>
+    <string name="noApplications" msgid="1139487441772284671">"没有应用可执行此操作。"</string>
+    <string name="forward_intent_to_owner" msgid="6454987608971162379">"您目前是在工作资料之外使用此应用"</string>
+    <string name="forward_intent_to_work" msgid="2906094223089139419">"您目前是在工作资料内使用此应用"</string>
+    <string name="activity_resolver_use_always" msgid="8674194687637555245">"始终"</string>
+    <string name="activity_resolver_use_once" msgid="594173435998892989">"仅此一次"</string>
+    <string name="activity_resolver_work_profiles_support" msgid="8228711455685203580">"“<xliff:g id="APP">%1$s</xliff:g>”不支持工作资料"</string>
+    <string name="pin_specific_target" msgid="5057063421361441406">"固定<xliff:g id="LABEL">%1$s</xliff:g>"</string>
+    <string name="unpin_specific_target" msgid="3115158908159857777">"取消置顶<xliff:g id="LABEL">%1$s</xliff:g>"</string>
+    <string name="screenshot_edit" msgid="3857183660047569146">"编辑"</string>
+    <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{另外 # 个文件}other{另外 # 个文件}}"</string>
+    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{还有 # 个文件}other{还有 # 个文件}}"</string>
+    <string name="sharing_text" msgid="8137537443603304062">"分享文本"</string>
+    <string name="sharing_link" msgid="2307694372813942916">"分享链接"</string>
+    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{分享图片}other{分享 # 张图片}}"</string>
+    <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{正在分享视频}other{正在分享 # 个视频}}"</string>
+    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{正在分享 # 个文件}other{正在分享 # 个文件}}"</string>
+    <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{正在分享带有文本的图片}other{正在分享带有文本的 # 个图片}}"</string>
+    <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{正在分享带有链接的图片}other{正在分享带有链接的 # 个图片}}"</string>
+    <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{正在分享带有文本的视频}other{正在分享带有文本的 # 个视频}}"</string>
+    <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{正在分享带有链接的视频}other{正在分享带有链接的 # 个视频}}"</string>
+    <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{正在分享带有文本的文件}other{正在分享带有文本的 # 个文件}}"</string>
+    <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{正在分享带有链接的文件}other{正在分享带有链接的 # 个文件}}"</string>
+    <string name="sharing_album" msgid="191743129899503345">"分享影集"</string>
+    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{仅限图片}other{仅限图片}}"</string>
+    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{仅限视频}other{仅限视频}}"</string>
+    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{仅限文件}other{仅限文件}}"</string>
+    <string name="image_preview_a11y_description" msgid="297102643932491797">"图片预览缩略图"</string>
+    <string name="video_preview_a11y_description" msgid="683440858811095990">"视频预览缩略图"</string>
+    <string name="file_preview_a11y_description" msgid="7397224827802410602">"文件预览缩略图"</string>
+    <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"没有任何推荐的分享对象"</string>
+    <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"此应用未获得录音权限，但能通过此 USB 设备录制音频。"</string>
+    <string name="resolver_personal_tab" msgid="1381052735324320565">"个人"</string>
+    <string name="resolver_work_tab" msgid="3588325717455216412">"工作"</string>
+    <string name="resolver_private_tab" msgid="3707548826254095157">"私密"</string>
+    <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"个人视图"</string>
+    <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"工作视图"</string>
+    <string name="resolver_private_tab_accessibility" msgid="2513122834337197252">"私密视图"</string>
+    <string name="resolver_cross_profile_blocked" msgid="3515194063758605377">"已被 IT 管理员禁止"</string>
+    <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"无法使用工作应用分享该内容"</string>
+    <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"无法使用工作应用打开该内容"</string>
+    <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"无法使用个人应用分享该内容"</string>
+    <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"无法使用个人应用打开该内容"</string>
+    <string name="resolver_turn_on_work_apps" msgid="7115260573975624516">"工作应用已暂停"</string>
+    <string name="resolver_switch_on_work" msgid="8678893259344318807">"解除暂停"</string>
+    <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"没有支持该内容的工作应用"</string>
+    <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"没有支持该内容的个人应用"</string>
+    <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"要使用个人资料打开 <xliff:g id="APP">%s</xliff:g> 吗？"</string>
+    <string name="miniresolver_open_in_work" msgid="4271638122142624693">"要使用工作资料打开 <xliff:g id="APP">%s</xliff:g> 吗？"</string>
+    <string name="miniresolver_use_personal_browser" msgid="1428911732509069292">"使用个人浏览器"</string>
+    <string name="miniresolver_use_work_browser" msgid="7892699758493230342">"使用工作浏览器"</string>
+    <string name="exclude_text" msgid="5508128757025928034">"排除文本"</string>
+    <string name="include_text" msgid="642280283268536140">"包括文本"</string>
+    <string name="exclude_link" msgid="1332778255031992228">"排除链接"</string>
+    <string name="include_link" msgid="827855767220339802">"包括链接"</string>
+    <string name="pinned" msgid="7623664001331394139">"已固定"</string>
+</resources>

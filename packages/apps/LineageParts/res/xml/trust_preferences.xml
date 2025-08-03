@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2018-2024 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <org.lineageos.lineageparts.widget.WallOfTextPreference
+        android:icon="@drawable/ic_trust"
+        android:summary="@string/trust_onboarding_description" />
+
+    <PreferenceCategory android:title="@string/trust_category_features">
+
+        <Preference
+            android:key="trust_selinux"
+            android:title="@string/trust_feature_selinux" />
+
+        <Preference
+            android:key="trust_security_patch"
+            android:title="@string/trust_feature_security_patches" />
+
+        <Preference
+            android:key="trust_encryption"
+            android:title="@string/trust_feature_encryption" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="trust_category_tools"
+        android:title="@string/trust_category_tools">
+
+        <lineageos.preference.LineageGlobalSettingListPreference
+            android:key="trust_restrict_usb"
+            android:title="@string/trust_restrict_usb_title"
+            android:summary="@string/trust_restrict_usb_summary"
+            android:entries="@array/trust_restrict_usb_entries"
+            android:entryValues="@array/trust_restrict_usb_values"
+            android:defaultValue="0" />
+
+        <lineageos.preference.LineagePartsPreference
+            android:key="lineagestats" />
+
+        <ListPreference
+            android:key="sms_security_check_limit"
+            android:defaultValue="30"
+            android:entries="@array/sms_security_check_limit_entries"
+            android:entryValues="@array/sms_security_check_limit_values"
+            android:summary="@string/sms_security_check_limit_summary"
+            android:title="@string/sms_security_check_limit_title" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="trust_category_warnings"
+        android:title="@string/trust_notification_alerts_title">
+
+        <org.lineageos.lineageparts.widget.WallOfTextPreference
+            android:icon="@drawable/ic_info"
+            android:summary="@string/trust_warnings_alerts_intro" />
+
+        <SwitchPreferenceCompat
+            android:key="trust_warning_selinux"
+            android:summary="@string/trust_warnings_selinux"
+            android:defaultValue="true" />
+
+        <SwitchPreferenceCompat
+            android:key="trust_warning_keys"
+            android:summary="@string/trust_warnings_keys"
+            android:defaultValue="true" />
+    </PreferenceCategory>
+</PreferenceScreen>

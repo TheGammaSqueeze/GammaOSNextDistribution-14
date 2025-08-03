@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2017-2024 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <string name="app_name">Preglednik</string>
+    <string name="menu_new_tab">Nova kartica</string>
+    <string name="menu_incognito">Anonimna kartica</string>
+    <string name="menu_fav_add">Dodaj u favorite</string>
+    <string name="menu_share">Podijeli</string>
+    <string name="menu_favorites">Favoriti</string>
+    <string name="menu_history">Povijest</string>
+    <string name="menu_shortcut">Dodaj prečac</string>
+    <string name="menu_settings">Postavke</string>
+    <string name="menu_download">Preuzmi</string>
+    <string name="menu_in_new_tab">Otvori u novoj kartici</string>
+    <string name="menu_search">Pronađi na stranici</string>
+    <string name="share_title">Pošalji</string>
+    <string name="dismiss">Odbaci</string>
+    <string name="download_title">Preuzmi datoteku</string>
+    <string name="download_message">Želite li preuzeti %1$s?</string>
+    <string name="download_positive">Preuzmi</string>
+    <string name="settings_title">Postavke</string>
+    <string name="pref_search_engine">Tražilica</string>
+    <string name="pref_start_page">Početna stranica</string>
+    <string name="pref_start_page_dialog_title">Odaberite početnu stranicu</string>
+    <string name="pref_start_page_dialog_message">Upišite URL početne stranice</string>
+    <string name="pref_start_page_dialog_reset">Resetiraj</string>
+    <string name="pref_privacy_security">Privatnost &amp; sigurnost</string>
+    <string name="pref_looklock_title">LookLock</string>
+    <string name="pref_looklock_summary">Spriječite druge aplikacije da čitaju sadržaj preglednika</string>
+    <string name="pref_js_title">JavaScript</string>
+    <string name="pref_js_summary">Omogući JavaScript</string>
+    <string name="pref_location_title">Lokacija</string>
+    <string name="pref_location_summary">Dopusti web lokacijama da zatraže pristup vašoj lokaciji</string>
+    <string name="pref_cookie_title">Kolačići</string>
+    <string name="pref_cookie_summary">Dopusti web stranicama spremanje i učitavanje kolačića</string>
+    <string name="pref_screenshot_snap_title">Napredno dijeljenje</string>
+    <string name="pref_screenshot_snap_summary">Podijeli pregled dijeljene web stranice</string>
+    <string name="pref_cookie_clear">Izbriši kolačiće</string>
+    <string name="pref_cookie_clear_done">Izbrisani svi kolačići</string>
+    <string name="pref_do_not_track_title">Nemoj pratiti</string>
+    <string name="pref_do_not_track_summary">Pošalji zahtjev Nemoj pratiti web lokacijama koje posjećujete</string>
+    <string name="pref_suggestions_provider">Prijedlozi davatelja</string>
+    <string name="history_title">Povijest</string>
+    <string name="history_empty">Ovdje nema ništa, surfajte internetom da biste vidjeli svoju povijest ovdje</string>
+    <string name="history_date_format">EEEE dd MMMM yyyy, HH:mm</string>
+    <string name="history_delete_title">Izbriši povijest</string>
+    <string name="history_delete_message">Izbrisat ćete svu povijest, ova se radnja ne može poništiti. Želite li nastaviti?</string>
+    <string name="history_delete_positive">Izbriši</string>
+    <string name="history_deleting_message">Brisanje povijesti\u2026</string>
+    <string name="favorite_title">Favoriti</string>
+    <string name="favorite_added">Dodano u favorite</string>
+    <string name="favorite_empty">Ovdje nema ničega, dodaj omiljeni URL da ga vidiš ovdje</string>
+    <string name="favorite_edit_dialog_title">Uredi favorita</string>
+    <string name="favorite_edit_title">Naslov</string>
+    <string name="favorite_edit_url">URL</string>
+    <string name="favorite_edit_positive">Uredi</string>
+    <string name="favorite_edit_delete">Izbriši</string>
+    <string name="favorite_edit_error">Umetnite valjani URL</string>
+    <string name="error_no_activity_found">Nijedna aplikacija ne može obraditi ovaj URL</string>
+    <string name="auth_dialog_title">Potrebna je provjera autentičnosti</string>
+    <string name="auth_dialog_username">Korisničko Ime:</string>
+    <string name="auth_dialog_password">Zaporka:</string>
+    <string name="auth_dialog_detail">%1$s zahtijeva korisničko ime i zaporku.</string>
+    <string name="auth_dialog_login">Prijavi se</string>
+    <string name="shortcut_new_incognito_tab">Nova anonimna kartica</string>
+    <string name="suggestions_provider_none">Nijedan</string>
+    <string name="search_bar_hint">Traži</string>
+    <string name="ssl_cert_dialog_title">Pojedinosti SSL certifikata</string>
+    <string name="ssl_cert_dialog_domain">Domena</string>
+    <string name="ssl_cert_dialog_issued_to">Izdano za</string>
+    <string name="ssl_cert_dialog_issued_by">Izdano od</string>
+    <string name="ssl_cert_dialog_validity">Rok valjanosti</string>
+    <string name="ssl_cert_dialog_common_name">Uobičajeno ime (CN)</string>
+    <string name="ssl_cert_dialog_organization">Organizacija (O)</string>
+    <string name="ssl_cert_dialog_organizational_unit">Organizacijska jedinica (UN)</string>
+    <string name="ssl_cert_dialog_issued_on">Izdano</string>
+    <string name="ssl_cert_dialog_expires_on">Istječe</string>
+    <string name="ssl_cert_dialog_dismiss">Odbaci</string>
+</resources>

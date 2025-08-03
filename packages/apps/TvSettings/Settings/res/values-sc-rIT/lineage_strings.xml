@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017-2024 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="system_reboot_confirm_cm">Torra a aviare a:</string>
+    <string name="global_action_restart_system">Sistema</string>
+    <string name="global_action_restart_recovery">Recùperu</string>
+    <string name="global_action_restart_bootloader">Carrigadore de aviu</string>
+    <plurals name="show_dev_countdown_cm">
+        <item quantity="one">T\'ammancat <xliff:g id="step_count">%1$d</xliff:g> passu a s\'ativatzione de sa cunfiguratzione de isvilupu.</item>
+        <item quantity="other">T\'ammancant <xliff:g id="step_count">%1$d</xliff:g> passos a s\'ativatzione de sa cunfiguratzione de isvilupu.</item>
+    </plurals>
+    <string name="show_dev_on_cm">As ativadu sa cunfiguratzione de isvilupu.</string>
+    <string name="show_dev_already_cm">Non serbit, as giai ativadu sa cunfiguratzione de isvilupu.</string>
+    <string name="system_buttons">Butones</string>
+    <string name="power_button_long_press_action_title">Atzione de sa pressione longa de su butone de aviu</string>
+    <string name="power_button_long_press_for_power_menu_action">Atzessu a su menù de aviu</string>
+    <string name="power_button_long_press_for_assistant_action">Aberi s\'assistente</string>
+    <string name="inputs_volume_control_enabled">Controllu de su volùmene CEC</string>
+    <string name="inputs_volume_control_enabled_desc">Controllu de su volùmene TV/AVR imbetzes de su volùmene internu</string>
+    <string name="enable_adb_root">Curretzione de errores cun atzessu root</string>
+    <string name="enable_adb_root_summary">Permite s\'esecutzione de sa curretzione de Android cun atzessu root</string>
+    <string name="advanced_restart_title">Riaviu avantzadu</string>
+    <string name="advanced_restart_summary">Mustra is optziones pro torrare a aviare in modalidade de recùperu, carrigadore de aviu o partziale (\"soft restart\")</string>
+    <string name="adb_over_network">ADB tràmite rete</string>
+    <string name="adb_over_network_summary">Ativa sa curretzione de errores TCP/IP tràmite interfaches de rete (sena filos, retes USB). Custu paràmetru at a èssere ripristinadu a su riaviu</string>
+    <string name="adb_over_network_warning">ATENTZIONE: Cando s\'ADB tràmite rete est ativadu, su telèfonu est vulneràbile a intromissiones in totu is retes connessas!\n\nImprea custa optzione isceti dae retes fidadas.\n\nSeguru chi boles ativare custa funtzione?</string>
+    <string name="trust_category_features">Istadu</string>
+    <string name="trust_feature_selinux">SELinux</string>
+    <string name="trust_feature_selinux_value_enforcing">Fortzadu</string>
+    <string name="trust_feature_selinux_value_disabled">Disativadu</string>
+    <string name="trust_feature_selinux_explain">Su SELinux definet cales protzessos ant atzessu a cales archìvios in su dispositivu.\nCustos impedint a aplicatziones e servìtzios de atzèdere a archìvios chi non diant dèpere gestire: in custa manera unu protzessu chi podet èssere dannàrgiu at a èssere limitadu, e sa seguresa tua preservada.</string>
+    <string name="trust_feature_security_patches">Patch de seguresa de Android</string>
+    <string name="trust_feature_security_patches_value_base">Prataforma: %1$s\nProdutore: %2$s</string>
+    <string name="trust_feature_security_patches_value_new">Atualizadu</string>
+    <string name="trust_feature_security_patches_value_medium">Unos cantos meses chena atualizatzione</string>
+    <string name="trust_feature_security_patches_value_old">no atualizados</string>
+    <string name="trust_feature_security_patches_explain">Google pùblicat onni mese is patch de seguresa in cooperatzione cun is produtores de SoC pro nc\'isòrvere problemas chi diant pòdere isfrutare is aplicatziones dannàrgias pro inghiriare is restritziones de seguresa e causare dannos permanentes a su dispositivu. Is patch dispostas dae Google sunt aplicadas a totu is dispositivos suportados, ma cussas chi pertocant a cumponentes de còdighe propietàriu ddas podet aplicare isceti su produtore de su dispositivu. Pro mantènnere su dispositivu seguru controlla chi sa versione tua de LineageOS siat semper agiornada e s\'in casu segura·ti chi s\'immàgine de su produtore siat atualizada a s\'ùrtima versione cussigiada dae LineageOS.</string>
+    <string name="trust_feature_encryption">Tzifradura</string>
+    <string name="trust_feature_encryption_value_enabled">Ativada</string>
+    <string name="trust_feature_encryption_value_nolock">Serbit un\'ischermada de blocu segura</string>
+    <string name="trust_feature_encryption_value_disabled">Disativada</string>
+    <string name="trust_feature_encryption_explain">Sa tzifradura de su dispositivu blocat s\'atzessu a is datos tuos cando su dispositivu no est aviadu in Android. Custu resurtat de importu mannu in su casu chi ti furent su dispositivu, dae chi benit blocadu s\'atzessu a is messàgios, cuntatos e àteras informatziones tuas chene de sa crae tua.\nPro torrare prus efetiva sa tzifradura depes cunfigurare unu blocu de s\'ischermu seguru.</string>
+    <string name="trust_category_tools">Riservadesa</string>
+    <string name="trust_notification_alerts_title">Avisos de seguresa</string>
+    <string name="trust_restrict_usb_title">Restritzione USB</string>
+    <string name="trust_restrict_usb_summary">Suportu de controllu pro connessiones USB comente auriculares, dispositivos de archiviatzione, de intrada (mouse, tecladu, joysticks) e ADB</string>
+    <string name="trust_restrict_usb_always">Refuda is connessiones USB</string>
+    <string name="trust_restrict_usb_disabled">Permite semper is connessiones USB</string>
+    <string name="trust_onboarding_description">Trust agiudat a mantènnere su dispositivu tuo seguru e amparat sa riservadesa tua.\nS\'icona de Trust at a essire cando sa seguresa de is cuntenutos de sa pàgina siat istada verificada.</string>
+    <string name="trust_warnings_alerts_intro">Podet seberare cales problemas de seguresa si depent sinnalare. Pro sa seguresa tua si cussìgiat de ativare totu is avvisos</string>
+    <string name="trust_warnings_selinux">Istadu SELinux</string>
+    <string name="trust_warnings_keys">Firma de sa cumpilatzione</string>
+    <string name="sleep_button_label">Suspende</string>
+    <string name="system_sleep_confirm">Boles suspendere su dispositivu?</string>
+    <string name="shutdown_button_label">Istuda</string>
+    <string name="system_shutdown_confirm">Boles istudare immoe?</string>
+    <string name="convertible_port_busy_title">Su portu USB 1 est essende impreadu</string>
+    <string name="convertible_port_busy_warning">Disconnete totu is dispositivos e atzessòrios e torra·nce a proare</string>
+    <string name="mtp_enable_title">Atzessu a is cartellas SHIELD de s\'elaboradore pro mèdiu de USB</string>
+    <string name="mtp_enable_warning">Su portu USB 1 est cunfiguradu in manera chi SHIELD siat connessu a unu PC che a unu dispositivu multimediale.\n\nCustu portu no at a rilevare prus mèdios de archiviatzione USB nen atzessòrios USB, e non podet èssere impreadu pro carrigare dispositivos.</string>
+    <string name="mtp_retry_error">Errore. Torra·nce a proare.</string>
+    <string name="mtp_summary">In custa modalidade, su portu USB non funtzionat pro àteros iscopos</string>
+    <string name="mtp_title">Tràmuda archìvios a un\'elaboradore pro mèdiu de USB</string>
+    <string name="mtp_unexpected_error">Errore imprevistu. Torra·nce a proare a pustis.</string>
+    <string name="usb_debugging_enable_title">Curretzione USB ativada</string>
+    <string name="usb_debugging_enable_warning">Su portu USB 1 est cunfiguradu in manera chi SHIELD siat connessu a unu PC che a unu dispositivu multimediale.\n\nCustu portu no at a rilevare prus mèdios de archiviatzione USB nen atzessòrios USB, e non podet èssere impreadu pro carrigare dispositivos.</string>
+</resources>

@@ -1,0 +1,8 @@
+{
+  "kernel-presubmit": [
+    {
+      "name": "KernelAbilistTest"
+    }
+  ]
+}
+

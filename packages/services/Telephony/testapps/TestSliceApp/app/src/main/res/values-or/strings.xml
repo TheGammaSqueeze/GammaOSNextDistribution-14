@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="1265450418387661962">"TestSliceApp"</string>
+    <string name="hello_blank_fragment" msgid="1245093642770491175">"Hello blank fragment"</string>
+    <string name="request_network" msgid="8945235490804849914">"Networkର ଅନୁରୋଧ କରନ୍ତୁ"</string>
+    <string name="release_network" msgid="174252378593535238">"Network ରିଲିଜ କରନ୍ତୁ"</string>
+    <string name="ping" msgid="7890607576220714932">"ପିଂ"</string>
+    <string name="result_prefix" msgid="3522796186427501399">"ଫଳାଫଳ:"</string>
+    <string name="latency_title" msgid="963052613947017009">"ଲେଟେନ୍ସିକୁ ପ୍ରାଥମିକତା ଦିଅନ୍ତୁ"</string>
+    <string name="bw_title" msgid="3902162973688221344">"ବେଣ୍ଡୱିଡଥକୁ ପ୍ରାଥମିକତା ଦିଅନ୍ତୁ"</string>
+    <string name="cbs_title" msgid="5234410535569935600">"CBS"</string>
+    <string name="purchase" msgid="7843181995697372128">"Network Premium କିଣନ୍ତୁ"</string>
+    <string name="network_available" msgid="4780293262690730734">"ଫଳାଫଳ: ଅନୁରୋଧ କରାଯାଇଥିବା ନେଟୱାର୍କଟି ବର୍ତ୍ତମାନ ଉପଲବ୍ଧ ଅଛି!"</string>
+    <string name="network_requested" msgid="5646123922691865991">"ଫଳାଫଳ: ନେଟୱାର୍କର ଅନୁରୋଧ କରାଯାଇଛି!"</string>
+    <string name="network_released" msgid="2992280481133877025">"ଫଳାଫଳ: ନେଟୱାର୍କକୁ ରିଲିଜ କରାଯାଇଛି!"</string>
+    <string name="network_release_failed" msgid="256471231420029151">"ଫଳାଫଳ: ନେଟୱାର୍କକୁ ରିଲିଜ କରିବାରେ ବିଫଳ ହୋଇଛି!!!"</string>
+    <string name="purchase_exception" msgid="8876841120055716671">"ଫଳାଫଳ: Network Premium କିଣିବା ବେଳେ ବ୍ୟତିକ୍ରମ!!!"</string>
+    <string name="purchase_empty_result" msgid="7497824191649973928">"ଫଳାଫଳ: Network Premium କିଣିବା ବେଳେ ଖାଲି ଫଳାଫଳ ମିଳିଲା!!!"</string>
+    <string name="premium_not_available" msgid="7346368693802644748">"ଫଳାଫଳ: Network Premium କ୍ରୟ ପାଇଁ ଉପଲବ୍ଧ ନାହିଁ!!!"</string>
+    <string name="purchase_in_progress" msgid="5450288183685032424">"ଫଳାଫଳ: Network Premium କିଣିବାର ପ୍ରକ୍ରିୟା ଚାଲିଛି ..."</string>
+</resources>

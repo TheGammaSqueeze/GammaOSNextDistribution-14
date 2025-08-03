@@ -1,0 +1,12 @@
+{
+  "postsubmit": [
+    {
+      "name": "vts_kernel_loopconfig_test"
+    }
+  ],
+  "kernel-presubmit": [
+    {
+      "name": "vts_kernel_loopconfig_test"
+    }
+  ]
+}

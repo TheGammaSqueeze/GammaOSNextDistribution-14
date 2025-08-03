@@ -1,0 +1,187 @@
+{
+  "description": "Three reporting windows configured for CTC - 2h (w1), 2d (w2) and expiry (w3). Source (web) source has T1(app) in W1, T2(web) in W2 and T4(app) in W3 where T3(web) gets replaced by T4 because T4 has higher priority.",
+  "phflags_override": {
+    "measurement_event_reports_ctc_early_reporting_windows": "7200,172800",
+    "measurement_flex_api_max_information_gain_dual_destination_event": "9",
+    "measurement_flex_api_max_information_gain_dual_destination_navigation": "14"
+  },
+  "input": {
+    "web_sources": [
+      {
+        "registration_request": {
+          "source_origin": "android-app://example.1s1.test",
+          "source_type": "navigation",
+          "destination": "android-app://example.1d1.test",
+          "web_destination": "https://example.1d1.test",
+          "registrant": "example.1s1.test",
+          "source_params": [{
+            "attribution_src_url": "https://www.ad-tech1.test"
+          }]
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "debug_permission" : true,
+          "response": {
+            "Attribution-Reporting-Register-Source": {
+              "source_event_id": "1",
+              "destination": "android-app://example.1d1.test",
+              "web_destination": "https://example.1d1.test",
+              "priority": "100",
+              "expiry": "864000"
+            },
+            "Location": null,
+            "Attribution-Reporting-Redirect": null
+          }
+        }],
+        "timestamp": "0"
+      }
+    ],
+    "triggers": [
+      {
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech1.test",
+          "registrant": "example.1d1.test"
+        },
+        "responses": [
+          {
+            "url": "https://www.ad-tech1.test",
+            "response": {
+              "Attribution-Reporting-Register-Trigger": {
+                "event_trigger_data": [
+                  {
+                    "trigger_data": "3",
+                    "priority": "101"
+                  }
+                ]
+              },
+              "Location": null,
+              "Attribution-Reporting-Redirect": null
+            }
+          }
+        ],
+        "timestamp": "1800000"
+      },
+      {
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech1.test",
+          "registrant": "example.1d1.test"
+        },
+        "responses": [
+          {
+            "url": "https://www.ad-tech1.test",
+            "response": {
+              "Attribution-Reporting-Register-Trigger": {
+                "event_trigger_data": [
+                  {
+                    "trigger_data": "6",
+                    "priority": "1000"
+                  }
+                ]
+              },
+              "Location": null,
+              "Attribution-Reporting-Redirect": null
+            }
+          }
+        ],
+        "timestamp": "432000000"
+      }
+    ],
+    "web_triggers" : [
+      {
+        "registration_request": {
+          "destination_origin": "https://example.1d1.test",
+          "registrant": "example.app.test",
+          "trigger_params": [{
+            "attribution_src_url": "https://www.ad-tech1.test"
+          }]
+        },
+        "responses": [
+          {
+            "url": "https://www.ad-tech1.test",
+            "response": {
+              "Attribution-Reporting-Register-Trigger": {
+                "event_trigger_data": [
+                  {
+                    "trigger_data": "4",
+                    "priority": "101"
+                  }
+                ]
+              },
+              "Location": null,
+              "Attribution-Reporting-Redirect": null
+            }
+          }
+        ],
+        "timestamp": "36000000"
+      },
+      {
+        "registration_request": {
+          "destination_origin": "https://example.1d1.test",
+          "registrant": "example.app.test",
+          "trigger_params": [{
+            "attribution_src_url": "https://www.ad-tech1.test"
+          }]
+        },
+        "responses": [
+          {
+            "url": "https://www.ad-tech1.test",
+            "response": {
+              "Attribution-Reporting-Register-Trigger": {
+                "event_trigger_data": [
+                  {
+                    "trigger_data": "5",
+                    "priority": "101"
+                  }
+                ]
+              },
+              "Location": null,
+              "Attribution-Reporting-Redirect": null
+            }
+          }
+        ],
+        "timestamp": "345600000"
+      }
+    ]
+  },
+  "output": {
+    "event_level_results": [
+      {
+        "report_time": "10800000",
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/report-event-attribution",
+        "payload": {
+          "attribution_destination": "android-app://example.1d1.test",
+          "scheduled_report_time": "10800",
+          "source_event_id": "1",
+          "trigger_data": "3",
+          "source_type": "navigation",
+          "randomized_trigger_rate": 0.0170218
+        }
+      },
+      {
+        "report_time": "176400000",
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/report-event-attribution",
+        "payload": {
+          "attribution_destination": "https://1d1.test",
+          "scheduled_report_time": "176400",
+          "source_event_id": "1",
+          "trigger_data": "4",
+          "source_type": "navigation",
+          "randomized_trigger_rate": 0.0170218
+        }
+      },
+      {
+        "report_time": "867600000",
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/report-event-attribution",
+        "payload": {
+          "attribution_destination": "android-app://example.1d1.test",
+          "scheduled_report_time": "867600",
+          "source_event_id": "1",
+          "trigger_data": "6",
+          "source_type": "navigation",
+          "randomized_trigger_rate": 0.0170218
+        }
+      }
+    ],
+    "aggregatable_results": []
+  }
+}

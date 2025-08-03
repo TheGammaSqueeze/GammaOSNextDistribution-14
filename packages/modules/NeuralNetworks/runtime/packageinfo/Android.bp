@@ -1,0 +1,51 @@
+package {
+    // See: http://go/android-license-faq
+    // Inherits all licenses from parent to get Apache 2.0 and package name.
+    default_applicable_licenses: [
+        "packages_modules_NeuralNetworks_runtime_license",
+    ],
+}
+
+cc_library_shared {
+    name: "libneuralnetworks_packageinfo",
+    defaults: ["neuralnetworks_defaults"],
+    host_supported: true,
+
+    srcs: [
+        "PackageInfo.cpp",
+    ],
+
+    shared_libs: [
+        "libbase",
+        "libbinder",
+        "libcutils",
+        "liblog",
+        "libutils",
+        "packagemanager_aidl-cpp",
+    ],
+
+    export_include_dirs: ["include"],
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wno-error=deprecated-declarations",
+    ],
+
+    // enumerate stable entry points, for apex use
+    stubs: {
+        symbol_file: "libneuralnetworks_packageinfo.map.txt",
+        versions: [
+            "1",
+        ],
+    },
+
+    header_abi_checker: {
+        enabled: true,
+        symbol_file: "libneuralnetworks_packageinfo.map.txt",
+    },
+
+    visibility: [
+        "//packages/modules/NeuralNetworks:__subpackages__",
+    ],
+}

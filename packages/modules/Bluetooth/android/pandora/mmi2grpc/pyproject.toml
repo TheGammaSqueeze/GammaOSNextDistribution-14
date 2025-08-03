@@ -1,0 +1,14 @@
+[project]
+name = "mmi2grpc"
+authors = [{name = "Pandora", email = "pandora-core@google.com"}]
+readme = "README.md"
+dynamic = ["version", "description"]
+dependencies = ["grpcio >=1.41", "numpy >=1.22", "scipy >= 1.8"]
+
+[tool.flit.sdist]
+include = ["_build", "proto", "pandora"]
+
+[build-system]
+requires = ["flit_core==3.7.1", "grpcio-tools >=1.41"]
+build-backend = "_build.backend"
+backend-path = ["."]

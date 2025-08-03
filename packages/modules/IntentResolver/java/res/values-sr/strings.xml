@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2021 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="whichApplication" msgid="2309561338625872614">"Доврши радњу преко"</string>
+    <string name="whichApplicationNamed" msgid="8514249643796783492">"Довршите радњу помоћу апликације <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="whichApplicationLabel" msgid="4312929689807826793">"Заврши радњу"</string>
+    <string name="whichViewApplication" msgid="7660051361612888119">"Отворите помоћу"</string>
+    <string name="whichViewApplicationNamed" msgid="8231810543224200555">"Отворите помоћу апликације <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="whichViewApplicationLabel" msgid="9123647023323311663">"Отвори"</string>
+    <string name="whichOpenHostLinksWith" msgid="6664206254809230738">"Отварајте <xliff:g id="HOST">%1$s</xliff:g> линкове помоћу"</string>
+    <string name="whichOpenLinksWith" msgid="3468042265545684416">"Отварај линкове помоћу"</string>
+    <string name="whichOpenLinksWithApp" msgid="8832514962474825330">"Отварајте линкове помоћу апликације <xliff:g id="APPLICATION">%1$s</xliff:g>"</string>
+    <string name="whichOpenHostLinksWithApp" msgid="6626134603937682461">"Отварајте <xliff:g id="HOST">%1$s</xliff:g> линкове помоћу апликације <xliff:g id="APPLICATION">%2$s</xliff:g>"</string>
+    <string name="whichGiveAccessToApplicationLabel" msgid="5120142857844152131">"Дозволи приступ"</string>
+    <string name="whichEditApplication" msgid="5097563012157950614">"Измените помоћу"</string>
+    <string name="whichEditApplicationNamed" msgid="3150137489226219100">"Измените помоћу апликације <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="whichEditApplicationLabel" msgid="5992662938338600364">"Измени"</string>
+    <string name="whichSendApplication" msgid="59510564281035884">"Делите"</string>
+    <string name="whichSendApplicationNamed" msgid="495577664218765855">"Делите помоћу апликације <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="whichSendApplicationLabel" msgid="2391198069286568035">"Дели"</string>
+    <string name="whichSendToApplication" msgid="2724450540348806267">"Пошаљите помоћу:"</string>
+    <string name="whichSendToApplicationNamed" msgid="1996548940365954543">"Пошаљите помоћу апликације <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="whichSendToApplicationLabel" msgid="6909037198280591110">"Пошаљи"</string>
+    <string name="whichHomeApplication" msgid="8797832422254564739">"Изаберите апликацију за почетну страницу"</string>
+    <string name="whichHomeApplicationNamed" msgid="3943122502791761387">"Користите <xliff:g id="APP">%1$s</xliff:g> за почетну"</string>
+    <string name="whichHomeApplicationLabel" msgid="2066319585322981524">"Снимите слику"</string>
+    <string name="whichImageCaptureApplication" msgid="7830965894804399333">"Снимите слику помоћу апликације"</string>
+    <string name="whichImageCaptureApplicationNamed" msgid="5927801386307049780">"Снимите слику помоћу апликације <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="whichImageCaptureApplicationLabel" msgid="987153638235357094">"Снимите слику"</string>
+    <string name="use_a_different_app" msgid="2062380818535918975">"Користите другу апликацију"</string>
+    <string name="chooseActivity" msgid="6659724877523973446">"Одаберите радњу"</string>
+    <string name="noApplications" msgid="1139487441772284671">"Ниједна апликација не може да обавља ову радњу."</string>
+    <string name="forward_intent_to_owner" msgid="6454987608971162379">"Користите ову апликацију изван пословног профила"</string>
+    <string name="forward_intent_to_work" msgid="2906094223089139419">"Користите ову апликацију на пословном профилу"</string>
+    <string name="activity_resolver_use_always" msgid="8674194687637555245">"Увек"</string>
+    <string name="activity_resolver_use_once" msgid="594173435998892989">"Само једном"</string>
+    <string name="activity_resolver_work_profiles_support" msgid="8228711455685203580">"<xliff:g id="APP">%1$s</xliff:g> не подржава пословни профил"</string>
+    <string name="pin_specific_target" msgid="5057063421361441406">"Закачите особу <xliff:g id="LABEL">%1$s</xliff:g>"</string>
+    <string name="unpin_specific_target" msgid="3115158908159857777">"Откачи апликацију <xliff:g id="LABEL">%1$s</xliff:g>"</string>
+    <string name="screenshot_edit" msgid="3857183660047569146">"Измени"</string>
+    <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{и још # фајл}one{и још # фајл}few{и још # фајла}other{и још # фајлова}}"</string>
+    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{+ још # фајл}one{+ још # фајл}few{+ још # фајла}other{+ још # фајлова}}"</string>
+    <string name="sharing_text" msgid="8137537443603304062">"Дели се текст"</string>
+    <string name="sharing_link" msgid="2307694372813942916">"Дели се линк"</string>
+    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Дељење слике}one{Дељење # слике}few{Дељење # слике}other{Дељење # слика}}"</string>
+    <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Дели се видео}one{Дели се # видео}few{Деле се # видео снимка}other{Дели се # видеа}}"</string>
+    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{Дели се # фајл}one{Дели се # фајл}few{Деле се # фајла}other{Дели се # фајлова}}"</string>
+    <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{Дели се слика са текстом}one{Дели се # слика са текстом}few{Деле се # слике са текстом}other{Дели се # слика са текстом}}"</string>
+    <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{Дели се слика са линком}one{Дели се # слика са линком}few{Деле се # слике са линком}other{Дели се # слика са линком}}"</string>
+    <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{Дели се видео са текстом}one{Дели се # видео са текстом}few{Деле се # видео снимка са текстом}other{Дели се # видеа са текстом}}"</string>
+    <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Дели се видео са линком}one{Дели се # видео са линком}few{Деле се # видео снимка са линком}other{Дели се # видеа са линком}}"</string>
+    <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Дели се фајл са текстом}one{Дели се # фајл са текстом}few{Деле се # фајла са текстом}other{Дели се # фајлова са текстом}}"</string>
+    <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Дели се фајл са линком}one{Дели се # фајл са линком}few{Деле се # фајла са линком}other{Дели се # фајлова са линком}}"</string>
+    <string name="sharing_album" msgid="191743129899503345">"Дељени албум"</string>
+    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Само слика}one{Само слике}few{Само слике}other{Само слике}}"</string>
+    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Само видео}one{Само видео снимци}few{Само видео снимци}other{Само видео снимци}}"</string>
+    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Само фајл}one{Само фајлови}few{Само фајлови}other{Само фајлови}}"</string>
+    <string name="image_preview_a11y_description" msgid="297102643932491797">"Сличица за преглед слике"</string>
+    <string name="video_preview_a11y_description" msgid="683440858811095990">"Сличица за преглед видеа"</string>
+    <string name="file_preview_a11y_description" msgid="7397224827802410602">"Сличица за преглед фајла"</string>
+    <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Нема препоручених људи за дељење"</string>
+    <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Ова апликација нема дозволу за снимање, али би могла да снима звук помоћу овог USB уређаја."</string>
+    <string name="resolver_personal_tab" msgid="1381052735324320565">"Лично"</string>
+    <string name="resolver_work_tab" msgid="3588325717455216412">"Пословно"</string>
+    <string name="resolver_private_tab" msgid="3707548826254095157">"Приватно"</string>
+    <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"Лични приказ"</string>
+    <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"Приказ за посао"</string>
+    <string name="resolver_private_tab_accessibility" msgid="2513122834337197252">"Приватни приказ"</string>
+    <string name="resolver_cross_profile_blocked" msgid="3515194063758605377">"Блокира ИТ администратор"</string>
+    <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"Овај садржај не може да се дели помоћу пословних апликација"</string>
+    <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"Овај садржај не може да се отвара помоћу пословних апликација"</string>
+    <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"Овај садржај не може да се дели помоћу личних апликација"</string>
+    <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"Овај садржај не може да се отвара помоћу личних апликација"</string>
+    <string name="resolver_turn_on_work_apps" msgid="7115260573975624516">"Пословне апликације су паузиране"</string>
+    <string name="resolver_switch_on_work" msgid="8678893259344318807">"Поново активирај"</string>
+    <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"Нема пословних апликација"</string>
+    <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"Нема личних апликација"</string>
+    <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"Желите да на личном профилу отворите: <xliff:g id="APP">%s</xliff:g>?"</string>
+    <string name="miniresolver_open_in_work" msgid="4271638122142624693">"Желите да на пословном профилу отворите: <xliff:g id="APP">%s</xliff:g>?"</string>
+    <string name="miniresolver_use_personal_browser" msgid="1428911732509069292">"Користи лични прегледач"</string>
+    <string name="miniresolver_use_work_browser" msgid="7892699758493230342">"Користи пословни прегледач"</string>
+    <string name="exclude_text" msgid="5508128757025928034">"Искључи текст"</string>
+    <string name="include_text" msgid="642280283268536140">"Уврсти текст"</string>
+    <string name="exclude_link" msgid="1332778255031992228">"Изузми линк"</string>
+    <string name="include_link" msgid="827855767220339802">"Уврсти линк"</string>
+    <string name="pinned" msgid="7623664001331394139">"Закачено"</string>
+</resources>

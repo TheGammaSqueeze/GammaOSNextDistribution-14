@@ -1,0 +1,64 @@
+#!/bin/bash
+set -e
+set -x
+
+TEST_MODULE="{module_name}"
+TEST_PATH="{tradefed_test_dir}"
+ATEST_TF_LAUNCHER="{atest_tradefed_launcher}"
+ATEST_HELPER="{atest_helper}"
+SHARED_LIB_DIRS="{shared_lib_dirs}"
+PATH_ADDITIONS="{path_additions}"
+TRADEFED_CLASSPATH="{tradefed_classpath}"
+RESULT_REPORTERS_CONFIG_FILE="{result_reporters_config_file}"
+ATEST_JAVA_HOME="{atest_java_home}"
+read -a ADDITIONAL_TRADEFED_OPTIONS <<< "{additional_tradefed_options}"
+
+# Export variables expected by the Atest launcher script.
+export LD_LIBRARY_PATH="${SHARED_LIB_DIRS}"
+export TF_PATH="${TRADEFED_CLASSPATH}"
+export PATH="${PATH_ADDITIONS}:${PATH}"
+export ATEST_HELPER="${ATEST_HELPER}"
+export JAVA_HOME="${ATEST_JAVA_HOME}"
+
+exit_code_file="$(mktemp /tmp/tf-exec-XXXXXXXXXX)"
+
+"${ATEST_TF_LAUNCHER}" template/atest_local_min \
+    --template:map test=atest \
+    --template:map reporters="${RESULT_REPORTERS_CONFIG_FILE}" \
+    --tests-dir "${TEST_PATH}" \
+    --no-enable-granular-attempts \
+    --no-early-device-release \
+    --include-filter "${TEST_MODULE}" \
+    --skip-loading-config-jar \
+    --log-level-display VERBOSE \
+    --log-level VERBOSE \
+    "${ADDITIONAL_TRADEFED_OPTIONS[@]}" \
+    --bazel-exit-code-result-reporter:file=${exit_code_file} \
+    --bazel-xml-result-reporter:file=${XML_OUTPUT_FILE} \
+    --proto-output-file="${TEST_UNDECLARED_OUTPUTS_DIR}/proto-results" \
+    --use-delimited-api=true \
+    --log-file-path="${TEST_UNDECLARED_OUTPUTS_DIR}" \
+    --compress-files=false \
+    "$@"
+
+# Use the TF exit code if it terminates abnormally.
+tf_exit=$?
+if [ ${tf_exit} -ne 0 ]
+then
+     echo "Tradefed command failed with exit code ${tf_exit}"
+     exit ${tf_exit}
+fi
+
+# Set the exit code based on the exit code in the reporter-generated file.
+exit_code=$(<${exit_code_file})
+if [ $? -ne 0 ]
+then
+  echo "Could not read exit code file: ${exit_code_file}"
+  exit 36
+fi
+
+if [ ${exit_code} -ne 0 ]
+then
+  echo "Test failed with exit code ${exit_code}"
+  exit ${exit_code}
+fi

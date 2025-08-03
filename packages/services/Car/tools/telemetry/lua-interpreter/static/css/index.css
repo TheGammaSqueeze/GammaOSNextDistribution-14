@@ -1,0 +1,117 @@
+:root {
+  --mdc-theme-background: #202124;
+  --mdc-theme-error: #f28b82;
+  --mdc-theme-on-error: black;
+  --mdc-theme-on-primary: #202124;
+  --mdc-theme-on-secondary: #d2e3fc;
+  --mdc-theme-on-surface: #e8eaed;
+  --mdc-theme-primary: #8ab4f8;
+  --mdc-theme-secondary: #8ab4f83d;
+  --mdc-theme-surface: #202124;
+}
+
+.hide {
+  display: none;
+}
+
+.input-container {
+  display: flex;
+  flex-direction: row;
+  height: 600px;
+}
+
+.script-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  margin: 0 7px 0 0;
+  width: 50%;
+}
+
+.data-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  margin: 0 0 0 7px;
+  width: 50%;
+}
+
+.function-name {
+  background-color: transparent;
+  border: 1px solid var(--mdc-theme-on-surface);
+  color: var(--mdc-theme-on-surface);
+  height: auto;
+  margin: 10px 0 0;
+  padding: 10px;
+  resize: none;
+  width: auto;
+}
+
+.published-data-container {
+  display: flex;
+  flex-direction: column;
+  height: 55%;
+  margin: 0 0 5px;
+  width: auto;
+}
+
+.published-data-button-group {
+  height: auto;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 10px;
+  white-space: nowrap;
+  width: 100%;
+}
+
+/**
+ * The CodeMirrors are configured to fill up whatever container they are in so these
+ * specify the actual size of them.
+ */
+.script-input-container {
+  height: 90%;
+  width: auto;
+  overflow: auto;
+}
+
+.published-data-input-container {
+  height: 100%;
+  margin: 5px 0 0;
+  overflow: auto;
+}
+
+.saved-state-input-container {
+  height: 45%;
+  width: auto;
+}
+
+.submit {
+  margin: 10px 0 10px;
+}
+
+.script-output {
+  box-sizing: border-box;
+  font-family: monospace;
+  height: 300px;
+  overflow: auto;
+}
+
+/** webkit-scrollbar modifies the appearence of the scrollbar. */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Modifies scrollbar track */
+::-webkit-scrollbar-track {
+  background: transparent
+}
+
+/* Modifies scrollbar handle */
+::-webkit-scrollbar-thumb {
+  background: #434c5e;
+}
+
+/** Modifies the scrollbar for the published data header div ONLY. */
+.published-data-header::-webkit-scrollbar {
+  height: 10px;
+}

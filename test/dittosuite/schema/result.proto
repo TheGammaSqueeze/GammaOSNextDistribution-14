@@ -1,0 +1,18 @@
+syntax = "proto2";
+
+package dittosuiteproto;
+
+message Metrics {
+  optional string name = 1;
+  optional double min = 2;
+  optional double max = 3;
+  optional double mean = 4;
+  optional double median = 5;
+  optional double sd = 6;
+}
+
+message Result {
+  optional string name = 1;
+  repeated Metrics metrics = 2;
+  repeated Result sub_result = 3;
+}

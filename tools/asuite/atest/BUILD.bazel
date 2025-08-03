@@ -1,0 +1,70 @@
+load("//build/bazel/rules/python:py_test.bzl", "py_test")
+
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "atest-tradefed-shell",
+    srcs = glob(["res/**/*"]),
+)
+
+java_library(
+    name = "atest-tradefed",
+    resource_strip_prefix = "tools/asuite/atest/res",
+    resources = [
+        ":atest-tradefed-shell",
+    ],
+    target_compatible_with = ["//build/bazel_common_rules/platforms/os:linux"],
+)
+
+py_library(
+    name = "atest_lib",
+    srcs = [
+        "constants_default.py",
+        "test_finders/test_filter_utils.py",
+    ],
+)
+
+py_binary(
+    name = "cc-test-filter-generator",
+    srcs = ["cc_test_filter_generator.py"],
+    main = "cc_test_filter_generator.py",
+    deps = [":atest_lib"],
+)
+
+py_test(
+    name = "cc-test-filter-generator-test",
+    srcs = [
+        "cc_test_filter_generator.py",
+        "cc_test_filter_generator_test.py",
+    ],
+    main = "cc_test_filter_generator_test.py",
+    target_compatible_with = select({
+        "//build/bazel_common_rules/platforms/os:android": ["@platforms//:incompatible"],
+        "//conditions:default": [],
+    }),
+    deps = [":atest_lib"],
+)
+
+py_binary(
+    name = "java-test-filter-generator",
+    srcs = ["java_test_filter_generator.py"],
+    main = "java_test_filter_generator.py",
+    deps = [":atest_lib"],
+)
+
+py_test(
+    name = "java-test-filter-generator-test",
+    srcs = [
+        "java_test_filter_generator.py",
+        "java_test_filter_generator_test.py",
+    ],
+    main = "java_test_filter_generator_test.py",
+    target_compatible_with = select({
+        "//build/bazel_common_rules/platforms/os:android": ["@platforms//:incompatible"],
+        "//conditions:default": [],
+    }),
+    deps = [
+        ":atest_lib",
+        "//external/python/pyfakefs/pyfakefs",
+    ],
+)

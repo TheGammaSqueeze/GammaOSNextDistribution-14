@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  Copyright (c) 2022, The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="5655878067457216814">"DeviceLockController"</string>
+    <string name="next_button" msgid="1856423430963548653">"അടുത്തത്"</string>
+    <string name="reset_button" msgid="4649354411129240809">"റീസെറ്റ് ചെയ്യുക"</string>
+    <string name="setup_more_button" msgid="4456370972302510109">"കൂടുതൽ"</string>
+    <string name="setup_info_title_text" msgid="299562193092219293">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> എന്നതിന് ഈ ഉപകരണം എങ്ങനെ മാനേജ് ചെയ്യാൻ കഴിയും"</string>
+    <string name="setup_failed_title_text" msgid="9045111389981992536">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> ആപ്പ് ഇൻസ്റ്റാൾ ചെയ്യാനാവുന്നില്ല"</string>
+    <string name="setup_failed_reset_device_text" msgid="178419033440060908">"വീണ്ടും ശ്രമിക്കാൻ ഉപകരണം റീസെറ്റ് ചെയ്യുന്നു."</string>
+    <string name="setup_failed_reset_device_timer_text" msgid="5270970227714985986">"{count,plural, =1{ഈ ഉപകരണം റീസെറ്റ് ചെയ്യുക, തുടർന്ന് വീണ്ടും സജ്ജീകരിക്കാൻ ശ്രമിക്കുക. ഒരു സെക്കൻഡിനുള്ളിൽ ഇത് സ്വയമേവ റീസെറ്റ് ചെയ്യും.}other{ഈ ഉപകരണം റീസെറ്റ് ചെയ്യുക, തുടർന്ന് വീണ്ടും സജ്ജീകരിക്കാൻ ശ്രമിക്കുക. # സെക്കൻഡിനുള്ളിൽ ഇത് സ്വയമേവ റീസെറ്റ് ചെയ്യും.}}"</string>
+    <string name="setup_progress_title_text" msgid="2388779167610656852">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> ആപ്പ് ഇൻസ്റ്റാൾ ചെയ്യുന്നു<xliff:g id="ELLIPSIS">…</xliff:g>"</string>
+    <string name="setup_finish_title_text" msgid="2810842695806992743">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> ആപ്പ് തുറക്കുന്നു<xliff:g id="ELLIPSIS">…</xliff:g>"</string>
+    <string name="setup_error_title_text" msgid="1123742279081942535">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> ആപ്പ് തുറക്കാനാകുന്നില്ല"</string>
+    <string name="try_again" msgid="5964839819170927721">"വീണ്ടും ശ്രമിക്കുക"</string>
+    <string name="reset_phone" msgid="1161657350311160627">"ഫോൺ റീസെറ്റ് ചെയ്യുക"</string>
+    <string name="control_section_title" msgid="2213476068991045785">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> എന്നതിന് എന്ത് ചെയ്യാനാകും?"</string>
+    <string name="control_lock_device_text" msgid="8253302484073757764">"നിങ്ങൾ പണമടയ്ക്കുന്നില്ലെങ്കിൽ ഈ ഉപകരണം നിയന്ത്രിക്കുക"</string>
+    <string name="control_download_text" msgid="8514650561843088172">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> ആപ്പ് ഡൗൺലോഡ് ചെയ്യുക, ഇൻസ്‌റ്റാൾ ചെയ്യുക, അപ്‌ഡേറ്റ് ചെയ്യുക"</string>
+    <string name="control_disable_debug_text" msgid="8112443250013094442">"ഡീബഗ് ചെയ്യൽ ഫീച്ചറുകൾ ഓഫാക്കുക"</string>
+    <string name="locked_section_title" msgid="2748725389334076510">"ഈ ഉപകരണം ലോക്ക് ആയിരിക്കുമ്പോൾ എന്തെല്ലാം പ്രവർത്തിക്കും?"</string>
+    <string name="locked_emergency_text" msgid="3509216445555779286">"എമർജൻസി കോളിംഗ് സേവനങ്ങൾ"</string>
+    <string name="locked_phone_usage_text" msgid="1913605870324552847">"ഇൻകമിംഗ് കോളുകളും ചില ഔട്ട്‌ഗോയിംഗ് കോളുകളും"</string>
+    <string name="locked_settings_usage_text" msgid="8336476063187737700">"ക്രമീകരണം"</string>
+    <string name="locked_backup_and_restore_text" msgid="104616318625243429">"&lt;a href=https://support.google.com/android/answer/2819582&gt;നിങ്ങളുടെ ഡാറ്റ ബാക്കപ്പെടുത്ത്, പുനഃസ്ഥാപിക്കുന്നു&lt;/a&gt;"</string>
+    <string name="exposure_section_title" msgid="2329122144337528752">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> എന്നതിന് എന്തൊക്കെ ദൃശ്യമാകും?"</string>
+    <string name="exposure_install_text" msgid="2631074166447765453">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> ആപ്പ് ഇൻസ്റ്റാൾ അല്ലെങ്കിൽ അൺഇൻസ്റ്റാൾ ചെയ്തിട്ടുണ്ടെങ്കിൽ"</string>
+    <string name="exposure_lock_unlock_text" msgid="6827412845847260579">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> എന്നതിൽ നിന്നുള്ള, ലോക്ക് ചെയ്യാനോ അൺലോക്ക് ചെയ്യാനോ ഉള്ള ഏത് അഭ്യർത്ഥനയും"</string>
+    <string name="exposure_disable_dlc_text" msgid="2898692398106736423">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> ആപ്പ് ലഭ്യമല്ലെങ്കിൽ"</string>
+    <string name="open_source_licenses" msgid="6464389386262455443">"ഓപ്പൺ സോഴ്‌സ് ലൈസൻസുകൾ"</string>
+    <string name="footer_notice_content_description" msgid="2160540400079419440">"സുരക്ഷാ ക്രമീകരണത്തിലുള്ള ഫിനാൻസ് ചെയ്‌ത ഉപകരണ വിഭാഗത്തിലെ മാനേജ്മെന്റ് കഴിവുകൾ ഈ ഉപകരണത്തിന് ബാധകമല്ല."</string>
+    <string name="device_provided_by_provider" msgid="290593329676291991">"<xliff:g id="PROVIDER_NAME">%1$s</xliff:g> നൽകിയ ഉപകരണമാണിത്"</string>
+    <string name="download_kiosk_app" msgid="1845089944897502656">"കിയോസ്‌ക് ആപ്പ് സ്വയമേവ ഡൗൺലോഡ് ചെയ്ത് ഇൻസ്റ്റാൾ ചെയ്യും"</string>
+    <string name="install_kiosk_app_secondary_user" msgid="49911908012320834">"ഈ ഉപയോക്താവിന് കിയോസ്‌ക് ആപ്പ് ഇൻസ്‌റ്റാൾ ചെയ്യും"</string>
+    <string name="restrict_device_if_missing_payment" msgid="8883980285859496904">"നിങ്ങൾ ഒരു പേയ്‌മെന്റ് വിട്ടുപോയാൽ <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> എന്നതിന് ഈ ഉപകരണം നിയന്ത്രിക്കാനാകും. വിശദാംശങ്ങൾക്ക്, <xliff:g id="TERMS_AND_CONDITIONS_LINK_START">&lt;a href=%2$s&gt;</xliff:g>നിബന്ധനകളും വ്യവസ്ഥകളും<xliff:g id="TERMS_AND_CONDITIONS_LINK_END">&lt;/a&gt;</xliff:g> കാണുക."</string>
+    <string name="restrict_device_if_dont_make_payment" msgid="1619095674945507015">"നിങ്ങൾ ആവശ്യമായ പേയ്‌മെന്റുകൾ നടത്തുന്നില്ലെങ്കിൽ <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> എന്നതിന് ഈ ഉപകരണം നിയന്ത്രിക്കാനാകും. വിശദാംശങ്ങൾക്ക്, <xliff:g id="TERMS_AND_CONDITIONS_LINK_START">&lt;a href=%2$s&gt;</xliff:g>നിബന്ധനകളും വ്യവസ്ഥകളും<xliff:g id="TERMS_AND_CONDITIONS_LINK_END">&lt;/a&gt;</xliff:g> കാണുക."</string>
+    <string name="contact_provider_for_help" msgid="3872028089834808884">"സഹായത്തിന് <xliff:g id="SUPPORT_LINK_START">&lt;a href=%2$s&gt;</xliff:g><xliff:g id="PROVIDER_NAME">%1$s</xliff:g>എന്നതിനെ ബന്ധപ്പെടുക<xliff:g id="SUPPORT_LINK_END">&lt;/a&gt;</xliff:g>."</string>
+    <string name="previous" msgid="5241891780917802570">"മുമ്പത്തേത്"</string>
+    <string name="next" msgid="8248291863254324326">"അടുത്തത്"</string>
+    <string name="start" msgid="2842214844667658537">"ആരംഭിക്കുക"</string>
+    <string name="ok" msgid="3568398726528719749">"ശരി"</string>
+    <string name="done" msgid="4507782734740410307">"പൂർത്തിയായി"</string>
+    <string name="do_it_in_one_hour" msgid="2727777340568739453">"ഒരു മണിക്കൂറിൽ ചെയ്യൂ"</string>
+    <string name="header_icon_content_description" msgid="6069602031334473195">"വിവരങ്ങൾ"</string>
+    <string name="provision_info_item_icon_content_description" msgid="2306298178610632507">"പ്രൊവിഷൻ വിവരങ്ങൾ"</string>
+    <string name="enroll_your_device_header" msgid="2226305405591945098">"നിങ്ങളുടെ ഉപകരണം എൻറോൾ ചെയ്യുക"</string>
+    <string name="enroll_your_device_financing_subheader" msgid="8810608106273097451">"ഇപ്പോൾ <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> എന്നതിന്റെ ഫിനാൻസ് പ്രോഗ്രാമിൽ നിങ്ങളുടെ ഉപകരണം എൻറോൾ ചെയ്യാനാകും"</string>
+    <string name="enroll_your_device_subsidy_subheader" msgid="8598730780370624995">"ഇപ്പോൾ <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> എന്നതിന്റെ സബ്‌സിഡി പ്രോഗ്രാമിൽ നിങ്ങളുടെ ഉപകരണം എൻറോൾ ചെയ്യാനാകും"</string>
+    <string name="subsidy_program_header" msgid="2321508488856303554">"നിങ്ങൾ <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> സബ്‌സിഡി പ്രോഗ്രാമിലുണ്ട്"</string>
+    <string name="device_enrollment_header_text" msgid="5283341102404741658">"ഉപകരണ എൻറോൾമെന്റ്"</string>
+    <string name="device_financing_enrollment_body_text" msgid="5506086383249511498">"<xliff:g id="PROVIDER_NAME">%1$s</xliff:g> എന്നതിന്റെ ഫിനാൻസ് പ്രോഗ്രാമിൽ 30 ദിവസത്തിനുള്ളിൽ നിങ്ങളുടെ ഉപകരണത്തെ എൻറോൾ ചെയ്യും"</string>
+    <string name="device_subsidy_enrollment_body_text" msgid="3971584929178719388">"നിങ്ങളുടെ ഉപകരണം 30 ദിവസത്തിനുള്ളിൽ <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> എന്നതിന്റെ സബ്‌സിഡി പ്രോഗ്രാമിൽ എൻറോൾ ചെയ്യും"</string>
+    <string name="device_enrollment_notification_body_text" msgid="8755080244956655854">"എൻറോൾമെന്റ് <xliff:g id="TIME">%1$s</xliff:g>-ന് പുനരാരംഭിക്കും. നിങ്ങളുടെ ഉപകരണം ഉപയോഗിക്കുന്നത് തുടരാം."</string>
+    <string name="continue_using_device" msgid="5816570734692191190">"നിങ്ങളുടെ ഉപകരണം ഉപയോഗിക്കുന്നത് തുടരാം"</string>
+    <string name="device_paid" msgid="6606280698381856804">"നിങ്ങളുടെ ഉപകരണത്തിനായി പേ ചെയ്തു"</string>
+    <string name="device_removed_from_subsidy_program" msgid="1243434945619071051">"<xliff:g id="PROVIDER_NAME">%1$s</xliff:g> സബ്‌സിഡി പ്രോഗ്രാമിൽ നിന്ന് ഉപകരണം നീക്കം ചെയ്തു"</string>
+    <string name="device_removed_from_finance_program" msgid="825548999540107578">"നിങ്ങളുടെ ഉപകരണത്തെ <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> എന്നതിന്റെ ഫിനാൻസ് പ്രോഗ്രാമിൽ നിന്ന് നീക്കം ചെയ്തു"</string>
+    <string name="restrictions_lifted" msgid="5785586265984319396">"നിങ്ങളുടെ ഉപകരണത്തിലെ എല്ലാ നിയന്ത്രണങ്ങളും പിൻവലിച്ചു"</string>
+    <string name="uninstall_kiosk_app" msgid="3459557395024053988">"നിങ്ങളുടെ ഉപകരണത്തിൽ നിന്ന് കിയോസ്‌ക് ആപ്പ് അൺഇൻസ്‌റ്റാൾ ചെയ്യാനാകും"</string>
+    <string name="getting_device_ready" msgid="2829009584599871699">"നിങ്ങളുടെ ഉപകരണം തയ്യാറാക്കുന്നു…"</string>
+    <string name="this_may_take_a_few_minutes" msgid="2482876246874429351">"ഇതിന് കുറച്ച് സമയമെടുത്തേക്കാം"</string>
+    <string name="installing_kiosk_app" msgid="324208168205545860">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> ആപ്പ് ഇൻസ്‌റ്റാൾ ചെയ്യുന്നു…"</string>
+    <string name="opening_kiosk_app" msgid="2021888641430165654">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> ആപ്പ് തുറക്കുന്നു…"</string>
+    <string name="settings_banner_title" msgid="527041021011279252">"<xliff:g id="PROVIDER_NAME">%1$s</xliff:g> നൽകുന്ന ഉപകരണം"</string>
+    <string name="settings_banner_body" msgid="5814902066260202824">"<xliff:g id="PROVIDER_NAME">%1$s</xliff:g> എന്നതിന് ഈ ഉപകരണത്തിലെ ക്രമീകരണം മാറ്റാനാകും"</string>
+    <string name="settings_banner_button" msgid="1831020849782670907">"കൂടുതലറിയുക"</string>
+    <string name="settings_screen_title" msgid="721470080648091035">"ഫിനാൻസ് ചെയ്‌ത ഉപകരണത്തിന്റെ വിവരങ്ങൾ"</string>
+    <string name="settings_intro_device_financing" msgid="2548476558131048133">"<xliff:g id="PROVIDER_NAME_0">%1$s</xliff:g> എന്നതിന് ക്രമീകരണം മാറ്റാനും ഉപകരണത്തിൽ കിയോസ്‌ക് ആപ്പ് ഇൻസ്‌റ്റാൾ ചെയ്യാനും കഴിയും.\n\nനിങ്ങൾ ഒരു പേയ്മെന്റ് മുടക്കിയാൽ, <xliff:g id="PROVIDER_NAME_1">%1$s</xliff:g> എന്നതിന് നിങ്ങളുടെ ഉപകരണം പരിമിതപ്പെടുത്താനാകും.\n\nകൂടുതലറിയാൻ, <xliff:g id="PROVIDER_NAME_2">%1$s</xliff:g> എന്നതിനെ ബന്ധപ്പെടുക."</string>
+    <string name="settings_intro_device_subsidy" msgid="4274945644204818702">"<xliff:g id="PROVIDER_NAME_0">%1$s</xliff:g> എന്നതിന് ക്രമീകരണം മാറ്റാനും ഉപകരണത്തിൽ കിയോസ്‌ക് ആപ്പ് ഇൻസ്‌റ്റാൾ ചെയ്യാനും കഴിയും.\n\nനിങ്ങൾ ഒരു പേയ്മെന്റ് മുടക്കിയാൽ അല്ലെങ്കിൽ <xliff:g id="PROVIDER_NAME_2">%1$s</xliff:g> എന്നതിന്റെ സിം ഉപയോഗിക്കുന്നത് നിർത്തുകയോ ചെയ്താൽ <xliff:g id="PROVIDER_NAME_1">%1$s</xliff:g> ഈ ഉപകരണം നിയന്ത്രിച്ചേക്കാം.\n\nകൂടുതലറിയാൻ, <xliff:g id="PROVIDER_NAME_3">%1$s</xliff:g> എന്നതിനെ ബന്ധപ്പെടുക."</string>
+    <string name="settings_intro_preference_key" msgid="6610461073400554162">"settings_intro_preference_key"</string>
+    <string name="settings_restrictions_category" msgid="5746868117342406677">"ഉപകരണത്തിന് പേ ചെയ്യുന്നത് വരെ, ഇനിപ്പറയുന്നവ ചെയ്യാനാകില്ല:"</string>
+    <string name="settings_restrictions_category_preference_key" msgid="88318147152676512">"settings_restrictions_category_preference_key"</string>
+    <string name="settings_install_apps" msgid="3634279771448183713">"Play Store-ന് പുറത്ത് നിന്നുള്ള ആപ്പുകൾ ഇൻസ്‌റ്റാൾ ചെയ്യുക"</string>
+    <string name="settings_install_apps_preference_key" msgid="27542314345238427">"settings_install_apps_preference_key"</string>
+    <string name="settings_safe_mode" msgid="3035228015586375153">"നിങ്ങളുടെ ഉപകരണം സുരക്ഷിത മോഡിലേക്ക് റീബൂട്ട് ചെയ്യുക"</string>
+    <string name="settings_safe_mode_preference_key" msgid="2106617747358027424">"settings_safe_mode_preference_key"</string>
+    <string name="settings_developer_options" msgid="880701002025216672">"ഡെവലപ്പർ ഓ‌പ്ഷനുകൾ ഉപയോഗിക്കുക"</string>
+    <string name="settings_developer_options_preference_key" msgid="6807036808722582954">"settings_developer_options_preference_key"</string>
+    <string name="settings_credit_provider_capabilities_category" msgid="1274440595211820868">"ഉപകരണത്തിൽ എന്തെങ്കിലും പ്രശ്‌നമുണ്ടായാൽ, <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> എന്നതിന് ഇനിപ്പറയുന്നത് ചെയ്യാനാകും:"</string>
+    <string name="settings_credit_provider_capabilities_category_preference_key" msgid="4571685720898641262">"settings_credit_provider_capabilities_category_preference_key"</string>
+    <string name="settings_IMEI" msgid="697965824361262506">"നിങ്ങളുടെ IMEI ആക്‌സസ് ചെയ്യാനാകും"</string>
+    <string name="settings_IMEI_preference_key" msgid="608809590948249412">"settings_IMEI_preference_key"</string>
+    <string name="settings_factory_reset" msgid="418045189048067625">"ഉപകരണം ഫാക്‌ടറി റീസെറ്റ് ചെയ്യുക"</string>
+    <string name="settings_factory_reset_preference_key" msgid="2168528486393635382">"settings_factory_reset_preference_key"</string>
+    <string name="settings_locked_mode_category" msgid="6307525048618331737">"ഉപകരണം നിയന്ത്രിച്ചാൽ, ഇനിപ്പറയുന്നവയ്ക്കായി മാത്രമേ നിങ്ങൾക്ക് അത് ഉപയോഗിക്കാനാകൂ:"</string>
+    <string name="settings_locked_mode_category_preference_key" msgid="7202573929427220258">"settings_locked_mode_category_preference_key"</string>
+    <string name="settings_emergency_calls" msgid="2460996367176786040">"അടിയന്തര നമ്പറുകളിലേക്ക് കോളുകൾ ചെയ്യുക"</string>
+    <string name="settings_emergency_calls_preference_key" msgid="737598609727181316">"settings_emergency_calls_preference_key"</string>
+    <string name="settings_system_info" msgid="1352629332624774940">"തീയതി, സമയം, നെറ്റ്‌വർക്ക് നില, ബാറ്ററി എന്നിവ പോലുള്ള സിസ്‌റ്റം വിവരങ്ങൾ കാണുക"</string>
+    <string name="settings_system_info_preference_key" msgid="8607675914059202598">"settings_system_info_preference_key"</string>
+    <string name="settings_turn_on_off_device" msgid="5414836621603462439">"നിങ്ങളുടെ ഉപകരണം ഓണാക്കുകയോ ഓഫാക്കുകയോ ചെയ്യുക"</string>
+    <string name="settings_turn_on_off_device_preference_key" msgid="5981163790552677734">"settings_turn_on_off_device_preference_key"</string>
+    <string name="settings_notifications" msgid="63348993899505034">"അറിയിപ്പുകളും ടെക്‌സ്‌റ്റ് മെസേജുകളും കാണുക"</string>
+    <string name="settings_notifications_preference_key" msgid="4527872342061056462">"settings_notifications_preference_key"</string>
+    <string name="settings_allowlisted_apps" msgid="5531810497056091097">"<xliff:g id="PROVIDER_NAME">%1$s</xliff:g> അനുവദിച്ചിട്ടുള്ള ആപ്പുകൾ ആക്‌സസ് ചെയ്യുക"</string>
+    <string name="settings_allowlisted_apps_preference_key" msgid="8662705531235468080">"settings_allowlisted_apps_preference_key"</string>
+    <string name="settings_fully_paid_category" msgid="2459776591689824433">"നിങ്ങൾ മുഴുവൻ തുകയും അടച്ച് കഴിഞ്ഞാൽ:"</string>
+    <string name="settings_fully_paid_category_preference_key" msgid="1759690898170600559">"settings_fully_paid_category_preference_key"</string>
+    <string name="settings_restrictions_removed" msgid="1398080654904863221">"<xliff:g id="PROVIDER_NAME">%1$s</xliff:g> എന്നതിന് നിങ്ങളുടെ ഉപകരണം നിയന്ത്രിക്കാനോ ഉപകരണ ക്രമീകരണം മാറ്റാനോ കഴിയില്ല"</string>
+    <string name="settings_restrictions_removed_preference_key" msgid="7741933477145197391">"settings_restrictions_removed_preference_key"</string>
+    <string name="settings_uninstall_kiosk_app" msgid="2611134364295637875">"നിങ്ങൾക്ക് <xliff:g id="KIOSK_APP">%1$s</xliff:g> ആപ്പ് അൺഇൻസ്‌റ്റാൾ ചെയ്യാം"</string>
+    <string name="settings_uninstall_kiosk_app_preference_key" msgid="5578103644009268125">"settings_uninstall_kiosk_app_preference_key"</string>
+    <string name="settings_support_category" msgid="7210906871924935770">"സഹായം ലഭിക്കാൻ:"</string>
+    <string name="settings_support_category_preference_key" msgid="1818953199283261021">"settings_support_category_preference_key"</string>
+    <string name="settings_contact_provider" msgid="2481819956474692039">"<xliff:g id="SUPPORT_LINK_START">&lt;a href=%2$s&gt;</xliff:g><xliff:g id="PROVIDER_NAME">%1$s</xliff:g> എന്നതുമായി ബന്ധപ്പെടുക<xliff:g id="SUPPORT_LINK_END">&lt;/a&gt;</xliff:g>"</string>
+    <string name="settings_contact_provider_preference_key" msgid="2703619536229342624">"settings_contact_provider_preference_key"</string>
+    <string name="provision_notification_channel_name" msgid="6123500714047647805">"പ്രൊവിഷൻ"</string>
+    <string name="device_reset_in_days_notification_title" msgid="920859483535317727">"{count,plural, =1{ഒരു ദിവസത്തിനുള്ളിൽ ഉപകരണം റീസെറ്റ് ചെയ്യും}other{# ദിവസത്തിനുള്ളിൽ ഉപകരണം റീസെറ്റ് ചെയ്യും}}"</string>
+    <string name="device_reset_timer_notification_title" msgid="301978346002711614">"<xliff:g id="TIMER">%s</xliff:g>-നുള്ളിൽ ഉപകരണം റീസെറ്റ് ചെയ്യും"</string>
+    <string name="device_reset_notification_content" msgid="7642367488663440437">"എല്ലാ ഉപകരണ ഡാറ്റയും ഇല്ലാതാക്കും. നിങ്ങളുടെ ഉപകരണം എൻറോൾ ചെയ്യുന്നതിനുള്ള സഹായത്തിന്, <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> എന്നതിനെ ബന്ധപ്പെടുക"</string>
+    <string name="provisioning_failed" msgid="5350252817004028300">"ഫിനാൻസിംഗ് പ്രൊവിഷനിംഗ് പരാജയപ്പെട്ടു"</string>
+    <string name="click_to_contact_financier" msgid="9107827438262930445">"നിങ്ങളുടെ സാമ്പത്തിക വിദഗ്‌ധരെ ബന്ധപ്പെടുന്നതിനുള്ള മാർഗ്ഗങ്ങൾക്കായി ഇവിടെ ക്ലിക്ക് ചെയ്യുക. <xliff:g id="SUPPORT_URL_START">&lt;a href=%1$s&gt;</xliff:g>കൂടുതലറിയുക<xliff:g id="SUPPORT_URL_END">&lt;/a&gt;</xliff:g>"</string>
+    <string name="exit" msgid="645084771882733921">"പുറത്ത് കടക്കുക"</string>
+    <string name="retry" msgid="7497287909193345356">"വീണ്ടും ശ്രമിക്കുക"</string>
+</resources>

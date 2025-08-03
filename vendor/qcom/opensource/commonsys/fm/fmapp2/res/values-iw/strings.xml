@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (c) 2009, 2011-2013 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2014-2015 The CyanogenMod Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *    * Neither the name of The Linux Foundation nor
+ *      the names of its contributors may be used to endorse or promote
+ *      products derived from this software without specific prior written
+ *      permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NON-INFRINGEMENT ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">רדיו FM</string>
+    <string name="tx_app_name">משדר FM</string>
+    <string name="menu_scan_start">סריקה</string>
+    <string name="menu_scan_stop">הפסקת חיפוש</string>
+    <string name="menu_record_start">הקלטה</string>
+    <string name="menu_record_stop">הפסקת הקלטה</string>
+    <string name="menu_settings">הגדרות</string>
+    <string name="menu_sleep">שינה</string>
+    <string name="menu_sleep_cancel">בטל שינה</string>
+    <string name="menu_all_channels">כל הערוצים</string>
+    <string name="menu_display_tags">הצג תגיות</string>
+    <string name="button_text_stop">עצור</string>
+    <string name="msg_seeking">מחפש תחנת FM\u2026</string>
+    <string name="msg_scanning">סורק את כל תחנות ה-FM\u2026</string>
+    <string name="msg_scanning_pty">מחפש את \"<xliff:g id="pty_name">%1$s</xliff:g>\"\u2026</string>
+    <string name="msg_search_title"><xliff:g id="frequency_string">%1$s</xliff:g> MHz</string>
+    <string name="msg_searching_title">בוחר אוטומטית תחנות קבועות מראש</string>
+    <string name="msg_searching">מחפש תחנות בעלות קליטה טובה על מנת לבנות רשימת תחנות קבועות מראש\u2026</string>
+    <string name="msg_noantenna">נא לחבר אוזניות כדי להשתמש ברדיו FM</string>
+    <string name="dialog_sleep_title">זמן שינה לפני כיבוי אוטומטי</string>
+    <string name="presetlist_select_name">בחירת \"<xliff:g id="presetlist_name">%1$s</xliff:g>\"</string>
+    <string name="presetlist_add_new">הוספת רשימה חדשה</string>
+    <string name="dialog_presetlist_rename_title">הזנת שם</string>
+    <string name="presetlist_autoselect_title">אישור בחירה אוטומטית</string>
+    <string name="preset_replace">החלפה</string>
+    <string name="preset_tune">כיוון ידני</string>
+    <string name="preset_rename">שינוי שם</string>
+    <string name="preset_delete">מחיקה</string>
+    <string name="preset_search">חיפוש עבור \'<xliff:g id="preset_pi">%1$s</xliff:g>\'</string>
+    <string name="stat_notif_frequency">\"<xliff:g id="frequency">%1$s</xliff:g>\" MHz</string>
+    <string name="regional_band">טווח אזורי</string>
+    <string name="regional_band_entry_north_america">צפון אמריקה</string>
+    <string name="regional_band_entry_europe">אירופה</string>
+    <string name="regional_band_entry_japan">יפן</string>
+    <string name="regional_band_entry_japan_wide">יפן (רחב)</string>
+    <string name="regional_band_entry_australia">אוסטרליה</string>
+    <string name="regional_band_entry_austria">אוסטריה</string>
+    <string name="regional_band_entry_belgium">בלגיה</string>
+    <string name="regional_band_entry_brazil">ברזיל</string>
+    <string name="regional_band_entry_china">סין</string>
+    <string name="regional_band_entry_czech_republic">צ\'כיה</string>
+    <string name="regional_band_entry_denmark">דנמרק</string>
+    <string name="regional_band_entry_finland">פינלנד</string>
+    <string name="regional_band_entry_france">צרפת</string>
+    <string name="regional_band_entry_germany">גרמניה</string>
+    <string name="regional_band_entry_greece">יוון</string>
+    <string name="regional_band_entry_hong_kong">הונג קונג</string>
+    <string name="regional_band_entry_india">הודו</string>
+    <string name="regional_band_entry_indonesia">אינדונזיה</string>
+    <string name="regional_band_entry_ireland">אירלנד</string>
+    <string name="regional_band_entry_italy">איטליה</string>
+    <string name="regional_band_entry_korea">קוריאה</string>
+    <string name="regional_band_entry_mexico">מקסיקו</string>
+    <string name="regional_band_entry_netherlands">הולנד</string>
+    <string name="regional_band_entry_new_zealand">ניו זילנד</string>
+    <string name="regional_band_entry_norway">נורווגיה</string>
+    <string name="regional_band_entry_poland">פולין</string>
+    <string name="regional_band_entry_portugal">פורטוגל</string>
+    <string name="regional_band_entry_russia">רוסיה</string>
+    <string name="regional_band_entry_singapore">סינגפור</string>
+    <string name="regional_band_entry_slovakia">סלובקיה</string>
+    <string name="regional_band_entry_spain">ספרד</string>
+    <string name="regional_band_entry_switzerland">שוויץ</string>
+    <string name="regional_band_entry_sweden">שוודיה</string>
+    <string name="regional_band_entry_taiwan">טייוואן</string>
+    <string name="regional_band_entry_turkey">טורקיה</string>
+    <string name="regional_band_entry_united_kingdom">בריטניה</string>
+    <string name="regional_band_entry_united_states">ארצות הברית</string>
+    <string name="regional_band_entry_user_defined">טווח מותאם אישית</string>
+    <string name="regional_band_summary_north_america">צפון אמריקה (87.5MHz עד 108.0MHz בקפיצות של 200kHz)</string>
+    <string name="regional_band_summary_europe">אירופה (87.5MHz עד 108.0MHz בקפיצות של 100kHz)</string>
+    <string name="regional_band_summary_japan">יפן (76.0MHz עד 90.0MHz בקפיצות של 100kHz)</string>
+    <string name="regional_band_summary_japan_wide">יפן (רחב) (90.0MHz עד 108.0MHz בקפיצות של 50kHz)</string>
+    <string name="regional_band_summary_australia">אוסטרליה (87.7MHz עד 108.0MHz בקפיצות של 100kHz)</string>
+    <string name="regional_band_summary_austria">אוסטריה (87.5MHz עד 108.0MHz בקפיצות של 50kHz)</string>
+    <string name="regional_band_summary_belgium">בלגיה (87.5MHz עד 108.0MHz בקפיצות של 100kHz)</string>
+    <string name="regional_band_summary_brazil">ברזיל (87.5MHz עד 108.0MHz בקפיצות של 200kHz)</string>
+    <string name="regional_band_summary_china">סין (87.0MHz עד 108.0MHz בקפיצות של 100kHz)</string>
+    <string name="regional_band_summary_czech_republic">צ\'כיה (87.5MHz עד 108.0MHz בקפיצות של 100KHz)</string>
+    <string name="regional_band_summary_denmark">דנמרק (87.5MHz עד 108.0MHz בקפיצות של 50kHz)</string>
+    <string name="regional_band_summary_finland">פינלנד (87.5MHz עד 108.0MHz בקפיצות של 100kHz)</string>
+    <string name="regional_band_summary_france">צרפת (87.5MHz עד 108.0MHz בקפיצות של 100kHz)</string>
+    <string name="regional_band_summary_germany">גרמניה (87.5MHz עד 108.0MHz בקפיצות של 50kHz)</string>
+    <string name="regional_band_summary_greece">יוון (87.5MHz עד 108.0MHz בקפיצות של 50kHz)</string>
+    <string name="regional_band_summary_hong_kong">הונג קונג (87.5MHz עד 108.0MHz בקפיצות של 100kHz)</string>
+    <string name="regional_band_summary_india">הודו (87.5MHz עד 108.0MHz בקפיצות של 100kHz)</string>
+    <string name="regional_band_summary_indonesia">אינדונזיה (87.5MHz עד 108.0MHz בקפיצות של 100kHz)</string>
+    <string name="regional_band_summary_ireland">אירלנד (87.5MHz עד 108.0MHz בקפיצות של 50kHz)</string>
+    <string name="regional_band_summary_italy">איטליה (87.5MHz עד 108.0MHz בקפיצות של 50kHz)</string>
+    <string name="regional_band_summary_korea">קוריאה (87.5MHz עד 108.0MHz בקפיצות של 200kHz)</string>
+    <string name="regional_band_summary_mexico">מקסיקו (88.1MHz עד 107.9MHz בקפיצות של 200kHz)</string>
+    <string name="regional_band_summary_netherlands">הולנד (87.5MHz עד 108.0MHz בקפיצות של 100kHz)</string>
+    <string name="regional_band_summary_new_zealand">ניו זילנד (88.0MHz עד 107.0MHz בקפיצות של 100kHz)</string>
+    <string name="regional_band_summary_norway">נורבגיה (87.5MHz עד 108.0MHz בקפיצות של 100kHz)</string>
+    <string name="regional_band_summary_poland">פולין (87.5MHz עד 108.0MHz בקפיצות של 100KHz)</string>
+    <string name="regional_band_summary_portugal">פורטוגל (87.5MHz עד 108.0MHz בקפיצות של 50kHz)</string>
+    <string name="regional_band_summary_russia">רוסיה (87.5MHz עד 108.0MHz בקפיצות של 100kHz)</string>
+    <string name="regional_band_summary_singapore">סינגפור (88.0MHz עד 108.0MHz בקפיצות של 100kHz)</string>
+    <string name="regional_band_summary_slovakia">סלובקיה (87.5MHz עד 108.0MHz בקפיצות של 100kHz)</string>
+    <string name="regional_band_summary_spain">ספרד (87.5MHz עד 108.0MHz בקפיצות של 100kHz)</string>
+    <string name="regional_band_summary_switzerland">שוויץ (87.5MHz עד 108.0MHz בקפיצות של 100kHz)</string>
+    <string name="regional_band_summary_sweden">שבדיה (87.5MHz עד 108.0MHz בקפיצות של 100kHz)</string>
+    <string name="regional_band_summary_taiwan">טייוואן (87.5MHz עד 108.0MHz בקפיצות של 100kHz)</string>
+    <string name="regional_band_summary_turkey">טורקיה (87.5MHz עד 108.0MHz בקפיצות של 100kHz)</string>
+    <string name="regional_band_summary_united_kingdom">בריטניה (87.5MHz עד 108.0MHz בקפיצות של 100kHz)</string>
+    <string name="regional_band_summary_united_states">ארצות הברית (88.1MHz עד 107.9MHz בקפיצות של 200kHz)</string>
+    <string name="regional_band_summary_user_defined">טווח מותאם אישית</string>
+    <string name="aud_output_mode">מצב פלט שמע</string>
+    <string name="audio_type_stereo">סטריאו</string>
+    <string name="audio_type_mono">מונו</string>
+    <string name="record_dur">משך הקלטה</string>
+    <string name="auto_select_af">תדר חלופי</string>
+    <string name="settings_revert_defaults_title">שחזור להגדרות ברירת מחדל</string>
+    <string name="settings_revert_defaults_summary">איפוס כל ההגדרות</string>
+    <string name="settings_revert_confirm_title">אישור לאיפוס</string>
+    <string name="settings_revert_confirm_msg">פעולה זו תמחק את כל הגדרות היישום, כולל תחנות קבועות מראש שנשמרו. האם להמשיך?</string>
+    <string name="no_storage">עיגון כרטיס זיכרון לפי תחילת ההקלטה.</string>
+    <string name="preparing_sd">הכנת כרטיס זיכרון\u2026</string>
+    <string name="access_sd_fail">אין אפשרות לגשת לכרטיס הזיכרון.</string>
+    <string name="spaceIsLow_content">שטח האחסון בכרטיס הזיכרון שלך אוזל. שנה את הגדרות האיכות או מחק קבצים אחרים כדי לפנות מקום.</string>
+    <string name="FMRecording_reach_size_limit">הגעת למגבלת הגודל.</string>
+    <string name="menu_scan_for_preset">סרוק למציאת תחנות קבועות מראש</string>
+    <string name="fm_off">FM כבוי.</string>
+    <string name="fm_call">לא ניתן להשתמש ב-FM במהלך ביצוע שיחה.</string>
+    <string name="alert_dialog_hint">הזנת שם</string>
+    <string name="search_dialog_title">סריקת תחנות</string>
+    <string name="fm_command_timeout_title">זמן קצוב לתפוגה</string>
+    <string name="fm_tune_timeout_msg">אין קליטה מהתחנה הנבחרת. אם הבעיה חוזרת על עצמה, כבה את מקלט ה-FM והפעל אותו שנית.</string>
+    <string name="fm_command_failed_title">פעולת FM נכשלה</string>
+    <string name="fm_cmd_failed_msg">פעולת FM נכשלה. אם הבעיה חוזרת על עצמה, כבה את מקלט ה-FM והפעל אותו שנית.</string>
+    <string name="fm_cmd_failed_msg_hdmi">פעולת FM נכשלה. התרחשות בו זמנית של FM ו-HDMI אינה נתמכת.</string>
+    <string name="fm_cmd_failed_call_on">כשל בהפעלת רדיו FM. רדיו FM אינו מאושר לשימוש במהלך שיחה.</string>
+    <string name="audio_db_title_format"><xliff:g id="format">yyyy-MM-dd HH:mm:ss</xliff:g></string>
+    <string name="audio_db_artist_name">הקלטות ה- FM שלי</string>
+    <string name="audio_db_album_name">הקלטות FM</string>
+    <string name="audio_db_playlist_name">הקלטות FM</string>
+    <string name="station_name">תחנה:</string>
+    <string name="station_exists">תדר זה כבר קיים!</string>
+    <string name="station_list_delete_station">מחיקת: <xliff:g id="name">%s</xliff:g></string>
+    <string name="station_list_delete_station_prompt">בטוח שברצונך למחוק את \"<xliff:g id="name">%s</xliff:g>\"?</string>
+    <string name="station_name_empty">שם התחנה ריק, נא להזין שוב.</string>
+    <string name="station_name_exist">\"<xliff:g id="name">%s</xliff:g>\" כבר נמצא בשימוש, נא להזין שם אחר.</string>
+    <string name="rt_plus_tags">תגיות</string>
+    <string name="usr_def_band_min">התדר הנמוך ביותר (MHz)</string>
+    <string name="usr_def_band_max">התדר הגבוה ביותר (MHz)</string>
+    <string name="chanl_spacing">מרווח ערוץ</string>
+    <string name="set">הגדרה</string>
+    <string name="user_defind_band_msg">הזן תדר בין 76.0 ל־108.0 מגה-הרץ עם מרווח ערוץ אחד לפחות ו־100 קילו-הרץ מרווח בין התדר הנמוך לגבוה</string>
+    <string name="save_record_file">קובץ ההקלטה נשמר אל \"<xliff:g id="record_file">%1$s</xliff:g>\"</string>
+    <string name="fm_search_no_results">לא נמצאו תחנות תואמות</string>
+    <string name="typ_All_stations">כל התחנות</string>
+    <string name="typ_Culture">תרבות</string>
+    <string name="typ_Current_affairs">אקטואליה</string>
+    <string name="typ_Children">תוכניות ילדים</string>
+    <string name="typ_Country">מוזיקת קאנטרי</string>
+    <string name="typ_Documentary">תיעודי</string>
+    <string name="typ_Drama">דרמה</string>
+    <string name="typ_Easy_listening">מוזיקה קלה להאזנה</string>
+    <string name="typ_Education">חינוך</string>
+    <string name="typ_Emergency">חירום</string>
+    <string name="typ_Emergency_test">בדיקת חירום</string>
+    <string name="typ_Finance">כלכלה</string>
+    <string name="typ_Folk">מוזיקת פולק</string>
+    <string name="typ_Information">מידע</string>
+    <string name="typ_Jazz">מוזיקת ג\'אז</string>
+    <string name="typ_Light_classical">קלאסי קל</string>
+    <string name="typ_Leisure">פנאי</string>
+    <string name="typ_News">חדשות</string>
+    <string name="typ_National">מוזיקה לאומית</string>
+    <string name="typ_Other">מוזיקה אחרת</string>
+    <string name="typ_Oldies">מוזיקת אולדיז</string>
+    <string name="typ_Phone_in">בטלפון</string>
+    <string name="typ_Pop">מוזיקת פופ</string>
+    <string name="typ_Religion">דת</string>
+    <string name="typ_Rock">מוזיקת רוק</string>
+    <string name="typ_Science">מדע</string>
+    <string name="typ_Serious_classical">קלאסי רציני</string>
+    <string name="typ_Social_affairs">רווחה</string>
+    <string name="typ_Sport">ספורט</string>
+    <string name="typ_Travel">תיירות</string>
+    <string name="typ_Varied">מגוון</string>
+    <string name="typ_Weather">מזג אוויר</string>
+    <string name="typ_Adult_hits">להיטים למבוגרים</string>
+    <string name="typ_Classical">קלאסי</string>
+    <string name="typ_Classic_Rock">רוק קלאסי</string>
+    <string name="typ_College">מכללות</string>
+    <string name="typ_Foreign_language">שפה זרה</string>
+    <string name="typ_Hiphop">היפ הופ</string>
+    <string name="typ_Nostalgia">נוסטלגיה</string>
+    <string name="typ_Personality">אישיות</string>
+    <string name="typ_Public">ציבורי</string>
+    <string name="typ_Religious_music">מוזיקה דתית</string>
+    <string name="typ_Religious_talk">שיחות על דת</string>
+    <string name="typ_Rhythm_and_Blues">רית\'ם אנד בלוז</string>
+    <string name="typ_Spanish_music">מוזיקה ספרדית</string>
+    <string name="typ_Spanish_talk">שיחות בספרדית</string>
+    <string name="typ_Soft">רך</string>
+    <string name="typ_Soft_Rock">רוק רך</string>
+    <string name="typ_Soft_Rhythm_and_Blues">רית\'ם אנד בלוז רך</string>
+    <string name="typ_Sports">ספורט</string>
+    <string name="typ_Talk">שיחות</string>
+    <string name="typ_Top_40">ה- 40 המובילים</string>
+</resources>

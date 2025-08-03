@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2017 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="set_wallpaper_button_text">Afitar el fondu de pantalla</string>
+    <string name="choose_a_wallpaper_section_title">Escueyi un fondu de pantalla</string>
+    <string name="set_wallpaper_both_destination">Pantalles d\'aniciu y de bloquéu</string>
+    <string name="permission_needed_allow_access_button_label">      Permitir l\'accesu
+    </string>
+    <string name="settings_button_label">      Configuración
+    </string>
+    <string name="preview_screen_description">Pantalla de previsualización del fondu de pantalla</string>
+    <string name="tab_info">Información</string>
+    <string name="tab_effects">Efeutos</string>
+    <string name="tab_share">Compartir</string>
+    <string name="my_photos">Semeyes de mio</string>
+    <string name="configure_wallpaper">Configuración…</string>
+    <string name="edit_live_wallpaper">Editar</string>
+    <string name="delete_wallpaper_confirmation">¿Quies desaniciar esti fondu del preséu?</string>
+    <string name="bottom_action_bar_back">Desplazase p\'arriba</string>
+    <string name="bottom_action_bar_edit">Editar</string>
+    <string name="bottom_action_bar_apply">Aplicar</string>
+    <string name="accessibility_preview_pager" msgid="3548503287402185430">Páxina <xliff:g name="current_page" example="1">%1$d</xliff:g> de <xliff:g name="num_pages" example="2">%2$d</xliff:g></string>
+    <string name="next_page_content_description" msgid="5290226604542300962">Siguiente</string>
+    <string name="previous_page_content_description" msgid="6025726405430262788">Anterior</string>
+    <string name="lock_wallpaper_preview_card_content_description">Previsualización del fondu de la pantalla de bloquéu</string>
+    <string name="home_wallpaper_preview_card_content_description">Previsualización del fondu de la pantalla d\'Aniciu</string>
+    <string name="wallpaper_exit_split_screen">Cola del mou de pantalla dixebrada y volvi tentalo</string>
+    <string name="set_wallpaper_dialog_set_button">Afitar</string>
+    <string name="cancel">Encaboxar</string>
+    <string name="hide_preview_controls_content_description">Los controles de previsualización tán visibles. Toca dos vegaes pa escondelos.</string>
+    <string name="hide_preview_controls_action">Esconder los controles de previsualización</string>
+    <string name="show_preview_controls_content_description">Los controles de previsualización tán escondíos. Toca dos vegaes p\'amosalos.</string>
+    <string name="show_preview_controls_action">Amosar los controles de previsualización</string>
+    <string name="hide_wallpaper_info_action">Esconder la información del fondu de pantalla</string>
+    <string name="apply_btn" msgid="7965877231041987336">Aplicar</string>
+    <string name="settings_snackbar_description">Activa los ficheros y el conteníu multimedia en Configuación.</string>
+    <string name="settings_snackbar_enable">Activar</string>
+    <string name="open_my_photos">Abrir «Semeyes de mio»</string>
+    <string name="reset">Reafitar</string>
+    <string name="reset_confirmation_dialog_title">¿Quies reafitar los cambeos?</string>
+    <string name="reset_confirmation_dialog_message">Los cambeos nun van guardase</string>
+    <string name="more_wallpapers">Más fondos de pantalla</string>
+    <string name="small_preview_tooltip">Toca pa editar la semeya</string>
+    <string name="full_preview_tooltip">Axusta la posición, l\'ángulu y la escala de les semeyes</string>
+</resources>

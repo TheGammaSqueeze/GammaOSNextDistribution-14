@@ -1,0 +1,46 @@
+{
+  "keep_screen_on": {
+    "class_name": "com.android.tradefed.suite.checker.baseline.SettingsBaselineSetter",
+    "namespace": "global",
+    "key": "stay_on_while_plugged_in",
+    "value": "7"
+  },
+  "keep_setup_complete_on": {
+    "class_name": "com.android.tradefed.suite.checker.baseline.SettingsBaselineSetter",
+    "namespace": "secure",
+    "key": "user_setup_complete",
+    "value": "1",
+    "min_api_level": "34"
+  },
+  "keep_engprod_mode_on": {
+    "class_name": "com.android.tradefed.suite.checker.baseline.SettingsBaselineSetter",
+    "namespace": "global",
+    "key": "verifier_engprod",
+    "value": "1",
+    "min_api_level": "34"
+  },
+  "disable_os_auto_update": {
+    "class_name": "com.android.tradefed.suite.checker.baseline.SettingsBaselineSetter",
+    "namespace": "global",
+    "key": "ota_disable_automatic_update",
+    "value": "1"
+  },
+  "disable_device_config_sync": {
+    "class_name": "com.android.tradefed.suite.checker.baseline.SettingsBaselineSetter",
+    "namespace": "global",
+    "key": "device_config_sync_disabled",
+    "experimental": true,
+    "value": "1",
+    "min_api_level": "34"
+  },
+  "disable_usb_app_verification": {
+    "class_name": "com.android.tradefed.suite.checker.baseline.SettingsBaselineSetter",
+    "namespace": "secure",
+    "key": "verifier_verify_adb_installs",
+    "value": "0"
+  },
+  "clear_lock_screen": {
+    "class_name": "com.android.tradefed.suite.checker.baseline.LockSettingsBaselineSetter",
+    "clear_pwds": ["0000", "1234", "12345", "private"]
+  }
+}

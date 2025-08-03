@@ -1,0 +1,26 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_bt_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_bt_license"],
+}
+
+cc_defaults {
+    name: "fluoride_defaults",
+    defaults: ["bluetooth_cflags"],
+    cflags: [
+        "-DEXPORT_SYMBOL=__attribute__((visibility(\"default\")))",
+        "-DLOG_NDEBUG=0",
+        "-fvisibility=hidden",
+    ],
+    target: {
+        android: {
+            test_config_template: ":BluetoothTestConfigTemplate",
+            sanitize: {
+                misc_undefined: ["bounds"],
+            },
+        },
+    },
+}

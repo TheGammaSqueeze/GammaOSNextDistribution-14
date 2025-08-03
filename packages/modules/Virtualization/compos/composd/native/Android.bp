@@ -1,0 +1,18 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_library {
+    name: "libcomposd_native_rust",
+    crate_name: "composd_native",
+    defaults: ["avf_build_flags_rust"],
+    srcs: ["lib.rs"],
+    rustlibs: [
+        "libanyhow",
+        "liblibc",
+    ],
+    shared_libs: [
+        "libartpalette-system",
+    ],
+    apex_available: ["com.android.compos"],
+}

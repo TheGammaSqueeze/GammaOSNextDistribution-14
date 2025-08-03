@@ -1,0 +1,25 @@
+From 59c4e2cebd6d74119d110870dbe71ec7557395fe Mon Sep 17 00:00:00 2001
+From: Abhishek Pandit-Subedi <abhishekpandit@google.com>
+Date: Fri, 3 Feb 2023 15:32:45 -0800
+Subject: [PATCH] Perfetto instance hack
+
+---
+ base/logging.cc | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/libchrome/base/logging.cc b/libchrome/base/logging.cc
+index 615b432d43..6385604d93 100644
+--- a/libchrome/base/logging.cc
++++ b/libchrome/base/logging.cc
+@@ -120,6 +120,8 @@ typedef FILE* FileHandle;
+ #include "base/files/scoped_file.h"
+ #endif
+ 
++perfetto::internal::TrackRegistry *perfetto::internal::TrackRegistry::instance_ = nullptr;
++
+ namespace logging {
+ 
+ namespace {
+-- 
+2.39.1.519.gcb327c4b5f-goog
+

@@ -1,0 +1,80 @@
+syntax = "proto3";
+
+option java_outer_classname = "RfcommProto";
+
+package pandora;
+
+// Service to trigger RFCOMM procedures.
+service RFCOMM {
+  rpc ConnectToServer(ConnectionRequest) returns (ConnectionResponse);
+  rpc StartServer(ServerOptions) returns (StartServerResponse);
+  rpc AcceptConnection(AcceptConnectionRequest) returns (AcceptConnectionResponse);
+  rpc Disconnect(DisconnectionRequest) returns (DisconnectionResponse);
+  rpc StopServer(StopServerRequest) returns (StopServerResponse);
+  rpc Send(TxRequest) returns (TxResponse);
+  rpc Receive(RxRequest) returns (RxResponse);
+}
+
+message ConnectionRequest {
+  bytes address = 1;
+  string uuid = 2;
+}
+
+message RfcommConnection {
+  uint32 id = 1;
+}
+
+message ConnectionResponse {
+  RfcommConnection connection = 1;
+}
+
+message ServerOptions {
+  string name = 1;
+  string uuid = 2;
+}
+
+message ServerId {
+  uint32 id = 1;
+}
+
+message StartServerResponse {
+  ServerId server = 1;
+}
+
+message StopServerRequest {
+  ServerId server = 1;
+}
+
+message StopServerResponse {
+}
+
+message AcceptConnectionRequest {
+  ServerId server = 1;
+}
+
+message AcceptConnectionResponse {
+  RfcommConnection connection = 1;
+}
+
+message DisconnectionRequest {
+  RfcommConnection connection = 1;
+}
+
+message DisconnectionResponse {
+}
+
+message TxRequest {
+  RfcommConnection connection = 1;
+  bytes data = 2;
+}
+
+message TxResponse {
+}
+
+message RxRequest {
+  RfcommConnection connection = 1;
+}
+
+message RxResponse {
+  bytes data = 1;
+}

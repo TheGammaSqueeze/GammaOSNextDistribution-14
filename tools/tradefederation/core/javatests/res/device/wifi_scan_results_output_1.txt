@@ -1,0 +1,7 @@
+    BSSID              Frequency      RSSI           Age(sec)     SSID                                 Flags
+  f4:2e:7f:22:e2:30       5600    -60(0:-62/1:-65)     2.872    wl-uhd-atc1-atc123-5              [WPA2-PSK-CCMP][RSN-PSK-CCMP][ESS]
+  58:cb:52:d5:3a:bb       2462    -27(0:-28/1:-32)     3.912    ALOPS-RTT-01                      [WPA2-PSK-CCMP][RSN-PSK-CCMP][ESS]
+  ca:42:65:df:08:83       5805    -63(0:-64/1:-71)     3.565    AndroidShare_9512                 [RSN-PSK+SAE-CCMP][ESS]
+  20:9c:b4:16:09:f1       5580    -69(0:-69/1:-78)     4.731    GoogleGuest                       [ESS]
+  20:9c:b4:16:09:f1       5580    -69(0:-69/1:-78)     4.731    GoogleGuest_owe                   [OWE][ESS]
+  20:9c:b4:16:09:f1       5580    -69(0:-69/1:-78)     4.731    GoogleGuest_wep                   [WEP][ESS]

@@ -1,0 +1,23 @@
+// Baseline format: 1.0
+BroadcastBehavior: android.net.TetheringManager#ACTION_TETHER_STATE_CHANGED:
+    Field 'ACTION_TETHER_STATE_CHANGED' is missing @BroadcastBehavior
+
+
+RequiresPermission: android.net.TetheringManager#requestLatestTetheringEntitlementResult(int, boolean, java.util.concurrent.Executor, android.net.TetheringManager.OnTetheringEntitlementResultListener):
+    Method 'requestLatestTetheringEntitlementResult' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.TetheringManager#startTethering(android.net.TetheringManager.TetheringRequest, java.util.concurrent.Executor, android.net.TetheringManager.StartTetheringCallback):
+    Method 'startTethering' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.TetheringManager#startTethering(int, java.util.concurrent.Executor, android.net.TetheringManager.StartTetheringCallback):
+    Method 'startTethering' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.TetheringManager#stopAllTethering():
+    Method 'stopAllTethering' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.TetheringManager#stopTethering(int):
+    Method 'stopTethering' documentation mentions permissions already declared by @RequiresPermission
+
+
+SdkConstant: android.net.TetheringManager#ACTION_TETHER_STATE_CHANGED:
+    Field 'ACTION_TETHER_STATE_CHANGED' is missing @SdkConstant(SdkConstantType.BROADCAST_INTENT_ACTION)
+
+
+Todo: android.net.TetheringConstants:
+    Documentation mentions 'TODO'

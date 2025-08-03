@@ -1,0 +1,7 @@
+{
+  "presubmit": [
+    {
+      "name": "test_no_pattern"
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="phoneIconLabel">Telefono</string>
+    <string name="unknown">Nekonata</string>
+    <string name="cancel">Nuligi</string>
+    <string name="send_button">Sendi</string>
+    <string name="pause_prompt_yes">Jes</string>
+    <string name="pause_prompt_no">Ne</string>
+    <string name="add_vm_number_str">Aldoni numeron</string>
+    <string name="phone_accounts_settings_header">Agordoj</string>
+    <string name="disable_cdma_cw">Nuligi</string>
+    <string name="load_networks_progress">Ŝerĉado\u2026</string>
+    <string name="list_language_title">Lingvo</string>
+    <string-array name="list_language_entries">
+        <item>Angla</item>
+        <item>Franca</item>
+        <item>Hispana</item>
+        <item>Japana</item>
+        <item>Korea</item>
+        <item>Ĉina</item>
+        <item>Hebrea</item>
+    </string-array>
+    <string-array name="list_language_values">
+        <item>"1"</item>
+        <item>"2"</item>
+        <item>"3"</item>
+        <item>"4"</item>
+        <item>"5"</item>
+        <item>"6"</item>
+        <item>"7"</item>
+    </string-array>
+    <string name="list_language_dtitle">Lingvoj</string>
+    <string name="menu_add">Aldoni kontakton</string>
+    <string name="menu_edit">Redakti kontakton</string>
+    <string name="menu_delete">Forigi kontakton</string>
+    <string name="name">Nomo</string>
+    <string name="save">Konservi</string>
+    <string name="importSimEntry">Enporti</string>
+    <string name="ota_try_again">Reprovi</string>
+    <string name="alert_dialog_yes">Jes</string>
+    <string name="selectContact">elekti kontakton</string>
+    <string name="call_settings_title_font_family">sans-serif-light</string>
+    <string name="enable_video_calling_dialog_close">Fermi</string>
+    <string name="voicemail_visual_voicemail_key">voicemail_visual_voicemail_key</string>
+    <string name="voicemail_change_pin_key">voicemail_change_pin_key</string>
+    <string name="tty_mode_key">button_tty_mode_key</string>
+    <string name="wifi_calling_settings_key">button_wifi_calling_settings_key</string>
+    <string name="change_pin_cancel_label">Nuligi</string>
+    <string name="dsds_dialog_cancel">Nuligi</string>
+    <string name="radioInfo_unknown">Nekonata</string>
+    <string name="send_from_work_profile_cancel">Nuligi</string>
+</resources>

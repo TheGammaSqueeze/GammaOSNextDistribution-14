@@ -1,0 +1,44 @@
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<overlay>
+    <item target="bool/show_menu_item_selector" value="@bool/show_menu_item_selector" />
+
+    <item target="dimen/playback_card_height" value="@dimen/playback_card_height" />
+    <item target="dimen/radio_activity_playback_width" value="@dimen/radio_activity_playback_width" />
+    <item target="dimen/playback_card_margin_bottom" value="@dimen/playback_card_margin_bottom" />
+    <item target="dimen/playback_card_margin_horizontal" value="@dimen/playback_card_margin_horizontal" />
+
+    <item target="color/accent_color" value="@color/accent_color" />
+    <item target="color/playback_card_background_color" value="@color/playback_card_background_color" />
+    <item target="color/control_button_color" value="@color/control_button_color" />
+    <item target="color/control_button_ripple_color" value="@color/control_button_ripple_color" />
+    <item target="color/control_button_disabled_color" value="@color/control_button_disabled_color" />
+    <item target="color/band_selector_flat_text_color" value="@color/band_selector_flat_text_color" />
+    <item target="color/band_selector_flat_text_color_selected" value="@color/band_selector_flat_text_color_selected" />
+    <item target="color/manual_tuner_button_text_color" value="@color/manual_tuner_button_text_color" />
+    <item target="color/manual_tuner_done_disabled_color" value="@color/manual_tuner_done_disabled_color" />
+    <item target="color/manual_tuner_button_ripple_background_color" value="@color/manual_tuner_button_ripple_fill_color" />
+    <item target="color/manual_tuner_button_background_color" value="@color/manual_tuner_button_background_color" />
+    <item target="color/radio_card_color" value="@color/radio_card_color" />
+    <item target="color/browse_fragment_list_color" value="@color/browse_fragment_list_color" />
+    <item target="color/browse_item_text_color" value="@color/browse_item_text_color" />
+    <item target="color/radio_am_fill_color" value="@color/radio_am_fill_color" />
+    <item target="color/radio_fm_fill_color" value="@color/radio_fm_fill_color" />
+
+    <item target="style/RadioPlaybackCard" value="@style/RadioPlaybackCard" />
+
+</overlay>

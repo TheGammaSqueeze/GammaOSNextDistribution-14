@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:settings="http://schemas.android.com/apk/res-auto"
+    android:title="@string/enterprise_privacy_settings"
+    android:key="@string/psk_enterprise_privacy_settings">
+
+    <PreferenceCategory android:key="@string/psk_enterprise_privacy_exposure_category"
+                        android:title="@string/enterprise_privacy_exposure_category"
+                        android:contentDescription="@string/enterprise_privacy_exposure_category">
+        <com.android.car.ui.preference.CarUiPreference
+            android:key="@string/pk_enterprise_privacy_exposure_desc"
+            android:selectable="false"
+            android:title="@string/enterprise_privacy_exposure_desc"
+            settings:singleLineTitle="false"
+            settings:showChevron="false"/>
+    <!-- TODO(b/206155858): figure out why it doesn't have a title -->
+        <Preference android:key="@string/pk_enterprise_privacy_network_logs"
+                    settings:controller="com.android.car.settings.enterprise.NetworkLogsPreferenceController"
+                    android:title="@string/enterprise_privacy_network_logs"
+                    android:selectable="false"/>
+        <Preference android:key="@string/pk_enterprise_privacy_bug_reports"
+                    settings:controller="com.android.car.settings.enterprise.BugReportsPreferenceController"
+                    android:icon="@drawable/ic_bugreport"
+                    android:title="@string/enterprise_privacy_bug_reports"
+                    android:selectable="false"/>
+        <Preference android:key="@string/pk_enterprise_privacy_security_logs"
+                    settings:controller="com.android.car.settings.enterprise.SecurityLogsPreferenceController"
+                    android:title="@string/enterprise_privacy_security_logs"
+                    android:selectable="false"/>
+    </PreferenceCategory>
+    <com.android.car.settings.common.DividerPreference/>
+
+    <PreferenceCategory android:title="@string/enterprise_privacy_exposure_changes_category"
+                        android:key="@string/psk_enterprise_privacy_exposure_changes_category">
+        <Preference
+                    android:fragment="com.android.car.settings.enterprise.ApplicationListFragment$EnterpriseInstalledPackages"
+                    settings:controller="com.android.car.settings.enterprise.EnterpriseInstalledPackagesPreferenceController"
+                    android:key="@string/pk_enterprise_privacy_number_enterprise_installed_packages"
+                    android:icon="@drawable/ic_apps"
+                    android:title="@string/enterprise_privacy_enterprise_installed_packages"/>
+        <Preference
+                    android:fragment="com.android.car.settings.enterprise.ApplicationListFragment$AdminGrantedLocationPermissions"
+                    settings:controller="com.android.car.settings.enterprise.AdminGrantedLocationPermissionsPreferenceController"
+                    android:key="@string/pk_enterprise_privacy_number_location_access_packages"
+                    android:title="@string/enterprise_privacy_location_access"/>
+        <Preference
+                    android:fragment="com.android.car.settings.enterprise.ApplicationListFragment$AdminGrantedMicrophonePermission"
+                    settings:controller="com.android.car.settings.enterprise.AdminGrantedMicrophonePermissionPreferenceController"
+                    android:key="@string/pk_enterprise_privacy_number_microphone_access_packages"
+                    android:title="@string/enterprise_privacy_microphone_access"/>
+        <Preference
+                    android:fragment="com.android.car.settings.enterprise.ApplicationListFragment$AdminGrantedCameraPermission"
+                    settings:controller="com.android.car.settings.enterprise.AdminGrantedCameraPermissionPreferenceController"
+                    android:key="@string/pk_enterprise_privacy_number_camera_access_packages"
+                    android:title="@string/enterprise_privacy_camera_access"/>
+        <Preference
+                    android:fragment="com.android.car.settings.enterprise.EnterpriseSetDefaultAppsListFragment"
+                    android:icon="@drawable/ic_apps"
+                    settings:controller="com.android.car.settings.enterprise.EnterpriseSetDefaultAppsPreferenceController"
+                    android:key="@string/pk_enterprise_privacy_number_enterprise_set_default_apps"
+                    android:title="@string/enterprise_privacy_enterprise_set_default_apps"/>
+
+	<!-- TODO(b/206155695): figure out why it doesn't have a title -->
+        <Preference android:key="@string/pk_enterprise_privacy_always_on_vpn_primary_user"
+                    settings:controller="com.android.car.settings.enterprise.AlwaysOnVpnCurrentUserPreferenceController"
+                    android:selectable="false"/>
+
+        <Preference android:key="@string/pk_enterprise_privacy_input_method"
+                    settings:controller="com.android.car.settings.enterprise.ImePreferenceController"
+                    android:title="@string/enterprise_privacy_input_method"
+                    android:selectable="false"/>
+        <Preference android:key="@string/pk_enterprise_privacy_global_http_proxy"
+                    settings:controller="com.android.car.settings.enterprise.GlobalHttpProxyPreferenceController"
+                    android:title="@string/enterprise_privacy_global_http_proxy"
+                    android:selectable="false"/>
+        <Preference android:key="@string/pk_enterprise_privacy_ca_certs_current_user"
+                    settings:controller="com.android.car.settings.enterprise.CaCertsCurrentUserPreferenceController"
+                    android:title="@string/enterprise_privacy_ca_certs_personal"
+                    android:selectable="false"/>
+    </PreferenceCategory>
+    <com.android.car.settings.common.DividerPreference/>
+
+    <PreferenceCategory android:key="@string/psk_enterprise_privacy_device_access_category"
+                        android:title="@string/enterprise_privacy_device_access_category">
+        <com.android.car.ui.preference.CarUiPreference
+            android:key="@string/pk_enterprise_privacy_device_access_desc"
+            android:selectable="false"
+            android:title="@string/enterprise_privacy_device_access_desc"
+            settings:singleLineTitle="false"
+            settings:showChevron="false"/>
+        <Preference android:key="@string/pk_enterprise_privacy_failed_password_wipe_current_user"
+                    settings:controller="com.android.car.settings.enterprise.FailedPasswordWipeCurrentUserPreferenceController"
+                    android:title="@string/enterprise_privacy_failed_password_wipe_device"
+                    android:selectable="false"/>
+    </PreferenceCategory>
+    <com.android.car.settings.common.DividerPreference/>
+
+    <com.android.car.ui.preference.CarUiFooterPreference
+        android:key="@string/pk_enterprise_privacy_header"
+        android:summary="@string/enterprise_privacy_header"
+        android:icon="@drawable/ic_settings_about"
+        android:selectable="false"/>
+</PreferenceScreen>

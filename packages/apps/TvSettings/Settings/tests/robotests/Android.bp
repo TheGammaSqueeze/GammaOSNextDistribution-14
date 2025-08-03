@@ -1,0 +1,40 @@
+//############################################
+// TvSettings Robolectric test target. #
+//############################################
+
+package {
+    default_team: "trendy_team_tv_os",
+    // http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // the below license kinds from "packages_apps_TvSettings_Settings_license":
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["packages_apps_TvSettings_Settings_license"],
+}
+
+android_robolectric_test {
+    name: "TvSettingsRoboTests",
+
+    srcs: [
+        "src/**/*.java",
+        "src/**/*.kt",
+    ],
+
+    libs: ["services.core"],
+    
+    static_libs: [
+        "Robolectric_shadows_androidx_fragment_upstream",
+        "Settings_robolectric_meta_service_file",
+        "SettingsLib-robo-testutils",
+        "Settings-robo-testutils",
+    ],
+
+    java_resource_dirs: ["config"],
+
+    instrumentation_for: "TvSettings",
+
+    test_options: {
+        timeout: 36000,
+    },
+    
+    upstream: true,
+}

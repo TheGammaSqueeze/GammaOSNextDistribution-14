@@ -1,0 +1,3 @@
+<configuration description="ATS C-Suite Crawler Test Plan">
+  <target_preparer class="com.android.csuite.core.AppCrawlTesterHostPreparer"/>
+</configuration>

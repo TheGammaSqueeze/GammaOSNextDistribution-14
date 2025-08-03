@@ -1,0 +1,5 @@
+<resources>
+  <string name="app_name">AppSetIdApp</string>
+  <string name="app_description">Sample app for AppSetId</string>
+  <string name="app_set_id">AppSetId</string>
+</resources>

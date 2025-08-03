@@ -1,0 +1,63 @@
+{
+  "description": "Different registration origin across 1 source and 1 trigger produce 0 report",
+  "input": {
+    "sources": [
+      {
+        "timestamp": "1643235573000",
+        "registration_request": {
+          "source_origin": "https://source.test",
+          "attribution_src_url": "https://source.test/register-source",
+          "source_type": "navigation"
+        },
+        "responses": [{
+          "url": "https://source.test/register-source",
+          "response": {
+            "Attribution-Reporting-Register-Source": {
+              "destination": "https://destination.test",
+              "source_event_id": "123",
+              "aggregation_keys": {
+                "a": "0x159"
+              }
+            }
+          }
+        }]
+      }
+    ],
+    "triggers": [
+      {
+        "timestamp": "1643235574000",
+        "registration_request": {
+          "attribution_src_url": "https://trigger.test/register-trigger",
+          "destination_origin": "https://destination.test"
+        },
+        "responses": [{
+          "url": "https://trigger.test/register-trigger",
+          "response": {
+            "Attribution-Reporting-Register-Trigger": {
+              "event_trigger_data": [
+                {
+                  "trigger_data": "7"
+                }
+              ],
+              "aggregatable_trigger_data": [
+                {
+                  "source_keys": ["a"],
+                  "key_piece": "0x400"
+                }
+              ],
+              "aggregatable_values": {
+                "a": 123
+              }
+            }
+          }
+        }]
+      }
+    ]
+  },
+  "output": {
+    "event_level_results": [],
+    "aggregatable_results": [],
+    "verbose_debug_reports": [],
+    "debug_event_level_results": []
+  }
+}

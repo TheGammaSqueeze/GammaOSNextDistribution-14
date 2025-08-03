@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2021 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.android.car.cluster.osdouble"
+    android:sharedUserId="android.uid.system">
+    <!-- system uid is required to access the local private display -->
+
+    <!-- Required to show car sensor data -->
+    <uses-permission android:name="android.car.permission.CAR_SPEED"/>
+    <uses-permission android:name="android.car.permission.CAR_ENERGY"/>
+    <uses-permission android:name="android.car.permission.CAR_POWERTRAIN"/>
+    <uses-permission android:name="android.car.permission.CAR_INFO"/>
+    <uses-permission android:name="android.car.permission.CAR_ENGINE_DETAILED"/>
+    <!-- to access the Vendor properties -->
+    <uses-permission android:name="android.car.permission.CAR_VENDOR_EXTENSION"/>
+    <!-- to create the trusted virtual display -->
+    <uses-permission android:name="android.permission.ADD_TRUSTED_DISPLAY"/>
+    <!-- to get current user id -->
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL"/>
+    <!-- to query maps for nav icon -->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+
+    <!--
+        android:directBootAware to start the application regardless of user-unlocking.
+        android:persistent not to be killed by OOM.
+    -->
+    <application android:label="ClusterOsDouble"
+                 android:name=".ClusterOsDoubleApplication"
+                 android:directBootAware="true"
+                 android:persistent="true">
+        <!-- android:showForAllUsers to keep the Activity regardless of user-switching -->
+        <activity android:name=".ClusterOsDoubleActivity"
+                android:exported="true"
+                android:showForAllUsers="true"
+                android:excludeFromRecents="true"
+                android:screenOrientation="nosensor"
+                android:configChanges="uiMode|mcc|mnc"
+                android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen">
+            <meta-data android:name="distractionOptimized" android:value="true"/>
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

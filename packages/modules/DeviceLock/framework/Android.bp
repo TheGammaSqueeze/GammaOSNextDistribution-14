@@ -1,0 +1,53 @@
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+filegroup {
+    name: "framework-devicelock-sources",
+    srcs: [
+        "java/**/*.java",
+        "java/**/*.aidl",
+    ],
+    path: "java",
+    visibility: [
+        "//frameworks/base",
+        "//packages/modules/DeviceLock:__subpackages__",
+    ],
+}
+
+filegroup {
+    name: "framework-devicelock-sources-shared-with-tests",
+    srcs: ["java/**/DeviceId.java"],
+    path: "java",
+    visibility: [
+        "//packages/modules/DeviceLock:__subpackages__",
+    ],
+}
+
+java_sdk_library {
+    name: "framework-devicelock",
+    srcs: [":framework-devicelock-sources"],
+    defaults: ["framework-module-defaults"],
+    permitted_packages: ["android.devicelock"],
+    impl_library_visibility: ["//packages/modules/DeviceLock:__subpackages__"],
+    apex_available: [
+        "com.android.devicelock",
+    ],
+    sdk_version: "module_current",
+    min_sdk_version: "UpsideDownCake",
+    libs: ["framework-annotations-lib"],
+}

@@ -1,0 +1,2 @@
+per-file CarProperties.sysprop = file:/CAR_OWNERS
+per-file InputProperties.sysprop = file:platform/frameworks/base:/INPUT_OWNERS

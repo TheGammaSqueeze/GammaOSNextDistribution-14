@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2015 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+     xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
+     package="com.android.car"
+     coreApp="true"
+     android:sharedUserId="android.uid.system">
+
+    <original-package android:name="com.android.car"/>
+
+    <!-- Do not add any new permission here.
+         Update ../service/AndroidManifest instead (Except signature only permission).
+         Signature only permission should be associated with platform signature, not module
+         signature. -->
+
+    <!-- Must be required by projection service to ensure only system can bind to it.
+         <p>Protection level: signature
+    -->
+    <permission android:name="android.car.permission.BIND_PROJECTION_SERVICE"
+         android:protectionLevel="signature"
+         android:label="@string/car_permission_label_bind_projection_service"
+         android:description="@string/car_permission_desc_bind_projection_service"/>
+
+    <!-- Must be required by VMS client service to ensure only system can bind to it.
+         <p>Protection level: signature
+    -->
+    <permission android:name="android.car.permission.BIND_VMS_CLIENT"
+         android:protectionLevel="signature"
+         android:label="@string/car_permission_label_bind_vms_client"
+         android:description="@string/car_permission_desc_bind_vms_client"/>
+
+    <!-- Must be required by instrument cluster service to ensure only system can bind to it.
+         <p>Protection level: signature
+    -->
+   <permission android:name="android.car.permission.BIND_INSTRUMENT_CLUSTER_RENDERER_SERVICE"
+         android:protectionLevel="signature"
+         android:label="@string/car_permission_label_bind_instrument_cluster_rendering"
+         android:description="@string/car_permission_desc_bind_instrument_cluster_rendering"/>
+
+    <!-- Allows an application to handle the vehicle input events.
+         <p>Protection level: signature
+    -->
+    <permission android:name="android.car.permission.BIND_CAR_INPUT_SERVICE"
+         android:protectionLevel="signature"
+         android:label="@string/car_permission_label_bind_input_service"
+         android:description="@string/car_permission_desc_bind_input_service"/>
+
+    <uses-permission android:name="android.permission.CALL_PHONE"/>
+    <uses-permission android:name="android.permission.DEVICE_POWER"/>
+    <uses-permission android:name="android.permission.TURN_SCREEN_ON"/>
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL"/>
+    <uses-permission android:name="android.permission.MANAGE_ACTIVITY_TASKS"/>
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_ROUTING"/>
+    <uses-permission android:name="android.permission.MODIFY_DAY_NIGHT_MODE"/>
+    <uses-permission android:name="android.permission.MODIFY_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.READ_CALL_LOG"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.REAL_GET_TASKS"/>
+    <uses-permission android:name="android.permission.REBOOT"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.REMOVE_TASKS"/>
+    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS"/>
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"/>
+    <uses-permission android:name="android.permission.MANAGE_APP_OPS_MODES"/>
+    <uses-permission android:name="android.permission.MANAGE_USERS"/>
+    <uses-permission android:name="android.permission.LOCATION_HARDWARE"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.CONTROL_AUTOMOTIVE_GNSS"/>
+    <uses-permission android:name="android.permission.PROVIDE_TRUST_AGENT"/>
+    <uses-permission android:name="android.permission.READ_LOGS"/>
+    <!--  Used by NotificationHelper to change the notifications app name -->
+    <uses-permission android:name="android.permission.SUBSTITUTE_NOTIFICATION_APP_NAME"/>
+    <uses-permission android:name="android.permission.SUGGEST_EXTERNAL_TIME" />
+    <!--  Used by CPMS to kill cached processes to free memory -->
+    <uses-permission android:name="android.permission.KILL_ALL_BACKGROUND_PROCESSES" />
+
+    <application android:label="@string/app_title"
+         android:directBootAware="true"
+         android:allowBackup="false"
+         android:persistent="true">
+
+        <!-- Do not add any new service without addressing mainline issues -->
+        <service android:name=".CarService"
+             android:singleUser="true"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.car.ICar"/>
+            </intent-filter>
+        </service>
+        <service android:name=".CarPerUserService"
+            android:exported="false"/>
+        <service
+            android:name="com.android.car.pm.CarSafetyAccessibilityService"
+            android:singleUser="true"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/car_safety_accessibility_service_config" />
+        </service>
+
+        <!-- Do not add any new Activity. -->
+        <activity android:name=".DistractionOptimizedActivityForTesting">
+            <meta-data android:name="distractionOptimized" android:value="true"/>
+        </activity>
+        <activity android:name=".NonDistractionOptimizedActivityForTesting">
+            <meta-data android:name="distractionOptimized" android:value="false"/>
+        </activity>
+    </application>
+</manifest>

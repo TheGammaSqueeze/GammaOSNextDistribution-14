@@ -1,0 +1,20 @@
+{
+    "logs": [
+        {
+            "outputFile": "me.phh.treble.app-mergeReleaseResources-18:/values-v29/values-v29.xml",
+            "map": [
+                {
+                    "source": "/work/GammaOSNextDistribution-A14/treble_app/app/src/main/res/values-v29/styles.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endLines": "4",
+                        "endColumns": "12",
+                        "endOffsets": "210"
+                    }
+                }
+            ]
+        }
+    ]
+}

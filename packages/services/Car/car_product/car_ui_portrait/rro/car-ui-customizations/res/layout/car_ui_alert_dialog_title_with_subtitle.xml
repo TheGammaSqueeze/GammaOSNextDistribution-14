@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- Also check car_alert_dialog_title.xml when update layout, This title layout is not the only
+     title layout. See com.android.car.ui.AlertDialogBuilder#prepareDialog for details.
+-->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/title_template"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+<!-- Leave this view here so that we don't get any null pointer errors in the alert dialog
+         class. -->
+    <ImageView
+        android:id="@+id/car_ui_alert_icon"
+        android:layout_width="@dimen/car_ui_dialog_icon_size"
+        android:layout_height="@dimen/car_ui_dialog_icon_size"
+        android:layout_marginBottom="@dimen/car_alert_dialog_padding"
+        android:scaleType="fitCenter"
+        android:tint="@color/car_ui_text_color_primary"
+        android:visibility="gone"
+        android:layout_gravity="center_horizontal"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/car_ui_alert_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            style="@style/TextAppearance.CarUi.AlertDialog.Title" />
+
+        <TextView
+            android:id="@+id/car_ui_alert_subtitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="start"
+            android:layout_marginTop="@dimen/car_alert_dialog_padding"
+            style="@style/TextAppearance.CarUi.AlertDialog.Subtitle"/>
+    </LinearLayout>
+
+    <View
+        android:id="@+id/empty_space"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"/>
+</LinearLayout>

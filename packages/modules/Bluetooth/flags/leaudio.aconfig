@@ -1,0 +1,191 @@
+package: "com.android.bluetooth.flags"
+container: "com.android.btservices"
+
+flag {
+    name: "leaudio_broadcast_monitor_source_sync_status"
+    namespace: "bluetooth"
+    description: "New APIs to improve broadcast source sync"
+    bug: "307406671"
+}
+
+flag {
+    name: "leaudio_broadcast_volume_control_for_connected_devices"
+    namespace: "bluetooth"
+    description: "Allow volume control for connected devices"
+    bug: "307408418"
+}
+
+flag {
+    name: "leaudio_enable_health_based_actions"
+    namespace: "bluetooth"
+    description: "Le audio device and group health actions for fallback mechanism"
+    bug: "290845728"
+}
+
+flag {
+    name: "leaudio_broadcast_audio_handover_policies"
+    namespace: "bluetooth"
+    description: "Support le audio broadcast audio routing policies"
+    bug: "308171251"
+}
+
+flag {
+    name: "leaudio_unicast_inactivate_device_based_on_context"
+    namespace: "bluetooth"
+    description: "Inactivate audio device when stream cannot be created due to unavailable context type"
+    bug: "313054788"
+}
+
+flag {
+    name: "leaudio_multicodec_aidl_support"
+    namespace: "bluetooth"
+    description: "Enables support for the multicodec AIDL"
+    bug: "313054645"
+}
+
+flag {
+    name: "leaudio_dynamic_spatial_audio"
+    namespace: "bluetooth"
+    description: "Support Dynamic Spatial Audio for LE Audio"
+    bug: "309665975"
+}
+
+flag {
+    name: "asymmetric_phy_for_unidirectional_cis"
+    namespace: "bluetooth"
+    description: "Apply asymetric PHY setting for unidirectional CIS"
+    bug: "314176433"
+}
+
+flag {
+    name: "leaudio_hal_client_asrc"
+    namespace: "bluetooth"
+    description: "Sync audio stream with the bluetooth link clock"
+    bug: "312273987"
+}
+
+flag {
+    name: "leaudio_broadcast_feature_support"
+    namespace: "bluetooth"
+    description: "Le audio broadcast feature roll-out control flag"
+    bug: "316005152"
+}
+
+flag {
+    name: "delay_bonding_when_busy"
+    namespace: "bluetooth"
+    description: "Fix bonding failure due to native stack being busy"
+    bug: "316927319"
+}
+
+flag {
+    name: "le_audio_fast_bond_params"
+    namespace: "bluetooth"
+    description: "Faster LE Audio devices connection"
+    bug: "319405267"
+}
+
+flag {
+    name: "le_audio_dev_type_detection_fix"
+    namespace: "bluetooth"
+    description: "Better LE Audio devices detection"
+    bug: "319511584"
+}
+
+flag {
+    name: "metadata_api_inactive_audio_device_upon_connection"
+    namespace: "bluetooth"
+    description: "API to set device as inactive audio device upon connection"
+    bug: "322387487"
+}
+
+flag {
+    name: "leaudio_add_sampling_frequencies"
+    namespace: "bluetooth"
+    description: "Adds missing frequencies defined by the Bluetooth SIG"
+    bug: "323287937"
+}
+
+flag {
+    name: "leaudio_callback_on_group_stream_status"
+    namespace: "bluetooth"
+    description: "Add group stream status callback to notify about playing state"
+    bug: "323288608"
+}
+
+flag {
+    name: "leaudio_mcs_tbs_authorization_rebond_fix"
+    namespace: "bluetooth"
+    description: "Removes authorization data for unbonded devices in MCS and TBS service"
+    bug: "323339440"
+    metadata {
+        purpose: PURPOSE_BUGFIX
+    }
+}
+
+flag {
+    name: "leaudio_multiple_vocs_instances_api"
+    namespace: "bluetooth"
+    description: "Support multiple audio outputs for volume offset"
+    bug: "323156655"
+}
+
+flag {
+    name: "leaudio_volume_change_on_ringtone_fix"
+    namespace: "bluetooth"
+    description: "Apply the volume update to call volume during ringtone"
+    bug: "324041939"
+    metadata {
+        purpose: PURPOSE_BUGFIX
+    }
+}
+
+flag {
+    name: "leaudio_active_device_manager_group_handling_fix"
+    namespace: "bluetooth"
+    description: "Make sure Active Device Manager understands LeAudio groups"
+    bug: "324364321"
+    metadata {
+        purpose: PURPOSE_BUGFIX
+    }
+}
+
+flag {
+    name: "leaudio_start_stream_race_fix"
+    namespace: "bluetooth"
+    description: "Fix possible race on start stream request"
+    bug: "325181889"
+    metadata {
+        purpose: PURPOSE_BUGFIX
+    }
+}
+
+flag {
+    name: "leaudio_api_synchronized_block_fix"
+    namespace: "bluetooth"
+    description: "Fix possible deadlocks when synchronizing LeAudioService states"
+    bug: "326295400"
+    metadata {
+        purpose: PURPOSE_BUGFIX
+    }
+}
+
+flag {
+    name: "run_ble_audio_ticks_in_worker_thread"
+    namespace: "bluetooth"
+    description: "Fix thread ownership issue in ble_audio_ticks"
+    bug: "325984257"
+    metadata {
+        purpose: PURPOSE_BUGFIX
+    }
+}
+
+flag {
+    name: "leaudio_codec_config_callback_order_fix"
+    namespace: "bluetooth"
+    description: "Fix for the order on the callback"
+    bug: "326442537"
+    metadata {
+        purpose: PURPOSE_BUGFIX
+    }
+}

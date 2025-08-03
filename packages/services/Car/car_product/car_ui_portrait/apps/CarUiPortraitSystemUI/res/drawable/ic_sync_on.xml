@@ -1,0 +1,28 @@
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="@dimen/hvac_panel_icon_dimen"
+    android:height="@dimen/hvac_panel_icon_dimen"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+  <path
+      android:pathData="M33.6001,24.0001L40.8001,16.8001L33.6001,9.6001V14.4001H9.6001V19.2001H33.6001V24.0001Z"
+      android:fillColor="@color/hvac_on_icon_fill_color"/>
+  <path
+      android:pathData="M14.4002,24L7.2002,31.2L14.4002,38.4V33.6H38.4002V28.8H14.4002V24Z"
+      android:fillColor="@color/hvac_on_icon_fill_color"/>
+</vector>

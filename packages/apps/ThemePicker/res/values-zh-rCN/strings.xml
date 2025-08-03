@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+     Copyright (C) 2018 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="1647136562008520313">"壁纸与个性化"</string>
+    <string name="theme_title" msgid="2144932106319405101">"样式"</string>
+    <string name="clock_title" msgid="1974314575211361352">"自定义钟面"</string>
+    <string name="clock_description" msgid="3563839327378948">"选择自定义钟面"</string>
+    <string name="clock_picker_entry_content_description" msgid="8377139273468595734">"更改自定义钟面"</string>
+    <string name="select_clock_action_description" msgid="5025888763471843648">"表盘选项 <xliff:g id="ID_1">%1$s</xliff:g>"</string>
+    <string name="clock_settings_title" msgid="2050906379377120431">"时钟颜色和尺寸"</string>
+    <string name="clock_color_and_size_title" msgid="7146791234905111351">"时钟颜色和尺寸"</string>
+    <string name="clock_color_and_size_description" msgid="6578061553012886817">"<xliff:g id="ID_1">%1$s</xliff:g>、<xliff:g id="ID_2">%2$s</xliff:g>"</string>
+    <string name="clock_color" msgid="8081608867289156163">"颜色"</string>
+    <string name="clock_color_red" msgid="3843504214807597810">"红色"</string>
+    <string name="clock_color_orange" msgid="4175805201144275804">"橙色"</string>
+    <string name="clock_color_yellow" msgid="7391699163247349977">"黄色"</string>
+    <string name="clock_color_green" msgid="1991157556500156596">"绿色"</string>
+    <string name="clock_color_blue" msgid="4037792003465759149">"蓝色"</string>
+    <string name="clock_color_indigo" msgid="8910855386698452917">"靛蓝色"</string>
+    <string name="clock_color_violet" msgid="3454503847169375826">"紫罗兰色"</string>
+    <string name="clock_color_gray" msgid="9221530636948859231">"灰色"</string>
+    <string name="clock_color_teal" msgid="7499223425741344251">"蓝绿色"</string>
+    <string name="clock_size" msgid="5028923902364418263">"大小"</string>
+    <string name="clock_size_dynamic" msgid="1023930312455061642">"动态"</string>
+    <string name="clock_size_dynamic_description" msgid="2776620745774561662">"时钟大小会随锁屏内容而变化"</string>
+    <string name="clock_size_large" msgid="3143248715744138979">"大"</string>
+    <string name="clock_size_small" msgid="2280449912094164133">"小"</string>
+    <string name="clock_size_small_description" msgid="4089511196955732480">"一个小型时钟显示在界面一角"</string>
+    <string name="grid_title" msgid="1688173478777254123">"应用网格"</string>
+    <string name="apply_theme_btn" msgid="6293081192321303991">"应用"</string>
+    <string name="edit_custom_theme_lbl" msgid="5211377705710775224">"点按即可修改"</string>
+    <string name="keep_my_wallpaper" msgid="8012385376769568517">"保留当前壁纸"</string>
+    <string name="theme_preview_card_content_description" msgid="5989222908619535533">"样式预览"</string>
+    <string name="grid_preview_card_content_description" msgid="8449383777584714842">"网格预览"</string>
+    <string name="font_preview_content_description" msgid="128230439293337891">"字体预览"</string>
+    <string name="icon_preview_content_description" msgid="7761101284351952890">"图标预览"</string>
+    <string name="color_preview_content_description" msgid="4879120462082058124">"颜色预览"</string>
+    <string name="shape_preview_content_description" msgid="6479487796176550432">"形状预览"</string>
+    <string name="option_applied_description" msgid="5022305212078053534">"<xliff:g id="ID_1">%1$s</xliff:g>，目前已应用"</string>
+    <string name="option_applied_previewed_description" msgid="5269654286638446858">"<xliff:g id="ID_1">%1$s</xliff:g>（目前应用及预览的项）"</string>
+    <string name="option_previewed_description" msgid="3467217598865047661">"<xliff:g id="ID_1">%1$s</xliff:g>（目前预览的项）"</string>
+    <string name="option_change_applied_previewed_description" msgid="9197311327728570816">"<xliff:g id="ID_1">%1$s</xliff:g>，更改所选的项以及预览的项"</string>
+    <string name="theme_description" msgid="3697012391785254635">"字体：<xliff:g id="ID_1">%1$s</xliff:g>，图标：<xliff:g id="ID_2">%2$s</xliff:g>，形状：<xliff:g id="ID_3">%3$s</xliff:g>，颜色：<xliff:g id="ID_4">%4$s</xliff:g>"</string>
+    <string name="default_theme_title" msgid="2555741736622366797">"默认"</string>
+    <string name="preview_name_font" msgid="4465423899630037038">"字体"</string>
+    <string name="preview_name_icon" msgid="6818927315316316440">"图标"</string>
+    <string name="preview_name_color" msgid="8776203144994416172">"颜色"</string>
+    <string name="preview_name_shape" msgid="5676971146080968721">"形状"</string>
+    <string name="preview_name_wallpaper" msgid="1738652462949531828">"壁纸"</string>
+    <string name="font_card_title" msgid="2343292653502548685">"ABC • abc • 123"</string>
+    <string name="font_card_body" msgid="6790525594503904468">"将您喜爱的字体应用于每个屏幕上的文字"</string>
+    <string name="grid_options_title" msgid="7071930966989877023">"选择网格大小"</string>
+    <string name="grid_title_pattern" msgid="9188866567612607806">"<xliff:g id="ID_1">%1$d</xliff:g>x<xliff:g id="ID_2">%2$d</xliff:g>"</string>
+    <string name="apply_grid_btn_note" msgid="2966021967355139181">"更改网格大小将会重新加载工作区，这可能需要几秒钟的时间。"</string>
+    <string name="toast_of_changing_grid" msgid="3515633981312731121">"正在重新加载网格大小为“%1$s”的工作区"</string>
+    <string name="toast_of_failure_to_change_grid" msgid="1349622908271736044">"未能重新加载网格大小为“%1$s”的工作区"</string>
+    <string name="applied_theme_msg" msgid="3749018706366796244">"已成功设置样式"</string>
+    <string name="applied_clock_msg" msgid="1303338016701443767">"已成功设置时钟"</string>
+    <string name="applied_grid_msg" msgid="3250499654436933034">"已成功设置网格"</string>
+    <string name="apply_theme_error_msg" msgid="791364062636538317">"应用样式时出现问题"</string>
+    <string name="custom_theme_next" msgid="6235420097213197301">"下一步"</string>
+    <string name="custom_theme_previous" msgid="4941132112640503022">"上一步"</string>
+    <string name="custom_theme" msgid="1618351922263478163">"自定义"</string>
+    <string name="custom_theme_title" msgid="2192300350332693631">"自定义 <xliff:g id="ID_1">%1$d</xliff:g>"</string>
+    <string name="custom_theme_fragment_title" msgid="6615547284702040280">"自定义样式"</string>
+    <string name="custom_theme_delete" msgid="4744494663184126202">"删除"</string>
+    <string name="font_component_title" msgid="8800340833695292049">"选择字体"</string>
+    <string name="icon_component_title" msgid="5779787138399083903">"选择图标"</string>
+    <string name="color_component_title" msgid="1194089273921078816">"选择颜色"</string>
+    <string name="shape_component_title" msgid="8366847436022025538">"选择形状"</string>
+    <string name="name_component_title" msgid="532425087968663437">"为样式命名"</string>
+    <string name="icon_component_label" msgid="2625784884001407944">"图标 <xliff:g id="ID_1">%1$d</xliff:g>"</string>
+    <string name="delete_custom_theme_confirmation" msgid="4452137183628769394">"要删除自定义样式吗？"</string>
+    <string name="delete_custom_theme_button" msgid="5102462988130208824">"删除"</string>
+    <string name="cancel" msgid="4651030493668562067">"取消"</string>
+    <string name="set_theme_wallpaper_dialog_message" msgid="2179661027350908003">"设置样式壁纸"</string>
+    <string name="use_style_instead_title" msgid="1578754995763917502">"要改用<xliff:g id="ID_1">%1$s</xliff:g>吗？"</string>
+    <string name="use_style_instead_body" msgid="3051937045807471496">"您选择的组件与<xliff:g id="ID_1">%1$s</xliff:g>样式相匹配。您要改用<xliff:g id="ID_2">%1$s</xliff:g>吗？"</string>
+    <string name="use_style_button" msgid="1754493078383627019">"使用<xliff:g id="ID_1">%1$s</xliff:g>"</string>
+    <string name="no_thanks" msgid="7286616980115687627">"不用了"</string>
+    <string name="clock_preview_content_description" msgid="5460561185905717460">"<xliff:g id="ID_1">%1$s</xliff:g>时钟预览"</string>
+    <string name="something_went_wrong" msgid="529840112449799117">"糟糕！遇到了问题。"</string>
+    <string name="theme_preview_icons_section_title" msgid="7064768910744000643">"颜色/图标"</string>
+    <string name="style_info_description" msgid="2612473574431003251">"字体、图标、应用形状和颜色的预览"</string>
+    <string name="accessibility_custom_font_title" msgid="966867359157303705">"自定义字体"</string>
+    <string name="accessibility_custom_icon_title" msgid="5753297905849062296">"自定义图标"</string>
+    <string name="accessibility_custom_color_title" msgid="4124246598886320663">"自定义颜色"</string>
+    <string name="accessibility_custom_shape_title" msgid="7708408259374643129">"自定义形状"</string>
+    <string name="accessibility_custom_name_title" msgid="5494460518085463262">"自定义样式名称"</string>
+    <string name="accessibility_clock_slider_description" msgid="8374135133110681332">"色彩强度"</string>
+    <string name="mode_title" msgid="2394873501427436055">"深色主题"</string>
+    <string name="mode_disabled_msg" msgid="9196245518435936512">"因省电模式已开启，该功能被暂时停用了"</string>
+    <string name="mode_changed" msgid="2243581369395418584">"主题已更改"</string>
+    <string name="themed_icon_title" msgid="7312460430471956558">"图标匹配主题"</string>
+    <string name="beta_title" msgid="8703819523760746458">"Beta 版"</string>
+    <string name="gird_picker_entry_content_description" msgid="9087651470212293439">"更改应用网格"</string>
+    <string name="wallpaper_color_tab" msgid="1447926591721403840">"壁纸颜色"</string>
+    <string name="wallpaper_color_subheader" msgid="4044464573669965670">"图标、文字等内容的颜色会与壁纸中的颜色相配"</string>
+    <string name="wallpaper_color_title" msgid="5687965239180986458">"壁纸颜色"</string>
+    <string name="preset_color_tab" msgid="3133391839341329314">"基本颜色"</string>
+    <string name="preset_color_tab_2" msgid="1444107326712562538">"其他颜色"</string>
+    <string name="preset_color_subheader" msgid="8230588536141279371">"为您的图标、时钟等项目选择任意颜色"</string>
+    <string name="color_changed" msgid="7029571720331641235">"颜色已更改"</string>
+    <string name="adaptive_color_title" msgid="1336508599235896205">"动态"</string>
+    <string name="color_picker_title" msgid="6666830057938082864">"系统颜色"</string>
+    <string name="keyguard_slot_name_bottom_start" msgid="8747677880200629719">"左侧快捷方式"</string>
+    <string name="keyguard_slot_name_bottom_end" msgid="2525487375680217083">"右侧快捷方式"</string>
+    <string name="keyguard_affordance_none" msgid="1751643933430782312">"无"</string>
+    <string name="keyguard_affordance_enablement_dialog_headline" msgid="365379085932610314">"无法添加快捷方式"</string>
+    <string name="keyguard_affordance_enablement_dialog_action_template" msgid="8117011931337357438">"打开<xliff:g id="APPNAME">%1$s</xliff:g>"</string>
+    <string name="keyguard_affordance_enablement_dialog_message" msgid="6136286758939253570">"若要将<xliff:g id="APPNAME">%1$s</xliff:g>应用添加为快捷方式，请确保："</string>
+    <string name="keyguard_affordance_enablement_dialog_dismiss_button" msgid="629754625264422508">"完成"</string>
+    <string name="keyguard_quick_affordance_title" msgid="4242813186995735584">"快捷方式"</string>
+    <string name="keyguard_quick_affordance_section_title" msgid="2806304242671717309">"快捷方式"</string>
+    <string name="keyguard_quick_affordance_two_selected_template" msgid="1757099194522296363">"<xliff:g id="FIRST">%1$s</xliff:g>、<xliff:g id="SECOND">%2$s</xliff:g>"</string>
+    <string name="keyguard_quick_affordance_none_selected" msgid="8494127020144112003">"无"</string>
+    <string name="show_notifications_on_lock_screen" msgid="4157744243084646720">"在锁定的屏幕上显示通知"</string>
+    <string name="more_settings_section_title" msgid="1331425454775815958">"更多锁屏选项"</string>
+    <string name="more_settings_section_description" msgid="1860115709122398325">"隐私设置、闻曲知音等"</string>
+    <string name="more_colors" msgid="3191071655353004591">"更多颜色"</string>
+    <string name="content_description_dynamic_color_option" msgid="2191721655642529886">"主要动态主题"</string>
+    <string name="content_description_neutral_color_option" msgid="3385443834001275301">"主要中性主题"</string>
+    <string name="content_description_vibrant_color_option" msgid="2230249305878632821">"主要鲜艳主题"</string>
+    <string name="content_description_expressive_color_option" msgid="6081295313456341282">"主要炫彩主题"</string>
+    <string name="content_description_default_color_option" msgid="7011899327541080695">"默认颜色选项"</string>
+    <string name="content_description_color_option" msgid="4169813692012119578">"颜色选项 <xliff:g id="ID_1">%1$d</xliff:g>"</string>
+    <string name="scroll_forward_and_select" msgid="6156132388656395769">"向左滑动，选择另一个表盘"</string>
+    <string name="scroll_backward_and_select" msgid="5472202348434803757">"向右滑动，选择另一个表盘"</string>
+    <string name="custom_clocks_label" msgid="8168419717593569347">"自定义表盘"</string>
+</resources>

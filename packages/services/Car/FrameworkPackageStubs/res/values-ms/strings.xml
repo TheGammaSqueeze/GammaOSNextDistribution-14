@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="6179574017413146651">"Keratan Aktiviti"</string>
+    <string name="message_not_supported" msgid="133939962837892495">"Tiada apl dapat kendalikan tindakan ini"</string>
+    <string name="pip_not_supported" msgid="8681268258599412706">"Gambar dalam Gambar tidak disokong pada peranti ini"</string>
+    <string name="manage_unknown_app_sources_not_supported" msgid="7368611099531260439">"Urus Sumber Apl Tidak Diketahui tidak disokong pada peranti ini"</string>
+    <string name="documentsui_not_supported" msgid="2786636475647817501">"Pengurusan Fail tidak disokong pada peranti ini"</string>
+    <string name="stub_name" msgid="3987164490218189006">"Tiada"</string>
+</resources>

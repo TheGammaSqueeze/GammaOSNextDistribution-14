@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2017 The Android Open Source Project
+     SPDX-FileCopyrightText: 2017 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <gradient android:angle="-90"
+        android:startColor="#FF167c80"
+        android:endColor="#FF084A4C"
+        android:type="linear"
+        />
+</shape>

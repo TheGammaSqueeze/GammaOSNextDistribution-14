@@ -1,0 +1,7 @@
+# Android has this, but there are no docs for it; it seems somehow related to Ninja?
+# toplevel_output_directories(paths = ["out"])
+
+local_repository(
+    name = "bazel_skylib",
+    path = "external/bazel-skylib",
+)

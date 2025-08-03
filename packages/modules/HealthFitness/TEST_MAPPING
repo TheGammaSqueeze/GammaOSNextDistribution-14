@@ -1,0 +1,69 @@
+{
+  "mainline-presubmit": [
+    {
+      "name" : "HealthConnectControllerUITests[com.google.android.healthfitness.apex]",
+      "options": [
+                {
+                    "exclude-filter": "com.android.healthconnect.controller.tests.dataentries.LoadDataEntriesUseCaseTest"
+                }
+      ]
+    },
+    {
+      "name": "CtsHealthFitnessDeviceTestCases[com.google.android.healthfitness.apex]"
+    },
+    {
+      "name": "CtsHealthFitnessDeviceTestCasesNoPermission[com.google.android.healthfitness.apex]"
+    }
+  ],
+  "presubmit": [
+    {
+       "name" : "HealthConnectControllerUITests",
+       "options": [
+                {
+                    "exclude-filter": "com.android.healthconnect.controller.tests.dataentries.LoadDataEntriesUseCaseTest"
+                }
+        ]
+    },
+    {
+      "name": "CtsHealthFitnessDeviceTestCases"
+    },
+    {
+      "name": "CtsHealthFitnessDeviceTestCasesNoPermission"
+    },
+    {
+      "name": "CtsHealthConnectControllerTestCases"
+    },
+    {
+      "name": "HealthFitnessIntegrationBackupRestoreTests"
+    },
+    {
+      "name": "HealthFitnessIntegrationTests"
+    },
+    {
+      "name": "HealthFitnessUnitTests",
+       "options": [
+                {
+                    "exclude-filter": "org.junit.Ignore"
+                }
+        ]
+    },
+    {
+      "name": "HealthConnectBackupRestoreUnitTests"
+    },
+    {
+      "name": "CtsHealthConnectHostTestCases"
+    },
+    {
+      "name": "CtsHealthConnectHostSideDeviceTestCases"
+    },
+    {
+      "name": "CtsExerciseRouteTestCases"
+    },
+    {
+      "name": "CtsHealthFitnessShowMigrationInfoIntentAbsentTests"
+    },
+    {
+      "name": "CtsHealthFitnessDeviceTestCasesHistoricAccessLimitWithPermission"
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2012 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="description_dialpad_back">Navigate back</string>
+    <string name="description_dialpad_overflow">More options</string>
+    <string name="description_delete_button">backspace</string>
+    <string name="description_image_button_plus">plus</string>
+    <string name="description_voicemail_button">post-gutha</string>
+    <string name="default_notification_description">An fhuaim bhunaiteach (<xliff:g id="default_sound_title">%1$s</xliff:g>)</string>
+    <string name="callFailed_userBusy">Tha an loidhne trang</string>
+    <string name="callFailed_congestion">Tha an lìonra trang</string>
+    <string name="callFailed_timedOut">Gun fhreagairt, dh’fhalbh an ùine air</string>
+    <string name="callFailed_server_unreachable">Cha ruig sinn am frithealaiche</string>
+    <string name="callFailed_number_unreachable">Cha ruig sinn an àireamh</string>
+    <string name="callFailed_invalid_credentials">Chan eil an t-ainm-cleachdaiche no chan eil am facal-faire mar bu chòir</string>
+    <string name="callFailed_out_of_network">Gairm le lìonra cèin</string>
+    <string name="callFailed_server_error">Mearachd frithealaiche. Feuch ris a-rithist an ceann greis.</string>
+    <string name="callFailed_noSignal">Gun siognail</string>
+    <string name="callFailed_limitExceeded">Seachad air crìoch ACM</string>
+    <string name="callFailed_powerOff">Tha an rèidio dheth</string>
+    <string name="callFailed_simError">Gun SIM no mearachd SIM</string>
+    <string name="callFailed_outOfService">Chan eil lìonra mobile ri làimh</string>
+    <string name="callFailed_fdn_only">Chaidh gairmean a-mach a chuingeachadh le àireamhan daithealaidh socraichte.</string>
+    <string name="callFailed_dialToUssd">Chaidh a’ ghairm atharrachadh gu iarrtas USSD</string>
+    <string name="callFailed_dialToSs">Chaidh a’ ghairm atharrachadh gu iarrtas SS</string>
+    <string name="callFailed_dialToDial">Chaidh atharrachadh gu àireamh eile</string>
+    <string name="callFailed_dialToDialVideo">Chaidh atharrachadh gu gairm video</string>
+    <string name="callFailed_dialVideoToSs">Chaidh a’ ghairm video atharrachadh gu iarrtas SS</string>
+    <string name="callFailed_dialVideoToUssd">Chaidh a’ ghairm video atharrachadh gu iarrtas USSD</string>
+    <string name="callFailed_dialVideoToDial">Chaidh atharrachadh gu gairm àbhaisteach</string>
+    <string name="callFailed_dialVideoToDialVideo">Chaidh atharrachadh gu àireamh eile</string>
+    <string name="callFailed_cb_enabled">Chan urrainn dhut gairm a chur fhad ’s a tha bacadh nan gairmean air.</string>
+    <string name="callFailed_dsac_restricted">Tha gairmean cuingichte le smachd air inntrigeadh.</string>
+    <string name="callFailed_dsac_restricted_emergency">Tha gairmean-èiginn cuingichte le smachd air inntrigeadh.</string>
+    <string name="callFailed_dsac_restricted_normal">Tha gairmean àbhaisteach cuingichte le smachd air inntrigeadh.</string>
+    <string name="callFailed_unobtainable_number">Àireamh mhì-dhligheach</string>
+    <string name="incall_error_missing_voicemail_number">Chan eil fios dè àireamh a’ phuist-ghutha.</string>
+    <string name="callFailed_video_call_tty_enabled">Chan urrainn dhut gairm video a dhèanamh fhad ’s a tha am fònadh teacsa an comas.</string>
+    <string name="callEnded_pulled">Chaidh a’ ghairm a shìneadh air adhart gu uidheam eile.</string>
+    <string name="ringtone_silent">Gun seirm</string>
+    <string name="ringtone_unknown">Seirm nach aithne dhuinn</string>
+    <string name="callFailed_maximum_reached">Tha a h-uile loidhne trang. Airson gairm a dhèanamh, cuir crìoch air tè de na gairmean air an uidheam seo no air far dhe na h-uidheaman eile agad.</string>
+    <string name="callFailed_data_disabled">Thàinig a’ ghairm gu crìoch air sgàth ’s gun deach an dàta mobile a chur à comas.</string>
+    <string name="callFailed_data_limit_reached_description">Thàinig a’ ghairm gu crìoch on a ràinig thu crìoch an dàta mobile.</string>
+    <string name="callFailed_data_limit_reached">Ràinig thu crìoch an dàta. Thàinig a’ ghairm gu crìoch.</string>
+</resources>

@@ -1,0 +1,3 @@
+<configuration description="WebView C-Suite Crawler Test Plan">
+  <target_preparer class="com.android.webview.tests.WebviewInstallerToolPreparer"/>
+</configuration>

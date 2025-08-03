@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+/**
+ * Copyright (C) 2014 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label" msgid="1527793174155125990">"Наладка працоўнага профілю"</string>
+    <string name="provisioning_error_title" msgid="6320515739861578118">"Вой!"</string>
+    <string name="setup_work_profile" msgid="1468934631731845267">"Наладжванне працоўнага профілю"</string>
+    <string name="company_controls_workspace" msgid="2808025277267917221">"Ваша арганізацыя кантралюе гэты профіль і забяспечвае яго абарону. Вы кантралюеце ўсё астатняе на вашай прыладзе."</string>
+    <string name="company_controls_device" msgid="8230957518758871390">"Ваша арганізацыя будзе кантраляваць гэту прыладу і захоўваць яе ў бяспецы."</string>
+    <string name="the_following_is_your_mdm" msgid="6613658218262376404">"Наступнай праграме спатрэбіцца доступ да гэтага профілю:"</string>
+    <string name="the_following_is_your_mdm_for_device" msgid="6717973404364414816">"Наступная праграма будзе кіраваць вашай прыладай:"</string>
+    <string name="next" msgid="1004321437324424398">"Далей"</string>
+    <string name="setting_up_workspace" msgid="7862472373642601041">"Ідзе наладжванне працоўнага профілю…"</string>
+    <string name="admin_has_ability_to_monitor_profile" msgid="1018585795537086728">"Ваш IT-адміністратар можа кіраваць наладамі, карпаратыўным доступам, праграмамі, дазволамі, данымі і дзеяннямі ў сетцы, звязанымі з гэтым профілем, а таксама вашай гісторыяй выклікаў і гісторыяй пошуку кантактаў. Каб атрымаць дадатковую інфармацыю і даведацца пра палітыкі прыватнасці вашай арганізацыі, звярніцеся да IT-адміністратара."</string>
+    <string name="admin_has_ability_to_monitor_device" msgid="7786186939607332934">"У вашага ІT-адміністратара ёсць магчымасць кантраляваць і адміністраваць налады, карпаратыўны доступ, праграмы, дазволы і даныя, звязаныя з гэтай прыладай <xliff:g id="DEVICE_NAME">%1$s</xliff:g>, уключаючы інфармацыю пра вашу сеткавую актыўнасць і месцазнаходжанне прылады, а таксама гісторыю выклікаў і гісторыю пошуку кантактаў.<xliff:g id="LINE_BREAK">
+
+</xliff:g>Каб атрымаць дадатковую інфармацыю, у тым ліку даведацца пра палітыкі прыватнасці вашай арганізацыі, звярніцеся да ІT-адміністратара."</string>
+    <string name="theft_protection_disabled_warning" msgid="3708092473574738478">"Для выкарыстання функцыі абароны ад крадзяжу вы павінны мець абароненую паролем блакіроўку экрана вашай прылады."</string>
+    <string name="contact_your_admin_for_more_info" msgid="9209568156969966347">"Звярніцеся да IT-адміністратара для атрымання дадатковай інфармацыі, у тым ліку пра палітыкі прыватнасці вашай арганізацыі."</string>
+    <string name="learn_more_link" msgid="3012495805919550043">"Даведацца больш"</string>
+    <string name="cancel_setup" msgid="2949928239276274745">"Скасаваць"</string>
+    <string name="ok_setup" msgid="4593707675416137504">"ОК"</string>
+    <string name="user_consent_msg" msgid="8820951802130353584">"Я згаджаюся"</string>
+    <string name="url_error" msgid="5958494012986243186">"Гэта спасылка не можа быць адлюстравана."</string>
+    <string name="navigation_button_description" msgid="6106309408994461239">"Перайсці ўверх"</string>
+    <string name="terms" msgid="8295436105384703903">"Умовы"</string>
+    <string name="work_profile_info" msgid="5433388376309583996">"Інфармацыя пра працоўны профіль"</string>
+    <string name="managed_device_info" msgid="1529447646526616811">"Інфармацыя пра прыладу пад кіраваннем"</string>
+    <string name="default_managed_profile_name" msgid="5370257687074907055">"Працоўны профіль"</string>
+    <string name="delete_profile_title" msgid="2841349358380849525">"Выдаліць існы профіль?"</string>
+    <string name="opening_paragraph_delete_profile" msgid="4913885310795775967">"У вас ужо ёсць працоўны профіль. Ён знаходзіцца пад кіраваннем з выкарыстаннем наступнай праграмы:"</string>
+    <string name="read_more_delete_profile" msgid="7789171620401666343">"Перш чым працягнуць, "<a href="#read_this_link">"прачытайце гэта"</a>"."</string>
+    <string name="sure_you_want_to_delete_profile" msgid="6927697984573575564">"Калі вы працягнеце, усе праграмы і даныя ў гэтым профілі будуць выдалены."</string>
+    <string name="delete_profile" msgid="2299218578684663459">"Выдаліць"</string>
+    <string name="cancel_delete_profile" msgid="5155447537894046036">"Скасаваць"</string>
+    <string name="encrypt_device_text_for_profile_owner_setup" msgid="6865483664167134470">"Каб наладзіць працоўны профіль, трэба зашыфраваць даныя на прыладзе <xliff:g id="DEVICE_NAME">%1$s</xliff:g>. Гэта можа заняць некаторы час."</string>
+    <string name="encrypt_device_text_for_device_owner_setup" msgid="230099563510460941">"Каб наладзіць гэту прыладу <xliff:g id="DEVICE_NAME">%1$s</xliff:g>, спачатку на ёй трэба зашыфраваць даныя. Гэта можа заняць некаторы час."</string>
+    <string name="encrypt_this_device_question" msgid="8719916619866892601">"Зашыфраваць прыладу?"</string>
+    <string name="encrypt" msgid="1749320161747489212">"Зашыфраваць"</string>
+    <string name="continue_provisioning_notify_title" msgid="5191449100153186648">"Шыфраванне завершана"</string>
+    <string name="continue_provisioning_notify_text" msgid="1066841819786425980">"Краніце, каб працягнуць наладжванне рабочага профілю"</string>
+    <string name="managed_provisioning_error_text" msgid="7063621174570680890">"Не атрымалася наладзіць ваш працоўны профіль. Звярніцеся ў аддзел ІТ або паўтарыце спробу пазней."</string>
+    <string name="cant_add_work_profile" msgid="9217268909964154934">"Немагчыма дадаць працоўны профіль"</string>
+    <string name="cant_replace_or_remove_work_profile" msgid="7861054306792698290">"Немагчыма замяніць ці выдаліць працоўны профіль"</string>
+    <string name="work_profile_cant_be_added_contact_admin" msgid="4866281518235832928">"Не ўдалося дадаць на гэту прыладу <xliff:g id="DEVICE_NAME">%1$s</xliff:g> працоўны профіль. Калі ў вас ёсць пытанні, звярніцеся да ІT-адміністратара."</string>
+    <string name="change_device_launcher" msgid="4523563368433637980">"Змяніце праграму запуску на прыладзе"</string>
+    <string name="launcher_app_cant_be_used_by_work_profile" msgid="3524366082000739743">"Гэту праграму запуску немагчыма выкарыстоўваць у вашым працоўным профілі"</string>
+    <string name="cancel_provisioning" msgid="3408069559452653724">"Скасаваць"</string>
+    <string name="pick_launcher" msgid="4257084827403983845">"ОК"</string>
+    <string name="user_setup_incomplete" msgid="6494920045526591079">"Наладжванне карыстальніка не завершана"</string>
+    <string name="default_owned_device_username" msgid="3915120202811807955">"Карыстальнік працоўнай прылады"</string>
+    <string name="setup_work_device" msgid="6003988351437862369">"Ідзе наладжванне працоўнай прылады…"</string>
+    <string name="device_doesnt_allow_encryption_contact_admin" msgid="410347019947997299">"На гэтай прыладзе <xliff:g id="DEVICE_NAME">%1$s</xliff:g> забаронена выкарыстоўваць шыфраванне, якое патрабуецца для наладжвання. Звярніцеся па дапамогу да ІT-адміністратара."</string>
+    <string name="stop_setup_reset_device_question" msgid="2323844935990001069">"Спыніць наладжванне і скінуць налады прылады <xliff:g id="DEVICE_NAME">%1$s</xliff:g>?"</string>
+    <string name="this_will_reset_take_back_first_screen" msgid="5881727570968119259">"Налады прылады <xliff:g id="DEVICE_NAME">%1$s</xliff:g> будуць скінуты, вы вернецеся на першапачатковы экран"</string>
+    <string name="device_owner_cancel_message" msgid="2529288571742712065">"Спыніць наладжванне і сцерці даныя прылады?"</string>
+    <string name="device_owner_cancel_cancel" msgid="1052951540909389275">"Скасаваць"</string>
+    <string name="device_owner_error_ok" msgid="2002250763093787051">"ОК"</string>
+    <string name="reset" msgid="6467204151306265796">"Скінуць"</string>
+    <string name="cant_set_up_profile" msgid="4341825293970158436">"Немагчыма наладзіць профіль"</string>
+    <string name="cant_set_up_device" msgid="4120090138983350714">"Немагчыма наладзіць прыладу"</string>
+    <string name="something_went_wrong" msgid="3593223774041784329">"Нешта пайшло не так"</string>
+    <string name="couldnt_set_up_device" msgid="5137950404283642302">"Не ўдалося наладзіць прыладу. Звярніцеся па дапамогу да IT-адміністратара."</string>
+    <string name="contact_your_admin_for_help" msgid="2009904021552323731">"Звярніцеся па дапамогу да IT-адміністратара"</string>
+    <string name="reset_device" msgid="265029891515486543">"Скіньце налады на прыладзе \"<xliff:g id="DEVICE_NAME">%1$s</xliff:g>\" і паўтарыце спробу наладжвання"</string>
+    <string name="device_already_set_up" msgid="2916285974248611835">"Прылада <xliff:g id="DEVICE_NAME">%1$s</xliff:g> ужо наладжана"</string>
+    <string name="error_wifi" msgid="1850288843966836571">"Не ўдалося падключыцца да Wi-Fi"</string>
+    <string name="device_has_reset_protection_contact_admin" msgid="5922267426079555686">"На вашай прыладзе <xliff:g id="DEVICE_NAME">%1$s</xliff:g> уключана абарона ад скіду. Звярніцеся па дапамогу да ІT-адміністратара."</string>
+    <string name="frp_clear_progress_title" msgid="8628074089458234965">"Сціранне"</string>
+    <string name="frp_clear_progress_text" msgid="1740164332830598827">"Пачакайце..."</string>
+    <string name="error_hash_mismatch" msgid="1145488923243178454">"Не ўдалося выкарыстаць праграму адміністратара праз памылку кантрольнай сумы. Звярніцеся па дапамогу да IT-адміністратара."</string>
+    <string name="error_download_failed" msgid="3274283629837019452">"Не ўдалося спампаваць праграму адміністратара"</string>
+    <string name="error_package_invalid" msgid="555402554502033988">"Не ўдалося выкарыстаць праграму адміністратара. У яе адсутнічаюць кампаненты, або яна пашкоджана. Звярніцеся па дапамогу да IT-адміністратара."</string>
+    <string name="error_installation_failed" msgid="2282903750318407285">"Не ўдалося ўсталяваць праграму адміністратара"</string>
+    <string name="profile_owner_cancel_message" msgid="6868736915633023477">"Спыніць наладжванне?"</string>
+    <string name="profile_owner_cancel_cancel" msgid="4408725524311574891">"Не"</string>
+    <string name="profile_owner_cancel_ok" msgid="5951679183850766029">"Так"</string>
+    <string name="profile_owner_cancelling" msgid="5679573829145112822">"Скасаванне..."</string>
+    <string name="work_profile_setup_later_title" msgid="9069148190226279892">"Спыніць наладжванне профілю?"</string>
+    <string name="work_profile_setup_later_message" msgid="122069011117225292">"Вы можаце наладзіць свой працоўны профіль пазней з праграмы кіравання прыладай, якая выкарыстоўваецца ў вашай арганізацыі"</string>
+    <string name="continue_button" msgid="7177918589510964446">"Працягнуць"</string>
+    <string name="work_profile_setup_stop" msgid="6772128629992514750">"Спыніць"</string>
+    <string name="dismiss" msgid="9009534756748565880">"Адхіліць"</string>
+    <string name="profile_owner_info" msgid="8975319972303812298">"Вы збіраецеся стварыць працоўны профіль, які будзе знаходзіцца пад кіраваннем і наглядам вашай арганізацыі. Прымяняюцца ўмовы."</string>
+    <string name="profile_owner_info_with_terms_headers" msgid="7373591910245655373">"Вы збіраецеся стварыць працоўны профіль, які будзе знаходзіцца пад кіраваннем і наглядам вашай арганізацыі. Прымяняюцца наступныя ўмовы: <xliff:g id="TERMS_HEADERS">%1$s</xliff:g>."</string>
+    <string name="profile_owner_info_comp" msgid="9190421701126119142">"Для вашых працоўных праграм будзе створаны профіль. Гэты профіль і астатняя частка вашай прылады будуць знаходзіцца пад кіраваннем і наглядам вашай арганізацыі. Прымяняюцца ўмовы."</string>
+    <string name="profile_owner_info_with_terms_headers_comp" msgid="2012766614492554556">"Для вашых працоўных праграм будзе створаны профіль. Гэты профіль і астатняя частка вашай прылады будуць знаходзіцца пад кіраваннем і наглядам вашай арганізацыі. Прымяняюцца наступныя ўмовы: <xliff:g id="TERMS_HEADERS">%1$s</xliff:g>."</string>
+    <string name="device_owner_info" msgid="3716661456037934467">"<xliff:g id="YOUR_ORGANIZATION">%1$s</xliff:g> будзе адсочваць гэту прыладу, кіраваць ёй і забяспечваць яе бяспеку. Дзейнічаюць умовы выкарыстання. <xliff:g id="VIEW_TERMS">%2$s</xliff:g>"</string>
+    <string name="device_owner_info_with_terms_headers" msgid="1254243288669282977">"<xliff:g id="YOUR_ORGANIZATION">%1$s</xliff:g> будзе адсочваць гэту прыладу, кіраваць ёй і забяспечваць яе бяспеку. Дзейнічаюць наступныя ўмовы выкарыстання: <xliff:g id="TERMS_HEADERS">%2$s</xliff:g>. <xliff:g id="VIEW_TERMS">%3$s</xliff:g>"</string>
+    <string name="link_isnt_secure_and_cant_be_opened_until_device_setup_finished" msgid="1604497932637832657">"Гэта спасылка ненадзейная, яе нельга адкрыць, пакуль не будзе завершана наладка прылады: <xliff:g id="LINK_RAW_TEST">%1$s</xliff:g>"</string>
+    <string name="contact_device_provider" msgid="2843488903902493030">"<xliff:g id="IT_ADMIN">%1$s</xliff:g> зможа адказаць на дадатковыя пытанні."</string>
+    <string name="if_questions_contact_admin" msgid="3509427015901582047">"Калі ў вас ёсць пытанні, звярніцеся да IT-адміністратара"</string>
+    <string name="setup_isnt_finished_contact_admin" msgid="8849644190723875952">"Наладка не завершана. Звярніцеся па дапамогу да IT-адміністратара."</string>
+    <string name="for_help_contact_admin" msgid="5922538077702487859">"Звярніцеся па дапамогу да IT-адміністратара"</string>
+    <string name="organization_admin" msgid="5975914478148511290">"IT-адміністратар"</string>
+    <string name="your_org_app_used" msgid="5336414768293540831">"<xliff:g id="YOUR_ORGANIZATION">%1$s</xliff:g> будзе кіраваць гэтай прыладай, а таксама сачыць за ёй з дапамогай наступнай праграмы:"</string>
+    <string name="your_organization_beginning" msgid="5952561489910967255">"Ваша арганізацыя"</string>
+    <string name="your_organization_middle" msgid="8288538158061644733">"вашай арганізацыі"</string>
+    <string name="view_terms" msgid="7230493092383341605">"Праглядзець умовы"</string>
+    <string name="accept_and_continue" msgid="1632679734918410653">"Прыняць і працягнуць"</string>
+    <string name="back" msgid="6455622465896147127">"Назад"</string>
+    <string name="set_up_your_device" msgid="1896651520959894681">"Наладзьце сваю прыладу"</string>
+    <string name="info_anim_title_0" msgid="3285414600215959704">"Працуйце па-іншаму"</string>
+    <string name="info_anim_title_1" msgid="2657512519467714760">"Аддзяліце працоўнае ад асабістага"</string>
+    <string name="one_place_for_work_apps" msgid="2595597562302953960">"Усе праграмы для працы – у адным месцы"</string>
+    <string name="info_anim_title_2" msgid="4629781398620470204">"Адключыцеся ад працы, калі скончыце"</string>
+    <string name="provisioning" msgid="4512493827019163451">"Забеспячэнне"</string>
+    <string name="copying_certs" msgid="5697938664953550881">"Наладжванне сертыфікатаў ЦС"</string>
+    <string name="setup_profile" msgid="5573950582159698549">"Наладзьце свой профіль"</string>
+    <string name="profile_benefits_description" msgid="758432985984252636">"Пры выкарыстанні працоўнага профілю вы можаце аддзяліць працоўныя даныя ад асабістых"</string>
+    <string name="comp_profile_benefits_description" msgid="379837075456998273">"Выкарыстоўваючы працоўны профіль працы, вы можаце захоўваць свае працоўныя праграмы ў адным месцы"</string>
+    <string name="setup_profile_encryption" msgid="5241291404536277038">"Наладжванне профілю. Шыфраванне"</string>
+    <string name="setup_profile_progress" msgid="7742718527853325656">"Наладжванне профілю. Паказ ходу выканання"</string>
+    <string name="setup_device" msgid="1679201701102889156">"Наладжванне прылады <xliff:g id="DEVICE_NAME">%1$s</xliff:g>"</string>
+    <string name="setup_device_encryption" msgid="2628196093806001835">"Наладжванне прылады <xliff:g id="DEVICE_NAME">%1$s</xliff:g>. Шыфраванне"</string>
+    <string name="setup_device_progress" msgid="8792474713196537598">"Наладжванне прылады <xliff:g id="DEVICE_NAME">%1$s</xliff:g>. Адлюстраванне выканання"</string>
+    <string name="learn_more_label" msgid="2723716758654655009">"Кнопка «Даведацца больш»"</string>
+    <string name="mdm_icon_label" msgid="3399134595549660561">"Значок <xliff:g id="ICON_LABEL">%1$s</xliff:g>"</string>
+    <string name="section_heading" msgid="3924666803774291908">"Загаловак раздзела <xliff:g id="SECTION_HEADING">%1$s</xliff:g>."</string>
+    <string name="section_content" msgid="8875502515704374394">"Змесціва раздзела <xliff:g id="SECTION_HEADING">%1$s</xliff:g>: <xliff:g id="SECTION_CONTENT">%2$s</xliff:g>"</string>
+    <string name="expand" msgid="37188292156131304">"Разгарнуць"</string>
+    <string name="collapse" msgid="7817530505064432580">"Згарнуць"</string>
+    <string name="access_list_of_links" msgid="7094123315959323372">"Праглядзець спіс спасылак"</string>
+    <string name="access_links" msgid="7991363727326168600">"Праглядзець спасылкі"</string>
+    <string name="access_terms" msgid="1982500872249763745">"Праглядзець умовы"</string>
+    <string name="read_terms" msgid="1745011123626640728">"Прачытаць умовы"</string>
+    <string name="close_list" msgid="9053538299788717597">"Закрыць спіс"</string>
+    <string name="cancel_setup_and_factory_reset_dialog_title" msgid="5416045931532004811">"Завяршыць наладжванне і скінуць налады?"</string>
+    <string name="cancel_setup_and_factory_reset_dialog_msg" msgid="808442439937994485">"Завяршыўшы гэта наладжванне, вы скінеце прыладу да заводскіх налад і перайдзеце да першага экрана."</string>
+    <string name="cancel_setup_and_factory_reset_dialog_cancel" msgid="2810966091829264727">"Скасаваць"</string>
+    <string name="cancel_setup_and_factory_reset_dialog_ok" msgid="7168008267496150529">"Скід налад прылады"</string>
+    <string name="join_two_items" msgid="6110273439759895837">"<xliff:g id="FIRST_ITEM">%1$s</xliff:g> і <xliff:g id="SECOND_ITEM">%2$s</xliff:g>"</string>
+    <string name="join_many_items_last" msgid="7469666990442158802">"<xliff:g id="ALL_BUT_LAST_ITEM">%1$s</xliff:g> і <xliff:g id="LAST_ITEM_0">%2$s</xliff:g>"</string>
+    <string name="join_many_items_first" msgid="8365482726853276608">"<xliff:g id="FIRST_ITEM">%1$s</xliff:g>, <xliff:g id="ALL_BUT_FIRST_AND_LAST_ITEM">%2$s</xliff:g>"</string>
+    <string name="join_many_items_middle" msgid="8569294838319639963">"<xliff:g id="ADDED_ITEM">%1$s</xliff:g>, <xliff:g id="REST_OF_ITEMS">%2$s</xliff:g>"</string>
+    <string name="take_a_few_minutes" msgid="6282806501305322838">"Гэта можа заняць некалькі хвілін"</string>
+    <string name="work_profile_description" msgid="8524116010729569213">"Вашы працоўныя праграмы застануцца ў гэтым профілі і будуць знаходзіцца пад кіраваннем вашай арганізацыі"</string>
+    <string name="device_owner_description" msgid="168013145812679664">"Ваша арганізацыя будзе кіраваць гэтай прыладай і забяспечваць яе бяспеку"</string>
+    <string name="setup_provisioning_header" msgid="4282483198266806271">"Ідзе падрыхтоўка да наладжвання працоўнай прылады…"</string>
+    <string name="setup_provisioning_header_description" msgid="2567041263563823566">"Ідзе наладжванне праграмы адміністратара"</string>
+    <string name="brand_screen_header" msgid="8865808542690116648">"Гэта прылада належыць вашай арганізацыі"</string>
+    <string name="brand_screen_subheader" msgid="7664792208784456436">"Наступная праграма будзе выкарыстоўвацца для кіравання гэтым тэлефонам і яго кантролю"</string>
+    <string name="account_management_disclaimer_header" msgid="8013083414694316564">"Ваш уліковы запіс знаходзіцца пад кіраваннем"</string>
+    <string name="account_management_disclaimer_subheader" msgid="8991450067243733878">"Каб забяспечыць выкананне правіл бяспекі, ІТ-адміністратар выкарыстоўвае кіраванне мабільнымі прыладамі"</string>
+    <string name="downloading_administrator_header" msgid="8660294318893902915">"Ідзе падрыхтоўка для працоўных налад…"</string>
+    <string name="work_profile_provisioning_accept_header_post_suw" msgid="1353127953275291089">"Давайце наладзім працоўны профіль"</string>
+    <string name="work_profile_provisioning_step_1_header" msgid="7914961694921466366">"Працоўныя праграмы захоўваюцца ў вашым працоўным профілі"</string>
+    <string name="work_profile_provisioning_step_2_header" msgid="6001172190404670248">"Прыпыненне працоўных праграм на перыяд, калі вы не будзеце імі карыстацца"</string>
+    <string name="work_profile_provisioning_step_3_header" msgid="4316106639726774330">"Ваш IT-адміністратар можа бачыць даныя ў вашым працоўным профілі"</string>
+    <string name="work_profile_provisioning_progress_label" msgid="2627905308998389193">"Наладжваецца працоўны профіль…"</string>
+    <string name="work_profile_provisioning_summary" msgid="3436190271657388747">"Працоўныя праграмы захоўваюцца ў вашым працоўным профілі. На перыяд, калі вы не будзеце карыстацца працоўнымі праграмамі, вы можаце прыпыніць іх. Ваш ІT-адміністратар можа бачыць даныя ў працоўным профілі."</string>
+    <string name="fully_managed_device_provisioning_accept_header" msgid="2944032660440403130">"Давайце наладзім вашу працоўную прыладу"</string>
+    <string name="fully_managed_device_provisioning_step_1_header" msgid="6396274703116708592">"Заўсёды трымайце свае працоўныя праграмы пад рукой"</string>
+    <string name="fully_managed_device_provisioning_step_2_header" msgid="142633978260399682">"Гэта прылада <xliff:g id="DEVICE_NAME">%1$s</xliff:g> не з\'яўляецца прыватнай"</string>
+    <string name="fully_managed_device_provisioning_step_2_subheader" msgid="3981784440341141618">"Ваш ІT-адміністратар можа праглядаць вашы даныя і дзеянні на гэтай прыладзе <xliff:g id="DEVICE_NAME">%1$s</xliff:g>."</string>
+    <string name="fully_managed_device_provisioning_permissions_header" msgid="2852101532084770993">"Вашы дзеянні і даныя"</string>
+    <string name="fully_managed_device_provisioning_permissions_secondary_header" msgid="4419374850927705136">"Дазволы праграм"</string>
+    <string name="fully_managed_device_provisioning_permissions_secondary_subheader" msgid="1973320148595109400">"Ваш ІТ-адміністратар можа наладзіць дазволы для праграм на гэтай прыладзе <xliff:g id="DEVICE_NAME">%1$s</xliff:g>, напрыклад доступ да мікрафона, камеры і геаданых."</string>
+    <string name="fully_managed_device_provisioning_progress_label" msgid="3925516135130021966">"Ваша прылада наладжваецца…"</string>
+    <string name="fully_managed_device_provisioning_summary" msgid="2532673962822596806">"Карыстайцеся гэтай прыладай <xliff:g id="DEVICE_NAME_0">%1$s</xliff:g>, каб мець хуткі доступ да працоўных праграм. Гэта прылада <xliff:g id="DEVICE_NAME_1">%1$s</xliff:g> не прыватная, таму ІT-адміністратар можа праглядаць вашы даныя і дзеянні."</string>
+    <string name="fully_managed_device_with_permission_control_provisioning_summary" msgid="3487964472228264628">"Карыстайцеся гэтай прыладай <xliff:g id="DEVICE_NAME_0">%1$s</xliff:g>, каб мець хуткі доступ да працоўных праграм. Гэта прылада <xliff:g id="DEVICE_NAME_1">%1$s</xliff:g> не прыватная, таму ІT-адміністратар можа праглядаць на ёй вашы дзеянні і даныя. Акрамя таго, ІТ-адміністратар можа наладзіць дазволы для праграм на гэтай прыладзе, напрыклад доступ да мікрафона, камеры і геаданых."</string>
+    <string name="fully_managed_device_provisioning_return_device_title" msgid="8500829014794276683">"Вярніце гэту прыладу ІТ-адміністратару"</string>
+    <string name="fully_managed_device_provisioning_return_device_subheader" msgid="6194410367910957686">"Зноў перайдзіце на папярэдні экран або скіньце налады прылады і вярніце яе ІТ-адміністратару."</string>
+    <string name="fully_managed_device_cancel_setup_button" msgid="4910041382610777599">"Скасаваць наладку"</string>
+    <string name="fully_managed_device_reset_and_return_button" msgid="6451125722998550681">"Скінуць налады і вярнуць прыладу"</string>
+    <string name="fully_managed_device_unsupported_DPC_in_headless_mode_header" msgid="7938653381656306039">"Прыладу немагчыма наладзіць"</string>
+    <string name="fully_managed_device_unsupported_DPC_in_headless_mode_subheader" msgid="5158035482490079567">"Гэту прыладу нельга перавесці ў рэжым з поўным кіраваннем. Скіньце прыладу да заводскіх налад і звярніцеся да IT-адміністратара."</string>
+    <string name="fully_managed_device_reset_button" msgid="5957116315144904542">"Скінуць да заводскіх налад"</string>
+    <string name="cope_provisioning_step_1_header" msgid="1945759718804756423">"Працоўныя праграмы кіруюцца адміністратарам у працоўным профілі"</string>
+    <string name="cope_provisioning_step_2_header" msgid="2388399739294883042">"Асабістыя праграмы схаваны і адасоблены ад працоўных"</string>
+    <string name="cope_provisioning_step_3_header" msgid="7161795433847296201">"Ваш ІТ-адміністратар можа кіраваць прыладай і праграмамі"</string>
+    <string name="cope_provisioning_summary" msgid="4993405755138454918">"Працоўныя праграмы захоўваюцца ў працоўным профілі і знаходзяцца пад кіраваннем ІТ-адміністратара. Асабістыя праграмы схаваны і паказваюцца адасоблена ад працоўных праграм. Ваш ІТ-адміністратар можа кіраваць гэтай прыладай <xliff:g id="DEVICE_NAME">%1$s</xliff:g> і блакіраваць пэўныя праграмы."</string>
+    <string name="just_a_sec" msgid="6244676028626237220">"Секунду…"</string>
+    <string name="fully_managed_device_provisioning_privacy_title" msgid="4017627906103556021">"Напамін аб прыватнасці"</string>
+    <string name="fully_managed_device_provisioning_privacy_body" msgid="2107315052054483060">"Ваш ІT-адміністратар можа праглядаць вашы даныя і дзеянні на гэтай прыладзе <xliff:g id="DEVICE_NAME">%1$s</xliff:g>"</string>
+    <string name="financed_device_screen_header" msgid="5934940812896302344">"Гэта прылада <xliff:g id="DEVICE_NAME">%1$s</xliff:g> належыць кампаніі \"<xliff:g id="CREDITOR_NAME">%2$s</xliff:g>\""</string>
+    <string name="financed_make_payments_subheader_title" msgid="743966229235451097">"Рабіце плацяжы за гэту прыладу <xliff:g id="DEVICE_NAME">%1$s</xliff:g>"</string>
+    <string name="financed_make_payments_subheader_description" msgid="7391276584735956742">"Кампанія \"<xliff:g id="CREDITOR_NAME_0">%1$s</xliff:g>\" можа ўсталяваць праграму \"<xliff:g id="CREDITOR_NAME_1">%2$s</xliff:g>\", каб вы маглі рабіць плацяжы за гэту прыладу <xliff:g id="DEVICE_NAME">%3$s</xliff:g>."</string>
+    <string name="financed_restrict_device_subheader_title" msgid="4248650736543742083">"Карыстанне гэтай прыладай <xliff:g id="DEVICE_NAME">%1$s</xliff:g> можа мець абмежаванні"</string>
+    <string name="financed_restrict_device_subheader_description" msgid="1539908048861880628">"Кампанія \"<xliff:g id="CREDITOR_NAME">%1$s</xliff:g>\" можа абмежаваць доступ да гэтай прылады <xliff:g id="DEVICE_NAME">%2$s</xliff:g>, калі вы не робіце плацяжоў."</string>
+    <string name="error_role_holder_hash_mismatch" msgid="5098975629103567172">"Не ўдаецца наладзіць прыладу <xliff:g id="DEVICE_NAME">%1$s</xliff:g>. Звярніцеся да ІТ-адміністратара і ў якасці прычыны памылкі ўкажыце \"Няправільная кантрольная сума\"."</string>
+    <string name="error_role_holder_download_install_failed" msgid="8151968372180693228">"Паўтарыце спробу пазней або звярніцеся па дапамогу да ІТ-адміністратара"</string>
+    <string name="error_role_holder_package_invalid" msgid="8159929740916126242">"Не ўдаецца наладзіць прыладу <xliff:g id="DEVICE_NAME">%1$s</xliff:g>. Звярніцеся да ІТ-адміністратара і ў якасці прычыны памылкі ўкажыце \"Асобныя кампаненты адсутнічаюць ці пашкоджаны\"."</string>
+    <string name="setting_up" msgid="1478847967385506664">"Наладжванне…"</string>
+</resources>

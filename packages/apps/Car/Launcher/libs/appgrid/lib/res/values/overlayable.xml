@@ -1,0 +1,137 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Copyright (C) 2024 The Android Open Source Project
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.-->
+<!--
+THIS FILE WAS AUTO GENERATED, DO NOT EDIT MANUALLY.
+REGENERATE USING packages/apps/Car/libs/tools/rro/generate-overlayable.py
+-->
+<resources>
+  <overlayable name="CarAppGrid-lib">
+    <policy type="system|product|signature">
+      <item type="array" name="hidden_apps"/>
+      <item type="attr" name="first_button_text"/>
+      <item type="attr" name="second_button_text"/>
+      <item type="attr" name="title_text"/>
+      <item type="bool" name="car_app_show_recent_apps"/>
+      <item type="bool" name="car_app_show_toolbar"/>
+      <item type="bool" name="config_allow_reordering"/>
+      <item type="bool" name="use_defined_app_grid_dimensions"/>
+      <item type="bool" name="use_vertical_app_grid"/>
+      <item type="color" name="app_item_on_hover_background_color"/>
+      <item type="color" name="app_item_on_hover_border_color"/>
+      <item type="color" name="app_name_color"/>
+      <item type="color" name="banner_background_color"/>
+      <item type="color" name="banner_button_text_color"/>
+      <item type="color" name="banner_title_text_color"/>
+      <item type="color" name="icon_tint"/>
+      <item type="color" name="page_indicator_bar_color"/>
+      <item type="color" name="recent_apps_line_divider_color"/>
+      <item type="dimen" name="app_bar_height"/>
+      <item type="dimen" name="app_grid_header_margin"/>
+      <item type="dimen" name="app_grid_height"/>
+      <item type="dimen" name="app_grid_margin_horizontal"/>
+      <item type="dimen" name="app_grid_margin_vertical"/>
+      <item type="dimen" name="app_grid_row_margin"/>
+      <item type="dimen" name="app_grid_touch_target_size"/>
+      <item type="dimen" name="app_grid_width"/>
+      <item type="dimen" name="app_icon_description_margin"/>
+      <item type="dimen" name="app_icon_opacity"/>
+      <item type="dimen" name="app_icon_opacity_tos_disabled"/>
+      <item type="dimen" name="app_icon_opacity_unavailable"/>
+      <item type="dimen" name="app_icon_ripple_radius"/>
+      <item type="dimen" name="app_icon_scaled_size"/>
+      <item type="dimen" name="app_icon_size"/>
+      <item type="dimen" name="app_item_highlight_corner_radius"/>
+      <item type="dimen" name="app_item_highlight_edge_width"/>
+      <item type="dimen" name="app_name_margin_horizontal"/>
+      <item type="dimen" name="app_touch_target_margin"/>
+      <item type="dimen" name="app_touch_target_padding"/>
+      <item type="dimen" name="banner_button_maximum_width"/>
+      <item type="dimen" name="banner_content_margin"/>
+      <item type="dimen" name="banner_image_view_size"/>
+      <item type="dimen" name="fling_threshold"/>
+      <item type="dimen" name="icon_size"/>
+      <item type="dimen" name="page_indicator_edge_corner_radius"/>
+      <item type="dimen" name="page_indicator_height"/>
+      <item type="dimen" name="page_snap_threshold"/>
+      <item type="dimen" name="panel_margin"/>
+      <item type="dimen" name="recent_apps_divider_margin"/>
+      <item type="dimen" name="recent_apps_row_height"/>
+      <item type="dimen" name="search_bar_drawable_text_padding"/>
+      <item type="dimen" name="search_bar_margin"/>
+      <item type="dimen" name="search_box_height"/>
+      <item type="dimen" name="search_item_width"/>
+      <item type="dimen" name="search_result_margin"/>
+      <item type="dimen" name="search_result_text_margin"/>
+      <item type="dimen" name="threshold_to_start_drag_drop"/>
+      <item type="drawable" name="app_item_highlight"/>
+      <item type="drawable" name="banner_warning_image"/>
+      <item type="drawable" name="page_indicator_bar"/>
+      <item type="id" name="app_icon"/>
+      <item type="id" name="app_item"/>
+      <item type="id" name="app_name"/>
+      <item type="id" name="apps_grid"/>
+      <item type="id" name="apps_grid_background"/>
+      <item type="id" name="apps_grid_background_container"/>
+      <item type="id" name="banner_first_button"/>
+      <item type="id" name="banner_icon"/>
+      <item type="id" name="banner_second_button"/>
+      <item type="id" name="banner_title"/>
+      <item type="id" name="divider"/>
+      <item type="id" name="focus_area"/>
+      <item type="id" name="page_indicator"/>
+      <item type="id" name="page_indicator_container"/>
+      <item type="id" name="recent_apps_row"/>
+      <item type="id" name="tos_banner"/>
+      <item type="integer" name="car_app_selector_column_number"/>
+      <item type="integer" name="car_app_selector_row_number"/>
+      <item type="integer" name="config_msg_register_mirroring_pkg_code"/>
+      <item type="integer" name="config_msg_send_mirroring_pkg_code"/>
+      <item type="integer" name="config_msg_unregister_mirroring_pkg_code"/>
+      <item type="integer" name="config_tos_banner_resurface_time_days"/>
+      <item type="integer" name="ms_background_highlight_duration"/>
+      <item type="integer" name="ms_drop_animation_delay"/>
+      <item type="integer" name="ms_long_press_animation_duration"/>
+      <item type="integer" name="ms_off_page_hover_before_scroll"/>
+      <item type="integer" name="ms_release_animation_duration"/>
+      <item type="integer" name="ms_scrollbar_appear_animation_delay"/>
+      <item type="integer" name="ms_scrollbar_appear_animation_duration"/>
+      <item type="integer" name="ms_scrollbar_fade_animation_delay"/>
+      <item type="integer" name="ms_scrollbar_fade_animation_duration"/>
+      <item type="layout" name="app_grid_activity"/>
+      <item type="layout" name="app_item"/>
+      <item type="layout" name="banner"/>
+      <item type="layout" name="recent_apps_row"/>
+      <item type="string" name="app_launcher_stop_app_cant_stop_text"/>
+      <item type="string" name="app_launcher_title_all_apps"/>
+      <item type="string" name="app_launcher_title_media_only"/>
+      <item type="string" name="banner_dismiss_button_text"/>
+      <item type="string" name="banner_review_button_text"/>
+      <item type="string" name="banner_title_text"/>
+      <item type="string" name="config_msg_mirroring_pkg_name_key"/>
+      <item type="string" name="config_msg_mirroring_redirect_uri_key"/>
+      <item type="string" name="config_msg_mirroring_service_class_name"/>
+      <item type="string" name="config_msg_mirroring_service_pkg_name"/>
+      <item type="string" name="driving_toast_text"/>
+      <item type="string" name="hide_debug_apps"/>
+      <item type="string" name="reset_appgrid_dialogue_message"/>
+      <item type="string" name="reset_appgrid_title"/>
+      <item type="string" name="show_debug_apps"/>
+      <item type="string" name="user_tos_activity_intent"/>
+      <item type="style" name="ActionDialogTheme"/>
+      <item type="style" name="AppDisplayNameStyle"/>
+      <item type="style" name="BannerButton"/>
+      <item type="style" name="HorizontalLineDivider"/>
+      <item type="style" name="Theme.Launcher.AppGridActivity"/>
+      <item type="style" name="Theme.Launcher.AppGridActivity.NoToolbar"/>
+    </policy>
+  </overlayable>
+</resources>

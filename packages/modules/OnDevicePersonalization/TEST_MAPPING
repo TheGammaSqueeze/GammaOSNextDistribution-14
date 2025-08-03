@@ -1,0 +1,55 @@
+{
+  "mainline-presubmit": [
+    {
+      // Install com.google.android.ondevicepersonalization.apex and run FrameworkOnDevicePersonalizationTests.
+      "name": "FrameworkOnDevicePersonalizationTests[com.google.android.ondevicepersonalization.apex]"
+    },
+    {
+      // Install com.google.android.ondevicepersonalization.apex and run OnDevicePersonalizationManagingServicesTests.
+      "name": "OnDevicePersonalizationManagingServicesTests[com.google.android.ondevicepersonalization.apex]"
+    },
+    {
+      // Install com.google.android.ondevicepersonalization.apex and run OdpChronicleTests.
+      "name": "OdpChronicleTests[com.google.android.ondevicepersonalization.apex]"
+    },
+    {
+      // Install com.google.android.ondevicepersonalization.apex and run OnDevicePersonalizationPluginTests.
+      "name": "OnDevicePersonalizationPluginTests[com.google.android.ondevicepersonalization.apex]"
+    },
+    {
+      // Install com.google.android.ondevicepersonalization.apex and run FederatedComputeServicesTests.
+      "name": "FederatedComputeServicesTests[com.google.android.ondevicepersonalization.apex]"
+    },
+    {
+      // Install com.google.android.ondevicepersonalization.apex and run OnDevicePersonalizationSystemServiceImplTests.
+      "name": "OnDevicePersonalizationSystemServiceImplTests[com.google.android.ondevicepersonalization.apex]"
+    },
+    {
+      // Install com.google.android.ondevicepersonalization.apex and run OnDevicePersonalizationSystemServiceImplTests.
+      "name": "CtsOnDevicePersonalizationE2ETests[com.google.android.ondevicepersonalization.apex]"
+    }
+  ],
+  "presubmit": [
+    {
+      "name": "FrameworkOnDevicePersonalizationTests"
+    },
+    {
+      "name": "OnDevicePersonalizationManagingServicesTests"
+    },
+    {
+      "name": "OdpChronicleTests"
+    },
+    {
+      "name": "OnDevicePersonalizationPluginTests"
+    },
+    {
+      "name": "FederatedComputeServicesTests"
+    },
+    {
+      "name": "OnDevicePersonalizationSystemServiceImplTests"
+    },
+    {
+      "name": "CtsOnDevicePersonalizationE2ETests"
+    }
+  ]
+}

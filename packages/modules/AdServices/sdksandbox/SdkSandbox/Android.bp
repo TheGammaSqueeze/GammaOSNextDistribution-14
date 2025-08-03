@@ -1,0 +1,99 @@
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_team: "trendy_team_rubidium_sdk_runtime",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+filegroup {
+    name: "sdksandbox_aidl",
+    srcs: [
+        "aidl/**/*.aidl",
+        "aidl/**/*.java",
+    ],
+    path: "aidl",
+}
+
+filegroup {
+    name: "sdksandbox-sources",
+    srcs: [
+        "src/**/*.java",
+    ],
+}
+
+java_library {
+    name: "SdkSandbox-java-lib",
+    srcs: [
+        ":sdksandbox-sources",
+        ":sdksandbox_aidl",
+        ":framework-sdksandbox-aidl-sources",
+    ],
+    libs: [
+        "framework-annotations-lib",
+        "framework-sdksandbox.impl",
+        "androidx.annotation_annotation",
+    ],
+    sdk_version: "module_current",
+    apex_available: ["com.android.adservices"],
+    defaults: [
+        "sdksandbox-java-defaults",
+    ],
+    static_libs: [
+        "modules-utils-backgroundthread",
+        "modules-utils-build",
+    ], //do not add any other static libs to SdkSandbox, else proguard will shrink it.
+}
+
+prebuilt_etc {
+    name: "com.android.adservices.sdksandbox.xml",
+    sub_dir: "permissions",
+    src: "com.android.adservices.sdksandbox.xml",
+}
+
+android_app {
+    name: "SdkSandbox",
+    libs: [
+        "framework-annotations-lib",
+        "framework-sdksandbox.impl",
+        "androidx.annotation_annotation",
+    ],
+    static_libs: [
+        "SdkSandbox-java-lib",
+    ], //do not add any other static libs to SdkSandbox, else proguard will shrink it.
+    visibility: [
+        "//packages/modules/AdServices:__subpackages__",
+        "//packages/modules/AdServices/sdksandbox/SdkSandbox",
+    ],
+    sdk_version: "module_current",
+    updatable: true,
+    certificate: "sdk_sandbox",
+    apex_available: ["com.android.adservices"],
+    optimize: {
+        // TODO(b/293177283): Remove after eliminating use of reflection
+        // for SandboxedSdkHolder instantiation.
+        proguard_compatibility: true,
+    },
+    defaults: [
+        "sdksandbox-java-defaults",
+    ],
+    jarjar_rules: "sdksandbox_app_jarjar_rules.txt",
+    jacoco: {
+        exclude_filter: [
+            "android.app.sdksandbox.**",
+            "com.android.server.sdksandbox.**",
+        ],
+    },
+    required: ["com.android.adservices.sdksandbox.xml"],
+}

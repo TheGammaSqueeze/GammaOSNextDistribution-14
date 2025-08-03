@@ -1,0 +1,15 @@
+// Baseline format: 1.0
+ConcreteCollection: android.car.builtin.os.ParcelHelper#readArraySet(android.os.Parcel, ClassLoader):
+    Return type is concrete collection (`android.util.ArraySet`); must be higher-level interface
+ConcreteCollection: android.car.builtin.os.ParcelHelper#writeArraySet(android.os.Parcel, android.util.ArraySet<?>) parameter #1:
+    Parameter type is concrete collection (`android.util.ArraySet`); must be higher-level interface
+
+
+NullableCollection: android.car.builtin.os.ParcelHelper#readArraySet(android.os.Parcel, ClassLoader):
+    Return type of method android.car.builtin.os.ParcelHelper.readArraySet(android.os.Parcel,ClassLoader) is a nullable collection (`android.util.ArraySet`); must be non-null
+NullableCollection: android.car.builtin.os.ParcelHelper#readStringArray(android.os.Parcel):
+    Return type of method android.car.builtin.os.ParcelHelper.readStringArray(android.os.Parcel) is a nullable collection (`java.lang.String[]`); must be non-null
+
+
+UserHandleName: android.car.builtin.app.ActivityManagerHelper#startUserInForeground(android.os.UserHandle):
+    Method taking UserHandle should be named `doFooAsUser` or `queryFooForUser`, was `startUserInForeground`

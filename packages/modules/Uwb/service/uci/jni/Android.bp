@@ -1,0 +1,87 @@
+package {
+    default_team: "trendy_team_fwk_uwb",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_defaults {
+    name: "libuwb_uci_jni_rust_defaults",
+    crate_name: "uwb_uci_jni_rust",
+    lints: "android",
+    clippy_lints: "android",
+    min_sdk_version: "Tiramisu",
+    srcs: ["src/lib.rs"],
+    rustlibs: [
+        "libbinder_rs",
+        "libjni",
+        "liblazy_static",
+        "liblog_rust",
+        "liblogger",
+        "libnum_traits",
+        "libthiserror",
+        "libtokio",
+        "libuwb_uci_packets",
+    ],
+    prefer_rlib: true,
+    apex_available: [
+        "com.android.uwb",
+    ],
+    host_supported: true,
+}
+
+rust_ffi_shared {
+    name: "libuwb_uci_jni_rust",
+    defaults: ["libuwb_uci_jni_rust_defaults"],
+    rustlibs: [
+        "libuci_hal_android",
+        "libuwb_core",
+    ],
+}
+
+rust_test {
+    name: "libuwb_uci_jni_rust_tests",
+    defaults: ["libuwb_uci_jni_rust_defaults"],
+    rustlibs: [
+        "libuci_hal_android_with_mock",
+        "libuwb_core_with_mock",
+    ],
+    target: {
+        android: {
+            test_suites: [
+                "general-tests",
+                "mts-uwb",
+            ],
+            test_config_template: "uwb_rust_test_config_template.xml",
+        },
+        host: {
+            test_suites: [
+                "general-tests",
+            ],
+            data_libs: [
+                "libandroid_runtime_lazy",
+                "libbase",
+                "libbinder",
+                "libbinder_ndk",
+                "libcutils",
+                "liblog",
+                "libutils",
+                "libc++",
+            ],
+        },
+    },
+    test_options: {
+        unit_test: true,
+    },
+    // Support multilib variants (using different suffix per sub-architecture), which is needed on
+    // build targets with secondary architectures, as the MTS test suite packaging logic flattens
+    // all test artifacts into a single `testcases` directory.
+    compile_multilib: "both",
+    multilib: {
+        lib32: {
+            suffix: "32",
+        },
+        lib64: {
+            suffix: "64",
+        },
+    },
+    auto_gen_config: true,
+}

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright (C) 2023 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources>
+    <!-- 4370, 4383, 919 AT/EU level 1 alert -->
+    <string-array name="cmas_presidential_alerts_channels_range_strings" translatable="false">
+        <item>0x1112:rat=gsm, emergency=true, alert_duration=300000, always_on=true, override_dnd=true, vibration=0|1000|500|1000|500|1000|500|2000|500|2000|500|2000|500|1000|500|1000|500|1000|500, pulsation=0xffff0000|300000</item>
+        <item>0x0397:rat=gsm, emergency=true, alert_duration=300000, always_on=true, override_dnd=true, vibration=0|1000|500|1000|500|1000|500|2000|500|2000|500|2000|500|1000|500|1000|500|1000|500, pulsation=0xffff0000|300000</item>
+        <!-- additional language -->
+        <item>0x111F:rat=gsm, emergency=true, alert_duration=300000, filter_language=true, always_on=true, override_dnd=true, vibration=0|1000|500|1000|500|1000|500|2000|500|2000|500|2000|500|1000|500|1000|500|1000|500, pulsation=0xffff0000|300000</item>
+    </string-array>
+    <!-- 4372, 4385 AT/EU level 2 alert -->
+    <string-array name="cmas_alert_extreme_channels_range_strings" translatable="false">
+        <item>0x1114:rat=gsm, emergency=true, vibration=0|500|500|500|500|500|500|1000|500|1000|500|1000|500|500|500|500|500|500|500, pulsation=0xffff0000|10500</item>
+        <!-- additional language -->
+        <item>0x1121:rat=gsm, emergency=true, filter_language=true, vibration=0|500|500|500|500|500|500|1000|500|1000|500|1000|500|500|500|500|500|500|500, pulsation=0xffff0000|10500</item>
+    </string-array>
+    <!-- 4378, 4391 AT/EU level 3 alert -->
+    <string-array name="cmas_alerts_severe_range_strings" translatable="false">
+        <item>0x111A:rat=gsm, emergency=true, vibration=0|500|500|500|500|500|500|1000|500|1000|500|1000|500|500|500|500|500|500|500, pulsation=0xffffffff|10500</item>
+        <!-- additional language -->
+        <item>0x1127:rat=gsm, emergency=true, filter_language=true, vibration=0|500|500|500|500|500|500|1000|500|1000|500|1000|500|500|500|500|500|500|500, pulsation=0xffffffff|10500</item>
+    </string-array>
+    <!-- 4396, 4397 AT/EU level 4 alert -->
+    <string-array name="public_safety_messages_channels_range_strings" translatable="false">
+        <item>0x112C:rat=gsm, emergency=true, vibration=0|500|500|500|500|500|500|1000|500|1000|500|1000|500|500|500|500|500|500|500, pulsation=0xffffffff|10500</item>
+        <!-- additional language -->
+        <item>0x112D:rat=gsm, emergency=true, filter_language=true, vibration=0|500|500|500|500|500|500|1000|500|1000|500|1000|500|500|500|500|500|500|500, pulsation=0xffffffff|10500</item>
+    </string-array>
+    <!-- 4379, 4392 AT/EU Amber Alert -->
+    <string-array name="cmas_amber_alerts_channels_range_strings" translatable="false">
+        <item>0x111B:rat=gsm, emergency=true</item>
+        <!-- additional language -->
+        <item>0x1128:rat=gsm, emergency=true, filter_language=true</item>
+    </string-array>
+    <!-- 4380, 4393 AT/EU Monthly Test Alert -->
+    <string-array name="required_monthly_test_range_strings" translatable="false">
+        <item>0x111C:rat=gsm, emergency=true</item>
+        <!-- additional language -->
+        <item>0x1129:rat=gsm, emergency=true, filter_language=true</item>
+    </string-array>
+    <!-- 4398, 4399 AT/EU test alert -->
+    <string-array name="state_local_test_alert_range_strings" translatable="false">
+        <item>0x112E:rat=gsm, emergency=true, vibration=0|500|500|500|500|500|500|1000|500|1000|500|1000|500|500|500|500|500|500|500, pulsation=0xffffffff|10500</item>
+        <!-- additional language -->
+        <item>0x112F:rat=gsm, emergency=true, filter_language=true, vibration=0|500|500|500|500|500|500|1000|500|1000|500|1000|500|500|500|500|500|500|500, pulsation=0xffffffff|10500</item>
+    </string-array>
+    <!-- 4381, 4394 AT/EU Exercise -->
+    <string-array name="exercise_alert_range_strings" translatable="false">
+        <item>0x111D:rat=gsm, emergency=true</item>
+        <!-- additional language -->
+        <item>0x112A:rat=gsm, filter_language=true, emergency=true</item>
+    </string-array>
+
+    <string-array name="operator_defined_alert_range_strings" translatable="false" />
+    <string-array name="etws_alerts_range_strings" translatable="false" />
+    <string-array name="etws_test_alerts_range_strings" translatable="false" />
+
+    <!-- Whether to display state/local test settings. -->
+    <bool name="show_state_local_test_settings">true</bool>
+    <!-- Whether to show test settings -->
+    <bool name="show_test_settings">false</bool>
+    <!-- To display a separate exercise test settings. -->
+    <bool name="show_separate_exercise_settings">true</bool>
+
+    <!-- Default value that in the ListPreference.
+     These must be a subset of the alert_reminder_interval_values list above. -->
+    <string name="alert_reminder_interval_in_min_default" translatable="false">2</string>
+
+</resources>

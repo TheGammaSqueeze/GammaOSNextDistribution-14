@@ -1,0 +1,7 @@
+{
+  "imports" : [
+    {
+      "path" : "hardware/interfaces/bluetooth/aidl"
+    }
+  ]
+}

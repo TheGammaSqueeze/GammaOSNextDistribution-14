@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2012 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License
+-->
+<resources xmlns:tools="http://schemas.android.com/tools">
+  <dimen name="button_horizontal_padding">16dp</dimen>
+
+  <!-- Select All/Multi Select -->
+  <dimen name="select_all_text_size">14sp</dimen>
+  <dimen name="select_all_icon_padding">16dp</dimen>
+  <dimen name="select_all_text_left_padding">18dp</dimen>
+
+  <!-- Call Log -->
+  <dimen name="call_log_horizontal_margin">8dp</dimen>
+  <dimen name="call_log_outer_margin">8dp</dimen>
+  <dimen name="call_log_start_margin">8dp</dimen>
+  <dimen name="call_log_name_margin_bottom">2dp</dimen>
+  <dimen name="call_log_call_account_margin_bottom">2dp</dimen>
+  <dimen name="call_log_vertical_padding">8dp</dimen>
+  <dimen name="call_log_list_item_info_margin_start">16dp</dimen>
+
+  <!-- Size of contact photos in the call log and call details. -->
+  <dimen name="contact_photo_size">48dp</dimen>
+
+  <dimen name="call_log_list_item_primary_action_dimen">48dp</dimen>
+
+  <dimen name="voicemail_playback_top_padding">12dp</dimen>
+
+  <dimen name="touch_target_min_size">48dp</dimen>
+</resources>

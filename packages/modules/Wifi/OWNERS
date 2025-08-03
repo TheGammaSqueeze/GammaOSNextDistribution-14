@@ -1,0 +1,4 @@
+# Bug component: 33618
+include /WIFI_OWNERS
+
+include platform/packages/modules/common:/MODULES_OWNERS  # see go/mainline-owners-policy

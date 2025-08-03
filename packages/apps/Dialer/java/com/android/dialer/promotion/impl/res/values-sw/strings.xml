@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="rtt_promotion_title">Kutuma SMS katika muda halisi wakati unapiga simu</string>
+  <string name="rtt_promotion_details">RTT huwasaidia wapigaji simu ambao ni viziwi, wenye matatizo ya kusikia, wenye matatizo ya kuzungumza au wanaohitaji kufanya zaidi ya kuzungumza tu. Manukuu ya ujumbe wa RTT huhifadhiwa kwenye kifaa chako katika rekodi ya simu zilizopigwa. %1$s</string>
+</resources>

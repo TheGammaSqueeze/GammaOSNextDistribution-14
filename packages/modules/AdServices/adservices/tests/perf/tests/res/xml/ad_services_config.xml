@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Copyright 2022 Google Inc. All Rights Reserved.-->
+<ad-services-config>
+    <includes-sdk-library name="E1" />
+    <topics allowAllToAccess="false" allowAdPartnersToAccess="E1" />
+    <custom-audiences allowAllToAccess="true" />
+    <attribution allowAllToAccess="true" />
+</ad-services-config>

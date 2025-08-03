@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="rtt_promotion_title">在通話中進行即時文字短訊</string>
+  <string name="rtt_promotion_details">即時文字短訊 (RTT) 功能可協助失聰、有聽力障礙、語言障礙或需要語音以外更多功能的通話者。RTT 訊息轉錄內容會儲存在您裝置中的通話記錄。%1$s</string>
+</resources>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  Copyright (c) 2017 The LineageOS Project
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ Also add information on how to contact you by electronic and paper mail.
+
+-->
+<resources>
+    <string name="app_name">FlipFlap</string>
+    <string name="notification_title">Smart Cover terdeteksi</string>
+    <string name="alarm_label">ALARM</string>
+    <string name="abbrev_wday_month_day_no_year">EEE, d MMMM</string>
+    <string name="answer_call">JAWAB</string>
+    <string name="ignore_call">ABAIKAN</string>
+    <string name="end_call">AKHIRI PANGGILAN</string>
+    <string name="settings_name">Sampul pintar</string>
+    <string name="settings_enable">Aktifkan kontrol penutup pintar</string>
+    <string name="settings_summary">Kendalikan perilaku aksesori Anda</string>
+    <string name="category_behaviour">Perilaku</string>
+    <string name="pass_to_security_view_title">Langsung tampilkan entri kata sandi</string>
+    <string name="pass_to_security_view_summary">Langsung tampilkan layar kunci ketika penutup dibuka</string>
+    <string name="use_high_touch_sensitivity_title">Kepekaan sentuh tinggi</string>
+    <string name="use_high_touch_sensitivity_summary">Tingkatkan kepekaan sentuhan saat penutup tertutup</string>
+    <string name="category_design">Desain</string>
+    <string name="switch_charging_status_title">Tampilkan status pengisian</string>
+    <string name="switch_charging_status_summary">Ubah warna menurut daya baterai aktual</string>
+    <string name="category_timeouts">Batas waktu</string>
+    <string name="timeout_plugged_title">Saat mengisi daya</string>
+    <string name="timeout_unplugged_title">Saat tidak mengisi daya</string>
+    <string name="timeout_summary">Tampilkan %s sampul app setelah mengakhiri lid</string>
+    <string name="timeout_summary_never">Setelah menutup lid, sampul app akan selalu hidup</string>
+    <string name="timeout_summary_immediately">Layar akan dimatikan saat penutup ditutup</string>
+    <string name="timeout_entry_immediately">Segera</string>
+    <string name="timeout_entry_5s">5 detik</string>
+    <string name="timeout_entry_10s">10 detik</string>
+    <string name="timeout_entry_30s">30 detik</string>
+    <string name="timeout_entry_1min">1 menit</string>
+    <string name="timeout_entry_5min">5 menit</string>
+    <string name="timeout_entry_never">Jangan pernah</string>
+</resources>

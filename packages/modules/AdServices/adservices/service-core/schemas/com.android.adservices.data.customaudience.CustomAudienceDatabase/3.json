@@ -1,0 +1,292 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 3,
+    "identityHash": "7776c9d31bbe12a578e7a4210c71380a",
+    "entities": [
+      {
+        "tableName": "custom_audience",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`owner` TEXT NOT NULL, `buyer` TEXT NOT NULL, `name` TEXT NOT NULL, `expiration_time` INTEGER NOT NULL, `activation_time` INTEGER NOT NULL, `creation_time` INTEGER NOT NULL, `last_ads_and_bidding_data_updated_time` INTEGER NOT NULL, `user_bidding_signals` TEXT, `bidding_logic_uri` TEXT NOT NULL, `ads` TEXT, `trusted_bidding_data_uri` TEXT, `trusted_bidding_data_keys` TEXT, PRIMARY KEY(`owner`, `buyer`, `name`))",
+        "fields": [
+          {
+            "fieldPath": "mOwner",
+            "columnName": "owner",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mBuyer",
+            "columnName": "buyer",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mName",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mExpirationTime",
+            "columnName": "expiration_time",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mActivationTime",
+            "columnName": "activation_time",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mCreationTime",
+            "columnName": "creation_time",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mLastAdsAndBiddingDataUpdatedTime",
+            "columnName": "last_ads_and_bidding_data_updated_time",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mUserBiddingSignals",
+            "columnName": "user_bidding_signals",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mBiddingLogicUri",
+            "columnName": "bidding_logic_uri",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mAds",
+            "columnName": "ads",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mTrustedBiddingData.mUri",
+            "columnName": "trusted_bidding_data_uri",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mTrustedBiddingData.mKeys",
+            "columnName": "trusted_bidding_data_keys",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "owner",
+            "buyer",
+            "name"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_custom_audience_owner",
+            "unique": false,
+            "columnNames": [
+              "owner"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_custom_audience_owner` ON `${TABLE_NAME}` (`owner`)"
+          },
+          {
+            "name": "index_custom_audience_buyer",
+            "unique": false,
+            "columnNames": [
+              "buyer"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_custom_audience_buyer` ON `${TABLE_NAME}` (`buyer`)"
+          },
+          {
+            "name": "index_custom_audience_expiration_time",
+            "unique": false,
+            "columnNames": [
+              "expiration_time"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_custom_audience_expiration_time` ON `${TABLE_NAME}` (`expiration_time`)"
+          },
+          {
+            "name": "index_custom_audience_last_ads_and_bidding_data_updated_time",
+            "unique": false,
+            "columnNames": [
+              "last_ads_and_bidding_data_updated_time"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_custom_audience_last_ads_and_bidding_data_updated_time` ON `${TABLE_NAME}` (`last_ads_and_bidding_data_updated_time`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "custom_audience_background_fetch_data",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`owner` TEXT NOT NULL, `buyer` TEXT NOT NULL, `name` TEXT NOT NULL, `daily_update_uri` TEXT NOT NULL, `eligible_update_time` INTEGER NOT NULL, `num_validation_failures` INTEGER NOT NULL, `num_timeout_failures` INTEGER NOT NULL, PRIMARY KEY(`owner`, `buyer`, `name`))",
+        "fields": [
+          {
+            "fieldPath": "owner",
+            "columnName": "owner",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "buyer",
+            "columnName": "buyer",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dailyUpdateUri",
+            "columnName": "daily_update_uri",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "eligibleUpdateTime",
+            "columnName": "eligible_update_time",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "numValidationFailures",
+            "columnName": "num_validation_failures",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "numTimeoutFailures",
+            "columnName": "num_timeout_failures",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "owner",
+            "buyer",
+            "name"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_custom_audience_background_fetch_data_owner",
+            "unique": false,
+            "columnNames": [
+              "owner"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_custom_audience_background_fetch_data_owner` ON `${TABLE_NAME}` (`owner`)"
+          },
+          {
+            "name": "index_custom_audience_background_fetch_data_buyer",
+            "unique": false,
+            "columnNames": [
+              "buyer"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_custom_audience_background_fetch_data_buyer` ON `${TABLE_NAME}` (`buyer`)"
+          },
+          {
+            "name": "index_custom_audience_background_fetch_data_name",
+            "unique": false,
+            "columnNames": [
+              "name"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_custom_audience_background_fetch_data_name` ON `${TABLE_NAME}` (`name`)"
+          },
+          {
+            "name": "index_custom_audience_background_fetch_data_eligible_update_time",
+            "unique": false,
+            "columnNames": [
+              "eligible_update_time"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_custom_audience_background_fetch_data_eligible_update_time` ON `${TABLE_NAME}` (`eligible_update_time`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "custom_audience_overrides",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`owner` TEXT NOT NULL, `buyer` TEXT NOT NULL, `name` TEXT NOT NULL, `app_package_name` TEXT NOT NULL, `bidding_logic` TEXT NOT NULL, `bidding_logic_version` INTEGER, `trusted_bidding_data` TEXT NOT NULL, PRIMARY KEY(`owner`, `buyer`, `name`))",
+        "fields": [
+          {
+            "fieldPath": "owner",
+            "columnName": "owner",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "buyer",
+            "columnName": "buyer",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "appPackageName",
+            "columnName": "app_package_name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "biddingLogicJS",
+            "columnName": "bidding_logic",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "biddingLogicJsVersion",
+            "columnName": "bidding_logic_version",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "trustedBiddingData",
+            "columnName": "trusted_bidding_data",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "owner",
+            "buyer",
+            "name"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7776c9d31bbe12a578e7a4210c71380a')"
+    ]
+  }
+}

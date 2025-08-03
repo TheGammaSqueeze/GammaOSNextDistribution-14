@@ -1,0 +1,175 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_bt_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_bt_license"],
+}
+
+cc_library_static {
+    name: "libbt-common",
+    defaults: [
+        "fluoride_defaults",
+    ],
+    host_supported: true,
+    include_dirs: [
+        "packages/modules/Bluetooth/system",
+        "packages/modules/Bluetooth/system/gd",
+        "packages/modules/Bluetooth/system/stack/include",
+    ],
+    srcs: [
+        "address_obfuscator.cc",
+        "message_loop_thread.cc",
+        "metric_id_allocator.cc",
+        "os_utils.cc",
+        "repeating_timer.cc",
+        "stop_watch_legacy.cc",
+        "time_util.cc",
+    ],
+    proto: {
+        type: "lite",
+        canonical_path_from_root: false,
+        export_proto_headers: true,
+    },
+    target: {
+        android: {
+            srcs: [
+                ":bluetooth-metrics-proto",
+                "metrics.cc",
+            ],
+            static_libs: ["libstatslog_bt"],
+        },
+        host: {
+            srcs: ["metrics_linux.cc"],
+        },
+    },
+    shared_libs: [
+        "libcrypto",
+        "libcutils",
+    ],
+    apex_available: [
+        "com.android.btservices",
+    ],
+    min_sdk_version: "Tiramisu",
+    header_libs: ["libbluetooth_headers"],
+    static_libs: [
+        "libbluetooth_crypto_toolbox",
+        "libbluetooth_log",
+        "libbt-platform-protos-lite",
+        "libbt_shim_bridge",
+    ],
+    cflags: ["-Wno-unused-parameter"],
+}
+
+cc_test {
+    name: "bluetooth_test_common",
+    test_suites: ["general-tests"],
+    defaults: [
+        "fluoride_defaults",
+        "mts_defaults",
+    ],
+    host_supported: true,
+    test_options: {
+        unit_test: true,
+    },
+    include_dirs: [
+        "packages/modules/Bluetooth/system",
+        "packages/modules/Bluetooth/system/gd",
+        "packages/modules/Bluetooth/system/stack/include",
+    ],
+    srcs: [
+        "address_obfuscator_unittest.cc",
+        "base_bind_unittest.cc",
+        "id_generator_unittest.cc",
+        "leaky_bonded_queue_unittest.cc",
+        "lru_unittest.cc",
+        "message_loop_thread_unittest.cc",
+        "metric_id_allocator_unittest.cc",
+        "repeating_timer_unittest.cc",
+        "state_machine_unittest.cc",
+        "time_util_unittest.cc",
+    ],
+    target: {
+        android: {
+            srcs: ["metrics_unittest.cc"],
+            shared_libs: ["libstatssocket"],
+        },
+    },
+    shared_libs: [
+        "libcrypto",
+        "liblog",
+    ],
+    static_libs: [
+        "libbluetooth-types",
+        "libbluetooth_crypto_toolbox",
+        "libbluetooth_log",
+        "libbt-common",
+        "libbt-platform-protos-lite",
+        "libbt_shim_bridge",
+        "libchrome",
+        "libevent",
+        "libgmock",
+        "libprotobuf-cpp-lite",
+    ],
+    sanitize: {
+        cfi: false,
+    },
+    header_libs: ["libbluetooth_headers"],
+    cflags: ["-Wno-unused-parameter"],
+}
+
+cc_test {
+    name: "net_test_performance",
+    defaults: [
+        "fluoride_defaults",
+        "mts_defaults",
+    ],
+    test_suites: ["general-tests"],
+    include_dirs: [
+        "packages/modules/Bluetooth/system",
+        "packages/modules/Bluetooth/system/gd",
+    ],
+    host_supported: true,
+    srcs: [
+        "test/thread_performance_test.cc",
+    ],
+    shared_libs: [
+        "liblog",
+    ],
+    static_libs: [
+        "libbt-common",
+        "libchrome",
+        "libevent",
+        "libgmock",
+        "libosi",
+    ],
+    header_libs: ["libbluetooth_headers"],
+    cflags: ["-Wno-unused-parameter"],
+}
+
+cc_benchmark {
+    name: "bluetooth_benchmark_thread_performance",
+    defaults: [
+        "fluoride_defaults",
+    ],
+    host_supported: true,
+    include_dirs: [
+        "packages/modules/Bluetooth/system",
+        "packages/modules/Bluetooth/system/gd",
+    ],
+    srcs: [
+        "benchmark/thread_performance_benchmark.cc",
+    ],
+    shared_libs: [
+        "liblog",
+    ],
+    static_libs: [
+        "libbt-common",
+        "libchrome",
+        "libevent",
+        "libosi",
+    ],
+    header_libs: ["libbluetooth_headers"],
+    cflags: ["-Wno-unused-parameter"],
+}

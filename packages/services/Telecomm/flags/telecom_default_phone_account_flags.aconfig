@@ -1,0 +1,16 @@
+package: "com.android.server.telecom.flags"
+container: "system"
+
+flag {
+  name: "only_update_telephony_on_valid_sub_ids"
+  namespace: "telecom"
+  description: "For testing purposes, only update Telephony when the default calling subId is non-zero"
+  bug: "234846282"
+}
+
+flag {
+  name: "telephony_has_default_but_telecom_does_not"
+  namespace: "telecom"
+  description: "Telecom is requesting the user to select a sim account to place the outgoing call on but the user has a default account in the settings"
+  bug: "302397094"
+}

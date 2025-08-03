@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2023 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<carAudioConfiguration version="3">
+    <zones>
+        <zone name="primary zone" isPrimary="true" audioZoneId="0" occupantZoneId="1">
+            <zoneConfigs>
+                <zoneConfig  name="primary zone config 1" isDefault="true">
+                    <volumeGroups>
+                        <group>
+                            <device address="media_bus_device">
+                                <context context="music"/>
+                                <context context="announcement"/>
+                            </device>
+                            <device address="notification_bus_device">
+                                <context context="notification"/>
+                            </device>
+                        </group>
+                        <group>
+                            <device address="navigation_bus_device">
+                                <context context="navigation"/>
+                            </device>
+                            <device address="voice_bus_device">
+                                <context context="voice_command"/>
+                            </device>
+                        </group>
+                        <group>
+                            <device address="call_bus_device">
+                                <context context="call"/>
+                            </device>
+                            <device address="ring_bus_device">
+                                <context context="call_ring"/>
+                            </device>
+                        </group>
+                        <group>
+                            <device address="alarm_bus_device">
+                                <context context="alarm"/>
+                            </device>
+                            <device address="system_bus_device">
+                                <context context="system_sound"/>
+                                <context context="emergency"/>
+                                <context context="safety"/>
+                                <context context="vehicle_status"/>
+                            </device>
+                        </group>
+                    </volumeGroups>
+                </zoneConfig>
+            </zoneConfigs>
+        </zone>
+        <zone name="secondary zone" audioZoneId="1" occupantZoneId="2">
+            <zoneConfigs>
+                <zoneConfig  name="secondary zone config 1" isDefault="true">
+                    <volumeGroups>
+                        <group>
+                            <device address="secondary_zone_bus_100">
+                                <context context="music"/>
+                                <context context="navigation"/>
+                                <context context="voice_command"/>
+                                <context context="call_ring"/>
+                                <context context="call"/>
+                                <context context="alarm"/>
+                                <context context="system_sound"/>
+                                <context context="notification"/>
+                                <context context="emergency"/>
+                                <context context="safety"/>
+                                <context context="vehicle_status"/>
+                                <context context="announcement"/>
+                            </device>
+                        </group>
+                    </volumeGroups>
+                </zoneConfig>
+                <zoneConfig  name="secondary zone config 2">
+                    <volumeGroups>
+                        <group>
+                            <device address="secondary_zone_bus_200">
+                                <context context="music"/>
+                                <context context="announcement"/>
+                                <context context="notification"/>
+                                <context context="navigation"/>
+                                <context context="voice_command"/>
+                            </device>
+                        </group>
+                        <group>
+                            <device address="secondary_zone_bus_201">
+                                <context context="call_ring"/>
+                                <context context="call"/>
+                                <context context="alarm"/>
+                                <context context="system_sound"/>
+                                <context context="emergency"/>
+                                <context context="safety"/>
+                                <context context="vehicle_status"/>
+
+                            </device>
+                        </group>
+                    </volumeGroups>
+                </zoneConfig>
+            </zoneConfigs>
+        </zone>
+        <zone name="tertiary zone" audioZoneId="2" occupantZoneId="3">
+            <zoneConfigs>
+                <zoneConfig  name="tertiary zone config 1" isDefault="true">
+                    <volumeGroups>
+                        <group>
+                            <device address="tertiary_zone_bus_100">
+                                <context context="music"/>
+                                <context context="navigation"/>
+                                <context context="voice_command"/>
+                                <context context="call_ring"/>
+                                <context context="call"/>
+                                <context context="alarm"/>
+                                <context context="system_sound"/>
+                                <context context="notification"/>
+                                <context context="emergency"/>
+                                <context context="safety"/>
+                                <context context="vehicle_status"/>
+                                <context context="announcement"/>
+                            </device>
+                        </group>
+                    </volumeGroups>
+                </zoneConfig>
+                <zoneConfig  name="tertiary zone config 2">
+                    <volumeGroups>
+                        <group>
+                            <device address="tertiary_zone_bus_200">
+                                <context context="music"/>
+                                <context context="navigation"/>
+                                <context context="voice_command"/>
+                                <context context="call_ring"/>
+                                <context context="call"/>
+                                <context context="alarm"/>
+                                <context context="system_sound"/>
+                                <context context="notification"/>
+                                <context context="emergency"/>
+                                <context context="safety"/>
+                                <context context="vehicle_status"/>
+                                <context context="announcement"/>
+                            </device>
+                        </group>
+                    </volumeGroups>
+                </zoneConfig>
+            </zoneConfigs>
+        </zone>
+    </zones>
+</carAudioConfiguration>

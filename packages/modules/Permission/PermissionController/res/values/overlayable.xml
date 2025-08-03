@@ -1,0 +1,546 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2019 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources>
+
+    <!-- TODO(evanseverson) rename this overlayable -->
+    <overlayable name="PermissionControllerStyles">
+
+        <policy type="product|system|vendor|odm|oem">
+
+            <!-- START HELP LINKS -->
+            <item type="string" name="help_app_permissions" />
+            <item type="string" name="data_sharing_help_center_link" />
+            <item type="string" name="help_url_action_disabled_by_restricted_settings" />
+            <!-- END HELP LINKS -->
+
+            <!-- START PERMISSION GRANT DIALOG -->
+            <item type="style" name="PermissionGrantScrollView" />
+            <item type="style" name="PermissionGrantSingleton" />
+            <item type="style" name="PermissionGrantDialog" />
+
+            <item type="style" name="PermissionGrantContent" />
+            <item type="style" name="PermissionGrantDescription" />
+            <item type="style" name="PermissionGrantTitleIcon" />
+            <item type="style" name="PermissionGrantTitleMessage" />
+            <item type="style" name="PermissionGrantDetailMessage" />
+
+            <item type="style" name="PermissionGrantPermissionRationaleContent" />
+            <item type="style" name="PermissionGrantPermissionRationaleIcon" />
+            <item type="style" name="PermissionGrantPermissionRationaleMessage" />
+            <item type="style" name="PermissionGrantPermissionRationaleMoreInfoIcon" />
+
+            <item type="color" name="permission_rationale_overview_background" />
+
+            <item type="style" name="PermissionLocationAccuracyRadioGroupMaterial3" />
+            <item type="style" name="PermissionLocationAccuracyFineImageViewMaterial3" />
+            <item type="style" name="PermissionLocationAccuracyCoarseImageViewMaterial3" />
+
+            <item type="style" name="PermissionLocationAccuracyRadioFine" />
+            <item type="style" name="PermissionLocationAccuracyRadioCoarse" />
+
+            <item type="style" name="PermissionGrantButtonList" />
+            <item type="style" name="PermissionGrantButtonBarSpace" />
+            <item type="style" name="PermissionGrantButton" />
+
+            <item type="style" name="PermissionGrantButtonTop" />
+            <item type="style" name="PermissionGrantButtonMiddle" />
+            <item type="style" name="PermissionGrantButtonBottom" />
+            <item type="style" name="PermissionGrantDialogMaterial3" />
+            <item type="style" name="PermissionGrantTitleIconMaterial3" />
+            <item type="style" name="PermissionGrantButtonListMaterial3" />
+            <item type="style" name="PermissionGrantButtonAllowMaterial3" />
+            <item type="style" name="PermissionGrantButtonAllowForegroundMaterial3" />
+            <item type="style" name="PermissionGrantButtonAllowOneTimeMaterial3" />
+            <item type="style" name="PermissionGrantButtonAllowSelectedMaterial3" />
+            <item type="style" name="PermissionGrantButtonAllowAllMaterial3" />
+            <item type="style" name="PermissionGrantButtonDenyMaterial3" />
+            <item type="style" name="PermissionGrantButtonNoUpgradeMaterial3" />
+            <item type="style" name="PermissionGrantButtonDontAllowMoreMaterial3" />
+
+            <!-- Used in V30 only -->
+
+            <item type="style" name="PermissionLocationAccuracyFineImageView" />
+            <item type="style" name="PermissionLocationAccuracyCoarseImageView" />
+
+            <item type="style" name="PermissionGrantButtonAllow" />
+            <item type="style" name="PermissionGrantButtonAllowForeground" />
+            <item type="style" name="PermissionGrantButtonAllowOneTime" />
+            <item type="style" name="PermissionGrantButtonAllowSelected" />
+            <item type="style" name="PermissionGrantButtonAllowAll" />
+            <item type="style" name="PermissionGrantButtonDeny" />
+            <item type="style" name="PermissionGrantButtonNoUpgrade" />
+            <item type="style" name="PermissionGrantButtonDontAllowMore" />
+
+            <!-- END Used in V30 only -->
+
+            <!-- END PERMISSION GRANT DIALOG -->
+
+            <!-- START PERMISSION RATIONALE DIALOG -->
+
+            <item type="style" name="PermissionRationaleScrollView" />
+            <item type="style" name="PermissionRationaleSingleton" />
+            <item type="style" name="PermissionRationaleDialog" />
+            <item type="style" name="PermissionRationaleContent" />
+
+            <item type="style" name="PermissionRationaleTitleContainer" />
+            <item type="style" name="PermissionRationaleTitleIcon" />
+            <item type="style" name="PermissionRationaleTitleMessage" />
+
+            <item type="style" name="PermissionRationaleSectionOuterContainer" />
+            <item type="style" name="PermissionRationaleSectionIcon" />
+            <item type="style" name="PermissionRationaleSectionInnerContainer" />
+            <item type="style" name="PermissionRationaleSectionTitle" />
+            <item type="style" name="PermissionRationaleSectionMessage" />
+
+            <item type="style" name="PermissionRationaleButtonContainer" />
+            <item type="style" name="PermissionRationaleBackButton" />
+
+            <item type="color" name="permission_rationale_accent_primary_variant" />
+
+            <!-- END PERMISSION RATIONALE DIALOG -->
+
+            <!-- START PERMISSION REVIEW SCREEN -->
+            <item type="style" name="PermissionReview" />
+
+            <item type="style" name="PermissionReviewDescription" />
+            <item type="style" name="PermissionReviewTitleIcon" />
+            <item type="style" name="PermissionReviewTitleMessage" />
+
+            <item type="style" name="PermissionReviewSettings" />
+            <item type="style" name="PermissionReviewSwitchStyle" />
+
+            <item type="style" name="PermissionReviewButtonBar" />
+            <item type="style" name="PermissionReviewButtonBarSpace" />
+            <item type="style" name="PermissionReviewButton" />
+            <item type="style" name="PermissionReviewButtonMoreInfo" />
+            <item type="style" name="PermissionReviewButtonCancel" />
+            <item type="style" name="PermissionReviewButtonContinue" />
+            <!-- END PERMISSION REVIEW SCREEN -->
+
+            <!-- START PERMISSIONS FRAME -->
+            <item type="style" name="PermissionsFrameNoPermissionsText" />
+            <!-- END PERMISSIONS FRAME -->
+
+            <!-- START HEADER -->
+            <item type="style" name="Header" />
+            <item type="style" name="HeaderIcon" />
+            <item type="style" name="HeaderName" />
+            <item type="style" name="HeaderInfo" />
+            <!-- END HEADER -->
+
+            <!-- START APP PERMISSION SCREEN -->
+            <item type="style" name="AppPermission" />
+
+            <item type="style" name="LargeHeader" />
+            <item type="style" name="LargeHeaderText" />
+            <item type="style" name="LargeHeaderLink" />
+            <item type="style" name="LargeHeaderDivider" />
+
+            <item type="style" name="AppPermissionRationaleContainer"/>
+            <item type="style" name="AppPermissionRationaleContent"/>
+            <item type="style" name="AppPermissionRationaleTextContent"/>
+            <item type="style" name="AppPermissionRationaleTitle"/>
+            <item type="style" name="AppPermissionRationaleSubtitle"/>
+            <item type="style" name="AppPermissionRationaleIcon"/>
+
+            <item type="style" name="AppPermissionSelection" />
+            <item type="style" name="AppPermissionMessage" />
+            <item type="style" name="AppPermissionRadioButton" />
+            <item type="style" name="AppPermissionDetails" />
+            <item type="style" name="AppPermissionTwoTargetDivider" />
+            <item type="style" name="AppPermissionWidgetFrame" />
+
+            <item type="style" name="AppPermissionFooter" />
+            <item type="style" name="AppPermissionFooterDivider" />
+            <item type="style" name="AppPermissionFooterText" />
+            <item type="style" name="AppPermissionFooterLink" />
+            <item type="style" name="AppPermissionFooterTextWithIcon" />
+            <!-- END APP PERMISSION SCREEN -->
+
+            <!-- START PERMISSION FILTER SCREEN -->
+            <item type="style" name="PermissionFilterDialogContainer" />
+            <item type="style" name="PermissionFilterDialogTitleContainer" />
+            <item type="style" name="PermissionFilterDialogTitle" />
+            <item type="style" name="PermissionFilterDialogScrollView" />
+            <item type="style" name="PermissionFilterDialogInnerContainer" />
+            <item type="style" name="PermissionFilterDialogItemsContainer" />
+            <item type="style" name="PermissionFilterDialogItemContainer" />
+            <item type="style" name="PermissionFilterDialogItemTextFrame" />
+            <item type="style" name="PermissionFilterDialogItemTitle" />
+            <item type="style" name="PermissionFilterDialogItemSummary" />
+            <!-- END PERMISSION FILTER SCREEN -->
+
+            <!-- START PREFERENCE USAGE -->
+            <item type="style" name="PreferenceUsage" />
+            <item type="style" name="PreferenceUsageTitleWidgetFrame" />
+            <item type="style" name="PreferenceUsageImageFrame" />
+            <item type="style" name="PreferenceUsageTitle" />
+            <item type="style" name="PreferenceUsageSummaryWidgetFrame" />
+            <item type="style" name="PreferenceUsageSummary" />
+            <item type="style" name="PreferenceUsageWidgetFrame" />
+            <!-- END PREFERENCE USAGE -->
+
+            <!-- START AUTO REVOKE SCREEN -->
+
+            <item type="style" name="SettingsActionButton" />
+
+            <!-- END AUTO REVOKE SCREEN -->
+
+            <!-- START TITLE SUMMARY IMAGE VIEW -->
+            <item type="style" name="TitleSummaryImageViewIcon" />
+            <!-- END TITLE SUMMARY IMAGE VIEW -->
+
+            <!-- START IMAGE VIEW -->
+            <item type="style" name="ImageView" />
+            <item type="style" name="ImageViewIcon" />
+            <!-- END IMAGE VIEW -->
+
+            <!-- START LOADING CONTAINER -->
+            <item type="style" name="LoadingContainerTextView" />
+            <!-- END LOADING CONTAINER -->
+
+            <!-- START ONGOING USAGE DIALOG -->
+            <item type="style" name="PermissionUsageDialogContainerScrollView" />
+            <item type="style" name="PermissionUsageDialogContainerLayout" />
+            <item type="style" name="PermissionUsageDialogTitle" />
+            <item type="style" name="PermissionUsageDialogItemsContainer" />
+
+            <item type="style" name="PermissionUsageDialogItemContainer" />
+            <item type="style" name="PermissionUsageDialogItemIconFrame" />
+            <item type="style" name="PermissionUsageDialogItemIcon" />
+            <item type="style" name="PermissionUsageDialogAppAndPermissions" />
+            <item type="style" name="PermissionUsageDialogItemAppName" />
+            <item type="style" name="PermissionUsageDialogItemPermissionsList" />
+            <item type="style" name="PermissionUsageDialogItemIconsContainer" />
+            <item type="style" name="PermissionUsageDialogOtherUseHeader" />
+            <item type="style" name="PermissionUsageDialogOtherUseContent" />
+            <item type="style" name="PermissionUsageDialogOtherUseInsideSpacer" />
+            <item type="style" name="PermissionUsageDialogSystemUseContent" />
+            <!-- END ONGOING USAGE DIALOG -->
+
+            <!-- START REQUEST ROLE DIALOG TITLE -->
+            <item type="style" name="RequestRoleTitle" />
+            <item type="style" name="RequestRoleTitleIcon" />
+            <item type="style" name="RequestRoleTitleText" />
+            <!-- END REQUEST ROLE DIALOG TITLE -->
+
+            <!-- START REQUEST ROLE DIALOG ITEM -->
+            <item type="style" name="RequestRoleItem" />
+            <item type="style" name="RequestRoleItemIcon" />
+            <item type="style" name="RequestRoleItemTitleLayout" />
+            <item type="style" name="RequestRoleItemTitleText" />
+            <item type="style" name="RequestRoleItemSubtitleText" />
+            <item type="style" name="RequestRoleItemRadioButton" />
+            <!-- END REQUEST ROLE DIALOG ITEM -->
+
+            <!-- START REQUEST ROLE DIALOG VIEW -->
+            <item type="style" name="RequestRoleView" />
+            <item type="style" name="RequestRoleViewListView" />
+            <item type="style" name="RequestRoleViewCheckbox" />
+            <!-- END REQUEST ROLE DIALOG VIEW -->
+
+            <!-- START SETTINGS BUTTON PREFERENCE WIDGET -->
+            <item type="style" name="SettingsButtonPreferenceWidgetDivider" />
+            <item type="style" name="SettingsButtonPreferenceWidgetButton" />
+            <!-- END SETTINGS BUTTON PREFERENCE WIDGET -->
+
+            <!-- START ACCESSIBILITY SERVICE DIALOG -->
+            <item type="style" name="AccessibilityServiceDialogScrollView" />
+            <item type="style" name="AccessibilityServiceDialog" />
+            <item type="style" name="AccessibilityServiceDialogHeader" />
+            <item type="style" name="AccessibilityServiceDialogHeaderIcon" />
+            <item type="style" name="AccessibilityServiceDialogTitle" />
+
+            <item type="style" name="AccessibilityServiceDialogItemsContainer" />
+            <item type="style" name="AccessibilityServiceDialogMiddleText" />
+            <item type="style" name="AccessibilityServiceDialogBottomText" />
+            <!-- END ACCESSIBILITY SERVICE DIALOG -->
+
+            <!-- START ACCESSIBILITY SERVICE DIALOG ITEM -->
+            <item type="style" name="AccessibilityServiceDialogItem" />
+            <item type="style" name="AccessibilityServiceDialogItemIcon" />
+            <item type="style" name="AccessibilityServiceDialogItemDescription" />
+            <item type="style" name="AccessibilityServiceDialogItemTitle" />
+            <item type="style" name="AccessibilityServiceDialogItemSummary" />
+            <!-- END ACCESSIBILITY SERVICE DIALOG ITEM -->
+
+            <!-- START LOCATION ACCESS CHECK PIN DROP -->
+            <item type="color" name="system_notification_accent_color" />
+            <!-- END LOCATION ACCESS CHECK PIN DROP -->
+
+            <!-- START SETTINGSLIB APPPREFERENCE -->
+            <!-- DIMEN -->
+            <item type="dimen" name="secondary_app_icon_size" />
+            <!-- END SETTINGSLIB APPPREFERENCE -->
+
+            <!-- START THEMES -->
+            <item type="style" name="Settings" />
+            <item type="style" name="TextAppearance.CategoryTitle" />
+            <item type="style" name="ReviewPermissions" />
+            <item type="style" name="GrantPermissions" />
+            <item type="style" name="Header.Settings" />
+            <item type="style" name="RequestRole" />
+            <item type="style" name="Theme.PermissionGrantDialog" />
+            <item type="style" name="PermissionDialog" />
+            <!-- END THEMES -->
+
+            <!-- START VISIBILITY CONFIGS -->
+            <!-- Assistant role uses: config_showDefaultAssistant -->
+            <!-- Home role uses: config_showDefaultHome -->
+            <!-- Emergency role uses: config_showDefaultEmergency -->
+            <item type="bool" name="config_showBrowserRole" />
+            <item type="bool" name="config_showDialerRole" />
+            <item type="bool" name="config_showSmsRole" />
+            <!-- END VISIBILITY CONFIGS -->
+
+            <!-- START CAR DIMENS -->
+            <item type="dimen" name="car_action_bar_height" />
+            <item type="dimen" name="car_margin" />
+            <item type="dimen" name="car_icon_size" />
+            <item type="dimen" name="car_preference_icon_size" />
+            <item type="dimen" name="car_preference_row_vertical_margin" />
+            <item type="dimen" name="car_radius_1" />
+            <!-- END CAR DIMENS -->
+
+            <!-- START CAR COLORS -->
+            <item type="color" name="car_accent" />
+            <item type="color" name="car_card_ripple_background" />
+            <item type="color" name="car_tint" />
+            <item type="color" name="car_divider_color" />
+            <!-- END CAR COLORS -->
+
+            <!-- START CAR THEMES -->
+            <item type="style" name="CarSettings" />
+            <!-- END CAR THEMES -->
+
+            <!-- START LAYOUTPREFERENCE -->
+            <item type="style" name="TextAppearance.EntityHeaderTitle" />
+            <!-- END LAYOUTPREFERENCE -->
+
+            <!-- START GENERAL CONFIGS -->
+            <item type="bool" name="config_useAlternativePermGroupSummary" />
+            <item type="bool" name="config_useMaterial3PermissionGrantDialog" />
+            <item type="string" name="config_headlineFontFamily" />
+            <!-- END GENERAL CONFIGS -->
+
+            <!-- START WARNING BANNER PREFERENCE STYLE -->
+            <item type="style" name="WarningBannerMainContainer" />
+            <item type="style" name="WarningBannerCardView" />
+            <item type="style" name="WarningBannerIcon" />
+            <item type="style" name="WarningBannerDimensions" />
+            <item type="style" name="WarningBannerText" />
+            <item type="style" name="WarningBannerTitle" />
+            <item type="style" name="WarningBannerSummary" />
+            <item type="style" name="WarningBannerButton" />
+            <item type="style" name="WarningBannerWidgetFrame" />
+            <!-- END WARNING BANNER PREFERENCE STYLE -->
+
+            <!-- START PRIVACY CONTROLS CONFIGS -->
+            <item type="string" name="camera_toggle_enable_config"/>
+            <item type="string" name="mic_toggle_enable_config"/>
+            <item type="string" name="clipboard_show_access_notifications_config"/>
+            <item type="string" name="show_access_notifications_default_config"/>
+            <item type="bool" name="config_display_show_password_toggle"/>
+            <!-- END PRIVACY CONTROLS CONFIGS -->
+
+            <!-- START SAFETY LABELS STYLE -->
+            <item type="style" name="AppDataSharingDetailsContainer" />
+            <item type="style" name="AppDataSharingDetailsTextAppearance" />
+            <item type="style" name="AppDataSharingDetailsMessage" />
+            <item type="style" name="AppDataSharingNoUpdatesTextAppearance" />
+            <item type="style" name="AppDataSharingNoUpdatesMessage" />
+            <item type="style" name="AppDataSharingUpdatesFooterContainer" />
+            <item type="style" name="AppDataSharingUpdatesFooterIconFrame" />
+            <item type="style" name="AppDataSharingUpdatesFooterIcon" />
+            <item type="style" name="AppDataSharingUpdatesFooterTextAppearance" />
+            <item type="style" name="AppDataSharingUpdatesFooterMessage" />
+            <item type="style" name="AppDataSharingUpdatesFooterLink" />
+            <item type="style" name="AppDataSharingUpdatePreference" />
+            <item type="style" name="AppDataSharingUpdateAppIconFrame" />
+            <item type="style" name="AppDataSharingUpdateAppIcon" />
+            <item type="style" name="AppDataSharingUpdatePreferenceTitleAndSummaryContainer" />
+            <item type="style" name="AppDataSharingUpdatePreferenceTitle" />
+            <item type="style" name="AppDataSharingUpdatePreferenceSummary" />
+            <item type="style" name="AppDataSharingUpdateSettingsIconFrame" />
+            <item type="style" name="AppDataSharingUpdateSettingsIcon" />
+            <!-- END SAFETY LABELS STYLE -->
+
+        </policy>
+
+    </overlayable>
+
+    <overlayable name="SafetyCenterStyles">
+        <policy type="product|system|vendor|odm|oem">
+            <item type="style" name="Theme.SafetyCenterQs" />
+            <item type="style" name="Theme.SafetyCenter" />
+
+            <item type="dimen" name="sc_spacing_xxxsmall" />
+            <item type="dimen" name="sc_spacing_xxsmall" />
+            <item type="dimen" name="sc_spacing_xsmall" />
+            <item type="dimen" name="sc_spacing_small" />
+            <item type="dimen" name="sc_spacing_medium" />
+            <item type="dimen" name="sc_spacing_large" />
+            <item type="dimen" name="sc_spacing_xlarge" />
+            <item type="dimen" name="sc_spacing_xxlarge" />
+            <item type="dimen" name="sc_spacing_xxxlarge" />
+            <item type="dimen" name="sc_card_margin" />
+            <item type="dimen" name="sc_list_margin" />
+            <item type="dimen" name="sc_list_margin_top" />
+            <item type="dimen" name="sc_action_button_list_margin" />
+            <item type="dimen" name="sc_top_action_button_margin" />
+            <item type="dimen" name="sc_entry_padding_end" />
+            <item type="dimen" name="sc_entry_group_expanded_padding_top" />
+            <item type="dimen" name="sc_entry_group_expanded_padding_bottom" />
+            <item type="dimen" name="sc_entry_group_collapsed_padding_top" />
+            <item type="dimen" name="sc_entry_group_collapsed_padding_bottom" />
+            <item type="dimen" name="sc_card_margin_bottom" />
+            <item type="dimen" name="sc_button_corner_radius" />
+            <item type="dimen" name="sc_button_corner_radius_small" />
+            <item type="dimen" name="sc_card_corner_radius_large" />
+            <item type="dimen" name="sc_card_corner_radius_medium" />
+            <item type="dimen" name="sc_card_corner_radius_xsmall" />
+            <item type="dimen" name="sc_card_widget_corner_radius" />
+            <item type="dimen" name="sc_brand_chip_corner_radius" />
+            <item type="dimen" name="sc_brand_chip_padding" />
+
+            <item type="color" name="safety_center_button_info" />
+            <item type="color" name="safety_center_button_recommend" />
+            <item type="color" name="safety_center_button_warn" />
+            <item type="color" name="safety_center_outline_button_info" />
+            <item type="color" name="safety_center_outline_button_recommend" />
+            <item type="color" name="safety_center_outline_button_warn" />
+            <item type="color" name="sc_surface_light" />
+            <item type="color" name="sc_surface_dark" />
+            <item type="color" name="sc_surface_variant_light" />
+            <item type="color" name="sc_surface_variant_dark" />
+            <item type="color" name="sc_accent_primary_light" />
+            <item type="color" name="sc_accent_primary_dark" />
+            <item type="color" name="sc_shield_accent" />
+            <item type="color" name="sc_shield_accent_dark" />
+            <item type="color" name="sc_shield_accent_fixed_variant" />
+            <item type="color" name="safety_center_info" />
+            <item type="color" name="safety_center_recommend" />
+            <item type="color" name="safety_center_warn" />
+
+            <item type="color" name="sc_status_info_light" />
+            <item type="color" name="sc_status_recommend_light" />
+            <item type="color" name="sc_status_warn_light" />
+            <item type="color" name="sc_status_info_dark" />
+            <item type="color" name="sc_status_recommend_dark" />
+            <item type="color" name="sc_status_warn_dark" />
+            <item type="color" name="sc_status_background_info_light" />
+            <item type="color" name="sc_status_background_recommend_light" />
+            <item type="color" name="sc_status_background_warn_light" />
+            <item type="color" name="sc_status_background_info_dark" />
+            <item type="color" name="sc_status_background_recommend_dark" />
+            <item type="color" name="sc_status_background_warn_dark" />
+            <item type="color" name="sc_icon_info_light" />
+            <item type="color" name="sc_icon_recommend_light" />
+            <item type="color" name="sc_icon_warn_light" />
+            <item type="color" name="sc_icon_null_light" />
+            <item type="color" name="sc_icon_info_dark" />
+            <item type="color" name="sc_icon_recommend_dark" />
+            <item type="color" name="sc_icon_warn_dark" />
+            <item type="color" name="sc_icon_null_dark" />
+
+            <item type="drawable" name="ic_check" />
+            <item type="drawable" name="ic_chevron_right" />
+            <item type="drawable" name="ic_collapse_issues" />
+            <item type="drawable" name="ic_expand_issues" />
+            <item type="drawable" name="ic_expand_less" />
+            <item type="drawable" name="ic_expand_more" />
+            <item type="drawable" name="ic_privacy" />
+            <item type="drawable" name="ic_safety_center_shield" />
+            <item type="drawable" name="ic_safety_empty" /> <!-- rename -->
+            <item type="drawable" name="ic_safety_group_collapse" />
+            <item type="drawable" name="ic_safety_group_expand" />
+            <item type="drawable" name="ic_safety_info" />
+            <item type="drawable" name="ic_safety_issue_dismiss" />
+            <item type="drawable" name="ic_safety_null_state" />
+            <item type="drawable" name="ic_safety_recommendation" />
+            <item type="drawable" name="ic_safety_warn" />
+            <item type="drawable" name="ic_settings_gear" />
+            <item type="drawable" name="ic_settings_info" />
+            <item type="drawable" name="indicator_background_circle" />
+            <item type="drawable" name="more_issues_collapse_anim" />
+            <item type="drawable" name="more_issues_expand_anim" />
+            <item type="drawable" name="safety_center_card_background" />
+            <item type="drawable" name="safety_center_card_widget_background" />
+            <item type="drawable" name="safety_center_group_collapse_anim" />
+            <item type="drawable" name="safety_center_group_expand_anim" />
+            <item type="drawable" name="safety_center_issue_resolved_avd" />
+            <item type="drawable" name="safety_center_more_issues_card_background" />
+            <item type="drawable" name="safety_entity_top_flat_bottom_flat_background" />
+            <item type="drawable" name="safety_entity_top_flat_bottom_large_background" />
+            <item type="drawable" name="safety_entity_top_flat_bottom_small_background" />
+            <item type="drawable" name="safety_entity_top_large_bottom_flat_background" />
+            <item type="drawable" name="safety_entity_top_large_bottom_large_background" />
+            <item type="drawable" name="safety_entity_top_large_bottom_small_background" />
+            <item type="drawable" name="safety_entity_top_small_bottom_flat_background" />
+            <item type="drawable" name="safety_entity_top_small_bottom_large_background" />
+            <item type="drawable" name="safety_entity_top_small_bottom_small_background" />
+            <item type="drawable" name="safety_entry_icon_action_background" />
+            <item type="drawable" name="safety_group_entry_background" />
+            <item type="drawable" name="safety_status_info" />
+            <item type="drawable" name="safety_status_info_to_info_anim" />
+            <item type="drawable" name="safety_status_recommend_to_info_anim" />
+            <item type="drawable" name="safety_status_recommendation" />
+            <item type="drawable" name="safety_status_small_info_to_info_anim" />
+            <item type="drawable" name="safety_status_small_info_to_recommendation_anim" />
+            <item type="drawable" name="safety_status_small_info_to_warn_anim" />
+            <item type="drawable" name="safety_status_small_recommendation_to_info_anim" />
+            <item type="drawable" name="safety_status_small_recommendation_to_recommendation_anim" />
+            <item type="drawable" name="safety_status_small_recommendation_to_warn_anim" />
+            <item type="drawable" name="safety_status_small_warn_to_info_anim" />
+            <item type="drawable" name="safety_status_small_warn_to_recommendation_anim" />
+            <item type="drawable" name="safety_status_small_warn_to_warn_anim" />
+            <item type="drawable" name="safety_status_warn" />
+            <item type="drawable" name="safety_status_warn_to_info_anim" />
+            <item type="drawable" name="safety_status_warn_to_recommend_anim" />
+            <item type="drawable" name="status_info_to_scanning_anim" />
+            <item type="drawable" name="status_recommend_to_scanning_anim" />
+            <item type="drawable" name="status_scanning_anim_info" />
+            <item type="drawable" name="status_scanning_anim_recommend" />
+            <item type="drawable" name="status_scanning_anim_warn" />
+            <item type="drawable" name="status_scanning_end_anim_info_to_info" />
+            <item type="drawable" name="status_scanning_end_anim_info_to_recommend" />
+            <item type="drawable" name="status_scanning_end_anim_info_to_warn" />
+            <item type="drawable" name="status_scanning_end_anim_recommend_to_info" />
+            <item type="drawable" name="status_scanning_end_anim_recommend_to_recommend" />
+            <item type="drawable" name="status_scanning_end_anim_recommend_to_warn" />
+            <item type="drawable" name="status_scanning_end_anim_warn_to_info" />
+            <item type="drawable" name="status_scanning_end_anim_warn_to_recommend" />
+            <item type="drawable" name="status_scanning_end_anim_warn_to_warn" />
+            <item type="drawable" name="status_warn_to_scanning_anim" />
+            <item type="drawable" name="safety_center_brand_chip_background" />
+            <item type="drawable" name="ic_safety_center_brand_chip" />
+
+            <item type="style" name="TextAppearance.SafetyCenter.Headline" />
+            <item type="style" name="TextAppearance.SafetyCenter.Headline.Status" />
+            <item type="style" name="TextAppearance.SafetyCenter.Headline.Issue" />
+            <item type="style" name="TextAppearance.SafetyCenter.Headline.Entry" />
+            <item type="style" name="TextAppearance.SafetyCenter.Body" />
+            <item type="style" name="TextAppearance.SafetyCenter.IssueAttribution" />
+            <item type="style" name="TextAppearance.SafetyCenter.Medium" />
+            <item type="style" name="TextAppearance.SafetyCenter.IssueSubtitle" />
+            <item type="style" name="TextAppearance.SafetyCenter.ActionButton" />
+            <item type="style" name="TextAppearance.SafetyCenter.ActionButton.Secondary" />
+            <item type="style" name="TextAppearance.SafetyCenter.BrandChip" />
+        </policy>
+    </overlayable>
+
+</resources>

@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2006 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label">ปฏิทิน</string>
+    <string name="when_label">เมื่อใด</string>
+    <string name="today">วันนี้</string>
+    <string name="tomorrow">วันพรุ่งนี้</string>
+    <string name="today_at_time_fmt">"วันนี้เวลา <xliff:g id="TIME_INTERVAL">%s</xliff:g>"</string>
+    <string name="tomorrow_at_time_fmt">"พรุ่งนี้เวลา <xliff:g id="TIME_INTERVAL">%s</xliff:g>"</string>
+    <string name="date_time_fmt">"<xliff:g id="DATE">%1$s</xliff:g>, <xliff:g id="TIME_INTERVAL">%2$s</xliff:g>"</string>
+    <string name="no_title_label">(ไม่มีชื่อ)</string>
+    <plurals name="Nminutes">
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> นาที</item>
+    </plurals>
+    <plurals name="Nmins">
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> นาที</item>
+    </plurals>
+    <plurals name="Nhours">
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> ชั่วโมง</item>
+    </plurals>
+    <plurals name="Ndays">
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> วัน</item>
+    </plurals>
+    <plurals name="weekN">
+        <item quantity="other">สัปดาห์ที่ <xliff:g id="count">%d</xliff:g></item>
+    </plurals>
+    <string name="calendar_refresh">"โหลดใหม่"</string>
+    <string name="show_day_view">"แสดงวัน"</string>
+    <string name="agenda_view">"กำหนดการ"</string>
+    <string name="day_view">"วัน"</string>
+    <string name="week_view">"สัปดาห์"</string>
+    <string name="month_view">"เดือน"</string>
+    <string name="event_view">"ดูกิจกรรม"</string>
+    <string name="event_create">"กิจกรรมใหม่"</string>
+    <string name="event_edit">"แก้ไขกิจกรรม"</string>
+    <string name="event_delete">"ลบกิจกรรม"</string>
+    <string name="share_label">แชร์</string>
+    <string name="goto_today">"วันนี้"</string>
+    <string name="goto_date">ไปที่\u2026</string>
+    <string name="menu_preferences">"การตั้งค่า"</string>
+    <string name="search">"ค้นหา"</string>
+    <string name="hide_controls">"ซ่อนปุ่มควบคุม"</string>
+    <string name="show_controls">"แสดงปุ่มควบคุม"</string>
+    <string name="view_settings">"แสดงการตั้งค่า"</string>
+    <string name="select_synced_calendars_button">ปฏิทินที่จะซิงค์</string>
+    <string name="hint_what">"ชื่อกิจกรรม"</string>
+    <string name="hint_where">"สถานที่ตั้ง"</string>
+    <string name="hint_description">"คำอธิบาย"</string>
+    <string name="hint_attendees">"แขก"</string>
+    <string name="creating_event">"สร้างกิจกรรมแล้ว"</string>
+    <string name="saving_event">"บันทึกกิจกรรมแล้ว"</string>
+    <string name="empty_event">"ไม่ได้สร้างกิจกรรมเปล่า"</string>
+    <string name="creating_event_with_guest">"จะมีการส่งข้อความเชิญ"</string>
+    <string name="saving_event_with_guest">"จะมีการส่งการอัปเดต"</string>
+    <string name="rsvp_accepted">"ตอบไปแล้วว่าไป"</string>
+    <string name="rsvp_tentative">"ตอบว่าอาจจะไป"</string>
+    <string name="rsvp_declined">"ตอบว่าไม่ไป"</string>
+    <string name="create_event_dialog_save">บันทึก</string>
+    <string name="alert_title">การแจ้งเตือนของปฏิทิน</string>
+    <string name="event_info_title">ดูกิจกรรม</string>
+    <string name="event_info_title_invite">คำเชิญเข้าประชุม</string>
+    <string name="edit_event_all_day_label">ตลอดทั้งวัน</string>
+    <string name="edit_event_calendar_label">ปฏิทิน</string>
+    <string name="presence_label">แสดงสถานะว่าฉัน</string>
+    <string name="privacy_label">ข้อมูลส่วนบุคคล</string>
+    <string name="reminders_label">เพิ่มการแจ้งเตือน</string>
+    <string name="no_syncable_calendars">ไม่มีปฏิทิน</string>
+    <string name="view_event_calendar_label">ปฏิทิน:</string>
+    <string name="view_event_organizer_label">ผู้จัด:</string>
+    <string name="choose_event_color_label">เลือกสีของกิจกรรม</string>
+    <string name="event_color_picker_dialog_title">สีของกิจกรรม</string>
+    <string name="event_color_set_to_default">ตั้งเป็นสีเริ่มต้นของปฏิทิน</string>
+    <string name="calendar_color_picker_dialog_title">สีปฏิทิน</string>
+    <string name="calendar_square_color_picker_description">ตัวเลือกสี</string>
+    <string name="view_event_response_label">ต้องการเข้าร่วมหรือไม่</string>
+    <string name="response_yes">ใช่</string>
+    <string name="response_maybe">ไม่แน่</string>
+    <string name="response_no">ไม่</string>
+    <string name="email_guests_label">ส่งอีเมลถึงผู้เข้าร่วม</string>
+    <string name="email_organizer_label">ส่งอีเมลถึงผู้จัด</string>
+    <string name="email_picker_label">ส่งอีเมลด้วย</string>
+    <string name="event_not_found">"ไม่พบกิจกรรม"</string>
+    <string name="map_label">แผนที่</string>
+    <string name="no_map">ไม่มีแอปแผนที่ถูกติดตั้ง</string>
+    <string name="call_label">โทร</string>
+    <string name="quick_response_settings">คำตอบด่วน</string>
+    <string name="quick_response_settings_summary">แก้ไขคำตอบเริ่มต้น</string>
+    <string name="quick_response_settings_edit_title">คำตอบด่วน</string>
+    <string name="quick_response_dialog_title">เลือกคำตอบด่วน</string>
+    <string name="quick_response_email_failed">การค้นหาโปรแกรมอีเมลล้มเหลว</string>
+    <string-array name="quick_response_defaults">
+        <item>อาจไปถึงช้านิดหน่อย</item>
+        <item>อีกประมาณ 10 นาทีน่าจะถึง</item>
+        <item>เริ่มไปเลย ไม่ต้องรอ</item>
+        <item>ขอโทษด้วยที่ไปไม่ได้ เราคงต้องนัดเวลากันใหม่</item>
+    </string-array>
+    <string name="quick_response_custom_msg">เขียนคำตอบของคุณเอง…</string>
+    <string name="event_info_organizer">ผู้จัด:</string>
+    <string name="event_info_reminders_label">การแจ้งเตือน</string>
+    <string name="agenda_today">วันนี้ <xliff:g id="date">%1$s</xliff:g></string>
+    <string name="agenda_yesterday">เมื่อวาน <xliff:g id="date">%1$s</xliff:g></string>
+    <string name="agenda_tomorrow">พรุ่งนี้ <xliff:g id="date">%1$s</xliff:g></string>
+    <string name="loading">กำลังโหลด…</string>
+    <string name="show_older_events">แตะเพื่อดูกิจกรรมก่อนหน้า <xliff:g id="OLDEST_SEARCH_RANGE">%1$s</xliff:g></string>
+    <string name="show_newer_events">แตะเพื่อดูกิจกรรมหลังจาก <xliff:g id="NEWEST_SEARCH_RANGE">%1$s</xliff:g></string>
+    <string name="search_title">ค้นหาปฏิทินของฉัน</string>
+    <string name="edit_event_label">"รายละเอียด"</string>
+    <string name="edit_label">"แก้ไข"</string>
+    <string name="delete_label">"ลบ"</string>
+    <string name="save_label">เสร็จสิ้น</string>
+    <string name="discard_label">ยกเลิก</string>
+    <string name="dismiss_all_label">"ปิดทั้งหมด"</string>
+    <string name="snooze_label">"ปิดเสียงเตือนชั่วคราว"</string>
+    <string name="does_not_repeat">กิจกรรมที่เกิดขึ้นครั้งเดียว</string>
+    <string name="endByDate">จนถึง <xliff:g id="DATE">%s</xliff:g></string>
+    <plurals name="endByCount">
+        <item quantity="other">รวม <xliff:g id="NUMBER">%d</xliff:g> ครั้ง</item>
+    </plurals>
+    <plurals name="daily">
+        <item quantity="other">ทุก <xliff:g id="NUMBER">%d</xliff:g> วัน</item>
+    </plurals>
+    <string name="every_weekday">"ทุกวันทำการ (จันทร์-ศุกร์)"</string>
+    <plurals name="weekly">
+        <item quantity="other">ทุก <xliff:g id="NUMBER">%1$d</xliff:g> สัปดาห์ใน <xliff:g id="DAYS_OF_WEEK">%2$s</xliff:g></item>
+    </plurals>
+    <string name="monthly">รายเดือน</string>
+    <string name="yearly_plain">รายปี</string>
+    <string name="custom" product="default">"กำหนดเอง (ไม่สามารถกำหนดค่าบนโทรศัพท์)"</string>
+    <string name="modify_event">เปลี่ยนเฉพาะกิจกรรมนี้</string>
+    <string name="modify_all">เปลี่ยนกิจกรรมทั้งหมดในชุด</string>
+    <string name="modify_all_following">เปลี่ยนกิจกรรมนี้และในอนาคตทั้งหมด</string>
+    <string name="new_event_dialog_label">"กิจกรรมใหม่"</string>
+    <string name="new_event_dialog_option">"กิจกรรมใหม่"</string>
+    <string name="delete_this_event_title">ลบกิจกรรมนี้</string>
+    <string name="delete_recurring_event_title">ลบ <xliff:g id="EVENTTITLE">%s</xliff:g> ใช่ไหม</string>
+    <string name="change_response_title">เปลี่ยนการตอบกลับ</string>
+    <string name="preferences_title">"การตั้งค่า"</string>
+    <string name="preferences_general_title">การตั้งค่ามุมมองปฏิทิน</string>
+    <string name="preferences_month_view_portrait">รูปแบบเดือน (แนวตั้ง)</string>
+    <string name="preferences_month_view_landscape">รูปแบบเดือน (แนวนอน)</string>
+    <string name="preferences_theme">ธีม</string>
+    <string name="preferences_light_theme">สว่าง</string>
+    <string name="preferences_dark_theme">มืด</string>
+    <string name="preferences_black_theme">ดำ</string>
+    <string name="preferences_color">สีหลัก</string>
+    <string name="preferences_color_pick">สีหลัก</string>
+    <string name="preferences_reminder_title">การแจ้งเตือน</string>
+    <string name="preferences_hide_declined_title">ซ่อนกิจกรรมที่ปฏิเสธ</string>
+    <string name="default_start_title">มุมมองเริ่มต้น</string>
+    <string name="display_options">แสดงตัวเลือก</string>
+    <string name="display_time">แสดงเวลา</string>
+    <string name="display_location">แสดงสถานที่</string>
+    <string name="maximum_number_of_lines">จำนวนบรรทัดสูงสุดในกิจกรรม</string>
+    <string name="default_start_last">มุมมองที่ใช้ก่อนหน้านี้</string>
+    <string name="preferences_week_start_day_title">สัปดาห์เริ่มต้นวันที่</string>
+    <string name="preferences_week_start_day_dialog">สัปดาห์เริ่มต้นวันที่</string>
+    <string name="preferences_days_per_week_title">วันต่อสัปดาห์</string>
+    <string name="preferences_days_per_week_dialog">วันต่อสัปดาห์</string>
+    <string name="preferences_default_event_duration_title">ค่าเริ่มต้นระยะเวลากิจกรรม</string>
+    <string name="preferences_clear_search_history_title">ล้างประวัติการค้นหา</string>
+    <string name="preferences_clear_search_history_summary">นำการค้นหาทั้งหมดที่คุณได้ดำเนินการแล้วออก</string>
+    <string name="search_history_cleared">ล้างประวัติการค้นหาแล้ว</string>
+    <string name="preferences_alerts_title">การแจ้งเตือน</string>
+    <string name="preferences_alerts_vibrateWhen_title">สั่น</string>
+    <string name="preferences_alerts_ringtone_title">เสียง</string>
+    <string name="preferences_alerts_popup_title">ป๊อปอัปแจ้งเตือน</string>
+    <string name="preferences_default_reminder_title">เวลาการเตือนความจำเริ่มต้น</string>
+    <string name="preferences_default_reminder_dialog">เวลาการเตือนความจำเริ่มต้น</string>
+    <string name="preferences_default_reminder_default">10</string>
+    <string name="preferences_use_home_tz_title">ใช้เขตเวลาท้องถิ่น</string>
+    <string name="preferences_use_home_tz_descrip">แสดงปฏิทินและเวลากิจกรรมตามเขตเวลาท้องถิ่นของคุณขณะเดินทาง</string>
+    <string name="preferences_home_tz_title">เขตเวลาท้องถิ่น</string>
+    <string name="preferences_show_week_num_title">แสดงหมายเลขสัปดาห์</string>
+    <string name="snooze_delay_dialog_title">ตั้งค่าดีเลย์การพักเตือน</string>
+    <string name="preferences_default_snooze_delay_title">ค่าเริ่มต้นเวลาพักการเตือน</string>
+    <string name="preferences_default_snooze_delay_dialog">ค่าเริ่มต้นดีเลย์พักการเตือน</string>
+    <string name="authors">ผู้สร้าง</string>
+    <string name="changelog">ประวัติการเปลี่ยนแปลง</string>
+    <string name="license">สัญญาอนุญาต</string>
+    <string name="preferences_build_version">รุ่น</string>
+    <string name="preferences_issues">รายงานปัญหา</string>
+    <string name="source_code">ซอร์ส</string>
+    <plurals name="month_more_events">
+        <item quantity="other">+<xliff:g id="NUMBER">%d</xliff:g></item>
+    </plurals>
+    <string name="gadget_no_events">ไม่มีกิจกรรมในปฏิทินที่กำลังมาถึง</string>
+    <string name="preferences_experimental_category">ทดลอง</string>
+    <string name="preferences_reminders_responded_label">ข้ามการแจ้งเตือน</string>
+    <string name="preferences_reminders_responded_dialog">ข้ามการแจ้งเตือน</string>
+    <string name="copy_db">ส่งฐานข้อมูล</string>
+    <string name="directory_searching_fmt">กำลังค้นหา <xliff:g id="DOMAIN">%s</xliff:g>…</string>
+    <string name="accessibility_remove_attendee">นำผู้เข้าร่วมออก</string>
+    <string name="accessibility_pick_start_date">วันที่เริ่มต้น</string>
+    <string name="accessibility_pick_start_time">เวลาเริ่มต้น</string>
+    <string name="accessibility_pick_end_date">วันที่สิ้นสุด</string>
+    <string name="accessibility_pick_end_time">เวลาสิ้นสุด</string>
+    <string name="accessibility_pick_time_zone">โซนเวลา</string>
+    <string name="accessibility_pick_recurrence">กิจกรรมที่เกิดซ้ำ</string>
+    <string name="accessibility_add_reminder">เพิ่มการแจ้งเตือน</string>
+    <string name="accessibility_remove_reminder">นำการแจ้งเตือนออก</string>
+    <string name="accessibility_add_attendee">เพิ่มผู้เข้าร่วม</string>
+    <string name="accessibility_all_day">กิจกรรมตลอดวัน</string>
+    <string name="accessibility_reminder_time">เวลาการแจ้งเตือน</string>
+    <string name="accessibility_reminder_type">ประเภทการแจ้งเตือน</string>
+    <string name="accessibility_reminder_showmeas">แสดงสถานะว่าฉัน</string>
+    <string name="accessibility_reminder_privacy">ข้อมูลส่วนบุคคล</string>
+    <string name="day_view_new_event_hint">+ กิจกรรมใหม่</string>
+    <string name="template_announce_item_index">กิจกรรม <xliff:g id="ITEM_INDEX">%1$s</xliff:g> จาก <xliff:g id="ITEM_COUNT">%2$s</xliff:g></string>
+    <plurals name="Nevents">
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> กิจกรรม</item>
+    </plurals>
+    <plurals name="N_remaining_events">
+        <item quantity="other">+<xliff:g id="COUNT">%d</xliff:g> กิจกรรม</item>
+    </plurals>
+    <string name="acessibility_selected_marker_description">กิจกรรมที่เลือก</string>
+    <plurals name="recurrence_interval_daily">
+        <item quantity="other">ทุก <xliff:g id="COUNT">%d</xliff:g> วัน</item>
+    </plurals>
+    <plurals name="recurrence_interval_weekly">
+        <item quantity="other">ทุก <xliff:g id="COUNT">%d</xliff:g> สัปดาห์</item>
+    </plurals>
+    <plurals name="recurrence_interval_monthly">
+        <item quantity="other">ทุก <xliff:g id="COUNT">%d</xliff:g> เดือน</item>
+    </plurals>
+    <plurals name="recurrence_interval_yearly">
+        <item quantity="other">ทุก <xliff:g id="COUNT">%d</xliff:g> ปี</item>
+    </plurals>
+    <string name="recurrence_month_pattern_by_day">ในวันเดียวกันในแต่ละเดือน</string>
+    <string name="recurrence_end_continously">ตลอดไป</string>
+    <string name="recurrence_end_date_label">จนถึงวันที่</string>
+    <string name="recurrence_end_date">จนถึงวันที่ <xliff:g id="DATE">%s</xliff:g></string>
+    <string name="recurrence_end_count_label">กำหนดจำนวนกิจกรรม</string>
+    <plurals name="recurrence_end_count">
+        <item quantity="other">สำหรับกิจกรรม <xliff:g id="EVENT_COUNT">%d</xliff:g> รายการ</item>
+    </plurals>
+    <string name="acessibility_recurrence_choose_end_date_description">เปลี่ยนวันที่สิ้นสุด</string>
+    <string name="user_rejected_calendar_write_permission">ปฏิทินจำเป็นต้องได้รับสิทธิ์ในการอ่านและเขียนปฏิทิน กรุณาลองอีกครั้ง</string>
+    <string name="calendar_permission_not_granted">สิทธิ์ที่จำเป็นถูกปฏิเสธ กรุณาเปิดใช้งานในแอปการตั้งค่าเพื่อแก้ไขกิจกรรม</string>
+    <string name="visibility_default">ค่าเริ่มต้น</string>
+    <string name="visibility_confidential">ความลับ</string>
+    <string name="visibility_private">ส่วนตัว</string>
+    <string name="visibility_public">สาธารณะ</string>
+    <string name="two_days">2 วัน</string>
+    <string name="three_days">3 วัน</string>
+    <string name="four_days">4 วัน</string>
+    <string name="five_days">5 วัน</string>
+    <string name="six_days">6 วัน</string>
+    <string name="seven_days">7 วัน</string>
+    <string name="zero_minutes">0 นาที</string>
+    <string name="fifteen_minutes">15 นาที</string>
+    <string name="thirty_minutes">30 นาที</string>
+    <string name="one_hour">1 ชั่วโมง</string>
+    <string name="one_and_a_half_hours">1.5 ชั่วโมง</string>
+    <string name="two_hours">2 ชั่วโมง</string>
+    <string name="error_generating_ics">ปัญหาที่พบระหว่างที่แชร์กิจกรรม</string>
+    <string name="cal_share_intent_title">ส่งกิจกรรมไปยัง:</string>
+    <string name="cal_export_event_sdcard_title">ส่งออกไปยัง SD การ์ด</string>
+    <string name="cal_export_succ_msg">ส่งออกกิจกรรมเรียบร้อยแล้ว: %1$s</string>
+    <string name="cal_import_menu_title">นำเข้ากิจกรรม</string>
+    <string name="cal_nothing_to_import">ไม่มีสิ่งที่จะนำเข้า</string>
+    <string name="cal_import_error_msg">การนำเข้าในปฏิทินล้มเหลว</string>
+    <string name="cal_import_error_time_zone_msg">ไม่สามารถเข้าใจเขตเวลาที่กำหนด: %s</string>
+    <string name="cal_import_error_date_msg">ไม่สามารถเข้าใจวันที่ที่กำหนด: %s</string>
+    <string name="cal_pick_ics">เลือกไฟล์ที่จะนำเข้า</string>
+    <string name="show_time_no">ไม่แสดงเวลา</string>
+    <string name="show_time_start">เฉพาะเวลาเริ่ม</string>
+    <string name="show_time_start_end">เวลาเริ่มและหยุด</string>
+    <string name="show_time_start_end_below">เวลาเริ่มและหยุดภายใต้กิจกรรม</string>
+    <string name="preferences_calendar_no_display_name">ปฏิทินไม่มีชื่อ</string>
+    <string name="preferences_calendar_account">%1$s บัญชี</string>
+    <string name="preferences_calendar_account_local">ปฏิทินออฟไลน์</string>
+    <string name="preferences_calendar_configure_account">กำหนดค่าปฏิทินใน %1$s</string>
+    <string name="preferences_calendar_number_of_events">%1$d กิจกรรม</string>
+    <string name="preferences_calendar_delete">ลบปฏิทิน</string>
+    <string name="preferences_calendar_display_name">เปลี่ยนชื่อ</string>
+    <string name="preferences_calendar_info_category">ข้อมูลปฏิทิน</string>
+    <string name="preferences_calendar_color">สี</string>
+    <string name="preferences_calendar_visible">แสดงกิจกรรม</string>
+    <string name="preferences_calendar_synchronize">ซิงค์ปฏิทินนี้</string>
+    <string name="preferences_calendar_color_warning_title">คำเตือน</string>
+    <string name="preferences_calendar_color_warning_message">การเปลี่ยนสีอาจจะถูกแก้ไขกลับเมื่อปฏิทินถูกซิงค์อีกครั้ง\n\n \'การจัดการสีปฏิทิน\' สามารถถูกปิดใช้งานใน DAVx⁵ เพื่อป้องกันผลกระทบดังกล่าว</string>
+    <string name="preferences_calendar_color_warning_button">ฉันเข้าใจ</string>
+    <string name="preferences_calendar_delete_message">คุณต้องการลบปฏิทินนี้หรือไม่</string>
+    <string name="preferences_calendar_delete_delete">ลบปฏิทิน</string>
+    <string name="preferences_calendar_delete_cancel">ยกเลิก</string>
+    <string name="preferences_list_calendar_summary_sync_off">ยังไม่ซิงค์</string>
+    <string name="preferences_list_calendar_summary_invisible">กิจกรรมไม่ถูกแสดง</string>
+    <string name="preferences_list_general">การตั้งค่าทั่วไป</string>
+    <string name="preferences_list_add_offline">เพิ่มปฏิทินออฟไลน์</string>
+    <string name="preferences_list_add_offline_title">เพิ่มปฏิทินออฟไลน์</string>
+    <string name="preferences_list_add_offline_error_empty">กรอกชื่อปฏิทิน!</string>
+    <string name="preferences_list_add_offline_message">ปฏิทินออฟไลน์จะไม่ถูกซิงค์ไปยังบริการบนคลาวด์และจะใช้บนอุปกรณ์นี้ได้เท่านั้น</string>
+    <string name="preferences_list_add_offline_button">เพิ่มปฏิทิน</string>
+    <string name="preferences_list_add_offline_name">ชื่อ</string>
+    <string name="preferences_list_add_offline_cancel">ยกเลิก</string>
+    <string name="preferences_menu_about">เกี่ยวกับปฏิทิน</string>
+    <string name="offline_account_name">ปฏิทินออฟไลน์</string>
+    <string name="cancel">ยกเลิก</string>
+</resources>

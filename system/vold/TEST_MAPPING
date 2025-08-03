@@ -1,0 +1,48 @@
+{
+  "presubmit": [
+    {
+      "name": "CtsScopedStorageCoreHostTest"
+    },
+    {
+      "name": "CtsScopedStorageHostTest"
+    },
+    {
+      "name": "CtsScopedStorageDeviceOnlyTest"
+    },
+    {
+      "name": "CtsScopedStorageBypassDatabaseOperationsTest"
+    },
+    {
+      "name": "CtsScopedStorageGeneralTest"
+    },
+    {
+      "name": "CtsScopedStorageRedactUriTest"
+    },
+    {
+      "name": "AdoptableHostTest"
+    }
+  ],
+  "hwasan-postsubmit": [
+    {
+      "name": "CtsScopedStorageCoreHostTest"
+    },
+    {
+      "name": "CtsScopedStorageHostTest"
+    },
+    {
+      "name": "CtsScopedStorageDeviceOnlyTest"
+    },
+    {
+      "name": "CtsScopedStorageBypassDatabaseOperationsTest"
+    },
+    {
+      "name": "CtsScopedStorageGeneralTest"
+    },
+    {
+      "name": "CtsScopedStorageRedactUriTest"
+    },
+    {
+      "name": "AdoptableHostTest"
+    }
+  ]
+}

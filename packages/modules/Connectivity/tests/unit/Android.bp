@@ -1,0 +1,186 @@
+//########################################################################
+// Build FrameworksNetTests package
+//########################################################################
+package {
+    default_team: "trendy_team_fwk_core_networking",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "Android-Apache-2.0"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+// Whether to enable the FrameworksNetTests. Set to false in the branches that might have older
+// frameworks/base since FrameworksNetTests includes the test for classes that are not in
+// connectivity module.
+enable_frameworks_net_tests = true
+// Placeholder
+// This is a placeholder comment to minimize merge conflicts, as enable_frameworks_net_tests
+// may have different values depending on the branch
+// Placeholder
+
+java_defaults {
+    name: "FrameworksNetTests-jni-defaults",
+    jni_libs: [
+        "ld-android",
+        "libandroid_net_frameworktests_util_jni",
+        "libbase",
+        "libbinder",
+        "libc++",
+        "libcrypto",
+        "libcutils",
+        "libdl_android",
+        "libhidl-gen-utils",
+        "libhidlbase",
+        "libjsoncpp",
+        "liblog",
+        "liblzma",
+        "libnativehelper",
+        "libnetdutils",
+        "libnetworkstats",
+        "libnetworkstatsfactorytestjni",
+        "libpackagelistparser",
+        "libpcre2",
+        "libselinux",
+        "libtinyxml2",
+        "libui",
+        "libunwindstack",
+        "libutils",
+        "libutilscallstack",
+        "libvndksupport",
+        "libziparchive",
+        "libz",
+        "netd_aidl_interface-V5-cpp",
+    ],
+}
+
+filegroup {
+    name: "non-connectivity-module-test",
+    srcs: [
+        "java/android/net/Ikev2VpnProfileTest.java",
+        "java/android/net/IpMemoryStoreTest.java",
+        "java/android/net/TelephonyNetworkSpecifierTest.java",
+        "java/android/net/VpnManagerTest.java",
+        "java/android/net/ipmemorystore/*.java",
+        "java/android/net/netstats/NetworkStatsDataMigrationUtilsTest.kt",
+        "java/com/android/internal/net/NetworkUtilsInternalTest.java",
+        "java/com/android/internal/net/VpnProfileTest.java",
+        "java/com/android/server/connectivity/IpConnectivityEventBuilderTest.java",
+        "java/com/android/server/connectivity/IpConnectivityMetricsTest.java",
+        "java/com/android/server/connectivity/MetricsTestUtil.java",
+        "java/com/android/server/connectivity/MultipathPolicyTrackerTest.java",
+        "java/com/android/server/connectivity/NetdEventListenerServiceTest.java",
+        "java/com/android/server/net/ipmemorystore/*.java",
+    ],
+}
+
+// Subset of services-core used to by ConnectivityService tests to test VPN realistically.
+// This is stripped by jarjar (see rules below) from other unrelated classes, so tests do not
+// include most classes from services-core, which are unrelated and cause wrong code coverage
+// calculations.
+java_library {
+    name: "services.core-vpn",
+    static_libs: ["services.core"],
+    jarjar_rules: "vpn-jarjar-rules.txt",
+    visibility: ["//visibility:private"],
+}
+
+java_defaults {
+    name: "FrameworksNetTestsDefaults",
+    min_sdk_version: "30",
+    defaults: [
+        "framework-connectivity-internal-test-defaults",
+    ],
+    srcs: [
+        "java/**/*.java",
+        "java/**/*.kt",
+    ],
+    static_libs: [
+        "androidx.test.rules",
+        "androidx.test.uiautomator_uiautomator",
+        "bouncycastle-repackaged-unbundled",
+        "core-tests-support",
+        "FrameworksNetCommonTests",
+        "frameworks-base-testutils",
+        "frameworks-net-integration-testutils",
+        "framework-protos",
+        "mockito-target-minus-junit4",
+        "net-tests-utils",
+        "net-utils-services-common",
+        "platform-compat-test-rules",
+        "platform-test-annotations",
+        "service-connectivity-pre-jarjar",
+        "service-connectivity-tiramisu-pre-jarjar",
+        "services.core-vpn",
+        "testables",
+        "cts-net-utils",
+    ],
+    libs: [
+        "android.net.ipsec.ike.stubs.module_lib",
+        "android.test.runner",
+        "android.test.base",
+        "android.test.mock",
+        "ServiceConnectivityResources",
+    ],
+    exclude_kotlinc_generated_files: false,
+}
+
+android_library {
+    name: "FrameworksNetTestsLib",
+    defaults: [
+        "FrameworksNetTestsDefaults",
+    ],
+    exclude_srcs: [":non-connectivity-module-test"],
+    visibility: ["//packages/modules/Connectivity/tests:__subpackages__"],
+}
+
+genrule {
+    name: "frameworks-net-tests-jarjar-rules",
+    defaults: ["jarjar-rules-combine-defaults"],
+    srcs: [
+        ":frameworks-net-tests-lib-jarjar-gen",
+        // This is necessary because the tests use framework-connectivity-internal-test-defaults,
+        // which require the user to use connectivity jarjar rules.
+        ":connectivity-jarjar-rules",
+    ],
+    out: ["frameworks-net-tests-jarjar-rules.txt"],
+    visibility: ["//packages/modules/Connectivity/tests:__subpackages__"],
+}
+
+java_genrule {
+    name: "frameworks-net-tests-lib-jarjar-gen",
+    tool_files: [
+        ":FrameworksNetTestsLib{.jar}",
+        "jarjar-excludes.txt",
+    ],
+    tools: [
+        "jarjar-rules-generator",
+    ],
+    out: ["frameworks-net-tests-lib-jarjar-rules.txt"],
+    cmd: "$(location jarjar-rules-generator) " +
+        "$(location :FrameworksNetTestsLib{.jar}) " +
+        "--prefix android.net.connectivity " +
+        "--excludes $(location jarjar-excludes.txt) " +
+        "--output $(out)",
+    visibility: ["//visibility:private"],
+}
+
+android_test {
+    name: "FrameworksNetTests",
+    enabled: enable_frameworks_net_tests,
+    defaults: [
+        "FrameworksNetTestsDefaults",
+        "FrameworksNetTests-jni-defaults",
+    ],
+    jarjar_rules: ":frameworks-net-tests-jarjar-rules",
+    test_suites: ["device-tests"],
+    static_libs: [
+        "services.core",
+        "services.net",
+    ],
+    jni_libs: [
+        "libandroid_net_connectivity_com_android_net_module_util_jni",
+        "libservice-connectivity",
+    ],
+}

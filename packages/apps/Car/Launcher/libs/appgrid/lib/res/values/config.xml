@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+
+    <!-- Service information to get screen mirroring information -->
+    <string name="config_msg_mirroring_service_pkg_name" translatable="false">
+        com.android.car.multidisplay.controlcenter
+    </string>
+    <string name="config_msg_mirroring_service_class_name" translatable="false">
+        com.android.car.multidisplay.controlcenter.service.ControlCenterService
+    </string>
+
+    <!--
+        Keep in sync with the config file in {@link com.android.car.multidisplay.controlcenter}
+        ControlCenterService constants that allow other apps to get information about mirrored apps
+    -->
+    <integer name="config_msg_register_mirroring_pkg_code">1</integer>
+    <integer name="config_msg_unregister_mirroring_pkg_code">2</integer>
+    <integer name="config_msg_send_mirroring_pkg_code">3</integer>
+    <string name="config_msg_mirroring_pkg_name_key" translatable="false">
+        msg_mirroring_pkg_name_key
+    </string>
+    <string name="config_msg_mirroring_redirect_uri_key" translatable="false">
+        msg_mirroring_redirect_uri_key
+    </string>
+
+    <!--- The number of days to wait before resurfacing the terms of service banner
+         on the app grid after being dismissed
+
+         * Integer value 0 implies to show the banner after every reboot
+   -->
+    <integer name="config_tos_banner_resurface_time_days">1</integer>
+</resources>

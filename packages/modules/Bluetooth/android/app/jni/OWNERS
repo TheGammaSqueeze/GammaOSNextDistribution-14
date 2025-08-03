@@ -1,0 +1,4 @@
+per-file com_android_bluetooth_hearing_aid.cpp=file:/OWNERS_hearingaid
+per-file com_android_bluetooth_csip_set_coordinator.cpp=file:/OWNERS_leaudio
+per-file com_android_bluetooth_le_audio.cpp=file:/OWNERS_leaudio
+per-file com_android_bluetooth_vc.cpp=file:/OWNERS_leaudio

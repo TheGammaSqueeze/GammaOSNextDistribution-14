@@ -1,0 +1,124 @@
+// libbtcore static library for target and host
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_bt_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_bt_license"],
+}
+
+cc_defaults {
+    name: "libbtcore_defaults",
+    defaults: ["fluoride_defaults"],
+    local_include_dirs: ["include"],
+    include_dirs: [
+        "packages/modules/Bluetooth/system",
+        "packages/modules/Bluetooth/system/gd",
+    ],
+    srcs: [
+        "src/device_class.cc",
+        "src/module.cc",
+        "src/osi_module.cc",
+        "src/property.cc",
+    ],
+    header_libs: ["libbluetooth_headers"],
+    host_supported: true,
+    apex_available: [
+        "com.android.btservices",
+    ],
+    target: {
+        host_linux: {
+            cflags: ["-D_GNU_SOURCE"],
+        },
+    },
+}
+
+cc_library_static {
+    name: "libbthalutils",
+    defaults: ["fluoride_defaults"],
+    srcs: [
+        "src/hal_util.cc",
+    ],
+    local_include_dirs: ["include"],
+    include_dirs: [
+        "packages/modules/Bluetooth/system",
+        "packages/modules/Bluetooth/system/gd",
+    ],
+    header_libs: ["libbluetooth_headers"],
+    host_supported: true,
+    apex_available: [
+        "com.android.btservices",
+    ],
+    target: {
+        host_linux: {
+            cflags: ["-D_GNU_SOURCE"],
+        },
+    },
+    static_libs: [
+        "libbluetooth_log",
+        "libbt_shim_bridge",
+    ],
+}
+
+cc_library_static {
+    name: "libbtcore",
+    visibility: [
+        "//packages/apps/Test/connectivity/sl4n",
+        "//packages/modules/Bluetooth:__subpackages__",
+    ],
+    defaults: ["libbtcore_defaults"],
+    min_sdk_version: "Tiramisu",
+    static_libs: [
+        "libbluetooth_log",
+        "libbt_shim_bridge",
+    ],
+}
+
+cc_library_headers {
+    name: "libbtcore_headers",
+    export_include_dirs: ["./"],
+    vendor_available: true,
+    host_supported: true,
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.btservices",
+    ],
+    min_sdk_version: "30",
+}
+
+// Note: It's good to get the tests compiled both for the host and the target so
+// we get to test with both Bionic libc and glibc
+// libbtcore unit tests for target and host
+cc_test {
+    name: "net_test_btcore",
+    test_suites: ["general-tests"],
+    defaults: [
+        "fluoride_defaults",
+        "mts_defaults",
+    ],
+    local_include_dirs: ["include"],
+    include_dirs: ["packages/modules/Bluetooth/system"],
+    srcs: [
+        "test/device_class_test.cc",
+        "test/property_test.cc",
+    ],
+    shared_libs: [
+        "liblog",
+    ],
+    static_libs: [
+        "libbluetooth-types",
+        "libbluetooth_log",
+        "libbtcore",
+        "libchrome",
+        "libosi",
+    ],
+    host_supported: true,
+    test_options: {
+        unit_test: true,
+    },
+    sanitize: {
+        address: true,
+    },
+    header_libs: ["libbluetooth_headers"],
+}

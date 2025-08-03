@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration description="run coverage smoke test">
+    <option name="test-tag" value="CoverageSmokeTest" />
+    <option name="test-suite-tag" value="coverage-smoke-test-postsubmit" />
+    <test class="com.android.tradefed.testtype.HostTest" >
+        <option name="class" value="android.platform.test.coverage.CoverageSmokeTest" />
+    </test>
+</configuration>

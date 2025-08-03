@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+     Copyright (C) 2017 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="wallpaper_app_name" msgid="1719889291772891695">"Fona tapetes"</string>
+    <!-- no translation found for app_name (8773648973927541493) -->
+    <skip />
+    <string name="select_wallpaper_label" msgid="6989581259339646085">"Fona tapešu kategorijas"</string>
+    <string name="set_wallpaper_button_text" msgid="5445978864530156290">"Iestatīt fona tapeti"</string>
+    <string name="set_wallpaper_progress_message" msgid="7986528287618716715">"Notiek fona tapetes iestatīšana..."</string>
+    <string name="try_again" msgid="8278874823700921234">"Mēģināt vēlreiz"</string>
+    <string name="set_wallpaper_error_message" msgid="6819986999041085130">"Nevar iestatīt fona tapeti."</string>
+    <string name="load_wallpaper_error_message" msgid="7913278480467707374">"Nevar ielādēt fona tapeti. Attēls vai nu ir bojāts, vai arī nav pieejams."</string>
+    <string name="static_wallpaper_presentation_mode_message" msgid="417940227049360906">"Pašlaik iestatīta"</string>
+    <string name="rotating_wallpaper_presentation_mode_message" msgid="3361676041605733288">"Dienas fona tapete"</string>
+    <string name="wallpaper_destination_both" msgid="1124197176741944063">"Sākuma un bloķēšanas ekrāns"</string>
+    <string name="choose_a_wallpaper_section_title" msgid="1009823506890453891">"Fona tapetes izvēle"</string>
+    <string name="creative_wallpaper_title" msgid="3581650238648981372">"Fona tapetes izveide"</string>
+    <string name="home_screen_message" msgid="106444102822522813">"Sākuma ekrāns"</string>
+    <string name="lock_screen_message" msgid="1534506081955058013">"Bloķēšanas ekrāns"</string>
+    <string name="home_and_lock_short_label" msgid="2937922943541927983">"Sākuma un bloķēšanas ekrāns"</string>
+    <string name="set_wallpaper_dialog_message" msgid="2110475703996853076">"Fona tapetes iestatīšana:"</string>
+    <string name="set_wallpaper_home_screen_destination" msgid="7315594722013109354">"Sākuma ekrāns"</string>
+    <string name="set_wallpaper_lock_screen_destination" msgid="6224685559375417945">"Bloķēšanas ekrāns"</string>
+    <string name="set_wallpaper_both_destination" msgid="2536004558738350775">"Sākuma ekrāns un bloķēšanas ekrāns"</string>
+    <string name="no_backup_image_wallpaper_label" msgid="6316627676107284851">"Mainīgs fona tapetes attēls"</string>
+    <string name="permission_needed_explanation" msgid="139166837541426823">"Lai šeit attēlotu pašreizējo fona tapeti, lietotnei <xliff:g id="APP_NAME">%1$s</xliff:g> ir nepieciešama piekļuve jūsu ierīces krātuvei."</string>
+    <string name="permission_needed_explanation_go_to_settings" msgid="3923551582092599609">"Lai šeit attēlotu pašreizējo fona tapeti, lietotnei “Fona tapetes” ir nepieciešama piekļuve jūsu ierīces krātuvei.\n\nLai mainītu šo iestatījumu, pārejiet uz lietotnes “Fona tapetes” informācijas sadaļu “Atļaujas”."</string>
+    <string name="permission_needed_allow_access_button_label" msgid="1943133660612924306">"Atļaut piekļuvi"</string>
+    <string name="no_backup_image_wallpaper_description" msgid="8303268619408738057">"Reāllaika fona tapetes pakalpojums mainīgiem fona tapetes attēliem"</string>
+    <string name="daily_refresh_tile_title" msgid="3270456074558525091">"Dienas fona tapete"</string>
+    <string name="daily_refresh_tile_subtitle" msgid="3976682014885446443">"Pieskarieties, lai ieslēgtu"</string>
+    <string name="start_rotation_dialog_body_live_wallpaper_needed" msgid="5132580257563846082">"Fona tapete tiks automātiski mainīta katru dienu. Lai pabeigtu iestatīšanu, nākamajā ekrānā pieskarieties vienumam &lt;strong&gt;Iestatīt fona tapeti&lt;/strong&gt;."</string>
+    <string name="start_rotation_dialog_wifi_only_option_message" msgid="3126269859713666225">"Lejupielādēt nākamās fona tapetes tikai Wi-Fi tīklā"</string>
+    <string name="start_rotation_dialog_continue" msgid="276678987852274872">"Turpināt"</string>
+    <string name="start_rotation_progress_message" msgid="7872623873682262083">"Notiek pirmās fona tapetes lejupielāde…"</string>
+    <string name="start_rotation_error_message" msgid="3053799836719618972">"Nevar lejupielādēt pirmo fona tapeti. Lūdzu, pārbaudiet tīkla iestatījumus un mēģiniet vēlreiz."</string>
+    <string name="start_rotation_dialog_body" msgid="7903554799046364916">"Fona tapete tiks automātiski mainīta katru dienu."</string>
+    <string name="settings_button_label" msgid="8724734130079207955">"Iestatījumi"</string>
+    <string name="explore" msgid="7468719504199497281">"Apskatīt"</string>
+    <string name="next_wallpaper" msgid="3911873152952596232">"Nākamā fona tapete"</string>
+    <string name="wallpaper_disabled_message" msgid="7309484130562148185">"Šajā ierīcē ir atspējota fona tapetes iestatīšana."</string>
+    <string name="wallpaper_disabled_by_administrator_message" msgid="1551430406714747884">"Jūsu ierīces administrators ir atspējojis fona tapetes iestatīšanu."</string>
+    <string name="wallpaper_set_successfully_message" msgid="2958998799111688578">"Fona tapete ir sekmīgi iestatīta."</string>
+    <string name="wallpapers_unavailable_offline_message" msgid="8136405438621689532">"Lai skatītu fona tapetes, ir nepieciešams interneta savienojums. Lūdzu, izveidojiet savienojumu un mēģiniet vēlreiz."</string>
+    <string name="currently_set_home_wallpaper_thumbnail" msgid="4022381436821898917">"Pašlaik iestatītās sākuma ekrāna fona tapetes sīktēls"</string>
+    <string name="currently_set_lock_wallpaper_thumbnail" msgid="2094209303934569997">"Pašlaik iestatītās bloķēšanas ekrāna fona tapetes sīktēls"</string>
+    <string name="currently_set_wallpaper_thumbnail" msgid="8651887838745545107">"Pašlaik iestatītās fona tapetes sīktēls"</string>
+    <string name="wallpaper_thumbnail" msgid="569931475923605974">"Fona tapetes sīktēls"</string>
+    <string name="explore_home_screen" msgid="8756346794535765482">"Apskatīt sākuma ekrāna fona tapeti"</string>
+    <string name="explore_lock_screen" msgid="268938342103703665">"Apskatīt bloķēšanas ekrāna fona tapeti"</string>
+    <string name="refresh_daily_wallpaper_home_content_description" msgid="2770445044556164259">"Atsvaidzināt dienas fona tapeti sākuma ekrānā"</string>
+    <string name="refresh_daily_wallpaper_content_description" msgid="4362142658237147583">"Atsvaidzināt dienas fona tapeti"</string>
+    <string name="preview_screen_description" msgid="3386387053327775919">"Fona tapetes priekšskatījuma ekrāns"</string>
+    <string name="refreshing_daily_wallpaper_dialog_message" msgid="1975910873362855761">"Notiek dienas fona tapetes atsvaidzināšana…"</string>
+    <string name="refresh_daily_wallpaper_failed_message" msgid="4749879993812557166">"Neizdevās atsvaidzināt dienas fona tapeti. Lūdzu, pārbaudiet tīkla savienojumu un mēģiniet vēlreiz."</string>
+    <string name="on_device_wallpapers_category_title" msgid="805819102071369004">"Fona tapetes ierīcē"</string>
+    <string name="on_device_wallpapers_category_title_desktop" msgid="316919420410065369">"Ierīcē"</string>
+    <string name="on_device_wallpaper_title" msgid="5262564748034629524">"Android fona tapete"</string>
+    <string name="live_wallpapers_category_title" msgid="1814374812192366349">"Reāllaika fona tapetes"</string>
+    <string name="my_photos_category_title" msgid="4294567122144565273">"Mani fotoattēli"</string>
+    <string name="my_photos_generic_wallpaper_title" msgid="7002867526154631172">"Mans fotoattēls"</string>
+    <string name="fallback_wallpaper_title" msgid="6154655421012506001">"Fona tapete"</string>
+    <string name="app_not_found" msgid="4431461707854088231">"Lietotne nav instalēta."</string>
+    <string name="center_wallpaper_position" msgid="4166894762352288883">"Centrēt"</string>
+    <string name="center_crop_wallpaper_position" msgid="1681980019815343348">"Apgriezt centrā"</string>
+    <string name="stretch_wallpaper_position" msgid="5002680983147456935">"Pielāgot"</string>
+    <string name="preview" msgid="1774602101743861071">"Priekšskatīt"</string>
+    <string name="tab_info" msgid="818614080690111416">"Informācija"</string>
+    <string name="tab_customize" msgid="2533745409174959960">"Pielāgošana"</string>
+    <string name="tab_effects" msgid="3213606157589233901">"Efekti"</string>
+    <string name="tab_share" msgid="6676269624804601227">"Kopīgot"</string>
+    <string name="my_photos" msgid="8613021349284084982">"Mani fotoattēli"</string>
+    <string name="configure_wallpaper" msgid="849882179182976621">"Iestatījumi…"</string>
+    <string name="delete_live_wallpaper" msgid="589212696102662329">"Dzēst"</string>
+    <string name="edit_live_wallpaper" msgid="3132060073690558045">"Rediģēt"</string>
+    <string name="delete_wallpaper_confirmation" msgid="1905114562243802354">"Vai dzēst šo fona tapeti no jūsu ierīces?"</string>
+    <string name="bottom_action_bar_back" msgid="2620581414970740784">"Pāriet augšup"</string>
+    <string name="bottom_action_bar_edit" msgid="1214742990893082138">"Rediģēt"</string>
+    <string name="bottom_action_bar_download" msgid="3983122338076389421">"Lejupielādēt"</string>
+    <string name="bottom_action_bar_slideshow_wallpaper" msgid="509770525179533154">"Fona tapešu slaidrāde"</string>
+    <string name="bottom_action_bar_apply" msgid="2983308349819178932">"Lietot"</string>
+    <string name="accessibility_preview_pager" msgid="1839869637405028575">"<xliff:g id="ID_1">%1$d</xliff:g>. lapa no <xliff:g id="ID_2">%2$d</xliff:g>"</string>
+    <string name="next_page_content_description" msgid="6268461446679584152">"Tālāk"</string>
+    <string name="previous_page_content_description" msgid="1138597031571078429">"Atpakaļ"</string>
+    <string name="wallpaper_title" msgid="6754214682228331092">"Fona tapete"</string>
+    <string name="wallpaper_preview_card_content_description" msgid="6049261033541034584">"Fona tapetes priekšskatījums"</string>
+    <string name="lock_wallpaper_preview_card_content_description" msgid="5236839857695985498">"Bloķēšanas ekrāna fona tapetes priekšskatījums"</string>
+    <string name="home_wallpaper_preview_card_content_description" msgid="4059418716070821630">"Sākuma ekrāna fona tapetes priekšskatījums"</string>
+    <string name="collection_not_exist_msg" msgid="3504852962885064842">"Kolekcija nepastāv"</string>
+    <string name="wallpaper_exit_split_screen" msgid="1928870664619591636">"Izslēdziet ekrāna sadalīšanas režīmu un mēģiniet vēlreiz"</string>
+    <string name="set_wallpaper_dialog_set_button" msgid="5760149969510325088">"Iestatīt"</string>
+    <string name="cancel" msgid="4970902691067201584">"Atcelt"</string>
+    <string name="hide_ui_preview_text" msgid="6766076482511252295">"Paslēpt saskarnes priekšskatījumu"</string>
+    <string name="hint_hide_ui_preview" msgid="4527603797714586070">"Priekšskatījumā saskarne ir paslēpta. Lai to rādītu, veiciet dubultskārienu."</string>
+    <string name="show_ui_preview_text" msgid="5993063062417070806">"Rādīt saskarnes priekšskatījumu"</string>
+    <string name="hide_preview_controls_content_description" msgid="894958599274977655">"Priekšskatījuma vadīklas tiek rādītas. Veiciet dubultskārienu, lai tās paslēptu."</string>
+    <string name="hide_preview_controls_action" msgid="3419260118386783295">"Paslēpt priekšskatījuma vadīklas"</string>
+    <string name="show_preview_controls_content_description" msgid="908147864005440602">"Priekšskatījuma vadīklas ir paslēptas. Veiciet dubultskārienu, lai tās tiktu rādītas."</string>
+    <string name="show_preview_controls_action" msgid="7700775001986890400">"Rādīt priekšskatījuma vadīklas"</string>
+    <string name="hide_wallpaper_info_action" msgid="6572492484253895374">"Paslēpt fona tapetes datus"</string>
+    <string name="hint_show_ui_preview" msgid="2744155435325318349">"Priekšskatījumā saskarne tiek rādīta. Lai to paslēptu, veiciet dubultskārienu."</string>
+    <string name="wallpaper_picker_entry_title" msgid="5185793991582084891">"Fona tapetes maiņa"</string>
+    <string name="lockscreen_wallpaper_preview_card_content_description" msgid="2244890820627302245">"Bloķēšanas ekrāna fona tapetes priekšsk."</string>
+    <string name="apply_btn" msgid="5764555565943538528">"Lietot"</string>
+    <string name="accessibility_customize_hidden" msgid="6320568529768181691">"Pielāgotais panelis paslēpts"</string>
+    <string name="accessibility_customize_shown" msgid="590964727831547651">"Pielāgotais panelis tiek rādīts"</string>
+    <string name="accessibility_info_hidden" msgid="2288603712350168107">"Informācija paslēpta"</string>
+    <string name="accessibility_info_shown" msgid="6626025722456105632">"Informācija tiek rādīta"</string>
+    <string name="settings_snackbar_description" msgid="890168814524778486">"Lūdzu, iestatījumos iespējojiet atļauju izmantot failus un multivides saturu."</string>
+    <string name="settings_snackbar_enable" msgid="5992112808061426068">"Iespējot"</string>
+    <string name="open_my_photos" msgid="4107196465713868381">"Atvērt sadaļu “Mani fotoattēli”"</string>
+    <string name="lock_screen_tab" msgid="6672930765010407652">"Bloķēšanas ekrāns"</string>
+    <string name="home_screen_tab" msgid="1080445697837877526">"Sākuma ekrāns"</string>
+    <string name="reset" msgid="4945445169532850631">"Atiestatīt"</string>
+    <string name="reset_confirmation_dialog_title" msgid="3391905685838213712">"Vai atiestatīt izmaiņas?"</string>
+    <string name="reset_confirmation_dialog_message" msgid="888669268626289603">"Jūsu veiktās izmaiņas netiks saglabātas."</string>
+    <string name="more_wallpapers" msgid="8116268433411881705">"Citas fona tapetes"</string>
+    <string name="recents_wallpaper_label" msgid="8653165542635660222">"%1$s, %2$d"</string>
+    <string name="default_wallpaper_title" msgid="2541071182656978180">"Fona tapete"</string>
+    <string name="small_preview_tooltip" msgid="1920430079013352071">"Pieskarieties, lai rediģētu savu fotoattēlu."</string>
+    <string name="full_preview_tooltip" msgid="4648994028015322759">"Pielāgojiet savu fotoattēlu pozīciju, mērogu un leņķi."</string>
+</resources>

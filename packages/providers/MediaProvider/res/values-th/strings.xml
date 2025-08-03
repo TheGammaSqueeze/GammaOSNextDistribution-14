@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2009 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="uid_label" msgid="8421971615411294156">"สื่อ"</string>
+    <string name="storage_description" msgid="4081716890357580107">"พื้นที่เก็บข้อมูลในเครื่อง"</string>
+    <string name="picker_app_label" msgid="1195424381053599122">"เครื่องมือเลือกสื่อ"</string>
+    <string name="artist_label" msgid="8105600993099120273">"ศิลปิน"</string>
+    <string name="unknown" msgid="2059049215682829375">"ไม่ทราบ"</string>
+    <string name="root_images" msgid="5861633549189045666">"รูปภาพ"</string>
+    <string name="root_videos" msgid="8792703517064649453">"วิดีโอ"</string>
+    <string name="root_audio" msgid="3505830755201326018">"เสียง"</string>
+    <string name="root_documents" msgid="3829103301363849237">"เอกสาร"</string>
+    <string name="permission_required" msgid="1460820436132943754">"ต้องขอสิทธิ์เพื่อแก้ไขหรือลบรายการนี้"</string>
+    <string name="permission_required_action" msgid="706370952366113539">"ต่อไป"</string>
+    <string name="grant_dialog_button_allow" msgid="1644287024501033471">"อนุญาต"</string>
+    <string name="grant_dialog_button_deny" msgid="6190589471415815741">"ปฏิเสธ"</string>
+    <string name="permission_more_thumb" msgid="1938863829470531577">"{count,plural, =1{+<xliff:g id="COUNT_0">^1</xliff:g>}other{+<xliff:g id="COUNT_1">^1</xliff:g>}}"</string>
+    <string name="permission_more_text" msgid="2471785045095597753">"{count,plural, =1{และอีก <xliff:g id="COUNT_0">^1</xliff:g> รายการ}other{และอีก <xliff:g id="COUNT_1">^1</xliff:g> รายการ}}"</string>
+    <string name="cache_clearing_dialog_title" msgid="8907893815183913664">"ล้างไฟล์แอปชั่วคราว"</string>
+    <string name="cache_clearing_dialog_text" msgid="7057784635111940957">"<xliff:g id="APP_SEEKING_PERMISSION">%s</xliff:g> ต้องการล้างไฟล์ชั่วคราวบางไฟล์ ซึ่งอาจส่งผลให้ใช้แบตเตอรี่หรืออินเทอร์เน็ตมือถือมากขึ้น"</string>
+    <string name="cache_clearing_in_progress_title" msgid="6902220064511664209">"กำลังล้างไฟล์แอปชั่วคราว…"</string>
+    <string name="clear" msgid="5524638938415865915">"ล้าง"</string>
+    <string name="allow" msgid="8885707816848569619">"อนุญาต"</string>
+    <string name="deny" msgid="6040983710442068936">"ปฏิเสธ"</string>
+    <string name="picker_browse" msgid="5554477454636075934">"เรียกดู…"</string>
+    <string name="picker_settings" msgid="6443463167344790260">"แอปสื่อในระบบคลาวด์"</string>
+    <string name="picker_settings_system_settings_menu_title" msgid="3055084757610063581">"แอปสื่อในระบบคลาวด์"</string>
+    <string name="picker_settings_title" msgid="5647700706470673258">"แอปสื่อในระบบคลาวด์"</string>
+    <string name="picker_settings_description" msgid="2916686824777214585">"เข้าถึงสื่อในระบบคลาวด์เมื่อแอปหรือเว็บไซต์ขอให้คุณเลือกรูปภาพหรือวิดีโอ"</string>
+    <string name="picker_settings_selection_message" msgid="245453573086488596">"เข้าถึงสื่อในระบบคลาวด์จาก"</string>
+    <string name="picker_settings_no_provider" msgid="2582311853680058223">"ไม่มี"</string>
+    <string name="picker_settings_toast_error" msgid="697274445512467469">"เปลี่ยนแอปสื่อบนระบบคลาวด์ไม่ได้ในขณะนี้"</string>
+    <string name="picker_sync_notification_channel" msgid="1867105708912627993">"เครื่องมือเลือกสื่อ"</string>
+    <string name="picker_sync_notification_title" msgid="1122713382122055246">"เครื่องมือเลือกสื่อ"</string>
+    <string name="picker_sync_notification_text" msgid="8204423917712309382">"กำลังซิงค์สื่อ…"</string>
+    <string name="add" msgid="2894574044585549298">"เพิ่ม"</string>
+    <string name="deselect" msgid="4297825044827769490">"ยกเลิกการเลือก"</string>
+    <string name="deselected" msgid="8488133193326208475">"ยกเลิกการเลือก"</string>
+    <string name="select" msgid="2704765470563027689">"เลือก"</string>
+    <string name="selected" msgid="9151797369975828124">"เลือก"</string>
+    <string name="select_up_to" msgid="6994294169508439957">"{count,plural, =1{เลือกได้สูงสุด <xliff:g id="COUNT_0">^1</xliff:g> รายการ}other{เลือกได้สูงสุด <xliff:g id="COUNT_1">^1</xliff:g> รายการ}}"</string>
+    <string name="recent" msgid="6694613584743207874">"ล่าสุด"</string>
+    <string name="picker_photos_empty_message" msgid="5980619500554575558">"ไม่มีรูปภาพหรือวิดีโอ"</string>
+    <string name="picker_album_media_empty_message" msgid="7061850698189881671">"ไม่มีรูปภาพหรือวิดีโอที่รองรับ"</string>
+    <string name="picker_albums_empty_message" msgid="8341079772950966815">"ไม่มีอัลบั้ม"</string>
+    <string name="picker_view_selected" msgid="2266031384396143883">"ดูรายการที่เลือก"</string>
+    <string name="picker_photos" msgid="7415035516411087392">"รูปภาพ"</string>
+    <!-- no translation found for picker_videos (2886971435439047097) -->
+    <skip />
+    <string name="picker_albums" msgid="4822511902115299142">"อัลบั้ม"</string>
+    <string name="picker_preview" msgid="6257414886055861039">"ตัวอย่าง"</string>
+    <string name="picker_work_profile" msgid="2083221066869141576">"เปลี่ยนไปใช้โปรไฟล์งาน"</string>
+    <string name="picker_personal_profile" msgid="639484258397758406">"เปลี่ยนไปใช้โปรไฟล์ส่วนตัว"</string>
+    <string name="picker_personal_profile_label" msgid="6189198163209597344">"ส่วนตัว"</string>
+    <string name="picker_profile_admin_title" msgid="4172022376418293777">"ผู้ดูแลระบบบล็อกไว้"</string>
+    <string name="picker_profile_admin_msg_from_personal" msgid="1941639895084555723">"ไม่อนุญาตให้เข้าถึงข้อมูลงานจากแอปส่วนตัว"</string>
+    <string name="picker_profile_admin_msg_from_work" msgid="8048524337462790110">"ไม่อนุญาตให้เข้าถึงข้อมูลส่วนตัวจากแอปงาน"</string>
+    <string name="picker_profile_admin_msg" msgid="4060112887923255178">"ไม่อนุญาตให้เข้าถึงข้อมูลของ <xliff:g id="PROFILE1">%1$s</xliff:g> จากแอปของ <xliff:g id="PROFILE2">%2$s</xliff:g>"</string>
+    <string name="picker_profile_switch_message" msgid="1133817927412489487">"สลับไปที่ <xliff:g id="PROFILE">%s</xliff:g>"</string>
+    <string name="picker_profile_work_paused_title" msgid="382212880704235925">"แอปงานหยุดชั่วคราว"</string>
+    <string name="picker_profile_paused_title" msgid="2079739512895529028">"แอปของ <xliff:g id="PROFILE">%s</xliff:g> หยุดชั่วคราว"</string>
+    <string name="picker_profile_work_paused_msg" msgid="6321552322125246726">"หากต้องการเปิดรูปภาพงาน ให้เปิดแอปงานแล้วลองอีกครั้ง"</string>
+    <string name="picker_profile_paused_msg" msgid="1215076898583993782">"หากต้องการเปิดรูปภาพของ <xliff:g id="PROFILE1">%1$s</xliff:g> ให้เปิดแอปของ <xliff:g id="PROFILE2">%2$s</xliff:g> แล้วลองอีกครั้ง"</string>
+    <string name="picker_privacy_message" msgid="9132700451027116817">"แอปนี้จะเข้าถึงได้เฉพาะรูปภาพที่คุณเลือกเท่านั้น"</string>
+    <string name="picker_header_permissions" msgid="675872774407768495">"เลือกรูปภาพและวิดีโอที่จะอนุญาตให้แอปนี้เข้าถึงได้"</string>
+    <string name="picker_album_item_count" msgid="4420723302534177596">"{count,plural, =1{<xliff:g id="COUNT_0">^1</xliff:g> รายการ}other{<xliff:g id="COUNT_1">^1</xliff:g> รายการ}}"</string>
+    <string name="picker_add_button_multi_select" msgid="4005164092275518399">"เพิ่ม (<xliff:g id="COUNT">^1</xliff:g>)"</string>
+    <string name="picker_add_button_multi_select_permissions" msgid="5138751105800138838">"อนุญาต (<xliff:g id="COUNT">^1</xliff:g>)"</string>
+    <string name="picker_add_button_allow_none_option" msgid="9183772732922241035">"ไม่อนุญาต"</string>
+    <string name="picker_category_camera" msgid="4857367052026843664">"กล้อง"</string>
+    <string name="picker_category_downloads" msgid="793866660287361900">"การดาวน์โหลด"</string>
+    <string name="picker_category_favorites" msgid="7008495397818966088">"รายการโปรด"</string>
+    <string name="picker_category_screenshots" msgid="7216102327587644284">"ภาพหน้าจอ"</string>
+    <!-- no translation found for picker_category_videos (1478458836380241356) -->
+    <skip />
+    <string name="picker_motion_photo_text" msgid="5016603812468180816">"รูปภาพเคลื่อนไหว"</string>
+    <string name="picker_item_content_desc" msgid="7680591530155286423">"<xliff:g id="ITEM_NAME">%1$s</xliff:g> ถ่ายเมื่อ <xliff:g id="TIME">%2$s</xliff:g>"</string>
+    <string name="picker_video_item_content_desc" msgid="7828900089119214801">"ถ่ายวิดีโอไว้เมื่อ <xliff:g id="TIME">%1$s</xliff:g> โดยมีระยะเวลา <xliff:g id="DURATION">%2$s</xliff:g>"</string>
+    <string name="picker_photo" msgid="1739342083494962153">"รูปภาพ"</string>
+    <string name="picker_gif" msgid="8333318083107368726">"GIF"</string>
+    <string name="picker_motion_photo" msgid="4385182195289546308">"รูปภาพเคลื่อนไหว"</string>
+    <string name="picker_mute_video" msgid="2496585809229800096">"ปิดเสียงวิดีโอ"</string>
+    <string name="picker_unmute_video" msgid="6611741290641963568">"เปิดเสียงวิดีโอ"</string>
+    <string name="picker_play_video" msgid="7106025944628666250">"เปิด"</string>
+    <string name="picker_pause_video" msgid="1092718225234326702">"หยุดชั่วคราว"</string>
+    <string name="picker_error_snackbar" msgid="5970192792792369203">"เล่นวิดีโอไม่ได้"</string>
+    <string name="picker_error_dialog_title" msgid="4540095603788920965">"เกิดปัญหาขณะเล่นวิดีโอ"</string>
+    <string name="picker_error_dialog_body" msgid="2515738446802971453">"ตรวจสอบการเชื่อมต่ออินเทอร์เน็ตและลองอีกครั้ง"</string>
+    <string name="picker_error_dialog_positive_action" msgid="749544129082109232">"ลองใหม่"</string>
+    <string name="not_selected" msgid="2244008151669896758">"ไม่ได้เลือกไว้"</string>
+    <string name="preloading_dialog_title" msgid="4974348221848532887">"กำลังเตรียมสื่อที่คุณเลือก"</string>
+    <string name="preloading_progress_message" msgid="4741327138031980582">"พร้อมแล้ว <xliff:g id="NUMBER_PRELOADED">%1$d</xliff:g> จาก <xliff:g id="NUMBER_TOTAL">%2$d</xliff:g>"</string>
+    <string name="preloading_cancel_button" msgid="824053521307342209">"ยกเลิก"</string>
+    <string name="picker_banner_cloud_first_time_available_title" msgid="5912973744275711595">"รวมรูปภาพที่สำรองข้อมูลไว้แล้ว"</string>
+    <string name="picker_banner_cloud_first_time_available_desc" msgid="5570916598348187607">"คุณเลือกรูปภาพได้จากบัญชี <xliff:g id="USER_ACCOUNT">%2$s</xliff:g> ของ \"<xliff:g id="APP_NAME">%1$s</xliff:g>\""</string>
+    <string name="picker_banner_cloud_account_changed_title" msgid="4825058474378077327">"อัปเดตบัญชี \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" แล้ว"</string>
+    <string name="picker_banner_cloud_account_changed_desc" msgid="3433218869899792497">"รวมรูปภาพจาก <xliff:g id="USER_ACCOUNT">%1$s</xliff:g> ไว้ที่นี่แล้ว"</string>
+    <string name="picker_banner_cloud_choose_app_title" msgid="3165966147547974251">"เลือกแอปสื่อในระบบคลาวด์"</string>
+    <string name="picker_banner_cloud_choose_app_desc" msgid="2359212653555524926">"หากต้องการรวมรูปภาพที่สำรองข้อมูลไว้ที่นี่ ให้เลือกแอปสื่อในระบบคลาวด์ในการตั้งค่า"</string>
+    <string name="picker_banner_cloud_choose_account_title" msgid="5010901185639577685">"เลือกบัญชี \"<xliff:g id="APP_NAME">%1$s</xliff:g>\""</string>
+    <string name="picker_banner_cloud_choose_account_desc" msgid="8868134443673142712">"หากต้องการรวมรูปภาพจาก \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" ไว้ที่นี่ ให้เลือกบัญชีในแอป"</string>
+    <string name="picker_banner_cloud_dismiss_button" msgid="2935903078288463882">"ปิด"</string>
+    <string name="picker_banner_cloud_choose_app_button" msgid="934085679890435479">"เลือกแอป"</string>
+    <string name="picker_banner_cloud_choose_account_button" msgid="7979484877116991631">"เลือกบัญชี"</string>
+    <string name="picker_banner_cloud_change_account_button" msgid="8361239765828471146">"เปลี่ยนบัญชี"</string>
+    <string name="picker_loading_photos_message" msgid="6449180084857178949">"กำลังโหลดรูปภาพทั้งหมด"</string>
+    <string name="permission_write_audio" msgid="8819694245323580601">"{count,plural, =1{อนุญาตให้ <xliff:g id="APP_NAME_0">^1</xliff:g> แก้ไขไฟล์เสียงนี้ไหม}other{อนุญาตให้ <xliff:g id="APP_NAME_1">^1</xliff:g> แก้ไขไฟล์เสียง <xliff:g id="COUNT">^2</xliff:g> ไฟล์ไหม}}"</string>
+    <string name="permission_progress_write_audio" msgid="6029375427984180097">"{count,plural, =1{กำลังแก้ไขไฟล์เสียง…}other{กำลังแก้ไขไฟล์เสียง <xliff:g id="COUNT">^1</xliff:g> ไฟล์…}}"</string>
+    <string name="permission_write_video" msgid="103902551603700525">"{count,plural, =1{อนุญาตให้ <xliff:g id="APP_NAME_0">^1</xliff:g> แก้ไขวิดีโอนี้ไหม}other{อนุญาตให้ <xliff:g id="APP_NAME_1">^1</xliff:g> แก้ไขวิดีโอ <xliff:g id="COUNT">^2</xliff:g> รายการไหม}}"</string>
+    <string name="permission_progress_write_video" msgid="7014908418349819148">"{count,plural, =1{กำลังแก้ไขวิดีโอ…}other{กำลังแก้ไขวิดีโอ <xliff:g id="COUNT">^1</xliff:g> รายการ…}}"</string>
+    <string name="permission_write_image" msgid="3518991791620523786">"{count,plural, =1{อนุญาตให้ <xliff:g id="APP_NAME_0">^1</xliff:g> แก้ไขรูปภาพนี้ไหม}other{อนุญาตให้ <xliff:g id="APP_NAME_1">^1</xliff:g> แก้ไขรูปภาพ <xliff:g id="COUNT">^2</xliff:g> รูปไหม}}"</string>
+    <string name="permission_progress_write_image" msgid="3623580315590025262">"{count,plural, =1{กำลังแก้ไขรูปภาพ…}other{กำลังแก้ไขรูปภาพ <xliff:g id="COUNT">^1</xliff:g> รูป…}}"</string>
+    <string name="permission_write_generic" msgid="7431128739233656991">"{count,plural, =1{อนุญาตให้ <xliff:g id="APP_NAME_0">^1</xliff:g> แก้ไขรายการนี้ไหม}other{อนุญาตให้ <xliff:g id="APP_NAME_1">^1</xliff:g> แก้ไข <xliff:g id="COUNT">^2</xliff:g> รายการไหม}}"</string>
+    <string name="permission_progress_write_generic" msgid="2806560971318391443">"{count,plural, =1{กำลังแก้ไขรายการ…}other{กำลังแก้ไข <xliff:g id="COUNT">^1</xliff:g> รายการ…}}"</string>
+    <string name="permission_trash_audio" msgid="6554672354767742206">"{count,plural, =1{อนุญาตให้ <xliff:g id="APP_NAME_0">^1</xliff:g> ย้ายไฟล์เสียงนี้ไปที่ถังขยะไหม}other{อนุญาตให้ <xliff:g id="APP_NAME_1">^1</xliff:g> ย้ายไฟล์เสียง <xliff:g id="COUNT">^2</xliff:g> ไฟล์ไปที่ถังขยะไหม}}"</string>
+    <string name="permission_progress_trash_audio" msgid="3116279868733641329">"{count,plural, =1{กำลังย้ายไฟล์เสียงไปที่ถังขยะ…}other{กำลังย้ายไฟล์เสียง <xliff:g id="COUNT">^1</xliff:g> ไฟล์ไปที่ถังขยะ…}}"</string>
+    <string name="permission_trash_video" msgid="7555850843259959642">"{count,plural, =1{อนุญาตให้ <xliff:g id="APP_NAME_0">^1</xliff:g> ย้ายวิดีโอนี้ไปที่ถังขยะไหม}other{อนุญาตให้ <xliff:g id="APP_NAME_1">^1</xliff:g> ย้ายวิดีโอ <xliff:g id="COUNT">^2</xliff:g> รายการไปที่ถังขยะไหม}}"</string>
+    <string name="permission_progress_trash_video" msgid="4637821778329459681">"{count,plural, =1{กำลังย้ายวิดีโอไปที่ถังขยะ…}other{กำลังย้ายวิดีโอ <xliff:g id="COUNT">^1</xliff:g> รายการไปที่ถังขยะ…}}"</string>
+    <string name="permission_trash_image" msgid="3333128084684156675">"{count,plural, =1{อนุญาตให้ <xliff:g id="APP_NAME_0">^1</xliff:g> ย้ายรูปภาพนี้ไปที่ถังขยะไหม}other{อนุญาตให้ <xliff:g id="APP_NAME_1">^1</xliff:g> ย้ายรูปภาพ <xliff:g id="COUNT">^2</xliff:g> รูปไปที่ถังขยะไหม}}"</string>
+    <string name="permission_progress_trash_image" msgid="3063857679090024764">"{count,plural, =1{กำลังย้ายรูปภาพไปที่ถังขยะ…}other{กำลังย้ายรูปภาพ <xliff:g id="COUNT">^1</xliff:g> รูปไปที่ถังขยะ…}}"</string>
+    <string name="permission_trash_generic" msgid="5545420534785075362">"{count,plural, =1{อนุญาตให้ <xliff:g id="APP_NAME_0">^1</xliff:g> ย้ายรายการนี้ไปที่ถังขยะไหม}other{อนุญาตให้ <xliff:g id="APP_NAME_1">^1</xliff:g> ย้าย <xliff:g id="COUNT">^2</xliff:g> รายการไปที่ถังขยะไหม}}"</string>
+    <string name="permission_progress_trash_generic" msgid="7815124979717814057">"{count,plural, =1{กำลังย้ายรายการไปที่ถังขยะ…}other{กำลังย้าย <xliff:g id="COUNT">^1</xliff:g> รายการไปที่ถังขยะ…}}"</string>
+    <string name="permission_untrash_audio" msgid="8404597563284002472">"{count,plural, =1{อนุญาตให้ <xliff:g id="APP_NAME_0">^1</xliff:g> ย้ายไฟล์เสียงนี้ออกจากถังขยะไหม}other{อนุญาตให้ <xliff:g id="APP_NAME_1">^1</xliff:g> ย้ายไฟล์เสียง <xliff:g id="COUNT">^2</xliff:g> ไฟล์ออกจากถังขยะไหม}}"</string>
+    <string name="permission_progress_untrash_audio" msgid="2775372344946464508">"{count,plural, =1{กำลังย้ายไฟล์เสียงออกจากถังขยะ…}other{กำลังย้ายไฟล์เสียง <xliff:g id="COUNT">^1</xliff:g> ไฟล์ออกจากถังขยะ…}}"</string>
+    <string name="permission_untrash_video" msgid="3178914827607608162">"{count,plural, =1{อนุญาตให้ <xliff:g id="APP_NAME_0">^1</xliff:g> ย้ายวิดีโอนี้ออกจากถังขยะไหม}other{อนุญาตให้ <xliff:g id="APP_NAME_1">^1</xliff:g> ย้ายวิดีโอ <xliff:g id="COUNT">^2</xliff:g> รายการออกจากถังขยะไหม}}"</string>
+    <string name="permission_progress_untrash_video" msgid="5500929409733841567">"{count,plural, =1{กำลังย้ายวิดีโอออกจากถังขยะ…}other{กำลังย้ายวิดีโอ <xliff:g id="COUNT">^1</xliff:g> รายการออกจากถังขยะ…}}"</string>
+    <string name="permission_untrash_image" msgid="3397523279351032265">"{count,plural, =1{อนุญาตให้ <xliff:g id="APP_NAME_0">^1</xliff:g> ย้ายรูปภาพนี้ออกจากถังขยะไหม}other{อนุญาตให้ <xliff:g id="APP_NAME_1">^1</xliff:g> ย้ายรูปภาพ <xliff:g id="COUNT">^2</xliff:g> รูปออกจากถังขยะไหม}}"</string>
+    <string name="permission_progress_untrash_image" msgid="5295061520504846264">"{count,plural, =1{กำลังย้ายรูปภาพออกจากถังขยะ…}other{กำลังย้ายรูปภาพ <xliff:g id="COUNT">^1</xliff:g> รูปออกจากถังขยะ…}}"</string>
+    <string name="permission_untrash_generic" msgid="2118366929431671046">"{count,plural, =1{อนุญาตให้ <xliff:g id="APP_NAME_0">^1</xliff:g> ย้ายรายการนี้ออกจากถังขยะไหม}other{อนุญาตให้ <xliff:g id="APP_NAME_1">^1</xliff:g> ย้าย <xliff:g id="COUNT">^2</xliff:g> รายการออกจากถังขยะไหม}}"</string>
+    <string name="permission_progress_untrash_generic" msgid="1489511601966842579">"{count,plural, =1{กำลังย้ายรายการออกจากถังขยะ…}other{กำลังย้าย <xliff:g id="COUNT">^1</xliff:g> รายการออกจากถังขยะ…}}"</string>
+    <string name="permission_delete_audio" msgid="3326674742892796627">"{count,plural, =1{อนุญาตให้ <xliff:g id="APP_NAME_0">^1</xliff:g> ลบไฟล์เสียงนี้ไหม}other{อนุญาตให้ <xliff:g id="APP_NAME_1">^1</xliff:g> ลบไฟล์เสียง <xliff:g id="COUNT">^2</xliff:g> ไฟล์ไหม}}"</string>
+    <string name="permission_progress_delete_audio" msgid="1734871539021696401">"{count,plural, =1{กำลังลบไฟล์เสียง…}other{กำลังลบไฟล์เสียง <xliff:g id="COUNT">^1</xliff:g> ไฟล์…}}"</string>
+    <string name="permission_delete_video" msgid="604024971828349279">"{count,plural, =1{อนุญาตให้ <xliff:g id="APP_NAME_0">^1</xliff:g> ลบวิดีโอนี้ไหม}other{อนุญาตให้ <xliff:g id="APP_NAME_1">^1</xliff:g> ลบวิดีโอ <xliff:g id="COUNT">^2</xliff:g> รายการไหม}}"</string>
+    <string name="permission_progress_delete_video" msgid="1846702435073793157">"{count,plural, =1{กำลังลบวิดีโอ…}other{กำลังลบวิดีโอ <xliff:g id="COUNT">^1</xliff:g> รายการ…}}"</string>
+    <string name="permission_delete_image" msgid="3109056012794330510">"{count,plural, =1{อนุญาตให้ <xliff:g id="APP_NAME_0">^1</xliff:g> ลบรูปภาพนี้ไหม}other{อนุญาตให้ <xliff:g id="APP_NAME_1">^1</xliff:g> ลบรูปภาพ <xliff:g id="COUNT">^2</xliff:g> รูปไหม}}"</string>
+    <string name="permission_progress_delete_image" msgid="8580517204901148906">"{count,plural, =1{กำลังลบรูปภาพ…}other{กำลังลบรูปภาพ <xliff:g id="COUNT">^1</xliff:g> รูป…}}"</string>
+    <string name="permission_delete_generic" msgid="7891939881065520271">"{count,plural, =1{อนุญาตให้ <xliff:g id="APP_NAME_0">^1</xliff:g> ลบรายการนี้ไหม}other{อนุญาตให้ <xliff:g id="APP_NAME_1">^1</xliff:g> ลบ <xliff:g id="COUNT">^2</xliff:g> รายการไหม}}"</string>
+    <string name="permission_progress_delete_generic" msgid="6709118146245087898">"{count,plural, =1{กำลังลบรายการ…}other{กำลังลบ <xliff:g id="COUNT">^1</xliff:g> รายการ…}}"</string>
+    <string name="transcode_denied" msgid="6760546817138288976">"<xliff:g id="APP_NAME">%s</xliff:g>ประมวลผลไฟล์สื่อไม่ได้"</string>
+    <string name="transcode_processing_cancelled" msgid="5340383917746945590">"ยกเลิกการประมวลผลสื่อแล้ว"</string>
+    <string name="transcode_processing_error" msgid="8921643164508407874">"ข้อผิดพลาดในการประมวลผลสื่อ"</string>
+    <string name="transcode_processing_success" msgid="447288876429730122">"การประมวลผลสื่อสำเร็จแล้ว"</string>
+    <string name="transcode_processing_started" msgid="7789086308155361523">"เริ่มการประมวลผลสื่อแล้ว"</string>
+    <string name="transcode_processing" msgid="6753136468864077258">"กำลังประมวลผลสื่อ…"</string>
+    <string name="transcode_cancel" msgid="8555752601907598192">"ยกเลิก"</string>
+    <string name="transcode_wait" msgid="8909773149560697501">"รอ"</string>
+    <string name="safety_protection_icon_label" msgid="6714354052747723623">"การปกป้องเพื่อความปลอดภัย"</string>
+    <string name="transcode_alert_channel" msgid="997332371757680478">"Native Transcode Alerts"</string>
+    <string name="transcode_progress_channel" msgid="6905136787933058387">"Native Transcode Progress"</string>
+    <string name="dialog_error_message" msgid="5120432204743681606">"โปรดลองอีกครั้งในภายหลัง รูปภาพจะพร้อมใช้งานเมื่อปัญหาได้รับการแก้ไขแล้ว"</string>
+    <string name="dialog_error_title" msgid="636349284077820636">"โหลดรูปภาพบางรูปไม่ได้"</string>
+    <string name="dialog_button_text" msgid="351366485240852280">"รับทราบ"</string>
+    <string name="permlab_accessMediaOwnerPackageName" msgid="3849443148060165651">"เข้าถึงชื่อแพ็กเกจของเจ้าของสื่อ"</string>
+    <string name="permdesc_accessMediaOwnerPackageName" msgid="7381563109363105371">"อนุญาตให้แอปเข้าถึงชื่อแพ็กเกจของเจ้าของไฟล์สื่อที่สามารถเข้าถึงได้ทั้งหมด"</string>
+</resources>

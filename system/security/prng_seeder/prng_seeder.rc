@@ -1,0 +1,12 @@
+# Copyright (C) 2022 The Android Open Source Project
+#
+# Start PRNG seeder daemon from early-init
+
+on early-init
+    start prng_seeder
+
+service prng_seeder /system/bin/prng_seeder
+    user prng_seeder
+    group prng_seeder
+    stdio_to_kmsg
+    socket prng_seeder stream+listen 0666 prng_seeder prng_seeder

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<carrier_config>
+    <int name="qns.mms_rat_preference_int" value="2"/>
+    <int name="qns.mms_transport_type_int" value="2"/>
+    <int-array name="qns.idle_eutran_rsrp_int_array" num="2">
+        <item value="-104"/>
+        <item value="-113"/>
+    </int-array>
+    <int-array name="qns.idle_utran_rscp_int_array" num="2">
+        <item value="-99"/>
+        <item value="-108"/>
+    </int-array>
+    <int-array name="qns.video_eutran_rsrp_int_array" num="2">
+        <item value="-104"/>
+        <item value="-113"/>
+    </int-array>
+    <int-array name="qns.video_utran_rscp_int_array" num="2">
+        <item value="-99"/>
+        <item value="-108"/>
+    </int-array>
+    <int-array name="qns.voice_eutran_rsrp_int_array" num="2">
+        <item value="-104"/>
+        <item value="-113"/>
+    </int-array>
+    <int-array name="qns.voice_utran_rscp_int_array" num="2">
+        <item value="-99"/>
+        <item value="-108"/>
+    </int-array>
+</carrier_config>

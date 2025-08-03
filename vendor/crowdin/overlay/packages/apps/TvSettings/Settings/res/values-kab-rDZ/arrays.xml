@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2014 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string-array name="sleep_timeout_entries">
+        <item>5 n tisdatin</item>
+        <item>15 n tisdatin</item>
+        <item>30 n tisdatin</item>
+        <item>1 asrag</item>
+        <item>2 n isragen</item>
+    </string-array>
+    <string-array name="device_energy_saver_sleep_timeout_entries">
+        <item>15 n tisdatin</item>
+        <item>20 minutes</item>
+        <item>30 n tisdatin</item>
+        <item>1 asrag</item>
+        <item>4 n isragen</item>
+        <item>8 n isragen</item>
+        <item>12 n isragen</item>
+        <item>24 n isragen</item>
+        <item>Weṛǧin</item>
+    </string-array>
+    <string-array name="device_energy_saver_attentive_timeout_entries">
+        <item>4 n isragen</item>
+        <item>6 hours</item>
+        <item>8 n isragen</item>
+        <item>Weṛǧin</item>
+    </string-array>
+    <string-array name="captioning_typeface_selector_titles">
+        <item>Akk-a kan</item>
+        <item>Sans-serif</item>
+        <item>Sans-serif condensed</item>
+        <item>Sans-serif monospace</item>
+        <item>Serif</item>
+        <item>Serif monospace</item>
+        <item>Casual</item>
+        <item>Tira n ufus</item>
+        <item>Small capitals</item>
+    </string-array>
+    <string-array name="captioning_font_size_selector_titles">
+        <item>Very small</item>
+        <item>Meẓẓi</item>
+        <item>Amagnu</item>
+        <item>Ameqran</item>
+        <item>Very large</item>
+    </string-array>
+    <string-array name="captioning_edge_type_selector_titles">
+        <item>Ulac</item>
+        <item>Aɣawas</item>
+        <item>Drop shadow</item>
+        <item>Raised</item>
+        <item>Depressed</item>
+    </string-array>
+    <string-array name="font_scale_entries">
+        <item>Meẓẓi</item>
+        <item>Akk-a kan</item>
+        <item>Ameqran</item>
+        <item>Largest</item>
+    </string-array>
+    <string-array name="wifi_peap_phase2_entries">
+        <item>Ulac</item>
+        <item>MSCHAPV2</item>
+        <item>GTC</item>
+    </string-array>
+    <string-array name="wifi_phase2_entries">
+        <item>Ulac</item>
+        <item>PAP</item>
+        <item>MSCHAP</item>
+        <item>MSCHAPV2</item>
+        <item>GTC</item>
+    </string-array>
+</resources>

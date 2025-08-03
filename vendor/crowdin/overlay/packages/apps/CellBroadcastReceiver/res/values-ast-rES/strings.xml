@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2011 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:android="http://schemas.android.com/apk/res/android" xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label">Alertes d\'emerxencia ensin fillo</string>
+    <string name="sms_cb_settings">Alertes d\'emerxencia ensin fillo</string>
+    <string name="sms_cb_sender_name_default">Alertes d\'emerxencia ensin fillo</string>
+    <string name="sms_cb_sender_name_presidential">Alertes d\'emerxencia ensin fillo</string>
+    <string name="sms_cb_sender_name_emergency">Alertes d\'emerxencia ensin fillo</string>
+    <string name="sms_cb_sender_name_public_safety">Avisu informativu</string>
+    <string name="cell_broadcast_settings_not_available">La configuración de les alertes d\'emerxencia ensin fillo nun ta disponible pa esti usuariu</string>
+    <string name="button_dismiss">D\'acuerdu</string>
+    <string name="no_cell_broadcasts">Nun hai nenguna alerta anterior</string>
+    <string name="menu_preferences">Configuración</string>
+    <string name="menu_delete_all">Desaniciar les tresmisiones</string>
+    <string name="message_options">Opciones del mensaxe</string>
+    <string name="menu_view_details">Ver los detalles</string>
+    <string name="menu_delete">Desaniciar la tresmisión</string>
+    <string name="view_details_title">Detalles de l\'alerta</string>
+    <string name="view_details_debugging_title">Detalles de l\'alerta pa depurar</string>
+    <string name="confirm_delete_broadcast">¿Quies desaniciar esta tresmisión?</string>
+    <string name="confirm_delete_all_broadcasts">¿Quies desaniciar toles tresmisiones recibíes?</string>
+    <string name="button_delete">Desaniciar</string>
+    <string name="button_cancel">Encaboxar</string>
+    <string name="etws_earthquake_warning">Alvertencia de terremotu</string>
+    <string name="etws_tsunami_warning">Alvertencia de tsunami</string>
+    <string name="etws_earthquake_and_tsunami_warning">Alvertencia de tsunami y terremotu</string>
+    <string name="etws_test_message">Mensaxe de prueba del ETWS</string>
+    <string name="etws_other_emergency_type">Alvertencia d\'emerxencia</string>
+    <string name="cmas_presidential_level_alert">Alerta presidencial</string>
+    <string name="cmas_extreme_alert">Alerta d\'emerxencia: estrema</string>
+    <string name="cmas_extreme_immediate_observed_alert">Alerta d\'emerxencia: estrema</string>
+    <string name="cmas_extreme_immediate_likely_alert">Alerta d\'emerxencia: estrema</string>
+    <string name="cmas_severe_alert">Alerta d\'emerxencia: grave</string>
+    <string name="cmas_amber_alert">Secuestru de menores (alerta AMBER)</string>
+    <string name="cmas_required_monthly_test">Prueba mensual obligatoria</string>
+    <string name="cmas_exercise_alert">Alerta d\'emerxencia (simulacru)</string>
+    <string name="cmas_operator_defined_alert">Alerta d\'emerxencia (operadora)</string>
+    <string name="cb_other_message_identifiers">Mensaxes de tresmisión</string>
+    <string name="public_safety_message">Mensaxe de seguranza pública</string>
+    <string name="state_local_test_alert">Prueba estatal/llocal</string>
+    <string name="emergency_alert">Alerta d\'emerxencia</string>
+    <string name="emergency_alerts_title">Alertes</string>
+    <string name="notification_channel_broadcast_messages">Mensaxes de tresmisión</string>
+    <string name="notification_channel_emergency_alerts">Alertes d\'emerxencia</string>
+    <string name="notification_channel_emergency_alerts_high_priority">Alertes d\'emerxencia inoraes</string>
+    <string name="notification_channel_broadcast_messages_in_voicecall">Alertes d\'emerxencia demientres les llamaes de voz</string>
+    <string name="notification_channel_settings_updates">Cambeos automáticos de la configuración de les alertes d\'emerxencia ensin fillo según la SIM</string>
+    <string name="enable_alerts_master_toggle_title">Permitir les alertes</string>
+    <string name="enable_alerts_master_toggle_summary">Fai que recibas avisos de les alertes d\'emerxencia ensin fillo</string>
+    <string name="alert_reminder_interval_title">Recordatoriu d\'alertes</string>
+    <string name="enable_alert_speech_title">Lleer el mensaxe d\'alerta</string>
+    <string name="enable_alert_speech_summary">Usa\'l sistema de síntesis de voz pa lleer los mensaxes de les alertes d\'emerxencia ensin fillo</string>
+    <string name="alert_reminder_dialog_title">Va reproducise un soníu de recordatoriu a volume normal</string>
+    <string name="emergency_alert_history_title">Historial d\'alertes d\'emerxencia</string>
+    <string name="alert_preferences_title">Preferencies de les alertes</string>
+    <string name="enable_etws_test_alerts_title">Tresmisiones de prueba del ETWS</string>
+    <string name="enable_etws_test_alerts_summary">Tresmisiones de prueba del sistema d\'alvertencia de tsunamis y terremotos</string>
+    <string name="enable_cmas_extreme_threat_alerts_title">Amenaces estremes</string>
+    <string name="enable_cmas_extreme_threat_alerts_summary">Amenaces estremes pa la vida y la propiedá</string>
+    <string name="enable_cmas_severe_threat_alerts_title">Amenaces graves</string>
+    <string name="enable_cmas_severe_threat_alerts_summary">Amenaces graves pa la vida y la propiedá</string>
+    <string name="enable_cmas_amber_alerts_title">Alertes AMBER</string>
+    <string name="enable_cmas_amber_alerts_summary">Boletinos d\'emerxencia tocante al secuestru de menores</string>
+    <string name="enable_alert_message_title">Mensaxes d\'alerta</string>
+    <string name="enable_alert_message_summary">Fai que recibas avisos d\'amenaces de seguranza inminentes</string>
+    <string name="enable_public_safety_messages_title">Mensaxes de seguranza pública</string>
+    <string name="enable_public_safety_messages_summary">Aiciones aconseyaes que puen salvar vides o propiedaes</string>
+    <string name="enable_full_screen_public_safety_messages_title">Amosar los mensaxes a pantalla completa</string>
+    <string name="enable_full_screen_public_safety_messages_summary">Cuando tán desactivaos, los mensaxes de seguranza pública siguen unviándose como avisu</string>
+    <string name="enable_state_local_test_alerts_title">Pruebes llocales y estatales</string>
+    <string name="enable_state_local_test_alerts_summary">Fai que recibas mensaxes de prueba de les autoridaes llocales y estatales</string>
+    <string name="enable_emergency_alerts_message_title">Alertes d\'emerxencia</string>
+    <string name="enable_emergency_alerts_message_summary">Fai que recibas avisos d\'amenaces mortales</string>
+    <string name="enable_cmas_test_alerts_title">Alertes de prueba</string>
+    <string name="enable_cmas_test_alerts_summary">Fai que recibas pruebes de la operadora y pruebes mensuales del sistema d\'alertes de seguranza</string>
+    <string name="enable_exercise_test_alerts_summary">Fai que recibas les alertes d\'emerxencia que seyan mensaxes de simulacru o práutica</string>
+    <string name="enable_operator_defined_test_alerts_summary">Fai que recibas les alertes d\'emerxencia indicaes pola operadora</string>
+    <string name="enable_alert_vibrate_title">Vibración</string>
+    <string name="override_dnd_title">Alertar siempre a tou volume</string>
+    <string name="override_dnd_summary">Inora\'l mou «Nun molestar» y otres opciones de configuración del volume</string>
+    <string name="enable_area_update_info_alerts_title">Tresmisiones d\'información anovada de la zona</string>
+    <string name="enable_area_update_info_alerts_summary">Amuesa información anovada nel estáu de la SIM</string>
+    <string name="cmas_category_heading">Categoría de l\'alerta:</string>
+    <string name="cmas_category_geo">Xeofísica</string>
+    <string name="cmas_category_met">Meteorolóxica</string>
+    <string name="cmas_category_safety">Seguranza</string>
+    <string name="cmas_category_security">Seguranza</string>
+    <string name="cmas_category_rescue">Rescate</string>
+    <string name="cmas_category_fire">Incendiu</string>
+    <string name="cmas_category_health">Salú</string>
+    <string name="cmas_category_env">Ambiental</string>
+    <string name="cmas_category_transport">Tresporte</string>
+    <string name="cmas_category_infra">Infraestructura</string>
+    <string name="cmas_category_cbrne">Química/biolóxica/nuclear/d\'esplosivos</string>
+    <string name="cmas_category_other">Otra</string>
+    <string name="cmas_response_heading">Tipu de rempuesta:</string>
+    <string name="cmas_response_shelter">Refúxate</string>
+    <string name="cmas_response_evacuate">Evacua</string>
+    <string name="cmas_response_prepare">Prepárate</string>
+    <string name="cmas_response_execute">Executa</string>
+    <string name="cmas_response_monitor">Supervisa</string>
+    <string name="cmas_response_avoid">Evita</string>
+    <string name="cmas_response_assess">Evalúa</string>
+    <string name="cmas_response_none">Nenguna</string>
+    <string name="cmas_severity_heading">Gravedá:</string>
+    <string name="cmas_severity_extreme">Estrema</string>
+    <string name="cmas_severity_severe">Grave</string>
+    <string name="cmas_urgency_heading">Urxencia:</string>
+    <string name="cmas_urgency_immediate">Inmediata</string>
+    <string name="cmas_urgency_expected">Esperada</string>
+    <string name="cmas_certainty_heading">Probabilidá:</string>
+    <string name="cmas_certainty_observed">N\'observación</string>
+    <string name="cmas_certainty_likely">Probable</string>
+    <string name="delivery_time_heading">Hora de receición:</string>
+    <string name="notification_multiple"><xliff:g id="count">%s</xliff:g> alertes ensin lleer.</string>
+    <string name="notification_multiple_title">Alertes nueves</string>
+    <string name="show_cmas_opt_out_summary">Amuesa un diálogu de desactivación tres amosar la primer alerta (quitante l\'alerta presidencial).</string>
+    <string name="show_cmas_opt_out_title">Amosar el diálogu de desactivación</string>
+    <string name="cmas_opt_out_dialog_text">Tas recibiendo alertes d\'emerxencia ensin fillo. ¿Quies siguir recibiéndoles?</string>
+    <string name="cmas_opt_out_button_yes">Sí</string>
+    <string name="cmas_opt_out_button_no">Non</string>
+    <string name="cb_list_activity_title">"Historial d'alertes d'emerxencia"</string>
+    <string-array name="alert_reminder_interval_entries">
+        <item>Una vegada</item>
+        <item>Cada 2 minutos</item>
+        <item>Cada 5 minutos</item>
+        <item>Cada 15 minutos</item>
+        <item>Enxamás</item>
+    </string-array>
+    <string name="emergency_alert_settings_title_watches">Alertes d\'emerxencia ensin fillo</string>
+    <string name="enable_cmas_presidential_alerts_title">Alertes presidenciales</string>
+    <string name="enable_cmas_presidential_alerts_summary">Mensaxes d\'alvertencia nacionales emitíos pol presidente. Nun se puen desactivar.</string>
+    <string name="testing_mode_enabled">El mou de prueba de tresmisión móvil ta activáu</string>
+    <string name="testing_mode_disabled">El mou de prueba de tresmisión móvil ta desactiváu</string>
+    <string name="show_all_messages">Amosar tolos mensaxes</string>
+    <string name="show_regular_messages">Amosar los mensaxes normales</string>
+    <string name="message_identifier">Identificador:</string>
+    <string name="message_serial_number">Númberu de serie:</string>
+    <string name="data_coding_scheme">Esquema de la codificación de datos:</string>
+    <string name="message_content">Conteníu del mensaxe:</string>
+    <string name="location_check_time">Hora de comprobación de la llocalización:</string>
+    <string name="message_displayed">¿Amosóse\'l mensaxe?:</string>
+    <string name="message_coordinates">Coordenaes:</string>
+    <string name="maximum_waiting_time">Tiempu d\'espera máximu:</string>
+    <string name="seconds">segundos</string>
+    <string name="message_copied">Copióse\'l mensaxe</string>
+    <string name="top_intro_roaming_text">Cuando tas en roaming o nun tienes una SIM activa, ye posible que recibas dalgunes alertes que nun s\'inclúin nesta configuración</string>
+    <string name="notification_cb_settings_changed_title">La operadora camudó la configuración</string>
+    <string name="notification_cb_settings_changed_text">Toca pa ver la configuración de les alertes d\'emerxencia ensin fillo</string>
+</resources>

@@ -1,0 +1,69 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#define TLOG_TAG "atoms"
+
+#include <assert.h>
+#include <string.h>
+#include <trusty_log.h>
+#include <uapi/err.h>
+#include <lib/stats/stats.h>
+#include <android/frameworks/stats/atoms.h>
+
+
+{% for atom in env.atoms %}
+int stats_{{atom.c_name}}_report(const char* port_name, size_t port_name_len, struct stats_{{atom.c_name}} {{atom.c_name}}) {
+    struct stats_istats* istats = NULL;
+    struct stats_vendor_atom* vendor_atom = NULL;
+    int rc;
+    if ((rc = stats_vendor_atom_create_parcel(&vendor_atom)) != NO_ERROR) {
+      goto exit;
+    }
+    assert(vendor_atom);
+    if ((rc = stats_vendor_atom_set_atom_id(vendor_atom, {{atom.atom_id}})) != NO_ERROR) {
+      goto exit;
+    }
+    if ((rc = stats_vendor_atom_set_reverse_domain_name(vendor_atom,
+        {{atom.c_name}}.reverse_domain_name,
+        {{atom.c_name}}.reverse_domain_name_len)) != NO_ERROR) {
+        goto exit;
+    }
+{% for value in atom.values %}
+    if ((rc = stats_vendor_atom_{{value.stats_setter_name}}(vendor_atom, {{value.idx}}, {{atom.c_name}}.{{value.c_name}}
+{%- if value.is_string -%}
+, {{atom.c_name}}.{{value.c_name}}_len
+{%- endif -%}
+)) != NO_ERROR) {
+        goto exit;
+    }
+{% endfor %}
+    /* report vendor atom */
+    if ((rc = stats_istats_get_service(port_name, port_name_len, &istats)) != NO_ERROR) {
+        goto exit;
+    }
+    rc = stats_istats_report_vendor_atom(istats, vendor_atom);
+exit:
+    if (vendor_atom) {
+        stats_vendor_atom_release(&vendor_atom);
+    }
+    if (istats) {
+        stats_istats_release(&istats);
+    }
+    return rc;
+}
+{{''}}
+{{''}}
+{% endfor %}

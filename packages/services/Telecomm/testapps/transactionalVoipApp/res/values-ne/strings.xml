@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="2907804426411305091">"Transactional API को परीक्षणसम्बन्धी गतिविधि"</string>
+    <string name="in_call_activity_name" msgid="7545884666442897585">"कलमा क्लाइन्ट र सर्भरबिच गरिएको कुराकानीसम्बन्धी क्रियाकलाप"</string>
+    <string name="register_phone_account" msgid="1920315963082350332">"फोन खाता दर्ता गर्नुहोस्"</string>
+    <string name="start_foreground_service" msgid="8968755699895128574">"FGS सुरु गर्नुहोस् (ब्याकग्राउन्डमा MT + एप सिमुलेट गर्नुहोस्)"</string>
+    <string name="start_outgoing" msgid="1441644037370361864">"बहिर्गमन कल सुरु गर्नुहोस्"</string>
+    <string name="start_incoming" msgid="6444983300186361271">"आगमन कल सुरु गर्नुहोस्"</string>
+    <string name="get_call_id" msgid="5513943242738347108">"कल ID सेट गरिएको छैन"</string>
+    <string name="set_call_active" msgid="3365404393507589899">"setActive"</string>
+    <string name="answer" msgid="5423590397665409939">"कल उठाउनुहोस्"</string>
+    <string name="set_call_inactive" msgid="7106775211368705195">"setInactive"</string>
+    <string name="disconnect_call" msgid="1349412380315371385">"डिस्कनेक्ट गर्नुहोस्"</string>
+    <string name="request_earpiece_endpoint" msgid="6649571985089296573">"इयरपिस"</string>
+    <string name="request_speaker_endpoint" msgid="1033259535289845405">"स्पिकर"</string>
+    <string name="request_bluetooth_endpoint" msgid="5933254250623451836">"ब्लुटुथ"</string>
+    <string name="start_stream" msgid="3567634786280097431">"स्ट्रिम गर्न थाल्नुहोस्"</string>
+    <string name="crash_app" msgid="2548690390730057704">"अपवाद देखाउने काम"</string>
+    <string name="update_notification" msgid="8677916482672588779">"कल गरिरहेका बेला सूचना जुन शैलीमा देखिन्छ सोही शैली प्रयोग गर्नुहोस्"</string>
+</resources>

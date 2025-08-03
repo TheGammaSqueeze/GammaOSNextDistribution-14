@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2013 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="telecommAppLabel" product="default">Gjestion clamadis telefonichis</string>
+    <string name="userCallActivityLabel" product="default">Telefon</string>
+    <string name="unknown">No cognossût</string>
+    <string name="notification_missedCallTitle">Clamade pierdude</string>
+    <string name="notification_missedWorkCallTitle">Clamade di vore pierdude</string>
+    <string name="notification_missedCallsTitle">Clamadis pierdudis</string>
+    <string name="notification_missedCallsMsg"><xliff:g id="num_missed_calls">%s</xliff:g> clamadis pierdudis</string>
+    <string name="notification_missedCallTicker">Clamade pierdude di <xliff:g id="missed_call_from">%s</xliff:g></string>
+    <string name="notification_missedCall_call_back">Torne clame</string>
+    <string name="notification_missedCall_message">Messaç</string>
+    <string name="notification_disconnectedCall_title">Clamade disconetude</string>
+    <string name="notification_disconnectedCall_body">La clamade a <xliff:g id="caller">%s</xliff:g> e je stade disconetude par dâ prioritât a une clamade di emergjence.</string>
+    <string name="notification_disconnectedCall_generic_body">        La tô clamade e je stade disconetude par dâ prioritât a une clamade di emergjence.
+    </string>
+    <string name="notification_audioProcessing_title">Clamade in sotfont</string>
+    <string name="notification_audioProcessing_body">        <xliff:g id="audio_processing_app_name">%s</xliff:g> al sta elaborant une clamade in
+        sotfont. Cheste aplicazion e podarès acedi e riprodusi audio parsore de clamade.
+    </string>
+    <string name="notification_incallservice_not_responding_title">        <xliff:g id="in_call_service_app_name">%s</xliff:g> nol rispuint plui
+    </string>
+    <string name="notification_incallservice_not_responding_body">        Pe tô clamade e je stade doprade la aplicazion par telefonâ che e rive integrade cul to dispositîf
+    </string>
+    <string name="accessibility_call_muted">Clamade cidinade.</string>
+    <string name="accessibility_speakerphone_enabled">Amplificadôr de casse ativât.</string>
+    <string name="respond_via_sms_canned_response_1">No pues cjacarâ cumò. Ce sucedie?</string>
+    <string name="respond_via_sms_canned_response_2">Ti torni a clamâ daurman.</string>
+    <string name="respond_via_sms_canned_response_3">Ti clami plui tart.</string>
+    <string name="respond_via_sms_canned_response_4">No pues cjacarâ cumò. Mi clamistu plui tart?</string>
+    <string name="respond_via_sms_setting_title">Rispuestis rapidis</string>
+    <string name="respond_via_sms_setting_title_2">Modifiche rispuestis rapidis</string>
+    <string name="respond_via_sms_edittext_dialog_title">Rispueste rapide</string>
+    <string name="respond_via_sms_confirmation_format">Messaç inviât a <xliff:g id="phone_number">%s</xliff:g></string>
+    <string name="respond_via_sms_failure_format">Impussibil inviâ il messaç a <xliff:g id="phone_number">%s</xliff:g></string>
+    <string name="enable_account_preference_title">Accounts des clamadis</string>
+    <string name="outgoing_call_not_allowed_user_restriction">A son consintudis dome lis clamadis di emergjence.</string>
+    <string name="outgoing_call_not_allowed_no_permission">Cheste aplicazion no rive a fâ clamadis in jessude cence il permès di Telefon.</string>
+    <string name="outgoing_call_error_no_phone_number_supplied">Par fâ une clamade, inserìs un numar valit.</string>
+    <string name="duplicate_video_call_not_allowed">In chest moment nol è pussibil zontâ la clamade.</string>
+    <string name="no_vm_number">Al mancje il numar de segretarie</string>
+    <string name="no_vm_number_msg">Su la schede SIM nol è stât memorizât nissun numar di segretarie.</string>
+    <string name="add_vm_number_str">Zonte numar</string>
+    <string name="change_default_dialer_dialog_title">Rindi <xliff:g id="new_app">%s</xliff:g> la tô aplicazion di Telefon predefinide?</string>
+    <string name="change_default_dialer_dialog_affirmative">Met predefinide</string>
+    <string name="change_default_dialer_dialog_negative">Anule</string>
+    <string name="change_default_dialer_warning_message"><xliff:g id="new_app">%s</xliff:g> al rivarà a fâ e controlâ ducj i aspiets des clamadis. Dome lis aplicazions che tu ti fidis a varessin di jessi metudis come aplicazions di Telefon predefinidis.</string>
+    <string name="change_default_call_screening_dialog_title">Rindi <xliff:g id="new_app">%s</xliff:g> la aplicazion predefinide par filtrâ lis clamadis?</string>
+    <string name="change_default_call_screening_warning_message_for_disable_old_app"><xliff:g id="old_app">%s</xliff:g> nol rivarà plui a filtrâ lis clamadis.</string>
+    <string name="change_default_call_screening_warning_message"><xliff:g id="new_app">%s</xliff:g> al rivarà a viodi informazions su cui che ti clame ma nol è tai tiei contats e al rivarà a blocâ chês clamadis. Dome lis aplicazions che tu ti fidis a varessin di jessi metudis come aplicazions predefinidis par filtrâ clamadis.</string>
+    <string name="change_default_call_screening_dialog_affirmative">Met predefinide</string>
+    <string name="change_default_call_screening_dialog_negative">Anule</string>
+    <string name="blocked_numbers">Numars blocâts</string>
+    <string name="blocked_numbers_msg">No tu ricevarâs clamadis o messaçs dai numars blocâts.</string>
+    <string name="block_number">Zonte un numar</string>
+    <string name="unblock_dialog_body">Sblocâ <xliff:g id="number_to_block">%1$s</xliff:g></string>
+    <string name="unblock_button">Sbloche</string>
+    <string name="add_blocked_dialog_body">Bloche clamadis e messaçs di</string>
+    <string name="add_blocked_number_hint">Numar di telefon</string>
+    <string name="block_button">Bloche</string>
+    <string name="non_primary_user">Dome il proprietari dal dispositîf al pues viodie e gjestî i numars blocâts.</string>
+    <string name="delete_icon_description">Sbloche</string>
+    <string name="blocked_numbers_butter_bar_title">Bloc disativât in mût temporani</string>
+    <string name="blocked_numbers_butter_bar_body">Dopo vê componût o scrit un messaç a un numar di emergjence, il bloc al ven disativât par fâ in mût che i servizis di emergjence a podedin contatâti.</string>
+    <string name="blocked_numbers_butter_bar_button">Torne abilite cumò</string>
+    <string name="blocked_numbers_number_blocked_message"><xliff:g id="blocked_number">%1$s</xliff:g> blocât</string>
+    <string name="blocked_numbers_number_unblocked_message"><xliff:g id="unblocked_number">%1$s</xliff:g> sblocât</string>
+    <string name="blocked_numbers_block_emergency_number_message">Impussibil blocâ un numar di emergjence.</string>
+    <string name="blocked_numbers_number_already_blocked_message"><xliff:g id="blocked_number">%1$s</xliff:g> al è za blocât.</string>
+    <string name="test_account_0_label">Q Mobile</string>
+    <string name="test_account_1_label">Market Wireless</string>
+    <string name="test_account_2_label">Sonoma Circles Talk Plus</string>
+    <string name="test_account_3_label">Bay Voice Chat Pro</string>
+    <string name="test_account_0_short_description">Account with Q Mobile</string>
+    <string name="test_account_1_short_description">Account with Market Wireless</string>
+    <string name="test_account_2_short_description">Talk to everyone in your Circles!</string>
+    <string name="test_account_3_short_description">Chat with Chat Network users</string>
+    <string name="handle_restricted">RESTRICTED</string>
+    <string name="toast_personal_call_msg">Daûr a doprâ il tasterin telefonic personâl par fâ la clamade</string>
+    <string name="notification_incoming_call">Clamade di <xliff:g id="call_from">%2$s</xliff:g> cun <xliff:g id="call_via">%1$s</xliff:g></string>
+    <string name="notification_incoming_video_call">Videoclamade di <xliff:g id="call_from">%2$s</xliff:g> cun <xliff:g id="call_via">%1$s</xliff:g></string>
+    <string name="answering_ends_other_call">Se tu rispuindis, la clamade <xliff:g id="call_via">%1$s</xliff:g> e vignarà terminade</string>
+    <string name="answering_ends_other_calls">Se tu rispuindis, lis clamadis <xliff:g id="call_via">%1$s</xliff:g> a vignaran terminadis</string>
+    <string name="answering_ends_other_video_call">Se tu rispuindis, la videoclamade <xliff:g id="call_via">%1$s</xliff:g> e vignarà terminade</string>
+    <string name="answering_ends_other_managed_call">Se tu rispuindis, la clamade in cors e vignarà terminade</string>
+    <string name="answering_ends_other_managed_calls">Se tu rispuindis, lis clamadis in cors a vignaran terminadis</string>
+    <string name="answering_ends_other_managed_video_call">Se tu rispuindis, la videoclamade in cors e vignarà terminade</string>
+    <string name="answer_incoming_call">Rispuint</string>
+    <string name="decline_incoming_call">Refude</string>
+    <string name="cant_call_due_to_no_supported_service">Impussibil fâ la clamade parcè che no son presints accounts che a supuartin clamadis di chest gjenar.</string>
+    <string name="cant_call_due_to_ongoing_call">Impussibil fâ la clamade par vie de clamade <xliff:g id="other_call">%1$s</xliff:g>.</string>
+    <string name="cant_call_due_to_ongoing_calls">Impussibil fâ la clamade par vie des clamadis <xliff:g id="other_call">%1$s</xliff:g>.</string>
+    <string name="cant_call_due_to_ongoing_unknown_call">Impussibil fâ la clamade par vie di une clamade cuntune altre aplicazion.</string>
+    <string name="notification_channel_incoming_call">Clamadis in jentrade</string>
+    <string name="notification_channel_missed_call">Clamadis pierdudis</string>
+    <string name="notification_channel_call_blocking">Bloc des clamadis</string>
+    <string name="notification_channel_background_calls">Clamadis in sotfont</string>
+    <string name="notification_channel_disconnected_calls">Clamadis disconetudis</string>
+    <string name="notification_channel_in_call_service_crash">Aplicazions di telefon colassadis</string>
+    <string name="notification_channel_call_streaming">Trasmission de clamade</string>
+    <string name="alert_outgoing_call">Fasint cheste camade tu terminarâs la clamade <xliff:g id="other_app">%1$s</xliff:g>.</string>
+    <string name="alert_redirect_outgoing_call_or_not">Sielç cemût fâ cheste clamade</string>
+    <string name="alert_place_outgoing_call_with_redirection">Devie la clamade doprant <xliff:g id="other_app">%1$s</xliff:g></string>
+    <string name="alert_place_unredirect_outgoing_call">Clame doprant il gno numar di telefon</string>
+    <string name="alert_redirect_outgoing_call_timeout"><xliff:g id="other_app">%1$s</xliff:g> nol rive a fâ la clamade. Prove a doprâ une altre aplicazion par deviâ lis clamadis o contate il svilupadôr par ricevi assistence.</string>
+    <string name="phone_settings_call_blocking_txt">Bloc des clamadis</string>
+    <string name="phone_settings_number_not_in_contact_txt">Numars no tai Contats</string>
+    <string name="phone_settings_number_not_in_contact_summary_txt">Bloche i numars che no son listâts tai Contats</string>
+    <string name="phone_settings_private_num_txt">Privât</string>
+    <string name="phone_settings_private_num_summary_txt">Bloche chei che ti clamin cence mostrâ il lôr numar</string>
+    <string name="phone_settings_payphone_txt">Cabine telefoniche</string>
+    <string name="phone_settings_payphone_summary_txt">Bloche lis clamadis des cabinis telefonichis</string>
+    <string name="phone_settings_unknown_txt">No cognossût</string>
+    <string name="phone_settings_unknown_summary_txt">Bloche lis clamadis no identificadis</string>
+    <string name="phone_settings_unavailable_txt">No disponibil</string>
+    <string name="phone_settings_unavailable_summary_txt">Bloche lis clamadis là che il numar nol è disponibil</string>
+    <string name="phone_strings_call_blocking_turned_off_notification_title_txt">Bloc des clamadis</string>
+    <string name="phone_strings_call_blocking_turned_off_notification_text_txt">Bloc des clamadis disativât</string>
+    <string name="phone_strings_emergency_call_made_dialog_title_txt">Clamade di emergjence fate</string>
+    <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt">Il bloc des clamadis al è stât disativât par permeti ai interlocutôrs pe emergjence di contatâti.</string>
+    <string name="developer_title">Menù svilupadôr telecomunicazions</string>
+    <string name="toast_emergency_can_not_pull_call">Nol è pussibil fâ clamadis intant che e je in cors une clamade di emergjence.</string>
+    <string name="cancel">Anule</string>
+    <string name="back">Indaûr</string>
+    <string name="callendpoint_name_earpiece">Auricolâr</string>
+    <string name="callendpoint_name_bluetooth">Bluetooth</string>
+    <string name="callendpoint_name_wiredheadset">Scufis cun fîl</string>
+    <string name="callendpoint_name_speaker">Casse amplificade</string>
+    <string name="callendpoint_name_streaming">Esterne</string>
+    <string name="callendpoint_name_unknown">No cognossût</string>
+    <string name="call_streaming_notification_body">Trasmission audio su altri dispositîf</string>
+    <string name="call_streaming_notification_action_hang_up"> Bute jù</string>
+    <string name="call_streaming_notification_action_switch_here">Passe achì</string>
+</resources>

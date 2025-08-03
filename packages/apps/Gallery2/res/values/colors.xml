@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2012 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources>
+
+    <color name="default_background">@color/white</color>
+
+    <!-- configuration for album set page -->
+    <color name="albumset_background">@color/white</color>
+    <color name="albumset_placeholder">@color/black_transparent_3</color>
+    <color name="albumset_label_background">@color/black_transparent_4</color>
+    <color name="albumset_label_title">@color/white</color>
+    <color name="albumset_label_count">@color/white</color>
+    <color name="albumlist_label_title">@color/black_transparent_4</color>
+
+    <color name="darker_transparent">@color/black_transparent_5</color>
+
+    <!-- configuration for album page -->
+    <color name="album_background">@color/white</color>
+    <color name="album_placeholder">@color/white</color>
+
+    <!-- configuration for photo page -->
+    <color name="photo_background">@color/black</color>
+    <color name="photo_placeholder">@color/light_black</color>
+    <color name="photo_page_action_bar">#8A000000</color>
+    <color name="photo_page_bottom_panel">#8A000000</color>
+
+    <!-- configuration for manage cache page -->
+    <color name="cache_background">@color/primary</color>
+    <color name="cache_placeholder">@color/light_black</color>
+
+    <color name="bitmap_screennail_placeholder">@color/light_black</color>
+
+    <color name="slideshow_background">@color/light_black</color>
+
+    <color name="button_dark_transparent_background">#6000</color>
+
+    <color name="ingest_highlight_semitransparent">#8833b5e5</color>
+    <color name="ingest_date_tile_text">@color/accent</color>
+
+    <!-- Camera resources below -->
+
+    <color name="recording_time_elapsed_text">@color/white</color>
+    <color name="recording_time_remaining_text">#FFFF0033</color>
+    <color name="on_viewfinder_label_background_color">#77333333</color>
+    <color name="review_control_pressed_color">@color/accent</color>
+    <color name="review_control_pressed_fan_color">#3F33B5E5</color>
+    <color name="review_background">@color/black</color>
+    <color name="icon_disabled_color">#DD777777</color>
+    <color name="time_lapse_arc">#FFC5C5C5</color>
+    <color name="indicator_background">#40000000</color>
+    <color name="popup_title_color">@color/accent</color>
+    <color name="popup_background">#ff282828</color>
+    <color name="pano_progress_empty">#FF2E2E2E</color>
+    <color name="pano_progress_done">#FF33525E</color>
+    <color name="pano_progress_indication">#FF0099CC</color>
+    <color name="pano_progress_indication_fast">#FFFF2222</color>
+    <color name="mode_selection_border">@color/accent</color>
+    <color name="holo_blue_light">@color/accent</color>
+    <color name="bright_foreground_disabled_holo_dark">#ff4c4c4c</color>
+    <color name="bright_foreground_holo_dark">#fff3f3f3</color>
+    <color name="face_detect_start">#80ffffff</color>
+    <color name="face_detect_success">#8050d060</color>
+    <color name="face_detect_fail">#80d05060</color>
+    <color name="gray">#FFAAAAAA</color>
+
+    <color name="highlight">#f41e26</color>
+    <color name="lowlight">#650101</color>
+    <color name="grey">#e7e7e7</color>
+    <color name="disabled_knob">#575757</color>
+    <color name="toolbar_theme">@color/primary</color>
+    <color name="multiselect_background">@color/white</color>
+    <color name="edit_background">@color/black</color>
+    <color name="edit_actionbar_background">@color/black</color>
+    <color name="dialog_button_color">#009688</color>
+    <color name="timeline_title_text_color">@color/black_transparent_4</color>
+    <color name="timeline_title_number_text_color">@color/black_transparent_3</color>
+    <color name="timeline_title_background_color">@color/white</color>
+
+    <color name="navigation_accent_disabled">#747474</color>
+    <color name="navigation_accent_enabled">@color/white</color>
+
+    <color name="details_text_color">@color/black_transparent_4</color>
+    <color name="empty_text">@color/black_transparent_4</color>
+
+    <color name="multiselect_action_text_color">@color/black_transparent_4</color>
+    <color name="multiselect_icon_color">@color/black</color>
+</resources>

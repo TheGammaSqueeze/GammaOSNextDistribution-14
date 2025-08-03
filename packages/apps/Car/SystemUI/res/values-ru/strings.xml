@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (c) 2018 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="hvac_min_text" msgid="866677328637088715">"Мин."</string>
+    <string name="hvac_max_text" msgid="7627950157128770380">"Макс."</string>
+    <string name="fan_speed_max" msgid="956683571700419211">"МАКС."</string>
+    <string name="fan_speed_off" msgid="3860115181014880798">"ВЫКЛ"</string>
+    <string name="hvac_temperature_off" msgid="8370977023494579242">"ВЫКЛ"</string>
+    <string name="voice_recognition_toast" msgid="7579725862117020349">"Для распознавания речи используется Bluetooth-устройство."</string>
+    <string name="car_add_user" msgid="6182764665687382136">"Добавить профиль"</string>
+    <string name="end_session" msgid="2765206020435441421">"Закончить сеанс"</string>
+    <string name="car_new_user" msgid="6766334721724989964">"Новый профиль"</string>
+    <string name="user_add_profile_title" msgid="828371911076521952">"Добавить профиль?"</string>
+    <string name="user_add_user_message_setup" msgid="1639791240776969175">"После добавления профиля владелец аккаунта может изменять его."</string>
+    <string name="user_add_user_message_update" msgid="4507063398890966360">"Из любого профиля можно установить обновление приложения. Оно станет доступно во всех профилях."</string>
+    <string name="profile_limit_reached_title" msgid="7891779218496729653">"Нельзя создать больше профилей"</string>
+    <string name="profile_limit_reached_message" msgid="1534369584753840606">"{count,plural, =1{Можно создать только один профиль.}one{Можно добавить до # профиля.}few{Можно добавить до # профилей.}many{Можно добавить до # профилей.}other{Можно добавить до # профиля.}}"</string>
+    <string name="car_loading_profile" msgid="458961191993686065">"Загрузка…"</string>
+    <string name="car_loading_profile_developer_message" msgid="737810794567935702">"Загрузка профиля пользователя (с <xliff:g id="FROM_USER">%1$d</xliff:g> по <xliff:g id="TO_USER">%2$d</xliff:g>)…"</string>
+    <string name="privacy_chip_off_content" msgid="8406415098507955316">"<xliff:g id="SENSOR">%1$s</xliff:g>: отключено."</string>
+    <string name="privacy_chip_use_sensor" msgid="7688230720803089653">"Использовать <xliff:g id="SENSOR">%1$s</xliff:g>"</string>
+    <string name="privacy_chip_use_sensor_subtext" msgid="5655148288310815742">"Для приложений, у которых есть разрешение"</string>
+    <string name="privacy_chip_settings" msgid="8028897999244574288">"Настройки конфиденциальности"</string>
+    <string name="privacy_chip_app_using_sensor_suffix" msgid="7921315376271490004">"Приложение \"<xliff:g id="APP">%1$s</xliff:g>\" использует <xliff:g id="SENSOR">%2$s</xliff:g>"</string>
+    <string name="mic_privacy_chip_apps_using_mic_suffix" msgid="6656026041668305817">"<xliff:g id="APP_LIST">%s</xliff:g> используют микрофон"</string>
+    <string name="privacy_chip_app_recently_used_sensor_suffix" msgid="4632772067170022529">"Приложение \"<xliff:g id="APP">%1$s</xliff:g>\" недавно использовало <xliff:g id="SENSOR">%2$s</xliff:g>"</string>
+    <string name="privacy_chip_apps_recently_used_sensor_suffix" msgid="2715537466314464047">"Приложение \"<xliff:g id="APP_0">%1$s</xliff:g>\" и ещё <xliff:g id="ADDITIONAL_APP_COUNT">%2$d</xliff:g> недавно использовали <xliff:g id="SENSOR">%3$s</xliff:g>"</string>
+    <string name="mic_privacy_chip_on_toast" msgid="7003896860896586181">"Микрофон включен."</string>
+    <string name="mic_privacy_chip_off_toast" msgid="8718743873640788032">"Микрофон отключен."</string>
+    <string name="mic_privacy_chip_dialog_ok" msgid="2298690833121720237">"ОК"</string>
+    <string name="sensor_privacy_start_use_mic_dialog_title" msgid="8774244900043105266">"Включить микрофон в автомобиле?"</string>
+    <string name="sensor_privacy_start_use_mic_dialog_content" msgid="8382980879434990801">"Чтобы продолжить, включите микрофон информационно-развлекательной системы. Он также включится для всех приложений, имеющих разрешение."</string>
+    <string name="camera_privacy_chip_app_using_camera_suffix" msgid="2591363552459967509">"Приложение \"<xliff:g id="APP">%s</xliff:g>\" использует камеру"</string>
+    <string name="camera_privacy_chip_apps_using_camera_suffix" msgid="8033118959615498419">"<xliff:g id="APP_LIST">%s</xliff:g> используют камеру"</string>
+    <string name="camera_privacy_chip_app_recently_used_camera_suffix" msgid="4534950658276502559">"Приложение \"<xliff:g id="APP">%s</xliff:g>\" недавно использовало камеру"</string>
+    <string name="camera_privacy_chip_apps_recently_used_camera_suffix" msgid="3094973410349692954">"Приложение \"<xliff:g id="APP_0">%1$s</xliff:g>\" и ещё <xliff:g id="ADDITIONAL_APP_COUNT">%2$d</xliff:g> недавно использовали камеру"</string>
+    <string name="camera_privacy_chip_on_toast" msgid="7901274903678512207">"Камера включена"</string>
+    <string name="camera_privacy_chip_off_toast" msgid="7135472255099347229">"Камера отключена"</string>
+    <string name="camera_privacy_chip_dialog_ok" msgid="7285467760928137765">"ОК"</string>
+    <string name="sensor_privacy_start_use_camera_dialog_title" msgid="4787836783010823885">"Включить камеру автомобиля?"</string>
+    <string name="sensor_privacy_start_use_camera_dialog_content" msgid="7749639131326657668">"Чтобы продолжить, включите камеру информационно-развлекательной системы. Камера также включится для всех приложений с разрешением."</string>
+    <string name="system_bar_home_label" msgid="8413273833405495948">"Главный экран"</string>
+    <string name="system_bar_phone_label" msgid="5664288201806823777">"Телефон"</string>
+    <string name="system_bar_applications_label" msgid="7081862804211786227">"Приложения"</string>
+    <string name="system_bar_climate_control_label" msgid="4091187805919276017">"Климат-контроль"</string>
+    <string name="system_bar_notifications_label" msgid="6039158514903928210">"Уведомления"</string>
+    <string name="system_bar_maps_label" msgid="7883864993280235380">"Карты"</string>
+    <string name="system_bar_media_label" msgid="6156112139796274847">"Мультимедиа"</string>
+    <string name="system_bar_control_center_label" msgid="5269256399167811590">"Центр управления"</string>
+    <string name="system_bar_assistant_label" msgid="7312821609046711200">"Ассистент"</string>
+    <string name="system_bar_mic_privacy_chip" msgid="2494035034004728597">"Чип защиты конфиденциальности для микрофона"</string>
+    <string name="system_bar_user_avatar" msgid="4122817348016746322">"Аватар пользователя"</string>
+    <string name="system_bar_user_name_text" msgid="5859605302481171746">"Имя пользователя (текст)"</string>
+    <string name="hvac_decrease_button_label" msgid="5628481079099995286">"Уменьшить температуру"</string>
+    <string name="hvac_increase_button_label" msgid="2855688290787396792">"Увеличить температуру"</string>
+    <string name="status_icon_bluetooth_disconnected" msgid="6773447522499007010">"Bluetooth: нет подключения"</string>
+    <string name="status_icon_bluetooth_connected" msgid="4548446117525711779">"Bluetooth: подключение установлено"</string>
+    <string name="status_icon_bluetooth_off" msgid="5435041393564635821">"Bluetooth: отключено"</string>
+    <string name="status_icon_signal_mobile" msgid="7264721079060179783">"Настройки связи: использование мобильного интернета"</string>
+    <string name="status_icon_signal_wifi" msgid="1257569337648058522">"Настройки связи: сеть Wi-Fi включена"</string>
+    <string name="status_icon_signal_hotspot" msgid="1023039120452006880">"Настройки связи: точка доступа включена"</string>
+    <string name="status_icon_display_status" msgid="2970020923181359144">"Настройки экрана"</string>
+    <string name="status_icon_drive_mode" msgid="3938622431486261076">"Режим вождения"</string>
+    <string name="activity_blocked_text" msgid="5353157279548801554">"Эту функцию нельзя использовать во время вождения."</string>
+    <string name="exit_button_close_application" msgid="112227710467017144">"Закрыть приложение"</string>
+    <string name="exit_button_go_back" msgid="7988866855775300902">"Назад"</string>
+    <string name="drive_mode_modes_comfort" msgid="628724737960743004">"Комфортный"</string>
+    <string name="drive_mode_modes_eco" msgid="7694931508925737653">"Экономичный"</string>
+    <string name="drive_mode_modes_sport" msgid="7664603138389270601">"Спортивный"</string>
+    <string name="qc_drive_mode_active_subtitle" msgid="3667965966971747414">"Активный"</string>
+    <string name="qc_footer_settings" msgid="5471523941092316743">"Настройки"</string>
+    <string name="qc_footer_bluetooth_settings" msgid="2870204430643762847">"Настройки Bluetooth"</string>
+    <string name="qc_footer_network_internet_settings" msgid="2480582764252681575">"Настройки сетей и интернета"</string>
+    <string name="qc_footer_display_settings" msgid="2950539240110437704">"Настройки экрана"</string>
+    <string name="qc_footer_network_sound_settings" msgid="5117011034908775097">"Настройки звука"</string>
+    <string name="qc_footer_profiles_accounts_settings" msgid="4456419248123950232">"Настройки профилей и аккаунтов"</string>
+    <string name="lockpattern_does_not_support_rotary" msgid="4605787900312103476">"Граф. ключ невозможно ввести вращением."</string>
+    <string name="display_input_lock_text" msgid="1671197665816822205">"Экран заблокирован"</string>
+    <string name="display_input_lock_started_text" msgid="2434054522800802134">"Экран заблокирован"</string>
+    <string name="display_input_lock_stopped_text" msgid="5944577827512246808">"Экран разблокирован"</string>
+    <string name="user_logout_title" msgid="5534754139319586681">"Вы уверены, что хотите выйти?"</string>
+    <string name="user_logout_message" msgid="7804089876692575056">"Все открытые приложения будут закрыты."</string>
+    <string name="user_logout" msgid="2934184154258330491">"Выйти"</string>
+    <string name="car_guest" msgid="768913000117469596">"Гость"</string>
+    <string name="user_switching_message" msgid="5346172662613832946">"Смена профиля…"</string>
+    <string name="user_adding_message" msgid="4700853604381151415">"Добавление профиля…"</string>
+    <string name="max_user_limit_reached_title" msgid="7319012467112549458"></string>
+    <string name="max_user_limit_reached_message" msgid="1445188223628919167">"Количество профилей ограничено (не более <xliff:g id="USER_LIMIT">%d</xliff:g>)."</string>
+    <string name="confirm_add_user_title" msgid="75853419607883551">"Добавить профиль?"</string>
+    <string name="already_logged_in_message" msgid="3657131706472825219">"Чтобы продолжить, пользователь <xliff:g id="USER_NAME">%1$s</xliff:g> должен выйти из аккаунта на экране \"<xliff:g id="SEAT_LOCATION">%2$s</xliff:g>\"."</string>
+    <string name="header_bar_text_in_logged_out_state" msgid="3903097856063608991">"Выберите профиль"</string>
+    <string name="logged_in_text" msgid="742324514947999718">"Вход выполнен"</string>
+    <string name="prefix_logged_in_info_for_other_seat" msgid="7438545665671460955">"Вход выполнен на экране \"<xliff:g id="SEAT_LOCATION">%s</xliff:g>\""</string>
+    <string name="create_user_failed_message" msgid="4539847475822170735">"Не удалось добавить профиль. Повторите попытку позже."</string>
+    <string name="guest_creation_failed_message" msgid="8198126434029601949">"Не удалось использовать гостевой профиль. Повторите попытку позже."</string>
+    <string name="stopping_user_text" msgid="4946464635279894684">"Выход…"</string>
+    <string name="wait_for_until_stopped_message" msgid="4964287657737020726">"Сейчас выходит пользователь <xliff:g id="USER_NAME">%s</xliff:g>. Повторите попытку позже."</string>
+    <string name="seat_driver" msgid="4502591979520445677">"на водительском сиденье"</string>
+    <string name="seat_front" msgid="836133281052793377">"на переднем сиденье"</string>
+    <string name="seat_rear" msgid="403133444964528577">"на заднем сиденье"</string>
+    <string name="seat_left_side" msgid="7460757956924015769">"слева"</string>
+    <string name="seat_center_side" msgid="6661501442901282386">"по центру"</string>
+    <string name="seat_right_side" msgid="6735434879559763096">"справа"</string>
+    <string name="keyguard_enter_your_pin" msgid="141736439348916894"></string>
+    <string name="keyguard_enter_your_pattern" msgid="4004401928097798697"></string>
+    <string name="keyguard_enter_your_password" msgid="1345546935461513721"></string>
+    <string name="car_keyguard_enter_your_pin" msgid="6306637610891409860">"Введите PIN-код"</string>
+    <string name="car_keyguard_enter_your_pattern" msgid="7314854851472119334">"Введите графический ключ"</string>
+    <string name="car_keyguard_enter_your_password" msgid="2084173625085820354">"Введите пароль"</string>
+    <string name="backspace_key" msgid="5570862528655375412">"Клавиша Backspace"</string>
+    <string name="enter_key" msgid="747962923921283095">"Клавиша Ввод"</string>
+    <string name="user_tos_activity_intent" msgid="6076292178025090081">"intent:#Intent;action=com.android.car.SHOW_USER_TOS_ACTIVITY;B.show_value_prop=false;end"</string>
+    <string name="back_btn" msgid="7774349944465667391">"Назад"</string>
+    <string name="fullscreen" msgid="7648956467442135844">"Полноэкранный режим"</string>
+</resources>

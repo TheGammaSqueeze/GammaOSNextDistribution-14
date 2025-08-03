@@ -1,0 +1,30 @@
+
+java_library {
+    name: "ims-ext-common",
+    provides_uses_lib: "ims-ext-common",
+    installable: true,
+    sdk_version: "system_current",
+    aidl: {
+        local_include_dirs: ["src/org"],
+        include_dirs: [
+            "frameworks/native/aidl/gui",
+        ],
+    },
+    srcs: [
+        "src/org/**/*.java",
+        "src/org/**/I*.aidl",
+        "src/org/**/*.logtags",
+    ],
+    product_specific: true,
+
+}
+
+prebuilt_etc {
+    name: "ims_ext_common.xml",
+    src: "ims_ext_common.xml",
+    sub_dir: "permissions",
+    product_specific: true,
+}
+
+// Include subdirectory makefiles
+// ============================================================

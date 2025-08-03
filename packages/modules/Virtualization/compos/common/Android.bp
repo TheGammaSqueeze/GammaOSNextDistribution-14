@@ -1,0 +1,28 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_library {
+    name: "libcompos_common",
+    crate_name: "compos_common",
+    defaults: ["avf_build_flags_rust"],
+    srcs: ["lib.rs"],
+    edition: "2021",
+    rustlibs: [
+        "android.system.virtualizationservice-rust",
+        "compos_aidl_interface-rust",
+        "libanyhow",
+        "libbinder_rs",
+        "libglob",
+        "liblazy_static",
+        "liblog_rust",
+        "libnested_virt",
+        "libnum_traits",
+        "librustutils",
+        "libvmclient",
+    ],
+    proc_macros: ["libnum_derive"],
+    apex_available: [
+        "com.android.compos",
+    ],
+}

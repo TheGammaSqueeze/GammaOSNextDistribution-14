@@ -1,0 +1,101 @@
+// Copyright 2011 The Android Open Source Project
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_defaults {
+    name: "CellBroadcastDefaults",
+    min_sdk_version: "30",
+    sdk_version: "module_current",
+    privileged: true,
+    optimize: {
+        shrink_resources: true,
+        proguard_flags_files: ["proguard.flags"],
+    },
+}
+
+android_library {
+    name: "CellBroadcastCommon",
+    defaults: ["CellBroadcastDefaults"],
+    srcs: [
+      "src/**/*.java",
+      ":cellbroadcast-constants-shared-srcs",
+      ":statslog-cellbroadcast-module-java-gen",
+    ],
+    libs: [
+        "framework-annotations-lib",
+        "framework-statsd",
+        "framework-bluetooth",
+    ],
+    static_libs: [
+        "androidx.legacy_legacy-support-v4",
+        "androidx.legacy_legacy-support-v13",
+        "androidx.recyclerview_recyclerview",
+        "androidx.preference_preference",
+        "androidx.appcompat_appcompat",
+        "androidx.legacy_legacy-preference-v14",
+        "SettingsLibSettingsTheme",
+        "SettingsLibCollapsingToolbarBaseActivity",
+        "SettingsLibMainSwitchPreference",
+        "SettingsLibTopIntroPreference",
+        "modules-utils-build_system",
+        "cellbroadcast-java-proto-lite",
+    ],
+    resource_dirs: ["res"],
+    manifest: "AndroidManifest_Lib.xml",
+    apex_available : [
+        "com.android.cellbroadcast",
+        "//apex_available:platform",
+    ],
+}
+
+android_app {
+    name: "CellBroadcastApp",
+    defaults: ["CellBroadcastDefaults"],
+    static_libs: ["CellBroadcastCommon"],
+    certificate: "networkstack",
+    aaptflags: ["--custom-package com.android.cellbroadcastreceiver"],
+    manifest: "AndroidManifest.xml",
+    apex_available: ["com.android.cellbroadcast"],
+    privapp_allowlist: ":privapp_allowlist_com.android.cellbroadcastreceiver.module.xml",
+    resource_dirs: [],
+}
+
+android_app {
+    name: "CellBroadcastAppPlatform",
+    defaults: ["CellBroadcastDefaults"],
+    static_libs: ["CellBroadcastCommon"],
+    target_sdk_version: "33",
+    certificate: "platform",
+    // CellBroadcastAppPlatform is a replacement for com.android.cellbroadcast apex which consists
+    // of CellBroadcastApp
+    overrides: ["com.android.cellbroadcast", "CellBroadcastLegacyApp"],
+    manifest: "AndroidManifest_Platform.xml",
+    system_ext_specific: true,
+    privileged: true,
+    privapp_allowlist: ":platform_privapp_allowlist_com.android.cellbroadcastreceiver.xml",
+    resource_dirs: [],
+}
+
+// source file shared with legacy cellbroadcast app
+filegroup {
+    name: "cellbroadcast-database-sources",
+    srcs: [
+        "src/com/android/cellbroadcastreceiver/CellBroadcastDatabaseHelper.java",
+    ],
+}
+
+java_library {
+    name: "cellbroadcast-java-proto-lite",
+    proto: {
+        type: "lite",
+        include_dirs: ["external/protobuf/src"],
+        canonical_path_from_root: false,
+    },
+    srcs: ["proto/*.proto"],
+    sdk_version: "core_current",
+    apex_available : ["com.android.cellbroadcast",
+                      "//apex_available:platform",
+    ],
+}

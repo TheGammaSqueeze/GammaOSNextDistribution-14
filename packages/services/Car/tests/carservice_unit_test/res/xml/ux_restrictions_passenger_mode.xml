@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+This xml contains UX restrictions configuration for testing.
+-->
+<UxRestrictions xmlns:car="http://schemas.android.com/apk/res-auto">
+    <RestrictionMapping>
+        <DrivingState state="parked">
+            <Restrictions mode="passenger"
+                requiresDistractionOptimization="false" uxr="baseline"/>
+            <Restrictions
+              requiresDistractionOptimization="true" uxr="no_video"/>
+        </DrivingState>
+        <DrivingState state="idling">
+            <Restrictions mode="passenger"
+                requiresDistractionOptimization="false" uxr="baseline"/>
+            <Restrictions
+                requiresDistractionOptimization="true" uxr="no_video"/>
+        </DrivingState>
+        <!-- Verify parsing multiple DrivingState tags also works.-->
+        <DrivingState state="moving">
+            <Restrictions mode="passenger"
+                requiresDistractionOptimization="false" uxr="baseline"/>
+        </DrivingState>
+        <DrivingState state="moving">
+            <Restrictions
+                requiresDistractionOptimization="true" uxr="no_video"/>
+        </DrivingState>
+    </RestrictionMapping>
+</UxRestrictions>

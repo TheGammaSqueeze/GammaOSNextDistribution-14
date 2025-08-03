@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.android.federatedcompute.services"
+    android:versionCode="1"
+    android:versionName="T-initial">
+
+    <!-- Define the permission to call federated compute clients implemented ExampleStoreService -->
+    <permission
+        android:name="android.permission.BIND_EXAMPLE_STORE_SERVICE"
+        android:protectionLevel="signature" />
+
+    <!-- Required for finding calling package info -->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"/>
+    <!-- Required for persisting scheduled jobs -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- Used for scheduling connectivity jobs -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+     <!-- Required for reading device configs -->
+    <uses-permission android:name="android.permission.READ_DEVICE_CONFIG"/>
+    <!--  Permission to call federated compute clients implemented ExampleStoreService  -->
+    <uses-permission
+        android:name="android.permission.BIND_EXAMPLE_STORE_SERVICE" />
+
+    <application android:forceQueryable="true">
+        <service android:name=".FederatedComputeManagingServiceImpl" android:exported="true" >
+            <intent-filter>
+                <action android:name="android.federatedcompute.FederatedComputeService" />
+            </intent-filter>
+        </service>
+        <!-- The JobService runs in main process, so when JobScheduler wakes up, it allows us to
+             decide not to start training without incurring overhead. -->
+        <service android:name="com.android.federatedcompute.services.training.FederatedJobService"
+                 android:exported="false"
+                 android:permission="android.permission.BIND_JOB_SERVICE">
+        </service>
+        <service android:name="com.android.federatedcompute.services.encryption.BackgroundKeyFetchJobService"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE">
+        </service>
+        <service
+            android:name="com.android.federatedcompute.services.scheduling.DeleteExpiredJobService"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE">
+        </service>
+        <service android:name="com.android.federatedcompute.services.training.IsolatedTrainingService"
+                 android:isolatedProcess="true" android:exported="false" >
+        </service>
+    </application>
+</manifest>

@@ -1,0 +1,19 @@
+-include ../../../frameworks/base/packages/SystemUI/proguard_common.flags
+
+-keep class com.android.systemui.tv.statusbar.TvStatusBar
+
+-keep class com.android.systemui.tv.dagger.TvSystemUIInitializer {
+    *;
+}
+
+-keep,allowoptimization,allowaccessmodification class com.android.systemui.tv.DaggerTvGlobalRootComponent** { !synthetic *; }
+
+# We know for certain that we are running on TV
+-assumevalues class * {
+    boolean isTv(***) return true;
+}
+
+# This method is actually a synonym for isTv()
+-assumevalues class com.android.systemui.volume.VolumeDialogImpl {
+    private boolean showActiveStreamOnly() return true;
+}

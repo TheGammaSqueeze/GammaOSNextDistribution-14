@@ -1,0 +1,9 @@
+package: "com.android.bluetooth.flags"
+container: "com.android.btservices"
+
+flag {
+    name: "nrpa_non_connectable_adv"
+    namespace: "bluetooth"
+    description: "Use NRPA for non-connectable advertising with public address policy."
+    bug: "319511126"
+}

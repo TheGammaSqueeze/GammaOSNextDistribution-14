@@ -1,0 +1,16 @@
+# Bug component: 1101073
+adarshsridhar@google.com
+npattan@google.com
+# Autofill
+include platform/frameworks/base:/core/java/android/service/autofill/OWNERS
+# PackageWatchdog
+gavincorkery@google.com
+# Notification
+dsandler@google.com
+juliacr@google.com
+# TextClassifier
+toki@google.com
+tonymak@google.com
+licha@google.com
+
+include platform/packages/modules/common:/MODULES_OWNERS  # see go/mainline-owners-policy

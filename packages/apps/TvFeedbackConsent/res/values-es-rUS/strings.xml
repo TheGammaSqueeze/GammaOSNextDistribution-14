@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="feedback_system_logs_title_text" msgid="8162964763101361628">"Enviar registros (sistema/app)"</string>
+    <string name="feedback_system_logs_legal_text" msgid="4770068793128503597">"Al compartir todos los registros de dispositivos del sistema y de las apps, Google puede enviar datos como nombres de usuario, información de red, IDs de dispositivos y ubicaciones. Google utiliza esta información para solucionar problemas técnicos y mejorar sus servicios. Obtén más información en g.co/android/devicelogs."</string>
+    <string name="feedback_bugreport_title_text" msgid="8863884817986711122">"Incluir informe de errores"</string>
+    <string name="feedback_bugreport_legal_display_text" msgid="4486929548753044585">"El informe de errores (de %1$s) incluye datos como nombres de usuario, información de red, IDs de dispositivos y ubicaciones para ayudar a Google a entender y solucionar el problema."</string>
+    <string name="next" msgid="3308587969183798652">"Siguiente"</string>
+    <string name="feedback_view_system_logs_button_text" msgid="1889709679017124924">"Ver registros del sistema"</string>
+    <string name="feedback_view_logs_dialog_title" msgid="1937861449450135462">"Registros del sistema"</string>
+    <string name="feedback_view_logs_dialog_body" msgid="2496560711853644250">"Estos registros contienen información que necesitaremos para poder abordar tus comentarios."</string>
+    <string name="annotated_back_indicator_string" msgid="3197935392074998004">"Presiona el botón Atrás para volver."</string>
+    <string name="loading" msgid="1709842456101615353">"Cargando"</string>
+</resources>

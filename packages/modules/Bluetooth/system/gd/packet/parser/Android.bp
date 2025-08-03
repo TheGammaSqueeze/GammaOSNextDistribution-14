@@ -1,0 +1,55 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_bt_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_bt_license"],
+}
+
+cc_binary_host {
+    name: "bluetooth_packetgen",
+    srcs: [
+        "checksum_def.cc",
+        "custom_field_def.cc",
+        "enum_def.cc",
+        "enum_gen.cc",
+        "fields/array_field.cc",
+        "fields/body_field.cc",
+        "fields/checksum_field.cc",
+        "fields/checksum_start_field.cc",
+        "fields/count_field.cc",
+        "fields/custom_field.cc",
+        "fields/custom_field_fixed_size.cc",
+        "fields/enum_field.cc",
+        "fields/fixed_enum_field.cc",
+        "fields/fixed_field.cc",
+        "fields/fixed_scalar_field.cc",
+        "fields/group_field.cc",
+        "fields/packet_field.cc",
+        "fields/padding_field.cc",
+        "fields/payload_field.cc",
+        "fields/reserved_field.cc",
+        "fields/scalar_field.cc",
+        "fields/size_field.cc",
+        "fields/struct_field.cc",
+        "fields/variable_length_struct_field.cc",
+        "fields/vector_field.cc",
+        "gen_cpp.cc",
+        "language_l.ll",
+        "language_y.yy",
+        "main.cc",
+        "packet_def.cc",
+        "packet_dependency.cc",
+        "parent_def.cc",
+        "struct_def.cc",
+        "struct_parser_generator.cc",
+    ],
+    static_libs: [
+        "libc++fs",
+    ],
+    yacc: {
+        gen_location_hh: true,
+        gen_position_hh: true,
+    },
+}

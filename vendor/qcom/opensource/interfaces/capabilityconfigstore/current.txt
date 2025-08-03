@@ -1,0 +1,2 @@
+fcb328dadfd824969db78c07517d7f551d1e61da9513e4488a75be0e7b5400b6 vendor.qti.hardware.capabilityconfigstore@1.0::types
+b9b280c383d0928b36e5f9afb0392e6671779fdced1515af13ad359f5edcf9e8 vendor.qti.hardware.capabilityconfigstore@1.0::ICapabilityConfigStore

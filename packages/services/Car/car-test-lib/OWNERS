@@ -1,0 +1,5 @@
+# Project owners
+include platform/packages/services/Car:/OWNERS
+
+# Property
+per-file src/android/car/testapi/FakeCarPropertyService.java = ericjeong@google.com, tylertrephan@google.com, shanyu@google.com

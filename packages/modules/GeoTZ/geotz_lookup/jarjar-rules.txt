@@ -1,0 +1,3 @@
+# Move com.google.common.geometry and any transitive dependencies on guava to one side to avoid
+# camping in the "real" package.
+rule com.google.common.** com.android.timezone.location.com.google.common.@1

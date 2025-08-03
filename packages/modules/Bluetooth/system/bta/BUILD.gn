@@ -1,0 +1,239 @@
+#
+#  Copyright 2015 Google, Inc.
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at:
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#
+
+import("//bt/system/gd/dumpsys/bundler/bundler.gni")
+import("//common-mk/flatbuffer.gni")
+
+static_library("bta") {
+  sources = [
+    "ag/bta_ag_act.cc",
+    "ag/bta_ag_api.cc",
+    "ag/bta_ag_at.cc",
+    "ag/bta_ag_cfg.cc",
+    "ag/bta_ag_cmd.cc",
+    "ag/bta_ag_main.cc",
+    "ag/bta_ag_rfc.cc",
+    "ag/bta_ag_sco.cc",
+    "ag/bta_ag_sdp.cc",
+    "ag/bta_ag_swb_aptx.cc",
+    "ar/bta_ar.cc",
+    "av/bta_av_aact.cc",
+    "av/bta_av_act.cc",
+    "av/bta_av_api.cc",
+    "av/bta_av_cfg.cc",
+    "av/bta_av_ci.cc",
+    "av/bta_av_main.cc",
+    "av/bta_av_ssm.cc",
+    "csis/csis_client.cc",
+    "dm/bta_dm_act.cc",
+    "dm/bta_dm_api.cc",
+    "dm/bta_dm_sec_api.cc",
+    "dm/bta_dm_cfg.cc",
+    "dm/bta_dm_ci.cc",
+    "dm/bta_dm_disc.cc",
+    "dm/bta_dm_gatt_client.cc",
+    "dm/bta_dm_main.cc",
+    "dm/bta_dm_pm.cc",
+    "dm/bta_dm_sec.cc",
+    "gatt/bta_gattc_act.cc",
+    "gatt/bta_gattc_api.cc",
+    "gatt/bta_gattc_db_storage.cc",
+    "gatt/bta_gattc_cache.cc",
+    "gatt/bta_gattc_main.cc",
+    "gatt/bta_gattc_utils.cc",
+    "gatt/bta_gattc_queue.cc",
+    "gatt/bta_gatts_act.cc",
+    "gatt/bta_gatts_api.cc",
+    "gatt/bta_gatts_main.cc",
+    "gatt/bta_gatts_utils.cc",
+    "gatt/database.cc",
+    "gatt/database_builder.cc",
+    "groups/groups.cc",
+    "has/has_client.cc",
+    "has/has_ctp.cc",
+    "has/has_preset.cc",
+    "has/has_types.cc",
+    "has/has_journal.cc",
+    "hearing_aid/hearing_aid.cc",
+    "hearing_aid/hearing_aid_audio_source.cc",
+    "hf_client/bta_hf_client_act.cc",
+    "hf_client/bta_hf_client_api.cc",
+    "hf_client/bta_hf_client_at.cc",
+    "hf_client/bta_hf_client_main.cc",
+    "hf_client/bta_hf_client_rfc.cc",
+    "hf_client/bta_hf_client_sdp.cc",
+    "hf_client/bta_hf_client_sco.cc",
+    "hh/bta_hh_act.cc",
+    "hh/bta_hh_api.cc",
+    "hh/bta_hh_cfg.cc",
+    "hh/bta_hh_le.cc",
+    "hh/bta_hh_main.cc",
+    "hh/bta_hh_utils.cc",
+    "hfp/bta_hfp_api.cc",
+    "hd/bta_hd_act.cc",
+    "hd/bta_hd_api.cc",
+    "hd/bta_hd_main.cc",
+    "jv/bta_jv_act.cc",
+    "jv/bta_jv_api.cc",
+    "jv/bta_jv_cfg.cc",
+    "le_audio/audio_hal_client/audio_sink_hal_client.cc",
+    "le_audio/audio_hal_client/audio_source_hal_client.cc",
+    "le_audio/broadcaster/broadcaster.cc",
+    "le_audio/broadcaster/broadcaster_types.cc",
+    "le_audio/broadcaster/state_machine.cc",
+    "le_audio/client.cc",
+    "le_audio/client_parser.cc",
+    "le_audio/codec_interface.cc",
+    "le_audio/codec_manager.cc",
+    "le_audio/content_control_id_keeper.cc",
+    "le_audio/device_groups.cc",
+    "le_audio/devices.cc",
+    "le_audio/hal_verifier_linux.cc",
+    "le_audio/le_audio_health_status.cc",
+    "le_audio/le_audio_log_history.cc",
+    "le_audio/le_audio_set_configuration_provider_json.cc",
+    "le_audio/le_audio_types.cc",
+    "le_audio/le_audio_utils.cc",
+    "le_audio/metrics_collector.cc",
+    "le_audio/state_machine.cc",
+    "le_audio/storage_helper.cc",
+    "pan/bta_pan_act.cc",
+    "pan/bta_pan_api.cc",
+    "pan/bta_pan_ci.cc",
+    "pan/bta_pan_main.cc",
+    "rfcomm/bta_rfcomm_scn.cc",
+    "sdp/bta_sdp.cc",
+    "sdp/bta_sdp_act.cc",
+    "sdp/bta_sdp_api.cc",
+    "sdp/bta_sdp_cfg.cc",
+    "sys/bta_sys_conn.cc",
+    "sys/bta_sys_main.cc",
+    "sys/utl.cc",
+    "vc/device.cc",
+    "vc/vc.cc",
+  ]
+
+  include_dirs = [
+    "closure",
+    "dm",
+    "hh",
+    "hd",
+    "include",
+    "sys",
+    "//bt/system/",
+    "//bt/system/include",
+    "//bt/system/linux_include",
+    "//bt/system/bta",
+    "//bt/system/gd",
+    "//bt/system/stack/include",
+    "//bt/system/stack/btm",
+    "//bt/system/udrv/include",
+    "//bt/system/vnd/include",
+    "//bt/system/btif/include",
+    "//bt/system/btif/avrcp",
+    "//bt/system/include/hardware/avrcp",
+    "//bt/system/profile/avrcp",
+    "//bt/system/packet/avrcp",
+    "//bt/system/packet/base",
+  ]
+
+  configs += [
+    "//bt/system:target_defaults",
+    "//bt/system/log:log_defaults",
+  ]
+
+  deps = [
+    "//bt/system/audio:libbt-audio-asrc",
+    "//bt/system/bta:LeAudioSetScenariosSchema_bfbs",
+    "//bt/system/bta:LeAudioSetConfigsSchema_bfbs",
+    "//bt/system/bta:install_audio_set_scenarios_json",
+    "//bt/system/bta:install_audio_set_configurations_json",
+    "//bt/system/bta:install_audio_set_scenarios_bfbs",
+    "//bt/system/bta:install_audio_set_configurations_bfbs",
+    "//bt/system:libbt-platform-protos-lite",
+    "//bt/system/gd/rust/shim:init_flags_bridge_header",
+  ]
+
+  libs = [
+    "lc3",
+  ]
+}
+
+bt_flatc_binary_schema("LeAudioSetScenariosSchema_bfbs") {
+  sources = [
+    "le_audio/audio_set_scenarios.fbs",
+  ]
+
+  include_dir = "system"
+  gen_header = true
+}
+
+bt_flatc_binary_schema("LeAudioSetConfigsSchema_bfbs") {
+  sources = [
+    "le_audio/audio_set_configurations.fbs",
+  ]
+
+  include_dir = "system"
+  gen_header = true
+}
+
+install_config("install_audio_set_scenarios_bfbs") {
+  sources = [ "$target_gen_dir/audio_set_scenarios.bfbs" ]
+  install_path = "/etc/bluetooth/le_audio/"
+}
+
+install_config("install_audio_set_configurations_bfbs") {
+  sources = [ "$target_gen_dir/audio_set_configurations.bfbs" ]
+  install_path = "/etc/bluetooth/le_audio/"
+}
+
+install_config("install_audio_set_scenarios_json") {
+  sources = [ "le_audio/audio_set_scenarios.json" ]
+  install_path = "/etc/bluetooth/le_audio/"
+}
+
+install_config("install_audio_set_configurations_json") {
+  sources = [ "le_audio/audio_set_configurations.json" ]
+  install_path = "/etc/bluetooth/le_audio/"
+}
+
+if (use.test) {
+  executable("net_test_bta") {
+    sources = [
+      "gatt/database_builder.cc",
+      "test/gatt/database_builder_test.cc",
+      "test/gatt/database_builder_sample_device_test.cc",
+      "test/gatt/database_test.cc",
+    ]
+
+    include_dirs = [
+      "include",
+      "//bt/system/",
+      "//bt/system/bta",
+      "//bt/system/stack/btm",
+    ]
+
+    deps = [
+      "//bt/system/bta",
+      "//bt/system/types",
+    ]
+
+    configs += [
+      "//bt/system:external_gmock_main",
+      "//bt/system:target_defaults",
+    ]
+  }
+}

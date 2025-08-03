@@ -1,0 +1,7 @@
+service hidl_memory /system/system_ext/bin/hw/android.hidl.allocator@1.0-service
+    class hal
+    user system
+    group system
+
+on property:hidl_memory.disabled=true
+   stop hidl_memory

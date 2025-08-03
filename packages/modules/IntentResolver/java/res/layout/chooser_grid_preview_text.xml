@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+* Copyright 2019, The Android Open Source Project
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+-->
+<!-- Layout Option: Text preview, with optional title and thumbnail -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@androidprv:id/content_preview_text_area"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="?androidprv:attr/materialColorSurfaceContainer">
+
+  <ViewStub
+      android:id="@+id/chooser_headline_row_stub"
+      android:layout="@layout/chooser_headline_row"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:paddingHorizontal="@dimen/chooser_edge_margin_normal"
+      android:layout_marginBottom="@dimen/chooser_view_spacing" />
+
+  <androidx.constraintlayout.widget.ConstraintLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center"
+      android:layout_marginHorizontal="@dimen/chooser_edge_margin_normal"
+      android:layout_marginBottom="8dp"
+      android:paddingVertical="@dimen/chooser_edge_margin_normal_half"
+      android:paddingStart="@dimen/chooser_edge_margin_normal_half"
+      android:paddingEnd="0dp"
+      android:background="@drawable/chooser_content_preview_rounded"
+      android:id="@+id/text_preview_layout">
+
+    <com.android.intentresolver.widget.RoundedRectImageView
+          android:id="@androidprv:id/content_preview_thumbnail"
+          android:layout_width="@dimen/width_text_image_preview_size"
+          android:layout_height="@dimen/width_text_image_preview_size"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toTopOf="parent"
+          app:layout_constraintBottom_toBottomOf="parent"
+          android:adjustViewBounds="true"
+          android:gravity="center"
+          app:radius="@dimen/chooser_corner_radius_small"
+          android:scaleType="centerCrop"/>
+
+    <TextView
+        android:id="@androidprv:id/content_preview_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toEndOf="@androidprv:id/content_preview_thumbnail"
+        app:layout_constraintEnd_toStartOf="@id/copy"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@androidprv:id/content_preview_text"
+        android:layout_marginStart="@dimen/chooser_edge_margin_normal_half"
+        app:layout_goneMarginStart="0dp"
+        app:layout_constraintVertical_chainStyle="packed"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textAlignment="gravity"
+        android:textDirection="locale"
+        android:textStyle="bold"
+        android:textColor="?androidprv:attr/materialColorOnSurface"
+        android:fontFamily="@androidprv:string/config_headlineFontFamily"/>
+
+    <TextView
+        android:id="@androidprv:id/content_preview_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toEndOf="@androidprv:id/content_preview_thumbnail"
+        app:layout_constraintEnd_toStartOf="@id/copy"
+        app:layout_constraintTop_toBottomOf="@androidprv:id/content_preview_title"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginStart="@dimen/chooser_edge_margin_normal_half"
+        app:layout_goneMarginStart="0dp"
+        android:ellipsize="end"
+        android:fontFamily="@androidprv:string/config_headlineFontFamily"
+        android:textColor="?androidprv:attr/materialColorOnSurfaceVariant"
+        android:textAlignment="gravity"
+        android:textDirection="locale"
+        android:maxLines="@integer/text_preview_lines"
+        android:focusable="true"/>
+
+    <FrameLayout
+        android:id="@+id/copy"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        style="?android:attr/borderlessButtonStyle"
+        app:layout_constraintStart_toEndOf="@androidprv:id/content_preview_text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginHorizontal="4dp"
+        android:contentDescription="@android:string/copy"
+        >
+      <ImageView
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_gravity="center"
+          android:tint="?androidprv:attr/materialColorOnSurfaceVariant"
+          android:src="@androidprv:drawable/ic_menu_copy_material"
+          />
+    </FrameLayout>
+  </androidx.constraintlayout.widget.ConstraintLayout>
+
+  <include layout="@layout/chooser_action_row" />
+
+</LinearLayout>
+

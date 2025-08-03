@@ -1,0 +1,3 @@
+# Test file for excluded classes
+test\.jarj.rexcluded\.JarjarExcludedCla.s
+test\.jarjarexcluded\.JarjarExcludedClass\$TestInnerCl.ss

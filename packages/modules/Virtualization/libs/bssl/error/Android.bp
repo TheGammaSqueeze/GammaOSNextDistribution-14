@@ -1,0 +1,41 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_defaults {
+    name: "libbssl_avf_error_defaults",
+    crate_name: "bssl_avf_error",
+    srcs: ["src/lib.rs"],
+    prefer_rlib: true,
+    apex_available: [
+        "com.android.virt",
+    ],
+}
+
+rust_library_rlib {
+    name: "libbssl_avf_error_nostd",
+    defaults: ["libbssl_avf_error_defaults"],
+    no_stdlibs: true,
+    stdlibs: [
+        "libcompiler_builtins.rust_sysroot",
+        "libcore.rust_sysroot",
+    ],
+    rustlibs: [
+        "libcoset_nostd",
+        "liblog_rust_nostd",
+        "libserde_nostd",
+    ],
+}
+
+rust_library {
+    name: "libbssl_avf_error",
+    defaults: ["libbssl_avf_error_defaults"],
+    features: [
+        "std",
+    ],
+    rustlibs: [
+        "libcoset",
+        "liblog_rust",
+        "libserde",
+    ],
+}

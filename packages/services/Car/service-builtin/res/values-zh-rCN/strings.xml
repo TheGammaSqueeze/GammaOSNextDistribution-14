@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2015 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="car_permission_label_bind_projection_service" msgid="6976251734714662552">"绑定到投影服务"</string>
+    <string name="car_permission_desc_bind_projection_service" msgid="4610418233070289810">"允许应用绑定到投影服务的顶级接口。普通应用绝不需要此权限。"</string>
+    <string name="car_permission_label_bind_vms_client" msgid="1298928874094319701">"VMS 客户端服务"</string>
+    <string name="car_permission_desc_bind_vms_client" msgid="7758142590449847602">"绑定到 VMS 客户端"</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="6723392540805279625">"仪表板呈现"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="2583711303360788080">"接收仪表板数据"</string>
+    <string name="car_permission_label_bind_input_service" msgid="6647238478703096557">"汽车输入服务"</string>
+    <string name="car_permission_desc_bind_input_service" msgid="8460218104132496613">"处理输入事件"</string>
+    <string name="activity_blocked_text" msgid="5991043857905412794">"您不能在驾车时使用此功能"</string>
+    <string name="exit_button_message" msgid="5375678491245394542">"要重新开始使用安全的应用功能，请选择<xliff:g id="EXIT_BUTTON">%s</xliff:g>。"</string>
+    <string name="exit_button" msgid="3491899413031549265">"返回"</string>
+    <string name="exit_button_close_application" msgid="5153716684207539041">"关闭应用"</string>
+    <string name="exit_button_go_back" msgid="6921595432375141935">"返回"</string>
+    <string name="importance_default" msgid="8017186728206153704">"重要性：默认"</string>
+    <string name="importance_high" msgid="3393374688015554727">"重要性：高"</string>
+    <string name="android_system_label" msgid="9209428539477894959">"Android 系统"</string>
+    <string name="factory_reset_notification_title" msgid="6177770995437355965">"需要恢复出厂设置"</string>
+    <string name="factory_reset_notification_text" msgid="6051393302193696102">"系统将清空信息娱乐系统中的所有数据。重置完成后，您可以设置新的个人资料。"</string>
+    <string name="factory_reset_notification_button" msgid="6926734587145351076">"更多"</string>
+    <string name="factory_reset_warning" msgid="8463356329619149262">"系统将清空您的设备"</string>
+    <string name="factory_reset_message" msgid="1972536809866779972">"无法使用管理应用，系统现在将清空您的设备。\n\n如有疑问，请与您所在单位的管理员联系。"</string>
+    <string name="resource_overuse_notification_title" msgid="1622015333965744463">"“<xliff:g id="ID_1">^1</xliff:g>”给系统性能造成了影响"</string>
+    <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"此应用已被禁止在后台运行。若要继续在后台使用此应用，请将其设为优先运行。"</string>
+    <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"关闭"</string>
+    <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"优先运行应用"</string>
+</resources>

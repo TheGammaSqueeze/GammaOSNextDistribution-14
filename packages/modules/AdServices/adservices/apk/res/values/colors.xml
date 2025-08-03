@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="divider_color">#E3E3E3</color>
+    <color name="card_background_color">#F9F9F9</color>
+    <color name="transparent_color">#00000000</color>
+    <!-- Material inverse ripple color, useful for inverted backgrounds. -->
+    <color name="ripple_material_inverse">@color/custom_ripple_material_dark</color>
+
+    <color name="background_color">@color/settingslib_background_device_default_light</color>
+    <color name="primary_text_color">@color/settingslib_text_color_primary_device_default</color>
+    <color name="adservices_primary_dark_device_default_settings">
+        @color/settingslib_primary_dark_device_default_settings
+    </color>
+    <color name="adservices_accent_primary_variant">@color/settingslib_accent_primary_variant
+    </color>
+    <color name="adservices_colorAccentPrimary">@color/settingslib_colorAccentPrimary</color>
+</resources>

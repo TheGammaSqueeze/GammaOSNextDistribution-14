@@ -1,0 +1,13 @@
+package hidl2aidl.test.extension@1.2;
+
+import hidl2aidl.test@1.2::FooFlag;
+import hidl2aidl.test@1.2::ArrayFoo;
+
+enum FooFlag : hidl2aidl.test@1.2::FooFlag {
+    FOURTH = 0x1 << 3,
+};
+
+struct ArrayFoo {
+    hidl2aidl.test@1.2::ArrayFoo base;
+    int8_t[12] e;
+};

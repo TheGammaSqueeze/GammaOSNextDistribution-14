@@ -1,0 +1,69 @@
+description: "Test that repeats itself"
+
+step {
+  audio_file : "okg-us-female.wav"
+  audio_file_sample_rate : 24000
+  delay_after : 3
+}
+step {
+  command: "shell 'dumpsys window | grep mCurrentFocus'"
+  delay_after: 3
+}
+step {
+  command: "shell input keyevent 3"
+  delay_after: 1
+}
+step {
+  command: "shell input keyevent 26"
+  delay_after: 2
+}
+step {
+  command: "shell dumpsys battery unplug"
+  delay_after: 1
+}
+step {
+  command: "shell dumpsys deviceidle force-idle"
+  delay_after: 5
+}
+step {
+  audio_file : "okg-us-male.wav"
+  audio_file_sample_rate : 24000
+  delay_after : 3
+}
+step {
+  command: "shell 'dumpsys window | grep mCurrentFocus'"
+  delay_after: 3
+}
+step {
+  command: "shell input keyevent 3"
+  delay_after: 1
+}
+step {
+  command: "shell input keyevent 26"
+  delay_after: 2
+}
+step {
+  command: "shell dumpsys battery unplug"
+  delay_after: 1
+}
+step {
+  command: "shell dumpsys deviceidle force-idle"
+  delay_after: 5
+}
+
+expected_result {
+    aohd_hotword_detected : 2
+    assistant_started  : 1
+    dsp_false_accept  : 0
+    logcat_iteration  : 1
+    vis_software_hotword  : 2
+}
+
+event {
+  name: "device_crashed"
+  condition: "iterations_since_aohd_hotword_detected >= 30 "
+             "or iterations_since_assistant_started >= 30"
+  action: "BUGREPORT"
+  action: "NOTIFY"
+  action: "REMOVE_DEVICE"
+}

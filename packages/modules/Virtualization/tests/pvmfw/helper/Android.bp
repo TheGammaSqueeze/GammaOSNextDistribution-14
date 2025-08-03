@@ -1,0 +1,9 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_library_host {
+    name: "PvmfwHostTestHelper",
+    srcs: ["java/**/*.java"],
+    libs: ["androidx.annotation_annotation"],
+}

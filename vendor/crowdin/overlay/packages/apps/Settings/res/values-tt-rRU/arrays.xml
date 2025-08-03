@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+**
+** Copyright 2007 The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string-array name="dark_ui_scheduler_preference_titles">
+        <item>@string/dark_ui_auto_mode_never</item>
+        <item>@string/dark_ui_auto_mode_custom</item>
+        <item>@string/dark_ui_auto_mode_auto</item>
+    </string-array>
+    <string-array name="dark_ui_scheduler_with_bedtime_preference_titles">
+        <item>@string/dark_ui_auto_mode_never</item>
+        <item>@string/dark_ui_auto_mode_custom</item>
+        <item>@string/dark_ui_auto_mode_auto</item>
+        <item>@string/dark_ui_auto_mode_custom_bedtime</item>
+    </string-array>
+    <string-array name="wifi_tether_security">
+        <item>@string/wifi_security_sae</item>
+        <item>@string/wifi_security_psk_sae</item>
+        <item>@string/wifi_security_wpa2</item>
+        <item>@string/wifi_security_none</item>
+    </string-array>
+    <string-array name="bluetooth_leaudio_mode">
+        <item>Disabled</item>
+        <item>Unicast</item>
+        <item>Unicast and Broadcast</item>
+    </string-array>
+    <string-array name="bluetooth_max_connected_audio_devices">
+        <item>Use System Default: 
+            <xliff:g id="default_bluetooth_max_connected_audio_devices">%1$d</xliff:g>
+        </item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
+    <string-array name="wifi_peap_phase2_entries">
+        <item>MSCHAPV2</item>
+        <item>GTC</item>
+    </string-array>
+    <string-array name="wifi_ttls_phase2_entries">
+        <item>PAP</item>
+        <item>MSCHAP</item>
+        <item>MSCHAPV2</item>
+        <item>GTC</item>
+    </string-array>
+    <string-array name="wifi_ip_settings">
+        <item>DHCP</item>
+        <item>Static</item>
+    </string-array>
+    <string-array name="apn_auth_entries">
+        <item>None</item>
+        <item>PAP</item>
+        <item>CHAP</item>
+        <item>PAP or CHAP</item>
+    </string-array>
+    <string-array name="apn_protocol_entries">
+        <item>IPv4</item>
+        <item>IPv6</item>
+        <item>IPv4/IPv6</item>
+    </string-array>
+    <string-array name="bearer_entries">
+        <item>Unspecified</item>
+        <item>LTE</item>
+        <item>HSPAP</item>
+        <item>HSPA</item>
+        <item>HSUPA</item>
+        <item>HSDPA</item>
+        <item>UMTS</item>
+        <item>EDGE</item>
+        <item>GPRS</item>
+        <item>eHRPD</item>
+        <item>EVDO_B</item>
+        <item>EVDO_A</item>
+        <item>EVDO_0</item>
+        <item>1xRTT</item>
+        <item>IS95B</item>
+        <item>IS95A</item>
+        <item>NR</item>
+    </string-array>
+    <string-array name="app_ops_summaries">
+        <item>coarse location</item>
+        <item>fine location</item>
+        <item>GPS</item>
+        <item>vibrate</item>
+        <item>read contacts</item>
+        <item>modify contacts</item>
+        <item>read call log</item>
+        <item>modify call log</item>
+        <item>read calendar</item>
+        <item>modify calendar</item>
+        <item>wi-fi scan</item>
+        <item>notification</item>
+        <item>cell scan</item>
+        <item>call phone</item>
+        <item>read SMS</item>
+        <item>write SMS</item>
+        <item>receive SMS</item>
+        <item>receive emergency SMS</item>
+        <item>receive MMS</item>
+        <item>receive WAP push</item>
+        <item>send SMS</item>
+        <item>read ICC SMS</item>
+        <item>write ICC SMS</item>
+        <item>modify settings</item>
+        <item>draw on top</item>
+        <item>access notifications</item>
+        <item>camera</item>
+        <item>record audio</item>
+        <item>play audio</item>
+        <item>read clipboard</item>
+        <item>modify clipboard</item>
+        <item>media buttons</item>
+        <item>audio focus</item>
+        <item>master volume</item>
+        <item>voice volume</item>
+        <item>ring volume</item>
+        <item>media volume</item>
+        <item>alarm volume</item>
+        <item>notification volume</item>
+        <item>bluetooth volume</item>
+        <item>keep awake</item>
+        <item>monitor location</item>
+        <item>monitor high power location</item>
+        <item>get usage stats</item>
+        <item>mute/unmute microphone</item>
+        <item>show toast</item>
+        <item>project media</item>
+        <item>activate VPN</item>
+        <item>write wallpaper</item>
+        <item>assist structure</item>
+        <item>assist screenshot</item>
+        <item>read phone state</item>
+        <item>add voicemail</item>
+        <item>use sip</item>
+        <item>process outgoing call</item>
+        <item>fingerprint</item>
+        <item>body sensors</item>
+        <item>read cell broadcasts</item>
+        <item>mock location</item>
+        <item>read storage</item>
+        <item>write storage</item>
+        <item>turn on screen</item>
+        <item>get accounts</item>
+        <item>run in background</item>
+        <item>accessibility volume</item>
+    </string-array>
+    <string-array name="captioning_typeface_selector_titles">
+        <item>Default</item>
+        <item>Sans-serif</item>
+        <item>Sans-serif condensed</item>
+        <item>Sans-serif monospace</item>
+        <item>Serif</item>
+        <item>Serif monospace</item>
+        <item>Casual</item>
+        <item>Cursive</item>
+        <item>Small capitals</item>
+    </string-array>
+    <string-array name="captioning_opacity_selector_titles">
+        <item>25%</item>
+        <item>50%</item>
+        <item>75%</item>
+        <item>100%</item>
+    </string-array>
+    <string-array name="ram_states">
+        <item>Normal</item>
+        <item>Moderate</item>
+        <item>Low</item>
+        <item>Critical</item>
+        <item>\?</item>
+    </string-array>
+    <string-array name="swipe_direction_titles">
+        <item>@string/swipe_direction_rtl</item>
+        <item>@string/swipe_direction_ltr</item>
+    </string-array>
+    <string-array name="swipe_direction_values">
+        <item>1</item>
+        <item>0</item>
+    </string-array>
+    <string-array name="preferred_network_mode_choices">
+        <item>GSM/WCDMA preferred</item>
+        <item>GSM only</item>
+        <item>WCDMA only</item>
+        <item>GSM/WCDMA auto</item>
+        <item>CDMA/EvDo auto</item>
+        <item>CDMA w/o EvDo</item>
+        <item>EvDo only</item>
+        <item>CDMA/EvDo/GSM/WCDMA</item>
+        <item>CDMA + LTE/EvDo</item>
+        <item>GSM/WCDMA/LTE</item>
+        <item>LTE/CDMA/EvDo/GSM/WCDMA</item>
+        <item>LTE</item>
+        <item>LTE / WCDMA</item>
+        <item>TDSCDMA only</item>
+        <item>TDSCDMA/WCDMA</item>
+        <item>LTE/TDSCDMA</item>
+        <item>TDSCDMA/GSM</item>
+        <item>LTE/TDSCDMA/GSM</item>
+        <item>TDSCDMA/GSM/WCDMA</item>
+        <item>LTE/TDSCDMA/WCDMA</item>
+        <item>LTE/TDSCDMA/GSM/WCDMA</item>
+        <item>TDSCDMA/CDMA/EVDO/GSM/WCDMA </item>
+        <item>LTE/TDSCDMA/CDMA/EVDO/GSM/WCDMA</item>
+        <item>NR only</item>
+        <item>NR/LTE</item>
+        <item>NR/LTE/CDMA/EvDo</item>
+        <item>NR/LTE/GSM/WCDMA</item>
+        <item>Global</item>
+        <item>NR/LTE/WCDMA</item>
+        <item>NR/LTE/TDSCDMA</item>
+        <item>NR/LTE/TDSCDMA/GSM</item>
+        <item>NR/LTE/TDSCDMA/WCDMA</item>
+        <item>NR/LTE/TDSCDMA/GSM/WCDMA</item>
+        <item>NR/LTE/TDSCDMA/CDMA/EvDo/GSM/WCDMA</item>
+    </string-array>
+    <string-array name="cdma_subscription_choices">
+        <item>RUIM/SIM</item>
+        <item>NV</item>
+    </string-array>
+    <string-array name="enhanced_4g_lte_mode_title_variant">
+        <item>@string/enhanced_4g_lte_mode_title</item>
+        <item>@string/enhanced_4g_lte_mode_title_advanced_calling</item>
+        <item>@string/enhanced_4g_lte_mode_title_4g_calling</item>
+    </string-array>
+    <string-array name="rtt_setting_mode">
+        <item/>
+        <item>@string/rtt_settings_no_visible</item>
+        <item>@string/rtt_settings_visible_during_call</item>
+        <item>@string/rtt_settings_always_visible</item>
+    </string-array>
+    <string-array name="ingress_rate_limit_entries">
+        <item>@string/ingress_rate_limit_no_limit_entry</item>
+        <item>128kbps</item>
+        <item>256kbps</item>
+        <item>1Mbps</item>
+        <item>5Mbps</item>
+        <item>15Mbps</item>
+    </string-array>
+    <string-array name="ingress_rate_limit_values">
+        <item>-1</item>
+        <item>16000</item>
+        <item>32000</item>
+        <item>125000</item>
+        <item>625000</item>
+        <item>1875000</item>
+        </string-array>
+    <string-array name="temperature_units">
+        <item>default</item>
+        <item>celsius</item>
+        <item>fahrenhe</item>
+    </string-array>
+    <string-array name="first_day_of_week">
+        <item>default</item>
+        <item>sun</item>
+        <item>mon</item>
+        <item>tue</item>
+        <item>wed</item>
+        <item>thu</item>
+        <item>fri</item>
+        <item>sat</item>
+    </string-array>
+    <string-array name="terms_of_address_unsupported_locales">
+        <item>fr-CA</item>
+        </string-array>
+    <string-array name="terms_of_address_supported_languages">
+        <item>fr</item>
+        </string-array>
+    <string-array name="notification_polite_options">
+        <item>@string/notification_polite_all_apps</item>
+        <item>@string/notification_polite_conversations</item>
+        <item>@string/notification_polite_disabled</item>
+    </string-array>
+    <string-array name="private_space_auto_lock_options">
+        <item>@string/private_space_auto_lock_every_time</item>
+        <item>@string/private_space_auto_lock_after_inactivity</item>
+        <item>@string/private_space_auto_lock_never</item>
+    </string-array>
+</resources>

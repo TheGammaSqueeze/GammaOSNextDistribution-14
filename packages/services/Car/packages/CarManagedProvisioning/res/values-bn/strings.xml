@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    Copyright (C) 2021 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="brand_screen_header" msgid="4382251935798018352">"প্রতিষ্ঠানটি এই গাড়ির মালিক"</string>
+    <string name="contact_device_provider" msgid="338577979231875837">"আরও তথ্য জানতে <xliff:g id="IT_ADMIN">%1$s</xliff:g>-এর সাথে যোগাযোগ করুন।"</string>
+    <string name="organization_admin" msgid="6551608903069550652">"প্রতিষ্ঠানের ম্যানেজার"</string>
+    <string name="if_questions_contact_admin" msgid="4645510019575736238">"আপনার কোনও প্রশ্ন থাকলে, প্রতিষ্ঠানের ম্যানেজারের সাথে যোগাযোগ করুন"</string>
+    <string name="admin_has_ability_to_monitor_device" msgid="3132155961508293345">"নেটওয়ার্ক অ্যাক্টিভিটি, গাড়ির লোকেশন সহ সেটিংস, কর্পোরেট অ্যাক্সেস, অ্যাপ, বিভিন্ন অনুমতি এবং গাড়ির সাথে যুক্ত ডেটা, প্রতিষ্ঠানের ম্যানেজার মনিটর ও ম্যানেজ করতে পারবেন।<xliff:g id="LINE_BREAK">
+
+</xliff:g>প্রতিষ্ঠানের গোপনীয়তা নীতি সহ আরও তথ্য জানার জন্য প্রতিষ্ঠানের ম্যানেজারের সাথে যোগাযোগ করুন।"</string>
+    <string name="contact_your_admin_for_more_info" msgid="1419852317652804536">"প্রতিষ্ঠানের গোপনীয়তা নীতি সহ আরও তথ্যের জন্য প্রতিষ্ঠানের ম্যানেজারের সাথে যোগাযোগ করুন।"</string>
+    <string name="managed_device_info" msgid="2134697391634083944">"এটি ম্যানেজ করা যায় এমন একটি গাড়ি"</string>
+    <string name="contact_your_admin_for_help" msgid="1741496631607502730">"সাহায্যের জন্য প্রতিষ্ঠানের ম্যানেজারের সাথে যোগাযোগ করুন"</string>
+    <string name="fully_managed_device_provisioning_accept_header" msgid="8767138982035307813">"ম্যানেজ করা হয়েছে এমন গাড়ি সেট-আপ করুন"</string>
+    <string name="fully_managed_device_provisioning_step_1_header" msgid="8704166635032524345">"আপনার প্রতিষ্ঠানের অ্যাপ অ্যাক্সেস করুন"</string>
+    <string name="fully_managed_device_provisioning_step_1_description" msgid="5960961281295355254">"ইনফোটেইনমেন্ট সিস্টেম সেট-আপ করা হচ্ছে..."</string>
+    <string name="fully_managed_device_provisioning_step_2_header" msgid="5888602026900289468">"ইনফোটেইনমেন্ট সিস্টেম সংক্রান্ত ডেটা ব্যক্তিগত নয়"</string>
+    <string name="fully_managed_device_provisioning_step_2_subheader_title" msgid="1421575203782743214">"আপনার অ্যাক্টিভিটি এবং ডেটা"</string>
+    <string name="fully_managed_device_provisioning_step_2_subheader" msgid="4881961368653838979">"প্রতিষ্ঠানের ম্যানেজার হয়ত এই গাড়িতে আপনার অ্যাক্টিভিটি এবং ডেটা দেখতে পারবেন।"</string>
+    <string name="fully_managed_device_provisioning_permissions_secondary_subheader" msgid="8955791361423166123">"প্রতিষ্ঠানের ম্যানেজার, অ্যাপের জন্য এই গাড়িতে মাইক্রোফোন ও লোকেশন সংক্রান্ত অনুমতির মতো বিভিন্ন অনুমতি সেট-আপ করতে পারবেন।"</string>
+    <string name="fully_managed_device_with_permission_control_provisioning_summary" msgid="2503568673345133100">"সহজে অফিসের অ্যাপ অ্যাক্সেস করতে এই গাড়ির ইনফোটেইনমেন্ট সিস্টেম ব্যবহার করুন। এই গাড়িটি ব্যক্তিগত নয়, তাই প্রতিষ্ঠানের ম্যানেজার হয়ত আপনার অ্যাক্টিভিটি এবং ডেটা দেখতে পারবেন। এছাড়া, প্রতিষ্ঠানের ম্যানেজার, অ্যাপের জন্য এই গাড়িতে মাইক্রোফোন ও লোকেশন সংক্রান্ত অনুমতির মতো বিভিন্ন অনুমতি সেট-আপ করতে পারবেন।"</string>
+    <string name="fully_managed_device_provisioning_summary" msgid="4323948058344613817">"সহজে অফিসের অ্যাপ অ্যাক্সেস করতে এই গাড়ির ইনফোটেইনমেন্ট সিস্টেম ব্যবহার করুন। এই গাড়িটি ব্যক্তিগত নয়, তাই প্রতিষ্ঠানের ম্যানেজার হয়ত আপনার ডেটা এবং অ্যাক্টিভিটি দেখতে পারবেন।"</string>
+    <string name="fully_managed_device_provisioning_progress_label" msgid="988594700479673633">"ম্যানেজ করা যায় এমন গাড়ি সেট-আপ করা হচ্ছে"</string>
+    <string name="fully_managed_device_provisioning_return_device_title" msgid="1578111657911434819">"সেট-আপ করা বাতিল করে গাড়ি ফেরত দিন"</string>
+    <string name="fully_managed_device_provisioning_return_device_subheader" msgid="5809488930429106172">"রিসেট করে এই গাড়িটি প্রতিষ্ঠানের ম্যানেজারকে ফেরত দিন অথবা সেট-আপ করা চালিয়ে যেতে আগের স্ক্রিনে ফিরে যান।"</string>
+    <string name="fully_managed_device_cancel_setup_button" msgid="4113790677940440998">"সেটআপ বাতিল করুন"</string>
+    <string name="fully_managed_device_reset_and_return_button" msgid="4951274590516561428">"রিসেট করে ফেরত দিন"</string>
+    <string name="fully_managed_device_provisioning_privacy_title" msgid="4789425994893472324">"গোপনীয়তা বিজ্ঞপ্তি"</string>
+    <string name="fully_managed_device_provisioning_privacy_body" msgid="5549745709511179391">"প্রতিষ্ঠানের ম্যানেজার হয়ত এই গাড়িতে আপনার ডেটা এবং অ্যাক্টিভিটি দেখতে পারবেন।"</string>
+</resources>

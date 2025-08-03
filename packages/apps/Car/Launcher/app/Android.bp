@@ -1,0 +1,109 @@
+// Copyright (C) 2018 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+genrule {
+    name: "statslog-carlauncher-java-gen",
+    tools: ["stats-log-api-gen"],
+    cmd: "$(location stats-log-api-gen) --java $(out) --module carlauncher" +
+        " --javaPackage com.android.car.carlauncher --javaClass CarLauncherStatsLog",
+    out: ["com/android/car/carlauncher/CarLauncherStatsLog.java"],
+}
+
+carlauncher_srcs = [
+    "src/**/*.java",
+    ":statslog-carlauncher-java-gen",
+]
+
+android_library {
+    name: "CarLauncher-core",
+
+    srcs: carlauncher_srcs,
+
+    resource_dirs: ["res"],
+
+    static_libs: [
+        "car_launcher_flags_java_lib",
+        "androidx-constraintlayout_constraintlayout-solver",
+        "androidx-constraintlayout_constraintlayout",
+        "androidx.lifecycle_lifecycle-extensions",
+        "car-media-common",
+        "car-qc-lib",
+        "car-telephony-common",
+        "car-ui-lib",
+        "com.google.android.material_material",
+        "WindowManager-Shell",
+        "CarAppGrid-lib",
+        "SystemUISharedLib",
+        "android.car.cluster.navigation",
+    ],
+
+    libs: ["android.car"],
+
+    manifest: "AndroidManifest.xml",
+    // TODO(b/319708040): re-enable use_resource_processor
+    use_resource_processor: false,
+}
+
+android_app {
+    name: "CarLauncher",
+
+    resource_dirs: [],
+
+    srcs: carlauncher_srcs,
+
+    platform_apis: true,
+
+    required: ["allowed_privapp_com.android.car.carlauncher"],
+
+    certificate: "platform",
+
+    privileged: true,
+
+    overrides: [
+        "Launcher2",
+        "Launcher3",
+        "Launcher3QuickStep",
+    ],
+
+    static_libs: ["CarLauncher-core"],
+
+    libs: ["android.car"],
+
+    optimize: {
+        enabled: false,
+    },
+
+    dex_preopt: {
+        enabled: false,
+    },
+    // TODO(b/319708040): re-enable use_resource_processor
+    use_resource_processor: false,
+}
+
+aconfig_declarations {
+    name: "car_launcher_flags",
+    package: "com.android.car.carlauncher",
+    container: "system",
+    srcs: ["car_launcher_flags.aconfig"],
+}
+
+java_aconfig_library {
+    name: "car_launcher_flags_java_lib",
+    aconfig_declarations: "car_launcher_flags",
+}

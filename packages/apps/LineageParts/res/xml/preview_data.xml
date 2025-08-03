@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2012 The CyanogenMod Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:title="@string/preview_data_title">
+
+    <Preference
+        android:key="preview_id"
+        style="?android:preferenceInformationStyle"
+        android:title="@string/preview_id_title"
+        android:summary="%s" />
+
+    <Preference
+        android:key="preview_device"
+        style="?android:preferenceInformationStyle"
+        android:title="@string/preview_device_title"
+        android:summary="%s" />
+
+    <Preference
+        android:key="preview_version"
+        style="?android:preferenceInformationStyle"
+        android:title="@string/preview_version_title"
+        android:summary="%s" />
+
+    <Preference
+        android:key="preview_country"
+        style="?android:preferenceInformationStyle"
+        android:title="@string/preview_country_title"
+        android:summary="%s" />
+
+    <Preference
+        android:key="preview_carrier"
+        style="?android:preferenceInformationStyle"
+        android:title="@string/preview_carrier_title"
+        android:summary="%s" />
+
+</PreferenceScreen>
+

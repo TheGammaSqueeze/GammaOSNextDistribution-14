@@ -1,0 +1,64 @@
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_team: "trendy_team_android_hardware_backed_security",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_interfaces_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_security_license"],
+}
+
+cc_defaults {
+    name: "librkp_support_defaults",
+    static_libs: [
+        "android.hardware.security.rkp-V3-cpp",
+        "android.security.rkp_aidl-cpp",
+    ],
+    shared_libs: [
+        "libbase",
+        "libbinder",
+        "libutils",
+    ],
+    cflags: [
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+    ],
+}
+
+cc_library {
+    name: "librkp_support",
+    defaults: ["librkp_support_defaults"],
+    srcs: [
+        "rkpd_client.cpp",
+    ],
+    export_include_dirs: ["include"],
+}
+
+cc_test {
+    name: "librkp_support_test",
+    defaults: [
+        "librkp_support_defaults",
+        "use_libaidlvintf_gtest_helper_static",
+    ],
+    srcs: ["test.cpp"],
+    static_libs: [
+        "librkp_support",
+    ],
+    test_suites: ["general-tests"],
+    require_root: true,
+}

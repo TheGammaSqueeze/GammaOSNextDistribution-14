@@ -1,0 +1,60 @@
+# Copyright (C) 2019 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+owner: Platform
+module: "android.sysprop.ApexProperties"
+
+prop {
+    api_name: "updatable"
+    type: Boolean
+    scope: Internal
+    access: Readonly
+    prop_name: "ro.apex.updatable"
+}
+
+prop {
+    api_name: "dm_delete_timeout"
+    type: UInt
+    scope: Internal
+    access: Readonly
+    prop_name: "apexd.config.dm_delete.timeout"
+}
+
+prop {
+    api_name: "dm_create_timeout"
+    type: UInt
+    scope: Internal
+    access: Readonly
+    prop_name: "apexd.config.dm_create.timeout"
+}
+
+prop {
+    api_name: "loop_wait_attempts"
+    type: UInt
+    scope: Internal
+    access: Readonly
+    prop_name: "apexd.config.loop_wait.attempts"
+}
+
+# This sysprop allows adjusting the number of threads that are used
+# to activate Apex Packages. If this sysprop is not set or set to 0,
+# the total number of threads equal the number of packages.
+# The maximum number of threads is capped to the number of packages.
+prop {
+    api_name: "boot_activation_threads"
+    type: UInt
+    scope: Internal
+    access: Readonly
+    prop_name: "apexd.config.boot_activation.threads"
+}

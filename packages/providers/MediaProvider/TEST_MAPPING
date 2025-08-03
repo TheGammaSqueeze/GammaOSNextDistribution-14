@@ -1,0 +1,217 @@
+{
+    "mainline-presubmit": [
+        {
+            "name": "MediaProviderTests[com.google.android.mediaprovider.apex]",
+            "options": [
+                {
+                    // Ignore the tests with @RunOnlyOnPostsubmit annotation
+                    "exclude-annotation": "com.android.providers.media.library.RunOnlyOnPostsubmit"
+                },
+                {
+                  "exclude-annotation": "androidx.test.filters.FlakyTest"
+                }
+            ]
+        },
+        {
+            "name": "CtsScopedStorageCoreHostTest[com.google.android.mediaprovider.apex]",
+            "options": [
+                {
+                  "exclude-annotation": "androidx.test.filters.FlakyTest"
+                }
+            ]
+        },
+        {
+            "name": "CtsScopedStorageHostTest[com.google.android.mediaprovider.apex]",
+            "options": [
+                {
+                  "exclude-annotation": "androidx.test.filters.FlakyTest"
+                }
+            ]
+        },
+        {
+            "name": "CtsScopedStorageDeviceOnlyTest[com.google.android.mediaprovider.apex]",
+            "options": [
+                {
+                  "exclude-annotation": "androidx.test.filters.FlakyTest"
+                }
+            ]
+        },
+        {
+            "name": "CtsScopedStorageBypassDatabaseOperationsTest[com.google.android.mediaprovider.apex]",
+            "options": [
+                {
+                  "exclude-annotation": "androidx.test.filters.FlakyTest"
+                }
+            ]
+        },
+        {
+            "name": "CtsScopedStorageGeneralTest[com.google.android.mediaprovider.apex]",
+            "options": [
+                {
+                  "exclude-annotation": "androidx.test.filters.FlakyTest"
+                }
+            ]
+        },
+        {
+            "name": "CtsScopedStorageRedactUriTest[com.google.android.mediaprovider.apex]",
+            "options": [
+                {
+                  "exclude-annotation": "androidx.test.filters.FlakyTest"
+                }
+            ]
+        },
+        {
+            "name": "CtsMediaProviderTranscodeTests[com.google.android.mediaprovider.apex]",
+            "options": [
+                {
+                  "exclude-annotation": "androidx.test.filters.FlakyTest"
+                }
+            ]
+        }
+    ],
+    "presubmit": [
+        {
+            "name": "MediaProviderTests",
+            "options": [
+                {
+                    // Ignore the tests with @RunOnlyOnPostsubmit annotation
+                    "exclude-annotation": "com.android.providers.media.library.RunOnlyOnPostsubmit"
+                },
+                {
+                  "exclude-annotation": "androidx.test.filters.FlakyTest"
+                }
+            ]
+        },
+        {
+            "name": "MediaProviderClientTests",
+            "options": [
+                {
+                  "exclude-annotation": "androidx.test.filters.LargeTest"
+                },
+                {
+                  "exclude-annotation": "androidx.test.filters.FlakyTest"
+                }
+            ]
+        },
+        {
+            "name": "CtsProviderTestCases",
+            "options": [
+                {
+                    "include-filter": "android.provider.cts.media."
+                }
+            ]
+        },
+        {
+            // This is a typo and is tracked in b/155715039 but flaky on CF.
+            // Will fix this once the root cause of flake is fixed.
+            "name": "AdoptableHostTest"
+        },
+        {
+            "name": "CtsScopedStorageCoreHostTest",
+            "options": [
+                {
+                  "exclude-annotation": "androidx.test.filters.FlakyTest"
+                }
+            ]
+        },
+        {
+            "name": "CtsScopedStorageHostTest",
+            "options": [
+                {
+                  "exclude-annotation": "androidx.test.filters.FlakyTest"
+                }
+            ]
+        },
+        {
+            "name": "CtsScopedStorageDeviceOnlyTest",
+            "options": [
+                {
+                  "exclude-annotation": "androidx.test.filters.FlakyTest"
+                }
+            ]
+        },
+        {
+            "name": "CtsScopedStorageBypassDatabaseOperationsTest",
+            "options": [
+                {
+                  "exclude-annotation": "androidx.test.filters.FlakyTest"
+                }
+            ]
+        },
+        {
+            "name": "CtsScopedStorageGeneralTest",
+            "options": [
+                {
+                  "exclude-annotation": "androidx.test.filters.FlakyTest"
+                }
+            ]
+        },
+        {
+            "name": "CtsScopedStorageRedactUriTest",
+            "options": [
+                {
+                  "exclude-annotation": "androidx.test.filters.FlakyTest"
+                }
+            ]
+        },
+        {
+            "name": "fuse_node_test"
+        },
+        {
+            "name": "CtsOsTestCases",
+            "options": [
+                {
+                    "include-filter": "android.os.storage.cts.StorageManagerTest"
+                }
+            ]
+        }
+    ],
+    "postsubmit": [
+        {
+            "name": "MediaProviderClientTests"
+        },
+        {
+            // TODO(b/222253890): Move these tests back to presubmit once the bug is fixed.
+            "name": "CtsMediaProviderTranscodeTests"
+        },
+        {
+            "name": "CtsStorageHostTestCases",
+            "options": [
+                {
+                    "include-filter": "android.appsecurity.cts.ExternalStorageHostTest"
+                }
+            ]
+        },
+        {
+            "name": "CtsPhotoPickerTest"
+        },
+        {
+            "name": "MediaProviderTests",
+            "options": [
+                {
+                    // Only execute the tests with @RunOnlyOnPostsubmit annotation
+                    "include-annotation": "com.android.providers.media.library.RunOnlyOnPostsubmit"
+                }
+            ]
+        }
+    ],
+    "mainline-postsubmit": [
+        {
+            "name": "MediaProviderTests[com.google.android.mediaprovider.apex]",
+            "options": [
+                {
+                    // Only execute the tests with @RunOnlyOnPostsubmit annotation
+                    "include-annotation": "com.android.providers.media.library.RunOnlyOnPostsubmit"
+                }
+            ]
+        },
+        {
+            "name": "CtsPhotoPickerTest[com.google.android.mediaprovider.apex]",
+            "options": [
+                {
+                    "exclude-annotation": "androidx.test.filters.LargeTest"
+                }
+            ]
+        }
+    ]
+}

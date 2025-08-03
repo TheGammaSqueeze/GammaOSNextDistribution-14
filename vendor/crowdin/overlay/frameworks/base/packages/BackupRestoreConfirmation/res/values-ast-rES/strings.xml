@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2011 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+  
+          http://www.apache.org/licenses/LICENSE-2.0
+  
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="backup_confirm_title">Copia de seguranza completa</string>
+    <string name="restore_confirm_title">Restauración completa</string>
+    <string name="backup_confirm_text">Solicitóse una copia de seguranza de tolos datos dende un ordenador conectáu. ¿Quies permitir qu\'asoceda\?\n\nSi nun solicitesti esta aición, nun sigas cola operación.</string>
+    <string name="allow_backup_button_label">Sí, permitir</string>
+    <string name="deny_backup_button_label">Non, nun permitir</string>
+    <string name="restore_confirm_text">Solicitóse una restauración completa de los datos dende un ordenador conectáu. ¿Quies permitir qu\'asoceda\?\n\nSi nun lo solicitesti, nun sigas cola operación. ¡Esta aición sustitúi cualesquier datu del preséu!</string>
+    <string name="allow_restore_button_label">Restaurar los datos</string>
+    <string name="deny_restore_button_label">Nun restaurar</string>
+    <string name="current_password_text">Introduz abaxo la contraseña de la copia de seguranza:</string>
+    <string name="device_encryption_restore_text">Introduz abaxo la contraseña de cifráu del preséu.</string>
+    <string name="device_encryption_backup_text">Introduz abaxo la contraseña de cifráu del preséu. Esta contraseña tamién s\'usa pa cifrar l\'archivu de les copies de seguranza.</string>
+    <string name="backup_enc_password_text">Introduz la contraseña que vas usar pa cifrar los datos de la copia de seguranza. Si dexes baleru\'l campu, úsase esta contraseña:</string>
+    <string name="backup_enc_password_optional">Si quies cifrar los datos de la copia de seguranza, introduz abaxo una contraseña:</string>
+    <string name="restore_enc_password_text">Si los datos de restauración tán cifraos, introduz la contraseña abaxo:</string>
+    <string name="toast_backup_started">Aniciando la copia de seguranza…</string>
+    <string name="toast_backup_ended">La copia de seguranza finó</string>
+    <string name="toast_restore_started">Aniciando la restauración…</string>
+    <string name="toast_restore_ended">La restauración finó</string>
+    <string name="toast_timeout">La operación escosó\'l tiempu d\'espera</string>
+</resources>

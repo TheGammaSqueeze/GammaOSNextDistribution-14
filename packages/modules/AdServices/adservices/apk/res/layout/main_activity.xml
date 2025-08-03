@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_activity"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="vertical"
+        android:focusableInTouchMode="true">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="24dp"
+                android:paddingEnd="24dp"
+                android:orientation="vertical">
+                <TextView
+                    android:id="@+id/above_pic_paragraph"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/settingsUI_main_view_subtitle"
+                    style="@style/MainStyle.Body2" />
+                <ImageView
+                    android:id="@+id/main_view_pic"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:src="@drawable/ic_main_view_image"
+                    tools:ignore="ContentDescription" />
+                <ImageView
+                    android:id="@+id/main_view_ga_pic"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:src="@drawable/ic_main_view_ga_image"
+                    android:contentDescription="@string/ic_main_view_ga_image_description"
+                    android:visibility="gone"/>
+            </LinearLayout>
+
+            <com.android.settingslib.widget.MainSwitchBar
+                android:id="@+id/main_switch_bar"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:title="@string/settingsUI_privacy_sandbox_beta_switch_title"
+                android:focusable="true"
+                android:textDirection="locale" />
+
+            <LinearLayout
+                android:id="@+id/privacy_sandbox_controls"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" >
+                <LinearLayout
+                    android:id="@+id/topics_preference"
+                    android:focusable="true"
+                    style="@style/PreferenceStyle"
+                    >
+                    <TextView
+                        android:id="@+id/topics_preference_title"
+                        android:text="@string/settingsUI_topics_title"
+                        android:layout_marginTop="0dp"
+                        style="@style/MainStyle.H5" />
+                    <TextView
+                        android:id="@+id/topics_preference_subtitle"
+                        android:visibility="gone"
+                        style="@style/MainStyle.Subtitle" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/apps_preference"
+                    android:focusable="true"
+                    style="@style/PreferenceStyle"
+                    >
+                    <TextView
+                        android:id="@+id/apps_preference_title"
+                        android:text="@string/settingsUI_apps_title"
+                        android:layout_marginTop="0dp"
+                        style="@style/MainStyle.H5" />
+                    <TextView
+                        android:id="@+id/apps_preference_subtitle"
+                        android:visibility="gone"
+                        style="@style/MainStyle.Subtitle" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/measurement_preference"
+                    style="@style/PreferenceStyle"
+                    android:focusable="true"
+                    android:visibility="gone"
+                    >
+                    <TextView
+                        android:id="@+id/measurement_preference_title"
+                        android:text="@string/settingsUI_measurement_view_title"
+                        android:layout_marginTop="0dp"
+                        style="@style/MainStyle.H5" />
+                    <TextView
+                        android:id="@+id/measurement_preference_subtitle"
+                        style="@style/MainStyle.Subtitle" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/main_view_footer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="24dp"
+                android:paddingBottom="48dp"
+                android:orientation="vertical"
+                android:focusable="false">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginStart="2dp"
+                    android:src="@drawable/ic_info_icon"
+                    tools:ignore="ContentDescription" />
+                <TextView
+                    android:layout_marginTop="18dp"
+                    android:layout_marginStart="0dp"
+                    android:text="@string/settingsUI_main_view_info_text1"
+                    style="@style/MainStyle.Body2BoldBullet" />
+                <TextView
+                    android:layout_marginTop="18dp"
+                    android:text="@string/settingsUI_main_view_info_text2"
+                    style="@style/MainStyle.Body2" />
+                <TextView
+                    android:layout_marginTop="18dp"
+                    android:layout_marginStart="0dp"
+                    android:text="@string/settingsUI_main_view_info_text3"
+                    style="@style/MainStyle.Body2BoldBullet" />
+                <TextView
+                    android:text="@string/settingsUI_main_view_info_text4"
+                    style="@style/MainStyle.Body2BoldBullet" />
+                <TextView
+                    android:text="@string/settingsUI_main_view_info_text5"
+                    style="@style/MainStyle.Body2BulletSubtext" />
+                <TextView
+                    android:text="@string/settingsUI_main_view_info_text6"
+                    style="@style/MainStyle.Body2BoldBullet" />
+                <TextView
+                    android:text="@string/settingsUI_main_view_info_text7"
+                    style="@style/MainStyle.Body2BulletSubtext" />
+                <TextView
+                    android:layout_marginTop="18dp"
+                    android:layout_marginStart="0dp"
+                    android:text="@string/settingsUI_main_view_info_text8"
+                    style="@style/MainStyle.Body2BoldBullet" />
+                <TextView
+                    android:layout_marginTop="18dp"
+                    android:text="@string/settingsUI_main_view_info_text9"
+                    style="@style/MainStyle.Body2" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/main_view_ga_footer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="24dp"
+                android:paddingBottom="48dp"
+                android:orientation="vertical"
+                android:focusable="false"
+                android:visibility="gone">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:src="@drawable/ic_info_icon"
+                    tools:ignore="ContentDescription" />
+                <TextView
+                    android:layout_marginStart="0dp"
+                    android:text="@string/settingsUI_topics_ga_title"
+                    style="@style/MainStyle.Body2BoldBullet" />
+                <TextView
+                    android:text="@string/settingsUI_main_view_ad_topics_info"
+                    style="@style/MainStyle.Body2" />
+                <TextView
+                    android:layout_marginStart="0dp"
+                    android:text="@string/settingsUI_apps_ga_title"
+                    style="@style/MainStyle.Body2BoldBullet" />
+                <TextView
+                    android:text="@string/settingsUI_main_view_apps_info"
+                    style="@style/MainStyle.Body2" />
+                <TextView
+                    android:text="@string/settingsUI_measurement_ga_title"
+                    android:layout_marginStart="0dp"
+                    style="@style/MainStyle.Body2BoldBullet" />
+                <TextView
+                    android:text="@string/settingsU_main_view_measurement_info"
+                    style="@style/MainStyle.Body2" />
+                <TextView
+                    android:id="@+id/main_view_ga_footer_learn_more"
+                    android:text="@string/settingsU_main_view_learn_more"
+                    android:paddingTop="8dp"
+                    style="@style/MainStyle.Body2" />
+
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.appcompat.widget.LinearLayoutCompat>

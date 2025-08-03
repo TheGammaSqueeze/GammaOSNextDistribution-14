@@ -1,0 +1,13 @@
+package: "com.android.media.mainline.flags"
+
+#
+# All flags targeting V have to be is_fixed_read_only true.
+#
+
+flag {
+    name: "enable_pid_to_media_session_2"
+    namespace: "media_solutions"
+    description: "Add pid for Session2Token for Supporting project falcon in MediaSession2"
+    bug: "318745416"
+    is_fixed_read_only: true
+}

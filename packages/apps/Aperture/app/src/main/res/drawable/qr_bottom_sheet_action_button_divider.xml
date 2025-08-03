@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2022 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <size
+        android:width="12dp"
+        android:height="0dp" />
+</shape>

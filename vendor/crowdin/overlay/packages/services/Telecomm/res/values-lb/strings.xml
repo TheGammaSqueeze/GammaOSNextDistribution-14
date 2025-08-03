@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2013 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="userCallActivityLabel" product="default">Telefon</string>
+    <string name="unknown">Onbekannt</string>
+    <string name="notification_missedCallTitle">Verpassten Uruff</string>
+    <string name="notification_missedCallsTitle">Verpasst Uriff</string>
+    <string name="notification_missedCallsMsg"><xliff:g id="num_missed_calls">%s</xliff:g> verpasst Uriff</string>
+    <string name="notification_missedCallTicker">Verpassten Uruff vum <xliff:g id="missed_call_from">%s</xliff:g></string>
+    <string name="notification_missedCall_call_back">Zréckruffen</string>
+    <string name="notification_missedCall_message">Message schécken</string>
+    <string name="accessibility_call_muted">Uruff roueg geschalt.</string>
+    <string name="accessibility_speakerphone_enabled">Lautsprecher aktivéiert.</string>
+    <string name="respond_via_sms_canned_response_1">Kann elo net schwätzen. Ëm wat geet et?</string>
+    <string name="respond_via_sms_canned_response_2">Ech ruffe geschwënn zréck.</string>
+    <string name="respond_via_sms_canned_response_3">Ech ruffe méi spéit zréck.</string>
+    <string name="respond_via_sms_canned_response_4">Kann elo net schwätzen. Telefonéiere mer méi spéit?</string>
+    <string name="respond_via_sms_setting_title">Séier Äntwerten</string>
+    <string name="respond_via_sms_setting_title_2">Séier Äntwerten änneren</string>
+    <string name="respond_via_sms_edittext_dialog_title">Séier Äntwert</string>
+    <string name="respond_via_sms_confirmation_format">Message geschéckt un <xliff:g id="phone_number">%s</xliff:g>.</string>
+    <string name="outgoing_call_error_no_phone_number_supplied">Uruff gouf net gesat, gëff eng gëlteg Nummer an.</string>
+    <string name="duplicate_video_call_not_allowed">Den Uruff ka momentan net dobäigesat ginn.</string>
+    <string name="no_vm_number">Mailbox-Nummer feelt</string>
+    <string name="no_vm_number_msg">Op der SIM-Kaart ass keng Mailbox-Nummer gespäichert.</string>
+    <string name="add_vm_number_str">Nummer dobäisetzen</string>
+    <string name="handle_restricted">AGESCHRÄNKT</string>
+    <string name="notification_channel_missed_call">Verpasst Uriff</string>
+    <string name="phone_settings_unknown_txt">Onbekannt</string>
+    <string name="callendpoint_name_unknown">Onbekannt</string>
+</resources>

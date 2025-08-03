@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<configuration description="Config for CTS Wifi Aware test cases">
+    <option name="test-suite-tag" value="cts" />
+    <option name="config-descriptor:metadata" key="component" value="wifi" />
+    <option name="config-descriptor:metadata" key="parameter" value="not_instant_app" />
+    <option name="config-descriptor:metadata" key="parameter" value="not_multi_abi" />
+    <option name="config-descriptor:metadata" key="parameter" value="secondary_user" />
+    <option name="config-descriptor:metadata" key="mainline-param" value="com.google.android.wifi.apex" />
+
+    <object class="com.android.tradefed.testtype.suite.module.DeviceFeatureModuleController"
+        type="module_controller">
+        <option name="required-feature" value="android.hardware.wifi.aware" />
+    </object>
+    <object type="module_controller" class="com.android.tradefed.testtype.suite.module.MainlineTestModuleController">
+        <option name="mainline-module-package-name" value="com.google.android.wifi" />
+    </object>
+
+    <device name="device1">
+        <!-- For coverage to work, the APK should not be uninstalled until after coverage is pulled.
+             So it's a lot easier to install APKs outside the python code.
+        -->
+        <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
+            <option name="test-file-name" value="wifi_aware_snippet.apk" />
+        </target_preparer>
+        <target_preparer class="com.android.tradefed.targetprep.DeviceSetup">
+            <option name="force-skip-system-props" value="true" />
+            <option name="screen-always-on" value="on" />
+        </target_preparer>
+        <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer">
+            <option name="run-command" value="input keyevent KEYCODE_WAKEUP" />
+            <option name="run-command" value="wm dismiss-keyguard" />
+        </target_preparer>
+    </device>
+    <device name="device2">
+        <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
+            <option name="test-file-name" value="wifi_aware_snippet.apk" />
+        </target_preparer>
+        <target_preparer class="com.android.tradefed.targetprep.DeviceSetup">
+            <option name="force-skip-system-props" value="true" />
+            <option name="screen-always-on" value="on" />
+        </target_preparer>
+        <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer">
+            <option name="run-command" value="input keyevent KEYCODE_WAKEUP" />
+            <option name="run-command" value="wm dismiss-keyguard" />
+        </target_preparer>
+    </device>
+
+    <test class="com.android.tradefed.testtype.mobly.MoblyBinaryHostTest">
+      <!-- The mobly-par-file-name should match the module name -->
+      <option name="mobly-par-file-name" value="CtsWifiAwareTestCases" />
+      <!-- Timeout limit in milliseconds for all test cases of the python binary -->
+      <option name="mobly-test-timeout" value="180000" />
+    </test>
+</configuration>
+

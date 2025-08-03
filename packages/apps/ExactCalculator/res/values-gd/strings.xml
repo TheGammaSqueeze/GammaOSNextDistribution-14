@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (C) 2015 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<resources>
+    <string name="app_name">Àireamhair</string>
+    <string name="dec_point">.</string>
+    <string name="mode_deg">ceum</string>
+    <string name="mode_rad">rèidean</string>
+    <string name="cleared">air fhalamhachadh</string>
+    <string name="desc_const_e">àireamh Euler</string>
+    <string name="desc_const_pi">pi</string>
+    <string name="desc_dec_point">puing</string>
+    <string name="desc_lparen">camag chlì</string>
+    <string name="desc_rparen">camag dheas</string>
+    <string name="desc_fun_cos">co-shìneas</string>
+    <string name="desc_fun_ln">log-àireamh nàdarra</string>
+    <string name="desc_fun_log">log-àireamh</string>
+    <string name="desc_fun_sin">sìneas</string>
+    <string name="desc_fun_tan">beantan</string>
+    <string name="desc_fun_arccos">co-shìneas mùiteach</string>
+    <string name="desc_fun_arcsin">sìneas mùiteach</string>
+    <string name="desc_fun_arctan">beantan mùiteach</string>
+    <string name="desc_fun_10pow">deich gu cumhachd</string>
+    <string name="desc_fun_exp">foincsean easbonantail</string>
+    <string name="desc_op_sqr">ceàrnagaichte</string>
+    <string name="desc_op_add">plus</string>
+    <string name="desc_op_div">roinn</string>
+    <string name="desc_op_fact">factarail</string>
+    <string name="desc_op_mul">iomadaich</string>
+    <string name="desc_op_pct">ceudad</string>
+    <string name="desc_op_pow">cumhachd</string>
+    <string name="desc_op_sqrt">freumh ceàrnagach</string>
+    <string name="desc_op_sub">minus</string>
+    <string name="desc_mode_deg">modh ceuma</string>
+    <string name="desc_mode_rad">modh rèidein</string>
+    <string name="desc_switch_deg">’na cheum</string>
+    <string name="desc_switch_rad">’na rèidean</string>
+    <string name="desc_eq">co-ionnannachd</string>
+    <string name="desc_clr">suath bàn</string>
+    <string name="desc_del">sguab às</string>
+    <string name="desc_inv_off">seall na foincseanan mùiteach</string>
+    <string name="desc_inv_on">falaich na foincseanan mùiteach</string>
+    <string name="desc_formula">Gun fhoirmle</string>
+    <string name="desc_result">Gun toradh</string>
+    <string name="error_nan">Chan eil seo ’na àireamh</string>
+    <string name="error_syntax">Droch-eas-preisean</string>
+    <string name="error_aborted">Sguireadh dheth</string>
+    <string name="error_overflow">Neo-chrìochnach?</string>
+    <string name="error_zero_divide">Cha ghabh roinneadh le 0</string>
+    <string name="text_copied_toast">Chaidh lethbhreac dhen teacsa a dhèanamh</string>
+    <string name="cancelled">Chaidh sgur dhen àireamhachadh.</string>
+    <string name="timeout">Fhaoidte gu bheil an luach neo-chrìochnach no gun mhìneachadh.</string>
+    <string name="ok_remove_timeout">Bheir barrachd ùine dha</string>
+    <string name="dismiss">Leig seachad</string>
+    <string name="exact">(mionaideach)</string>
+    <string name="approximate">(±1 san àireamh mu dheireadh)</string>
+    <string name="menu_leading">Freagair le àireamhan treòrachaidh</string>
+    <string name="menu_fraction">Freagair mar bhloigh</string>
+    <string name="menu_licenses">Ceadachasan Open Source</string>
+    <string name="menu_history">Eachdraidh</string>
+    <string name="menu_clear_history">Falamhaich</string>
+    <string name="title_history">Eachdraidh</string>
+    <string name="desc_navigate_up">Seòl suas</string>
+    <string name="dialog_timeout">Crìoch-ùine</string>
+    <string name="dialog_clear">Am falmhaich thu an eachdraidh ’s a’ chuimhne?</string>
+    <string name="title_current_expression">An t-eas-preisean an-dràsta</string>
+    <string name="no_history">Gun eachdraidh</string>
+</resources>

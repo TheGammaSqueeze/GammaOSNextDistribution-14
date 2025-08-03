@@ -1,0 +1,25 @@
+; Clients of the HAL service call various methods on the HAL service; these
+; method invocations are internally translated into request messages
+; encoded as a CBOR 2-array holding:
+; - An integer indicating which request is present.
+; - An inner object holding the content for that specific request.
+PerformOpReq =
+  [SecretManagementOpCode, ProtectedRequestPacket] /
+  [DeleteIdsOpCode, [*SecretId]] /
+  [DeleteAllOpCode, nil]
+
+SecretManagementOpCode = 0x10
+DeleteIdsOpCode = 0x11
+DeleteAllOpCode = 0x12
+
+; Internally, a HAL request corresponds to a response message encoded as a CBOR 2-array holding:
+; - An integer return code value.
+; - One of:
+;    - If the return code is zero: a result value.
+;    - If the return code is non-zero: an error message.
+PerformOpResponse =
+    [0, PerformOpSuccessRsp] /
+    [error_code: int .ne 0, error_message: tstr]
+
+; The content of an OK response depends on the corresponding `HalRequest` message
+PerformOpSuccessRsp = ProtectedResponsePacket / nil

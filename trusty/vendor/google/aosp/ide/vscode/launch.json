@@ -1,0 +1,26 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        /**
+         * Install this extension to run:
+         * https://marketplace.visualstudio.com/items?itemName=vadimcn.vscode-lldb
+         */
+        {
+            "type": "lldb",
+            "request": "custom",
+            "name": "Debug with Prebuilt",
+            "preLaunchTask": "Run with Prebuilt",
+            "initCommands": [
+                "command script import ./build-root/build-qemu-generic-arm64-test-debug/lldb_support.py",
+                "initialize_kernel_lldb_module",
+                "breakpoint set -n trusty_thread_start -C trusty_thread_start_hook"
+            ],
+            "processCreateCommands": [
+                "gdb-remote 1234",
+                "breakpoint set -n relocate_kernel -C relocate_kernel_hook",
+                "c"
+            ],
+            "postDebugTask": "Send SIGINT to qemu.py"
+        }
+    ]
+}

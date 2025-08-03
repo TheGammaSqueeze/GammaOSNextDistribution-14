@@ -1,0 +1,130 @@
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_team: "trendy_team_fwk_uwb",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_defaults {
+    name: "uwb-module-sdk-version-defaults",
+    min_sdk_version: "Tiramisu",
+}
+
+filegroup {
+    name: "framework-uwb-updatable-exported-aidl-sources",
+    srcs: ["aidl-export/**/*.aidl"],
+    path: "aidl-export",
+    visibility: ["//visibility:private"],
+}
+
+filegroup {
+    name: "framework-uwb-updatable-java-sources",
+    srcs: [
+        "java/**/*.java",
+        "java/**/*.aidl",
+    ],
+    path: "java",
+    visibility: ["//visibility:private"],
+}
+
+filegroup {
+    name: "framework-uwb-updatable-sources",
+    defaults: ["framework-sources-module-defaults"],
+    srcs: [
+        ":framework-uwb-updatable-java-sources",
+        ":framework-uwb-updatable-exported-aidl-sources",
+    ],
+}
+
+// defaults shared between `framework-uwb` & `framework-uwb-pre-jarjar`
+// java_sdk_library `framework-uwb` needs sources to generate stubs, so it cannot reuse
+// `framework-uwb-pre-jarjar`
+java_defaults {
+    name: "framework-uwb-defaults",
+    defaults: ["uwb-module-sdk-version-defaults"],
+    static_libs: [
+        "modules-utils-preconditions",
+        "modules-utils-build",
+    ],
+    libs: [
+        "androidx.annotation_annotation",
+        "unsupportedappusage", // for android.compat.annotation.UnsupportedAppUsage
+    ],
+    srcs: [
+        ":framework-uwb-updatable-sources",
+    ],
+}
+
+// uwb-service needs pre-jarjared version of framework-uwb so it can reference copied utility
+// classes before they are renamed.
+java_library {
+    name: "framework-uwb-pre-jarjar",
+    defaults: ["framework-uwb-defaults"],
+    sdk_version: "module_current",
+    libs: ["framework-annotations-lib"],
+    installable: false,
+}
+
+// post-jarjar version of framework-uwb
+java_sdk_library {
+    name: "framework-uwb",
+    defaults: [
+        "framework-module-defaults",
+        "framework-uwb-defaults",
+    ],
+    jarjar_rules: ":uwb-jarjar-rules",
+
+    installable: true,
+    optimize: {
+        enabled: false,
+    },
+    hostdex: true, // for hiddenapi check
+
+    impl_library_visibility: [
+        "//external/sl4a/Common:__subpackages__",
+        "//packages/modules/Uwb:__subpackages__",
+    ],
+
+    apex_available: [
+        "com.android.uwb",
+    ],
+    permitted_packages: [
+        "android.uwb",
+        "android.uwb.util",
+        // Created by jarjar rules.
+        "com.android.x.uwb",
+    ],
+    lint: {
+        strict_updatability_linting: true,
+    },
+}
+
+// defaults for tests that need to build against framework-uwb's @hide APIs
+java_defaults {
+    name: "framework-uwb-test-defaults",
+    sdk_version: "module_current",
+    libs: [
+        "framework-uwb.impl",
+    ],
+    defaults_visibility: [
+        "//packages/modules/Uwb/framework/tests:__subpackages__",
+        "//packages/modules/Uwb/service/tests:__subpackages__",
+    ],
+}
+
+filegroup {
+    name: "uwb-jarjar-rules",
+    srcs: ["jarjar-rules.txt"],
+}

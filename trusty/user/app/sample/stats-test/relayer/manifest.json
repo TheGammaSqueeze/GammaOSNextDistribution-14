@@ -1,0 +1,6 @@
+{
+    "app_name": "stats_producer",
+    "uuid": "86c7aad1-716b-4a33-bb8f-19e63b9a1dae",
+    "min_heap": 16384,
+    "min_stack": 16384
+}

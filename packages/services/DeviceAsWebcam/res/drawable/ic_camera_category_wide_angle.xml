@@ -1,0 +1,26 @@
+<!--
+ Copyright 2023 The Android Open Source Project
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="960"
+    android:viewportHeight="960"
+    android:tint="?attr/colorControlNormal">
+    <path
+        android:fillColor="@color/list_item_camera_item_primary_color"
+        android:pathData="M140,800Q115.25,800 97.63,782.38Q80,764.75 80,740L80,220Q80,195.25 97.63,177.63Q115.25,160 140,160L820,160Q844.75,160 862.38,177.63Q880,195.25 880,220L880,740Q880,764.75 862.38,782.38Q844.75,800 820,800L140,800ZM140,740L250,740L250,220L140,220Q140,220 140,220Q140,220 140,220L140,740Q140,740 140,740Q140,740 140,740ZM310,740L650,740L650,220L310,220L310,740ZM710,740L820,740Q820,740 820,740Q820,740 820,740L820,220Q820,220 820,220Q820,220 820,220L710,220L710,740ZM310,220L310,220L310,740L310,740L310,220Z"/>
+</vector>

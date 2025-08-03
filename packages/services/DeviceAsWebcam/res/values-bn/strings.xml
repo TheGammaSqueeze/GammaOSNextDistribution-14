@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2023 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label" msgid="5899561994441982117">"ওয়েবক্যাম পরিষেবা"</string>
+    <string name="view_finder_description" msgid="5377029921915271921">"ভিউ ফাইন্ডার"</string>
+    <string name="zoom_ratio_description" msgid="6492691624405841938">"জুম রেশিও"</string>
+    <string name="zoom_ratio_button_current_description" msgid="4888275213379106225">"বর্তমান জুম রেশিও"</string>
+    <string name="zoom_seek_bar_description" msgid="2820202610575014723">"জুম করার সিক বার"</string>
+    <string name="toggle_camera_button_description_back" msgid="771773649789638243">"পিছনের ক্যামেরাতে পাল্টান"</string>
+    <string name="toggle_camera_button_description_front" msgid="5248457301141397342">"সামনের ক্যামেরাতে পাল্টান"</string>
+    <string name="toggle_high_quality_description_off" msgid="2185762274050207314">"হাই কোয়ালিটি মোড বন্ধ করুন"</string>
+    <string name="toggle_high_quality_description_on" msgid="9118596060527830719">"হাই কোয়ালিটি মোড চালু করুন"</string>
+    <string name="notif_channel_name" msgid="9012392302161214874">"ফোরগ্রাউন্ড পরিষেবা"</string>
+    <string name="notif_ticker" msgid="6895154246348754766">"ওয়েবক্যাম"</string>
+    <string name="notif_title" msgid="3788815976102922209">"ওয়েবক্যাম"</string>
+    <string name="notif_desc" msgid="1433178383086179212">"ওয়েবক্যাম আউটপুট প্রিভিউ ও কনফিগার করতে, ট্যাপ করুন"</string>
+    <string name="hq_warning_dialog_title" msgid="5693009152902735897">"হাই কোয়ালিটি মোড"</string>
+    <string name="hq_warning_dialog_content_1" msgid="4007864550827450633">"ওয়েবক্যামের কোয়ালিটি উন্নত করতে খুব ভাল কোয়ালিটির মোড পাওয়ার অপ্টিমাইজেশন বন্ধ করে দিয়েছে। এই মোড ব্যবহার করলে পাওয়ার সাপ্লাই বাড়তে পারে এবং ডিভাইস গরম হতে পারে।"</string>
+    <string name="hq_warning_dialog_content_2" msgid="877003832685705287"><b><u>"সতর্কতা:"</u></b>"আপনার ডিভাইস যদি অনেক সময় ধরে বেশি তাপমাত্রায় ব্যবহার করা হয়, তাহলে ডিভাইসের ব্যাটারির পারফর্ম্যান্স প্রভাবিত হতে পারে।"</string>
+    <string name="hq_warning_dialog_dont_show_again" msgid="4409604672514060572">"আর দেখতে চাই না"</string>
+    <string name="hq_warning_dialog_button_ack" msgid="279514965669603856">"সম্মতি দিন"</string>
+    <string name="prefs_file_name" msgid="2893149378177647769">"com.android.DeviceAsWebcam.user.prefs"</string>
+    <string name="prefs_camera_id_key" msgid="9184794262750967261">"camera.id"</string>
+    <string name="prefs_back_camera_id_key" msgid="8184326473010982113">"back.camera.id"</string>
+    <string name="prefs_front_camera_id_key" msgid="2749648930172179078">"front.camera.id"</string>
+    <string name="prefs_zoom_ratio_key" msgid="4040441072428561847">"zoom.ratio.%s"</string>
+    <string name="prefs_high_quality_mode_enabled" msgid="3746094349991090908">"high.quality.mode.enabled"</string>
+    <string name="prefs_high_quality_warning_enabled" msgid="696012337719400975">"high.quality.warning.enabled"</string>
+    <string name="list_item_text_back_camera" msgid="2734532140746580971">"পিছনের দিকের ক্যামেরা"</string>
+    <string name="list_item_text_front_camera" msgid="7273773310502952694">"সামনের ক্যামেরা"</string>
+    <string name="list_item_text_standard_camera" msgid="4160445744347809472">"স্ট্যান্ডার্ড ক্যামেরা"</string>
+    <string name="list_item_text_wide_angle_camera" msgid="818505418693187683">"ওয়াইড অ্যাঙ্গেল ক্যামেরা"</string>
+    <string name="list_item_text_ultra_wide_camera" msgid="7938127230852040392">"আল্ট্রা ওয়াইড ক্যামেরা"</string>
+    <string name="list_item_text_telephoto_camera" msgid="9192886831007902304">"টেলিফটো ক্যামেরা"</string>
+    <string name="list_item_text_other_camera" msgid="3479174298899742270">"অন্যান্য ক্যামেরা"</string>
+    <string name="list_item_text_unknown_camera" msgid="5281152990521232984">"অজানা ক্যামেরা"</string>
+    <string name="camera_options_list_description" msgid="7808155848873436115">"ক্যামেরার বিকল্প উপলভ্য আছে"</string>
+</resources>

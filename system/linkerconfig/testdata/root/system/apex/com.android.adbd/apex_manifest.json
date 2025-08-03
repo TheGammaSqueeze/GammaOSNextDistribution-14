@@ -1,0 +1,14 @@
+{
+  "name": "com.android.adbd",
+  "version": 1,
+  "provideNativeLibs": [
+    "libadbconnection_client.so"
+  ],
+  "requireNativeLibs": [
+    "libadbd_auth.so",
+    "libc.so",
+    "libdl.so",
+    "liblog.so",
+    "libm.so"
+  ]
+}

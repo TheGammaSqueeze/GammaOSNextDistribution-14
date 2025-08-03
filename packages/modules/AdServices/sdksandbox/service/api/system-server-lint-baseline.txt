@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+UnflaggedApi: com.android.server.sdksandbox.SdkSandboxManagerLocal#getSdkSandboxApplicationInfoForInstrumentation(android.content.pm.ApplicationInfo, int, boolean):
+    New API must be flagged with @FlaggedApi: method com.android.server.sdksandbox.SdkSandboxManagerLocal.getSdkSandboxApplicationInfoForInstrumentation(android.content.pm.ApplicationInfo,int,boolean)

@@ -1,0 +1,61 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+aconfig_declarations {
+    name: "uprobestats_flags",
+    package: "android.uprobestats.flags",
+    srcs: ["flag.aconfig"],
+}
+
+cc_aconfig_library {
+    name: "uprobestats_flags_c_lib",
+    aconfig_declarations: "uprobestats_flags",
+}
+
+cc_library {
+    name: "libuprobestats",
+    srcs: [
+        "BpfUtilities.cpp",
+        "ProcessInfoRetriever.cpp",
+        "config.proto",
+    ],
+    header_libs: [
+        "bpf_headers",
+        "bpf_syscall_wrappers",
+    ],
+    shared_libs: [
+        "libbase",
+        "liblog",
+    ],
+    static_libs: [
+        "libc++fs",
+    ],
+    proto: {
+        export_proto_headers: true,
+        type: "lite",
+    },
+}
+
+cc_binary {
+    name: "uprobestats",
+    srcs: [
+        "UprobeStats.cpp",
+    ],
+    static_libs: [
+        "libc++fs",
+        "libprotoutil",
+        "libuprobestats",
+        "uprobestats_flags_c_lib",
+    ],
+    shared_libs: [
+        "libbase",
+        "liblog",
+    ],
+    init_rc: [
+        "UprobeStats.rc",
+    ],
+    required: [
+        "BitmapAllocation.o",
+    ],
+}

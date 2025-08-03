@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2011 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:android="http://schemas.android.com/apk/res/android" xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label">Rhybuddion argyfwng di-wifr</string>
+    <string name="sms_cb_settings">Rhybuddion argyfwng di-wifr</string>
+    <string name="sms_cb_sender_name_default">Rhybuddion argyfwng di-wifr</string>
+    <string name="sms_cb_sender_name_presidential">Rhybuddion argyfwng di-wifr</string>
+    <string name="sms_cb_sender_name_emergency">Rhybuddion argyfwng di-wifr</string>
+    <string name="sms_cb_sender_name_public_safety">Hysbysiad gwybodaeth</string>
+    <string name="cell_broadcast_settings_not_available">Dyw gosodiadau rhybuddion argyfwng di-wifr ddim ar gael i\'r defnyddiwr hwn.</string>
+    <string name="button_dismiss">Iawn</string>
+    <string name="no_cell_broadcasts">Dim rhybuddion cynt</string>
+    <string name="menu_preferences">Gosodiadau</string>
+    <string name="menu_delete_all">Dileu darllediad</string>
+    <string name="message_options">Dewisiadau neges</string>
+    <string name="menu_view_details">Gweld manylion</string>
+    <string name="menu_delete">Dileu\'r darllediad</string>
+    <string name="view_details_title">Manylion rhybudd</string>
+    <string name="view_details_debugging_title">Rhybudd o fanylion ar gyfer dadfygio</string>
+    <string name="confirm_delete_broadcast">Dileu\'r darllediad hwn?</string>
+    <string name="confirm_delete_all_broadcasts">Dileu pob neges ddarllediad wedi\'i derbyn?</string>
+    <string name="button_delete">Dileu</string>
+    <string name="button_cancel">Diddymu</string>
+    <string name="etws_earthquake_warning">Rhybudd daeargryn</string>
+    <string name="etws_tsunami_warning">Rhybudd tswnami</string>
+    <string name="etws_earthquake_and_tsunami_warning">Rhybudd daeargryn a thswnami</string>
+    <string name="etws_test_message">Neges arbrawf ETWS</string>
+    <string name="etws_other_emergency_type">Rhybydd argyfwng</string>
+    <string name="cmas_presidential_level_alert">Rhybudd o swyddfa\'r Arlywydd</string>
+    <string name="cmas_extreme_alert">Rhybudd argyfwng: Eithafol</string>
+    <string name="cmas_extreme_immediate_observed_alert">Rhybudd argyfwng: Eithafol</string>
+    <string name="cmas_extreme_immediate_likely_alert">Rhybudd argyfwng: Eithafol</string>
+    <string name="cmas_severe_alert">Rhybudd argyfwng: Difrifol</string>
+    <string name="cmas_amber_alert">Herwgipiad plentyn (Rhybudd oren)</string>
+    <string name="cmas_required_monthly_test">Prawf Misol Angenrheidiol</string>
+    <string name="cmas_exercise_alert">Rhybudd argyfwng: Ymarfer</string>
+    <string name="cmas_operator_defined_alert">Rhybudd argyfwng: (defnyddiwr)</string>
+    <string name="cb_other_message_identifiers">Negeseuon darllediadau</string>
+    <string name="public_safety_message">Neges diogelwch cyhoeddus</string>
+    <string name="state_local_test_alert">Prawf Lleol/Talaith</string>
+    <string name="emergency_alert">Rhybudd argyfwng</string>
+    <string name="emergency_alerts_title">Rhybuddion</string>
+    <string name="notification_channel_broadcast_messages">Negeseuon darllediadau</string>
+    <string name="notification_channel_emergency_alerts">Rhybuddion argyfwng</string>
+    <string name="notification_channel_emergency_alerts_high_priority">Rhybuddion Argyfwng heb eu Cydnabod</string>
+    <string name="notification_channel_broadcast_messages_in_voicecall">Rhybuddion brys yn ystod galwadau llais</string>
+    <string name="notification_channel_settings_updates">Newidiadau awtomatig i osodiadau WEA ar sail SIM</string>
+    <string name="enable_alerts_master_toggle_title">Caniatáu rhybuddion</string>
+    <string name="enable_alerts_master_toggle_summary">Derbyn hysbysiadau rhybuddion argyfwng di-wifr</string>
+    <string name="alert_reminder_interval_title">Atgoffa am rybudd</string>
+    <string name="enable_alert_speech_title">Llefaru\'r neges rhybudd</string>
+    <string name="enable_alert_speech_summary">Defnyddio testun-i-lefarydd i adrodd negeseuon rhybuddion argyfwng di-wifr</string>
+    <string name="alert_reminder_dialog_title">Bydd sain atgoffa yn chwarae ar lefel sain arferol</string>
+    <string name="emergency_alert_history_title">Hanes rhybuddion argyfwng</string>
+    <string name="alert_preferences_title">Dewisiadau rhybuddion</string>
+    <string name="enable_etws_test_alerts_title">Darllediadau profi ETWS</string>
+    <string name="enable_etws_test_alerts_summary">Darllediadau profi\'r System Rhybudd Daeargryn a Thswnami (ETWS)</string>
+    <string name="enable_cmas_extreme_threat_alerts_title">Bygythiadau eithafol</string>
+    <string name="enable_cmas_extreme_threat_alerts_summary">Bygythiadau eithafol i fywydau ac eiddo</string>
+    <string name="enable_cmas_severe_threat_alerts_title">Bygythiadau difrifol</string>
+    <string name="enable_cmas_severe_threat_alerts_summary">Bygythiadau difrifol i fywydau ac eiddo</string>
+    <string name="enable_cmas_amber_alerts_title">Rhybuddion OREN</string>
+    <string name="enable_cmas_amber_alerts_summary">Bwletinau argyfwng cipio plentyn</string>
+    <string name="enable_alert_message_title">Negeseuon rhybudd</string>
+    <string name="enable_alert_message_summary">Rhybuddio am beryglon gerllaw</string>
+    <string name="enable_public_safety_messages_title">Negeseuon diogelwch cyhoeddus</string>
+    <string name="enable_public_safety_messages_summary">Gweithredoedd a argymhellir er mwyn achub eiddo a bywydau</string>
+    <string name="enable_full_screen_public_safety_messages_title">Dangos negeseuon sgrin llawn</string>
+    <string name="enable_full_screen_public_safety_messages_summary">Tra i ffwrdd, caiff negeseuon diogelwch y cyhoedd dal eu hanfon fel hysbysiadau</string>
+    <string name="enable_state_local_test_alerts_title">Profion lleol a thalaith</string>
+    <string name="enable_state_local_test_alerts_summary">Derbyn negeseuon profi oddi wrth awdurdodau lleol a thalaith</string>
+    <string name="enable_emergency_alerts_message_title">Rhybuddion argyfwng</string>
+    <string name="enable_emergency_alerts_message_summary">Rhybuddio am ddigwyddiadau sy\'n peryglu bywydau</string>
+    <string name="enable_cmas_test_alerts_title">Rhybuddion profi</string>
+    <string name="enable_cmas_test_alerts_summary">Derbyn profion y darparwr a phrofion misol gan y system rhybuddion diogelwch</string>
+    <string name="enable_exercise_test_alerts_title">@string/cmas_exercise_alert</string>
+    <string name="enable_exercise_test_alerts_summary">Derbyn rhybudd argyfwng: Neges Ymarfer</string>
+    <string name="enable_operator_defined_test_alerts_title">@string/cmas_operator_defined_alert</string>
+    <string name="enable_operator_defined_test_alerts_summary">Derbyn rhybudd argyfwng: Wedi\'i ddiffinio gan y gweithredwr</string>
+    <string name="enable_alert_vibrate_title">Dirgryniad</string>
+    <string name="override_dnd_title">Rhybuddio ar y lefel sain uchaf pob tro</string>
+    <string name="override_dnd_summary">Anwybyddu Paid â Tharfu a gosodiadau sain eraill</string>
+    <string name="enable_area_update_info_alerts_title">Darllediadau diweddariadau ardal</string>
+    <string name="enable_area_update_info_alerts_summary">Dangos gwybodaeth ddiweddariad yn statws SIM</string>
+    <string name="cmas_category_heading">Categori Rhybudd:</string>
+    <string name="cmas_category_geo">Geoffisegol</string>
+    <string name="cmas_category_met">Meteorolegol</string>
+    <string name="cmas_category_safety">Diogelwch</string>
+    <string name="cmas_category_security">Diogelwch</string>
+    <string name="cmas_category_rescue">Achub</string>
+    <string name="cmas_category_fire">Tân</string>
+    <string name="cmas_category_health">Iechyd</string>
+    <string name="cmas_category_env">Amgylcheddol</string>
+    <string name="cmas_category_transport">Cludiant</string>
+    <string name="cmas_category_infra">Seilwaith</string>
+    <string name="cmas_category_cbrne">Cemegol/Biolegol/Niwclear/Ffrwydrol</string>
+    <string name="cmas_category_other">Arall</string>
+    <string name="cmas_response_heading">Math o Ymateb:</string>
+    <string name="cmas_response_shelter">Cysgodwch</string>
+    <string name="cmas_response_evacuate">Gadewch yr ardal</string>
+    <string name="cmas_response_prepare">Paratowch</string>
+    <string name="cmas_response_execute">Gweithredwch</string>
+    <string name="cmas_response_monitor">Monitrwch y sefyllfa</string>
+    <string name="cmas_response_avoid">Osgoi</string>
+    <string name="cmas_response_assess">Asesu</string>
+    <string name="cmas_response_none">Dim</string>
+    <string name="cmas_severity_heading">Difrifoldeb:</string>
+    <string name="cmas_severity_extreme">Eithafol</string>
+    <string name="cmas_severity_severe">Difrifol</string>
+    <string name="cmas_urgency_heading">Brys:</string>
+    <string name="cmas_urgency_immediate">Ar unwaith</string>
+    <string name="cmas_urgency_expected">Disgwyliedig</string>
+    <string name="cmas_certainty_heading">Sicrwydd:</string>
+    <string name="cmas_certainty_observed">Dan sylw</string>
+    <string name="cmas_certainty_likely">Tebygol</string>
+    <string name="delivery_time_heading">Derbyniwyd:</string>
+    <string name="notification_multiple"><xliff:g id="count">%s</xliff:g> rhybudd heb eu darllen</string>
+    <string name="notification_multiple_title">Rhybuddion newydd</string>
+    <string name="show_cmas_opt_out_summary">Dangos deialog yn cynnig y dewis i optio allan ar ôl dangos y rhybudd cyntaf (ond am Rybudd gan yr Arlywydd).</string>
+    <string name="show_cmas_opt_out_title">Dangos deialog optio allan</string>
+    <string name="cmas_opt_out_dialog_text">Rwyt yn derbyn rhybuddion argyfwng di-wifr ar hyn o bryd. Hoffet barhau i dderbyn rhybuddion argyfwng di-wifr?</string>
+    <string name="cmas_opt_out_button_yes">Iawn</string>
+    <string name="cmas_opt_out_button_no">Na</string>
+    <string name="cb_list_activity_title">"Hanes rhybuddion argyfwng"</string>
+    <string name="action_delete">Dileu</string>
+    <string-array name="alert_reminder_interval_entries">
+        <item>Unwaith</item>
+        <item>Pob 2 funud</item>
+        <item>Pob 5 munud</item>
+        <item>Pob 15 munud</item>
+        <item>Byth</item>
+    </string-array>
+    <string name="emergency_alert_settings_title_watches">Rhybuddion argyfwng di-wifr</string>
+    <string name="enable_cmas_presidential_alerts_title">Rhybuddion arlywyddol</string>
+    <string name="enable_cmas_presidential_alerts_summary">Negeseuon rhybuddion cenedlaethol gan yr Arlywydd. Nid yw\'n bosib eu diffodd.</string>
+    <string name="testing_mode_enabled">Galluogwyd modd profi darlledu symudol</string>
+    <string name="testing_mode_disabled">Analluogwyd modd profi darlledu symudol</string>
+    <string name="show_all_messages">Dangos pob neges</string>
+    <string name="show_regular_messages">Dangos negeseuon arferol</string>
+    <string name="message_identifier">Adnabyddydd:</string>
+    <string name="message_serial_number">Rhif cyfres:</string>
+    <string name="data_coding_scheme">Cynllun codio data:</string>
+    <string name="message_content">Cynnwys y neges:</string>
+    <string name="location_check_time">Gwiriad amser lleoliad:</string>
+    <string name="message_displayed">Neges i\'w dangos:</string>
+    <string name="message_coordinates">Cyfesurynnau:</string>
+    <string name="maximum_waiting_time">Terfyn amser aros:</string>
+    <string name="seconds">eiliadau</string>
+    <string name="message_copied">Neges wedi\u2019i chopïo</string>
+    <string name="top_intro_roaming_text">Wrth grwydro neu pan na fydd gennyt gerdyn SIM gweithredol, mae\u2019n bosib y byddi\u2019n derbyn rhai rhybuddion na sydd wedi eu cynnwys yn y gosodiadau hyn.</string>
+    <string name="notification_cb_settings_changed_title">Gosodiadau wedi\'u newid gan y darparwr gwasanaeth</string>
+    <string name="notification_cb_settings_changed_text">Tapia i weld gosodiadau rhybuddion argyfwng</string>
+</resources>

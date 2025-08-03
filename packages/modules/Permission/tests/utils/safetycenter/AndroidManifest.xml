@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.android.safetycenter.testing">
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"/>
+
+    <application>
+        <!-- The receiver is marked as disabled and is manually enabled in the tests for the desired
+             user(s); as it does not support multi-users calls for now. -->
+        <receiver android:name=".SafetySourceReceiver"
+                  android:enabled="false"
+                  android:exported="false">
+            <intent-filter>
+                <action android:name="android.safetycenter.action.SAFETY_CENTER_ENABLED_CHANGED"/>
+                <action android:name="android.safetycenter.action.REFRESH_SAFETY_SOURCES"/>
+                <action android:name="com.android.safetycenter.testing.action.RESOLVE_ACTION"/>
+                <action android:name="com.android.safetycenter.testing.action.DISMISS_ISSUE"/>
+            </intent-filter>
+        </receiver>
+
+        <service android:name=".SafetySourceReceiver$ForegroundService"
+                 android:foregroundServiceType="dataSync"
+                 android:exported="false"/>
+
+        <activity android:name=".TestActivity"
+                  android:exported="false">
+            <intent-filter android:priority="-1">
+                <action android:name="com.android.safetycenter.testing.action.TEST_ACTIVITY"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+          </activity>
+
+        <!-- Create an alias at higher priority, disabled.  We have seen flakes where implicit
+        intents for TEST_ACTIVITY fail owing to multiple receivers, perhaps due to an older
+        CTS APK hanging around.  We turn this component on (and off in tidyup) in tests, in
+        the hope of only resolving to the actively running test in these cases. -->
+        <activity-alias android:name=".TestActivityPriority"
+                        android:targetActivity=".TestActivity"
+                        android:enabled="false"
+                        android:exported="false">
+            <intent-filter android:priority="0">
+                <action android:name="com.android.safetycenter.testing.action.TEST_ACTIVITY"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias android:name=".TestActivityExported"
+                        android:targetActivity=".TestActivity"
+                        android:exported="true">
+            <intent-filter>
+                <action android:name="com.android.safetycenter.testing.action.TEST_ACTIVITY_EXPORTED"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity-alias>
+
+        <service android:name=".TestNotificationListener"
+            android:label="TestNotificationListener"
+            android:exported="false"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+    </application>
+</manifest>

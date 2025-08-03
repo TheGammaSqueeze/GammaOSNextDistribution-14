@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2010 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Tagiau</string>
+    <string name="title_scanned_tag">Tag newydd wedi\'i gasglu</string>
+    <string name="title_existing_tag">Tag</string>
+    <string name="tag_unknown">Math anhysbys o dag</string>
+    <string name="tag_empty">Tag gwag</string>
+    <string name="button_done">Iawn</string>
+    <string name="action_text">Anfon neges destun at <xliff:g id="phone_number">%s</xliff:g></string>
+    <string name="action_call">Galw <xliff:g id="phone_number">%s</xliff:g></string>
+    <string name="empty_tag_prompt">Mae\'r tag hwn yn wag.</string>
+    <string name="import_vcard">Mewnforio ^1</string>
+    <string name="mime_display_name">Data o dag NFC</string>
+    <string name="vcard_title">Manylion cyswllt ar gyfer ^1</string>
+    <string name="call_phone_permission_denied">Mae ar yr ap hwn angen caniatâd mynediad at Ffôn er mwyn gwneud galwadau. Gellir rheoli caniatâd Tag yn y Gosodiadau.</string>
+    <string name="external_storage_permission_denied">Mae\'r ap hwn angen caniatâd i gael at y Storfa Allanol er mwyn cyrchu ffeiliau. Gellir rheoli caniatâd Tag yn y Gosodiadau.</string>
+</resources>

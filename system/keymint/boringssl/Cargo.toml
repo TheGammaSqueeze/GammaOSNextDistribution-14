@@ -1,0 +1,17 @@
+[package]
+name = "kmr-crypto-boring"
+authors = ["David Drysdale <drysdale@google.com>"]
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ffi = { package = "openssl-sys", version = "^0.9.75" }
+foreign-types = "0.3.1"
+kmr-common = "*"
+kmr-wire = "*"
+libc = "^0.2.112"
+log = "^0.4"
+openssl = "^0.10.36"
+
+[dev-dependencies]
+kmr-tests = "*"

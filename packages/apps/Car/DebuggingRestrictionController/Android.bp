@@ -1,0 +1,54 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_app {
+    name: "DebuggingRestrictionController",
+    srcs: ["app/src/main/java/**/*.java", "soong/BuildConfig.java", "soong/FirebaseApplication.java"],
+    resource_dirs: ["app/src/main/res"],
+    manifest: "soong/AndroidManifest.xml",
+    sdk_version: "system_current",
+    certificate: "platform",
+    privileged: true,
+    optimize: {
+        enabled: true,
+        proguard_flags_files: ["app/proguard-rules.pro"],
+    },
+
+    static_libs: [
+      "com.google.android.material_material",
+      "androidx.annotation_annotation",
+      "androidx.appcompat_appcompat",
+      "androidx-constraintlayout_constraintlayout",
+
+      "androidx.lifecycle_lifecycle-livedata",
+      "androidx.lifecycle_lifecycle-viewmodel",
+      "androidx.lifecycle_lifecycle-runtime",
+      "androidx.lifecycle_lifecycle-extensions",
+      "androidx.legacy_legacy-support-v4",
+      "androidx.test.espresso.idling-resource",
+
+      "guava",
+      "jsr305",
+
+      "drc_static_libs",
+      "drc-lib-firebase-auth-20.0.1",
+      "drc-lib-firebase-auth-interop-19.0.0",
+      "drc-lib-firebase-common-19.5.0",
+      "drc-lib-firebase-components-16.1.0",
+      "drc-lib-firebase-functions-19.2.0",
+      "drc-lib-firebase-iid-21.0.1",
+      "drc-lib-firebase-iid-interop-17.0.0",
+      "drc-lib-firebase-installations-16.3.5",
+      "drc-lib-firebase-installations-interop-16.0.1",
+      "drc-lib-play-services-auth-api-phone-17.4.0",
+      "drc-lib-play-services-base-17.1.0",
+      "drc-lib-play-services-basement-17.1.0",
+      "drc-lib-play-services-cloud-messaging-16.0.0",
+      "drc-lib-play-services-safetynet-17.0.0",
+      "drc-lib-play-services-stats-17.0.0",
+      "drc-lib-play-services-tasks-17.0.0",
+    ],
+
+    //required: ["allowed_privapp_com.android.car.debuggingrestrictioncontroller"],
+}

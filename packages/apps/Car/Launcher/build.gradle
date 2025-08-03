@@ -1,0 +1,72 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+buildscript {
+
+    gradle.ext.aaosLatestSDK = 34
+    gradle.ext.aaosTargetSDK = 34
+
+    gradle.ext.repoRootPath = rootDir.parentFile.parentFile.parentFile.parent
+    gradle.ext.prebuiltSdkPath = gradle.ext.repoRootPath + "/prebuilts/sdk/"
+    gradle.ext.lib_car_system_stubs = gradle.ext.prebuiltSdkPath + gradle.ext.aaosLatestSDK + "/system/android.car-system-stubs.jar"
+    gradle.ext.lib_car_apps_common_aar = gradle.ext.prebuiltSdkPath + "current/aaos-libs/car-apps-common.aar"
+    gradle.ext.lib_car_media_common_aar = gradle.ext.prebuiltSdkPath + "current/aaos-libs/car-media-common.aar"
+    gradle.ext.lib_car_ui_lib_aar = gradle.ext.prebuiltSdkPath + "current/aaos-libs/car-ui-lib.aar"
+    gradle.ext.lib_car_ui_lib_oem_apis = gradle.ext.prebuiltSdkPath + "current/aaos-libs/car-ui-lib-oem-apis.jar"
+    gradle.ext.lib_system_stubs = gradle.ext.prebuiltSdkPath + gradle.ext.aaosLatestSDK + "/system/android.jar"
+    gradle.ext.lib_car_test_api = gradle.ext.prebuiltSdkPath + gradle.ext.aaosLatestSDK + "/system/android.car.testapi.jar"
+    gradle.ext.debugCertPath = gradle.ext.repoRootPath + "/packages/apps/Car/Launcher/libs/appgrid/keys/com_android_car_launcher_test.jks"
+    gradle.ext.soongBash = gradle.ext.repoRootPath + "/build/soong/soong_ui.bash"
+    gradle.ext.platformSdkVersion = "34" // Change this to the most recent android API level.
+
+    if (file(gradle.ext.soongBash).exists()) {
+        def soongPlatformSdkVersion = (gradle.ext.soongBash + " --dumpvar-mode PLATFORM_SDK_VERSION").execute().text.trim()
+        if (!soongPlatformSdkVersion.isEmpty()) {
+            gradle.ext.platformSdkVersion = soongPlatformSdkVersion
+        }
+    }
+
+    gradle.ext.getVersionCode = { ->
+        def code = project.hasProperty('versionCode') ? versionCode.toInteger() : gradle.ext.platformSdkVersion.toInteger()
+        println "VersionCode is set to $code"
+        return code
+    }
+    gradle.ext.getVersionName = { ->
+        def name = project.hasProperty('versionName') ? versionName : gradle.ext.platformSdkVersion
+        println "VersionName is set to $name"
+        return name
+    }
+}
+
+plugins {
+    // TODO b/324426571: The version for com.android.application and com.android.library is 8.1.2
+    id 'com.android.application' apply false
+    id 'com.android.library' apply false
+    id 'org.jetbrains.kotlin.android' version '1.8.21' apply false
+    id 'com.google.protobuf' version '0.9.1' apply false
+}
+
+allprojects {
+    tasks.withType(JavaCompile).tap {
+        configureEach {
+            // Compile with prebuilt android.jar.
+            options.compilerArgs.add('-Xbootclasspath/p:/' + gradle.ext.lib_system_stubs)
+            // TODO: just pass -Xlint, to enable all the supported types of warnings.
+            options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+        }
+    }
+    ext.ANDROID_TOP = gradle.ext.repoRootPath
+}

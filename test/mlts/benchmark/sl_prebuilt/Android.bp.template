@@ -1,0 +1,132 @@
+/*
+ * Copyright 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package {
+    // http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // the below license kinds from "test_mlts_benchmark_license":
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["test_mlts_benchmark_license"],
+}
+
+// Definition of NNAPI SL Libraries for QC distribution
+
+cc_prebuilt_library_shared {
+    name:  "libnnapi_sl_driver",
+    check_elf_files: false,
+    target: {
+        android_arm64: {
+            srcs: [  "libnnapi_sl_driver.so"],
+        },
+    },
+}
+
+cc_prebuilt_library_shared {
+    name:  "libQnnGpu",
+    check_elf_files: false,
+    target: {
+        android_arm64: {
+            srcs: [  "libQnnGpu.so" ],
+       },
+   },
+}
+
+cc_prebuilt_library_shared {
+    name:  "libQnnHtp",
+    check_elf_files: false,
+    target: {
+        android_arm64: {
+            srcs: [  "libQnnHtp.so" ],
+       },
+   },
+}
+
+cc_prebuilt_library_shared {
+    name:  "libQnnHtpPrepare",
+    check_elf_files: false,
+    target: {
+        android_arm64: {
+            srcs: [  "libQnnHtpPrepare.so" ],
+       },
+   },
+}
+
+cc_prebuilt_library_shared {
+    name:  "libQnnHtpV68Skel",
+    check_elf_files: false,
+    target: {
+        android_arm64: {
+            srcs: [  "libQnnHtpV68Skel.so" ],
+       },
+   },
+   strip: {
+     none: true
+   },
+}
+
+cc_prebuilt_library_shared {
+    name:  "libQnnHtpV68Stub",
+    check_elf_files: false,
+    target: {
+        android_arm64: {
+            srcs: [  "libQnnHtpV68Stub.so" ],
+       },
+   },
+}
+
+cc_prebuilt_library_shared {
+    name:  "libQnnHtpV69Skel",
+    check_elf_files: false,
+    target: {
+        android_arm64: {
+            srcs: [  "libQnnHtpV69Skel.so" ],
+       },
+   },
+   strip: {
+     none: true
+   },
+}
+
+cc_prebuilt_library_shared {
+    name:  "libQnnHtpV69Stub",
+    check_elf_files: false,
+    target: {
+        android_arm64: {
+            srcs: [  "libQnnHtpV69Stub.so" ],
+       },
+   },
+}
+
+cc_prebuilt_library_shared {
+    name:  "libUnnhalAccGpu",
+    check_elf_files: false,
+    target: {
+        android_arm64: {
+            srcs: [  "libUnnhalAccGpu.so" ],
+        },
+    },
+}
+
+cc_prebuilt_library_shared {
+    name:  "libUnnhalAccHtp",
+    check_elf_files: false,
+    target: {
+        android_arm64: {
+            srcs: [  "libUnnhalAccHtp.so" ],
+        },
+    },
+}
+
+

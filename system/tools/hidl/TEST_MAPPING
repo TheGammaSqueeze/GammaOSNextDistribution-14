@@ -1,0 +1,30 @@
+{
+  "presubmit": [
+    {
+      "name": "hidl_test"
+    },
+    {
+      "name": "hidl_test_java"
+    },
+    {
+      "name": "libhidl-gen-utils_test"
+    },
+    {
+      "name": "hidl_lazy_test"
+    }
+  ],
+  "hwasan-postsubmit": [
+    {
+      "name": "hidl_test"
+    },
+    {
+      "name": "hidl_test_java"
+    },
+    {
+      "name": "libhidl-gen-utils_test"
+    },
+    {
+      "name": "hidl_lazy_test"
+    }
+  ]
+}

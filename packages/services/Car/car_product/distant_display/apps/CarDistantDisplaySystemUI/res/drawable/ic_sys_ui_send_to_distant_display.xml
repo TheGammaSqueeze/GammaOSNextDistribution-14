@@ -1,0 +1,31 @@
+<!--
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="@dimen/system_bar_icon_drawing_size"
+        android:height="@dimen/system_bar_icon_drawing_size"
+        android:viewportWidth="65"
+        android:viewportHeight="65">
+    <path
+        android:pathData="M6.5,27.5V15.5H58.5V27.5H38V31H58.931C60.626,31 62,29.626 62,27.931V15.069C62,13.374 60.626,12 58.931,12H6.069C4.374,12 3,13.374 3,15.069V27.931C3,29.626 4.374,31 6.069,31H28V27.5H6.5Z"
+        android:fillColor="@color/car_nav_icon_fill_color"
+        android:fillAlpha="0.3"
+        android:fillType="evenOdd"/>
+    <path
+        android:pathData="M38.431,22.848L36.554,24.725L34.194,22.365V37.654H31.528V22.365L29.169,24.725L27.293,22.849L32.848,17.294L38.431,22.848ZM29.169,24.018L29.169,24.018L32.028,21.158V21.158L29.169,24.018ZM32.849,18L32.849,18L37.722,22.849L36.554,24.018L36.554,24.018L37.722,22.849L32.849,18ZM33.694,21.158V37.154H33.694V21.158L33.694,21.158ZM23.069,34H28V37.5H23.5V48.5H42.5V37.5H38V34H42.931C44.626,34 46,35.374 46,37.069V48.931C46,50.626 44.626,52 42.931,52H23.069C21.374,52 20,50.626 20,48.931V37.069C20,35.374 21.374,34 23.069,34Z"
+        android:fillColor="@color/car_nav_icon_fill_color"
+        android:fillType="evenOdd"/>
+</vector>

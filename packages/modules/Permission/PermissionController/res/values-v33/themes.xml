@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+    <style name="Theme.SafetyCenterQsBase" parent="@android:style/Theme.DeviceDefault.NoActionBar">
+        <item name="android:filterTouchesWhenObscured">true</item>
+
+        <!-- Safety Center Quick Settings uses dark mode resources -->
+        <item name="colorSurface">@color/sc_surface_dark</item>
+        <item name="colorSurfaceVariant">@color/sc_surface_variant_dark</item>
+        <item name="colorAccentPrimary">@color/sc_accent_primary_dark</item>
+
+        <item name="colorScStatusInfo">@color/sc_status_info_dark</item>
+        <item name="colorScStatusRecommend">@color/sc_status_recommend_dark</item>
+        <item name="colorScStatusWarn">@color/sc_status_warn_dark</item>
+
+        <item name="colorScStatusBackgroundInfo">@color/sc_status_background_info_dark</item>
+        <item name="colorScStatusBackgroundRecommend">
+            @color/sc_status_background_recommend_dark
+        </item>
+        <item name="colorScStatusBackgroundWarn">@color/sc_status_background_warn_dark</item>
+
+        <item name="colorScIconInfo">@color/sc_icon_info_dark</item>
+        <item name="colorScIconRecommend">@color/sc_icon_recommend_dark</item>
+        <item name="colorScIconWarn">@color/sc_icon_warn_dark</item>
+        <item name="colorScIconNull">@color/sc_icon_null_dark</item>
+
+        <item name="colorScShieldAccent">@color/sc_shield_accent</item>
+
+        <item name="scStatusTitleAndSummaryContainerStyle">
+            @style/SafetyCenterStatusTitleAndSummaryContainer.Fixed
+        </item>
+        <item name="scStatusButtonStyle">@style/SafetyCenterStatusButton.Fixed</item>
+
+        <!-- Buttons -->
+        <item name="scActionButtonListLayout">@layout/action_button_list_fixed</item>
+        <item name="scActionButtonTheme">
+            <!-- Dark-only theme for QS buttons -->
+            @style/Theme.MaterialComponents
+        </item>
+        <item name="scActionButtonStyle">@style/SafetyCenterActionButton.Fixed</item>
+        <item name="scSecondaryActionButtonStyle">
+            @style/SecondarySafetyCenterActionButton.Fixed
+        </item>
+
+        <item name="textColorScActionButton">@color/sc_primary_action_button_text</item>
+        <item name="textColorScSecondaryActionButton">?android:attr/textColorPrimary</item>
+
+        <item name="colorScOutlineButtonInfoBase">@color/sc_outline_button_info_base_dark</item>
+        <item name="colorScOutlineButtonRecommendBase">
+            @color/sc_outline_button_recommend_base_dark
+        </item>
+        <item name="colorScOutlineButtonWarnBase">@color/sc_outline_button_warn_base_dark</item>
+    </style>
+
+    <style name="Theme.SafetyCenterQs" parent="Theme.SafetyCenterQsBase" />
+
+    <style name="Theme.SafetyCenterBase" parent="Theme.PermissionController.Settings.FilterTouches">
+        <item name="colorSurface">@color/sc_surface_light</item>
+        <item name="colorSurfaceVariant">@color/sc_surface_variant_light</item>
+        <item name="colorAccentPrimary">@color/sc_accent_primary_light</item>
+
+        <item name="colorScStatusInfo">@color/sc_status_info_light</item>
+        <item name="colorScStatusRecommend">@color/sc_status_recommend_light</item>
+        <item name="colorScStatusWarn">@color/sc_status_warn_light</item>
+
+        <item name="colorScStatusBackgroundInfo">@color/sc_status_background_info_light</item>
+        <item name="colorScStatusBackgroundRecommend">
+            @color/sc_status_background_recommend_light
+        </item>
+        <item name="colorScStatusBackgroundWarn">@color/sc_status_background_warn_light</item>
+
+        <item name="colorScIconInfo">@color/sc_icon_info_light</item>
+        <item name="colorScIconRecommend">@color/sc_icon_recommend_light</item>
+        <item name="colorScIconWarn">@color/sc_icon_warn_light</item>
+        <item name="colorScIconNull">@color/sc_icon_null_light</item>
+
+        <item name="colorScShieldAccent">@color/sc_shield_accent</item>
+
+        <item name="scStatusTitleAndSummaryContainerStyle">
+            @style/SafetyCenterStatusTitleAndSummaryContainer.Responsive
+        </item>
+        <item name="scStatusButtonStyle">@style/SafetyCenterStatusButton.Responsive</item>
+
+        <!-- Buttons -->
+        <item name="scActionButtonListLayout">@layout/action_button_list_responsive</item>
+        <item name="scActionButtonTheme">@style/Theme.MaterialComponents.DayNight</item>
+        <item name="scActionButtonStyle">@style/SafetyCenterActionButton.Responsive</item>
+        <item name="scSecondaryActionButtonStyle">
+            @style/SecondarySafetyCenterActionButton.Responsive
+        </item>
+
+        <item name="textColorScActionButton">@color/sc_primary_action_button_text</item>
+        <item name="textColorScSecondaryActionButton">?android:attr/textColorPrimary</item>
+
+        <item name="colorScOutlineButtonInfoBase">@color/sc_outline_button_info_base_light</item>
+        <item name="colorScOutlineButtonRecommendBase">
+            @color/sc_outline_button_recommend_base_light
+        </item>
+        <item name="colorScOutlineButtonWarnBase">@color/sc_outline_button_warn_base_light</item>
+    </style>
+
+    <style name="Theme.SafetyCenter" parent="Theme.SafetyCenterBase" />
+</resources>

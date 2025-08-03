@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2009 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="uid_label" msgid="8421971615411294156">"მედია"</string>
+    <string name="storage_description" msgid="4081716890357580107">"ადგილობრივი მეხსიერება"</string>
+    <string name="picker_app_label" msgid="1195424381053599122">"მედიის ამომრჩევი"</string>
+    <string name="artist_label" msgid="8105600993099120273">"შემსრულებელი"</string>
+    <string name="unknown" msgid="2059049215682829375">"უცნობი"</string>
+    <string name="root_images" msgid="5861633549189045666">"სურათები"</string>
+    <string name="root_videos" msgid="8792703517064649453">"ვიდეოები"</string>
+    <string name="root_audio" msgid="3505830755201326018">"აუდიო"</string>
+    <string name="root_documents" msgid="3829103301363849237">"დოკუმენტები"</string>
+    <string name="permission_required" msgid="1460820436132943754">"ამ ერთეულის შესაცვლელად ან წასაშლელად საჭიროა ნებართვა."</string>
+    <string name="permission_required_action" msgid="706370952366113539">"გაგრძელება"</string>
+    <string name="grant_dialog_button_allow" msgid="1644287024501033471">"დაშვება"</string>
+    <string name="grant_dialog_button_deny" msgid="6190589471415815741">"უარყოფა"</string>
+    <string name="permission_more_thumb" msgid="1938863829470531577">"{count,plural, =1{+<xliff:g id="COUNT_0">^1</xliff:g>}other{+<xliff:g id="COUNT_1">^1</xliff:g>}}"</string>
+    <string name="permission_more_text" msgid="2471785045095597753">"{count,plural, =1{და კიდევ <xliff:g id="COUNT_0">^1</xliff:g> დამატებითი ერთეული}other{და კიდევ <xliff:g id="COUNT_1">^1</xliff:g> დამატებითი ერთეული}}"</string>
+    <string name="cache_clearing_dialog_title" msgid="8907893815183913664">"გასუფთავდეს აპის დროებითი ფაილები?"</string>
+    <string name="cache_clearing_dialog_text" msgid="7057784635111940957">"<xliff:g id="APP_SEEKING_PERMISSION">%s</xliff:g>-ს სურს, გაასუფთაოს დროებითი ფაილები. ამან შეიძლება ზოგიერთი ბატარეის ან მობილური ინტერნეტის გაზრდილი მოხმარება გამოიწვიოს."</string>
+    <string name="cache_clearing_in_progress_title" msgid="6902220064511664209">"მიმდინარეობს აპის დროებითი ფაილების გასუფთავება…"</string>
+    <string name="clear" msgid="5524638938415865915">"გასუფთავება"</string>
+    <string name="allow" msgid="8885707816848569619">"დაშვება"</string>
+    <string name="deny" msgid="6040983710442068936">"უარყოფა"</string>
+    <string name="picker_browse" msgid="5554477454636075934">"დათვალიერება…"</string>
+    <string name="picker_settings" msgid="6443463167344790260">"ღრუბლოვანი მედია აპი"</string>
+    <string name="picker_settings_system_settings_menu_title" msgid="3055084757610063581">"ღრუბლოვანი მედია აპი"</string>
+    <string name="picker_settings_title" msgid="5647700706470673258">"ღრუბლოვანი მედია აპი"</string>
+    <string name="picker_settings_description" msgid="2916686824777214585">"გადადით თქვენს ღრუბლოვან მედიაზე, როცა აპი ან ვებსაიტი გთხოვთ ფოტოების ან ვიდეოების არჩევას"</string>
+    <string name="picker_settings_selection_message" msgid="245453573086488596">"ღრუბლოვან მედიაზე წვდომა აქედან:"</string>
+    <string name="picker_settings_no_provider" msgid="2582311853680058223">"არცერთი"</string>
+    <string name="picker_settings_toast_error" msgid="697274445512467469">"ღრუბლური მედია აპის შეცვლა ამჯერად ვერ ხერხდება."</string>
+    <string name="picker_sync_notification_channel" msgid="1867105708912627993">"მედიის ამომრჩევი"</string>
+    <string name="picker_sync_notification_title" msgid="1122713382122055246">"მედიის ამომრჩევი"</string>
+    <string name="picker_sync_notification_text" msgid="8204423917712309382">"მიმდინარეობს მედიის სინქრონიზაცია…"</string>
+    <string name="add" msgid="2894574044585549298">"დამატება"</string>
+    <string name="deselect" msgid="4297825044827769490">"არჩევის გაუქმება"</string>
+    <string name="deselected" msgid="8488133193326208475">"არჩევა გაუქმებულია"</string>
+    <string name="select" msgid="2704765470563027689">"არჩევა"</string>
+    <string name="selected" msgid="9151797369975828124">"არჩეულია"</string>
+    <string name="select_up_to" msgid="6994294169508439957">"{count,plural, =1{აირჩიეთ <xliff:g id="COUNT_0">^1</xliff:g>-მდე ერთეული}other{აირჩიეთ <xliff:g id="COUNT_1">^1</xliff:g>-მდე ერთეული}}"</string>
+    <string name="recent" msgid="6694613584743207874">"ბოლოდროინდელი"</string>
+    <string name="picker_photos_empty_message" msgid="5980619500554575558">"ფოტოები და ვიდეოები არ არის"</string>
+    <string name="picker_album_media_empty_message" msgid="7061850698189881671">"ფოტოები და ვიდეოები არ არის მხარდაჭერილი"</string>
+    <string name="picker_albums_empty_message" msgid="8341079772950966815">"ალბომები არ არის"</string>
+    <string name="picker_view_selected" msgid="2266031384396143883">"არჩეულის ნახვა"</string>
+    <string name="picker_photos" msgid="7415035516411087392">"ფოტოები"</string>
+    <!-- no translation found for picker_videos (2886971435439047097) -->
+    <skip />
+    <string name="picker_albums" msgid="4822511902115299142">"ალბომები"</string>
+    <string name="picker_preview" msgid="6257414886055861039">"გადახედვა"</string>
+    <string name="picker_work_profile" msgid="2083221066869141576">"სამსახურზე გადართვა"</string>
+    <string name="picker_personal_profile" msgid="639484258397758406">"პირად პროფილზე გადართვა"</string>
+    <string name="picker_personal_profile_label" msgid="6189198163209597344">"პირადი"</string>
+    <string name="picker_profile_admin_title" msgid="4172022376418293777">"დაბლოკილია თქვენი ადმინისტრატორის მიერ"</string>
+    <string name="picker_profile_admin_msg_from_personal" msgid="1941639895084555723">"პირადი აპიდან სამუშაო სამსახურებრივ მონაცემებზე წვდომა დაუშვებელია"</string>
+    <string name="picker_profile_admin_msg_from_work" msgid="8048524337462790110">"სამსახურის აპიდან პერსონალურ მონაცემებზე წვდომა დაუშვებელია"</string>
+    <string name="picker_profile_admin_msg" msgid="4060112887923255178">"<xliff:g id="PROFILE2">%2$s</xliff:g> აპიდან <xliff:g id="PROFILE1">%1$s</xliff:g> მონაცემებზე წვდომა დაუშვებელია"</string>
+    <string name="picker_profile_switch_message" msgid="1133817927412489487">"<xliff:g id="PROFILE">%s</xliff:g>-ზე გადართვა"</string>
+    <string name="picker_profile_work_paused_title" msgid="382212880704235925">"სამსახურის აპები დაპაუზებულია"</string>
+    <string name="picker_profile_paused_title" msgid="2079739512895529028">"<xliff:g id="PROFILE">%s</xliff:g> აპები დაპაუზებულია"</string>
+    <string name="picker_profile_work_paused_msg" msgid="6321552322125246726">"სამსახურის ფოტოების გასახსნელად ჩართეთ თქვენი სამსახურის აპები და შემდეგ ცადეთ ხელახლა"</string>
+    <string name="picker_profile_paused_msg" msgid="1215076898583993782">"<xliff:g id="PROFILE1">%1$s</xliff:g> ფოტოების გასახსნელად, ჩართეთ <xliff:g id="PROFILE2">%2$s</xliff:g> აპები და ხელახლა ცადეთ"</string>
+    <string name="picker_privacy_message" msgid="9132700451027116817">"ეს აპი მხოლოდ თქვენ მიერ მონიშნულ ფოტოებზე წვდომას შეძლებს"</string>
+    <string name="picker_header_permissions" msgid="675872774407768495">"შეარჩიეთ ფოტოები და ვიდეოები, რომლებზეც ამ აპს აქვს წვდომა"</string>
+    <string name="picker_album_item_count" msgid="4420723302534177596">"{count,plural, =1{<xliff:g id="COUNT_0">^1</xliff:g> ერთეული}other{<xliff:g id="COUNT_1">^1</xliff:g> ერთეული}}"</string>
+    <string name="picker_add_button_multi_select" msgid="4005164092275518399">"დამატება (<xliff:g id="COUNT">^1</xliff:g>)"</string>
+    <string name="picker_add_button_multi_select_permissions" msgid="5138751105800138838">"დაშვება (<xliff:g id="COUNT">^1</xliff:g>)"</string>
+    <string name="picker_add_button_allow_none_option" msgid="9183772732922241035">"არცერთის დაშვება"</string>
+    <string name="picker_category_camera" msgid="4857367052026843664">"კამერა"</string>
+    <string name="picker_category_downloads" msgid="793866660287361900">"ჩამოტვირთვები"</string>
+    <string name="picker_category_favorites" msgid="7008495397818966088">"რჩეულები"</string>
+    <string name="picker_category_screenshots" msgid="7216102327587644284">"ეკრანის ანაბეჭდები"</string>
+    <!-- no translation found for picker_category_videos (1478458836380241356) -->
+    <skip />
+    <string name="picker_motion_photo_text" msgid="5016603812468180816">"მოძრავი ფოტო"</string>
+    <string name="picker_item_content_desc" msgid="7680591530155286423">"<xliff:g id="ITEM_NAME">%1$s</xliff:g> გადაღებულია <xliff:g id="TIME">%2$s</xliff:g>-ზე"</string>
+    <string name="picker_video_item_content_desc" msgid="7828900089119214801">"ვიდეოს გადაღების დრო და ხანგრძლივობა: <xliff:g id="TIME">%1$s</xliff:g>, <xliff:g id="DURATION">%2$s</xliff:g>"</string>
+    <string name="picker_photo" msgid="1739342083494962153">"ფოტო"</string>
+    <string name="picker_gif" msgid="8333318083107368726">"GIF"</string>
+    <string name="picker_motion_photo" msgid="4385182195289546308">"მოძრავი ფოტო"</string>
+    <string name="picker_mute_video" msgid="2496585809229800096">"ვიდეოს დადუმება"</string>
+    <string name="picker_unmute_video" msgid="6611741290641963568">"ვიდეოს დადუმების მოხსნა"</string>
+    <string name="picker_play_video" msgid="7106025944628666250">"დაკვრა"</string>
+    <string name="picker_pause_video" msgid="1092718225234326702">"პაუზა"</string>
+    <string name="picker_error_snackbar" msgid="5970192792792369203">"ვიდეოს დაკვრა ვერ ხერხდება"</string>
+    <string name="picker_error_dialog_title" msgid="4540095603788920965">"ვიდეოს იკვრება პრობლემურად"</string>
+    <string name="picker_error_dialog_body" msgid="2515738446802971453">"შეამოწმეთ ინტერნეტთან კავშირი და სცადეთ ხელახლა"</string>
+    <string name="picker_error_dialog_positive_action" msgid="749544129082109232">"ცდა"</string>
+    <string name="not_selected" msgid="2244008151669896758">"არ არის არჩეული"</string>
+    <string name="preloading_dialog_title" msgid="4974348221848532887">"მიმდინარეობს თქვენ მიერ არჩეული მედიის მომზადება"</string>
+    <string name="preloading_progress_message" msgid="4741327138031980582">"<xliff:g id="NUMBER_PRELOADED">%1$d</xliff:g> სულ <xliff:g id="NUMBER_TOTAL">%2$d</xliff:g>-დან მზადაა"</string>
+    <string name="preloading_cancel_button" msgid="824053521307342209">"გაუქმება"</string>
+    <string name="picker_banner_cloud_first_time_available_title" msgid="5912973744275711595">"უკვე ფოტოების სარეზერვო ასლების ჩათვლით"</string>
+    <string name="picker_banner_cloud_first_time_available_desc" msgid="5570916598348187607">"შეგიძლიათ აირჩიოთ ფოტოები <xliff:g id="APP_NAME">%1$s</xliff:g>-ის ანგარიშიდან <xliff:g id="USER_ACCOUNT">%2$s</xliff:g>"</string>
+    <string name="picker_banner_cloud_account_changed_title" msgid="4825058474378077327">"<xliff:g id="APP_NAME">%1$s</xliff:g> ანგარიში განახლებულია"</string>
+    <string name="picker_banner_cloud_account_changed_desc" msgid="3433218869899792497">"<xliff:g id="USER_ACCOUNT">%1$s</xliff:g>-ის ფოტოები ახლა აქ არის განთავსებული"</string>
+    <string name="picker_banner_cloud_choose_app_title" msgid="3165966147547974251">"აირჩიეთ ღრუბლოვანი მედიის აპი"</string>
+    <string name="picker_banner_cloud_choose_app_desc" msgid="2359212653555524926">"ფოტოების სარეზერვო ასლების აქ განსათავსებლად აირჩიეთ ღრუბლოვანი მედია პარამეტრებიდან"</string>
+    <string name="picker_banner_cloud_choose_account_title" msgid="5010901185639577685">"<xliff:g id="APP_NAME">%1$s</xliff:g> ანგარიშის არჩევა"</string>
+    <string name="picker_banner_cloud_choose_account_desc" msgid="8868134443673142712">"<xliff:g id="APP_NAME">%1$s</xliff:g>-დან ფოტოების განსათავსებლად, აირჩიეთ ანგარიში აპში"</string>
+    <string name="picker_banner_cloud_dismiss_button" msgid="2935903078288463882">"დახურვა"</string>
+    <string name="picker_banner_cloud_choose_app_button" msgid="934085679890435479">"აპის არჩევა"</string>
+    <string name="picker_banner_cloud_choose_account_button" msgid="7979484877116991631">"აირჩიეთ ანგარიში"</string>
+    <string name="picker_banner_cloud_change_account_button" msgid="8361239765828471146">"ანგარიშის შეცვლა"</string>
+    <string name="picker_loading_photos_message" msgid="6449180084857178949">"თქვენი ყველა ფოტოს მიღება"</string>
+    <string name="permission_write_audio" msgid="8819694245323580601">"{count,plural, =1{აძლევთ უფლებას <xliff:g id="APP_NAME_0">^1</xliff:g>-ს, შეცვალოს ეს აუდიოფაილი?}other{აძლევთ უფლებას <xliff:g id="APP_NAME_1">^1</xliff:g>-ს, შეცვალოს <xliff:g id="COUNT">^2</xliff:g> აუდიოფაილი?}}"</string>
+    <string name="permission_progress_write_audio" msgid="6029375427984180097">"{count,plural, =1{მიმდინარეობს აუდიოფაილის მოდიფიკაცია…}other{მიმდინარეობს <xliff:g id="COUNT">^1</xliff:g> აუდიოფაილის მოდიფიკაცია…}}"</string>
+    <string name="permission_write_video" msgid="103902551603700525">"{count,plural, =1{აძლევთ უფლებას <xliff:g id="APP_NAME_0">^1</xliff:g>-ს, შეცვალოს ეს ვიდეო?}other{აძლევთ უფლებას <xliff:g id="APP_NAME_1">^1</xliff:g>-ს, შეცვალოს <xliff:g id="COUNT">^2</xliff:g> ვიდეო?}}"</string>
+    <string name="permission_progress_write_video" msgid="7014908418349819148">"{count,plural, =1{მიმდინარეობს ვიდეოს მოდიფიკაცია…}other{მიმდინარეობს <xliff:g id="COUNT">^1</xliff:g> ვიდეოს მოდიფიკაცია…}}"</string>
+    <string name="permission_write_image" msgid="3518991791620523786">"{count,plural, =1{აძლევთ უფლებას <xliff:g id="APP_NAME_0">^1</xliff:g>-ს, შეცვალოს ეს ფოტო?}other{აძლევთ უფლებას <xliff:g id="APP_NAME_1">^1</xliff:g>-ს, შეცვალოს <xliff:g id="COUNT">^2</xliff:g> ფოტო?}}"</string>
+    <string name="permission_progress_write_image" msgid="3623580315590025262">"{count,plural, =1{მიმდინარეობს ფოტოს მოდიფიკაცია…}other{მიმდინარეობს <xliff:g id="COUNT">^1</xliff:g> ფოტოს მოდიფიკაცია…}}"</string>
+    <string name="permission_write_generic" msgid="7431128739233656991">"{count,plural, =1{აძლევთ უფლებას <xliff:g id="APP_NAME_0">^1</xliff:g>-ს, შეცვალოს ეს ერთეული?}other{აძლევთ უფლებას <xliff:g id="APP_NAME_1">^1</xliff:g>-ს, შეცვალოს <xliff:g id="COUNT">^2</xliff:g> ერთეული?}}"</string>
+    <string name="permission_progress_write_generic" msgid="2806560971318391443">"{count,plural, =1{მიმდინარეობს ერთეულის მოდიფიკაცია…}other{მიმდინარეობს <xliff:g id="COUNT">^1</xliff:g> ერთეულის მოდიფიკაცია…}}"</string>
+    <string name="permission_trash_audio" msgid="6554672354767742206">"{count,plural, =1{აძლევთ უფლებას <xliff:g id="APP_NAME_0">^1</xliff:g>-ს, გადაიტანოს ეს აუდიოფაილი წაშლილებში?}other{აძლევთ უფლებას <xliff:g id="APP_NAME_1">^1</xliff:g>-ს, გადაიტანოს <xliff:g id="COUNT">^2</xliff:g> აუდიოფაილი წაშლილებში?}}"</string>
+    <string name="permission_progress_trash_audio" msgid="3116279868733641329">"{count,plural, =1{მიმდინარეობს აუდიოფაილის წაშლილებში გადატანა…}other{მიმდინარეობს <xliff:g id="COUNT">^1</xliff:g> აუდიოფაილის წაშლილებში გადატანა…}}"</string>
+    <string name="permission_trash_video" msgid="7555850843259959642">"{count,plural, =1{აძლევთ უფლებას <xliff:g id="APP_NAME_0">^1</xliff:g>-ს, გადაიტანოს ეს ვიდეო წაშლილებში?}other{აძლევთ უფლებას <xliff:g id="APP_NAME_1">^1</xliff:g>-ს, გადაიტანოს <xliff:g id="COUNT">^2</xliff:g> ვიდეო წაშლილებში?}}"</string>
+    <string name="permission_progress_trash_video" msgid="4637821778329459681">"{count,plural, =1{მიმდინარეობს ვიდეოს წაშლილებში გადატანა…}other{მიმდინარეობს <xliff:g id="COUNT">^1</xliff:g> ვიდეოს წაშლილებში გადატანა…}}"</string>
+    <string name="permission_trash_image" msgid="3333128084684156675">"{count,plural, =1{აძლევთ უფლებას <xliff:g id="APP_NAME_0">^1</xliff:g>-ს, გადაიტანოს ეს ფოტო წაშლილებში?}other{აძლევთ უფლებას <xliff:g id="APP_NAME_1">^1</xliff:g>-ს, გადაიტანოს <xliff:g id="COUNT">^2</xliff:g> ფოტო წაშლილებში?}}"</string>
+    <string name="permission_progress_trash_image" msgid="3063857679090024764">"{count,plural, =1{მიმდინარეობს ფოტოს წაშლილებში გადატანა…}other{მიმდინარეობს <xliff:g id="COUNT">^1</xliff:g> ფოტოს წაშლილებში გადატანა…}}"</string>
+    <string name="permission_trash_generic" msgid="5545420534785075362">"{count,plural, =1{აძლევთ უფლებას <xliff:g id="APP_NAME_0">^1</xliff:g>-ს, გადაიტანოს ეს ერთეული წაშლილებში?}other{აძლევთ უფლებას <xliff:g id="APP_NAME_1">^1</xliff:g>-ს, გადაიტანოს <xliff:g id="COUNT">^2</xliff:g> ერთეული წაშლილებში?}}"</string>
+    <string name="permission_progress_trash_generic" msgid="7815124979717814057">"{count,plural, =1{მიმდინარეობს ერთეულის წაშლილებში გადატანა…}other{მიმდინარეობს <xliff:g id="COUNT">^1</xliff:g> ერთეულის წაშლილებში გადატანა…}}"</string>
+    <string name="permission_untrash_audio" msgid="8404597563284002472">"{count,plural, =1{აძლევთ უფლებას <xliff:g id="APP_NAME_0">^1</xliff:g>-ს, გადმოიტანოს ეს აუდიოფაილი წაშლილებიდან?}other{აძლევთ უფლებას <xliff:g id="APP_NAME_1">^1</xliff:g>-ს, გადმოიტანოს <xliff:g id="COUNT">^2</xliff:g> აუდიოფაილი წაშლილებიდან?}}"</string>
+    <string name="permission_progress_untrash_audio" msgid="2775372344946464508">"{count,plural, =1{მიმდინარეობს აუდიოფაილის წაშლილებიდან გადმოტანა…}other{მიმდინარეობს <xliff:g id="COUNT">^1</xliff:g> აუდიოფაილის წაშლილებიდან გადმოტანა…}}"</string>
+    <string name="permission_untrash_video" msgid="3178914827607608162">"{count,plural, =1{აძლევთ უფლებას <xliff:g id="APP_NAME_0">^1</xliff:g>-ს, გადმოიტანოს ეს ვიდეო წაშლილებიდან?}other{აძლევთ უფლებას <xliff:g id="APP_NAME_1">^1</xliff:g>-ს, გადმოიტანოს <xliff:g id="COUNT">^2</xliff:g> ვიდეო წაშლილებიდან?}}"</string>
+    <string name="permission_progress_untrash_video" msgid="5500929409733841567">"{count,plural, =1{მიმდინარეობს ვიდეოს წაშლილებიდან გადმოტანა…}other{მიმდინარეობს <xliff:g id="COUNT">^1</xliff:g> ვიდეოს წაშლილებიდან გადმოტანა…}}"</string>
+    <string name="permission_untrash_image" msgid="3397523279351032265">"{count,plural, =1{აძლევთ უფლებას <xliff:g id="APP_NAME_0">^1</xliff:g>-ს, გადმოიტანოს ეს ფოტო წაშლილებიდან?}other{აძლევთ უფლებას <xliff:g id="APP_NAME_1">^1</xliff:g>-ს, გადმოიტანოს <xliff:g id="COUNT">^2</xliff:g> ფოტო წაშლილებიდან?}}"</string>
+    <string name="permission_progress_untrash_image" msgid="5295061520504846264">"{count,plural, =1{მიმდინარეობს ფოტოს წაშლილებიდან გადმოტანა…}other{მიმდინარეობს <xliff:g id="COUNT">^1</xliff:g> ფოტოს წაშლილებიდან გადმოტანა…}}"</string>
+    <string name="permission_untrash_generic" msgid="2118366929431671046">"{count,plural, =1{აძლევთ უფლებას <xliff:g id="APP_NAME_0">^1</xliff:g>-ს, გადმოიტანოს ეს ერთეული წაშლილებიდან?}other{აძლევთ უფლებას <xliff:g id="APP_NAME_1">^1</xliff:g>-ს, გადმოიტანოს <xliff:g id="COUNT">^2</xliff:g> ერთეული წაშლილებიდან?}}"</string>
+    <string name="permission_progress_untrash_generic" msgid="1489511601966842579">"{count,plural, =1{მიმდინარეობს ერთეულის წაშლილებიდან გადმოტანა…}other{მიმდინარეობს <xliff:g id="COUNT">^1</xliff:g> ერთეულის წაშლილებიდან გადმოტანა…}}"</string>
+    <string name="permission_delete_audio" msgid="3326674742892796627">"{count,plural, =1{აძლევთ უფლებას <xliff:g id="APP_NAME_0">^1</xliff:g>-ს, წაშალოს ეს აუდიოფაილი?}other{აძლევთ უფლებას <xliff:g id="APP_NAME_1">^1</xliff:g>-ს, წაშალოს <xliff:g id="COUNT">^2</xliff:g> აუდიოფაილი?}}"</string>
+    <string name="permission_progress_delete_audio" msgid="1734871539021696401">"{count,plural, =1{მიმდინარეობს აუდიოფაილის წაშლა…}other{მიმდინარეობს <xliff:g id="COUNT">^1</xliff:g> აუდიოფაილის წაშლა…}}"</string>
+    <string name="permission_delete_video" msgid="604024971828349279">"{count,plural, =1{აძლევთ უფლებას <xliff:g id="APP_NAME_0">^1</xliff:g>-ს, წაშალოს ეს ვიდეო?}other{აძლევთ უფლებას <xliff:g id="APP_NAME_1">^1</xliff:g>-ს, წაშალოს <xliff:g id="COUNT">^2</xliff:g> ვიდეო?}}"</string>
+    <string name="permission_progress_delete_video" msgid="1846702435073793157">"{count,plural, =1{მიმდინარეობს ვიდეოს წაშლა…}other{მიმდინარეობს <xliff:g id="COUNT">^1</xliff:g> ვიდეოს წაშლა…}}"</string>
+    <string name="permission_delete_image" msgid="3109056012794330510">"{count,plural, =1{აძლევთ უფლებას <xliff:g id="APP_NAME_0">^1</xliff:g>-ს, წაშალოს ეს ფოტო?}other{აძლევთ უფლებას <xliff:g id="APP_NAME_1">^1</xliff:g>-ს, წაშალოს <xliff:g id="COUNT">^2</xliff:g> ფოტო?}}"</string>
+    <string name="permission_progress_delete_image" msgid="8580517204901148906">"{count,plural, =1{მიმდინარეობს ფოტოს წაშლა…}other{მიმდინარეობს <xliff:g id="COUNT">^1</xliff:g> ფოტოს წაშლა…}}"</string>
+    <string name="permission_delete_generic" msgid="7891939881065520271">"{count,plural, =1{აძლევთ უფლებას <xliff:g id="APP_NAME_0">^1</xliff:g>-ს, წაშალოს ეს ერთეული?}other{აძლევთ უფლებას <xliff:g id="APP_NAME_1">^1</xliff:g>-ს, წაშალოს <xliff:g id="COUNT">^2</xliff:g> ერთეული?}}"</string>
+    <string name="permission_progress_delete_generic" msgid="6709118146245087898">"{count,plural, =1{მიმდინარეობს ერთეულის წაშლა…}other{მიმდინარეობს <xliff:g id="COUNT">^1</xliff:g> ერთეულის წაშლა…}}"</string>
+    <string name="transcode_denied" msgid="6760546817138288976">"<xliff:g id="APP_NAME">%s</xliff:g> ვერ ამუშავებს მედია ფაილებს"</string>
+    <string name="transcode_processing_cancelled" msgid="5340383917746945590">"მედიის დამუშავება გაუქმდა"</string>
+    <string name="transcode_processing_error" msgid="8921643164508407874">"მედიის დამუშავებისას შეცდომა მოხდა"</string>
+    <string name="transcode_processing_success" msgid="447288876429730122">"მედიის დამუშავება წარმატებით დასრულდა"</string>
+    <string name="transcode_processing_started" msgid="7789086308155361523">"მედიის დამუშავება დაიწყო"</string>
+    <string name="transcode_processing" msgid="6753136468864077258">"მედია მუშავდება…"</string>
+    <string name="transcode_cancel" msgid="8555752601907598192">"გაუქმება"</string>
+    <string name="transcode_wait" msgid="8909773149560697501">"მოცდა"</string>
+    <string name="safety_protection_icon_label" msgid="6714354052747723623">"უსაფრთხოების დაცვა"</string>
+    <string name="transcode_alert_channel" msgid="997332371757680478">"ტრანსკოდირების ადგილობრივი გაფრთხილება"</string>
+    <string name="transcode_progress_channel" msgid="6905136787933058387">"ტრანსკოდირების ადგილობრივი პროგრესი"</string>
+    <string name="dialog_error_message" msgid="5120432204743681606">"ცადეთ მოგვიანებით. თქვენი ფოტოები ხარვეზის აღმოფხვრის შემდეგ იქნება ხელმისაწვდომი."</string>
+    <string name="dialog_error_title" msgid="636349284077820636">"ზოგიერთი ფოტოს ჩატვირთვა ვერ ხერხდება"</string>
+    <string name="dialog_button_text" msgid="351366485240852280">"გასაგებია"</string>
+    <string name="permlab_accessMediaOwnerPackageName" msgid="3849443148060165651">"მედიის მფლობელის პაკეტის სახელზე წვდომა"</string>
+    <string name="permdesc_accessMediaOwnerPackageName" msgid="7381563109363105371">"აპს ეძლევა ყველა ხელმისაწვდომი მედია ფაილის მფლობელის პაკეტზე წვდომა."</string>
+</resources>

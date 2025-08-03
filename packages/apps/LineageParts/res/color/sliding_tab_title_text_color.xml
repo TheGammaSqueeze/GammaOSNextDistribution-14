@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+     SPDX-FileCopyrightText: 2016 The Android Open Source Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_selected="false"
+          android:color="?android:attr/textColorSecondary"/>
+    <item android:color="?android:attr/textColorPrimary"/>
+</selector>

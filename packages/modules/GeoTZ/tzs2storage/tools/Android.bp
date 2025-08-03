@@ -1,0 +1,59 @@
+// Copyright (C) 2020 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_library_host {
+    name: "geotz_s2storage_tools",
+    srcs: [
+        "src/java/com/android/timezone/**/*.java",
+    ],
+    static_libs: [
+        "geotz_host_common",
+        "geotz_s2storage_tools_protos",
+        "geotz_s2storage_rw",
+        "jcommander",
+        "libprotobuf-java-full",
+        "s2storage_tools",
+    ],
+}
+
+java_library_host {
+    name: "geotz_s2storage_tools_protos",
+    srcs: ["src/proto/**/*.proto"],
+    proto: {
+        type: "full",
+        include_dirs: ["external/protobuf/src"],
+    },
+}
+
+// A tool to dump a tzs2 file as text for debugging.
+java_binary_host {
+    name: "geotz_dumptzs2file",
+    main_class: "com.android.timezone.location.tools.tzs2.DumpTzS2File",
+    static_libs: [
+        "geotz_s2storage_tools",
+    ],
+}
+
+// A tool to create a tzs2 file from protos.
+java_binary_host {
+    name: "geotz_createtzs2file",
+    main_class: "com.android.timezone.location.tools.tzs2.CreateTzS2File",
+    static_libs: [
+        "geotz_s2storage_tools",
+    ],
+}

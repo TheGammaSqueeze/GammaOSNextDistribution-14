@@ -1,0 +1,41 @@
+{
+    "presubmit": [
+        {
+            "name": "CtsPermissionTestCases",
+            "options": [
+                {
+                    "include-filter": "android.permission.cts.OneTimePermissionTest"
+                },
+                {
+                    "exclude-annotation": "androidx.test.filters.FlakyTest"
+                }
+            ]
+        }
+    ],
+    "presubmit-large": [
+        {
+            "name": "CtsDevicePolicyManagerTestCases",
+            "options": [
+                {
+                    "include-annotation": "com.android.cts.devicepolicy.annotations.PermissionsTest"
+                },
+                {
+                    "exclude-annotation": "androidx.test.filters.FlakyTest"
+                }
+            ]
+        }
+    ],
+    "postsubmit": [
+        {
+            "name": "CtsPermissionUiTestCases"
+        },
+        {
+            "name": "CtsPermissionTestCases",
+            "options": [
+                {
+                    "include-filter": "android.permission.cts.OneTimePermissionTest"
+                }
+            ]
+        }
+    ]
+}

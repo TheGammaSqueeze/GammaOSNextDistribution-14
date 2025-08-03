@@ -1,0 +1,8 @@
+  #00 pc 000c1324  linker (__dl_syscall+28)
+  #01 pc 000361f5  linker (__dl__ZL24debuggerd_signal_handleriP7siginfoPv+1048)
+  #02 pc 000c6c40  linker (__dl___restore_rt)
+  #03 pc 0003ceae  libc.so (abort+134)
+  #04 pc 00003f4f  crasher (maybe_abort+42)
+  #05 pc 00004337  crasher (do_action+622)
+  #06 pc 00005191  crasher (main+48)
+  #07 pc 0003591f  libc.so (__libc_init+58)

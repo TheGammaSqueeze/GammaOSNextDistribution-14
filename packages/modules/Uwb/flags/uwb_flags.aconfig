@@ -1,0 +1,65 @@
+package: "com.android.uwb.flags"
+container: "com.android.uwb"
+
+flag {
+    name: "query_timestamp_micros"
+    namespace: "uwb"
+    description: "This flag controls whether querying timestamp is allowed"
+    bug: "293919345"
+}
+
+flag {
+    name: "hybrid_session_support"
+    namespace: "uwb"
+    description: "This flag controls hybrid session configuration support"
+    bug: "293919345"
+}
+
+flag {
+    name: "use_uwbs_uci_version"
+    namespace: "uwb"
+    description: "Replace usage of ProtocolVersion from Fira/Ccc params with UWBS UCI version"
+    bug: "303104817"
+}
+
+flag {
+    name: "reason_inband_session_stop"
+    namespace: "uwb"
+    description: "Allow applications to receive callback when session was stopped due to inband signal"
+    bug: "304476327"
+}
+
+flag {
+    name: "parse_cap_tlv_rust_uses_uwbs_uci_version"
+    namespace: "uwb"
+    description: "Parse the UWBS Capability tag(s) based on it's Fira UCI version"
+    bug: "301834443"
+}
+
+flag {
+    name: "use_network_country_iso"
+    namespace: "uwb"
+    description: "Configure country code from getNetworkCountryIso() when telephony list is empty or null"
+    bug: "299961333"
+}
+
+flag {
+    name: "cr423_cleanup_interval_scheduling"
+    namespace: "uwb"
+    description: "Implement CR-423: Remove Interval-based scheduling for Fira 2.0+ devices"
+    bug: "285984664"
+}
+
+flag {
+    name: "hw_state"
+    namespace: "uwb"
+    description: "This flag enables the new hardware state APIs"
+    bug: "322372275"
+}
+
+flag {
+    name: "data_transfer_phase_config"
+    namespace: "uwb"
+    description: "Implement CR-1022, CR-1047: Used to update data transfer phase config"
+    bug: "319596317"
+}

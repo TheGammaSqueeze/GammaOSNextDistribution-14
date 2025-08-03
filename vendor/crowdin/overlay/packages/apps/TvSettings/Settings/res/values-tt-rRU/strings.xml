@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2014 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="sync_item_title"><xliff:g id="authority" example="Calendar">%s</xliff:g></string>
+    <string name="connectivity_wifi">Wi-Fi</string>
+    <string name="connectivity_ethernet">Ethernet</string>
+    <string name="wifi_setting_enable_wifi">Wi-Fi</string>
+    <string name="surround_sound_format_dts">DTS</string>
+    <string name="surround_sound_format_dts_hd">DTS-HD</string>
+    <string name="surround_sound_format_dts_uhd">DTS:X</string>
+    <string name="surround_sound_format_dra">DRA</string>
+    <string name="hdmi_cec_settings_title">HDMI-CEC</string>
+    <string name="hdr_format_sdr">SDR</string>
+    <string name="hdr_format_hdr10">HDR10</string>
+    <string name="hdr_format_hlg">HLG</string>
+    <string name="hdr_format_hdr10plus">HDR10+</string>
+    <string name="bluetooth_device_disconnected_toast">%1$s өзелде</string>
+    <string name="system_cast">Google Cast</string>
+    <string name="system_autofill">Үзе тутыру</string>
+    <string name="system_google">Google</string>
+    <string name="hdr_capability">- %1$s</string>
+    <string name="app_names_concatenation_template_3"><xliff:g id="first_app_name">%1$s</xliff:g>, <xliff:g id="second_app_name">%2$s</xliff:g>, <xliff:g id="third_app_name">%3$s</xliff:g></string>
+    <string name="tutorials">Туториаллар</string>
+    <string name="wifi_security_type_wep">WEP</string>
+    <string name="wifi_security_type_wpa">WPA/WPA2 PSK</string>
+    <string name="wifi_security_type_eap">802.1x EAP</string>
+    <string name="title_wifi_dns1">DNS 1:</string>
+    <string name="title_wifi_dns2">DNS 2:</string>
+    <string name="wifi_action_try_again">Кабатлау</string>
+    <string name="wifi_action_dhcp">DHCP</string>
+    <string name="desc_set_time_zone"><xliff:g id="offset" example="GMT-08:00">%1$s</xliff:g>, <xliff:g id="name" example="Pacific Standard Time">%2$s</xliff:g></string>
+    <string name="desc_set_time_format"><xliff:g id="state" example="Off">%1$s</xliff:g> (<xliff:g id="sample" example="3:14 PM">%2$s</xliff:g>)</string>
+    <string name="enable_opengl_traces_logcat">Logcat</string>
+    <string name="track_frame_time_gfxinfo">In adb shell dumpsys gfxinfo</string>
+    <string name="inputs_blu_ray">Blu-ray</string>
+    <string name="inputs_dvd">DVD</string>
+    <string name="inputs_aux">Aux</string>
+    <string name="restricted_profile_not_allowed">Тыелган</string>
+    <string name="restriction_description"><xliff:g id="description">%1$s</xliff:g>\n<xliff:g id="value">%2$s</xliff:g></string>
+    <string name="device_energy_saver_timeout_description"><xliff:g id="sleep_description" example="4 hours">%1$s</xliff:g></string>
+    <string-array name="rooms">
+        <item>Android TV</item>
+        <item>Залдагы телевизор</item>
+        <item>Кунак бүлмәсендәге телевизор</item>
+        <item>Йокы бүлмәсендәге телевизор</item>
+    </string-array>
+    <string name="app_permission_summary_not_allowed">Тыелган</string>
+    <string name="directory_on_volume"><xliff:g id="volume" example="SD Card">%1$s</xliff:g> (<xliff:g id="directory" example="Movies">%2$s</xliff:g>)</string>
+    <string name="network_connection_timeout_dialog_ok">Кабатлау</string>
+</resources>

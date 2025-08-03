@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017-2024 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="system_reboot_confirm_cm">Reinicia a:</string>
+    <string name="global_action_restart_system">Sistema</string>
+    <string name="global_action_restart_recovery">Recuperació</string>
+    <string name="global_action_restart_bootloader">Gestor d\'arrencada</string>
+    <plurals name="show_dev_countdown_cm">
+        <item quantity="one">Ara esteu a <xliff:g id="step_count">%1$d </xliff:g> toc d\'habilitar les opcions de desenvolupament.</item>
+        <item quantity="other">Ara esteu a <xliff:g id="step_count">%1$d</xliff:g> tocs d\'habilitar les opcions de desenvolupament.</item>
+    </plurals>
+    <string name="show_dev_on_cm">Heu activat les opcions de desenvolupament!</string>
+    <string name="show_dev_already_cm">No cal, ja heu habilitat les opcions de desenvolupament.</string>
+    <string name="system_buttons">Botons</string>
+    <string name="power_button_long_press_action_title">Acció per a la pulsació llarga del botó d\'encesa</string>
+    <string name="power_button_long_press_for_power_menu_action">Accés al menú d\'encesa</string>
+    <string name="power_button_long_press_for_assistant_action">Obre l\'assistent</string>
+    <string name="inputs_volume_control_enabled">Control de volum CEC</string>
+    <string name="inputs_volume_control_enabled_desc">Controla el volum del TV/AVR en lloc del volum intern</string>
+    <string name="enable_adb_root">Depuració arrelada</string>
+    <string name="enable_adb_root_summary">Permet executar la depuració d\'Android amb accés d\'arrel</string>
+    <string name="advanced_restart_title">Reinici avançat</string>
+    <string name="advanced_restart_summary">Mostra les opcions per reiniciar en mode recuperació, carregador d\'arrencada o realitza un reinici suau</string>
+    <string name="adb_over_network">ADB sobre la xarxa</string>
+    <string name="adb_over_network_summary">Activa la depuració TCP/IP sobre interfícies de xarxa (Wi\u2011Fi, xarxes USB). Aquesta configuració es desactivarà en reiniciar</string>
+    <string name="adb_over_network_warning">ADVERTÈNCIA: Quan l\'ADB sobre xarxa està activat, el telèfon està obert a intrusions en totes les xarxes connectades! \n\nFeu servir aquesta característica només quan estigueu connectats en xarxes de confiança.\n\nRealment voleu activar aquesta funció?</string>
+    <string name="trust_category_features">Estat</string>
+    <string name="trust_feature_selinux">SELinux</string>
+    <string name="trust_feature_selinux_value_enforcing">Forçat</string>
+    <string name="trust_feature_selinux_value_disabled">Desactivat</string>
+    <string name="trust_feature_selinux_explain">El SELinux us permet controlar quins processos poden accedir als fitxers/rutes del dispositiu.\nAquesta característica impedeix que les aplicacions i els serveis accedeixin als fitxers que se suposa que no haurien de gestionar. Atès que els possibles processos maliciosos tenen un accés limitat a les vostres dades, el dispositiu queda protegit.</string>
+    <string name="trust_feature_security_patches">Pedaços de seguretat d\'Android</string>
+    <string name="trust_feature_security_patches_value_base">Plataforma: %1$s\nProveïdor: %2$s</string>
+    <string name="trust_feature_security_patches_value_new">Actualitzat</string>
+    <string name="trust_feature_security_patches_value_medium">Obsolet uns mesos</string>
+    <string name="trust_feature_security_patches_value_old">Obsolet</string>
+    <string name="trust_feature_security_patches_explain">Els pedaços de seguretat són publicats mensualment per Google en cooperació amb proveïdors de SoC per abordar falles que podrien ser explotades per aplicacions malicioses per eludir les restriccions de seguretat i causar danys permanents al dispositiu. Els pedaços posats a disposició per Google s\'apliquen tots els mesos en tots els dispositius compatibles, però els pegats per al codi propietari només poden ser aplicats pel fabricant del dispositiu. Per mantenir el dispositiu segur, assegureu-vos que la compilació de LineageOS estigui sempre actualitzada i, si és possible, assegureu-vos que la imatge del proveïdor estigui actualitzada a la més recent recomanada per LineageOS.</string>
+    <string name="trust_feature_encryption">Xifratge</string>
+    <string name="trust_feature_encryption_value_enabled">Habilitat</string>
+    <string name="trust_feature_encryption_value_nolock">Cal una pantalla de bloqueig segura</string>
+    <string name="trust_feature_encryption_value_disabled">Deshabilitat</string>
+    <string name="trust_feature_encryption_explain">El xifrat del dispositiu impedeix l\'accés a les vostres dades quan el telèfon no s\'inicia en Android. Això és especialment important si us el roben, ja que impedeix que les persones llegeixin els missatges, contactes i altra informació privada sense la contrasenya.\nPerquè el xifrat sigui més efectiu, cal establir una contrasenya segura de bloqueig de pantalla.</string>
+    <string name="trust_category_tools">Privadesa</string>
+    <string name="trust_notification_alerts_title">Alertes de seguretat</string>
+    <string name="trust_restrict_usb_title">Restringeix l\'USB</string>
+    <string name="trust_restrict_usb_summary">Suport de control per a connexions USB, com ara auriculars, dispositius d\'emmagatzematge, dispositius d\'entrada (ratolins, teclats, palanques de control) i ADB</string>
+    <string name="trust_restrict_usb_always">Denega les connexions USB</string>
+    <string name="trust_restrict_usb_disabled">Permet sempre les connexions USB</string>
+    <string name="trust_onboarding_description">El Trust us ajuda a mantenir el dispositiu segur i protegir la privadesa.\nLa icona Trust només es mostrarà quan els continguts de la pàgina s\'hagin verificat.</string>
+    <string name="trust_warnings_alerts_intro">Podeu seleccionar els problemes de seguretat dels que desitgeu que us advertim. Per a la vostra seguretat, es recomana activar totes les alertes</string>
+    <string name="trust_warnings_selinux">Estat del SELinux</string>
+    <string name="trust_warnings_keys">Signatura de compilació</string>
+    <string name="sleep_button_label">Repòs</string>
+    <string name="system_sleep_confirm">Reposa ara?</string>
+    <string name="shutdown_button_label">Atura</string>
+    <string name="system_shutdown_confirm">Atura ara?</string>
+    <string name="convertible_port_busy_title">El port USB 1 està en ús</string>
+    <string name="convertible_port_busy_warning">Desconnecteu qualsevol dispositiu o accessori i torneu-ho a provar</string>
+    <string name="mtp_enable_title">Accés a les carpetes SHIELD a l\'ordinador mitjançant USB</string>
+    <string name="mtp_enable_warning">El port USB 1 ara està configurat perquè SHIELD es connecti a un ordinador com a dispositiu multimèdia.\n\nAquest port ja no detectarà mitjans d\'emmagatzematge USB ni accessoris USB i no es pot utilitzar per carregar dispositius.</string>
+    <string name="mtp_retry_error">Ha fallat. Torneu-ho a provar.</string>
+    <string name="mtp_summary">En aquest mode, el port USB no funciona per a altres usos</string>
+    <string name="mtp_title">Transfereix fitxers a un ordinador mitjançant USB</string>
+    <string name="mtp_unexpected_error">Error inesperat. Torneu-ho a provar més tard.</string>
+    <string name="usb_debugging_enable_title">Depuració USB activada</string>
+    <string name="usb_debugging_enable_warning">El port USB 1 ara està configurat perquè SHIELD es connecti a un ordinador com a dispositiu multimèdia.\n\nAquest port ja no detectarà mitjans d\'emmagatzematge USB ni accessoris USB i no es pot utilitzar per carregar dispositius.</string>
+</resources>

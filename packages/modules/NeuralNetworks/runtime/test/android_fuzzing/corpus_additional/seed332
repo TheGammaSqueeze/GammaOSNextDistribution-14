@@ -1,0 +1,220 @@
+model {
+  main {
+    operands {
+      operand {
+        type: TENSOR_QUANT8_ASYMM_SIGNED
+        dimensions {
+          dimension: 19
+          dimension: 3
+        }
+        scale: 0.01
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 3346563032
+        }
+      }
+      operand {
+        type: TENSOR_QUANT16_ASYMM
+        dimensions {
+          dimension: 19
+          dimension: 12
+        }
+        scale: 0.125
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 4072739710
+        }
+      }
+      operand {
+        type: TENSOR_INT32
+        dimensions {
+          dimension: 19
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 2605051106
+        }
+      }
+      operand {
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 1050253722
+        }
+      }
+      operand {
+        type: INT32
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 5
+        }
+      }
+      operand {
+        type: INT32
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 0
+        }
+      }
+      operand {
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 1053609165
+        }
+      }
+      operand {
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 1056964608
+        }
+      }
+      operand {
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 1050253722
+        }
+      }
+      operand {
+        type: TENSOR_QUANT8_ASYMM_SIGNED
+        dimensions {
+          dimension: 10
+        }
+        scale: 0.01
+        lifetime: SUBGRAPH_OUTPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 49315589
+        }
+      }
+      operand {
+        type: TENSOR_QUANT16_ASYMM
+        dimensions {
+          dimension: 10
+          dimension: 4
+        }
+        scale: 0.125
+        lifetime: SUBGRAPH_OUTPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 169288630
+        }
+      }
+      operand {
+        type: TENSOR_INT32
+        dimensions {
+          dimension: 10
+        }
+        lifetime: SUBGRAPH_OUTPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 679764047
+        }
+      }
+      operand {
+        type: TENSOR_INT32
+        dimensions {
+          dimension: 10
+        }
+        lifetime: SUBGRAPH_OUTPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 3492538304
+        }
+      }
+    }
+    operations {
+      operation {
+        type: BOX_WITH_NMS_LIMIT
+        inputs {
+          index: 0
+          index: 1
+          index: 2
+          index: 3
+          index: 4
+          index: 5
+          index: 6
+          index: 7
+          index: 8
+        }
+        outputs {
+          index: 9
+          index: 10
+          index: 11
+          index: 12
+        }
+      }
+    }
+    input_indexes {
+      index: 0
+      index: 1
+      index: 2
+    }
+    output_indexes {
+      index: 9
+      index: 10
+      index: 11
+      index: 12
+    }
+  }
+  referenced {
+  }
+}

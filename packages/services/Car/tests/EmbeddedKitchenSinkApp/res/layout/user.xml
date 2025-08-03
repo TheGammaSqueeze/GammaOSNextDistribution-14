@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2020 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<!--
+    <ScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+-->
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:orientation="vertical" >
+
+        <!--  Current user info -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Current User "/>
+        <com.google.android.car.kitchensink.users.UserInfoView
+            android:id="@+id/current_user"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+
+        <!--  Actions on current user -->
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                      android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Is admin? "/>
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/is_admin"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Associate Key Fob?"/>
+            <CheckBox android:layout_width="wrap_content" android:layout_height="wrap_content"
+                  android:id="@+id/is_associated_key_fob"/>
+        </LinearLayout>
+
+        <!--  Existing users... -->
+        <com.google.android.car.kitchensink.users.ExistingUsersView
+            android:layout_marginTop="80dp"
+            android:id="@+id/current_users"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <!--  ...and actions on them -->
+        <LinearLayout android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:orientation="horizontal" >
+            <Button
+                android:id="@+id/switch_user"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Switch"/>
+            <Button
+                android:id="@+id/remove_user"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Remove"/>
+            <Button
+                android:id="@+id/lock_user_data"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Lock Data"/>
+        </LinearLayout>
+
+        <!-- New user section -->
+        <TextView
+            android:layout_marginTop="80dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="New User"/>
+        <LinearLayout android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:orientation="horizontal" >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="Name: "/>
+            <EditText
+                android:id="@+id/new_user_name"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:maxLength="25"
+                android:text=""/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="Is admin? "/>
+            <CheckBox android:layout_width="wrap_content" android:layout_height="wrap_content"
+                  android:id="@+id/new_user_is_admin"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="Is guest? "/>
+            <CheckBox android:layout_width="wrap_content" android:layout_height="wrap_content"
+                  android:id="@+id/new_user_is_guest"/>
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:orientation="horizontal" >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="Extra flags: "/>
+            <EditText
+                android:id="@+id/new_user_flags"
+                android:layout_width="30dp"
+                android:layout_height="wrap_content"
+                android:maxLength="3"
+                android:inputType="numberDecimal"
+                android:text=""/>
+            <Button
+                android:id="@+id/create_user"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="Create"/>
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

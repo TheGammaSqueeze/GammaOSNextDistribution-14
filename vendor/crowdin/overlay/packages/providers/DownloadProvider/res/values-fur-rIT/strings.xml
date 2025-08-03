@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label">Gjestôr dai discjariaments</string>
+    <string name="storage_description">Discjariâts</string>
+    <string name="permlab_downloadManager">Acès al gjestôr dai discjariaments.</string>
+    <string name="permdesc_downloadManager">Al permet ae aplicazion di
+        acedi al gjestôr dai discjariaments e di doprâlu par discjariâ i files.
+        Lis aplicazions malevulis a puedin doprâlu par interompi i discjariaments
+        e acedi a informazions privadis.</string>
+    <string name="permlab_downloadManagerAdvanced">Funzions avanzadis dal gjestôr dai discjariaments.</string>
+    <string name="permdesc_downloadManagerAdvanced">Al permet ae aplicazion di
+        acedi aes funzions avanzadis dal gjestôr dai discjariaments.
+        Lis aplicazions malevulis a puedin doprâlis par interompi i
+        discjariaments e acedi a informazions privadis.</string>
+    <string name="permlab_downloadCompletedIntent">Inviâ notifichis di discjariament.</string>
+    <string name="permdesc_downloadCompletedIntent">Al permet ae aplicazion
+        di inviâ notifichis sul completament dai discjariaments. Lis aplicazions
+        malevulis a puedin doprâlis par confusionâ atris aplicazions che a
+        discjamin files.</string>
+    <string name="permlab_downloadCacheNonPurgeable">Riservâ spazi te cache di discjariament</string>
+    <string name="permdesc_downloadCacheNonPurgeable">Al permet ae aplicazion di
+    discjariâ i files te cache di discjariament, che e pues vignî eliminade in automatic
+    cuant che il gjestôr dai discjariaments al à bisugne di plui spazi.</string>
+    <string name="permlab_downloadWithoutNotification">discjariâ files cence notifichis</string>
+    <string name="permdesc_downloadWithoutNotification">Al permet ae aplicazion
+    di discjariâ i files midiant il gjestôr dai discjariaments cence mostrâ notifichis
+    al utent.</string>
+    <string name="permlab_accessAllDownloads">Acedi a ducj i discjariaments di sisteme</string>
+    <string name="permdesc_accessAllDownloads">Al permet ae aplicazion di viodi
+    e modificâ ducj i files discjariâts scomençâts di cualsisei aplicazion sul sisteme.</string>
+    <string name="download_unknown_title">&lt;Cence non&gt;</string>
+    <string name="notification_download_complete">Discjariament completâ.</string>
+    <string name="notification_download_failed">Discjariament lât strucj.</string>
+    <string name="notification_need_wifi_for_size">Necessari Wi-Fi pe dimension</string>
+    <string name="notification_paused_in_background">In pause in sotfont.</string>
+    <string name="wifi_required_title">Discjariament masse grant pal operadôr di rêt</string>
+    <string name="wifi_required_body">Tu scugnis doprâ il Wi-Fi par completâ chest discjariament di &lt;xliff:g id="size" example="12.3KB"&gt;. \n\nTocje&lt;xliff:g id="queue_text" example="Queue"&gt; par scomençâ chest discjariament la prossime volte che tu ti conetis a une rêt Wi-Fi.</string>
+    <string name="wifi_recommended_title">Meti in code par discjariâ plui indenant?</string>
+    <string name="wifi_recommended_body">Scomençant cumò chest discjariament di &lt;xliff:g id="size" example="12.3KB"&gt; tu podaressis scurtâ la durade de batarie e/o compuartâ un ûs ecessîf de conession dâts mobii, che a podaressin puartâ a coscj dal tô operadôr mobil in base al to plan tarifari sui dâts.\n\nTocje &lt;xliff:g id="queue_text" example="Queue"&gt;%2$s&lt;/xliff:g&gt; par scomençâ chest discjariament la prossime volte che tu ti conetis a une rêt Wi-Fi.</string>
+    <string name="button_queue_for_wifi">Met in code</string>
+    <string name="button_cancel_download">Anule</string>
+    <string name="button_start_now">Scomence daurman</string>
+    <plurals name="notif_summary_active">
+        <item quantity="one">Daûr a discjariâ 1 file</item>
+        <item quantity="other">Daûr a discjariâ <xliff:g id="number">%d</xliff:g> files</item>
+    </plurals>
+    <plurals name="notif_summary_waiting">
+        <item quantity="one">1 file in spiete</item>
+        <item quantity="other"><xliff:g id="number">%d</xliff:g> files in spiete</item>
+    </plurals>
+    <string name="download_remaining">Ancjemò <xliff:g id="duration" example="3 minutes">%s</xliff:g></string>
+    <string name="download_no_application_title">Impussibil vierzi il file</string>
+    <string name="root_downloads">Discjariâts</string>
+    <string name="download_queued">In code</string>
+    <string name="download_running">In cors</string>
+    <string name="download_error">Lâts strucjs</string>
+    <string name="download_running_percent">In cors: <xliff:g id="percentage" example="50%">%s</xliff:g></string>
+</resources>

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/* //packages/services/Telephony/testapps/TestRcsApp/TestApp/AndroidManifest.xml
+**
+** Copyright 2020, The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.google.android.sample.rcsclient"
+    android:versionCode="14"
+    android:versionName="1.0.13">
+
+    <uses-sdk
+        android:minSdkVersion="30"
+        android:targetSdkVersion="30" />
+
+    <uses-permission android:name="android.permission.MODIFY_PHONE_STATE" />
+    <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE" />
+    <!-- Granted by SMS role-->
+    <uses-permission android:name="android.permission.PERFORM_IMS_SINGLE_REGISTRATION" />
+    <!-- Required for UCE and granted by SMS role -->
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.ACCESS_RCS_USER_CAPABILITY_EXCHANGE" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity android:name=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".DelegateActivity" />
+        <activity android:name=".UceActivity" />
+        <activity android:name=".GbaActivity" />
+        <activity android:name=".PhoneNumberActivity" />
+        <activity android:name=".ChatActivity" />
+        <activity android:name=".ContactListActivity" />
+        <activity android:name=".ProvisioningActivity" />
+        <activity android:name=".FileUploadActivity" />
+        <activity android:name=".carrierLock.CarrieLockModeListActivity" />
+
+        <provider
+            android:name=".util.ChatProvider"
+            android:authorities="rcsprovider" />
+
+
+        <!-- In order to make this App eligible to be selected as the default Message App, the
+             following components are required to be declared even if they are not implemented.
+        -->
+
+        <!-- BroadcastReceiver that listens for incoming SMS messages -->
+        <receiver
+            android:name=".SmsReceiver"
+            android:permission="android.permission.BROADCAST_SMS">
+            <intent-filter>
+                <action android:name="android.provider.Telephony.SMS_DELIVER" />
+            </intent-filter>
+        </receiver>
+
+        <!-- BroadcastReceiver that listens for incoming MMS messages -->
+        <receiver
+            android:name=".MmsReceiver"
+            android:permission="android.permission.BROADCAST_WAP_PUSH">
+            <intent-filter>
+                <action android:name="android.provider.Telephony.WAP_PUSH_DELIVER" />
+                <data android:mimeType="application/vnd.wap.mms-message" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Activity that allows the user to send new SMS/MMS messages -->
+        <activity android:name=".ComposeSmsActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <action android:name="android.intent.action.SENDTO" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="sms" />
+                <data android:scheme="smsto" />
+                <data android:scheme="mms" />
+                <data android:scheme="mmsto" />
+            </intent-filter>
+        </activity>
+
+        <!-- Service that delivers messages from the phone "quick response" -->
+        <service
+            android:name=".HeadlessSmsSendService"
+            android:exported="true"
+            android:permission="android.permission.SEND_RESPOND_VIA_MESSAGE">
+            <intent-filter>
+                <action android:name="android.intent.action.RESPOND_VIA_MESSAGE" />
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:scheme="sms" />
+                <data android:scheme="smsto" />
+                <data android:scheme="mms" />
+                <data android:scheme="mmsto" />
+            </intent-filter>
+        </service>
+
+        <provider
+            android:name=".carrierLock.CarrierLockProvider"
+            android:authorities="com.sample.lockProvider"
+            android:exported="true" />
+    </application>
+
+</manifest>

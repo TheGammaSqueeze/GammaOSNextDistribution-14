@@ -1,0 +1,45 @@
+package {
+    default_team: "trendy_team_fwk_core_networking",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_library {
+    name: "NetdStaticLibTestsLib",
+    srcs: [
+        "src/**/*.java",
+        "src/**/*.kt",
+    ],
+    min_sdk_version: "30",
+    static_libs: [
+        "androidx.test.rules",
+        "mockito-target-extended-minus-junit4",
+        "net-tests-utils-host-device-common",
+        "netd-client",
+    ],
+    libs: [
+        "android.test.runner",
+        "android.test.base",
+    ],
+    visibility: [
+        // Visible for Tethering and NetworkStack integration test and link NetdStaticLibTestsLib
+        // there, so that the tests under client-libs can also be run when running tethering and
+        // NetworkStack MTS.
+        "//packages/modules/Connectivity/tests:__subpackages__",
+        "//packages/modules/Connectivity/Tethering/tests:__subpackages__",
+        "//packages/modules/NetworkStack/tests/integration",
+    ],
+}
+
+android_test {
+    name: "NetdStaticLibTests",
+    certificate: "platform",
+    static_libs: [
+        "NetdStaticLibTestsLib",
+    ],
+    jni_libs: [
+        // For mockito extended
+        "libdexmakerjvmtiagent",
+        "libstaticjvmtiagent",
+    ],
+    test_suites: ["device-tests"],
+}

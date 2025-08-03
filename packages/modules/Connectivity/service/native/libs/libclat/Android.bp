@@ -1,0 +1,74 @@
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_team: "trendy_team_fwk_core_networking",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_library_static {
+    name: "libclat",
+    defaults: ["netd_defaults"],
+    srcs: [
+        "clatutils.cpp",
+    ],
+    stl: "libc++_static",
+    header_libs: [
+        "bpf_headers",
+    ],
+    static_libs: [
+        "libip_checksum",
+    ],
+    shared_libs: ["liblog"],
+    export_include_dirs: ["include"],
+    min_sdk_version: "30",
+    apex_available: ["com.android.tethering"],
+}
+
+cc_test {
+    name: "libclat_test",
+    defaults: ["netd_defaults"],
+    test_suites: [
+        "general-tests",
+        "mts-tethering",
+    ],
+    test_config_template: ":net_native_test_config_template",
+    srcs: [
+        "clatutils_test.cpp",
+    ],
+    header_libs: [
+        "bpf_connectivity_headers",
+    ],
+    static_libs: [
+        "libbase",
+        "libclat",
+        "libip_checksum",
+        "libnetd_test_tun_interface",
+        "netd_aidl_interface-lateststable-ndk",
+    ],
+    shared_libs: [
+        "liblog",
+        "libnetutils",
+    ],
+    compile_multilib: "both",
+    multilib: {
+        lib32: {
+            suffix: "32",
+        },
+        lib64: {
+            suffix: "64",
+        },
+    },
+    require_root: true,
+}

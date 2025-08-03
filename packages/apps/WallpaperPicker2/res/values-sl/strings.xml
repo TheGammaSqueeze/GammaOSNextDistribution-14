@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+     Copyright (C) 2017 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="wallpaper_app_name" msgid="1719889291772891695">"Ozadja"</string>
+    <!-- no translation found for app_name (8773648973927541493) -->
+    <skip />
+    <string name="select_wallpaper_label" msgid="6989581259339646085">"Kategorije ozadij"</string>
+    <string name="set_wallpaper_button_text" msgid="5445978864530156290">"Nastavi kot zaslonsko ozadje"</string>
+    <string name="set_wallpaper_progress_message" msgid="7986528287618716715">"Nastavljanje ozadja …"</string>
+    <string name="try_again" msgid="8278874823700921234">"Poskusi znova"</string>
+    <string name="set_wallpaper_error_message" msgid="6819986999041085130">"Ozadja ni bilo mogoče nastaviti."</string>
+    <string name="load_wallpaper_error_message" msgid="7913278480467707374">"Ozadja ni mogoče naložiti. Slika je poškodovana ali ni na voljo."</string>
+    <string name="static_wallpaper_presentation_mode_message" msgid="417940227049360906">"Trenutno nastavljeno"</string>
+    <string name="rotating_wallpaper_presentation_mode_message" msgid="3361676041605733288">"Dnevno ozadje"</string>
+    <string name="wallpaper_destination_both" msgid="1124197176741944063">"Začetni in zaklenjeni zaslon"</string>
+    <string name="choose_a_wallpaper_section_title" msgid="1009823506890453891">"Izberite zaslonsko ozadje"</string>
+    <string name="creative_wallpaper_title" msgid="3581650238648981372">"Ustvari zaslonsko ozadje"</string>
+    <string name="home_screen_message" msgid="106444102822522813">"Začetni zaslon"</string>
+    <string name="lock_screen_message" msgid="1534506081955058013">"Zaklenjen zaslon"</string>
+    <string name="home_and_lock_short_label" msgid="2937922943541927983">"Začetni in zaklenjeni zaslon"</string>
+    <string name="set_wallpaper_dialog_message" msgid="2110475703996853076">"Nastavitev zaslonskega ozadja na"</string>
+    <string name="set_wallpaper_home_screen_destination" msgid="7315594722013109354">"Začetni zaslon"</string>
+    <string name="set_wallpaper_lock_screen_destination" msgid="6224685559375417945">"Zaklenjen zaslon"</string>
+    <string name="set_wallpaper_both_destination" msgid="2536004558738350775">"Začetni in zaklenjen zaslon"</string>
+    <string name="no_backup_image_wallpaper_label" msgid="6316627676107284851">"Ozadje s kroženjem slik"</string>
+    <string name="permission_needed_explanation" msgid="139166837541426823">"Če želite tu prikazati trenutno ozadje, mora imeti aplikacija <xliff:g id="APP_NAME">%1$s</xliff:g> dostop do shrambe naprave."</string>
+    <string name="permission_needed_explanation_go_to_settings" msgid="3923551582092599609">"Če želite tukaj prikazati trenutno ozadje, potrebuje aplikacija Ozadja dostop do shrambe v napravi.\n\nČe želite spremeniti to nastavitev, odprite razdelek z dovoljenji v podatkih o aplikaciji Ozadja."</string>
+    <string name="permission_needed_allow_access_button_label" msgid="1943133660612924306">"Dovoli dostop"</string>
+    <string name="no_backup_image_wallpaper_description" msgid="8303268619408738057">"Storitev dinamičnega ozadja za ozadja s kroženjem slik"</string>
+    <string name="daily_refresh_tile_title" msgid="3270456074558525091">"Dnevno ozadje"</string>
+    <string name="daily_refresh_tile_subtitle" msgid="3976682014885446443">"Dotaknite se za vklop"</string>
+    <string name="start_rotation_dialog_body_live_wallpaper_needed" msgid="5132580257563846082">"Ozadje se bo samodejno zamenjalo vsak dan. Če želite dokončati nastavitev, se na naslednjem zaslonu dotaknite &lt;strong&gt;Nastavi ozadje&lt;/strong&gt;."</string>
+    <string name="start_rotation_dialog_wifi_only_option_message" msgid="3126269859713666225">"Prenos prihodnjih ozadij samo prek povezave Wi-Fi"</string>
+    <string name="start_rotation_dialog_continue" msgid="276678987852274872">"Naprej"</string>
+    <string name="start_rotation_progress_message" msgid="7872623873682262083">"Prenašanje prvega ozadja …"</string>
+    <string name="start_rotation_error_message" msgid="3053799836719618972">"Prvega ozadja ni bilo mogoče prenesti. Preverite omrežne nastavitve in poskusite znova."</string>
+    <string name="start_rotation_dialog_body" msgid="7903554799046364916">"Ozadje se bo samodejno zamenjalo vsak dan"</string>
+    <string name="settings_button_label" msgid="8724734130079207955">"Nastavitve"</string>
+    <string name="explore" msgid="7468719504199497281">"Raziščite"</string>
+    <string name="next_wallpaper" msgid="3911873152952596232">"Naslednje ozadje"</string>
+    <string name="wallpaper_disabled_message" msgid="7309484130562148185">"Nastavljanje ozadja je v tej napravi onemogočeno"</string>
+    <string name="wallpaper_disabled_by_administrator_message" msgid="1551430406714747884">"Nastavljanje ozadja je onemogočil skrbnik naprave"</string>
+    <string name="wallpaper_set_successfully_message" msgid="2958998799111688578">"Ozadje je uspešno nastavljeno"</string>
+    <string name="wallpapers_unavailable_offline_message" msgid="8136405438621689532">"Če si želite ogledati ozadja, potrebujete internetno povezavo. Vzpostavite povezavo in poskusite znova."</string>
+    <string name="currently_set_home_wallpaper_thumbnail" msgid="4022381436821898917">"Sličica trenutno nastavljenega ozadja za začetni zaslon"</string>
+    <string name="currently_set_lock_wallpaper_thumbnail" msgid="2094209303934569997">"Sličica trenutno nastavljenega ozadja za zaklenjen zaslon"</string>
+    <string name="currently_set_wallpaper_thumbnail" msgid="8651887838745545107">"Sličica trenutno nastavljenega ozadja"</string>
+    <string name="wallpaper_thumbnail" msgid="569931475923605974">"Sličica ozadja"</string>
+    <string name="explore_home_screen" msgid="8756346794535765482">"Raziskovanje ozadja za začetni zaslon"</string>
+    <string name="explore_lock_screen" msgid="268938342103703665">"Raziskovanje ozadja za zaklenjen zaslon"</string>
+    <string name="refresh_daily_wallpaper_home_content_description" msgid="2770445044556164259">"Osvežitev dnevnega ozadja za začetni zaslon"</string>
+    <string name="refresh_daily_wallpaper_content_description" msgid="4362142658237147583">"Osvežitev dnevnega ozadja"</string>
+    <string name="preview_screen_description" msgid="3386387053327775919">"Zaslon s predogledom zaslonskega ozadja"</string>
+    <string name="refreshing_daily_wallpaper_dialog_message" msgid="1975910873362855761">"Osvežitev dnevnega ozadja …"</string>
+    <string name="refresh_daily_wallpaper_failed_message" msgid="4749879993812557166">"Dnevnega ozadja ni bilo mogoče osvežiti. Preverite omrežno povezavo in poskusite znova."</string>
+    <string name="on_device_wallpapers_category_title" msgid="805819102071369004">"Ozadja v napravi"</string>
+    <string name="on_device_wallpapers_category_title_desktop" msgid="316919420410065369">"V napravi"</string>
+    <string name="on_device_wallpaper_title" msgid="5262564748034629524">"Ozadje Android"</string>
+    <string name="live_wallpapers_category_title" msgid="1814374812192366349">"Dinamična ozadja"</string>
+    <string name="my_photos_category_title" msgid="4294567122144565273">"Moje fotografije"</string>
+    <string name="my_photos_generic_wallpaper_title" msgid="7002867526154631172">"Moja fotografija"</string>
+    <string name="fallback_wallpaper_title" msgid="6154655421012506001">"Ozadje"</string>
+    <string name="app_not_found" msgid="4431461707854088231">"Aplikacija ni nameščena."</string>
+    <string name="center_wallpaper_position" msgid="4166894762352288883">"Na sredini"</string>
+    <string name="center_crop_wallpaper_position" msgid="1681980019815343348">"Na sredini obrezano"</string>
+    <string name="stretch_wallpaper_position" msgid="5002680983147456935">"Raztegnjeno"</string>
+    <string name="preview" msgid="1774602101743861071">"Predogled"</string>
+    <string name="tab_info" msgid="818614080690111416">"Informacije"</string>
+    <string name="tab_customize" msgid="2533745409174959960">"Prilagajanje"</string>
+    <string name="tab_effects" msgid="3213606157589233901">"Učinki"</string>
+    <string name="tab_share" msgid="6676269624804601227">"Deli"</string>
+    <string name="my_photos" msgid="8613021349284084982">"Moje fotografije"</string>
+    <string name="configure_wallpaper" msgid="849882179182976621">"Nastavitve …"</string>
+    <string name="delete_live_wallpaper" msgid="589212696102662329">"Izbriši"</string>
+    <string name="edit_live_wallpaper" msgid="3132060073690558045">"Uredi"</string>
+    <string name="delete_wallpaper_confirmation" msgid="1905114562243802354">"Ali želite to zaslonsko ozadje izbrisati iz naprave?"</string>
+    <string name="bottom_action_bar_back" msgid="2620581414970740784">"Pomik navzgor"</string>
+    <string name="bottom_action_bar_edit" msgid="1214742990893082138">"Urejanje"</string>
+    <string name="bottom_action_bar_download" msgid="3983122338076389421">"Prenos"</string>
+    <string name="bottom_action_bar_slideshow_wallpaper" msgid="509770525179533154">"Diaprojekcija zaslonsk. ozadij"</string>
+    <string name="bottom_action_bar_apply" msgid="2983308349819178932">"Uporaba"</string>
+    <string name="accessibility_preview_pager" msgid="1839869637405028575">"<xliff:g id="ID_1">%1$d</xliff:g>. stran od <xliff:g id="ID_2">%2$d</xliff:g>"</string>
+    <string name="next_page_content_description" msgid="6268461446679584152">"Naprej"</string>
+    <string name="previous_page_content_description" msgid="1138597031571078429">"Nazaj"</string>
+    <string name="wallpaper_title" msgid="6754214682228331092">"Zaslonsko ozadje"</string>
+    <string name="wallpaper_preview_card_content_description" msgid="6049261033541034584">"Predogled zaslonskih ozadij"</string>
+    <string name="lock_wallpaper_preview_card_content_description" msgid="5236839857695985498">"Predogled zaslonskega ozadja zaklenjenega zaslona"</string>
+    <string name="home_wallpaper_preview_card_content_description" msgid="4059418716070821630">"Predogled zaslonskega ozadja začetnega zaslona"</string>
+    <string name="collection_not_exist_msg" msgid="3504852962885064842">"Zbirka ne obstaja"</string>
+    <string name="wallpaper_exit_split_screen" msgid="1928870664619591636">"Zapustite način razdeljenega zaslona in poskusite znova"</string>
+    <string name="set_wallpaper_dialog_set_button" msgid="5760149969510325088">"Nastavi"</string>
+    <string name="cancel" msgid="4970902691067201584">"Prekliči"</string>
+    <string name="hide_ui_preview_text" msgid="6766076482511252295">"Skrij predogled upor. vmesnika"</string>
+    <string name="hint_hide_ui_preview" msgid="4527603797714586070">"Upor. vm. je skrit. Dvakrat se dot. za razkritje."</string>
+    <string name="show_ui_preview_text" msgid="5993063062417070806">"Pokaži predogled upo. vmesnika"</string>
+    <string name="hide_preview_controls_content_description" msgid="894958599274977655">"Kontrolniki za predogled so prikazani. Dvakrat se dotaknite, če jih želite skriti."</string>
+    <string name="hide_preview_controls_action" msgid="3419260118386783295">"Skrij kontrolnike za predogled"</string>
+    <string name="show_preview_controls_content_description" msgid="908147864005440602">"Kontrolniki za predogled so skriti. Dvakrat se dotaknite, če jih želite prikazati."</string>
+    <string name="show_preview_controls_action" msgid="7700775001986890400">"Prikaži kontrolnike za predogled"</string>
+    <string name="hide_wallpaper_info_action" msgid="6572492484253895374">"Skrij podatke o zaslonskem ozadju"</string>
+    <string name="hint_show_ui_preview" msgid="2744155435325318349">"Upor. vm. je prikazan. Dvakrat se dot. za skritje."</string>
+    <string name="wallpaper_picker_entry_title" msgid="5185793991582084891">"Zamenjava zaslonskega ozadja"</string>
+    <string name="lockscreen_wallpaper_preview_card_content_description" msgid="2244890820627302245">"Predogled zaslon. ozadja zaklen. zaslona"</string>
+    <string name="apply_btn" msgid="5764555565943538528">"Uporabi"</string>
+    <string name="accessibility_customize_hidden" msgid="6320568529768181691">"Prilagajanje je skrito."</string>
+    <string name="accessibility_customize_shown" msgid="590964727831547651">"Prilagajanje je prikazano."</string>
+    <string name="accessibility_info_hidden" msgid="2288603712350168107">"Informacije so skrite."</string>
+    <string name="accessibility_info_shown" msgid="6626025722456105632">"Informacije so prikazane."</string>
+    <string name="settings_snackbar_description" msgid="890168814524778486">"V nastavitvah omogočite datoteke in predstavnost."</string>
+    <string name="settings_snackbar_enable" msgid="5992112808061426068">"Omogoči"</string>
+    <string name="open_my_photos" msgid="4107196465713868381">"Odpri Moje fotografije"</string>
+    <string name="lock_screen_tab" msgid="6672930765010407652">"Zaklenjen zaslon"</string>
+    <string name="home_screen_tab" msgid="1080445697837877526">"Začetni zaslon"</string>
+    <string name="reset" msgid="4945445169532850631">"Ponastavi"</string>
+    <string name="reset_confirmation_dialog_title" msgid="3391905685838213712">"Želite ponastaviti spremembe?"</string>
+    <string name="reset_confirmation_dialog_message" msgid="888669268626289603">"Spremembe ne bodo shranjene."</string>
+    <string name="more_wallpapers" msgid="8116268433411881705">"Več zaslonskih ozadij"</string>
+    <string name="recents_wallpaper_label" msgid="8653165542635660222">"%1$s, %2$d"</string>
+    <string name="default_wallpaper_title" msgid="2541071182656978180">"Zaslonsko ozadje"</string>
+    <string name="small_preview_tooltip" msgid="1920430079013352071">"Dotik za urejanje fotografije"</string>
+    <string name="full_preview_tooltip" msgid="4648994028015322759">"Prilagajanje položaja, velikosti in kota fotografij"</string>
+</resources>

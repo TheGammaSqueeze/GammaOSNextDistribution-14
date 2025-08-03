@@ -1,0 +1,7 @@
+LIBUNWINDSTACK {
+  global:
+    *unwindstack*;
+
+  local:
+    *;
+};

@@ -1,0 +1,82 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_bt_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_bt_license"],
+}
+
+rust_library {
+    name: "libbluetooth_with_facades",
+    defaults: ["gd_rust_defaults"],
+    crate_name: "bluetooth_with_facades",
+    srcs: ["src/lib.rs"],
+    edition: "2018",
+    rustlibs: [
+        "libbluetooth_rs",
+        "libbt_facade_proto",
+        "libfutures",
+        "libgddi",
+        "libgrpcio",
+        "liblog_rust",
+        "libprotobuf",
+        "libtokio",
+    ],
+}
+
+rust_binary {
+    name: "bluetooth_with_facades",
+    defaults: ["gd_rust_defaults"],
+    srcs: ["src/main.rs"],
+    edition: "2018",
+    rustlibs: [
+        "libbluetooth_with_facades",
+        "libbt_common",
+        "libclap",
+        "libfutures",
+        "libgrpcio",
+        "liblazy_static",
+        "liblog_rust",
+        "libnix",
+        "libtokio",
+    ],
+}
+
+rust_test {
+    name: "bluetooth_with_facades.test",
+    defaults: ["gd_rust_defaults"],
+    srcs: ["src/main.rs"],
+    edition: "2018",
+    rustlibs: [
+        "libbluetooth_with_facades",
+        "libbt_common",
+        "libclap",
+        "libfutures",
+        "libgrpcio",
+        "liblazy_static",
+        "liblog_rust",
+        "libnix",
+        "libtokio",
+    ],
+    test_suites: ["general-tests"],
+}
+
+rust_library {
+    name: "libbt_facade_helpers",
+    defaults: ["gd_rust_defaults"],
+    crate_name: "bt_facade_helpers",
+    srcs: ["helpers/lib.rs"],
+    edition: "2018",
+    rustlibs: [
+        "libbt_facade_proto",
+        "libbytes",
+        "libcxx",
+        "libfutures",
+        "libgrpcio",
+        "liblog_rust",
+        "libprotobuf",
+        "libtokio",
+    ],
+    min_sdk_version: "30",
+}

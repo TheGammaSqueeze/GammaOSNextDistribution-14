@@ -1,0 +1,139 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_bt_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_bt_license"],
+}
+
+cc_library_static {
+    name: "avrcp-target-service",
+    defaults: [
+        "fluoride_defaults",
+    ],
+    host_supported: true,
+    include_dirs: [
+        "packages/modules/Bluetooth/system",
+        "packages/modules/Bluetooth/system/gd",
+        "packages/modules/Bluetooth/system/stack/include",
+    ],
+    export_include_dirs: ["./"],
+    srcs: [
+        "connection_handler.cc",
+        "device.cc",
+    ],
+    static_libs: [
+        "lib-bt-packets",
+        "libbluetooth-types",
+        "libbluetooth_log",
+        "libbt_shim_bridge",
+        "libosi",
+    ],
+    whole_static_libs: [
+        "libcom.android.sysprop.bluetooth.wrapped",
+    ],
+    shared_libs: [
+        "liblog",
+    ],
+    apex_available: [
+        "com.android.btservices",
+    ],
+    min_sdk_version: "Tiramisu",
+    header_libs: ["libbluetooth_headers"],
+    cflags: ["-Wno-unused-parameter"],
+}
+
+cc_test {
+    name: "net_test_avrcp",
+    test_suites: ["general-tests"],
+    defaults: [
+        "fluoride_defaults",
+        "mts_defaults",
+    ],
+    host_supported: true,
+    test_options: {
+        unit_test: true,
+    },
+    include_dirs: [
+        "packages/modules/Bluetooth/system",
+        "packages/modules/Bluetooth/system/gd",
+        "packages/modules/Bluetooth/system/stack/include",
+    ],
+    srcs: [
+        "tests/avrcp_connection_handler_test.cc",
+        "tests/avrcp_device_test.cc",
+    ],
+    static_libs: [
+        "avrcp-target-service",
+        "lib-bt-packets",
+        "lib-bt-packets-avrcp",
+        "lib-bt-packets-base",
+        "libbase",
+        "libbluetooth-types",
+        "libbluetooth_gd",
+        "libbluetooth_log",
+        "libbt_shim_bridge",
+        "libbt_shim_ffi",
+        "libbtdevice",
+        "libchrome",
+        "libcutils",
+        "libevent",
+        "libgmock",
+        "liblog",
+        "libosi",
+    ],
+    sanitize: {
+        cfi: false,
+    },
+
+    cflags: [
+        "-Wno-unused-parameter",
+    ],
+    header_libs: ["libbluetooth_headers"],
+}
+
+cc_fuzz {
+    name: "avrcp_device_fuzz",
+    host_supported: true,
+    defaults: [
+        "fluoride_defaults",
+    ],
+    srcs: [
+        "tests/avrcp_device_fuzz/avrcp_device_fuzz.cc",
+    ],
+    include_dirs: [
+        "packages/modules/Bluetooth/system",
+        "packages/modules/Bluetooth/system/gd",
+        "packages/modules/Bluetooth/system/packet/tests",
+        "packages/modules/Bluetooth/system/stack/include",
+    ],
+    static_libs: [
+        "avrcp-target-service",
+        "lib-bt-packets",
+        "lib-bt-packets-avrcp",
+        "lib-bt-packets-base",
+        "libbase",
+        "libbluetooth-types",
+        "libbluetooth_gd",
+        "libbluetooth_log",
+        "libbt_shim_bridge",
+        "libbt_shim_ffi",
+        "libchrome",
+        "libcutils",
+        "libevent",
+        "liblog",
+        "libstatslog_bt",
+        "libutils",
+    ],
+    header_libs: ["libbluetooth_headers"],
+    corpus: [
+        "tests/avrcp_device_fuzz/corpus/*",
+    ],
+    target: {
+        darwin: {
+            enabled: false,
+        },
+    },
+    cflags: ["-Wno-unused-parameter"],
+}

@@ -1,0 +1,36 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_bt_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_bt_license"],
+}
+
+cc_library_static {
+    name: "libbt-sbc-encoder",
+    defaults: ["fluoride_defaults"],
+    srcs: [
+        "srce/sbc_analysis.c",
+        "srce/sbc_dct.c",
+        "srce/sbc_dct_coeffs.c",
+        "srce/sbc_enc_bit_alloc_mono.c",
+        "srce/sbc_enc_bit_alloc_ste.c",
+        "srce/sbc_enc_coeffs.c",
+        "srce/sbc_encoder.c",
+        "srce/sbc_packing.c",
+    ],
+    local_include_dirs: [
+        "include",
+        "srce",
+    ],
+    include_dirs: [
+        "packages/modules/Bluetooth/system",
+        "packages/modules/Bluetooth/system/stack/include",
+    ],
+    host_supported: true,
+    apex_available: [
+        "com.android.btservices",
+    ],
+    min_sdk_version: "Tiramisu",
+}

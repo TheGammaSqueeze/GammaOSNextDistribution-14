@@ -1,0 +1,11 @@
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+xsd_config {
+    name: "xsdc_cross_generate_parse_libxml_tests",
+    srcs: ["cross_generate_parse.xsd"],
+    package_name: "cross.libxml",
+    gen_writer: true,
+}

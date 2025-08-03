@@ -1,0 +1,184 @@
+CR,Implementation Status,Notes
+CR109,NA,Marked as N/A (MAC)
+CR183,NA,Marked as N/A (MAC)
+CR189,NA,Marked as N/A (MAC)
+CR208,NA,Marked as N/A (MAC)
+CR212,NA,Marked as N/A (MAC)
+CR213,Partial,UL-TDoA Tag role has been implemented.
+CR252,YES,
+CR257,YES,
+CR264,YES,
+CR269,YES,
+CR272,Partial,Implemented: AppConfig parameter UWB_INITIATION_TIME as 8-octet field; Pending: New UCI CMD/RSP QUERY_UWBS_TIMESTAMP
+CR278,YES,
+CR283,YES,
+CR287,YES,
+CR288,NA,
+CR294,YES,
+CR301,YES,
+CR302,NA,
+CR306,NA,Marked as N/A (MAC)
+CR307,NA,Marked as N/A (MAC)
+CR308,NA,Marked as N/A (MAC)
+CR310,NA,Marked as N/A (MAC)
+CR311,YES,
+CR321,NA,Marked as N/A (MAC)
+CR322,NA,Marked as N/A (MAC)
+CR324,NA,Marked as N/A (MAC)
+CR326,YES,
+CR327,NA,Marked as N/A (MAC)
+CR328,YES,
+CR329,NO,
+CR330,YES,
+CR337,NA,CR-337 seems to have been withdrawn
+CR338,NA,Marked as N/A (MAC)
+CR340,NA,Marked as N/A (MAC)
+CR344,Partial,DL-TDoA Tag role has been implemented.
+CR346,YES,
+CR348,NA,Marked as N/A (MAC)
+CR349,YES,
+CR350,NA,Marked as N/A (MAC)
+CR356,YES,
+CR357,NO,
+CR358,NA,Marked as N/A (MAC)
+CR362,YES,
+CR363,YES,
+CR366,NO,
+CR368,NA,Marked as N/A (MAC)
+CR369,NO,
+CR370,NA,Marked as N/A (MAC)
+CR371,NA,Marked as N/A (MAC)
+CR372,NA,Marked as N/A (MAC)
+CR373,NA,Marked as N/A (MAC)
+CR374,NA,
+CR375,NA,
+CR379,NO,
+CR382,NA,Marked as N/A (MAC)
+CR383,NA,Marked as N/A (MAC)
+CR384,NA,Marked as N/A (MAC)
+CR386,YES,
+CR387,NA,Marked as N/A (MAC)
+CR392,YES,
+CR393,NA,Marked as N/A (MAC)
+CR396,YES,
+CR398,NO,
+CR400,YES,
+CR401,NA,Marked as N/A (MAC)
+CR403,YES,
+CR406,NA,Marked as N/A (MAC)
+CR407,NO,
+CR408,NO,
+CR409,NA,Marked as N/A (MAC)
+CR410,NA,CR adds clarifying text; no Android stack changes required
+CR412,NA,Marked as N/A (MAC)
+CR414,NA,CR adds clarifying text; no Android stack changes required
+CR421,NA,Marked as N/A (MAC)
+CR422,NA,CR specifies interpretation of existing field; no Android stack change required
+CR423,Yes,Ranging interval renaming not addressed
+CR424,YES,
+CR425,NA,Marked as N/A (MAC)
+CR426,NA,CR clarifies UWBS behavior; no Android stack changes required
+CR429,NO,
+CR430,NA,Marked as N/A (MAC)
+CR431,NA,Marked as N/A (MAC)
+CR432,NA,Marked as N/A (MAC)
+CR433,YES,
+CR435,YES,
+CR436,NA,
+CR437,YES,
+CR438,YES,
+CR441,NO,
+CR442,YES,
+CR443,Partial,UL-TDoA Tag role has been implemented.
+CR444,NA,Marked as N/A (MAC)
+CR446,NA,
+CR447,NA,Marked as N/A (MAC)
+CR450,NA,Marked as N/A (MAC)
+CR451,NA,CR-451 seems to have been withdrawn.
+CR452,NA,Marked as N/A (MAC)
+CR455,NA,
+CR456,NA,
+CR457,NA,Marked as N/A (MAC)
+CR458,NA,Marked as N/A (MAC)
+CR459,YES,
+CR460,YES,
+CR461,YES,
+CR462,NA,Marked as N/A (MAC)
+CR466,NA,Marked as N/A (MAC)
+CR467,NA,Marked as N/A (MAC)
+CR468,NA,Marked as N/A (MAC)
+CR470,NA,CR specifies UWBS behavior; no Android stack changes required.
+CR471,NA,Marked as N/A (MAC)
+CR472,NA,Marked as N/A (MAC)
+CR473,YES,
+CR474,NA,Marked as N/A (MAC)
+CR476,NA,
+CR477,NA,Marked as N/A (MAC)
+CR478,NA,Marked as N/A (MAC)
+CR479,NA,
+CR480,NA,Marked as N/A (MAC)
+CR483,NA,Marked as N/A (MAC)
+CR484,YES,
+CR485,NO,
+CR486,NA,Marked as N/A (MAC)
+CR487,NA,Marked as N/A (MAC)
+CR490,YES,
+CR496,NO,
+CR498,Partial,Pending: Anchor CMDs
+CR499,NA,Marked as N/A (MAC)
+CR501,NA,Marked as N/A (MAC)
+CR502,NA,Marked as N/A (MAC)
+CR503,NA,CR specifies UWBS behavior; no Android stack changes required.
+CR504,NO,
+CR509,NO,
+CR510,NA,Marked as N/A (MAC)
+CR511,YES,
+CR514,NA,Marked as N/A (MAC)
+CR518,YES,
+CR529,NO,
+CR534,NA,Marked as N/A (MAC)
+CR1001,NA,Marked as N/A (MAC)
+CR1007,NA,Marked as N/A (MAC)
+CR1008,YES,
+CR1009,NO,
+CR1010,NO,
+CR1016,NA,CR specifies UWBS behavior; no Android stack change required
+CR1018,NO,
+CR1021,Partial,"Pending: Host should not send the parameters marked as ""n.a."", some parameter values (like RANGING_ROUND_USAGE = 0x09)"
+CR1022,YES
+CR1025,NO,
+CR1026,NA,CR specifies UWBS behavior; no Android stack change required
+CR1027,NA,CR specifies UWBS behavior; no Android stack change required
+CR1028,NO,
+CR1029,NA,Marked as N/A (MAC)
+CR1031,NA,Marked as N/A (MAC)
+CR1032,NO,
+CR1033,NA,Marked as N/A (MAC)
+CR1036,NA,Marked as N/A (MAC)
+CR1037,YES,
+CR1038,YES,
+CR1043,NA,Marked as N/A (MAC)
+CR1044,NO,
+CR1046,NA,Marked as N/A (MAC)
+CR1048,NA,CR clarifies the DL-TDoA Ranging Measurement field values in case of an error; no Android stack change required
+CR1049,NA,Marked as N/A (MAC)
+CR1051,YES,
+CR1056,NA,Marked as N/A (MAC)
+CR1057,NO,
+CR1058,Partial,Slot index field is already present in UwbTwoWayMeasurement.
+CR1060,NA,Marked as N/A (MAC)
+CR1074,NA,Marked as N/A (MAC)
+CR1075,NO,
+CR1076,YES,Status code is already pass-thru; no Android stack change required
+CR1077,NA,Marked as N/A (MAC)
+CR1080,NO,
+CR1083,NA,Marked as N/A (MAC)
+CR1084,NA,Marked as N/A (MAC)
+CR1086,NA,Marked as N/A (MAC)
+CR1087,NO,
+CR1093,YES,
+CR1094,YES,
+CR1097,YES,
+CR1098,NA,Marked as N/A (MAC)
+CR1100,NA,Marked as N/A (MAC)
+CR1102,NA,CR specifies UWBS error handling; no Android stack change required

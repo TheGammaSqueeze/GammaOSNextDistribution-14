@@ -1,0 +1,799 @@
+# Copyright (C) 2021 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+module: "android.sysprop.BluetoothProperties"
+owner: Platform
+
+prop {
+    api_name: "snoop_default_mode"
+    type: Enum
+    scope: Public
+    access: ReadWrite
+    enum_values: "empty|disabled|filtered|full"
+    prop_name: "persist.bluetooth.btsnoopdefaultmode"
+}
+
+prop {
+    api_name: "snoop_log_mode"
+    type: Enum
+    scope: Public
+    access: ReadWrite
+    enum_values: "empty|disabled|filtered|full"
+    prop_name: "persist.bluetooth.btsnooplogmode"
+}
+
+# When snoop_log_mode is set as filtered, this filter truncates ACL packets (non-fragment)
+# to fixed (MAX_HCI_ACL_LEN) number of bytes
+prop {
+    api_name: "snoop_log_filter_snoop_headers_enabled"
+    type: Boolean
+    scope: Public
+    access: ReadWrite
+    prop_name: "persist.bluetooth.snooplogfilter.headers.enabled"
+}
+
+# When snoop_log_mode is set as filtered, this filter discards A2DP media packets (non-split mode)
+prop {
+    api_name: "snoop_log_filter_profile_a2dp_enabled"
+    type: Boolean
+    scope: Public
+    access: ReadWrite
+    prop_name: "persist.bluetooth.snooplogfilter.profiles.a2dp.enabled"
+}
+
+# When snoop_log_mode is set as filtered, this filters MAP packets based on the filter mode:
+#  fullfilter - discard whole packet
+#  header     - truncate to fixed length
+#  magic      - fill with a magic string, such as: "PROHIBITED"
+prop {
+    api_name: "snoop_log_filter_profile_map"
+    type: Enum
+    scope: Public
+    access: ReadWrite
+    enum_values: "empty|disabled|fullfilter|header|magic"
+    prop_name: "persist.bluetooth.snooplogfilter.profiles.map"
+}
+
+# When snoop_log_mode is set as filtered, this filters PBAP and HFP packets (CPBR, CLCC)
+# based on the filter mode:
+#  fullfilter - discard whole packet
+#  header     - truncate to fixed length
+#  magic      - fill with a magic string, such as: "PROHIBITED"
+prop {
+    api_name: "snoop_log_filter_profile_pbap"
+    type: Enum
+    scope: Public
+    access: ReadWrite
+    enum_values: "empty|disabled|fullfilter|header|magic"
+    prop_name: "persist.bluetooth.snooplogfilter.profiles.pbap"
+}
+
+# When snoop_log_mode is set as filtered, this filter truncates RFCOMM UIH packet
+# to fixed (L2CAP_HEADER_SIZE) number of bytes
+prop {
+    api_name: "snoop_log_filter_profile_rfcomm_enabled"
+    type: Boolean
+    scope: Public
+    access: ReadWrite
+    prop_name: "persist.bluetooth.snooplogfilter.profiles.rfcomm.enabled"
+}
+
+prop {
+    api_name: "factory_reset"
+    type: Boolean
+    scope: Public
+    access: ReadWrite
+    prop_name: "persist.bluetooth.factoryreset"
+}
+
+prop {
+    api_name: "le_audio_allow_list"
+    type: StringList
+    scope: Public
+    access: ReadWrite
+    prop_name: "persist.bluetooth.leaudio.allow_list"
+}
+
+######## Bluetooth configurations
+
+# Whether GAP BLE Privacy (RPA) is enabled on this device.
+# Set by vendors overlay, read at Bluetooth initialization
+prop {
+    api_name: "isGapLePrivacyEnabled"
+    type: Boolean
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.core.gap.le.privacy.enabled"
+}
+
+# Minimum limit for GAP LE connection update time.
+# Set by vendors overlay, read at Bluetooth initialization
+prop {
+    api_name: "getGapLeConnMinLimit"
+    type: Integer
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.core.gap.le.conn.min.limit"
+}
+
+# Whether LE Connection with initiating with only LE 1M PHY.
+# Set by vendors overlay, read at Bluetooth initialization
+prop {
+    api_name: "isGapLeConnOnlyInit1mPhyEnabled"
+    type: Boolean
+    scope: Internal
+    access: Readonly
+    prop_name: "bluetooth.core.gap.le.conn.only_init_1m_phy.enabled"
+}
+
+# Whether Inband ringtone for LeAudio is supported.
+# Set by vendors overlay, read at Bluetooth initialization
+prop {
+    api_name: "isLeAudioInbandRingtoneSupported"
+    type: Boolean
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.core.le_audio.inband_ringtone.supported"
+}
+
+# The default name of the device.
+# Set by vendors overlay, read at Bluetooth initialization
+prop {
+    api_name: "getDefaultDeviceName"
+    type: String
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.device.default_name"
+}
+
+# The default class of device of the device, represented as a list of exactly 3 unsigned integers.
+# Set by vendors overlay, read at Bluetooth initialization
+prop {
+    api_name: "getClassOfDevice"
+    type: UIntList
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.device.class_of_device"
+}
+
+# The default audio profile for dual mode audio devices for output only audio. The value should be
+# the integer value of BluetoothProfile#A2DP (2) or BluetoothProfile#LE_AUDIO (22). If the value is
+# set to anything else, LE Audio will be the default.
+# Set by vendors overlay, read at Bluetooth initialization
+prop {
+    api_name: "getDefaultOutputOnlyAudioProfile"
+    type: Integer
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.device.default_output_only_audio_profile"
+}
+
+# The default audio profile for dual mode audio devices for duplex (output + input) audio. The
+# value should be the integer value of BluetoothProfile#HEADSET (1) or
+# BluetoothProfile#LE_AUDIO (22). If the value is set to anything else, LE Audio will be the
+# default.
+# Set by vendors overlay, read at Bluetooth initialization
+prop {
+    api_name: "getDefaultDuplexAudioProfile"
+    type: Integer
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.device.default_duplex_audio_profile"
+}
+
+# Bluetooth operating voltage in millivolts available for vendors overlay.
+# Used to calculate Bluetooth power consumption for a specific hardware.
+prop {
+    api_name: "getHardwareOperatingVoltageMv"
+    type: Integer
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.hardware.power.operating_voltage_mv"
+}
+
+# Bluetooth idle current in milliamps available for vendors overlay.
+# Used to calculate Bluetooth power consumption for a specific hardware.
+prop {
+    api_name: "getHardwareIdleCurrentMa"
+    type: Integer
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.hardware.power.idle_cur_ma"
+}
+
+# Bluetooth transmit current in milliamps available for vendors overlay.
+# Used to calculate Bluetooth power consumption for a specific hardware.
+prop {
+    api_name: "getHardwareTxCurrentMa"
+    type: Integer
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.hardware.power.tx_cur_ma"
+}
+
+# Bluetooth receive current in milliamps available for vendors overlay.
+# Used to calculate Bluetooth power consumption for a specific hardware.
+prop {
+    api_name: "getHardwareRxCurrentMa"
+    type: Integer
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.hardware.power.rx_cur_ma"
+}
+
+# Whether Bluetooth should keep its state after reboot.
+# Set by vendors overlay, read at Bluetooth initialization
+prop {
+    api_name: "isSupportPersistedStateEnabled"
+    type: Boolean
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.framework.support_persisted_state"
+}
+
+# Whether Bluetooth should keep its state after reboot.
+# Set by vendors overlay, read at Bluetooth initialization
+prop {
+    api_name: "isAdapterAddressValidationEnabled"
+    type: Boolean
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.framework.adapter_address_validation"
+}
+
+# Whether the Advanced Audio Distribution Profile (A2DP) Sink role is enabled on this device.
+# Set by vendors overlay, read at Bluetooth initialization
+prop {
+    api_name: "isProfileA2dpSinkEnabled"
+    type: Boolean
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.profile.a2dp.sink.enabled"
+}
+
+# Whether the Advanced Audio Distribution Profile (A2DP) Source role is enabled on this device.
+# Set by vendors overlay, read at Bluetooth initialization
+prop {
+    api_name: "isProfileA2dpSourceEnabled"
+    type: Boolean
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.profile.a2dp.source.enabled"
+}
+
+# Whether the Android defined Audio Support for Hearing Aids (ASHA) central role over is enabled on
+# this device. Set by vendors overlay, read at Bluetooth initialization.
+prop {
+    api_name: "isProfileAshaCentralEnabled"
+    type: Boolean
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.profile.asha.central.enabled"
+}
+
+# Whether the Audio/Video Remote Control Profile (AVRCP) Controller role is enabled on this device.
+# Set by vendors overlay, read at Bluetooth initialization
+prop {
+    api_name: "isProfileAvrcpControllerEnabled"
+    type: Boolean
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.profile.avrcp.controller.enabled"
+}
+
+# Whether the Audio/Video Remote Control Profile (AVRCP) Target role is enabled on this device.
+# Set by vendors overlay, read at Bluetooth initialization
+prop {
+    api_name: "isProfileAvrcpTargetEnabled"
+    type: Boolean
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.profile.avrcp.target.enabled"
+}
+
+# Whether the Basic Audio Profile (BAP) broadcast assist role is enabled on this device.
+# Set by vendors overlay, read at Bluetooth initialization
+prop {
+    api_name: "isProfileBapBroadcastAssistEnabled"
+    type: Boolean
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.profile.bap.broadcast.assist.enabled"
+}
+
+# Whether the Basic Audio Profile (BAP) broadcast source role is enabled on this device.
+# Set by vendors overlay, read at Bluetooth initialization
+prop {
+    api_name: "isProfileBapBroadcastSourceEnabled"
+    type: Boolean
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.profile.bap.broadcast.source.enabled"
+}
+
+# Whether the Basic Audio Profile (BAP) unicast client role is enabled on this device.
+# Set by vendors overlay, read at Bluetooth initialization
+prop {
+    api_name: "isProfileBapUnicastClientEnabled"
+    type: Boolean
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.profile.bap.unicast.client.enabled"
+}
+
+# Whether the Battery Service profile (BAS) client role is enabled on this device.
+# Set by vendors overlay, read at Bluetooth initialization
+prop {
+    api_name: "isProfileBasClientEnabled"
+    type: Boolean
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.profile.bas.client.enabled"
+}
+
+# Whether the Broadcast Audio Scan Service profile (BASS) client role is enabled on this device.
+# Set by vendors overlay, read at Bluetooth initialization
+prop {
+    api_name: "isProfileBassClientEnabled"
+    type: Boolean
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.profile.bass.client.enabled"
+}
+
+# Whether the Coordinated Set Indentification Profile (CSIP) set coordinator role is enabled on this
+# device. Set by vendors overlay, read at Bluetooth initialization
+prop {
+    api_name: "isProfileCsipSetCoordinatorEnabled"
+    type: Boolean
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.profile.csip.set_coordinator.enabled"
+}
+
+# Whether the Generic Attribute Profile (GATT) is enabled on this device.
+# Set by vendors overlay, read at Bluetooth initialization
+prop {
+    api_name: "isProfileGattEnabled"
+    type: Boolean
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.profile.gatt.enabled"
+}
+
+# Whether the Hearing Aid Profile (HAP) client role is enabled on this device.
+# Set by vendors overlay, read at Bluetooth initialization
+prop {
+    api_name: "isProfileHapClientEnabled"
+    type: Boolean
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.profile.hap.client.enabled"
+}
+
+# Whether the Hands-Free Profile (HFP) Audio Gateway role is enabled on this device.
+# Set by vendors overlay, read at Bluetooth initialization
+prop {
+    api_name: "isProfileHfpAgEnabled"
+    type: Boolean
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.profile.hfp.ag.enabled"
+}
+
+# Whether the Hands-Free Profile (HFP) Hands-free role is enabled on this device.
+# Set by vendors overlay, read at Bluetooth initialization
+prop {
+    api_name: "isProfileHfpHfEnabled"
+    type: Boolean
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.profile.hfp.hf.enabled"
+}
+
+# Whether the Human Interface Device Profile (HID) device role is enabled on this device.
+# Set by vendors overlay, read at Bluetooth initialization
+prop {
+    api_name: "isProfileHidDeviceEnabled"
+    type: Boolean
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.profile.hid.device.enabled"
+}
+
+# Whether the Human Interface Device Profile (HID) host role is enabled on this device.
+# Set by vendors overlay, read at Bluetooth initialization
+prop {
+    api_name: "isProfileHidHostEnabled"
+    type: Boolean
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.profile.hid.host.enabled"
+}
+
+# Whether the Message Access Profile (MAP) Client role is enabled on this device.
+# Set by vendors overlay, read at Bluetooth initialization
+prop {
+    api_name: "isProfileMapClientEnabled"
+    type: Boolean
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.profile.map.client.enabled"
+}
+
+# Whether the Message Access Profile (MAP) Server role is enabled on this device.
+# Set by vendors overlay, read at Bluetooth initialization
+prop {
+    api_name: "isProfileMapServerEnabled"
+    type: Boolean
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.profile.map.server.enabled"
+}
+
+# Whether the Media Control Profile (MCP) server role is enabled on this device.
+# Set by vendors overlay, read at Bluetooth initialization
+prop {
+    api_name: "isProfileMcpServerEnabled"
+    type: Boolean
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.profile.mcp.server.enabled"
+}
+
+# Whether the Object Push Profile (OPP) is enabled on this device. The implementation of OPP
+# supports both client and server roles. Set by vendors overlay, read at Bluetooth initialization
+prop {
+    api_name: "isProfileOppEnabled"
+    type: Boolean
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.profile.opp.enabled"
+}
+
+# Whether the Personal Area Networking Profile (PAN) NAP role is enabled on this device.
+# Set by vendors overlay, read at Bluetooth initialization
+prop {
+    api_name: "isProfilePanNapEnabled"
+    type: Boolean
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.profile.pan.nap.enabled"
+}
+
+# Whether the Personal Area Networking Profile (PAN) PANU role is enabled on this device.
+# Set by vendors overlay, read at Bluetooth initialization
+prop {
+    api_name: "isProfilePanPanuEnabled"
+    type: Boolean
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.profile.pan.panu.enabled"
+}
+
+# Whether the Phonebook Access Profile (PBAP) client role is enabled on this device.
+# Set by vendors overlay, read at Bluetooth initialization
+prop {
+    api_name: "isProfilePbapClientEnabled"
+    type: Boolean
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.profile.pbap.client.enabled"
+}
+
+# Whether the Phonebook Access Profile (PBAP) server role is enabled on this device.
+# Set by vendors overlay, read at Bluetooth initialization
+prop {
+    api_name: "isProfilePbapServerEnabled"
+    type: Boolean
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.profile.pbap.server.enabled"
+}
+
+# Whether the Phonebook Access Profile (PBAP)'s SIM feature is enabled on this device.
+# Set by vendors overlay, read at Bluetooth initialization
+prop {
+    api_name: "isProfilePbapSimEnabled"
+    type: Boolean
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.profile.pbap.sim.enabled"
+}
+
+# Whether the SIM Access Profile (SAP) server is enabled on this device.
+# Set by vendors overlay, read at Bluetooth initialization
+prop {
+    api_name: "isProfileSapServerEnabled"
+    type: Boolean
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.profile.sap.server.enabled"
+}
+
+# Whether the Call Control Profile (CCP) server role is enabled on this device.
+# Set by vendors overlay, read at Bluetooth initialization
+prop {
+    api_name: "isProfileCcpServerEnabled"
+    type: Boolean
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.profile.ccp.server.enabled"
+}
+
+# Whether the Volume Control Profile (VCP) controller role is enabled on this device.
+# Set by vendors overlay, read at Bluetooth initialization
+prop {
+    api_name: "isProfileVcpControllerEnabled"
+    type: Boolean
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.profile.vcp.controller.enabled"
+}
+
+# ACL Link supervision timeout
+prop {
+    api_name: "getLinkSupervisionTimeout"
+    type: UInt
+    scope: Internal
+    access: Readonly
+    prop_name: "bluetooth.core.acl.link_supervision_timeout"
+}
+
+# The following values are used to load default adapter parameters for BR/EDR.
+# The Bluetooth Core Specification should be consulted for the meaning and valid
+# domain of each of these values.
+
+# BR/EDR Page scan activity configuration
+prop {
+    api_name: "getClassicPageScanType"
+    type: UInt
+    scope: Internal
+    access: Readonly
+    prop_name: "bluetooth.core.classic.page_scan_type"
+}
+prop {
+    api_name: "getClassicPageScanInterval"
+    type: UInt
+    scope: Internal
+    access: Readonly
+    prop_name: "bluetooth.core.classic.page_scan_interval"
+}
+prop {
+    api_name: "getClassicPageScanWindow"
+    type: UInt
+    scope: Internal
+    access: Readonly
+    prop_name: "bluetooth.core.classic.page_scan_window"
+}
+
+# BR/EDR Inquiry scan activity configuration
+prop {
+    api_name: "getClassicInquiryScanType"
+    type: UInt
+    scope: Internal
+    access: Readonly
+    prop_name: "bluetooth.core.classic.inq_scan_type"
+}
+prop {
+    api_name: "getClassicInquiryScanInterval"
+    type: UInt
+    scope: Internal
+    access: Readonly
+    prop_name: "bluetooth.core.classic.inq_scan_interval"
+}
+prop {
+    api_name: "getClassicInquiryScanWindow"
+    type: UInt
+    scope: Internal
+    access: Readonly
+    prop_name: "bluetooth.core.classic.inq_scan_window"
+}
+
+# BR/EDR Page Timeout
+prop {
+    api_name: "getClassicPageTimeout"
+    type: UInt
+    scope: Internal
+    access: Readonly
+    prop_name: "bluetooth.core.classic.page_timeout"
+}
+
+# BR/EDR Sniff Parameters
+# Please refer to BTA_DM_PM_PARK_IDX in bta_api.h to determine how many
+# entries are currently being supported.
+# The SNIFF table entries must be in the order from highest latency (biggest
+# interval) to lowest latency. If there's a conflict among the connected
+# services, the setting with lowest latency wins.
+prop {
+    api_name: "getClassicSniffMaxIntervals"
+    type: UIntList
+    scope: Internal
+    access: Readonly
+    prop_name: "bluetooth.core.classic.sniff_max_intervals"
+}
+prop {
+    api_name: "getClassicSniffMinIntervals"
+    type: UIntList
+    scope: Internal
+    access: Readonly
+    prop_name: "bluetooth.core.classic.sniff_min_intervals"
+}
+prop {
+    api_name: "getClassicSniffAttempts"
+    type: UIntList
+    scope: Internal
+    access: Readonly
+    prop_name: "bluetooth.core.classic.sniff_attempts"
+}
+prop {
+    api_name: "getClassicSniffTimeouts"
+    type: UIntList
+    scope: Internal
+    access: Readonly
+    prop_name: "bluetooth.core.classic.sniff_timeouts"
+}
+
+# The following values are used to load default adapter parameters for LE.
+# The Bluetooth Core Specification should be consulted for the meaning and valid
+# domain of each of these values.
+
+# LE connection parameters.
+prop {
+    api_name: "getLeMinConnectionInterval"
+    type: UInt
+    scope: Internal
+    access: Readonly
+    prop_name: "bluetooth.core.le.min_connection_interval"
+}
+prop {
+    api_name: "getLeMaxConnectionInterval"
+    type: UInt
+    scope: Internal
+    access: Readonly
+    prop_name: "bluetooth.core.le.max_connection_interval"
+}
+prop {
+    api_name: "getLeConnectionLatency"
+    type: UInt
+    scope: Internal
+    access: Readonly
+    prop_name: "bluetooth.core.le.connection_latency"
+}
+prop {
+    api_name: "getLeConnectionSupervisionTimeout"
+    type: UInt
+    scope: Internal
+    access: Readonly
+    prop_name: "bluetooth.core.le.connection_supervision_timeout"
+}
+
+# Direct connection timeout in ms
+prop {
+    api_name: "getLeDirectConnectionTimeout"
+    type: UInt
+    scope: Internal
+    access: Readonly
+    prop_name: "bluetooth.core.le.direct_connection_timeout"
+}
+
+# LE connection scan interval/window
+prop {
+    api_name: "getLeConnectionScanIntervalFast"
+    type: UInt
+    scope: Internal
+    access: Readonly
+    prop_name: "bluetooth.core.le.connection_scan_interval_fast"
+}
+prop {
+    api_name: "getLeConnectionScanWindowFast"
+    type: UInt
+    scope: Internal
+    access: Readonly
+    prop_name: "bluetooth.core.le.connection_scan_window_fast"
+}
+prop {
+    api_name: "getLeConnectionScanWindow2mFast"
+    type: UInt
+    scope: Internal
+    access: Readonly
+    prop_name: "bluetooth.core.le.connection_scan_window_2m_fast"
+}
+prop {
+    api_name: "getLeConnectionScanWindowCodedFast"
+    type: UInt
+    scope: Internal
+    access: Readonly
+    prop_name: "bluetooth.core.le.connection_scan_window_coded_fast"
+}
+prop {
+    api_name: "getLeConnectionScanIntervalSlow"
+    type: UInt
+    scope: Internal
+    access: Readonly
+    prop_name: "bluetooth.core.le.connection_scan_interval_slow"
+}
+prop {
+    api_name: "getLeConnectionScanWindowSlow"
+    type: UInt
+    scope: Internal
+    access: Readonly
+    prop_name: "bluetooth.core.le.connection_scan_window_slow"
+}
+
+# LE scanning parameters used during BTM inquiry
+prop {
+    api_name: "getLeInquiryScanInterval"
+    type: UInt
+    scope: Internal
+    access: Readonly
+    prop_name: "bluetooth.core.le.inquiry_scan_interval"
+}
+prop {
+    api_name: "getLeInquiryScanWindow"
+    type: UInt
+    scope: Internal
+    access: Readonly
+    prop_name: "bluetooth.core.le.inquiry_scan_window"
+}
+
+# Used to disable LeGetVendorCapabilities.
+prop {
+    api_name: "getLeVendorCapabilitiesEnabled"
+    type: Boolean
+    scope: Internal
+    access: Readonly
+    prop_name: "bluetooth.core.le.vendor_capabilities.enabled"
+}
+
+# Maximum number of number of allowed concurrent LE Connections
+prop {
+    api_name: "getLeMaxNumberOfConcurrentConnections"
+    type: UInt
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.core.le.max_number_of_concurrent_connections"
+}
+
+# list of supported HID transport protocols for IMU data over LE Audio by order of preferrence
+# Comma separated list of:
+# - "le-acl": LE ACL transport, the IMU data is reported via the sensor stack
+# - "iso-sw": ISO transport, the IMU data is reported via the sensor stack
+# - "iso-hw": ISO transport, the IMU data is tunneled to the Spatializer in the ADSP
+prop {
+    api_name: "dsa_transport_preference"
+    type: StringList
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.core.le.dsa_transport_preference"
+}
+
+# Used to disable enhanced SCO connection
+prop {
+    api_name: "getDisableEnchancedConnection"
+    type: Boolean
+    scope: Internal
+    access: Readonly
+    prop_name: "bluetooth.sco.disable_enhanced_connection"
+}
+
+# Whether Bluetooth HFP SCO managed by Audio.
+# Set by vendors overlay, read at Bluetooth initialization
+prop {
+    api_name: "isScoManagedByAudioEnabled"
+    type: Boolean
+    scope: Public
+    access: Readonly
+    prop_name: "bluetooth.sco.managed_by_audio"
+}

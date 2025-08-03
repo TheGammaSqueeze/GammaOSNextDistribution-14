@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2013-2015 The CyanogenMod Project
+     SPDX-FileCopyrightText: 2017-2024 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Assistant de configuration</string>
+    <string name="next">Suivant</string>
+    <string name="skip">Ignorer</string>
+    <string name="start">Commencer</string>
+    <string name="done">Effectué</string>
+    <string name="ok">OK</string>
+    <string name="loading">Juste une seconde\u2026</string>
+    <string name="setup_welcome_message">Bienvenue sur <xliff:g id="name" example="LineageOS">%1$s</xliff:g></string>
+    <string name="setup_managed_profile_welcome_message">Configurez votre profil de travail</string>
+    <string name="emergency_call">Appel d\'urgence</string>
+    <string name="accessibility_settings">Paramètres d\'accessibilité</string>
+    <string name="setup_locale">Langue</string>
+    <string name="sim_locale_changed">%1$s carte SIM détectée</string>
+    <string name="setup_sim_missing">Carte SIM manquante</string>
+    <string name="sim_missing_summary" product="tablet">Aucune carte SIM n\'a été détectée dans votre tablette. Pour insérer une carte SIM, lisez les instructions fournies avec votre appareil.</string>
+    <string name="sim_missing_summary" product="default">Aucune carte SIM n\'a été détectée dans votre téléphone. Pour insérer une carte SIM, lisez les instructions fournies avec votre appareil.</string>
+    <string name="setup_datetime">Date et heure</string>
+    <string name="date_time_summary">Définir votre fuseau horaire et régler la date et l\'heure si nécessaire</string>
+    <string name="setup_current_date">Date</string>
+    <string name="setup_current_time">Heure</string>
+    <string name="intro_restore_title">Restaurer les applications et les données</string>
+    <string name="intro_restore_subtitle">Si vous avez une sauvegarde Seedvault depuis <xliff:g id="name" example="LineageOS">%s</xliff:g> ou tout autre OS, vous pouvez la restaurer ici.</string>
+    <string name="intro_restore_button">Restaurer depuis une sauvegarde</string>
+    <string name="setup_location">Services de localisation</string>
+    <string name="location_access_summary"><b>Permettre aux applications ayant obtenu votre autorisation</b> d\'utiliser vos informations de localisation. Cela peut inclure votre position actuelle et les dernières positions.</string>
+    <string name="location_agps_access_summary">Lorsque la localisation est activée, <b>téléchargez les données d\'assistance par satellite depuis internet</b>, ce qui peut grandement améliorer les performances de démarrage du GPS.</string>
+    <string name="update_recovery_title">Mettre à jour la récupération de Lineage</string>
+    <string name="update_recovery_description">Met à jour Lineage Recovery au premier démarrage après chaque mise à jour.</string>
+    <string name="update_recovery_warning">La récupération sera mise à jour dès que vous aurez terminé la configuration. Si vous souhaitez la garder intacte, veuillez désactiver cette fonctionnalité.</string>
+    <string name="update_recovery_setting">Mettre à jour Lineage Recovery en même temps que le système d\'exploitation</string>
+    <string name="update_recovery_full_description"><xliff:g id="recovery_update_description">%1$s</xliff:g>\n<xliff:g id="recovery_update_warning">%2$s</xliff:g></string>
+    <string name="setup_services">Fonctionnalités de LineageOS</string>
+    <string name="services_pp_explanation">Ces services fonctionnent pour étendre les fonctionnalités de votre appareil. Les données seront utilisées conformément à la politique de confidentialité de <xliff:g id="name" example="LineageOS">%1$s</xliff:g>.</string>
+    <string name="services_find_privacy_policy">Vous pouvez lire la politique de confidentialité sur un autre appareil en visitant <xliff:g id="uri" example="https://lineageos.org/legal">%1$s</xliff:g></string>
+    <string name="services_help_improve_cm">Contribuer à l\'amélioration de <xliff:g id="name" example="LineageOS">%s</xliff:g></string>
+    <string name="services_metrics_label"><xliff:g id="name" example="Help improve LineageOS">%1$s</xliff:g> en envoyant automatiquement des données de diagnostic et d\'utilisation à <xliff:g id="name" example="LineageOS">%2$s</xliff:g>. Cette information ne peut pas être utilisée pour vous identifier et est d\'une grande aide aux équipes travaillant sur des sujets tels que la durée de vie de la batterie, les performances des applications, et de nouvelles fonctionnalités de <xliff:g id="name" example="LineageOS">%3$s</xliff:g>.</string>
+    <string name="services_os_nav_keys_label"><b>Utilisation des touches de navigation de l\'écran</b> au lieu des touches physiques.</string>
+    <string name="services_full_description"><xliff:g id="pp_explanation">%1$s</xliff:g>\n<xliff:g id="pp_find">%2$s</xliff:g></string>
+    <string name="setup_navigation">Navigation</string>
+    <string name="navigation_summary">Choisir la méthode de navigation préférée</string>
+    <string name="gesture_navigation">Navigation gestuelle</string>
+    <string name="two_button_navigation">Navigation à deux boutons</string>
+    <string name="navbar_navigation">Navigation à trois boutons</string>
+    <string name="hide_gesture_hint">Cacher l\'indice de navigation gestuelle</string>
+    <string name="setup_theme">Thème</string>
+    <string name="theme_summary">Le thème sombre utilise un fond noir pour aider à prolonger l\'autonomie de la batterie sur certains écrans</string>
+    <string name="dark">Sombre</string>
+    <string name="light">Clair</string>
+</resources>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="favorite_button_normal">#4DB6AC</color>
+    <color name="favorite_button_active">#00796B</color>
+    <color name="background_color">#4DB6AC</color>
+    <color name="picker_background_color">@color/primary</color>
+    <color name="white">#FAFAFA</color>
+    <!-- Material -->
+    <color name="primary">#00796B</color>
+    <color name="primary_dark">#004D40</color>
+    <color name="accent">#4DB6AC</color>
+</resources>

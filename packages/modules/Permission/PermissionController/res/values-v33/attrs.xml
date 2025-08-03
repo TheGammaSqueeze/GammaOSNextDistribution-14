@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+    <attr name="colorSurface" format="color" />
+    <attr name="colorSurfaceVariant" format="color" />
+    <attr name="colorAccentPrimary" format="color" />
+    <attr name="colorScStatusInfo" format="color" />
+    <attr name="colorScStatusRecommend" format="color" />
+    <attr name="colorScStatusWarn" format="color" />
+    <attr name="colorScStatusBackgroundInfo" format="color" />
+    <attr name="colorScStatusBackgroundRecommend" format="color" />
+    <attr name="colorScStatusBackgroundWarn" format="color" />
+    <attr name="textColorScActionButton" format="color" />
+    <attr name="textColorScSecondaryActionButton" format="color" />
+    <attr name="colorScIconInfo" format="color" />
+    <attr name="colorScIconRecommend" format="color" />
+    <attr name="colorScIconWarn" format="color" />
+    <attr name="colorScIconNull" format="color" />
+    <attr name="colorScOutlineButtonInfoBase" format="color" />
+    <attr name="colorScOutlineButtonRecommendBase" format="color" />
+    <attr name="colorScOutlineButtonWarnBase" format="color" />
+
+    <attr name="scStatusTitleAndSummaryContainerStyle" format="reference" />
+    <attr name="scStatusButtonStyle" format="reference" />
+    <attr name="scActionButtonListLayout" format="reference" />
+    <attr name="scActionButtonTheme" format="reference" />
+    <attr name="scActionButtonStyle" format="reference"/>
+    <attr name="scSecondaryActionButtonStyle" format="reference"/>
+
+    <attr name="colorScShieldAccent" format="color" />
+</resources>

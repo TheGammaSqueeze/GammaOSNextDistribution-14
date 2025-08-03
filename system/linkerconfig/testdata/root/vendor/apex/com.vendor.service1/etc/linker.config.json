@@ -1,0 +1,3 @@
+{
+  "permittedPaths" : ["/vendor/${LIB}/egl"]
+}

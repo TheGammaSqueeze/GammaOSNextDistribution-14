@@ -1,0 +1,22 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_defaults {
+    name: "libdice_policy.defaults",
+    crate_name: "dice_policy",
+    defaults: ["avf_build_flags_rust"],
+    edition: "2021",
+    lints: "android",
+    rustlibs: [
+        "libciborium",
+        "libcoset",
+    ],
+    vendor_available: true,
+}
+
+rust_library {
+    name: "libdice_policy",
+    defaults: ["libdice_policy.defaults"],
+    srcs: ["src/lib.rs"],
+}

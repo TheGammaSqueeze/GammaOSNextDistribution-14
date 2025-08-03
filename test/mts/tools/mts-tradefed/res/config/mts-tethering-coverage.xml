@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2019 The Android Open Source Project
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+          http://www.apache.org/licenses/LICENSE-2.0
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<!-- Test plan for runs of Tethering MTS to calculate unit test coverage.
+     Includes unit tests that will only pass on devices using test platform keys. -->
+<configuration description="Runs MTS-tethering-coverage from a pre-existing MTS installation">
+    <include name="mts" />
+
+    <option name="plan" value="mts-tethering-coverage" />
+
+    <option name="compatibility:include-filter" value="ConnectivityCoverageTests" />
+    <!-- Do not include NetworkStack module-specific tests as ConnectivityCoverageTests may not run
+         with the latest version of that module installed -->
+    <option name="compatibility:module-arg"
+            value="ConnectivityCoverageTests:exclude-annotation:com.android.testutils.NetworkStackModuleTest" />
+    <option name="compatibility:include-filter" value="NearbyUnitTests" />
+    <option name="compatibility:include-filter" value="CtsNearbyFastPairTestCases" />
+    <option name="compatibility:include-filter" value="netd_updatable_unit_test" />
+    <option name="compatibility:include-filter" value="libnetworkstats_test" />
+    <option name="compatibility:include-filter" value="libclat_test" />
+    <option name="compatibility:include-filter" value="NetHttpCoverageTests" />
+    <option name="compatibility:include-filter" value="net_unittests_tester" />
+    <option name="compatibility:include-filter" value="cronet_unittests_tester" />
+
+    <!-- Coverage runs are significantly slower than normal runs, and testFuzzing cannot
+         complete before the general test timeout (5 minutes) on such configurations. It is
+         still run in other non-coverage test suites. -->
+    <option name="compatibility:exclude-filter" value="ConnectivityCoverageTests android.net.NetworkStatsHistoryTest#testFuzzing" />
+</configuration>

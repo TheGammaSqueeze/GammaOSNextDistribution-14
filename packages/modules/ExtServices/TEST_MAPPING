@@ -1,0 +1,41 @@
+{
+  "presubmit": [
+    {
+      "name": "ExtServicesUnitTests-tplus"
+    },
+    {
+      "name": "ExtServicesUnitTests-sminus"
+    },
+    {
+      "name": "libextservices_test-tplus"
+    },
+    {
+      "name": "libextservices_test-sminus"
+    }
+  ],
+  "imports": [
+    {
+      "path": "external/libtextclassifier"
+    }
+  ],
+  "mainline-presubmit": [
+    {
+      "name": "ExtServicesUnitTests-tplus[com.google.android.extservices_tplus.apex]"
+    },
+    {
+      "name": "libextservices_test-tplus[com.google.android.extservices_tplus.apex]"
+    },
+    {
+      "name": "ExtServicesUnitTests-sminus[com.google.android.extservices.apex]"
+    },
+    {
+      "name": "libextservices_test-sminus[com.google.android.extservices.apex]"
+    },
+    {
+      "name": "CtsExtServicesHostTests-tplus[com.google.android.extservices_tplus.apex]"
+    },
+    {
+      "name": "CtsExtServicesHostTests-sminus[com.google.android.extservices.apex]"
+    }
+  ]
+}

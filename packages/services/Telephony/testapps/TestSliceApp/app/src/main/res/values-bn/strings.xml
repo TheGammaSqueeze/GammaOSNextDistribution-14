@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="1265450418387661962">"TestSliceApp"</string>
+    <string name="hello_blank_fragment" msgid="1245093642770491175">"Hello blank fragment"</string>
+    <string name="request_network" msgid="8945235490804849914">"Network সংক্রান্ত অনুরোধ করুন"</string>
+    <string name="release_network" msgid="174252378593535238">"Network রিলিজ করুন"</string>
+    <string name="ping" msgid="7890607576220714932">"পিং"</string>
+    <string name="result_prefix" msgid="3522796186427501399">"ফলাফল:"</string>
+    <string name="latency_title" msgid="963052613947017009">"লেটেন্সিকে অগ্রাধিকার দিন"</string>
+    <string name="bw_title" msgid="3902162973688221344">"ব্যান্ডউইথকে অগ্রাধিকার দিন"</string>
+    <string name="cbs_title" msgid="5234410535569935600">"CBS"</string>
+    <string name="purchase" msgid="7843181995697372128">"Network Premium কিনুন"</string>
+    <string name="network_available" msgid="4780293262690730734">"ফলাফল: অনুরোধ করা নেটওয়ার্ক এখন উপলভ্য আছে!"</string>
+    <string name="network_requested" msgid="5646123922691865991">"ফলাফল: নেটওয়ার্কের জন্য অনুরোধ জানানো হয়েছে!"</string>
+    <string name="network_released" msgid="2992280481133877025">"ফলাফলt: নেটওয়ার্ক রিলিজ করা হয়েছে!"</string>
+    <string name="network_release_failed" msgid="256471231420029151">"ফলাফল: নেটওয়ার্ক রিলিজ করা যায়নি!!!"</string>
+    <string name="purchase_exception" msgid="8876841120055716671">"ফলাফল: Network Premium কেনার সময় ব্যতিক্রম!!!"</string>
+    <string name="purchase_empty_result" msgid="7497824191649973928">"ফলাফল: Network Premium কেনার সময় কোনও ফলাফল পাওয়া যায়নি!!!"</string>
+    <string name="premium_not_available" msgid="7346368693802644748">"ফলাফল: Network Premium কেনার জন্য উপলভ্য নেই!!!"</string>
+    <string name="purchase_in_progress" msgid="5450288183685032424">"ফলাফল: Network Premium কেনার প্রক্রিয়া চলছে ..."</string>
+</resources>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (C) 2018 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License
+  -->
+
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+       xmlns:app="http://schemas.android.com/apk/res-auto">
+    <!-- Row 1 -->
+    <com.android.keyguard.NumPadKey
+        android:id="@+id/key1"
+        style="@style/NumPadKeyButton.land"
+        app:digit="1" />
+
+    <com.android.keyguard.NumPadKey
+        android:id="@+id/key2"
+        style="@style/NumPadKeyButton.land"
+        app:digit="2" />
+
+    <com.android.keyguard.NumPadKey
+        android:id="@+id/key3"
+        style="@style/NumPadKeyButton.land"
+        app:digit="3" />
+
+    <!-- Row 2 -->
+    <com.android.keyguard.NumPadKey
+        android:id="@+id/key4"
+        style="@style/NumPadKeyButton.land"
+        app:digit="4" />
+
+    <com.android.keyguard.NumPadKey
+        android:id="@+id/key5"
+        style="@style/NumPadKeyButton.land"
+        app:digit="5" />
+
+    <com.android.keyguard.NumPadKey
+        android:id="@+id/key6"
+        style="@style/NumPadKeyButton.land"
+        app:digit="6" />
+
+    <!-- Row 3 -->
+    <com.android.keyguard.NumPadKey
+        android:id="@+id/key7"
+        style="@style/NumPadKeyButton.land"
+        app:digit="7" />
+
+    <com.android.keyguard.NumPadKey
+        android:id="@+id/key8"
+        style="@style/NumPadKeyButton.land"
+        app:digit="8" />
+
+    <com.android.keyguard.NumPadKey
+        android:id="@+id/key9"
+        style="@style/NumPadKeyButton.land"
+        app:digit="9" />
+
+    <!-- Row 4 -->
+    <com.android.keyguard.NumPadButton
+        android:id="@+id/delete_button"
+        style="@style/NumPadKeyButton.land"
+        android:src="@drawable/ic_delete"
+        android:tint="@color/keyguard_keypad_image_color"
+        android:contentDescription="@string/keyboardview_keycode_delete" />
+
+    <com.android.keyguard.NumPadKey
+        android:id="@+id/key0"
+        style="@style/NumPadKeyButton.land"
+        app:digit="0" />
+
+    <com.android.keyguard.NumPadButton
+        android:id="@+id/key_enter"
+        style="@style/NumPadKeyButton.land"
+        android:src="@drawable/ic_enter"
+        android:tint="@color/keyguard_keypad_image_color"
+        android:contentDescription="@string/keyboardview_keycode_enter" />
+</merge>
+

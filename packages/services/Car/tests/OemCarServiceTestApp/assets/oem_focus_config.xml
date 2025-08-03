@@ -1,0 +1,519 @@
+<!--
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!--
+Each attribute must start with an attribute tag and AudioAttribute usage is set using the usage
+attribute. If one or more of the priority list/interactions is missing it will use the default
+implementation.
+-->
+<oemAudioFocusConfigurations>
+    <!--
+    Focus interactions is set using a mapping from one audio attribute to a list of exclusive,
+    rejected, or concurrent audio attributes. Every focus interaction has one audio attribute
+    focus holder, and attached to it are exclusive, rejected, or concurrent focus interactions.
+    Every audio attribute must be mapped and every attribute must be in only one interaction.
+
+    <focusInteractions>
+       <focusInteraction>
+           <attribute usage = "AUDIO_USAGE..."/>
+           <exclusive>
+               <attribute usage = "AUDIO_USAGE..."/>
+               <attribute usage = "AUDIO_USAGE..."/>
+           </exclusive>
+           <rejected>
+               <attribute usage = "AUDIO_USAGE..."/>
+           </rejected>
+           <concurrent>
+               <attribute usage = "AUDIO_USAGE..."/>
+               <attribute usage = "AUDIO_USAGE..."/>
+           </concurrent>
+       </focusInteraction>
+       <focusInteraction>
+           <attribute usage = "AUDIO_USAGE...">
+           <rejected>
+               <attribute usage = "AUDIO_USAGE..."/>
+               <attribute usage = "AUDIO_USAGE..."/>
+           </rejected>
+           <concurrent>
+               <attribute usage = "AUDIO_USAGE..."/>
+               <attribute usage = "AUDIO_USAGE..."/>
+           </concurrent>
+           <exclusive>
+               <attribute usage = "AUDIO_USAGE..."/>
+               <attribute usage = "AUDIO_USAGE..."/>
+           </exclusive>
+       </focusInteraction>
+    </focusInteractions>
+    -->
+    <focusInteractions>
+        <focusInteraction>
+            <attribute usage = "AUDIO_USAGE_MEDIA"/>
+            <exclusive>
+                <attribute usage = "AUDIO_USAGE_MEDIA"/>
+                <attribute usage = "AUDIO_USAGE_UNKNOWN"/>
+                <attribute usage = "AUDIO_USAGE_GAME"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_ACCESSIBILITY"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANT"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION_TELEPHONY_RINGTONE"/>
+                <attribute usage = "AUDIO_USAGE_VOICE_COMMUNICATION"/>
+                <attribute usage = "AUDIO_USAGE_CALL_ASSISTANT"/>
+                <attribute usage = "AUDIO_USAGE_VOICE_COMMUNICATION_SIGNALLING"/>
+                <attribute usage = "AUDIO_USAGE_ALARM"/>
+                <attribute usage = "AUDIO_USAGE_EMERGENCY"/>
+                <attribute usage = "AUDIO_USAGE_ANNOUNCEMENT"/>
+            </exclusive>
+            <concurrent>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_NAVIGATION_GUIDANCE"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION_EVENT"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_SONIFICATION"/>
+                <attribute usage = "AUDIO_USAGE_SAFETY"/>
+                <attribute usage = "AUDIO_USAGE_VEHICLE_STATUS"/>
+            </concurrent>
+        </focusInteraction>
+        <focusInteraction>
+            <attribute usage = "AUDIO_USAGE_UNKNOWN"/>
+            <exclusive>
+                <attribute usage = "AUDIO_USAGE_MEDIA"/>
+                <attribute usage = "AUDIO_USAGE_UNKNOWN"/>
+                <attribute usage = "AUDIO_USAGE_GAME"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_ACCESSIBILITY"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANT"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION_TELEPHONY_RINGTONE"/>
+                <attribute usage = "AUDIO_USAGE_VOICE_COMMUNICATION"/>
+                <attribute usage = "AUDIO_USAGE_CALL_ASSISTANT"/>
+                <attribute usage = "AUDIO_USAGE_VOICE_COMMUNICATION_SIGNALLING"/>
+                <attribute usage = "AUDIO_USAGE_ALARM"/>
+                <attribute usage = "AUDIO_USAGE_EMERGENCY"/>
+                <attribute usage = "AUDIO_USAGE_ANNOUNCEMENT"/>
+            </exclusive>
+            <concurrent>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_NAVIGATION_GUIDANCE"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION_EVENT"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_SONIFICATION"/>
+                <attribute usage = "AUDIO_USAGE_SAFETY"/>
+                <attribute usage = "AUDIO_USAGE_VEHICLE_STATUS"/>
+            </concurrent>
+        </focusInteraction>
+        <focusInteraction>
+            <attribute usage = "AUDIO_USAGE_GAME"/>
+            <exclusive>
+                <attribute usage = "AUDIO_USAGE_MEDIA"/>
+                <attribute usage = "AUDIO_USAGE_UNKNOWN"/>
+                <attribute usage = "AUDIO_USAGE_GAME"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_ACCESSIBILITY"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANT"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION_TELEPHONY_RINGTONE"/>
+                <attribute usage = "AUDIO_USAGE_VOICE_COMMUNICATION"/>
+                <attribute usage = "AUDIO_USAGE_CALL_ASSISTANT"/>
+                <attribute usage = "AUDIO_USAGE_VOICE_COMMUNICATION_SIGNALLING"/>
+                <attribute usage = "AUDIO_USAGE_ALARM"/>
+                <attribute usage = "AUDIO_USAGE_EMERGENCY"/>
+                <attribute usage = "AUDIO_USAGE_ANNOUNCEMENT"/>
+            </exclusive>
+            <concurrent>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_NAVIGATION_GUIDANCE"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION_EVENT"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_SONIFICATION"/>
+                <attribute usage = "AUDIO_USAGE_SAFETY"/>
+                <attribute usage = "AUDIO_USAGE_VEHICLE_STATUS"/>
+            </concurrent>
+        </focusInteraction>
+        <focusInteraction>
+            <attribute usage = "AUDIO_USAGE_ASSISTANCE_NAVIGATION_GUIDANCE"/>
+            <exclusive>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_ACCESSIBILITY"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANT"/>
+                <attribute usage = "AUDIO_USAGE_EMERGENCY"/>
+            </exclusive>
+            <concurrent>
+                <attribute usage = "AUDIO_USAGE_UNKNOWN"/>
+                <attribute usage = "AUDIO_USAGE_GAME"/>
+                <attribute usage = "AUDIO_USAGE_MEDIA"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_NAVIGATION_GUIDANCE"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION_TELEPHONY_RINGTONE"/>
+                <attribute usage = "AUDIO_USAGE_VOICE_COMMUNICATION"/>
+                <attribute usage = "AUDIO_USAGE_CALL_ASSISTANT"/>
+                <attribute usage = "AUDIO_USAGE_VOICE_COMMUNICATION_SIGNALLING"/>
+                <attribute usage = "AUDIO_USAGE_ALARM"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION_EVENT"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_SONIFICATION"/>
+                <attribute usage = "AUDIO_USAGE_SAFETY"/>
+                <attribute usage = "AUDIO_USAGE_VEHICLE_STATUS"/>
+                <attribute usage = "AUDIO_USAGE_ANNOUNCEMENT"/>
+            </concurrent>
+        </focusInteraction>
+        <focusInteraction>
+            <attribute usage = "AUDIO_USAGE_ASSISTANCE_ACCESSIBILITY"/>
+            <exclusive>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION_TELEPHONY_RINGTONE"/>
+                <attribute usage = "AUDIO_USAGE_VOICE_COMMUNICATION"/>
+                <attribute usage = "AUDIO_USAGE_CALL_ASSISTANT"/>
+                <attribute usage = "AUDIO_USAGE_VOICE_COMMUNICATION_SIGNALLING"/>
+                <attribute usage = "AUDIO_USAGE_EMERGENCY"/>
+            </exclusive>
+            <reject>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_NAVIGATION_GUIDANCE"/>
+                <attribute usage = "AUDIO_USAGE_ALARM"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION_EVENT"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_SONIFICATION"/>
+                <attribute usage = "AUDIO_USAGE_ANNOUNCEMENT"/>
+            </reject>
+            <concurrent>
+                <attribute usage = "AUDIO_USAGE_UNKNOWN"/>
+                <attribute usage = "AUDIO_USAGE_GAME"/>
+                <attribute usage = "AUDIO_USAGE_MEDIA"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_ACCESSIBILITY"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANT"/>
+                <attribute usage = "AUDIO_USAGE_SAFETY"/>
+                <attribute usage = "AUDIO_USAGE_VEHICLE_STATUS"/>
+            </concurrent>
+        </focusInteraction>
+        <focusInteraction>
+            <attribute usage = "AUDIO_USAGE_ASSISTANT"/>
+            <exclusive>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION_TELEPHONY_RINGTONE"/>
+                <attribute usage = "AUDIO_USAGE_VOICE_COMMUNICATION"/>
+                <attribute usage = "AUDIO_USAGE_CALL_ASSISTANT"/>
+                <attribute usage = "AUDIO_USAGE_VOICE_COMMUNICATION_SIGNALLING"/>
+                <attribute usage = "AUDIO_USAGE_EMERGENCY"/>
+            </exclusive>
+            <reject>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_NAVIGATION_GUIDANCE"/>
+                <attribute usage = "AUDIO_USAGE_ALARM"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION_EVENT"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_SONIFICATION"/>
+                <attribute usage = "AUDIO_USAGE_ANNOUNCEMENT"/>
+            </reject>
+            <concurrent>
+                <attribute usage = "AUDIO_USAGE_UNKNOWN"/>
+                <attribute usage = "AUDIO_USAGE_GAME"/>
+                <attribute usage = "AUDIO_USAGE_MEDIA"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_ACCESSIBILITY"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANT"/>
+                <attribute usage = "AUDIO_USAGE_SAFETY"/>
+                <attribute usage = "AUDIO_USAGE_VEHICLE_STATUS"/>
+            </concurrent>
+        </focusInteraction>
+        <focusInteraction>
+            <attribute usage = "AUDIO_USAGE_NOTIFICATION_TELEPHONY_RINGTONE"/>
+            <exclusive>
+                <attribute usage = "AUDIO_USAGE_EMERGENCY"/>
+            </exclusive>
+            <reject>
+                <attribute usage = "AUDIO_USAGE_MEDIA"/>
+                <attribute usage = "AUDIO_USAGE_UNKNOWN"/>
+                <attribute usage = "AUDIO_USAGE_GAME"/>
+                <attribute usage = "AUDIO_USAGE_ALARM"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION_EVENT"/>
+                <attribute usage = "AUDIO_USAGE_ANNOUNCEMENT"/>
+            </reject>
+            <concurrent>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_NAVIGATION_GUIDANCE"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_ACCESSIBILITY"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANT"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION_TELEPHONY_RINGTONE"/>
+                <attribute usage = "AUDIO_USAGE_VOICE_COMMUNICATION"/>
+                <attribute usage = "AUDIO_USAGE_CALL_ASSISTANT"/>
+                <attribute usage = "AUDIO_USAGE_VOICE_COMMUNICATION_SIGNALLING"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_SONIFICATION"/>
+                <attribute usage = "AUDIO_USAGE_SAFETY"/>
+                <attribute usage = "AUDIO_USAGE_VEHICLE_STATUS"/>
+            </concurrent>
+        </focusInteraction>
+        <focusInteraction>
+            <attribute usage = "AUDIO_USAGE_VOICE_COMMUNICATION"/>
+            <reject>
+                <attribute usage = "AUDIO_USAGE_MEDIA"/>
+                <attribute usage = "AUDIO_USAGE_UNKNOWN"/>
+                <attribute usage = "AUDIO_USAGE_GAME"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_ACCESSIBILITY"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANT"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_SONIFICATION"/>
+                <attribute usage = "AUDIO_USAGE_ANNOUNCEMENT"/>
+            </reject>
+            <concurrent>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_NAVIGATION_GUIDANCE"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION_TELEPHONY_RINGTONE"/>
+                <attribute usage = "AUDIO_USAGE_VOICE_COMMUNICATION"/>
+                <attribute usage = "AUDIO_USAGE_CALL_ASSISTANT"/>
+                <attribute usage = "AUDIO_USAGE_VOICE_COMMUNICATION_SIGNALLING"/>
+                <attribute usage = "AUDIO_USAGE_ALARM"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION_EVENT"/>
+                <attribute usage = "AUDIO_USAGE_EMERGENCY"/>
+                <attribute usage = "AUDIO_USAGE_SAFETY"/>
+                <attribute usage = "AUDIO_USAGE_VEHICLE_STATUS"/>
+            </concurrent>
+        </focusInteraction>
+        <focusInteraction>
+            <attribute usage = "AUDIO_USAGE_CALL_ASSISTANT"/>
+            <reject>
+                <attribute usage = "AUDIO_USAGE_MEDIA"/>
+                <attribute usage = "AUDIO_USAGE_UNKNOWN"/>
+                <attribute usage = "AUDIO_USAGE_GAME"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_ACCESSIBILITY"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANT"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_SONIFICATION"/>
+                <attribute usage = "AUDIO_USAGE_ANNOUNCEMENT"/>
+            </reject>
+            <concurrent>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_NAVIGATION_GUIDANCE"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION_TELEPHONY_RINGTONE"/>
+                <attribute usage = "AUDIO_USAGE_VOICE_COMMUNICATION"/>
+                <attribute usage = "AUDIO_USAGE_CALL_ASSISTANT"/>
+                <attribute usage = "AUDIO_USAGE_VOICE_COMMUNICATION_SIGNALLING"/>
+                <attribute usage = "AUDIO_USAGE_ALARM"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION_EVENT"/>
+                <attribute usage = "AUDIO_USAGE_EMERGENCY"/>
+                <attribute usage = "AUDIO_USAGE_SAFETY"/>
+                <attribute usage = "AUDIO_USAGE_VEHICLE_STATUS"/>
+            </concurrent>
+        </focusInteraction>
+        <focusInteraction>
+            <attribute usage = "AUDIO_USAGE_VOICE_COMMUNICATION_SIGNALLING"/>
+            <reject>
+                <attribute usage = "AUDIO_USAGE_MEDIA"/>
+                <attribute usage = "AUDIO_USAGE_UNKNOWN"/>
+                <attribute usage = "AUDIO_USAGE_GAME"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_ACCESSIBILITY"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANT"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_SONIFICATION"/>
+                <attribute usage = "AUDIO_USAGE_ANNOUNCEMENT"/>
+            </reject>
+            <concurrent>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_NAVIGATION_GUIDANCE"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION_TELEPHONY_RINGTONE"/>
+                <attribute usage = "AUDIO_USAGE_VOICE_COMMUNICATION"/>
+                <attribute usage = "AUDIO_USAGE_CALL_ASSISTANT"/>
+                <attribute usage = "AUDIO_USAGE_VOICE_COMMUNICATION_SIGNALLING"/>
+                <attribute usage = "AUDIO_USAGE_ALARM"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION_EVENT"/>
+                <attribute usage = "AUDIO_USAGE_EMERGENCY"/>
+                <attribute usage = "AUDIO_USAGE_SAFETY"/>
+                <attribute usage = "AUDIO_USAGE_VEHICLE_STATUS"/>
+            </concurrent>
+        </focusInteraction>
+        <focusInteraction>
+            <attribute usage = "AUDIO_USAGE_ALARM"/>
+            <exclusive>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_ACCESSIBILITY"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANT"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION_TELEPHONY_RINGTONE"/>
+                <attribute usage = "AUDIO_USAGE_VOICE_COMMUNICATION"/>
+                <attribute usage = "AUDIO_USAGE_CALL_ASSISTANT"/>
+                <attribute usage = "AUDIO_USAGE_VOICE_COMMUNICATION_SIGNALLING"/>
+                <attribute usage = "AUDIO_USAGE_EMERGENCY"/>
+            </exclusive>
+            <reject>
+                <attribute usage = "AUDIO_USAGE_ANNOUNCEMENT"/>
+            </reject>
+            <concurrent>
+                <attribute usage = "AUDIO_USAGE_UNKNOWN"/>
+                <attribute usage = "AUDIO_USAGE_GAME"/>
+                <attribute usage = "AUDIO_USAGE_MEDIA"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_NAVIGATION_GUIDANCE"/>
+                <attribute usage = "AUDIO_USAGE_ALARM"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION_EVENT"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_SONIFICATION"/>
+                <attribute usage = "AUDIO_USAGE_SAFETY"/>
+                <attribute usage = "AUDIO_USAGE_VEHICLE_STATUS"/>
+            </concurrent>
+        </focusInteraction>
+        <focusInteraction>
+            <attribute usage = "AUDIO_USAGE_NOTIFICATION"/>
+            <exclusive>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_ACCESSIBILITY"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANT"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION_TELEPHONY_RINGTONE"/>
+                <attribute usage = "AUDIO_USAGE_VOICE_COMMUNICATION"/>
+                <attribute usage = "AUDIO_USAGE_CALL_ASSISTANT"/>
+                <attribute usage = "AUDIO_USAGE_VOICE_COMMUNICATION_SIGNALLING"/>
+                <attribute usage = "AUDIO_USAGE_EMERGENCY"/>
+            </exclusive>
+            <concurrent>
+                <attribute usage = "AUDIO_USAGE_UNKNOWN"/>
+                <attribute usage = "AUDIO_USAGE_GAME"/>
+                <attribute usage = "AUDIO_USAGE_MEDIA"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_NAVIGATION_GUIDANCE"/>
+                <attribute usage = "AUDIO_USAGE_ALARM"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION_EVENT"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_SONIFICATION"/>
+                <attribute usage = "AUDIO_USAGE_SAFETY"/>
+                <attribute usage = "AUDIO_USAGE_VEHICLE_STATUS"/>
+                <attribute usage = "AUDIO_USAGE_ANNOUNCEMENT"/>
+            </concurrent>
+        </focusInteraction>
+        <focusInteraction>
+            <attribute usage = "AUDIO_USAGE_NOTIFICATION_EVENT"/>
+            <exclusive>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_ACCESSIBILITY"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANT"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION_TELEPHONY_RINGTONE"/>
+                <attribute usage = "AUDIO_USAGE_VOICE_COMMUNICATION"/>
+                <attribute usage = "AUDIO_USAGE_CALL_ASSISTANT"/>
+                <attribute usage = "AUDIO_USAGE_VOICE_COMMUNICATION_SIGNALLING"/>
+                <attribute usage = "AUDIO_USAGE_EMERGENCY"/>
+            </exclusive>
+            <concurrent>
+                <attribute usage = "AUDIO_USAGE_UNKNOWN"/>
+                <attribute usage = "AUDIO_USAGE_GAME"/>
+                <attribute usage = "AUDIO_USAGE_MEDIA"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_NAVIGATION_GUIDANCE"/>
+                <attribute usage = "AUDIO_USAGE_ALARM"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION_EVENT"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_SONIFICATION"/>
+                <attribute usage = "AUDIO_USAGE_SAFETY"/>
+                <attribute usage = "AUDIO_USAGE_VEHICLE_STATUS"/>
+                <attribute usage = "AUDIO_USAGE_ANNOUNCEMENT"/>
+            </concurrent>
+        </focusInteraction>
+        <focusInteraction>
+            <attribute usage = "AUDIO_USAGE_ASSISTANCE_SONIFICATION"/>
+            <exclusive>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_ACCESSIBILITY"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANT"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION_TELEPHONY_RINGTONE"/>
+                <attribute usage = "AUDIO_USAGE_VOICE_COMMUNICATION"/>
+                <attribute usage = "AUDIO_USAGE_CALL_ASSISTANT"/>
+                <attribute usage = "AUDIO_USAGE_VOICE_COMMUNICATION_SIGNALLING"/>
+                <attribute usage = "AUDIO_USAGE_EMERGENCY"/>
+            </exclusive>
+            <concurrent>
+                <attribute usage = "AUDIO_USAGE_UNKNOWN"/>
+                <attribute usage = "AUDIO_USAGE_GAME"/>
+                <attribute usage = "AUDIO_USAGE_MEDIA"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_NAVIGATION_GUIDANCE"/>
+                <attribute usage = "AUDIO_USAGE_ALARM"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION_EVENT"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_SONIFICATION"/>
+                <attribute usage = "AUDIO_USAGE_SAFETY"/>
+                <attribute usage = "AUDIO_USAGE_VEHICLE_STATUS"/>
+                <attribute usage = "AUDIO_USAGE_ANNOUNCEMENT"/>
+            </concurrent>
+        </focusInteraction>
+        <focusInteraction>
+            <attribute usage = "AUDIO_USAGE_EMERGENCY"/>
+            <reject>
+                <attribute usage = "AUDIO_USAGE_MEDIA"/>
+                <attribute usage = "AUDIO_USAGE_UNKNOWN"/>
+                <attribute usage = "AUDIO_USAGE_GAME"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_NAVIGATION_GUIDANCE"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_ACCESSIBILITY"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANT"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION_TELEPHONY_RINGTONE"/>
+                <attribute usage = "AUDIO_USAGE_ALARM"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION_EVENT"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_SONIFICATION"/>
+                <attribute usage = "AUDIO_USAGE_VEHICLE_STATUS"/>
+                <attribute usage = "AUDIO_USAGE_ANNOUNCEMENT"/>
+            </reject>
+            <concurrent>
+                <attribute usage = "AUDIO_USAGE_VOICE_COMMUNICATION"/>
+                <attribute usage = "AUDIO_USAGE_CALL_ASSISTANT"/>
+                <attribute usage = "AUDIO_USAGE_VOICE_COMMUNICATION_SIGNALLING"/>
+                <attribute usage = "AUDIO_USAGE_EMERGENCY"/>
+                <attribute usage = "AUDIO_USAGE_SAFETY"/>
+            </concurrent>
+        </focusInteraction>
+        <focusInteraction>
+            <attribute usage = "AUDIO_USAGE_SAFETY"/>
+            <concurrent>
+                <attribute usage = "AUDIO_USAGE_UNKNOWN"/>
+                <attribute usage = "AUDIO_USAGE_GAME"/>
+                <attribute usage = "AUDIO_USAGE_MEDIA"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_NAVIGATION_GUIDANCE"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_ACCESSIBILITY"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANT"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION_TELEPHONY_RINGTONE"/>
+                <attribute usage = "AUDIO_USAGE_VOICE_COMMUNICATION"/>
+                <attribute usage = "AUDIO_USAGE_CALL_ASSISTANT"/>
+                <attribute usage = "AUDIO_USAGE_VOICE_COMMUNICATION_SIGNALLING"/>
+                <attribute usage = "AUDIO_USAGE_ALARM"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION_EVENT"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_SONIFICATION"/>
+                <attribute usage = "AUDIO_USAGE_EMERGENCY"/>
+                <attribute usage = "AUDIO_USAGE_SAFETY"/>
+                <attribute usage = "AUDIO_USAGE_VEHICLE_STATUS"/>
+                <attribute usage = "AUDIO_USAGE_ANNOUNCEMENT"/>
+            </concurrent>
+        </focusInteraction>
+        <focusInteraction>
+            <attribute usage = "AUDIO_USAGE_VEHICLE_STATUS"/>
+            <exclusive>
+                <attribute usage = "AUDIO_USAGE_EMERGENCY"/>
+            </exclusive>
+            <concurrent>
+                <attribute usage = "AUDIO_USAGE_UNKNOWN"/>
+                <attribute usage = "AUDIO_USAGE_GAME"/>
+                <attribute usage = "AUDIO_USAGE_MEDIA"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_NAVIGATION_GUIDANCE"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_ACCESSIBILITY"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANT"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION_TELEPHONY_RINGTONE"/>
+                <attribute usage = "AUDIO_USAGE_VOICE_COMMUNICATION"/>
+                <attribute usage = "AUDIO_USAGE_CALL_ASSISTANT"/>
+                <attribute usage = "AUDIO_USAGE_VOICE_COMMUNICATION_SIGNALLING"/>
+                <attribute usage = "AUDIO_USAGE_ALARM"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION_EVENT"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_SONIFICATION"/>
+                <attribute usage = "AUDIO_USAGE_SAFETY"/>
+                <attribute usage = "AUDIO_USAGE_VEHICLE_STATUS"/>
+                <attribute usage = "AUDIO_USAGE_ANNOUNCEMENT"/>
+            </concurrent>
+        </focusInteraction>
+        <focusInteraction>
+            <attribute usage = "AUDIO_USAGE_ANNOUNCEMENT"/>
+            <exclusive>
+                <attribute usage = "AUDIO_USAGE_MEDIA"/>
+                <attribute usage = "AUDIO_USAGE_UNKNOWN"/>
+                <attribute usage = "AUDIO_USAGE_GAME"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_ACCESSIBILITY"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANT"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION_TELEPHONY_RINGTONE"/>
+                <attribute usage = "AUDIO_USAGE_VOICE_COMMUNICATION"/>
+                <attribute usage = "AUDIO_USAGE_CALL_ASSISTANT"/>
+                <attribute usage = "AUDIO_USAGE_VOICE_COMMUNICATION_SIGNALLING"/>
+                <attribute usage = "AUDIO_USAGE_ALARM"/>
+                <attribute usage = "AUDIO_USAGE_EMERGENCY"/>
+                <attribute usage = "AUDIO_USAGE_ANNOUNCEMENT"/>
+            </exclusive>
+            <concurrent>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_NAVIGATION_GUIDANCE"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION"/>
+                <attribute usage = "AUDIO_USAGE_NOTIFICATION_EVENT"/>
+                <attribute usage = "AUDIO_USAGE_ASSISTANCE_SONIFICATION"/>
+                <attribute usage = "AUDIO_USAGE_SAFETY"/>
+                <attribute usage = "AUDIO_USAGE_VEHICLE_STATUS"/>
+            </concurrent>
+        </focusInteraction>
+    </focusInteractions>
+</oemAudioFocusConfigurations>

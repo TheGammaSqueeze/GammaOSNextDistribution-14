@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (c) 2009, 2011-2013 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2014-2015 The CyanogenMod Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *    * Neither the name of The Linux Foundation nor
+ *      the names of its contributors may be used to endorse or promote
+ *      products derived from this software without specific prior written
+ *      permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NON-INFRINGEMENT ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">FM-útvarp</string>
+    <string name="tx_app_name">FM-sendir</string>
+    <string name="menu_scan_start">Skanna</string>
+    <string name="menu_scan_stop">Hætta leit</string>
+    <string name="menu_record_start">Taka upp</string>
+    <string name="menu_record_stop">Stöðva upptöku</string>
+    <string name="menu_settings">Stillingar</string>
+    <string name="menu_sleep">Svæfa</string>
+    <string name="menu_sleep_cancel">Hætta við svæfingu</string>
+    <string name="menu_all_channels">Allar rásir</string>
+    <string name="menu_display_tags">Birta merki</string>
+    <string name="button_text_stop">Stöðva</string>
+    <string name="msg_seeking">Leita að FM-útvarpsstöð\u2026</string>
+    <string name="msg_scanning">Leita að öllum FM-útvarpsstöðvum\u2026</string>
+    <string name="msg_scanning_pty">Leita að \'<xliff:g id="pty_name">%1$s</xliff:g>\'\u2026</string>
+    <string name="msg_search_title"><xliff:g id="frequency_string">%1$s</xliff:g> MHz</string>
+    <string name="msg_searching_title">Sjálfvirkt val forstillinga</string>
+    <string name="msg_searching">Leita að stöðvum með sterk útsendingamerki til að útbúa forstillingalista\u2026</string>
+    <string name="msg_noantenna">Tengdu heyrnartól til að geta notað FM útvarp</string>
+    <string name="dialog_sleep_title">Sjálfvirkur tími svæfingar</string>
+    <string name="presetlist_select_name">Veldu \'<xliff:g id="presetlist_name">%1$s</xliff:g>\'</string>
+    <string name="presetlist_add_new">Bæta við nýjum lista</string>
+    <string name="dialog_presetlist_rename_title">Settu inn nafn</string>
+    <string name="presetlist_autoselect_title">Staðfestu sjálfvirkt val</string>
+    <string name="preset_replace">Skipta út</string>
+    <string name="preset_tune">Stilla</string>
+    <string name="preset_rename">Endurnefna</string>
+    <string name="preset_delete">Eyða</string>
+    <string name="preset_search">Leita að \'<xliff:g id="preset_pi">%1$s</xliff:g>\'</string>
+    <string name="stat_notif_frequency">\'<xliff:g id="frequency">%1$s</xliff:g>\' MHz</string>
+    <string name="regional_band">Svæðisbundin tíðnisvið</string>
+    <string name="regional_band_entry_north_america">Norður Ameríka</string>
+    <string name="regional_band_entry_europe">Evrópa</string>
+    <string name="regional_band_entry_japan">Japan</string>
+    <string name="regional_band_entry_japan_wide">Japan (breitt tíðnisvið)</string>
+    <string name="regional_band_entry_australia">Ástralía</string>
+    <string name="regional_band_entry_austria">Austurríki</string>
+    <string name="regional_band_entry_belgium">Belgía</string>
+    <string name="regional_band_entry_brazil">Brasilía</string>
+    <string name="regional_band_entry_china">Kína</string>
+    <string name="regional_band_entry_czech_republic">Tékkland</string>
+    <string name="regional_band_entry_denmark">Danmörk</string>
+    <string name="regional_band_entry_finland">Finnland</string>
+    <string name="regional_band_entry_france">Frakkland</string>
+    <string name="regional_band_entry_germany">Þýskaland</string>
+    <string name="regional_band_entry_greece">Grikkland</string>
+    <string name="regional_band_entry_hong_kong">Hong Kong</string>
+    <string name="regional_band_entry_india">Indland</string>
+    <string name="regional_band_entry_indonesia">Indónesía</string>
+    <string name="regional_band_entry_ireland">Írland</string>
+    <string name="regional_band_entry_italy">Ítalía</string>
+    <string name="regional_band_entry_korea">Kórea</string>
+    <string name="regional_band_entry_mexico">Mexíkó</string>
+    <string name="regional_band_entry_netherlands">Holland</string>
+    <string name="regional_band_entry_new_zealand">Nýja Sjáland</string>
+    <string name="regional_band_entry_norway">Noregur</string>
+    <string name="regional_band_entry_poland">Pólland</string>
+    <string name="regional_band_entry_portugal">Portúgal</string>
+    <string name="regional_band_entry_russia">Rússland</string>
+    <string name="regional_band_entry_singapore">Singapúr</string>
+    <string name="regional_band_entry_slovakia">Slóvakía</string>
+    <string name="regional_band_entry_spain">Spánn</string>
+    <string name="regional_band_entry_switzerland">Sviss</string>
+    <string name="regional_band_entry_sweden">Svíþjóð</string>
+    <string name="regional_band_entry_taiwan">Tævan</string>
+    <string name="regional_band_entry_turkey">Tyrkland</string>
+    <string name="regional_band_entry_united_kingdom">Bretland</string>
+    <string name="regional_band_entry_united_states">Bandaríkin</string>
+    <string name="regional_band_entry_user_defined">Tíðnisvið skilgreint af notanda</string>
+    <string name="regional_band_summary_north_america">Norður-Ameríka (87.5 til 108.0 MHz í 200 kHz þrepum)</string>
+    <string name="regional_band_summary_europe">Evrópa (87.5 til 108.0 MHz í 100 kHz þrepum)</string>
+    <string name="regional_band_summary_japan">Japan (87.5 til 90.0 MHz í 100 kHz þrepum)</string>
+    <string name="regional_band_summary_japan_wide">Japan (breitt tíðnisvið) (90.0 til 108.0 MHz í 50 kHz þrepum)</string>
+    <string name="regional_band_summary_australia">Ástralía (87.5 til 108.0 MHz í 100 kHz þrepum)</string>
+    <string name="regional_band_summary_austria">Austurríki (87.5 til 108.0 MHz í 50 kHz þrepum)</string>
+    <string name="regional_band_summary_belgium">Belgía (87.5 til 108.0 MHz í 100 kHz þrepum)</string>
+    <string name="regional_band_summary_brazil">Brasilía (87.5 til 108.0 MHz í 200 kHz þrepum)</string>
+    <string name="regional_band_summary_china">Kína (87.0 til 108.0 MHz í 100 kHz þrepum)</string>
+    <string name="regional_band_summary_czech_republic">Tékkland (87.5 til 108.0 MHz í 100 kHz þrepum)</string>
+    <string name="regional_band_summary_denmark">Danmörk (87.5 til 108.0 MHz í 50 kHz þrepum)</string>
+    <string name="regional_band_summary_finland">Finnland (87.5 til 108.0 MHz í 100 kHz þrepum)</string>
+    <string name="regional_band_summary_france">Frakkland (87.5 til 108.0 MHz í 100 kHz þrepum)</string>
+    <string name="regional_band_summary_germany">Þýskaland (87.5 til 108.0 MHz í 50 kHz þrepum)</string>
+    <string name="regional_band_summary_greece">Grikkland (87.5 til 108.0 MHz í 50 kHz þrepum)</string>
+    <string name="regional_band_summary_hong_kong">Hong Kong (87.5 til 108.0 MHz í 100 kHz þrepum)</string>
+    <string name="regional_band_summary_india">Indland (87.5 til 108.0 MHz í 100 kHz þrepum)</string>
+    <string name="regional_band_summary_indonesia">Indónesía (87.5 til 108.0 MHz í 100 kHz þrepum)</string>
+    <string name="regional_band_summary_ireland">Írland (87.5 til 108.0 MHz í 50 kHz þrepum)</string>
+    <string name="regional_band_summary_italy">Ítalía (87.5 til 108.0 MHz í 50 kHz þrepum)</string>
+    <string name="regional_band_summary_korea">Kórea (87.5 til 108.0 MHz í 200 kHz þrepum)</string>
+    <string name="regional_band_summary_mexico">Mexíkó (88.1 til 107.9 MHz í 200 kHz þrepum)</string>
+    <string name="regional_band_summary_netherlands">Holland (87.5 til 108.0 MHz í 100 kHz þrepum)</string>
+    <string name="regional_band_summary_new_zealand">Nýjasjáland (87.0 til 107.0 MHz í 100 kHz þrepum)</string>
+    <string name="regional_band_summary_norway">Noregur (87.5 til 108.0 MHz í 100 kHz þrepum)</string>
+    <string name="regional_band_summary_poland">Pólland (87.5 til 108.0 MHz í 100 kHz þrepum)</string>
+    <string name="regional_band_summary_portugal">Portúgal (87.5 til 108.0 MHz í 50 kHz þrepum)</string>
+    <string name="regional_band_summary_russia">Rússland (87.5 til 108.0 MHz í 100 kHz þrepum)</string>
+    <string name="regional_band_summary_singapore">Singapúr (88.0 til 108.0 MHz í 100 kHz þrepum)</string>
+    <string name="regional_band_summary_slovakia">Slóvakía (87.5 til 108.0 MHz í 100 kHz þrepum)</string>
+    <string name="regional_band_summary_spain">Spánn (87.5 til 108.0 MHz í 100 kHz þrepum)</string>
+    <string name="regional_band_summary_switzerland">Sviss (87.5 til 108.0 MHz í 100 kHz þrepum)</string>
+    <string name="regional_band_summary_sweden">Svíþjóð (87.5 til 108.0 MHz í 100 kHz þrepum)</string>
+    <string name="regional_band_summary_taiwan">Tævan (87.5 til 108.0 MHz í 100 kHz þrepum)</string>
+    <string name="regional_band_summary_turkey">Tyrkland (87.5 til 108.0 MHz í 100 kHz þrepum)</string>
+    <string name="regional_band_summary_united_kingdom">Bretland (87.5 til 108.0 MHz í 100 kHz þrepum)</string>
+    <string name="regional_band_summary_united_states">Bandaríkin (88.1 til 107.9 MHz í 200 kHz þrepum)</string>
+    <string name="regional_band_summary_user_defined">Tíðnisvið skilgreint af notanda</string>
+    <string name="aud_output_mode">Úttakshamur hljóðs</string>
+    <string name="audio_type_stereo">Víðóma</string>
+    <string name="audio_type_mono">Einóma</string>
+    <string name="record_dur">Tímalengd upptöku</string>
+    <string name="auto_select_af">Önnur tíðni</string>
+    <string name="settings_revert_defaults_title">Frumstilla á sjálfgefin gildi</string>
+    <string name="settings_revert_defaults_summary">Frumstilla allar stillingar</string>
+    <string name="settings_revert_confirm_title">Staðfestu endurstillingu</string>
+    <string name="settings_revert_confirm_msg">Þetta mun hreinsa út allar forritastillingar, þar með taldar vistaðar forstillingar. Halda áfram?</string>
+    <string name="no_storage">Tengdu SD-kortið áður en upptaka er sett í gang.</string>
+    <string name="preparing_sd">Undirbý SD-minniskort\u2026</string>
+    <string name="access_sd_fail">Gat ekki skoðað SD-kort.</string>
+    <string name="spaceIsLow_content">SD-kortið þitt er að verða fullt. Breyttu gæðastillingunum eða eyddu einhverjum öðrum skrám til að losa um pláss.</string>
+    <string name="FMRecording_reach_size_limit">Stærðarmörkum er náð.</string>
+    <string name="menu_scan_for_preset">Leita að forstillingum</string>
+    <string name="fm_off">Slökkt er á FM.</string>
+    <string name="fm_call">Ekki er hægt að nota FM-útvarp á meðan símtali stendur.</string>
+    <string name="alert_dialog_hint">Settu inn nafn</string>
+    <string name="search_dialog_title">Skanna útvarpsstöðvar</string>
+    <string name="fm_command_timeout_title">Tímamörk</string>
+    <string name="fm_tune_timeout_msg">Ekkert svar barst svo hægt væri að stilla FM-útvarpsstöð. Ef vandamálið er viðvarandi, slökktu þá á FM-útvarpinu og kveiktu svo aftur á því.</string>
+    <string name="fm_command_failed_title">FM-aðgerðin tókst ekki</string>
+    <string name="fm_cmd_failed_msg">FM-aðgerðin tókst ekki. Ef vandamálið er viðvarandi, slökktu þá á FM-útvarpinu og kveiktu svo aftur á því.</string>
+    <string name="fm_cmd_failed_msg_hdmi">FM-aðgerðin tókst ekki. Samhliða notkun FM og HDMI er ekki studd.</string>
+    <string name="fm_cmd_failed_call_on">FM-aðgerðin tókst ekki. Ekki er hægt að nota FM-hljóð á meðan símtali stendur.</string>
+    <string name="audio_db_title_format"><xliff:g id="format">yyyy-MM-dd HH:mm:ss</xliff:g></string>
+    <string name="audio_db_artist_name">FM-upptökurnar mínar</string>
+    <string name="audio_db_album_name">FM-upptökur</string>
+    <string name="audio_db_playlist_name">FM-upptökur</string>
+    <string name="station_name">Útvarpsstöð:</string>
+    <string name="station_exists">Þessi tíðni er þegar til!</string>
+    <string name="station_list_delete_station">Eyða: <xliff:g id="name">%s</xliff:g></string>
+    <string name="station_list_delete_station_prompt">Ertu viss um að þú viljir eyða \'<xliff:g id="name">%s</xliff:g>\'?</string>
+    <string name="station_name_empty">Nafn útvarpsstöðvarinnar er autt, settu það aftur inn.</string>
+    <string name="station_name_exist">\'<xliff:g id="name">%s</xliff:g>\' er þegar í notkun, veldu eitthvað annað nafn.</string>
+    <string name="rt_plus_tags">Merki</string>
+    <string name="usr_def_band_min">Lægsta tíðni (MHz)</string>
+    <string name="usr_def_band_max">Hæsta tíðni (MHz)</string>
+    <string name="chanl_spacing">Bil milli rása</string>
+    <string name="set">Stilla</string>
+    <string name="user_defind_band_msg">Settu inn tíðni frá 76.0 til 108.0 MHz með lágmarksmillibilinu 1 og 100 kHz bili milli lágmarks- og hámarkstíðna</string>
+    <string name="save_record_file">Upptaka í FM-skrá vistuð í \'<xliff:g id="record_file">%1$s</xliff:g>\'</string>
+    <string name="fm_search_no_results">Engar sambærilegar stöðvar fundust</string>
+    <string name="typ_All_stations">Allar útvarpsstöðvar</string>
+    <string name="typ_Culture">Menning</string>
+    <string name="typ_Current_affairs">Á líðandi stundu</string>
+    <string name="typ_Children">Barnaþættir</string>
+    <string name="typ_Country">Sveitatónlist</string>
+    <string name="typ_Documentary">Heimildaþættir</string>
+    <string name="typ_Drama">Drama</string>
+    <string name="typ_Easy_listening">Auðmeltanleg tónlist</string>
+    <string name="typ_Education">Menntun</string>
+    <string name="typ_Emergency">Neyðartilfelli</string>
+    <string name="typ_Emergency_test">Neyðarrás til prófunar</string>
+    <string name="typ_Finance">Fjármál</string>
+    <string name="typ_Folk">Þjóðlagatónlist</string>
+    <string name="typ_Information">Upplýsingar</string>
+    <string name="typ_Jazz">Djasstónlist</string>
+    <string name="typ_Light_classical">Léttklassík</string>
+    <string name="typ_Leisure">Afþreying</string>
+    <string name="typ_News">Fréttir</string>
+    <string name="typ_National">Þjóðleg tónlist</string>
+    <string name="typ_Other">Önnur tónlist</string>
+    <string name="typ_Oldies">Ellismellir</string>
+    <string name="typ_Phone_in">Símatímar</string>
+    <string name="typ_Pop">Popptónlist</string>
+    <string name="typ_Religion">Trúarbrögð</string>
+    <string name="typ_Rock">Rokktónlist</string>
+    <string name="typ_Science">Vísindi</string>
+    <string name="typ_Serious_classical">Alvarleg klassísk tónlist</string>
+    <string name="typ_Social_affairs">Samfélagslegt</string>
+    <string name="typ_Sport">Íþróttir</string>
+    <string name="typ_Travel">Ferðalög</string>
+    <string name="typ_Varied">Ýmislegt</string>
+    <string name="typ_Weather">Veður</string>
+    <string name="typ_Adult_hits">Fyrir fullorðna</string>
+    <string name="typ_Classical">Klassísk tónlist</string>
+    <string name="typ_Classic_Rock">Klassískt rokk</string>
+    <string name="typ_College">Framhaldskóla</string>
+    <string name="typ_Foreign_language">Erlend tungumál</string>
+    <string name="typ_Hiphop">Hipphopp</string>
+    <string name="typ_Nostalgia">Fortíðarþrá</string>
+    <string name="typ_Personality">Þekkt fólk</string>
+    <string name="typ_Public">Opinbert</string>
+    <string name="typ_Religious_music">Trúarleg tónlist</string>
+    <string name="typ_Religious_talk">Trúarlegar umræður</string>
+    <string name="typ_Rhythm_and_Blues">Taktur og tregi</string>
+    <string name="typ_Spanish_music">Spænsk tónlist</string>
+    <string name="typ_Spanish_talk">Spjall á spænsku</string>
+    <string name="typ_Soft">Mjúkt</string>
+    <string name="typ_Soft_Rock">Mjúkt rokk</string>
+    <string name="typ_Soft_Rhythm_and_Blues">Mjúkur taktur og tregi</string>
+    <string name="typ_Sports">Íþróttir</string>
+    <string name="typ_Talk">Spjall</string>
+    <string name="typ_Top_40">Vinsælustu 40</string>
+</resources>

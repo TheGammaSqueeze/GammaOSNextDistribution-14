@@ -1,0 +1,171 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "2503686a7a6d230bea108675265d7d7c",
+    "entities": [
+      {
+        "tableName": "server_parameters",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`server_public_parameters` BLOB NOT NULL, `server_params_join_expiry_instant` INTEGER NOT NULL, `server_params_sign_expiry_instant` INTEGER NOT NULL, `creation_instant` INTEGER NOT NULL DEFAULT CURRENT_TIMESTAMP, `server_params_version` TEXT NOT NULL, PRIMARY KEY(`creation_instant`))",
+        "fields": [
+          {
+            "fieldPath": "serverPublicParameters",
+            "columnName": "server_public_parameters",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "serverParamsJoinExpiryInstant",
+            "columnName": "server_params_join_expiry_instant",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "serverParamsSignExpiryInstant",
+            "columnName": "server_params_sign_expiry_instant",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "creationInstant",
+            "columnName": "creation_instant",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "CURRENT_TIMESTAMP"
+          },
+          {
+            "fieldPath": "serverParamsVersion",
+            "columnName": "server_params_version",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "creation_instant"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "client_parameters",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`client_public_parameters` BLOB NOT NULL, `client_private_parameters` BLOB NOT NULL, `expiry_instant` INTEGER NOT NULL, `client_id` BLOB NOT NULL, `client_parameters_id` INTEGER PRIMARY KEY AUTOINCREMENT, `client_params_version` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "clientPublicParameters",
+            "columnName": "client_public_parameters",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "clientPrivateParameters",
+            "columnName": "client_private_parameters",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "clientParametersExpiryInstant",
+            "columnName": "expiry_instant",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "clientId",
+            "columnName": "client_id",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "clientParametersId",
+            "columnName": "client_parameters_id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "clientParamsVersion",
+            "columnName": "client_params_version",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "client_parameters_id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "kanon_messages",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`message_id` INTEGER PRIMARY KEY AUTOINCREMENT, `created_at` INTEGER NOT NULL, `expiry_instant` INTEGER NOT NULL, `corresponding_client_parameters_id` INTEGER, `corresponding_client_parameters_expiry_instant` INTEGER, `ad_selection_id` INTEGER NOT NULL, `kanon_hash_set` TEXT NOT NULL, `status` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "messageId",
+            "columnName": "message_id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "expiryInstant",
+            "columnName": "expiry_instant",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "correspondingClientParametersId",
+            "columnName": "corresponding_client_parameters_id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "correspondingClientParametersExpiryInstant",
+            "columnName": "corresponding_client_parameters_expiry_instant",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "adSelectionId",
+            "columnName": "ad_selection_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "kanonHashSet",
+            "columnName": "kanon_hash_set",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "message_id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2503686a7a6d230bea108675265d7d7c')"
+    ]
+  }
+}

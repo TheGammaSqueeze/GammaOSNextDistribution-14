@@ -1,0 +1,21 @@
+// Copyright 2024 The Android Open Source Project
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_fuzz {
+    name: "frameDecoder2_fuzzer",
+    srcs: [
+        "FrameDecoderFuzzer2.cpp",
+    ],
+    corpus: ["corpus/*"],
+    defaults: ["libstagefright_fuzzer_defaults"],
+    include_dirs: [
+        "frameworks/av/media/libstagefright/include/media/stagefright/",
+        "frameworks/av/media/libstagefright/tests/fuzzers/",
+    ],
+    fuzz_config: {
+       cc: ["hamzeh@google.com"],
+       componentid: 330367,
+    },
+}

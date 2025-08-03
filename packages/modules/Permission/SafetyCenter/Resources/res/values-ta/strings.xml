@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="safetyCenterResourcesAppLabel" msgid="4043334186295695930">"பாதுகாப்பு மையத் தகவல்கள்"</string>
+    <string name="lock_screen_sources_title" msgid="3317906280484627707">"சாதனத்தைப் பூட்டுதல்"</string>
+    <string name="lock_screen_sources_summary" msgid="7220439741282516496"></string>
+    <string name="lock_screen_title" msgid="4069104894527169877">"திரைப் பூட்டு"</string>
+    <string name="lock_screen_summary_disabled" msgid="354071230916616692">"தகவல்கள் எதுவுமில்லை"</string>
+    <string name="lock_screen_search_terms" msgid="2678486357779794826">"சாதனப் பூட்டு, திரைப் பூட்டு, பூட்டுத் திரை, பூட்டுத்திரை, கடவுச்சொல், பின், பேட்டர்ன்"</string>
+    <string name="biometrics_title" msgid="5859504610285212938">"பயோமெட்ரிக்ஸ்"</string>
+    <string name="biometrics_search_terms" msgid="6040319118762671981">"கைரேகை, விரல், கைரேகையைச் சேர்த்தல், முகம் காட்டித் திறத்தல், முகம்"</string>
+    <string name="privacy_sources_title" msgid="4061110826457365957">"தனியுரிமை"</string>
+    <string name="privacy_sources_summary" msgid="4089719981155120864">"டாஷ்போர்டு, அனுமதிகள், கட்டுப்பாடுகள்"</string>
+    <string name="permission_usage_title" msgid="3633779688945350407">"தனியுரிமை டாஷ்போர்டு"</string>
+    <string name="permission_usage_summary" msgid="5323079206029964468">"சமீபத்தில் எந்தெந்த ஆப்ஸ் அனுமதிகளைப் பயன்படுத்தியுள்ளன என்பதைக் காட்டும்"</string>
+    <string name="permission_usage_search_terms" msgid="3852343592870257104">"தனியுரிமை, தனியுரிமை டாஷ்போர்டு"</string>
+    <string name="permission_manager_title" msgid="5277347862821255015">"அனுமதி நிர்வாகம்"</string>
+    <string name="permission_manager_summary" msgid="8099852107340970790">"உங்கள் தரவுக்கான ஆப்ஸ் அணுகலைக் கட்டுப்படுத்தும்"</string>
+    <string name="permission_manager_search_terms" msgid="2895147613099694722">"அனுமதிகள், அனுமதிகள் தொடர்பான நிர்வாகி"</string>
+    <string name="privacy_controls_title" msgid="5322875777945432395">"தனியுரிமைக் கட்டுப்பாடுகள்"</string>
+    <string name="privacy_controls_summary" msgid="2402066941190435424">"மைக்ரோஃபோன், கேமரா மற்றும் பலவற்றுக்கான சாதன அணுகலைக் கட்டுப்படுத்தலாம்"</string>
+    <string name="privacy_controls_search_terms" msgid="3774472175934304165">"தனியுரிமை, தனியுரிமைக் கட்டுப்பாடுகள்"</string>
+    <string name="advanced_title" msgid="8745436380690561172">"கூடுதல் அமைப்புகள்"</string>
+    <string name="advanced_security_title" msgid="1126833338772188155">"கூடுதல் பாதுகாப்பு அமைப்புகள்"</string>
+    <string name="advanced_security_summary" msgid="6172253327022425123">"என்க்ரிப்ஷன், அனுமதிச் சான்றுகள் மற்றும் பல"</string>
+    <string name="advanced_security_search_terms" msgid="3350609555814362075"></string>
+    <string name="advanced_privacy_title" msgid="1117725225706176643">"கூடுதல் தனியுரிமை அமைப்புகள்"</string>
+    <string name="advanced_privacy_summary" msgid="2281203390575069543">"தன்னிரப்பி, செயல்பாட்டுக் கட்டுப்பாடுகள் மற்றும் பல"</string>
+    <string name="advanced_privacy_search_terms" msgid="5044404599789175222"></string>
+</resources>

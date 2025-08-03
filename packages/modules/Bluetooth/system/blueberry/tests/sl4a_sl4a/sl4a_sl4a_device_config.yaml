@@ -1,0 +1,20 @@
+_description: Bluetooth testing with SL4A
+TestBeds:
+- Name: AndroidDeviceCert
+  Controllers:
+    AndroidDevice:
+    - label: dut
+      # Preferred server port number forwarded from Android to the host PC
+      # via adb for SL4A connections
+      forwarded_port: '8897'
+      # Preferred server port used by SL4A on Android device
+      server_port: '8897'
+      serial: 'DUT'
+    - label: cert
+      # Preferred server port number forwarded from Android to the host PC
+      # via adb for SL4A connections
+      forwarded_port: '8899'
+      # Preferred server port used by SL4A on Android device
+      server_port: '8899'
+      serial: 'CERT'
+logpath: "/tmp/logs"

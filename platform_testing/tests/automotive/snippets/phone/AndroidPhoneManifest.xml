@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Copyright 2022 The Android Open Source Project
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools"
+          package="com.google.android.mobly.snippet.bundled">
+  <uses-permission android:name="android.permission.SEND_SMS"/>
+  <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
+  <uses-permission android:name="android.permission.BLUETOOTH"/>
+  <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+  <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+  <uses-permission android:name="android.car.permission.CAR_CONTROL_AUDIO_VOLUME"/>
+  <uses-permission android:name="android.car.permission.CAR_CONTROL_AUDIO_SETTINGS"/>
+  <uses-permission android:name="android.car.permission.CAR_DRIVING_STATE"/>
+  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+  <application android:allowBackup="false">
+    <meta-data
+        android:name="mobly-snippets"
+        tools:replace="android:value"
+        android:value="com.google.android.mobly.snippet.bundled.AccountSnippet,
+                       com.google.android.mobly.snippet.bundled.AudioSnippet,
+                       com.google.android.mobly.snippet.bundled.bluetooth.BluetoothAdapterSnippet,
+                       com.google.android.mobly.snippet.bundled.bluetooth.profiles.BluetoothA2dpSnippet,
+                       com.google.android.mobly.snippet.bundled.bluetooth.profiles.BluetoothHearingAidSnippet,
+                       com.google.android.mobly.snippet.bundled.BluetoothLeAdvertiserSnippet,
+                       com.google.android.mobly.snippet.bundled.BluetoothLeScannerSnippet,
+                       com.google.android.mobly.snippet.bundled.FileSnippet,
+                       com.google.android.mobly.snippet.bundled.LogSnippet,
+                       com.google.android.mobly.snippet.bundled.MediaSnippet,
+                       com.google.android.mobly.snippet.bundled.NetworkingSnippet,
+                       com.google.android.mobly.snippet.bundled.NotificationSnippet,
+                       com.google.android.mobly.snippet.bundled.PhoneSnippet,
+                       com.google.android.mobly.snippet.bundled.SmsSnippet,
+                       com.google.android.mobly.snippet.bundled.StorageSnippet,
+                       com.google.android.mobly.snippet.bundled.TelephonySnippet,
+                       com.google.android.mobly.snippet.bundled.UISnippet,
+                       com.google.android.mobly.snippet.bundled.WifiManagerSnippet"
+                       />
+  </application>
+  <instrumentation
+      android:name="com.google.android.mobly.snippet.SnippetRunner"
+      android:targetPackage="com.google.android.mobly.snippet.bundled"
+      android:label="Phone Snippet Library" />
+</manifest>

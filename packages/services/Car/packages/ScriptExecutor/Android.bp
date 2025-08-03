@@ -1,0 +1,109 @@
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_library {
+    name: "libscriptexecutorjni",
+
+    cflags: [
+        "-Wno-unused-parameter",
+    ],
+    header_libs: [
+        "jni_headers",
+        "libnativehelper_header_only",
+    ],
+
+    static_libs: [
+        "liblua",
+        "libbase",
+    ],
+
+    shared_libs: [
+        "liblog",
+    ],
+
+    srcs: [
+        "src/BundleWrapper.cpp",
+        "src/JniUtils.cpp",
+        "src/LuaEngine.cpp",
+        "src/ScriptExecutorJni.cpp",
+        "src/ScriptExecutorListener.cpp",
+    ],
+
+    min_sdk_version: "30",
+
+    stl: "libc++_static",
+
+    // Allow dependents to use the header files.
+    export_include_dirs: ["src"],
+
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.car.framework",
+    ],
+}
+
+android_app {
+    name: "ScriptExecutor",
+
+    srcs: [
+        ":iscriptexecutor_aidl",
+        "src/**/*.java",
+    ],
+
+    resource_dirs: ["res"],
+
+    sdk_version: "module_current",
+
+    min_sdk_version: "33",
+
+    privileged: false,
+
+    optimize: {
+        enabled: false,
+    },
+
+    libs: [
+        "android.car",
+    ],
+
+    jni_libs: [
+        "libscriptexecutorjni",
+    ],
+
+    jni_uses_platform_apis: true,
+
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.car.framework",
+    ],
+}
+
+java_test_helper_library {
+    name: "scriptexecutor-test-lib",
+
+    srcs: [
+        ":iscriptexecutor_aidl",
+        "src/**/*.java",
+    ],
+
+    libs: [
+        "android.car",
+    ],
+
+    sdk_version: "test_current",
+}

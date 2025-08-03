@@ -1,0 +1,3 @@
+rule com.android.modules.utils.** com.android.sdksandbox.@1
+rule com.google.protobuf.** com.android.sdksandbox.protobuf.@1
+rule com.android.sdksandbox.flags.** com.android.sdksandbox.service.flags.@1

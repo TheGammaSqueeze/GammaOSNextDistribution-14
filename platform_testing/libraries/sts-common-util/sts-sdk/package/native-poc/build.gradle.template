@@ -1,0 +1,32 @@
+plugins {
+    id 'com.android.library'
+}
+
+android {
+    compileSdk {{PLATFORM_SDK_VERSION}}
+    externalNativeBuild {
+        cmake {
+            path file('src/CMakeLists.txt')
+            version '3.18.1'
+        }
+    }
+    defaultConfig {
+        targetSdk {{PLATFORM_SDK_VERSION}}
+        minSdk 29
+    }
+}
+
+ext.copyArtifact = { arch, suffix, outputDir ->
+    tasks.register("copy${arch}", Copy) {
+        dependsOn 'externalNativeBuildDebug'
+        from layout.buildDirectory.file("intermediates/cmake/debug/obj/${arch}/nativepoc")
+        rename ('nativepoc', "${project.name.replaceFirst(/-native/, '')}${suffix}")
+        into layout.buildDirectory.dir(outputDir)
+    }
+}
+
+copyArtifact('armeabi-v7a', '_sts32', 'testcases_arm')
+copyArtifact('arm64-v8a', '_sts64', 'testcases_arm')
+copyArtifact('x86', '_sts32', 'testcases_x86')
+copyArtifact('x86_64', '_sts64', 'testcases_x86')
+

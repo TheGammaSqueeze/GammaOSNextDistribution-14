@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    Copyright (C) 2021 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="brand_screen_header" msgid="4382251935798018352">"Ky automjet i përket organizatës"</string>
+    <string name="contact_device_provider" msgid="338577979231875837">"Për të mësuar më shumë, kontakto <xliff:g id="IT_ADMIN">%1$s</xliff:g>."</string>
+    <string name="organization_admin" msgid="6551608903069550652">"menaxheri i organizatës"</string>
+    <string name="if_questions_contact_admin" msgid="4645510019575736238">"Nëse ke pyetje, kontakto menaxherin e organizatës"</string>
+    <string name="admin_has_ability_to_monitor_device" msgid="3132155961508293345">"Menaxheri i organizatës ka aftësinë për të monitoruar dhe menaxhuar cilësimet, qasjen e korporatës, aplikacionet, të lejet dhe të dhënat në lidhje me këtë automjet, duke përfshirë aktivitetin e rrjetit, si dhe vendndodhjen e automjetit.<xliff:g id="LINE_BREAK">
+
+</xliff:g>Kontakto menaxherin e organizatës për më shumë informacion, duke përfshirë politikat e privatësisë të organizatës."</string>
+    <string name="contact_your_admin_for_more_info" msgid="1419852317652804536">"Kontakto menaxherin e organizatës për më shumë informacion, duke përfshirë politikat e privatësisë të organizatës."</string>
+    <string name="managed_device_info" msgid="2134697391634083944">"Ky është një automjet i menaxhuar"</string>
+    <string name="contact_your_admin_for_help" msgid="1741496631607502730">"Kontakto menaxherin e organizatës për ndihmë"</string>
+    <string name="fully_managed_device_provisioning_accept_header" msgid="8767138982035307813">"Konfiguro automjetin e menaxhuar"</string>
+    <string name="fully_managed_device_provisioning_step_1_header" msgid="8704166635032524345">"Përfito qasje në aplikacionet e organizatës sate"</string>
+    <string name="fully_managed_device_provisioning_step_1_description" msgid="5960961281295355254">"Po konfigurohet sistemi info-argëtues..."</string>
+    <string name="fully_managed_device_provisioning_step_2_header" msgid="5888602026900289468">"Të dhënat e sistemit info-argëtues nuk janë private"</string>
+    <string name="fully_managed_device_provisioning_step_2_subheader_title" msgid="1421575203782743214">"Aktiviteti dhe të dhënat e tua"</string>
+    <string name="fully_managed_device_provisioning_step_2_subheader" msgid="4881961368653838979">"Menaxheri i organizatës mund të jetë në gjendje të shohë aktivitetin dhe të dhënat e tua në këtë automjet."</string>
+    <string name="fully_managed_device_provisioning_permissions_secondary_subheader" msgid="8955791361423166123">"Menaxheri i organizatës mund të caktojë leje për aplikacionet në këtë automjet, si p.sh. lejet e mikrofonit dhe të vendndodhjes."</string>
+    <string name="fully_managed_device_with_permission_control_provisioning_summary" msgid="2503568673345133100">"Përdor sistemin info-argëtues të këtij automjeti për të pasur qasje lehtësisht në aplikacionet e tua të punës. Ky automjet nuk është privat, prandaj menaxheri i organizatës mund të jetë në gjendje të shohë aktivitetin dhe të dhënat e tua. Gjithashtu, menaxheri i organizatës mund të caktojë leje për aplikacionet në këtë automjet, si p.sh. lejet e mikrofonit dhe të vendndodhjes."</string>
+    <string name="fully_managed_device_provisioning_summary" msgid="4323948058344613817">"Përdor sistemin info-argëtues të këtij automjeti për të pasur qasje lehtësisht në aplikacionet e tua të punës. Ky automjet nuk është privat, prandaj menaxheri i organizatës mund të jetë në gjendje të shohë të dhënat dhe aktivitetin tënd."</string>
+    <string name="fully_managed_device_provisioning_progress_label" msgid="988594700479673633">"Po konfigurohet automjeti i menaxhuar"</string>
+    <string name="fully_managed_device_provisioning_return_device_title" msgid="1578111657911434819">"Anulo konfigurimin dhe rikthe automjetin"</string>
+    <string name="fully_managed_device_provisioning_return_device_subheader" msgid="5809488930429106172">"Rivendos dhe riktheja këtë automjet menaxherit të organizatës ose kthehu në ekranin e mëparshëm për të vazhduar konfigurimin."</string>
+    <string name="fully_managed_device_cancel_setup_button" msgid="4113790677940440998">"Anulo konfigurimin"</string>
+    <string name="fully_managed_device_reset_and_return_button" msgid="4951274590516561428">"Rivendos dhe rikthe"</string>
+    <string name="fully_managed_device_provisioning_privacy_title" msgid="4789425994893472324">"Njoftimi i privatësisë"</string>
+    <string name="fully_managed_device_provisioning_privacy_body" msgid="5549745709511179391">"Menaxheri i organizatës mund të jetë në gjendje të shohë të dhënat dhe aktivitetin tënd në këtë automjet."</string>
+</resources>

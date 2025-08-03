@@ -1,0 +1,96 @@
+// Copyright 2023 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+syntax = "proto3";
+
+package cobalt;
+
+import "metric_definition.proto";
+
+option java_multiple_files = true;
+option java_package = "com.google.cobalt";
+
+////////////////////////////////////////////////////////////////////////////////
+// NOTE: This file is used by the Cobalt client and the Cobalt servers.
+// The source-of-truth of this file is located in Cobalt's open source code
+// repository, and the file is copied to Android where it is used by the Cobalt
+// client. Do not edit the copy of this file in this Android repo as those edits
+// will be overwritten when the file is next copied.
+////////////////////////////////////////////////////////////////////////////////
+
+// ProjectConfigFile is a representation of a yaml config file for a single
+// cobalt project.
+message ProjectConfigFile {
+  reserved 1, 2, 3;
+
+  // Cobalt metric registration.
+  repeated MetricDefinition metric_definitions = 4;
+
+  // Metric IDs that have been previously used and deleted from this project.
+  // These IDs must not be reused in new metrics.
+  repeated uint32 deleted_metric_ids = 5;
+}
+
+// Configuration for the Cobalt projects of a customer.
+message CustomerConfig {
+  string customer_name = 1;
+  uint32 customer_id = 2;
+  repeated ProjectConfig projects = 3;
+
+  // If no experiments_namespaces are specified for individual projects, the
+  // customer's experiments namespaces are used as default.
+  repeated string experiments_namespaces = 4;
+
+  // Project IDs that have been previously used and deleted from this customer.
+  // These IDs must not be reused in new projects.
+  repeated uint32 deleted_project_ids = 5;
+}
+
+// Configuration for a Cobalt project.
+message ProjectConfig {
+  string project_name = 1;
+  uint32 project_id = 2;
+  repeated MetricDefinition metrics = 3;
+  string project_contact = 4;
+
+  // Identifier of the app that is expected to log the metrics for this project.
+  // Depending on the platform, this may represent an "app" or "component", and
+  // the format of package identifiers may be different.
+  string app_package_identifier = 7;
+
+  // Experiment namespaces supported for experiment ids in this project.
+  repeated string experiments_namespaces = 5;
+
+  // Metric IDs that have been previously used and deleted from this project.
+  // These IDs must not be reused in new metrics.
+  repeated uint32 deleted_metric_ids = 6;
+}
+
+// CobaltRegistry holds a set of metrics and reports registered with Cobalt.
+//
+// A CobaltRegistry can be in one of two states:
+//
+// (1) It can contain data for a single Cobalt project. In this case, there is a single
+//     CustomerConfig which contains a single ProjectConfig.
+//
+// (2) It can contain data for multiple Cobalt projects. In this case, there may be any number of
+//     |customers|, which in turn may contain any number of ProjectConfigs.
+message CobaltRegistry {
+  reserved 1, 2, 3, 4;
+  // Cobalt customer registration.
+  repeated CustomerConfig customers = 5;
+
+  // Customer IDs that have been previously used and deleted from the registry.
+  // These IDs must not be reused for new customers.
+  repeated uint32 deleted_customer_ids = 6;
+}

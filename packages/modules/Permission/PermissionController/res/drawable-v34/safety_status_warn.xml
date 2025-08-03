@@ -1,0 +1,24 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="56dp"
+    android:height="56dp"
+    android:viewportWidth="56"
+    android:viewportHeight="56">
+  <group>
+    <clip-path
+        android:pathData="M28,0L28,0A28,28 0,0 1,56 28L56,28A28,28 0,0 1,28 56L28,56A28,28 0,0 1,0 28L0,28A28,28 0,0 1,28 0z"/>
+    <path
+        android:pathData="M28,28m-28,0a28,28 0,1 1,56 0a28,28 0,1 1,-56 0"
+        android:fillColor="?attr/colorScStatusBackgroundWarn"/>
+    <path
+        android:pathData="M14.5,25.14C14.525,26.402 14.623,27.66 14.792,28.91C15.592,34.319 18.623,40.446 26.932,44.74C27.262,44.91 27.628,44.999 28,44.999C28.372,44.999 28.738,44.91 29.068,44.74C37.377,40.446 40.408,34.319 41.208,28.91C41.377,27.66 41.475,26.401 41.5,25.14V17.67C41.5,17.099 41.324,16.541 40.997,16.073C40.669,15.605 40.205,15.249 39.669,15.055L28.946,11.166C28.335,10.944 27.665,10.944 27.054,11.166L16.331,15.055C15.795,15.249 15.331,15.605 15.003,16.073C14.676,16.541 14.5,17.099 14.5,17.67V25.14Z"
+        android:fillColor="?attr/colorScStatusWarn"/>
+    <path
+        android:pathData="M25.916,28.397V18.4H30.086V28.397H25.916Z"
+        android:fillColor="?attr/colorScShieldAccent"
+        android:fillType="evenOdd"/>
+    <path
+        android:pathData="M25.916,36.4V31.894H30.086V36.4H25.916Z"
+        android:fillColor="?attr/colorScShieldAccent"
+        android:fillType="evenOdd"/>
+  </group>
+</vector>

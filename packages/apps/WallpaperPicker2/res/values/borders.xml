@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Border shapes -->
+    <!-- All shapes must be drawn in a 100 by 100 square -->
+    <string name="circular_border" translatable="false">M50,0 A50,50,0,1,1,50,100 A50,50,0,1,1,50,0</string>
+</resources>
+

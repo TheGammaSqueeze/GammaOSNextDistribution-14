@@ -1,0 +1,36 @@
+package: "com.android.server.deviceconfig"
+container: "com.android.configinfrastructure"
+
+flag {
+    name: "enable_reboot_notification"
+    namespace: "core_experiments_team_internal"
+    description: "If enabled, a notification appears when flags are staged to be applied on reboot."
+    bug: "296462695"
+}
+flag {
+  name: "enable_unattended_reboot"
+  namespace: "core_experiments_team_internal"
+  description: "This flag controls enabling the unattended reboot feature for applying flags."
+  bug: "297502146"
+}
+
+flag {
+  name: "enable_sim_pin_replay"
+  namespace: "core_experiments_team_internal"
+  description: "This flag controls enabling sim pin replay for unattended reboot."
+  bug: "305269414"
+}
+
+flag {
+  name: "enable_custom_reboot_time_configurations"
+  namespace: "core_experiments_team_internal"
+  description: "This flags controls allowing devices to configure the reboot window and frequency."
+  bug: "322076175"
+}
+
+flag {
+  name: "enable_charger_dependency_for_reboot"
+  namespace: "core_experiments_team_internal"
+  description: "This flags controls allowing devices to configure reboot to require charging."
+  bug: "322076175"
+}

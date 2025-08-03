@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string-array name="reminder_methods_labels">
+        <item>Obvestilo</item>
+        <item>E-pošta</item>
+        <item>SMS</item>
+        <item>Alarm</item>
+    </string-array>
+    <string-array name="preferences_week_start_day_labels">
+        <item>Območno privzeto</item>
+        <item>Sobota</item>
+        <item>Nedelja</item>
+        <item>Ponedeljek</item>
+    </string-array>
+    <string-array name="availability">
+        <item>Zaseden/a</item>
+        <item>Na voljo</item>
+        <item>Neodločen/a</item>
+    </string-array>
+    <string-array name="response_labels1">
+        <item>Brez odziva</item>
+        <item>Da</item>
+        <item>Morda</item>
+        <item>Ne</item>
+    </string-array>
+    <string-array name="delete_repeating_labels">
+        <item>Samo ta dogodek</item>
+        <item>Ta in prihodnji dogodki</item>
+        <item>Vsi dogodki</item>
+    </string-array>
+    <string-array name="change_response_labels">
+        <item>Samo ta dogodek</item>
+        <item>Vsi dogodki v nizu</item>
+    </string-array>
+    <string-array name="buttons_list">
+        <item>Dan</item>
+        <item>Teden</item>
+        <item>Mesec</item>
+        <item>Dnevni red</item>
+    </string-array>
+    <string-array name="preferences_skip_reminders_labels">
+        <item>Samo ob zavrnitvi</item>
+        <item>Ob zavrnitvi ali neodzivanju</item>
+    </string-array>
+    <string-array name="recurrence_freq">
+        <item>PONOVI DNEVNO</item>
+        <item>PONOVI TEDENSKO</item>
+        <item>PONOVI MESEČNO</item>
+        <item>PONOVI LETNO</item>
+    </string-array>
+    <string-array name="repeat_by_nth_sun">
+        <item>vsako prvo nedeljo</item>
+        <item>vsako drugo nedeljo</item>
+        <item>vsako tretjo nedeljo</item>
+        <item>vsako četrto nedeljo</item>
+        <item>vsako zadnjo nedeljo</item>
+    </string-array>
+    <string-array name="repeat_by_nth_mon">
+        <item>vsak prvi ponedeljek</item>
+        <item>vsak drugi ponedeljek</item>
+        <item>vsak tretji ponedeljek</item>
+        <item>vsak četrti ponedeljek</item>
+        <item>vsak zadnji ponedeljek</item>
+    </string-array>
+    <string-array name="repeat_by_nth_tues">
+        <item>vsak prvi torek</item>
+        <item>vsak drugi torek</item>
+        <item>vsak tretji torek</item>
+        <item>vsak četrti torek</item>
+        <item>vsak zadnji torek</item>
+    </string-array>
+    <string-array name="repeat_by_nth_wed">
+        <item>vsako prvo sredo</item>
+        <item>vsako drugo sredo</item>
+        <item>vsako tretjo sredo</item>
+        <item>vsako četrto sredo</item>
+        <item>vsako zadnjo sredo</item>
+    </string-array>
+    <string-array name="repeat_by_nth_thurs">
+        <item>vsak prvi četrtek</item>
+        <item>vsak drugi četrtek</item>
+        <item>vsak tretji četrtek</item>
+        <item>vsak četrti četrtek</item>
+        <item>vsak zadnji četrtek</item>
+    </string-array>
+    <string-array name="repeat_by_nth_fri">
+        <item>vsak prvi petek</item>
+        <item>vsak drugi petek</item>
+        <item>vsak tretji petek</item>
+        <item>vsak četrti petek</item>
+        <item>vsak zadnji petek</item>
+    </string-array>
+    <string-array name="repeat_by_nth_sat">
+        <item>vsako prvo soboto</item>
+        <item>vsako drugo soboto</item>
+        <item>vsako tretjo soboto</item>
+        <item>vsako četrto soboto</item>
+        <item>vsako zadnjo soboto</item>
+    </string-array>
+</resources>

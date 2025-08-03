@@ -1,0 +1,487 @@
+package {
+    default_team: "trendy_team_fwk_core_networking",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "packages_modules_DnsResolver_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["packages_modules_DnsResolver_license"],
+}
+
+cc_test_library {
+    name: "libnetd_test_resolv_utils",
+    defaults: [
+        "netd_defaults",
+        "resolv_test_defaults",
+    ],
+    srcs: [
+        "resolv_test_utils.cpp",
+    ],
+    header_libs: [
+        "libnetd_resolv_headers",
+    ],
+    static_libs: [
+        "netd_aidl_interface-lateststable-ndk",
+        "libconnectivity_native_test_utils",
+        "libmodules-utils-build",
+        "libnetd_test_dnsresponder_ndk",
+        "libnetdutils",
+        "libgmock",
+    ],
+    export_static_lib_headers: [
+        "libconnectivity_native_test_utils",
+        "libmodules-utils-build",
+    ],
+}
+
+cc_library_host_static {
+    name: "golddata_proto_host",
+    proto: {
+        export_proto_headers: true,
+        type: "full",
+    },
+    srcs: [
+        "golddata.proto",
+    ],
+}
+
+cc_binary_host {
+    name: "resolv_gold_test_pbtxt2pb_host",
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+    srcs: ["pbtxt2pb_converter_host.cpp"],
+    static_libs: [
+        "golddata_proto_host",
+        "libc++fs",
+        "libprotobuf-cpp-full",
+    ],
+}
+
+genrule {
+    name: "resolv_gold_test_pbtxt2pb",
+    tools: [
+        "resolv_gold_test_pbtxt2pb_host",
+        "soong_zip",
+    ],
+    srcs: ["testdata/*.pbtxt"],
+    // convert .pbtxt to .pb files; zip them as a single pb.zip.
+    cmd: "mkdir $(genDir)/pb && for fname in $(in); " +
+        "do $(location resolv_gold_test_pbtxt2pb_host) --in_file=$$fname " +
+        "--out_dir=$(genDir)/pb; done && " +
+        "$(location soong_zip) -o $(out) -C $(genDir)/pb -D $(genDir)/pb",
+    out: ["testdata/pb.zip"],
+}
+
+cc_library_static {
+    name: "golddata_proto",
+    defaults: ["netd_defaults"],
+    proto: {
+        export_proto_headers: true,
+        type: "lite",
+    },
+    srcs: [
+        "golddata.proto",
+    ],
+    tidy: false,
+}
+
+cc_test {
+    name: "resolv_gold_test",
+    test_suites: [
+        "general-tests",
+        "mts-dnsresolver",
+    ],
+    isolated: false,
+    require_root: true,
+    // b/151392634, this is a workaround because MTS
+    // can not handle the test with testdata correctly.
+    // TODO: Remove the xml after MTS fixing the problem.
+    test_config: "resolv_gold_test_config.xml",
+    defaults: [
+        "netd_defaults",
+        "resolv_test_defaults",
+    ],
+    data: [":resolv_gold_test_pbtxt2pb"],
+    srcs: [
+        "resolv_gold_test.cpp",
+    ],
+    header_libs: [
+        "libnetd_client_headers",
+    ],
+    shared_libs: [
+        "libbinder_ndk",
+        "libstatssocket",
+    ],
+    static_libs: [
+        "dnsresolver_aidl_interface-lateststable-ndk",
+        "golddata_proto",
+        "libcrypto_static",
+        "libdoh_ffi_for_test",
+        "libgmock",
+        "libnetd_resolv",
+        "libnetd_test_dnsresponder_ndk",
+        "libnetd_test_resolv_utils",
+        "libnetdutils",
+        "libprotobuf-cpp-lite",
+        "libssl",
+        "netd_aidl_interface-lateststable-ndk",
+        "netd_event_listener_interface-lateststable-ndk",
+        "server_configurable_flags",
+        "stats_proto",
+    ],
+    // TODO: Remove multilib after coverage test switched to 64-bit device.
+    // See comments in target "resolv_test_mts_coverage_defaults".
+    compile_multilib: "both",
+    multilib: {
+        lib32: {
+            suffix: "32",
+        },
+        lib64: {
+            suffix: "64",
+        },
+    },
+}
+
+cc_test {
+    name: "resolv_stress_test",
+    test_suites: [
+        "general-tests",
+        "mts-dnsresolver",
+    ],
+    isolated: false,
+    // This won't work with test_config
+    // require_root: true,
+    // TODO: Remove resolv_test_mts_coverage_defaults after mts coverage switched to 64-bit device.
+    defaults: [
+        "netd_defaults",
+        "resolv_test_defaults",
+        "resolv_test_mts_coverage_defaults",
+    ],
+    srcs: [
+        "resolv_stress_test.cpp",
+    ],
+    header_libs: [
+        "libnetd_resolv_headers",
+    ],
+    shared_libs: [
+        "libbinder_ndk",
+        "libnetd_client",
+    ],
+    static_libs: [
+        "dnsresolver_aidl_interface-lateststable-ndk",
+        "libgmock",
+        "libnetd_test_dnsresponder_ndk",
+        "libnetd_test_resolv_utils",
+        "libnetdutils",
+        "netd_event_listener_interface-lateststable-ndk",
+        "netd_aidl_interface-lateststable-ndk",
+    ],
+}
+
+cc_test {
+    name: "resolv_integration_test",
+    test_suites: [
+        "general-tests",
+        "mts-dnsresolver",
+    ],
+    isolated: false,
+    require_root: true,
+    test_config_template: ":resolv_test_config_template",
+    defaults: [
+        "netd_defaults",
+        "resolv_test_defaults",
+    ],
+    tidy: false, // cuts test build time by > 1m30s
+    srcs: [
+        "dns_responder/dns_responder.cpp",
+        "dnsresolver_binder_test.cpp",
+        "doh_frontend.cpp",
+        "resolv_integration_test.cpp",
+        "resolv_private_dns_test.cpp",
+        "tun_forwarder.cpp",
+    ],
+    header_libs: [
+        "bpf_headers",
+        "dnsproxyd_protocol_headers",
+        "libnetd_resolv_headers",
+    ],
+    // TODO: make static link libc++ work.
+    //stl: "libc++_static",
+    shared_libs: [
+        "libbinder_ndk",
+        "libnetd_client",
+    ],
+    static_libs: [
+        "dnsresolver_aidl_interface-lateststable-ndk",
+        "libc++fs",
+        "libconnectivity_native_test_utils",
+        "libcrypto_static",
+        "libcutils",
+        "libdoh_frontend_ffi",
+        "libgmock",
+        "libip_checksum",
+        "libmodules-utils-build",
+        "libnetd_test_dnsresponder_ndk",
+        "libnetd_test_metrics_listener",
+        "libnetd_test_resolv_utils",
+        "libnetdutils",
+        "libnettestutils",
+        "libssl",
+        "libutils",
+        "netd_aidl_interface-lateststable-ndk",
+        "netd_event_listener_interface-lateststable-ndk",
+        "resolv_unsolicited_listener",
+    ],
+    // This test talks to the DnsResolver module over a binary protocol on a socket, so keep it as
+    // multilib setting is worth because we might be able to get some coverage for the case where
+    // 32bit apps talk to 64bit resolvers.
+    compile_multilib: "both",
+    multilib: {
+        lib32: {
+            suffix: "32",
+        },
+        lib64: {
+            suffix: "64",
+        },
+    },
+    // 'resolv_integration_test' used DisableConfigSyncTargetPreparer provided
+    // by net-tests-utils-host-common; adding it to make the host jar available
+    // after the build process.
+    host_required: [
+        "net-tests-utils-host-common",
+    ],
+}
+
+cc_test {
+    name: "resolv_unit_test",
+    test_suites: [
+        "general-tests",
+        "mts-dnsresolver",
+    ],
+    isolated: false,
+    require_root: true,
+    // TODO: Drop root privileges and make it be an real unit test.
+    // TODO: Remove resolv_test_mts_coverage_defaults after mts coverage switched to 64-bit device.
+    defaults: [
+        "netd_defaults",
+        "resolv_test_defaults",
+        "resolv_test_mts_coverage_defaults",
+    ],
+    srcs: [
+        "resolv_cache_unit_test.cpp",
+        "resolv_callback_unit_test.cpp",
+        "resolv_tls_unit_test.cpp",
+        "resolv_unit_test.cpp",
+        ":resolv_unit_test_files",
+    ],
+    shared_libs: [
+        "libbinder_ndk",
+        "libstatssocket",
+    ],
+    static_libs: [
+        "dnsresolver_aidl_interface-lateststable-ndk",
+        "netd_aidl_interface-lateststable-ndk",
+        "netd_event_listener_interface-lateststable-ndk",
+        "libcrypto_static",
+        "libconnectivity_native_test_utils",
+        "libcutils",
+        "libdoh_ffi_for_test",
+        "libgmock",
+        "libnetd_resolv",
+        "libnetd_test_dnsresponder_ndk",
+        "libnetd_test_resolv_utils",
+        "libnetdutils",
+        "libprotobuf-cpp-lite",
+        "libssl",
+        "libstatslog_resolv",
+        "libstatspush_compat",
+        "libsysutils",
+        "resolv_stats_test_utils",
+        "server_configurable_flags",
+        "stats_proto",
+    ],
+}
+
+cc_test_library {
+    name: "resolv_stats_test_utils",
+    srcs: [
+        "resolv_stats_test_utils.cpp",
+    ],
+    defaults: [
+        "netd_defaults",
+        "resolv_test_defaults",
+    ],
+    export_include_dirs: ["."],
+    static_libs: [
+        "libgmock",
+        "libnetdutils",
+        "libprotobuf-cpp-lite",
+        "stats_proto",
+    ],
+}
+
+cc_test {
+    name: "resolv_stats_test_utils_test",
+    srcs: [
+        "resolv_stats_test_utils_test.cpp",
+    ],
+    defaults: [
+        "netd_defaults",
+        "resolv_test_defaults",
+        "connectivity-mainline-presubmit-cc-defaults",
+    ],
+    test_suites: ["general-tests"],
+    static_libs: [
+        "libgmock",
+        "libnetdutils",
+        "libprotobuf-cpp-lite",
+        "resolv_stats_test_utils",
+        "stats_proto",
+    ],
+}
+
+cc_test {
+    name: "doh_ffi_test",
+    test_suites: [
+        "general-tests",
+        "mts-dnsresolver",
+    ],
+    defaults: [
+        "connectivity-mainline-presubmit-cc-defaults",
+        "netd_defaults",
+        "resolv_test_defaults",
+        "resolv_test_mts_coverage_without_root_defaults",
+    ],
+    header_libs: [
+        "libnetd_resolv_internal_headers",
+    ],
+    srcs: ["doh_ffi_test.cpp"],
+    static_libs: [
+        "libcrypto_static",
+        "libdoh_ffi_for_test",
+        "libgmock",
+        "libnetdutils",
+        "libssl",
+        "stats_proto",
+    ],
+    shared_libs: [
+        "libnetd_client",
+        "libstatssocket",
+    ],
+}
+
+cc_defaults {
+    name: "resolv_fuzzer_defaults",
+    defaults: [
+        "netd_defaults",
+        "resolv_test_defaults",
+    ],
+    srcs: [
+        "doh_frontend.cpp",
+        "fuzzer/resolv_fuzzer_utils.cpp",
+    ],
+    header_libs: [
+        "libnetd_resolv_headers",
+        "dnsproxyd_protocol_headers",
+    ],
+    shared_libs: [
+        "libbinder_ndk",
+        "libstatssocket",
+    ],
+    static_libs: [
+        "dnsresolver_aidl_interface-lateststable-ndk",
+        "libcrypto_static",
+        "libdoh_fuzz_ffi",
+        "libgtest",
+        "libnetdutils",
+        "libnetd_resolv",
+        "libnetd_test_dnsresponder_ndk",
+        "libnetd_test_resolv_utils",
+        "libprotobuf-cpp-lite",
+        "libssl",
+        "libsysutils",
+        "netd_aidl_interface-lateststable-ndk",
+        "netd_event_listener_interface-lateststable-ndk",
+        "server_configurable_flags",
+        "stats_proto",
+    ],
+    target: {
+        android: {
+            shared_libs: [
+                "libutils",
+            ],
+        },
+        host: {
+            static_libs: [
+                "libutils",
+            ],
+        },
+    },
+    fuzz_config: {
+        cc: [
+            "cken@google.com",
+            "kfcchen@google.com",
+        ],
+        componentid: 31808, // Android > Android OS & Apps > Systems > core networking
+    },
+}
+
+cc_fuzz {
+    name: "resolv_gethostbyname_fuzzer",
+    defaults: ["resolv_fuzzer_defaults"],
+    srcs: ["fuzzer/resolv_gethostbyname_fuzzer.cpp"],
+}
+
+cc_fuzz {
+    name: "resolv_gethostbyaddr_fuzzer",
+    defaults: ["resolv_fuzzer_defaults"],
+    srcs: ["fuzzer/resolv_gethostbyaddr_fuzzer.cpp"],
+}
+
+cc_fuzz {
+    name: "resolv_getaddrinfo_fuzzer",
+    defaults: ["resolv_fuzzer_defaults"],
+    srcs: ["fuzzer/resolv_getaddrinfo_fuzzer.cpp"],
+}
+
+cc_fuzz {
+    name: "resolv_service_fuzzer",
+    defaults: [
+        "resolv_fuzzer_defaults",
+    ],
+    static_libs: [
+        "libstatslog_resolv",
+        "libstatspush_compat",
+        "libbase",
+        "libbinder_random_parcel",
+        "libcutils",
+    ],
+    target: {
+        android: {
+            shared_libs: [
+                "libbinder_ndk",
+                "libbinder",
+            ],
+        },
+        host: {
+            static_libs: [
+                "libbinder_ndk",
+                "libbinder",
+            ],
+        },
+        darwin: {
+            enabled: false,
+        },
+    },
+    fuzz_config: {
+        cc: [
+            "smoreland@google.com",
+            "waghpawan@google.com",
+        ],
+        // Adds bugs to hotlist "AIDL fuzzer bugs" on buganizer
+        hotlists: ["4637097"],
+    },
+    srcs: ["fuzzer/resolv_service_fuzzer.cpp"],
+}

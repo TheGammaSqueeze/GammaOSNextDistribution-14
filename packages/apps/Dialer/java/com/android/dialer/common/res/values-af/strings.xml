@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="content_description_overflow">Nog opsies</string>
+  <string name="snackbar_undo">ONTDOEN</string>
+  <string name="ok_got_it">OK, het dit</string>
+</resources>

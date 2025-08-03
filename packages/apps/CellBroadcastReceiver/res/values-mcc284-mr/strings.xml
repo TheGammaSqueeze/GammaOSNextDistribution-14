@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2023 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="cmas_presidential_level_alert" msgid="2071811447245340804">"BG इशारा: आणीबाणी सूचना"</string>
+    <string name="cmas_extreme_alert" msgid="6274829174549492905">"BG इशारा: चेतावणी"</string>
+    <string name="cmas_severe_alert" msgid="1394463869061650114">"BG इशारा: माहिती"</string>
+    <string name="cmas_amber_alert" msgid="6042893309718893485">"BG इशारा: व्यक्ती सूचना दिलेली नाही"</string>
+    <string name="cmas_required_monthly_test" msgid="3241200045692496222">"BG इशारा: चाचणी सूचना"</string>
+    <string name="enable_cmas_extreme_threat_alerts_title" msgid="2856233162192255821">"अत्यधिक आणि गंभीर धोके"</string>
+    <string name="enable_cmas_extreme_threat_alerts_summary" msgid="4399126631396210521">"जीवन आणि मालमत्तेशी संबंधित अत्यधिक व गंभीर धोके"</string>
+    <string name="enable_cmas_severe_threat_alerts_title" msgid="7304511098720139598">"माहिती"</string>
+    <string name="enable_cmas_severe_threat_alerts_summary" msgid="4573406416500374588">"माहितीचे मेसेज"</string>
+    <string name="enable_cmas_amber_alerts_title" msgid="7180345818103607889">"नसलेल्या लोकांविषयी सूचना"</string>
+    <string name="enable_cmas_amber_alerts_summary" msgid="2737081426606202971">"नसलेल्या लोकांविषयी मेसेज"</string>
+    <string name="enable_cmas_test_alerts_title" msgid="5501920660625344060">"चाचणी अलर्ट"</string>
+    <string name="enable_cmas_test_alerts_summary" msgid="5979346836630343830">"चाचणी मेसेज मिळवा"</string>
+</resources>

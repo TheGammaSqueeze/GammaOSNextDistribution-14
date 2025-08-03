@@ -1,0 +1,23 @@
+{
+  "mainline-presubmit": [
+    {
+      "name": "derive_sdk_test[com.google.android.sdkext.apex]"
+    }
+  ],
+  "presubmit": [
+    {
+      "name": "CtsSdkExtensionsTestCases"
+    },
+    {
+      "name": "derive_sdk_test"
+    },
+    {
+      "name": "gen_sdk_test"
+    }
+  ],
+  "presubmit-large": [
+    {
+      "name": "sdkextensions_e2e_tests"
+    }
+  ]
+}

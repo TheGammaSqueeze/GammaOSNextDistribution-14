@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2009 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="uid_label" msgid="8421971615411294156">"Medier"</string>
+    <string name="storage_description" msgid="4081716890357580107">"Lokalt lager"</string>
+    <string name="picker_app_label" msgid="1195424381053599122">"Medievælger"</string>
+    <string name="artist_label" msgid="8105600993099120273">"Kunstner"</string>
+    <string name="unknown" msgid="2059049215682829375">"Ukendt"</string>
+    <string name="root_images" msgid="5861633549189045666">"Billeder"</string>
+    <string name="root_videos" msgid="8792703517064649453">"Videoer"</string>
+    <string name="root_audio" msgid="3505830755201326018">"Lyd"</string>
+    <string name="root_documents" msgid="3829103301363849237">"Dokumenter"</string>
+    <string name="permission_required" msgid="1460820436132943754">"Der kræves tilladelse for at redigere eller slette dette element."</string>
+    <string name="permission_required_action" msgid="706370952366113539">"Fortsæt"</string>
+    <string name="grant_dialog_button_allow" msgid="1644287024501033471">"Tillad"</string>
+    <string name="grant_dialog_button_deny" msgid="6190589471415815741">"Afvis"</string>
+    <string name="permission_more_thumb" msgid="1938863829470531577">"{count,plural, =1{+<xliff:g id="COUNT_0">^1</xliff:g>}one{+<xliff:g id="COUNT_1">^1</xliff:g>}other{+<xliff:g id="COUNT_1">^1</xliff:g>}}"</string>
+    <string name="permission_more_text" msgid="2471785045095597753">"{count,plural, =1{Plus <xliff:g id="COUNT_0">^1</xliff:g> andet element}one{Plus <xliff:g id="COUNT_1">^1</xliff:g> andet element}other{Plus <xliff:g id="COUNT_1">^1</xliff:g> andre elementer}}"</string>
+    <string name="cache_clearing_dialog_title" msgid="8907893815183913664">"Ryd midlertidige appfiler"</string>
+    <string name="cache_clearing_dialog_text" msgid="7057784635111940957">"<xliff:g id="APP_SEEKING_PERMISSION">%s</xliff:g> vil gerne rydde nogle midlertidige filer. Dette kan resultere i øget forbrug af batteri eller mobildata."</string>
+    <string name="cache_clearing_in_progress_title" msgid="6902220064511664209">"Rydder midlertidige appfiler…"</string>
+    <string name="clear" msgid="5524638938415865915">"Ryd"</string>
+    <string name="allow" msgid="8885707816848569619">"Tillad"</string>
+    <string name="deny" msgid="6040983710442068936">"Afvis"</string>
+    <string name="picker_browse" msgid="5554477454636075934">"Gennemse…"</string>
+    <string name="picker_settings" msgid="6443463167344790260">"Skymedieapp"</string>
+    <string name="picker_settings_system_settings_menu_title" msgid="3055084757610063581">"Skymedieapp"</string>
+    <string name="picker_settings_title" msgid="5647700706470673258">"Skymedieapp"</string>
+    <string name="picker_settings_description" msgid="2916686824777214585">"Tilgå dine medier i skyen, når en app eller et website beder dig om at vælge billeder eller videoer"</string>
+    <string name="picker_settings_selection_message" msgid="245453573086488596">"Få adgang til medier i skyen via"</string>
+    <string name="picker_settings_no_provider" msgid="2582311853680058223">"Ingen"</string>
+    <string name="picker_settings_toast_error" msgid="697274445512467469">"Skymedieappen kunne ikke ændres"</string>
+    <string name="picker_sync_notification_channel" msgid="1867105708912627993">"Medievælger"</string>
+    <string name="picker_sync_notification_title" msgid="1122713382122055246">"Medievælger"</string>
+    <string name="picker_sync_notification_text" msgid="8204423917712309382">"Mediet synkroniseres…"</string>
+    <string name="add" msgid="2894574044585549298">"Tilføj"</string>
+    <string name="deselect" msgid="4297825044827769490">"Fravælg"</string>
+    <string name="deselected" msgid="8488133193326208475">"Fravalgt"</string>
+    <string name="select" msgid="2704765470563027689">"Vælg"</string>
+    <string name="selected" msgid="9151797369975828124">"Valgt"</string>
+    <string name="select_up_to" msgid="6994294169508439957">"{count,plural, =1{Vælg op til <xliff:g id="COUNT_0">^1</xliff:g> element}one{Vælg op til <xliff:g id="COUNT_1">^1</xliff:g> element}other{Vælg op til <xliff:g id="COUNT_1">^1</xliff:g> elementer}}"</string>
+    <string name="recent" msgid="6694613584743207874">"Seneste"</string>
+    <string name="picker_photos_empty_message" msgid="5980619500554575558">"Ingen billeder eller videoer"</string>
+    <string name="picker_album_media_empty_message" msgid="7061850698189881671">"Der er ingen understøttede billeder eller videoer"</string>
+    <string name="picker_albums_empty_message" msgid="8341079772950966815">"Ingen album"</string>
+    <string name="picker_view_selected" msgid="2266031384396143883">"Se valgte"</string>
+    <string name="picker_photos" msgid="7415035516411087392">"Billeder"</string>
+    <!-- no translation found for picker_videos (2886971435439047097) -->
+    <skip />
+    <string name="picker_albums" msgid="4822511902115299142">"Album"</string>
+    <string name="picker_preview" msgid="6257414886055861039">"Forhåndsvisning"</string>
+    <string name="picker_work_profile" msgid="2083221066869141576">"Skift til arbejdsprofil"</string>
+    <string name="picker_personal_profile" msgid="639484258397758406">"Skift til personlig profil"</string>
+    <string name="picker_personal_profile_label" msgid="6189198163209597344">"Personlig"</string>
+    <string name="picker_profile_admin_title" msgid="4172022376418293777">"Blokeret af din administrator"</string>
+    <string name="picker_profile_admin_msg_from_personal" msgid="1941639895084555723">"Det er ikke tilladt at tilgå arbejdsrelaterede data fra en personlig app"</string>
+    <string name="picker_profile_admin_msg_from_work" msgid="8048524337462790110">"Det er ikke tilladt at tilgå personoplysninger fra en arbejdsapp"</string>
+    <string name="picker_profile_admin_msg" msgid="4060112887923255178">"Det er ikke tilladt at tilgå <xliff:g id="PROFILE1">%1$s</xliff:g>-data fra en <xliff:g id="PROFILE2">%2$s</xliff:g> app"</string>
+    <string name="picker_profile_switch_message" msgid="1133817927412489487">"Skift til <xliff:g id="PROFILE">%s</xliff:g>"</string>
+    <string name="picker_profile_work_paused_title" msgid="382212880704235925">"Dine arbejdsapps er sat på pause"</string>
+    <string name="picker_profile_paused_title" msgid="2079739512895529028">"<xliff:g id="PROFILE">%s</xliff:g>-apps er sat på pause"</string>
+    <string name="picker_profile_work_paused_msg" msgid="6321552322125246726">"Hvis du vil åbne billeder fra arbejdsprofilen, skal du aktivere dine arbejdsapps og derefter prøve igen"</string>
+    <string name="picker_profile_paused_msg" msgid="1215076898583993782">"Hvis du vil åbne <xliff:g id="PROFILE1">%1$s</xliff:g>-billeder, skal du aktivere dine <xliff:g id="PROFILE2">%2$s</xliff:g>-apps og derefter prøve igen"</string>
+    <string name="picker_privacy_message" msgid="9132700451027116817">"Denne app kan kun tilgå de billeder, du vælger"</string>
+    <string name="picker_header_permissions" msgid="675872774407768495">"Vælg de billeder og videoer, du vil give denne app adgang til"</string>
+    <string name="picker_album_item_count" msgid="4420723302534177596">"{count,plural, =1{<xliff:g id="COUNT_0">^1</xliff:g> element}one{<xliff:g id="COUNT_1">^1</xliff:g> element}other{<xliff:g id="COUNT_1">^1</xliff:g> elementer}}"</string>
+    <string name="picker_add_button_multi_select" msgid="4005164092275518399">"Tilføj (<xliff:g id="COUNT">^1</xliff:g>)"</string>
+    <string name="picker_add_button_multi_select_permissions" msgid="5138751105800138838">"Tillad (<xliff:g id="COUNT">^1</xliff:g>)"</string>
+    <string name="picker_add_button_allow_none_option" msgid="9183772732922241035">"Tillad ingen"</string>
+    <string name="picker_category_camera" msgid="4857367052026843664">"Kamera"</string>
+    <string name="picker_category_downloads" msgid="793866660287361900">"Downloads"</string>
+    <string name="picker_category_favorites" msgid="7008495397818966088">"Favoritter"</string>
+    <string name="picker_category_screenshots" msgid="7216102327587644284">"Screenshots"</string>
+    <!-- no translation found for picker_category_videos (1478458836380241356) -->
+    <skip />
+    <string name="picker_motion_photo_text" msgid="5016603812468180816">"Levende billede"</string>
+    <string name="picker_item_content_desc" msgid="7680591530155286423">"<xliff:g id="ITEM_NAME">%1$s</xliff:g> blev taget <xliff:g id="TIME">%2$s</xliff:g>"</string>
+    <string name="picker_video_item_content_desc" msgid="7828900089119214801">"Videoen blev optaget <xliff:g id="TIME">%1$s</xliff:g> og varede <xliff:g id="DURATION">%2$s</xliff:g>"</string>
+    <string name="picker_photo" msgid="1739342083494962153">"Billede"</string>
+    <string name="picker_gif" msgid="8333318083107368726">"Gif"</string>
+    <string name="picker_motion_photo" msgid="4385182195289546308">"Levende billede"</string>
+    <string name="picker_mute_video" msgid="2496585809229800096">"Slå videolyden fra"</string>
+    <string name="picker_unmute_video" msgid="6611741290641963568">"Slå videolyden til"</string>
+    <string name="picker_play_video" msgid="7106025944628666250">"Afspil"</string>
+    <string name="picker_pause_video" msgid="1092718225234326702">"Sæt på pause"</string>
+    <string name="picker_error_snackbar" msgid="5970192792792369203">"Videoen kan ikke afspilles"</string>
+    <string name="picker_error_dialog_title" msgid="4540095603788920965">"Problemer med at afspille video"</string>
+    <string name="picker_error_dialog_body" msgid="2515738446802971453">"Tjek din internetforbindelse, og prøv igen"</string>
+    <string name="picker_error_dialog_positive_action" msgid="749544129082109232">"Prøv igen"</string>
+    <string name="not_selected" msgid="2244008151669896758">"ikke valgt"</string>
+    <string name="preloading_dialog_title" msgid="4974348221848532887">"Dine valgte medier gøres klar"</string>
+    <string name="preloading_progress_message" msgid="4741327138031980582">"<xliff:g id="NUMBER_PRELOADED">%1$d</xliff:g> af <xliff:g id="NUMBER_TOTAL">%2$d</xliff:g> er klar"</string>
+    <string name="preloading_cancel_button" msgid="824053521307342209">"Annuller"</string>
+    <string name="picker_banner_cloud_first_time_available_title" msgid="5912973744275711595">"Sikkerhedskopierede billeder er nu inkluderet"</string>
+    <string name="picker_banner_cloud_first_time_available_desc" msgid="5570916598348187607">"Du kan vælge billeder fra <xliff:g id="APP_NAME">%1$s</xliff:g>-kontoen <xliff:g id="USER_ACCOUNT">%2$s</xliff:g>"</string>
+    <string name="picker_banner_cloud_account_changed_title" msgid="4825058474378077327">"<xliff:g id="APP_NAME">%1$s</xliff:g>-kontoen er opdateret"</string>
+    <string name="picker_banner_cloud_account_changed_desc" msgid="3433218869899792497">"Billeder fra <xliff:g id="USER_ACCOUNT">%1$s</xliff:g> er nu inkluderet her"</string>
+    <string name="picker_banner_cloud_choose_app_title" msgid="3165966147547974251">"Vælg skymedieapp"</string>
+    <string name="picker_banner_cloud_choose_app_desc" msgid="2359212653555524926">"Du kan inkludere sikkerhedskopierede billeder her ved at vælge en skymedieapp i Indstillinger"</string>
+    <string name="picker_banner_cloud_choose_account_title" msgid="5010901185639577685">"Vælg <xliff:g id="APP_NAME">%1$s</xliff:g>-konto"</string>
+    <string name="picker_banner_cloud_choose_account_desc" msgid="8868134443673142712">"Du kan inkludere billeder fra <xliff:g id="APP_NAME">%1$s</xliff:g> her ved at vælge en konto i appen"</string>
+    <string name="picker_banner_cloud_dismiss_button" msgid="2935903078288463882">"Luk"</string>
+    <string name="picker_banner_cloud_choose_app_button" msgid="934085679890435479">"Vælg app"</string>
+    <string name="picker_banner_cloud_choose_account_button" msgid="7979484877116991631">"Vælg en konto"</string>
+    <string name="picker_banner_cloud_change_account_button" msgid="8361239765828471146">"Skift konto"</string>
+    <string name="picker_loading_photos_message" msgid="6449180084857178949">"Indlæser alle dine billeder"</string>
+    <string name="permission_write_audio" msgid="8819694245323580601">"{count,plural, =1{Vil du give <xliff:g id="APP_NAME_0">^1</xliff:g> tilladelse til at ændre denne lydfil?}one{Vil du give <xliff:g id="APP_NAME_1">^1</xliff:g> tilladelse til at ændre <xliff:g id="COUNT">^2</xliff:g> lydfil?}other{Vil du give <xliff:g id="APP_NAME_1">^1</xliff:g> tilladelse til at ændre <xliff:g id="COUNT">^2</xliff:g> lydfiler?}}"</string>
+    <string name="permission_progress_write_audio" msgid="6029375427984180097">"{count,plural, =1{Ændrer lydfilen…}one{Ændrer <xliff:g id="COUNT">^1</xliff:g> lydfil…}other{Ændrer <xliff:g id="COUNT">^1</xliff:g> lydfiler…}}"</string>
+    <string name="permission_write_video" msgid="103902551603700525">"{count,plural, =1{Vil du give <xliff:g id="APP_NAME_0">^1</xliff:g> tilladelse til at ændre denne video?}one{Vil du give <xliff:g id="APP_NAME_1">^1</xliff:g> tilladelse til at ændre <xliff:g id="COUNT">^2</xliff:g> video?}other{Vil du give <xliff:g id="APP_NAME_1">^1</xliff:g> tilladelse til at ændre <xliff:g id="COUNT">^2</xliff:g> videoer?}}"</string>
+    <string name="permission_progress_write_video" msgid="7014908418349819148">"{count,plural, =1{Ændrer videoen…}one{Ændrer <xliff:g id="COUNT">^1</xliff:g> video…}other{Ændrer <xliff:g id="COUNT">^1</xliff:g> videoer…}}"</string>
+    <string name="permission_write_image" msgid="3518991791620523786">"{count,plural, =1{Vil du give <xliff:g id="APP_NAME_0">^1</xliff:g> tilladelse til at ændre dette billede?}one{Vil du give <xliff:g id="APP_NAME_1">^1</xliff:g> tilladelse til at ændre <xliff:g id="COUNT">^2</xliff:g> billede?}other{Vil du give <xliff:g id="APP_NAME_1">^1</xliff:g> tilladelse til at ændre <xliff:g id="COUNT">^2</xliff:g> billeder?}}"</string>
+    <string name="permission_progress_write_image" msgid="3623580315590025262">"{count,plural, =1{Ændrer billedet…}one{Ændrer <xliff:g id="COUNT">^1</xliff:g> billede…}other{Ændrer <xliff:g id="COUNT">^1</xliff:g> billeder…}}"</string>
+    <string name="permission_write_generic" msgid="7431128739233656991">"{count,plural, =1{Vil du give <xliff:g id="APP_NAME_0">^1</xliff:g> tilladelse til at ændre dette element?}one{Vil du give <xliff:g id="APP_NAME_1">^1</xliff:g> tilladelse til at ændre <xliff:g id="COUNT">^2</xliff:g> element?}other{Vil du give <xliff:g id="APP_NAME_1">^1</xliff:g> tilladelse til at ændre <xliff:g id="COUNT">^2</xliff:g> elementer?}}"</string>
+    <string name="permission_progress_write_generic" msgid="2806560971318391443">"{count,plural, =1{Ændrer elementet…}one{Ændrer <xliff:g id="COUNT">^1</xliff:g> element…}other{Ændrer <xliff:g id="COUNT">^1</xliff:g> elementer…}}"</string>
+    <string name="permission_trash_audio" msgid="6554672354767742206">"{count,plural, =1{Vil du give <xliff:g id="APP_NAME_0">^1</xliff:g> tilladelse til at flytte denne lydfil til papirkurven?}one{Vil du give <xliff:g id="APP_NAME_1">^1</xliff:g> tilladelse til at flytte <xliff:g id="COUNT">^2</xliff:g> lydfil til papirkurven?}other{Vil du give <xliff:g id="APP_NAME_1">^1</xliff:g> tilladelse til at flytte <xliff:g id="COUNT">^2</xliff:g> lydfiler til papirkurven?}}"</string>
+    <string name="permission_progress_trash_audio" msgid="3116279868733641329">"{count,plural, =1{Flytter lydfilen til papirkurven…}one{Flytter <xliff:g id="COUNT">^1</xliff:g> lydfil til papirkurven…}other{Flytter <xliff:g id="COUNT">^1</xliff:g> lydfiler til papirkurven…}}"</string>
+    <string name="permission_trash_video" msgid="7555850843259959642">"{count,plural, =1{Vil du give <xliff:g id="APP_NAME_0">^1</xliff:g> tilladelse til at flytte denne video til papirkurven?}one{Vil du give <xliff:g id="APP_NAME_1">^1</xliff:g> tilladelse til at flytte <xliff:g id="COUNT">^2</xliff:g> video til papirkurven?}other{Vil du give <xliff:g id="APP_NAME_1">^1</xliff:g> tilladelse til at flytte <xliff:g id="COUNT">^2</xliff:g> videoer til papirkurven?}}"</string>
+    <string name="permission_progress_trash_video" msgid="4637821778329459681">"{count,plural, =1{Flytter videoen til papirkurven…}one{Flytter <xliff:g id="COUNT">^1</xliff:g> video til papirkurven…}other{Flytter <xliff:g id="COUNT">^1</xliff:g> videoer til papirkurven…}}"</string>
+    <string name="permission_trash_image" msgid="3333128084684156675">"{count,plural, =1{Vil du give <xliff:g id="APP_NAME_0">^1</xliff:g> tilladelse til at flytte dette billede til papirkurven?}one{Vil du give <xliff:g id="APP_NAME_1">^1</xliff:g> tilladelse til at flytte <xliff:g id="COUNT">^2</xliff:g> billede til papirkurven?}other{Vil du give <xliff:g id="APP_NAME_1">^1</xliff:g> tilladelse til at flytte <xliff:g id="COUNT">^2</xliff:g> billeder til papirkurven?}}"</string>
+    <string name="permission_progress_trash_image" msgid="3063857679090024764">"{count,plural, =1{Flytter billedet til papirkurven…}one{Flytter <xliff:g id="COUNT">^1</xliff:g> billede til papirkurven…}other{Flytter <xliff:g id="COUNT">^1</xliff:g> billeder til papirkurven…}}"</string>
+    <string name="permission_trash_generic" msgid="5545420534785075362">"{count,plural, =1{Vil du give <xliff:g id="APP_NAME_0">^1</xliff:g> tilladelse til at flytte dette element til papirkurven?}one{Vil du give <xliff:g id="APP_NAME_1">^1</xliff:g> tilladelse til at flytte <xliff:g id="COUNT">^2</xliff:g> element til papirkurven?}other{Vil du give <xliff:g id="APP_NAME_1">^1</xliff:g> tilladelse til at flytte <xliff:g id="COUNT">^2</xliff:g> elementer til papirkurven?}}"</string>
+    <string name="permission_progress_trash_generic" msgid="7815124979717814057">"{count,plural, =1{Flytter elementet til papirkurven…}one{Flytter <xliff:g id="COUNT">^1</xliff:g> element til papirkurven…}other{Flytter <xliff:g id="COUNT">^1</xliff:g> elementer til papirkurven…}}"</string>
+    <string name="permission_untrash_audio" msgid="8404597563284002472">"{count,plural, =1{Vil du give <xliff:g id="APP_NAME_0">^1</xliff:g> tilladelse til at flytte denne lydfil ud af papirkurven?}one{Vil du give <xliff:g id="APP_NAME_1">^1</xliff:g> tilladelse til at flytte <xliff:g id="COUNT">^2</xliff:g> lydfil ud af papirkurven?}other{Vil du give <xliff:g id="APP_NAME_1">^1</xliff:g> tilladelse til at flytte <xliff:g id="COUNT">^2</xliff:g> lydfiler ud af papirkurven?}}"</string>
+    <string name="permission_progress_untrash_audio" msgid="2775372344946464508">"{count,plural, =1{Flytter lydfilen ud af papirkurven…}one{Flytter <xliff:g id="COUNT">^1</xliff:g> lydfil ud af papirkurven…}other{Flytter <xliff:g id="COUNT">^1</xliff:g> lydfiler ud af papirkurven…}}"</string>
+    <string name="permission_untrash_video" msgid="3178914827607608162">"{count,plural, =1{Vil du give <xliff:g id="APP_NAME_0">^1</xliff:g> tilladelse til at flytte denne video ud af papirkurven?}one{Vil du give <xliff:g id="APP_NAME_1">^1</xliff:g> tilladelse til at flytte <xliff:g id="COUNT">^2</xliff:g> video ud af papirkurven?}other{Vil du give <xliff:g id="APP_NAME_1">^1</xliff:g> tilladelse til at flytte <xliff:g id="COUNT">^2</xliff:g> videoer ud af papirkurven?}}"</string>
+    <string name="permission_progress_untrash_video" msgid="5500929409733841567">"{count,plural, =1{Flytter videoen ud af papirkurven…}one{Flytter <xliff:g id="COUNT">^1</xliff:g> video ud af papirkurven…}other{Flytter <xliff:g id="COUNT">^1</xliff:g> videoer ud af papirkurven…}}"</string>
+    <string name="permission_untrash_image" msgid="3397523279351032265">"{count,plural, =1{Vil du give <xliff:g id="APP_NAME_0">^1</xliff:g> tilladelse til at flytte dette billede ud af papirkurven?}one{Vil du give <xliff:g id="APP_NAME_1">^1</xliff:g> tilladelse til at flytte <xliff:g id="COUNT">^2</xliff:g> billede ud af papirkurven?}other{Vil du give <xliff:g id="APP_NAME_1">^1</xliff:g> tilladelse til at flytte <xliff:g id="COUNT">^2</xliff:g> billeder ud af papirkurven?}}"</string>
+    <string name="permission_progress_untrash_image" msgid="5295061520504846264">"{count,plural, =1{Flytter billedet ud af papirkurven…}one{Flytter <xliff:g id="COUNT">^1</xliff:g> billede ud af papirkurven…}other{Flytter <xliff:g id="COUNT">^1</xliff:g> billeder ud af papirkurven…}}"</string>
+    <string name="permission_untrash_generic" msgid="2118366929431671046">"{count,plural, =1{Vil du give <xliff:g id="APP_NAME_0">^1</xliff:g> tilladelse til at flytte dette element ud af papirkurven?}one{Vil du give <xliff:g id="APP_NAME_1">^1</xliff:g> tilladelse til at flytte <xliff:g id="COUNT">^2</xliff:g> element ud af papirkurven?}other{Vil du give <xliff:g id="APP_NAME_1">^1</xliff:g> tilladelse til at flytte <xliff:g id="COUNT">^2</xliff:g> elementer ud af papirkurven?}}"</string>
+    <string name="permission_progress_untrash_generic" msgid="1489511601966842579">"{count,plural, =1{Flytter elementet ud af papirkurven…}one{Flytter <xliff:g id="COUNT">^1</xliff:g> element ud af papirkurven…}other{Flytter <xliff:g id="COUNT">^1</xliff:g> elementer ud af papirkurven…}}"</string>
+    <string name="permission_delete_audio" msgid="3326674742892796627">"{count,plural, =1{Vil du give <xliff:g id="APP_NAME_0">^1</xliff:g> tilladelse til at slette denne lydfil?}one{Vil du give <xliff:g id="APP_NAME_1">^1</xliff:g> tilladelse til at slette <xliff:g id="COUNT">^2</xliff:g> lydfil?}other{Vil du give <xliff:g id="APP_NAME_1">^1</xliff:g> tilladelse til at slette <xliff:g id="COUNT">^2</xliff:g> lydfiler?}}"</string>
+    <string name="permission_progress_delete_audio" msgid="1734871539021696401">"{count,plural, =1{Sletter lydfilen…}one{Sletter <xliff:g id="COUNT">^1</xliff:g> lydfil…}other{Sletter <xliff:g id="COUNT">^1</xliff:g> lydfiler…}}"</string>
+    <string name="permission_delete_video" msgid="604024971828349279">"{count,plural, =1{Vil du give <xliff:g id="APP_NAME_0">^1</xliff:g> tilladelse til at slette denne video?}one{Vil du give <xliff:g id="APP_NAME_1">^1</xliff:g> tilladelse til at slette <xliff:g id="COUNT">^2</xliff:g> video?}other{Vil du give <xliff:g id="APP_NAME_1">^1</xliff:g> tilladelse til at slette <xliff:g id="COUNT">^2</xliff:g> videoer?}}"</string>
+    <string name="permission_progress_delete_video" msgid="1846702435073793157">"{count,plural, =1{Sletter videoen…}one{Sletter <xliff:g id="COUNT">^1</xliff:g> video…}other{Sletter <xliff:g id="COUNT">^1</xliff:g> videoer…}}"</string>
+    <string name="permission_delete_image" msgid="3109056012794330510">"{count,plural, =1{Vil du give <xliff:g id="APP_NAME_0">^1</xliff:g> tilladelse til at slette dette billede?}one{Vil du give <xliff:g id="APP_NAME_1">^1</xliff:g> tilladelse til at slette <xliff:g id="COUNT">^2</xliff:g> billede?}other{Vil du give <xliff:g id="APP_NAME_1">^1</xliff:g> tilladelse til at slette <xliff:g id="COUNT">^2</xliff:g> billeder?}}"</string>
+    <string name="permission_progress_delete_image" msgid="8580517204901148906">"{count,plural, =1{Sletter billedet…}one{Sletter <xliff:g id="COUNT">^1</xliff:g> billede…}other{Sletter <xliff:g id="COUNT">^1</xliff:g> billeder…}}"</string>
+    <string name="permission_delete_generic" msgid="7891939881065520271">"{count,plural, =1{Vil du give <xliff:g id="APP_NAME_0">^1</xliff:g> tilladelse til at slette dette element?}one{Vil du give <xliff:g id="APP_NAME_1">^1</xliff:g> tilladelse til at slette <xliff:g id="COUNT">^2</xliff:g> element?}other{Vil du give <xliff:g id="APP_NAME_1">^1</xliff:g> tilladelse til at slette <xliff:g id="COUNT">^2</xliff:g> elementer?}}"</string>
+    <string name="permission_progress_delete_generic" msgid="6709118146245087898">"{count,plural, =1{Sletter elementet…}one{Sletter <xliff:g id="COUNT">^1</xliff:g> element…}other{Sletter <xliff:g id="COUNT">^1</xliff:g> elementer…}}"</string>
+    <string name="transcode_denied" msgid="6760546817138288976">"<xliff:g id="APP_NAME">%s</xliff:g> kan ikke behandle mediefiler"</string>
+    <string name="transcode_processing_cancelled" msgid="5340383917746945590">"Mediebehandlingen er annulleret"</string>
+    <string name="transcode_processing_error" msgid="8921643164508407874">"Mediebehandlingsfejl"</string>
+    <string name="transcode_processing_success" msgid="447288876429730122">"Mediebehandlingen er fuldført"</string>
+    <string name="transcode_processing_started" msgid="7789086308155361523">"Mediebehandlingen er startet"</string>
+    <string name="transcode_processing" msgid="6753136468864077258">"Behandler medier…"</string>
+    <string name="transcode_cancel" msgid="8555752601907598192">"Annuller"</string>
+    <string name="transcode_wait" msgid="8909773149560697501">"Vent"</string>
+    <string name="safety_protection_icon_label" msgid="6714354052747723623">"Beskyttelse"</string>
+    <string name="transcode_alert_channel" msgid="997332371757680478">"Underretninger om indbygget omkodning"</string>
+    <string name="transcode_progress_channel" msgid="6905136787933058387">"Status på indbygget omkodning"</string>
+    <string name="dialog_error_message" msgid="5120432204743681606">"Prøv igen senere. Dine billeder bliver tilgængelige, så snart problemet er løst."</string>
+    <string name="dialog_error_title" msgid="636349284077820636">"Nogle billeder kan ikke indlæses"</string>
+    <string name="dialog_button_text" msgid="351366485240852280">"OK"</string>
+    <string name="permlab_accessMediaOwnerPackageName" msgid="3849443148060165651">"Få adgang til det pakkenavn, der tilhører ejerens app."</string>
+    <string name="permdesc_accessMediaOwnerPackageName" msgid="7381563109363105371">"Tillader, at appen får adgang til det pakkenavn, der tilhører ejerens app, i alle tilgængelige mediefiler."</string>
+</resources>

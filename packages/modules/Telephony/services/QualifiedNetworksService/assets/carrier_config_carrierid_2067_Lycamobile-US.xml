@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<carrier_config>
+    <int-array name="qns.idle_eutran_rsrp_int_array" num="2">
+        <item value="-109"/>
+        <item value="-114"/>
+    </int-array>
+    <int-array name="qns.voice_eutran_rsrp_int_array" num="2">
+        <item value="-109"/>
+        <item value="-114"/>
+    </int-array>
+    <int-array name="qns.video_eutran_rsrp_int_array" num="2">
+        <item value="-109"/>
+        <item value="-114"/>
+    </int-array>
+    <int-array name="qns.idle_ngran_ssrsrp_int_array" num="2">
+        <item value="-109"/>
+        <item value="-114"/>
+    </int-array>
+    <int-array name="qns.voice_ngran_ssrsrp_int_array" num="2">
+        <item value="-109"/>
+        <item value="-114"/>
+    </int-array>
+    <int-array name="qns.video_ngran_ssrsrp_int_array" num="2">
+        <item value="-109"/>
+        <item value="-114"/>
+    </int-array>
+    <int-array name="qns.idle_utran_rscp_int_array" num="2">
+        <item value="-100"/>
+        <item value="-110"/>
+    </int-array>
+    <int-array name="qns.idle_geran_rssi_int_array" num="2">
+        <item value="-95"/>
+        <item value="-105"/>
+    </int-array>
+    <int-array name="qns.idle_wifi_rssi_int_array" num="2">
+        <item value="-70"/>
+        <item value="-80"/>
+    </int-array>
+    <int-array name="qns.voice_wifi_rssi_int_array" num="2">
+        <item value="-70"/>
+        <item value="-80"/>
+    </int-array>
+    <int-array name="qns.video_wifi_rssi_int_array" num="2">
+        <item value="-70"/>
+        <item value="-80"/>
+    </int-array>
+    <int name="qns.mms_transport_type_int" value="2"/>
+    <int name="qns.xcap_transport_type_int" value="2"/>
+    <int name="qns.mms_rat_preference_int" value="2"/>
+    <int-array name="qns.ims_wlan_hysteresis_timer_ms_int_array" num="3">
+        <item value="10000"/>
+        <item value="10000"/>
+        <item value="10000"/>
+    </int-array>
+    <int-array name="qns.ims_wwan_hysteresis_timer_ms_int_array" num="3">
+        <item value="10000"/>
+        <item value="10000"/>
+        <item value="10000"/>
+    </int-array>
+</carrier_config>

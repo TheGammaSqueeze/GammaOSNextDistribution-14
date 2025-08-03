@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="feedback_system_logs_title_text" msgid="8162964763101361628">"எல்லாச் சாதனப் பதிவுகளும் (சிஸ்டம் &amp; ஆப்ஸ்)"</string>
+    <string name="feedback_system_logs_legal_text" msgid="4770068793128503597">"அனைத்து சிஸ்டம் மற்றும் ஆப்ஸ் சாதனப் பதிவுகளையும் பகிர்வது பயனர்பெயர்கள், இருப்பிடம், சாதன ஐடிகள், நெட்வொர்க் தகவல்கள் போன்ற விவரங்களை Googleளுக்கு அனுப்பலாம். தொழில்நுட்பச் சிக்கல்களைச் சரிசெய்யவும் சேவைகளை மேம்படுத்தவும் Google இந்தத் தகவல்களைப் பயன்படுத்தும். g.co/android/devicelogs பக்கத்தில் மேலும் அறிந்துகொள்ளுங்கள்."</string>
+    <string name="feedback_bugreport_title_text" msgid="8863884817986711122">"பிழை அறிக்கையைச் சேர்த்தல்"</string>
+    <string name="feedback_bugreport_legal_display_text" msgid="4486929548753044585">"சிக்கலைப் புரிந்துகொண்டு சரிசெய்வதற்கு Googleளுக்கு உதவ பிழை அறிக்கையில் (%1$s முதல்) பயனர்பெயர்கள், இருப்பிடம், சாதன ஐடிகள், நெட்வொர்க் தகவல்கள் போன்றவை சேர்க்கப்பட்டுள்ளன."</string>
+    <string name="next" msgid="3308587969183798652">"அடுத்து"</string>
+    <string name="feedback_view_system_logs_button_text" msgid="1889709679017124924">"சிஸ்டம் பதிவுகளைக் காட்டு"</string>
+    <string name="feedback_view_logs_dialog_title" msgid="1937861449450135462">"சிஸ்டம் பதிவுகள்"</string>
+    <string name="feedback_view_logs_dialog_body" msgid="2496560711853644250">"உங்கள் கருத்திற்குப் பதிலளிக்க எங்களுக்குத் தேவைப்படும் தகவல்கள் இந்தப் பதிவுகளில் இருக்கும்."</string>
+    <string name="annotated_back_indicator_string" msgid="3197935392074998004">"பின்செல்ல BACK பட்டனை அழுத்தவும்."</string>
+    <string name="loading" msgid="1709842456101615353">"ஏற்றுகிறது"</string>
+</resources>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="7766152617107310582">"Bluetooth"</string>
+    <string name="insert_record" msgid="4024416351836939752">"Infoga post"</string>
+    <string name="update_record" msgid="7201772850942641237">"Bekräfta post"</string>
+    <string name="ack_record" msgid="2404738476192250210">"Bekräftelsepost"</string>
+    <string name="deleteAll_record" msgid="7932073446547882011">"Ta bort alla poster"</string>
+    <string name="ok_button" msgid="719865942400179601">"OK"</string>
+    <string name="delete_record" msgid="5713885957446255270">"Ta bort post"</string>
+    <string name="start_server" msgid="134483798422082514">"Starta TCP-server"</string>
+    <string name="notify_server" msgid="8832385166935137731">"Avisera TCP-server"</string>
+</resources>

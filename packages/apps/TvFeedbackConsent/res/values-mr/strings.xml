@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="feedback_system_logs_title_text" msgid="8162964763101361628">"सर्व डिव्‍हाइस लॉगचा समावेश करा (सिस्टीम आणि अ‍ॅप)"</string>
+    <string name="feedback_system_logs_legal_text" msgid="4770068793128503597">"सिस्टीम आणि ॲपसंबंधित सर्व डिव्हाइस लॉग शेअर केल्यामुळे, वापरकर्ता नावे, स्थान, डिव्हाइस आयडी व नेटवर्क माहिती, इत्यादी Google संबंधित तपशील पाठवले जाऊ शकतात. तांत्रिक समस्यांचे निराकरण करण्यासाठी आणि सेवांमध्ये सुधारणा करण्यासाठी Google या माहितीचा वापर करते. g.co/android/devicelogs येथे अधिक जाणून घ्या."</string>
+    <string name="feedback_bugreport_title_text" msgid="8863884817986711122">"बग रिपोर्ट समाविष्ट करा"</string>
+    <string name="feedback_bugreport_legal_display_text" msgid="4486929548753044585">"समस्या समजून घेण्यात आणि तिचे निराकरण करण्यात Google ला मदत व्हावी यासाठी (%1$s द्वारे सादर केलेल्या) बग रिपोर्टमध्ये वापरकर्ता नावे, स्थान, डिव्हाइस आयडी आणि नेटवर्कसंबंधित माहिती यांसारख्या डेटाचा समावेश असतो."</string>
+    <string name="next" msgid="3308587969183798652">"पुढील"</string>
+    <string name="feedback_view_system_logs_button_text" msgid="1889709679017124924">"सिस्टीम लॉग पहा"</string>
+    <string name="feedback_view_logs_dialog_title" msgid="1937861449450135462">"सिस्टीम लॉग"</string>
+    <string name="feedback_view_logs_dialog_body" msgid="2496560711853644250">"तुमच्या फीडबॅकला उत्तर देण्यासाठी आम्हाला आवश्यक असलेली माहिती या लॉगमध्ये असते."</string>
+    <string name="annotated_back_indicator_string" msgid="3197935392074998004">"मागे जाण्यासाठी, मागे जा बटण प्रेस करा."</string>
+    <string name="loading" msgid="1709842456101615353">"लोड करत आहे"</string>
+</resources>

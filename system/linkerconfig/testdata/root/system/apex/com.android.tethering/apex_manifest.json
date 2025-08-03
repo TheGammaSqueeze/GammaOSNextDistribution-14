@@ -1,0 +1,10 @@
+{
+  "name": "com.android.tethering",
+  "version": 290000000,
+  "provideNativeLibs": [],
+  "requireNativeLibs": [
+    "libc.so",
+    "libdl.so",
+    "libm.so"
+  ]
+}

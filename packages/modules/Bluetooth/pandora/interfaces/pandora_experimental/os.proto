@@ -1,0 +1,63 @@
+// Copyright 2023 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+option java_outer_classname = "OsProto";
+
+package pandora;
+
+import "pandora/host.proto";
+import "google/protobuf/empty.proto";
+
+// Service for OS specific operations.
+service Os {
+  // Log text (for utility only)
+  rpc Log(LogRequest) returns (LogResponse);
+  // Set Message, PhoneBook and SIM access permission
+  rpc SetAccessPermission(SetAccessPermissionRequest) returns (google.protobuf.Empty);
+  // Send ping
+  rpc SendPing(SendPingRequest) returns (google.protobuf.Empty);
+}
+
+message LogRequest {
+  string text = 1;
+}
+
+message LogResponse {}
+
+enum AccessType {
+  ACCESS_MESSAGE = 0;
+  ACCESS_PHONEBOOK = 1;
+  ACCESS_SIM = 2;
+}
+
+message SetAccessPermissionRequest {
+  // Peer Bluetooth Device Address as array of 6 bytes.
+  bytes address = 1;
+  // Set AccessType to Message, PhoneBook and SIM access permission
+  AccessType access_type = 2;
+}
+
+// Internal representation of a Connection - not exposed to clients, included here
+// just for code-generation convenience. This is what we put in the Connection.cookie.
+message InternalConnectionRef {
+  bytes address = 1;
+  int32 transport = 2;
+}
+
+// Request for the `SendPing` rpc.
+message SendPingRequest {
+  string ip_address = 1;
+}

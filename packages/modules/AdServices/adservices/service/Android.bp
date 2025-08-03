@@ -1,0 +1,72 @@
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+filegroup {
+    name: "service-adservices-sources",
+    srcs: [
+      "java/**/*.java"
+    ],
+    visibility: [
+        "//packages/modules/AdServices/adservices:__subpackages__",
+    ],
+    path: "java",
+}
+
+java_sdk_library {
+    name: "service-adservices",
+    srcs: [
+        ":service-adservices-sources",
+        ":adservices-service-common-flags-sources",
+    ],
+    sdk_version: "system_server_current",
+    min_sdk_version: "Tiramisu",
+    permitted_packages: [
+        "com.android.adservices.shared",
+        "com.android.adservices.service", // TODO(b/306522832): needed by CommonFlags, ideally they should be moved to a separate package
+        "com.android.server.adservices",
+        "com.google.errorprone.annotations",
+    ],
+    libs: [
+        "framework-configinfrastructure",
+        "framework-adservices.impl",
+        // Workaround for b/262282035. Needed to access the SdkSandboxManagerLocal.
+        "service-sdksandbox.impl",
+    ],
+    static_libs: [
+        "adservices-shared-storage",
+        "modules-utils-backgroundthread",
+        "modules-utils-preconditions",
+        "modules-utils-shell-command-handler",
+        "error_prone_annotations",
+    ],
+    defaults: [
+        "framework-system-server-module-defaults",
+        "framework-system-server-module-optimize-defaults",
+    ],
+    jarjar_rules: "jarjar-rules.txt",
+    visibility: [
+        "//packages/modules/AdServices/tests:__subpackages__",
+    ],
+    impl_library_visibility: [
+            "//packages/modules/AdServices/adservices/tests/unittest:__subpackages__",
+            "//frameworks/base/services/tests/mockingservicestests",
+            "//frameworks/base/services/tests/wmtests",
+        ],
+    apex_available: ["com.android.adservices"],
+    installable: true,
+}

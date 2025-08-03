@@ -1,0 +1,471 @@
+// Copyright (C) 2018 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_tools_aidl_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_tools_aidl_license"],
+}
+
+bootstrap_go_package {
+    name: "aidl-soong-rules",
+    pkgPath: "android/soong/aidl",
+    deps: [
+        "blueprint",
+        "soong",
+        "soong-android",
+        "soong-aidl-library",
+        "soong-cc",
+        "soong-genrule",
+        "soong-phony",
+        "soong-java",
+        "soong-rust",
+    ],
+    srcs: [
+        "aidl_interface.go",
+        "properties.go",
+        "aidl_api.go",
+        "aidl_gen_rule.go",
+        "aidl_interface_backends.go",
+
+        "aidl_interface_defaults.go",
+        "aidl_interface_metadata_singleton.go",
+        "aidl_rust_source_provider.go",
+        "aidl_utils.go",
+    ],
+    testSrcs: [
+        "aidl_test.go",
+    ],
+    pluginFor: ["soong_build"],
+}
+
+aidl_interfaces_metadata {
+    name: "aidl_metadata_json",
+    visibility: ["//system/tools/aidl:__subpackages__"],
+}
+
+// These configurations are inherited by all aidl-gen modules
+// TODO(b/146436251): default isn't applied because the module is created
+// in PreArchMutators, when import behavior becomes explicit, the logic can
+// be moved back to LoadHook, and then default can be applied as well.
+cc_defaults {
+    name: "aidl-cpp-module-defaults",
+    target: {
+        darwin: {
+            enabled: false,
+        },
+    },
+}
+
+java_defaults {
+    name: "aidl-java-module-defaults",
+}
+
+rust_defaults {
+    name: "aidl-rust-module-defaults",
+}
+
+// Tests
+
+filegroup {
+    name: "aidl-test-filegroup",
+    srcs: [
+        "tests_1/some_package/IFoo.aidl",
+        "tests_1/some_package/Thing.aidl",
+        "tests_1/some_package/sub_package/*.aidl",
+    ],
+}
+
+aidl_interface {
+    name: "test-piece-1",
+    local_include_dir: "tests_1",
+    vendor_available: true,
+    product_available: true,
+    double_loadable: true,
+    host_supported: true,
+    flags: ["-Werror"],
+    srcs: [
+        "tests_1/some_package/IFoo.aidl",
+        "tests_1/some_package/Thing.aidl",
+        "tests_1/some_package/sub_package/*.aidl", // testing glob w/o filegroup
+    ],
+    versions: [
+        "1",
+        "2",
+        "3",
+        "4",
+    ],
+    backend: {
+        rust: {
+            enabled: true,
+        },
+    },
+}
+
+aidl_interface {
+    name: "test-piece-ndk-sdk-29",
+    local_include_dir: "tests_1",
+    flags: ["-Werror"],
+    srcs: [
+        "tests_1/some_package/IFoo.aidl",
+        "tests_1/some_package/Thing.aidl",
+        "tests_1/some_package/sub_package/*.aidl", // testing glob w/o filegroup
+    ],
+    unstable: true,
+    backend: {
+        rust: {
+            enabled: true,
+        },
+        ndk: {
+            sdk_version: "29",
+            cflags: ["-U__ANDROID_UNAVAILABLE_SYMBOLS_ARE_WEAK__"],
+            ldflags: ["-Wl,-z,max-page-size=65536"],
+        },
+    },
+}
+
+aidl_interface {
+    name: "test-piece-ndk-sdk-30",
+    local_include_dir: "tests_1",
+    flags: ["-Werror"],
+    srcs: [
+        "tests_1/some_package/IFoo.aidl",
+        "tests_1/some_package/Thing.aidl",
+        "tests_1/some_package/sub_package/*.aidl", // testing glob w/o filegroup
+    ],
+    unstable: true,
+    backend: {
+        rust: {
+            enabled: true,
+        },
+        ndk: {
+            sdk_version: "30",
+            cflags: ["-U__ANDROID_UNAVAILABLE_SYMBOLS_ARE_WEAK__"],
+        },
+    },
+}
+
+aidl_interface {
+    name: "test-piece-ndk-sdk-31",
+    local_include_dir: "tests_1",
+    flags: ["-Werror"],
+    srcs: [
+        "tests_1/some_package/IFoo.aidl",
+        "tests_1/some_package/Thing.aidl",
+        "tests_1/some_package/sub_package/*.aidl", // testing glob w/o filegroup
+    ],
+    unstable: true,
+    backend: {
+        rust: {
+            enabled: true,
+        },
+        ndk: {
+            sdk_version: "31",
+            cflags: ["-U__ANDROID_UNAVAILABLE_SYMBOLS_ARE_WEAK__"],
+        },
+    },
+}
+
+aidl_interface {
+    name: "test-piece-ndk-sdk-32",
+    local_include_dir: "tests_1",
+    flags: ["-Werror"],
+    srcs: [
+        "tests_1/some_package/IFoo.aidl",
+        "tests_1/some_package/Thing.aidl",
+        "tests_1/some_package/sub_package/*.aidl", // testing glob w/o filegroup
+    ],
+    unstable: true,
+    backend: {
+        rust: {
+            enabled: true,
+        },
+        ndk: {
+            sdk_version: "32",
+            cflags: ["-U__ANDROID_UNAVAILABLE_SYMBOLS_ARE_WEAK__"],
+        },
+    },
+}
+
+aidl_interface {
+    name: "test-piece-ndk-sdk-33",
+    local_include_dir: "tests_1",
+    flags: ["-Werror"],
+    srcs: [
+        "tests_1/some_package/IFoo.aidl",
+        "tests_1/some_package/Thing.aidl",
+        "tests_1/some_package/sub_package/*.aidl", // testing glob w/o filegroup
+    ],
+    unstable: true,
+    backend: {
+        rust: {
+            enabled: true,
+        },
+        ndk: {
+            sdk_version: "33",
+            cflags: ["-U__ANDROID_UNAVAILABLE_SYMBOLS_ARE_WEAK__"],
+        },
+    },
+}
+
+aidl_interface {
+    name: "tests-vintf",
+    local_include_dir: "tests_vintf",
+    srcs: ["tests_vintf/vintf/IFoo.aidl"],
+    stability: "vintf",
+    vendor_available: true,
+    backend: {
+        rust: {
+            enabled: true,
+        },
+        ndk: {
+            sdk_version: "31",
+        },
+        java: {
+            sdk_version: "system_current",
+        },
+    },
+    versions_with_info: [
+        {
+            version: "1",
+            imports: [],
+        },
+    ],
+
+}
+
+aidl_interface {
+    name: "test-piece-2",
+    local_include_dir: "tests_1",
+    flags: ["-Werror"],
+    srcs: [
+        "tests_1/INoPackage.aidl",
+        "tests_1/some_package/IBar.aidl",
+    ],
+    imports: [
+        "test-piece-1-V3",
+    ],
+    backend: {
+        rust: {
+            enabled: true,
+        },
+        java: {
+            platform_apis: true,
+        },
+    },
+    gen_trace: true,
+    versions_with_info: [
+        {
+            version: "1",
+            imports: ["test-piece-1-V3"],
+        },
+    ],
+
+}
+
+aidl_interface {
+    name: "test-piece-3",
+    local_include_dir: "tests_1",
+    flags: ["-Werror"],
+    srcs: [
+        "tests_1/other_package/Enum.aidl",
+        "tests_1/other_package/IBaz.aidl",
+    ],
+    imports: [
+        "test-piece-2-V1",
+    ],
+    backend: {
+        rust: {
+            enabled: true,
+        },
+        java: {
+            platform_apis: true,
+            gen_trace: true,
+        },
+    },
+    gen_trace: true,
+    versions_with_info: [
+        {
+            version: "1",
+            imports: ["test-piece-2-V1"],
+        },
+        {
+            version: "2",
+            imports: ["test-piece-2-V1"],
+        },
+
+    ],
+    frozen: true,
+}
+
+cc_test_library {
+    name: "client-using-test-piece-3",
+    srcs: ["client-using-test-piece-3.cpp"],
+    shared_libs: ["test-piece-3-V2-cpp"],
+}
+
+aidl_interface {
+    name: "test-piece-4",
+    local_include_dir: "tests_2",
+    flags: ["-Werror"],
+    srcs: [
+        "tests_2/another_package/IFaz.aidl",
+    ],
+    imports: [
+        "test-piece-1-V3",
+    ],
+    backend: {
+        rust: {
+            enabled: true,
+        },
+        java: {
+            platform_apis: true,
+        },
+    },
+    gen_trace: true,
+    versions: ["1"],
+    dumpapi: {
+        no_license: true,
+    },
+}
+
+aidl_interface {
+    name: "test-root-package",
+    flags: ["-Werror"],
+    srcs: [
+        "test_package/IBaz.aidl",
+    ],
+    imports: [
+        "test-piece-2-V1",
+    ],
+    backend: {
+        rust: {
+            enabled: true,
+        },
+        java: {
+            platform_apis: true,
+        },
+    },
+    gen_trace: true,
+    versions: [
+        "1",
+        "2",
+        "3",
+    ],
+}
+
+aidl_interface {
+    name: "test-piece-5",
+    unstable: true,
+    local_include_dir: "tests_3",
+    flags: ["-Werror"],
+    srcs: [
+        "tests_3/EmptyParcelable.aidl",
+        "tests_3/IEmptyInterface.aidl",
+    ],
+}
+
+aidl_interface {
+    name: "test-piece-6",
+    unstable: true,
+    local_include_dir: "tests_6",
+    flags: ["-Werror"],
+    srcs: [
+        "tests_6/test6/Bar.aidl",
+        "tests_6/test6/Foo.aidl",
+    ],
+}
+
+aidl_interface {
+    name: "tests-unfrozen-vendor",
+    owner: "google",
+    local_include_dir: "tests_unfrozen_vendor",
+    srcs: ["tests_unfrozen_vendor/vendor/IFoo.aidl"],
+    vendor_available: true,
+    backend: {
+        rust: {
+            enabled: true,
+        },
+    },
+    frozen: false,
+    always_use_unfrozen: true,
+    versions_with_info: [
+        {
+            version: "1",
+            imports: [],
+        },
+    ],
+
+}
+
+cc_library {
+    name: "build_test_aidl_always_use_unfrozen",
+    srcs: ["test_unfrozen_iface.cpp"],
+    shared_libs: [
+        "tests-unfrozen-vendor-V2-cpp",
+    ],
+}
+
+// These test that a parcel imported from A->B->C will have the required dependencies to link in
+// all backends (C++ backends need to link direclty against the constructor of the parcelable
+// in order to work)
+aidl_interface {
+    name: "tests_transitive_parcel.a",
+    flags: ["-Werror"],
+    srcs: ["tests_transitive_parcel/a/*.aidl"],
+    imports: [
+        "tests_transitive_parcel.b",
+        "tests_transitive_parcel.c",
+    ],
+    unstable: true,
+    backend: {
+        rust: {
+            enabled: true,
+        },
+    },
+}
+
+aidl_interface {
+    name: "tests_transitive_parcel.b",
+    flags: ["-Werror"],
+    srcs: ["tests_transitive_parcel/b/*.aidl"],
+    imports: ["tests_transitive_parcel.c"],
+    unstable: true,
+    backend: {
+        rust: {
+            enabled: true,
+        },
+    },
+}
+
+aidl_interface {
+    name: "tests_transitive_parcel.c",
+    flags: ["-Werror"],
+    srcs: ["tests_transitive_parcel/c/*.aidl"],
+    unstable: true,
+    backend: {
+        rust: {
+            enabled: true,
+        },
+    },
+}
+
+sh_binary {
+    name: "aidl_hash_gen",
+    src: "hash_gen.sh",
+    host_supported: true,
+}

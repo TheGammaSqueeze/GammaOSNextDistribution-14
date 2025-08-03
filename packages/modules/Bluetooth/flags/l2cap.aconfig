@@ -1,0 +1,16 @@
+package: "com.android.bluetooth.flags"
+container: "com.android.btservices"
+
+flag {
+    name: "l2cap_tx_complete_cb_info"
+    namespace: "bluetooth"
+    description: "Provide l2cap transmit complete information b/301168932"
+    bug: "314819704"
+}
+
+flag {
+    name: "l2cap_p_ccb_check_rewrite"
+    namespace: "bluetooth"
+    description: "Rewrite logic of p_ccb check in l2c_link_sec_comp"
+    bug: "326686472"
+}

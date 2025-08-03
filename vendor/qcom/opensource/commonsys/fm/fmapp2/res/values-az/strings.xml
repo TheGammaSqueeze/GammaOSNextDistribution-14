@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (c) 2009, 2011-2013 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2014-2015 The CyanogenMod Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *    * Neither the name of The Linux Foundation nor
+ *      the names of its contributors may be used to endorse or promote
+ *      products derived from this software without specific prior written
+ *      permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NON-INFRINGEMENT ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">FM Radio</string>
+    <string name="tx_app_name">FM Ötürücü</string>
+    <string name="menu_scan_start">Tədqiq et</string>
+    <string name="menu_scan_stop">Axtarışı dayandır</string>
+    <string name="menu_record_start">Səsyazma</string>
+    <string name="menu_record_stop">Səsyazmanı dayandır</string>
+    <string name="menu_settings">Ayarlar</string>
+    <string name="menu_sleep">Yuxu</string>
+    <string name="menu_sleep_cancel">Yuxudan çıx</string>
+    <string name="menu_all_channels">Bütün kanallar</string>
+    <string name="menu_display_tags">Etiketləri göstər</string>
+    <string name="button_text_stop">Dayandır</string>
+    <string name="msg_seeking">FM stansiya axtarılır\u2026</string>
+    <string name="msg_scanning">Bütün FM stansiyalar tədqiq edilir\u2026</string>
+    <string name="msg_scanning_pty">\'<xliff:g id="pty_name">%1$s</xliff:g>\' üçün tədqiq edilir\u2026</string>
+    <string name="msg_search_title"><xliff:g id="frequency_string">%1$s</xliff:g> MHz</string>
+    <string name="msg_searching_title">Siyahıları avtomatik seç</string>
+    <string name="msg_searching">Öntərtibli siyahı yaratmaq üçün güclü stansiyalar axtarılır\u2026</string>
+    <string name="msg_noantenna">FM radiodan istifadə etmək üçün lütfən qulaqlığı taxın</string>
+    <string name="dialog_sleep_title">Avtomatik sönmə yuxu müddəti</string>
+    <string name="presetlist_select_name">\'<xliff:g id="presetlist_name">%1$s</xliff:g>\' seçin</string>
+    <string name="presetlist_add_new">Yeni siyahı əlavə et</string>
+    <string name="dialog_presetlist_rename_title">Ad daxil edin</string>
+    <string name="presetlist_autoselect_title">Avto-seçimi təsdiqlə</string>
+    <string name="preset_replace">Dəyişdir</string>
+    <string name="preset_tune">Köklə</string>
+    <string name="preset_rename">Yenidən adlandır</string>
+    <string name="preset_delete">Sil</string>
+    <string name="preset_search">\'<xliff:g id="preset_pi">%1$s</xliff:g>\' axtar</string>
+    <string name="stat_notif_frequency">\'<xliff:g id="frequency">%1$s</xliff:g>\' MHz</string>
+    <string name="regional_band">Regional zolaq</string>
+    <string name="regional_band_entry_north_america">Şimali Amerika</string>
+    <string name="regional_band_entry_europe">Avropa</string>
+    <string name="regional_band_entry_japan">Yaponiya</string>
+    <string name="regional_band_entry_japan_wide">Yaponiya (geniş)</string>
+    <string name="regional_band_entry_australia">Avstraliya</string>
+    <string name="regional_band_entry_austria">Avstriya</string>
+    <string name="regional_band_entry_belgium">Belçika</string>
+    <string name="regional_band_entry_brazil">Braziliya</string>
+    <string name="regional_band_entry_china">Çin</string>
+    <string name="regional_band_entry_czech_republic">Czech Republic</string>
+    <string name="regional_band_entry_denmark">Danimarka</string>
+    <string name="regional_band_entry_finland">Finlandiya</string>
+    <string name="regional_band_entry_france">Fransa</string>
+    <string name="regional_band_entry_germany">Almaniya</string>
+    <string name="regional_band_entry_greece">Yunanıstan</string>
+    <string name="regional_band_entry_hong_kong">Honq Konq</string>
+    <string name="regional_band_entry_india">Hindistan</string>
+    <string name="regional_band_entry_indonesia">İndoneziya</string>
+    <string name="regional_band_entry_ireland">İrlandiya</string>
+    <string name="regional_band_entry_italy">İtaliya</string>
+    <string name="regional_band_entry_korea">Koreya</string>
+    <string name="regional_band_entry_mexico">Meksika</string>
+    <string name="regional_band_entry_netherlands">Hollandiya</string>
+    <string name="regional_band_entry_new_zealand">Yeni Zelandiya</string>
+    <string name="regional_band_entry_norway">Norveç</string>
+    <string name="regional_band_entry_poland">Polşa</string>
+    <string name="regional_band_entry_portugal">Portuqaliya</string>
+    <string name="regional_band_entry_russia">Rusiya</string>
+    <string name="regional_band_entry_singapore">Sinqapur</string>
+    <string name="regional_band_entry_slovakia">Slovakiya</string>
+    <string name="regional_band_entry_spain">İspaniya</string>
+    <string name="regional_band_entry_switzerland">İsveçrə</string>
+    <string name="regional_band_entry_sweden">İsveç</string>
+    <string name="regional_band_entry_taiwan">Tayvan</string>
+    <string name="regional_band_entry_turkey">Türkiyə</string>
+    <string name="regional_band_entry_united_kingdom">United Kingdom</string>
+    <string name="regional_band_entry_united_states">ABŞ</string>
+    <string name="regional_band_entry_user_defined">İstifadəçi təyin edən zolaq</string>
+    <string name="regional_band_summary_north_america">Şimali Amerika (87.5 MHz - 108.0 MHz arası 200 kHz dalğasında)</string>
+    <string name="regional_band_summary_europe">Avropa (87.5 MHz - 108.0 MHz arası 100 kHz dalğasında)</string>
+    <string name="regional_band_summary_japan">Yaponiya (76.0 MHz - 90.0 MHz arası 100 kHz dalğasında)</string>
+    <string name="regional_band_summary_japan_wide">Yaponiya (geniş) (90.0 MHz - 108.0 MHz arası 50 kHz dalğasında)</string>
+    <string name="regional_band_summary_australia">Avstraliya (87.7 MHz - 108.0 MHz arası 100 kHz dalğasında)</string>
+    <string name="regional_band_summary_austria">Avstriya (87.5 MHz - 108.0 MHz arası 50 kHz dalğasında)</string>
+    <string name="regional_band_summary_belgium">Belçika (87.5 MHz - 108.0 MHz arası 100 kHz dalğasında)</string>
+    <string name="regional_band_summary_brazil">Braziliya (87.5 MHz - 108.0 MHz arası 200 kHz dalğasında)</string>
+    <string name="regional_band_summary_china">Çin (87.0 MHz - 108.0 MHz arası 100 kHz dalğasında)</string>
+    <string name="regional_band_summary_czech_republic">Çexiya Respublikası (87.5 - 108.0 MHz arası 100 kHz dalğasında)</string>
+    <string name="regional_band_summary_denmark">Danimarka (87.5 MHz - 108.0 MHz arası 50 kHz dalğasında)</string>
+    <string name="regional_band_summary_finland">Finlandiya (87.5 MHz - 108.0 MHz arası 100 kHz dalğasında)</string>
+    <string name="regional_band_summary_france">Fransa (87.5 MHz - 108.0 MHz arası 100 kHz dalğasında)</string>
+    <string name="regional_band_summary_germany">Almaniya (87.5 MHz - 108.0 MHz arası 50 kHz dalğasında)</string>
+    <string name="regional_band_summary_greece">Yunanıstan (87.5 MHz - 108.0 MHz arası 50 kHz dalğasında)</string>
+    <string name="regional_band_summary_hong_kong">Honq Konq (87.5 MHz - 108.0 MHz arası 100 kHz dalğasında)</string>
+    <string name="regional_band_summary_india">Hindistan (87.5 MHz - 108.0 MHz arası 100 kHz dalğasında)</string>
+    <string name="regional_band_summary_indonesia">İndoneziya (87.5 MHz - 108.0 MHz arası 100 kHz dalğasında)</string>
+    <string name="regional_band_summary_ireland">İrlandiya (87.5 MHz - 108.0 MHz arası 50 kHz dalğasında)</string>
+    <string name="regional_band_summary_italy">İtaliya (87.5 MHz - 108.0 MHz arası 50 kHz dalğasında)</string>
+    <string name="regional_band_summary_korea">Koreya (87.5 MHz - 108.0 MHz arası 200 kHz dalğasında)</string>
+    <string name="regional_band_summary_mexico">Meksika (88.1 MHz - 107.9 MHz arası 200 kHz dalğasında)</string>
+    <string name="regional_band_summary_netherlands">Hollandiya (87.5 MHz - 108.0 MHz arası 100 kHz dalğasında)</string>
+    <string name="regional_band_summary_new_zealand">Yeni Zelandiya (88.0 MHz - 107.0 MHz arası 100 kHz dalğasında)</string>
+    <string name="regional_band_summary_norway">Norveç (87.5 MHz - 108.0 MHz arası 100 kHz dalğasında)</string>
+    <string name="regional_band_summary_poland">Polşa (87.5 MHz - 108.0 MHz arası 100 kHz dalğasında)</string>
+    <string name="regional_band_summary_portugal">Portuqaliya (87.5 MHz - 108.0 MHz arası 50 kHz dalğasında)</string>
+    <string name="regional_band_summary_russia">Rusiya (87.5 MHz - 108.0 MHz arası 100 kHz dalğasında)</string>
+    <string name="regional_band_summary_singapore">Sinqapur (88.0 MHz - 108.0 MHz arası 100 kHz dalğasında)</string>
+    <string name="regional_band_summary_slovakia">Slovakiya (87.5 MHz - 108.0 MHz arası 100 kiHz dalğasında)</string>
+    <string name="regional_band_summary_spain">İspaniya (87.5 MHz - 108.0 MHz arası 100 kHz dalğasında)</string>
+    <string name="regional_band_summary_switzerland">İsveçrə (87.5 MHz - 108.0 MHz arası 100 kHz dalğasında)</string>
+    <string name="regional_band_summary_sweden">İsveç (87.5 MHz - 108.0 MHz arası 100 kHz dalğasında)</string>
+    <string name="regional_band_summary_taiwan">Tayvan (87.5 MHz - 108.0 MHz arası 100 kHz dalğasında)</string>
+    <string name="regional_band_summary_turkey">Türkiyə (87.5 MHz - 108.0 MHz arası 100 kHz dalğasında)</string>
+    <string name="regional_band_summary_united_kingdom">Birləşmiş Krallıq (87.5 MHz - 108.0 MHz arası 100 kHz dalğasında)</string>
+    <string name="regional_band_summary_united_states">ABŞ (87.5 MHz - 108.0 MHz arası 100 kHz dalğasında)</string>
+    <string name="regional_band_summary_user_defined">İstifadəçi təyin edən zolaq</string>
+    <string name="aud_output_mode">Səs çıxışı rejimi</string>
+    <string name="audio_type_stereo">Stereo</string>
+    <string name="audio_type_mono">Mono</string>
+    <string name="record_dur">Səsyazma müddəti</string>
+    <string name="auto_select_af">Alternativ tezlik</string>
+    <string name="settings_revert_defaults_title">Fabrik ilkin dəyərlərinə qayıt</string>
+    <string name="settings_revert_defaults_summary">Bütün ayarları sıfırla</string>
+    <string name="settings_revert_confirm_title">Sıfırlamanı təsdiqlə</string>
+    <string name="settings_revert_confirm_msg">Bu, saxlanılmış ön ayarlar daxil olmaqla bütün tətbiq ayarlarını təmizləyəcək. Davam edilsin?</string>
+    <string name="no_storage">Səsyazmaya başlamamışdan əvvəl SD kartı taxın.</string>
+    <string name="preparing_sd">SD kart hazırlanır\u2026</string>
+    <string name="access_sd_fail">SD karta erişə bilmədi.</string>
+    <string name="spaceIsLow_content">SD kart anbar sahəsində yer azalır. Keyfiyyət ayarlarını dəyişdirin və ya yer açmaq üçün bəzi faylları silin.</string>
+    <string name="FMRecording_reach_size_limit">Ölçü limitinə çatdınız.</string>
+    <string name="menu_scan_for_preset">Öntərtibli siyahıları tədqiq et</string>
+    <string name="fm_off">FM söndürüldü.</string>
+    <string name="fm_call">FM zəng zamanı istifadə edilə bilməz.</string>
+    <string name="alert_dialog_hint">Ad daxil edin</string>
+    <string name="search_dialog_title">Stansiyaları tədqiq et</string>
+    <string name="fm_command_timeout_title">Bitmə vaxtı</string>
+    <string name="fm_tune_timeout_msg">FM stansiyasını kökləmək üçün cavab alınmadı. Əgər problem davam etsə, lütfən FM-i söndürüb yenidən işə salın.</string>
+    <string name="fm_command_failed_title">FM əməliyyatı uğursuz oldu</string>
+    <string name="fm_cmd_failed_msg">FM əməliyyatı baş tutmadı. Əgər problem davam edərsə, lütfən FM-i söndürüb yenidən işə salın.</string>
+    <string name="fm_cmd_failed_msg_hdmi">FM əməliyyatı baş tutmadı. FM və HDMI\'ın eyni vaxtda işləməsi dəstəklənmir.</string>
+    <string name="fm_cmd_failed_call_on">FM əməliyyatı baş tutmadı. FM səsinə zəng vaxtı icazə verilmir.</string>
+    <string name="audio_db_title_format"><xliff:g id="format">yyyy-MM-dd HH:mm:ss</xliff:g></string>
+    <string name="audio_db_artist_name">FM səsyazmalarım</string>
+    <string name="audio_db_album_name">FM səsyazmaları</string>
+    <string name="audio_db_playlist_name">FM səsyazmaları</string>
+    <string name="station_name">Stansiya:</string>
+    <string name="station_exists">Bu tezlik artıq mövcuddur!</string>
+    <string name="station_list_delete_station">Sil: <xliff:g id="name">%s</xliff:g></string>
+    <string name="station_list_delete_station_prompt">\'<xliff:g id="name">%s</xliff:g>\' stansiyasını silmək istədiyinizə əminsiniz?</string>
+    <string name="station_name_empty">Stansiya adı boşdur, lütfən yenidən daxil edin.</string>
+    <string name="station_name_exist">\'<xliff:g id="name">%s</xliff:g>\' adı artıq istifadə olunur, lütfən başqa ad daxil edin.</string>
+    <string name="rt_plus_tags">Etiketlər</string>
+    <string name="usr_def_band_min">Ən aşağı tezlik (MHz)</string>
+    <string name="usr_def_band_max">Ən yuxarı tezlik (MHz)</string>
+    <string name="chanl_spacing">Kanal aralığı</string>
+    <string name="set">Ayarla</string>
+    <string name="user_defind_band_msg">Ən az 1 kanal aralığı ilə və minimum və maksimum tezlik arasında 100 kHz aralığa sahib 76.0-108.0 MHz arası tezlik daxil edin</string>
+    <string name="save_record_file">FM səsyazma faylı \'<xliff:g id="record_file">%1$s</xliff:g>\' yolunda saxlanıldı</string>
+    <string name="fm_search_no_results">Uyumlu stansiyalar tapılmadı</string>
+    <string name="typ_All_stations">Bütün kanallar</string>
+    <string name="typ_Culture">Mədəniyyət</string>
+    <string name="typ_Current_affairs">Hazırkı hadisələr</string>
+    <string name="typ_Children">Uşaq proqramları</string>
+    <string name="typ_Country">Country musiqi</string>
+    <string name="typ_Documentary">Sənədli</string>
+    <string name="typ_Drama">Dram</string>
+    <string name="typ_Easy_listening">Asan dinlənən musiqi</string>
+    <string name="typ_Education">Təhsil</string>
+    <string name="typ_Emergency">Fövqəladə hal</string>
+    <string name="typ_Emergency_test">Fövqəladə hal testi</string>
+    <string name="typ_Finance">Maliyyə</string>
+    <string name="typ_Folk">Xalq musiqisi</string>
+    <string name="typ_Information">İnformasiya</string>
+    <string name="typ_Jazz">Jazz musiqisi</string>
+    <string name="typ_Light_classical">Light klassik</string>
+    <string name="typ_Leisure">Leisure</string>
+    <string name="typ_News">Xəbərlər</string>
+    <string name="typ_National">Milli musiqi</string>
+    <string name="typ_Other">Digər musiqi</string>
+    <string name="typ_Oldies">Köhnə musiqi</string>
+    <string name="typ_Phone_in">Telefondan</string>
+    <string name="typ_Pop">Pop musiqisi</string>
+    <string name="typ_Religion">Dini</string>
+    <string name="typ_Rock">Rok musiqisi</string>
+    <string name="typ_Science">Elm</string>
+    <string name="typ_Serious_classical">Ciddi klassik</string>
+    <string name="typ_Social_affairs">Sosial hadisələr</string>
+    <string name="typ_Sport">İdman</string>
+    <string name="typ_Travel">Səyahət</string>
+    <string name="typ_Varied">Müxtəlif</string>
+    <string name="typ_Weather">Hava</string>
+    <string name="typ_Adult_hits">Yetkin hit</string>
+    <string name="typ_Classical">Klassik</string>
+    <string name="typ_Classic_Rock">Klassik Rok</string>
+    <string name="typ_College">Kollec</string>
+    <string name="typ_Foreign_language">Xarici dil</string>
+    <string name="typ_Hiphop">Hip Hop</string>
+    <string name="typ_Nostalgia">Nostalji</string>
+    <string name="typ_Personality">Şəxsiyyət</string>
+    <string name="typ_Public">İctimai</string>
+    <string name="typ_Religious_music">Dini musiqi</string>
+    <string name="typ_Religious_talk">Dini söhbət</string>
+    <string name="typ_Rhythm_and_Blues">Rhythm və Blues</string>
+    <string name="typ_Spanish_music">İspan musiqisi</string>
+    <string name="typ_Spanish_talk">İspan danışığı</string>
+    <string name="typ_Soft">Soft</string>
+    <string name="typ_Soft_Rock">Soft Rock</string>
+    <string name="typ_Soft_Rhythm_and_Blues">Soft Rhythm and Blues</string>
+    <string name="typ_Sports">İdman</string>
+    <string name="typ_Talk">Söhbət</string>
+    <string name="typ_Top_40">Top 40</string>
+</resources>

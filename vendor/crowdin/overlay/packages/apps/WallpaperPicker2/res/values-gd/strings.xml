@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2017 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="wallpaper_app_name">Pàipearan-balla</string>
+    <string name="app_name">@string/wallpaper_app_name</string>
+    <string name="select_wallpaper_label">Roinnean-seòrsa nam pàipearan-balla</string>
+    <string name="set_wallpaper_button_text">Suidhich am pàipear-balla</string>
+    <string name="set_wallpaper_progress_message">A’ suidheachadh a’ phàipeir-bhalla…</string>
+    <string name="try_again">Feuch ris a‑rithist</string>
+    <string name="set_wallpaper_error_message">Cha b’ urrainn dhuinn am pàipear-balla a suidheachadh.</string>
+    <string name="load_wallpaper_error_message">        Cha b’ urrainn dhuinn am pàipear-balla a luchdadh. Tha an dealbh coirbte no chan eil e ri fhaighinn.
+    </string>
+    <string name="static_wallpaper_presentation_mode_message">’Ga chleachdadh an-dràsta</string>
+    <string name="rotating_wallpaper_presentation_mode_message">Pàipear-balla làitheil</string>
+    <string name="wallpaper_destination_both">An sgrìn-ghlasaidh ⁊ dachaigh</string>
+    <string name="home_screen_message">An sgrìn dachaigh</string>
+    <string name="lock_screen_message">An sgrìn-ghlasaidh</string>
+    <string name="home_and_lock_short_label">Dachaigh ⁊ glas</string>
+    <string name="set_wallpaper_home_screen_destination">An sgrìn dachaigh</string>
+    <string name="set_wallpaper_lock_screen_destination">An sgrìn-ghlasaidh</string>
+    <string name="no_backup_image_wallpaper_label">Pàipear-balla de dhealbhan cuairteach</string>
+    <string name="permission_needed_explanation">      Airson am pàipear-balla làithreach a shealltainn an-seo,
+ feumaidh      <xliff:g example="Wallpapers" id="app_name">%1$s</xliff:g> stòras an uidheim agad
+      inntrigeadh.
+    </string>
+    <string name="permission_needed_explanation_go_to_settings">      Airson am pàipear-balla làithreach a shealltainn an-seo, feumaidh aplacaid nam pàipearan-balla stòras an uidheim agad
+      inntrigeadh.\n\nAirson an roghainn seo atharrachadh, rach gu raon nan roghainnean aig fiosrachadh aplacaid nam pàipearan-balla.
+    </string>
+    <string name="permission_needed_allow_access_button_label">      Ceadaich inntrigeadh
+    </string>
+    <string name="no_backup_image_wallpaper_description">      Seirbheis phàipearan-balla beòtha airson pàipearan-balla cuairteach
+    </string>
+    <string name="daily_refresh_tile_title">Pàipear-balla làitheil</string>
+    <string name="daily_refresh_tile_subtitle">Thoir gnogag gus a chur air</string>
+    <string name="start_rotation_dialog_body_live_wallpaper_needed">      Atharraichidh am pàipear-balla gach latha. Airson crìoch a chur air an t-suidheachadh, thoir gnogag air
+      <![CDATA[<strong>Suidhich am pàipear-balla</strong>]]> air an ath-sgrìn.
+    </string>
+    <string name="start_rotation_dialog_wifi_only_option_message">      O seo a-mach, luchdaich a-nuas pàipearan-balla air WiFi a-mhàin
+    </string>
+    <string name="start_rotation_dialog_continue">Lean air adhart</string>
+    <string name="start_rotation_progress_message">A’ luchdachadh a-nuas a’ chiad pàipeir-bhalla…</string>
+    <string name="start_rotation_error_message">      Cha b’ urrainn dhuinn a’ chiad pàipear-balla a luchdadh a-nuas. Thoir sùil air roghainnean an lìonraidh agad is feuch ris a-rithist.
+    </string>
+    <string name="start_rotation_dialog_body">      Atharraichidh am pàipear-balla gu fèin-obrachail gach latha
+    </string>
+    <string name="settings_button_label">      Roghainnean
+    </string>
+    <string name="explore">Rùraich</string>
+    <string name="next_wallpaper">An t-ath phàipear-balla</string>
+    <string name="wallpaper_disabled_message">        Chaidh suidheachadh pàipeir-bhalla a chur à comas air an uidheam seo
+    </string>
+    <string name="wallpaper_disabled_by_administrator_message">        Chaidh suidheachadh pàipeir-bhalla a chur à comas le rianaire an uidheim agad
+    </string>
+    <string name="wallpaper_set_successfully_message">        Chaidh am pàipear-balla a shuidheachadh
+    </string>
+    <string name="wallpapers_unavailable_offline_message">        Tha feum agad air ceangal dhan eadar-lìon airson pàipearan-balla a shealltainn. Thoir sùil air a’ cheangal agad is feuch ris a-rithist.\"
+    </string>
+    <string name="currently_set_home_wallpaper_thumbnail">      Dealbhag de phàipear-balla na sgrìn dachaigh a tha ’ga chleachdadh an-dràsta
+    </string>
+    <string name="currently_set_lock_wallpaper_thumbnail">      Dealbhag de phàipear-balla na sgrìn-ghlasaidh a tha ’ga chleachdadh an-dràsta
+    </string>
+    <string name="currently_set_wallpaper_thumbnail">Dealbhag dhen phàipear-balla a tha ’ga chleachdadh an-dràsta</string>
+    <string name="wallpaper_thumbnail">Dealbhag dhen phàipear-balla</string>
+    <string name="explore_home_screen">Mu phàipear-balla na sgrìn dachaigh</string>
+    <string name="explore_lock_screen">Mu phàipear-balla na sgrìn-ghlasaidh</string>
+    <string name="refresh_daily_wallpaper_home_content_description">Ath-nuadhaich pàipear-balla làitheil na sgrìn dachaigh</string>
+    <string name="refresh_daily_wallpaper_content_description">Ath-nuadhaich am pàipear-balla làitheil</string>
+    <string name="refreshing_daily_wallpaper_dialog_message">        Ag ath-nuadhachadh a’ phàipeir-bhalla làitheil…
+    </string>
+    <string name="refresh_daily_wallpaper_failed_message">        Cha deach leinn am pàipear-balla làitheil ath-nuadhachadh. Thoir sùil air a’ cheangal dhan lìonraidh agad is feuch ris a-rithist.
+    </string>
+    <string name="on_device_wallpapers_category_title">Pàipearan-balla an uidheim</string>
+    <string name="on_device_wallpapers_category_title_desktop">Air an uidheam</string>
+    <string name="on_device_wallpaper_title">Pàipear-balla Android</string>
+    <string name="live_wallpapers_category_title">Pàipearan-balla beòtha</string>
+    <string name="my_photos_category_title">Na dealbhan agam</string>
+    <string name="my_photos_generic_wallpaper_title">An dealbh agam</string>
+    <string name="fallback_wallpaper_title">Pàipear-balla</string>
+    <string name="app_not_found">Cha deach an aplacaid a stàladh.</string>
+    <string name="center_wallpaper_position">Sa meadhan</string>
+    <string name="center_crop_wallpaper_position">Beàrrte sa mheadhan</string>
+    <string name="stretch_wallpaper_position">Sìn</string>
+    <string name="preview">Ro-sheall</string>
+    <string name="tab_info">Fiosrachadh</string>
+    <string name="tab_customize">Gnàthaich</string>
+    <string name="configure_wallpaper">Roghainnean…</string>
+    <string name="delete_live_wallpaper">Sguab às</string>
+    <string name="edit_live_wallpaper">Deasaich</string>
+    <string name="bottom_action_bar_edit">Deasaich</string>
+    <string name="bottom_action_bar_download">Luchdaich a-nuas</string>
+    <string name="bottom_action_bar_slideshow_wallpaper">Pàipear-balla de shleamhnagan</string>
+    <string name="bottom_action_bar_apply">Cuir an sàs</string>
+    <string name="accessibility_preview_pager" msgid="3548503287402185430">Duilleag <xliff:g name="current_page" example="1">%1$d</xliff:g> à <xliff:g name="num_pages" example="2">%2$d</xliff:g></string>
+    <string name="next_page_content_description" msgid="5290226604542300962">Air adhart</string>
+    <string name="previous_page_content_description" msgid="6025726405430262788">Air ais</string>
+    <string name="wallpaper_title">Pàipear-balla</string>
+    <string name="wallpaper_preview_card_content_description">Ro-shealladh air pàipear-balla</string>
+    <string name="collection_not_exist_msg">Chan eil an cruinneachadh ann</string>
+    <string name="apply_btn" msgid="7965877231041987336">Cuir an sàs</string>
+    <string name="lock_screen_tab">An sgrìn-ghlasaidh</string>
+    <string name="home_screen_tab">An sgrìn dachaigh</string>
+    <string name="default_wallpaper_title">Pàipear-balla</string>
+</resources>

@@ -1,0 +1,41 @@
+package {
+    default_team: "trendy_team_fwk_core_networking",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_test {
+    name: "connectivity_native_test",
+    test_suites: [
+        "general-tests",
+        "mts-tethering",
+        "vts",
+    ],
+    test_config_template: "AndroidTestTemplate.xml",
+    min_sdk_version: "34",
+    tidy: false,
+    srcs: [
+        "connectivity_native_test.cpp",
+    ],
+    header_libs: ["bpf_connectivity_headers"],
+    shared_libs: [
+        "libbase",
+        "libbinder_ndk",
+        "liblog",
+        "libnetutils",
+        "libprocessgroup",
+    ],
+    static_libs: [
+        "connectivity_native_aidl_interface-lateststable-ndk",
+        "libcutils",
+        "libmodules-utils-build",
+        "libutils",
+    ],
+    compile_multilib: "first",
+}
+
+filegroup {
+    name: "net_native_test_config_template",
+    srcs: [
+        "NetNativeTestConfigTemplate.xml",
+    ],
+}

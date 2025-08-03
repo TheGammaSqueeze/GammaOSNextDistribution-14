@@ -1,0 +1,9 @@
+package: "android.uprobestats.flags"
+
+flag {
+    name: "enable_uprobestats"
+    namespace: "system_performance"
+    description: "Whether to enable uprobestats."
+    bug: "296108553"
+    is_fixed_read_only: true
+}

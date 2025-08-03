@@ -1,0 +1,20 @@
+cc_fuzz {
+    name: "tinyxml_parse_fuzzer",
+    srcs: [
+        "tinyxml_parse_fuzzer.cpp",
+    ],
+
+    static_libs: [
+        "libtinyxml2",
+    ],
+
+    fuzz_config: {
+        cc: [
+            "hamzeh@google.com",
+        ],
+        componentid: 330367,
+    },
+
+    corpus: ["xml_corpus/*"],
+    dictionary: "tinyxml.dict",
+}

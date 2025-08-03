@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017-2024 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="system_reboot_confirm_cm">Redémarrer sur :</string>
+    <string name="global_action_restart_system">Système</string>
+    <string name="global_action_restart_recovery">Récupération</string>
+    <string name="global_action_restart_bootloader">Chargeur de démarrage</string>
+    <plurals name="show_dev_countdown_cm">
+        <item quantity="one">Vous êtes maintenant à <xliff:g id="step_count">%1$d</xliff:g> étape de l\'activation des paramètres de développement.</item>
+        <item quantity="other">Vous êtes maintenant à <xliff:g id="step_count">%1$d</xliff:g> étapes de l\'activation des paramètres de développement.</item>
+    </plurals>
+    <string name="show_dev_on_cm">Vous avez activé les paramètres de développement !</string>
+    <string name="show_dev_already_cm">Inutile, vous avez déjà activé les paramètres de développement.</string>
+    <string name="system_buttons">Boutons</string>
+    <string name="power_button_long_press_action_title">Appui long sur le bouton Marche/Arrêt</string>
+    <string name="power_button_long_press_for_power_menu_action">Accéder au menu Marche/Arrêt</string>
+    <string name="power_button_long_press_for_assistant_action">Ouvrir l\'assistant</string>
+    <string name="inputs_volume_control_enabled">Contrôle du volume CEC</string>
+    <string name="inputs_volume_control_enabled_desc">Contrôle du volume TV/AVR au lieu du volume interne</string>
+    <string name="enable_adb_root">Débogage rooté</string>
+    <string name="enable_adb_root_summary">Autoriser le débogage Android en tant que root</string>
+    <string name="advanced_restart_title">Redémarrage avancé</string>
+    <string name="advanced_restart_summary">Afficher les options pour redémarrer sur la récupération, le chargeur de démarrage ou effectuer un redémarrage logiciel</string>
+    <string name="adb_over_network">ADB par réseau</string>
+    <string name="adb_over_network_summary">Activer le débogage TCP/IP sur les interfaces réseaux (Wi\u2011Fi, réseaux USB). Ce paramètre est réinitialisé au redémarrage</string>
+    <string name="adb_over_network_warning">AVERTISSEMENT : Lorsque l\'ADB par réseau est activé, votre téléphone est ouvert aux intrusions sur tous les réseaux connectés !\n\nUtilisez cette fonctionnalité uniquement lorsque vous êtes connecté sur des réseaux sûrs.\n\nVoulez-vous vraiment activer cette fonction ?</string>
+    <string name="trust_category_features">État</string>
+    <string name="trust_feature_selinux">SELinux</string>
+    <string name="trust_feature_selinux_value_enforcing">Appliqué</string>
+    <string name="trust_feature_selinux_value_disabled">Désactivé</string>
+    <string name="trust_feature_selinux_explain">SELinux permet de contrôler les processus autorisés à accéder aux fichiers/chemins sur votre appareil.\nCette fonctionnalité empêche ainsi des applications et services d\'accéder à des fichiers qu\'ils ne sont pas censés gérer. Étant donné que les éventuels processus malveillants ont un accès limité à vos données, votre appareil reste protégé.</string>
+    <string name="trust_feature_security_patches">Correctifs de sécurité Android</string>
+    <string name="trust_feature_security_patches_value_base">Plateforme : %1$s\nFournisseur : %2$s</string>
+    <string name="trust_feature_security_patches_value_new">À jour</string>
+    <string name="trust_feature_security_patches_value_medium">Obsolète de quelques mois</string>
+    <string name="trust_feature_security_patches_value_old">Obsolète</string>
+    <string name="trust_feature_security_patches_explain">Les correctifs de sécurité sont publiés chaque mois par Google, en coopération avec les fournisseurs de SoC. Ils permettent de corriger des failles que des applications malveillantes sont susceptibles d\'exploiter pour contourner les restrictions de sécurité et endommager votre appareil de façon définitive. Les correctifs fournis par Google sont appliqués chaque mois à tous les appareils compatibles, mais ceux concernant le code propriétaire ne peuvent l\'être que par le fabricant de votre appareil. Pour garantir la sécurité de votre appareil, veillez à toujours utiliser la dernière version de LineageOS et, le cas échéant, mettez à jour votre fichier vendor.img afin qu\'il corresponde à la dernière version recommandée par LineageOS.</string>
+    <string name="trust_feature_encryption">Chiffrement</string>
+    <string name="trust_feature_encryption_value_enabled">Activé</string>
+    <string name="trust_feature_encryption_value_nolock">Écran de verrouillage sécurisé requis</string>
+    <string name="trust_feature_encryption_value_disabled">Désactivé</string>
+    <string name="trust_feature_encryption_explain">Le chiffrement permet d\'empêcher l\'accès à vos données lorsque Android n\'est pas démarré sur votre téléphone. Cette protection est particulièrement importante si votre appareil est volé, car elle empêche quiconque de lire vos SMS, vos contacts et vos autres informations confidentielles sans votre mot de passe.\nAfin d\'améliorer l\'efficacité du chiffrement, vous devez configurer un écran de verrouillage sécurisé par un mot de passe.</string>
+    <string name="trust_category_tools">Confidentialité</string>
+    <string name="trust_notification_alerts_title">Alertes de sécurité</string>
+    <string name="trust_restrict_usb_title">Restreindre l’USB</string>
+    <string name="trust_restrict_usb_summary">Contrôler la prise en charge des connexions USB telles que les écouteurs, les périphériques de stockage, les périphériques d\'entrée (souris, claviers, joysticks) et ADB</string>
+    <string name="trust_restrict_usb_always">Refuser les connexions USB</string>
+    <string name="trust_restrict_usb_disabled">Toujours autoriser les connexions USB</string>
+    <string name="trust_onboarding_description">Trust permet d\'assurer la sécurité de votre appareil et de protéger votre vie privée.\nL\'icône Trust ne s\'affiche que lorsque le contenu de la page a été vérifié.</string>
+    <string name="trust_warnings_alerts_intro">Vous pouvez sélectionner les problèmes de sécurité pour lesquels vous souhaitez être averti. Pour votre sécurité, il est recommandé d’activer toutes les alertes.</string>
+    <string name="trust_warnings_selinux">État SELinux</string>
+    <string name="trust_warnings_keys">Signature de la version</string>
+    <string name="sleep_button_label">Veille</string>
+    <string name="system_sleep_confirm">Mettre en veille maintenant ?</string>
+    <string name="shutdown_button_label">Arrêt</string>
+    <string name="system_shutdown_confirm">Arrêter maintenant ?</string>
+    <string name="convertible_port_busy_title">Le port USB 1 est utilisé</string>
+    <string name="convertible_port_busy_warning">Débranchez tous les appareils ou accessoires et réessayez</string>
+    <string name="mtp_enable_title">Accès aux dossiers de la SHIELD sur PC via USB</string>
+    <string name="mtp_enable_warning">Le port USB 1 est désormais configuré pour que la SHIELD se connecte à un PC en tant que périphérique multimédia.\n\nCe port ne détectera plus les supports de stockage USB ni les accessoires USB et ne peut pas être utilisé pour charger des appareils.</string>
+    <string name="mtp_retry_error">Échec. Veuillez réessayer.</string>
+    <string name="mtp_summary">Dans ce mode, le port USB n\'est pas fonctionnel pour d\'autres utilisations</string>
+    <string name="mtp_title">Transférer des fichiers vers un ordinateur via USB</string>
+    <string name="mtp_unexpected_error">Erreur inattendue. Veuillez réessayer plus tard.</string>
+    <string name="usb_debugging_enable_title">Débogage USB activé</string>
+    <string name="usb_debugging_enable_warning">Le port USB 1 est désormais configuré pour que la SHIELD se connecte à un PC en tant que périphérique multimédia.\n\nCe port ne détectera plus les supports de stockage USB ni les accessoires USB et ne peut pas être utilisé pour charger des appareils.</string>
+</resources>

@@ -1,0 +1,95 @@
+// Copyright (C) 2018 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_test {
+    name: "meminspect_tests",
+
+    test_suites: ["device-tests"],
+
+    // Required for reading-writing files which are part of the tests.
+    require_root: true,
+
+    shared_libs: [
+        "libbase",
+        "libziparchive",
+    ],
+
+    cppflags: [
+        "-g",
+        "-Wall",
+        "-Werror",
+    ],
+
+    static_libs: [
+        "libmeminspect",
+    ],
+
+    target: {
+        android: {
+            srcs: ["meminspect_tests.cpp"],
+        },
+    },
+
+    cflags: [
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O0", // as some tests rely on compiler keeping code as is
+    ],
+
+    compile_multilib: "first",
+}
+
+cc_test {
+    name: "pintool_tests",
+
+    test_suites: ["device-tests"],
+
+    // Required for reading-writing files which are part of the tests.
+    require_root: true,
+
+    shared_libs: [
+        "libbase",
+        "libziparchive",
+    ],
+
+    cppflags: [
+        "-g",
+        "-Wall",
+        "-Werror",
+    ],
+
+    static_libs: [
+        "libmeminspect",
+    ],
+
+    target: {
+        android: {
+            srcs: ["pintool_tests.cpp"],
+        },
+    },
+
+    cflags: [
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O0", // as some tests rely on compiler keeping code as is
+    ],
+
+    compile_multilib: "first",
+}

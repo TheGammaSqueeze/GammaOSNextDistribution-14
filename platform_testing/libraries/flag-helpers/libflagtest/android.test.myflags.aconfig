@@ -1,0 +1,15 @@
+package: "android.test.myflags"
+container: "system"
+flag {
+  name: "test_flag_true"
+  namespace: "flagtest"
+  description: "testing flag that is always enabled"
+  bug: "<none>"
+}
+
+flag {
+  name: "test_flag_false"
+  namespace: "flagtest"
+  description: "another testing flag that is always disabled"
+  bug: "<none>"
+}

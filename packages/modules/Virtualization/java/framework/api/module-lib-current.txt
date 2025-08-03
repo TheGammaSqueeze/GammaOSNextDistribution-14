@@ -1,0 +1,9 @@
+// Signature format: 2.0
+package android.system.virtualmachine {
+
+  public class VirtualizationFrameworkInitializer {
+    method public static void registerServiceWrappers();
+  }
+
+}
+

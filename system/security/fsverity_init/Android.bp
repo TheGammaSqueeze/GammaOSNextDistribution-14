@@ -1,0 +1,42 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_security_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_security_license"],
+}
+
+cc_binary {
+    name: "fsverity_init",
+    srcs: [
+        "fsverity_init.cpp",
+    ],
+    static_libs: [
+        "aconfig_fsverity_init_c_lib",
+        "libc++fs",
+        "libmini_keyctl_static",
+    ],
+    shared_libs: [
+        "libbase",
+        "libkeyutils",
+        "liblog",
+    ],
+    cflags: [
+        "-Werror",
+        "-Wall",
+        "-Wextra",
+    ],
+}
+
+aconfig_declarations {
+    name: "aconfig_fsverity_init",
+    package: "android.security.flag",
+    container: "system",
+    srcs: ["flags.aconfig"],
+}
+
+cc_aconfig_library {
+    name: "aconfig_fsverity_init_c_lib",
+    aconfig_declarations: "aconfig_fsverity_init",
+}

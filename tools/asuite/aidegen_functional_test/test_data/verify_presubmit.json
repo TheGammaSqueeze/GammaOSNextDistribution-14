@@ -1,0 +1,4 @@
+{
+    "test whole android tree with frameworks/base -a": ["aidegen frameworks/base -a -n -s"],
+    "test help": ["aidegen -h"]
+}

@@ -1,0 +1,95 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_bt_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_bt_license"],
+}
+
+cc_library_static {
+    name: "lib-bt-packets",
+    defaults: ["bluetooth_cflags"],
+    host_supported: true,
+    export_include_dirs: [
+        "./",
+        "./include",
+    ],
+    static_libs: [
+        "lib-bt-packets-avrcp",
+        "lib-bt-packets-base",
+    ],
+    apex_available: [
+        "com.android.btservices",
+    ],
+    min_sdk_version: "30",
+}
+
+cc_test {
+    name: "net_test_btpackets",
+    defaults: [
+        "fluoride_defaults",
+        "mts_defaults",
+    ],
+    test_suites: ["general-tests"],
+    host_supported: true,
+    test_options: {
+        unit_test: true,
+    },
+    local_include_dirs: ["tests"],
+    include_dirs: [
+        "packages/modules/Bluetooth/system/",
+        "packages/modules/Bluetooth/system/gd",
+        "packages/modules/Bluetooth/system/include",
+    ],
+    srcs: [
+        "tests/avrcp/avrcp_browse_packet_test.cc",
+        "tests/avrcp/avrcp_packet_test.cc",
+        "tests/avrcp/avrcp_reject_packet_test.cc",
+        "tests/avrcp/change_path_packet_test.cc",
+        "tests/avrcp/general_reject_packet_test.cc",
+        "tests/avrcp/get_capabilities_packet_test.cc",
+        "tests/avrcp/get_current_player_application_setting_value_test.cc",
+        "tests/avrcp/get_element_attributes_packet_test.cc",
+        "tests/avrcp/get_folder_items_packet_test.cc",
+        "tests/avrcp/get_item_attributes_packet_test.cc",
+        "tests/avrcp/get_play_status_packet_test.cc",
+        "tests/avrcp/get_total_number_of_items_packet_test.cc",
+        "tests/avrcp/list_player_application_setting_attributes_test.cc",
+        "tests/avrcp/list_player_application_setting_values_test.cc",
+        "tests/avrcp/pass_through_packet_test.cc",
+        "tests/avrcp/play_item_packet_test.cc",
+        "tests/avrcp/register_notification_packet_test.cc",
+        "tests/avrcp/set_absolute_volume_packet_test.cc",
+        "tests/avrcp/set_addressed_player_packet_test.cc",
+        "tests/avrcp/set_browsed_player_packet_test.cc",
+        "tests/avrcp/set_player_application_setting_value_test.cc",
+        "tests/avrcp/vendor_packet_test.cc",
+        "tests/base/iterator_test.cc",
+        "tests/base/packet_builder_test.cc",
+        "tests/base/packet_test.cc",
+    ],
+    shared_libs: [
+        "libbase",
+        "libbinder_ndk",
+        "liblog",
+    ],
+    static_libs: [
+        "lib-bt-packets",
+        "lib-bt-packets-avrcp",
+        "lib-bt-packets-base",
+        "libbluetooth_log",
+        "libchrome",
+        "libgmock",
+    ],
+    cflags: [
+        "-Wno-unused-parameter",
+    ],
+    target: {
+        android: {
+            static_libs: [
+                "android.system.suspend.control-V1-ndk",
+            ],
+        },
+    },
+}

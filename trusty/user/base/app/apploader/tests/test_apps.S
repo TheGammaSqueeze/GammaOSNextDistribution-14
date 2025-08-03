@@ -1,0 +1,101 @@
+/*
+ * Copyright (C) 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#ifdef ARCH_ARM64
+#include <lk/asm.h>
+
+SECTION_GNU_NOTE_PROPERTY_AARCH64_FEATURES(GNU_NOTE_FEATURE_AARCH64_BTI)
+#endif
+
+
+.section .data
+
+.global version_test_app_v1_start, version_test_app_v1_end
+.hidden version_test_app_v1_start, version_test_app_v1_end
+.balign 4096
+version_test_app_v1_start:
+.incbin VERSION_TEST_APP_V1
+version_test_app_v1_end:
+
+.global version_test_app_v2_start, version_test_app_v2_end
+.hidden version_test_app_v2_start, version_test_app_v2_end
+.balign 4096
+version_test_app_v2_start:
+.incbin VERSION_TEST_APP_V2
+version_test_app_v2_end:
+
+.global version_test_app_v3_start, version_test_app_v3_end
+.hidden version_test_app_v3_start, version_test_app_v3_end
+.balign 4096
+version_test_app_v3_start:
+.incbin VERSION_TEST_APP_V3
+version_test_app_v3_end:
+
+.global mmio_test_app_allowed_start, mmio_test_app_allowed_end
+.hidden mmio_test_app_allowed_start, mmio_test_app_allowed_end
+.balign 4096
+mmio_test_app_allowed_start:
+.incbin MMIO_TEST_APP_ALLOWED
+mmio_test_app_allowed_end:
+
+.global mmio_test_app_bad_uuid_start, mmio_test_app_bad_uuid_end
+.hidden mmio_test_app_bad_uuid_start, mmio_test_app_bad_uuid_end
+.balign 4096
+mmio_test_app_bad_uuid_start:
+.incbin MMIO_TEST_APP_BAD_UUID
+mmio_test_app_bad_uuid_end:
+
+.global mmio_test_app_bad_range_low_start, mmio_test_app_bad_range_low_end
+.hidden mmio_test_app_bad_range_low_start, mmio_test_app_bad_range_low_end
+.balign 4096
+mmio_test_app_bad_range_low_start:
+.incbin MMIO_TEST_APP_BAD_RANGE_LOW
+mmio_test_app_bad_range_low_end:
+
+.global mmio_test_app_bad_range_high_start, mmio_test_app_bad_range_high_end
+.hidden mmio_test_app_bad_range_high_start, mmio_test_app_bad_range_high_end
+.balign 4096
+mmio_test_app_bad_range_high_start:
+.incbin MMIO_TEST_APP_BAD_RANGE_HIGH
+mmio_test_app_bad_range_high_end:
+
+.global encryption_test_app_encrypted_app_encryption_optional_start, encryption_test_app_encrypted_app_encryption_optional_end
+.hidden encryption_test_app_encrypted_app_encryption_optional_start, encryption_test_app_encrypted_app_encryption_optional_end
+.balign 4096
+encryption_test_app_encrypted_app_encryption_optional_start:
+.incbin ENCRYPTION_TEST_APP_ENCRYPTED_APP_ENCRYPTION_OPTIONAL
+encryption_test_app_encrypted_app_encryption_optional_end:
+
+.global encryption_test_app_encrypted_app_encryption_required_start, encryption_test_app_encrypted_app_encryption_required_end
+.hidden encryption_test_app_encrypted_app_encryption_required_start, encryption_test_app_encrypted_app_encryption_required_end
+.balign 4096
+encryption_test_app_encrypted_app_encryption_required_start:
+.incbin ENCRYPTION_TEST_APP_ENCRYPTED_APP_ENCRYPTION_REQUIRED
+encryption_test_app_encrypted_app_encryption_required_end:
+
+.global encryption_test_app_unencrypted_app_encryption_optional_start, encryption_test_app_unencrypted_app_encryption_optional_end
+.hidden encryption_test_app_unencrypted_app_encryption_optional_start, encryption_test_app_unencrypted_app_encryption_optional_end
+.balign 4096
+encryption_test_app_unencrypted_app_encryption_optional_start:
+.incbin ENCRYPTION_TEST_APP_UNENCRYPTED_APP_ENCRYPTION_OPTIONAL
+encryption_test_app_unencrypted_app_encryption_optional_end:
+
+.global encryption_test_app_unencrypted_app_encryption_required_start, encryption_test_app_unencrypted_app_encryption_required_end
+.hidden encryption_test_app_unencrypted_app_encryption_required_start, encryption_test_app_unencrypted_app_encryption_required_end
+.balign 4096
+encryption_test_app_unencrypted_app_encryption_required_start:
+.incbin ENCRYPTION_TEST_APP_UNENCRYPTED_APP_ENCRYPTION_REQUIRED
+encryption_test_app_unencrypted_app_encryption_required_end:

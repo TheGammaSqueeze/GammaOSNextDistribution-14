@@ -1,0 +1,81 @@
+//
+// Copyright (C) 2020 Google Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "CarLauncherTests",
+
+    srcs: ["src/**/*.java"],
+
+    resource_dirs: ["res"],
+
+    libs: [
+        "android.car",
+        "android.test.base",
+        "android.car-system-stubs",
+    ],
+
+    optimize: {
+        enabled: false,
+    },
+
+    static_libs: [
+        "android.car.testapi",
+        "android.car.test.utils",
+        "androidx.test.core",
+        "androidx.test.runner",
+        "androidx.test.rules",
+        "androidx.test.espresso.core",
+        "androidx.test.espresso.contrib",
+        "androidx.test.espresso.intents",
+        "androidx.test.ext.junit",
+        "androidx.fragment_fragment-testing",
+        "hamcrest-library",
+        "mockito-target-extended",
+        "truth",
+        "testables",
+        "CarLauncher-core",
+        "flag-junit",
+    ],
+
+    platform_apis: true,
+
+    certificate: "platform",
+
+    privileged: true,
+
+    manifest: "AndroidManifest.xml",
+
+    instrumentation_for: "CarLauncher",
+
+    dex_preopt: {
+        enabled: false,
+    },
+
+    jni_libs: [
+        // For mockito extended
+        "libdexmakerjvmtiagent",
+        "libstaticjvmtiagent",
+    ],
+
+    test_suites: [
+        "automotive-tests",
+        "device-tests",
+    ],
+}

@@ -1,0 +1,92 @@
+// Copyright (C) 2024 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["microdroid_kernel_prebuilts_license"],
+}
+
+// See: http://go/android-license-faq
+license {
+    name: "microdroid_kernel_prebuilts_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-GPL-2.0-only",
+    ],
+    // large-scale-change unable to identify any license_text files
+}
+
+soong_config_module_type {
+    name: "avf_microdroid_kernel_prebuilt",
+    module_type: "filegroup",
+    config_namespace: "ANDROID",
+    variables: [
+        "release_avf_microdroid_kernel_version",
+    ],
+    properties: [
+        "srcs",
+    ],
+}
+
+soong_config_string_variable {
+    name: "release_avf_microdroid_kernel_version",
+    // TODO(b/298011555): add 15-6.6
+    values: [
+        "android14_61",
+        "android15_61",
+    ],
+}
+
+avf_microdroid_kernel_prebuilt {
+    name: "microdroid_kernel_prebuilt-arm64",
+    // Below are properties that are conditionally set depending on value of build flags.
+    soong_config_variables: {
+        release_avf_microdroid_kernel_version: {
+            android14_61: {
+                srcs: ["android14-6.1/arm64/kernel-6.1"],
+            },
+            android15_61: {
+                srcs: ["android15-6.1/arm64/kernel-6.1"],
+            },
+            // In case release configuration doesn't specify value of the
+            // RELEASE_AVF_MICRODROID_KERNEL_VERSION fallback to the kernel we
+            // already released.
+            // TODO(b/298011555): remove this once we set the flag in all release configs.
+            conditions_default: {
+                srcs: ["android14-6.1/arm64/kernel-6.1"],
+            },
+        },
+    },
+}
+
+avf_microdroid_kernel_prebuilt {
+    name: "microdroid_kernel_prebuilt-x86_64",
+    // Below are properties that are conditionally set depending on value of build flags.
+    soong_config_variables: {
+        release_avf_microdroid_kernel_version: {
+            android14_61: {
+                srcs: ["android14-6.1/x86_64/kernel-6.1"],
+            },
+            android15_61: {
+                srcs: ["android15-6.1/x86_64/kernel-6.1"],
+            },
+            // In case release configuration doesn't specify value of the
+            // RELEASE_AVF_MICRODROID_KERNEL_VERSION fallback to the kernel we
+            // already released.
+            // TODO(b/298011555): remove this once we set the flag in all release configs.
+            conditions_default: {
+                srcs: ["android14-6.1/x86_64/kernel-6.1"],
+            },
+        },
+    },
+}

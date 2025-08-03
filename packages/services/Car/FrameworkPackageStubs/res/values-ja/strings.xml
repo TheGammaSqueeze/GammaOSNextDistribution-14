@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="6179574017413146651">"アクティビティ スタブ"</string>
+    <string name="message_not_supported" msgid="133939962837892495">"この操作を実行できるアプリはありません"</string>
+    <string name="pip_not_supported" msgid="8681268258599412706">"ピクチャー イン ピクチャーはこのデバイスではご利用いただけません"</string>
+    <string name="manage_unknown_app_sources_not_supported" msgid="7368611099531260439">"このデバイスはソースが不明なアプリの管理に対応していません"</string>
+    <string name="documentsui_not_supported" msgid="2786636475647817501">"このデバイスはファイル管理に対応していません"</string>
+    <string name="stub_name" msgid="3987164490218189006">"なし"</string>
+</resources>

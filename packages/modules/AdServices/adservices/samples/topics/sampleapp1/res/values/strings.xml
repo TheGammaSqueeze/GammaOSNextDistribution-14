@@ -1,0 +1,7 @@
+<resources>
+  <string name="app_name">SampleTopicsApp1</string>
+  <string name="app_description">Sample app for Topics API</string>
+  <string name="topics_button_name">Topics Client Button</string>
+  <string name="topics_preview_button_name">Preview Topics Button</string>
+  <string name="settings_app_launchbutton_name">Settings App</string>
+</resources>

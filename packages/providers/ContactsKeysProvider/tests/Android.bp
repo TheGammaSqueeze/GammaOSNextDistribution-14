@@ -1,0 +1,33 @@
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "E2eeContactKeysProviderTests",
+    static_libs: [
+        "ContactsProviderTestUtils",
+        "androidx.test.rules",
+        "mockito-target-minus-junit4",
+        "flag-junit",
+        "android.content.pm.flags-aconfig-java",
+    ],
+    libs: [
+        "android.test.runner",
+        "android.test.base",
+        "android.test.mock",
+    ],
+
+    // Only compile source java files in this apk.
+    srcs: [
+        "src/**/*.java",
+        ":contactkeysprovider-shared-srcs",
+    ],
+    platform_apis: true,
+    test_suites: ["device-tests"],
+    instrumentation_for: "E2eeContactKeysProvider",
+    certificate: "shared",
+    optimize: {
+        enabled: false,
+    },
+}

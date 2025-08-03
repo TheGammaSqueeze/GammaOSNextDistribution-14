@@ -1,0 +1,96 @@
+// Copyright (C) 2020 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+apex_key {
+    name: "com.android.scheduling.key",
+    public_key: "com.android.scheduling.avbpubkey",
+    private_key: "com.android.scheduling.pem",
+}
+
+android_app_certificate {
+    name: "com.android.scheduling.certificate",
+    certificate: "com.android.scheduling",
+}
+
+filegroup {
+    name: "scheduling-jarjar-rules",
+    srcs: ["jarjar-rules.txt"],
+}
+
+// Encapsulate the contributions made by the com.android.scheduling to the bootclasspath.
+bootclasspath_fragment {
+    name: "com.android.scheduling-bootclasspath-fragment",
+    contents: ["framework-scheduling"],
+    apex_available: ["com.android.scheduling"],
+
+    // The bootclasspath_fragments that provide APIs on which this depends.
+    fragments: [
+        {
+            apex: "com.android.art",
+            module: "art-bootclasspath-fragment",
+        },
+    ],
+
+    // Additional stubs libraries that this fragment's contents use which are
+    // not provided by another bootclasspath_fragment.
+    additional_stubs: [
+        "android-non-updatable",
+    ],
+    hidden_api: {
+
+        // This module does not contain any split packages.
+        split_packages: [],
+
+        // The following packages and all their subpackages currently only
+        // contain classes from this bootclasspath_fragment. Listing a package
+        // here won't prevent other bootclasspath modules from adding classes in
+        // any of those packages but it will prevent them from adding those
+        // classes into an API surface, e.g. public, system, etc.. Doing so will
+        // result in a build failure due to inconsistent flags.
+        package_prefixes: [
+            "android.scheduling",
+        ],
+    },
+
+}
+
+systemserverclasspath_fragment {
+    name: "com.android.scheduling-systemserverclasspath-fragment",
+    standalone_contents: ["service-scheduling"],
+    apex_available: ["com.android.scheduling"],
+}
+
+apex {
+    name: "com.android.scheduling",
+    defaults: ["s-launched-apex-module"],
+    bootclasspath_fragments: ["com.android.scheduling-bootclasspath-fragment"],
+    systemserverclasspath_fragments: ["com.android.scheduling-systemserverclasspath-fragment"],
+    prebuilts: ["current_sdkinfo"],
+    manifest: "manifest.json",
+    androidManifest: "AndroidManifest.xml",
+    file_contexts: ":com.android.scheduling-file_contexts",
+    key: "com.android.scheduling.key",
+}
+
+sdk {
+    name: "scheduling-sdk",
+    apexes: [
+        // Adds exportable dependencies of the APEX to the sdk,
+        // e.g. *classpath_fragments.
+        "com.android.scheduling",
+    ],
+}

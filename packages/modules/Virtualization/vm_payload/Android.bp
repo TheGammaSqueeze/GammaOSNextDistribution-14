@@ -1,0 +1,102 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+// The Rust implementation of the C API.
+rust_ffi_static {
+    name: "libvm_payload_impl",
+    crate_name: "vm_payload",
+    defaults: ["avf_build_flags_rust"],
+    visibility: ["//visibility:private"],
+    srcs: ["src/lib.rs"],
+    include_dirs: ["include"],
+    prefer_rlib: true,
+    rustlibs: [
+        "android.system.virtualization.payload-rust",
+        "libandroid_logger",
+        "libanyhow",
+        "libbinder_rs",
+        "liblazy_static",
+        "liblibc",
+        "liblog_rust",
+        "libopenssl",
+        "librpcbinder_rs",
+        "libvm_payload_status_bindgen",
+        "libvsock",
+    ],
+}
+
+rust_bindgen {
+    name: "libvm_payload_status_bindgen",
+    wrapper_src: "include/vm_payload.h",
+    crate_name: "vm_payload_status_bindgen",
+    defaults: ["avf_build_flags_rust"],
+    source_stem: "bindings",
+    bindgen_flags: [
+        "--default-enum-style rust",
+        "--allowlist-type=AVmAttestationStatus",
+    ],
+    visibility: [":__subpackages__"],
+}
+
+// Rust wrappers round the C API for Rust clients.
+// (Yes, this involves going Rust -> C -> Rust.)
+rust_bindgen {
+    name: "libvm_payload_bindgen",
+    wrapper_src: "include-restricted/vm_payload_restricted.h",
+    crate_name: "vm_payload_bindgen",
+    defaults: ["avf_build_flags_rust"],
+    source_stem: "bindings",
+    apex_available: ["com.android.compos"],
+    bindgen_flags: [
+        "--default-enum-style rust",
+    ],
+    visibility: [
+        "//packages/modules/Virtualization/compos",
+        "//packages/modules/Virtualization/service_vm:__subpackages__",
+    ],
+    shared_libs: [
+        "libvm_payload#current",
+    ],
+}
+
+// Shared library for clients to link against.
+cc_library_shared {
+    name: "libvm_payload",
+    defaults: ["avf_build_flags_cc"],
+    shared_libs: [
+        "libbinder_ndk",
+        "libbinder_rpc_unstable",
+        "liblog",
+        "libcrypto",
+    ],
+    whole_static_libs: ["libvm_payload_impl"],
+    export_static_lib_headers: ["libvm_payload_impl"],
+    installable: false,
+    version_script: "libvm_payload.map.txt",
+    stubs: {
+        symbol_file: "libvm_payload.map.txt",
+        // Implementation is available inside a Microdroid VM.
+        implementation_installable: false,
+    },
+}
+
+// Just the headers. Mostly useful for clients that only want the
+// declaration of AVmPayload_main().
+cc_library_headers {
+    name: "vm_payload_headers",
+    defaults: ["avf_build_flags_cc"],
+    apex_available: ["com.android.compos"],
+    export_include_dirs: ["include"],
+}
+
+// Restricted headers for use by internal clients & associated tests.
+cc_library_headers {
+    name: "vm_payload_restricted_headers",
+    defaults: ["avf_build_flags_cc"],
+    header_libs: ["vm_payload_headers"],
+    export_header_lib_headers: ["vm_payload_headers"],
+    export_include_dirs: ["include-restricted"],
+    apex_available: ["com.android.compos"],
+    visibility: ["//packages/modules/Virtualization:__subpackages__"],
+}

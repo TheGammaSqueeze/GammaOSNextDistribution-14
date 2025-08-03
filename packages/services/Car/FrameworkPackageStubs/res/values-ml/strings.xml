@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="6179574017413146651">"ആക്‌റ്റിവിറ്റി സ്‌റ്റബ്"</string>
+    <string name="message_not_supported" msgid="133939962837892495">"ഒരു ആപ്പിനും ഈ പ്രവർത്തനം ഹാൻഡിൽ ചെയ്യാനാവില്ല"</string>
+    <string name="pip_not_supported" msgid="8681268258599412706">"ചിത്രത്തിനുള്ളിലെ ചിത്രത്തിന് ഈ ഉപകരണത്തിൽ പിന്തുണയില്ല"</string>
+    <string name="manage_unknown_app_sources_not_supported" msgid="7368611099531260439">"ഈ ഉപകരണത്തിൽ \'അജ്ഞാത ആപ്പ് ഉറവിടങ്ങൾ മാനേജ് ചെയ്യുക\' പിന്തുണയ്‌ക്കുന്നില്ല"</string>
+    <string name="documentsui_not_supported" msgid="2786636475647817501">"ഈ ഉപകരണത്തിൽ ഫയൽ മാനേജ്‌മെന്റ് പിന്തുണയ്‌ക്കുന്നില്ല"</string>
+    <string name="stub_name" msgid="3987164490218189006">"ഒന്നുമില്ല"</string>
+</resources>

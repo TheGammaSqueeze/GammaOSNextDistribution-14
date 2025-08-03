@@ -1,0 +1,101 @@
+plugins {
+    id 'com.android.application' version '7.2.1' apply false
+    id 'com.android.library' version '7.2.1' apply false
+}
+
+task clean(type: Delete) {
+    delete layout.buildDirectory
+    if (findProject('native-poc') != null) {
+        delete project('native-poc').layout.projectDirectory.dir('.cxx')
+    }
+}
+
+ext.copyArtifacts = { nativeDir ->
+    copy {
+        from project('sts-test').layout.buildDirectory.file('testcases')
+
+        if (findProject('native-poc') != null) {
+            from project('native-poc').layout.buildDirectory.file(nativeDir)
+        }
+
+        into layout.buildDirectory.dir('android-sts/testcases')
+    }
+
+    // TODO: figure out variants
+    if (findProject('test-app') != null) {
+        copy {
+            from project('test-app').layout.buildDirectory.file('outputs/apk/debug')
+            rename '(.*).apk', 'sts_test_app_package.apk'
+            include '**/*.apk'
+            into layout.buildDirectory.dir('android-sts/testcases')
+        }
+    }
+
+    // To add another Android apk to the test, copy the block above and rename
+    // the project name to your submodule as well as the APK output filename.
+    // Remember to use that APK file name in your `sts-test`.
+
+    copy {
+        from project('sts-test').layout.projectDirectory.file('libs')
+        into layout.buildDirectory.dir('android-sts/tools')
+    }
+    copy {
+        from project('sts-test').layout.projectDirectory.dir('jdk')
+        into layout.buildDirectory.dir('android-sts/jdk')
+    }
+}
+
+task assembleStsARM {
+    dependsOn ':sts-test:copyHostSideTest'
+
+    if (findProject('native-poc') != null) {
+        dependsOn ':native-poc:copyarmeabi-v7a'
+        dependsOn ':native-poc:copyarm64-v8a'
+    }
+
+    if (findProject('test-app') != null) {
+        dependsOn ':test-app:assemble'
+    }
+
+    // To add another Android apk to the test, copy the block above and rename
+    // the project name to your new submodule
+
+    doLast {
+        copyArtifacts('testcases_arm')
+    }
+}
+
+task assembleStsx86 {
+    dependsOn ':sts-test:copyHostSideTest'
+
+    if (findProject('native-poc') != null) {
+        dependsOn ':native-poc:copyx86'
+        dependsOn ':native-poc:copyx86_64'
+    }
+
+    if (findProject('test-app') != null) {
+        dependsOn ':test-app:assemble'
+    }
+
+    // To add another Android apk to the test, copy the block above and rename
+    // the project name to your new submodule
+
+    doLast {
+        copyArtifacts('testcases_x86')
+    }
+}
+
+task zipForSubmission(type: Zip) {
+    from('.') {
+        exclude "**/build"
+        exclude '.gradle'
+        exclude 'test-app/libs'
+        exclude 'sts-test/libs'
+        exclude 'sts-test/jdk'
+        exclude 'sts-test/utils'
+        exclude "**/.cxx"
+    }
+    from project('sts-test').layout.projectDirectory.file('libs/version.txt')
+    archiveFileName.set("codesubmission.zip")
+    destinationDirectory.set(layout.buildDirectory)
+}

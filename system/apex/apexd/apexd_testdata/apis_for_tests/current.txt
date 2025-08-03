@@ -1,0 +1,9 @@
+// Signature format: 2.0
+package com.android.apex.test {
+
+  public class Test {
+    ctor public Test();
+  }
+
+}
+

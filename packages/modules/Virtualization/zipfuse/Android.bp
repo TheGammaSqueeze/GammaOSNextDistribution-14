@@ -1,0 +1,47 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_defaults {
+    name: "zipfuse.defaults",
+    crate_name: "zipfuse",
+    defaults: ["avf_build_flags_rust"],
+    srcs: ["src/main.rs"],
+    edition: "2021",
+    prefer_rlib: true,
+    rustlibs: [
+        "libanyhow",
+        "libclap",
+        "libfuse_rust",
+        "liblibc",
+        "liblog_rust",
+        "librustutils",
+        "libscopeguard",
+        "libzip",
+    ],
+    // libfuse_rust, etc don't support 32-bit targets
+    multilib: {
+        lib32: {
+            enabled: false,
+        },
+    },
+}
+
+rust_binary {
+    name: "zipfuse",
+    defaults: ["zipfuse.defaults"],
+    bootstrap: true,
+}
+
+rust_test {
+    name: "ZipFuseTest",
+    stem: "zipfuse.test",
+    defaults: ["zipfuse.defaults"],
+    test_suites: ["general-tests"],
+    compile_multilib: "first",
+    rustlibs: [
+        "libnix",
+        "libtempfile",
+    ],
+    data: [":zipfuse"],
+}

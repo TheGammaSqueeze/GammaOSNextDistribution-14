@@ -1,0 +1,107 @@
+file_to_watch {
+  source: "LOGCAT"
+  destination: "%(device)s_logcat.txt"
+  repeats_output_on_open: true
+  time_stamp {
+    type: DATE
+    regex: "^(\\d+-\\d+ \\d+:\\d+:\\d+.\\d+)"
+    date_format: "%m-%d %H:%M:%S.%f"
+  }
+}
+
+file_to_watch {
+  source: "/dev/kmsg"
+  destination: "%(device)s_kmsg.txt"
+  repeats_output_on_open: true
+  time_stamp {
+    type: MONOTONIC
+    regex: "^\\d+,\\d+,(\\d+)"
+    monotonic_to_seconds_multiplier: 1e-6
+  }
+}
+
+file_to_move {
+  source: "/sdcard/captured_dsp_audio.wav"
+  destination: "%(device)s/%(iteration)06d_captured_dsp_audio.wav"
+}
+
+event {
+  source: "LOGCAT"
+  name: "software_hotword"
+  regex: "MicroDetectionWorker: #onHotwordDetected"
+}
+
+event {
+  source: "LOGCAT"
+  name: "vis_software_hotword"
+  regex: "GsaVoiceInteractionSrv: onHotwordDetected"
+  regex: "SodaTriggeringFrontend: #onHotwordDetected"
+}
+
+event {
+  source: "LOGCAT"
+  name: "dsp_false_accept"
+  regex: "Software didn't trigger but DSP did"
+}
+
+event {
+  source: "LOGCAT"
+  name: "speaker_id_rejected"
+  regex: ": Speaker Verification failed"
+  regex: "Software based speaker id triggered: false"
+}
+
+event {
+  source: "LOGCAT"
+  name: "logcat_iteration"
+  regex: "STRESS_TEST: Iteration \d+ complete"
+}
+
+event {
+  source: "LOGCAT"
+  name: "assistant_started"
+  regex: "START.*com\.google\.android\.googlequicksearchbox.*opa\.OpaActivity.*|NGA starts FULL_LISTENING*"
+  regex: ".*mCurrentFocus=Window{.*VoiceInteractionSession}"
+  regex: ".*mCurrentFocus=Window{.*com\.google\.android\.googlequicksearchbox\/com\.google\.android\.apps\.search\.assistant\.surfaces\.voice\.ui\.host\.activity\.transientactivity\.FragmentHostTransientActivity}"
+  regex: ".*mCurrentFocus=Window{.*com\.google\.android\.googlequicksearchbox\/com\.google\.android\.apps\.search\.assistant\.surfaces\.voice\.ui\.host\.activity\.fullscreenactivity\.FragmentHostFullScreenActivity}"
+  regex: ".*mCurrentFocus=Window{.*com\.google\.android\.googlequicksearchbox\/com\.google\.android\.apps\.search\.assistant\.surfaces\.voice\.ui\.host\.activity\.defaultactivity\.FragmentHostDefaultActivity}"
+}
+
+event {
+  source: "LOGCAT"
+  name: "aohd_hotword_detected"
+  regex: "AlwaysOnHotwordDetector: onDetected"
+}
+
+setup_command: "shell setprop log.tag.AlwaysOnHotwordDetector DEBUG"
+setup_command: "shell setprop log.tag.ClockworkHomeGoogle DEBUG"
+setup_command: "shell setprop log.tag.DSPMicrophoneIS DEBUG"
+setup_command: "shell setprop log.tag.DSPMicrophoneInputStrea DEBUG"
+setup_command: "shell setprop log.tag.GsaVoiceInteractionSrv DEBUG"
+setup_command: "shell setprop log.tag.HotwordAudioProvider DEBUG"
+setup_command: "shell setprop log.tag.HotwordConfig DEBUG"
+setup_command: "shell setprop log.tag.HotwordConfigController DEBUG"
+setup_command: "shell setprop log.tag.HotwordDetector DEBUG"
+setup_command: "shell setprop log.tag.HotwordHelper DEBUG"
+setup_command: "shell setprop log.tag.HotwordRecognitionEngn DEBUG"
+setup_command: "shell setprop log.tag.HotwordRecognitionRnr DEBUG"
+setup_command: "shell setprop log.tag.HotwordSettingsCntrlr DEBUG"
+setup_command: "shell setprop log.tag.HotwordState DEBUG"
+setup_command: "shell setprop log.tag.HotwordWorker DEBUG"
+setup_command: "shell setprop log.tag.HotwordWorkerImpl DEBUG"
+setup_command: "shell setprop log.tag.MicroDetectionState DEBUG"
+setup_command: "shell setprop log.tag.MicroRecognitionEngine DEBUG"
+setup_command: "shell setprop log.tag.SWHotwordRecognizer DEBUG"
+setup_command: "shell setprop log.tag.SoundTrigger DEBUG"
+setup_command: "shell setprop log.tag.SoundTriggerHelper DEBUG"
+setup_command: "shell setprop log.tag.SoundTriggerTest DEBUG"
+setup_command: "shell setprop log.tag.VISHotwordAdapter DEBUG"
+setup_command: "shell setprop log.tag.WearVIS DEBUG"
+setup_command: "shell setprop log.tag.MicroDetectionWorker DEBUG"
+setup_command: "shell setprop log.tag.MicroDetectionWrkImpl DEBUG"
+setup_command: "shell setprop log.tag.MicroDetector DEBUG"
+setup_command: "shell setprop log.tag.MicroRecognitionEngine DEBUG"
+setup_command: "shell setprop log.tag.MicroRecognitionRnrImpl DEBUG"
+setup_command: "logcat -P ''"
+
+tag_to_suppress: "GoogleApiClientConnected"

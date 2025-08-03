@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  Copyright (c) 2017 The LineageOS Project
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ Also add information on how to contact you by electronic and paper mail.
+
+-->
+<resources>
+    <string name="notification_title">ตรวจพบฝาครอบอัจฉริยะ</string>
+    <string name="alarm_label">นาฬิกาปลุก</string>
+    <string name="answer_call">รับสาย</string>
+    <string name="ignore_call">ไม่รับสาย</string>
+    <string name="end_call">วางสาย</string>
+    <string name="settings_name">อุปกรณ์ฝาพับ</string>
+    <string name="settings_summary">ควบคุมพฤติกรรมของอุปกรณ์เสริม</string>
+    <string name="category_behaviour">พฤติกรรม</string>
+    <string name="pass_to_security_view_title">แสดงรหัสผ่านโดยตรง</string>
+    <string name="pass_to_security_view_summary">แสดงหน้าจอล็อกเมื่อเปิดฝาครอบ</string>
+    <string name="use_high_touch_sensitivity_title">ความไวต่อสัมผัสสูง</string>
+    <string name="use_high_touch_sensitivity_summary">เพิ่มความไวสัมผัสขณะปิดฝาครอบ</string>
+    <string name="category_design">การออกแบบ</string>
+    <string name="switch_charging_status_title">แสดงสถานะการชาร์จ</string>
+    <string name="switch_charging_status_summary">การเปลี่ยนสีขึ้นอยู่กับปริมาณแบตเตอรี่ในปัจจุบัน</string>
+    <string name="category_timeouts">หมดเวลา</string>
+    <string name="timeout_plugged_title">ในระหว่างการชาร์จ</string>
+    <string name="timeout_unplugged_title">ไม่ได้เสียบปลั๊ก</string>
+    <string name="timeout_summary">แสดงแอปฝาครอบ %s หลังจากปิดฝาครอบแล้ว</string>
+    <string name="timeout_summary_never">หลังจากปิดฝาครอบแล้ว ให้แอปฝาครอบแสดงผลตลอด</string>
+    <string name="timeout_summary_immediately">หน้าจอจะถูกปิดเมื่อปิดฝาครอบ</string>
+    <string name="timeout_entry_immediately">ทันที</string>
+    <string name="timeout_entry_5s">5 วินาที</string>
+    <string name="timeout_entry_10s">10 วินาที</string>
+    <string name="timeout_entry_30s">30 วินาที</string>
+    <string name="timeout_entry_1min">1 นาที</string>
+    <string name="timeout_entry_5min">5 นาที</string>
+    <string name="timeout_entry_never">ไม่เลย</string>
+</resources>

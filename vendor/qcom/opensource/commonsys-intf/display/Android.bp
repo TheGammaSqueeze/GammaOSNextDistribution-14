@@ -1,0 +1,39 @@
+soong_namespace {
+}
+
+cc_library_headers {
+    name: "display_intf_headers",
+    vendor_available: true,
+    defaults: [
+        "gralloc_handle_has_custom_content_md_reserved_size_defaults",
+        "gralloc_handle_has_reserved_size_defaults",
+        "gralloc_handle_has_ubwcp_format_defaults",
+    ],
+    export_include_dirs: [
+        "gralloc",
+        "include",
+        "libqdmetadata",
+        "services",
+    ],
+}
+
+soong_config_module_type {
+    name: "qtimultiview_cc_defaults",
+    module_type: "cc_defaults",
+    config_namespace: "qtidisplaycommonsysintf",
+    bool_variables: [
+        "multi_view_support",
+    ],
+    properties: [
+        "cflags",
+    ],
+}
+
+qtimultiview_cc_defaults {
+    name: "qtimultiview_defaults",
+    soong_config_variables: {
+        multi_view_support: {
+            cflags: ["-DMULTI_VIEW_SUPPORT"],
+        },
+    }
+}

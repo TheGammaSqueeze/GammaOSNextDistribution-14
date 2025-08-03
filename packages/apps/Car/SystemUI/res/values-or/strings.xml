@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (c) 2018 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="hvac_min_text" msgid="866677328637088715">"ସର୍ବନିମ୍ନ"</string>
+    <string name="hvac_max_text" msgid="7627950157128770380">"ସର୍ବାଧିକ"</string>
+    <string name="fan_speed_max" msgid="956683571700419211">"ସର୍ବାଧିକ"</string>
+    <string name="fan_speed_off" msgid="3860115181014880798">"ବନ୍ଦ ଅଛି"</string>
+    <string name="hvac_temperature_off" msgid="8370977023494579242">"ବନ୍ଦ ଅଛି"</string>
+    <string name="voice_recognition_toast" msgid="7579725862117020349">"ଭଏସ ଚିହ୍ନଟକରଣ ଏବେ ସଂଯୁକ୍ତ ଥିବା ବ୍ଲୁଟୁଥ ଡିଭାଇସ ଦ୍ୱାରା ପରିଚାଳିତ"</string>
+    <string name="car_add_user" msgid="6182764665687382136">"ଏକ ପ୍ରୋଫାଇଲ ଯୋଗ କରନ୍ତୁ"</string>
+    <string name="end_session" msgid="2765206020435441421">"ସେସନ ଶେଷ କରନ୍ତୁ"</string>
+    <string name="car_new_user" msgid="6766334721724989964">"ନୂଆ ପ୍ରୋଫାଇଲ"</string>
+    <string name="user_add_profile_title" msgid="828371911076521952">"ନୂଆ ପ୍ରୋଫାଇଲ ଯୋଗ କରିବେ?"</string>
+    <string name="user_add_user_message_setup" msgid="1639791240776969175">"ଆପଣ ଏକ ନୂଆ ପ୍ରୋଫାଇଲ ଯୋଗ କରିବା ପରେ, ଆକାଉଣ୍ଟ ହୋଲ୍ଡର ଏହାକୁ କଷ୍ଟମାଇଜ କରିପାରିବେ।"</string>
+    <string name="user_add_user_message_update" msgid="4507063398890966360">"ଯେ କୌଣସି ପ୍ରୋଫାଇଲ ଏକ ଆପ ଅପଡେଟ ଇନଷ୍ଟଲ କରିପାରିବ, ଯାହା ପରେ ସମସ୍ତ ପ୍ରୋଫାଇଲ ପାଇଁ ଉପଲବ୍ଧ ହେବ।"</string>
+    <string name="profile_limit_reached_title" msgid="7891779218496729653">"ଅଧିକ ପ୍ରୋଫାଇଲ ପାଇଁ ଅନୁମତି ନାହିଁ"</string>
+    <string name="profile_limit_reached_message" msgid="1534369584753840606">"{count,plural, =1{କେବଳ ଗୋଟିଏ ପ୍ରୋଫାଇଲ ତିଆରି କରାଯାଇପାରିବ।}other{ଆପଣ #ଟି ପର୍ଯ୍ୟନ୍ତ ପ୍ରୋଫାଇଲ ଯୋଗ କରିପାରିବେ।}}"</string>
+    <string name="car_loading_profile" msgid="458961191993686065">"ଲୋଡ୍ କରାଯାଉଛି"</string>
+    <string name="car_loading_profile_developer_message" msgid="737810794567935702">"ୟୁଜର ଲୋଡ କରାଯାଉଛି (<xliff:g id="FROM_USER">%1$d</xliff:g>ଙ୍କ ଠାରୁ <xliff:g id="TO_USER">%2$d</xliff:g> ପର୍ଯ୍ୟନ୍ତ)"</string>
+    <string name="privacy_chip_off_content" msgid="8406415098507955316">"<xliff:g id="SENSOR">%1$s</xliff:g> ବନ୍ଦ ଅଛି।"</string>
+    <string name="privacy_chip_use_sensor" msgid="7688230720803089653">"<xliff:g id="SENSOR">%1$s</xliff:g> ବ୍ୟବହାର କରନ୍ତୁ"</string>
+    <string name="privacy_chip_use_sensor_subtext" msgid="5655148288310815742">"ଅନୁମତି ଥିବା ଆପ୍ସ ପାଇଁ"</string>
+    <string name="privacy_chip_settings" msgid="8028897999244574288">"ଗୋପନୀୟତା ସେଟିଂସ"</string>
+    <string name="privacy_chip_app_using_sensor_suffix" msgid="7921315376271490004">"<xliff:g id="APP">%1$s</xliff:g> <xliff:g id="SENSOR">%2$s</xliff:g> ବ୍ୟବହାର କରୁଛି"</string>
+    <string name="mic_privacy_chip_apps_using_mic_suffix" msgid="6656026041668305817">"<xliff:g id="APP_LIST">%s</xliff:g> ମାଇକ୍ ବ୍ୟବହାର କରୁଛନ୍ତି"</string>
+    <string name="privacy_chip_app_recently_used_sensor_suffix" msgid="4632772067170022529">"<xliff:g id="APP">%1$s</xliff:g> ବର୍ତ୍ତମାନ <xliff:g id="SENSOR">%2$s</xliff:g> ବ୍ୟବହାର କରିଛି"</string>
+    <string name="privacy_chip_apps_recently_used_sensor_suffix" msgid="2715537466314464047">"<xliff:g id="APP_0">%1$s</xliff:g> ଏବଂ ଅଧିକ <xliff:g id="ADDITIONAL_APP_COUNT">%2$d</xliff:g>ଟି ଆପ ବର୍ତ୍ତମାନ <xliff:g id="SENSOR">%3$s</xliff:g> ବ୍ୟବହାର କରିଛି"</string>
+    <string name="mic_privacy_chip_on_toast" msgid="7003896860896586181">"ମାଇକ୍ରୋଫୋନ୍ ଚାଲୁ କରାଯାଇଛି"</string>
+    <string name="mic_privacy_chip_off_toast" msgid="8718743873640788032">"ମାଇକ୍ରୋଫୋନ୍ ବନ୍ଦ କରାଯାଇଛି"</string>
+    <string name="mic_privacy_chip_dialog_ok" msgid="2298690833121720237">"ଠିକ୍ ଅଛି"</string>
+    <string name="sensor_privacy_start_use_mic_dialog_title" msgid="8774244900043105266">"ଗାଡ଼ିର ମାଇକ୍ରୋଫୋନ ଚାଲୁ କରିବେ କି?"</string>
+    <string name="sensor_privacy_start_use_mic_dialog_content" msgid="8382980879434990801">"ଜାରି ରଖିବା ପାଇଁ, ଇନଫୋଟେନମେଣ୍ଟ ସିଷ୍ଟମ ମାଇକ୍ରୋଫୋନକୁ ଚାଲୁ କରନ୍ତୁ। ଏହା ଅନୁମତି ଥିବା ସମସ୍ତ ଆପ ପାଇଁ ମାଇକ୍ରୋଫୋନ ଚାଲୁ କରିବ।"</string>
+    <string name="camera_privacy_chip_app_using_camera_suffix" msgid="2591363552459967509">"<xliff:g id="APP">%s</xliff:g> କ୍ୟାମେରା ବ୍ୟବହାର କରୁଛି"</string>
+    <string name="camera_privacy_chip_apps_using_camera_suffix" msgid="8033118959615498419">"<xliff:g id="APP_LIST">%s</xliff:g> କ୍ୟାମେରା ବ୍ୟବହାର କରୁଛି"</string>
+    <string name="camera_privacy_chip_app_recently_used_camera_suffix" msgid="4534950658276502559">"<xliff:g id="APP">%s</xliff:g> ବର୍ତ୍ତମାନ କ୍ୟାମେରା ବ୍ୟବହାର କରିଛି"</string>
+    <string name="camera_privacy_chip_apps_recently_used_camera_suffix" msgid="3094973410349692954">"<xliff:g id="APP_0">%1$s</xliff:g> ଏବଂ ଅଧିକ <xliff:g id="ADDITIONAL_APP_COUNT">%2$d</xliff:g>ଟି ଆପ ବର୍ତ୍ତମାନ କ୍ୟାମେରା ବ୍ୟବହାର କରିଛି"</string>
+    <string name="camera_privacy_chip_on_toast" msgid="7901274903678512207">"କ୍ୟାମେରା ଚାଲୁ କରାଯାଇଛି"</string>
+    <string name="camera_privacy_chip_off_toast" msgid="7135472255099347229">"କ୍ୟାମେରା ବନ୍ଦ କରାଯାଇଛି"</string>
+    <string name="camera_privacy_chip_dialog_ok" msgid="7285467760928137765">"ଠିକ୍ ଅଛି"</string>
+    <string name="sensor_privacy_start_use_camera_dialog_title" msgid="4787836783010823885">"ଗାଡ଼ିର କ୍ୟାମେରାକୁ ଚାଲୁ କରିବେ?"</string>
+    <string name="sensor_privacy_start_use_camera_dialog_content" msgid="7749639131326657668">"ଜାରି ରଖିବା ପାଇଁ, ଇନଫୋଟେନମେଣ୍ଟ ସିଷ୍ଟମ କ୍ୟାମେରାକୁ ଚାଲୁ କରନ୍ତୁ। ଏହା ଅନୁମତି ଥିବା ସମସ୍ତ ଆପ ପାଇଁ କ୍ୟାମେରାକୁ ଚାଲୁ କରିବ।"</string>
+    <string name="system_bar_home_label" msgid="8413273833405495948">"ହୋମ ସ୍କ୍ରିନ"</string>
+    <string name="system_bar_phone_label" msgid="5664288201806823777">"ଫୋନ"</string>
+    <string name="system_bar_applications_label" msgid="7081862804211786227">"ଆପ୍ଲିକେସନଗୁଡ଼ିକ"</string>
+    <string name="system_bar_climate_control_label" msgid="4091187805919276017">"ଜଳବାୟୁ ନିୟନ୍ତ୍ରଣ"</string>
+    <string name="system_bar_notifications_label" msgid="6039158514903928210">"ବିଜ୍ଞପ୍ତିଗୁଡ଼ିକ"</string>
+    <string name="system_bar_maps_label" msgid="7883864993280235380">"Maps"</string>
+    <string name="system_bar_media_label" msgid="6156112139796274847">"ମିଡିଆ"</string>
+    <string name="system_bar_control_center_label" msgid="5269256399167811590">"ନିୟନ୍ତ୍ରଣ କେନ୍ଦ୍ର"</string>
+    <string name="system_bar_assistant_label" msgid="7312821609046711200">"Assistant"</string>
+    <string name="system_bar_mic_privacy_chip" msgid="2494035034004728597">"ମାଇକ ଗୋପନୀୟତା ଚିପ"</string>
+    <string name="system_bar_user_avatar" msgid="4122817348016746322">"ୟୁଜର ଅବତାର"</string>
+    <string name="system_bar_user_name_text" msgid="5859605302481171746">"ୟୁଜରନେମ ଟେକ୍ସଟ"</string>
+    <string name="hvac_decrease_button_label" msgid="5628481079099995286">"ତାପମାତ୍ରା କମାନ୍ତୁ"</string>
+    <string name="hvac_increase_button_label" msgid="2855688290787396792">"ତାପମାତ୍ରା ବଢ଼ାନ୍ତୁ"</string>
+    <string name="status_icon_bluetooth_disconnected" msgid="6773447522499007010">"ବ୍ଲୁଟୁଥ ସେଟିଂ: ବିଚ୍ଛିନ୍ନ କରାଯାଇଛି"</string>
+    <string name="status_icon_bluetooth_connected" msgid="4548446117525711779">"ବ୍ଲୁଟୁଥ ସେଟିଂ: କନେକ୍ଟ କରାଯାଇଛି"</string>
+    <string name="status_icon_bluetooth_off" msgid="5435041393564635821">"ବ୍ଲୂଟୁଥ ସେଟିଂ: ବ୍ଲୁଟୁଥ ବନ୍ଦ ଅଛି"</string>
+    <string name="status_icon_signal_mobile" msgid="7264721079060179783">"ସିଗନାଲ ସେଟିଂସ: ମୋବାଇଲ ଡାଟା ବ୍ୟବହାର କରାଯାଉଛି"</string>
+    <string name="status_icon_signal_wifi" msgid="1257569337648058522">"ସିଗନାଲ ସେଟିଂସ: ୱାଇଫାଇ ଚାଲୁ ଅଛି"</string>
+    <string name="status_icon_signal_hotspot" msgid="1023039120452006880">"ସିଗନାଲ ସେଟିଂସ: ହଟସ୍ପଟ ଚାଲୁ ଅଛି"</string>
+    <string name="status_icon_display_status" msgid="2970020923181359144">"ଡିସପ୍ଲେ ସେଟିଂସ"</string>
+    <string name="status_icon_drive_mode" msgid="3938622431486261076">"ଡ୍ରାଇଭ ମୋଡ"</string>
+    <string name="activity_blocked_text" msgid="5353157279548801554">"ଆପଣ ଡ୍ରାଇଭ୍‍ କରିବା ସମୟରେ ଏହି ଫିଚର୍‍ ବ୍ୟବହାର କରିପାରିବେ ନାହିଁ"</string>
+    <string name="exit_button_close_application" msgid="112227710467017144">"ଆପ୍‍ ବନ୍ଦ କରନ୍ତୁ"</string>
+    <string name="exit_button_go_back" msgid="7988866855775300902">"ପଛକୁ ଫେରନ୍ତୁ"</string>
+    <string name="drive_mode_modes_comfort" msgid="628724737960743004">"ଆରାମ"</string>
+    <string name="drive_mode_modes_eco" msgid="7694931508925737653">"ଅନୁକୂଳ"</string>
+    <string name="drive_mode_modes_sport" msgid="7664603138389270601">"ସ୍ପୋର୍ଟ"</string>
+    <string name="qc_drive_mode_active_subtitle" msgid="3667965966971747414">"ସକ୍ରିୟ"</string>
+    <string name="qc_footer_settings" msgid="5471523941092316743">"ସେଟିଂସ"</string>
+    <string name="qc_footer_bluetooth_settings" msgid="2870204430643762847">"ବ୍ଲୁଟୁଥ ସେଟିଂସ"</string>
+    <string name="qc_footer_network_internet_settings" msgid="2480582764252681575">"ନେଟୱାର୍କ ଏବଂ ଇଣ୍ଟରନେଟ ସେଟିଂସ"</string>
+    <string name="qc_footer_display_settings" msgid="2950539240110437704">"ଡିସପ୍ଲେ ସେଟିଂସ"</string>
+    <string name="qc_footer_network_sound_settings" msgid="5117011034908775097">"ସାଉଣ୍ଡ ସେଟିଂସ"</string>
+    <string name="qc_footer_profiles_accounts_settings" msgid="4456419248123950232">"ପ୍ରୋଫାଇଲ ଏବଂ ଆକାଉଣ୍ଟ ସେଟିଂସ"</string>
+    <string name="lockpattern_does_not_support_rotary" msgid="4605787900312103476">"ରୋଟାରୀକୁ ପାଟର୍ନ ସମର୍ଥନ କରେ ନାହିଁ, ସ୍ପର୍ଶ ବ୍ୟବହାର କର"</string>
+    <string name="display_input_lock_text" msgid="1671197665816822205">"ଆପଣଙ୍କ ସ୍କ୍ରିନକୁ ଲକ କରାଯାଇଛି"</string>
+    <string name="display_input_lock_started_text" msgid="2434054522800802134">"ଆପଣଙ୍କ ସ୍କ୍ରିନକୁ ଲକ କରାଯାଇଛି"</string>
+    <string name="display_input_lock_stopped_text" msgid="5944577827512246808">"ଆପଣଙ୍କ ସ୍କ୍ରିନକୁ ବର୍ତ୍ତମାନ ଅନଲକ କରାଯାଇଛି"</string>
+    <string name="user_logout_title" msgid="5534754139319586681">"ଆପଣ ଲଗ ଆଉଟ କରିବାକୁ ଚାହୁଁଥିବା ସୁନିଶ୍ଚିତ?"</string>
+    <string name="user_logout_message" msgid="7804089876692575056">"ଏହା ଖୋଲା ଥିବା ସମସ୍ତ ଆପ୍ଲିକେସନକୁ ବନ୍ଦ କରିଦେବ"</string>
+    <string name="user_logout" msgid="2934184154258330491">"ଲଗ ଆଉଟ କରନ୍ତୁ"</string>
+    <string name="car_guest" msgid="768913000117469596">"ଅତିଥି"</string>
+    <string name="user_switching_message" msgid="5346172662613832946">"ପ୍ରୋଫାଇଲ ସୁଇଚ କରୁଛନ୍ତି…"</string>
+    <string name="user_adding_message" msgid="4700853604381151415">"ନୂଆ ପ୍ରୋଫାଇଲ ଯୋଗ କରୁଛନ୍ତି…"</string>
+    <string name="max_user_limit_reached_title" msgid="7319012467112549458"></string>
+    <string name="max_user_limit_reached_message" msgid="1445188223628919167">"ଆପଣ <xliff:g id="USER_LIMIT">%d</xliff:g>ଟି ପର୍ଯ୍ୟନ୍ତ ପ୍ରୋଫାଇଲ ଯୋଗ କରିପାରିବେ"</string>
+    <string name="confirm_add_user_title" msgid="75853419607883551">"ନୂଆ ପ୍ରୋଫାଇଲ ଯୋଗ କରିବେ?"</string>
+    <string name="already_logged_in_message" msgid="3657131706472825219">"ଜାରି ରଖିବା ପାଇଁ <xliff:g id="USER_NAME">%1$s</xliff:g> <xliff:g id="SEAT_LOCATION">%2$s</xliff:g> ସ୍କ୍ରିନରୁ ସାଇନ ଆଉଟ କରିବା ଉଚିତ"</string>
+    <string name="header_bar_text_in_logged_out_state" msgid="3903097856063608991">"ଆରମ୍ଭ କରିବାକୁ ପ୍ରୋଫାଇଲ ଚୟନ କରନ୍ତୁ"</string>
+    <string name="logged_in_text" msgid="742324514947999718">"ସାଇନ ଇନ କରାଯାଇଛି"</string>
+    <string name="prefix_logged_in_info_for_other_seat" msgid="7438545665671460955">"<xliff:g id="SEAT_LOCATION">%s</xliff:g> ସ୍କ୍ରିନରେ ସାଇନ ଇନ କରାଯାଇଛି"</string>
+    <string name="create_user_failed_message" msgid="4539847475822170735">"ନୂଆ ପ୍ରୋଫାଇଲ ଯୋଗ କରାଯାଇପାରିବ ନାହିଁ। ପରେ ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ।"</string>
+    <string name="guest_creation_failed_message" msgid="8198126434029601949">"ଅତିଥି ପ୍ରୋଫାଇଲ ଆରମ୍ଭ କରାଯାଇପାରିବ ନାହିଁ। ପରେ ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ।"</string>
+    <string name="stopping_user_text" msgid="4946464635279894684">"ସାଇନ ଆଉଟ କରାଯାଉଛି…"</string>
+    <string name="wait_for_until_stopped_message" msgid="4964287657737020726">"<xliff:g id="USER_NAME">%s</xliff:g>ଙ୍କୁ ସାଇନ ଆଉଟ କରାଯାଉଛି। ପରେ ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ।"</string>
+    <string name="seat_driver" msgid="4502591979520445677">"ଡ୍ରାଇଭର"</string>
+    <string name="seat_front" msgid="836133281052793377">"ସାମ୍ନା"</string>
+    <string name="seat_rear" msgid="403133444964528577">"ପଛ"</string>
+    <string name="seat_left_side" msgid="7460757956924015769">"ବାମ"</string>
+    <string name="seat_center_side" msgid="6661501442901282386">"ମଝି"</string>
+    <string name="seat_right_side" msgid="6735434879559763096">"ଡାହାଣ"</string>
+    <string name="keyguard_enter_your_pin" msgid="141736439348916894"></string>
+    <string name="keyguard_enter_your_pattern" msgid="4004401928097798697"></string>
+    <string name="keyguard_enter_your_password" msgid="1345546935461513721"></string>
+    <string name="car_keyguard_enter_your_pin" msgid="6306637610891409860">"ଆପଣଙ୍କ PIN ଲେଖନ୍ତୁ"</string>
+    <string name="car_keyguard_enter_your_pattern" msgid="7314854851472119334">"ଆପଣଙ୍କ ପାଟର୍ନ ଲେଖନ୍ତୁ"</string>
+    <string name="car_keyguard_enter_your_password" msgid="2084173625085820354">"ଆପଣଙ୍କ ପାସୱାର୍ଡ ଲେଖନ୍ତୁ"</string>
+    <string name="backspace_key" msgid="5570862528655375412">"Backspace କୀ"</string>
+    <string name="enter_key" msgid="747962923921283095">"Enter କୀ"</string>
+    <string name="user_tos_activity_intent" msgid="6076292178025090081">"intent:#Intent;action=com.android.car.SHOW_USER_TOS_ACTIVITY;B.show_value_prop=false;end"</string>
+    <string name="back_btn" msgid="7774349944465667391">"ପଛକୁ ଫେରନ୍ତୁ"</string>
+    <string name="fullscreen" msgid="7648956467442135844">"ପୂର୍ଣ୍ଣ ସ୍କ୍ରିନ"</string>
+</resources>

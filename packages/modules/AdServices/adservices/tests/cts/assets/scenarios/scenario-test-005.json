@@ -1,0 +1,12 @@
+{
+  "mocks": [
+    {
+      "request": {
+        "path": "hello/world"
+      },
+      "response": {
+        "body": "DefaultResponse.txt"
+      }
+    }
+  ]
+}

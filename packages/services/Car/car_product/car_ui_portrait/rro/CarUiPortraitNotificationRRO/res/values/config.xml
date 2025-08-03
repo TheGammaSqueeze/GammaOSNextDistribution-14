@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+    <bool name="config_showHeadsUpNotificationOnBottom">true</bool>
+
+    <string name="config_headsUpNotificationAnimationHelper" translatable="false">
+        com.android.car.notification.headsup.animationhelper.CarHeadsUpNotificationBottomAnimationHelper</string>
+
+    <!-- Whether to show header for the notifications center -->
+    <bool name="config_showHeaderForNotifications">false</bool>
+
+    <!-- Whether to show Recents/Older header for notifications list -->
+    <bool name="config_showRecentAndOldHeaders">true</bool>
+
+    <!-- Whether to show for the notifications list -->
+    <bool name="config_showFooterForNotifications">true</bool>
+
+    <!-- If this is true, the launcher icon will be used to distinguish the app rather than using
+         the required small icon from the Notification builder. When this is true, the large icon
+         will also remain unused and notification header will be hidden.
+         If this is false, small icon will be used to distinguish the app, large icon will be used
+         in notification body and notification header will be shown.-->
+    <bool name="config_useLauncherIcon">true</bool>
+
+    <!-- Whether to enable play for message notifications. -->
+    <bool name="config_enableMessageNotificationPlay">true</bool>
+
+    <!-- Whether to enable direct reply for message notifications. -->
+    <bool name="config_enableMessageNotificationDirectReply">true</bool>
+
+    <!-- Alpha for older notifications when config_showRecentAndOldHeaders is true -->
+    <item name="config_olderNotificationsAlpha" format="float" type="dimen">1</item>
+
+    <!-- Whether to collapse notification shade panel after manage button click -->
+    <bool name="config_collapseShadePanelAfterManageButtonPress">false</bool>
+
+    <!-- Whether to show expansion header in group notifications.  -->
+    <bool name="config_showExpansionHeader">false</bool>
+
+    <!-- Whether to use custom colors for message notification count text button. -->
+    <bool name="config_useCustomColorForMessageNotificationCountTextButton">true</bool>
+
+    <!-- Alpha for disabled count text button in message notifications. -->
+    <item name="config_disabledCountTextButtonAlpha" format="float" type="dimen">0.35</item>
+
+    <!-- When true, ignore the notification color for warning notification background and use @color/warning_background_color instead. -->
+    <bool name="config_useCustomColorForWarningNotification">true</bool>
+
+    <!-- When true, ignore the notification color for information notification background and use @color/information_background_color instead. -->
+    <bool name="config_useCustomColorForInformationNotification">true</bool>
+
+    <!-- When true, message HUN will be dismissed when reply or play action buttons are pressed. -->
+    <bool name="config_dismissMessageHunWhenReplyOrPlayActionButtonPressed">true</bool>
+
+    <!-- Whether heads-up notifications is dismissible in vertical directions. If set to false
+         the notification would be dismissible in horizontal directions. -->
+    <bool name="config_isHeadsUpNotificationDismissibleVertically">true</bool>
+</resources>
+

@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2006 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="applicationLabel">Inermisen</string>
+    <string name="contactsList">Inermisen</string>
+    <string name="shortcut_add_contact">Rnu anermis</string>
+    <string name="shortcutContact">Anermis</string>
+    <string name="shortcutMessageContact">Izen usrid</string>
+    <string name="contactPickerActivityTitle">Fren anermis</string>
+    <string name="groupMemberPickerActivityTitle">Fren</string>
+    <string name="header_entry_contact_list_adapter_header_title">Slal-d anermis amaynut</string>
+    <string name="searchHint">Nadi inermisen</string>
+    <string name="menu_addStar">Rnu ar ismenyifen</string>
+    <string name="menu_removeStar">Kkes-it seg ismal</string>
+    <string name="description_action_menu_add_star">Ittwarna ar ismenyifen</string>
+    <string name="menu_editContact">Ẓreg</string>
+    <string name="menu_deleteContact">Kkes</string>
+    <string name="menu_change_photo">Beddel tawlaft</string>
+    <string name="menu_splitAggregate">Kkes aseɣwen</string>
+    <string name="menu_deleteGroup">Kkes tabzimt</string>
+    <string name="menu_addToGroup">Rnu anermis</string>
+    <string name="menu_selectForGroup">Fren inermisen</string>
+    <string name="menu_new_group_action_bar">Rnu tabzimt</string>
+    <string name="splitConfirmation_positive_button">Kkes aseɣwen</string>
+    <string name="menu_joinAggregate">Aseɣwen</string>
+    <string name="menu_save">Sekles</string>
+    <string name="separatorJoinAggregateAll">Inermisen i meṛṛa</string>
+    <string name="deleteConfirmation_positive_button">Kkes</string>
+    <string name="attach_photo_dialog_title">Tawlaft n unermis</string>
+    <string name="removePhoto">Kkes tawlaft</string>
+    <string name="contactUnlinkedToast">Inermisen ur neddi ara</string>
+    <string name="groupDeletedToast">Tabzimt tettwakkes</string>
+    <string name="groupCreatedToast">Tabzimt tattwarna</string>
+    <string name="groupUpdatedToast">Tabzimt tettwalqqem</string>
+    <string name="menu_sendEmailOption">Azen imayl</string>
+    <string name="menu_sendMessageOption">Azen izen</string>
+    <string name="send_to_selection">Azen</string>
+    <string name="quickcontact_add_phone_number">Rnu uṭṭun n tiliɣri</string>
+    <string name="quickcontact_add_email">Rnu imayl</string>
+    <string name="menu_share">Bḍu</string>
+    <string name="menu_add_contact">Rnu γer inermisen</string>
+    <string name="menu_add_contacts">Rnu</string>
+    <string name="group_name_dialog_insert_title">Rnu tabzimt</string>
+    <string name="group_name_dialog_hint">ISem n tebzimt</string>
+    <string name="label_name_dialog_hint">ISem n tebzimt</string>
+    <string name="take_photo">Ṭṭef-d tawlaft</string>
+    <string name="pick_photo">Fren tawlaft</string>
+    <string name="event_edit_field_hint_text">Azemz</string>
+    <string name="group_edit_field_hint_text">Tabzimt</string>
+    <string name="cancel_button_content_description">Semmet</string>
+    <string name="back_arrow_content_description">Tuɣalin</string>
+    <string name="action_menu_back_from_edit_select">mdel</string>
+    <string name="activity_title_settings">Iγewwaṛen</string>
+    <string name="menu_settings" msgid="377929915873428211">Iγewwaṛen</string>
+    <string name="menu_help">Tallelt &amp; tiktiwin</string>
+    <string name="non_phone_caption">Uṭṭun n tiliɣri</string>
+    <string name="non_phone_add_to_contacts">Rnu γer inermisen</string>
+    <string name="non_phone_close">Mdel</string>
+    <string name="contacts_unavailable_add_account">Rnu amiḍan</string>
+    <string name="contacts_unavailable_import_contacts">Ssekcem</string>
+    <string name="copy_text">Copier dans le presse-papiers</string>
+    <string name="set_default">Sbadu d amezwer</string>
+    <string name="cancel_confirmation_dialog_message">Sefsex ibeddilen?</string>
+    <string name="cancel_confirmation_dialog_cancel_editing_button">Ignorer</string>
+    <string name="cancel_confirmation_dialog_keep_editing_button">Semmet</string>
+    <string name="enter_contact_name">Nadi inermisen</string>
+    <string name="contact_editor_title_new_contact">Slal-d anermis amaynut</string>
+    <string name="contact_editor_title_existing_contact">Ẓreg anermis</string>
+    <string name="contact_editor_add_linked_contact">Rnu</string>
+    <string name="contact_editor_unlink_contacts">Kkes aseɣwen</string>
+    <string name="add_account">Rnu amiḍan</string>
+    <string name="action_menu_add_new_contact_button">Slal-d anermis amaynut</string>
+    <string name="expanding_entry_card_view_see_more">Wali ugar</string>
+    <string name="about_card_title">Γef</string>
+    <string name="date_time_set">Sbadu</string>
+    <string name="header_organization_entry">Tuddsa</string>
+    <string name="header_nickname_entry">Meffer isem</string>
+    <string name="header_note_entry">Tazmilt-ik·im i @{name}</string>
+    <string name="header_website_entry">Asmel Web</string>
+    <string name="header_event_entry">Événement</string>
+    <string name="header_relation_entry">Assaɣ</string>
+    <string name="header_name_entry">Isem</string>
+    <string name="header_email_entry">Imayl</string>
+    <string name="header_phone_entry">Tiliγri</string>
+    <string name="editor_contact_photo_content_description">Tawlaft n unermis</string>
+    <string name="menu_assistant">Isumar</string>
+    <string name="menu_assistant_new_badge">Rnu</string>
+    <string name="navigation_drawer_open">Ldi leqjeṛ n iminig</string>
+    <string name="navigation_drawer_close">Mdel leqjeṛ n iminig</string>
+    <string name="menu_title_groups">Tibzimin</string>
+    <string name="menu_title_filters">Imiḍanen</string>
+    <string name="hamburger_feature_highlight_header">Isumar</string>
+    <string name="undo">Err-d</string>
+    <string name="call_other">Siwel</string>
+    <string name="sms_other">Aḍris</string>
+    <string name="status_available">Yewjed</string>
+    <string name="status_away">Akin</string>
+    <string name="status_busy">Yecɣel</string>
+    <string name="local_invisible_directory">Wayeḍ</string>
+    <string name="directory_search_label">Dossier</string>
+    <string name="local_search_label">Inermisen i meṛṛa</string>
+    <string name="account_phone">Ibenk</string>
+    <string name="nameLabelsGroup">Isem</string>
+    <string name="nicknameLabelsGroup">Meffer isem</string>
+    <string name="name_given">Isem</string>
+    <string name="name_family">Isem n tmagit</string>
+    <string name="phoneLabelsGroup">Tiliγri</string>
+    <string name="emailLabelsGroup">Imayl</string>
+    <string name="postalLabelsGroup">Tansa</string>
+    <string name="organizationLabelsGroup">Tuddsa</string>
+    <string name="relationLabelsGroup">Assaɣ</string>
+    <string name="postal_address">Tansa</string>
+    <string name="ghostData_company">Taṛmist</string>
+    <string name="ghostData_title">Azwel</string>
+    <string name="label_notes">Tizmilin</string>
+    <string name="label_custom_field">Udmawan</string>
+    <string name="websiteLabelsGroup">Asmel Web</string>
+    <string name="groupsLabel">Tibzimin</string>
+    <string name="email_other">Imayl</string>
+    <string name="email">Imayl</string>
+    <string name="postal_street">Abrid</string>
+    <string name="postal_city">Tiɣremt</string>
+    <string name="postal_region">Aɣir</string>
+    <string name="postal_country">Tamurt</string>
+    <string name="chat">Asqerdec</string>
+    <string name="description_minus_button">Kkes</string>
+    <string name="expand_fields_description">Snefli</string>
+    <string name="collapse_fields_description">Ḍfes</string>
+    <string name="announce_expanded_fields">Yettusnefli</string>
+    <string name="list_filter_all_accounts">Inermisen i meṛṛa</string>
+    <string name="list_filter_all_starred">Crureq am yitri</string>
+    <string name="list_filter_customize">Sagen</string>
+    <string name="list_filter_single">Anermis</string>
+    <string name="display_all_contacts">Inermisen i meṛṛa</string>
+    <string name="nothing_to_import_message">Ulac ad ittwaketren</string>
+    <string name="missing_required_permission">Tessenseḍ  turagt i ak-d-ittunefken.</string>
+    <string name="fail_reason_io_error">Tuccḍa I/O</string>
+    <string name="vcard_unknown_filename">anermis</string>
+    <string name="caching_vcard_title">Mise en cache</string>
+    <string name="display_options_sort_list_by">Smizzwer s</string>
+    <string name="editor_options_hide_phonetic_names_if_empty">Ffer-it ma yella d ilem</string>
+    <string name="display_options_sort_by_given_name">Isem</string>
+    <string name="display_options_sort_by_family_name">Isem n tmagit</string>
+    <string name="settings_accounts">Imiḍanen</string>
+    <string name="set_up_profile">Sbadu amaɣnu-inek.inem</string>
+    <string name="setting_about">Ɣef yinermisen</string>
+    <string name="menu_custom_filter_save">Sekles</string>
+    <string name="hint_findContacts">Nadi inermisen</string>
+    <string name="contactsFavoritesLabel">Ismenyifen</string>
+    <string name="menu_import">Ssekcem</string>
+    <string name="menu_export">Sifeḍ</string>
+    <string name="description_clear_search">Sfeḍ a nadi</string>
+    <string name="select_account_dialog_title">Amiḍan</string>
+    <string name="about_open_source_licenses">Turagin n uɣbalu yeldin</string>
+    <string name="about_privacy_policy">Tasertit tabaḍnit</string>
+    <string name="about_terms_of_service">Tiwetlin n useqdec</string>
+    <string name="activity_title_licenses">Turagin n uɣbalu yeldin</string>
+    <string name="description_delete_contact">Kkes</string>
+    <string name="sim_import_button_text">Ssekcem</string>
+    <string name="sim_import_title_none_selected">Fren inermisen</string>
+    <string name="sim_import_cancel_content_description">Semmet</string>
+    <string name="dismiss_sync_alert">Suref</string>
+    <string name="turn_auto_sync_on_dialog_confirm_btn">Rmed</string>
+    <string name="connection_error_message">ulac tuqna</string>
+    <string name="show_more_content_description">Sken-ed ugar</string>
+    <string name="importing_sim_failed_title">Akter ur yeddi ara</string>
+    <string name="contacts_default_notification_channel">Ilɣa</string>
+    <string name="yes_button">Ih</string>
+    <string name="no_button">Uhu</string>
+</resources>

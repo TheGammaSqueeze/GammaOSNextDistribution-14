@@ -1,0 +1,102 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+soong_config_module_type {
+    name: "lmkd_hooks_cc_defaults",
+    module_type: "cc_defaults",
+    config_namespace: "lmkd",
+    bool_variables: ["use_hooks"],
+    properties: [
+        "cflags",
+        "static_libs",
+    ],
+}
+
+lmkd_hooks_cc_defaults {
+    name: "lmkd_hooks_defaults",
+
+    soong_config_variables: {
+        use_hooks: {
+            cflags: [
+                "-DLMKD_USE_HOOKS"
+            ],
+            static_libs: [
+                "liblmkdhooks"
+            ]
+        }
+    }
+}
+
+cc_defaults {
+    name: "stats_defaults",
+    cflags: [
+        "-DLMKD_LOG_STATS"
+    ],
+}
+
+cc_binary {
+    name: "lmkd",
+
+    srcs: [
+        "lmkd.cpp",
+        "reaper.cpp",
+        "watchdog.cpp",
+    ],
+    shared_libs: [
+        "libcutils",
+        "liblog",
+        "libprocessgroup",
+        "libpsi",
+    ],
+    static_libs: [
+        "libstatslogc",
+        "liblmkd_utils",
+    ],
+    header_libs: [
+        "bpf_syscall_wrappers",
+    ],
+    local_include_dirs: ["include"],
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+        "-DLMKD_TRACE_KILLS"
+    ],
+    init_rc: ["lmkd.rc"],
+    defaults: ["stats_defaults", "lmkd_hooks_defaults"],
+    logtags: ["event.logtags"],
+    afdo: true,
+}
+
+cc_library_static {
+    name: "libstatslogc",
+    srcs: ["statslog.cpp"],
+    local_include_dirs: ["include"],
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+    ],
+    defaults: ["stats_defaults"],
+    shared_libs: [
+        "liblog",
+        "libprocessgroup",
+    ],
+}
+
+cc_library_static {
+    name: "liblmkd_utils",
+    srcs: ["liblmkd_utils.cpp"],
+    recovery_available: true,
+    shared_libs: [
+        "libcutils",
+        "libprocessgroup",
+    ],
+    export_include_dirs: ["include"],
+    cppflags: [
+        "-g",
+        "-Wall",
+        "-Werror",
+    ]
+}

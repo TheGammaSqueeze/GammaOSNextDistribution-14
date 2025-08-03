@@ -1,0 +1,53 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_test_host {
+    name: "AuthFsBenchmarks",
+    srcs: ["src/java/com/android/fs/benchmarks/*.java"],
+    libs: [
+        "tradefed",
+    ],
+    static_libs: [
+        "AuthFsHostTestCommon",
+        "MicrodroidHostTestHelper",
+        "cts-host-utils",
+        "MicrodroidTestPreparer", // Workaround for sandboxed test environment to install this
+    ],
+    test_suites: ["general-tests"],
+    data_device_bins_first: [
+        "open_then_run",
+    ],
+    per_testcase_directory: true,
+    data: [
+        ":authfs_test_files",
+        ":MicrodroidTestApp",
+    ],
+    required: ["MicrodroidTestPreparer"],
+}
+
+cc_binary {
+    name: "measure_io",
+    defaults: ["avf_build_flags_cc"],
+    srcs: [
+        "src/measure_io.cpp",
+    ],
+    shared_libs: [
+        "libbase",
+    ],
+}
+
+// Package measure_io binary into a jar, to bundle with the MicrodroidTestApp.
+// When MicrodroidTestApp is mounted inside the Microdroid, the zipfuse will
+// add the +x permission on it.
+java_genrule {
+    name: "measure_io_as_jar",
+    out: ["measure_io.jar"],
+    srcs: [
+        ":measure_io",
+    ],
+    tools: ["soong_zip"],
+    cmd: "mkdir -p $(genDir)/bin" +
+        "&& cp $(in) $(genDir)/bin" +
+        "&& $(location soong_zip) -jar -o $(out) -C $(genDir) -D $(genDir)/bin",
+}

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017-2024 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="system_reboot_confirm_cm">Vnovično zaženi v:</string>
+    <string name="global_action_restart_system">Sistem</string>
+    <string name="global_action_restart_recovery">Obnovitev</string>
+    <string name="global_action_restart_bootloader">Zagonski nalagalnik</string>
+    <plurals name="show_dev_countdown_cm">
+        <item quantity="one">Zdaj ste <xliff:g id="step_count">%1$d</xliff:g> korak pred omogočenjem nastavitev za razvijalce.</item>
+        <item quantity="two">Zdaj ste <xliff:g id="step_count">%1$d</xliff:g> koraka pred omogočenjem nastavitev za razvijalce.</item>
+        <item quantity="few">Zdaj ste <xliff:g id="step_count">%1$d</xliff:g> korake pred omogočenjem nastavitev za razvijalce.</item>
+        <item quantity="other">Zdaj ste <xliff:g id="step_count">%1$d</xliff:g> korakov pred omogočenjem nastavitev za razvijalce.</item>
+    </plurals>
+    <string name="show_dev_on_cm">Omogočili ste nastavitve za razvijalce!</string>
+    <string name="show_dev_already_cm">Ni treba, ste že omogočili nastavitve za razvijalce.</string>
+    <string name="system_buttons">Gumbi</string>
+    <string name="power_button_long_press_action_title">Dejanje pridržanja gumba za vklop</string>
+    <string name="power_button_long_press_for_power_menu_action">Odpri meni izklopa</string>
+    <string name="power_button_long_press_for_assistant_action">Odpri pomočnika</string>
+    <string name="inputs_volume_control_enabled">Nadzor glasnosti CEC</string>
+    <string name="inputs_volume_control_enabled_desc">Upravljajte TV/AVR glasnost namesto notranje glasnosti</string>
+    <string name="enable_adb_root">Skrbniško razhroščevanje</string>
+    <string name="enable_adb_root_summary">Dovoli izvajanje Android razhroščevanja kot skrbnik</string>
+    <string name="advanced_restart_title">Napredni vnovičen zagon</string>
+    <string name="advanced_restart_summary">Prikaži možnosti za vnovično zaganjanje v obnovitev, zagonski nalagalnik ali izvajanje mehkega vnovičnega zagona</string>
+    <string name="adb_over_network">ADB prek omrežja</string>
+    <string name="adb_over_network_summary">Omogoči razhroščevanje TCP/IP prek omrežnih vmesnikov (Wi\u2011Fi, omrežij USB). Ta nastavitev se ob vnovičnem zagonu ponastavi</string>
+    <string name="adb_over_network_warning">OPOZRILO: Ko je ADB prek omrežja omogočen, je vaš telefon ranljiv za vdore iz vseh povezanih omrežij! \n\nTo funkcijo uporabljajte samo, ko ste povezani na zaupanja vredna omrežja.\n\nAli res želite omogočiti to funkcijo?</string>
+    <string name="trust_category_features">Stanje</string>
+    <string name="trust_feature_selinux">SELinux</string>
+    <string name="trust_feature_selinux_value_enforcing">Uveljavljeno</string>
+    <string name="trust_feature_selinux_value_disabled">Onemogočeno</string>
+    <string name="trust_feature_selinux_explain">SELinux narekuje, kateri procesi imajo dostop do katerih datotek/poti na vaši napravi.\nTo preprečuje aplikacijam in storitvam dostop do datotek s katerimi ne bi smele upravljati: tako je potencialni zlonamerni proces omejen in vaša varnost je ohranjena.</string>
+    <string name="trust_feature_security_patches">Varnostni popravki Androida</string>
+    <string name="trust_feature_security_patches_value_base">Platforma: %1$s\nProizvajalec: %2$s</string>
+    <string name="trust_feature_security_patches_value_new">Posodobljeno</string>
+    <string name="trust_feature_security_patches_value_medium">Nekaj mesecev zastarelo</string>
+    <string name="trust_feature_security_patches_value_old">Zastarelo</string>
+    <string name="trust_feature_security_patches_explain">Varnostni popravki so izdani mesečno s strani Googla v sodelovanju s proizvajalci SoC-ov, da naslovijo pomanjkljivosti, ki jih lahko zlonamerne aplikacije izrabijo za obvoz varnostnih omejitev in lahko povzročijo trajne poškodbe vaše naprave. Popravki s strani Googla so na vseh podprtih napravah uveljavljeni vsak mesec, vendar so lahko popravki lastniške kode uveljavljeni samo s strani proizvajalca naprave. Da ohranite vašo napravo varno, poskrbite, da je vaša izgradnja LineageOS-a vedno posodobljena in (v kolikor je na voljo) odtis dobavitelja posodobobljen na zadnjo različico priporočeno s strani LineageOS-a.</string>
+    <string name="trust_feature_encryption">Šifriranje</string>
+    <string name="trust_feature_encryption_value_enabled">Omogočeno</string>
+    <string name="trust_feature_encryption_value_nolock">Potreben je varni zaklenjen zaslon</string>
+    <string name="trust_feature_encryption_value_disabled">Onemogočeno</string>
+    <string name="trust_feature_encryption_explain">Šifriranje vaše naprave prepreči dostop do vaših podatkov, ko vaš telefon ni zagnan v Android. To je še posebej pomembno, če vam ukradejo telefon, saj prepreči osebam brez gesla branje vaših sporočil, stikov ali drugih zasebnih podatkov.\nZa učinkovitejše šifriranje, nastavite varno geslo za zaklep zaslona.</string>
+    <string name="trust_category_tools">Zasebnost</string>
+    <string name="trust_notification_alerts_title">Varnostna opozorila</string>
+    <string name="trust_restrict_usb_title">Omeji USB</string>
+    <string name="trust_restrict_usb_summary">Nadzorujte podporo za povezave USB, kot so slušalke, pomnilniške naprave, vnos (miške, tipkovnice, igralne palice) in ADB</string>
+    <string name="trust_restrict_usb_always">Zavrni povezave USB</string>
+    <string name="trust_restrict_usb_disabled">Vedno dovoli povezave USB</string>
+    <string name="trust_onboarding_description">Trust vam pomaga ohraniti vašo napravo varno in varuje vašo zasebnost.\nTrust ikona se bo prikazala samo, ko bo vsebina strani potrjena.</string>
+    <string name="trust_warnings_alerts_intro">Izberete lahko varnostne težave, na katere bi želeli biti opozorjeni. Za vašo varnost je priporočljivo, da omogočite vsa opozorila</string>
+    <string name="trust_warnings_selinux">SELinux stanje</string>
+    <string name="trust_warnings_keys">Podpis izgradnje</string>
+    <string name="sleep_button_label">Spanje</string>
+    <string name="system_sleep_confirm">V spanje?</string>
+    <string name="shutdown_button_label">Zaustavitev</string>
+    <string name="system_shutdown_confirm">Zaustavitev?</string>
+    <string name="convertible_port_busy_title">Vrata USB 1 so v uporabi</string>
+    <string name="convertible_port_busy_warning">Odklopite vse naprave  ali dodatke in poskusite znova</string>
+    <string name="mtp_enable_title">Dostopanje do SHIELD map na PC-ju z uporabo USB-ja</string>
+    <string name="mtp_enable_warning">Vrata USB 1 so zdaj nastavljena za SHIELD, da se poveže na PC kot predstavnostna naprava.\n\nTa vrata ne bodo več zaznala pomnilniške naprave USB ali USB dodatkov in ne morejo biti uporabljena za polnjenje naprav.</string>
+    <string name="mtp_retry_error">Ni uspelo. Poskusite znova.</string>
+    <string name="mtp_summary">V tem načinu vrata USB niso funkcionalna za drugo uporabo</string>
+    <string name="mtp_title">Prenos datotek z uporabo USB-ja</string>
+    <string name="mtp_unexpected_error">Nepričakovana napaka. Poskusite znova kasneje.</string>
+    <string name="usb_debugging_enable_title">Razhroščevanje USB omogočeno</string>
+    <string name="usb_debugging_enable_warning">Vrata USB 1 so zdaj nastavljena za SHIELD, da se poveže na PC kot predstavnostna naprava.\n\nTa vrata ne bodo več zaznala pomnilniške naprave USB ali USB dodatkov in ne morejo biti uporabljena za polnjenje naprav.</string>
+</resources>

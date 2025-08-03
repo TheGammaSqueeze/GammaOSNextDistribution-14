@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical">
+
+    <!-- optional_image is required by the HomeCardFragment. Intentionally not shown by setting
+    0 height and width. -->
+    <ImageView
+        android:id="@+id/optional_image"
+        android:layout_height="0dp"
+        android:layout_width="0dp"
+        android:visibility="gone"
+        android:layout_alignParentStart="true"/>
+
+    <TextView
+        android:id="@+id/primary_text"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:singleLine="true"
+        style="@style/TextAppearance.DescriptiveText.PrimaryText" />
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:gravity="start">
+
+        <Chronometer
+            android:id="@+id/optional_timer"
+            android:visibility="gone"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"/>
+
+        <TextView
+            android:id="@+id/optional_timer_separator"
+            android:visibility="gone"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:text="@string/ongoing_call_duration_text_separator"
+            android:textAppearance="?android:attr/textAppearanceSmall"/>
+
+        <TextView
+            android:id="@+id/secondary_text"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:singleLine="true"
+            style="@style/TextAppearance.DescriptiveText.SecondaryText" />
+    </LinearLayout>
+</LinearLayout>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="2922839697457005451">"GbaTestApp"</string>
+    <string name="label_settings" msgid="8030871890526865502">"Configuración"</string>
+    <string name="label_carrier" msgid="1470455313066422804">"Configuración del proveedor"</string>
+    <string name="label_service" msgid="2668963955237345578">"Configuración del servicio"</string>
+    <string name="label_test" msgid="8425079572898571918">"Configuración de prueba"</string>
+    <string name="button_name_running" msgid="4557363091224858010">"En ejecución"</string>
+    <string name="button_name_exit" msgid="8025683733431538975">"Salir"</string>
+    <string name="label_test_result" msgid="892984695972956196">"Resultado de la prueba"</string>
+    <string name="button_name_clear" msgid="436313515327318537">"Restablecer"</string>
+    <string name="button_name_done" msgid="6030406534322497491">"Listo"</string>
+    <string name="title_activity_carrier_config" msgid="7807803900475957717">"CarrierConfigActivity"</string>
+    <string name="title_activity_service_config" msgid="5394662739555577279">"ServiceConfigActivity"</string>
+    <string name="title_activity_test_config" msgid="7585204485536359713">"TestConfigActivity"</string>
+    <string name="service_package_name" msgid="7204809439090483315">"Nombre del paquete del servicio de GBA"</string>
+    <string name="service_release_time" msgid="532937496122890892">"Cuánto tarda en liberarse el servicio después de llamar"</string>
+    <string name="request_app_type" msgid="3975978141673475612">"Tipo de app UICC"</string>
+    <string name="request_naf_url" msgid="4487793541217737042">"URL de función de aplicaciones de red (NAF)"</string>
+    <string name="request_force_bootstrapping" msgid="206043602616214325">"¿Quieres forzar el arranque?"</string>
+    <string name="request_org" msgid="8416693445448308975">"Código de organización"</string>
+    <string name="request_security_protocol" msgid="1444164827561010482">"ID del protocolo de seguridad de UA"</string>
+    <string name="request_tls_cipher_suite" msgid="6659854717595308404">"ID de paquete de algoritmo de cifrado TLS"</string>
+    <string name="response_success" msgid="2469204471244527663">"¿Se completó la autenticación de GBA?"</string>
+    <string name="response_fail_reason" msgid="3401426967253202496">"ID de motivo de error"</string>
+    <string name="response_key" msgid="8839847772051686309">"Llave de GBA (CK + IK)"</string>
+    <string name="response_btid" msgid="2550216722679350756">"Identificador de transacción de arranque (B-TID)"</string>
+    <string name="sample_naf" msgid="255371174145881001">"3GPP-bootstrapping@naf1.operator.com"</string>
+    <string name="sample_btid" msgid="6967620309576384966">"(B-TID)"</string>
+    <string name="sample_key" msgid="3337589659405527482">"6629fae49393a05397450978507c4ef1"</string>
+</resources>

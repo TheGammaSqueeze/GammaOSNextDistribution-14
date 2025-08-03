@@ -1,0 +1,7 @@
+# start the service on rebootless update (even when it's failed)
+on property:apex.com.android.apex.vendor.foo.ready=true
+    start apex_vendor_foo_v2
+
+service apex_vendor_foo_v2 /apex/com.android.apex.vendor.foo/bin/apex_vendor_foo
+    class hal
+    user root

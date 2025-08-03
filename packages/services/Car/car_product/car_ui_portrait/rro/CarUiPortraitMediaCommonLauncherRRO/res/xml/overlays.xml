@@ -1,0 +1,36 @@
+<!--
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<overlay>
+    <item target="attr/state_disabled" value="@attr/state_disabled"/>
+    <item target="attr/state_pause" value="@attr/state_pause"/>
+    <item target="attr/state_play" value="@attr/state_play"/>
+    <item target="attr/state_stop" value="@attr/state_stop"/>
+    <item target="bool/show_linear_progress_bar" value="@bool/show_linear_progress_bar"/>
+    <item target="bool/show_circular_progress_bar" value="@bool/show_circular_progress_bar"/>
+    <item target="bool/show_circular_progress_bar_only_when_active" value="@bool/show_circular_progress_bar_only_when_active"/>
+    <item target="bool/use_media_source_color_for_fab_spinner" value="@bool/use_media_source_color_for_fab_spinner" />
+    <item target="drawable/ic_stop" value="@drawable/ic_stop"/>
+    <item target="drawable/ic_pause" value="@drawable/ic_pause"/>
+    <item target="drawable/ic_play_arrow" value="@drawable/ic_play_arrow"/>
+    <item target="drawable/ic_play_arrow_off" value="@drawable/ic_play_arrow_off"/>
+    <item target="drawable/ic_skip_next" value="@drawable/ic_skip_next"/>
+    <item target="drawable/ic_skip_previous" value="@drawable/ic_skip_previous"/>
+    <item target="id/circular_progress_bar" value="@id/circular_progress_bar"/>
+    <item target="id/play_pause_container" value="@id/play_pause_container"/>
+    <item target="id/play_pause_stop" value="@id/play_pause_stop"/>
+    <item target="layout/play_pause_stop_button_layout" value="@layout/play_pause_stop_button_layout"/>
+</overlay>

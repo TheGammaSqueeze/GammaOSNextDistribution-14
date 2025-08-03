@@ -1,0 +1,32 @@
+<application>
+  <component name="ProjectJdkTable">
+    <jdk version="2">
+      <name value="Generated SDK for IDE Integrations" />
+      <type value="Android SDK" />
+      <homePath value="__SDK_DIR_PLACEHOLDER__" />
+      <roots>
+        <annotationsPath>
+          <root type="composite">
+            <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/resources/androidAnnotations.jar!/" type="simple" />
+          </root>
+        </annotationsPath>
+        <classPath>
+          <root type="composite">
+            <root url="jar://__SDK_DIR_PLACEHOLDER__/platforms/__SDK_VERSION_NAME_PLACEHOLDER__/android.jar!/" type="simple" />
+            <root url="file://__SDK_DIR_PLACEHOLDER__/platforms/__SDK_VERSION_NAME_PLACEHOLDER__/data/res" type="simple" />
+          </root>
+        </classPath>
+        <javadocPath>
+          <root type="composite">
+            <root url="http://developer.android.com/reference/" type="simple" />
+          </root>
+        </javadocPath>
+        <sourcePath>
+          <root type="composite">
+            <root url="file://__SDK_DIR_PLACEHOLDER__/platforms/__SDK_VERSION_NAME_PLACEHOLDER__/sources" type="simple" />
+          </root>
+        </sourcePath>
+      </roots>
+    </jdk>
+  </component>
+</application>

@@ -1,0 +1,25 @@
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "CallLogBackupTests",
+    libs: [
+        "android.test.runner",
+        "android.test.base",
+    ],
+    // Only compile source java files in this apk.
+    srcs: ["src/**/*.java"],
+    platform_apis: true,
+    instrumentation_for: "CallLogBackup",
+    certificate: "shared",
+    optimize: {
+        enabled: false,
+    },
+
+    static_libs: [
+        "mockito-target",
+        "androidx.test.rules",
+    ],
+}

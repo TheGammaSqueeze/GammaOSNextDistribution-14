@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<carrier_config>
+    <int name="qns.sos_transport_type_int" value="2"/>
+    <string-array name="qns.ims_cellular_allowed_rat_string_array" num="3">
+        <item value="LTE" />
+        <item value="NR" />
+        <item value="3G" />
+    </string-array>
+    <int name="qns.xcap_rat_preference_int" value="2"/>
+    <int name="qns.mms_rat_preference_int" value="2"/>
+    <int name="qns.mms_transport_type_int" value="2"/>
+    <int-array name="qns.idle_eutran_rsrp_int_array" num="2">
+        <item value="-106"/>
+        <item value="-116"/>
+    </int-array>
+    <int-array name="qns.idle_utran_rscp_int_array" num="2">
+        <item value="-100"/>
+        <item value="-105"/>
+    </int-array>
+    <int-array name="qns.video_eutran_rsrp_int_array" num="2">
+        <item value="-106"/>
+        <item value="-116"/>
+    </int-array>
+    <int-array name="qns.video_utran_rscp_int_array" num="2">
+        <item value="-100"/>
+        <item value="-105"/>
+    </int-array>
+    <int-array name="qns.voice_eutran_rsrp_int_array" num="2">
+        <item value="-106"/>
+        <item value="-116"/>
+    </int-array>
+    <int-array name="qns.voice_utran_rscp_int_array" num="2">
+        <item value="-100"/>
+        <item value="-105"/>
+    </int-array>
+</carrier_config>

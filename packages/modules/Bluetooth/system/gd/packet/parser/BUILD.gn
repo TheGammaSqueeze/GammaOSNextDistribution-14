@@ -1,0 +1,91 @@
+#
+#  Copyright 2021 Google, Inc.
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at:
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#
+
+import("flex.gni")
+import("bison.gni")
+
+config("pktgen_configs") {
+  include_dirs = [ "//bt/system/gd/packet/parser" ]
+
+  cflags = [ "-fPIC" ]
+
+  cflags_cc = [
+    "-std=c++17",
+    "-Wno-inconsistent-missing-override",
+    "-Wno-implicit-fallthrough",
+    "-Wno-poison-system-directories",
+    "-Wno-unknown-warning-option",
+  ]
+}
+
+executable("bluetooth_packetgen") {
+  sources = [
+    "checksum_def.cc",
+    "custom_field_def.cc",
+    "enum_def.cc",
+    "enum_gen.cc",
+    "fields/array_field.cc",
+    "fields/body_field.cc",
+    "fields/checksum_field.cc",
+    "fields/checksum_start_field.cc",
+    "fields/count_field.cc",
+    "fields/custom_field.cc",
+    "fields/custom_field_fixed_size.cc",
+    "fields/enum_field.cc",
+    "fields/fixed_enum_field.cc",
+    "fields/fixed_field.cc",
+    "fields/fixed_scalar_field.cc",
+    "fields/group_field.cc",
+    "fields/packet_field.cc",
+    "fields/padding_field.cc",
+    "fields/payload_field.cc",
+    "fields/reserved_field.cc",
+    "fields/scalar_field.cc",
+    "fields/size_field.cc",
+    "fields/struct_field.cc",
+    "fields/variable_length_struct_field.cc",
+    "fields/vector_field.cc",
+    "gen_cpp.cc",
+    "main.cc",
+    "packet_def.cc",
+    "packet_dependency.cc",
+    "parent_def.cc",
+    "struct_def.cc",
+    "struct_parser_generator.cc",
+  ]
+
+  include_dirs = [ "//bt/system/gd/packet/parser" ]
+
+  deps = [
+    ":pktlexer",
+    ":pktparser",
+  ]
+  configs += [ ":pktgen_configs" ]
+}
+
+flex_source("pktlexer") {
+  sources = [ "language_l.ll" ]
+
+  deps = [
+    ":pktparser",
+  ]
+  configs = [ ":pktgen_configs" ]
+}
+
+bison_source("pktparser") {
+  sources = [ "language_y.yy" ]
+  configs = [ ":pktgen_configs" ]
+}

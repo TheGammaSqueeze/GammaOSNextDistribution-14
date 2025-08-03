@@ -1,0 +1,141 @@
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// The below module creates a standalone zip that end-to-end tests can depend
+// on for running the suite. This is a workaround since we can't use csuite.zip
+// which is defined in an external Makefile that Soong can't depend on.
+//
+// Besides listing jars we know the launcher script depends on which is
+// brittle, this is a hack for several reasons. First, we're listing our
+// dependencies in the tools attribute when we should be using the 'srcs'
+// attribute. Second, we're accessing jars using a path relative to a known
+// artifact location instead of using the Soong 'location' feature.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+python_test_host {
+    name: "bazel_mode_test",
+    srcs: [
+        "bazel_mode_test.py",
+    ],
+    test_config_template: "bazel_mode_test.xml",
+    test_suites: [
+        "general-tests",
+    ],
+    test_options: {
+        unit_test: false,
+    },
+}
+
+python_test_host {
+    name: "result_compare_test",
+    srcs: [
+        "result_compare_test.py",
+    ],
+    test_config_template: "bazel_mode_test.xml",
+    test_suites: [
+        "general-tests",
+    ],
+    test_options: {
+        unit_test: false,
+    },
+}
+
+python_library_host {
+    name: "asuite_integration_test_lib",
+    srcs: [
+        "snapshot.py",
+        "split_build_test_script.py",
+    ],
+}
+
+python_library_host {
+    name: "atest_integration_test_lib",
+    srcs: [
+        "atest_integration_test.py",
+    ],
+    libs: [
+        "asuite_integration_test_lib",
+    ],
+}
+
+python_test_host {
+    name: "atest_integration_tests",
+    srcs: [
+        "atest_integration_tests.py",
+        "atest_command_success_tests.py",
+        "atest_command_verification_tests.py",
+    ],
+    test_config_template: "split_build_test_script_config.xml",
+    test_options: {
+        unit_test: false,
+    },
+    libs: [
+        "atest_integration_test_lib",
+    ],
+    test_suites: [
+        "general-tests",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+}
+
+python_test_host {
+    name: "atest_command_success_tests",
+    srcs: [
+        "atest_command_success_tests.py",
+    ],
+    test_config_template: "split_build_test_script_config.xml",
+    test_options: {
+        unit_test: false,
+    },
+    libs: [
+        "atest_integration_test_lib",
+    ],
+    test_suites: [
+        "general-tests",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+}
+
+python_test_host {
+    name: "atest_command_verification_tests",
+    srcs: [
+        "atest_command_verification_tests.py",
+    ],
+    test_config_template: "split_build_test_script_config.xml",
+    test_options: {
+        unit_test: false,
+    },
+    libs: [
+        "atest_integration_test_lib",
+    ],
+    test_suites: [
+        "general-tests",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+}

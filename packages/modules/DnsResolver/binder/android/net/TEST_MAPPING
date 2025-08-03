@@ -1,0 +1,12 @@
+{
+    "presubmit": [
+        {
+            "name": "FrameworksNetTests"
+        }
+    ],
+    "hwasan-postsubmit": [
+        {
+            "name": "FrameworksNetTests"
+        }
+    ]
+}

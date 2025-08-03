@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+// Schema for the matrix
+
+// Kernel version requirements for devices running at a certain API level.
+// Each string has the format of "android-4.9" or "android14-5.15".
+message RawAndroidReleaseRequirement {
+    // Kernels allowed for devices updated to this API level.
+    repeated string upgrade = 1;
+
+    // Kernels allowed for devices launched at this API level.
+    repeated string launch = 2;
+
+    // Kernels allowed for GRF devices launched at this API level.
+    repeated string launch_grf = 3;
+}
+
+// Mapping from API level (SDK verion) to kernel version requirements
+// for devices running the given API level (SDK version).
+// This is the schema for the raw data.
+message RawKernelVersionMatrix {
+    map<uint64, RawAndroidReleaseRequirement> release_requirements = 1;
+}
+
+// A kernel version, without the minor version.
+message KernelVersion {
+    uint64 major_version = 1;
+    uint64 minor_version = 2;
+}
+
+// Data structures used in test
+
+// Holds structured information for KMI like "android14-5.15".
+message Kmi {
+    KernelVersion kernel_version = 1;
+    uint64 android_release = 2;
+}
+
+// Mapping from API level (SDK verion) to kernel version requirements
+// for devices running the given API level (SDK version), but structured.
+// This schema is used to hold the parsed RawAndroidReleaseRequirement.
+message AndroidReleaseRequirement {
+    repeated Kmi upgrade = 1;
+    repeated Kmi launch = 2;
+    repeated Kmi launch_grf = 3;
+}

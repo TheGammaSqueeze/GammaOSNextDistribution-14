@@ -1,0 +1,63 @@
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_app {
+    name: "CarDistantDisplaySystemUI",
+
+    srcs: ["src/**/*.java"],
+
+    resource_dirs: ["res"],
+
+    static_libs: [
+        "CarSystemUI-core",
+    ],
+
+    libs: [
+        "android.car",
+        "android.car-system-stubs",
+    ],
+
+    manifest: "AndroidManifest.xml",
+
+    overrides: [
+        "CarSystemUI",
+    ],
+
+    platform_apis: true,
+    system_ext_specific: true,
+    certificate: "platform",
+    privileged: true,
+
+    // TODO(b/301283770): Compiling CarSystemUI should not require -J-Xmx8192M
+    javacflags: [
+        "-J-Xmx8192M",
+    ],
+    optimize: {
+        proguard_flags_files: [
+            "proguard.flags",
+        ],
+    },
+    dxflags: ["--multi-dex"],
+
+    plugins: ["dagger2-compiler"],
+
+    required: [
+        "privapp_whitelist_com.android.systemui",
+        "allowed_privapp_com.android.carsystemui",
+    ],
+}

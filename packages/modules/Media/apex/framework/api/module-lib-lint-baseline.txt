@@ -1,0 +1,13 @@
+// Baseline format: 1.0
+RequiresPermission: android.media.MediaCommunicationManager#registerSessionCallback(java.util.concurrent.Executor, android.media.MediaCommunicationManager.SessionCallback):
+    Method 'registerSessionCallback' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.media.MediaSession2Service#onUpdateNotification(android.media.MediaSession2):
+    Method 'onUpdateNotification' documentation mentions permissions without declaring @RequiresPermission
+RequiresPermission: android.media.MediaTranscodingManager.TranscodingSession#addClientUid(int):
+    Method 'addClientUid' documentation mentions permissions without declaring @RequiresPermission
+
+
+Todo: android.media.ApplicationMediaCapabilities.Builder:
+    Documentation mentions 'TODO'
+Todo: android.media.MediaParceledListSlice:
+    Documentation mentions 'TODO'

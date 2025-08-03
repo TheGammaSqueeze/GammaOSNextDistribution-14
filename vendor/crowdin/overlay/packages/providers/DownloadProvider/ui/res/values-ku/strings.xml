@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2010 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label">داگرتنەکان</string>
+    <string name="download_title_sorted_by_date">داگرتنەکان - ڕیزکراو بە بەروار</string>
+    <string name="download_title_sorted_by_size">داگرتنەکان - ڕیزکراو بە قەبارە</string>
+    <string name="no_downloads">هیچ داگرتنێک نییە.</string>
+    <string name="missing_title">وlt;نەزانراووgt;</string>
+    <string name="button_sort_by_size">ڕیزکردن بە قەبارە</string>
+    <string name="button_sort_by_date">ڕیزکردن بە بەروار</string>
+    <string name="download_queued">لە نۆرەدایە</string>
+    <string name="download_running">لە کارادایە</string>
+    <string name="download_success">تەواو</string>
+    <string name="download_error">سه‌رکه‌وتوونه‌بوو</string>
+    <string name="dialog_title_not_available">نەیتوانی دایبەزێنێت</string>
+    <string name="dialog_failed_body">دەتەوێ فەیلەکە دووبارە دابەزێنییەوە یان 
+          لە نۆرەدا ئەیسڕیتەوە؟</string>
+    <string name="dialog_title_queued_body">پەڕگە لە نۆرەدایە</string>
+    <string name="dialog_queued_body">ئەم فایلە لە نۆرەدایە بۆ داگرتن لە داهاتوودا کەواتە ئێستا بەر دەست نییە.</string>
+    <string name="dialog_file_missing_body">ناتوانێت فایلی دابەزێنراو بدۆزێتەوە.</string>
+    <string name="dialog_insufficient_space_on_external">نەیتوانی داگرتن تەواو بکات. بۆشایی
+        پێویست لە بیرگەی دەرەکی نییە.</string>
+    <string name="dialog_insufficient_space_on_cache">نەیتوانی داگرتن تەواو بکات. بۆشایی
+        پێویست لە بیرگەی داگرتنی ناوەکی نییە.</string>
+    <string name="dialog_cannot_resume">داگرتن قرتێنرا و ناتوانێت دەست پێ بکاتەوە.</string>
+    <string name="dialog_file_already_exists">ناتوانێت دایبەزێنێت. فایلی مەبەست لەمەو پێش هەیە.
+    </string>
+    <string name="dialog_media_not_found">ناتوانێت دایبەزێنێت. بیرگەی دەرەکی بەر دەست نییە.
+    </string>
+    <string name="download_no_application_title">ناتوانێت په‌ڕگه‌ بکاتەوە</string>
+    <string name="remove_download">لابردن</string>
+    <string name="delete_download">سڕینه‌وه‌</string>
+    <string name="keep_queued_download">هێشتنەوە</string>
+    <string name="cancel_running_download">هەڵوەشاندنەوە</string>
+    <string name="retry_download">هەوڵدانەوە</string>
+    <string name="deselect_all">دیاری نەکردنی هەموو</string>
+    <string name="select_all">دیاریکردنی هەموو</string>
+    <string name="selected_count">دیاریکراون <xliff:g id="number" example="3">%1$d</xliff:g> لە <xliff:g id="total" example="15">%2$d</xliff:g></string>
+    <string name="download_share_dialog">هاوبەشیکردن لە ڕێگەی</string>
+</resources>

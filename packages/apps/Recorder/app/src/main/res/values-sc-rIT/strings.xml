@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2017-2021 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <string name="share">Cumpartzi</string>
+    <string name="delete">Iscantzella</string>
+    <string name="cancel">Annulla</string>
+    <string name="sound_channel_title">Registratzione àudio</string>
+</resources>

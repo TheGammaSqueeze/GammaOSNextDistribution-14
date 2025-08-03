@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  Copyright (c) 2017 The LineageOS Project
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ Also add information on how to contact you by electronic and paper mail.
+
+-->
+<resources>
+    <string name="app_name">FlipFlap</string>
+    <string name="notification_title">Mhothaich sinn do chòmhdachadh tapaidh</string>
+    <string name="alarm_label">CAISMEACHD</string>
+    <string name="abbrev_wday_month_day_no_year">EEE, d MMMM</string>
+    <string name="answer_call">FREAGAIR</string>
+    <string name="ignore_call">LEIG SEACHAD</string>
+    <string name="end_call">CUIR CRÌOCH AIR A’ GHAIRM</string>
+    <string name="settings_name">Còmhdachadh tapaidh</string>
+    <string name="settings_summary">Stiùir giùlan nan co-innealan agad</string>
+    <string name="category_behaviour">Giùlan</string>
+    <string name="pass_to_security_view_title">Cuir a-steach facal-faire sa bhad</string>
+    <string name="pass_to_security_view_summary">Nuair a dh’fhosglas tu an còmhdachadh, thèid an sgrìn-ghlasaidh a shealltainn dhut</string>
+    <string name="use_high_touch_sensitivity_title">Mothalachd àrd air an t-suathadh</string>
+    <string name="use_high_touch_sensitivity_summary">Meudaich mothalachd an t-suathaidh nuair a bhios an còmhdachadh dùinte</string>
+    <string name="category_design">Co-dhealbhachd</string>
+    <string name="switch_charging_status_title">Seall staid an teàirrdsidh</string>
+    <string name="switch_charging_status_summary">Atharraich an dath a-rèir dè cho làn ’s a tha am bataraidh</string>
+    <string name="category_timeouts">Crìochan-ùine</string>
+    <string name="timeout_plugged_title">Rè teàirrdsidh</string>
+    <string name="timeout_unplugged_title">Dì-phlugaichte</string>
+    <string name="timeout_summary">Seall aplacaid còmhdachaidh dha %s às dèidh an còmhdachadh a dhùnadh</string>
+    <string name="timeout_summary_never">Fhad ’s a bhios an còmhdachadh dùinte, bidh aplacaid a’ chòmhdachaidh air</string>
+    <string name="timeout_summary_immediately">Thèid an sgrìn a chur dheth nuair a dhùineas an còmhdachadh</string>
+    <string name="timeout_entry_immediately">Sa bhad</string>
+    <string name="timeout_entry_5s">5 diogan</string>
+    <string name="timeout_entry_10s">10 diogan</string>
+    <string name="timeout_entry_30s">30 diog</string>
+    <string name="timeout_entry_1min">Mionaid</string>
+    <string name="timeout_entry_5min">5 mionaidean</string>
+    <string name="timeout_entry_never">Chan ann idir</string>
+</resources>

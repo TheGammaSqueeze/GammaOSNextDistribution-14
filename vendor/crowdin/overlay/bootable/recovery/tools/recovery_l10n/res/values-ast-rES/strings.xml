@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="recovery_installing">Ta instalándose l\'anovamientu del sistema</string>
+  <string name="recovery_erasing">Ta faciéndose un borráu</string>
+  <string name="recovery_error">¡Prodúxose un error!</string>
+  <string name="recovery_installing_security">Ta instalándose l\'anovamientu de seguranza</string>
+  <string name="recovery_wipe_data_menu_header">Nun se pue cargar el
+    sistema Android. Ye posible que los datos tean toyíos. Si sigues
+    viendo esti mensaxe, tienes de restaurar la configuración de
+    fábrica y desaniciar tolos datos d\'usuariu.</string>
+  <string name="recovery_try_again">Retentar</string>
+  <string name="recovery_factory_data_reset">Restaurar la configuración de fábrica</string>
+  <string name="recovery_wipe_data_confirmation">¿Quies borrar tolos datos d\'usuariu?\n\n
+    ¡ESTA AICIÓN NUN SE PUE DESFACER!</string>
+  <string name="recovery_cancel_wipe_data">Encaboxar</string>
+</resources>

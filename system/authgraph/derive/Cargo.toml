@@ -1,0 +1,13 @@
+[package]
+name = "authgraph-derive"
+version = "0.1.0"
+authors = ["David Drysdale <drysdale@google.com>"]
+edition = "2021"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+proc-macro2 = "^1.0"
+quote = "^1.0"
+syn = { version = "^1.0", features = ["derive", "parsing"] }

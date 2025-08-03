@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="feedback_system_logs_title_text" msgid="8162964763101361628">"Sertakan semua log perangkat (sistem &amp; aplikasi)"</string>
+    <string name="feedback_system_logs_legal_text" msgid="4770068793128503597">"Membagikan semua log perangkat aplikasi dan sistem dapat mengirimkan semua detail seperti nama pengguna, lokasi, ID perangkat, dan info jaringan ke Google. Google menggunakan informasi ini untuk memperbaiki masalah teknis dan meningkatkan kualitas layanan. Pelajari lebih lanjut di g.co/android/devicelogs."</string>
+    <string name="feedback_bugreport_title_text" msgid="8863884817986711122">"Sertakan laporan bug"</string>
+    <string name="feedback_bugreport_legal_display_text" msgid="4486929548753044585">"Laporan bug (dari %1$s) menyertakan semua data seperti nama pengguna, lokasi, ID perangkat, dan info jaringan guna membantu Google untuk memahami dan memperbaiki masalah."</string>
+    <string name="next" msgid="3308587969183798652">"Berikutnya"</string>
+    <string name="feedback_view_system_logs_button_text" msgid="1889709679017124924">"Lihat log sistem"</string>
+    <string name="feedback_view_logs_dialog_title" msgid="1937861449450135462">"Log Sistem"</string>
+    <string name="feedback_view_logs_dialog_body" msgid="2496560711853644250">"Log ini berisi informasi yang kami butuhkan agar dapat menindaklanjuti masukan Anda."</string>
+    <string name="annotated_back_indicator_string" msgid="3197935392074998004">"Tekan tombol BACK untuk kembali."</string>
+    <string name="loading" msgid="1709842456101615353">"Memuat"</string>
+</resources>

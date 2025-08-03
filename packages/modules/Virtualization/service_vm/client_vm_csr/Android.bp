@@ -1,0 +1,37 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_defaults {
+    name: "libclient_vm_csr_defaults",
+    crate_name: "client_vm_csr",
+    srcs: ["src/lib.rs"],
+    rustlibs: [
+        "libanyhow",
+        "libcoset",
+        "libdiced_open_dice",
+        "libopenssl",
+        "libservice_vm_comm",
+        "libzeroize",
+    ],
+}
+
+rust_library {
+    name: "libclient_vm_csr",
+    defaults: ["libclient_vm_csr_defaults"],
+    prefer_rlib: true,
+    apex_available: [
+        "com.android.virt",
+    ],
+}
+
+rust_test {
+    name: "libclient_vm_csr.test",
+    defaults: ["libclient_vm_csr_defaults"],
+    test_suites: ["general-tests"],
+    rustlibs: [
+        "libciborium",
+        "libdiced_sample_inputs",
+        "libhwtrust",
+    ],
+}

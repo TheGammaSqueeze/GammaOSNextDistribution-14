@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="update">Яңарту</string>
+    <string name="installing">Урнаштыру\u2026</string>
+    <string name="installing_app"><xliff:g id="package_label">%1$s</xliff:g> урнаштыру\u2026</string>
+    <string name="install_done">Кушымта урнаштырылды.</string>
+    <string name="install_confirm_question">Сез бу кушымтаны урнаштырырга телисезме?</string>
+    <string name="install_confirm_question_update">Сез бу кушымтаны яңартырга телисезме?</string>
+    <string name="install_failed">Кушымта урнаштырылмады.</string>
+    <string name="unknown_apps_user_restriction_dlg_text">Бу кулланучы тарафыннан билгесез кушымталар
+        урнаштырыла алмый</string>
+    <string name="install_apps_user_restriction_dlg_text">Бу кулланучының кушымталар урнаштырырга рөхсәте юк</string>
+    <string name="manage_applications">Кушымталарны идарә итү</string>
+    <string name="out_of_space_dlg_title">Урын юк</string>
+    <string name="out_of_space_dlg_text"><xliff:g id="app_name">%1$s</xliff:g> урнаштырыла алмый. Бераз урынны бушаткач, тагын кабатлап карагыз.</string>
+    <string name="app_not_found_dlg_title">Кушымта табылмады</string>
+    <string name="app_not_found_dlg_text"> Бу кушымта урнаштырылган кушымталар исемлегендә табылмады.</string>
+    <string name="user_is_not_allowed_dlg_title">Тыелган</string>
+    <string name="user_is_not_allowed_dlg_text">Хәзерге кулланучыга бетерүне башкару тыелган.</string>
+    <string name="generic_error_dlg_text">Кушымта бетерелә алмый.</string>
+    <string name="uninstall_application_title">Кушымтаны бетерү</string>
+    <string name="uninstall_update_title">Яңартуны бетерү</string>
+    <string name="uninstall_application_text">Сез бу кушымтаны бетерергә телисезме?</string>
+    <string name="uninstall_application_text_all_users">Сез бу кушымтаны <b>барлык</b> кулланучылар
+        өчен бетерергә телисезме? Кушымта һәм аның мәгълүматы бу җайланмадагы <b>барлык</b> кулланучылар өчен бетереләчәк.</string>
+    <string name="uninstall_application_text_user">Сез бу кушымтаны <xliff:g id="username">%1$s</xliff:g> кулланучысы өчен бетерергә телисезме?</string>
+</resources>

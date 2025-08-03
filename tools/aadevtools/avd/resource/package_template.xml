@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:repository xmlns:ns2="http://schemas.android.com/repository/android/common/01"
+    xmlns:ns3="http://schemas.android.com/repository/android/generic/01"
+    xmlns:ns4="http://schemas.android.com/sdk/android/repo/addon2/01"
+    xmlns:ns5="http://schemas.android.com/sdk/android/repo/repository2/01"
+    xmlns:ns6="http://schemas.android.com/sdk/android/repo/sys-img2/01">
+    <license id="" type="text"/>
+    <localPackage path="Pkg.Path" obsolete="false">
+        <type-details xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns6:sysImgDetailsType">
+            <api-level>AndroidVersion.ApiLevel</api-level>
+            <tag>
+                <id>SystemImage.TagId</id>
+                <display>SystemImage.TagDisplay</display>
+            </tag>
+            <vendor>
+                <id>Addon.VendorId</id>
+                <display>Addon.VendorDisplay</display>
+            </vendor>
+            <abi>SystemImage.Abi</abi>
+        </type-details>
+        <revision>
+            <major>1</major>
+        </revision>
+        <display-name>Display.Name</display-name>
+        <uses-license ref=""/>
+    </localPackage>
+</ns2:repository>

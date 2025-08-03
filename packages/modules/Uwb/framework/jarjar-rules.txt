@@ -1,0 +1,20 @@
+## used by service-uwb ##
+# Statically linked cbor library
+rule co.nstant.in.cbor.** com.android.x.uwb.@0
+# Statically included module utils.
+rule com.android.modules.utils.** com.android.x.uwb.@0
+# Statically included HAL stubs.
+rule android.hardware.uwb.** com.android.x.uwb.@0
+# Statically included UWB support lib and guava lib.
+rule com.google.common.** com.android.x.uwb.@0
+rule com.google.uwb.** com.android.x.uwb.@0
+# Included by support lib.
+rule com.android.internal.util.** com.android.x.uwb.@0
+# Use our statically linked protobuf library
+rule com.google.protobuf.** com.android.x.uwb.@0
+# Statically linked bouncy castle library
+rule org.bouncycastle.** com.android.x.uwb.@0
+# Statically linked third party library
+rule com.google.thirdparty.** com.android.x.uwb.@0
+
+## used by both framework-uwb and service-uwb ##

@@ -1,0 +1,14 @@
+{
+    "uuid": "cf31780c-aa93-11ea-8cfd-ab8c0bdee618",
+    "min_heap": 4096,
+    "min_stack": 8192,
+    "start_ports": [
+        {
+            "name": "com.android.trusty.memref.receiver",
+            "flags": {
+                "allow_ta_connect": false,
+                "allow_ns_connect": true
+            }
+        }
+    ]
+}

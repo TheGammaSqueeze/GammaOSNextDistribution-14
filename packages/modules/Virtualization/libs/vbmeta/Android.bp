@@ -1,0 +1,54 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_defaults {
+    name: "libvbmeta_rust.defaults",
+    crate_name: "vbmeta",
+    defaults: ["avf_build_flags_rust"],
+    host_supported: true,
+    srcs: ["src/lib.rs"],
+    edition: "2021",
+    rustlibs: [
+        "libavb_bindgen",
+        "libthiserror",
+    ],
+}
+
+rust_library {
+    name: "libvbmeta_rust",
+    defaults: ["libvbmeta_rust.defaults"],
+    apex_available: [
+        "com.android.virt",
+    ],
+}
+
+rust_test_host {
+    name: "libvbmeta_rust.test",
+    defaults: ["libvbmeta_rust.defaults"],
+    prefer_rlib: true,
+    rustlibs: [
+        "libanyhow",
+        "libtempfile",
+    ],
+    data: [
+        ":avb_testkey_rsa2048",
+        ":avb_testkey_rsa4096",
+        ":avb_testkey_rsa8192",
+    ],
+    required: ["avbtool"],
+    test_suites: ["general-tests"],
+    test_options: {
+        unit_test: false,
+    },
+    target: {
+        host: {
+            // TODO(b/204562227): remove once the build does this automatically
+            data: [":avbtool"],
+            data_libs: [
+                "libc++",
+                "libcrypto",
+            ],
+        },
+    },
+}

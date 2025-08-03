@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright 2018 Google Inc. All Rights Reserved.
+ -->
+<configuration description="Config for WindowManager Flicker Tests">
+    <option name="test-tag" value="FlickerLibUtilsTest"/>
+    <!-- Needed for storing the perfetto trace files in the sdcard/test_results-->
+    <option name="isolated-storage" value="false"/>
+
+    <target_preparer class="com.android.tradefed.targetprep.RootTargetPreparer"/>
+    <target_preparer class="com.android.tradefed.targetprep.DeviceSetup">
+        <option name="set-test-harness" value="true" />
+        <option name="screen-always-on" value="on" />
+    </target_preparer>
+    <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
+        <option name="cleanup-apks" value="true"/>
+        <option name="test-file-name" value="FlickerLibUtilsTest.apk"/>
+    </target_preparer>
+    <target_preparer class="com.android.tradefed.targetprep.PushFilePreparer">
+        <option name="push-file"
+                key="trace_config.textproto"
+                value="/data/misc/perfetto-traces/trace_config.textproto"
+        />
+        <!--Install the content provider automatically when we push some file in sdcard folder.-->
+        <!--Needed to avoid the installation during the test suite.-->
+        <option name="push-file" key="trace_config.textproto" value="/sdcard/sample.textproto"/>
+    </target_preparer>
+
+    <test class="com.android.tradefed.testtype.AndroidJUnitTest">
+        <option name="exclude-annotation" value="androidx.test.filters.FlakyTest"/>
+        <option name="package" value="android.tools"/>
+        <option name="hidden-api-checks" value="false"/>
+        <!-- PerfettoListener related arguments -->
+        <option name="device-listeners" value="android.device.collectors.PerfettoListener"/>
+        <option name="instrumentation-arg" key="perfetto_config_text_proto" value="true"/>
+        <option name="instrumentation-arg"
+                key="perfetto_config_file"
+                value="trace_config.textproto"
+        />
+        <option name="instrumentation-arg" key="per_run" value="true"/>
+    </test>
+
+    <!-- Needed for pulling the collected trace config on to the host -->
+    <metrics_collector class="com.android.tradefed.device.metric.FilePullerLogCollector">
+        <option name="pull-pattern-keys" value="perfetto_file_path"/>
+        <option name="collect-on-run-ended-only" value="true"/>
+        <option name="clean-up" value="true"/>
+    </metrics_collector>
+</configuration>

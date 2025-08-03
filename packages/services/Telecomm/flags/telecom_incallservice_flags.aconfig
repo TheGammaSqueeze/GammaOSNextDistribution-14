@@ -1,0 +1,23 @@
+package: "com.android.server.telecom.flags"
+container: "system"
+
+flag {
+  name: "early_binding_to_incall_service"
+  namespace: "telecom"
+  description: "Binds to InCallServices when call requires no call filtering on watch"
+  bug: "282113261"
+}
+
+flag {
+  name: "ecc_keyguard"
+  namespace: "telecom"
+  description: "Ensure that users are able to return to call from keyguard UI for ECC"
+  bug: "306582821"
+}
+
+flag {
+  name: "separately_bind_to_bt_incall_service"
+  namespace: "telecom"
+  description: "Binding/Unbinding to BluetoothInCallServices in proper time to improve call audio"
+  bug: "306395598"
+}

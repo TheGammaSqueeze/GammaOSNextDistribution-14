@@ -1,0 +1,8 @@
+{
+    "uuid": "67925337-2c03-49ed-9240-d51b6fea3e30",
+    "min_heap": 32768,
+    "min_stack": 32768,
+    "mgmt_flags": {
+        "non_critical_app": true
+    }
+}

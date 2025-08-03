@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2011 The Android Open Source Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="512dp"
+    android:height="442.182dp"
+    android:viewportWidth="512"
+    android:viewportHeight="442.182">
+
+    <path
+        android:fillColor="#000"
+        android:pathData="M0,442.182h512L256,0L0,442.182z M279.272,372.363h-46.545v-46.545h46.545V372.363z
+M279.272,279.272h-46.545v-93.091 h46.545V279.272z" />
+</vector>

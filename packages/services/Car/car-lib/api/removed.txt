@@ -1,0 +1,23 @@
+// Signature format: 2.0
+package android.car {
+
+  public final class Car {
+    field @Deprecated public static final String CAR_EXTRA_MEDIA_PACKAGE = "android.car.intent.extra.MEDIA_PACKAGE";
+  }
+
+}
+
+package android.car.drivingstate {
+
+  @IntDef(flag=true, prefix={"UX_RESTRICTIONS_"}, value={android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_BASELINE, android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_NO_DIALPAD, android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_NO_FILTERING, android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_LIMIT_STRING_LENGTH, android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_NO_KEYBOARD, android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_NO_VIDEO, android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_LIMIT_CONTENT, android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_NO_SETUP, android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_NO_TEXT_MESSAGE, android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_NO_VOICE_TRANSCRIPTION}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface CarUxRestrictions.CarUxRestrictionsInfo {
+  }
+
+}
+
+package android.car.hardware {
+
+  @IntDef({android.car.hardware.CarPropertyValue.STATUS_AVAILABLE, android.car.hardware.CarPropertyValue.STATUS_UNAVAILABLE, android.car.hardware.CarPropertyValue.STATUS_ERROR}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface CarPropertyValue.PropertyStatus {
+  }
+
+}
+

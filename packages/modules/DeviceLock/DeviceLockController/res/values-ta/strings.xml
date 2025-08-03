@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  Copyright (c) 2022, The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="5655878067457216814">"DeviceLockController"</string>
+    <string name="next_button" msgid="1856423430963548653">"அடுத்து"</string>
+    <string name="reset_button" msgid="4649354411129240809">"மீட்டமை"</string>
+    <string name="setup_more_button" msgid="4456370972302510109">"மேலும்"</string>
+    <string name="setup_info_title_text" msgid="299562193092219293">"இந்தச் சாதனத்தை <xliff:g id="CREDITOR_APP">%1$s</xliff:g> நிர்வகிக்கும் விதம்"</string>
+    <string name="setup_failed_title_text" msgid="9045111389981992536">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> ஆப்ஸை நிறுவ முடியவில்லை"</string>
+    <string name="setup_failed_reset_device_text" msgid="178419033440060908">"மீண்டும் முயல்வதற்குச் சாதனத்தை மீட்டமைக்கிறது."</string>
+    <string name="setup_failed_reset_device_timer_text" msgid="5270970227714985986">"{count,plural, =1{இந்தச் சாதனத்தை மீட்டமைத்துவிட்டு இதை மீண்டும் அமைக்கவும். 1 வினாடியில் தானாகவே மீட்டமைக்கப்படும்.}other{இந்தச் சாதனத்தை மீட்டமைத்துவிட்டு இதை மீண்டும் அமைக்கவும். # வினாடிகளில் தானாகவே மீட்டமைக்கப்படும்.}}"</string>
+    <string name="setup_progress_title_text" msgid="2388779167610656852">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> ஆப்ஸ் நிறுவப்படுகிறது<xliff:g id="ELLIPSIS">…</xliff:g>"</string>
+    <string name="setup_finish_title_text" msgid="2810842695806992743">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> ஆப்ஸ் திறக்கப்படுகிறது<xliff:g id="ELLIPSIS">…</xliff:g>"</string>
+    <string name="setup_error_title_text" msgid="1123742279081942535">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> ஆப்ஸைத் திறக்க முடியவில்லை"</string>
+    <string name="try_again" msgid="5964839819170927721">"மீண்டும் முயல்க"</string>
+    <string name="reset_phone" msgid="1161657350311160627">"மொபைலை மீட்டமை"</string>
+    <string name="control_section_title" msgid="2213476068991045785">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> என்ன செய்யு முடியும்?"</string>
+    <string name="control_lock_device_text" msgid="8253302484073757764">"பேமெண்ட் எதையும் செய்யவில்லை எனில் இந்தச் சாதனத்தைக் கட்டுப்படுத்துதல்"</string>
+    <string name="control_download_text" msgid="8514650561843088172">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> ஆப்ஸைப் பதிவிறக்குதல், நிறுவுதல் மற்றும் புதுப்பித்தல்"</string>
+    <string name="control_disable_debug_text" msgid="8112443250013094442">"பிழைதிருத்த அம்சங்களை முடக்குதல்"</string>
+    <string name="locked_section_title" msgid="2748725389334076510">"இந்தச் சாதனம் லாக் செய்யப்பட்டால் எது இயங்கும்?"</string>
+    <string name="locked_emergency_text" msgid="3509216445555779286">"அவசர அழைப்புச் சேவைகள்"</string>
+    <string name="locked_phone_usage_text" msgid="1913605870324552847">"உள்வரும் அழைப்புகளும் சில வெளிச்செல்லும் அழைப்புகளும்"</string>
+    <string name="locked_settings_usage_text" msgid="8336476063187737700">"அமைப்புகள்"</string>
+    <string name="locked_backup_and_restore_text" msgid="104616318625243429">"&lt;a href=https://support.google.com/android/answer/2819582&gt;தரவைக்&lt;/a&gt; காப்புப் பிரதி எடுத்தல் &amp; மீட்டெடுத்தல்"</string>
+    <string name="exposure_section_title" msgid="2329122144337528752">"எவையெல்லாம் <xliff:g id="CREDITOR_APP">%1$s</xliff:g>க்குத் தெரியும்படி இருக்கும்?"</string>
+    <string name="exposure_install_text" msgid="2631074166447765453">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> ஆப்ஸ் எப்போது நிறுவப்பட்டது/நிறுவல் நீக்கப்பட்டது என்பது"</string>
+    <string name="exposure_lock_unlock_text" msgid="6827412845847260579">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> ஆப்ஸிடமிருந்து பெறப்பட்ட லாக்/அன்லாக் கோரிக்கைகள்"</string>
+    <string name="exposure_disable_dlc_text" msgid="2898692398106736423">"சாதனத்தில் <xliff:g id="CREDITOR_APP">%1$s</xliff:g> ஆப்ஸ் இல்லாமல் இருப்பது"</string>
+    <string name="open_source_licenses" msgid="6464389386262455443">"ஓப்பன் சோர்ஸ் உரிமங்கள்"</string>
+    <string name="footer_notice_content_description" msgid="2160540400079419440">"பாதுகாப்பு அமைப்புகளில் \'கடன் மூலம் பெற்ற சாதனம்\' பிரிவிலுள்ள நிர்வாகத் திறன்கள் இந்தச் சாதனத்திற்குப் பொருந்தாது."</string>
+    <string name="device_provided_by_provider" msgid="290593329676291991">"இந்தச் சாதனம் <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> நிறுவனத்தால் வழங்கப்பட்டது"</string>
+    <string name="download_kiosk_app" msgid="1845089944897502656">"Kiosk ஆப்ஸ் தானாகவே பதிவிறக்கப்பட்டு நிறுவப்படும்"</string>
+    <string name="install_kiosk_app_secondary_user" msgid="49911908012320834">"இந்தப் பயனருக்கு Kiosk ஆப்ஸ் நிறுவப்படும்"</string>
+    <string name="restrict_device_if_missing_payment" msgid="8883980285859496904">"நீங்கள் பேமெண்ட் செய்யத் தவறினால் சாதனத்தை <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> கட்டுப்படுத்தலாம். தகவல்களுக்கு, <xliff:g id="TERMS_AND_CONDITIONS_LINK_START">&lt;a href=%2$s&gt;</xliff:g>விதிமுறைகளையும் நிபந்தனைகளையும்<xliff:g id="TERMS_AND_CONDITIONS_LINK_END">&lt;/a&gt;</xliff:g> பாருங்கள்."</string>
+    <string name="restrict_device_if_dont_make_payment" msgid="1619095674945507015">"போதுமான பேமெண்ட்டுகளை நீங்கள் செய்யாவிட்டால், இந்தச் சாதனத்தை <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> கட்டுப்படுத்த முடியும். தகவல்களுக்கு, <xliff:g id="TERMS_AND_CONDITIONS_LINK_START">&lt;a href=%2$s&gt;</xliff:g>விதிமுறைகளையும் நிபந்தனைகளையும்<xliff:g id="TERMS_AND_CONDITIONS_LINK_END">&lt;/a&gt;</xliff:g> பாருங்கள்."</string>
+    <string name="contact_provider_for_help" msgid="3872028089834808884">"உதவிக்கு, <xliff:g id="SUPPORT_LINK_START">&lt;a href=%2$s&gt;</xliff:g><xliff:g id="PROVIDER_NAME">%1$s</xliff:g> ஐத் தொடர்புகொள்ளுங்கள்<xliff:g id="SUPPORT_LINK_END">&lt;/a&gt;</xliff:g>."</string>
+    <string name="previous" msgid="5241891780917802570">"முந்தையது"</string>
+    <string name="next" msgid="8248291863254324326">"அடுத்து"</string>
+    <string name="start" msgid="2842214844667658537">"தொடங்கு"</string>
+    <string name="ok" msgid="3568398726528719749">"சரி"</string>
+    <string name="done" msgid="4507782734740410307">"முடிந்தது"</string>
+    <string name="do_it_in_one_hour" msgid="2727777340568739453">"1 மணிநேரத்தில் செய்க"</string>
+    <string name="header_icon_content_description" msgid="6069602031334473195">"தகவல்கள்"</string>
+    <string name="provision_info_item_icon_content_description" msgid="2306298178610632507">"வழங்கலுக்கான தகவல்"</string>
+    <string name="enroll_your_device_header" msgid="2226305405591945098">"உங்கள் சாதனத்தைப் பதிவுசெய்யுங்கள்"</string>
+    <string name="enroll_your_device_financing_subheader" msgid="8810608106273097451">"உங்கள் சாதனத்தை <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> இன் நிதித் திட்டத்தில் இப்போது பதிவுசெய்யலாம்"</string>
+    <string name="enroll_your_device_subsidy_subheader" msgid="8598730780370624995">"உங்கள் சாதனத்தை <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> இன் மானியத் திட்டத்திற்கு இப்போது பதிவுசெய்யலாம்"</string>
+    <string name="subsidy_program_header" msgid="2321508488856303554">"<xliff:g id="PROVIDER_NAME">%1$s</xliff:g> மானியத் திட்டத்தில் உள்ளீர்கள்"</string>
+    <string name="device_enrollment_header_text" msgid="5283341102404741658">"சாதனத்தைப் பதிவுசெய்தல்"</string>
+    <string name="device_financing_enrollment_body_text" msgid="5506086383249511498">"உங்கள் சாதனம் 30 நாட்களுக்குள் <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> இன் நிதித் திட்டத்திற்குப் பதிவுசெய்யப்படும்"</string>
+    <string name="device_subsidy_enrollment_body_text" msgid="3971584929178719388">"உங்கள் சாதனம் 30 நாட்களுக்குள் <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> இன் மானியத் திட்டத்திற்குப் பதிவுசெய்யப்படும்"</string>
+    <string name="device_enrollment_notification_body_text" msgid="8755080244956655854">"பதிவுசெய்தல் மீண்டும் தொடங்கப்படும் நேரம்: <xliff:g id="TIME">%1$s</xliff:g>. தொடர்ந்து உங்கள் சாதனத்தைப் பயன்படுத்தலாம்."</string>
+    <string name="continue_using_device" msgid="5816570734692191190">"தொடர்ந்து சாதனத்தைப் பயன்படுத்தலாம்"</string>
+    <string name="device_paid" msgid="6606280698381856804">"சாதனத்திற்குப் பணம் செலுத்தியுள்ளீர்கள்"</string>
+    <string name="device_removed_from_subsidy_program" msgid="1243434945619071051">"சாதனம் <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> மானியத் திட்டத்தில் இருந்து அகற்றப்பட்டது"</string>
+    <string name="device_removed_from_finance_program" msgid="825548999540107578">"உங்கள் சாதனம் <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> இன் நிதித் திட்டத்தில் இருந்து அகற்றப்பட்டது"</string>
+    <string name="restrictions_lifted" msgid="5785586265984319396">"உங்கள் சாதனத்தின் மீதான கட்டுப்பாடுகள் அனைத்தும் அகற்றப்பட்டன"</string>
+    <string name="uninstall_kiosk_app" msgid="3459557395024053988">"உங்கள் சாதனத்தில் இருந்து Kiosk ஆப்ஸை நிறுவல் நீக்கலாம்"</string>
+    <string name="getting_device_ready" msgid="2829009584599871699">"உங்கள் சாதனத்தைத் தயார்படுத்துகிறது…"</string>
+    <string name="this_may_take_a_few_minutes" msgid="2482876246874429351">"இதற்குச் சில நிமிடங்கள் ஆகலாம்"</string>
+    <string name="installing_kiosk_app" msgid="324208168205545860">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> ஆப்ஸ் நிறுவப்படுகிறது…"</string>
+    <string name="opening_kiosk_app" msgid="2021888641430165654">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> ஆப்ஸ் திறக்கப்படுகிறது…"</string>
+    <string name="settings_banner_title" msgid="527041021011279252">"<xliff:g id="PROVIDER_NAME">%1$s</xliff:g> வழங்கிய சாதனம்"</string>
+    <string name="settings_banner_body" msgid="5814902066260202824">"இந்தச் சாதனத்திலுள்ள அமைப்புகளை <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> மாற்ற முடியும்"</string>
+    <string name="settings_banner_button" msgid="1831020849782670907">"மேலும் அறிக"</string>
+    <string name="settings_screen_title" msgid="721470080648091035">"கடன் மூலம் பெறப்பட்ட சாதனத்தின் தகவல்கள்"</string>
+    <string name="settings_intro_device_financing" msgid="2548476558131048133">"அமைப்புகளை மாற்றி, சாதனத்தில் கியோஸ்க் ஆப்ஸை <xliff:g id="PROVIDER_NAME_0">%1$s</xliff:g> ஆல் நிறுவ முடியும்.\n\nநீங்கள் பணம் செலுத்தத் தவறினால், உங்கள் சாதனத்தை <xliff:g id="PROVIDER_NAME_1">%1$s</xliff:g> ஆல் தடை செய்ய முடியும்.\n\nமேலும் அறிய <xliff:g id="PROVIDER_NAME_2">%1$s</xliff:g> ஐத் தொடர்பு கொள்ளவும்."</string>
+    <string name="settings_intro_device_subsidy" msgid="4274945644204818702">"அமைப்புகளை மாற்றி, சாதனத்தில் கியோஸ்க் ஆப்ஸை <xliff:g id="PROVIDER_NAME_0">%1$s</xliff:g> நிறுவலாம்.\n\nநீங்கள் பணம் செலுத்தத் தவறினாலோ <xliff:g id="PROVIDER_NAME_2">%1$s</xliff:g> இன் சிம்மைப் பயன்படுத்துவதை நிறுத்தினாலோ இந்தச் சாதனத்தை <xliff:g id="PROVIDER_NAME_1">%1$s</xliff:g> ஆல் தடை செய்ய முடியும்.\n\nமேலும் அறிய <xliff:g id="PROVIDER_NAME_3">%1$s</xliff:g> ஐத் தொடர்புகொள்ளவும்."</string>
+    <string name="settings_intro_preference_key" msgid="6610461073400554162">"settings_intro_preference_key"</string>
+    <string name="settings_restrictions_category" msgid="5746868117342406677">"சாதனத்திற்குப் பணம் செலுத்தும்வரை இவற்றைச் செய்ய முடியாது:"</string>
+    <string name="settings_restrictions_category_preference_key" msgid="88318147152676512">"settings_restrictions_category_preference_key"</string>
+    <string name="settings_install_apps" msgid="3634279771448183713">"Play Store அல்லாமல் வெளியிலிருந்து ஆப்ஸைப் பதிவிறக்கலாம்"</string>
+    <string name="settings_install_apps_preference_key" msgid="27542314345238427">"settings_install_apps_preference_key"</string>
+    <string name="settings_safe_mode" msgid="3035228015586375153">"பாதுகாப்புப் பயன்முறைக்குச் சாதனத்தை மறுபடி தொடங்குதல்"</string>
+    <string name="settings_safe_mode_preference_key" msgid="2106617747358027424">"settings_safe_mode_preference_key"</string>
+    <string name="settings_developer_options" msgid="880701002025216672">"டெவெலப்பர் விருப்பங்களைப் பயன்படுத்தலாம்"</string>
+    <string name="settings_developer_options_preference_key" msgid="6807036808722582954">"settings_developer_options_preference_key"</string>
+    <string name="settings_credit_provider_capabilities_category" msgid="1274440595211820868">"சாதனத்தில் தவறு நிகழ்ந்தால், <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> செய்பவை:"</string>
+    <string name="settings_credit_provider_capabilities_category_preference_key" msgid="4571685720898641262">"settings_credit_provider_capabilities_category_preference_key"</string>
+    <string name="settings_IMEI" msgid="697965824361262506">"உங்கள் IMEI எண்ணை அணுகலாம்"</string>
+    <string name="settings_IMEI_preference_key" msgid="608809590948249412">"settings_IMEI_preference_key"</string>
+    <string name="settings_factory_reset" msgid="418045189048067625">"சாதனத்தை ஆரம்பநிலைக்கு மீட்டமைக்கலாம்"</string>
+    <string name="settings_factory_reset_preference_key" msgid="2168528486393635382">"settings_factory_reset_preference_key"</string>
+    <string name="settings_locked_mode_category" msgid="6307525048618331737">"உங்கள் சாதனம் கட்டுப்படுத்தப்பட்டால், அதை இதற்கு மட்டுமே பயன்படுத்த முடியும்:"</string>
+    <string name="settings_locked_mode_category_preference_key" msgid="7202573929427220258">"settings_locked_mode_category_preference_key"</string>
+    <string name="settings_emergency_calls" msgid="2460996367176786040">"அவசர உதவி எண்களை அழைக்கலாம்"</string>
+    <string name="settings_emergency_calls_preference_key" msgid="737598609727181316">"settings_emergency_calls_preference_key"</string>
+    <string name="settings_system_info" msgid="1352629332624774940">"தேதி, நேரம், நெட்வொர்க் நிலை, பேட்டரி போன்ற சிஸ்டம் தகவல்களைப் பார்க்கலாம்"</string>
+    <string name="settings_system_info_preference_key" msgid="8607675914059202598">"settings_system_info_preference_key"</string>
+    <string name="settings_turn_on_off_device" msgid="5414836621603462439">"உங்கள் சாதனத்தை இயக்கலாம்/முடக்கலாம்"</string>
+    <string name="settings_turn_on_off_device_preference_key" msgid="5981163790552677734">"settings_turn_on_off_device_preference_key"</string>
+    <string name="settings_notifications" msgid="63348993899505034">"அறிவிப்புகளையும் மெசேஜ்களையும் பார்த்தல்"</string>
+    <string name="settings_notifications_preference_key" msgid="4527872342061056462">"settings_notifications_preference_key"</string>
+    <string name="settings_allowlisted_apps" msgid="5531810497056091097">"<xliff:g id="PROVIDER_NAME">%1$s</xliff:g> அனுமதிக்கும் ஆப்ஸை அணுகலாம்"</string>
+    <string name="settings_allowlisted_apps_preference_key" msgid="8662705531235468080">"settings_allowlisted_apps_preference_key"</string>
+    <string name="settings_fully_paid_category" msgid="2459776591689824433">"முழுத் தொகையைச் செலுத்தியதும்:"</string>
+    <string name="settings_fully_paid_category_preference_key" msgid="1759690898170600559">"settings_fully_paid_category_preference_key"</string>
+    <string name="settings_restrictions_removed" msgid="1398080654904863221">"<xliff:g id="PROVIDER_NAME">%1$s</xliff:g> உங்கள் சாதனத்தைக் கட்டுப்படுத்தவோ அதன் அமைப்புகளை மாற்றவோ செய்யாது"</string>
+    <string name="settings_restrictions_removed_preference_key" msgid="7741933477145197391">"settings_restrictions_removed_preference_key"</string>
+    <string name="settings_uninstall_kiosk_app" msgid="2611134364295637875">"<xliff:g id="KIOSK_APP">%1$s</xliff:g> ஆப்ஸை நீங்கள் நிறுவல் நீக்கலாம்"</string>
+    <string name="settings_uninstall_kiosk_app_preference_key" msgid="5578103644009268125">"settings_uninstall_kiosk_app_preference_key"</string>
+    <string name="settings_support_category" msgid="7210906871924935770">"உதவிக்கு:"</string>
+    <string name="settings_support_category_preference_key" msgid="1818953199283261021">"settings_support_category_preference_key"</string>
+    <string name="settings_contact_provider" msgid="2481819956474692039">"<xliff:g id="SUPPORT_LINK_START">&lt;a href=%2$s&gt;</xliff:g><xliff:g id="PROVIDER_NAME">%1$s</xliff:g> ஐத் தொடர்புகொள்ளுங்கள்<xliff:g id="SUPPORT_LINK_END">&lt;/a&gt;</xliff:g>"</string>
+    <string name="settings_contact_provider_preference_key" msgid="2703619536229342624">"settings_contact_provider_preference_key"</string>
+    <string name="provision_notification_channel_name" msgid="6123500714047647805">"வழங்கல்"</string>
+    <string name="device_reset_in_days_notification_title" msgid="920859483535317727">"{count,plural, =1{சாதனம் 1 நாளில் மீட்டமைக்கப்படும்}other{சாதனம் # நாட்களில் மீட்டமைக்கப்படும்}}"</string>
+    <string name="device_reset_timer_notification_title" msgid="301978346002711614">"<xliff:g id="TIMER">%s</xliff:g>ல் சாதனம் மீட்டமைக்கப்படும்"</string>
+    <string name="device_reset_notification_content" msgid="7642367488663440437">"சாதனத்திலுள்ள அனைத்துத் தரவும் நீக்கப்படும். சாதனத்தைப் பதிவுசெய்வதற்கான உதவிக்கு, <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> ஐத் தொடர்புகொள்ளவும்"</string>
+    <string name="provisioning_failed" msgid="5350252817004028300">"கடன் வழங்கல் தோல்வியடைந்தது"</string>
+    <string name="click_to_contact_financier" msgid="9107827438262930445">"கடன் வழங்குநரைத் தொடர்புகொள்வதற்கான வழிகளை அறிந்துகொள்ள இங்கே கிளிக் செய்யுங்கள். <xliff:g id="SUPPORT_URL_START">&lt;a href=%1$s&gt;</xliff:g>மேலும் அறிக<xliff:g id="SUPPORT_URL_END">&lt;/a&gt;</xliff:g>"</string>
+    <string name="exit" msgid="645084771882733921">"வெளியேறு"</string>
+    <string name="retry" msgid="7497287909193345356">"மீண்டும் முயல்க"</string>
+</resources>

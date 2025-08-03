@@ -1,0 +1,431 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    android:id="@+id/rootLayout"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+  <TextView
+      android:id="@+id/localDeviceLabel"
+      android:textStyle="bold"
+      android:layout_width="150dp"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="15dp"
+      android:layout_marginStart="15dp"
+      android:layout_alignParentStart="true"
+      android:text="@string/local_device_label"
+      android:textAlignment="center" />
+
+  <TextView
+      android:id="@+id/remoteDeviceLabel"
+      android:textStyle="bold"
+      android:layout_width="150dp"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="15dp"
+      android:layout_marginEnd="15dp"
+      android:layout_alignParentEnd="true"
+      android:text="@string/connection_details_label"
+      android:autoSizeTextType="uniform"
+      android:textAlignment="center" />
+
+  <TextView
+      android:id="@+id/localIpLabel"
+      android:layout_width="150dp"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="15dp"
+      android:layout_marginStart="15dp"
+      android:layout_alignParentStart="true"
+      android:layout_below="@+id/localDeviceLabel"
+      android:layout_centerInParent="true"
+      android:text="@string/other_device_ip_label"
+      android:textAlignment="center" />
+
+  <TextView
+      android:id="@+id/remoteIpLabel"
+      android:layout_width="150dp"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="15dp"
+      android:layout_marginEnd="15dp"
+      android:layout_alignParentEnd="true"
+      android:layout_below="@+id/remoteDeviceLabel"
+      android:layout_centerInParent="true"
+      android:text="@string/other_device_ip_label"
+      android:textAlignment="center" />
+
+  <TextView
+      android:id="@+id/localHandshakePortLabel"
+      android:layout_width="150dp"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="15dp"
+      android:layout_marginStart="15dp"
+      android:layout_alignParentStart="true"
+      android:layout_below="@+id/localIpLabel"
+      android:layout_centerInParent="true"
+      android:text="@string/port_closed_label"
+      android:textAlignment="center" />
+
+  <TextView
+      android:id="@+id/remoteHandshakePortLabel"
+      android:layout_width="150dp"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="15dp"
+      android:layout_marginEnd="15dp"
+      android:layout_alignParentEnd="true"
+      android:layout_below="@+id/remoteIpLabel"
+      android:layout_centerInParent="true"
+      android:text="@string/port_closed_label"
+      android:textAlignment="center" />
+
+  <TextView
+      android:id="@+id/localRtpPortLabel"
+      android:layout_width="150dp"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="15dp"
+      android:layout_marginStart="15dp"
+      android:layout_alignParentStart="true"
+      android:layout_below="@+id/localHandshakePortLabel"
+      android:layout_centerInParent="true"
+      android:text="@string/port_closed_label"
+      android:textAlignment="center" />
+
+  <TextView
+      android:id="@+id/remoteRtpPortLabel"
+      android:layout_width="150dp"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="15dp"
+      android:layout_marginEnd="15dp"
+      android:layout_alignParentEnd="true"
+      android:layout_below="@+id/localHandshakePortLabel"
+      android:layout_centerInParent="true"
+      android:text="@string/port_closed_label"
+      android:textAlignment="center" />
+
+  <TextView
+      android:id="@+id/localRtcpPortLabel"
+      android:layout_width="150dp"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="15dp"
+      android:layout_marginStart="15dp"
+      android:layout_alignParentStart="true"
+      android:layout_below="@+id/localRtpPortLabel"
+      android:layout_centerInParent="true"
+      android:text="@string/port_closed_label"
+      android:textAlignment="center" />
+
+  <TextView
+      android:id="@+id/remoteRtcpPortLabel"
+      android:layout_width="150dp"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="15dp"
+      android:layout_marginEnd="15dp"
+      android:layout_alignParentEnd="true"
+      android:layout_below="@+id/remoteRtpPortLabel"
+      android:layout_centerInParent="true"
+      android:text="@string/port_closed_label"
+      android:textAlignment="center" />
+
+  <Button
+      android:id="@+id/allowCallsButton"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="20dp"
+      android:layout_marginStart="15dp"
+      android:layout_below="@+id/localRtcpPortLabel"
+      android:autoSizeTextType="uniform"
+      android:backgroundTint="@drawable/selected_green"
+      android:onClick="allowCallsOnClick"
+      android:text="@string/allow_calls_button_text"
+      android:textColor="@color/black" />
+
+  <Button
+      android:id="@+id/connectButton"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="20dp"
+      android:layout_marginStart="15dp"
+      android:layout_below="@+id/allowCallsButton"
+      android:alpha="0.5"
+      android:backgroundTint="@drawable/selected_green"
+      android:enabled="false"
+      android:onClick="initiateHandshakeOnClick"
+      android:text="@string/connect_button_text"
+      android:autoSizeTextType="uniform"
+      android:textColor="@color/black" />
+
+  <Button
+      android:id="@+id/openSessionButton"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="20dp"
+      android:layout_marginEnd="15dp"
+      android:layout_alignParentEnd="true"
+      android:layout_below="@+id/localRtcpPortLabel"
+      android:alpha="0.5"
+      android:backgroundTint="@drawable/selected_green"
+      android:enabled="false"
+      android:onClick="openSessionOnClick"
+      android:text="@string/open_session_button_text"
+      android:autoSizeTextType="uniform"
+      android:textColor="@color/black" />
+
+  <Button
+      android:id="@+id/getSpropButton"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="20dp"
+      android:layout_marginEnd="15dp"
+      android:layout_alignParentEnd="true"
+      android:layout_below="@+id/openSessionButton"
+      android:backgroundTint="@drawable/selected_green"
+      android:enabled="true"
+      android:onClick="generateSprop"
+      android:text="Get SPROP"
+      android:autoSizeTextType="uniform"
+      android:textColor="@color/black" />
+
+  <Button
+      android:id="@+id/sendHeaderExtension"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="20dp"
+      android:layout_marginEnd="15dp"
+      android:layout_alignParentEnd="true"
+      android:layout_below="@+id/getSpropButton"
+      android:backgroundTint="@drawable/selected_green"
+      android:enabled="true"
+      android:onClick="sendHeaderExtension"
+      android:text="@string/send_header_extension_button_text"
+      android:autoSizeTextType="uniform"
+      android:textColor="@color/black" />
+
+  <Button
+      android:id="@+id/adjustDelay"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="20dp"
+      android:layout_marginEnd="15dp"
+      android:layout_alignParentEnd="true"
+      android:layout_below="@+id/sendHeaderExtension"
+      android:backgroundTint="@drawable/selected_green"
+      android:enabled="true"
+      android:onClick="adjustDelay"
+      android:text="@string/apply_delay_button_text"
+      android:autoSizeTextType="uniform"
+      android:textColor="@color/black" />
+
+<Spinner
+        android:id="@+id/spinnerAdditionalMedia"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:layout_marginStart="15dp"
+        android:layout_below="@id/connectButton" />
+
+  <androidx.appcompat.widget.SwitchCompat
+      android:id="@+id/loopbackModeSwitch"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="50dp"
+      android:layout_marginStart="15dp"
+      android:layout_below="@id/spinnerAdditionalMedia"
+      android:checked="false"
+      android:onClick="loopbackOnClick"
+      android:text="@string/loop_back_mode_switch_text" />
+
+  <androidx.appcompat.widget.SwitchCompat
+      android:id="@+id/speakerModeSwitch"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="50dp"
+      android:layout_marginStart="15dp"
+      android:layout_below="@id/spinnerAdditionalMedia"
+      android:layout_toEndOf="@id/loopbackModeSwitch"
+      android:checked="false"
+      android:onClick="setSpeakModeOnClick"
+      android:text="@string/speaker_mode_switch_text" />
+
+  <!-- Video UI -->
+  <TextView
+      android:id="@+id/previewLabel"
+      android:layout_width="200dp"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="15dp"
+      android:layout_marginEnd="15dp"
+      android:layout_below="@+id/loopbackModeSwitch"
+      android:visibility="gone"
+      android:text="@string/preview_label"
+      android:textAlignment="center" />
+
+  <TextView
+      android:id="@+id/displayLabel"
+      android:layout_width="200dp"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="15dp"
+      android:layout_marginEnd="15dp"
+      android:layout_below="@+id/loopbackModeSwitch"
+      android:layout_toEndOf="@id/previewLabel"
+      android:layout_centerInParent="true"
+      android:visibility="gone"
+      android:text="@string/display_label"
+      android:textAlignment="center" />
+  <FrameLayout
+            android:id="@+id/previewFrame"
+            android:layout_width="200dp"
+            android:layout_height="266dp"
+            android:visibility="gone"
+            android:layout_below="@id/previewLabel">
+    <TextureView
+        android:id="@+id/texturePreview"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+  </FrameLayout>
+  <FrameLayout
+            android:id="@+id/displayFrames"
+            android:layout_width="200dp"
+            android:layout_height="266dp"
+            android:visibility="gone"
+            android:layout_below="@id/displayLabel"
+            android:layout_toEndOf="@id/previewFrame">
+    <TextureView
+        android:id="@+id/textureDisplay"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+  </FrameLayout>
+
+  <!-- Text UI -->
+  <TextView
+      android:id="@+id/sendingTextTitle"
+      android:layout_width="70dp"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="15dp"
+      android:layout_marginEnd="15dp"
+      android:layout_below="@+id/loopbackModeSwitch"
+      android:visibility="gone"
+      android:text="@string/text_sending"
+      android:textAlignment="center" />
+  <EditText
+      android:id="@+id/textEditTextSending"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_below="@+id/loopbackModeSwitch"
+      android:layout_toEndOf="@id/sendingTextTitle"
+      android:visibility="gone"
+      android:ems="10"
+      android:maxLength="10"
+      android:text="hello"/>
+  <Button
+      android:id="@+id/buttonTextSend"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="10dp"
+      android:layout_marginEnd="10dp"
+      android:layout_alignParentEnd="true"
+      android:layout_below="@+id/loopbackModeSwitch"
+      android:layout_toEndOf="@id/textEditTextSending"
+      android:backgroundTint="@drawable/selected_green"
+      android:enabled="true"
+      android:onClick="sendRttOnClick"
+      android:text="Send"
+      android:visibility="gone"
+      android:autoSizeTextType="uniform"
+      android:textColor="@color/black" />
+  <TextView
+      android:id="@+id/receivedTextTitle"
+      android:layout_width="70dp"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="15dp"
+      android:layout_marginEnd="15dp"
+      android:layout_below="@+id/sendingTextTitle"
+      android:visibility="gone"
+      android:text="@string/text_received"
+      android:textAlignment="center" />
+  <TextView
+      android:id="@+id/receivedText"
+      android:layout_width="200dp"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="15dp"
+      android:layout_marginEnd="15dp"
+      android:layout_below="@+id/sendingTextTitle"
+      android:layout_toEndOf="@id/receivedTextTitle"
+      android:visibility="gone"
+      android:text=""
+      android:textAlignment="center" />
+
+  <!-- Active Call Action UI -->
+  <LinearLayout
+      android:id="@+id/activeCallActionsLayout"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:gravity="center_horizontal"
+      android:orientation="horizontal"
+      android:layout_alignParentBottom="true"
+      android:alpha="0.5"
+      android:layout_margin="10dp">
+
+    <ImageButton
+        android:id="@+id/dialerButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/dialerButtonDescription"
+        android:onClick="openDialer"
+        android:layout_gravity="center_vertical"
+        android:alpha="0.5"
+        android:enabled="false"
+        android:background="#00000000"
+        android:src="@drawable/ic_baseline_dialpad_24" />
+
+    <View android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1" />
+
+    <Button
+        android:id="@+id/closeSessionButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:alpha="0.5"
+        android:backgroundTint="@color/coral_red"
+        android:enabled="false"
+        android:onClick="closeSessionOnClick"
+        android:layout_gravity="center_vertical"
+        android:text="@string/close_session_button_text"
+        android:textColor="@color/black" />
+
+    <View android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1" />
+
+    <ImageButton
+        android:id="@+id/mediaDirectionButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/dialerButtonDescription"
+        android:onClick="mediaDirectionOnClick"
+        android:layout_gravity="center_vertical"
+        android:background="#00000000"
+        android:alpha="0.5"
+        android:enabled="false"
+        android:src="@drawable/ic_baseline_phone_paused_24" />
+
+    <View android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1" />
+
+    <ImageButton
+        android:id="@+id/changeAudioCodecButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/dialerButtonDescription"
+        android:onClick="openChangeAudioCodecSheet"
+        android:layout_gravity="center_vertical"
+        android:background="#00000000"
+        android:alpha="0.5"
+        android:enabled="false"
+        android:src="@drawable/ic_baseline_phone_in_talk_24" />
+
+  </LinearLayout>
+
+</RelativeLayout>

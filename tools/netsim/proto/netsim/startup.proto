@@ -1,0 +1,71 @@
+// Copyright 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package netsim.startup;
+
+import "netsim/common.proto";
+import "rootcanal/configuration.proto";
+
+/**
+ * The startup info proto.
+ *
+ * When netsim is forked from a parent that owns all fds for HAL communication
+ * (like launch_cvd) it uses json format of this proto.
+ *
+ * Example:
+ *
+ * netsim -s '
+ *   {"devices": [
+ *      {serial: "emulator-5554",
+ *       chips: [{kind: "WIFI", fdIn: 1, fdOut: 2},
+ *               {kind: "BLUETOOTH", fdIn: 20, fdOut:21}]
+ *      },
+ *      {serial: "emulator-5555",
+ *       chips: [{kind: "BLUETOOTH", fdIn: 3, fdOut: 4},
+ *               {kind: "UWB", fdIn: 5, fdOut: 6, model: "DW300"}]
+ *      }
+ *    ]
+ *   }'
+ *
+ */
+
+message StartupInfo {
+  message Device {
+    string name = 1;          //  name of device
+    repeated Chip chips = 2;  // list of SoCs associated with device
+  }
+  repeated Device devices = 1;
+}
+
+message ChipInfo {
+  string name = 1;  // name of device
+  Chip chip = 2;    // single chip
+}
+
+message Chip {
+  common.ChipKind kind = 1;  // the kind of chip
+  string id = 2;             // optional like "rear-right"
+  string manufacturer = 3;   // optional like Quorvo
+  string product_name = 4;   // optional like DW300
+  int32 fd_in = 5;           // optional guest os input
+  int32 fd_out = 6;          // optional guest os output
+  bool loopback = 7;         // optional for testing
+  // optional for bluetooth chipsets
+  rootcanal.configuration.Controller bt_properties = 8;
+  // address in format xx:xx:xx:xx:xx:xx
+  // optional for bluetooth chipsets
+  string address = 9;
+}

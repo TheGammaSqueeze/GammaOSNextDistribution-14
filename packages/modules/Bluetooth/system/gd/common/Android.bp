@@ -1,0 +1,36 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_bt_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_bt_license"],
+}
+
+filegroup {
+    name: "BluetoothCommonSources",
+    srcs: [
+        "audit_log.cc",
+        "metric_id_manager.cc",
+        "stop_watch.cc",
+        "strings.cc",
+    ],
+}
+
+filegroup {
+    name: "BluetoothCommonTestSources",
+    srcs: [
+        "bidi_queue_unittest.cc",
+        "blocking_queue_unittest.cc",
+        "byte_array_test.cc",
+        "circular_buffer_test.cc",
+        "init_flags_test.cc",
+        "list_map_test.cc",
+        "lru_cache_test.cc",
+        "metric_id_manager_unittest.cc",
+        "multi_priority_queue_test.cc",
+        "numbers_test.cc",
+        "strings_test.cc",
+        "sync_map_count_test.cc",
+    ],
+}

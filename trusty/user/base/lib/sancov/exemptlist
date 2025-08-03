@@ -1,0 +1,32 @@
+# Copyright (C) 2020 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Exclude coverage aggregator and its library dependencies. Otherwise, the
+# service will attempt to connect to itself, deadlocking the whole system.
+src:trusty/user/base/app/coverage/*
+src:trusty/kernel/lib/libc-ext/*
+src:trusty/user/base/lib/coverage/*
+src:trusty/user/base/lib/hwasan/*
+src:trusty/user/base/lib/libc-trusty/*
+src:trusty/user/base/lib/tipc/*
+src:external/trusty/*
+
+# TODO: ipc-unittest makes assumptions about the set of open handles, which
+# won't hold true, since instrumented code opens handles for TIPC and shared
+# memory.
+src:trusty/user/base/lib/unittest/*
+src:trusty/kernel/lib/unittest/*
+
+# NB: Be careful not to exclude trusty/user/base/lib/sancov/test/*. We need it
+# to be instrumented.

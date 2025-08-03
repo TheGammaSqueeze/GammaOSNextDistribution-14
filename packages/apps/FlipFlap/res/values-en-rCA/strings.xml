@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  Copyright (c) 2017 The LineageOS Project
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ Also add information on how to contact you by electronic and paper mail.
+
+-->
+<resources>
+    <string name="app_name">FlipFlap</string>
+    <string name="notification_title">Smart cover detected</string>
+    <string name="alarm_label">ALARM</string>
+    <string name="abbrev_wday_month_day_no_year">EEE, MMMM d</string>
+    <string name="answer_call">ANSWER</string>
+    <string name="ignore_call">IGNORE</string>
+    <string name="end_call">END CALL</string>
+    <string name="settings_name">Smart cover</string>
+    <string name="settings_enable">Enable smart cover control</string>
+    <string name="settings_summary">Control your accessory behaviour</string>
+    <string name="category_behaviour">Behaviour</string>
+    <string name="pass_to_security_view_title">Directly go to password entry</string>
+    <string name="pass_to_security_view_summary">Opening the case directly shows lock screen</string>
+    <string name="use_high_touch_sensitivity_title">High touch sensitivity</string>
+    <string name="use_high_touch_sensitivity_summary">Increase touch sensitivity while cover is closed</string>
+    <string name="category_design">Design</string>
+    <string name="switch_charging_status_title">Show charging status</string>
+    <string name="switch_charging_status_summary">Change colour depending on the current battery charge</string>
+    <string name="category_timeouts">Timeouts</string>
+    <string name="timeout_plugged_title">While charging</string>
+    <string name="timeout_unplugged_title">Unplugged</string>
+    <string name="timeout_summary">Display the cover app for %s after closing the lid</string>
+    <string name="timeout_summary_never">After closing the lid, the cover app will always stay on</string>
+    <string name="timeout_summary_immediately">The screen will be turned off when closing the cover</string>
+    <string name="timeout_entry_immediately">Immediately</string>
+    <string name="timeout_entry_5s">5 seconds</string>
+    <string name="timeout_entry_10s">10 seconds</string>
+    <string name="timeout_entry_30s">30 seconds</string>
+    <string name="timeout_entry_1min">1 minute</string>
+    <string name="timeout_entry_5min">5 minutes</string>
+    <string name="timeout_entry_never">Never</string>
+</resources>

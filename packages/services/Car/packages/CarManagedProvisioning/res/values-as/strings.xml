@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    Copyright (C) 2021 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="brand_screen_header" msgid="4382251935798018352">"এই বাহনখন প্ৰতিষ্ঠানটোৰ"</string>
+    <string name="contact_device_provider" msgid="338577979231875837">"অধিক জানিবলৈ, <xliff:g id="IT_ADMIN">%1$s</xliff:g>ৰ সৈতে যোগাযোগ কৰক।"</string>
+    <string name="organization_admin" msgid="6551608903069550652">"প্ৰতিষ্ঠানৰ পৰিচালক"</string>
+    <string name="if_questions_contact_admin" msgid="4645510019575736238">"আপোনাৰ কিবা প্ৰশ্ন থাকিলে প্ৰতিষ্ঠানটোৰ পৰিচালকৰ সৈতে যোগাযোগ কৰক"</string>
+    <string name="admin_has_ability_to_monitor_device" msgid="3132155961508293345">"প্ৰতিষ্ঠানৰ পৰিচালকগৰাকীৰ ওচৰত ছেটিং, ক’ৰ্পৰেট এক্সেছ, এপ্‌, অনুমতি আৰু এই বাহনখনৰ লগত জড়িত অন্যান্য ডেটা তথা বাহনৰ অৱস্থান পৰ্যবেক্ষণ আৰু পৰিচালনা কৰাৰ সক্ষমতা থাকে।<xliff:g id="LINE_BREAK">
+
+</xliff:g>প্ৰতিষ্ঠানটোৰ গোপনীয়তাৰ নীতিকে ধৰি অধিক তথ্যৰ বাবে প্ৰতিষ্ঠানৰ পৰিচালক গৰাকীৰ সৈতে যোগাযোগ কৰক।"</string>
+    <string name="contact_your_admin_for_more_info" msgid="1419852317652804536">"প্ৰতিষ্ঠানটোৰ গোপনীয়তাৰ নীতিকে ধৰি অধিক তথ্যৰ বাবে প্ৰতিষ্ঠানৰ পৰিচালক গৰাকীৰ সৈতে যোগাযোগ কৰক।"</string>
+    <string name="managed_device_info" msgid="2134697391634083944">"এইখন এখন পৰিচালিত বাহন"</string>
+    <string name="contact_your_admin_for_help" msgid="1741496631607502730">"সহায়ৰ বাবে প্ৰতিষ্ঠানৰ পৰিচালক গৰাকীৰ সৈতে যোগাযোগ কৰক"</string>
+    <string name="fully_managed_device_provisioning_accept_header" msgid="8767138982035307813">"পৰিচালিত বাহনখন ছেট আপ কৰক"</string>
+    <string name="fully_managed_device_provisioning_step_1_header" msgid="8704166635032524345">"আপোনাৰ প্ৰতিষ্ঠানৰ এপ্‌ এক্সেছ কৰক"</string>
+    <string name="fully_managed_device_provisioning_step_1_description" msgid="5960961281295355254">"ইনফ’টেইনমেণ্ট ছিষ্টেম ছেট আপ কৰি থকা হৈছে..."</string>
+    <string name="fully_managed_device_provisioning_step_2_header" msgid="5888602026900289468">"ইনফ’টেইনমেণ্ট ছিষ্টেমৰ ডেটা ব্যক্তিগত নহয়"</string>
+    <string name="fully_managed_device_provisioning_step_2_subheader_title" msgid="1421575203782743214">"আপোনাৰ কাৰ্যকলাপ আৰু ডেটা"</string>
+    <string name="fully_managed_device_provisioning_step_2_subheader" msgid="4881961368653838979">"আপোনাৰ আইটি প্ৰশাসকে হয়তো এই বাহনখনত আপোনাৰ কাৰ্যকলাপ আৰু ডেটা চাব পাৰিব।"</string>
+    <string name="fully_managed_device_provisioning_permissions_secondary_subheader" msgid="8955791361423166123">"প্ৰতিষ্ঠানৰ পৰিচালকগৰাকীয়ে এই এপ্‌সমূহৰ বাবে মাইক্ৰ’ফ’ন আৰু অৱস্থানৰ অনুমতিৰ দৰে অনুমতিসমূহো ছেট কৰিব পাৰে।"</string>
+    <string name="fully_managed_device_with_permission_control_provisioning_summary" msgid="2503568673345133100">"আপোনাৰ কৰ্মস্থানৰ এপ্‌সমূহ সহজে এক্সেছ কৰিবলৈ এই বাহনখনৰ ইনফ’টেইনমেণ্ট ছিষ্টেমটো ব্যৱহাৰ কৰক। এইখন ব্যক্তিগত বাহন নহয়, গতিকে পৰিচালকগৰাকীয়ে হয়তো আপোনাৰ ডেটা আৰু কাৰ্যকলাপ চাব পাৰিব। প্ৰতিষ্ঠানৰ পৰিচালকগৰাকীয়ে এই এপ্‌সমূহৰ বাবে মাইক্ৰ’ফ’ন আৰু অৱস্থানৰ অনুমতিৰ দৰে অনুমতিসমূহো ছেট কৰিব পাৰে।"</string>
+    <string name="fully_managed_device_provisioning_summary" msgid="4323948058344613817">"আপোনাৰ কৰ্মস্থানৰ এপ্‌সমূহ সহজে এক্সেছ কৰিবলৈ এই বাহনখনৰ ইনফ’টেইনমেণ্ট ছিষ্টেমটো ব্যৱহাৰ কৰক। এইখন ব্যক্তিগত বাহন নহয়, গতিকে পৰিচালকগৰাকীয়ে হয়তো আপোনাৰ ডেটা আৰু কাৰ্যকলাপ চাব পাৰিব।"</string>
+    <string name="fully_managed_device_provisioning_progress_label" msgid="988594700479673633">"পৰিচালিত বাহন ছেট আপ কৰা"</string>
+    <string name="fully_managed_device_provisioning_return_device_title" msgid="1578111657911434819">"ছেট আপ কৰাটো বাতিল কৰি বাহনখন উভতাই দিয়ক"</string>
+    <string name="fully_managed_device_provisioning_return_device_subheader" msgid="5809488930429106172">"ৰিছেট কৰি এই বাহনখন প্ৰতিষ্ঠানৰ পৰিচালকগৰাকীক উভতাই দিয়ক অথবা ছেট আপ কৰাটো অব্যাহত ৰাখিবলৈ পূৰ্বৱতী স্ক্ৰীনখনলৈ যাওক।"</string>
+    <string name="fully_managed_device_cancel_setup_button" msgid="4113790677940440998">"ছেটআপ বাতিল কৰক"</string>
+    <string name="fully_managed_device_reset_and_return_button" msgid="4951274590516561428">"ৰিছেট কৰি উভতাই দিয়ক"</string>
+    <string name="fully_managed_device_provisioning_privacy_title" msgid="4789425994893472324">"গোপনীয়তাৰ জাননী"</string>
+    <string name="fully_managed_device_provisioning_privacy_body" msgid="5549745709511179391">"প্ৰতিষ্ঠানৰ পৰিচালকগৰাকীয়ে হয়তো এই বাহনখনত আপোনাৰ ডেটা আৰু কাৰ্যকলাপ চাব পাৰিব।"</string>
+</resources>

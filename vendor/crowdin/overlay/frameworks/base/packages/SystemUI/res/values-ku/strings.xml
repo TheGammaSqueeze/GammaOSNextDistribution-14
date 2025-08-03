@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/**
+ * Copyright (c) 2009, The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label">سیستەم UI</string>
+    <string name="battery_saver_confirmation_ok">کردنە کار</string>
+    <string name="battery_saver_start_action">کردنە کار</string>
+    <string name="status_bar_settings_auto_rotation">خۆکارانە-سوڕانەوەی شاشە</string>
+    <string name="usb_accessory_uri_prompt">هیچ بەرنامەیەک دانەمەزراوە ئیش بکات لەسەر USB  زیاتر فێربە دەربارەی <xliff:g id="url">%1$s</xliff:g></string>
+    <string name="title_usb_accessory">USB</string>
+    <string name="label_view">پیشاندان</string>
+    <string name="usb_debugging_title">ڕێگە دان بە هەڵدۆزی USB?</string>
+    <string name="usb_debugging_message">چاپکەری پەنجە کلیل لە RSA :\n<xliff:g id="fingerprint">%1$s</xliff:g></string>
+    <string name="usb_debugging_always">هەمیشە ڕێگە بدە لەسەر ئەم کۆمپیوتەرە</string>
+    <string name="screenshot_saving_title">پاشەکەوتکردنی شاشەوێنە\u2026</string>
+    <string name="accessibility_back">گەڕانەوە</string>
+    <string name="accessibility_home">ماڵەوە</string>
+    <string name="accessibility_menu">پێڕست</string>
+    <string name="accessibility_recent">پیشاندانی گشتی</string>
+    <string name="accessibility_camera_button">کامێرا</string>
+    <string name="accessibility_phone_button">تەلەفۆن</string>
+    <string name="accessibility_bluetooth_connected">بلوتوس پەیوەندکراوە.</string>
+    <string name="accessibility_bluetooth_name">پەیوەندکراوە بە <xliff:g id="bluetooth" example="Car Audio">%s</xliff:g>.</string>
+    <string name="accessibility_not_connected">نەبەستراوەتەوە.</string>
+    <string name="data_connection_roaming">سوڕانەوە</string>
+    <string name="accessibility_airplane_mode">باری فڕۆکە.</string>
+    <string name="accessibility_battery_level">باتری <xliff:g id="number">%d</xliff:g> لەسەدا.</string>
+    <string name="accessibility_tty_enabled">TeleTypewriter چالاکرا.</string>
+    <string name="accessibility_ringer_vibrate">لەرینەوەی زەنگ.</string>
+    <string name="accessibility_ringer_silent">بێدەنگ زەنگ.</string>
+    <string name="accessibility_desc_notification_shade">سێبەری تێبینی.</string>
+    <string name="accessibility_desc_quick_settings">خێرا ڕێکخستن.</string>
+    <string name="accessibility_desc_lock_screen">قوفڵکردنی ڕوونما.</string>
+    <string name="accessibility_quick_settings_bluetooth_on">چالاکردنی بلوتوس.</string>
+    <string name="accessibility_quick_settings_alarm">دانانی بیرخەرەوە بۆ <xliff:g id="time" example="Wed 3:30 PM">%s</xliff:g>.</string>
+    <string name="accessibility_quick_settings_more_time">کاتی زیاتر.</string>
+    <string name="accessibility_quick_settings_less_time">کاتی کەمتر.</string>
+    <string name="accessibility_location_active">ناوچە داواکراوە بۆ چالاککردن</string>
+    <string name="accessibility_clear_all">پاکردنەوەی تێبنیەکان.</string>
+    <string name="accessibility_rotation_lock_on_landscape">شاشەکە بە لایە قوفڵ ئەبێت.</string>
+    <string name="accessibility_rotation_lock_on_portrait">شاشەکە بە ڕاستە قوفڵ ئەبێت.</string>
+    <string name="dessert_case">شیرینی بابەت</string>
+    <string name="ethernet_label">ئێسه‌رنێت</string>
+    <string name="quick_settings_bluetooth_label">بلوتوس</string>
+    <string name="accessibility_quick_settings_rotation">خۆکارانە-سوڕانەوەی شاشە</string>
+    <string name="quick_settings_location_label">ناوچه‌</string>
+    <string name="quick_settings_media_device_label">ئامێری ڕاگه‌یێنه‌کان </string>
+    <string name="quick_settings_wifi_label">Wi-Fi</string>
+    <string name="quick_settings_brightness_dialog_title">ڕۆشنایی</string>
+    <string name="quick_settings_connecting">په‌یوه‌ندیكردن...</string>
+    <string name="quick_settings_flashlight_label">لایتی فلاش</string>
+    <string name="notification_section_header_alerting">تێبینی</string>
+    <string name="volume_panel_dialog_settings_button">ڕێکخستنه‌کان</string>
+    <string name="stream_voice_call">Call</string>
+    <string name="stream_ring">Ring</string>
+    <string name="stream_bluetooth_sco">بلوتوس</string>
+    <string name="volume_ringer_status_normal">Ring</string>
+    <string name="status_bar_ethernet">ئێسه‌رنێت</string>
+    <string name="status_bar_airplane">شێوازی فڕۆکە</string>
+    <string name="enable_bluetooth_confirmation_ok">کردنە کار</string>
+    <string name="keyboard_key_home">ماڵەوە</string>
+    <string name="keyboard_key_back">گەڕانەوە</string>
+    <string name="keyboard_key_move_home">ماڵەوە</string>
+    <string name="keyboard_shortcut_group_system_home">ماڵەوە</string>
+    <string name="keyboard_shortcut_group_system_back">گەڕانەوە</string>
+    <string name="keyboard_shortcut_group_system_notifications">تێبینی</string>
+    <string name="tuner_time">کات</string>
+    <string name="tuner_menu">پێڕست</string>
+    <string name="app_info">زانیاری دەربارەی بەرنامە</string>
+    <string name="controls_media_settings_button">ڕێکخستنه‌کان</string>
+</resources>

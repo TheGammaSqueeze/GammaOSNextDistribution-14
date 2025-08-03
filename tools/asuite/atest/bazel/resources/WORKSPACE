@@ -1,0 +1,23 @@
+register_toolchains(
+    "//prebuilts/build-tools:py_toolchain",
+    "//prebuilts/jdk/jdk17:runtime_toolchain_definition",
+)
+
+# `device_infra` repository provides rules needed to start cuttlefish devices
+# remotely. This repository is loaded when Bazel needs a target from it,
+# otherwise won't load.
+local_repository(
+    name = "device_infra",
+    path = "vendor/google/tools/atest/device_infra",
+)
+
+local_repository(
+    name = "rules_python",
+    # TODO(b/200202912): Re-route this when rules_python is pulled into AOSP.
+    path = "build/bazel_common_rules/rules/python/stubs",
+)
+
+local_repository(
+    name = "rules_java",
+    path = "external/bazelbuild-rules_java",
+)

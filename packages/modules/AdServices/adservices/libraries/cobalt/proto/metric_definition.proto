@@ -1,0 +1,306 @@
+// Copyright 2023 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+syntax = "proto3";
+
+package cobalt;
+
+import "report_definition.proto";
+
+option java_multiple_files = true;
+option java_package = "com.google.cobalt";
+
+////////////////////////////////////////////////////////////////////////////////
+// NOTE: This file is used by the Cobalt client and the Cobalt servers.
+// The source-of-truth of this file is located in Cobalt's open source code
+// repository, and the file is copied to Android where it is used by the Cobalt
+// client. Do not edit the copy of this file in this Android repo as those edits
+// will be overwritten when the file is next copied.
+////////////////////////////////////////////////////////////////////////////////
+
+// A Metric is a category of Events that a user logs to Cobalt.
+//
+// A Metric belongs to a Project and has a name and a type.
+//
+// When an Event is logged in Cobalt's Logger interface, a Metric is
+// specified and the Event then belongs to that Metric.
+//
+// A MetricDefinition includes a list of ReportDefinitions. These are the
+// definitions of the Reports that should be run for that Metric. Generating a
+// Report involves the Cobalt client sending Observations to the server based
+// on the Events belonging to the Metric, and the server performing an analysis
+// of those Observations in order to generate the Report output.
+//
+// When an Observation is sent from a Cobalt client to the server, it contains
+// a Metric id and a Report id. This indicates that the
+// Observation is derived from the Events belonging to the Metric for the
+// purpose of generating the Report.
+//
+// A MetricDefinition is used to define a Metric.
+//
+// Next ID: 27
+message MetricDefinition {
+  reserved 6, 7, 9, 13, 14, 15, 17, 21, 23, 24;
+  reserved "event_codes", "event_code_buffer_max", "max_event_code", "parts", "proto_name",
+      "string_buffer_max", "replacement_metric_id", "no_replacement_metric", "customer_name",
+      "project_name";
+
+  // Unique name for this Metric within its owning project.
+  // The name must obey the syntax of a C variable name and must have length
+  // at most 64.
+  string metric_name = 1;
+
+  // These three numbers form this Metric's unique numerical ID in Cobalt. The
+  // Cobalt registry YAML parser will automatically set the value of
+  // customer_id and project_id based on the context of the YAML file.
+  // The user must manually set the |id| field to a number uniquely identifying
+  // this Metric within its project.
+  uint32 customer_id = 2;
+  uint32 project_id = 3;
+  uint32 id = 4;
+
+  // A Metric has one of the following types.
+  // Next ID: 12
+  enum MetricType {
+    reserved 1, 2, 3, 4, 5, 6, 7, 9999;
+    reserved "CUSTOM", "ELAPSED_TIME", "EVENT_COUNT", "EVENT_OCCURRED", "FRAME_RATE",
+        "INT_HISTOGRAM", "MEMORY_USAGE", "STRING_USED";
+
+    UNSET = 0;
+
+    // Records that an event has occurred one or many times.
+    //
+    // MetricDefinition fields:
+    // - metric_dimensions (0 or more)
+    // - metric_semantics (required)
+    OCCURRENCE = 8;
+
+    // Records an integer measurement.
+    //
+    // MetricDefinition fields:
+    // - metric_dimensions (0 or more)
+    // - metric_units (Either this field or metric_units_other is required.)
+    // - metric_units_other (Either metric_units or this field is required.)
+    // - metric_semantics (required)
+    INTEGER = 9;
+
+    // Records many approximate integer measurements.
+    //
+    // MetricDefinition fields:
+    // - metric_dimensions (0 or more)
+    // - int_buckets
+    // - metric_units (Either this field or metric_units other is required.)
+    // - metric_units_other (Either metric_units or this field is required.)
+    // - metric_semantics (required)
+    INTEGER_HISTOGRAM = 10;
+
+    // Records the fact that a string was observed.
+    //
+    // MetricDefinition fields:
+    // - metric_dimensions (0 or more)
+    // - metric_semantics (required)
+    // - string_candidate_file. (required)
+    STRING = 11;
+  }
+
+  MetricType metric_type = 5;
+
+  // A container for enumerated sets of event codes.
+  message MetricDimension {
+    // Name of the dimension. Used only in the generated library for the names
+    // of the constants.
+    string dimension = 1;
+
+    // The enumerated set of event codes for this dimension.
+    //
+    // The keys are the numeric codes and the values are the
+    // human-readable labels for the codes. It is OK to add new elements to this
+    // map or to change the spelling of labels after data collection has
+    // started. It is not OK to change the meaning of any of the codes.
+    //
+    // If an event code for a dimension is not passed to the Cobalt logger for
+    // an event that occurred, the value zero will be used. Therefore, it is
+    // not recommended to associate the zero event code with a meaningful
+    // label. Instead, omit the zero event code and your reports will contain
+    // event code labels of `<code 0>` when the event code was not specified,
+    // or specify an explicit zero value with a label of `Unknown` or `Unset`.
+    map<uint32, string> event_codes = 2;
+
+    // max_event_code is the maximal value for any event in this dimension.
+    // Subject to the following rules:
+    //
+    // 1. If you specify max_event_code, you cannot use a value greater than
+    //    that.
+    // 2. If you do not specify max_event_code, you can only use one of the
+    //    explicitly registered values (event_codes).
+    // 3. For the purposes of validation, each dimension is assigned a number
+    //    which is equal to max_event_code+1 if max_event_code is set, or else
+    //    equal to the number of registered values. The product of all of these
+    //    values must not exceed 1024.
+    // 4. Adding, removing, or changing max_event_code is allowed so long as the
+    //    above rules are not violated.
+    uint32 max_event_code = 3;
+
+    reserved 4;
+    reserved "also_treat_as_legacy";
+
+    // event_code_aliases is used by the code generator to generate additional
+    // enum variants. This is intended as a temporary step to allow a soft
+    // cross-repo rename of an event_code variant, and should be cleaned up as
+    // soon as possible.
+    //
+    // The expected use case is as follows (config abbridged for clarity):
+    //
+    // Step 1: Have a metric
+    //
+    //   event_codes:
+    //     - 1: BadName
+    //
+    // Step 2: Rename an event code, adding an alias
+    //
+    //   event_codes:
+    //     - 1: GoodName
+    //   event_code_aliases:
+    //     GoodName: BadName
+    //
+    // Step 3: After all references to `BadName` are removed
+    //
+    //   event_codes:
+    //     - 1: GoodName
+    //
+    map<string, string> event_code_aliases = 5;
+  }
+
+  // A list of MetricDimensions.
+  //
+  // This field is used in most Metric types.
+  repeated MetricDimension metric_dimensions = 16;
+
+  // For metrics of types INTEGER and INTEGER_HISTOGRAM, specifies the units of
+  // the integer. Either metric_units or metric_units_other must be specified.
+  // Use metric_units_other if none of the pre-defined MetricUnits are
+  // appropriate.
+  MetricUnits metric_units = 18;
+  string metric_units_other = 19;
+
+  // Specifies a list of pre-defined semantic categories for the metric.
+  // This should augment the description given in the comments.
+  repeated MetricSemantics metric_semantics = 20;
+
+  // The path to a list of candidate strings for a metric of type STRING.
+  //
+  // This is a required field for metrics of type STRING.
+  string string_candidate_file = 22;
+
+  // The set of buckets for the histograms for this metric. This field is used
+  // only with metrics of type INTEGER_HISTOGRAM.
+  IntegerBuckets int_buckets = 8;
+
+  /////////// The rest of the fields are used with all Metric types ///////////
+
+  // A TimeZonePolicy specifies how the day index of an Event should be computed
+  // based on the system time when the Event is logged.
+  enum TimeZonePolicy {
+    // Use the date in UTC at logging time to compute the day index.
+    UTC = 0;
+
+    // Use the device-local date at logging time to compute the day index.
+    LOCAL = 1;
+
+    // Use the time zone specified in the `other_time_zone` field to compute the
+    // day index.
+    OTHER_TIME_ZONE = 2;
+  }
+
+  // The TimeZonePolicy for this Metric (Optional. Defaults to UTC)
+  TimeZonePolicy time_zone_policy = 10;
+
+  // An IANA time zone identifier (https://iana.org/time-zones). Should be set if
+  // and only if the metric's `time_zone_policy` is OTHER_TIME_ZONE.
+  string other_time_zone = 25;
+
+  message Metadata {
+    reserved 2;
+    reserved "owner";
+
+    // The date after which this metric is no longer valid. If this field is not
+    // supplied, the metric is considered currently expired, and is not
+    // guaranteed to be reported by cobalt.
+    //
+    // The date must be expressed in yyyy/mm/dd form.
+    // It may be at most one year in the future.
+    string expiration_date = 1;
+
+    // Maximum ReleaseStage for which this Metric is allowed to be collected.
+    ReleaseStage max_release_stage = 4;
+
+    // If 'also_log_locally' is true, Cobalt will log it when it receives events
+    // associated with this metric.
+    bool also_log_locally = 5;
+  }
+  Metadata meta_data = 11;
+
+  // The Reports to run for this Metric.
+  repeated ReportDefinition reports = 12;
+
+  // Report IDs that have been previously used and deleted from this metric.
+  // These IDs must not be reused in new reports.
+  repeated uint32 deleted_report_ids = 26;
+}
+
+enum MetricUnits {
+  METRIC_UNITS_OTHER = 0;
+
+  // Units of time
+  NANOSECONDS = 1;
+  MICROSECONDS = 2;
+  MILLISECONDS = 3;
+  SECONDS = 4;
+  MINUTES = 5;
+
+  // Units of data size
+  BYTES = 6;
+  KIBIBYTES = 7;   // 2^10 bytes
+  KILOBYTES = 8;   // 10^3 bytes
+  MEBIBYTES = 9;   // 2^20 bytes
+  MEGABYTES = 10;  // 10^6 bytes
+}
+
+enum MetricSemantics {
+  METRIC_SEMANTICS_UNSPECIFIED = 0;
+
+  // The metric measure how much CPU is being used.
+  CPU = 1;
+
+  // The metric measures size of a data structure.
+  DATA_SIZE = 2;
+
+  // The metric measures frame rendering performance.
+  FRAME_RENDERING = 3;
+
+  // The metric measures the latency of an operation.
+  LATENCY = 4;
+
+  // The metric measures the amount of memory being used.
+  MEMORY_USAGE = 5;
+
+  // The metric measures something about the devices network communication.
+  NETWORK_COMMUNICATION = 6;
+
+  // The metric is being used to measure some property of the real world
+  // environment outside of the device.
+  OUTSIDE_ENVIRONMENT = 7;
+
+  // The metric is being used to track how often a feature or system is used.
+  USAGE_COUNTING = 8;
+}

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="rtt_promotion_title">통화 중 실시간 문자 메시지</string>
+  <string name="rtt_promotion_details">RTT는 청각 장애, 난청, 언어 장애가 있거나
+    음성 이외의 의사소통 수단이 필요한 발신자에게 도움이 됩니다. RTT 메시지 스크립트는 내 기기의 통화 기록에
+    저장됩니다. %1$s</string>
+</resources>

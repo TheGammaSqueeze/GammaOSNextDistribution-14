@@ -1,0 +1,89 @@
+// Baseline format: 1.0
+BannedThrow: android.app.usage.NetworkStatsManager#queryDetails(int, String, long, long):
+    Methods must not mention RuntimeException subclasses in throws clauses (was `java.lang.SecurityException`)
+BannedThrow: android.app.usage.NetworkStatsManager#queryDetailsForUid(int, String, long, long, int):
+    Methods must not mention RuntimeException subclasses in throws clauses (was `java.lang.SecurityException`)
+BannedThrow: android.app.usage.NetworkStatsManager#queryDetailsForUidTag(int, String, long, long, int, int):
+    Methods must not mention RuntimeException subclasses in throws clauses (was `java.lang.SecurityException`)
+BannedThrow: android.app.usage.NetworkStatsManager#queryDetailsForUidTagState(int, String, long, long, int, int, int):
+    Methods must not mention RuntimeException subclasses in throws clauses (was `java.lang.SecurityException`)
+BannedThrow: android.app.usage.NetworkStatsManager#querySummary(int, String, long, long):
+    Methods must not mention RuntimeException subclasses in throws clauses (was `java.lang.SecurityException`)
+BannedThrow: android.app.usage.NetworkStatsManager#querySummaryForDevice(int, String, long, long):
+    Methods must not mention RuntimeException subclasses in throws clauses (was `java.lang.SecurityException`)
+BannedThrow: android.app.usage.NetworkStatsManager#querySummaryForUser(int, String, long, long):
+    Methods must not mention RuntimeException subclasses in throws clauses (was `java.lang.SecurityException`)
+
+
+BuilderSetStyle: android.net.IpSecTransform.Builder#buildTransportModeTransform(java.net.InetAddress, android.net.IpSecManager.SecurityParameterIndex):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method android.net.IpSecTransform.Builder.buildTransportModeTransform(java.net.InetAddress,android.net.IpSecManager.SecurityParameterIndex)
+
+
+EqualsAndHashCode: android.net.IpSecTransform#equals(Object):
+    Must override both equals and hashCode; missing one in android.net.IpSecTransform
+
+
+ExecutorRegistration: android.app.usage.NetworkStatsManager#registerUsageCallback(int, String, long, android.app.usage.NetworkStatsManager.UsageCallback, android.os.Handler):
+    Registration methods should have overload that accepts delivery Executor: `registerUsageCallback`
+
+
+GenericException: android.app.usage.NetworkStats#finalize():
+    Methods must not throw generic exceptions (`java.lang.Throwable`)
+GenericException: android.net.IpSecManager.SecurityParameterIndex#finalize():
+    Methods must not throw generic exceptions (`java.lang.Throwable`)
+GenericException: android.net.IpSecManager.UdpEncapsulationSocket#finalize():
+    Methods must not throw generic exceptions (`java.lang.Throwable`)
+GenericException: android.net.IpSecTransform#finalize():
+    Methods must not throw generic exceptions (`java.lang.Throwable`)
+
+
+MissingBuildMethod: android.net.IpSecTransform.Builder:
+    android.net.IpSecTransform.Builder does not declare a `build()` method, but builder classes are expected to
+
+
+MissingNullability: android.app.usage.NetworkStatsManager#queryDetails(int, String, long, long):
+    Missing nullability on method `queryDetails` return
+MissingNullability: android.app.usage.NetworkStatsManager#querySummary(int, String, long, long):
+    Missing nullability on method `querySummary` return
+MissingNullability: android.app.usage.NetworkStatsManager#querySummaryForDevice(int, String, long, long):
+    Missing nullability on method `querySummaryForDevice` return
+MissingNullability: android.app.usage.NetworkStatsManager#querySummaryForUser(int, String, long, long):
+    Missing nullability on method `querySummaryForUser` return
+MissingNullability: android.net.IpSecAlgorithm#writeToParcel(android.os.Parcel, int) parameter #0:
+    Missing nullability on parameter `out` in method `writeToParcel`
+MissingNullability: android.net.IpSecManager.UdpEncapsulationSocket#getFileDescriptor():
+    Missing nullability on method `getFileDescriptor` return
+
+
+RethrowRemoteException: android.app.usage.NetworkStatsManager#queryDetails(int, String, long, long):
+    Methods calling system APIs should rethrow `RemoteException` as `RuntimeException` (but do not list it in the throws clause)
+RethrowRemoteException: android.app.usage.NetworkStatsManager#querySummary(int, String, long, long):
+    Methods calling system APIs should rethrow `RemoteException` as `RuntimeException` (but do not list it in the throws clause)
+RethrowRemoteException: android.app.usage.NetworkStatsManager#querySummaryForDevice(int, String, long, long):
+    Methods calling system APIs should rethrow `RemoteException` as `RuntimeException` (but do not list it in the throws clause)
+RethrowRemoteException: android.app.usage.NetworkStatsManager#querySummaryForUser(int, String, long, long):
+    Methods calling system APIs should rethrow `RemoteException` as `RuntimeException` (but do not list it in the throws clause)
+
+
+StaticFinalBuilder: android.net.IpSecTransform.Builder:
+    Builder must be final: android.net.IpSecTransform.Builder
+
+
+StaticUtils: android.net.TrafficStats:
+    Fully-static utility classes must not have constructor
+
+
+UseParcelFileDescriptor: android.net.IpSecManager#applyTransportModeTransform(java.io.FileDescriptor, int, android.net.IpSecTransform) parameter #0:
+    Must use ParcelFileDescriptor instead of FileDescriptor in parameter socket in android.net.IpSecManager.applyTransportModeTransform(java.io.FileDescriptor socket, int direction, android.net.IpSecTransform transform)
+UseParcelFileDescriptor: android.net.IpSecManager#removeTransportModeTransforms(java.io.FileDescriptor) parameter #0:
+    Must use ParcelFileDescriptor instead of FileDescriptor in parameter socket in android.net.IpSecManager.removeTransportModeTransforms(java.io.FileDescriptor socket)
+UseParcelFileDescriptor: android.net.IpSecManager.UdpEncapsulationSocket#getFileDescriptor():
+    Must use ParcelFileDescriptor instead of FileDescriptor in method android.net.IpSecManager.UdpEncapsulationSocket.getFileDescriptor()
+UseParcelFileDescriptor: android.net.TrafficStats#tagFileDescriptor(java.io.FileDescriptor) parameter #0:
+    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in android.net.TrafficStats.tagFileDescriptor(java.io.FileDescriptor fd)
+UseParcelFileDescriptor: android.net.TrafficStats#untagFileDescriptor(java.io.FileDescriptor) parameter #0:
+    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in android.net.TrafficStats.untagFileDescriptor(java.io.FileDescriptor fd)
+UseParcelFileDescriptor: com.android.server.NetworkManagementSocketTagger#tag(java.io.FileDescriptor) parameter #0:
+    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in com.android.server.NetworkManagementSocketTagger.tag(java.io.FileDescriptor fd)
+UseParcelFileDescriptor: com.android.server.NetworkManagementSocketTagger#untag(java.io.FileDescriptor) parameter #0:
+    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in com.android.server.NetworkManagementSocketTagger.untag(java.io.FileDescriptor fd)

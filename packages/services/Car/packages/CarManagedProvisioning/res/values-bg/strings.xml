@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    Copyright (C) 2021 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="brand_screen_header" msgid="4382251935798018352">"Това превозно средство принадлежи на организацията"</string>
+    <string name="contact_device_provider" msgid="338577979231875837">"За да научите повече, обърнете се към <xliff:g id="IT_ADMIN">%1$s</xliff:g>."</string>
+    <string name="organization_admin" msgid="6551608903069550652">"мениджър на организация"</string>
+    <string name="if_questions_contact_admin" msgid="4645510019575736238">"Ако имате въпроси, свържете се с администратора на организацията."</string>
+    <string name="admin_has_ability_to_monitor_device" msgid="3132155961508293345">"Мениджърът на организацията може да наблюдава и управлява настройките, корпоративния достъп, приложенията, разрешенията и данните, свързани с това превозно средство, включително активността в мрежата, както и информацията за местоположението му.<xliff:g id="LINE_BREAK">
+
+</xliff:g>Обърнете се към мениджъра на организацията за повече информация, включително относно правилата ѝ за поверителност."</string>
+    <string name="contact_your_admin_for_more_info" msgid="1419852317652804536">"Обърнете се към мениджъра на организацията за още информация, включително относно правилата ѝ за поверителност."</string>
+    <string name="managed_device_info" msgid="2134697391634083944">"Това е управлявано превозно средство"</string>
+    <string name="contact_your_admin_for_help" msgid="1741496631607502730">"За помощ се обърнете към мениджъра на организацията"</string>
+    <string name="fully_managed_device_provisioning_accept_header" msgid="8767138982035307813">"Настройване на управляваното превозно средство"</string>
+    <string name="fully_managed_device_provisioning_step_1_header" msgid="8704166635032524345">"Осъществявайте достъп до приложенията на организацията си"</string>
+    <string name="fully_managed_device_provisioning_step_1_description" msgid="5960961281295355254">"Информационно-развлекателната система се настройва…"</string>
+    <string name="fully_managed_device_provisioning_step_2_header" msgid="5888602026900289468">"Данните на информационно-развлекателната система не са частни"</string>
+    <string name="fully_managed_device_provisioning_step_2_subheader_title" msgid="1421575203782743214">"Вашите данни и активност"</string>
+    <string name="fully_managed_device_provisioning_step_2_subheader" msgid="4881961368653838979">"Мениджърът на организацията може да има възможност да преглежда активността и данните ви на това превозно средство."</string>
+    <string name="fully_managed_device_provisioning_permissions_secondary_subheader" msgid="8955791361423166123">"Мениджърът на организацията може да задава разрешения за приложенията на това превозно средство, като например тези за достъп до микрофона и местоположението."</string>
+    <string name="fully_managed_device_with_permission_control_provisioning_summary" msgid="2503568673345133100">"Използвайте информационно-развлекателната система на това превозно средство за лесен достъп до служебните приложения. Това не е лично превозно средство, така че мениджърът на организацията може да има възможност да преглежда активността и данните ви. Също така той може да задава разрешения за приложенията на това превозно средство, като например тези за достъп до микрофона и местоположението."</string>
+    <string name="fully_managed_device_provisioning_summary" msgid="4323948058344613817">"Използвайте информационно-развлекателната система на това превозно средство за лесен достъп до служебните приложения. Това не е лично превозно средство, така че мениджърът на организацията може да има възможност да преглежда данните и активността ви."</string>
+    <string name="fully_managed_device_provisioning_progress_label" msgid="988594700479673633">"Управляваното превозно средство се настройва"</string>
+    <string name="fully_managed_device_provisioning_return_device_title" msgid="1578111657911434819">"Анулирайте настройването и върнете превозното средство"</string>
+    <string name="fully_managed_device_provisioning_return_device_subheader" msgid="5809488930429106172">"Нулирайте и върнете това превозно средство на мениджъра на организацията или се върнете на предишния екран, за да продължите настройването."</string>
+    <string name="fully_managed_device_cancel_setup_button" msgid="4113790677940440998">"Анулиране на настройването"</string>
+    <string name="fully_managed_device_reset_and_return_button" msgid="4951274590516561428">"Нулиране и връщане"</string>
+    <string name="fully_managed_device_provisioning_privacy_title" msgid="4789425994893472324">"Съобщение за поверителност"</string>
+    <string name="fully_managed_device_provisioning_privacy_body" msgid="5549745709511179391">"Мениджърът на организацията може да има възможност да преглежда данните и активността ви на това превозно средство."</string>
+</resources>

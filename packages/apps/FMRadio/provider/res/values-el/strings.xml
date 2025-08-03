@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Εγγραφές FM</string>
+    <string name="info_toast">Οι εγγραφές FM χρειάζονται δικαιώματα πολυμέσων για την αναπαραγωγή των εγγραφών.</string>
+    <string name="denied_toast">Οι εγγραφές FM χρειάζονται δικαιώματα πολυμέσων για την αναπαραγωγή των εγγραφών. Παρακαλώ παραχωρήστε δικαιώματα πολυμέσων στις Ρυθμίσεις.</string>
+</resources>

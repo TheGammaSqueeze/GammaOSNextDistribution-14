@@ -1,0 +1,6 @@
+-keep class com.android.systemui.CarUiDistantDisplaySystemUIFactory
+
+-keep class com.android.systemui.DaggerCarUiDistantDisplayGlobalRootComponent { *; }
+-keep class com.android.systemui.DaggerCarUiDistantDisplayGlobalRootComponent$CarUiPanoSysUIComponentImpl { *; }
+
+-include ../../../../../../../packages/apps/Car/SystemUI/proguard.flags

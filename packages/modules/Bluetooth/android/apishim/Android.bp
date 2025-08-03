@@ -1,0 +1,94 @@
+// Copyright 2022, The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+// Libraries for the API shims
+java_defaults {
+    name: "BluetoothShimsDefaults",
+    libs: [
+        "androidx.annotation_annotation",
+    ],
+    static_libs : [
+        "modules-utils-build_system"
+    ],
+    apex_available: [
+        "com.android.btservices",
+    ],
+    min_sdk_version: "Tiramisu",
+}
+
+// Common shim code. This includes the shim interface definitions themselves.
+// Compiles against system_current because ShimUtils
+// needs access to all Build.VERSION_CODES.*, which by definition are only in the newest SDK.
+java_library {
+    name: "BluetoothShimsCommon",
+    defaults: [
+        "BluetoothShimsDefaults",
+    ],
+    srcs: ["common/**/*.java"],
+    sdk_version: "system_current",
+    visibility: ["//visibility:private"],
+}
+
+// Each level of the shims (33, 34, ...) is its own java_library compiled against the corresponding
+// system_X SDK. this ensures that each shim can only use SDK classes that exist in its SDK level.
+java_library {
+    name: "BluetoothApi33Shims",
+    defaults: [
+        "BluetoothShimsDefaults",
+    ],
+    srcs: [
+        "33/**/*.java",
+    ],
+    libs: [
+        "BluetoothShimsCommon",
+    ],
+    sdk_version: "module_33",
+    visibility: ["//visibility:private"],
+}
+
+java_library {
+    name: "BluetoothApi34Shims",
+    defaults: [
+        "BluetoothShimsDefaults",
+    ],
+    srcs: [
+        "34/**/*.java",
+    ],
+    libs: [
+        "BluetoothShimsCommon",
+        "BluetoothApi33Shims",
+    ],
+    sdk_version: "module_current",
+    visibility: ["//visibility:private"],
+}
+
+java_library {
+    name: "BluetoothApiShims",
+    defaults: [
+        "BluetoothShimsDefaults",
+    ],
+    static_libs: [
+        "BluetoothShimsCommon",
+        "BluetoothApi33Shims",
+        "BluetoothApi34Shims",
+    ],
+    visibility: [
+        "//packages/modules/Bluetooth/android/app",
+    ],
+    sdk_version: "module_33",
+}

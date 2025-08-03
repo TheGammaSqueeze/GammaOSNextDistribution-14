@@ -1,0 +1,27 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_test_host {
+    name: "ComposHostTestCases",
+    srcs: ["java/**/*.java"],
+    libs: [
+        "tradefed",
+        "compatibility-tradefed",
+        "compatibility-host-util",
+    ],
+    static_libs: [
+        "MicrodroidHostTestHelper",
+    ],
+    test_suites: [
+        "general-tests",
+    ],
+    // java_test_host doesn't have data_native_libs but jni_libs can be used to put
+    // native modules under ./lib directory.
+    // This works because host tools have rpath (../lib and ./lib).
+    data_native_bins: ["hwtrust"],
+    jni_libs: [
+        "libcrypto",
+        "libc++",
+    ],
+}

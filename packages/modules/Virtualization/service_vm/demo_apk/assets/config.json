@@ -1,0 +1,10 @@
+{
+    "os": {
+      "name": "microdroid"
+    },
+    "task": {
+      "type": "microdroid_launcher",
+      "command": "libvm_attestation_payload.so"
+    },
+    "export_tombstones": true
+  }

@@ -1,0 +1,9 @@
+package: "com.android.bluetooth.flags"
+container: "com.android.btservices"
+
+flag {
+    name: "clear_collision_state_on_pairing_complete"
+    namespace: "bluetooth"
+    description: "Clear authentication collision state on pairing conclusion"
+    bug: "327208896"
+}

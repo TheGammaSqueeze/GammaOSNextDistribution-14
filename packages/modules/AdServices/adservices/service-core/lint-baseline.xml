@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.4.0-alpha01" type="baseline" client="" dependencies="true" name="" variant="all" version="8.4.0-alpha01">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `getScriptStrategy`"
+        errorLine1="                        debugReporting.getScriptStrategy(),"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/AdServices/adservices/service-core/java/com/android/adservices/service/adselection/AdBidGeneratorImpl.java"
+            line="142"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `isEnabled`"
+        errorLine1="        mDebugReportingEnabled = debugReporting.isEnabled();"
+        errorLine2="                                                ~~~~~~~~~">
+        <location
+            file="packages/modules/AdServices/adservices/service-core/java/com/android/adservices/service/adselection/AdBidGeneratorImpl.java"
+            line="151"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `isEnabled`"
+        errorLine1="        mDebugReportingEnabled = debugReporting.isEnabled();"
+        errorLine2="                                                ~~~~~~~~~">
+        <location
+            file="packages/modules/AdServices/adservices/service-core/java/com/android/adservices/service/adselection/AdBidGeneratorImpl.java"
+            line="197"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `enableReceiver`"
+        errorLine1="        PackageChangedReceiver.enableReceiver(context, FlagsFactory.getFlags());"
+        errorLine2="                               ~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/AdServices/adservices/service-core/java/com/android/adservices/service/common/AdExtBootCompletedReceiver.java"
+            line="115"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `disableReceiver`"
+        errorLine1="        PackageChangedReceiver.disableReceiver(context, FlagsFactory.getFlags());"
+        errorLine2="                               ~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/AdServices/adservices/service-core/java/com/android/adservices/service/common/AdExtBootCompletedReceiver.java"
+            line="123"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `isEnabled`"
+        errorLine1="        mDebugReportingEnabled = debugReporting.isEnabled();"
+        errorLine2="                                                ~~~~~~~~~">
+        <location
+            file="packages/modules/AdServices/adservices/service-core/java/com/android/adservices/service/adselection/AdsScoreGeneratorImpl.java"
+            line="143"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.content.pm.PackageManager#getProperty`"
+        errorLine1="                    pm.getProperty(AD_SERVICES_CONFIG_PROPERTY, appPackageName);"
+        errorLine2="                       ~~~~~~~~~~~">
+        <location
+            file="packages/modules/AdServices/adservices/service-core/java/com/android/adservices/service/common/AppManifestConfigHelper.java"
+            line="162"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.content.pm.PackageManager.Property#getResourceId`"
+        errorLine1="            return property.getResourceId();"
+        errorLine2="                            ~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/AdServices/adservices/service-core/java/com/android/adservices/service/common/AppManifestConfigHelper.java"
+            line="163"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `org.json.JSONObject#keySet`"
+        errorLine1="        for (String id : aggregationKeys.keySet()) {"
+        errorLine2="                                         ~~~~~~">
+        <location
+            file="packages/modules/AdServices/adservices/service-core/java/com/android/adservices/service/measurement/registration/AsyncSourceFetcher.java"
+            line="903"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Extending DebugReporting requires API level 31 (current min is 30): `DebugReporting`"
+        errorLine1="public class DebugReportingDisabled extends DebugReporting {"
+        errorLine2="                                            ~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/AdServices/adservices/service-core/java/com/android/adservices/service/adselection/DebugReportingDisabled.java"
+            line="20"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `org.json.JSONObject#keySet`"
+        errorLine1="        for (String key : jsonObject.keySet()) {"
+        errorLine2="                                     ~~~~~~">
+        <location
+            file="packages/modules/AdServices/adservices/service-core/java/com/android/adservices/service/measurement/Source.java"
+            line="862"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `org.json.JSONObject#keySet`"
+        errorLine1="        for (String key : values.keySet()) {"
+        errorLine2="                                 ~~~~~~">
+        <location
+            file="packages/modules/AdServices/adservices/service-core/java/com/android/adservices/service/measurement/Trigger.java"
+            line="410"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewAdServicesFile"
+        message='Please use FileCompatUtils to ensure any newly added files have a name that begins with "adservices" or create the files in a subdirectory called "adservices/" (go/rb-extservices-ota-data-cleanup)'>
+        <location
+            file="packages/modules/AdServices/adservices/service-core/java/com/android/adservices/service/adid/AdIdCacheManager.java"
+            line="240"/>
+    </issue>
+
+    <issue
+        id="NewAdServicesFile"
+        message='Please use FileCompatUtils to ensure any newly added files have a name that begins with "adservices" or create the files in a subdirectory called "adservices/" (go/rb-extservices-ota-data-cleanup)'>
+        <location
+            file="packages/modules/AdServices/adservices/service-core/java/com/android/adservices/service/common/AdServicesCommonServiceImpl.java"
+            line="171"/>
+    </issue>
+
+    <issue
+        id="NewAdServicesFile"
+        message='Please use FileCompatUtils to ensure any newly added files have a name that begins with "adservices" or create the files in a subdirectory called "adservices/" (go/rb-extservices-ota-data-cleanup)'>
+        <location
+            file="packages/modules/AdServices/adservices/service-core/java/com/android/adservices/service/common/AdServicesCommonServiceImpl.java"
+            line="237"/>
+    </issue>
+
+    <issue
+        id="NewAdServicesFile"
+        message='Please use FileCompatUtils to ensure any newly added files have a name that begins with "adservices" or create the files in a subdirectory called "adservices/" (go/rb-extservices-ota-data-cleanup)'>
+        <location
+            file="packages/modules/AdServices/adservices/service-core/java/com/android/adservices/spe/AdServicesJobServiceLogger.java"
+            line="224"/>
+    </issue>
+
+    <issue
+        id="NewAdServicesFile"
+        message='Please use FileCompatUtils to ensure any newly added files have a name that begins with "adservices" or create the files in a subdirectory called "adservices/" (go/rb-extservices-ota-data-cleanup)'>
+        <location
+            file="packages/modules/AdServices/adservices/service-core/java/com/android/adservices/spe/AdServicesJobServiceLogger.java"
+            line="343"/>
+    </issue>
+
+    <issue
+        id="NewAdServicesFile"
+        message='Please use FileCompatUtils to ensure any newly added files have a name that begins with "adservices" or create the files in a subdirectory called "adservices/" (go/rb-extservices-ota-data-cleanup)'>
+        <location
+            file="packages/modules/AdServices/adservices/service-core/java/com/android/adservices/service/topics/BlockedTopicsManager.java"
+            line="386"/>
+    </issue>
+
+    <issue
+        id="NewAdServicesFile"
+        message='Please use FileCompatUtils to ensure any newly added files have a name that begins with "adservices" or create the files in a subdirectory called "adservices/" (go/rb-extservices-ota-data-cleanup)'>
+        <location
+            file="packages/modules/AdServices/adservices/service-core/java/com/android/adservices/service/topics/BlockedTopicsManager.java"
+            line="414"/>
+    </issue>
+
+    <issue
+        id="NewAdServicesFile"
+        message='Please use FileCompatUtils to ensure any newly added files have a name that begins with "adservices" or create the files in a subdirectory called "adservices/" (go/rb-extservices-ota-data-cleanup)'>
+        <location
+            file="packages/modules/AdServices/adservices/service-core/java/com/android/adservices/service/topics/BlockedTopicsManager.java"
+            line="453"/>
+    </issue>
+
+    <issue
+        id="NewAdServicesFile"
+        message='Please use FileCompatUtils to ensure any newly added files have a name that begins with "adservices" or create the files in a subdirectory called "adservices/" (go/rb-extservices-ota-data-cleanup)'>
+        <location
+            file="packages/modules/AdServices/adservices/service-core/java/com/android/adservices/service/consent/ConsentManager.java"
+            line="1363"/>
+    </issue>
+
+    <issue
+        id="NewAdServicesFile"
+        message='Please use FileCompatUtils to ensure any newly added files have a name that begins with "adservices" or create the files in a subdirectory called "adservices/" (go/rb-extservices-ota-data-cleanup)'>
+        <location
+            file="packages/modules/AdServices/adservices/service-core/java/com/android/adservices/service/consent/ConsentManager.java"
+            line="1454"/>
+    </issue>
+
+    <issue
+        id="NewAdServicesFile"
+        message='Please use FileCompatUtils to ensure any newly added files have a name that begins with "adservices" or create the files in a subdirectory called "adservices/" (go/rb-extservices-ota-data-cleanup)'>
+        <location
+            file="packages/modules/AdServices/adservices/service-core/java/com/android/adservices/service/consent/ConsentManager.java"
+            line="1491"/>
+    </issue>
+
+    <issue
+        id="NewAdServicesFile"
+        message='Please use FileCompatUtils to ensure any newly added files have a name that begins with "adservices" or create the files in a subdirectory called "adservices/" (go/rb-extservices-ota-data-cleanup)'>
+        <location
+            file="packages/modules/AdServices/adservices/service-core/java/com/android/adservices/service/consent/ConsentManager.java"
+            line="1593"/>
+    </issue>
+
+    <issue
+        id="NewAdServicesFile"
+        message='Please use FileCompatUtils to ensure any newly added files have a name that begins with "adservices" or create the files in a subdirectory called "adservices/" (go/rb-extservices-ota-data-cleanup)'>
+        <location
+            file="packages/modules/AdServices/adservices/service-core/java/com/android/adservices/service/common/ConsentNotificationJobService.java"
+            line="83"/>
+    </issue>
+
+    <issue
+        id="NewAdServicesFile"
+        message='Please use FileCompatUtils to ensure any newly added files have a name that begins with "adservices" or create the files in a subdirectory called "adservices/" (go/rb-extservices-ota-data-cleanup)'>
+        <location
+            file="packages/modules/AdServices/adservices/service-core/java/com/android/adservices/data/enrollment/EnrollmentDao.java"
+            line="125"/>
+    </issue>
+
+    <issue
+        id="NewAdServicesFile"
+        message='Please use FileCompatUtils to ensure any newly added files have a name that begins with "adservices" or create the files in a subdirectory called "adservices/" (go/rb-extservices-ota-data-cleanup)'>
+        <location
+            file="packages/modules/AdServices/adservices/service-core/java/com/android/adservices/data/enrollment/EnrollmentDao.java"
+            line="145"/>
+    </issue>
+
+    <issue
+        id="NewAdServicesFile"
+        message='Please use FileCompatUtils to ensure any newly added files have a name that begins with "adservices" or create the files in a subdirectory called "adservices/" (go/rb-extservices-ota-data-cleanup)'>
+        <location
+            file="packages/modules/AdServices/adservices/service-core/java/com/android/adservices/data/enrollment/EnrollmentDao.java"
+            line="166"/>
+    </issue>
+
+    <issue
+        id="NewAdServicesFile"
+        message='Please use FileCompatUtils to ensure any newly added files have a name that begins with "adservices" or create the files in a subdirectory called "adservices/" (go/rb-extservices-ota-data-cleanup)'>
+        <location
+            file="packages/modules/AdServices/adservices/service-core/java/com/android/adservices/download/EnrollmentDataDownloadManager.java"
+            line="133"/>
+    </issue>
+
+    <issue
+        id="NewAdServicesFile"
+        message='Please use FileCompatUtils to ensure any newly added files have a name that begins with "adservices" or create the files in a subdirectory called "adservices/" (go/rb-extservices-ota-data-cleanup)'>
+        <location
+            file="packages/modules/AdServices/adservices/service-core/java/com/android/adservices/download/EnrollmentDataDownloadManager.java"
+            line="271"/>
+    </issue>
+
+    <issue
+        id="NewAdServicesFile"
+        message='Please use FileCompatUtils to ensure any newly added files have a name that begins with "adservices" or create the files in a subdirectory called "adservices/" (go/rb-extservices-ota-data-cleanup)'>
+        <location
+            file="packages/modules/AdServices/adservices/service-core/java/com/android/adservices/service/enrollment/EnrollmentUtil.java"
+            line="56"/>
+    </issue>
+
+    <issue
+        id="NewAdServicesFile"
+        message='Please use FileCompatUtils to ensure any newly added files have a name that begins with "adservices" or create the files in a subdirectory called "adservices/" (go/rb-extservices-ota-data-cleanup)'>
+        <location
+            file="packages/modules/AdServices/adservices/service-core/java/com/android/adservices/service/enrollment/EnrollmentUtil.java"
+            line="69"/>
+    </issue>
+
+    <issue
+        id="NewAdServicesFile"
+        message='Please use FileCompatUtils to ensure any newly added files have a name that begins with "adservices" or create the files in a subdirectory called "adservices/" (go/rb-extservices-ota-data-cleanup)'>
+        <location
+            file="packages/modules/AdServices/adservices/service-core/java/com/android/adservices/download/MobileDataDownloadFactory.java"
+            line="224"/>
+    </issue>
+
+    <issue
+        id="NewAdServicesFile"
+        message='Please use FileCompatUtils to ensure any newly added files have a name that begins with "adservices" or create the files in a subdirectory called "adservices/" (go/rb-extservices-ota-data-cleanup)'>
+        <location
+            file="packages/modules/AdServices/adservices/service-core/java/com/android/adservices/data/common/UserProfileIdDaoSharedPreferencesImpl.java"
+            line="59"/>
+    </issue>
+
+    <issue
+        id="NewAdServicesFile"
+        message='Please use FileCompatUtils to ensure any newly added files have a name that begins with "adservices" or create the files in a subdirectory called "adservices/" (go/rb-extservices-ota-data-cleanup)'>
+        <location
+            file="packages/modules/AdServices/adservices/service-core/java/com/android/adservices/service/ui/data/UxStatesManager.java"
+            line="68"/>
+    </issue>
+
+</issues>

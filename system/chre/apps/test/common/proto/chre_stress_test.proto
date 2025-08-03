@@ -1,0 +1,75 @@
+syntax = "proto2";
+
+package chre_stress_test;
+
+option java_package = "com.google.android.chre.nanoapp.proto";
+option java_outer_classname = "ChreStressTest";
+
+// Nanoapp message type can be either host to chre (H2C) or chre to host (C2H)
+enum MessageType {
+  // Reserved for corrupted messages
+  UNDEFINED = 0;
+
+  // H2C: A message to start/stop the test.
+  // Payload must be TestCommand.
+  TEST_COMMAND = 1;
+
+  // C2H: A message indicating the test result. The nanoapp will only use this
+  // message to report a failure.
+  // Payload must be chre_test_common.TestResult.
+  TEST_RESULT = 2;
+
+  // C2H: A message indicating that the stress test nanoapp has received a
+  // WiFi scan while enabling scan monitoring. This can be used for the host
+  // to verify that the scan monitoring feature is working.
+  // No payload.
+  TEST_WIFI_SCAN_MONITOR_TRIGGERED = 3;
+
+  // H2C: A message indicating that the host client has restarted. The nanoapp
+  // should use this message to update its host endpoint tracking when sending
+  // unicast messages.
+  // No payload.
+  TEST_HOST_RESTARTED = 4;
+
+  // H2C: Request Capabilities.
+  // No payload.
+  GET_CAPABILITIES = 5;
+
+  // C2H: Capabilities (response to a GET_CAPABILITIES request).
+  CAPABILITIES = 6;
+}
+
+// A message to start the test.
+message TestCommand {
+  enum Feature {
+    FEATURE_UNDEFINED = 0;
+    // WiFi stress testing, no scan monitoring.
+    WIFI_ON_DEMAND_SCAN = 1;
+    GNSS_LOCATION = 2;
+    GNSS_MEASUREMENT = 3;
+    WWAN = 4;
+    // Enables WiFi scan monitoring only.
+    WIFI_SCAN_MONITOR = 5;
+    // Enables sensor test (accel/gyro/instant motion) only.
+    SENSORS = 6;
+    // Audio stress testing.
+    AUDIO = 7;
+    // Enables BLE test only.
+    BLE = 8;
+  }
+
+  // The feature to test.
+  optional Feature feature = 1;
+
+  // True to start the test, false to stop.
+  optional bool start = 2;
+}
+
+/*
+ * CHRE capabilities
+ */
+message Capabilities {
+  // Wifi capabilities
+  // see //system/chre/chre_api/include/chre_api/chre/wifi.h
+  optional uint32 wifi = 1;
+}

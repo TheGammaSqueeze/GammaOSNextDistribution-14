@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="safetyCenterResourcesAppLabel" msgid="4043334186295695930">"सुरक्षितता केंद्र स्रोत"</string>
+    <string name="lock_screen_sources_title" msgid="3317906280484627707">"डिव्हाइसचे लॉक"</string>
+    <string name="lock_screen_sources_summary" msgid="7220439741282516496"></string>
+    <string name="lock_screen_title" msgid="4069104894527169877">"स्क्रीन लॉक"</string>
+    <string name="lock_screen_summary_disabled" msgid="354071230916616692">"अद्याप कोणतीही माहिती नाही"</string>
+    <string name="lock_screen_search_terms" msgid="2678486357779794826">"डिव्हाइस लॉक, स्क्रीन लॉक, लॉक स्‍क्रीन, लॉकस्क्रीन, पासवर्ड, पिन, पॅटर्न"</string>
+    <string name="biometrics_title" msgid="5859504610285212938">"बायोमेट्रिक"</string>
+    <string name="biometrics_search_terms" msgid="6040319118762671981">"फिंगरप्रिंट, बोट, फिंगरप्रिट जोडा, फेस अनलॉक, फेस"</string>
+    <string name="privacy_sources_title" msgid="4061110826457365957">"गोपनीयता"</string>
+    <string name="privacy_sources_summary" msgid="4089719981155120864">"डॅशबोर्ड, परवानग्या, नियंत्रणे"</string>
+    <string name="permission_usage_title" msgid="3633779688945350407">"गोपनीयता डॅशबोर्ड"</string>
+    <string name="permission_usage_summary" msgid="5323079206029964468">"कोणत्या ॲप्सनी अलीकडे परवानग्या वापरल्या ते दाखवा"</string>
+    <string name="permission_usage_search_terms" msgid="3852343592870257104">"गोपनीयता, गोपनीयता डॅशबोर्ड"</string>
+    <string name="permission_manager_title" msgid="5277347862821255015">"परवानगी व्यवस्थापक"</string>
+    <string name="permission_manager_summary" msgid="8099852107340970790">"तुमच्या डेटासाठीचा अ‍ॅप अ‍ॅक्सेस नियंत्रित करा"</string>
+    <string name="permission_manager_search_terms" msgid="2895147613099694722">"परवानग्या, परवानग्या व्यवस्थापक"</string>
+    <string name="privacy_controls_title" msgid="5322875777945432395">"गोपनीयता नियंत्रणे"</string>
+    <string name="privacy_controls_summary" msgid="2402066941190435424">"मायक्रोफोन, कॅमेरा आणि आणखी बऱ्याच ठिकणी डिव्हाइस अ‍ॅक्सेस नियंत्रित करा"</string>
+    <string name="privacy_controls_search_terms" msgid="3774472175934304165">"गोपनीयता, गोपनीयता नियंत्रणे"</string>
+    <string name="advanced_title" msgid="8745436380690561172">"आणखी सेटिंग्ज"</string>
+    <string name="advanced_security_title" msgid="1126833338772188155">"आणखी सुरक्षा सेटिंग्ज"</string>
+    <string name="advanced_security_summary" msgid="6172253327022425123">"एंक्रिप्शन, क्रेडेंशियल आणि आणखी बरेच काही"</string>
+    <string name="advanced_security_search_terms" msgid="3350609555814362075"></string>
+    <string name="advanced_privacy_title" msgid="1117725225706176643">"आणखी गोपनीयता सेटिंग्ज"</string>
+    <string name="advanced_privacy_summary" msgid="2281203390575069543">"ऑटोफिल, अ‍ॅक्टिव्हिटी कंट्रोल आणि आणखी बरेच काही"</string>
+    <string name="advanced_privacy_search_terms" msgid="5044404599789175222"></string>
+</resources>

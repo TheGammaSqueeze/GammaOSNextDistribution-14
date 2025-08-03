@@ -1,0 +1,6 @@
+{
+    "uuid": "d9a8f55e-5ea4-4fdb-bf9e-e36d54213e99",
+    "app_name": "userscs-default",
+    "min_heap": 4096,
+    "min_stack": 4096
+}

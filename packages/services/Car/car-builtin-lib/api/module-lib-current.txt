@@ -1,0 +1,625 @@
+// Signature format: 2.0
+package android.car.builtin {
+
+  public final class CarBuiltin {
+    field public static final int PLATFORM_VERSION_MINOR_INT;
+  }
+
+  public final class PermissionHelper {
+    field public static final String MONITOR_INPUT = "android.permission.MONITOR_INPUT";
+  }
+
+}
+
+package android.car.builtin.annotation {
+
+  public enum PlatformVersion {
+    enum_constant public static final android.car.builtin.annotation.PlatformVersion TIRAMISU_0;
+    enum_constant public static final android.car.builtin.annotation.PlatformVersion TIRAMISU_1;
+    enum_constant public static final android.car.builtin.annotation.PlatformVersion TIRAMISU_2;
+    enum_constant public static final android.car.builtin.annotation.PlatformVersion TIRAMISU_3;
+    enum_constant public static final android.car.builtin.annotation.PlatformVersion UPSIDE_DOWN_CAKE_0;
+    enum_constant public static final android.car.builtin.annotation.PlatformVersion UPSIDE_DOWN_CAKE_1;
+    enum_constant public static final android.car.builtin.annotation.PlatformVersion VANILLA_ICE_CREAM_0;
+  }
+
+}
+
+package android.car.builtin.app {
+
+  public final class ActivityManagerHelper {
+    method public static int checkComponentPermission(@NonNull String, int, int, boolean);
+    method @NonNull public static android.app.ActivityOptions createActivityOptions(@NonNull android.os.Bundle);
+    method public static android.os.IBinder getActivityToken(android.app.Activity);
+    method public static java.util.List<android.app.ActivityManager.RunningTaskInfo> getTasks(int, boolean, boolean, int);
+    method public static boolean isVisible(android.app.Activity);
+    method public static void killAllBackgroundProcesses();
+    method public static void killUid(int, int, String);
+    method @RequiresPermission(android.Manifest.permission.INTERNAL_SYSTEM_WINDOW) public static void moveRootTaskToDisplay(int, int);
+    method public static void registerProcessObserverCallback(android.car.builtin.app.ActivityManagerHelper.ProcessObserverCallback);
+    method public static boolean removeTask(int);
+    method public static void setFocusedRootTask(int);
+    method public static void setFocusedTask(int);
+    method public static boolean startUserInBackground(int);
+    method public static boolean startUserInBackgroundVisibleOnDisplay(int, int);
+    method public static boolean startUserInForeground(int);
+    method public static void stopAllTasksForUser(int);
+    method public static int stopUser(int, boolean);
+    method public static int stopUserWithDelayedLocking(int, boolean);
+    method public static boolean unlockUser(int);
+    method public static void unregisterProcessObserverCallback(android.car.builtin.app.ActivityManagerHelper.ProcessObserverCallback);
+    field public static final int INVALID_TASK_ID = -1; // 0xffffffff
+  }
+
+  public abstract static class ActivityManagerHelper.ProcessObserverCallback {
+    ctor public ActivityManagerHelper.ProcessObserverCallback();
+    method public void onForegroundActivitiesChanged(int, int, boolean);
+    method public void onProcessDied(int, int);
+  }
+
+  public final class AppOpsManagerHelper {
+    method public static void setTurnScreenOnAllowed(android.content.Context, int, String, boolean);
+  }
+
+  public final class KeyguardManagerHelper {
+    method public static boolean isKeyguardLocked();
+  }
+
+  public class TaskInfoHelper {
+    method @NonNull public static android.graphics.Rect getBounds(@NonNull android.app.TaskInfo);
+    method public static int getDisplayId(@NonNull android.app.TaskInfo);
+    method public static android.os.IBinder getToken(@NonNull android.app.TaskInfo);
+    method public static int getUserId(@NonNull android.app.TaskInfo);
+    method public static boolean isVisible(@NonNull android.app.TaskInfo);
+    method public static String toString(@Nullable android.app.TaskInfo);
+  }
+
+  public final class VoiceInteractionHelper {
+    method public static boolean isAvailable();
+    method public static void setEnabled(boolean) throws android.os.RemoteException;
+  }
+
+}
+
+package android.car.builtin.bluetooth {
+
+  @Deprecated public final class BluetoothHeadsetClientHelper {
+    method @Deprecated public static java.util.List<android.bluetooth.BluetoothDevice> getConnectedBvraDevices(@NonNull android.bluetooth.BluetoothHeadsetClient);
+    method @Deprecated public static boolean startVoiceRecognition(@NonNull android.bluetooth.BluetoothHeadsetClient, android.bluetooth.BluetoothDevice);
+    method @Deprecated public static boolean stopVoiceRecognition(@NonNull android.bluetooth.BluetoothHeadsetClient, android.bluetooth.BluetoothDevice);
+  }
+
+}
+
+package android.car.builtin.bluetooth.le {
+
+  public final class AdvertisingSetCallbackHelper {
+    method public static android.bluetooth.le.AdvertisingSetCallback createRealCallbackFromProxy(@NonNull android.car.builtin.bluetooth.le.AdvertisingSetCallbackHelper.Callback);
+  }
+
+  public abstract static class AdvertisingSetCallbackHelper.Callback {
+    ctor public AdvertisingSetCallbackHelper.Callback();
+    method public void onAdvertisingDataSet(android.bluetooth.le.AdvertisingSet, int);
+    method public void onAdvertisingEnabled(android.bluetooth.le.AdvertisingSet, boolean, int);
+    method public void onAdvertisingParametersUpdated(android.bluetooth.le.AdvertisingSet, int, int);
+    method public void onAdvertisingSetStarted(android.bluetooth.le.AdvertisingSet, int, int);
+    method public void onAdvertisingSetStopped(android.bluetooth.le.AdvertisingSet);
+    method public void onOwnAddressRead(android.bluetooth.le.AdvertisingSet, int, String);
+    method public void onPeriodicAdvertisingDataSet(android.bluetooth.le.AdvertisingSet, int);
+    method public void onPeriodicAdvertisingEnabled(android.bluetooth.le.AdvertisingSet, boolean, int);
+    method public void onPeriodicAdvertisingParametersUpdated(android.bluetooth.le.AdvertisingSet, int);
+    method public void onScanResponseDataSet(android.bluetooth.le.AdvertisingSet, int);
+  }
+
+  public final class AdvertisingSetHelper {
+    method @RequiresPermission(allOf={android.Manifest.permission.BLUETOOTH_ADVERTISE, android.Manifest.permission.BLUETOOTH_PRIVILEGED}) public static void getOwnAddress(@NonNull android.bluetooth.le.AdvertisingSet);
+  }
+
+}
+
+package android.car.builtin.content {
+
+  public final class ContextHelper {
+    method public static int getAssociatedDisplayId(@NonNull android.content.Context);
+    method public static int getDisplayId(@NonNull android.content.Context);
+    method @RequiresPermission(android.Manifest.permission.INTERACT_ACROSS_USERS) public static void startActivityAsUser(@NonNull android.content.Context, @NonNull android.content.Intent, @Nullable android.os.Bundle, @NonNull android.os.UserHandle);
+  }
+
+}
+
+package android.car.builtin.content.pm {
+
+  public final class PackageManagerHelper {
+    method public static void forceStopPackageAsUser(@NonNull android.content.Context, @NonNull String, int);
+    method public static void forceStopPackageAsUserEvenWhenStopping(@NonNull android.content.Context, @NonNull String, int);
+    method public static int getApplicationEnabledSettingForUser(@NonNull String, int) throws android.os.RemoteException;
+    method public static android.content.ComponentName getComponentName(android.content.pm.ComponentInfo);
+    method @Nullable public static String[] getNamesForUids(@NonNull android.content.pm.PackageManager, int[]);
+    method public static android.content.pm.PackageInfo getPackageInfoAsUser(@NonNull android.content.pm.PackageManager, @NonNull String, int, int) throws android.content.pm.PackageManager.NameNotFoundException;
+    method public static int getPackageUidAsUser(@NonNull android.content.pm.PackageManager, @NonNull String, int) throws android.content.pm.PackageManager.NameNotFoundException;
+    method @NonNull public static String getSystemUiPackageName(@NonNull android.content.Context);
+    method @NonNull public static android.content.ComponentName getSystemUiServiceComponent(@NonNull android.content.Context);
+    method public static boolean isOdmApp(@NonNull android.content.pm.ApplicationInfo);
+    method public static boolean isOemApp(@NonNull android.content.pm.ApplicationInfo);
+    method public static boolean isProductApp(@NonNull android.content.pm.ApplicationInfo);
+    method public static boolean isSystemApp(@NonNull android.content.pm.ApplicationInfo);
+    method public static boolean isSystemExtApp(@NonNull android.content.pm.ApplicationInfo);
+    method public static boolean isUpdatedSystemApp(@NonNull android.content.pm.ApplicationInfo);
+    method public static boolean isVendorApp(@NonNull android.content.pm.ApplicationInfo);
+    method public static void setApplicationEnabledSettingForUser(@NonNull String, int, int, int, @NonNull String) throws android.os.RemoteException;
+    field public static final String PROPERTY_CAR_SERVICE_OVERLAY_PACKAGES = "ro.android.car.carservice.overlay.packages";
+    field public static final String PROPERTY_CAR_SERVICE_PACKAGE_NAME = "ro.android.car.carservice.package";
+  }
+
+}
+
+package android.car.builtin.display {
+
+  public final class DisplayManagerHelper {
+    method public static float getBrightness(android.content.Context, int);
+    method public static void registerDisplayListener(android.content.Context, android.hardware.display.DisplayManager.DisplayListener, android.os.Handler, long);
+    method public static void setBrightness(android.content.Context, int, @FloatRange(from=0.0f, to=1.0f) float);
+    field public static final long EVENT_FLAG_DISPLAY_ADDED = 1L; // 0x1L
+    field public static final long EVENT_FLAG_DISPLAY_BRIGHTNESS = 8L; // 0x8L
+    field public static final long EVENT_FLAG_DISPLAY_CHANGED = 4L; // 0x4L
+    field public static final long EVENT_FLAG_DISPLAY_REMOVED = 2L; // 0x2L
+  }
+
+}
+
+package android.car.builtin.input {
+
+  public class InputManagerHelper {
+    method public static boolean injectInputEvent(@NonNull android.hardware.input.InputManager, @NonNull android.view.InputEvent);
+    method public static void pilferPointers(@NonNull android.hardware.input.InputManager, @NonNull android.view.View);
+  }
+
+}
+
+package android.car.builtin.job {
+
+  public final class JobSchedulerHelper {
+    method public static java.util.List<android.app.job.JobInfo> getPendingJobs(android.content.Context);
+    method public static java.util.List<android.app.job.JobInfo> getRunningJobsAtIdle(android.content.Context);
+  }
+
+}
+
+package android.car.builtin.keyguard {
+
+  public final class KeyguardServiceDelegate {
+    ctor public KeyguardServiceDelegate();
+    method public void bindService(android.content.Context, android.os.UserHandle, int[]);
+    method public void dump(java.io.PrintWriter);
+    method public boolean isShowing();
+    method public void notifyDisplayOff();
+    method public void notifyDisplayOn();
+    method public void registerKeyguardLockedStateCallback(@NonNull android.car.builtin.keyguard.KeyguardServiceDelegate.KeyguardLockedStateCallback);
+    method public void stop(android.content.Context);
+    method public void unregisterKeyguardLockedStateCallback();
+  }
+
+  public static interface KeyguardServiceDelegate.KeyguardLockedStateCallback {
+    method public void onKeyguardLockedStateChanged(boolean);
+  }
+
+}
+
+package android.car.builtin.media {
+
+  public final class AudioManagerHelper {
+    method public static void addTagToAudioAttributes(@NonNull android.media.AudioAttributes.Builder, @NonNull String);
+    method public static String adjustToString(int);
+    method public static void adjustVolumeGroupVolume(@NonNull android.media.AudioManager, int, int, int);
+    method public static android.car.builtin.media.AudioManagerHelper.AudioPatchInfo createAudioPatch(@NonNull android.media.AudioDeviceInfo, @NonNull android.media.AudioDeviceInfo, int);
+    method public static android.car.builtin.media.AudioManagerHelper.AudioGainInfo getAudioGainInfo(@NonNull android.media.AudioDeviceInfo);
+    method public static String getFormattedTags(@NonNull android.media.AudioAttributes);
+    method public static int getLastAudibleVolumeGroupVolume(@NonNull android.media.AudioManager, int);
+    method public static java.util.Set<java.lang.String> getTags(@NonNull android.media.AudioAttributes);
+    method public static int getUsageVirtualSource();
+    method public static int getVolumeGroupIdForAudioAttributes(@NonNull android.media.audiopolicy.AudioProductStrategy, @NonNull android.media.AudioAttributes);
+    method public static boolean isCallFocusRequestClientId(String);
+    method public static boolean isMasterMute(@NonNull android.media.AudioManager);
+    method public static boolean isVolumeGroupMuted(@NonNull android.media.AudioManager, int);
+    method public static void registerVolumeAndMuteReceiver(android.content.Context, android.car.builtin.media.AudioManagerHelper.VolumeAndMuteReceiver);
+    method public static boolean releaseAudioPatch(@NonNull android.media.AudioManager, @NonNull android.car.builtin.media.AudioManagerHelper.AudioPatchInfo);
+    method public static boolean setAudioDeviceGain(@NonNull android.media.AudioManager, @NonNull String, int, boolean);
+    method public static void setMasterMute(@NonNull android.media.AudioManager, boolean, int);
+    method public static void unregisterVolumeAndMuteReceiver(android.content.Context, android.car.builtin.media.AudioManagerHelper.VolumeAndMuteReceiver);
+    method public static String usageToString(int);
+    method public static String usageToXsdString(int);
+    method public static int xsdStringToContentType(String);
+    method public static int xsdStringToUsage(String);
+    field public static final String AUDIO_ATTRIBUTE_TAG_SEPARATOR = ";";
+    field public static final int UNDEFINED_STREAM_TYPE = -1; // 0xffffffff
+  }
+
+  public static class AudioManagerHelper.AudioGainInfo {
+    method public int getDefaultGain();
+    method public int getMaxGain();
+    method public int getMinGain();
+    method public int getStepValue();
+  }
+
+  public static class AudioManagerHelper.AudioPatchInfo {
+    ctor public AudioManagerHelper.AudioPatchInfo(@NonNull String, @NonNull String, int);
+    method public int getHandleId();
+    method public String getSinkAddress();
+    method public String getSourceAddress();
+  }
+
+  public abstract static class AudioManagerHelper.VolumeAndMuteReceiver {
+    ctor public AudioManagerHelper.VolumeAndMuteReceiver();
+    method public abstract void onMuteChanged();
+    method public abstract void onVolumeChanged(int);
+  }
+
+}
+
+package android.car.builtin.os {
+
+  public final class BinderHelper {
+    method public static void dumpRemoteCallbackList(@NonNull android.os.RemoteCallbackList<?>, @NonNull java.io.PrintWriter);
+    method public static boolean onTransactForCmd(int, @NonNull android.os.Parcel, @Nullable android.os.Parcel, int, @NonNull android.car.builtin.os.BinderHelper.ShellCommandListener) throws android.os.RemoteException;
+  }
+
+  public static interface BinderHelper.ShellCommandListener {
+    method public int onShellCommand(@NonNull java.io.FileDescriptor, @NonNull java.io.FileDescriptor, @NonNull java.io.FileDescriptor, @NonNull String[]);
+  }
+
+  public final class BuildHelper {
+    method public static boolean isDebuggableBuild();
+    method public static boolean isEngBuild();
+    method public static boolean isUserBuild();
+    method public static boolean isUserDebugBuild();
+  }
+
+  public final class HandlerHelper {
+    method public static void removeEqualMessages(android.os.Handler, int, @Nullable Object);
+  }
+
+  public final class ParcelHelper {
+    method @Nullable public static android.util.ArraySet<?> readArraySet(@NonNull android.os.Parcel, @Nullable ClassLoader);
+    method @Nullable public static byte[] readBlob(@NonNull android.os.Parcel);
+    method @Nullable public static String[] readStringArray(@NonNull android.os.Parcel);
+    method public static void writeArraySet(@NonNull android.os.Parcel, @Nullable android.util.ArraySet<?>);
+    method public static void writeBlob(@NonNull android.os.Parcel, @Nullable byte[]);
+  }
+
+  public final class ProcessHelper {
+    field public static final int THREAD_GROUP_DEFAULT = -1; // 0xffffffff
+    field public static final int THREAD_GROUP_FOREGROUND = 1; // 0x1
+    field public static final int THREAD_GROUP_TOP_APP = 5; // 0x5
+  }
+
+  public final class ServiceManagerHelper {
+    method public static void addService(@NonNull String, @NonNull android.os.IBinder);
+    method @Nullable public static android.os.IBinder checkService(@NonNull String);
+    method @Nullable public static String[] getDeclaredInstances(@NonNull String);
+    method @Nullable public static android.os.IBinder getService(@NonNull String);
+    method @Nullable public static android.os.IBinder waitForDeclaredService(@NonNull String);
+  }
+
+  public final class SharedMemoryHelper {
+    method @NonNull public static android.os.ParcelFileDescriptor createParcelFileDescriptor(@NonNull android.os.SharedMemory) throws java.io.IOException;
+  }
+
+  public final class SystemPropertiesHelper {
+    method public static void set(@NonNull String, @Nullable String);
+  }
+
+  public final class TraceHelper {
+    field public static final long TRACE_TAG_CAR_SERVICE = 524288L; // 0x80000L
+  }
+
+  public final class UserManagerHelper {
+    method @NonNull public static String getDefaultUserName(@NonNull android.content.Context);
+    method public static String getDefaultUserTypeForUserInfoFlags(int);
+    method public static int getMainDisplayIdAssignedToUser(@NonNull android.os.UserManager);
+    method public static int getMaxRunningUsers(@NonNull android.content.Context);
+    method public static int getMaxSupportedUsers(@NonNull android.content.Context);
+    method @NonNull public static java.util.List<android.os.UserHandle> getUserHandles(@NonNull android.os.UserManager, boolean);
+    method @Deprecated @NonNull public static java.util.List<android.os.UserHandle> getUserHandles(@NonNull android.os.UserManager, boolean, boolean, boolean);
+    method public static int getUserId(int);
+    method public static boolean isEnabledUser(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
+    method public static boolean isEphemeralUser(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
+    method public static boolean isFullUser(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
+    method public static boolean isGuestUser(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
+    method public static boolean isInitializedUser(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
+    method public static boolean isVisibleBackgroundUsersOnDefaultDisplaySupported(@NonNull android.os.UserManager);
+    method public static boolean isVisibleBackgroundUsersSupported(@NonNull android.os.UserManager);
+    method public static boolean markGuestForDeletion(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
+    field public static final int FLAG_ADMIN = 2; // 0x2
+    field public static final int FLAG_DEMO = 512; // 0x200
+    field public static final int FLAG_DISABLED = 64; // 0x40
+    field public static final int FLAG_EPHEMERAL = 256; // 0x100
+    field public static final int FLAG_FULL = 1024; // 0x400
+    field public static final int FLAG_GUEST = 4; // 0x4
+    field public static final int FLAG_INITIALIZED = 16; // 0x10
+    field public static final int FLAG_MANAGED_PROFILE = 32; // 0x20
+    field public static final int FLAG_PRIMARY = 1; // 0x1
+    field public static final int FLAG_PROFILE = 4096; // 0x1000
+    field public static final int FLAG_QUIET_MODE = 128; // 0x80
+    field public static final int FLAG_RESTRICTED = 8; // 0x8
+    field public static final int FLAG_SYSTEM = 2048; // 0x800
+    field public static final int USER_NULL = -10000; // 0xffffd8f0
+    field public static final int USER_SYSTEM = 0; // 0x0
+  }
+
+}
+
+package android.car.builtin.power {
+
+  public final class PowerManagerHelper {
+    method public static int getMaximumScreenBrightnessSetting(android.content.Context);
+    method public static int getMinimumScreenBrightnessSetting(android.content.Context);
+    method public static void goToSleep(android.content.Context, int, long);
+    method public static android.os.PowerManager.WakeLock newWakeLock(android.content.Context, int, String, int);
+    method public static void setDisplayState(android.content.Context, boolean, long);
+    method public static void shutdown(android.content.Context, boolean, String, boolean);
+    field public static final int BRIGHTNESS_DEFAULT = -1; // 0xffffffff
+    field public static final int BRIGHTNESS_INVALID = -1; // 0xffffffff
+    field public static final float BRIGHTNESS_INVALID_FLOAT;
+    field public static final float BRIGHTNESS_MAX = 1.0f;
+    field public static final float BRIGHTNESS_MIN = 0.0f;
+    field public static final int BRIGHTNESS_OFF = 0; // 0x0
+    field public static final float BRIGHTNESS_OFF_FLOAT = -1.0f;
+    field public static final int BRIGHTNESS_ON = 255; // 0xff
+  }
+
+}
+
+package android.car.builtin.provider {
+
+  public final class SettingsHelper {
+    field public static final String SYSTEM_LOCALES = "system_locales";
+  }
+
+}
+
+package android.car.builtin.util {
+
+  public final class AssistUtilsHelper {
+    method public static void hideCurrentSession(@NonNull android.content.Context);
+    method public static boolean isSessionRunning(@NonNull android.content.Context);
+    method public static void registerVoiceInteractionSessionListenerHelper(@NonNull android.content.Context, @NonNull android.car.builtin.util.AssistUtilsHelper.VoiceInteractionSessionListenerHelper);
+    method public static boolean showPushToTalkSessionForActiveService(@NonNull android.content.Context, @NonNull android.car.builtin.util.AssistUtilsHelper.VoiceInteractionSessionShowCallbackHelper);
+  }
+
+  public static interface AssistUtilsHelper.VoiceInteractionSessionListenerHelper {
+    method public void onVoiceSessionHidden();
+    method public void onVoiceSessionShown();
+  }
+
+  public static interface AssistUtilsHelper.VoiceInteractionSessionShowCallbackHelper {
+    method public void onFailed();
+    method public void onShown();
+  }
+
+  public final class AtomicFileHelper {
+    method public static boolean exists(android.util.AtomicFile);
+  }
+
+  public final class EventLogHelper {
+    method public static void writeCarDevicePolicyManagerCreateUserReq(int, @Nullable String, int);
+    method public static void writeCarDevicePolicyManagerCreateUserResp(int, int);
+    method public static void writeCarDevicePolicyManagerRemoveUserReq(int, int);
+    method public static void writeCarDevicePolicyManagerRemoveUserResp(int, int);
+    method public static void writeCarDevicePolicyManagerStartUserInBackgroundReq(int, int);
+    method public static void writeCarDevicePolicyManagerStartUserInBackgroundResp(int, int);
+    method public static void writeCarDevicePolicyManagerStopUserReq(int, int);
+    method public static void writeCarDevicePolicyManagerStopUserResp(int, int);
+    method public static void writeCarHelperBootPhase(int);
+    method public static void writeCarHelperServiceConnected();
+    method public static void writeCarHelperStart();
+    method public static void writeCarHelperUserStarting(int);
+    method public static void writeCarHelperUserStopped(int);
+    method public static void writeCarHelperUserStopping(int);
+    method public static void writeCarHelperUserSwitching(int, int);
+    method public static void writeCarHelperUserUnlocked(int);
+    method public static void writeCarHelperUserUnlocking(int);
+    method public static void writeCarInitialUserFallbackDefaultBehavior(@Nullable String);
+    method public static void writeCarInitialUserInfo(int, boolean, int, @Nullable String, int, boolean, @Nullable String);
+    method public static void writeCarInitialUserReplaceGuest(int);
+    method public static void writeCarInitialUserResetGlobalProperty(@Nullable String);
+    method public static void writeCarInitialUserSetLastActive(int);
+    method public static void writeCarInitialUserStartFgUser(int);
+    method public static void writeCarInitialUserUnlockSystemUser();
+    method public static void writeCarPowerManagerStateChange(int);
+    method public static void writeCarPowerManagerStateRequest(int, int);
+    method public static void writeCarServiceConnected(@Nullable String);
+    method public static void writeCarServiceCreate(boolean);
+    method public static void writeCarServiceDestroy(boolean);
+    method public static void writeCarServiceInit(int);
+    method public static void writeCarServiceInitBootUser();
+    method public static void writeCarServiceOnUserLifecycle(int, int, int);
+    method public static void writeCarServiceOnUserRemoved(int);
+    method public static void writeCarServiceSetCarServiceHelper(int);
+    method public static void writeCarServiceVhalDied(long);
+    method public static void writeCarServiceVhalReconnected(int);
+    method public static void writeCarUserHalCreateUserReq(int, @Nullable String, int, int);
+    method public static void writeCarUserHalCreateUserResp(int, int, int, @Nullable String);
+    method public static void writeCarUserHalGetUserAuthReq(@Nullable Object[]);
+    method public static void writeCarUserHalGetUserAuthResp(@Nullable Object[]);
+    method public static void writeCarUserHalInitialUserInfoReq(int, int, int);
+    method public static void writeCarUserHalInitialUserInfoResp(int, int, int, int, int, @Nullable String, @Nullable String);
+    method public static void writeCarUserHalLegacySwitchUserReq(int, int, int);
+    method public static void writeCarUserHalOemSwitchUserReq(int, int);
+    method public static void writeCarUserHalPostSwitchUserReq(int, int, int);
+    method public static void writeCarUserHalRemoveUserReq(int, int);
+    method public static void writeCarUserHalSetUserAuthReq(@Nullable Object[]);
+    method public static void writeCarUserHalSetUserAuthResp(@Nullable Object[]);
+    method public static void writeCarUserHalSwitchUserReq(int, int, int, int);
+    method public static void writeCarUserHalSwitchUserResp(int, int, int, @Nullable String);
+    method public static void writeCarUserManagerAddListener(int, @Nullable String, boolean);
+    method public static void writeCarUserManagerCreateUserReq(int, @Nullable String, @Nullable String, int);
+    method public static void writeCarUserManagerCreateUserResp(int, int, @Nullable String);
+    method public static void writeCarUserManagerDisconnected(int);
+    method public static void writeCarUserManagerGetUserAuthReq(@Nullable Object[]);
+    method public static void writeCarUserManagerGetUserAuthResp(@Nullable Object[]);
+    method public static void writeCarUserManagerLogoutUserReq(int);
+    method public static void writeCarUserManagerLogoutUserResp(int, int, @Nullable String);
+    method public static void writeCarUserManagerNotifyLifecycleListener(int, int, int, int);
+    method public static void writeCarUserManagerPreCreateUserReq(int);
+    method public static void writeCarUserManagerRemoveListener(int, @Nullable String);
+    method public static void writeCarUserManagerRemoveUserReq(int, int);
+    method public static void writeCarUserManagerRemoveUserResp(int, int);
+    method public static void writeCarUserManagerSetUserAuthReq(@Nullable Object[]);
+    method public static void writeCarUserManagerSetUserAuthResp(@Nullable Object[]);
+    method public static void writeCarUserManagerStartUserReq(int, int, int);
+    method public static void writeCarUserManagerStartUserResp(int, int, int, int);
+    method public static void writeCarUserManagerStopUserReq(int, int);
+    method public static void writeCarUserManagerStopUserResp(int, int, int);
+    method public static void writeCarUserManagerSwitchUserReq(int, int);
+    method public static void writeCarUserManagerSwitchUserResp(int, int, @Nullable String);
+    method public static void writeCarUserServiceCreateUserReq(@Nullable String, @Nullable String, int, int, int);
+    method public static void writeCarUserServiceCreateUserResp(int, int, @Nullable String);
+    method public static void writeCarUserServiceCreateUserUserCreated(int, @Nullable String, @Nullable String, int);
+    method public static void writeCarUserServiceCreateUserUserRemoved(int, @Nullable String);
+    method public static void writeCarUserServiceGetUserAuthReq(int, int, int);
+    method public static void writeCarUserServiceGetUserAuthResp(int);
+    method public static void writeCarUserServiceInitialUserInfoReq(int, int, int, int, int);
+    method public static void writeCarUserServiceInitialUserInfoReqComplete(int);
+    method public static void writeCarUserServiceInitialUserInfoResp(int, int, int, int, @Nullable String, @Nullable String);
+    method public static void writeCarUserServiceLogoutUserReq(int, int);
+    method public static void writeCarUserServiceLogoutUserResp(int, int, @Nullable String);
+    method public static void writeCarUserServiceNotifyAppLifecycleListener(int, @Nullable String, int, int, int);
+    method public static void writeCarUserServiceNotifyInternalLifecycleListener(@Nullable String, int, int, int);
+    method public static void writeCarUserServicePostSwitchUserReq(int, int);
+    method public static void writeCarUserServicePreCreationRequested(int, int);
+    method public static void writeCarUserServicePreCreationStatus(int, int, int, int, int, int, int);
+    method public static void writeCarUserServiceRemoveUserReq(int, int);
+    method public static void writeCarUserServiceRemoveUserResp(int, int);
+    method public static void writeCarUserServiceResetLifecycleListener(int, @Nullable String);
+    method public static void writeCarUserServiceSetInitialUser(int);
+    method public static void writeCarUserServiceSetLifecycleListener(int, @Nullable String);
+    method public static void writeCarUserServiceSetUserAuthReq(int, int, int);
+    method public static void writeCarUserServiceSetUserAuthResp(int, @Nullable String);
+    method public static void writeCarUserServiceStartUserInBackgroundReq(int);
+    method public static void writeCarUserServiceStartUserInBackgroundResp(int, int);
+    method public static void writeCarUserServiceStartUserVisibleOnDisplayReq(int, int);
+    method public static void writeCarUserServiceStartUserVisibleOnDisplayResp(int, int, int);
+    method public static void writeCarUserServiceStopUserReq(int);
+    method public static void writeCarUserServiceStopUserResp(int, int);
+    method public static void writeCarUserServiceSwitchUserFromHalReq(int, int);
+    method public static void writeCarUserServiceSwitchUserReq(int, int);
+    method public static void writeCarUserServiceSwitchUserResp(int, int, @Nullable String);
+    method public static void writeCarUserServiceSwitchUserUiReq(int);
+    method public static void writeGarageModeEvent(int);
+    method public static void writePowerPolicyChange(String);
+  }
+
+  public final class Slogf {
+    method public static int d(@NonNull String, @NonNull String);
+    method public static int d(@NonNull String, @NonNull String, @NonNull Throwable);
+    method public static void d(@NonNull String, @NonNull String, @Nullable java.lang.Object...);
+    method public static int e(@NonNull String, @NonNull String);
+    method public static int e(@NonNull String, @NonNull String, @NonNull Throwable);
+    method public static void e(@NonNull String, @NonNull String, @Nullable java.lang.Object...);
+    method public static void e(@NonNull String, @NonNull Exception, @NonNull String, @Nullable java.lang.Object...);
+    method public static int i(@NonNull String, @NonNull String);
+    method public static int i(@NonNull String, @NonNull String, @NonNull Throwable);
+    method public static void i(@NonNull String, @NonNull String, @Nullable java.lang.Object...);
+    method public static boolean isLoggable(@NonNull String, int);
+    method public static int v(@NonNull String, @NonNull String);
+    method public static int v(@NonNull String, @NonNull String, @NonNull Throwable);
+    method public static void v(@NonNull String, @NonNull String, @Nullable java.lang.Object...);
+    method public static int w(@NonNull String, @NonNull String);
+    method public static int w(@NonNull String, @NonNull String, @NonNull Throwable);
+    method public static int w(@NonNull String, @NonNull Throwable);
+    method public static void w(@NonNull String, @NonNull String, @Nullable java.lang.Object...);
+    method public static void w(@NonNull String, @NonNull Exception, @NonNull String, @Nullable java.lang.Object...);
+    method public static int wtf(@NonNull String, @NonNull String);
+    method public static int wtf(@NonNull String, @NonNull Throwable);
+    method public static int wtf(@NonNull String, @NonNull String, @NonNull Throwable);
+    method public static void wtf(@NonNull String, @NonNull String, @Nullable java.lang.Object...);
+    method public static void wtf(@NonNull String, @NonNull Exception, @NonNull String, @Nullable java.lang.Object...);
+  }
+
+  public class TimeUtils {
+    ctor public TimeUtils();
+    method public static void dumpTime(java.io.PrintWriter, long);
+    method public static void formatDuration(long, java.io.PrintWriter);
+  }
+
+  public class TimingsTraceLog {
+    ctor public TimingsTraceLog(@NonNull String, long);
+    method public void logDuration(@NonNull String, long);
+    method public void traceBegin(@NonNull String);
+    method public void traceEnd();
+  }
+
+  public final class UsageStatsManagerHelper {
+    method public static void reportUserInteraction(@NonNull android.app.usage.UsageStatsManager, @NonNull String, int);
+  }
+
+  public final class ValidationHelper {
+    method public static boolean isAppIdValid(int);
+    method public static boolean isUserIdValid(int);
+  }
+
+}
+
+package android.car.builtin.view {
+
+  public final class DisplayHelper {
+    method public static int getPhysicalPort(android.view.Display);
+    method public static int getType(android.view.Display);
+    method public static String getUniqueId(android.view.Display);
+    field public static final int INVALID_PORT = -1; // 0xffffffff
+    field public static final int TYPE_EXTERNAL = 2; // 0x2
+    field public static final int TYPE_INTERNAL = 1; // 0x1
+    field public static final int TYPE_VIRTUAL = 5; // 0x5
+  }
+
+  public final class InputEventHelper {
+    method public static void setDisplayId(@NonNull android.view.InputEvent, int);
+  }
+
+  public final class KeyEventHelper {
+    method @Deprecated public static void setDisplayId(@NonNull android.view.KeyEvent, int);
+  }
+
+  public final class SurfaceControlHelper {
+    method public static android.view.SurfaceControl copy(android.view.SurfaceControl);
+    method @Nullable public static android.view.SurfaceControl getSurfaceControl(@NonNull android.app.Activity);
+    method @Nullable public static android.view.SurfaceControl mirrorDisplay(int);
+    method @NonNull public static android.view.SurfaceControl mirrorSurface(@NonNull android.view.SurfaceControl);
+  }
+
+  @UiThread public final class TouchableInsetsProvider {
+    ctor public TouchableInsetsProvider(@NonNull android.view.View);
+    method public void addToViewTreeObserver();
+    method public void removeFromViewTreeObserver();
+    method public void setObscuredTouchRegion(@Nullable android.graphics.Region);
+  }
+
+  public final class ViewHelper {
+    method public static void getBoundsOnScreen(@NonNull android.view.View, @NonNull android.graphics.Rect);
+    method public static void seResizeBackgroundColor(@NonNull android.view.SurfaceView, int);
+  }
+
+}
+
+package android.car.builtin.widget {
+
+  public final class LockPatternHelper {
+    method public static boolean isSecure(@NonNull android.content.Context, int);
+  }
+
+}
+
+package android.car.builtin.window {
+
+  public class DisplayAreaOrganizerHelper {
+    ctor public DisplayAreaOrganizerHelper();
+    field public static final int FEATURE_UNDEFINED = -1; // 0xffffffff
+  }
+
+  public final class WindowManagerHelper {
+    method public static void setInputFeatureSpy(@NonNull android.view.WindowManager.LayoutParams);
+    method public static void setTrustedOverlay(@NonNull android.view.WindowManager.LayoutParams);
+  }
+
+}
+

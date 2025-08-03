@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2018 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="cmas_presidential_level_alert" msgid="6968323372438785870">"ការ​ជូន​ដំណឹង​ពេល​អាសន្ន​ធ្ងន់ធ្ងរ"</string>
+    <string name="alerts_header_summary" msgid="8898082819299479687">"ទូរសព្ទរបស់អ្នក​អាចផ្ញើការជូនដំណឹងទៅអ្នកដូចជា ការណែនាំអំពីការជម្លៀស អំឡុងពេល​មានគ្រោះធម្មជាតិ​ជាដើម។ សេវាកម្មនេះ​គឺជាការសហការ​រវាងភ្នាក់ងារគ្រប់គ្រងភាពអាសន្នថ្នាក់ជាតិ ក្រុមហ៊ុនផ្ដល់សេវាបណ្ដាញ និងក្រុមហ៊ុនផលិតឧបករណ៍។\n\nអ្នកប្រហែលជាមិនទទួលបាន​ការជូនដំណឹងទេ ប្រសិនបើឧបករណ៍របស់អ្នកមានបញ្ហា ឬប្រសិនបើបណ្ដាញមានស្ថានភាពខ្សោយ។"</string>
+</resources>

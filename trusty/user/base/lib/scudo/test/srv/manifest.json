@@ -1,0 +1,15 @@
+{
+    "uuid": "191e4cde-69db-4074-aa83-b85face32da8",
+    "min_heap": 2097152,
+    "min_stack": 8192,
+    "mgmt_flags": {"non_critical_app": true},
+    "start_ports": [
+        {
+            "name": "SCUDO_TEST_SRV_PORT",
+            "flags": {
+                "allow_ta_connect": true,
+                "allow_ns_connect": false
+            }
+        }
+    ]
+}

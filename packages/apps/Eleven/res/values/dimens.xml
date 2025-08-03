@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2012 Andrew Neal
+     Copyright (C) 2014 The CyanogenMod Project
+     Copyright (C) 2020-2021 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+<resources>
+
+    <!-- Text sizes -->
+    <dimen name="text_size_extra_micro">12sp</dimen>
+    <dimen name="text_size_micro">13sp</dimen>
+    <dimen name="text_size_small">14sp</dimen>
+    <dimen name="text_size_medium">16sp</dimen>
+    <dimen name="text_size_large">22sp</dimen>
+
+    <!-- Frequently used spacing between elements in many layouts -->
+    <dimen name="standard_padding">16.0dp</dimen>
+
+    <!-- overflow menu used on page headers and in list items -->
+    <dimen name="overflow_height">56dp</dimen>
+    <dimen name="overflow_width">48dp</dimen>
+
+    <!-- List and grid view padding -->
+    <dimen name="list_preferred_item_padding">14.0dip</dimen>
+    <dimen name="list_item_general_margin">16.0dip</dimen>
+    <dimen name="list_item_padding_top">12.0dip</dimen>
+    <dimen name="list_item_padding_bottom">12.0dip</dimen>
+    <dimen name="list_item_main_text_size">@dimen/text_size_small</dimen>
+    <dimen name="list_item_secondary_text_size">@dimen/text_size_micro</dimen>
+    <dimen name="list_item_queue_text_padding_left">15.0dip</dimen>
+
+    <!-- Left padding in the grid text -->
+    <dimen name="grid_item_padding_left">8dp</dimen>
+    <dimen name="grid_item_padding_right">8dp</dimen>
+    <!-- Left padding in the grid text -->
+    <dimen name="grid_bottom_height">56dip</dimen>
+    <!-- Grid and list item normal height -->
+    <dimen name="item_normal_height">70.0dip</dimen>
+    <dimen name="list_item_image_height">50.0dip</dimen>
+    <dimen name="list_item_image_width">50.0dip</dimen>
+    <dimen name="list_item_top_track_image_size">26.0dip</dimen>
+
+    <dimen name="action_bar_elevation">4dp</dimen>
+
+    <!-- Bottom Action Bar -->
+    <dimen name="bottom_action_bar_height">50.0dip</dimen>
+    <dimen name="bottom_action_bar_info_padding_left">5.0dip</dimen>
+    <dimen name="bab_progress_size">35.0dip</dimen>
+    <dimen name="bab_progress_padding_left">16.0dip</dimen>
+    <dimen name="bab_progress_padding_right">22.0dip</dimen>
+
+    <!-- Notification template -->
+    <dimen name="notification_info_container_padding_left">8.0dip</dimen>
+
+    <!-- Notification template expanded -->
+    <dimen name="notification_expanded_button_padding">10dp</dimen>
+
+    <!-- playlist detail header -->
+    <dimen name="playlist_detail_header_height">240.0dip</dimen>
+    <dimen name="playlist_detail_header_bottom_height">40.0dip</dimen>
+
+    <!-- Audio player Buttons (play/pause/shuffle/repeat/next/previous)-->
+    <dimen name="audio_player_controls_end_button_width">36.0dip</dimen>
+    <dimen name="audio_player_controls_end_button_height">36.0dip</dimen>
+    <dimen name="audio_player_controls_end_button_margin">18.0dip</dimen>
+    <dimen name="audio_player_controls_main_button_width">100.0dip</dimen>
+    <dimen name="audio_player_controls_main_button_height">100.0dip</dimen>
+
+    <!-- Audio player time text settings-->
+    <dimen name="audio_player_time_text_size">@dimen/text_size_micro</dimen>
+
+    <!-- App Widgets -->
+    <dimen name="app_widget_large_min_width">250dp</dimen>
+    <dimen name="app_widget_large_min_height">110dp</dimen>
+    <dimen name="app_widget_large_alternate_artwork_size">80dp</dimen>
+    <dimen name="app_widget_small_min_width">80dp</dimen>
+    <dimen name="app_widget_small_min_height">80dp</dimen>
+    <dimen name="app_widget_small_artwork_size">60dp</dimen>
+    <dimen name="app_widget_radius">8dp</dimen>
+
+    <!-- Drag and drop -->
+    <dimen name="drag_and_drop_width">24.0dip</dimen>
+    <dimen name="drag_and_drop_height">50.0dip</dimen>
+
+    <!-- Sliding Panel -->
+    <dimen name="sliding_panel_indicator_height">60.0dip</dimen>
+    <dimen name="sliding_panel_shadow_height">0.0dip</dimen>
+
+    <!-- Header Bar -->
+    <dimen name="header_bar_height">56.0dip</dimen>
+    <dimen name="header_bar_up_width">30.0dip</dimen>
+    <dimen name="header_bar_menu_button_width">38.0dip</dimen>
+    <dimen name="header_bar_button_height">48.0dip</dimen>
+    <dimen name="header_bar_text_padding">12.0dip</dimen>
+
+    <dimen name="list_item_progress_width">45.0dip</dimen>
+    <dimen name="list_item_progress_height">45.0dip</dimen>
+    <dimen name="list_item_progress_padding_left">10.0dip</dimen>
+    <dimen name="list_item_progress_padding_right">17.0dip</dimen>
+
+    <!-- Search Page Settings -->
+    <dimen name="white_note_width">60.0dip</dimen>
+    <dimen name="white_note_height">70.0dip</dimen>
+    <dimen name="white_note_padding_bottom">24.0dip</dimen>
+    <dimen name="no_results_width">260.0dip</dimen>
+    <dimen name="no_results_text_padding_bottom">16.0dip</dimen>
+    <dimen name="no_results_text_main">20.0sp</dimen>
+    <dimen name="no_results_text_secondary">14.0sp</dimen>
+
+    <item name="letter_to_tile_ratio" type="fraction">53%</item>
+
+    <!-- Audio preview -->
+    <dimen name="preview_layout_height">125dp</dimen>
+    <dimen name="preview_layout_seekbar_height">30dp</dimen>
+    <dimen name="preview_layout_padding">20dp</dimen>
+    <dimen name="preview_layout_margin">20dp</dimen>
+    <dimen name="preview_title_textSize">12sp</dimen>
+    <dimen name="preview_artist_textSize">10sp</dimen>
+
+    <dimen name="list_icon_default">36dp</dimen>
+    <dimen name="list_icon_large">112dp</dimen>
+</resources>

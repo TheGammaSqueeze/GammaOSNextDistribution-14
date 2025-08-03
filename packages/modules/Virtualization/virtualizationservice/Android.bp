@@ -1,0 +1,94 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_defaults {
+    name: "virtualizationservice_defaults",
+    crate_name: "virtualizationservice",
+    defaults: [
+        "avf_build_flags_rust",
+        "secretkeeper_use_latest_hal_aidl_rust",
+    ],
+    edition: "2021",
+    srcs: ["src/main.rs"],
+    // Only build on targets which crosvm builds on.
+    enabled: false,
+    target: {
+        android64: {
+            compile_multilib: "64",
+            enabled: true,
+        },
+        linux_bionic_arm64: {
+            enabled: true,
+        },
+    },
+    prefer_rlib: true,
+    rustlibs: [
+        "android.hardware.security.rkp-V3-rust",
+        "android.system.virtualizationcommon-rust",
+        "android.system.virtualizationmaintenance-rust",
+        "android.system.virtualizationservice-rust",
+        "android.system.virtualizationservice_internal-rust",
+        "android.system.virtualmachineservice-rust",
+        "android.os.permissions_aidl-rust",
+        "libandroid_logger",
+        "libanyhow",
+        "libavflog",
+        "libbinder_rs",
+        "libhex",
+        "libhypervisor_props",
+        "liblazy_static",
+        "liblibc",
+        "liblibsqlite3_sys",
+        "liblog_rust",
+        "libnix",
+        "libopenssl",
+        "librand",
+        "librkpd_client",
+        "librusqlite",
+        "librustutils",
+        "libstatslog_virtualization_rust",
+        "libtombstoned_client_rust",
+        "libvsock",
+        "libserde",
+        "libserde_xml_rs",
+        "libservice_vm_comm",
+        "libservice_vm_manager",
+    ],
+    apex_available: ["com.android.virt"],
+}
+
+rust_binary {
+    name: "virtualizationservice",
+    defaults: ["virtualizationservice_defaults"],
+}
+
+xsd_config {
+    name: "assignable_devices",
+    srcs: ["assignable_devices.xsd"],
+    api_dir: "schema",
+    package_name: "android.system.virtualizationservice",
+}
+
+rust_test {
+    name: "virtualizationservice_test",
+    defaults: [
+        "authgraph_use_latest_hal_aidl_rust",
+        "virtualizationservice_defaults",
+    ],
+    test_suites: ["general-tests"],
+    data: [
+        ":test_rkp_cert_chain",
+    ],
+}
+
+// The chain originates from a CTS test for Keymint, with the Keymint certificate
+// (leaf certificate) truncated.
+//
+// The certificate chain begins with a leaf certificate obtained from RKP and ends
+// with a root certificate. Each certificate in the chain possesses a signature that
+// is signed by the private key of the subsequent certificate in the chain.
+filegroup {
+    name: "test_rkp_cert_chain",
+    srcs: ["testdata/rkp_cert_chain.der"],
+}

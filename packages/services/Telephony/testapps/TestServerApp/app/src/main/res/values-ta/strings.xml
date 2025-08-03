@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="2894617184221823208">"TestServerApp"</string>
+    <string name="action_settings" msgid="1335152369747372374">"அமைப்புகள்"</string>
+    <string name="server_running" msgid="2780193626090379172">"சேவையகம் இயக்கத்தில் உள்ளது..."</string>
+    <string name="stop_server" msgid="6192029827529013598">"சேவையகத்தை நிறுத்து"</string>
+    <string name="server_down" msgid="1030249207496490556">"சேவையகம் இயங்கவில்லை"</string>
+    <string name="start_server" msgid="3878573341408591975">"சேவையகத்தைத் தொடங்கு"</string>
+  <string-array name="entitlement_status">
+    <item msgid="5560300387618996934">"முடக்கப்பட்டது"</item>
+    <item msgid="3193389681837907872">"இயக்கப்பட்டது"</item>
+    <item msgid="3124590179479393815">"இணக்கமற்றது"</item>
+    <item msgid="1606753456265236910">"அமைக்கிறது"</item>
+    <item msgid="3930807209231347454">"சேர்க்கப்பட்டது"</item>
+  </string-array>
+  <string-array name="provision_status">
+    <item msgid="3486273747926710021">"அமைக்கப்படவில்லை"</item>
+    <item msgid="7598231293776486217">"அமைக்கப்பட்டது"</item>
+    <item msgid="3720547957514534185">"அவசியமில்லை"</item>
+    <item msgid="1264673582354896949">"செயலிலுள்ளது"</item>
+  </string-array>
+</resources>

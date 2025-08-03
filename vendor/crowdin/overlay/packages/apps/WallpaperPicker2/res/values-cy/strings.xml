@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2017 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="wallpaper_app_name">Papurau wal</string>
+    <string name="app_name">@string/wallpaper_app_name</string>
+    <string name="select_wallpaper_label">Categorïau papurau wal</string>
+    <string name="set_wallpaper_button_text">Gosod fel papur wal</string>
+    <string name="set_wallpaper_progress_message">Yn gosod fel papur wal…</string>
+    <string name="try_again">Ceisia eto</string>
+    <string name="set_wallpaper_error_message">Methu â gosod y papur wal.</string>
+    <string name="load_wallpaper_error_message">Methu â llwytho papur wal. Mae\'r ddelwedd yn llwgr neu ddim ar gael.</string>
+    <string name="static_wallpaper_presentation_mode_message">Wedi\'i osod ar hyn o bryd</string>
+    <string name="rotating_wallpaper_presentation_mode_message">Papur wal dyddiol</string>
+    <string name="wallpaper_destination_both">Sgrinau Cartref a Chloi</string>
+    <string name="choose_a_wallpaper_section_title">Dewis Papur Wal</string>
+    <string name="creative_wallpaper_title">Creu papur wal</string>
+    <string name="home_screen_message">Sgrin gartref</string>
+    <string name="lock_screen_message">Sgrin cloi</string>
+    <string name="home_and_lock_short_label">Cartref a Chloi</string>
+    <string name="set_wallpaper_dialog_message">Gosod papur wal ymlaen</string>
+    <string name="set_wallpaper_home_screen_destination">Sgrin gartref</string>
+    <string name="set_wallpaper_lock_screen_destination">Sgrin cloi</string>
+    <string name="set_wallpaper_both_destination">Sgriniau cartref a chloi</string>
+    <string name="no_backup_image_wallpaper_label">Cylchdroi Delwedd Papur Wal</string>
+    <string name="permission_needed_explanation">I ddangos y papur wal cyfredol yma, mae ar <xliff:g example="Wallpapers" id="app_name">%1$s</xliff:g> angen mynediad at storfa dy ddyfais.</string>
+    <string name="permission_needed_explanation_go_to_settings">I ddangos y papur wal cyfredol yma, mae ar Papurau Wal angen mynediad at storfa dy ddyfais.\n\nI newid hyn, gweler adran Caniatâd gwybodaeth yr ap Papurau Wal.</string>
+    <string name="permission_needed_allow_access_button_label">Caniatáu mynediad</string>
+    <string name="no_backup_image_wallpaper_description">Gwasaneth papurau wal byw ar gyfer papurau wal sy\'n cylchdroi</string>
+    <string name="daily_refresh_tile_title">Papur wal dyddiol</string>
+    <string name="daily_refresh_tile_subtitle">Tapia i droi ymlaen</string>
+    <string name="start_rotation_dialog_body_live_wallpaper_needed">      Bydd y papur wal yn newid yn awtomatig pob dydd. I orffen gosod, tapia 
+      <![CDATA[<strong>Gosod papur wal</strong>]]> ar y sgrin nesaf.
+    </string>
+    <string name="start_rotation_dialog_wifi_only_option_message">      Lawrlwytho papurau wal yn y dyfodol dros Wi-Fi yn unig
+    </string>
+    <string name="start_rotation_dialog_continue">Parhau</string>
+    <string name="start_rotation_progress_message">Yn lawrlwytho\'r papur wal cyntaf…</string>
+    <string name="start_rotation_error_message">Methu â lawrlwytho\'r papur wal cyntaf. Gwiria dy osodiadau rhwydwaith a rhoi cynnig arall arni.</string>
+    <string name="start_rotation_dialog_body">Bydd y papur wal yn newid yn awtomatig pob dydd.</string>
+    <string name="settings_button_label">      Gosodiadau
+    </string>
+    <string name="explore">Archwilio</string>
+    <string name="next_wallpaper">Papur wal nesaf</string>
+    <string name="wallpaper_disabled_message">Mae gosod papur wal wedi\'i analluogi ar y ddyfais hon.</string>
+    <string name="wallpaper_disabled_by_administrator_message">Mae gosod papur wal wedi\'i analluogi gan weinyddwr dy ddyfais.</string>
+    <string name="wallpaper_set_successfully_message">Gosodwyd y papur wal yn llwyddiannus</string>
+    <string name="wallpapers_unavailable_offline_message">Rhaid bod wedi cysylltu â\'r rhyngrwyd i weld papurau wal. Cysyllta a rhoi cynnig arall arni.</string>
+    <string name="currently_set_home_wallpaper_thumbnail">Cryno-lun papur wal y sgrin gartref ar hyn o bryd</string>
+    <string name="currently_set_lock_wallpaper_thumbnail">Cryno-lun papur wal y sgrin cloi ar hyn o bryd</string>
+    <string name="currently_set_wallpaper_thumbnail">Cryno-lun y papur wal a ddefnyddir ar hyn o bryd</string>
+    <string name="wallpaper_thumbnail">Cryno-lun papur wal</string>
+    <string name="explore_home_screen">Archwilio papur wal sgrin gartref</string>
+    <string name="explore_lock_screen">Archwilio papur wal sgrin cloi</string>
+    <string name="refresh_daily_wallpaper_home_content_description">Newid papur wal dyddiol y sgrin cloi</string>
+    <string name="refresh_daily_wallpaper_content_description">Newid papur wal dyddiol</string>
+    <string name="preview_screen_description">Sgrin rhagolwg papur wal</string>
+    <string name="refreshing_daily_wallpaper_dialog_message">Yn newid y papur wal dyddiol…</string>
+    <string name="refresh_daily_wallpaper_failed_message">Methwyd â newid y papur wal dyddiol. Gwiria dy gysylltiad rhwydwaith a cheisio eto.</string>
+    <string name="on_device_wallpapers_category_title">Papurau wal ar y ddyfais</string>
+    <string name="on_device_wallpapers_category_title_desktop">Ar y ddyfais</string>
+    <string name="on_device_wallpaper_title">Papur wal Android</string>
+    <string name="live_wallpapers_category_title">Papurau wal byw</string>
+    <string name="my_photos_category_title">Fy lluniau</string>
+    <string name="my_photos_generic_wallpaper_title">Fy llun</string>
+    <string name="fallback_wallpaper_title">Papur wal</string>
+    <string name="app_not_found">Dyw\'r ap heb ei osod.</string>
+    <string name="center_wallpaper_position">Canoli</string>
+    <string name="center_crop_wallpaper_position">Canoli a thocio</string>
+    <string name="stretch_wallpaper_position">Ymestyn</string>
+    <string name="preview">Rhagolwg</string>
+    <string name="tab_info">Gwybodaeth</string>
+    <string name="tab_customize">Addasu</string>
+    <string name="tab_effects">Effeithiau</string>
+    <string name="tab_share">Rhannu</string>
+    <string name="my_photos">Fy Lluniau</string>
+    <string name="configure_wallpaper">Gosodiadau…</string>
+    <string name="delete_live_wallpaper">Dileu</string>
+    <string name="edit_live_wallpaper">Golygu</string>
+    <string name="delete_wallpaper_confirmation">Dileu\u2019r papur wal hwn o dy ddyfais?</string>
+    <string name="bottom_action_bar_back">Llywio i fyny</string>
+    <string name="bottom_action_bar_edit">Golygu</string>
+    <string name="bottom_action_bar_download">Lawrlwytho</string>
+    <string name="bottom_action_bar_slideshow_wallpaper">Papur Wâl Sleidiau</string>
+    <string name="bottom_action_bar_apply">Gosod</string>
+    <string name="accessibility_preview_pager" msgid="3548503287402185430">Tudalen <xliff:g name="current_page" example="1">%1$d</xliff:g> o <xliff:g name="num_pages" example="2">%2$d</xliff:g></string>
+    <string name="next_page_content_description" msgid="5290226604542300962">Nesaf</string>
+    <string name="previous_page_content_description" msgid="6025726405430262788">Blaenorol</string>
+    <string name="wallpaper_title">Papur wal</string>
+    <string name="wallpaper_preview_card_content_description">Rhagolwg papur wal</string>
+    <string name="lock_wallpaper_preview_card_content_description">Rhagolwg papur wal sgrin cloi</string>
+    <string name="home_wallpaper_preview_card_content_description">Rhagolwg papur wal sgrin gartref</string>
+    <string name="collection_not_exist_msg">Dyw\'r casglaiad ddim yn bodoli.</string>
+    <string name="wallpaper_exit_split_screen">Gadawa modd sgrin hollt a cheisio eto</string>
+    <string name="set_wallpaper_dialog_set_button">Gosod</string>
+    <string name="cancel">Diddymu</string>
+    <string name="hide_ui_preview_text">Cuddio Rhagolwg UI</string>
+    <string name="hint_hide_ui_preview">Mae UI wedi\'i guddio yn rhagolwg. Rho dap dwbl i\'w ddatguddio.</string>
+    <string name="show_ui_preview_text">Dangos Rhagolwg UI</string>
+    <string name="hide_preview_controls_content_description">Dangosir rheolyddion rhagolwg. Rho dap dwbl i\u2019w cuddio.</string>
+    <string name="hide_preview_controls_action">Cuddio rheolyddion rhagolwg</string>
+    <string name="show_preview_controls_content_description">Mae rheolyddion rhagolwg wedi\u2019u cuddio. Rho dab dwbl i\u2019w dangos.</string>
+    <string name="show_preview_controls_action">Dangos rheolyddion rhagolwg</string>
+    <string name="hide_wallpaper_info_action">Cuddio gwybodaeth papur wal</string>
+    <string name="hint_show_ui_preview">Mae UI wedi\'i analluogi yn rhagolwg. Rho dap dwbl i\'w ddatguddio.</string>
+    <string name="wallpaper_picker_entry_title" msgid="7039652539125902659">Newid y papur wal</string>
+    <string name="lockscreen_wallpaper_preview_card_content_description" msgid="8575577284424318765">Rhagolwg papur wal sgrin cloi</string>
+    <string name="apply_btn" msgid="7965877231041987336">Gosod</string>
+    <string name="accessibility_customize_hidden">Addasu wedi\'i guddio</string>
+    <string name="accessibility_customize_shown">Addasu wedi\'i ddangos</string>
+    <string name="accessibility_info_hidden">Gwybodaeth wedi\'i guddio</string>
+    <string name="accessibility_info_shown">Gwybodaeth wedi\'i ddangos</string>
+    <string name="settings_snackbar_description">Galluoga ffeiliau a chyfryngau yn y gosodiadau.</string>
+    <string name="settings_snackbar_enable">Galluogi</string>
+    <string name="open_my_photos">Agor Fy Lluniau</string>
+    <string name="lock_screen_tab">Sgrin cloi</string>
+    <string name="home_screen_tab">Sgrin gartref</string>
+    <string name="reset">Ailosod</string>
+    <string name="reset_confirmation_dialog_title">Ailosod newidiadau?</string>
+    <string name="reset_confirmation_dialog_message">Ni chedwir dy newisiadau</string>
+    <string name="more_wallpapers">Rhagor o bapurau wal</string>
+    <string name="recents_wallpaper_label">%1$s, %2$d</string>
+    <string name="default_wallpaper_title">Papur wal</string>
+    <string name="small_preview_tooltip">Tapia i olygu dy lun</string>
+    <string name="full_preview_tooltip">Addasu lleoliad, graddfa, ac ongl dy luniau</string>
+</resources>

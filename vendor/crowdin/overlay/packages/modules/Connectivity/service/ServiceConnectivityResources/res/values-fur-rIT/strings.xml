@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="connectivityResourcesAppLabel">Risorsis de conetivitât di sisteme</string>
+    <string name="wifi_available_sign_in">Jentre te rêt Wi-Fi</string>
+    <string name="network_available_sign_in">Jentre te rêt</string>
+    <string name="network_available_sign_in_detailed"><xliff:g id="network_ssid">%1$s</xliff:g></string>
+    <string name="mobile_network_available_no_internet">Cence internet</string>
+    <string name="mobile_network_available_no_internet_detailed">Al è pussibil che tu vedis esaurît i dâts su <xliff:g id="network_carrier" example="Android Mobile">%1$s</xliff:g>. Tocje pes opzions.</string>
+    <string name="mobile_network_available_no_internet_detailed_unknown_carrier">Al è pussibil che tu vedis esaurît i dâts. Tocje pes opzions.</string>
+    <string name="wifi_no_internet">Nissun acès a internet cun <xliff:g id="network_ssid" example="GoogleGuest">%1$s</xliff:g></string>
+    <string name="wifi_no_internet_detailed">Tocje pes opzions</string>
+    <string name="mobile_no_internet">La rêt mobile no à acès a internet</string>
+    <string name="other_networks_no_internet">La rêt no à acès a internet</string>
+    <string name="private_dns_broken_detailed">Nol è pussibil acedi al servidôr DNS privât</string>
+    <string name="network_partial_connectivity">Tu âs conetivitât limitade cun <xliff:g id="network_ssid" example="GoogleGuest">%1$s</xliff:g></string>
+    <string name="network_partial_connectivity_detailed">Tocje par coneti distès</string>
+    <string name="network_switch_metered">Passât a <xliff:g id="network_type">%1$s</xliff:g></string>
+    <string name="network_switch_metered_detail">Il dispositîf al dopre <xliff:g id="new_network">%1$s</xliff:g> se <xliff:g id="previous_network">%2$s</xliff:g> nol à acès a internet. Tu podaressis vê coscj.</string>
+    <string name="network_switch_metered_toast">Passât di <xliff:g id="previous_network">%1$s</xliff:g> a <xliff:g id="new_network">%2$s</xliff:g></string>
+    <string-array name="network_switch_type_name">
+        <item>dâts mobii</item>
+        <item>Wi-Fi</item>
+        <item>Bluetooth</item>
+        <item>Ethernet</item>
+        <item>VPN</item>
+    </string-array>
+    <string name="network_switch_type_name_unknown">un gjenar di rêt no cognossût</string>
+</resources>

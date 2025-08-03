@@ -1,0 +1,50 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_defaults {
+    name: "libapexsupport.defaults",
+    crate_name: "apexsupport",
+    srcs: [
+        "src/lib.rs",
+    ],
+    rustlibs: [
+        "libapex_manifest_rs",
+        "libprotobuf",
+    ],
+}
+
+rust_ffi_static {
+    name: "libapexsupport.ffi",
+    defaults: ["libapexsupport.defaults"],
+}
+
+rust_test {
+    name: "libapexsupport.ffi.tests",
+    defaults: ["libapexsupport.defaults"],
+    test_suites: ["general-tests"],
+}
+
+cc_library {
+    name: "libapexsupport",
+    srcs: [
+        "apexsupport.cpp",
+    ],
+    whole_static_libs: [
+        "libapexsupport.ffi",
+    ],
+    shared_libs: [
+        "libdl_android",
+        "liblog",
+    ],
+    llndk: {
+        symbol_file: "libapexsupport.map.txt",
+        unversioned: true,
+    },
+    export_include_dirs: [
+        "include",
+    ],
+    local_include_dirs: [
+        "include",
+    ],
+}

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/**
+ * Copyright (c) 2009, The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label">سىستېما ئارايۈزى</string>
+    <string name="status_bar_settings_auto_rotation">ئېكراننى ئۆزلۈكىدىن ئايلاندۇر</string>
+    <string name="usb_accessory_uri_prompt">بۇ USB قوشۇمچىسىغا ماس كېلىدىغان ئەپ ئورنىتىلمىغان. بۇ قوشۇمچە ھەققىدىكى تېخىمۇ كۆپ ئۇچۇرنى <xliff:g id="URL">%1$s</xliff:g> دىن زىيارەت قىلىڭ.</string>
+    <string name="title_usb_accessory">USB قوشۇمچە</string>
+    <string name="label_view">كۆرۈنۈش</string>
+    <string name="usb_debugging_title">USB سازلاشقا يول قويامدۇ؟</string>
+    <string name="usb_debugging_message">بۇ كومپيۇتېرنىڭ RSA ئاچقۇچىنىڭ بارماق ئىزى: \n<xliff:g id="FINGERPRINT">%1$s</xliff:g></string>
+    <string name="usb_debugging_always">بۇ كومپيۇتېرغا ھەمىشە يول قوي</string>
+    <string name="screenshot_saving_title">ئېكران كەسمىسىنى ساقلاۋاتىدۇ…</string>
+    <string name="accessibility_back">قايت</string>
+    <string name="accessibility_home">باش بەت</string>
+    <string name="accessibility_menu">تىزىملىك</string>
+    <string name="accessibility_camera_button">كامېرا</string>
+    <string name="accessibility_bluetooth_connected">كۆكچىش باغلاندى.</string>
+    <string name="accessibility_not_connected">باغلانمىدى.</string>
+    <string name="data_connection_roaming">كەزمە</string>
+    <string name="accessibility_airplane_mode">ئايروپىلان ھالىتى</string>
+    <string name="accessibility_battery_level">توكدان <xliff:g id="NUMBER">%d</xliff:g> پىرسەنت.</string>
+    <string name="accessibility_tty_enabled">TeleTypewriter قوزغىتىلدى.</string>
+    <string name="accessibility_ringer_vibrate">قوڭغۇراق تىترەت.</string>
+    <string name="accessibility_ringer_silent">قوڭغۇراق ئۈنسىز.</string>
+    <string name="accessibility_desc_notification_shade">ئۇقتۇرۇش سايەسى.</string>
+    <string name="accessibility_desc_quick_settings">تېز تەڭشەكلەر.</string>
+    <string name="accessibility_quick_settings_alarm">قوڭغۇراق تەڭشەك <xliff:g id="TIME">%s</xliff:g>.</string>
+    <string name="accessibility_location_active">ئورۇن ئۇچۇرى ئىلتىماسى ئاكتىپ</string>
+    <string name="accessibility_clear_all">بارلىق ئۇقتۇرۇشلارنى تازىلا</string>
+    <string name="accessibility_rotation_lock_on_landscape">ئېكران توغرىسىغا كۆز يۈگۈرتۈش ھالىتىگە قۇلۇپلاندى.</string>
+    <string name="accessibility_rotation_lock_on_portrait">ئېكران بويىغا كۆز يۈگۈرتۈش ھالىتىگە قۇلۇپلاندى.</string>
+    <string name="dessert_case">تاتلىق تۈرۈم قۇتىسى</string>
+    <string name="ethernet_label">دائىرىلىك تور</string>
+    <string name="quick_settings_bluetooth_label">كۆكچىش</string>
+    <string name="accessibility_quick_settings_rotation">ئېكراننى ئۆزلۈكىدىن ئايلاندۇر</string>
+    <string name="quick_settings_location_label">ئورنى</string>
+    <string name="quick_settings_media_device_label">ۋاستە ئۈسكۈنە</string>
+    <string name="quick_settings_brightness_dialog_title">يورۇقلۇق</string>
+    <string name="notification_section_header_alerting">ئۇقتۇرۇشلار</string>
+    <string name="stream_voice_call">Call</string>
+    <string name="stream_ring">Ring</string>
+    <string name="stream_bluetooth_sco">كۆكچىش</string>
+    <string name="volume_ringer_status_normal">Ring</string>
+    <string name="status_bar_ethernet">دائىرىلىك تور</string>
+    <string name="status_bar_airplane">ئايروپىلان ھالىتى</string>
+    <string name="keyboard_key_home">باش بەت</string>
+    <string name="keyboard_key_back">قايت</string>
+    <string name="keyboard_key_move_home">باش بەت</string>
+    <string name="keyboard_shortcut_group_system_home">باش بەت</string>
+    <string name="keyboard_shortcut_group_system_back">قايت</string>
+    <string name="keyboard_shortcut_group_system_notifications">ئۇقتۇرۇشلار</string>
+    <string name="tuner_time">ۋاقىت</string>
+    <string name="tuner_menu">تىزىملىك</string>
+    <string name="app_info">ئەپ ئۇچۇرى</string>
+</resources>

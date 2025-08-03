@@ -1,0 +1,278 @@
+syntax = "proto3";
+
+option java_outer_classname = "GattProto";
+
+package pandora;
+
+import "pandora/host.proto";
+import "google/protobuf/empty.proto";
+
+service GATT {
+  // Request an MTU size.
+  rpc ExchangeMTU(ExchangeMTURequest) returns (ExchangeMTUResponse);
+
+  // Writes on the given characteristic or descriptor with given handle.
+  rpc WriteAttFromHandle(WriteRequest) returns (WriteResponse);
+
+  // Starts service discovery for given uuid.
+  rpc DiscoverServiceByUuid(DiscoverServiceByUuidRequest) returns (DiscoverServicesResponse);
+
+  // Starts services discovery.
+  rpc DiscoverServices(DiscoverServicesRequest) returns (DiscoverServicesResponse);
+
+  // Starts services discovery using SDP.
+  rpc DiscoverServicesSdp(DiscoverServicesSdpRequest) returns (DiscoverServicesSdpResponse);
+
+  // Clears DUT GATT cache.
+  rpc ClearCache(ClearCacheRequest) returns (ClearCacheResponse);
+
+  // Reads characteristic with given handle.
+  rpc ReadCharacteristicFromHandle(ReadCharacteristicRequest) returns (ReadCharacteristicResponse);
+
+  // Reads characteristic with given uuid, start and end handles.
+  rpc ReadCharacteristicsFromUuid(ReadCharacteristicsFromUuidRequest) returns (ReadCharacteristicsFromUuidResponse);
+
+  // Reads characteristic with given descriptor handle.
+  rpc ReadCharacteristicDescriptorFromHandle(ReadCharacteristicDescriptorRequest) returns (ReadCharacteristicDescriptorResponse);
+
+  // Register a GATT service
+  rpc RegisterService(RegisterServiceRequest) returns (RegisterServiceResponse);
+
+  // Set characteristic notification/indication with given client characteristic configuration descriptor handle
+  rpc SetCharacteristicNotificationFromHandle(SetCharacteristicNotificationFromHandleRequest) returns  (SetCharacteristicNotificationFromHandleResponse);
+
+  // Wait for characteristic notification/indication
+  rpc WaitCharacteristicNotification(WaitCharacteristicNotificationRequest) returns (WaitCharacteristicNotificationResponse);
+
+  // Notify on characteristic
+  rpc NotifyOnCharacteristic(NotifyOnCharacteristicRequest) returns (NotifyOnCharacteristicResponse);
+
+  // Indicate on characteristic
+  rpc IndicateOnCharacteristic(IndicateOnCharacteristicRequest) returns (IndicateOnCharacteristicResponse);
+}
+
+enum AttStatusCode {
+  SUCCESS = 0x00;
+  UNKNOWN_ERROR = 0x101;
+  INVALID_HANDLE = 0x01;
+  READ_NOT_PERMITTED = 0x02;
+  WRITE_NOT_PERMITTED = 0x03;
+  INSUFFICIENT_AUTHENTICATION = 0x05;
+  INVALID_OFFSET = 0x07;
+  ATTRIBUTE_NOT_FOUND = 0x0A;
+  INVALID_ATTRIBUTE_LENGTH = 0x0D;
+  APPLICATION_ERROR = 0x80;
+}
+
+enum AttProperties {
+  PROPERTY_NONE = 0x00;
+  PROPERTY_READ = 0x02;
+  PROPERTY_WRITE = 0x08;
+}
+
+enum AttPermissions {
+  PERMISSION_NONE = 0x00;
+  PERMISSION_READ = 0x01;
+  PERMISSION_READ_ENCRYPTED = 0x02;
+  PERMISSION_READ_ENCRYPTED_MITM = 0x04;
+  PERMISSION_WRITE = 0x10;
+  PERMISSION_WRITE_ENCRYPTED = 0x20;
+  PERMISSION_WRITE_ENCRYPTED_MITM = 0x40;
+}
+
+enum EnableValue {
+  ENABLE_NOTIFICATION_VALUE = 0;
+  ENABLE_INDICATION_VALUE = 1;
+}
+
+// A message representing a GATT service.
+message GattService {
+  uint32 handle = 1;
+  uint32 type = 2;
+  string uuid = 3;
+  repeated GattService included_services = 4;
+  repeated GattCharacteristic characteristics = 5;
+}
+
+// A message representing a GATT characteristic.
+message GattCharacteristic {
+  uint32 properties = 1;
+  uint32 permissions = 2;
+  string uuid = 3;
+  uint32 handle = 4;
+  repeated GattCharacteristicDescriptor descriptors = 5;
+}
+
+// A message representing a GATT descriptors.
+message GattCharacteristicDescriptor {
+  uint32 handle = 1;
+  uint32 permissions = 2;
+  string uuid = 3;
+}
+
+message AttValue {
+  // Descriptor handle or Characteristic handle (not Characteristic Value handle).
+  uint32 handle = 1;
+  bytes value = 2;
+}
+
+// Request for the `ExchangeMTU` rpc.
+message ExchangeMTURequest {
+  Connection connection = 1;
+  int32 mtu = 2;
+}
+
+// Response for the `ExchangeMTU` rpc.
+message ExchangeMTUResponse {}
+
+// Request for the `WriteAttFromHandle` rpc.
+message WriteRequest {
+  Connection connection = 1;
+  uint32 handle = 2;
+  bytes value = 3;
+}
+
+// Request for the `WriteAttFromHandle` rpc.
+message WriteResponse {
+  uint32 handle = 1;
+  AttStatusCode status = 2;
+}
+
+// Request for the `SetCharacteristicNotificationFromHandle` rpc.
+message SetCharacteristicNotificationFromHandleRequest {
+  Connection connection = 1;
+  uint32 handle = 2;
+  EnableValue enable_value = 3;
+}
+
+// Response for the `SetCharacteristicNotificationFromHandle` rpc.
+message SetCharacteristicNotificationFromHandleResponse {
+  uint32 handle = 1;
+  AttStatusCode status = 2;
+}
+
+// Request for the `WaitCharacteristicNotification` rpc.
+message WaitCharacteristicNotificationRequest {
+  Connection connection = 1;
+  uint32 handle = 2;
+}
+
+// Response for the `WaitCharacteristicNotification` rpc.
+message WaitCharacteristicNotificationResponse {
+  bool characteristic_notification_received = 1;
+}
+
+// Request for the `DiscoverServiceByUuid` rpc.
+message DiscoverServiceByUuidRequest {
+  Connection connection = 1;
+  string uuid = 2;
+}
+
+// Request for the `DiscoverServices` rpc.
+message DiscoverServicesRequest {
+  Connection connection = 1;
+}
+
+// Response for the `DiscoverServices` rpc.
+message DiscoverServicesResponse {
+  repeated GattService services = 1;
+}
+
+// Request for the `DiscoverServicesSdp` rpc.
+message DiscoverServicesSdpRequest {
+  bytes address = 1;
+}
+
+// Response for the `DiscoverServicesSdp` rpc.
+message DiscoverServicesSdpResponse {
+  repeated string service_uuids = 1;
+}
+
+// Request for the `ClearCache` rpc.
+message ClearCacheRequest {
+  Connection connection = 1;
+}
+
+// Response for the `ClearCache` rpc.
+message ClearCacheResponse {}
+
+// Request for the `ReadCharacteristicFromHandle` rpc.
+message ReadCharacteristicRequest {
+  Connection connection = 1;
+  uint32 handle = 2;
+}
+
+// Request for the `ReadCharacteristicsFromUuid` rpc.
+message ReadCharacteristicsFromUuidRequest {
+  Connection connection = 1;
+  string uuid = 2;
+  uint32 start_handle = 3;
+  uint32 end_handle = 4;
+}
+
+// Response for the `ReadCharacteristicFromHandle` rpc.
+message ReadCharacteristicResponse {
+  AttValue value = 1;
+  AttStatusCode status = 2;
+}
+
+// Response for the `ReadCharacteristicsFromUuid` rpc.
+message ReadCharacteristicsFromUuidResponse {
+  repeated ReadCharacteristicResponse characteristics_read = 1;
+}
+
+// Request for the `ReadCharacteristicDescriptorFromHandle` rpc.
+message ReadCharacteristicDescriptorRequest {
+  Connection connection = 1;
+  uint32 handle = 2;
+}
+
+// Response for the `ReadCharacteristicDescriptorFromHandle` rpc.
+message ReadCharacteristicDescriptorResponse {
+  AttValue value = 1;
+  AttStatusCode status = 2;
+}
+
+message GattServiceParams {
+  string uuid = 1;
+  repeated GattCharacteristicParams characteristics = 2;
+}
+
+message GattCharacteristicParams {
+  uint32 properties = 1;
+  uint32 permissions = 2;
+  string uuid = 3;
+  repeated GattDescriptorParams descriptors = 4;
+}
+
+message GattDescriptorParams {
+  uint32 properties = 1;
+  uint32 permissions = 2;
+  string uuid = 3;
+}
+
+message RegisterServiceRequest {
+  GattServiceParams service = 1;
+}
+
+message RegisterServiceResponse {
+  GattService service = 1;
+}
+
+message NotifyOnCharacteristicRequest {
+  uint32 handle = 1;
+  bytes value = 2;
+}
+
+message NotifyOnCharacteristicResponse {
+  AttStatusCode status = 1;
+}
+
+message IndicateOnCharacteristicRequest {
+  uint32 handle = 1;
+  bytes value = 2;
+}
+
+message IndicateOnCharacteristicResponse {
+  AttStatusCode status = 1;
+}

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  Copyright (c) 2017 The LineageOS Project
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ Also add information on how to contact you by electronic and paper mail.
+
+-->
+<resources>
+    <string name="app_name">FlipFlap</string>
+    <string name="notification_title">Smart Cover upptäckt</string>
+    <string name="alarm_label">ALARM</string>
+    <string name="abbrev_wday_month_day_no_year">EEE, MMMM d</string>
+    <string name="answer_call">SVARA</string>
+    <string name="ignore_call">IGNORERA</string>
+    <string name="end_call">AVSLUTA SAMTAL</string>
+    <string name="settings_name">Smartskal</string>
+    <string name="settings_enable">Aktivera smart omslagskontroll</string>
+    <string name="settings_summary">Styr hur ditt smartskal beter sig</string>
+    <string name="category_behaviour">Beteende</string>
+    <string name="pass_to_security_view_title">Gå direkt till lösenordsinmatning</string>
+    <string name="pass_to_security_view_summary">Öppnande av fodralet visar låsskärmen direkt</string>
+    <string name="use_high_touch_sensitivity_title">Hög tryckkänslighet</string>
+    <string name="use_high_touch_sensitivity_summary">Öka tryckkänsligheten när fodralet är stängt</string>
+    <string name="category_design">Design</string>
+    <string name="switch_charging_status_title">Visa laddningsstatus</string>
+    <string name="switch_charging_status_summary">Ändra färg beroende på den aktuella batterinivån</string>
+    <string name="category_timeouts">Timeouts</string>
+    <string name="timeout_plugged_title">Under laddning</string>
+    <string name="timeout_unplugged_title">Urkopplad</string>
+    <string name="timeout_summary">Visa omslagsappen i %s efter stängning av locket</string>
+    <string name="timeout_summary_never">Omslagsappen kommer alltid vara på efter stängning av locket</string>
+    <string name="timeout_summary_immediately">Skärmen kommer stängas av när du stänger fodralet</string>
+    <string name="timeout_entry_immediately">Omedelbart</string>
+    <string name="timeout_entry_5s">5 sekunder</string>
+    <string name="timeout_entry_10s">10 sekunder</string>
+    <string name="timeout_entry_30s">30 sekunder</string>
+    <string name="timeout_entry_1min">1 minut</string>
+    <string name="timeout_entry_5min">5 minuter</string>
+    <string name="timeout_entry_never">Aldrig</string>
+</resources>

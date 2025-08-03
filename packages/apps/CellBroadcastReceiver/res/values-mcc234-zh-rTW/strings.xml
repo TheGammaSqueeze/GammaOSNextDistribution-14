@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2019 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="enable_cmas_extreme_threat_alerts_title" msgid="8511466399220042295">"極度緊急警報"</string>
+    <string name="enable_cmas_severe_threat_alerts_title" msgid="2271741871998936543">"嚴重警報"</string>
+    <string name="enable_cmas_test_alerts_title" msgid="6022925848643811044">"測試警報"</string>
+    <string name="enable_exercise_test_alerts_title" msgid="411880452689537935">"演習警報"</string>
+    <string name="cmas_presidential_level_alert" msgid="3429191761649839884">"政府警報"</string>
+    <string name="cmas_extreme_alert" msgid="3474352706075109113">"極度緊急警報"</string>
+    <!-- no translation found for cmas_extreme_immediate_observed_alert (4385654808873824465) -->
+    <skip />
+    <!-- no translation found for cmas_extreme_immediate_likely_alert (1667218798350595295) -->
+    <skip />
+    <string name="cmas_severe_alert" msgid="6989950459525380066">"嚴重警報"</string>
+    <string name="cmas_required_monthly_test" msgid="1226904101913162471">"測試警報"</string>
+    <string name="cmas_exercise_alert" msgid="4540370572086918020">"演習警報"</string>
+    <string name="app_label" msgid="3863159788297913185">"緊急警報"</string>
+    <string name="sms_cb_settings" msgid="4187131985831792308">"緊急警報"</string>
+    <string name="enable_alerts_master_toggle_summary" msgid="805446672915814777">"接收緊急警報通知"</string>
+    <string name="enable_alert_speech_summary" msgid="5021926525240750702">"使用文字轉語音功能說出緊急警報訊息"</string>
+    <string name="enable_cmas_test_alerts_summary" msgid="2931455154355509465">"接收緊急警報系統的測試警報"</string>
+    <string name="cmas_opt_out_dialog_text" msgid="1972978578760513449">"你目前已設定要接收緊急警報。要繼續接收嗎？"</string>
+    <string name="emergency_alert_settings_title_watches" msgid="5299419351642118203">"緊急警報"</string>
+    <string name="notification_cb_settings_changed_text" msgid="6861845802821634203">"輕觸即可查看緊急警報設定"</string>
+</resources>

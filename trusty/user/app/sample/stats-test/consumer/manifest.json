@@ -1,0 +1,6 @@
+{
+    "app_name": "stats_consumer",
+    "uuid": "0d675a82-2e7c-48a7-8eb9-6f304856a795",
+    "min_heap": 16384,
+    "min_stack": 16384
+}

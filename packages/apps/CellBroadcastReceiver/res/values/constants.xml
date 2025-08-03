@@ -1,0 +1,474 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2023 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources>
+    <string-array name="iso_country_code_mcc_table" translatable="false">
+        <!-- Greece -->
+        <item>gr:202</item>
+        <!-- Netherlands (Kingdom of the) -->
+        <item>nl:204</item>
+        <!-- Belgium -->
+        <item>be:206</item>
+        <!-- France -->
+        <item>fr:208</item>
+        <!-- Monaco (Principality of) -->
+        <item>mc:212</item>
+        <!-- Andorra (Principality of) -->
+        <item>ad:213</item>
+        <!-- Spain -->
+        <item>es:214</item>
+        <!-- Hungary (Republic of) -->
+        <item>hu:216</item>
+        <!-- Bosnia and Herzegovina -->
+        <item>ba:218</item>
+        <!-- Croatia (Republic of) -->
+        <item>hr:219</item>
+        <!-- Serbia (Republic of) -->
+        <item>rs:220</item>
+        <!-- Kosovo -->
+        <item>xk:221</item>
+        <!-- Italy -->
+        <item>it:222</item>
+        <!-- Vatican City State -->
+        <item>va:225</item>
+        <!-- Romania -->
+        <item>ro:226</item>
+        <!-- Switzerland (Confederation of) -->
+        <item>ch:228</item>
+        <!-- Czechia -->
+        <item>cz:230</item>
+        <!-- Slovak Republic -->
+        <item>sk:231</item>
+        <!-- Austria -->
+        <item>at:232</item>
+        <!-- United Kingdom of Great Britain and Northern Ireland -->
+        <item>gb:234</item>
+        <!-- Denmark -->
+        <item>dk:238</item>
+        <!-- Sweden -->
+        <item>se:240</item>
+        <!-- Norway -->
+        <item>no:242</item>
+        <!-- Finland -->
+        <item>fi:244</item>
+        <!-- Lithuania (Republic of) -->
+        <item>lt:246</item>
+        <!-- Latvia (Republic of) -->
+        <item>lv:247</item>
+        <!-- Estonia (Republic of) -->
+        <item>ee:248</item>
+        <!-- Russian Federation -->
+        <item>ru:250</item>
+        <!-- Ukraine -->
+        <item>ua:255</item>
+        <!-- Belarus (Republic of) -->
+        <item>by:257</item>
+        <!-- Moldova (Republic of) -->
+        <item>md:259</item>
+        <!-- Poland (Republic of) -->
+        <item>pl:260</item>
+        <!-- Germany (Federal Republic of) -->
+        <item>de:262</item>
+        <!-- Gibraltar -->
+        <item>gi:266</item>
+        <!-- Portugal -->
+        <item>pt:268</item>
+        <!-- Luxembourg -->
+        <item>lu:270</item>
+        <!-- Ireland -->
+        <item>ie:272</item>
+        <!-- Iceland -->
+        <item>is:274</item>
+        <!-- Albania (Republic of) -->
+        <item>al:276</item>
+        <!-- Malta -->
+        <item>mt:278</item>
+        <!-- Cyprus (Republic of) -->
+        <item>cy:280</item>
+        <!-- Georgia -->
+        <item>ge:282</item>
+        <!-- Armenia (Republic of) -->
+        <item>am:283</item>
+        <!-- Bulgaria (Republic of) -->
+        <item>bg:284</item>
+        <!-- Turkey -->
+        <item>tr:286</item>
+        <!-- Faroe Islands -->
+        <item>fo:288</item>
+        <!-- Greenland (Denmark) -->
+        <item>gl:290</item>
+        <!-- San Marino (Republic of) -->
+        <item>sm:292</item>
+        <!-- Slovenia (Republic of) -->
+        <item>si:293</item>
+        <!-- The Former Yugoslav Republic of Macedonia -->
+        <item>mk:294</item>
+        <!-- Liechtenstein (Principality of) -->
+        <item>li:295</item>
+        <!-- Montenegro -->
+        <item>me:297</item>
+        <!-- Canada -->
+        <item>ca:302</item>
+        <!-- Saint Pierre and Miquelon (Collectivité territoriale de la République française) -->
+        <item>pm:308</item>
+        <!-- United States of America -->
+        <item>us:310</item>
+        <!-- Puerto Rico -->
+        <item>pr:330</item>
+        <!-- United States Virgin Islands -->
+        <item>vi:332</item>
+        <!-- Mexico -->
+        <item>mx:334</item>
+        <!-- Jamaica -->
+        <item>jm:338</item>
+        <!-- Guadeloupe (French Department of) -->
+        <item>gp:340</item>
+        <!-- Barbados -->
+        <item>bb:342</item>
+        <!-- Antigua and Barbuda -->
+        <item>ag:344</item>
+        <!-- Cayman Islands -->
+        <item>ky:346</item>
+        <!-- British Virgin Islands -->
+        <item>vg:348</item>
+        <!-- Bermuda -->
+        <item>bm:350</item>
+        <!-- Grenada -->
+        <item>gd:352</item>
+        <!-- Montserrat -->
+        <item>ms:354</item>
+        <!-- Saint Kitts and Nevis -->
+        <item>kn:356</item>
+        <!-- Saint Lucia -->
+        <item>lc:358</item>
+        <!-- Saint Vincent and the Grenadines -->
+        <item>vc:360</item>
+        <!-- Curaçao -->
+        <item>cw:362</item>
+        <!-- Aruba -->
+        <item>aw:363</item>
+        <!-- Bahamas (Commonwealth of the) -->
+        <item>bs:364</item>
+        <!-- Anguilla -->
+        <item>ai:365</item>
+        <!-- Dominica (Commonwealth of) -->
+        <item>dm:366</item>
+        <!-- Cuba -->
+        <item>cu:368</item>
+        <!-- Dominican Republic -->
+        <item>do:370</item>
+        <!-- Haiti (Republic of) -->
+        <item>ht:372</item>
+        <!-- Trinidad and Tobago -->
+        <item>tt:374</item>
+        <!-- Turks and Caicos Islands -->
+        <item>tc:376</item>
+        <!-- Azerbaijani Republic -->
+        <item>az:400</item>
+        <!-- Kazakhstan (Republic of) -->
+        <item>kz:401</item>
+        <!-- Bhutan (Kingdom of) -->
+        <item>bt:402</item>
+        <!-- India (Republic of) -->
+        <item>in:404</item>
+        <!-- Pakistan (Islamic Republic of) -->
+        <item>pk:410</item>
+        <!-- Afghanistan -->
+        <item>af:412</item>
+        <!-- Sri Lanka (Democratic Socialist Republic of) -->
+        <item>lk:413</item>
+        <!-- Myanmar (the Republic of the Union of) -->
+        <item>mm:414</item>
+        <!-- Lebanon -->
+        <item>lb:415</item>
+        <!-- Jordan (Hashemite Kingdom of) -->
+        <item>jo:416</item>
+        <!-- Syrian Arab Republic -->
+        <item>sy:417</item>
+        <!-- Iraq (Republic of) -->
+        <item>iq:418</item>
+        <!-- Kuwait (State of) -->
+        <item>kw:419</item>
+        <!-- Saudi Arabia (Kingdom of) -->
+        <item>sa:420</item>
+        <!-- Yemen (Republic of) -->
+        <item>ye:421</item>
+        <!-- Oman (Sultanate of) -->
+        <item>om:422</item>
+        <!-- Palestine (*) -->
+        <item>ps:423</item>
+        <!-- United Arab Emirates -->
+        <item>ae:424</item>
+        <!-- Israel (State of) -->
+        <item>il:425</item>
+        <!-- Bahrain (Kingdom of) -->
+        <item>bh:426</item>
+        <!-- Qatar (State of) -->
+        <item>qa:427</item>
+        <!-- Mongolia -->
+        <item>mn:428</item>
+        <!-- Nepal (Federal Democratic Republic of) -->
+        <item>np:429</item>
+        <!-- Iran (Islamic Republic of) -->
+        <item>ir:432</item>
+        <!-- Uzbekistan (Republic of) -->
+        <item>uz:434</item>
+        <!-- Tajikistan (Republic of) -->
+        <item>tj:436</item>
+        <!-- Kyrgyz Republic -->
+        <item>kg:437</item>
+        <!-- Turkmenistan -->
+        <item>tm:438</item>
+        <!-- Japan -->
+        <item>jp:440</item>
+        <!-- Korea (Republic of) -->
+        <item>kr:450</item>
+        <!-- Viet Nam (Socialist Republic of) -->
+        <item>vn:452</item>
+        <!-- Hong Kong, China -->
+        <item>hk:454</item>
+        <!-- Macao, China -->
+        <item>mo:455</item>
+        <!-- Cambodia (Kingdom of) -->
+        <item>kh:456</item>
+        <!-- Lao People's Democratic Republic -->
+        <item>la:457</item>
+        <!-- China (People's Republic of) -->
+        <item>cn:460</item>
+        <!-- Taiwan, China -->
+        <item>tw:466</item>
+        <!-- Democratic People's Republic of Korea -->
+        <item>kp:467</item>
+        <!-- Bangladesh (People's Republic of) -->
+        <item>bd:470</item>
+        <!-- Maldives (Republic of) -->
+        <item>mv:472</item>
+        <!-- Malaysia -->
+        <item>my:502</item>
+        <!-- Australia -->
+        <item>au:505</item>
+        <!-- Indonesia (Republic of) -->
+        <item>id:510</item>
+        <!-- Timor-Leste (Democratic Republic of) -->
+        <item>tl:514</item>
+        <!-- Philippines (Republic of the) -->
+        <item>ph:515</item>
+        <!-- Thailand -->
+        <item>th:520</item>
+        <!-- Singapore (Republic of) -->
+        <item>sg:525</item>
+        <!-- Brunei Darussalam -->
+        <item>bn:528</item>
+        <!-- New Zealand -->
+        <item>nz:530</item>
+        <!-- Northern Mariana Islands (Commonwealth of the) (*) -->
+        <item>mp:534</item>
+        <!-- Guam (*) -->
+        <item>gu:535</item>
+        <!-- Nauru (Republic of) -->
+        <item>nr:536</item>
+        <!-- Papua New Guinea -->
+        <item>pg:537</item>
+        <!-- Tonga (Kingdom of) -->
+        <item>to:539</item>
+        <!-- Solomon Islands -->
+        <item>sb:540</item>
+        <!-- Vanuatu (Republic of) -->
+        <item>vu:541</item>
+        <!-- Fiji (Republic of) -->
+        <item>fj:542</item>
+        <!-- Wallis and Futuna (Territoire français d'outre-mer) -->
+        <item>wf:543</item>
+        <!-- American Samoa -->
+        <item>as:544</item>
+        <!-- Kiribati (Republic of) -->
+        <item>ki:545</item>
+        <!-- New Caledonia (Territoire français d'outre-mer) -->
+        <item>nc:546</item>
+        <!-- French Polynesia (Territoire français d'outre-mer) -->
+        <item>pf:547</item>
+        <!-- Cook Islands -->
+        <item>ck:548</item>
+        <!-- Samoa (Independent State of) -->
+        <item>ws:549</item>
+        <!-- Micronesia (Federated States of) -->
+        <item>fm:550</item>
+        <!-- Marshall Islands (Republic of the) -->
+        <item>mh:551</item>
+        <!-- Palau (Republic of) -->
+        <item>pw:552</item>
+        <!-- Tuvalu -->
+        <item>tv:553</item>
+        <!-- Tokelau -->
+        <item>tk:554</item>
+        <!-- Niue -->
+        <item>nu:555</item>
+        <!-- Egypt (Arab Republic of) -->
+        <item>eg:602</item>
+        <!-- Algeria (People's Democratic Republic of) -->
+        <item>dz:603</item>
+        <!-- Morocco (Kingdom of) -->
+        <item>ma:604</item>
+        <!-- Tunisia -->
+        <item>tn:605</item>
+        <!-- Libya -->
+        <item>ly:606</item>
+        <!-- Gambia (Republic of the) -->
+        <item>gm:607</item>
+        <!-- Senegal (Republic of) -->
+        <item>sn:608</item>
+        <!-- Mauritania (Islamic Republic of) -->
+        <item>mr:609</item>
+        <!-- Mali (Republic of) -->
+        <item>ml:610</item>
+        <!-- Guinea (Republic of) -->
+        <item>gn:611</item>
+        <!-- Côte d'Ivoire (Republic of) -->
+        <item>ci:612</item>
+        <!-- Burkina Faso -->
+        <item>bf:613</item>
+        <!-- Niger (Republic of the) -->
+        <item>ne:614</item>
+        <!-- Togolese Republic -->
+        <item>tg:615</item>
+        <!-- Benin (Republic of) -->
+        <item>bj:616</item>
+        <!-- Mauritius (Republic of) -->
+        <item>mu:617</item>
+        <!-- Liberia (Republic of) -->
+        <item>lr:618</item>
+        <!-- Sierra Leone -->
+        <item>sl:619</item>
+        <!-- Ghana -->
+        <item>gh:620</item>
+        <!-- Nigeria (Federal Republic of) -->
+        <item>ng:621</item>
+        <!-- Chad (Republic of) -->
+        <item>td:622</item>
+        <!-- Central African Republic -->
+        <item>cf:623</item>
+        <!-- Cameroon (Republic of) -->
+        <item>cm:624</item>
+        <!-- Cape Verde (Republic of) -->
+        <item>cv:625</item>
+        <!-- Sao Tome and Principe (Democratic Republic of) -->
+        <item>st:626</item>
+        <!-- Equatorial Guinea (Republic of) -->
+        <item>gq:627</item>
+        <!-- Gabonese Republic -->
+        <item>ga:628</item>
+        <!-- Congo (Republic of the) -->
+        <item>cg:629</item>
+        <!-- Democratic Republic of the Congo -->
+        <item>cd:630</item>
+        <!-- Angola (Republic of) -->
+        <item>ao:631</item>
+        <!-- Guinea-Bissau (Republic of) -->
+        <item>gw:632</item>
+        <!-- Seychelles (Republic of) -->
+        <item>sc:633</item>
+        <!-- Sudan (Republic of the) -->
+        <item>sd:634</item>
+        <!-- Rwanda (Republic of) -->
+        <item>rw:635</item>
+        <!-- Ethiopia (Federal Democratic Republic of) -->
+        <item>et:636</item>
+        <!-- Somali Democratic Republic -->
+        <item>so:637</item>
+        <!-- Djibouti (Republic of) -->
+        <item>dj:638</item>
+        <!-- Kenya (Republic of) -->
+        <item>ke:639</item>
+        <!-- Tanzania (United Republic of) -->
+        <item>tz:640</item>
+        <!-- Uganda (Republic of) -->
+        <item>ug:641</item>
+        <!-- Burundi (Republic of) -->
+        <item>bi:642</item>
+        <!-- Mozambique (Republic of) -->
+        <item>mz:643</item>
+        <!-- Zambia (Republic of) -->
+        <item>zm:645</item>
+        <!-- Madagascar (Republic of) -->
+        <item>mg:646</item>
+        <!-- French Departments and Territories in the Indian Ocean -->
+        <item>re:647</item>
+        <!-- Zimbabwe (Republic of) -->
+        <item>zw:648</item>
+        <!-- Namibia (Republic of) -->
+        <item>na:649</item>
+        <!-- Malawi -->
+        <item>mw:650</item>
+        <!-- Lesotho (Kingdom of) -->
+        <item>ls:651</item>
+        <!-- Botswana (Republic of) -->
+        <item>bw:652</item>
+        <!-- Swaziland (Kingdom of) -->
+        <item>sz:653</item>
+        <!-- Comoros (Union of the) -->
+        <item>km:654</item>
+        <!-- South Africa (Republic of) -->
+        <item>za:655</item>
+        <!-- Eritrea -->
+        <item>er:657</item>
+        <!-- Saint Helena, Ascension and Tristan da Cunha -->
+        <item>sh:658</item>
+        <!-- South Sudan (Republic of) -->
+        <item>ss:659</item>
+        <!-- Belize -->
+        <item>bz:702</item>
+        <!-- Guatemala (Republic of) -->
+        <item>gt:704</item>
+        <!-- El Salvador (Republic of) -->
+        <item>sv:706</item>
+        <!-- Honduras (Republic of) -->
+        <item>hn:708</item>
+        <!-- Nicaragua -->
+        <item>ni:710</item>
+        <!-- Costa Rica -->
+        <item>cr:712</item>
+        <!-- Panama (Republic of) -->
+        <item>pa:714</item>
+        <!-- Peru -->
+        <item>pe:716</item>
+        <!-- Argentine Republic -->
+        <item>ar:722</item>
+        <!-- Brazil (Federative Republic of) -->
+        <item>br:724</item>
+        <!-- Chile -->
+        <item>cl:730</item>
+        <!-- Colombia (Republic of) -->
+        <item>co:732</item>
+        <!-- Venezuela (Bolivarian Republic of) -->
+        <item>ve:734</item>
+        <!-- Bolivia (Republic of) -->
+        <item>bo:736</item>
+        <!-- Guyana -->
+        <item>gy:738</item>
+        <!-- Ecuador -->
+        <item>ec:740</item>
+        <!-- French Guiana (French Department of) -->
+        <item>gf:742</item>
+        <!-- Paraguay (Republic of) -->
+        <item>py:744</item>
+        <!-- Suriname (Republic of) -->
+        <item>sr:746</item>
+        <!-- Uruguay (Eastern Republic of) -->
+        <item>uy:748</item>
+        <!-- Falkland Islands (Malvinas) -->
+        <item>fk:750</item>
+    </string-array>
+</resources>

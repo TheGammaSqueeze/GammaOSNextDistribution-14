@@ -1,0 +1,18 @@
+/* Note: If making any changes to this file be sure to generate a new
+   compiled *_pb2.py file by running the following command from this
+   directory:
+   $ protoc -I=. --python_out=. telephony_stress_metric.proto
+
+   Be sure that you are compiling with protoc 3.4.0
+
+   More info can be found at:
+   https://developers.google.com/protocol-buffers/docs/pythontutorial
+*/
+
+syntax = "proto2";
+
+package wireless.android.platform.testing.telephony.metrics;
+
+message TelephonyStressTestResult {
+  map<string,int32> results_dict = 1;
+}

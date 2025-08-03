@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="2922839697457005451">"GbaTestApp"</string>
+    <string name="label_settings" msgid="8030871890526865502">"সেটিংস"</string>
+    <string name="label_carrier" msgid="1470455313066422804">"পরিষেবা প্রদানকারী কনফিগার করুন"</string>
+    <string name="label_service" msgid="2668963955237345578">"পরিষেবা কনফিগার করুন"</string>
+    <string name="label_test" msgid="8425079572898571918">"টেস্ট কনফিগার করুন"</string>
+    <string name="button_name_running" msgid="4557363091224858010">"চলছে"</string>
+    <string name="button_name_exit" msgid="8025683733431538975">"বেরিয়ে আসুন"</string>
+    <string name="label_test_result" msgid="892984695972956196">"টেস্টের ফলাফল"</string>
+    <string name="button_name_clear" msgid="436313515327318537">"রিসেট করুন"</string>
+    <string name="button_name_done" msgid="6030406534322497491">"হয়ে গেছে"</string>
+    <string name="title_activity_carrier_config" msgid="7807803900475957717">"CarrierConfigActivity"</string>
+    <string name="title_activity_service_config" msgid="5394662739555577279">"ServiceConfigActivity"</string>
+    <string name="title_activity_test_config" msgid="7585204485536359713">"TestConfigActivity"</string>
+    <string name="service_package_name" msgid="7204809439090483315">"GBA পরিষেবা সংক্রান্ত প্যাকেজের নাম"</string>
+    <string name="service_release_time" msgid="532937496122890892">"কল করার কতক্ষণ পরে পরিষেবা পাওয়া যাবে"</string>
+    <string name="request_app_type" msgid="3975978141673475612">"UICC অ্যাপের ধরন"</string>
+    <string name="request_naf_url" msgid="4487793541217737042">"নেটওয়ার্ক অ্যাপ্লিকেশনের কাজ (NAF) সংক্রান্ত URL"</string>
+    <string name="request_force_bootstrapping" msgid="206043602616214325">"জোর করেই বুটস্ট্র্যাপিং করবেন?"</string>
+    <string name="request_org" msgid="8416693445448308975">"অর্গানাইজেশনের কোড"</string>
+    <string name="request_security_protocol" msgid="1444164827561010482">"UA নিরাপত্তা সংক্রান্ত আইডি"</string>
+    <string name="request_tls_cipher_suite" msgid="6659854717595308404">"TLS গোপন কোডের স্যুট ID"</string>
+    <string name="response_success" msgid="2469204471244527663">"GBA যাচাই করা গেছে?"</string>
+    <string name="response_fail_reason" msgid="3401426967253202496">"ব্যর্থতার কারণ সংক্রান্ত ID"</string>
+    <string name="response_key" msgid="8839847772051686309">"GBA কী (CK + IK)"</string>
+    <string name="response_btid" msgid="2550216722679350756">"বুটস্ট্র্যাপিং ট্রানজ্যাকশন শনাক্তকারী (B-TID)"</string>
+    <string name="sample_naf" msgid="255371174145881001">"3GPP-bootstrapping@naf1.operator.com"</string>
+    <string name="sample_btid" msgid="6967620309576384966">"(B-TID)"</string>
+    <string name="sample_key" msgid="3337589659405527482">"6629fae49393a05397450978507c4ef1"</string>
+</resources>

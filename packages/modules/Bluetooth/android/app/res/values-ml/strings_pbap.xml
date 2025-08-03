@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="pbap_session_key_dialog_title" msgid="5103201901254778256">"%1$s എന്നതിനുള്ള സെഷൻ കീ ടൈപ്പുചെയ്യുക"</string>
+    <string name="pbap_session_key_dialog_header" msgid="5073165544713355581">"ബ്ലൂടൂത്ത് സെഷൻ കീ ആവശ്യമാണ്"</string>
+    <string name="pbap_acceptance_timeout_message" msgid="3071798915563151284">"%1$s എന്നതുമായുള്ള കണക്ഷൻ അംഗീകരിക്കുന്നത് കാലഹരണപ്പെട്ടു"</string>
+    <string name="pbap_authentication_timeout_message" msgid="2089914949828656737">"%1$s എന്നതിൽ സെഷൻ കീ നൽകുന്നത് കാലഹരണപ്പെട്ടു"</string>
+    <string name="auth_notif_ticker" msgid="7344125635314034621">"Obex പ്രാമാണീകരണ അഭ്യർത്ഥന"</string>
+    <string name="auth_notif_title" msgid="6639277119990416473">"സെഷൻ കീ"</string>
+    <string name="auth_notif_message" msgid="7044369885874418693">"%1$s എന്നതിനുള്ള സെഷൻ കീ ടൈപ്പുചെയ്യുക"</string>
+    <string name="defaultname" msgid="6200530814398805541">"കാർകിറ്റ്"</string>
+    <string name="unknownName" msgid="6755061296103155293">"പേര് അജ്ഞാതമാണ്"</string>
+    <string name="localPhoneName" msgid="9119254982537191352">"എന്റെ പേര്"</string>
+    <string name="defaultnumber" msgid="5348816189286607406">"000000"</string>
+    <string name="pbap_notification_group" msgid="4215789331721465381">"Bluetooth കോണ്‍‌ടാക്റ്റ് പങ്കിടൽ"</string>
+    <string name="phonebook_advance_feature_support" msgid="8129553051734505128">"ഫോൺബുക്കിന്റെ വിപുലമായ ഫീച്ചറുകൾ പിന്തുണയ്ക്കുന്നു"</string>
+    <string name="repair_for_adv_phonebook_feature" msgid="3489797973131684927">"ഫോൺബുക്കിന്റെ വിപുലമായ ഫീച്ചറിനായി വീണ്ടും ജോടിയാക്കുക"</string>
+</resources>

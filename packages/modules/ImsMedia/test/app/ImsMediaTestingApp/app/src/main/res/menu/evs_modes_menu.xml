@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+  <item
+      android:id="@+id/evsMode0MenuItem"
+      android:title="@string/evs_mode_0"
+      android:titleCondensed="1">
+  </item>
+
+  <item
+      android:id="@+id/evsMode1MenuItem"
+      android:title="@string/evs_mode_1"
+      android:titleCondensed="2">
+  </item>
+
+  <item
+      android:id="@+id/evsMode2MenuItem"
+      android:title="@string/evs_mode_2"
+      android:titleCondensed="4">
+  </item>
+
+  <item
+      android:id="@+id/evsMode3MenuItem"
+      android:title="@string/evs_mode_3"
+      android:titleCondensed="8">
+  </item>
+
+  <item
+      android:id="@+id/evsMode4MenuItem"
+      android:title="@string/evs_mode_4"
+      android:titleCondensed="16">
+  </item>
+
+  <item
+      android:id="@+id/evsMode5MenuItem"
+      android:title="@string/evs_mode_5"
+      android:titleCondensed="32">
+  </item>
+
+  <item
+      android:id="@+id/evsMode6MenuItem"
+      android:title="@string/evs_mode_6"
+      android:titleCondensed="64">
+  </item>
+
+  <item
+      android:id="@+id/evsMode7MenuItem"
+      android:title="@string/evs_mode_7"
+      android:titleCondensed="128">
+  </item>
+
+  <item
+      android:id="@+id/evsMode8MenuItem"
+      android:title="@string/evs_mode_8"
+      android:titleCondensed="256">
+  </item>
+
+  <item
+      android:id="@+id/evsMode9MenuItem"
+      android:title="@string/evs_mode_9"
+      android:titleCondensed="512">
+  </item>
+
+  <item
+      android:id="@+id/evsMode10MenuItem"
+      android:title="@string/evs_mode_10"
+      android:titleCondensed="1024">
+  </item>
+
+  <item
+      android:id="@+id/evsMode11MenuItem"
+      android:title="@string/evs_mode_11"
+      android:titleCondensed="2048">
+  </item>
+
+  <item
+      android:id="@+id/evsMode12MenuItem"
+      android:title="@string/evs_mode_12"
+      android:titleCondensed="4069">
+  </item>
+
+  <item
+      android:id="@+id/evsMode13MenuItem"
+      android:title="@string/evs_mode_13"
+      android:titleCondensed="8196">
+  </item>
+
+  <item
+      android:id="@+id/evsMode14MenuItem"
+      android:title="@string/evs_mode_14"
+      android:titleCondensed="16384">
+  </item>
+
+  <item
+      android:id="@+id/evsMode15MenuItem"
+      android:title="@string/evs_mode_15"
+      android:titleCondensed="32768">
+  </item>
+
+  <item
+      android:id="@+id/evsMode16MenuItem"
+      android:title="@string/evs_mode_16"
+      android:titleCondensed="65536">
+  </item>
+
+  <item
+      android:id="@+id/evsMode17MenuItem"
+      android:title="@string/evs_mode_17"
+      android:titleCondensed="131072">
+  </item>
+
+  <item
+      android:id="@+id/evsMode18MenuItem"
+      android:title="@string/evs_mode_18"
+      android:titleCondensed="262144">
+  </item>
+
+  <item
+      android:id="@+id/evsMode19MenuItem"
+      android:title="@string/evs_mode_19"
+      android:titleCondensed="524288">
+  </item>
+
+  <item
+      android:id="@+id/evsMode20MenuItem"
+      android:title="@string/evs_mode_20"
+      android:titleCondensed="1048576">
+  </item>
+
+
+</menu>

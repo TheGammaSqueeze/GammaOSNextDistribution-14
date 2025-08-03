@@ -1,0 +1,39 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "DocumentsUIPerfTests",
+
+    manifest: "AndroidManifest.xml",
+
+    srcs: [
+        "src/**/*.java",
+    ],
+
+    resource_dirs: [
+        "res",
+    ],
+
+    libs: [
+        "android.test.base",
+        "android.test.mock",
+        "android.test.runner",
+    ],
+
+    static_libs: [
+        "DocumentsUIPerfTests-lib",
+        "androidx.legacy_legacy-support-v4",
+        "androidx.test.rules",
+        "androidx.test.espresso.core",
+        "mockito-target",
+        "ub-janktesthelper",
+        "androidx.test.uiautomator_uiautomator",
+    ],
+
+    platform_apis: true,
+
+    instrumentation_for: "DocumentsUI",
+
+    certificate: "platform",
+}

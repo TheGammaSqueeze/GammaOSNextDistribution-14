@@ -1,0 +1,18 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_test {
+    name: "CoverageCppSmokeTest",
+
+    srcs: ["coverage_cpp_smoke_test.cpp"],
+    compile_multilib: "both",
+    multilib: {
+        lib32: {
+            suffix: "32",
+        },
+        lib64: {
+            suffix: "64",
+        },
+    },
+}

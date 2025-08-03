@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    package="androidx.core.uwb.backend">
+
+  <uses-permission android:name="android.permission.UWB_PRIVILEGED"/>
+  <uses-permission android:name="android.permission.UWB_RANGING"/>
+
+  <application
+         android:persistent="true"
+         android:directBootAware="true"
+         android:defaultToDeviceProtectedStorage="true">
+    <service android:name=".impl.UwbService"
+            android:exported="true"
+            android:process=":remote">
+        <intent-filter>
+          <action android:name="androidx.core.uwb.backend.service"></action>
+        </intent-filter>
+    </service>
+  </application>
+</manifest>

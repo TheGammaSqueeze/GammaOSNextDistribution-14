@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+/**
+ * Copyright (C) 2014 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label" msgid="1527793174155125990">"कामाचा सेटअप करा"</string>
+    <string name="provisioning_error_title" msgid="6320515739861578118">"अरेरे!"</string>
+    <string name="setup_work_profile" msgid="1468934631731845267">"कार्य प्रोफाईल सेट करा"</string>
+    <string name="company_controls_workspace" msgid="2808025277267917221">"तुमची संस्था हे प्रोफाईल नियंत्रित करते आणि ते सुरक्षित ठेवते. तुम्ही आपल्या डिव्हाइसवरील अन्य प्रत्येकगोष्ट नियंत्रित करता."</string>
+    <string name="company_controls_device" msgid="8230957518758871390">"तुमची संस्‍था या डिव्‍हाइसचे नियंत्रण करेल आणि त्यास सुरक्षित ठेवेल."</string>
+    <string name="the_following_is_your_mdm" msgid="6613658218262376404">"खालील अ‍ॅपला या प्रोफाईलमध्‍ये प्रवेश करण्‍याची आवश्‍यकता असेल:"</string>
+    <string name="the_following_is_your_mdm_for_device" msgid="6717973404364414816">"खालील अ‍ॅप तुमचे डिव्हाइस व्यवस्‍थापित करेल:"</string>
+    <string name="next" msgid="1004321437324424398">"पुढील"</string>
+    <string name="setting_up_workspace" msgid="7862472373642601041">"कार्य प्रोफाइल सेट अप करत आहे..."</string>
+    <string name="admin_has_ability_to_monitor_profile" msgid="1018585795537086728">"तुमचा आयटी ॲडमिन सेटिंग्ज, कॉर्पोरेट अ‍ॅक्सेस, अ‍ॅप्स, परवानग्या, डेटा आणि या प्रोफाइलशी संबंधित नेटवर्क अ‍ॅक्टिव्हिटी तसेच तुमचा कॉल इतिहास व संपर्क शोध इतिहास मॉनिटर आणि व्यवस्थापित करू शकतो. अधिक माहितीसाठी आणि तुमच्या संस्थेच्या गोपनीयता धोरणांबद्दल अधिक जाणून घेण्यासाठी तुमच्या आयटी ॲडमिनशी संपर्क साधा."</string>
+    <string name="admin_has_ability_to_monitor_device" msgid="7786186939607332934">"तुमच्या आयटी अ‍ॅडमिनकडे सेटिंग्ज, कॉर्पोरेट अ‍ॅक्सेस, अ‍ॅप्स, परवानग्या आणि या <xliff:g id="DEVICE_NAME">%1$s</xliff:g> शी संबंधित तुमच्या नेटवर्क अ‍ॅक्टिव्हिटीसह डेटा, तसेच तुमच्या डिव्हाइसचे स्थान, कॉल इतिहास आणि संपर्क शोध इतिहास यांचे निरीक्षण व व्यवस्थापन करण्याची क्षमता आहे.<xliff:g id="LINE_BREAK">
+
+</xliff:g>तुमच्या संस्थेच्या गोपनीयता धोरणांसह अधिक माहितीसाठी तुमच्या आयटी ॲडमिनशी संपर्क साधा."</string>
+    <string name="theft_protection_disabled_warning" msgid="3708092473574738478">"चोरीपासून-संरक्षण वैशिष्ट्ये वापरण्यासाठी, आपल्याकडे आपल्या डिव्हाइससाठी पासवर्ड-संरक्षित स्क्रीन लॉक असणे आवश्यक आहे."</string>
+    <string name="contact_your_admin_for_more_info" msgid="9209568156969966347">"तुमच्या संस्थेच्या गोपनीयता धोरणांसह अधिक माहितीसाठी, तुमच्या IT अ‍ॅडमिनशी संपर्क साधा."</string>
+    <string name="learn_more_link" msgid="3012495805919550043">"अधिक जाणून घ्या"</string>
+    <string name="cancel_setup" msgid="2949928239276274745">"रद्द करा"</string>
+    <string name="ok_setup" msgid="4593707675416137504">"ठीक आहे"</string>
+    <string name="user_consent_msg" msgid="8820951802130353584">"मी संमती देतो"</string>
+    <string name="url_error" msgid="5958494012986243186">"ही लिंक प्रदर्शित करता येणार नाही."</string>
+    <string name="navigation_button_description" msgid="6106309408994461239">"वर नेव्‍हिगेट करा"</string>
+    <string name="terms" msgid="8295436105384703903">"अटी"</string>
+    <string name="work_profile_info" msgid="5433388376309583996">"कार्य प्रोफाइल माहिती"</string>
+    <string name="managed_device_info" msgid="1529447646526616811">"व्यवस्थापित डिव्हाइस माहिती"</string>
+    <string name="default_managed_profile_name" msgid="5370257687074907055">"कार्य प्रोफाईल"</string>
+    <string name="delete_profile_title" msgid="2841349358380849525">"विद्यमान प्रोफाइल हटवायचे?"</string>
+    <string name="opening_paragraph_delete_profile" msgid="4913885310795775967">"तुमची आधीपासून एक कार्य प्रोफाइल आहे. ती खालील अ‍ॅप वापरून व्यवस्थापित केली जाते:"</string>
+    <string name="read_more_delete_profile" msgid="7789171620401666343">"पुढे जाण्यापूर्वी, "<a href="#read_this_link">"हे वाचा"</a>"."</string>
+    <string name="sure_you_want_to_delete_profile" msgid="6927697984573575564">"तुम्ही सुरू ठेवल्यास, या प्रोफाईल मधील सर्व अ‍ॅप्स आणि डेटा हटवला जाईल."</string>
+    <string name="delete_profile" msgid="2299218578684663459">"हटवा"</string>
+    <string name="cancel_delete_profile" msgid="5155447537894046036">"रद्द करा"</string>
+    <string name="encrypt_device_text_for_profile_owner_setup" msgid="6865483664167134470">"तुमची कार्य प्रोफाइल सेट करण्यासाठी, तुमचे <xliff:g id="DEVICE_NAME">%1$s</xliff:g> एंक्रिप्ट करणे आवश्यक आहे. यासाठी काही वेळ लागू शकतो."</string>
+    <string name="encrypt_device_text_for_device_owner_setup" msgid="230099563510460941">"हे <xliff:g id="DEVICE_NAME">%1$s</xliff:g> सेट करण्यासाठी, ते आधी एंक्रिप्ट करणे आवश्यक आहे. यासाठी काही वेळ लागू शकतो."</string>
+    <string name="encrypt_this_device_question" msgid="8719916619866892601">"हे डिव्हाइस एंक्रिप्ट करायचे?"</string>
+    <string name="encrypt" msgid="1749320161747489212">"एंक्रिप्ट करा"</string>
+    <string name="continue_provisioning_notify_title" msgid="5191449100153186648">"एंक्रिप्शन पूर्ण"</string>
+    <string name="continue_provisioning_notify_text" msgid="1066841819786425980">"तुमचे कार्य प्रोफाईल सेट करणे सुरू ठेवण्यासाठी टॅप करा"</string>
+    <string name="managed_provisioning_error_text" msgid="7063621174570680890">"तुमचे कार्य प्रोफाईल सेट करणे शक्य झाले नाही. आपल्या IT विभागाशी संपर्क साधा किंवा नंतर पुन्हा प्रयत्न करा."</string>
+    <string name="cant_add_work_profile" msgid="9217268909964154934">"कार्य प्रोफाइल जोडू शकत नाही"</string>
+    <string name="cant_replace_or_remove_work_profile" msgid="7861054306792698290">"कामाची प्रोफाइल बदलू किंवा काढू शकत नाही"</string>
+    <string name="work_profile_cant_be_added_contact_admin" msgid="4866281518235832928">"या <xliff:g id="DEVICE_NAME">%1$s</xliff:g> वर कार्य प्रोफाइल जोडू शकत नाही. तुम्हाला प्रश्न असल्यास, तुमच्या आयटी अ‍ॅडमिनशी संपर्क साधा."</string>
+    <string name="change_device_launcher" msgid="4523563368433637980">"डिव्हाइस लाँचर बदला"</string>
+    <string name="launcher_app_cant_be_used_by_work_profile" msgid="3524366082000739743">"हे लाँचर अ‍ॅप आपल्या कार्य प्रोफाइलद्वारे वापरले जाऊ शकत नाही"</string>
+    <string name="cancel_provisioning" msgid="3408069559452653724">"रद्द करा"</string>
+    <string name="pick_launcher" msgid="4257084827403983845">"ठीक आहे"</string>
+    <string name="user_setup_incomplete" msgid="6494920045526591079">"वापरकर्ता सेटअप अपूर्ण"</string>
+    <string name="default_owned_device_username" msgid="3915120202811807955">"कार्य डिव्‍हाइसचा वापरकर्ता"</string>
+    <string name="setup_work_device" msgid="6003988351437862369">"कार्य डिव्हाइस सेट अप करत आहे..."</string>
+    <string name="device_doesnt_allow_encryption_contact_admin" msgid="410347019947997299">"सेटअपसाठी आवश्यक असणार्‍या एंक्रिप्शनला हे <xliff:g id="DEVICE_NAME">%1$s</xliff:g> अनुमती देत नाही. मदतीसाठी तुमच्या आयटी ॲडमिनशी संपर्क साधा."</string>
+    <string name="stop_setup_reset_device_question" msgid="2323844935990001069">"सेट करणे थांबवायचे &amp; <xliff:g id="DEVICE_NAME">%1$s</xliff:g> रीसेट करायचे का?"</string>
+    <string name="this_will_reset_take_back_first_screen" msgid="5881727570968119259">"हे तुमचे <xliff:g id="DEVICE_NAME">%1$s</xliff:g> रीसेट करेल आणि तुम्हाला पहिल्या स्क्रीनवर परत नेईल"</string>
+    <string name="device_owner_cancel_message" msgid="2529288571742712065">"सेट करणे थांबवायचे आणि तुमचे डिव्हाइस डेटा मिटवायचा?"</string>
+    <string name="device_owner_cancel_cancel" msgid="1052951540909389275">"रद्द करा"</string>
+    <string name="device_owner_error_ok" msgid="2002250763093787051">"ठीक आहे"</string>
+    <string name="reset" msgid="6467204151306265796">"रीसेट करा"</string>
+    <string name="cant_set_up_profile" msgid="4341825293970158436">"प्रोफाइल सेट करू शकत नाही"</string>
+    <string name="cant_set_up_device" msgid="4120090138983350714">"डिव्हाइस सेट करू शकत नाही"</string>
+    <string name="something_went_wrong" msgid="3593223774041784329">"काहीतरी चूक झाली"</string>
+    <string name="couldnt_set_up_device" msgid="5137950404283642302">"डिव्हाइस सेट करता आले नाही. मदतीसाठी, तुमच्या IT ॲडमिनशी संपर्क साधा."</string>
+    <string name="contact_your_admin_for_help" msgid="2009904021552323731">"मदतीसाठी तुमच्या IT ॲडमिनशी संपर्क साधा"</string>
+    <string name="reset_device" msgid="265029891515486543">"हे <xliff:g id="DEVICE_NAME">%1$s</xliff:g> रीसेट करा आणि सेट करण्याचा पुन्हा प्रयत्न करा"</string>
+    <string name="device_already_set_up" msgid="2916285974248611835">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> आधीच सेट केले आहे"</string>
+    <string name="error_wifi" msgid="1850288843966836571">"वाय-फाय शी कनेक्ट करता आले नाही"</string>
+    <string name="device_has_reset_protection_contact_admin" msgid="5922267426079555686">"तुमच्या <xliff:g id="DEVICE_NAME">%1$s</xliff:g> चे रीसेट संरक्षण सुरू केलेले आहे. मदतीसाठी तुमच्या आयटी अ‍ॅडमिनशी संपर्क साधा."</string>
+    <string name="frp_clear_progress_title" msgid="8628074089458234965">"मिटवत आहे"</string>
+    <string name="frp_clear_progress_text" msgid="1740164332830598827">"कृपया प्रतीक्षा करा..."</string>
+    <string name="error_hash_mismatch" msgid="1145488923243178454">"Checksum एररमुळे ॲडमिन अ‍ॅप वापरता आले नाही. मदतीसाठी, तुमच्या IT ॲडमिनशी संपर्क साधा."</string>
+    <string name="error_download_failed" msgid="3274283629837019452">"ॲडमिन अ‍ॅप डाउनलोड करणे शक्य झाले नाही"</string>
+    <string name="error_package_invalid" msgid="555402554502033988">"ॲडमिन अ‍ॅप वापरू शकत नाही. त्याचे घटक गहाळ आहेत किंवा करप्ट झालेले आहेत. मदतीसाठी, तुमच्या IT ॲडमिनशी संपर्क साधा."</string>
+    <string name="error_installation_failed" msgid="2282903750318407285">"ॲडमिन अ‍ॅप इंस्टॉल करणे शक्य झाले नाही"</string>
+    <string name="profile_owner_cancel_message" msgid="6868736915633023477">"सेट करणे थांबवायचे?"</string>
+    <string name="profile_owner_cancel_cancel" msgid="4408725524311574891">"नाही"</string>
+    <string name="profile_owner_cancel_ok" msgid="5951679183850766029">"होय"</string>
+    <string name="profile_owner_cancelling" msgid="5679573829145112822">"रद्द करत आहे..."</string>
+    <string name="work_profile_setup_later_title" msgid="9069148190226279892">"प्रोफाईल सेटअप थांबवायचे?"</string>
+    <string name="work_profile_setup_later_message" msgid="122069011117225292">"तुम्ही तुमचे कार्य प्रोफाइल नंतर तुमच्या संस्थेच्या डिव्हाइस व्यवस्थापन अ‍ॅपमध्ये सेट करू शकता"</string>
+    <string name="continue_button" msgid="7177918589510964446">"सुरू ठेवा"</string>
+    <string name="work_profile_setup_stop" msgid="6772128629992514750">"थांबा"</string>
+    <string name="dismiss" msgid="9009534756748565880">"डिसमिस करा"</string>
+    <string name="profile_owner_info" msgid="8975319972303812298">"तुम्ही अशी कार्य प्रोफाइल तयार करणार आहात जिचे आपल्या संस्थेद्वारे व्यवस्थापन आणि परीक्षण केले जाईल. अटी लागू होतील."</string>
+    <string name="profile_owner_info_with_terms_headers" msgid="7373591910245655373">"तुम्ही अशी कार्य प्रोफाइल तयार करणार आहात जिचे आपल्या संस्थेद्वारे व्यवस्थापन आणि परीक्षण केले जाईल. <xliff:g id="TERMS_HEADERS">%1$s</xliff:g> कडील अटी लागू होतील."</string>
+    <string name="profile_owner_info_comp" msgid="9190421701126119142">"आपल्या कार्य अ‍ॅप्ससाठी प्रोफाइल तयार केले जाईल. या प्रोफाइलचे आणि आपल्या उर्वरित डिव्हाइसचे आपल्या संस्थेद्वारे व्यवस्थापन आणि परीक्षण केले जाईल. अटी लागू होतील."</string>
+    <string name="profile_owner_info_with_terms_headers_comp" msgid="2012766614492554556">"आपल्या कार्य अ‍ॅप्ससाठी प्रोफाइल तयार केले जाईल. या प्रोफाइलचे आणि आपल्या उर्वरित डिव्हाइसचे आपल्या संस्थेद्वारे व्यवस्थापन आणि परीक्षण केले जाईल. <xliff:g id="TERMS_HEADERS">%1$s</xliff:g> कडील अटी लागू होतील."</string>
+    <string name="device_owner_info" msgid="3716661456037934467">"हे डिव्हाइस <xliff:g id="YOUR_ORGANIZATION">%1$s</xliff:g> कडून व्यवस्थापित केले जाईल, त्याचे परीक्षण केले जाईल आणि ते सुरक्षित ठेवले जाईल. अटी लागू होतील. <xliff:g id="VIEW_TERMS">%2$s</xliff:g>"</string>
+    <string name="device_owner_info_with_terms_headers" msgid="1254243288669282977">"हे डिव्हाइस <xliff:g id="YOUR_ORGANIZATION">%1$s</xliff:g> कडून व्यवस्थापित केले जाईल, त्याचे निरीक्षण केले जाईल आणि ते सुरक्षित ठेवले जाईल. <xliff:g id="TERMS_HEADERS">%2$s</xliff:g> च्या अटी लागू होतील. <xliff:g id="VIEW_TERMS">%3$s</xliff:g>"</string>
+    <string name="link_isnt_secure_and_cant_be_opened_until_device_setup_finished" msgid="1604497932637832657">"ही लिंक सुरक्षित नाही आणि डिव्हाइस सेटअप पूर्ण होईपर्यंत उघडली जाऊ शकत नाही: <xliff:g id="LINK_RAW_TEST">%1$s</xliff:g>"</string>
+    <string name="contact_device_provider" msgid="2843488903902493030">"अधिक जाणून घेण्यासाठी, तुमच्या <xliff:g id="IT_ADMIN">%1$s</xliff:g> शी संपर्क साधा."</string>
+    <string name="if_questions_contact_admin" msgid="3509427015901582047">"तुम्हाला प्रश्न असल्यास, तुमच्या IT ॲडमिनशी संपर्क साधा"</string>
+    <string name="setup_isnt_finished_contact_admin" msgid="8849644190723875952">"सेटअप पूर्ण झाला नाही. मदतीसाठी, तुमच्या IT ॲडमिनशी संपर्क साधा."</string>
+    <string name="for_help_contact_admin" msgid="5922538077702487859">"मदतीसाठी, तुमच्या IT ॲडमिनशी संपर्क साधा"</string>
+    <string name="organization_admin" msgid="5975914478148511290">"IT ॲडमिन"</string>
+    <string name="your_org_app_used" msgid="5336414768293540831">"<xliff:g id="YOUR_ORGANIZATION">%1$s</xliff:g> पुढील अ‍ॅप वापरून या डिव्हाइसचे व्यवस्थापन आणि परीक्षण करेल:"</string>
+    <string name="your_organization_beginning" msgid="5952561489910967255">"तुमची संस्‍था"</string>
+    <string name="your_organization_middle" msgid="8288538158061644733">"तुमची संस्था"</string>
+    <string name="view_terms" msgid="7230493092383341605">"अटी पहा"</string>
+    <string name="accept_and_continue" msgid="1632679734918410653">"स्वीकारा व सुरू ठेवा"</string>
+    <string name="back" msgid="6455622465896147127">"मागे"</string>
+    <string name="set_up_your_device" msgid="1896651520959894681">"तुमचे डिव्हाइस सेट करा"</string>
+    <string name="info_anim_title_0" msgid="3285414600215959704">"तुम्ही ज्या पद्धतीने कार्य करता ती पद्धत बदला"</string>
+    <string name="info_anim_title_1" msgid="2657512519467714760">"वैैयक्तिक मधून कार्य स्वतंत्र करा"</string>
+    <string name="one_place_for_work_apps" msgid="2595597562302953960">"कार्यसंबंधित ॲप्ससाठी एक ठिकाण"</string>
+    <string name="info_anim_title_2" msgid="4629781398620470204">"तुमचे काम पूर्ण झाल्‍यानंतर बंद करा"</string>
+    <string name="provisioning" msgid="4512493827019163451">"तरतूद"</string>
+    <string name="copying_certs" msgid="5697938664953550881">"CA प्रमाणपत्रे सेट करत आहे"</string>
+    <string name="setup_profile" msgid="5573950582159698549">"तुमची प्रोफाइल सेट करा"</string>
+    <string name="profile_benefits_description" msgid="758432985984252636">"कार्य प्रोफाइल वापरून, तुम्ही वैयक्तिक डेटामधून कार्य डेटा वेगळा करू शकता"</string>
+    <string name="comp_profile_benefits_description" msgid="379837075456998273">"कार्य प्रोफाइल वापरून, तुम्ही तुमचे कार्य अ‍ॅप्स एका ठिकाणी ठेवू शकता"</string>
+    <string name="setup_profile_encryption" msgid="5241291404536277038">"तुमचे प्रोफाईल सेट करा. एंक्रिप्शन"</string>
+    <string name="setup_profile_progress" msgid="7742718527853325656">"तुमचे प्रोफाईल सेट करा. प्रगती दाखवत आहे"</string>
+    <string name="setup_device" msgid="1679201701102889156">"तुमचे <xliff:g id="DEVICE_NAME">%1$s</xliff:g> सेट करा"</string>
+    <string name="setup_device_encryption" msgid="2628196093806001835">"तुमचे <xliff:g id="DEVICE_NAME">%1$s</xliff:g> सेट करा. एंक्रिप्शन"</string>
+    <string name="setup_device_progress" msgid="8792474713196537598">"तुमचे <xliff:g id="DEVICE_NAME">%1$s</xliff:g> सेट करा. प्रगती दाखवत आहे"</string>
+    <string name="learn_more_label" msgid="2723716758654655009">"अधिक जाणून घ्‍या बटण"</string>
+    <string name="mdm_icon_label" msgid="3399134595549660561">"<xliff:g id="ICON_LABEL">%1$s</xliff:g> आयकन"</string>
+    <string name="section_heading" msgid="3924666803774291908">"<xliff:g id="SECTION_HEADING">%1$s</xliff:g> विभाग कॅप्शन."</string>
+    <string name="section_content" msgid="8875502515704374394">"<xliff:g id="SECTION_HEADING">%1$s</xliff:g> विभाग आशय: <xliff:g id="SECTION_CONTENT">%2$s</xliff:g>"</string>
+    <string name="expand" msgid="37188292156131304">"विस्तृत करा"</string>
+    <string name="collapse" msgid="7817530505064432580">"संकुचित करा"</string>
+    <string name="access_list_of_links" msgid="7094123315959323372">"दुव्यांच्या सूची अ‍ॅक्सेस करा"</string>
+    <string name="access_links" msgid="7991363727326168600">"प्रवेश लिंक"</string>
+    <string name="access_terms" msgid="1982500872249763745">"अटी अ‍ॅक्सेस करा"</string>
+    <string name="read_terms" msgid="1745011123626640728">"अटी वाचा"</string>
+    <string name="close_list" msgid="9053538299788717597">"सूची बंद करा"</string>
+    <string name="cancel_setup_and_factory_reset_dialog_title" msgid="5416045931532004811">"सेटअप रद्द करून फॅक्टरी रीसेट करायचे?"</string>
+    <string name="cancel_setup_and_factory_reset_dialog_msg" msgid="808442439937994485">"हे सेटअप समाप्त केल्याने तुमचे डिव्हाइस फॅक्टरी रीसेट केले जाईल आणि तुम्हाला प्रथम स्क्रीनवर नेण्यात येईल."</string>
+    <string name="cancel_setup_and_factory_reset_dialog_cancel" msgid="2810966091829264727">"रद्द करा"</string>
+    <string name="cancel_setup_and_factory_reset_dialog_ok" msgid="7168008267496150529">"डिव्हाइस रीसेट करा"</string>
+    <string name="join_two_items" msgid="6110273439759895837">"<xliff:g id="FIRST_ITEM">%1$s</xliff:g> आणि <xliff:g id="SECOND_ITEM">%2$s</xliff:g>"</string>
+    <string name="join_many_items_last" msgid="7469666990442158802">"<xliff:g id="ALL_BUT_LAST_ITEM">%1$s</xliff:g> आणि <xliff:g id="LAST_ITEM_0">%2$s</xliff:g>"</string>
+    <string name="join_many_items_first" msgid="8365482726853276608">"<xliff:g id="FIRST_ITEM">%1$s</xliff:g>, <xliff:g id="ALL_BUT_FIRST_AND_LAST_ITEM">%2$s</xliff:g>"</string>
+    <string name="join_many_items_middle" msgid="8569294838319639963">"<xliff:g id="ADDED_ITEM">%1$s</xliff:g>, <xliff:g id="REST_OF_ITEMS">%2$s</xliff:g>"</string>
+    <string name="take_a_few_minutes" msgid="6282806501305322838">"याला काही मिनिटे लागू शकतात"</string>
+    <string name="work_profile_description" msgid="8524116010729569213">"तुमची कामाची अ‍ॅप्स या प्रोफाइलमध्ये ठेवली जातील आणि तुमच्या संस्थेकडून व्यवस्थापित केली जातील"</string>
+    <string name="device_owner_description" msgid="168013145812679664">"हे डिव्‍हाइस सुरक्षित ठेवले जाईल आणि तुमच्‍या संस्‍थेद्वारे व्‍यवस्‍थापित केले जाईल"</string>
+    <string name="setup_provisioning_header" msgid="4282483198266806271">"तुमचे ऑफिसचे डिव्हाइस सेट करण्यासाठी तयार होत आहे…"</string>
+    <string name="setup_provisioning_header_description" msgid="2567041263563823566">"ॲडमिन अ‍ॅप सेट करत आहे"</string>
+    <string name="brand_screen_header" msgid="8865808542690116648">"हे डिव्हाइस तुमच्या संस्थेचे आहे"</string>
+    <string name="brand_screen_subheader" msgid="7664792208784456436">"हा फोन व्यवस्थापित आणि मॉनिटर करण्यासाठी पुढील अ‍ॅप वापरले जाईल"</string>
+    <string name="account_management_disclaimer_header" msgid="8013083414694316564">"तुमचे खाते व्यवस्थापित केले आहे"</string>
+    <string name="account_management_disclaimer_subheader" msgid="8991450067243733878">"सुरक्षा धोरणे लागू करण्यासाठी तुमचा आयटी ॲडमिन मोबाइल व्यवस्थापन वापरतो"</string>
+    <string name="downloading_administrator_header" msgid="8660294318893902915">"कार्य सेटअपसाठी तयार करत आहे…"</string>
+    <string name="work_profile_provisioning_accept_header_post_suw" msgid="1353127953275291089">"चला, तुमची कार्य प्रोफाइल सेट करू या"</string>
+    <string name="work_profile_provisioning_step_1_header" msgid="7914961694921466366">"कार्य अ‍ॅप्स तुमच्या कार्य प्रोफाइलमध्ये ठेवली जातात"</string>
+    <string name="work_profile_provisioning_step_2_header" msgid="6001172190404670248">"तुमचे काम संपल्यावर कार्य अ‍ॅप्स थांबवा"</string>
+    <string name="work_profile_provisioning_step_3_header" msgid="4316106639726774330">"तुमच्या आयटी अ‍ॅडमिनला तुमच्या कार्य प्रोफाइलमधील डेटा दिसतो"</string>
+    <string name="work_profile_provisioning_progress_label" msgid="2627905308998389193">"तुमचे कार्य प्रोफाइल सेट करत आहे…"</string>
+    <string name="work_profile_provisioning_summary" msgid="3436190271657388747">"कार्य अ‍ॅप्स तुमच्या कार्य प्रोफाइलमध्ये ठेवली जातात. तुमचे काम संपल्यावर तुम्ही तुमची कार्य अ‍ॅप्स थांबवू शकता. तुमच्या आयटी अ‍ॅडमिनला तुमच्या कार्य प्रोफाइलमधील डेटा दिसतो."</string>
+    <string name="fully_managed_device_provisioning_accept_header" msgid="2944032660440403130">"चला तुमचे कार्य डिव्हाइस सेट करू या"</string>
+    <string name="fully_managed_device_provisioning_step_1_header" msgid="6396274703116708592">"तुमची कार्य अ‍ॅप्स तुमच्या हाताशी ठेवा"</string>
+    <string name="fully_managed_device_provisioning_step_2_header" msgid="142633978260399682">"हे <xliff:g id="DEVICE_NAME">%1$s</xliff:g> खाजगी नाही"</string>
+    <string name="fully_managed_device_provisioning_step_2_subheader" msgid="3981784440341141618">"तुमचा आयटी अ‍ॅडमिन कदाचित या <xliff:g id="DEVICE_NAME">%1$s</xliff:g> वरील तुमचा डेटा आणि अ‍ॅक्टिव्हिटी पाहू शकतो."</string>
+    <string name="fully_managed_device_provisioning_permissions_header" msgid="2852101532084770993">"तुमची अ‍ॅक्टिव्हिटी आणि डेटा"</string>
+    <string name="fully_managed_device_provisioning_permissions_secondary_header" msgid="4419374850927705136">"अ‍ॅप परवानग्या"</string>
+    <string name="fully_managed_device_provisioning_permissions_secondary_subheader" msgid="1973320148595109400">"तुमचा आयटी ॲडमिन या <xliff:g id="DEVICE_NAME">%1$s</xliff:g> वर मायक्रोफोन, कॅमेरा यांसारख्या ॲप्सच्या आणि स्थानासंबंधित परवानग्या सेट करू शकतो."</string>
+    <string name="fully_managed_device_provisioning_progress_label" msgid="3925516135130021966">"तुमचे डिव्हाइस सेट करत आहे…"</string>
+    <string name="fully_managed_device_provisioning_summary" msgid="2532673962822596806">"तुमची कार्य ॲप्स सहजरीत्या अ‍ॅक्सेस करण्यासाठी हे <xliff:g id="DEVICE_NAME_0">%1$s</xliff:g> वापरा. हे <xliff:g id="DEVICE_NAME_1">%1$s</xliff:g> खाजगी नाही, त्यामुळे तुमचा आयटी अ‍ॅडमिन कदाचित तुमचा डेटा आणि अ‍ॅक्टिव्हिटी पाहू शकतो."</string>
+    <string name="fully_managed_device_with_permission_control_provisioning_summary" msgid="3487964472228264628">"तुमची कार्य ॲप्स सहजरीत्या अ‍ॅक्सेस करण्यासाठी हे <xliff:g id="DEVICE_NAME_0">%1$s</xliff:g> वापरा. हे <xliff:g id="DEVICE_NAME_1">%1$s</xliff:g> खाजगी नाही, त्यामुळे तुमचा आयटी अ‍ॅडमिन कदाचित तुमची अ‍ॅक्टिव्हिटी आणि डेटा पाहू शकतो. तुमचा आयटी ॲडमिन या डिव्हाइसवर मायक्रोफोन, कॅमेरा यांसारख्या ॲप्सच्या आणि स्थानासंबंधित परवानग्या सेटदेखील करू शकतो."</string>
+    <string name="fully_managed_device_provisioning_return_device_title" msgid="8500829014794276683">"हे डिव्हाइस तुमच्या आयटी ॲडमिन परत करा"</string>
+    <string name="fully_managed_device_provisioning_return_device_subheader" msgid="6194410367910957686">"मागील स्क्रीनवर जा किंवा हे डिव्हाइस रीसेट करा आणि ते तुमच्या आयटी ॲडमिनला परत करा."</string>
+    <string name="fully_managed_device_cancel_setup_button" msgid="4910041382610777599">"सेट करणे रद्द करा"</string>
+    <string name="fully_managed_device_reset_and_return_button" msgid="6451125722998550681">"डिव्हाइस रीसेट करा आणि परत करा"</string>
+    <string name="fully_managed_device_unsupported_DPC_in_headless_mode_header" msgid="7938653381656306039">"डिव्हाइस सेट केले जाऊ शकत नाही"</string>
+    <string name="fully_managed_device_unsupported_DPC_in_headless_mode_subheader" msgid="5158035482490079567">"पूर्णपणे व्यवस्थापित केलेल्या मोडमध्ये या डिव्हाइसची नोंदणी केली जाऊ शकत नाही. तुमचे डिव्हाइस फॅक्टरी रीसेट करा आणि तुमच्या आयटी ॲडमिनशी संपर्क साधा."</string>
+    <string name="fully_managed_device_reset_button" msgid="5957116315144904542">"फॅक्टरी रीसेट करा"</string>
+    <string name="cope_provisioning_step_1_header" msgid="1945759718804756423">"कार्य प्रोफाइलमधील कार्य अ‍ॅप्स आयटी ॲडमिन व्यवस्थापित करतात"</string>
+    <string name="cope_provisioning_step_2_header" msgid="2388399739294883042">"वैयक्तिक अ‍ॅप्स कामासंबंधी अ‍ॅप्सहून वेगळी व लपवलेली असतात"</string>
+    <string name="cope_provisioning_step_3_header" msgid="7161795433847296201">"आयटी ॲडमिन हे डिव्हाइस नियंत्रित व काही ॲप्स ब्लॉक करू शकतो"</string>
+    <string name="cope_provisioning_summary" msgid="4993405755138454918">"कार्य अ‍ॅप्स तुमच्या कार्य प्रोफाइलमध्ये ठेवली जातात आणि तुमच्या आयटी ॲडमिनद्वारे व्यवस्थापित केली जातात. वैयक्तिक अ‍ॅप्स ही कार्य अ‍ॅप्सपासून वेगळी आणि लपवलेली असतात. तुमचा आयटी ॲडमिन हे <xliff:g id="DEVICE_NAME">%1$s</xliff:g> नियंत्रित करू शकतो आणि विशिष्ट ॲप्स ब्लॉक करू शकतो."</string>
+    <string name="just_a_sec" msgid="6244676028626237220">"फक्त एक सेकंद…"</string>
+    <string name="fully_managed_device_provisioning_privacy_title" msgid="4017627906103556021">"गोपनीयता रिमाइंडर"</string>
+    <string name="fully_managed_device_provisioning_privacy_body" msgid="2107315052054483060">"तुमचा आयटी अ‍ॅडमिन कदाचित या <xliff:g id="DEVICE_NAME">%1$s</xliff:g> वरील तुमचा डेटा आणि अ‍ॅक्टिव्हिटी पाहू शकतो"</string>
+    <string name="financed_device_screen_header" msgid="5934940812896302344">"हे <xliff:g id="DEVICE_NAME">%1$s</xliff:g> <xliff:g id="CREDITOR_NAME">%2$s</xliff:g> द्वारे पुरवले आहे"</string>
+    <string name="financed_make_payments_subheader_title" msgid="743966229235451097">"या <xliff:g id="DEVICE_NAME">%1$s</xliff:g> साठी पेमेंट करा"</string>
+    <string name="financed_make_payments_subheader_description" msgid="7391276584735956742">"<xliff:g id="CREDITOR_NAME_0">%1$s</xliff:g> हे <xliff:g id="CREDITOR_NAME_1">%2$s</xliff:g> ॲप इंस्टॉल करू शकतात, जेणेकरून तुम्ही या <xliff:g id="DEVICE_NAME">%3$s</xliff:g> साठी पेमेंट करू शकता."</string>
+    <string name="financed_restrict_device_subheader_title" msgid="4248650736543742083">"हे <xliff:g id="DEVICE_NAME">%1$s</xliff:g> प्रतिबंधित केले जाऊ शकते"</string>
+    <string name="financed_restrict_device_subheader_description" msgid="1539908048861880628">"तुम्ही पेमेंट न केल्यास, <xliff:g id="CREDITOR_NAME">%1$s</xliff:g> या <xliff:g id="DEVICE_NAME">%2$s</xliff:g> चा अ‍ॅक्सेस प्रतिबंधित करू शकतात."</string>
+    <string name="error_role_holder_hash_mismatch" msgid="5098975629103567172">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> सेट करू शकत नाही. तुमच्या आयटी ॲडमिनशी संपर्क साधा आणि \"चुकीचे चेक्सम\" चा संदर्भ द्या."</string>
+    <string name="error_role_holder_download_install_failed" msgid="8151968372180693228">"नंतर पुन्हा प्रयत्न करा किंवा मदतीसाठी तुमच्या आयटी ॲडमिनशी संपर्क साधा"</string>
+    <string name="error_role_holder_package_invalid" msgid="8159929740916126242">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> सेट करू शकत नाही. तुमच्या आयटी ॲडमिनशी संपर्क साधा आणि \"नसलेले किंवा करप्ट झालेले घटक\" चा संदर्भ द्या."</string>
+    <string name="setting_up" msgid="1478847967385506664">"सेट करत आहे…"</string>
+</resources>

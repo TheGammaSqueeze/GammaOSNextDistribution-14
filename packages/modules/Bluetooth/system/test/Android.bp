@@ -1,0 +1,642 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_bt_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_bt_license"],
+}
+
+subdirs = [
+    "rootcanal",
+    "suite",
+]
+
+filegroup {
+    name: "TestMockAudioHalInterface",
+    srcs: ["mock/mock_audio_hal_interface*.cc"],
+}
+
+filegroup {
+    name: "TestMockAudioA2dp",
+    srcs: ["mock/mock_audio_a2dp*.cc"],
+}
+
+filegroup {
+    name: "TestMockBtaAg",
+    srcs: [
+        "mock/mock_bta_ag_*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockBtaAr",
+    srcs: [
+        "mock/mock_bta_ar.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockBtaAv",
+    srcs: [
+        "mock/mock_bta_av_*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockBtaCsis",
+    srcs: [
+        "mock/mock_bta_csis*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockBtaDm",
+    srcs: [
+        "mock/mock_bta_dm_*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockBtaGatt",
+    srcs: [
+        "mock/mock_bta_gatt*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockBtaGroups",
+    srcs: [
+        "mock/mock_bta_groups*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockBtaHas",
+    srcs: [
+        "mock/mock_bta_has.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockBtaHd",
+    srcs: [
+        "mock/mock_bta_hd*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockBtaHearingAid",
+    srcs: [
+        "mock/mock_bta_hearing_aid.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockBtaHf",
+    srcs: [
+        "mock/mock_bta_hf*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockBtaHh",
+    srcs: [
+        "mock/mock_bta_hh*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockBtaJv",
+    srcs: [
+        "mock/mock_bta_jv_*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockBtaLeAudio",
+    srcs: [
+        "mock/mock_bta_leaudio*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockBtaLeAudioHalVerifier",
+    srcs: [
+        "mock/mock_le_audio_hal_verifier.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockBtaPan",
+    srcs: [
+        "mock/mock_bta_pan_*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockBtaScn",
+    srcs: [
+        "mock/mock_bta_scn.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockBtaSdp",
+    srcs: [
+        "mock/mock_bta_sdp_*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockBtaSys",
+    srcs: [
+        "mock/mock_bta_sys_*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockBtaVc",
+    srcs: [
+        "mock/mock_bta_vc*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockBta",
+    srcs: [
+        ":TestMockBtaAg",
+        ":TestMockBtaAr",
+        ":TestMockBtaAv",
+        ":TestMockBtaCsis",
+        ":TestMockBtaDm",
+        ":TestMockBtaGatt",
+        ":TestMockBtaGroups",
+        ":TestMockBtaHas",
+        ":TestMockBtaHd",
+        ":TestMockBtaHearingAid",
+        ":TestMockBtaHf",
+        ":TestMockBtaHh",
+        ":TestMockBtaJv",
+        ":TestMockBtaLeAudio",
+        ":TestMockBtaLeAudioHalVerifier",
+        ":TestMockBtaPan",
+        ":TestMockBtaSdp",
+        ":TestMockBtaSys",
+        ":TestMockBtaVc",
+    ],
+}
+
+filegroup {
+    name: "TestMockMainShimDumpsys",
+    srcs: [
+        "mock/mock_main_shim_dumpsys.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockMainShim",
+    srcs: [
+        "mock/mock_main_shim.cc",
+        "mock/mock_main_shim_BtifConfigInterface.cc",
+        "mock/mock_main_shim_acl.cc",
+        "mock/mock_main_shim_acl_api.cc",
+        "mock/mock_main_shim_acl_legacy_interface.cc",
+        "mock/mock_main_shim_btm_api.cc",
+        "mock/mock_main_shim_controller.cc",
+        "mock/mock_main_shim_distance_measurement_manager.cc",
+        "mock/mock_main_shim_hci_layer.cc",
+        "mock/mock_main_shim_l2cap_api.cc",
+        "mock/mock_main_shim_le_advertising_manager.cc",
+        "mock/mock_main_shim_le_scanning_manager.cc",
+        "mock/mock_main_shim_metric_id_api.cc",
+        "mock/mock_main_shim_metrics_api.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockStackA2dp",
+    srcs: [
+        "mock/mock_stack_a2dp_*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockStackA2dpApi",
+    srcs: [
+        "mock/mock_stack_a2dp_api.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockStackArbiter",
+    srcs: [
+        "mock/mock_stack_arbiter_*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockStackAvct",
+    srcs: [
+        "mock/mock_stack_avct_*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockStackAvdt",
+    srcs: [
+        "mock/mock_stack_avdt_*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockStackAvrc",
+    srcs: [
+        "mock/mock_stack_avrc_*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockStackBnep",
+    srcs: [
+        "mock/mock_stack_bnep_*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockStackL2cap",
+    srcs: [
+        "mock/mock_stack_l2cap_*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockStackRfcomm",
+    srcs: [
+        "mock/mock_stack_rfcomm*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockStack",
+    srcs: [
+        "mock/mock_stack_*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockHci",
+    srcs: [
+        "mock/mock_hci_*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockFrameworks",
+    srcs: [
+        "mock/mock_frameworks_*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockBtcore",
+    srcs: [
+        "mock/mock_btcore_*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockUdrv",
+    srcs: [
+        "mock/mock_udrv_*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockDevice",
+    srcs: [
+        "mock/mock_device_*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockLegacyHciCommands",
+    srcs: [
+        "mock/mock_hcic_*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockMainShimEntry",
+    srcs: [
+        "mock/mock_main_shim_entry.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockMainShimLeScanning",
+    srcs: [
+        "mock/mock_main_shim.cc",
+        "mock/mock_main_shim_le_scanning_manager.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockMainShimFlags",
+    srcs: [
+        "mock/mock_main_shim.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockBtif",
+    srcs: [
+        ":TestCommonCoreInterface",
+        ":TestCommonJniThread",
+        ":TestMockBluetoothInterface",
+        "mock/mock_btif*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockJni",
+    srcs: [
+        "mock/mock_jni*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockStackHid",
+    srcs: [
+        "mock/mock_stack_hid*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockStackPan",
+    srcs: [
+        "mock/mock_stack_pan*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockStackSdp",
+    srcs: [
+        "mock/mock_stack_sdp*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockStackBtm",
+    srcs: [
+        "mock/mock_stack_btm*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestStubOsi",
+    srcs: [
+        "stub/osi.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockOsi",
+    srcs: [
+        "mock/mock_osi_*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockStackAcl",
+    srcs: [
+        "mock/mock_stack_acl*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockStackSmp",
+    srcs: [
+        "mock/mock_stack_smp*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockStackMetrics",
+    srcs: [
+        "mock/mock_stack_metrics*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockStackGap",
+    srcs: [
+        "mock/mock_stack_gap*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockStackEatt",
+    srcs: [
+        "mock/mock_stack_eatt*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockStackGatt",
+    srcs: [
+        "mock/mock_stack_gatt*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockRustFfi",
+    srcs: [
+        "mock/mock_rust_ffi_connection*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockStackBtu",
+    srcs: [
+        "mock/mock_stack_btu*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockMainBte",
+    srcs: [
+        "mock/mock_main_bte*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockBtu",
+    srcs: [
+        "mock/mock_btu_*cc",
+    ],
+}
+
+filegroup {
+    name: "TestCommonMockFunctions",
+    srcs: [
+        "common/mock_functions.cc",
+    ],
+}
+
+filegroup {
+    name: "TestCommonJniThread",
+    srcs: [
+        "common/jni_thread.cc",
+    ],
+}
+
+filegroup {
+    name: "TestCommonMainHandler",
+    srcs: [
+        ":TestCommonSyncMainHandler",
+        "common/main_handler.cc",
+    ],
+}
+
+filegroup {
+    name: "TestCommonSyncMainHandler",
+    srcs: ["common/sync_main_handler.cc"],
+}
+
+filegroup {
+    name: "TestCommonInitFlags",
+    srcs: [
+        "common/init_flags.cc",
+    ],
+}
+
+filegroup {
+    name: "TestCommonStackConfig",
+    srcs: [
+        "common/stack_config.cc",
+    ],
+}
+
+filegroup {
+    name: "TestCommonCoreInterface",
+    srcs: [
+        "common/core_interface.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockBluetoothInterface",
+    srcs: [
+        "mock/mock_bluetooth_interface.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockStackHcic",
+    srcs: [
+        "mock/mock_stack_hcic*.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockLegacyHciInterface",
+    srcs: [
+        "mock/mock_legacy_hci_interface.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockSrvcDis",
+    srcs: [
+        "mock/mock_stack_srvc_dis.cc",
+    ],
+}
+
+filegroup {
+    name: "TestMockGdOsLoggingLogRedaction",
+    srcs: [
+        "mock/mock_gd_os_logging_log_redaction.cc",
+    ],
+}
+
+filegroup {
+    name: "TestFakeOsi",
+    srcs: [
+        ":TestMockOsi",
+        "fake/fake_osi.cc",
+    ],
+}
+
+filegroup {
+    name: "TestFakeThread",
+    srcs: [
+        "fake/fake_thread.cc",
+    ],
+}
+
+filegroup {
+    name: "TestFakeLooper",
+    srcs: [
+        "fake/fake_looper.cc",
+    ],
+}
+
+cc_defaults {
+    name: "mts_defaults",
+    target: {
+        android: {
+            test_config_template: ":BluetoothTestConfigTemplate",
+            test_suites: ["mts-bluetooth"],
+        },
+    },
+    compile_multilib: "both",
+    multilib: {
+        lib32: {
+            suffix: "32",
+        },
+        lib64: {
+            suffix: "64",
+        },
+    },
+}
+
+cc_test {
+    name: "bluetooth_audio_hal_version_test",
+    local_include_dirs: ["common"],
+    defaults: [
+        "latest_android_hardware_audio_common_ndk_static",
+        "latest_android_hardware_bluetooth_audio_ndk_static",
+        "latest_android_media_audio_common_types_ndk_static",
+        "mts_defaults",
+    ],
+    shared_libs: [
+        "libbase",
+        "libbinder",
+        "libbinder_ndk",
+        "libchrome",
+        "libcutils",
+        "libhidlbase",
+        "liblog",
+        "libutils",
+    ],
+    include_dirs: ["packages/modules/Bluetooth/system"],
+    srcs: ["common/hal_version_manager_test.cc"],
+    static_libs: [
+        "android.hardware.audio.common@5.0",
+        "android.hardware.bluetooth.audio@2.0",
+        "android.hardware.bluetooth.audio@2.1",
+        "android.hardware.common-V2-ndk",
+        "android.hardware.common.fmq-V1-ndk",
+        "libbt-audio-hal-interface",
+    ],
+    test_suites: ["general-tests"],
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+    ],
+    sanitize: {
+        address: true,
+    },
+}

@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2019 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="wifiResourcesAppLabel" product="default" msgid="3120115613525263696">"Πόροι Wi-Fi συστήματος"</string>
+    <string name="wifi_available_title" msgid="3899472737467127635">"Σύνδεση σε ανοιχτό δίκτυο Wi‑Fi"</string>
+    <string name="wifi_available_title_connecting" msgid="7233590022728579868">"Σύνδεση σε δίκτυο Wi-Fi"</string>
+    <string name="wifi_available_title_connected" msgid="6329493859989844201">"Ολοκληρώθηκε η σύνδεση στο δίκτυο Wi-Fi"</string>
+    <string name="wifi_available_title_failed_to_connect" msgid="4840833680513368639">"Δεν ήταν δυνατή η σύνδεση σε δίκτυο Wi‑Fi"</string>
+    <string name="wifi_available_content_failed_to_connect" msgid="4330035988269701861">"Πατήστε για να δείτε όλα τα δίκτυα"</string>
+    <string name="wifi_available_action_connect" msgid="5636634933476946222">"Σύνδεση"</string>
+    <string name="wifi_available_action_all_networks" msgid="8491109932336522211">"Όλα τα δίκτυα"</string>
+    <string name="notification_channel_network_status" msgid="1631786866932924838">"Κατάσταση δικτύου"</string>
+    <string name="notification_channel_network_alerts" msgid="1391603215241200880">"Ειδοποιήσεις δικτύου"</string>
+    <string name="notification_channel_network_available" msgid="8454366142428864948">"Το δίκτυο είναι διαθέσιμο"</string>
+    <string name="notification_channel_apm_alerts" msgid="6775293475896473489">"Ειδοποιήσεις APM"</string>
+    <string name="wifi_suggestion_title" msgid="2564179935989099139">"Να επιτρέπονται προτεινόμενα δίκτυα Wi‑Fi;"</string>
+    <string name="wifi_suggestion_content" msgid="6985149577828091835">"Προτεινόμενα δίκτυα <xliff:g id="NAME">%s</xliff:g>. Η συσκευή μπορεί να συνδεθεί αυτόματα."</string>
+    <string name="wifi_suggestion_action_allow_app" msgid="7757859972144671588">"Αποδοχή"</string>
+    <string name="wifi_suggestion_action_disallow_app" msgid="4565857699629860726">"Όχι, ευχαριστώ"</string>
+    <string name="wifi_suggestion_imsi_privacy_title" msgid="8969261812845304079">"Σύνδεση στο Wi-Fi <xliff:g id="CARRIERNAME">%s</xliff:g>;"</string>
+    <string name="wifi_suggestion_imsi_privacy_content" msgid="4266931269306079184">"Αυτά τα δίκτυα λαμβάνουν ένα αναγνωριστικό SIM που μπορεί να χρησιμοποιηθεί για την παρακολούθηση της τοποθεσίας της συσκευής."</string>
+    <string name="wifi_suggestion_action_allow_imsi_privacy_exemption_carrier" msgid="3888538126440442636">"Σύνδεση"</string>
+    <string name="wifi_suggestion_action_disallow_imsi_privacy_exemption_carrier" msgid="3225397664735676024">"Να μην γίνει σύνδεση."</string>
+    <string name="wifi_suggestion_imsi_privacy_exemption_confirmation_title" msgid="4407415300707014525">"Επιβεβαίωση της σύνδεσης;"</string>
+    <string name="wifi_suggestion_imsi_privacy_exemption_confirmation_content" msgid="9211241189147807136">"Εάν συνδεθείτε, τα δίκτυα Wi-Fi <xliff:g id="CARRIERNAME">%s</xliff:g> ενδέχεται να έχουν πρόσβαση ή να μοιράζονται ένα μοναδικό αναγνωριστικό που σχετίζεται με την κάρτα σας SIM. Αυτό μπορεί να επιτρέψει την παρακολούθηση της τοποθεσίας της συσκευής σας."</string>
+    <string name="wifi_suggestion_action_allow_imsi_privacy_exemption_confirmation" msgid="2168947026413431603">"Σύνδεση"</string>
+    <string name="wifi_suggestion_action_disallow_imsi_privacy_exemption_confirmation" msgid="5156881939985876066">"Να μην γίνει σύνδεση."</string>
+    <string name="wifi_wakeup_onboarding_title" msgid="3868826648004934540">"Το Wi‑Fi θα ενεργοποιηθεί αυτόματα"</string>
+    <string name="wifi_wakeup_onboarding_subtext" msgid="5705886295837387430">"Όταν βρίσκεστε κοντά σε αποθηκευμένο δίκτυο υψηλής ποιότητας"</string>
+    <string name="wifi_wakeup_onboarding_action_disable" msgid="6209706680391785825">"Να μην ενεργοποιηθεί ξανά"</string>
+    <string name="wifi_wakeup_enabled_title" msgid="5043486751612595850">"Το Wi‑Fi ενεργοποιήθηκε αυτόματα"</string>
+    <string name="wifi_wakeup_enabled_content" msgid="3911262526267025882">"Βρίσκεστε κοντά σε αποθηκευμένο δίκτυο: <xliff:g id="NETWORK_SSID">%1$s</xliff:g>"</string>
+    <string name="wifi_watchdog_network_disabled" msgid="5769226742956006362">"Δεν είναι δυνατή η σύνδεση στο Wi-Fi"</string>
+    <string name="wifi_watchdog_network_disabled_detailed" msgid="1725243835135539125">" έχει κακή σύνδεση Διαδικτύου."</string>
+    <string name="wifi_connect_alert_title" msgid="2368200646665663612">"Να επιτρέπεται η σύνδεση;"</string>
+    <string name="wifi_connect_alert_message" msgid="7226456300982080746">"Η εφαρμογή %1$s θα ήθελε να συνδεθεί με το δίκτυο Wi-Fi %2$s"</string>
+    <string name="wifi_connect_default_application" msgid="8917703737222707062">"Μια εφαρμογή"</string>
+    <string name="accept" msgid="8346431649376483879">"Αποδοχή"</string>
+    <string name="decline" msgid="4172251727603762084">"Απόρριψη"</string>
+    <string name="ok" msgid="847575529546290102">"OK"</string>
+    <string name="wifi_p2p_invitation_sent_title" msgid="6552639940428040869">"Η πρόσκληση στάλθηκε"</string>
+    <string name="wifi_p2p_invitation_to_connect_title" msgid="8917157937652519251">"Πρόσκληση για σύνδεση"</string>
+    <string name="wifi_p2p_invitation_seconds_remaining" msgid="4214101104506918344">"{0,plural, =1{Αποδοχή σε # δευτερόλεπτο.}other{Αποδοχή σε # δευτερόλεπτα.}}"</string>
+    <string name="wifi_p2p_from_message" msgid="5921308150192756898">"Από:"</string>
+    <string name="wifi_p2p_to_message" msgid="3809923305696994787">"Προς:"</string>
+    <string name="wifi_p2p_enter_pin_message" msgid="5200220251738047620">"Πληκτρολογήστε τον απαιτούμενο κωδικό PIN:"</string>
+    <string name="wifi_p2p_show_pin_message" msgid="1000091690967930798">"PIN:"</string>
+    <string name="wifi_p2p_frequency_conflict_message" msgid="8535404941723941766">"Η συσκευή σας θα αποσυνδεθεί προσωρινά από το δίκτυο Wi-Fi ενώ είναι συνδεδεμένη στη συσκευή <xliff:g id="DEVICE_NAME">%1$s</xliff:g>"</string>
+    <string name="dlg_ok" msgid="254496739491689405">"ΟΚ"</string>
+    <string name="wifi_cannot_connect_with_randomized_mac_title" msgid="2344570489693915253">"Δεν είναι δυνατή η σύνδεση με <xliff:g id="SSID">%1$s</xliff:g>"</string>
+    <string name="wifi_cannot_connect_with_randomized_mac_message" msgid="4834133226521813352">"Πατήστε για αλλαγή των ρυθμίσεων απορρήτου και δοκιμάστε ξανά"</string>
+    <string name="wifi_disable_mac_randomization_dialog_title" msgid="2054540994993681606">"Αλλαγή της ρύθμισης απορρήτου;"</string>
+    <string name="wifi_disable_mac_randomization_dialog_message" msgid="8874064864332248988">"Για να συνδεθεί, το <xliff:g id="SSID">%1$s</xliff:g> θα πρέπει να χρησιμοποιήσει τη διεύθυνση MAC σας, η οποία είναι ένα μοναδικό αναγνωριστικό. Αυτήν τη στιγμή, η ρύθμιση απορρήτου σας για αυτό το δίκτυο χρησιμοποιεί ένα τυχαίο αναγνωριστικό. \n\nΑυτή η αλλαγή μπορεί να επιτρέψει την παρακολούθηση της τοποθεσίας της συσκευής σας από συσκευές σε κοντινή απόσταση."</string>
+    <string name="wifi_disable_mac_randomization_dialog_confirm_text" msgid="6954419863076751626">"Αλλαγή ρύθμισης"</string>
+    <string name="wifi_disable_mac_randomization_dialog_success" msgid="5849155828154391387">"Η ρύθμιση ενημερώθηκε. Δοκιμάστε να συνδεθείτε ξανά."</string>
+    <string name="wifi_disable_mac_randomization_dialog_failure" msgid="2894643619143813096">"Δεν είναι δυνατή η αλλαγή της ρύθμισης απορρήτου"</string>
+    <string name="wifi_disable_mac_randomization_dialog_network_not_found" msgid="7359256966900782004">"Δεν βρέθηκε δίκτυο"</string>
+    <string name="wifi_eap_error_message_code_32756" msgid="2620877003804313434">"<xliff:g id="SSID">%1$s</xliff:g> : Σφάλμα ελέγχου ταυτότητας EAP 32756"</string>
+    <!-- no translation found for wifi_eap_error_message_code_32756_carrier_overrides:0 (9114567205305206743) -->
+    <string name="wifi_eap_error_message_code_32760" msgid="5258191595973470188">"<xliff:g id="SSID">%1$s</xliff:g> : Σφάλμα ελέγχου ταυτότητας EAP 32760"</string>
+  <string-array name="wifi_eap_error_message_code_32760_carrier_overrides">
+    <item msgid="7582366019846559418">"<xliff:g id="CARRIER_ID_PREFIX">:::1839:::</xliff:g><xliff:g id="SSID">%1$s</xliff:g> : Δεν μπορείτε να συνδεθείτε στο Verizon Wi-Fi Access εκτός της περιοχής κάλυψης της Verizon. (Σφάλμα = 32760)"</item>
+  </string-array>
+    <string name="wifi_eap_error_message_code_32761" msgid="3962610712123291591">"<xliff:g id="SSID">%1$s</xliff:g> : Σφάλμα ελέγχου ταυτότητας EAP 32761"</string>
+  <string-array name="wifi_eap_error_message_code_32761_carrier_overrides">
+    <item msgid="5173744897521799785">"<xliff:g id="CARRIER_ID_PREFIX">:::1839:::</xliff:g><xliff:g id="SSID">%1$s</xliff:g> : Δεν έχετε εγγραφεί στο Verizon Wi-Fi Access. Καλέστε μας στον αριθμό 800-922-0204. (Σφάλμα = 32761)"</item>
+  </string-array>
+    <string name="wifi_eap_error_message_code_32762" msgid="2381670648753465737">"<xliff:g id="SSID">%1$s</xliff:g> : Σφάλμα ελέγχου ταυτότητας EAP 32762"</string>
+  <string-array name="wifi_eap_error_message_code_32762_carrier_overrides">
+    <item msgid="2911560823350042826">"<xliff:g id="CARRIER_ID_PREFIX">:::1839:::</xliff:g><xliff:g id="SSID">%1$s</xliff:g> : Υπάρχει πρόβλημα με τον λογαριασμό σας Verizon Wi-Fi Access. Καλέστε μας στον αριθμό 800-922-0204. (Σφάλμα = 32762)"</item>
+  </string-array>
+    <string name="wifi_eap_error_message_code_32763" msgid="4467733260757049969">"<xliff:g id="SSID">%1$s</xliff:g> : Σφάλμα ελέγχου ταυτότητας EAP 32763"</string>
+  <string-array name="wifi_eap_error_message_code_32763_carrier_overrides">
+    <item msgid="591026649262091217">"<xliff:g id="CARRIER_ID_PREFIX">:::1839:::</xliff:g><xliff:g id="SSID">%1$s</xliff:g> : Έχετε συνδεθεί ήδη με το Verizon Wi-Fi Access. (Σφάλμα = 32763)"</item>
+  </string-array>
+    <string name="wifi_eap_error_message_code_32764" msgid="7349538467012877101">"<xliff:g id="SSID">%1$s</xliff:g> : Σφάλμα ελέγχου ταυτότητας EAP 32764"</string>
+  <string-array name="wifi_eap_error_message_code_32764_carrier_overrides">
+    <item msgid="3909719534712787947">"<xliff:g id="CARRIER_ID_PREFIX">:::1839:::</xliff:g><xliff:g id="SSID">%1$s</xliff:g> : Υπάρχει πρόβλημα με τη σύνδεση στο Verizon Wi-Fi Access. Καλέστε μας στον αριθμό 800-922-0204. (Σφάλμα = 32764)"</item>
+  </string-array>
+    <string name="wifi_eap_error_message_code_32765" msgid="2167528358066037980">"<xliff:g id="SSID">%1$s</xliff:g> : Σφάλμα ελέγχου ταυτότητας EAP 32765"</string>
+  <string-array name="wifi_eap_error_message_code_32765_carrier_overrides">
+    <item msgid="7454136618636618962">"<xliff:g id="CARRIER_ID_PREFIX">:::1839:::</xliff:g><xliff:g id="SSID">%1$s</xliff:g> : Υπάρχει πρόβλημα με τον λογαριασμό σας Verizon Wi-Fi Access. Καλέστε μας στον αριθμό 800-922-0204. (Σφάλμα = 32765)"</item>
+  </string-array>
+    <string name="wifi_eap_error_message_code_32766" msgid="2335996367705677670">"<xliff:g id="SSID">%1$s</xliff:g> : Σφάλμα ελέγχου ταυτότητας EAP 32766"</string>
+  <string-array name="wifi_eap_error_message_code_32766_carrier_overrides">
+    <item msgid="5876210184761573755">"<xliff:g id="CARRIER_ID_PREFIX">:::1839:::</xliff:g><xliff:g id="SSID">%1$s</xliff:g> : Το Verizon Wi-Fi Access δεν είναι διαθέσιμο από την τοποθεσία σας. Δοκιμάστε ξανά αργότερα ή από διαφορετική τοποθεσία. (Σφάλμα = 32766)"</item>
+  </string-array>
+    <string name="wifi_eap_error_message_code_32767" msgid="7094289719914089006">"<xliff:g id="SSID">%1$s</xliff:g> : Σφάλμα ελέγχου ταυτότητας EAP 32767"</string>
+  <string-array name="wifi_eap_error_message_code_32767_carrier_overrides">
+    <item msgid="3756793972687282940">"<xliff:g id="CARRIER_ID_PREFIX">:::1839:::</xliff:g><xliff:g id="SSID">%1$s</xliff:g>: Υπάρχει πρόβλημα με τη σύνδεση στο Verizon Wi-Fi Access. Δοκιμάστε ξανά αργότερα ή από διαφορετική τοποθεσία. (Σφάλμα = 32767)"</item>
+  </string-array>
+    <string name="wifi_eap_error_message_code_16384" msgid="575394783233092922">"<xliff:g id="SSID">%1$s</xliff:g> : Σφάλμα ελέγχου ταυτότητας EAP 16384"</string>
+  <string-array name="wifi_eap_error_message_code_16384_carrier_overrides">
+    <item msgid="270219697600808218">"<xliff:g id="CARRIER_ID_PREFIX">:::1839:::</xliff:g><xliff:g id="SSID">%1$s</xliff:g>: Υπάρχει πρόβλημα με τη σύνδεση στο Verizon Wi-Fi. (Σφάλμα = 16384)"</item>
+  </string-array>
+    <string name="wifi_eap_error_message_code_16385" msgid="8392878664662215609">"<xliff:g id="SSID">%1$s</xliff:g> : Σφάλμα ελέγχου ταυτότητας EAP 16385"</string>
+  <string-array name="wifi_eap_error_message_code_16385_carrier_overrides">
+    <item msgid="50575315771146940">"<xliff:g id="CARRIER_ID_PREFIX">:::1839:::</xliff:g><xliff:g id="SSID">%1$s</xliff:g>: Υπάρχει πρόβλημα με τη σύνδεση στο Verizon Wi-Fi. (Σφάλμα = 16385)"</item>
+  </string-array>
+    <string name="wifi_eap_error_message_unknown_error_code" msgid="4480884285384231323">"<xliff:g id="SSID">%1$s</xliff:g> : Σφάλμα ελέγχου ταυτότητας EAP, άγνωστος κωδικός σφάλματος"</string>
+  <string-array name="wifi_eap_error_message_unknown_error_code_carrier_overrides">
+    <item msgid="2705387186478280792">"<xliff:g id="CARRIER_ID_PREFIX">:::1839:::</xliff:g><xliff:g id="SSID">%1$s</xliff:g>: Υπάρχει πρόβλημα με τη σύνδεση στο Verizon Wi-Fi. (Σφάλμα = Άγνωστο)"</item>
+  </string-array>
+    <string name="wifi_softap_auto_shutdown_timeout_expired_title" msgid="4896534374569504484">"Το σημείο πρόσβασης Wi-Fi απενεργοποιήθηκε."</string>
+    <string name="wifi_softap_auto_shutdown_timeout_expired_summary" msgid="7975476698140267728">"Δεν υπάρχουν συνδεδεμένες συσκευές. Πατήστε για τροποποίηση."</string>
+    <string name="wifi_sim_required_title" msgid="2262227800991155459">"Το Wi-Fi αποσυνδέθηκε."</string>
+    <string name="wifi_sim_required_message" msgid="284812212346125745">"Για να συνδεθείτε στο <xliff:g id="SSID">%1$s</xliff:g>, τοποθετήστε μια κάρτα SIM <xliff:g id="CARRIER_NAME">%2$s</xliff:g>."</string>
+    <string name="wifi_interface_priority_title" msgid="5117627874976875544">"Η εφαρμογή <xliff:g id="APP">%1$s</xliff:g> θέλει να χρησιμοποιήσει έναν πόρο δικτύωσης"</string>
+    <string name="wifi_interface_priority_message" msgid="4253391172756140313">"Αυτή η ενέργεια μπορεί να προκαλέσει προβλήματα στα εξής: <xliff:g id="APPS">%3$s</xliff:g>."</string>
+    <string name="wifi_interface_priority_message_plural" msgid="8178086373318831859">"Αυτό μπορεί να προκαλέσει προβλήματα σε αυτές τις εφαρμογές: <xliff:g id="APPS">%3$s</xliff:g>."</string>
+    <string name="wifi_interface_priority_approve" msgid="7877379614986261096">"Να επιτρέπεται"</string>
+    <string name="wifi_interface_priority_reject" msgid="1378461018835886777">"Να μην επιτρέπεται"</string>
+    <string name="wifi_interface_priority_interface_name_sta" msgid="5107477901500010776">"STA"</string>
+    <string name="wifi_interface_priority_interface_name_ap" msgid="161777054136866061">"Σημείο πρόσβασης Wi-Fi"</string>
+    <string name="wifi_interface_priority_interface_name_ap_bridge" msgid="1270364818879977821">"Σημείο πρόσβασης Wi-Fi"</string>
+    <string name="wifi_interface_priority_interface_name_p2p" msgid="1278122698099149708">"Wi-Fi Direct"</string>
+    <string name="wifi_interface_priority_interface_name_nan" msgid="8812888073122966870">"Wi‑Fi Aware"</string>
+    <string name="wifi_ca_cert_dialog_title" msgid="3872340345882915806">"Είναι αξιόπιστο αυτό το δίκτυο;"</string>
+    <string name="wifi_ca_cert_dialog_continue_text" msgid="1674156611893471003">"Ναι, να γίνει σύνδεση"</string>
+    <string name="wifi_ca_cert_dialog_abort_text" msgid="1303170595421648059">"Όχι, να μην γίνει σύνδεση"</string>
+    <string name="wifi_ca_cert_dialog_message_hint" msgid="5969214285536370126">"Επιτρέψτε τη σύνδεση σε αυτό το δίκτυο μόνο αν οι παρακάτω πληροφορίες είναι σωστές.\n\n"</string>
+    <string name="wifi_ca_cert_dialog_message_server_name_text" msgid="3707809865604348289">"Όνομα διακομιστή:\n<xliff:g id="VALUE">%1$s</xliff:g>\n\n"</string>
+    <string name="wifi_ca_cert_dialog_message_issuer_name_text" msgid="1147216922475192304">"Όνομα εκδότη:\n<xliff:g id="VALUE">%1$s</xliff:g>\n\n"</string>
+    <string name="wifi_ca_cert_dialog_message_organization_text" msgid="4936354600863239487">"Οργανισμός:\n<xliff:g id="VALUE">%1$s</xliff:g>\n\n"</string>
+    <string name="wifi_ca_cert_dialog_message_expiration_text" msgid="1612917217606436217">"Λήξη πιστοποιητικού:\n<xliff:g id="VALUE">%1$s</xliff:g>\n\n"</string>
+    <string name="wifi_ca_cert_dialog_message_signature_name_text" msgid="8455163626514894233">"Αποτύπωμα SHA-256:\n<xliff:g id="VALUE">%1$s</xliff:g>\n\n"</string>
+    <string name="wifi_ca_cert_dialog_message_contact_text" msgid="5799083318641183815">"Επαφή:\n<xliff:g id="VALUE">%1$s</xliff:g>\n\n"</string>
+    <string name="wifi_ca_cert_notification_title" msgid="537569884930429796">"Απαιτείται επαλήθευση του δικτύου."</string>
+    <string name="wifi_ca_cert_notification_message" msgid="6413248690626616961">"Ελέγξτε τις λεπτομέρειες του δικτύου <xliff:g id="SSID">%1$s</xliff:g> πριν από τη σύνδεση. Πατήστε για συνέχεια."</string>
+    <string name="wifi_ca_cert_failed_to_install_ca_cert" msgid="4864192219789736195">"Αποτυχία εγκατάστασης πιστοποιητικού."</string>
+    <string name="wifi_tofu_invalid_cert_chain_title" msgid="332710627417595752">"Δεν είναι δυνατή η σύνδεση με <xliff:g id="VALUE">%1$s</xliff:g>"</string>
+    <string name="wifi_tofu_invalid_cert_chain_message" msgid="7047987920029432392">"Η αλυσίδα πιστοποιητικού διακομιστή δεν είναι έγκυρη."</string>
+    <string name="wifi_tofu_invalid_cert_chain_ok_text" msgid="9098567577510279854">"OK"</string>
+    <string name="wifi_ca_cert_dialog_preT_title" msgid="6916320484037009061">"Δεν είναι δυνατή η επαλήθευση αυτού του δικτύου."</string>
+    <string name="wifi_ca_cert_dialog_preT_continue_text" msgid="9118713368838029797">"Παραμείνετε συνδεδεμένοι"</string>
+    <string name="wifi_ca_cert_dialog_preT_abort_text" msgid="1331309662999405224">"Αποσύνδεση τώρα"</string>
+    <string name="wifi_ca_cert_dialog_preT_message_hint" msgid="5682518783200852031">"Λείπει ένα πιστοποιητικό από το δίκτυο <xliff:g id="SSID">%1$s</xliff:g>."</string>
+    <string name="wifi_ca_cert_dialog_preT_message_link" msgid="6325483132538546884">"Μάθετε πώς να προσθέτετε πιστοποιητικά"</string>
+    <string name="wifi_ca_cert_notification_preT_title" msgid="7255129934648316663">"Δεν είναι δυνατή η επαλήθευση αυτού του δικτύου."</string>
+    <string name="wifi_ca_cert_notification_preT_message" msgid="4565553176090475724">"Λείπει ένα πιστοποιητικό από το δίκτυο <xliff:g id="SSID">%1$s</xliff:g>. Πατήστε για να μάθετε πώς μπορείτε να προσθέσετε πιστοποιητικά."</string>
+    <string name="wifi_ca_cert_notification_preT_continue_text" msgid="1525418430746943670">"Σύνδεση ούτως ή άλλως"</string>
+    <string name="wifi_ca_cert_notification_preT_abort_text" msgid="8307996031461071854">"Να μην γίνει σύνδεση"</string>
+    <string name="wifi_enable_request_dialog_title" msgid="3577459145316177148">"Να επιτρέπεται στο <xliff:g id="APP_NAME">%1$s</xliff:g> να ενεργοποιεί το Wi‑Fi;"</string>
+    <string name="wifi_enable_request_dialog_message" msgid="6395169178524938278">"Μπορείτε να απενεργοποιήσετε το Wi‑Fi από τις Γρήγορες ρυθμίσεις"</string>
+    <string name="wifi_enable_request_dialog_positive_button" msgid="6050832555821470466">"Να επιτρέπεται"</string>
+    <string name="wifi_enable_request_dialog_negative_button" msgid="4754219902374918882">"Να μην επιτρέπεται"</string>
+    <string name="wifi_enabled_apm_first_time_title" msgid="4814302384637588804">"Wi‑Fi ενεργό σε λειτουργία πτήσης"</string>
+    <string name="wifi_enabled_apm_first_time_message" msgid="6416193199042203037">"Αν διατηρήσετε το Wi‑Fi ενεργοποιημένο, η συσκευή σας θα θυμάται να το διατηρήσει ενεργοποιημένο την επόμενη φορά που θα βρεθεί σε λειτουργία πτήσης"</string>
+    <string name="apm_enabled_first_time_title" msgid="2534167413190488009">"Το Wi‑Fi παραμένει ενεργό"</string>
+    <string name="apm_enabled_first_time_message" msgid="6093911536874954410">"Η συσκευή θυμάται να διατηρεί ενεργοποιημένο το Wi‑Fi σε λειτουργία πτήσης. Απενεργοποιήστε το Wi‑Fi, αν δεν επιθυμείτε να είναι ενεργοποιημένο."</string>
+    <string name="wifi_network_disabled_by_admin_title" msgid="9057697656855227293">"Μη διαθέσιμο δίκτυο"</string>
+    <string name="wifi_network_disabled_by_admin_message" msgid="7830360441333155462">"Το <xliff:g id="SSID">%1$s</xliff:g> έχει απενεργοποιηθεί από τον διαχειριστή σας."</string>
+    <string name="wifi_network_disabled_by_admin_button" msgid="3350310756265122689">"Κλείσιμο"</string>
+    <string name="wifi_network_switch_dialog_title_no_internet" msgid="4116969009784041242">"Το <xliff:g id="SSID_0">%1$s</xliff:g> φαίνεται ότι δεν είναι συνδεδεμένο στο διαδίκτυο. Εναλλαγή σε <xliff:g id="SSID_1">%2$s</xliff:g>;"</string>
+    <string name="wifi_network_switch_dialog_title_bad_internet" msgid="6013385270249705547">"Το <xliff:g id="SSID_0">%1$s</xliff:g> είναι χαμηλής ποιότητας. Εναλλαγή σε <xliff:g id="SSID_1">%2$s</xliff:g>;"</string>
+    <string name="wifi_network_switch_dialog_positive_button" msgid="7845507995422722454">"Εναλλαγή"</string>
+    <string name="wifi_network_switch_dialog_negative_button" msgid="1496665895689498806">"Να μην γίνει εναλλαγή"</string>
+</resources>

@@ -1,0 +1,35 @@
+description: "Simple script that just plays OK Google repeatedly to enroll"
+
+step {
+  audio_file : "okg-us-female.wav"
+  audio_file_sample_rate : 24000
+  delay_after : 2
+}
+
+step {
+  audio_file : "okg-us-female.wav"
+  audio_file_sample_rate : 24000
+  delay_after : 2
+}
+
+step {
+  audio_file : "heyg-us-female.wav"
+  audio_file_sample_rate : 24000
+  delay_after : 2
+}
+
+step {
+  audio_file : "heyg-us-female.wav"
+  audio_file_sample_rate : 24000
+  delay_after : 2
+}
+
+expected_result {
+    aohd_hotword_detected : 0
+    assistant_started  : 0
+    dsp_false_accept  : 0
+    logcat_iteration  : 1
+    software_hotword  : 0
+    speaker_id_rejected  : 0
+    vis_software_hotword  : 0
+}

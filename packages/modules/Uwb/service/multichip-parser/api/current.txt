@@ -1,0 +1,44 @@
+// Signature format: 2.0
+package com.android.uwb {
+
+  public class ChipGroupInfo {
+    ctor public ChipGroupInfo();
+    method public java.util.List<com.android.uwb.ChipInfo> getChip();
+    method public String getSharedLib();
+    method public void setSharedLib(String);
+  }
+
+  public class ChipInfo {
+    ctor public ChipInfo();
+    method public String getId();
+    method public com.android.uwb.Coordinates getPosition();
+    method public void setId(String);
+    method public void setPosition(com.android.uwb.Coordinates);
+  }
+
+  public class Coordinates {
+    ctor public Coordinates();
+    method public java.math.BigDecimal getX();
+    method public java.math.BigDecimal getY();
+    method public java.math.BigDecimal getZ();
+    method public void setX(java.math.BigDecimal);
+    method public void setY(java.math.BigDecimal);
+    method public void setZ(java.math.BigDecimal);
+  }
+
+  public class UwbChipConfig {
+    ctor public UwbChipConfig();
+    method public java.util.List<com.android.uwb.ChipGroupInfo> getChipGroup();
+    method public String getDefaultChipId();
+    method public void setDefaultChipId(String);
+  }
+
+  public class XmlParser {
+    ctor public XmlParser();
+    method public static com.android.uwb.UwbChipConfig read(java.io.InputStream) throws javax.xml.datatype.DatatypeConfigurationException, java.io.IOException, org.xmlpull.v1.XmlPullParserException;
+    method public static String readText(org.xmlpull.v1.XmlPullParser) throws java.io.IOException, org.xmlpull.v1.XmlPullParserException;
+    method public static void skip(org.xmlpull.v1.XmlPullParser) throws java.io.IOException, org.xmlpull.v1.XmlPullParserException;
+  }
+
+}
+

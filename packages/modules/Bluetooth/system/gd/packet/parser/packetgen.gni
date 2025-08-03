@@ -1,0 +1,140 @@
+#
+#  Copyright 2021 Google, Inc.
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at:
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#
+
+# Generate pybind11 source files + headers
+#
+# Parameters:
+#   include: Base include path (i.e. bt/gd)
+#   source_root: Root of source relative to current BUILD.gn
+#   sources: PDL files to use for generation.
+#   shards [optional]: Shard generated source into N files.
+#                      Default = 0. Max = 10.
+template("packetgen_py") {
+  action_name = "${target_name}_gen"
+
+  all_dependent_config_name = "_${target_name}_all_dependent_config"
+  config(all_dependent_config_name) {
+    include_dirs = [ "${root_gen_dir}" ]
+  }
+
+  action(action_name) {
+    forward_variables_from(invoker, [ "sources", "include", "shards", "source_root" ])
+    assert(defined(sources), "sources must be set")
+    assert(defined(include), "include must be set")
+    assert(defined(source_root), "source root must be set")
+
+    outdir = rebase_path(root_gen_dir)
+    source_root = rebase_path(source_root)
+
+    # Set shards cmd
+    shards_cmd = ""
+    outputs = []
+    source_args = []
+    if (defined(shards)) {
+      shards_list = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+      foreach (source, sources) {
+        rel_source = rebase_path(source, ".")
+        source_args += [ rebase_path(source, source_root) ]
+        shards_cmd = "--num_shards=${shards}"
+
+        # TODO - GN reference doesn't explain how to programatically create
+        # a range (i.e. range(shards)) so we use a fixed list and foreach loop to
+        # work around it.
+        assert(shards <= 10, "Maximum supported shards is 10.")
+        index = 0
+        outputs += [ string_replace("${outdir}/${rel_source}_python3.cc", ".pdl", "") ]
+        foreach(num, shards_list) {
+          if (index < shards) {
+              outputs += [ string_replace("${outdir}/${rel_source}_python3_shard_${num}.cc", ".pdl", "") ]
+          }
+
+          index = index + 1
+        }
+      }
+    }
+
+    script = "//common-mk/file_generator_wrapper.py"
+    binfile = "${root_out_dir}/bluetooth_packetgen"
+    args = [
+      binfile,
+      "--include=${include}",
+      "--out=${outdir}",
+      "--source_root=${source_root}",
+      shards_cmd,
+    ] + source_args
+  }
+
+  # TODO: Make building with python-dev work.
+  # source_set(target_name) {
+  #   sources = get_target_outputs(":${action_name}")
+  #   deps = [":${action_name}"]
+  #   all_dependent_configs = [":${all_dependent_config_name}"]
+  #   if (defined(invoker.all_dependent_configs)) {
+  #     all_dependent_configs += invoker.all_dependent_configs
+  #   }
+  #   if (defined(invoker.configs)) {
+  #     configs += invoker.configs
+  #   }
+  # }
+}
+
+# Generate single c++ headers for each pdl
+#
+# Parameters:
+#   include: Base include path (i.e. bt/gd)
+#   source_root: Root of source relative to current BUILD.gn
+#   sources: PDL files to use for generation.
+template("packetgen_headers") {
+  all_dependent_config_name = "_${target_name}_all_dependent_config"
+  config(all_dependent_config_name) {
+    include_dirs = [ "${root_gen_dir}" ]
+  }
+
+  action(target_name) {
+    forward_variables_from(invoker, [ "include", "sources", "source_root" ])
+    assert(defined(sources), "sources must be set")
+    assert(defined(include), "include must be set")
+    assert(defined(source_root), "source root must be set")
+
+    outdir = rebase_path(root_gen_dir)
+    source_root = rebase_path(source_root)
+
+    script = "//common-mk/file_generator_wrapper.py"
+    binfile = "${root_out_dir}/bluetooth_packetgen"
+    args = [
+      binfile,
+      "--include=${include}",
+      "--out=${outdir}",
+      "--source_root=${source_root}",
+    ]
+
+    outputs = []
+    foreach (source, sources) {
+      rel_source = rebase_path(source, ".")
+      args += [ rebase_path(source, source_root) ]
+      outputs += [ string_replace("${outdir}/${rel_source}.h", ".pdl", "") ]
+    }
+
+    all_dependent_configs = [ ":${all_dependent_config_name}" ]
+    if (defined(invoker.all_dependent_configs)) {
+      all_dependent_configs += invoker.all_dependent_configs
+    }
+
+    if (defined(invoker.configs)) {
+      configs += invoker.configs
+    }
+  }
+}

@@ -1,0 +1,54 @@
+// Copyright (C) 2020 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// A library containing common code within the geolocation dir.
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+// Code intended for host usage only.
+java_library_host {
+    name: "geotz_host_common",
+    srcs: ["host/main/java/**/*.java"],
+}
+
+// Code intended for device or host usage.
+java_library {
+    name: "geotz_common",
+    host_supported: true,
+    srcs: ["src/main/java/**/*.java"],
+    libs: ["androidx.annotation_annotation"],
+    sdk_version: "31",
+    min_sdk_version: "31",
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.geotz",
+    ],
+}
+
+// Device side tests for the geotz_common code.
+android_test {
+    name: "GeotzCommonTests",
+    srcs: ["src/test/java/**/*.java"],
+    manifest: "src/test/AndroidManifest.xml",
+    sdk_version: "31",
+    min_sdk_version: "31",
+    static_libs: [
+        "androidx.test.runner",
+        "geotz_lookup",
+        "junit",
+        "truth",
+    ],
+    test_suites: ["general-tests"],
+}

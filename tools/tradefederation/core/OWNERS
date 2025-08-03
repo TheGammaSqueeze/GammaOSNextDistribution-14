@@ -1,0 +1,11 @@
+# Root Owners of the Tradefed repo for code reviews
+dshi@google.com
+frankfeng@google.com
+guangzhu@google.com
+jdesprez@google.com
+murj@google.com
+tsu@google.com
+
+# Restrict build related changes to core harness team
+per-file Android.bp,Android.mk=set noparent
+per-file Android.bp,Android.mk=jdesprez@google.com,guangzhu@google.com,frankfeng@google.com,murj@google.com

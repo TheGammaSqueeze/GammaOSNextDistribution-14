@@ -1,0 +1,96 @@
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+// This library is internal only and should not be used outside core car stack.
+java_sdk_library {
+    name: "android.car.builtin",
+    srcs: [
+        "src/**/*.java",
+        "src/**/*.aidl",
+        "src/android/car/builtin/util/EventLogTags.logtags",
+    ],
+
+    default_to_stubs: true,
+
+    shared_library: false, // Added to bootclasspath
+
+    api_lint: {
+        enabled: true,
+    },
+
+    // First release, not enabled.
+    unsafe_ignore_missing_latest_api: true,
+
+    // TODO(202212484): Allows car-builtin-lib access to @hide Bluetooth APIs
+    sdk_version: "core_platform",
+
+    libs: [
+        // TODO(202212484): The following two allow car-builtin-lib access to @hide Bluetooth APIs
+        "framework-bluetooth.impl",
+        "framework",
+    ],
+
+    stub_only_libs: [
+        "framework-bluetooth",
+        "framework-annotations-lib",
+    ],
+
+    test: {
+        enabled: false,
+    },
+    system: {
+        enabled: true,
+        sdk_version: "module_current",
+    },
+    module_lib: {
+        enabled: true,
+        sdk_version: "module_current",
+    },
+
+    // Only allowed car modules only. Allowed to add tests here.
+    visibility: [
+        "//external/robolectric",
+        "//packages/services/Car/car-lib",
+        "//packages/services/Car/car-lib-module",
+        "//packages/services/Car/car-test-lib",
+        "//packages/services/Car/procfs-inspector/client",
+        "//packages/services/Car/service-builtin",
+        "//packages/services/Car/service",
+        "//packages/services/Car/tests/CarLibHostUnitTest",
+        "//packages/services/Car/tests/carservice_test",
+        "//packages/services/Car/tests/carservice_unit_test",
+        "//packages/services/Car/cpp/watchdog/car-watchdog-lib",
+        "//cts/tests/tests/car_builtin",
+        "//frameworks/opt/car/services/builtInServices",
+        "//frameworks/opt/car/services/builtInServices/tests",
+        "//frameworks/opt/car/services/updatableServices",
+        "//frameworks/opt/car/services/updatableServices/tests",
+    ],
+
+    permitted_packages: [
+        "android.car.builtin",
+    ],
+
+    droiddoc_options: [
+        "--include-annotations --pass-through-annotation android.annotation.RequiresApi",
+    ],
+
+    compile_dex: true,
+
+    installable: true,
+}

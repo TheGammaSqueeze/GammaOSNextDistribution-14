@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="system_tracing" msgid="4719188511746319848">"সিস্টেম ট্রেসিং"</string>
+    <string name="record_system_activity" msgid="4339462312915377825">"সিস্টেমের অ্যাক্টিভিটি রেকর্ড করুন এবং পারফম্যান্স উন্নত করার জন্য পরে তা বিশ্লেষণ করুন"</string>
+    <string name="record_trace" msgid="6416875085186661845">"রেকর্ড ট্রেস"</string>
+    <string name="record_trace_summary" msgid="6705357754827849292">"\"ট্রেস সেটিংস\"-এ কনফিগারেশন সেট ব্যবহার করে সিস্টেম ট্রেস ক্যাপচার করা হয়"</string>
+    <string name="record_stack_samples" msgid="3498368637185702335">"সিপিইউ প্রোফাইল রেকর্ড করুন"</string>
+    <string name="record_stack_samples_summary" msgid="7827953921526410478">"\"সিপিইউ\" বিভাগ বেছে নিয়ে ট্রেসে কলস্ট্যাক স্যাম্পেলিং চালু করাও যেতে পারে"</string>
+    <string name="record_heap_dump" msgid="1688550222066812696">"হিপ ডাম্প রেকর্ড করুন"</string>
+    <string name="record_heap_dump_summary_enabled" msgid="5038675257021221777">"\"হিপ ডাম্পের প্রসেসে\" বেছে নেওয়া প্রসেসের হিপ ডাম্প ক্য়াপচার করুন"</string>
+    <string name="record_heap_dump_summary_disabled" msgid="4640319333930345311">"হিপ ডাম্প সংগ্রহ করতে \"হিপ ডাম্পের প্রসেসে\" কমপক্ষে একটি প্রসেস বেছে নিন"</string>
+    <string name="start_new_trace" msgid="8177130420802170353">"নতুন ট্রেস চালু করুন"</string>
+    <string name="winscope_tracing" msgid="5818984791154837458">"Winscopeএর ট্রেস সংগ্রহ করুন"</string>
+    <string name="winscope_tracing_summary" msgid="7040550156722395894">"এর মধ্যে UI সম্পর্কিত টেলিমেট্রি ডেটা অন্তর্ভুক্ত (এর জন্য জ্যাঙ্কের সম্ভাবনা আছে)"</string>
+    <string name="trace_debuggable_applications" msgid="7957069895298887899">"ডিবাগযোগ্য অ্যাপ্লিকেশন ট্রেস করুন"</string>
+    <string name="categories" msgid="2280163673538611008">"বিভাগ"</string>
+    <string name="restore_default_categories" msgid="5090536794637169521">"ডিফল্ট বিভাগগুলিকে ফিরিয়ে আনুন"</string>
+    <string name="default_categories_restored" msgid="6861683793680564181">"ডিফল্ট বিভাগগুলিকে ফিরিয়ে আনা হয়েছে"</string>
+    <string name="default_categories" msgid="2117679794687799407">"ডিফল্ট"</string>
+    <string name="num_categories_selected" msgid="5772630335027553995">"{count,plural, =1{#টি বেছে নেওয়া হয়েছে}one{#টি বেছে নেওয়া হয়েছে}other{#টি বেছে নেওয়া হয়েছে}}"</string>
+    <string name="heap_dump_processes" msgid="2500105180344901939">"হিপ ডাম্পের প্রসেস"</string>
+    <string name="heap_dump_processes_summary" msgid="4570434268024622765">"কমপক্ষে একটি প্রসেস বেছে নিতে হবে"</string>
+    <string name="clear_heap_dump_processes" msgid="295101454741555286">"হিপ ডাম্প প্রসেস মুছে ফেলুন"</string>
+    <string name="clear_heap_dump_processes_toast" msgid="3658510557596150797">"প্রসেস লিস্টের তালিকা মুছে ফেলা হয়েছে"</string>
+    <string name="continuous_heap_dump" msgid="390369382946204224">"হিপ প্রোফাইল চালু রাখুন"</string>
+    <string name="continuous_heap_dump_summary" msgid="4581643248161659581">"কোনও বিশেষ ইন্টার্ভেলের জন্য হিপ ডাম্প ক্যাপচার করুন"</string>
+    <string name="continuous_heap_dump_interval" msgid="842533896492001433">"হিপ ডাম্প ইন্টার্ভেল"</string>
+    <string name="five_seconds" msgid="7018465440929299712">"৫ সেকেন্ড"</string>
+    <string name="ten_seconds" msgid="863416601384309033">"১০ সেকেন্ড"</string>
+    <string name="thirty_seconds" msgid="7945396361369598222">"৩০ সেকেন্ড"</string>
+    <string name="one_minute" msgid="4182508213840684258">"১ মিনিট"</string>
+    <string name="applications" msgid="521776761270770549">"অ্যাপ্লিকেশন"</string>
+    <string name="no_debuggable_apps" msgid="4386209254520471208">"কোনও ডিবাগযোগ্য অ্যাপ্লিকেশন উপলভ্য নেই"</string>
+    <string name="buffer_size" msgid="3944311026715111454">"সিপিইউ পিছু বাফার সাইজ"</string>
+    <string name="show_quick_settings_tile" msgid="4971147332635291585">"\'দ্রুত সেটিংস\' টাইল দেখুন"</string>
+    <string name="saving_trace" msgid="1468692734770800541">"ট্রেস সেভ করা হচ্ছে"</string>
+    <string name="trace_saved" msgid="5869970594780992309">"ট্রেস সেভ করা হয়েছে"</string>
+    <string name="saving_stack_samples" msgid="8174915522390525221">"স্ট্যাক স্যাম্পেলিং সেভ করা হচ্ছে"</string>
+    <string name="stack_samples_saved" msgid="8863295751647724616">"স্ট্যাক স্যাম্পেল সেভ করা হয়েছে"</string>
+    <string name="saving_heap_dump" msgid="6118616780825771824">"হিপ ডাম্প সেভ করা হচ্ছে"</string>
+    <string name="heap_dump_saved" msgid="6720583137473857098">"হিপ ডাম্প সেভ করা হয়েছে"</string>
+    <string name="tap_to_share" msgid="4440713575852187545">"আপনার রেকর্ডিং শেয়ার করতে ট্যাপ করুন"</string>
+    <string name="attaching_to_report" msgid="2629202947947275886">"ট্রেসকে সমস্যার রিপোর্টে অ্যাটাচ করা হচ্ছে"</string>
+    <string name="attached_to_report" msgid="5806905349184608870">"ট্রেসকে সমস্যার রিপোর্টে অ্যাটাচ করা হয়েছে"</string>
+    <string name="attached_to_report_summary" msgid="7665675771190391355">"BetterBug খুলতে ট্যাপ করুন"</string>
+    <string name="stop_tracing" msgid="8916938308534164152">"ট্রেস করা বন্ধ করুন"</string>
+    <string name="tracing_categories_unavailable" msgid="5609076391417077752">"ট্রেসিং এর কিছু বিভাগ অনুপলভ্য:"</string>
+    <string name="trace_is_being_recorded" msgid="5947378146009337469">"ট্রেস রেকর্ড করা হচ্ছে"</string>
+    <string name="tap_to_stop_tracing" msgid="6533282719573871806">"ট্রেস করা বন্ধ করতে ট্যাপ করুন"</string>
+    <string name="stack_samples_are_being_recorded" msgid="8669254939248349583">"স্ট্যাক স্যাম্পেল রেকর্ড করা হচ্ছে"</string>
+    <string name="tap_to_stop_stack_sampling" msgid="5911317684139059415">"স্ট্যাক স্যাম্পেলিং বন্ধ করতে ট্যাপ করুন"</string>
+    <string name="heap_dump_is_being_recorded" msgid="3789315106110524969">"হিপ ডাম্প রেকর্ড করা হচ্ছে"</string>
+    <string name="tap_to_stop_heap_dump" msgid="6475699275834526902">"হিপ ডাম্প বন্ধ করতে ট্যাপ করুন"</string>
+    <string name="clear_saved_files" msgid="9156079311231446825">"সেভ করা ফাইল মুছুন"</string>
+    <string name="clear_saved_files_summary" msgid="109751867417553670">"এক মাস পরে রেকর্ডিং মুছে ফেলা হয়েছে"</string>
+    <string name="clear_saved_files_question" msgid="8586686617760838834">"সেভ করা ফাইল মুছবেন?"</string>
+    <string name="all_recordings_will_be_deleted" msgid="7731693738485947891">"সব রেকর্ডিং /data/local/traces থেকে মুছে ফেলা হবে"</string>
+    <string name="clear" msgid="5484761795406948056">"মুছুন"</string>
+    <string name="system_traces_storage_title" msgid="8294090839883366871">"সিস্টেম ট্রেস"</string>
+    <string name="keywords" msgid="736547007949049535">"সিস্ট্রেস, ট্রেস, পারফরম্যান্স"</string>
+    <string name="share_file" msgid="1982029143280382271">"ফাইল শেয়ার করবেন?"</string>
+    <string name="system_trace_sensitive_data" msgid="3069389866696009549">"সিস্টেম ট্রেসিং ফাইলে অতি গোপনীয় সিস্টেম এবং অ্যাপ ডেটা থাকতে পারে (যেমন অ্যাপের জন্য ডেটার ব্যবহার)। কেবলমাত্র আপনার বিশ্বস্ত লোকজন এবং অ্যাপের সঙ্গে সিস্টেম ট্রেস শেয়ার করুন।"</string>
+    <string name="share" msgid="8443979083706282338">"শেয়ার করুন"</string>
+    <string name="dont_show_again" msgid="6662492041164390600">"আর দেখাবেন না"</string>
+    <string name="long_traces" msgid="5110949471775966329">"লম্বা ট্রেস"</string>
+    <string name="long_traces_summary" msgid="419034282946761469">"ডিভাইসের স্টোরেজে ক্রমাগত সেভ করা হয়েছে"</string>
+    <string name="long_traces_summary_betterbug" msgid="445546400875135624">"ডিভাইসের স্টোরেজে ক্রমাগত সেভ করা হয়েছে (সমস্যার রিপোর্টে অটোমেটিক অ্যাটাচ করা হবে না)"</string>
+    <string name="max_long_trace_size" msgid="1943788179787181241">"সবচেয়ে বড় লম্বা ট্রেসের সাইজ"</string>
+    <string name="max_long_trace_duration" msgid="8009837944364246785">"সবচেয়ে বড় লম্বা ট্রেসের সময়সীমা"</string>
+    <string name="two_hundred_mb" msgid="4950018549725084512">"২০০ এমবি"</string>
+    <string name="one_gb" msgid="590396985168692037">"১ জিবি"</string>
+    <string name="five_gb" msgid="7883941043220621649">"৫ জিবি"</string>
+    <string name="ten_gb" msgid="4150452462544299276">"১০ জিবি"</string>
+    <string name="twenty_gb" msgid="5717308686812140465">"২০ জিবি"</string>
+    <string name="ten_minutes" msgid="7039181194343961324">"১০ মিনিট"</string>
+    <string name="thirty_minutes" msgid="2575810799813531395">"৩০ মিনিট"</string>
+    <string name="one_hour" msgid="5219232935307966891">"১ ঘণ্টা"</string>
+    <string name="eight_hours" msgid="3207620892104451552">"৮ ঘণ্টা"</string>
+    <string name="twelve_hours" msgid="4647143276394563496">"১২ ঘণ্টা"</string>
+    <string name="twentyfour_hours" msgid="2789663313550030791">"২৪ ঘন্টা"</string>
+    <string name="four_thousand_kb" msgid="5156346740862105703">"৪০৯৬ কেবি"</string>
+    <string name="eight_thousand_kb" msgid="8815334985638334081">"৮১৯২ কেবি"</string>
+    <string name="sixteen_thousand_kb" msgid="7342517169232459259">"১৬৩৮৪ কেবি"</string>
+    <string name="thirtytwo_thousand_kb" msgid="654328198799196150">"৩২৭৬৮ কেবি"</string>
+    <string name="sixtyfive_thousand_kb" msgid="8168144138598305306">"৬৫৫৩৬ কেবি"</string>
+    <string name="stop_on_bugreport" msgid="4591832600597126422">"সমস্যা সংক্রান্ত রিপোর্টের জন্য রেকর্ডিং বন্ধ করুন"</string>
+    <string name="stop_on_bugreport_summary" msgid="1601834864982891381">"সমস্যা সম্পর্কিত রিপোর্ট শুরু হলে, চালু থাকা ট্রেস রেকর্ডিং বন্ধ হয়ে যায়"</string>
+    <string name="attach_to_bug_report" msgid="5388986830016247490">"সমস্যা সম্পর্কিত রিপোর্টে রেকর্ডিং অ্যাটাচ করুন"</string>
+    <string name="attach_to_bug_report_summary" msgid="4213730623971240002">"সমস্যা সম্পর্কিত রিপোর্ট সংগ্রহ করা হলে, কাজ চলছে এমন রেকর্ডিং সম্পর্কিত তথ্য অটোমেটিক BetterBug-কে পাঠান"</string>
+    <string name="link_to_traces" msgid="1404687523304348490">"সেভ করা ফাইল দেখুন"</string>
+    <string name="pref_category_trace_settings" msgid="6507535407023329628">"\'ট্রেস\' সেটিংস"</string>
+    <string name="pref_category_saved_files" msgid="1477491400970413291">"সেভ করা ফাইল"</string>
+    <string name="pref_category_misc" msgid="6217624054980014683">"বিবিধ"</string>
+    <string name="pref_category_heap_dump_settings" msgid="2234681064312605310">"হিপ ডাম্প সেটিংস"</string>
+</resources>

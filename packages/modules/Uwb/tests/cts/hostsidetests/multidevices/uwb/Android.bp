@@ -1,0 +1,78 @@
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_team: "trendy_team_fwk_uwb",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+python_defaults {
+    name: "CtsUwbMultiDevicePythonDefaults",
+    libs: [
+        "mobly",
+    ],
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+}
+
+python_test_host {
+    name: "CtsUwbMultiDeviceTestCase_UwbManagerTests",
+    main: "UwbManagerTests/uwb_manager_test.py",
+    srcs: [
+        "UwbManagerTests/uwb_manager_test.py",
+        "lib/uwb_base_test.py",
+        "lib/uwb_ranging_decorator.py",
+        "lib/uwb_ranging_params.py",
+        "test_utils/uwb_test_utils.py",
+    ],
+    test_config: "UwbManagerTests/AndroidTest.xml",
+    test_options: {
+        unit_test: false,
+    },
+    data: [
+        // Package the snippet with the mobly test
+        ":uwb_snippet",
+        "README.md",
+    ],
+    defaults: ["CtsUwbMultiDevicePythonDefaults"],
+}
+
+python_test_host {
+    name: "CtsUwbMultiDeviceTestCase_FiraRangingTests",
+    main: "FiraRangingTests/ranging_test.py",
+    srcs: [
+        "FiraRangingTests/ranging_test.py",
+        "lib/uwb_base_test.py",
+        "lib/uwb_ranging_decorator.py",
+        "lib/uwb_ranging_params.py",
+        "test_utils/uwb_test_utils.py",
+    ],
+    test_config: "FiraRangingTests/AndroidTest.xml",
+    test_options: {
+        unit_test: false,
+    },
+    data: [
+        // Package the snippet with the mobly test
+        ":uwb_snippet",
+        "README.md",
+    ],
+    defaults: ["CtsUwbMultiDevicePythonDefaults"],
+}

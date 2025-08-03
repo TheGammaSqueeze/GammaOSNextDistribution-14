@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="@dimen/top_system_bar_icon_drawing_size"
+        android:height="@dimen/top_system_bar_icon_drawing_size"
+        android:viewportWidth="48"
+        android:viewportHeight="48">
+    <path
+        android:fillColor="@color/car_on_surface"
+        android:pathData="M24,23.6q-3.65,0 -5.925,-2.3T15.8,15.4q0,-3.65 2.275,-5.925T24,7.2q3.65,0 5.925,2.275T32.2,15.4q0,3.6 -2.275,5.9Q27.65,23.6 24,23.6ZM7.15,41.5v-5.55q0,-2.05 1.05,-3.575 1.05,-1.525 2.7,-2.275 3.4,-1.6 6.625,-2.375Q20.75,26.95 24,26.95q3.25,0 6.45,0.8t6.6,2.35q1.7,0.75 2.75,2.25t1.05,3.6v5.55ZM11.05,37.65h25.9L36.95,36q0,-0.8 -0.425,-1.475t-1.075,-0.975q-3.2,-1.55 -5.875,-2.15 -2.675,-0.6 -5.575,-0.6 -2.9,0 -5.625,0.625T12.55,33.55q-0.7,0.3 -1.1,0.975 -0.4,0.675 -0.4,1.475ZM24,19.7q1.85,0 3.075,-1.225T28.3,15.4q0,-1.85 -1.225,-3.1T24,11.05q-1.85,0 -3.075,1.25T19.7,15.4q0,1.85 1.225,3.075T24,19.7ZM24,15.4ZM24,37.65Z"
+    />
+</vector>
+

@@ -1,0 +1,51 @@
+package: "com.android.intentresolver"
+container: "system"
+
+# name: [a-z0-9][_a-z0-9]+
+# namespace: intentresolver
+# bug: "Feature_Bug_#" or "<none>"
+
+flag {
+  name: "fix_target_list_footer"
+  namespace: "intentresolver"
+  description: "Update app target grid footer on window insets change"
+  bug: "324011248"
+  metadata {
+    purpose: PURPOSE_BUGFIX
+  }
+}
+
+flag {
+  name: "scrollable_preview"
+  namespace: "intentresolver"
+  description: "Makes preview scrollable with multiple profiles"
+  bug: "287102904"
+}
+
+flag {
+  name: "target_data_caching"
+  namespace: "intentresolver"
+  description: "Enables caching target icons and labels in a local DB"
+  bug: "285314844"
+}
+
+flag {
+  name: "modular_framework"
+  namespace: "intentresolver"
+  description: "Enables the new modular framework"
+  bug: "302113519"
+}
+
+flag {
+  name: "bespoke_label_view"
+  namespace: "intentresolver"
+  description: "Use a custom view to draw target labels"
+  bug: "302188527"
+}
+
+flag {
+  name: "enable_private_profile"
+  namespace: "intentresolver"
+  description: "Enable private profile support"
+  bug: "311348033"
+}

@@ -1,0 +1,31 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_defaults {
+    name: "libavflog.defaults",
+    crate_name: "avflog",
+    defaults: ["avf_build_flags_rust"],
+    host_supported: true,
+    srcs: ["src/lib.rs"],
+    edition: "2021",
+    rustlibs: [
+        "liblog_rust",
+    ],
+}
+
+rust_library {
+    name: "libavflog",
+    defaults: ["libavflog.defaults"],
+    apex_available: [
+        "//apex_available:platform",
+        "//apex_available:anyapex",
+    ],
+}
+
+rust_test {
+    name: "libavflog.test",
+    defaults: ["libavflog.defaults"],
+    prefer_rlib: true,
+    test_suites: ["general-tests"],
+}

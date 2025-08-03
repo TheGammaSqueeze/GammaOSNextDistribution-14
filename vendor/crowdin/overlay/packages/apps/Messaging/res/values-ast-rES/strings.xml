@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (C) 2015 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Mensaxería</string>
+    <string name="share_intent_label">Mensaxería</string>
+    <string name="action_settings">Configuración</string>
+    <string name="help_and_feedback_activity_label">Ayuda</string>
+    <string name="settings_with_arrow">Configuración &gt;</string>
+    <string name="settings">Configuración</string>
+    <string name="contact_picker_all_contacts_tab_title">Tolos contautos</string>
+    <string name="contact_picker_hint_text">Calca p\'abrir la llista de contautos d\'esti preséu</string>
+    <string name="action_share">Compartir</string>
+    <string name="posted_just_now">"Puramente agora"</string>
+    <string name="posted_now">"Agora"</string>
+    <string name="message_status_sending">Ta unviándose…</string>
+    <string name="message_status_downloading">Ta baxando…</string>
+    <string name="service_not_activated">El serviciu nun ta activáu na rede</string>
+    <string name="notification_send_failures_line1_singular">Nun s\'unvió\'l mensaxe</string>
+    <plurals name="notification_new_messages">
+        <item quantity="one">Mensaxe nuevu</item>
+        <item quantity="other"><xliff:g id="messages">%d</xliff:g> mensaxes nuevos</item>
+    </plurals>
+    <string name="camera_error_opening">La cámara nun ta disponible</string>
+    <string name="camera_error_unknown">La cámara nun ta disponible</string>
+    <string name="action_delete">Desaniciar</string>
+    <string name="action_archive">Archivar</string>
+    <string name="action_unarchive">Desarchivar</string>
+    <string name="action_add_contact">Amestar el contautu</string>
+    <string name="action_download">Baxar</string>
+    <string name="action_send">Unviar</string>
+    <string name="action_delete_message">Desaniciar</string>
+    <string name="delete_message_confirmation_dialog_title">¿Quies desaniciar esti mensaxe?</string>
+    <string name="delete_message_confirmation_dialog_text">Esta aición nun se pue desfacer.</string>
+    <string name="delete_message_confirmation_button">Desaniciar</string>
+    <plurals name="delete_conversations_confirmation_dialog_title">
+        <item quantity="one">¿Quies desaniciar esta conversación?</item>
+        <item quantity="other">¿Quies desaniciar estes conversaciones?</item>
+    </plurals>
+    <string name="delete_conversation_confirmation_button">Desaniciar</string>
+    <string name="unknown_self_participant">Yo</string>
+    <string name="settings_activity_title">Configuración</string>
+    <string name="action_close">Zarrar</string>
+    <string name="mms_messaging_category_pref_title">MMS</string>
+    <string name="advanced_category_pref_title">Opciones avanzaes</string>
+    <string name="wireless_alerts_title">Alertes ensin fillo</string>
+    <string name="message_type_label">Tipu:\u0020</string>
+    <string name="text_message">Mensaxe de testu</string>
+    <string name="multimedia_message">Mensaxe multimedia</string>
+    <string name="from_label">De:\u0020</string>
+    <string name="to_address_label">Pa:\u0020</string>
+    <string name="subject_label">Asuntu:\u0020</string>
+    <string name="message_size_label">Tamañu:\u0020</string>
+    <string name="priority_label">Prioridá:\u0020</string>
+    <string name="sim_label">SIM:\u0020</string>
+    <string name="sim_slot_identifier">SIM <xliff:g id="sim_slot_number">%s</xliff:g></string>
+    <string name="conversation_message_view_subject_text">Asuntu:\u0020</string>
+    <plurals name="vcard_multiple_display_name">
+        <item quantity="one"><xliff:g id="count">%d</xliff:g> contautu</item>
+        <item quantity="other"><xliff:g id="count">%d</xliff:g> contautos</item>
+    </plurals>
+    <string name="requires_sms_permissions_message">El propietariu del preséu nun permite esta aplicación.</string>
+    <string name="camera_media_failure">Nun se pudo cargar la imaxe de la cámara</string>
+    <string name="conversation_list_item_view_sent_from_you_prefix">Tu:\u0020</string>
+    <string name="conversation_list_item_view_draft_message">Borrador</string>
+    <string name="conversation_list_first_sync_text">Tán cargando les conversaciones…</string>
+    <string name="mms_text">MMS</string>
+    <string name="action_block">Bloquiar</string>
+    <string name="send_message_failure">Nun se pudo unviar el mensaxe</string>
+    <string name="mms_failure_outgoing_corrupt">Nun s\'unvió\'l mensaxe: el mensaxe ye inválidu</string>
+    <string name="mms_failure_outgoing_content">Nun s\'unvió\'l mensaxe: el conteníu nun ye compatible</string>
+    <string name="mms_failure_outgoing_unsupported">Nun s\'unvió\'l mensaxe: el mensaxe nun ye compatible</string>
+    <string name="in_conversation_notify_new_message_text">Mensaxe nuevu</string>
+    <string name="share_new_message">Mensaxe nuevu</string>
+    <string name="apn_apn">APN</string>
+    <string name="apn_mmsc">MMSC</string>
+    <string name="apn_mcc">MCC</string>
+    <string name="apn_mnc">MNC</string>
+    <string name="apn_type">Tipu d\'APN</string>
+    <string name="sms_apns_title">Nomes de puntu d\'accesu</string>
+    <string name="apn_settings">APNs</string>
+    <string name="advanced_settings">Opciones avanzaes</string>
+    <string name="general_settings_activity_title">Configuración xeneral</string>
+    <string name="advanced_settings_activity_title">Configuración avanzada</string>
+    <string name="secondary_user_new_message_title">Mensaxe nuevu</string>
+    <string name="secondary_user_new_message_ticker">Mensaxe nuevu.</string>
+    <string name="widget_new_message_content_description">Mensaxe nuevu</string>
+    <string name="work_directory_display_name">Contautos del perfil llaboral</string>
+</resources>

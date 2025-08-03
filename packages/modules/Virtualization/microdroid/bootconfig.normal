@@ -1,0 +1,9 @@
+# ro.debuggable is off
+androidboot.microdroid.debuggable=0
+
+# Console output is not redirect to the host-side.
+kernel.printk.devkmsg=off
+kernel.console=ttynull
+
+# ADB is not enabled.
+androidboot.adb.enabled=0

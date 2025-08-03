@@ -1,0 +1,37 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "CellBroadcastServiceTests",
+    static_libs: [
+        "mockito-target",
+        "compatibility-device-util-axt",
+        "androidx.test.rules",
+        "modules-utils-handlerexecutor",
+        "modules-utils-locallog",
+        "modules-utils-preconditions",
+        "modules-utils-statemachine",
+        "truth",
+        "testables",
+    ],
+    libs: [
+        "android.test.runner",
+        "telephony-common",
+        "android.test.base",
+        "android.test.mock",
+        "unsupportedappusage",
+    ],
+    srcs: [
+        "src/**/*.java",
+        ":cellbroadcast-shared-srcs",
+    ],
+    platform_apis: true,
+    test_suites: [
+        "general-tests",
+        "mts-cellbroadcast",
+    ],
+    certificate: "platform",
+    instrumentation_for: "CellBroadcastServiceModule",
+    min_sdk_version: "30",
+}

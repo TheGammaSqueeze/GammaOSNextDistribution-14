@@ -1,0 +1,10 @@
+{
+  "auto-presubmit": [
+    {
+      "name": "VtsHalAutomotiveVehicle_TargetTest"
+    },
+    {
+      "name": "libvhalclient_test"
+    }
+  ]
+}

@@ -1,0 +1,166 @@
+<resources>
+    <string name="app_name">LeAudio</string>
+    <string name="tbs_activity_name">TelephoneBearerService</string>
+    <string name="svc_uuid_le_audio">0000184E-0000-1000-8000-00805F9B34FB</string>
+    <string name="svc_uuid_volume_control">00001844-0000-1000-8000-00805F9B34FB</string>
+    <string name="svc_uuid_broadcast_audio">0000184F-0000-1000-8000-00805F9B34FB</string>
+    <string name="svc_uuid_coordinated_set_identification">00001846-0000-1000-8000-00805F9B34FB</string>
+    <string name="svc_uuid_has">00001854-0000-1000-8000-00805F9B34FB</string>
+    <string name="action_disconnect">DISCONNECT</string>
+    <string name="action_connect">CONNECT</string>
+    <string name="unknown">Unknown</string>
+    <string name="unset">UNSET</string>
+    <string name="none">None</string>
+    <string name="UNAVAILABLE">UNAVAILABLE</string>
+    <string name="ENABLED">ENABLED</string>
+    <string name="MUTED">MUTED</string>
+    <string name="DISABLED">DISABLED</string>
+    <string-array name="mic_states">
+        <item>@string/UNAVAILABLE</item>
+        <item>@string/ENABLED</item>
+        <item>@string/MUTED</item>
+        <item>@string/DISABLED</item>
+    </string-array>
+    <string-array name="group_statuses">
+        <item>IDLE</item>
+        <item>STREAMING</item>
+        <item>SUSPENDED</item>
+        <item>RECONFIGURED</item>
+        <item>DESTROYED</item>
+    </string-array>
+    <string-array name="content_types">
+        <item>Unspecified</item>
+        <item>Conversational</item>
+        <item>Media</item>
+        <item>Game</item>
+        <item>Instructional</item>
+        <item>Voice Assistant</item>
+        <item>Live</item>
+        <item>Sound Effects</item>
+        <item>Notifications</item>
+        <item>Ringtone</item>
+        <item>Alerts</item>
+        <item>Emergency Alarm</item>
+    </string-array>
+    <string-array name="audio_locations">
+        <item>Front Left</item>
+        <item>Front Right</item>
+        <item>Front Center</item>
+        <item>Low Frequency Effects 1</item>
+        <item>Back Left</item>
+        <item>Back Right</item>
+        <item>Front Left of Center</item>
+        <item>Front Right of Center</item>
+        <item>Back Center</item>
+        <item>Low Frequency Effects 2</item>
+        <item>Side Left</item>
+        <item>Side Right</item>
+        <item>Top Front Left</item>
+        <item>Top Front Right</item>
+        <item>Top Front Center</item>
+        <item>Top Center</item>
+        <item>Top Back Left</item>
+        <item>Top Back Right</item>
+        <item>Top Side Left</item>
+        <item>Top Side Right</item>
+        <item>Top Back Center</item>
+        <item>Bottom Front Center</item>
+        <item>Bottom Front Left</item>
+        <item>Bottom Front Right</item>
+        <item>Front Left Wide</item>
+        <item>Front Right Wide</item>
+        <item>Left Surround</item>
+        <item>Right Surround</item>
+        <item>UNKNOWN</item>
+    </string-array>
+    <string-array name="gain_modes">
+        <item>Unsupported</item>
+        <item>Manual</item>
+        <item>Auto</item>
+    </string-array>
+    <string name="group_locked">LOCKED</string>
+    <string name="group_unlocked">UNLOCKED</string>
+    <string name="broadcast_pa_sync_state_pa_not_sync">PA NOT SYNC</string>
+    <string name="broadcast_pa_sync_state_syncinfo_req">SyncInfo REQ</string>
+    <string name="broadcast_pa_sync_state_pa_sync">PA SYNC</string>
+    <string name="broadcast_pa_sync_state_sync_pa_failed">SYNC PA FAILED</string>
+    <string name="broadcast_pa_sync_state_no_past">NO PAST</string>
+    <string name="broadcast_big_encryption_not_enc">NOT ENC</string>
+    <string name="broadcast_big_encryption_code_required">CODE REQUIRED</string>
+    <string name="broadcast_big_encryption_decrypting">DECRYPTING</string>
+    <string name="broadcast_big_encryption_bad_code">BAD CODE</string>
+    <string name="broadcast_bis_sync_state_bis_not_sync">BIS NOT SYNC</string>
+    <string name="broadcast_bis_sync_state_bis_sync">BIS SYNC</string>
+    <string name="broadcast_bis_sync_state_failed_to_sync">FAILED TO SYNC</string>
+    <string name="broadcast_state_rfu">RFU</string>
+    <string-array name="tbs_call_states">
+        <item>Incoming</item>
+        <item>Dialing</item>
+        <item>Alerting</item>
+        <item>Active</item>
+        <item>LocallyHeld</item>
+        <item>RemotelyHeld</item>
+        <item>LocallyRemotelyHeld</item>
+    </string-array>
+    <string-array name="tbs_provider_name">
+        <item>AT&amp;T</item>
+        <item>T-Mobile</item>
+        <item>Verizon</item>
+    </string-array>
+    <string-array name="tbs_technology">
+        <item>UNKNOWN</item>
+        <item>3G</item>
+        <item>4G</item>
+        <item>LTE</item>
+        <item>Wi-Fi</item>
+        <item>5G</item>
+        <item>GSM</item>
+        <item>CDMA</item>
+        <item>2G</item>
+        <item>WCDMA</item>
+        <item>IP</item>
+    </string-array>
+    <string-array name="profile_states">
+        <item>DISCONNECTED</item>
+        <item>CONNECTING</item>
+        <item>CONNECTED</item>
+        <item>DISCONNECTING</item>
+    </string-array>
+    <string-array name="hearing_aid_types">
+        <item>Monaural</item>
+        <item>Banded</item>
+        <item>Binaural</item>
+    </string-array>
+    <string-array name="preset_synchronization_support">
+        <item>Not synchronized</item>
+        <item>Synchronized</item>
+    </string-array>
+    <string-array name="independent_presets">
+        <item>The same presets</item>
+        <item>Independent presets</item>
+    </string-array>
+    <string-array name="dynamic_presets">
+        <item>Not dynamic</item>
+        <item>Dynamic</item>
+    </string-array>
+    <string-array name="writable_presets_support">
+        <item>Not writable</item>
+        <item>Writable</item>
+    </string-array>
+    <string name="notes_icon">♫</string>
+    <string name="advertising">Advertising</string>
+    <string name="callhold">CallHold</string>
+    <string name="calljoin">CallJoin</string>
+    <string name="signalstrengthreporting">SignalStrengthReporting</string>
+    <string name="features">Features:</string>
+    <string name="toggle">Toggle:</string>
+    <string name="telephone_bearer_service">Telephone Bearer Service</string>
+    <string name="action_broadcast">Broadcast Audio</string>
+    <string name="add_outgoing_incoming_call">Add outgoing/incoming call:</string>
+    <string name="current_calls">Current calls:</string>
+    <string name="uuid">UUID:</string>
+    <string name="uri">URI:</string>
+    <string name="provider_name">Provider Name:</string>
+    <string name="signal_strength">Signal Strength</string>
+    <string name="not_provided_string"><![CDATA[<not provided>]]></string>
+</resources>

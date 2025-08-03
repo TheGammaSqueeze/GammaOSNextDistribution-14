@@ -1,0 +1,79 @@
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+//
+// Module-specific defaults.
+//
+// For module X, if we need to build it both as a library and an executable:
+//  - A default rule `releasetools_X_defaults` is created, which lists `srcs`, `libs` and
+//    `required` properties.
+//  - `python_library_host` and `python_binary_host` are created by listing
+//    `releasetools_X_defaults` in their defaults.
+//
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_update_engine_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_update_engine_license"],
+}
+
+filegroup {
+    name: "update_device_script",
+    srcs: [
+        "**/*.py",
+    ],
+    path: ".",
+}
+
+python_library_host {
+    name: "update_payload",
+
+    srcs: [
+        "update_payload/__init__.py",
+        "update_payload/payload.py",
+        "update_payload/checker.py",
+        "update_payload/common.py",
+        "update_payload/error.py",
+        "update_payload/histogram.py",
+        "update_payload/format_utils.py",
+    ],
+    proto: {
+        canonical_path_from_root: false,
+    },
+    libs: [
+        "update_metadata-protos-python",
+    ],
+}
+
+python_binary_host {
+    name: "update_device",
+    srcs: [
+        "update_device.py",
+    ],
+    main: "update_device.py",
+    libs: [
+        "update_payload",
+    ],
+    version: {
+        py2: {
+            enabled: false,
+        },
+        py3: {
+            enabled: true,
+        },
+    },
+}

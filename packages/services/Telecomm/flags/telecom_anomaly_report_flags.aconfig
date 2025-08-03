@@ -1,0 +1,9 @@
+package: "com.android.server.telecom.flags"
+container: "system"
+
+flag {
+  name: "gen_anom_report_on_focus_timeout"
+  namespace: "telecom"
+  description: "When getCurrentFocusCall times out, generate an anom. report"
+  bug: "309541253"
+}

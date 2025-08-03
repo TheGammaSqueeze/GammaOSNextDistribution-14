@@ -1,0 +1,58 @@
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+runtime_resource_overlay {
+    name: "GoogleCarUiPortraitToolbarBase",
+    manifest: "AndroidManifest.xml",
+    resource_dirs: ["res"],
+    static_libs: [
+        "car-portrait-ui-common",
+    ],
+}
+
+override_runtime_resource_overlay {
+    name: "generated_caruiportrait_toolbar-com-android-car-media",
+    base: "GoogleCarUiPortraitToolbarBase",
+    package_name: "com.android.car.media.googlecaruiportrait.toolbar.rro",
+    target_package_name: "com.android.car.media",
+    category: "caruiportrait.toolbar.media",
+}
+
+override_runtime_resource_overlay {
+    name: "generated_caruiportrait_toolbar-com-android-car-dialer",
+    base: "GoogleCarUiPortraitToolbarBase",
+    package_name: "com.android.car.dialer.googlecaruiportrait.toolbar.rro",
+    target_package_name: "com.android.car.dialer",
+    category: "caruiportrait.toolbar.dialer",
+}
+
+override_runtime_resource_overlay {
+    name: "generated_caruiportrait_toolbar-com-android-car-radio",
+    base: "GoogleCarUiPortraitToolbarBase",
+    package_name: "com.android.car.radio.googlecaruiportrait.toolbar.rro",
+    target_package_name: "com.android.car.radio",
+    category: "caruiportrait.toolbar.radio",
+}
+
+override_runtime_resource_overlay {
+    name: "generated_caruiportrait_toolbar-com-android-car-messenger",
+    base: "GoogleCarUiPortraitToolbarBase",
+    package_name: "com.android.car.messenger.googlecaruiportrait.toolbar.rro",
+    target_package_name: "com.android.car.messenger",
+    category: "caruiportrait.toolbar.messenger",
+}

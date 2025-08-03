@@ -1,0 +1,127 @@
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<safety-center-config>
+    <safety-sources-config>
+        <safety-sources-group
+            id="AndroidLockScreenSources"
+            title="@com.android.safetycenter.resources:string/lock_screen_sources_title"
+            summary="@com.android.safetycenter.resources:string/lock_screen_sources_summary">
+            <dynamic-safety-source
+                id="AndroidLockScreen"
+                packageName="com.android.settings"
+                profile="primary_profile_only"
+                title="@com.android.safetycenter.resources:string/lock_screen_title"
+                summary="@com.android.safetycenter.resources:string/lock_screen_summary_disabled"
+                searchTerms="@com.android.safetycenter.resources:string/lock_screen_search_terms"
+                initialDisplayState="disabled"
+                notificationsAllowed="true"/>
+            <dynamic-safety-source
+                id="AndroidBiometrics"
+                packageName="com.android.settings"
+                profile="all_profiles"
+                title="@com.android.safetycenter.resources:string/biometrics_title"
+                titleForWork="@com.android.safetycenter.resources:string/biometrics_title_for_work"
+                searchTerms="@com.android.safetycenter.resources:string/biometrics_search_terms"
+                initialDisplayState="hidden"/>
+        </safety-sources-group>
+        <safety-sources-group
+            id="AndroidPrivacySources"
+            title="@com.android.safetycenter.resources:string/privacy_sources_title"
+            summary="@com.android.safetycenter.resources:string/privacy_sources_summary"
+            statelessIconType="privacy">
+            <static-safety-source
+                id="AndroidPermissionManager"
+                profile="primary_profile_only"
+                intentAction="android.intent.action.MANAGE_PERMISSIONS"
+                title="@com.android.safetycenter.resources:string/permission_manager_title"
+                summary="@com.android.safetycenter.resources:string/permission_manager_summary"
+                searchTerms="@com.android.safetycenter.resources:string/permission_manager_search_terms"/>
+            <static-safety-source
+                id="AndroidPermissionUsage"
+                profile="primary_profile_only"
+                intentAction="android.intent.action.REVIEW_PERMISSION_USAGE"
+                title="@com.android.safetycenter.resources:string/permission_usage_title"
+                summary="@com.android.safetycenter.resources:string/permission_usage_summary"
+                searchTerms="@com.android.safetycenter.resources:string/permission_usage_search_terms"/>
+            <dynamic-safety-source
+                id="AndroidHealthConnect"
+                profile="primary_profile_only"
+                packageName="com.android.healthconnect.controller"
+                initialDisplayState="hidden"
+                refreshOnPageOpenAllowed="false"
+                title="@com.android.safetycenter.resources:string/health_connect_title"
+                searchTerms="@com.android.safetycenter.resources:string/health_connect_search_terms"/>
+            <dynamic-safety-source
+                id="AndroidPrivacyAppDataSharingUpdates"
+                packageName="com.android.permissioncontroller"
+                profile="primary_profile_only"
+                initialDisplayState="hidden"
+                refreshOnPageOpenAllowed="true"
+                title="@com.android.safetycenter.resources:string/app_data_sharing_updates_title"
+                searchTerms="@com.android.safetycenter.resources:string/app_data_sharing_updates_search_terms"/>
+            <static-safety-source
+                id="AndroidPrivacyControls"
+                profile="primary_profile_only"
+                intentAction="android.settings.PRIVACY_CONTROLS"
+                title="@com.android.safetycenter.resources:string/privacy_controls_title"
+                summary="@com.android.safetycenter.resources:string/privacy_controls_summary"
+                searchTerms="@com.android.safetycenter.resources:string/privacy_controls_search_terms"/>
+            <issue-only-safety-source
+                id="AndroidAccessibility"
+                packageName="com.android.permissioncontroller"
+                profile="all_profiles"
+                notificationsAllowed="true"
+                refreshOnPageOpenAllowed="true"/>
+            <issue-only-safety-source
+                id="AndroidNotificationListener"
+                packageName="com.android.permissioncontroller"
+                profile="primary_profile_only"
+                notificationsAllowed="true"
+                refreshOnPageOpenAllowed="true"/>
+            <issue-only-safety-source
+                id="AndroidBackgroundLocation"
+                packageName="com.android.permissioncontroller"
+                profile="all_profiles"
+                notificationsAllowed="true"
+                refreshOnPageOpenAllowed="true"/>
+            <issue-only-safety-source
+                id="AndroidPermissionAutoRevoke"
+                packageName="com.android.permissioncontroller"
+                profile="all_profiles"
+                notificationsAllowed="true"
+                refreshOnPageOpenAllowed="true"/>
+        </safety-sources-group>
+        <safety-sources-group
+            id="AndroidAdvancedSources"
+            title="@com.android.safetycenter.resources:string/advanced_title">
+            <dynamic-safety-source
+                id="AndroidWorkPolicyInfo"
+                packageName="com.android.permissioncontroller"
+                profile="primary_profile_only"
+                title="@com.android.safetycenter.resources:string/work_policy_title"
+                initialDisplayState="hidden"
+                refreshOnPageOpenAllowed="true"/>
+            <static-safety-source
+                id="AndroidMoreSettings"
+                profile="primary_profile_only"
+                intentAction="com.android.settings.MORE_SECURITY_PRIVACY_SETTINGS"
+                title="@com.android.safetycenter.resources:string/more_settings_title"
+                summary="@com.android.safetycenter.resources:string/more_settings_summary"
+                searchTerms="@com.android.safetycenter.resources:string/more_settings_search_terms"/>
+        </safety-sources-group>
+    </safety-sources-config>
+</safety-center-config>

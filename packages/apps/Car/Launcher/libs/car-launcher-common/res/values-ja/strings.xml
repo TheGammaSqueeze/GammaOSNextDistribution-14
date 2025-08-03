@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2024 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="dock_pin_shortcut_label" msgid="7319916279393348946">"アプリを固定"</string>
+    <string name="dock_unpin_shortcut_label" msgid="1657441916649851101">"アプリの固定を解除"</string>
+    <!-- no translation found for stop_app_shortcut_label (5893149773635675147) -->
+    <skip />
+    <!-- no translation found for app_info_shortcut_label (6724408677044314793) -->
+    <skip />
+    <!-- no translation found for stop_app_dialog_title (7027389231920405129) -->
+    <skip />
+    <!-- no translation found for stop_app_dialog_text (4997162043741899166) -->
+    <skip />
+    <!-- no translation found for stop_app_success_toast_text (3740858295088091414) -->
+    <skip />
+</resources>

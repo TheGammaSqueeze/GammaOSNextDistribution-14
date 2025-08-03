@@ -1,0 +1,8 @@
+  #00 pc 00000000005915dc  libunwindstack_unit_test (unwindstack::Verify_test_Test::TestBody()+42)
+  #01 pc 00000000005a9dfc  libunwindstack_unit_test (testing::Test::Run()+378)
+  #02 pc 00000000005aac76  libunwindstack_unit_test (testing::TestInfo::Run()+454)
+  #03 pc 00000000005ab604  libunwindstack_unit_test (testing::TestSuite::Run()+708)
+  #04 pc 00000000005b7cd2  libunwindstack_unit_test (testing::internal::UnitTestImpl::RunAllTests()+2034)
+  #05 pc 00000000005b739e  libunwindstack_unit_test (testing::UnitTest::Run()+126)
+  #06 pc 00000000005c0c7c  libunwindstack_unit_test (IsolateMain+1426)
+  #07 pc 000000000004a394  libc.so (__libc_init+76)

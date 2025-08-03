@@ -1,0 +1,4 @@
+runtime_resource_overlay {
+    name: "GmsSettingsOverlay",
+    product_specific: true
+}

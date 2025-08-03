@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:title="@string/additional_cdma_call_settings">
+
+    <com.android.phone.CdmaVoicePrivacySwitchPreference
+        android:key="button_voice_privacy_key"
+        android:title="@string/voice_privacy"
+        android:persistent="false"
+        android:summary="@string/voice_privacy_summary"/>
+
+    <PreferenceScreen
+        android:key="call_forwarding_key"
+        android:title="@string/labelCF"
+        android:persistent="false" />
+
+    <com.android.phone.CdmaCallWaitingPreference
+        android:key="call_waiting_key"
+        android:title="@string/labelCW"
+        android:persistent="false" />
+</PreferenceScreen>

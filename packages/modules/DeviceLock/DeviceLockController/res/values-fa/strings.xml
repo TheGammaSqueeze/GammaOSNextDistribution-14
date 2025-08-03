@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  Copyright (c) 2022, The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="5655878067457216814">"DeviceLockController"</string>
+    <string name="next_button" msgid="1856423430963548653">"بعدی"</string>
+    <string name="reset_button" msgid="4649354411129240809">"بازنشانی"</string>
+    <string name="setup_more_button" msgid="4456370972302510109">"بیشتر"</string>
+    <string name="setup_info_title_text" msgid="299562193092219293">"‫<xliff:g id="CREDITOR_APP">%1$s</xliff:g> چگونه می‌تواند این دستگاه را مدیریت کند"</string>
+    <string name="setup_failed_title_text" msgid="9045111389981992536">"نمی‌توان برنامه <xliff:g id="CREDITOR_APP">%1$s</xliff:g> را نصب کرد"</string>
+    <string name="setup_failed_reset_device_text" msgid="178419033440060908">"درحال بازنشانی دستگاه برای امتحان مجدد."</string>
+    <string name="setup_failed_reset_device_timer_text" msgid="5270970227714985986">"{count,plural, =1{این دستگاه را بازنشانی کنید و سپس دوباره راه‌اندازی کنید. دستگاه یک ثانیه دیگر به‌طور خودکار بازنشانی خواهد شد.}one{این دستگاه را بازنشانی کنید و سپس دوباره راه‌اندازی کنید. دستگاه # ثانیه دیگر به‌طور خودکار بازنشانی خواهد شد.}other{این دستگاه را بازنشانی کنید و سپس دوباره راه‌اندازی کنید. دستگاه # ثانیه دیگر به‌طور خودکار بازنشانی خواهد شد.}}"</string>
+    <string name="setup_progress_title_text" msgid="2388779167610656852">"درحال نصب برنامه <xliff:g id="CREDITOR_APP">%1$s</xliff:g><xliff:g id="ELLIPSIS">…</xliff:g>"</string>
+    <string name="setup_finish_title_text" msgid="2810842695806992743">"درحال باز کردن برنامه <xliff:g id="CREDITOR_APP">%1$s</xliff:g><xliff:g id="ELLIPSIS">…</xliff:g>"</string>
+    <string name="setup_error_title_text" msgid="1123742279081942535">"نمی‌توان برنامه <xliff:g id="CREDITOR_APP">%1$s</xliff:g> را باز کرد"</string>
+    <string name="try_again" msgid="5964839819170927721">"امتحان مجدد"</string>
+    <string name="reset_phone" msgid="1161657350311160627">"بازنشانی تلفن"</string>
+    <string name="control_section_title" msgid="2213476068991045785">"‫<xliff:g id="CREDITOR_APP">%1$s</xliff:g> چه کاری می‌تواند انجام دهد؟"</string>
+    <string name="control_lock_device_text" msgid="8253302484073757764">"اگر پرداختی نداشته باشید، این دستگاه محدود می‌شود"</string>
+    <string name="control_download_text" msgid="8514650561843088172">"برنامه <xliff:g id="CREDITOR_APP">%1$s</xliff:g> بارگیری، نصب، و به‌روزرسانی می‌شود"</string>
+    <string name="control_disable_debug_text" msgid="8112443250013094442">"ویژگی‌های اشکال‌زدایی خاموش می‌شود"</string>
+    <string name="locked_section_title" msgid="2748725389334076510">"اگر این دستگاه قفل باشد، چه ویژگی‌هایی کار می‌کند؟"</string>
+    <string name="locked_emergency_text" msgid="3509216445555779286">"سرویس‌های تماس اضطراری"</string>
+    <string name="locked_phone_usage_text" msgid="1913605870324552847">"تماس‌های ورودی و برخی‌از تماس‌های خروجی"</string>
+    <string name="locked_settings_usage_text" msgid="8336476063187737700">"تنظیمات"</string>
+    <string name="locked_backup_and_restore_text" msgid="104616318625243429">"&lt;a href=https://support.google.com/android/answer/2819582&gt;پشتیبان‌گیری و بازیابی&lt;/a&gt; داده‌ها"</string>
+    <string name="exposure_section_title" msgid="2329122144337528752">"چه داده‌هایی برای <xliff:g id="CREDITOR_APP">%1$s</xliff:g> نمایان است؟"</string>
+    <string name="exposure_install_text" msgid="2631074166447765453">"وقتی برنامه <xliff:g id="CREDITOR_APP">%1$s</xliff:g> نصب یا حذف نصب شود"</string>
+    <string name="exposure_lock_unlock_text" msgid="6827412845847260579">"همه درخواست‌های قفل کردن یا باز کردن قفل ازطرف <xliff:g id="CREDITOR_APP">%1$s</xliff:g>"</string>
+    <string name="exposure_disable_dlc_text" msgid="2898692398106736423">"اگر برنامه <xliff:g id="CREDITOR_APP">%1$s</xliff:g> دردسترس نباشد"</string>
+    <string name="open_source_licenses" msgid="6464389386262455443">"پروانه‌های متن‌باز"</string>
+    <string name="footer_notice_content_description" msgid="2160540400079419440">"قابلیت‌های مدیریتی موجود در بخش دستگاه دارای پشتیبانی مالی از «تنظیمات ایمنی» شامل این دستگاه نمی‌شود."</string>
+    <string name="device_provided_by_provider" msgid="290593329676291991">"این دستگاه را <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> ارائه کرده است"</string>
+    <string name="download_kiosk_app" msgid="1845089944897502656">"برنامه «کیوسک» به‌طور خودکار بارگیری و نصب خواهد شد"</string>
+    <string name="install_kiosk_app_secondary_user" msgid="49911908012320834">"برنامه «کیوسک» برای این کاربر نصب خواهد شد"</string>
+    <string name="restrict_device_if_missing_payment" msgid="8883980285859496904">"اگر پرداختی را انجام ندهید، <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> می‌تواند دستگاه را محدود کند. برای جزئیات، <xliff:g id="TERMS_AND_CONDITIONS_LINK_START">&lt;a href=%2$s&gt;</xliff:g>شرایط خدمات<xliff:g id="TERMS_AND_CONDITIONS_LINK_END">&lt;/a&gt;</xliff:g> را مشاهده کنید."</string>
+    <string name="restrict_device_if_dont_make_payment" msgid="1619095674945507015">"اگر پرداخت‌های ضروری را انجام ندهید، <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> می‌تواند این دستگاه را محدود کند. برای جزئیات، <xliff:g id="TERMS_AND_CONDITIONS_LINK_START">&lt;a href=%2$s&gt;</xliff:g>شرایط خدمات<xliff:g id="TERMS_AND_CONDITIONS_LINK_END">&lt;/a&gt;</xliff:g> را مشاهده کنید."</string>
+    <string name="contact_provider_for_help" msgid="3872028089834808884">"برای راهنمایی، <xliff:g id="SUPPORT_LINK_START">&lt;a href=%2$s&gt;</xliff:g>با <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> تماس بگیرید<xliff:g id="SUPPORT_LINK_END">&lt;/a&gt;</xliff:g>."</string>
+    <string name="previous" msgid="5241891780917802570">"قبلی"</string>
+    <string name="next" msgid="8248291863254324326">"بعدی"</string>
+    <string name="start" msgid="2842214844667658537">"شروع"</string>
+    <string name="ok" msgid="3568398726528719749">"تأیید"</string>
+    <string name="done" msgid="4507782734740410307">"تمام"</string>
+    <string name="do_it_in_one_hour" msgid="2727777340568739453">"۱ ساعت دیگر انجام شود"</string>
+    <string name="header_icon_content_description" msgid="6069602031334473195">"اطلاعات"</string>
+    <string name="provision_info_item_icon_content_description" msgid="2306298178610632507">"اطلاعات تأمین"</string>
+    <string name="enroll_your_device_header" msgid="2226305405591945098">"ثبت‌نام دستگاه"</string>
+    <string name="enroll_your_device_financing_subheader" msgid="8810608106273097451">"اکنون می‌توانید دستگاهتان را در برنامه مالی <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> ثبت‌نام کنید"</string>
+    <string name="enroll_your_device_subsidy_subheader" msgid="8598730780370624995">"اکنون می‌توانید دستگاهتان را در برنامه یارانه <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> ثبت‌نام کنید"</string>
+    <string name="subsidy_program_header" msgid="2321508488856303554">"در برنامه یارانه <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> هستید"</string>
+    <string name="device_enrollment_header_text" msgid="5283341102404741658">"ثبت‌نام دستگاه"</string>
+    <string name="device_financing_enrollment_body_text" msgid="5506086383249511498">"دستگاهتان ظرف ۳۰ روز آینده در برنامه مالی <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> ثبت‌نام خواهد شد"</string>
+    <string name="device_subsidy_enrollment_body_text" msgid="3971584929178719388">"دستگاهتان ظرف ۳۰ روز آینده در برنامه یارانه <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> ثبت‌نام خواهد شد"</string>
+    <string name="device_enrollment_notification_body_text" msgid="8755080244956655854">"ثبت‌نام ساعت <xliff:g id="TIME">%1$s</xliff:g> ازسر گرفته خواهد شد. می‌توانید به استفاده از دستگاهتان ادامه دهید."</string>
+    <string name="continue_using_device" msgid="5816570734692191190">"می‌توانید همچنان از دستگاه استفاده کنید"</string>
+    <string name="device_paid" msgid="6606280698381856804">"هزینه دستگاه را پرداخت کرده‌اید"</string>
+    <string name="device_removed_from_subsidy_program" msgid="1243434945619071051">"دستگاه از برنامه یارانه <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> برداشته شد"</string>
+    <string name="device_removed_from_finance_program" msgid="825548999540107578">"دستگاهتان از برنامه مالی <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> برداشته شده است"</string>
+    <string name="restrictions_lifted" msgid="5785586265984319396">"همه محدودیت‌های اعمال‌شده روی دستگاه برداشته شد"</string>
+    <string name="uninstall_kiosk_app" msgid="3459557395024053988">"می‌توانید برنامه «کیوسک» را از دستگاهتان حذف نصب کنید"</string>
+    <string name="getting_device_ready" msgid="2829009584599871699">"درحال آماده کردن دستگاه…"</string>
+    <string name="this_may_take_a_few_minutes" msgid="2482876246874429351">"ممکن است چند دقیقه طول بکشد"</string>
+    <string name="installing_kiosk_app" msgid="324208168205545860">"درحال نصب برنامه <xliff:g id="CREDITOR_APP">%1$s</xliff:g>…"</string>
+    <string name="opening_kiosk_app" msgid="2021888641430165654">"درحال باز کردن برنامه <xliff:g id="CREDITOR_APP">%1$s</xliff:g>…"</string>
+    <string name="settings_banner_title" msgid="527041021011279252">"دستگاه را <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> ارائه کرده است"</string>
+    <string name="settings_banner_body" msgid="5814902066260202824">"<xliff:g id="PROVIDER_NAME">%1$s</xliff:g> می‌تواند تنظیمات این دستگاه را تغییر دهد"</string>
+    <string name="settings_banner_button" msgid="1831020849782670907">"بیشتر بدانید"</string>
+    <string name="settings_screen_title" msgid="721470080648091035">"اطلاعات دستگاه دارای پشتیبانی مالی"</string>
+    <string name="settings_intro_device_financing" msgid="2548476558131048133">"<xliff:g id="PROVIDER_NAME_0">%1$s</xliff:g> می‌تواند تنظیمات را تغییر دهد و برنامه «کیوسکی» را در دستگاه نصب کند.\n\nاگر صورت‌حسابی را پرداخت نکنید، <xliff:g id="PROVIDER_NAME_1">%1$s</xliff:g> می‌تواند دستگاهتان را محدود کند.\n\nبرای کسب اطلاعات بیشتر، با <xliff:g id="PROVIDER_NAME_2">%1$s</xliff:g> تماس بگیرید."</string>
+    <string name="settings_intro_device_subsidy" msgid="4274945644204818702">"<xliff:g id="PROVIDER_NAME_0">%1$s</xliff:g> می‌تواند تنظیمات را تغییر دهد و برنامه «کیوسکی» را در دستگاه نصب کند.\n\nاگر صورت‌حسابی را پرداخت نکنید یا دیگر از سیم‌کارت <xliff:g id="PROVIDER_NAME_2">%1$s</xliff:g> استفاده نکنید، <xliff:g id="PROVIDER_NAME_1">%1$s</xliff:g> ممکن است این دستگاه را محدود کند.\n\nبرای کسب اطلاعات بیشتر، با <xliff:g id="PROVIDER_NAME_3">%1$s</xliff:g> تماس بگیرید."</string>
+    <string name="settings_intro_preference_key" msgid="6610461073400554162">"settings_intro_preference_key"</string>
+    <string name="settings_restrictions_category" msgid="5746868117342406677">"تا زمانی‌که هزینه دستگاه را پرداخت نکنید، نمی‌توانید:"</string>
+    <string name="settings_restrictions_category_preference_key" msgid="88318147152676512">"settings_restrictions_category_preference_key"</string>
+    <string name="settings_install_apps" msgid="3634279771448183713">"نصب برنامه از منابع خارج از «فروشگاه Play»"</string>
+    <string name="settings_install_apps_preference_key" msgid="27542314345238427">"settings_install_apps_preference_key"</string>
+    <string name="settings_safe_mode" msgid="3035228015586375153">"بازراه‌اندازی دستگاه در حالت ایمن"</string>
+    <string name="settings_safe_mode_preference_key" msgid="2106617747358027424">"settings_safe_mode_preference_key"</string>
+    <string name="settings_developer_options" msgid="880701002025216672">"استفاده از گزینه‌های توسعه‌دهندگان"</string>
+    <string name="settings_developer_options_preference_key" msgid="6807036808722582954">"settings_developer_options_preference_key"</string>
+    <string name="settings_credit_provider_capabilities_category" msgid="1274440595211820868">"اگر مشکلی در دستگاه رخ دهد، <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> می‌تواند:"</string>
+    <string name="settings_credit_provider_capabilities_category_preference_key" msgid="4571685720898641262">"settings_credit_provider_capabilities_category_preference_key"</string>
+    <string name="settings_IMEI" msgid="697965824361262506">"دسترسی به شماره IMEI"</string>
+    <string name="settings_IMEI_preference_key" msgid="608809590948249412">"settings_IMEI_preference_key"</string>
+    <string name="settings_factory_reset" msgid="418045189048067625">"بازنشانی کارخانه‌ای دستگاه"</string>
+    <string name="settings_factory_reset_preference_key" msgid="2168528486393635382">"settings_factory_reset_preference_key"</string>
+    <string name="settings_locked_mode_category" msgid="6307525048618331737">"اگر دستگاهتان محدود شد، فقط می‌توانید از آن برای موارد زیر استفاده کنید:"</string>
+    <string name="settings_locked_mode_category_preference_key" msgid="7202573929427220258">"settings_locked_mode_category_preference_key"</string>
+    <string name="settings_emergency_calls" msgid="2460996367176786040">"برقراری تماس با شماره تلفن‌های اضطراری"</string>
+    <string name="settings_emergency_calls_preference_key" msgid="737598609727181316">"settings_emergency_calls_preference_key"</string>
+    <string name="settings_system_info" msgid="1352629332624774940">"مشاهده اطلاعات سیستم مثل تاریخ، ساعت، وضعیت شبکه، و باتری"</string>
+    <string name="settings_system_info_preference_key" msgid="8607675914059202598">"settings_system_info_preference_key"</string>
+    <string name="settings_turn_on_off_device" msgid="5414836621603462439">"روشن یا خاموش کردن دستگاه"</string>
+    <string name="settings_turn_on_off_device_preference_key" msgid="5981163790552677734">"settings_turn_on_off_device_preference_key"</string>
+    <string name="settings_notifications" msgid="63348993899505034">"مشاهده اعلان‌ها و پیامک‌ها"</string>
+    <string name="settings_notifications_preference_key" msgid="4527872342061056462">"settings_notifications_preference_key"</string>
+    <string name="settings_allowlisted_apps" msgid="5531810497056091097">"دسترسی به برنامه‌هایی که <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> مجاز کرده است"</string>
+    <string name="settings_allowlisted_apps_preference_key" msgid="8662705531235468080">"settings_allowlisted_apps_preference_key"</string>
+    <string name="settings_fully_paid_category" msgid="2459776591689824433">"پس‌از پرداخت مبلغ کامل:"</string>
+    <string name="settings_fully_paid_category_preference_key" msgid="1759690898170600559">"settings_fully_paid_category_preference_key"</string>
+    <string name="settings_restrictions_removed" msgid="1398080654904863221">"<xliff:g id="PROVIDER_NAME">%1$s</xliff:g> نمی‌تواند دستگاهتان را محدود کند یا تنظیمات آن را تغییر دهد"</string>
+    <string name="settings_restrictions_removed_preference_key" msgid="7741933477145197391">"settings_restrictions_removed_preference_key"</string>
+    <string name="settings_uninstall_kiosk_app" msgid="2611134364295637875">"می‌توانید برنامه <xliff:g id="KIOSK_APP">%1$s</xliff:g> را حذف نصب کنید"</string>
+    <string name="settings_uninstall_kiosk_app_preference_key" msgid="5578103644009268125">"settings_uninstall_kiosk_app_preference_key"</string>
+    <string name="settings_support_category" msgid="7210906871924935770">"برای دریافت راهنمایی:"</string>
+    <string name="settings_support_category_preference_key" msgid="1818953199283261021">"settings_support_category_preference_key"</string>
+    <string name="settings_contact_provider" msgid="2481819956474692039">"<xliff:g id="SUPPORT_LINK_START">&lt;a href=%2$s&gt;</xliff:g>تماس با <xliff:g id="PROVIDER_NAME">%1$s</xliff:g><xliff:g id="SUPPORT_LINK_END">&lt;/a&gt;</xliff:g>"</string>
+    <string name="settings_contact_provider_preference_key" msgid="2703619536229342624">"settings_contact_provider_preference_key"</string>
+    <string name="provision_notification_channel_name" msgid="6123500714047647805">"تأمین"</string>
+    <string name="device_reset_in_days_notification_title" msgid="920859483535317727">"{count,plural, =1{دستگاه یک روز دیگر بازنشانی خواهد شد}one{دستگاه # روز دیگر بازنشانی خواهد شد}other{دستگاه # روز دیگر بازنشانی خواهد شد}}"</string>
+    <string name="device_reset_timer_notification_title" msgid="301978346002711614">"دستگاه <xliff:g id="TIMER">%s</xliff:g> دیگر بازنشانی خواهد شد"</string>
+    <string name="device_reset_notification_content" msgid="7642367488663440437">"همه داده‌های دستگاه حذف خواهد شد. برای دریافت راهنمایی درخصوص ثبت‌نام دستگاه، با <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> تماس بگیرید"</string>
+    <string name="provisioning_failed" msgid="5350252817004028300">"تأمین مالی انجام نشد"</string>
+    <string name="click_to_contact_financier" msgid="9107827438262930445">"برای اطلاع از روش‌های تماس با تأمین‌کننده مالی، لطفاً اینجا کلیک کنید. <xliff:g id="SUPPORT_URL_START">&lt;a href=%1$s&gt;</xliff:g>بیشتر بدانید<xliff:g id="SUPPORT_URL_END">&lt;/a&gt;</xliff:g>"</string>
+    <string name="exit" msgid="645084771882733921">"خارج شدن"</string>
+    <string name="retry" msgid="7497287909193345356">"امتحان مجدد"</string>
+</resources>

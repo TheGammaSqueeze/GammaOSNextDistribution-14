@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  Copyright (c) 2017 The LineageOS Project
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ Also add information on how to contact you by electronic and paper mail.
+
+-->
+<resources>
+    <string name="app_name">FlipFlap</string>
+    <string name="notification_title">Clúdach cliste braite</string>
+    <string name="alarm_label">ALÁRAM</string>
+    <string name="abbrev_wday_month_day_no_year">EEE, MMMM d</string>
+    <string name="answer_call">FREAGRA</string>
+    <string name="ignore_call">DÉAN NEAMHAIRD</string>
+    <string name="end_call">DEIREADH CALL</string>
+    <string name="settings_name">Clúdach cliste</string>
+    <string name="settings_enable">Cumasaigh rialú clúdach cliste</string>
+    <string name="settings_summary">Rialú do iompar cúlpháirtí</string>
+    <string name="category_behaviour">Iompraíocht</string>
+    <string name="pass_to_security_view_title">Téigh go díreach chuig iontráil phasfhocal</string>
+    <string name="pass_to_security_view_summary">Taispeánann oscailt an cháis go díreach scáileán glas</string>
+    <string name="use_high_touch_sensitivity_title">Íogaireacht dteagmháil ard</string>
+    <string name="use_high_touch_sensitivity_summary">Méadú íogaireacht dteagmháil agus an clúdach dúnta</string>
+    <string name="category_design">Dearadh</string>
+    <string name="switch_charging_status_title">Taispeáin an stádas muirir</string>
+    <string name="switch_charging_status_summary">Athraigh dath ag brath ar an muirear ceallraí reatha</string>
+    <string name="category_timeouts">Teorainneacha Ama</string>
+    <string name="timeout_plugged_title">Nuair a bhíonn sé á muirearú</string>
+    <string name="timeout_unplugged_title">Díphlugáilte</string>
+    <string name="timeout_summary">Taispeáin an aip chlúdaigh le haghaidh %s tar éis duit an clúdach a dhúnadh</string>
+    <string name="timeout_summary_never">Tar éis an clúdach a dhúnadh, fanfaidh an aip clúdaigh ar siúl i gcónaí</string>
+    <string name="timeout_summary_immediately">Múchfar an scáileán nuair a dhúnfar an clúdach</string>
+    <string name="timeout_entry_immediately">Láithreach</string>
+    <string name="timeout_entry_5s">5 soicind</string>
+    <string name="timeout_entry_10s">10 soicind</string>
+    <string name="timeout_entry_30s">30 soicind</string>
+    <string name="timeout_entry_1min">1 nóiméad</string>
+    <string name="timeout_entry_5min">5 nóiméad</string>
+    <string name="timeout_entry_never">Riamh</string>
+</resources>

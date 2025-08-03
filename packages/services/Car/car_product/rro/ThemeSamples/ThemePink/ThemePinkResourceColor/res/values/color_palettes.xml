@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources>
+    <!-- primary colors -->
+    <color name="car_primary">@color/car_primary_80</color>
+    <color name="car_on_primary">@color/car_primary_20</color>
+    <color name="car_primary_container">@color/car_primary_30</color>
+    <color name="car_on_primary_container">@color/car_primary_90</color>
+
+    <!-- secondary colors -->
+    <color name="car_secondary">@color/car_secondary_80</color>
+    <color name="car_on_secondary">@color/car_secondary_20</color>
+    <color name="car_secondary_container">@color/car_secondary_30</color>
+    <color name="car_on_secondary_container">@color/car_secondary_90</color>
+
+    <!-- tertiary colors -->
+    <color name="car_tertiary">@color/car_tertiary_80</color>
+    <color name="car_on_tertiary">@color/car_tertiary_20</color>
+    <color name="car_tertiary_container">@color/car_tertiary_30</color>
+    <color name="car_on_tertiary_container">@color/car_tertiary_90</color>
+
+    <!-- error colors -->
+    <color name="car_error">@color/car_error_80</color>
+    <color name="car_on_error">@color/car_error_20</color>
+    <color name="car_error_container">@color/car_error_30</color>
+    <color name="car_on_error_container">@color/car_error_80</color>
+
+    <!-- background colors -->
+    <color name="car_background">@color/car_neutral_10</color>
+    <color name="car_on_background">@color/car_neutral_90</color>
+
+    <!-- surface colors -->
+    <color name="car_surface">@color/car_neutral_10</color>
+    <color name="car_on_surface">@color/car_neutral_90</color>
+    <color name="car_surface_variant">@color/car_neutral_variant_30</color>
+    <color name="car_on_surface_variant">@color/car_neutral_variant_80</color>
+    <color name="car_outline">@color/car_neutral_variant_60</color>
+    <color name="car_shadow">@color/car_neutral_variant_0</color>
+    <color name="car_inverse_surface">@color/car_neutral_90</color>
+    <color name="car_inverse_on_surface">@color/car_neutral_20</color>
+    <color name="car_inverse_primary">@color/car_primary_40</color>
+    <color name="car_surface_1">#222429</color>
+    <color name="car_surface_2">#272930</color>
+    <color name="car_surface_3">#2b2e37</color>
+    <color name="car_surface_4">#2d2f39</color>
+    <color name="car_surface_5">#30333e</color>
+
+    <!-- control highlight colors -->
+    <color name="car_control_highlight">#99d9e2ff</color>
+
+    <!-- control focus colors -->
+    <color name="car_focus_ring">@color/car_primary</color>
+    <color name="car_focus_background">#99b0c5ff</color>
+
+    <!-- TODO(b/302163073) - update rotary specs -->
+    <!-- Rotary Colors -->
+    <color name="car_rotary_focus_stroke_color">#94CBFF</color>
+    <color name="car_rotary_focus_fill_color">#3D94CBFF</color>
+    <color name="car_rotary_focus_pressed_fill_color">#8A94CBFF</color>
+</resources>

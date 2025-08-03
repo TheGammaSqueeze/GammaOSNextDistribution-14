@@ -1,0 +1,45 @@
+// Copyright 2019 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_library_host {
+    name: "tradefed-common-util",
+    // Restrict visibility to only those targets that need to access it.
+    visibility: [
+        "//tools/tradefederation/core",
+        "//tools/tradefederation/core/clearcut_client",
+        "//tools/tradefederation/core/device_build_interfaces",
+        "//tools/tradefederation/core/invocation_interfaces",
+        "//tools/tradefederation/core/test_result_interfaces",
+    ],
+    defaults: ["tradefed_defaults"],
+    java_version: "11",
+    srcs: [
+        "com/**/*.java",
+    ],
+    static_libs: [
+        "apache-commons-compress",
+        // Trace protos to do invocation tracing
+        "perfetto_trace-full",
+    ],
+    libs: [
+        "ddmlib-prebuilt",
+        "guava",
+        "tradefed-protos",
+        "devtools-annotations-prebuilt",
+    ],
+}

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.4.0-alpha01" type="baseline" client="" dependencies="true" name="" variant="all" version="8.4.0-alpha01">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 25): `android.content.Context#bindServiceAsUser`"
+        errorLine1="        if (!mContext.bindServiceAsUser(intent, connection,"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Car/experimental/service/src/com/android/experimentalcar/DriverDistractionExperimentalFeatureService.java"
+            line="372"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 25): `android.content.res.Resources#getFloat`"
+        errorLine1="                resources.getFloat(R.fraction.driverAwarenessGazeModelInitialValue),"
+        errorLine2="                          ~~~~~~~~">
+        <location
+            file="packages/services/Car/experimental/service/src/com/android/experimentalcar/GazeDriverAwarenessSupplier.java"
+            line="181"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 25): `android.content.res.Resources#getFloat`"
+        errorLine1="                resources.getFloat(R.fraction.driverAwarenessGazeModelDecayRate),"
+        errorLine2="                          ~~~~~~~~">
+        <location
+            file="packages/services/Car/experimental/service/src/com/android/experimentalcar/GazeDriverAwarenessSupplier.java"
+            line="182"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 25): `android.content.res.Resources#getFloat`"
+        errorLine1="                resources.getFloat(R.fraction.driverAwarenessGazeModelGrowthRate));"
+        errorLine2="                          ~~~~~~~~">
+        <location
+            file="packages/services/Car/experimental/service/src/com/android/experimentalcar/GazeDriverAwarenessSupplier.java"
+            line="183"
+            column="27"/>
+    </issue>
+
+</issues>

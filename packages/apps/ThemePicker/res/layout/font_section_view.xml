@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.android.customization.picker.font.FontSectionView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:background="?selectableItemBackground"
+    android:clickable="true"
+    android:paddingVertical="@dimen/option_section_vertical_padding"
+    android:paddingHorizontal="@dimen/section_horizontal_padding"
+    android:orientation="horizontal">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/preview_name_font"
+            style="@style/SectionTitleTextStyle" />
+
+        <TextView
+            android:id="@+id/font_section_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/SectionSubtitleTextStyle"/>
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/font_section_tile"
+        android:layout_width="@dimen/option_tile_width"
+        android:layout_height="@dimen/option_tile_width"
+        android:scaleType="center"
+        android:background="@drawable/picker_section_icon_background">
+        <TextView
+            android:id="@+id/thumbnail_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textSize="@dimen/font_comonent_option_thumbnail_size"
+            android:textAlignment="center"
+            android:textColor="?android:attr/colorForeground"
+            android:text="@string/font_component_option_thumbnail"/>
+    </FrameLayout>
+
+</com.android.customization.picker.font.FontSectionView>

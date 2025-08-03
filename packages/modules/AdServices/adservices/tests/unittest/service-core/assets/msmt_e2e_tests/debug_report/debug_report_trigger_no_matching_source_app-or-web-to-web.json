@@ -1,0 +1,54 @@
+{
+  "description": "A2W test: given no source, trigger has debug_permission (ar_debug permission) enabled. Expected trigger-no-matching-source debug report",
+  "phflags_override": {
+    "measurement_debug_join_key_enrollment_allowlist" : "enrollment-id-ad-tech1.test"
+  },
+  "input": {
+    "web_triggers": [
+      {
+        "registration_request": {
+          "destination_origin": "https://example.1d1.test",
+          "registrant": "example.1d1.test",
+          "trigger_params": [{
+            "attribution_src_url": "https://www.ad-tech1.test"
+          }]
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "debug_permission" : true,
+          "response": {
+            "Attribution-Reporting-Register-Trigger": {
+              "event_trigger_data": [
+                {
+                  "trigger_data": "2",
+                  "priority": "101"
+                }
+              ],
+              "debug_reporting": true,
+              "debug_key": "8971346783"
+            },
+            "Location": null,
+            "Attribution-Reporting-Redirect": null
+          }
+        }],
+        "timestamp": "800000600001"
+      }]
+  },
+  "output": {
+    "verbose_debug_reports": [
+      {
+        "report_time": "800000600001",
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/debug/verbose",
+        "payload": [
+          {
+            "type": "trigger-no-matching-source",
+            "body": {
+              "attribution_destination": "https://1d1.test",
+              "trigger_debug_key": "8971346783"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

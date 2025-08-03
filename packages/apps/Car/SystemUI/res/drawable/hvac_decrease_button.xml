@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ~ Copyright (C) 2020 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<layer-list
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt">
+    <item android:gravity="center"
+          android:width="@dimen/hvac_temperature_icon_size"
+          android:height="@dimen/hvac_temperature_icon_size">
+        <aapt:attr name="android:drawable">
+            <vector android:width="@dimen/hvac_temperature_icon_size"
+                    android:height="@dimen/hvac_temperature_icon_size"
+                    android:viewportWidth="36"
+                    android:viewportHeight="36">
+                <path
+                    android:fillColor="@color/car_on_surface"
+                    android:pathData="M30 19.4995H6V16.4995H30V19.4995Z"/>
+            </vector>
+        </aapt:attr>
+    </item>
+    <item android:width="@dimen/hvac_temperature_button_size"
+          android:height="@dimen/hvac_temperature_button_size"
+          android:drawable="@drawable/system_bar_button_background"/>
+</layer-list>

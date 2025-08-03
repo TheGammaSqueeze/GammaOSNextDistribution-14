@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.4.0-alpha01" type="baseline" client="" dependencies="true" name="" variant="all" version="8.4.0-alpha01">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.security.KeyChain#hasWifiKeyGrantAsUser`"
+        errorLine1="        return KeyChain.hasWifiKeyGrantAsUser(context, user, alias);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Wifi/service/java/com/android/server/wifi/FrameworkFacade.java"
+            line="386"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `android.os.Trace#traceBegin`"
+        errorLine1="            Trace.traceBegin(Trace.TRACE_TAG_NETWORK, signature);"
+        errorLine2="                  ~~~~~~~~~~">
+        <location
+            file="packages/modules/Wifi/service/java/com/android/server/wifi/RunnerHandler.java"
+            line="116"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `android.os.Trace#traceEnd`"
+        errorLine1="            Trace.traceEnd(Trace.TRACE_TAG_NETWORK);"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="packages/modules/Wifi/service/java/com/android/server/wifi/RunnerHandler.java"
+            line="124"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `android.os.Trace#traceBegin`"
+        errorLine1="        Trace.traceBegin(Trace.TRACE_TAG_NETWORK, signatureToLog);"
+        errorLine2="              ~~~~~~~~~~">
+        <location
+            file="packages/modules/Wifi/service/java/com/android/server/wifi/RunnerState.java"
+            line="66"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `android.os.Trace#traceEnd`"
+        errorLine1="        Trace.traceEnd(Trace.TRACE_TAG_NETWORK);"
+        errorLine2="              ~~~~~~~~">
+        <location
+            file="packages/modules/Wifi/service/java/com/android/server/wifi/RunnerState.java"
+            line="68"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `android.os.Trace#traceBegin`"
+        errorLine1="        Trace.traceBegin(Trace.TRACE_TAG_NETWORK, signatureToLog);"
+        errorLine2="              ~~~~~~~~~~">
+        <location
+            file="packages/modules/Wifi/service/java/com/android/server/wifi/RunnerState.java"
+            line="83"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `android.os.Trace#traceEnd`"
+        errorLine1="        Trace.traceEnd(Trace.TRACE_TAG_NETWORK);"
+        errorLine2="              ~~~~~~~~">
+        <location
+            file="packages/modules/Wifi/service/java/com/android/server/wifi/RunnerState.java"
+            line="85"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `android.os.Trace#traceBegin`"
+        errorLine1="        Trace.traceBegin(Trace.TRACE_TAG_NETWORK, signatureToLog);"
+        errorLine2="              ~~~~~~~~~~">
+        <location
+            file="packages/modules/Wifi/service/java/com/android/server/wifi/RunnerState.java"
+            line="99"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `android.os.Trace#traceEnd`"
+        errorLine1="        Trace.traceEnd(Trace.TRACE_TAG_NETWORK);"
+        errorLine2="              ~~~~~~~~">
+        <location
+            file="packages/modules/Wifi/service/java/com/android/server/wifi/RunnerState.java"
+            line="101"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 30): `getVendorData`"
+        errorLine1="            if (!config.getVendorData().isEmpty()) {"
+        errorLine2="                        ~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Wifi/service/java/com/android/server/wifi/p2p/SupplicantP2pIfaceHalAidlImpl.java"
+            line="589"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 30): `getVendorData`"
+        errorLine1="                        HalAidlUtil.frameworkToHalOuiKeyedDataList(config.getVendorData());"
+        errorLine2="                                                                          ~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Wifi/service/java/com/android/server/wifi/p2p/SupplicantP2pIfaceHalAidlImpl.java"
+            line="591"
+            column="75"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `setMaxChannelBandwidth`"
+        errorLine1="                    configBuilder.setMaxChannelBandwidth(SoftApInfo.CHANNEL_WIDTH_20MHZ);"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Wifi/service/java/com/android/server/wifi/WifiShellCommand.java"
+            line="2359"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `setMaxChannelBandwidth`"
+        errorLine1="                    configBuilder.setMaxChannelBandwidth(SoftApInfo.CHANNEL_WIDTH_40MHZ);"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Wifi/service/java/com/android/server/wifi/WifiShellCommand.java"
+            line="2361"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `setMaxChannelBandwidth`"
+        errorLine1="                    configBuilder.setMaxChannelBandwidth(SoftApInfo.CHANNEL_WIDTH_80MHZ);"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Wifi/service/java/com/android/server/wifi/WifiShellCommand.java"
+            line="2363"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `setMaxChannelBandwidth`"
+        errorLine1="                    configBuilder.setMaxChannelBandwidth(SoftApInfo.CHANNEL_WIDTH_160MHZ);"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Wifi/service/java/com/android/server/wifi/WifiShellCommand.java"
+            line="2365"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `setMaxChannelBandwidth`"
+        errorLine1="                    configBuilder.setMaxChannelBandwidth(SoftApInfo.CHANNEL_WIDTH_320MHZ);"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Wifi/service/java/com/android/server/wifi/WifiShellCommand.java"
+            line="2367"
+            column="35"/>
+    </issue>
+
+</issues>

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2016 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Servizi di stampe predefinît</string>
+    <string name="printer_busy">Ocupade</string>
+    <string name="printer_out_of_paper">Cjarte finide</string>
+    <string name="printer_out_of_ink">Ingjustri finît</string>
+    <string name="printer_out_of_toner">Toner finît</string>
+    <string name="printer_low_on_ink">Ingjustri in esauriment</string>
+    <string name="printer_low_on_toner">Toner in esauriment</string>
+    <string name="printer_door_open">Portele vierte</string>
+    <string name="printer_jammed">Incugnade</string>
+    <string name="printer_offline">Fûr rêt</string>
+    <string name="printer_bad_certificate">Certificât no valit</string>
+    <string name="printer_not_encrypted">No cripâde</string>
+    <string name="printer_check">Controle la stampadore</string>
+    <string name="waiting_to_send">In spiete di mandâ</string>
+    <string name="unreadable_input">Impussibil lei il document</string>
+    <string name="media_size_l">L</string>
+    <string name="media_size_5x7in">5x7 oncis</string>
+    <string name="media_size_89x119mm">89x119 mm</string>
+    <string name="media_size_54x86mm">54x86 mm</string>
+    <string name="media_size_8x10in">8x10 oncis</string>
+    <string name="media_size_4x6in">4x6 oncis</string>
+    <string name="printer_description">%1$s – %2$s</string>
+    <string name="title_activity_add_printer">Zonte stampadore</string>
+    <string name="add_printer_by_ip">Zonte stampadore midiant direzion IP</string>
+    <string name="hostname_or_ip">Non host o direzion IP</string>
+    <string name="ip_hint">192.168.0.4</string>
+    <string name="add">Zonte</string>
+    <string name="add_named">Zonte
+        <xliff:g example="Epson XP-610" id="printer">%1$s</xliff:g>
+    </string>
+    <string name="no_printer_found">Nissune stampadore cjatade in cheste direzion</string>
+    <string name="printer_not_supported">Stampadore no supuartade</string>
+    <string name="wifi_direct">Wi-Fi Diret</string>
+    <string name="find_wifi_direct">Cjate stampadoris Wi-Fi Diret</string>
+    <string name="wifi_direct_printing">Stampe Wi-Fi Diret</string>
+    <string name="wifi_direct_printers">Stampadoris Wi-Fi Direct</string>
+    <string name="searching">Daûr a cirî\u2026</string>
+    <string name="connect_hint_text">Tu podaressis vê di aprovâ cheste conession dal panel
+        frontâl de stampadore
+    </string>
+    <string name="connecting_to">Conession a
+        <xliff:g example="Epson XP-610" id="printer">%1$s</xliff:g>
+    </string>
+    <string name="failed_printer_connection">Impussibil conetisi ae stampadore</string>
+    <string name="failed_connection">Impussibil conetisi a
+        <xliff:g example="Epson XP-610" id="printer">%1$s</xliff:g>
+    </string>
+    <string name="saved_printers">Stampadoris salvadis</string>
+    <string name="forget">Dismentee</string>
+    <string name="connects_via_wifi_direct">Si conet midiant Wi-Fi Diret</string>
+    <string name="connects_via_network">Si conet midiant la rêt atuâl ae
+        direzion <xliff:g example="192.168.0.101" id="ip_address">%1$s</xliff:g>
+    </string>
+    <string name="recommendation_summary">Il servizi di stampe predefinît la ufrìs opzions di base. Doprant un altri servizi di stampe par chest stampadore a podaressin jessi disponibilis altris opzions.</string>
+    <string name="recommendations_heading">Servizis conseâts</string>
+    <string name="recommendation_install_summary">Selezione par instalâ</string>
+    <string name="recommendation_enable_summary">Selezione par ativâ</string>
+    <string name="recommendation_manage">Gjestìs servizis</string>
+    <string name="security">Sigurece</string>
+    <string name="certificate_update_request">Cheste stampadore e à furnît un gnûf certificât di sigurece,
+        opûr un altri dispositîf si sta identificant al puest so. Acetâ il gnûf certificât?</string>
+    <string name="not_encrypted_request">Cheste stampadore no acete plui lavôrs cifrâts. Continuâ a stampâ?</string>
+    <string name="accept">Acete</string>
+    <string name="reject">Refude</string>
+    <string name="connections">Conessions</string>
+    <string name="wifi_direct_problem">Il servizi di stampe predefinît nol rive a cjatâ lis stampadoris Wi-Fi Diret</string>
+    <string name="disable_wifi_direct">Disative Wi-Fi Diret</string>
+    <string name="wifi_direct_permission_rationale">Par cjatâ lis stampadoris tai contors, il servizi di stampe predefinît al à bisugne dal permès par acedi ai dispositîfs tai contors.</string>
+    <string name="fix">Esamine autorizazion</string>
+    <string name="print">Stampe</string>
+</resources>

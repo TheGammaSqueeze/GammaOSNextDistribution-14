@@ -1,0 +1,67 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package com.android.safetycenter.internaldata;
+
+option java_multiple_files = true;
+
+// An id for entries provided by the Safety Center.
+message SafetyCenterEntryId {
+  // The ID of the safety source that the entry originated from.
+  optional string safety_source_id = 1;
+  // The user ID associated with this entry.
+  optional int32 user_id = 2;
+}
+
+// An id for issues provided by the Safety Center.
+message SafetyCenterIssueId {
+  reserved 1, 2, 3;
+  // Key that has a 1 to 1 mapping with a safety source issue.
+  optional SafetyCenterIssueKey safety_center_issue_key = 4;
+  // The ID of the type of the safety source issue.
+  optional string issue_type_id = 5;
+  // A task ID to launch the issue's actions in, if applicable.
+  optional int32 task_id = 6;
+}
+
+// Key that has a 1 to 1 mapping with a safety source issue.
+message SafetyCenterIssueKey {
+  // The ID of the safety source that the issue originated from.
+  optional string safety_source_id = 1;
+  // The ID of the safety source issue that the issue originated from.
+  optional string safety_source_issue_id = 2;
+  // The user ID associated with this issue.
+  optional int32 user_id = 3;
+}
+
+// An id for issue actions provided by the Safety Center.
+message SafetyCenterIssueActionId {
+  reserved 1;
+  // The ID of the safety source issue action that the action originated from.
+  optional string safety_source_issue_action_id = 2;
+  // `SafetyCenterIssueKey` associated with this action.
+  optional SafetyCenterIssueKey safety_center_issue_key = 3;
+}
+
+// A bundle key for static entries provided by the Safety Center.
+message SafetyCenterStaticEntryBundleKey {
+  // The title of the SafetyCenterStaticEntry.
+  optional string title = 1;
+  // The summary of the SafetyCenterStaticEntry.
+  optional string summary = 2;
+}

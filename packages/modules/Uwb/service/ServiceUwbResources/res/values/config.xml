@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2021 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<!-- These resources are around just to allow their values to be customized
+     for different hardware and product builds.  Do not translate.
+
+     NOTE: The naming convention is "config_camelCaseValue". Some legacy
+     entries do not follow the convention, but all new entries should. -->
+
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- boolean indicating whether or not the system supports multiple UWB chips -->
+    <bool name="config_isMultichip">false</bool>
+
+    <!-- Filepath of multichip configuration file. This is an xml file that follows the format
+    specified in multichip-parser/uwbConfig.xsd. If config_isMultichip is false, this value will be
+    ignored. -->
+    <string translatable="false" name="config_multichipConfigPath"></string>
+
+    <!-- When true, the filter engine will alter UWB values to improve accuracy. -->
+    <bool name="enable_filters">true</bool>
+
+    <!-- Used to filter distance measurements. Determines percentage (0-100) of inliers within the
+    sliding window will be used to perform the average. At least one inlier will be used.
+    Therefore, a value of 0 is a true median, and a value  of 100 is a true average. -->
+    <integer name="filter_distance_inliers_percent">0</integer>
+
+    <!-- The size in samples of the sliding window for the distance filter. Note that this increases
+    latency to about half the window size. -->
+    <integer name="filter_distance_window">3</integer>
+
+    <!-- Used to filter AoA angle measurements. Determines percentage (1-100) of inliers within the
+    sliding window will be used to perform the average. At least one inlier will be used.
+    Therefore, a value of 0 is a true median, and a value  of 100 is a true average. -->
+    <integer name="filter_angle_inliers_percent">50</integer>
+
+    <!-- The size in samples of the sliding window for the AoA filters. Note that this increases
+    latency to about half the window size. -->
+    <integer name="filter_angle_window">5</integer>
+
+    <!-- Selects which pose source will be used by default to anticipate the next UWB measurement.
+    The pose source helps lower latency by shifting the filter states to reflect how the phone has
+    moved.
+    NONE = No pose source.
+    ROTATION_VECTOR = Requires gyro, accel and compass. Very accurate, rotation only.
+    GYRO = Gyro only. Less accurate, Saves a tiny bit of power.
+    SIXDOF = 6DOF sensor. Extremely accurate, accounts for position. Not available on most hardware.
+    DOUBLE_INTEGRATE = Double integration. Under development. Expect very bad motion drift.
+    -->
+    <string name="pose_source_type">ROTATION_VECTOR</string>
+
+    <!-- Enables elevation estimation. Strongly recommended for hardware that doesn't support
+    elevation. This helps produce better predictions from pose changes, and improves the quality
+    of the AoA primer. This will override elevation readings from hardware that supports it! -->
+    <bool name="enable_primer_est_elevation">false</bool>
+
+    <!-- Enables the AoA conversion primer. This is needed on hardware that does not convert AoA
+    to spherical coordinates, including hardware that does not support elevation.-->
+    <bool name="enable_primer_aoa">true</bool>
+
+    <!-- Sets the field of view, in degrees. Note that this is in degrees from 0 (straight ahead),
+    which is not the same as how camera FOV is represented.
+    UWB values outside the field of view will be replaced with predicted values based on pose
+    changes. The FOV is circular, so a value of 90 will only provide continuous azimuth values if
+    elevation is zero.
+    If <=0 or >=180, the primer will be disabled, allowing an unlimited field of view. -->
+    <integer name="primer_fov_degrees">60</integer>
+
+    <!-- Enables the back azimuth primer. This is needed on hardware that does not report azimuth
+    values beyond +/-90deg. This primer determines if azimuth values are likely to be coming from
+    behind the phone in three ways:
+    1. The prediction expects the next reading to come from behind the user because the user has
+       rotated away from the signal.
+    2. Predictions based on pose changes inversely correlate with azimuth readings.
+    3. UWB readings show very little relationship to pose changes because of non-line-of-sight
+       conditions.
+    This works best with an FOV primer setting below 90 degrees to ensure that predictions are being
+    used across the 90-degree threshold. -->
+    <bool name="enable_azimuth_mirroring">true</bool>
+
+    <!-- Azimuth values arriving from behind the user are often very unreliable due to interference
+    from the user and hardware design. Setting this to true forces predictions for all rear-azimuth
+    values. When false, the mirrored azimuth reading will be used. -->
+    <bool name="predict_rear_azimuths">true</bool>
+
+    <!-- The number of samples to consider when determining if the azimuth needs mirroring. -->
+    <integer name="mirror_detection_window">5</integer>
+
+    <!-- How much correlation is required to make the assumption that the azimuth is in front of the
+    phone. Correlation is defined as the user's rotation rate in degrees per second, multiplied by
+    how accurately the UWB readings follow that movement. The accuracy is scored on a bell curve
+    defined by mirror_score_std_degrees.
+    The user must rotate at least this many degrees per second before action is taken, and often
+    more if the readings aren't correlating well. -->
+    <integer name="front_mirror_dps">12</integer>
+
+    <!-- How much correlation is required to make the assumption that the azimuth is behind the
+    the phone. See front_mirror_dps setting for more detail. -->
+    <integer name="back_mirror_dps">10</integer>
+
+    <!-- Sets the size of the bell curve on which the correlation of azimuth and pose changes are
+    scored. It should be about one standard deviation of the hardware's azimuth jitter, in degrees.
+    -->
+    <integer name="mirror_score_std_degrees">8</integer>
+
+    <!-- Sets how much noise influences the decision to switch to the back azimuth, in percent. Back
+    values are more likely to be inconsistent with predictions due to non-line-of-sight effects.
+    The radians of typical inconsistency is multiplied by this percentage and added to the degrees
+    of rear azimuth correlation, to increase the odds of deciding rear correlation is the best fit.
+    -->
+    <integer name="back_noise_influence_percent">8</integer>
+
+    <!-- Sets how long reports with an error code will be replaced with predicted reports, in
+     seconds. This is measured from the time of the last non-error report. -->
+    <integer name="prediction_timeout_seconds">5</integer>
+
+    <!-- The Advertising Profile AoA Criteria Angle. This is the threshold with which the
+    Azimuth and Elevation values (from received OwrAoa measurements) are compared, to determine if
+    the IoT device is being pointed to by the phone. -->
+    <integer name="advertise_aoa_criteria_angle">10</integer>
+
+    <!-- The Advertising profile time threshold (for the received Owr Aoa Measurements). This
+    parameter controls the time window during which the received OwrAoa measurements are considered
+    to be valid (for determining if the IoT device is being pointed to). -->
+    <integer name="advertise_time_threshold_millis">5000</integer>
+
+    <!-- The Advertising profile array size. This controls the number of received Owr Aoa
+    measurements (or derived values), that will be stored. -->
+    <integer name="advertise_array_size_to_check">10</integer>
+
+    <!-- The Advertising profile array start index, for the stored values from Owr Aoa
+    measurements. Only the stored values at index >= the array start index will be used in the
+    Azimuth/Elevation variance calculation. -->
+    <integer name="advertise_array_start_index_to_cal_variance">2</integer>
+
+    <!-- The Advertising profile array end index, for the stored values from Owr Aoa
+    measurements. Only the stored values at index < the array end index will be used in the
+    Azimuth/Elevation variance calculation. -->
+    <integer name="advertise_array_end_index_to_cal_variance">8</integer>
+
+    <!-- The Advertising profile trusted variance value. This is the threshold within which the
+    computed Azimuth/Elevation variance values (from the received OwrAoa measurements)
+    is acceptable. -->
+    <integer name="advertise_trusted_variance_value">5</integer>
+
+    <!-- Max number of Rx data packets (for a UWB session) to be stored. This parameter defines the
+    storage capacity for a UWB session, for incoming packets from a remote UWB device. -->
+    <integer name = "rx_data_max_packets_to_store">10</integer>
+
+    <!-- Whether background ranging is enabled or not
+     If enabled:
+       * Background 3p apps are allowed to open new ranging sessions
+       * When previously foreground 3p apps moves to background, sessions are not terminated
+    -->
+    <bool name = "background_ranging_enabled">false</bool>
+
+    <!-- Whether ranging error streak timer is enabled or not.
+    If disabled, session would not be automatically stopped if there is no peer available.
+    -->
+    <bool name = "ranging_error_streak_timer_enabled">true</bool>
+
+    <!-- Whether to send ranging stopped params for CCC session stop or not.
+    If enabled, newly added `CccRangingStoppedParams` are sent in `onStopped()` callback.
+    -->
+    <bool name = "ccc_ranging_stopped_params_send_enabled">false</bool>
+
+    <!-- Returns whether an absolute UWB initiation time should be computed and configured for
+    CCC ranging session(s).
+    If disabled, a relative UWB initiation time (the value in CCCStartRangingParams), is
+    configured for the CCC ranging session. -->
+    <bool name = "ccc_absolute_uwb_initiation_time_enabled">false</bool>
+
+    <!-- Whether to use location APIs in the algorithm to determine country code or not.
+    If disabled, will use other sources (telephony, wifi, etc) to determine device location for
+    UWB regulatory purposes.
+    -->
+    <bool name = "location_use_for_country_code_enabled">true</bool>
+
+    <!-- Whether to disable uwb until first toggle or not.
+    If enabled, UWB will remain disabled on boot until the user toggles UWB on for the first time.
+    -->
+    <bool name = "uwb_disabled_until_first_toggle">false</bool>
+
+    <!-- Whether to interpret CCC supported sync codes value as little endian.
+    If enabled, CCC supported sync codes value will be interpreted as little endian.
+    -->
+    <bool name = "ccc_supported_sync_codes_little_endian">false</bool>
+
+    <!-- Whether to support (and configure) RANGE_DATA_NTF_CONFIG and related UWB configuration
+    parameters for a CCC ranging session.
+    If disabled, the RANGE_DATA_NTF_CONFIG parameter will be configured with the value DISABLED.
+    -->
+    <bool name = "ccc_supported_range_data_ntf_config">false</bool>
+
+    <!-- Whether to use a persistent cache in the algorithm to determine country code or not.
+    If enabled, will fallback to the cache to determine device location for
+    UWB regulatory purposes when  other sources (telephony, wifi, location, etc) is not available.
+    -->
+    <bool name = "persistent_cache_use_for_country_code_enabled">false</bool>
+
+    <!-- Whether hardware idle turn off is enabled or not.
+    If enabled, some clients must explicitly request UWB to be enabled on top of user setting.
+    -->
+    <bool name = "hw_idle_turn_off_enabled">false</bool>
+</resources>

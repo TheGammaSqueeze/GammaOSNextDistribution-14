@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2009 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="calendar_storage">Stòras a’ mhìosachain</string>
+    <string name="calendar_default_name">Bun-roghainn</string>
+    <string name="calendar_info">Fiosrachadh a’ mhìosachain</string>
+    <string name="calendar_info_error">Mearachd</string>
+    <string name="calendar_info_no_calendars">Chan eil mìosachan ann</string>
+    <string name="calendar_info_events">Tachartasan: <xliff:g id="events">%1$d</xliff:g></string>
+    <string name="calendar_info_events_dirty">Tachartasan: <xliff:g id="events">%1$d</xliff:g>, Gun sàbhaladh: <xliff:g id="dirty events">%2$d</xliff:g></string>
+    <string name="provider_label">Mìosachan</string>
+    <string name="debug_tool_delete_button">Sguab às an-dràsta</string>
+    <string name="debug_tool_start_button">Tòisich</string>
+    <string name="debug_tool_message">Cuiridh tu 1) lethbhreac de stòr-dàta a’ mhìosachain agad dhan chairt SD/stòras USB a ghabhas leughadh le aplacaid sam bith agus 2) post-d leis. Cùm an aire gun sguab thu às an lethbhreac nuair a bhios tu air an lethbhreac a chur air uidheam eile no air am post-d fhaighinn.</string>
+    <string name="debug_tool_email_sender_picker">Tagh prògram gus am faidhle agad a chur</string>
+    <string name="debug_tool_email_subject">Stòr-dàta mìosachain</string>
+    <string name="debug_tool_email_body">Tha stòr-dàta a’ mhìosachain agam an cois seo le geallaidhean na h-uarach agus fiosrachadh pearsanta eile ’na bhroinn. Bi faiceallach leis.</string>
+</resources>

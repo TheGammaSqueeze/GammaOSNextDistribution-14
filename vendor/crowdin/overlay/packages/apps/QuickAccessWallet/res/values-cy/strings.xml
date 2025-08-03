@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="error_user_locked">Rhaid datgloi dy ffôn i lwytho dy wybodaeth taliadau.</string>
+    <string name="accessibility_menu">Dewislen</string>
+    <string name="error_generic">Roedd problem yn cael dy gardiau. Rho gynnig arall arni\'n hwyrach.</string>
+    <string name="settings">Gosodiadau</string>
+</resources>

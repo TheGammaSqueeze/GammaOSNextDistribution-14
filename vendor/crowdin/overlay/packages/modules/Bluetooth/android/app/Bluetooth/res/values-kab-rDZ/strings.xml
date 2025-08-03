@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="permlab_bluetoothShareManager">Kcem ar umsefrak n usider.</string>
+    <string name="permdesc_bluetoothShareManager">Ad isireg asnas ad yekcem ar
+        Umsefrak n BluetoothShare udiɣ ad t-iseqdec i usiweḍ n ifuyla. </string>
+    <string name="bt_share_picker_label">Bluetooth</string>
+    <string name="unknown_device">Ibenk Arussin</string>
+    <string name="unknownNumber">Arussin</string>
+    <string name="airplane_error_title">Askar asafag</string>
+    <string name="airplane_error_msg">Ur tezmireḍ ara ad tesqedceḍ Bluetooth deg uskar asafag.</string>
+    <string name="bt_enable_cancel">Sefsex</string>
+    <string name="bt_enable_ok">Rmed</string>
+    <string name="incoming_file_confirm_title">Asiweḍ n ifuyla</string>
+    <string name="incoming_file_confirm_cancel">Agwi</string>
+    <string name="incoming_file_confirm_ok">Qbel</string>
+    <string name="incoming_file_confirm_timeout_ok">IH</string>
+    <string name="download_title">Asiweḍ n ifuyla</string>
+    <string name="download_line2">Afaylu: <xliff:g id="file">%1$s</xliff:g></string>
+    <string name="download_line3">Teɣzi n ufaylu: <xliff:g id="size">%1$s</xliff:g></string>
+    <string name="download_line5">Anadi n ufaylu\u2026</string>
+    <string name="download_cancel">Seḥbes</string>
+    <string name="download_ok">Ffer</string>
+    <string name="incoming_line1">Seg</string>
+    <string name="incoming_line2">Isem n ufaylu</string>
+    <string name="incoming_line3">Teɣzi</string>
+    <string name="download_fail_line2">Afaylu: <xliff:g id="file">%1$s</xliff:g></string>
+    <string name="download_fail_ok">IH</string>
+    <string name="download_succ_ok">Ldi</string>
+    <string name="upload_line1">I: \u0022<xliff:g id="recipient">%1$s</xliff:g>\u0022</string>
+    <string name="upload_line3">Anaw n ufaylu: <xliff:g id="type">%1$s</xliff:g> (<xliff:g id="size">%2$s</xliff:g>)</string>
+    <string name="upload_line5">Tuzna n ufaylu\u2026</string>
+    <string name="upload_succ_line5">Afaylu yettwazen</string>
+    <string name="upload_succ_ok">IH</string>
+    <string name="upload_fail_line1">Afaylu ur yettwazen ara ar \u0022<xliff:g id="recipient">%1$s</xliff:g>\u0022.</string>
+    <string name="upload_fail_line1_2">Afaylu: <xliff:g id="file">%1$s</xliff:g></string>
+    <string name="upload_fail_cancel">Mdel</string>
+    <string name="bt_error_btn_ok">IH</string>
+    <string name="unknown_file">Afaylu arussin</string>
+    <string name="not_exist_file">Ulac Afaylu</string>
+    <string name="not_exist_file_desc">Afaylu ulac-it. \n</string>
+    <string name="enabling_progress_title">Rǧu\u2026</string>
+    <string name="enabling_progress_content">Rmed Bluetooth\u2026</string>
+    <string name="status_no_sd_card_default">Ulac taakarḍa SD, ger takarda SD akken ad teskelseḍ ifuyla i d-yewḍen.</string>
+    <string name="download_success"> <xliff:g id="file_size">%1$s</xliff:g> armas yemmed.</string>
+    <string name="upload_success"> <xliff:g id="file_size">%1$s</xliff:g> tuzna temmed.</string>
+    <plurals name="noti_caption_success">
+        <item quantity="one"><xliff:g id="successful_number">%1$d</xliff:g> yedda, %2$s</item>
+        <item quantity="other"><xliff:g id="successful_number">%1$d</xliff:g> yedda, %2$s</item>
+    </plurals>
+    <string name="transfer_menu_clear_all">Sfeḍ tabdart</string>
+    <string name="transfer_menu_open">Ldi</string>
+    <string name="transfer_clear_dlg_title">Sfeḍ</string>
+    <string name="bluetooth_a2dp_sink_queue_name">Itturaren tura</string>
+    <string name="bluetooth_map_settings_save">Sekles</string>
+    <string name="bluetooth_map_settings_cancel">Sefsex</string>
+</resources>

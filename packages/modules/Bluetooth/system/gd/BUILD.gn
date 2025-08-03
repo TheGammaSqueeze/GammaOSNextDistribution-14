@@ -1,0 +1,112 @@
+#
+#  Copyright 2021 Google, Inc.
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at:
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
+import("//bt/system/gd/dumpsys/bundler/bundler.gni")
+import("//bt/system/gd/packet/parser/packetgen.gni")
+import("//common-mk/flatbuffer.gni")
+
+config("gd_defaults") {
+  cflags_cc = [
+    "-DGOOGLE_PROTOBUF_NO_RTTI",
+    "-Wno-unused-parameter",
+    "-Wno-unused-result",
+    "-Wno-tautological-overlap-compare",
+  ]
+
+  defines = [
+    "TARGET_FLOSS",
+  ]
+
+  libs = [
+    "ssl",
+    "crypto",
+  ]
+
+  include_dirs = [ "//bt/system/gd" ]
+  configs = [
+    "//bt/system:target_defaults",
+    "//bt/system/log:log_defaults",
+  ]
+}
+
+config("rust_defaults") {
+  # Empty for now
+}
+
+group("gd_default_deps") {
+  deps = [
+    "//bt/system:libbt-platform-protos-lite",
+    "//bt/system/gd:BluetoothGeneratedDumpsysDataSchema_h",
+    "//bt/system/gd/dumpsys:libbluetooth-dumpsys",
+    "//bt/system/gd/rust/shim:init_flags_bridge_header",
+    "//bt/system/pdl:BluetoothGeneratedPackets_h",
+  ]
+}
+
+static_library("libbluetooth_gd") {
+  sources = [
+    "module.cc",
+    "module_dumper.cc",
+    "module_state_dumper.cc",
+    "stack_manager.cc",
+  ]
+
+  include_dirs = [ "." ]
+  configs += [ ":gd_defaults" ]
+  deps = [
+    "//bt/system/gd/rust/common:libbt_keystore_cc",
+    "//bt/system/gd/rust/topshim:libbluetooth_topshim",
+    "//bt/system/gd/rust/shim:libbluetooth_rust_interop",
+    "//bt/system/gd/att:BluetoothAttSources",
+    "//bt/system/gd/common:BluetoothCommonSources",
+    "//bt/system/gd/dumpsys:BluetoothDumpsysSources",
+    "//bt/system/gd/hal:BluetoothHalSources",
+    "//bt/system/gd/hal:BluetoothHalSources_hci_host",
+    "//bt/system/gd/l2cap:BluetoothL2capSources",
+    "//bt/system/gd/metrics:BluetoothMetricsSources",
+    "//bt/system/gd/neighbor:BluetoothNeighborSources",
+    "//bt/system/gd/security:BluetoothSecuritySources",
+    "//bt/system/gd/shim:BluetoothShimSources",
+    "//bt/system/gd/storage:BluetoothStorageSources",
+    "//bt/system/gd/sysprops:BluetoothSyspropsSources",
+    "//bt/system/pdl:BluetoothGeneratedPackets_h",
+  ]
+}
+
+flatbuffer("BluetoothGeneratedDumpsysDataSchema_h") {
+  sources = [
+    "common/init_flags.fbs",
+    "dumpsys_data.fbs",
+    "hci/hci_acl_manager.fbs",
+    "hci/hci_controller.fbs",
+    "l2cap/classic/l2cap_classic_module.fbs",
+    "os/wakelock_manager.fbs",
+    "shim/dumpsys.fbs",
+  ]
+}
+
+bt_flatc_binary_schema("BluetoothGeneratedDumpsysBinarySchema_bfbs") {
+  sources = [
+    "common/init_flags.fbs",
+    "dumpsys_data.fbs",
+    "hci/hci_acl_manager.fbs",
+    "hci/hci_controller.fbs",
+    "l2cap/classic/l2cap_classic_module.fbs",
+    "os/wakelock_manager.fbs",
+    "shim/dumpsys.fbs",
+  ]
+
+  include_dir = "system/gd"
+}

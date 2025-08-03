@@ -1,0 +1,12 @@
+This tool generates the tzlookup.xml file from the countryzones.txt (proto
+text) file. tzlookup.xml is used to associate zones with regions/countries. The
+tool uses ICU4J and IANA data to synthesize some time zone metadata.
+
+Besides tzlookup.xml, the tool also generates a tzids.prototxt file
+containing information about zone IDs, id links and "functionally identical"
+zones[1] within each known country. These can be used to map time zone IDs to
+Android's preferred set. This duplicates information from the tzlookup.xml, but
+it is easier to use from host tools than Android's tzlookup.xml's format.
+
+[1] i.e. zones that differed in the past but were "folded in" to other zones
+and are not distinct for future times according to IANA or ICU/CLDR.

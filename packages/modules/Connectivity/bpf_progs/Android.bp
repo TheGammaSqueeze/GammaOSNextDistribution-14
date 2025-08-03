@@ -1,0 +1,149 @@
+//
+// Copyright (C) 2020 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+//
+// struct definitions shared with JNI
+//
+package {
+    default_team: "trendy_team_fwk_core_networking",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_library_headers {
+    name: "bpf_connectivity_headers",
+    vendor_available: false,
+    host_supported: false,
+    header_libs: [
+        "bpf_headers",
+        "netd_mainline_headers",
+    ],
+    export_header_lib_headers: [
+        "bpf_headers",
+        "netd_mainline_headers",
+    ],
+    export_include_dirs: ["."],
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+    sdk_version: "30",
+    min_sdk_version: "30",
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.tethering",
+    ],
+    visibility: [
+        "//packages/modules/Connectivity/DnsResolver",
+        "//packages/modules/Connectivity/netd",
+        "//packages/modules/Connectivity/service",
+        "//packages/modules/Connectivity/service/native/libs/libclat",
+        "//packages/modules/Connectivity/Tethering",
+        "//packages/modules/Connectivity/service/native",
+        "//packages/modules/Connectivity/tests/native/connectivity_native_test",
+        "//packages/modules/Connectivity/tests/native/utilities",
+        "//packages/modules/Connectivity/service-t/native/libs/libnetworkstats",
+        "//packages/modules/Connectivity/tests/unit/jni",
+    ],
+}
+
+//
+// bpf kernel programs
+//
+bpf {
+    name: "block.o",
+    srcs: ["block.c"],
+    btf: true,
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+    sub_dir: "net_shared",
+}
+
+bpf {
+    name: "dscpPolicy.o",
+    srcs: ["dscpPolicy.c"],
+    btf: true,
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+    sub_dir: "net_shared",
+}
+
+bpf {
+    name: "offload.o",
+    srcs: ["offload.c"],
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+}
+
+bpf {
+    name: "offload@btf.o",
+    srcs: ["offload@btf.c"],
+    btf: true,
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-DBTF",
+    ],
+}
+
+bpf {
+    name: "test.o",
+    srcs: ["test.c"],
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+}
+
+bpf {
+    name: "test@btf.o",
+    srcs: ["test@btf.c"],
+    btf: true,
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-DBTF",
+    ],
+}
+
+bpf {
+    name: "clatd.o",
+    srcs: ["clatd.c"],
+    btf: true,
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+    sub_dir: "net_shared",
+}
+
+bpf {
+    // WARNING: Android T's non-updatable netd depends on 'netd' string for xt_bpf programs it loads
+    name: "netd.o",
+    srcs: ["netd.c"],
+    btf: true,
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+    // WARNING: Android T's non-updatable netd depends on 'netd_shared' string for xt_bpf programs
+    sub_dir: "netd_shared",
+}

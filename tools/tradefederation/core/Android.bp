@@ -1,0 +1,332 @@
+// Copyright 2018 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_library_host {
+    name: "tradefed-protos",
+    // Restrict visibility to only those targets that need to access it.
+    visibility: [
+        "//tools/tradefederation/core/clearcut_client",
+        "//tools/tradefederation/core/common_util",
+        "//tools/tradefederation/core/device_build_interfaces",
+        "//tools/tradefederation/core/invocation_interfaces",
+        "//tools/tradefederation/core/test_result_interfaces",
+    ],
+    srcs: ["proto/**/*.proto"],
+    libs: [
+        "libprotobuf-java-full",
+    ],
+    proto: {
+        include_dirs: ["external/protobuf/src"],
+        type: "full",
+    },
+    // b/267831518: Pin tradefed and dependencies to Java 11.
+    java_version: "11",
+}
+
+java_library_host {
+    name: "lab-resource-grpc",
+    srcs: [
+        "proto/monitoring/server/lab_resource.proto",
+    ],
+    proto: {
+        include_dirs: ["external/protobuf/src"],
+        plugin: "grpc-java-plugin",
+    },
+    libs: [
+        "tradefed-protos",
+        "grpc-java",
+        "guava",
+        "javax-annotation-api-prebuilt-host-jar",
+    ],
+    // b/267831518: Pin tradefed and dependencies to Java 11.
+    java_version: "11",
+}
+
+java_library_host {
+    name: "tradefed-service-grpc-lib",
+    visibility: [
+        "//tools/tradefederation/core",
+    ],
+    srcs: [
+        "proto/feature/tradefed_service.proto",
+    ],
+    proto: {
+        include_dirs: ["external/protobuf/src"],
+        plugin: "grpc-java-plugin",
+    },
+    libs: [
+        "tradefed-protos",
+    ],
+    static_libs: [
+        "grpc-java",
+        "guava",
+        "javax-annotation-api-prebuilt-host-jar",
+    ],
+    // b/267831518: Pin tradefed and dependencies to Java 11.
+    java_version: "11",
+}
+
+java_library_host {
+    name: "tradefed-invocation-grpc",
+    srcs: [
+        "proto/invocation/invocation_manager.proto",
+    ],
+    proto: {
+        include_dirs: ["external/protobuf/src"],
+        plugin: "grpc-java-plugin",
+    },
+    libs: [
+        "tradefed-protos",
+        "grpc-java",
+        "guava",
+        "javax-annotation-api-prebuilt-host-jar",
+    ],
+    // b/267831518: Pin tradefed and dependencies to Java 11.
+    java_version: "11",
+}
+
+java_library_host {
+    name: "tradefed-device-manager-grpc",
+    srcs: [
+        "proto/device/device_manager.proto",
+    ],
+    proto: {
+        include_dirs: ["external/protobuf/src"],
+        plugin: "grpc-java-plugin",
+    },
+    libs: [
+        "tradefed-protos",
+        "grpc-java",
+        "guava",
+        "javax-annotation-api-prebuilt-host-jar",
+    ],
+    // b/267831518: Pin tradefed and dependencies to Java 11.
+    java_version: "11",
+}
+
+java_library_host {
+    name: "tradefed-dynamic-sharding-grpc",
+    srcs: ["proto/dynamicsharding.proto"],
+    proto: {
+        include_dirs: ["external/protobuf/src"],
+        plugin: "grpc-java-plugin",
+    },
+    libs: [
+        "tradefed-protos",
+        "grpc-java",
+        "guava",
+        "javax-annotation-api-prebuilt-host-jar",
+    ],
+    // b/267831518: Pin tradefed and dependencies to Java 11.
+    java_version: "11",
+}
+
+// Avoid version number in apk file name
+genrule(
+    name = "test-services-normalized.apk",
+    srcs = [":test-services.apk"],
+    out = ["test-services-normalized.apk"],
+    cmd = "cp $(in) $(out)",
+)
+
+// Main Target to build tradefed jar
+tradefed_java_library_host {
+    name: "tradefed",
+    defaults: ["tradefed_defaults"],
+    java_resource_dirs: [
+        "res",
+    ],
+    java_resources: [
+        ":TradefedContentProvider",
+        ":TelephonyUtility",
+        ":WifiUtil",
+        ":test-services-normalized.apk",
+    ],
+    static_libs: [
+        "tradefed-lib-core",
+        "tradefed-test-framework",
+    ],
+    manifest: "MANIFEST.mf",
+    // b/267831518: Pin tradefed and dependencies to Java 11.
+    java_version: "11",
+}
+
+// Tradefed build target without the test framework statically linked
+java_library_host {
+    name: "tradefed-no-fwk",
+    defaults: ["tradefed_defaults"],
+    java_resource_dirs: [
+        "res",
+    ],
+    static_libs: [
+        "tradefed-lib-core",
+    ],
+    libs: [
+        "tradefed-test-framework",
+    ],
+    manifest: "MANIFEST.mf",
+    // b/267831518: Pin tradefed and dependencies to Java 11.
+    java_version: "11",
+}
+
+java_library_host {
+    name: "tradefed-lib-core",
+    visibility: [
+        "//tools/tradefederation/core/test_framework",
+    ],
+    defaults: ["tradefed_defaults"],
+    srcs: [
+        "src/**/*.java",
+        "global_configuration/**/*.java",
+        "test_observatory/**/*.java",
+    ],
+    static_libs: [
+        "tradefed-common-util",
+        "tradefed-clearcut-client",
+        "tradefed-result-interfaces",
+        "tradefed-device-build-interfaces",
+        "tradefed-invocation-interfaces",
+        "tradefed-external-dependencies",
+        "tradefed-service-grpc-lib",
+        "lab-resource-grpc",
+        "tradefed-invocation-grpc",
+        "tradefed-device-manager-grpc",
+        "tradefed-dynamic-sharding-grpc",
+        "aoa-helper",
+        "error_prone_annotations",
+        "google-api-java-client-assembly",
+        "auto_value_annotations",
+        "google-api-services-compute",
+        "google-api-services-storage",
+        "google-auth-library-credentials-0.13.0",
+        "google-auth-library-oauth2-http-0.13.0",
+        "google-http-client-jackson2-1.28.0",
+        "gson",
+        "jackson-core",
+        "jacoco-cli",
+        "jline",
+        "junit-params",
+        "kxml2-2.3.0",
+        "libprotobuf-java-full",
+        "libprotobuf-java-util-full",
+        // TODO(b/1859290570: Delete platform-test-annotations dep
+        "platform-test-annotations",
+        "snakeyaml",
+        "tf-remote-client",
+        "tradefed-protos",
+        "tradefed-isolation-protos",
+        "tradefed-lite",
+        "guava-testlib",
+        "grpc-java-testing",
+        "grpc-java-netty-shaded",
+        "opencensus-java-api",
+        "opencensus-java-contrib-grpc-metrics",
+    ],
+    libs: [
+        "loganalysis",
+    ],
+    // b/267831518: Pin tradefed and dependencies to Java 11.
+    java_version: "11",
+}
+
+// Turn off various doclava warnings when generating
+// the docs. These are the same warnings that are
+// turned off in frameworks/base, plus error 101
+// which is necessary here because tradefed is
+// referencing bootclasspath classes that are not
+// feed to metalava when generating the stubs.
+tradefed_docs_only_args = " -hide 101 -hide 111 -hide 113 -hide 125 -hide 126 -hide 127 -hide 128 "
+
+tradefed_doc_stubs_args = " --hide UnresolvedLink " +
+  "--hide HiddenSuperclass " +
+  "--hide DeprecationMismatch " +
+  "--hide RequiresPermission " +
+  "--hide BroadcastBehavior " +
+  "--hide SdkConstant " +
+  "--hide Todo " +
+  "--hide ReferencesHidden " +
+  "--hide HiddenTypeParameter "
+
+droidstubs_host {
+    name: "tradefed-doc-stubs",
+    srcs: [
+        // Keep in alphabetical order
+        "common_util/**/*.java",
+        "device_build_interfaces/**/*.java",
+        "global_configuration/**/*.java",
+        "invocation_interfaces/**/*.java",
+        "lite/**/*.java",
+        "remote/**/*.java",
+        "src/**/*.java",
+        "test_framework/**/*.java",
+        "test_result_interfaces/**/*.java",
+    ],
+    libs: [
+        "loganalysis",
+        "tradefed",
+    ],
+    args: tradefed_doc_stubs_args,
+    create_doc_stubs: true,
+}
+
+droiddoc_host {
+    name: "tradefed-docs",
+    srcs: [
+        ":tradefed-doc-stubs",
+    ],
+    libs: [
+        "error_prone_annotations",
+        "kotlin-annotations",
+        "loganalysis",
+        "tradefed",
+    ],
+    custom_template: "droiddoc-templates-sdk",
+    hdf: [
+        "sac true",
+        "devices true",
+        "android.whichdoc online",
+        "css.path /reference/assets/css/doclava-devsite.css",
+        "book.root toc",
+        "book.path /_book.yaml",
+    ],
+    args: tradefed_docs_only_args +
+          "-yaml _book.yaml " +
+          "-apidocsdir reference/tradefed/ " +
+          "-werror " +
+          "-devsite ",
+}
+
+sh_binary_host {
+    name: "tradefed.sh",
+    src: "tradefed.sh",
+}
+
+sh_binary_host {
+    name: "tradefed_win",
+    src: "tradefed_win.bat",
+}
+
+sh_binary_host {
+    name: "script_help.sh",
+    src: "script_help.sh",
+}
+
+sh_binary_host {
+    name: "run_tf_cmd.sh",
+    src: "run_tf_cmd.sh",
+}

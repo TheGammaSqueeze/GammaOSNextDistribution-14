@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+        <attr name="aspect_ratio" format="float"/>
+
+        <attr name="CarUiToolbarMenuItem_id" format="reference"/>
+        <attr name="CarUiToolbarMenuItem_visible" format="boolean"/>
+        <attr name="CarUiToolbarMenuItem_search" format="boolean"/>
+        <attr name="CarUiToolbarMenuItem_settings" format="boolean"/>
+        <attr name="CarUiToolbarMenuItem_title"/>
+        <attr name="CarUiToolbarMenuItem_carUiIcon" format="reference"/>
+        <attr name="CarUiToolbarMenuItem_tinted" format="boolean"/>
+        <attr name="CarUiToolbarMenuItem_showIconAndTitle" format="boolean"/>
+        <attr name="CarUiToolbarMenuItem_checkable" format="boolean"/>
+        <attr name="CarUiToolbarMenuItem_checked" format="boolean"/>
+        <attr name="CarUiToolbarMenuItem_activatable" format="boolean"/>
+        <attr name="CarUiToolbarMenuItem_activated" format="boolean"/>
+        <attr name="CarUiToolbarMenuItem_displayBehavior" format="enum">
+                <enum name="always" value="0"/>
+                <enum name="never" value="1"/>
+        </attr>
+        <attr name="CarUiToolbarMenuItem_uxRestrictions">
+                <flag name="UX_RESTRICTIONS_NO_DIALPAD" value="1"/>
+                <flag name="UX_RESTRICTIONS_NO_FILTERING" value="2"/>
+                <flag name="UX_RESTRICTIONS_LIMIT_STRING_LENGTH" value="4"/>
+                <flag name="UX_RESTRICTIONS_NO_KEYBOARD" value="8"/>
+                <flag name="UX_RESTRICTIONS_NO_VIDEO" value="16"/>
+                <flag name="UX_RESTRICTIONS_LIMIT_CONTENT" value="32"/>
+                <flag name="UX_RESTRICTIONS_NO_SETUP" value="64"/>
+                <flag name="UX_RESTRICTIONS_NO_TEXT_MESSAGE" value="128"/>
+                <flag name="UX_RESTRICTIONS_NO_VOICE_TRANSCRIPTION" value="256"/>
+                <flag name="UX_RESTRICTIONS_FULLY_RESTRICTED" value="511"/>
+        </attr>
+        <attr name="CarUiToolbarMenuItem_onClick" format="string"/>
+
+</resources>

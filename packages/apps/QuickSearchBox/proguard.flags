@@ -1,0 +1,11 @@
+-keep class com.android.quicksearchbox.preferences.DeviceSearchFragment
+
+-keep class com.android.quicksearchbox.preferences.SearchableItemsFragment
+
+-keep class com.android.quicksearchbox.util.CachedLater {
+  *;
+}
+
+-keep class com.android.quicksearchbox.util.PerNameExecutor {
+  *;
+}

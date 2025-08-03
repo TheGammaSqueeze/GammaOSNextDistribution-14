@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (c) 2009, 2011-2013 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2014-2015 The CyanogenMod Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *    * Neither the name of The Linux Foundation nor
+ *      the names of its contributors may be used to endorse or promote
+ *      products derived from this software without specific prior written
+ *      permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NON-INFRINGEMENT ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">FM-Radio</string>
+    <string name="tx_app_name">FM-Sender</string>
+    <string name="menu_scan_start">Sichen</string>
+    <string name="menu_scan_stop">Ophale mat Sichen</string>
+    <string name="menu_record_start">Ophuelen</string>
+    <string name="menu_record_stop">Opnam stoppen</string>
+    <string name="menu_settings">Astellungen</string>
+    <string name="menu_sleep">Rouzoustand</string>
+    <string name="menu_sleep_cancel">Schlof ofbriechen</string>
+    <string name="menu_all_channels">All d\'Kanäl</string>
+    <string name="menu_display_tags">Tags uweisen</string>
+    <string name="button_text_stop">Stopp</string>
+    <string name="msg_seeking">FM-Radiosstatioun gëtt gesicht\u2026</string>
+    <string name="msg_scanning">Et gëtt no allen FM-Radiosstatioune gesicht\u2026</string>
+    <string name="msg_scanning_pty">Et gëtt no \'<xliff:g id="pty_name">%1$s</xliff:g>\' gesicht\u2026</string>
+    <string name="msg_search_title"><xliff:g id="frequency_string">%1$s</xliff:g> MHz</string>
+    <string name="msg_searching_title">Automatesch Kanalsich</string>
+    <string name="msg_searching">Et gëtt no staarkë Statioune gesicht fir eng Frequenzlëscht z\'erstellen\u2026</string>
+    <string name="msg_noantenna">Schléiss w.e.g. Kopfhörer u fir FM-Radio ze lauschteren</string>
+    <string name="dialog_sleep_title">Auto-Ausschaltzäit</string>
+    <string name="presetlist_select_name">\'<xliff:g id="presetlist_name">%1$s</xliff:g>\' auswielen</string>
+    <string name="presetlist_add_new">Nei Lëscht dobäisetzen</string>
+    <string name="dialog_presetlist_rename_title">Numm aginn</string>
+    <string name="presetlist_autoselect_title">Automatesch Auswiel bestätegen</string>
+    <string name="preset_replace">Ersetzen</string>
+    <string name="preset_tune">Sendersich</string>
+    <string name="preset_rename">Ëmbenennen</string>
+    <string name="preset_delete">Läschen</string>
+    <string name="preset_search">No \'<xliff:g id="preset_pi">%1$s</xliff:g>\' sichen</string>
+    <string name="stat_notif_frequency">\'<xliff:g id="frequency">%1$s</xliff:g>\' MHz</string>
+    <string name="regional_band">Regional Frequenz</string>
+    <string name="regional_band_entry_north_america">Nordamerika</string>
+    <string name="regional_band_entry_europe">Europa</string>
+    <string name="regional_band_entry_japan">Japan</string>
+    <string name="regional_band_entry_japan_wide">Japan (breet)</string>
+    <string name="regional_band_entry_australia">Australien</string>
+    <string name="regional_band_entry_austria">Éisterräich</string>
+    <string name="regional_band_entry_belgium">Belsch</string>
+    <string name="regional_band_entry_brazil">Brasilien</string>
+    <string name="regional_band_entry_china">China</string>
+    <string name="regional_band_entry_czech_republic">Tschechesch Republik</string>
+    <string name="regional_band_entry_denmark">Dänemark</string>
+    <string name="regional_band_entry_finland">Finnland</string>
+    <string name="regional_band_entry_france">Frankräich</string>
+    <string name="regional_band_entry_germany">Däitschland</string>
+    <string name="regional_band_entry_greece">Griecheland</string>
+    <string name="regional_band_entry_hong_kong">Hongkong</string>
+    <string name="regional_band_entry_india">Indien</string>
+    <string name="regional_band_entry_indonesia">Indonesien</string>
+    <string name="regional_band_entry_ireland">Irland</string>
+    <string name="regional_band_entry_italy">Italien</string>
+    <string name="regional_band_entry_korea">Korea</string>
+    <string name="regional_band_entry_mexico">Mexiko</string>
+    <string name="regional_band_entry_netherlands">Nidderlanden</string>
+    <string name="regional_band_entry_new_zealand">Neiséiland</string>
+    <string name="regional_band_entry_norway">Norwegen</string>
+    <string name="regional_band_entry_poland">Polen</string>
+    <string name="regional_band_entry_portugal">Portugal</string>
+    <string name="regional_band_entry_russia">Russland</string>
+    <string name="regional_band_entry_singapore">Singapur</string>
+    <string name="regional_band_entry_slovakia">Slovakei</string>
+    <string name="regional_band_entry_spain">Spuenien</string>
+    <string name="regional_band_entry_switzerland">Schwäiz</string>
+    <string name="regional_band_entry_sweden">Schweden</string>
+    <string name="regional_band_entry_taiwan">Taiwan</string>
+    <string name="regional_band_entry_turkey">Türkei</string>
+    <string name="regional_band_entry_united_kingdom">Groussbritannien</string>
+    <string name="regional_band_entry_united_states">USA</string>
+    <string name="regional_band_entry_user_defined">Benotzerdefinéiert Frequenzband</string>
+    <string name="regional_band_summary_user_defined">Benotzerdefinéiert Frequenzband</string>
+    <string name="aud_output_mode">Toun-Ausganks-Modus</string>
+    <string name="audio_type_stereo">Stereo</string>
+    <string name="audio_type_mono">Mono</string>
+    <string name="record_dur">Dauer vu der Opnam</string>
+    <string name="auto_select_af">Alternativ Frequenz</string>
+    <string name="settings_revert_defaults_title">Op d\'Wierksastellungen zrécksetzen</string>
+    <string name="settings_revert_defaults_summary">All d\'Astellungen zrécksetzen</string>
+    <string name="settings_revert_confirm_title">Zrécksetze bestätegen</string>
+    <string name="settings_revert_confirm_msg">All d\'Astellunge vun der App, inklusiv d\'gespäichert Kanäl, ginn eidel gemaach. Weidermaachen?</string>
+    <string name="no_storage">Bann d\'SD-Kaart an ier s de d\'Opnam starts.</string>
+    <string name="preparing_sd">SD-Kaart gëtt preparéiert\u2026</string>
+    <string name="access_sd_fail">Keen Zougrëff op d\'SD-Kaart méiglech.</string>
+    <string name="spaceIsLow_content">Deng SD-Kaart huet geschwë kee fräie Späicher méi. Änner d\'Qualitéitsastellung oder läsch e puer Fichiere fir Plaz fräizemaachen.</string>
+    <string name="FMRecording_reach_size_limit">Gréisstelimitt ass erreecht.</string>
+    <string name="menu_scan_for_preset">No Sendere sichen</string>
+    <string name="fm_off">FM ass ausgeschalt.</string>
+    <string name="fm_call">FM ka während Uriff net benotzt ginn.</string>
+    <string name="alert_dialog_hint">Gëff en Numm an</string>
+    <string name="search_dialog_title">Statioune sichen</string>
+    <string name="fm_command_timeout_title">Timeout</string>
+    <string name="fm_tune_timeout_msg">Keen Empfang um gewënschten FM-Sender. Probéier de Radio aus- an nees unzeschalten, wann de Probleem weierhi besteet.</string>
+    <string name="fm_command_failed_title">Radio-Operatioun feelgeschloen</string>
+    <string name="fm_cmd_failed_msg">Radio-Operatioun feelgeschloen. Falls de Problem bestoe bleift, schalt de Radio aus an nees un.</string>
+    <string name="fm_cmd_failed_msg_hdmi">Radio-Operatioun feelgeschloen. Radio an HDMI funktionnéieren net gläichzäiteg.</string>
+    <string name="fm_cmd_failed_call_on">Radio-Operatioun feelgeschloen. Während engem Uruff ka kee Radio gelauschtert ginn.</string>
+    <string name="audio_db_artist_name">Meng Radioopnamen</string>
+    <string name="audio_db_album_name">Radioopnamen</string>
+    <string name="audio_db_playlist_name">Radioopnamen</string>
+    <string name="station_name">Statioun:</string>
+    <string name="station_exists">Dës Frequenz existéiert schon!</string>
+    <string name="station_list_delete_station">Läschen: <xliff:g id="name">%s</xliff:g></string>
+    <string name="station_list_delete_station_prompt">Wëlls du \'<xliff:g id="name">%s</xliff:g>\' sécher läschen?</string>
+    <string name="station_name_empty">De Statiounsnumm ass eidel, w.e.g. eppes aginn.</string>
+    <string name="station_name_exist">\'<xliff:g id="name">%s</xliff:g>\' gëtt scho benotzt, gëff w.e.g. en aneren Numm an.</string>
+    <string name="rt_plus_tags">Tags</string>
+    <string name="usr_def_band_min">Niddregst Frequenz (Mhz)</string>
+    <string name="usr_def_band_max">Héchst Frequenz (Mhz)</string>
+    <string name="chanl_spacing">Kanalofstand</string>
+    <string name="set">Setzen</string>
+    <string name="save_record_file">Fichier vun der Radioopnam ënner \'<xliff:g id="record_file">%1$s</xliff:g>\' gespäichert</string>
+    <string name="fm_search_no_results">Keng kompatibel Statioune fonnt</string>
+    <string name="typ_All_stations">All d\'Senderen</string>
+    <string name="typ_Culture">Kultur</string>
+    <string name="typ_Current_affairs">Aktuell Ereegnesser</string>
+    <string name="typ_Children">Kannerprogrammer</string>
+    <string name="typ_Country">Country-Musek</string>
+    <string name="typ_Documentary">Dokumentarfilm</string>
+    <string name="typ_Drama">Drama</string>
+    <string name="typ_Easy_listening">Entspannungsmusek</string>
+    <string name="typ_Education">Educatioun</string>
+    <string name="typ_Emergency">Noutfall</string>
+    <string name="typ_Emergency_test">Noutfalltest</string>
+    <string name="typ_Finance">Finanzen</string>
+    <string name="typ_Folk">Volleksmusek</string>
+    <string name="typ_Information">Informatioun</string>
+    <string name="typ_Jazz">Jazzmusek</string>
+    <string name="typ_Light_classical">Liicht Klassik</string>
+    <string name="typ_Leisure">Fräizäit</string>
+    <string name="typ_News">Neiegkeeten</string>
+    <string name="typ_National">National Musek</string>
+    <string name="typ_Other">Aner Musek</string>
+    <string name="typ_Oldies">Oldie-Musek</string>
+    <string name="typ_Phone_in">Telefonsagank</string>
+    <string name="typ_Pop">Popmusek</string>
+    <string name="typ_Religion">Relioun</string>
+    <string name="typ_Rock">Rockmusek</string>
+    <string name="typ_Science">Wëssenschaft</string>
+    <string name="typ_Serious_classical">Eescht Klassik</string>
+    <string name="typ_Social_affairs">Sozial Affären</string>
+    <string name="typ_Sport">Sport</string>
+    <string name="typ_Travel">Reesen</string>
+    <string name="typ_Varied">Villfälteg</string>
+    <string name="typ_Weather">Wieder</string>
+    <string name="typ_Adult_hits">Erwuessenen Hitten</string>
+    <string name="typ_Classical">Klassik</string>
+    <string name="typ_Classic_Rock">Klassesche Rock</string>
+    <string name="typ_College">Héichschoul</string>
+    <string name="typ_Foreign_language">Friemsprooch</string>
+    <string name="typ_Hiphop">Hip Hop</string>
+    <string name="typ_Nostalgia">Nostalgie</string>
+    <string name="typ_Personality">Personalitéiten</string>
+    <string name="typ_Public">Ëffentlech</string>
+    <string name="typ_Religious_music">Reliéis Musek</string>
+    <string name="typ_Religious_talk">Reliéis Talkshowen</string>
+    <string name="typ_Rhythm_and_Blues">Rhythm a Blues</string>
+    <string name="typ_Spanish_music">Spuenesch Musek</string>
+    <string name="typ_Spanish_talk">Spuenesch Gespréicher</string>
+    <string name="typ_Soft">Soft</string>
+    <string name="typ_Soft_Rock">Soft Rock</string>
+    <string name="typ_Soft_Rhythm_and_Blues">Soft Rhythm a Blues</string>
+    <string name="typ_Sports">Sport</string>
+    <string name="typ_Talk">Talkshowen</string>
+    <string name="typ_Top_40">Top 40</string>
+</resources>

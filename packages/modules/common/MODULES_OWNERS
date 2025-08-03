@@ -1,0 +1,14 @@
+# This file is intended to be included in the OWNERS file for mainline modules.
+# The goal is to allow the mainline modularization team to approve certain
+# classes of change within mainline modules and their build rules.
+#
+# It should be included in a module OWNERS file via:
+# include platform/packages/modules/common:/MODULES_OWNERS
+#
+# See go/mainline-owners-policy for more details.
+
+hansson@google.com #{LAST_RESORT_SUGGESTION}
+robertogil@google.com #{LAST_RESORT_SUGGESTION}
+
+# backup:
+dariofreni@google.com #{LAST_RESORT_SUGGESTION}

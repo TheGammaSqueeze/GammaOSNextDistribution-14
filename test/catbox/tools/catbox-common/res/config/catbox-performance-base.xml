@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2021 Google Inc.
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<configuration description="Automotive Performance Test Base.">
+    <!-- Common Target Preparers -->
+    <include name="catbox-preparer"/>
+
+    <!-- Result Reporter -->
+    <result_reporter class="com.android.catbox.result.JsonResultReporter">
+        <option name="dest-dir" value="report-log-files/"/>
+        <option name="test-iteration-separator" value="$"/>
+        <option name="aggregate-similar-tests" value="true"/>
+    </result_reporter>
+
+    <!-- Common Config -->
+    <include name="catbox-common"/>
+
+    <!-- Test Tag Suffix -->
+    <option name="test-tag-suffix" value="performance"/>
+
+    <!-- Performance Specific Target Preparers -->
+    <target_preparer class="com.android.tradefed.targetprep.PerfettoPreparer"/>
+    <target_preparer class="com.android.tradefed.targetprep.TimeWaster"/>
+    <target_preparer
+        class="com.android.compatibility.common.tradefed.targetprep.ReportLogCollector">
+        <option name="src-dir" value="/sdcard/report-log-files/"/>
+        <option name="dest-dir" value="report-log-files/"/>
+        <option name="temp-dir" value="temp-report-logs/"/>
+    </target_preparer>
+    <target_preparer class="com.android.catbox.targetpreparer.ChromeMdPassengerLoadPreparer">
+        <option name="disable" value="true"/>
+        <option name="url" value="https://youtu.be/dQw4w9WgXcQ"/>
+    </target_preparer>
+
+    <!-- Enable perfetto host side metric collector -->
+    <metrics_collector class="com.android.tradefed.device.metric.PerfettoPullerMetricCollector">
+        <option name="collect-on-run-ended-only" value="false" />
+        <option name="pull-pattern-keys" value="perfetto_file_path" />
+    </metrics_collector>
+</configuration>

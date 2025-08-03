@@ -1,0 +1,27 @@
+{
+  "user_bidding_signals": {
+    "valid": true,
+    "arbitrary": "yes"
+  },
+  "trusted_bidding_data": {
+    "trusted_bidding_uri": "<buyer-trusted-signal-uri>",
+    "trusted_bidding_keys": [
+      "key1",
+      "key2"
+    ]
+  },
+  "ads": [
+    {
+      "render_uri": "<ad-render-uri-1>",
+      "metadata": {
+        "valid": 1
+      }
+    },
+    {
+      "render_uri": "<ad-render-uri-2>",
+      "metadata": {
+        "valid": 2
+      }
+    }
+  ]
+}

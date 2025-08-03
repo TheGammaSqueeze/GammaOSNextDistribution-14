@@ -1,0 +1,7 @@
+baligh@google.com
+cmaierean@google.com
+dariofreni@google.com
+jham@google.com
+narayan@google.com
+
+include platform/packages/modules/common:/MODULES_OWNERS  # see go/mainline-owners-policy

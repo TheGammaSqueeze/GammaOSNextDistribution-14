@@ -1,0 +1,366 @@
+use lazy_static::lazy_static;
+use log::{error, info};
+use paste::paste;
+use std::collections::{BTreeMap, HashMap};
+use std::fmt;
+use std::sync::Mutex;
+
+// Fallback to bool when type is not specified
+macro_rules! type_expand {
+    () => {
+        bool
+    };
+    ($type:ty) => {
+        $type
+    };
+}
+
+macro_rules! default_value {
+    () => {
+        false
+    };
+    ($type:ty) => {
+        <$type>::default()
+    };
+    ($($type:ty)? = $default:tt) => {
+        $default
+    };
+}
+
+macro_rules! test_value {
+    () => {
+        true
+    };
+    ($type:ty) => {
+        <$type>::default()
+    };
+}
+
+#[cfg(test)]
+macro_rules! call_getter_fn {
+    ($flag:ident) => {
+        paste! {
+            [<$flag _is_enabled>]()
+        }
+    };
+    ($flag:ident $type:ty) => {
+        paste! {
+            [<get_ $flag>]()
+        }
+    };
+}
+
+macro_rules! create_getter_fn {
+    ($flag:ident) => {
+        paste! {
+            #[doc = concat!(" Return true if ", stringify!($flag), " is enabled")]
+            pub fn [<$flag _is_enabled>]() -> bool {
+                FLAGS.lock().unwrap().$flag
+            }
+        }
+    };
+    ($flag:ident $type:ty) => {
+        paste! {
+            #[doc = concat!(" Return the flag value of ", stringify!($flag))]
+            pub fn [<get_ $flag>]() -> $type {
+                FLAGS.lock().unwrap().$flag
+            }
+        }
+    };
+}
+
+macro_rules! init_flags {
+    (
+        name: $name:ident
+        $($args:tt)*
+    ) => {
+        init_flags_struct! {
+            name: $name
+            $($args)*
+        }
+
+        init_flags_getters! {
+            $($args)*
+        }
+    }
+}
+
+trait FlagHolder: Default {
+    fn get_defaults_for_test() -> Self;
+    fn parse(flags: Vec<String>) -> Self;
+    fn dump(&self) -> BTreeMap<&'static str, String>;
+    fn reconcile(self) -> Self;
+}
+
+macro_rules! init_flags_struct {
+    (
+     name: $name:ident
+     flags: { $($flag:ident $(: $type:ty)? $(= $default:tt)?,)* }
+     extra_parsed_flags: { $($extra_flag:tt => $extra_flag_fn:ident(_, _ $(,$extra_args:tt)*),)*}
+     dependencies: { $($parent:ident => $child:ident),* }) => {
+
+        struct $name {
+            $($flag : type_expand!($($type)?),)*
+        }
+
+        impl Default for $name {
+            fn default() -> Self {
+                Self {
+                    $($flag : default_value!($($type)? $(= $default)?),)*
+                }
+            }
+        }
+
+        impl FlagHolder for $name {
+            fn get_defaults_for_test() -> Self {
+                Self {
+                    $($flag: test_value!($($type)?),)*
+                }
+            }
+
+            fn dump(&self) -> BTreeMap<&'static str, String> {
+                [
+                    $((stringify!($flag), format!("{}", self.$flag)),)*
+                ].into()
+            }
+
+            fn parse(flags: Vec<String>) -> Self {
+                let mut init_flags = Self::default();
+
+                for flag in flags {
+                    let values: Vec<&str> = flag.split("=").collect();
+                    if values.len() != 2 {
+                        error!("Bad flag {}, must be in <FLAG>=<VALUE> format", flag);
+                        continue;
+                    }
+
+                    match values[0] {
+                        $(concat!("INIT_", stringify!($flag)) =>
+                            init_flags.$flag = values[1].parse().unwrap_or_else(|e| {
+                                error!("Parse failure on '{}': {}", flag, e);
+                                default_value!($($type)? $(= $default)?)}),)*
+                        $($extra_flag => $extra_flag_fn(&mut init_flags, values $(, $extra_args)*),)*
+                        _ => error!("Unsaved flag: {} = {}", values[0], values[1])
+                    }
+                }
+
+                init_flags.reconcile()
+            }
+
+            #[allow(unused_mut)]
+            fn reconcile(mut self) -> Self {
+                loop {
+                    // dependencies can be specified in any order
+                    $(if self.$parent && !self.$child {
+                        self.$child = true;
+                        continue;
+                    })*
+                    break;
+                }
+                self
+            }
+        }
+
+        impl fmt::Display for $name {
+            fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+                write!(f,
+                    concat!($(concat!(stringify!($flag), "={}")),*),
+                    $(self.$flag),*)
+            }
+        }
+
+    }
+}
+
+macro_rules! init_flags_getters {
+    (
+     flags: { $($flag:ident $(: $type:ty)? $(= $default:tt)?,)* }
+     extra_parsed_flags: { $($extra_flag:tt => $extra_flag_fn:ident(_, _ $(,$extra_args:tt)*),)*}
+     dependencies: { $($parent:ident => $child:ident),* }) => {
+
+        $(create_getter_fn!($flag $($type)?);)*
+
+        #[cfg(test)]
+        mod tests_autogenerated {
+            use super::*;
+            $(paste! {
+                #[test]
+                pub fn [<test_get_ $flag>]() {
+                    let _guard = tests::ASYNC_LOCK.lock().unwrap();
+                    tests::test_load(vec![
+                        &*format!(concat!(concat!("INIT_", stringify!($flag)), "={}"), test_value!($($type)?))
+                    ]);
+                    let get_value = call_getter_fn!($flag $($type)?);
+                    drop(_guard); // Prevent poisonning other tests if a panic occurs
+                    assert_eq!(get_value, test_value!($($type)?));
+                }
+            })*
+        }
+    }
+}
+
+#[derive(Default)]
+struct ExplicitTagSettings {
+    map: HashMap<String, i32>,
+}
+
+impl fmt::Display for ExplicitTagSettings {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{:?}", self.map)
+    }
+}
+
+fn parse_hci_adapter(flags: &mut InitFlags, values: Vec<&str>) {
+    flags.hci_adapter = values[1].parse().unwrap_or(0);
+}
+
+/// Sets all bool flags to true
+/// Set all other flags and extra fields to their default type value
+pub fn set_all_for_testing() {
+    *FLAGS.lock().unwrap() = InitFlags::get_defaults_for_test();
+}
+
+init_flags!(
+    name: InitFlags
+    flags: {
+        asha_packet_drop_frequency_threshold: i32 = 60,
+        asha_phy_update_retry_limit: i32 = 5,
+        always_send_services_if_gatt_disc_done = true,
+        always_use_private_gatt_for_debugging,
+        bluetooth_power_telemetry = false,
+        bta_dm_clear_conn_id_on_client_close = true,
+        btm_dm_flush_discovery_queue_on_search_cancel,
+        bta_dm_stop_discovery_on_search_cancel,
+        classic_discovery_only,
+        clear_hidd_interrupt_cid_on_disconnect = true,
+        delay_hidh_cleanup_until_hidh_ready_start = true,
+        device_iot_config_logging,
+        dynamic_avrcp_version_enhancement = true,
+        gatt_robust_caching_client = true,
+        gatt_robust_caching_server,
+        hci_adapter: i32,
+        hfp_dynamic_version = true,
+        irk_rotation,
+        leaudio_targeted_announcement_reconnection_mode = true,
+        pbap_pse_dynamic_version_upgrade = false,
+        private_gatt = true,
+        redact_log = true,
+        rust_event_loop = true,
+        sco_codec_select_lc3 = true,
+        sco_codec_timeout_clear,
+        sdp_serialization = true,
+        sdp_skip_rnr_if_known = true,
+        bluetooth_quality_report_callback = true,
+        set_min_encryption = true,
+        subrating = true,
+        use_unified_connection_manager,
+        sdp_return_classic_services_when_le_discovery_fails = true,
+        use_rsi_from_cached_inqiry_results = false,
+        att_mtu_default: i32 = 517,
+        encryption_in_busy_state = true,
+    }
+    extra_parsed_flags: {
+        "--hci" => parse_hci_adapter(_, _),
+    }
+    dependencies: {
+        always_use_private_gatt_for_debugging => private_gatt,
+        private_gatt => rust_event_loop
+    }
+);
+
+lazy_static! {
+    /// Store some flag values
+    static ref FLAGS: Mutex<InitFlags> = Mutex::new(InitFlags::default());
+    /// Store the uid of bluetooth
+    pub static ref AID_BLUETOOTH: Mutex<u32> = Mutex::new(1002);
+    /// Store the prefix for file system
+    pub static ref MISC: Mutex<String> = Mutex::new("/data/misc/".to_string());
+}
+
+/// Loads the flag values from the passed-in vector of string values
+pub fn load(raw_flags: Vec<String>) {
+    crate::init_logging();
+
+    let flags = InitFlags::parse(raw_flags);
+    info!("Flags loaded: {}", flags);
+    *FLAGS.lock().unwrap() = flags;
+}
+
+/// Dumps all flag K-V pairs, storing values as strings
+pub fn dump() -> BTreeMap<&'static str, String> {
+    FLAGS.lock().unwrap().dump()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    lazy_static! {
+        /// do not run concurrent tests as they all use the same global init_flag struct and
+        /// accessor
+        pub(super) static ref ASYNC_LOCK: Mutex<bool> = Mutex::new(false);
+    }
+
+    pub(super) fn test_load(raw_flags: Vec<&str>) {
+        let raw_flags = raw_flags.into_iter().map(|x| x.to_string()).collect();
+        load(raw_flags);
+    }
+
+    #[test]
+    fn simple_flag() {
+        let _guard = ASYNC_LOCK.lock().unwrap();
+        test_load(vec![
+            "INIT_private_gatt=false", //override a default flag
+            "INIT_gatt_robust_caching_server=true",
+        ]);
+        assert!(!private_gatt_is_enabled());
+        assert!(gatt_robust_caching_server_is_enabled());
+    }
+    #[test]
+    fn parsing_failure() {
+        let _guard = ASYNC_LOCK.lock().unwrap();
+        test_load(vec![
+            "foo=bar=?",                                // vec length
+            "foo=bar",                                  // flag not save
+            "INIT_private_gatt=not_false",              // parse error but has default value
+            "INIT_gatt_robust_caching_server=not_true", // parse error
+        ]);
+        assert!(private_gatt_is_enabled());
+        assert!(!gatt_robust_caching_server_is_enabled());
+    }
+    #[test]
+    fn int_flag() {
+        let _guard = ASYNC_LOCK.lock().unwrap();
+        test_load(vec!["--hci=2"]);
+        assert_eq!(get_hci_adapter(), 2);
+    }
+    #[test]
+    fn test_redact_logging() {
+        let _guard = ASYNC_LOCK.lock().unwrap();
+        assert!(redact_log_is_enabled()); // default is true
+        test_load(vec!["INIT_redact_log=false"]);
+        assert!(!redact_log_is_enabled()); // turned off
+        test_load(vec!["INIT_redact_log=foo"]);
+        assert!(redact_log_is_enabled()); // invalid value, interpreted as default, true
+        test_load(vec!["INIT_redact_log=true"]);
+        assert!(redact_log_is_enabled()); // turned on
+    }
+
+    init_flags_struct!(
+        name: InitFlagsForTest
+        flags: {
+            cat,
+        }
+        extra_parsed_flags: {}
+        dependencies: {}
+    );
+
+    #[test]
+    fn test_dumpsys() {
+        let flags = InitFlagsForTest { ..Default::default() };
+
+        let out = flags.dump();
+
+        assert_eq!(out.len(), 1);
+        assert_eq!(out["cat"], "false");
+    }
+}

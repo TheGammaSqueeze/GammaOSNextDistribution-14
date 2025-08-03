@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2019 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="wifiResourcesAppLabel" product="default" msgid="3120115613525263696">"Системные ресурсы Wi-Fi"</string>
+    <string name="wifi_available_title" msgid="3899472737467127635">"Подключитесь к открытой сети Wi‑Fi"</string>
+    <string name="wifi_available_title_connecting" msgid="7233590022728579868">"Идет подключение к сети Wi-Fi…"</string>
+    <string name="wifi_available_title_connected" msgid="6329493859989844201">"Подключено к сети Wi-Fi"</string>
+    <string name="wifi_available_title_failed_to_connect" msgid="4840833680513368639">"Не удалось подключиться к сети Wi‑Fi"</string>
+    <string name="wifi_available_content_failed_to_connect" msgid="4330035988269701861">"Нажмите, чтобы увидеть список сетей"</string>
+    <string name="wifi_available_action_connect" msgid="5636634933476946222">"Подключиться"</string>
+    <string name="wifi_available_action_all_networks" msgid="8491109932336522211">"Все сети"</string>
+    <string name="notification_channel_network_status" msgid="1631786866932924838">"Статус сети"</string>
+    <string name="notification_channel_network_alerts" msgid="1391603215241200880">"Оповещения сети"</string>
+    <string name="notification_channel_network_available" msgid="8454366142428864948">"Сеть доступна"</string>
+    <string name="notification_channel_apm_alerts" msgid="6775293475896473489">"Оповещения в режиме полета"</string>
+    <string name="wifi_suggestion_title" msgid="2564179935989099139">"Подключаться к предложенным сетям Wi‑Fi?"</string>
+    <string name="wifi_suggestion_content" msgid="6985149577828091835">"Приложение \"<xliff:g id="NAME">%s</xliff:g>\" рекомендует сети, к которым устройство может подключаться автоматически."</string>
+    <string name="wifi_suggestion_action_allow_app" msgid="7757859972144671588">"Разрешить"</string>
+    <string name="wifi_suggestion_action_disallow_app" msgid="4565857699629860726">"Нет, спасибо"</string>
+    <string name="wifi_suggestion_imsi_privacy_title" msgid="8969261812845304079">"Подключиться к сети Wi-Fi оператора \"<xliff:g id="CARRIERNAME">%s</xliff:g>\"?"</string>
+    <string name="wifi_suggestion_imsi_privacy_content" msgid="4266931269306079184">"Этим сетям будет передан идентификатор SIM-карты, с помощью которого можно отслеживать местоположение устройства."</string>
+    <string name="wifi_suggestion_action_allow_imsi_privacy_exemption_carrier" msgid="3888538126440442636">"Подключиться"</string>
+    <string name="wifi_suggestion_action_disallow_imsi_privacy_exemption_carrier" msgid="3225397664735676024">"Не подключаться"</string>
+    <string name="wifi_suggestion_imsi_privacy_exemption_confirmation_title" msgid="4407415300707014525">"Подтвердите подключение"</string>
+    <string name="wifi_suggestion_imsi_privacy_exemption_confirmation_content" msgid="9211241189147807136">"Если вы установите подключение, Wi‑Fi-сети оператора \"<xliff:g id="CARRIERNAME">%s</xliff:g>\" смогут получать доступ к уникальному идентификатору, связанному с вашей SIM-картой, или делиться им. Это позволит отслеживать местоположение устройства."</string>
+    <string name="wifi_suggestion_action_allow_imsi_privacy_exemption_confirmation" msgid="2168947026413431603">"Подключиться"</string>
+    <string name="wifi_suggestion_action_disallow_imsi_privacy_exemption_confirmation" msgid="5156881939985876066">"Не подключаться"</string>
+    <string name="wifi_wakeup_onboarding_title" msgid="3868826648004934540">"Wi-Fi включится автоматически"</string>
+    <string name="wifi_wakeup_onboarding_subtext" msgid="5705886295837387430">"Когда вы будете в зоне действия сохраненной сети с хорошим сигналом."</string>
+    <string name="wifi_wakeup_onboarding_action_disable" msgid="6209706680391785825">"Не включать снова"</string>
+    <string name="wifi_wakeup_enabled_title" msgid="5043486751612595850">"Wi‑Fi включен автоматически"</string>
+    <string name="wifi_wakeup_enabled_content" msgid="3911262526267025882">"Вы находитесь в зоне действия сохраненной сети <xliff:g id="NETWORK_SSID">%1$s</xliff:g>."</string>
+    <string name="wifi_watchdog_network_disabled" msgid="5769226742956006362">"Не удалось подключиться к сети Wi-Fi"</string>
+    <string name="wifi_watchdog_network_disabled_detailed" msgid="1725243835135539125">" – плохое интернет-соединение."</string>
+    <string name="wifi_connect_alert_title" msgid="2368200646665663612">"Разрешить подключение?"</string>
+    <string name="wifi_connect_alert_message" msgid="7226456300982080746">"Приложение \"%1$s\" запрашивает доступ на подключение к сети Wi-Fi (%2$s)"</string>
+    <string name="wifi_connect_default_application" msgid="8917703737222707062">"Приложение"</string>
+    <string name="accept" msgid="8346431649376483879">"Принять"</string>
+    <string name="decline" msgid="4172251727603762084">"Отклонить"</string>
+    <string name="ok" msgid="847575529546290102">"ОК"</string>
+    <string name="wifi_p2p_invitation_sent_title" msgid="6552639940428040869">"Приглашение отправлено"</string>
+    <string name="wifi_p2p_invitation_to_connect_title" msgid="8917157937652519251">"Приглашение к подключению"</string>
+    <string name="wifi_p2p_invitation_seconds_remaining" msgid="4214101104506918344">"{0,plural, =1{Осталась # секунда.}one{Осталась # секунда.}few{Осталось # секунды.}many{Осталось # секунд.}other{Осталось # секунды.}}"</string>
+    <string name="wifi_p2p_from_message" msgid="5921308150192756898">"От:"</string>
+    <string name="wifi_p2p_to_message" msgid="3809923305696994787">"Кому:"</string>
+    <string name="wifi_p2p_enter_pin_message" msgid="5200220251738047620">"Введите PIN-код:"</string>
+    <string name="wifi_p2p_show_pin_message" msgid="1000091690967930798">"PIN-код:"</string>
+    <string name="wifi_p2p_frequency_conflict_message" msgid="8535404941723941766">"На время подключения к устройству <xliff:g id="DEVICE_NAME">%1$s</xliff:g> ваше устройство отключится от сети Wi-Fi."</string>
+    <string name="dlg_ok" msgid="254496739491689405">"ОК"</string>
+    <string name="wifi_cannot_connect_with_randomized_mac_title" msgid="2344570489693915253">"Не удалось подключиться к устройству \"<xliff:g id="SSID">%1$s</xliff:g>\""</string>
+    <string name="wifi_cannot_connect_with_randomized_mac_message" msgid="4834133226521813352">"Нажмите, чтобы изменить настройки конфиденциальности и повторить попытку."</string>
+    <string name="wifi_disable_mac_randomization_dialog_title" msgid="2054540994993681606">"Изменить настройки конфиденциальности?"</string>
+    <string name="wifi_disable_mac_randomization_dialog_message" msgid="8874064864332248988">"Для подключения сети <xliff:g id="SSID">%1$s</xliff:g> необходим MAC-адрес вашего устройства (уникальный идентификатор). Сейчас ваша настройка конфиденциальности для этой сети использует случайный идентификатор. \n\nЭто изменение может привести к тому, что устройства поблизости смогут отслеживать ваше местоположение."</string>
+    <string name="wifi_disable_mac_randomization_dialog_confirm_text" msgid="6954419863076751626">"Изменить настройки"</string>
+    <string name="wifi_disable_mac_randomization_dialog_success" msgid="5849155828154391387">"Настройки сохранены. Попробуйте подключиться ещё раз."</string>
+    <string name="wifi_disable_mac_randomization_dialog_failure" msgid="2894643619143813096">"Не удается изменить настройки конфиденциальности."</string>
+    <string name="wifi_disable_mac_randomization_dialog_network_not_found" msgid="7359256966900782004">"Сеть не найдена."</string>
+    <string name="wifi_eap_error_message_code_32756" msgid="2620877003804313434">"<xliff:g id="SSID">%1$s</xliff:g>: ошибка аутентификации EAP 32756"</string>
+    <!-- no translation found for wifi_eap_error_message_code_32756_carrier_overrides:0 (9114567205305206743) -->
+    <string name="wifi_eap_error_message_code_32760" msgid="5258191595973470188">"<xliff:g id="SSID">%1$s</xliff:g> : Ошибка аутентификации EAP 32760"</string>
+  <string-array name="wifi_eap_error_message_code_32760_carrier_overrides">
+    <item msgid="7582366019846559418">"<xliff:g id="CARRIER_ID_PREFIX">:::1839:::</xliff:g> <xliff:g id="SSID">%1$s</xliff:g>: вы не можете подключиться к сервису Verizon Wi-Fi Access вне зоны покрытия Verizon. Код ошибки: 32760."</item>
+  </string-array>
+    <string name="wifi_eap_error_message_code_32761" msgid="3962610712123291591">"<xliff:g id="SSID">%1$s</xliff:g> : Ошибка аутентификации EAP 32761"</string>
+  <string-array name="wifi_eap_error_message_code_32761_carrier_overrides">
+    <item msgid="5173744897521799785">"<xliff:g id="CARRIER_ID_PREFIX">:::1839:::</xliff:g> <xliff:g id="SSID">%1$s</xliff:g>: вы не подписаны на сервис Verizon Wi-Fi Access. Позвоните нам по номеру 800 922-02-04. Код ошибки: 32761."</item>
+  </string-array>
+    <string name="wifi_eap_error_message_code_32762" msgid="2381670648753465737">"<xliff:g id="SSID">%1$s</xliff:g> : Ошибка аутентификации EAP 32762"</string>
+  <string-array name="wifi_eap_error_message_code_32762_carrier_overrides">
+    <item msgid="2911560823350042826">"<xliff:g id="CARRIER_ID_PREFIX">:::1839:::</xliff:g> <xliff:g id="SSID">%1$s</xliff:g>: возникла проблема с вашим аккаунтом Verizon Wi-Fi Access. Позвоните нам по номеру 800 922-02-04. Код ошибки: 32762."</item>
+  </string-array>
+    <string name="wifi_eap_error_message_code_32763" msgid="4467733260757049969">"<xliff:g id="SSID">%1$s</xliff:g> : Ошибка аутентификации EAP 32763"</string>
+  <string-array name="wifi_eap_error_message_code_32763_carrier_overrides">
+    <item msgid="591026649262091217">"<xliff:g id="CARRIER_ID_PREFIX">:::1839:::</xliff:g> <xliff:g id="SSID">%1$s</xliff:g>: вы уже подключены к сервису Verizon Wi-Fi Access. Код ошибки: 32763."</item>
+  </string-array>
+    <string name="wifi_eap_error_message_code_32764" msgid="7349538467012877101">"<xliff:g id="SSID">%1$s</xliff:g> : Ошибка аутентификации EAP 32764"</string>
+  <string-array name="wifi_eap_error_message_code_32764_carrier_overrides">
+    <item msgid="3909719534712787947">"<xliff:g id="CARRIER_ID_PREFIX">:::1839:::</xliff:g> <xliff:g id="SSID">%1$s</xliff:g>: не удалось подключиться к сервису Verizon Wi-Fi Access. Позвоните нам по номеру 800 922-02-04. Код ошибки: 32764."</item>
+  </string-array>
+    <string name="wifi_eap_error_message_code_32765" msgid="2167528358066037980">"<xliff:g id="SSID">%1$s</xliff:g> : Ошибка аутентификации EAP 32765"</string>
+  <string-array name="wifi_eap_error_message_code_32765_carrier_overrides">
+    <item msgid="7454136618636618962">"<xliff:g id="CARRIER_ID_PREFIX">:::1839:::</xliff:g> <xliff:g id="SSID">%1$s</xliff:g>: возникла проблема с вашим аккаунтом Verizon Wi-Fi Access. Позвоните нам по номеру 800 922-02-04. Код ошибки: 32765."</item>
+  </string-array>
+    <string name="wifi_eap_error_message_code_32766" msgid="2335996367705677670">"<xliff:g id="SSID">%1$s</xliff:g> : Ошибка аутентификации EAP 32766"</string>
+  <string-array name="wifi_eap_error_message_code_32766_carrier_overrides">
+    <item msgid="5876210184761573755">"<xliff:g id="CARRIER_ID_PREFIX">:::1839:::</xliff:g> <xliff:g id="SSID">%1$s</xliff:g>: сервис Verizon Wi-Fi Access недоступен там, где вы находитесь. Повторите попытку позже или в другом месте. Код ошибки: 32766."</item>
+  </string-array>
+    <string name="wifi_eap_error_message_code_32767" msgid="7094289719914089006">"<xliff:g id="SSID">%1$s</xliff:g>: ошибка аутентификации EAP 32767."</string>
+  <string-array name="wifi_eap_error_message_code_32767_carrier_overrides">
+    <item msgid="3756793972687282940">"<xliff:g id="CARRIER_ID_PREFIX">:::1839:::</xliff:g><xliff:g id="SSID">%1$s</xliff:g>: не удалось подключиться к сервису Verizon Wi-Fi Access. Повторите попытку позже или в другом месте. Код ошибки: 32767."</item>
+  </string-array>
+    <string name="wifi_eap_error_message_code_16384" msgid="575394783233092922">"<xliff:g id="SSID">%1$s</xliff:g>: ошибка аутентификации EAP 16384."</string>
+  <string-array name="wifi_eap_error_message_code_16384_carrier_overrides">
+    <item msgid="270219697600808218">"<xliff:g id="CARRIER_ID_PREFIX">:::1839:::</xliff:g><xliff:g id="SSID">%1$s</xliff:g>: не удалось подключиться к сервису Verizon Wi-Fi Access. Код ошибки: 16384."</item>
+  </string-array>
+    <string name="wifi_eap_error_message_code_16385" msgid="8392878664662215609">"<xliff:g id="SSID">%1$s</xliff:g>: ошибка аутентификации EAP 16385."</string>
+  <string-array name="wifi_eap_error_message_code_16385_carrier_overrides">
+    <item msgid="50575315771146940">"<xliff:g id="CARRIER_ID_PREFIX">:::1839:::</xliff:g><xliff:g id="SSID">%1$s</xliff:g>: не удалось подключиться к сервису Verizon Wi-Fi Access. Код ошибки: 16385."</item>
+  </string-array>
+    <string name="wifi_eap_error_message_unknown_error_code" msgid="4480884285384231323">"<xliff:g id="SSID">%1$s</xliff:g>: ошибка аутентификации EAP, неизвестный код ошибки."</string>
+  <string-array name="wifi_eap_error_message_unknown_error_code_carrier_overrides">
+    <item msgid="2705387186478280792">"<xliff:g id="CARRIER_ID_PREFIX">:::1839:::</xliff:g><xliff:g id="SSID">%1$s</xliff:g>: не удалось подключиться к сервису Verizon Wi-Fi Access. Неизвестная ошибка."</item>
+  </string-array>
+    <string name="wifi_softap_auto_shutdown_timeout_expired_title" msgid="4896534374569504484">"Точка доступа отключена"</string>
+    <string name="wifi_softap_auto_shutdown_timeout_expired_summary" msgid="7975476698140267728">"Нет подключенных устройств. Нажмите, чтобы внести изменения."</string>
+    <string name="wifi_sim_required_title" msgid="2262227800991155459">"Нет подключения к Wi-Fi"</string>
+    <string name="wifi_sim_required_message" msgid="284812212346125745">"Чтобы подключиться к сети \"<xliff:g id="SSID">%1$s</xliff:g>\", вставьте SIM-карту оператора \"<xliff:g id="CARRIER_NAME">%2$s</xliff:g>\"."</string>
+    <string name="wifi_interface_priority_title" msgid="5117627874976875544">"Приложение \"<xliff:g id="APP">%1$s</xliff:g>\" запрашивает доступ к сетевому ресурсу."</string>
+    <string name="wifi_interface_priority_message" msgid="4253391172756140313">"Это может повлиять на работу приложений: <xliff:g id="APPS">%3$s</xliff:g>."</string>
+    <string name="wifi_interface_priority_message_plural" msgid="8178086373318831859">"Это может привести к проблемам в работе следующих приложений: <xliff:g id="APPS">%3$s</xliff:g>."</string>
+    <string name="wifi_interface_priority_approve" msgid="7877379614986261096">"Разрешить"</string>
+    <string name="wifi_interface_priority_reject" msgid="1378461018835886777">"Не разрешать"</string>
+    <string name="wifi_interface_priority_interface_name_sta" msgid="5107477901500010776">"STA"</string>
+    <string name="wifi_interface_priority_interface_name_ap" msgid="161777054136866061">"Точка доступа Wi‑Fi"</string>
+    <string name="wifi_interface_priority_interface_name_ap_bridge" msgid="1270364818879977821">"Точка доступа Wi‑Fi"</string>
+    <string name="wifi_interface_priority_interface_name_p2p" msgid="1278122698099149708">"Wi-Fi Direct"</string>
+    <string name="wifi_interface_priority_interface_name_nan" msgid="8812888073122966870">"Wi‑Fi Aware"</string>
+    <string name="wifi_ca_cert_dialog_title" msgid="3872340345882915806">"Это безопасная сеть?"</string>
+    <string name="wifi_ca_cert_dialog_continue_text" msgid="1674156611893471003">"Да, подключить"</string>
+    <string name="wifi_ca_cert_dialog_abort_text" msgid="1303170595421648059">"Нет, не подключать"</string>
+    <string name="wifi_ca_cert_dialog_message_hint" msgid="5969214285536370126">"Подключайтесь к этой сети только в том случае, если ниже приведена верная информация.\n\n"</string>
+    <string name="wifi_ca_cert_dialog_message_server_name_text" msgid="3707809865604348289">"Имя сервера:\n<xliff:g id="VALUE">%1$s</xliff:g>\n\n"</string>
+    <string name="wifi_ca_cert_dialog_message_issuer_name_text" msgid="1147216922475192304">"Имя издателя:\n<xliff:g id="VALUE">%1$s</xliff:g>\n\n"</string>
+    <string name="wifi_ca_cert_dialog_message_organization_text" msgid="4936354600863239487">"Организация:\n<xliff:g id="VALUE">%1$s</xliff:g>\n\n"</string>
+    <string name="wifi_ca_cert_dialog_message_expiration_text" msgid="1612917217606436217">"Срок действия сертификата:\n<xliff:g id="VALUE">%1$s</xliff:g>\n\n"</string>
+    <string name="wifi_ca_cert_dialog_message_signature_name_text" msgid="8455163626514894233">"Отпечаток SHA-256:\n<xliff:g id="VALUE">%1$s</xliff:g>\n\n"</string>
+    <string name="wifi_ca_cert_dialog_message_contact_text" msgid="5799083318641183815">"Контактная информация:\n<xliff:g id="VALUE">%1$s</xliff:g>\n\n"</string>
+    <string name="wifi_ca_cert_notification_title" msgid="537569884930429796">"Нужно проверить сеть"</string>
+    <string name="wifi_ca_cert_notification_message" msgid="6413248690626616961">"Прежде чем подключаться, изучите сведения о сети <xliff:g id="SSID">%1$s</xliff:g>. Нажмите, чтобы продолжить."</string>
+    <string name="wifi_ca_cert_failed_to_install_ca_cert" msgid="4864192219789736195">"Ошибка при установке сертификата."</string>
+    <string name="wifi_tofu_invalid_cert_chain_title" msgid="332710627417595752">"Не удается подключиться к сети \"<xliff:g id="VALUE">%1$s</xliff:g>\""</string>
+    <string name="wifi_tofu_invalid_cert_chain_message" msgid="7047987920029432392">"Недопустимая цепочка сертификатов сервера."</string>
+    <string name="wifi_tofu_invalid_cert_chain_ok_text" msgid="9098567577510279854">"OK"</string>
+    <string name="wifi_ca_cert_dialog_preT_title" msgid="6916320484037009061">"Не удается проверить эту сеть."</string>
+    <string name="wifi_ca_cert_dialog_preT_continue_text" msgid="9118713368838029797">"Не отключать"</string>
+    <string name="wifi_ca_cert_dialog_preT_abort_text" msgid="1331309662999405224">"Отключить"</string>
+    <string name="wifi_ca_cert_dialog_preT_message_hint" msgid="5682518783200852031">"У сети <xliff:g id="SSID">%1$s</xliff:g> нет сертификата."</string>
+    <string name="wifi_ca_cert_dialog_preT_message_link" msgid="6325483132538546884">"Как добавлять сертификаты"</string>
+    <string name="wifi_ca_cert_notification_preT_title" msgid="7255129934648316663">"Не удается проверить эту сеть."</string>
+    <string name="wifi_ca_cert_notification_preT_message" msgid="4565553176090475724">"У сети <xliff:g id="SSID">%1$s</xliff:g> нет сертификата. Нажмите, чтобы узнать, как его добавить."</string>
+    <string name="wifi_ca_cert_notification_preT_continue_text" msgid="1525418430746943670">"Все равно подключиться"</string>
+    <string name="wifi_ca_cert_notification_preT_abort_text" msgid="8307996031461071854">"Не подключаться"</string>
+    <string name="wifi_enable_request_dialog_title" msgid="3577459145316177148">"Разрешить приложению \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" включить Wi‑Fi?"</string>
+    <string name="wifi_enable_request_dialog_message" msgid="6395169178524938278">"Отключить Wi‑Fi можно в быстрых настройках."</string>
+    <string name="wifi_enable_request_dialog_positive_button" msgid="6050832555821470466">"Разрешить"</string>
+    <string name="wifi_enable_request_dialog_negative_button" msgid="4754219902374918882">"Не разрешать"</string>
+    <string name="wifi_enabled_apm_first_time_title" msgid="4814302384637588804">"Wi‑Fi будет включен в режиме полета"</string>
+    <string name="wifi_enabled_apm_first_time_message" msgid="6416193199042203037">"Если не отключить функцию Wi-Fi, в следующий раз она останется включенной в режиме полета."</string>
+    <string name="apm_enabled_first_time_title" msgid="2534167413190488009">"Функция Wi‑Fi остается включенной"</string>
+    <string name="apm_enabled_first_time_message" msgid="6093911536874954410">"Функция Wi‑Fi останется включенной в режиме полета. Вы можете отключить ее, если хотите."</string>
+    <string name="wifi_network_disabled_by_admin_title" msgid="9057697656855227293">"Сеть недоступна"</string>
+    <string name="wifi_network_disabled_by_admin_message" msgid="7830360441333155462">"Администратор отключил функцию \"<xliff:g id="SSID">%1$s</xliff:g>\"."</string>
+    <string name="wifi_network_disabled_by_admin_button" msgid="3350310756265122689">"Закрыть"</string>
+    <string name="wifi_network_switch_dialog_title_no_internet" msgid="4116969009784041242">"Сеть <xliff:g id="SSID_0">%1$s</xliff:g> не подключена к интернету. Перейти на <xliff:g id="SSID_1">%2$s</xliff:g>?"</string>
+    <string name="wifi_network_switch_dialog_title_bad_internet" msgid="6013385270249705547">"У сети <xliff:g id="SSID_0">%1$s</xliff:g> низкое качество. Перейти на <xliff:g id="SSID_1">%2$s</xliff:g>?"</string>
+    <string name="wifi_network_switch_dialog_positive_button" msgid="7845507995422722454">"Перейти"</string>
+    <string name="wifi_network_switch_dialog_negative_button" msgid="1496665895689498806">"Нет"</string>
+</resources>

@@ -1,0 +1,4 @@
+0edcd9296043bf6c11d9fa63573c16da2ab2c89459f9f48b7c4125b8c67b311c vendor.qti.hardware.systemhelper@1.0::types
+40cd1de76b9d3ca23f4c8197b1da75c818fdf891ecc56ed04220f6ca4645b1b8 vendor.qti.hardware.systemhelper@1.0::ISystemEvent
+a75908e4d4f357ac281f47e16312e05d0bcfb1a11ca42ce20306cf2170cec0af vendor.qti.hardware.systemhelper@1.0::ISystemEventCallback
+7b0def6f56ef8b7a02923ea26def3101002594cfdc8209baf66743ac408171c0 vendor.qti.hardware.systemhelper@1.0::ISystemResource

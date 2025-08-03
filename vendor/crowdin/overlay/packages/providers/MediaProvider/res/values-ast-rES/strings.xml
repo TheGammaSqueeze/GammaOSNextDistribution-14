@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2009 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="uid_label">Conteníu multimedia</string>
+    <string name="storage_description">Almacenamientu llocal</string>
+    <string name="picker_app_label">Selector de medios</string>
+    <string name="artist_label">Artista</string>
+    <string name="unknown">Descripción desconocida</string>
+    <string name="root_images">Imáxenes</string>
+    <string name="root_videos">Vídeos</string>
+    <string name="root_audio">Audiu</string>
+    <string name="root_documents">Documentos</string>
+    <string name="permission_required">Ríquense permisos pa modificar o desaniciar esti elementu.</string>
+    <string name="permission_required_action">Siguir</string>
+    <string name="grant_dialog_button_allow">Permitir</string>
+    <string name="grant_dialog_button_deny">Negar</string>
+    <string name="permission_more_thumb"> {count, plural,
+        one {}=1    {+<xliff:g id="count" example="1">^1</xliff:g>}
+        other {+<xliff:g id="count" example="42">^1</xliff:g>}
+    }</string>
+    <string name="permission_more_text"> {count, plural,
+        one {}=1    {Más <xliff:g id="count" example="1">^1</xliff:g> elementu adicional}
+        other {Más <xliff:g id="count" example="42">^1</xliff:g> elementos adicionales}
+    }</string>
+    <string name="cache_clearing_dialog_title">Borráu de los ficheros temporales de les aplicaciones</string>
+    <string name="cache_clearing_dialog_text">«<xliff:g id="app_seeking_permission" example="File manager">%s</xliff:g>» quier borrar dalgunos ficheros temporales. Esta aición pue aumentar el consumu de la batería o de los datos móviles.</string>
+    <string name="cache_clearing_in_progress_title">Borrando los ficheros temporales de les aplicaciones\u2026</string>
+    <string name="clear">Borrar</string>
+    <string name="allow">Permitir</string>
+    <string name="deny">Negar</string>
+    <string name="picker_browse">Restolar\u2026</string>
+    <string name="picker_settings">Aplicación de medios na nube</string>
+    <string name="picker_settings_system_settings_menu_title">Aplicación de medios na nube</string>
+    <string name="picker_settings_title">Aplicación de medios na nube</string>
+    <string name="picker_settings_description">Accede a los medios na nube cuando una aplicación o un sitiu web te pida seleicionar semeyes o vídeos</string>
+    <string name="picker_settings_selection_message">Accedi al mediu na nube dende </string>
+    <string name="picker_settings_no_provider">Nenguna</string>
+    <string name="picker_settings_toast_error">Nun se pudo camudar l\'aplicación de medios na nube</string>
+    <string name="picker_sync_notification_channel">Selector de medios</string>
+    <string name="picker_sync_notification_title">Selector de medios</string>
+    <string name="picker_sync_notification_text">Sincronizando\'l mediu…</string>
+    <string name="add">Amestar</string>
+    <string name="deselect">Deseleicionar</string>
+    <string name="deselected">Deseleicionóse</string>
+    <string name="select">Seleicionar</string>
+    <string name="selected">Seleicionóse</string>
+    <string name="select_up_to"> {count, plural,
+        one {}=1    {Seleiciona hasta <xliff:g id="count" example="1">^1</xliff:g> elementu}
+        other {Seleiciona hasta <xliff:g id="count" example="42">^1</xliff:g> elementos}
+    }</string>
+    <string name="recent">De recién</string>
+    <string name="picker_photos_empty_message">Nun hai semeyes nin vídeos</string>
+    <string name="picker_album_media_empty_message">Nun hai nenguna semeya nin videu compatibles</string>
+    <string name="picker_albums_empty_message">Nun hai nengún álbum</string>
+    <string name="picker_view_selected">Ver lo seleicionao</string>
+    <string name="picker_photos">Semeyes</string>
+    <string name="picker_albums">Álbumes</string>
+    <string name="picker_preview">Previsualización</string>
+    <string name="picker_work_profile">Cambiar al perfil llaboral</string>
+    <string name="picker_personal_profile">Cambiar la perfil personal</string>
+    <string name="picker_personal_profile_label">Perfil personal</string>
+    <string name="picker_profile_admin_title">L\'alministración bloquió l\'accesu</string>
+    <string name="picker_profile_admin_msg_from_personal">Nun se permite l\'accesu a los datos llaborales dende una aplicación personal</string>
+    <string name="picker_profile_admin_msg_from_work">Nun se permite l\'accesu a los datos personales dende una aplicación llaboral</string>
+    <string name="picker_profile_admin_msg">Nun se permite l\'accesu a los datos del perfil <xliff:g id="profile1" example="work">%1$s</xliff:g> dende\'l perfil <xliff:g id="profile2" example="personal">%2$s</xliff:g></string>
+    <string name="picker_profile_switch_message">Cambéu al perfil <xliff:g id="profile" example="personal">%s</xliff:g></string>
+    <string name="picker_profile_work_paused_title">Les aplicaciones llaborales tán en posa</string>
+    <string name="picker_profile_paused_title">Les aplicaciones del perfil <xliff:g id="profile" example="work">%s</xliff:g> tán posaes</string>
+    <string name="picker_profile_work_paused_msg">P\'abrir les semeyes llaborales, activa\'l perfil llaboral y volvi tentalo</string>
+    <string name="picker_profile_paused_msg">P\'abrir les semeyes del perfil <xliff:g id="profile1" example="work">%1$s</xliff:g>, activa les aplicaciones del perfil <xliff:g id="profile2" example="work">%2$s</xliff:g> y volvi tentalo</string>
+    <string name="picker_privacy_message">Esta aplicación namás pue acceder a les semeyes que seleiciones</string>
+    <string name="picker_header_permissions">"Seleiciona les semeyes y los vídeos a los que permites qu'acceda esta aplicación"</string>
+    <string name="picker_album_item_count"> {count, plural,
+        one {}=1    {<xliff:g id="count" example="1">^1</xliff:g> elementu}
+        other {<xliff:g id="count" example="42">^1</xliff:g> elementos}
+    }</string>
+    <string name="picker_add_button_multi_select">Amestar (<xliff:g id="count" example="42">^1</xliff:g>)</string>
+    <string name="picker_add_button_multi_select_permissions">Permitir (<xliff:g id="count" example="42">^1</xliff:g>)</string>
+    <string name="picker_add_button_allow_none_option">Nun permitir nenguna</string>
+    <string name="picker_category_camera">Cámara</string>
+    <string name="picker_category_downloads">Descargues</string>
+    <string name="picker_category_favorites">Favoritos</string>
+    <string name="picker_category_screenshots">Captures de pantalla</string>
+    <string name="picker_motion_photo_text">Semeya con movimientu</string>
+    <string name="picker_item_content_desc"><xliff:g id="item_name" example="Photo">%1$s</xliff:g>, del <xliff:g id="time" example="Jul 7, 2020, 12:00:00 AM">%2$s</xliff:g></string>
+    <string name="picker_video_item_content_desc">Videu grabáu\'l <xliff:g id="time" example="Jul 7, 2020, 12:00:00 AM">%1$s</xliff:g> y dura <xliff:g id="duration" example="00:03">%2$s</xliff:g></string>
+    <string name="picker_photo">Semeya</string>
+    <string name="picker_gif">GIF</string>
+    <string name="picker_motion_photo">Semeya con movimientu</string>
+    <string name="picker_mute_video">Desactivar l\'audiu\'l videu</string>
+    <string name="picker_unmute_video">Activar l\'audiu\'l videu</string>
+    <string name="picker_play_video">Reproducir</string>
+    <string name="picker_pause_video">Posar</string>
+    <string name="picker_error_snackbar">Nun se pue reproducir el videu</string>
+    <string name="picker_error_dialog_title">Hai problemes al reproducir el videu</string>
+    <string name="picker_error_dialog_body">Comprueba la conexón a internet y volvi tentalo</string>
+    <string name="picker_error_dialog_positive_action">Retentar</string>
+    <string name="not_selected">nun se seleicionó</string>
+    <string name="preloading_dialog_title">"Preparando los medios seleicionaos"</string>
+    <string name="preloading_progress_message"><xliff:g id="number_preloaded">%1$d</xliff:g> de <xliff:g id="number_total">%2$d</xliff:g> a puntu</string>
+    <string name="preloading_cancel_button">Encaboxar</string>
+    <string name="picker_banner_cloud_first_time_available_title">Agora inclúise la copia de seguranza de les semeyes</string>
+    <string name="picker_banner_cloud_first_time_available_desc">Pues seleicionar les semeyes de la cuenta «<xliff:g id="user_account" example="johndoe123@gmail.com">%2$s</xliff:g>» de l\'aplicación «<xliff:g id="app_name" example="Photos">%1$s</xliff:g>»</string>
+    <string name="picker_banner_cloud_account_changed_title">Anovóse la cuenta de: <xliff:g id="app_name" example="Photos">%1$s</xliff:g></string>
+    <string name="picker_banner_cloud_account_changed_desc">Agora les semeyes de la cuenta «<xliff:g id="user_account" example="johndoe123@gmail.com">%1$s</xliff:g>» inclúinse equí</string>
+    <string name="picker_banner_cloud_choose_app_title">Escueyi una aplicación de medios na nube</string>
+    <string name="picker_banner_cloud_choose_app_desc">Pa incluyir equí una copia de seguranza de les semeyes, escueyi una aplicación de medios na nube en Configuración</string>
+    <string name="picker_banner_cloud_choose_account_title">Seleición de la cuenta de l\'aplicación <xliff:g id="app_name" example="Photos">%1$s</xliff:g></string>
+    <string name="picker_banner_cloud_choose_account_desc">Pa incluyir equí les semeyes de «<xliff:g id="app_name" example="Photos">%1$s</xliff:g>», escueyi una cuenta na aplicación</string>
+    <string name="picker_banner_cloud_dismiss_button">Escartar</string>
+    <string name="picker_banner_cloud_choose_app_button">Escoyer una aplicación</string>
+    <string name="picker_banner_cloud_choose_account_button">Escoyer una cuenta</string>
+    <string name="picker_banner_cloud_change_account_button">Camudar la cuenta</string>
+    <string name="picker_loading_photos_message">Consiguiendo toles semeyes</string>
+    <string name="permission_write_audio"> {count, plural,
+        one {}=1    {¿Quies permitir a «<xliff:g id="app_name" example="Gmail">^1</xliff:g>» que modifique esti ficheru d\'audiu?}
+        other {¿Quies permitir a «<xliff:g id="app_name" example="Gmail">^1</xliff:g>» que modifique <xliff:g id="count" example="42">^2</xliff:g> ficheros d\'audiu?}
+    }</string>
+    <string name="permission_progress_write_audio"> {count, plural,
+        one {}=1    {Modificando\'l ficheru d\'audiu…}
+        other {Modificando <xliff:g id="count" example="42">^1</xliff:g> ficheros d\'audiu…}
+    }</string>
+    <string name="permission_write_video"> {count, plural,
+        one {}=1    {¿Quies permitir a «<xliff:g id="app_name" example="Gmail">^1</xliff:g>» que modifique esti videu?}
+        other {¿Quies permitir a «<xliff:g id="app_name" example="Gmail">^1</xliff:g>» que modifique <xliff:g id="count" example="42">^2</xliff:g> vídeos?}
+    }</string>
+    <string name="permission_progress_write_video"> {count, plural,
+        one {}=1    {Modificando\'l videu…}
+        other {Modificando <xliff:g id="count" example="42">^1</xliff:g> vídeos…}
+    }</string>
+    <string name="permission_write_image"> {count, plural,
+        one {}=1    {¿Quies permitir a «<xliff:g id="app_name" example="Gmail">^1</xliff:g>» que modifique esta semeya?}
+        other {¿Quies permitir a «<xliff:g id="app_name" example="Gmail">^1</xliff:g>» que modifique <xliff:g id="count" example="42">^2</xliff:g> vídeos?}
+    }</string>
+    <string name="permission_progress_write_image"> {count, plural,
+        one {}=1    {Modificando la semeya…}
+        other {Modificando <xliff:g id="count" example="42">^1</xliff:g> semeyes…}
+    }</string>
+    <string name="permission_write_generic"> {count, plural,
+        one {}=1    {¿Quies permitir a «<xliff:g id="app_name" example="Gmail">^1</xliff:g>» que modifique esti elementu?}
+        other {¿Quies permitir a «<xliff:g id="app_name" example="Gmail">^1</xliff:g>» que modifique <xliff:g id="count" example="42">^2</xliff:g> elementos?}
+    }</string>
+    <string name="permission_progress_write_generic"> {count, plural,
+        one {}=1    {Modificando l\'elementu…}
+        other {Modificando <xliff:g id="count" example="42">^1</xliff:g> elementos…}
+    }</string>
+    <string name="permission_trash_audio"> {count, plural,
+        one {}=1    {¿Quies permitir a «<xliff:g id="app_name" example="Gmail">^1</xliff:g>» que tire esti ficheru d\'audiu a la papelera?}
+        other {¿Quies permitir a «<xliff:g id="app_name" example="Gmail">^1</xliff:g>» que tire <xliff:g id="count" example="42">^2</xliff:g> ficheros d\'audiu a la papelera?}
+    }</string>
+    <string name="permission_progress_trash_audio"> {count, plural,
+        one {}=1    {Tirando\'l ficheru d\'audiu a la papelera…}
+        other {Tirando <xliff:g id="count" example="42">^1</xliff:g> ficheros d\'audiu a la papelera…}
+    }</string>
+    <string name="permission_trash_video"> {count, plural,
+        one {}=1    {¿Quies permitir a «<xliff:g id="app_name" example="Gmail">^1</xliff:g>» que tire esti videu a la papelera?}
+        other {¿Quies permitir a «<xliff:g id="app_name" example="Gmail">^1</xliff:g>» que tire <xliff:g id="count" example="42">^2</xliff:g> vídeos a la papelera?}
+    }</string>
+    <string name="permission_progress_trash_video"> {count, plural,
+        one {}=1    {Tirando\'l videu a la papelera…}
+        other {Tirando <xliff:g id="count" example="42">^1</xliff:g> vídeos a la papelera…}
+    }</string>
+    <string name="permission_trash_image"> {count, plural,
+        one {}=1    {¿Quies permitir a «<xliff:g id="app_name" example="Gmail">^1</xliff:g>» que tire esta semeya a la papelera?}
+        other {¿Quies permitir a «<xliff:g id="app_name" example="Gmail">^1</xliff:g>» que tire <xliff:g id="count" example="42">^2</xliff:g> vídeos a la papelera?}
+    }</string>
+    <string name="permission_progress_trash_image"> {count, plural,
+        one {}=1    {Tirando la semeya a la papelera…}
+        other {Tirando <xliff:g id="count" example="42">^1</xliff:g> semeyes a la papelera…}
+    }</string>
+    <string name="permission_trash_generic"> {count, plural,
+        one {}=1    {¿Quies permitir a «<xliff:g id="app_name" example="Gmail">^1</xliff:g>» que tire esti elementu a la papelera?}
+        other {¿Quies permitir a «<xliff:g id="app_name" example="Gmail">^1</xliff:g>» que tire <xliff:g id="count" example="42">^2</xliff:g> elementos a la papelera?}
+    }</string>
+    <string name="permission_progress_trash_generic"> {count, plural,
+        one {}=1    {Tirando l\'elementu a la papelera…}
+        other {Tirando <xliff:g id="count" example="42">^1</xliff:g> elementos a la papelera…}
+    }</string>
+    <string name="permission_untrash_audio"> {count, plural,
+        one {}=1    {¿Quies permitir a «<xliff:g id="app_name" example="Gmail">^1</xliff:g>» que saque esti ficheru de videu de la papelera?}
+        other {¿Quies permitir a «<xliff:g id="app_name" example="Gmail">^1</xliff:g>» que saque <xliff:g id="count" example="42">^2</xliff:g> ficheros d\'audiu de la papelera?}
+    }</string>
+    <string name="permission_progress_untrash_audio"> {count, plural,
+        one {}=1    {Sacando\'l ficheru d\'audiu de la papelera…}
+        other {Sacando <xliff:g id="count" example="42">^1</xliff:g> ficheros d\'audiu de la papelera…}
+    }</string>
+    <string name="permission_untrash_video"> {count, plural,
+        one {}=1    {¿Quies permitir a «<xliff:g id="app_name" example="Gmail">^1</xliff:g>» que saque esti videu de la papelera?}
+        other {¿Quies permitir a «<xliff:g id="app_name" example="Gmail">^1</xliff:g>» que saque <xliff:g id="count" example="42">^2</xliff:g> vídeos de la papelera?}
+    }</string>
+    <string name="permission_progress_untrash_video"> {count, plural,
+        one {}=1    {Sacando\'l videu de la papelera…}
+        other {Sacando <xliff:g id="count" example="42">^1</xliff:g> vídeos de la papelera…}
+    }</string>
+    <string name="permission_untrash_image"> {count, plural,
+        one {}=1    {¿Quies permitir a «<xliff:g id="app_name" example="Gmail">^1</xliff:g>» que saque esta semeya de la papelera?}
+        other {¿Quies permitir a «<xliff:g id="app_name" example="Gmail">^1</xliff:g>» que saque <xliff:g id="count" example="42">^2</xliff:g> semeyes de la papelera?}
+    }</string>
+    <string name="permission_progress_untrash_image"> {count, plural,
+        one {}=1    {Sacando la semeya de la papelera…}
+        other {Sacando <xliff:g id="count" example="42">^1</xliff:g> semeyes de la papelera…}
+    }</string>
+    <string name="permission_untrash_generic"> {count, plural,
+        one {}=1    {¿Quies permitir a «<xliff:g id="app_name" example="Gmail">^1</xliff:g>» que saque esti elementu de la papelera?}
+        other {¿Quies permitir a «<xliff:g id="app_name" example="Gmail">^1</xliff:g>» que saque <xliff:g id="count" example="42">^2</xliff:g> elementos de la papelera?}
+    }</string>
+    <string name="permission_progress_untrash_generic"> {count, plural,
+        one {}=1    {Sacando l\'elementu de la papelera…}
+        other {Sacando <xliff:g id="count" example="42">^1</xliff:g> elementos de la papelera…}
+    }</string>
+    <string name="permission_delete_audio"> {count, plural,
+        one {}=1    {¿Quies permitir a «<xliff:g id="app_name" example="Gmail">^1</xliff:g>» que desanicie esti ficheru d\'audiu?}
+        other {¿Quies permitir a «<xliff:g id="app_name" example="Gmail">^1</xliff:g>» que desanicie <xliff:g id="count" example="42">^2</xliff:g> ficheros d\'audiu?}
+    }</string>
+    <string name="permission_progress_delete_audio"> {count, plural,
+        one {}=1    {Desaniciando\'l ficheru d\'audiu…}
+        other {Desaniciando <xliff:g id="count" example="42">^1</xliff:g> ficheros d\'audiu…}
+    }</string>
+    <string name="permission_delete_video"> {count, plural,
+        one {}=1    {¿Quies permitir a «<xliff:g id="app_name" example="Gmail">^1</xliff:g>» que desanicie esti videu?}
+        other {¿Quies permitir a «<xliff:g id="app_name" example="Gmail">^1</xliff:g>» que desanicie <xliff:g id="count" example="42">^2</xliff:g> vídeos?}
+    }</string>
+    <string name="permission_progress_delete_video"> {count, plural,
+        one {}=1    {Desaniciando\'l videu…}
+        other {Desaniciando <xliff:g id="count" example="42">^1</xliff:g> vídeos…}
+    }</string>
+    <string name="permission_delete_image"> {count, plural,
+        one {}=1    {¿Quies permitir a «&lt;xliff:g id="app_name" example="Gmail"&gt;^1&lt;/xliff:g&gt;» que desanicie esta semeya?}
+        other {¿Quies permitir a «&lt;xliff:g id="app_name" example="Gmail"&gt;^1&lt;/xliff:g&gt;» que desanicie &lt;xliff:g id="count" example="42"&gt;^2/xliff:g&gt; semeyes?}
+    }</string>
+    <string name="permission_progress_delete_image"> {count, plural,
+        one {}=1    {Desaniciando la semeya…}
+        other {Desaniciando <xliff:g id="count" example="42">^1</xliff:g> semeyes…}
+    }</string>
+    <string name="permission_delete_generic"> {count, plural,
+        one {}=1    {¿Quies permitir a «<xliff:g id="app_name" example="Gmail">^1</xliff:g>» que desanicie esti elementu?}
+        other {¿Quies permitir a «<xliff:g id="app_name" example="Gmail">^1</xliff:g>» que desanicie <xliff:g id="count" example="42">^2</xliff:g> elementos?}
+    }</string>
+    <string name="permission_progress_delete_generic"> {count, plural,
+        one {}=1    {Desaniciando l\'elementu…}
+        other {Desaniciando <xliff:g id="count" example="42">^1</xliff:g> elementos…}
+    }</string>
+    <string name="transcode_denied">«<xliff:g id="app_name" example="File manager">%s</xliff:g>» nun pue procesar los ficheros multimedia</string>
+    <string name="transcode_processing_cancelled">Anulóse\'l procesamientu del conteníu multimedia</string>
+    <string name="transcode_processing_error">Prodúxose un error nel procesamientu del conteníu multimedia</string>
+    <string name="transcode_processing_success">El procesamientu del conteníu multimedia foi correutu</string>
+    <string name="transcode_processing_started">Anicióse\'l procesamientu del conteníu multimedia</string>
+    <string name="transcode_processing">Procesando\'l conteníu multimedia…</string>
+    <string name="transcode_cancel">Encaboxar</string>
+    <string name="transcode_wait">Esperar</string>
+    <string name="safety_protection_icon_label">Proteición de seguranza</string>
+    <string name="transcode_alert_channel">Alertes de la trescodificación nativa</string>
+    <string name="transcode_progress_channel">Progresu de la trescodificación nativa</string>
+    <string name="dialog_error_message">Volvi tentalo dempués. Les semeyes van tar disponibles namás que se solucione\'l problema.</string>
+    <string name="dialog_error_title">Nun se puen cargar dalgunes semeyes</string>
+    <string name="dialog_button_text">Entendílo</string>
+    <string name="permlab_accessMediaOwnerPackageName">accesu a los nomes de los propietarios de los paquetes multimedia</string>
+    <string name="permdesc_accessMediaOwnerPackageName">Permite que l\'aplicación acceda a los nomes de los propietarios de los paquetes de tolos ficheros multimedia accesibles.</string>
+</resources>

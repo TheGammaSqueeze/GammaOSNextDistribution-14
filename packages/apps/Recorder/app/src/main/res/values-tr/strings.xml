@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2017-2021 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <string name="app_name">Kaydedici</string>
+    <string name="share">Paylaş</string>
+    <string name="share_selected">Seçilenleri paylaş</string>
+    <string name="stop">Durdur</string>
+    <string name="play">Oynat</string>
+    <string name="pause">Duraklat</string>
+    <string name="resume">Devam et</string>
+    <string name="delete">Sil</string>
+    <string name="delete_all">Tümünü sil</string>
+    <string name="delete_selected">Seçileni sil</string>
+    <string name="cancel">İptal</string>
+    <string name="rename">Yeniden adlandır</string>
+    <string name="delete_title">Kayıt siliniyor</string>
+    <string name="delete_recording_message">Bu kaydı silmek istediğinizden emin misiniz? Bu eylem geri alınamaz!</string>
+    <string name="confirm">Onayla</string>
+    <string name="discard">Yoksay</string>
+    <string name="record_again">Tekrar kaydet</string>
+    <string name="confirm_result_title">Kayıt kullanılsın mı?</string>
+    <string name="confirm_result_message">Son kaydı kullanmak istiyor musunuz?</string>
+    <string name="sound_notification_title">Ses Kaydedici</string>
+    <string name="sound_notification_message">Ses uzunluğu: %1$s</string>
+    <string name="sound_recording_title_working">Kaydediliyor</string>
+    <string name="sound_recording_title_paused">Duraklatıldı</string>
+    <string name="sound_last_title">Son kayıt</string>
+    <string name="sound_channel_title">Ses kaydı</string>
+    <string name="sound_channel_desc">Ses kaydedilirken kalıcı bildirim göster ve tamamlandıktan sonra bildirim göster</string>
+    <string name="settings_title">Ayarlar</string>
+    <string name="settings_location_message">Kayıtlarınızı mevcut konumunuzla etiketleyin</string>
+    <string name="settings_quality_high">Yüksek kalitede kayıt</string>
+    <string name="dialog_permissions_title">İzinler</string>
+    <string name="dialog_permissions_mic">Kaydedici ses kaydetmek için mikrofon iznine ihtiyaç duyuyor</string>
+    <string name="dialog_permissions_phone">Arama esnasında bu uygulamanın kayıt yapmasını önlemek için kaydedicinin telefon durumu erişimine ihtiyacı var</string>
+    <string name="dialog_permissions_notifications">Kaydedici, kayıt etme kontrollerini göstermek için bildirim iznine ihtiyaç duyuyor</string>
+    <string name="dialog_permissions_mic_phone">Kaydedici, arama esnasında kayıt yapmayı önlemek için mikrofon iznine ve telefon durumu erişimine ihtiyaç duyar</string>
+    <string name="dialog_permissions_mic_notifications">Kaydedici, sesi kaydetmek için mikrofon iznine ve kayıt kontrollerini göstermek için bildirim iznine ihtiyaç duyuyor</string>
+    <string name="dialog_permissions_phone_notifications">Kaydedici uygulaması arama esnasında kayıt yapmasını önlemek için telefon durumu erişimine ve kayıt kontrollerini göstermek için bildirim iznine ihtiyaç duyuyor</string>
+    <string name="dialog_permissions_mic_phone_notifications">Kaydedici, ses kaydetmek için mikrofon iznine, bu uygulamanın siz arama yaparken kayıt yapmasını önlemek için telefon durumu erişimine ve kayıt kontrollerini göstermek için bildirim iznine ihtiyaç duyuyor</string>
+    <string name="dialog_permissions_location">Kaydedicinin, kayıtlarınızı düzenlemenize yardımcı olmak üzere otomatik olarak etiketlemesi için konum iznine ihtiyacı var</string>
+    <string name="dialog_permissions_ask">Tekrar sor</string>
+    <string name="dialog_permissions_dismiss">Reddet</string>
+    <string name="snack_permissions_no_permission">Gerekli izinler reddedildi, kayda başlamak için bunları Ayarlar uygulamasından etkinleştirin</string>
+    <string name="snack_permissions_no_permission_location">Konum izni reddedildi, kayıtlarınızı etiketlemek için Ayarlar uygulamasından etkinleştirin</string>
+    <string name="main_sound_action">Ses kaydet</string>
+    <string name="list_title">Kayıtlarım</string>
+    <string name="list_error_empty">Tüm kayıtlarınız burada gösterilecek</string>
+    <string name="list_edit_title">Kayıt adını düzenleyin</string>
+    <string name="list_edit_confirm">Değiştir</string>
+    <string name="list_item_menu">Diğer işlemler</string>
+    <string name="delete_all_title">Tümünü sil</string>
+    <string name="delete_all_message">Tüm kayıtları silmek istediğinizden emin misiniz? Bu geri alınamaz</string>
+    <string name="delete_selected_title">Seçileni sil</string>
+    <string name="delete_selected_message">Seçilen kayıtları silmek istediğinizden emin misiniz? Bu geri alınamaz</string>
+    <plurals name="recording_selection_count">
+        <item quantity="one">%d seçildi</item>
+        <item quantity="other">%d seçildi</item>
+    </plurals>
+</resources>

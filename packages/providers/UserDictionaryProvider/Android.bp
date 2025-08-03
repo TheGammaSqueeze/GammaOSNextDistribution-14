@@ -1,0 +1,16 @@
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_app {
+    name: "UserDictionaryProvider",
+    srcs: ["**/*.java"],
+    libs: ["ext"],
+    platform_apis: true,
+    certificate: "shared",
+    privileged: true,
+    optimize: {
+        proguard_flags_files: ["proguard.flags"],
+    },
+}

@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (c) 2009, 2011-2013 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2014-2015 The CyanogenMod Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *    * Neither the name of The Linux Foundation nor
+ *      the names of its contributors may be used to endorse or promote
+ *      products derived from this software without specific prior written
+ *      permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NON-INFRINGEMENT ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">FM Rádió</string>
+    <string name="tx_app_name">FM Transzmitter</string>
+    <string name="menu_scan_start">Keresés</string>
+    <string name="menu_scan_stop">Keresés leállítása</string>
+    <string name="menu_record_start">Felvétel</string>
+    <string name="menu_record_stop">Felvétel leállítása</string>
+    <string name="menu_settings">Beállítások</string>
+    <string name="menu_sleep">Alvás</string>
+    <string name="menu_sleep_cancel">Alvás megszakítása</string>
+    <string name="menu_all_channels">Minden csatorna</string>
+    <string name="menu_display_tags">Cimkék megjelenítése</string>
+    <string name="button_text_stop">Leállítás</string>
+    <string name="msg_seeking">FM állomások keresése\u2026</string>
+    <string name="msg_scanning">Minden FM állomás keresése\u2026</string>
+    <string name="msg_scanning_pty">Keresés erre: \"<xliff:g id="pty_name">%1$s</xliff:g>\"\u2026</string>
+    <string name="msg_search_title"><xliff:g id="frequency_string">%1$s</xliff:g> MHz</string>
+    <string name="msg_searching_title">Automatikus csatornahangolás</string>
+    <string name="msg_searching">Erős állomásjelek keresése az állomáslista létrehozásához\u2026</string>
+    <string name="msg_noantenna">Kérjük csatlakoztasson fülhallgatót az FM-rádió használatához</string>
+    <string name="dialog_sleep_title">Automatikus alvás ideje</string>
+    <string name="presetlist_select_name">Válassza ki \"<xliff:g id="presetlist_name">%1$s</xliff:g>\"</string>
+    <string name="presetlist_add_new">Új lista hozzáadása</string>
+    <string name="dialog_presetlist_rename_title">Név megadása</string>
+    <string name="presetlist_autoselect_title">Automatikus keresés jóváhagyása</string>
+    <string name="preset_replace">Cserél</string>
+    <string name="preset_tune">Hangolás</string>
+    <string name="preset_rename">Átnevezés</string>
+    <string name="preset_delete">Törlés</string>
+    <string name="preset_search">A(z) \'<xliff:g id="preset_pi">%1$s</xliff:g>\' keresése</string>
+    <string name="stat_notif_frequency">\"<xliff:g id="frequency">%1$s</xliff:g>\" MHz</string>
+    <string name="regional_band">Helyi sáv</string>
+    <string name="regional_band_entry_north_america">Észak-Amerika</string>
+    <string name="regional_band_entry_europe">Európa</string>
+    <string name="regional_band_entry_japan">Japán</string>
+    <string name="regional_band_entry_japan_wide">Japán (széles)</string>
+    <string name="regional_band_entry_australia">Ausztrália</string>
+    <string name="regional_band_entry_austria">Ausztria</string>
+    <string name="regional_band_entry_belgium">Belgium</string>
+    <string name="regional_band_entry_brazil">Brazília</string>
+    <string name="regional_band_entry_china">Kína</string>
+    <string name="regional_band_entry_czech_republic">Cseh Köztársaság</string>
+    <string name="regional_band_entry_denmark">Dánia</string>
+    <string name="regional_band_entry_finland">Finnország</string>
+    <string name="regional_band_entry_france">Franciaország</string>
+    <string name="regional_band_entry_germany">Németország</string>
+    <string name="regional_band_entry_greece">Görögország</string>
+    <string name="regional_band_entry_hong_kong">Hong Kong</string>
+    <string name="regional_band_entry_india">India</string>
+    <string name="regional_band_entry_indonesia">Indonézia</string>
+    <string name="regional_band_entry_ireland">Írország</string>
+    <string name="regional_band_entry_italy">Olaszország</string>
+    <string name="regional_band_entry_korea">Korea</string>
+    <string name="regional_band_entry_mexico">Mexikó</string>
+    <string name="regional_band_entry_netherlands">Hollandia</string>
+    <string name="regional_band_entry_new_zealand">Új-Zéland</string>
+    <string name="regional_band_entry_norway">Norvégia</string>
+    <string name="regional_band_entry_poland">Lengyelország</string>
+    <string name="regional_band_entry_portugal">Portugália</string>
+    <string name="regional_band_entry_russia">Oroszország</string>
+    <string name="regional_band_entry_singapore">Szingapúr</string>
+    <string name="regional_band_entry_slovakia">Szlovákia</string>
+    <string name="regional_band_entry_spain">Spanyolország</string>
+    <string name="regional_band_entry_switzerland">Svájc</string>
+    <string name="regional_band_entry_sweden">Svédország</string>
+    <string name="regional_band_entry_taiwan">Tajvan</string>
+    <string name="regional_band_entry_turkey">Törökország</string>
+    <string name="regional_band_entry_united_kingdom">Egyesült Királyság</string>
+    <string name="regional_band_entry_united_states">Egyesült Államok</string>
+    <string name="regional_band_entry_user_defined">Felhasználó által meghatározott sáv</string>
+    <string name="regional_band_summary_north_america">Észak-Amerika (87,5 MHz-től 108,0 MHz-ig 200 KHz-es lépésekben)</string>
+    <string name="regional_band_summary_europe">Európa (87,5 MHz-től 108,0 MHz-ig 100 KHz-es lépésekben)</string>
+    <string name="regional_band_summary_japan">Japán (76,0 MHz-től 90,0 MHz-ig 100 KHz-es lépésekben)</string>
+    <string name="regional_band_summary_japan_wide">Japán (széles) (90,0 MHz-től 108,0 MHz-ig 50 KHz-es lépésekben)</string>
+    <string name="regional_band_summary_australia">Ausztrália (87,7 MHz-től 108,0 MHz-ig 100 KHz-es lépésekben)</string>
+    <string name="regional_band_summary_austria">Ausztrália (87,7 MHz-től 108,0 MHz-ig 100 KHz-es lépésekben)</string>
+    <string name="regional_band_summary_belgium">Belgium (87,5 MHz-től 108,0 MHz-ig 100 KHz-es lépésekben)</string>
+    <string name="regional_band_summary_brazil">Brazília (87,5 MHz-től 108,0 MHz-ig 200 KHz-es lépésekben)</string>
+    <string name="regional_band_summary_china">Kína (87,0 MHz-től 108,0 MHz-ig 100 KHz-es lépésekben)</string>
+    <string name="regional_band_summary_czech_republic">Cseh Köztársaság (87,5 MHz-től 108,0 MHz-ig 100 kHz-es lépésekben)</string>
+    <string name="regional_band_summary_denmark">Dánia (87,5 MHz-től 108,0 MHz-ig 50 KHz-es lépésekben)</string>
+    <string name="regional_band_summary_finland">Finnország (87,5 MHz-től 108,0 MHz-ig 100 KHz-es lépésekben)</string>
+    <string name="regional_band_summary_france">Franciaország (87,5 MHz-től 108,0 MHz-ig 100 KHz-es lépésekben)</string>
+    <string name="regional_band_summary_germany">Dánia (87,5 MHz-től 108,0 MHz-ig 50 KHz-es lépésekben)</string>
+    <string name="regional_band_summary_greece">Görögország (87,5 MHz-től 108,0 MHz-ig 50 KHz-es lépésekben)</string>
+    <string name="regional_band_summary_hong_kong">Hong Kong (87,5 MHz-től 108,0 MHz-ig 100 KHz-es lépésekben)</string>
+    <string name="regional_band_summary_india">India (87,5 MHz és 108,0 MHz 100 KHz lépésekben)</string>
+    <string name="regional_band_summary_indonesia">Indonézia (87,5 MHz és 108,0 MHz 100 KHz lépésekben)</string>
+    <string name="regional_band_summary_ireland">Írország (87,5 MHz-től 108,0 MHz-ig 50 KHz-es lépésekben)</string>
+    <string name="regional_band_summary_italy">Olaszország (87,5 MHz-től 108,0 MHz-ig 50 KHz-es lépésekben)</string>
+    <string name="regional_band_summary_korea">Korea (87,5 MHz-től 108,0 MHz-ig 200 KHz-es lépésekben)</string>
+    <string name="regional_band_summary_mexico">Mexikó (88,1 MHz-től 107,9 MHz-ig 200 KHz-es lépésekben)</string>
+    <string name="regional_band_summary_netherlands">Hollandia (87,5 MHz-től 108,0 MHz-ig 100 KHz-es lépésekben)</string>
+    <string name="regional_band_summary_new_zealand">Új-Zéland (88,0 MHz-től 107,0 MHz-ig 100 KHz-es lépésekben)</string>
+    <string name="regional_band_summary_norway">Norvégia (87,5 MHz-től 108,0 MHz-ig 100 KHz-es lépésekben)</string>
+    <string name="regional_band_summary_poland">Lengyelország (87,5 MHz-től 108,0 MHz-ig 100 KHz-es lépésekben)</string>
+    <string name="regional_band_summary_portugal">Portugália (87,5 MHz-től 108,0 MHz-ig 50 KHz-es lépésekben)</string>
+    <string name="regional_band_summary_russia">Oroszország (87,5 MHz-től 108,0 MHz-ig 100 KHz-es lépésekben)</string>
+    <string name="regional_band_summary_singapore">Szingapúr (88,0 MHz-től 108,0 MHz-ig 100 KHz-es lépésekben)</string>
+    <string name="regional_band_summary_slovakia">Szlovákia (87,5 MHz-től 108,0 MHz-ig 100 KHz-es lépésekben)</string>
+    <string name="regional_band_summary_spain">Spanyolország (87,5 MHz-től 108,0 MHz-ig 100 KHz-es lépésekben)</string>
+    <string name="regional_band_summary_switzerland">Svájc (87,5 MHz-től és 108,0 MHz-ig 100 KHz-es lépésekben)</string>
+    <string name="regional_band_summary_sweden">Svédország (87,5 MHz-től 108,0 MHz-ig 100 KHz-es lépésekben)</string>
+    <string name="regional_band_summary_taiwan">Tajvan (87,5 MHz-től 108,0 MHz-ig 100 KHz-es lépésekben)</string>
+    <string name="regional_band_summary_turkey">Törökország (87,5 MHz-tól 108,0 MHz-ig 100 KHz-es lépésekben)</string>
+    <string name="regional_band_summary_united_kingdom">Egyesült Királyság (87,5 MHz-től 108,0 MHz-ig 100 KHz-es lépésekben)</string>
+    <string name="regional_band_summary_united_states">Egyesült Államok (88,1 MHz-től 107,9 MHz-ig 200 KHz-es lépésekben)</string>
+    <string name="regional_band_summary_user_defined">Felhasználó által meghatározott sáv</string>
+    <string name="aud_output_mode">Audio kimeneti mód</string>
+    <string name="audio_type_stereo">Sztereó</string>
+    <string name="audio_type_mono">Fekete-fehér</string>
+    <string name="record_dur">Felvétel időtartama</string>
+    <string name="auto_select_af">Alternatív frekvencia</string>
+    <string name="settings_revert_defaults_title">Alapértelmezések visszaállítása</string>
+    <string name="settings_revert_defaults_summary">Minden beállítás visszaállítása</string>
+    <string name="settings_revert_confirm_title">Visszaállítás megerősítése</string>
+    <string name="settings_revert_confirm_msg">Ez törli az összes alkalmazás beállítást, beleértve a mentett állomásokat. Folytatja?</string>
+    <string name="no_storage">Felvétel indítása előtt csatlakoztasson SD kártyát.</string>
+    <string name="preparing_sd">SD-kártya előkészítése\u2026</string>
+    <string name="access_sd_fail">Nem lehet hozzáférni az SD-kártyához.</string>
+    <string name="spaceIsLow_content">Az SD kártyán kevés a hely. Változtassa meg a felvétel minőségét vagy töröljön néhány fájlt, hogy helyet szabadítson fel.</string>
+    <string name="FMRecording_reach_size_limit">Méretkorlát elérve.</string>
+    <string name="menu_scan_for_preset">Állomások keresése</string>
+    <string name="fm_off">FM kikapcsolva.</string>
+    <string name="fm_call">FM hívás közben nem használható.</string>
+    <string name="alert_dialog_hint">Adjon meg egy nevet</string>
+    <string name="search_dialog_title">Állomások keresése</string>
+    <string name="fm_command_timeout_title">Időtúllépés</string>
+    <string name="fm_tune_timeout_msg">Nem hangolható az FM állomás. Ha a probléma továbbra is fennáll, kapcsolja ki az FM rádiót majd vissza.</string>
+    <string name="fm_command_failed_title">FM-művelet sikertelen</string>
+    <string name="fm_cmd_failed_msg">FM-művelet sikertelen. Ha a probléma továbbra is fennáll, kapcsolja ki az FM rádiót majd vissza.</string>
+    <string name="fm_cmd_failed_msg_hdmi">FM-művelet sikertelen. Az FM-rádió és a HDMI egyszerre nem támogatott.</string>
+    <string name="fm_cmd_failed_call_on">FM-művelet sikertelen. Az FM rádió telefonhívás közben nem megengedett.</string>
+    <string name="audio_db_title_format"><xliff:g id="format">yyyy-MM-dd HH:mm:ss</xliff:g></string>
+    <string name="audio_db_artist_name">Saját FM felvételek</string>
+    <string name="audio_db_album_name">FM felvételek</string>
+    <string name="audio_db_playlist_name">FM felvételek</string>
+    <string name="station_name">Állomás:</string>
+    <string name="station_exists">Ez a frekvencia már létezik!</string>
+    <string name="station_list_delete_station">Törlés: <xliff:g id="name">%s</xliff:g></string>
+    <string name="station_list_delete_station_prompt">Biztos benne, hogy törli a következőt: \"<xliff:g id="name">%s</xliff:g>\"?</string>
+    <string name="station_name_empty">Az állomás neve üres, írja be újra.</string>
+    <string name="station_name_exist">\"<xliff:g id="name">%s</xliff:g>\" már használatban van, kérjük, adjon meg egy másik nevet.</string>
+    <string name="rt_plus_tags">Címkék</string>
+    <string name="usr_def_band_min">Legalacsonyabb frekvencia (MHz)</string>
+    <string name="usr_def_band_max">Legmagasabb frekvencia (MHz)</string>
+    <string name="chanl_spacing">Csatornatérközök</string>
+    <string name="set">Beállítás</string>
+    <string name="user_defind_band_msg">Adjon meg egy frekvenciát 76,0 és 108.0 MHz között, minimum 1 csatornatávolsággal, 100 kHz-es szünettel a min és max frekvencia között</string>
+    <string name="save_record_file">\"<xliff:g id="record_file">%1$s</xliff:g>\" FM felvétel elmentve</string>
+    <string name="fm_search_no_results">Nem található kompatibilis állomás</string>
+    <string name="typ_All_stations">Minden állomás</string>
+    <string name="typ_Culture">Kultúra</string>
+    <string name="typ_Current_affairs">Aktuális ügyek</string>
+    <string name="typ_Children">Gyerekprogramok</string>
+    <string name="typ_Country">Country zene</string>
+    <string name="typ_Documentary">Dokumentumfilm</string>
+    <string name="typ_Drama">Dráma</string>
+    <string name="typ_Easy_listening">Könnyed zenehallgatás</string>
+    <string name="typ_Education">Oktatás</string>
+    <string name="typ_Emergency">Vészhelyzeti</string>
+    <string name="typ_Emergency_test">Vészhelyzeti teszt</string>
+    <string name="typ_Finance">Pénzügy</string>
+    <string name="typ_Folk">Népzene</string>
+    <string name="typ_Information">Információ</string>
+    <string name="typ_Jazz">Jazz zene</string>
+    <string name="typ_Light_classical">Könnyű klasszikus</string>
+    <string name="typ_Leisure">Szabadidő</string>
+    <string name="typ_News">Hírek</string>
+    <string name="typ_National">Nemzeti zene</string>
+    <string name="typ_Other">Egyéb zene</string>
+    <string name="typ_Oldies">Örökzöld slágerek</string>
+    <string name="typ_Phone_in">Telefonban</string>
+    <string name="typ_Pop">Popzene</string>
+    <string name="typ_Religion">Vallás</string>
+    <string name="typ_Rock">Rock zene</string>
+    <string name="typ_Science">Tudomány</string>
+    <string name="typ_Serious_classical">Komoly klasszikus</string>
+    <string name="typ_Social_affairs">Szociális ügyek</string>
+    <string name="typ_Sport">Sport</string>
+    <string name="typ_Travel">Utazás</string>
+    <string name="typ_Varied">Változatos</string>
+    <string name="typ_Weather">Időjárás</string>
+    <string name="typ_Adult_hits">Felnőtt találatok</string>
+    <string name="typ_Classical">Klasszikus</string>
+    <string name="typ_Classic_Rock">Klasszikus Rock</string>
+    <string name="typ_College">Főiskola</string>
+    <string name="typ_Foreign_language">Idegen nyelvű</string>
+    <string name="typ_Hiphop">Hip Hop</string>
+    <string name="typ_Nostalgia">Nosztalgia</string>
+    <string name="typ_Personality">Személyiség</string>
+    <string name="typ_Public">Publikus</string>
+    <string name="typ_Religious_music">Vallásos zene</string>
+    <string name="typ_Religious_talk">Vallási beszéd</string>
+    <string name="typ_Rhythm_and_Blues">Rhythm és Blues</string>
+    <string name="typ_Spanish_music">Spanyol zene</string>
+    <string name="typ_Spanish_talk">Spanyol beszéd</string>
+    <string name="typ_Soft">Lágy</string>
+    <string name="typ_Soft_Rock">Lágy Rock</string>
+    <string name="typ_Soft_Rhythm_and_Blues">Lágy Rhythm és Blues</string>
+    <string name="typ_Sports">Sport esemény</string>
+    <string name="typ_Talk">Beszélgetés</string>
+    <string name="typ_Top_40">Top 40</string>
+</resources>

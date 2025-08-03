@@ -1,0 +1,250 @@
+// PDL grammar file for mac80211_hwsim packet format.
+//
+// See
+//   - mac80211_hwsim.h
+
+
+// Host byte order
+little_endian_packets
+
+// Netlink Message Header
+
+// TODO: use include from netlink.pdl
+
+struct NlMsgHdr {
+    nlmsg_len : 32,             // Length of message including header
+    nlmsg_type : 16,            // Message type identifier
+    nlmsg_flags : 16,           // Flags (NLM_F_)
+    nlmsg_seq : 32,             // Sequence number
+    nlmsg_pid : 32,             // Sending process port ID
+}
+
+// mac80211_hwsim definitions
+
+/**
+ * enum hwsim_commands - supported hwsim commands
+ *
+ * @HWSIM_CMD_UNSPEC: unspecified command to catch errors
+ *
+ * @HWSIM_CMD_REGISTER: request to register and received all broadcasted
+ *	frames by any mac80211_hwsim radio device.
+ * @HWSIM_CMD_FRAME: send/receive a broadcasted frame from/to kernel/user
+ *	space, uses:
+ *	%HWSIM_ATTR_ADDR_TRANSMITTER,
+ *      %HWSIM_ATTR_ADDR_RECEIVER,
+ *	%HWSIM_ATTR_FRAME,
+ *      %HWSIM_ATTR_FLAGS,
+ *      %HWSIM_ATTR_RX_RATE,
+ *	%HWSIM_ATTR_SIGNAL,
+ *      %HWSIM_ATTR_COOKIE,
+ *      %HWSIM_ATTR_FREQ (optional)
+ * @HWSIM_CMD_TX_INFO_FRAME: Transmission info report from user space to
+ *	kernel, uses:
+ *	%HWSIM_ATTR_ADDR_TRANSMITTER, %HWSIM_ATTR_FLAGS,
+ *	%HWSIM_ATTR_TX_INFO, %WSIM_ATTR_TX_INFO_FLAGS,
+ *	%HWSIM_ATTR_SIGNAL, %HWSIM_ATTR_COOKIE
+ * @HWSIM_CMD_NEW_RADIO: create a new radio with the given parameters,
+ *	returns the radio ID (>= 0) or negative on errors, if successful
+ *	then multicast the result, uses optional parameter:
+ *	%HWSIM_ATTR_REG_STRICT_REG, %HWSIM_ATTR_SUPPORT_P2P_DEVICE,
+ *	%HWSIM_ATTR_DESTROY_RADIO_ON_CLOSE, %HWSIM_ATTR_CHANNELS,
+ *	%HWSIM_ATTR_NO_VIF, %HWSIM_ATTR_RADIO_NAME, %HWSIM_ATTR_USE_CHANCTX,
+ *	%HWSIM_ATTR_REG_HINT_ALPHA2, %HWSIM_ATTR_REG_CUSTOM_REG,
+ *	%HWSIM_ATTR_PERM_ADDR
+ * @HWSIM_CMD_DEL_RADIO: destroy a radio, reply is multicasted
+ * @HWSIM_CMD_GET_RADIO: fetch information about existing radios, uses:
+ *	%HWSIM_ATTR_RADIO_ID
+ * @HWSIM_CMD_ADD_MAC_ADDR: add a receive MAC address (given in the
+ *	%HWSIM_ATTR_ADDR_RECEIVER attribute) to a device identified by
+ *	%HWSIM_ATTR_ADDR_TRANSMITTER. This lets wmediumd forward frames
+ *	to this receiver address for a given station.
+ * @HWSIM_CMD_DEL_MAC_ADDR: remove the MAC address again, the attributes
+ *	are the same as to @HWSIM_CMD_ADD_MAC_ADDR.
+ */
+
+enum HwsimCmd : 8 {
+    UNSPEC = 0,
+    REGISTER = 1,
+    FRAME = 2,
+    TX_INFO_FRAME = 3,
+    NEW_RADIO = 4,
+    DEL_RADIO = 5,
+    GET_RADIO = 6,
+    ADD_MAC_ADDR = 7,
+    DEL_MAC_ADDR = 8,
+}
+
+/**
+ * enum hwsim_attrs - hwsim netlink attributes
+ *
+ * @HWSIM_ATTR_UNSPEC: unspecified attribute to catch errors
+ *
+ * @HWSIM_ATTR_ADDR_RECEIVER: MAC address of the radio device that
+ *	the frame is broadcasted to
+ * @HWSIM_ATTR_ADDR_TRANSMITTER: MAC address of the radio device that
+ *	the frame was broadcasted from
+ * @HWSIM_ATTR_FRAME: Data array
+ * @HWSIM_ATTR_FLAGS: mac80211 transmission flags, used to process
+        properly the frame at user space
+ * @HWSIM_ATTR_RX_RATE: estimated rx rate index for this frame at user
+        space
+ * @HWSIM_ATTR_SIGNAL: estimated RX signal for this frame at user
+        space
+ * @HWSIM_ATTR_TX_INFO: ieee80211_tx_rate array
+ * @HWSIM_ATTR_COOKIE: sk_buff cookie to identify the frame
+ * @HWSIM_ATTR_CHANNELS: u32 attribute used with the %HWSIM_CMD_CREATE_RADIO
+ *	command giving the number of channels supported by the new radio
+ * @HWSIM_ATTR_RADIO_ID: u32 attribute used with %HWSIM_CMD_DESTROY_RADIO
+ *	only to destroy a radio
+ * @HWSIM_ATTR_REG_HINT_ALPHA2: alpha2 for regulatoro driver hint
+ *	(nla string, length 2)
+ * @HWSIM_ATTR_REG_CUSTOM_REG: custom regulatory domain index (u32 attribute)
+ * @HWSIM_ATTR_REG_STRICT_REG: request REGULATORY_STRICT_REG (flag attribute)
+ * @HWSIM_ATTR_SUPPORT_P2P_DEVICE: support P2P Device virtual interface (flag)
+ * @HWSIM_ATTR_USE_CHANCTX: used with the %HWSIM_CMD_CREATE_RADIO
+ *	command to force use of channel contexts even when only a
+ *	single channel is supported
+ * @HWSIM_ATTR_DESTROY_RADIO_ON_CLOSE: used with the %HWSIM_CMD_CREATE_RADIO
+ *	command to force radio removal when process that created the radio dies
+ * @HWSIM_ATTR_RADIO_NAME: Name of radio, e.g. phy666
+ * @HWSIM_ATTR_NO_VIF:  Do not create vif (wlanX) when creating radio.
+ * @HWSIM_ATTR_FREQ: Frequency at which packet is transmitted or received.
+ * @HWSIM_ATTR_TX_INFO_FLAGS: additional flags for corresponding
+ *	rates of %HWSIM_ATTR_TX_INFO
+ * @HWSIM_ATTR_PERM_ADDR: permanent mac address of new radio
+ * @HWSIM_ATTR_IFTYPE_SUPPORT: u32 attribute of supported interface types bits
+ * @HWSIM_ATTR_CIPHER_SUPPORT: u32 array of supported cipher types
+ */
+
+enum HwsimAttrEnum : 14 {
+    UNSPEC = 0,
+    ADDR_RECEIVER = 1,
+    ADDR_TRANSMITTER = 2,
+    FRAME = 3,
+    FLAGS = 4,
+    RX_RATE = 5,
+    SIGNAL = 6,
+    TX_INFO = 7,
+    COOKIE = 8,
+    CHANNELS = 9,
+    RADIO_ID = 10,
+    REG_HINT_ALPHA2 = 11,
+    REG_CUSTOM_REG = 12,
+    REG_STRICT_REG = 13,
+    SUPPORT_P2P_DEVICE = 14,
+    USE_CHANCTX = 15,
+    DESTROY_RADIO_ON_CLOSE = 16,
+    RADIO_NAME = 17,
+    NO_VIF = 18,
+    FREQ = 19,
+    PAD = 20,
+    TX_INFO_FLAGS = 21,
+    PERM_ADDR = 22,
+    IFTYPE_SUPPORT = 23,
+    CIPHER_SUPPORT = 24,
+}
+
+// Hwsim attribute base packet.
+//
+// This is a variant of NlAttrHdr with hwsim attribute types.
+
+packet HwsimAttr {
+    _size_(_payload_): 16,      // nla_len, the attribute length
+    nla_type: HwsimAttrEnum,
+    nla_m : 1,
+    nla_o : 1,
+    _payload_: [+4],
+}
+
+// ATTR_ADDR_RECEIVER: MAC address of the radio device that the frame
+// is broadcasted to
+
+packet HwsimAttrAddrReceiver : HwsimAttr(nla_type = ADDR_RECEIVER) {
+    address : 8[6],
+}
+
+// ATTR_ADDR_TRANSMITTER: MAC address of the radio device that
+// the frame was broadcasted from
+
+packet HwsimAttrAddrTransmitter : HwsimAttr(nla_type = ADDR_TRANSMITTER) {
+    address : 8[6],
+}
+
+// ATTR_FRAME: Data array
+
+packet HwsimAttrFrame : HwsimAttr(nla_type = FRAME) {
+    data: 8[]
+}
+
+// ATTR_FLAGS
+packet HwsimAttrFlags : HwsimAttr(nla_type = FLAGS) {
+    flags : 32,
+}
+
+// ATTR_RX_RATE
+packet HwsimAttrRxRate : HwsimAttr(nla_type = RX_RATE) {
+    rx_rate_idx : 32,
+}
+
+// ATTR_SIGNAL
+packet HwsimAttrSignal : HwsimAttr(nla_type = SIGNAL) {
+    signal : 32,
+}
+
+// ATTR_FREQ
+packet HwsimAttrFreq : HwsimAttr(nla_type = FREQ) {
+    freq : 32,
+}
+
+// ATTR_COOKIE
+packet HwsimAttrCookie : HwsimAttr(nla_type = COOKIE) {
+    cookie : 64,
+}
+
+struct TxRate {
+    idx : 8,
+    count: 8,
+}
+
+// ATTR_TX_INFO
+packet HwsimAttrTxInfo : HwsimAttr(nla_type = TX_INFO) {
+    tx_rates : TxRate[],
+}
+
+enum HwsimTxRateFlags : 16 {
+    MAC80211_HWSIM_TX_RC_USE_RTS_CTS = 0x01,
+    MAC80211_HWSIM_TX_RC_USE_CTS_PROTECT = 0x02,
+    MAC80211_HWSIM_TX_RC_USE_SHORT_PREAMBLE = 0x04,
+    /* rate index is an HT/VHT MCS instead of an index */
+    MAC80211_HWSIM_TX_RC_MCS = 0x08,
+    MAC80211_HWSIM_TX_RC_GREEN_FIELD = 0x0f,
+    MAC80211_HWSIM_TX_RC_40_MHZ_WIDTH = 0x10,
+    MAC80211_HWSIM_TX_RC_DUP_DATA = 0x20,
+    MAC80211_HWSIM_TX_RC_SHORT_GI = 0x40,
+    MAC80211_HWSIM_TX_RC_VHT_MCS = 0x80,
+    MAC80211_HWSIM_TX_RC_80_MHZ_WIDTH = 0xf0,
+    MAC80211_HWSIM_TX_RC_160_MHZ_WIDTH = 0x100,
+}
+
+struct TxRateFlag {
+    idx : 8,
+    flags : 16, // HwsimTxRateFlags,
+}
+
+// ATTR_TX_INFO_FLAGS
+packet HwsimAttrTxInfoFlags : HwsimAttr(nla_type = TX_INFO_FLAGS) {
+    tx_rate_flags : TxRateFlag[],
+}
+
+struct HwsimMsgHdr {
+    hwsim_cmd : HwsimCmd,
+    hwsim_version: 8,
+    reserved: 16,
+}
+
+packet HwsimMsg {
+    nl_hdr: NlMsgHdr,
+    hwsim_hdr: HwsimMsgHdr,
+    // user header
+    attributes: 8[],
+}

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2019 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label" msgid="6018514276739876277">"वायरलेस आणीबाणी इशारे"</string>
+    <string name="sms_cb_settings" msgid="1556918270840502446">"वायरलेस आणीबाणी इशारे"</string>
+    <string name="emergency_alert_settings_title_watches" msgid="5702555089013313773">"वायरलेस आणीबाणी इशारे"</string>
+    <string name="receive_cmas_in_second_language_title" msgid="7539080017840218665">"स्पॅनिश"</string>
+    <string name="receive_cmas_in_second_language_summary" msgid="4482209573334686904">"शक्य असेल तेव्हा स्पॅनिशमध्ये आणीबाणीच्या सूचना मिळवा"</string>
+    <string name="confirm_delete_broadcast" msgid="6808374217554967811">"ही सूचना हटवायची आहे का?"</string>
+    <string name="confirm_delete_all_broadcasts" msgid="4748571670736214158">"मिळालेल्या सर्व सूचना हटवायच्या आहेत का?"</string>
+    <string name="menu_delete" msgid="2691868773984777519">"सूचना हटवा"</string>
+    <string name="menu_delete_all" msgid="8991615021908376216">"सूचना हटवा"</string>
+    <!-- no translation found for enable_cmas_test_alerts_title (3722503121618497385) -->
+    <skip />
+    <string name="enable_cmas_test_alerts_summary" msgid="6138676147687910935">"सुरक्षितता सूचना सिस्टमकडून आवश्यक असलेल्या मासिक चाचण्या मिळवा"</string>
+    <string name="cmas_presidential_level_alert" msgid="5810314558991898384">"राष्ट्रीय सूचना"</string>
+    <string name="show_cmas_opt_out_summary" msgid="5612381687166765604">"पहिली सूचना (राष्ट्रीय सूचनेव्यतिरिक्त) डिस्प्ले केल्यानंतर निवड रद्द करा डायलॉग दाखवा."</string>
+    <string name="enable_cmas_presidential_alerts_title" msgid="3871388542233245120">"राष्ट्रीय इशारे"</string>
+    <string name="enable_cmas_presidential_alerts_summary" msgid="1292969668875568075">"चेतावणी देणारे राष्ट्रीय मेसेज. बंद केले जाऊ शकत नाहीत."</string>
+</resources>

@@ -1,0 +1,1 @@
+rule com.android.internal.util.** com.android.ondevicepersonalization.internal.util.masked.@1

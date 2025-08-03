@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2023 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <!-- Label for settings screen. [CHAR LIMIT=NONE] -->
+  <string name="sms_cb_settings" translatable="false">BG-ALERT</string>
+
+  <!-- CMAS dialog title for presidential level alert notification. [CHAR LIMIT=50] -->
+  <!-- Required Bulgarian (bg) translation for this message: "BG-ALERT: Внимание, опасност!" -->
+  <string name="cmas_presidential_level_alert">BG-ALERT: Emergency Alert</string>
+  <!-- CMAS dialog title for life threat alert notification. [CHAR LIMIT=50] -->
+  <!-- Required Bulgarian (bg) translation for this message: "BG-ALERT: Предупреждение" -->
+  <string name="cmas_extreme_alert">BG-ALERT: Warning</string>
+  <!-- CMAS dialog title for severe alert. [CHAR LIMIT=50] -->
+  <!-- Required Bulgarian (bg) translation for this message: "BG-ALERT: Информация" -->
+  <string name="cmas_severe_alert">BG-ALERT: Information</string>
+  <!-- CMAS dialog title for loss or kidnapping alert notification (amber alert). [CHAR LIMIT=50] -->
+  <!-- Required Bulgarian (bg) translation for this message: "BG-ALERT: Човек в неизвестност" -->
+  <string name="cmas_amber_alert">BG-ALERT: Missing Person Alert</string>
+  <!-- CMAS dialog title for test alert notification. [CHAR LIMIT=50] -->
+  <!-- Required Bulgarian (bg) translation for this message: "BG-ALERT: Тестово съобщение" -->
+  <string name="cmas_required_monthly_test">BG-ALERT: Test alert</string>
+
+  <!-- Preference title for enable CMAS extreme threat alerts checkbox. [CHAR LIMIT=50] -->
+  <!-- Required Bulgarian (bg) translation for this message: "Сериозни опасности" -->
+  <string name="enable_cmas_extreme_threat_alerts_title">Extreme and Severe Threats</string>
+  <!-- Preference summary for enable CMAS extreme threat alerts checkbox. [CHAR LIMIT=100] -->
+  <!-- Required Bulgarian (bg) translation for this message: "Съобщения за сериозни опасности" -->
+  <string name="enable_cmas_extreme_threat_alerts_summary">Extreme and Severe Threats to Life and Property</string>
+
+  <!-- Preference title for enable CMAS severe threat alerts checkbox. [CHAR LIMIT=50] -->
+  <!-- Required Bulgarian (bg) translation for this message: "Информация" -->
+  <string name="enable_cmas_severe_threat_alerts_title">Information</string>
+  <!-- Preference summary for enable CMAS severe threat alerts checkbox. [CHAR LIMIT=100] -->
+  <!-- Required Bulgarian (bg) translation for this message: "Информационни съобщения" -->
+  <string name="enable_cmas_severe_threat_alerts_summary">Information Messages</string>
+
+  <!-- Preference title for enable CMAS amber alerts checkbox. [CHAR LIMIT=50] -->
+  <!-- Required Bulgarian (bg) translation for this message: "Сигнали за човек в неизвестност" -->
+  <string name="enable_cmas_amber_alerts_title">Missing Person Alerts</string>
+  <!-- Preference summary for enable CMAS amber alerts checkbox. [CHAR LIMIT=100] -->
+  <!-- Required Bulgarian (bg) translation for this message: "Съобщения за хора в неизвестност" -->
+  <string name="enable_cmas_amber_alerts_summary">Messages for Missing Persons</string>
+
+  <!-- Preference title for other test alerts checkbox. [CHAR LIMIT=50] -->
+  <!-- Required Bulgarian (bg) translation for this message: "Тестови сигнали" -->
+  <string name="enable_cmas_test_alerts_title">Test Alerts</string>
+  <!-- Preference summary for other test alerts checkbox. [CHAR LIMIT=125] -->
+  <!-- Required Bulgarian (bg) translation for this message: "Получаване на тестови съобщения" -->
+  <string name="enable_cmas_test_alerts_summary">Receive Тest Мessages</string>
+
+</resources>

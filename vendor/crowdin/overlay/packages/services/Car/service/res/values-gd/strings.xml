@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2015 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="car_permission_label">Fiosrachadh mun chàr</string>
+    <string name="car_permission_desc">fiosrachadh a’ chair agad inntrigeadh</string>
+    <string name="car_permission_label_camera">camara a’ chàir inntrigeadh</string>
+    <string name="car_permission_desc_camera">Cothrom air camara(than) a’ chair agad.</string>
+    <string name="car_permission_label_energy">fiosrachadh mu chumhachd a’ chàir inntrigeadh</string>
+    <string name="car_permission_desc_energy">Cothrom air fiosrachadh mu chumhachd a’ chàir agad.</string>
+    <string name="car_permission_label_adjust_range_remaining">gleus a chur air an astar a th’ air fhàgail aig a’ chàr</string>
+    <string name="car_permission_desc_adjust_range_remaining">Gleus a chur air luach an astair a th’ air fhàgail aig a’ chàr.</string>
+    <string name="car_permission_label_hvac">hvac a’ chàir inntrigeadh</string>
+    <string name="car_permission_desc_hvac">Cothrom air hvac a’ chàir agad.</string>
+    <string name="car_permission_label_mileage">fiosrachadh mu mhìltean a’ chàir inntrigeadh</string>
+    <string name="car_permission_desc_mileage">Cothrom air an fhiosrachadh mu mhìltean a’ chàir agad.</string>
+    <string name="car_permission_label_speed">luaths a’ chàir a leughadh</string>
+    <string name="car_permission_desc_speed">Luaths a’ chair agad inntrigeadh.</string>
+    <string name="car_permission_label_vehicle_dynamics_state">staid innsgineach a’ chàir inntrigeadh</string>
+    <string name="car_permission_desc_vehicle_dynamics_state">Inntrigeadh do staid innsgineach a’ chàir agad.</string>
+    <string name="car_permission_label_vendor_extension">Seanail reiceadair a’ chàir inntrigeadh</string>
+    <string name="car_permission_desc_vendor_extension">Cothrom air seanail reiceadair a’ chàir agad
+        airson fiosrachadh sònraichte mun chàr iomlaid.</string>
+    <string name="car_permission_label_radio">rèidio a’ chàir a stiùireadh</string>
+    <string name="car_permission_desc_radio">Cothrom air rèidio a’ chair agad.</string>
+    <string name="car_permission_label_projection">eadar-aghaidh fòn a thilgeil air uidheam-taisbeanaidh a’ chàir</string>
+    <string name="car_permission_desc_projection">Leigidh seo le aplacaid eadar-aghaidh fòn a thilgeil air uidheam-taisbeanaidh a’ chàir.</string>
+    <string name="car_permission_label_access_projection_status">staid an tilgeil inntrigeadh</string>
+    <string name="car_permission_desc_access_projection_status">Leigidh seo le aplacaid an staid fhaighinn aig aplacaidean eile a tha a’ tilgeil air uidheam-taisbeanaidh a’ chàir.</string>
+    <string name="car_permission_label_audio_volume">àirde na fuaime aig a’ chàr a stiùireadh</string>
+    <string name="car_permission_label_audio_settings">roghainnean fuaime a’ chàir a stiùireadh</string>
+    <string name="car_permission_label_mock_vehicle_hal">riochd a chur air HAL a’ charbaid</string>
+    <string name="car_permission_label_receive_ducking">tachartasan ìsleachadh na fuaime fhaighinn</string>
+    <string name="car_permission_desc_receive_ducking">Leigidh seo le aplacaid gum faigh i brath nuair a thèid a fuaim
+        ìsleachadh mar thoradh air fuaim eile a tha ’ga chluich sa chàr.</string>
+    <string name="car_permission_desc_mock_vehicle_hal">Cur riochd air HAL a’ charbaid a chùm
+        cuir fo dheuchainn inntearnail.</string>
+    <string name="car_permission_desc_audio_volume">Àirde na fuaime aig a’ chàr agad a stiùireadh.</string>
+    <string name="car_permission_desc_audio_settings">Roghainnean fuaime a’ chàir agad a stiùireadh.</string>
+    <string name="car_permission_label_control_app_blocking">Bacadh aplacaidean</string>
+    <string name="car_permission_desc_control_app_blocking">Stiùirich bacadh nan aplacaidean fhad ’s a bhios tu
+        a’ draibheadh.</string>
+    <string name="car_permission_car_navigation_manager">Manaidsear na seòladaireachd</string>
+    <string name="car_permission_desc_car_navigation_manager">Cuir aithris dàta na seòladaireachd dhan
+        bhad-inneal</string>
+    <string name="car_permission_car_display_in_cluster">Reandaradh dìreach dhan bhad-inneal</string>
+    <string name="car_permission_desc_car_display_in_cluster">Leig le aplacaid gnìomhachdan
+      innse ach an dèid an sealltainn sa bhad-inneal</string>
+    <string name="car_permission_car_cluster_control">Stiùireadh a’ bhaid-inneal</string>
+    <string name="car_permission_desc_car_cluster_control">Cuir aplacaidean gu dol sa bhad-inneal</string>
+    <string name="car_permission_label_car_ux_restrictions_configuration">Rèiteachadh cuingeachaidhean UX</string>
+    <string name="car_permission_desc_car_ux_restrictions_configuration">Stiùirich na cuingeachaidhean air an UX</string>
+    <string name="car_permission_label_car_handle_usb_aoap_device">Conaltradh le uidheam USB sa mhodh AOAP</string>
+    <string name="car_permission_desc_car_handle_usb_aoap_device">Leigidh seo le aplacaid conaltradh le uidheam sa mhodh AOAP</string>
+    <string name="car_permission_label_diag_read">dàta na diagnosachd a leughadh</string>
+    <string name="car_permission_desc_diag_read">Dàta diagnosachd a leughadh on chàr.</string>
+    <string name="car_permission_label_diag_clear">dàta na diagnosachd fhalamhachadh</string>
+    <string name="car_permission_desc_diag_clear">Dàta diagnosachd fhalamhachadh on chàr.</string>
+    <string name="car_permission_label_vms_publisher">Foillsichear VMS</string>
+    <string name="car_permission_desc_vms_publisher">Foillseachadh teachdaireachdan VMS</string>
+    <string name="car_permission_label_vms_subscriber">Fo-sgrìobhadair VMS</string>
+    <string name="car_permission_desc_vms_subscriber">Fo-sgrìobhadh air teachdaireachdan VMS</string>
+    <string name="car_permission_label_storage_monitoring">Cumail sùil air stòras flash</string>
+    <string name="car_permission_desc_storage_monitoring">Sùil a chumail air cleachdadh stòrais flash</string>
+    <string name="car_permission_label_driving_state">èisteadh ri staid an dràibhidh</string>
+    <string name="car_permission_desc_driving_state">Èisteadh ri atharrachadh air staid an dràibhidh.</string>
+    <string name="car_permission_label_car_engine_detailed">Mion-fhiosrachadh mu einnsean a’ chàir inntrigeadh</string>
+    <string name="car_permission_desc_car_engine_detailed">Cothrom air mion-fhiosrachadh mu einnsean a’ chair agad.</string>
+    <string name="car_permission_label_car_identification">dearbh-aithne a’ chàir a leughadh</string>
+    <string name="car_permission_desc_car_identification">Cothrom air dearbh-aithne a’ chàir.</string>
+    <string name="car_permission_label_control_car_doors">smachd air dorsan a’ chàir</string>
+    <string name="car_permission_desc_control_car_doors">Smachd air dorsan a’ chàir.</string>
+    <string name="car_permission_label_control_car_windows">smachd air uinneagan a’ chàir</string>
+    <string name="car_permission_desc_control_car_windows">Smachd air uinneagan a’ chàir.</string>
+    <string name="car_permission_label_control_car_mirrors">smachd air sgàthanan a’ chàir</string>
+    <string name="car_permission_desc_control_car_mirrors">Smachd air sgàthanan a’ chàir.</string>
+    <string name="car_permission_label_control_car_seats">smachd air suidheachain a’ chàir</string>
+    <string name="car_permission_desc_control_car_seats">Smachd air suidheachain a’ chàir.</string>
+    <string name="car_permission_label_car_info">bun-fhiosrachadh a’ chàir inntrigeadh</string>
+    <string name="car_permission_desc_car_info">Cothrom air bun-fhiosrachadh a’ chàir.</string>
+    <string name="car_permission_label_vendor_permission_info">fiosrachadh mu chead reiceadair a’ chàir inntrigeadh</string>
+    <string name="car_permission_desc_vendor_permission_info">Cothrom air fiosrachadh mu chead reiceadair a’ chàir.</string>
+    <string name="car_permission_label_car_exterior_lights">staid solasan taobh a-muigh a’ chair a leughadh</string>
+    <string name="car_permission_desc_car_exterior_lights">Cothrom air staid solasan taobh a-muigh a’ chair.</string>
+    <string name="car_permission_label_control_car_exterior_lights">smachd air solasan taobh a-muigh a’ chair</string>
+    <string name="car_permission_desc_control_car_exterior_lights">Smachd air solasan taobh a-muigh a’ chair.</string>
+    <string name="car_permission_label_car_interior_lights">staid solasan taobh a-staigh a’ chair a leughadh</string>
+    <string name="car_permission_desc_car_interior_lights">Cothrom air staid solasan taobh a-staigh a’ chair.</string>
+    <string name="car_permission_label_control_car_interior_lights">smachd air solasan taobh a-staigh a’ chair</string>
+    <string name="car_permission_desc_control_car_interior_lights">Smachd air solasan taobh a-staigh a’ chair.</string>
+    <string name="car_permission_label_car_exterior_environment">an teothachd taobh a-muigh a’ chair a leughadh</string>
+    <string name="car_permission_desc_car_exterior_environment">Cothrom air an teothachd taobh a-muigh a’ chair.</string>
+    <string name="car_permission_label_car_tires">Fiosrachadh mu thaidhirean a’ chàir inntrigeadh</string>
+    <string name="car_permission_desc_car_tires">Cothrom air fiosrachadh mu thaidhirean a’ chàir.</string>
+    <string name="car_permission_label_car_steering">ceàrn stiùiridh a’ chàir a leughadh</string>
+    <string name="car_permission_desc_car_steering">Cothrom air ceàrn stiùiridh a’ chàir.</string>
+    <string name="car_permission_label_read_car_display_units">aonadan taisbeanaidh a’ chàir a leughadh</string>
+    <string name="car_permission_desc_read_car_display_units">Leughadh aonadan taisbeanaidh a’ chàir.</string>
+    <string name="car_permission_label_control_car_display_units">smachd air aonadan taisbeanaidh a’ chàir</string>
+    <string name="car_permission_desc_control_car_display_units">Smachd air na h-aonadan taisbeanaidh.</string>
+    <string name="car_permission_label_car_power">staid cumhachd a’ chàir a leughadh</string>
+    <string name="car_permission_desc_car_power">Cothrom air staid cumhachd a’ chàir.</string>
+    <string name="car_permission_label_enroll_trust">Clàradh uidheim earbsaich</string>
+    <string name="car_permission_desc_enroll_trust">Ceadaich clàradh uidheim earbsaich</string>
+    <string name="car_permission_label_car_test_service">Smachd air modh deuchainn a’ chàir</string>
+    <string name="car_permission_desc_car_test_service">Smachd air modh deuchainn a’ chàir</string>
+    <string name="car_permission_label_control_car_features">Cur an comas no à comas gleusan a’ chàir</string>
+    <string name="car_permission_desc_control_car_features">Cur an comas no à comas gleusan a’ chàir.</string>
+    <string name="car_can_bus_failure">Dh’fhàillig le bus CAN</string>
+    <string name="car_can_bus_failure_desc">Chan eil bus CAN a’ freagairt. Thoir a-mach is cuir a-steach bogsa a’ cheann-aonaid
+        agus ath-thòisich an càr</string>
+    <string name="trust_device_default_name">An t-uidheam agam</string>
+    <string name="default_guest_name">Aoigh</string>
+</resources>

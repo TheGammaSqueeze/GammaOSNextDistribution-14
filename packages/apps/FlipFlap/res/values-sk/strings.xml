@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  Copyright (c) 2017 The LineageOS Project
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ Also add information on how to contact you by electronic and paper mail.
+
+-->
+<resources>
+    <string name="app_name">Preklápačky</string>
+    <string name="notification_title">Zistený Inteligentný kryt</string>
+    <string name="alarm_label">BUDÍK</string>
+    <string name="abbrev_wday_month_day_no_year">EEE, d. MMMM</string>
+    <string name="answer_call">ODPOVEDAŤ</string>
+    <string name="ignore_call">IGNOROVAŤ</string>
+    <string name="end_call">UKONČIŤ HOVOR</string>
+    <string name="settings_name">Inteligentný obal</string>
+    <string name="settings_summary">Ovládajte správanie príslušenstva</string>
+    <string name="category_behaviour">Správanie</string>
+    <string name="pass_to_security_view_title">Priamo zadať heslo</string>
+    <string name="pass_to_security_view_summary">Po otvorení obalu hneď zobraziť obrazovku uzaknutia</string>
+    <string name="use_high_touch_sensitivity_title">Vysoká citlivosť na dotyky</string>
+    <string name="use_high_touch_sensitivity_summary">Zvýšenie citlivosti na dotyk pri použití uzatvoreného obalu</string>
+    <string name="category_design">Dizajn</string>
+    <string name="switch_charging_status_title">Zobraziť stav nabíjania</string>
+    <string name="switch_charging_status_summary">Zmena farby v závislosti na aktuálnej úrovni nabitia batérie</string>
+    <string name="category_timeouts">Časové limity</string>
+    <string name="timeout_plugged_title">Počas nabíjania</string>
+    <string name="timeout_unplugged_title">Odpojené</string>
+    <string name="timeout_summary">Spustiť aplikáciu %s po uzatvorení obalu</string>
+    <string name="timeout_summary_never">Po zatvorení flipového obalu zostane aplikácia aktívna</string>
+    <string name="timeout_summary_immediately">Obrazovka sa vypne pri zatvorení krytu</string>
+    <string name="timeout_entry_immediately">Okamžite</string>
+    <string name="timeout_entry_5s">5 sekúnd</string>
+    <string name="timeout_entry_10s">10 sekúnd</string>
+    <string name="timeout_entry_30s">30 sekúnd</string>
+    <string name="timeout_entry_1min">1 minúta</string>
+    <string name="timeout_entry_5min">5 minút</string>
+    <string name="timeout_entry_never">Nikdy</string>
+</resources>

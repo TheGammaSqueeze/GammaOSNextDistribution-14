@@ -1,0 +1,42 @@
+package: "com.android.permission.flags"
+container: "com.android.permission"
+
+flag {
+    name: "device_aware_permission_grant_enabled"
+    is_fixed_read_only: true
+    namespace: "permissions"
+    description: "Enables device aware grant permission flow"
+    bug: "292252664"
+}
+
+flag {
+    name: "private_profile_supported"
+    namespace: "permissions"
+    description: "This flag is used to support private profile in safety center"
+    bug: "286539356"
+    is_fixed_read_only: true
+}
+
+flag {
+    name: "private_profile_title_api"
+    namespace: "permissions"
+    description: "This flag is used to guard the private profile title api in safety center"
+    bug: "286539356"
+    is_fixed_read_only: true
+}
+
+flag {
+    name: "wear_privacy_dashboard_enabled_read_only"
+    namespace: "wear_security"
+    description: "This flag is used to support Privacy dashboard for Wear"
+    bug: "309721061"
+    is_fixed_read_only: true
+}
+
+flag {
+    name: "archiving_read_only"
+    namespace: "permissions"
+    description: "Feature flag to enable the archiving feature."
+    bug: "278553670"
+    is_fixed_read_only: true
+}

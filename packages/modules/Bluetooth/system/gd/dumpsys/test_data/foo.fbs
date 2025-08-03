@@ -1,0 +1,25 @@
+namespace testing;
+
+attribute "privacy";
+
+table FooTestSchema {
+    foo_int_private:int;
+    foo_int_opaque:int (privacy:"Opaque");
+    foo_int_anonymized:int (privacy:"Anonymized");
+    foo_int_any:int (privacy:"Any");
+    foo_int_string:string (privacy:"Any");
+
+    foo_float_private:float;
+    foo_float_opaque:float (privacy:"Opaque");
+    foo_float_anonymized:float (privacy:"Anonymized");
+    foo_float_any:float (privacy:"Any");
+    foo_float_string:string (privacy:"Any");
+
+    foo_bool_private:bool (privacy:"Private");
+    foo_bool_opaque:bool (privacy:"Opaque");
+    foo_bool_anonymized:bool (privacy:"Anonymized");
+    foo_bool_any:bool (privacy:"Any");
+    foo_bool_string:string (privacy:"Any");
+}
+
+root_type FooTestSchema;

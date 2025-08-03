@@ -1,0 +1,46 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.tests;
+
+option java_package = "android.tests";
+option java_outer_classname = "ExternalAtoms";
+
+import "test/data/enum.proto";
+import "test/data/atoms/external_atoms/external_test_atom.proto";
+
+/* Allocated atom IDs. */
+message Atom {
+  oneof pushed {
+    AtomWithEnum atom_with_enum = 100001;
+    AOSPAtom aosp_atom = 105999;
+    external_atoms.TestAtom external_atoms_test_atom = 106001;
+  }
+}
+
+/* A test atom from an AOSP atom ids range */
+message AtomWithEnum {
+  optional string reverse_domain_name = 1;
+  optional android.tests.enum.DemoEnumValues enum_value = 2;
+}
+
+/* A test atom from an AOSP atom ids range */
+message AOSPAtom {
+  optional string reverse_domain_name = 1;
+  optional int32 value = 2;
+}

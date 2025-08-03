@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="security_privacy_brand_name" msgid="7303621734258440812">"សុវត្ថិភាព និងឯកជនភាព"</string>
+    <string name="privacy_subpage_controls_header" msgid="4152396976713749322">"ការគ្រប់គ្រង"</string>
+    <string name="health_connect_title" msgid="2132233890867430855">"Health Connect"</string>
+    <string name="health_connect_summary" msgid="815473513776882296">"គ្រប់គ្រងសិទ្ធិរបស់កម្មវិធី​ក្នុងការចូលប្រើទិន្នន័យសុខភាព"</string>
+    <string name="location_settings" msgid="8863940440881290182">"ការចូលប្រើប្រាស់ទីតាំង"</string>
+    <string name="mic_toggle_description" msgid="1504101620086616040">"សម្រាប់កម្មវិធី និងសេវាកម្ម។ ប្រសិនបើការកំណត់នេះ​ត្រូវ​បាន​បិទ ទិន្នន័យមីក្រូហ្វូននៅតែអាចត្រូវបានចែករំលែកដដែល នៅពេលអ្នកហៅទៅលេខសង្គ្រោះបន្ទាន់"</string>
+</resources>

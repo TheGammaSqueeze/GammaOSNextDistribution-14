@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--   Copyright (C) 2023 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+  -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="cmas_extreme_alert" msgid="3751964445127743376">"ತೀವ್ರ ಅಲರ್ಟ್"</string>
+    <string name="cmas_severe_alert" msgid="4773544726385840011">"ಗಂಭೀರ ಅಲರ್ಟ್"</string>
+    <string name="cmas_required_monthly_test" msgid="5274965928258227096">"ಪ್ರಾಯೋಗಿಕ ಅಲರ್ಟ್"</string>
+    <string name="cmas_exercise_alert" msgid="4971838389621550184">"ತಾಂತ್ರಿಕ ಪರೀಕ್ಷೆ ಅಲರ್ಟ್‌ಗಳು"</string>
+    <string name="enable_cmas_extreme_threat_alerts_title" msgid="3095141156358640879">"ತೀವ್ರ ಬೆದರಿಕೆಗಳು"</string>
+    <string name="enable_cmas_extreme_threat_alerts_summary" msgid="6931853411327178941">"ಜೀವ ಮತ್ತು ಆಸ್ತಿಪಾಸ್ತಿಗೆ ತೀವ್ರ ತರದ ಬೆದರಿಕೆಗಳು"</string>
+    <string name="enable_cmas_severe_threat_alerts_title" msgid="2603680055509729555">"ಗಂಭೀರ ಬೆದರಿಕೆಗಳು"</string>
+    <string name="enable_cmas_severe_threat_alerts_summary" msgid="405751015446465202">"ಜೀವ ಮತ್ತು ಆಸ್ತಿಗೆ ಗಂಭೀರ ಬೆದರಿಕೆಗಳು"</string>
+    <string name="enable_cmas_test_alerts_title" msgid="5550182663333808054">"ರಾಜ್ಯ ಮತ್ತು ಸ್ಥಳೀಯ ಪರೀಕ್ಷೆಗಳು"</string>
+    <string name="enable_cmas_test_alerts_summary" msgid="5713628754819156297">"ರಾಜ್ಯ ಮತ್ತು ಸ್ಥಳೀಯ ಪ್ರಾಧಿಕಾರಿಗಳಿಂದ ಪರೀಕ್ಷಾ ಸಂದೇಶಗಳನ್ನು ಸ್ವೀಕರಿಸಿ"</string>
+    <string name="enable_exercise_test_alerts_title" msgid="1926178722994782168">"ತಾಂತ್ರಿಕ ಪರೀಕ್ಷೆ ಅಲರ್ಟ್‌ಗಳು"</string>
+    <string name="enable_exercise_test_alerts_summary" msgid="2009461083781266766">"ಪರೀಕ್ಷೆ ಸಂದೇಶಗಳನ್ನು ಸ್ವೀಕರಿಸಿ"</string>
+</resources>

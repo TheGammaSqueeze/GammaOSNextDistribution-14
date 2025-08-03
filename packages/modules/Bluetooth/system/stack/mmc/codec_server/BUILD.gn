@@ -1,0 +1,60 @@
+#
+#  Copyright 2023 The Android Open Source Project
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at:
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#
+
+source_set("libcodec_server_a2dp_aac") {
+  configs += [
+    "//bt/system:target_defaults",
+    "//bt/system/stack/mmc:target_defaults",
+  ]
+  include_dirs = [
+    "//bt/system",
+    "//bt/system/include",
+    "//bt/system/stack",
+    "//bt/system/stack/include",
+  ]
+  deps = [
+    "//bt/system/gd/rust/shim:init_flags_bridge_header",
+    "//bt/system/stack/mmc/proto:mmc_config_proto",
+  ]
+  sources = [ "a2dp_aac_mmc_encoder.cc" ]
+  libs = [
+    # Following are for AAC using FFmpeg
+    "avcodec",
+    "avutil",
+  ]
+}
+
+source_set("libcodec_server_hfp_lc3"){
+  configs += [ "//bt/system/stack/mmc:target_defaults" ]
+  include_dirs = [
+    "//bt/system",
+    "//bt/system/include",
+    "//bt/system/stack",
+    "//bt/system/stack/include",
+  ]
+  libs = [
+    "lc3",
+  ]
+
+  deps = [
+    "//bt/system/stack/mmc/proto:mmc_config_proto",
+    "//bt/system/osi",
+  ]
+  sources = [
+    "hfp_lc3_mmc_encoder.cc",
+    "hfp_lc3_mmc_decoder.cc",
+  ]
+}

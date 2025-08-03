@@ -1,0 +1,27 @@
+syntax = "proto2";
+
+package lbs;
+
+option java_multiple_files = true;
+option java_package = "com.google.location.lbs.contexthub";
+option java_outer_classname = "FilterNano";
+
+// Types of messages between host and CHRE.
+enum FilterMessageType {
+  // 0 is reserved to avoid misinterpreting corrupted data.
+  MESSAGE_UNDEFINED = 0;
+  // Success response to host operation (from CHRE).
+  MESSAGE_SUCCESS = 1;
+  // Failure response to host operation (from CHRE).
+  MESSAGE_FAILURE = 2;
+  // Message from host to CHRE to set Filters.
+  MESSAGE_FILTERS = 3;
+  // Notification from CHRE to host with FilterResults as payload.
+  MESSAGE_FILTER_RESULTS = 4;
+  // Config the filtering, including start/stop filtering.
+  MESSAGE_CONFIG = 5;
+  // Message from host to CHRE to request extended configuration.
+  MESSAGE_EXT_CONFIG_REQUEST = 6;
+  // Message from CHRE to host for the response of extended configuration.
+  MESSAGE_EXT_CONFIG_RESPONSE = 7;
+}

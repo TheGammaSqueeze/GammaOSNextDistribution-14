@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2017 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="wallpaper_app_name">Fonts</string>
+    <string name="app_name">@string/wallpaper_app_name</string>
+    <string name="select_wallpaper_label">Categoriis di fonts</string>
+    <string name="set_wallpaper_button_text">Stabilìs fonts</string>
+    <string name="set_wallpaper_progress_message">Daûr a meti il fonts…</string>
+    <string name="try_again">Torne prove</string>
+    <string name="set_wallpaper_error_message">Impussibil meti il fonts.</string>
+    <string name="load_wallpaper_error_message">        Impussibil cjariâ il fonts. O la imagjin e je ruvinade o no je disponibile.
+    </string>
+    <string name="static_wallpaper_presentation_mode_message">Atualmentri stabilît</string>
+    <string name="rotating_wallpaper_presentation_mode_message">Fonts zornalîr</string>
+    <string name="wallpaper_destination_both">Schermade di inizi e di bloc</string>
+    <string name="choose_a_wallpaper_section_title">Sielç un fonts</string>
+    <string name="creative_wallpaper_title">Cree fonts</string>
+    <string name="home_screen_message">Schermade di inizi</string>
+    <string name="lock_screen_message">Schermade di bloc</string>
+    <string name="home_and_lock_short_label">Inizi e bloc</string>
+    <string name="set_wallpaper_dialog_message">Stabilìs fonts su</string>
+    <string name="set_wallpaper_home_screen_destination">Schermade di inizi</string>
+    <string name="set_wallpaper_lock_screen_destination">Schermade di bloc</string>
+    <string name="set_wallpaper_both_destination">Inizi e schermade di bloc</string>
+    <string name="no_backup_image_wallpaper_label">Fonts di imagjins a rotazion</string>
+    <string name="permission_needed_explanation">      Par visualizâ achì il fonts atuâl,
+      <xliff:g example="Wallpapers" id="app_name">%1$s</xliff:g> al à bisugne dal acès ae
+      memorie di archiviazion dal to dispositîf.
+    </string>
+    <string name="permission_needed_explanation_go_to_settings">      Par visualizâ achì il fonts atuâl, la aplicazion Fonts e scugne acedi ae memorie di
+      archiviazion dal to dispositîf.\n\nPar cambiâ cheste impostazion, va te aree Permès des informazions de aplicazion di Fonts.
+    </string>
+    <string name="permission_needed_allow_access_button_label">      Permet acès
+    </string>
+    <string name="no_backup_image_wallpaper_description">      Servizi di fonts animâts par fonts a rotazion
+    </string>
+    <string name="daily_refresh_tile_title">Fonts zornalîr</string>
+    <string name="daily_refresh_tile_subtitle">Tocje par ativâ</string>
+    <string name="start_rotation_dialog_body_live_wallpaper_needed">      Il fonts al cambiarà in automatic ogni dì. Par completâ la configurazion, tocje
+      <![CDATA[<strong>Stabilìs fonts</strong>]]> te prossime schermade.
+    </string>
+    <string name="start_rotation_dialog_wifi_only_option_message">      Discjame i fonts futûrs dome vie Wi-Fi
+    </string>
+    <string name="start_rotation_dialog_continue">Continue</string>
+    <string name="start_rotation_progress_message">Daûr a discjariâ il prin fonts…</string>
+    <string name="start_rotation_error_message">      Impussibil discjariâ il prin fonts. Controle lis impostazions di rêt e torne prove.
+    </string>
+    <string name="start_rotation_dialog_body">      Il fonts al cambiarà in automatic ogni dì
+    </string>
+    <string name="settings_button_label">      Impostazions
+    </string>
+    <string name="explore">Esplore</string>
+    <string name="next_wallpaper">Fonts sucessîf</string>
+    <string name="wallpaper_disabled_message">        La configurazion dal fonts e je disativade su chest dispositîf
+    </string>
+    <string name="wallpaper_disabled_by_administrator_message">        La configurazion dal fonts e je disativade dal aministradôr dal to dispositîf
+    </string>
+    <string name="wallpaper_set_successfully_message">        Fonts stabilît cun sucès
+    </string>
+    <string name="wallpapers_unavailable_offline_message">        Ti covente une conession a internet par viodi i fonts. Conetiti e torne prove.
+    </string>
+    <string name="currently_set_home_wallpaper_thumbnail">      Miniature dal fonts atuâl metût te schermade di inizi
+    </string>
+    <string name="currently_set_lock_wallpaper_thumbnail">      Miniature dal fonts atuâl metût te schermade di bloc
+    </string>
+    <string name="currently_set_wallpaper_thumbnail">Miniature dal fonts atuâl</string>
+    <string name="wallpaper_thumbnail">Miniature dal fonts</string>
+    <string name="explore_home_screen">Esplore il fonts de schermade di inizi</string>
+    <string name="explore_lock_screen">Esplore il fonts de schermade di bloc</string>
+    <string name="refresh_daily_wallpaper_home_content_description">Inzorne ogni dì il fonts de schermade di inizi</string>
+    <string name="refresh_daily_wallpaper_content_description">Inzorne ogni dì il fonts</string>
+    <string name="preview_screen_description">Schermade di anteprime dal fonts</string>
+    <string name="refreshing_daily_wallpaper_dialog_message">        Daûr a inzornâ il fonts zornalîr…
+    </string>
+    <string name="refresh_daily_wallpaper_failed_message">        Nol è stât pussibil inzornâ il fonts zornalîr. Controle la conession di rêt e torne prove.
+    </string>
+    <string name="on_device_wallpapers_category_title">Fonts sul dispositîf</string>
+    <string name="on_device_wallpapers_category_title_desktop">Sul dispositîf</string>
+    <string name="on_device_wallpaper_title">Fonts di Android</string>
+    <string name="live_wallpapers_category_title">Fonts animâts</string>
+    <string name="my_photos_category_title">Lis mês fotos</string>
+    <string name="my_photos_generic_wallpaper_title">La mê foto</string>
+    <string name="fallback_wallpaper_title">Fonts</string>
+    <string name="app_not_found">La aplicazion no je instalade.</string>
+    <string name="center_wallpaper_position">Tal mieç</string>
+    <string name="center_crop_wallpaper_position">Ritaiade tal mieç</string>
+    <string name="stretch_wallpaper_position">Slungje</string>
+    <string name="preview">Anteprime</string>
+    <string name="tab_info">Informazions</string>
+    <string name="tab_customize">Personalize</string>
+    <string name="tab_effects">Efiets</string>
+    <string name="tab_share">Condivît</string>
+    <string name="my_photos">Lis mês fotos</string>
+    <string name="configure_wallpaper">Impostazions…</string>
+    <string name="delete_live_wallpaper">Elimine</string>
+    <string name="edit_live_wallpaper">Modifiche</string>
+    <string name="delete_wallpaper_confirmation">Eliminâ chest fonts dal to dispositîf?</string>
+    <string name="bottom_action_bar_back">Torne indaûr</string>
+    <string name="bottom_action_bar_edit">Modifiche</string>
+    <string name="bottom_action_bar_download">Discjame</string>
+    <string name="bottom_action_bar_slideshow_wallpaper">Presentazion fonts</string>
+    <string name="bottom_action_bar_apply">Apliche</string>
+    <string name="accessibility_preview_pager" msgid="3548503287402185430">Pagjine <xliff:g name="current_page" example="1">%1$d</xliff:g> di <xliff:g name="num_pages" example="2">%2$d</xliff:g></string>
+    <string name="next_page_content_description" msgid="5290226604542300962">Indenant</string>
+    <string name="previous_page_content_description" msgid="6025726405430262788">Indaûr</string>
+    <string name="wallpaper_title">Fonts</string>
+    <string name="wallpaper_preview_card_content_description">Anteprime dal fonts</string>
+    <string name="lock_wallpaper_preview_card_content_description">Anteprime fonts de schermade di bloc</string>
+    <string name="home_wallpaper_preview_card_content_description">Anteprime fonts de schermade di Inizi</string>
+    <string name="collection_not_exist_msg">La colezion no esist</string>
+    <string name="wallpaper_exit_split_screen">Jes de modalitât schermi dividût e torne prove</string>
+    <string name="set_wallpaper_dialog_set_button">Apliche</string>
+    <string name="cancel">Anule</string>
+    <string name="hide_ui_preview_text">Plate anteprime IU</string>
+    <string name="hint_hide_ui_preview">IU platade te anteprime. Tocje 2 voltis par mostrâ</string>
+    <string name="show_ui_preview_text">Mostre anteprime IU</string>
+    <string name="hide_preview_controls_content_description">I controi di anteprime a son visualizâts. Dople tocjade par platâ</string>
+    <string name="hide_preview_controls_action">Plate controi di anteprime</string>
+    <string name="show_preview_controls_content_description">I controi di anteprime a son platâts. Dople tocjade par mostrâ</string>
+    <string name="show_preview_controls_action">Mostre controi di anteprime</string>
+    <string name="hide_wallpaper_info_action">Plate informazions fonts</string>
+    <string name="hint_show_ui_preview">IU mostrade te anteprime. Tocje 2 voltis par platâ</string>
+    <string name="wallpaper_picker_entry_title" msgid="7039652539125902659">Cambie fonts</string>
+    <string name="lockscreen_wallpaper_preview_card_content_description" msgid="8575577284424318765">Anteprime fonts schermade di bloc</string>
+    <string name="apply_btn" msgid="7965877231041987336">Apliche</string>
+    <string name="accessibility_customize_hidden">Personalize platât</string>
+    <string name="accessibility_customize_shown">Personalize mostrât</string>
+    <string name="accessibility_info_hidden">Informazions platât</string>
+    <string name="accessibility_info_shown">Informazions mostrât</string>
+    <string name="settings_snackbar_description">Ative files e contignûts multimediâi tes impostazions.</string>
+    <string name="settings_snackbar_enable">Ative</string>
+    <string name="open_my_photos">Vierç Lis mês fotos</string>
+    <string name="lock_screen_tab">Schermade di bloc</string>
+    <string name="home_screen_tab">Schermade di inizi</string>
+    <string name="reset">Ripristine</string>
+    <string name="reset_confirmation_dialog_title">Anulâ lis modifichis?</string>
+    <string name="reset_confirmation_dialog_message">Lis modifichis no vignaran salvadis</string>
+    <string name="more_wallpapers">Altris fonts</string>
+    <string name="recents_wallpaper_label">%1$s, %2$d</string>
+    <string name="default_wallpaper_title">Fonts</string>
+    <string name="small_preview_tooltip">Tocje par modificâ la tô foto</string>
+    <string name="full_preview_tooltip">Juste la posizion, la scjale e l\'angul des tôs fotos</string>
+</resources>

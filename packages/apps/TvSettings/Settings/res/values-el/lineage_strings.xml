@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017-2024 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="system_reboot_confirm_cm">Επανεκκίνηση σε:</string>
+    <string name="global_action_restart_system">Σύστημα</string>
+    <string name="global_action_restart_recovery">Recovery</string>
+    <string name="global_action_restart_bootloader">Bootloader</string>
+    <plurals name="show_dev_countdown_cm">
+        <item quantity="one">Απομένει <xliff:g id="step_count">%1$d</xliff:g> βήμα για να ενεργοποιήσετε τις ρυθμίσεις για προγραμματιστές.</item>
+        <item quantity="other">Απομένουν <xliff:g id="step_count">%1$d</xliff:g> βήματα για να ενεργοποιήσετε τις ρυθμίσεις για προγραμματιστές.</item>
+    </plurals>
+    <string name="show_dev_on_cm">Ενεργοποιήσατε τις ρυθμίσεις για προγραμματιστές!</string>
+    <string name="show_dev_already_cm">Δεν χρειάζεται, έχετε ήδη ενεργοποιήσει τις ρυθμίσεις για προγραμματιστές.</string>
+    <string name="system_buttons">Πλήκτρα</string>
+    <string name="power_button_long_press_action_title">Ενέργεια παρατεταμένης πίεσης πλήκτρου λειτουργίας</string>
+    <string name="power_button_long_press_for_power_menu_action">Πρόσβαση μενού απενεργοποίησης</string>
+    <string name="power_button_long_press_for_assistant_action">Άνοιγμα βοηθού</string>
+    <string name="inputs_volume_control_enabled">Έλεγχος έντασης CEC</string>
+    <string name="inputs_volume_control_enabled_desc">Έλεγχος της έντασης TV/AVR αντί της εσωτερικής έντασης</string>
+    <string name="enable_adb_root">Εντοπισμός σφαλμάτων root</string>
+    <string name="enable_adb_root_summary">Επιτρέψτε την εκτέλεση του εντοπισμού σφαλμάτων Android ως root</string>
+    <string name="advanced_restart_title">Προηγμένη επανεκκίνηση</string>
+    <string name="advanced_restart_summary">Εμφάνιση επιλογών για επανεκκίνηση σε λειτουργία recovery, bootloader ή εκτέλεση γρήγορης επανεκκίνησης</string>
+    <string name="adb_over_network">Εντοπισμός σφαλμάτων μέσω δικτύου</string>
+    <string name="adb_over_network_summary">Λειτουργία εντοπισμού σφαλμάτων μέσω TCP/IP δικτύων (δίκτυα Wi\u2011Fi, USB). Η ρύθμιση επαναφέρεται κατά την εκκίνηση</string>
+    <string name="adb_over_network_warning">ΠΡΟΣΟΧΗ: Όταν ο εντοπισμός σφαλμάτων μέσω δικτύου είναι ενεργοποιημένος, το τηλέφωνό σας είναι ανοικτό για εισβολές σε όλα τα συνδεδεμένα δίκτυα!\n\nΧρησιμοποιήστε αυτή τη λειτουργία μόνο όταν είστε συνδεδεμένοι σε έμπιστα δίκτυα.\n\nΘέλετε πραγματικά να ενεργοποιήσετε αυτή τη λειτουργία;</string>
+    <string name="trust_category_features">Κατάσταση</string>
+    <string name="trust_feature_selinux">SELinux</string>
+    <string name="trust_feature_selinux_value_enforcing">Επιβάλλεται</string>
+    <string name="trust_feature_selinux_value_disabled">Ανενεργó</string>
+    <string name="trust_feature_selinux_explain">Το SELinux καθορίζει ποιες διεργασίες έχουν πρόσβαση σε ποια αρχεία στη συσκευή σας.\nΑποτρέπει εφαρμογές και υπηρεσίες από το να έχουν πρόσβαση σε αρχεία που δε θα έπρεπε: με αυτόν τον τρόπο μια κακόβουλη διεργασία έχει περιορισμένη πρόσβαση και η ασφάλειά σας διαφυλάσσεται.</string>
+    <string name="trust_feature_security_patches">Ενημερωμένη έκδοση κώδικα ασφαλείας Android</string>
+    <string name="trust_feature_security_patches_value_base">Πλατφόρμα: %1$s\nΚατασκευαστής: %2$s</string>
+    <string name="trust_feature_security_patches_value_new">Ενημερωμένη</string>
+    <string name="trust_feature_security_patches_value_medium">Μερικούς μήνες παλιά</string>
+    <string name="trust_feature_security_patches_value_old">Ξεπερασμένη</string>
+    <string name="trust_feature_security_patches_explain">Οι ενημερωμένες εκδόσεις ασφαλείας αποστέλλονται κάθε μήνα από την Google σε συνεργασία με τους κατασκευαστές SoC για την αντιμετώπιση σφαλμάτων τα οποία θα μπορούσαν να εκμεταλλευτούν από κακόβουλες εφαρμογές για να παρακάμψουν τους περιορισμούς ασφαλείας και να προκαλέσουν μόνιμη βλάβη στη συσκευή σας.\nΟι ενημερώσεις ασφαλείας που διατίθενται από την Google εφαρμόζονται για όλες τις υποστηριζόμενες συσκευές κάθε μήνα, αλλά οι ενημερώσεις ασφαλείας για κλειστό κώδικα μπορούν να εφαρμοστούν μόνο από τον κατασκευαστή της συσκευής σας.\nΓια να διατηρήσετε τη συσκευή σας ασφαλή, βεβαιωθείτε ότι χρησιμοποιείτε πάντα μια ενημερωμένη έκδοση του LineageOS και (ενδεχομένως) σιγουρευτείτε ότι η εικόνα \"vendor\" είναι ενημερωμένη στην πιο πρόσφατη έκδοση προτεινόμενη από το LineageOS.</string>
+    <string name="trust_feature_encryption">Κρυπτογράφηση</string>
+    <string name="trust_feature_encryption_value_enabled">Ενεργή</string>
+    <string name="trust_feature_encryption_value_nolock">Απαιτεί ασφαλή οθόνη κλειδώματος</string>
+    <string name="trust_feature_encryption_value_disabled">Ανενεργή</string>
+    <string name="trust_feature_encryption_explain">Η κρυπτογράφηση της συσκευής σας εμποδίζει την πρόσβαση στα δεδομένα σας όταν το τηλέφωνό σας είναι απενεργοποιημένο ή σε λειτουργία recovery. Αυτό είναι ιδιαίτερα σημαντικό αν κλαπεί το τηλέφωνό σας και αποτρέπει την ανάγνωση των μηνυμάτων, των επαφών και άλλων προσωπικών σας δεδομένων χωρίς τον κωδικό πρόσβασης.\nΓια να κάνετε την κρυπτογράφηση πιο αποτελεσματική, πρέπει να ορίσετε έναν ασφαλή κωδικό οθόνης κλειδώματος.</string>
+    <string name="trust_category_tools">Απόρρητο</string>
+    <string name="trust_notification_alerts_title">Ειδοποιήσεις ασφαλείας</string>
+    <string name="trust_restrict_usb_title">Περιορισμός USB</string>
+    <string name="trust_restrict_usb_summary">Έλεγχος υποστήριξης για συνδέσεις USB, όπως ακουστικά, συσκευές αποθήκευσης, εισόδου (ποντίκια, πληκτρολόγια, χειριστήρια) και ADB</string>
+    <string name="trust_restrict_usb_always">Να μην επιτρέπονται συνδέσεις USB</string>
+    <string name="trust_restrict_usb_disabled">Να επιτρέπονται πάντα συνδέσεις USB</string>
+    <string name="trust_onboarding_description">Η Εμπιστοσύνη σάς βοηθά να διατηρείτε τη συσκευή σας ασφαλή και προστατεύει το απόρρητό σας.\nΤο εικονίδιο Εμπιστοσύνης θα εμφανίζεται μόνο όταν τα περιεχόμενα της σελίδας έχουν επαληθευτεί.</string>
+    <string name="trust_warnings_alerts_intro">Μπορείτε να επιλέξετε τα ζητήματα ασφαλείας που θέλετε να προειδοποιείστε. Για δική σας ασφάλεια, συνιστάται να ενεργοποιήσετε όλες τις ειδοποιήσεις</string>
+    <string name="trust_warnings_selinux">Κατάσταση SELinux</string>
+    <string name="trust_warnings_keys">Υπογραφή build</string>
+    <string name="sleep_button_label">Αναστολή</string>
+    <string name="system_sleep_confirm">Αναστολή τώρα;</string>
+    <string name="shutdown_button_label">Απενεργοποίηση</string>
+    <string name="system_shutdown_confirm">Απενεργοποίηση τώρα;</string>
+    <string name="convertible_port_busy_title">Η θύρα USB 1 χρησιμοποιείται</string>
+    <string name="convertible_port_busy_warning">Αποσυνδέστε οποιαδήποτε συσκευή ή εξαρτήματα και δοκιμάστε ξανά</string>
+    <string name="mtp_enable_title">Πρόσβαση σε φακέλους SHIELD στον υπολογιστή χρησιμοποιώντας USB</string>
+    <string name="mtp_enable_warning">Η θύρα USB 1 είναι τώρα ρυθμισμένη για το SHIELD να συνδεθεί σε έναν υπολογιστή ως συσκευή μέσων.\n\nΑυτή η θύρα δε θα ανιχνεύει πλέον μέσα αποθήκευσης USB ή εξαρτήματα USB και δεν μπορεί να χρησιμοποιηθεί για τη φόρτιση συσκευών.</string>
+    <string name="mtp_retry_error">Απέτυχε. Παρακαλώ προσπαθήστε ξανά.</string>
+    <string name="mtp_summary">Σε αυτή τη λειτουργία, η θύρα USB δεν είναι λειτουργική για άλλες χρήσεις</string>
+    <string name="mtp_title">Μεταφορά αρχείων σε έναν υπολογιστή με χρήση USB</string>
+    <string name="mtp_unexpected_error">Μη αναμενόμενο σφάλμα. Παρακαλώ προσπαθήστε ξανά αργότερα.</string>
+    <string name="usb_debugging_enable_title">Εντοπισμός σφαλμάτων USB ενεργοποιημένος</string>
+    <string name="usb_debugging_enable_warning">Η θύρα USB 1 είναι τώρα ρυθμισμένη για το SHIELD να συνδεθεί σε έναν υπολογιστή ως συσκευή μέσων.\n\nΑυτή η θύρα δε θα ανιχνεύει πλέον μέσα αποθήκευσης USB ή εξαρτήματα USB και δεν μπορεί να χρησιμοποιηθεί για τη φόρτιση συσκευών.</string>
+</resources>

@@ -1,0 +1,2 @@
+-keep class com.android.server.uwb.data.** { public <methods>; }
+-keep class com.android.server.uwb.info.** { public <methods>; }

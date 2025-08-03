@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources>
+    <style name="Theme.PlatformUi.Screenshot" parent="Theme.PlatformUi.DayAndNightScreenshot">
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+
+        <!-- We make the status and navigation bars transparent so that the screenshotted content is
+             not clipped by the status bar height when drawn into the Bitmap (which is what happens
+             given that we draw the view into the Bitmap using hardware acceleration). -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+
+        <!-- Make sure that device specific cutouts don't impact the outcome of screenshot tests -->
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+    </style>
+
+    <style name="Theme.PlatformUi.Dialog.Screenshot" parent="Theme.PlatformUi.Dialog.DayAndNightScreenshot" />
+
+    <style name="Theme.PlatformUi.DayAndNightScreenshot" parent="Theme.SystemUI">
+        <!-- Hardcode the material colors so that screenshot tests don't depend on colors that will
+             change with the device wallpaper. These colors were frozen when using the same color
+             configuration as the MaterialYouColorsRule. -->
+        <item name="*android:materialColorOnSecondaryFixedVariant">#00513C</item>
+        <item name="*android:materialColorOnTertiaryFixedVariant">#004E5F</item>
+        <item name="*android:materialColorSurfaceContainerLowest">#FFFFFF</item>
+        <item name="*android:materialColorOnPrimaryFixedVariant">#00513C</item>
+        <item name="*android:materialColorOnSecondaryContainer">#002116</item>
+        <item name="*android:materialColorOnTertiaryContainer">#001F27</item>
+        <item name="*android:materialColorSurfaceContainerLow">#E9F6FB</item>
+        <item name="*android:materialColorOnPrimaryContainer">#002116</item>
+        <item name="*android:materialColorSecondaryFixedDim">#8AD6B7</item>
+        <item name="*android:materialColorOnErrorContainer">#410002</item>
+        <item name="*android:materialColorOnSecondaryFixed">#002116</item>
+        <item name="*android:materialColorOnSurfaceInverse">#D8E4EA</item>
+        <item name="*android:materialColorTertiaryFixedDim">#86D1E9</item>
+        <item name="*android:materialColorOnTertiaryFixed">#001F27</item>
+        <item name="*android:materialColorPrimaryFixedDim">#66DBB2</item>
+        <item name="*android:materialColorSecondaryContainer">#A5F2D3</item>
+        <item name="*android:materialColorErrorContainer">#FFDAD6</item>
+        <item name="*android:materialColorOnPrimaryFixed">#002116</item>
+        <item name="*android:materialColorPrimaryInverse">#66DBB2</item>
+        <item name="*android:materialColorSecondaryFixed">#A5F2D3</item>
+        <item name="*android:materialColorTertiaryContainer">#B2EBFF</item>
+        <item name="*android:materialColorTertiaryFixed">#B2EBFF</item>
+        <item name="*android:materialColorPrimaryContainer">#83F8CD</item>
+        <item name="*android:materialColorOnBackground">#121D21</item>
+        <item name="*android:materialColorPrimaryFixed">#83F8CD</item>
+        <item name="*android:materialColorOnSecondary">#FFFFFF</item>
+        <item name="*android:materialColorOnTertiary">#FFFFFF</item>
+        <item name="*android:materialColorOnError">#FFFFFF</item>
+        <item name="*android:materialColorOnSurfaceVariant">#344A52</item>
+        <item name="*android:materialColorOutline">#647B83</item>
+        <item name="*android:materialColorOutlineVariant">#B3CAD3</item>
+        <item name="*android:materialColorOnPrimary">#FFFFFF</item>
+        <item name="*android:materialColorOnSurface">#121D21</item>
+        <item name="*android:materialColorPrimary">#006C51</item>
+        <item name="*android:materialColorSecondary">#196B52</item>
+        <item name="*android:materialColorTertiary">#00677D</item>
+        <item name="*android:materialColorSurfaceInverse">#0A1519</item>
+        <item name="*android:materialColorSurfaceVariant">#CEE6F0</item>
+        <item name="*android:materialColorSurfaceDim">#D0DCE1</item>
+        <item name="*android:materialColorSurfaceBright">#F2FBFF</item>
+        <item name="*android:materialColorSurface">#F2FBFF</item>
+        <item name="*android:materialColorSurfaceContainerHigh">#DEEAEF</item>
+        <item name="*android:materialColorSurfaceContainerHighest">#D8E4EA</item>
+        <item name="*android:materialColorSurfaceContainer">#E4F0F5</item>
+    </style>
+
+    <style name="Theme.PlatformUi.Dialog.DayAndNightScreenshot" parent="Theme.SystemUI.Dialog">
+        <!-- Hardcode the material colors so that screenshot tests don't depend on colors that will
+             change with the device wallpaper. These colors were frozen when using the same color
+             configuration as the MaterialYouColorsRule. -->
+        <item name="*android:materialColorOnSecondaryFixedVariant">#00513C</item>
+        <item name="*android:materialColorOnTertiaryFixedVariant">#004E5F</item>
+        <item name="*android:materialColorSurfaceContainerLowest">#FFFFFF</item>
+        <item name="*android:materialColorOnPrimaryFixedVariant">#00513C</item>
+        <item name="*android:materialColorOnSecondaryContainer">#002116</item>
+        <item name="*android:materialColorOnTertiaryContainer">#001F27</item>
+        <item name="*android:materialColorSurfaceContainerLow">#E9F6FB</item>
+        <item name="*android:materialColorOnPrimaryContainer">#002116</item>
+        <item name="*android:materialColorSecondaryFixedDim">#8AD6B7</item>
+        <item name="*android:materialColorOnErrorContainer">#410002</item>
+        <item name="*android:materialColorOnSecondaryFixed">#002116</item>
+        <item name="*android:materialColorOnSurfaceInverse">#D8E4EA</item>
+        <item name="*android:materialColorTertiaryFixedDim">#86D1E9</item>
+        <item name="*android:materialColorOnTertiaryFixed">#001F27</item>
+        <item name="*android:materialColorPrimaryFixedDim">#66DBB2</item>
+        <item name="*android:materialColorSecondaryContainer">#A5F2D3</item>
+        <item name="*android:materialColorErrorContainer">#FFDAD6</item>
+        <item name="*android:materialColorOnPrimaryFixed">#002116</item>
+        <item name="*android:materialColorPrimaryInverse">#66DBB2</item>
+        <item name="*android:materialColorSecondaryFixed">#A5F2D3</item>
+        <item name="*android:materialColorTertiaryContainer">#B2EBFF</item>
+        <item name="*android:materialColorTertiaryFixed">#B2EBFF</item>
+        <item name="*android:materialColorPrimaryContainer">#83F8CD</item>
+        <item name="*android:materialColorOnBackground">#121D21</item>
+        <item name="*android:materialColorPrimaryFixed">#83F8CD</item>
+        <item name="*android:materialColorOnSecondary">#FFFFFF</item>
+        <item name="*android:materialColorOnTertiary">#FFFFFF</item>
+        <item name="*android:materialColorOnError">#FFFFFF</item>
+        <item name="*android:materialColorOnSurfaceVariant">#344A52</item>
+        <item name="*android:materialColorOutline">#647B83</item>
+        <item name="*android:materialColorOutlineVariant">#B3CAD3</item>
+        <item name="*android:materialColorOnPrimary">#FFFFFF</item>
+        <item name="*android:materialColorOnSurface">#121D21</item>
+        <item name="*android:materialColorPrimary">#006C51</item>
+        <item name="*android:materialColorSecondary">#196B52</item>
+        <item name="*android:materialColorTertiary">#00677D</item>
+        <item name="*android:materialColorSurfaceInverse">#0A1519</item>
+        <item name="*android:materialColorSurfaceVariant">#CEE6F0</item>
+        <item name="*android:materialColorSurfaceDim">#D0DCE1</item>
+        <item name="*android:materialColorSurfaceBright">#F2FBFF</item>
+        <item name="*android:materialColorSurface">#F2FBFF</item>
+        <item name="*android:materialColorSurfaceContainerHigh">#DEEAEF</item>
+        <item name="*android:materialColorSurfaceContainerHighest">#D8E4EA</item>
+        <item name="*android:materialColorSurfaceContainer">#E4F0F5</item>
+    </style>
+</resources>

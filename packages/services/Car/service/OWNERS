@@ -1,0 +1,63 @@
+# Bug component: 1316886
+# Project owners
+include platform/packages/services/Car:/OWNERS
+
+# ActivityManager
+per-file src/com/android/car/SystemActivityMonitoringService.java = ycheo@google.com
+per-file src/com/android/car/am/* = ycheo@google.com
+per-file src/com/android/car/systeminterface/ActivityManagerInterface.java = ycheo@google.com
+
+# Audio
+per-file proto/android/car/audio/* = oscarazu@google.com, ericjeong@google.com
+per-file src/com/android/car/audio/* = oscarazu@google.com, ericjeong@google.com
+per-file src/com/android/car/audio/hal/* = oscarazu@google.com, ericjeong@google.com
+
+# Bluetooth
+per-file src/com/android/car/bluetooth/* = salsavage@google.com, chengandrew@google.com
+
+# Cluster
+per-file src/com/android/car/cluster/* = ycheo@google.com
+per-file src/com/android/car/hal/ClusterHalService.java = ycheo@google.com
+
+# Input
+per-file src/com/android/car/CarInputService.java = ycheo@google.com, kanant@google.com
+per-file src/com/android/car/hal/InputHalService.java = ycheo@google.com, kanant@google.com
+
+# PackageManager
+per-file src/com/android/car/pm/AppBlockingPolicyProxy.java = ycheo@google.com
+per-file src/com/android/car/pm/Car*.java = ycheo@google.com
+per-file src/com/android/car/pm/TEST_MAPPING = ycheo@google.com
+per-file src/com/android/car/pm/WindowDumpParser.java = ycheo@google.com
+
+# Power
+per-file src/com/android/car/garagemode/* = ericjeong@google.com
+per-file src/com/android/car/hal/PowerHalService.java = ericjeong@google.com
+per-file src/com/android/car/power/* = ericjeong@google.com
+per-file src/com/android/car/systeminterface/SystemPowerControlHelper.java = ericjeong@google.com
+per-file src/com/android/car/systeminterface/SystemStateInterface.java = ericjeong@google.com
+per-file src/com/android/car/systeminterface/WakeLockInterface.java = ericjeong@google.com
+
+# Property
+per-file src/com/android/car/CarPropertyService.java = tylertrephan@google.com, shanyu@google.com
+per-file src/com/android/car/hal/PropertyHalService.java = tylertrephan@google.com, shanyu@google.com
+per-file src/com/android/car/hal/property/*.java = tylertrephan@google.com, shanyu@google.com
+per-file src/com/android/car/property/*.java = tylertrephan@google.com, shanyu@google.com
+
+# StorageMonitor
+per-file src/com/android/car/CarStorageMonitoringService.java = lakshmana@google.com
+per-file src/com/android/car/systeminterface/StorageMonitoringInterface.java = lakshmana@google.com
+
+# System
+per-file src/com/android/car/*VehicleStub.java = ericjeong@google.com
+per-file src/com/android/car/hal/AidlHal*.java = ericjeong@google.com
+per-file src/com/android/car/hal/HidlHal*.java = ericjeong@google.com
+per-file src/com/android/car/hal/HalAreaConfig.java = ericjeong@google.com
+per-file src/com/android/car/hal/HalClient*.java = ericjeong@google.com
+per-file src/com/android/car/hal/HalProp*.java = ericjeong@google.com
+per-file src/com/android/car/hal/VehicleHal.java = ericjeong@google.com
+per-file src/com/android/car/hal/fakevhal/*.java = ericjeong@google.com
+
+# Watchdog
+per-file proto/android/car/watchdog/* = lakshmana@google.com
+per-file src/com/android/car/os/* = lakshmana@google.com
+per-file src/com/android/car/watchdog/* = lakshmana@google.com

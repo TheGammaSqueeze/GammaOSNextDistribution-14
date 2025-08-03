@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+* Copyright 2012, The Android Open Source Project
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+-->
+<com.android.intentresolver.widget.ResolverDrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:maxWidth="@dimen/resolver_max_width"
+    app:maxCollapsedHeight="@dimen/resolver_max_collapsed_height"
+    app:maxCollapsedHeightSmall="56dp"
+    android:id="@androidprv:id/contentPanel">
+
+    <RelativeLayout
+        android:id="@androidprv:id/title_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_alwaysShow="true"
+        android:elevation="@dimen/resolver_elevation"
+        android:paddingTop="@dimen/resolver_small_margin"
+        android:paddingStart="@dimen/resolver_edge_margin"
+        android:paddingEnd="@dimen/resolver_edge_margin"
+        android:paddingBottom="@dimen/resolver_title_padding_bottom"
+        android:background="@drawable/bottomsheet_background">
+
+        <TextView
+            android:id="@androidprv:id/profile_button"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_marginEnd="8dp"
+            android:visibility="gone"
+            style="?android:attr/borderlessButtonStyle"
+            android:textAppearance="?android:attr/textAppearanceButton"
+            android:textColor="?android:attr/colorAccent"
+            android:gravity="center_vertical"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:singleLine="true" />
+
+        <TextView
+            android:id="@android:id/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@androidprv:id/profile_button"
+            android:layout_alignParentStart="true"
+            android:textColor="?android:attr/textColorPrimary"
+            android:fontFamily="@androidprv:string/config_headlineFontFamilyMedium"
+            android:textSize="16sp"
+            android:gravity="start|center_vertical" />
+    </RelativeLayout>
+
+    <View
+        android:id="@androidprv:id/divider"
+        app:layout_alwaysShow="true"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?android:attr/colorBackground"
+        android:foreground="?android:attr/dividerVertical" />
+
+    <FrameLayout
+        android:id="@androidprv:id/stub"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/colorBackground"/>
+
+    <TabHost
+        android:id="@androidprv:id/profile_tabhost"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:accessibilityTraversalAfter="@android:id/title"
+        android:background="?android:attr/colorBackground">
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <!-- horizontal padding = 8dp content padding - 4dp margin that tab buttons have. -->
+            <TabWidget
+                android:id="@android:id/tabs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:tabStripEnabled="false"
+                android:paddingHorizontal="4dp"
+                android:visibility="gone" />
+            <FrameLayout
+                android:id="@android:id/tabcontent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <com.android.intentresolver.ResolverViewPager
+                    android:id="@androidprv:id/profile_pager"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </FrameLayout>
+        </LinearLayout>
+    </TabHost>
+    <LinearLayout
+        android:id="@androidprv:id/button_bar_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_alwaysShow="true"
+        android:orientation="vertical"
+        android:background="?android:attr/colorBackground"
+        app:layout_ignoreOffset="true">
+        <View
+            android:id="@androidprv:id/resolver_button_bar_divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="?android:attr/colorBackground"
+            android:foreground="?android:attr/dividerVertical" />
+        <LinearLayout
+            android:id="@androidprv:id/button_bar"
+            android:visibility="gone"
+            style="?android:attr/buttonBarStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_ignoreOffset="true"
+            app:layout_hasNestedScrollIndicator="true"
+            android:gravity="end|center_vertical"
+            android:orientation="horizontal"
+            android:layoutDirection="locale"
+            android:measureWithLargestChild="true"
+            android:paddingTop="@dimen/resolver_button_bar_spacing"
+            android:paddingBottom="@dimen/resolver_button_bar_spacing"
+            android:paddingStart="@dimen/resolver_edge_margin"
+            android:paddingEnd="@dimen/resolver_small_margin"
+            android:elevation="@dimen/resolver_elevation">
+
+            <Button
+                android:id="@androidprv:id/button_once"
+                android:layout_width="wrap_content"
+                android:layout_gravity="start"
+                android:maxLines="2"
+                style="?android:attr/buttonBarButtonStyle"
+                android:fontFamily="@androidprv:string/config_headlineFontFamilyMedium"
+                android:layout_height="wrap_content"
+                android:textAllCaps="false"
+                android:enabled="false"
+                android:text="@string/activity_resolver_use_once"
+                android:onClick="onButtonClick" />
+
+            <Button
+                android:id="@androidprv:id/button_always"
+                android:layout_width="wrap_content"
+                android:layout_gravity="end"
+                android:maxLines="2"
+                style="?android:attr/buttonBarButtonStyle"
+                android:fontFamily="@androidprv:string/config_headlineFontFamilyMedium"
+                android:textAllCaps="false"
+                android:layout_height="wrap_content"
+                android:enabled="false"
+                android:text="@string/activity_resolver_use_always"
+                android:onClick="onButtonClick" />
+        </LinearLayout>
+    </LinearLayout>
+</com.android.intentresolver.widget.ResolverDrawerLayout>

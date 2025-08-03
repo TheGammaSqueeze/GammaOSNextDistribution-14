@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (c) 2009, 2011-2013 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2014-2015 The CyanogenMod Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *    * Neither the name of The Linux Foundation nor
+ *      the names of its contributors may be used to endorse or promote
+ *      products derived from this software without specific prior written
+ *      permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NON-INFRINGEMENT ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Radio FM</string>
+    <string name="tx_app_name">Trosglwyddydd FM</string>
+    <string name="menu_scan_start">Sganio</string>
+    <string name="menu_scan_stop">Stopio chwilio</string>
+    <string name="menu_record_start">Recordio</string>
+    <string name="menu_record_stop">Stopio recordio</string>
+    <string name="menu_settings">Gosodiadau</string>
+    <string name="menu_sleep">Cysgu</string>
+    <string name="menu_sleep_cancel">Diddymu cysgu</string>
+    <string name="menu_all_channels">Pob sianel</string>
+    <string name="menu_display_tags">Dangos tagiau</string>
+    <string name="button_text_stop">Stopio</string>
+    <string name="msg_seeking">Yn chwilio gorsaf FM\u2026</string>
+    <string name="msg_scanning">Yn sganio holl orsafoedd FM\u2026</string>
+    <string name="msg_scanning_pty">Yn sganio am \'<xliff:g id="pty_name">%1$s</xliff:g>\'\u2026</string>
+    <string name="msg_search_title"><xliff:g id="frequency_string">%1$s</xliff:g> MHz</string>
+    <string name="msg_searching_title">Rhagosodiadau awto-ddewis</string>
+    <string name="msg_searching">Yn chwilio am orsafoedd cryf i greu rhestr o orsafoedd rhagosodedig\u2026</string>
+    <string name="msg_noantenna">Rhaid cysylltu clustffonau i ddefnyddio radio FM</string>
+    <string name="dialog_sleep_title">Amser cysgu cyn troi i ffwrdd yn awtomatig</string>
+    <string name="presetlist_select_name">Dewis \'<xliff:g id="presetlist_name">%1$s</xliff:g>\'</string>
+    <string name="presetlist_add_new">Ychwanegu rhestr newydd</string>
+    <string name="dialog_presetlist_rename_title">Rho enw</string>
+    <string name="presetlist_autoselect_title">Cadarnhau awto-ddewis</string>
+    <string name="preset_replace">Disodli</string>
+    <string name="preset_tune">Tiwnio</string>
+    <string name="preset_rename">Ailenwi</string>
+    <string name="preset_delete">Dileu</string>
+    <string name="preset_search">Chwilio am \'<xliff:g id="preset_pi">%1$s</xliff:g>\'</string>
+    <string name="stat_notif_frequency">\'<xliff:g id="frequency">%1$s</xliff:g>\' MHz</string>
+    <string name="regional_band">Band rhanbarthol</string>
+    <string name="regional_band_entry_north_america">Gogledd America</string>
+    <string name="regional_band_entry_europe">Ewrop</string>
+    <string name="regional_band_entry_japan">Japan</string>
+    <string name="regional_band_entry_japan_wide">Japan (llydan)</string>
+    <string name="regional_band_entry_australia">Awstralia</string>
+    <string name="regional_band_entry_austria">Awstria</string>
+    <string name="regional_band_entry_belgium">Gwlad Belg</string>
+    <string name="regional_band_entry_brazil">Brasil</string>
+    <string name="regional_band_entry_china">Tsieina</string>
+    <string name="regional_band_entry_czech_republic">Gweriniaeth Tsiec</string>
+    <string name="regional_band_entry_denmark">Denmarc</string>
+    <string name="regional_band_entry_finland">Y Ffindir</string>
+    <string name="regional_band_entry_france">Ffrainc</string>
+    <string name="regional_band_entry_germany">Yr Almaen</string>
+    <string name="regional_band_entry_greece">Groeg</string>
+    <string name="regional_band_entry_hong_kong">Hong Cong</string>
+    <string name="regional_band_entry_india">India</string>
+    <string name="regional_band_entry_indonesia">Indonesia</string>
+    <string name="regional_band_entry_ireland">Iwerddon</string>
+    <string name="regional_band_entry_italy">Yr Eidal</string>
+    <string name="regional_band_entry_korea">Corea</string>
+    <string name="regional_band_entry_mexico">Mecsico</string>
+    <string name="regional_band_entry_netherlands">Yr Iseldiroedd</string>
+    <string name="regional_band_entry_new_zealand">Seland Newydd</string>
+    <string name="regional_band_entry_norway">Norwy</string>
+    <string name="regional_band_entry_poland">Gwlad Pwyl</string>
+    <string name="regional_band_entry_portugal">Portiwgal</string>
+    <string name="regional_band_entry_russia">Rwsia</string>
+    <string name="regional_band_entry_singapore">Singapôr</string>
+    <string name="regional_band_entry_slovakia">Slofacia</string>
+    <string name="regional_band_entry_spain">Sbaen</string>
+    <string name="regional_band_entry_switzerland">Y Swistir</string>
+    <string name="regional_band_entry_sweden">Sweden</string>
+    <string name="regional_band_entry_taiwan">Taiwan</string>
+    <string name="regional_band_entry_turkey">Twrci</string>
+    <string name="regional_band_entry_united_kingdom">Y Deyrnas Gyfunol</string>
+    <string name="regional_band_entry_united_states">Unol Daleithiau</string>
+    <string name="regional_band_entry_user_defined">Band a ddiffinnir gan ddefnyddiwr</string>
+    <string name="regional_band_summary_north_america">Gogledd America (87.5 i 108.0 MHz mewn camau 200 kHz)</string>
+    <string name="regional_band_summary_europe">Ewrop (87.5 i 108.0 MHz mewn camau 100 kHz)</string>
+    <string name="regional_band_summary_japan">Japan (76.0 i 90.0 MHz mewn camau 100 kHz)</string>
+    <string name="regional_band_summary_japan_wide">Japan (llydan) (90.0 i 108.0 MHz mewn camau 50 kHz)</string>
+    <string name="regional_band_summary_australia">Awstralia (87.7 i 108.0 MHz mewn camau 100 kHz)</string>
+    <string name="regional_band_summary_austria">Awstria (87.5 i 108.0 MHz mewn camau 50 kHz)</string>
+    <string name="regional_band_summary_belgium">Gwlad Belg (87.5 i 108.0 MHz mewn camau 100 kHz)</string>
+    <string name="regional_band_summary_brazil">Brasil (87.5 i 108.0 MHz mewn camau 200 kHz)</string>
+    <string name="regional_band_summary_china">Tsieina (87.0 i 108.0 MHz mewn camau 100 kHz)</string>
+    <string name="regional_band_summary_czech_republic">Y Gweriniaeth Tsiec (87.5 i 108.0 MHz mewn camau 100 kHz)</string>
+    <string name="regional_band_summary_denmark">Denmarc (87.5 i 108.0 MHz mewn camau 50 kHz)</string>
+    <string name="regional_band_summary_finland">Y Ffindir (87.5 i 108.0 MHz mewn camau 100 kHz)</string>
+    <string name="regional_band_summary_france">Ffrainc (87.5 i 108.0 MHz mewn camau 100 kHz)</string>
+    <string name="regional_band_summary_germany">Yr Almaen (87.5 i 108.0 MHz mewn camau 50 kHz)</string>
+    <string name="regional_band_summary_greece">Groeg (87.5 i 108.0 MHz mewn camau 50 kHz)</string>
+    <string name="regional_band_summary_hong_kong">Hong Cong (87.5 i 108.0 MHz mewn camau 100 kHz)</string>
+    <string name="regional_band_summary_india">India (87.5 i 108.0 MHz mewn camau 100 kHz)</string>
+    <string name="regional_band_summary_indonesia">Indonesia (87.5 i 108.0 MHz mewn camau 100 kHz)</string>
+    <string name="regional_band_summary_ireland">Iwerddon (87.5 i 108.0 MHz mewn camau 50 kHz)</string>
+    <string name="regional_band_summary_italy">Yr Eidal (87.5 i 108.0 MHz mewn camau 50 kHz)</string>
+    <string name="regional_band_summary_korea">Corea (87.5 i 108.0 MHz mewn camau 200 kHz)</string>
+    <string name="regional_band_summary_mexico">Mecsico (88.1 i 107.9 MHz mewn camau 200 kHz)</string>
+    <string name="regional_band_summary_netherlands">Yr Iseldiroedd (87.5 i 108.0 MHz mewn camau 100 kHz)</string>
+    <string name="regional_band_summary_new_zealand">Seland Newydd (88.0 i 107.0 MHz mewn camau 100 kHz)</string>
+    <string name="regional_band_summary_norway">Norwy (87.5 i 108.0 MHz mewn camau 100 kHz)</string>
+    <string name="regional_band_summary_poland">Gwlad Pwyl (87.5 i 108.0 MHz mewn camau 100 kHz)</string>
+    <string name="regional_band_summary_portugal">Portiwgal (87.5 i 108.0 MHz mewn camau 50 kHz)</string>
+    <string name="regional_band_summary_russia">Rwsia (87.5 i 108.0 MHz mewn camau 100 kHz)</string>
+    <string name="regional_band_summary_singapore">Singapôr (88.0 i 108.0 MHz mewn camau 100 kHz)</string>
+    <string name="regional_band_summary_slovakia">Slofacia (87.5 i 108.0 MHz mewn camau 100 kHz)</string>
+    <string name="regional_band_summary_spain">Sbaen (87.5 i 108.0 MHz mewn camau 100 kHz)</string>
+    <string name="regional_band_summary_switzerland">Y Swistir (87.5 i 108.0 MHz mewn camau 100 kHz)</string>
+    <string name="regional_band_summary_sweden">Sweden (87.5 i 108.0 MHz mewn camau 100 kHz)</string>
+    <string name="regional_band_summary_taiwan">Taiwan (87.5 i 108.0 MHz mewn camau 100 kHz)</string>
+    <string name="regional_band_summary_turkey">Twrci (87.5 i 108.0 MHz mewn camau 100 kHz)</string>
+    <string name="regional_band_summary_united_kingdom">Y Deyrnas Gyfunol (87.5 i 108.0 MHz mewn camau 100 kHz)</string>
+    <string name="regional_band_summary_united_states">Unol Daleithiau (88.1 i 107.9 MHz mewn camau 200 kHz)</string>
+    <string name="regional_band_summary_user_defined">Band a ddiffinnir gan ddefnyddiwr</string>
+    <string name="aud_output_mode">Modd allbwn sain</string>
+    <string name="audio_type_stereo">Stereo</string>
+    <string name="audio_type_mono">Mono</string>
+    <string name="record_dur">Hyd recordio</string>
+    <string name="auto_select_af">Amledd amgen</string>
+    <string name="settings_revert_defaults_title">Ailosod nôl i\'r gosodiadau o\'r ffatri</string>
+    <string name="settings_revert_defaults_summary">Ailosod yr holl osodiadau</string>
+    <string name="settings_revert_confirm_title">Cadarnhau ailosod</string>
+    <string name="settings_revert_confirm_msg">Bydd hyn yn clirio holl osodiadau apiau, gan gynnwys y rhagosodiadau wedi\'u cadw. Parhau?</string>
+    <string name="no_storage">Mowntio cerdyn SD cyn dechrau recordio.</string>
+    <string name="preparing_sd">Yn paratoi\'r cerdyn SD\u2026</string>
+    <string name="access_sd_fail">Methwyd â chael at y cerdyn SD.</string>
+    <string name="spaceIsLow_content">Mae dy storfa cerdyn SD yn rhedeg yn brin o le. Newidia\'r gosodiad ansawdd neu ddileu rhai lluniau neu ffeiliau eraill i ryddhau lle.</string>
+    <string name="FMRecording_reach_size_limit">Wedi cyrraedd y terfyn maint.</string>
+    <string name="menu_scan_for_preset">Sganio am ragosodiadau</string>
+    <string name="fm_off">Mae FM wedi\'i droi i ffwrdd.</string>
+    <string name="fm_call">Ni ellir defnyddio FM tra mewn galwad.</string>
+    <string name="alert_dialog_hint">Rho enw</string>
+    <string name="search_dialog_title">Sganio gorsafoedd</string>
+    <string name="fm_command_timeout_title">Terfyn amser</string>
+    <string name="fm_tune_timeout_msg">Ni chafwyd ymateb i diwnio\'r orsaf FM. Os yw\'r broblem yn parhau, tro FM i ffwrdd a nôl ymlaen eto.</string>
+    <string name="fm_command_failed_title">Methodd y weithred FM</string>
+    <string name="fm_cmd_failed_msg">Methodd y weithred FM. Os yw\'r broblem yn parhau, tro FM i ffwrdd a nôl ymlaen eto.</string>
+    <string name="fm_cmd_failed_msg_hdmi">Methodd y weithred FM. Nid yw eto\'n bosib defnyddio FM a HDMI ar yr un pryd.</string>
+    <string name="fm_cmd_failed_call_on">Methodd y weithred FM. Ni chaniateir sain FM yn ystod galwad.</string>
+    <string name="audio_db_artist_name">Fy recordiadau FM</string>
+    <string name="audio_db_album_name">Recordiadau FM</string>
+    <string name="audio_db_playlist_name">Recordiadau FM</string>
+    <string name="station_name">Gorsaf:</string>
+    <string name="station_exists">Mae\'r amledd hwn yn bodoli eisoes!</string>
+    <string name="station_list_delete_station">Dileu: <xliff:g id="name">%s</xliff:g></string>
+    <string name="station_list_delete_station_prompt">Wyt ti\'n bendant am ddileu \'<xliff:g id="name">%s</xliff:g>\'?</string>
+    <string name="station_name_empty">Mae enw\'r orsaf yn wag. Rho fo eto, plîs.</string>
+    <string name="station_name_exist">Mae \'<xliff:g id="name">%s</xliff:g>\' eisoes yn cael ei ddefnyddio. Rho enw gwahanol.</string>
+    <string name="rt_plus_tags">Tagiau</string>
+    <string name="usr_def_band_min">Amledd isaf (MHz)</string>
+    <string name="usr_def_band_max">Amledd uchaf (MHz)</string>
+    <string name="chanl_spacing">Bylchiad gorsafoedd</string>
+    <string name="set">Gosod</string>
+    <string name="user_defind_band_msg">Rho amledd o 76.0 i 108.0 MHz gyda bylchu o leiaf 1 sianel a bwlch 100 kHz rhwng yr amledd isaf ac uchaf.</string>
+    <string name="save_record_file">Cadwyd y ffeil recordiad FM i \'<xliff:g id="record_file">%1$s</xliff:g>\'</string>
+    <string name="fm_search_no_results">Ni chanfuwyd unrhyw orsafoedd cytûn</string>
+    <string name="typ_All_stations">Pob orsaf</string>
+    <string name="typ_Culture">Diwylliant</string>
+    <string name="typ_Current_affairs">Materion cyfoes</string>
+    <string name="typ_Children">Rhaglenni plant</string>
+    <string name="typ_Country">Cerddoriaeth gwlad</string>
+    <string name="typ_Documentary">Dogfen</string>
+    <string name="typ_Drama">Drama</string>
+    <string name="typ_Easy_listening">Cerddoriaeth ysgafn</string>
+    <string name="typ_Education">Addysg</string>
+    <string name="typ_Emergency">Argyfwng</string>
+    <string name="typ_Emergency_test">Prawf argyfwng</string>
+    <string name="typ_Finance">Cyllid</string>
+    <string name="typ_Folk">Cerddoriaeth gwerin</string>
+    <string name="typ_Information">Gwybodaeth</string>
+    <string name="typ_Jazz">Cerddoriaeth jas</string>
+    <string name="typ_Light_classical">Clasurol ysgafn</string>
+    <string name="typ_Leisure">Hamdden</string>
+    <string name="typ_News">Newyddion</string>
+    <string name="typ_National">Cerddoriaeth cenedlaethol</string>
+    <string name="typ_Other">Cerddoriaeth arall</string>
+    <string name="typ_Oldies">Hen gerddoriaeth</string>
+    <string name="typ_Phone_in">Galw mewn</string>
+    <string name="typ_Pop">Cerddoriaeth pop</string>
+    <string name="typ_Religion">Crefydd</string>
+    <string name="typ_Rock">Cerddoriaeth roc</string>
+    <string name="typ_Science">Gwyddoniaeth</string>
+    <string name="typ_Serious_classical">Clasurol</string>
+    <string name="typ_Social_affairs">Materion cymdeithasol</string>
+    <string name="typ_Sport">Chwaraeon</string>
+    <string name="typ_Travel">Teithio</string>
+    <string name="typ_Varied">Amrywiol</string>
+    <string name="typ_Weather">Tywydd</string>
+    <string name="typ_Adult_hits">Poblogaidd</string>
+    <string name="typ_Classical">Clasurol</string>
+    <string name="typ_Classic_Rock">Roc Clasurol</string>
+    <string name="typ_College">Coleg</string>
+    <string name="typ_Foreign_language">Iaith dramor</string>
+    <string name="typ_Hiphop">Hip Hop</string>
+    <string name="typ_Nostalgia">Hiraeth</string>
+    <string name="typ_Personality">Personoliaeth</string>
+    <string name="typ_Public">Cyhoeddus</string>
+    <string name="typ_Religious_music">Cerddoriaeth crefyddol</string>
+    <string name="typ_Religious_talk">Sgwrsio crefyddol</string>
+    <string name="typ_Rhythm_and_Blues">Rhythm a Blues</string>
+    <string name="typ_Spanish_music">Cerddoriaeth Sbaeneg</string>
+    <string name="typ_Spanish_talk">Sgwrsio Sbaeneg</string>
+    <string name="typ_Soft">Meddal</string>
+    <string name="typ_Soft_Rock">Roc Meddal</string>
+    <string name="typ_Soft_Rhythm_and_Blues">Rhythm a Blues Meddal</string>
+    <string name="typ_Sports">Chwaraeon</string>
+    <string name="typ_Talk">Siarad</string>
+    <string name="typ_Top_40">40 Uchaf</string>
+</resources>

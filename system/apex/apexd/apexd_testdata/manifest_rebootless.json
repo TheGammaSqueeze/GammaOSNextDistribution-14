@@ -1,0 +1,9 @@
+{
+  "name": "test.apex.rebootless",
+  "version": 1,
+  "supportsRebootlessUpdate": true,
+  "requireNativeLibs": [
+    "libfoo",
+    "libbar"
+  ]
+}

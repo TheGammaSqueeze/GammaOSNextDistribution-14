@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2010-2011 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="2227320688818248940">"MusicFX"</string>
+    <string name="no_effects" msgid="9023408561505030260">"এফেক্ট উপলভ্য নেই।"</string>
+    <string name="eq_dialog_title" msgid="3237402214371962070">"ইকুয়ালাইজার"</string>
+    <string name="headset_plug" msgid="1774198554148807517">"এইসব এফেক্টের জন্য হেডফোন প্লাগ-ইন করুন।"</string>
+    <string name="bass_boost_strength" msgid="8643071340166812205">"অডিওর বেস বাড়ান"</string>
+    <string name="virtualizer_strength" msgid="2139410708760989842">"সারাউন্ড সাউন্ড"</string>
+    <string name="setup" msgid="4811197673396615722">"সেটআপ"</string>
+    <string name="normal" msgid="757786146857325609">"স্বাভাবিক"</string>
+    <string name="classical" msgid="1975693421508209132">"ধ্রুপদী"</string>
+    <string name="dance" msgid="212617702657103572">"নাচ"</string>
+    <string name="flat" msgid="2844441946717126606">"ফ্ল্যাট"</string>
+    <string name="folk" msgid="5648693824262941979">"লোকগীতি"</string>
+    <string name="heavy_metal" msgid="3885222304402494034">"হেভি মেটাল"</string>
+    <string name="hip_hop" msgid="4147534012796302488">"হিপ হপ"</string>
+    <string name="jazz" msgid="556328727821095055">"জ্যাজ"</string>
+    <string name="pop" msgid="8568493898002509539">"পপ"</string>
+    <string name="rock" msgid="4226553710464965901">"রক"</string>
+    <string name="ci_extreme" msgid="67259122484788490">"FX বুস্টার"</string>
+    <string name="user" msgid="8392147515328861077">"ব্যবহারকারী"</string>
+    <string name="picker_title" msgid="4756201760847390691">"মিউজিক এফেক্টের জন্য কন্ট্রোল প্যানেল"</string>
+</resources>

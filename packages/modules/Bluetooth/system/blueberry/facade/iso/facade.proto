@@ -1,0 +1,89 @@
+syntax = "proto3";
+
+package blueberry.facade.iso;
+
+import "google/protobuf/empty.proto";
+
+service IsoModuleFacade {
+  rpc LeSetCigParameters(LeSetCigParametersRequest) returns (google.protobuf.Empty) {}
+  rpc LeSetCigParametersTest(LeSetCigParametersTestRequest) returns (google.protobuf.Empty) {}
+  rpc LeCreateCis(LeCreateCisRequest) returns (google.protobuf.Empty) {}
+  rpc FetchIsoData(LeCisHandleMsg) returns (stream IsoPacket) {}
+  rpc FetchIsoEvents(google.protobuf.Empty) returns (stream LeIsoEventsMsg) {}
+  rpc SendIsoPacket(IsoPacket) returns (google.protobuf.Empty) {}
+}
+
+message IsoPacket {
+  uint32 handle = 1;
+  bytes payload = 3;
+}
+
+message LeSetCigParametersRequest {
+  uint32 cig_id = 1;
+  uint32 sdu_interval_m_to_s = 2;
+  uint32 sdu_interval_s_to_m = 3;
+  uint32 peripherals_clock_accuracy = 4;
+  uint32 packing = 5;
+  uint32 framing = 6;
+  uint32 max_transport_latency_m_to_s = 7;
+  uint32 max_transport_latency_s_to_m = 8;
+  uint32 cis_id = 9;
+  uint32 max_sdu_m_to_s = 10;
+  uint32 max_sdu_s_to_m = 11;
+  uint32 phy_m_to_s = 12;
+  uint32 phy_s_to_m = 13;
+  uint32 rtn_m_to_s = 14;
+  uint32 rtn_s_to_m = 15;
+}
+
+message LeSetCigParametersTestRequest {
+  uint32 cig_id = 1;
+  uint32 sdu_interval_m_to_s = 2;
+  uint32 sdu_interval_s_to_m = 3;
+  uint32 ft_m_to_s = 4;
+  uint32 ft_s_to_m = 5;
+  uint32 iso_interval = 6;
+  uint32 peripherals_clock_accuracy = 7;
+  uint32 packing = 8;
+  uint32 framing = 9;
+  uint32 max_transport_latency_m_to_s = 10;
+  uint32 max_transport_latency_s_to_m = 11;
+
+  message LeCisParametersTestConfig {
+    uint32 cis_id = 1;
+    uint32 nse = 2;
+    uint32 max_sdu_m_to_s = 3;
+    uint32 max_sdu_s_to_m = 4;
+    uint32 max_pdu_m_to_s = 5;
+    uint32 max_pdu_s_to_m = 6;
+    uint32 phy_m_to_s = 7;
+    uint32 phy_s_to_m = 8;
+    uint32 bn_m_to_s = 9;
+    uint32 bn_s_to_m = 10;
+  }
+
+  repeated LeCisParametersTestConfig cis_configs = 12;
+}
+
+message LeCreateCisRequest {
+  message HandlePair {
+    uint32 cis_handle = 1;
+    uint32 acl_handle = 2;
+  }
+
+  repeated HandlePair handle_pair = 1;
+}
+
+enum IsoMsgType {
+  ISO_PARAMETERS_SET_COMPLETE = 0;
+  ISO_CIS_ESTABLISHED = 1;
+}
+
+message LeIsoEventsMsg {
+  IsoMsgType message_type = 1;
+  repeated uint32 cis_handle = 2;
+}
+
+message LeCisHandleMsg {
+  uint32 handle = 1;
+}

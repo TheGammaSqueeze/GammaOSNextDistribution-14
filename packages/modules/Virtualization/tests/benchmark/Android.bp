@@ -1,0 +1,48 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "MicrodroidBenchmarkApp",
+    test_suites: [
+        "general-tests",
+    ],
+    srcs: ["src/java/**/*.java"],
+    static_libs: [
+        "MicrodroidDeviceTestHelper",
+        "MicrodroidTestHelper",
+        "androidx.test.runner",
+        "androidx.test.ext.junit",
+        "com.android.microdroid.testservice-java",
+        "truth",
+    ],
+    jni_libs: [
+        "MicrodroidBenchmarkNativeLib",
+        "MicrodroidIdleNativeLib",
+        "MicrodroidTestNativeLib",
+        "libiovsock_host_jni",
+    ],
+    jni_uses_platform_apis: true,
+    sdk_version: "test_current",
+    use_embedded_native_libs: true,
+    compile_multilib: "64",
+    required: ["perf-setup"],
+    host_required: ["MicrodroidTestPreparer"],
+    data: [":test_microdroid_vendor_image"],
+}
+
+cc_library_shared {
+    name: "MicrodroidBenchmarkNativeLib",
+    defaults: ["avf_build_flags_cc"],
+    srcs: ["src/native/*.cpp"],
+    local_include_dirs: ["src/native/include"],
+    static_libs: [
+        "com.android.microdroid.testservice-ndk",
+    ],
+    shared_libs: [
+        "libbase",
+        "libbinder_ndk",
+        "liblog",
+        "libvm_payload#current",
+    ],
+}

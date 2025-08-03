@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2024 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="dock_pin_shortcut_label" msgid="7319916279393348946">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‏‎‎‏‏‎‎‎‎‎‎‏‏‏‏‏‏‏‏‏‎‎‏‎‏‏‎‎‏‎‏‎‏‏‎‎‏‎‎‎‏‎‎‎‏‎‎‏‎‏‏‎‏‎‎‏‎‏‏‎‏‎‏‏‎‏‏‏‎‏‏‎‏‎‏‎‏‎‎‏‎‎Pin app‎‏‎‎‏‎"</string>
+    <string name="dock_unpin_shortcut_label" msgid="1657441916649851101">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‏‎‎‏‏‎‎‎‎‎‎‏‏‏‏‏‎‏‏‎‏‏‏‎‎‎‎‎‎‎‎‎‏‏‎‏‎‏‎‏‎‏‎‎‏‎‎‎‏‎‎‎‏‎‏‏‏‎‎‎‎‎‏‏‏‎‎‏‎‎‎‏‏‎‏‏‏‎‏‎Unpin app‎‏‎‎‏‎"</string>
+    <string name="stop_app_shortcut_label" msgid="5893149773635675147">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‏‎‎‏‏‎‎‎‎‎‎‏‏‏‏‏‏‏‏‎‏‎‎‎‏‏‏‎‎‏‎‎‎‏‎‏‎‏‏‎‎‎‏‏‏‏‏‏‎‏‏‏‏‎‎‎‏‏‎‏‏‏‎‏‎‎‏‏‎‎‏‎‎‎‎‎‎‏‎‏‏‎Stop app‎‏‎‎‏‎"</string>
+    <string name="app_info_shortcut_label" msgid="6724408677044314793">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‏‎‎‏‏‎‎‎‎‎‎‏‏‏‏‏‏‏‏‎‏‏‏‎‏‎‏‎‏‎‎‎‏‏‏‏‎‎‏‏‎‎‎‎‏‎‎‎‎‎‏‏‏‎‏‏‏‏‏‎‎‎‏‏‏‏‏‏‎‎‎‏‎‏‎‏‎‏‎‎‏‎App info‎‏‎‎‏‎"</string>
+    <string name="stop_app_dialog_title" msgid="7027389231920405129">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‏‎‎‏‏‎‎‎‎‎‎‏‏‏‏‏‏‏‏‏‎‎‎‎‏‏‎‎‎‎‏‏‎‎‏‎‎‏‏‎‏‎‏‎‎‎‏‏‎‎‎‎‏‎‎‏‏‎‎‎‎‎‏‎‏‎‏‎‏‏‎‏‎‏‎‎‎‏‎‎‏‎Stop app?‎‏‎‎‏‎"</string>
+    <string name="stop_app_dialog_text" msgid="4997162043741899166">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‏‎‎‏‏‎‎‎‎‎‎‏‏‏‏‏‏‏‏‎‎‎‏‎‏‎‏‎‏‏‎‎‏‎‏‏‏‏‏‎‎‎‏‏‎‎‏‏‏‎‎‎‏‎‏‏‎‎‏‎‎‏‏‎‏‎‎‎‎‏‎‎‏‏‎‎‏‏‏‏‎‎If you force stop an app, it may misbehave.‎‏‎‎‏‎"</string>
+    <string name="stop_app_success_toast_text" msgid="3740858295088091414">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‏‎‎‏‏‎‎‎‎‎‎‏‏‏‏‏‏‎‏‏‎‎‏‏‏‏‏‎‏‎‏‎‎‎‏‏‎‎‏‎‏‏‎‎‏‏‎‎‏‎‏‎‏‎‎‏‏‏‎‎‏‏‎‎‏‎‎‏‎‎‎‏‎‎‎‏‎‏‏‎‎‎‏‎‎‏‏‎<xliff:g id="APP_NAME">%1$s</xliff:g>‎‏‎‎‏‏‏‎ has been stopped.‎‏‎‎‏‎"</string>
+</resources>

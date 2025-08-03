@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2010 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label">Luchdaidhean a-nuas</string>
+    <string name="download_title_sorted_by_date">Luchdaidhean a-nuas – a-rèir cinn-là</string>
+    <string name="download_title_sorted_by_size">Luchdaidhean a-nuas – a-rèir meud</string>
+    <string name="no_downloads">Chan eil luchdadh a-nuas ann.</string>
+    <string name="missing_title">&lt;Neo-aithnichte&gt;</string>
+    <string name="button_sort_by_size">Seòrsaich a-rèir meud</string>
+    <string name="button_sort_by_date">Seòrsaich a-rèir cinn-là</string>
+    <string name="download_queued">Sa chiutha</string>
+    <string name="download_running">’Ga luchdadh a-nuas</string>
+    <string name="download_success">Deiseil</string>
+    <string name="download_error">Cha deach leis</string>
+    <string name="dialog_title_not_available">Cha deach seo a luchdadh a-nuas</string>
+    <string name="dialog_failed_body">Am feuch thu ri luchdadh a-nuas an fhaidhle uaireigin eile
+          no an sguab thu às on chiutha e?</string>
+    <string name="dialog_title_queued_body">Fhaidhle sa chiudha</string>
+    <string name="dialog_queued_body">Tha am faidhle seo ann an ciutha nan luchdaidhean a-nuas ’s chan eil e ri fhaighinn fhathast.</string>
+    <string name="dialog_file_missing_body">Cha do lorg sinn am faidhle a chaidh a luchdadh a-nuas.</string>
+    <string name="dialog_insufficient_space_on_external">Chan urrainn dhuinn an luchdadh a-nuas a choileanadh. Tha àite a dhìth air an stòras air an taobh a-muigh.</string>
+    <string name="dialog_insufficient_space_on_cache">Chan urrainn dhuinn an luchdadh a-nuas a choileanadh. Tha àite a dhìth air an stòras air an taobh a-staigh.</string>
+    <string name="dialog_cannot_resume">Bhris rudeigin a-steach air an luchdadh a-nuas seo agus cha ghabh leantainn air adhart leis.</string>
+    <string name="dialog_file_already_exists">Cha ghabh a luchdadh a-nuas. Tha am faidhle-uidhe ann mu thràth.
+    </string>
+    <string name="dialog_media_not_found">Cha ghabh a luchdadh a-nuas. Chan eil am meadhan air an taobh a-muigh ri fhaighinn.
+    </string>
+    <string name="download_no_application_title">Chan urrainn dhuinn am faidhle fhosgladh</string>
+    <string name="remove_download">Thoir air falbh</string>
+    <string name="delete_download">Sguab às</string>
+    <string name="keep_queued_download">Cùm</string>
+    <string name="cancel_running_download">Sguir dheth</string>
+    <string name="retry_download">Feuch ris a-rithist</string>
+    <string name="start_now_download">Tòisich an-dràsta</string>
+    <string name="deselect_all">Dì-thagh na h-uile</string>
+    <string name="select_all">Tagh na h-uile</string>
+    <string name="selected_count">Chaidh <xliff:g id="number" example="3">%1$d</xliff:g> à <xliff:g id="total" example="15">%2$d</xliff:g>a thaghadh</string>
+    <string name="download_share_dialog">Co-roinn slighe</string>
+</resources>

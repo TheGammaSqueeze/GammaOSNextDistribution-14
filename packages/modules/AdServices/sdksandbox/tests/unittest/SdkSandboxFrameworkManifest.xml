@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="android.app.sdksandbox.tests" >
+
+    <queries>
+        <package android:name="com.android.codeproviderresources_1" />
+    </queries>
+
+    <application android:debuggable="true">
+        <uses-library android:name="android.test.runner" />
+        <uses-sdk-library android:name="com.android.codeproviderresources" android:versionMajor="1"
+        android:certDigest="0B:44:2D:88:FA:A7:B3:AD:23:8D:DE:29:8A:A1:9B:D5:62:03:92:0B:BF:D8:D3:EB:C8:99:33:2C:8E:E1:15:99" />
+    </application>
+
+    <instrumentation android:name="androidx.test.runner.AndroidJUnitRunner"
+                     android:targetPackage="android.app.sdksandbox.tests"
+                     android:label="SdkSandboxFramework unit tests"/>
+</manifest>
+

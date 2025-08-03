@@ -1,0 +1,22 @@
+[Unit]
+Description=Floss Bluetooth Adapter service
+Documentation=man:btadapterd(8)
+ConditionPathIsDirectory=/sys/class/bluetooth
+After=bluetooth.target btmanagerd.service
+
+[Service]
+Type=dbus
+BusName=org.chromium.bluetooth
+ExecStart=/usr/libexec/bluetooth/btadapterd --hci=%i
+ExecStartPost=/usr/bin/rm -f /var/run/bluetooth/bluetooth%i.pid
+TimeoutStopSec=3
+TimeoutStartSec=5
+NotifyAccess=main
+CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
+LimitNPROC=1
+ProtectHome=true
+ProtectSystem=full
+
+[Install]
+WantedBy=bluetooth.target btmanagerd.service
+Alias=dbus-org.btadapterd.service

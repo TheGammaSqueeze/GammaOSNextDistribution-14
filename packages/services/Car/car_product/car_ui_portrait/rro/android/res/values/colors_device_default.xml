@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--title bars-->
+    <color name="primary_device_default_dark">@color/car_primary</color>
+    <color name="primary_device_default_light">@color/car_primary</color>
+
+    <color name="primary_device_default_settings">@color/car_primary</color>
+    <color name="primary_device_default_settings_light">@color/car_primary</color>
+    <color name="primary_dark_device_default_dark">@color/car_primary</color>
+    <color name="primary_dark_device_default_light">@color/car_primary</color>
+    <color name="primary_dark_device_default_settings">@color/car_primary</color>
+    <color name="primary_dark_device_default_settings_light">@color/car_primary</color>
+    <color name="secondary_device_default_settings">@color/car_secondary</color>
+    <color name="secondary_device_default_settings_light">@color/car_secondary</color>
+    <color name="tertiary_device_default_settings">@color/car_tertiary</color>
+    <color name="quaternary_device_default_settings">@color/car_tertiary</color>
+    <color name="navigation_bar_divider_device_default_settings">@android:color/transparent</color>
+
+    <!--  Accent colors edit  -->
+    <color name="accent_device_default_light">@color/accent_device_default</color>
+    <color name="accent_device_default_dark">@color/accent_device_default</color>
+    <color name="accent_device_default">@color/car_primary</color>
+    <color name="accent_primary_device_default">#00ffff</color>
+    <color name="accent_secondary_device_default">@color/car_secondary</color>
+    <color name="accent_tertiary_device_default">@color/car_tertiary</color>
+
+    <!-- Accent variants edit -->
+    <color name="accent_primary_variant_light_device_default">@color/car_primary_container</color>
+    <color name="accent_secondary_variant_light_device_default">@color/car_secondary_container</color>
+    <color name="accent_tertiary_variant_light_device_default">@color/car_tertiary_container</color>
+    <color name="accent_primary_variant_dark_device_default">@color/car_primary_container</color>
+    <color name="accent_secondary_variant_dark_device_default">@color/car_secondary_container</color>
+    <color name="accent_tertiary_variant_dark_device_default">@color/car_tertiary_container</color>
+
+    <!-- Background colors -->
+    <color name="colorBackground">@color/car_background</color>
+    <color name="background_device_default_dark">@color/car_background</color>
+    <color name="background_device_default_light">@color/car_background</color>
+    <color name="background_device_default">@color/car_background</color>
+    <color name="background_floating_device_default_dark">@color/car_background</color>
+    <color name="background_floating_device_default_light">@color/car_background</color>
+
+    <!-- Surface colors -->
+    <color name="surface_header_dark">@color/car_surface</color>
+    <color name="surface_header_light">@color/car_surface</color>
+    <color name="surface_variant_dark">@color/car_surface_variant</color>
+    <color name="surface_variant_light">@color/car_surface_variant</color>
+    <color name="surface_dark">@color/car_surface</color>
+    <color name="surface_highlight_light">@color/car_surface</color>
+
+    <!-- Please refer to text_color_[primary]_device_default_[light].xml for text colors-->
+    <color name="foreground_device_default_dark">@color/car_on_surface</color>
+    <color name="foreground_device_default_light">@color/car_on_surface</color>
+    <color name="foreground_device_default">@color/car_on_surface</color>
+
+    <color name="list_divider_color_light">@color/car_outline</color>
+    <color name="list_divider_color_dark">@color/car_outline</color>
+    <color name="list_divider_opacity_device_default_light">@color/car_outline</color>
+    <color name="list_divider_opacity_device_default_dark">@color/car_outline</color>
+
+    <color name="loading_gradient_background_color_dark">#F8F9FA</color>
+    <color name="loading_gradient_background_color_light">#44484C</color>
+    <color name="loading_gradient_highlight_color_dark">#F1F3F4</color>
+    <color name="loading_gradient_highlight_color_light">#4D5155</color>
+
+    <color name="edge_effect_device_default_light">@android:color/white</color>
+    <color name="edge_effect_device_default_dark">@android:color/black</color>
+
+    <color name="floating_background_color">@color/car_surface_2</color>
+
+    <color name="error_color_device_default_dark">@color/car_error</color>
+    <color name="error_color_device_default_light">@color/car_error</color>
+    <color name="error_color_device_default">@color/car_error</color>
+
+    <color name="list_divider_color">@color/car_outline</color>
+</resources>

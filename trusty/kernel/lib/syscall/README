@@ -1,0 +1,62 @@
+libsyscall: A system call handling framework
+============================================
+
+libsyscall provides a table based framework for handling system calls. A
+user of this library just provides a file named syscall_table.h with a
+table of function pointers defined using the DEF_SYSCALL macro:
+
+DEF_SYSCALL(nr, fn, rtype, nargs, ...)
+
+nr : system call number to use. Should not be zero or negative
+fn : name of the system call. E.g, "read", "write" etc.
+rtype: type of return value for this syscall
+nargs: number of arguments accepted by this system call. System calls
+supported by this library can take upto 4 arguments.
+
+These parameters are followed by types (and optionally names) names of
+arguments to the system call. This information is useful for
+auto-generating C function prototypes for userspace (see below).
+
+An example system call table:
+
+DEF_SYSCALL(0x3, read, long, 3, uint32_t fd, void* msg, uint32_t size)
+DEF_SYSCALL(0x4, write, long, 3, uint32_t fd, void* msg, uint32_t size)
+DEF_SYSCALL(0x5, open, long, 0)
+DEF_SYSCALL(0x2d, brk, long, 1, uint32_t brk)
+DEF_SYSCALL(0x36, ioctl, long, 3, uint32_t d, uint32_t req, void *msg)
+DEF_SYSCALL(0x4e, gettimeofday, long, 0)
+DEF_SYSCALL(0x5b, munmap, long, 2, addr_t addr, uint32_t size)
+DEF_SYSCALL(0x7d, mprotect, long, 0)
+DEF_SYSCALL(0xa2, usleep, long, 1, struct timespec *ts)
+DEF_SYSCALL(0xc0, mmap2, long, 4, addr_t addr, uint32_t length, uint32_t prot, uint32_t flags)
+DEF_SYSCALL(0xc5, fstat, long, 0)
+DEF_SYSCALL(0xdc, madvise, long, 0)
+DEF_SYSCALL(0xe0, gettid, long, 0)
+DEF_SYSCALL(0xf8, exit_group, long, 0)
+DEF_SYSCALL(0x107, clock_gettime, long, 0)
+
+Function names get expanded to sys_{fn_name} by the macro in the kernel.
+In the table above, syscall 0x3 "read" causes sys_read() to be called,
+and syscall 0x4 causes sys_write() to be called by the syscall hander.
+
+Syscall vector handler and ABI
+==============================
+
+The system call vector handler provided as part of this library simply
+jumps to the right function in the table based on system call number
+provided in a register.
+
+The system call ABI for a given architecture is documented in
+arch/$(ARCH)/syscall.S
+
+System calls are executed with interrupts turned on.
+
+Stub and C prototype autogeneration
+===================================
+
+This library also provides a python script to generate system call stub
+functions for userspace in GNU assembler syntax and a C header file with
+macros defining syscall numbers and C function prototypes for all
+functions. For more info:
+
+python stubgen.py --help

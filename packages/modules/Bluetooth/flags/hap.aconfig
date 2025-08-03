@@ -1,0 +1,10 @@
+package: "com.android.bluetooth.flags"
+container: "com.android.btservices"
+
+flag {
+    name: "settings_can_control_hap_preset"
+    namespace: "bluetooth"
+    description: "Allow user to control the preset of hearing aid devices"
+    bug: "306236481"
+}
+

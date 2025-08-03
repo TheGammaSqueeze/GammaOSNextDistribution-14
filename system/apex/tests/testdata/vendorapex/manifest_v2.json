@@ -1,0 +1,5 @@
+{
+  "name": "com.android.apex.vendor.foo",
+  "version": 2,
+  "supportsRebootlessUpdate": true
+}

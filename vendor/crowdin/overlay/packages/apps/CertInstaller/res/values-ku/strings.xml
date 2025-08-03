@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2009 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">دابەزێنەری بڕوانامە</string>
+    <string name="pick_file_title">بڕوانامەیەک هەڵبژێرە</string>
+    <string name="pkcs12_password_dialog_title">دەرهێنانی بڕوانامە</string>
+    <string name="extracting_pkcs12">دەرهێنانی\u2026</string>
+    <string name="pkcs12_file_password_dialog_title">دەرهێنان لە %s</string>
+    <string name="credential_password">تێپەڕە ووشە بنوسە بۆ دەرهێنانی بڕوانامەکان.</string>
+    <string name="credential_info">پێکهاتەکانی پێچراو:</string>
+    <string name="p12_description">بڕوانامه‌ له‌ کلیلی PKCS12 .</string>
+    <string name="one_userkey">یەک کلیلی بەکارهێنەر</string>
+    <string name="one_usercrt">یەک بڕوانامەی بەکارهێنەر</string>
+    <string name="one_cacrt">CA یەک بڕوانامەی</string>
+    <string name="n_cacrts">%d CA بڕوانامە</string>
+    <string name="password_error">تێپەڕە ووشەی دروست بنوسە.</string>
+    <string name="password_empty_error">تێپەڕە ووشە بنوسە.</string>
+    <string name="name_empty_error">ناوێک بنوسە.</string>
+    <string name="name_char_error">ناوێک بنووسە تەنها پیتەکان و ژمارەکان لە خۆ بگرێت.</string>
+    <string name="unable_to_save_cert">نەیتوانی بڕوانامەکە پاشەکەوت بکات. بیرگەی بڕواپێدەر چالاک نەکراوە یان بە شێوەی گونجاو کار ناکات.</string>
+    <string name="cert_not_saved">بڕوانامەکە دانەمەزراوە.</string>
+    <string name="no_cert_to_saved">هیچ بڕوانامەیەک نیە بۆ دابەزاندن.</string>
+    <string name="invalid_cert">بروانامە نادروستە.</string>
+    <string name="cert_too_large_error">ناتوانرێت دابمەزرێت چونکە قەبارەی فایلی بڕوانامە ئێجگار زۆرە.</string>
+    <string name="cert_missing_error">ناتوانرێت دابمەزرێت چونکە فایلی بڕوانامە نادۆزرێتەوە.</string>
+    <string name="cert_read_error">ناتوانرێت دابمەزرێت چونکە فایلی بڕوانامە ناخوێندرێتەوە.</string>
+    <string name="only_primary_user_allowed">تەنها خاوەنی ئەم ئامێرە رێگەی دامەزراندنی بڕوانامەکانی هەیە.</string>
+    <string name="credential_usage_label">بەکار بردنی بڕواپێدەر:</string>
+    <string-array name="credential_usage">
+        <item>VPN بەرنامەکان و</item>
+        <item>Wi-Fi</item>
+    </string-array>
+</resources>

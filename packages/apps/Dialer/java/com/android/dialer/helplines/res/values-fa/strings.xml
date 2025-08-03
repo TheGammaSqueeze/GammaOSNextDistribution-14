@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2019-2021 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="helplines_name">خطوط راهنما</string>
+    <string name="helplines_loading">در حال بارگیری\u2026</string>
+    <string name="helplines_empty">خطوط راهنما یافت نشد.\nسیم کارت را وارد کنید و دوباره امتحان کنید</string>
+    <string name="helplines_help">راهنما</string>
+    <string name="helplines_help_title">تماس با اینها ایمن است</string>
+    <string name="helplines_help_message">هیچ یک از این شماره ها در سابقه تماس شما ظاهر نمی شود.\nبرای اطلاعات بیشتر می توانید روی هر مورد کلیک کنید</string>
+    <string name="helplines_help_more_message">فهرست راهنما ها با اطلاعاتی پر شده که توسط داوطلبان به شکل دستی بروزرسانی می‌شوند. اگر به هر کاستی یا اطلاعات نادرستی برخوردید، با خیال راحت با ما در <xliff:g id="helplines_contact_url" example="www.lineageos.org">%1$s</xliff:g> تماس بگیرید.</string>
+    <string name="helpline_button_more">بیشتر</string>
+    <string name="unknown_helpline_name">سازمان ناشناخته</string>
+    <string name="helpline_name">نام</string>
+    <string name="helpline_org">سازمان</string>
+    <string name="helpline_categories">دسته بندی‌ها</string>
+    <string name="helpline_number">شماره</string>
+    <string name="helpline_website">وب سایت</string>
+    <string name="helpline_name_format_country"><xliff:g id="helpline_name" example="Emotional Support Helpline">%1$s</xliff:g> (<xliff:g id="helpline_county" example="US">%2$s</xliff:g>)</string>
+    <string name="helpline_language_cree">کری</string>
+    <string name="helpline_language_english">انگلیسی</string>
+    <string name="helpline_language_french">فرانسوی</string>
+    <string name="helpline_language_german">آلمانی</string>
+    <string name="helpline_language_inuktitut">اینوکتیتاک</string>
+    <string name="helpline_language_ojibway">اوجیبوی</string>
+    <string name="helpline_language_turkish">ترکی</string>
+</resources>

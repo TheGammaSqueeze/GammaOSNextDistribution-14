@@ -1,0 +1,37 @@
+plugins {
+    id 'com.google.protobuf'
+}
+
+ext {
+    // http://cs/h/android/platform/superproject/main/+/main:external/protobuf/version.json
+    // TODO: protobuf_version should be "3.21.7", but upgrading causes a lot of build failures,
+    // and the fix is non-trivial because of our usage of javanano
+    protobuf_version = "3.0.0"
+}
+
+dependencies {
+    api "com.google.protobuf:protobuf-lite:${protobuf_version}"
+}
+
+protobuf {
+    // Configure the protoc executable
+    protoc {
+        artifact = "com.google.protobuf:protoc:${protobuf_version}${PROTO_ARCH_SUFFIX}"
+    }
+    generateProtoTasks {
+        all().each { task ->
+            task.builtins {
+                remove java
+            }
+            task.plugins {
+                javalite {}
+            }
+        }
+    }
+    plugins {
+        javalite {
+            // The codegen for lite comes as a separate artifact
+            artifact = "com.google.protobuf:protoc-gen-javalite:${protobuf_version}${PROTO_ARCH_SUFFIX}"
+        }
+    }
+}

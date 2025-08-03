@@ -1,0 +1,78 @@
+{
+  "description": "W2W same registrant test for trigger-aggregate-no-contributions debug reports.",
+  "input": {
+    "web_sources": [
+      {
+        "registration_request": {
+          "source_origin": "android-app://example.1s1.test",
+          "source_type": "navigation",
+          "web_destination": "https://example.2d1.test",
+          "registrant": "example.1r1.test",
+          "source_params": [{
+            "attribution_src_url": "https://www.ad-tech1.test"
+          }]
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "debug_permission" : true,
+          "response": {
+            "Attribution-Reporting-Register-Source": {
+              "source_event_id": "1",
+              "web_destination": "https://example.2d1.test",
+              "aggregation_keys": {
+                "a": "0x1"
+              },
+              "debug_key": "347982378"
+            }
+          }
+        }],
+        "timestamp": "1643235573000"
+      }
+    ],
+    "web_triggers": [
+      {
+        "registration_request": {
+          "destination_origin": "https://example.2d1.test",
+          "registrant": "example.1r1.test",
+          "trigger_params": [{
+            "attribution_src_url": "https://www.ad-tech1.test"
+          }]
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "debug_permission" : true,
+          "response": {
+            "Attribution-Reporting-Register-Trigger": {
+              "aggregatable_values": {
+                "d": 987
+              },
+              "debug_reporting": true,
+              "debug_key": "8971346781"
+            }
+          }
+        }],
+        "timestamp": "1643235574000"
+      }
+    ]
+  },
+  "output": {
+    "verbose_debug_reports": [
+      {
+        "report_time": "1643235574000",
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/debug/verbose",
+        "payload": [
+          {
+            "type": "trigger-aggregate-no-contributions",
+            "body": {
+              "attribution_destination": "https://2d1.test",
+              "trigger_debug_key": "8971346781",
+              "source_debug_key": "347982378",
+              "source_event_id": "1",
+              "source_site":"android-app://1s1.test"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

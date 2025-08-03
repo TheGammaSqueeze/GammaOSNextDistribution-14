@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2021 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources>
+    <!-- Gears texts [CHAR LIMIT=1] -->
+    <string name="gear_parked" translatable="false">P</string>
+    <string name="gear_reverse" translatable="false">R</string>
+    <string name="gear_neutral" translatable="false">N</string>
+    <string name="gear_drive" translatable="false">D</string>
+
+    <!-- Information labels (shown next to driving directions) [CHAR LIMIT=30] -->
+    <string name="info_fuel_label" translatable="false">Fuel</string>
+    <string name="info_speed_label" translatable="false">Speed</string>
+    <string name="info_range_label" translatable="false">Range</string>
+    <string name="info_rpm_label" translatable="false">RPM</string>
+    <string name="info_value_empty" translatable="false">-</string>
+
+    <!-- Marker used to insert images inside rich-text strings. This string is never shown or spoken
+         to the user. Instead a image would be rendered in its place -->
+    <string name="span_image" translatable="false">[Image]</string>
+</resources>

@@ -1,0 +1,124 @@
+model {
+  main {
+    operands {
+      operand {
+        type: TENSOR_QUANT8_ASYMM_SIGNED
+        dimensions {
+          dimension: 5
+          dimension: 52
+          dimension: 60
+          dimension: 3
+        }
+        scale: 0.5
+        zero_point: -128
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 1531839532
+        }
+      }
+      operand {
+        type: INT32
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 5
+        }
+      }
+      operand {
+        type: INT32
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 5
+        }
+      }
+      operand {
+        type: INT32
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 10
+        }
+      }
+      operand {
+        type: INT32
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 0
+        }
+      }
+      operand {
+        type: TENSOR_QUANT8_ASYMM_SIGNED
+        dimensions {
+          dimension: 5
+          dimension: 11
+          dimension: 13
+          dimension: 3
+        }
+        scale: 0.5
+        zero_point: -128
+        lifetime: SUBGRAPH_OUTPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 793615108
+        }
+      }
+    }
+    operations {
+      operation {
+        type: AVERAGE_POOL_2D
+        inputs {
+          index: 0
+          index: 1
+          index: 1
+          index: 1
+          index: 1
+          index: 2
+          index: 2
+          index: 3
+          index: 3
+          index: 4
+        }
+        outputs {
+          index: 5
+        }
+      }
+    }
+    input_indexes {
+      index: 0
+    }
+    output_indexes {
+      index: 5
+    }
+  }
+  referenced {
+  }
+}

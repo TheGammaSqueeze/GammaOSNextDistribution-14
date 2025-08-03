@@ -1,0 +1,15 @@
+{
+  "presubmit": [
+    {
+      "name": "libapexsupport.ffi.tests"
+    },
+    {
+      "name": "libapexsupport-tests-vendor"
+    }
+  ],
+  "postsubmit": [
+    {
+      "name": "libapexsupport-tests-apex"
+    }
+  ]
+}

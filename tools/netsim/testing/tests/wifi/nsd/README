@@ -1,0 +1,6 @@
+Instrumentation testing for Wifi network service discovery (NSD).
+
+Local test
+
+1. Launch two virtual devices with userdebug (Google APIs) build.
+2. Run `atest WifiNsdTestCases`.

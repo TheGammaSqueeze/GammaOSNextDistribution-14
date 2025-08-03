@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="bluetooth_sap_notif_title" msgid="7854456947435963346">"ಬ್ಲೂಟೂತ್ ಸಿಮ್ ಆ್ಯಕ್ಸೆಸ್"</string>
+    <string name="bluetooth_sap_notif_ticker" msgid="7295825445933648498">"ಬ್ಲೂಟೂತ್ ಸಿಮ್ ಆ್ಯಕ್ಸೆಸ್"</string>
+    <string name="bluetooth_sap_notif_message" msgid="1004269289836361678">"ಕಡಿತಗೊಳಿಸಲು ಕ್ಲೈಂಟ್ ಅನ್ನು ವಿನಂತಿಸುವುದೇ?"</string>
+    <string name="bluetooth_sap_notif_disconnecting" msgid="6041257463440623400">"ಕಡಿತಗೊಳಿಸಲು ಕ್ಲೈಂಟ್‌ಗೆ ನಿರೀಕ್ಷಿಸಲಾಗುತ್ತಿದೆ"</string>
+    <string name="bluetooth_sap_notif_disconnect_button" msgid="3059012556387692616">"ಸಂಪರ್ಕ ಕಡಿತಗೊಳಿಸಿ"</string>
+    <string name="bluetooth_sap_notif_force_disconnect_button" msgid="2239425242376623998">"ಒತ್ತಾಯದ ಕಡಿತಗೊಳಿಸುವಿಕೆ"</string>
+</resources>

@@ -1,0 +1,35 @@
+
+package {
+    default_applicable_licenses: ["system_tools_aidl_license"],
+}
+
+// Example usage:
+//
+//   m aidl_redundancy_check
+//   aidl_redundancy_check \
+//     --installed-files-json $OUT/installed-files.json \
+//     --aidl-metadata-json $ANDROID_BUILD_TOP/out/soong/.intermediates/system/tools/aidl/build/aidl_metadata_json/aidl_metadata.json
+rust_binary_host {
+    name: "aidl_redundancy_check",
+    srcs: ["srcs/main.rs"],
+    rustlibs: [
+        "libanyhow",
+        "libregex",
+        "libserde",
+        "libserde_json",
+        "libclap",
+    ],
+}
+
+rust_test_host {
+    name: "aidl_redundancy_check.test",
+    srcs: ["srcs/main.rs"],
+    rustlibs: [
+        "libanyhow",
+        "libregex",
+        "libserde",
+        "libserde_json",
+        "libclap",
+    ],
+    test_suites: ["general-tests"],
+}

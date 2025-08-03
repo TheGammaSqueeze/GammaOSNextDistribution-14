@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/**
+ * Copyright (C) 2014 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="app_label">Configuración del perfil llaboral</string>
+  <string name="provisioning_error_title">¡Meca!</string>
+  <string name="setup_work_profile">Configuración del perfil llaboral</string>
+  <string name="the_following_is_your_mdm">L\'aplicación siguiente tien d\'acceder a esti perfil:</string>
+  <string name="the_following_is_your_mdm_for_device">L\'aplicación siguiente va xestionar el preséu:</string>
+  <string name="next">Siguiente</string>
+  <string name="setting_up_workspace">Configurando\'l perfil llaboral\u2026</string>
+  <string name="admin_has_ability_to_monitor_profile">L\'alministrador de TI pue supervisar y xestionar la configuración, l\'accesu corporativu, los permisos, les aplicaciones, los datos y l\'actividá na rede asociaos a esti perfil, amás del historial de llamaes y l\'historial de la busca de contautos.\n\nPonte en contautu col alministrador de TI pa consiguir más información y saber más tocante a les polítiques de privacidá de la to organización.</string>
+  <string name="admin_has_ability_to_monitor_device">L\'alministrador de TI tien la capacidá de supervisar y xestionar la configuración, l\'accesu corporativu, los permisos, les aplicaciones y los datos asociaos a esti preséu (<xliff:g id="device_name" example="Pixel">%1$s</xliff:g>), incluyida l\'actividá de rede, la llocalización del preséu, l\'historial de llamaes y l\'historial de la busca de contautos.<xliff:g id="line_break">\n\n</xliff:g>Ponte en contautu col alministrador de TI pa consiguir más información, como les polítiques de privacidá de la to organización.</string>
+  <string name="contact_your_admin_for_more_info">Ponte en contautu col alministrador de TI pa consiguir más información, como les polítiques de privacidá de la to organización.</string>
+  <string name="cancel_setup">Encaboxar</string>
+  <string name="ok_setup">D\'acuerdu</string>
+  <string name="url_error">Nun se pue amosar esti enllaz.</string>
+  <string name="navigation_button_description">Desplazase p\'arriba</string>
+  <string name="terms">Términos</string>
+  <string name="work_profile_info">Información del perfil llaboral</string>
+  <string name="default_managed_profile_name">Perfil llaboral</string>
+  <string name="delete_profile_title">¿Quies desaniciar el perfil esistente?</string>
+  <string name="delete_profile">Desaniciar</string>
+  <string name="cancel_delete_profile">Encaboxar</string>
+  <string name="encrypt_device_text_for_profile_owner_setup">Pa configurar el perfil llaboral hai que cifrar el preséu (<xliff:g id="device_name" example="Pixel">%1$s</xliff:g>). Esta aición pue tardar un tiempu.</string>
+  <string name="encrypt_device_text_for_device_owner_setup">Pa configurar el preséu (<xliff:g id="device_name" example="Pixel">%1$s</xliff:g>), primero hai que lu cifrar. Esta aición pue tardar un tiempu.</string>
+  <string name="encrypt_this_device_question">¿Cifrar esti preséu?</string>
+  <string name="encrypt">Cifrar</string>
+  <string name="continue_provisioning_notify_text">Toca pa siguir configurando\'l perfil llaboral</string>
+  <string name="cant_replace_or_remove_work_profile">Nun se pue sustituyir nin quitar el perfil llaboral</string>
+  <string name="work_profile_cant_be_added_contact_admin">Nun se pue amestar el perfil llaboral a esti preséu (<xliff:g id="device_name" example="Pixel">%1$s</xliff:g>). Si tienes entrugues, ponte en contautu col alministrador de TI.</string>
+  <string name="cancel_provisioning">Encaboxar</string>
+  <string name="pick_launcher">D\'acuerdu</string>
+  <string name="device_doesnt_allow_encryption_contact_admin">Esti preséu (<xliff:g id="device_name" example="Pixel">%1$s</xliff:g>) nun permite\'l cifráu, que ye necesariu pa la configuración. Pa consiguir ayuda, ponte en contautu col alministrador de TI.</string>
+  <string name="stop_setup_reset_device_question">¿Quies parar la configuración y reafitar esti preséu (<xliff:g id="device_name" example="Pixel">%1$s</xliff:g>)?</string>
+  <string name="this_will_reset_take_back_first_screen">Esta aición va reafitar esti preséu (<xliff:g id="device_name" example="Pixel">%1$s</xliff:g>) y va volver llevate a la primer pantalla</string>
+  <string name="device_owner_cancel_cancel">Encaboxar</string>
+  <string name="device_owner_error_ok">D\'acuerdu</string>
+  <string name="cant_set_up_profile">Nun se pue configurar el perfil</string>
+  <string name="cant_set_up_device">Nun se pue configurar el preséu</string>
+  <string name="something_went_wrong">Prodúxose un error</string>
+  <string name="couldnt_set_up_device">Nun se pudo configurar el preséu. Pa consiguir ayuda, ponte en contautu col alministrador de TI.</string>
+  <string name="contact_your_admin_for_help">Ponte en contautu col alministrador de TI pa consiguir ayuda</string>
+  <string name="reset_device">Reafita esti preséu (<xliff:g id="device_name" example="Pixel">%1$s</xliff:g>) y volvi probar a configuralu</string>
+  <string name="device_already_set_up">«<xliff:g id="device_name" example="Pixel">%1$s</xliff:g>» yá ta configuráu</string>
+  <string name="error_wifi">Nun se pudo conectar a la Wi-Fi</string>
+  <string name="device_has_reset_protection_contact_admin">El preséu (<xliff:g id="device_name" example="Pixel">%1$s</xliff:g>) tien activada la proteición escontra\'l reafitamientu. Pa consiguir ayuda, ponte en contautu col alministrador de TI.</string>
+  <string name="frp_clear_progress_text">Espera…</string>
+  <string name="error_hash_mismatch">Nun se pudo usar l\'aplicación d\'alministración pola mor d\'un error de suma de verificación. Pa consiguir ayuda, ponte en contautu col alministrador de TI.</string>
+  <string name="error_download_failed">Nun se pudo baxar l\'aplicación d\'alministración</string>
+  <string name="error_package_invalid">Nun se pue usar l\'aplicación d\'alministración, fálten-y componentes o ta toyida. Pa consiguir ayuda, ponte en contautu col alministrador de TI.</string>
+  <string name="error_installation_failed">Nun se pudo instalar l\'aplicación d\'alministración</string>
+  <string name="profile_owner_cancel_message">¿Quies dexar de configurar?</string>
+  <string name="profile_owner_cancel_cancel">Non</string>
+  <string name="profile_owner_cancel_ok">Sí</string>
+  <string name="work_profile_setup_later_title">¿Quies parar la configuración del perfil?</string>
+  <string name="work_profile_setup_later_message">Pues configurar el perfil llaboral dempués na aplicación de xestión de preseos de la to organización</string>
+  <string name="continue_button">Siguir</string>
+  <string name="work_profile_setup_stop">Parar</string>
+  <string name="dismiss">Escartar</string>
+  <string name="contact_device_provider">Pa saber más, ponte en contautu con «<xliff:g id="it_admin" example="it_admin">%1$s</xliff:g>».</string>
+  <string name="if_questions_contact_admin">Si tienes duldes, ponte en contautu col alministrador de TI</string>
+  <string name="setup_isnt_finished_contact_admin">La configuración nun finó. Pa consiguir ayuda, ponte en contautu col alministrador de TI.</string>
+  <string name="for_help_contact_admin">Pa consiguir ayuda, ponte en contautu col alministrador de TI</string>
+  <string name="organization_admin">Alministrador de TI</string>
+  <string name="your_organization_beginning">La to organización</string>
+  <string name="your_organization_middle">la to organización</string>
+  <string name="view_terms">Ver los términos</string>
+  <string name="accept_and_continue">Aceptar y siguir</string>
+  <string name="back">Atrás</string>
+  <string name="info_anim_title_0">Camuda la forma que trabayes</string>
+  <string name="info_anim_title_1">Estrema ente lo persona y lo llaboral</string>
+  <string name="info_anim_title_2">Escaezte del trabayu cuando acabes</string>
+  <string name="setup_device">Configura\'l <xliff:g id="device_name" example="Pixel">%1$s</xliff:g></string>
+  <string name="setup_device_encryption">Configura\'l <xliff:g id="device_name" example="Pixel">%1$s</xliff:g>. Cifráu</string>
+  <string name="setup_device_progress">Configura\'l <xliff:g id="device_name" example="Pixel">%1$s</xliff:g>. Amosando\'l progresu</string>
+  <string name="expand">Espander</string>
+  <string name="collapse">Contrayer</string>
+  <string name="cancel_setup_and_factory_reset_dialog_cancel">Encaboxar</string>
+  <string name="join_two_items"><xliff:g id="first_item">%1$s</xliff:g> y <xliff:g id="second_item">%2$s</xliff:g></string>
+  <string name="join_many_items_last"><xliff:g id="all_but_last_item">%1$s</xliff:g> y <xliff:g id="last_item">%2$s</xliff:g></string>
+  <string name="take_a_few_minutes">Esta aición pue tardar unos minutos</string>
+  <string name="device_owner_description">La to organización va xestionar y protexer esti preséu</string>
+  <string name="brand_screen_header">Esti preséu pertenez a la to organización</string>
+  <string name="account_management_disclaimer_header">La cuenta ta xestionada</string>
+  <string name="account_management_disclaimer_subheader">L\'alministrador de TI usa la xestión de preseos móviles p\'aplicar les polítiques de seguranza</string>
+  <string name="work_profile_provisioning_step_1_header">Les aplicaciones llaborales caltiénense nel perfil llaboral</string>
+  <string name="work_profile_provisioning_step_2_header">Posa les aplicaciones llaborables al acabar la xornada</string>
+  <string name="work_profile_provisioning_progress_label">Configurando\'l perfil llaboral\u2026</string>
+  <string name="fully_managed_device_provisioning_step_2_header">Esti preséu (<xliff:g id="device_name" example="Pixel">%1$s</xliff:g>) nun ye priváu</string>
+  <string name="fully_managed_device_provisioning_step_2_subheader">Ye posible que l\'alministrador de TI seya a ver los datos y l\'actividá d\'esti preséu (<xliff:g id="device_name" example="Pixel">%1$s</xliff:g>).</string>
+  <string name="fully_managed_device_provisioning_permissions_secondary_subheader">L\'alministrador de TI pue configurar permisos pa les aplicaciones d\'esti preséu (<xliff:g id="device_name" example="Pixel">%1$s</xliff:g>), incluyíos los permisos de la cámara, el micrófonu y la llocalización.</string>
+  <string name="fully_managed_device_provisioning_progress_label">Configurando\'l preséu\u2026</string>
+  <string name="fully_managed_device_provisioning_summary">Usa esti preséu (<xliff:g id="device_name" example="Pixel">%1$s</xliff:g>) p\'acceder fácilmente a les aplicaciones llaborales. Esti preséu (<xliff:g id="device_name" example="Pixel">%1$s</xliff:g>) nun ye priváu y, polo tanto, ye posible que l\'alministrador de TI seya a ver los datos y l\'actividá de to.</string>
+  <string name="fully_managed_device_with_permission_control_provisioning_summary">Usa esti preséu (<xliff:g id="device_name" example="Pixel">%1$s</xliff:g>) p\'acceder fácilmente a les aplicaciones llaborales. Esti preséu (<xliff:g id="device_name" example="Pixel">%1$s</xliff:g>) nun ye priváu y, polo tanto, ye posible que l\'alministrador de TI seya a ver los datos y l\'actividá de to. L\'alministrador de TI tamién pue configurar permisos pa les aplicaciones d\'esti preséu, incluyíos los permisos de la cámara, el micrófonu y la llocalización.</string>
+  <string name="fully_managed_device_unsupported_DPC_in_headless_mode_header">El preséu nun se pue configurar</string>
+  <string name="fully_managed_device_unsupported_DPC_in_headless_mode_subheader">Esti preséu nun se pue inscribir nel mou totalmente xestionáu. Reafita\'l preséu y ponte en contautu col alministrador de TI.</string>
+  <string name="fully_managed_device_reset_button">Reafitar</string>
+  <string name="cope_provisioning_summary">Les aplicaciones llaborales caltiénense nel perfil llaboral y xestiónales l\'alministrador de TI. Les aplicaciones personales queden escondíes y separtaes del perfil llaboral. L\'alministrador de TI pue controlar esti preséu (<xliff:g id="device_name" example="Pixel">%1$s</xliff:g>) y bloquiar determinaes aplicaciones.</string>
+  <string name="just_a_sec">Un segundín\u2026</string>
+  <string name="fully_managed_device_provisioning_privacy_body">Ye posible que l\'alministrador de de TI tenga la capacidá de ver los datos y l\'actividá d\'esti preséu (<xliff:g id="device_name" example="Pixel">%1$s</xliff:g>)</string>
+  <string name="financed_device_screen_header"><xliff:g id="creditor_name" example="creditor_name">%2$s</xliff:g> forne esti preséu (<xliff:g id="device_name" example="Pixel">%1$s</xliff:g>)</string>
+  <string name="financed_make_payments_subheader_title">Fai pagos con esti preséu (<xliff:g id="device_name" example="Pixel">%1$s</xliff:g>)</string>
+  <string name="financed_make_payments_subheader_description">«<xliff:g id="creditor_name" example="creditor_name">%1$s</xliff:g>» pue instalar l\'aplicación «<xliff:g id="creditor_name" example="creditor_name">%2$s</xliff:g>» pa que puedas facer pagos con esti preséu (<xliff:g id="device_name" example="Pixel">%3$s</xliff:g>)</string>
+  <string name="financed_restrict_device_subheader_title">Pue torgase esti preséu (<xliff:g id="device_name" example="Pixel">%1$s</xliff:g>)</string>
+  <string name="financed_restrict_device_subheader_description">«<xliff:g id="creditor_name" example="creditor_name">%1$s</xliff:g>» pue torgar l\'accesu a esti preséu (<xliff:g id="device_name" example="Pixel">%2$s</xliff:g>) si nun faes nengún pagu.</string>
+  <string name="error_role_holder_hash_mismatch">Nun se pue configurar el preséu <xliff:g id="device_name" example="Pixel">%1$s</xliff:g>. Ponte en contautu col alministrador de TI y fai referencia a «La suma de comprobación ye inválida».</string>
+  <string name="error_role_holder_download_install_failed">Volvi tentalo dempués o pidi ayuda al alministrador de TI</string>
+  <string name="error_role_holder_package_invalid">Nun se pue configurar el preséu <xliff:g id="device_name" example="Pixel">%1$s</xliff:g>. Ponte en contautu col alministrador de TI y fai referencia a «Falten componentes o tán toyíos».</string>
+  <string name="setting_up">Configurando\u2026</string>
+</resources>

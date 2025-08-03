@@ -1,0 +1,16 @@
+{
+  "name": "com.android.media",
+  "version": 290000000,
+  "provideNativeLibs": [],
+  "requireNativeLibs": [
+    ":sphal",
+    "libbinder_ndk.so",
+    "libc.so",
+    "libcgrouprc.so",
+    "libdl.so",
+    "liblog.so",
+    "libm.so",
+    "libmediandk.so",
+    "libvndksupport.so"
+  ]
+}

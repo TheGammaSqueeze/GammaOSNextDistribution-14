@@ -1,0 +1,172 @@
+package {
+    default_team: "trendy_team_android_rust",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_defaults {
+    name: "librustutils_defaults",
+    srcs: ["lib.rs"],
+    rustlibs: [
+        "libanyhow",
+        "libcutils_bindgen",
+        "liblibc",
+        "libnix",
+        "libsystem_properties_bindgen_sys",
+        "libthiserror",
+    ],
+}
+
+rust_library {
+    name: "librustutils",
+    crate_name: "rustutils",
+    defaults: ["librustutils_defaults"],
+    shared_libs: [
+        "libbase",
+        "libcutils",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.btservices",
+        "com.android.compos",
+        "com.android.uwb",
+        "com.android.virt",
+    ],
+    product_available: true,
+    vendor_available: true,
+    min_sdk_version: "29",
+}
+
+rust_test {
+    name: "librustutils_test",
+    crate_name: "librustutils_test_test",
+    defaults: ["librustutils_defaults"],
+    test_suites: ["general-tests"],
+    auto_gen_config: true,
+}
+
+// Build a separate rust_library rather than depending directly on libsystem_properties_bindgen,
+// to work around the fact that rust_bindgen targets only produce rlibs and not dylibs, which would
+// result in duplicate conflicting versions of liblibc. This will hopefully be fixed in the build
+// system, at which point we can delete this target and go back to using libsystem_properties_bindgen
+// directly.
+rust_library {
+    name: "libsystem_properties_bindgen_sys",
+    crate_name: "system_properties_bindgen",
+    srcs: [
+        ":libsystem_properties_bindgen",
+    ],
+    rustlibs: [
+        "liblibc",
+    ],
+    product_available: true,
+    vendor_available: true,
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.btservices",
+        "com.android.compos",
+        "com.android.uwb",
+        "com.android.virt",
+    ],
+    min_sdk_version: "29",
+    lints: "none",
+    clippy_lints: "none",
+}
+
+rust_bindgen {
+    name: "libsystem_properties_bindgen",
+    wrapper_src: "bindgen/system_properties.h",
+    crate_name: "system_properties_bindgen",
+    source_stem: "bindings",
+
+    bindgen_flags: [
+        "--allowlist-function=__system_property_find",
+        "--allowlist-function=__system_property_foreach",
+        "--allowlist-function=__system_property_read_callback",
+        "--allowlist-function=__system_property_set",
+        "--allowlist-function=__system_property_wait",
+        "--blocklist-type=timespec",
+        "--raw-line",
+        "use libc::timespec;",
+    ],
+    rustlibs: [
+        "liblibc",
+    ],
+    product_available: true,
+    vendor_available: true,
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.btservices",
+        "com.android.compos",
+        "com.android.uwb",
+        "com.android.virt",
+    ],
+    min_sdk_version: "29",
+}
+
+rust_bindgen {
+    name: "libcutils_bindgen",
+    wrapper_src: "bindgen/cutils.h",
+    crate_name: "cutils_bindgen",
+    source_stem: "bindings",
+    header_libs: ["libcutils_headers"],
+    bindgen_flags: [
+        "--allowlist-function",
+        "android_get_control_socket",
+        "--allowlist-var",
+        "AID_KEYSTORE",
+        "--allowlist-var",
+        "AID_ROOT",
+        "--allowlist-var",
+        "AID_SHELL",
+        "--allowlist-var",
+        "AID_SYSTEM",
+        "--allowlist-var",
+        "AID_USER_OFFSET",
+    ],
+    product_available: true,
+    vendor_available: true,
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.btservices",
+        "com.android.compos",
+        "com.android.uwb",
+        "com.android.virt",
+    ],
+    min_sdk_version: "29",
+}
+
+rust_test {
+    name: "libsystem_properties_bindgen_test",
+    srcs: [":libsystem_properties_bindgen"],
+    crate_name: "system_properties_bindgen_test",
+    test_suites: ["general-tests"],
+    rustlibs: [
+        "liblibc",
+    ],
+    auto_gen_config: true,
+    clippy_lints: "none",
+    lints: "none",
+}
+
+rust_test {
+    name: "libcutils_bindgen_test",
+    srcs: [":libcutils_bindgen"],
+    crate_name: "cutils_bindgen_test",
+    test_suites: ["general-tests"],
+    auto_gen_config: true,
+    clippy_lints: "none",
+    lints: "none",
+}
+
+rust_fuzz {
+    name: "system_properties_fuzzer",
+    srcs: ["system_properties_fuzzer.rs"],
+    rustlibs: [
+        "libarbitrary",
+        "librustutils",
+    ],
+    fuzz_config: {
+        fuzz_on_haiku_device: true,
+        fuzz_on_haiku_host: true,
+    },
+}

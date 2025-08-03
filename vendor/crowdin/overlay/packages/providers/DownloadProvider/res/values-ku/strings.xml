@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label">بەڕێوەبەری داگرتن</string>
+    <string name="storage_description">داگرتنەکان</string>
+    <string name="permlab_downloadManager">ڕێگەدانی بەڕێوەبەری داگرتن.</string>
+    <string name="permdesc_downloadManager">ڕێگە بە نەرمەواڵا بدە بۆ
+        دەست گەیاندن بە بەڕێوەبەری داگرتن و بەکار هێنانی بۆ دابەزاندنی فایلەکان.
+        نەرمەواڵا زیانبەخشەکان ئەتوانن ئەم تایبەتمەندییە بەکار بهێنن بۆ ڕاگرتنی دابەزاندنەکان
+        دەست گەیاندن بە زانیارییە نهێنییەکان.</string>
+    <string name="permlab_downloadManagerAdvanced">کردارە پێشکەوتووەکانی
+        بەڕێوەبەری داگرتن.</string>
+    <string name="permdesc_downloadManagerAdvanced">ڕێگە بە نەرمەواڵا بدە بۆ
+        دەست گەیاندن بە هەموو کردارە پێشکەوتووەکانی بەڕێوەبەری داگرتن.
+        نەرمەواڵا زیانبەخشەکان ئەتوانن ئەم تایبەتمەندییە بەکار بهێنن بۆ ڕاگرتنی دابەزاندنەکان و
+        زانیارییە نهێنییەکان.</string>
+    <string name="permlab_downloadCompletedIntent">ناردنی تێبینییەکانی
+        داگرتن.</string>
+    <string name="permdesc_downloadCompletedIntent">ڕێگە بە نەرمەواڵا بدە بۆ
+        بۆ ناردنی تێبینییەکان لەبارەی داگرتنە تەواوەکان. نەرمەواڵا زیانبەخشەکان
+        ئەتوانن ئەم تایبەتمەندییە بەکار بهێنن بۆ سەر لێ شێواندنی دیکەی نەرمەواڵاکان کە
+        فایلەکان دادەبەزێنن.</string>
+    <string name="permlab_downloadCacheNonPurgeable">هێشتنەوەی بۆشایی لە ناو
+    حەشارگەی داگرتن</string>
+    <string name="permdesc_downloadCacheNonPurgeable">ڕێگە بە نەرمەواڵا بدە بۆ
+    دابەزاندنی فایلەکان بۆ ناو حەشارگەی داگرتن، کە بە شێوەی خۆکار ناسڕێنەوە
+    کاتێک کە بەڕێوەبەری داگرتن بۆشایی زۆرتری پێویستە.</string>
+    <string name="permlab_downloadWithoutNotification">دابەزاندنی فایلەکان بێ
+        تێبینی</string>
+    <string name="permdesc_downloadWithoutNotification">ڕێگە بە نەرمەواڵا بدە
+    فایلەکان لە ڕێگەی بەڕێوەبەری داگرتن دابەزێنێت بەبێ هیچ تێبینییەک
+    کە پیشانی بەکارهێنەرەکە بدرێت.</string>
+    <string name="permlab_accessAllDownloads">دەست گەیشتن بە هەموو داگرتنەکانی
+    سیستەم</string>
+    <string name="permdesc_accessAllDownloads">ڕێگە بە نەرمەواڵاکە بدە بۆ بینین و
+    دەستکاری کردنی هەموو ئەو داگرتنانەی کە بە نەرمەواڵایەکی سیستەم ڕێکخراون.</string>
+    <string name="download_unknown_title">&lt;بێ سەردێڕ&gt;</string>
+    <string name="notification_download_complete">داگرتن تەواو بوو.</string>
+    <string name="notification_download_failed">داگرتن سەرکەوتوو نەبوو.</string>
+    <string name="notification_need_wifi_for_size">قەبارەی داگرتن پێویستیی ئەکات بۆ Wi-Fi.</string>
+    <string name="notification_paused_in_background">لە پشتەوە وەستێنراوە.</string>
+    <string name="wifi_required_title">داگرتنەکە زۆر گەورەیە بۆ ئینتەرنێتی مۆبایل</string>
+    <string name="wifi_recommended_title">ئەیخەیتە نۆرەوە بۆ داگرتنی دوایی؟</string>
+    <string name="button_queue_for_wifi">نۆرە</string>
+    <string name="button_cancel_download">هەڵوەشاندنەوە</string>
+    <string name="button_start_now">ئێستا ده‌ست پێ بکه‌</string>
+    <plurals name="notif_summary_active">
+        <item quantity="one">1 پەڕگە دائەبەزێنرێت</item>
+        <item quantity="other"><xliff:g id="number">%d</xliff:g> پەڕگە دائەبەزێنرێن</item>
+    </plurals>
+    <plurals name="notif_summary_waiting">
+        <item quantity="one">1 پەڕگە چاوەڕوانە</item>
+        <item quantity="other"><xliff:g id="number">%d</xliff:g> پەڕگە چاوەڕوانن</item>
+    </plurals>
+    <string name="download_remaining"><xliff:g id="duration" example="3 minutes">%s</xliff:g> چەپ</string>
+    <string name="download_no_application_title">ناتوانێت په‌ڕگه‌ بکاتەوە</string>
+    <string name="root_downloads">داگرتنەکان</string>
+    <string name="download_queued">لە نۆرەدایە</string>
+    <string name="download_running">لە کارادایە</string>
+    <string name="download_error">سه‌رکه‌وتوونه‌بوو</string>
+</resources>

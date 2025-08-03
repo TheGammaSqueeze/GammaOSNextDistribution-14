@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- CMAS dialog title for presidential level alert.  [CHAR LIMIT=50] -->
+    <!-- Required French (fr) translation for this message: FR-ALERT : Alerte gouvernementale -->
+    <string name="cmas_presidential_level_alert">FR-ALERT : Government alert</string>
+    <!-- CMAS dialog title for extreme alert. [CHAR LIMIT=50] -->
+    <!-- Required French (fr) translation for this message: FR-ALERT : Alerte extreme -->
+    <string name="cmas_extreme_alert">FR-ALERT : Extreme alert</string>
+    <!-- CMAS dialog title for severe alert. [CHAR LIMIT=50] -->
+    <!-- Required French (fr) translation for this message: FR-ALERT : Alerte grave -->
+    <string name="cmas_severe_alert">FR-ALERT : Severe alert</string>
+    <!-- Dialog title for all public safety message broadcasts. [CHAR LIMIT=50] -->
+    <!-- Required French (fr) translation for this message: FR-ALERT : Avertissement -->
+    <string name="public_safety_message">FR-ALERT : Warning</string>
+    <!-- CMAS dialog title for child abduction emergency (Amber Alert). [CHAR LIMIT=50] -->
+    <!-- Required French (fr) translation for this message: FR-ALERT : Enlèvement -->
+    <string name="cmas_amber_alert">FR-ALERT : Kidnapping Alert</string>
+    <!-- CMAS dialog title for required monthly test. [CHAR LIMIT=50] -->
+    <!-- Required French (fr) translation for this message: FR-ALERT test -->
+    <string name="cmas_required_monthly_test">FR-ALERT test</string>
+    <!-- CMAS dialog title for CMAS Exercise. [CHAR LIMIT=50] -->
+    <!-- Required French (fr) translation for this message: Fr-ALERT Exercise -->
+    <string name="cmas_exercise_alert">Fr-ALERT Exercise</string>
+
+    <!-- Preference title for enable CMAS extreme threat alerts checkbox. [CHAR LIMIT=50] -->
+    <!-- Required French (fr) translation for this message: Alertes extrêmes (Niveau 2) -->
+    <string name="enable_cmas_extreme_threat_alerts_title">Extreme alerts (Level 2)</string>
+    <!-- Preference summary for enable CMAS extreme threat alerts checkbox. [CHAR LIMIT=100] -->
+    <!-- Required French (fr) translation for this message: Afficher les messages d’alerte pour les menaces extremes -->
+    <string name="enable_cmas_extreme_threat_alerts_summary">Show alert messages for extreme threats</string>
+    <!-- Preference title for enable CMAS severe threat alerts checkbox. [CHAR LIMIT=50] -->
+    <!-- Required French (fr) translation for this message: Alertes graves (Niveau 3) -->
+    <string name="enable_cmas_severe_threat_alerts_title">Severe alerts (Level 3)</string>
+    <!-- Preference summary for enable CMAS severe threat alerts checkbox. [CHAR LIMIT=100] -->
+    <!-- Required French (fr) translation for this message: Afficher les messages d’alerte pour les menaces graves -->
+    <string name="enable_cmas_severe_threat_alerts_summary">Show warning messages for severe threats</string>
+    <!-- Preference title for enable public safety messages checkbox. [CHAR LIMIT=100] -->
+    <!-- Required French (fr) translation for this message: Avertissements (Niveau 4) -->
+    <string name="enable_public_safety_messages_title">Warning (Level 4)</string>
+    <!-- Preference summary for enable public safety messages checkbox. [CHAR LIMIT=100] -->
+    <!-- Required French (fr) translation for this message: Afficher les messages d’avertissement -->
+    <string name="enable_public_safety_messages_summary">Show warning messages</string>
+    <!-- Preference title for enable CMAS amber alerts checkbox. [CHAR LIMIT=50] -->
+    <!-- Required French (fr) translation for this message: Alerte Enlèvement -->
+    <string name="enable_cmas_amber_alerts_title">Kidnapping Alert</string>
+    <!-- Preference summary for enable CMAS amber alerts checkbox. [CHAR LIMIT=100] -->
+    <!-- Required French (fr) translation for this message: Afficher les messages d’alerte pour les enlèvements d’enfant -->
+    <string name="enable_cmas_amber_alerts_summary">Show alert messages for child abductions</string>
+    <!-- Preference title for other test alerts checkbox. [CHAR LIMIT=50] -->
+    <!-- Required French (fr) translation for this message: FR-Alert test -->
+    <string name="enable_cmas_test_alerts_title">FR-Alert test</string>
+    <!-- Preference summary for other test alerts checkbox. [CHAR LIMIT=125] -->
+    <!-- Required French (fr) translation for this message: Afficher les messages de test -->
+    <string name="enable_cmas_test_alerts_summary">Show test messages</string>
+    <!-- Preference title for exercise test alerts checkbox. [CHAR LIMIT=50] -->
+    <!-- Required French (fr) translation for this message: FR-Alert Exercice -->
+    <string name="enable_exercise_test_alerts_title">Fr-Alert Exercise</string>
+    <!-- Preference summary for exercise test alerts checkbox. [CHAR LIMIT=125] -->
+    <!-- Required French (fr) translation for this message: Afficher les messages d’exercice -->
+    <string name="enable_exercise_test_alerts_summary">Show exercise messages</string>
+</resources>

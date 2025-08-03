@@ -1,0 +1,9 @@
+{
+  "name": "com.vendor.service2",
+  "version": 1,
+  "requireNativeLibs": [
+    ":mediacas"
+  ],
+  "provideNativeLibs": [
+  ]
+}

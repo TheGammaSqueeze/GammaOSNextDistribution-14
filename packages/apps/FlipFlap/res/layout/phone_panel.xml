@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<org.lineageos.flipflap.PhonePanel xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:visibility="gone" >
+
+    <!-- Incoming Call/ In-call Layout -->
+    <TextView
+        android:id="@+id/incoming_call_name"
+        style="@style/widget_small_bold"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textColor="@color/clock_white"
+        android:textAlignment="center" />
+
+    <TextView
+        android:id="@+id/incoming_call_number"
+        style="@style/widget_small_bold"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textColor="@color/clock_white"
+        android:layout_below="@id/incoming_call_name"
+        android:textAlignment="center" />
+
+    <ImageView android:id="@+id/incoming_call_alert_icon"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:drawablePadding="2dip"
+        android:gravity="center"
+        android:layout_below="@id/incoming_call_number"
+        android:src="@drawable/ic_ring_icon" />
+
+    <RelativeLayout
+        android:id="@+id/answer_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="70dip"
+        android:layout_below="@id/incoming_call_number" >
+
+        <ImageView
+            android:id="@+id/answer_icon"
+            android:layout_width="30dp"
+            android:layout_height="40dp"
+            android:layout_centerHorizontal="true"
+            android:scaleType="fitXY"
+            android:src="@drawable/ic_call_answer"
+            android:background="@android:color/transparent" />
+
+        <TextView
+            android:id="@+id/answer_text"
+            style="@style/label_bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:textColor="@color/clock_white"
+            android:layout_below="@id/answer_icon"
+            android:text="@string/answer_call"
+            android:textAlignment="center" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/ignore_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="70dip"
+        android:layout_below="@id/incoming_call_number" >
+
+        <ImageView
+            android:id="@+id/ignore_icon"
+            android:layout_width="30dp"
+            android:layout_height="40dp"
+            android:layout_centerHorizontal="true"
+            android:scaleType="fitXY"
+            android:src="@drawable/ic_call_end"
+            android:background="@android:color/transparent" />
+
+        <TextView
+            android:id="@+id/ignore_text"
+            style="@style/label_bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:textColor="@color/clock_white"
+            android:layout_below="@id/ignore_icon"
+            android:text="@string/ignore_call"
+            android:textAlignment="center" />
+    </RelativeLayout>
+
+</org.lineageos.flipflap.PhonePanel>

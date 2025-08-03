@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2009 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="calendar_storage">Storfa Calendr</string>
+    <string name="calendar_default_name">Rhagosodiad</string>
+    <string name="calendar_info">Gwybodaeth calendr</string>
+    <string name="calendar_info_error">Gwall</string>
+    <string name="calendar_info_no_calendars">Dim calendrau</string>
+    <string name="calendar_info_events">Digwyddiadau: <xliff:g id="events">%1$d</xliff:g></string>
+    <string name="calendar_info_events_dirty">Digwyddiadau: <xliff:g id="events">%1$d</xliff:g>, Heb eu cadw: <xliff:g id="dirty events">%2$d</xliff:g></string>
+    <string name="provider_label">Calendr</string>
+    <string name="debug_tool_delete_button">Dileu nawr</string>
+    <string name="debug_tool_start_button">Dechrau</string>
+    <string name="debug_tool_message">Rwyt ar fin 1) gwneud copi o gronfa ddata dy galendr i\'r cerdyn SD/storfa USB, sydd yn bosib ei ddarllen gan unrhyw ap, a 2) ei anfon trwy e-bost. Cofia i ddileu\'r copi cyn gynted â dy fod wedi cadw copi ohono yn ddiogel oddi ar y ddyfais hon neu fod y neges e-bost wedi ei derbyn.</string>
+    <string name="debug_tool_email_sender_picker">Dewisa raglen i anfon dy ffeil</string>
+    <string name="debug_tool_email_subject">Cronfa Ddata Calendr</string>
+    <string name="debug_tool_email_body">Mae cronfa ddata fy nghalendr wedi ei hatodi gyda fy holl apwyntiadau a gwybodaeth bersonol. Mae\'n wybodaeth sensitif i\'w gadw yn ddiogel a chyfrinachol.</string>
+</resources>

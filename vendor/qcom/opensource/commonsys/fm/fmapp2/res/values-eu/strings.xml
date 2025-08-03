@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (c) 2009, 2011-2013 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2014-2015 The CyanogenMod Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *    * Neither the name of The Linux Foundation nor
+ *      the names of its contributors may be used to endorse or promote
+ *      products derived from this software without specific prior written
+ *      permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NON-INFRINGEMENT ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">FM irratia</string>
+    <string name="tx_app_name">FM Igorgailua</string>
+    <string name="menu_scan_start">Bilatu</string>
+    <string name="menu_scan_stop">Eten bilaketa</string>
+    <string name="menu_record_start">Grabatu</string>
+    <string name="menu_record_stop">Gelditu grabaketa</string>
+    <string name="menu_settings">Ezarpenak</string>
+    <string name="menu_sleep">Atzera-kontaketa</string>
+    <string name="menu_sleep_cancel">Utzi atzera-kontaketa</string>
+    <string name="menu_all_channels">Kanal guztiak</string>
+    <string name="menu_display_tags">Erakutsi etiketak</string>
+    <string name="button_text_stop">Gelditu</string>
+    <string name="msg_seeking">FM irratia bilatzen\u2026</string>
+    <string name="msg_scanning">FM irrati guztien bila\u2016</string>
+    <string name="msg_scanning_pty">\'<xliff:g id="pty_name">%1$s</xliff:g>(r)en bila\'\u2026</string>
+    <string name="msg_search_title"><xliff:g id="frequency_string">%1$s</xliff:g> MHz</string>
+    <string name="msg_searching_title">Automatikoki hautatzen irratiak</string>
+    <string name="msg_searching">Seinale ona duten irratiak bilatzen irratien zerrenda bat sortzeko\u2026</string>
+    <string name="msg_noantenna">Konektatu aurikularrak FM irratia erabili ahal izateko</string>
+    <string name="dialog_sleep_title">Automatikoki amatatzeko denbora</string>
+    <string name="presetlist_select_name">Hautatu \'<xliff:g id="presetlist_name">%1$s</xliff:g>\'</string>
+    <string name="presetlist_add_new">Gehitu zerrenda berria</string>
+    <string name="dialog_presetlist_rename_title">Sartu izena</string>
+    <string name="presetlist_autoselect_title">Berretsi hautapen automatikoa</string>
+    <string name="preset_replace">Ordezkatu</string>
+    <string name="preset_tune">Sintonizatu</string>
+    <string name="preset_rename">Aldatu izena</string>
+    <string name="preset_delete">Ezabatu</string>
+    <string name="preset_search">Bilatu \'<xliff:g id="preset_pi">%1$s</xliff:g>\'</string>
+    <string name="stat_notif_frequency">\'<xliff:g id="frequency">%1$s</xliff:g>\' MHz</string>
+    <string name="regional_band">Lurralde banda</string>
+    <string name="regional_band_entry_north_america">Ipar Amerika</string>
+    <string name="regional_band_entry_europe">Europa</string>
+    <string name="regional_band_entry_japan">Japonia</string>
+    <string name="regional_band_entry_japan_wide">Japonia (zabala)</string>
+    <string name="regional_band_entry_australia">Australia</string>
+    <string name="regional_band_entry_austria">Austria</string>
+    <string name="regional_band_entry_belgium">Belgika</string>
+    <string name="regional_band_entry_brazil">Brasil</string>
+    <string name="regional_band_entry_china">Txina</string>
+    <string name="regional_band_entry_czech_republic">Txekia</string>
+    <string name="regional_band_entry_denmark">Danimarka</string>
+    <string name="regional_band_entry_finland">Finlandia</string>
+    <string name="regional_band_entry_france">Frantzia</string>
+    <string name="regional_band_entry_germany">Alemania</string>
+    <string name="regional_band_entry_greece">Grezia</string>
+    <string name="regional_band_entry_hong_kong">Hong Kong</string>
+    <string name="regional_band_entry_india">India</string>
+    <string name="regional_band_entry_indonesia">Indonesia</string>
+    <string name="regional_band_entry_ireland">Irlanda</string>
+    <string name="regional_band_entry_italy">Italia</string>
+    <string name="regional_band_entry_korea">Korea</string>
+    <string name="regional_band_entry_mexico">Mexiko</string>
+    <string name="regional_band_entry_netherlands">Herbehereak</string>
+    <string name="regional_band_entry_new_zealand">Zelanda Berria</string>
+    <string name="regional_band_entry_norway">Norvegia</string>
+    <string name="regional_band_entry_poland">Polonia</string>
+    <string name="regional_band_entry_portugal">Portugal</string>
+    <string name="regional_band_entry_russia">Errusia</string>
+    <string name="regional_band_entry_singapore">Singapur</string>
+    <string name="regional_band_entry_slovakia">Eslovakia</string>
+    <string name="regional_band_entry_spain">Espainia</string>
+    <string name="regional_band_entry_switzerland">Suitza</string>
+    <string name="regional_band_entry_sweden">Suedia</string>
+    <string name="regional_band_entry_taiwan">Taiwan</string>
+    <string name="regional_band_entry_turkey">Turkia</string>
+    <string name="regional_band_entry_united_kingdom">Erresuma Batua</string>
+    <string name="regional_band_entry_united_states">Estatu Batuak</string>
+    <string name="regional_band_entry_user_defined">Pertsonalizatua</string>
+    <string name="regional_band_summary_north_america">Ipar Amerika (87,5 MHz-tik 108,0 MHz-ra 200 KHz-tako urratsetan)</string>
+    <string name="regional_band_summary_europe">Europa (87,5 MHz-tik 108,0 MHz-ra 100 KHz-tako urratsetan)</string>
+    <string name="regional_band_summary_japan">Japonia (76,0 MHz-tik 90,0 MHz-ra 100 KHz-tako urratsetan)</string>
+    <string name="regional_band_summary_japan_wide">Japonia (zabala) (90,0 MHz-tik 108,0 MHz-ra 50 KHz-tako urratsetan)</string>
+    <string name="regional_band_summary_australia">Australia (87,7 MHz-tik 108,0 MHz-ra 100 KHz-tako urratsetan)</string>
+    <string name="regional_band_summary_austria">Australia (87,7 MHz-tik 108,0 MHz-ra 100 KHz-tako urratsetan)</string>
+    <string name="regional_band_summary_belgium">Belgika (87,5 MHz-tik 108,0 MHz-ra 100 KHz-tako urratsetan)</string>
+    <string name="regional_band_summary_brazil">Brasil (87,5 MHz-tik 108,0 MHz-ra 200 KHz-tako urratsetan)</string>
+    <string name="regional_band_summary_china">Txina (87,0 MHz-tik 108,0 MHz-ra 100 KHz-tako urratsetan)</string>
+    <string name="regional_band_summary_czech_republic">Txekiar errepublika (87.5 MHz-tik 108.0 MHz-tara in 100 KHz-ko jauzietan)</string>
+    <string name="regional_band_summary_denmark">Danimarka (87,5 MHz-tik 108,0 MHz-ra 50 KHz-tako urratsetan)</string>
+    <string name="regional_band_summary_finland">Finlandia (87,5 MHz-tik 108,0 MHz-ra 100 KHz-tako urratsetan)</string>
+    <string name="regional_band_summary_france">Frantzia (87,5 MHz-tik 108,0 MHz-ra 100 KHz-tako urratsetan)</string>
+    <string name="regional_band_summary_germany">Alemania (87,5 MHz-tik 108,0 MHz-ra 50 KHz-tako urratsetan)</string>
+    <string name="regional_band_summary_greece">Grezia (87,5 MHz-tik 108,0 MHz-ra 50 KHz-tako urratsetan)</string>
+    <string name="regional_band_summary_hong_kong">Hong Kong (87,5 MHz-tik 108,0 MHz-ra 100 KHz-tako urratsetan)</string>
+    <string name="regional_band_summary_india">India (87,5 MHz-tik 108,0 MHz-ra 100 KHz-tako urratsetan)</string>
+    <string name="regional_band_summary_indonesia">Indonesia (87,5 MHz-tik 108,0 MHz-ra 100 KHz-tako urratsetan)</string>
+    <string name="regional_band_summary_ireland">Irlanda (87,5 MHz-tik 108,0 MHz-ra 50 KHz-tako urratsetan)</string>
+    <string name="regional_band_summary_italy">Italia (87,5 MHz-tik 108,0 MHz-ra 50 KHz-tako urratsetan)</string>
+    <string name="regional_band_summary_korea">Korea (87,5 MHz-tik 108,0 MHz-ra 200 KHz-tako urratsetan)</string>
+    <string name="regional_band_summary_mexico">Mexiko (88,1 MHz-tik 107,9 MHz-ra 200 KHz-tako urratsetan)</string>
+    <string name="regional_band_summary_netherlands">Herbehereak (87,5 MHz-tik 108,0 MHz-ra 100 KHz-tako urratsetan)</string>
+    <string name="regional_band_summary_new_zealand">Zelanda berria (88,0 MHz-tik 107,0 MHz-ra 100 KHz-tako urratsetan)</string>
+    <string name="regional_band_summary_norway">Norvegia (87,5 MHz-tik 108,0 MHz-ra 100 KHz-tako urratsetan)</string>
+    <string name="regional_band_summary_poland">Polonia (87,5 MHz-tik 108,0 MHz-ra 100 KHz-tako urratsetan)</string>
+    <string name="regional_band_summary_portugal">Portugal (87,5 MHz-tik 108,0 MHz-ra 50 KHz-tako urratsetan)</string>
+    <string name="regional_band_summary_russia">Errusia (87,5 MHz-tik 108,0 MHz-ra 100 KHz-tako urratsetan)</string>
+    <string name="regional_band_summary_singapore">Singapur (88,0 MHz-tik 108,0 MHz-ra 100 KHz-tako urratsetan)</string>
+    <string name="regional_band_summary_slovakia">Eslovakia (87,5 MHz-tik 108,0 MHz-ra 100 KHz-tako urratsetan)</string>
+    <string name="regional_band_summary_spain">Espainia (87,5 MHz-tik 108,0 MHz-ra 100 KHz-tako urratsetan)</string>
+    <string name="regional_band_summary_switzerland">Suitza (87,5 MHz-tik 108,0 MHz-ra 100 KHz-tako urratsetan)</string>
+    <string name="regional_band_summary_sweden">Suedia (87,5 MHz-tik 108,0 MHz-ra 100 KHz-tako urratsetan)</string>
+    <string name="regional_band_summary_taiwan">Taiwan (87,5 MHz-tik 108,0 MHz-ra 100 KHz-tako urratsetan)</string>
+    <string name="regional_band_summary_turkey">Turkia (87,5 MHz-tik 108,0 MHz-ra 100 KHz-tako urratsetan)</string>
+    <string name="regional_band_summary_united_kingdom">Erresuma Batua (87,5 MHz-tik 108,0 MHz-ra 100 KHz-tako urratsetan)</string>
+    <string name="regional_band_summary_united_states">Estatu Batuak (88,1 MHz-tik 107,9 MHz-ra 200 KHz-tako urratsetan)</string>
+    <string name="regional_band_summary_user_defined">Banda pertsonalizatua</string>
+    <string name="aud_output_mode">Audio irteera modua</string>
+    <string name="audio_type_stereo">Estereoa</string>
+    <string name="audio_type_mono">Mono</string>
+    <string name="record_dur">Grabazio iraupena</string>
+    <string name="auto_select_af">Frekuentzia alternatiboa</string>
+    <string name="settings_revert_defaults_title">Leheneratu lantegiko balioetara</string>
+    <string name="settings_revert_defaults_summary">Leheneratu ezarpen guztiak</string>
+    <string name="settings_revert_confirm_title">Berretsi leheneratzea</string>
+    <string name="settings_revert_confirm_msg">Honek aplikazioaren ezarpen guztiak garbituko ditu, gordetako irratiak barne. Jarraitu?</string>
+    <string name="no_storage">Muntatu SD txartela grabazioa hasi baino lehen.</string>
+    <string name="preparing_sd">SD txartela prestatzen\u2026</string>
+    <string name="access_sd_fail">Ezin izan da SD txartela atzitu.</string>
+    <string name="spaceIsLow_content">SD biltegiratze txartela lekurik gabe gelditzen ari da. Aldatu kalitate ezarpenak edo ezabatu fitxategiren bat lekua egiteko.</string>
+    <string name="FMRecording_reach_size_limit">Tamaina mugara heldu da.</string>
+    <string name="menu_scan_for_preset">Bilatu irratiak</string>
+    <string name="fm_off">FM itzalita dago.</string>
+    <string name="fm_call">Ezin da FM erabili dei baten bitartean.</string>
+    <string name="alert_dialog_hint">Sartu izen bat</string>
+    <string name="search_dialog_title">Bilatu irratiak</string>
+    <string name="fm_command_timeout_title">Denbora-muga</string>
+    <string name="fm_tune_timeout_msg">Ez da erantzunik jaso FM irratitik. Arazoak jarraitzen badu, itzali eta berriro piztu FM.</string>
+    <string name="fm_command_failed_title">FM eragiketak huts egin du</string>
+    <string name="fm_cmd_failed_msg">FM eragiketak huts egin du. Arazoak jarraitzen badu, irratia itzali eta berriro piztu.</string>
+    <string name="fm_cmd_failed_msg_hdmi">FM eragiketak huts egin du. Ezin dira FM eta HDMI batera erabili.</string>
+    <string name="fm_cmd_failed_call_on">FM eragiketak huts egin du. FM audioa ez da onartzen dei batean zehar.</string>
+    <string name="audio_db_title_format"><xliff:g id="format">yyyy-MM-dd HH:mm:ss</xliff:g></string>
+    <string name="audio_db_artist_name">Nire FM grabazioak</string>
+    <string name="audio_db_album_name">FM grabazioak</string>
+    <string name="audio_db_playlist_name">FM grabazioak</string>
+    <string name="station_name">Irratia:</string>
+    <string name="station_exists">Frekuentzia hau badago aurretik!</string>
+    <string name="station_list_delete_station">Ezabatu: <xliff:g id="name">%s</xliff:g></string>
+    <string name="station_list_delete_station_prompt">Ziur \'<xliff:g id="name">%s</xliff:g>\' ezabatu nahi duzula?</string>
+    <string name="station_name_empty">Irrati izena hutsik dago. Idatzi ezazu bat mesedez.</string>
+    <string name="station_name_exist">\'<xliff:g id="name">%s</xliff:g>\' erabiltzen ari zara jada, sartu beste izen bat.</string>
+    <string name="rt_plus_tags">Etiketak</string>
+    <string name="usr_def_band_min">Gutxieneko frekuentzia (MHz)</string>
+    <string name="usr_def_band_max">Gehieneko frekuentzia (MHz)</string>
+    <string name="chanl_spacing">Kanalen zabalera</string>
+    <string name="set">Ezarri</string>
+    <string name="user_defind_band_msg">Sartu 76.0 eta 108.0 MHz bitarteko frekuentzia bat, gutxienez kanal bateko espazioarekin eta 100 KHz gutxieneko eta gehieneko frekuentzien artean</string>
+    <string name="save_record_file">FM grabazioaren fitxategia \'<xliff:g id="record_file">%1$s</xliff:g>\' helbidean gorde da</string>
+    <string name="fm_search_no_results">Ez da bateragarria den irratirik aurkitu</string>
+    <string name="typ_All_stations">Irrati guztiak</string>
+    <string name="typ_Culture">Kultura</string>
+    <string name="typ_Current_affairs">Gaur egungo gertaerak</string>
+    <string name="typ_Children">Umeentzako programak</string>
+    <string name="typ_Country">Country musika</string>
+    <string name="typ_Documentary">Dokumentala</string>
+    <string name="typ_Drama">Drama</string>
+    <string name="typ_Easy_listening">Erraz entzuteko musika</string>
+    <string name="typ_Education">Hezkuntza</string>
+    <string name="typ_Emergency">Larrialdia</string>
+    <string name="typ_Emergency_test">Larrialdi froga</string>
+    <string name="typ_Finance">Finantzak</string>
+    <string name="typ_Folk">Folk musika</string>
+    <string name="typ_Information">Informazioa</string>
+    <string name="typ_Jazz">Jazz musika</string>
+    <string name="typ_Light_classical">Klasiko arina</string>
+    <string name="typ_Leisure">Aisia</string>
+    <string name="typ_News">Berriak</string>
+    <string name="typ_National">Musika nazionala</string>
+    <string name="typ_Other">Beste musikak</string>
+    <string name="typ_Oldies">Musika zaharra</string>
+    <string name="typ_Phone_in">Telefonotik</string>
+    <string name="typ_Pop">Pop musika</string>
+    <string name="typ_Religion">Erlijioa</string>
+    <string name="typ_Rock">Rock musika</string>
+    <string name="typ_Science">Zientzia</string>
+    <string name="typ_Serious_classical">Klasiko zorrotza</string>
+    <string name="typ_Social_affairs">Gai sozialak</string>
+    <string name="typ_Sport">Kirolak</string>
+    <string name="typ_Travel">Bidaiak</string>
+    <string name="typ_Varied">Askotarikoak</string>
+    <string name="typ_Weather">Eguraldia</string>
+    <string name="typ_Adult_hits">Betiko arrakastak</string>
+    <string name="typ_Classical">Klasikoa</string>
+    <string name="typ_Classic_Rock">Rock klasikoa</string>
+    <string name="typ_College">Unibertsitarioa</string>
+    <string name="typ_Foreign_language">Atzerriko hizkuntza</string>
+    <string name="typ_Hiphop">Hip Hop</string>
+    <string name="typ_Nostalgia">Nostalgia</string>
+    <string name="typ_Personality">Pertsona famatuak</string>
+    <string name="typ_Public">Publikoa</string>
+    <string name="typ_Religious_music">Erlijio musika</string>
+    <string name="typ_Religious_talk">Erlijio hitzaldiak</string>
+    <string name="typ_Rhythm_and_Blues">Rhythm and Blues</string>
+    <string name="typ_Spanish_music">Espainiar musika</string>
+    <string name="typ_Spanish_talk">Espainiar hitzaldia</string>
+    <string name="typ_Soft">Leuna</string>
+    <string name="typ_Soft_Rock">Rock leuna</string>
+    <string name="typ_Soft_Rhythm_and_Blues">Rhythm and Blues leuna</string>
+    <string name="typ_Sports">Kirolak</string>
+    <string name="typ_Talk">Solasaldiak</string>
+    <string name="typ_Top_40">Top 40</string>
+</resources>

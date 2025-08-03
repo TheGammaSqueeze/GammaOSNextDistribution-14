@@ -1,0 +1,24 @@
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_app {
+    name: "TestSliceApp",
+    srcs: [
+        "java/com/google/android/sample/testsliceapp/*.java",
+    ],
+    static_libs: [
+        "androidx-constraintlayout_constraintlayout",
+        "androidx.appcompat_appcompat",
+    ],
+    libs: ["org.apache.http.legacy"],
+    certificate: "platform",
+    privileged: true,
+    product_specific: true,
+    sdk_version: "system_current",
+    min_sdk_version: "30",
+    optimize: {
+        proguard_flags_files: ["proguard.flags"],
+    },
+}

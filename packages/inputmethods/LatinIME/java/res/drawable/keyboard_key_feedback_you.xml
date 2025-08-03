@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2022 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<selector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:latin="http://schemas.android.com/apk/res/com.android.inputmethod.latin"
+>
+    <item android:drawable="@drawable/keyboard_key_feedback_background_you" />
+</selector>

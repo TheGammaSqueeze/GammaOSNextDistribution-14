@@ -1,0 +1,44 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_bt_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_bt_license"],
+}
+
+filegroup {
+    name: "BluetoothStorageSources",
+    srcs: [
+        "classic_device.cc",
+        "config_cache.cc",
+        "config_cache_helper.cc",
+        "device.cc",
+        "le_device.cc",
+        "legacy_config_file.cc",
+        "mutation.cc",
+        "mutation_entry.cc",
+        "storage_module.cc",
+    ],
+}
+
+filegroup {
+    name: "BluetoothStorageUnitTestSources",
+    srcs: [
+        "classic_device_test.cc",
+        "config_cache_helper_test.cc",
+        "config_cache_test.cc",
+        "device_test.cc",
+        "le_device_test.cc",
+        "legacy_config_file_test.cc",
+        "mutation_test.cc",
+        "storage_module_test.cc",
+    ],
+}
+
+filegroup {
+    name: "BluetoothStorageTestSources",
+    srcs: [
+        "storage_module_test.cc",
+    ],
+}

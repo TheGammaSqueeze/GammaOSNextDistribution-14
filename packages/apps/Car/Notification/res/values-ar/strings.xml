@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    Copyright (C) 2018 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label" msgid="5911862216123243843">"إدارة الإشعارات في السيارة"</string>
+    <string name="assist_action_play_label" msgid="6278705468288338172">"تشغيل"</string>
+    <string name="assist_action_reply_label" msgid="6946087036560525072">"ردّ"</string>
+    <string name="action_mute_short" msgid="5239851786101022633">"تجاهل"</string>
+    <string name="action_mute_long" msgid="6846675719189989477">"تجاهل المحادثة"</string>
+    <string name="action_unmute_short" msgid="7157822835069715986">"إلغاء التجاهل"</string>
+    <string name="action_unmute_long" msgid="22482625837159466">"إلغاء تجاهل المحادثة"</string>
+    <string name="action_canned_reply" msgid="4045960823021872834">"\"أنا أقود السيارة الآن\"."</string>
+    <string name="canned_reply_message" msgid="7959257272917598063">"أنا أقود السيارة الآن."</string>
+    <string name="toast_message_sent_success" msgid="1159956191974273064">"تمّ إرسال الرسالة."</string>
+    <string name="notification_service_label" msgid="7512186049723777468">"خدمة تلقّي الإشعارات الصوتية للسيارات"</string>
+    <string name="notifications" msgid="2865534625906329283">"مركز الإشعارات"</string>
+    <string name="clear_all" msgid="1845314281571237722">"محو الكل"</string>
+    <string name="ellipsized_string" msgid="6993649229498857557">"…"</string>
+    <string name="show_more" msgid="7291378544926443344">"عرض المزيد"</string>
+    <string name="notification_header" msgid="324550431063568049">"الإشعارات"</string>
+    <string name="notification_recents" msgid="5855769440781958546">"الإشعارات الحديثة"</string>
+    <string name="notification_older" msgid="8162161020296499690">"الإشعارات الأقدم"</string>
+    <string name="empty_notification_header" msgid="4928379791607839720">"ليست هناك أي إشعارات."</string>
+    <string name="collapse_group" msgid="3487426973871208501">"عرض تفاصيل أقل"</string>
+    <string name="show_more_from_app" msgid="4270626118092846628">"عرض <xliff:g id="COUNT">%1$d</xliff:g> إشعار آخر من <xliff:g id="APP">%2$s</xliff:g>"</string>
+    <string name="show_count_more" msgid="480555295700318609">"عرض <xliff:g id="COUNT">%d</xliff:g> إشعار آخر"</string>
+    <plurals name="message_unshown_count" formatted="false" msgid="2454776257150137504">
+      <item quantity="zero"><xliff:g id="COUNT_1">%d</xliff:g> رسالة أخرى</item>
+      <item quantity="two">رسالتان أخريان (<xliff:g id="COUNT_1">%d</xliff:g>)</item>
+      <item quantity="few"><xliff:g id="COUNT_1">%d</xliff:g> رسائل أخرى</item>
+      <item quantity="many"><xliff:g id="COUNT_1">%d</xliff:g> رسالة أخرى</item>
+      <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> رسالة أخرى</item>
+      <item quantity="one">رسالة واحدة أخرى (<xliff:g id="COUNT_0">%d</xliff:g>)</item>
+    </plurals>
+    <plurals name="restricted_numbered_message_content" formatted="false" msgid="232398073855919710">
+      <item quantity="zero"><xliff:g id="COUNT_1">%d</xliff:g> رسالة جديدة</item>
+      <item quantity="two">رسالتان جديدتان (<xliff:g id="COUNT_1">%d</xliff:g>)</item>
+      <item quantity="few"><xliff:g id="COUNT_1">%d</xliff:g> رسائل جديدة</item>
+      <item quantity="many"><xliff:g id="COUNT_1">%d</xliff:g> رسالة جديدة</item>
+      <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> رسالة جديدة</item>
+      <item quantity="one">رسالة واحدة جديدة (<xliff:g id="COUNT_0">%d</xliff:g>)</item>
+    </plurals>
+    <string name="see_more_message" msgid="6343183827924395955">"عرض المزيد"</string>
+    <string name="restricted_hun_message_content" msgid="631111937988857716">"رسالة جديدة"</string>
+    <string name="manage_text" msgid="4225197445283791757">"إدارة"</string>
+    <string name="category_navigation" msgid="4406139232918521087">"تنقُّل"</string>
+    <string name="category_call" msgid="2249490790700877973">"اتصال"</string>
+    <string name="category_message" msgid="451360226248504859">"رسالة"</string>
+    <string name="hun_suppression_channel_name" msgid="8298850157350352525">"إيقاف ميزة \"إنذار الانتباه أثناء السير\""</string>
+    <string name="hun_suppression_notification_title_park" msgid="2790860076784227523">"متابعة أحدث البرامج التلفزيونية"</string>
+    <string name="hun_suppression_notification_title_drive" msgid="4403363470548899844">"التركيز في القيادة"</string>
+    <string name="hun_suppression_notification_description" msgid="5269238832987802104">"هناك بعض الإشعارات الجديدة المحفوظة في \"مركز الإشعارات\"."</string>
+</resources>

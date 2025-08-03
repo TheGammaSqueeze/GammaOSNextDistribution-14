@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="6179574017413146651">"ସକ୍ରିୟ ଷ୍ଟବ୍"</string>
+    <string name="message_not_supported" msgid="133939962837892495">"କୌଣସି ଆପ୍‌ ଏହାକୁ ନିୟନ୍ତ୍ରଣ କରିପାରିବେ ନାହିଁ।"</string>
+    <string name="pip_not_supported" msgid="8681268258599412706">"ଏହି ଡିଭାଇସରେ ପିକଚର୍ ଇନ୍ ପିକଚର୍ ସମର୍ଥିତ ନୁହେଁ"</string>
+    <string name="manage_unknown_app_sources_not_supported" msgid="7368611099531260439">"ଏହି ଡିଭାଇସରେ ଅଜଣା ଆପ ସୋର୍ସ ପରିଚାଳନା କରିବା ସମର୍ଥିତ ନୁହେଁ"</string>
+    <string name="documentsui_not_supported" msgid="2786636475647817501">"ଏହି ଡିଭାଇସରେ ଫାଇଲ ମେନେଜମେଣ୍ଟ ସମର୍ଥିତ ନୁହେଁ"</string>
+    <string name="stub_name" msgid="3987164490218189006">"କିଛିନାହିଁ"</string>
+</resources>

@@ -1,0 +1,71 @@
+//
+// Copyright (C) 2018 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_defaults {
+    name: "FlickerLibTestDefault",
+    manifest: "manifests/AndroidManifest.xml",
+    test_config_template: "AndroidTestTemplate.xml",
+    // sign this with platform cert, so this test is allowed to call private platform apis
+    certificate: "platform",
+    platform_apis: true,
+    test_suites: ["device-tests"],
+    libs: ["android.test.runner"],
+    optimize: {
+        enabled: false
+    },
+    static_libs: [
+        "flickerlib",
+        "flickerlib-trace_processor_shell",
+        "FlickerLibTest-Utils",
+        "launcher-aosp-tapl",
+        "mockito-target-extended-minus-junit4"
+    ],
+    data: [
+        "trace_config/*",
+    ]
+}
+
+android_test {
+    name: "FlickerLibTest",
+    defaults: ["FlickerLibTestDefault"],
+    additional_manifests: ["manifests/AndroidManifestUnit.xml"],
+    package_name: "android.tools",
+    instrumentation_target_package: "android.tools",
+    srcs: [
+        "src/**/*.kt",
+    ],
+    exclude_srcs: [
+        "src/android/tools/integration/**/*.kt",
+    ]
+}
+
+android_test {
+    name: "FlickerLibTestE2e",
+    defaults: ["FlickerLibTestDefault"],
+    additional_manifests: ["manifests/AndroidManifestIntegration.xml"],
+    package_name: "android.tools.integration",
+    instrumentation_target_package: "android.tools.integration",
+    srcs: [
+        "src/android/tools/integration/**/*.kt",
+        "src/android/tools/rules/**/*.kt",
+        "src/android/tools/Utils.kt",
+    ],
+}

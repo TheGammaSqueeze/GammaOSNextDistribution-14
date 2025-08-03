@@ -1,0 +1,15 @@
+{
+    "uuid": "60412d96-f72c-49e8-a1b0-c7355695f2c9",
+    "min_heap": 2097152,
+    "min_stack": 4096,
+    "mgmt_flags": {"non_critical_app": true},
+    "start_ports": [
+        {
+            "name": "DLMALLOC_TEST_SRV_PORT",
+            "flags": {
+                "allow_ta_connect": true,
+                "allow_ns_connect": false
+            }
+        }
+    ]
+}

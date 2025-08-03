@@ -1,0 +1,24 @@
+{
+  "auction_config": {
+    "auction_signals": "{\"maxFloorCpmUsdMicros\": 6250}",
+    "buyer_list": [
+      "ba-buyer-5jyy5ulagq-uc.a.run.app",
+      "ba-buyer2-5jyy5ulagq-uc.a.run.app"
+    ],
+    "buyer_timeout_ms": 60000,
+    "per_buyer_config": {
+      "ba-buyer-5jyy5ulagq-uc.a.run.app": {
+        "buyer_debug_id": "buyer_123",
+        "buyer_signals": "[[42]]"
+      },
+      "ba-buyer2-5jyy5ulagq-uc.a.run.app": {
+        "buyer_debug_id": "buyer_123",
+        "buyer_signals": "[[42]]"
+      }
+    },
+    "seller": "https://ba-seller-5jyy5ulagq-uc.a.run.app",
+    "seller_debug_id": "seller_123",
+    "seller_signals": "[[72]]"
+  },
+  "client_type": "CLIENT_TYPE_ANDROID"
+}

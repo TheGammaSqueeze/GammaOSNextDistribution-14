@@ -1,0 +1,9 @@
+package: "com.android.bluetooth.flags"
+container: "com.android.btservices"
+
+flag {
+    name: "audio_routing_centralization"
+    namespace: "bluetooth"
+    description: "Centralize all audio routing relate functionality of BT module into ActiveDeviceManager."
+    bug: "300174072"
+}

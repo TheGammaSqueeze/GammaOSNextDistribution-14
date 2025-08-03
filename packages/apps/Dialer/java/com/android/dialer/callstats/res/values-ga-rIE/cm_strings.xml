@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2013-2014 The CyanogenMod Project
+     Copyright (C) 2018 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="call_stats_detail_title">Sonraí teagmhála staitisticí</string>
+    <string name="call_stats_incoming">Glao isteach: <xliff:g id="value">%s</xliff:g></string>
+    <string name="call_stats_outgoing">Glao amach: <xliff:g id="value">%s</xliff:g></string>
+    <string name="call_stats_missed">Chaill: <xliff:g id="value">%s</xliff:g></string>
+    <string name="call_stats_blocked">Blocáilte: <xliff:g id="value">%s</xliff:g></string>
+    <string name="call_stats_percent"><xliff:g id="percent">%d</xliff:g>%%</string>
+    <string name="call_stats_header_total">Iomlán: <xliff:g id="call_count">%1$s</xliff:g>, <xliff:g id="duration">%2$s</xliff:g></string>
+    <string name="call_stats_header_total_callsonly">Iomlán: <xliff:g id="call_count">%s</xliff:g></string>
+    <string name="call_stats_filter_from">Dáta tosaigh</string>
+    <string name="call_stats_filter_to">Dáta deiridh</string>
+    <string name="call_stats_filter_picker_title">Raon scagaire</string>
+    <string name="date_quick_selection">Roghnú tapa</string>
+    <string name="date_qs_currentmonth">Mí reatha</string>
+    <string name="date_qs_currentquarter">Ráithe reatha</string>
+    <string name="date_qs_currentyear">Bliain reatha</string>
+    <string name="date_qs_lastweek">Seachtain seo caite</string>
+    <string name="date_qs_lastmonth">Mí seo caite</string>
+    <string name="date_qs_lastquarter">Ráithe seo caite</string>
+    <string name="date_qs_lastyear">Anuraidh</string>
+    <string name="call_stats_date_filter">Coigeartaigh raon ama</string>
+    <string name="call_stats_reset_filter">Athshocraigh raon ama</string>
+    <string name="call_stats_sort_by_duration">Sórtáil de réir ré an ghlao</string>
+    <string name="call_stats_sort_by_count">Sórtáil de réir comhaireamh glaonna</string>
+    <string name="call_stats_title_for_number">An uimhir seo</string>
+    <string name="call_stats_title_of_total">Den iomlán</string>
+    <string name="call_stats_title_durations">Fad glaonna</string>
+    <string name="call_stats_title_count">Comhaireamh glaonna</string>
+    <string name="call_stats_title_average_duration">Meánré ghlao</string>
+    <string name="recent_calls_no_items_in_range">Níl aon ghlaonna i do loga glaonna sa raon ama roghnaithe.</string>
+</resources>

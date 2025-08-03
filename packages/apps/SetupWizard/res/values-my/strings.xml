@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2013-2015 The CyanogenMod Project
+     SPDX-FileCopyrightText: 2017-2024 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">စတင်သတ်မှတ်ခြင်း</string>
+    <string name="next">နောက်သို့</string>
+    <string name="skip">ကျော်မည်</string>
+    <string name="start">စတင်မည်</string>
+    <string name="done">ပြီးဆုံးပါပြီ</string>
+    <string name="ok">ကောင်းပြီ</string>
+    <string name="loading">ခဏစောင့်ပါ\u2026</string>
+    <string name="setup_welcome_message"><xliff:g id="name" example="LineageOS">%1$s</xliff:g> မှ ကြိုဆိုပါတယ်</string>
+    <string name="emergency_call">အရေးပေါ် ခေါ်ဆိုမှု</string>
+    <string name="accessibility_settings">အထောက်အကူပြု သတ်မှတ်ချက်များ</string>
+    <string name="setup_locale">ဘာသာစကား</string>
+    <string name="setup_sim_missing">ဆင်းမ်ကဒ် မရှိပါ</string>
+    <string name="sim_missing_summary" product="tablet">သင့် တက်ဘလက်တွင် ဆင်းကဒ်ကိုမတွေ့ရှိပါ။ ဆင်းကဒ်ထည့်ရန် ပစ္စည်းဝယ်ချိန်ကပါလာသော လမ်းညွှန်ချက်ကိုဖတ်ပါ။</string>
+    <string name="sim_missing_summary" product="default">သင့်ဖုန်းတွင် ဆင်းကဒ်ကိုမတွေ့ရှိပါ။ ဆင်းကဒ်ထည့်ရန် ပစ္စည်းဝယ်ချိန်ကပါလာသော လမ်းညွှန်ချက်ကိုဖတ်ပါ။</string>
+    <string name="setup_datetime">ရက်စွဲနှင့် အချိန်</string>
+    <string name="date_time_summary">သင်၏အချိန်ဇုန်ကိုရွေးချယ်ပြီး လိုအပ်ပါက လက်ရှိရက်စွဲနှင့်အချိန်ကို ချိန်ညှိပါ။</string>
+    <string name="setup_current_date">လက်ရှိနေ့စွဲ</string>
+    <string name="setup_current_time">လက်ရှိအချိန်</string>
+    <string name="setup_location">တည်နေရာပြလုပ်ဆောင်ချက်များ</string>
+    <string name="location_access_summary">သင်၏တည်နေရာဆိုင်ရာအချက်အလက်များကိုအသုံးပြုရန် <b>ခွင့်တောင်းထားသော အက်ပ်များကိုခွင့်ပြုမည်။</b> ၎င်းတွင် သင်၏လက်ရှိတည်နေရာနှင့် ယခင်ကတည်နေရာဆိုင်ရာအချက်အလက်များပါဝင်သည်။</string>
+    <string name="update_recovery_full_description"><xliff:g id="recovery_update_description">%1$s</xliff:g>\n<xliff:g id="recovery_update_warning">%2$s</xliff:g></string>
+    <string name="setup_services">LineageOS လုပ်ဆောင်နိုင်မှုများ</string>
+    <string name="services_pp_explanation">ဤလုပ်ဆောင်ချက်သည် သင့်စက်ပစ္စည်း၏ စွမ်းဆောင်နိုင်မှုကို တိုးမြင့်စေနိုင်ပါသည်။ အချက်အလက်များကို <xliff:g id="name" example="LineageOS">%1$s</xliff:g>၏ ပုဂ္ဂိုလ်ရေးဆိုင်ရာမူဝါဒအတိုင်း အသုံးပြုပါမည်။</string>
+    <string name="services_help_improve_cm"><xliff:g id="name" example="LineageOS">%s</xliff:g> ကိုတိုးတက်လာအောင် ကူညီပါ။</string>
+    <string name="services_metrics_label"><xliff:g id="name" example="Help improve LineageOS">%1$s</xliff:g> သည် ပြဿနာများနှင့် အသုံးပြုမှုဆိုင်ရာအချက်အလက်များကို <xliff:g id="name" example="LineageOS">%2$s</xliff:g> သို့ပေးပို့ပါမည်။ အချက်အလက်များသည် သင်မည်သူမည်ဝါဖြစ်သည်ကို မခွဲခြားနိုင်ဘဲ ဘက်ထရီသက်တမ်း, အက်ပ်များ၏ စွမ်းဆောင်ရည်များနှင့် <xliff:g id="name" example="LineageOS">%3$s</xliff:g>၏ လုပ်ဆောင်မှုအသစ်များကဲ့သို့သော အချက်အလက်များကို အလုပ်လုပ်နေသောအဖွဲ့ထံသို့သာ လွှဲပြောင်းပါမည်။</string>
+    <string name="services_full_description"><xliff:g id="pp_explanation">%1$s</xliff:g>\n<xliff:g id="pp_find">%2$s</xliff:g></string>
+    <string name="setup_navigation">လမ်းညွှန်</string>
+    <string name="navigation_summary">သင်အားသာသော လမ်းညွှန်မှုနည်းလမ်းကို ရွေးချယ်ပါ</string>
+    <string name="gesture_navigation">လက်ဟန်ဖြင့် လမ်းညွှန်ခြင်း</string>
+    <string name="two_button_navigation">ခလုတ် ၂ ခု ဖြင့် လမ်းညွှန်ခြင်း</string>
+    <string name="navbar_navigation">ခလုတ် ၃ ခု ဖြင့် လမ်းညွှန်ခြင်း</string>
+    <string name="hide_gesture_hint">လက်ဟန်ဖြင့် လမ်းညွှန်ခြင်းအကူကိုပိတ်မည်</string>
+</resources>

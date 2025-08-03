@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- The nested scroll view holds the layout that is made visible when
+    the picker is empty. It has been wrapped in the scroll view to tackle
+    bugs where the "empty_text_view" gets rolled off the screen partially
+    or completely in small screen devices -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@android:id/empty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="80dp"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_artwork_camera"
+                android:contentDescription="@null"/>
+
+            <TextView
+                android:id="@+id/empty_text_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/picker_empty_text_margin"
+                android:gravity="center_horizontal"
+                android:text="@string/picker_photos_empty_message"
+                android:textColor="?android:attr/textColorSecondary"
+                android:textSize="@dimen/picker_empty_text_size"
+                style="?android:attr/textAppearanceListItem"/>
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+    <com.android.providers.media.photopicker.ui.AutoFitRecyclerView
+        android:id="@+id/picker_tab_recyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:drawSelectorOnTop="true"
+        android:overScrollMode="never"/>
+
+    <TextView
+        android:id="@+id/loading_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:text="@string/picker_loading_photos_message"
+        android:textColor="?android:attr/textColorPrimary"
+        android:textSize="@dimen/picker_tab_loading_message_text_size"
+        style="?android:attr/textAppearanceListItem"
+        android:visibility="gone"/>
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/picker_progress_bar_margin_top"
+        style="@style/android:Widget.Material.ProgressBar.Horizontal"
+        android:indeterminate="true"
+        android:visibility="gone"/>
+
+</FrameLayout>

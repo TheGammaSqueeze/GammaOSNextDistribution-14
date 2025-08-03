@@ -1,0 +1,645 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+** Copyright 2015, The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+-->
+
+<!-- Resources to configure car service based on each OEM's preference. -->
+
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
+    <!--  Configuration to enable usage of dynamic audio routing. If this is set to false,
+          dynamic audio routing is disabled and audio works in legacy mode. It may be useful
+          during initial development where audio hal does not support bus based addressing yet. -->
+    <bool name="audioUseDynamicRouting">false</bool>
+
+    <!--  Configuration to enable usage of core audio volume API, aka using AudioManager's
+          AudioAttributes based volume API.
+          Volume application is delegated to AudioPolicyManager. -->
+    <bool name="audioUseCoreVolume">false</bool>
+
+    <!--  Configuration to enable usage of core audio routing API.
+          It may also be enabled with Dynamic Routing enabled, thus, overriding policy routing rules
+          when Dynamic rules can be effectively established. -->
+    <bool name="audioUseCoreRouting">false</bool>
+
+    <!--  Configuration to enable muting of individual volume groups. If this is set to
+          false, muting of individual volume groups is disabled, instead muting will toggle master
+          mute. If this is set to true, car volume group muting is enabled and each individual
+          volume group can be muted separately. -->
+    <bool name="audioUseCarVolumeGroupMuting">false</bool>
+
+    <!--  Configuration to enable IAudioControl#onDevicesToDuckChange API to inform HAL when to
+          duck. If this is set to true, the API will receive signals indicating which output devices
+          to duck as well as what usages are currently holding focus. If set to false, the API will
+          not be called. -->
+    <bool name="audioUseHalDuckingSignals">true</bool>
+
+    <!--  Configuration to select version of volume adjustment context priority list.
+          Version 1 includes all audio contexts arranged in the following order:
+            NAVIGATION, CALL, MUSIC, ANNOUNCEMENT, VOICE_COMMAND, CALL_RING, SYSTEM_SOUND, SAFETY,
+            ALARM, NOTIFICATION, VEHICLE_STATUS, EMERGENCY.
+          Version 2 is limited to the following contexts in order:
+            CALL, MUSIC, ANNOUNCEMENTS, VOICE_COMMAND
+
+          audioVolumeAdjustmentContextsVersion - Integer version number currently limited to
+                                                 numbers listed above. -->
+    <integer name="audioVolumeAdjustmentContextsVersion">1</integer>
+
+    <!--  Configuration to persist global mute state. If this is set to true,
+          Android will restore the global mute state on boot. If audioUseCarVolumeGroupMuting is
+          true, this will have no impact on persisting mute changes as mute changes will be based
+          on individual volume group.-->
+    <bool name="audioPersistMasterMuteState">true</bool>
+
+    <!--  Configuration to indicate the timeout in milliseconds while a car volume group will be
+          considered active for volume control changes during volume key events. The configuration
+          will be used as follows:
+          - The timeout will be used to determine if a playback (audio context associated with the
+            playback's audio usage) can still be considered for automatic volume selection after it
+            has stopped playing.
+          - The timeout will also be used as the pause duration required in between automatic volume
+            adjustments to change what user is adjusting. -->
+    <integer name="audioVolumeKeyEventTimeoutMs">3000</integer>
+
+    <!--  Configuration to enable callback events to volume groups. If this is set to true, clients
+          will receive callback through ICarVolumeGroupEvent to events impacting volume groups.
+          When enabled:
+          - It is strongly recommended that the vendors also support
+            IAudioControl#setModuleChangeCallback, IAudioControl#registerGainCallback for events
+            and changes to audio hardware.
+          - If both CarVolumeCallback and CarVolumeGroupEventCallback are registered by the same
+            application, then the volume group index and volume group mute callbacks shall be
+            through CarVolumeGroupEventCallback ONLY. Therefore, it is strongly recommended that
+            all the applications migrate to the new callback interface for consistent behavior. -->
+    <bool name="audioUseCarVolumeGroupEvent">false</bool>
+
+    <!-- Configuration to enable fade during audio focus changes. If this is set to true, car audio
+         framework will parse the car audio fade config definitions and apply the respective
+         FadeManagerConfiguration when dispatching audio focus loss.
+         Note:
+         - Although car audio framework expects valid fade config definitions when the flag is
+           enabled, the absence of the such definitions does not automatically result in a fatal
+           exception.
+         - All applications of fade configs must have matching fade definitions. It is a fatal error
+           to call out a fade config (by its name) as part of car audio configuration without
+           providing a valid definition.
+         - When the flag is disabled, all fade config definitions and any config application shall
+           be ignored. -->
+    <bool name="audioUseFadeManagerConfiguration">false</bool>
+
+    <!--  Configuration to enable min/max activation volume. If this is set to true, the volume of
+          the volume group with min/max activation volume setting will be set to min activation
+          volume or max activation volume if volume during activation is lower than min activation
+          volume or higher than max activation volume respectively. If this is set to false, no
+          volume level will be changed during activation.-->
+    <bool name="audioUseMinMaxActivationVolume">false</bool>
+
+    <!--  Configuration to enable isolated audio focus request for playback on dynamic devices. If
+          this is set to true, focus requests should only interact if the focus requests are
+          for the same zone and targeting playback will be routed to the same device. Otherwise,
+          the focus requests should interact only if the requests are for the same audio zone.-->
+    <bool name="audioUseIsolatedAudioFocusForDynamicDevices">false</bool>
+
+    <!-- Whether to block other audio while media audio is muted with display off. When set to true,
+         other sounds cannot be played either while display is off. If false, only media is muted
+         and other sounds can be still played. -->
+    <bool name="displayOffMuteLockAllAudio">true</bool>
+
+    <!--  Configuration to enable or disable the default Bluetooth Device Connection Policy. This
+          policy determines when to initiate device connections, but does not control the actual
+          connection process. Disable this default to implement your own policy. -->
+    <bool name="useDefaultBluetoothConnectionPolicy">true</bool>
+
+    <!--  Configuration to enable or disable the default Bluetooth Power Policy. This
+          policy determines when to enable and/or disable the Bluetooth adapter based on
+          CarPowerManager power states. Disable this default to implement your own policy. -->
+    <bool name="useDefaultBluetoothPowerPolicy">true</bool>
+
+    <!--  Service responsible for displaying information on the car instrument cluster. -->
+    <string name="instrumentClusterRendererService" translatable="false">android.car.cluster/.ClusterRenderingService</string>
+
+    <!--  The name of Activity who is in charge of ClusterHome. -->
+    <string name="config_clusterHomeActivity" translatable="false">com.android.car.cluster.home/.ClusterHomeActivity</string>
+
+    <!-- Configures the mode in which ClusterHomeService operates.
+         Currently supported modes are:
+           0 (full mode): All VHAL properties in ClusterHalService#CORE_PROPERTIES must be
+                          available. Otherwise, the entire ClusterHomeService is disabled.
+           1 (light mode): ClusterHomeService is always enabled even without any VHAL properties.
+         -->
+   <integer name="config_clusterHomeServiceMode">0</integer>
+
+    <!--  Service responsible for handling the rotary controller input. This service will start
+          on boot or on user switch. Set this string to empty if you don't want to start this
+          service. -->
+    <string name="rotaryService" translatable="false">com.android.car.rotary/com.android.car.rotary.RotaryService</string>
+
+    <!--  Whether to enable Activity blocking for safety. When Activity blocking is enabled,
+          only allowlisted safe Activities will be allowed while car is not parked. -->
+    <bool name="enableActivityBlockingForSafety">true</bool>
+    <!--  Activity to be presented when un-safe activity is launched. Take a look at the javadoc of the
+          default implementation. -->
+    <string name="activityBlockingActivity" translatable="false">
+        com.android.systemui/com.android.systemui.car.activity.ActivityBlockingActivity
+    </string>
+    <string name="continuousBlankActivity" translatable="false">
+        com.android.systemui/com.android.systemui.car.activity.ContinuousBlankActivity
+    </string>
+    <!--  Comma separated list of activities that need to be exempted from getting
+          blocked in a UX restricted state.
+          Format of each entry is either to specify package name to allowlist the whole package or
+          use format of "packagename/activity_classname" for tagging each activities.
+          For general guidelines to design distraction optimized apps, please refer
+          to Android Auto Driver Distraction Guidelines. -->
+    <string name="activityAllowlist" translatable="false"></string>
+    <!--  Comma separated list of activities that need to be exempted from getting
+          blocked in a UX restricted state.
+          Format of each entry is either to specify package name to allowlist the whole package or
+          use format of "packagename/activity_classname" for tagging each activities.
+          The current implementations expects the following system packages/activities to be
+          allowlisted. For general guidelines to design distraction optimized apps, please refer
+          to Android Auto Driver Distraction Guidelines. -->
+    <string name="systemActivityAllowlist" translatable="false">com.android.systemui,com.google.android.permissioncontroller/com.android.permissioncontroller.permission.ui.GrantPermissionsActivity,com.android.permissioncontroller/com.android.permissioncontroller.permission.ui.GrantPermissionsActivity,android/com.android.internal.app.ResolverActivity,com.android.mtp/com.android.mtp.ReceiverActivity,com.android.server.telecom/com.android.server.telecom.components.UserCallActivity</string>
+    <!--  Comma separated list of activities that will be blocked during restricted state.
+          Format of each entry is either to specify package name to allowlist the whole package
+          or use format of "packagename/activity_classname" for tagging each activities.-->
+    <string name="activityDenylist" translatable="false"></string>
+    <!-- List of play store package names that are allowed sources of app installation-->
+    <string-array translatable="false" name="allowedAppInstallSources">
+    </string-array>
+    <!-- Default home activity -->
+    <string name="defaultHomeActivity" translatable="false"><!--com.your.package/com.your.package.Activity--></string>
+    <!-- The vendor-defined HAL property used to collect VMS client metrics. Disabled by default.-->
+    <integer name="vmsHalClientMetricsProperty">0</integer>
+    <!--  The com.android.car.vms.VmsClientManager will bind to this list of clients running as system user -->
+    <string-array translatable="false" name="vmsPublisherSystemClients">
+    </string-array>
+    <!--  The com.android.car.vms.VmsClientManager will bind to this list of clients running as current user -->
+    <string-array translatable="false" name="vmsPublisherUserClients">
+    </string-array>
+    <!-- Number of milliseconds to wait before trying re-bind to a crashed publisher. -->
+    <integer name="millisecondsBeforeRebindToVmsPublisher">10000</integer>
+
+    <!-- Hours of uptime (excluding sleep) after which a 1% increase in the wear of the flash
+         storage in the head-unit is considered as acceptable level of wear. -->
+    <integer name="acceptableHoursPerOnePercentFlashWear">70</integer>
+
+    <!-- How often (in hours of uptime excluding sleep) CarService will flush to disk information
+         about the total running time of the head-unit. A shutdown or reboot of the head-unit
+          will always cause a flush of the uptime information, regardless of this setting. -->
+    <integer name="uptimeHoursIntervalBetweenUptimeDataWrite">5</integer>
+
+    <!-- The name of an activity to be launched by CarService whenever it detects a change in the
+         level of wear of the flash storage. Value must either be an empty string, which means that
+         no activity shall be launched, or must be in the format of a flattened ComponentName and
+         reference a valid activity. It is strongly recommended that the chosen activity be
+         protected with the android.car.permission.STORAGE_MONITORING permission. -->
+    <string name="activityHandlerForFlashWearChanges" translatable="false">com.google.android.car.defaultstoragemonitoringcompanionapp/.MainActivity</string>
+
+    <!-- How often (in seconds) CarService will update I/O metrics from the kernel. -->
+    <integer name="ioStatsRefreshRateSeconds">60</integer>
+
+    <!-- The number of I/O metrics samples to keep in memory at one time.
+         The system will keep a sliding window of samples of this size, and allow
+         retrieval of activity this many sample windows back in time. Setting this to
+         0 means no samples will be collected, effectively disabling I/O metric collection. -->
+    <integer name="ioStatsNumSamplesToStore">15</integer>
+
+    <!-- The maximum number of KB (1024 bytes) that can be written to storage in one sample
+         before CarService deems I/O activity excessive. A simple way to set this value
+         is - given the total writable amount (storage size * P/E cycles) - to make
+         reasonable assumptions about the expected lifetime of the vehicle and the average
+         daily driving time, and use that to allocate a per-sample budget. -->
+    <integer name="acceptableWrittenKBytesPerSample">115000</integer>
+    <!-- The maximum number of fsync() system calls that can be made in one sample before
+         CarService deems I/O activity excessive. -->
+    <integer name="acceptableFsyncCallsPerSample">150</integer>
+
+    <!-- The maximum number of samples (within an I/O stats sample window) that CarService
+         should consider exhibiting excessive I/O activity before broadcasting an intent
+         to signal the potential for flash wear. -->
+    <integer name="maxExcessiveIoSamplesInWindow">11</integer>
+
+    <!-- The number of days past until the current day considered by car watchdog to
+         reset the killable state of a package back to KILLABLE_STATE_YES if the package
+         was set to prioritize performance by the user. -->
+    <integer name="watchdogUserPackageSettingsResetDays">90</integer>
+
+    <!-- The number of days past until the current day considered by car watchdog to
+         attribute recurring overuse to a package.  -->
+    <integer name="recurringResourceOverusePeriodInDays">14</integer>
+
+    <!-- The number of overuses a package has to exceed for car watchdog to attribute
+         recurring overuse.  -->
+    <integer name="recurringResourceOveruseTimes">2</integer>
+
+    <!-- The number of top UID I/O usage summaries to report on car watchdog I/O usage
+         summary atom pull.  -->
+    <integer name="uidIoUsageSummaryTopCount">10</integer>
+
+    <!-- The minimum number of total bytes written to disk by the system required to
+         report the stats on car watchdog I/O usage summary atom pull. Currently 500 MiB.  -->
+    <integer name="ioUsageSummaryMinSystemTotalWrittenBytes">524288000</integer>
+
+    <!-- The name of an intent to be notified by CarService whenever it detects too many
+         samples with excessive I/O activity. Value must either be an empty string, which
+         means that no notification will take place, or be in the format of a flattened
+         ComponentName and reference a valid BroadcastReceiver. This broadcast receiver
+         must be registered in its containing app's AndroidManifest.xml and it is
+         strongly recommended that it be protected with the
+         android.car.permission.STORAGE_MONITORING permission. -->
+    <string name="intentReceiverForUnacceptableIoMetrics" translatable="false">com.google.android.car.defaultstoragemonitoringcompanionapp/.ExcessiveIoIntentReceiver</string>
+
+     <!-- The path to a file that contains lifetime estimation metrics for the eMMC storage on
+          this system, in the lifetimeA lifetimeB format, as defined by the eMMC extended CSD
+          register specification. -->
+     <string name="eMmcLifetimeFilePath" translatable="false">/sys/bus/mmc/devices/mmc0:0001/life_time</string>
+
+     <!-- The path to a file that contains end of life estimation metrics for the eMMC storage on
+          this system, in the format defined by the eMMC extended CSD register specification. -->
+     <string name="eMmcEolFilePath" translatable="false">/sys/bus/mmc/devices/mmc0:0001/pre_eol_info</string>
+
+    <!-- The Model ID to advertise Bluetooth Fast Pair connections with.  Must be overlayed with
+         device specific model id. A model id of 0 will disable Fast Pair-->
+    <integer name="fastPairModelId">0x000000</integer>
+
+    <!-- The Anti Spoofing Public key associated with the advertised Fast Pair Model ID, base64
+         encoded. -->
+    <string name="fastPairAntiSpoofKey" translatable="false"></string>
+
+    <!-- Enable to allow Fast Pair to automatically accept incoming pairing requests with matching
+         Simple Secure Pairing codes without requiring further user input. -->
+    <bool name="fastPairAutomaticAcceptance">false</bool>
+
+    <!-- Maximum allowed time to run garage mode. Note that 15 min (=900sec) is the minimum required
+         duration and this should not be made shorter. -->
+    <integer name="maxGarageModeRunningDurationInSecs">900</integer>
+
+    <!-- The services that need to be started earlier in the boot sequence and in particular order.
+         Every item in this array contains a flatten component name of a service that needs to be
+         started and a list of parameters after hashtag symbol. Here's the format:
+
+         <item>com.bar.foo/.Service#bind={bind|start|startForeground},
+         user={all|system|foreground|visible|backgroundVisible},
+         trigger={asap|resume|userUnlocked|userPostUnlocked}</item>
+
+         bind: bind - start service with Context#bindService
+               start - start service with Context#startService
+               startForeground - start service with Context#startForegroundService
+               If service was bound it will be restarted unless it is constantly crashing.
+               The default value is 'start'
+         user: all - the service will be bound/started for system and all visible users
+               system - the service will be started/bound only for system user (u0)
+               foreground - the service will be bound/started only for foreground users
+               visible - the service will be bound/started only for visible users (as defined by
+                         `UserManager#isUserVisible()`).
+               backgroundVisible - the service will be bound/started only for background users that
+                                   are visible.
+               The default value is 'all'
+         trigger: indicates when the service needs to be started/bound
+               asap - the service might be bound when user is not fully loaded, be careful with
+                      this value, the service also needs to have directBootAware flag set to true
+               resume - start service when the device resumes from suspend (suspend-to-RAM, or
+                        suspend-to-disk).
+               userUnlocked - start service when user unlocked the device
+               userPostUnlocked - start service later after user unlocked. This is used when the
+                                  service is not urgent and can wait to start.
+               The default value is 'userUnlocked'
+         maxRetries: the maximum number of attempts to rebind/restart a disconnected service.
+               Retries start with 4 second initial delay, being doubled after each failed attempt.
+               The default value is 6.
+
+         If the service bound/started for foreground user it will be unbound/stopped when user
+         is no longer foreground.
+     -->
+    <string-array translatable="false" name="config_earlyStartupServices">
+    </string-array>
+
+    <!-- The consent activity that must be shown for every unknown mobile device before projection
+         gets started.  The format is: com.your.package/com.your.Activity
+         NOTE: deprecated for aareceiver, see integration guide to use aareceiver specific RROs.
+    -->
+    <string name="config_projectionConsentActivity" translatable="false"/>
+
+    <!-- Display Id where projection rendering activity needs to be shown, Specify -1 to use system
+         defaults
+         NOTE: deprecated for aareceiver, see integration guide to use aareceiver specific RROs.
+     -->
+    <integer name="config_projectionActivityDisplayId" translatable="false">-1</integer>
+
+    <!-- Bounds of the projection activity on the screen. It should be in the pixels and screen
+         coordinates in the following order: left, top, right, bottom.
+         NOTE: deprecated for aareceiver, see integration guide to use aareceiver specific RROs.
+    -->
+    <integer-array name="config_projectionActivityLaunchBounds" translatable="false"/>
+
+    <!-- UI mode for projection activity. See ProjectionOptions class for possible values.
+         NOTE: deprecated for aareceiver, see integration guide to use aareceiver specific RROs.
+    -->
+    <integer name="config_projectionUiMode" translatable="false">0</integer>
+
+    <!-- Configure whether access point created for wireless projection should be in tethered mode.
+         This will allow mobile device to use Internet provided by the vehicle during projection.
+         If this value is true then tethering is enabled. Otherwise, local-only hotspot will be
+         created. -->
+    <bool name="config_projectionAccessPointTethering" translatable="false">false</bool>
+
+    <!-- If projection Access Point is configured to not provide Internet access (not tethered,
+         see config_projectionAccessPointTethering) then this flag will be used to control
+         whether Wi-Fi configuration will persist reboots. By default new Wi-Fi credentials are
+         created for every local-only hotspot (LOHS) instantiation, changing this flag to true
+         will make LOHS credentials persistent. -->
+    <bool name="config_stableLocalOnlyHotspotConfig" translatable="false">true</bool>
+
+    <!-- The package name of a service to be launched by CarService to bind to an active media
+         service on the current  user.
+         TODO(b/139497602): Remove dependency on Media Center, handle in CarMediaService -->
+    <string name="serviceMediaConnection" translatable="false">com.android.car.media</string>
+
+    <!-- The package name of the default bugreport application that can use CarBugreportServiceManager.
+         There is no default bugreporting app.-->
+    <string name="config_car_bugreport_application" translatable="false"></string>
+
+    <!--
+        Lists all occupant (= driver + passenger) zones available in the car.
+        Some examples are:
+        <item>occupantZoneId=0,occupantType=DRIVER,seatRow=1,seatSide=driver</item>
+        <item>occupantZoneId=1,occupantType=FRONT_PASSENGER,seatRow=1,seatSide=oppositeDriver</item>
+        <item>occupantZoneId=2,occupantType=REAR_PASSENGER,seatRow=2,seatSide=left</item>
+        <item>occupantZoneId=3,occupantType=REAR_PASSENGER,seatRow=2,seatSide=right</item>
+
+        occupantZoneId: Unique unsigned integer id to represent each passenger zone. Each zone
+                        should have different id.
+        occupantType: Occupant type for the display. Use * part from
+                       CarOccupantZoneManager.OCCUPANT_TYPE_* like DRIVER, FRONT_PASSENGER,
+                       REAR_PASSENGER and etc.
+        seatRow: Integer telling which row the seat is located. Row 1 is for front seats.
+        seatSide: left/center/right for known side. Or can use driver/center/oppositeDriver to
+                  handle both right-hand driving and left-hand driving in one place.
+                  If car's RHD / LHD is not specified, LHD will be assumed and driver side becomes
+                  left.
+    -->
+    <string-array translatable="false" name="config_occupant_zones">
+        <item>occupantZoneId=0,occupantType=DRIVER,seatRow=1,seatSide=driver</item>
+    </string-array>
+    <!--
+        Specifies configuration of displays in system telling its usage / type and assigned
+        occupant. DEFAULT_DISPLAY, if assigned here, should be always assigned to the DRIVER zone.
+
+        Some examples are:
+        <item>displayPort=0,displayType=MAIN,occupantZoneId=0,inputTypes=DPAD_KEYS|
+            NAVIGATE_KEYS|ROTARY_NAVIGATION</item>
+        <item>displayPort=1,displayType=INSTRUMENT_CLUSTER,occupantZoneId=0,
+            inputTypes=DPAD_KEYS</item>
+        <item>displayPort=2,displayType=MAIN,occupantZoneId=1,
+            inputTypes=TOUCH_SCREEN</item>
+        <item>displayPort=3,displayType=MAIN,occupantZoneId=2,
+            inputTypes=TOUCH_SCREEN</item>
+        <item>displayUniqueId=virtual:com.example:MainD,displayType=MAIN,occupantZoneId=3,
+            inputTypes=TOUCH_SCREEN</item>
+
+        NOTE: each item should have displayPort or displayUniqueId, if it has both, displayPort
+          will be used.
+        displayPort: Unique Port id for the physical display.
+        displayUniqueId: Unique Id for the display.
+            The unique id of the virtual display will be the form of 'virtual:<PACKAGE>:<ID>'.
+        displayType: Display type for the display. Use * part from
+                       CarOccupantZoneManager.DISPLAY_TYPE_* like MAIN, INSTRUMENT_CLUSTER and
+                       etc.
+        occupantZoneId: occupantZoneId specified from config_occupant_zones.
+        inputTypes: supported input types for the corresponding display.
+
+    -->
+    <string-array translatable="false" name="config_occupant_display_mapping">
+    </string-array>
+
+    <!-- Specifies notice UI that will be launched when user starts a car or do user
+         switching. It is recommended to use dialog with at least TYPE_APPLICATION_OVERLAY window
+         type to show the UI regardless of activity launches. Target package will be auto-granted
+         necessary permission for TYPE_APPLICATION_OVERLAY window type. The UI package should
+         resolve permission by itself to use any higher priority window type.
+         Setting this string to empty will disable the feature. -->
+    <string name="config_userNoticeUiService" translatable="false">com.google.android.car.kitchensink/.UserNoticeDemoUiService</string>
+
+    <!-- Specifies the user picker to be launched on a secondary display when there is no user
+         allocation when the system boots and when a visible user stops.
+    -->
+    <string name="config_userPickerActivity" translatable="false">com.android.systemui/.car.userpicker.UserPickerActivity</string>
+
+    <!-- Configuration to enable media center to autoplay when the media source is changed.
+         There are 3 supported configurations:
+         0 - never play on change
+         1 - always play
+         2 - retain per source, play based on last remembered playback state for the new source
+         3 - retain previous state, play based on previous source's playback state -->
+    <integer name="config_mediaSourceChangedAutoplay">0</integer>
+    <!-- Configuration to enable media center to autoplay on boot -->
+    <integer name="config_mediaBootAutoplay">2</integer>
+    <!-- Setting this flag to true allows for browsing a different source than the
+         one that is currently playing audio. By default, there is only one active
+         source in the car, for both playback and browse. -->
+    <bool name="config_mediaSourceIndependentPlayback">true</bool>
+
+    <!--
+        Specifies optional features that can be enabled by this image. Note that vhal can disable
+        them depending on product variation.
+        Feature name can be either service name defined in Car.*_SERVICE for Car*Manager or any
+        optional feature defined under @OptionalFeature annotation.
+        Note that '/' is used to have subfeature under main feature like "MAIN_FEATURE/SUB_FEATURE".
+
+        Some examples are:
+        <item>storage_monitoring</item>
+        <item>com.android.car.user.CarUserNoticeService</item>
+        <item>com.example.Feature/SubFeature</item>
+
+        The default list defined below will enable all optional features defined.
+    -->
+    <string-array translatable="false" name="config_allowed_optional_car_features">
+        <item>car_navigation_service</item>
+        <item>cluster_service</item>
+        <item>com.android.car.user.CarUserNoticeService</item>
+        <item>diagnostic</item>
+        <item>storage_monitoring</item>
+        <item>vehicle_map_service</item>
+        <item>car_evs_service</item>
+        <item>car_telemetry_service</item>
+    </string-array>
+
+    <!-- Configuration to enable passenger support.
+         If this is set to true and there is a passenger display, a user can login to the passenger
+         display and use it as a normal Android user. -->
+    <bool name="enablePassengerSupport">false</bool>
+
+    <!-- Class name of the custom country detector to be used. Override the default value in the
+         device specific config file.  -->
+    <string name="config_customCountryDetector" translatable="false">com.android.server.location.ComprehensiveCountryDetector</string>
+
+    <!-- Controls the use of bluetooth voice recognition when long pressing the voice assist
+         button. -->
+    <bool name="enableLongPressBluetoothVoiceRecognition" translatable="false">true</bool>
+
+    <!-- Switch guest user into new guest user before going to sleep. If this is false, it will
+         be done after waking up from sleep. This only affects if the current user is a guest user.
+         -->
+    <bool name="config_switchGuestUserBeforeGoingSleep" translate="false">true</bool>
+
+    <!-- Enable profile user assignment per each CarOccupantZone for per display android user
+         assignments. This feature is still experimental. -->
+    <bool name="enableProfileUserAssignmentForMultiDisplay" translatable="false">false</bool>
+
+    <!-- The ComponentName of the media source that will be selected as the default -->
+    <string name="config_defaultMediaSource">com.android.car.radio/.service.RadioAppService</string>
+
+    <!-- A configuration flag to enable ending an ongoing call using the physical Call button. -->
+    <bool name="config_callButtonEndsOngoingCall">false</bool>
+
+    <!-- Number of milliseconds to wait before the system goes into Suspend-to-RAM.
+         The valid range is 0 to 3 * 60 * 1000. The default duration is 3 min (= 3 * 60 * 1000). -->
+    <integer name="config_maxSuspendWaitDuration">180000</integer>
+
+    <!-- Number of milliseconds to wait until all listeners complete when PRE_SHUTDOWN_PREPARE is
+         notified -->
+    <integer name="config_preShutdownPrepareTimeout">5000</integer>
+
+    <!-- Number of milliseconds to wait until all listeners complete when SHUTDOWN_ENTER is
+         notified -->
+    <integer name="config_shutdownEnterTimeout">5000</integer>
+
+    <!-- Number of milliseconds to wait until all listeners complete when POST_SHUTDOWN_ENTER is
+         notified -->
+    <integer name="config_postShutdownEnterTimeout">5000</integer>
+
+    <!-- A configuration flag to enable auto power saving for passenger displays.
+         When it's true, the driver display is not affected and always on. When it's false, auto
+         power saving is not applied. OEMs can implement their own auto power saving logic.
+         -->
+    <bool name="config_enablePassengerDisplayPowerSaving">true</bool>
+
+    <!-- Number of milliseconds to wait until screen is automatically turned off.
+         The default duration is 1 min (= 1 * 60 * 1000). -->
+    <integer name="config_noUserScreenOffTimeout">60000</integer>
+
+    <!--
+        CarEvsService configurations that associate camera devices with service types.
+
+        Some examples are:
+        <item>
+            serviceType=REARVIEW,cameraId=/dev/video0,activityName=com.android.car/com.google.android.car.evs.CarEvsCameraPreviewActivity
+        </item>
+        <item>serviceType=FRONTVIEW,cameraId=/dev/video1</item>
+
+        serviceType: One of CarEvsService types to be enabled. Please use "*" part from
+                     CarEvsManager.SERVICE_TYPE_* such as REARVIEW and FRONTVIEW.
+        cameraId: A camera identifier that will be associated with a given service type.
+                  This should be exclusive to a single service type.
+        activityName: A component name of an activity to be launched by the system events.
+    -->
+    <string-array name="config_carEvsService" translatable="false">
+    </string-array>
+
+    <!--
+        A name of a camera device that provides the rearview through EVS service.
+        This configuration becomes effective if and only if config_carEvsService is empty.
+    -->
+    <string name="config_evsRearviewCameraId" translatable="false">/dev/video10</string>
+
+    <!--
+        The camera Activity name for EVS, if defined, the Activity will be launched by
+        CarEvsService. This configuration is effective if and only if config_carEvsService
+        is empty.
+    -->
+    <string name="config_evsCameraActivity" translatable="false"></string>
+
+    <!-- A configuration flag to adjust Wifi for suspend. -->
+    <bool name="config_wifiAdjustmentForSuspend">false</bool>
+
+    <!-- A configuration flag to adjust enabling and disabling the GNSS Location Provider for Power
+         Management purposes such as Supsend to RAM. -->
+    <bool name="config_enableCarLocationServiceGnssControlsForPowerManagement" translatable="false">true</bool>
+
+    <!-- A configuration flag to prevent the templated apps from showing dialogs. This is done in
+         the view of driver safety as templated apps can potentially show a dialog with custom UI
+         which can be a distraction hazard for the driver. -->
+    <bool name="config_preventTemplatedAppsFromShowingDialog">true</bool>
+
+    <!-- The class name of the templated activities. This is used to detect currently running
+         templated activity.-->
+    <string name="config_template_activity_class_name">
+        androidx.car.app.activity.CarAppActivity
+    </string>
+
+    <!-- A flag to configure whether the ExternalCarTime VHAL property should be used to send
+         ExternalTimeSuggestions to the Android TimeManager service. -->
+    <bool name="config_enableExternalCarTimeToExternalTimeSuggestion">false</bool>
+
+    <!-- This is the component name for the OEM customization service. OEM can choose to implement
+         this service to customize car service behavior for different policies. If OEMs choose to
+         implement it, they have to implement a service extending OemCarService exposed by car-lib,
+         and implement the needed component services.
+         If the component name is invalid, CarService would not connect to any OEM service.
+         Component name can not be a third party package. It should be pre-installed -->
+   <string name="config_oemCarService" translatable="false"></string>
+
+    <!-- Related to OEM customization service. How many milliseconds CarService should wait for
+         OEM service to connect. If `config_oemCarService` is set and oem service package exists,
+         then CarService would wait for this much time for OEM service to connect. If OEM service
+         doesn't connect within this time, CarService would crash itself. -->
+    <integer name="config_oemCarService_connection_timeout_ms">5000</integer>
+
+    <!-- Related to OEM customization service. How many milliseconds CarService should wait for
+         OEM service to be ready. This is the wait time after OEM service is connected to
+         CarService. CarService would poll OEM service for being ready, if OEM service not ready
+         within timeout, CarService would crash. -->
+    <integer name="config_oemCarService_serviceReady_timeout_ms">5000</integer>
+
+    <!-- Related to OEM customization service. Default timeout for calls made by CarService to
+         OEM service. After this, CarService would timeout the call. If OEM service returns the
+         results after timeout, it would be ignored. -->
+    <integer name="config_oemCarService_regularCall_timeout_ms">5000</integer>
+
+    <!-- Related to OEM customization service. Default timeout for critical calls made by CarService
+         to OEM service. After this timeout, CarService would itself and OEM Service. -->
+    <integer name="config_oemCarService_crashCall_timeout_ms">10000</integer>
+
+    <!-- Related to OEM customization service. Default thread pool size for communicating with the
+         OEM Service. The value can only be between 8 and 16. If value is higher than 16, thread
+         pool size will be 16. If value is lower than 8, thread pool size will be 8.-->
+    <integer name="config_oemCarService_thread_pool_size">8</integer>
+
+    <!-- Number of seconds to wait until all remote tasks are completed. Should be no smaller than
+         30 seconds -->
+    <integer name="config_allowedSystemUptimeForRemoteAccess">300</integer>
+
+    <!-- Assigns passenger Activities to foreground cpuset rather than the top app cpuset.
+         This is enabled only for a system having both driver and passenger zones. If the system
+         has only driver zone or passenger zones, this configuration will be ignored. -->
+    <bool name="config_assignPassengerActivityToForegroundCpuGroup">true</bool>
+    <!-- Max number of retires for notifying AP power state change. -->
+    <integer name="config_notifyApStateChange_max_retry">100</integer>
+    <!-- Number of ms to sleep between retries for notifying AP power state change. -->
+    <integer name="config_notifyApStateChange_retry_sleep_ms">100</integer>
+
+    <!-- Configurations for ClusterHome visibility monitoring.
+         Please refer to {@link SurfaceControl#TrustedPresentationThresholds} for the detail. -->
+    <fraction name="config_clusterHomeVisibility_minAlpha">100%</fraction>
+    <fraction name="config_clusterHomeVisibility_minRendered">99.9%</fraction>
+    <integer name="config_clusterHomeVisibility_stabilityMs">100</integer>
+
+    <!-- A configuration flag to adjust the enabling of persistent tethering within
+         CarWifiService. -->
+    <bool name="config_enablePersistTetheringCapabilities">false</bool>
+</resources>

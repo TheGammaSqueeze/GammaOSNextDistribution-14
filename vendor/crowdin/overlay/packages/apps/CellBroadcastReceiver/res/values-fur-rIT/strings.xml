@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2011 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:android="http://schemas.android.com/apk/res/android" xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label">Alertis di emergjence wireless</string>
+    <string name="sms_cb_settings">Alertis di emergjence wireless</string>
+    <string name="sms_cb_sender_name_default">Alertis di emergjence wireless</string>
+    <string name="sms_cb_sender_name_presidential">Alertis di emergjence wireless</string>
+    <string name="sms_cb_sender_name_emergency">Alertis di emergjence wireless</string>
+    <string name="sms_cb_sender_name_public_safety">Notifiche informative</string>
+    <string name="cell_broadcast_settings_not_available">Lis alertis di emergjence cence fîi no son disponibilis par chest utent</string>
+    <string name="button_dismiss">Va ben</string>
+    <string name="no_cell_broadcasts">Nissun avîs precedent</string>
+    <string name="menu_preferences">Impostazions</string>
+    <string name="menu_delete_all">Elimine lis trasmissions</string>
+    <string name="message_options">Opzions dal messaç</string>
+    <string name="menu_view_details">Viôt i detais</string>
+    <string name="menu_delete">Elimine la trasmission</string>
+    <string name="view_details_title">Detais de alerte</string>
+    <string name="view_details_debugging_title">Detais de alerte pal debug</string>
+    <string name="confirm_delete_broadcast">Eliminâ cheste trasmission?</string>
+    <string name="confirm_delete_all_broadcasts">Eliminâ ducj i messaçs di trasmission ricevûts?</string>
+    <string name="button_delete">Elimine</string>
+    <string name="button_cancel">Anule</string>
+    <string name="etws_earthquake_warning">Avîs di taramot</string>
+    <string name="etws_tsunami_warning">Alerte tsunami</string>
+    <string name="etws_earthquake_and_tsunami_warning">Alerte taramot e tsunami</string>
+    <string name="etws_test_message">Messaç di prove ETWS</string>
+    <string name="etws_other_emergency_type">Alerte di emergjence</string>
+    <string name="cmas_presidential_level_alert">Alerte presidenziâl</string>
+    <string name="cmas_extreme_alert">Alerte di emergjence: estreme</string>
+    <string name="cmas_extreme_immediate_observed_alert">Alerte di emergjence: estreme</string>
+    <string name="cmas_extreme_immediate_likely_alert">Alerte di emergjence: estreme</string>
+    <string name="cmas_severe_alert">Alerte di emergjence: grivie</string>
+    <string name="cmas_amber_alert">Secuestri di frut (alerte AMBER)</string>
+    <string name="cmas_required_monthly_test">Necessarie prove mensîl</string>
+    <string name="cmas_exercise_alert">Alerte di emergjence (esercitazion)</string>
+    <string name="cmas_operator_defined_alert">Alerte di emergjence (operadôr)</string>
+    <string name="cb_other_message_identifiers">Messaçs di difusion</string>
+    <string name="public_safety_message">Messaç di sigurece publiche</string>
+    <string name="state_local_test_alert">Prove di stât/regjon/locâl</string>
+    <string name="emergency_alert">Alerte di emergjence</string>
+    <string name="emergency_alerts_title">Alertis</string>
+    <string name="notification_channel_broadcast_messages">Messaçs di difusion</string>
+    <string name="notification_channel_emergency_alerts">Alertis di emergjence</string>
+    <string name="notification_channel_emergency_alerts_high_priority">Avîs di emergjence no confermâts</string>
+    <string name="notification_channel_broadcast_messages_in_voicecall">Alertis di emergjence in calmade vocâl</string>
+    <string name="notification_channel_settings_updates">Lis impostazions WEA automatichis a cambiin in base ae SIM</string>
+    <string name="enable_alerts_master_toggle_title">Permet alertis</string>
+    <string name="enable_alerts_master_toggle_summary">Ricêf notifichis di alertis di emergjence cence fîi</string>
+    <string name="alert_reminder_interval_title">Pro memoria avîs</string>
+    <string name="enable_alert_speech_title">Pronunzie il messaç di alerte</string>
+    <string name="enable_alert_speech_summary">Dopre la sintesi vocâl par pronunziâ i messaçs di alerte di emergjence cence fîi</string>
+    <string name="alert_reminder_dialog_title">Al vignarà riprodot un sun di pro memoria a volum normâl</string>
+    <string name="emergency_alert_history_title">Cronologjie alertis di emergjence</string>
+    <string name="alert_preferences_title">Preferencis de alerte</string>
+    <string name="enable_etws_test_alerts_title">Trasmissions di prove ETWS</string>
+    <string name="enable_etws_test_alerts_summary">Trasmissions di prove pal sisteme di avîs pai taramots e pai tsunami</string>
+    <string name="enable_cmas_extreme_threat_alerts_title">Menacis estremis</string>
+    <string name="enable_cmas_extreme_threat_alerts_summary">Menacis estremis ae vite e ae proprietât</string>
+    <string name="enable_cmas_severe_threat_alerts_title">Menacis griviis</string>
+    <string name="enable_cmas_severe_threat_alerts_summary">Menacis griviis ae vite e ae proprietât</string>
+    <string name="enable_cmas_amber_alerts_title">Alertis AMBER</string>
+    <string name="enable_cmas_amber_alerts_summary">Boletins di emergjence sul secuestri di fruts</string>
+    <string name="enable_alert_message_title">Messaçs di alerte</string>
+    <string name="enable_alert_message_summary">Vise in merit a iminentis menacis di sigurece</string>
+    <string name="enable_public_safety_messages_title">Messaçs di sigurece publiche</string>
+    <string name="enable_public_safety_messages_summary">Azions racomandadis che a puedin salvâ lis vitis o lis proprietâts</string>
+    <string name="enable_full_screen_public_safety_messages_title">Mostre messaçs a plen schermi</string>
+    <string name="enable_full_screen_public_safety_messages_summary">Se disativât, i messaçs pe publiche sigurece a vegnin mandâts distès come notifiche</string>
+    <string name="enable_state_local_test_alerts_title">Provis di stât/regjon e locâls</string>
+    <string name="enable_state_local_test_alerts_summary">Ricêf i messaçs des provis des autoritâts di stât/regjon e locâls</string>
+    <string name="enable_emergency_alerts_message_title">Alertis di emergjence</string>
+    <string name="enable_emergency_alerts_message_summary">Vise in merit a events che a metin in pericul la vite</string>
+    <string name="enable_cmas_test_alerts_title">Alertis di prove</string>
+    <string name="enable_cmas_test_alerts_summary">Ricêf provis di operadôr e provis mensîi dal sisteme di alerte pe sigurece</string>
+    <string name="enable_exercise_test_alerts_title">@string/cmas_exercise_alert</string>
+    <string name="enable_exercise_test_alerts_summary">Ricêf alertis di emergjence: messaç di esercitazion</string>
+    <string name="enable_operator_defined_test_alerts_title">@string/cmas_operator_defined_alert</string>
+    <string name="enable_operator_defined_test_alerts_summary">Ricêf alertis di emergjence: operadôr definît</string>
+    <string name="enable_alert_vibrate_title">Vibrazion</string>
+    <string name="override_dnd_title">Alerte simpri a plen volum</string>
+    <string name="override_dnd_summary">Ignore il No Sta Disturbâ e altris impostazions pal volum</string>
+    <string name="enable_area_update_info_alerts_title">Trasmissions di inzornament de aree</string>
+    <string name="enable_area_update_info_alerts_summary">Mostre informazions di inzornament tal stât de SIM</string>
+    <string name="cmas_category_heading">Categorie de alerte:</string>
+    <string name="cmas_category_geo">Gjeofisiche</string>
+    <string name="cmas_category_met">Meteorologjiche</string>
+    <string name="cmas_category_safety">Sigurece</string>
+    <string name="cmas_category_security">Sigurece</string>
+    <string name="cmas_category_rescue">Salvament</string>
+    <string name="cmas_category_fire">Fûc</string>
+    <string name="cmas_category_health">Salût</string>
+    <string name="cmas_category_env">Ambientâl</string>
+    <string name="cmas_category_transport">Traspuart</string>
+    <string name="cmas_category_infra">Infrastruture</string>
+    <string name="cmas_category_cbrne">Chimiche/Biologjiche/Nucleâr/Esplosive</string>
+    <string name="cmas_category_other">Altri</string>
+    <string name="cmas_response_heading">Gjenar di rispueste:</string>
+    <string name="cmas_response_shelter">Lâ a parâsi</string>
+    <string name="cmas_response_evacuate">Evacuâ</string>
+    <string name="cmas_response_prepare">Prontâsi</string>
+    <string name="cmas_response_execute">Eseguî</string>
+    <string name="cmas_response_monitor">Controlâ</string>
+    <string name="cmas_response_avoid">Evitâ</string>
+    <string name="cmas_response_assess">Valutâ</string>
+    <string name="cmas_response_none">Nissune</string>
+    <string name="cmas_severity_heading">Gravitât:</string>
+    <string name="cmas_severity_extreme">Estreme</string>
+    <string name="cmas_severity_severe">Grivie</string>
+    <string name="cmas_urgency_heading">Urgjence:</string>
+    <string name="cmas_urgency_immediate">Imediade</string>
+    <string name="cmas_urgency_expected">Previodude</string>
+    <string name="cmas_certainty_heading">Ciertece:</string>
+    <string name="cmas_certainty_observed">Analizade</string>
+    <string name="cmas_certainty_likely">Probabile</string>
+    <string name="delivery_time_heading">Ricevude:</string>
+    <string name="notification_multiple"><xliff:g id="count">%s</xliff:g> alertis di lei.</string>
+    <string name="notification_multiple_title">Gnovis alertis</string>
+    <string name="show_cmas_opt_out_summary">Mostre un dialic di disativazion dopo vê mostrade la prime alerte (gjavant chê presidenziâl).</string>
+    <string name="show_cmas_opt_out_title">Mostre dialic di disativazion</string>
+    <string name="cmas_opt_out_dialog_text">Tu stât ricevint alertis di emergjence cence fîi. Desideristu continuâ a ricevi lis alertis di emergjence wireless?</string>
+    <string name="cmas_opt_out_button_yes">Sì</string>
+    <string name="cmas_opt_out_button_no">No</string>
+    <string name="cb_list_activity_title">"Cronologjie alertis di emergjence"</string>
+    <string name="action_delete">Elimine</string>
+    <string name="action_detail_info">Mostre in detai</string>
+    <string-array name="alert_reminder_interval_entries">
+        <item>Une volte</item>
+        <item>Ogni 2 minûts</item>
+        <item>Ogni 5 minûts</item>
+        <item>Ogni 15 minûts</item>
+        <item>Mai</item>
+    </string-array>
+    <string name="emergency_alert_settings_title_watches">Alertis di emergjence wireless</string>
+    <string name="enable_cmas_presidential_alerts_title">Alertis presidenziâls</string>
+    <string name="enable_cmas_presidential_alerts_summary">I messaçs di alerte nazionâl mandâts fûr dal president. Nol è pussibil disativâju.</string>
+    <string name="testing_mode_enabled">La modalitât di prove de difusion de cele e je ative.</string>
+    <string name="testing_mode_disabled">La modalitât di prove de difusion de cele e je disativade.</string>
+    <string name="show_all_messages">Mostre ducj i messaçs</string>
+    <string name="show_regular_messages">Mostre i messaçs normâi</string>
+    <string name="message_identifier">Identificadôr:</string>
+    <string name="message_serial_number">Numar di serie:</string>
+    <string name="data_coding_scheme">Scheme di codifiche dai dâts:</string>
+    <string name="message_content">Contignût dal messaç:</string>
+    <string name="location_check_time">Ore di control de posizion:</string>
+    <string name="message_displayed">Messaç visualizât:</string>
+    <string name="message_coordinates">Coordenadis:</string>
+    <string name="maximum_waiting_time">Timp massim di spiete:</string>
+    <string name="seconds">seconts</string>
+    <string name="message_copied">Messaç copiât</string>
+    <string name="top_intro_roaming_text">Intant che tu sês in roaming o no tu âs une SIM ative, tu podaressis ricevi cualchi alerte che no je includude in chestis impostazions</string>
+    <string name="notification_cb_settings_changed_title">Impostazions cambiadis dal operadôr</string>
+    <string name="notification_cb_settings_changed_text">Tocje par viodi lis impostazions des alertis di emergjence cence fîi</string>
+</resources>

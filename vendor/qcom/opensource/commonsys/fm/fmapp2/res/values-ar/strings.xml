@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (c) 2009, 2011-2013 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2014-2015 The CyanogenMod Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *    * Neither the name of The Linux Foundation nor
+ *      the names of its contributors may be used to endorse or promote
+ *      products derived from this software without specific prior written
+ *      permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NON-INFRINGEMENT ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">راديو FM</string>
+    <string name="tx_app_name">مرسل FM</string>
+    <string name="menu_scan_start">فحص</string>
+    <string name="menu_scan_stop">إيقاف البحث</string>
+    <string name="menu_record_start">تسجيل</string>
+    <string name="menu_record_stop">إيقاف التسجيل</string>
+    <string name="menu_settings">الإعدادات</string>
+    <string name="menu_sleep">النوم</string>
+    <string name="menu_sleep_cancel">إلغاء النوم</string>
+    <string name="menu_all_channels">كل القنوات</string>
+    <string name="menu_display_tags">إظهار العلامات</string>
+    <string name="button_text_stop">إيقاف</string>
+    <string name="msg_seeking">جاري البحث عن محطة FM\u2026</string>
+    <string name="msg_scanning">جاري البحث عن كل محطات FM\u2026</string>
+    <string name="msg_scanning_pty">جاري البحث عن \'<xliff:g id="pty_name">%1$s</xliff:g>\'\u2026</string>
+    <string name="msg_search_title"><xliff:g id="frequency_string">%1$s</xliff:g> ميجا هرتز</string>
+    <string name="msg_searching_title">الإعدادات المسبقة للتحديد التلقائي</string>
+    <string name="msg_searching">جاري البحث عن محطات قوية لإنشاء قائمة محددة مسبقاً\u2026</string>
+    <string name="msg_noantenna">الرجاء توصيل سماعات الرأس لأستخدام راديو FM</string>
+    <string name="dialog_sleep_title">مهلة الإيقاف التلقائي</string>
+    <string name="presetlist_select_name">حدد \'<xliff:g id="presetlist_name">%1$s</xliff:g>\'</string>
+    <string name="presetlist_add_new">إضافة قائمة جديدة</string>
+    <string name="dialog_presetlist_rename_title">أدخل الاسم:</string>
+    <string name="presetlist_autoselect_title">تأكيد التحديد التلقائي</string>
+    <string name="preset_replace">استبدال</string>
+    <string name="preset_tune">لحن</string>
+    <string name="preset_rename">إعادة تسمية</string>
+    <string name="preset_delete">حذف</string>
+    <string name="preset_search">بحث عن \'<xliff:g id="preset_pi">%1$s</xliff:g>\'</string>
+    <string name="stat_notif_frequency">\'<xliff:g id="frequency">%1$s</xliff:g>\' ميجا هرتز</string>
+    <string name="regional_band">الفرقة الإقليمية</string>
+    <string name="regional_band_entry_north_america">أمريكا الشّماليّة</string>
+    <string name="regional_band_entry_europe">أوروبا</string>
+    <string name="regional_band_entry_japan">اليابان</string>
+    <string name="regional_band_entry_japan_wide">اليابان (عريض)</string>
+    <string name="regional_band_entry_australia">أستراليا</string>
+    <string name="regional_band_entry_austria">النمسا</string>
+    <string name="regional_band_entry_belgium">بلجيكا</string>
+    <string name="regional_band_entry_brazil">البرازيل</string>
+    <string name="regional_band_entry_china">الصين</string>
+    <string name="regional_band_entry_czech_republic">جمهورية التّشيك</string>
+    <string name="regional_band_entry_denmark">الدانمارك</string>
+    <string name="regional_band_entry_finland">فنلندا</string>
+    <string name="regional_band_entry_france">فرنسا</string>
+    <string name="regional_band_entry_germany">ألمانيا</string>
+    <string name="regional_band_entry_greece">اليونان</string>
+    <string name="regional_band_entry_hong_kong">هونغ كونغ</string>
+    <string name="regional_band_entry_india">الهند</string>
+    <string name="regional_band_entry_indonesia">أندونيسيا</string>
+    <string name="regional_band_entry_ireland">أيرلندا</string>
+    <string name="regional_band_entry_italy">إيطاليا</string>
+    <string name="regional_band_entry_korea">كوريا</string>
+    <string name="regional_band_entry_mexico">المكسيك</string>
+    <string name="regional_band_entry_netherlands">هولندا</string>
+    <string name="regional_band_entry_new_zealand">نيوزيلندا</string>
+    <string name="regional_band_entry_norway">النرويج</string>
+    <string name="regional_band_entry_poland">بولندا</string>
+    <string name="regional_band_entry_portugal">البرتغال</string>
+    <string name="regional_band_entry_russia">روسيا</string>
+    <string name="regional_band_entry_singapore">سنغافورة</string>
+    <string name="regional_band_entry_slovakia">سلوفاكيا</string>
+    <string name="regional_band_entry_spain">إسبانيا</string>
+    <string name="regional_band_entry_switzerland">سويسرا</string>
+    <string name="regional_band_entry_sweden">السويد</string>
+    <string name="regional_band_entry_taiwan">تايوان</string>
+    <string name="regional_band_entry_turkey">تركيا</string>
+    <string name="regional_band_entry_united_kingdom">المملكة المتحدة</string>
+    <string name="regional_band_entry_united_states">الولايات المتحدة</string>
+    <string name="regional_band_entry_user_defined">الفرقة المعرفة من قبل المستخدم</string>
+    <string name="regional_band_summary_north_america">أمريكا الشمالية (من 87.5 إلى 108 ميغاهرتز بخطوات 200 kHz)</string>
+    <string name="regional_band_summary_europe">أوروبا (87.5 ميجاهرتز إلى 108.0 ميجاهرتز في شكل مراحل مكونة من 100 كيلو هرتز)</string>
+    <string name="regional_band_summary_japan">اليابان (76.0 ميجاهرتز إلى 90.0 ميجاهرتز في شكل مراحل مكونة من 100 كيلو هرتز)</string>
+    <string name="regional_band_summary_japan_wide">اليابان (عريض) (90.0 ميجاهرتز إلى ميجاهرتز 108.0 في شكل مراحل مكونة من 50 كيلو هرتز)</string>
+    <string name="regional_band_summary_australia">أستراليا (87.7 ميجاهرتز إلى 108.0 ميجاهرتز في شكل مراحل مكونة من 100 كيلو هرتز)</string>
+    <string name="regional_band_summary_austria">النمسا (87.5 ميغاهرتز إلى 108.0 ميغاهرتز في شكل خطوات مكونة من 50 كيلو هرتز)</string>
+    <string name="regional_band_summary_belgium">بلجيكا (87.5 ميجاهرتز إلى 108.0 ميجاهرتز في شكل مراحل من 100 كيلو هرتز)</string>
+    <string name="regional_band_summary_brazil">البرازيل (87.5 ميجاهرتز إلى 108.0 ميجاهرتز في شكل مراحل من 200 كيلوهرتز)</string>
+    <string name="regional_band_summary_china">الصين (87.0 ميجاهرتز إلى 108.0 ميجاهرتز في شكل مراحل من 100 كيلو هرتز)</string>
+    <string name="regional_band_summary_czech_republic">جمهورية التشيك (87.5 ميجاهرتز إلى 108.0 ميجاهرتز في شكل مراحل من 100 كيلو هرتز)</string>
+    <string name="regional_band_summary_denmark">الدنمارك (87.5 ميجاهرتز إلى 108.0 ميجاهرتز في شكل مراحل من 50 كيلو هرتز)</string>
+    <string name="regional_band_summary_finland">فنلندا (87.5 ميجاهرتز إلى 108.0 ميجاهرتز في شكل مراحل مكونة من 100 كيلو هرتز)</string>
+    <string name="regional_band_summary_france">فرنسا (87.5 ميجاهرتز إلى 108.0 ميجاهرتز في شكل مراحل مكونة من 100 كيلو هرتز)</string>
+    <string name="regional_band_summary_germany">ألمانيا (87.5 ميجاهرتز إلى 108.0 ميجاهرتز في شكل مراحل مكونة من 50 كيلو هرتز)</string>
+    <string name="regional_band_summary_greece">اليونان (87.5 ميجاهرتز إلى 108.0 ميجاهرتز في شكل مراحل مكونة من 50 كيلو هرتز)</string>
+    <string name="regional_band_summary_hong_kong">هونغ كونغ (87.5 ميجاهرتز إلى 108.0 ميجاهرتز في شكل مراحل مكونة من 100 كيلو هرتز)</string>
+    <string name="regional_band_summary_india">الهند (87.5 ميجاهرتز إلى 108.0 ميجاهرتز في شكل مراحل مكونة من 100 كيلو هرتز)</string>
+    <string name="regional_band_summary_indonesia">أندونيسيا (87.5 ميجاهرتز إلى 108.0 ميجاهرتز على شكل مراحل مكونة من 100 كيلوهرتز)</string>
+    <string name="regional_band_summary_ireland">أيرلندا (87.5 ميجاهرتز إلى 108.0 ميجاهرتز في شكل مراحل مكونة من 50 كيلو هرتز)</string>
+    <string name="regional_band_summary_italy">إيطاليا (87.5 ميجاهرتز إلى 108.0 ميجاهرتز في شكل مراحل مكونة من 50 كيلو هرتز)</string>
+    <string name="regional_band_summary_korea">كوريا (87.5 ميجاهرتز إلى 108.0 ميجاهرتز في شكل مراحل مكونة من 200 كيلوهرتز)</string>
+    <string name="regional_band_summary_mexico">المكسيك (88.1 ميجاهرتز إلى 107.9 ميجاهرتز على شكل مراحل مكونة من 200 كيلوهرتز)</string>
+    <string name="regional_band_summary_netherlands">هولندا (87.5 ميجاهرتز إلى 108.0 ميجاهرتز في شكل مراحل مكونة من 100 كيلو هرتز)</string>
+    <string name="regional_band_summary_new_zealand">نيوزيلندا (88.0 ميجاهرتز إلى 107.0 ميجاهرتز في شكل مراحل مكونة من 100 كيلو هرتز)</string>
+    <string name="regional_band_summary_norway">النرويج (87.5 ميجاهرتز إلى 108.0 ميجاهرتز في شكل مراحل مكونة من 100 كيلو هرتز)</string>
+    <string name="regional_band_summary_poland">بولندا (87.5 ميجاهرتز إلى 108.0 ميجاهرتز في شكل مراحل مكونة من 100 كيلو هرتز)</string>
+    <string name="regional_band_summary_portugal">البرتغال (87.5 ميجاهرتز إلى 108.0 ميجاهرتز في شكل مراحل مكونة من 50 كيلو هرتز)</string>
+    <string name="regional_band_summary_russia">روسيا (87.5 ميجاهرتز إلى 108.0 ميجاهرتز في شكل مراحل مكونة من 100 كيلو هرتز)</string>
+    <string name="regional_band_summary_singapore">سنغافورة (88.0 ميجاهرتز إلى 108.0 ميجاهرتز في شكل مراحل مكونة من 100 كيلو هرتز)</string>
+    <string name="regional_band_summary_slovakia">سلوفاكيا (87.5 ميجاهرتز إلى 108.0 ميجاهرتز في شكل مراحل مكونة من 100 كيلو هرتز)</string>
+    <string name="regional_band_summary_spain">إسبانيا (87.5 ميجاهرتز إلى 108.0 ميجاهرتز في شكل مراحل مكونة من 100 كيلو هرتز)</string>
+    <string name="regional_band_summary_switzerland">سويسرا (87.5 ميجاهرتز إلى 108.0 ميجاهرتز في شكل مراحل مكونة من100 كيلو هرتز)</string>
+    <string name="regional_band_summary_sweden">السويد (87.5 ميجاهرتز إلى 108.0ميجاهرتز على شكل مراحل مكونة من 100 كيلو هرتز)</string>
+    <string name="regional_band_summary_taiwan">تايوان (87.5 ميجاهرتز إلى 108.0 ميجاهرتز على شكل مراحل مكونة من 100 كيلو هرتز)</string>
+    <string name="regional_band_summary_turkey">تركيا (87.5 ميجاهرتز إلى 108.0 ميجاهرتز على شكل مراحل مكونة من 100 كيلو هرتز)</string>
+    <string name="regional_band_summary_united_kingdom">المملكة المتحدة (87.5 ميجاهرتز إلى 108.0 ميجاهرتز على شكل مراحل مكونة من 100 كيلو هرتز)</string>
+    <string name="regional_band_summary_united_states">الولايات المتحدة (88.1 ميجاهرتز إلى 107.9 ميجاهرتز على شكل مراحل مكونة من 200 كيلوهرتز)</string>
+    <string name="regional_band_summary_user_defined">النطاق المعرف من قبل المستخدم</string>
+    <string name="aud_output_mode">وضع خرج الصوت</string>
+    <string name="audio_type_stereo">استيريو</string>
+    <string name="audio_type_mono">أُحادي</string>
+    <string name="record_dur">مدة التسجيل</string>
+    <string name="auto_select_af">التردد البديل</string>
+    <string name="settings_revert_defaults_title">العودة إلى إعدادات المصنع الافتراضية</string>
+    <string name="settings_revert_defaults_summary">إعادة تعيين كل الإعدادات</string>
+    <string name="settings_revert_confirm_title">تأكيد إعادة التعيين</string>
+    <string name="settings_revert_confirm_msg">سيترتب على ذلك مسح كل إعدادات التطبيق، بما في ذلك الإعدادات المسبقة المحفوظة. هل تريد الاستمرار؟ </string>
+    <string name="no_storage">تحميل بطاقة SD قبل بدء التسجيل.</string>
+    <string name="preparing_sd">جاري إعداد بطاقة SD\u2026</string>
+    <string name="access_sd_fail">‏تعذر الوصول إلى بطاقة SD.</string>
+    <string name="spaceIsLow_content">نفاد مساحة مخزن بطاقة SD. تغيير إعداد الجودة أو حذف بعض الملفات الأخرى لتحرير مساحة.</string>
+    <string name="FMRecording_reach_size_limit">تم بلوغ حد الحجم.</string>
+    <string name="menu_scan_for_preset">تفحص عن الإعدادات المسبقة</string>
+    <string name="fm_off">FM مغلق.</string>
+    <string name="fm_call">لا يمكن استخدام FM أثناء الاتصال.</string>
+    <string name="alert_dialog_hint">قم بإدخال اسم</string>
+    <string name="search_dialog_title">تفحص المحطات</string>
+    <string name="fm_command_timeout_title">مهلة</string>
+    <string name="fm_tune_timeout_msg">لم يتم استلام رد لضبط محطة FM. إذا استمرت المشكلة، الرجاء إيقاف تشغيل FM وتشغيلها مرة أخرى.</string>
+    <string name="fm_command_failed_title">فشلت عملية FM</string>
+    <string name="fm_cmd_failed_msg">فشلت عملية FM. إذا استمرت المشكلة، الرجاء إيقاف تشغيل FM وتشغيله مرة أخرى.</string>
+    <string name="fm_cmd_failed_msg_hdmi">فشلت عملية FM. التزامن FM و HDMI غير مدعوم.</string>
+    <string name="fm_cmd_failed_call_on">فشلت عملية FM. غير مسموح بالصوت FM أثناء المكالمة.</string>
+    <string name="audio_db_title_format"><xliff:g id="format">yyyy-MM-dd HH:mm:ss</xliff:g></string>
+    <string name="audio_db_artist_name">تسجيلات FM الخاصة بي</string>
+    <string name="audio_db_album_name">تسجيلات FM</string>
+    <string name="audio_db_playlist_name">تسجيلات FM</string>
+    <string name="station_name">المحطة:</string>
+    <string name="station_exists">هذا التردد موجود بالفعل!</string>
+    <string name="station_list_delete_station">حذف: <xliff:g id="name">%s</xliff:g></string>
+    <string name="station_list_delete_station_prompt">هل أنت متأكد من أنك تريد حذف \'<xliff:g id="name">%s</xliff:g>\' ؟</string>
+    <string name="station_name_empty">اسم المحطة فارغ، الرجاء إدخال مرة أخرى.</string>
+    <string name="station_name_exist">\'<xliff:g id="name">%s</xliff:g>\'قيد الاستخدام بالفعل، يُرجى إدخال اسم مختلف.</string>
+    <string name="rt_plus_tags">العلامات</string>
+    <string name="usr_def_band_min">أدنى تردد (ميجا هرتز)</string>
+    <string name="usr_def_band_max">أعلى تردد (ميجا هرتز)</string>
+    <string name="chanl_spacing">مباعدة بين القنوات</string>
+    <string name="set">تعيين</string>
+    <string name="user_defind_band_msg">أدخل تردد من 76.0 إلى 108.0 ميجاهرتز بحد أدنى مساحة قناة واحدة و100 كيلو هرتز بين الحد الأدنى والحد الأقصى للتردد</string>
+    <string name="save_record_file">تم حفظ الملف FM المسجل على \'<xliff:g id="record_file">%1$s</xliff:g>\'</string>
+    <string name="fm_search_no_results">لم يتم العثور على محطات متوافقة</string>
+    <string name="typ_All_stations">جميع المحطات</string>
+    <string name="typ_Culture">ثقافة</string>
+    <string name="typ_Current_affairs">الشؤون الجارية</string>
+    <string name="typ_Children">برامج الأطفال</string>
+    <string name="typ_Country">موسيقى الريف</string>
+    <string name="typ_Documentary">فيلم وثائقي</string>
+    <string name="typ_Drama">دراما</string>
+    <string name="typ_Easy_listening">الاستماع السهل لي الموسيقى</string>
+    <string name="typ_Education">التعليم</string>
+    <string name="typ_Emergency">طوارئ</string>
+    <string name="typ_Emergency_test">اختبار حالات الطوارئ</string>
+    <string name="typ_Finance">الشؤون المالية</string>
+    <string name="typ_Folk">الموسيقى الشعبية</string>
+    <string name="typ_Information">معلومات</string>
+    <string name="typ_Jazz">موسيقى الجاز</string>
+    <string name="typ_Light_classical">الخفيفة الكلاسيكية</string>
+    <string name="typ_Leisure">أوقات الفراغ</string>
+    <string name="typ_News">أخبار</string>
+    <string name="typ_National">الموسيقى الوطنية</string>
+    <string name="typ_Other">موسيقى أخرى</string>
+    <string name="typ_Oldies">الموسيقى القديمة</string>
+    <string name="typ_Phone_in">الهاتف في</string>
+    <string name="typ_Pop">موسيقى البوب</string>
+    <string name="typ_Religion">دين</string>
+    <string name="typ_Rock">موسيقى الروك</string>
+    <string name="typ_Science">علوم</string>
+    <string name="typ_Serious_classical">خطيرة كلاسيكية</string>
+    <string name="typ_Social_affairs">الشؤون الاجتماعية</string>
+    <string name="typ_Sport">رياضة</string>
+    <string name="typ_Travel">السفر</string>
+    <string name="typ_Varied">متفاوت</string>
+    <string name="typ_Weather">طقس</string>
+    <string name="typ_Adult_hits">مشاهدة متنوعة</string>
+    <string name="typ_Classical">كلاسيكي</string>
+    <string name="typ_Classic_Rock">كلاسيك روك</string>
+    <string name="typ_College">كلية</string>
+    <string name="typ_Foreign_language">لغة أجنبية</string>
+    <string name="typ_Hiphop">الهيب هوب</string>
+    <string name="typ_Nostalgia">حنين</string>
+    <string name="typ_Personality">شخصية</string>
+    <string name="typ_Public">العام</string>
+    <string name="typ_Religious_music">الموسيقى الدينية</string>
+    <string name="typ_Religious_talk">حديث ديني</string>
+    <string name="typ_Rhythm_and_Blues">ريذم أند بلوز</string>
+    <string name="typ_Spanish_music">الموسيقى الإسبانية</string>
+    <string name="typ_Spanish_talk">البرامج الإسبانية</string>
+    <string name="typ_Soft">ناعم</string>
+    <string name="typ_Soft_Rock">صاخب ناعم</string>
+    <string name="typ_Soft_Rhythm_and_Blues">ريذم أند بلوز مريح</string>
+    <string name="typ_Sports">رياضات</string>
+    <string name="typ_Talk">الحديث</string>
+    <string name="typ_Top_40">أعلى 40</string>
+</resources>

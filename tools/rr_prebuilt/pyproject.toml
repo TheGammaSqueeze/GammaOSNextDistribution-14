@@ -1,0 +1,59 @@
+[tool.poetry]
+name = "rrprebuiltupdater"
+version = "0.1.0"
+description = "Update tool for rr prebuilts."
+authors = ["The Android Open Source Project"]
+license = "Apache-2.0"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fetchartifact = { path = "../../development/python-packages/fetchartifact" }
+aiohttp = "^3.8.5"
+
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.5.1"
+pylint = "^2.17.5"
+black = "^23.7.0"
+isort = "^5.12.0"
+pytest = "^7.4.2"
+pytest-cov = "^4.1.0"
+pytest-asyncio = "^0.21.1"
+pytest-mock = "^3.11.1"
+pytest-httpserver = "^1.0.8"
+
+[tool.coverage.report]
+fail_under = 100
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+xfail_strict = true
+
+[tool.mypy]
+check_untyped_defs = true
+disallow_any_generics = true
+disallow_any_unimported = true
+disallow_subclassing_any = true
+disallow_untyped_decorators = true
+disallow_untyped_defs = true
+follow_imports = "silent"
+implicit_reexport = false
+namespace_packages = true
+no_implicit_optional = true
+show_error_codes = true
+strict_equality = true
+warn_redundant_casts = true
+warn_return_any = true
+warn_unreachable = true
+warn_unused_configs = true
+warn_unused_ignores = true
+
+[tool.pylint."MESSAGES CONTROL"]
+disable = "duplicate-code,too-many-arguments"
+
+[tool.isort]
+profile = "black"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

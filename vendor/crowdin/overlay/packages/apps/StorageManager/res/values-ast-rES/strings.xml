@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2016 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Xestor d\'almacenamientu</string>
+    <string name="cancel">Encaboxar</string>
+    <string name="storage_menu_free">Lliberar espaciu</string>
+    <string name="deletion_helper_title">Desaniciu d\'elementos</string>
+    <string name="deletion_helper_app_summary">Hai <xliff:g id="days" example="67">%1$d</xliff:g> díes</string>
+    <string name="deletion_helper_app_summary_never_used">Nun s\'usó nel últimu añu</string>
+    <string name="deletion_helper_app_summary_unknown_used">Desconozse la data del útlimu usu</string>
+    <string name="deletion_helper_free_button">Lliberar <xliff:g id="freeable" example="1.2GB">%1$s</xliff:g></string>
+    <string name="deletion_helper_photos_title">Copies de seguranza de semeyes y vídeos</string>
+    <string name="deletion_helper_photos_age_summary">Con más de 30 díes d\'antigüedá</string>
+    <string name="deletion_helper_downloads_title">Descargues</string>
+    <string name="deletion_helper_clear_dialog_title">Lliberación d\'espaciu</string>
+    <string name="deletion_helper_clear_dialog_message">Tamañu del conteníu que va quitase del preséu: <xliff:g id="clearable_bytes" example="1.2GB">%1$s</xliff:g></string>
+    <string name="deletion_helper_clear_dialog_remove">Lliberar espaciu</string>
+    <string name="deletion_helper_upsell_title">¿Quies xestionar automáticamente l\'almacenamientu?</string>
+    <string name="deletion_helper_upsell_summary">Espaciu d\'almacenamientu llibre: <xliff:g id="used" example="1.2GB">%1$s</xliff:g>. ¿Quies dexar que\'l xestor d\'almacenamientu llibere espaciu automáticamente quitando del preséu les copies de seguranza del conteníu?</string>
+    <string name="deletion_helper_upsell_cancel">Non, gracies</string>
+    <string name="deletion_helper_upsell_activate">Activar</string>
+    <string name="deletion_helper_apps_group_title">Aplicaciones que s\'usen poco</string>
+    <string name="deletion_helper_automatic_title">Automáticamente</string>
+    <string name="deletion_helper_manual_title">Manualmente</string>
+    <string name="deletion_helper_preference_title">Lliberar espaciu agora</string>
+    <string name="automatic_storage_manager_service_label">Serv. xestión almacenamientu automáticu</string>
+    <string name="automatic_storage_manager_notification_title" product="default">Al teléfonu quéda-y pocu espaciu</string>
+    <string name="automatic_storage_manager_notification_title" product="tablet">A la tableta quéda-y pocu espaciu</string>
+    <string name="automatic_storage_manager_notification_summary">Dexa que\'l xestor d\'almacenamientu llibere espaciu quitando les semeyes y los vídeos antiguos cuando\'l preséu comience a enllenase de nueves.</string>
+    <string name="automatic_storage_manager_cancel_button">Non, gracies</string>
+    <string name="automatic_storage_manager_activate_button">Activar</string>
+    <string name="deletion_helper_photos_loading_title">Copies de seguranza de semeyes y vídeos</string>
+    <string name="deletion_helper_photos_loading_summary">Atopando elementos…</string>
+    <string name="deletion_helper_no_threshold">Amosar tolos elementos</string>
+    <string name="deletion_helper_default_threshold">Esconder los elementos de recién</string>
+    <string name="deletion_helper_clear_dialog_message_first_time">Tamañu del conteníu que va quitase del preséu: <xliff:g id="clearable_bytes" example="1.2GB">%1$s</xliff:g></string>
+    <string name="automatic_storage_manager_activation_warning">El xestor d\'almacenamientu ta xestionando l\'almacenamientu</string>
+    <string name="empty_state_title">Nun hai nada pa quitar</string>
+    <string name="empty_state_review_items_link">Revisar los elementos de recién</string>
+    <string name="empty_state_summary">Nun hai nengún ficheru antiguu pa quitar. Pa lliberar espaciu, quita les semeyes, los vídeos y les aplicaciones de recién.</string>
+    <string name="app_requesting_space">«<xliff:g id="app" example="Dialer">%1$s</xliff:g>» precisa <xliff:g id="clearable_bytes" example="1.2GB">%2$s</xliff:g> d\'espaciu</string>
+</resources>

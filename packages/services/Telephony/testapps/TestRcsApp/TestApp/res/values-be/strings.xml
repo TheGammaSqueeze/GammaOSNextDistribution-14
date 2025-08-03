@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="1411081210960307023">"RcsClient"</string>
+    <string name="provisioning_test" msgid="1035549386706009246">"Тэст ініцыялізацыі"</string>
+    <string name="delegate_test" msgid="8212368545489779643">"Дэлегаванне тэста"</string>
+    <string name="uce_test" msgid="6466919844953883038">"Тэст UCE"</string>
+    <string name="gba_test" msgid="8786745991279224003">"Тэст GBA"</string>
+    <string name="test_msg_client" msgid="5345166277460949996">"TestMessageClient"</string>
+    <string name="db_client" msgid="5131401341721936367">"DBClient"</string>
+    <string name="result" msgid="435222369457564619">"Вынік:"</string>
+    <string name="callback_result" msgid="7162990408241244749">"Вынік зваротнага выкліку"</string>
+    <string name="initialize_delegate" msgid="1772072838514674246">"initializeSipDelegate"</string>
+    <string name="destroy_delegate" msgid="1678202834033613371">"destroySipDelegate"</string>
+    <string name="uce_description" msgid="1117661457446955869">"Увядзіце нумар для запыту магчымасці. Калі нумароў некалькі, раздзяліце іх коскамі."</string>
+    <string name="number" msgid="9096578126043995890">"Нумар:"</string>
+    <string name="request_capability" msgid="7644752985651089411">"requestCapability"</string>
+    <string name="request_availability" msgid="6387685341316953239">"requestNetworkAvailability"</string>
+    <string name="gba_bootstrap" msgid="549563024448934689">"bootstrapAuthenticationRequest"</string>
+    <string name="start_chat" msgid="96121236227112396">"Пачаць чат"</string>
+    <string name="to" msgid="1156781884609653284">"Каму:"</string>
+    <string name="chat_message" msgid="3945528453939746046">"Паведамленне чата"</string>
+    <string name="send" msgid="8797467615003240434">"Адправіць"</string>
+    <string name="ok" msgid="2206671077510386729">"ОК"</string>
+    <string name="session_succeeded" msgid="4692992136758212220">"Ініцыялізацыя сеанса выканана"</string>
+    <string name="session_failed" msgid="4524986240102190509">"Збой ініцыялізацыі сеанса"</string>
+    <string name="session_not_ready" msgid="4612635394279901948">"Сеанс не гатовы"</string>
+    <string name="organization" msgid="913518283470119113">"Арганізацыя:"</string>
+    <string name="uicc_type" msgid="5584433205228698588">"Тып UICC:"</string>
+    <string name="protocol" msgid="8626139294022821930">"Пратакол:"</string>
+    <string name="tls_cs" msgid="5410567052979996834">"Набор шыфраў TLS:"</string>
+    <string name="naf" msgid="7620247915001854662">"NAF URI:"</string>
+    <string name="standalone_pager" msgid="1351341861641131423">"Аўтаномны пэйджар"</string>
+    <string name="standalone_large" msgid="336170805696694543">"Аўтаномны вялікі"</string>
+    <string name="standalone_deferred" msgid="4906576900729108844">"Аўтаномны адкладзены"</string>
+    <string name="standalone_pager_large" msgid="5662294171123433547">"Аўтаномны вялікі пэйджар"</string>
+    <string name="chat" msgid="5500583808773151982">"Чат"</string>
+    <string name="file_transfer" msgid="5522080545470609737">"Перадача файлаў"</string>
+    <string name="geolocation_sms" msgid="4463328438708195479">"SMS геалакацыі"</string>
+    <string name="chatbot_session" msgid="5639314220589146717">"Сеанс чат-бота"</string>
+    <string name="chatbot_standalone" msgid="8159185526765238041">"Аўтаномны чат-бот"</string>
+    <string name="chatbot_version" msgid="2431939061806512544">"Версія чат-бота"</string>
+    <string name="provisioning_done" msgid="204618840179891984">"Ініцыялізацыя выканана"</string>
+    <string name="registration_done" msgid="492878616836655421">"Рэгістрацыя выканана"</string>
+  <string-array name="organization">
+    <item msgid="9074061482474975772">"НЯМА"</item>
+    <item msgid="7841117287115880098">"3GPP"</item>
+    <item msgid="5871357530951196401">"3GPP2"</item>
+    <item msgid="4979706772323445701">"OMA"</item>
+    <item msgid="1202873556413702218">"GSMA"</item>
+    <item msgid="2237392451840970059">"МЯСЦОВАЯ СЕТКА"</item>
+  </string-array>
+  <string-array name="protocol">
+    <item msgid="7955884038486794595">"SUBSCRIBER_CERTIFICATE"</item>
+    <item msgid="6305648228108532104">"MBMS"</item>
+    <item msgid="4369286857827087787">"HTTP_DIGEST_AUTH"</item>
+    <item msgid="1047245839171009229">"3GPP_HTTP_BASED_MBMS"</item>
+    <item msgid="1728229445161381738">"GENERIC_PUSH_LAYER"</item>
+    <item msgid="8586727908453122385">"IMS_MEDIA_PLANE"</item>
+    <item msgid="5721752897501838331">"GENERATION_TMPI"</item>
+    <item msgid="1622910302975417378">"3GPP_HTTP_BASED_MBMS"</item>
+    <item msgid="7519270727796373646">"TLS_DEFAULT"</item>
+    <item msgid="7444251498958422990">"TLS_BROWSER"</item>
+  </string-array>
+  <string-array name="uicc_type">
+    <item msgid="5878327014492655902">"НЕВЯДОМА"</item>
+    <item msgid="1715684709703792003">"SIM"</item>
+    <item msgid="4592543026990143036">"USIM"</item>
+    <item msgid="8763183137100323328">"RSIM"</item>
+    <item msgid="3778400020205644807">"CSIM"</item>
+    <item msgid="3774607711141191499">"ISIM"</item>
+  </string-array>
+</resources>

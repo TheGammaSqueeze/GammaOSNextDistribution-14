@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+     Copyright (C) 2017 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="wallpaper_app_name" msgid="1719889291772891695">"Фонові малюнки"</string>
+    <!-- no translation found for app_name (8773648973927541493) -->
+    <skip />
+    <string name="select_wallpaper_label" msgid="6989581259339646085">"Категорії фонових малюнків"</string>
+    <string name="set_wallpaper_button_text" msgid="5445978864530156290">"Зробити фоном"</string>
+    <string name="set_wallpaper_progress_message" msgid="7986528287618716715">"Налаштування фонового малюнка…"</string>
+    <string name="try_again" msgid="8278874823700921234">"Повторити"</string>
+    <string name="set_wallpaper_error_message" msgid="6819986999041085130">"Не вдалося налаштувати фоновий малюнок."</string>
+    <string name="load_wallpaper_error_message" msgid="7913278480467707374">"Не вдалося завантажити фоновий малюнок. Зображення пошкоджене або недоступне."</string>
+    <string name="static_wallpaper_presentation_mode_message" msgid="417940227049360906">"Вибрано зараз"</string>
+    <string name="rotating_wallpaper_presentation_mode_message" msgid="3361676041605733288">"Щоденний фоновий малюнок"</string>
+    <string name="wallpaper_destination_both" msgid="1124197176741944063">"Головний і заблокований екрани"</string>
+    <string name="choose_a_wallpaper_section_title" msgid="1009823506890453891">"Виберіть фоновий малюнок"</string>
+    <string name="creative_wallpaper_title" msgid="3581650238648981372">"Створити фоновий малюнок"</string>
+    <string name="home_screen_message" msgid="106444102822522813">"Головний екран"</string>
+    <string name="lock_screen_message" msgid="1534506081955058013">"Заблокований екран"</string>
+    <string name="home_and_lock_short_label" msgid="2937922943541927983">"Головний і заблокований екрани"</string>
+    <string name="set_wallpaper_dialog_message" msgid="2110475703996853076">"Установити як фоновий малюнок"</string>
+    <string name="set_wallpaper_home_screen_destination" msgid="7315594722013109354">"Головний екран"</string>
+    <string name="set_wallpaper_lock_screen_destination" msgid="6224685559375417945">"Заблокований екран"</string>
+    <string name="set_wallpaper_both_destination" msgid="2536004558738350775">"Головний і заблокований екрани"</string>
+    <string name="no_backup_image_wallpaper_label" msgid="6316627676107284851">"Чергування фонових малюнків"</string>
+    <string name="permission_needed_explanation" msgid="139166837541426823">"Щоб показувати тут поточний фоновий малюнок, потрібно надати додатку <xliff:g id="APP_NAME">%1$s</xliff:g> доступ до пам’яті пристрою."</string>
+    <string name="permission_needed_explanation_go_to_settings" msgid="3923551582092599609">"Щоб показувати тут поточний фоновий малюнок, потрібно надати додатку Фонові малюнки доступ до пам’яті пристрою.\n\nЩоб змінити це налаштування, перейдіть у розділ \"Дозволи\" на сторінці інформації про додаток."</string>
+    <string name="permission_needed_allow_access_button_label" msgid="1943133660612924306">"Надати доступ"</string>
+    <string name="no_backup_image_wallpaper_description" msgid="8303268619408738057">"Сервіс анімованих фонових малюнків для чергування"</string>
+    <string name="daily_refresh_tile_title" msgid="3270456074558525091">"Щоденний фоновий малюнок"</string>
+    <string name="daily_refresh_tile_subtitle" msgid="3976682014885446443">"Торкніться, щоб увімкнути"</string>
+    <string name="start_rotation_dialog_body_live_wallpaper_needed" msgid="5132580257563846082">"Фоновий малюнок автоматично змінюватиметься щодня. Щоб завершити налаштування, торкніться опції &lt;strong&gt;Зробити фоновим малюнком&lt;/strong&gt; на наступному екрані."</string>
+    <string name="start_rotation_dialog_wifi_only_option_message" msgid="3126269859713666225">"Завантажувати нові фонові малюнки лише через Wi-Fi"</string>
+    <string name="start_rotation_dialog_continue" msgid="276678987852274872">"Продовжити"</string>
+    <string name="start_rotation_progress_message" msgid="7872623873682262083">"Завантаження першого фонового малюнка…"</string>
+    <string name="start_rotation_error_message" msgid="3053799836719618972">"Не вдалося завантажити перший фоновий малюнок. Перевірте налаштування мережі й повторіть спробу."</string>
+    <string name="start_rotation_dialog_body" msgid="7903554799046364916">"Фоновий малюнок автоматично змінюватиметься щодня"</string>
+    <string name="settings_button_label" msgid="8724734130079207955">"Налаштування"</string>
+    <string name="explore" msgid="7468719504199497281">"Огляд"</string>
+    <string name="next_wallpaper" msgid="3911873152952596232">"Наступний фоновий малюнок"</string>
+    <string name="wallpaper_disabled_message" msgid="7309484130562148185">"На цьому пристрої вимкнено налаштування фонового малюнка"</string>
+    <string name="wallpaper_disabled_by_administrator_message" msgid="1551430406714747884">"Адміністратор пристрою вимкнув налаштування фонового малюнка"</string>
+    <string name="wallpaper_set_successfully_message" msgid="2958998799111688578">"Фоновий малюнок налаштовано"</string>
+    <string name="wallpapers_unavailable_offline_message" msgid="8136405438621689532">"Щоб переглядати фонові малюнки, потрібне з’єднання з Інтернетом. Під’єднайтеся й повторіть спробу."</string>
+    <string name="currently_set_home_wallpaper_thumbnail" msgid="4022381436821898917">"Ескіз фонового малюнка, який зараз налаштовано на головному екрані"</string>
+    <string name="currently_set_lock_wallpaper_thumbnail" msgid="2094209303934569997">"Ескіз фонового малюнка, який зараз налаштовано на заблокованому екрані"</string>
+    <string name="currently_set_wallpaper_thumbnail" msgid="8651887838745545107">"Ескіз фонового малюнка, який зараз налаштовано"</string>
+    <string name="wallpaper_thumbnail" msgid="569931475923605974">"Ескіз фонового малюнка"</string>
+    <string name="explore_home_screen" msgid="8756346794535765482">"Докладніше про фоновий малюнок на головному екрані"</string>
+    <string name="explore_lock_screen" msgid="268938342103703665">"Докладніше про фоновий малюнок на заблокованому екрані"</string>
+    <string name="refresh_daily_wallpaper_home_content_description" msgid="2770445044556164259">"Оновити щоденний фоновий малюнок на головному екрані"</string>
+    <string name="refresh_daily_wallpaper_content_description" msgid="4362142658237147583">"Оновити щоденний фоновий малюнок"</string>
+    <string name="preview_screen_description" msgid="3386387053327775919">"Екран попереднього перегляду фонового малюнка"</string>
+    <string name="refreshing_daily_wallpaper_dialog_message" msgid="1975910873362855761">"Оновлення щоденного фонового малюнка…"</string>
+    <string name="refresh_daily_wallpaper_failed_message" msgid="4749879993812557166">"Не вдалось оновити щоденний фоновий малюнок. Перевірте з’єднання з мережею й повторіть спробу."</string>
+    <string name="on_device_wallpapers_category_title" msgid="805819102071369004">"Фонові малюнки на пристрої"</string>
+    <string name="on_device_wallpapers_category_title_desktop" msgid="316919420410065369">"На пристрої"</string>
+    <string name="on_device_wallpaper_title" msgid="5262564748034629524">"Фоновий малюнок Android"</string>
+    <string name="live_wallpapers_category_title" msgid="1814374812192366349">"Анімовані фонові малюнки"</string>
+    <string name="my_photos_category_title" msgid="4294567122144565273">"Мої фото"</string>
+    <string name="my_photos_generic_wallpaper_title" msgid="7002867526154631172">"Моє фото"</string>
+    <string name="fallback_wallpaper_title" msgid="6154655421012506001">"Фоновий малюнок"</string>
+    <string name="app_not_found" msgid="4431461707854088231">"Додаток не встановлено."</string>
+    <string name="center_wallpaper_position" msgid="4166894762352288883">"Центр"</string>
+    <string name="center_crop_wallpaper_position" msgid="1681980019815343348">"Обрізати відносно центру"</string>
+    <string name="stretch_wallpaper_position" msgid="5002680983147456935">"Розтягнути"</string>
+    <string name="preview" msgid="1774602101743861071">"Переглянути"</string>
+    <string name="tab_info" msgid="818614080690111416">"Інформація"</string>
+    <string name="tab_customize" msgid="2533745409174959960">"Налаштування"</string>
+    <string name="tab_effects" msgid="3213606157589233901">"Ефекти"</string>
+    <string name="tab_share" msgid="6676269624804601227">"Поділіться"</string>
+    <string name="my_photos" msgid="8613021349284084982">"Мої фото"</string>
+    <string name="configure_wallpaper" msgid="849882179182976621">"Налаштування…"</string>
+    <string name="delete_live_wallpaper" msgid="589212696102662329">"Видалити"</string>
+    <string name="edit_live_wallpaper" msgid="3132060073690558045">"Редагувати"</string>
+    <string name="delete_wallpaper_confirmation" msgid="1905114562243802354">"Видалити цей фоновий малюнок із пристрою?"</string>
+    <string name="bottom_action_bar_back" msgid="2620581414970740784">"Назад"</string>
+    <string name="bottom_action_bar_edit" msgid="1214742990893082138">"Змінити"</string>
+    <string name="bottom_action_bar_download" msgid="3983122338076389421">"Завантажити"</string>
+    <string name="bottom_action_bar_slideshow_wallpaper" msgid="509770525179533154">"Фоновий малюнок слайд-шоу"</string>
+    <string name="bottom_action_bar_apply" msgid="2983308349819178932">"Застосувати"</string>
+    <string name="accessibility_preview_pager" msgid="1839869637405028575">"Стор. <xliff:g id="ID_1">%1$d</xliff:g> з <xliff:g id="ID_2">%2$d</xliff:g>"</string>
+    <string name="next_page_content_description" msgid="6268461446679584152">"Далі"</string>
+    <string name="previous_page_content_description" msgid="1138597031571078429">"Назад"</string>
+    <string name="wallpaper_title" msgid="6754214682228331092">"Фоновий малюнок"</string>
+    <string name="wallpaper_preview_card_content_description" msgid="6049261033541034584">"Перегляд фонового малюнка"</string>
+    <string name="lock_wallpaper_preview_card_content_description" msgid="5236839857695985498">"Попередній перегляд фонового малюнка заблокованого екрана"</string>
+    <string name="home_wallpaper_preview_card_content_description" msgid="4059418716070821630">"Попередній перегляд фонового малюнка головного екрана"</string>
+    <string name="collection_not_exist_msg" msgid="3504852962885064842">"Колекція не існує"</string>
+    <string name="wallpaper_exit_split_screen" msgid="1928870664619591636">"Вимкніть режим розділення екрана й повторіть спробу"</string>
+    <string name="set_wallpaper_dialog_set_button" msgid="5760149969510325088">"Установити"</string>
+    <string name="cancel" msgid="4970902691067201584">"Скасувати"</string>
+    <string name="hide_ui_preview_text" msgid="6766076482511252295">"Сховати інтерфейс перегляду"</string>
+    <string name="hint_hide_ui_preview" msgid="4527603797714586070">"Попередній перегляд інтерфейсу приховано. Двічі торкніться, щоб показати."</string>
+    <string name="show_ui_preview_text" msgid="5993063062417070806">"Показати інтерфейс перегляду"</string>
+    <string name="hide_preview_controls_content_description" msgid="894958599274977655">"Елементи керування попереднім переглядом відображаються. Двічі торкніться, щоб їх приховати."</string>
+    <string name="hide_preview_controls_action" msgid="3419260118386783295">"Приховати елементи керування попереднім переглядом"</string>
+    <string name="show_preview_controls_content_description" msgid="908147864005440602">"Елементи керування попереднім переглядом приховано. Двічі торкніться, щоб їх відобразити."</string>
+    <string name="show_preview_controls_action" msgid="7700775001986890400">"Показувати елементи керування попереднім переглядом"</string>
+    <string name="hide_wallpaper_info_action" msgid="6572492484253895374">"Сховати інформацію про фоновий малюнок"</string>
+    <string name="hint_show_ui_preview" msgid="2744155435325318349">"Попередній перегляд інтерфейсу показано. Двічі торкніться, щоб приховати."</string>
+    <string name="wallpaper_picker_entry_title" msgid="5185793991582084891">"Змінити фоновий малюнок"</string>
+    <string name="lockscreen_wallpaper_preview_card_content_description" msgid="2244890820627302245">"Перегляд фону екрана блокування"</string>
+    <string name="apply_btn" msgid="5764555565943538528">"Застосувати"</string>
+    <string name="accessibility_customize_hidden" msgid="6320568529768181691">"Панель налаштувань приховано"</string>
+    <string name="accessibility_customize_shown" msgid="590964727831547651">"Панель налаштувань показано"</string>
+    <string name="accessibility_info_hidden" msgid="2288603712350168107">"Інформацію приховано"</string>
+    <string name="accessibility_info_shown" msgid="6626025722456105632">"Інформацію показано"</string>
+    <string name="settings_snackbar_description" msgid="890168814524778486">"Дозвольте використання файлів і мультимедіа в налаштуваннях."</string>
+    <string name="settings_snackbar_enable" msgid="5992112808061426068">"Дозволити"</string>
+    <string name="open_my_photos" msgid="4107196465713868381">"Відкрити мої фото"</string>
+    <string name="lock_screen_tab" msgid="6672930765010407652">"Заблокований екран"</string>
+    <string name="home_screen_tab" msgid="1080445697837877526">"Головний екран"</string>
+    <string name="reset" msgid="4945445169532850631">"Скинути"</string>
+    <string name="reset_confirmation_dialog_title" msgid="3391905685838213712">"Скинути зміни?"</string>
+    <string name="reset_confirmation_dialog_message" msgid="888669268626289603">"Зміни не буде збережено"</string>
+    <string name="more_wallpapers" msgid="8116268433411881705">"Більше фонових малюнків"</string>
+    <string name="recents_wallpaper_label" msgid="8653165542635660222">"%1$s, %2$d"</string>
+    <string name="default_wallpaper_title" msgid="2541071182656978180">"Фоновий малюнок"</string>
+    <string name="small_preview_tooltip" msgid="1920430079013352071">"Натисніть, щоб редагувати фотографію"</string>
+    <string name="full_preview_tooltip" msgid="4648994028015322759">"Коригуйте положення, масштаб і кут повороту фотографій"</string>
+</resources>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2023 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<configuration description="List CTS test modules of extservices.">
+
+    <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer">
+        <option name="run-command" value="device_config put textclassifier textclassifier_service_package_override com.google.android.ext.services" />
+        <option name="teardown-command" value="device_config delete textclassifier textclassifier_service_package_override" />
+    </target_preparer>
+
+    <!-- for Watchdog -->
+    <option name="compatibility:include-filter" value="CtsPackageWatchdogTestCases" />
+    <!-- for TextClassifier -->
+    <option name="compatibility:include-filter" value="CtsTextClassifierTestCases" />
+
+    <!-- for AdServices -->
+    <option name="compatibility:include-filter" value="CtsAdExtServicesAdIdEndToEndTest" />
+    <option name="compatibility:include-filter" value="CtsAdExtServicesAppSetIdEndToEndTest" />
+    <option name="compatibility:include-filter" value="CtsAdExtServicesDebuggableDeviceTestCases" />
+    <option name="compatibility:include-filter" value="CtsAdExtServicesDeviceTestCases" />
+    <option name="compatibility:include-filter" value="CtsAdExtServicesEndToEndTestMeasurement" />
+    <option name="compatibility:include-filter" value="CtsAdExtServicesEndToEndTests" />
+    <option name="compatibility:include-filter" value="CtsAdExtServicesExtDataStorageServiceTest" />
+    <option name="compatibility:include-filter" value="CtsAdExtServicesHostTests" />
+    <option name="compatibility:include-filter" value="CtsAdExtServicesMddTests" />
+    <option name="compatibility:include-filter" value="CtsAdExtServicesNotInAllowListEndToEndTests" />
+    <option name="compatibility:include-filter" value="CtsAdExtServicesPermissionsAppOptOutEndToEndTests" />
+    <option name="compatibility:include-filter" value="CtsAdExtServicesPermissionsNoPermEndToEndTests" />
+    <option name="compatibility:include-filter" value="CtsAdExtServicesPermissionsValidEndToEndTests" />
+    <option name="compatibility:include-filter" value="CtsAdExtServicesTopicsAppUpdateTests" />
+    <option name="compatibility:include-filter" value="CtsAdExtServicesTopicsConnectionTests" />
+
+
+    <!-- Enable MainlineTestModuleController. -->
+    <option name="compatibility:module-arg" value="CtsPackageWatchdogTestCases:enable:true" />
+    <option name="compatibility:module-arg" value="CtsTextClassifierTestCases:enable:true" />
+
+    <!-- AdServices -->
+    <option name="compatibility:module-arg" value="CtsAdExtServicesAdIdEndToEndTest:enable:true" />
+    <option name="compatibility:module-arg" value="CtsAdExtServicesAppSetIdEndToEndTest:enable:true" />
+    <option name="compatibility:module-arg" value="CtsAdExtServicesDebuggableDeviceTestCases:enable:true" />
+    <option name="compatibility:module-arg" value="CtsAdExtServicesDeviceTestCases:enable:true" />
+    <option name="compatibility:module-arg" value="CtsAdExtServicesEndToEndTestMeasurement:enable:true" />
+    <option name="compatibility:module-arg" value="CtsAdExtServicesEndToEndTests:enable:true" />
+    <option name="compatibility:module-arg" value="CtsAdExtServicesExtDataStorageServiceTest:enable:true" />
+    <option name="compatibility:module-arg" value="CtsAdExtServicesHostTests:enable:true" />
+    <option name="compatibility:module-arg" value="CtsAdExtServicesMddTests:enable:true" />
+    <option name="compatibility:module-arg" value="CtsAdExtServicesNotInAllowListEndToEndTests:enable:true" />
+    <option name="compatibility:module-arg" value="CtsAdExtServicesPermissionsAppOptOutEndToEndTests:enable:true" />
+    <option name="compatibility:module-arg" value="CtsAdExtServicesPermissionsNoPermEndToEndTests:enable:true" />
+    <option name="compatibility:module-arg" value="CtsAdExtServicesPermissionsValidEndToEndTests:enable:true" />
+    <option name="compatibility:module-arg" value="CtsAdExtServicesTopicsAppUpdateTests:enable:true" />
+    <option name="compatibility:module-arg" value="CtsAdExtServicesTopicsConnectionTests:enable:true" />
+
+</configuration>

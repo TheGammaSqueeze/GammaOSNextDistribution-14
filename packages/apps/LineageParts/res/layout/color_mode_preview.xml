@@ -1,0 +1,17 @@
+<!--
+     SPDX-FileCopyrightText: 2018 The Android Open Source Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/color_mode_preview_height"
+        android:scaleType="centerCrop"
+        android:cropToPadding="true"
+        android:src="@drawable/color_mode_preview"
+        android:contentDescription="@null" />
+
+</FrameLayout>

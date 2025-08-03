@@ -1,0 +1,18 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_library {
+    name: "libhypervisor_props",
+    crate_name: "hypervisor_props",
+    srcs: ["src/lib.rs"],
+    edition: "2021",
+    rustlibs: [
+        "libanyhow",
+        "librustutils",
+    ],
+    apex_available: [
+        "com.android.compos",
+        "com.android.virt",
+    ],
+}

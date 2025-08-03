@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2016 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="block_number_confirmation_title">    <xliff:g example="(555) 555-5555" id="number">%1$s</xliff:g> блокларгамы?
+  </string>
+  <string name="block_number_confirmation_message_new_filtering">    Сез бу номердан шалтырату һәм текстларны бүтән алмаячаксыз.
+  </string>
+  <string name="unblock_number_ok">БЛОКТАН АЛУ</string>
+  <string name="block_report_number_alert_details">Сез бу номердан шалтыратуларны бүтән алмаячаксыз.</string>
+  <string name="unblock_number_alert_details">Бу номер блоктан алынды һәм спам түгел дип хәбәр бирелде. Киләсе шалтыратулар спам дип билгеләнмәячәк.</string>
+  <string name="unblock_report_number_alert_title"><xliff:g id="number">%1$s</xliff:g> блоктан алыргамы?</string>
+  <string name="report_not_spam_alert_button">Хәбәр бирү</string>
+  <string name="report_not_spam_alert_title">Хата турында хәбәр итәргәме?</string>
+  <string name="report_not_spam_alert_details"><xliff:g id="number">%1$s</xliff:g> киләсе шалтыратулары спам дип билгеләнмәячәк.</string>
+  <string name="checkbox_report_as_spam_action">Спам турында шикаять итү</string>
+  <string name="block_number_failed_toast">Бу номерны блоклаганда хата чыкты</string>
+  <string name="unblock_number_failed_toast">Бу номерны блоктан алганда хата чыкты</string>
+</resources>

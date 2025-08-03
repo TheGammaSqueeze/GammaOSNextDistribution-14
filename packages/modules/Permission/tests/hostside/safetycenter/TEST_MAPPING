@@ -1,0 +1,12 @@
+{
+  "presubmit": [
+    {
+      "name": "SafetyCenterHostSideTestCases"
+    }
+  ],
+  "mainline-presubmit": [
+    {
+      "name": "SafetyCenterHostSideTestCases[com.google.android.permission.apex]"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="pbap_session_key_dialog_title">Scrîf la clâf de session par %1$s</string>
+    <string name="pbap_session_key_dialog_header">Clâf de session Bluetooth necessarie</string>
+    <string name="pbap_acceptance_timeout_message">Il timp al è scjadût tal acetâ la conession cun %1$s</string>
+    <string name="pbap_authentication_timeout_message">Il timp al è scjadût tal inserî la clâf de session cun %1$s</string>
+    <string name="auth_notif_ticker">Richieste di autenticazion Obex</string>
+    <string name="auth_notif_title">Clâf de session</string>
+    <string name="auth_notif_message">Scrîf la clâf de session par %1$s</string>
+    <string name="defaultname">Pacut par automobil</string>
+    <string name="unknownName">Non no cognossût</string>
+    <string name="localPhoneName">Gno non</string>
+    <string name="defaultnumber">000000</string>
+    <string name="pbap_notification_group">Condivision contat Bluetooth</string>
+    <string name="phonebook_advance_feature_support">Funzion avanzade de rubriche telefoniche supuartade</string>
+    <string name="repair_for_adv_phonebook_feature">Torne associe pe funzion di rubriche telefoniche avanzade</string>
+</resources>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2017 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License
+  -->
+<resources>
+  <string name="incall_content_description_end_call">Finar la llamada</string>
+  <string name="incall_content_description_muted">Col audiu desactiváu</string>
+  <string name="incall_content_description_unmuted">Col audiu activáu</string>
+  <string name="incall_content_description_swap_calls">Intercambiar les llamaes</string>
+  <string name="incall_content_description_swap_sim">Camudar la SIM</string>
+  <string name="incall_content_description_merge_calls">Mecer les llamaes</string>
+  <string name="incall_content_description_earpiece">Auricular del preséu</string>
+  <string name="incall_content_description_speaker">Altavoz</string>
+  <string name="incall_content_description_bluetooth">Bluetooth</string>
+  <string name="incall_content_description_headset">Cascos con cable</string>
+  <string name="incall_content_description_hold">Poner la llamada n\'espera</string>
+  <string name="incall_content_description_unhold">Siguir cola llamada</string>
+  <string name="incall_content_description_video_on">Videu activáu</string>
+  <string name="incall_content_description_video_off">Videu desactiváu</string>
+  <string name="incall_content_description_swap_video">Intercambiar el videu</string>
+  <string name="incall_label_speaker">Altavoz</string>
+</resources>

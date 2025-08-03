@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    Copyright (C) 2021 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="brand_screen_header" msgid="4382251935798018352">"یہ گاڑی تنظیم کی ہے"</string>
+    <string name="contact_device_provider" msgid="338577979231875837">"مزید جاننے کے لیے، <xliff:g id="IT_ADMIN">%1$s</xliff:g> سے رابطہ کریں۔"</string>
+    <string name="organization_admin" msgid="6551608903069550652">"تنظیم کا مینیجر"</string>
+    <string name="if_questions_contact_admin" msgid="4645510019575736238">"اگر آپ کے پاس سوالات ہیں تو تنظیم کے مینیجر سے رابطہ کریں"</string>
+    <string name="admin_has_ability_to_monitor_device" msgid="3132155961508293345">"تنظیم کا مینیجر نیٹ ورک کی سرگرمی اور اس کے ساتھ ساتھ آپ کی گاڑی کے مقام سمیت ترتیبات، کارپوریٹ رسائی، ایپس، اجازتوں اور اس گاڑی کے ساتھ وابستہ ڈیٹا کو مانیٹر کرنے اور ان کا نظم کرنے کا اہل ہے۔<xliff:g id="LINE_BREAK">
+
+</xliff:g>تنظیم کی رازداری کی پالیسیوں سمیت مزید معلومات کے لیے تنظیم کے مینیجر سے رابطہ کریں۔"</string>
+    <string name="contact_your_admin_for_more_info" msgid="1419852317652804536">"تنظیم کی رازداری کی پالیسیوں سمیت مزید معلومات کے لیے تنظیم کے مینیجر سے رابطہ کریں۔"</string>
+    <string name="managed_device_info" msgid="2134697391634083944">"یہ ایک نظم کردہ گاڑی ہے"</string>
+    <string name="contact_your_admin_for_help" msgid="1741496631607502730">"مدد کے لیے تنظیم کے مینیجر سے رابطہ کریں"</string>
+    <string name="fully_managed_device_provisioning_accept_header" msgid="8767138982035307813">"نظم کردہ گاڑی کو سیٹ اپ کریں"</string>
+    <string name="fully_managed_device_provisioning_step_1_header" msgid="8704166635032524345">"اپنی تنظیم کی ایپس تک رسائی حاصل کریں"</string>
+    <string name="fully_managed_device_provisioning_step_1_description" msgid="5960961281295355254">"معلوماتی انٹرٹینمنٹ سسٹم سیٹ اپ کیا جا رہا ہے…"</string>
+    <string name="fully_managed_device_provisioning_step_2_header" msgid="5888602026900289468">"معلوماتی انٹرٹینمنٹ سسٹم ڈیٹا نجی نہیں ہے"</string>
+    <string name="fully_managed_device_provisioning_step_2_subheader_title" msgid="1421575203782743214">"آپ کی سرگرمی اور ڈیٹا"</string>
+    <string name="fully_managed_device_provisioning_step_2_subheader" msgid="4881961368653838979">"تنظیم کا مینیجر اس گاڑی پر آپ کی سرگرمی اور ڈیٹا دیکھ سکتا ہے۔"</string>
+    <string name="fully_managed_device_provisioning_permissions_secondary_subheader" msgid="8955791361423166123">"تنظیم کا مینیجر اس گاڑی پر موجود ایپس کے لیے اجازتوں کو سیٹ کر سکتا ہے جیسے کہ مائیکروفون اور مقام کی اجازتیں۔"</string>
+    <string name="fully_managed_device_with_permission_control_provisioning_summary" msgid="2503568673345133100">"اپنی ورک ایپس تک آسانی سے رسائی حاصل کرنے کے لیے اس گاڑی کا معلوماتی انٹرٹینمنٹ سسٹم استعمال کریں۔ یہ گاڑی نجی نہیں ہے، لہذا تنظیم کا مینیجر آپ کی سرگرمی اور ڈیٹا دیکھنے کا اہل ہو سکتا ہے۔ تنظیم کا مینیجر اس گاڑی پر موجود ایپس کے لیے بھی اجازتوں کو سیٹ کر سکتا ہے جیسے کہ مائیکروفون اور مقام کی اجازتیں۔"</string>
+    <string name="fully_managed_device_provisioning_summary" msgid="4323948058344613817">"اپنی ورک ایپس تک آسانی سے رسائی حاصل کرنے کے لیے اس گاڑی کا معلوماتی انٹرٹینمنٹ سسٹم استعمال کریں۔ یہ گاڑی نجی نہیں ہے، لہذا تنظیم کا مینیجر آپ کا ڈیٹا اور سرگرمی دیکھنے کا اہل ہو سکتا ہے۔"</string>
+    <string name="fully_managed_device_provisioning_progress_label" msgid="988594700479673633">"نظم کردہ گاڑی کو سیٹ اپ کیا جا رہا ہے"</string>
+    <string name="fully_managed_device_provisioning_return_device_title" msgid="1578111657911434819">"سیٹ اپ کو منسوخ کریں اور گاڑی کو واپس کریں"</string>
+    <string name="fully_managed_device_provisioning_return_device_subheader" msgid="5809488930429106172">"اس گاڑی کو ری سیٹ کریں اور تنظیم کے مینیجر کو واپس کریں یا سیٹ اپ جاری رکھنے کے لیے پچھلی اسکرین پر واپس جائیں۔"</string>
+    <string name="fully_managed_device_cancel_setup_button" msgid="4113790677940440998">"سیٹ اپ منسوخ کریں"</string>
+    <string name="fully_managed_device_reset_and_return_button" msgid="4951274590516561428">"ری سیٹ کریں اور واپس جائیں"</string>
+    <string name="fully_managed_device_provisioning_privacy_title" msgid="4789425994893472324">"رازداری کا نوٹس"</string>
+    <string name="fully_managed_device_provisioning_privacy_body" msgid="5549745709511179391">"تنظیم کا مینیجر اس گاڑی پر آپ کا ڈیٹا اور سرگرمی دیکھنے کا اہل ہو سکتا ہے۔"</string>
+</resources>

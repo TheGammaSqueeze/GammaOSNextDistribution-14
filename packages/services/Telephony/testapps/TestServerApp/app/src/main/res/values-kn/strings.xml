@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="2894617184221823208">"TestServerApp"</string>
+    <string name="action_settings" msgid="1335152369747372374">"ಸೆಟ್ಟಿಂಗ್‌ಗಳು"</string>
+    <string name="server_running" msgid="2780193626090379172">"ಸರ್ವರ್ ರನ್ ಆಗುತ್ತಿದೆ..."</string>
+    <string name="stop_server" msgid="6192029827529013598">"ಸರ್ವರ್ ನಿಲ್ಲಿಸಿ"</string>
+    <string name="server_down" msgid="1030249207496490556">"ಸರ್ವರ್ ಡೌನ್ ಆಗಿದೆ"</string>
+    <string name="start_server" msgid="3878573341408591975">"ಸರ್ವರ್ ಪ್ರಾರಂಭಿಸಿ"</string>
+  <string-array name="entitlement_status">
+    <item msgid="5560300387618996934">"ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ"</item>
+    <item msgid="3193389681837907872">"ಸಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ"</item>
+    <item msgid="3124590179479393815">"ಹೊಂದಾಣಿಕೆಯಾಗುವುದಿಲ್ಲ"</item>
+    <item msgid="1606753456265236910">"ಒದಗಿಸಲಾಗುತ್ತಿದೆ"</item>
+    <item msgid="3930807209231347454">"ಒಳಗೊಂಡಿದೆ"</item>
+  </string-array>
+  <string-array name="provision_status">
+    <item msgid="3486273747926710021">"ಒದಗಿಸಲಾಗಿಲ್ಲ"</item>
+    <item msgid="7598231293776486217">"ಒದಗಿಸಲಾಗಿದೆ"</item>
+    <item msgid="3720547957514534185">"ಅಗತ್ಯವಿಲ್ಲ"</item>
+    <item msgid="1264673582354896949">"ಪ್ರಗತಿಯಲ್ಲಿದೆ"</item>
+  </string-array>
+</resources>

@@ -1,0 +1,10 @@
+#! /bin/bash
+# interactive version of run
+
+trap "exit;" SIGINT SIGTERM
+
+while true
+do
+    ${ANDROID_BUILD_TOP}/packages/modules/Bluetooth/system/gd/cert/run "$@"
+    python3 ${ANDROID_BUILD_TOP}/packages/modules/Bluetooth/system/gd/cert/change_waiter.py ${ANDROID_BUILD_TOP}/packages/modules/Bluetooth/system
+done

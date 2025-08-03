@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  Copyright (C) 2017-2018,2021 The LineageOS Project
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ Also add information on how to contact you by electronic and paper mail.
+
+-->
+
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- Base application theme. -->
+    <style name="FlipFlapTheme" parent="android:Theme.NoTitleBar.Fullscreen">
+        <item name="android:windowBackground">@android:color/black</item>
+        <item name="android:colorBackground">@android:color/black</item>
+        <item name="android:windowAnimationStyle">@null</item>
+    </style>
+
+    <style name="label_shadow">
+        <item name="android:shadowColor">@color/text_shadow_opaque</item>
+        <item name="android:shadowRadius">2.0</item>
+    </style>
+
+    <style name="label_bold" parent="@style/label_shadow">
+        <item name="android:textSize">@dimen/label_font_size</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif-condensed</item>
+    </style>
+
+    <style name="label_thin" parent="@style/label_shadow">
+        <item name="android:textSize">@dimen/label_font_size</item>
+        <item name="android:fontFamily">sans-serif-condensed</item>
+    </style>
+
+    <style name="label_small" parent="@style/label_shadow">
+        <item name="android:textSize">12sp</item>
+        <item name="android:fontFamily">sans-serif-condensed</item>
+    </style>
+
+    <style name="alarm_label_thin" parent="@style/label_thin">
+        <item name="android:shadowColor">@color/text_shadow_opaque</item>
+    </style>
+
+    <style name="alarm_label_bold" parent="@style/label_bold">
+        <item name="android:shadowColor">@color/text_shadow_opaque</item>
+    </style>
+
+    <style name="alarm_label_small" parent="@style/label_small">
+        <item name="android:shadowColor">@color/text_shadow_opaque</item>
+    </style>
+
+    <style name="widget_small_bold" parent="@style/label_shadow">
+        <item name="android:textSize">@dimen/widget_small_font_size</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <style name="widget_medium_light" parent="@style/label_shadow">
+        <item name="android:textSize">@dimen/widget_medium_font_size</item>
+        <item name="android:fontFamily">sans-serif-light</item>
+    </style>
+
+    <style name="widget_medium_bold" parent="@style/label_shadow">
+        <item name="android:textSize">@dimen/widget_medium_font_size</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <style name="widget_big_bold" parent="@style/label_shadow">
+        <item name="android:textSize">@dimen/widget_big_font_size</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <style name="widget_big_thin" parent="@style/label_shadow">
+        <item name="android:textSize">@dimen/widget_big_font_size</item>
+        <item name="android:fontFamily">sans-serif-thin</item>
+    </style>
+
+    <style name="widget_big_light" parent="@style/label_shadow">
+        <item name="android:textSize">@dimen/widget_big_font_size</item>
+        <item name="android:fontFamily">sans-serif-light</item>
+    </style>
+
+    <style name="transparent">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:colorForeground">#fff</item>
+        <item name="android:windowAnimationStyle">@null</item>
+    </style>
+
+    <style name="iceview_notification_big">
+        <item name="android:textSize">@dimen/iceview_notification_big_text_size</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <style name="iceview_notification_normal">
+        <item name="android:textSize">@dimen/iceview_notification_normal_text_size</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+</resources>

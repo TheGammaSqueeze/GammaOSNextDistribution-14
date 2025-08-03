@@ -1,0 +1,8 @@
+{
+    "requireLibs": [
+        "libtest_product.so"
+    ],
+    "provideLibs": [
+        "libproductprovide.so"
+    ]
+}

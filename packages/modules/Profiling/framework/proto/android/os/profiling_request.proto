@@ -1,0 +1,29 @@
+syntax = "proto2";
+
+package android.os;
+
+option java_outer_classname = "ProfilingRequestProto";
+option java_multiple_files = true;
+
+message ProfilingRequest {
+  message JavaHeapDump {}
+  message HeapProfile {
+    optional bool art = 1;
+    optional uint64 sampling_interval_bytes = 2;
+  }
+  message StackSampling {
+    optional uint32 frequency = 1;
+  }
+  message SystemTrace {
+    optional uint32 duration_ms = 1;
+  }
+  message Config {
+    oneof cfg_type {
+      JavaHeapDump java_heap_dump = 1;
+      HeapProfile heap_profile = 2;
+      StackSampling stack_sampling = 3;
+      SystemTrace system_trace = 4;
+    }
+  }
+  optional Config config = 1;
+}

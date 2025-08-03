@@ -1,0 +1,106 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_bt_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_bt_license"],
+}
+
+filegroup {
+    name: "BluetoothOsSources",
+    srcs: [
+        "handler.cc",
+        "system_properties_common.cc",
+    ],
+}
+
+filegroup {
+    name: "BluetoothOsSources_android",
+    srcs: [
+        "android/metrics.cc",
+        "android/parameter_provider.cc",
+        "android/system_properties.cc",
+        "android/wakelock_native.cc",
+    ],
+}
+
+filegroup {
+    name: "BluetoothOsTestSources_android",
+    srcs: [
+        "android/wakelock_native_test.cc",
+    ],
+}
+
+filegroup {
+    name: "BluetoothOsSources_host",
+    srcs: [
+        "host/metrics.cc",
+        "host/parameter_provider.cc",
+        "host/system_properties.cc",
+        "host/wakelock_native.cc",
+    ],
+}
+
+filegroup {
+    name: "BluetoothOsTestSources",
+    srcs: [
+        "handler_unittest.cc",
+        "system_properties_common_test.cc",
+    ],
+}
+
+filegroup {
+    name: "BluetoothOsTestSources_host",
+    srcs: [
+    ],
+}
+
+filegroup {
+    name: "BluetoothOsSources_linux_generic",
+    srcs: [
+        "linux_generic/alarm.cc",
+        "linux_generic/files.cc",
+        "linux_generic/reactive_semaphore.cc",
+        "linux_generic/reactor.cc",
+        "linux_generic/repeating_alarm.cc",
+        "linux_generic/thread.cc",
+        "linux_generic/wakelock_manager.cc",
+    ],
+}
+
+filegroup {
+    name: "BluetoothOsTestSources_linux_generic",
+    srcs: [
+        "linux_generic/alarm_unittest.cc",
+        "linux_generic/files_test.cc",
+        "linux_generic/queue_unittest.cc",
+        "linux_generic/reactor_unittest.cc",
+        "linux_generic/repeating_alarm_unittest.cc",
+        "linux_generic/thread_unittest.cc",
+        "linux_generic/wakelock_manager_unittest.cc",
+    ],
+}
+
+filegroup {
+    name: "BluetoothOsBenchmarkSources",
+    srcs: [
+        "alarm_benchmark.cc",
+        "queue_benchmark.cc",
+        "thread_benchmark.cc",
+    ],
+}
+
+filegroup {
+    name: "BluetoothLogRedactionSources",
+    srcs: [
+        "logging/log_redaction.cc",
+    ],
+}
+
+filegroup {
+    name: "BluetoothOsSources_fake_timer",
+    srcs: [
+        "fake_timer/fake_timerfd.cc",
+    ],
+}

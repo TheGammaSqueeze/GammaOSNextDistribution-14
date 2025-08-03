@@ -1,0 +1,86 @@
+package {
+    // http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // the below license kinds from "system_media_license":
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_media_license"],
+}
+
+subdirs = ["tests"]
+
+// Note: The static version of libcamera_metadata should be used for testing ONLY.
+cc_library {
+    name: "libcamera_metadata",
+    vendor_available: true,
+    product_available: true,
+    // TODO(b/153609531): remove when no longer needed.
+    native_bridge_supported: true,
+    host_supported: true,
+    vndk: {
+        enabled: true,
+    },
+    double_loadable: true,
+    srcs: ["src/camera_metadata.c"],
+
+    include_dirs: ["system/media/private/camera/include"],
+    local_include_dirs: ["include"],
+    export_include_dirs: ["include"],
+
+    header_libs: [
+        "libcutils_headers",
+    ],
+
+    export_header_lib_headers: [
+        "libcutils_headers",
+    ],
+
+    shared_libs: [
+        "liblog",
+    ],
+
+    cflags: [
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fvisibility=hidden",
+        "-std=c11",
+    ],
+
+    product_variables: {
+        eng: {
+            // Enable assert()
+            cflags: [
+                "-UNDEBUG",
+                "-DLOG_NDEBUG=1",
+            ],
+        },
+    },
+}
+
+cc_library_shared {
+    name: "libcamera_metadata_asserts",
+
+    srcs: [
+        "src/camera_metadata_asserts.cpp",
+    ],
+
+    include_dirs: ["system/media/private/camera/include"],
+    local_include_dirs: ["include"],
+
+    static_libs: [
+        "android.hardware.camera.metadata-V3-ndk",
+    ],
+
+    cflags: [
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fvisibility=hidden",
+        "-std=c11",
+    ],
+}
+
+filegroup {
+    name: "libcamera_metadata_tags_file",
+    srcs: ["include/system/camera_metadata_tags.h"],
+}

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2013 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="userCallActivityLabel" product="default">مۆبایل</string>
+    <string name="unknown">نەزانراو</string>
+    <string name="notification_missedCallTitle">پەیوەندیی لەدەستچوو</string>
+    <string name="notification_missedCallsTitle">پەیوەندییە لەدەستچووەکان</string>
+    <string name="notification_missedCallsMsg"><xliff:g id="num_missed_calls">%s</xliff:g> پەیوەندیی لەدەستچوو</string>
+    <string name="notification_missedCallTicker">پەیوەندیی لەدەستچوو لەلایەن <xliff:g id="missed_call_from">%s</xliff:g></string>
+    <string name="notification_missedCall_call_back">پەیوەندی کردنەوە</string>
+    <string name="notification_missedCall_message">نامه‌</string>
+    <string name="accessibility_call_muted">په‌یوه‌ندی کپ کراوه‌.</string>
+    <string name="accessibility_speakerphone_enabled">بەرزەبێژ تواناپێدراوە.</string>
+    <string name="respond_via_sms_canned_response_1">ئێستا ناتوانم قسە بکه‌م.چی بووه‌؟</string>
+    <string name="respond_via_sms_canned_response_2">هەر ئێستا پەیوەندیت بۆ ئەکەمەوە.</string>
+    <string name="respond_via_sms_canned_response_3">دواتر پەیوەندیت بۆ ئەکەمەوە.</string>
+    <string name="respond_via_sms_canned_response_4">ئێستا ناتوانم قسە بکه‌م. دواتر پەیوەندیم پێوە بکه‌؟</string>
+    <string name="respond_via_sms_setting_title">وەڵامە خێراکان</string>
+    <string name="respond_via_sms_setting_title_2">ده‌ستکاریکردنی وه‌ڵامه‌ خێراکان</string>
+    <string name="respond_via_sms_edittext_dialog_title">وه‌ڵامە خێراکان</string>
+    <string name="respond_via_sms_confirmation_format">نامه‌ نێردرا بۆ <xliff:g id="phone_number">%s</xliff:g>.</string>
+    <string name="no_vm_number">ژمارەی دەنگەپۆست نییە</string>
+    <string name="no_vm_number_msg">هیچ ژمارەیەکی دەنگەپۆستی لەسەر سیمکارت کۆگا نەکراوە.</string>
+    <string name="add_vm_number_str">زیاکردنی ژمارە</string>
+    <string name="handle_restricted">سنووردارە</string>
+    <string name="notification_channel_missed_call">پەیوەندییە لەدەستچووەکان</string>
+    <string name="phone_settings_unknown_txt">نەزانراو</string>
+    <string name="callendpoint_name_unknown">نەزانراو</string>
+</resources>

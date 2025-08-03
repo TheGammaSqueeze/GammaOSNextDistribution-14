@@ -1,0 +1,71 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.android.captiveportallogin.CaptivePortalLoginActivity"
+    tools:ignore="MergeRootFrame" >
+
+    <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+      <FrameLayout
+          android:layout_width="match_parent"
+          android:layout_height="4dp" >
+
+        <!-- Eliminates ProgressBar padding by boxing it into a 4dp high container -->
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            style="@android:style/Widget.Material.Light.ProgressBar.Horizontal"
+            android:indeterminate="false"
+            android:max="100"
+            android:progress="0"
+            android:layout_gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+      </FrameLayout>
+
+      <FrameLayout
+          android:layout_width="match_parent"
+          android:layout_height="match_parent" >
+
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipe_refresh"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+          <WebView
+              android:id="@+id/webview"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:layout_alignParentBottom="false"
+              android:layout_alignParentRight="false" />
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+        <!-- The layout is focusable and clickable to prevent interaction through it. -->
+        <FrameLayout
+            android:id="@+id/downloading_panel"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:alpha="0.5"
+            android:background="#000000"
+            android:visibility="gone"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center">
+
+          <ProgressBar
+              android:id="@+id/download_in_progress"
+              android:background="?android:attr/colorBackground"
+              android:layout_centerInParent="true"
+              android:layout_gravity="center"
+              android:padding="20dp"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content" />
+        </FrameLayout>
+
+      </FrameLayout>
+    </LinearLayout>
+</FrameLayout>

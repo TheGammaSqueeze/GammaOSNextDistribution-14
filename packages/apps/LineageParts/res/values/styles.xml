@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+     SPDX-FileCopyrightText: 2010 The Android Open Source Project
+     SPDX-FileCopyrightText: 2023 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+
+    <style name="TextAppearance" parent="android:TextAppearance.DeviceDefault" />
+
+    <style name="TextAppearance.Medium" parent="@android:style/TextAppearance.DeviceDefault.Medium" />
+
+    <style name="TextAppearance.Small" parent="@android:style/TextAppearance.DeviceDefault.Small" />
+
+    <style name="TextAppearance.CategoryTitle" parent="@*android:style/TextAppearance.DeviceDefault.Body2">
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textSize">11sp</item>
+        <!-- 0.8 Spacing, 0.8/11 = 0.072727273 -->
+        <item name="android:letterSpacing">0.072727273</item>
+    </style>
+
+    <style name="EggStyle" parent="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen">
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+    </style>
+
+    <style name="ProfilesPreferenceStyle">
+        <item name="android:layout">@layout/preference_profiles</item>
+        <item name="android:widgetLayout">@layout/preference_profiles_widget</item>
+    </style>
+
+    <style name="OnBoardingStyle" parent="Theme.AppCompat.DayNight">
+        <item name="colorAccent">#167c80</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="ButtonStyle" parent="ThemeOverlay.Material3.Button">
+        <item name="android:background">?android:attr/selectableItemBackgroundBorderless</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+    </style>
+
+    <style name="PrimaryButtonStyle" parent="ThemeOverlay.Material3.Button">
+        <item name="android:background">@drawable/button_background</item>
+        <item name="android:textColor">@android:color/black</item>
+    </style>
+
+</resources>

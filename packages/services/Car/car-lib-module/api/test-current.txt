@@ -1,0 +1,178 @@
+// Signature format: 2.0
+package android.car {
+
+  public final class Car {
+    field public static final String PROPERTY_EMULATED_PLATFORM_VERSION_MAJOR = "com.android.car.internal.debug.platform_major_version";
+    field public static final String PROPERTY_EMULATED_PLATFORM_VERSION_MINOR = "com.android.car.internal.debug.platform_minor_version";
+  }
+
+  public final class CarAppFocusManager {
+    method public int[] getActiveAppTypes();
+  }
+
+  public class VehiclePropertyType {
+    field public static final int BOOLEAN = 2097152; // 0x200000
+    field public static final int BYTES = 7340032; // 0x700000
+    field public static final int FLOAT = 6291456; // 0x600000
+    field public static final int FLOAT_VEC = 6356992; // 0x610000
+    field public static final int INT32 = 4194304; // 0x400000
+    field public static final int INT32_VEC = 4259840; // 0x410000
+    field public static final int INT64 = 5242880; // 0x500000
+    field public static final int INT64_VEC = 5308416; // 0x510000
+    field public static final int MASK = 16711680; // 0xff0000
+    field public static final int MIXED = 14680064; // 0xe00000
+    field public static final int STRING = 1048576; // 0x100000
+  }
+
+}
+
+package android.car.admin {
+
+  public final class CarDevicePolicyManager {
+    method @Deprecated @NonNull @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.Manifest.permission.CREATE_USERS}) public android.car.admin.StartUserInBackgroundResult startUserInBackground(@NonNull android.os.UserHandle);
+    method @Deprecated @NonNull @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.Manifest.permission.CREATE_USERS}) public android.car.admin.StopUserResult stopUser(@NonNull android.os.UserHandle);
+  }
+
+  public final class StartUserInBackgroundResult {
+    method public int getStatus();
+    method public boolean isSuccess();
+    field public static final int STATUS_FAILURE_GENERIC = 100; // 0x64
+    field public static final int STATUS_FAILURE_USER_DOES_NOT_EXIST = 3; // 0x3
+    field public static final int STATUS_SUCCESS = 1; // 0x1
+    field public static final int STATUS_SUCCESS_CURRENT_USER = 2; // 0x2
+  }
+
+  public final class StopUserResult {
+    method public int getStatus();
+    method public boolean isSuccess();
+    field public static final int STATUS_FAILURE_CURRENT_USER = 2; // 0x2
+    field public static final int STATUS_FAILURE_GENERIC = 100; // 0x64
+    field public static final int STATUS_FAILURE_SYSTEM_USER = 3; // 0x3
+    field public static final int STATUS_FAILURE_USER_DOES_NOT_EXIST = 4; // 0x4
+    field public static final int STATUS_SUCCESS = 1; // 0x1
+  }
+
+}
+
+package android.car.annotation {
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @java.lang.annotation.Target({java.lang.annotation.ElementType.ANNOTATION_TYPE, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.METHOD}) public @interface ApiRequirements {
+    method public abstract int hardRemovalVersion() default -1;
+    method public abstract android.car.annotation.ApiRequirements.CarVersion minCarVersion();
+    method public abstract android.car.annotation.ApiRequirements.PlatformVersion minPlatformVersion();
+    method public abstract int softRemovalVersion() default -1;
+  }
+
+  public enum ApiRequirements.CarVersion {
+    method public android.car.CarVersion get();
+    enum_constant public static final android.car.annotation.ApiRequirements.CarVersion TIRAMISU_0;
+    enum_constant public static final android.car.annotation.ApiRequirements.CarVersion TIRAMISU_1;
+    enum_constant public static final android.car.annotation.ApiRequirements.CarVersion TIRAMISU_2;
+    enum_constant public static final android.car.annotation.ApiRequirements.CarVersion TIRAMISU_3;
+    enum_constant public static final android.car.annotation.ApiRequirements.CarVersion UPSIDE_DOWN_CAKE_0;
+    enum_constant public static final android.car.annotation.ApiRequirements.CarVersion UPSIDE_DOWN_CAKE_1;
+    enum_constant public static final android.car.annotation.ApiRequirements.CarVersion VANILLA_ICE_CREAM_0;
+  }
+
+  public enum ApiRequirements.PlatformVersion {
+    method public android.car.PlatformVersion get();
+    enum_constant public static final android.car.annotation.ApiRequirements.PlatformVersion TIRAMISU_0;
+    enum_constant public static final android.car.annotation.ApiRequirements.PlatformVersion TIRAMISU_1;
+    enum_constant public static final android.car.annotation.ApiRequirements.PlatformVersion TIRAMISU_2;
+    enum_constant public static final android.car.annotation.ApiRequirements.PlatformVersion TIRAMISU_3;
+    enum_constant public static final android.car.annotation.ApiRequirements.PlatformVersion UPSIDE_DOWN_CAKE_0;
+    enum_constant public static final android.car.annotation.ApiRequirements.PlatformVersion UPSIDE_DOWN_CAKE_1;
+    enum_constant public static final android.car.annotation.ApiRequirements.PlatformVersion VANILLA_ICE_CREAM_0;
+  }
+
+}
+
+package android.car.content.pm {
+
+  public final class CarPackageManager {
+    method public void setEnableActivityBlocking(boolean);
+  }
+
+}
+
+package android.car.drivingstate {
+
+  public final class CarDrivingStateManager {
+    method @RequiresPermission(android.car.Car.PERMISSION_CONTROL_APP_BLOCKING) public void injectDrivingState(int);
+  }
+
+}
+
+package android.car.hardware.power {
+
+  public class CarPowerManager {
+    method public static boolean isCompletionAllowed(int);
+  }
+
+}
+
+package android.car.media {
+
+  public final class CarAudioManager {
+    method @Deprecated public boolean isDynamicRoutingEnabled();
+  }
+
+  public final class CarMediaManager {
+    method @RequiresPermission(android.Manifest.permission.MEDIA_CONTENT_CONTROL) public boolean isIndependentPlaybackConfig();
+    method @RequiresPermission(android.Manifest.permission.MEDIA_CONTENT_CONTROL) public void setIndependentPlaybackConfig(boolean);
+  }
+
+}
+
+package android.car.remoteaccess {
+
+  public final class CarRemoteAccessManager {
+    method @FlaggedApi("android.car.feature.serverless_remote_access") @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public void addServerlessRemoteTaskClient(@NonNull String, @NonNull String);
+    method @FlaggedApi("android.car.feature.serverless_remote_access") @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public void removeServerlessRemoteTaskClient(@NonNull String);
+  }
+
+}
+
+package android.car.test {
+
+  public final class CarTestManager {
+    ctor public CarTestManager(@NonNull android.car.Car, @NonNull android.os.IBinder);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_TEST_SERVICE) public String dumpVhal(java.util.List<java.lang.String>, long);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_TEST_SERVICE) public String getOemServiceName() throws android.os.RemoteException;
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_TEST_SERVICE) public boolean hasAidlVhal() throws android.os.RemoteException;
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_TEST_SERVICE) public void startCarService(@NonNull android.os.IBinder);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_TEST_SERVICE) public void stopCarService(@NonNull android.os.IBinder);
+  }
+
+}
+
+package android.car.user {
+
+  public final class CarUserManager {
+    method @Deprecated @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.Manifest.permission.CREATE_USERS}) public android.car.util.concurrent.AsyncFuture<android.car.user.UserSwitchResult> switchUser(int);
+  }
+
+  public final class UserCreationResult implements android.os.Parcelable {
+    ctor public UserCreationResult(int);
+  }
+
+}
+
+package android.car.util.concurrent {
+
+  public interface AsyncFuture<T> {
+    method @Nullable public T get() throws java.util.concurrent.ExecutionException, java.lang.InterruptedException;
+    method @Nullable public T get(long, @NonNull java.util.concurrent.TimeUnit) throws java.util.concurrent.ExecutionException, java.lang.InterruptedException, java.util.concurrent.TimeoutException;
+    method @NonNull public android.car.util.concurrent.AsyncFuture<T> whenCompleteAsync(@NonNull java.util.function.BiConsumer<? super T,? super java.lang.Throwable>, @NonNull java.util.concurrent.Executor);
+  }
+
+}
+
+package android.car.watchdog {
+
+  public final class IoOveruseAlertThreshold implements android.os.Parcelable {
+    ctor public IoOveruseAlertThreshold(long, long);
+  }
+
+}
+

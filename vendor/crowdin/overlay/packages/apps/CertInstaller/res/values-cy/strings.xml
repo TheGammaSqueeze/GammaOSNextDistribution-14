@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2009 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Gosodwr Tystysgrif</string>
+    <string name="pick_file_title">Dewis tystysgrif</string>
+    <string name="pkcs12_password_dialog_title">Echdynnu tystysgrif</string>
+    <string name="extracting_pkcs12">Yn echdynnu\u2026</string>
+    <string name="pkcs12_file_password_dialog_title">Echdynnu o %s</string>
+    <string name="name_credential_dialog_title">Enwa\'r dystysgrif hon</string>
+    <string name="certificate_name">Enw\'r dystysgrif</string>
+    <string name="credential_password">Rho\'r cyfrinair i echdynnu\'r tystysgrifau.</string>
+    <string name="credential_info">Mae\'r pecyn yn cynnwys:</string>
+    <string name="p12_description">Tystysgrifau yn stôr allweddau PKCS12.</string>
+    <string name="one_userkey">un allwedd defnyddiwr</string>
+    <string name="userkey_type">Algorithm: </string>
+    <string name="one_usercrt">un dystysgrif defnyddiwr</string>
+    <string name="one_cacrt">un dystysgrif CA</string>
+    <string name="n_cacrts">%d tystysgrif CA</string>
+    <string name="password_error">Rho\'r cyfrinair cywir.</string>
+    <string name="password_empty_error">Rho\'r cyfrinair.</string>
+    <string name="name_empty_error">Rho enw.</string>
+    <string name="name_char_error">Rho enw sy\'n cynnwys llythrennau a rhifau yn unig.</string>
+    <string name="unable_to_save_cert">Methwyd â chadw\'r dystysgrif. Dyw storfa\'r dystysgrif heb ei alluogi neu ei ymgychwyn yn gywir.</string>
+    <string name="cert_not_saved">Dyw\'r dystysgrif heb ei gosod.</string>
+    <string name="no_cert_to_saved">Dim tystysgrif i\'w gosod.</string>
+    <string name="invalid_cert">Mae\'r dystysgrif yn annilys.</string>
+    <string name="action_missing_private_key">Rhaid cael allwedd breifat i osod tystysgrif</string>
+    <string name="action_missing_user_cert">Rhaid cael tystysgrif i osod allwedd breifat</string>
+    <string name="select_certificate_usage_title">Dewisa\'r math o dystysgrif</string>
+    <string name="redirect_ca_certificate_title">Gosoda dystysgrifau CA yn Gosodiadau</string>
+    <string name="redirect_ca_certificate_with_app_info_message">Rhaid i\'r dystysgrif hon oddi wrth
+ <xliff:g id="requesting_app" example="Some App">%1$s</xliff:g> cael ei gosod yn Gosodiadau. 
+Gosoda dystysgrifau CA dim ond gan sefydliadau rwyt yn ymddiried ynddynt.</string>
+    <string name="redirect_ca_certificate_close_button">Cau</string>
+    <string name="invalid_certificate_title">Ni ellir defnyddio\'r ffeil hon</string>
+    <string name="invalid_certificate_close_button">Cau</string>
+    <string name="invalid_certificate_message">Ni ellir defnyddio\'r ffeil hon fel <xliff:g id="certificate_usage">%1$s</xliff:g></string>
+    <string name="certificate">Tystysgrif</string>
+    <string name="ca_certificate">Tystysgrif CA</string>
+    <string name="user_certificate">Tystysgrif VPN a defnyddiwr ap</string>
+    <string name="wifi_certificate">Tystysgrif Wi\u2011Fi</string>
+    <string name="ca_cert_is_added">Gosodwyd y dystysgrif CA</string>
+    <string name="user_cert_is_added">Gosodwyd y dystysgrif defnyddiwr</string>
+    <string name="wifi_cert_is_added">Gosodwyd y dystysgrif Wi\u2011Fi</string>
+    <string name="cert_too_large_error">Methwyd â\'i gosod am fod maint y dystysgrif yn rhy fawr.</string>
+    <string name="cert_missing_error">Methwyd â\'i gosod am na lwyddwyd dod o hyd i ffeil y dystysgrif.</string>
+    <string name="cert_read_error">Methwyd â\'i gosod am na lwyddwyd darllen ffeil y dystysgrif.</string>
+    <string name="cert_temp_error">Methiant dros dro. Rho gynnig arall arni\'n hwyrach.</string>
+    <string name="only_primary_user_allowed">Dim ond perchennog y ddyfais hon gall osod tystysgrifau.</string>
+    <string name="credential_usage_label">Defnydd tystysgrif:</string>
+    <string-array name="credential_usage">
+        <item>VPN ac apiau</item>
+        <item>Wi-Fi</item>
+    </string-array>
+    <string name="certificate_capabilities_warning">Noder: Mae\'n bosib gall gyhoeddwr y dystysgrif hon archwilio holl draffig i ac oddi wrth y ddyfais.</string>
+    <string name="wifi_title">Proffil Wi-Fi</string>
+    <string name="wifi_detail_title">Manylion ar gyfer %s</string>
+    <string name="wifi_detail_label">Manylion</string>
+    <string name="wifi_install_label">Gosod</string>
+    <string name="wifi_installing_label">Yn gosod</string>
+    <string name="wifi_cancel_label">Diddymu</string>
+    <string name="wifi_dismiss_label">Diystyru</string>
+    <string name="wifi_no_config">Dim</string>
+    <string name="wifi_config_text">Enw: %1$s\nFQDN: %2$s\nConsortia Crwydro: %3$s\nGwlad: %4$s\nDull dilysu: EAP-%5$s\n</string>
+    <string name="wifi_ttls_config_text">Enw defnyddiwr: %s\n</string>
+    <string name="wifi_tls_config_text">Tystysgrif cleient:\n%1$s\nAllwedd:%2$s\n</string>
+    <string name="wifi_sim_config_text">SIM: %s\n</string>
+    <string name="wifi_trust_config_text">Tystysgrif ymddiredolaeth:\n%s\n</string>
+    <string name="install_done_title">Gosodwyd tyst-nodiadau</string>
+    <string name="install_done">Mae manylion <xliff:g id="name">%1$s</xliff:g> wedi eu hychwanegu i\'r rhwydweithiau Wi-Fi sydd wedi\'u cofio.</string>
+    <string name="done_label">IAWN</string>
+    <string name="wifi_installer_detail">Gosod manylion Wi-Fi er mwyn cysylltu i rwydweithiau sydd ar gael trwy <xliff:g id="name">%1$s</xliff:g>.</string>
+    <string name="wifi_installer_download_error">Mae gan y ffeil a lawrlwythwyd problemau ac nid yw\'n bosib ei gosod. Sicrha dy fod yn lawrlwytho\'r ffeil o\'r ffynhonnell gywir.</string>
+    <string name="wifi_installer_fail">Methu â gosod manylion Wi-Fi. Ceisia lawrlwytho\'r ffeil eto.</string>
+    <string name="wifi_installer_fail_no_wifi_title">Diddymwyd gosod</string>
+    <string name="wifi_installer_fail_title">Methu â\'i gosod</string>
+    <string name="wifi_installer_fail_no_wifi">Troi Wi-Fi ymlaen a cheisio eto.</string>
+</resources>

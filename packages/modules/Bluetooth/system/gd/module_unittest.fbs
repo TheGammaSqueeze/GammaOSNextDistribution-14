@@ -1,0 +1,10 @@
+// module_unittest
+namespace bluetooth;
+
+attribute "privacy";
+
+table ModuleUnitTestData {
+    title:string (privacy:"Any");
+}
+
+root_type ModuleUnitTestData;

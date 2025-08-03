@@ -1,0 +1,15 @@
+{
+    "uuid": "76d58b74-84ed-42fa-8498-eac2eaa4593a",
+    "min_heap": 4096,
+    "min_stack": 4096,
+    "mgmt_flags": {"non_critical_app": true},
+    "start_ports": [
+        {
+            "name": "CFI_CRASHER_PORT",
+            "flags": {
+                "allow_ta_connect": true,
+                "allow_ns_connect": false
+            }
+        }
+    ]
+}

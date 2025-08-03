@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+-->
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.android.ondevicepersonalization.services"
+    android:versionCode="1"
+    android:versionName="T-initial">
+    <uses-sdk android:minSdkVersion="33"/>
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+
+    <!-- Required for the app to find all packages onboarded to ODP -->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"/>
+
+    <!-- Required for persisting scheduled jobs -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <!-- Required for reading device configs -->
+    <uses-permission android:name="android.permission.READ_DEVICE_CONFIG"/>
+
+    <!-- Required for reading common states from AdServices -->
+    <uses-permission android:name="android.permission.ACCESS_ADSERVICES_STATE"/>
+
+    <!-- Required for modifying personalization state -->
+    <permission android:name="android.permission.ondevicepersonalization.MODIFY_ONDEVICEPERSONALIZATION_STATE"
+                android:protectionLevel="signature|privileged"/>
+
+    <!-- Required for sending measurement events -->
+    <permission android:name="android.permission.ondevicepersonalization.NOTIFY_MEASUREMENT_EVENT"
+                android:protectionLevel="signature|privileged"/>
+
+    <application android:name=".OnDevicePersonalizationApplication"
+                 android:forceQueryable="true">
+        <service android:name=".OnDevicePersonalizationManagingServiceImpl" android:exported="true" >
+            <intent-filter>
+                <action android:name="android.OnDevicePersonalizationService" />
+            </intent-filter>
+        </service>
+        <service android:name=".OnDevicePersonalizationConfigServiceImpl" android:exported="true" >
+            <intent-filter>
+                <action android:name="android.OnDevicePersonalizationConfigService" />
+            </intent-filter>
+        </service>
+        <service android:name=".OnDevicePersonalizationDebugServiceImpl" android:exported="true" >
+            <intent-filter>
+                <action android:name="android.OnDevicePersonalizationDebugService" />
+            </intent-filter>
+        </service>
+        <service android:name="com.android.ondevicepersonalization.services.download.OnDevicePersonalizationDownloadProcessingJobService"
+                 android:exported="false"
+                 android:permission="android.permission.BIND_JOB_SERVICE">
+        </service>
+        <service android:name="com.android.ondevicepersonalization.services.maintenance.OnDevicePersonalizationMaintenanceJobService"
+                 android:exported="false"
+                 android:permission="android.permission.BIND_JOB_SERVICE">
+        </service>
+        <service android:name="com.android.ondevicepersonalization.services.data.user.UserDataCollectionJobService"
+                 android:exported="false"
+                 android:permission="android.permission.BIND_JOB_SERVICE">
+        </service>
+        <service android:name="com.android.ondevicepersonalization.services.download.mdd.MddJobService"
+                 android:exported="false"
+                 android:permission="android.permission.BIND_JOB_SERVICE">
+        </service>
+        <service android:name="com.android.ondevicepersonalization.libraries.plugin.internal.PluginExecutorService"
+                 android:isolatedProcess="true"
+                 android:process=":plugin_disable_art_image_"
+                 android:exported="false" >
+        </service>
+        <service
+            android:name="com.android.ondevicepersonalization.services.federatedcompute.OdpExampleStoreService"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.BIND_EXAMPLE_STORE_SERVICE">
+            <intent-filter>
+                <action android:name="android.federatedcompute.EXAMPLE_STORE" />
+            </intent-filter>
+        </service>
+        <service android:name="com.android.ondevicepersonalization.services.federatedcompute.OdpResultHandlingService"
+                 android:enabled="true" android:exported="true" >
+            <intent-filter>
+                <action android:name="android.federatedcompute.COMPUTATION_RESULT" />
+            </intent-filter>
+        </service>
+        <service
+            android:name="com.android.ondevicepersonalization.services.inference.IsolatedModelService"
+            android:isolatedProcess="true"
+            android:allowSharedIsolatedProcess="true"
+            android:exported="false">
+        </service>
+
+        <!-- On BOOT_COMPLETED receiver for registering jobs -->
+        <receiver android:name=".OnDevicePersonalizationBroadcastReceiver"
+                  android:enabled="true"
+                  android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>

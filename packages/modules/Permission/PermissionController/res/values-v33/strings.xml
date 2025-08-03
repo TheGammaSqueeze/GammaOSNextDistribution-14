@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- Description when an app requests to become the default dialer app. [CHAR LIMIT=NONE] -->
+    <string name="role_dialer_request_description">This app will be allowed to send you Notifications, and will be given access to your Camera, Contacts, Microphone, Phone, and SMS</string>
+    <!-- Description when an app requests to become the default SMS app. [CHAR LIMIT=NONE] -->
+    <string name="role_sms_request_description">This app will be allowed to send you Notifications, and will be given access to your Camera, Contacts, Files, Microphone, Phone, and SMS</string>
+
+    <!-- Label for showing a permission group's description in the header of the list of apps that have the Storage permission [CHAR LIMIT=none] -->
+    <string name="permission_description_summary_storage">Apps with this permission can access all files on this device</string>
+
+    <!-- Title for the "Your Work Policy" under Advanced Settings in Safety Center for managed devices. [CHAR LIMIT=NONE]-->
+    <string name="work_policy_title" >Your work policy info</string>
+    <!-- Summary for the "Your Work Policy" for Advanced Settings in Safety Center for managed devices. [CHAR LIMIT=NONE]-->
+    <string name="work_policy_summary">Settings managed by your IT admin</string>
+
+    <!-- Label for expanding an entry group in Safety Center [CHAR LIMIT=NONE] -->
+    <string name="safety_center_entry_group_expand_action">Expand and show list</string>
+    <!-- Label for collapsing an entry group in Safety Center [CHAR LIMIT=NONE] -->
+    <string name="safety_center_entry_group_collapse_action">Collapse list and hide settings</string>
+    <!-- Content description for a safety center entry group [CHAR LIMIT=NONE]-->
+    <string name="safety_center_entry_group_content_description">List. <xliff:g id="entry title" example="App security">%1$s</xliff:g>. <xliff:g id="entry summary" example="Scanning is on">%2$s</xliff:g></string>
+    <!-- Content description for a safety center entry group with actions needed [CHAR LIMIT=NONE]-->
+    <string name="safety_center_entry_group_with_actions_needed_content_description">List. <xliff:g id="entry title" example="App security">%1$s</xliff:g>. Actions needed. <xliff:g id="entry summary" example="Scanning is on">%2$s</xliff:g></string>
+    <!-- Content description for a safety center entry group item [CHAR LIMIT=NONE]-->
+    <string name="safety_center_entry_group_item_content_description">List item. <xliff:g id="entry item title" example="App security">%1$s</xliff:g>. <xliff:g id="entry item summary" example="Scanning is on">%2$s</xliff:g></string>
+    <!-- Content description for a safety center entry [CHAR LIMIT=NONE]-->
+    <string name="safety_center_entry_content_description"> <xliff:g id="entry item title" example="App security">%1$s</xliff:g>. <xliff:g id="entry item summary" example="Scanning is on">%2$s</xliff:g></string>
+    <!-- Title for the "More alerts" card in Safety Center [CHAR LIMIT=NONE]-->
+    <string name="safety_center_more_issues_card_title">More alerts</string>
+    <!-- Title for the "Dismissed alerts" card in Safety Center [CHAR LIMIT=NONE]-->
+    <string name="safety_center_dismissed_issues_card_title">Dismissed alerts</string>
+    <!-- Label for expanding the "See all alerts"/"More issues" card in Safety Center [CHAR LIMIT=NONE] -->
+    <string name="safety_center_more_issues_card_expand_action">
+        {count, plural,
+            =1    {Expand and see one more alert}
+            other {Expand and see # more alerts}
+        }
+    </string>
+    <!-- Content description prefixing the first text view of a safety center issue card preference [CHAR LIMIT=NONE]-->
+    <string name="safety_center_issue_card_prefix_content_description">Alert. <xliff:g id="issue card title" example="Protect your account">%1$s</xliff:g></string>
+
+    <!-- Issue resolution confirmation text [CHAR LIMIT=NONE]-->
+    <string name="safety_center_resolved_issue_fallback">Action complete</string>
+
+    <!--Summary for safety center status card QS in case of pending actions [CHAR LIMIT=NONE] -->
+    <string name="safety_center_qs_status_summary">Check settings that can add protection to your device</string>
+    <!-- Content description for the safety center quick settings page landing [CHAR LIMIT=NONE] -->
+    <string name="safety_center_qs_page_landing">Security and privacy quick settings</string>
+    <!-- Content description for close button of the safety center quick settings [CHAR LIMIT=NONE] -->
+    <string name="safety_center_qs_close_button">Close</string>
+    <!-- Label for expanding the permission usage card in safety center quick settings [CHAR LIMIT=NONE] -->
+    <string name="safety_center_qs_expand_action">Expand and show options</string>
+    <!-- Label for collapsing the permission usage card in safety center quick settings [CHAR LIMIT=NONE] -->
+    <string name="safety_center_qs_collapse_action">Collapse</string>
+    <!-- Content description for the privacy controls of the safety center quick settings [CHAR LIMIT=NONE] -->
+    <string name="safety_center_qs_privacy_control">Switch. <xliff:g id="privacy control title" example="Camera">%1$s</xliff:g>. <xliff:g id="privacy control status" example="Available">%2$s</xliff:g></string>
+    <!-- Label for toggling controls of the safety center quick settings [CHAR LIMIT=NONE] -->
+    <string name="safety_center_qs_toggle_action">Toggle</string>
+    <!-- Label for opening safety center from quick settings [CHAR LIMIT=NONE] -->
+    <string name="safety_center_qs_open_action">Open</string>
+    <!--Label for the button that takes the user to Safety center in case of pending actions [CHAR LIMIT=NONE] -->
+    <string name="safety_center_review_settings_button">Review settings</string>
+
+    <!-- Content description for the Gear icon -->
+    <string name="safety_center_gear_label">Settings</string>
+    <!-- Content description for the Information icon -->
+    <string name="safety_center_info_label">Information</string>
+
+</resources>

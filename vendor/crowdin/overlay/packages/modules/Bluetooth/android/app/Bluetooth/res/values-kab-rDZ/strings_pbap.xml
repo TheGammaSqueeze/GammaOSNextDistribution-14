@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="pbap_session_key_dialog_title">Ssekcem tasarutt n uceyyeɛ i %1$s</string>
+    <string name="pbap_session_key_dialog_header">Tasarutt n uceyyeɛ s Bluetooth yettwaqbel</string>
+    <string name="pbap_acceptance_timeout_message">D lawan ad tqebleḍ tuqqna akked </string>
+    <string name="pbap_authentication_timeout_message">D lawan ad teskecmeḍ tasarutt n uceyyeɛ</string>
+    <string name="auth_notif_ticker">Asuter n usissen Obex</string>
+    <string name="auth_notif_title">Tasarut n uceyyeɛ</string>
+    <string name="auth_notif_message">Ssekcem tasarutt n uceyyeɛ i %1$s</string>
+    <string name="defaultname">Timeẓẓuɣin</string>
+    <string name="unknownName">Ur yettwassen ara yisem-a</string>
+    <string name="localPhoneName">Isem-iw</string>
+    <string name="defaultnumber">000000</string>
+</resources>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt"
+        android:viewportWidth="64"
+        android:viewportHeight="64"
+        android:width="64dp"
+        android:height="64dp"
+        android:tint="?android:attr/colorControlNormal">
+    <path
+            android:pathData="M18.7199 34.6663C12.8266 34.6663 8.05325 39.4397 8.05325 45.333C8.05325 51.2263 12.8266 55.9997 18.7199 55.9997C24.6133 55.9997 29.3866 51.2263 29.3866 45.333C29.3866 39.4397 24.6133 34.6663 18.7199 34.6663ZM18.7199 50.6663C15.7866 50.6663 13.3866 48.2663 13.3866 45.333C13.3866 42.3997 15.7866 39.9997 18.7199 39.9997C21.6533 39.9997 24.0533 42.3997 24.0533 45.333C24.0533 48.2663 21.6533 50.6663 18.7199 50.6663ZM34.6666 34.6663V55.9997H55.9999V34.6663H34.6666ZM50.6666 50.6663H39.9999V39.9997H50.6666V50.6663ZM18.6666 5.33301L5.33325 29.333H31.9999L18.6666 5.33301ZM18.6666 16.3197L22.9333 23.9997H14.3999L18.6666 16.3197ZM51.3333 6.66634C48.5066 6.66634 46.5066 8.15967 45.3333 9.78634C44.1599 8.15967 42.1599 6.66634 39.3333 6.66634C35.1733 6.66634 31.9999 10.0797 31.9999 13.9997C31.9999 19.333 38.4533 23.1197 45.3333 29.333C52.2133 23.1197 58.6666 19.333 58.6666 13.9997C58.6666 10.0797 55.4933 6.66634 51.3333 6.66634ZM45.3333 22.2663C41.4666 19.013 37.3333 15.8663 37.3333 13.9997C37.3333 12.853 38.2666 11.9997 39.3333 11.9997C40.1599 11.9997 40.7199 12.453 41.2799 12.9863L45.3333 16.7997L49.3866 12.9863C49.9466 12.453 50.5066 11.9997 51.3333 11.9997C52.3999 11.9997 53.3333 12.853 53.3333 13.9997C53.3333 15.8663 49.1999 19.013 45.3333 22.2663Z"
+            android:fillColor="#fff" />
+</vector>

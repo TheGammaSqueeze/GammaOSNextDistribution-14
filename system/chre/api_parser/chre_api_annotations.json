@@ -1,0 +1,316 @@
+[
+  {
+    "filename": "chre_api/include/chre_api/chre/wwan.h",
+    "includes": [
+      "chre_api/include/chre_api/chre/common.h"
+    ],
+    "output_includes": [
+      "chpp/common/common_types.h",
+      "chre_api/chre/wwan.h"
+    ],
+    "struct_info": [
+      {
+        "name": "chreWwanCellInfoResult",
+        "annotations": [
+          {
+            "field": "version",
+            "annotation": "fixed_value",
+            "value": "CHRE_WWAN_CELL_INFO_RESULT_VERSION"
+          },
+          {
+            "field": "errorCode",
+            "annotation": "enum",
+            "enum_type": "chreError"
+          },
+          {
+            "field": "cookie",
+            "annotation": "fixed_value",
+            "value": "0"
+          },
+          {
+            "field": "cookie",
+            "annotation": "rewrite_type",
+            "type_override": "uint32_t"
+          },
+          {
+            "field": "reserved",
+            "annotation": "fixed_value",
+            "value": "0"
+          },
+          {
+            "field": "cells",
+            "annotation": "var_len_array",
+            "length_field": "cellInfoCount"
+          }
+        ]
+      },
+      {
+        "name": "chreWwanCellInfo",
+        "annotations": [
+          {
+            "field": "cellInfoType",
+            "annotation": "enum",
+            "enum_type": "chreWwanCellInfoType"
+          },
+          {
+            "field": "CellInfo",
+            "annotation": "union_variant",
+            "discriminator": "cellInfoType",
+            "mapping": [
+              [
+                "CHRE_WWAN_CELL_INFO_TYPE_GSM",
+                "gsm"
+              ],
+              [
+                "CHRE_WWAN_CELL_INFO_TYPE_CDMA",
+                "cdma"
+              ],
+              [
+                "CHRE_WWAN_CELL_INFO_TYPE_LTE",
+                "lte"
+              ],
+              [
+                "CHRE_WWAN_CELL_INFO_TYPE_WCDMA",
+                "wcdma"
+              ],
+              [
+                "CHRE_WWAN_CELL_INFO_TYPE_TD_SCDMA",
+                "tdscdma"
+              ],
+              [
+                "CHRE_WWAN_CELL_INFO_TYPE_NR",
+                "nr"
+              ]
+            ]
+          },
+          {
+            "field": "reserved",
+            "annotation": "fixed_value",
+            "value": "0"
+          }
+        ]
+      },
+      {
+        "name": "chreWwanCellIdentityGsm",
+        "annotations": [
+          {
+            "field": "reserved",
+            "annotation": "fixed_value",
+            "value": "0"
+          }
+        ]
+      }
+    ],
+    "root_structs": [
+      "chreWwanCellInfoResult"
+    ]
+  },
+  {
+    "filename": "chre_api/include/chre_api/chre/wifi.h",
+    "includes": [
+      "chre_api/include/chre_api/chre/common.h"
+    ],
+    "output_includes": [
+      "chpp/common/common_types.h",
+      "chre_api/chre/wifi.h"
+    ],
+    "struct_info": [
+      {
+        "name": "chreWifiScanEvent",
+        "annotations": [
+          {
+            "field": "version",
+            "annotation": "fixed_value",
+            "value": "CHRE_WIFI_SCAN_EVENT_VERSION"
+          },
+          {
+            "field": "scannedFreqList",
+            "annotation": "var_len_array",
+            "length_field": "scannedFreqListLen"
+          },
+          {
+            "field": "results",
+            "annotation": "var_len_array",
+            "length_field": "resultCount"
+          }
+        ]
+      },
+      {
+        "name": "chreWifiScanResult",
+        "annotations": [
+          {
+            "field": "reserved",
+            "annotation": "fixed_value",
+            "value": "0"
+          }
+        ]
+      },
+      {
+        "name": "chreWifiScanParams",
+        "annotations": [
+          {
+            "field": "frequencyList",
+            "annotation": "var_len_array",
+            "length_field": "frequencyListLen"
+          },
+          {
+            "field": "ssidList",
+            "annotation": "var_len_array",
+            "length_field": "ssidListLen"
+          }
+        ]
+      },
+      {
+        "name": "chreWifiRangingEvent",
+        "annotations": [
+          {
+            "field": "version",
+            "annotation": "fixed_value",
+            "value": "CHRE_WIFI_RANGING_EVENT_VERSION"
+          },
+          {
+            "field": "reserved",
+            "annotation": "fixed_value",
+            "value": "0"
+          },
+          {
+            "field": "results",
+            "annotation": "var_len_array",
+            "length_field": "resultCount"
+          }
+        ]
+      },
+      {
+        "name": "chreWifiRangingResult",
+        "annotations": [
+          {
+            "field": "reserved",
+            "annotation": "fixed_value",
+            "value": "0"
+          }
+        ]
+      },
+      {
+        "name": "chreWifiRangingParams",
+        "annotations": [
+          {
+            "field": "targetList",
+            "annotation": "var_len_array",
+            "length_field": "targetListLen"
+          }
+        ]
+      },
+      {
+        "name": "chreWifiRangingTarget",
+        "annotations": [
+          {
+            "field": "reserved",
+            "annotation": "fixed_value",
+            "value": "0"
+          }
+        ]
+      },
+      {
+        "name": "chreWifiNanSubscribeConfig",
+        "annotations": [
+          {
+            "field": "subscribeType",
+            "annotation": "enum",
+            "enum_type": "chreWifiNanSubscribeType"
+          },
+          {
+            "field": "service",
+            "annotation": "string"
+          },
+          {
+            "field": "serviceSpecificInfo",
+            "annotation": "var_len_array",
+            "length_field": "serviceSpecificInfoSize"
+          },
+          {
+            "field": "matchFilter",
+            "annotation": "var_len_array",
+            "length_field": "matchFilterLength"
+          }
+        ]
+      },
+      {
+        "name": "chreWifiNanDiscoveryEvent",
+        "annotations": [
+          {
+            "field": "serviceSpecificInfo",
+            "annotation": "var_len_array",
+            "length_field": "serviceSpecificInfoSize"
+          }
+        ]
+      }
+    ],
+    "root_structs": [
+      "chreWifiScanEvent",
+      "chreWifiScanParams",
+      "chreWifiRangingEvent",
+      "chreWifiRangingParams",
+      "chreWifiNanSubscribeConfig",
+      "chreWifiNanDiscoveryEvent",
+      "chreWifiNanSessionLostEvent",
+      "chreWifiNanSessionTerminatedEvent",
+      "chreWifiNanRangingParams"
+    ]
+  },
+  {
+    "filename": "chre_api/include/chre_api/chre/gnss.h",
+    "includes": [
+      "chre_api/include/chre_api/chre/common.h"
+    ],
+    "output_includes": [
+      "chpp/common/common_types.h",
+      "chre_api/chre/gnss.h"
+    ],
+    "struct_info": [
+      {
+        "name": "chreGnssDataEvent",
+        "annotations": [
+          {
+            "field": "version",
+            "annotation": "fixed_value",
+            "value": "CHRE_GNSS_DATA_EVENT_VERSION"
+          },
+          {
+            "field": "reserved",
+            "annotation": "fixed_value",
+            "value": "0"
+          },
+          {
+            "field": "measurements",
+            "annotation": "var_len_array",
+            "length_field": "measurement_count"
+          }
+        ]
+      },
+      {
+        "name": "chreGnssLocationEvent",
+        "annotations": [
+          {
+            "field": "reserved",
+            "annotation": "fixed_value",
+            "value": "0"
+          }
+        ]
+      },
+      {
+        "name": "chreGnssClock",
+        "annotations": [
+          {
+            "field": "reserved",
+            "annotation": "fixed_value",
+            "value": "0"
+          }
+        ]
+      }
+    ],
+    "root_structs": [
+      "chreGnssDataEvent",
+      "chreGnssLocationEvent"
+    ]
+  }
+]

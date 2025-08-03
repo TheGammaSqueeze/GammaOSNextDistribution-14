@@ -1,0 +1,10 @@
+{
+  "presubmit": [
+    {
+      "name": "vts_vndk_dependency_test"
+    },
+    {
+      "name": "vts_vndk_files_test"
+    }
+  ]
+}

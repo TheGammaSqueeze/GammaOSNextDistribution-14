@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (c) 2009, 2011-2013 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2014-2015 The CyanogenMod Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *    * Neither the name of The Linux Foundation nor
+ *      the names of its contributors may be used to endorse or promote
+ *      products derived from this software without specific prior written
+ *      permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NON-INFRINGEMENT ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">FM-raadio</string>
+    <string name="tx_app_name">FM-edastaja</string>
+    <string name="menu_scan_start">Otsi</string>
+    <string name="menu_scan_stop">Lõpeta otsimine</string>
+    <string name="menu_record_start">Lindista</string>
+    <string name="menu_record_stop">Lõpeta salvestus</string>
+    <string name="menu_settings">Seaded</string>
+    <string name="menu_sleep">Maga</string>
+    <string name="menu_sleep_cancel">Loobu magamisest</string>
+    <string name="menu_all_channels">Kõik kanalid</string>
+    <string name="menu_display_tags">Kuva sildid</string>
+    <string name="button_text_stop">Peata</string>
+    <string name="msg_seeking">Otsin FM jaama\u2026</string>
+    <string name="msg_scanning">Otsin kõiki FM jaamu\u2026</string>
+    <string name="msg_scanning_pty">Otsin \'<xliff:g id="pty_name">%1$s</xliff:g>\'\u2026</string>
+    <string name="msg_search_title"><xliff:g id="frequency_string">%1$s</xliff:g> MHz</string>
+    <string name="msg_searching_title">Automaatvalin valmissätteid</string>
+    <string name="msg_searching">Otsin tugevaid jaamu et luua valmissätete nimekiri\u2026</string>
+    <string name="msg_noantenna">Palun sisesta peakomplekt et kasutada FM raadiot</string>
+    <string name="dialog_sleep_title">Automaatne uneaeg</string>
+    <string name="presetlist_add_new">Lisa uus loend</string>
+    <string name="dialog_presetlist_rename_title">Sisesta nimi</string>
+    <string name="presetlist_autoselect_title">Kinnitage automaatvalik</string>
+    <string name="preset_replace">Asenda</string>
+    <string name="preset_tune">Häälesta</string>
+    <string name="preset_rename">Nimeta ümber</string>
+    <string name="preset_delete">Kustuta</string>
+    <string name="preset_search">Otsi \'<xliff:g id="preset_pi">%1$s</xliff:g>\'</string>
+    <string name="stat_notif_frequency">\'<xliff:g id="frequency">%1$s</xliff:g>\' MHz</string>
+    <string name="regional_band">Kohalik sagedusala</string>
+    <string name="regional_band_entry_north_america">Põhja-Ameerika</string>
+    <string name="regional_band_entry_europe">Euroopa</string>
+    <string name="regional_band_entry_japan">Jaapan</string>
+    <string name="regional_band_entry_japan_wide">Jaapan (kogu)</string>
+    <string name="regional_band_entry_australia">Austraalia</string>
+    <string name="regional_band_entry_austria">Austria</string>
+    <string name="regional_band_entry_belgium">Belgia</string>
+    <string name="regional_band_entry_brazil">Brasiilia</string>
+    <string name="regional_band_entry_china">Hiina</string>
+    <string name="regional_band_entry_czech_republic">Tšehhi Vabariik</string>
+    <string name="regional_band_entry_denmark">Taani</string>
+    <string name="regional_band_entry_finland">Soome</string>
+    <string name="regional_band_entry_france">Prantsusmaa</string>
+    <string name="regional_band_entry_germany">Saksamaa</string>
+    <string name="regional_band_entry_greece">Kreeka</string>
+    <string name="regional_band_entry_hong_kong">Hong Kong</string>
+    <string name="regional_band_entry_india">India</string>
+    <string name="regional_band_entry_indonesia">Indoneesia</string>
+    <string name="regional_band_entry_ireland">Iirimaa</string>
+    <string name="regional_band_entry_italy">Itaalia</string>
+    <string name="regional_band_entry_korea">Korea</string>
+    <string name="regional_band_entry_mexico">Mehhiko</string>
+    <string name="regional_band_entry_netherlands">Holland</string>
+    <string name="regional_band_entry_new_zealand">Uus-Meremaa</string>
+    <string name="regional_band_entry_norway">Norra</string>
+    <string name="regional_band_entry_poland">Poola</string>
+    <string name="regional_band_entry_portugal">Portugal</string>
+    <string name="regional_band_entry_russia">Venemaa</string>
+    <string name="regional_band_entry_singapore">Singapur</string>
+    <string name="regional_band_entry_slovakia">Slovakkia</string>
+    <string name="regional_band_entry_spain">Hispaania</string>
+    <string name="regional_band_entry_switzerland">Šveits</string>
+    <string name="regional_band_entry_sweden">Rootsi</string>
+    <string name="regional_band_entry_taiwan">Taiwan</string>
+    <string name="regional_band_entry_turkey">Türgi</string>
+    <string name="regional_band_entry_united_kingdom">Suurbritannia</string>
+    <string name="regional_band_entry_united_states">Ameerika Ühendriigid</string>
+    <string name="regional_band_entry_user_defined">Kasutaja määratud sagedusala</string>
+    <string name="regional_band_summary_north_america">Põhja-Ameerika (87,5-108,0 MHz, 200 kHz sammu kaupa)</string>
+    <string name="regional_band_summary_europe">Euroopa (87,5-108,0 MHz, 100 kHz sammu kaupa)</string>
+    <string name="regional_band_summary_japan">Jaapan (76,0-90,0 MHz, 100 kHz sammu kaupa)</string>
+    <string name="regional_band_summary_japan_wide">Jaapan (lai) (90,0-108,0 MHz, 50 kHz sammu kaupa)</string>
+    <string name="regional_band_summary_australia">Austraalia (87,7-108,0 MHz, 100 kHz sammu kaupa)</string>
+    <string name="regional_band_summary_austria">Austria (87,5-108,0 MHz, 50 kHz sammu kaupa)</string>
+    <string name="regional_band_summary_belgium">Belgia (87,5-108,0 MHz, 100 kHz sammu kaupa)</string>
+    <string name="regional_band_summary_brazil">Brasiilia (87,5-108,0 MHz, 200 kHz sammu kaupa)</string>
+    <string name="regional_band_summary_china">Hiina (87,0-108,0 MHz, 100 kHz sammu kaupa)</string>
+    <string name="regional_band_summary_czech_republic">Tšehhi Vabariik (87,5-108,0 MHz, 100 kHz sammu kaupa)</string>
+    <string name="regional_band_summary_denmark">Taani (87,5-108,0 MHz, 50 kHz sammu kaupa)</string>
+    <string name="regional_band_summary_finland">Soome (87,5-108,0 MHz, 100 kHz sammu kaupa)</string>
+    <string name="regional_band_summary_france">Prantsusmaa (87,5-108,0 MHz, 100 kHz sammu kaupa)</string>
+    <string name="regional_band_summary_germany">Saksamaa (87,5-108,0 MHz, 50 kHz sammu kaupa)</string>
+    <string name="regional_band_summary_greece">Kreeka (87,5-108,0 MHz, 50 kHz sammu kaupa)</string>
+    <string name="regional_band_summary_hong_kong">Hong Kong (87,5-108,0 MHz, 100 kHz sammu kaupa)</string>
+    <string name="regional_band_summary_india">India (87,5-108,0 MHz, 100 kHz sammu kaupa)</string>
+    <string name="regional_band_summary_indonesia">Indoneesia (87,5-108,0 MHz, 100 kHz sammu kaupa)</string>
+    <string name="regional_band_summary_ireland">Iirimaa (87,5-108,0 MHz, 50 kHz sammu kaupa)</string>
+    <string name="regional_band_summary_italy">Itaalia (87,5-108,0 MHz, 50 kHz sammu kaupa)</string>
+    <string name="regional_band_summary_korea">Korea (87,5-108,0 MHz, 200 kHz sammu kaupa)</string>
+    <string name="regional_band_summary_mexico">Mehhiko (88,1-107,9 MHz, 200 kHz sammu kaupa)</string>
+    <string name="regional_band_summary_netherlands">Holland (87,5-108,0 MHz, 100 kHz sammu kaupa)</string>
+    <string name="regional_band_summary_new_zealand">Uus-Meremaa (88,0-107,0 MHz, 100 kHz sammu kaupa)</string>
+    <string name="regional_band_summary_norway">Norra (87,5-108,0 MHz, 100 kHz sammu kaupa)</string>
+    <string name="regional_band_summary_poland">Poola (87,5-108,0 MHz, 100 kHz sammu kaupa)</string>
+    <string name="regional_band_summary_portugal">Portugal (87,5-108,0 MHz, 50 kHz sammu kaupa)</string>
+    <string name="regional_band_summary_russia">Venemaa (87,5-108,0 MHz, 100 kHz sammu kaupa)</string>
+    <string name="regional_band_summary_singapore">Singapur (88,0-108,0 MHz, 100 kHz sammu kaupa)</string>
+    <string name="regional_band_summary_slovakia">Slovakkia (87,5-108,0 MHz, 100 kHz sammu kaupa)</string>
+    <string name="regional_band_summary_spain">Hispaania (87,5-108,0 MHz, 100 kHz sammu kaupa)</string>
+    <string name="regional_band_summary_switzerland">Šveits (87,5-108,0 MHz, 100 kHz sammu kaupa)</string>
+    <string name="regional_band_summary_sweden">Rootsi (87,5-108,0 MHz, 100 kHz sammu kaupa)</string>
+    <string name="regional_band_summary_taiwan">Taiwan (87,5-108,0 MHz, 100 kHz sammu kaupa)</string>
+    <string name="regional_band_summary_turkey">Türgi (87,5-108,0 MHz, 100 kHz sammu kaupa)</string>
+    <string name="regional_band_summary_united_kingdom">Suurbritannia (87,5-108,0 MHz, 100 kHz sammu kaupa)</string>
+    <string name="regional_band_summary_united_states">Ameerika Ühendriigid (88,1-107,9 MHz, 200 kHz sammu kaupa)</string>
+    <string name="regional_band_summary_user_defined">Kasutaja määratud sagedusala</string>
+    <string name="aud_output_mode">Heliväljundi režiim</string>
+    <string name="audio_type_stereo">Stereo</string>
+    <string name="audio_type_mono">Mono</string>
+    <string name="record_dur">Salvestise kestus</string>
+    <string name="auto_select_af">Teine sagedus</string>
+    <string name="settings_revert_defaults_title">Ennista tehaseseaded</string>
+    <string name="settings_revert_defaults_summary">Nulli kõik seaded</string>
+    <string name="settings_revert_confirm_title">Kinnita nullimine</string>
+    <string name="settings_revert_confirm_msg">See toiming kustutab kõik rakenduse seaded, sealhulgas salvestatud valmissätted. Kas soovite jätkata?</string>
+    <string name="no_storage">Paigalda SD kaart enne salvestamise alustamist.</string>
+    <string name="preparing_sd">SD-kaardi ettevalmistamine ...</string>
+    <string name="access_sd_fail">Ei pääsenud SD-kaardile ligi.</string>
+    <string name="spaceIsLow_content">Teie SD-kaardi vaba ruum on otsakorral. Muutke kvaliteediseadeid või kustutage mõni fail ruumi vabastamiseks.</string>
+    <string name="FMRecording_reach_size_limit">Suurus saavutatud.</string>
+    <string name="menu_scan_for_preset">Näita eelmääratuid</string>
+    <string name="fm_off">FM on välja lülitatud.</string>
+    <string name="fm_call">FM ei saa kasutada helistades.</string>
+    <string name="alert_dialog_hint">Sisestage nimi</string>
+    <string name="search_dialog_title">Otsi jaamu</string>
+    <string name="fm_command_timeout_title">Ajalõpp</string>
+    <string name="fm_tune_timeout_msg">Ei saanud vastust üheltki FM-jaamalt. Probleemi jätkumisel lülitage FM-raadio välja ja uuesti sisse.</string>
+    <string name="fm_command_failed_title">FM toiming nurjus</string>
+    <string name="fm_cmd_failed_msg">FM toiming nurjus. Probleemi jätkumisel lülitage FM-raadio välja ja uuesti sisse.</string>
+    <string name="fm_cmd_failed_msg_hdmi">FM toiming nurjus. FM ja HDMI ühilduvus ei ole toetatud.</string>
+    <string name="fm_cmd_failed_call_on">FM toiming nurjus. FM audio pole saadaval kõne ajal.</string>
+    <string name="audio_db_artist_name">Minu FM-salvestised</string>
+    <string name="audio_db_album_name">FM-salvestised</string>
+    <string name="audio_db_playlist_name">FM-salvestised</string>
+    <string name="station_name">Jaam:</string>
+    <string name="station_exists">See sagedus on juba olemas!</string>
+    <string name="station_list_delete_station_prompt">Kas soovite kindlasti kustutada \'<xliff:g id="name">%s</xliff:g>\'?</string>
+    <string name="station_name_empty">Jaama nimeväli on tühi, sisestage uus nimi.</string>
+    <string name="station_name_exist">\'<xliff:g id="name">%s</xliff:g>\' on juba kasutusel, palun vali teine nimi.</string>
+    <string name="rt_plus_tags">Sildid</string>
+    <string name="usr_def_band_min">Madalaim sagedus (MHz)</string>
+    <string name="usr_def_band_max">Kõrgeim sagedus (MHz)</string>
+    <string name="chanl_spacing">Kanalisamm</string>
+    <string name="set">Määra</string>
+    <string name="user_defind_band_msg">Sisesta sagedus 76,0-108,0 MHz vahel, millel on minimaalselt 1 kanali laius ja 100 kHz laius minimaalse ja maksimaalse sageduse vahel</string>
+    <string name="save_record_file">FM salvestus talletatud \'<xliff:g id="record_file">%1$s</xliff:g>\'</string>
+    <string name="fm_search_no_results">Ei leitud ühtegi ühilduvat jaama</string>
+    <string name="typ_All_stations">Kõik jaamad</string>
+    <string name="typ_Culture">Kultuur</string>
+    <string name="typ_Current_affairs">Päevakajaline</string>
+    <string name="typ_Children">Laste programmid</string>
+    <string name="typ_Country">Kantrimuusika</string>
+    <string name="typ_Documentary">Dokumentaal</string>
+    <string name="typ_Drama">Draama</string>
+    <string name="typ_Easy_listening">Rahulik muusika</string>
+    <string name="typ_Education">Haridus</string>
+    <string name="typ_Emergency">Hädaabi</string>
+    <string name="typ_Emergency_test">Hädaabi test</string>
+    <string name="typ_Finance">Rahandus</string>
+    <string name="typ_Folk">Rahvamuusika</string>
+    <string name="typ_Information">Teave</string>
+    <string name="typ_Jazz">Jazz muusika</string>
+    <string name="typ_Light_classical">Kerge klassika</string>
+    <string name="typ_Leisure">Vaba aeg</string>
+    <string name="typ_News">Uudised</string>
+    <string name="typ_National">Rahvusmuusika</string>
+    <string name="typ_Other">Muu muusika</string>
+    <string name="typ_Oldies">Vanamuusika</string>
+    <string name="typ_Phone_in">Telefon</string>
+    <string name="typ_Pop">Popmuusika</string>
+    <string name="typ_Religion">Religioon</string>
+    <string name="typ_Rock">Rockmuusika</string>
+    <string name="typ_Science">Teadus</string>
+    <string name="typ_Serious_classical">Tõsine klassikaline</string>
+    <string name="typ_Social_affairs">Sotsiaalküsimused</string>
+    <string name="typ_Sport">Sport</string>
+    <string name="typ_Travel">Reis</string>
+    <string name="typ_Varied">Mitmekesine</string>
+    <string name="typ_Weather">Ilm</string>
+    <string name="typ_Adult_hits">Täiskasvanute hitid</string>
+    <string name="typ_Classical">Klassika</string>
+    <string name="typ_Classic_Rock">Klassikaline Rokk</string>
+    <string name="typ_College">Kolledž</string>
+    <string name="typ_Foreign_language">Võõrkeel</string>
+    <string name="typ_Hiphop">Hip Hop</string>
+    <string name="typ_Nostalgia">Nostalgia</string>
+    <string name="typ_Personality">Isikupärane</string>
+    <string name="typ_Public">Avalik</string>
+    <string name="typ_Religious_music">Vaimulik muusika</string>
+    <string name="typ_Religious_talk">Religioosne arutelu</string>
+    <string name="typ_Rhythm_and_Blues">Rütm ja Bluus</string>
+    <string name="typ_Spanish_music">Hispaania muusika</string>
+    <string name="typ_Spanish_talk">Hispaania jutt</string>
+    <string name="typ_Soft">Mahemuusika</string>
+    <string name="typ_Soft_Rock">Pehme Rokk</string>
+    <string name="typ_Soft_Rhythm_and_Blues">Pehme Rütm ja Bluus</string>
+    <string name="typ_Sports">Sport</string>
+    <string name="typ_Talk">Jutt</string>
+    <string name="typ_Top_40">Top 40</string>
+</resources>

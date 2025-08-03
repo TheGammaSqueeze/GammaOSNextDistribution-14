@@ -1,0 +1,32 @@
+syntax = "proto2";
+
+package ping_test;
+
+option java_package = "com.google.android.chre.nanoapp.proto";
+option java_outer_classname = "PingTest";
+
+// Nanoapp message type can be either host to chre (H2C) or chre to host (C2H)
+enum MessageType {
+  // Reserved for corrupted messages
+  UNDEFINED = 0;
+
+  // H2C: A message to ping the nanoapp. The nanoapp will respond to the host
+  // with a message, with options specified by this command.
+  // Payload must be PingCommand.
+  PING_COMMAND = 1;
+
+  // C2H: A message indicating the test result. The ping test nanoapp will only
+  // use this message to report a failure.
+  // Payload must be chre_test_common.TestResult.
+  TEST_RESULT = 2;
+
+  // C2H: A message indicating a response from a ping command.
+  // Payload is arbitrary.
+  PING_RESPONSE = 3;
+}
+
+// A message to ping the nanoapp, with some optional specifications.
+message PingCommand {
+  // Specifies the permission to use in chreSendMessageWithPermissions().
+  optional uint32 permissions = 1;
+}

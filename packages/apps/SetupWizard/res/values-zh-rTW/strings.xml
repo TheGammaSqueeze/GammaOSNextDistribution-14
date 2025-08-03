@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2013-2015 The CyanogenMod Project
+     SPDX-FileCopyrightText: 2017-2024 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">設定精靈</string>
+    <string name="next">下一步</string>
+    <string name="skip">略過</string>
+    <string name="start">開始</string>
+    <string name="done">已完成</string>
+    <string name="ok">確定</string>
+    <string name="loading">請稍候\u2026</string>
+    <string name="setup_welcome_message">歡迎使用 <xliff:g id="name" example="LineageOS">%1$s</xliff:g></string>
+    <string name="setup_managed_profile_welcome_message">設定您的工作設定檔</string>
+    <string name="emergency_call">緊急電話</string>
+    <string name="accessibility_settings">無障礙設定</string>
+    <string name="setup_locale">語言</string>
+    <string name="sim_locale_changed">檢測到 %1$s 張 SIM 卡</string>
+    <string name="setup_sim_missing">沒有 SIM 卡</string>
+    <string name="sim_missing_summary" product="tablet">您的平板電腦中未發現 SIM 卡。若要插入一張 SIM 卡，請查閱您的裝置附贈的說明。</string>
+    <string name="sim_missing_summary" product="default">您的手機中未發現 SIM 卡。若要插入一張 SIM 卡，請查閱您的裝置附贈的說明。</string>
+    <string name="setup_datetime">日期和時間</string>
+    <string name="date_time_summary">如果需要的話，請調整您的時區及日期與時間</string>
+    <string name="setup_current_date">目前日期</string>
+    <string name="setup_current_time">目前時間</string>
+    <string name="intro_restore_title">恢復應用程式和資料</string>
+    <string name="intro_restore_subtitle">如果您有來自 <xliff:g id="name" example="LineageOS">%s</xliff:g> 或任何其他作業系統的 Seedvault 備份，您可以在此處還原它。</string>
+    <string name="intro_restore_button">從備份還原</string>
+    <string name="setup_location">定位服務</string>
+    <string name="location_access_summary"><b>允許您許可的應用程式</b>使用您的定位資訊。可能包括您目前和過去的位置。</string>
+    <string name="location_agps_access_summary">定位功能啟用後<b>將從網路上下載衛星輔助定位資料</b>，藉此增加定位的準確度及效能。</string>
+    <string name="update_recovery_title">更新 Lineage Recovery</string>
+    <string name="update_recovery_description">每次更新後，在第一次啟動時更新 Lineage Recovery。</string>
+    <string name="update_recovery_warning">一旦安裝完成，Recovery 就會更新。如果您希望保持原樣，請停用此功能。</string>
+    <string name="update_recovery_setting">與系統一起更新 Lineage Recovery</string>
+    <string name="update_recovery_full_description"><xliff:g id="recovery_update_description">%1$s</xliff:g>\n<xliff:g id="recovery_update_warning">%2$s</xliff:g></string>
+    <string name="setup_services">LineageOS 功能</string>
+    <string name="services_pp_explanation">這些服務可協助您強化裝置的功能。資料將會根據 <xliff:g id="name" example="LineageOS">%1$s</xliff:g> 的隱私權政策使用。</string>
+    <string name="services_find_privacy_policy">您可以透過在其他裝置上造訪 <xliff:g id="uri" example="https://lineageos.org/legal">%1$s</xliff:g> 來閱讀隱私權政策</string>
+    <string name="services_help_improve_cm">協助改善 <xliff:g id="name" example="LineageOS">%s</xliff:g></string>
+    <string name="services_metrics_label"><xliff:g id="name" example="Help improve LineageOS">%1$s</xliff:g> 經由傳送錯誤報告及使用資料給 <xliff:g id="name" example="LineageOS">%2$s</xliff:g>，這些資料不會用於識別您的身分，而是用於幫助團隊改善電池壽命、應用程式效能與新的 <xliff:g id="name" example="LineageOS">%3$s</xliff:g> 功能。</string>
+    <string name="services_os_nav_keys_label"><b>使用虛擬按鍵</b>替代實體按鍵。</string>
+    <string name="services_full_description"><xliff:g id="pp_explanation">%1$s</xliff:g>\n<xliff:g id="pp_find">%2$s</xliff:g></string>
+    <string name="setup_navigation">導航欄</string>
+    <string name="navigation_summary">選擇首選的導航方式</string>
+    <string name="gesture_navigation">手勢導航</string>
+    <string name="two_button_navigation">透過 2 個按鈕操作系統</string>
+    <string name="navbar_navigation">透過 3 個按鈕操作系統</string>
+    <string name="hide_gesture_hint">隱藏手勢導航條</string>
+    <string name="setup_theme">佈景主題</string>
+    <string name="theme_summary">深色佈景主題使用黑色背景，在某些螢幕上可延長電池續航時間</string>
+    <string name="dark">深色</string>
+    <string name="light">淺色</string>
+</resources>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<configuration description="Config for Safety Center hostside tests">
+    <!-- TODO(b/239682646): Integrate these tests into MTS -->
+    <option name="config-descriptor:metadata" key="component" value="framework"/>
+    <option name="config-descriptor:metadata" key="parameter" value="not_instant_app"/>
+    <option name="config-descriptor:metadata" key="parameter" value="not_multi_abi"/>
+
+    <object class="com.android.tradefed.testtype.suite.module.Sdk33ModuleController"
+            type="module_controller"/>
+
+    <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer">
+        <!-- Ensure all broadcasts are dispatched prior to running our tests, to make sure they
+             aren't polluted by `BOOT_COMPLETED` or similar broadcasts still being delivered, which
+             causes our `ActivityManager#waitForBroadcastIdle()` calls to timeout. -->
+        <option name="run-command" value="am wait-for-broadcast-idle" />
+        <option name="run-command" value="am wait-for-broadcast-barrier" />
+        <!-- Disable syncing to prevent overwriting flags during testing. -->
+        <option name="run-command" value="device_config set_sync_disabled_for_tests persistent" />
+        <option name="teardown-command" value="device_config set_sync_disabled_for_tests none" />
+        <!-- Dismiss any system dialogs (e.g. crashes, ANR). -->
+        <option name="run-command" value="am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS --receiver-foreground"  />
+    </target_preparer>
+
+    <target_preparer class="com.android.compatibility.common.tradefed.targetprep.StayAwakePreparer" />
+
+    <test class="com.android.compatibility.common.tradefed.testtype.JarHostTest" >
+        <option name="jar" value="SafetyCenterHostSideTestCases.jar" />
+    </test>
+</configuration>

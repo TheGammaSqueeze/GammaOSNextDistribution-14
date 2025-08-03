@@ -1,0 +1,17 @@
+{
+    "uuid": "METRICS_TEST_CRAHSER_UUID",
+    "min_heap": 4096,
+    "min_stack": 4096,
+    "mgmt_flags": {
+        "non_critical_app": true
+    },
+    "start_ports": [
+        {
+            "name": "METRICS_TEST_CRAHSER_PORT",
+            "flags": {
+                "allow_ta_connect": false,
+                "allow_ns_connect": true
+            }
+        }
+    ]
+}

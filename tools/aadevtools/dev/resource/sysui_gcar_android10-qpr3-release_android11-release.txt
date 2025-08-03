@@ -1,0 +1,239 @@
+Android Checkout: /sdb/android/aosp-master
+SysUI Base Pattern: packages/CarSystemUI
+SysUI Base Project: frameworks/base
+SysUI Ext Pattern: AAECarSystemUI
+SysUI Ext Project: vendor/auto/embedded
+Notif Pattern: car/notification
+Notif Project: packages/apps/Car/Notification
+Overlay Pattern: res/values
+RRO Pattern: /rro/
+Overlay Project: packages/services/Car
+SysUI Raw Pattern: SystemUI
+
+
+----------------------------------------------------------
+Customized Code
+----------------------------------------------------------
+*****************************
+Base SysUI
+*****************************
+Working directory: /sdb/android/aosp-master/frameworks/base
+Running:
+git diff --stat remotes/aosp/android10-qpr3-release remotes/aosp/android11-release -- `find . -name '*.java' | egrep -v 'test' | egrep 'packages/CarSystemUI'`
+ .../com/android/systemui/CarComponentBinder.java   |  33 ++
+ .../com/android/systemui/CarSystemUIBinder.java    | 202 +++++++
+ .../com/android/systemui/CarSystemUIFactory.java   |  57 +-
+ .../com/android/systemui/CarSystemUIModule.java    | 131 +++-
+ .../android/systemui/CarSystemUIRootComponent.java |  16 +-
+ .../car/CarDeviceProvisionedController.java        |  44 ++
+ .../car/CarDeviceProvisionedControllerImpl.java    | 117 ++++
+ .../systemui/car/CarDeviceProvisionedListener.java |  36 ++
+ .../android/systemui/car/CarServiceProvider.java   |  42 +-
+ .../car/bluetooth/CarBatteryController.java        | 292 +++++++++
+ .../bluetooth/ConnectedDeviceSignalController.java | 272 +++++++++
+ .../systemui/car/hvac/AnimatedTemperatureView.java | 277 +++++++++
+ .../android/systemui/car/hvac/HvacController.java  | 228 +++++++
+ .../car/hvac/TemperatureBackgroundAnimator.java    | 340 +++++++++++
+ .../systemui/car/hvac/TemperatureColorStore.java   | 202 +++++++
+ .../systemui/car/hvac/TemperatureTextAnimator.java | 164 +++++
+ .../systemui/car/hvac/TemperatureTextView.java     |  88 +++
+ .../android/systemui/car/hvac/TemperatureView.java |  56 ++
+ .../car/keyguard/CarKeyguardViewController.java    | 423 +++++++++++++
+ .../car/keyguard/CarKeyguardViewMediator.java      |  54 ++
+ .../systemui/car/navigationbar/AssitantButton.java |  71 +++
+ .../navigationbar/ButtonRoleHolderController.java  | 142 +++++
+ .../ButtonSelectionStateController.java            | 232 ++++++++
+ .../ButtonSelectionStateListener.java              |  62 ++
+ .../car/navigationbar/CarNavigationBar.java        | 604 +++++++++++++++++++
+ .../navigationbar/CarNavigationBarController.java  | 345 +++++++++++
+ .../car/navigationbar/CarNavigationBarView.java    | 174 ++++++
+ .../car/navigationbar/CarNavigationButton.java     | 319 ++++++++++
+ .../navigationbar/NavigationBarViewFactory.java    | 159 +++++
+ .../BottomNotificationPanelViewMediator.java       |  62 ++
+ .../CarHeadsUpNotificationSystemContainer.java     | 110 ++++
+ .../car/notification/CarNotificationModule.java    |  84 +++
+ .../NotificationPanelViewController.java           | 541 +++++++++++++++++
+ .../NotificationPanelViewMediator.java             | 174 ++++++
+ .../notification/NotificationVisibilityLogger.java | 150 +++++
+ .../car/notification/PowerManagerHelper.java       |  71 +++
+ .../TopNotificationPanelViewMediator.java          |  62 ++
+ .../car/sideloaded/SideLoadedAppController.java    |  73 +++
+ .../car/sideloaded/SideLoadedAppDetector.java      | 136 +++++
+ .../car/sideloaded/SideLoadedAppListener.java      | 130 ++++
+ .../sideloaded/SideLoadedAppStateController.java   |  51 ++
+ .../systemui/car/statusbar/CarStatusBar.java       | 519 ++++++++++++++++
+ .../statusbar/CarStatusBarKeyguardViewManager.java | 137 +++++
+ .../systemui/car/statusbar/CarStatusBarModule.java | 283 +++++++++
+ .../systemui/car/statusbar/DozeServiceHost.java    | 130 ++++
+ .../DummyNotificationShadeWindowController.java    |  74 +++
+ .../car/userswitcher/CarStatusBarHeader.java       |  60 ++
+ .../FullScreenUserSwitcherViewController.java      | 124 ++++
+ .../FullscreenUserSwitcherViewMediator.java        |  97 +++
+ .../car/userswitcher/UserGridRecyclerView.java     | 565 ++++++++++++++++++
+ .../car/userswitcher/UserIconProvider.java         | 116 ++++
+ .../UserSwitchTransitionViewController.java        | 161 +++++
+ .../UserSwitchTransitionViewMediator.java          |  85 +++
+ .../ConnectedDeviceVoiceRecognitionNotifier.java   |  95 +++
+ .../car/volume/CarVolumeDialogComponent.java       |  52 ++
+ .../systemui/car/volume/CarVolumeDialogImpl.java   | 658 +++++++++++++++++++++
+ .../android/systemui/car/volume/CarVolumeItem.java | 135 +++++
+ .../systemui/car/volume/CarVolumeItemAdapter.java  |  59 ++
+ .../com/android/systemui/car/volume/VolumeUI.java  | 129 ++++
+ .../car/window/OverlayPanelViewController.java     | 648 ++++++++++++++++++++
+ .../systemui/car/window/OverlayViewController.java | 148 +++++
+ .../window/OverlayViewGlobalStateController.java   | 310 ++++++++++
+ .../systemui/car/window/OverlayViewMediator.java   |  37 ++
+ .../systemui/car/window/OverlayWindowModule.java   |  78 +++
+ .../window/SystemUIOverlayWindowController.java    | 161 +++++
+ .../car/window/SystemUIOverlayWindowManager.java   | 100 ++++
+ 66 files changed, 11712 insertions(+), 75 deletions(-)
+
+*****************************
+Ext SysUI
+*****************************
+sysui is not overwritten as no project at: vendor/auto/embedded
+If there is, change SYSUI_EXT_PROJECT in the script.
+
+*****************************
+Notification
+*****************************
+Working directory: /sdb/android/aosp-master/packages/apps/Car/Notification
+Running:
+git diff --stat remotes/aosp/android10-qpr3-release remotes/aosp/android11-release -- `find . -name '*.java' | egrep -v 'test' | egrep 'car/notification'`
+ src/com/android/car/notification/AlertEntry.java   |  95 ++++
+ src/com/android/car/notification/Beeper.java       |  12 +-
+ .../CarHeadsUpNotificationManager.java             | 590 +++++++--------------
+ .../CarNotificationCenterActivity.java             |   4 +-
+ .../car/notification/CarNotificationDiff.java      |  69 +--
+ .../CarNotificationItemController.java             |  27 +
+ .../CarNotificationItemTouchListener.java          |  97 ++--
+ .../car/notification/CarNotificationListener.java  | 138 +++--
+ .../car/notification/CarNotificationTypeItem.java  | 177 +++++++
+ .../car/notification/CarNotificationView.java      | 204 ++++++-
+ .../notification/CarNotificationViewAdapter.java   | 275 +++-------
+ .../CarUxRestrictionManagerWrapper.java            |  14 +-
+ src/com/android/car/notification/HeadsUpEntry.java |  68 +--
+ .../car/notification/NotificationApplication.java  |  17 +-
+ .../NotificationClickHandlerFactory.java           | 221 +++++---
+ .../car/notification/NotificationDataManager.java  | 102 ++--
+ .../car/notification/NotificationGroup.java        |  41 +-
+ .../car/notification/NotificationUtils.java        | 225 ++++++--
+ .../notification/NotificationViewController.java   |  29 +-
+ .../car/notification/NotificationViewType.java     |  46 +-
+ .../car/notification/PreprocessingManager.java     | 140 ++---
+ .../CarHeadsUpNotificationAppContainer.java        |  92 ++++
+ .../headsup/CarHeadsUpNotificationContainer.java   |  39 ++
+ ...arHeadsUpNotificationBottomAnimationHelper.java |  61 +++
+ ...CarHeadsUpNotificationRightAnimationHelper.java |  87 +++
+ .../CarHeadsUpNotificationTopAnimationHelper.java  |  59 +++
+ .../HeadsUpNotificationAnimationHelper.java        |  34 ++
+ .../template/BasicNotificationViewHolder.java      |  18 +-
+ .../template/CallNotificationViewHolder.java       |  18 +-
+ .../template/CarNotificationActionsView.java       | 118 +++--
+ .../template/CarNotificationBaseViewHolder.java    |  70 +--
+ .../template/CarNotificationBodyView.java          |   6 +-
+ .../template/CarNotificationFooterViewHolder.java  |  26 +-
+ .../template/CarNotificationHeaderView.java        |  87 +--
+ .../template/CarNotificationHeaderViewHolder.java  |  33 +-
+ .../template/EmergencyNotificationViewHolder.java  |  14 +-
+ .../template/GroupNotificationViewHolder.java      |  24 +-
+ .../GroupSummaryNotificationViewHolder.java        |  12 +-
+ .../template/InboxNotificationViewHolder.java      |  18 +-
+ .../template/MessageNotificationViewHolder.java    |  32 +-
+ .../template/NavigationNotificationViewHolder.java |  18 +-
+ .../template/ProgressNotificationViewHolder.java   |  24 +-
+ 42 files changed, 2152 insertions(+), 1329 deletions(-)
+
+
+
+----------------------------------------------------------
+Customized Configs
+----------------------------------------------------------
+*****************************
+Resource Overlays SysUI
+*****************************
+Working directory: /sdb/android/aosp-master/packages/services/Car
+Running:
+git diff --stat remotes/aosp/android10-qpr3-release remotes/aosp/android11-release -- `find . -name '*.xml' | egrep -v '/rro/' | egrep 'res/values' | egrep 'SystemUI'`
+ .../packages/CarSystemUI/res/values/config.xml     | 38 ----------------------
+ 1 file changed, 38 deletions(-)
+
+*****************************
+RROs SysUI
+*****************************
+Working directory: /sdb/android/aosp-master/packages/services/Car
+Query does not return any files: "find . -name '*.xml' | egrep '/rro/' | egrep 'SystemUI'"
+
+*****************************
+Resource Overlays Notification
+*****************************
+Working directory: /sdb/android/aosp-master/packages/services/Car
+Query does not return any files: "find . -name '*.xml' | egrep -v '/rro/' | egrep 'res/values' | egrep 'car/notification'"
+
+*****************************
+RROs Notification
+*****************************
+Working directory: /sdb/android/aosp-master/packages/services/Car
+Query does not return any files: "find . -name '*.xml' | egrep '/rro/' | egrep 'car/notification'"
+
+
+
+----------------------------------------------------------
+Customized Tests
+----------------------------------------------------------
+*****************************
+Base SysUI
+*****************************
+Working directory: /sdb/android/aosp-master/frameworks/base
+Running:
+git diff --stat remotes/aosp/android10-qpr3-release remotes/aosp/android11-release -- `find . -name '*.java' | egrep '*test*' | egrep 'packages/CarSystemUI'`
+ ...sPlusVerifySysuiRequiredTestPropertiesTest.java | 214 +++++++
+ .../systemui/car/hvac/HvacControllerTest.java      | 135 +++++
+ .../keyguard/CarKeyguardViewControllerTest.java    | 232 ++++++++
+ .../ButtonRoleHolderControllerTest.java            | 187 +++++++
+ .../ButtonSelectionStateControllerTest.java        | 136 +++++
+ .../CarNavigationBarControllerTest.java            | 437 +++++++++++++++
+ .../car/navigationbar/CarNavigationBarTest.java    | 371 ++++++++++++
+ .../navigationbar/CarNavigationBarViewTest.java    | 100 ++++
+ .../car/navigationbar/CarNavigationButtonTest.java | 289 ++++++++++
+ .../CarHeadsUpNotificationSystemContainerTest.java | 119 ++++
+ .../NotificationVisibilityLoggerTest.java          | 139 +++++
+ .../car/sideloaded/SideLoadedAppDetectorTest.java  | 164 ++++++
+ .../car/sideloaded/SideLoadedAppListenerTest.java  | 241 ++++++++
+ .../UserSwitchTransitionViewControllerTest.java    | 176 ++++++
+ .../UserSwitchTransitionViewMediatorTest.java      |  76 +++
+ ...onnectedDeviceVoiceRecognitionNotifierTest.java |  97 ++++
+ .../car/window/OverlayPanelViewControllerTest.java | 526 +++++++++++++++++
+ .../car/window/OverlayViewControllerTest.java      | 158 ++++++
+ .../OverlayViewGlobalStateControllerTest.java      | 619 +++++++++++++++++++++
+ 19 files changed, 4416 insertions(+)
+
+*****************************
+Ext SysUI
+*****************************
+sysui is not overwritten as no project at: vendor/auto/embedded
+If there is, change SYSUI_EXT_PROJECT in the script.
+
+*****************************
+Notification
+*****************************
+Working directory: /sdb/android/aosp-master/packages/apps/Car/Notification
+Running:
+git diff --stat remotes/aosp/android10-qpr3-release remotes/aosp/android11-release -- `find . -name '*.java' | egrep '*test*' | egrep 'car/notification'`
+ .../com/android/car/notification/BeeperTest.java   | 225 +++++++
+ .../CarHeadsUpNotificationManagerTest.java         |  62 +-
+ .../car/notification/CarNotificationDiffTest.java  | 122 ++--
+ .../notification/CarNotificationListenerTest.java  | 316 ++++++++++
+ .../notification/CarNotificationTypeItemTest.java  | 248 ++++++++
+ .../CarNotificationViewAdapterTest.java            | 129 ++--
+ .../car/notification/CarNotificationViewTest.java  | 117 ++++
+ .../NotificationClickHandlerFactoryTest.java       | 511 +++++++++++++++
+ .../notification/NotificationDataManagerTest.java  |  50 +-
+ .../car/notification/NotificationGroupTest.java    |  94 ++-
+ .../car/notification/NotificationUtilsTest.java    | 239 +++++++
+ .../car/notification/PreprocessingManagerTest.java | 702 ++++++++++++++++++++-
+ .../template/CarNotificationActionsViewTest.java   | 354 +++++++++++
+ .../testutils/ShadowActivityManager.java           |  43 ++
+ .../testutils/ShadowCarAssistUtils.java            |  22 +-
+ .../testutils/ShadowRingtoneManager.java           |  48 ++
+ 16 files changed, 3098 insertions(+), 184 deletions(-)

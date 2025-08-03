@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+import "pandora/host.proto";
+import "google/protobuf/empty.proto";
+
+option java_outer_classname = "LeAudioProto";
+
+package pandora;
+
+// Service to trigger LE Audio procedures.
+service LeAudio {
+  rpc Open(OpenRequest) returns (google.protobuf.Empty);
+}
+
+message OpenRequest {
+  Connection connection = 1;
+}

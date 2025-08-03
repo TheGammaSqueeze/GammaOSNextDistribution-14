@@ -1,0 +1,12 @@
+running 10 tests
+test Delimiter ... ok <0.000s>
+test Group ... ok <0.000s>
+test Ident ... ok <0.000s>
+test LexError ... ok <0.000s>
+test Literal ... ok <0.000s>
+test Punct ... ok <0.000s>
+test Spacing ... ok <0.000s>
+test Span ... ok <0.000s>
+test TokenStream ... ok <0.000s>
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out

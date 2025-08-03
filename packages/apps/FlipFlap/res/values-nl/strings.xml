@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  Copyright (c) 2017 The LineageOS Project
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ Also add information on how to contact you by electronic and paper mail.
+
+-->
+<resources>
+    <string name="app_name">FlipFlap</string>
+    <string name="notification_title">Slimme hoes gedetecteerd</string>
+    <string name="alarm_label">ALARM</string>
+    <string name="abbrev_wday_month_day_no_year">EEE, d MMMM</string>
+    <string name="answer_call">ANTWOORDEN</string>
+    <string name="ignore_call">NEGEREN</string>
+    <string name="end_call">GESPREK BEËINDIGEN</string>
+    <string name="settings_name">Smart cover</string>
+    <string name="settings_enable">Slimme cover-besturing inschakelen</string>
+    <string name="settings_summary">Beheer het gedrag van uw accessoire</string>
+    <string name="category_behaviour">Gedrag</string>
+    <string name="pass_to_security_view_title">Direct wachtwoordscherm tonen</string>
+    <string name="pass_to_security_view_summary">Hoes openen laat direct vergrendelingsscherm zien</string>
+    <string name="use_high_touch_sensitivity_title">Hoge aanraakgevoeligheid</string>
+    <string name="use_high_touch_sensitivity_summary">Aanraakgevoeligheid verhogen wanneer hoes is gesloten</string>
+    <string name="category_design">Ontwerp</string>
+    <string name="switch_charging_status_title">Oplaadstatus weergeven</string>
+    <string name="switch_charging_status_summary">Kleur wijzigen aan de hand van huidige acculading</string>
+    <string name="category_timeouts">Time-outs</string>
+    <string name="timeout_plugged_title">Tijdens het opladen</string>
+    <string name="timeout_unplugged_title">Niet aangesloten</string>
+    <string name="timeout_summary">Cover-app %s weergeven na sluiten van de hoes</string>
+    <string name="timeout_summary_never">Na sluiten van de hoes zal de cover-app altijd aan blijven</string>
+    <string name="timeout_summary_immediately">Scherm wordt uitgeschakeld als de hoes gesloten wordt</string>
+    <string name="timeout_entry_immediately">Onmiddelijk</string>
+    <string name="timeout_entry_5s">5 seconden</string>
+    <string name="timeout_entry_10s">10 seconden</string>
+    <string name="timeout_entry_30s">30 seconden</string>
+    <string name="timeout_entry_1min">1 minuut</string>
+    <string name="timeout_entry_5min">5 minuten</string>
+    <string name="timeout_entry_never">Nooit</string>
+</resources>

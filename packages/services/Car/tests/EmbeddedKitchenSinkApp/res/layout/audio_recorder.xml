@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<LinearLayout
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android" >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_weight="1"
+        android:id="@+id/audio_select_device_address_layout">
+        <TextView
+            android:id="@+id/select_device_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/select_device" />
+        <Space
+            android:layout_width="3dp"
+            android:layout_height="match_parent" />
+        <Spinner
+            android:id="@+id/device_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <Space
+            android:layout_width="3dp"
+            android:layout_height="match_parent" />
+        <Button
+            android:id="@+id/button_start_input"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/start_recording" />
+        <Space
+            android:layout_width="3dp"
+            android:layout_height="match_parent" />
+        <Button
+            android:id="@+id/button_stop_input"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/stop_recording" />
+        <Space
+            android:layout_width="3dp"
+            android:layout_height="match_parent" />
+        <TextView
+            android:id="@+id/status_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/select_device" />
+        <Space
+            android:layout_width="3dp"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_weight="1" >
+        <TextView
+            android:id="@+id/file_path_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/file_path" />
+        <Space
+            android:layout_width="3dp"
+            android:layout_height="match_parent" />
+        <TextView
+            android:id="@+id/file_path_edit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <Space
+            android:layout_width="3dp"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_weight="1"
+        android:id="@+id/audio_playback_file_layout" >
+        <Space
+            android:layout_width="3dp"
+            android:layout_height="match_parent" />
+        <Button
+            android:id="@+id/button_start_playback"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/play" />
+        <Space
+            android:layout_width="3dp"
+            android:layout_height="match_parent" />
+        <Button
+            android:id="@+id/button_stop_playback"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/stop" />
+        <Space
+            android:layout_width="3dp"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+</LinearLayout>

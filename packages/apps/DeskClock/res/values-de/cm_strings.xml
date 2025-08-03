@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2012-2016 The CyanogenMod Project
+     Copyright (C) 2017-2025 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="flip_action_title">Aktion beim Umdrehen</string>
+    <string name="shake_action_title">Aktion beim Schütteln</string>
+    <string-array name="action_setting_entries">
+        <item>Schlummern</item>
+        <item>Verwerfen</item>
+        <item>Keine Aktion</item>
+    </string-array>
+    <string name="firing_alarms_timers_channel">Starten von Alarmen &amp; Timern</string>
+    <string name="alarm_missed_channel">Entgangene Weckrufe</string>
+    <string name="alarm_snooze_channel">Schlummernde Weckrufe</string>
+    <string name="alarm_upcoming_channel">Anstehende Weckrufe</string>
+    <string name="stopwatch_channel">Stoppuhr</string>
+    <string name="timer_channel">Timer</string>
+    <string name="add_label">Beschriftung hinzufügen</string>
+    <string name="dialog_permissions_title">Berechtigungen</string>
+    <string name="dialog_permissions_ask">Erneut anfragen</string>
+    <string name="dialog_permissions_dismiss">Verwerfen</string>
+    <string name="dialog_permissions_settings">Einstellungen</string>
+    <string name="dialog_permissions_power_off_alarm">Ohne diese Berechtigung kann dein Gerät sich für einen Weckruf nicht selbst einschalten</string>
+    <string name="dialog_permissions_no_permission">Erforderliche Berechtigungen nicht erteilt, bitte in den Einstellungen gewähren</string>
+    <string name="dialog_permissions_post_notifications">Diese App ist auf Benachrichtigungen angewiesen. Andernfalls lässt sie sich nicht ausführen!</string>
+    <string name="selected">Ausgewählt</string>
+    <string name="more_options">Weitere Optionen</string>
+    <string name="widget_choice_title">Wähle deinen Stil</string>
+    <string name="widget_name_transparent">Transparent</string>
+    <string name="widget_name_solid">Hintergrund</string>
+    <string name="clock_brightness_percentage">%s%%</string>
+    <string name="night_mode_enabled_title">Aktiviert</string>
+    <string name="night_mode_dnd_title">Status „Bitte nicht stören“ folgen</string>
+    <string name="night_mode_dnd_summary">Nachtlicht aktivieren, wenn „Bitte nicht stören“ aktiv ist</string>
+    <string name="show_ampm_title">AM-/PM-Darstellung aktivieren</string>
+    <string name="bold_text_title">Uhrtext fett</string>
+    <string name="night_mode_brightness_text_title">Helligkeit</string>
+    <string name="clock_color_title">Farbe</string>
+    <string-array name="clock_color_entries">
+        <item>Weiß</item>
+        <item>Rot</item>
+        <item>Grün</item>
+        <item>Blau</item>
+    </string-array>
+    <string name="screensaver_settings_title">Bildschirmschoner</string>
+    <string name="screensaver_preview">Vorschau</string>
+    <string name="screensaver_preview_summary">Bildschirmschoner sofort starten</string>
+    <string name="screensaver_change_settings">Einstellungen</string>
+    <string name="screensaver_change_settings_summary">Einstellungen für den Bildschirmschoner der Uhr öffnen</string>
+    <string name="screensaver_daydream_settings">Bildschirmschoner auswählen/aktivieren</string>
+    <string name="screensaver_daydream_settings_summary">Haupteinstellungen für den Bildschirmschoner öffnen</string>
+</resources>

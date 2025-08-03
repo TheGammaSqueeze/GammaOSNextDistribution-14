@@ -1,0 +1,13 @@
+<safety-center-config>
+    <safety-sources-config>
+        <safety-sources-group
+            type="stateful"
+            id="id"
+            title="@com.android.safetycenter.config.tests:string/reference">
+            <issue-only-safety-source
+                id="id"
+                packageName="package"
+                profile="primary_profile_only"/>
+        </safety-sources-group>
+    </safety-sources-config>
+</safety-center-config>

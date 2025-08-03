@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="non_spam_notification_title">発信者（%1$s）をご存知ですか？</string>
+  <string name="spam_notification_title">%1$s は迷惑電話でしたか？</string>
+  <string name="spam_notification_non_spam_call_expanded_text">この番号からの通話を着信したのはこれが初めてです。迷惑電話だった場合は、この番号をブロックして報告してください。</string>
+  <string name="spam_notification_dialog_add_contact_action_text">連絡先に追加</string>
+  <string name="spam_notification_dialog_block_report_spam_action_text">ブロックして迷惑電話として報告</string>
+  <string name="spam_notification_was_not_spam_action_text">迷惑電話ではない</string>
+  <string name="spam_notification_block_spam_action_text">番号をブロック</string>
+  <string name="spam_notification_action_dismiss">閉じる</string>
+</resources>

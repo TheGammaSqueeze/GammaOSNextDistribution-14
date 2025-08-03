@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+  <FrameLayout
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:id="@+id/frameLayoutBW">
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:id="@+id/frameLayout2"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".PrioritizeBandwidth">
+  <TextView
+      android:id="@+id/textView2"
+      android:layout_width="371dp"
+      android:layout_height="52dp"
+      android:text="@string/bw_title"
+      tools:layout_editor_absoluteX="20dp"
+      tools:layout_editor_absoluteY="4dp" />
+  <Button
+      android:id="@+id/releasebw"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginBottom="64dp"
+      android:text="@string/release_network"
+      app:layout_constraintBottom_toTopOf="@+id/requestbw"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/textView2"
+      app:layout_constraintVertical_bias="0.919" />
+  <Button
+      android:id="@+id/pingbw"
+      android:layout_width="182dp"
+      android:layout_height="42dp"
+      android:layout_marginBottom="228dp"
+      android:text="@string/ping"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintHorizontal_bias="0.493"
+      app:layout_constraintStart_toStartOf="parent" />
+  <Button
+      android:id="@+id/requestbw"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="308dp"
+      android:text="@string/request_network"
+      app:layout_constraintBottom_toTopOf="@+id/pingbw"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintHorizontal_bias="0.495"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      app:layout_constraintVertical_bias="0.314" />
+</androidx.constraintlayout.widget.ConstraintLayout>
+  </FrameLayout>
+</RelativeLayout>

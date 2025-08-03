@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (C) 2021 Google Inc.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- The name of the package [CHAR LIMIT=NONE] -->
+    <string name="app_label" translatable="false">VoWiFi Activation</string>
+
+    <!-- Error message showed when the app failed to activate WiFi calling and is to exit;
+         the user may want to retry. [CHAR LIMIT=NONE] -->
+    <string name="wfc_activation_error">Unable to activate Wi-Fi calling. Please try again later.</string>
+    <!-- Error message showed when the app failed to update e911 address and is to exit;
+         the user may want to retry. [CHAR LIMIT=NONE] -->
+    <string name="address_update_error">Unable to update the current emergency address at this time. Please try again later.</string>
+    <!-- Error message showed when the terms
+         and conditions page failed to load. [CHAR LIMIT=NONE] -->
+    <string name="show_terms_and_condition_error">Can\'t show carrier Terms and Conditions. Try again later.</string>
+
+    <!-- Default title showed on the top of a fullscreen view, indicating that the app is for
+         managing the user's e911 address. [CHAR LIMIT=40] -->
+    <string name="emergency_address_app_label">Carrier Setup</string>
+    <!-- Text used in progress dialog which is showed
+         when app is loading web content. [CHAR LIMIT=30] -->
+    <string name="progress_text">This will take a few moments</string>
+
+    <!-- Error message showed when nothing can be done on device to enable Wi-Fi calling;
+         the user has to contact the wireless carrier to enable. [CHAR LIMIT=NONE] -->
+    <string name="failure_contact_carrier">Please contact your carrier to enable Wi-Fi calling.</string>
+
+    <!-- Strings for Carrier TOS Fragment -->
+    <!-- Title of 'Activate Wi-Fi Calling' screen. Generic for carriers -->
+    <string name="activate_title">Activate Wi-Fi Calling</string>
+    <!-- Label of a button which the user clicks to cancel current operation
+         and exit the app. [CHAR LIMIT=10]-->
+    <string name="cancel">Cancel</string>
+    <!-- Title of 'Terms and Conditions' screen. Generic for carriers -->
+    <string name="tos_title">Terms and Conditions</string>
+    <!-- Button to continue to the next Wi-Fi calling activation step [CHAR LIMIT=20] -->
+    <string name="tos_continue">Continue</string>
+
+    <!-- Strings for Emergency Address Fragment -->
+    <!-- Title showed on the top of a fullscreen view
+         which is for the user to enter e911 location for Wi-Fi calling. [CHAR LIMIT=50] -->
+    <string name="e911_title">Emergency Location Information</string>
+
+    <!-- Label of a button in error message dialog;
+         clicking it dismisses error dialog. [CHAR LIMIT=10] -->
+    <string name="ok">OK</string>
+</resources>

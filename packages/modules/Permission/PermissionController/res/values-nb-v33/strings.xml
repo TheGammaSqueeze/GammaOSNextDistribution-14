@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="role_dialer_request_description" msgid="6188305064871543419">"Denne appen får tillatelse til å sende deg varsler og får tilgang til kamera, kontakter, mikrofon, telefon og SMS"</string>
+    <string name="role_sms_request_description" msgid="1506966389698625395">"Denne appen får tillatelse til å sende deg varsler og kan bruke kamera, kontakter, filer, mikrofon, telefon og SMS"</string>
+    <string name="permission_description_summary_storage" msgid="1917071243213043858">"Apper med denne tillatelsen kan bruke alle filer på denne enheten"</string>
+    <string name="work_policy_title" msgid="832967780713677409">"Informasjon om jobbretningslinjene dine"</string>
+    <string name="work_policy_summary" msgid="3886113358084963931">"Innstillingene administreres av IT-administratoren din"</string>
+    <string name="safety_center_entry_group_expand_action" msgid="5358289574941779652">"Dobbelttrykk for å vise listen"</string>
+    <string name="safety_center_entry_group_collapse_action" msgid="1525710152244405656">"Skjule listen og innstillingene"</string>
+    <string name="safety_center_entry_group_content_description" msgid="7048420958214443333">"Liste. <xliff:g id="ENTRY_TITLE">%1$s</xliff:g>. <xliff:g id="ENTRY_SUMMARY">%2$s</xliff:g>"</string>
+    <string name="safety_center_entry_group_with_actions_needed_content_description" msgid="2708884606775932657">"Liste. <xliff:g id="ENTRY_TITLE">%1$s</xliff:g>. Handlinger kreves. <xliff:g id="ENTRY_SUMMARY">%2$s</xliff:g>"</string>
+    <string name="safety_center_entry_group_item_content_description" msgid="7348298582877249787">"Listeelement. <xliff:g id="ENTRY_ITEM_TITLE">%1$s</xliff:g>. <xliff:g id="ENTRY_ITEM_SUMMARY">%2$s</xliff:g>"</string>
+    <string name="safety_center_entry_content_description" msgid="3639565652938224321">"<xliff:g id="ENTRY_ITEM_TITLE">%1$s</xliff:g>. <xliff:g id="ENTRY_ITEM_SUMMARY">%2$s</xliff:g>"</string>
+    <string name="safety_center_more_issues_card_title" msgid="7425844746197493312">"Flere varsler"</string>
+    <string name="safety_center_dismissed_issues_card_title" msgid="2340129842725145733">"Avviste varsler"</string>
+    <string name="safety_center_more_issues_card_expand_action" msgid="7109451851052272946">"{count,plural, =1{Dobbelttrykk for å se et varsel til}other{Dobbelttrykk for å se # varsler til}}"</string>
+    <string name="safety_center_issue_card_prefix_content_description" msgid="1447445289637043544">"Varsel. <xliff:g id="ISSUE_CARD_TITLE">%1$s</xliff:g>"</string>
+    <string name="safety_center_resolved_issue_fallback" msgid="8548932070610766651">"Handlingen er fullført"</string>
+    <string name="safety_center_qs_status_summary" msgid="5193925895830451177">"Sjekk innstillinger som kan øke beskyttelsen til enheten"</string>
+    <string name="safety_center_qs_page_landing" msgid="1717368301679228128">"Hurtiginnstillinger for sikkerhet og personvern"</string>
+    <string name="safety_center_qs_close_button" msgid="1352313308176244599">"Lukk"</string>
+    <string name="safety_center_qs_expand_action" msgid="2193190557696484169">"Vis alternativer"</string>
+    <string name="safety_center_qs_collapse_action" msgid="5809657430125309183">"Skjul"</string>
+    <string name="safety_center_qs_privacy_control" msgid="1160682635058529673">"Bryter. <xliff:g id="PRIVACY_CONTROL_TITLE">%1$s</xliff:g>. <xliff:g id="PRIVACY_CONTROL_STATUS">%2$s</xliff:g>"</string>
+    <string name="safety_center_qs_toggle_action" msgid="5920465736488119255">"Slå av/på"</string>
+    <string name="safety_center_qs_open_action" msgid="2760200829912423728">"Åpne"</string>
+    <string name="safety_center_review_settings_button" msgid="938981137942443930">"Gå gjennom innstillingene"</string>
+    <string name="safety_center_gear_label" msgid="5175877094379694098">"Innstillinger"</string>
+    <string name="safety_center_info_label" msgid="8993181584061825412">"Informasjon"</string>
+</resources>

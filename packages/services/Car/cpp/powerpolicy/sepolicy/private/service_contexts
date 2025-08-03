@@ -1,0 +1,4 @@
+# Car power policy server
+android.frameworks.automotive.powerpolicy.ICarPowerPolicyServer/default  u:object_r:carpowerpolicyd_service:s0
+android.frameworks.automotive.powerpolicy.internal.ICarPowerPolicySystemNotification/default  u:object_r:carpowerpolicyd_service:s0
+android.automotive.powerpolicy.internal.ICarPowerPolicyDelegate/default  u:object_r:carpowerpolicyd_service:s0

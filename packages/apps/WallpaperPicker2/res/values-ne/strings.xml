@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+     Copyright (C) 2017 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="wallpaper_app_name" msgid="1719889291772891695">"वालपेपरहरू"</string>
+    <!-- no translation found for app_name (8773648973927541493) -->
+    <skip />
+    <string name="select_wallpaper_label" msgid="6989581259339646085">"वालपेपरका कोटीहरू"</string>
+    <string name="set_wallpaper_button_text" msgid="5445978864530156290">"वालपेपर राख्नुहोस्"</string>
+    <string name="set_wallpaper_progress_message" msgid="7986528287618716715">"वालपेपर सेट गर्दै…"</string>
+    <string name="try_again" msgid="8278874823700921234">"फेरि प्रयास गर्नुहोस्‌"</string>
+    <string name="set_wallpaper_error_message" msgid="6819986999041085130">"वालपेपर सेट गर्न सकिएन।"</string>
+    <string name="load_wallpaper_error_message" msgid="7913278480467707374">"वालपेपर लोड गर्न सकिएन। छवि या त त्रुटिपूर्ण छ वा उपलब्ध छैन।"</string>
+    <string name="static_wallpaper_presentation_mode_message" msgid="417940227049360906">"हाल सेट गरिएको"</string>
+    <string name="rotating_wallpaper_presentation_mode_message" msgid="3361676041605733288">"दैनिक वालपेपर"</string>
+    <string name="wallpaper_destination_both" msgid="1124197176741944063">"होम तथा लक स्क्रिन"</string>
+    <string name="choose_a_wallpaper_section_title" msgid="1009823506890453891">"वालपेपर छान्नुहोस्"</string>
+    <string name="creative_wallpaper_title" msgid="3581650238648981372">"वालपेपर बनाउनुहोस्"</string>
+    <string name="home_screen_message" msgid="106444102822522813">"होम स्क्रिन"</string>
+    <string name="lock_screen_message" msgid="1534506081955058013">"लक स्क्रिन"</string>
+    <string name="home_and_lock_short_label" msgid="2937922943541927983">"होम स्क्रिन &amp; लक स्क्रिन"</string>
+    <string name="set_wallpaper_dialog_message" msgid="2110475703996853076">"वालपेपर सेट गर्नुहोस्"</string>
+    <string name="set_wallpaper_home_screen_destination" msgid="7315594722013109354">"होम स्क्रिन"</string>
+    <string name="set_wallpaper_lock_screen_destination" msgid="6224685559375417945">"लक स्क्रिन"</string>
+    <string name="set_wallpaper_both_destination" msgid="2536004558738350775">"होम र लक स्क्रिन"</string>
+    <string name="no_backup_image_wallpaper_label" msgid="6316627676107284851">"छवि परिवर्तन हुने वालपेपर"</string>
+    <string name="permission_needed_explanation" msgid="139166837541426823">"यहाँ हालको वालपेपर देखाउन <xliff:g id="APP_NAME">%1$s</xliff:g> लाई तपाईंको डिभाइसको भण्डारणमाथिको पहुँच अनिवार्य हुन्छ।"</string>
+    <string name="permission_needed_explanation_go_to_settings" msgid="3923551582092599609">"यहाँ हालैको वालपेपर देखाउन वालपेपरहरूलाई तपाईंको डिभाइसको भण्डारणमाथिको पहुँच अनिवार्य हुन्छ।\n\nयो सेटिङ बदल्न वालपेपरहरूको एपसम्बन्धी जानकारीमा रहेको अनुमति क्षेत्रमा जानुहोस्।"</string>
+    <string name="permission_needed_allow_access_button_label" msgid="1943133660612924306">"पहुँच राख्न दिनुहोस्"</string>
+    <string name="no_backup_image_wallpaper_description" msgid="8303268619408738057">"परिवर्तन हुने वालपेपरसम्बन्धी सेवाका लागि लाइभ वालपेपरहरू"</string>
+    <string name="daily_refresh_tile_title" msgid="3270456074558525091">"दैनिक वालपेपर"</string>
+    <string name="daily_refresh_tile_subtitle" msgid="3976682014885446443">"सक्रिय गर्न ट्याप गर्नुहोस्"</string>
+    <string name="start_rotation_dialog_body_live_wallpaper_needed" msgid="5132580257563846082">"वालपेपर हरेक दिन स्वतः परिवर्तन हुने छ। सेटअप सम्पन्न गर्न अर्को स्क्रिनमा &lt;strong&gt;वालपेपर सेट गर्नुहोस्‌&lt;/strong&gt;लाई ट्याप गर्नुहोस्।"</string>
+    <string name="start_rotation_dialog_wifi_only_option_message" msgid="3126269859713666225">"भविष्यमा केवल Wi-Fi मार्फत वालपेपरहरू डाउनलोड गर्नुहोस्"</string>
+    <string name="start_rotation_dialog_continue" msgid="276678987852274872">"जारी राख्नुहोस्"</string>
+    <string name="start_rotation_progress_message" msgid="7872623873682262083">"पहिलो वालपेपर डाउनलोड गर्दै…"</string>
+    <string name="start_rotation_error_message" msgid="3053799836719618972">"पहिलो वालपेपर डाउनलोड गर्न सकिएन। कृपया आफ्ना नेटवर्कसम्बन्धी सेटिङहरूको जाँच गरी फेरि प्रयास गर्नुहोस्।"</string>
+    <string name="start_rotation_dialog_body" msgid="7903554799046364916">"वालपेपर हरेक दिन स्वतः परिवर्तन हुने छ"</string>
+    <string name="settings_button_label" msgid="8724734130079207955">"सेटिङहरू"</string>
+    <string name="explore" msgid="7468719504199497281">"अन्वेषण गर्नुहोस्"</string>
+    <string name="next_wallpaper" msgid="3911873152952596232">"अर्को वालपेपर"</string>
+    <string name="wallpaper_disabled_message" msgid="7309484130562148185">"यस यन्त्रमा वालपेपर सेट गर्ने सुविधालाई असक्षम पारिएको छ"</string>
+    <string name="wallpaper_disabled_by_administrator_message" msgid="1551430406714747884">"तपाईंको डिभाइसको प्रशासकले वालपेपर सेट गर्ने सुविधालाई असक्षम पार्नुभएको छ"</string>
+    <string name="wallpaper_set_successfully_message" msgid="2958998799111688578">"वालपेपर सफलतापूर्वक सेट गरियो"</string>
+    <string name="wallpapers_unavailable_offline_message" msgid="8136405438621689532">"वालपेपरहरू हेर्न तपाईंसँग इन्टरनेट जडान हुनु आवश्यक हुन्छ। कृपया जडान गरेर फेरि प्रयास गर्नुहोस।"</string>
+    <string name="currently_set_home_wallpaper_thumbnail" msgid="4022381436821898917">"हाल गृह स्क्रिनमा सेट गरिएको वालपेपरको थम्बनेल"</string>
+    <string name="currently_set_lock_wallpaper_thumbnail" msgid="2094209303934569997">"हाल लक स्क्रिनमा सेट गरिएको वालपेपरको थम्बनेल"</string>
+    <string name="currently_set_wallpaper_thumbnail" msgid="8651887838745545107">"हाल सेट गरिएको वालपेपरको थम्बनेल"</string>
+    <string name="wallpaper_thumbnail" msgid="569931475923605974">"वालपेपरको थम्बनेल"</string>
+    <string name="explore_home_screen" msgid="8756346794535765482">"होम स्क्रिनको वालपेपरको अन्वेषण गर्नुहोस्"</string>
+    <string name="explore_lock_screen" msgid="268938342103703665">"लक स्क्रिनको वालपेपरको अन्वेषण गर्नुहोस्"</string>
+    <string name="refresh_daily_wallpaper_home_content_description" msgid="2770445044556164259">"गृहपृष्ठको दैनिक वालपेपर पुनः ताजा गर्नुहोस्"</string>
+    <string name="refresh_daily_wallpaper_content_description" msgid="4362142658237147583">"दैनिक वालपेपर पुनः ताजा गर्नुहोस्"</string>
+    <string name="preview_screen_description" msgid="3386387053327775919">"वालपेपरको प्रिभ्यू स्क्रिन"</string>
+    <string name="refreshing_daily_wallpaper_dialog_message" msgid="1975910873362855761">"दैनिक वालपेपर पुनः ताजा गर्दै…"</string>
+    <string name="refresh_daily_wallpaper_failed_message" msgid="4749879993812557166">"दैनिक वालपेपर पुनः ताजा गर्न सकिएन। कृपया आफ्नो नेटवर्कको जडान जाँच गरी फेरि प्रयास गर्नुहोस्।"</string>
+    <string name="on_device_wallpapers_category_title" msgid="805819102071369004">"यन्त्रमा रहेका वालपेपरहरू"</string>
+    <string name="on_device_wallpapers_category_title_desktop" msgid="316919420410065369">"डिभाइसका वालपेपर"</string>
+    <string name="on_device_wallpaper_title" msgid="5262564748034629524">"Android वालपेपर"</string>
+    <string name="live_wallpapers_category_title" msgid="1814374812192366349">"लाइभ वालपेपरहरू"</string>
+    <string name="my_photos_category_title" msgid="4294567122144565273">"मेरा फोटोहरू"</string>
+    <string name="my_photos_generic_wallpaper_title" msgid="7002867526154631172">"मेरो फोटो"</string>
+    <string name="fallback_wallpaper_title" msgid="6154655421012506001">"वालपेपर"</string>
+    <string name="app_not_found" msgid="4431461707854088231">"एप स्थापित छैन।"</string>
+    <string name="center_wallpaper_position" msgid="4166894762352288883">"मध्यभाग"</string>
+    <string name="center_crop_wallpaper_position" msgid="1681980019815343348">"मध्यभागमा क्रप गरिएको"</string>
+    <string name="stretch_wallpaper_position" msgid="5002680983147456935">"तन्काइएको"</string>
+    <string name="preview" msgid="1774602101743861071">"प्रिभ्यु"</string>
+    <string name="tab_info" msgid="818614080690111416">"जानकारी"</string>
+    <string name="tab_customize" msgid="2533745409174959960">"आफू अनुकूल पार्नुहोस्"</string>
+    <string name="tab_effects" msgid="3213606157589233901">"इफेक्टहरू"</string>
+    <string name="tab_share" msgid="6676269624804601227">"सेयर गर्नुहोस्"</string>
+    <string name="my_photos" msgid="8613021349284084982">"मेरा फोटोहरू"</string>
+    <string name="configure_wallpaper" msgid="849882179182976621">"सेटिङ…"</string>
+    <string name="delete_live_wallpaper" msgid="589212696102662329">"मेट्नुहोस्"</string>
+    <string name="edit_live_wallpaper" msgid="3132060073690558045">"परिवर्तन गर्नुहोस्"</string>
+    <string name="delete_wallpaper_confirmation" msgid="1905114562243802354">"आफ्नो डिभाइसबाट यो वालपेपर मेटाउने हो?"</string>
+    <string name="bottom_action_bar_back" msgid="2620581414970740784">"माथि जानुहोस्"</string>
+    <string name="bottom_action_bar_edit" msgid="1214742990893082138">"सम्पादन गर्नुहोस्"</string>
+    <string name="bottom_action_bar_download" msgid="3983122338076389421">"डाउनलोड गर्नुहोस्"</string>
+    <string name="bottom_action_bar_slideshow_wallpaper" msgid="509770525179533154">"स्लाइड सो वालपेपर"</string>
+    <string name="bottom_action_bar_apply" msgid="2983308349819178932">"लागू गर्नुहोस्"</string>
+    <string name="accessibility_preview_pager" msgid="1839869637405028575">"<xliff:g id="ID_2">%2$d</xliff:g> मध्ये पृष्ठ <xliff:g id="ID_1">%1$d</xliff:g>"</string>
+    <string name="next_page_content_description" msgid="6268461446679584152">"अर्को"</string>
+    <string name="previous_page_content_description" msgid="1138597031571078429">"अघिल्लो"</string>
+    <string name="wallpaper_title" msgid="6754214682228331092">"वालपेपर"</string>
+    <string name="wallpaper_preview_card_content_description" msgid="6049261033541034584">"वालपेपरको प्रिभ्यु"</string>
+    <string name="lock_wallpaper_preview_card_content_description" msgid="5236839857695985498">"लकस्क्रिनमा देखिने वालपेपरको प्रिभ्यू"</string>
+    <string name="home_wallpaper_preview_card_content_description" msgid="4059418716070821630">"होम स्क्रिनमा देखिने वालपेपरको प्रिभ्यू"</string>
+    <string name="collection_not_exist_msg" msgid="3504852962885064842">"यो सङ्ग्रह छैन"</string>
+    <string name="wallpaper_exit_split_screen" msgid="1928870664619591636">"कृपया विभाजित स्क्रिन मोडबाट बाहिरिनुहोस् र फेरि प्रयास गर्नुहोस्"</string>
+    <string name="set_wallpaper_dialog_set_button" msgid="5760149969510325088">"सेट अप गर्नुहोस्"</string>
+    <string name="cancel" msgid="4970902691067201584">"रद्द गर्नुहोस्"</string>
+    <string name="hide_ui_preview_text" msgid="6766076482511252295">"UI प्रिभ्यू लुकाइयोस्"</string>
+    <string name="hint_hide_ui_preview" msgid="4527603797714586070">"प्रिभ्यूमा UI लुकाइएको छ। नलुकाउन डबल ट्याप गर्नुहोस्"</string>
+    <string name="show_ui_preview_text" msgid="5993063062417070806">"UI प्रिभ्यू देखाइयोस्"</string>
+    <string name="hide_preview_controls_content_description" msgid="894958599274977655">"प्रिभ्यूसम्बन्धी कन्ट्रोलहरू देखाइएका छन्। लुकाउन डबल ट्याप गर्नुहोस्"</string>
+    <string name="hide_preview_controls_action" msgid="3419260118386783295">"प्रिभ्यूसम्बन्धी कन्ट्रोलहरू लुकाइयून्"</string>
+    <string name="show_preview_controls_content_description" msgid="908147864005440602">"प्रिभ्यूसम्बन्धी कन्ट्रोलहरू लुकाइएका छन्। देखाउन डबल ट्याप गर्नुहोस्"</string>
+    <string name="show_preview_controls_action" msgid="7700775001986890400">"प्रिभ्यूसम्बन्धी कन्ट्रोलहरू देखाइयून्"</string>
+    <string name="hide_wallpaper_info_action" msgid="6572492484253895374">"वालपेपरसम्बन्धी जानकारी लुकाइयोस्"</string>
+    <string name="hint_show_ui_preview" msgid="2744155435325318349">"प्रिभ्यूमा UI देखाइएको छ। लुकाउन डबल ट्याप गर्नुहोस्"</string>
+    <string name="wallpaper_picker_entry_title" msgid="5185793991582084891">"वालपेपर बदल्नुहोस्"</string>
+    <string name="lockscreen_wallpaper_preview_card_content_description" msgid="2244890820627302245">"लकस्क्रिनमा देखिने वालपेपरको प्रिभ्यू"</string>
+    <string name="apply_btn" msgid="5764555565943538528">"लागू गर्नुहोस्"</string>
+    <string name="accessibility_customize_hidden" msgid="6320568529768181691">"कस्टमाइज गर्नेसम्बन्धी प्यानल लुकाइएको छ"</string>
+    <string name="accessibility_customize_shown" msgid="590964727831547651">"कस्टमाइज गर्नेसम्बन्धी प्यानल देखाइएको छ"</string>
+    <string name="accessibility_info_hidden" msgid="2288603712350168107">"जानकारीसम्बन्धी प्यानल लुकाइएको छ"</string>
+    <string name="accessibility_info_shown" msgid="6626025722456105632">"जानकारीसम्बन्धी प्यानल देखाइएको छ"</string>
+    <string name="settings_snackbar_description" msgid="890168814524778486">"कृपया सेटिङहरूमा गई फाइल र मिडिया प्रयोग गर्न दिनुहोस्।"</string>
+    <string name="settings_snackbar_enable" msgid="5992112808061426068">"अन गर्नुहोस्"</string>
+    <string name="open_my_photos" msgid="4107196465713868381">"\"मेरा फोटोहरू\" खोल्नुहोस्"</string>
+    <string name="lock_screen_tab" msgid="6672930765010407652">"लक स्क्रिन"</string>
+    <string name="home_screen_tab" msgid="1080445697837877526">"होम स्क्रिन"</string>
+    <string name="reset" msgid="4945445169532850631">"रिसेट गर्नुहोस्"</string>
+    <string name="reset_confirmation_dialog_title" msgid="3391905685838213712">"परिवर्तनहरू रिसेट गर्ने हो?"</string>
+    <string name="reset_confirmation_dialog_message" msgid="888669268626289603">"तपाईंले गरेका परिवर्तनहरू सेभ गरिने छैनन्"</string>
+    <string name="more_wallpapers" msgid="8116268433411881705">"थप वालपेपरहरू"</string>
+    <string name="recents_wallpaper_label" msgid="8653165542635660222">"%1$s, %2$d"</string>
+    <string name="default_wallpaper_title" msgid="2541071182656978180">"वालपेपर"</string>
+    <string name="small_preview_tooltip" msgid="1920430079013352071">"आफ्नो फोटो सम्पादन गर्न ट्याप गर्नुहोस्"</string>
+    <string name="full_preview_tooltip" msgid="4648994028015322759">"आफ्ना फोटोहरूको स्थिति, स्केल र कोण मिलाउनुहोस्"</string>
+</resources>

@@ -1,0 +1,38 @@
+#!/usr/bin/make -f
+
+# gn args
+defines =
+defines += pkg_config=\"pkg-config\"
+defines += libbase_ver=\"1094370\"
+defines += platform2_root=\"$(shell pwd)/\"
+defines += platform_subdir=\"libchrome\"
+defines += cxx=\"clang++\"
+defines += cc=\"clang\"
+defines += ar=\"ar\"
+defines += external_cxxflags=[\"-DNDEBUG\", \"-I/usr/src/googletest/googletest/include\", \"-I/usr/src/googletest/googlemock/include\", \"-Wno-unknown-warning-option\", \"-Wno-unused-command-line-argument\", \"-Wno-implicit-int-float-conversion\"]
+defines += external_ldflags=[\"-latomic\", \"-labsl_base\", \"-labsl_bad_variant_access\", \"-labsl_bad_optional_access\"]
+defines += enable_werror=false
+defines += libdir=\"/usr/lib\"
+defines += use={mojo=false asan=false msan=false ubsan=false coverage=false crypto=true dbus=true fuzzer=false timers=true cros_host=false cros_debug=false profiling=false tcmalloc=false test=false}
+
+# handle parallel build options
+njobs=1
+ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+njobs=$(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+endif
+
+%:
+	dh $@ --parallel
+
+override_dh_auto_build-arch:
+	gn gen out/Release --args="$(defines)"
+	ninja -j$(njobs) -C out/Release
+
+override_dh_auto_clean:
+	rm -rf out
+	find . -name \*.pyc -execdir rm -f {} \;
+	dh_auto_clean
+
+override_dh_auto_install-arch:
+	dh_auto_install
+	debian/install_headers.py debian/tmp

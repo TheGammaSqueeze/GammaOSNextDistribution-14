@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<overlay>
+    <item target="attr/categoryCall" value="@attr/categoryCall"/>
+    <item target="attr/cardBackgroundColor" value="@attr/cardBackgroundColor"/>
+    <item target="attr/cardCornerRadius" value="@attr/cardCornerRadius"/>
+    <item target="attr/isHeadsUp" value="@attr/isHeadsUp"/>
+    <item target="attr/maxLines" value="@attr/maxLines"/>
+    <item target="attr/showBigIcon" value="@attr/showBigIcon"/>
+    <item target="attr/cardElevation" value="@attr/cardElevation"/>
+    <item target="attr/textColor" value="@attr/textColor"/>
+
+    <item target="bool/config_collapseShadePanelAfterManageButtonPress" value="@bool/config_collapseShadePanelAfterManageButtonPress" />
+    <item target="bool/config_dismissMessageHunWhenReplyOrPlayActionButtonPressed" value="@bool/config_dismissMessageHunWhenReplyOrPlayActionButtonPressed" />
+    <item target="bool/config_enableMessageNotificationDirectReply" value="@bool/config_enableMessageNotificationDirectReply"/>
+    <item target="bool/config_enableMessageNotificationPlay" value="@bool/config_enableMessageNotificationPlay"/>
+    <item target="bool/config_isHeadsUpNotificationDismissibleVertically" value="@bool/config_isHeadsUpNotificationDismissibleVertically"/>
+    <item target="bool/config_showExpansionHeader" value="@bool/config_showExpansionHeader"/>
+    <item target="bool/config_showFooterForNotifications" value="@bool/config_showFooterForNotifications"/>
+    <item target="bool/config_showHeaderForNotifications" value="@bool/config_showHeaderForNotifications"/>
+    <item target="bool/config_showHeadsUpNotificationOnBottom" value="@bool/config_showHeadsUpNotificationOnBottom" />
+    <item target="bool/config_showRecentAndOldHeaders" value="@bool/config_showRecentAndOldHeaders"/>
+    <item target="bool/config_useCustomColorForMessageNotificationCountTextButton" value="@bool/config_useCustomColorForMessageNotificationCountTextButton"/>
+    <item target="bool/config_useCustomColorForInformationNotification" value="@bool/config_useCustomColorForInformationNotification"/>
+    <item target="bool/config_useCustomColorForWarningNotification" value="@bool/config_useCustomColorForWarningNotification"/>
+    <item target="bool/config_useLauncherIcon" value="@bool/config_useLauncherIcon"/>
+
+    <item target="color/icon_tint" value="@color/icon_tint"/>
+    <item target="color/call_accept_button" value="@color/call_accept_button"/>
+    <item target="color/call_decline_button" value="@color/call_decline_button"/>
+
+    <item target="color/action_button_background_color" value="@color/action_button_background_color"/>
+    <item target="color/clear_all_button_background_color" value="@color/clear_all_button_background_color"/>
+    <item target="color/count_text" value="@color/count_text"/>
+    <item target="color/dark_icon_tint" value="@color/dark_icon_tint"/>
+    <item target="color/emergency_background_color" value="@color/emergency_background_color"/>
+    <item target="color/emergency_primary_text_color" value="@color/emergency_primary_text_color"/>
+    <item target="color/emergency_secondary_text_color" value="@color/emergency_secondary_text_color"/>
+    <item target="color/first_action_button_text_color" value="@color/first_action_button_text_color"/>
+    <item target="color/group_notification_background_color" value="@color/group_notification_background_color"/>
+    <item target="color/information_background_color" value="@color/information_background_color"/>
+    <item target="color/information_primary_text_color" value="@color/information_primary_text_color"/>
+    <item target="color/information_secondary_text_color" value="@color/information_secondary_text_color"/>
+    <item target="color/notification_accent_color" value="@color/notification_accent_color"/>
+    <item target="color/notification_background_color" value="@color/notification_background_color"/>
+    <item target="color/notification_list_divider_color" value="@color/notification_list_divider_color"/>
+    <item target="color/primary_text_color" value="@color/primary_text_color"/>
+    <item target="color/progress_bar_bg_color" value="@color/progress_bar_bg_color"/>
+    <item target="color/progress_bar_color" value="@color/progress_bar_color"/>
+    <item target="color/secondary_text_color" value="@color/secondary_text_color"/>
+    <item target="color/unmute_button" value="@color/unmute_button"/>
+    <item target="color/warning_background_color" value="@color/warning_background_color"/>
+    <item target="color/warning_primary_text_color" value="@color/warning_primary_text_color"/>
+    <item target="color/warning_secondary_text_color" value="@color/warning_secondary_text_color"/>
+
+    <item target="dimen/action_button_height" value="@dimen/action_button_height" />
+    <item target="dimen/action_button_min_width" value="@dimen/action_button_min_width" />
+    <item target="dimen/action_button_padding_bottom" value="@dimen/action_button_padding_bottom"/>
+    <item target="dimen/action_button_padding_top" value="@dimen/action_button_padding_top"/>
+    <item target="dimen/action_button_radius" value="@dimen/action_button_radius" />
+    <item target="dimen/action_button_spacing_start" value="@dimen/action_button_spacing_start" />
+    <item target="dimen/action_view_left_margin" value="@dimen/action_view_left_margin" />
+    <item target="dimen/action_view_right_margin" value="@dimen/action_view_right_margin" />
+    <item target="dimen/body_big_icon_margin" value="@dimen/body_big_icon_margin"/>
+    <item target="dimen/car_action_button_icon_height" value="@dimen/car_action_button_icon_height"/>
+    <item target="dimen/car_action_button_icon_margin" value="@dimen/car_action_button_icon_margin"/>
+    <item target="dimen/car_action_button_icon_width" value="@dimen/car_action_button_icon_width"/>
+    <item target="dimen/car_notification_card_inner_top_margin" value="@dimen/car_notification_card_inner_top_margin"/>
+    <item target="dimen/card_start_margin" value="@dimen/card_start_margin" />
+    <item target="dimen/card_body_margin_bottom" value="@dimen/card_body_margin_bottom" />
+    <item target="dimen/card_end_margin" value="@dimen/card_start_margin" />
+    <item target="dimen/card_header_margin_bottom" value="@dimen/card_header_margin_bottom" />
+    <item target="dimen/clear_all_button_height" value="@dimen/clear_all_button_height" />
+    <item target="dimen/clear_all_button_radius" value="@dimen/clear_all_button_radius" />
+    <item target="dimen/clear_all_button_min_width" value="@dimen/clear_all_button_min_width" />
+    <item target="dimen/clear_all_button_padding" value="@dimen/clear_all_button_padding" />
+    <item target="dimen/config_disabledCountTextButtonAlpha" value="@dimen/config_disabledCountTextButtonAlpha" />
+    <item target="dimen/config_olderNotificationsAlpha" value="@dimen/config_olderNotificationsAlpha" />
+    <item target="dimen/expanded_package_name_margin" value="@dimen/expanded_package_name_margin" />
+    <item target="dimen/headsup_container_height" value="@dimen/headsup_container_height"/>
+    <item target="dimen/max_translation_headsup" value="@dimen/max_translation_headsup"/>
+    <item target="dimen/mute_icon_height" value="@dimen/mute_icon_height"/>
+    <item target="dimen/mute_icon_width" value="@dimen/mute_icon_width"/>
+    <item target="dimen/notification_card_footer_height" value="@dimen/notification_card_footer_height"/>
+    <item target="dimen/notification_card_header_height" value="@dimen/notification_card_header_height"/>
+    <item target="dimen/notification_card_margin_horizontal" value="@dimen/notification_card_margin_horizontal"/>
+    <item target="dimen/notification_card_radius" value="@dimen/notification_card_radius"/>
+    <item target="dimen/notification_headsup_card_margin_horizontal" value="@dimen/notification_headsup_card_margin_horizontal" />
+    <item target="dimen/notification_heads_up_icon_size" value="@dimen/notification_heads_up_icon_size" />
+    <item target="dimen/notification_list_divider_height" value="@dimen/notification_list_divider_height" />
+    <item target="dimen/notification_touch_target_size" value="@dimen/notification_touch_target_size"/>
+    <item target="dimen/play_arrow_width" value="@dimen/play_arrow_width"/>
+    <item target="dimen/play_arrow_height" value="@dimen/play_arrow_height"/>
+    <item target="dimen/reply_icon_height" value="@dimen/reply_icon_height"/>
+    <item target="dimen/reply_icon_width" value="@dimen/reply_icon_width"/>
+    <item target="dimen/unmute_icon_height" value="@dimen/unmute_icon_height"/>
+    <item target="dimen/unmute_icon_width" value="@dimen/unmute_icon_width"/>
+
+    <item target="id/action_1" value="@id/action_1" />
+    <item target="id/action_2" value="@id/action_2" />
+    <item target="id/action_3" value="@id/action_3" />
+    <item target="id/car_action_button_text" value="@id/car_action_button_text" />
+    <item target="id/car_action_button_icon" value="@id/car_action_button_icon" />
+    <item target="id/clear_all_button" value="@id/clear_all_button" />
+    <item target="id/card_view" value="@id/card_view" />
+    <item target="id/headsup_content" value="@id/headsup_content"/>
+    <item target="id/big_content_view" value="@id/big_content_view" />
+    <item target="id/inner_template_view" value="@id/inner_template_view" />
+    <item target="id/notification_actions" value="@id/notification_actions" />
+    <item target="id/notification_actions_wrapper" value="@id/notification_actions_wrapper" />
+    <item target="id/notification_body" value="@id/notification_body"/>
+    <item target="id/notification_header" value="@id/notification_header"/>
+    <item target="id/notification_header_text" value="@id/notification_header_text"/>
+    <item target="id/notification_footer" value="@id/notification_footer"/>
+    <item target="id/notification_headsup" value="@id/notification_headsup"/>
+    <item target="id/notification_view" value="@id/notification_view"/>
+    <item target="id/notifications" value="@id/notifications"/>
+    <item target="id/message_count" value="@id/message_count"/>
+    <item target="id/time" value="@id/time"/>
+    <item target="id/manage_button" value="@id/manage_button"/>
+    <item target="id/empty_notification_text" value="@id/empty_notification_text"/>
+    <item target="id/exit_button_container" value="@id/exit_button_container"/>
+    <item target="id/progress_bar" value="@id/progress_bar"/>
+
+    <item target="id/notification_list" value="@id/notification_list"/>
+    <item target="id/group_toggle_icon" value="@id/group_toggle_icon"/>
+    <item target="id/group_header" value="@id/group_header"/>
+    <item target="id/header_divider" value="@id/header_divider"/>
+    <item target="id/expanded_group_header" value="@id/expanded_group_header"/>
+    <item target="id/expanded_group_header_text" value="@id/expanded_group_header_text"/>
+    <item target="id/expanded_group_header_toggle_icon" value="@id/expanded_group_header_toggle_icon"/>
+    <item target="id/footer_divider" value="@id/footer_divider"/>
+    <item target="id/expansion_footer_holder" value="@id/expansion_footer_holder"/>
+    <item target="id/expansion_footer" value="@id/expansion_footer"/>
+    <item target="id/touch_interceptor_view" value="@id/touch_interceptor_view"/>
+
+    <item target="layout/basic_notification_template" value="@layout/basic_notification_template"/>
+    <item target="layout/dismiss_button" value="@layout/dismiss_button"/>
+    <item target="layout/message_notification_template" value="@layout/message_notification_template"/>
+    <item target="layout/group_notification_template" value="@layout/group_notification_template"/>
+    <item target="layout/inbox_notification_template" value="@layout/inbox_notification_template"/>
+    <item target="layout/progress_notification_template" value="@layout/progress_notification_template"/>
+    <item target="layout/car_notification_body_view" value="@layout/car_notification_body_view"/>
+    <item target="layout/notification_header_template" value="@layout/notification_header_template"/>
+    <item target="layout/notification_footer_template" value="@layout/notification_footer_template"/>
+    <item target="layout/car_notification_actions_view" value="@layout/car_notification_actions_view"/>
+    <item target="layout/car_information_notification_template" value="@layout/car_information_notification_template"/>
+    <item target="layout/car_emergency_notification_template" value="@layout/car_emergency_notification_template"/>
+    <item target="layout/car_warning_notification_template" value="@layout/car_warning_notification_template"/>
+    <item target="layout/headsup_container_bottom" value="@layout/headsup_container_bottom"/>
+    <item target="layout/message_headsup_notification_template" value="@layout/message_headsup_notification_template" />
+    <item target="layout/car_notification_header_view" value="@layout/car_notification_header_view"/>
+    <item target="layout/notification_center_activity" value="@layout/notification_center_activity"/>
+
+    <item target="drawable/action_button_background" value="@drawable/action_button_background"/>
+    <item target="drawable/expand_less" value="@drawable/expand_less"/>
+    <item target="drawable/ic_reply" value="@drawable/ic_reply"/>
+    <item target="drawable/ic_play_arrow" value="@drawable/ic_play_arrow"/>
+    <item target="drawable/ic_mute" value="@drawable/ic_mute"/>
+    <item target="drawable/ic_unmute" value="@drawable/ic_unmute"/>
+
+    <item target="string/assist_action_play_label" value="@string/assist_action_play_label"/>
+    <item target="string/config_headsUpNotificationAnimationHelper" value="@string/config_headsUpNotificationAnimationHelper" />
+    <item target="string/notification_header" value="@string/notification_header"/>
+    <item target="string/assist_action_reply_label" value="@string/assist_action_reply_label"/>
+    <item target="string/action_mute_short" value="@string/action_mute_short"/>
+
+    <item target="style/ClearAllButton" value="@style/ClearAllButton"/>
+    <item target="style/ExpandedGroupNotificationHeaderText" value="@style/ExpandedGroupNotificationHeaderText"/>
+    <item target="style/GroupNotificationFooterText" value="@style/GroupNotificationFooterText"/>
+    <item target="style/HeadsUpNotificationCard" value="@style/HeadsUpNotificationCard"/>
+    <item target="style/NotificationActionButtonBase" value="@style/NotificationActionButtonBase"/>
+    <item target="style/NotificationActionViewLayout" value="@style/NotificationActionViewLayout"/>
+    <item target="style/NotificationBodyContentText" value="@style/NotificationBodyContentText" />
+    <item target="style/NotificationBodyImageIcon" value="@style/NotificationBodyImageIcon" />
+    <item target="style/NotificationBodyTitleText" value="@style/NotificationBodyTitleText" />
+    <item target="style/NotificationCenterHeaderText" value="@style/NotificationCenterHeaderText" />
+    <item target="style/NotificationActionButtonText" value="@style/NotificationActionButtonText"/>
+    <item target="style/Theme.DeviceDefault.NoActionBar.Notification" value="@style/Theme.DeviceDefault.NoActionBar.Notification"/>
+    <item target="style/NotificationActionButton1" value="@style/NotificationActionButton1"/>
+    <item target="style/NotificationActionButton2" value="@style/NotificationActionButton2"/>
+    <item target="style/NotificationActionButton3" value="@style/NotificationActionButton3"/>
+    <item target="style/NotificationCard" value="@style/NotificationCard"/>
+
+    <item target="dimen/card_min_bottom_padding" value="@dimen/card_min_bottom_padding"/>
+    <item target="dimen/card_min_top_padding" value="@dimen/card_min_top_padding"/>
+
+    <item target="layout/car_headsup_notification_header_view" value="@layout/car_headsup_notification_header_view"/>
+    <item target="id/app_icon" value="@id/app_icon"/>
+    <item target="id/header_text" value="@id/header_text"/>
+
+    <item target="layout/car_headsup_notification_body_view" value="@layout/car_headsup_notification_body_view"/>
+    <item target="id/notification_body_icon" value="@id/notification_body_icon"/>
+    <item target="id/notification_body_title" value="@id/notification_body_title"/>
+    <item target="id/notification_body_title_icon" value="@id/notification_body_title_icon"/>
+    <item target="id/notification_body_content" value="@id/notification_body_content"/>
+
+    <item target="layout/call_headsup_notification_template" value="@layout/call_headsup_notification_template"/>
+</overlay>

@@ -1,0 +1,74 @@
+// Copyright (C) 2020 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+apex_key {
+    name: "com.android.apex.test.sharedlibs.key",
+    public_key: "com.android.apex.test.sharedlibs.avbpubkey",
+    private_key: "com.android.apex.test.sharedlibs.pem",
+}
+
+android_app_certificate {
+    name: "com.android.apex.test.sharedlibs.certificate",
+    certificate: "com.android.apex.test.sharedlibs",
+}
+
+apex {
+    name: "com.android.apex.test.sharedlibs_stub",
+    manifest: "manifest.json",
+    file_contexts: ":apex.test-file_contexts",
+    key: "com.android.apex.test.sharedlibs.key",
+    installable: false,
+    // We want to force libc++.so to be available in this stub APEX, so put an empty binary.
+    binaries: [ "noop" ],
+    updatable: false,
+    compile_multilib: "both",
+    multilib: {
+        both: {
+            binaries: [
+                "noop",
+            ],
+        },
+    },
+}
+
+genrule {
+    name: "com.android.apex.test.sharedlibs_generated",
+    out: ["com.android.apex.test.sharedlibs_generated.apex"],
+    defaults: ["apexer_test_host_tools_list"],
+    dist: {
+        targets: ["sharedlibs_test"],
+    },
+    srcs: [
+        ":com.android.apex.test.sharedlibs_stub",
+        "com.android.apex.test.sharedlibs.avbpubkey",
+        "com.android.apex.test.sharedlibs.pem",
+        "com.android.apex.test.sharedlibs.pk8",
+        "com.android.apex.test.sharedlibs.x509.pem",
+    ],
+    tools: [
+        "shared_libs_repack",
+    ],
+    cmd: "$(location shared_libs_repack) " +
+         " --mode sharedlibs" +
+         " --key $(location com.android.apex.test.sharedlibs.pem)" +
+         " --input $(location :com.android.apex.test.sharedlibs_stub)" +
+         " --output $(genDir)/com.android.apex.test.sharedlibs_generated.apex" +
+         " --pk8key $(location com.android.apex.test.sharedlibs.pk8)" +
+         " --pubkey $(location com.android.apex.test.sharedlibs.avbpubkey)" +
+         " --x509key $(location com.android.apex.test.sharedlibs.x509.pem)" +
+         " --tmpdir $(genDir)",
+}

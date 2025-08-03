@@ -1,0 +1,10 @@
+{
+    "header": "stats_test_consts.h",
+    "constants":[
+        {
+            "name": "STATS_TEST_UUID",
+            "value": "5247d19b-cf09-4272-a450-3ef20dbefc14",
+            "type": "uuid"
+        }
+    ]
+}

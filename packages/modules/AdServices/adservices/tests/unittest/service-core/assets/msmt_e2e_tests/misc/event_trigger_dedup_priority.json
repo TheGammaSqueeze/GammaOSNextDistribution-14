@@ -1,0 +1,148 @@
+{
+  "description": "One view source and three triggers. The second trigger replaces the first event report due to higher priority. The third trigger has an even higher priority than the second but is deduped by the first trigger.",
+  "input": {
+    "sources": [
+      {
+        "registration_request": {
+          "attribution_src_url": "https://adsrus.test",
+          "source_type": "event",
+          "registrant": "com.north-news"
+        },
+        "responses": [
+          {
+            "url": "https://adsrus.test",
+            "response": {
+              "Attribution-Reporting-Register-Source": {
+                "source_event_id": "13579070122577564141",
+                "destination": "android-app://com.west-news",
+                "priority": "2",
+                "expiry": "2591998"
+              },
+              "Location": null,
+              "Attribution-Reporting-Redirect": null
+            }
+          }
+        ],
+        "timestamp": "1684232726150"
+      }
+    ],
+    "triggers": [
+      {
+        "registration_request": {
+          "attribution_src_url": "https://adsrus.test",
+          "registrant": "com.west-news"
+        },
+        "responses": [
+          {
+            "url": "https://adsrus.test",
+            "response": {
+              "Attribution-Reporting-Register-Trigger": {
+                "event_trigger_data": [
+                  {
+                    "trigger_data": "6",
+                    "priority": "0",
+                    "deduplication_key": "1"
+                  },
+                  {
+                    "trigger_data": "0",
+                    "priority": "1",
+                    "deduplication_key": "1"
+                  }
+                ]
+              },
+              "Location": null,
+              "Attribution-Reporting-Redirect": null
+            }
+          }
+        ],
+        "timestamp": "1684309420441"
+      },
+      {
+        "registration_request": {
+          "attribution_src_url": "https://adsrus.test",
+          "registrant": "com.west-news"
+        },
+        "responses": [
+          {
+            "url": "https://adsrus.test",
+            "response": {
+              "Attribution-Reporting-Register-Trigger": {
+                "event_trigger_data": [
+                  {
+                    "trigger_data": "3",
+                    "priority": "1",
+                    "deduplication_key": "2",
+                    "filters": {
+                      "source_type": [
+                        "event"
+                      ]
+                    }
+                  },
+                  {
+                    "trigger_data": "6",
+                    "priority": "1",
+                    "deduplication_key": "2"
+                  }
+                ]
+              },
+              "Location": null,
+              "Attribution-Reporting-Redirect": null
+            }
+          }
+        ],
+        "timestamp": "1684320126410"
+      },
+      {
+        "registration_request": {
+          "attribution_src_url": "https://adsrus.test",
+          "registrant": "com.west-news"
+        },
+        "responses": [
+          {
+            "url": "https://adsrus.test",
+            "response": {
+              "Attribution-Reporting-Register-Trigger": {
+                "event_trigger_data": [
+                  {
+                    "trigger_data": "3",
+                    "priority": "0",
+                    "deduplication_key": "1",
+                    "filters": {
+                      "source_type": [
+                        "navigation"
+                      ]
+                    }
+                  },
+                  {
+                    "trigger_data": "0",
+                    "priority": "2",
+                    "deduplication_key": "1"
+                  }
+                ]
+              },
+              "Location": null,
+              "Attribution-Reporting-Redirect": null
+            }
+          }
+        ],
+        "timestamp": "1684396810319"
+      }
+    ]
+  },
+  "output": {
+    "event_level_results": [
+      {
+        "report_time": "1686828326150",
+        "payload": {
+          "attribution_destination": "android-app://com.west-news",
+          "scheduled_report_time": "1686828326",
+          "source_event_id": "13579070122577564141",
+          "trigger_data": "1",
+          "source_type": "event",
+          "randomized_trigger_rate": 0.0000025
+        },
+        "report_url": "https://adsrus.test/.well-known/attribution-reporting/report-event-attribution"
+      }
+    ]
+  }
+}

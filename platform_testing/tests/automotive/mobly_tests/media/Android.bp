@@ -1,0 +1,422 @@
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+python_test_host {
+    name: "BTMediaEnabledDuringParingWHenRadioLunchedOnHU",
+    main: "media_test_stream_when_radio_lunched.py",
+    srcs: ["media_test_stream_when_radio_lunched.py"],
+    libs: [
+        "mobly",
+        "utilities",
+        "bluetooth_test",
+    ],
+    test_suites: [
+        "catbox",
+    ],
+    test_options: {
+        unit_test: false,
+    },
+    data: [
+        // Package the snippet with the mobly test
+        ":AutomotiveSnippet",
+        ":PhoneSnippet",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+}
+
+python_test_host {
+    name: "BTMediaIsAVRCPTreeDisplayedOnHU",
+    main: "media_test_avrcp_tree_displayed.py",
+    srcs: ["media_test_avrcp_tree_displayed.py"],
+    libs: [
+        "mobly",
+        "utilities",
+        "bluetooth_test",
+    ],
+    test_suites: [
+        "catbox",
+    ],
+    test_options: {
+        unit_test: false,
+    },
+    data: [
+        // Package the snippet with the mobly test
+        ":AutomotiveSnippet",
+        ":PhoneSnippet",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+}
+
+python_test_host {
+    name: "BTMediaAbleToPlayPauseMediaOnHU",
+    main: "media_test_play_media_from_widget.py",
+    srcs: ["media_test_play_media_from_widget.py"],
+    libs: [
+        "mobly",
+        "utilities",
+        "bluetooth_test",
+    ],
+    test_suites: [
+        "catbox",
+    ],
+    test_options: {
+        unit_test: false,
+    },
+    data: [
+        // Package the snippet with the mobly test
+        ":AutomotiveSnippet",
+        ":PhoneSnippet",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+}
+
+python_test_host {
+    name: "BTMediaMediaMetadataValidationPrevAndNextSongOnHu",
+    main: "media_test_prev_and_next_song_metadata_validation.py",
+    srcs: ["media_test_prev_and_next_song_metadata_validation.py"],
+    libs: [
+        "mobly",
+        "utilities",
+        "bluetooth_test",
+    ],
+    test_suites: [
+        "catbox",
+    ],
+    test_options: {
+        unit_test: false,
+    },
+    data: [
+        // Package the snippet with the mobly test
+        ":AutomotiveSnippet",
+        ":PhoneSnippet",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+}
+
+python_test_host {
+    name: "BTMediaIsCategoriesSelectableTest",
+    main: "media_test_categories_playlists_selectable.py",
+    srcs: ["media_test_categories_playlists_selectable.py"],
+    libs: [
+        "mobly",
+        "utilities",
+        "bluetooth_test",
+    ],
+    test_suites: [
+        "catbox",
+    ],
+    test_options: {
+        unit_test: false,
+    },
+    data: [
+        // Package the snippet with the mobly test
+        ":AutomotiveSnippet",
+        ":PhoneSnippet",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+}
+
+python_test_host {
+    name: "BTMediaIsDeviceSynchedAfterStartHuTest",
+    main: "media_test_device_sync_after_hu_start.py",
+    srcs: ["media_test_device_sync_after_hu_start.py"],
+    libs: [
+        "mobly",
+        "utilities",
+        "bluetooth_test",
+    ],
+    test_suites: [
+        "catbox",
+    ],
+    test_options: {
+        unit_test: false,
+    },
+    data: [
+        // Package the snippet with the mobly test
+        ":AutomotiveSnippet",
+        ":PhoneSnippet",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+}
+
+python_test_host {
+    name: "BTMediaSelectSongFromPlaylistTest",
+    main: "media_test_select_song_from_playlist.py",
+    srcs: ["media_test_select_song_from_playlist.py"],
+    libs: [
+        "mobly",
+        "utilities",
+        "bluetooth_test",
+    ],
+    test_suites: [
+        "catbox",
+    ],
+    test_options: {
+        unit_test: false,
+    },
+    data: [
+        // Package the snippet with the mobly test
+        ":AutomotiveSnippet",
+        ":PhoneSnippet",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+}
+
+python_test_host {
+    name: "BTMediaDeviceNotPairedTest",
+    main: "media_test_device_not_paired.py",
+    srcs: ["media_test_device_not_paired.py"],
+    libs: [
+        "mobly",
+        "utilities",
+        "bluetooth_test",
+    ],
+    test_suites: [
+        "catbox",
+    ],
+    test_options: {
+        unit_test: false,
+    },
+    data: [
+        // Package the snippet with the mobly test
+        ":AutomotiveSnippet",
+        ":PhoneSnippet",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+}
+
+python_test_host {
+    name: "BTMediaIsSongPlayingTest",
+    main: "media_test_song_is_playing.py",
+    srcs: ["media_test_song_is_playing.py"],
+     libs: [
+         "mobly",
+         "utilities",
+         "bluetooth_test",
+     ],
+     test_suites: [
+         "catbox",
+     ],
+     test_options: {
+         unit_test: false,
+     },
+     data: [
+         // Package the snippet with the mobly test
+         ":AutomotiveSnippet",
+         ":PhoneSnippet",
+     ],
+     version: {
+         py3: {
+             embedded_launcher: true,
+         },
+     },
+ }
+
+python_test_host {
+     name: "BTMediaIsAbleToSwitchAppTest",
+     main: "media_test_switch_app_validation.py",
+     srcs: ["media_test_switch_app_validation.py"],
+      libs: [
+          "mobly",
+          "utilities",
+          "bluetooth_test",
+      ],
+      test_suites: [
+          "catbox",
+      ],
+      test_options: {
+          unit_test: false,
+      },
+      data: [
+          // Package the snippet with the mobly test
+          ":AutomotiveSnippet",
+          ":PhoneSnippet",
+      ],
+      version: {
+          py3: {
+              embedded_launcher: true,
+          },
+      },
+  }
+
+ python_test_host {
+     name: "BTMediaSynchronizedAfterReconnect",
+     main: "media_test_synchronized_device_disconnected_connected.py",
+     srcs: ["media_test_synchronized_device_disconnected_connected.py"],
+      libs: [
+          "mobly",
+          "utilities",
+          "bluetooth_test"
+      ],
+      test_suites: [
+          "catbox",
+      ],
+      test_options: {
+          unit_test: false,
+      },
+      data: [
+          // Package the snippet with the mobly test
+          ":AutomotiveSnippet",
+          ":PhoneSnippet",
+      ],
+      version: {
+          py3: {
+              embedded_launcher: true,
+          },
+      },
+  }
+
+ python_test_host {
+     name: "BTMediaIsSongPlayingAfterReboot",
+     main: "media_test_play_status_after_reboot.py",
+     srcs: ["media_test_play_status_after_reboot.py"],
+      libs: [
+          "mobly",
+          "utilities",
+          "bluetooth_test"
+      ],
+      test_suites: [
+          "catbox",
+      ],
+      test_options: {
+          unit_test: false,
+      },
+      data: [
+          // Package the snippet with the mobly test
+          ":AutomotiveSnippet",
+          ":PhoneSnippet",
+      ],
+      version: {
+          py3: {
+              embedded_launcher: true,
+          },
+      },
+  }
+
+ python_test_host {
+     name: "BTMediaIsMediaMetadataValidOnHu",
+     main: "media_test_song_metadata_validation.py",
+     srcs: ["media_test_song_metadata_validation.py"],
+      libs: [
+          "mobly",
+          "utilities",
+          "bluetooth_test"
+      ],
+      test_suites: [
+          "catbox",
+      ],
+      test_options: {
+          unit_test: false,
+      },
+      data: [
+          // Package the snippet with the mobly test
+          ":AutomotiveSnippet",
+          ":PhoneSnippet",
+      ],
+      version: {
+          py3: {
+              embedded_launcher: true,
+          },
+      },
+  }
+
+   python_test_host {
+       name: "BTMediaIsNoePlayingLabelDisplayedOnHu",
+       main: "media_test_now_playing_label_displayed.py",
+       srcs: ["media_test_now_playing_label_displayed.py"],
+        libs: [
+            "mobly",
+            "utilities",
+            "bluetooth_test"
+        ],
+        test_suites: [
+            "catbox",
+        ],
+        test_options: {
+            unit_test: false,
+        },
+        data: [
+            // Package the snippet with the mobly test
+            ":AutomotiveSnippet",
+            ":PhoneSnippet",
+        ],
+        version: {
+            py3: {
+                embedded_launcher: true,
+            },
+        },
+    }
+
+   python_test_host {
+       name: "BTMediaPlaylistRenderingOnHu",
+       main: "media_test_playlist_rendering.py",
+       srcs: ["media_test_playlist_rendering.py"],
+        libs: [
+            "mobly",
+            "utilities",
+            "bluetooth_test"
+        ],
+        test_suites: [
+            "catbox",
+        ],
+        test_options: {
+            unit_test: false,
+        },
+        data: [
+            // Package the snippet with the mobly test
+            ":AutomotiveSnippet",
+            ":PhoneSnippet",
+        ],
+        version: {
+            py3: {
+                embedded_launcher: true,
+            },
+        },
+    }

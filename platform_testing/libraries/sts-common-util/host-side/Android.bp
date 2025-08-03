@@ -1,0 +1,123 @@
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_library_host {
+    name: "sts-host-util",
+    defaults: ["cts_error_prone_rules"],
+
+    srcs: [
+        "src/**/*.java",
+    ],
+    static_libs: [
+        "auto_value_annotations",
+        "caliper-prebuilts",
+        "sts-common-util-lib",
+        "sts-libtombstone_proto-java",
+        "truth",
+        "xz-java",
+    ],
+    plugins: ["auto_value_plugin"],
+    libs: [
+        "compatibility-host-util",
+        "compatibility-tradefed",
+        "guava",
+        "tradefed",
+    ],
+}
+
+java_library_host {
+    name: "sts-libtombstone_proto-java",
+    visibility: [
+        "//platform_testing/libraries/sts-common-util/host-side",
+    ],
+    srcs: [
+        ":libtombstone_proto-src",
+    ],
+    proto: {
+        type: "lite",
+    },
+    static_libs: [
+        "libprotobuf-java-lite",
+    ],
+}
+
+// Turn off various doclava warnings when generating
+// the docs. These are the same warnings that are
+// turned off in tools/tradefed/core
+tradefed_docs_only_args = " -hide 101 -hide 111 -hide 113 -hide 125 -hide 126 -hide 127 -hide 128 "
+
+droiddoc_host {
+    name: "sts-docs",
+    srcs: [
+        "src/**/*.java",
+    ],
+    libs: [
+        "auto_value_annotations",
+        "sts-common-util-lib",
+        "sts-libtombstone_proto-java",
+        "truth",
+        "xz-java",
+        "compatibility-host-util",
+        "compatibility-tradefed",
+        "guava",
+        "tradefed",
+    ],
+    custom_template: "droiddoc-templates-sdk",
+    // These settings are for integrating the javadoc with Devsite. See go/generate-tradefed-docs
+    hdf: [
+        "sac true",
+        "devices true",
+        "android.whichdoc online",
+        "css.path /reference/assets/css/doclava-devsite.css",
+        "book.root toc",
+        "book.path /_book.yaml",
+    ],
+    args: tradefed_docs_only_args +
+          "-yaml _toc.yaml " +
+          "-apidocsdir reference/sts/ " +
+          "-werror " +
+          "-package " +
+          "-devsite ",
+}
+
+cc_defaults {
+    name: "sts_defaults",
+    compile_multilib: "both",
+    multilib: {
+        lib32: {
+            suffix: "_sts32",
+        },
+        lib64: {
+            suffix: "_sts64",
+        },
+        // build/soong/common/arch.go default returns nil; no default possible
+    },
+    arch: {
+        arm: {
+            instruction_set: "arm",
+        },
+    },
+    auto_gen_config: false,
+    test_suites: [
+        "sts",
+    ],
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+}

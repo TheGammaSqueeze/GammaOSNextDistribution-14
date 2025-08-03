@@ -1,0 +1,380 @@
+syntax = "proto3";
+
+package chre.rpc;
+
+import "google/protobuf/empty.proto";
+
+option java_package = "dev.chre.rpc.proto";
+
+// RPC functions to call CHRE APIs
+service ChreApiTestService {
+  // Returns the BLE capabilities.
+  rpc ChreBleGetCapabilities(google.protobuf.Empty) returns (Capabilities) {}
+
+  // Returns the BLE filter capabilities.
+  rpc ChreBleGetFilterCapabilities(google.protobuf.Empty)
+      returns (Capabilities) {}
+
+  // Finds the default sensor for the given sensor type.
+  rpc ChreSensorFindDefault(ChreSensorFindDefaultInput)
+      returns (ChreSensorFindDefaultOutput) {}
+
+  // Gets the information about a sensor.
+  rpc ChreGetSensorInfo(ChreHandleInput) returns (ChreGetSensorInfoOutput) {}
+
+  // Gets the sampling status for the sensor.
+  rpc ChreGetSensorSamplingStatus(ChreHandleInput)
+      returns (ChreGetSensorSamplingStatusOutput) {}
+
+  // Configures a sensor.
+  rpc ChreSensorConfigure(ChreSensorConfigureInput) returns (Status) {}
+
+  // Configures a sensor's mode.
+  rpc ChreSensorConfigureModeOnly(ChreSensorConfigureModeOnlyInput)
+      returns (Status) {}
+
+  // Gets the audio source's information.
+  rpc ChreAudioGetSource(ChreHandleInput) returns (ChreAudioGetSourceOutput) {}
+
+  // Configures delivery of audio data to the current nanoapp.
+  rpc ChreAudioConfigureSource(ChreAudioConfigureSourceInput) returns (Status) {
+  }
+
+  // Gets the current chreAudioGetSourceStatus for a given handle.
+  rpc ChreAudioGetStatus(ChreHandleInput) returns (ChreAudioGetStatusOutput) {}
+
+  // Configures the nanoapp to receive host endpoint information for a host
+  // endpoint id.
+  rpc ChreConfigureHostEndpointNotifications(
+      ChreConfigureHostEndpointNotificationsInput) returns (Status) {}
+
+  // Gets the host endpoint info for a given host endpoint id.
+  rpc ChreGetHostEndpointInfo(ChreGetHostEndpointInfoInput)
+      returns (ChreGetHostEndpointInfoOutput) {}
+
+  // Start synchronous functions
+
+  /* Starts a BLE scan synchronously. This will wait for the
+   * event and will return success if the chreBleStartScanAsync
+   * function returns success and the event is seen. This will
+   * return the event's success field.
+   */
+  rpc ChreBleStartScanSync(ChreBleStartScanAsyncInput)
+      returns (stream GeneralSyncMessage) {}
+
+  /* Stops a BLE scan synchronously. This will wait for the
+   * event and will return success if the chreBleStopScanAsync
+   * function returns success and the event is seen. This will
+   * return the event's success field.
+   */
+  rpc ChreBleStopScanSync(google.protobuf.Empty)
+      returns (stream GeneralSyncMessage) {}
+
+  // Returns events that match the eventType filter
+  rpc GatherEvents(GatherEventsInput) returns (stream GeneralEventsMessage) {}
+}
+
+// General messages
+
+// Contains a capabilities uint32
+message Capabilities {
+  uint32 capabilities = 1;
+}
+
+// Status message
+message Status {
+  bool status = 1;
+}
+
+// Input with a handle
+message ChreHandleInput {
+  uint32 handle = 1;
+}
+
+// Message for sync function output
+message GeneralSyncMessage {
+  bool status = 1;
+}
+
+// Event capturing messages
+
+// Contains event filters for gathering events
+message GatherEventsInput {
+  repeated uint32 eventTypes = 1;
+
+  // Deprecated: We use the built-in count variable now
+  uint32 eventTypeCount = 2 [deprecated = true];
+  uint32 eventCount = 3;
+  uint64 timeoutInNs = 4;
+}
+
+// Contains events that were gathered
+// To gather a new type of event, add its message to the oneof data, then define
+// the message below
+message GeneralEventsMessage {
+  bool status = 1;
+  oneof data {
+    ChreSensorThreeAxisData chreSensorThreeAxisData = 2;
+    ChreSensorSamplingStatusEvent chreSensorSamplingStatusEvent = 3;
+    ChreHostEndpointNotification chreHostEndpointNotification = 4;
+    ChreBleAdvertisementEvent chreBleAdvertisementEvent = 5;
+    ChreAudioSourceStatusEvent chreAudioSourceStatusEvent = 6;
+    ChreAudioDataMetadata chreAudioDataMetadata = 7;
+    ChreAudioDataSamples chreAudioDataSamples = 8;
+  }
+}
+
+// Captured events' arguments (arguments to nanoappHandleEvent)
+
+// A sensor sampling status update event
+message ChreSensorSamplingStatusEvent {
+  uint32 sensorHandle = 1;
+  ChreSensorSamplingStatus status = 2;
+}
+
+// The sampling status of a sensor
+message ChreSensorSamplingStatus {
+  uint64 interval = 1;
+  uint64 latency = 2;
+  bool enabled = 3;
+}
+
+// Contains three axis data for use with the accelerometer and other sensors
+message ChreSensorThreeAxisData {
+  ChreSensorDataHeader header = 1;
+  repeated ChreSensorThreeAxisSampleData readings = 2;
+}
+
+// Header for sensor data
+message ChreSensorDataHeader {
+  uint64 baseTimestamp = 1;
+  uint32 sensorHandle = 2;
+  uint32 readingCount = 3;
+  uint32 accuracy = 4;
+  uint32 reserved = 5;
+}
+
+// Individual sample data for a three-axis sensor
+message ChreSensorThreeAxisSampleData {
+  uint32 timestampDelta = 1;
+  float x = 2;
+  float y = 3;
+  float z = 4;
+}
+
+// Data provided in host endpoint notification
+message ChreHostEndpointNotification {
+  uint32 hostEndpointId = 1;
+  uint32 notificationType = 2;
+}
+
+// A BLE advertising event
+message ChreBleAdvertisementEvent {
+  uint32 reserved = 1;
+  repeated ChreBleAdvertisingReport reports = 2;
+}
+
+// A BLE advertising report
+message ChreBleAdvertisingReport {
+  uint64 timestamp = 1;
+  uint32 eventTypeAndDataStatus = 2;
+  uint32 addressType = 3;
+  bytes address = 4;
+  uint32 primaryPhy = 5;
+  uint32 secondaryPhy = 6;
+  uint32 advertisingSid = 7;
+  int32 txPower = 8;
+  uint32 periodicAdvertisingInterval = 9;
+  int32 rssi = 10;
+  uint32 directAddressType = 11;
+  bytes directAddress = 12;
+  bytes data = 13;
+  uint32 reserved = 14;
+}
+
+// Enabled/suspended status for an audio source
+message ChreAudioSourceStatusEvent {
+  uint32 handle = 1;
+  ChreAudioSourceStatus status = 2;
+}
+
+// Status for an audio source
+message ChreAudioSourceStatus {
+  bool enabled = 1;
+  bool suspended = 2;
+}
+
+// Data provided from audio data event - only used as a framework to reconstruct
+// the message on host
+message ChreAudioDataEvent {
+  bool status = 1;
+  uint32 version = 2;
+  uint32 reserved = 3;
+  uint32 handle = 4;
+  uint64 timestamp = 5;
+  uint32 sampleRate = 6;
+  uint32 sampleCount = 7;
+  uint32 format = 8;
+  bytes samples = 9;
+}
+
+// Chre audio data metadata and samples events to send in the general event
+message ChreAudioDataMetadata {
+  uint32 version = 1;
+  uint32 reserved = 2;
+  uint32 handle = 3;
+  uint64 timestamp = 4;
+  uint32 sampleRate = 5;
+  uint32 sampleCount = 6;
+  uint32 format = 7;
+}
+
+message ChreAudioDataSamples {
+  uint32 id = 1;
+  bytes samples = 2;
+}
+
+// Function specific input/output messages
+
+// Input value for ChreSensorFindDefault
+message ChreSensorFindDefaultInput {
+  uint32 sensorType = 1;
+}
+
+// Input value for ChreConfigureHostEndpointNotifications
+message ChreConfigureHostEndpointNotificationsInput {
+  uint32 hostEndpointId = 1;
+  bool enable = 2;
+}
+
+// Retrieving subscribed disconnected host endpoint notification
+message RetrieveLatestDisconnectedHostEndpointEventOutput {
+  // Records how many disconnected event received by this nanoapp.
+  uint32 disconnectedCount = 1;
+  uint32 hostEndpointId = 2;
+}
+
+// Input value for ChreGetHostEndpointInfo
+message ChreGetHostEndpointInfoInput {
+  uint32 hostEndpointId = 1;
+}
+
+// Return value for ChreGetHostEndpointInfo.
+// Bool + chreHostEndpointInfo
+// @see chreHostEndpointInfo for description of each field.
+message ChreGetHostEndpointInfoOutput {
+  bool status = 1;
+  uint32 hostEndpointId = 2;
+  uint32 hostEndpointType = 3;
+  bool isNameValid = 4;
+  bool isTagValid = 5;
+  string endpointName = 6;
+  string endpointTag = 7;
+}
+
+// Return value for ChreSensorFindDefault. sensorHandle is only valid if
+// foundSensor is true.
+message ChreSensorFindDefaultOutput {
+  bool foundSensor = 1;
+  uint32 sensorHandle = 2;
+}
+
+// Return value for ChreGetSensorInfo
+message ChreGetSensorInfoOutput {
+  bool status = 1;
+  string sensorName = 2;
+  uint32 sensorType = 3;
+  uint32 isOnChange = 4;
+  uint32 isOneShot = 5;
+  uint32 reportsBiasEvents = 6;
+  uint32 supportsPassiveMode = 7;
+  uint32 unusedFlags = 8;
+  uint64 minInterval = 9;
+  uint32 sensorIndex = 10;
+}
+
+// Return value for ChreGetSensorSamplingStatus
+message ChreGetSensorSamplingStatusOutput {
+  bool status = 1;
+  uint64 interval = 2;
+  uint64 latency = 3;
+  bool enabled = 4;
+}
+
+// Input value for ChreSensorConfigureModeOnly
+message ChreSensorConfigureInput {
+  uint32 sensorHandle = 1;
+  uint32 mode = 2;
+  uint64 interval = 3;
+  uint64 latency = 4;
+}
+
+// Input value for ChreSensorConfigureModeOnly
+message ChreSensorConfigureModeOnlyInput {
+  uint32 sensorHandle = 1;
+  uint32 mode = 2;
+}
+
+// Enumeration for Audio Data Format
+// Must match the chreAudioDataFormat enum in audio.h
+enum ChreAudioDataFormat {
+  CHRE_AUDIO_DATA_FORMAT_8_BIT_U_LAW = 0;
+  CHRE_AUDIO_DATA_FORMAT_16_BIT_SIGNED_PCM = 1;
+}
+
+// Return value for ChreAudioGetStatus
+message ChreAudioGetStatusOutput {
+  bool status = 1;
+  ChreAudioSourceStatus audioSourceStatus = 2;
+}
+
+// Return value for ChreAudioGetSource
+message ChreAudioGetSourceOutput {
+  bool status = 1;
+  string name = 2;
+  uint32 sampleRate = 3;
+  uint64 minBufferDuration = 4;
+  uint64 maxBufferDuration = 5;
+  uint32 format = 6;
+}
+
+// Input value for ChreAudioConfigureSource
+message ChreAudioConfigureSourceInput {
+  uint32 handle = 1;
+  bool enable = 2;
+  uint64 bufferDuration = 3;
+  uint64 deliveryInterval = 4;
+}
+
+// Enumeration for BLE scan mode
+enum ChreBleScanMode {
+  INVALID = 0;
+  CHRE_BLE_SCAN_MODE_BACKGROUND = 1;
+  CHRE_BLE_SCAN_MODE_FOREGROUND = 2;
+  CHRE_BLE_SCAN_MODE_AGGRESSIVE = 3;
+}
+
+// BLE scan filters
+message ChreBleGenericFilter {
+  uint32 type = 1;
+  uint32 length = 2;
+  bytes data = 3;
+  bytes mask = 4;
+}
+
+// Scan filter for BLE scanning
+message ChreBleScanFilter {
+  int32 rssiThreshold = 1;
+
+  // Deprecated: We use the built-in count variable now
+  uint32 scanFilterCount = 2 [deprecated = true];
+  repeated ChreBleGenericFilter scanFilters = 3;
+}
+
+// Input value for ChreBleStartScanAsync
+message ChreBleStartScanAsyncInput {
+  ChreBleScanMode mode = 1;
+  uint32 reportDelayMs = 2;
+  bool hasFilter = 3;
+  ChreBleScanFilter filter = 4;
+}

@@ -1,0 +1,3 @@
+# Module library in frameworks/libs/net
+rule com.android.net.module.util.** android.net.frameworktests.util.@1
+rule com.android.testutils.TestBpfMap* android.net.frameworktests.testutils.TestBpfMap@1

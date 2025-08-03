@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config>
+    <!-- treble_manifest_split config for aosp_arm64. -->
+
+    <!-- ============================================================= -->
+
+    <!-- Add projects that provide modules required for build success, but
+         are not detected automatically by the tool. -->
+
+    <!-- Lots of modules require py3-stdlib -->
+    <add_project name="platform/external/python/cpython3" />
+
+    <!-- bionic/libc:libc_jemalloc_wrapper requires libjemalloc5 -->
+    <add_project name="platform/external/jemalloc_new" />
+
+    <!-- libcore/ojluni:ojluni-phony requires art-notices-for-framework-stubs-jar -->
+    <add_project name="platform/prebuilts/module_sdk/art" />
+
+    <!-- Provides executable "as", needed by clang for some modules. -->
+    <add_project name="platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9" />
+
+    <!-- ============================================================= -->
+
+    <!-- Remove some device projects that the tool included due to Kati makefile
+         scanning, but are not required to build aosp_arm64. -->
+    <remove_project name="device/generic/goldfish" />
+    <remove_project name="device/generic/goldfish-opengl" />
+    <remove_project name="device/google/atv" />
+    <remove_project name="device/google/trout" />
+    <remove_project name="device/ti/beagle-x15" />
+
+</config>
+

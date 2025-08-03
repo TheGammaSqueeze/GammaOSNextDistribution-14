@@ -1,0 +1,49 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+apex {
+    name: "com.android.libapexsupport.tests",
+    vendor: true,
+    installable: false,
+    updatable: false,
+    manifest: "manifest.json",
+    file_contexts: "file_contexts",
+    key: "com.android.apex.vendor.foo.key",
+    certificate: ":com.android.apex.vendor.foo.certificate",
+
+    binaries: ["libapexsupport-tests"],
+}
+
+cc_defaults {
+    name: "libapexsupport-tests-defaults",
+    srcs: ["libapexsupport-tests.cpp"],
+    shared_libs: ["libapexsupport"],
+}
+
+cc_test {
+    name: "libapexsupport-tests",
+    defaults: ["libapexsupport-tests-defaults"],
+    stem: "libapexsupport-tests",
+    vendor: true,
+    installable: false,
+}
+
+cc_test {
+    name: "libapexsupport-tests-vendor",
+    defaults: ["libapexsupport-tests-defaults"],
+    vendor: true,
+    test_suites: ["general-tests"], // not device-specific
+}
+
+sh_test_host {
+    name: "libapexsupport-tests-apex",
+    src: "libapexsupport-tests.sh",
+    test_suites: ["general-tests"], // not device-specific
+    test_options: {
+        unit_test: false,
+    },
+    data: [
+        ":com.android.libapexsupport.tests",
+    ],
+}

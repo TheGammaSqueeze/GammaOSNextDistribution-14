@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+    <component name="NewModuleRootManager" inherit-compiler-output="true">
+        <exclude-output />
+        <content url="file:///usr/local/google/home/rpius/Work/Android/internal/master/frameworks/base/services/uwb">
+            <sourceFolder url="file:///usr/local/google/home/rpius/Work/Android/internal/master/frameworks/base/services/uwb/java" isTestSource="false" />
+        </content>
+        <orderEntry type="sourceFolder" forTests="false" />
+        <orderEntry type="module" module-name="framework_srcjars" />
+        <orderEntry type="module" module-name="base" />
+        <orderEntry type="module" module-name="packages_Uwb" />
+        <orderEntry type="module" module-name="dependencies" />
+        <orderEntry type="inheritedJdk" />
+    </component>
+</module>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+* Copyright (C) 2017 The Android Open Source Project
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="recents_empty_message">Nun hai nengún elementu recién</string>
+    <string name="accessibility_recent_apps">Aplicaciones de recién</string>
+    <string name="hotseat_edu_dismiss">Non, gracies</string>
+    <string name="hotseat_prediction_settings">Configuración</string>
+    <string name="home_gesture_tutorial_success">¡Bon trabayu!</string>
+    <string name="gesture_tutorial_action_button_label_settings">Configuración</string>
+    <string name="taskbar_edu_close">Zarrar</string>
+    <string name="taskbar_edu_done">Fecho</string>
+    <string name="taskbar_button_a11y">Accesibilidá</string>
+    <string name="taskbar_button_quick_settings">Configuración rápida</string>
+    <string name="taskbar_a11y_title">Barra de xeres</string>
+</resources>

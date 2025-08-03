@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2022 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <dimen name="base_margin_top">56dp</dimen>
+    <dimen name="content_margin_left">16dp</dimen>
+    <dimen name="welcome_title_padding_bottom">30dp</dimen>
+</resources>

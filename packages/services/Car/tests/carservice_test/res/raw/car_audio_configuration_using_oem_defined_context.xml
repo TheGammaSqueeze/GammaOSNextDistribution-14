@@ -1,0 +1,111 @@
+<?xml version="1.0" ?>
+<!-- Copyright (C) 2023 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<carAudioConfiguration version="3">
+    <oemContexts>
+        <oemContext name="OEM_MUSIC">
+            <audioAttributes>
+                <usage value="AUDIO_USAGE_UNKNOWN" />
+                <usage value="AUDIO_USAGE_MEDIA" />
+                <usage value="AUDIO_USAGE_GAME" />
+            </audioAttributes>
+        </oemContext>
+        <oemContext name="OEM_NAVIGATION">
+            <audioAttributes>
+                <usage value="AUDIO_USAGE_ASSISTANCE_NAVIGATION_GUIDANCE" />
+            </audioAttributes>
+        </oemContext>
+        <oemContext name="OEM_VOICE_COMMAND">
+            <audioAttributes>
+                <usage value="AUDIO_USAGE_ASSISTANCE_ACCESSIBILITY" />
+                <usage value="AUDIO_USAGE_ASSISTANT" />
+            </audioAttributes>
+        </oemContext>
+        <oemContext name="OEM_CALL_RING">
+            <audioAttributes>
+                <usage value="AUDIO_USAGE_NOTIFICATION_TELEPHONY_RINGTONE" />
+            </audioAttributes>
+        </oemContext>
+        <oemContext name="OEM_CALL">
+            <audioAttributes>
+                <usage value="AUDIO_USAGE_VOICE_COMMUNICATION" />
+                <usage value="AUDIO_USAGE_CALL_ASSISTANT" />
+                <usage value="AUDIO_USAGE_VOICE_COMMUNICATION_SIGNALLING" />
+            </audioAttributes>
+        </oemContext>
+        <oemContext name="OEM_ALARM">
+            <audioAttributes>
+                <usage value="AUDIO_USAGE_ALARM" />
+            </audioAttributes>
+        </oemContext>
+        <oemContext name="OEM_NOTIFICATION">
+            <audioAttributes>
+                <usage value="AUDIO_USAGE_NOTIFICATION" />
+                <usage value="AUDIO_USAGE_NOTIFICATION_EVENT" />
+            </audioAttributes>
+        </oemContext>
+        <oemContext name="OEM_SYSTEM_SOUND">
+            <audioAttributes>
+                <usage value="AUDIO_USAGE_ASSISTANCE_SONIFICATION" />
+            </audioAttributes>
+        </oemContext>
+        <oemContext name="OEM_EMERGENCY">
+            <audioAttributes>
+                <usage value="AUDIO_USAGE_EMERGENCY" />
+            </audioAttributes>
+        </oemContext>
+        <oemContext name="OEM_SAFETY">
+            <audioAttributes>
+                <usage value="AUDIO_USAGE_SAFETY" />
+            </audioAttributes>
+        </oemContext>
+        <oemContext name="OEM_VEHICLE_STATUS">
+            <audioAttributes>
+                <usage value="AUDIO_USAGE_VEHICLE_STATUS" />
+            </audioAttributes>
+        </oemContext>
+        <oemContext name="OEM_ANNOUNCEMENT">
+            <audioAttributes>
+                <usage value="AUDIO_USAGE_ANNOUNCEMENT" />
+            </audioAttributes>
+        </oemContext>
+    </oemContexts>
+    <zones>
+        <zone isPrimary="true" name="primary zone" audioZoneId="0" occupantZoneId="0">
+            <zoneConfigs>
+                <zoneConfig  name="primary zone config 1" isDefault="true">
+                    <volumeGroups>
+                        <group name="OEM_VOLUME_GROUP">
+                            <device address="bus0_media_out">
+                                <context context="OEM_MUSIC"/>
+                                <context context="OEM_NAVIGATION"/>
+                                <context context="OEM_VOICE_COMMAND"/>
+                                <context context="OEM_CALL_RING"/>
+                                <context context="OEM_CALL"/>
+                                <context context="OEM_ALARM"/>
+                                <context context="OEM_NOTIFICATION"/>
+                                <context context="OEM_SYSTEM_SOUND"/>
+                                <context context="OEM_EMERGENCY"/>
+                                <context context="OEM_SAFETY"/>
+                                <context context="OEM_VEHICLE_STATUS"/>
+                                <context context="OEM_ANNOUNCEMENT"/>
+                            </device>
+                        </group>
+                    </volumeGroups>
+                </zoneConfig>
+            </zoneConfigs>
+        </zone>
+    </zones>
+</carAudioConfiguration>

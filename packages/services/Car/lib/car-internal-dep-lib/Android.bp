@@ -1,0 +1,39 @@
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+// This library contains the wrappers for system static APIs which we need to fake during a
+// host-side unit test.
+java_library {
+    name: "com.android.car.internal.dep",
+    srcs: [
+        ":com.android.car.internal.dep-src",
+    ],
+    libs: [
+        "framework-annotations-lib",
+    ],
+    sdk_version: "module_current",
+}
+
+// The library cannot be directly included in android.car-module due to apex availability issue.
+// So we use source file group as a work-around.
+filegroup {
+    name: "com.android.car.internal.dep-src",
+    srcs: [
+        "src/**/*.java",
+    ],
+}

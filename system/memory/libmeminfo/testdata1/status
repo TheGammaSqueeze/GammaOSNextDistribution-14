@@ -1,0 +1,49 @@
+Name:	system_server
+Umask:	0077
+State:	S (sleeping)
+Tgid:	1791
+Ngid:	0
+Pid:	1791
+PPid:	1071
+TracerPid:	0
+Uid:	1000	1000	1000	1000
+Gid:	1000	1000	1000	1000
+FDSize:	1024
+Groups:	1001 1002 1003 1004 1005 1006 1007 1008 1009 1010 1018 1021 1023 1024 1032 1065 3001 3002 3003 3005 3006 3007 3009 3010 3011 3012
+VmPeak:	21856404 kB
+VmSize:	20011648 kB
+VmLck:	  215908 kB
+VmPin:	       0 kB
+VmHWM:	  859192 kB
+VmRSS:	  730764 kB
+RssAnon:	  229584 kB
+RssFile:	  499856 kB
+RssShmem:	    1324 kB
+VmData:	 2110316 kB
+VmStk:	    8192 kB
+VmExe:	      12 kB
+VmLib:	  192056 kB
+VmPTE:	    3740 kB
+VmSwap:	       0 kB
+CoreDumping:	0
+Threads:	218
+SigQ:	4/28542
+SigPnd:	0000000000000000
+ShdPnd:	0000000000000000
+SigBlk:	0000000080001204
+SigIgn:	0000000000000001
+SigCgt:	0000006e400084f8
+CapInh:	0000001806897c20
+CapPrm:	0000001806897c20
+CapEff:	0000001806897c20
+CapBnd:	0000000000000000
+CapAmb:	0000000000000000
+NoNewPrivs:	0
+Seccomp:	2
+Speculation_Store_Bypass:	thread vulnerable
+Cpus_allowed:	bf
+Cpus_allowed_list:	0-5,7
+Mems_allowed:	1
+Mems_allowed_list:	0
+voluntary_ctxt_switches:	14379
+nonvoluntary_ctxt_switches:	3022

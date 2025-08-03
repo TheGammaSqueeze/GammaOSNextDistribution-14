@@ -1,0 +1,10 @@
+{
+    "header": "scudo_consts.h",
+    "constants":[
+        {
+            "name": "SCUDO_TEST_SRV_PORT",
+            "value": "com.android.trusty.scudotest.srv",
+            "type": "port"
+        }
+    ]
+}

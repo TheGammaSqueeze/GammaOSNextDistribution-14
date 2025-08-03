@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.google.uwb.support">
+
+    <application>
+        <uses-library android:name="android.test.runner" />
+    </application>
+
+    <!-- This is a self-instrumenting test package. -->
+    <instrumentation
+        android:name="androidx.test.runner.AndroidJUnitRunner"
+        android:label="UWB Support Lib Tests"
+        android:targetPackage="com.google.uwb.support" />
+
+</manifest>

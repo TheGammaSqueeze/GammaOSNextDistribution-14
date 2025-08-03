@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="6179574017413146651">"गतिविधि स्टब"</string>
+    <string name="message_not_supported" msgid="133939962837892495">"कोई ऐप्लिकेशन यह कार्रवाई नहीं कर सकता"</string>
+    <string name="pip_not_supported" msgid="8681268258599412706">"इस डिवाइस पर \'पिक्चर में पिक्चर\' सुविधा काम नहीं करती"</string>
+    <string name="manage_unknown_app_sources_not_supported" msgid="7368611099531260439">"अनजान ऐप्लिकेशन के सोर्स को मैनेज करने की सुविधा इस डिवाइस पर उपलब्ध नहीं है"</string>
+    <string name="documentsui_not_supported" msgid="2786636475647817501">"फ़ाइल मैनेजमेंट की सुविधा इस डिवाइस पर उपलब्ध नहीं है"</string>
+    <string name="stub_name" msgid="3987164490218189006">"कोई नहीं"</string>
+</resources>

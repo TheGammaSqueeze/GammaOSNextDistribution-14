@@ -1,0 +1,33 @@
+// Baseline format: 1.0
+BroadcastBehavior: android.net.ConnectivityManager#ACTION_BACKGROUND_DATA_SETTING_CHANGED:
+    Field 'ACTION_BACKGROUND_DATA_SETTING_CHANGED' is missing @BroadcastBehavior
+
+
+RequiresPermission: android.net.ConnectivityManager#isTetheringSupported():
+    Method 'isTetheringSupported' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.ConnectivityManager#requestNetwork(android.net.NetworkRequest, android.app.PendingIntent):
+    Method 'requestNetwork' documentation mentions permissions without declaring @RequiresPermission
+RequiresPermission: android.net.ConnectivityManager#requestNetwork(android.net.NetworkRequest, android.net.ConnectivityManager.NetworkCallback):
+    Method 'requestNetwork' documentation mentions permissions without declaring @RequiresPermission
+RequiresPermission: android.net.ConnectivityManager#requestRouteToHostAddress(int, java.net.InetAddress):
+    Method 'requestRouteToHostAddress' documentation mentions permissions without declaring @RequiresPermission
+RequiresPermission: android.net.LinkProperties#getCaptivePortalApiUrl():
+    Method 'getCaptivePortalApiUrl' documentation mentions permissions without declaring @RequiresPermission
+RequiresPermission: android.net.LinkProperties#getCaptivePortalData():
+    Method 'getCaptivePortalData' documentation mentions permissions without declaring @RequiresPermission
+RequiresPermission: android.net.NetworkCapabilities#getOwnerUid():
+    Method 'getOwnerUid' documentation mentions permissions without declaring @RequiresPermission
+RequiresPermission: android.net.NetworkCapabilities#getUnderlyingNetworks():
+    Method 'getUnderlyingNetworks' documentation mentions permissions without declaring @RequiresPermission
+RequiresPermission: android.net.NetworkCapabilities.Builder#setAllowedUids(java.util.Set<java.lang.Integer>):
+    Method 'setAllowedUids' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.NetworkCapabilities.Builder#setSignalStrength(int):
+    Method 'setSignalStrength' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.NetworkCapabilities.Builder#setUnderlyingNetworks(java.util.List<android.net.Network>):
+    Method 'setUnderlyingNetworks' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.NetworkRequest.Builder#setSignalStrength(int):
+    Method 'setSignalStrength' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.http.BidirectionalStream.Builder#setTrafficStatsUid(int):
+    Method 'setTrafficStatsUid' documentation mentions permissions without declaring @RequiresPermission
+RequiresPermission: android.net.http.UrlRequest.Builder#setTrafficStatsUid(int):
+    Method 'setTrafficStatsUid' documentation mentions permissions without declaring @RequiresPermission

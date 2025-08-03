@@ -1,0 +1,20 @@
+{
+    "logs": [
+        {
+            "outputFile": "me.phh.treble.app-mergeReleaseResources-18:/values-hdpi-v4/values-hdpi-v4.xml",
+            "map": [
+                {
+                    "source": "/home/gamma/.gradle/caches/transforms-3/bba1b2bc066e026b9a9ad300f8aa4c44/transformed/appcompat-1.1.0/res/values-hdpi-v4/values-hdpi-v4.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endLines": "6",
+                        "endColumns": "13",
+                        "endOffsets": "327"
+                    }
+                }
+            ]
+        }
+    ]
+}

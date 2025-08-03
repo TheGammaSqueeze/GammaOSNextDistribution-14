@@ -1,0 +1,48 @@
+main: {
+  instruction_set: {
+    instructions: [
+      {
+        read_directory {
+          directory_name: "test_directory",
+          output: "file_list"
+        }
+      },
+      {
+        multithreading: {
+          threads: [
+            {
+              instruction: {
+                instruction_set {
+                  instructions: [
+                    {
+                      open_file: {
+                        input: "file_name",
+                        output_fd: "file_fd"
+                      }
+                    },
+                    {
+                      read_file: {
+                        input_fd: "file_fd"
+                      }
+                    },
+                    {
+                      close_file: {
+                        input_fd: "file_fd"
+                      }
+                    }
+                  ],
+                  iterate_options: {
+                    list_name: "file_list",
+                    item_name: "file_name"
+                  }
+                }
+              },
+              spawn: 2
+            }
+          ]
+        }
+      }
+    ]
+  }
+},
+global {}

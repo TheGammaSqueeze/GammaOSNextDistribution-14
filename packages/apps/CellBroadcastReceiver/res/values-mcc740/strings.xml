@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2021 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- CMAS dialog title for presidential level alert. [CHAR LIMIT=50] -->
+    <!-- Required spanish (es) translation for this message: Alerta Local de Emergencia -->
+    <string name="cmas_presidential_level_alert">Local emergency alert</string>
+    <!-- Text for dismiss button in broadcast message view dialog. [CHAR LIMIT=25] -->
+    <!-- Required spanish (es) translation for this message: CERRAR -->
+    <string name="button_dismiss">TO CLOSE</string>
+    <!-- CMAS dialog title for test alert. [CHAR LIMIT=50] -->
+    <!-- Required spanish (es) translation for this message: Mensaje de Prueba -->
+    <string name="cmas_required_monthly_test">Test message</string>
+    <!-- CMAS dialog title for CMAS Exercise. [CHAR LIMIT=50] -->
+    <!-- Required spanish (es) translation for this message: Alerta de Emergencia – mensaje de Ejercicio /Simulacro -->
+    <string name="cmas_exercise_alert">Emergency Alert - Exercise / Drill message</string>
+    <!-- Dialog title for all public safety message broadcasts. [CHAR LIMIT=50] -->
+    <!-- Required spanish (es) translation for this message: Mensaje Informativo -->
+    <string name="public_safety_message">Informative message</string>
+    <!-- Preference title for enable public safety messages checkbox. [CHAR LIMIT=100] -->
+    <!-- Required spanish (es) translation for this message: Mensaje Informativo -->
+    <string name="enable_public_safety_messages_title">@string/public_safety_message</string>
+    <!-- Preference summary for enable public safety messages checkbox. [CHAR LIMIT=100] -->
+    <string name="enable_public_safety_messages_summary"/>
+    <!-- Preference title for other test alerts checkbox. [CHAR LIMIT=50] -->
+    <string name="enable_cmas_test_alerts_title">@string/cmas_required_monthly_test</string>
+    <!-- Preference summary for other test alerts checkbox. [CHAR LIMIT=125] -->
+    <string name="enable_cmas_test_alerts_summary"/>
+    <!-- Preference title for exercise test alerts checkbox. [CHAR LIMIT=50] -->
+    <string name="enable_exercise_test_alerts_title">@string/cmas_exercise_alert</string>
+    <!-- Preference summary for exercise test alerts checkbox. [CHAR LIMIT=125] -->
+    <string name="enable_exercise_test_alerts_summary"/>
+</resources>

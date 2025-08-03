@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="scanning_title" msgid="5424849039854311398">"ஸ்கேன் செய்தல்"</string>
+    <string name="loading_summary" msgid="3740846439782713910">"சாதன அமைப்புகளைச் சரிபார்க்கிறது…"</string>
+    <string name="overall_severity_level_ok_title" msgid="2041250138727564565">"எல்லாம் சரியாக உள்ளன"</string>
+    <string name="overall_severity_level_ok_summary" msgid="383626536912856690">"சிக்கல்கள் எதுவுமில்லை"</string>
+    <string name="overall_severity_level_tip_summary" msgid="1935765582243024999">"{count,plural, =1{பரிந்துரையைப் பாருங்கள்}other{பரிந்துரைகளைப் பாருங்கள்}}"</string>
+    <string name="overall_severity_level_action_taken_summary" msgid="8064091657855656545">"{count,plural, =1{எடுக்கப்பட்ட நடவடிக்கை}other{எடுக்கப்பட்ட நடவடிக்கைகள்}}"</string>
+    <string name="overall_severity_level_ok_review_title" msgid="1494321117696765360">"அமைப்புகளைச் சரிபார்த்தல்"</string>
+    <string name="overall_severity_level_ok_review_summary" msgid="7743619617413076275">"அமைப்புகள் பட்டியலைச் சரிபாருங்கள்"</string>
+    <string name="overall_severity_level_device_recommendation_title" msgid="5250040236433061827">"சாதனம் ஆபத்தில் இருக்கக்கூடும்"</string>
+    <string name="overall_severity_level_critical_device_warning_title" msgid="5901771721834272596">"சாதனம் ஆபத்தில் உள்ளது"</string>
+    <string name="overall_severity_level_data_recommendation_title" msgid="1424269714861655302">"உங்கள் தரவு ஆபத்தில் இருக்கலாம்"</string>
+    <string name="overall_severity_level_critical_data_warning_title" msgid="1012704126634698604">"உங்கள் தரவு ஆபத்தில் உள்ளது"</string>
+    <string name="overall_severity_level_passwords_recommendation_title" msgid="8625105570296877719">"கடவுச்சொற்கள் களவாடப்பட்டுள்ளன (பழையவை)"</string>
+    <string name="overall_severity_level_critical_passwords_warning_title" msgid="7859047988648851217">"கடவுச்சொற்கள் களவாடப்பட்டுள்ளன (புதியவை)"</string>
+    <string name="overall_severity_level_personal_recommendation_title" msgid="5493814377982623779">"நீங்கள் ஆபத்தில் இருக்கலாம்"</string>
+    <string name="overall_severity_level_critical_personal_warning_title" msgid="5070434468955164734">"நீங்கள் ஆபத்தில் இருக்கிறீர்கள்"</string>
+    <string name="overall_severity_level_safety_recommendation_title" msgid="4291797434760242793">"சாத்தியமுள்ள ஆபத்து கண்டறியப்பட்டன"</string>
+    <string name="overall_severity_level_critical_safety_warning_title" msgid="6666640109779586868">"ஆபத்துகள் கண்டறியப்பட்டுள்ளன"</string>
+    <string name="overall_severity_level_account_recommendation_title" msgid="2267542168734275090">"கணக்கு ஆபத்தில் இருக்கலாம்"</string>
+    <string name="overall_severity_level_critical_account_warning_title" msgid="1913235490583842004">"கணக்கு ஆபத்தில் உள்ளது"</string>
+    <string name="overall_severity_n_alerts_summary" msgid="3262010942295408403">"{count,plural, =1{விழிப்பூட்டலைப் பாருங்கள்}other{விழிப்பூட்டல்களைப் பாருங்கள்}}"</string>
+    <string name="redirecting_error" msgid="8146983632878233202">"பக்கத்தைத் திறக்க முடியவில்லை"</string>
+    <string name="resolving_action_error" msgid="371968886143262375">"எச்சரிக்கையைத் தீர்க்க முடியவில்லை"</string>
+    <string name="refresh_error" msgid="656062128422446177">"{count,plural, =1{அமைப்பைச் சரிபார்க்க முடியவில்லை}other{அமைப்புகளைச் சரிபார்க்க முடியவில்லை}}"</string>
+    <string name="work_profile_paused" msgid="7037400224040869079">"பணிக் கணக்கு இடைநிறுத்தப்பட்டது"</string>
+    <string name="group_unknown_summary" msgid="6951386960814105641">"தகவல்கள் எதுவுமில்லை"</string>
+    <string name="notification_channel_group_name" msgid="7155072032524876859">"பாதுகாப்பு &amp; தனியுரிமை"</string>
+    <string name="notification_channel_name_information" msgid="2966444432152990166">"பரிந்துரைகள்"</string>
+    <string name="notification_channel_name_recommendation" msgid="7847408286580217922">"எச்சரிக்கைகள்"</string>
+    <string name="notification_channel_name_critical_warning" msgid="5994320322108351769">"முக்கிய எச்சரிக்கைகள்"</string>
+</resources>

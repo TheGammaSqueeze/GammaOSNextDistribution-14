@@ -1,0 +1,53 @@
+<!--
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <style name="ResolverAnimation" parent="@android:style/Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@anim/resolver_launch_anim</item>
+        <item name="android:taskOpenEnterAnimation">@anim/resolver_launch_anim</item>
+        <!-- Handle close for profile switching -->
+        <item name="android:activityOpenExitAnimation">@anim/resolver_close_anim</item>
+        <item name="android:taskOpenExitAnimation">@anim/resolver_close_anim</item>
+    </style>
+    <style name="Theme.DeviceDefault.ResolverCommon"
+        parent="@android:style/Theme.DeviceDefault.DayNight">
+        <item name="android:windowAnimationStyle">@style/ResolverAnimation</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <!-- TODO: finish migrating these commented-out private style attributes -->
+<!--        <item name="colorControlActivated">?attr/colorControlHighlight</item>-->
+<!--        <item name="listPreferredItemPaddingStart">?attr/dialogPreferredPadding</item>-->
+<!--        <item name="listPreferredItemPaddingEnd">?attr/dialogPreferredPadding</item>-->
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="*android:iconfactoryIconSize">@dimen/resolver_icon_size</item>
+        <item name="*android:iconfactoryBadgeSize">@dimen/resolver_badge_size</item>
+    </style>
+    <style name="Theme.DeviceDefault.Resolver" parent="Theme.DeviceDefault.ResolverCommon">
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
+    <style name="Theme.DeviceDefault.Chooser" parent="Theme.DeviceDefault.Resolver">
+        <item name="*android:iconfactoryIconSize">@dimen/chooser_icon_size</item>
+        <item name="*android:iconfactoryBadgeSize">@dimen/chooser_badge_size</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+    </style>
+
+    <style name="TextAppearance.ChooserDefault"
+            parent="@android:style/TextAppearance.DeviceDefault" />
+</resources>

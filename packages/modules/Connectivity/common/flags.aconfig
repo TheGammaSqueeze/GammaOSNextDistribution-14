@@ -1,0 +1,75 @@
+package: "com.android.net.flags"
+container: "system"
+
+# This file contains aconfig flags for FlaggedAPI annotations
+# Flags used from platform code must be in under frameworks
+
+flag {
+  name: "set_data_saver_via_cm"
+  namespace: "android_core_networking"
+  description: "Set data saver through ConnectivityManager API"
+  bug: "297836825"
+}
+
+flag {
+  name: "support_is_uid_networking_blocked"
+  namespace: "android_core_networking"
+  description: "This flag controls whether isUidNetworkingBlocked is supported"
+  bug: "297836825"
+}
+
+flag {
+  name: "basic_background_restrictions_enabled"
+  namespace: "android_core_networking"
+  description: "Block network access for apps in a low importance background state"
+  bug: "304347838"
+}
+
+flag {
+  name: "ipsec_transform_state"
+  namespace: "android_core_networking_ipsec"
+  description: "The flag controls the access for getIpSecTransformState and IpSecTransformState"
+  bug: "308011229"
+}
+
+flag {
+  name: "tethering_request_with_soft_ap_config"
+  namespace: "android_core_networking"
+  description: "The flag controls the access for the parcelable TetheringRequest with getSoftApConfiguration/setSoftApConfiguration API"
+  bug: "216524590"
+}
+
+flag {
+  name: "request_restricted_wifi"
+  namespace: "android_core_networking"
+  description: "Flag for API to support requesting restricted wifi"
+  bug: "315835605"
+}
+
+flag {
+  name: "net_capability_local_network"
+  namespace: "android_core_networking"
+  description: "Flag for local network capability API"
+  bug: "313000440"
+}
+
+flag {
+  name: "support_transport_satellite"
+  namespace: "android_core_networking"
+  description: "Flag for satellite transport API"
+  bug: "320514105"
+}
+
+flag {
+  name: "nsd_subtypes_support_enabled"
+  namespace: "android_core_networking"
+  description: "Flag for API to support nsd subtypes"
+  bug: "265095929"
+}
+
+flag {
+  name: "register_nsd_offload_engine_api"
+  namespace: "android_core_networking"
+  description: "Flag for API to register nsd offload engine"
+  bug: "301713539"
+}

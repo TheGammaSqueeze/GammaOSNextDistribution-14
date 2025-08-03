@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="rtt_promotion_title">Razmena SMS-ova u realnom vremenu u pozivu</string>
+  <string name="rtt_promotion_details">RTT pomaže pozivaocima koji su gluvi, imaju oštećenje sluha, teškoće u
+    govoru ili im je potrebno nešto više od glasa. Transkripti RTT poruka se čuvaju na uređaju
+    u istoriji poziva. %1$s</string>
+</resources>

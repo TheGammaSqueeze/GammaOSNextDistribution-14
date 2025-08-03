@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="role_dialer_request_description" msgid="6188305064871543419">"Deze app mag jou meldingen sturen en krijgt toegang tot Camera, Contacten, Microfoon, Telefoon en Sms"</string>
+    <string name="role_sms_request_description" msgid="1506966389698625395">"Deze app mag jou meldingen sturen en krijgt toegang tot Camera, Contacten, Bestanden, Microfoon, Telefoon en Sms"</string>
+    <string name="permission_description_summary_storage" msgid="1917071243213043858">"Apps met dit recht hebben toegang tot alle bestanden op dit apparaat"</string>
+    <string name="work_policy_title" msgid="832967780713677409">"Informatie over je werkbeleid"</string>
+    <string name="work_policy_summary" msgid="3886113358084963931">"Instellingen beheerd door je IT-beheerder"</string>
+    <string name="safety_center_entry_group_expand_action" msgid="5358289574941779652">"Uitvouwen en lijst tonen"</string>
+    <string name="safety_center_entry_group_collapse_action" msgid="1525710152244405656">"Lijst samenvouwen en instellingen verbergen"</string>
+    <string name="safety_center_entry_group_content_description" msgid="7048420958214443333">"Lijst. <xliff:g id="ENTRY_TITLE">%1$s</xliff:g>. <xliff:g id="ENTRY_SUMMARY">%2$s</xliff:g>."</string>
+    <string name="safety_center_entry_group_with_actions_needed_content_description" msgid="2708884606775932657">"Lijst. <xliff:g id="ENTRY_TITLE">%1$s</xliff:g>. Acties vereist. <xliff:g id="ENTRY_SUMMARY">%2$s</xliff:g>."</string>
+    <string name="safety_center_entry_group_item_content_description" msgid="7348298582877249787">"Lijstitem. <xliff:g id="ENTRY_ITEM_TITLE">%1$s</xliff:g>. <xliff:g id="ENTRY_ITEM_SUMMARY">%2$s</xliff:g>."</string>
+    <string name="safety_center_entry_content_description" msgid="3639565652938224321">"<xliff:g id="ENTRY_ITEM_TITLE">%1$s</xliff:g>. <xliff:g id="ENTRY_ITEM_SUMMARY">%2$s</xliff:g>"</string>
+    <string name="safety_center_more_issues_card_title" msgid="7425844746197493312">"Meer meldingen"</string>
+    <string name="safety_center_dismissed_issues_card_title" msgid="2340129842725145733">"Gesloten meldingen"</string>
+    <string name="safety_center_more_issues_card_expand_action" msgid="7109451851052272946">"{count,plural, =1{Uitvouwen en nog 1 melding bekijken}other{Uitvouwen en nog # meldingen bekijken}}"</string>
+    <string name="safety_center_issue_card_prefix_content_description" msgid="1447445289637043544">"Waarschuwing. <xliff:g id="ISSUE_CARD_TITLE">%1$s</xliff:g>"</string>
+    <string name="safety_center_resolved_issue_fallback" msgid="8548932070610766651">"Actie afgerond"</string>
+    <string name="safety_center_qs_status_summary" msgid="5193925895830451177">"Check de instellingen die je apparaat beter kunnen beschermen"</string>
+    <string name="safety_center_qs_page_landing" msgid="1717368301679228128">"Snelle instellingen voor beveiliging en privacy"</string>
+    <string name="safety_center_qs_close_button" msgid="1352313308176244599">"Sluiten"</string>
+    <string name="safety_center_qs_expand_action" msgid="2193190557696484169">"Uitvouwen en opties laten zien"</string>
+    <string name="safety_center_qs_collapse_action" msgid="5809657430125309183">"Samenvouwen"</string>
+    <string name="safety_center_qs_privacy_control" msgid="1160682635058529673">"Schakelaar. <xliff:g id="PRIVACY_CONTROL_TITLE">%1$s</xliff:g>. <xliff:g id="PRIVACY_CONTROL_STATUS">%2$s</xliff:g>."</string>
+    <string name="safety_center_qs_toggle_action" msgid="5920465736488119255">"Schakelen"</string>
+    <string name="safety_center_qs_open_action" msgid="2760200829912423728">"Openen"</string>
+    <string name="safety_center_review_settings_button" msgid="938981137942443930">"Instellingen checken"</string>
+    <string name="safety_center_gear_label" msgid="5175877094379694098">"Instellingen"</string>
+    <string name="safety_center_info_label" msgid="8993181584061825412">"Informatie"</string>
+</resources>

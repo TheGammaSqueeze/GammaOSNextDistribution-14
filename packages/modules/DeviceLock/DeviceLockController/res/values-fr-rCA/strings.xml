@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  Copyright (c) 2022, The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="5655878067457216814">"DeviceLockController"</string>
+    <string name="next_button" msgid="1856423430963548653">"Suivant"</string>
+    <string name="reset_button" msgid="4649354411129240809">"Réinitialiser"</string>
+    <string name="setup_more_button" msgid="4456370972302510109">"Plus"</string>
+    <string name="setup_info_title_text" msgid="299562193092219293">"Comment <xliff:g id="CREDITOR_APP">%1$s</xliff:g> peut gérer cet appareil"</string>
+    <string name="setup_failed_title_text" msgid="9045111389981992536">"Impossible d\'installer l\'application <xliff:g id="CREDITOR_APP">%1$s</xliff:g>"</string>
+    <string name="setup_failed_reset_device_text" msgid="178419033440060908">"Réinitialisation de l\'appareil pour réessayer."</string>
+    <string name="setup_failed_reset_device_timer_text" msgid="5270970227714985986">"{count,plural, =1{Réinitialisez cet appareil, puis essayez de le configurer à nouveau. Il se réinitialisera automatiquement dans 1 seconde.}one{Réinitialisez cet appareil, puis essayez de le configurer à nouveau. Il se réinitialisera automatiquement dans # seconde.}other{Réinitialisez cet appareil, puis essayez de le configurer à nouveau. Il se réinitialisera automatiquement dans # secondes.}}"</string>
+    <string name="setup_progress_title_text" msgid="2388779167610656852">"Installation de l\'application <xliff:g id="CREDITOR_APP">%1$s</xliff:g> en cours<xliff:g id="ELLIPSIS">…</xliff:g>"</string>
+    <string name="setup_finish_title_text" msgid="2810842695806992743">"Ouverture de l\'application <xliff:g id="CREDITOR_APP">%1$s</xliff:g> en cours<xliff:g id="ELLIPSIS">…</xliff:g>"</string>
+    <string name="setup_error_title_text" msgid="1123742279081942535">"Impossible d\'ouvrir l\'application <xliff:g id="CREDITOR_APP">%1$s</xliff:g>"</string>
+    <string name="try_again" msgid="5964839819170927721">"Réessayer"</string>
+    <string name="reset_phone" msgid="1161657350311160627">"Réinitialiser le téléphone"</string>
+    <string name="control_section_title" msgid="2213476068991045785">"Que peut faire <xliff:g id="CREDITOR_APP">%1$s</xliff:g>?"</string>
+    <string name="control_lock_device_text" msgid="8253302484073757764">"Restriction de l\'appareil si vous n\'effectuez pas de paiement"</string>
+    <string name="control_download_text" msgid="8514650561843088172">"Téléchargement, installation et mise à jour de l\'application <xliff:g id="CREDITOR_APP">%1$s</xliff:g>"</string>
+    <string name="control_disable_debug_text" msgid="8112443250013094442">"Désactivation des fonctionnalités de débogage"</string>
+    <string name="locked_section_title" msgid="2748725389334076510">"Qu\'est-ce qui fonctionne toujours si l\'appareil est verrouillé?"</string>
+    <string name="locked_emergency_text" msgid="3509216445555779286">"Services d\'appel d\'urgence"</string>
+    <string name="locked_phone_usage_text" msgid="1913605870324552847">"Les appels entrants et certains appels sortants"</string>
+    <string name="locked_settings_usage_text" msgid="8336476063187737700">"Paramètres"</string>
+    <string name="locked_backup_and_restore_text" msgid="104616318625243429">"&lt;a href=https://support.google.com/android/answer/2819582&gt;Sauvegarde et restauration&lt;/a&gt; de vos données"</string>
+    <string name="exposure_section_title" msgid="2329122144337528752">"Qu\'est-ce qui est visible pour <xliff:g id="CREDITOR_APP">%1$s</xliff:g>?"</string>
+    <string name="exposure_install_text" msgid="2631074166447765453">"Quand l\'application <xliff:g id="CREDITOR_APP">%1$s</xliff:g> est installée ou désinstallée"</string>
+    <string name="exposure_lock_unlock_text" msgid="6827412845847260579">"Toute demande de verrouillage ou de déverrouillage de <xliff:g id="CREDITOR_APP">%1$s</xliff:g>"</string>
+    <string name="exposure_disable_dlc_text" msgid="2898692398106736423">"Si l\'application <xliff:g id="CREDITOR_APP">%1$s</xliff:g> n\'est pas accessible"</string>
+    <string name="open_source_licenses" msgid="6464389386262455443">"Licences de logiciels libres"</string>
+    <string name="footer_notice_content_description" msgid="2160540400079419440">"Les capacités de gestion indiquées dans la section relative aux appareils financés dans les paramètres de sécurité ne s\'appliquent pas à cet appareil."</string>
+    <string name="device_provided_by_provider" msgid="290593329676291991">"Cet appareil est fourni par <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>"</string>
+    <string name="download_kiosk_app" msgid="1845089944897502656">"L\'application kiosque sera téléchargée et installée automatiquement"</string>
+    <string name="install_kiosk_app_secondary_user" msgid="49911908012320834">"L\'application Kiosque sera installée pour cet utilisateur"</string>
+    <string name="restrict_device_if_missing_payment" msgid="8883980285859496904">"<xliff:g id="PROVIDER_NAME">%1$s</xliff:g> peut restreindre l\'accès à l\'appareil si vous manquez un paiement. Pour en savoir plus, consultez les <xliff:g id="TERMS_AND_CONDITIONS_LINK_START">&lt;a href=%2$s&gt;</xliff:g>conditions d\'utilisation<xliff:g id="TERMS_AND_CONDITIONS_LINK_END">&lt;/a&gt;</xliff:g>."</string>
+    <string name="restrict_device_if_dont_make_payment" msgid="1619095674945507015">"<xliff:g id="PROVIDER_NAME">%1$s</xliff:g> peut restreindre cet appareil si vous n\'effectuez pas les paiements nécessaires. Pour en savoir plus, consultez les <xliff:g id="TERMS_AND_CONDITIONS_LINK_START">&lt;a href=%2$s&gt;</xliff:g>conditions d\'utilisation<xliff:g id="TERMS_AND_CONDITIONS_LINK_END">&lt;/a&gt;</xliff:g>."</string>
+    <string name="contact_provider_for_help" msgid="3872028089834808884">"Pour obtenir de l\'aide, <xliff:g id="SUPPORT_LINK_START">&lt;a href=%2$s&gt;</xliff:g>communiquez avec <xliff:g id="PROVIDER_NAME">%1$s</xliff:g><xliff:g id="SUPPORT_LINK_END">&lt;/a&gt;</xliff:g>."</string>
+    <string name="previous" msgid="5241891780917802570">"Précédent"</string>
+    <string name="next" msgid="8248291863254324326">"Suivant"</string>
+    <string name="start" msgid="2842214844667658537">"Commencer"</string>
+    <string name="ok" msgid="3568398726528719749">"OK"</string>
+    <string name="done" msgid="4507782734740410307">"OK"</string>
+    <string name="do_it_in_one_hour" msgid="2727777340568739453">"Dans 1 heure"</string>
+    <string name="header_icon_content_description" msgid="6069602031334473195">"Info"</string>
+    <string name="provision_info_item_icon_content_description" msgid="2306298178610632507">"Infos sur provision"</string>
+    <string name="enroll_your_device_header" msgid="2226305405591945098">"Inscrire l\'appareil"</string>
+    <string name="enroll_your_device_financing_subheader" msgid="8810608106273097451">"Vous pouvez désormais inscrire votre appareil au programme de financement de <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>"</string>
+    <string name="enroll_your_device_subsidy_subheader" msgid="8598730780370624995">"Vous pouvez désormais inscrire votre appareil au programme de subvention de <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>"</string>
+    <string name="subsidy_program_header" msgid="2321508488856303554">"Vous bénéficiez d\'une subvention de <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>"</string>
+    <string name="device_enrollment_header_text" msgid="5283341102404741658">"Inscription de l\'appareil"</string>
+    <string name="device_financing_enrollment_body_text" msgid="5506086383249511498">"Votre appareil sera inscrit au programme de financement de <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> dans les 30 jours"</string>
+    <string name="device_subsidy_enrollment_body_text" msgid="3971584929178719388">"Votre appareil sera inscrit au programme de subvention de <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> dans les 30 jours"</string>
+    <string name="device_enrollment_notification_body_text" msgid="8755080244956655854">"L\'inscription reprendra à <xliff:g id="TIME">%1$s</xliff:g>. Vous pouvez toujours utiliser votre appareil."</string>
+    <string name="continue_using_device" msgid="5816570734692191190">"Vous pouvez toujours utiliser l\'appareil"</string>
+    <string name="device_paid" msgid="6606280698381856804">"Vous avez payé pour votre appareil"</string>
+    <string name="device_removed_from_subsidy_program" msgid="1243434945619071051">"Appareil retiré du programme de subvention de <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>"</string>
+    <string name="device_removed_from_finance_program" msgid="825548999540107578">"Votre appareil a été retiré du programme de financement de <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>"</string>
+    <string name="restrictions_lifted" msgid="5785586265984319396">"Toutes les restrictions appliquées à votre appareil ont été levées"</string>
+    <string name="uninstall_kiosk_app" msgid="3459557395024053988">"Vous pouvez désinstaller l\'application Kiosk de votre appareil"</string>
+    <string name="getting_device_ready" msgid="2829009584599871699">"Préparation de votre appareil en cours…"</string>
+    <string name="this_may_take_a_few_minutes" msgid="2482876246874429351">"Cela peut prendre quelques minutes"</string>
+    <string name="installing_kiosk_app" msgid="324208168205545860">"Installation de l\'application <xliff:g id="CREDITOR_APP">%1$s</xliff:g> en cours…"</string>
+    <string name="opening_kiosk_app" msgid="2021888641430165654">"Ouverture de l\'application <xliff:g id="CREDITOR_APP">%1$s</xliff:g> en cours…"</string>
+    <string name="settings_banner_title" msgid="527041021011279252">"Appareil fourni par <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>"</string>
+    <string name="settings_banner_body" msgid="5814902066260202824">"<xliff:g id="PROVIDER_NAME">%1$s</xliff:g> peut modifier les paramètres de cet appareil"</string>
+    <string name="settings_banner_button" msgid="1831020849782670907">"En savoir plus"</string>
+    <string name="settings_screen_title" msgid="721470080648091035">"Renseignements sur l\'appareil financé"</string>
+    <string name="settings_intro_device_financing" msgid="2548476558131048133">"<xliff:g id="PROVIDER_NAME_0">%1$s</xliff:g> peut modifier les paramètres de l\'appareil et y installer l\'application Kiosque.\n\nSi vous manquez un paiement, <xliff:g id="PROVIDER_NAME_1">%1$s</xliff:g> peut restreindre votre appareil.\n\nPour en savoir plus, communiquez avec <xliff:g id="PROVIDER_NAME_2">%1$s</xliff:g>."</string>
+    <string name="settings_intro_device_subsidy" msgid="4274945644204818702">"<xliff:g id="PROVIDER_NAME_0">%1$s</xliff:g> peut modifier les paramètres de l\'appareil et y installer l\'application Kiosque.\n\n<xliff:g id="PROVIDER_NAME_1">%1$s</xliff:g> peut également restreindre cet appareil si vous manquez un paiement ou si vous cessez d\'utiliser la carte SIM de <xliff:g id="PROVIDER_NAME_2">%1$s</xliff:g>.\n\nPour en savoir plus, communiquez avec <xliff:g id="PROVIDER_NAME_3">%1$s</xliff:g>."</string>
+    <string name="settings_intro_preference_key" msgid="6610461073400554162">"settings_intro_preference_key"</string>
+    <string name="settings_restrictions_category" msgid="5746868117342406677">"Tant que l\'appareil n\'est pas payé, vous ne pouvez pas :"</string>
+    <string name="settings_restrictions_category_preference_key" msgid="88318147152676512">"settings_restrictions_category_preference_key"</string>
+    <string name="settings_install_apps" msgid="3634279771448183713">"Installer des applications ne provenant pas de Play Store"</string>
+    <string name="settings_install_apps_preference_key" msgid="27542314345238427">"settings_install_apps_preference_key"</string>
+    <string name="settings_safe_mode" msgid="3035228015586375153">"Redémarrer votre appareil en mode sans échec"</string>
+    <string name="settings_safe_mode_preference_key" msgid="2106617747358027424">"settings_safe_mode_preference_key"</string>
+    <string name="settings_developer_options" msgid="880701002025216672">"Utiliser les options pour développeurs"</string>
+    <string name="settings_developer_options_preference_key" msgid="6807036808722582954">"settings_developer_options_preference_key"</string>
+    <string name="settings_credit_provider_capabilities_category" msgid="1274440595211820868">"En cas de problème d\'appareil, <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> peut :"</string>
+    <string name="settings_credit_provider_capabilities_category_preference_key" msgid="4571685720898641262">"settings_credit_provider_capabilities_category_preference_key"</string>
+    <string name="settings_IMEI" msgid="697965824361262506">"Accéder à votre numéro IIEM"</string>
+    <string name="settings_IMEI_preference_key" msgid="608809590948249412">"settings_IMEI_preference_key"</string>
+    <string name="settings_factory_reset" msgid="418045189048067625">"Rétablir les paramètres par défaut"</string>
+    <string name="settings_factory_reset_preference_key" msgid="2168528486393635382">"settings_factory_reset_preference_key"</string>
+    <string name="settings_locked_mode_category" msgid="6307525048618331737">"Si votre appareil est restreint, vous pouvez l\'utiliser uniquement pour :"</string>
+    <string name="settings_locked_mode_category_preference_key" msgid="7202573929427220258">"settings_locked_mode_category_preference_key"</string>
+    <string name="settings_emergency_calls" msgid="2460996367176786040">"Passer des appels aux numéros d\'urgence"</string>
+    <string name="settings_emergency_calls_preference_key" msgid="737598609727181316">"settings_emergency_calls_preference_key"</string>
+    <string name="settings_system_info" msgid="1352629332624774940">"Afficher les données système, telles que la date, l\'heure, l\'état du réseau et l\'état de la pile"</string>
+    <string name="settings_system_info_preference_key" msgid="8607675914059202598">"settings_system_info_preference_key"</string>
+    <string name="settings_turn_on_off_device" msgid="5414836621603462439">"Activer ou désactiver votre appareil"</string>
+    <string name="settings_turn_on_off_device_preference_key" msgid="5981163790552677734">"settings_turn_on_off_device_preference_key"</string>
+    <string name="settings_notifications" msgid="63348993899505034">"Afficher les notifications et les messages texte"</string>
+    <string name="settings_notifications_preference_key" msgid="4527872342061056462">"settings_notifications_preference_key"</string>
+    <string name="settings_allowlisted_apps" msgid="5531810497056091097">"Accéder aux applications autorisées par <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>"</string>
+    <string name="settings_allowlisted_apps_preference_key" msgid="8662705531235468080">"settings_allowlisted_apps_preference_key"</string>
+    <string name="settings_fully_paid_category" msgid="2459776591689824433">"Une fois que vous avez payé le montant total :"</string>
+    <string name="settings_fully_paid_category_preference_key" msgid="1759690898170600559">"settings_fully_paid_category_preference_key"</string>
+    <string name="settings_restrictions_removed" msgid="1398080654904863221">"<xliff:g id="PROVIDER_NAME">%1$s</xliff:g> ne peut pas restreindre votre appareil ni en modifier les paramètres"</string>
+    <string name="settings_restrictions_removed_preference_key" msgid="7741933477145197391">"settings_restrictions_removed_preference_key"</string>
+    <string name="settings_uninstall_kiosk_app" msgid="2611134364295637875">"Vous pouvez désinstaller l\'application <xliff:g id="KIOSK_APP">%1$s</xliff:g>"</string>
+    <string name="settings_uninstall_kiosk_app_preference_key" msgid="5578103644009268125">"settings_uninstall_kiosk_app_preference_key"</string>
+    <string name="settings_support_category" msgid="7210906871924935770">"Pour obtenir de l\'aide :"</string>
+    <string name="settings_support_category_preference_key" msgid="1818953199283261021">"settings_support_category_preference_key"</string>
+    <string name="settings_contact_provider" msgid="2481819956474692039">"<xliff:g id="SUPPORT_LINK_START">&lt;a href=%2$s&gt;</xliff:g>Communiquer avec <xliff:g id="PROVIDER_NAME">%1$s</xliff:g><xliff:g id="SUPPORT_LINK_END">&lt;/a&gt;</xliff:g>"</string>
+    <string name="settings_contact_provider_preference_key" msgid="2703619536229342624">"settings_contact_provider_preference_key"</string>
+    <string name="provision_notification_channel_name" msgid="6123500714047647805">"Provision"</string>
+    <string name="device_reset_in_days_notification_title" msgid="920859483535317727">"{count,plural, =1{L\'appareil sera réinitialisé dans 1 jour}one{L\'appareil sera réinitialisé dans # jour}other{L\'appareil sera réinitialisé dans # jours}}"</string>
+    <string name="device_reset_timer_notification_title" msgid="301978346002711614">"L\'appareil sera réinitialisé dans <xliff:g id="TIMER">%s</xliff:g>"</string>
+    <string name="device_reset_notification_content" msgid="7642367488663440437">"Toutes les données de l\'appareil seront supprimées. Pour obtenir de l\'aide concernant l\'inscription de votre appareil, communiquez avec <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>"</string>
+    <string name="provisioning_failed" msgid="5350252817004028300">"Le provisionnement du financement a échoué"</string>
+    <string name="click_to_contact_financier" msgid="9107827438262930445">"Veuillez cliquer ici pour connaître les moyens de communiquer avec votre financeur. <xliff:g id="SUPPORT_URL_START">&lt;a href=%1$s&gt;</xliff:g>En savoir plus<xliff:g id="SUPPORT_URL_END">&lt;/a&gt;</xliff:g>"</string>
+    <string name="exit" msgid="645084771882733921">"Quitter"</string>
+    <string name="retry" msgid="7497287909193345356">"Réessayer"</string>
+</resources>

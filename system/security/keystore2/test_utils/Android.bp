@@ -1,0 +1,109 @@
+// Copyright 2023, The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_security_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_security_license"],
+}
+
+rust_defaults {
+    name: "libkeystore2_test_utils_defaults",
+    defaults: [
+        "keymint_use_latest_hal_aidl_rust",
+        "keystore2_use_latest_aidl_rust",
+    ],
+    rustlibs: [
+        "android.security.authorization-rust",
+        "libanyhow",
+        "libbinder_rs",
+        "libcxx",
+        "libkeystore2_selinux",
+        "liblog_rust",
+        "libnix",
+        "librand",
+        "librustutils",
+        "libserde",
+        "libserde_cbor",
+        "libthiserror",
+    ],
+    static_libs: [
+        "libkeystore-engine",
+        "libkeystore2_ffi_test_utils",
+    ],
+    shared_libs: [
+        "android.system.keystore2-V4-ndk",
+        "libbase",
+        "libcrypto",
+        "libkeymaster_portable",
+        "libkeymint_support",
+    ],
+}
+
+rust_library {
+    name: "libkeystore2_test_utils",
+    crate_name: "keystore2_test_utils",
+    srcs: ["lib.rs"],
+    defaults: ["libkeystore2_test_utils_defaults"],
+}
+
+rust_test {
+    name: "keystore2_test_utils_test",
+    srcs: ["lib.rs"],
+    defaults: ["libkeystore2_test_utils_defaults"],
+    test_suites: ["general-tests"],
+    require_root: true,
+    auto_gen_config: true,
+    compile_multilib: "first",
+}
+
+cc_library_static {
+    name: "libkeystore2_ffi_test_utils",
+    srcs: ["ffi_test_utils.cpp"],
+    defaults: [
+        "keymint_use_latest_hal_aidl_ndk_shared",
+        "keystore2_use_latest_aidl_ndk_shared",
+    ],
+    generated_headers: [
+        "cxx-bridge-header",
+        "libkeystore2_ffi_test_utils_bridge_header",
+    ],
+    generated_sources: ["libkeystore2_ffi_test_utils_bridge_code"],
+    static_libs: ["libkeystore-engine"],
+    shared_libs: [
+        "libbase",
+        "libcrypto",
+        "libkeymaster_portable",
+        "libkeymint_support",
+    ],
+}
+
+genrule {
+    name: "libkeystore2_ffi_test_utils_bridge_code",
+    tools: ["cxxbridge"],
+    cmd: "$(location cxxbridge) $(in) >> $(out)",
+    srcs: ["ffi_test_utils.rs"],
+    out: ["libkeystore2_test_utils_cxx_generated.cc"],
+}
+
+genrule {
+    name: "libkeystore2_ffi_test_utils_bridge_header",
+    tools: ["cxxbridge"],
+    cmd: "$(location cxxbridge) $(in) --header >> $(out)",
+    srcs: ["ffi_test_utils.rs"],
+    out: ["ffi_test_utils.rs.h"],
+}

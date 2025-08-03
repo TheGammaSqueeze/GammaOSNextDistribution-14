@@ -1,0 +1,31 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_library_static {
+    name: "libwifikeystorehal",
+    cppflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+    ],
+    srcs: ["keystore.cpp"],
+    defaults: [
+        "keystore2_use_latest_aidl_ndk_shared",
+    ],
+    shared_libs: [
+        "android.security.legacykeystore-ndk",
+        "android.system.wifi.keystore@1.0",
+        "libbase",
+        "libbinder",
+        "libbinder_ndk",
+        "libcrypto",
+        "libcutils",
+        "libhidlbase",
+        "liblog",
+        "libssl",
+        "libutils",
+    ],
+    export_include_dirs: ["include"],
+    cpp_std: "c++17",
+}

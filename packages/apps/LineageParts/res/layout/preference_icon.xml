@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+     SPDX-FileCopyrightText: 2006 The Android Open Source Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<!-- Layout for a Preference in a PreferenceActivity. The
+     Preference is able to place a specific widget for its particular
+     type in the "widget_frame" layout. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/widget_frame"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="56dp"
+    android:gravity="center_vertical"
+    android:paddingEnd="?android:attr/scrollbarSize">
+
+    <ImageView
+        android:id="@android:id/icon"
+        android:layout_width="36dip"
+        android:layout_height="36dip"
+        android:layout_marginStart="6dip"
+        android:layout_marginEnd="6dip"
+        android:layout_gravity="center"
+        android:contentDescription="@null" />
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="2dip"
+        android:layout_marginEnd="6dip"
+        android:layout_marginTop="6dip"
+        android:layout_marginBottom="6dip"
+        android:layout_weight="1">
+
+        <TextView android:id="@android:id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:textAppearance="?android:attr/textAppearanceListItem"
+            android:ellipsize="marquee"
+            android:fadingEdge="horizontal" />
+
+        <TextView android:id="@android:id/summary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@android:id/title"
+            android:layout_alignStart="@android:id/title"
+            android:textAppearance="?android:attr/textAppearanceListItemSecondary"
+            android:maxLines="2" />
+
+    </RelativeLayout>
+
+</LinearLayout>

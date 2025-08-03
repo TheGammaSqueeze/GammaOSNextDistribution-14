@@ -1,0 +1,15 @@
+{
+    "testbed":
+    [
+        {
+            "_description": "ACTS confidence test bed, no device needed.",
+            "name": "Confidence",
+            "icecream": 42,
+            "MagicDevice": ["Magic!"]
+        }
+    ],
+    "logpath": "/tmp/logs",
+    "testpaths": ["./"],
+    "icecream": "mememe",
+    "extra_param": "haha"
+}

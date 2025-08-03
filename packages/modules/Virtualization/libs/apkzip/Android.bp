@@ -1,0 +1,35 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_defaults {
+    name: "libapkzip.defaults",
+    crate_name: "apkzip",
+    defaults: ["avf_build_flags_rust"],
+    edition: "2021",
+    srcs: ["src/ziputil.rs"],
+    rustlibs: [
+        "libanyhow",
+        "libbytes",
+        "liblog_rust",
+        "libanyhow",
+        "libzip",
+    ],
+}
+
+rust_library {
+    name: "libapkzip",
+    defaults: ["libapkzip.defaults"],
+    host_supported: true,
+    apex_available: ["com.android.virt"],
+}
+
+rust_test {
+    name: "libapkzip.test",
+    defaults: ["libapkzip.defaults"],
+    prefer_rlib: true,
+    test_suites: ["general-tests"],
+    rustlibs: [
+        "libbyteorder",
+    ],
+}

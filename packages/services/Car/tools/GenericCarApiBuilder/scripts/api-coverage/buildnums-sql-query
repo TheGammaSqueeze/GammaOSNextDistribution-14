@@ -1,0 +1,11 @@
+SELECT
+  BuildNum
+FROM
+  `/span/global/blackbox-eng-jobs:database`.TestSuiteResults.TestSuiteResultsByBranchTarget
+WHERE
+  HasCoverage
+  AND Branch = "git_udc-car-dev"
+  AND Target = "cf_x86_64_auto-userdebug_coverage"
+  AND TestSuite = "coverage/complete_car_coverage"
+ORDER BY BuildNum DESC
+LIMIT 5;

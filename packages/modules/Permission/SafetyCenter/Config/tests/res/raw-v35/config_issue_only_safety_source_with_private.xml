@@ -1,0 +1,12 @@
+<safety-center-config>
+    <safety-sources-config>
+        <safety-sources-group
+            id="id">
+            <issue-only-safety-source
+                id="id"
+                packageName="package"
+                profile="all_profiles"
+                titleForPrivateProfile="@com.android.safetycenter.config.tests:string/reference"/>
+        </safety-sources-group>
+    </safety-sources-config>
+</safety-center-config>

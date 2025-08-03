@@ -1,0 +1,9 @@
+<safety-center-config>
+    <safety-sources-config>
+        <safety-sources-group
+            id="id"
+            title="@com.android.safetycenter.config.tests:string/reference"
+            summary="@com.android.safetycenter.config.tests:string/reference">
+        </safety-sources-group>
+    </safety-sources-config>
+</safety-center-config>

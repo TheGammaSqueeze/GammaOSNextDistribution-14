@@ -1,0 +1,270 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+package blueberry.facade.topshim;
+
+service AdapterService {
+  rpc FetchEvents(FetchEventsRequest) returns (stream FetchEventsResponse) {}
+  rpc ToggleStack(ToggleStackRequest) returns (ToggleStackResponse) {}
+  rpc SetDiscoveryMode(SetDiscoveryModeRequest) returns (SetDiscoveryModeResponse) {}
+  rpc ClearEventFilter(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc ClearEventMask(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc ClearFilterAcceptList(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc DisconnectAllAcls(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc LeRand(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc SetEventFilterConnectionSetupAllDevices(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc AllowWakeByHid(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc RestoreFilterAcceptList(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc SetDefaultEventMaskExcept(SetDefaultEventMaskExceptRequest) returns (google.protobuf.Empty) {}
+  rpc SetEventFilterInquiryResultAllDevices(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc SetLocalIoCaps(SetLocalIoCapsRequest) returns (SetLocalIoCapsResponse) {}
+  rpc ToggleDiscovery(ToggleDiscoveryRequest) returns (ToggleDiscoveryResponse) {}
+}
+
+service SecurityService {
+    rpc RemoveBond(RemoveBondRequest) returns (google.protobuf.Empty) {}
+    rpc GenerateLocalOobData(GenerateOobDataRequest) returns (google.protobuf.Empty) {}
+    rpc CreateBond(CreateBondRequest) returns (CreateBondResponse) {}
+}
+
+service GattService {
+  // Advertiser
+  rpc RegisterAdvertiser(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc UnregisterAdvertiser(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc GetOwnAddress(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc SetParameters(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc SetData(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc AdvertisingEnable(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc AdvertisingDisable(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc SetPeriodicAdvertisingParameters(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc SetPeriodicAdvertisingData(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc SetPeriodicAdvertisingEnable(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc StartAdvertising(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc StartAdvertisingSet(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+
+  // Scanner
+  rpc RegisterScanner(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc UnregisterScanner(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc StartScan(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc StopScan(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc ScanFilterSetup(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc ScanFilterAdd(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc ScanFilterClear(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc ScanFilterEnable(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc ScanFilterDisable(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc SetScanParameters(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc BatchScanConfigStorage(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc BatchScanEnable(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc BatchScanDisable(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc BatchScanReadReports(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc StartSync(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc StopSync(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc CancelCreateSync(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc TransferSync(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc TransferSetInfo(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc SyncTxParameters(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+
+  // Gatt Client
+  rpc RegisterClient(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc UnregisterClient(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc ClientConnect(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc ClientDisconnect(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc Refresh(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc SearchService(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc BtifGattcDiscoverServiceByUuid(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc ReadCharacteristic(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc ReadUsingCharacteristicUuid(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc WriteCharacteristic(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc ReadDescriptor(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc WriteDescriptor(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc ExecuteWrite(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc RegisterForNotification(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc DeregisterForNotification(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc ReadRemoteRssi(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc GetDeviceType(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc ConfigureMtu(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc ConnParameterUpdate(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc ClientSetPreferredPhy(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc ClientReadPhy(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc TestCommand(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc GetGattDb(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+
+  // Gatt Server
+  rpc RegisterServer(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc UnregisterServer(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc ServerConnect(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc ServerDisconnect(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc AddService(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc StopService(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc DeleteService(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc SendIndication(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc SendResponse(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc ServerSetPreferredPhy(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc ServerReadPhy(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+}
+
+service HfpService {
+  rpc StartSlc(StartSlcRequest) returns (google.protobuf.Empty) {}
+  rpc StopSlc(StopSlcRequest) returns (google.protobuf.Empty) {}
+  rpc ConnectAudio(ConnectAudioRequest) returns (google.protobuf.Empty) {}
+  rpc DisconnectAudio(DisconnectAudioRequest) returns (google.protobuf.Empty) {}
+  rpc SetVolume(SetVolumeRequest) returns (google.protobuf.Empty) {}
+  rpc FetchEvents(FetchEventsRequest) returns (stream FetchEventsResponse) {}
+}
+
+service HfClientService {
+  rpc StartSlc(StartSlcRequest) returns (StartSlcResponse) {}
+  rpc StopSlc(StopSlcRequest) returns (StopSlcResponse) {}
+  rpc ConnectAudio(ConnectAudioRequest) returns (ConnectAudioResponse) {}
+  rpc DisconnectAudio(DisconnectAudioRequest) returns (DisconnectAudioResponse) {}
+}
+
+enum EventType {
+  ADAPTER_STATE = 0;
+  SSP_REQUEST = 1;
+  LE_RAND = 2;
+  GENERATE_LOCAL_OOB_DATA = 3;
+  HFP_CONNECTION_STATE = 4;
+  ADAPTER_PROPERTY = 5;
+  DISCOVERY_STATE = 6;
+  DEVICE_FOUND = 7;
+  BOND_STATE = 8;
+}
+
+message FetchEventsRequest {}
+
+message FetchEventsResponse {
+  EventType event_type = 1;
+  string data = 2;
+  // Storing all event related data as a key-value pair.
+  map<string, EventData> params = 3;
+}
+
+message EventData {
+  repeated string data = 1;
+}
+
+message ToggleStackRequest {
+  bool start_stack = 1;  // True for enable; false for disable
+}
+
+message ToggleStackResponse {}
+
+message SetDiscoveryModeRequest {
+  bool enable_page_scan = 1;
+  bool enable_inquiry_scan = 2;
+}
+
+message SetDiscoveryModeResponse {
+  int32 status = 1;
+}
+
+service MediaService {
+  rpc StartA2dp(StartA2dpRequest) returns (StartA2dpResponse) {}
+  rpc A2dpSourceConnect(A2dpSourceConnectRequest) returns (A2dpSourceConnectResponse) {}
+  rpc A2dpSourceSetActiveDevice(A2dpSourceSetActiveDeviceRequest) returns (A2dpSourceSetActiveDevicetResponse) {}
+}
+
+message StartA2dpRequest {
+  bool start_a2dp_source = 1;
+  bool start_a2dp_sink = 2;
+}
+
+message StartA2dpResponse {}
+
+message A2dpSourceConnectRequest {
+  string address = 1;
+}
+
+message A2dpSourceConnectResponse {}
+
+message A2dpSourceSetActiveDeviceRequest {
+  string address = 1;
+}
+
+message A2dpSourceSetActiveDevicetResponse {}
+
+message RemoveBondRequest {
+  string address = 1;
+}
+
+message StartSlcRequest {
+  Connection connection = 1;
+}
+
+message StartSlcResponse {
+  int32 status = 1;
+}
+
+message StopSlcRequest {
+  Connection connection = 1;
+}
+
+message StopSlcResponse {
+  int32 status = 1;
+}
+
+message ConnectAudioRequest {
+  Connection connection = 1;
+  bool is_sco_offload_enabled = 2;
+  int32 disabled_codecs = 3;
+}
+
+message ConnectAudioResponse {
+  int32 status = 1;
+}
+
+message DisconnectAudioRequest {
+  Connection connection = 1;
+}
+
+message DisconnectAudioResponse {
+  int32 status = 1;
+}
+
+message SetVolumeRequest {
+  Connection connection = 1;
+  int32 volume = 2;
+}
+
+message SetDefaultEventMaskExceptRequest {
+  uint64 mask = 1;
+  uint64 le_mask = 2;
+}
+
+// A Token representing an ACL connection.
+// It's acquired via a Connect on the Host service (Bluetooth Core stack in our case).
+message Connection {
+// For our HFP APIs this would store the bluetooth address but staying consistent with Pandora naming.
+  bytes cookie = 1;
+}
+
+message GenerateOobDataRequest {
+  int32 transport = 1;
+}
+
+message SetLocalIoCapsRequest {
+  int32 io_capability = 1;
+}
+
+message SetLocalIoCapsResponse {
+  int32 status = 1;
+}
+
+message ToggleDiscoveryRequest {
+  bool is_start = 1;
+}
+
+message ToggleDiscoveryResponse {
+  int32 status = 1;
+}
+
+message CreateBondRequest {
+  string address = 1;
+  int32 transport = 2;
+}
+
+message CreateBondResponse {
+  int32 status = 1;
+}

@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (c) 2009, 2011-2013 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2014-2015 The CyanogenMod Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *    * Neither the name of The Linux Foundation nor
+ *      the names of its contributors may be used to endorse or promote
+ *      products derived from this software without specific prior written
+ *      permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NON-INFRINGEMENT ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Radio FM</string>
+    <string name="tx_app_name">Transmițător FM</string>
+    <string name="menu_scan_start">Scanare</string>
+    <string name="menu_scan_stop">Oprire căutare</string>
+    <string name="menu_record_start">Înregistrare</string>
+    <string name="menu_record_stop">Oprește înregistrarea</string>
+    <string name="menu_settings">Setări</string>
+    <string name="menu_sleep">Somn</string>
+    <string name="menu_sleep_cancel">Anulare somn</string>
+    <string name="menu_all_channels">Toate canalele</string>
+    <string name="menu_display_tags">Afișare etichete</string>
+    <string name="button_text_stop">Stop</string>
+    <string name="msg_seeking">Se caută stație FM\u2026</string>
+    <string name="msg_scanning">Se caută toate stațiile FM\u2026</string>
+    <string name="msg_scanning_pty">Se caută \'<xliff:g id="pty_name">%1$s</xliff:g>\'\u2026</string>
+    <string name="msg_search_title"><xliff:g id="frequency_string">%1$s</xliff:g> MHz</string>
+    <string name="msg_searching_title">Auto-selectare presetări</string>
+    <string name="msg_searching">Se caută stațiile puternice pentru a crea o listă de presetări\u2026</string>
+    <string name="msg_noantenna">Vă rugăm conectați o cască audio pentru a folosi radio FM</string>
+    <string name="dialog_sleep_title">Timpul de oprire automată</string>
+    <string name="presetlist_select_name">Selectați \'<xliff:g id="presetlist_name">%1$s</xliff:g>\'</string>
+    <string name="presetlist_add_new">Adaugă o listă nouă</string>
+    <string name="dialog_presetlist_rename_title">Introduceți numele</string>
+    <string name="presetlist_autoselect_title">Confirmă auto-selecția</string>
+    <string name="preset_replace">Înlocuire</string>
+    <string name="preset_tune">Reglaj</string>
+    <string name="preset_rename">Redenumire</string>
+    <string name="preset_delete">Ștergere</string>
+    <string name="preset_search">Caută pentru \'<xliff:g id="preset_pi">%1$s</xliff:g>\'</string>
+    <string name="stat_notif_frequency">\'<xliff:g id="frequency">%1$s</xliff:g>\' MHz</string>
+    <string name="regional_band">Banda regională</string>
+    <string name="regional_band_entry_north_america">America de Nord</string>
+    <string name="regional_band_entry_europe">Europa</string>
+    <string name="regional_band_entry_japan">Japonia</string>
+    <string name="regional_band_entry_japan_wide">Japonia (extins)</string>
+    <string name="regional_band_entry_australia">Australia</string>
+    <string name="regional_band_entry_austria">Austria</string>
+    <string name="regional_band_entry_belgium">Belgia</string>
+    <string name="regional_band_entry_brazil">Brazilia</string>
+    <string name="regional_band_entry_china">China</string>
+    <string name="regional_band_entry_czech_republic">Republica Cehă</string>
+    <string name="regional_band_entry_denmark">Danemarca</string>
+    <string name="regional_band_entry_finland">Finlanda</string>
+    <string name="regional_band_entry_france">Franța</string>
+    <string name="regional_band_entry_germany">Germania</string>
+    <string name="regional_band_entry_greece">Grecia</string>
+    <string name="regional_band_entry_hong_kong">Hong Kong</string>
+    <string name="regional_band_entry_india">India</string>
+    <string name="regional_band_entry_indonesia">Indonezia</string>
+    <string name="regional_band_entry_ireland">Irlanda</string>
+    <string name="regional_band_entry_italy">Italia</string>
+    <string name="regional_band_entry_korea">Coreea</string>
+    <string name="regional_band_entry_mexico">Mexic</string>
+    <string name="regional_band_entry_netherlands">Olanda</string>
+    <string name="regional_band_entry_new_zealand">Noua Zeelandă</string>
+    <string name="regional_band_entry_norway">Norvegia</string>
+    <string name="regional_band_entry_poland">Polonia</string>
+    <string name="regional_band_entry_portugal">Portugalia</string>
+    <string name="regional_band_entry_russia">Rusia</string>
+    <string name="regional_band_entry_singapore">Singapore</string>
+    <string name="regional_band_entry_slovakia">Slovacia</string>
+    <string name="regional_band_entry_spain">Spania</string>
+    <string name="regional_band_entry_switzerland">Elveția</string>
+    <string name="regional_band_entry_sweden">Suedia</string>
+    <string name="regional_band_entry_taiwan">Taiwan</string>
+    <string name="regional_band_entry_turkey">Turcia</string>
+    <string name="regional_band_entry_united_kingdom">Marea Britanie</string>
+    <string name="regional_band_entry_united_states">Statele Unite</string>
+    <string name="regional_band_entry_user_defined">Bandă definită de utilizator</string>
+    <string name="regional_band_summary_north_america">America de Nord (87.5 la 108.0 MHz în pași de câte 200 kHz)</string>
+    <string name="regional_band_summary_europe">Europa (87.5 la 108.0 MHz în pași de câte 100 kHz)</string>
+    <string name="regional_band_summary_japan">Japonia (76.0 la 90.0 MHz în pași de câte 100 kHz)</string>
+    <string name="regional_band_summary_japan_wide">Japonia (extins) (90.0 la 108.0 MHz în pași de câte 50 kHz)</string>
+    <string name="regional_band_summary_australia">Australia (87.7 la 108.0 MHz în pași de câte 100 kHz)</string>
+    <string name="regional_band_summary_austria">Australia (87.5 la 108.0 MHz în pași de câte 50 kHz)</string>
+    <string name="regional_band_summary_belgium">Belgia (87.5 la 108.0 MHz în pași de câte 100 kHz)</string>
+    <string name="regional_band_summary_brazil">Brazilia (87.5 la 108.0 MHz în pași de câte 200 kHz)</string>
+    <string name="regional_band_summary_china">China (87.0 la 108.0 MHz în pași de câte 100 kHz)</string>
+    <string name="regional_band_summary_czech_republic">Republica Cehă (87.5 la 108.0 MHz în pași de câte 100 kHz)</string>
+    <string name="regional_band_summary_denmark">Denemarca (87.5 la 108.0 MHz în pași de câte 50 kHz)</string>
+    <string name="regional_band_summary_finland">Finlanda (87.5 la 108.0 MHz în pași de câte 100 kHz)</string>
+    <string name="regional_band_summary_france">Franța (87.5 la 108.0 MHz în pași de câte 100 kHz)</string>
+    <string name="regional_band_summary_germany">Germania (87.5 la 108.0 MHz în pași de câte 50 kHz)</string>
+    <string name="regional_band_summary_greece">Grecia (87.5 la 108.0 MHz în pași de câte 50 kHz)</string>
+    <string name="regional_band_summary_hong_kong">Hong Kong (87.5 la 108.0 MHz în pași de câte 100 kHz)</string>
+    <string name="regional_band_summary_india">India (87.5 la 108.0 MHz în pași de câte 100 kHz)</string>
+    <string name="regional_band_summary_indonesia">Indonezia (87.5 la 108.0 MHz în pași de câte 100 kHz)</string>
+    <string name="regional_band_summary_ireland">Irlanda (87.5 la 108.0 MHz în pași de câte 50 kHz)</string>
+    <string name="regional_band_summary_italy">Italia (87.5 la 108.0 MHz în pași de câte 50 kHz)</string>
+    <string name="regional_band_summary_korea">Coreea (87.5 la 108.0 MHz în pași de câte 200 kHz)</string>
+    <string name="regional_band_summary_mexico">Mexic (88.1 la 107.9 MHz în pași de câte 200 kHz)</string>
+    <string name="regional_band_summary_netherlands">Olanda (87.5 la 108.0 MHz în pași de câte 100 kHz)</string>
+    <string name="regional_band_summary_new_zealand">Noua Zeealandă (88.0 la 107.0 MHz în pași de câte 100 kHz)</string>
+    <string name="regional_band_summary_norway">Norvegia (87.5 la 108.0MHz în pași de câte 100 kHz)</string>
+    <string name="regional_band_summary_poland">Polonia (87.5 la 108.0 MHz în pași de câte 100 kHz)</string>
+    <string name="regional_band_summary_portugal">Portugalia (87.5 la 108.0 MHz în pași de câte 50 kHz)</string>
+    <string name="regional_band_summary_russia">Rusia (87.5 la 108.0 MHz în pași de câte 100 kHz)</string>
+    <string name="regional_band_summary_singapore">Singapore (88.0 la 108.0 MHz în pași de câte 100 kHz)</string>
+    <string name="regional_band_summary_slovakia">Slovacia (87.5 la 108.0 MHz în pași de câte 100 kHz)</string>
+    <string name="regional_band_summary_spain">Spania (87.5 la 108.0 MHz în pași de câte 100 kHz)</string>
+    <string name="regional_band_summary_switzerland">Elveția (87.5 la 108.0 MHz în pași de câte 100 kHz)</string>
+    <string name="regional_band_summary_sweden">Suedia (87.5 la 108.0 MHz în pași de câte 100 kHz)</string>
+    <string name="regional_band_summary_taiwan">Taiwan (87.5 la 108.0 MHz în pași de câte 100 kHz)</string>
+    <string name="regional_band_summary_turkey">Turcia (87.5 la 108.0 MHz în pași de câte 100 kHz)</string>
+    <string name="regional_band_summary_united_kingdom">Marea Britanie (87.5 la 108.0 MHz în pași de câte 100 kHz)</string>
+    <string name="regional_band_summary_united_states">Statele Unite (88.1 la 107.9 MHz în pași de câte 200 kHz)</string>
+    <string name="regional_band_summary_user_defined">Bandă definită de utilizator</string>
+    <string name="aud_output_mode">Modul de ieșire audio</string>
+    <string name="audio_type_stereo">Stereo</string>
+    <string name="audio_type_mono">Mono</string>
+    <string name="record_dur">Durata înregistrării</string>
+    <string name="auto_select_af">Frecvență alternativă</string>
+    <string name="settings_revert_defaults_title">Revenire la setările de fabrică</string>
+    <string name="settings_revert_defaults_summary">Reinițializați toate setările</string>
+    <string name="settings_revert_confirm_title">Confirmați reinițializarea</string>
+    <string name="settings_revert_confirm_msg">Aceasta va șterge toate setările aplicației, inclusiv presetările salvate. Continuați?</string>
+    <string name="no_storage">Montați cardul SD înainte de a începe înregistrarea.</string>
+    <string name="preparing_sd">Se pregătește cardul SD\u2026</string>
+    <string name="access_sd_fail">Nu s-a putut accesa cardul SD.</string>
+    <string name="spaceIsLow_content">Cardul dvs SD rămâne fără spațiu liber. Schimbați setarea de calitate sau ștergeți câteva dintre fișierele vechi pentru a elibera spațiul.</string>
+    <string name="FMRecording_reach_size_limit">Dimensiune limită atinsă.</string>
+    <string name="menu_scan_for_preset">Scanare pentru presetări</string>
+    <string name="fm_off">FM este oprit.</string>
+    <string name="fm_call">FM nu poate fi utilizat în același timp cu un apel.</string>
+    <string name="alert_dialog_hint">Introduceți un nume</string>
+    <string name="search_dialog_title">Scanare stații</string>
+    <string name="fm_command_timeout_title">Timeout</string>
+    <string name="fm_tune_timeout_msg">Nu am recepționat niciun răspuns pentru a regla stația FM. Dacă problema persistă, vă rugăm să opriți și să reporniți FM-ul.</string>
+    <string name="fm_command_failed_title">Operația FM a eșuat</string>
+    <string name="fm_cmd_failed_msg">Operația FM a eșuat. Dacă problema persistă, vă rugăm să opriți și să reporniți FM-ul.</string>
+    <string name="fm_cmd_failed_msg_hdmi">Operația FM a eșuat. Concurența dintre FM și HDMI nu este acceptată.</string>
+    <string name="fm_cmd_failed_call_on">Operația FM a eșuat. În timpul unui apel, audio al FM nu este permis.</string>
+    <string name="audio_db_title_format"><xliff:g id="format">yyyy-MM-dd HH:mm:ss</xliff:g></string>
+    <string name="audio_db_artist_name">Înregistrările mele FM</string>
+    <string name="audio_db_album_name">Înregistrări FM</string>
+    <string name="audio_db_playlist_name">Înregistrări FM</string>
+    <string name="station_name">Stația:</string>
+    <string name="station_exists">Această frecvență există deja!</string>
+    <string name="station_list_delete_station">Șterg: <xliff:g id="name">%s</xliff:g></string>
+    <string name="station_list_delete_station_prompt">Sigur vrei să ștergi \'<xliff:g id="name">%s</xliff:g>\'?</string>
+    <string name="station_name_empty">Numele stației este gol, vă rugăm să îl introduceți iar.</string>
+    <string name="station_name_exist">\'<xliff:g id="name">%s</xliff:g>\' este deja în uz, vă rugăm să introduceți un nume diferit.</string>
+    <string name="rt_plus_tags">Etichete</string>
+    <string name="usr_def_band_min">Frecvența minimă (MHz)</string>
+    <string name="usr_def_band_max">Frecvența maximă (MHz)</string>
+    <string name="chanl_spacing">Spațiere pentru canal</string>
+    <string name="set">Setați</string>
+    <string name="user_defind_band_msg">Introduceți o frecvență de la 76.0 la 108.0 MHz cu spațiu de un canal minimum și 100 kHz spațiu între frecvențele min și max</string>
+    <string name="save_record_file">Fișierul cu înregistrarea FM s-a salvat la \'<xliff:g id="record_file">%1$s</xliff:g>\'</string>
+    <string name="fm_search_no_results">Nu s-au găsit posturi compatibile</string>
+    <string name="typ_All_stations">Toate stațiile</string>
+    <string name="typ_Culture">Cultură</string>
+    <string name="typ_Current_affairs">Actualități</string>
+    <string name="typ_Children">Programe pentru copii</string>
+    <string name="typ_Country">Muzică Country</string>
+    <string name="typ_Documentary">Documentar</string>
+    <string name="typ_Drama">Dramă</string>
+    <string name="typ_Easy_listening">Muzică ascultată ușor</string>
+    <string name="typ_Education">Educație</string>
+    <string name="typ_Emergency">Urgență</string>
+    <string name="typ_Emergency_test">Test de urgenţă</string>
+    <string name="typ_Finance">Finanțe</string>
+    <string name="typ_Folk">Muzică folk</string>
+    <string name="typ_Information">Informație</string>
+    <string name="typ_Jazz">Muzică Jazz</string>
+    <string name="typ_Light_classical">Clasică ușoară</string>
+    <string name="typ_Leisure">Timp liber</string>
+    <string name="typ_News">Știri</string>
+    <string name="typ_National">Muzică națională</string>
+    <string name="typ_Other">Altă muzică</string>
+    <string name="typ_Oldies">Muzică veche</string>
+    <string name="typ_Phone_in">Intrare telefon</string>
+    <string name="typ_Pop">Muzică Pop</string>
+    <string name="typ_Religion">Religie</string>
+    <string name="typ_Rock">Muzică rock</string>
+    <string name="typ_Science">Știință</string>
+    <string name="typ_Serious_classical">Clasică serioasă</string>
+    <string name="typ_Social_affairs">Afaceri sociale</string>
+    <string name="typ_Sport">Sport</string>
+    <string name="typ_Travel">Călătorie</string>
+    <string name="typ_Varied">Variate</string>
+    <string name="typ_Weather">Vremea</string>
+    <string name="typ_Adult_hits">Hituri Adult</string>
+    <string name="typ_Classical">Clasică</string>
+    <string name="typ_Classic_Rock">Rock clasic</string>
+    <string name="typ_College">Colegiu</string>
+    <string name="typ_Foreign_language">Limbă străină</string>
+    <string name="typ_Hiphop">Hip Hop</string>
+    <string name="typ_Nostalgia">Nostalgie</string>
+    <string name="typ_Personality">Personalitate</string>
+    <string name="typ_Public">Public</string>
+    <string name="typ_Religious_music">Muzică religioasă</string>
+    <string name="typ_Religious_talk">Conversații religioase</string>
+    <string name="typ_Rhythm_and_Blues">Rhythm și Blues</string>
+    <string name="typ_Spanish_music">Muzică spaniolă</string>
+    <string name="typ_Spanish_talk">Conversații în spaniolă</string>
+    <string name="typ_Soft">Ușoară</string>
+    <string name="typ_Soft_Rock">Rock ușor</string>
+    <string name="typ_Soft_Rhythm_and_Blues">Rhythm și Blues ușor</string>
+    <string name="typ_Sports">Sport</string>
+    <string name="typ_Talk">Discuție</string>
+    <string name="typ_Top_40">Top 40</string>
+</resources>

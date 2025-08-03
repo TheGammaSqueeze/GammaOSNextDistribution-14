@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="feedback_system_logs_title_text" msgid="8162964763101361628">"Tüm cihaz günlüklerini (sistem ve uygulama) dahil et"</string>
+    <string name="feedback_system_logs_legal_text" msgid="4770068793128503597">"Sistem ve uygulama gibi tüm cihaz günlüklerini paylaştığınızda kullanıcı adları, konum, cihaz kimlikleri ve ağ bilgileri gibi ayrıntılar Google\'a gönderilebilir. Google bu bilgileri teknik sorunları düzeltmek ve hizmetleri geliştirmek için kullanır. Daha fazla bilgiyi g.co/android/devicelogs adresinde bulabilirsiniz."</string>
+    <string name="feedback_bugreport_title_text" msgid="8863884817986711122">"Hata raporu ekle"</string>
+    <string name="feedback_bugreport_legal_display_text" msgid="4486929548753044585">"Hata raporu (%1$s tarihli), Google\'ın sorunu anlayıp düzeltmesine yardımcı olmak için kullanıcı adları, konum, cihaz kimlikleri ve ağ bilgileri gibi verileri içerir."</string>
+    <string name="next" msgid="3308587969183798652">"Sonraki"</string>
+    <string name="feedback_view_system_logs_button_text" msgid="1889709679017124924">"Sistem günlüklerini göster"</string>
+    <string name="feedback_view_logs_dialog_title" msgid="1937861449450135462">"Sistem Günlükleri"</string>
+    <string name="feedback_view_logs_dialog_body" msgid="2496560711853644250">"Bu günlükler, geri bildiriminizi ele alabilmemiz için ihtiyacımız olan bilgileri sağlar."</string>
+    <string name="annotated_back_indicator_string" msgid="3197935392074998004">"Geri dönmek için GERİ düğmesine basın."</string>
+    <string name="loading" msgid="1709842456101615353">"Yükleniyor"</string>
+</resources>

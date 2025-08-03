@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017-2024 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="system_reboot_confirm_cm">Riavvia in:</string>
+    <string name="global_action_restart_system">Sistema</string>
+    <string name="global_action_restart_recovery">Recovery</string>
+    <string name="global_action_restart_bootloader">Bootloader</string>
+    <plurals name="show_dev_countdown_cm">
+        <item quantity="one">Ora sei a <xliff:g id="step_count">%1$d</xliff:g> passo dall\'attivare le opzioni sviluppatore.</item>
+        <item quantity="other">Ora sei a <xliff:g id="step_count">%1$d</xliff:g> passi dall\'attivare le opzioni sviluppatore.</item>
+    </plurals>
+    <string name="show_dev_on_cm">Hai attivato le opzioni sviluppatore!</string>
+    <string name="show_dev_already_cm">Non è necessario, hai già attivato le opzioni sviluppatore.</string>
+    <string name="system_buttons">Pulsanti</string>
+    <string name="power_button_long_press_action_title">Azione alla pressione prolungata del pulsante di accensione</string>
+    <string name="power_button_long_press_for_power_menu_action">Apri il menù di spegnimento</string>
+    <string name="power_button_long_press_for_assistant_action">Apri l\'Assistente</string>
+    <string name="inputs_volume_control_enabled">Controllo volume CEC</string>
+    <string name="inputs_volume_control_enabled_desc">Controlla il volume TV/AVR invece del volume interno</string>
+    <string name="enable_adb_root">Debug con accesso root</string>
+    <string name="enable_adb_root_summary">Consenti l\'utilizzo di funzioni di debug con permessi root</string>
+    <string name="advanced_restart_title">Riavvio avanzato</string>
+    <string name="advanced_restart_summary">Mostra le opzioni per il riavvio in recovery, bootloader o l\'esecuzione di un riavvio parziale</string>
+    <string name="adb_over_network">ADB attraverso la rete</string>
+    <string name="adb_over_network_summary">Attiva il debug TCP/IP attraverso interfacce di rete (Wi\u2011Fi, reti USB). Questa impostazione è ripristinata all\'avvio</string>
+    <string name="adb_over_network_warning">ATTENZIONE: Quando ADB attraverso la rete è abilitato, il telefono è suscettibile di intrusioni su tutte le reti connesse! \n\nUtilizzare questa funzionalità solo quando si è connessi su reti affidabili.\n\nAbilitare questa funzione?</string>
+    <string name="trust_category_features">Stato</string>
+    <string name="trust_feature_selinux">SELinux</string>
+    <string name="trust_feature_selinux_value_enforcing">Applicato</string>
+    <string name="trust_feature_selinux_value_disabled">Disattivato</string>
+    <string name="trust_feature_selinux_explain">SELinux definisce quali processi hanno accesso a quali file sul dispositivo.\nQuesto impedisce ad app e servizi di accedere a file che non dovrebbero gestire: in questo modo, un potenziale processo dannoso sarà limitato e la tua sicurezza preservata.</string>
+    <string name="trust_feature_security_patches">Patch di sicurezza di Android</string>
+    <string name="trust_feature_security_patches_value_base">Piattaforma: %1$s\nProduttore: %2$s</string>
+    <string name="trust_feature_security_patches_value_new">Aggiornate</string>
+    <string name="trust_feature_security_patches_value_medium">Non aggiornate da qualche mese</string>
+    <string name="trust_feature_security_patches_value_old">Non aggiornate</string>
+    <string name="trust_feature_security_patches_explain">Le patch di sicurezza vengono rilasciate mensilmente da Google in cooperazione con i produttori di SoC per risolvere problemi che potrebbero essere sfruttati dalle app dannose per aggirare le restrizioni di sicurezza e causare danni permanenti al dispositivo. Le patch rese disponibili da Google sono applicate a tutti i dispositivi supportati, ma quelle relative ai componenti proprietari possono essere applicati solo dal produttore del dispositivo. Per mantenere il dispositivo sicuro, controlla che la tua versione di LineageOS sia sempre aggiornata ed eventualmente assicurati che i componenti proprietari come firmware e immagine vendor siano quelli raccomandati da LineageOS.</string>
+    <string name="trust_feature_encryption">Cifratura</string>
+    <string name="trust_feature_encryption_value_enabled">Attiva</string>
+    <string name="trust_feature_encryption_value_nolock">Necessita di un blocco schermo sicuro</string>
+    <string name="trust_feature_encryption_value_disabled">Disattivata</string>
+    <string name="trust_feature_encryption_explain">Abilitando la cifratura del dispositivo, viene bloccato l\'accesso ai tuoi dati quando il dispositivo non è acceso. Questo risulta particolarmente importante nel caso in cui il dispositivo venisse rubato: in tal caso l\'accesso ai tuoi messaggi, contatti e altre informazioni personali verrà impedito fino all\'inserimento della tua password.\nPer rendere la cifratura del dispositivo più efficace, è importante attivare un blocco schermo sicuro.</string>
+    <string name="trust_category_tools">Privacy</string>
+    <string name="trust_notification_alerts_title">Avvisi di sicurezza</string>
+    <string name="trust_restrict_usb_title">Restrizioni USB</string>
+    <string name="trust_restrict_usb_summary">Controlla le connessioni USB quali auricolari, dispositivi d\'archiviazione, dispositivi d\'input (mouse, tastiere, joystick) e connessioni ADB</string>
+    <string name="trust_restrict_usb_always">Non consentire connessioni USB</string>
+    <string name="trust_restrict_usb_disabled">Consenti sempre le connessioni USB</string>
+    <string name="trust_onboarding_description">Trust aiuta a mantenere il tuo dispositivo sicuro e protegge la tua privacy.\nL\'icona di Trust apparirà quando la sicurezza dei contenuti è verificata.</string>
+    <string name="trust_warnings_alerts_intro">Puoi scegliere quali problemi di sicurezza devono essere segnalati. Per la tua sicurezza è consigliabile attivarli tutti</string>
+    <string name="trust_warnings_selinux">Stato SELinux</string>
+    <string name="trust_warnings_keys">Firma della build</string>
+    <string name="sleep_button_label">Sospendi</string>
+    <string name="system_sleep_confirm">Sospendere ora?</string>
+    <string name="shutdown_button_label">Spegni</string>
+    <string name="system_shutdown_confirm">Spegnere ora?</string>
+    <string name="convertible_port_busy_title">La porta USB 1 è in uso</string>
+    <string name="convertible_port_busy_warning">Scollega eventuali dispositivi o accessori e riprova</string>
+    <string name="mtp_enable_title">Accesso alle cartelle dello SHIELD su PC tramite USB</string>
+    <string name="mtp_enable_warning">La porta USB 1 è ora configurata per connettere SHIELD a un PC come dispositivo multimediale.\n\nQuesta porta non rileverà più supporti di archiviazione o accessori USB e non può essere utilizzata per caricare dispositivi.</string>
+    <string name="mtp_retry_error">Errore, riprova.</string>
+    <string name="mtp_summary">In questa modalità, la porta USB non può essere usata per altri scopi</string>
+    <string name="mtp_title">Trasferisci file su un computer via USB</string>
+    <string name="mtp_unexpected_error">Errore imprevisto. Riprova più tardi.</string>
+    <string name="usb_debugging_enable_title">Debug USB abilitato</string>
+    <string name="usb_debugging_enable_warning">La porta USB 1 è ora configurata per connettere SHIELD a un PC come dispositivo multimediale.\n\nQuesta porta non rileverà più supporti di archiviazione o accessori USB e non può essere utilizzata per caricare dispositivi.</string>
+</resources>

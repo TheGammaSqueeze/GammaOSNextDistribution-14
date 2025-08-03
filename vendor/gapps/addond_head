@@ -1,0 +1,10 @@
+#!/sbin/sh
+#
+# ADDOND_VERSION=3
+#
+# /system/addon.d/30-gapps.sh
+#
+. /tmp/backuptool.functions
+
+list_files() {
+cat <<EOF

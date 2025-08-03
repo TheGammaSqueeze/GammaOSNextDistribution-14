@@ -1,0 +1,34 @@
+typeattribute shell coredomain;
+
+# Perform SELinux access checks, needed for CTS
+selinux_check_access(shell)
+selinux_check_context(shell)
+
+# Allow shell to run adb shell cmd stats commands. Needed for CTS.
+binder_call(shell, statsd);
+
+# Connect to adbd and use a socket transferred from it.
+# This is used for e.g. adb backup/restore.
+allow shell adbd:unix_stream_socket connectto;
+allow shell adbd:fd use;
+allow shell adbd:unix_stream_socket { getattr getopt ioctl read write shutdown };
+
+# filesystem test for insecure chr_file's is done
+# via a host side test
+allow shell dev_type:dir r_dir_perms;
+allow shell dev_type:chr_file getattr;
+
+# filesystem test for insucre blk_file's is done
+# via hostside test
+allow shell dev_type:blk_file getattr;
+
+# Test tool automatically tries to access /sys/class/power_supply.
+# Suppressing it as we don't need power_supply in microdroid.
+dontaudit shell sysfs:dir r_dir_perms;
+
+# Test tool tries to read various service status properties.
+get_prop(shell, boot_status_prop)
+get_prop(shell, init_service_status_prop)
+get_prop(shell, init_service_status_private_prop)
+
+set_prop(shell, log_tag_prop)

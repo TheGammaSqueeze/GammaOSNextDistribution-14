@@ -1,0 +1,158 @@
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "AdServicesUIUnitTests",
+    srcs: [
+        "src/**/*.java",
+    ],
+    exclude_srcs: [
+        // The tests below are interacting with the JsSandbox singleton and should
+        // be run in a separate process
+        "src/com/android/adservices/service/js/JSScriptEngineTest.java",
+        "src/com/android/adservices/service/js/JavaScriptSandboxProviderTest.java",
+        // Exclude Mobile Data Download Test. This test need network connection and download files.
+        // This will run in a separate test suite.
+        "src/com/android/adservices/download/MobileDataDownloadTest.java",
+    ],
+    defaults: ["adservices-extended-mockito-defaults"],
+    sdk_version: "module_current",
+    // Currently this test module is failing, which results in low test coverage
+    // The reason is the target test coverage system runs on is different as what this test
+    // configures. Add below line to address the issue.
+    // See b/233124651 for details.
+    compile_multilib: "both",
+    min_sdk_version: "Tiramisu",
+
+    plugins: [
+        "auto_value_plugin",
+        "auto_annotation_plugin",
+    ],
+    static_libs: [
+        "androidx.concurrent_concurrent-futures",
+        "androidx.test.rules",
+        "compatibility-device-util-axt",
+        "truth",
+        "adservices-assets",
+        "adservices-service-core-schema",
+        "adservices-shared-testing",
+        "adservices-test-mockito-expectations",
+        "adservices-test-utility",
+        "androidx.room_room-runtime",
+        "androidx.room_room-testing",
+        "adservices-test-fixtures",
+        "mobile_data_downloader_lib",
+        "tflite_support_classifiers_java",
+        "opencensus-java-api",
+        "opencensus-java-contrib-grpc-metrics",
+    ],
+    libs: [
+        "android.test.base",
+        "android.test.mock.stubs",
+        "framework-adservices.impl",
+        "framework-annotations-lib",
+        "framework-configinfrastructure",
+        "framework-sdksandbox.impl",
+        "auto_value_annotations",
+    ],
+    test_suites: [
+        "general-tests",
+        "mts-adservices",
+    ],
+    instrumentation_for: "AdServicesApk",
+    jni_libs: [
+        "libhpke_jni",
+        "libtflite_support_classifiers_native",
+    ],
+    aaptflags: [
+        // avoid compression on lite and tflite files as the Interpreter
+        // can not load compressed flat buffer formats. (*appt compresses all
+        // assets into the apk by default)
+        // See https://elinux.org/Android_aapt for more detail.
+        "-0 .lite",
+        "-0 .tflite",
+    ],
+}
+
+android_test {
+    name: "AdExtServicesUIUnitTests",
+    srcs: [
+        "src/**/*.java",
+    ],
+    exclude_srcs: [
+        // The tests below are interacting with the JsSandbox singleton and should
+        // be run in a separate process
+        "src/com/android/adservices/service/js/JSScriptEngineTest.java",
+        "src/com/android/adservices/service/js/JavaScriptSandboxProviderTest.java",
+        // Exclude Mobile Data Download Test. This test need network connection and download files.
+        // This will run in a separate test suite.
+        "src/com/android/adservices/download/MobileDataDownloadTest.java",
+    ],
+    defaults: ["adservices-extended-mockito-defaults"],
+    sdk_version: "module_current",
+    // Currently this test module is failing, which results in low test coverage
+    // The reason is the target test coverage system runs on is different as what this test
+    // configures. Add below line to address the issue.
+    // See b/233124651 for details.
+    compile_multilib: "both",
+    min_sdk_version: "30",
+    max_sdk_version: "32",
+    static_libs: [
+        "adservices-assets",
+        "adservices-service-core-schema",
+        "adservices-shared-testing",
+        "adservices-test-fixtures",
+        "adservices-test-mockito-expectations",
+        "adservices-test-utility",
+        "androidx.concurrent_concurrent-futures",
+        "androidx.room_room-runtime",
+        "androidx.room_room-testing",
+        "androidx.test.rules",
+        "compatibility-device-util-axt",
+        "mobile_data_downloader_lib",
+        "opencensus-java-api",
+        "opencensus-java-contrib-grpc-metrics",
+        "tflite_support_classifiers_java",
+        "truth",
+    ],
+    libs: [
+        "android.ext.adservices",
+        "android.test.base",
+        "android.test.mock.stubs",
+        "framework-annotations-lib",
+        "framework-configinfrastructure",
+        "framework-sdksandbox.impl",
+    ],
+    test_suites: [
+        "general-tests",
+        "mts-extservices",
+    ],
+    test_config: "AndroidTest.ExtServices.xml",
+    instrumentation_for: "ExtServices-sminus",
+    jni_libs: [
+        "libhpke_jni",
+        "libtflite_support_classifiers_native",
+    ],
+    aaptflags: [
+        // avoid compression on lite and tflite files as the Interpreter
+        // can not load compressed flat buffer formats. (*appt compresses all
+        // assets into the apk by default)
+        // See https://elinux.org/Android_aapt for more detail.
+        "-0 .lite",
+        "-0 .tflite",
+    ],
+}

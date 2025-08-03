@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="lock_screen_sources_title" msgid="5493678510117489865">"சாதனத்தை அன்லாக் செய்தல்"</string>
+    <string name="biometrics_title_for_work" msgid="1842284049407771568">"பணி ஆப்ஸுக்கான பயோமெட்ரிக்ஸ்"</string>
+    <string name="privacy_sources_summary" msgid="4083646673569677049">"அனுமதிகள், டாஷ்போர்டு, கட்டுப்பாடுகள்"</string>
+    <string name="health_connect_title" msgid="8318152190040327804">"Health Connect"</string>
+    <string name="health_connect_search_terms" msgid="4998970586245680829">"Health, Health Connect"</string>
+    <string name="app_data_sharing_updates_title" msgid="7428862330643262588">"இருப்பிடத்திற்கான தரவுப் பகிர்வு குறித்த அறிவிப்புகள்"</string>
+    <string name="app_data_sharing_updates_search_terms" msgid="8414777373734245398">"தரவு, தரவுப் பகிர்வு, தரவுப் பகிர்வு குறித்த அறிவிப்புகள், இருப்பிடத்திற்கான தரவுப் பகிர்வு குறித்த அறிவிப்புகள், பகிர்வு"</string>
+    <string name="advanced_title" msgid="6259362998269627310">"மற்ற அமைப்புகள்"</string>
+    <string name="more_settings_title" msgid="9033454654010697185">"கூடுதல் பாதுகாப்பு மற்றும் தனியுரிமை"</string>
+    <string name="more_settings_summary" msgid="7086620830002515710">"தன்னிரப்பி, அறிவிப்புகள் மற்றும் பல"</string>
+    <string name="more_settings_search_terms" msgid="1371913937610933955"></string>
+    <string name="work_policy_title" msgid="915692932391542104">"உங்கள் பணிக் கொள்கை பற்றிய தகவல்கள்"</string>
+</resources>

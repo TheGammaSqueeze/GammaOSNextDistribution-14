@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2015 The CyanogenMod Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+
+    <gradient
+        android:angle="0"
+        android:startColor="#ff3800"
+        android:endColor="#bfd3ff" />
+</shape>

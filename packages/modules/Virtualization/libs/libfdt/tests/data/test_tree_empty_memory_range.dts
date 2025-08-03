@@ -1,0 +1,8 @@
+/include/ "test_tree_no_memory_node.dts"
+
+/ {
+	memory {
+		device_type = "memory";
+		reg = <>;
+	};
+};

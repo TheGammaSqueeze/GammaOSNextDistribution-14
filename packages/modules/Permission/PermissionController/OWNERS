@@ -1,0 +1,21 @@
+include platform/frameworks/base:/core/java/android/permission/OWNERS
+
+# For automotive related changes
+stenning@google.com
+
+# For television related changes
+aabdagic@google.com
+robhor@google.com
+
+# For incident report related changes
+joeo@google.com
+
+# for SafetyCenter UI changes
+per-file res/** = file:platform/packages/modules/Permission:/SafetyCenter/OWNERS
+
+# For Wear related changes
+per-file WEAR_OWNERS = file:/PermissionController/WEAR_OWNERS
+per-file src/com/android/permissioncontroller/permission/ui/wear/** = file:/PermissionController/WEAR_OWNERS
+per-file src/com/android/permissioncontroller/role/ui/wear/** = file:/PermissionController/WEAR_OWNERS
+per-file res/*-watch/* = file:/PermissionController/WEAR_OWNERS
+per-file tests/permissionui/src/com/android/permissioncontroller/permissionui/ui/wear/** = file:/PermissionController/WEAR_OWNERS

@@ -1,0 +1,37 @@
+/*
+ * Copyright (C) 2016 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package com_android_proto_uwb;
+
+option java_package = "com.android.proto.uwb";
+option java_outer_classname = "UwbConfigProto";
+
+message ServiceConfig {
+  required string service_instance_id = 1;
+  required int32 uid = 2;
+  required string package_name = 3;
+  required int32 service_id = 4;
+  required int32 adf_status = 5;
+  optional int32 service_applet_id = 6;
+  optional bytes service_adf_oid = 7;
+  optional bytes secure_blob = 8;
+}
+message UwbConfig {
+  required int32 version = 1;
+  repeated ServiceConfig service_config = 2;
+}

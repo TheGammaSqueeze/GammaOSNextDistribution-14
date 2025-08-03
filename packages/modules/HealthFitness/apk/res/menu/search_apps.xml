@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+  <item
+      android:id="@+id/menu_search_apps"
+      android:icon="?attr/searchIcon"
+      android:showAsAction="always|collapseActionView"
+      android:actionViewClass="android.widget.SearchView"
+      android:title="@string/search_connected_apps" />
+</menu>

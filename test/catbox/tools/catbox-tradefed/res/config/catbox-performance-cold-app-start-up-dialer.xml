@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2021 Google Inc.
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<configuration description="CATBox Cold App Start-up Performance Test For Dialer/Phone.">
+  <!-- Plan -->
+  <option name="plan" value="catbox-performance-cold-app-start-up-dialer" />
+
+  <!-- Base File -->
+  <include name="catbox-performance-app-start-up-base" />
+
+  <!-- Proc Load Options -->
+  <option name="compatibility:module-arg" value="AndroidAutomotiveDialScenarioTests:instrumentation-arg:procload-collector:per_run:=true" />
+  <option name="compatibility:module-arg" value="AndroidAutomotiveDialScenarioTests:instrumentation-arg:procload-collector:proc-loadavg-interval:=20000" />
+  <option name="compatibility:module-arg" value="AndroidAutomotiveDialScenarioTests:instrumentation-arg:procload-collector:proc-loadavg-threshold:=4.0" />
+  <option name="compatibility:module-arg" value="AndroidAutomotiveDialScenarioTests:instrumentation-arg:procload-collector:proc-loadavg-timeout:=900000" />
+
+  <!-- App Start Up Options -->
+  <option name="compatibility:module-arg" value="AndroidAutomotiveDialScenarioTests:instrumentation-arg:listener:=android.device.collectors.ProcLoadListener,android.device.collectors.AppStartupListener" />
+  <option name="compatibility:module-arg" value="AndroidAutomotiveDialScenarioTests:instrumentation-arg:iterations:=20" />
+  <option name="compatibility:module-arg" value="AndroidAutomotiveDialScenarioTests:instrumentation-arg:favor-shell-commands:=true" />
+  <option name="compatibility:module-arg" value="AndroidAutomotiveDialScenarioTests:instrumentation-arg:rename-iterations:=true" />
+  <option name="compatibility:module-arg" value="AndroidAutomotiveDialScenarioTests:instrumentation-arg:iteration-separator:=$" />
+
+  <!-- Cold App Start Up Options -->
+  <option name="compatibility:module-arg" value="AndroidAutomotiveDialScenarioTests:instrumentation-arg:press-home:=false" />
+  <option name="compatibility:module-arg" value="AndroidAutomotiveDialScenarioTests:instrumentation-arg:kill-app:=true" />
+  <option name="compatibility:module-arg" value="AndroidAutomotiveDialScenarioTests:instrumentation-arg:drop-cache:=true" />
+
+  <!-- Test Package -->
+  <option name="compatibility:test-arg" value="com.android.tradefed.testtype.AndroidJUnitTest:package:android.platform.test.scenario.dial" />
+
+  <!-- Test -->
+  <option name="compatibility:include-filter" value="AndroidAutomotiveDialScenarioTests android.platform.test.scenario.dial.OpenAppMicrobenchmark#testOpen" />
+
+  <!-- Test Metrics Report Options -->
+  <option name="report-log-name" value="CatboxPerformanceTests" />
+  <option name="report-test-name-mapping" key="android.platform.test.scenario.dial.OpenAppMicrobenchmark#testOpen" value="dialer_app_start_up" />
+  <option name="report-all-metrics" value="false" />
+  <option name="report-metric-key-mapping" key="cold_startup_com.android.car.dialer-median" value="cold_start_up" />
+</configuration>

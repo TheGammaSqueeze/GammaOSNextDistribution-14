@@ -1,0 +1,20 @@
+{
+  "postsubmit": [
+    {
+      "name": "CtsContactKeysManagerTestCases",
+      "options": [
+        {
+          "include-filter": "android.provider.cts.contactkeys."
+        }
+      ]
+    },
+    {
+      "name": "CtsContactKeysProviderPrivilegedApp",
+      "options": [
+        {
+          "include-filter": "android.provider.cts.contactkeys.privilegedapp."
+        }
+      ]
+    }
+  ]
+}

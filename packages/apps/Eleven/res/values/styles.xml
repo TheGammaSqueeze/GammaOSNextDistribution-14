@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2012 Andrew Neal
+     Copyright (C) 2014 The CyanogenMod Project
+     Copyright (C) 2020-2021 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Main Material -->
+    <style name="Eleven.Theme" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:navigationBarColor">?colorSurfaceContainer</item>
+        <item name="android:windowLightNavigationBar">?isLightTheme</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowContentTransitions">true</item>
+        <item name="android:windowAllowEnterTransitionOverlap">false</item>
+        <item name="android:windowAllowReturnTransitionOverlap">false</item>
+        <item name="preferenceTheme">@style/AppPreferenceThemeOverlay</item>
+    </style>
+
+    <!-- Make the action bar not take up space -->
+    <style name="Eleven.Theme.ActionBar.Overlay" parent="@style/Eleven.Theme">
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+    </style>
+
+    <style name="AppPreferenceThemeOverlay" parent="PreferenceThemeOverlay">
+        <item name="switchPreferenceCompatStyle">@style/AppSwitchPreference</item>
+    </style>
+
+    <style name="AppSwitchPreference" parent="Preference.SwitchPreferenceCompat.Material">
+        <item name="widgetLayout">@layout/preference_material_switch</item>
+    </style>
+
+    <!-- The list item main text style -->
+    <style name="ListItemMainText">
+        <item name="android:textSize">@dimen/list_item_main_text_size</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="ListItemMainText.Single" parent="ListItemMainText">
+        <item name="android:singleLine">true</item>
+    </style>
+
+    <style name="ListItemMainText.Grid.Single" parent="ListItemMainText.Single">
+        <item name="android:textSize">@dimen/text_size_micro</item>
+    </style>
+
+    <!-- The list item secondary text style -->
+    <style name="ListItemSecondaryText">
+        <item name="android:textSize">@dimen/list_item_secondary_text_size</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="ListItemSecondaryText.Single" parent="ListItemSecondaryText">
+        <item name="android:singleLine">true</item>
+    </style>
+
+    <style name="ListItemSecondaryText.Grid.Single" parent="ListItemSecondaryText.Single">
+        <item name="android:textSize">@dimen/text_size_extra_micro</item>
+    </style>
+
+    <!-- Shortcut Activity theme -->
+    <style name="Theme.AudioPreview" parent="@style/Theme.Material3.DayNight.NoActionBar">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:backgroundDimEnabled">true</item>
+    </style>
+
+    <!-- Notification bar event text -->
+    <style name="NotificationText">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:fadingEdge">horizontal</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textColor">#212121</item>
+    </style>
+
+    <!-- Bottom Action Bar TextViews -->
+    <style name="BottomActionBarText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:paddingLeft">5dp</item>
+        <item name="android:paddingRight">16dp</item>
+        <item name="android:gravity">top|left|center</item>
+        <item name="android:singleLine">true</item>
+
+    </style>
+
+    <style name="BottomActionBarLineOne" parent="BottomActionBarText">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">@dimen/text_size_small</item>
+    </style>
+
+    <style name="BottomActionBarLineTwo" parent="BottomActionBarText">
+        <item name="android:textSize">@dimen/text_size_extra_micro</item>
+    </style>
+
+    <style name="Eleven.Theme.PopupMenuOverlapAnchor">
+        <item name="android:overlapAnchor">true</item>
+        <item name="android:dropDownVerticalOffset">0dp</item>
+        <item name="android:dropDownHorizontalOffset">0dp</item>
+    </style>
+
+    <!-- Use dp because the time decoration has constrained width and we don't want it to grow if
+         the user sets large text scale in the system settings. -->
+    <style name="SectionSeparator">
+        <item name="android:width">300dp</item>
+        <item name="android:height">24dp</item>
+        <item name="android:paddingHorizontal">16dp</item>
+        <item name="android:paddingVertical">2dp</item>
+        <item name="android:textSize" tools:ignore="SpUsage">16dp</item>
+        <item name="verticalBias">0.5</item>
+    </style>
+</resources>

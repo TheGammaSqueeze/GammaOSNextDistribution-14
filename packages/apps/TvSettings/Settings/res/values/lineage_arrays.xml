@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2022-2024 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources>
+    <!-- Buttons -->
+    <string-array name="power_button_long_press_action_entries" translatable="false">
+        <item>@string/power_button_long_press_for_power_menu_action</item>
+        <item>@string/power_button_long_press_for_assistant_action</item>
+    </string-array>
+
+    <string-array name="power_button_long_press_action_values" translatable="false">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+    <!-- Restrict USB -->
+    <string-array name="trust_restrict_usb_entries" translatable="false">
+        <item>@string/trust_restrict_usb_always</item>
+        <item>@string/trust_restrict_usb_disabled</item>
+    </string-array>
+
+    <string-array name="trust_restrict_usb_values" translatable="false">
+        <item>2</item>
+        <item>0</item>
+    </string-array>
+</resources>

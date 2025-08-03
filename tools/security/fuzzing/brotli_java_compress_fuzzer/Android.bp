@@ -1,0 +1,20 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_fuzz {
+    name: "brotli_java_compress_fuzzer",
+    srcs: [
+        "BrotliJavaCompressFuzzer.java",
+    ],
+    host_supported: true,
+    device_supported: false,
+    static_libs: [
+        "jazzer",
+        "brotli-java",
+    ],
+    jni_libs: [
+        "libbrotli_encoder_jni",
+        "libc++",
+    ],
+}

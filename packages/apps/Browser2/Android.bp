@@ -1,0 +1,22 @@
+package {
+    default_applicable_licenses: ["packages_apps_Browser2_license"],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "packages_apps_Browser2_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-BSD",
+    ],
+    // large-scale-change unable to identify any license_text files
+}
+
+android_app {
+    name: "Browser2",
+    sdk_version: "current",
+    srcs: ["src/**/*.java"],
+    uses_libs: ["android.test.runner"],
+    product_specific: true,
+}

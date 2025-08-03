@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="content_description_overflow">Бусад сонголт</string>
+  <string name="snackbar_undo">БУЦААХ</string>
+  <string name="ok_got_it">За, ойлголоо</string>
+</resources>

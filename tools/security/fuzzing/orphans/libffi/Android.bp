@@ -1,0 +1,22 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_fuzz {
+    name: "libffi_fuzz",
+    host_supported: true,
+    srcs: [
+        "fuzz_ffi.cc",
+    ],
+    include_dirs: [
+        "external/libffi",
+    ],
+    cflags: [
+        "-Wno-macro-redefined",
+        "-Wno-unused-parameter",
+        "-Wno-deprecated-declarations",
+    ],
+    static_libs: [
+        "libffi",
+    ],
+}

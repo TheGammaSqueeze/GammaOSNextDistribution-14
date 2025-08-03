@@ -1,0 +1,19 @@
+{
+  "presubmit": [
+    {
+      "name": "CtsUwbTestCases"
+    },
+    {
+      "name": "FrameworkUwbTests"
+    },
+    {
+      "name": "ServiceUwbTests"
+    },
+    {
+      "name": "UwbSupportLibTests"
+    },
+    {
+      "name": "libuwb_uci_jni_rust_tests"
+    }
+  ]
+}

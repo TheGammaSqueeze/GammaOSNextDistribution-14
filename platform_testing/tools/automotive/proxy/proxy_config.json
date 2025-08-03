@@ -1,0 +1,15 @@
+[
+  {
+    "CID": 3,
+    "Services": [
+      {
+        "name": "RPC POC",
+        "port": 2345
+      },
+      {
+        "name": "SAMPLE RPC POC",
+        "port": 5678
+      }
+    ]
+  }
+]

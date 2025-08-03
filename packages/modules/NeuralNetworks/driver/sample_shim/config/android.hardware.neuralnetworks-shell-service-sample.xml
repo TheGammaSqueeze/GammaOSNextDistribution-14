@@ -1,0 +1,6 @@
+<manifest version="1.0" type="device">
+    <hal format="aidl" updatable-via-apex="com.android.neuralnetworks">
+        <name>android.hardware.neuralnetworks</name>
+        <fqname>IDevice/nnapi-sample_sl_updatable</fqname>
+    </hal>
+</manifest>

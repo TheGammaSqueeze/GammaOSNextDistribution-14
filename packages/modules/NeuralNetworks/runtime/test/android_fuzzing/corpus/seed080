@@ -1,0 +1,59 @@
+model {
+  main {
+    operands {
+      operand {
+        type: TENSOR_FLOAT32
+        dimensions {
+          dimension: 2
+          dimension: 32
+          dimension: 40
+          dimension: 2
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 2826072982
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT32
+        dimensions {
+          dimension: 2
+          dimension: 32
+          dimension: 40
+          dimension: 2
+        }
+        lifetime: SUBGRAPH_OUTPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 1505911040
+        }
+      }
+    }
+    operations {
+      operation {
+        type: LOGISTIC
+        inputs {
+          index: 0
+        }
+        outputs {
+          index: 1
+        }
+      }
+    }
+    input_indexes {
+      index: 0
+    }
+    output_indexes {
+      index: 1
+    }
+  }
+  referenced {
+  }
+}

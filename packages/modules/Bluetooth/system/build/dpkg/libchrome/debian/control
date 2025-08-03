@@ -1,0 +1,28 @@
+Source: libchrome
+Section: libs
+Priority: optional
+Maintainer: Sonny Sasaka <sonnysasaka@chromium.org>
+Standards-Version: 4.1.4
+Homepage: https://chromium.googlesource.com/chromiumos/platform/libchrome/
+Build-Depends:
+ debhelper (>=11~),
+ clang,
+ python3,
+ pkg-config,
+ ninja-build,
+ libglib2.0-dev,
+ libevent-dev,
+ libnss3-dev,
+ libdbus-1-dev,
+ libprotobuf-dev,
+ googletest,
+ libre2-dev,
+ libdouble-conversion-dev,
+ libssl-dev,
+ libabsl-dev
+
+Package: libchrome
+Architecture: any
+Multi-Arch: foreign
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: Chromium's base library

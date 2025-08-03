@@ -1,0 +1,11 @@
+# Android Lint has its own API versioning and API release process.
+# To check that a custom linter can be plugged into the linter execution, Android Lint inspects the
+# library and makes sure that all *relevant* references can be resolved, even if they are not used
+# at runtime. The assumption is that if a *relevant* reference is missing, then it must mean that
+# the custom linter is using either unreleased or abandoned versions of the Android Lint APIs.
+# At the time of writing, almost anything that starts with `com.android` is considered a *relevant*
+# reference by `LintJarVerifier`. To work around this, preserve the dynamically linked Android Lint
+# API references and rename any other `com.android` reference.
+rule com.android.tools.lint.** @0
+rule com.android.resources.ResourceFolderType @0
+rule com.android.** android.safetycenter.lint.jarjar.@0

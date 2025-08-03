@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:startDestination="@id/migrationNavigationFragment"
+    android:id="@+id/migration_nav_graph">
+
+    <fragment
+        android:id="@+id/migrationNavigationFragment"
+        android:name="com.android.healthconnect.controller.migration.MigrationNavigationFragment">
+        <action
+            android:id="@+id/action_migrationNavigationFragment_to_dataRestoreInProgressFragment"
+            app:popUpTo="@id/migrationNavigationFragment"
+            app:popUpToInclusive="true"
+            app:destination="@id/dataRestoreInProgressFragment"/>
+        <action
+            android:id="@+id/action_migrationNavigationFragment_to_migrationInProgressFragment"
+            app:popUpTo="@id/migrationNavigationFragment"
+            app:popUpToInclusive="true"
+            app:destination="@id/migrationInProgressFragment"/>
+        <action
+            android:id="@+id/action_migrationNavigationFragment_to_migrationAppUpdateNeededFragment"
+            app:popUpTo="@id/migrationNavigationFragment"
+            app:popUpToInclusive="true"
+            app:destination="@id/migrationAppUpdateNeededFragment"/>
+        <action
+            android:id="@+id/action_migrationNavigationFragment_to_migrationModuleUpdateNeededFragment"
+            app:popUpTo="@id/migrationNavigationFragment"
+            app:popUpToInclusive="true"
+            app:destination="@id/migrationModuleUpdateNeededFragment"/>
+        <action
+            android:id="@+id/action_migrationNavigationFragment_to_migrationPausedFragment"
+            app:popUpTo="@id/migrationNavigationFragment"
+            app:popUpToInclusive="true"
+            app:destination="@id/migrationPausedFragment"/>
+        <action
+            android:id="@+id/action_migrationNavigationFragment_to_homeFragment"
+            app:destination="@id/healthConnectHomeActivity"/>
+    </fragment>
+    <fragment
+        android:id="@+id/migrationInProgressFragment"
+        android:name="com.android.healthconnect.controller.migration.MigrationInProgressFragment">
+    </fragment>
+    <fragment
+        android:id="@+id/dataRestoreInProgressFragment"
+        android:name="com.android.healthconnect.controller.migration.DataRestoreInProgressFragment">
+    </fragment>
+
+    <fragment
+        android:id="@+id/migrationAppUpdateNeededFragment"
+        android:name="com.android.healthconnect.controller.migration.AppUpdateRequiredFragment">
+        <action
+            android:id="@+id/action_migrationAppUpdateNeededFragment_to_updateAppActivity"
+            app:destination="@id/updateAppActivity"/>
+        <action
+            android:id="@+id/action_migrationAppUpdateNeededFragment_to_homeScreen"
+            app:destination="@id/healthConnectHomeActivity"/>
+        <action
+            android:id="@+id/action_migrationAppUpdateNeededFragment_to_migrationNavigationFragment"
+            app:popUpTo="@id/migrationAppUpdateNeededFragment"
+            app:popUpToInclusive="true"
+            app:destination="@id/migrationNavigationFragment"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/migrationModuleUpdateNeededFragment"
+        android:name="com.android.healthconnect.controller.migration.ModuleUpdateRequiredFragment">
+        <action
+            android:id="@+id/action_migrationModuleUpdateNeededFragment_to_systemUpdateActivity"
+            app:destination="@id/systemUpdateActivity"/>
+        <action
+            android:id="@+id/action_migrationModuleUpdateNeededFragment_to_homeScreen"
+            app:destination="@id/healthConnectHomeActivity"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/migrationPausedFragment"
+        android:name="com.android.healthconnect.controller.migration.MigrationPausedFragment">
+        <action
+            android:id="@+id/action_migrationPausedFragment_to_homeScreen"
+            app:destination="@id/healthConnectHomeActivity"/>
+        <action
+            android:id="@+id/action_migrationPausedFragment_to_migrationApk"
+            app:destination="@id/migrationApk"/>
+
+    </fragment>
+
+    <activity
+        android:id="@+id/migrationApk"
+        app:action="android.health.connect.action.SHOW_MIGRATION_INFO"
+        android:label="migrationApk"/>
+
+    <activity
+        android:id="@+id/systemUpdateActivity"
+        app:action="android.settings.SYSTEM_UPDATE_SETTINGS"
+        android:label="systemUpdateActivity"/>
+
+    <activity
+        android:id="@+id/updateAppActivity"
+        app:action="android.health.connect.action.SHOW_MIGRATION_INFO"
+        android:label="updateAppActivity"/>
+
+    <activity
+        android:id="@+id/storageSettingsActivity"
+        app:action="android.settings.INTERNAL_STORAGE_SETTINGS"
+        android:label="storageSettingsActivity"/>
+
+    <activity
+        android:id="@+id/healthConnectHomeActivity"
+        app:action="android.health.connect.action.HEALTH_HOME_SETTINGS"/>
+</navigation>

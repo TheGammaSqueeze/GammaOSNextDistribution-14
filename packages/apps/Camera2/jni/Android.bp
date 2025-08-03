@@ -1,0 +1,71 @@
+package {
+    default_applicable_licenses: ["packages_apps_Camera2_license"],
+}
+
+// See: http://go/android-license-faq
+license {
+    name: "packages_apps_Camera2_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+// TinyPlanet
+cc_library_shared {
+    name: "libjni_tinyplanet",
+    shared_libs: [
+        "liblog",
+        "libjnigraphics",
+    ],
+    sdk_version: "17",
+    srcs: ["tinyplanet.cc"],
+    product_specific: true,
+    cflags: [
+        "-ffast-math",
+        "-O3",
+        "-funroll-loops",
+        "-Wextra",
+    ],
+    arch: {
+        arm: {
+            instruction_set: "arm",
+        },
+    },
+    // for including the jni.h file
+    header_libs: ["jni_headers"],
+}
+
+// JpegUtil
+cc_library_shared {
+    name: "libjni_jpegutil",
+    stl: "c++_static",
+    shared_libs: [
+        "liblog",
+        "libdl",
+        "libjnigraphics",
+    ],
+    sdk_version: "17",
+    product_specific: true,
+    srcs: [
+        "jpegutil.cpp",
+        "jpegutilnative.cpp",
+    ],
+    static_libs: ["libjpeg_static_ndk"],
+    cflags: [
+        "-ffast-math",
+        "-O3",
+        "-funroll-loops",
+        "-Wextra",
+    ],
+    arch: {
+        arm: {
+            instruction_set: "arm",
+        },
+    },
+    // for including the jni.h file
+    header_libs: ["jni_headers"],
+}

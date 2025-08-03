@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (c) 2022, The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">ControlôrBlockDispositîf</string>
+    <string name="next_button">Indevant</string>
+    <string name="reset_button">Ristabilìs</string>
+    <string name="setup_more_button">Altri</string>
+    <string name="setup_info_title_text">Cemût che <xliff:g id="creditor_app">%1$s</xliff:g> al pues gjestî chest dispositîf</string>
+    <string name="setup_failed_title_text">Impussibil instalâ la aplicazion <xliff:g id="creditor_app">%1$s</xliff:g></string>
+    <string name="setup_failed_reset_device_text">Daûr a ripristinâ il dispositîf par tornâ a provâ.</string>
+    <string name="setup_failed_reset_device_timer_text">        {count, plural,
+            one {}=1    {Ripristine chest dispositîf, dopo prove a configurâlu di gnûf. Si ripristinarà in automatic ca di 1 secont.}
+            other {Ripristine chest dispositîf, dopo prove a configurâlu di gnûf. Si ripristinarà in automatic ca di # seconts.}
+        }
+    </string>
+    <string name="setup_progress_title_text">Daûr a instalâ la aplicazion <xliff:g id="creditor_app">%1$s</xliff:g><xliff:g id="ellipsis">\u2026</xliff:g></string>
+    <string name="setup_finish_title_text">Daûr a vierzi la aplicazion <xliff:g id="creditor_app">%1$s</xliff:g><xliff:g id="ellipsis">\u2026</xliff:g></string>
+    <string name="setup_error_title_text">Impussibil vierzi la aplicazion <xliff:g id="creditor_app">%1$s</xliff:g></string>
+    <string name="try_again">Torne prove</string>
+    <string name="reset_phone">Ripristine telefon</string>
+    <string name="control_section_title">Ce puedial fâ <xliff:g id="creditor_app">%1$s</xliff:g>\u003F</string>
+    <string name="control_lock_device_text">Limitâ chest dispositîf se no tu fasis un paiament</string>
+    <string name="control_download_text">Discjariâ, instalâ e inzornâ la aplicazion <xliff:g id="creditor_app">%1$s</xliff:g></string>
+    <string name="control_disable_debug_text">Disativâ lis funzions di debug</string>
+    <string name="locked_section_title">Ce funzional se chest dispositîf al ven blocât\u003F</string>
+    <string name="locked_emergency_text">Servizis pes clamadis di emergjence</string>
+    <string name="locked_phone_usage_text">Clamadis in jentrade e cualchi clamade in jessude</string>
+    <string name="locked_settings_usage_text">Impostazions</string>
+    <string name="locked_backup_and_restore_text"><![CDATA[<a href="https://support.google.com/android/answer/2819582">Fâ il backup e a ripristinâ</a>]]> i tiei dâts</string>
+    <string name="exposure_section_title">Ce puedial viodi <xliff:g id="creditor_app">%1$s</xliff:g>\u003F</string>
+    <string name="exposure_install_text">Cuant che la aplicazion <xliff:g id="creditor_app">%1$s</xliff:g> e ven instalade o disinstalade</string>
+    <string name="exposure_lock_unlock_text">Dutis lis richiestis di bloc o sbloc di <xliff:g id="creditor_app">%1$s</xliff:g></string>
+    <string name="exposure_disable_dlc_text">Se la aplicazion <xliff:g id="creditor_app">%1$s</xliff:g> no je disponibile</string>
+    <string name="open_source_licenses">Licencis di codiç viert</string>
+    <string name="footer_notice_content_description">Lis funzionalitâts di gjestion te sezion dal dispositîf finanziât des impostazions di Sigurece no si aplichin a chest dispositîf.</string>
+    <string name="device_provided_by_provider">Chest dispositîf al è furnît di <xliff:g id="provider name">%1$s</xliff:g></string>
+    <string name="download_kiosk_app">La aplicazion Kiosk e vignarà discjariade e instalade in automatic</string>
+    <string name="install_kiosk_app_secondary_user">La aplicazion Kiosk e vignarà instalade par chest utent</string>
+    <string name="restrict_device_if_missing_payment"><xliff:g id="provider name">%1$s</xliff:g> al pues limitâ il dispositîf se tu mancjis un paiament. Pai detais, viôt i <xliff:g id="terms_and_conditions_link_start">&lt;a href=\"%2$s\"&gt;</xliff:g>Tiermins e condizions<xliff:g id="terms_and_conditions_link_end">&lt;/a&gt;</xliff:g>.</string>
+    <string name="restrict_device_if_dont_make_payment"><xliff:g id="provider name">%1$s</xliff:g> al pues limitâ chest dispositîf se no tu fasis i paiaments necessaris. Pai detais, viôt i <xliff:g id="terms_and_conditions_link_start">&lt;a href=\"%2$s\"&gt;</xliff:g>Tiermins e condizions<xliff:g id="terms_and_conditions_link_end">&lt;/a&gt;</xliff:g>.</string>
+    <string name="contact_provider_for_help">Par jutori, <xliff:g id="support_link_start">&lt;a href=\"%2$s\"&gt;</xliff:g>contate <xliff:g id="provider name">%1$s</xliff:g><xliff:g id="support_link_end">&lt;/a&gt;</xliff:g>.</string>
+    <string name="previous">Indaûr</string>
+    <string name="next">Indevant</string>
+    <string name="start">Scomence</string>
+    <string name="ok">Va ben</string>
+    <string name="done">Fat</string>
+    <string name="do_it_in_one_hour">Fasilu ca di 1 ore</string>
+    <string name="header_icon_content_description">Informazions</string>
+    <string name="provision_info_item_icon_content_description">Informazions di furniment</string>
+    <string name="enroll_your_device_header">Regjistre il to dispositîf</string>
+    <string name="enroll_your_device_financing_subheader">Cumò tu puedis regjistrâ il to dispositîf tal program finanziari di <xliff:g id="provider name">%1$s</xliff:g></string>
+    <string name="enroll_your_device_subsidy_subheader">Cumò tu puedis regjistrâ il to dispositîf tal program di sussidi di <xliff:g id="provider name">%1$s</xliff:g></string>
+    <string name="subsidy_program_header">Tu stâs partecipant al program di sussidi di <xliff:g id="provider name">%1$s</xliff:g></string>
+    <string name="device_enrollment_header_text">Regjistrazion dispositîf</string>
+    <string name="device_financing_enrollment_body_text">Il to dispositîf al vignarà regjistrât tal program di finanziament di <xliff:g id="provider name">%1$s</xliff:g> dentri di 30 dîs</string>
+    <string name="device_subsidy_enrollment_body_text">Il to dispositîf al vignarà regjistrât tal program di sussidi di <xliff:g id="provider name">%1$s</xliff:g> dentri di 30 dîs</string>
+    <string name="device_enrollment_notification_body_text">La regjistrazion e continuarà aes <xliff:g id="time">%1$s</xliff:g>. Tu puedis continuâ a doprâ il to dispositîf. </string>
+    <string name="continue_using_device">Tu puedis continuâ a doprâ il to dispositîf</string>
+    <string name="device_paid">Il dispositîf al è stât paiât</string>
+    <string name="device_removed_from_subsidy_program">Dispositîf gjavât dal program di sussidi di <xliff:g id="provider name">%1$s</xliff:g></string>
+    <string name="device_removed_from_finance_program">Il to dispositîf al è stât gjavât dal program di finanziament di <xliff:g id="provider name">%1$s</xliff:g></string>
+    <string name="restrictions_lifted">Dutis lis limitazions sul to dispositîf a son stadis gjavadis</string>
+    <string name="uninstall_kiosk_app">Tu puedis disinstalâ la aplicazion Kiosk dal to dispositîf</string>
+    <string name="getting_device_ready">Daûr a prontâ il to dispositîf…</string>
+    <string name="this_may_take_a_few_minutes">Chest al po puartâ vie un pôcs di minûts</string>
+    <string name="installing_kiosk_app">Daûr a instalâ la aplicazion <xliff:g id="creditor_app">%1$s</xliff:g>…</string>
+    <string name="opening_kiosk_app">Daûr a vierzi la aplicazion <xliff:g id="creditor_app">%1$s</xliff:g>…</string>
+    <string name="settings_banner_title">Dispositîf furnît di <xliff:g id="provider name">%1$s</xliff:g></string>
+    <string name="settings_banner_body"><xliff:g id="provider name">%1$s</xliff:g> al pues cambiâ lis impostazions su chest dispositîf</string>
+    <string name="settings_banner_button">Plui informazions</string>
+    <string name="settings_screen_title">Informazions sul dispositîf finanziât</string>
+    <string name="settings_intro_device_financing"><xliff:g id="provider name">%1$s</xliff:g> al pues cambiâ lis impostazions e instalâla aplicazion Kiosk sul dispositîf.\n\nSe tu saltis un paiament, <xliff:g id="provider name">%1$s</xliff:g> al pues limitâ il to dispositîf.\n\nPar savênt di plui, contate <xliff:g id="provider name">%1$s</xliff:g>.</string>
+    <string name="settings_intro_device_subsidy"><xliff:g id="provider name">%1$s</xliff:g> al pues cambiâ lis impostazions e instalâ la aplicazion Kiosk sul dispositîf.\n\n<xliff:g id="provider name">%1$s</xliff:g> al podarès ancje limitâ chest dispositîf se tu saltis un paiament o tu smetis di doprâ la SIM di <xliff:g id="provider name">%1$s</xliff:g>.\n\nPar savênt di plui, contate <xliff:g id="provider name">%1$s</xliff:g>.</string>
+    <string name="settings_intro_preference_key">settings_intro_preference_key</string>
+    <string name="settings_restrictions_category">Fintant che no tu âs paiât il to dispositîf, no tu puedis:</string>
+    <string name="settings_restrictions_category_preference_key">settings_restrictions_category_preference_key</string>
+    <string name="settings_install_apps">Instalâ aplicazions che a rivin di difûr dal Play Store</string>
+    <string name="settings_install_apps_preference_key">settings_install_apps_preference_key</string>
+    <string name="settings_safe_mode">Tornâ a inviâ il dispositîf in modalitât sigure</string>
+    <string name="settings_safe_mode_preference_key">settings_safe_mode_preference_key</string>
+    <string name="settings_developer_options">Doprâ opzions svilupadôr</string>
+    <string name="settings_developer_options_preference_key">settings_developer_options_preference_key</string>
+    <string name="settings_credit_provider_capabilities_category">Se alc al va strucj cul to dispositîf, <xliff:g id="provider name">%1$s</xliff:g> al pues:</string>
+    <string name="settings_credit_provider_capabilities_category_preference_key">settings_credit_provider_capabilities_category_preference_key</string>
+    <string name="settings_IMEI">Acedi al to numar IMEI</string>
+    <string name="settings_IMEI_preference_key">settings_IMEI_preference_key</string>
+    <string name="settings_factory_reset">Azerâ il dispositîf ai dâts di fabriche</string>
+    <string name="settings_factory_reset_preference_key">settings_factory_reset_preference_key</string>
+    <string name="settings_locked_mode_category">Se il to dispositîf al è limitât, tu puedis doprâlu dome par:</string>
+    <string name="settings_locked_mode_category_preference_key">settings_locked_mode_category_preference_key</string>
+    <string name="settings_emergency_calls">Fâ clamadis a numars di emergjence</string>
+    <string name="settings_emergency_calls_preference_key">settings_emergency_calls_preference_key</string>
+    <string name="settings_system_info">Viodi informazions di sisteme come date, ore, stât de rêt e batarie</string>
+    <string name="settings_system_info_preference_key">settings_system_info_preference_key</string>
+    <string name="settings_turn_on_off_device">Impiâ o distudâ il dispositîf</string>
+    <string name="settings_turn_on_off_device_preference_key">settings_turn_on_off_device_preference_key</string>
+    <string name="settings_notifications">Viodi notifichis e messaçs di test</string>
+    <string name="settings_notifications_preference_key">settings_notifications_preference_key</string>
+    <string name="settings_allowlisted_apps">Acedi a aplicazions consintudis di <xliff:g id="provider name">%1$s</xliff:g></string>
+    <string name="settings_allowlisted_apps_preference_key">settings_allowlisted_apps_preference_key</string>
+    <string name="settings_fully_paid_category">Une volte paiât dut l\'impuart:</string>
+    <string name="settings_fully_paid_category_preference_key">settings_fully_paid_category_preference_key</string>
+    <string name="settings_restrictions_removed"><xliff:g id="provider name">%1$s</xliff:g> nol podarà limitâ il dispositîf o cambiâi lis impostazions</string>
+    <string name="settings_restrictions_removed_preference_key">settings_restrictions_removed_preference_key</string>
+    <string name="settings_uninstall_kiosk_app">Tu puedis disinstalâ la aplicazion <xliff:g id="kiosk_app">%1$s</xliff:g></string>
+    <string name="settings_uninstall_kiosk_app_preference_key">settings_uninstall_kiosk_app_preference_key</string>
+    <string name="settings_support_category">Par vê jutori:</string>
+    <string name="settings_support_category_preference_key">settings_support_category_preference_key</string>
+    <string name="settings_contact_provider"><xliff:g id="support_link_start">&lt;a href=\"%2$s\"&gt;</xliff:g>Contate <xliff:g id="provider name">%1$s</xliff:g><xliff:g id="support_link_end">&lt;/a&gt;</xliff:g></string>
+    <string name="settings_contact_provider_preference_key">settings_contact_provider_preference_key</string>
+    <string name="provision_notification_channel_name">Furnidure</string>
+    <string name="device_reset_in_days_notification_title">        {count, plural,
+            one {}=1    {Il dispositîf si azerarà ca di 1 dì}
+            other {Il dispositîf si azerarà ca di # dîs}
+        }
+    </string>
+    <string name="device_reset_timer_notification_title">Il dispositîf si ripristinarà ca di <xliff:g id="timer">%s</xliff:g></string>
+    <string name="device_reset_notification_content">A vignaran eliminâts ducj i dâts dal dispositîf. Par jutori tal regjistrâ il to dispositîf, contate <xliff:g id="provider name">%1$s</xliff:g></string>
+    <string name="provisioning_failed">La provision dal finanziament no je lade a bon fin</string>
+    <string name="click_to_contact_financier">Fâs clic achì pes manieris par contatâ il to finanziadôr. <xliff:g id="support_url_start">&lt;a href=\"%1$s\"&gt;</xliff:g>Plui informazions<xliff:g id="support_url_end">&lt;/a&gt;</xliff:g></string>
+    <string name="exit">Jes</string>
+    <string name="retry">Torne prove</string>
+</resources>

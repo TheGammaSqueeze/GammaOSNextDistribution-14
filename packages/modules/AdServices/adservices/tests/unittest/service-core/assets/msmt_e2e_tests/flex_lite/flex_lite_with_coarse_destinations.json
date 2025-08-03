@@ -1,0 +1,187 @@
+{
+  "description": "Interplay of the source field, coarse_event_report_destinations, with information gain. See comments on the registrations.",
+  "phflags_override": {
+    "measurement_flex_lite_api_enabled": "true"
+  },
+  "input": {
+    "sources": [
+      // Source is registered - it has a single destination type.
+      {
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech1.test",
+          "source_type": "navigation",
+          "registrant": "example.1s1.test"
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "response": {
+            "Attribution-Reporting-Register-Source": {
+              "source_event_id": "123",
+              "destination": "android-app://example.2d1.test",
+              "priority": "100",
+              "max_event_level_reports": 3,
+              "event_report_windows": {
+                "end_times": [5000, 8000]
+              }
+            },
+            "Location": null,
+            "Attribution-Reporting-Redirect": null
+          }
+        }],
+        "timestamp": "800000000000"
+      },
+      // Source is not registered - it has two destination types and does not set
+      // coarse_event_report_destinations, which increases information gain beyond the limit.
+      {
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech2.test",
+          "source_type": "navigation",
+          "registrant": "example.1s1.test"
+        },
+        "responses": [{
+          "url": "https://www.ad-tech2.test",
+          "response": {
+            "Attribution-Reporting-Register-Source": {
+              "source_event_id": "456",
+              "destination": "android-app://example.2d1.test",
+              "web_destination": "https://example.2d1.test",
+              "priority": "100",
+              "max_event_level_reports": 3,
+              "event_report_windows": {
+                "end_times": [5000, 8000]
+              }
+            },
+            "Location": null,
+            "Attribution-Reporting-Redirect": null
+          }
+        }],
+        "timestamp": "800000001000"
+      },
+      // Source is registered - it has two destination types but sets
+      // coarse_event_report_destinations, which stays within the information limit.
+      {
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech3.test",
+          "source_type": "navigation",
+          "registrant": "example.1s1.test"
+        },
+        "responses": [{
+          "url": "https://www.ad-tech3.test",
+          "response": {
+            "Attribution-Reporting-Register-Source": {
+              "source_event_id": "789",
+              "destination": "android-app://example.2d1.test",
+              "web_destination": "https://example.2d1.test",
+              "priority": "100",
+              "max_event_level_reports": 3,
+              "event_report_windows": {
+                "end_times": [5000, 8000]
+              },
+              "coarse_event_report_destinations": true
+            },
+            "Location": null,
+            "Attribution-Reporting-Redirect": null
+          }
+        }],
+        "timestamp": "800000002000"
+      }
+    ],
+    "triggers": [
+      {
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech1.test",
+          "registrant": "example.2d1.test"
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "response": {
+            "Attribution-Reporting-Register-Trigger": {
+              "event_trigger_data": [
+                {
+                  "trigger_data": "1",
+                  "priority": "101"
+                }
+              ]
+            },
+            "Location": null,
+            "Attribution-Reporting-Redirect": null
+          }
+        }],
+        "timestamp": "800003500000"
+      },
+      {
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech2.test",
+          "registrant": "example.2d1.test"
+        },
+        "responses": [{
+          "url": "https://www.ad-tech2.test",
+          "response": {
+            "Attribution-Reporting-Register-Trigger": {
+              "event_trigger_data": [
+                {
+                  "trigger_data": "2",
+                  "priority": "101"
+                }
+              ]
+            },
+            "Location": null,
+            "Attribution-Reporting-Redirect": null
+          }
+        }],
+        "timestamp": "800004500000"
+      },
+      {
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech3.test",
+          "registrant": "example.2d1.test"
+        },
+        "responses": [{
+          "url": "https://www.ad-tech3.test",
+          "response": {
+            "Attribution-Reporting-Register-Trigger": {
+              "event_trigger_data": [
+                {
+                  "trigger_data": "3",
+                  "priority": "101"
+                }
+              ]
+            },
+            "Location": null,
+            "Attribution-Reporting-Redirect": null
+          }
+        }],
+        "timestamp": "800005500000"
+      }
+    ]
+  },
+  "output": {
+    "event_level_results": [
+      {
+        "report_time": "800008600000",
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/report-event-attribution",
+        "payload": {
+          "attribution_destination": "android-app://example.2d1.test",
+          "scheduled_report_time": "800008600",
+          "source_event_id": "123",
+          "trigger_data": "1",
+          "source_type": "navigation",
+          "randomized_trigger_rate": 0.0008051
+        }
+      },
+      {
+        "report_time": "800011602000",
+        "report_url": "https://www.ad-tech3.test/.well-known/attribution-reporting/report-event-attribution",
+        "payload": {
+          "attribution_destination": ["android-app://example.2d1.com","https://2d1.com"],
+          "scheduled_report_time": "800011602",
+          "source_event_id": "789",
+          "trigger_data": "3",
+          "source_type": "navigation",
+          "randomized_trigger_rate": 0.0008051
+        }
+      }
+    ],
+    "aggregatable_results": []
+  }
+}

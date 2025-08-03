@@ -1,0 +1,258 @@
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_team: "trendy_team_fwk_core_networking",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_library {
+    name: "netd_aidl_interface-lateststable-java",
+    sdk_version: "system_current",
+    min_sdk_version: "30",
+    static_libs: [
+        "netd_aidl_interface-V14-java",
+    ],
+    apex_available: [
+        "//apex_available:platform", // used from services.net
+        "com.android.tethering",
+        "com.android.wifi",
+    ],
+}
+
+cc_library_static {
+    name: "netd_event_listener_interface-lateststable-ndk",
+    whole_static_libs: [
+        "netd_event_listener_interface-V1-ndk",
+    ],
+    apex_available: [
+        "com.android.resolv",
+    ],
+    min_sdk_version: "30",
+}
+
+cc_library_static {
+    name: "netd_aidl_interface-lateststable-ndk",
+    whole_static_libs: [
+        "netd_aidl_interface-V14-ndk",
+    ],
+    apex_available: [
+        "com.android.resolv",
+        "com.android.tethering",
+    ],
+    min_sdk_version: "30",
+}
+
+cc_defaults {
+    name: "netd_aidl_interface_lateststable_cpp_static",
+    static_libs: ["netd_aidl_interface-V14-cpp"],
+}
+
+cc_defaults {
+    name: "netd_aidl_interface_lateststable_cpp_shared",
+    shared_libs: ["netd_aidl_interface-V14-cpp"],
+}
+
+aidl_interface {
+    name: "netd_aidl_interface",
+    local_include_dir: "binder",
+    srcs: [
+        "binder/android/net/INetd.aidl",
+        // AIDL interface that callers can implement to receive networking events from netd.
+        "binder/android/net/INetdUnsolicitedEventListener.aidl",
+        "binder/android/net/InterfaceConfigurationParcel.aidl",
+        "binder/android/net/IpSecMigrateInfoParcel.aidl",
+        "binder/android/net/MarkMaskParcel.aidl",
+        "binder/android/net/NativeNetworkConfig.aidl",
+        "binder/android/net/NativeNetworkType.aidl",
+        "binder/android/net/NativeVpnType.aidl",
+        "binder/android/net/RouteInfoParcel.aidl",
+        "binder/android/net/TetherConfigParcel.aidl",
+        "binder/android/net/TetherOffloadRuleParcel.aidl",
+        "binder/android/net/TetherStatsParcel.aidl",
+        "binder/android/net/UidRangeParcel.aidl",
+        // Add new AIDL classes in android.net.netd.aidl to consist with other network modules.
+        "binder/android/net/netd/aidl/**/*.aidl",
+    ],
+    backend: {
+        cpp: {
+            gen_log: true,
+        },
+        java: {
+            // TODO: Remove apex_available and restrict visibility to only mainline modules that are
+            // either outside the system server or use jarjar to rename the generated AIDL classes.
+            apex_available: [
+                "//apex_available:platform", // used from services.net
+                "com.android.tethering",
+                "com.android.wifi",
+            ],
+            // this is part of updatable modules(NetworkStack) which targets 30(R)
+            min_sdk_version: "30",
+        },
+        ndk: {
+            apex_available: [
+                "//apex_available:platform",
+                "com.android.tethering",
+            ],
+            // This is necessary for the DnsResovler tests to run in Android R.
+            // Soong would recognize this value and produce the R compatible aidl library.
+            min_sdk_version: "30",
+        },
+    },
+    versions_with_info: [
+        {
+            version: "1",
+            imports: [],
+        },
+        {
+            version: "2",
+            imports: [],
+        },
+        {
+            version: "3",
+            imports: [],
+        },
+        {
+            version: "4",
+            imports: [],
+        },
+        {
+            version: "5",
+            imports: [],
+        },
+        {
+            version: "6",
+            imports: [],
+        },
+        {
+            version: "7",
+            imports: [],
+        },
+        {
+            version: "8",
+            imports: [],
+        },
+        {
+            version: "9",
+            imports: [],
+        },
+        {
+            version: "10",
+            imports: [],
+        },
+        {
+            version: "11",
+            imports: [],
+        },
+        {
+            version: "12",
+            imports: [],
+        },
+        {
+            version: "13",
+            imports: [],
+        },
+        {
+            version: "14",
+            imports: [],
+        },
+
+    ],
+    frozen: true,
+
+}
+
+java_library {
+    name: "netd_event_listener_interface-lateststable-java",
+    sdk_version: "system_current",
+    min_sdk_version: "30",
+    static_libs: [
+        "netd_event_listener_interface-V1-java",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.wifi",
+        "com.android.tethering",
+    ],
+}
+
+aidl_interface {
+    name: "netd_event_listener_interface",
+    local_include_dir: "binder",
+    srcs: [
+        "binder/android/net/metrics/INetdEventListener.aidl",
+    ],
+
+    backend: {
+        ndk: {
+            apex_available: [
+                "//apex_available:platform",
+                "com.android.resolv",
+            ],
+            min_sdk_version: "30",
+        },
+        java: {
+            apex_available: [
+                "//apex_available:platform",
+                "com.android.wifi",
+                "com.android.tethering",
+            ],
+            min_sdk_version: "30",
+        },
+    },
+    versions_with_info: [
+        {
+            version: "1",
+            imports: [],
+        },
+        {
+            version: "2",
+            imports: [],
+        },
+
+    ],
+    frozen: true,
+
+}
+
+aidl_interface {
+    name: "mdns_aidl_interface",
+    local_include_dir: "binder",
+    srcs: [
+        "binder/android/net/mdns/aidl/**/*.aidl",
+    ],
+    backend: {
+        java: {
+            sdk_version: "module_current",
+            apex_available: [
+                "//apex_available:platform",
+                "com.android.tethering",
+            ],
+            min_sdk_version: "30",
+        },
+    },
+    versions_with_info: [
+        {
+            version: "1",
+            imports: [],
+        },
+        {
+            version: "2",
+            imports: [],
+        },
+
+    ],
+    frozen: true,
+
+}

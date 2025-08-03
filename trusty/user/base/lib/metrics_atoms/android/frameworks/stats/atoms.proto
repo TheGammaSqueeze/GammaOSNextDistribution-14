@@ -1,0 +1,101 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+option optimize_for = CODE_SIZE;
+option java_package = "com.android.os";
+option java_outer_classname = "AtomsProto";
+
+message Atom {
+  oneof pushed {
+    TrustyAppCrashed trusty_app_crashed = 100072;
+    TrustyError trusty_error = 100145;
+    TrustyStorageError trusty_storage_error = 100146;
+  }
+}
+
+enum TrustyErrorType {
+  TRUSTY_ERROR_UNKNOWN = 0;
+  TRUSTY_ERROR_HEAP_OOM = 1;
+  TRUSTY_ERROR_HEAP_THRESHOLD_90 = 2;
+  TRUSTY_ERROR_KERNEL_EVENT_DROP = 3;
+}
+
+message TrustyError {
+  optional string reverse_domain_name = 1;
+  optional TrustyErrorType error_code = 2;
+  optional string app_id = 3;
+  optional string client_app_id = 4;
+}
+
+enum TrustyStorageErrorType {
+  TRUSTY_STORAGE_ERROR_UNKNOWN = 0;
+  TRUSTY_STORAGE_ERROR_SUPERBLOCK_INVALID = 1;
+  TRUSTY_STORAGE_ERROR_BLOCK_MAC_MISMATCH = 2;
+  TRUSTY_STORAGE_ERROR_BLOCK_HEADER_INVALID = 3;
+  TRUSTY_STORAGE_ERROR_RPMB_COUNTER_MISMATCH = 4;
+  TRUSTY_STORAGE_ERROR_RPMB_COUNTER_MISMATCH_RECOVERED = 5;
+  TRUSTY_STORAGE_ERROR_RPMB_COUNTER_READ_FAILURE = 6;
+  TRUSTY_STORAGE_ERROR_RPMB_MAC_MISMATCH = 7;
+  TRUSTY_STORAGE_ERROR_RPMB_ADDR_MISMATCH = 8;
+  TRUSTY_STORAGE_ERROR_RPMB_FAILURE_RESPONSE = 9;
+  TRUSTY_STORAGE_ERROR_RPMB_UNKNOWN = 10;
+  TRUSTY_STORAGE_ERROR_RPMB_SCSI_ERROR = 11;
+  TRUSTY_STORAGE_ERROR_IO_ERROR = 12;
+  TRUSTY_STORAGE_ERROR_PROXY_COMMUNICATION_FAILURE = 13;
+}
+
+enum TrustyFileSystem {
+  TRUSTY_FS_UNKNOWN = 0;
+  TRUSTY_FS_TP = 1;
+  TRUSTY_FS_TD = 2;
+  TRUSTY_FS_TDP = 3;
+  TRUSTY_FS_TDEA = 4;
+  TRUSTY_FS_NSP = 5;
+}
+
+enum TrustyBlockType {
+  TRUSTY_BLOCKTYPE_UNKNOWN = 0;
+  TRUSTY_BLOCKTYPE_FILES_ROOT = 1;
+  TRUSTY_BLOCKTYPE_FREE_ROOT = 2;
+  TRUSTY_BLOCKTYPE_FILES_INTERNAL = 3;
+  TRUSTY_BLOCKTYPE_FREE_INTERNAL = 4;
+  TRUSTY_BLOCKTYPE_FILE_ENTRY = 5;
+  TRUSTY_BLOCKTYPE_FILE_BLOCK_MAP = 6;
+  TRUSTY_BLOCKTYPE_FILE_DATA = 7;
+  TRUSTY_BLOCKTYPE_CHECKPOINT_ROOT = 8;
+  TRUSTY_BLOCKTYPE_CHECKPOINT_FILES_ROOT = 9;
+  TRUSTY_BLOCKTYPE_CHECKPOINT_FREE_ROOT = 10;
+}
+
+message TrustyStorageError {
+  optional string reverse_domain_name = 1;
+  optional TrustyStorageErrorType error = 2;
+  optional string app_id = 3;
+  optional string client_app_id = 4;
+  optional int32 write = 5;
+  optional TrustyFileSystem file_system = 6;
+  optional int64 file_path_hash = 7;
+  optional TrustyBlockType block_type = 8;
+  optional int64 repair_counter = 9;
+}
+
+message TrustyAppCrashed {
+  optional string reverse_domain_name = 1;
+  optional string app_id = 2;
+  optional int32  crash_reason = 3;
+}

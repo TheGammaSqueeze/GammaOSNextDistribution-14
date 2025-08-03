@@ -1,0 +1,14 @@
+# Use this reviewer by default.
+# wp-custom@google.com (Googlers only)
+
+# People who can approve changes for submission
+#
+
+adamcohen@google.com
+sunnygoyal@google.com
+santie@google.com
+giolin@google.com
+poultney@google.com
+
+per-file BaseFlags.kt, globs = set noparent
+per-file BaseFlags.kt = santie@google.com, sunnygoyal@google.com, adamcohen@google.com

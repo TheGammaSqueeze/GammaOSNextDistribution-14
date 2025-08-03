@@ -1,0 +1,9 @@
+package: "com.android.bluetooth.flags"
+container: "com.android.btservices"
+
+flag {
+    name: "report_vsc_data_from_the_gd_controller"
+    namespace: "bluetooth"
+    description: "Remove hand parsing of the VSC capabilities packets"
+    bug: "321295665"
+}

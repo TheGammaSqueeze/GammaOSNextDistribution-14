@@ -1,0 +1,17 @@
+[package]
+version = "0.1.0"
+edition = "2021"
+name = "netsim-proto"
+##build = "build_cargo.rs"
+
+[dependencies]
+protobuf = "=3.2.0"
+
+[build-dependencies]
+##protobuf = "=3.2.0"
+##protobuf-codegen = "3.2.0"
+
+[lib]
+path = "src/lib.rs"
+crate-type = ["staticlib","lib"]
+doctest = false

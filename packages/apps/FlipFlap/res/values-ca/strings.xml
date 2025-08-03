@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  Copyright (c) 2017 The LineageOS Project
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ Also add information on how to contact you by electronic and paper mail.
+
+-->
+<resources>
+    <string name="app_name">FlipFlap</string>
+    <string name="notification_title">Tapa intel·ligent detectada</string>
+    <string name="alarm_label">ALARMA</string>
+    <string name="abbrev_wday_month_day_no_year">EEE, d MMMM</string>
+    <string name="answer_call">CONTESTA</string>
+    <string name="ignore_call">IGNORA</string>
+    <string name="end_call">PENJA LA TRUCADA</string>
+    <string name="settings_name">Tapa intel·ligent</string>
+    <string name="settings_enable">Activa el control intel·ligent de la portada</string>
+    <string name="settings_summary">Controla el comportament del teu accessori</string>
+    <string name="category_behaviour">Comportament</string>
+    <string name="pass_to_security_view_title">Vés directament a l\'entrada de contrasenya</string>
+    <string name="pass_to_security_view_summary">En obrir la tapa es mostra directament la pantalla de bloqueig</string>
+    <string name="use_high_touch_sensitivity_title">Sensibilitat al tacte alta</string>
+    <string name="use_high_touch_sensitivity_summary">Augmenta la sensibilitat tàctil mentre la tapa està tancada</string>
+    <string name="category_design">Disseny</string>
+    <string name="switch_charging_status_title">Mostra l\'estat de la càrrega</string>
+    <string name="switch_charging_status_summary">Canvia el color en funció de la càrrega de la bateria</string>
+    <string name="category_timeouts">Comptes enrera</string>
+    <string name="timeout_plugged_title">Mentre es carrega</string>
+    <string name="timeout_unplugged_title">Desendollat</string>
+    <string name="timeout_summary">Mostra l\'aplicació de la funda durant %s després de tancar la tapa</string>
+    <string name="timeout_summary_never">Després de tancar la tapa, l\'aplicació de la funda sempre es quedarà encesa</string>
+    <string name="timeout_summary_immediately">La pantalla s\'apagarà en tancar la tapa</string>
+    <string name="timeout_entry_immediately">Immediatament</string>
+    <string name="timeout_entry_5s">5 segons</string>
+    <string name="timeout_entry_10s">10 segons</string>
+    <string name="timeout_entry_30s">30 segons</string>
+    <string name="timeout_entry_1min">1 minut</string>
+    <string name="timeout_entry_5min">5 minuts</string>
+    <string name="timeout_entry_never">Mai</string>
+</resources>

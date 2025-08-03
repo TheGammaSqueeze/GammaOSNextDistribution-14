@@ -1,0 +1,30 @@
+package: "com.android.ipsec.flags"
+container: "com.android.ipsec"
+
+flag {
+  name: "liveness_check_api"
+  namespace: "ipsec"
+  description: "This is a new feature includes APIs to check liveness and notify liveness status."
+  bug: "286171724"
+}
+
+flag {
+  name: "dpd_disable_api"
+  namespace: "ipsec"
+  description: "Expose API to support Disabling DPD."
+  bug: "306556977"
+}
+
+flag {
+  name: "dumpsys_api"
+  namespace: "ipsec"
+  description: "Expose API to dump ike session info for debugging support."
+  bug: "308513922"
+}
+
+flag {
+  name: "enabled_ike_options_api"
+  namespace: "ipsec"
+  description: "Expose API to return enabled IKE options"
+  bug: "308513922"
+}

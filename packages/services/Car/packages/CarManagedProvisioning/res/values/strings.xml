@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (C) 2021 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <!--Pre-provisioning screen informing a user of benefits and consequences of creating a Device Owner -->
+  <!-- Screen title. This is letting the user know that their organization (e.g. company)/the fleet management company owns the device. [CHAR LIMIT=NONE]-->
+  <string name="brand_screen_header">This vehicle belongs to the organization</string>
+  <!-- Text with link to device's provider in case of more questions [CHAR LIMIT=NONE] -->
+  <string name="contact_device_provider">To learn more, contact the <xliff:g id="it_admin" example="organizations manager">%1$s</xliff:g>.</string>
+    <!-- Provider of the device (e.g. employer, fleet management company) [CHAR LIMIT=NONE] -->
+  <string name="organization_admin">organization manager</string>
+  <!-- Error message encouraging to contact admin [CHAR LIMIT=NONE] -->
+  <string name="if_questions_contact_admin">If you have questions, contact the organization manager</string>
+
+  <!-- User consent -->
+  <!-- Text in a pop-up that asks the user to confirm that they allow the device management app to take control of the device. [CHAR LIMIT=NONE]-->
+  <string name="admin_has_ability_to_monitor_device">The organization manager has the ability to monitor and manage settings, corporate access, apps, permissions, and data associated with this vehicle, including network activity, as well as this vehicle\'s location.<xliff:g id="line_break">\n\n</xliff:g>Contact the organization manager for more information, including the organization\'s privacy policies.</string>
+  <!-- String telling the user how to get more information about the managed profile [CHAR LIMIT=NONE] -->
+  <string name="contact_your_admin_for_more_info">Contact the organization manager for more information, including the organization\'s privacy policies.</string>
+
+  <!-- 'Terms and conditions' screen -->
+  <!-- Managed device info terms section heading. [CHAR LIMIT=NONE] -->
+  <string name="managed_device_info">This is a managed vehicle</string>
+
+  <!-- Message of the error dialog in case of an unspecified error. [CHAR LIMIT=NONE] -->
+  <string name="contact_your_admin_for_help">Contact the organization manager for help</string>
+
+  <!-- Fully managed device setup screens -->
+  <!-- Screen title. This is letting the user know that they're about to set up their new work device. [CHAR LIMIT=NONE]-->
+  <string name="fully_managed_device_provisioning_accept_header">Set up the managed vehicle</string>
+  <!-- Screen title. This is letting the user know that they can use their work device to easily access their their organization (e.g. company) / the fleet management company's apps. [CHAR LIMIT=NONE]-->
+  <string name="fully_managed_device_provisioning_step_1_header">Access your organization\'s apps</string>
+  <!-- Screen subtext. This is letting the user know that the device is being provisioned[CHAR LIMIT=NONE]-->
+  <string name="fully_managed_device_provisioning_step_1_description">Setting up infotainment system...</string>
+  <!-- Screen title. This is letting the user know that their entire device isn't private and can be accessed by their organization's fleet manager. [CHAR LIMIT=NONE]-->
+  <string name="fully_managed_device_provisioning_step_2_header">Infotainment system data isn\'t private</string>
+  <!-- Screen subtext title. This is letting the user know that their organization's fleet manager may be able to see their data and activity since the device isn't private. [CHAR LIMIT=NONE]-->
+  <string name="fully_managed_device_provisioning_step_2_subheader_title">Your activity and data</string>
+  <!-- Screen subtext. This is letting the user know that their organization's fleet manager may be able to see their data and activity since the device isn't private. [CHAR LIMIT=NONE]-->
+  <string name="fully_managed_device_provisioning_step_2_subheader">The organization manager may be able to see your activity and data on this vehicle.</string>
+  <!-- Screen subtext. This is letting the user know that their organization's fleet manager may be able to see their data and activity since the device isn't private. [CHAR LIMIT=NONE]-->
+  <string name="fully_managed_device_provisioning_permissions_secondary_subheader">The organization manager can set permissions for apps on this vehicle, such as microphone and location permissions.</string>
+  <!-- Spoken text for screen readers. This is summarizing the key features of their work device, including their admin's ability to control permissions, while it's being set up. [CHAR LIMIT=NONE]-->
+  <string name="fully_managed_device_with_permission_control_provisioning_summary">Use this vehicle\'s infotainment system to easily access your work apps. This vehicle isn’t private, so the organization manager may be able to see your activity and data. The organization manager can also set permissions for apps on this vehicle, such as microphone and location permissions.</string>
+  <!-- Spoken text for screen readers. This is summarizing the key features of their work device while it's being set up. [CHAR LIMIT=NONE]-->
+  <string name="fully_managed_device_provisioning_summary">Use this vehicle\'s infotainment system to easily access your work apps. This vehicle isn\'t private, so the organization manager may be able to see your data and activity.</string>
+
+  <!-- In-progress text that's part of a full-screen message. This is letting the user know that their device is being set up. [CHAR LIMIT=NONE]-->
+  <string name="fully_managed_device_provisioning_progress_label">Setting up managed vehicle</string>
+  <!-- Screen title. This is letting the user know they should return the device to their organization's fleet manager if they do not want to finish set-up. [CHAR LIMIT=NONE]-->
+  <string name="fully_managed_device_provisioning_return_device_title">Cancel setup and return vehicle</string>
+  <!-- Screen subtext. This tells the user they should either go back to the previous screen to complete set-up, or abort set-up by resetting the device. [CHAR LIMIT=NONE]-->
+  <string name="fully_managed_device_provisioning_return_device_subheader">Reset and return this vehicle to the organization manager, or go back to the previous screen to continue setup.</string>
+  <!-- Button text. Leads the user to the screen letting them cancel the setup. [CHARLIMIT=40]-->
+  <string name="fully_managed_device_cancel_setup_button">Cancel setup</string>
+  <!-- Button text. The final affirmitive button the user needs to press to actually reset the device. [CHARLIMIT=20]-->
+  <string name="fully_managed_device_reset_and_return_button">Reset &amp; return</string>
+
+  <!-- Notification title. This text is letting the user know about a privacy reminder before they start using their new work device. [CHAR LIMIT=NONE]-->
+  <string name="fully_managed_device_provisioning_privacy_title">Privacy notice</string>
+  <!-- Notification message. This text is letting the user know about a privacy reminder before they start using their new work device, and that their IT admin may be able to see their data and activity on this device. [CHAR LIMIT=NONE]-->
+  <string name="fully_managed_device_provisioning_privacy_body">The organization manager may be able to see your data and activity on this vehicle.</string>
+
+</resources>

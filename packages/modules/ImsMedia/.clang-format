@@ -1,0 +1,37 @@
+---
+Language: Cpp
+BasedOnStyle: Google
+AccessModifierOffset: -4
+AlignAfterOpenBracket: DontAlign
+AlignArrayOfStructures: None
+AlignConsecutiveMacros: AcrossEmptyLinesAndComments
+AlignOperands: false
+AllowAllArgumentsOnNextLine: true
+AllowShortBlocksOnASingleLine: Never
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLambdasOnASingleLine: None
+AllowShortLoopsOnASingleLine: false
+AlwaysBreakBeforeMultilineStrings: false
+BreakBeforeBraces: Allman
+BreakConstructorInitializers: AfterColon
+BreakInheritanceList: AfterColon
+ColumnLimit: 100
+CommentPragmas: NOLINT:.*
+ConstructorInitializerIndentWidth: 8
+ContinuationIndentWidth: 8
+DerivePointerAlignment: false
+IncludeBlocks: Preserve
+IndentWidth: 4
+MaxEmptyLinesToKeep: 1
+PackConstructorInitializers: Never
+PenaltyBreakBeforeFirstCallParameter: 100000
+PointerAlignment: Left
+SortIncludes: Never
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeCaseColon: false
+SpaceBeforeParens: ControlStatements
+Standard: c++20
+TabWidth: 4
+UseTab: Never
+---

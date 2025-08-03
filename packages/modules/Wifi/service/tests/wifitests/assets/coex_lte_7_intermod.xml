@@ -1,0 +1,14 @@
+<table>
+    <entry>
+        <rat>LTE</rat>
+        <band>7</band>
+        <powerCapDbm>-50</powerCapDbm>
+        <params>
+            <intermodParams2g>
+                <N>2</N>
+                <M>-1</M>
+                <overlap>100</overlap>
+            </intermodParams2g>
+        </params>
+    </entry>
+</table>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2017-2021 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <string name="app_name">Felvevő</string>
+    <string name="share">Megosztás</string>
+    <string name="share_selected">A kijelöltek megosztása</string>
+    <string name="stop">Leállítás</string>
+    <string name="play">Lejátszás</string>
+    <string name="pause">Szünet</string>
+    <string name="resume">Folytatás</string>
+    <string name="delete">Törlés</string>
+    <string name="delete_all">Az összes törlése</string>
+    <string name="delete_selected">A kijelöltek törlése</string>
+    <string name="cancel">Mégse</string>
+    <string name="rename">Átnevezés</string>
+    <string name="delete_title">Felvétel törlése</string>
+    <string name="delete_recording_message">Biztosan törli ezt a felvételt? Ha törölte, már nem szerezheti többé vissza</string>
+    <string name="confirm">Megerősítés</string>
+    <string name="discard">Elvetés</string>
+    <string name="record_again">Ismételt felvétel</string>
+    <string name="confirm_result_title">Használja a felvételt?</string>
+    <string name="confirm_result_message">Szeretné a legutóbb felvettet használni?</string>
+    <string name="sound_notification_title">Hangrögzítő</string>
+    <string name="sound_notification_message">Audio hossza: %1$s</string>
+    <string name="sound_recording_title_working">Felvétel</string>
+    <string name="sound_recording_title_paused">Szüneteltetve</string>
+    <string name="sound_last_title">Utolsó felvétel</string>
+    <string name="sound_channel_title">Hangrögzítés</string>
+    <string name="sound_channel_desc">Állandó értesítés hangfelvétel közben és értesítés befejezéskor</string>
+    <string name="settings_title">Beállítások</string>
+    <string name="settings_location_message">A felvételeket fűzze hozzá az aktuális tartózkodási helyhez</string>
+    <string name="settings_quality_high">Kiváló minőségű felvétel</string>
+    <string name="dialog_permissions_title">Jogosultságok</string>
+    <string name="dialog_permissions_mic">Felvevőnek a mikrofonhoz való hozzáférés kell a hang rögzítéséhez</string>
+    <string name="dialog_permissions_phone">Felvevőnek a telefon állapotához való hozzáférésre van szüksége a telefonálás közbeni rögzítés megakadályozására</string>
+    <string name="dialog_permissions_notifications">A Hangrögzítőnek értesítési engedélyre van szüksége, hogy a vezérlőket megjeleníthesse</string>
+    <string name="dialog_permissions_mic_phone">Felvevőnek a mikrofonhoz való hozzáférésre van szüksége a hang rögzítéséhez és a telefon állapotához való hozzáférésre a telefonálás közbeni rögzítés megakadályozására</string>
+    <string name="dialog_permissions_mic_notifications">A Hangrögzítőnek a hangfelvételhez mikrofon-, a vezérlőmegjelenítéshez értesítésengedélyre van szüksége</string>
+    <string name="dialog_permissions_phone_notifications">A Hangrögzítőnek telefonállapot-hozzáférésre van szüksége, hogy megakadályozza a hívás közbeni felvételt, valamint értesítési engedélyre van szüksége a vezérlők megjelenítéséhez</string>
+    <string name="dialog_permissions_mic_phone_notifications">A Hangrögzítőnek telefonállapot-hozzáférésre van szüksége, hogy megakadályozza a hívás közbeni felvételt, a hangfelvételhez mikrofon-, valamint a vezérlők megjelenítéséhez értesítési engedélyre van szüksége</string>
+    <string name="dialog_permissions_location">A teggeléshez (hogy később tartózkodási hely szerint rendezhesse a felvételeket) a rögzítőnek jogosultságok szükségesek</string>
+    <string name="dialog_permissions_ask">Kérdezze meg újra</string>
+    <string name="dialog_permissions_dismiss">Elvetés</string>
+    <string name="snack_permissions_no_permission">Szükséges engedélyek megtagadva, engedélyezze őket a Beállításokban a felvétel megkezdéséhez</string>
+    <string name="snack_permissions_no_permission_location">Helyhozzáférés megtagadva, engedélyezze a Beállításokban, hogy a felvételek teggelhetők legyenek</string>
+    <string name="main_sound_action">Hangrögzítés</string>
+    <string name="list_title">Saját felvételeim</string>
+    <string name="list_error_empty">Az összes felvétele itt fog látszódni</string>
+    <string name="list_edit_title">Felvételcímek szerkesztése</string>
+    <string name="list_edit_confirm">Módosítás</string>
+    <string name="list_item_menu">További műveletek</string>
+    <string name="delete_all_title">Az összes törlése</string>
+    <string name="delete_all_message">Biztosan törli az összes felvételt? Ha törölte, már nem szerezheti többé vissza</string>
+    <string name="delete_selected_title">A kijelöltek törlése</string>
+    <string name="delete_selected_message">Biztosan törli a kiválasztott felvételt? Ha törölte, már nem szerezheti többé vissza</string>
+    <plurals name="recording_selection_count">
+        <item quantity="one">%d kijelölve</item>
+        <item quantity="other">%d kijelölve</item>
+    </plurals>
+</resources>

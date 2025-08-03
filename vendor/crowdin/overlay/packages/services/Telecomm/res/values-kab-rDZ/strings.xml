@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2013 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="userCallActivityLabel" product="default">Tiliɣri</string>
+    <string name="unknown">Arussin</string>
+    <string name="notification_missedCallTitle">Asiwel yettwazgalen</string>
+    <string name="notification_missedCall_message">Izen</string>
+    <string name="add_vm_number_str">Rnu uṭṭun</string>
+    <string name="change_default_dialer_dialog_negative">Semmet</string>
+    <string name="change_default_call_screening_dialog_negative">Semmet</string>
+    <string name="unblock_button">Eks asewḥel</string>
+    <string name="add_blocked_number_hint">Uṭṭun n tiliγri</string>
+    <string name="block_button">Sewḥel</string>
+    <string name="delete_icon_description">Eks asewḥel</string>
+    <string name="answer_incoming_call">Tiririt</string>
+    <string name="decline_incoming_call">Agwi</string>
+    <string name="phone_settings_private_num_txt">Uslig</string>
+    <string name="phone_settings_unknown_txt">Arussin</string>
+    <string name="cancel">Semmet</string>
+    <string name="callendpoint_name_unknown">Arussin</string>
+</resources>

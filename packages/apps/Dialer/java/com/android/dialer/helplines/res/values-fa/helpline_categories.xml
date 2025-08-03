@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2019-2021 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources>
+    <string name="helpline_category_abuse">سوء مصرف</string>
+    <string name="helpline_category_acohol">الکل</string>
+    <string name="helpline_category_addiction">اعتیاد</string>
+    <string name="helpline_category_adolescents">نوجوانان</string>
+    <string name="helpline_category_adults">بزرگسالان</string>
+    <string name="helpline_category_aids">ایدز</string>
+    <string name="helpline_category_birth">تولد</string>
+    <string name="helpline_category_bullying">قلدری</string>
+    <string name="helpline_category_children">فرزندان</string>
+    <string name="helpline_category_crime">جرم</string>
+    <string name="helpline_category_crime_victims">قربانیان جنایت</string>
+    <string name="helpline_category_corruption">فساد</string>
+    <string name="helpline_category_discrimination">تبعیض</string>
+    <string name="helpline_category_domestic_violence">خشونت خانگی</string>
+    <string name="helpline_category_drugs">مواد مخدر</string>
+    <string name="helpline_category_emotional_support">حمایت عاطفی</string>
+    <string name="helpline_category_family">خانواده</string>
+    <string name="helpline_category_gambling">شرط بندی</string>
+    <string name="helpline_category_gender">جنسیت</string>
+    <string name="helpline_category_generic">عمومی</string>
+    <string name="helpline_category_hiv">اچ‌آی‌وی</string>
+    <string name="helpline_category_human_rights">حقوق بشر</string>
+    <string name="helpline_category_human_trafficking">قاچاق انسان</string>
+    <string name="helpline_category_immigration">مهاجرت</string>
+    <string name="helpline_category_legal_aid">کمک حقوقی</string>
+    <string name="helpline_category_lgbtq">ال‌جی‌بی‌تی+</string>
+    <string name="helpline_category_men">مردان</string>
+    <string name="helpline_category_mental_health">سلامت روان</string>
+    <string name="helpline_category_missing_children">بچه های گمشده</string>
+    <string name="helpline_category_mothers">مادران</string>
+    <string name="helpline_category_muslim">مسلمان</string>
+    <string name="helpline_category_parents">والدین</string>
+    <string name="helpline_category_pregnancy">بارداری</string>
+    <string name="helpline_category_psychological">روانشناسی</string>
+    <string name="helpline_category_religion">دین</string>
+    <string name="helpline_category_senior">سالمندان</string>
+    <string name="helpline_category_sexual_abuse">سوء استفاده جنسی</string>
+    <string name="helpline_category_sexual_assault">حمله جنسی</string>
+    <string name="helpline_category_sexual_rights">حقوق جنسی</string>
+    <string name="helpline_category_sexuality">جنسی</string>
+    <string name="helpline_category_soldiers">سربازان</string>
+    <string name="helpline_category_suicide">پیشگیری از خودکشی</string>
+    <string name="helpline_category_trans">تغییر جنسیت</string>
+    <string name="helpline_category_veterans">پیشکسوتان</string>
+    <string name="helpline_category_violence">ترویج خشونت</string>
+    <string name="helpline_category_war">جنگ</string>
+    <string name="helpline_category_women">زنان</string>
+    <string name="helpline_category_youth">جوانی</string>
+</resources>

@@ -1,0 +1,4 @@
+filegroup {
+    name: "checked_in_cobalt_registry_binarypb",
+    srcs: ["cobalt_registry.binarypb"],
+}

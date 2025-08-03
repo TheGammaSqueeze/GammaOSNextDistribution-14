@@ -1,0 +1,13 @@
+// for packages/apps/Traceur
+{
+    "presubmit": [
+        {
+            "name": "TraceurUiTests"
+        }
+    ],
+    "hwasan-postsubmit": [
+        {
+            "name": "TraceurUiTests"
+        }
+    ]
+}

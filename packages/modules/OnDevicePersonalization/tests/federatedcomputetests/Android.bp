@@ -1,0 +1,74 @@
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "FederatedComputeServicesTests",
+    srcs: [
+        "src/**/*.java",
+        ":federatedcompute-sources",
+        ":federatedcompute-fbs",
+        ":statslog-federatedcompute-java-gen",
+        ":fcp_native_wrapper",
+    ],
+    defaults: [
+        // For ExtendedMockito dependencies.
+        "modules-utils-testable-device-config-defaults",
+    ],
+    libs: [
+        "android.test.base",
+        "android.test.runner",
+        "auto_value_annotations",
+        "framework-annotations-lib",
+        "framework-ondevicepersonalization.impl",
+        "framework-configinfrastructure", // For PH flags
+        "framework-statsd.stubs.module_lib", // For WW logging
+        "truth",
+    ],
+    static_libs: [
+        "androidx.test.ext.junit",
+        "androidx.test.ext.truth",
+        "androidx.test.rules",
+        "federated-compute-java-proto-lite",
+        "flatbuffers-java",
+        "mockito-target-extended-minus-junit4",
+        "modules-utils-build",
+        "modules-utils-preconditions",
+        "libprotobuf-java-lite",
+        "tensorflow_core_proto_java_lite",
+        // Used for client error logging and background job logging.
+        "adservices-shared-spe",
+    ],
+    manifest: "AndroidManifest.xml",
+    plugins: ["auto_value_plugin"],
+    sdk_version: "module_current",
+    target_sdk_version: "current",
+    min_sdk_version: "Tiramisu",
+    certificate: "platform",
+    compile_multilib: "both",
+    test_config: "AndroidTest.xml",
+    test_suites: [
+        "general-tests",
+        "mts-ondevicepersonalization",
+    ],
+    jni_libs: [
+        "libdexmakerjvmtiagent",
+        "libstaticjvmtiagent",
+        "libfcp_cpp_dep_jni",
+        "libfcp_hpke_jni",
+    ],
+}

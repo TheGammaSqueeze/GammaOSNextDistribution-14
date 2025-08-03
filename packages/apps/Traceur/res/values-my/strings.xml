@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="system_tracing" msgid="4719188511746319848">"စနစ် ခြေရာခံခြင်း"</string>
+    <string name="record_system_activity" msgid="4339462312915377825">"စနစ်လုပ်ဆောင်ချက်ကို မှတ်တမ်းတင်ထားပြီး စွမ်းဆောင်ရည် တိုးတက်လာစေရန် ၎င်းကိုနောက်ပိုင်းတွင် စိစစ်ပါ"</string>
+    <string name="record_trace" msgid="6416875085186661845">"မှတ်တမ်းယူရန်"</string>
+    <string name="record_trace_summary" msgid="6705357754827849292">"‘‘လုပ်ဆောင်ချက်မှတ်တမ်း ဆက်တင်များ’’ ရှိ စီစဉ်သတ်မှတ်မှုအတွဲကို သုံး၍ စနစ်လုပ်ဆောင်ချက်မှတ်တမ်းကို ရယူသည်"</string>
+    <string name="record_stack_samples" msgid="3498368637185702335">"CPU ပရိုဖိုင် မှတ်တမ်းတင်ရန်"</string>
+    <string name="record_stack_samples_summary" msgid="7827953921526410478">"‘‘cpu’’ အမျိုးအစားကို အမှတ်ခြစ်၍လည်း Callstack နမူနာယူခြင်းကို လုပ်ဆောင်ချက်မှတ်တမ်းများတွင် ဖွင့်နိုင်သည်"</string>
+    <string name="record_heap_dump" msgid="1688550222066812696">"လျှပ်တစ်ပြက် မှတ်ဉာဏ်ကို ရိုက်ကူးရန်"</string>
+    <string name="record_heap_dump_summary_enabled" msgid="5038675257021221777">"“လျှပ်တစ်ပြက် မှတ်ဉာဏ် လုပ်ငန်းစဉ်များ” တွင် ရွေးထားသည့် လုပ်ငန်းစဉ်များ၏ လျှပ်တစ်ပြက် မှတ်ဉာဏ်ကို ရိုက်ကူးပါ"</string>
+    <string name="record_heap_dump_summary_disabled" msgid="4640319333930345311">"လျှပ်တစ်ပြက် မှတ်ဉာဏ်များ စုဆောင်းရန် “လျှပ်တစ်ပြက် မှတ်ဉာဏ် လုပ်ငန်းစဉ်များ” တွင် အနည်းဆုံး လုပ်ငန်းစဉ်တစ်ခုကို ရွေးပါ"</string>
+    <string name="start_new_trace" msgid="8177130420802170353">"လုပ်ဆောင်ချက်မှတ်တမ်းသစ် စတင်ရန်"</string>
+    <string name="winscope_tracing" msgid="5818984791154837458">"Winscope လုပ်ဆောင်ချက်မှတ်တမ်းများကို စုစည်းရန်"</string>
+    <string name="winscope_tracing_summary" msgid="7040550156722395894">"အသေးစိတ်ကျသော UI တယ်လီတိုင်းတာမှု ဒေတာပါဝင်သည် (ရပ်တန့်စေနိုင်သည်)"</string>
+    <string name="trace_debuggable_applications" msgid="7957069895298887899">"အမှားရှာပြင်နိုင်သည့် အပလီကေးရှင်းများကို မှတ်တမ်းတင်ရန်"</string>
+    <string name="categories" msgid="2280163673538611008">"အမျိုးအစားများ"</string>
+    <string name="restore_default_categories" msgid="5090536794637169521">"မူလအမျိုးအစားများအတိုင်း ပြင်ဆင်သတ်မှတ်ရန်"</string>
+    <string name="default_categories_restored" msgid="6861683793680564181">"မူလအမျိုးအစားများအတိုင်း ပြင်ဆင်သတ်မှတ်ပြီးပြီ"</string>
+    <string name="default_categories" msgid="2117679794687799407">"မူလ"</string>
+    <string name="num_categories_selected" msgid="5772630335027553995">"{count,plural, =1{# ခု ရွေးထားသည်}other{# ခု ရွေးထားသည်}}"</string>
+    <string name="heap_dump_processes" msgid="2500105180344901939">"လျှပ်တစ်ပြက် မှတ်ဉာဏ် လုပ်ငန်းစဉ်များ"</string>
+    <string name="heap_dump_processes_summary" msgid="4570434268024622765">"အနည်းဆုံး လုပ်ငန်းစဉ်တစ်ခု ရွေးရမည်"</string>
+    <string name="clear_heap_dump_processes" msgid="295101454741555286">"လျှပ်တစ်ပြက် မှတ်ဉာဏ် လုပ်ငန်းစဉ်များ ရှင်းထုတ်ရန်"</string>
+    <string name="clear_heap_dump_processes_toast" msgid="3658510557596150797">"လုပ်ငန်းစဉ်စာရင်းကို ရှင်းထုတ်လိုက်ပါပြီ"</string>
+    <string name="continuous_heap_dump" msgid="390369382946204224">"ကျပန်းမှတ်ဉာဏ် ပရိုဖိုင် ဆက်တိုက်ရိုက်ခြင်း"</string>
+    <string name="continuous_heap_dump_summary" msgid="4581643248161659581">"သတ်မှတ်အချိန်အပိုင်းအခြား တစ်ခုလျှင် လျှပ်တစ်ပြက် မှတ်ဉာဏ်တစ်ခု ရိုက်ကူးသည်"</string>
+    <string name="continuous_heap_dump_interval" msgid="842533896492001433">"လျှပ်တစ်ပြက် မှတ်ဉာဏ် အချိန်အပိုင်းအခြား"</string>
+    <string name="five_seconds" msgid="7018465440929299712">"၅ စက္ကန့်"</string>
+    <string name="ten_seconds" msgid="863416601384309033">"၁၀ စက္ကန့်"</string>
+    <string name="thirty_seconds" msgid="7945396361369598222">"စက္ကန့် ၃၀"</string>
+    <string name="one_minute" msgid="4182508213840684258">"၁ မိနစ်"</string>
+    <string name="applications" msgid="521776761270770549">"အပလီကေးရှင်းများ"</string>
+    <string name="no_debuggable_apps" msgid="4386209254520471208">"အမှားရှာပြင်နိုင်သည့် အပလီကေးရှင်းများ မရနိုင်ပါ"</string>
+    <string name="buffer_size" msgid="3944311026715111454">"CPU တစ်ခုစာ ကြားခံ အရွယ်အစား"</string>
+    <string name="show_quick_settings_tile" msgid="4971147332635291585">"အမြန် ဆက်တင်အကွက်ကို ပြရန်"</string>
+    <string name="saving_trace" msgid="1468692734770800541">"မှတ်တမ်းကို သိမ်းနေသည်"</string>
+    <string name="trace_saved" msgid="5869970594780992309">"မှတ်တမ်းကို သိမ်းပြီးပါပြီ"</string>
+    <string name="saving_stack_samples" msgid="8174915522390525221">"အထပ်နမူနာများကို သိမ်းနေသည်"</string>
+    <string name="stack_samples_saved" msgid="8863295751647724616">"အထပ်နမူနာများကို သိမ်းလိုက်ပါပြီ"</string>
+    <string name="saving_heap_dump" msgid="6118616780825771824">"လျှပ်တစ်ပြက် မှတ်ဉာဏ်ကို သိမ်းနေသည်"</string>
+    <string name="heap_dump_saved" msgid="6720583137473857098">"လျှပ်တစ်ပြက် မှတ်ဉာဏ် သိမ်းလိုက်ပါပြီ"</string>
+    <string name="tap_to_share" msgid="4440713575852187545">"သင့်မှတ်တမ်းတင်မှုကို မျှဝေရန် တို့ပါ"</string>
+    <string name="attaching_to_report" msgid="2629202947947275886">"ချွတ်ယွင်းချက်အစီရင်ခံစာတွင် လုပ်ဆောင်ချက်မှတ်တမ်းကို ပူးတွဲနေသည်"</string>
+    <string name="attached_to_report" msgid="5806905349184608870">"ချွတ်ယွင်းချက်အစီရင်ခံစာတွင် လုပ်ဆောင်ချက်မှတ်တမ်းကို ပူးတွဲလိုက်သည်"</string>
+    <string name="attached_to_report_summary" msgid="7665675771190391355">"BetterBug ကို ဖွင့်ရန် တို့ပါ"</string>
+    <string name="stop_tracing" msgid="8916938308534164152">"လုပ်ဆောင်ချက်မှတ်တမ်းပြုခြင်းကို ရပ်ရန်"</string>
+    <string name="tracing_categories_unavailable" msgid="5609076391417077752">"အချို့ မှတ်တမ်း အမျိုးအစားများ မရရှိနိုင်ပါ-"</string>
+    <string name="trace_is_being_recorded" msgid="5947378146009337469">"လုပ်ဆောင်ချက်ကို မှတ်တမ်းတင်ထားသည်"</string>
+    <string name="tap_to_stop_tracing" msgid="6533282719573871806">"လုပ်ဆောင်ချက်မှတ်တမ်းပြုခြင်းကို ရပ်ရန် တို့ပါ"</string>
+    <string name="stack_samples_are_being_recorded" msgid="8669254939248349583">"အထပ်နမူနာများကို မှတ်တမ်းတင်နေသည်"</string>
+    <string name="tap_to_stop_stack_sampling" msgid="5911317684139059415">"အထပ်နမူနာယူခြင်းကို ရပ်ရန် တို့ပါ"</string>
+    <string name="heap_dump_is_being_recorded" msgid="3789315106110524969">"လျှပ်တစ်ပြက် မှတ်ဉာဏ်ကို ရိုက်ကူးနေသည်"</string>
+    <string name="tap_to_stop_heap_dump" msgid="6475699275834526902">"လျှပ်တစ်ပြက် မှတ်ဉာဏ်ကို ရပ်ရန် တို့ပါ"</string>
+    <string name="clear_saved_files" msgid="9156079311231446825">"သိမ်းထားသောဖိုင်များ ရှင်းထုတ်ရန်"</string>
+    <string name="clear_saved_files_summary" msgid="109751867417553670">"မှတ်တမ်းများကို တစ်လကြာပြီးနောက် ရှင်းထုတ်သည်"</string>
+    <string name="clear_saved_files_question" msgid="8586686617760838834">"သိမ်းထားသော ဖိုင်များကို ရှင်းထုတ်မလား။"</string>
+    <string name="all_recordings_will_be_deleted" msgid="7731693738485947891">"မှတ်တမ်းအာလုံးကို /data/local/traces မှ ဖျက်လိုက်ပါမည်"</string>
+    <string name="clear" msgid="5484761795406948056">"ရှင်းလင်းရန်"</string>
+    <string name="system_traces_storage_title" msgid="8294090839883366871">"စနစ် လုပ်ဆောင်ချက်မှတ်တမ်းများ"</string>
+    <string name="keywords" msgid="736547007949049535">"systrace၊ လုပ်ဆောင်ချက်မှတ်တမ်း၊ စွမ်းဆောင်ရည်"</string>
+    <string name="share_file" msgid="1982029143280382271">"ဖိုင်မျှဝေမလား။"</string>
+    <string name="system_trace_sensitive_data" msgid="3069389866696009549">"စနစ် \'လုပ်ဆောင်ချက်မှတ်တမ်း\' ဖိုင်များတွင် အရေးကြီးသောစနစ်နှင့် အက်ပ်ဒေတာများ (အက်ပ်အသုံးပြုမှုကဲ့သို့) ပါဝင်နိုင်သည်။ စနစ်လုပ်ဆောင်ချက်မှတ်တမ်းများကို သင်ယုံကြည့်သည့် လူများ၊ အက်ပ်များနှင့်သာ မျှဝေပါ။"</string>
+    <string name="share" msgid="8443979083706282338">"မျှဝေရန်"</string>
+    <string name="dont_show_again" msgid="6662492041164390600">"ထပ်မပြပါနှင့်"</string>
+    <string name="long_traces" msgid="5110949471775966329">"ရှည်ကြာသော လုပ်ဆောင်ချက်မှတ်တမ်းများ"</string>
+    <string name="long_traces_summary" msgid="419034282946761469">"စက်ပစ္စည်းသိုလှောင်ခန်းသို့ ဆက်တိုက် သိမ်းထားသည်"</string>
+    <string name="long_traces_summary_betterbug" msgid="445546400875135624">"စက်သိုလှောင်ခန်းသို့ အဆက်မပြတ် သိမ်းထားသည် (ချွတ်ယွင်းချက် အစီရင်ခံစာများတွင် အလိုအလျောက် ပူးတွဲမည်မဟုတ်ပါ)"</string>
+    <string name="max_long_trace_size" msgid="1943788179787181241">"လုပ်ဆောင်ချက်မှတ်တမ်း၏ အရှည်ကြာဆုံး ပမာဏ"</string>
+    <string name="max_long_trace_duration" msgid="8009837944364246785">"အရှည်ကြာဆုံး လုပ်ဆောင်ချက်မှတ်တမ်းအတွက် ကြာမြင့်ချိန်"</string>
+    <string name="two_hundred_mb" msgid="4950018549725084512">"၂၀၀ MB"</string>
+    <string name="one_gb" msgid="590396985168692037">"၁ GB"</string>
+    <string name="five_gb" msgid="7883941043220621649">"၅ GB"</string>
+    <string name="ten_gb" msgid="4150452462544299276">"၁၀ GB"</string>
+    <string name="twenty_gb" msgid="5717308686812140465">"၂၀ GB"</string>
+    <string name="ten_minutes" msgid="7039181194343961324">"၁၀ မိနစ်"</string>
+    <string name="thirty_minutes" msgid="2575810799813531395">"၃၀ မိနစ်"</string>
+    <string name="one_hour" msgid="5219232935307966891">"၁ နာရီ"</string>
+    <string name="eight_hours" msgid="3207620892104451552">"၈ နာရီ"</string>
+    <string name="twelve_hours" msgid="4647143276394563496">"၁၂ နာရီ"</string>
+    <string name="twentyfour_hours" msgid="2789663313550030791">"၂၄ နာရီ"</string>
+    <string name="four_thousand_kb" msgid="5156346740862105703">"၄၀၉၆ KB"</string>
+    <string name="eight_thousand_kb" msgid="8815334985638334081">"၈၁၉၂ KB"</string>
+    <string name="sixteen_thousand_kb" msgid="7342517169232459259">"၁၆၃၈၄ KB"</string>
+    <string name="thirtytwo_thousand_kb" msgid="654328198799196150">"၃၂၇၆၈ KB"</string>
+    <string name="sixtyfive_thousand_kb" msgid="8168144138598305306">"၆၅၅၃၆ KB"</string>
+    <string name="stop_on_bugreport" msgid="4591832600597126422">"ချွတ်ယွင်းချက်အစီရင်ခံစာများကို မှတ်တမ်းတင်ခြင်း ရပ်ရန်"</string>
+    <string name="stop_on_bugreport_summary" msgid="1601834864982891381">"ချွတ်ယွင်းချက်အစီရင်ခံစာကို စတင်ချိန်တွင် လက်ရှိ မှတ်တမ်းတင်မှုများကို ရပ်သည်"</string>
+    <string name="attach_to_bug_report" msgid="5388986830016247490">"မှတ်တမ်းများကို ချွတ်ယွင်းချက်အစီရင်ခံစာတွင် ပူးတွဲရန်"</string>
+    <string name="attach_to_bug_report_summary" msgid="4213730623971240002">"ချွတ်ယွင်းချက်အစီရင်ခံစာကို စုစည်းရာတွင် ဆောင်ရွက်နေဆဲ မှတ်တမ်းများကို BetterBug သို့ အလိုအလျောက်ပို့သည်"</string>
+    <string name="link_to_traces" msgid="1404687523304348490">"သိမ်းထားသောဖိုင်များ ကြည့်ရန်"</string>
+    <string name="pref_category_trace_settings" msgid="6507535407023329628">"လုပ်ဆောင်ချက်မှတ်တမ်း ဆက်တင်များ"</string>
+    <string name="pref_category_saved_files" msgid="1477491400970413291">"သိမ်းထားသော ဖိုင်များ"</string>
+    <string name="pref_category_misc" msgid="6217624054980014683">"အထွေထွေ"</string>
+    <string name="pref_category_heap_dump_settings" msgid="2234681064312605310">"လျှပ်တစ်ပြက် မှတ်ဉာဏ် ဆက်တင်"</string>
+</resources>

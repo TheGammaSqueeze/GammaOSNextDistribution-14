@@ -1,0 +1,10 @@
+# microdroid_app is a domain for microdroid_launcher, which is a binary that
+# loads a shared library from an apk and executes it by calling an entry point
+# in the library. This can be considered as the native counterpart of
+# app_process for Java.
+#
+# Both microdroid_launcher and payload from the shared library run in the
+# context of microdroid_app.
+
+type microdroid_app, domain, coredomain, microdroid_payload;
+type microdroid_app_exec, exec_type, file_type, system_file_type;

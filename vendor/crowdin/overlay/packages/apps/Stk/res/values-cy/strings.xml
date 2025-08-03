@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources>
+    <string name="app_name">Blwch Offer SIM</string>
+    <string name="menu_end_session">Diweddu sesiwn</string>
+    <string name="help">Cymorth</string>
+    <string name="menu_back">Nôl</string>
+    <string name="service_name">Enw\'r gwasanaeth</string>
+    <string name="stk_no_service">Dim gwasanaeth ar gael</string>
+    <string name="button_ok">Iawn</string>
+    <string name="button_cancel">Diddymu</string>
+    <string name="button_yes">Ie</string>
+    <string name="button_no">Na</string>
+    <string name="alphabet">Llythrennau</string>
+    <string name="digits">Digidau (0-9, *, #, +)</string>
+    <string name="default_call_setup_msg">Galwad ar y gweill\u2026</string>
+    <string name="default_setup_call_msg">Galwad yn cael ei osod</string>
+    <string name="stk_app_state">Statws yr ap</string>
+    <string name="enable_app">Galluogwyd</string>
+    <string name="disable_app">Analluogwyd</string>
+    <string name="stk_dialog_title">Blwch Offer SIM</string>
+    <string name="default_tone_dialog_msg">Tôn Chwarae</string>
+    <string name="default_open_channel_msg">Agor Sianel?</string>
+    <string name="default_send_data_msg">Yn Anfon Data</string>
+    <string name="default_receive_data_msg">Yn Derbyn Data</string>
+    <string name="default_close_channel_msg">Sianel wedi\'i Gau</string>
+    <string name="stk_dialog_accept">IE</string>
+    <string name="stk_dialog_reject">NA</string>
+    <string name="no_sim_card_inserted">Gosoda SIM er mwyn lansio\'r blwch offer SIM.</string>
+    <string name="stk_channel_name">Negeseuon gwasanaeth symudol</string>
+</resources>

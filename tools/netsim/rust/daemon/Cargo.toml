@@ -1,0 +1,37 @@
+[package]
+name = "netsim-daemon"
+version = "0.2.14"
+edition = "2021"
+build = "build.rs"
+
+[lib]
+crate-type = ["staticlib", "lib"]
+doctest = false
+test = false
+
+[dependencies]
+bytes = { version = ">=1.4.0"}
+clap = { version = "4.1.8", default-features = false, features = ["derive", "error-context", "help", "std", "usage"] }
+cxx = { version = ">=1.0.85", features = ["c++17"] }
+data-encoding = "2.4.0"
+glam = ">=0.25.0"
+netsim-proto = { path = "../proto" }
+http = "0.2.9"
+netsim-common = { path = "../common" }
+protobuf = "3.2.0"
+protobuf-json-mapping = "3.2.0"
+regex = "1.6.0"
+thiserror = { version = ">=1.0.40"}
+tungstenite = { version = ">=0.19.0", default-features = false }
+lazy_static = "1.4.0"
+log = "0.4.17"
+anyhow = "1"
+pdl-runtime = "0.2.2"
+
+[build-dependencies]
+cxx-build = "1.0.92"
+
+[features]
+local_ssl = []
+default = ["local_ssl"]
+cuttlefish = []

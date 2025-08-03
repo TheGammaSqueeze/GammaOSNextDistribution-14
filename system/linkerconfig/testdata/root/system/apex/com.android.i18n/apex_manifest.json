@@ -1,0 +1,18 @@
+{
+  "name": "com.android.i18n",
+  "version": 1,
+  "provideNativeLibs": [
+    "libandroidicu.so",
+    "libicu.so",
+    "libicui18n.so",
+    "libicuuc.so",
+    "libicu_jni.so",
+    "libpac.so"
+  ],
+  "requireNativeLibs": [
+    "libc.so",
+    "libdl.so",
+    "liblog.so",
+    "libm.so"
+  ]
+}

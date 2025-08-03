@@ -1,0 +1,31 @@
+#!/usr/bin/make -f
+
+# gn args
+defines =
+defines += pkg_config=\"pkg-config\"
+defines += platform2_root=\"$(shell pwd)/\"
+defines += platform_subdir=\"modp_b64\"
+defines += cxx=\"clang++\"
+defines += cc=\"clang\"
+defines += ar=\"ar\"
+defines += enable_werror=false
+defines += libdir=\"/usr/lib\"
+defines += use={mojo=false asan=false coverage=false crypto=true dbus=true fuzzer=false timers=true cros_host=false cros_debug=false profiling=false tcmalloc=false}
+
+# handle parallel build options
+njobs=1
+ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+njobs=$(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+endif
+
+%:
+	dh $@
+
+override_dh_auto_build-arch:
+	gn gen out/Release --args="$(defines)"
+	ninja -j$(njobs) -C out/Release
+
+override_dh_auto_clean:
+	rm -rf out
+	find . -name \*.pyc -execdir rm -f {} \;
+	dh_auto_clean

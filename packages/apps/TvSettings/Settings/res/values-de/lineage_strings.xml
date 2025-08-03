@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017-2024 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="system_reboot_confirm_cm">Neustart in:</string>
+    <string name="global_action_restart_system">System</string>
+    <string name="global_action_restart_recovery">Recovery</string>
+    <string name="global_action_restart_bootloader">Bootloader</string>
+    <plurals name="show_dev_countdown_cm">
+        <item quantity="one">Du bist <xliff:g id="step_count">%1$d</xliff:g> Schritt vom Aktivieren der Entwickleroptionen entfernt.</item>
+        <item quantity="other">Du bist <xliff:g id="step_count">%1$d</xliff:g> Schritte vom Aktivieren der Entwickleroptionen entfernt.</item>
+    </plurals>
+    <string name="show_dev_on_cm">Die Entwickleroptionen sind jetzt aktiviert!</string>
+    <string name="show_dev_already_cm">Nicht nötig, die Entwickleroptionen sind bereits aktiviert.</string>
+    <string name="system_buttons">Tasten</string>
+    <string name="power_button_long_press_action_title">Langes Drücken der Ein-/Aus-Taste</string>
+    <string name="power_button_long_press_for_power_menu_action">Ein-/Aus-Menü öffnen</string>
+    <string name="power_button_long_press_for_assistant_action">Assistant öffnen</string>
+    <string name="inputs_volume_control_enabled">CEC-Lautstärkeregelung</string>
+    <string name="inputs_volume_control_enabled_desc">Lautstärke des Fernsehers/Receivers regeln anstatt der internen Lautstärke</string>
+    <string name="enable_adb_root">Root-Debugging</string>
+    <string name="enable_adb_root_summary">Android-Debugging als Root erlauben</string>
+    <string name="advanced_restart_title">Erweiterter Neustart</string>
+    <string name="advanced_restart_summary">Optionen für den Neustart in Recovery, Bootloader oder einen einfachen Neustart anzeigen</string>
+    <string name="adb_over_network">ADB über Netzwerk</string>
+    <string name="adb_over_network_summary">TCP-/IP-Debugging über Netzwerkschnittstellen (WLAN, USB-Netzwerke) aktivieren. Diese Einstellung wird beim Neustart zurückgesetzt.</string>
+    <string name="adb_over_network_warning">ACHTUNG: Wenn „ADB über Netzwerk“ aktiviert ist, kann von jedem verbundenen Netzwerk aus auf dein Gerät zugegriffen werden!\n\nDiese Funktion bitte nur verwenden, wenn du dich in einem vertrauenswürdigen Netzwerk befindest.\n\nMöchtest du die Funktion trotzdem aktivieren?</string>
+    <string name="trust_category_features">Status</string>
+    <string name="trust_feature_selinux">SELinux</string>
+    <string name="trust_feature_selinux_value_enforcing">Enforcing</string>
+    <string name="trust_feature_selinux_value_disabled">Deaktiviert</string>
+    <string name="trust_feature_selinux_explain">SELinux bestimmt, welche Prozesse Zugriff auf welche Dateien/Verzeichnisse auf deinem Gerät haben.\nDadurch wird verhindert, dass Apps und Dienste auf Dateien zugreifen, die sie nicht benötigen: So werden potenziell böswillige Prozesse eingeschränkt und deine Sicherheit gewahrt.</string>
+    <string name="trust_feature_security_patches">Android-Sicherheitspatches</string>
+    <string name="trust_feature_security_patches_value_base">Plattform: %1$s\nVendor: %2$s</string>
+    <string name="trust_feature_security_patches_value_new">Auf dem neusten Stand</string>
+    <string name="trust_feature_security_patches_value_medium">Um einige Monate veraltet</string>
+    <string name="trust_feature_security_patches_value_old">Veraltet</string>
+    <string name="trust_feature_security_patches_explain">Sicherheitspatches werden monatlich von Google in Zusammenarbeit mit SoC-Herstellern veröffentlicht. Diese beheben Fehler, mittels derer bösartige Apps Sicherheitseinschränkungen umgehen und dein Gerät dauerhaft beschädigen können. Von Google bereitgestellte Patches werden jeden Monat auf alle unterstützten Geräte angewendet, aber Patches für proprietären Code können nur vom Hersteller deines Gerätes bereitgestellt werden. Um dein Gerät sicher zu halten, stelle sicher, dass dein LineageOS-Build immer auf dem neuesten Stand ist, und (falls möglich) stelle sicher, dass dein Hersteller-Image auf das neueste, von LineageOS empfohlene, aktualisiert ist.</string>
+    <string name="trust_feature_encryption">Verschlüsselung</string>
+    <string name="trust_feature_encryption_value_enabled">Aktiviert</string>
+    <string name="trust_feature_encryption_value_nolock">Displaysperre erforderlich</string>
+    <string name="trust_feature_encryption_value_disabled">Deaktiviert</string>
+    <string name="trust_feature_encryption_explain">Verschlüsselst du dein Gerät, kann auf deine Daten nur dann zugegriffen werden, wenn Android gestartet ist. Das ist besonders dann von Bedeutung, wenn dein Gerät gestohlen wird, da so niemand Zugriff auf deine Nachrichten, Kontakte und andere vertrauliche Informationen hat, der dein Passwort nicht kennt.\nFür eine wirksamere Verschlüsselung solltest du eine sichere Displaysperre einrichten.</string>
+    <string name="trust_category_tools">Datenschutz</string>
+    <string name="trust_notification_alerts_title">Sicherheitswarnungen</string>
+    <string name="trust_restrict_usb_title">USB einschränken</string>
+    <string name="trust_restrict_usb_summary">Unterstützung für USB-Geräte wie Kopfhörer, Speichergeräte, Eingabegeräte (Mäuse, Tastaturen, Joysticks) und ADB regeln</string>
+    <string name="trust_restrict_usb_always">Keine USB-Verbindungen zulassen</string>
+    <string name="trust_restrict_usb_disabled">USB-Verbindungen immer zulassen</string>
+    <string name="trust_onboarding_description">Trust hilft dir, dein Gerät sicher zu halten und schützt deine Privatsphäre.\nDas Trust-Symbol wird nur angezeigt, wenn der Inhalt der Seite überprüft wurde.</string>
+    <string name="trust_warnings_alerts_intro">Du kannst auswählen, auf welche Sicherheitsprobleme du hingewiesen werden möchtest. Aus Sicherheitsgründen empfiehlt es sich, alle Warnungen zu aktivieren</string>
+    <string name="trust_warnings_selinux">SELinux-Status</string>
+    <string name="trust_warnings_keys">Build-Signatur</string>
+    <string name="sleep_button_label">Ruhezustand</string>
+    <string name="system_sleep_confirm">Jetzt in den Ruhezustand versetzen?</string>
+    <string name="shutdown_button_label">Ausschalten</string>
+    <string name="system_shutdown_confirm">Jetzt ausschalten?</string>
+    <string name="convertible_port_busy_title">USB-Port 1 in Verwendung</string>
+    <string name="convertible_port_busy_warning">Gerät oder Zubehör ausstecken und erneut versuchen</string>
+    <string name="mtp_enable_title">Zugriff auf SHIELD-Ordner auf dem PC über USB</string>
+    <string name="mtp_enable_warning">USB-Port 1 ist jetzt für den Zugriff von SHIELD auf einen PC als Mediengerät konfiguriert.\n\nAn diesem Port können nun keinerlei USB-Speichermedien und USB-Zubehör erkannt und auch keine Geräte mehr aufgeladen werden.</string>
+    <string name="mtp_retry_error">Fehlgeschlagen, bitte erneut versuchen.</string>
+    <string name="mtp_summary">In diesem Modus kann der USB-Port nicht für andere Verwendungszwecke eingesetzt werden</string>
+    <string name="mtp_title">Dateien per USB auf einen Computer übertragen</string>
+    <string name="mtp_unexpected_error">Unerwarteter Fehler, bitte zu einem späteren Zeitpunkt erneut versuchen.</string>
+    <string name="usb_debugging_enable_title">USB-Debugging aktiviert</string>
+    <string name="usb_debugging_enable_warning">USB-Port 1 ist jetzt für den Zugriff von SHIELD auf einen PC als Mediengerät konfiguriert.\n\nAn diesem Port können nun keinerlei USB-Speichermedien und USB-Zubehör erkannt und auch keine Geräte mehr aufgeladen werden.</string>
+</resources>

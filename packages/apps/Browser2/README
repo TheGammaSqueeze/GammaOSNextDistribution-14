@@ -1,0 +1,11 @@
+Browser2 is a copy of the WebViewShell, a minimal test browser using WebView.
+The old Browser is no longer supported.
+
+This is *not* a production quality browser and does not implement suitable
+security UI to be used for anything other than testing WebView. This should not
+be shipped in production devices, or used as the basis for implementing a real
+browser.
+
+To build a full-fledged browser for AOSP, one option is to build a standalone
+(non-WebView-based) Chromium browser by following the instructions at:
+https://www.chromium.org/developers/how-tos/android-build-instructions

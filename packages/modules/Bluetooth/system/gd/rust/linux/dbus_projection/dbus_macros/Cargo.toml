@@ -1,0 +1,12 @@
+[package]
+name = "dbus_macros"
+version = "0.1.0"
+edition = "2018"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+syn = { version = "1.0.58", features = ['default', 'full'] }
+quote = "1.0"
+proc-macro2 = "1.0"

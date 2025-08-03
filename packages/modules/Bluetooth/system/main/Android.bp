@@ -1,0 +1,254 @@
+// Bluetooth main HW module / shared library for target
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_bt_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_bt_license"],
+}
+
+filegroup {
+    name: "LibBluetoothSources",
+    srcs: [
+        "bte_conf.cc",
+        "bte_init_cpp_logging.cc",
+        "bte_logmsg.cc",
+        "stack_config.cc",
+    ],
+}
+
+cc_library_static {
+    name: "libbte",
+    defaults: ["fluoride_defaults"],
+    srcs: [
+        ":BluetoothStackManagerSources",
+        ":LibBluetoothShimSources",
+        ":LibBluetoothSources",
+    ],
+    include_dirs: [
+        "hardware/interfaces/keymaster/4.0/support/include",
+        "packages/modules/Bluetooth/system",
+        "packages/modules/Bluetooth/system/bta/dm",
+        "packages/modules/Bluetooth/system/bta/include",
+        "packages/modules/Bluetooth/system/bta/sys",
+        "packages/modules/Bluetooth/system/btif/co",
+        "packages/modules/Bluetooth/system/embdrv/sbc/decoder/include",
+        "packages/modules/Bluetooth/system/embdrv/sbc/encoder/include",
+        "packages/modules/Bluetooth/system/gd",
+        "packages/modules/Bluetooth/system/stack/a2dp",
+        "packages/modules/Bluetooth/system/stack/avdt",
+        "packages/modules/Bluetooth/system/stack/btm",
+        "packages/modules/Bluetooth/system/stack/include",
+        "packages/modules/Bluetooth/system/stack/l2cap",
+        "packages/modules/Bluetooth/system/udrv/include",
+        "system/security/keystore/include",
+    ],
+    generated_headers: [
+        "BluetoothGeneratedBundlerSchema_h_bfbs",
+        "BluetoothGeneratedDumpsysDataSchema_h",
+    ],
+    apex_available: [
+        "com.android.btservices",
+    ],
+    host_supported: true,
+    min_sdk_version: "Tiramisu",
+    static_libs: [
+        "libbluetooth_gd",
+        "libbluetooth_log",
+        "libbt-platform-protos-lite",
+        "libbt_shim_bridge",
+        "libcom.android.sysprop.bluetooth.wrapped",
+    ],
+    header_libs: ["libbluetooth_headers"],
+    cflags: ["-Wno-unused-parameter"],
+}
+
+cc_library {
+    name: "libbluetooth",
+    visibility: [
+        "//cts/hostsidetests:__subpackages__",
+        "//packages/modules/Bluetooth:__subpackages__",
+        "//vendor:__subpackages__",
+    ],
+    defaults: ["fluoride_defaults"],
+    header_libs: ["libbluetooth_headers"],
+    export_header_lib_headers: ["libbluetooth_headers"],
+    include_dirs: [
+        "hardware/interfaces/keymaster/4.0/support/include",
+        "packages/modules/Bluetooth/system",
+        "packages/modules/Bluetooth/system/bta/dm",
+        "packages/modules/Bluetooth/system/bta/include",
+        "packages/modules/Bluetooth/system/bta/sys",
+        "packages/modules/Bluetooth/system/btif/co",
+        "packages/modules/Bluetooth/system/embdrv/sbc/decoder/include",
+        "packages/modules/Bluetooth/system/embdrv/sbc/encoder/include",
+        "packages/modules/Bluetooth/system/stack/a2dp",
+        "packages/modules/Bluetooth/system/stack/avdt",
+        "packages/modules/Bluetooth/system/stack/btm",
+        "packages/modules/Bluetooth/system/stack/include",
+        "packages/modules/Bluetooth/system/stack/l2cap",
+        "packages/modules/Bluetooth/system/udrv/include",
+        "system/security/keystore/include",
+    ],
+    shared_libs: [
+        "android.hardware.bluetooth@1.0",
+        "android.hardware.bluetooth@1.1",
+    ],
+    target: {
+        android: {
+            shared_libs: [
+                "libstatssocket",
+            ],
+        },
+    },
+    // Shared library link options.
+    // References to global symbols and functions should bind to the library
+    // itself. This is to avoid issues with some of the unit/system tests
+    // that might link statically with some of the code in the library, and
+    // also dlopen(3) the shared library.
+    ldflags: ["-Wl,-Bsymbolic,-Bsymbolic-functions"],
+    sanitize: {
+        scs: true,
+    },
+    apex_available: [
+        "com.android.btservices",
+    ],
+    host_supported: true,
+    min_sdk_version: "30",
+}
+
+cc_library_static {
+    name: "libbluetooth-for-tests",
+    defaults: ["fluoride_defaults"],
+
+    srcs: [
+        ":BluetoothStackManagerSources",
+        ":LibBluetoothShimSources",
+        ":LibBluetoothSources",
+    ],
+    host_supported: true,
+    include_dirs: [
+        "packages/modules/Bluetooth/system",
+        "packages/modules/Bluetooth/system/bta/include",
+        "packages/modules/Bluetooth/system/gd",
+        "packages/modules/Bluetooth/system/stack/include",
+    ],
+    generated_headers: [
+        "BluetoothGeneratedBundlerSchema_h_bfbs",
+        "BluetoothGeneratedDumpsysDataSchema_h",
+    ],
+    cflags: [
+        "-Wno-unused-parameter",
+    ],
+    shared_libs: [
+    ],
+    whole_static_libs: [
+        "libbluetooth_gd", // Gabeldorsche
+    ],
+    header_libs: ["libbluetooth_headers"],
+    static_libs: [
+        "libbluetooth_log",
+        "libbt-platform-protos-lite",
+        "libbt_shim_bridge",
+        "libcom.android.sysprop.bluetooth.wrapped",
+    ],
+}
+
+cc_test {
+    name: "net_test_main_shim",
+    test_suites: ["general-tests"],
+    host_supported: true,
+    test_options: {
+        unit_test: true,
+    },
+    defaults: [
+        "fluoride_defaults",
+        "mts_defaults",
+    ],
+    include_dirs: [
+        "packages/modules/Bluetooth/system",
+        "packages/modules/Bluetooth/system/gd",
+        "packages/modules/Bluetooth/system/stack/btm",
+        "packages/modules/Bluetooth/system/stack/include",
+    ],
+    srcs: [
+        ":BluetoothOsSources_host",
+        ":TestCommonMainHandler",
+        ":TestCommonMockFunctions",
+        ":TestMockBta",
+        ":TestMockBtif",
+        ":TestMockBtu",
+        ":TestMockJni",
+        ":TestMockLegacyHciCommands",
+        ":TestMockLegacyHciInterface",
+        ":TestMockMainShimEntry",
+        ":TestMockStack",
+        "shim/acl.cc",
+        "shim/acl_api.cc",
+        "shim/acl_legacy_interface.cc",
+        "shim/btm.cc",
+        "shim/btm_api.cc",
+        "shim/config.cc",
+        "shim/controller.cc",
+        "shim/distance_measurement_manager.cc",
+        "shim/dumpsys.cc",
+        "shim/hci_layer.cc",
+        "shim/l2c_api.cc",
+        "shim/le_advertising_manager.cc",
+        "shim/le_scanning_manager.cc",
+        "shim/metric_id_api.cc",
+        "shim/metrics_api.cc",
+        "shim/shim.cc",
+        "shim/stack.cc",
+        "shim/utils.cc",
+        "test/common_stack_test.cc",
+        "test/main_shim_dumpsys_test.cc",
+        "test/main_shim_stack_lifecycle_test.cc",
+        "test/main_shim_test.cc",
+    ],
+    static_libs: [
+        "libbase",
+        "libbluetooth-dumpsys",
+        "libbluetooth-gdx",
+        "libbluetooth-types",
+        "libbluetooth_crypto_toolbox",
+        "libbluetooth_gd",
+        "libbluetooth_hci_pdl",
+        "libbluetooth_log",
+        "libbt-common",
+        "libbt-platform-protos-lite",
+        "libbt_shim_bridge",
+        "libbt_shim_ffi",
+        "libbtdevice",
+        "libchrome",
+        "libcom.android.sysprop.bluetooth.wrapped",
+        "libevent",
+        "libflatbuffers-cpp",
+        "libgmock",
+        "liblog",
+        "libosi",
+    ],
+    shared_libs: [
+        "libPlatformProperties",
+        "libcrypto",
+        "server_configurable_flags",
+    ],
+    sanitize: {
+        address: true,
+        all_undefined: true,
+        cfi: true,
+        integer_overflow: true,
+        scs: true,
+        diag: {
+            undefined: true,
+        },
+    },
+    generated_headers: [
+        "BluetoothGeneratedBundlerSchema_h_bfbs",
+        "BluetoothGeneratedDumpsysDataSchema_h",
+    ],
+    min_sdk_version: "Tiramisu",
+    header_libs: ["libbluetooth_headers"],
+    cflags: ["-Wno-unused-parameter"],
+}

@@ -1,0 +1,21 @@
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_app_import {
+    name: "CarMessengerApp",
+    apk: "CarMessengerApp.apk",
+    privileged: true,
+    certificate: "platform",
+    required: ["allowed_privapp_com.android.car.messenger"],
+    overrides: ["messaging"],
+    // This flag is needed because we're inehriting 2 `uses-library` tags from `androidx.window`
+    // that it's coming from Compose support in `car-ui-lib` in the manifest. And Soong is
+    // enforcing that both the shared libraries must be in the image. But since both of them are
+    // set to optional we can use the following flag to ignore the build error.
+    optional_uses_libs: [
+        "androidx.window.extensions",
+        "androidx.window.sidecar"
+    ]
+}

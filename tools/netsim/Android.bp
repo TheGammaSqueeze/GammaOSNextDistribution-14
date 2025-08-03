@@ -1,0 +1,439 @@
+// Copyright 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_visibility: [
+        "//tools/netsim:__subpackages__",
+        "//device/google/cuttlefish/build:__subpackages__",
+    ],
+    default_applicable_licenses: ["tools_netsim_license"],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "tools_netsim_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+cc_defaults {
+    name: "netsim_defaults",
+    cflags: [
+        "-Wno-unused-parameter",
+        "-g", // Produce debugging information.
+    ],
+    ldflags: ["-rdynamic"], // Allow obtaining backtraces for debugging.
+    local_include_dirs: [
+        "src",
+    ],
+    shared_libs: [
+        "libgrpc++",
+        "libprotobuf-cpp-full",
+    ],
+    generated_headers: [
+        "FrontendStub_h",
+    ],
+    generated_sources: [
+        "FrontendStub_cc",
+    ],
+}
+
+rust_defaults {
+    name: "libnetsim_daemon_defaults",
+    features: ["cuttlefish"],
+    rlibs: [
+        "libbytes",
+        "libclap",
+        "libcxx",
+        "libanyhow",
+        "libdata_encoding",
+        "libglam",
+        "libnetsim_proto",
+        "libhttp",
+        "libnetsim_common",
+        "libpdl_runtime",
+        "libpica",
+        "libprotobuf",
+        "libprotobuf_json_mapping",
+        "libregex",
+        "libserde",
+        "libserde_json",
+        "libthiserror",
+        "libtungstenite",
+        "liblazy_static",
+        "liblog_rust",
+        "libopenssl",
+    ],
+    static_libs: ["libgrpc_wrap"],
+    srcs: [
+        "rust/daemon/src/lib.rs",
+        ":netsim_netlink_rust_gen",
+        ":netsim_mac80211_hwsim_rust_gen",
+        ":netsim_ieee80211_rust_gen",
+        ":rootcanal_link_layer_packets_rust_gen",
+    ],
+}
+
+rust_ffi_host_static {
+    name: "libnetsim_daemon",
+    crate_name: "netsim_daemon",
+    defaults: ["libnetsim_daemon_defaults"],
+}
+
+rust_test_host {
+    name: "libnetsim_daemon_tests",
+    defaults: ["libnetsim_daemon_defaults"],
+    test_suites: ["general_tests"],
+}
+
+genrule {
+    name: "netsim_daemon_cc",
+    tools: ["cxxbridge"],
+    cmd: "$(location cxxbridge) $(in) --cfg feature=\\\"cuttlefish\\\" >> $(out)",
+    srcs: ["rust/daemon/src/ffi.rs"],
+    out: ["netsim-daemon/src/ffi.rs.cc"],
+}
+
+genrule {
+    name: "netsim_daemon_h",
+    tools: ["cxxbridge"],
+    cmd: "$(location cxxbridge) $(in) --cfg feature=\\\"cuttlefish\\\" --header >> $(out)",
+    srcs: ["rust/daemon/src/ffi.rs"],
+    out: ["netsim-daemon/src/ffi.rs.h"],
+}
+
+genrule {
+    name: "netsim_cli_cc",
+    tools: ["cxxbridge"],
+    cmd: "$(location cxxbridge) $(in) >> $(out)",
+    srcs: ["rust/cli/src/ffi.rs"],
+    out: ["netsim-cli/src/ffi.rs.cc"],
+}
+
+genrule {
+    name: "netsim_cli_h",
+    tools: ["cxxbridge"],
+    cmd: "$(location cxxbridge) $(in) --header >> $(out)",
+    srcs: ["rust/cli/src/ffi.rs"],
+    out: ["netsim-cli/src/ffi.rs.h"],
+}
+
+genrule {
+    name: "netsim_netlink_rust_gen",
+    defaults: ["pdl_rust_generator_defaults"],
+    srcs: ["pdl/netlink.pdl"],
+    out: ["netlink_packets.rs"],
+}
+
+genrule {
+    name: "netsim_mac80211_hwsim_rust_gen",
+    defaults: ["pdl_rust_generator_defaults"],
+    srcs: ["pdl/mac80211_hwsim.pdl"],
+    out: ["mac80211_hwsim_packets.rs"],
+}
+
+genrule {
+    name: "netsim_ieee80211_rust_gen",
+    defaults: ["pdl_rust_generator_defaults"],
+    srcs: ["pdl/ieee80211.pdl"],
+    out: ["ieee80211_packets.rs"],
+}
+
+cc_library_host_static {
+    name: "lib-netsim",
+    defaults: ["netsim_defaults"],
+    srcs: [
+        "src/core/server.cc",
+        "src/frontend/frontend_client_stub.cc",
+        "src/frontend/frontend_server.cc",
+        "src/backend/grpc_server.cc",
+        "src/backend/grpc_client.cc",
+        "src/hci/bluetooth_facade.cc",
+        "src/hci/hci_packet_transport.cc",
+        "src/hci/rust_device.cc",
+        "src/util/crash_report.cc",
+        "src/util/ini_file.cc",
+        "src/util/log.cc",
+        "src/util/os_utils.cc",
+        "src/util/string_utils.cc",
+        "src/wifi/wifi_facade.cc",
+    ],
+    generated_headers: [
+        "cxx-bridge-header",
+        "netsim_daemon_h",
+        "PacketStreamerStub_h",
+    ],
+    generated_sources: [
+        "netsim_daemon_cc",
+        "PacketStreamerStub_cc",
+    ],
+    shared_libs: [
+        "libbase",
+        "libgrpc++",
+        "libcrypto",
+        "libunwindstack",
+    ],
+    static_libs: [
+        "breakpad_client",
+        "libc++fs",
+        "libjsoncpp",
+        "libprotobuf-cpp-full",
+        "libscriptedbeaconpayload-protos-lite",
+        "lib-netsimd-proto",
+    ],
+    whole_static_libs: [
+        "libbt-rootcanal",
+    ],
+}
+
+netsim_ui_modules = [
+    "netsim_ui_index.html",
+    "netsim_ui_js_cube-sprite.js",
+    "netsim_ui_js_customize-map-button.js",
+    "netsim_ui_js_device-dragzone.js",
+    "netsim_ui_js_device-dropzone.js",
+    "netsim_ui_js_device-info.js",
+    "netsim_ui_js_device-list.js",
+    "netsim_ui_js_device-map.js",
+    "netsim_ui_js_device-observer.js",
+    "netsim_ui_js_license-info.js",
+    "netsim_ui_js_navigation-bar.js",
+    "netsim_ui_js_netsim-app.js",
+    "netsim_ui_js_packet-info.js",
+    "netsim_ui_js_pyramid-sprite.js",
+    "netsim_ui_js_model.js",
+    "netsim_ui_tslib",
+    "netsim_ui_assets_grid-background.svg",
+    "netsim_ui_assets_hexagonal-background.png",
+    "netsim_ui_assets_netsim-logo-b.svg",
+    "netsim_ui_assets_netsim-logo.svg",
+    "netsim_ui_assets_polar-background.svg",
+]
+
+cc_binary_host {
+    name: "netsimd",
+    defaults: ["netsim_defaults"],
+    srcs: [
+        "rust/netsimd.cc",
+    ],
+    generated_headers: [
+        "cxx-bridge-header",
+        "netsim_daemon_h",
+    ],
+    shared_libs: [
+        "libbase",
+        "libgrpc++",
+        "libcap",
+        "libcrypto",
+        "libssl",
+        "libunwindstack",
+        "libz", // TODO: Remove for native rust binary
+    ],
+    static_libs: [
+        "breakpad_client",
+        "libc++fs",
+        "libprotobuf-cpp-full",
+        "libscriptedbeaconpayload-protos-lite", // TODO: Remove this after using pdl library.
+        "lib-netsimd-proto",
+        "lib-netsim",
+        "lib-netsim-frontend-proto",
+        "libgrpc_wrap",
+        "librootcanal_rs",
+    ],
+    whole_static_libs: [
+        "libnetsim_daemon",
+        "libbt-rootcanal",
+    ],
+    ldflags: ["-Wl,--allow-multiple-definition"],
+    required: netsim_ui_modules,
+    strip: {
+        keep_symbols_and_debug_frame: true,
+    },
+}
+
+cc_test_host {
+    name: "netsim-test",
+    defaults: ["netsim_defaults"],
+    srcs: [
+        "src/util/ini_file_test.cc",
+        "src/util/os_utils_test.cc",
+        "src/util/string_utils_test.cc",
+        "src/wifi/wifi_facade_test.cc",
+    ],
+    generated_headers: [
+        "cxx-bridge-header",
+        "netsim_daemon_h",
+    ],
+    shared_libs: [
+        "libgrpc++",
+        "libcrypto",
+        "libbase",
+        "libunwindstack",
+        "libssl",
+        "libz", // TODO: Remove for native rust binary
+    ],
+    static_libs: [
+        "breakpad_client",
+        "libc++fs",
+        "libgrpc_wrap",
+        "libjsoncpp",
+        "libprotobuf-cpp-full",
+        "libscriptedbeaconpayload-protos-lite", // TODO: Remove this after using pdl library.
+        "lib-netsim-frontend-proto",
+        "lib-netsim",
+        "lib-netsimd-proto",
+        "librootcanal_rs",
+    ],
+    whole_static_libs: [
+        "libnetsim_daemon",
+        "libbt-rootcanal",
+    ],
+    ldflags: ["-Wl,--allow-multiple-definition"],
+}
+
+rust_library_host {
+    name: "libnetsim_proto",
+    features: ["cuttlefish"],
+    crate_name: "netsim_proto",
+    srcs: ["rust/proto/src/lib.rs"],
+    rustlibs: [
+        "libprotobuf",
+        "libgrpcio",
+    ],
+}
+
+rust_defaults {
+    name: "libnetsim_common_defaults",
+    srcs: ["rust/common/src/lib.rs"],
+    rustlibs: [
+        "libchrono",
+        "librand",
+        "liblog_rust",
+        "libenv_logger",
+        "libzip",
+    ],
+}
+
+rust_library_host {
+    name: "libnetsim_common",
+    crate_name: "netsim_common",
+    defaults: ["libnetsim_common_defaults"],
+}
+
+rust_test_host {
+    name: "libnetsim_common_inline_tests",
+    defaults: ["libnetsim_common_defaults"],
+    test_suites: ["general_tests"],
+}
+
+cc_library_host_static {
+    name: "lib-netsim-frontend-client",
+    defaults: ["netsim_defaults"],
+    srcs: [
+        "src/frontend/frontend_client.cc",
+        "src/util/ini_file.cc",
+        "src/util/log.cc",
+        "src/util/os_utils.cc",
+        "src/util/string_utils.cc",
+    ],
+    generated_headers: [
+        "cxx-bridge-header",
+        "netsim_cli_h",
+    ],
+    shared_libs: ["libgrpc++"],
+    generated_sources: ["netsim_cli_cc"],
+    static_libs: [
+        "libc++fs",
+        "libprotobuf-cpp-full",
+        "lib-netsim-frontend-proto",
+    ],
+}
+
+rust_defaults {
+    name: "netsim_cli_defaults",
+    rustlibs: [
+        "libclap",
+        "libcxx",
+        "libhex",
+        "liblog_rust",
+        "libnetsim_common",
+        "libnetsim_proto",
+        "libprotobuf",
+    ],
+}
+
+rust_defaults {
+    name: "netsim_cli_cc_defaults",
+    shared_libs: ["libgrpc++"],
+    static_libs: [
+        "lib-netsim-frontend-client",
+        "lib-netsim-frontend-proto",
+        "libc++fs",
+        "libprotobuf-cpp-full",
+    ],
+}
+
+rust_test_host {
+    name: "libnetsim_cli_tests",
+    srcs: ["rust/cli/src/lib.rs"],
+    defaults: ["netsim_cli_defaults"],
+    test_suites: ["general_tests"],
+}
+
+rust_library_host {
+    name: "libnetsim_cli",
+    crate_name: "netsim_cli",
+    srcs: ["rust/cli/src/lib.rs"],
+    defaults: [
+        "netsim_cli_defaults",
+        "netsim_cli_cc_defaults",
+    ],
+}
+
+rust_binary_host {
+    name: "netsim",
+    srcs: ["rust/cli/bin/netsim.rs"],
+    rustlibs: [
+        "libnetsim_cli",
+    ],
+}
+
+rust_binary_host {
+    name: "netsim_test_client",
+    srcs: ["rust/frontend/src/netsim_test_client.rs"],
+    rustlibs: [
+        "libgrpcio",
+        "libnetsim_proto",
+        "libprotobuf",
+        "libnetsim_common",
+    ],
+}
+
+rust_binary_host {
+    name: "netsim_test_server",
+    srcs: ["rust/frontend/src/netsim_test_server.rs"],
+    rustlibs: [
+        "libgrpcio",
+        "libnetsim_proto",
+        "libprotobuf",
+        "libnetsim_common",
+        "libfutures",
+    ],
+}

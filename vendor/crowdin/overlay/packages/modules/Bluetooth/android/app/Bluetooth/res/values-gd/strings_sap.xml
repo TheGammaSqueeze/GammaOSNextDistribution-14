@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="bluetooth_sap_notif_title">Inntrigeadh SIM le Bluetooth</string>
+    <string name="bluetooth_sap_notif_ticker">Inntrigeadh SIM le Bluetooth</string>
+    <string name="bluetooth_sap_notif_message">An iarr thu air a’ chliant gum bris e an ceangal?</string>
+    <string name="bluetooth_sap_notif_disconnecting">A’ feitheamh gus am bris an cliant an ceangal</string>
+    <string name="bluetooth_sap_notif_disconnect_button">Bris an ceangal</string>
+    <string name="bluetooth_sap_notif_force_disconnect_button">Spàrr briseadh air a’ cheangail</string>
+</resources>

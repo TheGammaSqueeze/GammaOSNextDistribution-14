@@ -1,0 +1,341 @@
+//
+// Copyright (C) 2020 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    default_team: "trendy_team_fwk_core_networking",
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+filegroup {
+    name: "framework-connectivity-internal-sources",
+    srcs: [
+        "src/**/*.java",
+        "src/**/*.aidl",
+    ],
+    path: "src",
+    visibility: [
+        "//visibility:private",
+    ],
+}
+
+filegroup {
+    name: "framework-connectivity-aidl-export-sources",
+    srcs: [
+        "aidl-export/**/*.aidl",
+    ],
+    path: "aidl-export",
+    visibility: [
+        "//visibility:private",
+    ],
+}
+
+// TODO: use a java_library in the bootclasspath instead
+filegroup {
+    name: "framework-connectivity-sources",
+    defaults: ["framework-sources-module-defaults"],
+    srcs: [
+        ":framework-connectivity-internal-sources",
+        ":framework-connectivity-aidl-export-sources",
+    ],
+    visibility: ["//packages/modules/Connectivity:__subpackages__"],
+}
+
+java_defaults {
+    name: "framework-connectivity-defaults",
+    defaults: ["framework-module-defaults"],
+    sdk_version: "module_current",
+    min_sdk_version: "30",
+    srcs: [
+        ":framework-connectivity-sources",
+        ":net-utils-framework-common-srcs",
+        ":framework-connectivity-api-shared-srcs",
+    ],
+    aidl: {
+        generate_get_transaction_name: true,
+        include_dirs: [
+            // Include directories for parcelables that are part of the stable API, and need a
+            // one-line "parcelable X" .aidl declaration to be used in AIDL interfaces.
+            // TODO(b/180293679): remove these dependencies as they should not be necessary once
+            // the module builds against API (the parcelable declarations exist in framework.aidl)
+            "frameworks/base/core/java", // For framework parcelables
+            "frameworks/native/aidl/binder", // For PersistableBundle.aidl
+        ],
+    },
+    stub_only_libs: [
+        "framework-connectivity-t.stubs.module_lib",
+    ],
+    impl_only_libs: [
+        // TODO: figure out why just using "framework-tethering" uses the stubs, even though both
+        // framework-connectivity and framework-tethering are in the same APEX.
+        "framework-location.stubs.module_lib",
+        "framework-tethering.impl",
+        "framework-wifi.stubs.module_lib",
+    ],
+    static_libs: [
+        // Not using the latest stable version because all functions in the latest version of
+        // mdns_aidl_interface are deprecated.
+        "mdns_aidl_interface-V1-java",
+        "modules-utils-backgroundthread",
+        "modules-utils-build",
+        "modules-utils-preconditions",
+        "framework-connectivity-javastream-protos",
+    ],
+    impl_only_static_libs: [
+        "net-utils-device-common-bpf",
+    ],
+    libs: [
+        "androidx.annotation_annotation",
+        "app-compat-annotations",
+        "framework-connectivity-t.stubs.module_lib",
+        "unsupportedappusage",
+    ],
+    apex_available: [
+        "com.android.tethering",
+    ],
+}
+
+java_library {
+    name: "framework-connectivity-pre-jarjar",
+    defaults: [
+        "framework-connectivity-defaults",
+    ],
+    static_libs: [
+        "httpclient_api",
+        "httpclient_impl",
+        "http_client_logging",
+        // Framework-connectivity-pre-jarjar is identical to framework-connectivity
+        // implementation, but without the jarjar rules. However, framework-connectivity
+        // is not based on framework-connectivity-pre-jarjar, it's rebuilt from source
+        // to generate the SDK stubs.
+        // Even if the library is included in "impl_only_static_libs" of defaults. This is still
+        // needed because java_library which doesn't understand "impl_only_static_libs".
+        "net-utils-device-common-bpf",
+    ],
+    libs: [
+        // This cannot be in the defaults clause above because if it were, it would be used
+        // to generate the connectivity stubs. That would create a circular dependency
+        // because the tethering impl depend on the connectivity stubs (e.g.,
+        // TetheringRequest depends on LinkAddress).
+        "framework-location.stubs.module_lib",
+        "framework-tethering.impl",
+        "framework-wifi.stubs.module_lib",
+    ],
+    visibility: ["//packages/modules/Connectivity:__subpackages__"],
+}
+
+java_defaults {
+    name: "CronetJavaDefaults",
+    srcs: [":httpclient_api_sources"],
+    libs: [
+        "androidx.annotation_annotation",
+    ],
+    impl_only_static_libs: [
+        "httpclient_impl",
+        "http_client_logging",
+    ],
+}
+
+java_sdk_library {
+    name: "framework-connectivity",
+    defaults: [
+        "framework-connectivity-defaults",
+        "CronetJavaDefaults",
+    ],
+    installable: true,
+    jarjar_rules: ":framework-connectivity-jarjar-rules",
+    permitted_packages: ["android.net"],
+    impl_library_visibility: [
+        "//packages/modules/Connectivity/Tethering/apex",
+        // In preparation for future move
+        "//packages/modules/Connectivity/apex",
+        "//packages/modules/Connectivity/framework-t",
+        "//packages/modules/Connectivity/service",
+        "//packages/modules/Connectivity/service-t",
+        "//frameworks/base",
+
+        // Tests using hidden APIs
+        "//cts/tests/netlegacy22.api",
+        "//cts/tests/tests/app.usage", // NetworkUsageStatsTest
+        "//external/sl4a:__subpackages__",
+        "//frameworks/base/core/tests/bandwidthtests",
+        "//frameworks/base/core/tests/benchmarks",
+        "//frameworks/base/core/tests/utillib",
+        "//frameworks/base/services/tests/VpnTests",
+        "//frameworks/base/tests/vcn",
+        "//frameworks/opt/net/ethernet/tests:__subpackages__",
+        "//frameworks/opt/telephony/tests/telephonytests",
+        "//packages/modules/CaptivePortalLogin/tests",
+        "//packages/modules/Connectivity/staticlibs/testutils",
+        "//packages/modules/Connectivity/staticlibs/tests:__subpackages__",
+        "//packages/modules/Connectivity/Cronet/tests:__subpackages__",
+        "//packages/modules/Connectivity/Tethering/tests:__subpackages__",
+        "//packages/modules/Connectivity/tests:__subpackages__",
+        "//packages/modules/Connectivity/thread/tests:__subpackages__",
+        "//packages/modules/IPsec/tests/iketests",
+        "//packages/modules/NetworkStack/tests:__subpackages__",
+        "//packages/modules/Wifi/service/tests/wifitests",
+    ],
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
+    aconfig_declarations: [
+        "com.android.net.flags-aconfig",
+    ],
+}
+
+platform_compat_config {
+    name: "connectivity-platform-compat-config",
+    src: ":framework-connectivity",
+}
+
+cc_library_shared {
+    name: "libframework-connectivity-jni",
+    min_sdk_version: "30",
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wno-unused-parameter",
+        // Don't warn about S API usage even with
+        // min_sdk 30: the library is only loaded
+        // on S+ devices
+        "-Wno-unguarded-availability",
+        "-Wthread-safety",
+    ],
+    srcs: [
+        "jni/android_net_NetworkUtils.cpp",
+        "jni/onload.cpp",
+    ],
+    shared_libs: [
+        "libandroid",
+        "liblog",
+        "libnativehelper",
+    ],
+    header_libs: [
+        "bpf_headers",
+        "dnsproxyd_protocol_headers",
+    ],
+    stl: "none",
+    apex_available: [
+        "com.android.tethering",
+    ],
+}
+
+filegroup {
+    name: "framework-connectivity-protos",
+    srcs: [
+        "proto/**/*.proto",
+    ],
+    visibility: ["//frameworks/base"],
+}
+
+java_library {
+    name: "framework-connectivity-javastream-protos",
+    proto: {
+        type: "stream",
+    },
+    srcs: [":framework-connectivity-protos"],
+    installable: false,
+    sdk_version: "module_current",
+    min_sdk_version: "30",
+    apex_available: [
+        "com.android.tethering",
+    ],
+}
+
+java_genrule {
+    name: "framework-connectivity-jarjar-rules",
+    tool_files: [
+        ":connectivity-hiddenapi-files",
+        ":framework-connectivity-pre-jarjar{.jar}",
+        ":framework-connectivity-t-pre-jarjar{.jar}",
+        ":framework-connectivity.stubs.module_lib{.jar}",
+        ":framework-connectivity-t.stubs.module_lib{.jar}",
+        ":framework-connectivity-module-api-stubs-including-flagged{.jar}",
+        "jarjar-excludes.txt",
+    ],
+    tools: [
+        "jarjar-rules-generator",
+    ],
+    out: ["framework_connectivity_jarjar_rules.txt"],
+    cmd: "$(location jarjar-rules-generator) " +
+        "$(location :framework-connectivity-pre-jarjar{.jar}) " +
+        "$(location :framework-connectivity-t-pre-jarjar{.jar}) " +
+        "--prefix android.net.connectivity " +
+        "--apistubs $(location :framework-connectivity.stubs.module_lib{.jar}) " +
+        "--apistubs $(location :framework-connectivity-t.stubs.module_lib{.jar}) " +
+        "--apistubs $(location :framework-connectivity-module-api-stubs-including-flagged{.jar}) " +
+        // Make a ":"-separated list. There will be an extra ":" but empty items are ignored.
+        "--unsupportedapi $$(printf ':%s' $(locations :connectivity-hiddenapi-files)) " +
+        "--excludes $(location jarjar-excludes.txt) " +
+        "--output $(out)",
+    visibility: [
+        "//packages/modules/Connectivity/framework:__subpackages__",
+        "//packages/modules/Connectivity/framework-t:__subpackages__",
+        "//packages/modules/Connectivity/service",
+    ],
+}
+
+droidstubs {
+    name: "framework-connectivity-module-api-stubs-including-flagged-droidstubs",
+    srcs: [
+        ":framework-connectivity-sources",
+        ":framework-connectivity-tiramisu-updatable-sources",
+        ":framework-nearby-java-sources",
+        ":framework-thread-sources",
+    ],
+    flags: [
+        "--show-for-stub-purposes-annotation android.annotation.SystemApi" +
+            "\\(client=android.annotation.SystemApi.Client.PRIVILEGED_APPS\\)",
+        "--show-for-stub-purposes-annotation android.annotation.SystemApi" +
+            "\\(client=android.annotation.SystemApi.Client.MODULE_LIBRARIES\\)",
+    ],
+    aidl: {
+        include_dirs: [
+            "packages/modules/Connectivity/framework/aidl-export",
+            "frameworks/native/aidl/binder", // For PersistableBundle.aidl
+        ],
+    },
+}
+
+java_library {
+    name: "framework-connectivity-module-api-stubs-including-flagged",
+    srcs: [":framework-connectivity-module-api-stubs-including-flagged-droidstubs"],
+}
+
+// Library providing limited APIs within the connectivity module, so that R+ components like
+// Tethering have a controlled way to depend on newer components like framework-connectivity that
+// are not loaded on R.
+// Note that this target needs to have access to hidden classes, and as such needs to list
+// the full libraries instead of the .impl lib (which only expose API classes).
+java_library {
+    name: "connectivity-internal-api-util",
+    sdk_version: "module_current",
+    libs: [
+        "androidx.annotation_annotation",
+        "framework-connectivity-pre-jarjar",
+    ],
+    jarjar_rules: ":framework-connectivity-jarjar-rules",
+    srcs: [
+        // Files listed here MUST all be annotated with @RequiresApi(Build.VERSION_CODES.S)
+        // or above as appropriate so that API checks are enforced for R+ users of this library
+        "src/android/net/RoutingCoordinatorManager.java",
+        "src/android/net/connectivity/ConnectivityInternalApiUtil.java",
+    ],
+    visibility: [
+        "//packages/modules/Connectivity/Tethering:__subpackages__",
+    ],
+}

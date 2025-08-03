@@ -1,0 +1,178 @@
+package {
+    // http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // the below license kinds from "system_sepolicy_license":
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_sepolicy_license"],
+}
+
+cc_library_host_shared {
+    name: "libsepolwrap",
+    srcs: ["sepol_wrap.cpp"],
+    cflags: ["-Wall", "-Werror",],
+    export_include_dirs: ["include"],
+    stl: "c++_static",
+
+    // libsepolwrap gets loaded from the system python, which does not have the
+    // ASAN runtime. So turn off sanitization for ourself, and  use static
+    // libraries, since the shared libraries will use ASAN.
+    static_libs: [
+        "libbase",
+        "libsepol",
+    ],
+    sanitize: {
+        never: true,
+    },
+}
+
+python_library_host {
+    name: "mini_cil_parser",
+    srcs: ["mini_parser.py"],
+}
+
+python_library_host {
+    name: "pysepolwrap",
+    srcs: [
+        "fc_sort.py",
+        "policy.py",
+    ],
+}
+
+python_binary_host {
+    name: "treble_sepolicy_tests",
+    srcs: [
+        "treble_sepolicy_tests.py",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+    libs: [
+        "mini_cil_parser",
+    ],
+}
+
+python_binary_host {
+    name: "sepolicy_tests",
+    srcs: [
+        "sepolicy_tests.py",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+    libs: ["pysepolwrap"],
+    data: [":libsepolwrap"],
+}
+
+python_binary_host {
+    name: "apex_sepolicy_tests",
+    srcs: [
+        "apex_sepolicy_tests.py",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+    libs: ["pysepolwrap"],
+    data: [
+        ":libsepolwrap",
+        ":precompiled_sepolicy",
+    ],
+}
+
+python_test_host {
+    name: "apex_sepolicy_tests_test",
+    srcs: [
+        "apex_sepolicy_tests.py",
+        "apex_sepolicy_tests_test.py",
+    ],
+    libs: ["pysepolwrap"],
+    data: [
+        ":libsepolwrap",
+        ":precompiled_sepolicy",
+    ],
+    test_options: {
+        unit_test: true,
+    },
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+}
+
+python_binary_host {
+    name: "searchpolicy",
+    srcs: [
+        "searchpolicy.py",
+    ],
+    libs: ["pysepolwrap"],
+    required: ["libsepolwrap"],
+}
+
+python_binary_host {
+    name: "combine_maps",
+    srcs: [
+        "combine_maps.py",
+    ],
+    libs: ["mini_cil_parser"],
+}
+
+python_binary_host {
+    name: "fc_sort",
+    srcs: [
+        "fc_sort.py",
+    ],
+}
+
+python_test_host {
+    name: "fc_sort_test",
+    srcs: [
+        "fc_sort.py",
+        "fc_sort_test.py",
+    ],
+    test_options: {
+        unit_test: true,
+    }
+}
+
+python_binary_host {
+    name: "check_prop_prefix",
+    srcs: ["check_prop_prefix.py"],
+}
+
+python_binary_host {
+    name: "sepolicy_freeze_test",
+    srcs: [
+        "sepolicy_freeze_test.py",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+    libs: [
+        "mini_cil_parser",
+    ],
+}
+
+python_test_host {
+    name: "policy_test",
+    srcs: [
+        "fc_sort.py",
+        "policy.py",
+        "policy_test.py",
+    ],
+    test_options: {
+        unit_test: true,
+    },
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+}

@@ -1,0 +1,28 @@
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="@dimen/hvac_panel_icon_dimen"
+    android:height="@dimen/hvac_panel_icon_dimen"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+  <path
+      android:pathData="M42,22H35.66L40.74,16.92C41.52,16.14 41.52,14.88 40.74,14.1C39.96,13.32 38.68,13.32 37.9,14.1L30,22H26V18L33.9,10.1C34.68,9.32 34.68,8.04 33.9,7.26C33.12,6.48 31.86,6.48 31.08,7.26L26,12.34V6C26,4.9 25.1,4 24,4C22.9,4 22,4.9 22,6V12.34L16.92,7.26C16.14,6.48 14.88,6.48 14.1,7.26C13.32,8.04 13.32,9.32 14.1,10.1L22,18V22H18L10.1,14.1C9.32,13.32 8.04,13.32 7.26,14.1C6.48,14.88 6.48,16.14 7.26,16.92L12.34,22H6C4.9,22 4,22.9 4,24C4,25.1 4.9,26 6,26H12.34L7.26,31.08C6.48,31.86 6.48,33.12 7.26,33.9C8.04,34.68 9.32,34.68 10.1,33.9L18,26H22V30L14.1,37.9C13.32,38.68 13.32,39.96 14.1,40.74C14.88,41.52 16.14,41.52 16.92,40.74L22,35.66V42C22,43.1 22.9,44 24,44C25.1,44 26,43.1 26,42V35.66L31.08,40.74C31.86,41.52 33.12,41.52 33.9,40.74C34.68,39.96 34.68,38.68 33.9,37.9L26,30V26H30L37.9,33.9C38.68,34.68 39.96,34.68 40.74,33.9C41.52,33.12 41.52,31.86 40.74,31.08L35.66,26H42C43.1,26 44,25.1 44,24C44,22.9 43.1,22 42,22Z"
+      android:fillColor="@color/hvac_on_icon_fill_color"/>
+  <path
+      android:pathData="M42,22H35.66L40.74,16.92C41.52,16.14 41.52,14.88 40.74,14.1C39.96,13.32 38.68,13.32 37.9,14.1L30,22H26V18L33.9,10.1C34.68,9.32 34.68,8.04 33.9,7.26C33.12,6.48 31.86,6.48 31.08,7.26L26,12.34V6C26,4.9 25.1,4 24,4C22.9,4 22,4.9 22,6V12.34L16.92,7.26C16.14,6.48 14.88,6.48 14.1,7.26C13.32,8.04 13.32,9.32 14.1,10.1L22,18V22H18L10.1,14.1C9.32,13.32 8.04,13.32 7.26,14.1C6.48,14.88 6.48,16.14 7.26,16.92L12.34,22H6C4.9,22 4,22.9 4,24C4,25.1 4.9,26 6,26H12.34L7.26,31.08C6.48,31.86 6.48,33.12 7.26,33.9C8.04,34.68 9.32,34.68 10.1,33.9L18,26H22V30L14.1,37.9C13.32,38.68 13.32,39.96 14.1,40.74C14.88,41.52 16.14,41.52 16.92,40.74L22,35.66V42C22,43.1 22.9,44 24,44C25.1,44 26,43.1 26,42V35.66L31.08,40.74C31.86,41.52 33.12,41.52 33.9,40.74C34.68,39.96 34.68,38.68 33.9,37.9L26,30V26H30L37.9,33.9C38.68,34.68 39.96,34.68 40.74,33.9C41.52,33.12 41.52,31.86 40.74,31.08L35.66,26H42C43.1,26 44,25.1 44,24C44,22.9 43.1,22 42,22Z"
+      android:fillColor="@color/hvac_on_icon_fill_color"/>
+</vector>

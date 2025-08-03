@@ -1,0 +1,117 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_tools_hidl_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_tools_hidl_license"],
+}
+
+python_test_host {
+    name: "hidl_test",
+    main: "hidl_test.py",
+    srcs: ["hidl_test.py"],
+    test_config: "hidl_test.xml",
+    data_device_bins_both: [
+        "hidl_test_client",
+        "hidl_test_servers",
+    ],
+    test_suites: ["general-tests"],
+    test_options: {
+        unit_test: false,
+    },
+}
+
+cc_defaults {
+    name: "hidl_test-defaults",
+    defaults: ["hidl-gen-defaults"],
+
+    cpp_std: "gnu++17",
+
+    shared_libs: [
+        "android.hidl.memory@1.0",
+        "android.hidl.memory.token@1.0",
+        "android.hidl.token@1.0",
+        "libbase",
+        "libcutils",
+        "libhidlbase",
+        "libhidlmemory",
+        "liblog",
+        "libutils",
+    ],
+
+    // Allow dlsym'ing self for statically linked passthrough implementations
+    ldflags: ["-rdynamic"],
+
+    // These are static libs only for testing purposes and portability. Shared
+    // libs should be used on device.
+    static_libs: [
+        "libfootest",
+        "libhidl-gen-utils",
+        "android.hardware.tests.expression@1.0",
+        "android.hardware.tests.foo@1.0",
+        "android.hardware.tests.bar@1.0",
+        "android.hardware.tests.baz@1.0",
+        "android.hardware.tests.hash@1.0",
+        "android.hardware.tests.inheritance@1.0",
+        "android.hardware.tests.memory@1.0",
+        "android.hardware.tests.multithread@1.0",
+        "android.hardware.tests.trie@1.0",
+        "android.hardware.tests.safeunion.cpp@1.0",
+        "android.hardware.tests.safeunion@1.0",
+    ],
+
+    // impls should never be static, these are used only for testing purposes
+    // and test portability since this test pairs with specific hal
+    // implementations
+    whole_static_libs: [
+        "android.hardware.tests.foo@1.0-impl",
+        "android.hardware.tests.bar@1.0-impl",
+        "android.hardware.tests.baz@1.0-impl",
+        "android.hardware.tests.hash@1.0-impl",
+        "android.hardware.tests.inheritance@1.0-impl",
+        "android.hardware.tests.memory@1.0-impl",
+        "android.hardware.tests.multithread@1.0-impl",
+        "android.hardware.tests.trie@1.0-impl",
+        "android.hardware.tests.safeunion.cpp@1.0-impl",
+        "android.hardware.tests.safeunion@1.0-impl",
+    ],
+
+    group_static_libs: true,
+
+    compile_multilib: "both",
+    multilib: {
+        lib32: {
+            suffix: "32",
+        },
+        lib64: {
+            suffix: "64",
+        },
+    },
+    test_suites: ["general-tests"],
+}
+
+cc_test {
+    name: "hidl_test_client",
+    defaults: ["hidl_test-defaults"],
+
+    tidy_timeout_srcs: [
+        "hidl_test_client.cpp",
+    ],
+    srcs: [
+        "hidl_test_client.cpp",
+        "FooCallback.cpp",
+        "static_test.cpp",
+    ],
+
+    shared_libs: [
+        "android.hidl.allocator@1.0",
+    ],
+}
+
+cc_test {
+    name: "hidl_test_servers",
+    defaults: ["hidl_test-defaults"],
+    srcs: ["hidl_test_servers.cpp"],
+    gtest: false,
+}

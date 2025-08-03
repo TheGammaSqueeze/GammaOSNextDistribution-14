@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_share_drop_target_label">Cumpartzi aplicatzione</string>
+    <string name="action_listen">Ascurta</string>
+    <string name="action_translate">Tradue</string>
+    <string name="dialog_acknowledge">CUMPRÈNDIDU</string>
+    <string name="dialog_cancel">ANNULLA</string>
+    <string name="dialog_settings">CUNFIGURATZIONES</string>
+    <string name="toast_p2p_app_not_shareable">Custa aplicatzione non si podet cumpartzire</string>
+</resources>

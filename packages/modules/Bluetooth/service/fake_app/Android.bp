@@ -1,0 +1,4 @@
+android_app {
+    name: "ServiceBluetoothFakeTestApp",
+    sdk_version: "Tiramisu",
+}

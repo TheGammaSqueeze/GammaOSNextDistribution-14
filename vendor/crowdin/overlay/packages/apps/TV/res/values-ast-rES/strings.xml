@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2015 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="menu_title_channels">Canales</string>
+    <string name="options_item_settings">Configuración</string>
+    <string name="program_guide_content_locked">Esti programa ta bloquiáu</string>
+    <string name="other_countries">Otros países</string>
+    <string name="side_panel_title_settings">Configuración</string>
+    <string name="empty_input_status_title_format"><xliff:g id="input_label" example="HDMI 1">%1$s</xliff:g> - Ensin señal</string>
+    <string name="empty_input_status_info">Comprueba la conexón o seleiciona otra fonte d\'entrada</string>
+    <string name="input_banner_v2_active_input">Entrada activa</string>
+    <string name="new_sources_action_skip">D\'acuerdu</string>
+    <string name="msg_missing_app">Nun s\'atopó nenguna aplicación pa remanar esta aición.</string>
+    <string name="recording_start_dialog_10_min_duration">10 minutos</string>
+    <string name="recording_start_dialog_30_min_duration">30 minutos</string>
+    <string name="recording_start_dialog_1_hour_duration">1 hora</string>
+    <string name="recording_start_dialog_3_hours_duration">3 hores</string>
+    <plurals name="dvr_program_duration">
+        <item quantity="one">%1$d minutu</item>
+        <item quantity="other">%1$d minutos</item>
+    </plurals>
+    <string name="dvr_detail_delete">Desaniciar</string>
+    <string name="dvr_detail_series_resume">Siguir</string>
+    <string name="dvr_series_settings_channels">Canales</string>
+    <string name="dvr_priority_button_action_save">Guardar</string>
+    <string name="dvr_toast_recording_deleted">Nun s\'atopó la grabación.</string>
+    <string name="dvr_schedule_dialog_title">¿Qué quies grabar?</string>
+    <string name="dvr_channel_record_duration_dialog_title">¿Cuántu tiempu quies grabar?</string>
+    <plurals name="dvr_schedules_section_subtitle">
+        <item quantity="one">%1$d grabación</item>
+        <item quantity="other">%1$d grabaciones</item>
+    </plurals>
+    <string name="dvr_recording_failed_input_unavailable_short">«<xliff:g id="inputId" example="com.example.partnersupportsampletvinput/.SampleTvInputService">%1$s</xliff:g>» nun ta disponible.</string>
+    <string name="dvr_recording_failed_input_dvr_unsupported_short">La grabación nun ye compatible.</string>
+    <string name="dvr_date_today">Güei</string>
+    <string name="dvr_date_tomorrow">Mañana</string>
+    <string name="dvr_date_yesterday">Ayeri</string>
+    <string name="program_guide_critic_score">Puntuación</string>
+    <string name="tv_app_dialog_title">Atopóse una aplicación interactiva. ¿Quies activar les aplicaciones interactives?</string>
+    <string name="interactive_app_settings">Configuración d\'aplicaciones interactives</string>
+</resources>

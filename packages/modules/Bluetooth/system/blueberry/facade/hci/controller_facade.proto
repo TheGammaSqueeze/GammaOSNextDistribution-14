@@ -1,0 +1,96 @@
+syntax = "proto3";
+
+package blueberry.facade.hci;
+
+import "google/protobuf/empty.proto";
+import "blueberry/facade/common.proto";
+
+service ControllerFacade {
+  rpc GetMacAddress(google.protobuf.Empty) returns (blueberry.facade.BluetoothAddress) {}
+  rpc WriteLocalName(NameMsg) returns (google.protobuf.Empty) {}
+  rpc GetLocalName(google.protobuf.Empty) returns (NameMsg) {}
+  rpc IsSupportedCommand(OpCodeMsg) returns (SupportedMsg) {}
+  rpc GetLeNumberOfSupportedAdvertisingSets(google.protobuf.Empty) returns (SingleValueMsg) {}
+  rpc SupportsSimplePairing(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsSecureConnections(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsSimultaneousLeBrEdr(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsInterlacedInquiryScan(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsRssiWithInquiryResults(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsExtendedInquiryResponse(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsRoleSwitch(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc Supports3SlotPackets(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc Supports5SlotPackets(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsClassic2mPhy(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsClassic3mPhy(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc Supports3SlotEdrPackets(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc Supports5SlotEdrPackets(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsSco(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsHv2Packets(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsHv3Packets(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsEv3Packets(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsEv4Packets(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsEv5Packets(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsEsco2mPhy(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsEsco3mPhy(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc Supports3SlotEscoEdrPackets(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsHoldMode(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsSniffMode(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsParkMode(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsNonFlushablePb(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsSniffSubrating(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsEncryptionPause(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsBle(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsBleEncryption(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsBleConnectionParametersRequest(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsBleExtendedReject(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsBlePeripheralInitiatedFeaturesExchange(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsBlePing(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsBleDataPacketLengthExtension(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsBlePrivacy(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsBleExtendedScannerFilterPolicies(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsBle2mPhy(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsBleStableModulationIndexTx(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsBleStableModulationIndexRx(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsBleCodedPhy(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsBleExtendedAdvertising(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsBlePeriodicAdvertising(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsBleChannelSelectionAlgorithm2(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsBlePowerClass1(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsBleMinimumUsedChannels(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsBleConnectionCteRequest(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsBleConnectionCteResponse(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsBleConnectionlessCteTransmitter(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsBleConnectionlessCteReceiver(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsBleAntennaSwitchingDuringCteTx(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsBleAntennaSwitchingDuringCteRx(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsBleReceivingConstantToneExtensions(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsBlePeriodicAdvertisingSyncTransferSender(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsBlePeriodicAdvertisingSyncTransferRecipient(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsBleSleepClockAccuracyUpdates(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsBleRemotePublicKeyValidation(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsBleConnectedIsochronousStreamCentral(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsBleConnectedIsochronousStreamPeripheral(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsBleIsochronousBroadcaster(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsBleSynchronizedReceiver(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsBleIsochronousChannelsHostSupport(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsBlePowerControlRequest(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsBlePowerChangeIndication(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsBlePathLossMonitoring(google.protobuf.Empty) returns (SupportedMsg) {}
+  rpc SupportsBlePeriodicAdvertisingAdi(google.protobuf.Empty) returns (SupportedMsg) {}
+}
+
+message NameMsg {
+  bytes name = 1;
+}
+
+message OpCodeMsg {
+  uint32 op_code = 1;
+}
+
+message SupportedMsg {
+  bool supported = 1;
+}
+
+message SingleValueMsg {
+  uint64 value = 1;
+}

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label">چۈشۈرۈش باشقۇرغۇچ</string>
+    <string name="permdesc_downloadManager">ئەپنىڭ چۈشۈرۈش باشقۇرغۇچنى زىيارەت قىلىشقا يول قويىدۇ ھەمدە شۇ باشقۇرغۇچنى ئىشلىتىپ ھۆججەت چۈشۈرىدۇ. زەھەرخەندە پىروگراممىلار بۇنىڭدىن پايدىلىنىپ چۈشۈرۈشكە كاشىلا قىلىدۇ ھەمدە شەخسىيەت ئۇچۇرلىرىنى زىيارەت قىلىدۇ.</string>
+    <string name="permlab_downloadManagerAdvanced">ئالىي دەرىجىلىك چۈشۈرۈشنى باشقۇرغۇچ ئىقتىدارلىرى.</string>
+    <string name="permdesc_downloadManagerAdvanced">ئەپنىڭ چۈشۈرۈش باشقۇرغۇچنىڭ ئالىي ئىقتىدارىنى زىيارەت قىلىشقا يول قويىدۇ. زەھەرخەندە پىروگراممىلار بۇنىڭدىن پايدىلىنىپ چۈشۈرۈشنى توسۇپ، شەخسىيەت ئۇچۇرلىرىنى زىيارەت قىلىدۇ.</string>
+    <string name="permlab_downloadCompletedIntent">چۈشۈرۈش ئۇقتۇرۇشى يوللايدۇ.</string>
+    <string name="permdesc_downloadCompletedIntent">ئەپنىڭ چۈشۈرۈشنى تاماملىغانلىق ئۇقتۇرۇشى يوللىشىغا يول قويىدۇ. زەھەرخەندە پىروگراممىلار بۇنىڭدىن پايدىلىنىپ ھۆججەت چۈشۈرۈۋاتقان باشقا پىروگراممىلارغا كاشىلا قىلىدۇ.</string>
+    <string name="permlab_downloadCacheNonPurgeable">چۈشۈرۈش غەملىكىدىكى بوشلۇقنى ساقلاپ قالىدۇ</string>
+    <string name="permdesc_downloadCacheNonPurgeable">پىروگراممىنىڭ ھۆججەتنى چۈشۈرۈش ئەسلەككە چۈشۈرۈشىگە يول قويىدۇ، چۈشۈرۈش باشقۇرغۇچ تېخىمۇ كۆپ بوشلۇققا ئېھتىياج بولغانلىقتىن سىستېما چۈشۈرۈش غەملەكنى ئۆزلۈكىدىن ئۆچۈرمەيدۇ.</string>
+    <string name="permlab_downloadWithoutNotification">ئۇقتۇرۇشنى كۆرسەتمەيلا ھۆججەتنى بىۋاستە چۈشۈر</string>
+    <string name="permdesc_downloadWithoutNotification">پىروگراممىنىڭ ئىشلەتكۈچىگە ھېچقانداق ئۇقتۇرۇشنى كۆرسەتمىگەن ئەھۋالدا، چۈشۈرۈش باشقۇرغۇچ ئارقىلىق ھۆججەت چۈشۈرۈشىگە يول قويىدۇ.</string>
+    <string name="permlab_accessAllDownloads">بارلىق سىستېما چۈشۈرۈشلىرىنى زىيارەت</string>
+    <string name="permdesc_accessAllDownloads">ئەپنىڭ سىستېمىدىكى خالىغان پىروگرامما ئوتتۇرىغا قويغان ھەممە چۈشۈرۈشنى كۆرۈپ ۋە ئۆزگەرتىشىگە يول قويىدۇ.</string>
+    <string name="notification_download_complete">چۈشۈرۈش تامام.</string>
+    <string name="notification_download_failed">چۈشۈرەلمىدى.</string>
+    <string name="notification_need_wifi_for_size">بۇ چوڭلۇقتىكىنى Wi-Fi ئارقىلىق چۈشۈرۈڭ.</string>
+    <string name="notification_paused_in_background">ئارقا سۇپىدا ۋاقىتلىق توختىدى.</string>
+    <string name="wifi_required_title">ھۆججەت بەك چوڭ، تېلېفون تىجارەتچىسىنىڭ تورىدىن چۈشۈرۈشكە ماس كەلمەيدۇ</string>
+    <string name="wifi_recommended_title">سەل تۇرۇپ چۈشۈرۈش قاتارىغا قوشامدۇ؟</string>
+    <string name="button_queue_for_wifi">قاتار</string>
+    <string name="download_remaining"><xliff:g id="duration" example="3 minutes">%s</xliff:g> قالدى</string>
+    <string name="download_queued">قاتاردا</string>
+    <string name="download_running">داۋاملىشىۋاتىدۇ</string>
+</resources>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  Copyright (c) 2017 The LineageOS Project
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ Also add information on how to contact you by electronic and paper mail.
+
+-->
+<resources>
+    <string name="app_name">FlipFlap</string>
+    <string name="notification_title">Smart Cover erkannt</string>
+    <string name="alarm_label">WECKER</string>
+    <string name="abbrev_wday_month_day_no_year">EEE, d. MMMM</string>
+    <string name="answer_call">ANNEHMEN</string>
+    <string name="ignore_call">IGNORIEREN</string>
+    <string name="end_call">ANRUF BEENDEN</string>
+    <string name="settings_name">Smart-Cover</string>
+    <string name="settings_enable">Smart-Cover-Steuerung aktivieren</string>
+    <string name="settings_summary">Lege das Verhalten des Zubehörs fest</string>
+    <string name="category_behaviour">Verhalten</string>
+    <string name="pass_to_security_view_title">Direkt zur Passwortabfrage gehen</string>
+    <string name="pass_to_security_view_summary">Das Öffnen der Hülle zeigt direkt den Sperrbildschirm</string>
+    <string name="use_high_touch_sensitivity_title">Hohe Touch-Empfindlichkeit</string>
+    <string name="use_high_touch_sensitivity_summary">Touch-Empfindlichkeit bei geschlossenem Cover erhöhen</string>
+    <string name="category_design">Design</string>
+    <string name="switch_charging_status_title">Ladestatus anzeigen</string>
+    <string name="switch_charging_status_summary">Farbe dem Batteriestatus anpassen</string>
+    <string name="category_timeouts">Automatisch abschalten</string>
+    <string name="timeout_plugged_title">Beim Laden</string>
+    <string name="timeout_unplugged_title">Nicht angeschlossen</string>
+    <string name="timeout_summary">Zeigt die Cover-App für %s nach dem Schließen der Hülle</string>
+    <string name="timeout_summary_never">Nach dem Schließen der Hülle bleibt die Cover-App immer an</string>
+    <string name="timeout_summary_immediately">Der Bildschirm wird durch Schließen der Hülle ausgeschaltet</string>
+    <string name="timeout_entry_immediately">Sofort</string>
+    <string name="timeout_entry_5s">5 Sekunden</string>
+    <string name="timeout_entry_10s">10 Sekunden</string>
+    <string name="timeout_entry_30s">30 Sekunden</string>
+    <string name="timeout_entry_1min">1 Minute</string>
+    <string name="timeout_entry_5min">5 Minuten</string>
+    <string name="timeout_entry_never">Nie</string>
+</resources>

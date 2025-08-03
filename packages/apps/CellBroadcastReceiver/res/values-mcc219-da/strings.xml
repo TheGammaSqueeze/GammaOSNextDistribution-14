@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--   Copyright (C) 2023 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+  -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- no translation found for cmas_extreme_alert (448557479410805515) -->
+    <skip />
+    <!-- no translation found for cmas_severe_alert (4519502975421544731) -->
+    <skip />
+    <!-- no translation found for cmas_exercise_alert (2339965271952259304) -->
+    <skip />
+    <!-- no translation found for public_safety_message (8396277903711285288) -->
+    <skip />
+    <!-- no translation found for emergency_alert (4547863206232257947) -->
+    <skip />
+    <!-- no translation found for state_local_test_alert (1130036880854851130) -->
+    <skip />
+    <string name="enable_cmas_presidential_alerts_title" msgid="3534852322578108211">"Nødalarm"</string>
+    <string name="enable_cmas_extreme_threat_alerts_title" msgid="8576288857704383650">"Ekstrem fare"</string>
+    <string name="enable_cmas_severe_threat_alerts_title" msgid="1832317443314951890">"Betydelig fare"</string>
+    <string name="enable_cmas_amber_alerts_title" msgid="7436837874014559921">"Savnet person"</string>
+    <string name="enable_cmas_test_alerts_title" msgid="6042593731810177621">"Test af Cell Broadcast"</string>
+    <string name="enable_exercise_test_alerts_title" msgid="1231668381853354024">"EU-øvelse"</string>
+    <string name="enable_public_safety_messages_title" msgid="6862686863231116574">"Fareoplysninger"</string>
+    <string name="enable_emergency_alerts_message_title" msgid="1943277306183523272">"Oplysninger"</string>
+    <string name="enable_emergency_alerts_message_summary" msgid="971537902040466940">"Meddelelser med oplysninger"</string>
+    <string name="enable_state_local_test_alerts_title" msgid="5010586946959105408">"Testadvarsel"</string>
+    <string name="enable_operator_defined_test_alerts_title" msgid="3362963120884373036">"Reserveret til EU"</string>
+</resources>

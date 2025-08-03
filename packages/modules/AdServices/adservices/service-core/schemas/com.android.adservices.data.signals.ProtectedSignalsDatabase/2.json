@@ -1,0 +1,206 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 2,
+    "identityHash": "c48c7b8c1fd7027e491ac524f5b7f39f",
+    "entities": [
+      {
+        "tableName": "protected_signals",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `buyer` TEXT NOT NULL, `key` BLOB NOT NULL, `value` BLOB NOT NULL, `creationTime` INTEGER NOT NULL, `packageName` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "buyer",
+            "columnName": "buyer",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "key",
+            "columnName": "key",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "value",
+            "columnName": "value",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "creationTime",
+            "columnName": "creationTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "packageName",
+            "columnName": "packageName",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_protected_signals_buyer",
+            "unique": false,
+            "columnNames": [
+              "buyer"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_protected_signals_buyer` ON `${TABLE_NAME}` (`buyer`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "encoder_endpoints",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`buyer` TEXT NOT NULL, `download_uri` TEXT NOT NULL, `creation_time` INTEGER NOT NULL, PRIMARY KEY(`buyer`))",
+        "fields": [
+          {
+            "fieldPath": "buyer",
+            "columnName": "buyer",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "downloadUri",
+            "columnName": "download_uri",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "creationTime",
+            "columnName": "creation_time",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "buyer"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_encoder_endpoints_creation_time",
+            "unique": false,
+            "columnNames": [
+              "creation_time"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_encoder_endpoints_creation_time` ON `${TABLE_NAME}` (`creation_time`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "encoder_logics",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`buyer` TEXT NOT NULL, `version` INTEGER NOT NULL, `creation_time` INTEGER NOT NULL, PRIMARY KEY(`buyer`))",
+        "fields": [
+          {
+            "fieldPath": "buyer",
+            "columnName": "buyer",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "version",
+            "columnName": "version",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "creationTime",
+            "columnName": "creation_time",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "buyer"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_encoder_logics_creation_time",
+            "unique": false,
+            "columnNames": [
+              "creation_time"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_encoder_logics_creation_time` ON `${TABLE_NAME}` (`creation_time`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "encoded_payload",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`buyer` TEXT NOT NULL, `version` INTEGER NOT NULL, `creation_time` INTEGER NOT NULL, `encoded_payload` BLOB NOT NULL, PRIMARY KEY(`buyer`))",
+        "fields": [
+          {
+            "fieldPath": "buyer",
+            "columnName": "buyer",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "version",
+            "columnName": "version",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "creationTime",
+            "columnName": "creation_time",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "encodedPayload",
+            "columnName": "encoded_payload",
+            "affinity": "BLOB",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "buyer"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_encoded_payload_creation_time",
+            "unique": false,
+            "columnNames": [
+              "creation_time"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_encoded_payload_creation_time` ON `${TABLE_NAME}` (`creation_time`)"
+          }
+        ],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c48c7b8c1fd7027e491ac524f5b7f39f')"
+    ]
+  }
+}

@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (C) 2018 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<resources>
+
+    <style name="NotificationCenterAppTitle" parent="@android:TextAppearance.DeviceDefault.Large">
+        <item name="android:maxLines">1</item>
+    </style>
+
+    <style name="NotificationCenterHeaderText" parent="TextAppearance.Car.Subhead.Medium">
+        <item name="android:layout_marginStart">@dimen/notification_card_margin_horizontal</item>
+        <item name="android:paddingBottom">@dimen/notification_header_text_padding_bottom</item>
+        <item name="android:paddingTop">@dimen/notification_header_text_padding_top</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceLarge</item>
+    </style>
+
+    <style name="NotificationHeaderText" parent="@android:TextAppearance.DeviceDefault">
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:maxWidth">@dimen/notification_text_max_width</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:textSize">@*android:dimen/car_headline3_size</item>
+    </style>
+
+    <style name="NotificationBodyTitleText" parent="TextAppearance.Car.Body.Large">
+        <item name="android:maxLines">3</item>
+        <item name="android:maxWidth">@dimen/notification_text_max_width</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:textAlignment">viewStart</item>
+        <item name="android:textSize">@*android:dimen/car_headline2_size</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="InGroupTimeStampText" parent="@android:TextAppearance.DeviceDefault">
+        <item name="android:textSize">@dimen/time_stamp_text_size_in_group</item>
+        <item name="android:textColor">@color/secondary_text_color</item>
+        <item name="android:textAlignment">viewStart</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:textSize">@*android:dimen/car_headline3_size</item>
+    </style>
+
+    <style name="NotificationBodyContentText" parent="TextAppearance.Car.Body.Small">
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxWidth">@dimen/notification_text_max_width</item>
+        <item name="android:textColor">@color/secondary_text_color</item>
+        <item name="android:textAlignment">viewStart</item>
+        <item name="android:textSize">@*android:dimen/car_headline3_size</item>
+    </style>
+
+    <style name="GroupNotificationFooterText" parent="TextAppearance.Car.Subhead.Medium">
+        <item name="android:gravity">center</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxWidth">@dimen/notification_text_max_width</item>
+        <item name="android:textColor">?android:attr/colorAccent</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textAlignment">gravity</item>
+        <item name="android:textDirection">locale</item>
+        <item name="android:textSize">@*android:dimen/car_headline3_size</item>
+    </style>
+
+    <style name="ExpandedGroupNotificationHeaderText"
+           parent="@android:TextAppearance.DeviceDefault">
+        <item name="android:textSize">@*android:dimen/car_headline2_size</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxWidth">@dimen/notification_text_max_width</item>
+        <item name="android:textAlignment">gravity</item>
+        <item name="android:textDirection">locale</item>
+    </style>
+
+    <style name="NotificationBodyImageIcon">
+        <item name="android:scaleType">fitCenter</item>
+        <item name="android:background">@null</item>
+    </style>
+
+    <style name="NotificationActionViewLayout">
+        <item name="android:orientation">horizontal</item>
+        <item name="android:minHeight">@dimen/card_min_bottom_padding</item>
+        <item name="android:layout_marginLeft">@dimen/action_view_left_margin</item>
+        <item name="android:layout_marginRight">@dimen/action_view_right_margin</item>
+    </style>
+
+    <style name="NotificationActionButtonBase" parent="@android:Widget.DeviceDefault.Button">
+        <item name="android:minWidth">@dimen/action_button_min_width</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingStart">@dimen/action_button_padding</item>
+        <item name="android:paddingEnd">@dimen/action_button_padding</item>
+        <item name="android:orientation">horizontal</item>
+    </style>
+
+    <style name="NotificationActionButton1" parent="@android:Widget.DeviceDefault.Button.Colored">
+        <item name="android:minWidth">@dimen/action_button_min_width</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingStart">@dimen/action_button_padding</item>
+        <item name="android:paddingEnd">@dimen/action_button_padding</item>
+        <item name="android:orientation">horizontal</item>
+    </style>
+
+    <style name="NotificationActionButton2" parent="NotificationActionButtonBase"/>
+
+    <style name="NotificationActionButton3" parent="NotificationActionButtonBase"/>
+
+    <style name="NotificationActionButtonText" parent="TextAppearance.Car.Button">
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textColor">@color/notification_accent_color</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:textSize">@*android:dimen/car_headline3_size</item>
+    </style>
+
+    <style name="NotificationActionButtonImage">
+        <item name="android:layout_marginEnd">@dimen/car_action_button_icon_margin</item>
+    </style>
+
+    <style name="DismissButtonLayout">
+        <item name="android:layout_gravity">top|right</item>
+    </style>
+
+    <style name="ClearAllButton" parent="@android:Widget.DeviceDefault.Button.Borderless.Colored">
+        <item name="android:minWidth">@dimen/clear_all_button_min_width</item>
+        <item name="android:paddingStart">@dimen/clear_all_button_padding</item>
+        <item name="android:paddingEnd">@dimen/clear_all_button_padding</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:background">@drawable/clear_all_button_background</item>
+    </style>
+
+    <style name="ClearAllButtonHeader" parent="ClearAllButton">
+    </style>
+
+    <style name="ClearAllButtonFooter" parent="ClearAllButton">
+    </style>
+
+    <style name="ManageButton" parent="ClearAllButton">
+    </style>
+
+    <style name="NotificationCard">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center_horizontal</item>
+        <item name="android:layout_marginEnd">@dimen/notification_card_margin_horizontal</item>
+        <item name="android:layout_marginStart">@dimen/notification_card_margin_horizontal</item>
+    </style>
+
+    <style name="HeadsUpNotificationCard" parent="NotificationCard">
+        <item name="android:layout_marginEnd">@dimen/notification_headsup_card_margin_horizontal
+        </item>
+        <item name="android:layout_marginStart">@dimen/notification_headsup_card_margin_horizontal
+        </item>
+    </style>
+</resources>
+

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="system_tracing" msgid="4719188511746319848">"系統追蹤"</string>
+    <string name="record_system_activity" msgid="4339462312915377825">"記錄系統活動，並在稍後進行分析以提升效能"</string>
+    <string name="record_trace" msgid="6416875085186661845">"錄製追蹤記錄"</string>
+    <string name="record_trace_summary" msgid="6705357754827849292">"按照「追蹤記錄設定」擷取系統追蹤記錄"</string>
+    <string name="record_stack_samples" msgid="3498368637185702335">"記錄 CPU 效能分析"</string>
+    <string name="record_stack_samples_summary" msgid="7827953921526410478">"檢查「cpu」類別亦會啟用調用堆疊取樣功能"</string>
+    <string name="record_heap_dump" msgid="1688550222066812696">"記錄堆轉儲"</string>
+    <string name="record_heap_dump_summary_enabled" msgid="5038675257021221777">"擷取「堆轉儲程序」中所選程序的堆轉儲"</string>
+    <string name="record_heap_dump_summary_disabled" msgid="4640319333930345311">"請至少選取「堆轉儲程序」中的其中一個程序以收集堆轉儲"</string>
+    <string name="start_new_trace" msgid="8177130420802170353">"開始新的追蹤"</string>
+    <string name="winscope_tracing" msgid="5818984791154837458">"收集 Winscope 追蹤記錄"</string>
+    <string name="winscope_tracing_summary" msgid="7040550156722395894">"加入詳細的使用者介面遙測資料 (可能會造成資源浪費)"</string>
+    <string name="trace_debuggable_applications" msgid="7957069895298887899">"追蹤可偵錯的應用程式"</string>
+    <string name="categories" msgid="2280163673538611008">"類別"</string>
+    <string name="restore_default_categories" msgid="5090536794637169521">"還原預設類別"</string>
+    <string name="default_categories_restored" msgid="6861683793680564181">"已還原預設類別"</string>
+    <string name="default_categories" msgid="2117679794687799407">"預設"</string>
+    <string name="num_categories_selected" msgid="5772630335027553995">"{count,plural, =1{已選取 # 個}other{已選取 # 個}}"</string>
+    <string name="heap_dump_processes" msgid="2500105180344901939">"堆轉儲程序"</string>
+    <string name="heap_dump_processes_summary" msgid="4570434268024622765">"必須選取至少一個程序"</string>
+    <string name="clear_heap_dump_processes" msgid="295101454741555286">"清除堆轉儲程序"</string>
+    <string name="clear_heap_dump_processes_toast" msgid="3658510557596150797">"已清除程序清單"</string>
+    <string name="continuous_heap_dump" msgid="390369382946204224">"連續堆資料分析"</string>
+    <string name="continuous_heap_dump_summary" msgid="4581643248161659581">"每隔特定間隔時間擷取堆轉儲一次"</string>
+    <string name="continuous_heap_dump_interval" msgid="842533896492001433">"堆轉儲間隔"</string>
+    <string name="five_seconds" msgid="7018465440929299712">"5 秒"</string>
+    <string name="ten_seconds" msgid="863416601384309033">"10 秒"</string>
+    <string name="thirty_seconds" msgid="7945396361369598222">"30 秒"</string>
+    <string name="one_minute" msgid="4182508213840684258">"1 分鐘"</string>
+    <string name="applications" msgid="521776761270770549">"應用程式"</string>
+    <string name="no_debuggable_apps" msgid="4386209254520471208">"沒有可偵錯的應用程式"</string>
+    <string name="buffer_size" msgid="3944311026715111454">"每個 CPU 的緩衝區大小"</string>
+    <string name="show_quick_settings_tile" msgid="4971147332635291585">"顯示「快速設定」圖塊"</string>
+    <string name="saving_trace" msgid="1468692734770800541">"正在儲存追蹤記錄"</string>
+    <string name="trace_saved" msgid="5869970594780992309">"追蹤記錄已儲存"</string>
+    <string name="saving_stack_samples" msgid="8174915522390525221">"正在儲存堆疊樣本"</string>
+    <string name="stack_samples_saved" msgid="8863295751647724616">"已儲存堆疊樣本"</string>
+    <string name="saving_heap_dump" msgid="6118616780825771824">"正在儲存堆轉儲"</string>
+    <string name="heap_dump_saved" msgid="6720583137473857098">"已儲存堆轉儲"</string>
+    <string name="tap_to_share" msgid="4440713575852187545">"輕按即可分享記錄"</string>
+    <string name="attaching_to_report" msgid="2629202947947275886">"正在將追蹤記錄附加至錯誤報告"</string>
+    <string name="attached_to_report" msgid="5806905349184608870">"已將追蹤記錄附加至錯誤報告"</string>
+    <string name="attached_to_report_summary" msgid="7665675771190391355">"輕按即可開啟 BetterBug"</string>
+    <string name="stop_tracing" msgid="8916938308534164152">"停止追蹤"</string>
+    <string name="tracing_categories_unavailable" msgid="5609076391417077752">"無法使用部分追蹤記錄類別："</string>
+    <string name="trace_is_being_recorded" msgid="5947378146009337469">"已錄製追蹤記錄"</string>
+    <string name="tap_to_stop_tracing" msgid="6533282719573871806">"輕按即可停止追蹤"</string>
+    <string name="stack_samples_are_being_recorded" msgid="8669254939248349583">"正在記錄堆疊樣本"</string>
+    <string name="tap_to_stop_stack_sampling" msgid="5911317684139059415">"輕按即可停止堆疊取樣"</string>
+    <string name="heap_dump_is_being_recorded" msgid="3789315106110524969">"正在記錄堆轉儲"</string>
+    <string name="tap_to_stop_heap_dump" msgid="6475699275834526902">"輕按即可停止堆轉儲"</string>
+    <string name="clear_saved_files" msgid="9156079311231446825">"清除已儲存的檔案"</string>
+    <string name="clear_saved_files_summary" msgid="109751867417553670">"系統會在一個月後清除記錄"</string>
+    <string name="clear_saved_files_question" msgid="8586686617760838834">"要清除已儲存的檔案嗎？"</string>
+    <string name="all_recordings_will_be_deleted" msgid="7731693738485947891">"系統將刪除 /data/local/traces 中的所有記錄"</string>
+    <string name="clear" msgid="5484761795406948056">"清除"</string>
+    <string name="system_traces_storage_title" msgid="8294090839883366871">"系統追蹤記錄"</string>
+    <string name="keywords" msgid="736547007949049535">"systrace, 追蹤, 效能"</string>
+    <string name="share_file" msgid="1982029143280382271">"要分享檔案嗎？"</string>
+    <string name="system_trace_sensitive_data" msgid="3069389866696009549">"「系統追蹤」檔案可能包含敏感的系統和應用程式資料 (例如應用程式使用情況)。因此，請只與你信任的人和應用程式分享系統追蹤記錄。"</string>
+    <string name="share" msgid="8443979083706282338">"分享"</string>
+    <string name="dont_show_again" msgid="6662492041164390600">"不要再顯示"</string>
+    <string name="long_traces" msgid="5110949471775966329">"長追蹤記錄"</string>
+    <string name="long_traces_summary" msgid="419034282946761469">"已持續儲存至裝置儲存空間"</string>
+    <string name="long_traces_summary_betterbug" msgid="445546400875135624">"資料會繼續儲存至裝置儲存空間 (但不會自動附加到錯誤報告)"</string>
+    <string name="max_long_trace_size" msgid="1943788179787181241">"長追蹤記錄大小上限"</string>
+    <string name="max_long_trace_duration" msgid="8009837944364246785">"長追蹤記錄最大時長"</string>
+    <string name="two_hundred_mb" msgid="4950018549725084512">"200 MB"</string>
+    <string name="one_gb" msgid="590396985168692037">"1 GB"</string>
+    <string name="five_gb" msgid="7883941043220621649">"5 GB"</string>
+    <string name="ten_gb" msgid="4150452462544299276">"10 GB"</string>
+    <string name="twenty_gb" msgid="5717308686812140465">"20 GB"</string>
+    <string name="ten_minutes" msgid="7039181194343961324">"10 分鐘"</string>
+    <string name="thirty_minutes" msgid="2575810799813531395">"30 分鐘"</string>
+    <string name="one_hour" msgid="5219232935307966891">"1 小時"</string>
+    <string name="eight_hours" msgid="3207620892104451552">"8 小時"</string>
+    <string name="twelve_hours" msgid="4647143276394563496">"12 小時"</string>
+    <string name="twentyfour_hours" msgid="2789663313550030791">"24 小時"</string>
+    <string name="four_thousand_kb" msgid="5156346740862105703">"4096 KB"</string>
+    <string name="eight_thousand_kb" msgid="8815334985638334081">"8192 KB"</string>
+    <string name="sixteen_thousand_kb" msgid="7342517169232459259">"16384 KB"</string>
+    <string name="thirtytwo_thousand_kb" msgid="654328198799196150">"32768 KB"</string>
+    <string name="sixtyfive_thousand_kb" msgid="8168144138598305306">"65536 KB"</string>
+    <string name="stop_on_bugreport" msgid="4591832600597126422">"停止用於錯誤報告的記錄"</string>
+    <string name="stop_on_bugreport_summary" msgid="1601834864982891381">"錯誤報告開始後結束進行中的記錄"</string>
+    <string name="attach_to_bug_report" msgid="5388986830016247490">"在錯誤報告中附加記錄"</string>
+    <string name="attach_to_bug_report_summary" msgid="4213730623971240002">"收集到錯誤報告後，自動將處理中的記錄傳送到 BetterBug"</string>
+    <string name="link_to_traces" msgid="1404687523304348490">"查看已儲存的檔案"</string>
+    <string name="pref_category_trace_settings" msgid="6507535407023329628">"追蹤記錄設定"</string>
+    <string name="pref_category_saved_files" msgid="1477491400970413291">"已儲存的檔案"</string>
+    <string name="pref_category_misc" msgid="6217624054980014683">"其他"</string>
+    <string name="pref_category_heap_dump_settings" msgid="2234681064312605310">"堆轉儲設定"</string>
+</resources>

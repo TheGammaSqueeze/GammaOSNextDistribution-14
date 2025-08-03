@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (c) 2009, 2011-2013 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2014-2015 The CyanogenMod Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *    * Neither the name of The Linux Foundation nor
+ *      the names of its contributors may be used to endorse or promote
+ *      products derived from this software without specific prior written
+ *      permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NON-INFRINGEMENT ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">FM Radio</string>
+    <string name="tx_app_name">FM Transmitter</string>
+    <string name="menu_scan_start">Dò</string>
+    <string name="menu_scan_stop">Dừng tìm kiếm</string>
+    <string name="menu_record_start">Ghi âm</string>
+    <string name="menu_record_stop">Dừng ghi âm</string>
+    <string name="menu_settings">Cài đặt</string>
+    <string name="menu_sleep">Hẹn giờ tắt</string>
+    <string name="menu_sleep_cancel">Bỏ tắt</string>
+    <string name="menu_all_channels">Tất cả kênh</string>
+    <string name="menu_display_tags">Hiện thẻ</string>
+    <string name="button_text_stop">Dừng</string>
+    <string name="msg_seeking">Đang tìm đài FM\u2026</string>
+    <string name="msg_scanning">Đang dò tất cả các đài FM\u2026</string>
+    <string name="msg_scanning_pty">Đang dò \'<xliff:g id="pty_name">%1$s</xliff:g>\'\u2026</string>
+    <string name="msg_search_title"><xliff:g id="frequency_string">%1$s</xliff:g> MHz</string>
+    <string name="msg_searching_title">Tự chọn cài đặt sẵn</string>
+    <string name="msg_searching">Đang tìm các đài mạnh để tạo danh sách cài đặt sẵn\u2026</string>
+    <string name="msg_noantenna">Hãy cắm tai nghe để sử dụng FM radio</string>
+    <string name="dialog_sleep_title">Thời gian tự động tắt chế độ ngủ</string>
+    <string name="presetlist_select_name">Chọn \'<xliff:g id="presetlist_name">%1$s</xliff:g>\'</string>
+    <string name="presetlist_add_new">Thêm danh sách mới</string>
+    <string name="dialog_presetlist_rename_title">Nhập tên</string>
+    <string name="presetlist_autoselect_title">Xác nhận tự động lựa chọn</string>
+    <string name="preset_replace">Thay thế</string>
+    <string name="preset_tune">Dò đài</string>
+    <string name="preset_rename">Đổi tên</string>
+    <string name="preset_delete">Xóa</string>
+    <string name="preset_search">Tìm kiếm \'<xliff:g id="preset_pi">%1$s</xliff:g>\'</string>
+    <string name="stat_notif_frequency">\'<xliff:g id="frequency">%1$s</xliff:g>\' MHz</string>
+    <string name="regional_band">Ban nhạc khu vực</string>
+    <string name="regional_band_entry_north_america">Bắc Mỹ</string>
+    <string name="regional_band_entry_europe">Châu Âu</string>
+    <string name="regional_band_entry_japan">Nhật Bản</string>
+    <string name="regional_band_entry_japan_wide">Nhật Bản (rộng)</string>
+    <string name="regional_band_entry_australia">Úc</string>
+    <string name="regional_band_entry_austria">Áo</string>
+    <string name="regional_band_entry_belgium">Bỉ</string>
+    <string name="regional_band_entry_brazil">Brazil</string>
+    <string name="regional_band_entry_china">Trung Quốc</string>
+    <string name="regional_band_entry_czech_republic">Séc</string>
+    <string name="regional_band_entry_denmark">Đan Mạch</string>
+    <string name="regional_band_entry_finland">Phần Lan</string>
+    <string name="regional_band_entry_france">Pháp</string>
+    <string name="regional_band_entry_germany">Đức</string>
+    <string name="regional_band_entry_greece">Hy Lạp</string>
+    <string name="regional_band_entry_hong_kong">Hồng Kông</string>
+    <string name="regional_band_entry_india">Ấn Độ</string>
+    <string name="regional_band_entry_indonesia">Indonesia</string>
+    <string name="regional_band_entry_ireland">Ai Len</string>
+    <string name="regional_band_entry_italy">Ý</string>
+    <string name="regional_band_entry_korea">Hàn Quốc</string>
+    <string name="regional_band_entry_mexico">Mexico</string>
+    <string name="regional_band_entry_netherlands">Hà Lan</string>
+    <string name="regional_band_entry_new_zealand">New Zealand</string>
+    <string name="regional_band_entry_norway">Na Uy</string>
+    <string name="regional_band_entry_poland">Ba Lan</string>
+    <string name="regional_band_entry_portugal">Bồ Đào Nha</string>
+    <string name="regional_band_entry_russia">Nga</string>
+    <string name="regional_band_entry_singapore">Singapore</string>
+    <string name="regional_band_entry_slovakia">Slovakia</string>
+    <string name="regional_band_entry_spain">Tây Ban Nha</string>
+    <string name="regional_band_entry_switzerland">Thuỵ Sỹ</string>
+    <string name="regional_band_entry_sweden">Thuỵ Điển</string>
+    <string name="regional_band_entry_taiwan">Đài Loan</string>
+    <string name="regional_band_entry_turkey">Thổ Nhĩ Kỳ</string>
+    <string name="regional_band_entry_united_kingdom">Anh </string>
+    <string name="regional_band_entry_united_states">Hoa Kỳ</string>
+    <string name="regional_band_entry_user_defined">Băng tần do người dùng xác định</string>
+    <string name="regional_band_summary_north_america">Bắc Mỹ (87.5MHz đến 108.0MHz trong bước sóng 200 KHz)</string>
+    <string name="regional_band_summary_europe">Châu Âu (87.5MHz đến 108.0MHz trong bước sóng 100 KHz)</string>
+    <string name="regional_band_summary_japan">Nhật Bản (76.0MHz đến 90.0MHz trong bước sóng 100 KHz)</string>
+    <string name="regional_band_summary_japan_wide">Nhật Bản (rộng) (90.0 MHz đến 108.0 MHz trong bước sóng 50 KHz)</string>
+    <string name="regional_band_summary_australia">Úc (87.7 MHz đến 108.0 MHz trong bước sóng 100 KHz)</string>
+    <string name="regional_band_summary_austria">Áo (87.5MHz đến 108.0MHz trong bước sóng 50 KHz)</string>
+    <string name="regional_band_summary_belgium">Bỉ (87.5MHz đến 108.0MHz trong bước sóng 100 KHz)</string>
+    <string name="regional_band_summary_brazil">Brazil (87.5MHz đến 108.0MHz trong bước sóng 200 KHz)</string>
+    <string name="regional_band_summary_china">Trung Quốc (87.0MHz đến 108.0MHz trong bước sóng 100 KHz)</string>
+    <string name="regional_band_summary_czech_republic">Cộng hoà Séc (87.5MHz đến 108.0MHz trong bước sóng 100 KHz)</string>
+    <string name="regional_band_summary_denmark">Đan Mạch (87.5MHz đến 108.0MHz trong bước sóng 50 KHz)</string>
+    <string name="regional_band_summary_finland">Phần Lan (87.5MHz đến 108.0MHz trong bước sóng 50 KHz)</string>
+    <string name="regional_band_summary_france">Pháp (87.5MHz đến 108.0MHz trong bước sóng 100 KHz)</string>
+    <string name="regional_band_summary_germany">Đức (87.5MHz đến 108.0MHz trong bước sóng 50 KHz)</string>
+    <string name="regional_band_summary_greece">Hy Lạp (87.5MHz đến 108.0MHz trong bước sóng 50 KHz)</string>
+    <string name="regional_band_summary_hong_kong">Hồng Kông (87.5MHz đến 108.0MHz trong bước sóng 100 KHz)</string>
+    <string name="regional_band_summary_india">Ấn Độ (87.5MHz đến 108.0MHz trong bước sóng 100 KHz)</string>
+    <string name="regional_band_summary_indonesia">Indonesia (87.5MHz đến 108.0MHz trong bước sóng 100 KHz)</string>
+    <string name="regional_band_summary_ireland">Ai Len (87.5MHz đến 108.0MHz trong bước sóng 50 KHz)</string>
+    <string name="regional_band_summary_italy">Ý (87.5MHz đến 108.0MHz trong bước sóng 50 KHz)</string>
+    <string name="regional_band_summary_korea">Hàn Quốc (87.5MHz đến 108.0MHz trong bước sóng 200 KHz)</string>
+    <string name="regional_band_summary_mexico">Mexico (88.1MHz đến 107.9MHz trong bước sóng 200 KHz)</string>
+    <string name="regional_band_summary_netherlands">Hà Lan (87.5MHz đến 108.0MHz trong bước sóng 100 KHz)</string>
+    <string name="regional_band_summary_new_zealand">New Zealand (88.0MHz đến 107.0MHz trong bước sóng 100 KHz)</string>
+    <string name="regional_band_summary_norway">Na Uy (87.5MHz đến 108.0MHz trong bước sóng 100 KHz)</string>
+    <string name="regional_band_summary_poland">Phần Lan (87.5MHz đến 108.0MHz trong bước sóng 50 KHz)</string>
+    <string name="regional_band_summary_portugal">Bồ Đào Nha (87.5MHz đến 108.0MHz trong bước sóng 50 KHz)</string>
+    <string name="regional_band_summary_russia">Nga (87.5MHz đến 108.0MHz trong bước sóng 100 KHz)</string>
+    <string name="regional_band_summary_singapore">Singapore (88.0MHz đến 108.0MHz trong bước sóng 100 KHz)</string>
+    <string name="regional_band_summary_slovakia">Slovakia (87.5MHz đến 108.0MHz trong bước sóng 100 KHz)</string>
+    <string name="regional_band_summary_spain">Tây Ban Nha (87.5MHz đến 108.0MHz trong bước sóng 100 KHz)</string>
+    <string name="regional_band_summary_switzerland">Thụy Sỹ (87.5MHz đến 108.0MHz trong bước sóng 100 KHz)</string>
+    <string name="regional_band_summary_sweden">Thụy Điển (87.5MHz đến 108.0MHz trong bước sóng 100 KHz)</string>
+    <string name="regional_band_summary_taiwan">Đài Loan (87.5MHz đến 108.0MHz trong bước sóng 100 KHz)</string>
+    <string name="regional_band_summary_turkey">Thổ Nhĩ Kỳ (87.5MHz đến 108.0MHz trong bước sóng 100 KHz)</string>
+    <string name="regional_band_summary_united_kingdom">Vương Quốc Anh (87.5MHz đến 108.0MHz trong bước sóng 100 KHz)</string>
+    <string name="regional_band_summary_united_states">Hoa Kỳ (88.1MHz đến 107.9MHz trong bước sóng 200 KHz)</string>
+    <string name="regional_band_summary_user_defined">Băng tần do người dùng xác định</string>
+    <string name="aud_output_mode">Chế độ âm thanh đầu ra</string>
+    <string name="audio_type_stereo">Âm thanh nổi</string>
+    <string name="audio_type_mono">Âm thanh đơn</string>
+    <string name="record_dur">Thời gian ghi âm</string>
+    <string name="auto_select_af">Tần số thay thế</string>
+    <string name="settings_revert_defaults_title">Trở lại mặc định nhà sản xuất</string>
+    <string name="settings_revert_defaults_summary">Đặt lại tất cả cài đặt</string>
+    <string name="settings_revert_confirm_title">Xác nhận đặt lại</string>
+    <string name="settings_revert_confirm_msg">Điều này sẽ xoá tất cả cài đặt ứng dụng, bao gồm cả cài đặt đã lưu trước. Tiếp tục?</string>
+    <string name="no_storage">Kết nối thẻ nhớ trước khi bắt đầu ghi âm.</string>
+    <string name="preparing_sd">Đang chuẩn bị thẻ nhớ\u2026</string>
+    <string name="access_sd_fail">Không thể truy cập thẻ nhớ.</string>
+    <string name="spaceIsLow_content">Thẻ nhớ của bạn sắp hết dung lượng. Thay đổi cài đặt chất lượng hoặc xóa một số tệp khác để giải phóng dung lượng.</string>
+    <string name="FMRecording_reach_size_limit">Đã đạt tới giới hạn kích thước.</string>
+    <string name="menu_scan_for_preset">Quét cài đặt trước</string>
+    <string name="fm_off">FM bị tắt.</string>
+    <string name="fm_call">FM không thể được sử dụng trong khi gọi điện thoại.</string>
+    <string name="alert_dialog_hint">Nhập tên</string>
+    <string name="search_dialog_title">Quét đài</string>
+    <string name="fm_command_timeout_title">Thời gian chờ</string>
+    <string name="fm_tune_timeout_msg">Không nhận được phản hồi nào để điều chỉnh đài FM. Nếu vẫn tiếp tục xảy ra sự cố, vui lòng tắt FM và quay lại.</string>
+    <string name="fm_command_failed_title">FM hoạt động thất bại</string>
+    <string name="fm_cmd_failed_msg">Thao tác FM không thành công. Nếu vẫn tiếp tục xảy ra vấn đề, vui lòng tắt FM và quay lại.</string>
+    <string name="fm_cmd_failed_msg_hdmi">Thao tác FM không thành công. Truy cập đồng thời FM và HDMI không được hỗ trợ.</string>
+    <string name="fm_cmd_failed_call_on">Thao tác FM không thành công. Âm thanh FM không được cho phép trong suốt cuộc gọi.</string>
+    <string name="audio_db_title_format"><xliff:g id="format">dd-MM-yyyy HH:mm:ss</xliff:g></string>
+    <string name="audio_db_artist_name">Bản ghi âm FM của tôi</string>
+    <string name="audio_db_album_name">Bản ghi âm FM</string>
+    <string name="audio_db_playlist_name">Bản ghi âm FM</string>
+    <string name="station_name">Trạm:</string>
+    <string name="station_exists">Tần số này đã tồn tại!</string>
+    <string name="station_list_delete_station">Xóa: <xliff:g id="name">%s</xliff:g></string>
+    <string name="station_list_delete_station_prompt">Bạn có chắc chắn muốn xóa \'<xliff:g id="name">%s</xliff:g>\'?</string>
+    <string name="station_name_empty">Tên trạm trống, vui lòng nhập lại.</string>
+    <string name="station_name_exist">\'<xliff:g id="name">%s</xliff:g>\' đã được sử dụng, vui lòng nhập tên khác.</string>
+    <string name="rt_plus_tags">Thẻ</string>
+    <string name="usr_def_band_min">Tần số thấp nhất (MHz)</string>
+    <string name="usr_def_band_max">Tần số cao nhất (MHz)</string>
+    <string name="chanl_spacing">Khoảng cách giữa các kênh</string>
+    <string name="set">Thiết đặt</string>
+    <string name="user_defind_band_msg">Nhập tần số từ 76.0 đến 108.0 MHz với khoảng cách giữa các kênh tối thiểu là 1 và khoảng cách 100KHz giữa tần số tối thiểu và tối đa</string>
+    <string name="save_record_file">Tệp ghi âm FM được lưu vào \'<xliff:g id="record_file">%1$s</xliff:g>\'</string>
+    <string name="fm_search_no_results">Không tìm thấy đài tương thích</string>
+    <string name="typ_All_stations">Tất cả các đài</string>
+    <string name="typ_Culture">Văn hóa</string>
+    <string name="typ_Current_affairs">Vấn đề hiện tại</string>
+    <string name="typ_Children">Chương trình trẻ em</string>
+    <string name="typ_Country">Nhạc đồng quê</string>
+    <string name="typ_Documentary">Phim tài liệu</string>
+    <string name="typ_Drama">Phim truyền hình</string>
+    <string name="typ_Easy_listening">Dễ dàng nghe nhạc</string>
+    <string name="typ_Education">Giáo dục</string>
+    <string name="typ_Emergency">Khẩn cấp</string>
+    <string name="typ_Emergency_test">Thử nghiệm khẩn cấp</string>
+    <string name="typ_Finance">Tài chính</string>
+    <string name="typ_Folk">Nhạc dân gian</string>
+    <string name="typ_Information">Thông tin</string>
+    <string name="typ_Jazz">Nhạc jazz</string>
+    <string name="typ_Light_classical">Cổ điển nhẹ</string>
+    <string name="typ_Leisure">Giải trí</string>
+    <string name="typ_News">Tin tức</string>
+    <string name="typ_National">Nhạc dân tộc</string>
+    <string name="typ_Other">Nhạc khác</string>
+    <string name="typ_Oldies">Nhạc xưa</string>
+    <string name="typ_Phone_in">Chương trình truyền hình, phát thanh mà người nghe/người xem có thể gọi điện thoại đến đài</string>
+    <string name="typ_Pop">Nhạc pop</string>
+    <string name="typ_Religion">Tôn giáo</string>
+    <string name="typ_Rock">Nhạc rock</string>
+    <string name="typ_Science">Khoa học</string>
+    <string name="typ_Serious_classical">Cổ điển sâu</string>
+    <string name="typ_Social_affairs">Vấn đề xã hội</string>
+    <string name="typ_Sport">Thể thao</string>
+    <string name="typ_Travel">Du lịch</string>
+    <string name="typ_Varied">Đa dạng</string>
+    <string name="typ_Weather">Thời tiết</string>
+    <string name="typ_Adult_hits">Adult hits</string>
+    <string name="typ_Classical">Cổ điển</string>
+    <string name="typ_Classic_Rock">Rock cổ điển</string>
+    <string name="typ_College">College</string>
+    <string name="typ_Foreign_language">Ngoại ngữ</string>
+    <string name="typ_Hiphop">Hip Hop</string>
+    <string name="typ_Nostalgia">Hoài niệm</string>
+    <string name="typ_Personality">Tính cách</string>
+    <string name="typ_Public">Quần chúng</string>
+    <string name="typ_Religious_music">Âm nhạc tôn giáo</string>
+    <string name="typ_Religious_talk">Nói chuyện tôn giáo</string>
+    <string name="typ_Rhythm_and_Blues">Nhịp điệu và nhạc Blues</string>
+    <string name="typ_Spanish_music">Nhạc Tây Ban Nha</string>
+    <string name="typ_Spanish_talk">Trò chuyện tiếng Tây Ban Nha</string>
+    <string name="typ_Soft">Nhẹ</string>
+    <string name="typ_Soft_Rock">Rock nhẹ</string>
+    <string name="typ_Soft_Rhythm_and_Blues">Nhịp điệu nhẹ và nhạc blues</string>
+    <string name="typ_Sports">Thể thao</string>
+    <string name="typ_Talk">Trò chuyện</string>
+    <string name="typ_Top_40">Top 40</string>
+</resources>

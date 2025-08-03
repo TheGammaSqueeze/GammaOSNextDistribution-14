@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2020 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:title="@string/help_and_feedback_category_title">
+    <Preference
+        android:key="feedback"
+        android:icon="@drawable/ic_send_feedback"
+        android:title="@string/send_feedback">
+        <intent android:action="com.google.android.apps.tv.launcherx.feedback.LAUNCH_FEEDBACK_UI">
+            <!-- A screenshot would only show the Settings screen, so don't take it. -->
+            <extra android:name="FEEDBACK_CAPTURE_SCREENSHOT" android:value="false" />
+        </intent>
+    </Preference>
+    <Preference
+        android:key="help_center"
+        android:title="@string/launch_help"
+        android:visible="false">
+        <intent
+            android:action="com.android.settings.action.LAUNCH_HELP" />
+    </Preference>
+    <Preference
+        android:key="help_center_info"
+        android:title="@string/help_center_title"
+        android:summary="@string/help_center_link"
+        android:selectable="false"
+        android:enabled="false" />
+</PreferenceScreen>

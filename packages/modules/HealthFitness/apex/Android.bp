@@ -1,0 +1,80 @@
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+apex_key {
+    name: "com.android.healthfitness.key",
+    public_key: "com.android.healthfitness.avbpubkey",
+    private_key: "com.android.healthfitness.pem",
+}
+
+android_app_certificate {
+    name: "com.android.healthfitness.certificate",
+    certificate: "com.android.healthfitness",
+}
+
+apex {
+    name: "com.android.healthfitness",
+    manifest: "manifest.json",
+    file_contexts: ":com.android.healthfitness-file_contexts",
+    apps: [
+        "HealthConnectBackupRestore",
+        "HealthConnectController",
+    ],
+    prebuilts: ["current_sdkinfo"],
+    key: "com.android.healthfitness.key",
+    min_sdk_version: "34",
+    certificate: ":com.android.healthfitness.certificate",
+    updatable: true,
+    bootclasspath_fragments: ["com.android.healthfitness-bootclasspath-fragment"],
+    systemserverclasspath_fragments: ["com.android.healthfitness-systemserverclasspath-fragment"],
+}
+
+sdk {
+    name: "healthfitness-module-sdk",
+    apexes: [
+        // Adds exportable dependencies of the APEX to the sdk,
+        // e.g. *classpath_fragments.
+        "com.android.healthfitness",
+    ],
+}
+
+// Encapsulate the contributions made by com.android.healthfitness to the bootclasspath.
+bootclasspath_fragment {
+    name: "com.android.healthfitness-bootclasspath-fragment",
+    contents: ["framework-healthfitness"],
+    apex_available: ["com.android.healthfitness"],
+    hidden_api: {
+        split_packages: ["*"],
+    },
+    additional_stubs: [
+        "android-non-updatable",
+    ],
+    // The bootclasspath_fragments that provide APIs on which this depends.
+    fragments: [
+        {
+            apex: "com.android.art",
+            module: "art-bootclasspath-fragment",
+        },
+    ],
+}
+
+systemserverclasspath_fragment {
+    name: "com.android.healthfitness-systemserverclasspath-fragment",
+    contents: ["service-healthfitness"],
+    apex_available: ["com.android.healthfitness"],
+}

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017-2024 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="global_action_restart_system">시스템</string>
+    <string name="global_action_restart_recovery">복구 모드</string>
+    <string name="global_action_restart_bootloader">부트로더</string>
+    <plurals name="show_dev_countdown_cm">
+        <item quantity="other">개발자 설정을 활성화하려면 <xliff:g id="step_count">%1$d</xliff:g>회 더 누르세요.</item>
+    </plurals>
+    <string name="show_dev_on_cm">개발자 설정이 활성화되었습니다!</string>
+    <string name="show_dev_already_cm">이미 개발자 설정이 활성화되어 있습니다.</string>
+    <string name="system_buttons">버튼</string>
+    <string name="power_button_long_press_action_title">전원 버튼 길게 누를 때 작업</string>
+    <string name="power_button_long_press_for_power_menu_action">전원 메뉴 열기</string>
+    <string name="power_button_long_press_for_assistant_action">어시스턴트 열기</string>
+    <string name="inputs_volume_control_enabled">CEC 볼륨 제어</string>
+    <string name="inputs_volume_control_enabled_desc">내부 볼륨 대신 TV/AVR 볼륨 제어</string>
+    <string name="enable_adb_root">디버깅 시 루트 권한 사용</string>
+    <string name="enable_adb_root_summary">ADB와 같은 디버깅 모드 사용 시 루트 권한을 사용합니다.</string>
+    <string name="advanced_restart_title">고급 다시 시작 기능</string>
+    <string name="adb_over_network">네트워크를 통한 ADB</string>
+    <string name="adb_over_network_summary">네트워크 인터페이스(Wi\u2011Fi, USB 네트워크)를 통한 TCP/IP 디버깅을 사용합니다. 이 설정은 재부팅 시 초기화됩니다.</string>
+    <string name="adb_over_network_warning">경고: 네트워크를 통한 ADB 연결을 켜면, 기기가 모든 연결된 네트워크를 통한 침입 위험에 노출됩니다!\n\n신뢰할 수 있는 네트워크에서만 이 기능을 사용하세요.\n\n정말 이 기능을 사용하시겠습니까?</string>
+    <string name="trust_category_features">상태</string>
+    <string name="trust_feature_selinux">SELinux</string>
+    <string name="trust_feature_selinux_value_enforcing">시행 중</string>
+    <string name="trust_feature_selinux_value_disabled">비활성화됨</string>
+    <string name="trust_feature_selinux_explain">SELinux는 각 프로세스가 기기의 어떤 파일에 접근할 수 있는지를 결정합니다.\nSELinux를 사용하면 앱 및 서비스가 사용하면 안 되는 파일에 접근하는 것을 막아 줍니다. 따라서 악성 프로세스의 접근이 제한되므로 보안을 유지할 수 있습니다.</string>
+    <string name="trust_feature_security_patches">Android 보안 패치</string>
+    <string name="trust_feature_security_patches_value_base">플랫폼: %1$s\n공급업체: %2$s</string>
+    <string name="trust_feature_security_patches_value_new">최신</string>
+    <string name="trust_feature_security_patches_value_medium">수 개월 지남</string>
+    <string name="trust_feature_security_patches_value_old">오래됨</string>
+    <string name="trust_feature_security_patches_explain">보안 패치는 Google이 SoC 공급업체와의 협력으로 매월 발표됩니다. 이 보안 패치는 유해한 앱을 통해 보안을 우회하여 기기를 영구적으로 손상시킬 수 있는 취약점을 막아냅니다. Google에서 제공하는 패치는 지원하는 모든 기기에 적용할 수 있으나, 비공개 코드에 대한 패치는 기기의 공급업체에서 패치를 제공해야만 적용할 수 있습니다. 기기를 보호하려면 LineageOS를 항상 최신 버전으로 업데이트하고, 가능하면 기기의 공급업체 이미지가 LineageOS에서 권장하는 최신 이미지인지 확인하세요.</string>
+    <string name="trust_feature_encryption">암호화</string>
+    <string name="trust_feature_encryption_value_enabled">사용 중</string>
+    <string name="trust_feature_encryption_value_nolock">보안성 높은 잠금 화면 필요</string>
+    <string name="trust_feature_encryption_value_disabled">비활성화됨</string>
+    <string name="trust_feature_encryption_explain">기기를 암호화하면 전원이 꺼져 있을 때나 복구 모드 상태에서 사용자의 데이터에 접근하는 것을 방지할 수 있습니다. 암호화는 기기를 도난당했을 때 특히 중요하며, 사람들이 비밀번호 없이 메시지, 연락처 및 기타 개인 정보를 읽을 수 없게 해 줍니다.\n암호화 효율을 높이기 위해서는 보안성이 높은 잠금 화면을 설정해야 합니다.</string>
+    <string name="trust_category_tools">개인 정보</string>
+    <string name="trust_notification_alerts_title">보안 경고</string>
+    <string name="trust_restrict_usb_title">USB 제한</string>
+    <string name="trust_restrict_usb_summary">이어폰, 저장 장치, ADB, 입력 장치(마우스, 키보드, 조이스틱) 등 USB 연결에 대한 제어 지원</string>
+    <string name="trust_restrict_usb_always">USB 연결 거부</string>
+    <string name="trust_restrict_usb_disabled">항상 USB 연결 허용</string>
+    <string name="trust_onboarding_description">Trust는 기기를 안전하게 유지하고 사용자의 개인 정보를 보호합니다.\nTrust 아이콘은 페이지의 내용이 검증되었을 때만 나타납니다.</string>
+    <string name="trust_warnings_alerts_intro">경고를 표시할 보안 문제를 선택할 수 있습니다. 안전을 위해 모든 경고를 켜두는 것을 권장합니다.</string>
+    <string name="trust_warnings_selinux">SELinux 상태</string>
+    <string name="trust_warnings_keys">빌드 서명</string>
+    <string name="shutdown_button_label">전원 끄기</string>
+    <string name="system_shutdown_confirm">전원을 끄시겠습니까?</string>
+    <string name="convertible_port_busy_title">USB 1번 포트 사용 중</string>
+    <string name="mtp_enable_title">USB를 사용하여 PC에서 SHIELD 폴더 접근</string>
+    <string name="mtp_enable_warning">이제 USB 포트 1번이 SHIELD 기기와 PC를 미디어 기기로 연결하도록 구성되었습니다.\n\n이 포트는 이제 USB 저장소 미디어 또는 USB 액세서리를 감지하지 않으며, 기기 충전용으로도 사용할 수 없습니다.</string>
+    <string name="mtp_retry_error">오류가 발생했습니다. 다시 시도해 주세요.</string>
+    <string name="mtp_summary">이 모드에서는 USB 포트를 다른 용도로 사용할 수 없습니다.</string>
+    <string name="mtp_title">USB를 사용하여 PC와 파일 전송</string>
+    <string name="mtp_unexpected_error">예기치 못한 오류가 발생했습니다. 나중에 다시 시도해 주세요.</string>
+    <string name="usb_debugging_enable_title">USB 디버깅 사용 중</string>
+    <string name="usb_debugging_enable_warning">이제 USB 포트 1번이 SHIELD 기기와 PC를 미디어 기기로 연결하도록 구성되었습니다.\n\n이 포트는 이제 USB 저장소 미디어 또는 USB 액세서리를 감지하지 않으며, 기기 충전용으로도 사용할 수 없습니다.</string>
+</resources>

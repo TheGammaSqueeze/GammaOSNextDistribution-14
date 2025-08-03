@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="background_color">@color/settingslib_background_device_default_dark</color>
+    <color name="primary_text_color">@color/settingslib_text_color_primary_device_default</color>
+    <color name="adservices_primary_dark_device_default_settings">
+        @color/settingslib_primary_dark_device_default_settings
+    </color>
+    <color name="adservices_accent_primary_variant">@color/settingslib_accent_primary_variant
+    </color>
+    <color name="adservices_colorAccentPrimary">@color/settingslib_colorAccentPrimary</color>
+</resources>

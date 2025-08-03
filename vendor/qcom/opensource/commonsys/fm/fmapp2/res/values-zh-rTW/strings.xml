@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (c) 2009, 2011-2013 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2014-2015 The CyanogenMod Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *    * Neither the name of The Linux Foundation nor
+ *      the names of its contributors may be used to endorse or promote
+ *      products derived from this software without specific prior written
+ *      permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NON-INFRINGEMENT ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">FM 收音機</string>
+    <string name="tx_app_name">FM 發射器</string>
+    <string name="menu_scan_start">掃描</string>
+    <string name="menu_scan_stop">停止搜尋</string>
+    <string name="menu_record_start">錄製</string>
+    <string name="menu_record_stop">停止錄製</string>
+    <string name="menu_settings">設定</string>
+    <string name="menu_sleep">休眠</string>
+    <string name="menu_sleep_cancel">取消休眠</string>
+    <string name="menu_all_channels">所有頻道</string>
+    <string name="menu_display_tags">顯示標籤</string>
+    <string name="button_text_stop">停止</string>
+    <string name="msg_seeking">正在搜尋 FM 電台\u2026</string>
+    <string name="msg_scanning">正在掃描所有 FM 電台\u2026</string>
+    <string name="msg_scanning_pty">正在掃描「<xliff:g id="pty_name">%1$s</xliff:g>」\u2026</string>
+    <string name="msg_search_title"><xliff:g id="frequency_string">%1$s</xliff:g> MHz</string>
+    <string name="msg_searching_title">自動選擇預設值</string>
+    <string name="msg_searching">正在為預設清單搜尋接收良好的電台\u2026</string>
+    <string name="msg_noantenna">插上耳機即可使用 FM 收音機</string>
+    <string name="dialog_sleep_title">自動休眠時間</string>
+    <string name="presetlist_select_name">選擇「<xliff:g id="presetlist_name">%1$s</xliff:g>」</string>
+    <string name="presetlist_add_new">新增清單</string>
+    <string name="dialog_presetlist_rename_title">輸入名稱</string>
+    <string name="presetlist_autoselect_title">確認自動選擇</string>
+    <string name="preset_replace">替換</string>
+    <string name="preset_tune">調整</string>
+    <string name="preset_rename">重新命名</string>
+    <string name="preset_delete">移除</string>
+    <string name="preset_search">正在搜尋「<xliff:g id="preset_pi">%1$s</xliff:g>」</string>
+    <string name="stat_notif_frequency"><xliff:g id="frequency">%1$s</xliff:g> MHz</string>
+    <string name="regional_band">地區頻段</string>
+    <string name="regional_band_entry_north_america">北美</string>
+    <string name="regional_band_entry_europe">歐洲</string>
+    <string name="regional_band_entry_japan">日本</string>
+    <string name="regional_band_entry_japan_wide">日本 (廣泛地區)</string>
+    <string name="regional_band_entry_australia">澳洲</string>
+    <string name="regional_band_entry_austria">奧地利</string>
+    <string name="regional_band_entry_belgium">比利時</string>
+    <string name="regional_band_entry_brazil">巴西</string>
+    <string name="regional_band_entry_china">中國</string>
+    <string name="regional_band_entry_czech_republic">捷克共和國</string>
+    <string name="regional_band_entry_denmark">丹麥</string>
+    <string name="regional_band_entry_finland">芬蘭</string>
+    <string name="regional_band_entry_france">法國</string>
+    <string name="regional_band_entry_germany">德國</string>
+    <string name="regional_band_entry_greece">希臘</string>
+    <string name="regional_band_entry_hong_kong">香港</string>
+    <string name="regional_band_entry_india">印度</string>
+    <string name="regional_band_entry_indonesia">印尼</string>
+    <string name="regional_band_entry_ireland">愛爾蘭</string>
+    <string name="regional_band_entry_italy">義大利</string>
+    <string name="regional_band_entry_korea">韓國</string>
+    <string name="regional_band_entry_mexico">墨西哥</string>
+    <string name="regional_band_entry_netherlands">荷蘭</string>
+    <string name="regional_band_entry_new_zealand">紐西蘭</string>
+    <string name="regional_band_entry_norway">挪威</string>
+    <string name="regional_band_entry_poland">波蘭</string>
+    <string name="regional_band_entry_portugal">葡萄牙</string>
+    <string name="regional_band_entry_russia">俄羅斯</string>
+    <string name="regional_band_entry_singapore">新加坡</string>
+    <string name="regional_band_entry_slovakia">斯洛伐克</string>
+    <string name="regional_band_entry_spain">西班牙</string>
+    <string name="regional_band_entry_switzerland">瑞士</string>
+    <string name="regional_band_entry_sweden">瑞典</string>
+    <string name="regional_band_entry_taiwan">台灣</string>
+    <string name="regional_band_entry_turkey">土耳其</string>
+    <string name="regional_band_entry_united_kingdom">英國</string>
+    <string name="regional_band_entry_united_states">美國</string>
+    <string name="regional_band_entry_user_defined">使用者定義的頻段</string>
+    <string name="regional_band_summary_north_america">北美 (87.5 Mhz - 108.0 MHz 內 200 KHz 頻道距離)</string>
+    <string name="regional_band_summary_europe">歐洲 (87.5 Mhz - 108.0 MHz 內 100 KHz 頻道距離)</string>
+    <string name="regional_band_summary_japan">日本 (76.0 Mhz - 90.0 MHz 內 100 KHz 頻道距離)</string>
+    <string name="regional_band_summary_japan_wide">日本 (廣泛) (90.0 Mhz - 108.0 MHz 內 50 KHz 頻道距離)</string>
+    <string name="regional_band_summary_australia">澳洲 (87.7 Mhz - 108.0 MHz 內 100 KHz 頻道距離)</string>
+    <string name="regional_band_summary_austria">奧地利 (87.5 Mhz - 108.0 MHz 內 50 KHz 頻道距離)</string>
+    <string name="regional_band_summary_belgium">比利時 (87.5 Mhz - 108.0 MHz 內 100 KHz 頻道距離)</string>
+    <string name="regional_band_summary_brazil">巴西 (87.5 Mhz - 108.0 MHz 內 200 KHz 頻道距離)</string>
+    <string name="regional_band_summary_china">中國 (87.0 Mhz - 108.0 MHz 內 100 KHz 頻道距離)</string>
+    <string name="regional_band_summary_czech_republic">捷克共和國 (87.5 Mhz - 108.0 MHz 內 100 KHz 頻道距離)</string>
+    <string name="regional_band_summary_denmark">丹麥 (87.5 Mhz - 108.0 MHz 內 50 KHz 頻道距離)</string>
+    <string name="regional_band_summary_finland">芬蘭 (87.5 Mhz - 108.0 MHz 內 100 KHz 頻道距離)</string>
+    <string name="regional_band_summary_france">法國 (87.5 Mhz - 108.0 MHz 內 100 KHz 頻道距離)</string>
+    <string name="regional_band_summary_germany">德國 (87.5 Mhz - 108.0 MHz 內 50 KHz 頻道距離)</string>
+    <string name="regional_band_summary_greece">希臘 (87.5 Mhz - 108.0 MHz 內 50 KHz 頻道距離)</string>
+    <string name="regional_band_summary_hong_kong">香港 (87.5 Mhz - 108.0 MHz 內 100 KHz 頻道距離)</string>
+    <string name="regional_band_summary_india">印度 (87.5 Mhz - 108.0 MHz 內 100 KHz 頻道距離)</string>
+    <string name="regional_band_summary_indonesia">印尼 (87.5 Mhz - 108.0 MHz 內 100 KHz 頻道距離)</string>
+    <string name="regional_band_summary_ireland">愛爾蘭 (87.5 Mhz - 108.0 MHz 內 50 KHz 頻道距離)</string>
+    <string name="regional_band_summary_italy">義大利 (87.5 Mhz - 108.0 MHz 內 50 KHz 頻道距離)</string>
+    <string name="regional_band_summary_korea">韓國 (87.5 Mhz - 108.0 MHz 內 200 KHz 頻道距離)</string>
+    <string name="regional_band_summary_mexico">墨西哥 (88.1 Mhz - 107.9 MHz 內 200 KHz 頻道距離)</string>
+    <string name="regional_band_summary_netherlands">荷蘭 (87.5 Mhz - 108.0 MHz 內 100 KHz 頻道距離)</string>
+    <string name="regional_band_summary_new_zealand">紐西蘭 (88.0 Mhz - 107.0 MHz 內 100 KHz 頻道距離)</string>
+    <string name="regional_band_summary_norway">挪威 (87.5 Mhz - 108.0 MHz 內 100 KHz 頻道距離)</string>
+    <string name="regional_band_summary_poland">波蘭 (87.5 Mhz - 108.0 MHz 內 100 KHz 頻道距離)</string>
+    <string name="regional_band_summary_portugal">葡萄牙 (87.5 Mhz - 108.0 MHz 內 50 KHz 頻道距離)</string>
+    <string name="regional_band_summary_russia">俄羅斯 (87.5 Mhz - 108.0 MHz 內 100 KHz 頻道距離)</string>
+    <string name="regional_band_summary_singapore">新加坡 (88.0 Mhz - 108.0 MHz 內 100 KHz 頻道距離)</string>
+    <string name="regional_band_summary_slovakia">斯洛伐克 (87.5 Mhz - 108.0 MHz 內 100 KHz 頻道距離)</string>
+    <string name="regional_band_summary_spain">西班牙 (87.5 Mhz - 108.0 MHz 內 100 KHz 頻道距離)</string>
+    <string name="regional_band_summary_switzerland">瑞士 (87.5 Mhz - 108.0 MHz 內 100 KHz 頻道距離)</string>
+    <string name="regional_band_summary_sweden">瑞典 (87.5 Mhz - 108.0 MHz 內 100 KHz 頻道距離)</string>
+    <string name="regional_band_summary_taiwan">台灣 (87.5 Mhz - 108.0 MHz 內 100 KHz 頻道距離)</string>
+    <string name="regional_band_summary_turkey">土耳其 (87.5 Mhz - 108.0 MHz 內 100 KHz 頻道距離)</string>
+    <string name="regional_band_summary_united_kingdom">英國 (87.5 Mhz - 108.0 MHz 內 100 KHz 頻道距離)</string>
+    <string name="regional_band_summary_united_states">美國 (88.1 Mhz - 107.9 MHz 內 200 KHz 頻道距離)</string>
+    <string name="regional_band_summary_user_defined">使用者定義的頻段</string>
+    <string name="aud_output_mode">音訊輸出模式</string>
+    <string name="audio_type_stereo">立體聲</string>
+    <string name="audio_type_mono">單色</string>
+    <string name="record_dur">錄製長度</string>
+    <string name="auto_select_af">備用頻率</string>
+    <string name="settings_revert_defaults_title">恢復原廠設定</string>
+    <string name="settings_revert_defaults_summary">清除所有設定</string>
+    <string name="settings_revert_confirm_title">確定重設</string>
+    <string name="settings_revert_confirm_msg">將會清除所有應用程式設定，包括已儲存的預設值。是否繼續？</string>
+    <string name="no_storage">開始錄製前請先掛載 SD 卡。</string>
+    <string name="preparing_sd">正在準備 SD 卡\u2026</string>
+    <string name="access_sd_fail">無法存取 SD 卡。</string>
+    <string name="spaceIsLow_content">您的 SD 卡儲存空間即將用完，變更品質設定或刪除一些檔案即可增加可用空間。</string>
+    <string name="FMRecording_reach_size_limit">已達大小上限。</string>
+    <string name="menu_scan_for_preset">掃描預設</string>
+    <string name="fm_off">FM 已關閉。</string>
+    <string name="fm_call">FM 不能在通話時使用</string>
+    <string name="alert_dialog_hint">輸入名稱 </string>
+    <string name="search_dialog_title">掃描電台</string>
+    <string name="fm_command_timeout_title">逾時</string>
+    <string name="fm_tune_timeout_msg">未收到回應來調整 FM 電台。如果問題仍然持續，請關閉 FM，並將其重新開啟。</string>
+    <string name="fm_command_failed_title">FM 操作失敗</string>
+    <string name="fm_cmd_failed_msg">FM 操作失敗。如果問題仍然持續，請關閉 FM，並將其重新開啟。</string>
+    <string name="fm_cmd_failed_msg_hdmi">FM 操作失敗。不支援 FM和 HDMI 併頻 。 </string>
+    <string name="fm_cmd_failed_call_on">FM 操作失敗。通話期間禁止 FM 音訊。</string>
+    <string name="audio_db_title_format"><xliff:g id="format">年-月-日 時:分:秒</xliff:g></string>
+    <string name="audio_db_artist_name">我的 FM 錄音</string>
+    <string name="audio_db_album_name">FM 錄音</string>
+    <string name="audio_db_playlist_name">FM 錄音</string>
+    <string name="station_name">電台：</string>
+    <string name="station_exists">此頻率已存在！</string>
+    <string name="station_list_delete_station">刪除：<xliff:g id="name">%s</xliff:g></string>
+    <string name="station_list_delete_station_prompt">您確定要刪除「<xliff:g id="name">%s</xliff:g>」嗎？</string>
+    <string name="station_name_empty">電台名稱不能為空，請重新輸入。</string>
+    <string name="station_name_exist">「<xliff:g id="name">%s</xliff:g>」已被使用，請輸入其他名稱。</string>
+    <string name="rt_plus_tags">標籤</string>
+    <string name="usr_def_band_min">最低頻率 (MHz)</string>
+    <string name="usr_def_band_max">最高頻率 (MHz)</string>
+    <string name="chanl_spacing">頻道間距</string>
+    <string name="set">設定</string>
+    <string name="user_defind_band_msg">輸入由 76.0Mhz 至 108.0Mhz 間的頻率，並需以至少一個頻道間隔，以及與最高和最低頻率分別間隔至少100KHz</string>
+    <string name="save_record_file">FM 錄音檔已儲存至「<xliff:g id="record_file">%1$s</xliff:g>」</string>
+    <string name="fm_search_no_results">沒有找到相容的頻道</string>
+    <string name="typ_All_stations">所有電台</string>
+    <string name="typ_Culture">文化</string>
+    <string name="typ_Current_affairs">目前事務</string>
+    <string name="typ_Children">兒童節目</string>
+    <string name="typ_Country">鄉村音樂</string>
+    <string name="typ_Documentary">寫實</string>
+    <string name="typ_Drama">戲劇</string>
+    <string name="typ_Easy_listening">輕音樂</string>
+    <string name="typ_Education">教育</string>
+    <string name="typ_Emergency">緊急</string>
+    <string name="typ_Emergency_test">應急測試</string>
+    <string name="typ_Finance">財經</string>
+    <string name="typ_Folk">民間音樂</string>
+    <string name="typ_Information">資訊</string>
+    <string name="typ_Jazz">爵士音樂</string>
+    <string name="typ_Light_classical">輕古典</string>
+    <string name="typ_Leisure">休閒</string>
+    <string name="typ_News">新聞</string>
+    <string name="typ_National">民族音樂</string>
+    <string name="typ_Other">其他音樂</string>
+    <string name="typ_Oldies">懷舊音樂</string>
+    <string name="typ_Phone_in">撥打電話</string>
+    <string name="typ_Pop">流行音樂</string>
+    <string name="typ_Religion">宗教</string>
+    <string name="typ_Rock">搖滾音樂</string>
+    <string name="typ_Science">科學</string>
+    <string name="typ_Serious_classical">嚴肅古典</string>
+    <string name="typ_Social_affairs">社會事務</string>
+    <string name="typ_Sport">運動</string>
+    <string name="typ_Travel">旅遊</string>
+    <string name="typ_Varied">大千世界</string>
+    <string name="typ_Weather">天氣</string>
+    <string name="typ_Adult_hits">成人點播</string>
+    <string name="typ_Classical">古典</string>
+    <string name="typ_Classic_Rock">經典搖滾</string>
+    <string name="typ_College">校園</string>
+    <string name="typ_Foreign_language">外語</string>
+    <string name="typ_Hiphop">嘻哈</string>
+    <string name="typ_Nostalgia">懷舊</string>
+    <string name="typ_Personality">個性</string>
+    <string name="typ_Public">公開</string>
+    <string name="typ_Religious_music">宗教音樂</string>
+    <string name="typ_Religious_talk">宗教談話</string>
+    <string name="typ_Rhythm_and_Blues">節奏及藍調</string>
+    <string name="typ_Spanish_music">西班牙音樂</string>
+    <string name="typ_Spanish_talk">西班牙對話</string>
+    <string name="typ_Soft">柔和</string>
+    <string name="typ_Soft_Rock">軟搖滾</string>
+    <string name="typ_Soft_Rhythm_and_Blues">柔和節奏及藍調</string>
+    <string name="typ_Sports">體育</string>
+    <string name="typ_Talk">談話</string>
+    <string name="typ_Top_40">前 40</string>
+</resources>

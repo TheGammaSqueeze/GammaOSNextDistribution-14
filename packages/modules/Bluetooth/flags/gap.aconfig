@@ -1,0 +1,114 @@
+package: "com.android.bluetooth.flags"
+container: "com.android.btservices"
+
+flag {
+    name: "encrypted_advertising_data"
+    namespace: "bluetooth"
+    description: "Enable support for the decryption of Encrypted Advertising Data"
+    bug: "308855997"
+}
+
+flag {
+    name: "divide_long_single_gap_data"
+    namespace: "bluetooth"
+    description: "Divide long single gap data if length is longer than HCI data length limit"
+    bug: "310217895"
+}
+
+flag {
+    name: "fix_nonconnectable_scannable_advertisement"
+    namespace: "bluetooth"
+    description: "Fix adv_scan_ind being reported as connectable"
+    bug: "316013235"
+}
+
+flag {
+    name: "scan_manager_refactor"
+    namespace: "bluetooth"
+    description: "Refactor scan manager as described in go/scan-manager-refactor"
+    bug: "313335632"
+}
+
+flag {
+    name: "skip_unknown_robust_caching"
+    namespace: "bluetooth"
+    description: "skip initial DB lookup when robust caching support is UNKNOWN"
+    bug: "317128464"
+}
+
+flag {
+    name: "le_scan_parameters_fix"
+    namespace: "bluetooth"
+    description: "Fix LE scan parameters downgrade during inquiry"
+    bug: "316885813"
+}
+
+flag {
+    name: "scan_timeout_reset"
+    namespace: "bluetooth"
+    description: "Ensure scan timeout is reset if new scan started"
+    bug: "316266556"
+}
+
+flag {
+    name: "le_scan_fix_remote_exception"
+    namespace: "bluetooth"
+    description: "Fix handling remote exception for LE scanners"
+    bug: "320402249"
+}
+
+flag {
+    name: "enumerate_gatt_errors"
+    namespace: "bluetooth"
+    description: "Enumerate GATT error situations"
+    bug: "320574336"
+}
+
+flag {
+    name: "gatt_fix_device_busy"
+    namespace: "bluetooth"
+    description: "Fix device busy bug in BluetoothGatt"
+    bug: "322580271"
+}
+
+flag {
+    name: "gatt_cleanup_restricted_handles"
+    namespace: "bluetooth"
+    description: "Cleans up restricted handles when disconnected"
+    bug: "323110155"
+}
+
+flag {
+    name: "brcm_better_le_scan_params"
+    namespace: "bluetooth"
+    description: "Optimize LE scan parameters for BRCM controllers"
+    bug: "324238597"
+}
+
+flag {
+    name: "le_periodic_scanning_reassembler"
+    namespace: "bluetooth"
+    description: "Enable reassembly of LE periodic advertising events"
+    bug: "324886466"
+}
+
+flag {
+    name: "phy_to_native"
+    namespace: "bluetooth"
+    description: "Expose advertising PHY settings to native layer"
+    bug: "326249470"
+}
+
+flag {
+    name: "gatt_reconnect_on_bt_on_fix"
+    namespace: "bluetooth"
+    description: "Fix reconnect issue on Bluetooth startup"
+    bug: "325595120"
+}
+
+flag {
+    name: "gatt_drop_acl_on_out_of_resources_fix"
+    namespace: "bluetooth"
+    description: "Remove ACL when there is not resource to handle more gatt connections."
+    bug: "325929235"
+}

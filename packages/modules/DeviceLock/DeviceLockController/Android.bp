@@ -1,0 +1,237 @@
+//
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    default_applicable_licenses: [
+        "packages_modules_DeviceLock_DeviceLockController_license",
+    ],
+}
+
+license {
+    name: "packages_modules_DeviceLock_DeviceLockController_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+filegroup {
+    name: "devicelockcontroller-grpc-impl-sources",
+    srcs: [
+        "src/com/android/devicelockcontroller/provision/grpc/impl/*.java",
+    ],
+}
+
+genrule {
+    name: "statslog-devicelock-java-gen",
+    tools: ["stats-log-api-gen"],
+    cmd: "$(location stats-log-api-gen) --java $(out) --module devicelock" +
+        " --javaPackage com.android.devicelockcontroller" +
+        " --javaClass DevicelockStatsLog",
+    out: ["com/android/devicelockcontroller/DevicelockStatsLog.java"],
+}
+
+java_library {
+    name: "devicelockcontroller-interface",
+    sdk_version: "module_current",
+    min_sdk_version: "UpsideDownCake",
+    srcs: ["src/**/*.aidl"],
+    apex_available: [
+        "com.android.devicelock",
+    ],
+    visibility: [
+        "//packages/modules/DeviceLock:__subpackages__",
+    ],
+}
+
+java_library {
+    name: "devicelockcontroller-thread-asserts-lib",
+    srcs: [
+        "src/com/android/devicelockcontroller/util/ThreadAsserts.java",
+    ],
+    sdk_version: "module_current",
+    min_sdk_version: "UpsideDownCake",
+    apex_available: ["com.android.devicelock"],
+    visibility: [
+        "//packages/modules/DeviceLock:__subpackages__",
+    ],
+}
+
+java_library {
+    name: "devicelockcontroller-common-lib",
+    srcs: [
+        "src/com/android/devicelockcontroller/common/*.java",
+        "src/com/android/devicelockcontroller/util/*.java",
+    ],
+    sdk_version: "module_current",
+    min_sdk_version: "UpsideDownCake",
+    apex_available: ["com.android.devicelock"],
+    static_libs: [
+        "androidx.annotation_annotation",
+        "guava",
+    ],
+    visibility: [
+        "//packages/modules/DeviceLock:__subpackages__",
+    ],
+}
+
+java_library {
+    name: "devicelockcontroller-grpc-interface-lib",
+    srcs: ["src/com/android/devicelockcontroller/provision/grpc/*.java"],
+    sdk_version: "module_current",
+    min_sdk_version: "UpsideDownCake",
+    apex_available: ["com.android.devicelock"],
+    static_libs: [
+        "devicelockcontroller-common-lib",
+        "androidx.annotation_annotation",
+        "grpc-java-core-android",
+        "grpc-java-okhttp-client-lite",
+        "libprotobuf-java-lite",
+        "opencensus-java-api",
+        "opencensus-java-contrib-grpc-metrics",
+    ],
+    visibility: [
+        "//packages/modules/DeviceLock:__subpackages__",
+        "//vendor:__subpackages__",
+    ],
+}
+
+java_test_helper_library {
+    name: "devicelockcontroller-stats",
+    sdk_version: "module_current",
+    srcs: [
+        "src/**/stats/*.java",
+        ":statslog-devicelock-java-gen",
+    ],
+    libs: [
+        "framework-statsd",
+        "modules-utils-expresslog",
+    ],
+    static_libs: [
+        "androidx.annotation_annotation",
+    ],
+    visibility: [
+        "//packages/modules/DeviceLock:__subpackages__",
+    ],
+}
+
+// Library with all dependencies for building DeviceLockController
+android_library {
+    name: "devicelockcontroller-lib",
+    sdk_version: "module_current",
+    min_sdk_version: "UpsideDownCake",
+    srcs: [
+        "src/**/*.java",
+        ":statslog-devicelock-java-gen",
+    ],
+    exclude_srcs: [
+        ":devicelockcontroller-grpc-impl-sources",
+        "src/com/android/devicelockcontroller/debug/*.java",
+    ],
+    resource_dirs: ["res"],
+    libs: [
+        "framework-annotations-lib",
+        "framework-devicelock.impl",
+        "org.apache.http.legacy",
+        "framework-statsd",
+        "modules-utils-expresslog",
+    ],
+    static_libs: [
+        "androidx.annotation_annotation",
+        "androidx.collection_collection",
+        "androidx.lifecycle_lifecycle-extensions",
+        "androidx.preference_preference",
+        "androidx.work_work-runtime",
+        "devicelockcontroller-grpc-interface-lib",
+        "devicelockcontroller-interface",
+        // TODO: Check if we have an alternate for this
+        "com.google.android.material_material",
+        "guava",
+        "jsr330",
+        "dagger2",
+        "SettingsLibCollapsingToolbarBaseActivity",
+        "SettingsLibTopIntroPreference",
+    ],
+    manifest: "AndroidManifestBase.xml",
+    apex_available: [
+        "com.android.devicelock",
+    ],
+    visibility: [
+        "//packages/modules/DeviceLock:__subpackages__",
+        "//vendor:__subpackages__",
+    ],
+}
+
+android_app {
+    name: "DeviceLockController",
+    sdk_version: "module_current",
+    min_sdk_version: "UpsideDownCake",
+    updatable: true,
+    privileged: true,
+    privapp_allowlist: ":privapp_allowlist_com.android.devicelockcontroller.xml",
+    certificate: "platform",
+    rename_resources_package: false,
+
+    srcs: [":devicelockcontroller-grpc-impl-sources"],
+
+    static_libs: [
+        "devicelockcontroller-lib",
+        "devicelockcontroller-grpc-interface-lib",
+        "devicelockcontroller-proto-lite",
+    ],
+
+    optimize: {
+        proguard_flags_files: ["proguard.flags"],
+        shrink_resources: true,
+    },
+
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.devicelock",
+    ],
+}
+
+android_app {
+    name: "DeviceLockControllerDebug",
+    sdk_version: "module_current",
+    min_sdk_version: "UpsideDownCake",
+    updatable: true,
+    privileged: true,
+    privapp_allowlist: ":privapp_allowlist_com.android.devicelockcontroller.xml",
+    certificate: "platform",
+    rename_resources_package: false,
+
+    srcs: [":devicelockcontroller-grpc-impl-sources"],
+
+    static_libs: [
+        "devicelockcontroller-debug-lib",
+        "devicelockcontroller-grpc-interface-lib",
+        "devicelockcontroller-proto-lite",
+    ],
+
+    optimize: {
+        proguard_flags_files: ["proguard.flags"],
+        shrink_resources: true,
+    },
+
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.devicelock",
+    ],
+}

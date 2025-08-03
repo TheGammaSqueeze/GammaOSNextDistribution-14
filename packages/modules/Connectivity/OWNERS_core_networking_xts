@@ -1,0 +1,9 @@
+lorenzo@google.com
+satk@google.com #{LAST_RESORT_SUGGESTION}
+
+# For cherry-picks of CLs that are already merged in aosp/master, or flaky test fixes.
+jchalard@google.com #{LAST_RESORT_SUGGESTION}
+maze@google.com #{LAST_RESORT_SUGGESTION}
+# In addition to cherry-picks and flaky test fixes, also for incremental changes on NsdManager tests
+# to increase coverage for existing behavior, and testing of bug fixes in NsdManager
+reminv@google.com #{LAST_RESORT_SUGGESTION}

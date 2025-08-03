@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (C) 2021 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License
+-->
+<configuration description="Base config for Multi-User latency metrics">
+  <include name="catbox-performance-base" />
+
+  <!-- TradeFed test harness -->
+  <option name="compatibility:test-arg" value="com.android.tradefed.testtype.AndroidJUnitTest:runner:androidx.test.runner.AndroidJUnitRunner" />
+  <option name="compatibility:test-arg" value="com.android.tradefed.testtype.AndroidJUnitTest:package:android.platform.scenario.multiuser" />
+  <option name="compatibility:test-arg" value="com.android.tradefed.testtype.AndroidJUnitTest:no-rerun:true" />
+  <option name="compatibility:test-arg" value="com.android.tradefed.testtype.AndroidJUnitTest:shell-timeout:1000000" />
+
+  <option name="compatibility:test-arg" value="com.android.tradefed.targetprep.TimeWaster:delay:20000" />
+
+  <option name="compatibility:module-arg" value="AndroidAutomotiveMultiuserScenarioTests:instrumentation-arg:iterations:=5" />
+  <option name="compatibility:module-arg" value="AndroidAutomotiveMultiuserScenarioTests:instrumentation-arg:rename-iterations:=true" />
+  <option name="compatibility:module-arg" value="AndroidAutomotiveMultiuserScenarioTests:instrumentation-arg:iteration-separator:=$" />
+
+  <!-- Default metrics post processor -->
+  <include name="catbox-performance-postprocessors" />
+</configuration>

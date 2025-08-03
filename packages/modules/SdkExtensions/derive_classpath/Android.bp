@@ -1,0 +1,78 @@
+// Copyright (C) 2019 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_team: "trendy_team_updatable_sdk_apis",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_defaults {
+    name: "derive_classpath-defaults",
+    min_sdk_version: "30",
+    shared_libs: ["liblog"],
+    // static c++/libbase for smaller size
+    stl: "c++_static",
+    static_libs: [
+        "libbase",
+        "libclasspaths_proto",
+        "libmodules-utils-build",
+        "libprotobuf-cpp-lite",
+    ],
+}
+
+cc_library {
+    name: "libderive_classpath",
+    srcs: ["derive_classpath.cpp"],
+    defaults: ["derive_classpath-defaults"],
+    apex_available: ["com.android.sdkext"],
+}
+
+cc_defaults {
+    name: "derive_classpath_binary-defaults",
+    defaults: ["derive_classpath-defaults"],
+    srcs: ["main.cpp"],
+    static_libs: ["libderive_classpath"],
+}
+
+cc_binary {
+    name: "derive_classpath",
+    defaults: ["derive_classpath_binary-defaults"],
+    apex_available: ["com.android.sdkext"],
+}
+
+// Work around testing using a 64-bit test suite on 32-bit test device by
+// using a prefer32 version of derive_sdk in testing.
+cc_binary {
+    name: "derive_classpath_prefer32",
+    defaults: ["derive_classpath_binary-defaults"],
+    compile_multilib: "prefer32",
+    stem: "derive_classpath",
+    apex_available: ["test_com.android.sdkext"],
+    installable: false,
+}
+
+cc_test {
+    name: "derive_classpath_test",
+    defaults: ["derive_classpath-defaults"],
+    srcs: ["derive_classpath_test.cpp"],
+    require_root: true,
+    static_libs: ["libderive_classpath"],
+    test_suites: ["device-tests"],
+}
+
+prebuilt_etc {
+    name: "derive_classpath.rc",
+    src: "derive_classpath.rc",
+    installable: false,
+}

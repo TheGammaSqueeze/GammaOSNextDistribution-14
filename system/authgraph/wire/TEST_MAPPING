@@ -1,0 +1,7 @@
+{
+  "postsubmit": [
+    {
+      "name": "libauthgraph_wire_test"
+    }
+  ]
+}

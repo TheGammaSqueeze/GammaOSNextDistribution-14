@@ -1,0 +1,177 @@
+// Copyright 2019 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Set of error prone rules to ensure code quality
+// PackageLocation check requires the androidCompatible=false otherwise it does not do anything.
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_library_host {
+    name: "atest-tradefed-shell",
+    java_resource_dirs: ["res"],
+}
+
+tradefed_binary_host {
+    name: "atest-tradefed",
+    short_name: "ATEST",
+    full_name: "ATest Test Suite",
+    static_libs: ["atest-tradefed-shell"],
+    required: [
+        "atest_tradefed.sh",
+        "atest_script_help.sh",
+    ],
+}
+
+// Attributes common to both atest and atest_flag_list_generator.
+python_defaults {
+    name: "atest_defaults",
+    pkg_path: "atest",
+    srcs: [
+        "**/*.py",
+    ],
+    exclude_srcs: [
+        "*_unittest.py",
+        "*/*_unittest.py",
+        "asuite_lib_test/*.py",
+        "proto/*.py",
+        "tf_proto/*.py",
+        "cc_test_filter_generator.py",
+        "cc_test_filter_generator_test.py",
+        "java_test_filter_generator.py",
+        "java_test_filter_generator_test.py",
+    ],
+    libs: [
+        "asuite_proto",
+        "tradefed-protos-py",
+        "py-google-api-python-client",
+        "py-oauth2client",
+        "pyyaml",
+    ],
+    data: [
+        "bazel/resources/**/*",
+    ],
+}
+
+python_binary_host {
+    name: "atest",
+    defaults: ["atest_defaults"],
+    main: "atest_main.py",
+    data: [
+        ":atest_flag_list_for_completion",
+    ],
+    // Make atest's built name be atest-dev
+    stem: "atest-dev",
+    dist: {
+        targets: ["droidcore"],
+    },
+}
+
+// A helper binary used to generate the atest_flag_list_for_completion.txt
+// file, it should never be run outside of the build. It's the same
+// as atest except it has atest_flag_list_generator.py as it's main python
+// file. The atest_flag_list_for_completion.txt file is extracted from the
+// atest binary during autocompletion.
+python_binary_host {
+    name: "atest_flag_list_generator",
+    defaults: ["atest_defaults"],
+    main: "atest_flag_list_generator.py",
+}
+
+genrule {
+    name: "atest_flag_list_for_completion",
+    out: ["atest_flag_list_for_completion.txt"],
+    tools: ["atest_flag_list_generator"],
+    cmd: "$(location atest_flag_list_generator) > $(out)",
+}
+
+python_library_host {
+    name: "atest_module_info",
+    pkg_path: "atest",
+    srcs: [
+        "atest_error.py",
+        "atest_decorator.py",
+        "atest_utils.py",
+        "constants.py",
+        "constants_default.py",
+        "module_info.py",
+    ],
+    libs: [
+        "tradefed-protos-py",
+    ],
+}
+
+python_library_host {
+    name: "asuite_cc_client",
+    pkg_path: "atest",
+    srcs: [
+        "atest_enum.py",
+        "metrics/*.py",
+        "coverage/*.py",
+    ],
+    libs: [
+        "asuite_proto",
+        "atest_module_info",
+    ],
+}
+
+python_test_host {
+    name: "atest_unittests",
+    main: "atest_run_unittests.py",
+    pkg_path: "atest",
+    srcs: [
+        "**/*.py",
+    ],
+    test_options: {
+        unit_test: true,
+    },
+    data: [
+        "unittest_data/**/*",
+        "unittest_data/**/.*",
+    ],
+    exclude_srcs: [
+        "asuite_lib_test/*.py",
+        "tools/atest_updatedb_unittest.py",
+        "proto/*.py",
+        "tf_proto/*.py",
+        "cc_test_filter_generator.py",
+        "cc_test_filter_generator_test.py",
+        "java_test_filter_generator.py",
+        "java_test_filter_generator_test.py",
+    ],
+    libs: [
+        "asuite_proto",
+        "pyfakefs",
+        "tradefed-protos-py",
+        "pyyaml",
+    ],
+    test_config: "atest_unittests.xml",
+    test_suites: ["general-tests"],
+    version: {
+        py3: {
+            embedded_launcher: true,
+            enabled: true,
+        },
+    },
+}
+
+sh_binary_host {
+    name: "atest_tradefed.sh",
+    src: "atest_tradefed.sh",
+}
+
+sh_binary_host {
+    name: "atest_script_help.sh",
+    src: "atest_script_help.sh",
+}

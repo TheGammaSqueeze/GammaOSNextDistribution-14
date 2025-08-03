@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="pbap_session_key_dialog_title">Rho\'r allwedd sesiwn ar gyfer %1$s.</string>
+    <string name="pbap_session_key_dialog_header">Mae angen allwedd sesiwn Bluetooth.</string>
+    <string name="pbap_acceptance_timeout_message">Daeth yr amser i ben wrth dderbyn cysylltiad â %1$s.</string>
+    <string name="pbap_authentication_timeout_message">Daeth yr amser i ben wrth roi\'r allwedd sesiwn i %1$s.</string>
+    <string name="auth_notif_ticker">Cais dilysiad Obex</string>
+    <string name="auth_notif_title">Allwedd Sesiwn</string>
+    <string name="auth_notif_message">Rho\'r allwedd sesiwn ar gyfer %1$s.</string>
+    <string name="defaultname">Cit car</string>
+    <string name="unknownName">Enw anhysbys</string>
+    <string name="localPhoneName">Fy enw i</string>
+    <string name="defaultnumber">000000</string>
+    <string name="pbap_notification_group">Rhannu Cysylltiad Bluetooth</string>
+</resources>

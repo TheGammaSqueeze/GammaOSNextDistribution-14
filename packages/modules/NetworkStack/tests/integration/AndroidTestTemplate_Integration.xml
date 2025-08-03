@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<configuration description="Test config for {MODULE}">
+    <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
+        <option name="cleanup-apks" value="true" />
+        <option name="test-file-name" value="{MODULE}.apk" />
+    </target_preparer>
+
+    <!-- Needed to push to the app's data directory. Without root, there appears to be no directory
+         that the shell can write to and that the networkstack can read from. -->
+    <target_preparer class="com.android.tradefed.targetprep.RootTargetPreparer"/>
+
+    <target_preparer class="com.android.testutils.DisableConfigSyncTargetPreparer" />
+
+    <option name="config-descriptor:metadata" key="mainline-param" value="CaptivePortalLoginGoogle.apk+NetworkStackGoogle.apk+com.google.android.resolv.apex+com.google.android.tethering.apex" />
+    <option name="config-descriptor:metadata" key="mainline-param" value="CaptivePortalLoginGoogle.apk+NetworkStackGoogle.apk" />
+    <test class="com.android.tradefed.testtype.AndroidJUnitTest" >
+        <option name="package" value="{PACKAGE}" />
+        <option name="runner" value="androidx.test.runner.AndroidJUnitRunner" />
+        <!-- By default, include and exclude filters go into /data/local/tmp/ajur/, which these
+             tests cannot access because they run in the network_stack selinux context. Move
+             them to the tests' data directory instead.
+
+             This avoids confusing module errors in presubmit when a test fails, the test infra
+             attempts to retry it, but the retry run results in the test process crashing with a
+             permission denial trying to read the exclude file. -->
+        <option name="test-filter-dir" value="/data/data/{PACKAGE}/cache" />
+        <option name="hidden-api-checks" value="false"/>
+    </test>
+</configuration>

@@ -1,0 +1,479 @@
+# Copyright (C) 2018 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This file lists projects with optional hosttests and unittests to run for
+# those projects in the following format:
+# [
+#     # Add projects to, or remove projects from, list of projects to build.
+#     # Does not affect builds where the project list is passed on the command
+#     # line.
+#     build(
+#         # List of projects that this build entry applies to. Required.
+#         projects=[
+#             "<project>",
+#             ...
+#         ]
+#         # If enabled is set to True or ommitted, add projects to list of
+#         # projects to build. If enabled is set to False, remove projects from
+#         # list of projects to build.
+#         enabled=<True|False>
+#     ),
+#     ...
+#     # Specify tests to run for specific projects.
+#     testmap(
+#         # List of projects that this testmap entry applies to. Required.
+#         projects=[
+#             "<project>",
+#             ...
+#         ]
+#         # List of host-tests to run. Optional
+#         tests=[
+#             # Run a program on the host
+#             hosttest("some_host_binary"),
+#             # Run test on device or in emulator. Porttests run in one of two
+#             # contexts:
+#             # 1. In a minimal
+#             #    bootloader environment (when porttest is nested within
+#             #    in a boottests element), or
+#             # 2. with a full Android userspace present (when nested within an
+#             #    androidporttests element).
+#             porttest("port.under.test"),
+#             # Run a shell command inside Android
+#             androidtest(name="test_name", command="command to run"),
+#             # Run a sequence of test and commands in the given order
+#             # Ensure that test environment is rebooted before second port test
+#             compositetest(name="testname", sequence=[
+#                 hosttest("some_host_binary"),
+#                 porttest("port.under.test"),
+#                 # a reboot may only be requested inside composite tests
+#                 reboot(),
+#                 porttest("another.port.under.test"),
+#                 ...
+#              ]
+#            ...
+#         ],
+#     ),
+#     ...
+#     # Include another configuration file. If optional is True, and the file
+#     # does not exist, the include statement is ignored.
+#     include(<file>, optional=<True|False>),
+# ]
+
+[
+    testmap(
+        projects=[
+            "qemu-generic-arm64-test-debug-release",
+            "qemu-generic-arm32-test-debug-release",
+        ],
+        tests=[
+            boottests([
+                include("trusty/user/base/build-config-usertests-release"),
+            ]),
+        ],
+    ),
+
+
+    testmap(
+        projects=[
+            "generic-arm64-test-debug",
+        ],
+        tests=[
+            hosttest("avb_test"),
+            hosttest("cbor_test"),
+            hosttest("keymaster_test"),
+            hosttest("mock_storage_test"),
+            hosttest("storage_block_test"),
+            hosttest("storage_host_test"),
+            hosttests([
+                include("trusty/kernel/build-config-kerneltests"),
+                include("trusty/user/base/build-config-usertests"),
+            ]),
+        ],
+    ),
+    include("../../proprietary/scripts/build-config", optional=True),
+    testmap(
+        projects=[
+            "qemu-generic-arm32-gicv3-test-debug",
+            "qemu-generic-arm32-test-debug",
+            "qemu-generic-arm64-fuzz-test-debug",
+            "qemu-generic-arm64-gicv3-test-debug",
+            "qemu-generic-arm64-test-debug",
+            "qemu-generic-arm64u32-test-debug",
+        ],
+        tests=[
+            # Boot tests (test-runner + kernel only)
+            boottests([
+                include("trusty/kernel/build-config-kerneltests"),
+                include("trusty/user/base/build-config-usertests"),
+            ]),
+            # Android shell port tests - same as above, but triggered with
+            # Linux + android userspace present
+            androidporttests([
+                include("trusty/kernel/build-config-kerneltests"),
+                include("trusty/user/base/build-config-usertests"),
+            ]),
+
+            # Trusty linux driver tests. Unbind and bind to trigger remove and
+            # probe function.
+            androidtest(name="irq-driver",
+                        command="echo 'trusty:irq' >"
+                                "/sys/bus/platform/drivers/trusty-irq/unbind"
+                                "&&"
+                                "echo 'trusty:irq' >"
+                                "/sys/bus/platform/drivers/trusty-irq/bind"),
+
+            androidtest(name="log-driver",
+                        command="echo 'trusty:log' >"
+                                "/sys/bus/platform/drivers/trusty-log/unbind"
+                                "&&"
+                                "echo 'trusty:log' >"
+                                "/sys/bus/platform/drivers/trusty-log/bind"),
+
+            androidtest(name="virtio-driver",
+                        # virtio remove currently hangs (bug: 142275662).
+                        # Disable test until fixed
+                        enabled=False,
+                        command="echo 'trusty:virtio' >"
+                                "/sys/bus/platform/drivers/trusty-virtio/unbind"
+                                "&&"
+                                "echo 'trusty:virtio' >"
+                                "/sys/bus/platform/drivers/trusty-virtio/bind"),
+
+            androidtest(name="trusty-driver",
+                        # virtio remove currently hangs (bug: 142275662).
+                        # Disable affected test until fixed
+                        enabled=False,
+                        command="echo trusty >"
+                                "/sys/bus/platform/drivers/trusty/unbind"
+                                "&&"
+                                "echo trusty >"
+                                "/sys/bus/platform/drivers/trusty/bind"),
+
+            # test that trusty driver started and got a version string
+            androidtest(name="trusty-driver-version",
+                        command="TRUSTY_VERSION=$(cat /sys/bus/platform/"
+                                "devices/trusty/trusty_version)"
+                                "&&"
+                                "echo Trusty version: ${TRUSTY_VERSION}"
+                                "&&"
+                                "if [[ \"${TRUSTY_VERSION}\" != \"Project:\"* ]];"
+                                "then "
+                                "echo Unexpected trusty version string;"
+                                "exit 1;"
+                                "fi"),
+
+            androidtest(name="untainted-linux",
+                        command="TAINTED=$(cat /proc/sys/kernel/tainted)"
+                                "&&"
+                                "if [[ \"${TAINTED}\" != \"0\" ]];"
+                                "then "
+                                "echo Linux kernel tainted ${TAINTED};"
+                                "exit 1;"
+                                "fi"),
+
+            # stdcall test with shared memory buffers.
+            # Each test run takes up to 4 arguments:
+            # <obj_size>,<obj_count=1>,<repeat_share=1>,<repeat_access=3>
+            #
+            # Test single 4K shared memory object.
+            # Test 10 8MB objects, shared twice, each accessed twice. (8MB non-
+            # contiguous object is large enough to need several 4KB messages to
+            # describe)
+            # Test sharing 2 8MB objects 100 times without accessing it.
+            # Test 10 4K shared memory objects, shared 10 times, each accessed
+            # 10 times.
+            androidtest(name="stdcalltest",
+                        command="echo '0x1000 "
+                                "0x800000,10,2,2 "
+                                "0x800000,2,100,0 "
+                                "0x1000,10,10,10' >"
+                                "'/sys/devices/platform/trusty/"
+                                "trusty:test/trusty_test_run'"),
+
+            # TIPC tests
+            androidtest(name="tipc:ta2ta",
+                        command="/data/nativetest64/vendor/tipc-test/tipc-test "
+                                "-t ta2ta-ipc"),
+
+            # TIPC linux to trusty echo test
+            androidtest(name="tipc:echo",
+                        command="/data/nativetest64/vendor/tipc-test/tipc-test "
+                                "-t echo -r 100"),
+
+            # TIPC linux to trusty echo test repeat so 16 bit virtio index wraps
+            # Timeout is set to 15 minutes due to b/258851590.
+            androidtest(name="tipc:echo-long",
+                        command="/data/nativetest64/vendor/tipc-test/tipc-test "
+                                "-t echo -r 65537",
+                        timeout=(15 * 60)),
+
+            # NS shares NS memory with S
+            androidtest(name="tipc:send-fd",
+                        command="/data/nativetest64/vendor/tipc-test/tipc-test "
+                                "-t send-fd"),
+
+            # Storage proxy restart test. The keymaster storage wrapper keeps a
+            # persistent connection to the storage server. Test that this
+            # connection gets re-established when the storage proxy restarts.
+            androidtest(name="storage-proxy-restart",
+                        command="/vendor/bin/trusty-ut-ctrl "
+                                "com.android.keymaster-unittest"
+                                "&&"
+                                "stop storageproxyd"
+                                "&&"
+                                "("
+                                "sleep 5"
+                                "&&"
+                                "start storageproxyd"
+                                "&"
+                                "/vendor/bin/trusty-ut-ctrl "
+                                "com.android.keymaster-unittest"
+                                "&&"
+                                "wait"
+                                ")"
+                                "&&"
+                                "/vendor/bin/trusty-ut-ctrl "
+                                "com.android.keymaster-unittest"),
+
+            # Test automatic clearing of tp filesystem when userdata is cleared
+            # - Stage 1
+            # -- Simulate user-data wipe (by removing data/vendor/ss/0 and
+            #    restarting storageproxyd)
+            # -- Create a valid filesystem (with both superblocks written)
+            #
+            # - Stage 2
+            # -- Simulate user-data wipe
+            # -- Create a valid filesystem (with a single committed superblock)
+            # -- Simulate reboot (by restarting storageproxyd)
+            # -- Check that filesystem is accessible (with a small uncommitted
+            #    transaction to more avoid super block updates)
+            #
+            #    If only one super block was written, it could have used the
+            #    wrong version. If the new filesystem always writes superblock
+            #    version 1, then it will fail if the old version was 2 or 3 as
+            #    those two starting points have version 2 in the first
+            #    superblock. Stage one will leave the filesystem at version 2 if
+            #    b/190109878 has not been fixed or at version 3 if it has been
+            #    partially fixed.
+            #
+            # - Stage 3
+            # -- Simulate user-data wipe
+            # -- Write to the filesystem without commiting anything
+            # -- Simulate reboot (Should trigger cleanup path for b/190109878
+            #    bugfix as generated initial superblock is not needed)
+            #
+            # - Stage 4
+            # -- Write a large transaction to the filesystem without commiting
+            #    anything
+            # -- Simulate reboot
+            # -- Check that filesystem is accessible. If superblock was not
+            #    written (b/190109878) this step would fail as the data file is
+            #    no longer empty, but the old super blocks refer to data in the
+            #    previous deleted file.
+            # -- Trigger cleanup in test app.
+            androidtest(name="storage-tp-clear-test",
+                        command="function storage-unittest { "
+                                "/vendor/bin/trusty-ut-ctrl "
+                                "com.android.storage-unittest.$1"
+                                ";}"
+                                "&&"
+                                "function wipe-restart-storageproxyd { "
+                                "echo '[ -------- ] wipe-restart-storageproxyd'"
+                                "&&"
+                                "stop storageproxyd"
+                                "&&"
+                                "rm /data/vendor/ss/0"
+                                "&&"
+                                "start storageproxyd"
+                                ";}"
+                                "&&"
+                                "function restart-storageproxyd { "
+                                "echo '[ -------- ] restart-storageproxyd'"
+                                "&&"
+                                "stop storageproxyd"
+                                "&&"
+                                "start storageproxyd"
+                                ";}"
+                                "&&"
+                                "echo '[ -------- ] Stage 1 - 2 commit setup'"
+                                "&&"
+                                "wipe-restart-storageproxyd"
+                                "&&"
+                                "storage-unittest td.init"
+                                "&&"
+                                "storage-unittest td.init"
+                                "&&"
+                                "echo '[ -------- ] Stage 2 - 1 commit setup'"
+                                "&&"
+                                "wipe-restart-storageproxyd"
+                                "&&"
+                                "storage-unittest td.init"
+                                "&&"
+                                "restart-storageproxyd"
+                                "&&"
+                                "storage-unittest td.initnocommitsmall"
+                                "&&"
+                                "echo '[ -------- ] Stage 3 - no commit small'"
+                                "&&"
+                                "wipe-restart-storageproxyd"
+                                "&&"
+                                "storage-unittest td.initnocommitsmall"
+                                "&&"
+                                "restart-storageproxyd"
+                                "&&"
+                                "echo '[ -------- ] Stage 4 - no commit large'"
+                                "&&"
+                                "storage-unittest td.initnocommitlarge"
+                                "&&"
+                                "restart-storageproxyd"
+                                "&&"
+                                "storage-unittest td.initnocommitsmall"
+                                "&&"
+                                "storage-unittest td.initnocommitcleanup"),
+
+            # Test confirmation UI
+            androidtest(name="vts:confirmationui@1.0",
+                        command="/data/nativetest64/"
+                                "VtsHalConfirmationUIV1_0TargetTest/"
+                                "VtsHalConfirmationUIV1_0TargetTest"),
+
+            # Test gatekeeper
+            androidtest(name="vts:gatekeeper@1.0",
+                        command="/data/nativetest64/"
+                                "VtsHalGatekeeperV1_0TargetTest/"
+                                "VtsHalGatekeeperV1_0TargetTest"),
+
+            # Test RKP
+            # TODO(b/235265072): re-enable once Android changes propagate to
+            # Trusty repo.
+            #androidtest(name="vts:rkp",
+            #            command="if [ \"`getprop ro.boot.verifiedbootstate`\" != \"fake\" ]; then "
+            #                    "setprop ro.boot.verifiedbootstate fake; "
+            #                    "fi "
+            #                    "&&"
+            #                    "/data/nativetest64/"
+            #                    "VtsHalRemotelyProvisionedComponentTargetTest/"
+            #                    "VtsHalRemotelyProvisionedComponentTargetTest"
+            #                    " --gtest_filter=\""
+            #                    "-"
+            #                    # We can not satisfy the requirements of
+            #                    # prodMode attestation.
+            #                    "*.generateAndUseEcdsaP256Key_prodMode/*:"
+            #                    # TODO:
+            #                    # bootloader/test-runner/test-runner.c in
+            #                    # trusty/external/trusty needs to properly set
+            #                    # the boot flags for the following tests to pass
+            #                    "*.EmptyRequest_testMode/*:"
+            #                    "*.NewKeyPerCallInTestMode/*:"
+            #                    "*.NonEmptyRequest_testMode/*"
+            #                    "\""),
+
+            # Test keymint attestation key provisioning
+            androidtest(name="keymint-set-attestation-keys",
+                        command="/vendor/bin/"
+                                "trusty_keymaster_set_attestation_key "
+                                "/vendor/etc/"
+                                "keymaster_soft_attestation_keys.xml"),
+
+            # Test keymint wrapped attestation key provisioning
+            androidtest(name="keymint-wrapped-vts",
+                        command="/vendor/bin/"
+                                "trusty_keymaster_set_attestation_key "
+                                "/vendor/etc/"
+                                "keymaster_soft_wrapped_attestation_keys.xml"
+                                "&&"
+                                "if [ \"`getprop ro.boot.verifiedbootstate`\" != \"fake\" ]; then "
+                                "setprop ro.boot.verifiedbootstate fake; "
+                                "fi "
+                                "&&"
+                                "/data/nativetest64/"
+                                "VtsAidlKeyMintTargetTest/"
+                                "VtsAidlKeyMintTargetTest"
+                                " --gtest_filter=\""
+                                "*/AttestKeyTest.*:"
+                                "-"
+                                "*/AttestKeyTest.AllRsaSizes*:"
+                                "*/AttestKeyTest.RsaAttestedAttestKeys*:"
+                                "*/AttestKeyTest.RsaAttestKeyChaining*:"
+                                "*/AttestKeyTest.EcAttestKeyChaining*:"
+                                "*/AttestKeyTest.AlternateAttestKeyChaining*:"
+                                "*/AttestKeyTest.AllEcCurves*:"
+                                "*/AttestKeyTest.EcdsaAttestationID*"
+                                "\""),
+
+            # Test keymint
+            #
+            # ClearOperationsTest.TooManyOperations is excluded from testing
+            # because KM4 VTS leaks operation slots on Trusty (b/146083990).
+            #
+            # EarlyBootKeyTest.UseEarlyBootKeyFailure and
+            # EarlyBootKeyTest.ImportEarlyBootKeyFailure test cases are exluded
+            # because keystore (not present on Trusty emulator image) is needed
+            # to propagate earlyBootEnded signal.
+            #
+            # TODO(b/208872187): Remove --skip_boot_pl_check once we have boot
+            # patchlevel configured.
+            androidtest(name="vts:keymint",
+                        command="if [ \"`getprop ro.boot.verifiedbootstate`\" != \"fake\" ]; then "
+                                "setprop ro.boot.verifiedbootstate fake; "
+                                "fi "
+                                "&&"
+                                "/data/nativetest64/"
+                                "VtsAidlKeyMintTargetTest/"
+                                "VtsAidlKeyMintTargetTest"
+                                " --skip_boot_pl_check"
+                                " --gtest_filter=\""
+                                "-"
+                                "*/ClearOperationsTest.TooManyOperations/*:"
+                                "*/EarlyBootKeyTest.UseEarlyBootKeyFailure/*:"
+                                "*/EarlyBootKeyTest.ImportEarlyBootKeyFailure/*:"
+                                "*SecureElementProvisioningTest.TeeOnly*:"
+                                "*/AttestKeyTest.AllRsaSizes*:"
+                                "*/AttestKeyTest.RsaAttestedAttestKeys*:"
+                                "*/AttestKeyTest.RsaAttestKeyChaining*:"
+                                "*/AttestKeyTest.EcAttestKeyChaining*:"
+                                "*/AttestKeyTest.AlternateAttestKeyChaining*:"
+                                "*/AttestKeyTest.AllEcCurves*:"
+                                "*/AttestKeyTest.EcdsaAttestationID*:"
+                                "*/NewKeyGenerationTest.RsaWithAttestation*:"
+                                "*/NewKeyGenerationTest.RsaEncryptionWithAttestation*:"
+                                "*/NewKeyGenerationTest.LimitedUsageRsaWithAttestation*:"
+                                "*/NewKeyGenerationTest.EcdsaAttestation*:"
+                                "*/NewKeyGenerationTest.EcdsaAttestationCurve25519*:"
+                                "*/NewKeyGenerationTest.EcdsaAttestationTags*:"
+                                "*/NewKeyGenerationTest.EcdsaAttestationIdTags*:"
+                                "*/NewKeyGenerationTest.EcdsaAttestationUniqueId*:"
+                                "*/NewKeyGenerationTest.EcdsaAttestationTagNoApplicationId*:"
+                                "*/NewKeyGenerationTest.AttestationApplicationIDLengthProperlyEncoded*"
+                                "\"",
+                        timeout=(60 * 60)),
+
+            # Busy test validating that linux acts upon the
+            # trusty thread priority or the high-priority workqueue setting
+            androidtest(name="busy-test-high-to-low-priority-workqueue",
+                        command="nice -n -20 top -b -m 5 -n 11 -d 2 &"
+                                "echo 0 >/sys/module/trusty_core/parameters/use_high_wq"
+                                ";"
+                                "timeout 10 trusty-ut-ctrl com.android.kernel.busy-test"
+                                ";"
+                                "echo 1 > /sys/module/trusty_core/parameters/use_high_wq"
+                                ";"
+                                "timeout 10 trusty-ut-ctrl com.android.kernel.busy-test"
+                                ";"
+                                "echo 0 >/sys/module/trusty_core/parameters/use_high_wq"
+                                "&&"
+                                "wait"),
+        ],
+    ),
+]

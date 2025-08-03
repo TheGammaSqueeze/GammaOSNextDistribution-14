@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2023 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label" msgid="5899561994441982117">"웹캠 서비스"</string>
+    <string name="view_finder_description" msgid="5377029921915271921">"뷰파인더"</string>
+    <string name="zoom_ratio_description" msgid="6492691624405841938">"확대/축소 비율"</string>
+    <string name="zoom_ratio_button_current_description" msgid="4888275213379106225">"현재 확대/축소 비율"</string>
+    <string name="zoom_seek_bar_description" msgid="2820202610575014723">"확대/축소 탐색바"</string>
+    <string name="toggle_camera_button_description_back" msgid="771773649789638243">"후면 카메라로 전환"</string>
+    <string name="toggle_camera_button_description_front" msgid="5248457301141397342">"전면 카메라로 전환"</string>
+    <string name="toggle_high_quality_description_off" msgid="2185762274050207314">"고화질 끄기"</string>
+    <string name="toggle_high_quality_description_on" msgid="9118596060527830719">"고화질 켜기"</string>
+    <string name="notif_channel_name" msgid="9012392302161214874">"포그라운드 서비스"</string>
+    <string name="notif_ticker" msgid="6895154246348754766">"웹캠"</string>
+    <string name="notif_title" msgid="3788815976102922209">"웹캠"</string>
+    <string name="notif_desc" msgid="1433178383086179212">"웹캠 출력을 미리보고 구성하려면 탭하세요."</string>
+    <string name="hq_warning_dialog_title" msgid="5693009152902735897">"고화질 모드"</string>
+    <string name="hq_warning_dialog_content_1" msgid="4007864550827450633">"고화질 모드를 사용하면 웹캠 화질을 향상하기 위해 전력 최적화가 사용 중지됩니다. 이 모드를 사용하면 전력 소비량이 늘어나며 기기가 과열될 수 있습니다."</string>
+    <string name="hq_warning_dialog_content_2" msgid="877003832685705287"><b><u>"경고:"</u></b>" 과열된 상태로 오래 사용하면 기기의 장기 배터리 성능 상태에 악영향을 미칠 수 있습니다."</string>
+    <string name="hq_warning_dialog_dont_show_again" msgid="4409604672514060572">"다시 표시하지 않음"</string>
+    <string name="hq_warning_dialog_button_ack" msgid="279514965669603856">"확인"</string>
+    <string name="prefs_file_name" msgid="2893149378177647769">"com.android.DeviceAsWebcam.user.prefs"</string>
+    <string name="prefs_camera_id_key" msgid="9184794262750967261">"camera.id"</string>
+    <string name="prefs_back_camera_id_key" msgid="8184326473010982113">"back.camera.id"</string>
+    <string name="prefs_front_camera_id_key" msgid="2749648930172179078">"front.camera.id"</string>
+    <string name="prefs_zoom_ratio_key" msgid="4040441072428561847">"zoom.ratio.%s"</string>
+    <string name="prefs_high_quality_mode_enabled" msgid="3746094349991090908">"high.quality.mode.enabled"</string>
+    <string name="prefs_high_quality_warning_enabled" msgid="696012337719400975">"고화질.경고.사용.설정됨"</string>
+    <string name="list_item_text_back_camera" msgid="2734532140746580971">"후면 카메라"</string>
+    <string name="list_item_text_front_camera" msgid="7273773310502952694">"전면 카메라"</string>
+    <string name="list_item_text_standard_camera" msgid="4160445744347809472">"일반 카메라"</string>
+    <string name="list_item_text_wide_angle_camera" msgid="818505418693187683">"광각 카메라"</string>
+    <string name="list_item_text_ultra_wide_camera" msgid="7938127230852040392">"초광각 카메라"</string>
+    <string name="list_item_text_telephoto_camera" msgid="9192886831007902304">"망원 카메라"</string>
+    <string name="list_item_text_other_camera" msgid="3479174298899742270">"기타 카메라"</string>
+    <string name="list_item_text_unknown_camera" msgid="5281152990521232984">"알 수 없는 카메라"</string>
+    <string name="camera_options_list_description" msgid="7808155848873436115">"사용 가능한 카메라 옵션"</string>
+</resources>

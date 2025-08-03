@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017-2024 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="system_reboot_confirm_cm">Atosaigh go:</string>
+    <string name="global_action_restart_system">Córas</string>
+    <string name="global_action_restart_recovery">Aisghabháil</string>
+    <string name="global_action_restart_bootloader">Bootloader</string>
+    <plurals name="show_dev_countdown_cm">
+        <item quantity="one">Tá tú <xliff:g id="step_count">%1$d</xliff:g> céim ar shiúl ó na socruithe forbartha a chumasú anois.</item>
+        <item quantity="two">Tá tú <xliff:g id="step_count">%1$d</xliff:g> céimeanna ar shiúl ó na socruithe forbartha a chumasú anois.</item>
+        <item quantity="few">Tá tú <xliff:g id="step_count">%1$d</xliff:g> céimeanna ar shiúl ó na socruithe forbartha a chumasú anois.</item>
+        <item quantity="many">Tá tú <xliff:g id="step_count">%1$d</xliff:g> céimeanna ar shiúl ó na socruithe forbartha a chumasú anois.</item>
+        <item quantity="other">Tá tú <xliff:g id="step_count">%1$d</xliff:g> céimeanna ar shiúl ó na socruithe forbartha a chumasú anois.</item>
+    </plurals>
+    <string name="show_dev_on_cm">Tá socruithe forbartha cumasaithe agat!</string>
+    <string name="show_dev_already_cm">Ní gá, tá socruithe forbartha cumasaithe agat cheana féin.</string>
+    <string name="system_buttons">Cnaipí</string>
+    <string name="power_button_long_press_action_title">Cnaipe cumhachta gníomh brúigh fada</string>
+    <string name="power_button_long_press_for_power_menu_action">Roghchlár Cumhacht Rochtana</string>
+    <string name="power_button_long_press_for_assistant_action">Oscail Cúntóir</string>
+    <string name="inputs_volume_control_enabled">Rialú Imleabhar CEC</string>
+    <string name="inputs_volume_control_enabled_desc">Rialú toirte teilifíse/AVR in ionad toirte inmheánach</string>
+    <string name="enable_adb_root">Dífhabhtaithe fréamhaithe</string>
+    <string name="enable_adb_root_summary">Ceadaigh dífhabhtú Android a rith mar fhréamh</string>
+    <string name="advanced_restart_title">Atosú chun cinn</string>
+    <string name="advanced_restart_summary">Taispeáin roghanna le haghaidh atosú isteach sa ghnóthú, bootloader nó a dhéanamh atosú bog</string>
+    <string name="adb_over_network">ADB thar líonra</string>
+    <string name="adb_over_network_summary">Cumasaigh dífhabhtú TCP/IP thar chomhéadain líonra (Wi\u2011Fi, líonraí USB). Athshocraítear an socrú seo ar atosaigh</string>
+    <string name="adb_over_network_warning">RABHADH: Nuair a bhíonn ADB thar an líonra cumasaithe, bíonn do ghuthán oscailte d’ionsaithe ar gach líonra nasctha!\n\nNíor cheart an ghné seo a úsáid ach amháin nuair atá tú nasctha le líonraí iontaofa.\n\nAn bhfuil tú cinnte gur mian leat an fheidhm seo a chumasú?</string>
+    <string name="trust_category_features">Stádas</string>
+    <string name="trust_feature_selinux">SELinux</string>
+    <string name="trust_feature_selinux_value_enforcing">Forfheidhmiú</string>
+    <string name="trust_feature_selinux_value_disabled">Díchumasaithe</string>
+    <string name="trust_feature_selinux_explain">Socraíonn SELinux cad iad na próisis a bhfuil rochtain acu ar na comhaid/cosáin ar do ghléas.\nCuireann sé seo cosc ​​ar aipeanna agus seirbhísí rochtain a fháil ar chomhaid nach bhfuil siad ceaptha a dhéanamh: ar an mbealach seo tá próiseas mailíseach féideartha teoranta, agus caomhnaítear do shlándáil.</string>
+    <string name="trust_feature_security_patches">Paistí slándála Android</string>
+    <string name="trust_feature_security_patches_value_base">Ardán: %1$s\nDíoltóir: %2$s</string>
+    <string name="trust_feature_security_patches_value_new">Suas chun dáta</string>
+    <string name="trust_feature_security_patches_value_medium">Cúpla mí as dáta</string>
+    <string name="trust_feature_security_patches_value_old">As dáta</string>
+    <string name="trust_feature_security_patches_explain">Eisíonn Google paistí slándála go míosúil i gcomhar le díoltóirí SoC chun aghaidh a thabhairt ar lochtanna a d’fhéadfadh aipeanna mailíseacha leas a bhaint astu chun srianta slándála a sheachbhóthar agus chun damáiste buan a dhéanamh do do ghléas. Cuirtear paistí a chuireann Google ar fáil gach mí ar gach gléas a dtacaítear leo, ach ní féidir ach le monaróir do ghléis paistí a chur i bhfeidhm ar an gcód dílseánaigh. Chun do ghléas a choinneáil sábháilte, déan cinnte go bhfuil do leagan LineageOS i gcónaí cothrom le dáta, agus (más infheidhme) cinntigh go ndéantar d\'íomhá díoltóir a nuashonrú go dtí an ceann is déanaí a mhol LineageOS.</string>
+    <string name="trust_feature_encryption">Criptiú</string>
+    <string name="trust_feature_encryption_value_enabled">Cumasaithe</string>
+    <string name="trust_feature_encryption_value_nolock">Teastaíonn scáileán glas slán</string>
+    <string name="trust_feature_encryption_value_disabled">Díchumasaithe</string>
+    <string name="trust_feature_encryption_explain">Coisceann criptiú do ghléas rochtain ar do shonraí nuair nach bhfuil do ghuthán tosaithe ar Android. Tá sé seo thar a bheith tábhachtach má ghoidtear do ghuthán, mar cuireann sé cosc ​​ar dhaoine do chuid teachtaireachtaí, teagmhálaithe agus faisnéis phríobháideach eile a léamh gan do phasfhocal.\nChun an criptiúchán a dhéanamh níos éifeachtaí ní mór duit pasfhocal scáileáin glasála a shocrú.</string>
+    <string name="trust_category_tools">Príobháideacht</string>
+    <string name="trust_notification_alerts_title">Foláirimh slándála</string>
+    <string name="trust_restrict_usb_title">Srian USB</string>
+    <string name="trust_restrict_usb_summary">Tacaíocht rialaithe do naisc USB cosúil le cluasáin, gléasanna stórála, ionchur (lucha, méarchláir, luamhán stiúrtha) agus ADB</string>
+    <string name="trust_restrict_usb_always">Diúltaigh naisc USB</string>
+    <string name="trust_restrict_usb_disabled">Ceadaigh naisc USB i gcónaí</string>
+    <string name="trust_onboarding_description">Cabhraíonn Trust leat do ghléas a choinneáil slán agus do phríobháideachas a chosaint.\nNí thaispeánfar an deilbhín Trust ach amháin nuair a bheidh inneachar an leathanaigh fíoraithe.</string>
+    <string name="trust_warnings_alerts_intro">Is féidir leat na saincheisteanna slándála a bhfuil tú ag iarraidh go dtabharfar rabhadh duit a roghnú. Ar mhaithe le do shábháilteacht, moltar gach foláireamh a chumasú</string>
+    <string name="trust_warnings_selinux">Stádas SELinux</string>
+    <string name="trust_warnings_keys">Tóg síniú</string>
+    <string name="sleep_button_label">Codladh</string>
+    <string name="system_sleep_confirm">Codladh anois?</string>
+    <string name="shutdown_button_label">Múchadh</string>
+    <string name="system_shutdown_confirm">Múchadh anois?</string>
+    <string name="convertible_port_busy_title">Tá port USB 1 in úsáid</string>
+    <string name="convertible_port_busy_warning">Díphlugáil gléasanna nó gabhálais ar bith agus bain triail eile as</string>
+    <string name="mtp_enable_title">Rochtain ar fhillteáin SHIELD ar ríomhaire trí USB</string>
+    <string name="mtp_enable_warning">Tá port USB 1 cumraithe anois chun SHIELD a nascadh le ríomhaire mar ghléas meán.\n\nNí bhraithfidh an port seo meáin stórála USB nó gabhálais USB a thuilleadh agus ní féidir é a úsáid chun gléasanna luchtaithe.</string>
+    <string name="mtp_retry_error">Theip. Bain triail eile as, le do thoil.</string>
+    <string name="mtp_summary">Sa mhodh seo, níl an port USB feidhmiúil le haghaidh úsáidí eile</string>
+    <string name="mtp_title">Comhaid a aistriú chuig ríomhaire ag baint úsáide as USB</string>
+    <string name="mtp_unexpected_error">Earráid gan choinne. Bain triail eile as ar ball le do thoil.</string>
+    <string name="usb_debugging_enable_title">Cumasaíodh dífhabhtú USB</string>
+    <string name="usb_debugging_enable_warning">Tá port USB 1 cumraithe anois chun SHIELD a nascadh le ríomhaire mar ghléas meán.\n\nNí bhraithfidh an port seo meáin stórála USB nó gabhálais USB a thuilleadh agus ní féidir é a úsáid chun gléasanna luchtaithe.</string>
+</resources>

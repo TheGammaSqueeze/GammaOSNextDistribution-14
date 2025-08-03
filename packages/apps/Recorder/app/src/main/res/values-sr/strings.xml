@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2017-2021 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <string name="app_name">Снимач</string>
+    <string name="share">Дели</string>
+    <string name="stop">Заустави</string>
+    <string name="play">Пусти</string>
+    <string name="delete">Избриши</string>
+    <string name="cancel">Прекини</string>
+    <string name="delete_title">Брисање снимка</string>
+    <string name="sound_notification_title">Снимање звука</string>
+    <string name="sound_notification_message">Трајање аудио-снимка: %1$s</string>
+    <string name="sound_recording_title_working">Снимање</string>
+    <string name="sound_last_title">Последњи снимак</string>
+    <string name="sound_channel_title">Снимање звука</string>
+    <string name="sound_channel_desc">Трајно обавештење док се снима звук и обавештење након што се снимање заврши</string>
+    <string name="dialog_permissions_title">Дозволе</string>
+    <string name="dialog_permissions_mic">Снимач захтева приступ микрофону за снимање звука.</string>
+    <string name="dialog_permissions_phone">Снимач захтева приступ стању телефона за паузирање снимања током позива.</string>
+    <string name="dialog_permissions_mic_phone">Снимач захтева приступ микрофону за снимање звука и стању телефона за паузирање снимања током позива.</string>
+    <string name="dialog_permissions_ask">Питај поново</string>
+    <string name="dialog_permissions_dismiss">Одбаци</string>
+    <string name="snack_permissions_no_permission">Потребне дозволе су одбијене. Омогућите их у подешавањима да бисте започели снимање.</string>
+    <string name="main_sound_action">Снимање звука</string>
+</resources>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ Copyright 2023 The Android Open Source Project
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<resources>
+    <dimen name="zoom_icon_size">36dp</dimen>
+    <dimen name="zoom_knob_elevation">-11dp</dimen>
+    <dimen name="zoom_knob_lift">12dp</dimen>
+    <dimen name="zoom_knob_size">48dp</dimen>
+    <dimen name="zoom_knob_text_size">12dp</dimen>
+    <dimen name="zoom_seekbar_height">5dp</dimen>
+    <dimen name="zoom_seekbar_mid_thumb_size">4dp</dimen>
+    <dimen name="zoom_seekbar_stroke_width">0.5dp</dimen>
+    <dimen name="zoom_seekbar_width">206dp</dimen>
+    <dimen name="zoom_thumb_elevation">5dp</dimen>
+    <dimen name="zoom_ui_height">108dp</dimen>
+    <dimen name="zoom_ui_seekbar_half_height">3dp</dimen>
+    <dimen name="zoom_ui_seekbar_layout_margin_top">4dp</dimen>
+    <dimen name="zoom_ui_seekbar_margin_top">57.5dp</dimen>
+    <dimen name="zoom_ui_seekbar_touch_area_width">296dp</dimen>
+    <dimen name="zoom_ui_seekbar_touch_area_height">55dp</dimen>
+    <dimen name="zoom_ui_seekbar_touch_area_expand">48dp</dimen>
+    <dimen name="zoom_ui_toggle_background_margin_top">71.5dp</dimen>
+    <dimen name="zoom_ui_toggle_btn_margin_top">69.5dp</dimen>
+    <dimen name="zoom_ui_toggle_btn_size">32dp</dimen>
+    <dimen name="zoom_ui_toggle_btn_text_size">12dp</dimen>
+    <dimen name="zoom_ui_toggle_height">36dp</dimen>
+    <dimen name="zoom_ui_toggle_options_layout_margin_top">43dp</dimen>
+    <dimen name="zoom_ui_toggle_options_layout_padding_end">2dp</dimen>
+    <dimen name="zoom_ui_toggle_options_layout_padding_start">2dp</dimen>
+    <dimen name="zoom_ui_toggle_options_layout_padding_top">30dp</dimen>
+    <dimen name="zoom_ui_toggle_padding">2dp</dimen>
+    <dimen name="zoom_ui_toggle_three_options_layout_width">116dp</dimen>
+    <dimen name="zoom_ui_toggle_two_options_layout_width">76dp</dimen>
+
+    <dimen name="focus_indicator_size">64dp</dimen>
+    <dimen name="focus_indicator_stroke_width">2dp</dimen>
+
+    <dimen name="preview_margin_top_min">10dp</dimen>
+
+    <dimen name="list_item_camera_item_start_margin">32dp</dimen>
+    <dimen name="list_item_drawable_padding">4dp</dimen>
+    <dimen name="list_item_icon_size">32dp</dimen>
+    <dimen name="list_item_indent_offset">32dp</dimen>
+    <dimen name="list_item_radio_button_margin">8dp</dimen>
+
+    <dimen name="checkbox_padding">8dp</dimen>
+</resources>

@@ -1,0 +1,129 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package carwatchdog;
+
+// Represents a whole or partial calendar date, such as a birthday. The time of
+// day and time zone are either specified elsewhere or are insignificant. The
+// date is relative to the Gregorian Calendar. This can represent one of the
+// following:
+//
+// * A full date, with non-zero year, month, and day values
+// * A month and day value, with a zero year, such as an anniversary
+// * A year on its own, with zero month and day values
+// * A year and month value, with a zero day, such as a credit card expiration
+// date
+//
+// Related types are [google.type.TimeOfDay][google.type.TimeOfDay] and
+// `google.protobuf.Timestamp`.
+//
+// Copied from:
+// https://github.com/googleapis/googleapis/blob/master/google/type/date.proto
+message Date {
+  // Year of the date. Must be from 1 to 9999, or 0 to specify a date without
+  // a year.
+  optional int32 year = 1;
+
+  // Month of a year. Must be from 1 to 12, or 0 to specify a year without a
+  // month and day.
+  optional int32 month = 2;
+
+  // Day of a month. Must be from 1 to 31 and valid for the year and month, or 0
+  // to specify a year by itself or a year and month where the day isn't
+  // significant.
+  optional int32 day = 3;
+}
+
+// Represents a time of day. The date and time zone are either not significant
+// or are specified elsewhere. An API may choose to allow leap seconds. Related
+// types are [google.type.Date][google.type.Date] and
+// `google.protobuf.Timestamp`.
+//
+// Copied from:
+// https://github.com/googleapis/googleapis/blob/master/google/type/timeofday.proto
+message TimeOfDay {
+  // Hours of day in 24 hour format. Should be from 0 to 23. An API may choose
+  // to allow the value "24:00:00" for scenarios like business closing time.
+  optional int32 hours = 1;
+
+  // Minutes of hour of day. Must be from 0 to 59.
+  optional int32 minutes = 2;
+
+  // Seconds of minutes of the time. Must normally be from 0 to 59. An API may
+  // allow the value 60 if it allows leap-seconds.
+  optional int32 seconds = 3;
+
+  // Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
+  optional int32 nanos = 4;
+}
+
+message ProcessCpuStats {
+  optional string command = 1;
+  optional int32 cpu_time_ms = 2;
+  optional float package_cpu_time_percent = 3;
+  optional int64 cpu_cycles = 4;
+}
+
+message PackageCpuStats {
+  optional int32 user_id = 1;
+  optional string package_name = 2;
+  optional int32 cpu_time_ms = 3;
+  optional float total_cpu_time_percent = 4;
+  optional int64 cpu_cycles = 5;
+  repeated ProcessCpuStats process_cpu_stats = 6;
+}
+
+message PackageStorageIoStats {
+  optional int32 user_id = 1;
+  optional string package_name = 2;
+  optional int64 fg_bytes = 3;
+  optional float fg_bytes_percent = 4;
+  optional int32 fg_fsync = 5;
+  optional float fg_fsync_percent = 6;
+  optional int64 bg_bytes = 7;
+  optional float bg_bytes_percent = 8;
+  optional int32 bg_fsync = 9;
+  optional float bg_fsync_percent = 10;
+}
+
+message StatsCollection {
+  optional int32 id = 1;
+  optional Date date = 2;
+  optional TimeOfDay time = 3;
+  optional int32 total_cpu_time_ms = 4;
+  optional int32 idle_cpu_time_ms = 5;
+  optional int32 io_wait_time_ms = 6;
+  optional int64 context_switches = 7;
+  optional int32 io_blocked_processes = 8;
+  repeated PackageCpuStats package_cpu_stats = 9;
+  optional int64 total_cpu_cycles = 10;
+  optional int32 major_page_faults = 11;
+  repeated PackageStorageIoStats package_storage_io_read_stats = 12;
+  repeated PackageStorageIoStats package_storage_io_write_stats = 13;
+}
+
+message SystemEventStats {
+  repeated StatsCollection collections = 1;
+}
+
+message PerformanceStats {
+  optional SystemEventStats boot_time_stats = 1;
+  repeated SystemEventStats user_switch_stats = 2;
+  optional SystemEventStats custom_collection_stats = 3;
+  optional SystemEventStats last_n_minutes_stats = 4;
+}

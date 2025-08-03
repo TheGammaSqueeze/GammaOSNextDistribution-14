@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (C) 2021 Google Inc.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="wfc_activation_error">Nun ye posible activar les llamaes per Wi-Fi. Volvi tentalo dempués.</string>
+    <string name="address_update_error">Nesti momentu, nun ye posible anovar la direición d\'emerxencia actual. Volvi tentalo dempués.</string>
+    <string name="show_terms_and_condition_error">Nun se puen amosar los términos y condiciones de la operadora. Volvi tentalo dempués.</string>
+    <string name="emergency_address_app_label">Configuración de la operadora</string>
+    <string name="progress_text">Esta aición va tardar un momentu</string>
+    <string name="failure_contact_carrier">Ponte en contautu cola operadora p\'activar les llamaes per Wi-Fi.</string>
+    <string name="activate_title">Activación de les llamaes per Wi-Fi</string>
+    <string name="cancel">Encaboxar</string>
+    <string name="tos_title">Términos y condiciones</string>
+    <string name="tos_continue">Siguir</string>
+    <string name="e911_title">Información de llocalización d\'emerxencia</string>
+    <string name="ok">D\'acuerdu</string>
+</resources>

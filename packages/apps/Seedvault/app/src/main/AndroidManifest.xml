@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  SPDX-FileCopyrightText: 2017-2019 Steve Soltys
+  SPDX-FileCopyrightText: 2020 The Calyx Institute
+  SPDX-License-Identifier: Apache-2.0
+  -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.stevesoltys.seedvault"
+    android:versionCode="34040010"
+    android:versionName="14-4.1">
+    <!--
+    The version code is the targeted SDK_VERSION plus 6 digits for our own version code.
+    The version name is the targeted Android version followed by - and our own version name.
+    -->
+
+    <uses-permission
+        android:name="android.permission.BACKUP"
+        tools:ignore="ProtectedPermissions" />
+
+    <!-- This is needed to check for internet access when backup is stored on network storage -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- Used for internal WebDAV plugin -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- This is needed to inform users about backup status and errors -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- (Optional) This is needed to retrieve the available storage roots.
+         The user needs to manually select a storage root, if not granted. -->
+    <uses-permission
+        android:name="android.permission.MANAGE_DOCUMENTS"
+        tools:ignore="ProtectedPermissions" />
+
+    <!-- This is needed to access the serial number of USB mass storage devices -->
+    <uses-permission
+        android:name="android.permission.MANAGE_USB"
+        tools:ignore="ProtectedPermissions" />
+
+    <!-- This is needed to change system backup settings -->
+    <uses-permission
+        android:name="android.permission.WRITE_SECURE_SETTINGS"
+        tools:ignore="ProtectedPermissions" />
+
+    <!-- This is needed to re-install backed-up packages when restoring from backup -->
+    <uses-permission
+        android:name="android.permission.INSTALL_PACKAGES"
+        tools:ignore="ProtectedPermissions" />
+
+    <!-- This is needed when using auto-restore with removable storage
+         to allow the user to uninstall an app when storage was not plugged in during install -->
+    <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
+
+    <!-- Getting info about installed packages via PackageManager is restricted since Android 11
+         We need to know what is installed, with what signatures, etc. for APK backup,
+         triggering manual backup and other tasks -->
+    <uses-permission
+        android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission" />
+
+    <!-- Used to authenticate saving a new recovery code -->
+    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
+
+    <!-- This is needed to query content providers in other users -->
+    <uses-permission
+        android:name="android.permission.INTERACT_ACROSS_USERS_FULL"
+        tools:ignore="ProtectedPermissions" />
+
+    <!-- Used to get logcat for system part of backup API, gets permission dialog -->
+    <uses-permission
+        android:name="android.permission.READ_LOGS"
+        tools:ignore="ProtectedPermissions" />
+
+    <!-- Used to get the name of the current profile -->
+    <uses-permission android:name="android.permission.QUERY_USERS"
+        tools:ignore="ProtectedPermissions" />
+
+    <!-- Used for periodic storage backups -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+
+    <!-- Permission used to open settings -->
+    <permission
+        android:name="com.stevesoltys.seedvault.OPEN_SETTINGS"
+        android:protectionLevel="system|signature" />
+
+    <!-- Permission used to open backup gui -->
+    <permission
+        android:name="com.stevesoltys.seedvault.RESTORE_BACKUP"
+        android:protectionLevel="system|signature" />
+
+    <application
+        android:name=".App"
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme"
+        tools:ignore="GoogleAppIndexingWarning">
+
+        <activity
+            android:name=".settings.SettingsActivity"
+            android:exported="true"
+            android:permission="com.stevesoltys.seedvault.OPEN_SETTINGS" />
+
+        <activity
+            android:name=".ui.storage.StorageActivity"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".ui.storage.PermissionGrantActivity"
+            android:exported="false"
+            android:permission="android.permission.MANAGE_DOCUMENTS" />
+
+        <activity
+            android:name=".ui.recoverycode.RecoveryCodeActivity"
+            android:label="@string/recovery_code_title" />
+
+        <activity
+            android:name=".restore.RestoreActivity"
+            android:exported="true"
+            android:label="@string/restore_title"
+            android:permission="com.stevesoltys.seedvault.RESTORE_BACKUP">
+            <intent-filter>
+                <action android:name="com.stevesoltys.seedvault.RESTORE_BACKUP" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name=".transport.ConfigurableBackupTransportService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.backup.TRANSPORT_HOST" />
+            </intent-filter>
+        </service>
+
+        <receiver
+            android:name=".UsbIntentReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
+                android:resource="@xml/device_filter" />
+        </receiver>
+
+        <receiver
+            android:name=".restore.RestoreErrorBroadcastReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.stevesoltys.seedvault.action.UNINSTALL" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Used by Workmanager to schedule our workers -->
+        <service
+            android:name="androidx.work.impl.foreground.SystemForegroundService"
+            android:foregroundServiceType="dataSync"
+            tools:node="merge" />
+        <!-- Used to start actual BackupService depending on scheduling criteria -->
+        <service
+            android:name=".storage.StorageBackupJobService"
+            android:exported="false"
+            android:label="BackupJobService"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+        <!-- Does app restore as a foreground service -->
+        <service
+            android:name=".restore.RestoreService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync"
+            android:label="RestoreService" />
+        <!-- Does the actual file backup work as a foreground service -->
+        <service
+            android:name=".storage.StorageBackupService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync"
+            android:label="BackupService" />
+        <!-- Does file restore as a foreground service -->
+        <service
+            android:name=".storage.StorageRestoreService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync"
+            android:label="RestoreService" />
+
+    </application>
+</manifest>

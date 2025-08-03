@@ -1,0 +1,52 @@
+// Copyright (C) 2018 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    // http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // the below license kinds from "system_sepolicy_license":
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_sepolicy_license"],
+}
+
+bootstrap_go_package {
+    name: "soong-selinux",
+    pkgPath: "android/soong/selinux",
+    deps: [
+        "blueprint",
+        "soong",
+        "soong-android",
+        "soong-genrule",
+        "soong-sysprop",
+    ],
+    srcs: [
+        "bug_map.go",
+        "build_files.go",
+        "cil_compat_map.go",
+        "compat_cil.go",
+        "flags.go",
+        "mac_permissions.go",
+        "policy.go",
+        "selinux.go",
+        "selinux_contexts.go",
+        "sepolicy_freeze.go",
+        "sepolicy_neverallow.go",
+        "sepolicy_vers.go",
+        "versioned_policy.go",
+        "service_fuzzer_bindings.go",
+        "validate_bindings.go",
+    ],
+    testSrcs: ["selinux_test.go"],
+    pluginFor: ["soong_build"],
+}

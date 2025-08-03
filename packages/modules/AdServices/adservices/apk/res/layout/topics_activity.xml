@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<androidx.appcompat.widget.LinearLayoutCompat
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/topics_fragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="vertical"
+        android:focusableInTouchMode="true">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <View
+                android:id="@+id/adservices_ppapi_title_spacing"
+                android:visibility="@integer/adservices_ppapi_title_spacing"
+                android:layout_height="18dp"
+                android:layout_width="match_parent"/>
+            <TextView
+                android:id="@+id/topics_introduction"
+                android:paddingHorizontal="24dp"
+                android:text="@string/settingsUI_topics_view_subtitle"
+                style="@style/MainStyle.Body2" />
+
+            <TextView
+                android:id="@+id/topics_ga_introduction"
+                android:layout_marginTop="18dp"
+                android:paddingHorizontal="24dp"
+                android:text="@string/settingsUI_topics_view_ga_subtitle"
+                style="@style/MainStyle.Body2"
+                android:visibility="gone"/>
+
+            <com.android.settingslib.widget.MainSwitchBar
+                android:id="@+id/topics_switch_bar"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:title="@string/settingsUI_topics_switch_title"
+                android:textDirection="locale"
+                android:visibility="gone"/>
+            <LinearLayout
+                android:id="@+id/no_topics_message"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="48dp"
+                android:layout_marginBottom="16dp"
+                android:gravity="center"
+                android:focusable="false"
+                android:visibility="gone"
+                android:orientation="vertical">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_placeholder_icon_for_empty_topics_list"
+                    android:focusable="false"
+                    android:importantForAccessibility="no"
+                    android:contentDescription="@string/ic_placeholder_icon_for_empty_topics_list_description" />
+                <TextView
+                    android:id="@+id/no_topics_state"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="48dp"
+                    android:paddingHorizontal="24dp"
+                    android:gravity="center"
+                    android:text="@string/settingsUI_topics_view_no_topics_text"
+                    android:textAppearance="@style/TextAppearance.Body2.Bold" />
+
+                <Button
+                    android:id="@+id/blocked_topics_when_empty_state_button"
+                    style="@style/MainStyle.PrimaryButton"
+                    android:layout_marginTop="20dp"
+                    android:text="@string/settingsUI_blocked_topics_title"/>
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/topics_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:clipToPadding="false"
+                android:paddingHorizontal="24dp"
+                android:scrollbars="none" />
+            <LinearLayout
+                android:id="@+id/empty_topics_hidden_section"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="24dp" >
+                <LinearLayout
+                    android:id="@+id/blocked_topics_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="24dp"
+                    android:background="?android:attr/selectableItemBackground" >
+                    <TextView
+                        android:id="@+id/blocked_topics_button_child"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:key="blocked_topics"
+                        android:text="@string/settingsUI_blocked_topics_ga_title"
+                        android:textAppearance="@style/TextAppearance.H5"
+                        android:drawableStart="@drawable/ic_chevron_right_24dp"
+                        android:drawablePadding="28dp"/>
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/reset_topics_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="24dp"
+                    android:background="?android:attr/selectableItemBackground" >
+                    <TextView
+                        android:id="@+id/reset_topics_button_child"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:key="reset_topics"
+                        android:text="@string/settingsUI_reset_topics_title"
+                        android:textAppearance="@style/TextAppearance.H5"
+                        android:drawableStart="@drawable/ic_restart_alt_24dp"
+                        android:drawablePadding="28dp"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/topics_view_footer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="24dp"
+                    android:paddingBottom="48dp"
+                    android:orientation="vertical">
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="24dp"
+                        android:layout_marginStart="2dp"
+                        android:src="@drawable/ic_info_icon"
+                        tools:ignore="ContentDescription" />
+                    <TextView
+                        android:layout_marginStart="0dp"
+                        android:text="@string/settingsUI_topics_view_info_text1"
+                        style="@style/MainStyle.Body1BoldBullet" />
+                    <TextView
+                        android:text="@string/settingsUI_topics_view_info_text2"
+                        style="@style/MainStyle.Body1" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/topics_view_ga_footer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="24dp"
+                    android:paddingBottom="48dp"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="18dp"
+                        android:src="@drawable/ic_info_icon"
+                        tools:ignore="ContentDescription" />
+                    <TextView
+                        android:id="@+id/topics_view_ga_footer_text"
+                        android:text="@string/settingsU_topics_view_footer"
+                        style="@style/MainStyle.Body2" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.appcompat.widget.LinearLayoutCompat>

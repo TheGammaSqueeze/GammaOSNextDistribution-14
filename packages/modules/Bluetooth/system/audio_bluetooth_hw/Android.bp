@@ -1,0 +1,69 @@
+// The format of the name is audio.<type>.<hardware/etc>.so
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_bt_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_bt_license"],
+}
+
+cc_defaults {
+    name: "audio_bluetooth_hw_defaults",
+    defaults: ["bluetooth_cflags"],
+    cflags: [
+        // suppress the warning in stream_apis.cc
+        "-Wno-sign-compare",
+    ],
+}
+
+cc_library_shared {
+    name: "audio.bluetooth.default",
+    defaults: [
+        "audio_bluetooth_hw_defaults",
+        "latest_android_hardware_audio_common_ndk_shared",
+        "latest_android_hardware_bluetooth_audio_ndk_shared",
+    ],
+    relative_install_path: "hw",
+    proprietary: true,
+    srcs: [
+        "audio_bluetooth_hw.cc",
+        "device_port_proxy.cc",
+        "device_port_proxy_hidl.cc",
+        "stream_apis.cc",
+        "utils.cc",
+    ],
+    header_libs: ["libhardware_headers"],
+    shared_libs: [
+        "libaudioutils",
+        "libbase",
+        "libbinder_ndk",
+        "libbluetooth_audio_session_aidl",
+        "libcutils",
+        "libfmq",
+        "liblog",
+        "libutils",
+        // HIDL dependencies
+        "android.hardware.bluetooth.audio@2.0",
+        "android.hardware.bluetooth.audio@2.1",
+        "libbluetooth_audio_session",
+        "libhidlbase",
+    ],
+    cflags: ["-Wno-unused-parameter"],
+}
+
+cc_test {
+    name: "audio_bluetooth_hw_test",
+    defaults: ["audio_bluetooth_hw_defaults"],
+    srcs: [
+        "utils.cc",
+        "utils_unittest.cc",
+    ],
+    shared_libs: [
+        "libbase",
+        "libcutils",
+        "liblog",
+        "libutils",
+    ],
+}

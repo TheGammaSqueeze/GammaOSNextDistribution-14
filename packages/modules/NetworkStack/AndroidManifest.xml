@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+ * Copyright (C) 2019 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+-->
+
+<!-- versionCode is set to placeholder module version which will
+     be replaced during build. Do not change it!  -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+  package="com.android.networkstack"
+  android:sharedUserId="android.uid.networkstack"
+  android:versionCode="0"
+  coreApp="true"
+>
+    <!--- Defines the MAINLINE_NETWORK_STACK permission used by the networkstack process. -->
+    <permission android:name="android.permission.MAINLINE_NETWORK_STACK"
+                android:protectionLevel="signature"/>
+    <!-- Permissions must be defined here, and not in the base manifest, as the network stack
+         running in the system server process does not need any permission, and having privileged
+         permissions added would cause crashes on startup unless they are also added to the
+         privileged permissions allowlist for that package. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CONNECTIVITY_INTERNAL" />
+    <!-- Send latency broadcast as current user -->
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE" />
+    <uses-permission android:name="android.permission.READ_DEVICE_CONFIG" />
+    <!-- Signature permission defined in NetworkStackStub -->
+    <uses-permission android:name="android.permission.MAINLINE_NETWORK_STACK" />
+    <!-- Crash while reading deviceownerName security exception  -->
+    <uses-permission android:name="android.permission.MANAGE_USERS"/>
+    <!-- ends here -->
+
+    <application
+        android:extractNativeLibs="false"
+        android:persistent="true"
+        android:process="com.android.networkstack.process">
+        <service android:name="com.android.server.NetworkStackService"
+                 android:exported="true"
+                 android:permission="android.permission.MAINLINE_NETWORK_STACK">
+            <intent-filter>
+                <action android:name="android.net.INetworkStackConnector"/>
+            </intent-filter>
+        </service>
+        <!-- Test instrumentation service, only usable on debuggable builds.
+             The service is protected by NETWORK_SETTINGS permissions as there is no better
+             networking-related permission that exists on Q, is sufficiently protected (signature),
+             and can be obtained via shell permissions. -->
+        <!-- (The name starting with a dot means the package prefix is the APK package name) -->
+        <service android:name=".TestNetworkStackService"
+                 android:permission="android.permission.NETWORK_SETTINGS"
+                 android:exported="true">
+            <intent-filter>
+                <action android:name="android.net.INetworkStackConnector.Test"/>
+            </intent-filter>
+        </service>
+        <service android:name=".ipmemorystore.RegularMaintenanceJobService"
+                 android:permission="android.permission.BIND_JOB_SERVICE" >
+        </service>
+    </application>
+</manifest>

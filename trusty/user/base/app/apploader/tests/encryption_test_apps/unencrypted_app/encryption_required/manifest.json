@@ -1,0 +1,8 @@
+{
+    "uuid": "612f6260-1e8b-11ed-8c96-f32cab0242a8",
+    "min_heap": 4096,
+    "min_stack": 4096,
+    "apploader_flags": {
+        "requires_encryption": true
+    }
+}

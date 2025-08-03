@@ -1,0 +1,102 @@
+// Copyright 2019 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Defaults shared between production and test versions of the APEX.
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+apex_defaults {
+    name: "com.android.ipsec-defaults",
+    defaults: ["r-launched-apex-module"],
+    bootclasspath_fragments: ["com.android.ipsec-bootclasspath-fragment"],
+    prebuilts: ["current_sdkinfo"],
+    key: "com.android.ipsec.key",
+    certificate: ":com.android.ipsec.certificate",
+    // Indicates that pre-installed version of this apex can be compressed.
+    // Whether it actually will be compressed is controlled on per-device basis.
+    compressible: true,
+}
+
+// Production APEX
+apex {
+    name: "com.android.ipsec",
+    defaults: ["com.android.ipsec-defaults"],
+    manifest: "apex_manifest.json",
+}
+
+apex_key {
+    name: "com.android.ipsec.key",
+    public_key: "com.android.ipsec.avbpubkey",
+    private_key: "com.android.ipsec.pem"
+}
+
+android_app_certificate {
+     name: "com.android.ipsec.certificate",
+
+     // Will use com.android.ipsec.pk8 and com.android.ipsec.x509.pem
+     certificate: "com.android.ipsec",
+}
+
+// Encapsulate the contributions made by the com.android.ipsec to the bootclasspath.
+bootclasspath_fragment {
+    name: "com.android.ipsec-bootclasspath-fragment",
+    contents: ["android.net.ipsec.ike"],
+    apex_available: ["com.android.ipsec"],
+
+    // The bootclasspath_fragments that provide APIs on which this depends.
+    fragments: [
+        {
+            apex: "com.android.art",
+            module: "art-bootclasspath-fragment",
+        },
+        {
+            apex: "com.android.tethering",
+            module: "com.android.tethering-bootclasspath-fragment",
+        },
+    ],
+
+    // Additional stubs libraries that this fragment's contents use which are
+    // not provided by another bootclasspath_fragment.
+    additional_stubs: [
+        "android-non-updatable",
+    ],
+
+    hidden_api: {
+        // This module does not contain any split packages.
+        split_packages: [],
+
+        // The following packages and all their subpackages currently only
+        // contain classes from this bootclasspath_fragment. Listing a package
+        // here won't prevent other bootclasspath modules from adding classes in
+        // any of those packages but it will prevent them from adding those
+        // classes into an API surface, e.g. public, system, etc.. Doing so will
+        // result in a build failure due to inconsistent flags.
+        package_prefixes: [
+            "android.net.eap",
+            "android.net.ipsec",
+            // These look like implementation specific packages which contain
+            // no APIs, not even hidden APIs. If that is the case then please
+            // consider moving the classes in these packages under one of the
+            // previous package_prefixes to avoid exposing these packages in
+            // the hidden API flags that are stored in the SDK snapshot.
+            "com.android.internal.net.crypto",
+            "com.android.internal.net.eap",
+            "com.android.internal.net.ipsec",
+            "com.android.internal.net.org",
+            "com.android.internal.net.utils",
+            "com.android.internal.net.vcn",
+        ],
+    },
+}

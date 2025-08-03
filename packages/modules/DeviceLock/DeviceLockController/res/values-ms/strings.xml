@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  Copyright (c) 2022, The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="5655878067457216814">"DeviceLockController"</string>
+    <string name="next_button" msgid="1856423430963548653">"Seterusnya"</string>
+    <string name="reset_button" msgid="4649354411129240809">"Tetapkan semula"</string>
+    <string name="setup_more_button" msgid="4456370972302510109">"Lebih banyak"</string>
+    <string name="setup_info_title_text" msgid="299562193092219293">"Cara <xliff:g id="CREDITOR_APP">%1$s</xliff:g> boleh mengurus peranti ini"</string>
+    <string name="setup_failed_title_text" msgid="9045111389981992536">"Tidak dapat memasang apl <xliff:g id="CREDITOR_APP">%1$s</xliff:g>"</string>
+    <string name="setup_failed_reset_device_text" msgid="178419033440060908">"Menetapkan semula peranti untuk mencuba lagi."</string>
+    <string name="setup_failed_reset_device_timer_text" msgid="5270970227714985986">"{count,plural, =1{Tetapkan semula peranti ini, kemudian cuba sediakan peranti sekali lagi. Peranti akan ditetapkan semula secara automatik dalam masa 1 saat.}other{Tetapkan semula peranti ini, kemudian cuba sediakan peranti sekali lagi. Peranti akan ditetapkan semula secara automatik dalam masa # saat.}}"</string>
+    <string name="setup_progress_title_text" msgid="2388779167610656852">"Memasang apl <xliff:g id="CREDITOR_APP">%1$s</xliff:g><xliff:g id="ELLIPSIS">…</xliff:g>"</string>
+    <string name="setup_finish_title_text" msgid="2810842695806992743">"Membuka apl <xliff:g id="CREDITOR_APP">%1$s</xliff:g><xliff:g id="ELLIPSIS">…</xliff:g>"</string>
+    <string name="setup_error_title_text" msgid="1123742279081942535">"Tidak dapat membuka apl <xliff:g id="CREDITOR_APP">%1$s</xliff:g>"</string>
+    <string name="try_again" msgid="5964839819170927721">"Cuba lagi"</string>
+    <string name="reset_phone" msgid="1161657350311160627">"Tetapkan semula telefon"</string>
+    <string name="control_section_title" msgid="2213476068991045785">"Apakah yang boleh dilakukan oleh <xliff:g id="CREDITOR_APP">%1$s</xliff:g>?"</string>
+    <string name="control_lock_device_text" msgid="8253302484073757764">"Mengehadkan peranti ini jika anda tidak membuat pembayaran"</string>
+    <string name="control_download_text" msgid="8514650561843088172">"Memuat turun, memasang dan mengemaskinikan apl <xliff:g id="CREDITOR_APP">%1$s</xliff:g>"</string>
+    <string name="control_disable_debug_text" msgid="8112443250013094442">"Mematikan ciri penyahpepijatan"</string>
+    <string name="locked_section_title" msgid="2748725389334076510">"Apakah yang berfungsi jika peranti ini dikunci?"</string>
+    <string name="locked_emergency_text" msgid="3509216445555779286">"Perkhidmatan panggilan kecemasan"</string>
+    <string name="locked_phone_usage_text" msgid="1913605870324552847">"Panggilan masuk dan beberapa panggilan keluar"</string>
+    <string name="locked_settings_usage_text" msgid="8336476063187737700">"Tetapan"</string>
+    <string name="locked_backup_and_restore_text" msgid="104616318625243429">"&lt;a href=https://support.google.com/android/answer/2819582&gt;Penyandaran &amp; pemulihan&lt;/a&gt; data anda"</string>
+    <string name="exposure_section_title" msgid="2329122144337528752">"Apakah yang dapat dilihat oleh <xliff:g id="CREDITOR_APP">%1$s</xliff:g>?"</string>
+    <string name="exposure_install_text" msgid="2631074166447765453">"Masa apl <xliff:g id="CREDITOR_APP">%1$s</xliff:g> dipasang atau dinyahpasang"</string>
+    <string name="exposure_lock_unlock_text" msgid="6827412845847260579">"Sebarang permintaan kunci atau buka kunci daripada <xliff:g id="CREDITOR_APP">%1$s</xliff:g>"</string>
+    <string name="exposure_disable_dlc_text" msgid="2898692398106736423">"Jika apl <xliff:g id="CREDITOR_APP">%1$s</xliff:g> tidak tersedia"</string>
+    <string name="open_source_licenses" msgid="6464389386262455443">"Lesen sumber terbuka"</string>
+    <string name="footer_notice_content_description" msgid="2160540400079419440">"Keupayaan pengurusan dalam bahagian peranti dibiayai pada tetapan Keselamatan tiada kaitan dengan peranti ini."</string>
+    <string name="device_provided_by_provider" msgid="290593329676291991">"Peranti ini disediakan oleh <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>"</string>
+    <string name="download_kiosk_app" msgid="1845089944897502656">"Apl Kios akan dimuat turun dan dipasang secara automatik"</string>
+    <string name="install_kiosk_app_secondary_user" msgid="49911908012320834">"Apl Kios akan dipasang untuk pengguna ini"</string>
+    <string name="restrict_device_if_missing_payment" msgid="8883980285859496904">"<xliff:g id="PROVIDER_NAME">%1$s</xliff:g> boleh mengehadkan peranti ini jika bayaran anda tertunggak. Untuk mendapatkan butiran, lihat <xliff:g id="TERMS_AND_CONDITIONS_LINK_START">&lt;a href=%2$s&gt;</xliff:g>Terma &amp; Syarat<xliff:g id="TERMS_AND_CONDITIONS_LINK_END">&lt;/a&gt;</xliff:g>."</string>
+    <string name="restrict_device_if_dont_make_payment" msgid="1619095674945507015">"<xliff:g id="PROVIDER_NAME">%1$s</xliff:g> boleh mengehadkan peranti ini jika anda tidak membuat pembayaran yang diperlukan. Untuk mendapatkan butiran, lihat <xliff:g id="TERMS_AND_CONDITIONS_LINK_START">&lt;a href=%2$s&gt;</xliff:g>Terma &amp; Syarat<xliff:g id="TERMS_AND_CONDITIONS_LINK_END">&lt;/a&gt;</xliff:g>."</string>
+    <string name="contact_provider_for_help" msgid="3872028089834808884">"Untuk mendapatkan bantuan, <xliff:g id="SUPPORT_LINK_START">&lt;a href=%2$s&gt;</xliff:g>hubungi <xliff:g id="PROVIDER_NAME">%1$s</xliff:g><xliff:g id="SUPPORT_LINK_END">&lt;/a&gt;</xliff:g>."</string>
+    <string name="previous" msgid="5241891780917802570">"Sebelumnya"</string>
+    <string name="next" msgid="8248291863254324326">"Seterusnya"</string>
+    <string name="start" msgid="2842214844667658537">"Mula"</string>
+    <string name="ok" msgid="3568398726528719749">"OK"</string>
+    <string name="done" msgid="4507782734740410307">"Selesai"</string>
+    <string name="do_it_in_one_hour" msgid="2727777340568739453">"Lakukan dalam masa 1 jam"</string>
+    <string name="header_icon_content_description" msgid="6069602031334473195">"Maklumat"</string>
+    <string name="provision_info_item_icon_content_description" msgid="2306298178610632507">"Maklumat peruntukan"</string>
+    <string name="enroll_your_device_header" msgid="2226305405591945098">"Daftarkan peranti anda"</string>
+    <string name="enroll_your_device_financing_subheader" msgid="8810608106273097451">"Kini anda boleh mendaftarkan peranti anda dalam program kewangan <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>"</string>
+    <string name="enroll_your_device_subsidy_subheader" msgid="8598730780370624995">"Kini anda boleh mendaftarkan peranti anda dalam program subsidi <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>"</string>
+    <string name="subsidy_program_header" msgid="2321508488856303554">"Anda menyertai program subsidi <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>"</string>
+    <string name="device_enrollment_header_text" msgid="5283341102404741658">"Pendaftaran peranti"</string>
+    <string name="device_financing_enrollment_body_text" msgid="5506086383249511498">"Peranti anda akan didaftarkan dalam program kewangan <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> dalam masa 30 hari"</string>
+    <string name="device_subsidy_enrollment_body_text" msgid="3971584929178719388">"Peranti anda akan didaftarkan dalam program subsidi <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> dalam masa 30 hari"</string>
+    <string name="device_enrollment_notification_body_text" msgid="8755080244956655854">"Pendaftaran akan disambung semula pada <xliff:g id="TIME">%1$s</xliff:g>. Anda boleh terus menggunakan peranti anda."</string>
+    <string name="continue_using_device" msgid="5816570734692191190">"Anda boleh terus menggunakan peranti anda"</string>
+    <string name="device_paid" msgid="6606280698381856804">"Anda telah membuat pembayaran untuk peranti anda"</string>
+    <string name="device_removed_from_subsidy_program" msgid="1243434945619071051">"Peranti telah dialih keluar daripada program subsidi <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>"</string>
+    <string name="device_removed_from_finance_program" msgid="825548999540107578">"Peranti anda telah dialih keluar daripada program kewangan <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>"</string>
+    <string name="restrictions_lifted" msgid="5785586265984319396">"Semua pengehadan pada peranti anda telah dibatalkan"</string>
+    <string name="uninstall_kiosk_app" msgid="3459557395024053988">"Anda boleh menyahpasang apl Kios daripada peranti anda"</string>
+    <string name="getting_device_ready" msgid="2829009584599871699">"Sedang menyediakan peranti anda…"</string>
+    <string name="this_may_take_a_few_minutes" msgid="2482876246874429351">"Ini boleh mengambil masa beberapa minit"</string>
+    <string name="installing_kiosk_app" msgid="324208168205545860">"Memasang apl <xliff:g id="CREDITOR_APP">%1$s</xliff:g>…"</string>
+    <string name="opening_kiosk_app" msgid="2021888641430165654">"Membuka apl <xliff:g id="CREDITOR_APP">%1$s</xliff:g>…"</string>
+    <string name="settings_banner_title" msgid="527041021011279252">"Peranti disediakan oleh <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>"</string>
+    <string name="settings_banner_body" msgid="5814902066260202824">"<xliff:g id="PROVIDER_NAME">%1$s</xliff:g> boleh menukar tetapan pada peranti ini"</string>
+    <string name="settings_banner_button" msgid="1831020849782670907">"Ketahui lebih lanjut"</string>
+    <string name="settings_screen_title" msgid="721470080648091035">"Maklumat peranti yang dibiayai"</string>
+    <string name="settings_intro_device_financing" msgid="2548476558131048133">"<xliff:g id="PROVIDER_NAME_0">%1$s</xliff:g> boleh menukar tetapan dan memasang apl Kios pada peranti.\n\nJika anda tidak membuat pembayaran, <xliff:g id="PROVIDER_NAME_1">%1$s</xliff:g> boleh mengehadkan peranti anda.\n\nUntuk mengetahui lebih lanjut, hubungi <xliff:g id="PROVIDER_NAME_2">%1$s</xliff:g>."</string>
+    <string name="settings_intro_device_subsidy" msgid="4274945644204818702">"<xliff:g id="PROVIDER_NAME_0">%1$s</xliff:g> boleh menukar tetapan dan memasang apl Kios pada peranti.\n\n<xliff:g id="PROVIDER_NAME_1">%1$s</xliff:g> juga boleh mengehadkan peranti ini jika anda tidak membuat pembayaran atau berhenti menggunakan SIM <xliff:g id="PROVIDER_NAME_2">%1$s</xliff:g>.\n\nUntuk mengetahui lebih lanjut, hubungi <xliff:g id="PROVIDER_NAME_3">%1$s</xliff:g>."</string>
+    <string name="settings_intro_preference_key" msgid="6610461073400554162">"settings_intro_preference_key"</string>
+    <string name="settings_restrictions_category" msgid="5746868117342406677">"Selagi anda tidak membuat pembayaran untuk peranti, anda tidak boleh:"</string>
+    <string name="settings_restrictions_category_preference_key" msgid="88318147152676512">"settings_restrictions_category_preference_key"</string>
+    <string name="settings_install_apps" msgid="3634279771448183713">"Memasang apl daripada sumber luar selain Play Store"</string>
+    <string name="settings_install_apps_preference_key" msgid="27542314345238427">"settings_install_apps_preference_key"</string>
+    <string name="settings_safe_mode" msgid="3035228015586375153">"Melakukan but semula peranti anda dalam mod selamat"</string>
+    <string name="settings_safe_mode_preference_key" msgid="2106617747358027424">"settings_safe_mode_preference_key"</string>
+    <string name="settings_developer_options" msgid="880701002025216672">"Menggunakan pilihan pembangun"</string>
+    <string name="settings_developer_options_preference_key" msgid="6807036808722582954">"settings_developer_options_preference_key"</string>
+    <string name="settings_credit_provider_capabilities_category" msgid="1274440595211820868">"Jika peranti anda bermasalah, <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> boleh:"</string>
+    <string name="settings_credit_provider_capabilities_category_preference_key" msgid="4571685720898641262">"settings_credit_provider_capabilities_category_preference_key"</string>
+    <string name="settings_IMEI" msgid="697965824361262506">"Mengakses nombor IMEI anda"</string>
+    <string name="settings_IMEI_preference_key" msgid="608809590948249412">"settings_IMEI_preference_key"</string>
+    <string name="settings_factory_reset" msgid="418045189048067625">"Menetapkan semula peranti anda kepada tetapan kilang"</string>
+    <string name="settings_factory_reset_preference_key" msgid="2168528486393635382">"settings_factory_reset_preference_key"</string>
+    <string name="settings_locked_mode_category" msgid="6307525048618331737">"Jika peranti anda dihadkan, anda hanya boleh menggunakan peranti untuk:"</string>
+    <string name="settings_locked_mode_category_preference_key" msgid="7202573929427220258">"settings_locked_mode_category_preference_key"</string>
+    <string name="settings_emergency_calls" msgid="2460996367176786040">"Membuat panggilan kepada nombor kecemasan"</string>
+    <string name="settings_emergency_calls_preference_key" msgid="737598609727181316">"settings_emergency_calls_preference_key"</string>
+    <string name="settings_system_info" msgid="1352629332624774940">"Melihat maklumat sistem seperti tarikh, masa, status rangkaian dan bateri"</string>
+    <string name="settings_system_info_preference_key" msgid="8607675914059202598">"settings_system_info_preference_key"</string>
+    <string name="settings_turn_on_off_device" msgid="5414836621603462439">"Menghidupkan atau mematikan peranti anda"</string>
+    <string name="settings_turn_on_off_device_preference_key" msgid="5981163790552677734">"settings_turn_on_off_device_preference_key"</string>
+    <string name="settings_notifications" msgid="63348993899505034">"Melihat pemberitahuan dan mesej teks"</string>
+    <string name="settings_notifications_preference_key" msgid="4527872342061056462">"settings_notifications_preference_key"</string>
+    <string name="settings_allowlisted_apps" msgid="5531810497056091097">"Mengakses apl yang dibenarkan oleh <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>"</string>
+    <string name="settings_allowlisted_apps_preference_key" msgid="8662705531235468080">"settings_allowlisted_apps_preference_key"</string>
+    <string name="settings_fully_paid_category" msgid="2459776591689824433">"Setelah anda membayar jumlah penuh:"</string>
+    <string name="settings_fully_paid_category_preference_key" msgid="1759690898170600559">"settings_fully_paid_category_preference_key"</string>
+    <string name="settings_restrictions_removed" msgid="1398080654904863221">"<xliff:g id="PROVIDER_NAME">%1$s</xliff:g> tidak boleh mengehadkan peranti anda atau menukar tetapan peranti"</string>
+    <string name="settings_restrictions_removed_preference_key" msgid="7741933477145197391">"settings_restrictions_removed_preference_key"</string>
+    <string name="settings_uninstall_kiosk_app" msgid="2611134364295637875">"Anda boleh menyahpasang apl <xliff:g id="KIOSK_APP">%1$s</xliff:g>"</string>
+    <string name="settings_uninstall_kiosk_app_preference_key" msgid="5578103644009268125">"settings_uninstall_kiosk_app_preference_key"</string>
+    <string name="settings_support_category" msgid="7210906871924935770">"Untuk mendapatkan bantuan:"</string>
+    <string name="settings_support_category_preference_key" msgid="1818953199283261021">"settings_support_category_preference_key"</string>
+    <string name="settings_contact_provider" msgid="2481819956474692039">"<xliff:g id="SUPPORT_LINK_START">&lt;a href=%2$s&gt;</xliff:g>Hubungi <xliff:g id="PROVIDER_NAME">%1$s</xliff:g><xliff:g id="SUPPORT_LINK_END">&lt;/a&gt;</xliff:g>"</string>
+    <string name="settings_contact_provider_preference_key" msgid="2703619536229342624">"settings_contact_provider_preference_key"</string>
+    <string name="provision_notification_channel_name" msgid="6123500714047647805">"Peruntukan"</string>
+    <string name="device_reset_in_days_notification_title" msgid="920859483535317727">"{count,plural, =1{Peranti akan ditetapkan semula dalam masa 1 hari}other{Peranti akan ditetapkan semula dalam masa # hari}}"</string>
+    <string name="device_reset_timer_notification_title" msgid="301978346002711614">"Peranti akan ditetapkan semula dalam masa <xliff:g id="TIMER">%s</xliff:g>"</string>
+    <string name="device_reset_notification_content" msgid="7642367488663440437">"Semua data peranti akan dipadamkan. Untuk mendapatkan bantuan berkenaan dengan pendaftaran peranti anda, hubungi <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>"</string>
+    <string name="provisioning_failed" msgid="5350252817004028300">"Peruntukan pembiayaan telah gagal"</string>
+    <string name="click_to_contact_financier" msgid="9107827438262930445">"Sila klik di sini untuk mengetahui cara menghubungi pembiaya anda. <xliff:g id="SUPPORT_URL_START">&lt;a href=%1$s&gt;</xliff:g>Ketahui lebih lanjut<xliff:g id="SUPPORT_URL_END">&lt;/a&gt;</xliff:g>"</string>
+    <string name="exit" msgid="645084771882733921">"Keluar"</string>
+    <string name="retry" msgid="7497287909193345356">"Cuba lagi"</string>
+</resources>

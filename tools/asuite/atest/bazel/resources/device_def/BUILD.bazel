@@ -1,0 +1,21 @@
+load("//bazel/rules:soong_prebuilt.bzl", "soong_prebuilt")
+load("//bazel/rules/device:cuttlefish_device.bzl", "cuttlefish_device")
+load("@device_infra//remote_device:download_cvd_artifact.bzl", "build_id", "download_cvd_artifact")
+
+package(default_visibility = ["//visibility:public"])
+
+build_id(
+    name = "cvd_build_id",
+    build_setting_default = "",
+)
+
+download_cvd_artifact(
+    name = "cvd_artifacts",
+    build_id = ":cvd_build_id",
+)
+
+cuttlefish_device(
+    name = "cf_x86_64_phone",
+    out = "android_cuttlefish.sh",
+    build_files = ":cvd_artifacts",
+)

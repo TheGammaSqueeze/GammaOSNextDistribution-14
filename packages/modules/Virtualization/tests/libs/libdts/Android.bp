@@ -1,0 +1,17 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_library_rlib {
+    name: "libdts",
+    crate_name: "dts",
+    defaults: ["avf_build_flags_rust"],
+    srcs: ["src/lib.rs"],
+    edition: "2021",
+    prefer_rlib: true,
+    rustlibs: [
+        "libanyhow",
+        "liblibfdt",
+    ],
+    apex_available: ["com.android.virt"],
+}

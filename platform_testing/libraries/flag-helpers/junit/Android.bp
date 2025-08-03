@@ -1,0 +1,69 @@
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_library {
+    name: "flag-util",
+    srcs: ["src_util/**/*.java"],
+    static_libs: [
+        "auto_value_annotations",
+        "jsr305",
+    ],
+    plugins: ["auto_value_plugin"],
+    host_supported: true,
+    sdk_version: "current",
+}
+
+java_library {
+    name: "flag-junit-base",
+    srcs: ["src_base/**/*.java"],
+    static_libs: [
+        "flag-util",
+        "guava",
+        "jsr305",
+        "junit",
+        "platform-test-annotations",
+    ],
+    host_supported: true,
+    sdk_version: "current",
+}
+
+java_library {
+    name: "flag-junit",
+    srcs: ["src/**/*.java"],
+    static_libs: [
+        "androidx.test.rules",
+        "flag-junit-base",
+    ],
+    libs: [
+        "framework-configinfrastructure",
+    ],
+    sdk_version: "module_current",
+}
+
+java_library_host {
+    name: "flag-junit-host",
+    srcs: ["src_host/**/*.java"],
+    static_libs: [
+        "flag-junit-base",
+        "flag-util",
+        "libaconfig_java_proto_full",
+    ],
+    libs: [
+        "tradefed",
+    ],
+}

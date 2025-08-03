@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2023 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<LinearLayout
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android" >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        android:layout_weight="1" >
+        <Space
+            android:layout_width="3dp"
+            android:layout_height="match_parent" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/select_zone_title" />
+        <Space
+            android:layout_width="3dp"
+            android:layout_height="match_parent" />
+        <Spinner
+            android:id="@+id/zone_one_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <Space
+            android:layout_width="3dp"
+            android:layout_height="match_parent" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/select_zone_title" />
+        <Space
+            android:layout_width="3dp"
+            android:layout_height="match_parent" />
+        <Spinner
+            android:id="@+id/zone_two_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <Space
+            android:layout_width="3dp"
+            android:layout_height="match_parent" />
+        <Button
+            android:id="@+id/enable_audio_mirror_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/enable_audio_mirror" />
+        <Space
+            android:layout_width="3dp"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        android:layout_weight="1" >
+        <Space
+            android:layout_width="3dp"
+            android:layout_height="match_parent" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/select_mirror_id_title" />
+        <Space
+            android:layout_width="3dp"
+            android:layout_height="match_parent" />
+        <Spinner
+            android:id="@+id/mirror_id_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <Space
+            android:layout_width="3dp"
+            android:layout_height="match_parent" />
+        <Button
+            android:id="@+id/disable_audio_mirror_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/disable_audio_mirror" />
+        <Space
+            android:layout_width="3dp"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        android:layout_weight="1" >
+        <Space
+            android:layout_width="3dp"
+            android:layout_height="match_parent" />
+        <Button
+            android:id="@+id/update_zones_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/update_audio_zones" />
+        <Space
+            android:layout_width="3dp"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+</LinearLayout>

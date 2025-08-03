@@ -1,0 +1,17 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.google.android.iwlan.tests">
+
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE" />
+
+    <application android:label="IwlanUnitTest" android:debuggable="true">
+        <uses-library android:name="android.test.runner" />
+        <uses-library android:name="android.net.ipsec.ike" />
+    </application>
+
+    <instrumentation android:name="androidx.test.runner.AndroidJUnitRunner"
+        android:targetPackage="com.google.android.iwlan.tests"
+        android:label="IwlanUnitTest" >
+    </instrumentation>
+</manifest>

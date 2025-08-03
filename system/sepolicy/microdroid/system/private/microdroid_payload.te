@@ -1,0 +1,79 @@
+# microdroid_payload is an attribute for microdroid payload processes.
+# Domains should have microdroid_payload to be run from microdroid_manager.
+
+# Allow to communicate use, read and write over the adb connection.
+allow microdroid_payload adbd:fd use;
+allow microdroid_payload adbd:unix_stream_socket { read write };
+
+# microdroid_launcher is launched by microdroid_manager with fork/execvp.
+allow microdroid_payload microdroid_manager:fd use;
+
+# Allow to use terminal
+allow microdroid_payload devpts:chr_file rw_file_perms;
+
+# Allow to set debug prop
+set_prop(microdroid_payload, debug_prop)
+
+# Allow microdroid_payload to use vsock inherited from microdroid_manager
+allow microdroid_payload microdroid_manager:vsock_socket { read write };
+
+# Write to /dev/kmsg.
+allow microdroid_payload kmsg_device:chr_file rw_file_perms;
+
+# Read from console. Note that both /dev/kmsg and /dev/console are backed
+# by the same file in the host.
+allow microdroid_payload console_device:chr_file r_file_perms;
+
+# Allow microdroid_payload to host binder servers via vsock. Listening
+# for connections from the host is permitted, but connecting out to
+# the host is not. Inbound connections are mediated by
+# virtualiationservice which ensures a process can only connect to a
+# VM that it owns.
+allow microdroid_payload self:vsock_socket {
+ create listen accept read getattr write setattr lock append bind
+ getopt setopt shutdown map
+};
+
+# Payload can read extra apks
+r_dir_file(microdroid_payload, extra_apk_file)
+
+# Payload can read /proc/meminfo.
+allow microdroid_payload proc_meminfo:file r_file_perms;
+
+# Allow payload to communicate with authfs_service
+unix_socket_connect(microdroid_payload, authfs_service, authfs_service)
+
+# Allow locating the authfs mount directory.
+allow microdroid_payload authfs_data_file:dir search;
+
+# Read and write files authfs-proxied files.
+allow microdroid_payload authfs_fuse:dir rw_dir_perms;
+allow microdroid_payload authfs_fuse:file create_file_perms;
+
+# Allow payload to communicate with microdroid manager
+unix_socket_connect(microdroid_payload, vm_payload_service, microdroid_manager)
+
+# Payload can read, write into encrypted storage directory
+allow microdroid_payload encryptedstore_file:dir create_dir_perms;
+allow microdroid_payload encryptedstore_file:file create_file_perms;
+
+# Payload can access devices labeled as payload accessible.
+allow microdroid_payload payload_accessible_device:chr_file rw_file_perms;
+
+# Never allow microdroid_payload to connect to vsock
+neverallow microdroid_payload self:vsock_socket connect;
+
+# Nothing else should be accessing the payload's storage
+neverallow { domain
+  -microdroid_payload
+  -microdroid_manager
+  -encryptedstore
+  -init
+  -vendor_init
+} encryptedstore_file:dir { read write };
+neverallow { domain
+  -microdroid_payload
+  -microdroid_manager
+  -init
+  -vendor_init
+} encryptedstore_file:file no_rw_file_perms;

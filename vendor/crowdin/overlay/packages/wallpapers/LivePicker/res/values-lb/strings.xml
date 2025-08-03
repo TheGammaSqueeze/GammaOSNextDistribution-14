@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+* Copyright (C) 2008 The Android Open Source Project
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="application_name">Galerie vu Live-Hannergrondbiller</string>
+    <string name="live_wallpaper_picker_title">Live-Hannergrondbild auswielen</string>
+    <string name="live_wallpaper_picker_label">Live-Hannergrondbiller</string>
+    <string name="live_wallpaper_preview_title">Virschau vum Live-Hannergrondbild</string>
+    <string name="configure_wallpaper">Astellungen…</string>
+    <string name="wallpaper_instructions">Hannergrondbild setzen</string>
+    <string name="live_wallpaper_empty">Keng Live-Hannergrondbiller.</string>
+    <string name="set_live_wallpaper">Hannergrondbild setzen</string>
+    <string name="wallpaper_title_and_author"><xliff:g id="title" example="Galaxy">%1$s</xliff:g> vu(n) <xliff:g id="author" example="Google">%2$s</xliff:g></string>
+    <string name="live_wallpaper_loading">Live-Hannergrondbild gëtt gelueden…</string>
+    <string name="which_wallpaper_option_home_screen">Startschierm</string>
+    <string name="which_wallpaper_option_home_screen_and_lock_screen">Startschierm a Spärschierm</string>
+</resources>

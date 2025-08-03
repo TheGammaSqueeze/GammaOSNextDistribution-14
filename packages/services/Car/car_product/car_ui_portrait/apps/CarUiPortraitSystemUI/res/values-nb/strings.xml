@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="default_sensor_string" msgid="3994996854548513870">"I/A"</string>
+    <string name="task_view_not_ready_message" msgid="3019570837236183122">"Vent til systemet er lastet inn"</string>
+    <string name="current_profile_subtitle" msgid="2466874755719023023">"Nåværende profil"</string>
+    <string name="loading_welcome_message" msgid="2351582619179505398">"AAOS"</string>
+    <string name="loading_action_button_text" msgid="1296096984805774507">"Fortsett"</string>
+    <string name="hvac_panel_header" msgid="1299061170810305529">"Komfort-kontroller"</string>
+    <string name="confirm_pin_title" msgid="8340408103287697843">"Skriv inn PIN-koden din"</string>
+    <string name="confirm_pattern_title" msgid="601765683212039890">"Tegn mønsteret ditt"</string>
+    <string name="confirm_password_title" msgid="4719840258132492554">"Skriv inn passordet ditt"</string>
+    <string name="cancel" msgid="8552804384519299161">"Avbryt"</string>
+</resources>

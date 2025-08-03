@@ -1,0 +1,41 @@
+init: {
+  open_file: {
+    path_name: "newfile3.txt",
+    create: true
+  }
+},
+main: {
+  instruction_set: {
+    instructions: [
+      {
+        open_file: {
+          path_name: "newfile3.txt",
+          output_fd: "test_file"
+        }
+      },
+      {
+        resize_file: {
+          input_fd: "test_file",
+          size: 134217728
+        }
+      },
+      {
+        write_file: {
+          input_fd: "test_file",
+          fsync: true
+        }
+      },
+      {
+        close_file: {
+          input_fd: "test_file"
+        }
+      }
+    ]
+  }
+},
+clean_up: {
+  delete_file: {
+    path_name: "newfile3.txt"
+  }
+},
+global {}

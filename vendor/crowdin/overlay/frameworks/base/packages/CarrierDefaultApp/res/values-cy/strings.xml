@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Cyfathrebiadau Darparwr</string>
+    <string name="android_system_label">Darparwr Gwasanaeth</string>
+    <string name="portal_notification_id">Allan o ddata symudol</string>
+    <string name="no_data_notification_id">Mae dy ddata symudol wedi\'i ddadactifadu</string>
+    <string name="portal_notification_detail">Tapia i ymweld â gwefan %s</string>
+    <string name="no_data_notification_detail">Cysyllta â dy ddarparwr gwasanaeth %s</string>
+    <string name="no_mobile_data_connection_title">Dim cysylltiad data symudol</string>
+    <string name="no_mobile_data_connection">Ychwanega ddata neu gynllun crwydro gyda %s</string>
+    <string name="mobile_data_status_notification_channel_name">Statws data symudol</string>
+    <string name="action_bar_label">Mewngofnodi i rwydwaith symudol</string>
+    <string name="ssl_error_warning">Mae yna broblemau diogelwch gyda’r rhwydwaith rwyt yn ceisio ymuno â fo.</string>
+    <string name="ssl_error_example">Er enghraifft, efallai nad yw’r dudalen mewngofnodi yn perthyn i’r mudiad a ddangosir.</string>
+    <string name="ssl_error_continue">Parhau trwy’r porwr beth bynnag</string>
+    <string name="performance_boost_notification_channel">Hwb i berfformiad</string>
+    <string name="performance_boost_notification_title">Dewisiadau 5G dy ddarparwr gwasanaeth</string>
+    <string name="performance_boost_notification_detail">Ymweld â gwefan %s i weld dewisiadau ar gyfer dy brofiad o\u2019r ap</string>
+    <string name="performance_boost_notification_button_not_now">Dim nawr</string>
+    <string name="performance_boost_notification_button_manage">Rheoli</string>
+    <string name="slice_purchase_app_label">Prynu hwb i berfformiad</string>
+</resources>

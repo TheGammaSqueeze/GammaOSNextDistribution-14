@@ -1,0 +1,19 @@
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+xsd_config {
+    name: "xsdc_predefined_types_tests",
+    srcs: ["predefined_types.xsd"],
+    package_name: "predefined.types",
+    gen_writer: true,
+}
+
+xsd_config {
+    name: "xsdc_predefined_types_tinyxml_tests",
+    srcs: ["predefined_types.xsd"],
+    package_name: "predefined.types",
+    gen_writer: true,
+    tinyxml: true,
+}

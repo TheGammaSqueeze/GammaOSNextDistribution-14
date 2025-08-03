@@ -1,0 +1,15 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+bootstrap_go_package {
+    name: "treble_report_app",
+    srcs: [
+        "git.go",
+        "build.go",
+        "repo.go",
+        "report.go",
+    ],
+    pkgPath: "tools/treble/build/report/app",
+    pluginFor: ["soong_build"],
+}

@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+**
+** Copyright 2015 The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="wifi_fail_to_scan">Челтәрләрне сканлап булмый</string>
+    <string name="wifi_disconnected">Өзелде</string>
+    <string name="wifi_disabled_network_failure">IP\'ны көйләп булмады</string>
+    <string name="connected_via_network_scorer">%1$s аша үзеннән-үзе тоташты</string>
+    <string name="private_dns_broken">Шәхси DNS серверга тоташып булмады</string>
+    <string name="wifi_limited_connection">Чикләнгән тоташу</string>
+    <string name="wifi_status_sign_in_required">Аккаунтка керү мәҗбүри</string>
+    <string name="osu_connect_failed">Тоташып булмады</string>
+    <string name="osu_completing_sign_up">Керүне тәмамлау\u2026</string>
+    <string name="osu_sign_up_failed">Керүне тәмамлап булмады. Тагын кабатлап карау өчен басыгыз.</string>
+    <string name="osu_sign_up_complete">Керү тәмам. Тоташу\u2026</string>
+    <string name="speed_label_very_fast">Бик тиз</string>
+    <string name="preference_summary_default_combination"><xliff:g id="state" example="ON">%1$s</xliff:g> / <xliff:g id="description" example="High accuracy mode">%2$s</xliff:g></string>
+    <string name="bluetooth_disconnected">Өзелде</string>
+    <string name="bluetooth_disconnecting">Өзелү\u2026</string>
+    <string name="bluetooth_connected"><xliff:g id="active_device">%1$s</xliff:g> тоташты</string>
+    <string name="bluetooth_talkback_bluetooth">Bluetooth</string>
+    <string name="accessibility_wifi_security_type_none">Ачык челтәр</string>
+    <string name="data_usage_uninstalled_apps">Бетерелгән кушымталар</string>
+    <string name="data_usage_uninstalled_apps_users">Бетерелгән кушымталар һәм кулланучылар</string>
+    <string name="data_usage_ota">Система яңартуы</string>
+    <string name="tts_status_not_supported"><xliff:g id="locale" example="English (United States)">%1$s</xliff:g> өчен эшләми</string>
+    <string name="tts_status_checking">Тикшерү…</string>
+    <string name="tts_engine_settings_button">Движок көйләүләрен кабызу</string>
+    <string name="tts_engine_preference_section_title">Сайланган движок</string>
+    <string-array name="tts_rate_entries">
+        <item>60%</item>
+        <item>80%</item>
+        <item>100%</item>
+        <item>150%</item>
+        <item>200%</item>
+        <item>250%</item>
+        <item>300%</item>
+        <item>350%</item>
+        <item>400%</item>
+    </string-array>
+    <string-array name="tts_rate_values">
+        <item>60</item>
+        <item>80</item>
+        <item>100</item>
+        <item>150</item>
+        <item>200</item>
+        <item>250</item>
+        <item>300</item>
+        <item>350</item>
+        <item>400</item>
+    </string-array>
+    <string name="choose_profile">Профильне сайлау</string>
+    <string name="category_personal">Шәхси</string>
+    <string name="development_settings_enable">Программист көйләүләрен кабызу</string>
+    <string name="development_settings_not_available">Бу кулланучының программист көйләүләренә хокукы юк</string>
+    <string name="vpn_settings_not_available">Бу кулланучының VPN көйләүләренә хокукы юк</string>
+    <string name="adb_wireless_device_connected_summary">Хәзер тоташкан</string>
+    <string name="adb_device_fingerprint_title_format">Җайланманың эзе: <xliff:g id="fingerprint_param" example="a1:b2:c3:d4:e5:f6">%1$s</xliff:g></string>
+    <string name="adb_wireless_connection_failed_title">Тоташып булмады</string>
+    <string name="adb_wireless_connection_failed_message"><xliff:g id="device_name" example="Bob\'s Macbook">%1$s</xliff:g> дөрес челтәргә тоташканына инаныгыз</string>
+    <string name="adb_pairing_device_dialog_failed_msg">Җайланманың шул ук челтәргә тоташканына инаныгыз</string>
+    <string name="adb_wireless_no_network_msg">Wi\u2011Fi\'га тоташыгыз</string>
+    <string name="keywords_adb_wireless">adb, debug, dev</string>
+    <string name="bugreport_in_power">Баг турында хәбәр итү тизтөймәсе</string>
+    <string name="picture_color_mode_desc">sRGB куллану</string>
+    <string name="accessibility_display_daltonizer_preference_title">Төсне төзәтү</string>
+    <string name="power_remaining_settings_home_page"><xliff:g id="percentage" example="10%">%1$s</xliff:g> - <xliff:g id="time_string" example="1 hour left based on your usage">%2$s</xliff:g></string>
+    <string name="power_remaining_duration_only_short"><xliff:g id="time_remaining">%1$s</xliff:g></string>
+    <string name="power_discharge_by_only_short"><xliff:g id="time" example="12 PM">%1$s</xliff:g> кадәр</string>
+    <string name="power_suggestion_battery_run_out">Батарея <xliff:g id="time" example="12 PM">%1$s</xliff:g> бетәргә мөмкин</string>
+    <string name="power_remaining_less_than_duration_only"><xliff:g id="threshold">%1$s</xliff:g> әзрәк калды</string>
+    <string name="power_remaining_less_than_duration"><xliff:g id="threshold">%1$s</xliff:g> әзрәк калды (<xliff:g id="level">%2$s</xliff:g>)</string>
+    <string name="power_charging"><xliff:g id="level">%1$s</xliff:g> - <xliff:g id="state">%2$s</xliff:g></string>
+    <string name="power_remaining_charging_duration_only">Тулырга <xliff:g id="time">%1$s</xliff:g> калды</string>
+    <string name="power_charging_duration"><xliff:g id="level">%1$s</xliff:g> - Тулырга <xliff:g id="time">%1$s</xliff:g> калды</string>
+    <string name="battery_info_status_charging">Заряд җыя</string>
+    <string name="battery_info_status_charging_fast">Зарядны тиз җыю</string>
+    <string name="battery_info_status_charging_slow">Зарядны әкрен җыю</string>
+    <string name="battery_info_status_charging_wireless">Зарядны чыбыксыз җыю</string>
+    <string name="battery_info_status_charging_dock">Заряд җыя</string>
+    <string name="battery_info_status_discharging">Заряд җыймый</string>
+    <string name="battery_info_status_not_charging">Тоташкан, ләкин заряд җыймый</string>
+    <string name="battery_info_status_full">Заряд җыелып беткән</string>
+    <string name="disabled_by_admin_summary_text">Администратор тарафыннан идарә ителә</string>
+    <string name="external_source_untrusted">Тыелган</string>
+    <string name="install_other_apps">Билгесез кушымталарны урнаштыру</string>
+    <string name="home">Төп көйләүләр</string>
+    <string-array name="battery_labels">
+        <item>0%</item>
+        <item>50%</item>
+        <item>100%</item>
+    </string-array>
+    <string name="screen_zoom_summary_default">Гадәти</string>
+    <string name="screen_zoom_summary_custom">Махсус (<xliff:g id="densityDpi" example="160">%d</xliff:g>)</string>
+    <string name="retail_demo_reset_title">Серсүз кирәк</string>
+    <string name="battery_meter_very_low_overlay_symbol">!</string>
+    <string name="use_system_language_to_select_input_method_subtypes">Системадагы телләрне куллану</string>
+    <string name="failed_to_open_app_settings_toast"><xliff:g id="spell_application_name">%1$s</xliff:g> көйләүләрен ачып булмады</string>
+    <string name="zen_mode_and_condition"><xliff:g id="zen_mode" example="Priority interruptions only">%1$s</xliff:g>. <xliff:g id="exit_condition" example="For one hour">%2$s</xliff:g></string>
+    <string name="zen_alarm_warning">Сез <xliff:g id="when" example="at 7:00 AM">%1$s</xliff:g> куелган уяткычыгызны ишетмәячәксез</string>
+    <string name="alarm_template"><xliff:g id="when" example="7:00 AM">%1$s</xliff:g></string>
+    <string name="alarm_template_far"><xliff:g id="when" example="Fri 7:00 AM">%1$s</xliff:g></string>
+    <string name="zen_mode_forever">Сез сүндергәнче</string>
+    <string name="media_transfer_this_device_name_tv">@string/tv_media_transfer_default</string>
+    <string name="tv_media_transfer_arc_fallback_title">HDMI ARC</string>
+    <string name="tv_media_transfer_earc_fallback_title">HDMI eARC</string>
+    <string name="profile_connect_timeout_subtext">Тоташып булмый. Җайланманы сүндереп кабызыгыз</string>
+    <string name="storage_category">Саклагыч</string>
+    <string name="shared_data_title">Уртаклашкан мәгълүмат</string>
+    <string name="shared_data_summary">Уртаклашкан мәгълүматны карау һәм үзгәртү</string>
+    <string name="shared_data_no_blobs_text">Бу кулланучы белән уртаклашкан мәгълүмат юк.</string>
+    <string name="shared_data_query_failure_text">Уртаклашкан мәгълүматны алганда хата чыкты. Тагын кабатлап карагыз.</string>
+    <string name="blob_expires_text">Вакыты <xliff:g id="date" example="Mar 20, 2020 11:59:59 GMT">%s</xliff:g> чыга</string>
+    <string name="user_add_profile_item_title">Чикләнгән профиль</string>
+    <string name="user_add_user_title">Яңа кулланучыны өстәргәме?</string>
+    <string name="user_add_user_message_short">Сез яңа кулланучыны өстәгәндә, аңа үзенең эш урынын көйләргә кирәк.\n\nҺәр кулланучы кушымталарны барлык башка кулланучылар өчен яңарта ала. </string>
+    <string name="user_setup_dialog_title">Кулланучыны хәзер үк көйләргәме?</string>
+    <string name="user_setup_dialog_message">Кеше җайланманы алып, үзенең эш урынын көйли ала алуына инаныгыз</string>
+    <string name="user_setup_profile_dialog_message">Профильне хәзер үк көйләргәме?</string>
+    <string name="user_setup_button_setup_now">Хәзер көйләү</string>
+    <string name="user_new_user_name">Яңа кулланучы</string>
+    <string name="profile_info_settings_title">Профиль мәгълүматы</string>
+    <string name="user_need_lock_message">Сез чикләнгән профиль ясый алганчы, кушымталарыгызны һәм шәхси мәгълүматыгызны саклау өчен, сезгә башта блоклау экранын көйләргә кирәк.</string>
+    <string name="user_switch_to_user"><xliff:g id="user_name" example="John Doe">%s</xliff:g> аккаунтына күчү</string>
+    <string name="creating_new_user_dialog_message">Яңа кулланучы ясау…</string>
+    <string name="add_user_failed">Яңа кулланучыны ясап булмады</string>
+    <string name="guest_new_guest">Кунак өстәү</string>
+    <string name="guest_exit_guest">Кунакны бетерү</string>
+    <string name="guest_reset_guest">Кунакны ташлату</string>
+    <string name="guest_reset_guest_dialog_title">Кунакны ташлатыргамы?</string>
+    <string name="guest_resetting">Кунакны ташлату\u2026</string>
+    <string name="user_image_take_photo">Фото ясау</string>
+    <string name="user_image_choose_photo">Сурәт сайлау</string>
+    <string name="user_image_photo_selector">Фото сайлау</string>
+    <string name="cached_apps_freezer_device_default">Гадәти җайланма</string>
+    <string name="data_connection_3g">3G</string>
+    <string name="data_connection_edge">EDGE</string>
+    <string name="data_connection_cdma">1X</string>
+    <string name="data_connection_gprs">GPRS</string>
+    <string name="data_connection_3_5g">H</string>
+    <string name="data_connection_3_5g_plus">H+</string>
+    <string name="data_connection_4g">4G</string>
+    <string name="data_connection_4g_plus">4G+</string>
+    <string name="data_connection_lte">LTE</string>
+    <string name="data_connection_lte_plus">LTE+</string>
+    <string name="data_connection_5ge_html" translate="false"> &lt;i&gt;5G &lt;small&gt;E&lt;/small&gt;&lt;/i&gt; </string>
+    <string name="data_connection_carrier_wifi">W+</string>
+    <string name="accessibility_ethernet_connected">Ethernet.</string>
+    <string name="keyboard_layout_default_label">Гадәти</string>
+    <string name="font_scale_percentage"> <xliff:g id="percentage">%1$d</xliff:g> %%</string>
+</resources>

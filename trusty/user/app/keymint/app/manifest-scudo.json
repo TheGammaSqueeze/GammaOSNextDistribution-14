@@ -1,0 +1,6 @@
+{
+    "app_name": "keymint_app",
+    "uuid": "5f902ace-5e5c-4cd8-ae54-87b88c22ddaf",
+    "min_heap": 327680,
+    "min_stack": 65536
+}

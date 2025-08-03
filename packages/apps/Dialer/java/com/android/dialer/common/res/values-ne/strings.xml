@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="content_description_overflow">थप विकल्पहरू</string>
+  <string name="snackbar_undo">अन्डू गर्नुहोस्</string>
+  <string name="ok_got_it">ठिक छ, बुझेँ</string>
+</resources>

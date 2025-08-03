@@ -1,0 +1,64 @@
+E/libc    ( 7233): +++ ALLOCATION 0x404b9278 SIZE 10 BYTES MULTIPLY FREED!
+E/libc    ( 7233): +++ ALLOCATION 0x404b9278 SIZE 10 ALLOCATED HERE:
+E/libc    ( 7233): *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+E/libc    ( 7233):      #00  pc 0000c35a  /system/lib/libc_malloc_debug_leak.so
+E/libc    ( 7233):      #01  pc 0000c658  /system/lib/libc_malloc_debug_leak.so
+E/libc    ( 7233):      #02  pc 00016d80  /system/lib/libc.so
+E/libc    ( 7233):      #03  pc 4009647c  /system/bin/malloctest
+E/libc    ( 7233):      #04  pc 00016f24  /system/lib/libc.so
+E/libc    ( 7233): +++ ALLOCATION 0x404b9278 SIZE 10 FIRST FREED HERE:
+E/libc    ( 7233): *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+E/libc    ( 7233):      #00  pc 0000c35a  /system/lib/libc_malloc_debug_leak.so
+E/libc    ( 7233):      #01  pc 0000c7d2  /system/lib/libc_malloc_debug_leak.so
+E/libc    ( 7233):      #02  pc 00016d94  /system/lib/libc.so
+E/libc    ( 7233):      #03  pc 40096490  /system/bin/malloctest
+E/libc    ( 7233):      #04  pc 00016f24  /system/lib/libc.so
+E/libc    ( 7233): +++ ALLOCATION 0x404b9278 SIZE 10 NOW BEING FREED HERE:
+E/libc    ( 7233): *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+E/libc    ( 7233):      #00  pc 0000c35a  /system/lib/libc_malloc_debug_leak.so
+E/libc    ( 7233):      #01  pc 0000c6ac  /system/lib/libc_malloc_debug_leak.so
+E/libc    ( 7233):      #02  pc 00016d94  /system/lib/libc.so
+E/libc    ( 7233):      #03  pc 400964a0  /system/bin/malloctest
+E/libc    ( 7233):      #04  pc 00016f24  /system/lib/libc.soThe following for a heap overrun and underrun:E/libc    ( 7233): +++ REAR GUARD MISMATCH [10, 11)
+E/libc    ( 7233): +++ ALLOCATION 0x404b9198 SIZE 10 HAS A CORRUPTED REAR GUARD
+E/libc    ( 7233): +++ ALLOCATION 0x404b9198 SIZE 10 ALLOCATED HERE:
+E/libc    ( 7233): *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+E/libc    ( 7233):      #00  pc 0000c35a  /system/lib/libc_malloc_debug_leak.so
+E/libc    ( 7233):      #01  pc 0000c658  /system/lib/libc_malloc_debug_leak.so
+E/libc    ( 7233):      #02  pc 00016d80  /system/lib/libc.so
+E/libc    ( 7233):      #03  pc 40096438  /system/bin/malloctest
+E/libc    ( 7233):      #04  pc 00016f24  /system/lib/libc.so
+E/libc    ( 7233): +++ ALLOCATION 0x404b9198 SIZE 10 FREED HERE:
+E/libc    ( 7233): *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+E/libc    ( 7233):      #00  pc 0000c35a  /system/lib/libc_malloc_debug_leak.so
+E/libc    ( 7233):      #01  pc 0000c7d2  /system/lib/libc_malloc_debug_leak.so
+E/libc    ( 7233):      #02  pc 00016d94  /system/lib/libc.so
+E/libc    ( 7233):      #03  pc 40096462  /system/bin/malloctest
+E/libc    ( 7233):      #04  pc 00016f24  /system/lib/libc.so
+E/libc    ( 7233): +++ ALLOCATION 0x404b9358 SIZE 10 HAS A CORRUPTED FRONT GUARD
+E/libc    ( 7233): +++ ALLOCATION 0x404b9358 SIZE 10 ALLOCATED HERE:
+E/libc    ( 7233): *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+E/libc    ( 7233):      #00  pc 0000c35a  /system/lib/libc_malloc_debug_leak.so
+E/libc    ( 7233):      #01  pc 0000c658  /system/lib/libc_malloc_debug_leak.so
+E/libc    ( 7233):      #02  pc 00016d80  /system/lib/libc.so
+E/libc    ( 7233):      #03  pc 400964ba  /system/bin/malloctest
+E/libc    ( 7233):      #04  pc 00016f24  /system/lib/libc.so
+E/libc    ( 7233): +++ ALLOCATION 0x404b9358 SIZE 10 FREED HERE:
+E/libc    ( 7233): *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+E/libc    ( 7233):      #00  pc 0000c35a  /system/lib/libc_malloc_debug_leak.so
+E/libc    ( 7233):      #01  pc 0000c7d2  /system/lib/libc_malloc_debug_leak.so
+E/libc    ( 7233):      #02  pc 00016d94  /system/lib/libc.so
+E/libc    ( 7233):      #03  pc 400964e4  /system/bin/malloctest
+E/libc    ( 7233):      #04  pc 00016f24  /system/lib/libc.soThe following for a memory leak:E/libc    ( 7233): +++ THERE ARE 1 LEAKED ALLOCATIONS
+E/libc    ( 7233): +++ DELETING 4096 BYTES OF LEAKED MEMORY AT 0x404b95e8 (1 REMAINING)
+E/libc    ( 7233): +++ ALLOCATION 0x404b95e8 SIZE 4096 ALLOCATED HERE:
+E/libc    ( 7233): *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+E/libc    ( 7233):      #00  pc 0000c35a  /system/lib/libc_malloc_debug_leak.so
+E/libc    ( 7233):      #01  pc 0000c658  /system/lib/libc_malloc_debug_leak.so
+E/libc    ( 7233):      #02  pc 00016d80  /system/lib/libc.so
+E/libc    ( 7233):      #03  pc 0001bc94  /system/lib/libc.so
+E/libc    ( 7233):      #04  pc 0001edf6  /system/lib/libc.so
+E/libc    ( 7233):      #05  pc 0001b80a  /system/lib/libc.so
+E/libc    ( 7233):      #06  pc 0001c086  /system/lib/libc.so
+E/libc    ( 7233):      #07  pc 40096402  /system/bin/malloctest
+E/libc    ( 7233):      #08  pc 00016f24  /system/lib/libc.so

@@ -1,0 +1,8 @@
+{
+  "presubmit": [
+    {
+      "name": "StsCommonUtilTests",
+      "host": true
+    }
+  ]
+}

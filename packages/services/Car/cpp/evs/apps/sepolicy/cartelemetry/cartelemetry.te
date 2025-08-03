@@ -1,0 +1,3 @@
+# Allow evs_app to use cartelemetry service
+allow evs_app cartelemetryd_service:service_manager find;
+binder_call(evs_app, cartelemetryd)

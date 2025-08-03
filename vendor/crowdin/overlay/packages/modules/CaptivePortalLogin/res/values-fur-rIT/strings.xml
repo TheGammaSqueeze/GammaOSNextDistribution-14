@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Acès Portâl Sierât</string>
+    <string name="action_use_network">Dopre cheste rêt cussì cemût che e je</string>
+    <string name="action_do_not_use_network">No sta doprâ cheste rêt</string>
+    <string name="action_bar_label">Jentre te rêt</string>
+    <string name="action_bar_title">Jentre in %1$s</string>
+    <string name="ssl_error_warning">Tu stâs cirint di jentrâ suntune rêt che e à problemis di sigurece.</string>
+    <string name="ssl_error_example">Par esempli, al è pussibil che la pagjine di acès no sedi de organizazion mostrade.</string>
+    <string name="no_bypass_error_vpnwarning">Sore, nol è pussibil evitâ chest erôr parcè che in chest moment une VPN e je in esecuzion su chest dispositîf.</string>
+    <string name="error_continue_via_browser">Continue istès vie navigadôr</string>
+    <string name="ssl_error_untrusted">Chest certificât nol rive di une autoriât atendibile.</string>
+    <string name="ssl_error_mismatch">Il non dal sît nol corispuint al non sul certificât.</string>
+    <string name="ssl_error_expired">Chest certificât al è scjadût.</string>
+    <string name="ssl_error_not_yet_valid">Chest certificât nol è ancjemò valit.</string>
+    <string name="ssl_error_date_invalid">Chest certificât al à une date no valide.</string>
+    <string name="ssl_error_invalid">Chest certificât nol è valit.</string>
+    <string name="ssl_error_unknown">Erôr di certificât no cognossût.</string>
+    <string name="ssl_security_warning_title">Avîs di sigurece</string>
+    <string name="ssl_error_view_certificate">Visualize certificât</string>
+    <string name="custom_scheme_warning">La rêt che tu stâs cirint di jentrâ e sta domandant che tu vierzis une altre aplicazion.</string>
+    <string name="custom_scheme_example">Par esempli, la pagjine di acès e podarès domandâ une specifiche aplicazion pe autenticazion</string>
+    <string name="ok">Va ben</string>
+    <string name="page_info_address">Direzion:</string>
+    <string name="page_info">Info pagjine</string>
+    <string name="downloading_paramfile">Daûr a discjariâ %1$s</string>
+    <string name="download_completed">Discjariament completât</string>
+    <string name="error_downloading_paramfile">Impussibil discjariâ %1$s</string>
+    <string name="channel_name_downloads">Discjariâts</string>
+    <string name="channel_description_downloads">Notifichis che a mostrin i files discjariâts completâts o anulâts</string>
+    <string name="channel_name_download_progress">Discjariament in cors</string>
+    <string name="channel_description_download_progress">Notifichis che a mostrin l\'avanzament dai files discjariats</string>
+    <string name="cancel_pending_downloads">Discjariament anulât</string>
+    <string name="file_too_large_cancel_download">File masse grant, discjariament anulât.</string>
+</resources>

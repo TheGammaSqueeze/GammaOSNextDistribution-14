@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2020 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+           xmlns:androidprv="http://schemas.android.com/apk/prv/res/android">
+
+    <style name="PickerDialogTheme"
+           parent="@android:style/Theme.DeviceDefault.Dialog.Alert">
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
+    <style name="AlertDialogTheme"
+           parent="@android:style/Theme.DeviceDefault.Dialog.Alert"/>
+
+    <style name="CacheClearingAlertDialogTheme"
+           parent="@android:style/Theme.DeviceDefault.Dialog.Alert">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:alertDialogTheme">@style/AlertDialogTheme</item>
+    </style>
+
+    <style name="PickerMaterialTheme" parent="@style/Theme.Material3.DayNight.NoActionBar">
+        <item name="materialAlertDialogTheme">@style/ProfileDialogTheme</item>
+        <item name="pickerDragBarColor">#686868</item>
+        <item name="pickerHighlightColor">?android:attr/colorAccent</item>
+        <item name="pickerHighlightTextColor">#202124</item>
+        <item name="pickerProfileButtonColor">#1F1F1F</item>
+        <item name="pickerDisabledProfileButtonColor">#444746</item>
+        <item name="pickerProfileButtonTextColor">#A8C7FA</item>
+        <item name="pickerDisabledProfileButtonTextColor">#428F8F8F</item>
+        <item name="pickerSelectedTabBackgroundColor">#3D8AB4F8</item>
+        <item name="pickerSelectedTabTextColor">#8AB4F8</item>
+        <item name="pickerTabBackgroundColor">@color/picker_background_color</item>
+        <item name="pickerTextColor">?android:attr/textColorSecondary</item>
+        <item name="pickerSelectedColor">?android:attr/colorAccent</item>
+        <item name="pickerProfileDialogButtonAndIconColor">#669DF6</item>
+        <item name="pickerProfileDialogTitleColor">#F1F3F4</item>
+        <item name="pickerProfileDialogBodyColor">#DADCE0</item>
+        <item name="pickerProfileDialogBackgroundColor">@android:color/black</item>
+        <!-- TODO(b/195009152): Final banner colors to be updated once received -->
+        <item name="pickerBannerBackgroundColor">@color/picker_background_color</item>
+        <item name="pickerBannerStrokeColor">#444746</item>
+        <item name="pickerBannerPrimaryTextColor">?android:attr/textColorSecondary</item>
+        <item name="pickerBannerSecondaryTextColor">?android:attr/textColorSecondary</item>
+        <item name="pickerBannerButtonTextColor">?android:attr/colorAccent</item>
+        <item name="categoryDefaultThumbnailColor">?attr/colorOnSurfaceVariant</item>
+        <item name="categoryDefaultThumbnailCircleColor">?attr/colorSurfaceVariant</item>
+    </style>
+
+</resources>

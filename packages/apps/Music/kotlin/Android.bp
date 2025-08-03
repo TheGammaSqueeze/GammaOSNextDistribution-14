@@ -1,0 +1,14 @@
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_app {
+    name: "MusicKotlin",
+    srcs: ["src/**/*.kt"],
+    sdk_version: "current",
+    product_specific: true,
+    optimize: {
+        proguard_flags_files: ["proguard.flags"],
+    },
+}

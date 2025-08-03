@@ -1,0 +1,103 @@
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+filegroup {
+    name: "adservices-proto",
+    srcs: [
+        "*.proto",
+    ],
+}
+
+// Generate the Proto POJO builders, etc.
+java_library {
+    name: "adservices-proto-lite",
+    sdk_version: "core_current",
+    proto: {
+        type: "lite",
+        include_dirs: [
+            "external/protobuf/src",
+            "external/protobuf/java",
+            "external/anonymous-counting-tokens",
+            "external/private-join-and-compute",
+        ],
+    },
+    srcs: [
+        ":adservices-proto",
+        ":libprotobuf-internal-protos",
+        ":act-proto",
+        ":private-join-and-compute-proto"
+    ],
+    static_libs: ["libprotobuf-java-lite"],
+    apex_available: [
+        "com.android.adservices",
+        "com.android.extservices",
+    ],
+}
+
+// Generate gRPC client code
+genrule {
+    name: "seller-frontend-service-stub-lite",
+    tools: [
+        "aprotoc",
+        "protoc-gen-grpc-java-plugin",
+        "soong_zip",
+    ],
+    cmd: "mkdir -p $(genDir)/gen && " +
+        "$(location aprotoc) --java_opt=annotate_code=false -Ipackages/modules/AdServices/adservices/service-core -Iexternal/protobuf/src " +
+        "--plugin=protoc-gen-grpc-java=$(location protoc-gen-grpc-java-plugin) --grpc-java_out=lite:$(genDir)/gen $(locations :adservices-proto) && " +
+        "$(location soong_zip) -o $(out) -C $(genDir)/gen -D $(genDir)/gen",
+    srcs: [
+        ":adservices-proto",
+        ":libprotobuf-internal-protos",
+    ],
+    out: [
+        "protos.srcjar",
+    ],
+}
+
+// Package into java_library to reference in "static_libs" in "adservices-service-core"
+java_library {
+    name: "adservices-grpclib-lite",
+    sdk_version: "module_current",
+    min_sdk_version: "30",
+    apex_available: [
+        "com.android.adservices",
+        "com.android.extservices",
+    ],
+    srcs: [
+        ":seller-frontend-service-stub-lite",
+        ":adservices-proto",
+        ":libprotobuf-internal-protos",
+    ],
+    libs: [
+        "javax_annotation-api_1.3.2",
+    ],
+    static_libs: [
+        "libprotobuf-java-lite",
+        "guava",
+        "grpc-java-core-android",
+        "grpc-java-okhttp-client-lite",
+    ],
+    proto: {
+        type: "lite",
+        include_dirs: [
+            "external/protobuf/src",
+            "external/protobuf/java",
+        ],
+    },
+}

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="feedback_system_logs_title_text" msgid="8162964763101361628">"Inclure tous journaux appareil (système et applis)"</string>
+    <string name="feedback_system_logs_legal_text" msgid="4770068793128503597">"Si vous partagez tous les journaux système et applis de l\'appareil, vous enverrez peut-être à Google des détails comme des noms d\'utilisateur, votre position, des ID d\'appareil et des infos réseau. Google utilise ces données pour résoudre des problèmes techniques et améliorer ses services. Plus d\'informations sur : g.co/android/devicelogs."</string>
+    <string name="feedback_bugreport_title_text" msgid="8863884817986711122">"Inclure un rapport de bug"</string>
+    <string name="feedback_bugreport_legal_display_text" msgid="4486929548753044585">"Le rapport de bug (%1$s) inclut des données comme des noms d\'utilisateur, la position, des ID d\'appareil et des infos réseau afin d\'aider Google à comprendre et à résoudre le problème."</string>
+    <string name="next" msgid="3308587969183798652">"Suivant"</string>
+    <string name="feedback_view_system_logs_button_text" msgid="1889709679017124924">"Afficher les journaux système"</string>
+    <string name="feedback_view_logs_dialog_title" msgid="1937861449450135462">"Journaux système"</string>
+    <string name="feedback_view_logs_dialog_body" msgid="2496560711853644250">"Ces journaux contiennent des informations dont nous aurons besoin pour traiter vos commentaires."</string>
+    <string name="annotated_back_indicator_string" msgid="3197935392074998004">"Appuyez sur le bouton RETOUR pour revenir en arrière."</string>
+    <string name="loading" msgid="1709842456101615353">"Chargement…"</string>
+</resources>

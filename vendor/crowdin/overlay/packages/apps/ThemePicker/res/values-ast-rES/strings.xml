@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2018 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Fondu de pantalla y estilu</string>
+    <string name="theme_title">Estilu</string>
+    <string name="clock_title">Reló personalizáu</string>
+    <string name="clock_description">Escueyi unu</string>
+    <string name="clock_picker_entry_content_description">Camudar un reló personalizáu</string>
+    <string name="select_clock_action_description">Opción d\'esfera de reló: <xliff:g name="clock_face_description">%1$s</xliff:g></string>
+    <string name="clock_settings_title">Color/tamañu\'l reló</string>
+    <string name="clock_color_and_size_title">Color/tamañu\'l reló</string>
+    <string name="clock_color_and_size_description"><xliff:g name="color">%1$s</xliff:g>, <xliff:g name="size">%2$s</xliff:g></string>
+    <string name="clock_color">Color</string>
+    <string name="clock_color_red">Coloráu</string>
+    <string name="clock_color_orange">Naranxa</string>
+    <string name="clock_color_yellow">Mariellu</string>
+    <string name="clock_color_green">Verde</string>
+    <string name="clock_color_blue">Azul</string>
+    <string name="clock_color_indigo">Índigu</string>
+    <string name="clock_color_violet">Violeta</string>
+    <string name="clock_color_gray">Buxu</string>
+    <string name="clock_color_teal">Verde azulao</string>
+    <string name="clock_size">Tamañu</string>
+    <string name="clock_size_dynamic">Dinámicu</string>
+    <string name="clock_size_dynamic_description">El tamañu del reló camuda acordies col conteníu de la pantalla de bloquéu</string>
+    <string name="clock_size_large">Grande</string>
+    <string name="clock_size_small">Pequeñu</string>
+    <string name="clock_size_small_description">Un reló pequeñu qu\'apaez na esquina de la pantalla</string>
+    <string name="grid_title">Rexáu d\'aplics.</string>
+    <string name="apply_theme_btn">Aplicar</string>
+    <string name="edit_custom_theme_lbl">Toca pa editar</string>
+    <string name="keep_my_wallpaper">Caltener el fondu pantalla actual</string>
+    <string name="theme_preview_card_content_description">Previsualización del estilu</string>
+    <string name="grid_preview_card_content_description">Previsualización del rexáu</string>
+    <string name="font_preview_content_description">Previsualización de la fonte</string>
+    <string name="icon_preview_content_description">Previsualización del iconu</string>
+    <string name="color_preview_content_description">Previsualización del color</string>
+    <string name="shape_preview_content_description">Previsualización de la forma</string>
+    <string name="option_applied_description"><xliff:g name="style_name">%1$s</xliff:g>, aplicáu anguaño</string>
+    <string name="option_applied_previewed_description"><xliff:g name="style_name">%1$s</xliff:g>, aplicáu anguaño y previsualizáu</string>
+    <string name="option_previewed_description"><xliff:g name="style_name">%1$s</xliff:g>, previsualizáu anguaño</string>
+    <string name="option_change_applied_previewed_description"><xliff:g name="style_name">%1$s</xliff:g>, cambéu seleicionáu y previsualizáu</string>
+    <string name="theme_description">Fonte: <xliff:g name="font_name">%1$s</xliff:g>, iconos: <xliff:g name="icon_name">%2$s</xliff:g>, forma: <xliff:g name="shape_name">%3$s</xliff:g>, color: <xliff:g name="color_name">%4$s</xliff:g> </string>
+    <string name="default_theme_title">Por defeutu</string>
+    <string name="preview_name_font">Fonte</string>
+    <string name="preview_name_icon">Iconu</string>
+    <string name="preview_name_color">Color</string>
+    <string name="preview_name_shape">Forma</string>
+    <string name="preview_name_wallpaper">Fondu de pantalla</string>
+    <string name="font_card_title">ABC • abc • 123</string>
+    <string name="font_card_body">Amiesta les fontes que prefieras a cada pantalla</string>
+    <string name="grid_options_title">Escueyi un tamañu pal rexáu</string>
+    <string name="apply_grid_btn_note">Al camudar el tamañu del rexáu va volver cargase la estaya de trabayu y pue tardar unos segundos.</string>
+    <string name="toast_of_changing_grid">Volviendo cargar la estaya de trabayu col rexáu «%1$s»</string>
+    <string name="toast_of_failure_to_change_grid">Hebo un fallu al volver cargar la estaya de trabayu col rexáu «%1$s»</string>
+    <string name="applied_theme_msg">L\'estilu afitóse correutamente</string>
+    <string name="applied_clock_msg">El reló afitóse correutamente</string>
+    <string name="applied_grid_msg">El rexáu afitóse correutamente</string>
+    <string name="apply_theme_error_msg">Hebo un problema al aplicar l\'estilu</string>
+    <string name="custom_theme_next">Siguiente</string>
+    <string name="custom_theme_previous">Anterior</string>
+    <string name="custom_theme">Personalizáu</string>
+    <string name="custom_theme_title">Personaliz. <xliff:g name="custom_num" example="1">%1$d</xliff:g> </string>
+    <string name="custom_theme_fragment_title">Estilu personalizáu</string>
+    <string name="custom_theme_delete">Desaniciar</string>
+    <string name="font_component_title">Escueyi una fonte</string>
+    <string name="icon_component_title">Escueyi los iconos</string>
+    <string name="color_component_title">Escueyi un color</string>
+    <string name="shape_component_title">Escueyi una forma</string>
+    <string name="name_component_title">Pon un nome al estilu</string>
+    <string name="icon_component_label">Iconos <xliff:g name="component_number" example="1">%1$d</xliff:g></string>
+    <string name="delete_custom_theme_confirmation">¿Quies desaniciar l\'estilu personalizáu?</string>
+    <string name="delete_custom_theme_button">Desaniciar</string>
+    <string name="cancel">Encaboxar</string>
+    <string name="set_theme_wallpaper_dialog_message">Afitar el fondu de pantalla del estilu</string>
+    <string name="use_style_instead_title">¿Ques usar l\'estilu «<xliff:g name="style_name">%1$s</xliff:g>»?</string>
+    <string name="use_style_instead_body">Los componentes qu\'escoyesti concasen col estilu «<xliff:g name="style_name">%1$s</xliff:g>». ¿Quies usar l\'estilu «<xliff:g name="style_name">%1$s</xliff:g>»?</string>
+    <string name="use_style_button">Usar «<xliff:g name="style_name">%1$s</xliff:g>»</string>
+    <string name="no_thanks">Non, gracies</string>
+    <string name="clock_preview_content_description">Previsualización del reló «<xliff:g name="clock_name">%1$s</xliff:g>»</string>
+    <string name="something_went_wrong">¡Meca! Prodúxose un error.</string>
+    <string name="theme_preview_icons_section_title">Color/iconos</string>
+    <string name="style_info_description">Previsualización de la fonte, iconos, forma de les aplicaciones y color</string>
+    <string name="accessibility_custom_font_title">Fonte personalizada</string>
+    <string name="accessibility_custom_icon_title">Iconu personalizáu</string>
+    <string name="accessibility_custom_color_title">Color personalizáu</string>
+    <string name="accessibility_custom_shape_title">Forma personalizada</string>
+    <string name="accessibility_custom_name_title">Nome d\'estilu personalizáu</string>
+    <string name="accessibility_clock_slider_description">Intensidá cromática</string>
+    <string name="mode_title" msgid="1000319159005403986">Estilu escuru</string>
+    <string name="mode_disabled_msg" msgid="1926077857799715086">Opción desactivada temporalmente pol aforrador d\'enerxía</string>
+    <string name="mode_changed">L\'estilu camudó</string>
+    <string name="themed_icon_title" msgid="4305612684940220645">Iconos temáticos</string>
+    <string name="beta_title">Beta</string>
+    <string name="gird_picker_entry_content_description" msgid="7538418512525897691">Camudar el rexáu d\'aplicaciones</string>
+    <string name="wallpaper_color_tab">Colores del fondu</string>
+    <string name="wallpaper_color_subheader">Iconos, testu y más combinen colos colores del fondu</string>
+    <string name="wallpaper_color_title">Color del fondu de pantalla</string>
+    <string name="preset_color_tab">Colores básicos</string>
+    <string name="preset_color_tab_2">Otros colores</string>
+    <string name="preset_color_subheader">Escueyi cualesquier color pa los iconos, el reló y más</string>
+    <string name="color_changed">El color camudó</string>
+    <string name="adaptive_color_title">Dinámicu</string>
+    <string name="color_picker_title">Colores del sistema</string>
+    <string name="keyguard_slot_name_bottom_start">Atayu esquierdu</string>
+    <string name="keyguard_slot_name_bottom_end">Atayu derechu</string>
+    <string name="keyguard_affordance_none">Nada</string>
+    <string name="keyguard_affordance_enablement_dialog_headline">Nun se pue amestar l\'atayu</string>
+    <string name="keyguard_affordance_enablement_dialog_action_template">Abrir «<xliff:g id="appName" example="Wallet">%1$s</xliff:g>»</string>
+    <string name="keyguard_affordance_enablement_dialog_message">P\'amestar l\'aplicación «<xliff:g id="appName" example="Wallet">%1$s</xliff:g>» como atayu:</string>
+    <string name="keyguard_affordance_enablement_dialog_dismiss_button">Fecho</string>
+    <string name="keyguard_quick_affordance_title">Atayos</string>
+    <string name="keyguard_quick_affordance_section_title">Atayos</string>
+    <string name="keyguard_quick_affordance_two_selected_template"><xliff:g id="first">%1$s</xliff:g>, <xliff:g id="second">%2$s</xliff:g></string>
+    <string name="keyguard_quick_affordance_none_selected">Nada</string>
+    <string name="show_notifications_on_lock_screen">Amosar los avisos na pantalla de bloquéu</string>
+    <string name="more_settings_section_title">Más opciones de la pant. bloq.</string>
+    <string name="more_settings_section_description">Privacidá, «En reproducción» y más</string>
+    <string name="more_colors">Más colores</string>
+    <string name="content_description_dynamic_color_option">Estilu dinámicu primariu</string>
+    <string name="content_description_neutral_color_option">Estilu neutral primariu</string>
+    <string name="content_description_vibrant_color_option">Estilu intensu primariu</string>
+    <string name="content_description_expressive_color_option">Estilu espresivu primariu</string>
+    <string name="content_description_default_color_option">Opción de color predeterminada</string>
+    <string name="content_description_color_option">Opción de color «<xliff:g name="color_number" example="1">%1$d</xliff:g>»</string>
+    <string name="scroll_forward_and_select">Esliza a la esquierda pa escoyer otra esfera</string>
+    <string name="scroll_backward_and_select">Esliza a la derecha pa escoyer otra esfera</string>
+    <string name="custom_clocks_label">Relós personalizaos</string>
+</resources>

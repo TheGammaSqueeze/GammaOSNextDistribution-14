@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Dynamic System Updates</string>
+    <string name="notification_channel_name">Dynamic System Updates</string>
+    <string name="keyguard_title">Dynamic System Updates</string>
+    <string name="notification_install_failed">Урнаштырып булмады</string>
+</resources>

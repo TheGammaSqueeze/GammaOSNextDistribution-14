@@ -1,0 +1,5 @@
+# Allow Car service to access cartelemetryd service.
+allow carservice_app cartelemetryd_service:service_manager find;
+
+# Allow binder calls with cartelemetryd.
+allow carservice_app cartelemetryd:binder call;

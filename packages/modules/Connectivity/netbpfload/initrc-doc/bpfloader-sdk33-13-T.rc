@@ -1,0 +1,12 @@
+on load_bpf_programs
+    write /proc/sys/kernel/unprivileged_bpf_disabled 0
+    write /proc/sys/net/core/bpf_jit_enable 1
+    write /proc/sys/net/core/bpf_jit_kallsyms 1
+    exec_start bpfloader
+
+service bpfloader /system/bin/bpfloader
+    capabilities CHOWN SYS_ADMIN NET_ADMIN
+    rlimit memlock 1073741824 1073741824
+    oneshot
+    reboot_on_failure reboot,bpfloader-failed
+    updatable

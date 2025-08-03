@@ -1,0 +1,303 @@
+// Copyright 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package netsim.model;
+
+import "netsim/common.proto";
+import "google/protobuf/timestamp.proto";
+import "rootcanal/configuration.proto";
+
+// A 3D position. A valid Position must have both x and y coordinates.
+// The position coordinates are in meters.
+message Position {
+  // positional value of x axis
+  float x = 1;
+  // positional value of y axis
+  float y = 2;
+  // positional value of z axis
+  float z = 3;
+}
+
+// A 3D orientation. A valid Orientation must have yaw, pitch, and roll.
+// The orientation values are in degrees.
+message Orientation {
+  // Rotational value around vertical axis.
+  float yaw = 1;
+  // Rotational value around side-to-side axis
+  float pitch = 2;
+  // Rotational value around front-to-back axis
+  float roll = 3;
+}
+
+// Radio Type used by netsim-grpc in testing module
+enum PhyKind {
+  // Unknown Chip Kind
+  NONE = 0;
+  BLUETOOTH_CLASSIC = 1;
+  BLUETOOTH_LOW_ENERGY = 2;
+  WIFI = 3;
+  UWB = 4;
+  WIFI_RTT = 5;
+}
+
+// An explicit valued boolean.
+// This is to avoid having default values.
+enum State {
+  // Default State
+  UNKNOWN = 0;
+  // True state
+  ON = 1;
+  // False state
+  OFF = 2;
+}
+
+// Model of a Chip in netsim
+message Chip {
+  // Type of Radio (BT, WIFI, UWB)
+  netsim.common.ChipKind kind = 1;
+  // Chip Identifier
+  uint32 id = 2;
+  // optional like "rear-right"
+  string name = 3;
+  // optional like Quorvo
+  string manufacturer = 4;
+  // optional like DW300
+  string product_name = 5;
+
+  // Radio state associated with the Chip
+  message Radio {
+    // Boolean state of Radio
+    State state = 1;
+    // Maximum range of Radio
+    float range = 2;
+    // Transmitted packet counts
+    int32 tx_count = 3;
+    // Received packet counts
+    int32 rx_count = 4;
+  }
+
+  // Bluetooth has 2 radios
+  message Bluetooth {
+    // BLE
+    Radio low_energy = 1;
+    // Bluetooth Classic
+    Radio classic = 2;
+    // BD_ADDR address
+    string address = 3;
+    // rootcanal Controller Properties
+    rootcanal.configuration.Controller bt_properties = 4;
+  }
+
+  // BleBeacon has numerous configurable fields.
+  // Address, AdvertiseSetting, AdvertiseData.
+  message BleBeacon {
+    // Advertise Settigns dictate how the beacon functions on the netwwork.
+    message AdvertiseSettings {
+      // How often the beacon sends an advertising packet
+      //
+      // Referenced From
+      // packages/modules/Bluetooth/framework/java/android/bluetooth/le/BluetoothLeAdvertiser.java#151
+      enum AdvertiseMode {
+        // Perform Bluetooth LE advertising in low power mode. This is the
+        // default and preferred advertising mode as it consumes the least power
+        LOW_POWER = 0;
+        // Perform Bluetooth LE advertising in balanced power mode. This is
+        // balanced between advertising frequency and power consumption
+        BALANCED = 1;
+        // Perform Bluetooth LE advertising in low latency, high power mode.
+        // This has the highest power consumption and should not be used for
+        // continuous background advertising
+        LOW_LATENCY = 2;
+      }
+
+      // Amount of power to send transmissions. Correlates with signal strength
+      // and range. Inversely correlates with energy consumption.
+      //
+      // Referenced From
+      // packages/modules/Bluetooth/framework/java/android/bluetooth/le/BluetoothLeAdvertiser.java#159
+      enum AdvertiseTxPower {
+        // Advertise using the lowest transmission (TX) power level. Low
+        // transmission power can be used to restrict the visibility range of
+        // advertising packets
+        ULTRA_LOW = 0;
+        // Advertise using low TX power level. This is the default
+        LOW = 1;
+        // Advertise using medium TX power level
+        MEDIUM = 2;
+        // Advertise using high TX power level. This corresponds to largest
+        // visibility range of the advertising packet
+        HIGH = 3;
+      }
+
+      // Time interval between advertisments.
+      oneof interval {
+        // How often the beacon sends an advertising packet
+        AdvertiseMode advertise_mode = 1;
+        // Numeric time interval between advertisements in ms.
+        uint64 milliseconds = 2;
+      }
+
+      // Transmission power level.
+      oneof tx_power {
+        // Amount of power to send transmission
+        AdvertiseTxPower tx_power_level = 3;
+        // Numeric transmission power in dBm. Must be within [-127, 127].
+        int32 dbm = 4;
+      }
+      // Whether the beacon will respond to scan requests.
+      bool scannable = 5;
+      // Limit adveritising to a given amoutn of time.
+      uint64 timeout = 6;
+    }
+
+    // These parameters dictate which fields are included in advertisements or
+    // scan responses sent by the beacon. Beacons in Betosim will support a
+    // subset of the complete list of fields found in "Supplement to the
+    // Bluetooth Core Specification"
+    message AdvertiseData {
+      // GATT service proto
+      message Service {
+        // UUID of a Bluetooth GATT service for the beacon
+        string uuid = 1;
+        // Bytes of data associated with a GATT service provided by the device
+        bytes data = 2;
+      }
+      // Whether the device name should be included in advertise packet.
+      bool include_device_name = 1;
+      // Whether the transmission power level should be included in the
+      // advertise packet.
+      bool include_tx_power_level = 2;
+      // Manufacturer specific data.
+      bytes manufacturer_data = 3;
+      // GATT services supported by the devices
+      repeated Service services = 4;
+    }
+
+    // Bluetooth Radio
+    Bluetooth bt = 1;
+    // BD_ADDR address
+    string address = 2;
+    // Settings on how beacon functions
+    AdvertiseSettings settings = 3;
+    // Advertising Data
+    AdvertiseData adv_data = 4;
+    // Scan Response Data
+    AdvertiseData scan_response = 5;
+  }
+  oneof chip {
+    // Dual mode of Bluetooth
+    Bluetooth bt = 6;
+    // Bluetooth Beacon Low Energy
+    BleBeacon ble_beacon = 9;
+    // UWB
+    Radio uwb = 7;
+    // WIFI
+    Radio wifi = 8;
+  }
+}
+
+// Protobuf for ChipCreate
+//
+// This is used specifically for CreateDevice
+message ChipCreate {
+  // Protobuf for BleBeaconCreate
+  // Beacon specific information during creation
+  message BleBeaconCreate {
+    // BD_ADDR address
+    string address = 1;
+    // Settings on how beacon functions
+    Chip.BleBeacon.AdvertiseSettings settings = 3;
+    // Advertising Data
+    Chip.BleBeacon.AdvertiseData adv_data = 4;
+    // Scan Response Data
+    Chip.BleBeacon.AdvertiseData scan_response = 5;
+  }
+
+  // Type of Radio (BT, WIFI, UWB)
+  netsim.common.ChipKind kind = 1;
+  // BD_ADDR address
+  string address = 2;
+  // optional like "rear-right"
+  string name = 3;
+  // optional like Quorvo
+  string manufacturer = 4;
+  // optional like DW300
+  string product_name = 5;
+  oneof chip {
+    // BleBeaconCreate protobuf
+    BleBeaconCreate ble_beacon = 6;
+  }
+  // optional rootcanal configuration for bluetooth chipsets.
+  rootcanal.configuration.Controller bt_properties = 7;
+}
+
+// Device model for netsim
+message Device {
+  // Device Identifier
+  uint32 id = 1;
+  // Device name. Settable at creation
+  string name = 2;
+  // Visibility of device in the scene
+  State visible = 3;
+  // Position of Device
+  Position position = 4;
+  // Orientation of Device
+  Orientation orientation = 5;
+  // Chips in Device. Device can have multiple chips of the same kind.
+  repeated Chip chips = 6;
+}
+
+// Protobuf for DeviceCreate
+//
+// This is used specifically for CreateDevice
+message DeviceCreate {
+  // Device name.
+  string name = 1;
+  // Position of Device
+  Position position = 2;
+  // Orientation of Device
+  Orientation orientation = 3;
+  // Chips in Device
+  repeated ChipCreate chips = 4;
+}
+
+// Scene model for netsim
+message Scene {
+  // List of devices in the scene.
+  repeated Device devices = 1;
+}
+
+// Capture model for netsim
+message Capture {
+  // Capture Identifier (Same as Chip Identifier)
+  uint32 id = 1;
+  // Type of Radio (BT, WIFI, UWB)
+  netsim.common.ChipKind chip_kind = 2;
+  // device AVD name
+  string device_name = 3;
+  // capture state
+  State state = 4;
+  // size of current capture
+  int32 size = 5;
+  // number of records in current capture
+  int32 records = 6;
+  // Timestamp of the most recent start_capture
+  // When "state" is set "ON", timestamp is updated.
+  google.protobuf.Timestamp timestamp = 7;
+  // True if capture for the chip is attached to netsim.
+  // False if chip has been detached from netsim.
+  bool valid = 8;
+}

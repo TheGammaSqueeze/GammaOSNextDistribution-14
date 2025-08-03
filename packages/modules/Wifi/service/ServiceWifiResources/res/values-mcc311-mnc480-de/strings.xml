@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2020 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="wifi_eap_error_message_code_32760" msgid="3261764688537859713">"<xliff:g id="SSID">%1$s</xliff:g>: Eine Verbindung mit Verizon Wi-Fi Access ist außerhalb der Abdeckung von Verizon nicht möglich. (Fehler = 32760)"</string>
+    <string name="wifi_eap_error_message_code_32761" msgid="1871122777148389539">"<xliff:g id="SSID">%1$s</xliff:g>: Du bist nicht bei Verizon Wi-Fi Access angemeldet. Bitte ruf uns unter 800-922-0204 an. (Fehler = 32761)"</string>
+    <string name="wifi_eap_error_message_code_32762" msgid="7021976880137083261">"<xliff:g id="SSID">%1$s</xliff:g>: Es gibt ein Problem mit deinem Verizon Wi-Fi Access-Konto. Bitte ruf uns unter 800-922-0204 an. (Fehler = 32762)"</string>
+    <string name="wifi_eap_error_message_code_32763" msgid="6747866353019749815">"<xliff:g id="SSID">%1$s</xliff:g>: Du bist bereits mit Verizon Wi-Fi Access verbunden. (Fehler = 32763)"</string>
+    <string name="wifi_eap_error_message_code_32764" msgid="5438673929477381203">"<xliff:g id="SSID">%1$s</xliff:g>: Es kann keine Verbindung zu Verizon Wi-Fi Access hergestellt werden. Bitte ruf uns unter 800-922-0204 an. (Fehler = 32764)"</string>
+    <string name="wifi_eap_error_message_code_32765" msgid="2927499260559495889">"<xliff:g id="SSID">%1$s</xliff:g>: Es gibt ein Problem mit deinem Verizon Wi-Fi Access-Konto. Bitte ruf uns unter 800-922-0204 an. (Fehler = 32765)"</string>
+    <string name="wifi_eap_error_message_code_32766" msgid="825723520633879152">"<xliff:g id="SSID">%1$s</xliff:g>: Verizon Wi-Fi Access ist an deinem Standort nicht verfügbar. Du kannst es noch einmal später oder von einem anderen Standort aus versuchen. (Fehler = 32766)"</string>
+    <string name="wifi_eap_error_message_code_32767" msgid="5227394021313254586">"<xliff:g id="SSID">%1$s</xliff:g>: Es kann keine Verbindung zu Verizon Wi-Fi Access hergestellt werden. Du kannst es noch einmal später oder von einem anderen Standort aus versuchen."</string>
+    <string name="wifi_eap_error_message_code_32768" msgid="5139270879227638419"></string>
+    <string name="wifi_eap_error_message_code_32769" msgid="1736674109204049023"></string>
+    <string name="wifi_eap_error_message_code_16384" msgid="1100339784338115021">"<xliff:g id="SSID">%1$s</xliff:g>: Aufgrund von Fehler 16384 kann keine Verbindung zu Verizon Wi-Fi Access hergestellt werden."</string>
+    <string name="wifi_eap_error_message_code_16385" msgid="4279775601920162197">"<xliff:g id="SSID">%1$s</xliff:g>: Aufgrund von Fehler 16385 kann keine Verbindung zu Verizon Wi-Fi Access hergestellt werden."</string>
+    <string name="wifi_eap_error_message_unknown_error_code" msgid="3323018400668273886">"<xliff:g id="SSID">%1$s</xliff:g>: Es kann keine Verbindung zu Verizon Wi-Fi Access hergestellt werden."</string>
+</resources>

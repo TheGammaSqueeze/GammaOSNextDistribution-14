@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+     Copyright (C) 2017 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="wallpaper_app_name" msgid="1719889291772891695">"ওয়ালপেপার"</string>
+    <!-- no translation found for app_name (8773648973927541493) -->
+    <skip />
+    <string name="select_wallpaper_label" msgid="6989581259339646085">"ওয়ালপেপারের বিভাগ"</string>
+    <string name="set_wallpaper_button_text" msgid="5445978864530156290">"ওয়ালপেপার সেট করুন"</string>
+    <string name="set_wallpaper_progress_message" msgid="7986528287618716715">"ওয়ালপেপার সেট করা হচ্ছে…"</string>
+    <string name="try_again" msgid="8278874823700921234">"আবার চেষ্টা করুন"</string>
+    <string name="set_wallpaper_error_message" msgid="6819986999041085130">"ওয়ালপেপার সেট করা গেল না।"</string>
+    <string name="load_wallpaper_error_message" msgid="7913278480467707374">"ওয়ালপেপার লোড করা গেল না। ছবিটি হয়ত খারাপ হয়ে গেছে বা সেটি উপলভ্য নয়।"</string>
+    <string name="static_wallpaper_presentation_mode_message" msgid="417940227049360906">"বর্তমানে সেট করা রয়েছে"</string>
+    <string name="rotating_wallpaper_presentation_mode_message" msgid="3361676041605733288">"প্রতিদিনের ওয়ালপেপার"</string>
+    <string name="wallpaper_destination_both" msgid="1124197176741944063">"হোম ও লক স্ক্রিন"</string>
+    <string name="choose_a_wallpaper_section_title" msgid="1009823506890453891">"ওয়ালপেপার বেছে নিন"</string>
+    <string name="creative_wallpaper_title" msgid="3581650238648981372">"ওয়ালপেপার তৈরি করুন"</string>
+    <string name="home_screen_message" msgid="106444102822522813">"হোম স্ক্রিন"</string>
+    <string name="lock_screen_message" msgid="1534506081955058013">"লক স্ক্রিন"</string>
+    <string name="home_and_lock_short_label" msgid="2937922943541927983">"হোম ও লক"</string>
+    <string name="set_wallpaper_dialog_message" msgid="2110475703996853076">"ওয়ালপেপার সেট করুন"</string>
+    <string name="set_wallpaper_home_screen_destination" msgid="7315594722013109354">"হোম স্ক্রিন"</string>
+    <string name="set_wallpaper_lock_screen_destination" msgid="6224685559375417945">"লক স্ক্রিন"</string>
+    <string name="set_wallpaper_both_destination" msgid="2536004558738350775">"হোম ও লক স্ক্রিন"</string>
+    <string name="no_backup_image_wallpaper_label" msgid="6316627676107284851">"নির্দিষ্ট সময় অন্তর একই ছবি দেখানোর ওয়ালপেপার"</string>
+    <string name="permission_needed_explanation" msgid="139166837541426823">"বর্তমানে বেছে নেওয়া ওয়ালপেপারটি এখানে ডিসপ্লে করার জন্য <xliff:g id="APP_NAME">%1$s</xliff:g>-কে আপনার ডিভাইসের স্টোরেজে অ্যাক্সেস দিতে হবে।"</string>
+    <string name="permission_needed_explanation_go_to_settings" msgid="3923551582092599609">"বর্তমান ওয়ালপেপারটি এখানে দেখাতে হলে ওয়ালপেপার অ্যাপটিকে আপনার ডিভাইসের স্টোরেজে অ্যাক্সেস দিতে হবে।\n\nএই সেটিংটি পরিবর্তন করতে ওয়ালপেপার অ্যাপের তথ্যের পৃষ্ঠায় \'অনুমতি\' বিভাগে যান।"</string>
+    <string name="permission_needed_allow_access_button_label" msgid="1943133660612924306">"অ্যাক্সেস দিন"</string>
+    <string name="no_backup_image_wallpaper_description" msgid="8303268619408738057">"নির্দিষ্ট সময় অন্তর একই ওয়ালপেপার দেখানোর জন্য লাইভ ওয়ালপেপার পরিষেবা"</string>
+    <string name="daily_refresh_tile_title" msgid="3270456074558525091">"প্রতিদিনের ওয়ালপেপার"</string>
+    <string name="daily_refresh_tile_subtitle" msgid="3976682014885446443">"চালু করতে ট্যাপ করুন"</string>
+    <string name="start_rotation_dialog_body_live_wallpaper_needed" msgid="5132580257563846082">"ওয়ালপেপার প্রতিদিন নিজে থেকে পরিবর্তিত হবে। সেট-আপ সম্পন্ন করতে, পরবর্তী স্ক্রিনে &lt;strong&gt;ওয়ালপেপার সেট করুন&lt;/strong&gt; বিকল্পে ট্যাপ করুন।"</string>
+    <string name="start_rotation_dialog_wifi_only_option_message" msgid="3126269859713666225">"পরবর্তী ওয়ালপেপারগুলিকে শুধুমাত্র ওয়াই-ফাইয়ের মাধ্যমে ডাউনলোড করুন"</string>
+    <string name="start_rotation_dialog_continue" msgid="276678987852274872">"এগিয়ে যান"</string>
+    <string name="start_rotation_progress_message" msgid="7872623873682262083">"প্রথম ওয়ালপেপারটিকে ডাউনলোড করা হচ্ছে…"</string>
+    <string name="start_rotation_error_message" msgid="3053799836719618972">"প্রথম ওয়ালপেপারটিকে ডাউনলোড করা গেল না। অনুগ্রহ করে আপনার নেটওয়ার্ক সেটিংস পরীক্ষা করে আবার চেষ্টা করুন।"</string>
+    <string name="start_rotation_dialog_body" msgid="7903554799046364916">"ওয়ালপেপার প্রতিদিন নিজে থেকে পরিবর্তিত হবে"</string>
+    <string name="settings_button_label" msgid="8724734130079207955">"সেটিংস"</string>
+    <string name="explore" msgid="7468719504199497281">"ঘুরে দেখুন"</string>
+    <string name="next_wallpaper" msgid="3911873152952596232">"পরবর্তী ওয়ালপেপার"</string>
+    <string name="wallpaper_disabled_message" msgid="7309484130562148185">"ওয়ালপেপার সেট করার বৈশিষ্ট্যটি এই ডিভাইসে বন্ধ করা আছে"</string>
+    <string name="wallpaper_disabled_by_administrator_message" msgid="1551430406714747884">"আপনার ডিভাইসের অ্যাডমিনিস্ট্রেটর ওয়ালপেপার সেট করার বৈশিষ্ট্যটি বন্ধ করেছেন"</string>
+    <string name="wallpaper_set_successfully_message" msgid="2958998799111688578">"ওয়ালপেপার সেট করা হয়েছে"</string>
+    <string name="wallpapers_unavailable_offline_message" msgid="8136405438621689532">"ওয়ালপেপারগুলি দেখতে আপনার ইন্টারনেট কানেকশন প্রয়োজন। কানেক্ট করে আবার চেষ্টা করুন।"</string>
+    <string name="currently_set_home_wallpaper_thumbnail" msgid="4022381436821898917">"বর্তমানে সেট করা হোম স্ক্রিন ওয়ালপেপারের থাম্বনেল"</string>
+    <string name="currently_set_lock_wallpaper_thumbnail" msgid="2094209303934569997">"বর্তমানে সেট করা লক স্ক্রিন ওয়ালপেপারের থাম্বনেল"</string>
+    <string name="currently_set_wallpaper_thumbnail" msgid="8651887838745545107">"বর্তমানে সেট করা ওয়ালপেপারের থাম্বনেল"</string>
+    <string name="wallpaper_thumbnail" msgid="569931475923605974">"ওয়ালপেপারের থাম্বনেল"</string>
+    <string name="explore_home_screen" msgid="8756346794535765482">"হোম স্ক্রিন ওয়ালপেপার ঘুরে দেখুন"</string>
+    <string name="explore_lock_screen" msgid="268938342103703665">"লক স্ক্রিন ওয়ালপেপার ঘুরে দেখুন"</string>
+    <string name="refresh_daily_wallpaper_home_content_description" msgid="2770445044556164259">"প্রতিদিনের হোম স্ক্রিন ওয়ালপেপার রিফ্রেশ করুন"</string>
+    <string name="refresh_daily_wallpaper_content_description" msgid="4362142658237147583">"প্রতিদিনের ওয়ালপেপার রিফ্রেশ করুন"</string>
+    <string name="preview_screen_description" msgid="3386387053327775919">"ওয়ালপেপার প্রিভিউ স্ক্রিন"</string>
+    <string name="refreshing_daily_wallpaper_dialog_message" msgid="1975910873362855761">"প্রতিদিনের ওয়ালপেপার রিফ্রশ করা হচ্ছে…"</string>
+    <string name="refresh_daily_wallpaper_failed_message" msgid="4749879993812557166">"প্রতিদিনের ওয়ালপেপার রিফ্রেশ করা গেল না। অনুগ্রহ করে আপনার কানেকশন যাচাই করে আবার চেষ্টা করুন।"</string>
+    <string name="on_device_wallpapers_category_title" msgid="805819102071369004">"ডিভাইসে থাকা ওয়ালপেপার"</string>
+    <string name="on_device_wallpapers_category_title_desktop" msgid="316919420410065369">"ডিভাইসে রয়েছে"</string>
+    <string name="on_device_wallpaper_title" msgid="5262564748034629524">"Android-এর ওয়ালপেপার"</string>
+    <string name="live_wallpapers_category_title" msgid="1814374812192366349">"লাইভ ওয়ালপেপার"</string>
+    <string name="my_photos_category_title" msgid="4294567122144565273">"আমার ফটো"</string>
+    <string name="my_photos_generic_wallpaper_title" msgid="7002867526154631172">"আমার ফটো"</string>
+    <string name="fallback_wallpaper_title" msgid="6154655421012506001">"ওয়ালপেপার"</string>
+    <string name="app_not_found" msgid="4431461707854088231">"অ্যাপ ইনস্টল করা নেই।"</string>
+    <string name="center_wallpaper_position" msgid="4166894762352288883">"মাঝখানে"</string>
+    <string name="center_crop_wallpaper_position" msgid="1681980019815343348">"সীমানার দিকে কাটছাঁট করা"</string>
+    <string name="stretch_wallpaper_position" msgid="5002680983147456935">"প্রসারিত"</string>
+    <string name="preview" msgid="1774602101743861071">"প্রিভিউ"</string>
+    <string name="tab_info" msgid="818614080690111416">"তথ্য"</string>
+    <string name="tab_customize" msgid="2533745409174959960">"কাস্টমাইজ করুন"</string>
+    <string name="tab_effects" msgid="3213606157589233901">"এফেক্ট"</string>
+    <string name="tab_share" msgid="6676269624804601227">"শেয়ার করুন"</string>
+    <string name="my_photos" msgid="8613021349284084982">"আমার ফটো"</string>
+    <string name="configure_wallpaper" msgid="849882179182976621">"সেটিংস…"</string>
+    <string name="delete_live_wallpaper" msgid="589212696102662329">"মুছে দিন"</string>
+    <string name="edit_live_wallpaper" msgid="3132060073690558045">"এডিট করুন"</string>
+    <string name="delete_wallpaper_confirmation" msgid="1905114562243802354">"আপনার ডিভাইস থেকে এই ওয়ালপেপার মুছে দেবেন?"</string>
+    <string name="bottom_action_bar_back" msgid="2620581414970740784">"উপরের দিকে নেভিগেট করুন"</string>
+    <string name="bottom_action_bar_edit" msgid="1214742990893082138">"এডিট করুন"</string>
+    <string name="bottom_action_bar_download" msgid="3983122338076389421">"ডাউনলোড করুন"</string>
+    <string name="bottom_action_bar_slideshow_wallpaper" msgid="509770525179533154">"ওয়ালপেপার স্লাইডশো দেখুন"</string>
+    <string name="bottom_action_bar_apply" msgid="2983308349819178932">"প্রয়োগ করুন"</string>
+    <string name="accessibility_preview_pager" msgid="1839869637405028575">"<xliff:g id="ID_2">%2$d</xliff:g>টি পৃষ্ঠার মধ্যে <xliff:g id="ID_1">%1$d</xliff:g> নম্বর"</string>
+    <string name="next_page_content_description" msgid="6268461446679584152">"পরের"</string>
+    <string name="previous_page_content_description" msgid="1138597031571078429">"আগের"</string>
+    <string name="wallpaper_title" msgid="6754214682228331092">"ওয়ালপেপার"</string>
+    <string name="wallpaper_preview_card_content_description" msgid="6049261033541034584">"ওয়ালপেপার প্রিভিউ করুন"</string>
+    <string name="lock_wallpaper_preview_card_content_description" msgid="5236839857695985498">"লকস্ক্রিন ওয়ালপেপার প্রিভিউ"</string>
+    <string name="home_wallpaper_preview_card_content_description" msgid="4059418716070821630">"হোম স্ক্রিন ওয়ালপেপার প্রিভিউ"</string>
+    <string name="collection_not_exist_msg" msgid="3504852962885064842">"কালেকশন উপলভ্য নেই"</string>
+    <string name="wallpaper_exit_split_screen" msgid="1928870664619591636">"\'স্প্লিট স্ক্রিন\' মোড থেকে বেরিয়ে আবার চেষ্টা করুন"</string>
+    <string name="set_wallpaper_dialog_set_button" msgid="5760149969510325088">"সেট করুন"</string>
+    <string name="cancel" msgid="4970902691067201584">"বাতিল করুন"</string>
+    <string name="hide_ui_preview_text" msgid="6766076482511252295">"UI প্রিভিউ লুকান"</string>
+    <string name="hint_hide_ui_preview" msgid="4527603797714586070">"প্রিভিউতে UI লুকানো হয়েছে। দেখাতে ডবল ট্যাপ করুন"</string>
+    <string name="show_ui_preview_text" msgid="5993063062417070806">"UI প্রিভিউ দেখুন"</string>
+    <string name="hide_preview_controls_content_description" msgid="894958599274977655">"প্রিভিউ কন্ট্রোল দেখানো আছে। লুকাতে ডবল ট্যাপ করুন"</string>
+    <string name="hide_preview_controls_action" msgid="3419260118386783295">"প্রিভিউ কন্ট্রোল লুকান"</string>
+    <string name="show_preview_controls_content_description" msgid="908147864005440602">"প্রিভিউ কন্ট্রোল লুকানো আছে। দেখতে ডবল ট্যাপ করুন"</string>
+    <string name="show_preview_controls_action" msgid="7700775001986890400">"প্রিভিউ কন্ট্রোল দেখুন"</string>
+    <string name="hide_wallpaper_info_action" msgid="6572492484253895374">"ওয়ালপেপার সম্পর্কিত তথ্য লুকান"</string>
+    <string name="hint_show_ui_preview" msgid="2744155435325318349">"প্রিভিউতে UI দেখানো হয়েছে। লুকাতে ডবল ট্যাপ করুন"</string>
+    <string name="wallpaper_picker_entry_title" msgid="5185793991582084891">"ওয়ালপেপার পরিবর্তন করুন"</string>
+    <string name="lockscreen_wallpaper_preview_card_content_description" msgid="2244890820627302245">"লকস্ক্রিন ওয়ালপেপার প্রিভিউ"</string>
+    <string name="apply_btn" msgid="5764555565943538528">"প্রয়োগ করুন"</string>
+    <string name="accessibility_customize_hidden" msgid="6320568529768181691">"কাস্টমাইজ প্যানেল লুকানো হয়েছে"</string>
+    <string name="accessibility_customize_shown" msgid="590964727831547651">"কাস্টমাইজ প্যানেল দেখানো হয়েছে"</string>
+    <string name="accessibility_info_hidden" msgid="2288603712350168107">"তথ্য লুকানো হয়েছে"</string>
+    <string name="accessibility_info_shown" msgid="6626025722456105632">"তথ্য দেখানো হয়েছে"</string>
+    <string name="settings_snackbar_description" msgid="890168814524778486">"সেটিংসে ফাইল এবং মিডিয়ার সুবিধা চালু করুন।"</string>
+    <string name="settings_snackbar_enable" msgid="5992112808061426068">"চালু করুন"</string>
+    <string name="open_my_photos" msgid="4107196465713868381">"আমার ফটো বিভাগ খুলুন"</string>
+    <string name="lock_screen_tab" msgid="6672930765010407652">"লক স্ক্রিন"</string>
+    <string name="home_screen_tab" msgid="1080445697837877526">"হোম স্ক্রিন"</string>
+    <string name="reset" msgid="4945445169532850631">"রিসেট করুন"</string>
+    <string name="reset_confirmation_dialog_title" msgid="3391905685838213712">"পরিবর্তন রিসেট করবেন?"</string>
+    <string name="reset_confirmation_dialog_message" msgid="888669268626289603">"আপনার করা পরিবর্তন সেভ করা হবে না"</string>
+    <string name="more_wallpapers" msgid="8116268433411881705">"আরও ওয়ালপেপার"</string>
+    <string name="recents_wallpaper_label" msgid="8653165542635660222">"%1$s, %2$d"</string>
+    <string name="default_wallpaper_title" msgid="2541071182656978180">"ওয়ালপেপার"</string>
+    <string name="small_preview_tooltip" msgid="1920430079013352071">"আপনার ফটো এডিট করতে ট্যাপ করুন"</string>
+    <string name="full_preview_tooltip" msgid="4648994028015322759">"আপনার ফটোর পজিশন, স্কেল ও কোণ অ্যাডজাস্ট করুন"</string>
+</resources>

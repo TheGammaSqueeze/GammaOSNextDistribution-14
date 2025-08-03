@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2006 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label">Kalendorius</string>
+    <string name="when_label">Kada</string>
+    <string name="today">Šiandien</string>
+    <string name="tomorrow">Rytoj</string>
+    <string name="today_at_time_fmt">"Šiandien <xliff:g id="TIME_INTERVAL">%s</xliff:g>"</string>
+    <string name="tomorrow_at_time_fmt">"Rytoj <xliff:g id="TIME_INTERVAL">%s</xliff:g>"</string>
+    <string name="date_time_fmt">"<xliff:g id="DATE">%1$s</xliff:g>, <xliff:g id="TIME_INTERVAL">%2$s</xliff:g>"</string>
+    <string name="no_title_label">(Nėra pavadinimo)</string>
+    <plurals name="Nminutes">
+        <item quantity="one">1 min.</item>
+        <item quantity="few"><xliff:g id="COUNT">%d</xliff:g> min.</item>
+        <item quantity="many"><xliff:g id="COUNT">%d</xliff:g> min.</item>
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> min.</item>
+    </plurals>
+    <plurals name="Nmins">
+        <item quantity="one">1 min.</item>
+        <item quantity="few"><xliff:g id="COUNT">%d</xliff:g> min.</item>
+        <item quantity="many"><xliff:g id="COUNT">%d</xliff:g> min.</item>
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> min.</item>
+    </plurals>
+    <plurals name="Nhours">
+        <item quantity="one">1 val.</item>
+        <item quantity="few"><xliff:g id="COUNT">%d</xliff:g> val.</item>
+        <item quantity="many"><xliff:g id="COUNT">%d</xliff:g> val.</item>
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> val.</item>
+    </plurals>
+    <plurals name="Ndays">
+        <item quantity="one">1 d.</item>
+        <item quantity="few"><xliff:g id="COUNT">%d</xliff:g> d.</item>
+        <item quantity="many"><xliff:g id="COUNT">%d</xliff:g> d.</item>
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> d.</item>
+    </plurals>
+    <string name="show_day_view">"Rodyti dieną"</string>
+    <string name="agenda_view">"Darbotvarkė"</string>
+    <string name="day_view">"Diena"</string>
+    <string name="week_view">"Savaitė"</string>
+    <string name="month_view">"Mėnuo"</string>
+    <string name="event_view">"Žiūrėti įvykį"</string>
+    <string name="event_create">"Naujas įvykis"</string>
+    <string name="event_edit">"Redaguoti įvykį"</string>
+    <string name="event_delete">"Ištrinti įvykį"</string>
+    <string name="goto_today">"Šiandien"</string>
+    <string name="menu_preferences">"Nustatymai"</string>
+    <string name="search">"Ieškoti"</string>
+    <string name="hide_controls">"Slėpti valdiklius"</string>
+    <string name="show_controls">"Rodyti valdiklius"</string>
+    <string name="select_synced_calendars_button">Sinchronizuojami kalendoriai</string>
+    <string name="hint_what">"Įvykio pavadinimas"</string>
+    <string name="hint_where">"Vieta"</string>
+    <string name="hint_description">"Aprašas"</string>
+    <string name="hint_attendees">"Svečiai"</string>
+    <string name="creating_event">"Įvykis sukurtas."</string>
+    <string name="saving_event">"Įvykis išsaugotas."</string>
+    <string name="empty_event">"Tuščias įvykis nesukurtas."</string>
+    <string name="creating_event_with_guest">"Bus išsiųsti pakvietimai."</string>
+    <string name="saving_event_with_guest">"Bus išsiųsti naujiniai."</string>
+    <string name="rsvp_accepted">"Atsakyta „Taip“."</string>
+    <string name="rsvp_tentative">"Atsakyta „Galbūt“."</string>
+    <string name="rsvp_declined">"Atsakyta „Ne“"</string>
+    <string name="create_event_dialog_save">Išsaugoti</string>
+    <string name="alert_title">Kalendoriaus įspėjimai</string>
+    <string name="event_info_title">Žiūrėti įvykį</string>
+    <string name="event_info_title_invite">Kvietimas į susitikimą</string>
+    <string name="edit_event_all_day_label">Visos dienos</string>
+    <string name="edit_event_calendar_label">Kalendorius</string>
+    <string name="presence_label">Rodyti mane kaip</string>
+    <string name="privacy_label">Privatumas</string>
+    <string name="reminders_label">Pridėti priminimą</string>
+    <string name="no_syncable_calendars">Nėra kalendorių</string>
+    <string name="view_event_calendar_label">Kalendorius:</string>
+    <string name="view_event_organizer_label">Tvarkytuvė:</string>
+    <string name="choose_event_color_label">Pasirinkti įvykio spalvą</string>
+    <string name="event_color_picker_dialog_title">Įvykio spalva</string>
+    <string name="event_color_set_to_default">Nustatyti numatytąją kalendoriaus spalvą</string>
+    <string name="calendar_color_picker_dialog_title">Kalendoriaus spalva</string>
+    <string name="calendar_square_color_picker_description">Spalvos parinkiklis</string>
+    <string name="view_event_response_label">Dalyvausite?</string>
+    <string name="response_yes">Taip</string>
+    <string name="response_maybe">Gal</string>
+    <string name="response_no">Ne</string>
+    <string name="email_guests_label">Siųsti el. laišką svečiams</string>
+    <string name="email_organizer_label">El. pašto tvarkymo priemonė</string>
+    <string name="email_picker_label">Siųsti el. paštu su</string>
+    <string name="event_not_found">"Įvykis nerastas."</string>
+    <string name="map_label">Žemėlapis</string>
+    <string name="call_label">Skambinti</string>
+    <string name="quick_response_settings">Greiti atsakai</string>
+    <string name="quick_response_settings_summary">Red. num. ats. sveč. siunč. el. laišk.</string>
+    <string name="quick_response_settings_edit_title">Greitas atsakas</string>
+    <string name="quick_response_dialog_title">Pasirinkti greitą atsaką</string>
+    <string name="quick_response_email_failed">Nepavyko rasti el. pašto programos</string>
+    <string-array name="quick_response_defaults">
+        <item>Vėluojama tik kelias minutes.</item>
+        <item>Būkite ten po maždaug 10 min.</item>
+        <item>Pirmyn, pradėkite be manęs.</item>
+        <item>Deja, nespėsiu. Turėsime suplanuoti iš naujo.</item>
+    </string-array>
+    <string name="quick_response_custom_msg">Sukurkite patys…</string>
+    <string name="event_info_organizer">Tvarkytuvė:</string>
+    <string name="event_info_reminders_label">Priminimai</string>
+    <string name="loading">Įkeliama…</string>
+    <string name="show_older_events">Jei norite peržiūrėti įvykius iki <xliff:g id="OLDEST_SEARCH_RANGE">%1$s</xliff:g>, palieskite</string>
+    <string name="show_newer_events">Jei norite peržiūrėti įvykius po <xliff:g id="NEWEST_SEARCH_RANGE">%1$s</xliff:g>, palieskite</string>
+    <string name="search_title">Ieškoti mano kalendoriuose</string>
+    <string name="edit_event_label">"Išsamiau"</string>
+    <string name="edit_label">"Redaguoti"</string>
+    <string name="delete_label">"Ištrinti"</string>
+    <string name="save_label">Atlikta</string>
+    <string name="discard_label">Atšaukti</string>
+    <string name="dismiss_all_label">"Atsisakyti visko"</string>
+    <string name="snooze_label">"Snausti"</string>
+    <string name="does_not_repeat">Vienkartinis įvykis</string>
+    <string name="endByDate">, iki <xliff:g id="DATE">%s</xliff:g></string>
+    <plurals name="endByCount">
+        <item quantity="one">, vieną kartą</item>
+        <item quantity="few">, <xliff:g id="NUMBER">%d</xliff:g> k.</item>
+        <item quantity="many">, <xliff:g id="NUMBER">%d</xliff:g> k.</item>
+        <item quantity="other">, <xliff:g id="NUMBER">%d</xliff:g> k.</item>
+    </plurals>
+    <plurals name="daily">
+        <item quantity="one">Kasdien</item>
+        <item quantity="few">Kas <xliff:g id="NUMBER">%d</xliff:g> d.</item>
+        <item quantity="many">Kas <xliff:g id="NUMBER">%d</xliff:g> d.</item>
+        <item quantity="other">Kas <xliff:g id="NUMBER">%d</xliff:g> d.</item>
+    </plurals>
+    <string name="every_weekday">"Savaitės dienomis (Pi–Pe)"</string>
+    <plurals name="weekly">
+        <item quantity="one">Kas savaitę, <xliff:g id="DAYS_OF_WEEK">%2$s</xliff:g></item>
+        <item quantity="few">Kas <xliff:g id="NUMBER">%1$d</xliff:g> sav., <xliff:g id="DAYS_OF_WEEK">%2$s</xliff:g></item>
+        <item quantity="many">Kas <xliff:g id="NUMBER">%1$d</xliff:g> sav., <xliff:g id="DAYS_OF_WEEK">%2$s</xliff:g></item>
+        <item quantity="other">Kas <xliff:g id="NUMBER">%1$d</xliff:g> sav., <xliff:g id="DAYS_OF_WEEK">%2$s</xliff:g></item>
+    </plurals>
+    <string name="monthly">Kas mėnesį</string>
+    <string name="yearly_plain">Kasmet</string>
+    <string name="custom" product="default">"Priskirtas (negalima tinkinti telefonu)"</string>
+    <string name="modify_event">Keisti tik šį įvykį</string>
+    <string name="modify_all">Keisti visus sekos įvykius</string>
+    <string name="modify_all_following">Pakeisti šį ir visus būsimus įvykius</string>
+    <string name="new_event_dialog_label">"Naujas įvykis"</string>
+    <string name="new_event_dialog_option">"Naujas įvykis"</string>
+    <string name="delete_this_event_title">Ištrinti šį įvykį?</string>
+    <string name="delete_recurring_event_title">Ištrinti „<xliff:g id="EVENTTITLE">%s</xliff:g>“?</string>
+    <string name="change_response_title">Pakeisti atsakymą</string>
+    <string name="preferences_title">"Nustatymai"</string>
+    <string name="preferences_general_title">Kalendoriaus rodinio nustatymas</string>
+    <string name="preferences_reminder_title">Pranešimai ir priminimai</string>
+    <string name="preferences_hide_declined_title">Slėpti atmestus įvykius</string>
+    <string name="preferences_week_start_day_title">Savaitė prasideda</string>
+    <string name="preferences_week_start_day_dialog">Savaitė prasideda</string>
+    <string name="preferences_clear_search_history_title">Išvalyti paieškos istoriją</string>
+    <string name="preferences_clear_search_history_summary">Pašalinti visas atliktas paieškas</string>
+    <string name="search_history_cleared">Paieškos istorija išvalyta.</string>
+    <string name="preferences_alerts_title">Pranešimai</string>
+    <string name="preferences_alerts_vibrateWhen_title">Vibruoti</string>
+    <string name="preferences_alerts_ringtone_title">Garsas</string>
+    <string name="preferences_alerts_popup_title">Iššokantysis pranešimas</string>
+    <string name="preferences_default_reminder_title">Numatytasis priminimo laikas</string>
+    <string name="preferences_default_reminder_dialog">Numatytasis priminimo laikas</string>
+    <string name="preferences_default_reminder_default">10</string>
+    <string name="preferences_use_home_tz_title">Naud. pagr. laiko juostą</string>
+    <string name="preferences_use_home_tz_descrip">Keliaujant pateik. kalend. ir įvyk. laik. pagr. laiko juosta</string>
+    <string name="preferences_home_tz_title">Pagrindinė laiko juosta</string>
+    <string name="preferences_show_week_num_title">Rodyti savaitės numerį</string>
+    <string name="preferences_build_version">Versija</string>
+    <plurals name="month_more_events">
+        <item quantity="one">"+1"</item>
+        <item quantity="few">+<xliff:g id="NUMBER">%d</xliff:g></item>
+        <item quantity="many">+<xliff:g id="NUMBER">%d</xliff:g></item>
+        <item quantity="other">+<xliff:g id="NUMBER">%d</xliff:g></item>
+    </plurals>
+    <string name="gadget_no_events">Nėra būsimų kalendoriaus įvykių</string>
+    <string name="preferences_experimental_category">Eksperimentinė versija</string>
+    <string name="preferences_reminders_responded_label">Praleisti priminimus</string>
+    <string name="preferences_reminders_responded_dialog">Praleisti priminimus</string>
+    <string name="copy_db">Siųsti duomenis</string>
+    <string name="directory_searching_fmt">Ieškoma <xliff:g id="DOMAIN">%s</xliff:g>…</string>
+    <string name="accessibility_remove_attendee">Pašalinti dalyvį</string>
+    <string name="accessibility_pick_start_date">Pradžios data</string>
+    <string name="accessibility_pick_start_time">Pradžios laikas</string>
+    <string name="accessibility_pick_end_date">Pabaigos data</string>
+    <string name="accessibility_pick_end_time">Pabaigos laikas</string>
+    <string name="accessibility_pick_time_zone">Laiko juosta</string>
+    <string name="accessibility_pick_recurrence">Kartoti įvykį</string>
+    <string name="accessibility_add_reminder">Pridėti priminimą</string>
+    <string name="accessibility_remove_reminder">Pašalinti priminimą</string>
+    <string name="accessibility_add_attendee">Pridėti dalyvį</string>
+    <string name="accessibility_all_day">Visos dienos įvykis</string>
+    <string name="accessibility_reminder_time">Priminimo laikas</string>
+    <string name="accessibility_reminder_type">Priminimo tipas</string>
+    <string name="accessibility_reminder_showmeas">Rodyti mane kaip</string>
+    <string name="accessibility_reminder_privacy">Privatumas</string>
+    <string name="day_view_new_event_hint">+ Naujas įvykis</string>
+    <string name="template_announce_item_index"><xliff:g id="ITEM_INDEX">%1$s</xliff:g> įvyk. iš <xliff:g id="ITEM_COUNT">%2$s</xliff:g>.</string>
+    <plurals name="Nevents">
+        <item quantity="one">1 įvyk.</item>
+        <item quantity="few"><xliff:g id="COUNT">%d</xliff:g> įvyk.</item>
+        <item quantity="many"><xliff:g id="COUNT">%d</xliff:g> įvyk.</item>
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> įvyk.</item>
+    </plurals>
+    <plurals name="N_remaining_events">
+        <item quantity="one">Dar 1 įvykis</item>
+        <item quantity="few">Dar <xliff:g id="COUNT">%d</xliff:g> įvykiai (-ių)</item>
+        <item quantity="many">Dar <xliff:g id="COUNT">%d</xliff:g> įvykiai (-ių)</item>
+        <item quantity="other">Dar <xliff:g id="COUNT">%d</xliff:g> įvykiai (-ių)</item>
+    </plurals>
+    <string name="acessibility_selected_marker_description">Pasirinktas įvykis</string>
+    <plurals name="recurrence_interval_daily">
+        <item quantity="one">Kas <xliff:g id="COUNT">%d</xliff:g> d.</item>
+        <item quantity="few">Kas <xliff:g id="COUNT">%d</xliff:g> d.</item>
+        <item quantity="many">Kas <xliff:g id="COUNT">%d</xliff:g> d.</item>
+        <item quantity="other">Kas <xliff:g id="COUNT">%d</xliff:g> d.</item>
+    </plurals>
+    <plurals name="recurrence_interval_weekly">
+        <item quantity="one">Kas <xliff:g id="COUNT">%d</xliff:g> sav.</item>
+        <item quantity="few">Kas <xliff:g id="COUNT">%d</xliff:g> sav.</item>
+        <item quantity="many">Kas <xliff:g id="COUNT">%d</xliff:g> sav.</item>
+        <item quantity="other">Kas <xliff:g id="COUNT">%d</xliff:g> sav.</item>
+    </plurals>
+    <plurals name="recurrence_interval_monthly">
+        <item quantity="one">Kas <xliff:g id="COUNT">%d</xliff:g> mėn.</item>
+        <item quantity="few">Kas <xliff:g id="COUNT">%d</xliff:g> mėn.</item>
+        <item quantity="many">Kas <xliff:g id="COUNT">%d</xliff:g> mėn.</item>
+        <item quantity="other">Kas <xliff:g id="COUNT">%d</xliff:g> mėn.</item>
+    </plurals>
+    <plurals name="recurrence_interval_yearly">
+        <item quantity="one">Kas <xliff:g id="COUNT">%d</xliff:g> m.</item>
+        <item quantity="few">Kas <xliff:g id="COUNT">%d</xliff:g> m.</item>
+        <item quantity="many">Kas <xliff:g id="COUNT">%d</xliff:g> m.</item>
+        <item quantity="other">Kas <xliff:g id="COUNT">%d</xliff:g> m.</item>
+    </plurals>
+    <string name="recurrence_month_pattern_by_day">kas mėn. tą pačią d.</string>
+    <string name="recurrence_end_continously">Visada</string>
+    <string name="recurrence_end_date_label">Iki nurodytos datos</string>
+    <string name="recurrence_end_date">Iki <xliff:g id="DATE">%s</xliff:g></string>
+    <string name="recurrence_end_count_label">Vykstant keliems įvykiams</string>
+    <plurals name="recurrence_end_count">
+        <item quantity="one">Vykstant <xliff:g id="EVENT_COUNT">%d</xliff:g> įvyk.</item>
+        <item quantity="few">Vykstant <xliff:g id="EVENT_COUNT">%d</xliff:g> įvyk.</item>
+        <item quantity="many">Vykstant <xliff:g id="EVENT_COUNT">%d</xliff:g> įvyk.</item>
+        <item quantity="other">Vykstant <xliff:g id="EVENT_COUNT">%d</xliff:g> įvyk.</item>
+    </plurals>
+    <string name="acessibility_recurrence_choose_end_date_description">keisti pabaigos datą</string>
+    <string name="cancel">Atšaukti</string>
+</resources>

@@ -1,0 +1,1 @@
+aidl\ --lang=java\ tests/IFoo.aidl\ --out\ .\ --header_out\ .\ tests/IFoo.aidl\ interface IFoo { boolean getFds(out Map<String,FileDescriptor> fds); }

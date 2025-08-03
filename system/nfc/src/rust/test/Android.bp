@@ -1,0 +1,25 @@
+package {
+    default_team: "trendy_team_fwk_nfc",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_nfc_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_nfc_license"],
+}
+
+rust_binary {
+    name: "nfc_rootcanal_test",
+    defaults: ["nfc_rust_defaults"],
+    srcs: ["main.rs"],
+    rustlibs: [
+        "libnfc_packets",
+        "libnfc_rnci",
+        "libbytes",
+        "libthiserror",
+        "liblogger",
+        "liblog_rust",
+        "libtokio",
+    ],
+    proc_macros: ["libnum_derive"],
+}

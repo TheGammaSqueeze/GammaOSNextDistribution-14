@@ -1,0 +1,7 @@
+{
+  "presubmit": [
+    {
+      "name": "lmkd_tests"
+    }
+  ]
+}

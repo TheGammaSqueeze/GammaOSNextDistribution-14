@@ -1,0 +1,10 @@
+# Rules for the android.system.virtualmachine java_sdk_library.
+
+# Keep the API surface, most of it is accessible from VirtualMachineManager
+keep android.system.virtualmachine.VirtualMachineManager
+# VirtualizationModuleFrameworkInitializer is not accessible from
+# VirtualMachineManager, we need to explicitly keep it.
+keep android.system.virtualmachine.VirtualizationFrameworkInitializer
+
+# We statically link PlatformProperties, rename to avoid clashes.
+rule android.sysprop.** com.android.system.virtualmachine.sysprop.@1

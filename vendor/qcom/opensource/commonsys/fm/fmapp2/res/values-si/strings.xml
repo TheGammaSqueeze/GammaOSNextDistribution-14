@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (c) 2009, 2011-2013 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2014-2015 The CyanogenMod Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *    * Neither the name of The Linux Foundation nor
+ *      the names of its contributors may be used to endorse or promote
+ *      products derived from this software without specific prior written
+ *      permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NON-INFRINGEMENT ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">FM රේඩියෝව</string>
+    <string name="tx_app_name">FM සම්ප්‍රේෂකය</string>
+    <string name="menu_scan_start">සුපිරික්සන්න</string>
+    <string name="menu_scan_stop">සෙවීම නවත්වන්න</string>
+    <string name="menu_record_stop">රෙකෝඩනය නවත්වන්න</string>
+    <string name="menu_sleep">නිදියන්න</string>
+    <string name="menu_sleep_cancel">නින්ද අවලංගු කරන්න</string>
+    <string name="menu_all_channels">සියලුම නාලිකා</string>
+    <string name="menu_display_tags">ටැගයන් පෙන්වන්න</string>
+    <string name="button_text_stop">නවත්වන්න</string>
+    <string name="msg_noantenna">කරුණාකර FM රේඩියෝව භාවිතා කිරීමට කන්යෝමුවක් පේනුගත කරන්න</string>
+    <string name="presetlist_select_name">\'<xliff:g id="presetlist_name">%1$s</xliff:g>\' තෝරන්න</string>
+    <string name="presetlist_add_new">නව ලැයිස්තුවක් එකතු කරන්න</string>
+    <string name="preset_replace">ප්‍රතිස්ථාපනය</string>
+    <string name="preset_tune">තනුව</string>
+    <string name="preset_rename">යලි නම් තබන්න</string>
+    <string name="preset_delete">මකන්න</string>
+    <string name="preset_search">\'<xliff:g id="preset_pi">%1$s</xliff:g>\' සඳහා සොයන්න</string>
+    <string name="stat_notif_frequency">\'<xliff:g id="frequency">%1$s</xliff:g>\' MHz</string>
+    <string name="regional_band">ප්‍රාදේශීය කලාපය</string>
+    <string name="regional_band_entry_north_america">උතුරු අමෙරිකාව</string>
+    <string name="regional_band_entry_europe">යුරෝපය</string>
+    <string name="regional_band_entry_japan">ජපානය</string>
+    <string name="regional_band_entry_japan_wide">ජපානය (ව්‍යාප්ත)</string>
+    <string name="regional_band_entry_australia">ඕස්ට්‍රේලියාව</string>
+    <string name="regional_band_entry_austria">ඕස්ට්‍රියාව</string>
+    <string name="regional_band_entry_belgium">බෙල්ජියම</string>
+    <string name="regional_band_entry_brazil">බ්‍රසීලය</string>
+    <string name="regional_band_entry_china">චීනය</string>
+    <string name="regional_band_entry_czech_republic">Czech Republic</string>
+    <string name="regional_band_entry_denmark">ඩෙන්මාර්කය</string>
+    <string name="regional_band_entry_finland">ෆින්ලන්තය</string>
+    <string name="regional_band_entry_france">ප්‍රංශය</string>
+    <string name="regional_band_entry_germany">ජර්මනිය</string>
+    <string name="regional_band_entry_greece">ග්‍රීසිය</string>
+    <string name="regional_band_entry_hong_kong">හොංකොං</string>
+    <string name="regional_band_entry_india">ඉන්දියාව</string>
+    <string name="regional_band_entry_indonesia">Indonesia</string>
+    <string name="regional_band_entry_ireland">අයර්ලන්තය</string>
+    <string name="regional_band_entry_italy">ඉතාලිය</string>
+    <string name="regional_band_entry_korea">කොරියාව</string>
+    <string name="regional_band_entry_mexico">මෙක්සිකෝව</string>
+    <string name="regional_band_entry_netherlands">නෙදර්ලන්තය</string>
+    <string name="regional_band_entry_new_zealand">නවසීලන්තය</string>
+    <string name="regional_band_entry_norway">නෝර්වීජියාව</string>
+    <string name="regional_band_entry_poland">පෝලන්තය</string>
+    <string name="regional_band_entry_portugal">පෘතුගාලය</string>
+    <string name="regional_band_entry_russia">රුසියාව</string>
+    <string name="regional_band_entry_singapore">සිංගප්පූරුව</string>
+    <string name="regional_band_entry_slovakia">ස්ලෝවේනියාව</string>
+    <string name="regional_band_entry_spain">ස්පාඤ්ඤය</string>
+    <string name="regional_band_entry_switzerland">ස්විස්ටර්ලන්තය</string>
+    <string name="regional_band_entry_sweden">ස්වීඩනය</string>
+    <string name="regional_band_entry_taiwan">තායිවානය</string>
+    <string name="regional_band_entry_turkey">තුර්කිය</string>
+    <string name="regional_band_entry_united_kingdom">United Kingdom</string>
+    <string name="regional_band_entry_united_states">එක්සත් ජනපදය</string>
+    <string name="regional_band_entry_user_defined">පරිශීලක නිශ්චිත කලාපය</string>
+    <string name="regional_band_summary_user_defined">පරිශීලක නිශ්චිත කලාපය</string>
+    <string name="aud_output_mode">ශ්‍රව්‍ය ප්‍රතිදාන ප්‍රකාරය</string>
+    <string name="audio_type_stereo">ත්‍රිමාන</string>
+    <string name="record_dur">රෙකෝඩන කාලමාත්‍රාව</string>
+    <string name="settings_revert_defaults_title">කර්මාන්තශාලා පෙරනිමි යලි පිහිටුවන්න</string>
+    <string name="settings_revert_defaults_summary">සියලු සැකසීම් ප්‍රත්‍යාරම්භ කරන්න</string>
+    <string name="no_storage">රෙකෝඩනය ඇරඹීමට පෙර SD කාඩ්පත ආරූඩ කරන්න.</string>
+    <string name="spaceIsLow_content">ඔබගේ SD කාඩ්පතෙහි ආචයනයේ ඉඩ අඩුවෙමින් පවතී. ඉඩ වැඩි කර ගැනීමට ගුණාත්මක සැකසීම වෙනස් කරන්න නැතිනම් අනෙක් ගොනු කිහිපයක් මකන්න.</string>
+    <string name="menu_scan_for_preset">පෙරසැකසීම් සඳහා සුපිරික්සන්න</string>
+    <string name="alert_dialog_hint">නමක් ඇතුල් කරන්න</string>
+    <string name="search_dialog_title">සේවා ස්ථාන සුපිරික්සන්න</string>
+    <string name="fm_command_timeout_title">කල්ඉකුත්වීම</string>
+    <string name="fm_tune_timeout_msg">FM සේවා ස්ථානය සුසර කිරීමට කිසිඳු ප්‍රතිචාරයක් නොලැබුණි. ප්‍රශ්නය දිගටම තිබුණහොත්, කරුණාකර FM ක්‍රියා විරහිත කර නැවත සක්‍රීය කරන්න.</string>
+    <string name="fm_command_failed_title">FM ක්‍රියාකාරීත්වය බිඳවැටුණි</string>
+    <string name="fm_cmd_failed_msg">FM ක්‍රියාකාරීත්වය බිඳවැටුණි. ප්‍රශ්නය දිගටම තිබුණහොත්, කරුණාකර FM ක්‍රියා විරහිත කර නැවත සක්‍රීය කරන්න.</string>
+    <string name="fm_cmd_failed_msg_hdmi">FM ක්‍රියාකාරීත්වය බිඳවැටුණි. FM සහ HDMI සංගමනය සහාය නොදක්වයි.</string>
+    <string name="fm_cmd_failed_call_on">FM ක්‍රියාකාරීත්වය බිඳවැටුණි. ඇමතුම් අතරතුර FM ශ්‍රව්‍ය අනුමත නැත.</string>
+    <string name="station_exists">මෙම සංඛ්‍යාතය දැනටමත් පවතී!</string>
+    <string name="station_list_delete_station"><xliff:g id="name">%s</xliff:g> මකන්න</string>
+    <string name="station_name_empty">සේවා ස්ථානයේ නම හිස්ය, කරුණාකර නැවත ආදානය කරන්න.</string>
+    <string name="rt_plus_tags">ටැගයන්</string>
+    <string name="chanl_spacing">නාලිකා පරතරය</string>
+</resources>

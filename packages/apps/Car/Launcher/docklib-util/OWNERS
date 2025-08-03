@@ -1,0 +1,8 @@
+# Default code reviewers picked from top 3 or more developers.
+# Please update this list if you find better candidates.
+set noparent
+
+danzz@google.com
+jainams@google.com
+nehah@google.com
+igorr@google.com

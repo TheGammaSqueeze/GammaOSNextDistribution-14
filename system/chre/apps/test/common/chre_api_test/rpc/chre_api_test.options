@@ -1,0 +1,15 @@
+chre.rpc.ChreGetSensorInfoOutput.sensorName max_size:100
+chre.rpc.ChreAudioGetSourceOutput.name max_size:40 # CHRE_AUDIO_SOURCE_NAME_MAX_SIZE
+chre.rpc.ChreAudioDataEvent.samples max_size:64000
+chre.rpc.ChreAudioDataSamples.samples max_size:200
+chre.rpc.ChreBleGenericFilter.data max_size:29 # CHRE_BLE_DATA_LEN_MAX
+chre.rpc.ChreBleGenericFilter.mask max_size:29 # CHRE_BLE_DATA_LEN_MAX
+chre.rpc.ChreBleScanFilter.scanFilters max_count:10
+chre.rpc.ChreGetHostEndpointInfoOutput.endpointName max_size:51 # CHRE_MAX_ENDPOINT_NAME_LEN
+chre.rpc.ChreGetHostEndpointInfoOutput.endpointTag max_size:51 # CHRE_MAX_ENDPOINT_TAG_LEN
+chre.rpc.ChreSensorThreeAxisData.readings max_count:10
+chre.rpc.GatherEventsInput.eventTypes max_count:10
+chre.rpc.ChreBleAdvertisingReport.address max_size:6 # CHRE_BLE_ADDRESS_LEN
+chre.rpc.ChreBleAdvertisingReport.directAddress max_size:6 # CHRE_BLE_ADDRESS_LEN
+chre.rpc.ChreBleAdvertisingReport.data max_size:255 # extended range is [0, 255]
+chre.rpc.ChreBleAdvertisementEvent.reports max_count:10

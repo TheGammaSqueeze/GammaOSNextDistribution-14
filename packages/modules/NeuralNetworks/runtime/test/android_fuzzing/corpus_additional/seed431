@@ -1,0 +1,101 @@
+model {
+  main {
+    operands {
+      operand {
+        type: TENSOR_QUANT8_ASYMM
+        dimensions {
+          dimension: 1
+          dimension: 2
+          dimension: 2
+          dimension: 2
+        }
+        scale: 0.25
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 2663175211
+        }
+      }
+      operand {
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 1070386381
+        }
+      }
+      operand {
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 1070386381
+        }
+      }
+      operand {
+        type: BOOL
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 1772448071
+        }
+      }
+      operand {
+        type: TENSOR_QUANT8_ASYMM
+        dimensions {
+          dimension: 1
+          dimension: 2
+          dimension: 3
+          dimension: 3
+        }
+        scale: 0.25
+        lifetime: SUBGRAPH_OUTPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 1715838380
+        }
+      }
+    }
+    operations {
+      operation {
+        type: RESIZE_BILINEAR
+        inputs {
+          index: 0
+          index: 1
+          index: 2
+          index: 3
+        }
+        outputs {
+          index: 4
+        }
+      }
+    }
+    input_indexes {
+      index: 0
+    }
+    output_indexes {
+      index: 4
+    }
+  }
+  referenced {
+  }
+}

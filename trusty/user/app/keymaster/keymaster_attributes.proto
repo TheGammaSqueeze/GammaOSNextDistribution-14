@@ -1,0 +1,66 @@
+/*
+ * Copyright (C) 2018 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// We check in the prebuilt nanopb protobuf file under the current folder
+// because the compile tool chain using trusty/user/base/make/compile_proto.mk
+// might not work under certain environment with lower version of python
+// protobuf installed. You need to generate and check in the new protobuf file
+// if you change this file in order for the change to take effect!
+//
+// To generate the file using the tool chain in trusty tree, add the following
+// command to rules.mk:
+//
+// PB_GEN_DIR := [Your generation folder]
+// include trusty/user/base/make/compile_proto.mk
+// $(eval $(call compile_proto,$(KEYMASTER_DIR)/keymaster_attributes.proto,$(PB_GEN_DIR)))
+//
+// The generated .pb.c and .pb.h file would be under PB_GEN_DIR, include them
+// to the source path.
+//
+// To generate the file using your own tool chain, please follow the guide at
+// https://github.com/nanopb/nanopb.
+// Please check the nanopb version in trusty tree at external/nanopb-c to make
+// sure you are using the same nanopb version.
+
+syntax = "proto2";
+
+import "nanopb.proto";
+
+message KeymasterAttributes {
+  optional bytes uuid = 1 [(nanopb).max_size=32];
+  optional bytes product_id = 2 [(nanopb).max_size=16];
+};
+
+message AttestationIds {
+    optional bytes brand = 1 [(nanopb).max_size=64];
+    optional bytes device = 2 [(nanopb).max_size=64];
+    optional bytes product = 3 [(nanopb).max_size=64];
+    optional bytes serial = 4 [(nanopb).max_size=64];
+    optional bytes imei = 5 [(nanopb).max_size=64];
+    optional bytes meid = 6 [(nanopb).max_size=64];
+    optional bytes manufacturer = 7 [(nanopb).max_size=64];
+    optional bytes model = 8 [(nanopb).max_size=64];
+    optional bytes second_imei = 9 [(nanopb).max_size=64];
+};
+
+message AttestationKey {
+  optional bytes key = 1 [(nanopb).max_size=2048];
+  repeated AttestationCert certs = 2 [(nanopb).max_count=3];
+};
+
+message AttestationCert {
+  required bytes content = 1 [(nanopb).max_size=2048];
+};

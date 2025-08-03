@@ -1,0 +1,72 @@
+/*
+ * Copyright (C) 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+option java_package = "com.android.timezone.location.data_pipeline.steps.proto";
+option java_multiple_files = false;
+
+package com.android.timezone.location.data_pipeline.steps.proto;
+
+// Types used for storing intermediate data in the reference time zone geolocation pipeline.
+
+// The proto equivalent to Types.TzS2Polygons.
+message TzS2Polygons {
+    // The time zone ID associated with the S2 polygons.
+    required string tzId = 1;
+    // The S2 polygons.
+    repeated S2Polygon polygons = 2;
+}
+
+// A proto representation of S2Polygon.
+message S2Polygon {
+    repeated S2Loop loops = 1;
+}
+
+// A proto representation of S2Loop.
+message S2Loop {
+    repeated S2Point vertices = 1;
+}
+
+// A proto representation of S2Point.
+message S2Point {
+    required double x = 1;
+    required double y = 2;
+    required double z = 3;
+}
+
+// The proto equivalent to Types.TzS2CellUnion.
+message TzS2CellUnion {
+    // The time zone ID associated with the S2 cells.
+    required string tzId = 1;
+    // The S2 cell IDs.
+    repeated uint64 cellIds = 2;
+}
+
+// The proto equivalent to Types.TzS2Range.
+message TzS2Range {
+    // The start s2 cell ID (inclusive).
+    required uint64 startCellId = 1;
+    // The end s2 cell ID (exclusive).
+    required uint64 endCellId = 2;
+    // The values associated with the range.
+    repeated string values = 3;
+}
+
+// The proto equivalent to Types.TzS2Ranges.
+message TzS2Ranges {
+    repeated TzS2Range ranges = 1;
+}

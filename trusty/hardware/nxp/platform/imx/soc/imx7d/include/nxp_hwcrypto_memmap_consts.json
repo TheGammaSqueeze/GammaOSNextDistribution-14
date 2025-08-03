@@ -1,0 +1,41 @@
+{
+    "header": "nxp_memmap_consts.h",
+    "constants":[
+        {
+            "name": "CAAM_PHY_BASE_ADDR",
+            "value": "0x30900000",
+            "type": "int",
+            "unsigned": false
+        },
+        {
+            "name": "CAAM_REG_SIZE",
+            "value": "0x40000",
+            "type": "int",
+            "unsigned": false
+        },
+        {
+            "name": "CAAM_PHY_ARB_BASE_ADDR",
+            "value": "0x00100000",
+            "type": "int",
+            "unsigned": false
+        },
+        {
+            "name": "CAAM_SEC_RAM_SIZE",
+            "value": "0x8000",
+            "type": "int",
+            "unsigned": false
+        },
+        {
+            "name": "CCM_PHY_BASE_ADDR",
+            "value": "0x30380000",
+            "type": "int",
+            "unsigned": false
+        },
+        {
+            "name": "CCM_REG_SIZE",
+            "value": "0x10000",
+            "type": "int",
+            "unsigned": false
+        }
+    ]
+}

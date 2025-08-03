@@ -1,0 +1,33 @@
+{
+	"clang": "${ANDROID_ROOT}/prebuilts/clang/host/linux-x86/clang-r399163b/bin/clang",
+	"clang++": "${ANDROID_ROOT}/prebuilts/clang/host/linux-x86/clang-r399163b/bin/clang++",
+	"modules": {
+        "module_cc_1": {
+                "dependencies": [
+                        "test_cc_dep_level_1_1",
+                        "test_cc_dep_level_1_2"
+                ]
+        },
+        "module_cc_2": {
+                "dependencies": [
+                        "test_cc_dep_level_1_2"
+                ]
+        },
+        "module_cc_3": {
+        },
+        "test_cc_dep_level_1_1": {
+                "dependencies": [
+                        "test_cc_dep_level_2_1"
+                ]
+        },
+        "test_cc_dep_level_1_2": {
+                "dependencies": [
+                        "test_cc_dep_level_2_2"
+                ]
+        },
+        "test_cc_dep_level_2_1": {
+        },
+        "test_cc_dep_level_2_2": {
+        }
+  }
+}

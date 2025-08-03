@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright (C) 2020 The Android Open Source Project
+
+         Licensed under the Apache License, Version 2.0 (the "License");
+         you may not use this file except in compliance with the License.
+         You may obtain a copy of the License at
+
+                    http://www.apache.org/licenses/LICENSE-2.0
+
+         Unless required by applicable law or agreed to in writing, software
+         distributed under the License is distributed on an "AS IS" BASIS,
+         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+         See the License for the specific language governing permissions and
+         limitations under the License.
+-->
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            version="1.0">
+
+    <xsd:element name="table">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="entry" minOccurs="1" maxOccurs="unbounded"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="entry">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="rat" type="ratType"/>
+                <xsd:element name="band" type="xsd:int"/>
+                <xsd:element name="powerCapDbm" type="xsd:int" minOccurs="0"/>
+                <xsd:choice>
+                    <xsd:element ref="params"/>
+                    <xsd:element ref="override"/>
+                </xsd:choice>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:simpleType name="ratType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="LTE"/>
+            <xsd:enumeration value="NR"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <!-- Define coex algorithm parameters -->
+
+    <xsd:element name="params">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="neighborThresholds" minOccurs="0"/>
+                <xsd:element name="harmonicParams2g" type="harmonicParams" minOccurs="0"/>
+                <xsd:element name="harmonicParams5g" type="harmonicParams" minOccurs="0"/>
+                <xsd:element name="intermodParams2g" type="intermodParams" minOccurs="0"/>
+                <xsd:element name="intermodParams5g" type="intermodParams" minOccurs="0"/>
+                <xsd:element ref="defaultChannels" minOccurs="0"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="neighborThresholds">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="wifiVictimMhz" type="xsd:int" minOccurs="0"/>
+                <xsd:element name="cellVictimMhz" type="xsd:int" minOccurs="0"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:complexType name="harmonicParams">
+        <xsd:sequence>
+            <xsd:element name="N" type="xsd:int"/>
+            <xsd:element name="overlap" type="xsd:int"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="intermodParams">
+        <xsd:sequence>
+            <xsd:element name="N" type="xsd:int"/>
+            <xsd:element name="M" type="xsd:int"/>
+            <xsd:element name="overlap" type="xsd:int"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:element name="defaultChannels">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="default2g" type="xsd:int" minOccurs="0"/>
+                <xsd:element name="default5g" type="xsd:int" minOccurs="0"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <!-- Define algorithm override lists -->
+
+    <xsd:element name="override">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="override2g" minOccurs="0"/>
+                <xsd:element ref="override5g" minOccurs="0"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="override2g">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="category" type="overrideCategory2g" minOccurs="0" maxOccurs="unbounded"/>
+                <xsd:element name="channel" type="xsd:int" minOccurs="0" maxOccurs="unbounded"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="override5g">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="category" type="overrideCategory5g" minOccurs="0" maxOccurs="unbounded"/>
+                <xsd:element name="channel" type="xsd:int" minOccurs="0" maxOccurs="unbounded"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:simpleType name="overrideCategory2g">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="all"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="overrideCategory5g">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="all"/>
+            <xsd:enumeration value="20Mhz"/>
+            <xsd:enumeration value="40Mhz"/>
+            <xsd:enumeration value="80Mhz"/>
+            <xsd:enumeration value="160Mhz"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+</xsd:schema>

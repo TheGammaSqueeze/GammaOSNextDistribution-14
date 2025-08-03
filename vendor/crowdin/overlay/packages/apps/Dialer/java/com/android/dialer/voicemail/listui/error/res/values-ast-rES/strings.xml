@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2016 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="voicemail_error_activating_title">Activación del buzón de voz visual</string>
+  <string name="voicemail_error_activating_message">Ye posible que nun recibas avisos de mensaxes de voz hasta que\'l buzón de voz visual s\'active completamente. Mentanto, llama al buzón de voz pa recuperar los mensaxes nuevos.</string>
+  <string name="voicemail_error_not_activate_no_signal_title">Nun se pue activar el buzón de voz visual</string>
+  <string name="voicemail_error_not_activate_no_signal_message">Asegúrate de que\'l teléfonu tien conexón a la rede móvil y volvi a tentalo.</string>
+  <string name="voicemail_error_not_activate_no_signal_airplane_mode_message">Desactiva\'l mou avión y volvi tentalo.</string>
+  <string name="voicemail_error_no_signal_title">Ensin conexón</string>
+  <string name="voicemail_error_no_signal_message">Nun vas recibir avisos de los mensaxes de voz nuevos. Si te conectesti a una Wi\u2011Fi, pues sincronizar agora\'l buzón de voz pa comprobar si tienes mensaxes de voz.</string>
+  <string name="voicemail_error_no_signal_airplane_mode_message">Nun vas recibir avisos de los mensaxes de voz nuevos. Desactiva\'l mou avión pa sincronizar el buzón de voz.</string>
+  <string name="voicemail_error_no_signal_cellular_required_message">El teléfonu precisa una conexón de datos móvil pa comprobar el buzón de voz.</string>
+  <string name="voicemail_error_activation_failed_title">Nun se pue activar el buzón de voz visual</string>
+  <string name="voicemail_error_activation_failed_message">Pues llamar igualmente pa comprobar el buzón de voz.</string>
+  <string name="voicemail_error_no_data_title">Nun se pue anovar el buzón de voz visual</string>
+  <string name="voicemail_error_no_data_message">Volvi tentalo cuando la conexón Wi\u2011FI o de datos móviles seya meyor. Pues llamar igualmente pa comprobar el buzón de voz.</string>
+  <string name="voicemail_error_no_data_cellular_required_message">Volvi tentalo cuando la conexón de datos móvil seya meyor. Pues llamar igualmente pa comprobar el buzón de voz.</string>
+  <string name="voicemail_error_bad_config_title">Nun se pue anovar el buzón de voz visual</string>
+  <string name="voicemail_error_bad_config_message">Pues llamar igualmente pa comprobar el buzón de voz.</string>
+  <string name="voicemail_error_communication_title">Nun se pue anovar el buzón de voz visual</string>
+  <string name="voicemail_error_communication_message">Pues llamar igualmente pa comprobar el buzón de voz.</string>
+  <string name="voicemail_error_server_connection_title">Nun se pue anovar el buzón de voz visual</string>
+  <string name="voicemail_error_server_connection_message">Pues llamar igualmente pa comprobar el buzón de voz.</string>
+  <string name="voicemail_error_server_title">Nun se pue anovar el buzón de voz visual</string>
+  <string name="voicemail_error_server_message">Pues llamar igualmente pa comprobar el buzón de voz.</string>
+  <string name="voicemail_error_inbox_near_full_title">La bandexa entrada ta cuasi enllena</string>
+  <string name="voicemail_error_inbox_near_full_message">Nun vas poder recibir mensaxes de voz nuevos si la bandexa d\'entrada ta enllena.</string>
+  <string name="voicemail_error_inbox_full_title">Nun pues recibir mensaxes de voz nuevos</string>
+  <string name="voicemail_error_inbox_full_message">La bandexa d\'entrada ta enllena. Prueba a desaniciar dalgunos mensaxes pa recibir otros nuevos.</string>
+  <string name="voicemail_error_inbox_full_turn_archive_on_title">Activa l\'almacenamientu adicional y la copia de seguranza</string>
+  <string name="voicemail_error_inbox_full_turn_archive_on_message">El buzón de voz ta enllén. Pa lliberar espaciu, activa l\'almacenamientu adicional pa que Google pueda xestionar los mensaxes del buzón de voz y facer copies de seguranza d\'ellos.</string>
+  <string name="voicemail_error_inbox_almost_full_turn_archive_on_title">Activa l\'almacenamientu adicional y la copia de seguranza</string>
+  <string name="voicemail_error_inbox_almost_full_turn_archive_on_message">El buzón de voz ta cuasi enllén. Pa lliberar espaciu, activa l\'almacenamientu adicional pa que Google pueda xestionar los mensaxes del buzón de voz y facer copies de seguranza d\'ellos.</string>
+  <string name="voicemail_error_pin_not_set_title">Configuración del PIN del buzón de voz</string>
+  <string name="voicemail_error_pin_not_set_message">Vas precisar el PIN del buzón de voz cada vegada que llames p\'acceder a los mensaxes de voz.</string>
+  <string name="voicemail_action_turn_off_airplane_mode">Configuración del mou avión</string>
+  <string name="voicemail_action_set_pin">Afitar un PIN</string>
+  <string name="voicemail_action_retry">Retentar</string>
+  <string name="voicemail_action_turn_archive_on">Activar</string>
+  <string name="voicemail_action_dimiss">Non, gracies</string>
+  <string name="voicemail_action_sync">Sincronizar</string>
+  <string name="voicemail_action_call_voicemail">Llamar al buzón de voz</string>
+  <string name="voicemail_action_call_customer_support">Llamar a Atención al Veceru</string>
+  <string name="vvm3_error_vms_dns_failure_title">Prodúxose un error</string>
+  <string name="vvm3_error_vms_dns_failure_message">Tuviemos un problema, volvi tentalo dempués. Si\'l problema sigue, ponte en contautu con Atención al Veceru nel <xliff:g example="(555) 555-5555" id="number">%1$s</xliff:g> y di-yos que\'l códigu d\'error ye 9001.</string>
+  <string name="vvm3_error_vmg_dns_failure_title">Prodúxose un error</string>
+  <string name="vvm3_error_vmg_dns_failure_message">Tuviemos un problema, volvi tentalo dempués. Si\'l problema sigue, ponte en contautu con Atención al Veceru nel <xliff:g example="(555) 555-5555" id="number">%1$s</xliff:g> y di-yos que\'l códigu d\'error ye 9002.</string>
+  <string name="vvm3_error_spg_dns_failure_title">Prodúxose un error</string>
+  <string name="vvm3_error_spg_dns_failure_message">Tuviemos un problema, volvi tentalo dempués. Si\'l problema sigue, ponte en contautu con Atención al Veceru nel <xliff:g example="(555) 555-5555" id="number">%1$s</xliff:g> y di-yos que\'l códigu d\'error ye 9003.</string>
+  <string name="vvm3_error_vms_no_cellular_title">Nun se pue conectar al buzón de voz</string>
+  <string name="vvm3_error_vms_no_cellular_message">Tenemos problemes pa conectanos al buzón de voz. Si tas nuna zona con poca cobertoria, espera hasta qu\'ameyore y volvi tentalo. Si\'l problema sigue, ponte en contautu con Atención al Veceru nel <xliff:g example="(555) 555-5555" id="number">%1$s</xliff:g> y di-yos que\'l códigu d\'error ye 9004.</string>
+  <string name="vvm3_error_vmg_no_cellular_title">Nun se pue conectar al buzón de voz</string>
+  <string name="vvm3_error_vmg_no_cellular_message">Tenemos problemes pa conectanos al buzón de voz. Si tas nuna zona con poca cobertoria, espera hasta qu\'ameyore y volvi tentalo. Si\'l problema sigue, ponte en contautu con Atención al Veceru nel <xliff:g example="(555) 555-5555" id="number">%1$s</xliff:g> y di-yos que\'l códigu d\'error ye 9005.</string>
+  <string name="vvm3_error_spg_no_cellular_title">Nun se pue conectar al buzón de voz</string>
+  <string name="vvm3_error_spg_no_cellular_message">Tenemos problemes pa conectanos al buzón de voz. Si tas nuna zona con poca cobertoria, espera hasta qu\'ameyore y volvi tentalo. Si\'l problema sigue, ponte en contautu con Atención al Veceru nel <xliff:g example="(555) 555-5555" id="number">%1$s</xliff:g> y di-yos que\'l códigu d\'error ye 9006.</string>
+  <string name="vvm3_error_vms_timeout_title">Prodúxose un error</string>
+  <string name="vvm3_error_vms_timeout_message">Tenemos problemes pa conectanos al buzón de voz. Si\'l problema sigue, ponte en contautu con Atención al Veceru nel <xliff:g example="(555) 555-5555" id="number">%1$s</xliff:g> y di-yos que\'l códigu d\'error ye 9007.</string>
+  <string name="vvm3_error_vmg_timeout_title">Prodúxose un error</string>
+  <string name="vvm3_error_vmg_timeout_message">Tenemos problemes pa conectanos al buzón de voz. Si\'l problema sigue, ponte en contautu con Atención al Veceru nel <xliff:g example="(555) 555-5555" id="number">%1$s</xliff:g> y di-yos que\'l códigu d\'error ye 9008.</string>
+  <string name="vvm3_error_status_sms_timeout_title">Prodúxose un error</string>
+  <string name="vvm3_error_status_sms_timeout_message">Tenemos problemes pa configurar el serviciu, volvi tentalo dempués. Si\'l problema sigue, ponte en contautu con Atención al Veceru nel <xliff:g example="(555) 555-5555" id="number">%1$s</xliff:g> y di-yos que\'l códigu d\'error ye 9009.</string>
+  <string name="vvm3_error_subscriber_blocked_title">Nun se pue conectar al buzón de voz</string>
+  <string name="vvm3_error_subscriber_blocked_message">Nun fuimos a conectanos al buzón de voz nesti momentu, volvi tentalo dempués. Si\'l problema sigue, ponte en contautu con Atención al Veceru nel <xliff:g example="(555) 555-5555" id="number">%1$s</xliff:g> y di-yos que\'l códigu d\'error ye 9990.</string>
+  <string name="vvm3_error_unknown_user_title">Configuración del buzón de voz</string>
+  <string name="vvm3_error_unknown_user_message">El buzón de voz visual nun ta configuráu na cuenta. Ponte en contautu con Atención al Veceru nel <xliff:g example="(555) 555-5555" id="number">%1$s</xliff:g> y di-yos que\'l códigu d\'error ye 9991.</string>
+  <string name="vvm3_error_unknown_device_title">Buzón de voz</string>
+  <string name="vvm3_error_unknown_device_message">El buzón de voz visual nun se pue usar nesti preséu. Ponte en contautu con Atención al Veceru nel <xliff:g example="(555) 555-5555" id="number">%1$s</xliff:g> y di-yos que\'l códigu d\'error ye 9992.</string>
+  <string name="vvm3_error_invalid_password_title">Prodúxose un error</string>
+  <string name="vvm3_error_invalid_password_message">Ponte en contautu con Atención al Veceru nel <xliff:g example="(555) 555-5555" id="number">%1$s</xliff:g> y di-yos que\'l códigu d\'error ye 9993.</string>
+  <string name="vvm3_error_mailbox_not_initialized_title">Buzón de voz visual</string>
+  <string name="vvm3_error_mailbox_not_initialized_message">Pa completar la configuración del buzón de voz visual, ponte en contautu con Atención al Veceru nel <xliff:g example="(555) 555-5555" id="number">%1$s</xliff:g> y di-yos que\'l códigu d\'error ye 9994.</string>
+  <string name="vvm3_error_service_not_provisioned_title">Buzón de voz visual</string>
+  <string name="vvm3_error_service_not_provisioned_message">Pa completar la configuración del buzón de voz visual, ponte en contautu con Atención al Veceru nel <xliff:g example="(555) 555-5555" id="number">%1$s</xliff:g> y di-yos que\'l códigu d\'error ye 9995.</string>
+  <string name="vvm3_error_service_not_activated_title">Buzón de voz visual</string>
+  <string name="vvm3_error_service_not_activated_message">P\'activar el buzón de voz visual, ponte en contautu con Atención al Veceru nel <xliff:g example="(555) 555-5555" id="number">%1$s</xliff:g> y di-yos que\'l códigu d\'error ye 9996.</string>
+  <string name="vvm3_error_user_blocked_title">Prodúxose un error</string>
+  <string name="vvm3_error_user_blocked_message">Pa completar la configuración del buzón de voz visual, ponte en contautu con Atención al Veceru nel <xliff:g example="(555) 555-5555" id="number">%1$s</xliff:g> y di-yos que\'l códigu d\'error ye 9998.</string>
+  <string name="vvm3_error_subscriber_unknown_title">El buzón de voz visual ta desactiváu</string>
+  <string name="vvm3_error_subscriber_unknown_message">Ponte en contautu con Atención al Veceru nel <xliff:g example="(555) 555-5555" id="number">%1$s</xliff:g> p\'activar el buzón de voz visual.</string>
+  <string name="vvm3_error_imap_getquota_error_title">Prodúxose un error</string>
+  <string name="vvm3_error_imap_getquota_error_message">Ponte en contautu con Atención al Veceru nel <xliff:g example="(555) 555-5555" id="number">%1$s</xliff:g> y di-yos que\'l códigu d\'error ye 9997.</string>
+  <string name="vvm3_error_imap_select_error_title">Prodúxose un error</string>
+  <string name="vvm3_error_imap_select_error_message">Ponte en contautu con Atención al Veceru nel <xliff:g example="(555) 555-5555" id="number">%1$s</xliff:g> y di-yos que\'l códigu d\'error ye 9989.</string>
+  <string name="vvm3_error_imap_error_title">Prodúxose un error</string>
+  <string name="vvm3_error_imap_error_message">Ponte en contautu con Atención al Veceru nel <xliff:g example="(555) 555-5555" id="number">%1$s</xliff:g> y di-yos que\'l códigu d\'error ye 9999.</string>
+  <string name="verizon_terms_and_conditions_title">Activación del buzón de voz visual</string>
+  <string name="verizon_terms_and_conditions_message"><xliff:g>%1$s</xliff:g> Al activar el buzón de voz visual aceptes los términos y condiciones de Verizon Wireless:\n\n<xliff:g>%2$s</xliff:g></string>
+  <string name="dialer_terms_and_conditions_title">Activación del buzón de voz visual</string>
+  <string name="dialer_terms_and_conditions_existing_user_title">¡Novedá! Llei los mensaxes de voz</string>
+  <string name="dialer_terms_and_conditions_1.0">  Ve y escucha los mensaxes ensin tener de llamar al buzón de voz. Les trescripciones de los mensaxes fórneles el serviciu de trescripción gratuitu de Google. Pues desactivar esta opción cuando quieras en Configuración. <xliff:g>%s</xliff:g>
+  </string>
+  <string name="dialer_terms_and_conditions_existing_user">  Agora les trescripciones del buzón de voz fórneles el serviciu de trescripción gratuitu de Google. Pues desactivar esta opción cuando quieras en Configuración. %s
+  </string>
+  <string name="dialer_terms_and_conditions_for_verizon_1.0">  Ve y escucha los mensaxes ensin tener de llamar al buzón de voz
+  </string>
+  <string name="dialer_terms_and_conditions_learn_more">Saber más</string>
+  <string name="dialer_terms_and_conditions_existing_user_ack">D\'acuerdu</string>
+  <string name="dialer_terms_and_conditions_existing_user_decline">Non, gracies</string>
+  <string name="terms_and_conditions_decline_dialog_title">¿Quies desactivar el buzón de voz visual?</string>
+  <string name="verizon_terms_and_conditions_decline_dialog_message">El buzón de voz visual desactívase si se refuguen los términos y condiciones.</string>
+  <string name="verizon_terms_and_conditions_decline_dialog_downgrade">Desactivar</string>
+  <string name="dialer_terms_and_conditions_decline_dialog_message">Si desactives el buzón de voz visual, nun vas poder acceder a elli.</string>
+  <string name="dialer_terms_and_conditions_decline_dialog_downgrade">Desactivar</string>
+  <string name="verizon_terms_and_conditions_decline_set_pin_dialog_message">Namás vas poder acceder al buzón de voz llamando al *86. Afita un PIN del buzón de voz pa siguir.</string>
+  <string name="verizon_terms_and_conditions_decline_set_pin_dialog_set_pin">Afitar un PIN</string>
+</resources>

@@ -1,0 +1,72 @@
+# Bug component: 1316886
+
+# ActivityManager
+per-file src/com/android/car/am/* = ycheo@google.com
+
+# AppFocus
+per-file src/com/android/car/AppFocusServiceTest.java = ycheo@google.com
+
+# Audio
+per-file src/com/android/car/audio/* = oscarazu@google.com, ericjeong@google.com
+per-file src/com/android/car/audio/hal/* = oscarazu@google.com, ericjeong@google.com
+
+# Bluetooth
+per-file src/com/android/car/bluetooth/* = salsavage@google.com, chengandrew@google.com
+
+# Cluster
+per-file src/android/car/cluster/* = ycheo@google.com
+per-file src/com/android/car/hal/ClusterHalServiceTest.java = ycheo@google.com
+
+# Input
+per-file src/android/car/builtin/input/* = ycheo@google.com, kanant@google.com
+per-file src/com/android/car/CarInput*.java = ycheo@google.com, kanant@google.com
+per-file src/com/android/car/hal/InputHalServiceTest.java = ycheo@google.com, kanant@google.com
+
+# OccupantZone
+per-file src/com/android/car/CarOccupantZoneServiceTest.java = ycheo@google.com, oscarazu@google.com, ericjeong@google.com
+
+# PackageManager
+per-file src/com/android/car/pm/* = ycheo@google.com
+
+# Power
+per-file src/com/android/car/garagemode/* = ericjeong@google.com
+per-file src/com/android/car/hardware/power/* = ericjeong@google.com
+per-file src/com/android/car/hal/PowerHalServiceTest.java = ericjeong@google.com
+per-file src/com/android/car/power/* = ericjeong@google.com
+
+# ProcInspector
+per-file src/com/android/car/procinspector/* = lakshmana@google.com
+
+# Property
+per-file src/com/android/car/CarProperty* = ericjeong@google.com, tylertrephan@google.com, shanyu@google.com
+per-file src/com/android/car/hal/PropertyHalServiceTest.java = ericjeong@google.com, tylertrephan@google.com, shanyu@google.com
+per-file src/com/android/car/hal/property/*.java = ericjeong@google.com, tylertrephan@google.com, shanyu@google.com
+per-file src/com/android/car/property/*.java = ericjeong@google.com, tylertrephan@google.com, shanyu@google.com
+per-file src/com/android/car/internal/property/*.java = ericjeong@google.com, tylertrephan@google.com, shanyu@google.com
+per-file src/com/android/car/internal/util/PairSparseArrayUnitTest.java = aaqibismail@google.com, tylertrephan@google.com, shanyu@google.com
+per-file src/android/car/hardware/property/*.java = aaqibismail@google.com, tylertrephan@google.com, shanyu@google.com
+
+# StorageMonitoring
+per-file src/com/android/car/storagemonitoring/* = lakshmana@google.com
+
+# SystemInterface
+per-file src/com/android/car/systeminterface/* = ericjeong@google.com
+
+# Watchdog
+per-file assets/os/* = lakshmana@google.com, jahdiel@google.com
+per-file src/android/car/os/* = lakshmana@google.com, jahdiel@google.com
+per-file src/android/car/watchdoglib/* = lakshmana@google.com, jahdiel@google.com
+per-file src/com/android/car/os/* = lakshmana@google.com, jahdiel@google.com
+per-file src/com/android/car/watchdog/* = lakshmana@google.com, jahdiel@google.com
+
+# View
+per-file src/android/car/builtin/view/* = ycheo@google.com
+
+# VHAL
+per-file src/com/android/car/hal/fakevhal/*.java = ericjeong@google.com, tylertrephan@google.com, shanyu@google.com
+per-file src/com/android/car/hal/Hal*.java = ericjeong@google.com, tylertrephan@google.com, shanyu@google.com
+per-file src/com/android/car/hal/VehicleHal*.java = ericjeong@google.com, tylertrephan@google.com, shanyu@google.com
+per-file src/com/android/car/*VehicleStubUnitTest.java = ericjeong@google.com, tylertrephan@google.com, shanyu@google.com
+
+# res folder
+per-file res/** = oscarazu@google.com, salsavage@google.com, chengandrew@google.com, kanant@google.com, tylertrephan@google.com, shanyu@google.com, aaqibismail@google.com, lakshmana@google.com, jahdiel@google.com

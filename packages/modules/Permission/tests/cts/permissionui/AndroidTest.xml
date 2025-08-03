@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Copyright (C) 2020 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<configuration description="Config for CTS Permission UI test cases">
+
+    <option name="test-suite-tag" value="cts" />
+
+    <option name="config-descriptor:metadata" key="component" value="permissions" />
+    <option name="config-descriptor:metadata" key="parameter" value="no_foldable_states" />
+    <option name="config-descriptor:metadata" key="parameter" value="not_instant_app" />
+    <option name="config-descriptor:metadata" key="parameter" value="not_multi_abi" />
+    <option name="config-descriptor:metadata" key="parameter" value="secondary_user" />
+    <option name="config-descriptor:metadata" key="parameter" value="run_on_sdk_sandbox" />
+    <option name="config-descriptor:metadata" key="mainline-param" value="com.google.android.permission.apex" />
+
+    <object type="module_controller" class="com.android.tradefed.testtype.suite.module.Sdk30ModuleController" />
+
+    <!-- Keep screen on for Bluetooth scanning -->
+    <target_preparer class="com.android.tradefed.targetprep.DeviceSetup">
+        <option name="force-skip-system-props" value="true" /> <!-- avoid restarting device -->
+        <option name="set-global-setting" key="verifier_verify_adb_installs" value="0" />
+        <option name="restore-settings" value="true" />
+        <option name="disable-device-config-sync" value="true" />
+        <option name="screen-always-on" value="on" />
+    </target_preparer>
+
+    <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
+        <option name="cleanup-apks" value="true" />
+        <option name="test-file-name" value="CtsPermissionUiTestCases.apk" />
+    </target_preparer>
+
+    <target_preparer class="com.android.compatibility.common.tradefed.targetprep.FilePusher">
+        <option name="push" value="CtsAccessMicrophoneAppLocationProvider.apk->/data/local/tmp/cts-permissionui/CtsAccessMicrophoneAppLocationProvider.apk" />
+        <option name="push" value="CtsPermissionPolicyApp25.apk->/data/local/tmp/cts-permissionui/CtsPermissionPolicyApp25.apk" />
+        <option name="push" value="CtsUsePermissionApp22.apk->/data/local/tmp/cts-permissionui/CtsUsePermissionApp22.apk" />
+        <option name="push" value="CtsUsePermissionApp22CalendarOnly.apk->/data/local/tmp/cts-permissionui/CtsUsePermissionApp22CalendarOnly.apk" />
+        <option name="push" value="CtsUsePermissionApp22None.apk->/data/local/tmp/cts-permissionui/CtsUsePermissionApp22None.apk" />
+        <option name="push" value="CtsUsePermissionApp23.apk->/data/local/tmp/cts-permissionui/CtsUsePermissionApp23.apk" />
+        <option name="push" value="CtsUsePermissionApp25.apk->/data/local/tmp/cts-permissionui/CtsUsePermissionApp25.apk" />
+        <option name="push" value="CtsUsePermissionApp26.apk->/data/local/tmp/cts-permissionui/CtsUsePermissionApp26.apk" />
+        <option name="push" value="CtsUsePermissionApp28.apk->/data/local/tmp/cts-permissionui/CtsUsePermissionApp28.apk" />
+        <option name="push" value="CtsUsePermissionApp29.apk->/data/local/tmp/cts-permissionui/CtsUsePermissionApp29.apk" />
+        <option name="push" value="CtsUsePermissionApp30.apk->/data/local/tmp/cts-permissionui/CtsUsePermissionApp30.apk" />
+        <option name="push" value="CtsUsePermissionApp30WithBackground.apk->/data/local/tmp/cts-permissionui/CtsUsePermissionApp30WithBackground.apk" />
+        <option name="push" value="CtsUsePermissionApp30WithBluetooth.apk->/data/local/tmp/cts-permissionui/CtsUsePermissionApp30WithBluetooth.apk" />
+        <option name="push" value="CtsUsePermissionApp31.apk->/data/local/tmp/cts-permissionui/CtsUsePermissionApp31.apk" />
+        <option name="push" value="CtsUsePermissionApp32.apk->/data/local/tmp/cts-permissionui/CtsUsePermissionApp32.apk" />
+        <option name="push" value="CtsUsePermissionAppLatest.apk->/data/local/tmp/cts-permissionui/CtsUsePermissionAppLatest.apk" />
+        <option name="push" value="CtsUsePermissionAppLatestNone.apk->/data/local/tmp/cts-permissionui/CtsUsePermissionAppLatestNone.apk" />
+        <option name="push" value="CtsUsePermissionAppWithOverlay.apk->/data/local/tmp/cts-permissionui/CtsUsePermissionAppWithOverlay.apk" />
+        <option name="push" value="CtsHelperAppOverlay.apk->/data/local/tmp/cts-permissionui/CtsHelperAppOverlay.apk" />
+        <option name="push" value="CtsCreateNotificationChannelsApp31.apk->/data/local/tmp/cts-permissionui/CtsCreateNotificationChannelsApp31.apk" />
+        <option name="push" value="CtsDifferentPkgNameApp.apk->/data/local/tmp/cts-permissionui/CtsDifferentPkgNameApp.apk" />
+        <option name="push" value="CtsMediaPermissionApp33WithStorage.apk->/data/local/tmp/cts-permissionui/CtsMediaPermissionApp33WithStorage.apk" />
+        <option name="push" value="CtsUsePermissionAppImplicitUserSelectStorage.apk->/data/local/tmp/cts-permissionui/CtsUsePermissionAppImplicitUserSelectStorage.apk" />
+        <option name="push" value="CtsAppThatAccessesMicAndCameraPermission.apk->/data/local/tmp/cts-permissionui/CtsAppThatAccessesMicAndCameraPermission.apk" />
+        <option name="push" value="CtsUsePermissionAppStorage33.apk->/data/local/tmp/cts-permissionui/CtsUsePermissionAppStorage33.apk" />
+    </target_preparer>
+
+    <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer">
+        <option name="run-command" value="appops set android.permissionui.cts REQUEST_INSTALL_PACKAGES allow" />
+        <option name="run-command" value="am wait-for-broadcast-barrier"  />
+        <!-- ensure user setup is completed -->
+        <option name="run-command" value="settings put secure user_setup_complete 1" />
+        <!-- disable DeprecatedAbi warning -->
+        <option name="run-command" value="setprop debug.wm.disable_deprecated_abi_dialog 1" />
+        <!-- disable DeprecatedTargetSdk warning -->
+        <option name="run-command" value="setprop debug.wm.disable_deprecated_target_sdk_dialog 1" />
+    </target_preparer>
+
+    <!-- Create place to store apks -->
+    <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer">
+        <option name="run-command" value="mkdir -p /data/local/tmp/cts-permissionui" />
+        <option name="teardown-command" value="rm -rf /data/local/tmp/cts-permissionui"/>
+    </target_preparer>
+
+    <metrics_collector class="com.android.tradefed.device.metric.FilePullerLogCollector">
+        <option name="directory-keys" value="/data/user/0/android.permissionui.cts/files" />
+        <option name="collect-on-run-ended-only" value="true" />
+    </metrics_collector>
+
+    <test class="com.android.tradefed.testtype.AndroidJUnitTest" >
+        <option name="package" value="android.permissionui.cts" />
+        <option name="runtime-hint" value="5m" />
+    </test>
+</configuration>

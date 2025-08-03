@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="feedback_system_logs_title_text" msgid="8162964763101361628">"আটাইবোৰ ডিভাইচৰ লগ অন্তৰ্ভুক্ত কৰক (ছিষ্টেম আৰু এপ্)"</string>
+    <string name="feedback_system_logs_legal_text" msgid="4770068793128503597">"আটাইবোৰ ছিষ্টেম আৰু এপ্ ডিভাইচৰ লগ শ্বেয়াৰ কৰাটোৱে Googleলৈ ব্য়ৱহাৰকাৰীৰ নাম, অৱস্থান, ডিভাইচৰ আইডি আৰু নেটৱৰ্কৰ তথ্যৰ দৰে সবিশেষ প্ৰেৰণ কৰে। Googleএ কাৰিকৰী সমস্যাসমূহ সমাধান কৰিবলৈ আৰু সেৱা উন্নত কৰিবলৈ এই তথ্যখিনি ব্যৱহাৰ কৰে। g.co/android/devicelogsত অধিক জানক।"</string>
+    <string name="feedback_bugreport_title_text" msgid="8863884817986711122">"বাগ ৰিপ’ৰ্ট অন্তৰ্ভুক্ত কৰক"</string>
+    <string name="feedback_bugreport_legal_display_text" msgid="4486929548753044585">"Googleক সমস্যাটো বুজি সেইটো সমাধান কৰাত সহায় কৰিবলৈ বাগ ৰিপ’ৰ্টটোত (%1$sৰ পৰা) ব্য়ৱহাৰকাৰীৰ নাম, অৱস্থান, ডিভাইচৰ আইডি আৰু নেটৱৰ্কৰ তথ্যৰ দৰে ডেটা অন্তৰ্ভুক্ত হয়।"</string>
+    <string name="next" msgid="3308587969183798652">"পৰৱৰ্তী"</string>
+    <string name="feedback_view_system_logs_button_text" msgid="1889709679017124924">"ছিষ্টেমৰ লগসমূহ চাওক"</string>
+    <string name="feedback_view_logs_dialog_title" msgid="1937861449450135462">"ছিষ্টেমৰ লগসমূহ"</string>
+    <string name="feedback_view_logs_dialog_body" msgid="2496560711853644250">"এই লগসমূহত সেই তথ্য থাকে যিবোৰ আমাক আপোনাৰ মতামত অনুসৰি কাম কৰাৰ বাবে আৱশ্যক হয়।"</string>
+    <string name="annotated_back_indicator_string" msgid="3197935392074998004">"উভতি যাবলৈ উভতি যাওক বুটামটো টিপক।"</string>
+    <string name="loading" msgid="1709842456101615353">"ল’ড হৈ আছে"</string>
+</resources>

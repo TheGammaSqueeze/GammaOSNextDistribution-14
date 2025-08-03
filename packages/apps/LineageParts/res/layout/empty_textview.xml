@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2015 The CyanogenMod Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/empty"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="@string/profile_empty_list_profiles_off"
+        android:gravity="center"/>

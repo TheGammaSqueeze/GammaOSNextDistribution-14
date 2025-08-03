@@ -1,0 +1,16 @@
+package: "com.android.server.telecom.flags"
+container: "system"
+
+flag {
+  name: "telecom_log_external_wearable_calls"
+  namespace: "telecom"
+  description: "log external call if current device is a wearable one"
+  bug: "292600751"
+}
+
+flag {
+  name: "telecom_skip_log_based_on_extra"
+  namespace: "telecom"
+  description: "skipping logging a call based on passed extra"
+  bug: "295530944"
+}

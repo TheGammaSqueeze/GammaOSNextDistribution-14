@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="rtt_promotion_title">Real-time na pagmemensahe sa text habang nasa isang tawag</string>
+  <string name="rtt_promotion_details">Tinutulungan ng RTT ang mga tumatawag na bingi, mahina ang pandinig, may kapansanan
+    sa pagsasalita, o kailangan ng higit pa sa boses lang. Ini-store ang mga transcript ng pagmemensahe gamit ang RTT sa iyong device
+    sa history ng tawag. %1$s</string>
+</resources>

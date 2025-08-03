@@ -1,0 +1,2511 @@
+model {
+  main {
+    operands {
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 1
+          dimension: 3
+          dimension: 2
+        }
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+          dimension: 2
+        }
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+          dimension: 2
+        }
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+          dimension: 2
+        }
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+          dimension: 2
+        }
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+          dimension: 4
+        }
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+          dimension: 4
+        }
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+          dimension: 4
+        }
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+          dimension: 4
+        }
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+        }
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+        }
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+        }
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+        }
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+          dimension: 4
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+          dimension: 2
+        }
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+          dimension: 2
+        }
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+          dimension: 2
+        }
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+          dimension: 2
+        }
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+          dimension: 4
+        }
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+          dimension: 4
+        }
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+          dimension: 4
+        }
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+          dimension: 4
+        }
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+        }
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+        }
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+        }
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+        }
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+          dimension: 4
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 1
+          dimension: 4
+        }
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 1
+          dimension: 4
+        }
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 1
+          dimension: 4
+        }
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 1
+          dimension: 4
+        }
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 1
+          dimension: 3
+          dimension: 2
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+          dimension: 2
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+          dimension: 2
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+          dimension: 2
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+          dimension: 2
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+          dimension: 2
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+          dimension: 2
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+          dimension: 2
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+          dimension: 2
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: INT32
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 4
+        }
+      }
+      operand {
+        type: FLOAT16
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 571419463
+        }
+      }
+      operand {
+        type: FLOAT16
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 571419463
+        }
+      }
+      operand {
+        type: BOOL
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 1772448071
+        }
+      }
+      operand {
+        type: BOOL
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 965637500
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 1
+          dimension: 3
+          dimension: 8
+        }
+        lifetime: SUBGRAPH_OUTPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 2263394850
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 1
+          dimension: 3
+          dimension: 2
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 2052672676
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 1
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 571419463
+        }
+      }
+      operand {
+        type: INT32
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 0
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+          dimension: 2
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 1356032527
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 1
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 571419463
+        }
+      }
+      operand {
+        type: INT32
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 0
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+          dimension: 2
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 1123852684
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 1
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 571419463
+        }
+      }
+      operand {
+        type: INT32
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 0
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+          dimension: 2
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 462245910
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 1
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 571419463
+        }
+      }
+      operand {
+        type: INT32
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 0
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+          dimension: 2
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 2186467110
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 1
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 571419463
+        }
+      }
+      operand {
+        type: INT32
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 0
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+          dimension: 4
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 1699390536
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 1
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 571419463
+        }
+      }
+      operand {
+        type: INT32
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 0
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+          dimension: 4
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 2106925692
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 1
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 571419463
+        }
+      }
+      operand {
+        type: INT32
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 0
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+          dimension: 4
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 2035901472
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 1
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 571419463
+        }
+      }
+      operand {
+        type: INT32
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 0
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+          dimension: 4
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 79577600
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 1
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 571419463
+        }
+      }
+      operand {
+        type: INT32
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 0
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 3118360442
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 1
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 571419463
+        }
+      }
+      operand {
+        type: INT32
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 0
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 1279159423
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 1
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 571419463
+        }
+      }
+      operand {
+        type: INT32
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 0
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 3118360442
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 1
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 571419463
+        }
+      }
+      operand {
+        type: INT32
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 0
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 3118360442
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 1
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 571419463
+        }
+      }
+      operand {
+        type: INT32
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 0
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+          dimension: 2
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 1356032527
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 1
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 571419463
+        }
+      }
+      operand {
+        type: INT32
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 0
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+          dimension: 2
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 1123852684
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 1
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 571419463
+        }
+      }
+      operand {
+        type: INT32
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 0
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+          dimension: 2
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 462245910
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 1
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 571419463
+        }
+      }
+      operand {
+        type: INT32
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 0
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+          dimension: 2
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 2186467110
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 1
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 571419463
+        }
+      }
+      operand {
+        type: INT32
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 0
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+          dimension: 4
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 1699390536
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 1
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 571419463
+        }
+      }
+      operand {
+        type: INT32
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 0
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+          dimension: 4
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 2106925692
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 1
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 571419463
+        }
+      }
+      operand {
+        type: INT32
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 0
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+          dimension: 4
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 2035901472
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 1
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 571419463
+        }
+      }
+      operand {
+        type: INT32
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 0
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+          dimension: 4
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 79577600
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 1
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 571419463
+        }
+      }
+      operand {
+        type: INT32
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 0
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 3118360442
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 1
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 571419463
+        }
+      }
+      operand {
+        type: INT32
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 0
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 1279159423
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 1
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 571419463
+        }
+      }
+      operand {
+        type: INT32
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 0
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 3118360442
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 1
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 571419463
+        }
+      }
+      operand {
+        type: INT32
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 0
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 4
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 3118360442
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 1
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 571419463
+        }
+      }
+      operand {
+        type: INT32
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 0
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 1
+          dimension: 4
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 3118360442
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 1
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 571419463
+        }
+      }
+      operand {
+        type: INT32
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 0
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 1
+          dimension: 4
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 3118360442
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 1
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 571419463
+        }
+      }
+      operand {
+        type: INT32
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 0
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 1
+          dimension: 4
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 3118360442
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 1
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 571419463
+        }
+      }
+      operand {
+        type: INT32
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 0
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 1
+          dimension: 4
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 3118360442
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 1
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 571419463
+        }
+      }
+      operand {
+        type: INT32
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 0
+        }
+      }
+    }
+    operations {
+      operation {
+        inputs {
+          index: 62
+          index: 63
+          index: 64
+        }
+        outputs {
+          index: 0
+        }
+      }
+      operation {
+        inputs {
+          index: 65
+          index: 66
+          index: 67
+        }
+        outputs {
+          index: 1
+        }
+      }
+      operation {
+        inputs {
+          index: 68
+          index: 69
+          index: 70
+        }
+        outputs {
+          index: 2
+        }
+      }
+      operation {
+        inputs {
+          index: 71
+          index: 72
+          index: 73
+        }
+        outputs {
+          index: 3
+        }
+      }
+      operation {
+        inputs {
+          index: 74
+          index: 75
+          index: 76
+        }
+        outputs {
+          index: 4
+        }
+      }
+      operation {
+        inputs {
+          index: 77
+          index: 78
+          index: 79
+        }
+        outputs {
+          index: 5
+        }
+      }
+      operation {
+        inputs {
+          index: 80
+          index: 81
+          index: 82
+        }
+        outputs {
+          index: 6
+        }
+      }
+      operation {
+        inputs {
+          index: 83
+          index: 84
+          index: 85
+        }
+        outputs {
+          index: 7
+        }
+      }
+      operation {
+        inputs {
+          index: 86
+          index: 87
+          index: 88
+        }
+        outputs {
+          index: 8
+        }
+      }
+      operation {
+        inputs {
+          index: 89
+          index: 90
+          index: 91
+        }
+        outputs {
+          index: 12
+        }
+      }
+      operation {
+        inputs {
+          index: 92
+          index: 93
+          index: 94
+        }
+        outputs {
+          index: 13
+        }
+      }
+      operation {
+        inputs {
+          index: 95
+          index: 96
+          index: 97
+        }
+        outputs {
+          index: 14
+        }
+      }
+      operation {
+        inputs {
+          index: 98
+          index: 99
+          index: 100
+        }
+        outputs {
+          index: 15
+        }
+      }
+      operation {
+        inputs {
+          index: 101
+          index: 102
+          index: 103
+        }
+        outputs {
+          index: 18
+        }
+      }
+      operation {
+        inputs {
+          index: 104
+          index: 105
+          index: 106
+        }
+        outputs {
+          index: 19
+        }
+      }
+      operation {
+        inputs {
+          index: 107
+          index: 108
+          index: 109
+        }
+        outputs {
+          index: 20
+        }
+      }
+      operation {
+        inputs {
+          index: 110
+          index: 111
+          index: 112
+        }
+        outputs {
+          index: 21
+        }
+      }
+      operation {
+        inputs {
+          index: 113
+          index: 114
+          index: 115
+        }
+        outputs {
+          index: 22
+        }
+      }
+      operation {
+        inputs {
+          index: 116
+          index: 117
+          index: 118
+        }
+        outputs {
+          index: 23
+        }
+      }
+      operation {
+        inputs {
+          index: 119
+          index: 120
+          index: 121
+        }
+        outputs {
+          index: 24
+        }
+      }
+      operation {
+        inputs {
+          index: 122
+          index: 123
+          index: 124
+        }
+        outputs {
+          index: 25
+        }
+      }
+      operation {
+        inputs {
+          index: 125
+          index: 126
+          index: 127
+        }
+        outputs {
+          index: 29
+        }
+      }
+      operation {
+        inputs {
+          index: 128
+          index: 129
+          index: 130
+        }
+        outputs {
+          index: 30
+        }
+      }
+      operation {
+        inputs {
+          index: 131
+          index: 132
+          index: 133
+        }
+        outputs {
+          index: 31
+        }
+      }
+      operation {
+        inputs {
+          index: 134
+          index: 135
+          index: 136
+        }
+        outputs {
+          index: 32
+        }
+      }
+      operation {
+        inputs {
+          index: 137
+          index: 138
+          index: 139
+        }
+        outputs {
+          index: 35
+        }
+      }
+      operation {
+        inputs {
+          index: 140
+          index: 141
+          index: 142
+        }
+        outputs {
+          index: 36
+        }
+      }
+      operation {
+        inputs {
+          index: 143
+          index: 144
+          index: 145
+        }
+        outputs {
+          index: 37
+        }
+      }
+      operation {
+        inputs {
+          index: 146
+          index: 147
+          index: 148
+        }
+        outputs {
+          index: 38
+        }
+      }
+      operation {
+        type: BIDIRECTIONAL_SEQUENCE_LSTM
+        inputs {
+          index: 0
+          index: 1
+          index: 2
+          index: 3
+          index: 4
+          index: 5
+          index: 6
+          index: 7
+          index: 8
+          index: 9
+          index: 10
+          index: 11
+          index: 12
+          index: 13
+          index: 14
+          index: 15
+          index: 16
+          index: 17
+          index: 18
+          index: 19
+          index: 20
+          index: 21
+          index: 22
+          index: 23
+          index: 24
+          index: 25
+          index: 26
+          index: 27
+          index: 28
+          index: 29
+          index: 30
+          index: 31
+          index: 32
+          index: 33
+          index: 34
+          index: 35
+          index: 36
+          index: 37
+          index: 38
+          index: 39
+          index: 40
+          index: 41
+          index: 42
+          index: 43
+          index: 44
+          index: 45
+          index: 46
+          index: 47
+          index: 48
+          index: 49
+          index: 50
+          index: 51
+          index: 52
+          index: 53
+          index: 54
+          index: 55
+          index: 56
+          index: 57
+          index: 58
+          index: 59
+          index: 60
+        }
+        outputs {
+          index: 61
+        }
+      }
+    }
+    input_indexes {
+      index: 9
+      index: 10
+      index: 11
+      index: 16
+      index: 17
+      index: 26
+      index: 27
+      index: 28
+      index: 33
+      index: 34
+      index: 39
+      index: 40
+      index: 41
+      index: 42
+      index: 43
+      index: 44
+      index: 45
+      index: 46
+      index: 47
+      index: 53
+      index: 54
+      index: 55
+      index: 56
+      index: 57
+      index: 58
+      index: 59
+      index: 60
+      index: 62
+      index: 65
+      index: 68
+      index: 71
+      index: 74
+      index: 77
+      index: 80
+      index: 83
+      index: 86
+      index: 89
+      index: 92
+      index: 95
+      index: 98
+      index: 101
+      index: 104
+      index: 107
+      index: 110
+      index: 113
+      index: 116
+      index: 119
+      index: 122
+      index: 125
+      index: 128
+      index: 131
+      index: 134
+      index: 137
+      index: 140
+      index: 143
+      index: 146
+    }
+    output_indexes {
+      index: 61
+    }
+  }
+  referenced {
+  }
+}

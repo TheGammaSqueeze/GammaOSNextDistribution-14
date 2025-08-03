@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License
+  -->
+
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.android.emergency.action">
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.CALL_PHONE"/>
+    <uses-permission android:name="android.permission.CALL_PRIVILEGED"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.START_ACTIVITIES_FROM_BACKGROUND" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <application
+        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+        tools:replace="android:appComponentFactory">
+
+        <activity-alias android:name=".EmergencyAction"
+                        android:label="@string/emergency_action_title"
+                        android:targetActivity=".EmergencyActionActivity"
+                        android:permission="android.permission.MANAGE_SENSOR_PRIVACY"
+                        android:directBootAware="true"
+                        android:enabled="true"
+                        android:exported="true">
+
+            <intent-filter>
+                <action android:name="com.android.systemui.action.LAUNCH_EMERGENCY"/>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity
+            android:name=".EmergencyActionActivity"
+            android:label="@string/emergency_action_title"
+            android:theme="@style/AppThemeEmergencyAction"
+            android:directBootAware="true"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:exported="false"/>
+
+        <service
+            android:name=".service.EmergencyActionForegroundService"
+            android:directBootAware="true"
+            android:foregroundServiceType="specialUse"
+            android:exported="false">
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE" android:value="com.android.emergency" />
+        </service>
+
+        <receiver
+            android:name=".broadcast.EmergencyActionBroadcastReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.android.emergency.broadcast.MAKE_EMERGENCY_CALL" />
+                <action android:name="com.android.emergency.broadcast.CANCEL_EMERGENCY_COUNTDOWN" />
+            </intent-filter>
+        </receiver>
+
+    </application>
+</manifest>

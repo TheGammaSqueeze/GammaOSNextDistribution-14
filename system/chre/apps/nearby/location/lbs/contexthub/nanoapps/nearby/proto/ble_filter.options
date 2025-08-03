@@ -1,0 +1,66 @@
+//  Copyright (C) 2023 The Android Open Source Project
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//       http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+//
+// This file is only for nanopb which in use of nanoapp.
+// GmsCore code is not affected by this file.
+// The binary message on wire is not affected by this file either.
+
+nearby.PublicateCertificate.authenticity_key max_size:16
+nearby.PublicateCertificate.authenticity_key type:FT_INLINE
+
+nearby.PublicateCertificate.metadata_encryption_key_tag max_size:8
+nearby.PublicateCertificate.metadata_encryption_key_tag type:FT_INLINE
+
+nearby.PublicCredential.secret_id max_size:4
+nearby.PublicCredential.secret_id type:FT_INLINE
+
+nearby.PublicCredential.authenticity_key max_size:16
+nearby.PublicCredential.authenticity_key type:FT_INLINE
+
+nearby.PublicCredential.public_key max_size:4
+nearby.PublicCredential.public_key type:FT_INLINE
+
+nearby.PublicCredential.encrypted_metadata max_size:4
+nearby.PublicCredential.encrypted_metadata type:FT_INLINE
+
+nearby.PublicCredential.encrypted_metadata_tag max_size:8
+nearby.PublicCredential.encrypted_metadata_tag type:FT_INLINE
+
+nearby.BleFilter.mac_address max_size:6
+nearby.BleFilter.mac_address type:FT_INLINE
+
+nearby.BleFilter.mac_mask max_size:6
+nearby.BleFilter.mac_mask type:FT_INLINE
+
+// TODO(b/193756395): change to variable size.
+nearby.BleFilter.certificate max_count:3
+
+// TODO(b/193756395): change to variable size.
+nearby.BleFilters.filter max_count:10
+nearby.BleFilters.filter type:FT_STATIC
+
+nearby.BleFilterResult.bluetooth_address max_size:6
+nearby.BleFilterResult.bluetooth_address type:FT_INLINE
+
+// can hold an account key with 128 bits.
+nearby.DataElement.value max_size:16
+nearby.DataElement.value type:FT_INLINE
+
+nearby.BleFilter.data_element max_count:8
+nearby.BleFilter.data_element type:FT_STATIC
+
+nearby.BleFilterResult.data_element max_count:8
+nearby.BleFilterResult.data_element type:FT_STATIC
+
+nearby.BleFilterResult.ble_service_data max_size:32
+nearby.BleFilterResult.ble_service_data type:FT_INLINE

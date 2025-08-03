@@ -1,0 +1,83 @@
+package {
+    default_team: "trendy_team_fwk_core_networking",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_defaults {
+    name: "libremoteauth_jni_rust_defaults",
+    crate_name: "remoteauth_jni_rust",
+    lints: "android",
+    clippy_lints: "android",
+    min_sdk_version: "35",
+    srcs: ["src/lib.rs"],
+    rustlibs: [
+        "libbinder_rs",
+        "libjni",
+        "liblazy_static",
+        "liblog_rust",
+        "liblogger",
+        "libnum_traits",
+        "libthiserror",
+        "libtokio",
+        "libanyhow",
+    ],
+    proc_macros: [
+        "libasync_trait",
+    ],
+    prefer_rlib: true,
+    apex_available: [
+        "com.android.remoteauth",
+    ],
+    host_supported: true,
+}
+
+rust_ffi_shared {
+    name: "libremoteauth_jni_rust",
+    defaults: ["libremoteauth_jni_rust_defaults"],
+    rustlibs: [],
+}
+
+rust_test {
+    name: "libremoteauth_jni_rust_tests",
+    defaults: ["libremoteauth_jni_rust_defaults"],
+    rustlibs: [
+    ],
+    target: {
+        android: {
+            test_suites: [
+                "general-tests",
+            ],
+            test_config_template: "remoteauth_rust_test_config_template.xml",
+        },
+        host: {
+            test_suites: [
+                "general-tests",
+            ],
+            data_libs: [
+                "libandroid_runtime_lazy",
+                "libbase",
+                "libbinder",
+                "libbinder_ndk",
+                "libcutils",
+                "liblog",
+                "libutils",
+            ],
+        },
+    },
+    test_options: {
+        unit_test: true,
+    },
+    // Support multilib variants (using different suffix per sub-architecture), which is needed on
+    // build targets with secondary architectures, as the MTS test suite packaging logic flattens
+    // all test artifacts into a single `testcases` directory.
+    compile_multilib: "both",
+    multilib: {
+        lib32: {
+            suffix: "32",
+        },
+        lib64: {
+            suffix: "64",
+        },
+    },
+    auto_gen_config: true,
+}

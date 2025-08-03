@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  Copyright (c) 2017 The LineageOS Project
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ Also add information on how to contact you by electronic and paper mail.
+
+-->
+<resources>
+    <string name="app_name">FlipFlap</string>
+    <string name="notification_title">已檢測到智慧掀蓋</string>
+    <string name="alarm_label">鬧鈴</string>
+    <string name="abbrev_wday_month_day_no_year">EEE, MMMM d</string>
+    <string name="answer_call">接聽</string>
+    <string name="ignore_call">忽略</string>
+    <string name="end_call">結束通話</string>
+    <string name="settings_name">智慧掀蓋</string>
+    <string name="settings_enable">啟用智慧封面控制</string>
+    <string name="settings_summary">控制您的附件行為</string>
+    <string name="category_behaviour">行為</string>
+    <string name="pass_to_security_view_title">直接輸入密碼</string>
+    <string name="pass_to_security_view_summary">開啟保護殼時直接顯示鎖定畫面</string>
+    <string name="use_high_touch_sensitivity_title">高觸控靈敏度</string>
+    <string name="use_high_touch_sensitivity_summary">在合上掀蓋時提高觸控靈敏度</string>
+    <string name="category_design">設計</string>
+    <string name="switch_charging_status_title">顯示充電狀態</string>
+    <string name="switch_charging_status_summary">根據目前電池電量改變顏色</string>
+    <string name="category_timeouts">逾時</string>
+    <string name="timeout_plugged_title">在充電時</string>
+    <string name="timeout_unplugged_title">拔出</string>
+    <string name="timeout_summary">合上掀蓋後顯示 %s 的封面應用程式</string>
+    <string name="timeout_summary_never">合上掀蓋後，封面應用程式將一律保持開啟狀態</string>
+    <string name="timeout_summary_immediately">當合上掀蓋時將關閉螢幕</string>
+    <string name="timeout_entry_immediately">立即</string>
+    <string name="timeout_entry_5s">5 秒</string>
+    <string name="timeout_entry_10s">10 秒</string>
+    <string name="timeout_entry_30s">30 秒</string>
+    <string name="timeout_entry_1min">1 分鐘</string>
+    <string name="timeout_entry_5min">5 分鐘</string>
+    <string name="timeout_entry_never">永不</string>
+</resources>

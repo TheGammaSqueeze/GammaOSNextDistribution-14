@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="settings_backup_apk_dialog_message">גיבוי מושבת של יישומון עדיין יגבה את נתוני היישומון. עם זאת, הוא לא ישוחזר אוטומטית.
+\n
+\nיהיה עליך להתקין את כל היישומונים ידנית תוך שהאפשרות „שחזור אוטומטי” פעילה.</string>
+    <string name="notification_title">הגיבוי פועל</string>
+    <string name="notification_channel_title">התראת גיבוי</string>
+    <string name="recovery_code_error_checksum_word">הקוד שלך שגוי. נא לאמת את כל המילים ואת מיקומן ולנסות שוב!</string>
+    <string name="recovery_code_error_invalid_word">מילה שגויה.</string>
+    <string name="recovery_code_error_empty_word">שכחת למלא את המילה הזאת.</string>
+    <string name="recovery_code_input_hint_12">מילה 12</string>
+    <string name="recovery_code_input_hint_11">מילה 11</string>
+    <string name="recovery_code_input_hint_10">מילה 10</string>
+    <string name="recovery_code_input_hint_9">מילה 9</string>
+    <string name="recovery_code_input_hint_8">מילה 8</string>
+    <string name="recovery_code_input_hint_7">מילה 7</string>
+    <string name="recovery_code_input_hint_6">מילה 6</string>
+    <string name="recovery_code_input_hint_5">מילה 5</string>
+    <string name="recovery_code_input_hint_4">מילה 4</string>
+    <string name="recovery_code_input_hint_3">מילה 3</string>
+    <string name="recovery_code_input_hint_2">מילה 2</string>
+    <string name="recovery_code_input_hint_1">מילה 1</string>
+    <string name="recovery_code_done_button">אימות</string>
+    <string name="recovery_code_input_intro">נא להקליד את קוד השחזור שלך באורך 12 מילים שכתבת בעת הקמת הגיבויים.</string>
+    <string name="recovery_code_confirm_intro">נא להקליד את קוד השחזור שלך באורך 12 מילים כדי לוודא שהוא יפעל כשיהיה לך צורך בו.</string>
+    <string name="recovery_code_confirm_button">אישור הקוד</string>
+    <string name="recovery_code_write_it_down">חובה לכתוב אותו על דף כעת!</string>
+    <string name="recovery_code_12_word_intro">עליך להצטייד בקוד השחזור שלך באורך 12 מילים כדי לשחזר את נתונים שגובו.</string>
+    <string name="recovery_code_title">קוד שחזור</string>
+    <string name="storage_check_fragment_error_button">חזרה</string>
+    <string name="storage_check_fragment_permission_error">לא ניתן לקבל את ההרשאות לכתוב למיקום הגיבויים.</string>
+    <string name="storage_check_fragment_backup_error">אירעה שגיאה בעת ניסיון הגישה למיקום הגיבויים.</string>
+    <string name="storage_check_fragment_restore_title">מתבצע חיפוש אחר גיבויים…</string>
+    <string name="storage_check_fragment_backup_title">מיקום הגיבוי נערך…</string>
+    <string name="storage_fake_nextcloud_summary_installed">יש לגעת כדי להקים חשבון</string>
+    <string name="storage_fake_nextcloud_summary">יש לגעת כדי להתקין</string>
+    <string name="storage_available_bytes"><xliff:g example="1 GB" id="size">%1$s</xliff:g> פנויים</string>
+    <string name="storage_fake_drive_summary">יש לחבר אותו</string>
+    <string name="storage_fake_drive_title">כונן USB נייד</string>
+    <string name="storage_fragment_warning">אנשים עם גישה למיקום האחסון שלך יכולים להבין אילו יישומונים משמשים אותך אך לא יקבלו גישה לנתוני היישומונים.</string>
+    <string name="storage_fragment_restore_title">איפה ניתן יהיה למצוא את הגיבויים שלך\?</string>
+    <string name="storage_fragment_backup_title">לבחור היכן לאחסן את הגיבויים</string>
+    <string name="settings_backup_now">לגבות כעת</string>
+    <string name="settings_backup_exclude_apps">החרגת יישומונים</string>
+    <string name="settings_backup_status_summary">גיבוי אחרון: %1$s</string>
+    <string name="settings_backup_apk_dialog_disable">להשבית את גיבוי היישומון</string>
+    <string name="settings_backup_apk_dialog_cancel">ביטול</string>
+    <string name="settings_backup_apk_dialog_title">להשבית את גיבוי היישומון\?</string>
+    <string name="settings_backup_apk_summary">לגבות את היישומונים עצמם, אחרת, רק נתוני היישומונים יגובו.</string>
+    <string name="restore_set_empty_result">לא נמצאו גיבויים מתאימים במיקום הנתון.
+\n
+\nכנראה שמדובר בקוד שחזור שגוי או בשגיאת אחסון.</string>
+    <string name="restore_set_error">אירעה שגיאה בעת טעינת הגיבויים.</string>
+    <string name="restore_invalid_location_message">לא הצלחנו למצוא גיבויים במיקום הזה.
+\n
+\nנא לבחור במיקום אחר שמכיל תיקיית %s.</string>
+    <string name="restore_invalid_location_title">לא נמצאו גיבויים</string>
+    <string name="restore_skip">לא לשחזר</string>
+    <string name="restore_restore_set_times">גיבוי אחרון %1$s · ראשון %2$s.</string>
+    <string name="restore_choose_restore_set">נא לבחור גיבוי לשחזור</string>
+    <string name="restore_title">שחזור מגיבוי</string>
+    <string name="notification_restore_error_action">הסרת יישומון</string>
+    <string name="notification_restore_error_text">עליך לחבר את %1$s לחשמל בטרם התקנת היישומון לשחזור הנתונים שלו מגיבוי.</string>
+    <string name="notification_restore_error_title">לא ניתן לשחזר את הנתונים עבור %1$s</string>
+    <string name="notification_restore_error_channel_title">שגיאת שחזור אוטומטי של כונן נייד</string>
+    <string name="notification_error_action">תיקון</string>
+    <string name="notification_error_text">הרצת גיבוי למכשיר נכשלה.</string>
+    <string name="notification_error_title">שגיאת גיבוי</string>
+    <string name="notification_error_channel_title">התראת שגיאה</string>
+    <string name="notification_failed_title">הגיבוי נכשל</string>
+    <string name="notification_success_title">הגיבוי הסתיים</string>
+    <string name="notification_backup_already_running">הגיבוי כבר מתבצע</string>
+    <string name="about_summary">יישומון גיבוי שמשתמש ב־API הפנימי לגיבוי של Android. תוכנה חופשית שכפופה לרישיון Apache 2.
+\n
+\nכמו בכל תוכנה אחרת, גם ב־Seedvault יכולות להיות תקלות או חולשות אבטחה.</string>
+    <string name="about_title">על אודות</string>
+    <string name="storage_internal_warning_use_anyway">להשתמש בכל זאת</string>
+    <string name="storage_internal_warning_choose_other">בחירה במיקום אחר</string>
+    <string name="storage_internal_warning_message">בחרת באחסון פנימי עבור הגיבוי שלך. משמעות הדבר היא שהגיבוי לא יהיה זמין כאשר הטלפון שלך ילך לאיבוד או ייהרס.</string>
+    <string name="storage_internal_warning_title">אזהרה</string>
+    <string name="restore_finished_button">סיום</string>
+    <string name="restore_finished_error">אירעה שגיאה בעת שחזור הגיבוי.</string>
+    <string name="restore_finished_success">השחזור הושלם</string>
+    <string name="restore_app_quota_exceeded">חרגת ממיכסת הגיבוי</string>
+    <string name="restore_app_not_installed">היישומון לא מותקן</string>
+    <string name="restore_app_not_allowed">היישומון לא אפשר גיבוי</string>
+    <string name="backup_app_no_data">היישומון דיווח שאין לו נתונים לגיבוי</string>
+    <string name="restore_magic_package">מנהל חבילות המערכת</string>
+    <string name="restore_restoring">הגיבוי משוחזר</string>
+    <string name="restore_next">הבא</string>
+    <string name="restore_installing_packages">היישומונים מותקנים מחדש</string>
+    <string name="restore_app_was_stopped">לא גובה כיוון שלא נעשה בו שימוש לאחרונה</string>
+    <string name="restore_app_not_yet_backed_up">עדיין לא גובה</string>
+    <string name="storage_fake_nextcloud_summary_unavailable">החשבון אינו זמין. ניתן להקים אחד (או להשבית את קוד הגישה).</string>
+    <string name="settings_backup_apk_title">גיבוי יישומונים</string>
+    <string name="settings_category_app_data_backup">גיבוי נתוני יישומונים</string>
+    <string name="settings_auto_restore_summary_usb">לתשומת לבך: עליך לחבר את %1$s שלך לחשמל כדי שזה יפעל.</string>
+    <string name="settings_auto_restore_summary">בעת התקנת יישומון מחדש, לשחזר את ההגדרות והנתונים שגובו.</string>
+    <string name="settings_auto_restore_title">שחזור אוטומטי</string>
+    <string name="settings_info">כל הגיבויים מוצפנים בטלפון שלך. כדי לשחזר מגיבוי עליך להצטייד בקוד השחזור שלך באורך 12 המילים.</string>
+    <string name="settings_backup_last_backup_never">מעולם לא</string>
+    <string name="settings_backup_location_internal">אחסון פנימי</string>
+    <string name="settings_backup_location_none">אף מקום</string>
+    <string name="settings_backup_location">מיקום גיבוי</string>
+    <string name="settings_backup">גיבוי היישומונים שלי</string>
+    <string name="restore_backup_button">שחזור גיבוי</string>
+    <string name="backup">גיבוי</string>
+    <string name="current_destination_string">מצב והגדרות גיבוי</string>
+    <string name="data_management_label">גיבוי Seedvault</string>
+    <string name="settings_backup_storage_dialog_title">יכולת ניסיונית</string>
+    <string name="settings_backup_storage_dialog_message">גיבוי קבצים היא עדיין יכולת ניסיונית ויכול להיות שלא תעבוד. אין לסמוך עליה כשמדובר בנתונים חשובים.</string>
+    <string name="settings_backup_storage_dialog_ok">לאפשר בכל זאת</string>
+    <string name="settings_category_apps">גיבוי יישומונים</string>
+    <string name="settings_category_storage">אחסון לגיבוי (ניסיוני)</string>
+    <string name="settings_expert_title">הגדרות מומחים</string>
+    <string name="settings_backup_status_title">מצב גיבוי</string>
+    <string name="settings_backup_files_summary">אין</string>
+    <string name="settings_backup_recovery_code">קוד שחזור</string>
+    <string name="settings_expert_quota_title">מיכסה בלתי מוגבלת ליישומונים</string>
+    <string name="settings_backup_storage_title">גיבוי הקבצים שלי</string>
+    <string name="settings_backup_files_title">קבצים ותיקיות שיוכללו</string>
+    <string name="backup_section_not_allowed">יישומונים שלא מרשים גיבוי נתונים</string>
+    <string name="restore_installing_tap_to_install">יש לגעת כדי להתקין</string>
+    <string name="restore_restoring_error_title">לא ניתן לשחזר חלק מהיישומונים</string>
+    <string name="about_version">גרסה: %s</string>
+    <string name="storage_fragment_warning_delete">גיבויים קיימים במקום הזה יימחקו.</string>
+    <string name="storage_fake_nextcloud_summary_unavailable_market">לא מותקן</string>
+    <string name="storage_check_fragment_patience">עשוי לארוך זמן מה…</string>
+    <string name="recovery_code_verification_ok_title">קוד השחזור אומת</string>
+    <string name="recovery_code_verification_ok_message">הקוד שלך נכון והוא יעבוד לשחזור הגיבוי שלך.</string>
+    <string name="recovery_code_verification_error_title">קוד שחזור שגוי</string>
+    <string name="recovery_code_verification_try_again">לנסות שוב</string>
+    <string name="recovery_code_verification_generate_new">יצירת קוד חדש</string>
+    <string name="recovery_code_verification_new_dialog_title">נא להמתין רגע קט…</string>
+    <string name="recovery_code_auth_title">נא להיכנס מחדש למסך הנעילה שלך</string>
+    <string name="recovery_code_auth_description">נא לספק את פרטי הגישה למכשיר כדי להמשיך</string>
+    <string name="restore_skip_apps">דילוג על שחזור יישומונים</string>
+    <string name="backup_app_quota_exceeded">מיכסת הגיבוי הושגה</string>
+    <string name="restore_restoring_error_message">אפשר להתקין את היישומונים האלה ידנית מחדש והשחזור האוטומטי ינסה לשחזר את הנתונים שלהם (אם הוא מופעל).</string>
+    <string name="settings_backup_recovery_code_summary">אימות קוד קיים או יצירת אחד חדש</string>
+    <string name="restore_storage_skip">דילוג על שחזור קבצים</string>
+    <string name="settings_expert_quota_summary">לא לאכוף מגבלה על גודל גיבויי היישומונים.
+\n
+\nאזהרה: הגדרה זו עשויה לגרום למילוי מקום האחסון שלך במהירות. לא נחוץ לרוב היישומונים.</string>
+    <string name="recovery_code_recreated">קוד שחזור חדש נוצר בהצלחה</string>
+    <string name="restore_storage_choose_snapshot">נא לבחור גיבוי אחסון לשחזור (ניסיוני)</string>
+    <string name="restore_storage_got_it">הבנתי</string>
+    <string name="backup_section_system">יישומוני מערכת</string>
+    <string name="backup_sms">מסרוני טקסט SMS</string>
+    <string name="backup_app_not_yet_backed_up">בהמתנה לגיבוי…</string>
+    <string name="backup_app_was_stopped">לא גובה כיוון שלא היה בשימוש לאחרונה</string>
+    <string name="restore_installing_error_title">יישומונים מסוימים לא מותקנים</string>
+    <string name="restore_storage_in_progress_title">קבצים משוחזרים…</string>
+    <string name="backup_settings">הגדרות מכשיר</string>
+    <string name="backup_call_log">היסטוריית שיחות</string>
+    <string name="backup_contacts">אנשי קשר מקומיים</string>
+    <string name="backup_section_user">יישומונים מותקנים</string>
+    <string name="settings_backup_new_code_dialog_message">כדי להמשיך להשתמש בגיבויי היישומון, עליך לייצר קוד שחזור חדש.
+\n
+\nאנו מתנצלים על חוסר הנעימות.</string>
+    <string name="settings_backup_new_code_code_dialog_ok">קוד חדש</string>
+    <string name="settings_backup_storage_battery_optimization">אזהרה: אין גיבויים אוטומטיים כיוון שמיטוב סוללה פעיל.</string>
+    <string name="settings_backup_new_code_dialog_title">נדרש קוד שחזור חדש</string>
+    <string name="recovery_code_verification_error_message">מילאת קוד שחזור שגוי. נא לנסות שוב!
+\n
+\nאם איבדת את הקוד שלך, ניתן לגעת ב־‚יצירת קוד חדש’ להלן.</string>
+    <string name="restore_installing_error_message">ניתן לשחזר נתונים רק אם יישומון מותקן.
+\n
+\nנגיעה ביישומונים שנכשלו תתקין אותם ידנית בטרם המשך הפעילות.</string>
+    <string name="recovery_code_verification_new_dialog_message">יצירת קוד חדש תבטל את הגישה לגיבויים הנוכחיים שלך. אנו ננסה למחוק אותם אם ניתן.
+\n
+\nלהמשיך בפעולה הזאת\?</string>
+    <string name="notification_error_no_main_key_text">ניתן ליצור קוד חדש כדי להשלים את השדרוג ולהמשיך להשתמש בגיבויים.</string>
+    <string name="notification_error_no_main_key_title">הגיבויים מושבתים</string>
+    <string name="error_no_store">שגיאה: לא מותקנת חנות יישומונים</string>
+    <string name="restore_storage_in_progress_info">הקבצים שלך משוחזרים ברקע. ניתן להתחיל להשתמש בטלפון שלך בזמן שזה מתבצע.
+\n
+\nחלק מהיישומונים (כמו למשל סיגנל ו־WhatsApp) עשויים לדרוש שחזור מלא כדי לייבא גיבוי. מומלץ לנסות להימנע מהפעלת היישומונים האלו בטרם השלמת השחזור.</string>
+    <string name="storage_fake_davx5_summary_installed">להקמת עיגון WebDAV יש לגעת כאן</string>
+    <string name="storage_fake_davx5_summary_unavailable">עיגון WebDAV לא זמין. יש להקים אחד.</string>
+    <string name="notification_backup_disabled">גיבוי לא מופעל</string>
+    <string name="backup_app_in_progress">מתבצע גיבוי</string>
+    <string name="backup_app_success">הגיבוי הושלם</string>
+    <string name="restore_app_status_installing">מתבצעת התקנה מחדש</string>
+    <string name="restore_app_status_installed">הותקן מחדש</string>
+    <string name="restore_app_status_install_error">לא ניתן להתקין</string>
+    <string name="restore_app_status_restored">הנתונים שוחזרו</string>
+    <string name="restore_app_status_failed">השחזור נכשל</string>
+    <string name="restore_app_status_warning">אזהרת שחזור</string>
+    <string name="backup_app_warning">אזהרת גיבוי</string>
+    <string name="settings_expert_logcat_title">שמירת יומן היישומון</string>
+    <string name="settings_expert_logcat_error">שגיאה: לא ניתן לשמור את יומן היישומון</string>
+    <string name="settings_expert_logcat_summary">המפתחים יכולים לנתח תקלות בעזרת היומנים האלה.
+\n
+\nאזהרה: קובץ היומן יכול להכיל מידע שיכול לחשוף את זהותך. מוטב לעבור עליו לפני ולמחוק אותו לאחר השיתוף!</string>
+    <string name="settings_backup_dialog_title">לכבות את גיבויי היישומון\?</string>
+    <string name="settings_backup_dialog_message">עם הפעלת הגיבויים מחדש, תהליך הגיבוי יתמשך מעבר לרגיל ויותר שטח אחסון ינוצל.</string>
+    <string name="settings_backup_dialog_disable">לכבות בכל זאת</string>
+    <string name="storage_not_recommended"><xliff:g example="Skynet">%1$s</xliff:g> (לא מומלץ)</string>
+    <string name="about_contributing_organizations_title">ארגונים תורמים</string>
+    <string name="about_contributor_headline">תורמים</string>
+    <string name="about_contributor_content">את רשימת התורמים אפשר <a href="https://github.com/seedvault-app/seedvault/graphs/contributors">לראות ב־GitHub</a>.</string>
+    <string name="about_contributing_organizations_content"><a href="https://www.calyxinstitute.org">מכון Calyx</a> לשימוש ב־<a href="https://calyxos.org">CalyxOS</a>
+\n<a href="https://nlnet.nl/project/Seedvault/">קרן NGI0 PET מבית NLnet</a></string>
+    <string name="storage_user_selected_location_title">מקום לבחירת המשתמש</string>
+    <string name="settings_expert_d2d_title">גיבויי מכשיר למכשיר</string>
+    <string name="settings_expert_d2d_summary">כופה את גיבוי רוב היישומונים, אפילו אם הם מסרבים לזה. יכולת ניסיונית ראשית, נא להשתמש במשנה זהירות.</string>
+    <string name="notification_success_channel_title">התראה על הצלחה</string>
+    <string name="notification_success_text">%1$d מתוך %2$d יישומונים גובו (%3$s). למידע נוסף נא לגעת.</string>
+</resources>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2020 Google Inc. All Rights Reserved. -->
+<configuration description="Test suite config for Host Unit Tests.">
+    <option name="null-device" value="true" />
+    <include name="suite/base-suite" />
+
+    <!-- Force python unit tests into verbose so we can parse them -->
+    <option name="test-arg" value="com.android.tradefed.testtype.python.PythonBinaryHostTest:python-options:-vv" />
+    <!-- Force GTest to report binary name in results -->
+    <option name="test-arg" value="com.android.tradefed.testtype.HostGTest:prepend-filename:true" />
+    <!-- We set the timeout on the method level below so no need to limit the binary -->
+    <option name="test-arg" value="com.android.tradefed.testtype.HostGTest:native-test-timeout:0" />
+
+    <!-- Force a timeout on every unit test cases -->
+    <option name="test-arg" value="com.android.compatibility.common.tradefed.testtype.JarHostTest:test-case-timeout:1m" />
+    <option name="test-arg" value="com.android.tradefed.testtype.HostGTest:test-case-timeout:1m" />
+    <option name="test-arg" value="com.android.tradefed.testtype.HostTest:test-case-timeout:1m" />
+    <option name="test-arg" value="com.android.tradefed.testtype.IsolatedHostTest:test-case-timeout:1m" />
+    <option name="test-arg" value="com.android.tradefed.testtype.python.PythonBinaryHostTest:test-case-timeout:1m" />
+
+    <!-- Set timeout for ExecutableHostTest which consider a single binary one method -->
+    <option name="test-arg" value="com.android.tradefed.testtype.binary.ExecutableHostTest:per-binary-timeout:1m" />
+
+    <!-- Automated exclusion of java tests -->
+    <option name="test-arg" value="com.android.tradefed.testtype.HostTest:exclude-annotation:android.platform.test.annotations.LargeTest" />
+    <option name="test-arg" value="com.android.compatibility.common.tradefed.testtype.JarHostTest:exclude-annotation:android.platform.test.annotations.LargeTest" />
+    <option name="test-arg" value="com.android.tradefed.testtype.IsolatedHostTest:exclude-annotation:android.platform.test.annotations.LargeTest" />
+</configuration>

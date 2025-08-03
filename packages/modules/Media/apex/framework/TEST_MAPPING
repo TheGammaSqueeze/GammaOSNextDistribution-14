@@ -1,0 +1,13 @@
+{
+  "presubmit": [
+    {
+      "name": "CtsMediaParserTestCases"
+    },
+    {
+      "name": "CtsMediaParserHostTestCases"
+    },
+    {
+        "name": "media_e2e_tests"
+    }
+  ]
+}

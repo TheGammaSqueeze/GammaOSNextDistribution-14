@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="2907804426411305091">"Transactional API சோதனை செயல்பாடு"</string>
+    <string name="in_call_activity_name" msgid="7545884666442897585">"டிரான்சாக்‌ஷனல் இன் கால் ஆக்டிவிட்டி"</string>
+    <string name="register_phone_account" msgid="1920315963082350332">"மொபைல் கணக்கைப் பதிவுசெய்தல்"</string>
+    <string name="start_foreground_service" msgid="8968755699895128574">"FGSஸைத் தொடங்கு (MT + ஆப்ஸைப் பின்னணியில் சிமுலேட் செய்)"</string>
+    <string name="start_outgoing" msgid="1441644037370361864">"வெளிச்செல்லும் அழைப்பைத் தொடங்கு"</string>
+    <string name="start_incoming" msgid="6444983300186361271">"உள்வரும் அழைப்பைத் தொடங்கு"</string>
+    <string name="get_call_id" msgid="5513943242738347108">"அழைப்பு ஐடி அமைக்கப்படவில்லை"</string>
+    <string name="set_call_active" msgid="3365404393507589899">"செயலில் அமை"</string>
+    <string name="answer" msgid="5423590397665409939">"பதில்"</string>
+    <string name="set_call_inactive" msgid="7106775211368705195">"செயலற்ற நிலையில் அமை"</string>
+    <string name="disconnect_call" msgid="1349412380315371385">"துண்டி"</string>
+    <string name="request_earpiece_endpoint" msgid="6649571985089296573">"ஒலி கேட்கும் பகுதி"</string>
+    <string name="request_speaker_endpoint" msgid="1033259535289845405">"ஸ்பீக்கர்"</string>
+    <string name="request_bluetooth_endpoint" msgid="5933254250623451836">"புளூடூத்"</string>
+    <string name="start_stream" msgid="3567634786280097431">"ஸ்ட்ரீமிங்கைத் தொடங்கு"</string>
+    <string name="crash_app" msgid="2548690390730057704">"விதிவிலக்கைத் தொடங்கு"</string>
+    <string name="update_notification" msgid="8677916482672588779">"செயலில் உள்ள அழைப்பு ஸ்டைலுக்கான அறிவிப்பைப் புதுப்பிக்கவும்"</string>
+</resources>

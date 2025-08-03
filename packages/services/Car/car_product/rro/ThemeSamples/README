@@ -1,0 +1,15 @@
+The values in these RROs are for modifying the car-resource-common values and should be applied to all
+applications using car-resource-common
+
+```bash
+# Enable systemui and android RRO for the user 0
+adb shell cmd overlay enable --user 0 com.android.systemui.googlecarui.theme.pink.rro \
+&& adb shell cmd overlay enable --user 0 android.googlecarui.theme.pink.rro \
+
+# Enable launcher and settings RRO for the user current
+adb shell cmd overlay enable --user 10 com.android.car.carlauncher.googlecarui.theme.orange.rro \
+&& adb shell cmd overlay enable --user 10 com.android.car.settings.googlecarui.theme.orange.rro
+
+# Kill systemUi to refresh the systemUi views.
+adb shell am crash com.android.systemui
+```

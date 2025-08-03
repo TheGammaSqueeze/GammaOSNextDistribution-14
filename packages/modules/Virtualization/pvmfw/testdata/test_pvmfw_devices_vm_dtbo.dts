@@ -1,0 +1,68 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+    host {
+        #address-cells = <0x2>;
+        #size-cells = <0x1>;
+        rng {
+            reg = <0x0 0x12f00000 0xFF>;
+            iommus = <&iommu0 0x3>;
+            android,pvmfw,target = <&rng>;
+        };
+        light {
+            reg = <0x0 0x00f00000 0x1000>, <0x0 0x00f10000 0x1000>;
+            iommus = <&iommu1 0x4>, <&iommu2 0x5>;
+            android,pvmfw,target = <&light>;
+        };
+        led {
+            reg = <0x0 0x12000000 0x9>;
+            iommus = <&iommu0 0x9>;
+            android,pvmfw,target = <&led>;
+        };
+        bus0 {
+            #address-cells = <0x1>;
+            #size-cells = <0x1>;
+            backlight {
+                reg = <0x300 0xFF>;
+                android,pvmfw,target = <&backlight>;
+            };
+        };
+        iommu0: iommu0 {
+            #iommu-cells = <0x1>;
+            android,pvmfw,token = <0x0 0x12e40000>;
+        };
+        iommu1: iommu1 {
+            #iommu-cells = <0x1>;
+            android,pvmfw,token = <0x0 0x40000>;
+        };
+        iommu2: iommu2 {
+            #iommu-cells = <0x1>;
+            android,pvmfw,token = <0x0 0x50000>;
+        };
+    };
+};
+
+&{/} {
+    rng: rng {
+        compatible = "android,rng";
+        android,rng,ignore-gctrl-reset;
+    };
+
+    light: light {
+        compatible = "android,light";
+        version = <0x1 0x2>;
+    };
+
+    led: led {
+        compatible = "android,led";
+        prop = <0x555>;
+    };
+
+    bus0 {
+        backlight: backlight {
+            compatible = "android,backlight";
+            android,backlight,ignore-gctrl-reset;
+        };
+    };
+};

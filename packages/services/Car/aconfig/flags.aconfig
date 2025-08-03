@@ -1,0 +1,178 @@
+package: "android.car.feature"
+
+# CarUserManager
+flag {
+  name: "switch_user_ignoring_uxr"
+  namespace: "car_framework"
+  description: "Allow user switching ignoring the Ux Restrictions."
+  bug: "320545306"
+}
+
+# CarPackageManager
+flag {
+  name: "display_compatibility"
+  namespace: "car_framework"
+  description: "This flag controls if apps can query packages that need car display compatibility treatment"
+  bug: "291638685"
+}
+
+# CarProjectionManager
+flag {
+  name: "projection_query_bt_profile_inhibit"
+  namespace: "car_framework"
+  description: "This flag controls if apps can query the inhibit state or bluetooth profiles."
+  bug: "281791498"
+}
+
+# CarRemoteAccessManager
+flag {
+  name: "serverless_remote_access"
+  namespace: "car_framework"
+  description: "Enables serverless remote access"
+  bug: "302339402"
+}
+
+# CarPowerManager
+flag {
+  name: "car_power_policy_refactoring"
+  namespace: "car_framework"
+  description: "Controls whether refactored car power policy daemon handles power policy change request"
+  bug: "286303350"
+}
+
+# CarAudioManager
+flag {
+  name: "car_audio_dynamic_devices"
+  namespace: "car_framework"
+  description: "Controls whether car audio system can be configured with dynamic output devices"
+  bug: "305301155"
+}
+
+flag {
+    name: "car_audio_min_max_activation_volume"
+    namespace: "car_framework"
+    description: "Controls whether car audio can be configured with min/max activation volume"
+    bug: "310667172"
+}
+
+flag {
+    name: "car_audio_mute_ambiguity"
+    namespace: "car_framework"
+    description: "Controls whether mute ambiguity API works on car audio system"
+    bug: "321063661"
+}
+
+flag {
+    name: "car_audio_fade_manager_configuration"
+    namespace: "car_framework"
+    description: "Controls whether car audio can be configured with fade manager configurations"
+    bug: "315695829"
+}
+
+# CarPropertyManager
+flag {
+  name: "batched_subscriptions"
+  namespace: "car_framework"
+  description: "Controls whether to enable batched subscriptions for multiple [propId, areaId]s"
+  bug: "298257574"
+}
+
+flag {
+  name: "variable_update_rate"
+  namespace: "car_framework"
+  description: "Controls whether to enable variable update rate for subscription"
+  bug: "300700719"
+}
+
+flag {
+  name: "area_id_config_access"
+  namespace: "car_framework"
+  description: "Controls whether apps can use the new access level APIs added to AreaIdConfig"
+  bug: "290801790"
+}
+
+flag {
+  name: "subscription_with_resolution"
+  namespace: "car_framework"
+  description: "Controls whether to round incoming property events to the resolution requested"
+  bug: "276124296"
+}
+
+# CarServiceBase
+flag {
+  name: "car_dump_to_proto"
+  namespace: "car_framework"
+  description: "Controls whether dump to proto is an option for car services"
+  bug: "302596493"
+}
+
+# ClusterHomeManager
+flag {
+  name: "cluster_health_monitoring"
+  namespace: "car_framework"
+  description: "Controls whether to enable the health monitoring for Cluster"
+  bug: "285415531"
+}
+
+# VehiclePropertyIds
+flag {
+  name: "android_vic_vehicle_properties"
+  namespace: "car_framework"
+  description: "Enables use of vehicle properties introduced in Android V"
+  bug: "309529020"
+}
+
+# CarNightService
+flag {
+  name: "car_night_global_setting"
+  namespace: "car_framework"
+  description: "Controls whether to use global settings to control the day/night mode configuration"
+  bug: "260762437"
+}
+
+# CarWifiService
+flag {
+  name: "persist_ap_settings"
+  namespace: "car_framework"
+  description: "Controls whether car persist ap settings can be configured"
+  bug: "301660611"
+}
+
+# CarWatchdogDaemon
+flag {
+  name: "car_watchdog_memory_profiling"
+  namespace: "car_framework"
+  description: "Controls the memory profiling feature in CarWatchdog daemon"
+  bug: "289113707"
+}
+
+# CarEvsService
+flag {
+  name: "car_evs_stream_management"
+  namespace: "car_framework"
+  description: "Allows clients to stop stream individually and identify the origin of delivered framebuffers from CarEvsBufferDescriptor"
+  bug: "293810167"
+}
+
+flag {
+  name: "car_evs_query_service_status"
+  namespace: "car_framework"
+  description: "Retrieves current status of each CarEvsService type individually"
+  bug: "320766863"
+}
+
+# CarPropertyErrorCodes
+flag {
+  name: "car_property_detailed_error_codes"
+  namespace: "car_framework"
+  description: "Enables use of detailed error codes for CarPropertyManager async APIs"
+  bug: "274165552"
+}
+
+# CarPropertyValue
+flag {
+  name: "car_property_value_property_status"
+  namespace: "car_framework"
+  description: "Enables use of new property status API"
+  bug: "326109669"
+}

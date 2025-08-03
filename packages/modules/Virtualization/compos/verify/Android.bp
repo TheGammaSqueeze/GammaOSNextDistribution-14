@@ -1,0 +1,45 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_binary {
+    name: "compos_verify",
+    srcs: ["verify.rs"],
+    defaults: ["avf_build_flags_rust"],
+    edition: "2021",
+    rustlibs: [
+        "compos_aidl_interface-rust",
+        "libandroid_logger",
+        "libanyhow",
+        "libbinder_rs",
+        "libclap",
+        "libcompos_common",
+        "libcompos_verify_native_rust",
+        "liblog_rust",
+        "libvmclient",
+    ],
+    prefer_rlib: true,
+    apex_available: [
+        "com.android.compos",
+    ],
+}
+
+rust_test {
+    name: "compos_verify.test",
+    srcs: ["verify.rs"],
+    defaults: ["avf_build_flags_rust"],
+    edition: "2021",
+    rustlibs: [
+        "compos_aidl_interface-rust",
+        "libandroid_logger",
+        "libanyhow",
+        "libbinder_rs",
+        "libclap",
+        "libcompos_common",
+        "libcompos_verify_native_rust",
+        "liblog_rust",
+        "libvmclient",
+    ],
+    prefer_rlib: true,
+    test_suites: ["general-tests"],
+}

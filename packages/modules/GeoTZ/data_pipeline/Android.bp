@@ -1,0 +1,167 @@
+// Copyright (C) 2020 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Proto library
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: [
+        "Android-Apache-2.0",
+        "packages_modules_GeoTZ_data_pipeline_license",
+    ],
+}
+
+license {
+    name: "packages_modules_GeoTZ_data_pipeline_license",
+    license_kinds: ["legacy_restricted"],
+    license_text: [
+        "src/test/java/com/android/timezone/location/data_pipeline/steps/canonicalizetzs2polygons/data/input_polygons/LICENSE",
+        "src/test/java/com/android/timezone/location/data_pipeline/steps/canonicalizetzs2polygons/data/output_polygons/LICENSE",
+        "src/test/java/com/android/timezone/location/data_pipeline/steps/createtzs2protodatafile/data/LICENSE",
+        "src/test/java/com/android/timezone/location/data_pipeline/steps/geojsontz_to_tzs2polygons/data/LICENSE",
+        "src/test/java/com/android/timezone/location/data_pipeline/steps/mergetzs2ranges/data/LICENSE",
+        "src/test/java/com/android/timezone/location/data_pipeline/steps/tzs2cellunions_to_tzs2ranges/data/LICENSE",
+        "src/test/java/com/android/timezone/location/data_pipeline/steps/tzs2polygons_tzs2cellunions/data/LICENSE",
+    ],
+}
+
+java_library_host {
+    name: "geotz_data_pipeline_protos",
+    proto: {
+        type: "full",
+        include_dirs: ["external/protobuf/src"],
+    },
+
+    srcs: ["src/main/proto/**/*.proto"],
+}
+
+// A library containing the code for the pipeline steps defined below.
+java_library_host {
+    name: "geotz_data_pipeline",
+    srcs: ["src/main/java/**/*.java"],
+    static_libs: [
+        "geotz_data_pipeline_protos",
+        "geotz_geojson",
+        "geotz_host_common",
+        "geotz_s2storage_tools_protos",
+        "guava",
+        "jcommander",
+        "libprotobuf-java-full",
+        "s2-geometry-library-java",
+        "tzids",
+        "tztools_common",
+    ],
+}
+
+// Step 1 of the OSM time zone geolocation reference data pipeline.
+//
+// Converts geojson time zone boundaries (from timezone-boundary-builder) to TzS2Polygon proto
+// files, one per time zone ID.
+java_binary_host {
+    name: "geotz_geojsontz_to_tzs2polygons",
+    main_class: "com.android.timezone.location.data_pipeline.steps.GeoJsonTzToTzS2Polygons",
+    static_libs: ["geotz_data_pipeline"],
+}
+
+// Step 2 of the OSM time zone geolocation reference data pipeline.
+//
+// Reads TzS2Polygon proto files and writes out TzS2Polygon proto files with canonical time zone
+// IDs, combining multiple input files into output files where necessary.
+java_binary_host {
+    name: "geotz_canonicalize_tzs2polygons",
+    main_class: "com.android.timezone.location.data_pipeline.steps.CanonicalizeTzS2Polygons",
+    static_libs: ["geotz_data_pipeline"],
+}
+
+// Step 3 of the OSM time zone geolocation reference data pipeline.
+//
+// Converts TzS2Polygon proto files to TsS2CellUnion proto files at a maximum S2 level.
+java_binary_host {
+    name: "geotz_tzs2polygons_to_tzs2cellunions",
+    main_class: "com.android.timezone.location.data_pipeline.steps.TzS2PolygonsToTzS2CellUnions",
+    static_libs: ["geotz_data_pipeline"],
+}
+
+// Step 4 of the OSM time zone geolocation reference data pipeline.
+//
+// Converts TsS2CellUnion proto files to (single time zone) TzS2Ranges proto files.
+java_binary_host {
+    name: "geotz_tzs2cellunions_to_tzs2ranges",
+    main_class: "com.android.timezone.location.data_pipeline.steps.TzS2CellUnionsToTzS2Ranges",
+    static_libs: ["geotz_data_pipeline"],
+}
+
+// Step 5 of the OSM time zone geolocation reference data pipeline.
+//
+// Merges multiple, single time zone TzS2Ranges proto files into one, multiple time zone TzS2Ranges
+// proto file
+java_binary_host {
+    name: "geotz_mergetzs2ranges",
+    main_class: "com.android.timezone.location.data_pipeline.steps.MergeTzS2Ranges",
+    static_libs: ["geotz_data_pipeline"],
+}
+
+// Step 6 of the OSM time zone geolocation reference data pipeline.
+//
+// Converts the one, multiple time zone TzS2Ranges proto file to the file format required by the
+// geotz_createtzs2file tool.
+java_binary_host {
+    name: "geotz_createtzs2fileinput",
+    main_class: "com.android.timezone.location.data_pipeline.steps.CreateTzS2ProtoDataFile",
+    static_libs: ["geotz_data_pipeline"],
+}
+
+// A library containing debug tooling. See java_binary_host definitions below for details.
+java_library_host {
+    name: "geotz_data_pipeline_debug",
+    srcs: ["src/debug/java/**/*.java"],
+    static_libs: [
+        "geotz_data_pipeline",
+    ],
+}
+
+// Dev / debug tool: Prints basic stats about TzS2Range files. See the Java class for details.
+java_binary_host {
+    name: "geotz_data_pipeline_debug_printtzs2rangesstats",
+    main_class: "com.android.timezone.location.data_pipeline.tools.PrintTzS2RangeStats",
+    static_libs: ["geotz_data_pipeline_debug"],
+}
+
+// Dev / debug tool: Prints basic stats about TzS2CellUnion files. See the Java class for details.
+java_binary_host {
+    name: "geotz_data_pipeline_debug_printtzs2cellunionstats",
+    main_class: "com.android.timezone.location.data_pipeline.tools.PrintTzS2CellUnionStats",
+    static_libs: ["geotz_data_pipeline_debug"],
+}
+
+// Tests for the pipeline steps.
+java_test_host {
+    name: "geotz_data_pipeline_tests",
+    srcs: ["src/test/java/**/*.java"],
+    java_resource_dirs: ["src/test/java/"],
+    static_libs: [
+        "geotz_data_pipeline",
+        "junit",
+    ],
+}
+
+// A host library containing geojson-jackson and all its dependencies.
+java_library_host {
+    name: "geotz_geojson",
+    static_libs: [
+        "geojson-jackson",
+        "jackson-annotations",
+        "jackson-core",
+        "jackson-databind",
+    ],
+}

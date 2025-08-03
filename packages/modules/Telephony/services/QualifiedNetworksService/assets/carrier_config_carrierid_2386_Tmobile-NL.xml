@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<carrier_config>
+    <int-array name="qns.ims_wlan_hysteresis_timer_ms_int_array" num="3">
+        <item value="5000"/>
+        <item value="5000"/>
+        <item value="5000"/>
+    </int-array>
+    <int-array name="qns.ims_wwan_hysteresis_timer_ms_int_array" num="3">
+        <item value="5000"/>
+        <item value="5000"/>
+        <item value="5000"/>
+    </int-array>
+    <string-array name="qns.condition_rove_in_idle_wifi_pref_home_string_array" num="1">
+        <item value="Condition:WIFI_GOOD"/>
+    </string-array>
+    <string-array name="qns.condition_rove_in_idle_wifi_pref_roam_string_array" num="1">
+        <item value="Condition:WIFI_GOOD"/>
+    </string-array>
+    <string-array name="qns.condition_rove_out_idle_wifi_pref_home_string_array" num="1">
+        <item value="Condition:WIFI_BAD"/>
+    </string-array>
+    <string-array name="qns.condition_rove_out_idle_wifi_pref_roam_string_array" num="1">
+        <item value="Condition:WIFI_BAD"/>
+    </string-array>
+    <boolean name="qns.override_cell_pref_to_ims_pref_home" value="true"/>
+    <int name="qns.xcap_rat_preference_int" value="2"/>
+    <int name="qns.mms_rat_preference_int" value="2"/>
+    <int name="qns.mms_transport_type_int" value="2"/>
+    <int-array name="qns.idle_utran_rscp_int_array" num="2">
+        <item value="-99"/>
+        <item value="-103"/>
+    </int-array>
+    <int-array name="qns.idle_geran_rssi_int_array" num="2">
+        <item value="-89"/>
+        <item value="-106"/>
+    </int-array>
+    <int-array name="qns.voice_utran_rscp_int_array" num="2">
+        <item value="-89"/>
+        <item value="-105"/>
+    </int-array>
+    <int-array name="qns.voice_geran_rssi_int_array" num="2">
+        <item value="-89"/>
+        <item value="-102"/>
+    </int-array>
+</carrier_config>

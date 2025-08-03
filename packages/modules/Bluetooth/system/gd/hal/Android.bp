@@ -1,0 +1,77 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_bt_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_bt_license"],
+}
+
+filegroup {
+    name: "BluetoothHalSources",
+    srcs: [
+        "link_clocker.cc",
+        "snoop_logger.cc",
+        "snoop_logger_socket.cc",
+        "snoop_logger_socket_thread.cc",
+        "syscall_wrapper_impl.cc",
+    ],
+}
+
+filegroup {
+    name: "BluetoothHalTestSources",
+    srcs: [
+        "snoop_logger_socket_test.cc",
+        "snoop_logger_socket_thread_test.cc",
+        "snoop_logger_test.cc",
+    ],
+}
+
+filegroup {
+    name: "BluetoothHalSources_hci_host",
+    srcs: [
+        "hci_hal_host_rootcanal.cc",
+    ],
+}
+
+filegroup {
+    name: "BluetoothHalSources_hci_android_hidl",
+    srcs: [
+        "hci_hal_android_hidl.cc",
+    ],
+}
+
+filegroup {
+    name: "BluetoothHalTestSources_hci_host",
+    srcs: [
+        "hci_hal_host_test.cc",
+    ],
+}
+
+filegroup {
+    name: "BluetoothHalTestSources_hci_android_hidl",
+    srcs: [
+        "hci_hal_android_hidl_test.cc",
+    ],
+}
+
+filegroup {
+    name: "BluetoothHalFake",
+    srcs: [
+        "hci_hal_fake.cc",
+    ],
+}
+
+filegroup {
+    name: "BluetoothFacade_hci_hal",
+    srcs: [
+        "facade.cc",
+    ],
+}
+
+filegroup {
+    name: "BluetoothHalFuzzSources",
+    srcs: [
+        "fuzz/fuzz_hci_hal.cc",
+    ],
+}

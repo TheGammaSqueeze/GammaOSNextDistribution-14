@@ -1,0 +1,670 @@
+// List of clang-tidy checks that are reported as errors.
+// Please keep this list ordered lexicographically.
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+tidy_errors = [
+  "android-*",
+  "bugprone-infinite-loop",
+  "bugprone-macro-parentheses",
+  "bugprone-misplaced-widening-cast",
+  "bugprone-move-forwarding-reference",
+  "bugprone-sizeof-container",
+  "bugprone-sizeof-expression",
+  "bugprone-string-constructor",
+  "bugprone-terminating-continue",
+  "bugprone-undefined-memory-manipulation",
+  "bugprone-undelegated-constructor",
+  // "bugprone-unhandled-self-assignment", // found in apex_manifest.proto
+  "bugprone-unused-raii",
+  "cert-err34-c",
+  "google-default-arguments",
+  // "google-explicit-constructor", // found in com_android_apex.h
+  "google-readability-avoid-underscore-in-googletest-name",
+  "google-readability-todo",
+  "google-runtime-int",
+  "google-runtime-member-string-references",
+  "misc-move-const-arg",
+  "misc-move-forwarding-reference",
+  // "misc-unused-parameters", // found in apexd_utils.h
+  "misc-unused-using-decls",
+  "misc-use-after-move",
+  // "modernize-pass-by-value", // found in apex_database.h
+  "performance-faster-string-find",
+  "performance-for-range-copy",
+  "performance-implicit-conversion-in-loop",
+  "performance-inefficient-vector-operation",
+  "performance-move-const-arg",
+  // "performance-move-constructor-init", // found in apexd_loop.h
+  "performance-noexcept-move-constructor",
+  "performance-unnecessary-copy-initialization",
+  "performance-unnecessary-value-param",
+  // "readability-avoid-const-params-in-decls", // found in apexd.h
+]
+
+cc_defaults {
+  name: "apex_flags_defaults",
+  cflags: [
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-Wno-unused-parameter",
+
+    // Some extra flags.
+    "-fstrict-aliasing",
+    "-Wredundant-decls",
+    "-Wshadow",
+    "-Wstrict-aliasing",
+    "-Wthread-safety",
+    "-Wthread-safety-negative",
+    "-Wunreachable-code",
+    "-Wunreachable-code-break",
+    "-Wunreachable-code-return",
+    "-Wunused",
+    "-Wused-but-marked-unused",
+  ],
+  tidy: true,
+  tidy_checks: tidy_errors,
+  tidy_checks_as_errors: tidy_errors,
+  tidy_flags: [
+    "-format-style=file",
+    "-header-filter=system/apex/",
+  ],
+}
+
+cc_defaults {
+  name: "libapexd-deps",
+  defaults: ["libapex-deps"],
+  shared_libs: [
+    "liblog",
+    "liblogwrap",
+    "libvintf",
+  ],
+  static_libs: [
+    "lib_microdroid_metadata_proto",
+    "libapex",
+    "libavb",
+    "libdm",
+    "libext2_uuid",
+    "libsigningutils",
+    "libtinyxml2",
+    "libverity_tree",
+    "libvold_binder",
+  ],
+  whole_static_libs: ["libcom.android.sysprop.apex"],
+}
+
+aidl_interface {
+  name: "apex_aidl_interface",
+  unstable: true,
+  srcs: [
+    "aidl/android/apex/ApexInfo.aidl",
+    "aidl/android/apex/ApexInfoList.aidl",
+    "aidl/android/apex/ApexSessionInfo.aidl",
+    "aidl/android/apex/ApexSessionParams.aidl",
+    "aidl/android/apex/CompressedApexInfo.aidl",
+    "aidl/android/apex/CompressedApexInfoList.aidl",
+    "aidl/android/apex/IApexService.aidl",
+  ],
+  local_include_dir: "aidl",
+  backend: {
+      java: {
+          sdk_version: "28",
+      },
+      ndk: {
+          enabled: false,
+      },
+  },
+}
+
+cc_binary {
+  name: "apexd",
+  defaults: [
+    "apex_flags_defaults",
+    "libapex-deps",
+    "libapexd-deps",
+    "libapexservice-deps",
+  ],
+  srcs: [
+    "apexd_main.cpp",
+  ],
+  static_libs: [
+    "libapex",
+    "libapexd",
+    "libapexd_checkpoint_vold",
+    "libapexservice",
+  ],
+  init_rc: ["apexd.rc"],
+  // Just like the init, apexd should be able to run without
+  // any APEX activated. To do so, it uses the bootstrap linker
+  // and the bootstrap bionic libraries.
+  bootstrap: true,
+}
+
+cc_binary {
+  name: "apexd.microdroid",
+  defaults: [
+    "apex_flags_defaults",
+    "libapex-deps",
+    "libapexd-deps",
+  ],
+  srcs: [
+    "apexd_microdroid.cpp",
+  ],
+  static_libs: [
+    "libapex",
+    "libapexd",
+    // Prefer static-link as, in microdroid, apexd is the only client.
+    // Using the -ndk variant since libprotobuf-cpp-full is supposed to be
+    // used as a shared lib in general in Android.
+    "libprotobuf-cpp-full-ndk",
+  ],
+  exclude_shared_libs: [
+    "libprotobuf-cpp-full",
+    "libvintf",
+  ],
+  // Just like the init, apexd should be able to run without
+  // any APEX activated. To do so, it uses the bootstrap linker
+  // and the bootstrap bionic libraries.
+  bootstrap: true,
+  // This variant is for microdroid.
+  installable: false,
+  // init depends on the name "apexd".
+  stem: "apexd",
+}
+
+cc_library_static {
+  name: "libapexd",
+  defaults: [
+    "apex_flags_defaults",
+    "libapexd-deps",
+  ],
+  srcs: [
+    "apex_classpath.cpp",
+    "apex_database.cpp",
+    "apex_file_repository.cpp",
+    "apexd.cpp",
+    "apexd_lifecycle.cpp",
+    "apexd_loop.cpp",
+    "apexd_private.cpp",
+    "apexd_session.cpp",
+    "apexd_verity.cpp",
+    "apexd_vendor_apex.cpp",
+  ],
+  export_include_dirs: ["."],
+  generated_sources: ["apex-info-list-tinyxml"],
+  // Don't add shared/static libs here; add to libapexd_defaults instead.
+}
+
+cc_library_static {
+  name: "libapexd_checkpoint_vold",
+  defaults: ["apex_flags_defaults"],
+  srcs: [ "apexd_checkpoint_vold.cpp" ],
+  static_libs: [
+    "libbase",
+    "libutils",
+    "libvold_binder",
+  ],
+  export_include_dirs: ["."],
+}
+
+cc_defaults {
+  name: "libapexservice-deps",
+  shared_libs: [
+    "apex_aidl_interface-cpp",
+    "libbinder",
+    "libutils",
+  ],
+}
+
+cc_library_static {
+  name: "libapexservice",
+  defaults: [
+    "apex_flags_defaults",
+    "libapexd-deps",
+    "libapexservice-deps",
+  ],
+  srcs: ["apexservice.cpp"],
+  static_libs: [
+    "libapexd",
+  ],
+  cflags: [
+    "-DANDROID_UTILS_REF_BASE_DISABLE_IMPLICIT_CONSTRUCTION",
+  ],
+}
+
+cc_defaults {
+  name: "libapex-deps",
+  shared_libs: [
+    "libbase",
+    "libcrypto",
+    "libcutils",
+    "libprotobuf-cpp-full",
+    "libziparchive",
+    "libselinux",
+  ],
+  static_libs: [
+    "lib_apex_session_state_proto",
+    "lib_apex_manifest_proto",
+    "libavb",
+    "libverity_tree",
+  ],
+  static: {
+    whole_static_libs: ["libc++fs"],
+  },
+  cpp_std: "experimental",
+  shared: {
+    static_libs: ["libc++fs"],
+  },
+}
+
+cc_library_static {
+  name: "libapex",
+  defaults: [
+    "apex_flags_defaults",
+    "libapex-deps"
+  ],
+  srcs: [
+    "apex_file.cpp",
+    "apex_manifest.cpp",
+    "apex_shim.cpp",
+    "apexd_verity.cpp",
+  ],
+  host_supported: true,
+  target: {
+    darwin: {
+      enabled: false,
+    },
+  },
+  header_libs: [
+    "libutils_headers",
+  ],
+  export_header_lib_headers: [
+    "libutils_headers",
+  ],
+  export_include_dirs: ["."],
+}
+
+genrule {
+  // Generates an apex which has a different manifest outside the filesystem
+  // image.
+  name: "gen_manifest_mismatch_apex",
+  out: ["apex.apexd_test_manifest_mismatch.apex"],
+  srcs: [":apex.apexd_test"],
+  tools: ["soong_zip", "zipalign", "conv_apex_manifest"],
+  cmd: "unzip -q $(in) -d $(genDir) && " +
+       "$(location conv_apex_manifest) setprop version 137 $(genDir)/apex_manifest.pb && " +
+       "$(location soong_zip) -d -C $(genDir) -D $(genDir) " +
+       "-s apex_manifest.pb -s apex_payload.img -s apex_pubkey " +
+       "-o $(genDir)/unaligned.apex && " +
+       "$(location zipalign) -f 4096 $(genDir)/unaligned.apex " +
+       "$(genDir)/apex.apexd_test_manifest_mismatch.apex"
+}
+
+genrule {
+  // Generates an apex which has a different manifest outside the filesystem
+  // image.
+  name: "gen_manifest_mismatch_apex_no_hashtree",
+  out: ["apex.apexd_test_no_hashtree_manifest_mismatch.apex"],
+  srcs: [":apex.apexd_test_no_hashtree"],
+  tools: ["soong_zip", "zipalign", "conv_apex_manifest"],
+  cmd: "unzip -q $(in) -d $(genDir) && " +
+       "$(location conv_apex_manifest) setprop version 137 $(genDir)/apex_manifest.pb && " +
+       "$(location soong_zip) -d -C $(genDir) -D $(genDir) " +
+       "-s apex_manifest.pb -s apex_payload.img -s apex_pubkey " +
+       "-o $(genDir)/unaligned.apex && " +
+       "$(location zipalign) -f 4096 $(genDir)/unaligned.apex " +
+       "$(genDir)/apex.apexd_test_no_hashtree_manifest_mismatch.apex"
+}
+
+genrule {
+  // Generates an apex with a corrupted filesystem superblock, which should cause
+  // Apex::Open to fail
+  name: "gen_corrupt_superblock_apex",
+  out: ["apex.apexd_test_corrupt_superblock_apex.apex"],
+  srcs: [":apex.apexd_test"],
+  tools: ["soong_zip", "zipalign"],
+  cmd: "unzip -q $(in) -d $(genDir) && " +
+       "dd if=/dev/zero of=$(genDir)/apex_payload.img conv=notrunc bs=1024 seek=1 count=1 && " +
+       "$(location soong_zip) -d -C $(genDir) -D $(genDir) " +
+       "-s apex_manifest.pb -s apex_payload.img -s apex_pubkey " +
+       "-o $(genDir)/unaligned.apex && " +
+       "$(location zipalign) -f 4096 $(genDir)/unaligned.apex " +
+       "$(genDir)/apex.apexd_test_corrupt_superblock_apex.apex"
+}
+
+genrule {
+  // Generates an apex with a corrupted filesystem image, which should cause
+  // dm-verity verification to fail
+  name: "gen_corrupt_apex",
+  out: ["apex.apexd_test_corrupt_apex.apex"],
+  srcs: [":apex.apexd_test"],
+  tools: ["soong_zip", "zipalign"],
+  cmd: "unzip -q $(in) -d $(genDir) && " +
+       "dd if=/dev/zero of=$(genDir)/apex_payload.img conv=notrunc bs=1024 seek=16 count=1 && " +
+       "$(location soong_zip) -d -C $(genDir) -D $(genDir) " +
+       "-s apex_manifest.pb -s apex_payload.img -s apex_pubkey " +
+       "-o $(genDir)/unaligned.apex && " +
+       "$(location zipalign) -f 4096 $(genDir)/unaligned.apex " +
+       "$(genDir)/apex.apexd_test_corrupt_apex.apex"
+}
+
+genrule {
+  // Extract the root digest with avbtool
+  name: "apex.apexd_test_digest",
+  out: ["apex.apexd_test_digest.txt"],
+  srcs: [":apex.apexd_test"],
+  tools: ["avbtool"],
+  cmd: "unzip -q $(in) -d $(genDir) apex_payload.img && " +
+       "$(location avbtool) print_partition_digests --image $(genDir)/apex_payload.img " +
+       "| cut -c 3-| tee $(out)"
+}
+
+genrule {
+  // Extract the root digest with avbtool
+  name: "apex.apexd_test_f2fs_digest",
+  out: ["apex.apexd_test_f2fs_digest.txt"],
+  srcs: [":apex.apexd_test_f2fs"],
+  tools: ["avbtool"],
+  cmd: "unzip -q $(in) -d $(genDir) apex_payload.img && " +
+       "$(location avbtool) print_partition_digests --image $(genDir)/apex_payload.img " +
+       "| cut -c 3-| tee $(out)"
+}
+
+genrule {
+  // Extract the root digest with avbtool
+  name: "apex.apexd_test_erofs_digest",
+  out: ["apex.apexd_test_erofs_digest.txt"],
+  srcs: [":apex.apexd_test_erofs"],
+  tools: ["avbtool"],
+  cmd: "unzip -q $(in) -d $(genDir) apex_payload.img && " +
+       "$(location avbtool) print_partition_digests --image $(genDir)/apex_payload.img " +
+       "| cut -c 3-| tee $(out)"
+}
+
+genrule {
+  // Generates an apex which has same module name as apex.apexd_test.apex, but
+  // is actually signed with a different key.
+  name: "gen_key_mismatch_apex",
+  out: ["apex.apexd_test_different_key.apex"],
+  srcs: [":apex.apexd_test_no_inst_key"],
+  tools: ["soong_zip", "zipalign", "conv_apex_manifest"],
+  cmd: "unzip -q $(in) -d $(genDir) && " +
+       "$(location conv_apex_manifest) setprop name com.android.apex.test_package $(genDir)/apex_manifest.pb && " +
+       "$(location soong_zip) -d -C $(genDir) -D $(genDir) " +
+       "-s apex_manifest.pb -s apex_payload.img -s apex_pubkey " +
+       "-o $(genDir)/unaligned.apex && " +
+       "$(location zipalign) -f 4096 $(genDir)/unaligned.apex " +
+       "$(genDir)/apex.apexd_test_different_key.apex"
+}
+
+genrule {
+  // Generates an apex which has same module name as apex.apexd_test.apex, but
+  // is actually signed with a different key.
+  name: "gen_key_mismatch_apex_v2",
+  out: ["apex.apexd_test_different_key_v2.apex"],
+  srcs: [":apex.apexd_test_no_inst_key"],
+  tools: ["soong_zip", "zipalign", "conv_apex_manifest"],
+  cmd: "unzip -q $(in) -d $(genDir) && " +
+       "$(location conv_apex_manifest) setprop name com.android.apex.test_package $(genDir)/apex_manifest.pb && " +
+       "$(location conv_apex_manifest) setprop version 2 $(genDir)/apex_manifest.pb && " +
+       "$(location soong_zip) -d -C $(genDir) -D $(genDir) " +
+       "-s apex_manifest.pb -s apex_payload.img -s apex_pubkey " +
+       "-o $(genDir)/unaligned.apex && " +
+       "$(location zipalign) -f 4096 $(genDir)/unaligned.apex " +
+       "$(genDir)/apex.apexd_test_different_key_v2.apex"
+}
+
+genrule {
+  // Generates an apex which has a different manifest outside the filesystem
+  // image.
+  name: "gen_manifest_mismatch_rebootless_apex",
+  out: ["test.rebootless_apex_manifest_mismatch.apex"],
+  srcs: [":test.rebootless_apex_v1"],
+  tools: ["soong_zip", "zipalign", "conv_apex_manifest"],
+  cmd: "unzip -q $(in) -d $(genDir) && " +
+       "$(location conv_apex_manifest) setprop version 137 $(genDir)/apex_manifest.pb && " +
+       "$(location soong_zip) -d -C $(genDir) -D $(genDir) " +
+       "-s apex_manifest.pb -s apex_payload.img -s apex_pubkey " +
+       "-o $(genDir)/unaligned.apex && " +
+       "$(location zipalign) -f 4096 $(genDir)/unaligned.apex " +
+       "$(genDir)/test.rebootless_apex_manifest_mismatch.apex"
+}
+
+genrule {
+  // Generates an apex with a corrupted filesystem image, which should cause
+  // dm-verity verification to fail
+  name: "gen_corrupt_rebootless_apex",
+  out: ["test.rebootless_apex_corrupted.apex"],
+  srcs: [":test.rebootless_apex_v1"],
+  tools: ["soong_zip", "zipalign"],
+  cmd: "unzip -q $(in) -d $(genDir) && " +
+       "dd if=/dev/zero of=$(genDir)/apex_payload.img conv=notrunc bs=1024 seek=16 count=1 && " +
+       "$(location soong_zip) -d -C $(genDir) -D $(genDir) " +
+       "-s apex_manifest.pb -s apex_payload.img -s apex_pubkey " +
+       "-o $(genDir)/unaligned.apex && " +
+       "$(location zipalign) -f 4096 $(genDir)/unaligned.apex " +
+       "$(genDir)/test.rebootless_apex_corrupted.apex"
+}
+
+cc_test {
+  name: "ApexTestCases",
+  defaults: [
+    "apex_flags_defaults",
+    "libapex-deps",
+    "libapexd-deps"
+  ],
+  require_root: true,
+  cflags: [
+    // Otherwise libgmock won't compile.
+    "-Wno-used-but-marked-unused",
+  ],
+  data: [
+    ":apex.apexd_test",
+    ":apex.apexd_test_erofs",
+    ":apex.apexd_test_f2fs",
+    ":apex.apexd_test_digest",
+    ":apex.apexd_test_erofs_digest",
+    ":apex.apexd_test_f2fs_digest",
+    ":apex.apexd_test_classpath",
+    ":apex.apexd_test_different_app",
+    ":apex.apexd_test_no_hashtree",
+    ":apex.apexd_test_no_hashtree_2",
+    ":apex.apexd_test_no_inst_key",
+    ":apex.apexd_test_f2fs_no_inst_key",
+    ":apex.apexd_test_nocode",
+    ":apex.apexd_test_v2",
+    ":apex.corrupted_b146895998",
+    ":apex.banned_name",
+    ":gen_key_mismatch_apex",
+    ":gen_key_mismatch_apex_v2",
+    ":gen_key_mismatch_capex",
+    ":gen_manifest_mismatch_apex",
+    ":gen_manifest_mismatch_apex_no_hashtree",
+    ":gen_corrupt_superblock_apex",
+    ":gen_corrupt_apex",
+    ":gen_capex_not_decompressible",
+    ":gen_capex_without_apex",
+    ":gen_capex_with_v2_apex",
+    ":gen_key_mismatch_with_original_capex",
+    ":com.android.apex.cts.shim.v1_prebuilt",
+    ":com.android.apex.cts.shim.v2_prebuilt",
+    ":com.android.apex.cts.shim.v2_wrong_sha_prebuilt",
+    ":com.android.apex.cts.shim.v2_additional_file_prebuilt",
+    ":com.android.apex.cts.shim.v2_additional_folder_prebuilt",
+    ":com.android.apex.cts.shim.v2_with_pre_install_hook_prebuilt",
+    ":com.android.apex.cts.shim.v2_with_post_install_hook_prebuilt",
+    ":com.android.apex.compressed_sharedlibs",
+    ":com.android.apex.compressed.v1",
+    ":com.android.apex.compressed.v1_different_digest",
+    ":com.android.apex.compressed.v1_different_digest_original",
+    ":com.android.apex.compressed.v1_original",
+    ":com.android.apex.compressed.v2",
+    ":com.android.apex.compressed.v2_original",
+    ":gen_manifest_mismatch_compressed_apex_v2",
+    "apexd_testdata/com.android.apex.test_package.avbpubkey",
+    "apexd_testdata/com.android.apex.compressed.avbpubkey",
+    ":com.android.apex.test.sharedlibs_generated.v1.libvX_prebuilt",
+    ":com.android.apex.test.sharedlibs_generated.v2.libvY_prebuilt",
+    ":test.rebootless_apex_v1",
+    ":test.rebootless_apex_v2",
+    ":test.rebootless_apex_v2_no_hashtree",
+    ":test.rebootless_apex_service_v1",
+    ":test.rebootless_apex_service_v2",
+    ":gen_manifest_mismatch_rebootless_apex",
+    ":gen_corrupt_rebootless_apex",
+    ":test.rebootless_apex_provides_sharedlibs",
+    ":test.rebootless_apex_provides_native_libs",
+    ":test.rebootless_apex_requires_shared_apex_libs",
+    ":test.rebootless_apex_jni_libs",
+    ":test.rebootless_apex_add_native_lib",
+    ":test.rebootless_apex_remove_native_lib",
+    ":test.rebootless_apex_app_in_apex",
+    ":test.rebootless_apex_priv_app_in_apex",
+  ],
+  srcs: [
+    "apex_classpath_test.cpp",
+    "apex_database_test.cpp",
+    "apex_file_test.cpp",
+    "apex_file_repository_test.cpp",
+    "apex_manifest_test.cpp",
+    "apexd_test.cpp",
+    "apexd_session_test.cpp",
+    "apexd_verity_test.cpp",
+    "apexd_utils_test.cpp",
+  ],
+  host_supported: false,
+  compile_multilib: "first",
+  static_libs: [
+    "apex_aidl_interface-cpp",
+    "libapex",
+    "libapexd",
+    "libfstab",
+    "libgmock",
+  ],
+  shared_libs: [
+    "libbinder",
+    "libfs_mgr",
+    "libutils",
+  ],
+  generated_sources: ["apex-info-list-tinyxml"],
+  test_suites: ["device-tests"],
+  test_config: "ApexTestCases.xml",
+}
+
+cc_test {
+  name: "ApexServiceTestCases",
+  defaults: [
+    "apex_flags_defaults",
+    "libapex-deps",
+    "libapexd-deps"
+  ],
+  require_root: true,
+  cflags: [
+    // Otherwise libgmock won't compile.
+    "-Wno-used-but-marked-unused",
+  ],
+  data: [
+    ":apex.apexd_test",
+    ":apex.apexd_test_erofs",
+    ":apex.apexd_test_f2fs",
+    ":apex.apexd_test_digest",
+    ":apex.apexd_test_erofs_digest",
+    ":apex.apexd_test_f2fs_digest",
+    ":apex.apexd_test_classpath",
+    ":apex.apexd_test_different_app",
+    ":apex.apexd_test_no_hashtree",
+    ":apex.apexd_test_no_hashtree_2",
+    ":apex.apexd_test_no_inst_key",
+    ":apex.apexd_test_f2fs_no_inst_key",
+    ":apex.apexd_test_nocode",
+    ":apex.apexd_test_v2",
+    ":apex.corrupted_b146895998",
+    ":apex.banned_name",
+    ":gen_key_mismatch_apex",
+    ":gen_key_mismatch_apex_v2",
+    ":gen_key_mismatch_capex",
+    ":gen_manifest_mismatch_apex",
+    ":gen_manifest_mismatch_apex_no_hashtree",
+    ":gen_corrupt_superblock_apex",
+    ":gen_corrupt_apex",
+    ":gen_capex_not_decompressible",
+    ":gen_capex_without_apex",
+    ":gen_capex_with_v2_apex",
+    ":gen_key_mismatch_with_original_capex",
+    ":com.android.apex.cts.shim.v1_prebuilt",
+    ":com.android.apex.cts.shim.v2_prebuilt",
+    ":com.android.apex.cts.shim.v2_wrong_sha_prebuilt",
+    ":com.android.apex.cts.shim.v2_additional_file_prebuilt",
+    ":com.android.apex.cts.shim.v2_additional_folder_prebuilt",
+    ":com.android.apex.cts.shim.v2_with_pre_install_hook_prebuilt",
+    ":com.android.apex.cts.shim.v2_with_post_install_hook_prebuilt",
+    ":com.android.apex.compressed_sharedlibs",
+    ":com.android.apex.compressed.v1",
+    ":com.android.apex.compressed.v1_different_digest",
+    ":com.android.apex.compressed.v1_different_digest_original",
+    ":com.android.apex.compressed.v1_original",
+    ":com.android.apex.compressed.v2",
+    ":com.android.apex.compressed.v2_original",
+    ":gen_manifest_mismatch_compressed_apex_v2",
+    "apexd_testdata/com.android.apex.test_package.avbpubkey",
+    "apexd_testdata/com.android.apex.compressed.avbpubkey",
+    ":com.android.apex.test.sharedlibs_generated.v1.libvX_prebuilt",
+    ":com.android.apex.test.sharedlibs_generated.v2.libvY_prebuilt",
+    ":test.rebootless_apex_v1",
+    ":test.rebootless_apex_v2",
+    ":test.rebootless_apex_v2_no_hashtree",
+    ":test.rebootless_apex_service_v1",
+    ":test.rebootless_apex_service_v2",
+    ":gen_manifest_mismatch_rebootless_apex",
+    ":gen_corrupt_rebootless_apex",
+    ":test.rebootless_apex_provides_sharedlibs",
+    ":test.rebootless_apex_provides_native_libs",
+    ":test.rebootless_apex_requires_shared_apex_libs",
+    ":test.rebootless_apex_jni_libs",
+    ":test.rebootless_apex_add_native_lib",
+    ":test.rebootless_apex_remove_native_lib",
+    ":test.rebootless_apex_app_in_apex",
+    ":test.rebootless_apex_priv_app_in_apex",
+  ],
+  srcs: [
+    "apexservice_test.cpp",
+  ],
+  host_supported: false,
+  compile_multilib: "first",
+  static_libs: [
+    "apex_aidl_interface-cpp",
+    "libapex",
+    "libapexd",
+    "libfstab",
+    "libgmock",
+  ],
+  shared_libs: [
+    "libbinder",
+    "libfs_mgr",
+    "libutils",
+  ],
+  generated_sources: ["apex-info-list-tinyxml"],
+  test_suites: ["device-tests"],
+  test_config: "ApexServiceTestCases.xml",
+}
+
+xsd_config {
+  name: "apex-info-list",
+  srcs: ["ApexInfoList.xsd"],
+  package_name: "com.android.apex",
+  api_dir: "apex-info-list-api",
+  gen_writer: true,
+  root_elements: ["apex-info-list"],
+}
+
+xsd_config {
+  name: "apex-info-list-tinyxml",
+  srcs: ["ApexInfoList.xsd"],
+  package_name: "com.android.apex",
+  api_dir: "apex-info-list-api",
+  gen_writer: true,
+  tinyxml: true,
+  root_elements: ["apex-info-list"],
+}

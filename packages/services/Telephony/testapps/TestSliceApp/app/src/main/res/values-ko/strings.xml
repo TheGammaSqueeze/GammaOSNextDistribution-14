@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="1265450418387661962">"TestSliceApp"</string>
+    <string name="hello_blank_fragment" msgid="1245093642770491175">"Hello blank fragment"</string>
+    <string name="request_network" msgid="8945235490804849914">"네트워크 요청"</string>
+    <string name="release_network" msgid="174252378593535238">"네트워크 해제"</string>
+    <string name="ping" msgid="7890607576220714932">"핑"</string>
+    <string name="result_prefix" msgid="3522796186427501399">"결과:"</string>
+    <string name="latency_title" msgid="963052613947017009">"지연 시간 우선순위 지정"</string>
+    <string name="bw_title" msgid="3902162973688221344">"대역폭의 우선순위 지정"</string>
+    <string name="cbs_title" msgid="5234410535569935600">"CBS"</string>
+    <string name="purchase" msgid="7843181995697372128">"Network Premium 구매"</string>
+    <string name="network_available" msgid="4780293262690730734">"결과: 요청된 네트워크를 지금 사용할 수 있습니다."</string>
+    <string name="network_requested" msgid="5646123922691865991">"결과: 네트워크가 요청되었습니다."</string>
+    <string name="network_released" msgid="2992280481133877025">"결과: 네트워크가 해제되었습니다."</string>
+    <string name="network_release_failed" msgid="256471231420029151">"결과: 네트워크 해제에 실패했습니다."</string>
+    <string name="purchase_exception" msgid="8876841120055716671">"결과: 네트워크 프리미엄 구매 시 예외 발생"</string>
+    <string name="purchase_empty_result" msgid="7497824191649973928">"결과: 네트워크 프리미엄을 구매할 때 결과가 비어 있습니다."</string>
+    <string name="premium_not_available" msgid="7346368693802644748">"결과: 네트워크 프리미엄을 구매할 수 없습니다."</string>
+    <string name="purchase_in_progress" msgid="5450288183685032424">"결과: 네트워크 프리미엄 구매가 진행 중입니다."</string>
+</resources>

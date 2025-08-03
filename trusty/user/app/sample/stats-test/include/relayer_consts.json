@@ -1,0 +1,20 @@
+{
+    "header": "relayer_consts.h",
+    "constants":[
+        {
+            "name": "RELAYER_PORT_ISTATS",
+            "value": "com.android.frameworks.stats.trusty.test.relayer.istats",
+            "type": "port"
+        },
+        {
+            "name": "RELAYER_PORT_ISTATS_SETTER_NORMAL_WORLD",
+            "value": "com.android.frameworks.stats.trusty.test.relayer.istats_setter",
+            "type": "port"
+        },
+        {
+            "name": "RELAYER_PORT_ISTATS_SETTER_SECURE_WORLD",
+            "value": "com.android.trusty.stats.test.relayer.istats_setter",
+            "type": "port"
+        }
+    ]
+}

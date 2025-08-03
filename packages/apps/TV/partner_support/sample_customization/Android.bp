@@ -1,0 +1,16 @@
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_app {
+    name: "PartnerSupportSampleCustomization",
+    optimize: {
+        enabled: false,
+    },
+    // Overlay view related functionality requires system APIs.
+    sdk_version: "system_current",
+    min_sdk_version: "23",
+    // Required for customization
+    privileged: true,
+}

@@ -1,0 +1,423 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2015 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="audio_channel_mono">mono</string>
+    <string name="audio_channel_stereo">stereo</string>
+    <string name="menu_title_play_controls">Uidheaman-smachd cluich</string>
+    <string name="menu_title_channels">Seanailean</string>
+    <string name="menu_title_options">Roghainnean a’ TBh</string>
+    <string name="play_controls_unavailable">Chan eil uidheaman-smachd cluich ri fhaighinn dhan t-seanail seo</string>
+    <string name="play_controls_description_play_pause">Cluich no cuir ’na stad</string>
+    <string name="play_controls_description_fast_forward">Toinn air adhart</string>
+    <string name="play_controls_description_fast_rewind">Toinn air ais</string>
+    <string name="play_controls_description_skip_next">Air adhart</string>
+    <string name="play_controls_description_skip_previous">Air ais</string>
+    <string name="channels_item_program_guide">Treòir nam prògram</string>
+    <string name="channels_item_up">Seanail suas</string>
+    <string name="channels_item_down">Seanail sìos</string>
+    <string name="channels_item_setup">Tha seanailean ùra ri fhaighinn</string>
+    <string name="channels_item_app_link_app_launcher">Fosgail <xliff:g id="app_name" example="YouTube">%1$s</xliff:g></string>
+    <string name="options_item_closed_caption">Fo-thiotalan </string>
+    <string name="options_item_display_mode">Modh an taisbeanaidh</string>
+    <string name="options_item_pip">Dealbh am broinn deilbh</string>
+    <string name="options_item_multi_audio">Ioma-fhuaim</string>
+    <string name="options_item_more_channels">Faigh barrachd sheanailean</string>
+    <string name="options_item_settings">Roghainnean</string>
+    <string name="input_long_label_for_tuner">TBh (iadhaire/càball)</string>
+    <string name="no_program_information">Gun fhiosrachadh mun phrògram</string>
+    <string name="program_title_for_no_information">Gun fhiosrachadh</string>
+    <string name="program_title_for_blocked_channel">Seanail bhacte</string>
+    <string name="multi_audio_unknown_language">Cànan nach aithne dhuinn</string>
+    <string name="closed_caption_unknown_language">Fo-thiotalan <xliff:g id="unknown_language_index" example="1">%1$d</xliff:g></string>
+    <string name="side_panel_title_closed_caption">Fo-thiotalan </string>
+    <string name="closed_caption_option_item_off">Dheth</string>
+    <string name="closed_caption_system_settings">Gnàthaich am fòrmatadh</string>
+    <string name="closed_caption_system_settings_description">Suidhich roghainnean nam fo-thiotalan air feadh an t-siostaim</string>
+    <string name="side_panel_title_display_mode">Modh an taisbeanaidh</string>
+    <string name="side_panel_title_multi_audio">Ioma-fhuaim</string>
+    <string name="multi_audio_channel_mono">mono</string>
+    <string name="multi_audio_channel_stereo">stereo</string>
+    <string name="multi_audio_channel_surround_6">Cuairteachadh 5.1</string>
+    <string name="multi_audio_channel_surround_8">Cuairteachadh 7.1</string>
+    <string name="multi_audio_channel_suffix"><xliff:g id="audio_channel_count" example="5">%d</xliff:g> seanail(ean)</string>
+    <string name="side_panel_title_edit_channels_for_an_input">Gnàthaich liosta nan seanailean</string>
+    <string name="edit_channels_item_select_group">Tagh buidheann</string>
+    <string name="edit_channels_item_deselect_group">Dì-thagh am buidheann</string>
+    <string name="edit_channels_item_group_by">Buidhnich a-rèir</string>
+    <string name="edit_channels_group_by_sources">Tùs an t-seanail</string>
+    <string name="edit_channels_group_by_hd_sd">HD/SD</string>
+    <string name="edit_channels_group_divider_for_hd">HD</string>
+    <string name="edit_channels_group_divider_for_sd">SD</string>
+    <string name="side_panel_title_group_by">Buidhnich a-rèir</string>
+    <string name="program_guide_content_locked">Tha am prògram seo bacte</string>
+    <string name="program_guide_content_locked_unrated">Chan eil rangachadh air a’ phrògram seo</string>
+    <string name="program_guide_content_locked_format">Tha rangachadh <xliff:g id="rating" example="TV_MA">%1$s</xliff:g> air a’ phrògram seo</string>
+    <string name="msg_no_setup_activity">Cha chuir an t-ion-chur seo taic ri sganadh fèin-obrachail</string>
+    <string name="msg_unable_to_start_setup_activity">Cha b’ urrainn dhuinn an sganadh fèin-obrachail a thòiseachadh dha “<xliff:g id="tv_input" example="Built-in Tuner">%s</xliff:g>”</string>
+    <string name="msg_unable_to_start_system_captioning_settings">Cha b’ urrainn dhuinn roghainnean nam fo-thiotalan air feadh an t-siostaim a thòiseachadh.</string>
+    <plurals name="msg_channel_added">
+        <item quantity="one">Chaidh %1$d seanail a chur ris</item>
+        <item quantity="two">Chaidh %1$d sheanail a chur ris</item>
+        <item quantity="few">Chaidh %1$d seanailean a chur ris</item>
+        <item quantity="other">Chaidh %1$d seanail a chur ris</item>
+    </plurals>
+    <string name="msg_no_channel_added">Cha deach seanail a chur ris</string>
+    <string name="menu_parental_controls">Smachdan nam pàrant</string>
+    <string name="option_toggle_parental_controls_on">Air</string>
+    <string name="option_toggle_parental_controls_off">Dheth</string>
+    <string name="option_channels_locked">Seanailean bacte</string>
+    <string name="option_channels_lock_all">Bac na h-uile</string>
+    <string name="option_channels_unlock_all">Dì-bhac na h-uile</string>
+    <string name="option_channels_subheader_hidden">Seanailean falaichte</string>
+    <string name="option_program_restrictions">Cuingeachaidhean air prògraman</string>
+    <string name="option_change_pin">Atharraich am PIN</string>
+    <string name="option_country_rating_systems">Siostaman rangachaidh</string>
+    <string name="option_ratings">Rangachaidhean</string>
+    <string name="option_see_all_rating_systems">Seall gach siostam rangachaidh</string>
+    <string name="other_countries">Dùthchannan eile</string>
+    <string name="option_no_locked_channel">Chan eil gin</string>
+    <string name="option_no_enabled_rating_system">Chan eil gin</string>
+    <string name="unrated_rating_name">Gun rangachadh</string>
+    <string name="option_block_unrated_programs">Bac na prògraman gun rangachadh</string>
+    <string name="option_rating_none">Chan eil gin</string>
+    <string name="option_rating_high">Cuingeachaidhean teanna</string>
+    <string name="option_rating_medium">Cuingeachaidhean meadhanach</string>
+    <string name="option_rating_low">Cuingeachaidhean laga</string>
+    <string name="option_rating_custom">Gnàthaichte</string>
+    <string name="option_rating_high_description">Susbaint iomchaidh dhan chlann</string>
+    <string name="option_rating_medium_description">Susbaint iomchaidh dhan chlann as sine</string>
+    <string name="option_rating_low_description">Susbaint iomchaidh dhan òigridh</string>
+    <string name="option_rating_custom_description">Cuingeachaidhean a làimh</string>
+    <string name="option_attribution">Tùsan nan cuingeachaidhean rangachaidh</string>
+    <string name="option_subrating_title">%1$s ’s fo-rangachaidhean</string>
+    <string name="option_subrating_header">Fo-rangachaidhean</string>
+    <string name="pin_enter_unlock_channel">Cuir a-steach am PIN agad airson coimhead air an t-seanail seo</string>
+    <string name="pin_enter_unlock_program">Cuir a-steach am PIN agad airson coimhead air a’ phrògram seo</string>
+    <string name="pin_enter_unlock_dvr">Tha rangachadh <xliff:g id="rating" example="TV_MA">%1$s</xliff:g> air a’ phrògram seo. Cuir a-steach am PIN agad airson coimhead air a’ phrògram seo</string>
+    <string name="pin_enter_unlock_dvr_unrated">Chan eil rangachadh air a’ phrògram seo. Cuir a-steach am PIN agad airson coimhead air a’ phrògram seo</string>
+    <string name="pin_enter_pin">Cuir a-steach am PIN agad</string>
+    <string name="pin_enter_create_pin">Airson smachdan nam pàrant a shuidheachadh, cruthaich PIN</string>
+    <string name="pin_enter_new_pin">Cuir PIN ùr a-steach</string>
+    <string name="pin_enter_again">Dearbh am PIN agad</string>
+    <string name="pin_enter_old_pin">Cuir a-steach am PIN làithreach agad</string>
+    <plurals name="pin_enter_countdown">
+        <item quantity="one">Chuir thu a-steach am PIN ceàrr 5 tursan.\nFeuch ris a-rithist an ceann <xliff:g id="remaining_seconds" example="1">%1$d</xliff:g> diog.</item>
+        <item quantity="two">Chuir thu a-steach am PIN ceàrr 5 tursan.\nFeuch ris a-rithist an ceann <xliff:g id="remaining_seconds" example="60">%1$d</xliff:g> dhiog.</item>
+        <item quantity="few">Chuir thu a-steach am PIN ceàrr 5 tursan.\nFeuch ris a-rithist an ceann <xliff:g id="remaining_seconds" example="60">%1$d</xliff:g> diogan.</item>
+        <item quantity="other">Chuir thu a-steach am PIN ceàrr 5 tursan.\nFeuch ris a-rithist an ceann <xliff:g id="remaining_seconds" example="60">%1$d</xliff:g> diog.</item>
+    </plurals>
+    <string name="pin_toast_wrong">Cha robh am PIN mar bu chòir. Feuch ris a-rithist.</string>
+    <string name="pin_toast_not_match">Feuch ris a-rithist, chan eil am PIN a’ maidseadh</string>
+    <string name="side_panel_title_settings">Roghainnean</string>
+    <string name="settings_channel_source_item_customize_channels">Gnàthaich liosta nan seanailean</string>
+    <string name="settings_channel_source_item_customize_channels_description">Tagh na seanailean do threòir nam prògram agad</string>
+    <string name="settings_channel_source_item_setup">Tùsan sheanailean</string>
+    <string name="settings_channel_source_item_setup_new_inputs">Tha seanailean ùra ri fhaighinn</string>
+    <string name="settings_parental_controls">Smachdan nam pàrant</string>
+    <string name="settings_trickplay">Gluasad ama</string>
+    <string name="settings_trickplay_description">Clàraidh fhad ’s a bhios tu a’ coimhead air ach an urrainn dhut prògraman beòtha a chur ’nan stad no an toinneadh air ais.\nRabhadh: Dh’fhaoidte nach mair an stòras inntearnail cho fada as àbhaist le cus cleachdaidh an stòrais.</string>
+    <string name="settings_menu_licenses">Ceadachasan Open Source</string>
+    <string name="settings_send_feedback">Cuir do bheachd thugainn</string>
+    <string name="settings_menu_version">Tionndadh</string>
+    <string name="tvview_channel_locked">Brùth air “Deas” is cuir a-steach am PIN agad airson coimhead air an t-sianail seo</string>
+    <string name="tvview_channel_locked_talkback">Brùth air “Tagh” is cuir a-steach am PIN agad airson coimhead air an t-sianail seo</string>
+    <string name="tvview_content_locked">Brùth air “Deas” is cuir a-steach am PIN agad airson coimhead air a’ phrògram seo</string>
+    <string name="tvview_content_locked_talkback">Brùth air “Tagh” is cuir a-steach am PIN agad airson coimhead air a’ phrògram seo</string>
+    <string name="tvview_content_locked_unrated">Cha deach am prògram seo a rangachadh.\nBrùth air “Deas” is cuir a-steach am PIN agad airson coimhead air a’ phrògram seo.</string>
+    <string name="tvview_content_locked_unrated_talkback">Cha deach am prògram seo a rangachadh.\nBrùth air “Tagh” is cuir a-steach am PIN agad airson coimhead air a’ phrògram seo.</string>
+    <string name="tvview_content_locked_format_talkback">Tha rangachadh <xliff:g id="rating" example="TV_MA">%1$s</xliff:g> air a’ phrògram seo.\nBrùth air “Tagh” is cuir a-steach am PIN agad airson coimhead air a’ phrògram seo.</string>
+    <string name="tvview_content_locked_format">Tha rangachadh <xliff:g id="rating" example="TV_MA">%1$s</xliff:g> air a’ phrògram seo.\nBrùth air “Deas” is cuir a-steach am PIN agad airson coimhead air a’ phrògram seo.</string>
+    <string name="tvview_channel_locked_no_permission">Cleachd aplacaid bhunaiteach an Tbh airson coimhead air an t-seanail seo.</string>
+    <string name="tvview_content_locked_no_permission">Cleachd aplacaid bhunaiteach an Tbh airson coimhead air a’ phrògram seo.</string>
+    <string name="tvview_content_locked_unrated_no_permission">Cha deach am prògram seo a rangachadh.\nCleachd aplacaid bhunaiteach an Tbh airson coimhead air a’ phrògram seo.</string>
+    <string name="tvview_content_locked_format_no_permission">Tha rangachadh <xliff:g id="rating" example="TV_MA">%1$s</xliff:g> air a’ phrògram seo.\nCleachd aplacaid bhunaiteach an Tbh airson coimhead air a’ phrògram seo.</string>
+    <string name="shrunken_tvview_content_locked">Chaidh am prògram a bhacadh</string>
+    <string name="shrunken_tvview_content_locked_unrated">Chan eil rangachadh air a’ phrògram seo</string>
+    <string name="shrunken_tvview_content_locked_format">Tha rangachadh <xliff:g id="rating" example="TV_MA">%1$s</xliff:g> air a’ phrògram seo</string>
+    <string name="tvview_msg_audio_only">Fuaim a-mhàin</string>
+    <string name="tvview_msg_weak_signal">Siognail fann</string>
+    <string name="tvview_msg_no_internet_connection">Chan eil ceangal ris an eadar-lìon</string>
+    <plurals name="tvview_msg_input_no_resource">
+        <item quantity="one">Cha ghabh an t-seanail seo a chluich gu ruige <xliff:g id="end_time" example="9:30 PM">%1$s</xliff:g> on a tha seanail eile ’ga clàradh.
+\n\nBrùth air “Deas” a chur gleus air sgeideal a’ chlàraidh.</item>
+        <item quantity="two">Cha ghabh an t-seanail seo a chluich gu ruige <xliff:g id="end_time" example="9:30 PM">%1$s</xliff:g> on a tha seanailean eile ’gan clàradh.
+\n\nBrùth air “Deas” a chur gleus air sgeideal a’ chlàraidh.</item>
+        <item quantity="few">Cha ghabh an t-seanail seo a chluich gu ruige <xliff:g id="end_time" example="9:30 PM">%1$s</xliff:g> on a tha seanailean eile ’gan clàradh.
+\n\nBrùth air “Deas” a chur gleus air sgeideal a’ chlàraidh.</item>
+        <item quantity="other">Cha ghabh an t-seanail seo a chluich gu ruige <xliff:g id="end_time" example="9:30 PM">%1$s</xliff:g> on a tha seanailean eile ’gan clàradh.
+\n\nBrùth air “Deas” a chur gleus air sgeideal a’ chlàraidh.</item>
+    </plurals>
+    <string name="channel_banner_no_title">Gun tiotal</string>
+    <string name="channel_banner_locked_channel_title">Chaidh an t-seanail a bhacadh</string>
+    <string name="setup_category_new">Ùr</string>
+    <string name="setup_category_done">Tùsan</string>
+    <plurals name="setup_input_channels">
+        <item quantity="one">%1$d seanail</item>
+        <item quantity="two">%1$d sheanail</item>
+        <item quantity="few">%1$d seanailean</item>
+        <item quantity="other">%1$d seanail</item>
+    </plurals>
+    <string name="setup_input_no_channels">Chan eil seanail ri làimh</string>
+    <string name="setup_input_new">Ùr</string>
+    <string name="setup_input_setup_now">Cha deach seo a shuidheachadh</string>
+    <string name="setup_store_action_title">Faigh barrachd thùsan</string>
+    <string name="setup_store_action_description">Rùraich na h-aplacaidean a sholaireas seanailean beòtha</string>
+    <string name="new_sources_title">Tha tùsan sheanailean ùra ri fhaighinn</string>
+    <string name="new_sources_description">Tha tùsan sheanailean ùra a’ tairgsinn seanailean.\nSuidhich an-dràsta iad no dèan seo uaireigin eile ann an roghainn tùsan sheanailean.</string>
+    <string name="new_sources_action_setup">Suidhich an-dràsta</string>
+    <string name="new_sources_action_skip">Ceart ma-thà, tha mi agaibh</string>
+    <string name="intro_title">@string/app_name</string>
+    <string name="intro_description"><b>Brùth air TAGH</b> a dh’inntrigeadh clàr-taice an Tbh.</string>
+    <string name="msg_no_input">Cha deach ion-chur TBh a lorg</string>
+    <string name="msg_no_specific_input">Chan urrainn dhuinn ion-chur TBh a lorg</string>
+    <string name="msg_not_passthrough_input">Chan eil seòrsa an tiùnair iomchaidh. Cuir gu dol aplacaid <xliff:g id="app_name">TBh beò</xliff:g> airson ion-chur o thiùnair TBh.</string>
+    <string name="msg_tune_failed">Dh’fhàillig an tiùnair</string>
+    <string name="msg_missing_app">Cha do lorg sinn aplacaid a làimhsicheas an gnìomh seo.</string>
+    <string name="msg_all_channels_hidden">Chaidh gach tùs sheanailean fhalach.\nTagh seanail no dhà airson coimhead.</string>
+    <string name="msg_channel_unavailable_unknown">Chan eil a’ video ri fhaighinn gun dùil</string>
+    <string name="msg_channel_unavailable_not_connected">Chan eil siognail ann. Thoir sùil air a’ cheangal agad ris an tùs.</string>
+    <string name="msg_back_key_guide">Tha an iuchair “Air ais” airson an uidheim cheangailte. Brùth air a’ phutan “Dachaigh” airson fhàgail.</string>
+    <string name="msg_read_tv_listing_permission_denied">Tha <xliff:g id="app_name">TBh beò</xliff:g> feumach air cead gus liostaichean TBh a leughadh.</string>
+    <string name="dvr_notification_channel_name">DVR <xliff:g id="app_name">TBh beò</xliff:g></string>
+    <string name="dvr_notification_content_title">DVR <xliff:g id="app_name">TBh beò</xliff:g></string>
+    <string name="dvr_notification_content_text_recording">Tha <xliff:g id="app_name">TBh beò</xliff:g> ’ga chlàradh.</string>
+    <string name="dvr_notification_content_text_loading">Tha <xliff:g id="app_name">TBh beò</xliff:g> ag ùrachadh sgeidealan a’ chlàraidh.</string>
+    <string name="setup_sources_text">Suidhich na tùsan agad</string>
+    <string name="channels_item_dvr">Clàraidhean ⁊ sgeidealan</string>
+    <string name="recording_start_dialog_10_min_duration">10 mionaidean</string>
+    <string name="recording_start_dialog_30_min_duration">Leth-uair a thìde</string>
+    <string name="recording_start_dialog_1_hour_duration">Uair a thìde</string>
+    <string name="recording_start_dialog_3_hours_duration">3 uairean a thìde</string>
+    <string name="dvr_main_recent">O chionn goirid</string>
+    <string name="dvr_main_scheduled">Sgeidealaichte</string>
+    <string name="dvr_main_series">Sreath</string>
+    <string name="dvr_main_others">Eile</string>
+    <string name="dvr_msg_cannot_record_channel">Cha ghabh an t-seanail a chlàradh.</string>
+    <string name="dvr_msg_cannot_record_program">Cha ghabh am prògram a chlàradh.</string>
+    <string name="dvr_msg_program_scheduled">Chaidh <xliff:g id="programName" example="Big bang theory">%1$s</xliff:g> a chur air sgeideal nan clàraidhean</string>
+    <string name="dvr_msg_current_program_scheduled">A’ clàradh <xliff:g id="programName" example="Big bang theory">%1$s</xliff:g> an-dràsta gu ruige <xliff:g id="endTime" example="12:30 PM">%2$s</xliff:g></string>
+    <string name="dvr_history_card_view_title">Eachdraidh nan clàraidhean</string>
+    <string name="dvr_full_schedule_card_view_title">Sgeideal slàn</string>
+    <string name="dvr_recording_failed">Dh’fhàillig leis a’ chlàradh.</string>
+    <string name="dvr_recording_failed_no_period">Dh’fhàillig leis a’ chlàradh</string>
+    <string name="dvr_recording_conflict">Còmhstri eadar clàraidhean</string>
+    <plurals name="dvr_full_schedule_card_view_content">
+        <item quantity="one">An ath %1$d latha</item>
+        <item quantity="two">An ath %1$d latha</item>
+        <item quantity="few">An ath %1$d làithean</item>
+        <item quantity="other">An ath %1$d latha</item>
+    </plurals>
+    <plurals name="dvr_program_duration">
+        <item quantity="one">%1$d mhionaid</item>
+        <item quantity="two">%1$d mhionaid</item>
+        <item quantity="few">%1$d mionaidean</item>
+        <item quantity="other">%1$d mionaid</item>
+    </plurals>
+    <plurals name="dvr_count_new_recordings">
+        <item quantity="one">%1$d chlàradh ùr</item>
+        <item quantity="two">%1$d chlàradh ùr</item>
+        <item quantity="few">%1$d clàraidhean ùra</item>
+        <item quantity="other">%1$d clàradh ùr</item>
+    </plurals>
+    <plurals name="dvr_count_recordings">
+        <item quantity="one">%1$d chlàradh</item>
+        <item quantity="two">%1$d chlàradh</item>
+        <item quantity="few">%1$d clàraidhean</item>
+        <item quantity="other">%1$d clàradh</item>
+    </plurals>
+    <plurals name="dvr_count_scheduled_recordings">
+        <item quantity="one">Tha %1$d chlàradh air an sgeideal</item>
+        <item quantity="two">Tha %1$d chlàradh air an sgeideal</item>
+        <item quantity="few">Tha %1$d clàraidhean air an sgeideal</item>
+        <item quantity="other">Tha %1$d clàradh air an sgeideal</item>
+    </plurals>
+    <string name="dvr_detail_schedule_recording">Cuir clàradh air an sgeideal</string>
+    <string name="dvr_detail_cancel_recording">Sguir dhen chlàradh</string>
+    <string name="dvr_detail_stop_recording">Cuir stad air a’ chlàradh</string>
+    <string name="dvr_detail_watch">Coimhead</string>
+    <string name="dvr_detail_play_from_beginning">Cluich on toiseach</string>
+    <string name="dvr_detail_resume_play">Lean air a chluich</string>
+    <string name="dvr_detail_delete">Sguab às</string>
+    <string name="dvr_detail_series_delete">Sguab às na clàraidhean</string>
+    <string name="dvr_detail_series_resume">Lean air</string>
+    <string name="dvr_detail_series_season_title">Seusan <xliff:g id="season_number">%1$s</xliff:g></string>
+    <string name="dvr_detail_view_schedule">Seall an sgeideal</string>
+    <string name="dvr_detail_read_more">Leugh an còrr</string>
+    <string name="dvr_recording_failed_system_failure">Fàilligeadh an t-siostaim. (Còd na mearachd: <xliff:g id="errorCode" example="0">%1$d</xliff:g>)</string>
+    <string name="dvr_recording_failed_not_started">Cha deach tòiseachadh air a’ chlàradh. Thoir sùil air ceanglaichean an iadhaire ’s a’ chlàir-chruaidh (ma tha gin ann).</string>
+    <string name="dvr_recording_failed_resource_busy">Cha d’ fhuair an tiùnair grèim air an t-seanail. ’S mathaid gu bheil siognail fann, ceangal bochd ris an iadhaire no chòmhstri eadar clàraidhean as coireach.</string>
+    <string name="dvr_recording_failed_input_unavailable">Chan eil <xliff:g id="inputId" example="com.example.partnersupportsampletvinput/.SampleTvInputService">%1$s</xliff:g> ri fhaighinn.</string>
+    <string name="dvr_recording_failed_input_dvr_unsupported">Chan eil taic ri clàradh na seanail seo.</string>
+    <string name="dvr_recording_failed_insufficient_space">Chan eil àite gu leòr ann. Ceangail uidheam stòrais on taobh a-muigh no sguab às clàradh no dhà.</string>
+    <string name="dvr_series_deletion_title">Sguab às clàraidhean</string>
+    <string name="dvr_series_deletion_description">Tagh na h-eapasodan a bu mhiann leat sguabadh às. Cha ghabh an aiseag nuair a bhios tu air an sguabadh às.</string>
+    <string name="dvr_series_deletion_no_recordings">Chan eil clàradh ri sguabadh às ann.</string>
+    <string name="dvr_series_select_watched">Tagh na h-eapasodan air an coimhead orra</string>
+    <string name="dvr_series_select_all">Tagh a h-uile eapasod</string>
+    <string name="dvr_series_deselect_all">Dì-thagh a h-uile eapasod</string>
+    <string name="dvr_series_watched_info_minutes">Choimhead thu air <xliff:g id="watched">%1$d</xliff:g> à <xliff:g id="duration">%2$d</xliff:g> mionaid</string>
+    <string name="dvr_series_watched_info_seconds">Choimhead tu air <xliff:g id="watched">%1$d</xliff:g> à <xliff:g id="duration">%2$d</xliff:g> diog</string>
+    <string name="dvr_series_never_watched">Cha deach coimhead air a-riamh</string>
+    <plurals name="dvr_msg_episodes_deleted">
+        <item quantity="one">Chaidh %1$d à %2$d eapasod a sguabadh às</item>
+        <item quantity="two">Chaidh %1$d à %2$d eapasod a sguabadh às</item>
+        <item quantity="few">Chaidh %1$d à %2$d eapasodan a sguabadh às</item>
+        <item quantity="other">Chaidh %1$d à %2$d eapasod a sguabadh às</item>
+    </plurals>
+    <string name="dvr_series_settings_title">Roghainnean a’ chlàraidh</string>
+    <string name="dvr_series_settings_priority">Prìomhachas</string>
+    <string name="dvr_series_settings_priority_highest">As àirde</string>
+    <string name="dvr_series_settings_priority_lowest">As ìsle</string>
+    <string name="dvr_series_settings_priority_rank">Àir. <xliff:g id="rank">%1$d</xliff:g></string>
+    <string name="dvr_series_settings_channels">Seanailean</string>
+    <string name="dvr_series_settings_channels_all">Seanail sam bith</string>
+    <string name="dvr_priority_title">Tagh am prìomhachas</string>
+    <string name="dvr_priority_description">Nuair a bhios cus phrògraman rin clàradh aig an aon àm, cha dèid ach an fheadhainn le prìomhachas nas àirde a chlàradh.</string>
+    <string name="dvr_priority_button_action_save">Sàbhail</string>
+    <string name="dvr_priority_action_one_time_recording">Tha am prìomhachas as àirde air clàraidhean aon turas</string>
+    <string name="dvr_action_delete_schedule">Sguab an sgeideal às</string>
+    <string name="dvr_action_record_program">Clàraich am prògram</string>
+    <string name="dvr_action_error_storage_settings">Fosgail roghainnean an stòrais</string>
+    <string name="dvr_action_stop">Cuir stad air</string>
+    <string name="dvr_action_view_schedules">Seall sgeideal nan clàraidhean</string>
+    <string name="dvr_action_record_episode">Am prògram seo a-mhàin</string>
+    <string name="dvr_action_record_episode_from_now_description">an-dràsta – <xliff:g id="endTime" example="11:30">%1$s</xliff:g></string>
+    <string name="dvr_action_record_series">An sreath gu lèir…</string>
+    <string name="dvr_action_record_anyway">Cuir air an sgeideal co-dhiù</string>
+    <string name="dvr_action_record_instead">Clàraich am fear seo ’na àite</string>
+    <string name="dvr_action_record_cancel">Sguir dhen chlàradh seo</string>
+    <string name="dvr_action_watch_now">Coimhead air an-dràsta</string>
+    <string name="dvr_action_delete_recordings">Sguab às clàraidhean…</string>
+    <string name="dvr_epg_program_recordable">Gabhaidh a chlàradh</string>
+    <string name="dvr_epg_program_recording_scheduled">Chaidh an clàradh a sgeidealachadh</string>
+    <string name="dvr_epg_program_recording_conflict">Còmhstri eadar clàraidhean</string>
+    <string name="dvr_epg_program_recording_in_progress">’Ga chlàradh</string>
+    <string name="dvr_epg_program_recording_failed">Dh’fhàillig leis a’ chlàradh</string>
+    <string name="dvr_epg_channel_watch_conflict_dialog_title">Sgeidealan ri thighinn</string>
+    <string name="dvr_epg_channel_watch_conflict_dialog_description">Cha dèid am prògram a chlàradh ma chumas tu ort a’ coimhead air an t-seanail seo. Sguir dhen chlàradh mur eil thu airson ’s gum bac tòiseachadh a’ chlàraidh an t-seanail seo.</string>
+    <string name="dvr_series_progress_message_reading_programs">A’ leughadh nam prògraman</string>
+    <string name="dvr_error_insufficient_space_action_view_recent_recordings">Seall na clàraidhean o chionn goirid</string>
+    <string name="dvr_error_insufficient_space_title_one_recording">Chan eil an clàradh de <xliff:g id="programName" example="Friends">%1$s</xliff:g> coileanta.</string>
+    <string name="dvr_error_insufficient_space_title_two_recordings">Chan eil na clàraidhean de <xliff:g id="programName_1" example="Friends">%1$s</xliff:g> agus <xliff:g id="programName_2" example="Friends">%2$s</xliff:g> coileanta.</string>
+    <string name="dvr_error_insufficient_space_title_three_or_more_recordings">Chan eil na clàraidhean de <xliff:g id="programName_1" example="Friends">%1$s</xliff:g>, <xliff:g id="programName_2" example="Friends">%2$s</xliff:g> agus <xliff:g id="programName_3" example="Friends">%3$s</xliff:g> coileanta.</string>
+    <string name="dvr_error_insufficient_space_description_one_recording">Cha deach an clàradh de <xliff:g id="programName" example="Friends">%1$s</xliff:g> a choileanadh ri linn dìth stòrais.</string>
+    <string name="dvr_error_insufficient_space_description_two_recordings">Cha deach na clàraidhean de <xliff:g id="programName_1" example="Friends">%1$s</xliff:g> agus <xliff:g id="programName_2" example="Friends">%2$s</xliff:g> a choileanadh ri linn dìth stòrais.</string>
+    <string name="dvr_error_insufficient_space_description_three_or_more_recordings">Cha deach na clàraidhean de &lt;xliff:g id="programName_1" example="Friends"&gt;%1$s&lt;/xliff:g&gt;, &lt;xliff:g id="programName_2" example="Friends"&gt;%2$s agus &lt;xliff:g id="programName_3" example="Friends"&gt;%3$s&lt;/xliff:g&gt; a choileanadh ri linn dìth stòrais.</string>
+    <string name="dvr_error_small_sized_storage_title">Tha feum air barrachd stòrais</string>
+    <string name="dvr_error_small_sized_storage_description">’S urrainn dhut prògraman a chlàradh. Gidheadh, chan eil stòras gu leòr air an uidheam agad airson tòiseachadh leis a’ chlàradh. Ceangail draibh on taobh a-muigh ris aig a bheil <xliff:g id="storage_size" example="10GB">%1$d</xliff:g>GB no a bharrachd agus lean ris na ceuman airson fhòrmatadh ’na stòras uidheim.</string>
+    <string name="dvr_error_no_free_space_title">Chan eil stòras gu leòr ann</string>
+    <string name="dvr_error_no_free_space_description">Cha dèid am prògram seo a chlàradh o nach eil stòras gu leòr ann. Feuch gun sguab thu às clàradh no dhà.</string>
+    <string name="dvr_error_missing_storage_title">Tha stòras a dhìth</string>
+    <string name="dvr_error_missing_storage_description">Tha cuid dhen stòrais a chleachdas sinn a chùm clàraidh a dhìth. Dèan ceangail ris an dràibh on taobh a-muigh a chleachd thu roimhe airson an clàradh a chur an comas a-rithist. Mar roghainn eile, dìochuimhnich an stòras ann an roghainnean an stòrais mur eil e ri fhaighinn tuilleadh.</string>
+    <string name="dvr_toast_recording_deleted">Cha deach an clàradh a lorg.</string>
+    <string name="dvr_stop_recording_dialog_title">An sgur thu dhen chlàradh?</string>
+    <string name="dvr_stop_recording_dialog_description">Thèid susbaint a’ chlàraidh a shàbhaladh.</string>
+    <string name="dvr_stop_recording_dialog_description_on_conflict">Thèid stad a chur air clàradh <xliff:g id="programName" example="Friends">%1$s</xliff:g> on a tha e ann an còmhstri leis a’ phrògram seo. Thèid an t-susbaint a chaidh a chlàradh a shàbhaladh.</string>
+    <string name="dvr_program_conflict_dialog_title">Chaidh an clàradh a sgeidealachadh ach tha còmhstri ann</string>
+    <string name="dvr_channel_conflict_dialog_title">Tha an clàradh air a thòiseachadh ach tha còmhstri ann</string>
+    <string name="dvr_program_conflict_dialog_description_prefix">Thèid <xliff:g id="programName" example="Friends">%1$s</xliff:g> a chlàradh.</string>
+    <string name="dvr_channel_conflict_dialog_description_prefix">Tha <xliff:g id="channelName" example="KQED">%1$s</xliff:g> ’ga chlàradh.</string>
+    <string name="dvr_program_conflict_dialog_description_1">Cha dèid gach pàirt dhe <xliff:g id="conflictProgramName" example="Friends">%1$s</xliff:g> a chlàradh.</string>
+    <string name="dvr_program_conflict_dialog_description_2">Cha dèid gach pàirt dhe <xliff:g id="conflictProgramName_1" example="Friends">%1$s</xliff:g> agus <xliff:g id="conflictProgramName_2" example="Friends">%2$s</xliff:g> a chlàradh.</string>
+    <string name="dvr_program_conflict_dialog_description_3">Cha dèid gach pàirt dhe <xliff:g id="conflictProgramName_1" example="Friends">%1$s</xliff:g>, <xliff:g id="conflictProgramName_2" example="Friends">%2$s</xliff:g> ’s aon sgeideal eile a chlàradh.</string>
+    <plurals name="dvr_program_conflict_dialog_description_many">
+        <item quantity="one">Cha dèid gach pàirt dhe <xliff:g id="conflictProgramName_1" example="Friends">%1$s</xliff:g>, <xliff:g id="conflictProgramName_2" example="Friends">%2$s</xliff:g> ’s %3$d sgeideal eile a chlàradh.</item>
+        <item quantity="two">Cha dèid gach pàirt dhe <xliff:g id="conflictProgramName_1" example="Friends">%1$s</xliff:g>, <xliff:g id="conflictProgramName_2" example="Friends">%2$s</xliff:g> ’s %3$d sgeideal eile a chlàradh.</item>
+        <item quantity="few">Cha dèid gach pàirt dhe <xliff:g id="conflictProgramName_1" example="Friends">%1$s</xliff:g>, <xliff:g id="conflictProgramName_2" example="Friends">%2$s</xliff:g> ’s %3$d sgeidealan eile a chlàradh.</item>
+        <item quantity="other">Cha dèid gach pàirt dhe <xliff:g id="conflictProgramName_1" example="Friends">%1$s</xliff:g>, <xliff:g id="conflictProgramName_2" example="Friends">%2$s</xliff:g> ’s %3$d sgeideal eile a chlàradh.</item>
+    </plurals>
+    <string name="dvr_schedule_dialog_title">Dè am bu mhiann leat clàradh?</string>
+    <string name="dvr_channel_record_duration_dialog_title">Dè cho fada ’s a bu mhiann leat a chlàradh?</string>
+    <string name="dvr_already_scheduled_dialog_title">Chaidh a chur air an sgeideal mu thràth</string>
+    <string name="dvr_already_scheduled_dialog_description">Chaidh an t-aon prògram a chur air sgeideal a chùm a chlàradh <xliff:g id="programStartTime" example="7:30 AM on Jun 27.">%1$s</xliff:g>.</string>
+    <string name="dvr_already_recorded_dialog_title">Chaidh a chlàradh mu thràth</string>
+    <string name="dvr_already_recorded_dialog_description">Chaidh am prògram seo a chlàradh mu thràth. Tha e ri fhaighinn ann an leabhar-lann DVR.</string>
+    <string name="dvr_series_recording_dialog_title">Chaidh clàradh an t-sreatha a sgeidealachadh</string>
+    <plurals name="dvr_series_scheduled_no_conflict">
+        <item quantity="one">Chaidh <xliff:g id="numberOfRecordings" example="1">%1$d</xliff:g> chlàradh a chur air an sgeideal <xliff:g id="seriesName" example="Friends">%2$s</xliff:g>.</item>
+        <item quantity="two">Chaidh <xliff:g id="numberOfRecordings" example="5">%1$d</xliff:g> chlàradh a chur air an sgeideal <xliff:g id="seriesName" example="Friends">%2$s</xliff:g>.</item>
+        <item quantity="few">Chaidh <xliff:g id="numberOfRecordings" example="5">%1$d</xliff:g> clàraidhean a chur air an sgeideal <xliff:g id="seriesName" example="Friends">%2$s</xliff:g>.</item>
+        <item quantity="other">Chaidh <xliff:g id="numberOfRecordings" example="5">%1$d</xliff:g> clàradh a chur air an sgeideal <xliff:g id="seriesName" example="Friends">%2$s</xliff:g>.</item>
+    </plurals>
+    <plurals name="dvr_series_recording_scheduled_only_this_series_conflict">
+        <item quantity="one">Chaidh <xliff:g id="numberOfRecordings" example="1">%1$d</xliff:g> chlàradh a chur air an sgeideal airson <xliff:g id="seriesName" example="Friends">%2$s</xliff:g>. Cha dèid a chlàradh ri linn còmhstri.</item>
+        <item quantity="two">Chaidh <xliff:g id="numberOfRecordings" example="5">%1$d</xliff:g> chlàradh a chur air an sgeideal airson <xliff:g id="seriesName" example="Friends">%2$s</xliff:g>. Cha dèid an clàradh ri linn còmhstri.</item>
+        <item quantity="few">Chaidh <xliff:g id="numberOfRecordings" example="5">%1$d</xliff:g> clàraidhean a chur air an sgeideal airson <xliff:g id="seriesName" example="Friends">%2$s</xliff:g>. Cha dèid an clàradh ri linn còmhstri.</item>
+        <item quantity="other">Chaidh <xliff:g id="numberOfRecordings" example="5">%1$d</xliff:g> clàradh a chur air an sgeideal airson <xliff:g id="seriesName" example="Friends">%2$s</xliff:g>. Cha dèid an clàradh ri linn còmhstri.</item>
+    </plurals>
+    <plurals name="dvr_series_scheduled_only_other_series_one_conflict">
+        <item quantity="one">Chaidh <xliff:g id="numberOfRecordings" example="1">%1$d</xliff:g> chlàradh a chur air an sgeideal airson <xliff:g id="seriesName" example="Friends">%2$s</xliff:g>. Tha eapasod aig sreath eile nach dèid a chlàradh ri linn còmhstri.</item>
+        <item quantity="two">Chaidh <xliff:g id="numberOfRecordings" example="1">%1$d</xliff:g> chlàradh a chur air an sgeideal airson <xliff:g id="seriesName" example="Friends">%2$s</xliff:g>. Tha eapasod aig sreath eile nach dèid a chlàradh ri linn còmhstri.</item>
+        <item quantity="few">Chaidh <xliff:g id="numberOfRecordings" example="1">%1$d</xliff:g> clàraidhean a chur air an sgeideal airson <xliff:g id="seriesName" example="Friends">%2$s</xliff:g>. Tha eapasod aig sreath eile nach dèid a chlàradh ri linn còmhstri.</item>
+        <item quantity="other">Chaidh <xliff:g id="numberOfRecordings" example="1">%1$d</xliff:g> clàradh a chur air an sgeideal airson <xliff:g id="seriesName" example="Friends">%2$s</xliff:g>. Tha eapasod aig sreath eile nach dèid a chlàradh ri linn còmhstri.</item>
+    </plurals>
+    <string name="dvr_program_not_found">Cha deach clàradh a’ phrògraim a lorg.</string>
+    <string name="dvr_playback_related_recordings">Clàraidhean co-cheangailte</string>
+    <string name="dvr_recording_till_format">’Ga chlàradh gu ruige <xliff:g id="recordingEndTime" example="9:00pm">%1$s</xliff:g></string>
+    <plurals name="dvr_schedules_section_subtitle">
+        <item quantity="one">%1$d chlàradh</item>
+        <item quantity="two">%1$d chlàradh</item>
+        <item quantity="few">%1$d clàraidhean</item>
+        <item quantity="other">%1$d clàradh</item>
+    </plurals>
+    <string name="dvr_schedules_information_separator"> / </string>
+    <string name="dvr_schedules_deletion_info">Chaidh <xliff:g id="programName" example="Big bang theory">%1$s</xliff:g> a thoirt air falbh o sgeideal nan clàraidhean</string>
+    <string name="dvr_schedules_tuner_conflict_will_be_partially_recorded">Cha dèid ach pàirt dheth a chlàradh ri linn còmhstri tiùnair.</string>
+    <string name="dvr_schedules_tuner_conflict_will_not_be_recorded_info">Cha dèid a chlàradh ri linn còmhstri tiùnair.</string>
+    <string name="dvr_schedules_empty_state">Chan eil clàradh air an sgeideal fhathast.\n’S urrainn dhut clàraidhean a chur air an sgeideal o threòir nam prògram.</string>
+    <string name="dvr_history_empty_state">Tha eachdraidh nan clàraidhean falamh.\n’S urrainn dhut clàraidhean a chur air an sgeideal o threòir nam prògram.</string>
+    <plurals name="dvr_series_schedules_header_description">
+        <item quantity="one">%1$d chòmhstri eadar clàraidhean</item>
+        <item quantity="two">%1$d chòmhstri eadar clàraidhean</item>
+        <item quantity="few">%1$d còmhstrithean eadar clàraidhean</item>
+        <item quantity="other">%1$d còmhstri eadar clàraidhean</item>
+    </plurals>
+    <string name="dvr_series_schedules_settings">Roghainnean an t-sreatha</string>
+    <string name="dvr_series_schedules_start">Tòisich air clàradh an t-sreatha</string>
+    <string name="dvr_series_schedules_stop">Sguir de chlàradh an t-sreatha</string>
+    <string name="dvr_series_schedules_stop_dialog_title">An sguir thu de chlàradh an t-sreatha?</string>
+    <string name="dvr_series_schedules_stop_dialog_description">Bidh na h-eapasodan a chlàraidh thu ri do làimh fhathast ann an leabhar-lann DVR.</string>
+    <string name="dvr_series_schedules_stop_dialog_action_stop">Sguir dheth</string>
+    <string name="dvr_series_schedules_stopped_empty_state">Chan eil eapasodan ’gan craoladh an-dràsta.</string>
+    <string name="dvr_series_schedules_empty_state">Chan eil eapasod ri fhaighinn.\nThèid an clàradh nuair a bhios gin ri fhaighinn.</string>
+    <plurals name="dvr_schedules_recording_duration">
+        <item quantity="one">(%1$d mhionaid) </item>
+        <item quantity="two">(%1$d mhionaid)</item>
+        <item quantity="few">(%1$d mionaidean)</item>
+        <item quantity="other">(%1$d mionaid)</item>
+    </plurals>
+    <string name="dvr_recording_failed_short">Dh’fhàillig leis.</string>
+    <string name="dvr_recording_failed_not_started_short">Cha deach leinn tòiseachadh air a’ chlàradh.</string>
+    <string name="dvr_recording_failed_resource_busy_short">Cha d’ fhuair an tiùnair grèim air an t-seanail.</string>
+    <string name="dvr_recording_failed_input_unavailable_short">Chan eil <xliff:g id="inputId" example="com.example.partnersupportsampletvinput/.SampleTvInputService">%1$s</xliff:g> ri fhaighinn.</string>
+    <string name="dvr_recording_failed_input_dvr_unsupported_short">Chan eil taic ri clàradh.</string>
+    <string name="dvr_recording_failed_insufficient_space_short">Chan eil àite gu leòr ann.</string>
+    <string name="dvr_date_today">An-diugh</string>
+    <string name="dvr_date_tomorrow">A-màireach</string>
+    <string name="dvr_date_yesterday">An-dè</string>
+    <string name="dvr_date_today_time"><xliff:g id="time_range" example="10:00 am - 11:00 am">%1$s</xliff:g> an-diugh</string>
+    <string name="dvr_date_tomorrow_time"><xliff:g id="time_range" example="10:00 am - 11:00 am">%1$s</xliff:g> a-màireach</string>
+    <string name="program_guide_critic_score">Sgòr</string>
+    <string name="recorded_programs_preview_channel">Prògraman ’gan clàradh</string>
+    <string name="write_storage_permission_rationale_title">Iarr cead</string>
+    <string name="write_storage_permission_rationale_description">Thèid faighneachd dhiot “A bheil thu airson cead a thoirt dha          <xliff:g id="app_name">TBh beò</xliff:g> dealbhan, meadhanan ’s faidhlichean inntrigeadh air an uidheam agad?”\n
+        Ma thaghas tu “Ceadaich”, bheir seo comas dhan <xliff:g id="app_name">TBh bheò</xliff:g> gun saor e
+        àite san stòras sa bhad nuair a thèid prògraman TBh air an clàradh a sguabadh às.
+        Bheir seo barrachd àite dhut airson clàraidhean ùra.</string>
+    <string name="tv_iapp_on">Air</string>
+    <string name="tv_iapp_off">Dheth</string>
+</resources>

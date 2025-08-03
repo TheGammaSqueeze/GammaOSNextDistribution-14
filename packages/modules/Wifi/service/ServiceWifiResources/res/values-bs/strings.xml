@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2019 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="wifiResourcesAppLabel" product="default" msgid="3120115613525263696">"Sistemski Wi-Fi resursi"</string>
+    <string name="wifi_available_title" msgid="3899472737467127635">"Povežite se na otvorenu Wi‑Fi mrežu"</string>
+    <string name="wifi_available_title_connecting" msgid="7233590022728579868">"Povezivanje na WiFi mrežu"</string>
+    <string name="wifi_available_title_connected" msgid="6329493859989844201">"Povezani ste s WiFi mrežom"</string>
+    <string name="wifi_available_title_failed_to_connect" msgid="4840833680513368639">"Nije se moguće povezati s WiFi mrežom"</string>
+    <string name="wifi_available_content_failed_to_connect" msgid="4330035988269701861">"Dodirnite da vidite sve mreže"</string>
+    <string name="wifi_available_action_connect" msgid="5636634933476946222">"Povežite se"</string>
+    <string name="wifi_available_action_all_networks" msgid="8491109932336522211">"Sve mreže"</string>
+    <string name="notification_channel_network_status" msgid="1631786866932924838">"Status mreže"</string>
+    <string name="notification_channel_network_alerts" msgid="1391603215241200880">"Mrežna upozorenja"</string>
+    <string name="notification_channel_network_available" msgid="8454366142428864948">"Mreža je dostupna"</string>
+    <string name="notification_channel_apm_alerts" msgid="6775293475896473489">"APM upozorenja"</string>
+    <string name="wifi_suggestion_title" msgid="2564179935989099139">"Dozvoliti predložene WiFi mreže?"</string>
+    <string name="wifi_suggestion_content" msgid="6985149577828091835">"Mreže koje predlaže <xliff:g id="NAME">%s</xliff:g>. Uređaj će se možda povezati automatski."</string>
+    <string name="wifi_suggestion_action_allow_app" msgid="7757859972144671588">"Dozvoli"</string>
+    <string name="wifi_suggestion_action_disallow_app" msgid="4565857699629860726">"Ne, hvala"</string>
+    <string name="wifi_suggestion_imsi_privacy_title" msgid="8969261812845304079">"Povezati se s WiFi mrežom operatera <xliff:g id="CARRIERNAME">%s</xliff:g>?"</string>
+    <string name="wifi_suggestion_imsi_privacy_content" msgid="4266931269306079184">"Ove mreže primaju ID SIM-a koji se može koristiti za praćenje lokacije uređaja"</string>
+    <string name="wifi_suggestion_action_allow_imsi_privacy_exemption_carrier" msgid="3888538126440442636">"Poveži"</string>
+    <string name="wifi_suggestion_action_disallow_imsi_privacy_exemption_carrier" msgid="3225397664735676024">"Nemoj se povezati"</string>
+    <string name="wifi_suggestion_imsi_privacy_exemption_confirmation_title" msgid="4407415300707014525">"Potvrditi povezivanje?"</string>
+    <string name="wifi_suggestion_imsi_privacy_exemption_confirmation_content" msgid="9211241189147807136">"Ako se povežete, Wi-Fi mreže mobilnog operatera <xliff:g id="CARRIERNAME">%s</xliff:g> mogu pristupiti jedinstvenom ID-u koji je povezan s vašom SIM karticom ili ga podijeliti. Na taj način možete dozvoliti da se prati lokacija vašeg uređaja."</string>
+    <string name="wifi_suggestion_action_allow_imsi_privacy_exemption_confirmation" msgid="2168947026413431603">"Poveži se"</string>
+    <string name="wifi_suggestion_action_disallow_imsi_privacy_exemption_confirmation" msgid="5156881939985876066">"Nemoj se povezati"</string>
+    <string name="wifi_wakeup_onboarding_title" msgid="3868826648004934540">"WiFi će se uključiti automatski"</string>
+    <string name="wifi_wakeup_onboarding_subtext" msgid="5705886295837387430">"Kada ste u blizini sačuvane mreže visokog kvaliteta"</string>
+    <string name="wifi_wakeup_onboarding_action_disable" msgid="6209706680391785825">"Nemoj ponovo uključiti"</string>
+    <string name="wifi_wakeup_enabled_title" msgid="5043486751612595850">"Wi‑Fi veza se automatski uključila"</string>
+    <string name="wifi_wakeup_enabled_content" msgid="3911262526267025882">"U blizini ste sačuvane mreže: <xliff:g id="NETWORK_SSID">%1$s</xliff:g>"</string>
+    <string name="wifi_watchdog_network_disabled" msgid="5769226742956006362">"Problem prilikom spajanja na WiFi mrežu"</string>
+    <string name="wifi_watchdog_network_disabled_detailed" msgid="1725243835135539125">" ima lošu internetsku vezu."</string>
+    <string name="wifi_connect_alert_title" msgid="2368200646665663612">"Želite li dozvoliti povezivanje?"</string>
+    <string name="wifi_connect_alert_message" msgid="7226456300982080746">"Aplikacija %1$s se želi povezati s WiFi mrežom %2$s"</string>
+    <string name="wifi_connect_default_application" msgid="8917703737222707062">"Aplikacija"</string>
+    <string name="accept" msgid="8346431649376483879">"Prihvati"</string>
+    <string name="decline" msgid="4172251727603762084">"Odbijte"</string>
+    <string name="ok" msgid="847575529546290102">"Uredu"</string>
+    <string name="wifi_p2p_invitation_sent_title" msgid="6552639940428040869">"Pozivnica poslana"</string>
+    <string name="wifi_p2p_invitation_to_connect_title" msgid="8917157937652519251">"Pozivnica za povezivanje"</string>
+    <string name="wifi_p2p_invitation_seconds_remaining" msgid="4214101104506918344">"{0,plural, =1{Prihvatite za # sekundu.}one{Prihvatite za # sekundu.}few{Prihvatite za # sekunde.}other{Prihvatite za # sekundi.}}"</string>
+    <string name="wifi_p2p_from_message" msgid="5921308150192756898">"Od:"</string>
+    <string name="wifi_p2p_to_message" msgid="3809923305696994787">"Prima:"</string>
+    <string name="wifi_p2p_enter_pin_message" msgid="5200220251738047620">"Unesite potrebni PIN:"</string>
+    <string name="wifi_p2p_show_pin_message" msgid="1000091690967930798">"PIN:"</string>
+    <string name="wifi_p2p_frequency_conflict_message" msgid="8535404941723941766">"Povezanost uređaja s WiFi mrežom će se privremeno prekinuti dok je povezan s uređajem <xliff:g id="DEVICE_NAME">%1$s</xliff:g>"</string>
+    <string name="dlg_ok" msgid="254496739491689405">"Uredu"</string>
+    <string name="wifi_cannot_connect_with_randomized_mac_title" msgid="2344570489693915253">"Nije se moguće povezati s mrežom <xliff:g id="SSID">%1$s</xliff:g>"</string>
+    <string name="wifi_cannot_connect_with_randomized_mac_message" msgid="4834133226521813352">"Dodirnite da promijenite postavke privatnosti i pokušajte ponovo"</string>
+    <string name="wifi_disable_mac_randomization_dialog_title" msgid="2054540994993681606">"Promijeniti postavku privatnosti?"</string>
+    <string name="wifi_disable_mac_randomization_dialog_message" msgid="8874064864332248988">"Za povezivanje <xliff:g id="SSID">%1$s</xliff:g> treba koristiti vašu MAC adresu, koja je jedinstveni identifikator. Vaša postavka privatnosti za ovu mrežu trenutno koristi nasumično odabrani identifikator. \n\nNa taj način se uređajima u blizini može dozvoliti da prate lokaciju vašeg uređaja."</string>
+    <string name="wifi_disable_mac_randomization_dialog_confirm_text" msgid="6954419863076751626">"Promijeni postavku"</string>
+    <string name="wifi_disable_mac_randomization_dialog_success" msgid="5849155828154391387">"Postavka je ažurirana. Pokušajte se ponovo povezati."</string>
+    <string name="wifi_disable_mac_randomization_dialog_failure" msgid="2894643619143813096">"Nije moguće promijeniti postavku privatnosti"</string>
+    <string name="wifi_disable_mac_randomization_dialog_network_not_found" msgid="7359256966900782004">"Mreža nije pronađena"</string>
+    <string name="wifi_eap_error_message_code_32756" msgid="2620877003804313434">"<xliff:g id="SSID">%1$s</xliff:g> : EAP greška autentifikacije 32756"</string>
+    <!-- no translation found for wifi_eap_error_message_code_32756_carrier_overrides:0 (9114567205305206743) -->
+    <string name="wifi_eap_error_message_code_32760" msgid="5258191595973470188">"<xliff:g id="SSID">%1$s</xliff:g>: EAP greška autentifikacije 32760"</string>
+  <string-array name="wifi_eap_error_message_code_32760_carrier_overrides">
+    <item msgid="7582366019846559418">"<xliff:g id="CARRIER_ID_PREFIX">:::1839:::</xliff:g> <xliff:g id="SSID">%1$s</xliff:g>: Ne možete se povezati s WiFi pristupom Verizonu izvan područja pokrivenosti Verizona. (Greška = 32760)"</item>
+  </string-array>
+    <string name="wifi_eap_error_message_code_32761" msgid="3962610712123291591">"<xliff:g id="SSID">%1$s</xliff:g>: EAP greška autentifikacije 32761"</string>
+  <string-array name="wifi_eap_error_message_code_32761_carrier_overrides">
+    <item msgid="5173744897521799785">"<xliff:g id="CARRIER_ID_PREFIX">:::1839:::</xliff:g> <xliff:g id="SSID">%1$s</xliff:g>: Niste pretplaćeni na WiFi pristup Verizonu. Pozovite nas na broj 800 922 0204. (Greška = 32761)"</item>
+  </string-array>
+    <string name="wifi_eap_error_message_code_32762" msgid="2381670648753465737">"<xliff:g id="SSID">%1$s</xliff:g>: EAP greška autentifikacije 32762"</string>
+  <string-array name="wifi_eap_error_message_code_32762_carrier_overrides">
+    <item msgid="2911560823350042826">"<xliff:g id="CARRIER_ID_PREFIX">:::1839:::</xliff:g> <xliff:g id="SSID">%1$s</xliff:g>: Došlo je do problema s vašim računom za WiFi pristup Verizonu. Pozovite nas na broj 800 922 0204. (Greška = 32762)"</item>
+  </string-array>
+    <string name="wifi_eap_error_message_code_32763" msgid="4467733260757049969">"<xliff:g id="SSID">%1$s</xliff:g>: EAP greška autentifikacije 32763"</string>
+  <string-array name="wifi_eap_error_message_code_32763_carrier_overrides">
+    <item msgid="591026649262091217">"<xliff:g id="CARRIER_ID_PREFIX">:::1839:::</xliff:g> <xliff:g id="SSID">%1$s</xliff:g>: Već ste povezani s WiFi pristupom Verizonu. (Greška = 32763)"</item>
+  </string-array>
+    <string name="wifi_eap_error_message_code_32764" msgid="7349538467012877101">"<xliff:g id="SSID">%1$s</xliff:g>: EAP greška autentifikacije 32764"</string>
+  <string-array name="wifi_eap_error_message_code_32764_carrier_overrides">
+    <item msgid="3909719534712787947">"<xliff:g id="CARRIER_ID_PREFIX">:::1839:::</xliff:g> <xliff:g id="SSID">%1$s</xliff:g>: Došlo je do problema pri povezivanju s WiFi pristupom Verizonu. Pozovite nas na broj 800 922 0204. (Greška = 32764)"</item>
+  </string-array>
+    <string name="wifi_eap_error_message_code_32765" msgid="2167528358066037980">"<xliff:g id="SSID">%1$s</xliff:g>: EAP greška autentifikacije 32765"</string>
+  <string-array name="wifi_eap_error_message_code_32765_carrier_overrides">
+    <item msgid="7454136618636618962">"<xliff:g id="CARRIER_ID_PREFIX">:::1839:::</xliff:g> <xliff:g id="SSID">%1$s</xliff:g>: Došlo je do problema s vašim računom za WiFi pristup Verizonu. Pozovite nas na broj 800 922 0204. (Greška = 32765)"</item>
+  </string-array>
+    <string name="wifi_eap_error_message_code_32766" msgid="2335996367705677670">"<xliff:g id="SSID">%1$s</xliff:g>: EAP greška autentifikacije 32766"</string>
+  <string-array name="wifi_eap_error_message_code_32766_carrier_overrides">
+    <item msgid="5876210184761573755">"<xliff:g id="CARRIER_ID_PREFIX">:::1839:::</xliff:g> <xliff:g id="SSID">%1$s</xliff:g>: WiFi pristup Verizonu nije dostupan s vaše lokacije. Pokušajte ponovo kasnije ili pokušajte s druge lokacije. (Greška = 32766)"</item>
+  </string-array>
+    <string name="wifi_eap_error_message_code_32767" msgid="7094289719914089006">"<xliff:g id="SSID">%1$s</xliff:g> : EAP greška autentifikacije 32767"</string>
+  <string-array name="wifi_eap_error_message_code_32767_carrier_overrides">
+    <item msgid="3756793972687282940">"<xliff:g id="CARRIER_ID_PREFIX">:::1839:::</xliff:g> <xliff:g id="SSID">%1$s</xliff:g>: došlo je do problema prilikom povezivanja s WiFi pristupom Verizonu. Pokušajte ponovo kasnije ili pokušajte s druge lokacije. (Greška = 32767)"</item>
+  </string-array>
+    <string name="wifi_eap_error_message_code_16384" msgid="575394783233092922">"<xliff:g id="SSID">%1$s</xliff:g> : EAP greška autentifikacije 16384"</string>
+  <string-array name="wifi_eap_error_message_code_16384_carrier_overrides">
+    <item msgid="270219697600808218">"<xliff:g id="CARRIER_ID_PREFIX">:::1839:::</xliff:g><xliff:g id="SSID">%1$s</xliff:g>: došlo je do problema prilikom povezivanja s WiFi mrežom Verizona. (Greška = 16384)"</item>
+  </string-array>
+    <string name="wifi_eap_error_message_code_16385" msgid="8392878664662215609">"<xliff:g id="SSID">%1$s</xliff:g> : EAP greška autentifikacije 16385"</string>
+  <string-array name="wifi_eap_error_message_code_16385_carrier_overrides">
+    <item msgid="50575315771146940">"<xliff:g id="CARRIER_ID_PREFIX">:::1839:::</xliff:g><xliff:g id="SSID">%1$s</xliff:g>: došlo je do problema prilikom povezivanja s WiFi mrežom Verizona. (Greška = 16385)"</item>
+  </string-array>
+    <string name="wifi_eap_error_message_unknown_error_code" msgid="4480884285384231323">"<xliff:g id="SSID">%1$s</xliff:g> : EAP greška autentifikacije, nepoznat kôd greške"</string>
+  <string-array name="wifi_eap_error_message_unknown_error_code_carrier_overrides">
+    <item msgid="2705387186478280792">"<xliff:g id="CARRIER_ID_PREFIX">:::1839:::</xliff:g><xliff:g id="SSID">%1$s</xliff:g>: došlo je do problema prilikom povezivanja s WiFi mrežom Verizona. (Greška = nepoznata)"</item>
+  </string-array>
+    <string name="wifi_softap_auto_shutdown_timeout_expired_title" msgid="4896534374569504484">"Pristupna tačka je isključena"</string>
+    <string name="wifi_softap_auto_shutdown_timeout_expired_summary" msgid="7975476698140267728">"Nema povezanih uređaja. Dodirnite da izmijenite."</string>
+    <string name="wifi_sim_required_title" msgid="2262227800991155459">"WiFi nije povezan"</string>
+    <string name="wifi_sim_required_message" msgid="284812212346125745">"Da se povežete s mrežom <xliff:g id="SSID">%1$s</xliff:g>, umetnite SIM karticu mobilnog operatera <xliff:g id="CARRIER_NAME">%2$s</xliff:g>"</string>
+    <string name="wifi_interface_priority_title" msgid="5117627874976875544">"Aplikacija <xliff:g id="APP">%1$s</xliff:g> želi koristiti izvor umrežavanja"</string>
+    <string name="wifi_interface_priority_message" msgid="4253391172756140313">"Ovo može prouzrokovati probleme za: <xliff:g id="APPS">%3$s</xliff:g>."</string>
+    <string name="wifi_interface_priority_message_plural" msgid="8178086373318831859">"Ovo može uzrokovati problem sljedećim aplikacijama: <xliff:g id="APPS">%3$s</xliff:g>."</string>
+    <string name="wifi_interface_priority_approve" msgid="7877379614986261096">"Dozvoli"</string>
+    <string name="wifi_interface_priority_reject" msgid="1378461018835886777">"Nemoj dozvoliti"</string>
+    <string name="wifi_interface_priority_interface_name_sta" msgid="5107477901500010776">"STA"</string>
+    <string name="wifi_interface_priority_interface_name_ap" msgid="161777054136866061">"WiFi pristupna tačka"</string>
+    <string name="wifi_interface_priority_interface_name_ap_bridge" msgid="1270364818879977821">"WiFi pristupna tačka"</string>
+    <string name="wifi_interface_priority_interface_name_p2p" msgid="1278122698099149708">"Wi‑Fi Direct"</string>
+    <string name="wifi_interface_priority_interface_name_nan" msgid="8812888073122966870">"Wi‑Fi Aware"</string>
+    <string name="wifi_ca_cert_dialog_title" msgid="3872340345882915806">"Je li ova mreža pouzdana?"</string>
+    <string name="wifi_ca_cert_dialog_continue_text" msgid="1674156611893471003">"Da, poveži"</string>
+    <string name="wifi_ca_cert_dialog_abort_text" msgid="1303170595421648059">"Ne, nemoj povezati"</string>
+    <string name="wifi_ca_cert_dialog_message_hint" msgid="5969214285536370126">"Dozvolite ovoj mreži da se poveže samo ako informacije u nastavku izgledaju ispravno.\n\n"</string>
+    <string name="wifi_ca_cert_dialog_message_server_name_text" msgid="3707809865604348289">"Naziv servera:\n<xliff:g id="VALUE">%1$s</xliff:g>\n\n"</string>
+    <string name="wifi_ca_cert_dialog_message_issuer_name_text" msgid="1147216922475192304">"Naziv izdavača:\n<xliff:g id="VALUE">%1$s</xliff:g>\n\n"</string>
+    <string name="wifi_ca_cert_dialog_message_organization_text" msgid="4936354600863239487">"Organizacija:\n<xliff:g id="VALUE">%1$s</xliff:g>\n\n"</string>
+    <string name="wifi_ca_cert_dialog_message_expiration_text" msgid="1612917217606436217">"Istek certifikata:\n<xliff:g id="VALUE">%1$s</xliff:g>\n\n"</string>
+    <string name="wifi_ca_cert_dialog_message_signature_name_text" msgid="8455163626514894233">"Digitalni otisak SHA-256:\n<xliff:g id="VALUE">%1$s</xliff:g>\n\n"</string>
+    <string name="wifi_ca_cert_dialog_message_contact_text" msgid="5799083318641183815">"Kontakt:\n<xliff:g id="VALUE">%1$s</xliff:g>\n\n"</string>
+    <string name="wifi_ca_cert_notification_title" msgid="537569884930429796">"Mrežu je potrebno potvrditi"</string>
+    <string name="wifi_ca_cert_notification_message" msgid="6413248690626616961">"Prije povezivanja pregledajte detalje mreže za <xliff:g id="SSID">%1$s</xliff:g>. Dodirnite da nastavite."</string>
+    <string name="wifi_ca_cert_failed_to_install_ca_cert" msgid="4864192219789736195">"Instalacija certifikata nije uspjela."</string>
+    <string name="wifi_tofu_invalid_cert_chain_title" msgid="332710627417595752">"Nije se moguće povezati s mrežom <xliff:g id="VALUE">%1$s</xliff:g>"</string>
+    <string name="wifi_tofu_invalid_cert_chain_message" msgid="7047987920029432392">"Lanac potvrda servera je nevažeći."</string>
+    <string name="wifi_tofu_invalid_cert_chain_ok_text" msgid="9098567577510279854">"Uredu"</string>
+    <string name="wifi_ca_cert_dialog_preT_title" msgid="6916320484037009061">"Nije moguće potvrditi ovu mrežu"</string>
+    <string name="wifi_ca_cert_dialog_preT_continue_text" msgid="9118713368838029797">"Ostanite povezani"</string>
+    <string name="wifi_ca_cert_dialog_preT_abort_text" msgid="1331309662999405224">"Prekini vezu odmah"</string>
+    <string name="wifi_ca_cert_dialog_preT_message_hint" msgid="5682518783200852031">"Mreži <xliff:g id="SSID">%1$s</xliff:g> nedostaje certifikat."</string>
+    <string name="wifi_ca_cert_dialog_preT_message_link" msgid="6325483132538546884">"Saznajte kako dodati certifikate"</string>
+    <string name="wifi_ca_cert_notification_preT_title" msgid="7255129934648316663">"Nije moguće potvrditi ovu mrežu"</string>
+    <string name="wifi_ca_cert_notification_preT_message" msgid="4565553176090475724">"Mreži <xliff:g id="SSID">%1$s</xliff:g> nedostaje certifikat. Dodirnite da saznate kako dodati certifikate."</string>
+    <string name="wifi_ca_cert_notification_preT_continue_text" msgid="1525418430746943670">"Ipak se poveži"</string>
+    <string name="wifi_ca_cert_notification_preT_abort_text" msgid="8307996031461071854">"Nemoj se povezati"</string>
+    <string name="wifi_enable_request_dialog_title" msgid="3577459145316177148">"Dozvoliti da aplikacija <xliff:g id="APP_NAME">%1$s</xliff:g> uključi WiFi?"</string>
+    <string name="wifi_enable_request_dialog_message" msgid="6395169178524938278">"WiFi možete isključiti u Brzim postavkama"</string>
+    <string name="wifi_enable_request_dialog_positive_button" msgid="6050832555821470466">"Dozvoli"</string>
+    <string name="wifi_enable_request_dialog_negative_button" msgid="4754219902374918882">"Nemoj dozvoliti"</string>
+    <string name="wifi_enabled_apm_first_time_title" msgid="4814302384637588804">"WiFi je uključen u načinu rada u avionu"</string>
+    <string name="wifi_enabled_apm_first_time_message" msgid="6416193199042203037">"Ako ostavite WiFi uključen, uređaj će zapamtiti da treba biti uključen sljedeći put kada budete u načinu rada u avionu"</string>
+    <string name="apm_enabled_first_time_title" msgid="2534167413190488009">"WiFi ostaje uključen"</string>
+    <string name="apm_enabled_first_time_message" msgid="6093911536874954410">"Uređaj pamti da WiFi treba biti uključen u načinu rada u avionu. Isključite WiFi ako ne želite da ostane uključen."</string>
+    <string name="wifi_network_disabled_by_admin_title" msgid="9057697656855227293">"Nedostupna mreža"</string>
+    <string name="wifi_network_disabled_by_admin_message" msgid="7830360441333155462">"Administrator je onemogućio <xliff:g id="SSID">%1$s</xliff:g>."</string>
+    <string name="wifi_network_disabled_by_admin_button" msgid="3350310756265122689">"Zatvori"</string>
+    <string name="wifi_network_switch_dialog_title_no_internet" msgid="4116969009784041242">"Izgleda da mreža <xliff:g id="SSID_0">%1$s</xliff:g> nije povezana s internetom. Prebaciti na mrežu <xliff:g id="SSID_1">%2$s</xliff:g>?"</string>
+    <string name="wifi_network_switch_dialog_title_bad_internet" msgid="6013385270249705547">"<xliff:g id="SSID_0">%1$s</xliff:g> je niskog kvaliteta. Prebaciti na mrežu <xliff:g id="SSID_1">%2$s</xliff:g>?"</string>
+    <string name="wifi_network_switch_dialog_positive_button" msgid="7845507995422722454">"Prebaci"</string>
+    <string name="wifi_network_switch_dialog_negative_button" msgid="1496665895689498806">"Nemoj prebaciti"</string>
+</resources>

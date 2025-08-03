@@ -1,0 +1,88 @@
+/*
+ * Copyright 2021 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// Serialized state and result stats of the KLL quantiles aggregator. Mimimized
+// Lite Proto version for Android.
+
+syntax = "proto2";
+
+package zetasketch.android;
+
+import "aggregator.proto";
+
+option optimize_for = LITE_RUNTIME;
+
+// State proto: 'Sketch' of aggregation from which results can be extracted or
+// which can be re-aggregated/merged with other sketches.
+message KllQuantilesStateProto {
+    message Compactor {
+        // Used for values which cannot be serialized in a packed format.
+        message NonPackableValues {
+            // Each value is encoded as one field.
+            repeated bytes values = 1;
+        }
+
+        oneof compactor_values {
+            // Used for values for which can be serialized in a packed format and
+            // which are not difference encoded (see below). All values are stored in
+            // one field in a packed representation.
+            bytes packed_values = 1;
+
+            // Optionally used for values of integral types stored in a packed
+            // 'difference' encoding (also called 'delta' or 'incremental' encoding):
+            // The values are sorted by their natural order before encoding, and
+            // instead of the n values, the smallest value and the n-1 deltas to the
+            // next higher values are stored as (packed) varints.
+            bytes diff_encoded_packed_values = 2;
+
+            // Used for all other types.
+            NonPackableValues other_values = 3;
+        }
+    }
+
+    message Sampler {
+        optional bytes sampled_item = 1;
+        // How many stream items the sampled item stands for.
+        optional int64 sampled_weight = 2;
+        // Binary logarithm of the sampler capacity (out of how many items are we
+        // sampling one).
+        optional int32 log_capacity = 3;
+    }
+
+    // Size of the top-most compactor.
+    optional int32 k = 1;
+    // Inverse of the approximation precision parameter epsilon.
+    optional int64 inv_eps = 2;
+    // items type is stored in AggregatorStateProto.value_type.
+    // num_items is stored in AggregatorStateProto.num_values.
+
+    // (Exact) minimum value of the input data.
+    optional bytes min = 3;
+    // (Exact) maximum value of the input data.
+    optional bytes max = 4;
+
+    // Stack of compactors, starting with the lowest level (weight 1, closest to
+    // stream).  Weights associated with each compactor are stored implicitly
+    // through the order of compactors: compactor i has weight 2^i (with
+    // zero-based indexing).
+    repeated Compactor compactors = 5;
+    optional Sampler sampler = 6;
+}
+
+extend zetasketch.android.AggregatorStateProto {
+    // This field id should match AggregatorType.KLL_QUANTILES.
+    optional KllQuantilesStateProto kll_quantiles_state = 113;
+}

@@ -1,0 +1,32 @@
+_description: Bluetooth cert testing
+TestBeds:
+  - Name: HostOnlyCert
+    Controllers:
+      rootcanal:
+        test_port: '6401'
+        hci_port: '6402'
+        link_layer_port: '6403'
+      GdDevice:
+        - grpc_port: '8998'
+          grpc_root_server_port: '8996'
+          signal_port: '8994'
+          label: cert
+          name: Cert Device
+          cmd:
+            - "$GD_ROOT/bluetooth_stack_with_facade"
+            - "--grpc-port=$(grpc_port)"
+            - "--root-server-port=$(grpc_root_server_port)"
+            - "--rootcanal-port=$(rootcanal_port)"
+            - "--signal-port=$(signal_port)"
+        - grpc_port: '8999'
+          grpc_root_server_port: '8997'
+          signal_port: '8995'
+          label: dut
+          name: DUT Device
+          cmd:
+            - "$GD_ROOT/bluetooth_stack_with_facade"
+            - "--grpc-port=$(grpc_port)"
+            - "--root-server-port=$(grpc_root_server_port)"
+            - "--rootcanal-port=$(rootcanal_port)"
+            - "--signal-port=$(signal_port)"
+logpath: "/tmp/logs"

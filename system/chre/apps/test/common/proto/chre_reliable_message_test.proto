@@ -1,0 +1,27 @@
+syntax = "proto2";
+
+package chre_reliable_message_test;
+
+option java_package = "com.google.android.chre.nanoapp.proto";
+option java_outer_classname = "ChreReliableMessageTest";
+
+enum MessageType {
+  // Reserved for corrupted messages
+  UNDEFINED_TYPE = 0;
+  // Sent by the host to start the test.
+  SEND_MESSAGES = 1;
+  // Sent by the nanoapp to report test result.
+  TEST_RESULT = 2;
+  // Sent by the nanoapp for the host to echo the message.
+  HOST_ECHO_MESSAGE = 3;
+  // Sent by the host for the nanoapp to echo the message.
+  NANOAPP_ECHO_MESSAGE = 4;
+}
+
+// Payload for the SEND_MESSAGES message.
+message SendMessagesCommand {
+  // Number of messages to send.
+  required uint32 numMessages = 1;
+  // Size of the messages.
+  required uint32 messageSize = 2;
+}

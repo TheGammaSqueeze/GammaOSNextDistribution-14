@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2014 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string-array name="sleep_timeout_entries">
+        <item>Às dèidh 5 mionaidean</item>
+        <item>Às dèidh 15 mionaidean</item>
+        <item>Às dèidh leth-uair a thìde</item>
+        <item>Uair a thìde</item>
+        <item>Às dèidh 2 uair a thìde</item>
+    </string-array>
+    <string-array name="device_energy_saver_sleep_timeout_entries">
+        <item>Às dèidh 15 mionaidean</item>
+        <item>20 minutes</item>
+        <item>Às dèidh leth-uair a thìde</item>
+        <item>Uair a thìde</item>
+        <item>4 uairean a thìde</item>
+        <item>8 uairean a thìde</item>
+        <item>Às dèidh 12 uair a thìde</item>
+        <item>24 uair a thìde</item>
+        <item>Na dèan bruadair</item>
+    </string-array>
+    <string-array name="device_energy_saver_attentive_timeout_entries">
+        <item>4 uairean a thìde</item>
+        <item>6 hours</item>
+        <item>8 uairean a thìde</item>
+        <item>Na dèan bruadair</item>
+    </string-array>
+    <string-array name="captioning_typeface_selector_titles">
+        <item>Bun-roghainn</item>
+        <item>Sans-serif</item>
+        <item>Sans-serif condensed</item>
+        <item>Sans-serif monospace</item>
+        <item>Serif</item>
+        <item>Serif monospace</item>
+        <item>Fuasgailte</item>
+        <item>Eadailteach</item>
+        <item>Tùs-litrichean beaga</item>
+    </string-array>
+    <string-array name="captioning_font_size_selector_titles">
+        <item>Glè bheag</item>
+        <item>Beag</item>
+        <item>Àbhaisteach</item>
+        <item>Mòr</item>
+        <item>Glè mhòr</item>
+    </string-array>
+    <string-array name="captioning_edge_type_selector_titles">
+        <item>Gun oir</item>
+        <item>Oir‑loidhne</item>
+        <item>Sgàil theàrnach</item>
+        <item>Àrdaichte</item>
+        <item>Air a bhrùthadh</item>
+    </string-array>
+    <string-array name="captioning_opacity_selector_titles">
+        <item>25%</item>
+        <item>50%</item>
+        <item>75%</item>
+        <item>100%</item>
+    </string-array>
+    <string-array name="font_scale_entries">
+        <item>Beag</item>
+        <item>Bun-roghainn</item>
+        <item>Mòr</item>
+        <item>Largest</item>
+    </string-array>
+    <string-array name="wifi_peap_phase2_entries">
+        <item>Gun oir</item>
+        <item>MSCHAPV2</item>
+        <item>GTC</item>
+    </string-array>
+    <string-array name="wifi_phase2_entries">
+        <item>Gun oir</item>
+        <item>PAP</item>
+        <item>MSCHAP</item>
+        <item>MSCHAPV2</item>
+        <item>GTC</item>
+    </string-array>
+</resources>

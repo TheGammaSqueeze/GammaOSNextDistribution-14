@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package blueberry.facade.shim;
+
+import "google/protobuf/empty.proto";
+
+service ShimFacade {
+  rpc Dump(google.protobuf.Empty) returns (stream DumpsysMsg) {}
+}
+
+message DumpsysMsg {
+  bytes data = 1;
+}

@@ -1,0 +1,98 @@
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_team: "trendy_team_rubidium_sdk_runtime",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_test_host {
+    name: "SdkSandboxStorageHostTest",
+    srcs: [
+        "src/**/SdkSandboxStorageHostTest.java",
+        ":CtsHostsideTestsAppSecurityUtil",
+    ],
+    test_config: "SdkSandboxStorageHostTest.xml",
+    libs: [
+        "tradefed",
+    ],
+    static_libs: [
+        "modules-utils-build-testing",
+        "cts-install-lib-host",
+        "SdkSandboxHostTestUtils",
+    ],
+    test_suites: ["general-tests"],
+    data: [
+        ":StorageTestCodeProvider",
+        ":SdkSandboxStorageTestApp",
+        ":SdkSandboxStorageTestAppV2_DoesNotConsumeSdk",
+    ],
+}
+
+java_defaults {
+    name: "SdkSandboxStorageHostTestDefaults",
+    srcs: [
+        "app/src/**/SdkSandboxStorageTestApp.java",
+        ":framework-sdksandbox-sources",
+        ":sdksandbox_aidl",
+        ":sdksandbox-sources",
+    ],
+    defaults: ["framework-sdksandbox-jarjar-defaults"],
+    static_libs: [
+        "androidx.core_core",
+        "androidx.test.ext.junit",
+        "androidx.test.uiautomator_uiautomator",
+        "compatibility-device-util-axt",
+        "SdkSandboxTestUtils",
+        "StorageTestSdk1Api",
+    ],
+    min_sdk_version: "Tiramisu",
+    target_sdk_version: "Tiramisu",
+    test_suites: ["general-tests"],
+}
+
+android_test_helper_app {
+    name: "SdkSandboxStorageTestApp",
+    manifest: "app/SdkSandboxStorageTestAppManifest.xml",
+    defaults: ["SdkSandboxStorageHostTestDefaults"],
+}
+
+android_test_helper_app {
+    name: "SdkSandboxStorageTestAppV2_DoesNotConsumeSdk",
+    manifest: "app/SdkSandboxStorageTestAppManifestV2_DoesNotConsumeSdk.xml",
+    defaults: ["SdkSandboxStorageHostTestDefaults"],
+}
+
+android_test_helper_app {
+    name: "StorageTestCodeProvider",
+    manifest: "codeprovider/StorageTestCodeProvider.xml",
+    defaults: ["platform_app_defaults"],
+    srcs: [
+        "codeprovider/src/**/*.java",
+    ],
+    static_libs: [
+        "compatibility-device-util-axt",
+        "StorageTestSdk1Api",
+    ],
+    certificate: ":sdksandbox-test",
+    min_sdk_version: "33",
+    target_sdk_version: "33",
+}
+
+java_library {
+    name: "StorageTestSdk1Api",
+    srcs: [
+        "codeprovider/src/**/*.aidl",
+    ],
+}

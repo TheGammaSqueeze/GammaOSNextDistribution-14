@@ -1,0 +1,25 @@
+namespace com.android.ondevicepersonalization.services.fbs;
+
+table EventFields {
+    data:KeyValueList;
+}
+
+table KeyValueList {
+    entries:[KeyValue];
+}
+
+table KeyValue {
+    key:string;
+    type:byte;
+    byte_value:byte=null;
+    short_value:short=null;
+    int_value:int=null;
+    long_value:long=null;
+    float_value:float=null;
+    double_value:double=null;
+    bool_value:bool=null;
+    string_value:string;
+    blob_value:[byte];
+}
+
+root_type EventFields;

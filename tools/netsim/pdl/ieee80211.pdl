@@ -1,0 +1,116 @@
+// PDL grammar file for ieee80211 packet format.
+//
+// This only includes definitions necessary for the mac80211_hwsim
+// use case.
+
+little_endian_packets
+
+custom_field MacAddress : 48 "macaddr/"
+
+// Frame type B3..B2
+enum FrameType : 2 {
+    MGMT = 0,
+    CTL = 1,
+    DATA = 2,
+    EXT = 3,
+}
+
+// Data substypes
+enum DataSubType : 4 {
+    DATA = 0,
+    DATA_CF_ACK = 1,
+    DATA_CF_POLL = 2,
+    DATA_CF_ACPL = 3,
+    NODATA = 4,
+    NODATA_CF_ACK = 5,
+    NODATA_CF_POLL = 6,
+    NODATA_CF_ACPL = 7,
+    QOS = 8,
+    QOS_NULL = 12,
+}
+
+// Management subtypes
+enum ManagementSubType : 4 {
+    ASSOC_REQ = 0,
+    ASSOC_RESP = 1,
+    REASSOC_REQ = 2,
+    REASSOC_RESP = 3,
+    PROBE_REQ = 4,
+    PROBE_RESP = 5,
+    BEACON = 8,
+    ATIM = 9,
+    DISASSOC = 10,
+    AUTH = 11,
+    DEAUTH = 12,
+    ACTION = 13,
+}
+
+group FrameControl {
+    version : 2,                // B1..B0
+    ftype: FrameType,           // B3..B2
+    stype: 4,                   // B7..B4
+    to_ds: 1,                   // B8
+    from_ds: 1,                 // B9
+    more_frags: 1,              // B10
+    retry: 1,                   // B11
+    pm : 1,                     // B12
+    more_data: 1,               // B13
+    protected: 1,               // B14
+    order: 1,                   // B15
+}
+
+
+packet Ieee80211 {
+    FrameControl,
+    duration_id: 16,
+    _payload_,
+}
+
+/*
+ * DS bit usage
+ *
+ * TA = transmitter address
+ * RA = receiver address
+ * DA = destination address
+ * SA = source address
+ *
+ * ToDS    FromDS  A1(RA)  A2(TA)  A3      A4      Use
+ * -----------------------------------------------------------------
+ *  0       0       DA      SA      BSSID   -       IBSS/DLS
+ *  0       1       DA      BSSID   SA      -       AP -> STA
+ *  1       0       BSSID   SA      DA      -       AP <- STA
+ *  1       1       RA      TA      DA      SA      unspecified (WDS)
+ */
+
+packet Ieee80211Ibss : Ieee80211 (to_ds=0, from_ds=0) {
+    destination : MacAddress,
+    source : MacAddress,
+    bssid : MacAddress,
+    seq_ctrl : 16,
+    payload: 8[],
+}
+
+packet Ieee80211FromAp : Ieee80211 (to_ds=0, from_ds=1) {
+    destination : MacAddress,
+    bssid : MacAddress,
+    source : MacAddress,
+    seq_ctrl : 16,
+    payload: 8[],
+}
+
+packet Ieee80211ToAp : Ieee80211 (to_ds=1, from_ds=0) {
+    bssid : MacAddress,
+    source : MacAddress,
+    destination : MacAddress,
+    seq_ctrl : 16,
+    payload: 8[],
+}
+
+packet Ieee80211Wds : Ieee80211 (to_ds=1, from_ds=1) {
+    receiver : MacAddress,
+    transmitter : MacAddress,
+    destination : MacAddress,
+    seq_ctrl : 16,
+    source : MacAddress,
+    payload: 8[],
+}

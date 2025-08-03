@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="system_tracing" msgid="4719188511746319848">"Следење на системот"</string>
+    <string name="record_system_activity" msgid="4339462312915377825">"Евидентирајте ја системската активност и анализирајте ја подоцна за да ја подобрите изведбата"</string>
+    <string name="record_trace" msgid="6416875085186661845">"Сними трага"</string>
+    <string name="record_trace_summary" msgid="6705357754827849292">"Снима системска трага преку конфигурацијата поставена во „Поставки за траги“"</string>
+    <string name="record_stack_samples" msgid="3498368637185702335">"Снимај го профилот на ЦПУ"</string>
+    <string name="record_stack_samples_summary" msgid="7827953921526410478">"Семплирањето купче со повици може да се овозможи во траги со штиклирање на категоријата „цпу“"</string>
+    <string name="record_heap_dump" msgid="1688550222066812696">"Снимање слика од меморијата"</string>
+    <string name="record_heap_dump_summary_enabled" msgid="5038675257021221777">"Снима слика од меморијата од процесите избрани во „Процеси на слики од меморијата“"</string>
+    <string name="record_heap_dump_summary_disabled" msgid="4640319333930345311">"Изберете најмалку еден процес во „Процеси на слики од меморијата“ за да ги приберете сликите од меморијата"</string>
+    <string name="start_new_trace" msgid="8177130420802170353">"Започни нова трага"</string>
+    <string name="winscope_tracing" msgid="5818984791154837458">"Собирајте траги од Winscope"</string>
+    <string name="winscope_tracing_summary" msgid="7040550156722395894">"Опфаќа детални податоци за телеметрија на корисничкиот интерфејс (може да предизвика заглавување)"</string>
+    <string name="trace_debuggable_applications" msgid="7957069895298887899">"Трагај по апликации со грешки за отстранување"</string>
+    <string name="categories" msgid="2280163673538611008">"Категории"</string>
+    <string name="restore_default_categories" msgid="5090536794637169521">"Врати ги стандардните категории"</string>
+    <string name="default_categories_restored" msgid="6861683793680564181">"Вратени се стандардните категории"</string>
+    <string name="default_categories" msgid="2117679794687799407">"Стандардни"</string>
+    <string name="num_categories_selected" msgid="5772630335027553995">"{count,plural, =1{Избрано е #}one{Избрани се #}other{Избрани се #}}"</string>
+    <string name="heap_dump_processes" msgid="2500105180344901939">"Процеси на слики од меморијата"</string>
+    <string name="heap_dump_processes_summary" msgid="4570434268024622765">"Мора да се избере најмалку еден процес"</string>
+    <string name="clear_heap_dump_processes" msgid="295101454741555286">"Бришење на процесите за сликите од меморијата"</string>
+    <string name="clear_heap_dump_processes_toast" msgid="3658510557596150797">"Списокот со процеси е избришан"</string>
+    <string name="continuous_heap_dump" msgid="390369382946204224">"Постојан профил на меморијата за блокови"</string>
+    <string name="continuous_heap_dump_summary" msgid="4581643248161659581">"Снимете по една слика од меморија на секој конкретен интервал"</string>
+    <string name="continuous_heap_dump_interval" msgid="842533896492001433">"Интервал на слики од меморијата"</string>
+    <string name="five_seconds" msgid="7018465440929299712">"5 секунди"</string>
+    <string name="ten_seconds" msgid="863416601384309033">"10 секунди"</string>
+    <string name="thirty_seconds" msgid="7945396361369598222">"30 секунди"</string>
+    <string name="one_minute" msgid="4182508213840684258">"1 минута"</string>
+    <string name="applications" msgid="521776761270770549">"Апликации"</string>
+    <string name="no_debuggable_apps" msgid="4386209254520471208">"Нема апликации со грешки за отстранување"</string>
+    <string name="buffer_size" msgid="3944311026715111454">"Големина на привремената меморија по CPU"</string>
+    <string name="show_quick_settings_tile" msgid="4971147332635291585">"Прикажи плочка Брзи поставки"</string>
+    <string name="saving_trace" msgid="1468692734770800541">"Зачувување на трагата"</string>
+    <string name="trace_saved" msgid="5869970594780992309">"Трагата е зачувана"</string>
+    <string name="saving_stack_samples" msgid="8174915522390525221">"Се зачувуваат семпловите за купчето"</string>
+    <string name="stack_samples_saved" msgid="8863295751647724616">"Семпловите за купчето се зачувани"</string>
+    <string name="saving_heap_dump" msgid="6118616780825771824">"Се зачувува слика од меморијата"</string>
+    <string name="heap_dump_saved" msgid="6720583137473857098">"Сликата од меморијата е зачувана"</string>
+    <string name="tap_to_share" msgid="4440713575852187545">"Допрете за да ја споделите снимката"</string>
+    <string name="attaching_to_report" msgid="2629202947947275886">"Се прикачува трага во извештајот за грешка"</string>
+    <string name="attached_to_report" msgid="5806905349184608870">"Прикачена трага во извештај за грешка"</string>
+    <string name="attached_to_report_summary" msgid="7665675771190391355">"Допрете за отворање BetterBug"</string>
+    <string name="stop_tracing" msgid="8916938308534164152">"Запрете го следењето"</string>
+    <string name="tracing_categories_unavailable" msgid="5609076391417077752">"Некои категории на траги се недостапни:"</string>
+    <string name="trace_is_being_recorded" msgid="5947378146009337469">"Запишување трага"</string>
+    <string name="tap_to_stop_tracing" msgid="6533282719573871806">"Допрете за да го запрете следењето"</string>
+    <string name="stack_samples_are_being_recorded" msgid="8669254939248349583">"Семпловите за купчето се снимаат"</string>
+    <string name="tap_to_stop_stack_sampling" msgid="5911317684139059415">"Допрете за да го запрете семплирањето на купчето"</string>
+    <string name="heap_dump_is_being_recorded" msgid="3789315106110524969">"Се снима слика од меморијата"</string>
+    <string name="tap_to_stop_heap_dump" msgid="6475699275834526902">"Допрете за да ја сопрете сликата од меморијата"</string>
+    <string name="clear_saved_files" msgid="9156079311231446825">"Избриши ги зачуваните датотеки"</string>
+    <string name="clear_saved_files_summary" msgid="109751867417553670">"Снимките се бришат по еден месец"</string>
+    <string name="clear_saved_files_question" msgid="8586686617760838834">"Да се избришат зачуваните датотеки?"</string>
+    <string name="all_recordings_will_be_deleted" msgid="7731693738485947891">"Ќе се избришат сите снимки од /data/local/traces"</string>
+    <string name="clear" msgid="5484761795406948056">"Избриши"</string>
+    <string name="system_traces_storage_title" msgid="8294090839883366871">"Системски траги"</string>
+    <string name="keywords" msgid="736547007949049535">"systrace, следење, изведба"</string>
+    <string name="share_file" msgid="1982029143280382271">"Да се сподели датотеката?"</string>
+    <string name="system_trace_sensitive_data" msgid="3069389866696009549">"Датотеките за следење на системот може да вклучуваат чувствителни системски и апликациски податоци (како што е користење на апликациите). Споделувајте датотеки за следење на системот само со луѓе и апликации во кои имате доверба."</string>
+    <string name="share" msgid="8443979083706282338">"Сподели"</string>
+    <string name="dont_show_again" msgid="6662492041164390600">"Не прикажувај повторно"</string>
+    <string name="long_traces" msgid="5110949471775966329">"Долги траги"</string>
+    <string name="long_traces_summary" msgid="419034282946761469">"Постојано зачувување во капацитетот на уредот"</string>
+    <string name="long_traces_summary_betterbug" msgid="445546400875135624">"Се зачувува континуирано во капацитетот на уредот (нема автоматски да се приложува во извештаи за грешки)"</string>
+    <string name="max_long_trace_size" msgid="1943788179787181241">"Максимална големина на долга трага"</string>
+    <string name="max_long_trace_duration" msgid="8009837944364246785">"Максимално времетраење на долга трага"</string>
+    <string name="two_hundred_mb" msgid="4950018549725084512">"200 MB"</string>
+    <string name="one_gb" msgid="590396985168692037">"1 GB"</string>
+    <string name="five_gb" msgid="7883941043220621649">"5 GB"</string>
+    <string name="ten_gb" msgid="4150452462544299276">"10 GB"</string>
+    <string name="twenty_gb" msgid="5717308686812140465">"20 GB"</string>
+    <string name="ten_minutes" msgid="7039181194343961324">"10 минути"</string>
+    <string name="thirty_minutes" msgid="2575810799813531395">"30 минути"</string>
+    <string name="one_hour" msgid="5219232935307966891">"1 час"</string>
+    <string name="eight_hours" msgid="3207620892104451552">"8 часа"</string>
+    <string name="twelve_hours" msgid="4647143276394563496">"12 часа"</string>
+    <string name="twentyfour_hours" msgid="2789663313550030791">"24 часа"</string>
+    <string name="four_thousand_kb" msgid="5156346740862105703">"4.096 KB"</string>
+    <string name="eight_thousand_kb" msgid="8815334985638334081">"8.192 KB"</string>
+    <string name="sixteen_thousand_kb" msgid="7342517169232459259">"16.384 KB"</string>
+    <string name="thirtytwo_thousand_kb" msgid="654328198799196150">"32.768 KB"</string>
+    <string name="sixtyfive_thousand_kb" msgid="8168144138598305306">"65.536 KB"</string>
+    <string name="stop_on_bugreport" msgid="4591832600597126422">"Престани со снимање за извештаите за грешки"</string>
+    <string name="stop_on_bugreport_summary" msgid="1601834864982891381">"Ги завршува активните снимки кога ќе се започне извештај за грешки"</string>
+    <string name="attach_to_bug_report" msgid="5388986830016247490">"Прикачете ги снимките во извештаите за грешки"</string>
+    <string name="attach_to_bug_report_summary" msgid="4213730623971240002">"Автоматски испраќај снимки во тек во BetterBug кога ќе се прибере извештај за грешки"</string>
+    <string name="link_to_traces" msgid="1404687523304348490">"Прикажи ги зачуваните датотеки"</string>
+    <string name="pref_category_trace_settings" msgid="6507535407023329628">"Поставки за трага"</string>
+    <string name="pref_category_saved_files" msgid="1477491400970413291">"Зачувани апликации"</string>
+    <string name="pref_category_misc" msgid="6217624054980014683">"Разно"</string>
+    <string name="pref_category_heap_dump_settings" msgid="2234681064312605310">"Поставки за слики од меморијата"</string>
+</resources>

@@ -1,0 +1,5 @@
+{
+    "uuid": "IPC_UNITTEST_SRV_APP_UUID",
+    "min_heap": 73728,
+    "min_stack": 8192
+}

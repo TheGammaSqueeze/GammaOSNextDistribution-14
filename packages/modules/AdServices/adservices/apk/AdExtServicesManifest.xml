@@ -1,0 +1,529 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="android.ext.services"
+    android:versionCode="309999900"
+    android:versionName="2019-09"
+    coreApp="true">
+
+    <!-- Declare the broadcast as protected so only the system service can send it.  The AdServices
+    System Service will send this broadcast to the AdServices module where there is a package
+    change.-->
+    <protected-broadcast android:name="com.android.ext.adservices.PACKAGE_CHANGED"/>
+
+    <!-- Allows the system service to query app status-->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"/>
+
+    <!-- Permissions required for reading device configs -->
+    <uses-permission android:name="android.permission.READ_DEVICE_CONFIG"/>
+
+    <!-- Used for reporting -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <!-- Used for scheduling connectivity jobs -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- Allows an application to access AdServices Topics API. -->
+    <permission android:name="android.permission.ACCESS_ADSERVICES_TOPICS"
+                android:label="@string/permlab_accessAdServicesTopics"
+                android:description="@string/permdesc_accessAdServicesTopics"
+                android:protectionLevel="normal"/>
+
+    <!-- Allows an application to access AdServices Attribution APIs. -->
+    <permission android:name="android.permission.ACCESS_ADSERVICES_ATTRIBUTION"
+                android:label="@string/permlab_accessAdServicesAttribution"
+                android:description="@string/permdesc_accessAdServicesAttribution"
+                android:protectionLevel="normal"/>
+
+    <!-- Allows an application to access AdServices Custom Audience APIs. -->
+    <permission android:name="android.permission.ACCESS_ADSERVICES_CUSTOM_AUDIENCE"
+                android:label="@string/permlab_accessAdServicesCustomAudience"
+                android:description="@string/permdesc_accessAdServicesCustomAudience"
+                android:protectionLevel="normal"/>
+
+    <!-- Allows an application to access AdServices Ad Id API. -->
+    <permission android:name="android.permission.ACCESS_ADSERVICES_AD_ID"
+                android:label="@string/permlab_accessAdServicesAdId"
+                android:description="@string/permdesc_accessAdServicesAdId"
+                android:protectionLevel="normal"/>
+
+    <!-- Note: Signature permissions for AdServices code running in ExtServices APK must be
+    redefined with the suffix _COMPAT since the ExtServices and AdServices APKs are signed by
+    different keys. -->
+
+    <!-- Allows AdServices to access API for Ad ID. -->
+    <permission android:name="android.permission.ACCESS_PRIVILEGED_AD_ID_COMPAT"
+                android:label="@string/permlab_adServicesAccessAdId"
+                android:description="@string/permdesc_adServicesAccessAdId"
+                android:protectionLevel="signature"/>
+
+    <!-- Allows AdServices to access API for App set ID. -->
+    <permission android:name="android.permission.ACCESS_PRIVILEGED_APP_SET_ID_COMPAT"
+                android:label="@string/permlab_adServicesAccessAppSetId"
+                android:description="@string/permdesc_adServicesAccessAppSetId"
+                android:protectionLevel="signature"/>
+
+    <!-- Allows AdServices to access API for AdServices Cobalt upload. -->
+    <permission android:name="android.permission.ACCESS_PRIVILEGED_ADSERVICES_COBALT_UPLOAD_COMPAT"
+                android:label="@string/permlab_adServicesAccessAdServicesCobaltUpload"
+                android:description="@string/permdesc_adServicesAccessAdServicesCobaltUpload"
+                android:protectionLevel="signature"/>
+
+    <!-- Allows the caller to modify AdService's state via Common Service. -->
+    <permission android:name="android.permission.MODIFY_ADSERVICES_STATE_COMPAT"
+                android:label="@string/permlab_modifyAdServicesState"
+                android:description="@string/permdesc_modifyAdServicesState"
+                android:protectionLevel="signature|configurator"/>
+
+    <!-- Allows the caller to get AdService's state via Common Service. -->
+    <permission android:name="android.permission.ACCESS_ADSERVICES_STATE_COMPAT"
+                android:label="@string/permlab_accessAdServicesState"
+                android:description="@string/permdesc_accessAdServicesState"
+                android:protectionLevel="signature|configurator"/>
+
+    <!-- Permission to allow calling updating AdId Cache API via Common Service. -->
+    <permission android:name="android.permission.UPDATE_PRIVILEGED_AD_ID_COMPAT"
+                android:label="@string/permlab_updateAdservicesAdId"
+                android:description="@string/permdesc_updateAdservicesAdId"
+                android:protectionLevel="signature|configurator"/>
+
+    <uses-permission android:name="android.permission.ACCESS_PRIVILEGED_AD_ID_COMPAT"/>
+    <uses-permission android:name="android.permission.ACCESS_PRIVILEGED_APP_SET_ID_COMPAT"/>
+    <uses-permission android:name="android.permission.ACCESS_PRIVILEGED_ADSERVICES_COBALT_UPLOAD_COMPAT" />
+
+    <!-- Permission to allow self calling Common Service. -->
+    <uses-permission android:name="android.permission.ACCESS_ADSERVICES_STATE_COMPAT"/>
+    <uses-permission android:name="android.permission.MODIFY_ADSERVICES_STATE_COMPAT"/>
+
+    <!-- Allows JobScheduler to persist jobs across reboot. -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+
+    <application
+        android:name=".ExtServicesApplication"
+        android:label="@string/app_name"
+        android:forceQueryable="true"
+        android:allowBackup="false"
+        android:supportsRtl="true"
+        android:icon="@drawable/ic_android_icon"
+        android:theme="@style/FilterTouches">
+        <!-- Activity for the main view of Adservices Settings UI-->
+        <activity
+            android:name="com.android.adservices.ui.settings.activities.AdServicesSettingsMainActivity"
+            android:exported="true"
+            android:enabled="false"
+            android:theme="@style/Theme.SubSettingsBase"
+            android:process=".adservices">
+            <intent-filter android:priority="1">
+                <action android:name="android.adservices.ui.SETTINGS"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+
+        <!-- Activity for the topics view of Adservices Settings UI-->
+        <activity
+            android:name="com.android.adservices.ui.settings.activities.TopicsActivity"
+            android:exported="true"
+            android:enabled="false"
+            android:theme="@style/Theme.SubSettingsBase"
+            android:process=".adservices">
+            <intent-filter android:priority="1">
+                <action android:name="android.adservices.ui.TOPICS"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+
+        <!-- Activity for the blocked topics view of Adservices Settings UI-->
+        <activity
+            android:name="com.android.adservices.ui.settings.activities.BlockedTopicsActivity"
+            android:exported="true"
+            android:enabled="false"
+            android:theme="@style/Theme.SubSettingsBase"
+            android:process=".adservices">
+            <intent-filter android:priority="1">
+                <action android:name="android.adservices.ui.BLOCKED_TOPICS"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+
+        <!-- Activity for the apps view of Adservices Settings UI-->
+        <activity
+            android:name="com.android.adservices.ui.settings.activities.AppsActivity"
+            android:exported="true"
+            android:enabled="false"
+            android:theme="@style/Theme.SubSettingsBase"
+            android:process=".adservices">
+            <intent-filter android:priority="1">
+                <action android:name="android.adservices.ui.APPS"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+
+        <!-- Activity for the blocked apps view of Adservices Settings UI-->
+        <activity
+            android:name="com.android.adservices.ui.settings.activities.BlockedAppsActivity"
+            android:exported="true"
+            android:enabled="false"
+            android:theme="@style/Theme.SubSettingsBase"
+            android:process=".adservices">
+            <intent-filter android:priority="1">
+                <action android:name="android.adservices.ui.BLOCKED_APPS"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+
+        <!-- Activity for the ads measurement view of AdServices Settings UI-->
+        <activity
+            android:name="com.android.adservices.ui.settings.activities.MeasurementActivity"
+            android:exported="true"
+            android:enabled="false"
+            android:theme="@style/Theme.SubSettingsBase"
+            android:process=".adservices">
+            <intent-filter android:priority="1">
+                <action android:name="android.adservices.ui.MEASUREMENT"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+
+        <!-- Activity for Adservices Detailed Notification UI -->
+        <activity
+            android:name="com.android.adservices.ui.notifications.ConsentNotificationActivity"
+            android:exported="true"
+            android:enabled="false"
+            android:theme="@style/AdServices.NotificationTheme"
+            android:process=".adservices">
+            <intent-filter android:priority="1">
+                <action android:name="android.adservices.ui.NOTIFICATIONS"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+
+        <!-- Activity for Adservices to run shell command. This is disabled by default.-->
+        <activity
+            android:name="com.android.adservices.shell.ShellCommandActivity"
+            android:exported="true"
+            android:enabled="false"
+            android:theme="@style/Theme.SubSettingsBase"
+            android:process=".adservices">
+            <intent-filter android:priority="1">
+                <action android:name="android.adservices.BACK_COMPACT_SHELL_COMMAND"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+
+        <service android:name="com.android.adservices.adselection.AdSelectionService"
+                 android:exported="true"
+                 android:visibleToInstantApps="false"
+                 android:process=".adservices">
+            <intent-filter android:priority="1">
+                <action android:name="android.adservices.adselection.AD_SELECTION_SERVICE"/>
+            </intent-filter>
+        </service>
+
+        <service android:name=
+                     "com.android.adservices.customaudience.CustomAudienceService"
+                 android:exported="true"
+                 android:visibleToInstantApps="false"
+                 android:process=".adservices">
+            <intent-filter android:priority="1">
+                <action android:name=
+                            "android.adservices.customaudience.CUSTOM_AUDIENCE_SERVICE"/>
+            </intent-filter>
+        </service>
+
+        <service android:name=
+                     "android.adservices.signals.ProtectedSignalsService"
+                 android:exported="true"
+                 android:visibleToInstantApps="false"
+                 android:process=".adservices">
+            <intent-filter android:priority="1">
+                <action android:name=
+                            "android.adservices.signals.PROTECTED_SIGNALS_SERVICE"/>
+            </intent-filter>
+        </service>
+
+        <service android:name="com.android.adservices.topics.TopicsService"
+                 android:exported="true"
+                 android:visibleToInstantApps="false"
+                 android:process=".adservices">
+            <intent-filter android:priority="1">
+                <action android:name="android.adservices.TOPICS_SERVICE"/>
+            </intent-filter>
+        </service>
+
+        <service android:name="com.android.adservices.adid.AdIdService"
+                 android:exported="true"
+                 android:visibleToInstantApps="false"
+                 android:process=".adservices">
+            <intent-filter android:priority="1">
+                <action android:name="android.adservices.ADID_SERVICE"/>
+            </intent-filter>
+        </service>
+
+        <service android:name="com.android.adservices.appsetid.AppSetIdService"
+                 android:exported="true"
+                 android:visibleToInstantApps="false"
+                 android:process=".adservices">
+            <intent-filter android:priority="1">
+                <action android:name="android.adservices.APPSETID_SERVICE"/>
+            </intent-filter>
+        </service>
+
+        <service android:name="com.android.adservices.measurement.MeasurementService"
+                 android:exported="true"
+                 android:visibleToInstantApps="false"
+                 android:process=".adservices">
+            <intent-filter android:priority="1">
+                <action android:name="android.adservices.MEASUREMENT_SERVICE"/>
+            </intent-filter>
+        </service>
+
+        <service android:name="com.android.adservices.common.AdServicesCommonService"
+                 android:exported="true"
+                 android:visibleToInstantApps="false"
+                 android:process=".adservices">
+            <intent-filter android:priority="1">
+                <action android:name="android.adservices.AD_SERVICES_COMMON_SERVICE"/>
+            </intent-filter>
+        </service>
+
+        <!-- Daily maintenance Job. -->
+        <service android:name="com.android.adservices.service.MaintenanceJobService"
+                 android:permission="android.permission.BIND_JOB_SERVICE"
+                 android:process=".adservices">
+        </service>
+
+        <!-- Epoch computation Job. -->
+        <service android:name="com.android.adservices.service.topics.EpochJobService"
+                 android:permission="android.permission.BIND_JOB_SERVICE"
+                 android:process=".adservices">
+        </service>
+
+        <!-- Mdd background Job. -->
+        <service android:name="com.android.adservices.download.MddJobService"
+                 android:permission="android.permission.BIND_JOB_SERVICE"
+                 android:process=".adservices">
+        </service>
+
+        <!-- Encryption key fetch job. -->
+        <service android:name="com.android.adservices.service.encryptionkey.EncryptionKeyJobService"
+                 android:permission="android.permission.BIND_JOB_SERVICE"
+                 android:process=".adservices">
+        </service>
+
+        <!-- Enable Notification Job. -->
+        <service android:name="com.android.adservices.service.common.ConsentNotificationJobService"
+                 android:permission="android.permission.BIND_JOB_SERVICE"
+                 android:process=".adservices">
+        </service>
+
+        <!-- Measurement event main report upload job. -->
+        <service
+            android:name="com.android.adservices.service.measurement.reporting.EventReportingJobService"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:process=".adservices">
+        </service>
+
+        <!-- Measurement debug report upload job. -->
+        <service android:name=
+                     "com.android.adservices.service.measurement.reporting.DebugReportingJobService"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:process=".adservices">
+        </service>
+
+        <!-- Measurement verbose debug report upload job. -->
+        <service android:name=
+              "com.android.adservices.service.measurement.reporting.VerboseDebugReportingJobService"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:process=".adservices">
+        </service>
+
+        <!-- Measurement event fallback report upload job. -->
+        <service android:name=
+                     "com.android.adservices.service.measurement.reporting.EventFallbackReportingJobService"
+                 android:permission="android.permission.BIND_JOB_SERVICE"
+                 android:process=".adservices">
+        </service>
+
+        <!-- Measurement aggregate main report upload job. -->
+        <service android:name=
+                     "com.android.adservices.service.measurement.reporting.AggregateReportingJobService"
+                 android:permission="android.permission.BIND_JOB_SERVICE"
+                 android:process=".adservices">
+        </service>
+
+        <!-- Measurement aggregate fallback report upload job. -->
+        <service android:name=
+                     "com.android.adservices.service.measurement.reporting.AggregateFallbackReportingJobService"
+                 android:permission="android.permission.BIND_JOB_SERVICE"
+                 android:process=".adservices">
+        </service>
+
+        <!-- Measurement Attribution Job.-->
+        <service android:name=
+                     "com.android.adservices.service.measurement.attribution.AttributionJobService"
+                 android:permission="android.permission.BIND_JOB_SERVICE"
+                 android:process=".adservices">
+        </service>
+        <!-- Measurement Attribution Fallback Job.-->
+        <service android:name=
+                     "com.android.adservices.service.measurement.attribution.AttributionFallbackJobService"
+                 android:permission="android.permission.BIND_JOB_SERVICE"
+                 android:process=".adservices">
+        </service>
+
+        <!-- Deletion Job.-->
+        <service android:name=
+                     "com.android.adservices.service.measurement.DeleteExpiredJobService"
+                 android:permission="android.permission.BIND_JOB_SERVICE"
+                 android:process=".adservices">
+        </service>
+
+        <!-- Measurement Deletion Uninstalled Apps Job. -->
+        <service android:name=
+                     "com.android.adservices.service.measurement.DeleteUninstalledJobService"
+                 android:permission="android.permission.BIND_JOB_SERVICE"
+                 android:process=".adservices">
+        </service>
+
+        <!-- FLEDGE Background Fetch Job -->
+        <service android:name=
+                     "com.android.adservices.service.customaudience.BackgroundFetchJobService"
+                 android:permission="android.permission.BIND_JOB_SERVICE"
+                 android:process=".adservices">
+        </service>
+
+        <!-- FLEDGE Schedule Custom Audience Update Job -->
+        <service android:name=
+                     "com.android.adservices.service.customaudience.ScheduleCustomAudienceUpdateJobService"
+                 android:permission="android.permission.BIND_JOB_SERVICE"
+                 android:process=".adservices">
+        </service>
+
+        <!-- FLEDGE Ad selection debug report sender Job -->
+        <service android:name=
+                     "com.android.adservices.service.adselection.DebugReportSenderJobService"
+                 android:permission="android.permission.BIND_JOB_SERVICE"
+                 android:process=".adservices">
+        </service>
+
+        <!-- FLEDGE Protected Signals periodic encoding job -->
+        <service android:name=
+                     "com.android.adservices.service.signals.PeriodicEncodingJobService"
+                 android:permission="android.permission.BIND_JOB_SERVICE"
+                 android:process=".adservices">
+        </service>
+
+        <!-- FLEDGE KAnon sign join background job -->
+        <service android:name=
+                     "com.android.adservices.service.kanon.KAnonSignJoinBackgroundJobService"
+                 android:permission="android.permission.BIND_JOB_SERVICE"
+                 android:process=".adservices">
+        </service>
+
+        <!-- FLEDGE Background Key Fetch Job -->
+        <service android:name=
+                     "com.android.adservices.service.adselection.encryption.BackgroundKeyFetchJobService"
+                 android:permission="android.permission.BIND_JOB_SERVICE"
+                 android:process=".adservices">
+        </service>
+
+        <!-- Measurement Registration Job -->
+        <service android:name=
+                     "com.android.adservices.service.measurement.registration.AsyncRegistrationQueueJobService"
+                 android:permission="android.permission.BIND_JOB_SERVICE"
+                 android:process=".adservices">
+        </service>
+        <!-- Measurement Registration Fallback Job -->
+        <service android:name=
+                     "com.android.adservices.service.measurement.registration.AsyncRegistrationFallbackJobService"
+                 android:permission="android.permission.BIND_JOB_SERVICE"
+                 android:process=".adservices">
+        </service>
+
+        <!-- Measurement Verbose Debug Reporting Fallback Job. -->
+        <service android:name=
+                     "com.android.adservices.service.measurement.reporting.VerboseDebugReportingFallbackJobService"
+                 android:permission="android.permission.BIND_JOB_SERVICE"
+                 android:process=".adservices">
+        </service>
+
+        <!-- Measurement Debug Reporting Fallback Job. -->
+        <service android:name=
+                     "com.android.adservices.service.measurement.reporting.DebugReportingFallbackJobService"
+                 android:permission="android.permission.BIND_JOB_SERVICE"
+                 android:process=".adservices">
+        </service>
+
+        <!-- Cobalt Logging Job -->
+        <service android:name="com.android.adservices.cobalt.CobaltJobService"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:process=".adservices">
+        </service>
+
+        <provider
+            android:name=
+                "com.android.adservices.service.measurement.attribution.TriggerContentProvider"
+            android:authorities="com.android.ext.adservices.provider.trigger"
+            android:exported="false"
+            android:process=".adservices"
+        />
+
+        <provider
+            android:name=
+                "com.android.adservices.service.measurement.registration.AsyncRegistrationContentProvider"
+            android:authorities="com.android.ext.adservices.provider.asyncregistration"
+            android:exported="false"
+            android:process=".adservices"
+        />
+
+        <provider
+            android:name="com.android.adservices.service.common.AdServicesInternalProvider"
+            android:authorities="com.android.ext.adservices.provider.internal"
+            android:exported="false"
+            android:process=".adservices"
+        />
+
+        <!-- Boot completed receiver registers package changed event receivers. -->
+        <receiver android:name="com.android.adservices.service.common.AdExtBootCompletedReceiver"
+                  android:enabled="@bool/isAdExtBootCompletedReceiverEnabled"
+                  android:exported="true"
+                  android:process=".adservices">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
+
+        <!-- On S-, this class handles intents from the system. -->
+        <receiver android:name="com.android.adservices.service.common.PackageChangedReceiver"
+                  android:enabled="false"
+                  android:exported="true"
+                  android:process=".adservices">
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_FULLY_REMOVED"/>
+                <action android:name="android.intent.action.PACKAGE_DATA_CLEARED"/>
+                <data android:scheme="package"/>
+            </intent-filter>
+        </receiver>
+
+        <!-- Used and present only on S- -->
+        <uses-library android:name="android.ext.adservices" android:required="false"/>
+    </application>
+</manifest>

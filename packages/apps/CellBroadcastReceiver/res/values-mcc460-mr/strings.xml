@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="alerts_header_summary" msgid="4824339599027800065">"नैसर्गिक आपत्ती आल्यास, डिव्हाइसला निर्वासनाशी संबंधित चेतावणीसारखी सूचना मिळू शकते. \n आपत्तीशी संबंधित चेतावणी मेसेज पाठवणारी संस्था (जसे की भूकंप अ‍ॅडमिनिस्ट्रेटर), नेटवर्क ऑपरेटर आणि डिव्हाइस उत्पादक यांनी ही सेवा पुरवली आहे. \nडिव्हाइस खराब झाल्यास किंवा खराब नेटवर्क असलेल्या ठिकाणी सूचनेशी संबंधित माहिती मिळणार नाही."</string>
+</resources>

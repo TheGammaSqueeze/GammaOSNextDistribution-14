@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2012-2016 The CyanogenMod Project
+     Copyright (C) 2017-2025 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="flip_action_title">Akce při otočení zařízení</string>
+    <string name="shake_action_title">Akce při zatřesení zařízením</string>
+    <string-array name="action_setting_entries">
+        <item>Odložit</item>
+        <item>Zamítnout</item>
+        <item>Nic</item>
+    </string-array>
+    <string name="firing_alarms_timers_channel">Výstražné budíky a\u00a0časovače</string>
+    <string name="alarm_missed_channel">Zmeškané budíky</string>
+    <string name="alarm_snooze_channel">Odložené budíky</string>
+    <string name="alarm_upcoming_channel">Nadcházející budíky</string>
+    <string name="stopwatch_channel">Stopky</string>
+    <string name="timer_channel">Časovač</string>
+    <string name="add_label">Přidat štítek</string>
+    <string name="dialog_permissions_title">Oprávnění</string>
+    <string name="dialog_permissions_ask">Vždy se ptát</string>
+    <string name="dialog_permissions_dismiss">Zamítnout</string>
+    <string name="dialog_permissions_settings">Nastavení</string>
+    <string name="dialog_permissions_power_off_alarm">Bez tohoto oprávnění se vaše zařízení nebude moct zapnout, aby aktivovalo budík</string>
+    <string name="dialog_permissions_no_permission">Požadovaná oprávnění byla zamítnuta, povolte je v aplikaci Nastavení</string>
+    <string name="dialog_permissions_post_notifications">Tato aplikace spoléhá na oznámení. Bez nich nemůže být spuštěna!</string>
+    <string name="selected">Zvoleno</string>
+    <string name="more_options">Víc možností</string>
+    <string name="widget_choice_title">Vyberte si svůj styl</string>
+    <string name="widget_name_transparent">Bez pozadí</string>
+    <string name="widget_name_solid">S pozadím </string>
+    <string name="screensaver_change_settings">Nastavení</string>
+</resources>

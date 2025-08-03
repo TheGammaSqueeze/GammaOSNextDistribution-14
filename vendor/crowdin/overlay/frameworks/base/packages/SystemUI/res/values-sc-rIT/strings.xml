@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/**
+ * Copyright (c) 2009, The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label">IU de su sistema</string>
+    <string name="battery_low_percent_format">abarrat <xliff:g id="percentage">%s</xliff:g></string>
+    <string name="battery_saver_confirmation_ok">Ativa</string>
+    <string name="battery_saver_start_action">Ativa</string>
+    <string name="battery_saver_dismiss_action">No, gràtzias</string>
+    <string name="status_bar_settings_auto_rotation">Rotatzione automàtica de s\'ischermu</string>
+    <string name="usb_device_permission_prompt">Boles permìtere a <xliff:g id="application" example="Usb Mega Player">%1$s</xliff:g> de atzèdere a <xliff:g id="usb_device" example="USB Headphones">%2$s</xliff:g>?</string>
+    <string name="usb_device_permission_prompt_warn">Boles permìtere a <xliff:g id="application" example="Usb Mega Player">%1$s</xliff:g> de atzèdere a <xliff:g id="usb_device" example="USB Headphones">%2$s</xliff:g>?\n Custa aplicatzione no est istada autorizada a registrare ma diat pòdere caturare àudio cun custu dispositivu USB.</string>
+    <string name="usb_audio_device_permission_prompt_title">Boles permìtere a <xliff:g id="application" example="Usb Mega Player">%1$s</xliff:g> de atzèdere a <xliff:g id="usb_device" example="USB Headphones">%2$s</xliff:g>?</string>
+    <string name="usb_accessory_permission_prompt">Boles permìtere a <xliff:g id="application" example="Usb Mega Player">%1$s</xliff:g> de atzèdere a <xliff:g id="usb_accessory" example="USB Dock">%2$s</xliff:g>?</string>
+    <string name="usb_device_confirm_prompt_warn">Boles abàrrere &lt;xliff:g id="application" example="Usb Mega Player"&gt; pro gestire &lt;xliff:g id="usb_device" example="USB Headphones"&gt;%2$s&lt;/xliff:g&gt;?\n Custa aplicatzione no est istada autorizada a registrare ma diat pòdere caturare àudio cun custu dispositivu USB.</string>
+    <string name="usb_accessory_uri_prompt">Peruna aplicatzione de is installadas funtzionat cun custu atzessòriu USB. Iscoberi àteru de custu atzessòriu in <xliff:g id="url">%1$s</xliff:g></string>
+    <string name="title_usb_accessory">Atzessòriu USB</string>
+    <string name="label_view">Visualiza</string>
+    <string name="usb_debugging_title">Permìtere sa curretzione USB?</string>
+    <string name="usb_debugging_message">S\'imprenta de pòddighe de sa crae RSA de s\'elaboradore est:\n<xliff:g id="fingerprint">%1$s</xliff:g></string>
+    <string name="usb_debugging_always">Permite semper dae custu elaboradore</string>
+    <string name="usb_debugging_allow">Permite</string>
+    <string name="usb_debugging_secondary_user_title">Curretzione USB non permìtida</string>
+    <string name="wifi_debugging_title">Boles permìtere sa curretzione de errores wireless in custa rete?</string>
+    <string name="wifi_debugging_message">Nòmine de sa rete (SSID)\n<xliff:g id="ssid" example="My wifi">%1$s</xliff:g>\n\nWi\u2011Fi Indiritzu (BSSID)\n<xliff:g id="bssid" example="AB:CD:EF:12:34:56">%2$s</xliff:g></string>
+    <string name="wifi_debugging_always">Permite semper in custa rete</string>
+    <string name="wifi_debugging_allow">Permite</string>
+    <string name="wifi_debugging_secondary_user_title">Curretzione de errores wireless non permìtida</string>
+    <string name="remote_input_image_insertion_text">at imbiadu un\'immàgine</string>
+    <string name="screenshot_saving_title">Sarvende s\'istantànea\u2026</string>
+    <string name="screenshot_dismiss_description">Iscarta sa catura de ischermu</string>
+    <string name="screenshot_preview_description">Previsualizatzione de sa catura de ischermu</string>
+    <string name="screenrecord_title">Registratzione de s\'ischermu</string>
+    <string name="screenrecord_background_processing_label">Esecutende sa registratzione de s\'ischermu</string>
+    <string name="screenrecord_permission_dialog_title">Boles cumintzare sa registratzione?</string>
+    <string name="screenrecord_audio_label">Registra àudio</string>
+    <string name="screenrecord_device_audio_label">Àudio de su dispositivu</string>
+    <string name="screenrecord_device_audio_description">Sonu dae su dispositivu, comente mùsica, mutidas e tonos</string>
+    <string name="screenrecord_mic_label">Micròfonu</string>
+    <string name="screenrecord_device_audio_and_mic_label">Àudio e micròfonu de su dispositivu</string>
+    <string name="screenrecord_ongoing_screen_only">Registratzione de s\'ischermu</string>
+    <string name="screenrecord_ongoing_screen_and_audio">Registratzione de s\'ischermu e de s\'àudio</string>
+    <string name="screenrecord_taps_label">Ammustra is tocos in s\'ischermu</string>
+    <string name="screenrecord_start_error">Errore in s\'aviada de sa registratzione de s\'ischermu</string>
+    <string name="immersive_cling_positive">AB</string>
+    <string name="accessibility_back">In segus</string>
+    <string name="accessibility_home">Pàgina printzipale</string>
+    <string name="accessibility_menu">Menù</string>
+    <string name="accessibility_recent">Panoràmica</string>
+    <string name="accessibility_camera_button">Fotocàmera</string>
+    <string name="accessibility_phone_button">Telèfonu</string>
+    <string name="accessibility_voice_assist_button">Assistèntzia de boghe</string>
+    <string name="cancel">Annulla</string>
+    <string name="biometric_dialog_empty_space_description">Toca pro annullare s\'autenticatzione</string>
+    <string name="biometric_dialog_authenticated">Autenticadu</string>
+    <string name="biometric_dialog_use_pin">Imprea PIN</string>
+    <string name="biometric_dialog_use_pattern">Imprea ischema</string>
+    <string name="biometric_dialog_use_password">Imprea crae</string>
+    <string name="biometric_dialog_wrong_pin">PIN isballiadu</string>
+    <string name="biometric_dialog_wrong_pattern">Ischema isballiadu</string>
+    <string name="biometric_dialog_wrong_password">Crae isballiada</string>
+    <string name="biometric_dialog_credential_too_many_attempts">Tropu tentativos isballiados.\nTorra a proare a pustis de <xliff:g id="number">%d</xliff:g> segundos.</string>
+    <string name="biometric_dialog_credential_attempts_before_wipe">Torra a proare. Tentativu <xliff:g id="attempts" example="1">%1$d</xliff:g> de <xliff:g id="max_attempts" example="3">%2$d</xliff:g>.</string>
+    <string name="biometric_dialog_last_attempt_before_wipe_dialog_title">Is datos tuos ant a èssere cantzellados</string>
+    <string name="biometric_dialog_last_pattern_attempt_before_wipe_device">Si pones un\'ischema isballiadu a su tentativu imbeniente, is datos de custu dispositivu ant a èssere cantzellados.</string>
+    <string name="biometric_dialog_last_pin_attempt_before_wipe_device">Si pones unu PIN isballiadu a su tentativu imbeniente, is datos de custu dispositivu ant a èssere cantzellados.</string>
+    <string name="biometric_dialog_last_password_attempt_before_wipe_device">Si pones una crae isballiada a su tentativu imbeniente, is datos de custu dispositivu ant a èssere cantzellados.</string>
+    <string name="biometric_dialog_last_pattern_attempt_before_wipe_user">Si pones un\'ischema isballiadu a su tentativu imbeniente, custa utèntzia at a èssere cantzellada.</string>
+    <string name="biometric_dialog_last_pin_attempt_before_wipe_user">Si pones unu PIN isballiadu a su tentativu imbeniente, custa utèntzia at a èssere cantzellada.</string>
+    <string name="biometric_dialog_last_password_attempt_before_wipe_user">Si pones una crae isballiada a su tentativu imbeniente, custa utèntzia at a èssere cantzellada.</string>
+    <string name="biometric_dialog_last_pattern_attempt_before_wipe_profile">Si pones un\'ischema isballiadu a su tentativu imbeniente, su profilu de traballu e is datos ant a èssere cantzellados dae su dispositivu.</string>
+    <string name="biometric_dialog_last_pin_attempt_before_wipe_profile">Si pones unu PIN isballiadu a su tentativu imbeniente, su profilu de traballu e is datos ant a èssere cantzellados dae su dispositivu.</string>
+    <string name="biometric_dialog_last_password_attempt_before_wipe_profile">Si pones una crae isballiada a su tentativu imbeniente, su profilu de traballu e is datos s\'ant a cantzellare dae su dispositivu.</string>
+    <string name="biometric_re_enroll_dialog_confirm">Cunfigura</string>
+    <string name="accessibility_bluetooth_connected">Bluetooth collegadu.</string>
+    <string name="accessibility_battery_unknown">Càrriga de sa bateria disconnota.</string>
+    <string name="accessibility_bluetooth_name">Collegadu a <xliff:g id="bluetooth" example="Car Audio">%s</xliff:g>.</string>
+    <string name="accessibility_not_connected">Non collegadu.</string>
+    <string name="data_connection_roaming">Àteros gestores</string>
+    <string name="accessibility_airplane_mode">Modalidade aèreu.</string>
+    <string name="accessibility_battery_level">Bateria <xliff:g id="number">%d</xliff:g> pro chentu.</string>
+    <string name="accessibility_tty_enabled">TeleTypewriter ativadu.</string>
+    <string name="accessibility_ringer_vibrate">Tonu de mutida a vibratzione.</string>
+    <string name="accessibility_ringer_silent">Tonu de mutida a sa muda.</string>
+    <string name="accessibility_casting">@string/quick_settings_casting</string>
+    <string name="accessibility_desc_notification_shade">Àrea de notìficas.</string>
+    <string name="accessibility_desc_quick_settings">Impostatziones lestras.</string>
+    <string name="accessibility_desc_lock_screen">Bloca s\'ischermu.</string>
+    <string name="accessibility_desc_close">Serra</string>
+    <string name="accessibility_quick_settings_bluetooth_on">Bluetooth ativadu.</string>
+    <string name="accessibility_quick_settings_alarm">Isvèllia impostada pro <xliff:g id="time" example="Wed 3:30 PM">%s</xliff:g>.</string>
+    <string name="accessibility_quick_settings_more_time">Prus tempus.</string>
+    <string name="accessibility_quick_settings_less_time">Prus pagu tempus.</string>
+    <string name="accessibility_casting_turned_off">Sa trasmissione de s\'ischermu s\'est firmada.</string>
+    <string name="accessibility_brightness">Lugore de s\'ischermu</string>
+    <string name="data_usage_disabled_dialog_title">Is datos sunt in pasu</string>
+    <string name="data_usage_disabled_dialog_enable">Torra a cumintzare</string>
+    <string name="accessibility_location_active">Rechesta de positzione ativa</string>
+    <string name="accessibility_clear_all">Lìmpia totu is notìficas.</string>
+    <string name="accessibility_rotation_lock_on_landscape">S\'ischermu est blocadu in orizontale.</string>
+    <string name="accessibility_rotation_lock_on_portrait">S\'ischermu est blocadu in verticale.</string>
+    <string name="dessert_case">Càscia de cosa durche</string>
+    <string name="ethernet_label">Ethernet</string>
+    <string name="quick_settings_bluetooth_label">Bluetooth</string>
+    <string name="quick_settings_bluetooth_detail_empty_text">Non b\'at dispositivos de assotziare a disponimentu</string>
+    <string name="quick_settings_bluetooth_device_connected">Connètidu</string>
+    <string name="quick_settings_rotation_unlocked_label">Rotatzione automàtica</string>
+    <string name="accessibility_quick_settings_rotation">Rotatzione automàtica de s\'ischermu</string>
+    <string name="quick_settings_location_label">Positzione</string>
+    <string name="quick_settings_media_device_label">Dispositivu multimediale</string>
+    <string name="quick_settings_user_title">Utente</string>
+    <string name="quick_settings_wifi_label">Wi-Fi</string>
+    <string name="quick_settings_wifi_detail_empty_text">Peruna rete Wi-Fi a disponimentu</string>
+    <string name="quick_settings_casting">Trasmitende</string>
+    <string name="quick_settings_cast_device_default_name">Dispositivu chene nùmene</string>
+    <string name="quick_settings_cast_detail_empty_text">Perunu dispositivu a disponimentu</string>
+    <string name="quick_settings_brightness_dialog_title">Lugore</string>
+    <string name="quick_settings_done">Fatu</string>
+    <string name="quick_settings_close_user_panel">Serra</string>
+    <string name="quick_settings_connected">Connètidu</string>
+    <string name="quick_settings_connecting">Colleghende·si...</string>
+    <string name="quick_settings_hotspot_label">Puntu de atzessu Wi-Fi</string>
+    <string name="quick_settings_flashlight_label">Flash</string>
+    <string name="quick_settings_flashlight_camera_in_use">Càmera impreada</string>
+    <string name="quick_settings_cellular_detail_data_usage">Impreu de datos</string>
+    <string name="quick_settings_cellular_detail_remaining_data">Datos abarrados</string>
+    <string name="quick_settings_cellular_detail_over_limit">Lìmite barigadu</string>
+    <string name="quick_settings_cellular_detail_data_used"><xliff:g id="data_used" example="2.0 GB">%s</xliff:g> impreados</string>
+    <string name="quick_settings_cellular_detail_data_limit"><xliff:g id="data_limit" example="2.0 GB">%s</xliff:g> lìmite</string>
+    <string name="quick_settings_cellular_detail_data_warning"><xliff:g id="data_limit" example="2.0 GB">%s</xliff:g> avisu</string>
+    <string name="zen_priority_customize_button">Personaliza</string>
+    <string name="zen_silence_introduction">Custu blocat TOTU is sonos, vibratziones, incluidu dae isvèllias, mùsica, vìdeos, e giogos.</string>
+    <string name="do_disclosure_generic">Custu dispositivu est de propiedade de s\'organizatzione tua</string>
+    <string name="do_disclosure_with_name">Su dispositivu est de <xliff:g id="organization_name" example="Foo, Inc.">%s</xliff:g></string>
+    <string name="phone_hint">Trìsina dae s\'icona pro su telèfonu</string>
+    <string name="voice_hint">Trìsina dae s\'icona pro s\'assistèntzia de boghe</string>
+    <string name="camera_hint">Trìsina dae s\'icona pro sa telecàmera</string>
+    <string name="interruption_level_none_with_warning">Totu a sa muda. Custu at a pònnere a sa muda fintzas is letores de ischermu.</string>
+    <string name="interruption_level_none">Totu a sa muda</string>
+    <string name="interruption_level_priority">Prioridade isceti</string>
+    <string name="interruption_level_alarms">Isvèllias isceti</string>
+    <string name="interruption_level_none_twoline">Totale\nsilèntziu</string>
+    <string name="interruption_level_priority_twoline">Prioridade\nisceti</string>
+    <string name="interruption_level_alarms_twoline">Isvèllias\nisceti</string>
+    <string name="cta_tile_button_to_open_widget_editor">Personaliza</string>
+    <string name="button_to_remove_widget">Boga</string>
+    <string name="hub_mode_editing_exit_button_text">Fatu</string>
+    <string name="accessibility_multi_user_switch_switcher">Càmbia utente</string>
+    <string name="guest_exit_guest_dialog_message">Totu is aplicatziones e datos in custa sessione ant a èssere cantzellados.</string>
+    <string name="guest_wipe_session_message">Boles sighire sa sessione tua?</string>
+    <string name="guest_wipe_session_wipe">Torra a cumintzare</string>
+    <string name="guest_wipe_session_dontwipe">Eja, sighi</string>
+    <string name="user_remove_user_remove">Boga</string>
+    <string name="media_projection_dialog_title">Boles aviare sa registratzione o sa trasmissione cun <xliff:g id="app_seeking_permission" example="Hangouts">%s</xliff:g>?</string>
+    <string name="media_projection_dialog_warning"><xliff:g id="app_seeking_permission" example="Hangouts">%s</xliff:g> at a tènnere atzessu a totu is informatziones chi sunt visìbiles in s\'ischermu o reproduidas dae su dispositivu durante sa registratzione o sa trasmissione. Custu includet informatziones comente crae, detàllios de pagamentos, messàgios e àudio chi reprodues.</string>
+    <string name="media_projection_sys_service_dialog_title">Boles aviare sa registratzione o sa trasmissione?</string>
+    <string name="media_projection_sys_service_dialog_warning">Su servìtziu chi frunit custa funtzione at a tènnere atzessu a totu is informatziones chi sunt visìbiles in s\'ischermu o reproduidas dae su dispositivu durante sa registratzione o sa trasmissione. Custu includit informatziones comente crae, detàllios de pagamentos, messàgios e àudio chi reprodues.</string>
+    <string name="clear_all_notifications_text">Cantzella·nche totu</string>
+    <string name="manage_notifications_history_text">Cronologia</string>
+    <string name="notification_section_header_incoming">Nou</string>
+    <string name="notification_section_header_alerting">Notìficas</string>
+    <string name="notification_section_header_conversations">Arresonos</string>
+    <string name="media_projection_action_text">Cumintza immoe</string>
+    <string name="empty_shade_text">Peruna notìfica</string>
+    <string name="quick_settings_disclosure_management_monitoring">S\'organizatzione tua est mere de custu dispositivu e podet monitorare su tràficu de rete</string>
+    <string name="quick_settings_disclosure_named_management_monitoring"><xliff:g id="organization_name" example="Foo, Inc.">%1$s</xliff:g> est mere de custu dispositivu e podet monitorare su tràficu de rete</string>
+    <string name="quick_settings_disclosure_management">Custu dispositivu est de propiedade de s\'organizatzione tua</string>
+    <string name="quick_settings_disclosure_named_management">Su dispositivu est de <xliff:g id="organization_name" example="Foo, Inc.">%1$s</xliff:g></string>
+    <string name="quick_settings_disclosure_monitoring">Sa rete diat pòdere èssere controllada</string>
+    <string name="monitoring_subtitle_vpn">VPN</string>
+    <string name="monitoring_description_management_network_logging">S\'amministradore tuo at ativadu su registru de rete, chi controllat su tràficu in su dispositivu tuo.</string>
+    <string name="legacy_vpn_name">VPN</string>
+    <string name="zen_mode_and_condition"><xliff:g id="zen_mode" example="Priority interruptions only">%1$s</xliff:g>. <xliff:g id="exit_condition" example="For one hour">%2$s</xliff:g></string>
+    <string name="volume_panel_dialog_settings_button">Impostatziones</string>
+    <string name="screen_pinning_exposes_personal_data">Is datos personales diant pòdere èssere atzessìbiles (comente cuntatos e messàgios de posta eletrònica).</string>
+    <string name="screen_pinning_positive">AB</string>
+    <string name="screen_pinning_negative">No, gràtzias</string>
+    <string name="screen_pinning_exit">Aplicatzione isblocada</string>
+    <string name="stream_alarm">Isvèllia</string>
+    <string name="stream_bluetooth_sco">Bluetooth</string>
+    <string name="media_output_label_title">Reproduende <xliff:g id="label" example="Music Player">%s</xliff:g> in</string>
+    <string name="system_ui_tuner">Afinadore de s\'IU de sistema</string>
+    <string name="status_bar">Istanca de istadu</string>
+    <string name="enable_demo_mode">Ativa sa modalidade demo</string>
+    <string name="show_demo_mode">Mustra sa modalidade demo</string>
+    <string name="status_bar_ethernet">Ethernet</string>
+    <string name="status_bar_alarm">Isvèllia</string>
+    <string name="status_bar_work">Profilu de traballu</string>
+    <string name="status_bar_airplane">Modalidade aèreu</string>
+    <string name="zen_alarm_warning_indef">No as a intèndere s\'isvèllia imbeniente <xliff:g id="when" example="at 7:00 AM">%1$s</xliff:g> a no èssere chi disatives custu in antis de s\'ora</string>
+    <string name="zen_alarm_warning">No as a intèndere s\'isvèllia imbeniente <xliff:g id="when" example="at 7:00 AM">%1$s</xliff:g></string>
+    <string name="alarm_template">a is <xliff:g id="when" example="7:00 AM">%1$s</xliff:g></string>
+    <string name="alarm_template_far">su <xliff:g id="when" example="Fri 7:00 AM">%1$s</xliff:g></string>
+    <string name="accessibility_status_bar_hotspot">Puntu de atzessu Wi-Fi</string>
+    <string name="accessibility_managed_profile">Profilu de traballu</string>
+    <string name="tuner_warning_title">Ispàssiu isceti pro calicuna persone</string>
+    <string name="tuner_warning">S\'afinadore de s\'IU de sistema ti dat maneras in prus pro cambiare e personalizare s\'interfache utente Android. Custas funtzionalidades isperimentales si podent cambiare, segare o isparèssere in versiones benidoras. Sighi cun coidadu.</string>
+    <string name="tuner_persistent_warning">Custas funtzionalidades isperimentales si podent cambiare, segare o isparèssere in versiones benidoras. Sighi cun coidadu.</string>
+    <string name="got_it">AB</string>
+    <string name="tuner_toast">Augùrios! S\'afinadore de s\'IU de sistema est istadu agiuntu a Impostatziones</string>
+    <string name="remove_from_settings">Boga·nche·ddu dae Impostatziones</string>
+    <string name="remove_from_settings_prompt">Bogare s\'afinadore de s\'IU de sistema dae Impostatziones e no impreare prus totu custas funtzionalidades?\"</string>
+    <string name="enable_bluetooth_title">Ativare su Bluetooth?</string>
+    <string name="enable_bluetooth_message">Pro collegare su tecladu cun sa tauledda, in antis de totu depes ativare su Bluetooth.</string>
+    <string name="enable_bluetooth_confirmation_ok">Ativa</string>
+    <string name="inline_done_button">Fatu</string>
+    <string name="inline_ok_button">Àplica</string>
+    <string name="notification_channel_summary_low">Perunu sonu o vibratzione</string>
+    <string name="notification_priority_title">Prioridade</string>
+    <string name="notification_more_settings">Àteras cunfiguratziones</string>
+    <string name="notification_app_settings">Personaliza</string>
+    <string name="keyboard_key_home">Pàgina printzipale</string>
+    <string name="keyboard_key_back">In segus</string>
+    <string name="keyboard_key_move_home">Pàgina printzipale</string>
+    <string name="keyboard_shortcut_group_system_home">Pàgina printzipale</string>
+    <string name="keyboard_shortcut_group_system_back">In segus</string>
+    <string name="keyboard_shortcut_group_system_notifications">Notìficas</string>
+    <string name="tuner_time">Ora</string>
+    <string name="accessibility_qs_edit_tile_start_add">Agiunghe casella</string>
+    <string name="tuner_menu">Menù</string>
+    <string name="app_info">Informatziones de s\'aplicatzione</string>
+    <string name="auto_data_switch_dialog_negative_button">No, gràtzias</string>
+    <string name="slice_permission_allow">Permite</string>
+    <string name="slice_permission_deny">Nega</string>
+    <string name="no_auto_saver_action">No, gràtzias</string>
+    <string name="accessibility_magnification_done">Fatu</string>
+    <string name="accessibility_floating_button_action_remove_menu">Boga</string>
+    <string name="controls_dialog_remove">Boga</string>
+    <string name="controls_settings_dialog_neutral_button">No, gràtzias</string>
+    <string name="controls_media_dismiss_button">Cua</string>
+    <string name="controls_media_resume">Torra a cumintzare</string>
+    <string name="controls_media_settings_button">Impostatziones</string>
+    <string name="controls_media_playing_item_description"><xliff:g id="song_name" example="Daily mix">%1$s</xliff:g> de <xliff:g id="artist_name" example="Various artists">%2$s</xliff:g> s\'est reproduende dae <xliff:g id="app_label" example="Spotify">%3$s</xliff:g></string>
+    <string name="controls_media_button_play">Reprodue</string>
+    <string name="controls_media_smartspace_rec_title">Reprodue</string>
+    <string name="controls_media_smartspace_rec_item_description">Reprodue <xliff:g id="song_name" example="Daily mix">%1$s</xliff:g> de <xliff:g id="artist_name" example="Various artists">%2$s</xliff:g> dae <xliff:g id="app_label" example="Spotify">%3$s</xliff:g></string>
+    <string name="controls_media_smartspace_rec_item_no_artist_description">Reprodue <xliff:g id="song_name" example="Daily mix">%1$s</xliff:g> dae <xliff:g id="app_label" example="Spotify">%2$s</xliff:g></string>
+    <string name="mobile_data_connection_active">Connètidu</string>
+    <string name="qs_tile_request_dialog_add">Agiunghe casella</string>
+    <string name="clipboard_edit_text_done">Fatu</string>
+    <string name="rear_display_bottom_sheet_cancel">Annulla</string>
+    <string name="rear_display_accessibility_folded_animation">Dispositivu serràbile chi s\'est aberende</string>
+    <string name="call_from_work_profile_close">Annulla</string>
+    <string name="privacy_dialog_done_button">Fatu</string>
+    <string name="privacy_dialog_collapse_action">Cuntrae</string>
+</resources>

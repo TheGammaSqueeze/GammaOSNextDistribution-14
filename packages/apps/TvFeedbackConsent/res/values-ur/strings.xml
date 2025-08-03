@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="feedback_system_logs_title_text" msgid="8162964763101361628">"تمام آلہ لاگز شامل کریں (سسٹم اور ایپ)"</string>
+    <string name="feedback_system_logs_legal_text" msgid="4770068793128503597">"تمام سسٹم اور ایپ آلات لاگز کا اشتراک کرنے سے Google کو صارف نام، مقام، آلہ IDs اور نیٹ ورک کی معلومات جیسی تفصیلات بھیجی جا سکتی ہیں۔ Google تکنیکی مسائل حل کرنے اور سروسز کو بہتر بنانے کیلئے اس معلومات کا استعمال کرتا ہے۔ g.co/android/devicelogs پر مزید جانیں۔"</string>
+    <string name="feedback_bugreport_title_text" msgid="8863884817986711122">"بگ رپورٹ شامل کریں"</string>
+    <!-- String.format failed for translation -->
+    <!-- no translation found for feedback_bugreport_legal_display_text (4486929548753044585) -->
+    <skip />
+    <string name="next" msgid="3308587969183798652">"آگے جائیں"</string>
+    <string name="feedback_view_system_logs_button_text" msgid="1889709679017124924">"سسٹم لاگز دیکھیں"</string>
+    <string name="feedback_view_logs_dialog_title" msgid="1937861449450135462">"سسٹم لاگز"</string>
+    <string name="feedback_view_logs_dialog_body" msgid="2496560711853644250">"ان لاگز میں وہ معلومات ہوتی ہیں جن کی ہمیں آپ کے تاثرات کو حل کرنے کے لیے ضرورت پڑے گی۔"</string>
+    <string name="annotated_back_indicator_string" msgid="3197935392074998004">"واپس جانے کے لیے واپس جائیں بٹن دبائیں۔"</string>
+    <string name="loading" msgid="1709842456101615353">"معلومات لوڈ ہو رہی ہے"</string>
+</resources>

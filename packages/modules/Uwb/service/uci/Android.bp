@@ -1,0 +1,8 @@
+package {
+    default_team: "trendy_team_fwk_uwb",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+subdirs = [
+    "*",
+]

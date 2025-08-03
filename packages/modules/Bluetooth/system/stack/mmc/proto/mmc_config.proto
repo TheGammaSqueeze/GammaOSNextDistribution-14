@@ -1,0 +1,110 @@
+/*
+ * Copyright 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto3";
+
+package mmc;
+
+option optimize_for = LITE_RUNTIME;
+
+// union of Lc3 config and codec parameters
+message Lc3Param {
+  // encoder/decoder config
+  int32 dt_us = 1;
+  int32 sr_hz = 2;
+  int32 sr_pcm_hz = 3;
+
+  // encode/decode parameter
+  enum PcmFmt {
+    kLc3PcmFormatS16 = 0;
+    kLc3PcmFormatS24 = 1;
+  }
+
+  PcmFmt fmt = 4;
+  int32 stride = 5;
+}
+
+// corresponding to SBC_ENC_PARAMS
+message SbcEncoderParam {
+  enum SamplingFreq {
+    kSbcSf16000 = 0;
+    kSbcSf32000 = 1;
+    kSbcSf44100 = 2;
+    kSbcSf48000 = 3;
+  }
+
+  enum ChannelMode {
+    kSbcMono = 0;
+    kSbcDual = 1;
+    kSbcStereo = 2;
+    kSbcJointStereo = 3;
+  }
+
+  enum AllocationMethod {
+    kSbcLoudNess = 0;
+    kSbcSnr = 1;
+  }
+
+  // Default to be kSbcFormatGeneral for SBC if not assigned.
+  // Assigning to kSbcFormatMsbc for MSBC.
+  enum Format {
+    kSbcFormatGeneral = 0;
+    kSbcFormatMsbc = 1;
+  }
+
+  // encoder config
+  int32 num_of_subbands = 1;
+  int32 num_of_channels = 2;
+  int32 num_of_blocks = 3;
+  int32 bit_pool = 4;
+  int32 bit_rate = 5;
+  SamplingFreq sampling_freq = 6;
+  ChannelMode channel_mode = 7;
+  AllocationMethod allocation_method = 8;
+  Format format = 9;
+}
+
+message SbcDecoderParam {
+  // decoder config
+  int32 max_channels = 1;
+  int32 stride = 2;
+  bool enhanced = 3;
+}
+
+message AacEncoderParam {
+  // encoder config
+  int32 sample_rate = 1;
+  int32 channel_count = 2;
+  int32 bit_rate = 3;
+
+  // encode parameter
+  int32 bit_depth = 4;
+  int32 effective_frame_size = 5;
+}
+
+// union of different codec parameters
+message ConfigParam {
+  // This determines the codec type and whether it is an encoder or a decoder.
+  oneof codec_param {
+    // HFP LC3 encoder and decoder have same parameter type.
+    Lc3Param hfp_lc3_encoder_param = 1;
+    Lc3Param hfp_lc3_decoder_param = 2;
+    // HFP MSBC use SBC parameters
+    SbcEncoderParam hfp_msbc_encoder_param = 3;
+    SbcDecoderParam hfp_msbc_decoder_param = 4;
+    AacEncoderParam a2dp_aac_encoder_param = 5;
+  }
+}

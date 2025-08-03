@@ -1,0 +1,29 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_library {
+    name: "TvSliceLib",
+
+    srcs: [
+        "builders/*.java",
+        "SlicesConstants.java",
+    ],
+
+    static_libs: [
+        "androidx.slice_slice-builders",
+        "androidx.slice_slice-core",
+        "androidx.slice_slice-view",
+    ],
+
+    sdk_version: "system_current",
+    min_sdk_version: "21",
+
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.permission",
+    ],
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
+}

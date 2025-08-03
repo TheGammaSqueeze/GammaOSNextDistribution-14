@@ -1,0 +1,249 @@
+{
+  "description": "W2W same registrant test for trigger-aggregate-deduplicated debug report.",
+  "input": {
+    "web_sources": [
+      {
+        "timestamp": "1643235573000",
+        "registration_request": {
+          "source_origin": "android-app://example.1s1.test",
+          "source_type": "navigation",
+          "web_destination": "https://example.2d1.test",
+          "registrant": "example.1r1.test",
+          "source_params": [{
+            "attribution_src_url": "https://www.ad-tech1.test"
+          }]
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "debug_permission" : true,
+          "response": {
+            "Attribution-Reporting-Register-Source": {
+              "source_event_id": "1",
+              "web_destination": "https://example.2d1.test",
+              "aggregation_keys": {
+                "a": "0x159"
+              },
+              "filter_data": {
+                "x": ["y", "z"]
+              },
+              "debug_key": "347982378"
+            }
+          }
+        }]
+      }
+    ],
+    "web_triggers": [
+      // Will result in an event-level report.
+      {
+        "timestamp": "1643235575000",
+        "registration_request": {
+          "destination_origin": "https://example.2d1.test",
+          "registrant": "example.1r1.test",
+          "trigger_params": [{
+            "attribution_src_url": "https://www.ad-tech1.test"
+          }]
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "debug_permission" : true,
+          "response": {
+            "Attribution-Reporting-Register-Trigger": {
+              "event_trigger_data": [
+                {
+                  "trigger_data": "1",
+                  "deduplication_key": "1"
+                }
+              ],
+              "aggregatable_trigger_data": [
+                {
+                  "source_keys": ["a"],
+                  "key_piece": "0x400"
+                }
+              ],
+              "aggregatable_values": {
+                "a": 123
+              },
+              "aggregatable_deduplication_keys": [
+                // Selected dedup key.
+                {
+                  "deduplication_key": "1",
+                  "filters": {
+                    "x": ["y"]
+                  }
+                },
+                {
+                  "deduplication_key": "2",
+                  "filters": {
+                    "x": ["z"]
+                  }
+                }
+              ],
+              "debug_reporting": true,
+              "debug_key": "8971346781"
+            }
+          }
+        }]
+      },
+      // Will result in an event-level report.
+      {
+        "timestamp": "1643235576000",
+        "registration_request": {
+          "destination_origin": "https://example.2d1.test",
+          "registrant": "example.1r1.test",
+          "trigger_params": [{
+            "attribution_src_url": "https://www.ad-tech1.test"
+          }]
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "debug_permission" : true,
+          "response": {
+            "Attribution-Reporting-Register-Trigger": {
+              "event_trigger_data": [
+                {
+                  "trigger_data": "2",
+                  "deduplication_key": "2"
+                }
+              ],
+              "aggregatable_trigger_data": [
+                {
+                  "source_keys": ["a"],
+                  "key_piece": "0x400"
+                }
+              ],
+              "aggregatable_values": {
+                "a": 456
+              },
+              "aggregatable_deduplication_keys": [
+                // Selected dedup key, generate trigger-aggregate-deduplicated debug report.
+                {
+                  "deduplication_key": "1",
+                  "filters": {
+                    "x": ["y"]
+                  }
+                }
+              ],
+              "debug_reporting": true,
+              "debug_key": "8971346782"
+            }
+          }
+        }]
+      }
+    ]
+  },
+  "output": {
+    "event_level_results": [
+      {
+        "payload": {
+          "attribution_destination": "https://2d1.test",
+          "randomized_trigger_rate": 0.0024263,
+          "scheduled_report_time": "1643411973",
+          "source_event_id": "1",
+          "source_type": "navigation",
+          "trigger_data": "1",
+          "source_debug_key" : "347982378",
+          "trigger_debug_key" : "8971346781"
+        },
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/report-event-attribution",
+        "report_time": "1643411973000"
+      },
+      {
+        "payload": {
+          "attribution_destination": "https://2d1.test",
+          "randomized_trigger_rate": 0.0024263,
+          "scheduled_report_time": "1643411973",
+          "source_event_id": "1",
+          "source_type": "navigation",
+          "trigger_data": "2",
+          "source_debug_key" : "347982378",
+          "trigger_debug_key" : "8971346782"
+        },
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/report-event-attribution",
+        "report_time": "1643411973000"
+      }
+    ],
+    "debug_event_level_results": [
+      {
+        "payload": {
+          "attribution_destination": "https://2d1.test",
+          "randomized_trigger_rate": 0.0024263,
+          "scheduled_report_time": "1643411973",
+          "source_event_id": "1",
+          "source_type": "navigation",
+          "trigger_data": "1",
+          "source_debug_key" : "347982378",
+          "trigger_debug_key" : "8971346781"
+        },
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/debug/report-event-attribution",
+        "report_time": "1643235575000"
+      },{
+        "payload": {
+          "attribution_destination": "https://2d1.test",
+          "randomized_trigger_rate": 0.0024263,
+          "scheduled_report_time": "1643411973",
+          "source_event_id": "1",
+          "source_type": "navigation",
+          "trigger_data": "2",
+          "source_debug_key" : "347982378",
+          "trigger_debug_key" : "8971346782"
+        },
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/debug/report-event-attribution",
+        "report_time": "1643235576000"
+      }
+    ],
+    "aggregatable_results": [
+      {
+        "payload": {
+          "attribution_destination": "https://2d1.test",
+          "histograms": [
+            {
+              "key": "0x559",
+              "value": 123
+            }
+          ],
+          "source_debug_key" : "347982378",
+          "trigger_debug_key": "8971346781",
+          "source_registration_time": "1643155200"
+        },
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/report-aggregate-attribution",
+        "report_time": "1643239175000"
+      }
+    ],
+    "debug_aggregatable_results": [
+      {
+        "payload": {
+          "attribution_destination": "https://2d1.test",
+          "histograms": [
+            {
+              "key": "0x559",
+              "value": 123
+            }
+          ],
+          "source_debug_key" : "347982378",
+          "trigger_debug_key": "8971346781",
+          "source_registration_time": "1643155200"
+        },
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/debug/report-aggregate-attribution",
+        "report_time": "1643235575000"
+      }
+    ],
+    "verbose_debug_reports": [
+      {
+        "report_time": "1643235576000",
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/debug/verbose",
+        "payload": [
+          {
+            "type":"trigger-aggregate-deduplicated",
+            "body": {
+              "attribution_destination": "https://2d1.test",
+              "trigger_debug_key": "8971346782",
+              "source_debug_key": "347982378",
+              "source_event_id": "1",
+              "source_site": "android-app://1s1.test"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

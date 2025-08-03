@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (C) 2021 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<overlay>
+    <item target="layout/car_ui_alert_dialog_title_with_subtitle" value="@layout/car_ui_alert_dialog_title_with_subtitle"/>
+    <item target="layout/car_ui_preference_primary_switch" value="@layout/car_ui_preference_primary_switch"/>
+
+    <item target="id/car_ui_alert_icon" value="@id/car_ui_alert_icon"/>
+    <item target="id/car_ui_alert_title" value="@id/car_ui_alert_title"/>
+    <item target="id/car_ui_alert_subtitle" value="@id/car_ui_alert_subtitle"/>
+
+    <item target="dimen/car_ui_body1_size" value="@dimen/car_ui_body1_size"/>
+    <item target="dimen/car_ui_body3_size" value="@dimen/car_ui_body3_size"/>
+    <item target="dimen/alert_dialog_margin" value="@dimen/alert_dialog_margin"/>
+    <item target="dimen/car_ui_header_list_item_text_start_margin" value="@dimen/car_ui_header_list_item_text_start_margin"/>
+    <item target="dimen/car_ui_preference_icon_size" value="@dimen/car_ui_preference_icon_size"/>
+    <item target="dimen/car_ui_list_item_height" value="@dimen/car_ui_list_item_height"/>
+    <item target="dimen/car_ui_list_item_content_icon_width" value="@dimen/car_ui_list_item_content_icon_width"/>
+    <item target="dimen/car_ui_list_item_content_icon_height" value="@dimen/car_ui_list_item_content_icon_height"/>
+    <item target="dimen/car_ui_list_item_avatar_icon_width" value="@dimen/car_ui_list_item_avatar_icon_width"/>
+    <item target="dimen/car_ui_list_item_avatar_icon_height" value="@dimen/car_ui_list_item_avatar_icon_height"/>
+
+    <item target="dimen/car_ui_dialog_edittext_height" value="@dimen/car_ui_dialog_edittext_height"/>
+    <item target="dimen/car_ui_dialog_edittext_margin_bottom" value="@dimen/car_ui_dialog_edittext_margin_bottom"/>
+    <item target="dimen/car_ui_dialog_edittext_margin_end" value="@dimen/car_ui_dialog_edittext_margin_end"/>
+    <item target="dimen/car_ui_dialog_edittext_margin_start" value="@dimen/car_ui_dialog_edittext_margin_start"/>
+    <item target="dimen/car_ui_dialog_edittext_margin_top" value="@dimen/car_ui_dialog_edittext_margin_top"/>
+    <item target="dimen/car_ui_list_item_text_no_icon_start_margin" value="@dimen/car_ui_list_item_text_no_icon_start_margin"/>
+
+    <item target="drawable/car_ui_recyclerview_ic_up" value="@drawable/car_ui_recyclerview_ic_up" />
+    <item target="drawable/car_ui_recyclerview_ic_down" value="@drawable/car_ui_recyclerview_ic_down" />
+    <item target="drawable/car_ui_recyclerview_scrollbar_thumb" value="@drawable/car_ui_recyclerview_scrollbar_thumb" />
+    <item target="drawable/car_ui_activity_background" value="@drawable/car_ui_activity_background" />
+    <item target="drawable/car_ui_toolbar_menu_item_icon_background" value="@drawable/car_ui_toolbar_menu_item_icon_background" />
+
+    <item target="color/car_ui_text_color_primary" value="@color/car_ui_text_color_primary" />
+    <item target="color/car_ui_text_color_secondary" value="@color/car_ui_text_color_secondary" />
+    <item target="color/car_ui_toolbar_tab_item_selector" value="@color/car_ui_toolbar_tab_item_selector" />
+    <item target="color/car_ui_preference_two_action_divider_color" value="@color/car_ui_preference_two_action_divider_color" />
+
+
+    <item target="drawable/car_ui_list_item_background" value="@drawable/car_ui_list_item_background" />
+    <item target="drawable/car_ui_toolbar_background" value="@drawable/car_ui_toolbar_background" />
+    <item target="drawable/car_ui_toolbar_menu_item_divider" value="@drawable/car_ui_toolbar_menu_item_divider" />
+    <item target="drawable/car_ui_toolbar_menu_item_icon_ripple" value="@drawable/car_ui_toolbar_menu_item_icon_ripple" />
+    <item target="bool/car_ui_scrollbar_enable" value="@bool/car_ui_scrollbar_enable" />
+    <item target="bool/car_ui_is_light_theme" value="@bool/car_ui_is_light_theme" />
+
+    <item target="style/Preference.CarUi.Icon" value="@style/Preference.CarUi.Icon" />
+    <item target="style/Preference.CarUi.Divider" value="@style/Preference.CarUi.Divider" />
+    <item target="style/TextAppearance.CarUi.AlertDialog.Title" value="@style/TextAppearance.CarUi.AlertDialog.Title" />
+    <item target="style/TextAppearance.CarUi.AlertDialog.Subtitle" value="@style/TextAppearance.CarUi.AlertDialog.Subtitle" />
+    <item target="style/TextAppearance.CarUi.PreferenceCategoryTitle" value="@style/TextAppearance.CarUi.PreferenceCategoryTitle" />
+    <item target="style/TextAppearance.CarUi.PreferenceSummary" value="@style/TextAppearance.CarUi.PreferenceSummary" />
+    <item target="style/TextAppearance.CarUi.PreferenceTitle" value="@style/TextAppearance.CarUi.PreferenceTitle" />
+    <item target="style/TextAppearance.CarUi.Widget" value="@style/TextAppearance.CarUi.Widget" />
+    <item target="style/TextAppearance.CarUi.Widget.Toolbar" value="@style/TextAppearance.CarUi.Widget.Toolbar" />
+    <item target="style/TextAppearance.CarUi.Widget.Toolbar.Title" value="@style/TextAppearance.CarUi.Widget.Toolbar.Title" />
+
+    <item target="style/Widget.CarUi.SeekbarPreference.Seekbar" value="@style/Widget.CarUi.SeekbarPreference.Seekbar" />
+
+    <item target="attr/state_ux_restricted" value="@attr/state_ux_restricted"/>
+
+    <!-- Toolbar -->
+    <item target="layout/car_ui_base_layout_toolbar" value="@layout/car_ui_base_layout_toolbar"/>
+
+    <item target="bool/car_ui_toolbar_logo_fills_nav_icon_space" value="@bool/car_ui_toolbar_logo_fills_nav_icon_space" />
+    <item target="bool/car_ui_toolbar_tab_flexible_layout" value="@bool/car_ui_toolbar_tab_flexible_layout" />
+
+    <item target="id/car_ui_toolbar_nav_icon_container" value="@id/car_ui_toolbar_nav_icon_container" />
+    <item target="id/car_ui_toolbar_nav_icon" value="@id/car_ui_toolbar_nav_icon" />
+    <item target="id/car_ui_toolbar_logo" value="@id/car_ui_toolbar_logo" />
+    <item target="id/car_ui_toolbar_title_logo_container" value="@id/car_ui_toolbar_title_logo_container" />
+    <item target="id/car_ui_toolbar_title_logo" value="@id/car_ui_toolbar_title_logo" />
+    <item target="id/car_ui_toolbar_title" value="@id/car_ui_toolbar_title" />
+    <item target="id/car_ui_toolbar_title_container" value="@id/car_ui_toolbar_title_container" />
+    <item target="id/car_ui_toolbar_subtitle" value="@id/car_ui_toolbar_subtitle" />
+    <item target="id/car_ui_toolbar_tabs" value="@id/car_ui_toolbar_tabs" />
+    <item target="id/car_ui_toolbar_menu_items_container" value="@id/car_ui_toolbar_menu_items_container" />
+    <item target="id/car_ui_toolbar_search_view_container" value="@id/car_ui_toolbar_search_view_container" />
+    <item target="id/car_ui_toolbar_progress_bar" value="@id/car_ui_toolbar_progress_bar" />
+    <item target="id/car_ui_base_layout_content_container" value="@id/car_ui_base_layout_content_container" />
+
+    <item target="attr/layout_constraintGuide_begin" value="@attr/layout_constraintGuide_begin"/>
+    <item target="attr/layout_constraintGuide_end" value="@attr/layout_constraintGuide_end"/>
+    <item target="attr/layout_constraintStart_toStartOf" value="@attr/layout_constraintStart_toStartOf"/>
+    <item target="attr/layout_constraintStart_toEndOf" value="@attr/layout_constraintStart_toEndOf"/>
+    <item target="attr/layout_constraintEnd_toStartOf" value="@attr/layout_constraintEnd_toStartOf"/>
+    <item target="attr/layout_constraintEnd_toEndOf" value="@attr/layout_constraintEnd_toEndOf"/>
+    <item target="attr/layout_constraintLeft_toLeftOf" value="@attr/layout_constraintLeft_toLeftOf"/>
+    <item target="attr/layout_constraintLeft_toRightOf" value="@attr/layout_constraintLeft_toRightOf"/>
+    <item target="attr/layout_constraintRight_toLeftOf" value="@attr/layout_constraintRight_toLeftOf"/>
+    <item target="attr/layout_constraintRight_toRightOf" value="@attr/layout_constraintRight_toRightOf"/>
+    <item target="attr/layout_constraintTop_toTopOf" value="@attr/layout_constraintTop_toTopOf"/>
+    <item target="attr/layout_constraintTop_toBottomOf" value="@attr/layout_constraintTop_toBottomOf"/>
+    <item target="attr/layout_constraintBottom_toTopOf" value="@attr/layout_constraintBottom_toTopOf"/>
+    <item target="attr/layout_constraintBottom_toBottomOf" value="@attr/layout_constraintBottom_toBottomOf"/>
+    <item target="attr/layout_constraintHorizontal_bias" value="@attr/layout_constraintHorizontal_bias"/>
+    <item target="attr/layout_goneMarginLeft" value="@attr/layout_goneMarginLeft"/>
+    <item target="attr/layout_goneMarginRight" value="@attr/layout_goneMarginRight"/>
+    <item target="attr/layout_goneMarginTop" value="@attr/layout_goneMarginTop"/>
+    <item target="attr/layout_goneMarginBottom" value="@attr/layout_goneMarginBottom"/>
+    <item target="attr/layout_goneMarginStart" value="@attr/layout_goneMarginStart"/>
+    <item target="attr/layout_goneMarginEnd" value="@attr/layout_goneMarginEnd"/>
+    <item target="attr/layout_constraintHorizontal_chainStyle" value="@attr/layout_constraintHorizontal_chainStyle"/>
+    <item target="attr/layout_constraintVertical_chainStyle" value="@attr/layout_constraintVertical_chainStyle"/>
+</overlay>

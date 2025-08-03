@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2013-2015 The CyanogenMod Project
+     SPDX-FileCopyrightText: 2017-2024 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Expert de instalare</string>
+    <string name="next">Următoarea</string>
+    <string name="skip">Omite</string>
+    <string name="start">Pornire</string>
+    <string name="done">Efectuat</string>
+    <string name="ok">OK</string>
+    <string name="loading">Doar o secundă\u2026</string>
+    <string name="setup_welcome_message">Bun venit la <xliff:g id="name" example="LineageOS">%1$s</xliff:g></string>
+    <string name="setup_managed_profile_welcome_message">Configurați profilul de serviciu</string>
+    <string name="emergency_call">Apel de urgenţă</string>
+    <string name="accessibility_settings">Setări de accesibilitate</string>
+    <string name="setup_locale">Limba</string>
+    <string name="sim_locale_changed">SIM %1$s detectat</string>
+    <string name="setup_sim_missing">Lipsă card SIM</string>
+    <string name="sim_missing_summary" product="tablet">O cartelă SIM nu a fost detectată în tableta dvs. Pentru a insera o cartelă SIM, citiți instrucțiunile care au venit cu aparatul dvs.</string>
+    <string name="sim_missing_summary" product="default">O cartelă SIM nu a fost detectată în telefonul dvs. Pentru a insera o cartelă SIM, citiți instrucțiunile care au venit cu aparatul dvs.</string>
+    <string name="setup_datetime">Dată &amp; oră</string>
+    <string name="date_time_summary">Setați fusul orar și reglați data și ora curentă, dacă este necesar</string>
+    <string name="setup_current_date">Data curentă</string>
+    <string name="setup_current_time">Ora curentă</string>
+    <string name="intro_restore_title">Restabiliți aplicațiile și datele</string>
+    <string name="intro_restore_subtitle">Dacă aveţi o copie de rezervă a Seedvault de la <xliff:g id="name" example="LineageOS">%s</xliff:g> sau orice alt OS, o puteţi restaura aici.</string>
+    <string name="intro_restore_button">Restaurează din backup</string>
+    <string name="setup_location">Servicii de localizare</string>
+    <string name="location_access_summary"><b>Permite aplicațiilor care au cerut permisiunea</b> să utilizeze informațiile despre locația dvs. Aceasta poate include locația curentă și locațiile precedente.</string>
+    <string name="location_agps_access_summary">Când locația este activată, <b>descarcă date de asistență prin satelit de pe internet</b>, ceea ce poate îmbunătăți considerabil performanța de pornire a GPS-ului.</string>
+    <string name="update_recovery_title">Actualizează Lineage Recovery</string>
+    <string name="update_recovery_description">Actualizează Lineage Recovery la prima pornire după fiecare actualizare.</string>
+    <string name="update_recovery_warning">Meniul de recuperare va fi actualizat imediat ce terminați configurarea. Dacă doriți să îl păstrați intact, dezactivați această caracteristică.</string>
+    <string name="update_recovery_setting">Actualizați Lineage Recovery alături de OS</string>
+    <string name="update_recovery_full_description"><xliff:g id="recovery_update_description">%1$s</xliff:g>\n<xliff:g id="recovery_update_warning">%2$s</xliff:g></string>
+    <string name="setup_services">Caracteristici LineageOS</string>
+    <string name="services_pp_explanation">Aceste servicii lucrează pentru dvs. pentru a extinde capabilitățile dispozitivului. Datele vor fi utilizate în concordanță cu politica de confidențialitate a <xliff:g id="name" example="LineageOS">%1$s</xliff:g>.</string>
+    <string name="services_find_privacy_policy">Puteți citi politica de confidențialitate pe un alt dispozitiv accesând <xliff:g id="uri" example="https://lineageos.org/legal">%1$s</xliff:g></string>
+    <string name="services_help_improve_cm">Ajutați la îmbunătățirea <xliff:g id="name" example="LineageOS">%s</xliff:g></string>
+    <string name="services_metrics_label"><xliff:g id="name" example="Help improve LineageOS">%1$s</xliff:g> prin trimiterea automată a datelor de diagnosticare și utilizare la <xliff:g id="name" example="LineageOS">%2$s</xliff:g>. Aceste informații nu pot fi folosite pentru a te identifica și oferă o mână de ajutor echipelor care lucrează la lucruri precum durata bateriei, performanța aplicațiilor și noile caracteristici <xliff:g id="name" example="LineageOS">%3$s</xliff:g>.</string>
+    <string name="services_os_nav_keys_label"><b>Utilizează tastele de navigare de pe ecran</b> în locul tastelor fizice.</string>
+    <string name="services_full_description"><xliff:g id="pp_explanation">%1$s</xliff:g>\n<xliff:g id="pp_find">%2$s</xliff:g></string>
+    <string name="setup_navigation">Navigare</string>
+    <string name="navigation_summary">Alegeți metoda preferată de navigare</string>
+    <string name="gesture_navigation">Navigare prin gesturi</string>
+    <string name="two_button_navigation">Navigare cu 2 butoane</string>
+    <string name="navbar_navigation">Navigare cu 3 butoane</string>
+    <string name="hide_gesture_hint">Ascunde indiciile navigării gestuale</string>
+    <string name="setup_theme">Temă</string>
+    <string name="theme_summary">Tema întunecată folosește un fundal negru pentru a menține bateria în viață mai mult timp pe unele ecrane</string>
+    <string name="dark">Întunecat</string>
+    <string name="light">Luminos</string>
+</resources>

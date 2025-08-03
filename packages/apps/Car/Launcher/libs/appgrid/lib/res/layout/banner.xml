@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/banner_background_color">
+    <TextView
+        android:id="@+id/banner_second_button"
+        android:layout_marginEnd="56dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintWidth_max="@dimen/banner_button_maximum_width"
+        app:layout_constraintTop_toTopOf="parent"
+        style="@style/BannerButton"/>
+    <TextView
+        android:background="@android:color/transparent"
+        android:id="@+id/banner_first_button"
+        android:layout_marginEnd="72dp"
+        app:layout_constraintEnd_toStartOf="@id/banner_second_button"
+        app:layout_constraintWidth_max="@dimen/banner_button_maximum_width"
+        app:layout_constraintTop_toTopOf="parent"
+        style="@style/BannerButton"/>
+    <TextView
+        android:id="@+id/banner_title"
+        android:layout_height="wrap_content"
+        android:paddingBottom="@dimen/banner_content_margin"
+        android:layout_marginEnd="24dp"
+        android:layout_marginStart="@dimen/banner_content_margin"
+        android:layout_marginTop="@dimen/banner_content_margin"
+        android:layout_width="0dp"
+        android:textColor="@color/banner_title_text_color"
+        app:layout_constraintEnd_toStartOf="@id/banner_first_button"
+        app:layout_constraintStart_toEndOf="@+id/banner_icon"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <ImageView
+        android:id="@+id/banner_icon"
+        android:layout_height="@dimen/banner_image_view_size"
+        android:layout_marginStart="35dp"
+        android:layout_marginTop="@dimen/banner_content_margin"
+        android:layout_width="@dimen/banner_image_view_size"
+        app:layout_constraintEnd_toStartOf="@+id/banner_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/banner_warning_image"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

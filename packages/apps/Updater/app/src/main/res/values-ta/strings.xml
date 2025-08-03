@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2017-2024 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">இற்றையம்</string>
+    <string name="display_name">இற்றையம்</string>
+    <string name="verification_failed_notification">சரிபார்த்தல் தோல்வியுற்றது</string>
+    <string name="verifying_download_notification">இற்றையைச் சரிபார்க்கிறது</string>
+    <string name="downloading_notification">பதிவிறக்குகிறது</string>
+    <string name="download_paused_notification">பதிவிறக்கம் இடைநிறுத்தப்பட்டது</string>
+    <string name="download_paused_error_notification">பதிவிறக்கப் பிழை</string>
+    <string name="download_completed_notification">பதிவிறக்கம் முடிவுற்றது</string>
+    <string name="download_starting_notification">பதிவிறக்கம் தொடங்குகிறது</string>
+    <string name="update_failed_notification">இற்றை தோல்வியுற்றது</string>
+    <string name="installation_suspended_notification">நிறுவல் இடைநீக்கப்பட்டது</string>
+    <string name="new_updates_found_title">புதிய இற்றைகள்</string>
+    <string name="text_download_speed">%1$s, %2$s/s</string>
+    <string name="pause_button">இடைநிறுத்துக</string>
+    <string name="resume_button">தொடர்க</string>
+    <string name="suspend_button">நிறுத்திவைக்க</string>
+    <string name="installing_update">இற்றைத் தொகுப்பு நிறுவுகிறது</string>
+    <string name="installing_update_error">நிறுவு பிழை</string>
+    <string name="installing_update_finished">இற்றை நிறுவப்பட்டது</string>
+    <string name="finalizing_package">தொகுப்பு நிறுவலை இறுதிப்படுத்துகிறது</string>
+    <string name="preparing_ota_first_boot">முதற்தொடக்கத்திற்கு ஏற்படுத்துகிறது</string>
+    <string name="dialog_prepare_zip_message">முதற்நிலை இற்றை ஏற்படுத்துதல்</string>
+    <string name="dialog_battery_low_title">குறைந்த மின்கலம்</string>
+    <string name="dialog_battery_low_message_pct">மின்கல நிலை மிகக்குறைவு; தொடர குறைந்தது  <xliff:g id="percent_discharging">%1$d</xliff:g>%% மின்கலமாவது தேவை, மின்னூட்டலெனில், <xliff:g id="percent_charging">%2$d</xliff:g>%% மின்கலம் தேவை.</string>
+    <string name="dialog_scratch_mounted_message"><![CDATA[        பின்வரும் கட்டளைகளை இயக்கிய அப்புறம், இற்றையை மீண்டும் முயலவும்:\n
+        • adb root\n
+        • adb enable-verity\n
+        • adb reboot
+        ]]></string>
+    <string name="dialog_scratch_mounted_title">OverlayFS ஏற்றப்பட்ட இற்றையை நிறுவ முடியாது</string>
+    <string name="reboot">மறு இயக்கம்</string>
+    <string name="menu_refresh">புதுக்குக</string>
+    <string name="menu_preferences">முன்விருப்பம்</string>
+    <string name="menu_auto_updates_check">தன்னியக்க இற்றைச் சரிபார்ப்பு</string>
+    <string name="menu_auto_updates_check_interval_daily">நாள் ஒரு முறை</string>
+    <string name="menu_auto_updates_check_interval_weekly">கிழமை ஒரு முறை</string>
+    <string name="menu_auto_updates_check_interval_monthly">திங்கள் ஒரு முறை</string>
+    <string name="menu_auto_updates_check_interval_never">என்றுமில்லை</string>
+    <string name="menu_auto_delete_updates">நிறுவப்பட்டபோது இற்றைகளை நீக்குக</string>
+    <string name="menu_delete_update">நீக்குக</string>
+    <string name="menu_copy_url">உரலியை நகலெடுக்க</string>
+    <string name="menu_export_update">இற்றையை ஏற்றுமதி செய்க</string>
+    <string name="menu_show_changelog">மாற்றுக்குறிப்பைக் காட்டுக</string>
+    <string name="menu_ab_perf_mode">இற்றைச் செயற்முறையை முன்னுரிமை அளிக்க</string>
+    <string name="menu_update_recovery">மீட்டெடுப்பை இற்றைப்படுத்துக</string>
+    <string name="toast_forced_update_recovery">Lineage மீட்டெடுப்பு இற்றைகளை முடக்குவது, இக்கருவியில் இயலாது.</string>
+    <string name="snack_updates_found">புதிய இற்றைகள் கிடைத்தன</string>
+    <string name="snack_no_updates_found">புதிய இற்றைகள் எவையும் கிடைக்கவில்லை</string>
+    <string name="snack_updates_check_failed">இற்றைச் சோதனை தோல்வியுற்றது. உங்கள் இணைய இணைப்பைச் சரிபார்த்த பிறகு, மீண்டும் முயற்சி செய்யவும்.</string>
+    <string name="snack_download_failed">பதிவிறக்கம் தோல்வியுற்றது. உங்கள் இணைய இணைப்பைச் சரிபார்த்த பிறகு, மீண்டும் முயற்சி செய்யவும்.</string>
+    <string name="snack_download_verification_failed">இற்றை சரிபார்ப்பு தோல்வியுற்றது.</string>
+    <string name="snack_download_verified">பதிவிறக்கம் முடிவுற்றது.</string>
+    <string name="snack_update_not_installable">தற்போதைய கட்டமைப்பின் மீது, இந்த இற்றையை நிறுவ முடியாது.</string>
+    <string name="header_title_text">LineageOS\n%1$s</string>
+    <string name="header_android_version">Android <xliff:g id="version" example="7.1.2">%1$s</xliff:g></string>
+    <string name="header_last_updates_check">கடைசியாகச் சரிபார்க்கப்பட்டது: <xliff:g id="date" example="1 January 1970">%1$s</xliff:g> (<xliff:g id="time" example="01:23">%2$s</xliff:g>)</string>
+    <string name="list_build_version">LineageOS <xliff:g id="version" example="14.1">%1$s</xliff:g></string>
+    <string name="list_build_version_date">LineageOS <xliff:g id="version" example="14.1">%1$s</xliff:g> - <xliff:g id="date" example="July 11, 2017">%2$s</xliff:g></string>
+    <string name="list_download_progress_newer"><xliff:g id="filesize_without_unit" example="310 MB">%2$s</xliff:g> இல் <xliff:g id="filesize_without_unit" example="12.2">%1$s</xliff:g></string>
+    <string name="list_download_progress_eta_newer"><xliff:g id="filesize_without_unit" example="310 MB">%2$s</xliff:g> இல் <xliff:g id="filesize_without_unit" example="12.2">%1$s</xliff:g> (<xliff:g id="eta" example="3 minutes left">%3$s</xliff:g>)</string>
+    <string name="list_verifying_update">இற்றையைச் சரிபார்க்கிறது</string>
+    <string name="list_no_updates">புதிய இற்றைகள் எவையும் கிடைக்கவில்லை; அவற்றைக் கைமுறையாகச் சரிபார்க்க, புதுப்பிப்பு விசையைப் பயன்படுத்துக.</string>
+    <string name="action_download">பதிவிறக்குக</string>
+    <string name="action_pause">இடைநிறுத்துக</string>
+    <string name="action_resume">தொடர்க</string>
+    <string name="action_install">நிறுவுக</string>
+    <string name="action_info">செய்தி</string>
+    <string name="action_delete">அழிக்க</string>
+    <string name="action_cancel">விலக்குக</string>
+    <string name="confirm_delete_dialog_title">கோப்பை நீக்குக</string>
+    <string name="confirm_delete_dialog_message">தேர்ந்தெடுக்கப்பட்ட இற்றைக் கோப்பை நீக்கவா?</string>
+    <string name="apply_update_dialog_title">இற்றையைச் செயற்படுத்துக</string>
+    <string name="apply_update_dialog_message"> <xliff:g id="update_name">%1$s</xliff:g>, என்பதை நீங்கள் நிறுவ உள்ளீர்; \n\nநீங்கள் <xliff:g id="ok">%2$s</xliff:g> என்பதை அழுத்தினால், இற்றையை நிறுவ கருவி தானாகவே மீட்டெடுப்பு முறையில் மறுதொடங்கும்.\n\nகுறிப்பு: இப்பண்புக்கூறுக்கு இணக்கமான மீட்டெடுப்பு தேவை. இல்லையெனில், இற்றைகளை கைமுறையாக நிறுவ வேண்டும்.</string>
+    <string name="apply_update_dialog_message_ab"><xliff:g id="update_name">%1$s</xliff:g>, என்பதை நீங்கள் நிறுவ உள்ளீர்; \n\nநீங்கள் <xliff:g id="ok">%2$s</xliff:g> என்பதை அழுத்தினால், பின்னணியில் கருவி நிறுவலைத் தொடங்கும்.\n\nமுடிந்ததும், மறு இயக்கம் செய்யும்படித் தூண்டப்படுவீர்.</string>
+    <string name="cancel_installation_dialog_message">நிறுவலை விலக்கவா?</string>
+    <string name="label_download_url">பதிவிறக்க உரலி</string>
+    <string name="toast_download_url_copied">உரலி நகலெடுக்கப்பட்டது</string>
+    <string name="dialog_export_title">இற்றை ஏற்றுமதி செய்தல்</string>
+    <string name="notification_export_success">இற்றை ஏற்றுமதி செய்யப்பட்டது</string>
+    <string name="notification_export_fail">ஏற்றுமதிப் பிழை</string>
+    <string name="toast_already_exporting">ஏற்கெனவே, ஒர் இற்றையை ஏற்றுமதி செய்கிறது</string>
+    <string name="toast_export_started">ஏற்றுமதி தொடங்கியது</string>
+    <plurals name="eta_seconds">
+        <item quantity="one">இன்னும் ஒரு நொடி</item>
+        <item quantity="other">இன்னும் <xliff:g id="count">%d</xliff:g> நொடி</item>
+    </plurals>
+    <plurals name="eta_minutes">
+        <item quantity="one">இன்னும் ஒரு நிமிடம்</item>
+        <item quantity="other">இன்னும் <xliff:g id="count">%d</xliff:g> நிமிடம்</item>
+    </plurals>
+    <plurals name="eta_hours">
+        <item quantity="one">இன்னும் ஒரு மணிநேரம்</item>
+        <item quantity="other">இன்னும் <xliff:g id="count">%d</xliff:g> மணிநேரம்</item>
+    </plurals>
+    <string name="update_over_metered_network_title">எச்சரிக்கை</string>
+    <string name="update_over_metered_network_message">வரம்பிட்ட பிணையத்தில் இற்றைத் தொகுப்பைப் பதிவிறக்க உள்ளீர்; இஃது உயர்ந்த தரவுப் பயன்பாட்டை ஏற்படுத்தக்கூடும்; நீங்கள் தொடர விரும்புகிறீரா?</string>
+    <string name="checkbox_metered_network_warning">மீண்டும் காட்ட வேண்டாம்</string>
+    <string name="menu_metered_network_warning">வரம்பிட்ட பிணைய எச்சரிக்கை</string>
+    <string name="blocked_update_dialog_title">இற்றை தடுக்கப்பட்டது</string>
+    <string name="blocked_update_dialog_message">இற்றைநர் செயலியைப் பயன்படுத்தி இவ்விற்றையை நிறுவ முடியாது. மேலும், தெரிவிப்புக்கு <xliff:g id="info_url">%1$s</xliff:g> இதைப் படிக்கவும்.</string>
+    <string name="export_channel_title">ஏற்றுமதி நிறைவுறல்</string>
+    <string name="new_updates_channel_title">புதிய இற்றைகள்</string>
+    <string name="ongoing_channel_title">நடப்புப் பதிவிறக்கங்கள்</string>
+    <string name="update_failed_channel_title">இற்றை தோல்வியுற்றது</string>
+    <string name="info_dialog_title">நீங்கள், அறிந்தீரா?</string>
+    <string name="info_dialog_message">LineageOS இற்றைகள் முழு நிறுவல் தொகுப்புகளாகும். அஃதாவது, நீங்கள் இடையில் சிலவற்றைத் தவிர்த்தாலும், எப்போதும் அண்மை இற்றையை மட்டுமே நிறுவ முடியும்!</string>
+    <string name="info_dialog_ok">தெரிவித்தலுக்கு நன்றி!</string>
+    <string name="local_update_import">உள்ளக இற்றை</string>
+    <string name="local_update_import_progress">உள்ளக இற்றையை இறக்குதல் \u2026</string>
+    <string name="local_update_import_success">%1$s என்பது இறக்கப்பட்டது; அதை நிறுவ வேண்டுமா?</string>
+    <string name="local_update_import_failure">உள்ளக இற்றை இறக்கல் தோல்வியுற்றது</string>
+    <string name="local_update_import_install">நிறுவுக</string>
+    <string name="local_update_name">உற்றிட இற்றை</string>
+</resources>

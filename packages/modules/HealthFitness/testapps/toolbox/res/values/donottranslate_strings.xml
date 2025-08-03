@@ -1,0 +1,118 @@
+<!--
+  Copyright (C) 2022 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<resources>
+  <string name="app_label">Health Connect Toolbox</string>
+  <string name="not_implemented">Not implemented</string>
+  <string name="insert_data">Insert Data</string>
+  <string name="update_data">Update Data</string>
+  <string name="add_sample_entry">Add Sample Entry</string>
+  <string name="please_wait">Please Wait</string>
+
+  <!-- Home Screen -->
+  <string name="request_permissions">Request Permissions</string>
+  <string name="launch_health_connect">Launch Health Connect</string>
+  <string name="request_route">Request Route</string>
+  <string name="insert_update_data">Insert / Update Data</string>
+  <string name="insert_session">Insert Session</string>
+  <string name="seed_random_data">Seed Random Data</string>
+  <string name="all_permissions_already_granted_toast">Permissions already granted, please manage them via HC App</string>
+  <string name="all_permissions_success">All permissions were successfully granted</string>
+  <string name="number_of_permissions_not_granted">%1$d permissions were not granted</string>
+  <string name="seed_performance_insert_data">Seed Performance Data</string>
+  <string name="seed_performance_insert_data_in_parallel">Seed Performance Data (In Parallel)</string>
+  <string name="seed_performance_read_data">Read Performance Data</string>
+  <string name="toggle_permission_intent_filter">Toggle Intent Filter</string>
+  <string name="toast_permission_filter_enabled">Intent Filter Enabled</string>
+  <string name="toast_permission_filter_disabled">Intent Filter Disabled</string>
+  <string name="toast_seed_data_success">Data inserted successfully</string>
+
+  <!-- Data Categories -->
+  <string name="activity_category" description="Title for activity category, displaying user data related to activities (such as active time, calories burned, etc.) [CHAR LIMIT=30]">Activity</string>
+  <string name="body_measurements_category" description="Title for body measurements category, displaying user data related to body measurements (such as height, weight, etc.) [CHAR LIMIT=30]">Body measurements</string>
+  <string name="sleep_category" description="Title for sleep category, displaying user data related to sleep (such as sleep duration, bedtime schedule, etc.) [CHAR LIMIT=30]">Sleep</string>
+  <string name="vitals_category" description="Title for vitals category, displaying user data related to vitals (such as heart rate, blood pressure, etc.) [CHAR LIMIT=30]">Vitals</string>
+  <string name="cycle_tracking_category" description="Title for cycle tracking category, displaying user data related to cycle tracking (such as cervical mucus, menstrual flow, etc.) [CHAR LIMIT=30]">Cycle tracking</string>
+  <string name="nutrition_category" description="Title for nutrition category, displaying user data related to nutrition (such as calories consumed, hydration, etc.) [CHAR LIMIT=30]">Nutrition</string>
+
+  <!-- region Data Types -->
+  <!-- region Activity data types -->
+  <string name="active_calories_burned_label" description="Label used to show the user's active calories burned data [CHAR_LIMIT=50]">Active calories burned</string>
+  <string name="distance_label" description="Label used to show the user's distance data [CHAR_LIMIT=50]">Distance</string>
+  <string name="elevation_gained_label" description="Label used to show the user's elevation gained data [CHAR_LIMIT=50]">Elevation gained</string>
+  <string name="floors_climbed_label" description="Label used to show the user's floors climbed data [CHAR_LIMIT=50]">Floors climbed</string>
+  <string name="power_label" description="Label used to show the user's power data [CHAR_LIMIT=50]">Power</string>
+  <string name="speed_label" description="Label used to show the user's speed data [CHAR_LIMIT=50]">Speed</string>
+  <string name="steps_label" description="Label used to show the user's steps data [CHAR_LIMIT=50]">Steps</string>
+  <string name="steps_cadence_label" description="Label used to show the user's step cadence data [CHAR_LIMIT=50]">Steps Cadence</string>
+  <string name="total_calories_burned_label" description="Label used to show the user's total calories burned data [CHAR_LIMIT=50]">Total calories burned</string>
+  <string name="vo2_max_label" description="Label used to show the user's V02 max data [CHAR_LIMIT=50]">VO2 max</string>
+  <string name="wheelchair_pushes_label" description="Label used to show the user's wheelchair pushes data [CHAR_LIMIT=50]">Wheelchair pushes</string>
+  <string name="cycling_pedaling_cadence" description="Label used to show the user's cycling pedaling cadence data [CHAR_LIMIT=50]">Cycling Pedaling Cadence</string>
+  <string name="exercise_session" description="Label used to show the exercise session [CHAR_LIMIT=50]">Exercise Sessions</string>
+  <!--endregion-->
+
+  <!-- region Body measurements data types -->
+  <string name="basal_metabolic_rate_label" description="Label used to show the user's basal metabolic rate data [CHAR_LIMIT=50]">Basal metabolic rate</string>
+  <string name="body_fat_label" description="Label used to show the user's body fat data [CHAR_LIMIT=50]">Body fat</string>
+  <string name="body_water_mass_label" description="Label used to show the user's body water mass data [CHAR_LIMIT=50]">Body water mass</string>
+  <string name="bone_mass_label" description="Label used to show the user's bone mass data [CHAR_LIMIT=50]">Bone mass</string>
+  <string name="height_label" description="Label used to show the user's height data [CHAR_LIMIT=50]">Height</string>
+  <string name="lean_body_mass_label" description="Label used to show the user's lean body mass data [CHAR_LIMIT=50]">Lean body mass</string>
+  <string name="weight_label" description="Label used to show the user's weight data [CHAR_LIMIT=50]">Weight</string>
+  <!--endregion-->
+
+  <!-- region Cycle tracking data types -->
+  <string name="cervical_mucus_label" description="Label used to show the user's cervical mucus data [CHAR_LIMIT=50]">Cervical mucus</string>
+  <string name="menstruation_flow" description="Label used to show the user's menstruation data [CHAR_LIMIT=50]">Menstruation Flow</string>
+  <string name="menstruation_period" description="Label used to show the user's menstruation period data [CHAR_LIMIT=50]">Menstruation Period</string>
+  <string name="ovulation_test_label" description="Label used to show the user's ovulation test data [CHAR_LIMIT=50]">Ovulation test</string>
+  <string name="sexual_activity_label" description="Label used to show the user's sexual activity data [CHAR_LIMIT=50]">Sexual activity</string>
+  <string name="spotting_label" description="Label used to show the user's spotting data [CHAR_LIMIT=50]">Spotting</string>
+  <string name="inter_menstrual_bleeding" description="Label used to show the user's inter menstrual bleeding data [CHAR_LIMIT=50]">Inter Menstrual Bleeding</string>
+  <!--endregion-->
+
+  <!-- region Nutrition data types -->
+  <string name="hydration_label" description="Label used to show the user's hydration data [CHAR_LIMIT=50]">Hydration</string>
+  <string name="nutrition_label" description="Label used to show the user's nutrition data [CHAR_LIMIT=50]">Nutrition</string>
+  <!--endregion-->
+
+  <!-- region Sleep data types -->
+  <string name="sleep_label" description="Label used to show the user's sleep data [CHAR_LIMIT=50]">Sleep</string>
+  <!--endregion-->
+
+  <!-- region Vitals data types -->
+  <string name="basal_body_temperature_label" description="Label used to show the user's basal body temperature data [CHAR_LIMIT=50]">Basal body temperature</string>
+  <string name="blood_glucose_label" description="Label used to show the user's blood glucose data [CHAR_LIMIT=50]">Blood glucose</string>
+  <string name="blood_pressure_label" description="Label used to show the user's blood pressure data [CHAR_LIMIT=50]">Blood pressure</string>
+  <string name="body_temperature_label" description="Label used to show the user's body temperature data [CHAR_LIMIT=50]">Body temperature</string>
+  <string name="heart_rate_label" description="Label used to show the user's heart rate data [CHAR_LIMIT=50]">Heart rate</string>
+  <string name="heart_rate_variability_label" description="Label used to show the user's heart rate variability data [CHAR_LIMIT=50]">Heart rate variability</string>
+  <string name="oxygen_saturation_label" description="Label used to show the user's oxygen saturation data [CHAR_LIMIT=50]">Oxygen saturation</string>
+  <string name="respiratory_rate_label" description="Label used to show the user's respiratory rate data [CHAR_LIMIT=50]">Respiratory rate</string>
+  <string name="resting_heart_rate_label" description="Label used to show the user's resting heart rate data [CHAR_LIMIT=50]">Resting heart rate</string>
+  <!--endregion-->
+  <!--endregion-->
+
+  <!-- region Performance Testing Dialog -->
+  <string name="span_insert_over_time">Span insert over time</string>
+  <string name="number_of_batches">Number of batches</string>
+  <string name="number_of_records_per_batch">Number of records per batch</string>
+  <string name="time_span">Time Span (in minutes)</string>
+  <string name="performance_testing_explanation">Heart Rate Records will be inserted/read in batches. Please enable checkbox to insert data over a given time span.</string>
+  <!--endregion-->
+
+</resources>

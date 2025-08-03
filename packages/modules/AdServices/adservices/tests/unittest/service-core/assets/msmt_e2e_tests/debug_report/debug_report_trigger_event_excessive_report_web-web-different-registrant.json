@@ -1,0 +1,260 @@
+{
+  "description": "W2W different registrant test for trigger-event-excessive-reports debug report.",
+  "phflags_override": {
+    "measurement_debug_join_key_enrollment_allowlist" : "enrollment-id-ad-tech1.test"
+  },
+  "input": {
+    "web_sources": [
+      {
+        "timestamp": "1643235573000",
+        "registration_request": {
+          "source_origin": "android-app://example.1s1.test",
+          "source_type": "navigation",
+          "web_destination": "https://example.2d1.test",
+          "registrant": "example.1s1.test",
+          "source_params": [{
+            "attribution_src_url": "https://www.ad-tech1.test"
+          }]
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "debug_permission" : true,
+          "response": {
+            "Attribution-Reporting-Register-Source": {
+              "source_event_id": "1",
+              "web_destination": "https://example.2d1.test",
+              "debug_key": "347982378",
+              "debug_join_key": "sample-debug-join-key"
+            }
+          }
+        }]
+      }
+    ],
+    "web_triggers": [
+      {
+        "timestamp": "1643235575000",
+        "registration_request": {
+          "destination_origin": "https://example.2d1.test",
+          "registrant": "example.2d1.test",
+          "trigger_params": [{
+            "attribution_src_url": "https://www.ad-tech1.test"
+          }]
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "debug_permission" : true,
+          "response": {
+            "Attribution-Reporting-Register-Trigger": {
+              "event_trigger_data": [
+                {
+                  "trigger_data": "1",
+                  "priority": "1"
+                }
+              ],
+              "debug_reporting": true,
+              "debug_key": "8971346781",
+              "debug_join_key": "sample-debug-join-key"
+            }
+          }
+        }]
+      },
+      {
+        "timestamp": "1643235576000",
+        "registration_request": {
+          "destination_origin": "https://example.2d1.test",
+          "registrant": "example.2d1.test",
+          "trigger_params": [{
+            "attribution_src_url": "https://www.ad-tech1.test"
+          }]
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "debug_permission" : true,
+          "response": {
+            "Attribution-Reporting-Register-Trigger": {
+              "event_trigger_data": [
+                {
+                  "trigger_data": "2",
+                  "priority": "1"
+                }
+              ],
+              "debug_reporting": true,
+              "debug_key": "8971346782",
+              "debug_join_key": "sample-debug-join-key"
+            }
+          }
+        }]
+      },
+      {
+        "timestamp": "1643235577000",
+        "registration_request": {
+          "destination_origin": "https://example.2d1.test",
+          "registrant": "example.2d1.test",
+          "trigger_params": [{
+            "attribution_src_url": "https://www.ad-tech1.test"
+          }]
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "debug_permission" : true,
+          "response": {
+            "Attribution-Reporting-Register-Trigger": {
+              "event_trigger_data": [
+                {
+                  "trigger_data": "3",
+                  "priority": "1"
+                }
+              ],
+              "debug_reporting": true,
+              "debug_key": "8971346783",
+              "debug_join_key": "sample-debug-join-key"
+            }
+          }
+        }]
+      },      {
+        "timestamp": "1643408376000",
+        "registration_request": {
+          "destination_origin": "https://example.2d1.test",
+          "registrant": "example.2d1.test",
+          "trigger_params": [
+            {
+              "attribution_src_url": "https://www.ad-tech1.test"
+            }
+          ]
+        },
+        "responses": [
+          {
+            "url": "https://www.ad-tech1.test",
+            "debug_permission": true,
+            "response": {
+              "Attribution-Reporting-Register-Trigger": {
+                "event_trigger_data": [
+                  {
+                    "trigger_data": "7",
+                    "priority": "3"
+                  }
+                ],
+                "debug_reporting": true,
+                "debug_key": "8971346781",
+                "debug_join_key": "sample-debug-join-key"
+              },
+              "Location": null,
+              "Attribution-Reporting-Redirect": null
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "output": {
+    "event_level_results": [
+      {
+        "payload": {
+          "attribution_destination": "https://2d1.test",
+          "randomized_trigger_rate": 0.0024263,
+          "scheduled_report_time": "1643411973",
+          "source_event_id": "1",
+          "source_type": "navigation",
+          "trigger_data": "1",
+          "source_debug_key" : "347982378",
+          "trigger_debug_key" : "8971346781"
+        },
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/report-event-attribution",
+        "report_time": "1643411973000"
+      },
+      {
+        "payload": {
+          "attribution_destination": "https://2d1.test",
+          "randomized_trigger_rate": 0.0024263,
+          "scheduled_report_time": "1643411973",
+          "source_event_id": "1",
+          "source_type": "navigation",
+          "trigger_data": "2",
+          "source_debug_key" : "347982378",
+          "trigger_debug_key" : "8971346782"
+        },
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/report-event-attribution",
+        "report_time": "1643411973000"
+      },
+      {
+        "payload": {
+          "attribution_destination": "https://2d1.test",
+          "randomized_trigger_rate": 0.0024263,
+          "scheduled_report_time": "1643411973",
+          "source_event_id": "1",
+          "source_type": "navigation",
+          "trigger_data": "3",
+          "source_debug_key" : "347982378",
+          "trigger_debug_key" : "8971346783"
+        },
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/report-event-attribution",
+        "report_time": "1643411973000"
+      }
+    ],
+    "debug_event_level_results": [
+      {
+        "payload": {
+          "attribution_destination": "https://2d1.test",
+          "randomized_trigger_rate": 0.0024263,
+          "scheduled_report_time": "1643411973",
+          "source_event_id": "1",
+          "source_type": "navigation",
+          "trigger_data": "1",
+          "source_debug_key" : "347982378",
+          "trigger_debug_key" : "8971346781"
+        },
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/debug/report-event-attribution",
+        "report_time": "1643235575000"
+      },
+      {
+        "payload": {
+          "attribution_destination": "https://2d1.test",
+          "randomized_trigger_rate": 0.0024263,
+          "scheduled_report_time": "1643411973",
+          "source_event_id": "1",
+          "source_type": "navigation",
+          "trigger_data": "2",
+          "source_debug_key" : "347982378",
+          "trigger_debug_key" : "8971346782"
+        },
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/debug/report-event-attribution",
+        "report_time": "1643235576000"
+      },
+      {
+        "payload": {
+          "attribution_destination": "https://2d1.test",
+          "randomized_trigger_rate": 0.0024263,
+          "scheduled_report_time": "1643411973",
+          "source_event_id": "1",
+          "source_type": "navigation",
+          "trigger_data": "3",
+          "source_debug_key" : "347982378",
+          "trigger_debug_key" : "8971346783"
+        },
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/debug/report-event-attribution",
+        "report_time": "1643235577000"
+      }
+    ],
+    "verbose_debug_reports": [
+      {
+        "payload": [
+          {
+            "type": "trigger-event-excessive-reports",
+            "body": {
+              "attribution_destination": "https://2d1.test",
+              "scheduled_report_time": "1643843973",
+              "source_event_id": "1",
+              "source_type": "navigation",
+              "randomized_trigger_rate": 0.0024263,
+              "trigger_data": "7",
+              "source_debug_key": "347982378",
+              "trigger_debug_key": "8971346781"
+            }
+          }
+        ],
+        "report_time": "1643408376000",
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/debug/verbose"
+      }
+    ]
+  }
+}

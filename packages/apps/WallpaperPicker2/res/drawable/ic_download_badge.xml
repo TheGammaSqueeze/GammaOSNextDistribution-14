@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="oval">
+            <size
+                android:width="@dimen/grid_item_badge_size"
+                android:height="@dimen/grid_item_badge_size" />
+            <solid android:color="@color/color_surface_variant" />
+        </shape>
+    </item>
+    <item
+        android:width="@dimen/grid_item_badge_indicator_size"
+        android:height="@dimen/grid_item_badge_indicator_size"
+        android:drawable="@drawable/ic_file_download_gm2_24px"
+        android:gravity="center" />
+</layer-list>

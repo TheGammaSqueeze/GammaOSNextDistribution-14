@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2018 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+           xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
+    <!-- Dialog title for presidential level alert. [CHAR LIMIT=50] -->
+    <string name="cmas_presidential_level_alert">Critical emergency alert</string>
+
+    <!-- Preference summary the "about cell broadcast messages" info required for some carriers.
+      Required Korean (ko) translation for this message:
+      "자연재해 및 긴급 재난 발생 시 휴대폰을 소지한 국민들에게 신속하게 국민행동요령 등 긴급 재난정보를 제공하는 서비스입니다\n\n※ 정부기관과 이동통신사 및 단말기 제조사의 협력으로 제공하는 공익적인 서비스로 단말기 및 통신망의 상태에 따라 수신이 안될 수 있음"
+ -->
+    <string name="alerts_header_summary">Your phone can send you alerts, like evacuation instructions, during natural disasters. This service is a collaboration between the National Emergency Management Agency, network providers, and device manufacturers.\n\nYou may not get alerts if there’s a problem with your device or if network conditions are poor.</string>
+
+</resources>

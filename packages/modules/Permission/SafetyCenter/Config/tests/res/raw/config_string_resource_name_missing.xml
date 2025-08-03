@@ -1,0 +1,15 @@
+<safety-center-config>
+    <safety-sources-config>
+        <safety-sources-group
+            id="id"
+            title="@com.android.safetycenter.config.tests:string/missing"
+            summary="@com.android.safetycenter.config.tests:string/reference">
+            <static-safety-source
+                id="id"
+                title="@com.android.safetycenter.config.tests:string/reference"
+                summary="@com.android.safetycenter.config.tests:string/reference"
+                intentAction="intent"
+                profile="1"/>
+        </safety-sources-group>
+    </safety-sources-config>
+</safety-center-config>

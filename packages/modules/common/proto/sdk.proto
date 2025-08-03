@@ -1,0 +1,78 @@
+/*
+ * Copyright (C) 2019 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto3";
+
+// The version of a single module.
+message SdkVersion {
+  int32 version = 1;
+}
+
+// All the modules that can be used for version requirements.
+//
+// The only modules that should be listed here are non-optional modules that
+// have Java APIs, i.e. their APEX contains a bootclaspath_fragment or a
+// systemserverclasspath_fragment.
+enum SdkModule {
+  UNKNOWN = 0;
+
+  // R modules
+  CONSCRYPT = 10;
+  EXT_SERVICES = 14;
+  IPSEC = 1;
+  MEDIA = 2;
+  MEDIA_PROVIDER = 3;
+  PERMISSIONS = 4;
+  SDK_EXTENSIONS = 5;
+  STATSD = 6;
+  TETHERING = 7;
+  // WIFI - optional
+
+  // S modules
+  ART = 8;
+  SCHEDULING = 9;
+
+  // T modules
+  AD_SERVICES = 11;
+  APPSEARCH = 12;
+  ON_DEVICE_PERSONALIZATION = 13;
+  // UWB - optional
+
+  // U modules
+  // BT_SERVICES - optional
+  CONFIG_INFRASTRUCTURE = 15;
+  HEALTH_FITNESS = 16;
+  // REMOTE_KEY_PROVISIONING - optional
+}
+
+// A single extension version.
+message ExtensionVersion {
+  message ModuleRequirement {
+    SdkModule module = 1;
+    SdkVersion version = 2;
+  }
+
+  // The extension version.
+  int32 version = 1;
+
+  // The modules required for this extension version.
+  repeated ModuleRequirement requirements = 2;
+}
+
+// All the defined extension versions.
+message ExtensionDatabase {
+  repeated ExtensionVersion versions = 1;
+}

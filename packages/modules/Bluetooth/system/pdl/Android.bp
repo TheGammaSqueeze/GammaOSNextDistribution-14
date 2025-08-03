@@ -1,0 +1,31 @@
+genrule_defaults {
+    name: "BluetoothGeneratedPackets_default",
+    tools: ["bluetooth_packetgen"],
+    cmd: "$(location bluetooth_packetgen) --fuzzing --testing --include=packages/modules/Bluetooth/system/pdl --out=$(genDir) $(in)",
+    defaults_visibility: [":__subpackages__"],
+}
+
+// TODO get rid of this by converting the l2cap cert tests (or deprecating them)
+genrule {
+    name: "BluetoothGeneratedPackets_python3_cc",
+    tools: [
+        "bluetooth_packetgen",
+    ],
+    cmd: "$(location bluetooth_packetgen) --include=packages/modules/Bluetooth/system/pdl --out=$(genDir) --num_shards=10 $(in)",
+    srcs: [
+        "l2cap/l2cap_packets.pdl",
+    ],
+    out: [
+        "l2cap/l2cap_packets_python3.cc",
+        "l2cap/l2cap_packets_python3_shard_0.cc",
+        "l2cap/l2cap_packets_python3_shard_1.cc",
+        "l2cap/l2cap_packets_python3_shard_2.cc",
+        "l2cap/l2cap_packets_python3_shard_3.cc",
+        "l2cap/l2cap_packets_python3_shard_4.cc",
+        "l2cap/l2cap_packets_python3_shard_5.cc",
+        "l2cap/l2cap_packets_python3_shard_6.cc",
+        "l2cap/l2cap_packets_python3_shard_7.cc",
+        "l2cap/l2cap_packets_python3_shard_8.cc",
+        "l2cap/l2cap_packets_python3_shard_9.cc",
+    ],
+}

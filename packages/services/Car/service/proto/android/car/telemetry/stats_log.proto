@@ -1,0 +1,120 @@
+/*
+ * Copyright (C) 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// Partial clone packages/modules/StatsD/statsd/src/stats_log.proto. Unused messages are not copied
+// here.
+
+syntax = "proto2";
+
+package android.car.telemetry;
+
+option java_package = "com.android.car.telemetry";
+option java_outer_classname = "StatsLogProto";
+
+import "packages/services/Car/service/proto/android/car/telemetry/atoms.proto";
+
+message DimensionsValueTuple {
+  repeated DimensionsValue dimensions_value = 1;
+}
+
+message DimensionsValue {
+  optional int32 field = 1;
+
+  oneof value {
+    string value_str = 2;
+    int32 value_int = 3;
+    int64 value_long = 4;
+    bool value_bool = 5;
+    float value_float = 6;
+    DimensionsValueTuple value_tuple = 7;
+    uint64 value_str_hash = 8;
+  }
+}
+
+message AggregatedAtomInfo {
+  optional Atom atom = 1;
+  repeated int64 elapsed_timestamp_nanos = 2;
+}
+
+message EventMetricData {
+  optional int64 elapsed_timestamp_nanos = 1;
+  optional Atom atom = 2;
+  optional AggregatedAtomInfo aggregated_atom_info = 4;
+  reserved 3;
+}
+
+message GaugeBucketInfo {
+  repeated Atom atom = 3;
+  repeated int64 elapsed_timestamp_nanos = 4;
+  repeated AggregatedAtomInfo aggregated_atom_info = 9;
+  reserved 1, 2, 5, 6, 7, 8;
+}
+
+message GaugeMetricData {
+  repeated GaugeBucketInfo bucket_info = 3;
+  repeated DimensionsValue dimension_leaf_values_in_what = 4;
+  reserved 1, 2, 5, 6;
+}
+
+message StatsLogReport {
+  optional int64 metric_id = 1;
+
+  message EventMetricDataWrapper {
+    repeated EventMetricData data = 1;
+  }
+
+  message GaugeMetricDataWrapper {
+    repeated GaugeMetricData data = 1;
+    reserved 2;
+  }
+
+  oneof data {
+    EventMetricDataWrapper event_metrics = 4;
+    GaugeMetricDataWrapper gauge_metrics = 8;
+  }
+
+  optional DimensionsValue dimensions_path_in_what = 11;
+
+  optional bool is_active = 14;
+
+  reserved 2, 3, 5, 6, 7, 9, 10, 12, 13, 15, 16;
+}
+
+message ConfigMetricsReport {
+  repeated StatsLogReport metrics = 1;
+
+  repeated string strings = 9;
+
+  reserved 2, 3, 4, 5, 6, 7, 8;
+}
+
+message ConfigMetricsReportList {
+  repeated ConfigMetricsReport reports = 2;
+
+  reserved 1, 10;
+}
+
+message StatsdStatsReport {
+  message ConfigStats {
+    optional int32 uid = 1;
+    optional int64 id = 2;
+    optional bool is_valid = 9;
+  }
+
+  repeated ConfigStats config_stats = 3;
+
+  reserved 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19;
+}

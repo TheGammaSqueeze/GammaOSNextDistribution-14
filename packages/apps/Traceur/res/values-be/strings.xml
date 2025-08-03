@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="system_tracing" msgid="4719188511746319848">"Трасіроўка сістэмы"</string>
+    <string name="record_system_activity" msgid="4339462312915377825">"Адсочванне і аналіз працоўных працэсаў з мэтай павышэння прадукцыйнасці сістэмы"</string>
+    <string name="record_trace" msgid="6416875085186661845">"Запісаць трасіроўку"</string>
+    <string name="record_trace_summary" msgid="6705357754827849292">"Запісвае трасіроўку сістэмы, выкарыстоўваючы канфігурацыю, зададзеную ў раздзеле \"Налады трасіроўкі\""</string>
+    <string name="record_stack_samples" msgid="3498368637185702335">"Запіс профілю ЦП"</string>
+    <string name="record_stack_samples_summary" msgid="7827953921526410478">"Запіс стэкаў выклікаў можна ўключыць таксама ў наладах трасіровак, выбраўшы катэгорыю \"ЦП\""</string>
+    <string name="record_heap_dump" msgid="1688550222066812696">"Запісваць дамп дынамічнай памяці"</string>
+    <string name="record_heap_dump_summary_enabled" msgid="5038675257021221777">"Будзе стварацца дамп дынамічнай памяці для працэсаў, выбраных у спісе \"Працэсы для дампу дынамічнай памяці\""</string>
+    <string name="record_heap_dump_summary_disabled" msgid="4640319333930345311">"Каб ствараць дампы дынамічнай памяці, выберыце хаця б адзін працэс у спісе \"Працэсы для дампу дынамічнай памяці\""</string>
+    <string name="start_new_trace" msgid="8177130420802170353">"Запусціць новую трасіроўку"</string>
+    <string name="winscope_tracing" msgid="5818984791154837458">"Запісваць трасіроўкі Winscope"</string>
+    <string name="winscope_tracing_summary" msgid="7040550156722395894">"Уключае падрабязныя тэлеметрычныя даныя пра карыстальніцкі інтэрфейс (можа выклікаць часовае завісанне)"</string>
+    <string name="trace_debuggable_applications" msgid="7957069895298887899">"Трасіраваць праграмы з магчымасцю адладкi"</string>
+    <string name="categories" msgid="2280163673538611008">"Катэгорыі"</string>
+    <string name="restore_default_categories" msgid="5090536794637169521">"Аднавіць стандартныя катэгорыі"</string>
+    <string name="default_categories_restored" msgid="6861683793680564181">"Стандартныя катэгорыі адноўлены"</string>
+    <string name="default_categories" msgid="2117679794687799407">"Стандартна"</string>
+    <string name="num_categories_selected" msgid="5772630335027553995">"{count,plural, =1{Вылучана: #}one{Вылучана: #}few{Вылучана: #}many{Вылучана: #}other{Вылучана: #}}"</string>
+    <string name="heap_dump_processes" msgid="2500105180344901939">"Працэсы для дампу дынамічнай памяці"</string>
+    <string name="heap_dump_processes_summary" msgid="4570434268024622765">"Выберыце як мінімум адзін працэс"</string>
+    <string name="clear_heap_dump_processes" msgid="295101454741555286">"Ачысціць працэсы для дампу дынамічнай памяці"</string>
+    <string name="clear_heap_dump_processes_toast" msgid="3658510557596150797">"Спіс працэсаў ачышчаны"</string>
+    <string name="continuous_heap_dump" msgid="390369382946204224">"Бесперапыннае стварэнне профілю кучы"</string>
+    <string name="continuous_heap_dump_summary" msgid="4581643248161659581">"Ствараць дамп дынамічнай памяці праз указаны інтэрвал часу"</string>
+    <string name="continuous_heap_dump_interval" msgid="842533896492001433">"Інтэрвал стварэння дампу дынамічнай памяці"</string>
+    <string name="five_seconds" msgid="7018465440929299712">"5 секунд"</string>
+    <string name="ten_seconds" msgid="863416601384309033">"10 секунд"</string>
+    <string name="thirty_seconds" msgid="7945396361369598222">"30 секунд"</string>
+    <string name="one_minute" msgid="4182508213840684258">"1 хвіліна"</string>
+    <string name="applications" msgid="521776761270770549">"Праграмы"</string>
+    <string name="no_debuggable_apps" msgid="4386209254520471208">"Няма даступных праграм з магчымасцю адладкi"</string>
+    <string name="buffer_size" msgid="3944311026715111454">"Памер буфера ў ЦП"</string>
+    <string name="show_quick_settings_tile" msgid="4971147332635291585">"Паказваць плітку хуткіх налад"</string>
+    <string name="saving_trace" msgid="1468692734770800541">"Трасіроўка захоўваецца"</string>
+    <string name="trace_saved" msgid="5869970594780992309">"Трасіроўка захавана"</string>
+    <string name="saving_stack_samples" msgid="8174915522390525221">"Захаванне ўзораў стэкаў"</string>
+    <string name="stack_samples_saved" msgid="8863295751647724616">"Узоры стэкаў захаваны"</string>
+    <string name="saving_heap_dump" msgid="6118616780825771824">"Ідзе захаванне дампу дынамічнай памяці"</string>
+    <string name="heap_dump_saved" msgid="6720583137473857098">"Дамп дынамічнай памяці захаваны"</string>
+    <string name="tap_to_share" msgid="4440713575852187545">"Націсніце, каб абагуліць запіс"</string>
+    <string name="attaching_to_report" msgid="2629202947947275886">"Да справаздачы пра памылкі далучаецца трасіроўка"</string>
+    <string name="attached_to_report" msgid="5806905349184608870">"Да справаздачы пра памылкі далучана трасіроўка"</string>
+    <string name="attached_to_report_summary" msgid="7665675771190391355">"Націсніце, каб адкрыць BetterBug"</string>
+    <string name="stop_tracing" msgid="8916938308534164152">"Спыніць трасіроўку"</string>
+    <string name="tracing_categories_unavailable" msgid="5609076391417077752">"Некаторыя катэгорыі трасіроўкі недаступныя:"</string>
+    <string name="trace_is_being_recorded" msgid="5947378146009337469">"Трасіроўка запісваецца"</string>
+    <string name="tap_to_stop_tracing" msgid="6533282719573871806">"Націсніце, каб спыніць трасіроўку"</string>
+    <string name="stack_samples_are_being_recorded" msgid="8669254939248349583">"Узоры стэкаў запісваюцца"</string>
+    <string name="tap_to_stop_stack_sampling" msgid="5911317684139059415">"Націсніце, каб спыніць запіс стэкаў"</string>
+    <string name="heap_dump_is_being_recorded" msgid="3789315106110524969">"Ідзе запіс дампу дынамічнай памяці"</string>
+    <string name="tap_to_stop_heap_dump" msgid="6475699275834526902">"Націсніце, каб спыніць стварэнне дампу дынамічнай памяці"</string>
+    <string name="clear_saved_files" msgid="9156079311231446825">"Выдаліць захаваныя файлы"</string>
+    <string name="clear_saved_files_summary" msgid="109751867417553670">"Запісы выдаляюцца праз адзін месяц"</string>
+    <string name="clear_saved_files_question" msgid="8586686617760838834">"Выдаліць захаваныя файлы?"</string>
+    <string name="all_recordings_will_be_deleted" msgid="7731693738485947891">"Усе запісы будуць выдалены з /data/local/traces"</string>
+    <string name="clear" msgid="5484761795406948056">"Выдаліць"</string>
+    <string name="system_traces_storage_title" msgid="8294090839883366871">"Трасіроўка сістэмы"</string>
+    <string name="keywords" msgid="736547007949049535">"systrace, трасіроўка, прадукцыйнасць"</string>
+    <string name="share_file" msgid="1982029143280382271">"Абагуліць файл?"</string>
+    <string name="system_trace_sensitive_data" msgid="3069389866696009549">"Файлы трасіроўкі сістэмы могуць утрымліваць канфідэнцыяльныя даныя пра сістэму і праграмы (напрыклад, пра выкарыстанне праграм). Абагульвайце іх толькі з тымі карыстальнікамі і праграмамі, якім давяраеце."</string>
+    <string name="share" msgid="8443979083706282338">"Абагуліць"</string>
+    <string name="dont_show_again" msgid="6662492041164390600">"Больш не паказваць"</string>
+    <string name="long_traces" msgid="5110949471775966329">"Доўгія трасіроўкі"</string>
+    <string name="long_traces_summary" msgid="419034282946761469">"Пастаянна захоўваецца ў сховішчы прылады"</string>
+    <string name="long_traces_summary_betterbug" msgid="445546400875135624">"Пастаянна захоўваецца ў сховішчы прылады (не будзе аўтаматычна далучацца да справаздач пра памылкі)"</string>
+    <string name="max_long_trace_size" msgid="1943788179787181241">"Максімальны памер доўгай трасіроўкі"</string>
+    <string name="max_long_trace_duration" msgid="8009837944364246785">"Максімальная працягласць доўгай трасіроўкі"</string>
+    <string name="two_hundred_mb" msgid="4950018549725084512">"200 МБ"</string>
+    <string name="one_gb" msgid="590396985168692037">"1 ГБ"</string>
+    <string name="five_gb" msgid="7883941043220621649">"5 ГБ"</string>
+    <string name="ten_gb" msgid="4150452462544299276">"10 ГБ"</string>
+    <string name="twenty_gb" msgid="5717308686812140465">"20 ГБ"</string>
+    <string name="ten_minutes" msgid="7039181194343961324">"10 хвілін"</string>
+    <string name="thirty_minutes" msgid="2575810799813531395">"30 хвілін"</string>
+    <string name="one_hour" msgid="5219232935307966891">"1 гадзіна"</string>
+    <string name="eight_hours" msgid="3207620892104451552">"8 гадзін"</string>
+    <string name="twelve_hours" msgid="4647143276394563496">"12 гадзін"</string>
+    <string name="twentyfour_hours" msgid="2789663313550030791">"24 гадзіны"</string>
+    <string name="four_thousand_kb" msgid="5156346740862105703">"4096 КБ"</string>
+    <string name="eight_thousand_kb" msgid="8815334985638334081">"8192 КБ"</string>
+    <string name="sixteen_thousand_kb" msgid="7342517169232459259">"16384 КБ"</string>
+    <string name="thirtytwo_thousand_kb" msgid="654328198799196150">"32768 КБ"</string>
+    <string name="sixtyfive_thousand_kb" msgid="8168144138598305306">"65536 КБ"</string>
+    <string name="stop_on_bugreport" msgid="4591832600597126422">"Спыняць запіс, калі ствараюцца справаздачы пра памылкі"</string>
+    <string name="stop_on_bugreport_summary" msgid="1601834864982891381">"Калі пачынаецца стварэнне справаздач пра памылкі, запіс спыняецца"</string>
+    <string name="attach_to_bug_report" msgid="5388986830016247490">"Далучаць запісы да справаздач пра памылкі"</string>
+    <string name="attach_to_bug_report_summary" msgid="4213730623971240002">"Пры складанні справаздачы пра памылкі аўтаматычна адпраўляць у BetterBug бягучыя даныя"</string>
+    <string name="link_to_traces" msgid="1404687523304348490">"Праглядзець захаваныя файлы"</string>
+    <string name="pref_category_trace_settings" msgid="6507535407023329628">"Налады трасіроўкі"</string>
+    <string name="pref_category_saved_files" msgid="1477491400970413291">"Захаваныя файлы"</string>
+    <string name="pref_category_misc" msgid="6217624054980014683">"Рознае"</string>
+    <string name="pref_category_heap_dump_settings" msgid="2234681064312605310">"Налады дампу дынамічнай памяці"</string>
+</resources>

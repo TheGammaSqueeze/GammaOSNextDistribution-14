@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+     Copyright (C) 2018 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="1647136562008520313">"Wallpaper and style"</string>
+    <string name="theme_title" msgid="2144932106319405101">"Style"</string>
+    <string name="clock_title" msgid="1974314575211361352">"Custom Clock"</string>
+    <string name="clock_description" msgid="3563839327378948">"Pick a custom clock"</string>
+    <string name="clock_picker_entry_content_description" msgid="8377139273468595734">"Change a custom clock"</string>
+    <string name="select_clock_action_description" msgid="5025888763471843648">"Clock face option <xliff:g id="ID_1">%1$s</xliff:g>"</string>
+    <string name="clock_settings_title" msgid="2050906379377120431">"Clock color &amp; size"</string>
+    <string name="clock_color_and_size_title" msgid="7146791234905111351">"Clock color &amp; size"</string>
+    <string name="clock_color_and_size_description" msgid="6578061553012886817">"<xliff:g id="ID_1">%1$s</xliff:g>, <xliff:g id="ID_2">%2$s</xliff:g>"</string>
+    <string name="clock_color" msgid="8081608867289156163">"Color"</string>
+    <string name="clock_color_red" msgid="3843504214807597810">"Red"</string>
+    <string name="clock_color_orange" msgid="4175805201144275804">"Orange"</string>
+    <string name="clock_color_yellow" msgid="7391699163247349977">"Yellow"</string>
+    <string name="clock_color_green" msgid="1991157556500156596">"Green"</string>
+    <string name="clock_color_blue" msgid="4037792003465759149">"Blue"</string>
+    <string name="clock_color_indigo" msgid="8910855386698452917">"Indigo"</string>
+    <string name="clock_color_violet" msgid="3454503847169375826">"Violet"</string>
+    <string name="clock_color_gray" msgid="9221530636948859231">"Grey"</string>
+    <string name="clock_color_teal" msgid="7499223425741344251">"Teal"</string>
+    <string name="clock_size" msgid="5028923902364418263">"Size"</string>
+    <string name="clock_size_dynamic" msgid="1023930312455061642">"Dynamic"</string>
+    <string name="clock_size_dynamic_description" msgid="2776620745774561662">"Clock size changes according to lock screen content"</string>
+    <string name="clock_size_large" msgid="3143248715744138979">"Large"</string>
+    <string name="clock_size_small" msgid="2280449912094164133">"Small"</string>
+    <string name="clock_size_small_description" msgid="4089511196955732480">"A small clock shows in the corner of your screen"</string>
+    <string name="grid_title" msgid="1688173478777254123">"App grid"</string>
+    <string name="apply_theme_btn" msgid="6293081192321303991">"Apply"</string>
+    <string name="edit_custom_theme_lbl" msgid="5211377705710775224">"Tap to edit"</string>
+    <string name="keep_my_wallpaper" msgid="8012385376769568517">"Keep current wallpaper"</string>
+    <string name="theme_preview_card_content_description" msgid="5989222908619535533">"Style preview"</string>
+    <string name="grid_preview_card_content_description" msgid="8449383777584714842">"Grid preview"</string>
+    <string name="font_preview_content_description" msgid="128230439293337891">"Font preview"</string>
+    <string name="icon_preview_content_description" msgid="7761101284351952890">"Icon preview"</string>
+    <string name="color_preview_content_description" msgid="4879120462082058124">"Color preview"</string>
+    <string name="shape_preview_content_description" msgid="6479487796176550432">"Shape preview"</string>
+    <string name="option_applied_description" msgid="5022305212078053534">"<xliff:g id="ID_1">%1$s</xliff:g>, currently applied"</string>
+    <string name="option_applied_previewed_description" msgid="5269654286638446858">"<xliff:g id="ID_1">%1$s</xliff:g>, currently applied and previewed"</string>
+    <string name="option_previewed_description" msgid="3467217598865047661">"<xliff:g id="ID_1">%1$s</xliff:g>, currently previewed"</string>
+    <string name="option_change_applied_previewed_description" msgid="9197311327728570816">"<xliff:g id="ID_1">%1$s</xliff:g>, change selected and previewed"</string>
+    <string name="theme_description" msgid="3697012391785254635">"Font: <xliff:g id="ID_1">%1$s</xliff:g>, icons: <xliff:g id="ID_2">%2$s</xliff:g>, shape: <xliff:g id="ID_3">%3$s</xliff:g>, color: <xliff:g id="ID_4">%4$s</xliff:g>"</string>
+    <string name="default_theme_title" msgid="2555741736622366797">"Default"</string>
+    <string name="preview_name_font" msgid="4465423899630037038">"Font"</string>
+    <string name="preview_name_icon" msgid="6818927315316316440">"Icon"</string>
+    <string name="preview_name_color" msgid="8776203144994416172">"Color"</string>
+    <string name="preview_name_shape" msgid="5676971146080968721">"Shape"</string>
+    <string name="preview_name_wallpaper" msgid="1738652462949531828">"Wallpaper"</string>
+    <string name="font_card_title" msgid="2343292653502548685">"ABC • abc • 123"</string>
+    <string name="font_card_body" msgid="6790525594503904468">"Add your favorite fonts to every screen"</string>
+    <string name="grid_options_title" msgid="7071930966989877023">"Choose a grid size"</string>
+    <string name="grid_title_pattern" msgid="9188866567612607806">"<xliff:g id="ID_1">%1$d</xliff:g>x<xliff:g id="ID_2">%2$d</xliff:g>"</string>
+    <string name="apply_grid_btn_note" msgid="2966021967355139181">"Changing grid size will reload workspace and may take a few seconds."</string>
+    <string name="toast_of_changing_grid" msgid="3515633981312731121">"Reloading workspace with %1$s grid"</string>
+    <string name="toast_of_failure_to_change_grid" msgid="1349622908271736044">"Failed to reload workspace with %1$s grid"</string>
+    <string name="applied_theme_msg" msgid="3749018706366796244">"Style set successfully"</string>
+    <string name="applied_clock_msg" msgid="1303338016701443767">"Clock set successfully"</string>
+    <string name="applied_grid_msg" msgid="3250499654436933034">"Grid set successfully"</string>
+    <string name="apply_theme_error_msg" msgid="791364062636538317">"There was a problem applying the style"</string>
+    <string name="custom_theme_next" msgid="6235420097213197301">"Next"</string>
+    <string name="custom_theme_previous" msgid="4941132112640503022">"Previous"</string>
+    <string name="custom_theme" msgid="1618351922263478163">"Custom"</string>
+    <string name="custom_theme_title" msgid="2192300350332693631">"Custom <xliff:g id="ID_1">%1$d</xliff:g>"</string>
+    <string name="custom_theme_fragment_title" msgid="6615547284702040280">"Custom Style"</string>
+    <string name="custom_theme_delete" msgid="4744494663184126202">"Delete"</string>
+    <string name="font_component_title" msgid="8800340833695292049">"Choose font"</string>
+    <string name="icon_component_title" msgid="5779787138399083903">"Choose icons"</string>
+    <string name="color_component_title" msgid="1194089273921078816">"Choose color"</string>
+    <string name="shape_component_title" msgid="8366847436022025538">"Choose shape"</string>
+    <string name="name_component_title" msgid="532425087968663437">"Name your style"</string>
+    <string name="icon_component_label" msgid="2625784884001407944">"Icons <xliff:g id="ID_1">%1$d</xliff:g>"</string>
+    <string name="delete_custom_theme_confirmation" msgid="4452137183628769394">"Delete Custom style?"</string>
+    <string name="delete_custom_theme_button" msgid="5102462988130208824">"Delete"</string>
+    <string name="cancel" msgid="4651030493668562067">"Cancel"</string>
+    <string name="set_theme_wallpaper_dialog_message" msgid="2179661027350908003">"Set style wallpaper"</string>
+    <string name="use_style_instead_title" msgid="1578754995763917502">"Use <xliff:g id="ID_1">%1$s</xliff:g> instead?"</string>
+    <string name="use_style_instead_body" msgid="3051937045807471496">"The components you chose match the <xliff:g id="ID_1">%1$s</xliff:g> style. Do you want to use <xliff:g id="ID_2">%1$s</xliff:g> instead?"</string>
+    <string name="use_style_button" msgid="1754493078383627019">"Use <xliff:g id="ID_1">%1$s</xliff:g>"</string>
+    <string name="no_thanks" msgid="7286616980115687627">"No, thanks"</string>
+    <string name="clock_preview_content_description" msgid="5460561185905717460">"<xliff:g id="ID_1">%1$s</xliff:g> clock preview"</string>
+    <string name="something_went_wrong" msgid="529840112449799117">"Oops! Something went wrong."</string>
+    <string name="theme_preview_icons_section_title" msgid="7064768910744000643">"Color / Icons"</string>
+    <string name="style_info_description" msgid="2612473574431003251">"Preview of font, icons, app shape, and color"</string>
+    <string name="accessibility_custom_font_title" msgid="966867359157303705">"Custom font"</string>
+    <string name="accessibility_custom_icon_title" msgid="5753297905849062296">"Custom icon"</string>
+    <string name="accessibility_custom_color_title" msgid="4124246598886320663">"Custom color"</string>
+    <string name="accessibility_custom_shape_title" msgid="7708408259374643129">"Custom shape"</string>
+    <string name="accessibility_custom_name_title" msgid="5494460518085463262">"Custom style name"</string>
+    <string name="accessibility_clock_slider_description" msgid="8374135133110681332">"Color intensity"</string>
+    <string name="mode_title" msgid="2394873501427436055">"Dark theme"</string>
+    <string name="mode_disabled_msg" msgid="9196245518435936512">"Temporarily disabled due to Battery Saver"</string>
+    <string name="mode_changed" msgid="2243581369395418584">"Theme changed"</string>
+    <string name="themed_icon_title" msgid="7312460430471956558">"Themed icons"</string>
+    <string name="beta_title" msgid="8703819523760746458">"Beta"</string>
+    <string name="gird_picker_entry_content_description" msgid="9087651470212293439">"Change app grid"</string>
+    <string name="wallpaper_color_tab" msgid="1447926591721403840">"Wallpaper colors"</string>
+    <string name="wallpaper_color_subheader" msgid="4044464573669965670">"Icons, text, and more match colors in your wallpaper"</string>
+    <string name="wallpaper_color_title" msgid="5687965239180986458">"Wallpaper color"</string>
+    <string name="preset_color_tab" msgid="3133391839341329314">"Basic colors"</string>
+    <string name="preset_color_tab_2" msgid="1444107326712562538">"Other colors"</string>
+    <string name="preset_color_subheader" msgid="8230588536141279371">"Choose any color for your icons, clock, and more"</string>
+    <string name="color_changed" msgid="7029571720331641235">"Color changed"</string>
+    <string name="adaptive_color_title" msgid="1336508599235896205">"Dynamic"</string>
+    <string name="color_picker_title" msgid="6666830057938082864">"System colors"</string>
+    <string name="keyguard_slot_name_bottom_start" msgid="8747677880200629719">"Left shortcut"</string>
+    <string name="keyguard_slot_name_bottom_end" msgid="2525487375680217083">"Right shortcut"</string>
+    <string name="keyguard_affordance_none" msgid="1751643933430782312">"None"</string>
+    <string name="keyguard_affordance_enablement_dialog_headline" msgid="365379085932610314">"Can\'t add shortcut"</string>
+    <string name="keyguard_affordance_enablement_dialog_action_template" msgid="8117011931337357438">"Open <xliff:g id="APPNAME">%1$s</xliff:g>"</string>
+    <string name="keyguard_affordance_enablement_dialog_message" msgid="6136286758939253570">"To add the <xliff:g id="APPNAME">%1$s</xliff:g> app as a shortcut, make sure"</string>
+    <string name="keyguard_affordance_enablement_dialog_dismiss_button" msgid="629754625264422508">"Done"</string>
+    <string name="keyguard_quick_affordance_title" msgid="4242813186995735584">"Shortcuts"</string>
+    <string name="keyguard_quick_affordance_section_title" msgid="2806304242671717309">"Shortcuts"</string>
+    <string name="keyguard_quick_affordance_two_selected_template" msgid="1757099194522296363">"<xliff:g id="FIRST">%1$s</xliff:g>, <xliff:g id="SECOND">%2$s</xliff:g>"</string>
+    <string name="keyguard_quick_affordance_none_selected" msgid="8494127020144112003">"None"</string>
+    <string name="show_notifications_on_lock_screen" msgid="4157744243084646720">"Show notifications on the lock screen"</string>
+    <string name="more_settings_section_title" msgid="1331425454775815958">"More lock screen options"</string>
+    <string name="more_settings_section_description" msgid="1860115709122398325">"Privacy, Now Playing, and more"</string>
+    <string name="more_colors" msgid="3191071655353004591">"More Colors"</string>
+    <string name="content_description_dynamic_color_option" msgid="2191721655642529886">"Primary dynamic theme"</string>
+    <string name="content_description_neutral_color_option" msgid="3385443834001275301">"Primary neutral theme"</string>
+    <string name="content_description_vibrant_color_option" msgid="2230249305878632821">"Primary vibrant theme"</string>
+    <string name="content_description_expressive_color_option" msgid="6081295313456341282">"Primary expressive theme"</string>
+    <string name="content_description_default_color_option" msgid="7011899327541080695">"Default color option"</string>
+    <string name="content_description_color_option" msgid="4169813692012119578">"Color option <xliff:g id="ID_1">%1$d</xliff:g>"</string>
+    <string name="scroll_forward_and_select" msgid="6156132388656395769">"Swipe left to choose a different clock face"</string>
+    <string name="scroll_backward_and_select" msgid="5472202348434803757">"Swipe right to choose a different clock face"</string>
+    <string name="custom_clocks_label" msgid="8168419717593569347">"Custom Clocks"</string>
+</resources>

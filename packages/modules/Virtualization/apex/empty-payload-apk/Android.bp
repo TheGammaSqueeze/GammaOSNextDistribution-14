@@ -1,0 +1,27 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_app {
+    name: "EmptyPayloadApp",
+    installable: true,
+    jni_libs: ["MicrodroidEmptyPayloadJniLib"],
+    apex_available: ["com.android.virt"],
+    sdk_version: "system_current",
+    jni_uses_platform_apis: true,
+    min_sdk_version: "34",
+    target_sdk_version: "34",
+    compile_multilib: "first",
+    stl: "none",
+}
+
+cc_library {
+    name: "MicrodroidEmptyPayloadJniLib",
+    defaults: ["avf_build_flags_cc"],
+    srcs: ["empty_binary.cpp"],
+    shared_libs: ["libvm_payload#current"],
+    installable: true,
+    apex_available: ["com.android.virt"],
+    compile_multilib: "first",
+    stl: "none",
+}

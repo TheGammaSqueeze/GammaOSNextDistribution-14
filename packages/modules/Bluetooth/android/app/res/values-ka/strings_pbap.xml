@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="pbap_session_key_dialog_title" msgid="5103201901254778256">"სესსის გასაღები %1$s-ისთვის"</string>
+    <string name="pbap_session_key_dialog_header" msgid="5073165544713355581">"აუცილებელია Bluetooth სესიის გასაღები"</string>
+    <string name="pbap_acceptance_timeout_message" msgid="3071798915563151284">"%1$s-თან კავშირის მიღების დრო ამოიწურა"</string>
+    <string name="pbap_authentication_timeout_message" msgid="2089914949828656737">"%1$s-თან სესიის გასაღების შეყვანის დრო ამოიწურა"</string>
+    <string name="auth_notif_ticker" msgid="7344125635314034621">"Obex ავტენთიფიკაციის მოთხოვნა"</string>
+    <string name="auth_notif_title" msgid="6639277119990416473">"სესიის გასაღები"</string>
+    <string name="auth_notif_message" msgid="7044369885874418693">"სესსის გასაღები %1$s-ისთვის"</string>
+    <string name="defaultname" msgid="6200530814398805541">"მანქანის ნაკრები"</string>
+    <string name="unknownName" msgid="6755061296103155293">"უცნობი სახელი"</string>
+    <string name="localPhoneName" msgid="9119254982537191352">"ჩემი სახელი"</string>
+    <string name="defaultnumber" msgid="5348816189286607406">"000000"</string>
+    <string name="pbap_notification_group" msgid="4215789331721465381">"Bluetooth კონტაქტის გაზიარება"</string>
+    <string name="phonebook_advance_feature_support" msgid="8129553051734505128">"სატელეფონო წიგნის მხარდაჭერილი გაფართოებული ფუნქციები"</string>
+    <string name="repair_for_adv_phonebook_feature" msgid="3489797973131684927">"შეკეთება სატელეფონო წიგნის გაფართოებული ფუნქციისთვის"</string>
+</resources>

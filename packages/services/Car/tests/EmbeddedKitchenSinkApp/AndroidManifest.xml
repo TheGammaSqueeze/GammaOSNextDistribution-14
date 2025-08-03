@@ -1,0 +1,478 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2015 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+     android:sharedUserId="com.google.android.car.uid.kitchensink"
+     package="com.google.android.car.kitchensink">
+    <uses-permission android:name="android.car.permission.ACCESS_CAR_PROJECTION_STATUS"/>
+    <uses-permission android:name="android.car.permission.CAR_CAMERA"/>
+    <uses-permission android:name="android.car.permission.CAR_CONTROL_AUDIO_SETTINGS"/>
+    <uses-permission android:name="android.car.permission.CAR_CONTROL_AUDIO_VOLUME"/>
+    <uses-permission android:name="android.car.permission.CAR_DIAGNOSTICS"/>
+    <uses-permission android:name="android.car.permission.CAR_DISPLAY_IN_CLUSTER"/>
+    <!-- use for display mirroring in kitchen sink -->
+    <uses-permission android:name="android.permission.READ_FRAME_BUFFER" />
+    <!-- use for CarServiceTest -->
+    <uses-permission android:name="android.car.permission.CAR_DRIVING_STATE"/>
+    <uses-permission android:name="android.car.permission.CAR_ENERGY"/>
+    <uses-permission android:name="android.car.permission.CAR_MONITOR_CLUSTER_NAVIGATION_STATE"/>
+    <!-- use for AndroidCarApiTest -->
+    <uses-permission android:name="android.car.permission.CAR_INFO"/>
+    <!-- use for AndroidCarApiTest -->
+    <uses-permission android:name="android.car.permission.CAR_PROJECTION"/>
+    <uses-permission android:name="android.car.permission.CAR_INSTRUMENT_CLUSTER_CONTROL"/>
+    <uses-permission android:name="android.car.permission.CAR_MILEAGE"/>
+    <uses-permission android:name="android.car.permission.CAR_MOCK_VEHICLE_HAL"/>
+    <uses-permission android:name="android.car.permission.CAR_NAVIGATION_MANAGER"/>
+    <!-- use for CarServiceTest -->
+    <uses-permission android:name="android.car.permission.CAR_EXTERIOR_ENVIRONMENT"/>
+    <uses-permission android:name="android.car.permission.CAR_POWER"/>
+    <!-- use for CarServiceTest -->
+    <uses-permission android:name="android.car.permission.CAR_POWERTRAIN"/>
+    <uses-permission android:name="android.car.permission.CONTROL_CAR_POWERTRAIN"/>
+    <uses-permission android:name="android.car.permission.CAR_SPEED"/>
+     <!-- use for CarServiceTest -->
+    <uses-permission android:name="android.car.permission.CAR_TEST_SERVICE"/>
+    <!-- use for CarServiceTest -->
+    <uses-permission android:name="android.car.permission.CAR_VENDOR_EXTENSION"/>
+    <!-- use for CarServiceTest -->
+    <uses-permission android:name="android.car.permission.CAR_UX_RESTRICTIONS_CONFIGURATION"/>
+    <!-- use for AndroidCarApiTest -->
+    <uses-permission android:name="android.car.permission.CONTROL_CAR_APP_LAUNCH"/>
+    <uses-permission android:name="android.car.permission.CONTROL_CAR_CLIMATE"/>
+    <uses-permission android:name="android.car.permission.READ_CAR_STEERING"/>
+    <uses-permission android:name="android.car.permission.STORAGE_MONITORING"/>
+    <uses-permission android:name="android.car.permission.CAR_DYNAMICS_STATE"/>
+    <uses-permission android:name="android.car.permission.CONTROL_CAR_DYNAMICS_STATE"/>
+    <uses-permission android:name="android.car.permission.CONTROL_APP_BLOCKING"/>
+    <!-- use for CarServiceTest -->
+    <uses-permission android:name="android.car.permission.USE_CAR_TELEMETRY_SERVICE"/>
+    <!-- Allow querying and writing to any property -->
+    <uses-permission android:name="android.car.permission.READ_DRIVER_MONITORING_SETTINGS"/>
+    <uses-permission android:name="android.car.permission.CONTROL_DRIVER_MONITORING_SETTINGS"/>
+    <uses-permission android:name="android.car.permission.READ_DRIVER_MONITORING_STATES"/>
+    <uses-permission android:name="android.car.permission.CAR_ENERGY_PORTS" />
+    <uses-permission android:name="android.car.permission.PERMISSION_CONTROL_ENERGY_PORTS" />
+    <uses-permission android:name="android.car.permission.CAR_EXTERIOR_LIGHTS" />
+    <uses-permission android:name="android.car.permission.CAR_TIRES" />
+    <uses-permission android:name="android.car.permission.CONTROL_CAR_DOORS" />
+    <uses-permission android:name="android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS" />
+    <uses-permission android:name="android.car.permission.CONTROL_CAR_MIRRORS" />
+    <uses-permission android:name="android.car.permission.CONTROL_GLOVE_BOX" />
+    <uses-permission android:name="android.car.permission.CONTROL_CAR_SEATS" />
+    <uses-permission android:name="android.car.permission.READ_CAR_SEAT_BELTS" />
+    <uses-permission android:name="android.car.permission.READ_IMPACT_SENSORS" />
+    <uses-permission android:name="android.car.permission.READ_VALET_MODE" />
+    <uses-permission android:name="android.car.permission.CONTROL_VALET_MODE" />
+    <uses-permission android:name="android.car.permission.READ_HEAD_UP_DISPLAY_STATUS" />
+    <uses-permission android:name="android.car.permission.CONTROL_HEAD_UP_DISPLAY" />
+    <uses-permission android:name="android.car.permission.CONTROL_CAR_WINDOWS" />
+    <uses-permission android:name="android.car.permission.READ_CAR_AIRBAGS"/>
+    <uses-permission android:name="android.car.permission.CONTROL_CAR_AIRBAGS"/>
+    <uses-permission android:name="android.car.permission.READ_CAR_DISPLAY_UNITS" />
+    <uses-permission android:name="android.car.permission.CONTROL_CAR_DISPLAY_UNITS" />
+    <uses-permission android:name="android.car.permission.CAR_IDENTIFICATION" />
+    <uses-permission android:name="android.car.permission.PERMISSION_ADJUST_RANGE_REMAINING" />
+    <uses-permission android:name="android.car.permission.PERMISSION_CAR_ENGINE_DETAILED" />
+    <uses-permission android:name="android.car.permission.CONTROL_STEERING_WHEEL" />
+    <uses-permission android:name="android.car.permission.READ_ADAS_SETTINGS" />
+    <uses-permission android:name="android.car.permission.CONTROL_ADAS_SETTINGS" />
+    <uses-permission android:name="android.car.permission.READ_ADAS_STATES" />
+    <uses-permission android:name="android.car.permission.CONTROL_ADAS_STATES" />
+    <uses-permission android:name="android.car.permission.READ_WINDSHIELD_WIPERS" />
+    <uses-permission android:name="android.car.permission.CONTROL_WINDSHIELD_WIPERS" />
+    <uses-permission android:name="android.car.permission.CAR_EPOCH_TIME" />
+    <uses-permission android:name="android.car.permission.READ_ULTRASONICS_SENSOR_DATA" />
+    <!-- use for CarServiceTest -->
+    <uses-permission android:name="android.car.permission.VMS_PUBLISHER"/>
+    <!-- use for CarServiceTest -->
+    <uses-permission android:name="android.car.permission.VMS_SUBSCRIBER"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_VOICE_INTERACTION_SERVICE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.ACTIVITY_EMBEDDING"/>
+    <uses-permission android:name="android.permission.BACKUP"/>
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_PRIVILEGED"/>
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CONNECTIVITY_USE_RESTRICTED_NETWORKS"/>
+    <uses-permission android:name="android.permission.LOCATION_BYPASS" />
+    <!-- Use for sensor access in Sensors fragment. -->
+    <uses-permission android:name="android.permission.HIGH_SAMPLING_RATE_SENSORS"/>
+    <uses-permission android:name="android.permission.INJECT_EVENTS"/>
+    <!-- use for CarServiceUnitTest and CarServiceTest -->
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS"/>
+    <!-- use for CarServiceUnitTest -->
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL"/>
+    <uses-permission android:name="android.permission.INTERNAL_SYSTEM_WINDOW"/>
+    <uses-permission android:name="android.permission.LOCATION_HARDWARE"/>
+    <uses-permission android:name="android.permission.MANAGE_USB"/>
+    <uses-permission android:name="android.permission.MANAGE_USERS"/>
+    <!-- use for CarPerformanceTestFragment -->
+    <uses-permission android:name="android.car.permission.MANAGE_THREAD_PRIORITY"/>
+    <!-- use for SimpleUserPickerFragment -->
+    <uses-permission android:name="android.car.permission.ACCESS_PRIVATE_DISPLAY_ID"/>
+    <!-- use for CarServiceTest -->
+    <uses-permission android:name="android.permission.MEDIA_CONTENT_CONTROL"/>
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_ROUTING"/>
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.MODIFY_DAY_NIGHT_MODE"/>
+    <uses-permission android:name="android.permission.MODIFY_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.OVERRIDE_WIFI_CONFIG"/>
+    <uses-permission android:name="android.permission.PROVIDE_TRUST_AGENT"/>
+    <!-- Allow query of any normal app on the device in R+ -->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"/>
+    <uses-permission android:name="android.permission.READ_LOGS"/>
+    <uses-permission android:name="android.permission.READ_SMS"/>
+    <uses-permission android:name="android.permission.REAL_GET_TASKS"/>
+    <uses-permission android:name="android.permission.REBOOT"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.SEND_CATEGORY_CAR_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.SEND_SMS"/>
+    <!-- use for CarServiceTest -->
+    <uses-permission android:name="android.permission.MONITOR_INPUT"/>
+    <uses-permission android:name="android.permission.SET_ACTIVITY_WATCHER"/>
+    <!-- use for CarWatchdogReliabilityTest -->
+    <uses-permission android:name="android.car.permission.USE_CAR_WATCHDOG" />
+    <!-- needed for User fragment to lock user data -->
+    <uses-permission android:name="android.permission.STORAGE_INTERNAL"/>
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS"/>
+    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
+    <!-- use for vendor properties -->
+    <uses-permission android:name="android.car.permission.CAR_VENDOR_EXTENSION"/>
+    <uses-permission android:name="android.car.permission.GET_CAR_VENDOR_CATEGORY_SEAT"/>
+    <uses-permission android:name="android.car.permission.GET_CAR_VENDOR_CATEGORY_INFO"/>
+    <uses-permission android:name="android.car.permission.SET_CAR_VENDOR_CATEGORY_INFO"/>
+    <uses-permission android:name="android.car.permission.GET_CAR_VENDOR_CATEGORY_WINDOW"/>
+    <uses-permission android:name="android.car.permission.SET_CAR_VENDOR_CATEGORY_WINDOW"/>
+    <uses-permission android:name="android.car.permission.GET_CAR_VENDOR_CATEGORY_DOOR"/>
+    <uses-permission android:name="android.car.permission.SET_CAR_VENDOR_CATEGORY_DOOR"/>
+    <uses-permission android:name="android.car.permission.SET_CAR_VENDOR_CATEGORY_SEAT"/>
+    <uses-permission android:name="android.car.permission.GET_CAR_VENDOR_CATEGORY_MIRROR"/>
+    <uses-permission android:name="android.car.permission.SET_CAR_VENDOR_CATEGORY_MIRROR"/>
+    <uses-permission android:name="android.car.permission.GET_CAR_VENDOR_CATEGORY_ENGINE"/>
+    <uses-permission android:name="android.car.permission.SET_CAR_VENDOR_CATEGORY_ENGINE"/>
+    <uses-permission android:name="android.car.permission.GET_CAR_VENDOR_CATEGORY_HVAC"/>
+    <uses-permission android:name="android.car.permission.SET_CAR_VENDOR_CATEGORY_HVAC"/>
+    <uses-permission android:name="android.car.permission.GET_CAR_VENDOR_CATEGORY_LIGHT"/>
+    <uses-permission android:name="android.car.permission.SET_CAR_VENDOR_CATEGORY_LIGHT"/>
+    <uses-permission android:name="android.car.permission.GET_CAR_VENDOR_CATEGORY_1"/>
+    <uses-permission android:name="android.car.permission.SET_CAR_VENDOR_CATEGORY_1"/>
+    <uses-permission android:name="android.car.permission.GET_CAR_VENDOR_CATEGORY_2"/>
+    <uses-permission android:name="android.car.permission.SET_CAR_VENDOR_CATEGORY_2"/>
+    <uses-permission android:name="android.car.permission.GET_CAR_VENDOR_CATEGORY_3"/>
+    <uses-permission android:name="android.car.permission.SET_CAR_VENDOR_CATEGORY_3"/>
+    <uses-permission android:name="android.car.permission.GET_CAR_VENDOR_CATEGORY_4"/>
+    <uses-permission android:name="android.car.permission.SET_CAR_VENDOR_CATEGORY_4"/>
+    <uses-permission android:name="android.car.permission.GET_CAR_VENDOR_CATEGORY_5"/>
+    <uses-permission android:name="android.car.permission.SET_CAR_VENDOR_CATEGORY_5"/>
+    <uses-permission android:name="android.car.permission.GET_CAR_VENDOR_CATEGORY_6"/>
+    <uses-permission android:name="android.car.permission.SET_CAR_VENDOR_CATEGORY_6"/>
+    <uses-permission android:name="android.car.permission.GET_CAR_VENDOR_CATEGORY_7"/>
+    <uses-permission android:name="android.car.permission.SET_CAR_VENDOR_CATEGORY_7"/>
+    <uses-permission android:name="android.car.permission.GET_CAR_VENDOR_CATEGORY_8"/>
+    <uses-permission android:name="android.car.permission.SET_CAR_VENDOR_CATEGORY_8"/>
+    <uses-permission android:name="android.car.permission.GET_CAR_VENDOR_CATEGORY_9"/>
+    <uses-permission android:name="android.car.permission.SET_CAR_VENDOR_CATEGORY_9"/>
+    <uses-permission android:name="android.car.permission.GET_CAR_VENDOR_CATEGORY_10"/>
+    <uses-permission android:name="android.car.permission.SET_CAR_VENDOR_CATEGORY_10"/>
+
+    <uses-permission android:name="android.car.permission.CONTROL_CAR_FEATURES"/>
+
+    <!-- use for rotary fragment to enable/disable packages related to rotary -->
+    <uses-permission android:name="android.permission.CHANGE_COMPONENT_ENABLED_STATE"/>
+
+    <!-- Used on DEVICE POLICY screen to lock screen -->
+    <uses-permission android:name="android.permission.LOCK_DEVICE"/>
+    <!-- Used on DEVICE POLICY screen to reset password -->
+    <uses-permission android:name="android.permission.RESET_PASSWORD"/>
+    <!-- Used on DEVICE POLICY screen to wipe data -->
+    <uses-permission android:name="android.permission.MASTER_CLEAR"/>
+
+    <!-- Allows to use the CarEvsService -->
+    <uses-permission android:name="android.car.permission.REQUEST_CAR_EVS_ACTIVITY"/>
+    <uses-permission android:name="android.car.permission.CONTROL_CAR_EVS_ACTIVITY"/>
+    <uses-permission android:name="android.car.permission.USE_CAR_EVS_CAMERA"/>
+    <uses-permission android:name="android.car.permission.MONITOR_CAR_EVS_STATUS"/>
+
+    <!-- use for InjectMotionTestFragment -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+
+    <!-- Allows sending of notifications in T+ -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
+    <!-- To make curl downloads work in CarTelemetryTestFragment -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- To enable suspend to RAM emulation via shell command in CarTelemetryTestFragment -->
+    <uses-permission android:name="android.permission.DEVICE_POWER"/>
+    <!-- To allow turning on RROs in DriveModeSwitchFragment -->
+    <uses-permission android:name="android.permission.CHANGE_OVERLAY_PACKAGES"/>
+
+    <!-- To be a remote task client -->
+    <uses-permission android:name="android.car.permission.USE_REMOTE_ACCESS"/>
+    <uses-permission android:name="android.car.permission.CONTROL_REMOTE_ACCESS"/>
+
+    <!-- use for BiometricPromptTestFragment to test the API -->
+    <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
+
+    <!-- To view dumpsys output -->
+    <uses-permission android:name="android.permission.DUMP"/>
+
+    <!-- To access Camera2 -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.CAMERA_HEADLESS_SYSTEM_USER"/>
+    <uses-permission android:name="android.permission.CAMERA_PRIVACY_ALLOWLIST"/>
+
+    <!-- Use for RadioTestFragment -->
+    <uses-permission android:name="android.permission.ACCESS_BROADCAST_RADIO"/>
+
+    <!-- Allow backup is set to false for KitchenSinkApp to avoid infinite loop during backup -->
+    <application
+        android:label="@string/app_title"
+        android:allowBackup="false"
+        android:icon="@drawable/ic_launcher">
+        <uses-library android:name="android.test.runner"/>
+        <!-- This is for embedded mode.
+            showForAllUsers is required to be able to launch Kitchensink as system user for
+            remote access test fragment. The KitchenSinkRemoteTaskService is launched as system
+            user and we need to launch the activity as system user as well to access the data stored
+            by the service.
+        -->
+
+        <activity android:name=".KitchenSink2Activity"
+            android:launchMode="singleTop"
+            android:exported="true"
+            android:theme="@style/Theme.CarUi.NoToolbar"
+            android:label="@string/app_title">
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".KitchenSinkActivity"
+             android:theme="@style/KitchenSinkActivityTheme"
+             android:label="@string/app_title"
+             android:configChanges="uiMode"
+             android:launchMode="singleTask"
+             android:exported="true"
+             android:showForAllUsers="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.DIAL" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.DIAL" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="tel" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".insets.WindowInsetsTestActivity"
+                  android:label="@string/window_insets_test_activity"/>
+
+        <meta-data android:name="android.car.application"
+             android:resource="@xml/automotive_app_desc"/>
+
+        <!-- Car Mainline version -->
+        <meta-data android:name="android.car.targetCarVersion" android:value="33:1"/>
+
+        <activity android:name=".orientation.LandscapeActivity"
+             android:label="@string/landscpae_activity"
+             android:screenOrientation="landscape"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".orientation.PortraitActivity"
+             android:label="@string/portrait_activity"
+             android:screenOrientation="portrait"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".camera2.CameraSystemActivity"
+             android:label="@string/camera2_user0"
+             android:showForAllUsers="true"
+             android:exported="true">
+            <intent-filter>
+              <action android:name="android.intent.action.MAIN"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".cluster.FakeClusterNavigationActivity"
+             android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+             android:launchMode="singleInstance"
+             android:resizeableActivity="true"
+             android:allowEmbedded="true"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.car.cluster.NAVIGATION"/>
+            </intent-filter>
+        </activity>
+
+        <service android:name=".vendorservice.LogLifecycleService"
+             android:exported="false"
+             android:directBootAware="true">
+        </service>
+
+        <service android:name=".UserNoticeDemoUiService"
+             android:directBootAware="true"/>
+
+        <!-- Content provider for images -->
+        <provider android:name=".cluster.ClusterContentProvider"
+             android:authorities="com.google.android.car.kitchensink.cluster.clustercontentprovider"
+             android:grantUriPermissions="true"
+             android:exported="true"/>
+
+        <activity android:name=".AlwaysCrashingActivity"
+             android:label="@string/always_crashing_activity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".AudioAutoStartActivity"
+            android:label="@string/audio_auto_start_activity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".OccupantZoneStartActivity"
+            android:label="@string/occupant_zone_start_activity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".UserPickerActivity"
+            android:label="@string/user_picker_activity"
+            android:icon="@drawable/ic_user_picker"
+            android:exported="true"
+            android:launchMode="standard"
+            android:excludeFromRecents="true"
+            android:directBootAware="true"
+            android:showForAllUsers="true">
+            <intent-filter>
+              <action android:name="android.intent.action.MAIN"/>
+              <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".NoCrashActivity"
+             android:label="@string/no_crash_activity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".EmptyActivity"
+             android:label="@string/empty_activity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".activityresolver.TestActivity1"
+            android:exported="true"
+            android:label="Test Activity 1">
+            <intent-filter>
+                <action android:name="com.google.android.car.kitchensink.activityresolver.TRIGGER_ACTIVITY_RESOLVER" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".activityresolver.TestActivity2"
+            android:exported="true"
+            android:label="Test Activity 2">
+            <intent-filter>
+                <action android:name="com.google.android.car.kitchensink.activityresolver.TRIGGER_ACTIVITY_RESOLVER" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".activityresolver.TestActivity3"
+            android:exported="true"
+            android:label="Test Activity 3">
+            <intent-filter>
+                <action android:name="com.google.android.car.kitchensink.activityresolver.TRIGGER_ACTIVITY_RESOLVER" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <service android:name=".bluetooth.InCallServiceImpl"
+                 android:exported="false"
+                 android:permission="android.permission.BIND_INCALL_SERVICE">
+            <meta-data android:name="android.telecom.IN_CALL_SERVICE_UI" android:value="true" />
+            <meta-data android:name="android.telecom.IN_CALL_SERVICE_RINGING"
+                       android:value="true" />
+            <intent-filter>
+                <action android:name="android.telecom.InCallService"/>
+            </intent-filter>
+        </service>
+
+        <service android:name=".media.MediaBrowserProxyService"
+                 android:exported="false">
+        </service>
+
+    <!-- This is a backup transport layer, the system recognizes it as a transport host. -->
+        <service android:name=".backup.KitchenSinkBackupTransportService"
+                 android:permission="android.permission.CONFIRM_FULL_BACKUP"
+                 android:exported="false">
+            <intent-filter>
+                <action android:name="android.backup.TRANSPORT_HOST" />
+            </intent-filter>
+        </service>
+
+        <service android:name=".remoteaccess.KitchenSinkRemoteTaskService"
+                 android:directBootAware="true"
+                 android:exported="true">
+            <intent-filter>
+                <action android:name="android.car.remoteaccess.RemoteTaskClientService" />
+            </intent-filter>
+        </service>
+    </application>
+</manifest>

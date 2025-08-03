@@ -1,0 +1,87 @@
+<!--
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources>
+    <color name="system_accent1_0">@color/car_primary_100</color>
+    <color name="system_accent1_10">@color/car_primary_99</color>
+    <color name="system_accent1_50">@color/car_primary_95</color>
+    <color name="system_accent1_100">@color/car_primary_90</color>
+    <color name="system_accent1_200">@color/car_primary_80</color>
+    <color name="system_accent1_300">@color/car_primary_70</color>
+    <color name="system_accent1_400">@color/car_primary_60</color>
+    <color name="system_accent1_500">@color/car_primary_50</color>
+    <color name="system_accent1_600">@color/car_primary_40</color>
+    <color name="system_accent1_700">@color/car_primary_30</color>
+    <color name="system_accent1_800">@color/car_primary_20</color>
+    <color name="system_accent1_900">@color/car_primary_10</color>
+    <color name="system_accent1_1000">@color/car_primary_0</color>
+
+    <color name="system_accent2_0">@color/car_secondary_100</color>
+    <color name="system_accent2_10">@color/car_secondary_99</color>
+    <color name="system_accent2_50">@color/car_secondary_95</color>
+    <color name="system_accent2_100">@color/car_secondary_90</color>
+    <color name="system_accent2_200">@color/car_secondary_80</color>
+    <color name="system_accent2_300">@color/car_secondary_70</color>
+    <color name="system_accent2_400">@color/car_secondary_60</color>
+    <color name="system_accent2_500">@color/car_secondary_50</color>
+    <color name="system_accent2_600">@color/car_secondary_40</color>
+    <color name="system_accent2_700">@color/car_secondary_30</color>
+    <color name="system_accent2_800">@color/car_secondary_20</color>
+    <color name="system_accent2_900">@color/car_secondary_10</color>
+    <color name="system_accent2_1000">@color/car_secondary_0</color>
+
+    <color name="system_accent3_0">@color/car_tertiary_100</color>
+    <color name="system_accent3_10">@color/car_tertiary_99</color>
+    <color name="system_accent3_50">@color/car_tertiary_95</color>
+    <color name="system_accent3_100">@color/car_tertiary_90</color>
+    <color name="system_accent3_200">@color/car_tertiary_80</color>
+    <color name="system_accent3_300">@color/car_tertiary_70</color>
+    <color name="system_accent3_400">@color/car_tertiary_60</color>
+    <color name="system_accent3_500">@color/car_tertiary_50</color>
+    <color name="system_accent3_600">@color/car_tertiary_40</color>
+    <color name="system_accent3_700">@color/car_tertiary_30</color>
+    <color name="system_accent3_800">@color/car_tertiary_20</color>
+    <color name="system_accent3_900">@color/car_tertiary_10</color>
+    <color name="system_accent3_1000">@color/car_tertiary_0</color>
+
+    <color name="system_neutral1_0">@color/car_neutral_100</color>
+    <color name="system_neutral1_10">@color/car_neutral_99</color>
+    <color name="system_neutral1_50">@color/car_neutral_95</color>
+    <color name="system_neutral1_100">@color/car_neutral_90</color>
+    <color name="system_neutral1_200">@color/car_neutral_80</color>
+    <color name="system_neutral1_300">@color/car_neutral_70</color>
+    <color name="system_neutral1_400">@color/car_neutral_60</color>
+    <color name="system_neutral1_500">@color/car_neutral_50</color>
+    <color name="system_neutral1_600">@color/car_neutral_40</color>
+    <color name="system_neutral1_700">@color/car_neutral_30</color>
+    <color name="system_neutral1_800">@color/car_neutral_20</color>
+    <color name="system_neutral1_900">@color/car_neutral_10</color>
+    <color name="system_neutral1_1000">@color/car_neutral_0</color>
+
+    <color name="system_neutral2_0">@color/car_neutral_variant_100</color>
+    <color name="system_neutral2_10">@color/car_neutral_variant_99</color>
+    <color name="system_neutral2_50">@color/car_neutral_variant_95</color>
+    <color name="system_neutral2_100">@color/car_neutral_variant_90</color>
+    <color name="system_neutral2_200">@color/car_neutral_variant_80</color>
+    <color name="system_neutral2_300">@color/car_neutral_variant_70</color>
+    <color name="system_neutral2_400">@color/car_neutral_variant_60</color>
+    <color name="system_neutral2_500">@color/car_neutral_variant_50</color>
+    <color name="system_neutral2_600">@color/car_neutral_variant_40</color>
+    <color name="system_neutral2_700">@color/car_neutral_variant_30</color>
+    <color name="system_neutral2_800">@color/car_neutral_variant_20</color>
+    <color name="system_neutral2_900">@color/car_neutral_variant_10</color>
+    <color name="system_neutral2_1000">@color/car_neutral_variant_0</color>
+
+</resources>

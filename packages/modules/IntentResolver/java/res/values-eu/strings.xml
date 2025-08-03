@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2021 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="whichApplication" msgid="2309561338625872614">"Gauzatu ekintza hau erabilita:"</string>
+    <string name="whichApplicationNamed" msgid="8514249643796783492">"Gauzatu ekintza <xliff:g id="APP">%1$s</xliff:g> erabilita"</string>
+    <string name="whichApplicationLabel" msgid="4312929689807826793">"Osatu ekintza"</string>
+    <string name="whichViewApplication" msgid="7660051361612888119">"Ireki honekin"</string>
+    <string name="whichViewApplicationNamed" msgid="8231810543224200555">"Ireki <xliff:g id="APP">%1$s</xliff:g> aplikazioaren bidez"</string>
+    <string name="whichViewApplicationLabel" msgid="9123647023323311663">"Ireki"</string>
+    <string name="whichOpenHostLinksWith" msgid="6664206254809230738">"Ireki <xliff:g id="HOST">%1$s</xliff:g> ostalariko estekak honekin:"</string>
+    <string name="whichOpenLinksWith" msgid="3468042265545684416">"Ireki estekak honekin:"</string>
+    <string name="whichOpenLinksWithApp" msgid="8832514962474825330">"Ireki estekak <xliff:g id="APPLICATION">%1$s</xliff:g> aplikazioarekin"</string>
+    <string name="whichOpenHostLinksWithApp" msgid="6626134603937682461">"Ireki <xliff:g id="HOST">%1$s</xliff:g> ostalariko estekak <xliff:g id="APPLICATION">%2$s</xliff:g> aplikazioarekin"</string>
+    <string name="whichGiveAccessToApplicationLabel" msgid="5120142857844152131">"Eman baimena"</string>
+    <string name="whichEditApplication" msgid="5097563012157950614">"Editatu honekin:"</string>
+    <string name="whichEditApplicationNamed" msgid="3150137489226219100">"Editatu <xliff:g id="APP">%1$s</xliff:g> aplikazioarekin"</string>
+    <string name="whichEditApplicationLabel" msgid="5992662938338600364">"Editatu"</string>
+    <string name="whichSendApplication" msgid="59510564281035884">"Partekatu"</string>
+    <string name="whichSendApplicationNamed" msgid="495577664218765855">"Partekatu <xliff:g id="APP">%1$s</xliff:g> aplikazioarekin"</string>
+    <string name="whichSendApplicationLabel" msgid="2391198069286568035">"Partekatu"</string>
+    <string name="whichSendToApplication" msgid="2724450540348806267">"Bidali honen bidez:"</string>
+    <string name="whichSendToApplicationNamed" msgid="1996548940365954543">"Bidali <xliff:g id="APP">%1$s</xliff:g> erabilita"</string>
+    <string name="whichSendToApplicationLabel" msgid="6909037198280591110">"Bidali"</string>
+    <string name="whichHomeApplication" msgid="8797832422254564739">"Hautatu hasierako aplikazioa"</string>
+    <string name="whichHomeApplicationNamed" msgid="3943122502791761387">"Erabili <xliff:g id="APP">%1$s</xliff:g> hasierako pantaila gisa"</string>
+    <string name="whichHomeApplicationLabel" msgid="2066319585322981524">"Atera argazkia"</string>
+    <string name="whichImageCaptureApplication" msgid="7830965894804399333">"Atera argazkia aplikazio honekin:"</string>
+    <string name="whichImageCaptureApplicationNamed" msgid="5927801386307049780">"Atera argazkia <xliff:g id="APP">%1$s</xliff:g> aplikazioarekin"</string>
+    <string name="whichImageCaptureApplicationLabel" msgid="987153638235357094">"Atera argazkia"</string>
+    <string name="use_a_different_app" msgid="2062380818535918975">"Erabili beste aplikazio bat"</string>
+    <string name="chooseActivity" msgid="6659724877523973446">"Aukeratu ekintza bat"</string>
+    <string name="noApplications" msgid="1139487441772284671">"Ez dago ekintza hori egin dezakeen aplikaziorik."</string>
+    <string name="forward_intent_to_owner" msgid="6454987608971162379">"Laneko profiletik kanpo ari zara aplikazioa erabiltzen"</string>
+    <string name="forward_intent_to_work" msgid="2906094223089139419">"Laneko profilean ari zara aplikazioa erabiltzen"</string>
+    <string name="activity_resolver_use_always" msgid="8674194687637555245">"Beti"</string>
+    <string name="activity_resolver_use_once" msgid="594173435998892989">"Behin soilik"</string>
+    <string name="activity_resolver_work_profiles_support" msgid="8228711455685203580">"<xliff:g id="APP">%1$s</xliff:g> aplikazioak ez du onartzen laneko profila"</string>
+    <string name="pin_specific_target" msgid="5057063421361441406">"Ainguratu <xliff:g id="LABEL">%1$s</xliff:g>"</string>
+    <string name="unpin_specific_target" msgid="3115158908159857777">"Kendu aingura <xliff:g id="LABEL">%1$s</xliff:g> aplikazioari"</string>
+    <string name="screenshot_edit" msgid="3857183660047569146">"Editatu"</string>
+    <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{eta beste # fitxategi}other{eta beste # fitxategi}}"</string>
+    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{eta beste # fitxategi}other{eta beste # fitxategi}}"</string>
+    <string name="sharing_text" msgid="8137537443603304062">"Partekatuko den testua"</string>
+    <string name="sharing_link" msgid="2307694372813942916">"Esteka partekatzen"</string>
+    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{Irudia partekatzen}other{# irudi partekatzen}}"</string>
+    <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{Bideoa partekatzen}other{# bideo partekatzen}}"</string>
+    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{# fitxategi partekatuko da}other{# fitxategi partekatuko dira}}"</string>
+    <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{Irudi testudun bat partekatuko da}other{# irudi testudun partekatuko dira}}"</string>
+    <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{Irudi estekadun bat partekatuko da}other{# irudi estekadun partekatuko dira}}"</string>
+    <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{Bideo testudun bat partekatuko da}other{# bideo testudun partekatuko dira}}"</string>
+    <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{Bideo estekadun bat partekatuko da}other{# bideo estekadun partekatuko dira}}"</string>
+    <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{Fitxategi testudun bat partekatuko da}other{# fitxategi testudun partekatuko dira}}"</string>
+    <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{Fitxategi estekadun bat partekatuko da}other{# fitxategi estekadun partekatuko dira}}"</string>
+    <string name="sharing_album" msgid="191743129899503345">"Albuma partekatzea"</string>
+    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{Irudia soilik}other{Irudiak bakarrik}}"</string>
+    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{Bideoa soilik}other{Bideoak soilik}}"</string>
+    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{Fitxategia soilik}other{Fitxategiak soilik}}"</string>
+    <string name="image_preview_a11y_description" msgid="297102643932491797">"Irudiaren aurrebista gisako irudi txikia"</string>
+    <string name="video_preview_a11y_description" msgid="683440858811095990">"Bideoaren aurrebista gisako irudi txikia"</string>
+    <string name="file_preview_a11y_description" msgid="7397224827802410602">"Fitxategiaren aurrebista gisako irudi txikia"</string>
+    <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"Ez dago edukia partekatzeko pertsona gomendaturik"</string>
+    <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"Aplikazioak ez du grabatzeko baimenik, baina baliteke audioa grabatzea USB bidezko gailu horren bidez."</string>
+    <string name="resolver_personal_tab" msgid="1381052735324320565">"Pertsonala"</string>
+    <string name="resolver_work_tab" msgid="3588325717455216412">"Lanekoa"</string>
+    <string name="resolver_private_tab" msgid="3707548826254095157">"Pribatua"</string>
+    <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"Ikuspegi pertsonala"</string>
+    <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"Laneko ikuspegia"</string>
+    <string name="resolver_private_tab_accessibility" msgid="2513122834337197252">"Ikuspegi pribatua"</string>
+    <string name="resolver_cross_profile_blocked" msgid="3515194063758605377">"IKT saileko administratzaileak blokeatu egin du"</string>
+    <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"Eduki hau ezin da laneko aplikazioekin partekatu"</string>
+    <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"Eduki hau ezin da laneko aplikazioekin ireki"</string>
+    <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"Eduki hau ezin da aplikazio pertsonalekin partekatu"</string>
+    <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"Eduki hau ezin da aplikazio pertsonalekin ireki"</string>
+    <string name="resolver_turn_on_work_apps" msgid="7115260573975624516">"Pausatuta daude laneko aplikazioak"</string>
+    <string name="resolver_switch_on_work" msgid="8678893259344318807">"Berraktibatu"</string>
+    <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"Ez dago laneko aplikaziorik"</string>
+    <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"Ez dago aplikazio pertsonalik"</string>
+    <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"Profil pertsonalean ireki nahi duzu <xliff:g id="APP">%s</xliff:g>?"</string>
+    <string name="miniresolver_open_in_work" msgid="4271638122142624693">"Laneko profilean ireki nahi duzu <xliff:g id="APP">%s</xliff:g>?"</string>
+    <string name="miniresolver_use_personal_browser" msgid="1428911732509069292">"Erabili arakatzaile pertsonala"</string>
+    <string name="miniresolver_use_work_browser" msgid="7892699758493230342">"Erabili laneko arakatzailea"</string>
+    <string name="exclude_text" msgid="5508128757025928034">"Utzi kanpoan testua"</string>
+    <string name="include_text" msgid="642280283268536140">"Sartu testua"</string>
+    <string name="exclude_link" msgid="1332778255031992228">"Utzi kanpoan esteka"</string>
+    <string name="include_link" msgid="827855767220339802">"Sartu esteka"</string>
+    <string name="pinned" msgid="7623664001331394139">"Ainguratuta"</string>
+</resources>

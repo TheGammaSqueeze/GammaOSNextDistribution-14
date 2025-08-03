@@ -1,0 +1,4 @@
+service neuralnetworks_hal_service_aidl_sample_all /apex/com.android.hardware.neuralnetworks/bin/hw/android.hardware.neuralnetworks-service-sample-all
+    class hal
+    user system
+    group system

@@ -1,0 +1,9 @@
+package: "com.android.net.thread.flags"
+container: "system"
+
+flag {
+    name: "thread_enabled"
+    namespace: "thread_network"
+    description: "Controls whether the Android Thread feature is enabled"
+    bug: "301473012"
+}

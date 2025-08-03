@@ -1,0 +1,16 @@
+{
+  "name": "com.product.service1",
+  "version": 1,
+  "requireNativeLibs": [
+    ":vndk",
+    "libbinder_ndk.so",
+    "libc.so",
+    "libdl.so",
+    "liblog.so",
+    "libm.so",
+    "libproductprovide"
+  ],
+  "provideNativeLibs": [
+    "libtest_product.so"
+  ]
+}

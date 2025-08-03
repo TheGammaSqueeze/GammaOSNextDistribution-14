@@ -1,0 +1,10 @@
+{
+  "os": {
+    "name": "microdroid"
+  },
+  "task": {
+    "type": "microdroid_launcher",
+    "command": "MicrodroidTestNativeLib.so"
+  },
+  "export_tombstones": false
+}

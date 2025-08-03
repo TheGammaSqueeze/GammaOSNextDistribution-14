@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string-array name="reminder_methods_labels">
+        <item>Notificatn</item>
+        <item>Email</item>
+        <item>SMS</item>
+        <item>Alarma</item>
+    </string-array>
+    <string-array name="preferences_week_start_day_labels">
+        <item>Lokal na default</item>
+        <item>Sabado</item>
+        <item>Linggo</item>
+        <item>Lunes</item>
+    </string-array>
+    <string-array name="availability">
+        <item>Abala</item>
+        <item>Available</item>
+        <item>Pansamantala</item>
+    </string-array>
+    <string-array name="response_labels1">
+        <item>Walang tugon</item>
+        <item>Oo</item>
+        <item>Maaari</item>
+        <item>Hindi</item>
+    </string-array>
+    <string-array name="delete_repeating_labels">
+        <item>Ang kaganapang ito lang</item>
+        <item>Ito at mga kaganapan sa hinaharap</item>
+        <item>Lahat ng mg kaganapan</item>
+    </string-array>
+    <string-array name="change_response_labels">
+        <item>Ang kaganapang ito lamang</item>
+        <item>Lahat ng mga kaganapan sa serye</item>
+    </string-array>
+    <string-array name="buttons_list">
+        <item>Araw</item>
+        <item>Linggo</item>
+        <item>Buwan</item>
+        <item>Agenda</item>
+    </string-array>
+    <string-array name="preferences_skip_reminders_labels">
+        <item>Kung tinanggihan lang</item>
+        <item>Kung tinanggihan o hindi tinugunan</item>
+    </string-array>
+    <string-array name="recurrence_freq">
+        <item>ULITIN ARAW-ARAW</item>
+        <item>ULITIN LINGGO-LINGGO</item>
+        <item>ULITIN BUWAN-BUWAN</item>
+        <item>ULITIN TAON-TAON</item>
+    </string-array>
+    <string-array name="repeat_by_nth_sun">
+        <item>tuwing unang Linggo</item>
+        <item>tuwing ikalawang Linggo</item>
+        <item>tuwing ikatlong Linggo</item>
+        <item>tuwing ikaapat na Linggo</item>
+        <item>tuwing huling Linggo</item>
+    </string-array>
+    <string-array name="repeat_by_nth_mon">
+        <item>tuwing unang Lunes</item>
+        <item>tuwing ikalawang Lunes</item>
+        <item>tuwing ikatlong Lunes</item>
+        <item>tuwing ikaapat na Lunes</item>
+        <item>tuwing huling Lunes</item>
+    </string-array>
+    <string-array name="repeat_by_nth_tues">
+        <item>tuwing unang Martes</item>
+        <item>tuwing ikalawang Martes</item>
+        <item>tuwing ikatlong Martes</item>
+        <item>tuwing ikaapat na Martes</item>
+        <item>tuwing huling Martes</item>
+    </string-array>
+    <string-array name="repeat_by_nth_wed">
+        <item>tuwing unang Miyerkules</item>
+        <item>tuwing ikalawang Miyerkules</item>
+        <item>tuwing ikatlong Miyerkules</item>
+        <item>tuwing ikaapat na Miyerkules</item>
+        <item>tuwing huling Miyerkules</item>
+    </string-array>
+    <string-array name="repeat_by_nth_thurs">
+        <item>tuwing unang Huwebes</item>
+        <item>tuwing ikalawang Huwebes</item>
+        <item>tuwing ikatlong Huwebes</item>
+        <item>tuwing ikaapat na Huwebes</item>
+        <item>tuwing huling Huwebes</item>
+    </string-array>
+    <string-array name="repeat_by_nth_fri">
+        <item>tuwing unang Biyernes</item>
+        <item>tuwing ikalawang Biyernes</item>
+        <item>tuwing ikatlong Biyernes</item>
+        <item>tuwing ikaapat na Biyernes</item>
+        <item>tuwing huling Biyernes</item>
+    </string-array>
+    <string-array name="repeat_by_nth_sat">
+        <item>tuwing unang Sabado</item>
+        <item>tuwing ikalawang Sabado</item>
+        <item>tuwing ikatlong Sabado</item>
+        <item>tuwing ikaapat na Sabado</item>
+        <item>tuwing huling Sabado</item>
+    </string-array>
+</resources>

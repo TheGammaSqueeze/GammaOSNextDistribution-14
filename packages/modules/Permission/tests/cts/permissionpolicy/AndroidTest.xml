@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2019 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<configuration description="Config for CTS Permission Policy test cases">
+
+    <option name="test-suite-tag" value="cts" />
+    <option name="not-shardable" value="true" />
+
+    <option name="config-descriptor:metadata" key="component" value="permissions" />
+    <option name="config-descriptor:metadata" key="parameter" value="instant_app" />
+    <option name="config-descriptor:metadata" key="parameter" value="no_foldable_states" />
+    <option name="config-descriptor:metadata" key="parameter" value="not_multi_abi" />
+    <option name="config-descriptor:metadata" key="parameter" value="secondary_user"/>
+    <option name="config-descriptor:metadata" key="parameter" value="run_on_sdk_sandbox" />
+    <option name="config-descriptor:metadata" key="token" value="SIM_CARD" />
+
+    <!-- TODO(b/245579250): update to Sdk34 once sdk finalized -->
+    <object type="module_controller" class="com.android.tradefed.testtype.suite.module.Sdk33ModuleController" />
+
+    <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
+        <option name="cleanup-apks" value="true" />
+        <option name="test-file-name" value="CtsPermissionPolicyTestCases.apk" />
+    </target_preparer>
+
+    <target_preparer class="com.android.tradefed.targetprep.DeviceSetup">
+        <option name="force-skip-system-props" value="true" /> <!-- avoid restarting device -->
+        <option name="set-global-setting" key="verifier_verify_adb_installs" value="0" />
+        <option name="restore-settings" value="true" />
+        <option name="disable-device-config-sync" value="true" />
+    </target_preparer>
+
+    <!-- Create place to store apks -->
+    <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer">
+        <option name="run-command" value="mkdir -p /data/local/tmp/cts-permissionpolicy" />
+        <option name="teardown-command" value="rm -rf /data/local/tmp/cts-permissionpolicy-permissionpolicy"/>
+    </target_preparer>
+
+    <target_preparer class="com.android.compatibility.common.tradefed.targetprep.FilePusher">
+        <option name="push" value="CtsLocationPermissionsUserSdk22.apk->/data/local/tmp/cts-permissionpolicy/CtsLocationPermissionsUserSdk22.apk" />
+        <option name="push" value="CtsLocationPermissionsUserSdk29.apk->/data/local/tmp/cts-permissionpolicy/CtsLocationPermissionsUserSdk29.apk" />
+        <option name="push" value="CtsSMSCallLogPermissionsUserSdk22.apk->/data/local/tmp/cts-permissionpolicy/CtsSMSCallLogPermissionsUserSdk22.apk" />
+        <option name="push" value="CtsSMSCallLogPermissionsUserSdk29.apk->/data/local/tmp/cts-permissionpolicy/CtsSMSCallLogPermissionsUserSdk29.apk" />
+        <option name="push" value="CtsStoragePermissionsUserDefaultSdk22.apk->/data/local/tmp/cts-permissionpolicy/CtsStoragePermissionsUserDefaultSdk22.apk" />
+        <option name="push" value="CtsStoragePermissionsUserDefaultSdk28.apk->/data/local/tmp/cts-permissionpolicy/CtsStoragePermissionsUserDefaultSdk28.apk" />
+        <option name="push" value="CtsStoragePermissionsUserDefaultSdk29.apk->/data/local/tmp/cts-permissionpolicy/CtsStoragePermissionsUserDefaultSdk29.apk" />
+        <option name="push" value="CtsStoragePermissionsUserOptInSdk22.apk->/data/local/tmp/cts-permissionpolicy/CtsStoragePermissionsUserOptInSdk22.apk" />
+        <option name="push" value="CtsStoragePermissionsUserOptInSdk28.apk->/data/local/tmp/cts-permissionpolicy/CtsStoragePermissionsUserOptInSdk28.apk" />
+        <option name="push" value="CtsStoragePermissionsUserOptOutSdk29.apk->/data/local/tmp/cts-permissionpolicy/CtsStoragePermissionsUserOptOutSdk29.apk" />
+        <option name="push" value="CtsLegacyStorageNotIsolatedWithSharedUid.apk->/data/local/tmp/cts-permissionpolicy/CtsLegacyStorageNotIsolatedWithSharedUid.apk" />
+        <option name="push" value="CtsLegacyStorageIsolatedWithSharedUid.apk->/data/local/tmp/cts-permissionpolicy/CtsLegacyStorageIsolatedWithSharedUid.apk" />
+        <option name="push" value="CtsLegacyStorageRestrictedWithSharedUid.apk->/data/local/tmp/cts-permissionpolicy/CtsLegacyStorageRestrictedWithSharedUid.apk" />
+        <option name="push" value="CtsLegacyStorageRestrictedSdk28WithSharedUid.apk->/data/local/tmp/cts-permissionpolicy/CtsLegacyStorageRestrictedSdk28WithSharedUid.apk" />
+        <option name="push" value="CtsStoragePermissionsUserOptOutSdk30.apk->/data/local/tmp/cts-permissionpolicy/CtsStoragePermissionsUserOptOutSdk30.apk" />
+        <option name="push" value="CtsStoragePermissionsPreservedUserOptOutSdk30.apk->/data/local/tmp/cts-permissionpolicy/CtsStoragePermissionsPreservedUserOptOutSdk30.apk" />
+        <option name="push" value="CtsSMSRestrictedWithSharedUid.apk->/data/local/tmp/cts-permissionpolicy/CtsSMSRestrictedWithSharedUid.apk" />
+        <option name="push" value="CtsSMSNotRestrictedWithSharedUid.apk->/data/local/tmp/cts-permissionpolicy/CtsSMSNotRestrictedWithSharedUid.apk" />
+        <option name="push" value="CtsProcessOutgoingCalls.apk->/data/local/tmp/cts-permissionpolicy/CtsProcessOutgoingCalls.apk" />
+    </target_preparer>
+
+    <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer">
+        <!-- disable DeprecatedAbi warning -->
+        <option name="run-command" value="setprop debug.wm.disable_deprecated_abi_dialog 1" />
+        <!-- disable DeprecatedTargetSdk warning -->
+        <option name="run-command" value="setprop debug.wm.disable_deprecated_target_sdk_dialog 1" />
+    </target_preparer>
+
+    <test class="com.android.tradefed.testtype.AndroidJUnitTest" >
+        <option name="package" value="android.permissionpolicy.cts" />
+        <option name="runtime-hint" value="2m" />
+    </test>
+
+</configuration>

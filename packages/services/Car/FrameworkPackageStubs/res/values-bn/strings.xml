@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="6179574017413146651">"অ্যাক্টিভিটি স্টাব"</string>
+    <string name="message_not_supported" msgid="133939962837892495">"কোনও অ্যাপ্লিকেশন এই কাজটি করতে পারবে না"</string>
+    <string name="pip_not_supported" msgid="8681268258599412706">"এই ডিভাইসে ছবির-মধ্যে-ছবি ফিচার ব্যবহার করা যাবে না"</string>
+    <string name="manage_unknown_app_sources_not_supported" msgid="7368611099531260439">"এই ডিভাইসে অজানা অ্যাপ সোর্স ম্যানেজ করার সুবিধা কাজ করবে না"</string>
+    <string name="documentsui_not_supported" msgid="2786636475647817501">"এই ডিভাইসে ফাইল ম্যানেজমেন্ট কাজ করবে না"</string>
+    <string name="stub_name" msgid="3987164490218189006">"কিছুই না"</string>
+</resources>

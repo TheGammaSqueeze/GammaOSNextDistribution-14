@@ -1,0 +1,112 @@
+model {
+  main {
+    operands {
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 2
+          dimension: 26
+          dimension: 40
+          dimension: 2
+        }
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 797982799
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 2
+          dimension: 26
+          dimension: 40
+          dimension: 2
+        }
+        lifetime: SUBGRAPH_OUTPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 3610380175
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 2
+          dimension: 26
+          dimension: 40
+          dimension: 2
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 375463856
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT16
+        dimensions {
+          dimension: 1
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 571419463
+        }
+      }
+      operand {
+        type: INT32
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 0
+        }
+      }
+    }
+    operations {
+      operation {
+        inputs {
+          index: 2
+          index: 3
+          index: 4
+        }
+        outputs {
+          index: 0
+        }
+      }
+      operation {
+        type: RELU6
+        inputs {
+          index: 0
+        }
+        outputs {
+          index: 1
+        }
+      }
+    }
+    input_indexes {
+      index: 2
+    }
+    output_indexes {
+      index: 1
+    }
+  }
+  referenced {
+  }
+}

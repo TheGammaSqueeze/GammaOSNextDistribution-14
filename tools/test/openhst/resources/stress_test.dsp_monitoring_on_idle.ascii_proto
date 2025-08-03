@@ -1,0 +1,33 @@
+description: "Let device in idle and check the DSP wakeup counts"
+             "Stop Testing if DSP detects hotword over 30 times"
+
+step {
+  command: "shell dumpsys battery unplug"
+  delay_after: 1
+}
+step {
+  command: "shell 'dumpsys window | grep mCurrentFocus'"
+  delay_after: 3
+}
+step {
+  command: "shell dumpsys deviceidle force-idle"
+  delay_after: 59
+}
+
+expected_result {
+    aohd_hotword_detected : 0
+    assistant_started  : 0
+    dsp_false_accept  : 0
+    speaker_id_rejected : 0
+    logcat_iteration  : 1
+    software_hotword  : 0
+    vis_software_hotword  : 0
+}
+
+event {
+  name: "device_crashed"
+  condition: "aohd_hotword_detected >= 30"
+  action: "BUGREPORT"
+  action: "NOTIFY"
+  action: "REMOVE_DEVICE"
+}

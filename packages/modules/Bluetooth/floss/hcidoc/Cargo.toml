@@ -1,0 +1,13 @@
+[package]
+name = "hcidoc"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+bt_packets = { path = "../../system/gd/rust/packets" }
+hcidoc_packets = { path = "packets" }
+clap = "4.0"
+chrono = "0.4"
+num-derive = "0.3"
+num-traits = "0.2"
+lazy_static = "1.0"

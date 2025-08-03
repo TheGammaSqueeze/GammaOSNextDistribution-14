@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2015 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="car_permission_label_bind_projection_service" msgid="6976251734714662552">"saistīt ar projicēšanas pakalpojumu"</string>
+    <string name="car_permission_desc_bind_projection_service" msgid="4610418233070289810">"Ļauj īpašniekam izveidot saiti ar projicēšanas pakalpojuma augšējā līmeņa saskarni. Parastajām lietotnēm tas nekad nav nepieciešams."</string>
+    <string name="car_permission_label_bind_vms_client" msgid="1298928874094319701">"VMS klienta pakalpojums"</string>
+    <string name="car_permission_desc_bind_vms_client" msgid="7758142590449847602">"Saistīt ar VMS klientiem"</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="6723392540805279625">"Atveide mēraparātu blokā"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="2583711303360788080">"Saņemt datus no mēraparātu bloka."</string>
+    <string name="car_permission_label_bind_input_service" msgid="6647238478703096557">"Automašīnas ievades pakalpojums"</string>
+    <string name="car_permission_desc_bind_input_service" msgid="8460218104132496613">"Apstrādāt ievades notikumus."</string>
+    <string name="activity_blocked_text" msgid="5991043857905412794">"Jūs nevarat izmantot šo funkciju braukšanas laikā."</string>
+    <string name="exit_button_message" msgid="5375678491245394542">"Lai atsāktu darbu ar drošām lietotnes funkcijām, atlasiet pogu <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
+    <string name="exit_button" msgid="3491899413031549265">"Atpakaļ"</string>
+    <string name="exit_button_close_application" msgid="5153716684207539041">"Aizvērt lietotni"</string>
+    <string name="exit_button_go_back" msgid="6921595432375141935">"Atpakaļ"</string>
+    <string name="importance_default" msgid="8017186728206153704">"Noklusējuma svarīgums"</string>
+    <string name="importance_high" msgid="3393374688015554727">"Ļoti svarīgs"</string>
+    <string name="android_system_label" msgid="9209428539477894959">"Android sistēma"</string>
+    <string name="factory_reset_notification_title" msgid="6177770995437355965">"Nepieciešama rūpnīcas datu atiestatīšana"</string>
+    <string name="factory_reset_notification_text" msgid="6051393302193696102">"Visi informatīvi izklaidējošās sistēmas dati tiks dzēsti. Pēc atiestatīšanas varēsiet iestatīt jaunu profilu."</string>
+    <string name="factory_reset_notification_button" msgid="6926734587145351076">"Vairāk"</string>
+    <string name="factory_reset_warning" msgid="8463356329619149262">"Jūsu ierīces dati tiks dzēsti"</string>
+    <string name="factory_reset_message" msgid="1972536809866779972">"Administratora lietotni nevar izmantot. Ierīcē saglabātie dati tiks dzēsti.\n\nJa jums ir kādi jautājumi, sazinieties ar savas organizācijas administratoru."</string>
+    <string name="resource_overuse_notification_title" msgid="1622015333965744463">"Lietotne <xliff:g id="ID_1">^1</xliff:g> ietekmē jūsu sistēmas veiktspēju"</string>
+    <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"Tika pārtraukta šīs lietotnes darbība fonā. Piešķiriet lietotnei prioritāti, lai tiktu turpināta tās darbība fonā."</string>
+    <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"Aizvērt"</string>
+    <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"Piešķirt lietotnei prioritāti"</string>
+</resources>

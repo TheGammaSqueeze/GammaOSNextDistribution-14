@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2012 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License
+  -->
+<resources>
+
+    <declare-styleable name="CircleView">
+        <!-- Sets the center/radius of the circle relative to the view's bounds. -->
+        <attr name="android:gravity" />
+        <!-- The ARGB fill color of the circle. -->
+        <attr name="fillColor" format="color" />
+        <!-- The center x-coordinate of the circle. -->
+        <attr name="centerX" format="dimension" />
+        <!-- The center y-coordinate of the circle. -->
+        <attr name="centerY" format="dimension" />
+        <!-- The radius of the circle. -->
+        <attr name="radius" format="dimension" />
+    </declare-styleable>
+
+    <attr name="onStateTransition">
+        <enum name="actionDown" value="1" />
+        <enum name="actionDownUp" value="3" />
+        <enum name="actionUp" value="2" />
+        <enum name="sharedValueSet" value="4" />
+        <enum name="sharedValueUnset" value="5" />
+    </attr>
+
+    <attr name="viewTransitionMode">
+        <enum name="allStates" value="1" />
+        <enum name="currentState" value="0" />
+        <enum name="noState" value="2" />
+    </attr>
+
+    <declare-styleable name="MotionButton">
+        <attr format="dimension" name="round"/>
+        <attr format="float" name="roundPercent"/>
+    </declare-styleable>
+
+    <attr name="appWidgetBackgroundTint" format="color" />
+    <attr name="appWidgetLabelTint" format="color" />
+    <attr name="appWidgetTextAppearancePrimary" format="reference" />
+    <attr name="appWidgetTextAppearancePrimaryLabel" format="reference" />
+    <attr name="appWidgetTextAppearanceSecondary" format="reference" />
+    <attr name="appWidgetTextAppearanceSecondaryLabel" format="reference" />
+    <attr name="appWidgetConfigBackground" format="color" />
+    <attr name="appWidgetConfigTitle" format="color" />
+    <attr name="appWidgetConfigSubtitle" format="color" />
+    <attr name="appWidgetConfigBorder" format="color" />
+    <attr name="appWidgetThemeTransparent" format="reference" />
+    <attr name="appWidgetThemeSolid" format="reference" />
+</resources>

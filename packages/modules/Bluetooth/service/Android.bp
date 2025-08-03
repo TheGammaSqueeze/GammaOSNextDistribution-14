@@ -1,0 +1,190 @@
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+filegroup {
+    name: "services.bluetooth-sources",
+    srcs: [
+        ":statslog-bluetooth-java-gen",
+        "src/**/*.java",
+        "src/AdapterState.kt",
+        "src/AutoOnFeature.kt",
+        "src/Log.kt",
+        "src/RadioModeListener.kt",
+        "src/airplane/ModeListener.kt",
+        "src/com/**/*.kt",
+        "src/satellite/ModeListener.kt",
+    ],
+    visibility: [":__subpackages__"],
+}
+
+// pre-jarjar version of service-bluetooth that builds against pre-jarjar version of framework-bluetooth
+java_defaults {
+    name: "service-bluetooth-pre-jarjar",
+    srcs: [":services.bluetooth-sources"],
+
+    errorprone: {
+        javacflags: [
+            "-Xep:AlreadyChecked:ERROR",
+            "-Xep:CheckReturnValue:ERROR",
+            "-Xep:ClassCanBeStatic:ERROR",
+            "-Xep:EqualsIncompatibleType:ERROR",
+            "-Xep:ReferenceEquality:ERROR",
+        ],
+    },
+
+    sdk_version: "system_server_current",
+
+    lint: {
+        error_checks: [
+            "ExtraText",
+            "NewApi",
+            "ObsoleteSdkInt",
+            "Recycle",
+            "RtlHardcoded",
+            "UseSparseArrays",
+            "UseValueOf",
+        ],
+        strict_updatability_linting: true,
+    },
+
+    kotlincflags: [
+        "-Werror",
+    ],
+
+    libs: [
+        "framework-annotations-lib",
+        "framework-bluetooth-pre-jarjar",
+        "framework-configinfrastructure",
+        "framework-statsd.stubs.module_lib",
+        "service-bluetooth.change-ids",
+    ],
+
+    static_libs: [
+        "androidx.annotation_annotation",
+        "androidx.appcompat_appcompat",
+        "bluetooth-manager-service-proto-java-gen",
+        "bluetooth-nano-protos",
+        "bluetooth-proto-enums-java-gen",
+        "bluetooth_flags_java_lib",
+        "modules-utils-build_system",
+        "modules-utils-shell-command-handler",
+    ],
+
+    visibility: [":__subpackages__"],
+}
+
+// service-bluetooth static library
+// ==============================================================
+java_library {
+    name: "service-bluetooth",
+    defaults: ["service-bluetooth-pre-jarjar"],
+    installable: true,
+
+    jarjar_rules: ":bluetooth-jarjar-rules",
+
+    optimize: {
+        enabled: true,
+        shrink: true,
+        proguard_flags_files: ["proguard.flags"],
+    },
+    visibility: [
+        "//packages/modules/Bluetooth/apex",
+    ],
+    apex_available: [
+        "com.android.btservices",
+    ],
+    min_sdk_version: "Tiramisu",
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
+}
+
+java_library {
+    name: "bluetooth-manager-service-proto-java-gen",
+    installable: false,
+    proto: {
+        type: "stream",
+        include_dirs: [
+            "external/protobuf/src",
+        ],
+    },
+    srcs: [
+        ":srcs_bluetooth_manager_service_proto",
+    ],
+    sdk_version: "system_server_current",
+    apex_available: [
+        "com.android.btservices",
+    ],
+    min_sdk_version: "Tiramisu",
+}
+
+java_library {
+    name: "bluetooth-nano-protos",
+    installable: false,
+    proto: {
+        type: "nano",
+    },
+    srcs: [
+        ":system-messages-proto-src",
+    ],
+    libs: ["libprotobuf-java-nano"],
+    lint: {
+        strict_updatability_linting: true,
+
+    },
+    sdk_version: "system_current",
+    apex_available: [
+        "com.android.btservices",
+    ],
+    min_sdk_version: "Tiramisu",
+}
+
+android_robolectric_test {
+    name: "ServiceBluetoothRoboTests",
+    instrumentation_for: "ServiceBluetoothFakeTestApp",
+
+    srcs: [
+        ":statslog-bluetooth-java-gen",
+        "src/AdapterState.kt",
+        "src/AdapterStateTest.kt",
+        "src/AutoOnFeature.kt",
+        "src/AutoOnFeatureTest.kt",
+        "src/Log.kt",
+        "src/LogTest.kt",
+        "src/RadioModeListener.kt",
+        "src/RadioModeListenerTest.kt",
+        "src/airplane/ModeListener.kt",
+        "src/airplane/ModeListenerTest.kt",
+        "src/satellite/ModeListener.kt",
+        "src/satellite/ModeListenerTest.kt",
+    ],
+
+    static_libs: [
+        "androidx.test.core",
+        "kotlin-test",
+        "kotlinx_coroutines",
+        "kotlinx_coroutines_test",
+        "mockito-robolectric-prebuilt",
+        "platform-test-annotations",
+        "testng",
+        "truth",
+    ],
+
+    upstream: true,
+    test_suites: ["general-tests"],
+}

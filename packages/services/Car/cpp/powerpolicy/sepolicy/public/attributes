@@ -1,0 +1,3 @@
+# All car power policy callbacks
+attribute carpowerpolicycallback_domain;
+expandattribute carpowerpolicycallback_domain true;

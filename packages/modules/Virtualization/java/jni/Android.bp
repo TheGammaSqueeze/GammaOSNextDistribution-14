@@ -1,0 +1,36 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_library_shared {
+    name: "libvirtualizationservice_jni",
+    defaults: ["avf_build_flags_cc"],
+    srcs: [
+        "android_system_virtualmachine_VirtualizationService.cpp",
+    ],
+    apex_available: ["com.android.virt"],
+    shared_libs: [
+        "libbase",
+        "libbinder_ndk",
+        "libbinder_rpc_unstable",
+        "liblog",
+        "libnativehelper",
+    ],
+}
+
+cc_library_shared {
+    name: "libvirtualmachine_jni",
+    defaults: ["avf_build_flags_cc"],
+    srcs: [
+        "android_system_virtualmachine_VirtualMachine.cpp",
+    ],
+    apex_available: ["com.android.virt"],
+    shared_libs: [
+        "android.system.virtualizationservice-ndk",
+        "libbase",
+        "libbinder_ndk",
+        "libbinder_rpc_unstable",
+        "liblog",
+        "libnativehelper",
+    ],
+}

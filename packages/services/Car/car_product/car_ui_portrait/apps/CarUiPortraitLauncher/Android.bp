@@ -1,0 +1,67 @@
+//
+// Copyright (C) 2022 Google Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_library {
+    name: "CarUiPortraitLauncher-core",
+
+    // Only compile source java files in this apk.
+    srcs: ["src/**/*.java"],
+    // Needs the platform api because CarLauncher-core also uses platform_apis.
+    platform_apis: true,
+    static_libs: [
+        "androidx-constraintlayout_constraintlayout-solver",
+        "androidx-constraintlayout_constraintlayout",
+        "androidx.lifecycle_lifecycle-extensions",
+        "androidx.car.app_app",
+        "car-ui-lib",
+        "CarLauncher-core",
+        "WindowManager-Shell",
+        "car-portrait-ui-common",
+        "car-media-common",
+    ],
+
+    libs: ["android.car"],
+    // TODO(b/319708040): re-enable use_resource_processor
+    use_resource_processor: false,
+}
+
+android_app {
+    name: "CarUiPortraitLauncher",
+
+    overrides: [
+        "Launcher2",
+        "Launcher3",
+        "Launcher3QuickStep",
+        "CarLauncher",
+    ],
+
+    platform_apis: true,
+    certificate: "platform",
+    static_libs: ["CarUiPortraitLauncher-core"],
+
+    libs: ["android.car"],
+
+    optimize: {
+        enabled: false,
+    },
+
+    dex_preopt: {
+        enabled: false,
+    },
+}

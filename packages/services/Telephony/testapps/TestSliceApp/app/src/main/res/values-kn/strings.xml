@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="1265450418387661962">"TestSliceApp"</string>
+    <string name="hello_blank_fragment" msgid="1245093642770491175">"ಹಲೋ, ಖಾಲಿ ಫ್ರಾಗ್ಮೆಂಟ್"</string>
+    <string name="request_network" msgid="8945235490804849914">"ನೆಟ್‌ವರ್ಕ್‌ಗಾಗಿ ವಿನಂತಿಸಿ"</string>
+    <string name="release_network" msgid="174252378593535238">"ನೆಟ್‌ವರ್ಕ್ ಅನ್ನು ಬಿಡುಗಡೆ ಮಾಡಿ"</string>
+    <string name="ping" msgid="7890607576220714932">"ಪಿಂಗ್"</string>
+    <string name="result_prefix" msgid="3522796186427501399">"ಫಲಿತಾಂಶ:"</string>
+    <string name="latency_title" msgid="963052613947017009">"ವಿಳಂಬವನ್ನು ಆದ್ಯತೆಗೊಳಿಸಿ"</string>
+    <string name="bw_title" msgid="3902162973688221344">"ಬ್ಯಾಂಡ್‌ವಿಡ್ತ್‌ ಆದ್ಯತೆಗೊಳಿಸಿ"</string>
+    <string name="cbs_title" msgid="5234410535569935600">"CBS"</string>
+    <string name="purchase" msgid="7843181995697372128">"ನೆಟ್‌ವರ್ಕ್ ಪ್ರೀಮಿಯಂ ಖರೀದಿಸಿ"</string>
+    <string name="network_available" msgid="4780293262690730734">"ಫಲಿತಾಂಶ: ವಿನಂತಿಸಿದ ನೆಟ್‌ವರ್ಕ್ ಈಗ ಲಭ್ಯವಿದೆ!"</string>
+    <string name="network_requested" msgid="5646123922691865991">"ಫಲಿತಾಂಶ: ನೆಟ್‌ವರ್ಕ್‌ಗಾಗಿ ವಿನಂತಿಸಲಾಗಿದೆ!"</string>
+    <string name="network_released" msgid="2992280481133877025">"ಫಲಿತಾಂಶ: ನೆಟ್‌ವರ್ಕ್ ಅನ್ನು ಬಿಡುಗಡೆ ಮಾಡಲಾಗಿದೆ!"</string>
+    <string name="network_release_failed" msgid="256471231420029151">"ಫಲಿತಾಂಶ: ನೆಟ್‌ವರ್ಕ್ ಅನ್ನು ಬಿಡುಗಡೆ ಮಾಡಲು ವಿಫಲವಾಗಿದೆ!!!"</string>
+    <string name="purchase_exception" msgid="8876841120055716671">"ಫಲಿತಾಂಶ: ನೆಟ್‌ವರ್ಕ್ ಪ್ರೀಮಿಯಂ ಅನ್ನು ಖರೀದಿಸುವಾಗ ದೊರೆಯುವ ವಿನಾಯಿತಿ!!!"</string>
+    <string name="purchase_empty_result" msgid="7497824191649973928">"ಫಲಿತಾಂಶ: ನೆಟ್‌ವರ್ಕ್ ಪ್ರೀಮಿಯಂ ಅನ್ನು ಖರೀದಿಸುವಾಗ ಫಲಿತಾಂಶವು ದೊರೆತಿಲ್ಲ!!!"</string>
+    <string name="premium_not_available" msgid="7346368693802644748">"ಫಲಿತಾಂಶ: ನೆಟ್‌ವರ್ಕ್ ಪ್ರೀಮಿಯಂ ಖರೀದಿಗೆ ಲಭ್ಯವಿಲ್ಲ!!!"</string>
+    <string name="purchase_in_progress" msgid="5450288183685032424">"ಫಲಿತಾಂಶ: ನೆಟ್‌ವರ್ಕ್ ಪ್ರೀಮಿಯಂ ಖರೀದಿ ಪ್ರಕ್ರಿಯೆ ಪ್ರಗತಿಯಲ್ಲಿದೆ ..."</string>
+</resources>

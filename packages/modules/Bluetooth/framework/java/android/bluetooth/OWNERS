@@ -1,0 +1,5 @@
+per-file BluetoothHearingAid.java=file:/OWNERS_hearingaid
+per-file BluetoothCsipSetCoordinator.java=file:/OWNERS_leaudio
+per-file BluetoothLeAudio*.java=file:/OWNERS_leaudio
+per-file BluetoothLeBroadcast*.java=file:/OWNERS_leaudio
+per-file BluetoothVolumeControl.java=file:/OWNERS_leaudio

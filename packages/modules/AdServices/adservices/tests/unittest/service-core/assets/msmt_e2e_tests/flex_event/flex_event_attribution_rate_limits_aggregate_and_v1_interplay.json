@@ -1,0 +1,257 @@
+{
+  "description": "value sum on navigation source, trigger are cross multiple bucket",
+  "phflags_override": {
+    "measurement_flexible_event_reporting_api_enabled": "true",
+    "measurement_max_event_attribution_per_rate_limit_window": "2",
+    "measurement_max_aggregate_attribution_per_rate_limit_window": "1"
+  },
+  "input": {
+    "registrations": [
+      // Source results in one event and one aggregate report
+      {
+        "timestamp": "0",
+        "registration_request": {
+          "registrant": "com.source",
+          "attribution_src_url": "https://reporter.test/register-source",
+          "source_type": "navigation"
+        },
+        "responses": [
+          {
+            "url": "https://reporter.test/register-source",
+            "response": {
+              "Attribution-Reporting-Register-Source": {
+                "destination": "android-app://com.destination",
+                "source_event_id": "123",
+                "priority": "100",
+                "aggregation_keys": {
+                  "a": "0x159"
+                }
+              }
+            }
+          }
+        ]
+      },
+      // Trigger is attributed to the source at time 0, resulting in
+      // one event and one aggregate report.
+      {
+        "timestamp": "1000",
+        "registration_request": {
+          "attribution_src_url": "https://reporter.test/register-trigger",
+          "registrant": "com.destination"
+        },
+        "responses": [
+          {
+            "url": "https://reporter.test/register-trigger",
+            "response": {
+              "Attribution-Reporting-Register-Trigger": {
+                "event_trigger_data": [
+                  {
+                    "trigger_data": "7"
+                  }
+                ],
+                "aggregatable_trigger_data": [
+                  {
+                    "source_keys": ["a"],
+                    "key_piece": "0x400"
+                  }
+                ],
+                "aggregatable_values": {
+                  "a": 123
+                }
+              }
+            }
+          }
+        ]
+      },
+      // Flex source is registered with higher priority.
+      {
+        "timestamp": "2000",
+        "registration_request": {
+          "registrant": "com.source",
+          "attribution_src_url": "https://reporter.test/register-source",
+          "source_type": "navigation"
+        },
+        "responses": [
+          {
+            "url": "https://reporter.test/register-source",
+            "has_ad_id_permission": true,
+            "response": {
+              "Attribution-Reporting-Register-Source": {
+                "source_event_id": "456",
+                "destination": "android-app://com.destination",
+                "priority": "200",
+                "expiry": "604801",
+                "trigger_specs": [
+                  {
+                    "trigger_data": [0, 1],
+                    "event_report_windows": {
+                      "start_time": 0,
+                      "end_times": [172800, 604800]
+                    },
+                    "summary_window_operator": "value_sum",
+                    "summary_buckets": [10, 100]
+                  }
+                ],
+                "max_event_level_reports": 2,
+                "aggregation_keys": {
+                  "a": "0x159"
+                },
+                "debug_key": "111"
+              },
+              "Location": null,
+              "Attribution-Reporting-Redirect": null
+            }
+          }
+        ]
+      },
+      // Trigger is attributed to the source at time 2000, resulting in one flex event report
+      // but no aggregate report since the aggregate attribution rate limit of 1 was already
+      // reached.
+      {
+        "timestamp": "3000",
+        "registration_request": {
+          "attribution_src_url": "https://reporter.test/register-trigger",
+          "registrant": "com.destination"
+        },
+        "responses": [
+          {
+            "url": "https://reporter.test/register-trigger",
+            "has_ad_id_permission": true,
+            "response": {
+              "Attribution-Reporting-Register-Trigger": {
+                "event_trigger_data": [
+                  {
+                    "trigger_data": "0",
+                    "priority": "100",
+                    "deduplication_key": "10",
+                    "value": 20
+                  }
+                ],
+                "aggregatable_trigger_data": [
+                  {
+                    "source_keys": ["a"],
+                    "key_piece": "0x400"
+                  }
+                ],
+                "aggregatable_values": {
+                  "a": 123
+                },
+                "debug_key": "222"
+              },
+              "Location": null,
+              "Attribution-Reporting-Redirect": null
+            }
+          }
+        ]
+      },
+      // Trigger is attributed to the source at time 2000. Since its priority is higher
+      // than the first attributed trigger, it results in one flex report. A second report
+      // could have been issued since the first attributed trigger could contribute past
+      // the threshold of bucket 100 but does not because the event attribution rate-limit
+      // of 2 was already reached.
+      {
+        "timestamp": "4000",
+        "registration_request": {
+          "attribution_src_url": "https://reporter.test/register-trigger",
+          "registrant": "com.destination"
+        },
+        "responses": [
+          {
+            "url": "https://reporter.test/register-trigger",
+            "has_ad_id_permission": true,
+            "response": {
+              "Attribution-Reporting-Register-Trigger": {
+                "event_trigger_data": [
+                  {
+                    "trigger_data": "0",
+                    "priority": "200",
+                    "value": 90
+                  }
+                ],
+                "debug_key": "333"
+              },
+              "Location": null,
+              "Attribution-Reporting-Redirect": null
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "output": {
+    "unparsable_registrations": [],
+    "reports": [
+      {
+        "payload": {
+          "attribution_destination": "android-app://com.destination",
+          "histograms": [
+            {
+              "key": "0x559",
+              "value": 123
+            }
+          ],
+          "source_registration_time": "0"
+        },
+        "report_url": "https://reporter.test/.well-known/attribution-reporting/report-aggregate-attribution",
+        "report_time": "3601000"
+      },
+      {
+        "payload": {
+          "attribution_destination": "android-app://com.destination",
+          "randomized_trigger_rate": 0.0024263,
+          "scheduled_report_time": "176400",
+          "source_event_id": "123",
+          "source_type": "navigation",
+          "trigger_data": "7"
+        },
+        "report_url": "https://reporter.test/.well-known/attribution-reporting/report-event-attribution",
+        "report_time": "176400000"
+      },
+      {
+        "payload": {
+          "attribution_destination": "android-app://com.destination",
+          "scheduled_report_time": "176402",
+          "source_event_id": "456",
+          "trigger_data": "0",
+          "source_type": "navigation",
+          "trigger_summary_bucket": [10, 99],
+          "trigger_debug_keys": ["333"],
+          "source_debug_key": "111",
+          "randomized_trigger_rate": 0.0000125
+        },
+        "report_url": "https://reporter.test/.well-known/attribution-reporting/report-event-attribution",
+        "report_time": "176402000"
+      },
+      {
+        "payload": {
+          "attribution_destination": "android-app://com.destination",
+          "scheduled_report_time": "176402",
+          "source_event_id": "456",
+          "trigger_data": "0",
+          "source_type": "navigation",
+          "trigger_summary_bucket": [10, 99],
+          "trigger_debug_keys": ["222"],
+          "source_debug_key": "111",
+          "randomized_trigger_rate": 0.0000125
+        },
+        "report_url": "https://reporter.test/.well-known/attribution-reporting/debug/report-event-attribution",
+        "report_time": "3000"
+      },
+      {
+        "payload": {
+          "attribution_destination": "android-app://com.destination",
+          "scheduled_report_time": "176402",
+          "source_event_id": "456",
+          "trigger_data": "0",
+          "source_type": "navigation",
+          "trigger_summary_bucket": [10, 99],
+          "trigger_debug_keys": ["333"],
+          "source_debug_key": "111",
+          "randomized_trigger_rate": 0.0000125
+        },
+        "report_url": "https://reporter.test/.well-known/attribution-reporting/debug/report-event-attribution",
+        "report_time": "4000"
+      }
+    ]
+  }
+}

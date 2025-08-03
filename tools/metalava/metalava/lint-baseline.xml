@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.4.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha07)" variant="all" version="8.4.0-alpha07">
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead"
+        errorLine1="                String.format("
+        errorLine2="                ^">
+        <location
+            file="src/main/java/com/android/tools/metalava/apilevels/Api.kt"
+            line="41"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead"
+        errorLine1="        return String.format("
+        errorLine2="               ^">
+        <location
+            file="src/main/java/com/android/tools/metalava/ProgressTracker.kt"
+            line="88"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead"
+        errorLine1="        return String.format("
+        errorLine2="               ^">
+        <location
+            file="src/main/java/com/android/tools/metalava/ProgressTracker.kt"
+            line="99"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="JavaPluginLanguageLevel"
+        message="no Java language level directives"
+        errorLine1="    id(&quot;application&quot;)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle.kts"
+            line="18"
+            column="5"/>
+    </issue>
+
+</issues>

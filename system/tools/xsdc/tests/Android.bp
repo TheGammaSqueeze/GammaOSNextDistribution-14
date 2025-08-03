@@ -1,0 +1,254 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_test_host {
+    name: "xsdc-java-tests",
+    srcs: [
+        "src/**/*.java",
+        ":xsdc_attr_group_simple_tests",
+        ":xsdc_attr_enumtype_tests",
+        ":xsdc_group_tests",
+        ":xsdc_nested_type_tests",
+        ":xsdc_predefined_types_tests",
+        ":xsdc_purchase_simple_tests",
+        ":xsdc_reference_tests",
+        ":xsdc_simple_complex_content_tests",
+        ":xsdc_simple_type_tests",
+    ],
+    test_options: {
+        unit_test: true,
+    },
+    static_libs: [
+        "junit",
+        "xsdc",
+        "stub-annotations",
+        "kxml2-2.3.0",
+    ],
+    java_resource_dirs: ["resources"],
+    test_suites: ["general-tests"],
+}
+
+cc_test_host {
+    name: "xsdc-cpp-tests",
+    srcs: [
+        "simple_type.cpp",
+        "tests.cpp",
+        "test_group.cpp",
+        "main.cpp",
+    ],
+    test_options: {
+        unit_test: true,
+    },
+    generated_sources: [
+        "xsdc_attr_group_simple_tests",
+        "xsdc_attr_enumtype_tests",
+        "xsdc_group_tests",
+        "xsdc_nested_type_tests",
+        "xsdc_predefined_types_tests",
+        "xsdc_purchase_simple_tests",
+        "xsdc_reference_tests",
+        "xsdc_simple_complex_content_tests",
+        "xsdc_simple_type_tests",
+    ],
+    generated_headers: [
+        "xsdc_attr_group_simple_tests",
+        "xsdc_attr_enumtype_tests",
+        "xsdc_group_tests",
+        "xsdc_nested_type_tests",
+        "xsdc_predefined_types_tests",
+        "xsdc_purchase_simple_tests",
+        "xsdc_reference_tests",
+        "xsdc_simple_complex_content_tests",
+        "xsdc_simple_type_tests",
+    ],
+    header_libs: ["libxsdc-utils"],
+    shared_libs: [
+        "libbase",
+        "libxml2",
+    ],
+    data: ["resources/*.xml"],
+    test_suites: ["general-tests"],
+}
+
+// These tests verify generated sources with libtinyxml2.
+cc_test_host {
+    name: "xsdc-tinyxml-cpp-tests",
+    srcs: [
+        "simple_type.cpp",
+        "tests.cpp",
+        "main.cpp",
+        // Since tinyxml2 doesn't support XInclude, skip the
+        // group test
+        // "test_group.cpp",
+    ],
+    test_options: {
+        unit_test: true,
+    },
+    generated_sources: [
+        "xsdc_attr_group_simple_tinyxml_tests",
+        "xsdc_attr_enumtype_tinyxml_tests",
+        "xsdc_group_tinyxml_tests",
+        "xsdc_nested_type_tinyxml_tests",
+        "xsdc_predefined_types_tinyxml_tests",
+        "xsdc_purchase_simple_tinyxml_tests",
+        "xsdc_reference_tinyxml_tests",
+        "xsdc_simple_complex_content_tinyxml_tests",
+        "xsdc_simple_type_tinyxml_tests",
+    ],
+    generated_headers: [
+        "xsdc_attr_group_simple_tinyxml_tests",
+        "xsdc_attr_enumtype_tinyxml_tests",
+        "xsdc_group_tinyxml_tests",
+        "xsdc_nested_type_tinyxml_tests",
+        "xsdc_predefined_types_tinyxml_tests",
+        "xsdc_purchase_simple_tinyxml_tests",
+        "xsdc_reference_tinyxml_tests",
+        "xsdc_simple_complex_content_tinyxml_tests",
+        "xsdc_simple_type_tinyxml_tests",
+    ],
+    header_libs: ["libxsdc-utils"],
+    shared_libs: [
+        "libbase",
+        "libtinyxml2",
+    ],
+    data: ["resources/*.xml"],
+    test_suites: ["general-tests"],
+}
+
+// These tests verify that enums-only and parser-only
+// modules can be combined later.
+cc_test_host {
+    name: "xsdc-cpp-tests-split",
+    srcs: [
+        "simple_type.cpp",
+        "main.cpp",
+    ],
+    test_options: {
+        unit_test: true,
+    },
+    generated_sources: [
+        "xsdc_simple_type_tests_enums",
+        "xsdc_simple_type_tests_parser",
+    ],
+    generated_headers: [
+        "xsdc_simple_type_tests_enums",
+        "xsdc_simple_type_tests_parser",
+    ],
+    header_libs: ["libxsdc-utils"],
+    shared_libs: [
+        "libbase",
+        "libxml2",
+    ],
+    data: ["resources/*.xml"],
+    test_suites: ["general-tests"],
+}
+
+
+// These tests verify that enums-only and parser-only
+// modules can be combined later. The tests use libtinyxml2
+// in the generated sources.
+cc_test_host {
+    name: "xsdc-tinyxml-cpp-tests-split",
+    srcs: [
+        "simple_type.cpp",
+        "main.cpp",
+    ],
+    test_options: {
+        unit_test: true,
+    },
+    generated_sources: [
+        "xsdc_simple_type_tinyxml_tests_enums",
+        "xsdc_simple_type_tinyxml_tests_parser",
+    ],
+    generated_headers: [
+        "xsdc_simple_type_tinyxml_tests_enums",
+        "xsdc_simple_type_tinyxml_tests_parser",
+    ],
+    header_libs: ["libxsdc-utils"],
+    shared_libs: [
+        "libbase",
+        "libtinyxml2",
+    ],
+    data: ["resources/*.xml"],
+    test_suites: ["general-tests"],
+}
+
+// These tests verify that enums-only module can be used on
+// its own and it does not depend on libxml2.
+cc_test_host {
+    name: "xsdc-cpp-tests-enums",
+    srcs: [
+        "simple_type_enumsonly.cpp",
+        "main.cpp",
+    ],
+    test_options: {
+        unit_test: true,
+    },
+    generated_sources: [
+        "xsdc_simple_type_tests_enums",
+    ],
+    generated_headers: [
+        "xsdc_simple_type_tests_enums",
+    ],
+    header_libs: ["libxsdc-utils"],
+    shared_libs: [
+        "libbase",
+    ],
+    data: ["resources/*.xml"],
+    test_suites: ["general-tests"],
+}
+
+// These tests verify that enums-only module can be used on
+// its own and it does not depend on libtinyxml2.
+cc_test_host {
+    name: "xsdc-tinyxml-cpp-tests-enums",
+    srcs: [
+        "simple_type_enumsonly.cpp",
+        "main.cpp",
+    ],
+    test_options: {
+        unit_test: true,
+    },
+    generated_sources: [
+        "xsdc_simple_type_tinyxml_tests_enums",
+    ],
+    generated_headers: [
+        "xsdc_simple_type_tinyxml_tests_enums",
+    ],
+    header_libs: ["libxsdc-utils"],
+    shared_libs: [
+        "libbase",
+    ],
+    data: ["resources/*.xml"],
+    test_suites: ["general-tests"],
+}
+
+// These tests verify that documents generated with the
+// libxml2 variant can be parsed by the tinyxml variant and
+// vice-versa.
+cc_test_host {
+    name: "xsdc-cross-generate-parse-cpp-tests",
+    srcs: [
+        "cross_generate_parse.cpp",
+        "main.cpp",
+    ],
+    test_options: {
+        unit_test: true,
+    },
+    generated_sources: [
+        "xsdc_cross_generate_parse_libxml_tests",
+        "xsdc_cross_generate_parse_tinyxml_tests",
+    ],
+    generated_headers: [
+        "xsdc_cross_generate_parse_libxml_tests",
+        "xsdc_cross_generate_parse_tinyxml_tests",
+    ],
+    header_libs: ["libxsdc-utils"],
+    shared_libs: [
+        "libbase",
+        "libtinyxml2",
+        "libxml2",
+    ],
+    test_suites: ["general-tests"],
+}

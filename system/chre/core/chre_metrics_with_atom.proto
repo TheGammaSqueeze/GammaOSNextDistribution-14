@@ -1,0 +1,50 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!! DISCLAIMER !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// The messages definition here must be in sync with atoms definitions in
+// hardware/google/pixel/pixelstats/pixelatoms.proto
+
+// C++ namespace: android.chre.metrics
+package android.chre.metrics;
+
+option optimize_for = LITE_RUNTIME;
+
+option java_package = "android.chre";
+option java_outer_classname = "Metrics";
+
+import "system/chre/core/chre_metrics.proto";
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+
+message Atom {
+  oneof pushed {
+    // AOSP atom ID range starts at 105000
+    ChreHalNanoappLoadFailed chre_hal_nanoapp_load_failed = 105031
+        [(android.os.statsd.module) = "chre"];
+    ChrePalOpenFailed chre_pal_open_failed = 105032
+        [(android.os.statsd.module) = "chre"];
+    ChreApiErrorCodeDistributionTaken chre_api_error_code_distribution_taken =
+        105033 [(android.os.statsd.module) = "chre"];
+    ChreDynamicMemorySnapshotReported chre_dynamic_memory_snapshot_reported =
+        105034 [(android.os.statsd.module) = "chre"];
+    ChreEventQueueSnapshotReported chre_event_queue_snapshot_reported = 105035
+        [(android.os.statsd.module) = "chre"];
+    ChreApWakeUpOccurred chre_ap_wake_up_occurred = 105036
+        [(android.os.statsd.module) = "chre"];
+  }
+}

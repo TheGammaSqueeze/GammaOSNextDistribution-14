@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.4.0-alpha01" type="baseline" client="" dependencies="true" name="" variant="all" version="8.4.0-alpha01">
+
+    <issue
+        id="NewApi"
+        message="Class requires version 4 of the Ad Services Extensions SDK (current min is 0): `android.adservices.adid.AdIdManager`"
+        errorLine1="                        ? this.getSystemService(AdIdManager.class)"
+        errorLine2="                                                ~~~~~~~~~~~">
+        <location
+            file="packages/modules/AdServices/adservices/samples/adid/java/com/example/adservices/samples/adid/app/MainActivity.java"
+            line="58"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires version 6 of the Ad Services Extensions SDK (current min is 0): `android.adservices.adid.AdIdManager#get`"
+        errorLine1="                        : AdIdManager.get(this);"
+        errorLine2="                                      ~~~">
+        <location
+            file="packages/modules/AdServices/adservices/samples/adid/java/com/example/adservices/samples/adid/app/MainActivity.java"
+            line="59"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 31 (current min is 30): `android.os.OutcomeReceiver`"
+        errorLine1="                new OutcomeReceiver&lt;AdId, Exception&gt;() {"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/AdServices/adservices/samples/adid/java/com/example/adservices/samples/adid/app/MainActivity.java"
+            line="65"
+            column="21"/>
+    </issue>
+
+</issues>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2012 Andrew Neal
+     Copyright (C) 2014 The CyanogenMod Project
+     Copyright (C) 2021 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources>
+    <!-- Letter tile colors -->
+    <color name="letter_tile_default_color">@android:color/system_accent1_300</color>
+    <color name="letter_tile_font_color">@color/material_dynamic_neutral95</color>
+    <array name="letter_tile_colors">
+        <item>@android:color/system_accent1_300</item>
+        <item>@android:color/system_accent2_300</item>
+        <item>@android:color/system_accent3_300</item>
+        <item>@android:color/system_accent1_400</item>
+        <item>@android:color/system_accent2_400</item>
+        <item>@android:color/system_accent3_400</item>
+        <item>@android:color/system_accent1_500</item>
+        <item>@android:color/system_accent2_500</item>
+        <item>@android:color/system_accent3_500</item>
+        <item>@android:color/system_accent1_600</item>
+        <item>@android:color/system_accent2_600</item>
+        <item>@android:color/system_accent3_600</item>
+    </array>
+
+    <array name="letter_tile_vibrant_dark_colors">
+        <item>@android:color/system_accent1_600</item>
+        <item>@android:color/system_accent2_600</item>
+        <item>@android:color/system_accent3_600</item>
+        <item>@android:color/system_accent1_700</item>
+        <item>@android:color/system_accent2_700</item>
+        <item>@android:color/system_accent3_700</item>
+        <item>@android:color/system_accent1_800</item>
+        <item>@android:color/system_accent2_800</item>
+        <item>@android:color/system_accent3_800</item>
+        <item>@android:color/system_accent1_900</item>
+        <item>@android:color/system_accent2_900</item>
+        <item>@android:color/system_accent3_900</item>
+    </array>
+</resources>

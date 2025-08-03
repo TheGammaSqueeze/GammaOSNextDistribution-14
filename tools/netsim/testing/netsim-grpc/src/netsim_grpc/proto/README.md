@@ -1,0 +1,1 @@
+This directory contains the proto-generated python files for netsim frontend gRPC service.

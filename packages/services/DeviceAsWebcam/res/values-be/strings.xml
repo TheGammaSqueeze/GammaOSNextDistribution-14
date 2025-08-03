@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2023 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label" msgid="5899561994441982117">"Сэрвіс для вэб-камер"</string>
+    <string name="view_finder_description" msgid="5377029921915271921">"Відашукальнік"</string>
+    <string name="zoom_ratio_description" msgid="6492691624405841938">"Каэфіцыент маштабавання"</string>
+    <string name="zoom_ratio_button_current_description" msgid="4888275213379106225">"Бягучы каэфіцыент маштабавання"</string>
+    <string name="zoom_seek_bar_description" msgid="2820202610575014723">"Панэль маштабавання"</string>
+    <string name="toggle_camera_button_description_back" msgid="771773649789638243">"Пераключыцца на заднюю камеру"</string>
+    <string name="toggle_camera_button_description_front" msgid="5248457301141397342">"Пераключыцца на пярэднюю камеру"</string>
+    <string name="toggle_high_quality_description_off" msgid="2185762274050207314">"Выключыць параметр \"Высокая якасць\""</string>
+    <string name="toggle_high_quality_description_on" msgid="9118596060527830719">"Уключыць параметр \"Высокая якасць\""</string>
+    <string name="notif_channel_name" msgid="9012392302161214874">"Актыўны сэрвіс"</string>
+    <string name="notif_ticker" msgid="6895154246348754766">"Вэб-камера"</string>
+    <string name="notif_title" msgid="3788815976102922209">"Вэб-камера"</string>
+    <string name="notif_desc" msgid="1433178383086179212">"Націсніце, каб прагледзець і наладзіць выходныя даныя вэб-камеры"</string>
+    <string name="hq_warning_dialog_title" msgid="5693009152902735897">"Рэжым высокай якасці"</string>
+    <string name="hq_warning_dialog_content_1" msgid="4007864550827450633">"У рэжыме высокай якасці адключаецца аптымізацыя спажывання энергіі. Гэта робіцца для таго, каб палепшыць якасць відарыса з вэб-камеры. Выкарыстанне гэтага рэжыму можа значна павысіць расход энергіі, у выніку чаго прылада можа награвацца."</string>
+    <string name="hq_warning_dialog_content_2" msgid="877003832685705287"><b><u>"УВАГА."</u></b>" Працяглае выкарыстанне прылады пры высокіх тэмпературах можа ў доўгатэрміновай перспектыве адмоўна паўплываць на стан акумулятара прылады."</string>
+    <string name="hq_warning_dialog_dont_show_again" msgid="4409604672514060572">"Больш не паказваць"</string>
+    <string name="hq_warning_dialog_button_ack" msgid="279514965669603856">"Пацвердзіць"</string>
+    <string name="prefs_file_name" msgid="2893149378177647769">"com.android.DeviceAsWebcam.user.prefs"</string>
+    <string name="prefs_camera_id_key" msgid="9184794262750967261">"camera.id"</string>
+    <string name="prefs_back_camera_id_key" msgid="8184326473010982113">"back.camera.id"</string>
+    <string name="prefs_front_camera_id_key" msgid="2749648930172179078">"front.camera.id"</string>
+    <string name="prefs_zoom_ratio_key" msgid="4040441072428561847">"zoom.ratio.%s"</string>
+    <string name="prefs_high_quality_mode_enabled" msgid="3746094349991090908">"high.quality.mode.enabled"</string>
+    <string name="prefs_high_quality_warning_enabled" msgid="696012337719400975">"high.quality.warning.enabled"</string>
+    <string name="list_item_text_back_camera" msgid="2734532140746580971">"Задняя камера"</string>
+    <string name="list_item_text_front_camera" msgid="7273773310502952694">"Пярэдняя камера"</string>
+    <string name="list_item_text_standard_camera" msgid="4160445744347809472">"Стандартная камера"</string>
+    <string name="list_item_text_wide_angle_camera" msgid="818505418693187683">"Камера з шырокавугольным аб\'ектывам"</string>
+    <string name="list_item_text_ultra_wide_camera" msgid="7938127230852040392">"Камера са звышшырокавугольным аб\'ектывам"</string>
+    <string name="list_item_text_telephoto_camera" msgid="9192886831007902304">"Камера з тэлеаб\'ектывам"</string>
+    <string name="list_item_text_other_camera" msgid="3479174298899742270">"Іншая камера"</string>
+    <string name="list_item_text_unknown_camera" msgid="5281152990521232984">"Невядомая камера"</string>
+    <string name="camera_options_list_description" msgid="7808155848873436115">"Даступныя варыянты камеры"</string>
+</resources>

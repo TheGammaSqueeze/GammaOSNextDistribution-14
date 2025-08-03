@@ -1,0 +1,38 @@
+{
+    "logs": [
+        {
+            "outputFile": "me.phh.treble.app-mergeReleaseResources-18:/values-v16/values-v16.xml",
+            "map": [
+                {
+                    "source": "/home/gamma/.gradle/caches/transforms-3/f2b1602a0d70c866492e3e448cc616b4/transformed/core-1.6.0/res/values-v16/values-v16.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "65",
+                        "endOffsets": "116"
+                    }
+                },
+                {
+                    "source": "/home/gamma/.gradle/caches/transforms-3/bba1b2bc066e026b9a9ad300f8aa4c44/transformed/appcompat-1.1.0/res/values-v16/values-v16.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endLines": "5",
+                        "endColumns": "12",
+                        "endOffsets": "223"
+                    },
+                    "to": {
+                        "startLines": "3",
+                        "startColumns": "4",
+                        "startOffsets": "121",
+                        "endLines": "6",
+                        "endColumns": "12",
+                        "endOffsets": "289"
+                    }
+                }
+            ]
+        }
+    ]
+}

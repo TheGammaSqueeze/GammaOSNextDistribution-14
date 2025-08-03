@@ -1,0 +1,32 @@
+main: {
+  instruction_set: {
+    instructions: [
+      {
+        open_file: {
+          path_name: "newfile.txt",
+          output_fd: "test_file"
+        }
+      },
+      {
+        resize_file: {
+          input_fd: "test_file",
+          size: 101001001
+        }
+      },
+      {
+        write_file: {
+          input_fd: "test_file",
+          access_order: RANDOM
+        }
+      },
+      {
+        close_file: {
+          input_fd: "test_file"
+        }
+      }
+    ]
+  }
+},
+global {
+  absolute_path: "/sdcard/DCIM/dittobench";
+}

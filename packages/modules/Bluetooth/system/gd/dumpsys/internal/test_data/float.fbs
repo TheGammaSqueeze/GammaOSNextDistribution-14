@@ -1,0 +1,7 @@
+namespace testing;
+
+table TestTableFloat {
+    test_float:float;
+}
+
+root_type TestTableFloat;

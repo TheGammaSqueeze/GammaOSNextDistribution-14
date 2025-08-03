@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="a.xsl" type="text/xsl"?>
+<!DOCTYPE catalog SYSTEM "b.dtd">
+<book>
+   <chapter description="random description" product_image="c.jpg">
+      <page title="D's">
+         <num>ABC123</num>
+         <count>11.11</count>
+         <length description="EF">
+            <color image="g.gif">ggghhh</color>
+         </length>
+         <length description="Iiiii">
+            <color image="i.iii">iiII</color>
+         </length>
+      </page>
+      <page title="JJJ">
+         <name>kkkk</name>
+         <count>22.22</count>
+         <length description="LLLL">
+            <color image="mmm.nnn">ABCDEF</color>
+         </length>
+      </page>
+   </chapter>
+</book>

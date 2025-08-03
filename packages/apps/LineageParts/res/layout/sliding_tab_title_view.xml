@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+     SPDX-FileCopyrightText: 2016 The Android Open Source Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<TextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="0dp"
+    android:layout_weight="1"
+    android:layout_height="wrap_content"
+    android:background="?android:attr/selectableItemBackground"
+    android:ellipsize="end"
+    android:fontFamily="sans-serif-medium"
+    android:gravity="center"
+    android:maxLines="1"
+    android:padding="@dimen/pager_tabs_title_padding"
+    android:textColor="@color/sliding_tab_title_text_color"
+    android:textAllCaps="true"
+    android:theme="?android:attr/actionBarTheme"/>

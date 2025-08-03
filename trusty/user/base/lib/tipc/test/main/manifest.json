@@ -1,0 +1,5 @@
+{
+    "uuid": "IPC_UNITTEST_MAIN_APP_UUID",
+    "min_heap": 16384,
+    "min_stack": 8192
+}

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt"
+    android:viewportWidth="80"
+    android:viewportHeight="80"
+    android:width="80dp"
+    android:height="80dp">
+    <path
+        android:pathData="M40 0H40A40 40 0 0 1 80 40V40A40 40 0 0 1 40 80H40A40 40 0 0 1 0 40V40A40 40 0 0 1 40 0Z"
+        android:fillColor="@color/adservices_colorAccentPrimary" />
+    <path
+        android:pathData="M39.9846 11.8027L17.4464 20.2451V37.4538C17.4051 44.4701 19.6431 51.3101 23.8237 56.9451C28.0752 62.796 33.474 66.5431 40.0201 68.1864C46.5526 66.5431 51.9514 62.796 56.2165 56.9451C60.3865 51.3067 62.6121 44.4664 62.5584 37.4538V20.2451L39.9846 11.8027Z"
+        android:fillColor="@color/adservices_accent_primary_variant" />
+    <path
+        android:pathData="M46.4717 36.0114L48.855 33.5971C49.2217 33.2257 49.2217 32.65 48.855 32.2786C48.4883 31.9071 47.92 31.9071 47.5533 32.2786L44.84 35.0271C43.3917 34.2843 41.7417 33.8571 40 33.8571C38.24 33.8571 36.59 34.2843 35.1233 35.0271L32.3917 32.2786C32.025 31.9071 31.4567 31.9071 31.09 32.2786C30.7233 32.65 30.7233 33.2257 31.09 33.5971L33.4917 36.03C30.7783 38.0543 29 41.3043 29 45H51C51 41.3043 49.2217 38.0357 46.4717 36.0114ZM36.3333 41.2857H34.5V39.4286H36.3333V41.2857ZM45.5 41.2857H43.6667V39.4286H45.5V41.2857Z"
+        android:fillColor="#F2F2F2" />
+</vector>

@@ -1,0 +1,19 @@
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+xsd_config {
+    name: "xsdc_nested_type_tests",
+    srcs: ["nested_type.xsd"],
+    package_name: "nested.type",
+    gen_writer: true,
+}
+
+xsd_config {
+    name: "xsdc_nested_type_tinyxml_tests",
+    srcs: ["nested_type.xsd"],
+    package_name: "nested.type",
+    gen_writer: true,
+    tinyxml: true,
+}

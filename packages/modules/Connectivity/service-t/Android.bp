@@ -1,0 +1,142 @@
+//
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    default_team: "trendy_team_fwk_core_networking",
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+service_remoteauth_pre_jarjar_lib = "service-remoteauth-pre-jarjar"
+
+// Include build rules from Sources.bp
+build = ["Sources.bp"]
+
+filegroup {
+    name: "service-connectivity-tiramisu-sources",
+    srcs: [
+        "src/**/*.java",
+    ],
+    visibility: ["//visibility:private"],
+}
+
+// The above filegroup can be used to specify different sources depending
+// on the branch, while minimizing merge conflicts in the rest of the
+// build rules.
+
+// This builds T+ services depending on framework-connectivity-t
+// hidden symbols separately from the S+ services, to ensure that S+
+// services cannot accidentally depend on T+ hidden symbols from
+// framework-connectivity-t.
+java_library {
+    name: "service-connectivity-tiramisu-pre-jarjar",
+    sdk_version: "system_server_current",
+    // TODO(b/210962470): Bump this to at least S, and then T.
+    min_sdk_version: "30",
+    srcs: [
+        ":service-connectivity-tiramisu-sources",
+    ],
+    libs: [
+        "framework-annotations-lib",
+        "framework-configinfrastructure",
+        "framework-connectivity-pre-jarjar",
+        "framework-connectivity-t-pre-jarjar",
+        // TODO: use framework-tethering-pre-jarjar when it is separated from framework-tethering
+        "framework-tethering.impl",
+        "framework-wifi",
+        "service-connectivity-pre-jarjar",
+        "service-nearby-pre-jarjar",
+        "service-thread-pre-jarjar",
+        service_remoteauth_pre_jarjar_lib,
+        "ServiceConnectivityResources",
+        "unsupportedappusage",
+    ],
+    static_libs: [
+        // Do not add static_libs here if they are already included in framework-connectivity
+        // or in service-connectivity. They are not necessary (included via
+        // service-connectivity-pre-jarjar), and in the case of code that is already in
+        // framework-connectivity, the classes would be included in the apex twice.
+        "modules-utils-statemachine",
+    ],
+    apex_available: [
+        "com.android.tethering",
+    ],
+    visibility: [
+        "//frameworks/base/services/tests/VpnTests",
+        "//frameworks/base/tests/vcn",
+        "//packages/modules/Connectivity/service",
+        "//packages/modules/Connectivity/tests:__subpackages__",
+        "//packages/modules/IPsec/tests/iketests",
+    ],
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
+}
+
+// Test building mDNS as a standalone, so that it can be imported into other repositories as-is.
+// The mDNS code is platform code so it should use framework-annotations-lib, contrary to apps that
+// should use sdk_version: "system_current" and only androidx.annotation_annotation. But this build
+// rule verifies that the mDNS code can be built into apps, if code transformations are applied to
+// the annotations.
+// When using "system_current", framework annotations are not available; they would appear as
+// package-private as they are marked as such in the system_current stubs. So build against
+// core_platform and add the stubs manually in "libs". See http://b/147773144#comment7.
+java_library {
+    name: "service-connectivity-mdns-standalone-build-test",
+    sdk_version: "core_platform",
+    min_sdk_version: "21",
+    lint: {
+        error_checks: ["NewApi"],
+
+    },
+    srcs: [
+        "src/com/android/server/connectivity/mdns/**/*.java",
+        ":framework-connectivity-t-mdns-standalone-build-sources",
+        ":service-mdns-droidstubs",
+    ],
+    exclude_srcs: [
+        "src/com/android/server/connectivity/mdns/internal/SocketNetlinkMonitor.java",
+        "src/com/android/server/connectivity/mdns/SocketNetLinkMonitorFactory.java",
+        "src/com/android/server/connectivity/mdns/MdnsAdvertiser.java",
+        "src/com/android/server/connectivity/mdns/MdnsAnnouncer.java",
+        "src/com/android/server/connectivity/mdns/MdnsInterfaceAdvertiser.java",
+        "src/com/android/server/connectivity/mdns/MdnsProber.java",
+        "src/com/android/server/connectivity/mdns/MdnsRecordRepository.java",
+    ],
+    static_libs: [
+        "net-utils-device-common-mdns-standalone-build-test",
+    ],
+    libs: [
+        "framework-annotations-lib",
+        "android_system_stubs_current",
+        "androidx.annotation_annotation",
+    ],
+    visibility: [
+        "//visibility:private",
+    ],
+}
+
+droidstubs {
+    name: "service-mdns-droidstubs",
+    srcs: ["src/com/android/server/connectivity/mdns/SocketNetLinkMonitorFactory.java"],
+    libs: [
+        "net-utils-device-common-mdns-standalone-build-test",
+        "service-connectivity-tiramisu-pre-jarjar",
+    ],
+    visibility: [
+        "//visibility:private",
+    ],
+}

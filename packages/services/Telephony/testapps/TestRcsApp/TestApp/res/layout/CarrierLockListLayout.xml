@@ -1,0 +1,77 @@
+<!--
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/noLockMode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/no_LockMode"
+            android:textAlignment="center"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/lockToVZW"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/no_LockTo_VZW"
+            android:textAlignment="center"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/lockToATT"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/no_LockTo_ATT"
+            android:textAlignment="center"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/lockToTMO"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/no_LockTo_TMO"
+            android:textAlignment="center"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/lockToKOODOS"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/no_LockTo_KOODOS"
+            android:textAlignment="center"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/lockToTELUS"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/no_LockTo_TELUS"
+            android:textAlignment="center"
+            android:textAllCaps="false" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

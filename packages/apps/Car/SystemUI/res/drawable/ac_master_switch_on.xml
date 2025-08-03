@@ -1,0 +1,26 @@
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<vector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:viewportWidth="960"
+    android:viewportHeight="960"
+    android:width="@dimen/hvac_power_icon_drawable_width"
+    android:height="@dimen/hvac_power_icon_drawable_height">
+    <path
+        android:pathData="M460,760L500,760L500,686L640,546L640,360Q640,360 640,360Q640,360 640,360L320,360Q320,360 320,360Q320,360 320,360L320,546L460,686L460,760ZM380,840L380,720L240,580L240,360Q240,327 263.5,303.5Q287,280 320,280L360,280L320,320L320,120L400,120L400,280L560,280L560,120L640,120L640,320L600,280L640,280Q673,280 696.5,303.5Q720,327 720,360L720,580L580,720L580,840L380,840ZM480,560L480,560L480,560L480,560Q480,560 480,560Q480,560 480,560L480,560Q480,560 480,560Q480,560 480,560L480,560L480,560L480,560L480,560Z"
+        android:fillColor="@color/hvac_master_switch_color" />
+</vector>

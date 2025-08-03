@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2013-2014 The CyanogenMod Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="call_recording_failed_message">அழைப்புப் பதிவித்தல் தொடங்குவதில் தோற்றது</string>
+    <string name="call_recording_file_location">அழைப்புப்பதிவு <xliff:g id="filename">%s</xliff:g> இல் சேமிக்கப்பட்டது</string>
+    <string name="onscreenCallRecordText">அழைப்பைப் பதிவுசெய்க</string>
+    <string name="onscreenCallRecordingText">அழைப்பு பதிவித்தல் - <xliff:g id="duration" example="00:10">%1$s</xliff:g></string>
+    <string name="onscreenStopCallRecordText">பதிவித்தலை நிறுத்துக</string>
+    <string name="recording_warning_title">அழைப்புப் பதிவை இயக்கவா?</string>
+    <string name="recording_warning_text">அறிவிப்பு: அழைப்புப் பதிவு செயற்பாட்டைப் பயன்படுத்துவதற்கும், அப்பதிவுகளைப் பயன்படுத்துவதற்கும், பகிர்ந்தளிப்பதற்கும் பொருந்தும் எந்தவொரு சட்டத்திற்கும், ஒழுங்குமுறைக்கும், விதிக்கும் இணங்குவதற்கு நீர் பொறுப்பாவீர்.</string>
+</resources>

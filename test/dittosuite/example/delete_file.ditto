@@ -1,0 +1,6 @@
+main: {
+  delete_file: {
+    path_name: "newfile2.txt"
+  }
+},
+global {}

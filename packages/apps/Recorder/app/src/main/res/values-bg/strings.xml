@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2017-2021 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <string name="app_name">Записвачка</string>
+    <string name="share">Споделяне</string>
+    <string name="share_selected">Споделяне на избраното</string>
+    <string name="stop">Стоп</string>
+    <string name="play">Възпроизвеждане</string>
+    <string name="pause">Пауза</string>
+    <string name="resume">Възобнови</string>
+    <string name="delete">Изтриване</string>
+    <string name="delete_all">Изтриване на всички</string>
+    <string name="delete_selected">Изтриване на избраните</string>
+    <string name="cancel">Отказ</string>
+    <string name="rename">Преименуване</string>
+    <string name="delete_title">Изтриване на записа</string>
+    <string name="delete_recording_message">Наистина ли искате да изтриете този запис? Това действие не може да бъде отменено.</string>
+    <string name="confirm">Потвърждаване</string>
+    <string name="discard">Отхвърли</string>
+    <string name="record_again">Повторно записване</string>
+    <string name="confirm_result_title">Да се използва ли записът?</string>
+    <string name="confirm_result_message">Искате ли да използвате последния запис?</string>
+    <string name="sound_notification_title">Записване на звук</string>
+    <string name="sound_notification_message">Продължителност на аудио запис: %1$s</string>
+    <string name="sound_recording_title_working">Записване</string>
+    <string name="sound_recording_title_paused">На пауза</string>
+    <string name="sound_last_title">Последен запис</string>
+    <string name="sound_channel_title">Запис на звук</string>
+    <string name="sound_channel_desc">Постоянно известяване при запис на звук и известие, след завършване</string>
+    <string name="settings_title">Настройки</string>
+    <string name="settings_location_message">Маркирайте вашите записи с текущата ви позиция</string>
+    <string name="settings_quality_high">Записвайте с високо качество</string>
+    <string name="dialog_permissions_title">Разрешения</string>
+    <string name="dialog_permissions_mic">Приложението за запис се нуждае отдостъп до микрофона за запис на аудио</string>
+    <string name="dialog_permissions_phone">Приложението за запис се нуждае от достъп до телефонен статус за да предотврати запис по време на разговор</string>
+    <string name="dialog_permissions_notifications">Диктофон изисква достъп до известията, за да покаже бутони за запис</string>
+    <string name="dialog_permissions_mic_phone">Приложението за запис се нуждае от достъп до микрофона и телефонен статус за да предотврати запис по време на разговор</string>
+    <string name="dialog_permissions_mic_notifications">Диктофон изисква достъп до микрофон, за да записва аудио и достъп до известия, за да покаже бутони за запис</string>
+    <string name="dialog_permissions_phone_notifications">Диктофон изисква достъп до статус на телефона, за да предотврати записване по време на разговор и достъп до известия, за да покаже бутони за запис</string>
+    <string name="dialog_permissions_mic_phone_notifications">Диктофон изисква достъп до микрофон, за да записва, достъп до статус на телефона, за да предотврати записване по време на разговор и достъп до известия, за да покаже бутони за запис</string>
+    <string name="dialog_permissions_location">Recorder се нуждае от разрешение за местоположение, за да маркира автоматично вашите записи, за да ви помогне да ги организирате</string>
+    <string name="dialog_permissions_ask">Попитай отново</string>
+    <string name="dialog_permissions_dismiss">Отхвърли</string>
+    <string name="snack_permissions_no_permission">Необходимите разрешения са отказани, разрешете ги от настройките на приложението и започнете запис</string>
+    <string name="snack_permissions_no_permission_location">Разрешението за местоположение е отказано, активирайте го от приложението Настройки, за да маркирате вашите записи</string>
+    <string name="main_sound_action">Запис на звук</string>
+    <string name="list_title">Моите записи</string>
+    <string name="list_error_empty">Всички ваши записи ще бъдат показани тук</string>
+    <string name="list_edit_title">Редактирайте името на записа</string>
+    <string name="list_edit_confirm">Промени</string>
+    <string name="list_item_menu">Още действия</string>
+    <string name="delete_all_title">Изтриване на всички</string>
+    <string name="delete_all_message">Наистина ли искате да изтриете всички записи? Това действие не може да бъде отменено.</string>
+    <string name="delete_selected_title">Изтриване на избраните</string>
+    <string name="delete_selected_message">Наистина ли искате да изтриете избраните записи? Това не може да бъде отменено.</string>
+    <plurals name="recording_selection_count">
+        <item quantity="one">%d избран</item>
+        <item quantity="other">%d избрани</item>
+    </plurals>
+</resources>

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="system_tracing" msgid="4719188511746319848">"시스템 추적"</string>
+    <string name="record_system_activity" msgid="4339462312915377825">"시스템 활동을 기록한 다음 나중에 분석하여 성능 향상"</string>
+    <string name="record_trace" msgid="6416875085186661845">"트레이스 기록"</string>
+    <string name="record_trace_summary" msgid="6705357754827849292">"\'트레이스 설정\'의 구성 설정을 사용하여 시스템 트레이스를 캡처합니다"</string>
+    <string name="record_stack_samples" msgid="3498368637185702335">"CPU 프로필 기록"</string>
+    <string name="record_stack_samples_summary" msgid="7827953921526410478">"\'cpu\' 카테고리를 선택하면 콜스택 샘플링도 트레이스에서 사용 설정할 수 있습니다"</string>
+    <string name="record_heap_dump" msgid="1688550222066812696">"힙 덤프 기록"</string>
+    <string name="record_heap_dump_summary_enabled" msgid="5038675257021221777">"\'힙 덤프 프로세스\'에서 선택한 프로세스의 힙 덤프를 캡처합니다"</string>
+    <string name="record_heap_dump_summary_disabled" msgid="4640319333930345311">"힙 덤프를 수집하려면 \'힙 덤프 프로세스\'에서 프로세스를 하나 이상 선택하세요"</string>
+    <string name="start_new_trace" msgid="8177130420802170353">"새 트레이스 시작"</string>
+    <string name="winscope_tracing" msgid="5818984791154837458">"Winscope 트레이스 수집"</string>
+    <string name="winscope_tracing_summary" msgid="7040550156722395894">"상세한 UI 원격 분석 데이터 포함(버벅거림이 발생할 수 있음)"</string>
+    <string name="trace_debuggable_applications" msgid="7957069895298887899">"디버그 가능한 애플리케이션 추적"</string>
+    <string name="categories" msgid="2280163673538611008">"카테고리"</string>
+    <string name="restore_default_categories" msgid="5090536794637169521">"기본 카테고리 복원"</string>
+    <string name="default_categories_restored" msgid="6861683793680564181">"기본 카테고리 복원됨"</string>
+    <string name="default_categories" msgid="2117679794687799407">"기본"</string>
+    <string name="num_categories_selected" msgid="5772630335027553995">"{count,plural, =1{#개 선택됨}other{#개 선택됨}}"</string>
+    <string name="heap_dump_processes" msgid="2500105180344901939">"힙 덤프 프로세스"</string>
+    <string name="heap_dump_processes_summary" msgid="4570434268024622765">"프로세스를 하나 이상 선택해야 합니다"</string>
+    <string name="clear_heap_dump_processes" msgid="295101454741555286">"힙 덤프 프로세스 삭제"</string>
+    <string name="clear_heap_dump_processes_toast" msgid="3658510557596150797">"프로세스 목록 삭제됨"</string>
+    <string name="continuous_heap_dump" msgid="390369382946204224">"연속 힙 프로필"</string>
+    <string name="continuous_heap_dump_summary" msgid="4581643248161659581">"지정된 간격마다 한 번씩 힙 덤프를 캡처합니다."</string>
+    <string name="continuous_heap_dump_interval" msgid="842533896492001433">"힙 덤프 간격"</string>
+    <string name="five_seconds" msgid="7018465440929299712">"5초"</string>
+    <string name="ten_seconds" msgid="863416601384309033">"10초"</string>
+    <string name="thirty_seconds" msgid="7945396361369598222">"30초"</string>
+    <string name="one_minute" msgid="4182508213840684258">"1분"</string>
+    <string name="applications" msgid="521776761270770549">"애플리케이션"</string>
+    <string name="no_debuggable_apps" msgid="4386209254520471208">"디버그 가능한 애플리케이션이 없습니다."</string>
+    <string name="buffer_size" msgid="3944311026715111454">"CPU별 버퍼 크기"</string>
+    <string name="show_quick_settings_tile" msgid="4971147332635291585">"빠른 설정 타일 표시"</string>
+    <string name="saving_trace" msgid="1468692734770800541">"트레이스 저장 중"</string>
+    <string name="trace_saved" msgid="5869970594780992309">"트레이스 저장됨"</string>
+    <string name="saving_stack_samples" msgid="8174915522390525221">"스택 샘플 저장"</string>
+    <string name="stack_samples_saved" msgid="8863295751647724616">"스택 샘플 저장됨"</string>
+    <string name="saving_heap_dump" msgid="6118616780825771824">"힙 덤프 저장 중"</string>
+    <string name="heap_dump_saved" msgid="6720583137473857098">"힙 덤프 저장됨"</string>
+    <string name="tap_to_share" msgid="4440713575852187545">"탭하여 녹화 파일 공유"</string>
+    <string name="attaching_to_report" msgid="2629202947947275886">"버그 신고에 트레이스 첨부 중"</string>
+    <string name="attached_to_report" msgid="5806905349184608870">"버그 신고에 트레이스 첨부됨"</string>
+    <string name="attached_to_report_summary" msgid="7665675771190391355">"탭하여 BetterBug 열기"</string>
+    <string name="stop_tracing" msgid="8916938308534164152">"추적 중지"</string>
+    <string name="tracing_categories_unavailable" msgid="5609076391417077752">"일부 추적 카테고리를 사용할 수 없습니다"</string>
+    <string name="trace_is_being_recorded" msgid="5947378146009337469">"트레이스 기록 중"</string>
+    <string name="tap_to_stop_tracing" msgid="6533282719573871806">"추적을 중지하려면 탭하세요."</string>
+    <string name="stack_samples_are_being_recorded" msgid="8669254939248349583">"스택 샘플 기록 중"</string>
+    <string name="tap_to_stop_stack_sampling" msgid="5911317684139059415">"탭하여 스택 샘플링 중단"</string>
+    <string name="heap_dump_is_being_recorded" msgid="3789315106110524969">"힙 덤프를 기록하는 중"</string>
+    <string name="tap_to_stop_heap_dump" msgid="6475699275834526902">"힙 덤프를 중지하려면 탭하세요"</string>
+    <string name="clear_saved_files" msgid="9156079311231446825">"저장된 파일 삭제"</string>
+    <string name="clear_saved_files_summary" msgid="109751867417553670">"녹화 파일은 1개월 후에 삭제됩니다."</string>
+    <string name="clear_saved_files_question" msgid="8586686617760838834">"저장된 파일을 삭제할까요?"</string>
+    <string name="all_recordings_will_be_deleted" msgid="7731693738485947891">"/data/local/traces에서 모든 녹화 파일이 삭제됩니다."</string>
+    <string name="clear" msgid="5484761795406948056">"삭제"</string>
+    <string name="system_traces_storage_title" msgid="8294090839883366871">"시스템 트레이스"</string>
+    <string name="keywords" msgid="736547007949049535">"systrace, 트레이스, 성능"</string>
+    <string name="share_file" msgid="1982029143280382271">"파일을 공유할까요?"</string>
+    <string name="system_trace_sensitive_data" msgid="3069389866696009549">"시스템 추적 파일에는 민감한 시스템 및 앱 데이터(예: 앱 사용)가 포함되어 있을 수 있습니다. 신뢰할 수 있는 앱 및 사용자에게만 공유하세요."</string>
+    <string name="share" msgid="8443979083706282338">"공유"</string>
+    <string name="dont_show_again" msgid="6662492041164390600">"다시 표시 안함"</string>
+    <string name="long_traces" msgid="5110949471775966329">"장기 트레이스"</string>
+    <string name="long_traces_summary" msgid="419034282946761469">"기기 저장용량에 계속 저장됨"</string>
+    <string name="long_traces_summary_betterbug" msgid="445546400875135624">"계속해서 기기 저장용량에 저장됨(버그 신고서에 자동으로 첨부되지 않음)"</string>
+    <string name="max_long_trace_size" msgid="1943788179787181241">"최대 장기 트레이스 크기"</string>
+    <string name="max_long_trace_duration" msgid="8009837944364246785">"최대 장기 트레이스 기간"</string>
+    <string name="two_hundred_mb" msgid="4950018549725084512">"200MB"</string>
+    <string name="one_gb" msgid="590396985168692037">"1GB"</string>
+    <string name="five_gb" msgid="7883941043220621649">"5GB"</string>
+    <string name="ten_gb" msgid="4150452462544299276">"10GB"</string>
+    <string name="twenty_gb" msgid="5717308686812140465">"20GB"</string>
+    <string name="ten_minutes" msgid="7039181194343961324">"10분"</string>
+    <string name="thirty_minutes" msgid="2575810799813531395">"30분"</string>
+    <string name="one_hour" msgid="5219232935307966891">"1시간"</string>
+    <string name="eight_hours" msgid="3207620892104451552">"8시간"</string>
+    <string name="twelve_hours" msgid="4647143276394563496">"12시간"</string>
+    <string name="twentyfour_hours" msgid="2789663313550030791">"24시간"</string>
+    <string name="four_thousand_kb" msgid="5156346740862105703">"4096KB"</string>
+    <string name="eight_thousand_kb" msgid="8815334985638334081">"8192KB"</string>
+    <string name="sixteen_thousand_kb" msgid="7342517169232459259">"16384KB"</string>
+    <string name="thirtytwo_thousand_kb" msgid="654328198799196150">"32768KB"</string>
+    <string name="sixtyfive_thousand_kb" msgid="8168144138598305306">"65536KB"</string>
+    <string name="stop_on_bugreport" msgid="4591832600597126422">"버그 신고를 위한 기록 중단"</string>
+    <string name="stop_on_bugreport_summary" msgid="1601834864982891381">"버그 신고가 시작되면 진행 중인 기록을 종료합니다."</string>
+    <string name="attach_to_bug_report" msgid="5388986830016247490">"버그 신고에 녹화 파일 첨부"</string>
+    <string name="attach_to_bug_report_summary" msgid="4213730623971240002">"버그 신고 수집 시 진행 중인 녹화 파일을 자동으로 BetterBug에 전송"</string>
+    <string name="link_to_traces" msgid="1404687523304348490">"저장된 파일 보기"</string>
+    <string name="pref_category_trace_settings" msgid="6507535407023329628">"트레이스 설정"</string>
+    <string name="pref_category_saved_files" msgid="1477491400970413291">"저장된 파일"</string>
+    <string name="pref_category_misc" msgid="6217624054980014683">"기타"</string>
+    <string name="pref_category_heap_dump_settings" msgid="2234681064312605310">"힙 덤프 설정"</string>
+</resources>

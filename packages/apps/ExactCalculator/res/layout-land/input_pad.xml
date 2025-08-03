@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2023 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/input_pad"
+    style="@style/PadLayoutStyle"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?colorSurface">
+
+    <com.android.calculator2.HapticButton
+        android:id="@+id/lparen"
+        style="@style/PadButtonStyle"
+        android:contentDescription="@string/desc_lparen"
+        android:text="@string/lparen"
+        android:theme="@style/Theme.Button.Operator"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/columnGuide4"
+        app:layout_constraintTop_toBottomOf="@id/rowGuide3" />
+
+    <com.android.calculator2.HapticButton
+        android:id="@+id/rparen"
+        style="@style/PadButtonStyle"
+        android:contentDescription="@string/desc_rparen"
+        android:text="@string/rparen"
+        android:theme="@style/Theme.Button.Operator"
+        app:layout_constraintBottom_toTopOf="@id/rowGuide3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/columnGuide4"
+        app:layout_constraintTop_toTopOf="@id/rowGuide2" />
+
+    <com.android.calculator2.HapticButton
+        android:id="@+id/op_pct"
+        style="@style/PadButtonStyle"
+        android:contentDescription="@string/desc_op_pct"
+        android:text="@string/op_pct"
+        android:theme="@style/Theme.Button.Operator"
+        app:layout_constraintBottom_toTopOf="@id/rowGuide2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/columnGuide4"
+        app:layout_constraintTop_toBottomOf="@id/rowGuide1" />
+
+    <com.android.calculator2.HapticButton
+        android:id="@+id/op_div"
+        style="@style/PadButtonStyle"
+        android:contentDescription="@string/desc_op_div"
+        android:text="@string/op_div"
+        android:theme="@style/Theme.Button.Operator"
+        app:layout_constraintBottom_toTopOf="@id/rowGuide1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/columnGuide4"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.android.calculator2.HapticButton
+        android:id="@+id/digit_7"
+        style="@style/PadButtonStyle"
+        android:text="@string/digit_7"
+        android:theme="@style/Theme.Button.Numeric"
+        app:layout_constraintBottom_toBottomOf="@id/rowGuide1"
+        app:layout_constraintEnd_toStartOf="@id/columnGuide1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.android.calculator2.HapticButton
+        android:id="@+id/digit_8"
+        style="@style/PadButtonStyle"
+        android:text="@string/digit_8"
+        android:theme="@style/Theme.Button.Numeric"
+        app:layout_constraintBottom_toBottomOf="@id/rowGuide1"
+        app:layout_constraintEnd_toStartOf="@id/columnGuide2"
+        app:layout_constraintStart_toEndOf="@id/columnGuide1"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.android.calculator2.HapticButton
+        android:id="@+id/digit_9"
+        style="@style/PadButtonStyle"
+        android:text="@string/digit_9"
+        android:theme="@style/Theme.Button.Numeric"
+        app:layout_constraintBottom_toBottomOf="@id/rowGuide1"
+        app:layout_constraintEnd_toStartOf="@id/columnGuide3"
+        app:layout_constraintStart_toEndOf="@id/columnGuide2"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.android.calculator2.HapticButton
+        android:id="@+id/op_mul"
+        style="@style/PadButtonStyle"
+        android:contentDescription="@string/desc_op_mul"
+        android:text="@string/op_mul"
+        android:theme="@style/Theme.Button.Operator"
+        app:layout_constraintBottom_toBottomOf="@id/rowGuide1"
+        app:layout_constraintEnd_toStartOf="@id/columnGuide4"
+        app:layout_constraintStart_toEndOf="@id/columnGuide3"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.android.calculator2.HapticButton
+        android:id="@+id/digit_4"
+        style="@style/PadButtonStyle"
+        android:text="@string/digit_4"
+        android:theme="@style/Theme.Button.Numeric"
+        app:layout_constraintBottom_toBottomOf="@id/rowGuide2"
+        app:layout_constraintEnd_toStartOf="@id/columnGuide1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/rowGuide1" />
+
+    <com.android.calculator2.HapticButton
+        android:id="@+id/digit_5"
+        style="@style/PadButtonStyle"
+        android:text="@string/digit_5"
+        android:theme="@style/Theme.Button.Numeric"
+        app:layout_constraintBottom_toBottomOf="@id/rowGuide2"
+        app:layout_constraintEnd_toStartOf="@id/columnGuide2"
+        app:layout_constraintStart_toEndOf="@id/columnGuide1"
+        app:layout_constraintTop_toTopOf="@id/rowGuide1" />
+
+    <com.android.calculator2.HapticButton
+        android:id="@+id/digit_6"
+        style="@style/PadButtonStyle"
+        android:text="@string/digit_6"
+        android:theme="@style/Theme.Button.Numeric"
+        app:layout_constraintBottom_toBottomOf="@id/rowGuide2"
+        app:layout_constraintEnd_toStartOf="@id/columnGuide3"
+        app:layout_constraintStart_toEndOf="@id/columnGuide2"
+        app:layout_constraintTop_toTopOf="@id/rowGuide1" />
+
+    <com.android.calculator2.HapticButton
+        android:id="@+id/op_sub"
+        style="@style/PadButtonStyle"
+        android:contentDescription="@string/desc_op_sub"
+        android:text="@string/op_sub"
+        android:theme="@style/Theme.Button.Operator"
+        app:layout_constraintBottom_toBottomOf="@id/rowGuide2"
+        app:layout_constraintEnd_toStartOf="@id/columnGuide4"
+        app:layout_constraintStart_toEndOf="@id/columnGuide3"
+        app:layout_constraintTop_toTopOf="@id/rowGuide1" />
+
+    <com.android.calculator2.HapticButton
+        android:id="@+id/digit_1"
+        style="@style/PadButtonStyle"
+        android:text="@string/digit_1"
+        android:theme="@style/Theme.Button.Numeric"
+        app:layout_constraintBottom_toBottomOf="@id/rowGuide3"
+        app:layout_constraintEnd_toStartOf="@id/columnGuide1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/rowGuide2" />
+
+    <com.android.calculator2.HapticButton
+        android:id="@+id/digit_2"
+        style="@style/PadButtonStyle"
+        android:text="@string/digit_2"
+        android:theme="@style/Theme.Button.Numeric"
+        app:layout_constraintBottom_toBottomOf="@id/rowGuide3"
+        app:layout_constraintEnd_toStartOf="@id/columnGuide2"
+        app:layout_constraintStart_toEndOf="@id/columnGuide1"
+        app:layout_constraintTop_toBottomOf="@id/rowGuide2" />
+
+    <com.android.calculator2.HapticButton
+        android:id="@+id/digit_3"
+        style="@style/PadButtonStyle"
+        android:text="@string/digit_3"
+        android:theme="@style/Theme.Button.Numeric"
+        app:layout_constraintBottom_toTopOf="@id/rowGuide3"
+        app:layout_constraintEnd_toStartOf="@id/columnGuide3"
+        app:layout_constraintStart_toEndOf="@id/columnGuide2"
+        app:layout_constraintTop_toBottomOf="@id/rowGuide2" />
+
+    <com.android.calculator2.HapticButton
+        android:id="@+id/op_add"
+        style="@style/PadButtonStyle"
+        android:contentDescription="@string/desc_op_add"
+        android:text="@string/op_add"
+        android:theme="@style/Theme.Button.Operator"
+        app:layout_constraintBottom_toTopOf="@id/rowGuide3"
+        app:layout_constraintEnd_toStartOf="@id/columnGuide4"
+        app:layout_constraintStart_toEndOf="@id/columnGuide3"
+        app:layout_constraintTop_toBottomOf="@id/rowGuide2" />
+
+    <com.android.calculator2.HapticButton
+        android:id="@+id/dec_point"
+        style="@style/PadButtonStyle"
+        android:contentDescription="@string/desc_dec_point"
+        android:theme="@style/Theme.Button.Numeric"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/columnGuide1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/rowGuide3" />
+
+    <com.android.calculator2.HapticButton
+        android:id="@+id/digit_0"
+        style="@style/PadButtonStyle"
+        android:text="@string/digit_0"
+        android:theme="@style/Theme.Button.Numeric"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/columnGuide2"
+        app:layout_constraintStart_toEndOf="@id/columnGuide1"
+        app:layout_constraintTop_toBottomOf="@id/rowGuide3" />
+
+    <com.android.calculator2.HapticButton
+        android:id="@+id/del"
+        style="@style/PadButtonStyle.Image"
+        android:contentDescription="@string/desc_del"
+        android:theme="@style/Theme.Button.Numeric"
+        app:icon="@drawable/ic_del"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/columnGuide3"
+        app:layout_constraintStart_toEndOf="@id/columnGuide2"
+        app:layout_constraintTop_toBottomOf="@id/rowGuide3" />
+
+    <com.android.calculator2.HapticButton
+        android:id="@+id/eq"
+        style="@style/PadButtonStyle"
+        android:contentDescription="@string/desc_eq"
+        android:text="@string/eq"
+        android:theme="@style/Theme.Button.Action"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/columnGuide4"
+        app:layout_constraintStart_toEndOf="@id/columnGuide3"
+        app:layout_constraintTop_toBottomOf="@id/rowGuide3" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/columnGuide1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.2" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/columnGuide2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.4" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/columnGuide3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.6" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/columnGuide4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.8" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/rowGuide1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.25" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/rowGuide2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.5" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/rowGuide3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.75" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

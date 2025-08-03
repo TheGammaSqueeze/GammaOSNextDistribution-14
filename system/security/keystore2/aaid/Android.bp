@@ -1,0 +1,68 @@
+// Copyright 2020, The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_security_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_security_license"],
+}
+
+cc_library {
+    name: "libkeystore2_aaid",
+    srcs: [
+        "aaid.cpp",
+    ],
+    shared_libs: [
+        "libkeystore-attestation-application-id",
+    ],
+}
+
+rust_bindgen {
+    name: "libkeystore2_aaid_bindgen",
+    wrapper_src: "aaid.hpp",
+    crate_name: "keystore2_aaid_bindgen",
+    source_stem: "bindings",
+
+    bindgen_flags: [
+        "--allowlist-function=aaid_keystore_attestation_id",
+        "--allowlist-var=KEY_ATTESTATION_APPLICATION_ID_MAX_SIZE",
+    ],
+}
+
+rust_library {
+    name: "libkeystore2_aaid-rust",
+    crate_name: "keystore2_aaid",
+    srcs: [
+        "lib.rs",
+    ],
+    rustlibs: [
+        "libkeystore2_aaid_bindgen",
+    ],
+    shared_libs: [
+        "libkeystore2_aaid",
+    ],
+}
+
+rust_test {
+    name: "libkeystore2_aaid_bindgen_test",
+    srcs: [":libkeystore2_aaid_bindgen"],
+    crate_name: "keystore2_aaid_bindgen_test",
+    test_suites: ["general-tests"],
+    auto_gen_config: true,
+    clippy_lints: "none",
+    lints: "none",
+}

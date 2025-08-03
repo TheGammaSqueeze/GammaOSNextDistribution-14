@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+enum RootType {
+  SRC_ROOT = 0;
+  RESOURCE_ROOT = 1;
+  ABS_PATH = 2;
+  PRODUCT_OUT = 3;
+}
+
+message FileChecksum {
+  RootType root_type = 1;
+  string rel_path = 2;
+  string md5sum = 3;
+}
+
+message FileChecksumList {
+  repeated FileChecksum file_checksums = 1;
+}

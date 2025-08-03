@@ -1,0 +1,596 @@
+little_endian_packets
+
+enum PacketBoundaryFlag : 1 {
+  COMPLETE_OR_FINAL = 0,
+  INCOMPLETE = 1,
+}
+
+enum NciMsgType : 3 {
+  DATA = 0,
+  COMMAND = 1,
+  RESPONSE = 2,
+  NOTIFICATION = 3,
+}
+
+enum Opcode : 8 {
+  CORE_RESET = 0x0,
+  CORE_INIT = 0x1,
+  CORE_SET_CONFIG = 0x2,
+  CORE_GET_CONFIG = 0x3,
+  CORE_CONN_CREATE = 0x4,
+  CORE_CONN_CLOSE = 0x5,
+  CORE_CONN_CREDITS = 0x6,
+  CORE_GENERIC_ERROR = 0x7,
+  CORE_INTERFACE_ERROR = 0x8,
+  CORE_SET_POWER_SUBSTATE = 0x9,
+  RF_DISCOVER_MAP = 0x40,
+  RF_SET_LISTEN_MODE_ROUTING = 0x41,
+  RF_GET_LISTEN_MODE_ROUTING = 0x42,
+  RF_DISCOVER = 0x43,
+  RF_DISCOVER_SELECT = 0x44,
+  RF_INTF_ACTIVATED = 0x45,
+  RF_DIACTIVATE = 0x46,
+  RF_FIELD_INFO = 0x47,
+  RF_T3T_POLLING = 0x48,
+  RF_NFCEE_ACTION = 0x49,
+  RF_NFCEE_DISCOVERY_REQ = 0x4A,
+  RF_PARAMETER_UPDATE = 0x4B,
+  RF_INTF_EXT_START = 0x4C,
+  RF_INTF_EXT_STOP = 0x4D,
+  RF_EXT_AGG_ABORT = 0x4E,
+  RF_NDEF_ABORT = 0x4F,
+  RF_ISO_DEP_NAK_PRESENCE = 0x50,
+  RF_SET_FORCED_NFCEE_ROUTING_CMD = 0x51,
+}
+
+enum Status : 8 {
+  OK = 0x00,
+  REJECTED = 0x01,
+  FAILED = 0x03,
+  NOT_INITIALIZED = 0x04,
+  SYNTAX_ERROR = 0x05,
+  SEMANTIC_ERROR = 0x06,
+  INVALID_PARAM = 0x09,
+  MESSAGE_SIZE_EXCEEDED = 0x0A,
+  OK_1_BIT = 0x11,
+  OK_2_BIT = 0x12,
+  OK_3_BIT = 0x13,
+  OK_4_BIT = 0x14,
+  OK_5_BIT = 0x15,
+  OK_6_BIT = 0x16,
+  OK_7_BIT = 0x17,
+  DISCOVERY_ALREADY_STARTED = 0xA0,
+  DISCOVERY_TARGET_ACTIVATION_FAILED = 0xA1,
+  DISCOVERY_TEAR_DOWN = 0xA2,
+  RF_FRAME_CORRUPTED = 0x02,
+  RF_TRANSMISSION_EXCEPTION = 0xB0,
+  RF_PROTOCOL_EXCEPTION = 0xB1,
+  RF_TIMEOUT_EXCEPTION = 0xB2,
+  RF_UNEXPECTED_DATA = 0xB3,
+  NFCEE_INTERFACE_ACTIVATION_FAILED = 0xC0,
+  NFCEE_TRANSMISSION_ERROR = 0xC1,
+  NFCEE_PROTOCOL_ERROR = 0xC2,
+  NFCEE_TIMEOUT_ERROR = 0xC3,
+}
+
+packet NciPacket {
+  gid : 4,
+  pbf : PacketBoundaryFlag,
+  mt : NciMsgType,
+  _payload_,
+}
+
+packet Command : NciPacket (mt = COMMAND) {
+  op : Opcode,
+  _size_(_payload_) : 8,
+  _payload_,
+}
+
+packet Response : NciPacket (mt = RESPONSE) {
+  cmd_op : Opcode,
+  _size_(_payload_) : 8,
+  _payload_,
+}
+
+packet Notification : NciPacket (mt = NOTIFICATION) {
+  cmd_op : Opcode,
+  _size_(_payload_) : 8,
+  _payload_,
+}
+
+packet DataPacket {
+  conn_id : 4,
+  pbf : PacketBoundaryFlag,
+  _fixed_ =  0x0 : 3,
+  cr : 8,
+  _size_(_payload_) : 8,
+  _payload_,
+}
+
+enum ResetType : 8 {
+  KEEP_CONFIG = 0,
+  RESET_CONFIG = 1,
+}
+
+packet ResetCommand : Command (op = CORE_RESET) {
+  reset_type: ResetType,
+}
+
+test ResetCommand {
+  "\x20\x00\x01\x01",
+}
+
+packet ResetResponse : Response (cmd_op = CORE_RESET) {
+  status: Status,
+}
+
+test ResetResponse {
+  "\x40\x00\x01\x00",
+}
+
+enum ResetTrigger : 8 {
+  UNRECOVERABLE_ERROR = 0,
+  POWER_ON = 1,
+  RESET_COMMAND = 2,
+}
+
+enum NciVersion : 8 {
+  VERSION_1_0 = 0x10,
+  VERSION_1_1 = 0x11,
+  VERSION_2_0 = 0x20,
+}
+
+enum ConfigStatus : 8 {
+  CONFIG_KEPT = 0x00,
+  CONFIG_RESET = 0x01,
+}
+
+packet ResetNotification : Notification (cmd_op = CORE_RESET) {
+  trigger : ResetTrigger,
+  config_status : ConfigStatus,
+  nci_version : NciVersion,
+  manufacturer_id: 8,
+  _size_(mfsi) : 8,
+  mfsi : 8[],
+}
+
+test ResetNotification {
+  "\x60\x00\x1f\x02\x01\x20\x02\x1a\x05\x03\x03\x06\x88\x97\x01\x06\x00\x00\x44\x64\xd6\x00\x00\xec\x10\x00\x00\x00\x01\x00\x00\xee\xe7\x02",
+}
+
+enum FeatureEnable : 16 {
+  RFU = 0,
+}
+
+
+enum DiscConfMode : 2 {
+  DH_ONLY = 0x0,
+  DH_AND_EE = 0x1,
+}
+
+enum FeatureState : 1 {
+  DISABLED = 0,
+  AVAILABLE = 1,
+}
+
+struct PropCaps {
+  b7 : 1,
+  b6 : 1,
+  b5 : 1,
+  b4 : 1,
+  b3 : 1,
+  b2 : 1,
+  b1 : 1,
+  b0 : 1,
+}
+
+struct NfccFeatures {
+  disc_freq_conf : FeatureState,
+  disc_conf_mode : DiscConfMode,
+  hci_net_support : FeatureState,
+  active_comm_mode : FeatureState,
+  _reserved_ : 3,
+  _reserved_: 1,
+  tech_routing : FeatureState,
+  proto_routing : FeatureState,
+  aid_routing : FeatureState,
+  syc_code_routing : FeatureState,
+  apdu_pttn_routing : FeatureState,
+  forced_nfcee_routing : FeatureState,
+  _reserved_ : 1,
+  batt_off_st : FeatureState,
+  soff_st : FeatureState,
+  swon_subst : FeatureState,
+  rf_conf_soff: FeatureState,
+  _reserved_ : 4,
+  prop_caps: PropCaps,
+}
+
+enum Intf : 8 {
+  NFCEE_DIRECT_RF = 0x00,
+  FRAME_RF = 0x01,
+  ISO_DEP_RF = 0x02,
+  NFC_DEP_RF = 0x03,
+  NDEF_RF = 0x06,
+}
+
+enum Extns : 8 {
+  FR_AGREG_RF_EXT = 0x00,
+  LLCP_SYM_RF_EXT = 0x01,
+}
+
+struct ExtList {
+  ext : Extns,
+}
+
+struct RfInterface {
+  intf : 8,
+  _size_(extns) : 8,
+  extns : 8[],
+}
+
+packet InitCommand : Command (op = CORE_INIT) {
+  feature_enable : FeatureEnable,
+}
+
+test InitCommand {
+  "\x20\x01\x02\x00\x00",
+}
+
+packet InitResponse : Response (cmd_op = CORE_INIT) {
+  status : Status,
+  nfcc_features : NfccFeatures,
+  max_log_conns : 4, //TODO set max to 0x0E
+  _reserved_ : 4,
+  max_rout_tbls_size : 16,
+  max_ctrl_payload : 8,  //TODO 32 <= val <= 255
+  max_data_payload : 8,
+  num_of_credits : 8,
+  max_nfcv_rf_frame_sz : 16,
+  _count_(rf_interface) : 8,
+  rf_interface: RfInterface[],
+}
+
+test InitResponse {
+  "\x40\x01\x18\x00\x1a\x7e\x06\x00\x01\x00\x04\xff\xff\x00\x0c\x01\x05\x01\x00\x02\x00\x03\x00\x00\x00\x90\x00",
+}
+
+enum ParamIds : 8 {
+  TOTAL_DURATION = 0x00,
+  CON_DISCOVERY_PARAM = 0x02,
+  POWER_STATE = 0x03,
+  PA_BAIL_OUT = 0x08,
+  PA_DEVICES_LIMIT = 0x09,
+  PB_AFI = 0x10,
+  PB_BAIL_OUT = 0x11,
+  PB_ATTRIB_PARAM1 = 0x12,
+  PB_SENSB_REQ_PARAM = 0x13,
+  PB_DEVICES_LIMIT = 0x14,
+  PF_BIT_RATE = 0x18,
+  PF_BAIL_OUT = 0x19,
+  PF_DEVICES_LIMIT = 0x1A,
+  PI_B_H_INFO = 0x20,
+  PI_BIT_RATE = 0x21,
+  PN_NFC_DEP_PSL = 0x28,
+  PN_ATR_REQ_GEN_BYTES = 0x29,
+  PN_ATR_REQ_CONFIG = 0x2A,
+  PV_DEVICES_LIMIT = 0x2F,
+  LA_BIT_FRAME_SDD = 0x30,
+  LA_PLATFORM_CONFIG = 0x31,
+  LA_SEL_INFO = 0x32,
+  LA_NFCID1 = 0x33,
+  LB_SENSB_INFO = 0x38,
+  LB_NFCID0 = 0x39,
+  LB_APPLICATION_DATA = 0x3A,
+  LB_SFGI = 0x3B,
+  LB_FWI_ADC_FO = 0x3C,
+  LB_BIT_RATE = 0x3E,
+  LF_T3T_IDENTIFIERS_1 = 0x40,
+  LF_T3T_IDENTIFIERS_2 = 0x41,
+  LF_T3T_IDENTIFIERS_3 = 0x42,
+  LF_T3T_IDENTIFIERS_4 = 0x43,
+  LF_T3T_IDENTIFIERS_5 = 0x44,
+  LF_T3T_IDENTIFIERS_6 = 0x45,
+  LF_T3T_IDENTIFIERS_7 = 0x46,
+  LF_T3T_IDENTIFIERS_8 = 0x47,
+  LF_T3T_IDENTIFIERS_9 = 0x48,
+  LF_T3T_IDENTIFIERS_10 = 0x49,
+  LF_T3T_IDENTIFIERS_11 = 0x4A,
+  LF_T3T_IDENTIFIERS_12 = 0x4B,
+  LF_T3T_IDENTIFIERS_13 = 0x4C,
+  LF_T3T_IDENTIFIERS_14 = 0x4D,
+  LF_T3T_IDENTIFIERS_15 = 0x4E,
+  LF_T3T_IDENTIFIERS_16 = 0x4F,
+  LF_T3T_MAX = 0x52,
+  LF_T3T_FLAGS = 0x53,
+  LF_T3T_RD_ALLOWED = 0x55,
+  LF_PROTOCOL_TYPE = 0x50,
+  LI_A_RATS_TB1 = 0x58,
+  LI_A_HIST_BY = 0x59,
+  LI_B_H_INFO_RESP = 0x5A,
+  LI_A_BIT_RATE = 0x5B,
+  LI_A_RATS_TC1 = 0x5C,
+  LN_WT = 0x60,
+  LN_ATR_RES_GEN_BYTES = 0x61,
+  LN_ATR_RES_CONFIG = 0x62,
+  PACM_BIT_RATE = 0x68,
+  RF_FIELD_INFO = 0x80,
+  RF_NFCEE_ACTION = 0x81,
+  NFCDEP_OP = 0x82,
+  LLCP_VERSION = 0x83,
+  NFCC_CONFIG_CONTROL = 0x85,
+  PROP0 = 0xa0,
+  PROP1 = 0xa1,
+  PROP2 = 0xa2,
+  PROP3 = 0xa3,
+  PROP4 = 0xa4,
+  PROP5 = 0xa5,
+}
+
+struct ConfigParams {
+  paramid : ParamIds,
+  _size_(valm) : 8,
+  valm : 8[],
+}
+
+struct ParamList {
+  pids : ParamIds,
+}
+
+packet SetConfigCommand : Command (op = CORE_SET_CONFIG) {
+  _count_(params) : 8,
+  params : ConfigParams[],
+}
+
+test SetConfigCommand {
+  "\x20\x02\x10\x05\x30\x01\x04\x31\x01\x00\x32\x01\x20\x38\x01\x01\x50\x01\x00",
+}
+
+packet SetConfigResponse : Response (cmd_op = CORE_SET_CONFIG) {
+  status : Status,
+  _count_(paramids) : 8,
+  paramids : ParamList[],
+}
+
+test SetConfigResponse {
+  "\x40\x02\x02\x00\x00",
+}
+
+packet GetConfigCommand : Command (op = CORE_GET_CONFIG) {
+  _count_(paramids) : 8,
+  paramids : ParamList[],
+}
+
+test GetConfigCommand {
+  "\x20\x03\x02\x01\x52",
+}
+
+packet GetConfigResponse : Response (cmd_op = CORE_GET_CONFIG) {
+  status : Status,
+  _count_(params) : 8,
+  params : ConfigParams[],
+}
+
+test GetConfigResponse {
+  "\x40\x03\x05\x00\x01\x52\x01\x10",
+}
+
+enum RfProtocols : 8 {
+  PROTOCOL_UNDETERMINED = 0x00,
+  PROTOCOL_T1T = 0x01,
+  PROTOCOL_T2T = 0x02,
+  PROTOCOL_T3T = 0x03,
+  PROTOCOL_ISO_DEP = 0x04,
+  PROTOCOL_NFC_DEP = 0x05,
+  PROTOCOL_T5T = 0x06,
+  PROTOCOL_NDEF = 0x07,
+}
+
+enum NfceeProtocols : 8 {
+  APDU = 0x00,
+  RFU = 0x01,
+  T3CS = 0x02,
+  TRANSPARENT = 0x04,
+}
+
+enum DestTypes : 8 {
+  RFU = 0x00,
+  NFCC_LPBK = 0x01,
+  REMOTE = 0x02,
+  NFCEE = 0x03,
+}
+
+enum DestParamTypes : 8 {
+  RF_DISC = 0x00,
+  NFCEE = 0x01,
+}
+
+struct RfDiscType {
+  id : 8,
+  proto: RfProtocols,
+}
+
+struct NfceeType {
+  id : 8,
+  proto : NfceeProtocols,
+}
+
+struct DestParam {
+  ptype : DestParamTypes,
+  _size_(parameter) : 8,
+  parameter : 8[],
+}
+
+packet ConnCreateCommand : Command (op = CORE_CONN_CREATE) {
+  dt : DestTypes,
+  _count_(destparams) : 8,
+  destparams : DestParam[],
+}
+
+packet ConnCreateResponse : Response (cmd_op = CORE_CONN_CREATE) {
+  status : Status,
+  mpps : 8,
+  ncreds : 8,
+  conn_id : 8,
+}
+
+packet ConnCloseCommand : Command (op = CORE_CONN_CLOSE) {
+  conn_id : 8,
+}
+
+packet ConnCloseResponse : Response (cmd_op = CORE_CONN_CLOSE) {
+  status : Status,
+}
+
+struct CreditsPerConn {
+  conn_id : 4,
+  rfu : 4,
+  ncredits : 8,
+}
+
+packet ConnCreditsNotification : Notification (cmd_op = CORE_CONN_CREDITS) {
+  _count_(conns) : 8,
+  conns : CreditsPerConn[],
+}
+
+packet GenericError : Notification (cmd_op = CORE_GENERIC_ERROR) {
+  status : Status,
+}
+
+packet InterfaceError : Notification (cmd_op = CORE_INTERFACE_ERROR) {
+  status : Status,
+  conn_id : 8,
+}
+
+enum RfMode : 8 {
+  POLL = 0x1,
+  LISTEN = 0x2,
+}
+
+enum RfInterfaceType : 8 {
+  NFCEE_DIRECT = 0x0,
+  FRAME = 0x1,
+  ISO_DEP = 0x2,
+  NFC_DEP = 0x3,
+  NDEF = 0x6,
+}
+
+struct RfMappingConfiguration {
+  rf_proto : RfProtocols,
+  mode : RfMode,
+  intf : RfInterfaceType,
+}
+
+packet RfDiscoverMapCommand : Command (op = RF_DISCOVER_MAP) {
+  _count_(map_configs) : 8,
+  map_configs : RfMappingConfiguration[],
+}
+
+packet RfDiscoverMapResponse : Response (cmd_op = RF_DISCOVER_MAP) {
+  status : Status,
+}
+
+enum More : 8 {
+  LAST = 0x0,
+  MORE = 0x1,
+}
+
+enum ListenModeREntryType : 4 {
+  TECH = 0,
+  PROTO = 1,
+  AID = 2,
+  SYSCODE = 3,
+  PATTERN = 4,
+}
+
+struct QualifierType {
+  lmr_type : ListenModeREntryType,
+  long_ok : 1,
+  short_ok : 1,
+  block : 1,
+  _fixed_ = 0 : 1,
+}
+
+struct RoutingEntry {
+  qt : QualifierType,
+  _size_(valr) : 8,
+  valr : 8[],
+}
+
+enum NfcEeID : 8 {
+  DH = 0x0,
+  HCI = 0x1,
+}
+
+struct PowerState {
+  _fixed_ = 0x0 : 2,
+  subst3 : 1,
+  subst2 : 1,
+  subst1 : 1,
+  batt_off : 1,
+  switch_off : 1,
+  switch_on : 1,
+}
+
+enum Technology : 8 {
+  TECH_A = 0x0,
+  TECH_B = 0x1,
+  TECH_F = 0x2,
+  TECH_V = 0x3,
+}
+
+struct TechRE {
+  id : 8, // NfcEeID 0x80-0xfe dynamic HCI-EEs, 0x10-0x7f other synamic EEs
+  pstate : PowerState,
+  tech : Technology,
+}
+
+struct ProtoRE {
+  id : 8,
+  pstate : PowerState,
+  proto : RfProtocols,
+}
+
+struct CommonRE {
+  id : 8,
+  pstate: PowerState,
+  _payload_,
+}
+
+packet RfSetListenModeRoutingCommand : Command (op = RF_SET_LISTEN_MODE_ROUTING) {
+  more : More,
+  _count_(entries) : 8,
+  entries : RoutingEntry[],
+}
+
+packet RfSetListenModeRoutingResponse : Response (cmd_op = RF_SET_LISTEN_MODE_ROUTING) {
+  status : Status,
+}
+
+packet RfGetListenModeRoutingCommand : Command (op = RF_GET_LISTEN_MODE_ROUTING) {
+}
+
+packet RfGetListenModeRoutingResponse : Response (cmd_op = RF_GET_LISTEN_MODE_ROUTING) {
+  status : Status,
+}
+
+packet RfGetListenModeRoutingNotification : Notification (cmd_op = RF_GET_LISTEN_MODE_ROUTING) {
+  more : More,
+  _count_(entries) : 8,
+  entries : RoutingEntry[],
+}
+
+enum PowerSubState : 8 {
+  SWITCHED_ON = 0x0,
+  SO_SUBSTATE1 = 0x1,
+  SO_SUBSTATE2 = 0x2,
+  SO_SUBSTATE3 = 0x3,
+}
+
+packet SetPowerSubStateCommand  : Command (op = CORE_SET_POWER_SUBSTATE) {
+  pstate : PowerSubState,
+}
+
+packet SetPowerSubStateResponse  : Response (cmd_op = CORE_SET_POWER_SUBSTATE) {
+  status : Status,
+}

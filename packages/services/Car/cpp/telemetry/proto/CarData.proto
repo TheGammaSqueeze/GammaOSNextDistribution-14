@@ -1,0 +1,48 @@
+/*
+ * Copyright (C) 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * This file contains all the known CarData messages used in AAOS. Some messages
+ * might be defined in OEM's private repo, the owners of those messages must
+ * make sure the CarData IDs are not colliding.
+ *
+ * All the messages must be defined in the CarData message and given a unique
+ * ID.
+ */
+
+syntax = "proto2";
+
+package android.automotive.telemetry;
+option java_package = "com.android.automotive.telemetry";
+option java_outer_classname = "CarDataProto";
+
+import "packages/services/Car/cpp/telemetry/proto/evs.proto";
+
+// Contains all the CarData messages to declare all the messages.
+// Unique protobuf number is used as an ID.
+// A message will be sent from writer clients to the cartelemetryd
+// wrapped in
+// frameworks/hardware/interfaces/automotive/telemetry/aidl/android/frameworks/automotive/telemetry/CarData.aidl
+message CarData {
+  oneof pushed {
+    EvsFirstFrameLatency evs_first_frame_latency = 1;
+  }
+
+  // DO NOT USE field numbers above 10,000 in AOSP.
+  // Field numbers 10,000 - 19,999 are reserved for non-AOSP (e.g. OEMs) to
+  // use. Field numbers 20,000 and above are reserved for future use; do not
+  // use them at all.
+}

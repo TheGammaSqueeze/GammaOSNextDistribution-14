@@ -1,0 +1,8 @@
+# Bug component: 589799
+elsk@google.com
+sspatil@google.com
+tkjos@google.com
+
+per-file ota_from_raw_image.py=xunchang@google.com
+
+include platform/packages/modules/common:/MODULES_OWNERS  # see go/mainline-owners-policy

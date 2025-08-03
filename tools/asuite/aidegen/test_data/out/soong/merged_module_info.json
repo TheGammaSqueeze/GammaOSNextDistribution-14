@@ -1,0 +1,17 @@
+{
+    "28.0.compat.cil": {
+        "class": [
+            "ETC"
+        ],
+        "path": [
+            "system/sepolicy/compat"
+        ],
+        "tags": [
+            "optional"
+        ],
+        "installed": [
+            "out/target/product/vsoc_x86_64/system/etc/selinux/mapping/28.0.compat.cil"
+        ],
+        "module_name": "28.0.compat.cil"
+    }
+}

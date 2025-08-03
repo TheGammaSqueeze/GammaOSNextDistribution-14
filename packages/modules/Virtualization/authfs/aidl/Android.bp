@@ -1,0 +1,18 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+aidl_interface {
+    name: "authfs_aidl_interface",
+    unstable: true,
+    srcs: ["com/android/virt/fs/*.aidl"],
+    backend: {
+        rust: {
+            enabled: true,
+            apex_available: [
+                "com.android.compos",
+                "com.android.virt",
+            ],
+        },
+    },
+}

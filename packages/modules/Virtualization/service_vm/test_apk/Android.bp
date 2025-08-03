@@ -1,0 +1,44 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "VmAttestationTestApp",
+    test_suites: [
+        "general-tests",
+    ],
+    srcs: ["src/java/**/*.java"],
+    static_libs: [
+        "MicrodroidDeviceTestHelper",
+        "androidx.test.runner",
+        "androidx.test.ext.junit",
+        "com.android.virt.vm_attestation.testservice-java",
+        "truth",
+    ],
+    jni_libs: ["libvm_attestation_test_payload"],
+    jni_uses_platform_apis: true,
+    use_embedded_native_libs: true,
+    sdk_version: "test_current",
+    compile_multilib: "first",
+}
+
+rust_defaults {
+    name: "vm_attestation_test_payload_defaults",
+    crate_name: "vm_attestation_test_payload",
+    defaults: ["avf_build_flags_rust"],
+    srcs: ["src/native/main.rs"],
+    prefer_rlib: true,
+    rustlibs: [
+        "com.android.virt.vm_attestation.testservice-rust",
+        "libandroid_logger",
+        "libanyhow",
+        "libavflog",
+        "liblog_rust",
+        "libvm_payload_bindgen",
+    ],
+}
+
+rust_ffi {
+    name: "libvm_attestation_test_payload",
+    defaults: ["vm_attestation_test_payload_defaults"],
+}

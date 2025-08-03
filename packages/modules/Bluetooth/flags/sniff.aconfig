@@ -1,0 +1,9 @@
+package: "com.android.bluetooth.flags"
+container: "com.android.btservices"
+
+flag {
+    name: "enable_sniff_offload"
+    namespace: "bluetooth"
+    description: "Enable sniff offload feature."
+    bug: "318786790"
+}

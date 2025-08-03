@@ -1,0 +1,64 @@
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_security_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_security_license"],
+}
+
+python_library_host {
+    name: "fsverity_digests_proto_python",
+    srcs: [
+        "fsverity_digests.proto",
+    ],
+    required: [
+        "fsverity",
+    ],
+    proto: {
+        canonical_path_from_root: false,
+    },
+}
+
+python_binary_host {
+    name: "fsverity_manifest_generator",
+    srcs: ["fsverity_manifest_generator.py"],
+    libs: ["fsverity_digests_proto_python"],
+}
+
+rust_protobuf {
+    name: "libfsverity_digests_proto_rust",
+    crate_name: "fsverity_digests_proto",
+    source_stem: "fsverity_digests_proto",
+    protos: [
+        "fsverity_digests.proto",
+    ],
+    apex_available: [
+        "com.android.compos",
+    ],
+}
+
+cc_library_static {
+    name: "libfsverity_digests_proto_cc",
+    proto: {
+        type: "lite",
+        static: true,
+        canonical_path_from_root: false,
+        export_proto_headers: true,
+    },
+    srcs: ["fsverity_digests.proto"],
+}

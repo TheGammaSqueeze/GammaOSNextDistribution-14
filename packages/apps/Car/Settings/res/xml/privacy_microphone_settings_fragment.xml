@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright 2021 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:settings="http://schemas.android.com/apk/res-auto"
+    android:title="@string/microphone_settings_title"
+    android:key="@string/psk_microphone_settings">
+    <com.android.car.settings.common.ColoredSwitchPreference
+        android:key="@string/pk_microphone_state_switch"
+        android:title="@string/microphone_toggle_title"
+        android:summary="@string/microphone_toggle_summary"
+        style="@style/ColoredSwitchPreferenceStyle"
+        settings:controller="com.android.car.settings.privacy.MicTogglePreferenceController"
+        settings:searchable="false"/>
+    <PreferenceCategory
+        android:key="@string/pk_microphone_recent_accesses_category"
+        android:title="@string/microphone_recently_accessed"
+        settings:controller="com.android.car.settings.privacy.MicrophoneRecentAccessesPreferenceController">
+        <com.android.car.settings.common.DividerPreference
+            android:order="999"/>
+    </PreferenceCategory>
+    <Preference
+        android:key="@string/pk_microphone_manage_permissions"
+        android:title="@string/microphone_manage_permissions"
+        settings:controller="com.android.car.settings.privacy.ManageMicPermissionsPreferenceController">
+        <intent android:action="android.intent.action.MANAGE_PERMISSION_APPS">
+            <extra android:name="android.intent.extra.PERMISSION_NAME"
+                   android:value="android.permission-group.MICROPHONE"/>
+        </intent>
+    </Preference>
+</PreferenceScreen>

@@ -1,0 +1,52 @@
+{
+  "mem.timestamp_millis": 1664995933733,
+  "mem.meminfo": "MemTotal:        2012956 kB\nMemFree:          293520 kB\nMemAvailable:     696596 kB\nBuffers:           15724 kB\nCached:           593712 kB\nSwapCached:         9400 kB\nActive:           451092 kB\nInactive:         736188 kB\nActive(anon):     160432 kB\nInactive(anon):   433336 kB\nActive(file):     290660 kB\nInactive(file):   302852 kB\nUnevictable:        3992 kB\nMlocked:            3992 kB\nSwapTotal:       1509712 kB\nSwapFree:        1070416 kB\nDirty:                68 kB\nWriteback:             0 kB\nAnonPages:        578232 kB\nMapped:           361236 kB\nShmem:             12932 kB\nKReclaimable:      71048 kB\nSlab:             205236 kB\nSReclaimable:      71048 kB\nSUnreclaim:       134188 kB\nKernelStack:       29984 kB\nPageTables:        70336 kB\nNFS_Unstable:          0 kB\nBounce:                0 kB\nWritebackTmp:          0 kB\nCommitLimit:     2516188 kB\nCommitted_AS:   36226200 kB\nVmallocTotal:   34359738367 kB\nVmallocUsed:       47812 kB\nVmallocChunk:          0 kB\nPercpu:             9696 kB\nAnonHugePages:         0 kB\nShmemHugePages:        0 kB\nShmemPmdMapped:        0 kB\nFileHugePages:         0 kB\nFilePmdMapped:         0 kB\nCmaTotal:         274432 kB\nCmaFree:          134316 kB\nDirectMap4k:       75608 kB\nDirectMap2M:     2021376 kB\n",
+  "com.android.car.scriptexecutor:10204:com.android.car.scriptexecutor.ScriptExecutor": {
+    "mem.summary.java-heap": 804,
+    "mem.summary.total-pss": 6526,
+    "mem.summary.private-other": 940,
+    "mem.summary.native-heap": 1608,
+    "mem.summary.stack": 300,
+    "mem.total_shared_clean": 42764,
+    "mem.total_shared_dirty": 29868,
+    "mem.summary.system": 2078,
+    "mem.summary.code": 796,
+    "mem.total_private_clean": 684,
+    "mem.total_private_dirty": 3764,
+    "mem.total_swappable_pss": 640,
+    "mem.summary.graphics": 0,
+    "mem.summary.total-swap": 28916
+  },
+  "com.android.car:1000:com.android.car": {
+    "mem.summary.java-heap": 3264,
+    "mem.summary.total-pss": 18323,
+    "mem.summary.private-other": 3812,
+    "mem.summary.native-heap": 2516,
+    "mem.summary.stack": 556,
+    "mem.total_shared_clean": 51636,
+    "mem.total_shared_dirty": 28008,
+    "mem.summary.system": 5339,
+    "mem.summary.code": 2836,
+    "mem.total_private_clean": 4900,
+    "mem.total_private_dirty": 8084,
+    "mem.total_swappable_pss": 2776,
+    "mem.summary.graphics": 0,
+    "mem.summary.total-swap": 29532
+  },
+  "com.android.car:1001000:com.android.car": {
+    "mem.summary.java-heap": 644,
+    "mem.summary.total-pss": 7488,
+    "mem.summary.private-other": 376,
+    "mem.summary.native-heap": 436,
+    "mem.summary.stack": 52,
+    "mem.total_shared_clean": 44172,
+    "mem.total_shared_dirty": 29228,
+    "mem.summary.system": 5964,
+    "mem.summary.code": 16,
+    "mem.total_private_clean": 192,
+    "mem.total_private_dirty": 1332,
+    "mem.total_swappable_pss": 4,
+    "mem.summary.graphics": 0,
+    "mem.summary.total-swap": 32572
+  }
+}

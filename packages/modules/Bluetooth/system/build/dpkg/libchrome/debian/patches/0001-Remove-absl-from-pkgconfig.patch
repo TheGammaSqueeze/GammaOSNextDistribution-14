@@ -1,0 +1,33 @@
+From 9c93da57cc206ce3d301786b7ef733197ee92939 Mon Sep 17 00:00:00 2001
+From: Sonny Sasaka <sonnysasaka@chromium.org>
+Date: Fri, 30 Apr 2021 17:49:14 -0700
+Subject: [PATCH] Remove absl from pkgconfig
+
+Change-Id: Ia54bb1c58056b1d7adab668e77ef98ffb15f41c6
+---
+ BUILD.gn | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/libchrome/BUILD.gn b/libchrome/BUILD.gn
+index 402ed4c725..7778aa0163 100644
+--- a/libchrome/BUILD.gn
++++ b/libchrome/BUILD.gn
+@@ -90,7 +90,6 @@ libbase_sublibs = [
+       "modp_b64",
+     ]
+     pkg_deps = [
+-      "absl",
+       "glib-2.0",
+       "libevent",
+     ]
+@@ -460,7 +459,6 @@ if (use.dbus) {
+       name = "base-dbus"
+       deps = [ ":base-core" ]
+       pkg_deps = [
+-        "absl",
+         "dbus-1",
+       ]
+       if (use.fuzzer) {
+-- 
+2.31.0
+

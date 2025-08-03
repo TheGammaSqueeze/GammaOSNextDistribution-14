@@ -1,0 +1,6 @@
+54c00000-56c00000 r-xp 00000000 00:00 0                                  [anon:dalvik-zygote-jit-code-cache]
+701ea000-70cdb000 rw-p 00000000 fe:00 3165                               /system/framework/x86_64/boot-framework.art
+70074dd8d000-70074ee0d000 rw-p 00000000 00:00 0                          [anon:libc_malloc]
+700755a2d000-700755a6e000 r-xp 00016000 fe:00 1947                       /system/priv-app/SettingsProvider/oat/x86_64/SettingsProvider.odex
+7007f85b0000-7007f8b9b000 r-xp 001ee000 fe:00 1537                       /system/lib64/libhwui.so
+ffffffffff600000-ffffffffff601000 r-xp 00000000 00:00 0                  [vsyscall]

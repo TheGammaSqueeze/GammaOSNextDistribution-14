@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="error_user_locked">Desbloquia\'l teléfonu pa cargar la información de pagu</string>
+    <string name="accessibility_menu">Menú</string>
+    <string name="error_generic">Hebo un problema al consiguir les tarxetes. Volvi tentalo dempués</string>
+    <string name="settings">Configuración</string>
+</resources>

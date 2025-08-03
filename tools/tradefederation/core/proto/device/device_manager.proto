@@ -1,0 +1,128 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+syntax = "proto3";
+
+package tradefed.device.server;
+
+option java_package = "com.proto.tradefed.device";
+option java_outer_classname = "TradefedDeviceService";
+option java_multiple_files = true;
+option java_generic_services = true;
+
+// The Tradefed device service provides TF device management functions.
+service DeviceManagement {
+  // Reserve a device.
+  rpc ReserveDevice(ReserveDeviceRequest) returns (ReserveDeviceResponse) {}
+  // Release a reservation.
+  rpc ReleaseReservation(ReleaseReservationRequest)
+      returns (ReleaseReservationResponse) {}
+  // Get the devices status
+  rpc GetDevicesStatus(GetDevicesStatusRequest)
+      returns (GetDevicesStatusResponse) {}
+  // Apply to stop leasing tests. The RPC returns immediately and doesn't wait
+  // for all leasing being stopped.
+  rpc StopLeasing(StopLeasingRequest) returns (StopLeasingResponse) {}
+}
+
+// The request of stopping leasing tests.
+message StopLeasingRequest {}
+
+// The response of stopping leasing tests.
+message StopLeasingResponse {
+  enum Result {
+    UNKNOWN = 0;
+    SUCCEED = 1;
+    FAIL = 2;
+  }
+  Result result = 1;
+  string message = 2;
+}
+
+// The request to reserve device.
+message ReserveDeviceRequest {
+  // The identifier of the device to be reserved.
+  string device_id = 1;
+}
+
+// The response of reserving device.
+message ReserveDeviceResponse {
+  enum Result {
+    // The default value
+    UNKNOWN = 0;
+    // The reservation succeed.
+    SUCCEED = 1;
+    // The device has been reserved by other RPC calls.
+    ALREADY_RESERVED = 2;
+    // The devive has been allocated but not via the RPC call.
+    ALREADY_ALLOCATED = 3;
+    // The device is abnormal and cannot run tests.
+    UNAVAILABLE = 4;
+  }
+  Result result = 1;
+  // A unique identifier to track the reservation
+  string reservation_id = 2;
+  // In case of error, this can contain debugging reason
+  string message = 3;
+}
+
+// The request to release reservation
+message ReleaseReservationRequest {
+  // Unique identifier tracking the reservation
+  string reservation_id = 1;
+}
+
+// The response of releasing reservation
+message ReleaseReservationResponse {
+  enum Result {
+    UNKNOWN = 0;
+    // Succeed to release reservation
+    SUCCEED = 1;
+    // Fail to release reservation because it does not exist
+    RESERVATION_NOT_EXIST = 2;
+    // Fail to release reservation because the device is still in use
+    DEVICE_IN_USE = 3;
+  }
+  Result result = 1;
+  // In case of error, this can contain debugging reason
+  string message = 2;
+}
+
+// The request to get status of devices
+message GetDevicesStatusRequest {
+  // Request devices status. if left empty, all devices status are returned.
+  repeated string device_id = 1;
+}
+
+message GetDevicesStatusResponse {
+  repeated DeviceStatus device_status = 1;
+}
+
+// Representation of a device and its reservation status
+message DeviceStatus {
+  enum ReservationStatus {
+    UNKNOWN = 0;
+    // Device can be reserved
+    READY = 1;
+    // Device has been reserved via the RPC service
+    RESERVED = 2;
+    // The devive has been allocated but not via the RPC call.
+    ALLOCATED = 3;
+    // The device is abnormal and cannot run tests.
+    UNAVAILABLE = 4;
+  }
+  string device_id = 1;
+  ReservationStatus reservation_status = 2;
+}

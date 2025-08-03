@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2017-2021 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <string name="app_name">Taifeadán</string>
+    <string name="share">Comhroinn</string>
+    <string name="share_selected">Roinn roghnaithe</string>
+    <string name="stop">Stop</string>
+    <string name="play">Seinn</string>
+    <string name="pause">Sos</string>
+    <string name="resume">Tosaigh arís</string>
+    <string name="delete">Scrios</string>
+    <string name="delete_all">Scrios go léir</string>
+    <string name="delete_selected">Scrios roghnaithe</string>
+    <string name="cancel">Cealaigh</string>
+    <string name="rename">Athainmnigh</string>
+    <string name="delete_title">Taifead a scriosadh</string>
+    <string name="delete_recording_message">An bhfuil tú cinnte gur mhaith leat an taifeadadh seo a scriosadh? Ní féidir é seo a chealú</string>
+    <string name="confirm">Deimhnigh</string>
+    <string name="discard">Caith amach</string>
+    <string name="record_again">Taifead arís</string>
+    <string name="confirm_result_title">Úsáid taifeadadh?</string>
+    <string name="confirm_result_message">Ar mhaith leat an taifeadadh deireanach a úsáid?</string>
+    <string name="sound_notification_title">Taifeadán Fuaime</string>
+    <string name="sound_notification_message">Fad fuaime: %1$s</string>
+    <string name="sound_recording_title_working">Taifeadadh</string>
+    <string name="sound_recording_title_paused">Ar sos</string>
+    <string name="sound_last_title">Taifead deireanach</string>
+    <string name="sound_channel_title">Taifeadadh fuaime</string>
+    <string name="sound_channel_desc">Fógra leanúnach agus fuaim á thaifeadadh agus fógra tar éis é a bheith críochnaithe</string>
+    <string name="settings_title">Socruithe</string>
+    <string name="settings_location_message">Clibeáil do thaifeadtaí le do shuíomh reatha</string>
+    <string name="settings_quality_high">Taifead i chaighdeán ard</string>
+    <string name="dialog_permissions_title">Ceadanna</string>
+    <string name="dialog_permissions_mic">Teastaíonn cead micreafón ón dtaifeadán chun an fhuaim a thaifeadadh</string>
+    <string name="dialog_permissions_phone">Teastaíonn rochtain stádais ghutháin ar Thaifeadán chun an aip seo a chosc ó thaifeadadh agus tú ag glaoch</string>
+    <string name="dialog_permissions_notifications">Teastaíonn cead fógraí ó thaifeadán chun rialuithe taifeadta a thaispeáint</string>
+    <string name="dialog_permissions_mic_phone">Teastaíonn cead micreafóin ón taifeadán chun fuaim a thaifeadadh agus rochtain ar stádas gutháin chun an aip seo a chosc ó thaifeadadh agus glaoch á dhéanamh agat</string>
+    <string name="dialog_permissions_mic_notifications">Teastaíonn cead ó mhicreafón ó thaifeadán chun cead fuaime agus fógraí a thaifeadadh chun rialuithe taifeadta a thaispeáint</string>
+    <string name="dialog_permissions_phone_notifications">Teastaíonn rochtain stádais ghutháin ar Thaifeadán chun an aip seo a chosc ó thaifeadadh agus tú ag glaoch agus cead fógraí a thabhairt chun rialuithe taifeadta a thaispeáint</string>
+    <string name="dialog_permissions_mic_phone_notifications">Teastaíonn cead ó mhicreafón ó thaifeadán chun fuaim a thaifeadadh, rochtain ar stádas gutháin chun an aip seo a chosc ó thaifeadadh agus tú ag glaoch, agus cead fógraí chun rialuithe taifeadta a thaispeáint</string>
+    <string name="dialog_permissions_location">Teastaíonn cead suímh ó thaifeadán chun do thaifeadtaí a chlibeáil go huathoibríoch chun cabhrú leat iad a eagrú</string>
+    <string name="dialog_permissions_ask">Iarr arís</string>
+    <string name="dialog_permissions_dismiss">Díbhe</string>
+    <string name="snack_permissions_no_permission">Diúltaíodh ceadanna riachtanacha, cumasaigh iad ón aip Socruithe chun tús a chur leis an taifeadadh</string>
+    <string name="snack_permissions_no_permission_location">Diúltaíodh cead suímh, cumasaigh é ón aip Socruithe chun do thaifeadtaí a chlibeáil</string>
+    <string name="main_sound_action">Fuaim a thaifeadadh</string>
+    <string name="list_title">Mo thaifeadtaí</string>
+    <string name="list_error_empty">Taispeánfar do thaifeadtaí go léir anseo</string>
+    <string name="list_edit_title">Cuir ainm taifeadta in eagar</string>
+    <string name="list_edit_confirm">Athrú</string>
+    <string name="list_item_menu">Tuilleadh gníomhartha</string>
+    <string name="delete_all_title">Scrios go léir</string>
+    <string name="delete_all_message">An bhfuil tú cinnte gur mian leat gach taifeadadh a scriosadh? Ní féidir é seo a chealú</string>
+    <string name="delete_selected_title">Scrios roghnaithe</string>
+    <string name="delete_selected_message">An bhfuil tú cinnte gur mhaith leat na taifeadtaí roghnaithe a scriosadh? Ní féidir é seo a chealú</string>
+    <plurals name="recording_selection_count">
+        <item quantity="one">%d roghnaithe</item>
+        <item quantity="two">%d roghnaithe</item>
+        <item quantity="few">%d roghnaithe</item>
+        <item quantity="many">%d roghnaithe</item>
+        <item quantity="other">%d roghnaithe</item>
+    </plurals>
+</resources>

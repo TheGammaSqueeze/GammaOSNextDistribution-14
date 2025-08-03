@@ -1,0 +1,26 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+python_library_host {
+  name: "fetcher-lib",
+  srcs: [
+    "fetcher_lib.py"
+  ],
+  pkg_path: "treble/fetcher",
+  libs: [
+      "py-google-api-python-client",
+      "py-oauth2client",
+  ],
+}
+
+python_binary_host {
+    name: "fetcher",
+    main: "fetcher.py",
+    srcs: [
+        "fetcher.py",
+    ],
+    libs: [
+        "fetcher-lib",
+    ],
+}

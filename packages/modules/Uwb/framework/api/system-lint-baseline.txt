@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+UnflaggedApi: android.uwb.RangingSession.Callback#REASON_INBAND_SESSION_STOP:
+    New API must be flagged with @FlaggedApi: field android.uwb.RangingSession.Callback.REASON_INBAND_SESSION_STOP

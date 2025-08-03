@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2012 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources>
+    <string name="app_name">Curiapantalles de semeyes</string>
+    <string name="table_screensaver_name">Mesa con semeyes</string>
+    <string name="flipper_screensaver_name">Marcu de semeyes</string>
+    <string name="posts_album_name">Semeyes d\'espublizamientos</string>
+    <string name="unknown_album_name">Álbum ensin nome</string>
+    <string name="stock_photo_album_name">Bancu de semeyes</string>
+    <string name="local_source_name">Semeyes del preséu</string>
+    <string name="need_to_configure">Nun se seleicionó nenguna semeya.</string>
+    <string name="photodream_select_all">Seleicionar too</string>
+    <string name="photodream_select_none">Deseleicionar too</string>
+    <string name="no_photos">Nun hai nenguna semeya nel preséu.</string>
+</resources>

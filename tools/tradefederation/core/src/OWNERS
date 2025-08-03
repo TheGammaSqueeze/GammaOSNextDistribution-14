@@ -1,0 +1,1 @@
+per-file com/android/tradefed/targetprep/*User* = file:/MULTIUSER_OWNERS

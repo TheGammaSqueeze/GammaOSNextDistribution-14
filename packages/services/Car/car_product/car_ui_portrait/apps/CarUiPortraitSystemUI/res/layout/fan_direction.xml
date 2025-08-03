@@ -1,0 +1,104 @@
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+       xmlns:systemui="http://schemas.android.com/apk/res-auto"
+       android:layout_width="match_parent"
+       android:layout_height="match_parent">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <com.android.systemui.car.hvac.custom.FanDirectionButton
+            android:id="@+id/direction_face"
+            android:layout_width="@dimen/hvac_panel_airflow_button_width_1"
+            android:layout_height="@dimen/hvac_panel_button_dimen"
+            android:layout_weight="1"
+            android:background="@drawable/hvac_default_background"
+            systemui:hvacAreaId="117"
+            systemui:hvacPropertyId="356517121"
+            systemui:hvacToggleOffButtonDrawable="@drawable/ic_airflow_head_off"
+            systemui:hvacToggleOnButtonDrawable="@drawable/ic_airflow_head_on"
+            systemui:hvacDisableViewIfAutoOn="true"
+            systemui:singleHvacDirectionBit="1"/>
+        <View
+            android:layout_width="32dp"
+            android:layout_height="match_parent"/>
+        <com.android.systemui.car.hvac.custom.FanDirectionButton
+            android:id="@+id/direction_floor"
+            android:layout_width="@dimen/hvac_panel_airflow_button_width_1"
+            android:layout_height="@dimen/hvac_panel_button_dimen"
+            android:layout_weight="1"
+            android:background="@drawable/hvac_default_background"
+            systemui:hvacAreaId="117"
+            systemui:hvacPropertyId="356517121"
+            systemui:hvacToggleOffButtonDrawable="@drawable/ic_airflow_feet_off"
+            systemui:hvacToggleOnButtonDrawable="@drawable/ic_airflow_feet_on"
+            systemui:hvacDisableViewIfAutoOn="true"
+            systemui:singleHvacDirectionBit="2"/>
+        <View
+            android:layout_width="32dp"
+            android:layout_height="match_parent"/>
+        <com.android.systemui.car.hvac.custom.FanDirectionButton
+            android:id="@+id/direction_defrost_front_and_floor"
+            android:layout_width="@dimen/hvac_panel_airflow_button_width_1"
+            android:layout_height="@dimen/hvac_panel_button_dimen"
+            android:layout_weight="1"
+            android:background="@drawable/hvac_default_background"
+            systemui:hvacAreaId="117"
+            systemui:hvacPropertyId="356517121"
+            systemui:hvacToggleOffButtonDrawable="@drawable/ic_airflow_windshield_off"
+            systemui:hvacToggleOnButtonDrawable="@drawable/ic_airflow_windshield_on"
+            systemui:hvacDisableViewIfAutoOn="true"
+            systemui:singleHvacDirectionBit="4"/>
+    </LinearLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="32dp"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <com.android.systemui.car.hvac.toggle.HvacBooleanToggleButton
+            android:id="@+id/direction_defrost_front"
+            android:layout_width="@dimen/hvac_panel_airflow_button_width_2"
+            android:layout_height="@dimen/hvac_panel_button_dimen"
+            android:layout_weight="1"
+            android:background="@drawable/hvac_default_background"
+            systemui:hvacAreaId="1"
+            systemui:hvacPropertyId="320865540"
+            systemui:hvacToggleOffButtonDrawable="@drawable/ic_defroster_windshield_off"
+            systemui:hvacToggleOnButtonDrawable="@drawable/ic_defroster_windshield_on"
+            systemui:hvacDisableViewIfAutoOn="true"
+            systemui:onValue="1"
+            systemui:offValue="0"/>
+        <View
+            android:layout_width="32dp"
+            android:layout_height="match_parent"/>
+        <com.android.systemui.car.hvac.toggle.HvacBooleanToggleButton
+            android:id="@+id/direction_defrost_rear"
+            android:layout_width="@dimen/hvac_panel_airflow_button_width_2"
+            android:layout_height="@dimen/hvac_panel_button_dimen"
+            android:layout_weight="1"
+            android:background="@drawable/hvac_default_background"
+            systemui:hvacAreaId="2"
+            systemui:hvacPropertyId="320865540"
+            systemui:hvacToggleOffButtonDrawable="@drawable/ic_defroster_rear_off"
+            systemui:hvacToggleOnButtonDrawable="@drawable/ic_defroster_rear_on"
+            systemui:hvacDisableViewIfAutoOn="true"
+            systemui:onValue="1"
+            systemui:offValue="0"/>
+    </LinearLayout>
+</merge>

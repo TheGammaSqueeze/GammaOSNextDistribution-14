@@ -1,0 +1,107 @@
+{
+  "description": "One source with source type \"navigation\". Trigger with 3 event triggers - 1st one MATCHING event level NOT_FILTERS, 2nd one's NOT_FILTERS MATCHING source_type and 3rd NOT MATCHING NOT_FILTERS on source_type hence picked for report generation.",
+  "input": {
+    "sources": [{
+      "registration_request": {
+        "attribution_src_url": "https://www.ad-tech1.test",
+        "source_type": "navigation",
+        "registrant": "example.1s1.test"
+      },
+      "responses": [{
+        "url": "https://www.ad-tech1.test",
+        "response": {
+          "Attribution-Reporting-Register-Source": {
+            "source_event_id": "1",
+            "destination": "android-app://example.2d1.test",
+            "priority": "100",
+            "filter_data": {
+              "top_key_1": [
+                "top_value_1",
+                "top_value_2"
+              ],
+              "event_key_1": [
+                "event_value_1",
+                "event_value_2"
+              ]
+            }
+          },
+          "Location": null,
+          "Attribution-Reporting-Redirect": null
+        }
+      }],
+      "timestamp": "800000000001"
+    }],
+    "triggers": [
+      {
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech1.test",
+          "registrant": "example.2d1.test"
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "response": {
+            "Attribution-Reporting-Register-Trigger": {
+              "event_trigger_data": [
+                {
+                  "trigger_data": "1",
+                  "priority": "101",
+                  "not_filters": {
+                    "event_key_1": [
+                      "event_value_1"
+                    ]
+                  }
+                },
+                {
+                  "trigger_data": "2",
+                  "priority": "102",
+                  "not_filters": {
+                    "source_type": [
+                      "navigation"
+                    ]
+                  }
+                },
+                {
+                  "trigger_data": "3",
+                  "priority": "103",
+                  "not_filters": {
+                    "source_type": [
+                      "event"
+                    ]
+                  }
+                }
+              ],
+              "filters": {
+                "top_key_1": [
+                  "top_value_1"
+                ],
+                "source_type": [
+                  "navigation"
+                ]
+              }
+            },
+            "Location": null,
+            "Attribution-Reporting-Redirect": null
+          }
+        }],
+        "timestamp": "800604200001"
+      }
+    ]
+  },
+  "output": {
+    "event_level_results": [
+      {
+        "report_time": "800608400001",
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/report-event-attribution",
+        "payload": {
+          "attribution_destination": "android-app://example.2d1.test",
+          "scheduled_report_time": "800608400",
+          "source_event_id": "1",
+          "trigger_data": "3",
+          "source_type": "navigation",
+          "randomized_trigger_rate": 0.0024263
+        }
+      }
+    ],
+    "aggregatable_results": []
+  }
+}

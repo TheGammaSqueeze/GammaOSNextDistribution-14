@@ -1,0 +1,8 @@
+{
+    "permittedPaths": [
+        "/a",
+        "/b/c",
+        "/d/e/f"
+    ],
+    "visible": true
+}

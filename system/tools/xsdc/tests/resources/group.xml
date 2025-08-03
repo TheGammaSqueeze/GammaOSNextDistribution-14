@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Student version="1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
+    <State>CA</State>
+    <city>Mountain View</city>
+    <xi:include href="group2.xml"/>
+</Student>

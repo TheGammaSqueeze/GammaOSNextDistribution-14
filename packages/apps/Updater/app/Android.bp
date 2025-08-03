@@ -1,0 +1,62 @@
+//
+// Copyright (C) 2022-2024 The LineageOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+
+android_app {
+    name: "Updater",
+
+    // Include SettingsLib and its dependencies
+    defaults: ["SettingsLibDefaults"],
+
+    srcs: ["src/main/java/**/*.java"],
+    resource_dirs: ["src/main/res"],
+    manifest: "src/main/AndroidManifest.xml",
+
+    platform_apis: true,
+    privileged: true,
+    certificate: "platform",
+    system_ext_specific: true,
+
+    overrides: [
+        "SystemUpdater",
+    ],
+
+    static_libs: [
+        // DO NOT EDIT THIS SECTION MANUALLY
+        "androidx.core_core-ktx",
+        "androidx.appcompat_appcompat",
+        "androidx.cardview_cardview",
+        "androidx.lifecycle_lifecycle-viewmodel-ktx",
+        "androidx.localbroadcastmanager_localbroadcastmanager",
+        "androidx.preference_preference",
+        "androidx.recyclerview_recyclerview",
+        "com.google.android.material_material",
+    ],
+
+    optimize: {
+        proguard_flags_files: ["proguard.flags"],
+    },
+
+    required: [
+        "privapp_whitelist_org.lineageos.updater",
+        "default-permissions_org.lineageos.updater"
+    ],
+}
+
+prebuilt_etc {
+    name: "privapp_whitelist_org.lineageos.updater",
+    system_ext_specific: true,
+    sub_dir: "permissions",
+    src: "privapp_whitelist_org.lineageos.updater.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
+    name: "default-permissions_org.lineageos.updater",
+    system_ext_specific: true,
+    sub_dir: "default-permissions",
+    src: "default-permissions_org.lineageos.updater.xml",
+    filename_from_src: true,
+}

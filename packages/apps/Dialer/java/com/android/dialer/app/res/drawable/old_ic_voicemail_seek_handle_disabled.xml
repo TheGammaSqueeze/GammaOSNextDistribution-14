@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  SPDX-FileCopyrightText: The LineageOS Project
+  SPDX-License-Identifier: Apache-2.0
+-->
+<shape
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval"
+    android:width="12dp"
+    android:height="12dp"
+    android:tint="@color/voicemail_icon_disabled_tint" />

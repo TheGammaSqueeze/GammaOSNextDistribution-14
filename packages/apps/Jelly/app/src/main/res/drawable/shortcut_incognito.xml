@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2017 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="?attr/colorSurface" />
+        </shape>
+    </item>
+    <item
+        android:bottom="10dp"
+        android:drawable="@drawable/ic_incognito"
+        android:left="10dp"
+        android:right="10dp"
+        android:tint="?attr/colorOnSurface"
+        android:top="10dp" />
+</layer-list>

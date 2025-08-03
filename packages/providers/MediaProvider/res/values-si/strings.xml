@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2009 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="uid_label" msgid="8421971615411294156">"මාධ්‍ය"</string>
+    <string name="storage_description" msgid="4081716890357580107">"පෙදෙසි ආචයනය"</string>
+    <string name="picker_app_label" msgid="1195424381053599122">"මාධ්‍ය තෝරනය"</string>
+    <string name="artist_label" msgid="8105600993099120273">"කලාකරු"</string>
+    <string name="unknown" msgid="2059049215682829375">"නොදනී"</string>
+    <string name="root_images" msgid="5861633549189045666">"රූප"</string>
+    <string name="root_videos" msgid="8792703517064649453">"වීඩියෝ"</string>
+    <string name="root_audio" msgid="3505830755201326018">"ශ්‍රව්‍යය"</string>
+    <string name="root_documents" msgid="3829103301363849237">"ලේඛන"</string>
+    <string name="permission_required" msgid="1460820436132943754">"මෙම අයිතමය වෙනස් කිරීමට හෝ මැකීමට අවසරය අවශ්‍යයි."</string>
+    <string name="permission_required_action" msgid="706370952366113539">"ඉදිරියට යන්න"</string>
+    <string name="grant_dialog_button_allow" msgid="1644287024501033471">"ඉඩ දෙන්න"</string>
+    <string name="grant_dialog_button_deny" msgid="6190589471415815741">"ප්‍රතික්ෂේප කරන්න"</string>
+    <string name="permission_more_thumb" msgid="1938863829470531577">"{count,plural, =1{+<xliff:g id="COUNT_0">^1</xliff:g>}one{+<xliff:g id="COUNT_1">^1</xliff:g>}other{+<xliff:g id="COUNT_1">^1</xliff:g>}}"</string>
+    <string name="permission_more_text" msgid="2471785045095597753">"{count,plural, =1{තවද අතිරේක අයිතම <xliff:g id="COUNT_0">^1</xliff:g>}one{තවද අතිරේක අයිතම <xliff:g id="COUNT_1">^1</xliff:g>}other{තවද අතිරේක අයිතම <xliff:g id="COUNT_1">^1</xliff:g>}}"</string>
+    <string name="cache_clearing_dialog_title" msgid="8907893815183913664">"තාවකාලික යෙදුම් ගොනු හිස් කරන්න"</string>
+    <string name="cache_clearing_dialog_text" msgid="7057784635111940957">"<xliff:g id="APP_SEEKING_PERMISSION">%s</xliff:g> සමහර තාවකාලික ගොනු හිස් කිරීමට කැමතියි. මෙය බැටරි බලයේ හෝ සෙලියුලර් දත්තවල වැඩි භාවිතයකට හේතු විය හැකිය."</string>
+    <string name="cache_clearing_in_progress_title" msgid="6902220064511664209">"තාවකාලික යෙදුම් ගොනු හිස් කරමින්…"</string>
+    <string name="clear" msgid="5524638938415865915">"හිස් කරන්න"</string>
+    <string name="allow" msgid="8885707816848569619">"ඉඩ දෙන්න"</string>
+    <string name="deny" msgid="6040983710442068936">"ප්‍රතික්ෂේප කරන්න"</string>
+    <string name="picker_browse" msgid="5554477454636075934">"බ්‍රවුස් කරන්න…"</string>
+    <string name="picker_settings" msgid="6443463167344790260">"ක්ලවුඩ් මාධ්‍ය යෙදුම"</string>
+    <string name="picker_settings_system_settings_menu_title" msgid="3055084757610063581">"ක්ලවුඩ් මාධ්‍ය යෙදුම"</string>
+    <string name="picker_settings_title" msgid="5647700706470673258">"ක්ලවුඩ් මාධ්‍ය යෙදුම"</string>
+    <string name="picker_settings_description" msgid="2916686824777214585">"යෙදුමක් හෝ වෙබ් අඩවියක් ඡායාරූප හෝ වීඩියෝ තේරීමට ඔබෙන් විමසා සිටින විට ඔබේ වලාකුළු මාධ්‍ය වෙත ප්‍රවේශ වන්න"</string>
+    <string name="picker_settings_selection_message" msgid="245453573086488596">"මෙයින් ක්ලවුඩ් මාධ්‍ය වෙත ප්‍රවේශ වන්න"</string>
+    <string name="picker_settings_no_provider" msgid="2582311853680058223">"කිසිවක් නැත"</string>
+    <string name="picker_settings_toast_error" msgid="697274445512467469">"මෙම අවස්ථාවේ ක්ලවුඩ් මාධ්‍ය යෙදුම වෙනස් කළ නොහැක."</string>
+    <string name="picker_sync_notification_channel" msgid="1867105708912627993">"මාධ්‍ය තෝරනය"</string>
+    <string name="picker_sync_notification_title" msgid="1122713382122055246">"මාධ්‍ය තෝරනය"</string>
+    <string name="picker_sync_notification_text" msgid="8204423917712309382">"මාධ්‍ය සමමුහුර්ත කරමින්…"</string>
+    <string name="add" msgid="2894574044585549298">"එක් කරන්න"</string>
+    <string name="deselect" msgid="4297825044827769490">"නොතෝරන්න"</string>
+    <string name="deselected" msgid="8488133193326208475">"නොතෝරන ලද"</string>
+    <string name="select" msgid="2704765470563027689">"තෝරන්න"</string>
+    <string name="selected" msgid="9151797369975828124">"තෝරන ලද"</string>
+    <string name="select_up_to" msgid="6994294169508439957">"{count,plural, =1{අයිතම <xliff:g id="COUNT_0">^1</xliff:g>ක් දක්වා තෝරන්න}one{අයිතම <xliff:g id="COUNT_1">^1</xliff:g>ක් දක්වා තෝරන්න}other{අයිතම <xliff:g id="COUNT_1">^1</xliff:g>ක් දක්වා තෝරන්න}}"</string>
+    <string name="recent" msgid="6694613584743207874">"මෑත"</string>
+    <string name="picker_photos_empty_message" msgid="5980619500554575558">"ඡායාරූප හෝ වීඩියෝ නැත"</string>
+    <string name="picker_album_media_empty_message" msgid="7061850698189881671">"සහාය දක්වන ඡායාරූප හෝ වීඩියෝ නැත"</string>
+    <string name="picker_albums_empty_message" msgid="8341079772950966815">"ඇල්බම නැත"</string>
+    <string name="picker_view_selected" msgid="2266031384396143883">"තෝරා ගත් දේවල් බලන්න"</string>
+    <string name="picker_photos" msgid="7415035516411087392">"ඡායාරූප"</string>
+    <!-- no translation found for picker_videos (2886971435439047097) -->
+    <skip />
+    <string name="picker_albums" msgid="4822511902115299142">"ඇල්බම"</string>
+    <string name="picker_preview" msgid="6257414886055861039">"පෙරදසුන"</string>
+    <string name="picker_work_profile" msgid="2083221066869141576">"කාර්යාලය වෙත මාරු වන්න"</string>
+    <string name="picker_personal_profile" msgid="639484258397758406">"පුද්ගලික වෙත මාරු වන්න"</string>
+    <string name="picker_personal_profile_label" msgid="6189198163209597344">"පුද්ගලික"</string>
+    <string name="picker_profile_admin_title" msgid="4172022376418293777">"ඔබගේ පරිපාලක විසින් අවහිර කර ඇත"</string>
+    <string name="picker_profile_admin_msg_from_personal" msgid="1941639895084555723">"පුද්ගලික යෙදුමකින් කාර්යාල දත්තවලට ප්‍රවේශ වීමට අවසර නොදේ"</string>
+    <string name="picker_profile_admin_msg_from_work" msgid="8048524337462790110">"කාර්යාල යෙදුමකින් පුද්ගලික දත්තවලට ප්‍රවේශ වීමට අවසර නොදේ"</string>
+    <string name="picker_profile_admin_msg" msgid="4060112887923255178">"<xliff:g id="PROFILE2">%2$s</xliff:g> යෙදුමකින් <xliff:g id="PROFILE1">%1$s</xliff:g> දත්ත වෙත ප්‍රවේශ වීමට අවසර නැත"</string>
+    <string name="picker_profile_switch_message" msgid="1133817927412489487">"<xliff:g id="PROFILE">%s</xliff:g> වෙත මාරු වන්න"</string>
+    <string name="picker_profile_work_paused_title" msgid="382212880704235925">"කාර්යාල යෙදුම් විරාම කර ඇත"</string>
+    <string name="picker_profile_paused_title" msgid="2079739512895529028">"<xliff:g id="PROFILE">%s</xliff:g> යෙදුම් විරාම කර ඇත"</string>
+    <string name="picker_profile_work_paused_msg" msgid="6321552322125246726">"කාර්යාල ඡායාරූප විවෘත කිරීමට, ඔබගේ කාර්යාල යෙදුම් ක්‍රියාත්මක කර නැවත උත්සාහ කරන්න"</string>
+    <string name="picker_profile_paused_msg" msgid="1215076898583993782">"<xliff:g id="PROFILE1">%1$s</xliff:g> ඡායාරූප විවෘත කිරීමට, ඔබේ <xliff:g id="PROFILE2">%2$s</xliff:g> යෙදුම් ක්‍රියාත්මක කර නැවත උත්සාහ කරන්න"</string>
+    <string name="picker_privacy_message" msgid="9132700451027116817">"මෙම යෙදුමට ප්‍රවේශ විය හැක්කේ ඔබ තෝරන ඡායාරූපවලට පමණි"</string>
+    <string name="picker_header_permissions" msgid="675872774407768495">"ඔබ මෙම යෙදුමට ප්‍රවේශ වීමට ඉඩ දෙන ඡායාරූප සහ වීඩියෝ තෝරන්න"</string>
+    <string name="picker_album_item_count" msgid="4420723302534177596">"{count,plural, =1{අයිතම <xliff:g id="COUNT_0">^1</xliff:g>}one{අයිතම <xliff:g id="COUNT_1">^1</xliff:g>}other{අයිතම <xliff:g id="COUNT_1">^1</xliff:g>}}"</string>
+    <string name="picker_add_button_multi_select" msgid="4005164092275518399">"එක් කරන්න (<xliff:g id="COUNT">^1</xliff:g>)"</string>
+    <string name="picker_add_button_multi_select_permissions" msgid="5138751105800138838">"ඉඩ දෙන්න (<xliff:g id="COUNT">^1</xliff:g>)"</string>
+    <string name="picker_add_button_allow_none_option" msgid="9183772732922241035">"කිසිවකට ඉඩ නොදෙන්න"</string>
+    <string name="picker_category_camera" msgid="4857367052026843664">"කැමරාව"</string>
+    <string name="picker_category_downloads" msgid="793866660287361900">"බාගැනීම්"</string>
+    <string name="picker_category_favorites" msgid="7008495397818966088">"ප්‍රියතමයන්"</string>
+    <string name="picker_category_screenshots" msgid="7216102327587644284">"තිර රූ"</string>
+    <!-- no translation found for picker_category_videos (1478458836380241356) -->
+    <skip />
+    <string name="picker_motion_photo_text" msgid="5016603812468180816">"චලන ඡායාරූපය"</string>
+    <string name="picker_item_content_desc" msgid="7680591530155286423">"<xliff:g id="TIME">%2$s</xliff:g>ට ගන්නා ලද <xliff:g id="ITEM_NAME">%1$s</xliff:g>"</string>
+    <string name="picker_video_item_content_desc" msgid="7828900089119214801">"<xliff:g id="TIME">%1$s</xliff:g>ට <xliff:g id="DURATION">%2$s</xliff:g> කාල සීමාව සහිතව ලබා ගත් වීඩියෝව"</string>
+    <string name="picker_photo" msgid="1739342083494962153">"ඡායාරූපය"</string>
+    <string name="picker_gif" msgid="8333318083107368726">"GIF"</string>
+    <string name="picker_motion_photo" msgid="4385182195289546308">"චලන ඡායාරූපය"</string>
+    <string name="picker_mute_video" msgid="2496585809229800096">"වීඩියෝව නිහඬ කරන්න"</string>
+    <string name="picker_unmute_video" msgid="6611741290641963568">"වීඩියෝව නිහඬ කිරීම ඉවත් කරන්න"</string>
+    <string name="picker_play_video" msgid="7106025944628666250">"වාදනය කරන්න"</string>
+    <string name="picker_pause_video" msgid="1092718225234326702">"විරාම ගන්වන්න"</string>
+    <string name="picker_error_snackbar" msgid="5970192792792369203">"වීඩියෝව වාදනය කළ නොහැක"</string>
+    <string name="picker_error_dialog_title" msgid="4540095603788920965">"වීඩියෝව වාදනය කිරීමේ ගැටලුවකි"</string>
+    <string name="picker_error_dialog_body" msgid="2515738446802971453">"ඔබේ අන්තර්ජාල සබැඳුම පරීක්ෂා කර නැවත උත්සාහ කරන්න"</string>
+    <string name="picker_error_dialog_positive_action" msgid="749544129082109232">"යළි උත්සාහ කරන්න"</string>
+    <string name="not_selected" msgid="2244008151669896758">"තෝරා නොමැත"</string>
+    <string name="preloading_dialog_title" msgid="4974348221848532887">"ඔබ තෝරන ලද මාධ්‍ය සූදානම් කරමින්"</string>
+    <string name="preloading_progress_message" msgid="4741327138031980582">"<xliff:g id="NUMBER_TOTAL">%2$d</xliff:g>කින් <xliff:g id="NUMBER_PRELOADED">%1$d</xliff:g>ක් සූදානම්"</string>
+    <string name="preloading_cancel_button" msgid="824053521307342209">"අවලංගු කරන්න"</string>
+    <string name="picker_banner_cloud_first_time_available_title" msgid="5912973744275711595">"උපස්ථ කළ ඡායාරූප දැන් ඇතුළත් කර ඇත"</string>
+    <string name="picker_banner_cloud_first_time_available_desc" msgid="5570916598348187607">"ඔබට <xliff:g id="APP_NAME">%1$s</xliff:g> ගිණුමෙන් <xliff:g id="USER_ACCOUNT">%2$s</xliff:g> ඡායාරූප තෝරා ගත හැක"</string>
+    <string name="picker_banner_cloud_account_changed_title" msgid="4825058474378077327">"<xliff:g id="APP_NAME">%1$s</xliff:g> ගිණුම යාවත්කාලීන විය"</string>
+    <string name="picker_banner_cloud_account_changed_desc" msgid="3433218869899792497">"<xliff:g id="USER_ACCOUNT">%1$s</xliff:g> වෙතින් ඡායාරූප දැන් මෙහි ඇතුළත් කර ඇත"</string>
+    <string name="picker_banner_cloud_choose_app_title" msgid="3165966147547974251">"ක්ලවුඩ් මාධ්‍ය යෙදුම තෝරා ගන්න"</string>
+    <string name="picker_banner_cloud_choose_app_desc" msgid="2359212653555524926">"උපස්ථ කළ ඡායාරූප මෙහි ඇතුළත් කිරීමට, සැකසීම් තුළ ක්ලවුඩ් මාධ්‍ය යෙදුමක් තෝරා ගන්න"</string>
+    <string name="picker_banner_cloud_choose_account_title" msgid="5010901185639577685">"<xliff:g id="APP_NAME">%1$s</xliff:g> ගිණුම තෝරා ගන්න"</string>
+    <string name="picker_banner_cloud_choose_account_desc" msgid="8868134443673142712">"<xliff:g id="APP_NAME">%1$s</xliff:g> වෙතින් ඡායාරූප මෙහි ඇතුළත් කිරීමට, යෙදුම තුළ ගිණුමක් තෝරා ගන්න"</string>
+    <string name="picker_banner_cloud_dismiss_button" msgid="2935903078288463882">"අස් කරන්න"</string>
+    <string name="picker_banner_cloud_choose_app_button" msgid="934085679890435479">"යෙදුම තෝරා ගන්න"</string>
+    <string name="picker_banner_cloud_choose_account_button" msgid="7979484877116991631">"ගිණුම තෝරා ගන්න"</string>
+    <string name="picker_banner_cloud_change_account_button" msgid="8361239765828471146">"ගිණුම වෙනස් කරන්න"</string>
+    <string name="picker_loading_photos_message" msgid="6449180084857178949">"ඔබේ සියලු ඡායාරූප ලබා ගැනීම"</string>
+    <string name="permission_write_audio" msgid="8819694245323580601">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> හට මෙම ශ්‍රව්‍ය ගොනුව වෙනස් කිරීමට ඉඩ දෙන්නද?}one{<xliff:g id="APP_NAME_1">^1</xliff:g> හට ශ්‍රව්‍ය ගොනු <xliff:g id="COUNT">^2</xliff:g>ක් වෙනස් කිරීමට ඉඩ දෙන්නද?}other{<xliff:g id="APP_NAME_1">^1</xliff:g> හට ශ්‍රව්‍ය ගොනු <xliff:g id="COUNT">^2</xliff:g>ක් වෙනස් කිරීමට ඉඩ දෙන්නද?}}"</string>
+    <string name="permission_progress_write_audio" msgid="6029375427984180097">"{count,plural, =1{ශ්‍රව්‍ය ගොනුව වෙනස් කරමින්…}one{ශ්‍රව්‍ය ගොනු <xliff:g id="COUNT">^1</xliff:g>ක් වෙනස් කරමින්…}other{ශ්‍රව්‍ය ගොනු <xliff:g id="COUNT">^1</xliff:g>ක් වෙනස් කරමින්…}}"</string>
+    <string name="permission_write_video" msgid="103902551603700525">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> හට මෙම වීඩියෝව වෙනස් කිරීමට ඉඩ දෙන්නද?}one{<xliff:g id="APP_NAME_1">^1</xliff:g> හට වීඩියෝ <xliff:g id="COUNT">^2</xliff:g>ක් වෙනස් කිරීමට ඉඩ දෙන්නද?}other{<xliff:g id="APP_NAME_1">^1</xliff:g> හට වීඩියෝ <xliff:g id="COUNT">^2</xliff:g>ක් වෙනස් කිරීමට ඉඩ දෙන්නද?}}"</string>
+    <string name="permission_progress_write_video" msgid="7014908418349819148">"{count,plural, =1{වීඩියෝව වෙනස් කරමින්…}one{වීඩියෝ <xliff:g id="COUNT">^1</xliff:g>ක් වෙනස් කරමින්…}other{වීඩියෝ <xliff:g id="COUNT">^1</xliff:g>ක් වෙනස් කරමින්…}}"</string>
+    <string name="permission_write_image" msgid="3518991791620523786">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> හට මෙම ඡායාරූපය වෙනස් කිරීමට ඉඩ දෙන්නද?}one{<xliff:g id="APP_NAME_1">^1</xliff:g> හට ඡායාරූප <xliff:g id="COUNT">^2</xliff:g>ක් වෙනස් කිරීමට ඉඩ දෙන්නද?}other{<xliff:g id="APP_NAME_1">^1</xliff:g> හට ඡායාරූප <xliff:g id="COUNT">^2</xliff:g>ක් වෙනස් කිරීමට ඉඩ දෙන්නද?}}"</string>
+    <string name="permission_progress_write_image" msgid="3623580315590025262">"{count,plural, =1{ඡායාරූපය වෙනස් කරමින්…}one{ඡායාරූප <xliff:g id="COUNT">^1</xliff:g>ක් වෙනස් කරමින්…}other{ඡායාරූප <xliff:g id="COUNT">^1</xliff:g>ක් වෙනස් කරමින්…}}"</string>
+    <string name="permission_write_generic" msgid="7431128739233656991">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> හට මෙම අයිතමය වෙනස් කිරීමට ඉඩ දෙන්නද?}one{<xliff:g id="APP_NAME_1">^1</xliff:g> හට අයිතම <xliff:g id="COUNT">^2</xliff:g>ක් වෙනස් කිරීමට ඉඩ දෙන්නද?}other{<xliff:g id="APP_NAME_1">^1</xliff:g> හට අයිතම <xliff:g id="COUNT">^2</xliff:g>ක් වෙනස් කිරීමට ඉඩ දෙන්නද?}}"</string>
+    <string name="permission_progress_write_generic" msgid="2806560971318391443">"{count,plural, =1{අයිතමය වෙනස් කරමින්…}one{අයිතම <xliff:g id="COUNT">^1</xliff:g>ක් වෙනස් කරමින්…}other{අයිතම <xliff:g id="COUNT">^1</xliff:g>ක් වෙනස් කරමින්…}}"</string>
+    <string name="permission_trash_audio" msgid="6554672354767742206">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> හට මෙම ශ්‍රව්‍ය ගොනුව කුණු කුඩය වෙත ගෙන යාමට ඉඩ දෙන්නද?}one{<xliff:g id="APP_NAME_1">^1</xliff:g> හට ශ්‍රව්‍ය ගොනු <xliff:g id="COUNT">^2</xliff:g>ක් කුණු කුඩය වෙත ගෙන යාමට ඉඩ දෙන්නද?}other{<xliff:g id="APP_NAME_1">^1</xliff:g> හට ශ්‍රව්‍ය ගොනු <xliff:g id="COUNT">^2</xliff:g>ක් කුණු කුඩය වෙත ගෙන යාමට ඉඩ දෙන්නද?}}"</string>
+    <string name="permission_progress_trash_audio" msgid="3116279868733641329">"{count,plural, =1{ශ්‍රව්‍ය ගොනුව කුණු කූඩය වෙත ගෙන යමින්…}one{ශ්‍රව්‍ය ගොනු <xliff:g id="COUNT">^1</xliff:g>ක් කුණු කූඩය වෙත ගෙන යමින්…}other{ශ්‍රව්‍ය ගොනු <xliff:g id="COUNT">^1</xliff:g>ක් කුණු කූඩය වෙත ගෙන යමින්…}}"</string>
+    <string name="permission_trash_video" msgid="7555850843259959642">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> හට මෙම වීඩියෝව කුණු කුඩය වෙත ගෙන යාමට ඉඩ දෙන්නද?}one{<xliff:g id="APP_NAME_1">^1</xliff:g> හට වීඩියෝ <xliff:g id="COUNT">^2</xliff:g>ක් කුණු කුඩය වෙත ගෙන යාමට ඉඩ දෙන්නද?}other{<xliff:g id="APP_NAME_1">^1</xliff:g> හට වීඩියෝ <xliff:g id="COUNT">^2</xliff:g>ක් කුණු කුඩය වෙත ගෙන යාමට ඉඩ දෙන්නද?}}"</string>
+    <string name="permission_progress_trash_video" msgid="4637821778329459681">"{count,plural, =1{වීඩියෝව කුණු කුඩය වෙත ගෙන යමින්…}one{වීඩියෝ <xliff:g id="COUNT">^1</xliff:g>ක් කුණු කුඩය වෙත ගෙන යමින්…}other{වීඩියෝ <xliff:g id="COUNT">^1</xliff:g>ක් කුණු කුඩය වෙත ගෙන යමින්…}}"</string>
+    <string name="permission_trash_image" msgid="3333128084684156675">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> හට මෙම ඡායාරූපය කුණු කුඩය වෙත ගෙන යාමට ඉඩ දෙන්නද?}one{<xliff:g id="APP_NAME_1">^1</xliff:g> හට ඡායාරූප <xliff:g id="COUNT">^2</xliff:g>ක් කුණු කුඩය වෙත ගෙන යාමට ඉඩ දෙන්නද?}other{<xliff:g id="APP_NAME_1">^1</xliff:g> හට ඡායාරූප <xliff:g id="COUNT">^2</xliff:g>ක් කුණු කුඩය වෙත ගෙන යාමට ඉඩ දෙන්නද?}}"</string>
+    <string name="permission_progress_trash_image" msgid="3063857679090024764">"{count,plural, =1{ඡායාරූපය කුණු කුඩය වෙත ගෙන යමින්…}one{ඡායාරූප <xliff:g id="COUNT">^1</xliff:g>ක් කුණු කුඩය වෙත ගෙන යමින්…}other{ඡායාරූප <xliff:g id="COUNT">^1</xliff:g>ක් කුණු කුඩය වෙත ගෙන යමින්…}}"</string>
+    <string name="permission_trash_generic" msgid="5545420534785075362">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> හට මෙම අයිතමය කුණු කුඩය වෙත ගෙන යාමට ඉඩ දෙන්නද?}one{<xliff:g id="APP_NAME_1">^1</xliff:g> හට අයිතම <xliff:g id="COUNT">^2</xliff:g>ක් කුණු කුඩය වෙත ගෙන යාමට ඉඩ දෙන්නද?}other{<xliff:g id="APP_NAME_1">^1</xliff:g> හට අයිතම <xliff:g id="COUNT">^2</xliff:g>ක් කුණු කුඩය වෙත ගෙන යාමට ඉඩ දෙන්නද?}}"</string>
+    <string name="permission_progress_trash_generic" msgid="7815124979717814057">"{count,plural, =1{අයිතමය කුණු කුඩය වෙත ගෙන යමින්…}one{අයිතම <xliff:g id="COUNT">^1</xliff:g>ක් කුණු කුඩය වෙත ගෙන යමින්…}other{අයිතම <xliff:g id="COUNT">^1</xliff:g>ක් කුණු කුඩය වෙත ගෙන යමින්…}}"</string>
+    <string name="permission_untrash_audio" msgid="8404597563284002472">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> හට මෙම ශ්‍රව්‍ය ගොනුව කුණු කුඩයෙන් පිටතට ගෙන යාමට ඉඩ දෙන්නද?}one{<xliff:g id="APP_NAME_1">^1</xliff:g> හට ශ්‍රව්‍ය ගොනු <xliff:g id="COUNT">^2</xliff:g>ක් කුණු කුඩයෙන් පිටතට ගෙන යාමට ඉඩ දෙන්නද?}other{<xliff:g id="APP_NAME_1">^1</xliff:g> හට ශ්‍රව්‍ය ගොනු <xliff:g id="COUNT">^2</xliff:g>ක් කුණු කුඩයෙන් පිටතට ගෙන යාමට ඉඩ දෙන්නද?}}"</string>
+    <string name="permission_progress_untrash_audio" msgid="2775372344946464508">"{count,plural, =1{ශ්‍රව්‍ය ගොනුව කුණු කූඩයෙන් ඉවතට ගෙන යමින්…}one{ශ්‍රව්‍ය ගොනු <xliff:g id="COUNT">^1</xliff:g>ක් කුණු කූඩයෙන් ඉවතට ගෙන යමින්…}other{ශ්‍රව්‍ය ගොනු <xliff:g id="COUNT">^1</xliff:g>ක් කුණු කූඩයෙන් ඉවතට ගෙන යමින්…}}"</string>
+    <string name="permission_untrash_video" msgid="3178914827607608162">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> හට මෙම වීඩියෝව කුණු කුඩයෙන් පිටතට ගෙන යාමට ඉඩ දෙන්නද?}one{<xliff:g id="APP_NAME_1">^1</xliff:g> හට වීඩියෝ <xliff:g id="COUNT">^2</xliff:g>ක් කුණු කුඩයෙන් පිටතට ගෙන යාමට ඉඩ දෙන්නද?}other{<xliff:g id="APP_NAME_1">^1</xliff:g> හට වීඩියෝ <xliff:g id="COUNT">^2</xliff:g>ක් කුණු කුඩයෙන් පිටතට ගෙන යාමට ඉඩ දෙන්නද?}}"</string>
+    <string name="permission_progress_untrash_video" msgid="5500929409733841567">"{count,plural, =1{වීඩියෝව කුණු කූඩයෙන් ඉවතට ගෙන යමින්…}one{වීඩියෝ <xliff:g id="COUNT">^1</xliff:g>ක් කුණු කූඩයෙන් ඉවතට ගෙන යමින්…}other{වීඩියෝ <xliff:g id="COUNT">^1</xliff:g>ක් කුණු කූඩයෙන් ඉවතට ගෙන යමින්…}}"</string>
+    <string name="permission_untrash_image" msgid="3397523279351032265">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> හට මෙම ඡායාරූපය කුණු කුඩයෙන් පිටතට ගෙන යාමට ඉඩ දෙන්නද?}one{<xliff:g id="APP_NAME_1">^1</xliff:g> හට ඡායාරූප <xliff:g id="COUNT">^2</xliff:g>ක් කුණු කුඩයෙන් පිටතට ගෙන යාමට ඉඩ දෙන්නද?}other{<xliff:g id="APP_NAME_1">^1</xliff:g> හට ඡායාරූප <xliff:g id="COUNT">^2</xliff:g>ක් කුණු කුඩයෙන් පිටතට ගෙන යාමට ඉඩ දෙන්නද?}}"</string>
+    <string name="permission_progress_untrash_image" msgid="5295061520504846264">"{count,plural, =1{ඡායාරූපය කුණු කූඩයෙන් ඉවතට ගෙන යමින්…}one{ඡායාරූප <xliff:g id="COUNT">^1</xliff:g>ක් කුණු කූඩයෙන් ඉවතට ගෙන යමින්…}other{ඡායාරූප <xliff:g id="COUNT">^1</xliff:g>ක් කුණු කූඩයෙන් ඉවතට ගෙන යමින්…}}"</string>
+    <string name="permission_untrash_generic" msgid="2118366929431671046">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> හට මෙම අයිතමය කුණු කුඩයෙන් පිටතට ගෙන යාමට ඉඩ දෙන්නද?}one{<xliff:g id="APP_NAME_1">^1</xliff:g> හට අයිතම <xliff:g id="COUNT">^2</xliff:g>ක් කුණු කුඩයෙන් පිටතට ගෙන යාමට ඉඩ දෙන්නද?}other{<xliff:g id="APP_NAME_1">^1</xliff:g> හට අයිතම <xliff:g id="COUNT">^2</xliff:g>ක් කුණු කුඩයෙන් පිටතට ගෙන යාමට ඉඩ දෙන්නද?}}"</string>
+    <string name="permission_progress_untrash_generic" msgid="1489511601966842579">"{count,plural, =1{අයිතමය කුණු කූඩයෙන් ඉවතට ගෙන යමින්…}one{අයිතම <xliff:g id="COUNT">^1</xliff:g>ක් කුණු කූඩයෙන් ඉවතට ගෙන යමින්…}other{අයිතම <xliff:g id="COUNT">^1</xliff:g>ක් කුණු කූඩයෙන් ඉවතට ගෙන යමින්…}}"</string>
+    <string name="permission_delete_audio" msgid="3326674742892796627">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> හට මෙම ශ්‍රව්‍ය ගොනුව මැකීමට ඉඩ දෙන්නද?}one{<xliff:g id="APP_NAME_1">^1</xliff:g> හට ශ්‍රව්‍ය ගොනු <xliff:g id="COUNT">^2</xliff:g>ක් මැකීමට ඉඩ දෙන්නද?}other{<xliff:g id="APP_NAME_1">^1</xliff:g> හට ශ්‍රව්‍ය ගොනු <xliff:g id="COUNT">^2</xliff:g>ක් මැකීමට ඉඩ දෙන්නද?}}"</string>
+    <string name="permission_progress_delete_audio" msgid="1734871539021696401">"{count,plural, =1{ශ්‍රව්‍ය ගොනුව මකමින්…}one{ශ්‍රව්‍ය ගොනු <xliff:g id="COUNT">^1</xliff:g>ක් මකමින්…}other{ශ්‍රව්‍ය ගොනු <xliff:g id="COUNT">^1</xliff:g>ක් මකමින්…}}"</string>
+    <string name="permission_delete_video" msgid="604024971828349279">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> හට මෙම වීඩියෝව මැකීමට ඉඩ දෙන්නද?}one{<xliff:g id="APP_NAME_1">^1</xliff:g> හට වීඩියෝ <xliff:g id="COUNT">^2</xliff:g>ක් මැකීමට ඉඩ දෙන්නද?}other{<xliff:g id="APP_NAME_1">^1</xliff:g> හට වීඩියෝ <xliff:g id="COUNT">^2</xliff:g>ක් මැකීමට ඉඩ දෙන්නද?}}"</string>
+    <string name="permission_progress_delete_video" msgid="1846702435073793157">"{count,plural, =1{වීඩියෝව මකමින්…}one{වීඩියෝ <xliff:g id="COUNT">^1</xliff:g>ක් මකමින්…}other{වීඩියෝ <xliff:g id="COUNT">^1</xliff:g>ක් මකමින්…}}"</string>
+    <string name="permission_delete_image" msgid="3109056012794330510">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> හට මෙම ඡායාරූපය මැකීමට ඉඩ දෙන්නද?}one{<xliff:g id="APP_NAME_1">^1</xliff:g> හට ඡායාරූප <xliff:g id="COUNT">^2</xliff:g>ක් මැකීමට ඉඩ දෙන්නද?}other{<xliff:g id="APP_NAME_1">^1</xliff:g> හට ඡායාරූප <xliff:g id="COUNT">^2</xliff:g>ක් මැකීමට ඉඩ දෙන්නද?}}"</string>
+    <string name="permission_progress_delete_image" msgid="8580517204901148906">"{count,plural, =1{ඡායාරූපය මකමින්…}one{ඡායාරූප <xliff:g id="COUNT">^1</xliff:g>ක් මකමින්…}other{ඡායාරූප <xliff:g id="COUNT">^1</xliff:g>ක් මකමින්…}}"</string>
+    <string name="permission_delete_generic" msgid="7891939881065520271">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> හට මෙම අයිතමය මැකීමට ඉඩ දෙන්නද?}one{<xliff:g id="APP_NAME_1">^1</xliff:g> හට අයිතම <xliff:g id="COUNT">^2</xliff:g>ක් මැකීමට ඉඩ දෙන්නද?}other{<xliff:g id="APP_NAME_1">^1</xliff:g> හට අයිතම <xliff:g id="COUNT">^2</xliff:g>ක් මැකීමට ඉඩ දෙන්නද?}}"</string>
+    <string name="permission_progress_delete_generic" msgid="6709118146245087898">"{count,plural, =1{අයිතමය මකමින්…}one{අයිතම <xliff:g id="COUNT">^1</xliff:g>ක් මකමින්…}other{අයිතම <xliff:g id="COUNT">^1</xliff:g>ක් මකමින්…}}"</string>
+    <string name="transcode_denied" msgid="6760546817138288976">"<xliff:g id="APP_NAME">%s</xliff:g> හට මාධ්‍ය ගොනු සැකසිය නොහැකිය"</string>
+    <string name="transcode_processing_cancelled" msgid="5340383917746945590">"මාධ්‍ය සැකසීම අවලංගු කරන ලදී"</string>
+    <string name="transcode_processing_error" msgid="8921643164508407874">"මාධ්‍ය සැකසීමේ දෝෂය"</string>
+    <string name="transcode_processing_success" msgid="447288876429730122">"මාධ්‍ය සැකසීම සාර්ථකයි"</string>
+    <string name="transcode_processing_started" msgid="7789086308155361523">"මාධ්‍ය සැකසීම ආරම්භ විය"</string>
+    <string name="transcode_processing" msgid="6753136468864077258">"මාධ්‍යය සකසමින්…"</string>
+    <string name="transcode_cancel" msgid="8555752601907598192">"අවලංගු කරන්න"</string>
+    <string name="transcode_wait" msgid="8909773149560697501">"රැඳී සිටින්න"</string>
+    <string name="safety_protection_icon_label" msgid="6714354052747723623">"සුරක්ෂිතතා ආරක්ෂණය"</string>
+    <string name="transcode_alert_channel" msgid="997332371757680478">"සහජ ට්‍රාන්ස්කෝඩ් ඇඟවීම්"</string>
+    <string name="transcode_progress_channel" msgid="6905136787933058387">"සහජ ට්‍රාන්ස්කෝඩ් ප්‍රගතිය"</string>
+    <string name="dialog_error_message" msgid="5120432204743681606">"පසුව නැවත උත්සාහ කරන්න. ගැටලුව විසඳූ පසු ඔබේ ඡායාරූප ලබා ගත හැකි වනු ඇත."</string>
+    <string name="dialog_error_title" msgid="636349284077820636">"සමහර ඡායාරූප පූරණය කළ නොහැක"</string>
+    <string name="dialog_button_text" msgid="351366485240852280">"තේරුණා"</string>
+    <string name="permlab_accessMediaOwnerPackageName" msgid="3849443148060165651">"මාධ්‍ය හිමිකරු පැකේජ නමට ප්‍රවේශ වන්න"</string>
+    <string name="permdesc_accessMediaOwnerPackageName" msgid="7381563109363105371">"ප්‍රවේශ විය හැකි සියලුම මාධ්‍ය ගොනුවල හිමිකරු පැකේජ නම් වෙත ප්‍රවේශ වීමට යෙදුමට අවසර දෙන්න."</string>
+</resources>

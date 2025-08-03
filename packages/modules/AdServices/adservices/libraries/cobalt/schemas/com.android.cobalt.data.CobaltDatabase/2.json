@@ -1,0 +1,322 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 2,
+    "identityHash": "d7163af8ae7dd3e04fc0fb3cdc3ad6ad",
+    "entities": [
+      {
+        "tableName": "AggregateStore",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`day_index` INTEGER NOT NULL, `event_vector` TEXT NOT NULL, `system_profile_hash` INTEGER NOT NULL, `aggregate_value` BLOB NOT NULL, `customer_id` INTEGER NOT NULL, `project_id` INTEGER NOT NULL, `metric_id` INTEGER NOT NULL, `report_id` INTEGER NOT NULL, PRIMARY KEY(`customer_id`, `project_id`, `metric_id`, `report_id`, `day_index`, `system_profile_hash`, `event_vector`), FOREIGN KEY(`customer_id`, `project_id`, `metric_id`, `report_id`) REFERENCES `Reports`(`customer_id`, `project_id`, `metric_id`, `report_id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`system_profile_hash`) REFERENCES `SystemProfiles`(`system_profile_hash`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "dayIndex",
+            "columnName": "day_index",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "eventVector",
+            "columnName": "event_vector",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "systemProfileHash",
+            "columnName": "system_profile_hash",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "aggregateValue",
+            "columnName": "aggregate_value",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reportKey.customerId",
+            "columnName": "customer_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reportKey.projectId",
+            "columnName": "project_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reportKey.metricId",
+            "columnName": "metric_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reportKey.reportId",
+            "columnName": "report_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "customer_id",
+            "project_id",
+            "metric_id",
+            "report_id",
+            "day_index",
+            "system_profile_hash",
+            "event_vector"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_AggregateStore_system_profile_hash",
+            "unique": false,
+            "columnNames": [
+              "system_profile_hash"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_AggregateStore_system_profile_hash` ON `${TABLE_NAME}` (`system_profile_hash`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Reports",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "customer_id",
+              "project_id",
+              "metric_id",
+              "report_id"
+            ],
+            "referencedColumns": [
+              "customer_id",
+              "project_id",
+              "metric_id",
+              "report_id"
+            ]
+          },
+          {
+            "table": "SystemProfiles",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "system_profile_hash"
+            ],
+            "referencedColumns": [
+              "system_profile_hash"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "GlobalValues",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`key` TEXT NOT NULL, `value` TEXT NOT NULL, PRIMARY KEY(`key`))",
+        "fields": [
+          {
+            "fieldPath": "key",
+            "columnName": "key",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "value",
+            "columnName": "value",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "key"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "ObservationStore",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`observation_store_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `unencrypted_observation_batch` BLOB NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "observationStoreId",
+            "columnName": "observation_store_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "unencryptedObservationBatch",
+            "columnName": "unencrypted_observation_batch",
+            "affinity": "BLOB",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "observation_store_id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "Reports",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`last_sent_day_index` INTEGER, `customer_id` INTEGER NOT NULL, `project_id` INTEGER NOT NULL, `metric_id` INTEGER NOT NULL, `report_id` INTEGER NOT NULL, PRIMARY KEY(`customer_id`, `project_id`, `metric_id`, `report_id`))",
+        "fields": [
+          {
+            "fieldPath": "lastSentDayIndex",
+            "columnName": "last_sent_day_index",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "reportKey.customerId",
+            "columnName": "customer_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reportKey.projectId",
+            "columnName": "project_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reportKey.metricId",
+            "columnName": "metric_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reportKey.reportId",
+            "columnName": "report_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "customer_id",
+            "project_id",
+            "metric_id",
+            "report_id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "SystemProfiles",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`system_profile_hash` INTEGER NOT NULL, `system_profile` BLOB NOT NULL, PRIMARY KEY(`system_profile_hash`))",
+        "fields": [
+          {
+            "fieldPath": "systemProfileHash",
+            "columnName": "system_profile_hash",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "systemProfile",
+            "columnName": "system_profile",
+            "affinity": "BLOB",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "system_profile_hash"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "StringHashes",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`day_index` INTEGER NOT NULL, `list_index` INTEGER NOT NULL, `string_hash` BLOB NOT NULL, `customer_id` INTEGER NOT NULL, `project_id` INTEGER NOT NULL, `metric_id` INTEGER NOT NULL, `report_id` INTEGER NOT NULL, PRIMARY KEY(`customer_id`, `project_id`, `metric_id`, `report_id`, `day_index`, `list_index`))",
+        "fields": [
+          {
+            "fieldPath": "dayIndex",
+            "columnName": "day_index",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "listIndex",
+            "columnName": "list_index",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "stringHash",
+            "columnName": "string_hash",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reportKey.customerId",
+            "columnName": "customer_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reportKey.projectId",
+            "columnName": "project_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reportKey.metricId",
+            "columnName": "metric_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reportKey.reportId",
+            "columnName": "report_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "customer_id",
+            "project_id",
+            "metric_id",
+            "report_id",
+            "day_index",
+            "list_index"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_StringHashes_customer_id_project_id_metric_id_report_id_day_index_string_hash",
+            "unique": true,
+            "columnNames": [
+              "customer_id",
+              "project_id",
+              "metric_id",
+              "report_id",
+              "day_index",
+              "string_hash"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_StringHashes_customer_id_project_id_metric_id_report_id_day_index_string_hash` ON `${TABLE_NAME}` (`customer_id`, `project_id`, `metric_id`, `report_id`, `day_index`, `string_hash`)"
+          }
+        ],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd7163af8ae7dd3e04fc0fb3cdc3ad6ad')"
+    ]
+  }
+}

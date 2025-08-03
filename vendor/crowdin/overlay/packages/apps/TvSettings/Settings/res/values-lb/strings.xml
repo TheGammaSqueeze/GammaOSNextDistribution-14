@@ -1,0 +1,434 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2014 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="settings_app_name">Astellungen</string>
+    <string name="launcher_settings_app_name">Astellungen</string>
+    <string name="launcher_network_app_name">Netzwierk</string>
+    <string name="launcher_restricted_profile_app_name">Ageschränkte Profil</string>
+    <string name="action_on_title">Un</string>
+    <string name="action_off_title">Aus</string>
+    <string name="action_on_description">Un</string>
+    <string name="action_off_description">Aus</string>
+    <string name="agree">Zoustëmmen</string>
+    <string name="disagree">Net zoustëmmen</string>
+    <string name="disabled">Desaktivéiert</string>
+    <string name="header_category_device">Apparat</string>
+    <string name="header_category_preferences">Preferenzen</string>
+    <string name="header_category_personal">Perséinlech</string>
+    <string name="applications_category_title">Appen</string>
+    <string name="accessibility_category_title">Accessibilitéit</string>
+    <string name="add_account">Kont dobäisetzen</string>
+    <string name="account_header_remove_account">Kont läschen</string>
+    <string name="account_sync">Synchroniséiert Appen auswielen</string>
+    <string name="sync_now">Elo synchroniséieren</string>
+    <string name="sync_in_progress">Gëtt synchroniséiert\u2026</string>
+    <string name="sync_disabled">Desaktivéiert</string>
+    <string name="account_remove">Kont läschen</string>
+    <string name="account_remove_failed">Kont kann net ewechgeholl ginn</string>
+    <string name="connectivity_wifi">WLAN</string>
+    <string name="connectivity_ethernet">Ethernet</string>
+    <string name="wifi_setting_enable_wifi">WLAN</string>
+    <string name="all_apps_other">System-Appen</string>
+    <string name="device_display">Usiicht</string>
+    <string name="device_sound_effects">Systemtéin</string>
+    <string name="device_storage">Späicher</string>
+    <string name="device_factory_reset">Op d\'Wierksastellungen zrécksetzen</string>
+    <string name="device_calibration">Kalibréierung</string>
+    <string name="surround_sound_enable_unsupported_dialog_cancel">Ofbriechen</string>
+    <string name="display_category_title">Usiicht</string>
+    <string name="match_content_frame_rate_non_seamless">Ëmmer</string>
+    <string name="match_content_frame_rate_never">Ni</string>
+    <string name="hdr_format_selection_manual_title">Manuell</string>
+    <string name="resolution_selection_dialog_cancel">Ofbriechen</string>
+    <string name="resolution_selection_dialog_ok">OK</string>
+    <string name="device_storage_clear_cache_title">Tëschegespäichert Date läschen?</string>
+    <string name="device_storage_clear_cache_message">Heiduerch ginn déi tëschegespäichert Date fir all d\'Appe geläscht.</string>
+    <string name="accessories_add">Accessoiren dobäisetzen</string>
+    <string name="accessory_state_error">Kann net gekoppelt ginn</string>
+    <string name="accessory_state_canceled">Ofgebrach</string>
+    <string name="accessory_state_paired">Gekoppelt</string>
+    <string name="accessory_options">Accessoiren</string>
+    <string name="accessory_unpair">Entkoppelen</string>
+    <string name="accessory_connected">Verbonnen</string>
+    <string name="accessories_autopair_msg">En Apparat gouf fonnt. D\'Koppele gëtt a(n) <xliff:g id="COUNTDOWN">%1$s</xliff:g> Sekonnen automatesch duerchgefouert</string>
+    <string name="error_action_not_supported">Dës Aktioun gëtt net ënnerstëtzt</string>
+    <string name="bluetooth_pairing_request">Bluetooth-Koppelungsufro</string>
+    <string name="bluetooth_confirm_passkey_msg">Fir mat &lt;b&gt;<xliff:g id="device_name">%1$s</xliff:g>&lt;/b&gt; ze koppelen, muss en de Schlëssel &lt;b&gt;<xliff:g id="passkey">%2$s</xliff:g>&lt;/b&gt; uweisen.</string>
+    <string name="bluetooth_incoming_pairing_msg">Vum: &lt;b&gt;<xliff:g id="device_name">%1$s</xliff:g>&lt;/b&gt;&lt;br&gt;Koppele mat dësem Apparat?</string>
+    <string name="bluetooth_display_passkey_pin_msg">Fir ze koppele mat: &lt;b&gt;<xliff:g id="device_name">%1$s</xliff:g>&lt;/b&gt;&lt;br&gt;Gëff an: &lt;b&gt;<xliff:g id="PASSKEY">%2$s</xliff:g>&lt;/b&gt;. Dréck herno d\'Agabtast.</string>
+    <string name="bluetooth_enter_pin_msg">Fir ze koppele mat: &lt;b&gt;<xliff:g id="device_name">%1$s</xliff:g>&lt;/b&gt; &lt;br&gt;Gëff de PIN vum Apparat an:</string>
+    <string name="bluetooth_enter_passkey_msg">Fir ze koppele mat: &lt;b&gt;<xliff:g id="device_name">%1$s</xliff:g>&lt;/b&gt; &lt;br&gt;Gëff de Schlëssel vum Apparat an:</string>
+    <string name="bluetooth_pin_values_hint">Üblecherweis 0000 an 1234</string>
+    <string name="bluetooth_pair">Koppelen</string>
+    <string name="bluetooth_cancel">Ofbriechen</string>
+    <string name="bluetooth_connect_action_title">Connectéieren</string>
+    <string name="bluetooth_rename_action_title">Ëmbenennen</string>
+    <string name="bluetooth_connected_status">Verbonnen</string>
+    <string name="system_cast">Google Cast</string>
+    <string name="system_language">Sprooch</string>
+    <string name="system_keyboard">Tastatur</string>
+    <string name="system_home">Startschierm</string>
+    <string name="system_search">Sichen</string>
+    <string name="system_speech">Sprooch</string>
+    <string name="system_inputs">Agäng</string>
+    <string name="system_developer_options">Entwéckleroptiounen</string>
+    <string name="accessibility_none">Keen</string>
+    <string name="enterprise_privacy_none">Keen</string>
+    <string name="about_system_update">Systemaktualiséierungen</string>
+    <string name="about_preference">Iwwer</string>
+    <string name="device_name">Apparatnumm</string>
+    <string name="restart_button_label">Nei starten</string>
+    <string name="about_legal_info">Legal Informatiounen</string>
+    <string name="about_terms_of_service">Rechtlech Hiweiser</string>
+    <string name="about_license_activity_unavailable">Lizenzdaten sinn net disponibel</string>
+    <string name="about_model">Modell</string>
+    <string name="about_serial">Seriennummer</string>
+    <string name="about_ads">Reklammen</string>
+    <string name="show_dev_on">Du bass elo en Entwéckler!</string>
+    <string name="show_dev_already">Net néideg, du bass schonn en Entwéckler</string>
+    <string name="selinux_status_disabled">Desaktivéiert</string>
+    <string name="manual">Manuell</string>
+    <string name="legal_information">Legal Informatiounen</string>
+    <string name="consumer_information_button_ok">OK</string>
+    <string-array name="wifi_signal_strength">
+        <item>Schwaach</item>
+        <item>Mëttel</item>
+        <item>Gutt</item>
+        <item>Exzellent</item>
+    </string-array>
+    <string name="title_signal_strength">Signalstäerkt</string>
+    <string name="title_ip_address">IP-Adress</string>
+    <string name="title_ssid">Numm vum WLAN-Netzwierk aginn</string>
+    <string name="title_internet_connection">Internetconnectioun</string>
+    <string name="connected">Verbonnen</string>
+    <string name="not_connected">Net connectéiert</string>
+    <string name="wifi_setting_see_all">All uweisen</string>
+    <string name="wifi_setting_other_options_add_network">Neien Netzwierk dobäisetzen</string>
+    <string name="security_type">Sécherheetstyp</string>
+    <string name="skip_network">Iwwersprangen</string>
+    <string name="wifi_security_type_none">Keen</string>
+    <string name="wifi_security_type_wep">WEP</string>
+    <string name="wifi_security_type_wpa">WPA/WPA2 PSK</string>
+    <string name="wifi_security_type_eap">802.1x EAP</string>
+    <string name="title_wifi_could_not_save">Konfiguratioun fir <xliff:g id="ssid">%1$s</xliff:g> konnt net gespäichert ginn</string>
+    <string name="title_wifi_could_not_connect">Kee Verbindungsopbau mat <xliff:g id="SSID">%1$s</xliff:g> méiglech</string>
+    <string name="title_wifi_could_not_connect_timeout"><xliff:g id="ssid">%1$s</xliff:g> net fonnt</string>
+    <string name="title_wifi_could_not_connect_authentication_failure">WLAN-Passwuert ongëlteg</string>
+    <string name="title_wifi_could_not_connect_ap_reject">WLAN huet d\'Connectioun net acceptéiert</string>
+    <string name="title_wifi_advanced_options">Proxy an IP-Astellunge fir <xliff:g id="SSID">%1$s</xliff:g> konfiguréieren?</string>
+    <string name="title_wifi_proxy_settings">Proxy-Astellungen</string>
+    <string name="title_wifi_proxy_hostname">Proxy-Hostnumm:</string>
+    <string name="title_wifi_proxy_port">Proxy-Port:</string>
+    <string name="title_wifi_proxy_bypass">Proxy ëmgoe fir:</string>
+    <string name="title_wifi_ip_settings">IP-Astellungen</string>
+    <string name="title_wifi_ip_address">IP-Adress:</string>
+    <string name="title_wifi_gateway">Gateway:</string>
+    <string name="title_wifi_network_prefix_length">Prefixlängt vum Netzwierk:</string>
+    <string name="title_wifi_dns1">DNS 1:</string>
+    <string name="title_wifi_dns2">DNS 2:</string>
+    <string name="title_wifi_proxy_settings_invalid">Proxyastellungen ongëlteg</string>
+    <string name="title_wifi_ip_settings_invalid">IP-Astellungen net gëlteg</string>
+    <string name="title_wifi_known_network"><xliff:g id="ssid">%1$s</xliff:g> ass e gespäichert Netzwierk</string>
+    <string name="wifi_action_try_again">Nees probéieren</string>
+    <string name="wifi_action_view_available_networks">Disponibel Netzwierker ukucken</string>
+    <string name="wifi_connecting">Connectioun mat <xliff:g id="name">%1$s</xliff:g> gëtt erstallt</string>
+    <string name="wifi_saving">Konfiguratioun fir <xliff:g id="ssid">%1$s</xliff:g> gëtt gespäichert</string>
+    <string name="wifi_connect">Connectéieren</string>
+    <string name="wifi_forget_network">Netzwierk vergiessen</string>
+    <string name="wifi_forget_network_description">Läscht d\'Informatioune fir mat dësem Netzwierk ze connectéieren an och d\'gespäichert Passwuert</string>
+    <string name="wifi_action_ok">OK</string>
+    <string name="wifi_action_change_network">Änneren</string>
+    <string name="wifi_action_dont_change_network">Net änneren</string>
+    <string name="wifi_action_advanced_yes">OK</string>
+    <string name="wifi_action_advanced_no">Nee (recommandéiert)</string>
+    <string name="wifi_action_proxy_none">Keen</string>
+    <string name="wifi_action_proxy_manual">Manuell</string>
+    <string name="wifi_action_dhcp">DHCP</string>
+    <string name="wifi_action_static">Statesch</string>
+    <string name="wifi_action_status_info">Statusinfo</string>
+    <string name="wifi_action_advanced_options_title">Erweidert Optiounen</string>
+    <string name="wifi_ip_settings_invalid_ip_address">Gëff eng gëlteg IP-Adress an</string>
+    <string name="wifi_ip_settings_invalid_gateway">Gëff eng gëlteg Gateway-Address an</string>
+    <string name="wifi_ip_settings_invalid_dns">Gëff eng gëlteg DNS-Address an</string>
+    <string name="wifi_ip_settings_invalid_network_prefix_length">Gëff eng Prefixlängt vum Netzwierk tëscht 0 an 32 an</string>
+    <string name="proxy_error_invalid_host">Hostnumm ass net gëlteg</string>
+    <string name="proxy_error_invalid_exclusion_list">D\'Exklusiounslëscht ass ongëltëg. Gëff eng Komma-getrennt Lëscht mat den Domainen déi ausgeschloss solle ginn.</string>
+    <string name="proxy_error_empty_port">D\'Feld fir de Port däerf net eidel sinn</string>
+    <string name="proxy_error_empty_host_set_port">Wann d\'Feld fir den Host eidel ass, looss d\'Feld fir de Port och eidel</string>
+    <string name="proxy_error_invalid_port">Port ass net gëlteg</string>
+    <string name="proxy_warning_limited_support">Den HTTP-Proxy gëtt vum Browser benotzt, däerf awer net vun aneren Appe benotzt ginn</string>
+    <string name="wifi_summary_title_connected">Netzwierk connectéiert</string>
+    <string name="wifi_summary_title_not_connected">Netzwierk ass net connectéiert</string>
+    <string name="wifi_summary_description_connected_to_wifi_network">Scho mat <xliff:g id="SSID">%1$s</xliff:g> connectéiert. Mat engem aneren Netzwierk connectéieren?</string>
+    <string name="wifi_summary_unknown_network">onbekannt Netzwierk</string>
+    <string name="title_ok">OK</string>
+    <string name="title_cancel">Ofbriechen</string>
+    <string name="storage_title">Späicher</string>
+    <string name="storage_available">Disponibel</string>
+    <string name="storage_size">Totale Späicher: <xliff:g id="total_space">%1$s</xliff:g></string>
+    <string name="storage_calculating_size">Gëtt berechent\u2026</string>
+    <string name="storage_apps_usage">Appen</string>
+    <string name="storage_downloads_usage">Downloads</string>
+    <string name="storage_music_usage">Toun</string>
+    <string name="storage_media_misc_usage">Ënnerschiddleches</string>
+    <string name="storage_media_cache_usage">Tëschegespäichert Daten</string>
+    <string name="storage_not_connected">Net connectéiert</string>
+    <string name="storage_free_up_clear_cached_data_confirm_title">Tëschegespäichert Date läschen?</string>
+    <string name="storage_free_up_clear_cached_data_confirm_description">Heiduerch ginn déi tëschegespäichert Date fir all d\'Appe geläscht.</string>
+    <string name="system_date">Datum</string>
+    <string name="system_time">Zäit</string>
+    <string name="system_set_date">Datum setzen</string>
+    <string name="system_set_time">Zäit setzen</string>
+    <string name="system_set_time_zone">Zäitzon setzen</string>
+    <string name="system_set_time_format">24-Stonneformat benotzen</string>
+    <string name="system_auto_date_time">Automatesch Datum an Zäit</string>
+    <string-array name="auto_date_time_entries">
+        <item>Zäit benotzen déi vum Netzwierk iwwerdroe gëtt</item>
+        <item>Aus</item>
+    </string-array>
+    <string-array name="auto_date_time_ts_entries">
+        <item>Zäit benotzen déi vum Netzwierk iwwerdroe gëtt</item>
+        <item>Use transport stream-provided time</item>
+        <item>Aus</item>
+    </string-array>
+    <string name="recently_accessed_show_all">All uweisen</string>
+    <string name="sensor_toggle_info_on">Un</string>
+    <string name="sensor_toggle_info_off">Aus</string>
+    <string name="system_location">Standuert</string>
+    <string name="system_desc_location">Appen déi eng Berechtegung gefrot hu kënnen d\'Standuertinformatioune benotzen</string>
+    <string name="system_network_location_confirm">Standuertfräigab</string>
+    <string name="location_mode_title">Modus</string>
+    <string name="location_category_recent_location_requests">Rezent Standuertufroen</string>
+    <string name="location_no_recent_apps">Kierzlech hu keng Appen Zougrëff op de Standuert ugefrot</string>
+    <string name="location_high_battery_use">Héijen Akkuverbrauch</string>
+    <string name="location_low_battery_use">Niddregen Akkuverbrauch</string>
+    <string name="location_status">Standuertstatus</string>
+    <string name="location_services">Standuertservicer</string>
+    <string name="on">Un</string>
+    <string name="off">Aus</string>
+    <string name="google_location_services_title">Standuertservicer vu Google</string>
+    <string name="third_party_location_services_title">Standuertservicer vun Drëttubidder</string>
+    <string name="location_reporting">Standuertbericht</string>
+    <string name="location_history">Standuerthistorique</string>
+    <string name="location_reporting_desc">Google benotzt dës Funktioun a Produkter wéi Google Now a Google Maps. Bei aktivéiertem Standuertbericht kënne Google-Produkter déi aktuell Standuertdate vun dengem Apparat a Verbindung mat dengem Google-Kont späicheren a benotzen.</string>
+    <string name="location_history_desc">Wann de Standuerthistorique fir de Kont aktivéiert ass, späichert Google d\'Standuertdate vun dengem Apparat, soudatt dës vun dengen Appe benotzt ka ginn .\n\nZum Beispill ka Google Maps dir Strecken uweisen a Google Now kann dir iwwer d\'aktuell Traficlag op dengem Wee op d\'Schaff informéieren.\n\nDu kanns de Standuerthistorique all Ament desaktivéieren; e gëtt doduerch net geläscht. Du kanns däi Standuerthistorique ënner maps.google.com/locationhistory ukucken a verwalten.</string>
+    <string name="delete_location_history_title">Standuerthistorique läschen</string>
+    <string name="delete_location_history_desc">Dës wäert däi ganze Standuerthistorique fir dëse Google-Kont vun dësem Apparat geläscht. Du kanns de Läschvirgank net réckgängeg maachen. Puer Appe wéi Google Now wäerten net méi funktionéieren.</string>
+    <string name="accessibility_display_category_title">Usiicht</string>
+    <string name="accessibility_services_category_title">Servicer</string>
+    <string name="accessibility_service_settings">Serviceastellungen</string>
+    <string name="palette_color_red">Rout</string>
+    <string name="palette_color_yellow">Giel</string>
+    <string name="palette_color_green">Gréng</string>
+    <string name="palette_color_cyan">Cyan</string>
+    <string name="palette_color_blue">Blo</string>
+    <string name="accessibility_captions">Titelen</string>
+    <string name="accessibility_captions_description">Astellunge fir d\'Ëntertitel-Overlayen an engem Video</string>
+    <string name="captions_display">Usiicht</string>
+    <string name="captions_display_on">Un</string>
+    <string name="captions_display_off">Aus</string>
+    <string name="display_options">Uweisoptiounen</string>
+    <string name="captions_configure">Astellen</string>
+    <string name="captions_language">Sprooch</string>
+    <string name="captions_textsize">Textgréisst</string>
+    <string name="captions_captionstyle">Titelstil</string>
+    <string name="captions_customoptions">Eegen Optiounen</string>
+    <string name="captions_fontfamily">Schrëftfamill</string>
+    <string name="captions_textcolor">Textfaarf</string>
+    <string name="captions_edgetype">Kantentyp</string>
+    <string name="captions_edgecolor">Kantefaarf</string>
+    <string name="captions_backgroundcolor">Hannergrondfaarf</string>
+    <string name="captions_backgroundopacity">Hannergronddeckkraaft</string>
+    <string name="captioning_preview_text">Titele gesi sou aus</string>
+    <string name="captions_textopacity">Textdeckkraaft</string>
+    <string name="captions_windowcolor">Fënsterfaarf</string>
+    <string name="captions_windowopacity">Fënsterdeckkraaft</string>
+    <string name="color_white">Wäiss</string>
+    <string name="color_black">Schwaarz</string>
+    <string name="color_red">Rout</string>
+    <string name="color_green">Gréng</string>
+    <string name="color_blue">Blo</string>
+    <string name="color_cyan">Cyan</string>
+    <string name="color_yellow">Giel</string>
+    <string name="color_magenta">Magenta</string>
+    <string name="system_accessibility_config">Konfiguratioun</string>
+    <string name="system_accessibility_service_on_confirm_title"><xliff:g id="service" example="TalkBack">%1$s</xliff:g> benotzen?</string>
+    <string name="system_accessibility_service_off_confirm_title"><xliff:g id="service" example="TalkBack">%1$s</xliff:g> stoppen?</string>
+    <string name="system_accessibility_service_off_confirm_desc">Duerch d\'Auswiele vun \"OK\" gëtt <xliff:g id="service" example="TalkBack">%1$s</xliff:g> gestoppt.</string>
+    <string name="system_accessibility_tts_output">Text-a-Sprooch</string>
+    <string name="system_speak_passwords">Passwierder virliesen</string>
+    <string name="system_preferred_engine">Preferéiert Maschinn</string>
+    <string name="system_speech_rate">Virliesvitess</string>
+    <string name="system_play_sample">Beispill ofspillen</string>
+    <string name="system_install_voice_data">Sproochendaten installéieren</string>
+    <string name="system_general">Allgemeng</string>
+    <string name="system_debugging">Debugging</string>
+    <string name="system_input">Agang</string>
+    <string name="system_drawing">Zeechnen</string>
+    <string name="system_monitoring">Iwwerwaachung</string>
+    <string name="system_apps">Appen</string>
+    <string name="system_stay_awake">Waakreg bleiwen</string>
+    <string name="system_hdcp_checking">HDCP-Iwwerpréiwung</string>
+    <string name="system_hdmi_optimization">HDMI-Optimisatioun</string>
+    <string name="system_reboot_confirm">Elo nei starten?</string>
+    <string name="system_desc_reboot_confirm">Fir dës Astellung z\'aktualiséiere muss den Apparat nei gestart ginn</string>
+    <string name="system_never_check">Ni iwwerpréiwen</string>
+    <string name="system_check_for_drm_content_only">Just op DRM-Inhalter iwwerpréiwen</string>
+    <string name="system_always_check">Ëmmer iwwerpréiwen</string>
+    <string name="system_bt_hci_log">Bluetooth HCI-Protokolléierung</string>
+    <string name="system_email_address">E-Mail-Adress</string>
+    <string name="system_usb_debugging">Feelersich iwwer USB</string>
+    <string name="system_allow_mock_locations">Simuléiert Standuerter erlaben</string>
+    <string name="system_select_debug_app">Debug-App auswielen</string>
+    <string name="system_wait_for_debugger">Op den Debugger waarden</string>
+    <string name="system_verify_apps_over_usb">Appen iwwer USB verifizéieren</string>
+    <string name="system_desc_verify_apps_over_usb">Appen déi iwwer ADB/ADT installéiert goufen ob béisaartegt Behuelen iwwerpréiwen</string>
+    <string name="system_wifi_verbose_logging">Ausféierlech WLAN-Protokoller</string>
+    <string name="system_desc_wifi_verbose_logging">Ausféierlech WLAN-Protokoller aktivéieren</string>
+    <string name="system_show_touches">Beréierungen uweisen</string>
+    <string name="system_pointer_location">Cursorpositioun</string>
+    <string name="system_show_layout_bounds">Layout-Grenzen uweisen</string>
+    <string name="system_show_gpu_view_updates">GPU-Aktualiséierungen uweisen</string>
+    <string name="system_show_hardware_layer">Hardwareniveau uweisen</string>
+    <string name="system_show_gpu_overdraw">GPU-Iwwerzeechnung uweisen</string>
+    <string name="system_show_surface_updates">Flächenaktualiséierungen uweisen</string>
+    <string name="system_window_animation_scale">Skaléierung vun de Fënsteranimatiounen</string>
+    <string name="system_transition_animation_scale">Skaléierung vun den Transitiounen</string>
+    <string name="system_animator_duration_scale">Skaléierung vun der Animateurszäit</string>
+    <string name="system_strict_mode_enabled">Strikte Modus aktivéiert</string>
+    <string name="system_profile_gpu_rendering">GPU-Rendering profiléieren</string>
+    <string name="system_enable_traces">Spuren aktivéieren</string>
+    <string name="system_dont_keep_activities">Aktivitéiten net halen</string>
+    <string name="system_background_process_limit">Limitt fir Hannergrondprozesser</string>
+    <string name="system_show_all_anrs">All blockéiert Appen uweisen</string>
+    <string name="system_desc_stay_awake">Roumodus desaktivéieren</string>
+    <string name="system_desc_hdcp_checking">Just fir DRM-Inhalter</string>
+    <string name="system_desc_hdmi_optimization">Optiméiert d\'Uweis fir d\'maximal Opléisung oder de maximale Framerate. Gëllt just fir Ultra-HD-Schiermer. No enger Ännerung vun dëser Astellung gëtt den Apparat nei gestart.</string>
+    <string name="system_desc_bt_hci_log">Bluetooth HCI-Snoop-Protokolléierung aktivéieren</string>
+    <string name="system_desc_usb_debugging">Debug-Modus wann USB connectéiert ass</string>
+    <string name="system_desc_wait_for_debugger">Ier d\'App ausgefouert gëtt, gëtt den Debugger gestart</string>
+    <string name="system_desc_show_layout_bounds">Clip-Begrenzungen, Ränner, etc. uweisen.</string>
+    <string name="system_desc_show_gpu_view_updates">Fënsterdeeler opliichte loosse wa se vun der GPU gezeechent ginn</string>
+    <string name="system_desc_show_hardware_layer">Hardware-Layere gréng opliichte loosse wa s\'aktualiséiert ginn</string>
+    <string name="system_desc_show_gpu_overdraw">Niddreg no héich: blo, gréng, hellrout, rout</string>
+    <string name="system_desc_show_surface_updates">Ganz Fënsterflächen opliichte loosse wa s\'aktualiséiert ginn</string>
+    <string name="system_desc_strict_mode_enabled">Bei méi laangen Aktiounen am Haaptthread de Schirm blénke loossen</string>
+    <string name="system_desc_profile_gpu_rendering">Rendering-Zäit an adb shell dumpsys gfxinfo moossen</string>
+    <string name="security_unknown_sources_title">Onbekannt Quellen</string>
+    <string name="security_unknown_sources_desc">Erlaabt d\'Installatioun vun Appe vun aner Quelle wéi de Play Store</string>
+    <string name="security_unknown_sources_confirm_desc">Däin Apparat an deng perséinlech Date si méi a Gefor attackéiert ze ginn duerch Appen aus onbekannte Quellen. Du stëmms zou datt s du eleng fir Schued un dengem Apparat oder Dateverloscht duerch dës Appe responsabel bass.</string>
+    <string name="system_hdcp_checking_never">Ni</string>
+    <string name="system_hdcp_checking_drm">Fir DRM-Inhalt</string>
+    <string name="system_hdcp_checking_always">Ëmmer</string>
+    <string name="system_hw_overdraw_off">Aus</string>
+    <string name="no_application">Näischt</string>
+    <string name="enable_opengl_traces_none">Keen</string>
+    <string name="enable_opengl_traces_logcat">Logcat</string>
+    <string name="enable_opengl_traces_systrace">Systrace (Graphik)</string>
+    <string name="enable_opengl_traces_error">Oprufflëscht fir glGetError</string>
+    <string-array name="animation_scale_entries">
+        <item>Animatioun aus</item>
+        <item>Animatiounsskala 0,5x</item>
+        <item>Animatiounsskala 1x</item>
+        <item>Animatiounsskala 1,5x</item>
+        <item>Animatiounsskala 2x</item>
+        <item>Animatiounsskala 5x</item>
+        <item>Animatiounsskala 10x</item>
+    </string-array>
+    <string name="track_frame_time_off">Aus</string>
+    <string name="track_frame_time_bars">Um Schierm als Strécher</string>
+    <string name="track_frame_time_gfxinfo">An der ADB-Shell mat dumpsys gfxinfo</string>
+    <string name="app_process_limit_standard">Standardlimitt</string>
+    <string name="app_process_limit_zero">Keng Hannergrondprozesser</string>
+    <string name="app_process_limit_one">Héchstens 1 Prozess</string>
+    <string name="app_process_limit_two">Héchstens 2 Prozesser</string>
+    <string name="app_process_limit_three">Héchstens 3 Prozesser</string>
+    <string name="app_process_limit_four">Héchstens 4 Prozesser</string>
+    <string name="tts_rate_very_slow">Ganz lues</string>
+    <string name="tts_rate_slow">Lues</string>
+    <string name="tts_rate_normal">Normal</string>
+    <string name="tts_rate_fast">Séier</string>
+    <string name="tts_rate_very_fast">Ganz séier</string>
+    <string name="title_current_keyboard">Aktuell Tastatur</string>
+    <string name="title_configure">Astellen</string>
+    <string name="desc_configure_keyboard">Tastaturoptiounen</string>
+    <string name="autofill_none">Keen</string>
+    <string name="computing_size">Gëtt berechent\u2026</string>
+    <string name="title_select_wifi_network">WLAN auswielen</string>
+    <string name="accessories_wifi_display_rename_device">Ëmbenennen</string>
+    <string name="accessories_wifi_display_enable">WLAN-Uweis</string>
+    <string name="accessories_wifi_display_pin_required">PIN néideg</string>
+    <string name="whichApplication">Aktioun duerchféiere mat</string>
+    <string name="alwaysUseQuestion">Dës Optioun ëmmer fir déi Aktioun benotzen?</string>
+    <string name="alwaysUseOption">Ëmmer benotzen</string>
+    <string name="justOnceOption">Just eemol</string>
+    <string name="noApplications">Dës Aktioun ka vu kenger App duerchgefouert ginn.</string>
+    <string name="noAppsGoBack">Zréck</string>
+    <string name="inputs_inputs">Agäng</string>
+    <string name="inputs_header_cec">Agäng</string>
+    <string name="inputs_cec_settings">Apparatsteierungs-Astellungen</string>
+    <string name="inputs_blu_ray">Blu-ray</string>
+    <string name="inputs_cable">Kabel</string>
+    <string name="inputs_dvd">DVD</string>
+    <string name="inputs_game">Spillkonsoul</string>
+    <string name="inputs_aux">Aux</string>
+    <string name="inputs_custom_name">Personaliséierten Numm</string>
+    <string name="inputs_hide">Verstoppt</string>
+    <string name="input_header_names">Numm</string>
+    <string name="inputs_hdmi_control">HDMI-Steierung</string>
+    <string name="inputs_hdmi_control_desc">Erlaabt d\'Steierung vun HDMI-Apparater iwwer d\'Tëlee</string>
+    <string name="inputs_device_auto_off">Apparat automatesch uschalten</string>
+    <string name="inputs_device_auto_off_desc">HDMI-Apparater zesumme mat der Tëlee ausschalten</string>
+    <string name="inputs_tv_auto_on">Tëlee automatesch uschalten</string>
+    <string name="inputs_tv_auto_on_desc">Tëlee zesumme mamHDMI-Apparat uschalten</string>
+    <string name="user_add_profile_item_summary">Zougrëff op Appen an aner Inhalter an dengem Kont aschränken</string>
+    <string name="user_new_profile_name">Ageschränkte Profil</string>
+    <string name="user_restrictions_controlled_by">Kontrolléiert vu(n) <xliff:g id="app">%1$s</xliff:g></string>
+    <string name="app_not_supported_in_limited">Dës App gëtt net an den ageschränkte Profiller ënnerstëtzt</string>
+    <string name="app_sees_restricted_accounts">Dës App kann op deng Konten zougräifen</string>
+    <string name="restriction_location_enable_title">Standuert</string>
+    <string name="restriction_location_enable_summary">Appen erlaben d\'Standuertinformatioun ze benotzen</string>
+    <string name="restricted_profile_switch_to">Begrenzte Profil aginn</string>
+    <string name="restricted_profile_switch_out">Begrenzte Profil verloossen</string>
+    <string name="restricted_profile_delete_title">Begrenzte Profil läschen</string>
+    <string name="restricted_profile_configure_title">Astellungen</string>
+    <string name="restricted_profile_configure_apps_title">Erlaabt Appen</string>
+    <string name="restricted_profile_allowed">Erlaabt</string>
+    <string name="restricted_profile_not_allowed">Refuséiert</string>
+    <string name="restricted_profile_customize_restrictions">Personaliséiert Beschränkungen</string>
+    <string name="restricted_profile_configure_apps_description_loading">Ee Moment\u2026</string>
+    <string name="restricted_profile_change_password_title">PIN änneren</string>
+    <string name="restricted_profile_skip_action">Iwwersprangen</string>
+    <string name="restriction_description"><xliff:g id="description">%1$s</xliff:g>\n<xliff:g id="value">%2$s</xliff:g></string>
+    <string name="pin_enter_unlock_channel">Gëff de PIN an, fir dëse Kanal ze gesinn</string>
+    <string name="pin_enter_unlock_program">Gëff de PIN an, fir dëse Programm ze gesinn</string>
+    <string name="pin_enter_pin">PIN aginn</string>
+    <string name="pin_enter_new_pin">Neie PIN setzen</string>
+    <string name="pin_enter_again">Neie PIN nees aginn</string>
+    <string name="pin_enter_old_pin">Ale PIN aginn</string>
+    <string name="pin_toast_wrong">Falsche PIN, probéier nees</string>
+    <string name="pin_toast_not_match">Probéier nees, PIN stëmmt net iwwereneen</string>
+    <string name="settings_ok">OK</string>
+    <string name="settings_cancel">Ofbriechen</string>
+    <string name="settings_on">Un</string>
+    <string name="settings_off">Aus</string>
+    <string name="change_setting">Änneren</string>
+    <string name="keep_settings">Net änneren</string>
+    <string name="app_permission_summary_allowed">Erlaabt</string>
+    <string name="app_permission_summary_not_allowed">Refuséiert</string>
+    <string name="audio_category">Toun</string>
+    <string name="network_connection_timeout_dialog_ok">Nees probéieren</string>
+</resources>

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2023 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- Energy modes -->
+    <eat-comment />
+
+    <!-- Whether to show "Energy Mode" options when Low Power Standby is supported.
+         If false, falls back to a toggle to enable/disable Low Power Standby if LPS is supported. -->
+    <bool name="enable_energy_modes">false</bool>
+
+    <!-- The default energy mode, used if none has been set yet. -->
+    <string name="default_energy_mode" translatable="false">@null</string>
+
+    <!-- Energy mode: Low -->
+    <eat-comment />
+
+    <bool name="energy_mode_low_enabled">true</bool>
+    <string name="energy_mode_low_identifier" translatable="false">low_energy_use</string>
+    <color name="energy_mode_low_color">#137332</color>
+    <drawable name="energy_mode_low_icon">@drawable/ic_eco_leaf</drawable>
+    <string name="energy_mode_low_title">Low</string>
+    <string name="energy_mode_low_subtitle">Standby</string>
+    <string name="energy_mode_low_info">Standby — Network connection is off when the TV is not in use</string>
+    <string-array name="energy_mode_low_features">
+        <item>[Insert feature 1]</item>
+        <item>[Insert feature 2]</item>
+    </string-array>
+    <string name="energy_mode_low_eco_hint" />
+
+    <string-array name="energy_mode_low_baseExemptPackages" translatable="false" />
+    <string-array name="energy_mode_low_vendorExemptPackages" translatable="false" />
+    <integer name="energy_mode_low_baseAllowedReasons">1</integer>
+    <integer name="energy_mode_low_vendorAllowedReasons">0</integer>
+    <string-array name="energy_mode_low_baseAllowedFeatures" translatable="false" />
+    <string-array name="energy_mode_low_vendorAllowedFeatures" translatable="false" />
+
+    <!-- Energy mode: Moderate -->
+    <eat-comment />
+
+    <bool name="energy_mode_moderate_enabled">true</bool>
+    <string name="energy_mode_moderate_identifier" translatable="false">moderate_energy_use</string>
+    <color name="energy_mode_moderate_color">#184EA6</color>
+    <drawable name="energy_mode_moderate_icon">@drawable/ic_energy_mode_moderate</drawable>
+    <string name="energy_mode_moderate_title">Optimized</string>
+    <string name="energy_mode_moderate_subtitle">Networked Standby</string>
+    <string name="energy_mode_moderate_info">Networked standby — Enables features to wake up the TV over the network</string>
+    <string-array name="energy_mode_moderate_features">
+        <item>[Insert feature 1]</item>
+        <item>[Insert feature 2]</item>
+    </string-array>
+    <string name="energy_mode_moderate_eco_hint" />
+    <string-array name="energy_mode_moderate_baseExemptPackages" translatable="false" />
+    <string-array name="energy_mode_moderate_vendorExemptPackages" translatable="false" />
+    <integer name="energy_mode_moderate_baseAllowedReasons">7</integer>
+    <integer name="energy_mode_moderate_vendorAllowedReasons">0</integer>
+    <string-array name="energy_mode_moderate_baseAllowedFeatures" translatable="false" />
+    <string-array name="energy_mode_moderate_vendorAllowedFeatures" translatable="false" />
+
+    <!-- Energy mode: High -->
+    <eat-comment />
+
+    <bool name="energy_mode_high_enabled">true</bool>
+    <string name="energy_mode_high_identifier" translatable="false">high_energy_use</string>
+    <color name="energy_mode_high_color">#EA8600</color>
+    <drawable name="energy_mode_high_icon">@drawable/ic_energy_mode_high</drawable>
+    <string name="energy_mode_high_title">Increased</string>
+    <string name="energy_mode_high_subtitle">Always connected</string>
+    <string name="energy_mode_high_info">Always connected — Enables network features when TV is not in use</string>
+    <string-array name="energy_mode_high_features">
+        <item>[Insert feature 1]</item>
+        <item>[Insert feature 2]</item>
+    </string-array>
+    <string name="energy_mode_high_eco_hint">@string/energy_mode_eco_hint</string>
+
+    <string-array name="energy_mode_high_baseExemptPackages" translatable="false" />
+    <string-array name="energy_mode_high_vendorExemptPackages" translatable="false" />
+    <integer name="energy_mode_high_baseAllowedReasons">7</integer>
+    <integer name="energy_mode_high_vendorAllowedReasons">0</integer>
+    <string-array name="energy_mode_high_baseAllowedFeatures" translatable="false" />
+    <string-array name="energy_mode_high_vendorAllowedFeatures" translatable="false" />
+
+    <!-- Energy mode: Unrestricted -->
+    <eat-comment />
+
+    <bool name="energy_mode_unrestricted_enabled">false</bool>
+    <string name="energy_mode_unrestricted_identifier" translatable="false">unrestricted</string>
+</resources>
+

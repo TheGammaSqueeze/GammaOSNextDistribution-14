@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--This XML lists the mapping from serverless client ID to package name. -->
+<ServerlessClientMap xmlns:car="http://schemas.android.com/apk/res-auto">
+    <ServerlessClient>
+        <ClientId>serverless_client_kitchensink</ClientId>
+        <PackageName>com.google.android.car.kitchensink</PackageName>
+    </ServerlessClient>
+</ServerlessClientMap>

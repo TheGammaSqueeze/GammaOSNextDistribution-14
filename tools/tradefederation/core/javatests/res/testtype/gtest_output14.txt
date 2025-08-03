@@ -1,0 +1,9 @@
+Running main() from gtest_main.cc
+[==========] Running 1 test from 1 test case.
+[----------] Global test environment set-up.
+[----------] 1 tests from TestPartResultTest
+[ RUN      ] TestPartResultTest.type
+[       OK ] TestPartResultTest.type (1 ms)
+[----------] 1 tests from TestPartResultTest (1 ms total)
+
+[----------] Global test environment tear-down

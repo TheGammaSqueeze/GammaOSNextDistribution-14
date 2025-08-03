@@ -1,0 +1,18 @@
+package {
+    default_applicable_licenses: ["system_memory_libion_original_kernel_headers_linux_license"],
+}
+
+license {
+    name: "system_memory_libion_original_kernel_headers_linux_license",
+    visibility: ["//visibility:private"],
+    license_kinds: [
+        "SPDX-license-identifier-GPL-2.0",
+    ],
+    license_text: ["LICENSE"],
+}
+
+filegroup {
+    name: "system_memory_libion_original_kernel_headers_linux",
+    srcs: ["*"],
+    visibility: ["//visibility:private"],
+}

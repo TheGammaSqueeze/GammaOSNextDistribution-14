@@ -1,0 +1,6 @@
+{
+    "uuid": "784d5d01-4626-40cf-b8e9-4ec148eee212",
+    "app_name": "cast_auth_test",
+    "min_heap": 16384,
+    "min_stack": 8192
+}

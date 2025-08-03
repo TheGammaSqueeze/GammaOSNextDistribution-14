@@ -1,0 +1,22 @@
+{
+  "command": "create_cf",
+  "data": {
+    "devices": [
+      {
+        "adb_port": 58167,
+        "branch": "aosp-master",
+        "build_id": "6561305",
+        "build_target": "aosp_cf_x86_phone-userdebug",
+        "fetch_artifact_time": 56.8,
+        "gce_create_time": 24.11,
+        "instance_name": "ins-1f40f0db-6561305-aosp-cf-x86-phone-userdebug",
+        "ip": "34.72.216.4",
+        "launch_cvd_time": 69.71,
+        "vnc_port": 40707
+      }
+    ]
+  },
+  "errors": [],
+  "status": "FAILURE",
+  "duration": 178.621254
+}

@@ -1,0 +1,41 @@
+/*
+ * Copyright (C) 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto3";
+
+package media.audiotestharness.service;
+
+option java_package = "com.android.media.audiotestharness.proto";
+
+// Models the low-level audio-format of a given raw audio stream.
+message AudioFormat {
+  // The desired sample rate, by default 44,100.
+  float sampleRate = 1;
+
+  // The desired size of each sample, by default 16.
+  int32 sampleSizeBits = 2;
+
+  // The desired number of channels to capture, by default 1.
+  int32 channels = 3;
+
+  // Whether the samples should be recorded signed or unsigned, by default true
+  // meaning that the samples are signed.
+  bool signed = 4;
+
+  // Whether the samples should be big endian or little endian, by default this
+  // is false meaning that the audio is little endian.
+  bool bigEndian = 5;
+}

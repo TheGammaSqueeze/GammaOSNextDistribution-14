@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Gwasanaeth NFC</string>
+    <string name="nfcUserLabel">NFC</string>
+    <string name="accessibility_nfc_enabled">Galluogwyd NFC.</string>
+    <string name="tap_to_beam">Tapia i belydru</string>
+    <string name="beam_progress">Pelydr i mewn...</string>
+    <string name="beam_outgoing">Yn pelydru...</string>
+    <string name="beam_complete">Pelydr yn gyflawn</string>
+    <string name="beam_failed">Pelydr ddim yn gyflawn</string>
+    <string name="beam_canceled">Diddymwyd y pelydru</string>
+    <string name="cancel">Diddymu</string>
+    <string name="beam_tap_to_view">Tapia i weld</string>
+    <string name="beam_handover_not_supported">Dyw dyfais y derbynnydd ddim yn cefnogi trosglwyddo ffeiliau mawr trwy belydru.</string>
+    <string name="beam_try_again">Rho\'r dyfeisiau wrth ei gilydd eto</string>
+    <string name="beam_busy">Mae\'r pelydr yn brysur ar hyn o bryd. Rho gynnig arall arni pan fydd y trosglwyddiad ar waith wedi\'i gwblhau.</string>
+    <string name="device">dyfais</string>
+    <string name="connecting_peripheral">Yn cysylltu <xliff:g id="device_name">%1$s</xliff:g></string>
+    <string name="connected_peripheral">Wedi cysylltu <xliff:g id="device_name">%1$s</xliff:g></string>
+    <string name="connect_peripheral_failed">Methwyd â chysylltu <xliff:g id="device_name">%1$s</xliff:g></string>
+    <string name="disconnecting_peripheral">Yn datgysylltu <xliff:g id="device_name">%1$s</xliff:g></string>
+    <string name="disconnected_peripheral">Datgyslltwyd <xliff:g id="device_name">%1$s</xliff:g></string>
+    <string name="pairing_peripheral">Yn paru â <xliff:g id="device_name">%1$s</xliff:g></string>
+    <string name="pairing_peripheral_failed">Methwyd â pharu <xliff:g id="device_name">%1$s</xliff:g></string>
+    <string name="failed_to_enable_bt">Methwyd â galluogi Bluetooth</string>
+    <string name="confirm_pairing">Wyt ti\'n siŵr dy fod eisiau paru â\'r ddyfais Bluetooth <xliff:g id="device_name">%1$s</xliff:g>?</string>
+    <string name="pair_yes">Iawn</string>
+    <string name="pair_no">Na</string>
+    <string name="tap_again_to_pay">Tapia eto i dalu gyda <xliff:g id="app">%1$s</xliff:g></string>
+    <string name="tap_again_to_complete">Tapia eto i gwblhau gyda <xliff:g id="app">%1$s</xliff:g></string>
+    <string name="tap_again_description">Dalia at y darllenydd</string>
+    <string name="appchooser_description">Dewis ap i sganio</string>
+    <string name="transaction_failure">Methwyd â chwblhau\'r trosglwyddiad hwn gyda <xliff:g id="app">%1$s</xliff:g>.</string>
+    <string name="could_not_use_app">Methwyd â defnyddio <xliff:g id="ssid">%1$s</xliff:g>.</string>
+    <string name="pay_with">Talu gyda</string>
+    <string name="complete_with">Cwblhau gyda</string>
+    <string name="default_pay_app_removed">Tynnwyd dy ddewis gwasanaeth ar gyfer cyffwrdd a thalu. Dewis un arall?\"</string>
+    <string name="ask_nfc_tap">Tapia ddyfais arall i gwblhau</string>
+    <string name="wifi_connect">Cysylltu</string>
+    <string name="status_unable_to_connect">Methu â chysylltu â\'r rhwydwaith</string>
+    <string name="status_wifi_connected">Wedi cysylltu</string>
+    <string name="title_connect_to_network">Cysylltu â\'r rhwydwaith</string>
+    <string name="prompt_connect_to_network">Methu â chysylltu â\'r rhwydwaith <xliff:g id="network_ssid">%1$s</xliff:g>?</string>
+    <string name="beam_requires_nfc_enabled">Mae ar Android Beam angen fod NFC wedi\'i alluogi. Wyt ti am ei alluogi?</string>
+    <string name="android_beam">Android Beam</string>
+    <string name="beam_requires_external_storage_permission">Does gan yr ap ddim caniatâd mynediad at Storfa Allanol. Mae angen y caniatâd er mwyn pelydru\'r ffeil hon.</string>
+    <string name="title_confirm_url_open">Agor y ddolen?</string>
+    <string name="summary_confirm_url_open">Mae dy ffôn wedi derbyn dolen trwy NFC:</string>
+    <string name="summary_confirm_url_open_tablet">Mae dy lechen wedi derbyn dolen trwy NFC:</string>
+    <string name="action_confirm_url_open">Agor y ddolen</string>
+    <string name="tag_read_error">Gwall darllen NFC. Rho gynnig arall arni.</string>
+    <string name="tag_dispatch_failed">Does dim ap yn gydnaws â\u2019r tag NFC hwn</string>
+    <string name="nfc_blocking_alert_title">Gall fod NFC wedi\'i rwystro</string>
+    <string name="nfc_blocking_alert_message">Tapia i ddysgu sut i\'w drwsio.</string>
+    <string name="nfc_logging_alert_title">Mae data NFC yn cael ei recordio</string>
+    <string name="nfc_logging_alert_message">Tapia i stopio recordio</string>
+</resources>

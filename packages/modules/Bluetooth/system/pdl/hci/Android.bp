@@ -1,0 +1,78 @@
+genrule {
+    name: "BluetoothGeneratedPacketsHci_h",
+    defaults: ["BluetoothGeneratedPackets_default"],
+    srcs: ["hci_packets.pdl"],
+    out: ["hci/hci_packets.h"],
+    visibility: ["//visibility:private"],
+}
+
+genrule {
+    name: "BluetoothGeneratedPackets_rust",
+    defaults: ["pdl_rust_generator_defaults"],
+    srcs: ["hci_packets.pdl"],
+    out: ["hci/hci_packets.rs"],
+}
+
+cc_library_headers {
+    name: "libbluetooth_hci_pdl_header",
+    vendor_available: true,
+    export_include_dirs: [
+        "include",
+    ],
+    generated_headers: [
+        "BluetoothGeneratedPacketsHci_h",
+    ],
+    export_generated_headers: [
+        "BluetoothGeneratedPacketsHci_h",
+    ],
+    host_supported: true,
+    apex_available: [
+        "com.android.btservices",
+    ],
+    min_sdk_version: "33",
+}
+
+cc_library_static {
+    name: "libbluetooth_hci_pdl",
+    vendor_available: true,
+    srcs: [
+        "address.cc",
+        "class_of_device.cc",
+    ],
+    header_libs: [
+        "libbluetooth_hci_pdl_header",
+    ],
+    export_header_lib_headers: [
+        "libbluetooth_hci_pdl_header",
+    ],
+    // TODO remove this
+    // Directly add the common library + the os library as a dependency that export their header_libs
+    include_dirs: [
+        "packages/modules/Bluetooth/system/gd",
+    ],
+    host_supported: true,
+    visibility: [
+        "//hardware/interfaces/bluetooth/aidl/vts",
+        "//packages/modules/Bluetooth/system:__subpackages__",
+        "//vendor:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.btservices",
+    ],
+    min_sdk_version: "33",
+}
+
+// Generate the python parser+serializer backend
+genrule {
+    name: "gd_hci_packets_python3_gen",
+    defaults: ["pdl_python_generator_defaults"],
+    cmd: "$(location :pdlc) $(in) |" +
+        " $(location :pdl_python_generator)" +
+        " --output $(out) --custom-type-location blueberry.utils.bluetooth",
+    srcs: [
+        "hci_packets.pdl",
+    ],
+    out: [
+        "hci_packets.py",
+    ],
+}

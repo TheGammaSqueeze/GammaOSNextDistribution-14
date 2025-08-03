@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="cmas_presidential_level_alert" msgid="7877341103742233094">"FR-ALERT : alert od instytucji państwowej"</string>
+    <string name="cmas_extreme_alert" msgid="2584151399464241888">"FR-ALERT : alert o ekstremalnym zagrożeniu"</string>
+    <string name="cmas_severe_alert" msgid="9149520947951402872">"FR-ALERT : alert o poważnym zagrożeniu"</string>
+    <string name="public_safety_message" msgid="5860178069821018697">"FR-ALERT : ostrzeżenie"</string>
+    <string name="cmas_amber_alert" msgid="6428083238223852662">"FR-ALERT : alert o porwaniu"</string>
+    <string name="cmas_required_monthly_test" msgid="3216225136685938963">"FR-ALERT (test)"</string>
+    <string name="cmas_exercise_alert" msgid="6540820517122545556">"Fr-ALERT (alert ćwiczeniowy)"</string>
+    <string name="enable_cmas_extreme_threat_alerts_title" msgid="1268433786689479357">"Alerty o ekstremalnych zagrożeniach (poziom 2)"</string>
+    <string name="enable_cmas_extreme_threat_alerts_summary" msgid="6125474083043183037">"Pokazuj alerty o ekstremalnych zagrożeniach"</string>
+    <string name="enable_cmas_severe_threat_alerts_title" msgid="6185770513604614548">"Alerty o poważnych zagrożeniach (poziom 3)"</string>
+    <string name="enable_cmas_severe_threat_alerts_summary" msgid="3073259381449390054">"Pokazuj alerty o poważnych zagrożeniach"</string>
+    <string name="enable_public_safety_messages_title" msgid="4231398452970069457">"Ostrzeżenie (poziom 4)"</string>
+    <string name="enable_public_safety_messages_summary" msgid="1691623841627340948">"Pokazuj komunikaty ostrzegawcze"</string>
+    <string name="enable_cmas_amber_alerts_title" msgid="4087727029650572978">"Alert o porwaniu"</string>
+    <string name="enable_cmas_amber_alerts_summary" msgid="2375767662238080247">"Pokazuj alerty o uprowadzeniu dziecka"</string>
+    <string name="enable_cmas_test_alerts_title" msgid="730591674839718588">"FR-Alert (test)"</string>
+    <string name="enable_cmas_test_alerts_summary" msgid="6208243265914357932">"Pokazuj komunikaty testowe"</string>
+    <string name="enable_exercise_test_alerts_title" msgid="8961707963450012289">"Fr-Alert (alert ćwiczeniowy)"</string>
+    <string name="enable_exercise_test_alerts_summary" msgid="8611222204116539840">"Pokazuj komunikaty ćwiczeniowe"</string>
+</resources>

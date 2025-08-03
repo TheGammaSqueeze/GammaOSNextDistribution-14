@@ -1,0 +1,54 @@
+{
+  "description": "trigger not attributed to an expired source",
+  "input": {
+    "sources": [
+      {
+        "timestamp": "1643235573000",
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech1.test",
+          "source_type": "navigation",
+          "registrant": "example.1s1.test"
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "response": {
+            "Attribution-Reporting-Register-Source": {
+              "destination": "android-app://example.2d1.test",
+              "source_event_id": "123",
+              "expiry": "172800"
+            },
+            "Location": null,
+            "Attribution-Reporting-Redirect": null
+          }
+        }]
+      }
+    ],
+    "triggers": [
+      {
+        "timestamp": "1643408373000",
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech1.test",
+          "registrant": "example.2d1.test"
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "response": {
+            "Attribution-Reporting-Register-Trigger": {
+              "event_trigger_data": [
+                {
+                  "trigger_data": "7"
+                }
+              ]
+            },
+            "Location": null,
+            "Attribution-Reporting-Redirect": null
+          }
+        }]
+      }
+    ]
+  },
+  "output": {
+    "event_level_results": [],
+    "aggregatable_results": []
+  }
+}

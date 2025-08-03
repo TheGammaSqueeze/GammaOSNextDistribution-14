@@ -1,0 +1,96 @@
+// Copyright (C) 2020 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+apex_key {
+    name: "com.android.apex.test.bar.key",
+    public_key: "com.android.apex.test.bar.avbpubkey",
+    private_key: "com.android.apex.test.bar.pem",
+}
+
+android_app_certificate {
+    name: "com.android.apex.test.bar.certificate",
+    certificate: "com.android.apex.test.bar",
+}
+
+apex {
+    name: "com.android.apex.test.bar",
+    manifest: "manifest.json",
+    file_contexts: ":apex.test-file_contexts",
+    key: "com.android.apex.test.bar.key",
+    installable: false,
+    binaries: [ "bar_test" ],
+    dist: {
+        targets: ["sharedlibs_test"],
+    },
+    updatable: false,
+    compile_multilib: "both",
+    multilib: {
+        both: {
+            binaries: [
+                "bar_test",
+            ],
+        },
+    },
+}
+
+cc_binary {
+    name: "bar_test",
+    srcs: ["bar_test.cc"],
+    shared_libs: [
+      "libsharedlibtest",
+    ],
+    multilib: {
+        lib32: {
+            suffix: "32",
+        },
+        lib64: {
+            suffix: "64",
+        },
+    },
+
+    compile_multilib: "both",
+
+    apex_available: [ "com.android.apex.test.bar" ],
+}
+
+genrule {
+    name: "com.android.apex.test.bar_stripped",
+    out: ["com.android.apex.test.bar_stripped.apex"],
+    defaults: ["apexer_test_host_tools_list"],
+    dist: {
+        targets: ["sharedlibs_test"],
+    },
+    srcs: [
+        ":com.android.apex.test.bar",
+        "com.android.apex.test.bar.avbpubkey",
+        "com.android.apex.test.bar.pem",
+        "com.android.apex.test.bar.pk8",
+        "com.android.apex.test.bar.x509.pem",
+    ],
+    tools: [
+        "shared_libs_repack",
+    ],
+    cmd: "$(location shared_libs_repack) " +
+         " --mode strip" +
+         " --key $(location com.android.apex.test.bar.pem)" +
+         " --input $(location :com.android.apex.test.bar)" +
+         " --output $(genDir)/com.android.apex.test.bar_stripped.apex" +
+         " --pk8key $(location com.android.apex.test.bar.pk8)" +
+         " --pubkey $(location com.android.apex.test.bar.avbpubkey)" +
+         " --x509key $(location com.android.apex.test.bar.x509.pem)" +
+         " --tmpdir $(genDir)",
+}

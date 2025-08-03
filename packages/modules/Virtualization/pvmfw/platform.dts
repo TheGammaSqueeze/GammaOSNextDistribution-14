@@ -1,0 +1,773 @@
+/*
+ * Copyright (C) 2022 Google LLC
+ */
+
+#include <dt-bindings/interrupt-controller/arm-gic.h>
+
+#define PLACEHOLDER	0xffffffff
+#define PLACEHOLDER2	PLACEHOLDER PLACEHOLDER
+#define PLACEHOLDER4	PLACEHOLDER2 PLACEHOLDER2
+
+#define IRQ_BASE 4
+
+/dts-v1/;
+
+/ {
+	interrupt-parent = <&intc>;
+	compatible = "linux,dummy-virt";
+	#address-cells = <2>;
+	#size-cells = <2>;
+
+	chosen {
+		stdout-path = "/uart@3f8";
+		linux,pci-probe-only = <1>;
+		kaslr-seed = <PLACEHOLDER2>;
+		avf,strict-boot;
+		avf,new-instance;
+	};
+
+	memory {
+		device_type = "memory";
+		reg = <0x00 0x80000000 PLACEHOLDER2>;
+	};
+
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+		swiotlb: restricted_dma_reserved {
+			compatible = "restricted-dma-pool";
+			reg = <PLACEHOLDER4>;
+			size = <PLACEHOLDER2>;
+			alignment = <PLACEHOLDER2>;
+		};
+
+		dice {
+			compatible = "google,open-dice";
+			no-map;
+			reg = <PLACEHOLDER4>;
+		};
+	};
+
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		cpu-map {
+			cluster0 {
+				core0 { cpu = <PLACEHOLDER>; };
+				core1 { cpu = <PLACEHOLDER>; };
+				core2 { cpu = <PLACEHOLDER>; };
+				core3 { cpu = <PLACEHOLDER>; };
+				core4 { cpu = <PLACEHOLDER>; };
+				core5 { cpu = <PLACEHOLDER>; };
+			};
+			cluster1 {
+				core0 { cpu = <PLACEHOLDER>; };
+				core1 { cpu = <PLACEHOLDER>; };
+				core2 { cpu = <PLACEHOLDER>; };
+				core3 { cpu = <PLACEHOLDER>; };
+				core4 { cpu = <PLACEHOLDER>; };
+				core5 { cpu = <PLACEHOLDER>; };
+			};
+			cluster2 {
+				core0 { cpu = <PLACEHOLDER>; };
+				core1 { cpu = <PLACEHOLDER>; };
+				core2 { cpu = <PLACEHOLDER>; };
+				core3 { cpu = <PLACEHOLDER>; };
+				core4 { cpu = <PLACEHOLDER>; };
+				core5 { cpu = <PLACEHOLDER>; };
+			};
+		};
+
+		cpu0: cpu@0 {
+			device_type = "cpu";
+			compatible = "arm,arm-v8";
+			enable-method = "psci";
+			reg = <0>;
+			capacity-dmips-mhz = <PLACEHOLDER>;
+			operating-points-v2 = <&opp_table0>;
+			opp_table0: opp-table-0 {
+				compatible = "operating-points-v2";
+
+				opp1 { opp-hz = <PLACEHOLDER2>; };
+				opp2 { opp-hz = <PLACEHOLDER2>; };
+				opp3 { opp-hz = <PLACEHOLDER2>; };
+				opp4 { opp-hz = <PLACEHOLDER2>; };
+				opp5 { opp-hz = <PLACEHOLDER2>; };
+				opp6 { opp-hz = <PLACEHOLDER2>; };
+				opp7 { opp-hz = <PLACEHOLDER2>; };
+				opp8 { opp-hz = <PLACEHOLDER2>; };
+				opp9 { opp-hz = <PLACEHOLDER2>; };
+				opp10 { opp-hz = <PLACEHOLDER2>; };
+				opp11 { opp-hz = <PLACEHOLDER2>; };
+				opp12 { opp-hz = <PLACEHOLDER2>; };
+				opp13 { opp-hz = <PLACEHOLDER2>; };
+				opp14 { opp-hz = <PLACEHOLDER2>; };
+				opp15 { opp-hz = <PLACEHOLDER2>; };
+				opp16 { opp-hz = <PLACEHOLDER2>; };
+				opp17 { opp-hz = <PLACEHOLDER2>; };
+				opp18 { opp-hz = <PLACEHOLDER2>; };
+				opp19 { opp-hz = <PLACEHOLDER2>; };
+				opp20 { opp-hz = <PLACEHOLDER2>; };
+			};
+		};
+		cpu1: cpu@1 {
+			device_type = "cpu";
+			compatible = "arm,arm-v8";
+			enable-method = "psci";
+			reg = <1>;
+			capacity-dmips-mhz = <PLACEHOLDER>;
+			operating-points-v2 = <&opp_table1>;
+			opp_table1: opp-table-1 {
+				compatible = "operating-points-v2";
+
+				opp1 { opp-hz = <PLACEHOLDER2>; };
+				opp2 { opp-hz = <PLACEHOLDER2>; };
+				opp3 { opp-hz = <PLACEHOLDER2>; };
+				opp4 { opp-hz = <PLACEHOLDER2>; };
+				opp5 { opp-hz = <PLACEHOLDER2>; };
+				opp6 { opp-hz = <PLACEHOLDER2>; };
+				opp7 { opp-hz = <PLACEHOLDER2>; };
+				opp8 { opp-hz = <PLACEHOLDER2>; };
+				opp9 { opp-hz = <PLACEHOLDER2>; };
+				opp10 { opp-hz = <PLACEHOLDER2>; };
+				opp11 { opp-hz = <PLACEHOLDER2>; };
+				opp12 { opp-hz = <PLACEHOLDER2>; };
+				opp13 { opp-hz = <PLACEHOLDER2>; };
+				opp14 { opp-hz = <PLACEHOLDER2>; };
+				opp15 { opp-hz = <PLACEHOLDER2>; };
+				opp16 { opp-hz = <PLACEHOLDER2>; };
+				opp17 { opp-hz = <PLACEHOLDER2>; };
+				opp18 { opp-hz = <PLACEHOLDER2>; };
+				opp19 { opp-hz = <PLACEHOLDER2>; };
+				opp20 { opp-hz = <PLACEHOLDER2>; };
+			};
+		};
+		cpu2: cpu@2 {
+			device_type = "cpu";
+			compatible = "arm,arm-v8";
+			enable-method = "psci";
+			reg = <2>;
+			capacity-dmips-mhz = <PLACEHOLDER>;
+			operating-points-v2 = <&opp_table2>;
+			opp_table2: opp-table-2 {
+				compatible = "operating-points-v2";
+
+				opp1 { opp-hz = <PLACEHOLDER2>; };
+				opp2 { opp-hz = <PLACEHOLDER2>; };
+				opp3 { opp-hz = <PLACEHOLDER2>; };
+				opp4 { opp-hz = <PLACEHOLDER2>; };
+				opp5 { opp-hz = <PLACEHOLDER2>; };
+				opp6 { opp-hz = <PLACEHOLDER2>; };
+				opp7 { opp-hz = <PLACEHOLDER2>; };
+				opp8 { opp-hz = <PLACEHOLDER2>; };
+				opp9 { opp-hz = <PLACEHOLDER2>; };
+				opp10 { opp-hz = <PLACEHOLDER2>; };
+				opp11 { opp-hz = <PLACEHOLDER2>; };
+				opp12 { opp-hz = <PLACEHOLDER2>; };
+				opp13 { opp-hz = <PLACEHOLDER2>; };
+				opp14 { opp-hz = <PLACEHOLDER2>; };
+				opp15 { opp-hz = <PLACEHOLDER2>; };
+				opp16 { opp-hz = <PLACEHOLDER2>; };
+				opp17 { opp-hz = <PLACEHOLDER2>; };
+				opp18 { opp-hz = <PLACEHOLDER2>; };
+				opp19 { opp-hz = <PLACEHOLDER2>; };
+				opp20 { opp-hz = <PLACEHOLDER2>; };
+			};
+		};
+		cpu3: cpu@3 {
+			device_type = "cpu";
+			compatible = "arm,arm-v8";
+			enable-method = "psci";
+			reg = <3>;
+			capacity-dmips-mhz = <PLACEHOLDER>;
+			operating-points-v2 = <&opp_table3>;
+			opp_table3: opp-table-3 {
+				compatible = "operating-points-v2";
+
+				opp1 { opp-hz = <PLACEHOLDER2>; };
+				opp2 { opp-hz = <PLACEHOLDER2>; };
+				opp3 { opp-hz = <PLACEHOLDER2>; };
+				opp4 { opp-hz = <PLACEHOLDER2>; };
+				opp5 { opp-hz = <PLACEHOLDER2>; };
+				opp6 { opp-hz = <PLACEHOLDER2>; };
+				opp7 { opp-hz = <PLACEHOLDER2>; };
+				opp8 { opp-hz = <PLACEHOLDER2>; };
+				opp9 { opp-hz = <PLACEHOLDER2>; };
+				opp10 { opp-hz = <PLACEHOLDER2>; };
+				opp11 { opp-hz = <PLACEHOLDER2>; };
+				opp12 { opp-hz = <PLACEHOLDER2>; };
+				opp13 { opp-hz = <PLACEHOLDER2>; };
+				opp14 { opp-hz = <PLACEHOLDER2>; };
+				opp15 { opp-hz = <PLACEHOLDER2>; };
+				opp16 { opp-hz = <PLACEHOLDER2>; };
+				opp17 { opp-hz = <PLACEHOLDER2>; };
+				opp18 { opp-hz = <PLACEHOLDER2>; };
+				opp19 { opp-hz = <PLACEHOLDER2>; };
+				opp20 { opp-hz = <PLACEHOLDER2>; };
+			};
+		};
+		cpu4: cpu@4 {
+			device_type = "cpu";
+			compatible = "arm,arm-v8";
+			enable-method = "psci";
+			reg = <4>;
+			capacity-dmips-mhz = <PLACEHOLDER>;
+			operating-points-v2 = <&opp_table4>;
+			opp_table4: opp-table-4 {
+				compatible = "operating-points-v2";
+
+				opp1 { opp-hz = <PLACEHOLDER2>; };
+				opp2 { opp-hz = <PLACEHOLDER2>; };
+				opp3 { opp-hz = <PLACEHOLDER2>; };
+				opp4 { opp-hz = <PLACEHOLDER2>; };
+				opp5 { opp-hz = <PLACEHOLDER2>; };
+				opp6 { opp-hz = <PLACEHOLDER2>; };
+				opp7 { opp-hz = <PLACEHOLDER2>; };
+				opp8 { opp-hz = <PLACEHOLDER2>; };
+				opp9 { opp-hz = <PLACEHOLDER2>; };
+				opp10 { opp-hz = <PLACEHOLDER2>; };
+				opp11 { opp-hz = <PLACEHOLDER2>; };
+				opp12 { opp-hz = <PLACEHOLDER2>; };
+				opp13 { opp-hz = <PLACEHOLDER2>; };
+				opp14 { opp-hz = <PLACEHOLDER2>; };
+				opp15 { opp-hz = <PLACEHOLDER2>; };
+				opp16 { opp-hz = <PLACEHOLDER2>; };
+				opp17 { opp-hz = <PLACEHOLDER2>; };
+				opp18 { opp-hz = <PLACEHOLDER2>; };
+				opp19 { opp-hz = <PLACEHOLDER2>; };
+				opp20 { opp-hz = <PLACEHOLDER2>; };
+			};
+		};
+		cpu5: cpu@5 {
+			device_type = "cpu";
+			compatible = "arm,arm-v8";
+			enable-method = "psci";
+			reg = <5>;
+			capacity-dmips-mhz = <PLACEHOLDER>;
+			operating-points-v2 = <&opp_table5>;
+			opp_table5: opp-table-5 {
+				compatible = "operating-points-v2";
+
+				opp1 { opp-hz = <PLACEHOLDER2>; };
+				opp2 { opp-hz = <PLACEHOLDER2>; };
+				opp3 { opp-hz = <PLACEHOLDER2>; };
+				opp4 { opp-hz = <PLACEHOLDER2>; };
+				opp5 { opp-hz = <PLACEHOLDER2>; };
+				opp6 { opp-hz = <PLACEHOLDER2>; };
+				opp7 { opp-hz = <PLACEHOLDER2>; };
+				opp8 { opp-hz = <PLACEHOLDER2>; };
+				opp9 { opp-hz = <PLACEHOLDER2>; };
+				opp10 { opp-hz = <PLACEHOLDER2>; };
+				opp11 { opp-hz = <PLACEHOLDER2>; };
+				opp12 { opp-hz = <PLACEHOLDER2>; };
+				opp13 { opp-hz = <PLACEHOLDER2>; };
+				opp14 { opp-hz = <PLACEHOLDER2>; };
+				opp15 { opp-hz = <PLACEHOLDER2>; };
+				opp16 { opp-hz = <PLACEHOLDER2>; };
+				opp17 { opp-hz = <PLACEHOLDER2>; };
+				opp18 { opp-hz = <PLACEHOLDER2>; };
+				opp19 { opp-hz = <PLACEHOLDER2>; };
+				opp20 { opp-hz = <PLACEHOLDER2>; };
+			};
+		};
+		cpu6: cpu@6 {
+			device_type = "cpu";
+			compatible = "arm,arm-v8";
+			enable-method = "psci";
+			reg = <6>;
+			capacity-dmips-mhz = <PLACEHOLDER>;
+			operating-points-v2 = <&opp_table6>;
+			opp_table6: opp-table-6 {
+				compatible = "operating-points-v2";
+
+				opp1 { opp-hz = <PLACEHOLDER2>; };
+				opp2 { opp-hz = <PLACEHOLDER2>; };
+				opp3 { opp-hz = <PLACEHOLDER2>; };
+				opp4 { opp-hz = <PLACEHOLDER2>; };
+				opp5 { opp-hz = <PLACEHOLDER2>; };
+				opp6 { opp-hz = <PLACEHOLDER2>; };
+				opp7 { opp-hz = <PLACEHOLDER2>; };
+				opp8 { opp-hz = <PLACEHOLDER2>; };
+				opp9 { opp-hz = <PLACEHOLDER2>; };
+				opp10 { opp-hz = <PLACEHOLDER2>; };
+				opp11 { opp-hz = <PLACEHOLDER2>; };
+				opp12 { opp-hz = <PLACEHOLDER2>; };
+				opp13 { opp-hz = <PLACEHOLDER2>; };
+				opp14 { opp-hz = <PLACEHOLDER2>; };
+				opp15 { opp-hz = <PLACEHOLDER2>; };
+				opp16 { opp-hz = <PLACEHOLDER2>; };
+				opp17 { opp-hz = <PLACEHOLDER2>; };
+				opp18 { opp-hz = <PLACEHOLDER2>; };
+				opp19 { opp-hz = <PLACEHOLDER2>; };
+				opp20 { opp-hz = <PLACEHOLDER2>; };
+			};
+		};
+		cpu7: cpu@7 {
+			device_type = "cpu";
+			compatible = "arm,arm-v8";
+			enable-method = "psci";
+			reg = <7>;
+			capacity-dmips-mhz = <PLACEHOLDER>;
+			operating-points-v2 = <&opp_table7>;
+			opp_table7: opp-table-7 {
+				compatible = "operating-points-v2";
+
+				opp1 { opp-hz = <PLACEHOLDER2>; };
+				opp2 { opp-hz = <PLACEHOLDER2>; };
+				opp3 { opp-hz = <PLACEHOLDER2>; };
+				opp4 { opp-hz = <PLACEHOLDER2>; };
+				opp5 { opp-hz = <PLACEHOLDER2>; };
+				opp6 { opp-hz = <PLACEHOLDER2>; };
+				opp7 { opp-hz = <PLACEHOLDER2>; };
+				opp8 { opp-hz = <PLACEHOLDER2>; };
+				opp9 { opp-hz = <PLACEHOLDER2>; };
+				opp10 { opp-hz = <PLACEHOLDER2>; };
+				opp11 { opp-hz = <PLACEHOLDER2>; };
+				opp12 { opp-hz = <PLACEHOLDER2>; };
+				opp13 { opp-hz = <PLACEHOLDER2>; };
+				opp14 { opp-hz = <PLACEHOLDER2>; };
+				opp15 { opp-hz = <PLACEHOLDER2>; };
+				opp16 { opp-hz = <PLACEHOLDER2>; };
+				opp17 { opp-hz = <PLACEHOLDER2>; };
+				opp18 { opp-hz = <PLACEHOLDER2>; };
+				opp19 { opp-hz = <PLACEHOLDER2>; };
+				opp20 { opp-hz = <PLACEHOLDER2>; };
+			};
+		};
+		cpu8: cpu@8 {
+			device_type = "cpu";
+			compatible = "arm,arm-v8";
+			enable-method = "psci";
+			reg = <8>;
+			capacity-dmips-mhz = <PLACEHOLDER>;
+			operating-points-v2 = <&opp_table8>;
+			opp_table8: opp-table-8 {
+				compatible = "operating-points-v2";
+
+				opp1 { opp-hz = <PLACEHOLDER2>; };
+				opp2 { opp-hz = <PLACEHOLDER2>; };
+				opp3 { opp-hz = <PLACEHOLDER2>; };
+				opp4 { opp-hz = <PLACEHOLDER2>; };
+				opp5 { opp-hz = <PLACEHOLDER2>; };
+				opp6 { opp-hz = <PLACEHOLDER2>; };
+				opp7 { opp-hz = <PLACEHOLDER2>; };
+				opp8 { opp-hz = <PLACEHOLDER2>; };
+				opp9 { opp-hz = <PLACEHOLDER2>; };
+				opp10 { opp-hz = <PLACEHOLDER2>; };
+				opp11 { opp-hz = <PLACEHOLDER2>; };
+				opp12 { opp-hz = <PLACEHOLDER2>; };
+				opp13 { opp-hz = <PLACEHOLDER2>; };
+				opp14 { opp-hz = <PLACEHOLDER2>; };
+				opp15 { opp-hz = <PLACEHOLDER2>; };
+				opp16 { opp-hz = <PLACEHOLDER2>; };
+				opp17 { opp-hz = <PLACEHOLDER2>; };
+				opp18 { opp-hz = <PLACEHOLDER2>; };
+				opp19 { opp-hz = <PLACEHOLDER2>; };
+				opp20 { opp-hz = <PLACEHOLDER2>; };
+			};
+		};
+		cpu9: cpu@9 {
+			device_type = "cpu";
+			compatible = "arm,arm-v8";
+			enable-method = "psci";
+			reg = <9>;
+			capacity-dmips-mhz = <PLACEHOLDER>;
+			operating-points-v2 = <&opp_table9>;
+			opp_table9: opp-table-9 {
+				compatible = "operating-points-v2";
+
+				opp1 { opp-hz = <PLACEHOLDER2>; };
+				opp2 { opp-hz = <PLACEHOLDER2>; };
+				opp3 { opp-hz = <PLACEHOLDER2>; };
+				opp4 { opp-hz = <PLACEHOLDER2>; };
+				opp5 { opp-hz = <PLACEHOLDER2>; };
+				opp6 { opp-hz = <PLACEHOLDER2>; };
+				opp7 { opp-hz = <PLACEHOLDER2>; };
+				opp8 { opp-hz = <PLACEHOLDER2>; };
+				opp9 { opp-hz = <PLACEHOLDER2>; };
+				opp10 { opp-hz = <PLACEHOLDER2>; };
+				opp11 { opp-hz = <PLACEHOLDER2>; };
+				opp12 { opp-hz = <PLACEHOLDER2>; };
+				opp13 { opp-hz = <PLACEHOLDER2>; };
+				opp14 { opp-hz = <PLACEHOLDER2>; };
+				opp15 { opp-hz = <PLACEHOLDER2>; };
+				opp16 { opp-hz = <PLACEHOLDER2>; };
+				opp17 { opp-hz = <PLACEHOLDER2>; };
+				opp18 { opp-hz = <PLACEHOLDER2>; };
+				opp19 { opp-hz = <PLACEHOLDER2>; };
+				opp20 { opp-hz = <PLACEHOLDER2>; };
+			};
+		};
+		cpu10: cpu@10 {
+			device_type = "cpu";
+			compatible = "arm,arm-v8";
+			enable-method = "psci";
+			reg = <10>;
+			capacity-dmips-mhz = <PLACEHOLDER>;
+			operating-points-v2 = <&opp_table10>;
+			opp_table10: opp-table-10 {
+				compatible = "operating-points-v2";
+
+				opp1 { opp-hz = <PLACEHOLDER2>; };
+				opp2 { opp-hz = <PLACEHOLDER2>; };
+				opp3 { opp-hz = <PLACEHOLDER2>; };
+				opp4 { opp-hz = <PLACEHOLDER2>; };
+				opp5 { opp-hz = <PLACEHOLDER2>; };
+				opp6 { opp-hz = <PLACEHOLDER2>; };
+				opp7 { opp-hz = <PLACEHOLDER2>; };
+				opp8 { opp-hz = <PLACEHOLDER2>; };
+				opp9 { opp-hz = <PLACEHOLDER2>; };
+				opp10 { opp-hz = <PLACEHOLDER2>; };
+				opp11 { opp-hz = <PLACEHOLDER2>; };
+				opp12 { opp-hz = <PLACEHOLDER2>; };
+				opp13 { opp-hz = <PLACEHOLDER2>; };
+				opp14 { opp-hz = <PLACEHOLDER2>; };
+				opp15 { opp-hz = <PLACEHOLDER2>; };
+				opp16 { opp-hz = <PLACEHOLDER2>; };
+				opp17 { opp-hz = <PLACEHOLDER2>; };
+				opp18 { opp-hz = <PLACEHOLDER2>; };
+				opp19 { opp-hz = <PLACEHOLDER2>; };
+				opp20 { opp-hz = <PLACEHOLDER2>; };
+			};
+		};
+		cpu11: cpu@11 {
+			device_type = "cpu";
+			compatible = "arm,arm-v8";
+			enable-method = "psci";
+			reg = <11>;
+			capacity-dmips-mhz = <PLACEHOLDER>;
+			operating-points-v2 = <&opp_table11>;
+			opp_table11: opp-table-11 {
+				compatible = "operating-points-v2";
+
+				opp1 { opp-hz = <PLACEHOLDER2>; };
+				opp2 { opp-hz = <PLACEHOLDER2>; };
+				opp3 { opp-hz = <PLACEHOLDER2>; };
+				opp4 { opp-hz = <PLACEHOLDER2>; };
+				opp5 { opp-hz = <PLACEHOLDER2>; };
+				opp6 { opp-hz = <PLACEHOLDER2>; };
+				opp7 { opp-hz = <PLACEHOLDER2>; };
+				opp8 { opp-hz = <PLACEHOLDER2>; };
+				opp9 { opp-hz = <PLACEHOLDER2>; };
+				opp10 { opp-hz = <PLACEHOLDER2>; };
+				opp11 { opp-hz = <PLACEHOLDER2>; };
+				opp12 { opp-hz = <PLACEHOLDER2>; };
+				opp13 { opp-hz = <PLACEHOLDER2>; };
+				opp14 { opp-hz = <PLACEHOLDER2>; };
+				opp15 { opp-hz = <PLACEHOLDER2>; };
+				opp16 { opp-hz = <PLACEHOLDER2>; };
+				opp17 { opp-hz = <PLACEHOLDER2>; };
+				opp18 { opp-hz = <PLACEHOLDER2>; };
+				opp19 { opp-hz = <PLACEHOLDER2>; };
+				opp20 { opp-hz = <PLACEHOLDER2>; };
+			};
+		};
+		cpu12: cpu@12 {
+			device_type = "cpu";
+			compatible = "arm,arm-v8";
+			enable-method = "psci";
+			reg = <12>;
+			capacity-dmips-mhz = <PLACEHOLDER>;
+			operating-points-v2 = <&opp_table12>;
+			opp_table12: opp-table-12 {
+				compatible = "operating-points-v2";
+
+				opp1 { opp-hz = <PLACEHOLDER2>; };
+				opp2 { opp-hz = <PLACEHOLDER2>; };
+				opp3 { opp-hz = <PLACEHOLDER2>; };
+				opp4 { opp-hz = <PLACEHOLDER2>; };
+				opp5 { opp-hz = <PLACEHOLDER2>; };
+				opp6 { opp-hz = <PLACEHOLDER2>; };
+				opp7 { opp-hz = <PLACEHOLDER2>; };
+				opp8 { opp-hz = <PLACEHOLDER2>; };
+				opp9 { opp-hz = <PLACEHOLDER2>; };
+				opp10 { opp-hz = <PLACEHOLDER2>; };
+				opp11 { opp-hz = <PLACEHOLDER2>; };
+				opp12 { opp-hz = <PLACEHOLDER2>; };
+				opp13 { opp-hz = <PLACEHOLDER2>; };
+				opp14 { opp-hz = <PLACEHOLDER2>; };
+				opp15 { opp-hz = <PLACEHOLDER2>; };
+				opp16 { opp-hz = <PLACEHOLDER2>; };
+				opp17 { opp-hz = <PLACEHOLDER2>; };
+				opp18 { opp-hz = <PLACEHOLDER2>; };
+				opp19 { opp-hz = <PLACEHOLDER2>; };
+				opp20 { opp-hz = <PLACEHOLDER2>; };
+			};
+		};
+		cpu13: cpu@13 {
+			device_type = "cpu";
+			compatible = "arm,arm-v8";
+			enable-method = "psci";
+			reg = <13>;
+			capacity-dmips-mhz = <PLACEHOLDER>;
+			operating-points-v2 = <&opp_table13>;
+			opp_table13: opp-table-13 {
+				compatible = "operating-points-v2";
+
+				opp1 { opp-hz = <PLACEHOLDER2>; };
+				opp2 { opp-hz = <PLACEHOLDER2>; };
+				opp3 { opp-hz = <PLACEHOLDER2>; };
+				opp4 { opp-hz = <PLACEHOLDER2>; };
+				opp5 { opp-hz = <PLACEHOLDER2>; };
+				opp6 { opp-hz = <PLACEHOLDER2>; };
+				opp7 { opp-hz = <PLACEHOLDER2>; };
+				opp8 { opp-hz = <PLACEHOLDER2>; };
+				opp9 { opp-hz = <PLACEHOLDER2>; };
+				opp10 { opp-hz = <PLACEHOLDER2>; };
+				opp11 { opp-hz = <PLACEHOLDER2>; };
+				opp12 { opp-hz = <PLACEHOLDER2>; };
+				opp13 { opp-hz = <PLACEHOLDER2>; };
+				opp14 { opp-hz = <PLACEHOLDER2>; };
+				opp15 { opp-hz = <PLACEHOLDER2>; };
+				opp16 { opp-hz = <PLACEHOLDER2>; };
+				opp17 { opp-hz = <PLACEHOLDER2>; };
+				opp18 { opp-hz = <PLACEHOLDER2>; };
+				opp19 { opp-hz = <PLACEHOLDER2>; };
+				opp20 { opp-hz = <PLACEHOLDER2>; };
+			};
+		};
+		cpu14: cpu@14 {
+			device_type = "cpu";
+			compatible = "arm,arm-v8";
+			enable-method = "psci";
+			reg = <14>;
+			capacity-dmips-mhz = <PLACEHOLDER>;
+			operating-points-v2 = <&opp_table14>;
+			opp_table14: opp-table-14 {
+				compatible = "operating-points-v2";
+
+				opp1 { opp-hz = <PLACEHOLDER2>; };
+				opp2 { opp-hz = <PLACEHOLDER2>; };
+				opp3 { opp-hz = <PLACEHOLDER2>; };
+				opp4 { opp-hz = <PLACEHOLDER2>; };
+				opp5 { opp-hz = <PLACEHOLDER2>; };
+				opp6 { opp-hz = <PLACEHOLDER2>; };
+				opp7 { opp-hz = <PLACEHOLDER2>; };
+				opp8 { opp-hz = <PLACEHOLDER2>; };
+				opp9 { opp-hz = <PLACEHOLDER2>; };
+				opp10 { opp-hz = <PLACEHOLDER2>; };
+				opp11 { opp-hz = <PLACEHOLDER2>; };
+				opp12 { opp-hz = <PLACEHOLDER2>; };
+				opp13 { opp-hz = <PLACEHOLDER2>; };
+				opp14 { opp-hz = <PLACEHOLDER2>; };
+				opp15 { opp-hz = <PLACEHOLDER2>; };
+				opp16 { opp-hz = <PLACEHOLDER2>; };
+				opp17 { opp-hz = <PLACEHOLDER2>; };
+				opp18 { opp-hz = <PLACEHOLDER2>; };
+				opp19 { opp-hz = <PLACEHOLDER2>; };
+				opp20 { opp-hz = <PLACEHOLDER2>; };
+			};
+		};
+		cpu15: cpu@15 {
+			device_type = "cpu";
+			compatible = "arm,arm-v8";
+			enable-method = "psci";
+			reg = <15>;
+			capacity-dmips-mhz = <PLACEHOLDER>;
+			operating-points-v2 = <&opp_table15>;
+			opp_table15: opp-table-15 {
+				compatible = "operating-points-v2";
+
+				opp1 { opp-hz = <PLACEHOLDER2>; };
+				opp2 { opp-hz = <PLACEHOLDER2>; };
+				opp3 { opp-hz = <PLACEHOLDER2>; };
+				opp4 { opp-hz = <PLACEHOLDER2>; };
+				opp5 { opp-hz = <PLACEHOLDER2>; };
+				opp6 { opp-hz = <PLACEHOLDER2>; };
+				opp7 { opp-hz = <PLACEHOLDER2>; };
+				opp8 { opp-hz = <PLACEHOLDER2>; };
+				opp9 { opp-hz = <PLACEHOLDER2>; };
+				opp10 { opp-hz = <PLACEHOLDER2>; };
+				opp11 { opp-hz = <PLACEHOLDER2>; };
+				opp12 { opp-hz = <PLACEHOLDER2>; };
+				opp13 { opp-hz = <PLACEHOLDER2>; };
+				opp14 { opp-hz = <PLACEHOLDER2>; };
+				opp15 { opp-hz = <PLACEHOLDER2>; };
+				opp16 { opp-hz = <PLACEHOLDER2>; };
+				opp17 { opp-hz = <PLACEHOLDER2>; };
+				opp18 { opp-hz = <PLACEHOLDER2>; };
+				opp19 { opp-hz = <PLACEHOLDER2>; };
+				opp20 { opp-hz = <PLACEHOLDER2>; };
+			};
+		};
+	};
+
+	intc: intc {
+		compatible = "arm,gic-v3";
+		#address-cells = <2>;
+		#size-cells = <2>;
+		#interrupt-cells = <3>;
+		interrupt-controller;
+		reg = <0x00 0x3fff0000 0x00 0x10000>, <PLACEHOLDER4>;
+	};
+
+	timer {
+		compatible = "arm,armv8-timer";
+		always-on;
+		/* The IRQ type needs to be OR-ed with the CPU mask */
+		interrupts = <GIC_PPI 0xd IRQ_TYPE_LEVEL_LOW
+		              GIC_PPI 0xe IRQ_TYPE_LEVEL_LOW
+			      GIC_PPI 0xb IRQ_TYPE_LEVEL_LOW
+			      GIC_PPI 0xa IRQ_TYPE_LEVEL_LOW>;
+	};
+
+	uart@2e8 {
+		compatible = "ns16550a";
+		reg = <0x00 0x2e8 0x00 0x8>;
+		clock-frequency = <0x1c2000>;
+		interrupts = <GIC_SPI 2 IRQ_TYPE_EDGE_RISING>;
+	};
+
+	uart@2f8 {
+		compatible = "ns16550a";
+		reg = <0x00 0x2f8 0x00 0x8>;
+		clock-frequency = <0x1c2000>;
+		interrupts = <GIC_SPI 2 IRQ_TYPE_EDGE_RISING>;
+	};
+
+	uart@3e8 {
+		compatible = "ns16550a";
+		reg = <0x00 0x3e8 0x00 0x8>;
+		clock-frequency = <0x1c2000>;
+		interrupts = <GIC_SPI 0 IRQ_TYPE_EDGE_RISING>;
+	};
+
+	uart@3f8 {
+		compatible = "ns16550a";
+		reg = <0x00 0x3f8 0x00 0x8>;
+		clock-frequency = <0x1c2000>;
+		interrupts = <GIC_SPI 0 IRQ_TYPE_EDGE_RISING>;
+	};
+
+	psci {
+		compatible = "arm,psci-1.0";
+		method = "hvc";
+	};
+
+	pci {
+		compatible = "pci-host-cam-generic";
+		device_type = "pci";
+		#address-cells = <3>;
+		#size-cells = <2>;
+		#interrupt-cells = <1>;
+		dma-coherent;
+		memory-region = <&swiotlb>;
+		ranges = <
+			0x3000000 0x0 0x02000000 0x0 0x02000000 0x00 0x02000000
+			0x3000000 PLACEHOLDER2   PLACEHOLDER2   PLACEHOLDER2
+		>;
+		bus-range = <0x00 0x00>;
+		reg = <0x00 0x10000 0x00 0x1000000>;
+		interrupt-map = <
+			0x0800 0x0 0x0 1 &intc 0 0 GIC_SPI (IRQ_BASE + 0) IRQ_TYPE_LEVEL_HIGH
+			0x1000 0x0 0x0 1 &intc 0 0 GIC_SPI (IRQ_BASE + 1) IRQ_TYPE_LEVEL_HIGH
+			0x1800 0x0 0x0 1 &intc 0 0 GIC_SPI (IRQ_BASE + 2) IRQ_TYPE_LEVEL_HIGH
+			0x2000 0x0 0x0 1 &intc 0 0 GIC_SPI (IRQ_BASE + 3) IRQ_TYPE_LEVEL_HIGH
+			0x2800 0x0 0x0 1 &intc 0 0 GIC_SPI (IRQ_BASE + 4) IRQ_TYPE_LEVEL_HIGH
+			0x3000 0x0 0x0 1 &intc 0 0 GIC_SPI (IRQ_BASE + 5) IRQ_TYPE_LEVEL_HIGH
+			0x3800 0x0 0x0 1 &intc 0 0 GIC_SPI (IRQ_BASE + 6) IRQ_TYPE_LEVEL_HIGH
+			0x4000 0x0 0x0 1 &intc 0 0 GIC_SPI (IRQ_BASE + 7) IRQ_TYPE_LEVEL_HIGH
+			0x4800 0x0 0x0 1 &intc 0 0 GIC_SPI (IRQ_BASE + 8) IRQ_TYPE_LEVEL_HIGH
+			0x5000 0x0 0x0 1 &intc 0 0 GIC_SPI (IRQ_BASE + 9) IRQ_TYPE_LEVEL_HIGH
+		>;
+		interrupt-map-mask = <0xf800 0x0 0x0 0x7
+				      0xf800 0x0 0x0 0x7
+				      0xf800 0x0 0x0 0x7
+				      0xf800 0x0 0x0 0x7
+				      0xf800 0x0 0x0 0x7
+				      0xf800 0x0 0x0 0x7
+				      0xf800 0x0 0x0 0x7
+				      0xf800 0x0 0x0 0x7
+				      0xf800 0x0 0x0 0x7
+				      0xf800 0x0 0x0 0x7>;
+	};
+
+	clk: pclk@3M {
+		compatible = "fixed-clock";
+		clock-frequency = <0x2fefd8>;
+		#clock-cells = <0>;
+	};
+
+	rtc@2000 {
+		compatible = "arm,primecell";
+		arm,primecell-periphid = <0x41030>;
+		reg = <0x00 0x2000 0x00 0x1000>;
+		interrupts = <GIC_SPI 1 IRQ_TYPE_LEVEL_HIGH>;
+		clock-names = "apb_pclk";
+		clocks = <&clk>;
+	};
+
+	vmwdt@3000 {
+		compatible = "qemu,vcpu-stall-detector";
+		reg = <0x00 0x3000 0x00 0x1000>;
+		clock-frequency = <10>;
+		timeout-sec = <8>;
+	};
+
+	pviommu_0: pviommu0 {
+		compatible = "pkvm,pviommu";
+		id = <PLACEHOLDER>;
+		#iommu-cells = <1>;
+	};
+
+	pviommu_1: pviommu1 {
+		compatible = "pkvm,pviommu";
+		id = <PLACEHOLDER>;
+		#iommu-cells = <1>;
+	};
+
+	pviommu_2: pviommu2 {
+		compatible = "pkvm,pviommu";
+		id = <PLACEHOLDER>;
+		#iommu-cells = <1>;
+	};
+
+	pviommu_3: pviommu3 {
+		compatible = "pkvm,pviommu";
+		id = <PLACEHOLDER>;
+		#iommu-cells = <1>;
+	};
+
+	pviommu_4: pviommu4 {
+		compatible = "pkvm,pviommu";
+		id = <PLACEHOLDER>;
+		#iommu-cells = <1>;
+	};
+
+	pviommu_5: pviommu5 {
+		compatible = "pkvm,pviommu";
+		id = <PLACEHOLDER>;
+		#iommu-cells = <1>;
+	};
+
+	pviommu_6: pviommu6 {
+		compatible = "pkvm,pviommu";
+		id = <PLACEHOLDER>;
+		#iommu-cells = <1>;
+	};
+
+	pviommu_7: pviommu7 {
+		compatible = "pkvm,pviommu";
+		id = <PLACEHOLDER>;
+		#iommu-cells = <1>;
+	};
+
+	pviommu_8: pviommu8 {
+		compatible = "pkvm,pviommu";
+		id = <PLACEHOLDER>;
+		#iommu-cells = <1>;
+	};
+
+	pviommu_9: pviommu9 {
+		compatible = "pkvm,pviommu";
+		id = <PLACEHOLDER>;
+		#iommu-cells = <1>;
+	};
+
+	cpufreq {
+		compatible = "virtual,android-v-only-cpufreq";
+		reg = <0x0 0x1040000 PLACEHOLDER2>;
+	};
+};

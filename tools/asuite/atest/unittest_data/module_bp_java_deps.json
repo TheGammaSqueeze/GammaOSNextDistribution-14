@@ -1,0 +1,34 @@
+{
+        "module_1": {
+                "dependencies": [
+                        "test_dep_level_1_1",
+                        "test_dep_level_1_2"
+                ]
+        },
+        "module_2": {
+                "dependencies": [
+                        "test_dep_level_1_2"
+                ]
+        },
+        "module_3": {
+        },
+        "test_dep_level_1_1": {
+                "dependencies": [
+                        "test_dep_level_2_1"
+                ]
+        },
+        "test_dep_level_1_2": {
+                "dependencies": [
+                        "test_dep_level_2_2"
+                ]
+        },
+        "test_dep_level_2_1": {
+        },
+        "test_dep_level_2_2": {
+        },
+        "not_in_module_info": {
+                "dependencies": [
+                       "test_dep_level_1_1"
+                ]
+        }
+}

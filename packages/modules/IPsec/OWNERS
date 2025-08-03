@@ -1,0 +1,13 @@
+# Bug component: 1364804
+
+amruthr@google.com #{LAST_RESORT_SUGGESTION}
+jackyu@google.com
+nagendranb@google.com
+rgreenwalt@google.com #{LAST_RESORT_SUGGESTION}
+sangyun@google.com
+
+benedictwong@google.com #{LAST_RESORT_SUGGESTION}
+evitayan@google.com
+nharold@google.com #{LAST_RESORT_SUGGESTION}
+
+include platform/packages/modules/common:/MODULES_OWNERS

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+  <item
+      android:id="@+id/amrCodecMenuItem"
+      android:title="@string/codec_amr"
+      android:titleCondensed="1">
+  </item>
+
+  <item
+      android:id="@+id/amrWbCodecMenuItem"
+      android:title="@string/codec_amr_wb"
+      android:titleCondensed="2">
+  </item>
+
+  <item
+      android:id="@+id/evsCodecMenuItem"
+      android:title="@string/codec_evs"
+      android:titleCondensed="4">
+  </item>
+
+  <item
+      android:id="@+id/pcmaCodecMenuItem"
+      android:title="@string/codec_pcma"
+      android:titleCondensed="8">
+  </item>
+
+  <item
+      android:id="@+id/pcmuCodecMenuItem"
+      android:title="@string/codec_pcmu"
+      android:titleCondensed="16">
+  </item>
+
+</menu>

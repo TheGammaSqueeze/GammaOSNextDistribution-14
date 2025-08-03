@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Aniciu de sesión en portales cativos</string>
+    <string name="action_use_network">Usar esta rede tal cual</string>
+    <string name="action_do_not_use_network">Nun usar esta rede</string>
+    <string name="action_bar_label">Aniciar la sesión na rede</string>
+    <string name="action_bar_title">Aniciu de la sesión en: %1$s</string>
+    <string name="ssl_error_warning">La rede a la que tentes de xunite tien problemes de seguranza.</string>
+    <string name="ssl_error_example">Por exemplu, la páxina d\'aniciu de sesión pue nun pertenecer a la organización amosada.</string>
+    <string name="no_bypass_error_vpnwarning">Amás, nun ye posible evitar esti error porque\'l preséu ta usando una VPN.</string>
+    <string name="error_continue_via_browser">Siguir de toes toes pel restolador</string>
+    <string name="ssl_error_untrusted">Esti certificáu nun ye d\'una entidá d\'enfotu.</string>
+    <string name="ssl_error_mismatch">El nome del sitiu nun concasa col qu\'indica\'l certificáu.</string>
+    <string name="ssl_error_expired">Esti certificáu caducó.</string>
+    <string name="ssl_error_not_yet_valid">Esti certificáu entá ye inválidu.</string>
+    <string name="ssl_error_date_invalid">Esti certificáu tien una data que ye inválida.</string>
+    <string name="ssl_error_invalid">Esti certificáu ye inválidu.</string>
+    <string name="ssl_error_unknown">Error de certificáu desconocíu</string>
+    <string name="ssl_security_warning_title">Alvertencia de seguranza</string>
+    <string name="ssl_error_view_certificate">Ver el certificáu</string>
+    <string name="custom_scheme_warning">La rede a la que tentes de xunite solicita abrir otra aplicación.</string>
+    <string name="custom_scheme_example">Por exemplu, la páxina d\'aniciu de sesión pue riquir una aplicación específica pa l\'autenticación</string>
+    <string name="ok">D\'acuerdu</string>
+    <string name="page_info_address">Direición:</string>
+    <string name="page_info">Información de la páxina</string>
+    <string name="downloading_paramfile">Baxando «%1$s»</string>
+    <string name="download_completed">Completóse la descarga</string>
+    <string name="error_downloading_paramfile">Nun se pudo baxar «%1$s»</string>
+    <string name="channel_name_downloads">Descargues</string>
+    <string name="channel_description_downloads">Los avisos qu\'amuesen les descargues completaes o encaboxaes</string>
+    <string name="channel_name_download_progress">Progresu de les descargues</string>
+    <string name="channel_description_download_progress">Los avisos qu\'amuesen el progresu de les descargues de ficheros</string>
+    <string name="cancel_pending_downloads">Encboxóse la descarga</string>
+    <string name="file_too_large_cancel_download">El ficheru ye mui grande y encaboxóse la descarga</string>
+</resources>

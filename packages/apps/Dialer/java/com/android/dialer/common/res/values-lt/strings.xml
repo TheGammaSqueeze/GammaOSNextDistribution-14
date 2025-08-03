@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="content_description_overflow">Daugiau parinkčių</string>
+  <string name="snackbar_undo">ANULIUOTI</string>
+  <string name="ok_got_it">Gerai, supratau</string>
+</resources>

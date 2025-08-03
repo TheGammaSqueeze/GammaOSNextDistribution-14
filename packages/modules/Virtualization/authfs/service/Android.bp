@@ -1,0 +1,25 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_binary {
+    name: "authfs_service",
+    srcs: [
+        "src/main.rs",
+    ],
+    edition: "2021",
+    rustlibs: [
+        "authfs_aidl_interface-rust",
+        "libandroid_logger",
+        "libanyhow",
+        "libbinder_rs",
+        "liblibc",
+        "liblog_rust",
+        "libnix",
+        "librpcbinder_rs",
+        "librustutils",
+        "libshared_child",
+    ],
+    prefer_rlib: true,
+    init_rc: ["authfs_service.rc"],
+}

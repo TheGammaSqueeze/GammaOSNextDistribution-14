@@ -1,0 +1,8 @@
+<manifest version="1.0" type="framework">
+    <hal format="hidl">
+        <name>android.hardware.tests.lazy</name>
+        <transport>hwbinder</transport>
+        <fqname>@1.1::ILazy/default1</fqname>
+        <fqname>@1.1::ILazy/default2</fqname>
+    </hal>
+</manifest>

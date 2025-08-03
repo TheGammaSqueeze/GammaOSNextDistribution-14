@@ -1,0 +1,18 @@
+Source: modp-b64
+Section: libs
+Priority: optional
+Maintainer: Sonny Sasaka <sonnysasaka@chromium.org>
+Standards-Version: 4.1.4
+Homepage: https://chromium.googlesource.com/aosp/platform/external/modp_b64/
+Build-Depends:
+ debhelper (>=11~),
+ clang,
+ python3,
+ pkg-config,
+ ninja-build,
+
+Package: modp-b64
+Architecture: any
+Multi-Arch: foreign
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: modp base64 decoder

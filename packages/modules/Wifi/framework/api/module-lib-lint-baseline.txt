@@ -1,0 +1,147 @@
+// Baseline format: 1.0
+DeprecationMismatch: android.net.wifi.RttManager:
+    Class android.net.wifi.RttManager: @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: android.net.wifi.RttManager.ParcelableRttParams:
+    Class android.net.wifi.RttManager.ParcelableRttParams: @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: android.net.wifi.RttManager.ParcelableRttResults:
+    Class android.net.wifi.RttManager.ParcelableRttResults: @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: android.net.wifi.RttManager.ResponderCallback:
+    Class android.net.wifi.RttManager.ResponderCallback: @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: android.net.wifi.RttManager.ResponderConfig:
+    Class android.net.wifi.RttManager.ResponderConfig: @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: android.net.wifi.RttManager.RttCapabilities:
+    Class android.net.wifi.RttManager.RttCapabilities: @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: android.net.wifi.RttManager.RttListener:
+    Class android.net.wifi.RttManager.RttListener: @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: android.net.wifi.RttManager.RttParams:
+    Class android.net.wifi.RttManager.RttParams: @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: android.net.wifi.RttManager.RttResult:
+    Class android.net.wifi.RttManager.RttResult: @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: android.net.wifi.RttManager.WifiInformationElement:
+    Class android.net.wifi.RttManager.WifiInformationElement: @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: android.net.wifi.WifiManager#EXTRA_BSSID:
+    Field WifiManager.EXTRA_BSSID: @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: android.net.wifi.WifiManager#EXTRA_WIFI_INFO:
+    Field WifiManager.EXTRA_WIFI_INFO: @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: android.net.wifi.WifiScanner#configureWifiChange(android.net.wifi.WifiScanner.WifiChangeSettings):
+    Method android.net.wifi.WifiScanner.configureWifiChange(android.net.wifi.WifiScanner.WifiChangeSettings): @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: android.net.wifi.WifiScanner#configureWifiChange(int, int, int, int, int, android.net.wifi.WifiScanner.BssidInfo[]):
+    Method android.net.wifi.WifiScanner.configureWifiChange(int, int, int, int, int, android.net.wifi.WifiScanner.BssidInfo[]): @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: android.net.wifi.WifiScanner#startTrackingBssids(android.net.wifi.WifiScanner.BssidInfo[], int, android.net.wifi.WifiScanner.BssidListener):
+    Method android.net.wifi.WifiScanner.startTrackingBssids(android.net.wifi.WifiScanner.BssidInfo[], int, android.net.wifi.WifiScanner.BssidListener): @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: android.net.wifi.WifiScanner#startTrackingWifiChange(android.net.wifi.WifiScanner.WifiChangeListener):
+    Method android.net.wifi.WifiScanner.startTrackingWifiChange(android.net.wifi.WifiScanner.WifiChangeListener): @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: android.net.wifi.WifiScanner#stopTrackingBssids(android.net.wifi.WifiScanner.BssidListener):
+    Method android.net.wifi.WifiScanner.stopTrackingBssids(android.net.wifi.WifiScanner.BssidListener): @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: android.net.wifi.WifiScanner#stopTrackingWifiChange(android.net.wifi.WifiScanner.WifiChangeListener):
+    Method android.net.wifi.WifiScanner.stopTrackingWifiChange(android.net.wifi.WifiScanner.WifiChangeListener): @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: android.net.wifi.WifiScanner.BssidInfo:
+    Class android.net.wifi.WifiScanner.BssidInfo: @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: android.net.wifi.WifiScanner.BssidListener:
+    Class android.net.wifi.WifiScanner.BssidListener: @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: android.net.wifi.WifiScanner.HotlistSettings:
+    Class android.net.wifi.WifiScanner.HotlistSettings: @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: android.net.wifi.WifiScanner.WifiChangeListener:
+    Class android.net.wifi.WifiScanner.WifiChangeListener: @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: android.net.wifi.WifiScanner.WifiChangeSettings:
+    Class android.net.wifi.WifiScanner.WifiChangeSettings: @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+
+
+RequiresPermission: android.net.wifi.WifiConfiguration#setMacRandomizationSetting(int):
+    Method 'setMacRandomizationSetting' documentation mentions permissions without declaring @RequiresPermission
+RequiresPermission: android.net.wifi.WifiConfiguration#setRepeaterEnabled(boolean):
+    Method 'setRepeaterEnabled' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.wifi.WifiInfo#getMacAddress():
+    Method 'getMacAddress' documentation mentions permissions without declaring @RequiresPermission
+RequiresPermission: android.net.wifi.WifiManager#addLocalOnlyConnectionFailureListener(java.util.concurrent.Executor, android.net.wifi.WifiManager.LocalOnlyConnectionFailureListener):
+    Method 'addLocalOnlyConnectionFailureListener' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.wifi.WifiManager#addSuggestionConnectionStatusListener(java.util.concurrent.Executor, android.net.wifi.WifiManager.SuggestionConnectionStatusListener):
+    Method 'addSuggestionConnectionStatusListener' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.wifi.WifiManager#addWifiLowLatencyLockListener(java.util.concurrent.Executor, android.net.wifi.WifiManager.WifiLowLatencyLockListener):
+    Method 'addWifiLowLatencyLockListener' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.wifi.WifiManager#addWifiVerboseLoggingStatusChangedListener(java.util.concurrent.Executor, android.net.wifi.WifiManager.WifiVerboseLoggingStatusChangedListener):
+    Method 'addWifiVerboseLoggingStatusChangedListener' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.wifi.WifiManager#allowAutojoinGlobal(boolean):
+    Method 'allowAutojoinGlobal' documentation mentions permissions without declaring @RequiresPermission
+RequiresPermission: android.net.wifi.WifiManager#getChannelData(java.util.concurrent.Executor, java.util.function.Consumer<java.util.List<android.os.Bundle>>):
+    Method 'getChannelData' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.wifi.WifiManager#getPasspointConfigurations():
+    Method 'getPasspointConfigurations' documentation mentions permissions without declaring @RequiresPermission
+RequiresPermission: android.net.wifi.WifiManager#getPrivilegedConfiguredNetworks():
+    Method 'getPrivilegedConfiguredNetworks' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.wifi.WifiManager#getPrivilegedConnectedNetwork():
+    Method 'getPrivilegedConnectedNetwork' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.wifi.WifiManager#getScanResults():
+    Method 'getScanResults' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.wifi.WifiManager#queryAutojoinGlobal(java.util.concurrent.Executor, java.util.function.Consumer<java.lang.Boolean>):
+    Method 'queryAutojoinGlobal' documentation mentions permissions without declaring @RequiresPermission
+RequiresPermission: android.net.wifi.WifiManager#registerNetworkRequestMatchCallback(java.util.concurrent.Executor, android.net.wifi.WifiManager.NetworkRequestMatchCallback):
+    Method 'registerNetworkRequestMatchCallback' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.wifi.WifiManager#registerScanResultsCallback(java.util.concurrent.Executor, android.net.wifi.WifiManager.ScanResultsCallback):
+    Method 'registerScanResultsCallback' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.wifi.WifiManager#registerSoftApCallback(java.util.concurrent.Executor, android.net.wifi.WifiManager.SoftApCallback):
+    Method 'registerSoftApCallback' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.wifi.WifiManager#registerTrafficStateCallback(java.util.concurrent.Executor, android.net.wifi.WifiManager.TrafficStateCallback):
+    Method 'registerTrafficStateCallback' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.wifi.WifiManager#removePasspointConfiguration(String):
+    Method 'removePasspointConfiguration' documentation mentions permissions without declaring @RequiresPermission
+RequiresPermission: android.net.wifi.WifiManager#removeWifiVerboseLoggingStatusChangedListener(android.net.wifi.WifiManager.WifiVerboseLoggingStatusChangedListener):
+    Method 'removeWifiVerboseLoggingStatusChangedListener' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.wifi.WifiManager#setWifiEnabled(boolean):
+    Method 'setWifiEnabled' documentation mentions permissions without declaring @RequiresPermission
+RequiresPermission: android.net.wifi.WifiManager#startLocalOnlyHotspot(android.net.wifi.SoftApConfiguration, java.util.concurrent.Executor, android.net.wifi.WifiManager.LocalOnlyHotspotCallback):
+    Method 'startLocalOnlyHotspot' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.wifi.WifiManager#startLocalOnlyHotspot(android.net.wifi.WifiManager.LocalOnlyHotspotCallback, android.os.Handler):
+    Method 'startLocalOnlyHotspot' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.wifi.WifiManager#startScan():
+    Method 'startScan' documentation mentions permissions without declaring @RequiresPermission
+RequiresPermission: android.net.wifi.WifiManager#unregisterNetworkRequestMatchCallback(android.net.wifi.WifiManager.NetworkRequestMatchCallback):
+    Method 'unregisterNetworkRequestMatchCallback' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.wifi.WifiNetworkSuggestion.Builder#setSubscriptionId(int):
+    Method 'setSubscriptionId' documentation mentions permissions without declaring @RequiresPermission
+RequiresPermission: android.net.wifi.WifiScanner#registerScanListener(java.util.concurrent.Executor, android.net.wifi.WifiScanner.ScanListener):
+    Method 'registerScanListener' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.wifi.aware.IdentityChangedListener#onIdentityChanged(byte[]):
+    Method 'onIdentityChanged' documentation mentions permissions without declaring @RequiresPermission
+RequiresPermission: android.net.wifi.aware.WifiAwareManager#attach(android.net.wifi.aware.AttachCallback, android.net.wifi.aware.IdentityChangedListener, android.os.Handler):
+    Method 'attach' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.wifi.aware.WifiAwareManager#enableInstantCommunicationMode(boolean):
+    Method 'enableInstantCommunicationMode' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.wifi.aware.WifiAwareSession#publish(android.net.wifi.aware.PublishConfig, android.net.wifi.aware.DiscoverySessionCallback, android.os.Handler):
+    Method 'publish' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.wifi.aware.WifiAwareSession#subscribe(android.net.wifi.aware.SubscribeConfig, android.net.wifi.aware.DiscoverySessionCallback, android.os.Handler):
+    Method 'subscribe' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.wifi.p2p.WifiP2pManager#addLocalService(android.net.wifi.p2p.WifiP2pManager.Channel, android.net.wifi.p2p.nsd.WifiP2pServiceInfo, android.net.wifi.p2p.WifiP2pManager.ActionListener):
+    Method 'addLocalService' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.wifi.p2p.WifiP2pManager#connect(android.net.wifi.p2p.WifiP2pManager.Channel, android.net.wifi.p2p.WifiP2pConfig, android.net.wifi.p2p.WifiP2pManager.ActionListener):
+    Method 'connect' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.wifi.p2p.WifiP2pManager#createGroup(android.net.wifi.p2p.WifiP2pManager.Channel, android.net.wifi.p2p.WifiP2pConfig, android.net.wifi.p2p.WifiP2pManager.ActionListener):
+    Method 'createGroup' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.wifi.p2p.WifiP2pManager#createGroup(android.net.wifi.p2p.WifiP2pManager.Channel, android.net.wifi.p2p.WifiP2pManager.ActionListener):
+    Method 'createGroup' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.wifi.p2p.WifiP2pManager#discoverPeers(android.net.wifi.p2p.WifiP2pManager.Channel, android.net.wifi.p2p.WifiP2pManager.ActionListener):
+    Method 'discoverPeers' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.wifi.p2p.WifiP2pManager#discoverPeersOnSocialChannels(android.net.wifi.p2p.WifiP2pManager.Channel, android.net.wifi.p2p.WifiP2pManager.ActionListener):
+    Method 'discoverPeersOnSocialChannels' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.wifi.p2p.WifiP2pManager#discoverPeersOnSpecificFrequency(android.net.wifi.p2p.WifiP2pManager.Channel, int, android.net.wifi.p2p.WifiP2pManager.ActionListener):
+    Method 'discoverPeersOnSpecificFrequency' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.wifi.p2p.WifiP2pManager#discoverServices(android.net.wifi.p2p.WifiP2pManager.Channel, android.net.wifi.p2p.WifiP2pManager.ActionListener):
+    Method 'discoverServices' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.wifi.p2p.WifiP2pManager#getListenState(android.net.wifi.p2p.WifiP2pManager.Channel, java.util.concurrent.Executor, java.util.function.Consumer<java.lang.Integer>):
+    Method 'getListenState' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.wifi.p2p.WifiP2pManager#requestDeviceInfo(android.net.wifi.p2p.WifiP2pManager.Channel, android.net.wifi.p2p.WifiP2pManager.DeviceInfoListener):
+    Method 'requestDeviceInfo' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.wifi.p2p.WifiP2pManager#requestGroupInfo(android.net.wifi.p2p.WifiP2pManager.Channel, android.net.wifi.p2p.WifiP2pManager.GroupInfoListener):
+    Method 'requestGroupInfo' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.wifi.p2p.WifiP2pManager#requestPeers(android.net.wifi.p2p.WifiP2pManager.Channel, android.net.wifi.p2p.WifiP2pManager.PeerListListener):
+    Method 'requestPeers' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.wifi.p2p.WifiP2pManager#requestPersistentGroupInfo(android.net.wifi.p2p.WifiP2pManager.Channel, android.net.wifi.p2p.WifiP2pManager.PersistentGroupInfoListener):
+    Method 'requestPersistentGroupInfo' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.wifi.p2p.WifiP2pManager#startListening(android.net.wifi.p2p.WifiP2pManager.Channel, android.net.wifi.p2p.WifiP2pManager.ActionListener):
+    Method 'startListening' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.wifi.p2p.WifiP2pManager#startPeerDiscovery(android.net.wifi.p2p.WifiP2pManager.Channel, android.net.wifi.p2p.WifiP2pDiscoveryConfig, android.net.wifi.p2p.WifiP2pManager.ActionListener):
+    Method 'startPeerDiscovery' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.wifi.rtt.WifiRttManager#startRanging(android.net.wifi.rtt.RangingRequest, java.util.concurrent.Executor, android.net.wifi.rtt.RangingResultCallback):
+    Method 'startRanging' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.wifi.rtt.WifiRttManager#startRanging(android.os.WorkSource, android.net.wifi.rtt.RangingRequest, java.util.concurrent.Executor, android.net.wifi.rtt.RangingResultCallback):
+    Method 'startRanging' documentation mentions permissions already declared by @RequiresPermission

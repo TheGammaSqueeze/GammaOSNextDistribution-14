@@ -1,0 +1,31 @@
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+    <color name="qc_start_icon_color">@android:color/white</color>
+    <color name="qc_toggle_off_background_color">#626262</color>
+    <color name="qc_toggle_unavailable_background_color">@android:color/transparent</color>
+    <color name="qc_toggle_unavailable_color">#37FFFFFF</color>
+    <color name="qc_toggle_rotary_shadow_color">#C7000000</color>
+    <!-- The SeekBar thumb color. -->
+    <color name="qc_seekbar_thumb">#FFFFFF</color>
+    <!-- The SeekBar thumb color when disabled. Use for the dark theme. -->
+    <color name="qc_seekbar_thumb_disabled_on_dark">#757575</color>
+    <!-- The Switch thumb color. -->
+    <color name="qc_switch_thumb_color">#FFFFFF</color>
+    <!-- The Switch thumb color when disabled. Use for the dark theme. -->
+    <color name="qc_switch_thumb_color_disabled_on_dark">#757575</color>
+</resources>

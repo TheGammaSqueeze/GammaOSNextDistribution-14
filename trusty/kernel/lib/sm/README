@@ -1,0 +1,21 @@
+libsm
+=====
+
+A library to support secure monitor mode implemented by ARM v7 Security
+extensions.
+
+API:
+
+sm_sched_secure - Switch to Secure OS
+sm_sched_nonsecure - Switch to Nonsecure OS
+
+sm_register_entity - Register fastcall/stdcall handlers for an entity
+(See ARM document DEN 0028A)
+
+sm_get_boot_args - get a pointer/reference to boot parameter block
+sm_put_boot_args - release a reference to boot parameter block
+(See bootloader spec)
+
+Note that this library provides an implementation for the weak symbol
+"platform_reset". It also assumes that r0 contains the size of memory reserved
+for the secure OS.

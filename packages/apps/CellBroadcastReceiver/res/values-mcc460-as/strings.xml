@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="alerts_header_summary" msgid="4824339599027800065">"কোনো প্ৰাকৃতিক দুৰ্যোগ হোৱাৰ সময়ত, ডিভাইচটোৱে কোনো অপসাৰণৰ সকীয়নিৰ দৰে জাননী লাভ কৰিব পাৰে। \nএই সেৱাটো দুৰ্যোগ সম্পৰ্কীয় সকীয়নিৰ বাৰ্তা প্ৰদান কৰা প্ৰতিষ্ঠান (যেনে, ভূমিকম্পৰ প্ৰশাসন), নেটৱৰ্ক অ’পাৰেটৰ আৰু ডিভাইচৰ নিৰ্মাতাসকলে আগবঢ়ায়। \nডিভাইচটোৱে সঠিককৈ কাম নকৰিলে অথবা নেটৱৰ্ক ভালকৈ নথকা পৰিৱেশত থাকিলে জাননীৰ তথ্য লাভ নকৰিব পাৰে।"</string>
+</resources>

@@ -1,0 +1,18 @@
+rule android.os.HandlerExecutor com.android.permission.jarjar.@0
+rule android.permission.flags.*Flags* com.android.permission.jarjar.@0
+rule android.permission.flags.Flags com.android.permission.jarjar.@0
+rule android.util.IndentingPrintWriter com.android.permission.jarjar.@0
+rule com.android.internal.** com.android.permission.jarjar.@0
+rule com.android.modules.** com.android.permission.jarjar.@0
+rule com.android.permission.flags.*Flags* com.android.permission.jarjar.@0
+rule com.android.permission.flags.Flags com.android.permission.jarjar.@0
+rule com.android.role.*Proto com.android.permission.jarjar.@0
+# TODO(b/236200992): Revisit addition of rule com.android.safetycenter.annotations,
+# com.android.safetycenter.internaldata, com.android.safetycenter.pendingintents and
+# com.android.safetycenter.resources
+rule com.android.safetycenter.annotations.** com.android.permission.jarjar.@0
+rule com.android.safetycenter.internaldata.** com.android.permission.jarjar.@0
+rule com.android.safetycenter.pendingintents.** com.android.permission.jarjar.@0
+rule com.android.safetycenter.resources.** com.android.permission.jarjar.@0
+rule com.google.protobuf.** com.android.permission.jarjar.@0
+rule kotlin.** com.android.permission.jarjar.@0

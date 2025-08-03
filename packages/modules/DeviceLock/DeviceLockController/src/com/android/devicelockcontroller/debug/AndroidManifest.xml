@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!--The purpose of this manifest is to export all components from DeviceLockController in order to
+    interact with them through adb shell.
+    Components in this manifest that are marked as exported=true and
+    tools:replace="android:exported" will be exported regardless of how it is set in
+    AndroidManifestBase.xml.
+    Note that this manifest is only included in debug build.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.android.devicelockcontroller">
+
+    <application android:name=".DeviceLockControllerApplication">
+        <!-- Receiver used for debugging purpose.
+            This component is only included in debug build -->
+        <activity
+            android:name="com.android.devicelockcontroller.activities.HelpActivity"
+            android:exported="true"
+            tools:replace="android:exported" />
+
+        <activity
+            android:name="com.android.devicelockcontroller.activities.LandingActivity"
+            android:exported="true"
+            tools:replace="android:exported" />
+
+        <activity
+            android:name="com.android.devicelockcontroller.activities.ProvisioningActivity"
+            android:exported="true"
+            tools:replace="android:exported" />
+
+        <activity-alias
+            android:name="com.android.devicelockcontroller.activities.DeviceFinancingSecondaryUserLandingActivity"
+            android:exported="true"
+            tools:replace="android:exported" />
+        <activity-alias
+            android:name="com.android.devicelockcontroller.activities.DeviceFinancingDeferredProvisioningLandingActivity"
+            android:exported="true"
+            tools:replace="android:exported" />
+
+        <activity-alias
+            android:name="com.android.devicelockcontroller.activities.DeviceSubsidyProvisioningLandingActivity"
+            android:exported="true"
+            tools:replace="android:exported" />
+
+        <activity-alias
+            android:name="com.android.devicelockcontroller.activities.DeviceSubsidyDeferredProvisioningLandingActivity"
+            android:exported="true"
+            tools:replace="android:exported" />
+
+        <receiver
+            android:name="com.android.devicelockcontroller.debug.SetupParametersOverrider"
+            android:exported="true" />
+
+        <receiver
+            android:name="com.android.devicelockcontroller.debug.DeviceLockCommandReceiver"
+            android:exported="true" />
+
+        <receiver
+            android:name="com.android.devicelockcontroller.receivers.CheckInBootCompletedReceiver"
+            android:exported="true"
+            tools:replace="android:exported" />
+
+        <receiver
+            android:name="com.android.devicelockcontroller.receivers.FinalizationBootCompletedReceiver"
+            android:exported="true"
+            tools:replace="android:exported" />
+
+        <receiver
+            android:name="com.android.devicelockcontroller.receivers.LockedBootCompletedReceiver"
+            android:exported="true"
+            tools:replace="android:exported" />
+
+        <receiver
+            android:name="com.android.devicelockcontroller.receivers.RecordBootTimestampReceiver"
+            android:exported="true"
+            tools:replace="android:exported" />
+
+        <receiver
+            android:name="com.android.devicelockcontroller.receivers.TimeChangedBroadcastReceiver"
+            android:exported="true"
+            tools:replace="android:exported" />
+
+        <receiver
+            android:name="com.android.devicelockcontroller.receivers.ResumeProvisionReceiver"
+            android:exported="true"
+            tools:replace="android:exported" />
+
+        <receiver
+            android:name="com.android.devicelockcontroller.receivers.NextProvisionFailedStepReceiver"
+            android:exported="true"
+            tools:replace="android:exported" />
+
+        <receiver
+            android:name="com.android.devicelockcontroller.receivers.ResetDeviceReceiver"
+            android:exported="true"
+            tools:replace="android:exported" />
+
+        <receiver
+            android:name="com.android.devicelockcontroller.receivers.ProvisionReadyReceiver"
+            android:exported="true"
+            tools:replace="android:exported" />
+
+        <service
+            android:name="com.android.devicelockcontroller.DeviceLockControllerService"
+            android:exported="true"
+            tools:replace="android:exported" />
+
+        <service
+            android:name="com.android.devicelockcontroller.storage.SetupParametersService"
+            android:exported="true"
+            tools:replace="android:exported" />
+
+        <service
+            android:name="com.android.devicelockcontroller.storage.GlobalParametersService"
+            android:exported="true"
+            tools:replace="android:exported" />
+
+    </application>
+
+</manifest>

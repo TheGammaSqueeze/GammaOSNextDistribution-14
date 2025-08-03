@@ -1,0 +1,7 @@
+namespace testing;
+
+table TestTableString {
+    test_string:string;
+}
+
+root_type TestTableString;

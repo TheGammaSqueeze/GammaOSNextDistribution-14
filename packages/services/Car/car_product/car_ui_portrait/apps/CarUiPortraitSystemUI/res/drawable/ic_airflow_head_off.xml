@@ -1,0 +1,31 @@
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="@dimen/hvac_panel_wide_icon_dimen"
+    android:height="@dimen/hvac_panel_icon_dimen"
+    android:viewportWidth="96"
+    android:viewportHeight="48">
+  <path
+      android:pathData="M40.79,7.79L39.38,9.21L41.17,11H27V13H41.17L39.38,14.79L40.79,16.21L45,12L40.79,7.79Z"
+      android:fillColor="@color/hvac_off_icon_fill_color"/>
+  <path
+      android:pathData="M34.0357,32.7879L24.8843,46.6596C24.5051,47.2343 24.9173,48 25.6058,48C27.1439,48 28.6243,47.4142 29.746,46.3617L39.1144,37.5709C40.9682,35.8313 43.4149,34.8632 45.9571,34.8632H54.2339C56.5366,34.8632 58.6362,33.5453 59.6372,31.4715L66.7184,16.8024C67.3115,15.5736 66.4162,14.1474 65.0518,14.1474C64.0756,14.1474 63.157,14.6096 62.5752,15.3935L55.9986,24.2545C54.1122,26.7962 51.1338,28.2947 47.9686,28.2947H42.3829C39.0223,28.2947 35.8864,29.9828 34.0357,32.7879Z"
+      android:fillColor="@color/hvac_off_icon_fill_color"/>
+  <path
+      android:pathData="M62.0005,5.0526a5,5.0526 0,1 0,10 0a5,5.0526 0,1 0,-10 0z"
+      android:fillColor="@color/hvac_off_icon_fill_color"/>
+</vector>

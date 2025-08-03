@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2009 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="uid_label" msgid="8421971615411294156">"మీడియా"</string>
+    <string name="storage_description" msgid="4081716890357580107">"స్థానిక స్టోరేజ్‌"</string>
+    <string name="picker_app_label" msgid="1195424381053599122">"మీడియా సెలెక్టర్"</string>
+    <string name="artist_label" msgid="8105600993099120273">"కళాకారుడు"</string>
+    <string name="unknown" msgid="2059049215682829375">"తెలియదు"</string>
+    <string name="root_images" msgid="5861633549189045666">"ఇమేజ్‌లు"</string>
+    <string name="root_videos" msgid="8792703517064649453">"వీడియోలు"</string>
+    <string name="root_audio" msgid="3505830755201326018">"ఆడియో"</string>
+    <string name="root_documents" msgid="3829103301363849237">"డాక్యుమెంట్‌లు"</string>
+    <string name="permission_required" msgid="1460820436132943754">"ఈ అంశాన్ని మార్చడానికి లేదా తొలగించడానికి అనుమతి అవసరం."</string>
+    <string name="permission_required_action" msgid="706370952366113539">"కొనసాగించండి"</string>
+    <string name="grant_dialog_button_allow" msgid="1644287024501033471">"అనుమతించండి"</string>
+    <string name="grant_dialog_button_deny" msgid="6190589471415815741">"తిరస్కరించండి"</string>
+    <string name="permission_more_thumb" msgid="1938863829470531577">"{count,plural, =1{+<xliff:g id="COUNT_0">^1</xliff:g>}other{+<xliff:g id="COUNT_1">^1</xliff:g>}}"</string>
+    <string name="permission_more_text" msgid="2471785045095597753">"{count,plural, =1{దానితో పాటు, <xliff:g id="COUNT_0">^1</xliff:g> అదనపు ఐటెమ్}other{దానితో పాటు, <xliff:g id="COUNT_1">^1</xliff:g> అదనపు ఐటెమ్‌లు}}"</string>
+    <string name="cache_clearing_dialog_title" msgid="8907893815183913664">"తాత్కాలిక యాప్ ఫైళ్లను క్లియర్ చేయండి"</string>
+    <string name="cache_clearing_dialog_text" msgid="7057784635111940957">"కొన్ని తాత్కాలిక ఫైల్స్‌ను క్లియర్ చేయడానికి <xliff:g id="APP_SEEKING_PERMISSION">%s</xliff:g> అనుమతి కోరుతోంది. దీని వలన బ్యాటరీ లేదా సెల్యూలార్ డేటా వినియోగం పెరగవచ్చు."</string>
+    <string name="cache_clearing_in_progress_title" msgid="6902220064511664209">"తాత్కాలిక యాప్ ఫైళ్లను క్లియర్ చేస్తోంది…"</string>
+    <string name="clear" msgid="5524638938415865915">"క్లియర్ చేయండి"</string>
+    <string name="allow" msgid="8885707816848569619">"అనుమతించండి"</string>
+    <string name="deny" msgid="6040983710442068936">"నిరాకరించండి"</string>
+    <string name="picker_browse" msgid="5554477454636075934">"బ్రౌజ్ చేయండి…"</string>
+    <string name="picker_settings" msgid="6443463167344790260">"క్లౌడ్ మీడియా యాప్"</string>
+    <string name="picker_settings_system_settings_menu_title" msgid="3055084757610063581">"క్లౌడ్ మీడియా యాప్"</string>
+    <string name="picker_settings_title" msgid="5647700706470673258">"క్లౌడ్ మీడియా యాప్"</string>
+    <string name="picker_settings_description" msgid="2916686824777214585">"ఫోటోలు లేదా వీడియోలను ఎంచుకోమని యాప్ లేదా వెబ్‌సైట్ మిమ్మల్ని అడిగినప్పుడు మీ క్లౌడ్ మీడియాను యాక్సెస్ చేయండి"</string>
+    <string name="picker_settings_selection_message" msgid="245453573086488596">"దాని నుండి క్లౌడ్ మీడియాను యాక్సెస్ చేయండి"</string>
+    <string name="picker_settings_no_provider" msgid="2582311853680058223">"ఏవీ లేవు"</string>
+    <string name="picker_settings_toast_error" msgid="697274445512467469">"ఈ సమయంలో క్లౌడ్ మీడియా యాప్ మార్చడం సాధ్యపడలేదు."</string>
+    <string name="picker_sync_notification_channel" msgid="1867105708912627993">"మీడియా సెలెక్టర్"</string>
+    <string name="picker_sync_notification_title" msgid="1122713382122055246">"మీడియా సెలెక్టర్"</string>
+    <string name="picker_sync_notification_text" msgid="8204423917712309382">"మీడియాను సింక్ చేస్తోంది…"</string>
+    <string name="add" msgid="2894574044585549298">"జోడించండి"</string>
+    <string name="deselect" msgid="4297825044827769490">"ఎంపికను తొలగించండి"</string>
+    <string name="deselected" msgid="8488133193326208475">"ఎంపిక తొలగించబడింది"</string>
+    <string name="select" msgid="2704765470563027689">"ఎంచుకోండి"</string>
+    <string name="selected" msgid="9151797369975828124">"ఎంచుకోబడింది"</string>
+    <string name="select_up_to" msgid="6994294169508439957">"{count,plural, =1{గరిష్ఠంగా <xliff:g id="COUNT_0">^1</xliff:g> ఐటెమ్‌ను ఎంచుకోండి}other{గరిష్ఠంగా <xliff:g id="COUNT_1">^1</xliff:g> ఐటెమ్‌లను ఎంచుకోండి}}"</string>
+    <string name="recent" msgid="6694613584743207874">"ఇటీవలివి"</string>
+    <string name="picker_photos_empty_message" msgid="5980619500554575558">"ఫోటోలు లేదా వీడియోలు లేవు"</string>
+    <string name="picker_album_media_empty_message" msgid="7061850698189881671">"సపోర్ట్ గల ఫోటోలు లేదా వీడియోలు లేవు"</string>
+    <string name="picker_albums_empty_message" msgid="8341079772950966815">"ఆల్బమ్‌లు ఏవీ లేవు"</string>
+    <string name="picker_view_selected" msgid="2266031384396143883">"ఎంచుకున్న వాటిని చూడండి"</string>
+    <string name="picker_photos" msgid="7415035516411087392">"ఫోటోలు"</string>
+    <!-- no translation found for picker_videos (2886971435439047097) -->
+    <skip />
+    <string name="picker_albums" msgid="4822511902115299142">"ఆల్బమ్‌లు"</string>
+    <string name="picker_preview" msgid="6257414886055861039">"ప్రివ్యూ"</string>
+    <string name="picker_work_profile" msgid="2083221066869141576">"వర్క్ ప్రొఫైల్‌కు మార్చండి"</string>
+    <string name="picker_personal_profile" msgid="639484258397758406">"వ్యక్తిగత ప్రొఫైల్‌కు మార్చండి"</string>
+    <string name="picker_personal_profile_label" msgid="6189198163209597344">"వ్యక్తిగతం"</string>
+    <string name="picker_profile_admin_title" msgid="4172022376418293777">"మీ అడ్మిన్ బ్లాక్ చేశారు"</string>
+    <string name="picker_profile_admin_msg_from_personal" msgid="1941639895084555723">"వ్యక్తిగత యాప్ నుండి వర్క్ డేటాను యాక్సెస్ చేయడం అనుమతించబడదు"</string>
+    <string name="picker_profile_admin_msg_from_work" msgid="8048524337462790110">"వర్క్ యాప్ నుండి వ్యక్తిగత డేటాను యాక్సెస్ చేయడం అనుమతించబడదు"</string>
+    <string name="picker_profile_admin_msg" msgid="4060112887923255178">"<xliff:g id="PROFILE2">%2$s</xliff:g> యాప్ నుండి <xliff:g id="PROFILE1">%1$s</xliff:g> డేటాను యాక్సెస్ చేయడం అనుమతించబడదు"</string>
+    <string name="picker_profile_switch_message" msgid="1133817927412489487">"<xliff:g id="PROFILE">%s</xliff:g>‌కు స్విచ్ అవ్వండి"</string>
+    <string name="picker_profile_work_paused_title" msgid="382212880704235925">"వర్క్ యాప్‌లు పాజ్ చేయబడ్డాయి"</string>
+    <string name="picker_profile_paused_title" msgid="2079739512895529028">"<xliff:g id="PROFILE">%s</xliff:g> యాప్‌లు పాజ్ చేయబడ్డాయి"</string>
+    <string name="picker_profile_work_paused_msg" msgid="6321552322125246726">"వర్క్ ఫోటోలను తెరవడానికి, మీ వర్క్ యాప్‌లను ఆన్ చేసి, ఆపై మళ్లీ ట్రై చేయండి"</string>
+    <string name="picker_profile_paused_msg" msgid="1215076898583993782">"<xliff:g id="PROFILE1">%1$s</xliff:g> ఫోటోలను తెరవడానికి, మీ <xliff:g id="PROFILE2">%2$s</xliff:g> యాప్‌లను ఆన్ చేసి, ఆపై మళ్లీ ట్రై చేయండి"</string>
+    <string name="picker_privacy_message" msgid="9132700451027116817">"ఈ యాప్ మీరు ఎంచుకున్న ఫోటోలను మాత్రమే యాక్సెస్ చేయగలదు"</string>
+    <string name="picker_header_permissions" msgid="675872774407768495">"ఈ యాప్‌, యాక్సెస్ చేయడానికి మీరు అనుమతించే ఫోటోలను, వీడియోలను ఎంచుకోండి"</string>
+    <string name="picker_album_item_count" msgid="4420723302534177596">"{count,plural, =1{<xliff:g id="COUNT_0">^1</xliff:g> ఐటెమ్}other{<xliff:g id="COUNT_1">^1</xliff:g> ఐటెమ్‌లు}}"</string>
+    <string name="picker_add_button_multi_select" msgid="4005164092275518399">"జోడించండి (<xliff:g id="COUNT">^1</xliff:g>)"</string>
+    <string name="picker_add_button_multi_select_permissions" msgid="5138751105800138838">"అనుమతించండి (<xliff:g id="COUNT">^1</xliff:g>)"</string>
+    <string name="picker_add_button_allow_none_option" msgid="9183772732922241035">"వేటినీ అనుమతించవద్దు"</string>
+    <string name="picker_category_camera" msgid="4857367052026843664">"కెమెరా"</string>
+    <string name="picker_category_downloads" msgid="793866660287361900">"డౌన్‌లోడ్‌లు"</string>
+    <string name="picker_category_favorites" msgid="7008495397818966088">"ఫేవరెట్స్"</string>
+    <string name="picker_category_screenshots" msgid="7216102327587644284">"స్క్రీన్‌షాట్‌లు"</string>
+    <!-- no translation found for picker_category_videos (1478458836380241356) -->
+    <skip />
+    <string name="picker_motion_photo_text" msgid="5016603812468180816">"మోషన్ ఫోటో"</string>
+    <string name="picker_item_content_desc" msgid="7680591530155286423">"<xliff:g id="TIME">%2$s</xliff:g> సమయంలో తీసిన <xliff:g id="ITEM_NAME">%1$s</xliff:g>"</string>
+    <string name="picker_video_item_content_desc" msgid="7828900089119214801">"<xliff:g id="DURATION">%2$s</xliff:g> వ్యవధితో <xliff:g id="TIME">%1$s</xliff:g>న తీసిన వీడియో"</string>
+    <string name="picker_photo" msgid="1739342083494962153">"ఫోటో"</string>
+    <string name="picker_gif" msgid="8333318083107368726">"GIF"</string>
+    <string name="picker_motion_photo" msgid="4385182195289546308">"మోషన్ ఫోటో"</string>
+    <string name="picker_mute_video" msgid="2496585809229800096">"వీడియోను మ్యూట్ చేయండి"</string>
+    <string name="picker_unmute_video" msgid="6611741290641963568">"వీడియోను అన్‌మ్యూట్ చేయండి"</string>
+    <string name="picker_play_video" msgid="7106025944628666250">"ప్లే చేయండి"</string>
+    <string name="picker_pause_video" msgid="1092718225234326702">"పాజ్ చేయండి"</string>
+    <string name="picker_error_snackbar" msgid="5970192792792369203">"వీడియోను ప్లే చేయడం సాధ్యం కాదు"</string>
+    <string name="picker_error_dialog_title" msgid="4540095603788920965">"వీడియోను ప్లే చేయడంలో సమస్య ఏర్పడింది"</string>
+    <string name="picker_error_dialog_body" msgid="2515738446802971453">"మీ ఇంటర్నెట్ కనెక్షన్‌ను చెక్ చేసి, మళ్ళీ ట్రై చేయండి"</string>
+    <string name="picker_error_dialog_positive_action" msgid="749544129082109232">"మళ్లీ ట్రై చేయండి"</string>
+    <string name="not_selected" msgid="2244008151669896758">"ఎంచుకోబడలేదు"</string>
+    <string name="preloading_dialog_title" msgid="4974348221848532887">"మీరు ఎంచుకున్న మీడియాను సిద్ధం చేస్తోంది"</string>
+    <string name="preloading_progress_message" msgid="4741327138031980582">"<xliff:g id="NUMBER_TOTAL">%2$d</xliff:g>లో <xliff:g id="NUMBER_PRELOADED">%1$d</xliff:g> సిద్ధంగా ఉన్నాయి"</string>
+    <string name="preloading_cancel_button" msgid="824053521307342209">"రద్దు చేయండి"</string>
+    <string name="picker_banner_cloud_first_time_available_title" msgid="5912973744275711595">"బ్యాకప్ చేసిన ఫోటోలు ఇప్పుడు చేర్చబడ్డాయి"</string>
+    <string name="picker_banner_cloud_first_time_available_desc" msgid="5570916598348187607">"మీరు <xliff:g id="APP_NAME">%1$s</xliff:g> ఖాతా <xliff:g id="USER_ACCOUNT">%2$s</xliff:g> నుండి ఫోటోలను ఎంచుకోవచ్చు"</string>
+    <string name="picker_banner_cloud_account_changed_title" msgid="4825058474378077327">"<xliff:g id="APP_NAME">%1$s</xliff:g> ఖాతా అప్‌డేట్ చేయబడింది"</string>
+    <string name="picker_banner_cloud_account_changed_desc" msgid="3433218869899792497">"<xliff:g id="USER_ACCOUNT">%1$s</xliff:g> నుండి ఫోటోలు ఇప్పుడు ఇక్కడ చేర్చబడ్డాయి"</string>
+    <string name="picker_banner_cloud_choose_app_title" msgid="3165966147547974251">"క్లౌడ్ మీడియా యాప్‌ను ఎంచుకోండి"</string>
+    <string name="picker_banner_cloud_choose_app_desc" msgid="2359212653555524926">"ఇక్కడ బ్యాకప్ చేసిన ఫోటోలను చేర్చడానికి, సెట్టింగ్‌లలో క్లౌడ్ మీడియా యాప్‌ను ఎంచుకోండి"</string>
+    <string name="picker_banner_cloud_choose_account_title" msgid="5010901185639577685">"<xliff:g id="APP_NAME">%1$s</xliff:g> ఖాతాను ఎంచుకోండి"</string>
+    <string name="picker_banner_cloud_choose_account_desc" msgid="8868134443673142712">"ఇక్కడ <xliff:g id="APP_NAME">%1$s</xliff:g> నుండి ఫోటోలను చేర్చడానికి, యాప్‌లో ఖాతాను ఎంచుకోండి"</string>
+    <string name="picker_banner_cloud_dismiss_button" msgid="2935903078288463882">"విస్మరించండి"</string>
+    <string name="picker_banner_cloud_choose_app_button" msgid="934085679890435479">"యాప్‌ను ఎంచుకోండి"</string>
+    <string name="picker_banner_cloud_choose_account_button" msgid="7979484877116991631">"ఖాతాను ఎంచుకోండి"</string>
+    <string name="picker_banner_cloud_change_account_button" msgid="8361239765828471146">"ఖాతాను మార్చండి"</string>
+    <string name="picker_loading_photos_message" msgid="6449180084857178949">"మీ ఫోటోలన్నీ లోడ్ అవుతున్నాయి"</string>
+    <string name="permission_write_audio" msgid="8819694245323580601">"{count,plural, =1{ఈ ఆడియో ఫైల్‌ను ఎడిట్ చేయడానికి <xliff:g id="APP_NAME_0">^1</xliff:g>‌ను అనుమతించాలా?}other{<xliff:g id="COUNT">^2</xliff:g> ఆడియో ఫైళ్లను ఎడిట్ చేయడానికి <xliff:g id="APP_NAME_1">^1</xliff:g>‌ను అనుమతించాలా?}}"</string>
+    <string name="permission_progress_write_audio" msgid="6029375427984180097">"{count,plural, =1{ఆడియో ఫైల్‌ను సవరిస్తోంది…}other{<xliff:g id="COUNT">^1</xliff:g> ఆడియో ఫైళ్లను సవరిస్తోంది…}}"</string>
+    <string name="permission_write_video" msgid="103902551603700525">"{count,plural, =1{ఈ వీడియోను ఎడిట్ చేయడానికి <xliff:g id="APP_NAME_0">^1</xliff:g>‌ను అనుమతించాలా?}other{<xliff:g id="COUNT">^2</xliff:g> వీడియోలను ఎడిట్ చేయడానికి <xliff:g id="APP_NAME_1">^1</xliff:g>‌ను అనుమతించాలా?}}"</string>
+    <string name="permission_progress_write_video" msgid="7014908418349819148">"{count,plural, =1{వీడియోను సవరిస్తోంది…}other{<xliff:g id="COUNT">^1</xliff:g> వీడియోలను సవరిస్తోంది…}}"</string>
+    <string name="permission_write_image" msgid="3518991791620523786">"{count,plural, =1{ఈ ఫోటోను ఎడిట్ చేయడానికి <xliff:g id="APP_NAME_0">^1</xliff:g>‌ను అనుమతించాలా?}other{<xliff:g id="COUNT">^2</xliff:g> ఫోటోలను ఎడిట్ చేయడానికి <xliff:g id="APP_NAME_1">^1</xliff:g>‌ను అనుమతించాలా?}}"</string>
+    <string name="permission_progress_write_image" msgid="3623580315590025262">"{count,plural, =1{ఫోటోను సవరిస్తోంది…}other{<xliff:g id="COUNT">^1</xliff:g> ఫోటోలను సవరిస్తోంది…}}"</string>
+    <string name="permission_write_generic" msgid="7431128739233656991">"{count,plural, =1{ఈ ఐటెమ్‌ను ఎడిట్ చేయడానికి <xliff:g id="APP_NAME_0">^1</xliff:g>‌ను అనుమతించాలా?}other{<xliff:g id="COUNT">^2</xliff:g> ఐటెమ్‌లను ఎడిట్ చేయడానికి <xliff:g id="APP_NAME_1">^1</xliff:g>‌ను అనుమతించాలా?}}"</string>
+    <string name="permission_progress_write_generic" msgid="2806560971318391443">"{count,plural, =1{ఐటెమ్‌ను సవరిస్తోంది…}other{<xliff:g id="COUNT">^1</xliff:g> ఐటెమ్‌లను సవరిస్తోంది…}}"</string>
+    <string name="permission_trash_audio" msgid="6554672354767742206">"{count,plural, =1{ఈ ఆడియో ఫైల్‌ను ట్రాష్‌కు తరలించడానికి <xliff:g id="APP_NAME_0">^1</xliff:g>‌ను అనుమతించాలా?}other{<xliff:g id="COUNT">^2</xliff:g> ఆడియో ఫైళ్లను ట్రాష్‌కు తరలించడానికి <xliff:g id="APP_NAME_1">^1</xliff:g>‌ను అనుమతించాలా?}}"</string>
+    <string name="permission_progress_trash_audio" msgid="3116279868733641329">"{count,plural, =1{ఆడియో ఫైల్‌ను ట్రాష్‌కు తరలిస్తోంది…}other{<xliff:g id="COUNT">^1</xliff:g> ఆడియో ఫైళ్లను ట్రాష్‌కు తరలిస్తోంది…}}"</string>
+    <string name="permission_trash_video" msgid="7555850843259959642">"{count,plural, =1{ఈ వీడియోను ట్రాష్‌కు తరలించడానికి <xliff:g id="APP_NAME_0">^1</xliff:g>‌ను అనుమతించాలా?}other{<xliff:g id="COUNT">^2</xliff:g> వీడియోలను ట్రాష్‌కు తరలించడానికి <xliff:g id="APP_NAME_1">^1</xliff:g>‌ను అనుమతించాలా?}}"</string>
+    <string name="permission_progress_trash_video" msgid="4637821778329459681">"{count,plural, =1{వీడియోను ట్రాష్‌కు తరలిస్తోంది…}other{<xliff:g id="COUNT">^1</xliff:g> వీడియోలను ట్రాష్‌కు తరలిస్తోంది…}}"</string>
+    <string name="permission_trash_image" msgid="3333128084684156675">"{count,plural, =1{ఈ ఫోటోను ట్రాష్‌కు తరలించడానికి <xliff:g id="APP_NAME_0">^1</xliff:g>‌ను అనుమతించాలా?}other{<xliff:g id="COUNT">^2</xliff:g> ఫోటోలను ట్రాష్‌కు తరలించడానికి <xliff:g id="APP_NAME_1">^1</xliff:g>‌ను అనుమతించాలా?}}"</string>
+    <string name="permission_progress_trash_image" msgid="3063857679090024764">"{count,plural, =1{ఫోటోను ట్రాష్‌కు తరలిస్తోంది…}other{<xliff:g id="COUNT">^1</xliff:g> ఫోటోలను ట్రాష్‌కు తరలిస్తోంది…}}"</string>
+    <string name="permission_trash_generic" msgid="5545420534785075362">"{count,plural, =1{ఈ ఐటెమ్‌ను ట్రాష్‌కు తరలించడానికి <xliff:g id="APP_NAME_0">^1</xliff:g>‌ను అనుమతించాలా?}other{<xliff:g id="COUNT">^2</xliff:g> ఐటెమ్‌లను ట్రాష్‌కు తరలించడానికి <xliff:g id="APP_NAME_1">^1</xliff:g>‌ను అనుమతించాలా?}}"</string>
+    <string name="permission_progress_trash_generic" msgid="7815124979717814057">"{count,plural, =1{ఐటెమ్‌ను ట్రాష్‌కు తరలిస్తోంది…}other{<xliff:g id="COUNT">^1</xliff:g> ఐటెమ్‌లను ట్రాష్‌కు తరలిస్తోంది…}}"</string>
+    <string name="permission_untrash_audio" msgid="8404597563284002472">"{count,plural, =1{ఈ ఆడియో ఫైల్‌ను ట్రాష్ నుండి బయటకు తీయడానికి <xliff:g id="APP_NAME_0">^1</xliff:g>‌ను అనుమతించాలా?}other{<xliff:g id="COUNT">^2</xliff:g> ఆడియో ఫైళ్లను ట్రాష్ నుండి బయటకు తీయడానికి <xliff:g id="APP_NAME_1">^1</xliff:g>‌ను అనుమతించాలా?}}"</string>
+    <string name="permission_progress_untrash_audio" msgid="2775372344946464508">"{count,plural, =1{ఆడియో ఫైల్‌ను ట్రాష్ నుండి బయటకు తరలిస్తోంది…}other{<xliff:g id="COUNT">^1</xliff:g> ఆడియో ఫైళ్లను ట్రాష్ నుండి బయటకు తరలిస్తోంది…}}"</string>
+    <string name="permission_untrash_video" msgid="3178914827607608162">"{count,plural, =1{ఈ వీడియోను ట్రాష్ నుండి బయటకు తీయడానికి <xliff:g id="APP_NAME_0">^1</xliff:g>‌ను అనుమతించాలా?}other{<xliff:g id="COUNT">^2</xliff:g> వీడియోలను ట్రాష్ నుండి బయటకు తీయడానికి <xliff:g id="APP_NAME_1">^1</xliff:g>‌ను అనుమతించాలా?}}"</string>
+    <string name="permission_progress_untrash_video" msgid="5500929409733841567">"{count,plural, =1{వీడియోను ట్రాష్ నుండి బయటకు తరలిస్తోంది…}other{<xliff:g id="COUNT">^1</xliff:g> వీడియోలను ట్రాష్ నుండి బయటకు తరలిస్తోంది…}}"</string>
+    <string name="permission_untrash_image" msgid="3397523279351032265">"{count,plural, =1{ఈ ఫోటోను ట్రాష్ నుండి బయటకు తీయడానికి <xliff:g id="APP_NAME_0">^1</xliff:g>‌ను అనుమతించాలా?}other{<xliff:g id="COUNT">^2</xliff:g> ఫోటోలను ట్రాష్ నుండి బయటకు తీయడానికి <xliff:g id="APP_NAME_1">^1</xliff:g>‌ను అనుమతించాలా?}}"</string>
+    <string name="permission_progress_untrash_image" msgid="5295061520504846264">"{count,plural, =1{ఫోటోను ట్రాష్ నుండి బయటకు తరలిస్తోంది…}other{<xliff:g id="COUNT">^1</xliff:g> ఫోటోలను ట్రాష్ నుండి బయటకు తరలిస్తోంది…}}"</string>
+    <string name="permission_untrash_generic" msgid="2118366929431671046">"{count,plural, =1{ఈ ఐటెమ్‌ను ట్రాష్ నుండి బయటకు తీయడానికి <xliff:g id="APP_NAME_0">^1</xliff:g>‌ను అనుమతించాలా?}other{<xliff:g id="COUNT">^2</xliff:g> ఐటెమ్‌లను ట్రాష్ నుండి బయటకు తీయడానికి <xliff:g id="APP_NAME_1">^1</xliff:g>‌ను అనుమతించాలా?}}"</string>
+    <string name="permission_progress_untrash_generic" msgid="1489511601966842579">"{count,plural, =1{ఐటెమ్‌ను ట్రాష్ నుండి బయటకు తరలిస్తోంది…}other{<xliff:g id="COUNT">^1</xliff:g> ఐటెమ్‌లను ట్రాష్ నుండి బయటకు తరలిస్తోంది…}}"</string>
+    <string name="permission_delete_audio" msgid="3326674742892796627">"{count,plural, =1{ఈ ఆడియో ఫైల్‌ను తొలగించడానికి <xliff:g id="APP_NAME_0">^1</xliff:g>‌ను అనుమతించాలా?}other{<xliff:g id="COUNT">^2</xliff:g> ఆడియో ఫైళ్లను తొలగించడానికి <xliff:g id="APP_NAME_1">^1</xliff:g>‌ను అనుమతించాలా?}}"</string>
+    <string name="permission_progress_delete_audio" msgid="1734871539021696401">"{count,plural, =1{ఆడియో ఫైల్‌ను తొలగిస్తోంది…}other{<xliff:g id="COUNT">^1</xliff:g> ఆడియో ఫైళ్లను తొలగిస్తోంది…}}"</string>
+    <string name="permission_delete_video" msgid="604024971828349279">"{count,plural, =1{ఈ వీడియోను తొలగించడానికి <xliff:g id="APP_NAME_0">^1</xliff:g>‌ను అనుమతించాలా?}other{<xliff:g id="COUNT">^2</xliff:g> వీడియోలను తొలగించడానికి <xliff:g id="APP_NAME_1">^1</xliff:g>‌ను అనుమతించాలా?}}"</string>
+    <string name="permission_progress_delete_video" msgid="1846702435073793157">"{count,plural, =1{వీడియోను తొలగిస్తోంది…}other{<xliff:g id="COUNT">^1</xliff:g> వీడియోలను తొలగిస్తోంది…}}"</string>
+    <string name="permission_delete_image" msgid="3109056012794330510">"{count,plural, =1{ఈ ఫోటోను తొలగించడానికి <xliff:g id="APP_NAME_0">^1</xliff:g>‌ను అనుమతించాలా?}other{<xliff:g id="COUNT">^2</xliff:g> ఫోటోలను తొలగించడానికి <xliff:g id="APP_NAME_1">^1</xliff:g>‌ను అనుమతించాలా?}}"</string>
+    <string name="permission_progress_delete_image" msgid="8580517204901148906">"{count,plural, =1{ఫోటోను తొలగిస్తోంది…}other{<xliff:g id="COUNT">^1</xliff:g> ఫోటోలను తొలగిస్తోంది…}}"</string>
+    <string name="permission_delete_generic" msgid="7891939881065520271">"{count,plural, =1{ఈ ఐటెమ్‌ను తొలగించడానికి <xliff:g id="APP_NAME_0">^1</xliff:g>‌ను అనుమతించాలా?}other{<xliff:g id="APP_NAME_1">^1</xliff:g> ఐటెమ్‌లను తొలగించడానికి <xliff:g id="COUNT">^2</xliff:g>‌ను అనుమతించాలా?}}"</string>
+    <string name="permission_progress_delete_generic" msgid="6709118146245087898">"{count,plural, =1{ఐటెమ్‌ను తొలగిస్తోంది…}other{<xliff:g id="COUNT">^1</xliff:g> ఐటెమ్‌లను తొలగిస్తోంది…}}"</string>
+    <string name="transcode_denied" msgid="6760546817138288976">"<xliff:g id="APP_NAME">%s</xliff:g> మీడియా ఫైళ్లను ప్రాసెస్ చేయదు"</string>
+    <string name="transcode_processing_cancelled" msgid="5340383917746945590">"మీడియా ప్రాసెసింగ్ రద్దు చేయబడింది"</string>
+    <string name="transcode_processing_error" msgid="8921643164508407874">"మీడియా ప్రాసెసింగ్‌లో ఎర్రర్ ఏర్పడింది"</string>
+    <string name="transcode_processing_success" msgid="447288876429730122">"మీడియా ప్రాసెసింగ్ విజయవంతమైంది"</string>
+    <string name="transcode_processing_started" msgid="7789086308155361523">"మీడియా ప్రాసెసింగ్ ప్రారంభమైంది"</string>
+    <string name="transcode_processing" msgid="6753136468864077258">"మీడియాను ప్రాసెస్ చేస్తోంది…"</string>
+    <string name="transcode_cancel" msgid="8555752601907598192">"రద్దు చేయండి"</string>
+    <string name="transcode_wait" msgid="8909773149560697501">"వేచి ఉండు"</string>
+    <string name="safety_protection_icon_label" msgid="6714354052747723623">"భద్రత రక్షణ"</string>
+    <string name="transcode_alert_channel" msgid="997332371757680478">"స్థానిక ట్రాన్స్‌కోడ్ అలర్ట్‌లు"</string>
+    <string name="transcode_progress_channel" msgid="6905136787933058387">"స్థానిక ట్రాన్స్‌కోడ్ ప్రోగ్రెస్"</string>
+    <string name="dialog_error_message" msgid="5120432204743681606">"తర్వాత మళ్లీ ట్రై చేయండి. సమస్య పరిష్కరించబడిన తర్వాత మీ ఫోటోలు అందుబాటులో ఉంటాయి."</string>
+    <string name="dialog_error_title" msgid="636349284077820636">"కొన్ని ఫోటోలను లోడ్ చేయడం సాధ్యపడదు"</string>
+    <string name="dialog_button_text" msgid="351366485240852280">"సరే"</string>
+    <string name="permlab_accessMediaOwnerPackageName" msgid="3849443148060165651">"మీడియా ఓనర్ ప్యాకేజీ పేరును యాక్సెస్ చేయండి"</string>
+    <string name="permdesc_accessMediaOwnerPackageName" msgid="7381563109363105371">"ఫుల్ యాక్సెస్ చేయగల మీడియా ఫైల్స్ ఓనర్ ప్యాకేజీ పేర్లను యాక్సెస్ చేయడానికి యాప్‌ను అనుమతిస్తారు."</string>
+</resources>

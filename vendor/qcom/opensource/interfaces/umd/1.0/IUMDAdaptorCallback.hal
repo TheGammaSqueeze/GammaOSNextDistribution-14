@@ -1,0 +1,11 @@
+/*
+ * Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
+ * SPDX-License-Identifier: BSD-3-Clause-Clear
+ */
+
+package vendor.qti.hardware.umd@1.0;
+
+interface IUMDAdaptorCallback {
+  onAudioBufferReceive(vec<uint8_t> data) generates (int32_t result);
+  onAudioUevent(AudioStatus status);
+};

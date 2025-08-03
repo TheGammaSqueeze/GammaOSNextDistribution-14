@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<carrier_config>
+    <int name="qns.xcap_rat_preference_int" value="2"/>
+    <int name="qns.mms_rat_preference_int" value="2"/>
+    <boolean name="qns.override_cell_pref_to_ims_pref_home" value="true"/>
+    <int name="qns.mms_transport_type_int" value="2"/>
+    <string-array name="qns.ims_cellular_allowed_rat_string_array" num="1">
+        <item value="LTE"/>
+    </string-array>
+    <int-array name="qns.idle_utran_rscp_int_array" num="2">
+        <item value="-99"/>
+        <item value="-103"/>
+    </int-array>
+    <int-array name="qns.idle_geran_rssi_int_array" num="2">
+        <item value="-89"/>
+        <item value="-106"/>
+    </int-array>
+    <int-array name="qns.voice_utran_rscp_int_array" num="2">
+        <item value="-89"/>
+        <item value="-105"/>
+    </int-array>
+    <int-array name="qns.voice_geran_rssi_int_array" num="2">
+        <item value="-89"/>
+        <item value="-102"/>
+    </int-array>
+    <string-array name="qns.condition_rove_in_idle_wifi_pref_home_string_array" num="1">
+        <item value="Condition:WIFI_GOOD"/>
+    </string-array>
+    <string-array name="qns.condition_rove_in_voice_wifi_pref_home_string_array" num="1">
+        <item value="Condition:WIFI_GOOD"/>
+    </string-array>
+    <string-array name="qns.condition_rove_in_video_wifi_pref_home_string_array" num="1">
+        <item value="Condition:WIFI_GOOD"/>
+    </string-array>
+    <string-array name="qns.condition_rove_in_idle_cell_pref_home_string_array" num="3">
+        <item value="Condition:WIFI_GOOD,EUTRAN_BAD"/>
+        <item value="Condition:UTRAN_AVAILABLE"/>
+        <item value="Condition:GERAN_AVAILABLE"/>
+    </string-array>
+    <string-array name="qns.condition_rove_in_voice_cell_pref_home_string_array" num="3">
+        <item value="Condition:WIFI_GOOD,EUTRAN_BAD"/>
+        <item value="Condition:WIFI_GOOD,UTRAN_AVAILABLE"/>
+        <item value="Condition:WIFI_GOOD,GERAN_AVAILABLE"/>
+    </string-array>
+    <string-array name="qns.condition_rove_in_video_cell_pref_home_string_array" num="3">
+        <item value="Condition:WIFI_GOOD,EUTRAN_BAD"/>
+        <item value="Condition:WIFI_GOOD,UTRAN_AVAILABLE"/>
+        <item value="Condition:WIFI_GOOD,GERAN_AVAILABLE"/>
+    </string-array>
+    <string-array name="qns.condition_rove_out_idle_wifi_pref_home_string_array" num="1">
+        <item value="Condition:WIFI_BAD"/>
+    </string-array>
+    <string-array name="qns.condition_rove_out_voice_wifi_pref_home_string_array" num="1">
+        <item value="Condition:WIFI_BAD"/>
+    </string-array>
+    <string-array name="qns.condition_rove_out_video_wifi_pref_home_string_array" num="1">
+        <item value="Condition:WIFI_BAD,EUTRAN_TOLERABLE"/>
+    </string-array>
+    <string-array name="qns.condition_rove_out_idle_cell_pref_home_string_array" num="1">
+        <item value="Condition:EUTRAN_GOOD"/>
+    </string-array>
+    <string-array name="qns.condition_rove_out_voice_cell_pref_home_string_array" num="1">
+        <item value="Condition:WIFI_BAD,EUTRAN_TOLERABLE"/>
+    </string-array>
+    <string-array name="qns.condition_rove_out_video_cell_pref_home_string_array" num="1">
+        <item value="Condition:WIFI_BAD,EUTRAN_TOLERABLE"/>
+    </string-array>
+    <string-array name="qns.condition_rove_in_idle_wifi_pref_roam_string_array" num="1">
+        <item value="Condition:WIFI_GOOD"/>
+    </string-array>
+    <string-array name="qns.condition_rove_in_voice_wifi_pref_roam_string_array" num="1">
+        <item value="Condition:WIFI_GOOD"/>
+    </string-array>
+    <string-array name="qns.condition_rove_in_video_wifi_pref_roam_string_array" num="1">
+        <item value="Condition:WIFI_GOOD"/>
+    </string-array>
+    <string-array name="qns.condition_rove_in_idle_cell_pref_roam_string_array" num="1">
+        <item value="Condition:WIFI_GOOD,CELLULAR_BAD"/>
+    </string-array>
+    <string-array name="qns.condition_rove_in_voice_cell_pref_roam_string_array" num="1">
+        <item value="Condition:WIFI_GOOD,CELLULAR_BAD"/>
+    </string-array>
+    <string-array name="qns.condition_rove_in_video_cell_pref_roam_string_array" num="1">
+        <item value="Condition:WIFI_GOOD,CELLULAR_BAD"/>
+    </string-array>
+    <string-array name="qns.condition_rove_out_idle_wifi_pref_roam_string_array" num="1">
+        <item value="Condition:EUTRAN_TOLERABLE"/>
+    </string-array>
+    <string-array name="qns.condition_rove_out_voice_wifi_pref_roam_string_array" num="1">
+        <item value="Condition:WIFI_BAD,EUTRAN_TOLERABLE"/>
+    </string-array>
+    <string-array name="qns.condition_rove_out_video_wifi_pref_roam_string_array" num="1">
+        <item value="Condition:WIFI_BAD,EUTRAN_TOLERABLE"/>
+    </string-array>
+    <string-array name="qns.condition_rove_out_idle_cell_pref_roam_string_array" num="1">
+        <item value="Condition:CELLULAR_GOOD"/>
+    </string-array>
+    <string-array name="qns.condition_rove_out_voice_cell_pref_roam_string_array" num="1">
+        <item value="Condition:WIFI_BAD,EUTRAN_TOLERABLE"/>
+    </string-array>
+    <string-array name="qns.condition_rove_out_video_cell_pref_roam_string_array" num="1">
+        <item value="Condition:WIFI_BAD,EUTRAN_TOLERABLE"/>
+    </string-array>
+</carrier_config>

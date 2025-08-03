@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (C) 2022 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<resources>
+    <overlayable name="HealthConnectStyles">
+        <policy type="product|system|vendor|odm|oem">
+            <!-- REGION ICONS -->
+            <item type="drawable" name="ic_health_connect"/>
+
+            <!-- Home page -->
+            <item type="drawable" name="ic_app_permissions"/>
+            <item type="drawable" name="ic_data_and_access"/>
+            <item type="drawable" name="ic_build"/>
+
+            <!-- App permissions page -->
+            <item type="drawable" name="ic_remove_access_for_all_apps"/>
+            <item type="drawable" name="ic_help_and_feedback"/>
+            <item type="drawable" name="ic_check_for_updates"/>
+            <item type="drawable" name="ic_see_all_compatible_apps"/>
+            <item type="drawable" name="ic_find_in_page"/>
+
+            <!-- Categories page -->
+            <item type="drawable" name="ic_auto_delete"/>
+            <item type="drawable" name="ic_auto_delete_off"/>
+            <item type="drawable" name="ic_delete"/>
+            <item type="drawable" name="ic_export_data"/>
+            <item type="drawable" name="ic_category_activity"/>
+            <item type="drawable" name="ic_category_body_measurements"/>
+            <item type="drawable" name="ic_category_cycle_tracking"/>
+            <item type="drawable" name="ic_category_nutrition"/>
+            <item type="drawable" name="ic_category_sleep"/>
+            <item type="drawable" name="ic_category_vitals"/>
+
+            <!-- Permission types page -->
+            <item type="drawable" name="ic_view_list"/>
+            <item type="drawable" name="ic_check"/>
+
+            <!-- Dialogs -->
+            <item type="drawable" name="ic_deletion_settings"/>
+            <item type="drawable" name="ic_success"/>
+            <item type="drawable" name="ic_failure"/>
+            <item type="drawable" name="ic_disconnect"/>
+            <item type="drawable" name="ic_denied_apps_banner"/>
+            <item type="drawable" name="ic_item_drag"/>
+
+            <!-- Request permissions -->
+            <item type="drawable" name="ic_choose_data"/>
+            <item type="drawable" name="ic_access_history"/>
+            <item type="drawable" name="ic_privacy_policy"/>
+            <item type="drawable" name="ic_manage_settings"/>
+            <item type="drawable" name="ic_sync"/>
+
+            <!--  Migration -->
+            <item type="drawable" name="ic_storage"/>
+            <item type="drawable" name="ic_system_security_update"/>
+
+            <!-- Data sources & priority -->
+            <item type="drawable" name="ic_add"/>
+            <item type="drawable" name="ic_edit"/>
+            <item type="drawable" name="ic_close"/>
+
+            <!-- Export -->
+            <item type="drawable" name="ic_repeat"/>
+
+            <!-- END REGION -->
+
+            <!-- REGION DIALOG GRAVITY -->
+            <item type="integer" name="dialog_gravity" />
+            <item type="integer" name="dialog_title_gravity"/>
+            <item type="integer" name="dialog_title_text_alignment"/>
+            <item type="integer" name="dialog_title_icon_visibility"/>
+            <!-- END REGION -->
+
+            <!-- REGION STYLES -->
+            <item type="style" name="TextAppearance.PreferenceSummary.SettingsLib"/>
+            <item type="style" name="TextAppearance.HealthConnect.SummaryLarge"/>
+            <item type="style" name="TextAppearance.HealthConnect.Label"/>
+            <item type="style" name="TextAppearance.HealthConnect.Label.Compact"/>
+
+            <item type="style" name="TextAppearance.HealthConnect.Headline6" />
+            <item type="style" name="TextAppearance.PreferenceTitle.SettingsLib"/>
+            <item type="style" name="TextAppearance.HealthConnect.Headline4"/>
+            <item type="style" name="TextAppearance.HealthConnect.Headline3"/>
+            <item type="style" name="TextAppearance.HealthConnect.Headline2"/>
+            <item type="style" name="TextAppearance.HealthConnect.Label.Small"/>
+            <item type="style" name="TextAppearance.HealthConnect.Subheader"/>
+            <item type="style" name="TextAppearance.HealthConnect.Subheader2"/>
+            <item type="style" name="TextAppearance.HealthConnect.Subheader3"/>
+            <item type="style" name="TextAppearance.HealthConnect.RouteRequest"/>
+            <item type="style" name="PreferenceCategoryTitleTextStyle.HealthConnect"/>
+
+            <item type="style" name="Widget.HealthConnect.Button"/>
+            <item type="style" name="Widget.HealthConnect.CheckBox"/>
+            <item type="style" name="Widget.HealthConnect.RadioButton.Chip"/>
+            <item type="style" name="Widget.HealthConnect.CalendarSpinner"/>
+            <item type="style" name="Widget.HealthConnect.TabLayout"/>
+            <!-- END REGION -->
+
+            <!-- REGION DIMENSIONS -->
+            <item type="dimen" name="spacing_small"/>
+            <item type="dimen" name="spacing_normal"/>
+            <item type="dimen" name="spacing_large"/>
+            <item type="dimen" name="list_item_min_height"/>
+            <item type="dimen" name="timeline_divider_height"/>
+            <!-- END REGION -->
+
+            <!-- REGION STRINGS -->
+            <item type="string"  name="config_headlineFontFamily"/>
+            <!-- END REGION -->
+        </policy>
+    </overlayable>
+</resources>

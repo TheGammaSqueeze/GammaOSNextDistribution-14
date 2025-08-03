@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="6179574017413146651">"Activity Stub"</string>
+    <string name="message_not_supported" msgid="133939962837892495">"沒有應用程式能夠處理這項操作"</string>
+    <string name="pip_not_supported" msgid="8681268258599412706">"這部裝置不支援子母畫面功能"</string>
+    <string name="manage_unknown_app_sources_not_supported" msgid="7368611099531260439">"這部裝置不支援不明應用程式來源管理功能"</string>
+    <string name="documentsui_not_supported" msgid="2786636475647817501">"這部裝置不支援檔案管理功能"</string>
+    <string name="stub_name" msgid="3987164490218189006">"無"</string>
+</resources>

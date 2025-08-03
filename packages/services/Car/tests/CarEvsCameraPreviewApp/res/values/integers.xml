@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2023 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources>
+    <!--
+        Restrict activity's recreation for below types of configuration changes. Please visit
+        https://developer.android.com/guide/topics/resources/runtime-changes for more details.
+
+        We are using this magic number trick because configChanges flag for rro, which is
+        0x80000000, is not defined yet.
+
+        orientation|screenSize|smallestScreenSize|screenLayout|fontScale|uiMode|colorMode|
+        mcc|mnc|rro
+
+        TODO(b/312220666): This restriction may not be needed if we decouple a management of
+                           the camera resource from the Activity's lifecycle.
+    -->
+    <integer name="config_changes">0xc0004f83</integer>
+</resources>

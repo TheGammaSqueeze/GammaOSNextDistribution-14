@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017-2024 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="system_reboot_confirm_cm">Restartovat do:</string>
+    <string name="global_action_restart_system">Systém</string>
+    <string name="global_action_restart_recovery">Recovery</string>
+    <string name="global_action_restart_bootloader">Bootloader</string>
+    <plurals name="show_dev_countdown_cm">
+        <item quantity="one">Jste <xliff:g id="step_count">%1$d</xliff:g> krok od povolení vývojářských nástrojů.</item>
+        <item quantity="few">Jste <xliff:g id="step_count">%1$d</xliff:g> kroky od povolení vývojářských nástrojů.</item>
+        <item quantity="many">Jste <xliff:g id="step_count">%1$d</xliff:g> kroků od povolení vývojářských nástrojů.</item>
+        <item quantity="other">Jste <xliff:g id="step_count">%1$d</xliff:g> kroků od povolení vývojářských nástrojů.</item>
+    </plurals>
+    <string name="show_dev_on_cm">Vývojářské nastavení je povoleno!</string>
+    <string name="show_dev_already_cm">Není potřeba, vývojářské nastavení je již povoleno.</string>
+    <string name="system_buttons">Tlačítka</string>
+    <string name="power_button_long_press_action_title">Akce dlouhého stisku tlačítka vypínání</string>
+    <string name="power_button_long_press_for_power_menu_action">Přístup k nabídce Vypínání</string>
+    <string name="power_button_long_press_for_assistant_action">Otevřít Asistenta</string>
+    <string name="inputs_volume_control_enabled">Ovládání hlasitosti CEC</string>
+    <string name="inputs_volume_control_enabled_desc">Ovládání hlasitosti TV/AVR místo vnitřní hlasitosti</string>
+    <string name="enable_adb_root">Ladění s právy root</string>
+    <string name="enable_adb_root_summary">Povolit spuštění ladění Android s právy root</string>
+    <string name="advanced_restart_title">Rozšířený restart</string>
+    <string name="advanced_restart_summary">Zobrazit možnosti pro restartování do recovery, bootloaderu nebo provedení měkkého restartu</string>
+    <string name="adb_over_network">ADB po síti</string>
+    <string name="adb_over_network_summary">Povolit ladění přes TCP/IP síťové připojení (např. Wi\u2011Fi nebo síť USB). Toto nastavení bude obnoveno po restartu</string>
+    <string name="adb_over_network_warning">VAROVÁNÍ: Když je ADB přes síť aktivní, váš telefon je otevřen pro jakéhokoliv zařízení ze sítě!\n\nPoužívejte tuto funkci jen když jste připojen na důvěryhodné síti.\n\nChcete opravdu zapnout tuto funkci?</string>
+    <string name="trust_category_features">Stav</string>
+    <string name="trust_feature_selinux">SELinux</string>
+    <string name="trust_feature_selinux_value_enforcing">Vynucené</string>
+    <string name="trust_feature_selinux_value_disabled">Vypnuto</string>
+    <string name="trust_feature_selinux_explain">SELinux určuje, které procesy mají přístup k souborům/cestám ve vašem zařízení.\nZabraňuje tomu, aby aplikace a služby měly přístup k souborům, se kterými se nemusí zabývat: tímto způsobem má nebezpečný proces omezený přístup a vaše bezpečnost je zachována.</string>
+    <string name="trust_feature_security_patches">Bezpečnostní záplaty Android</string>
+    <string name="trust_feature_security_patches_value_base">Platforma: %1$s\nDodavatel: %2$s</string>
+    <string name="trust_feature_security_patches_value_new">Aktuální</string>
+    <string name="trust_feature_security_patches_value_medium">Několik měsíců zastaralé</string>
+    <string name="trust_feature_security_patches_value_old">Zastaralé</string>
+    <string name="trust_feature_security_patches_explain">Bezpečnostní záplaty jsou vydávány měsíčně společností Google ve spolupráci s dodavateli čipů, aby odstranili nedostatky, kterých by mohly zneužít škodlivé aplikace tím, že obejdou bezpečnostní omezení a způsobí trvalé poškození vašemu zařízení. Záplaty, které společnost Google poskytuje, jsou aplikovány každý měsíc na všech podporovaných zařízeních, ale záplaty mohou být do kódu aplikovány pouze výrobcem zařízení. Chcete-li zařízení udržet v bezpečí, ujistěte se, že je vaše sestavení LineageOS vždy aktuální, a (pokud možno) ujistěte se, že je obraz systému dodavatele aktualizován na poslední verzi doporučenou LineageOS.</string>
+    <string name="trust_feature_encryption">Šifrování</string>
+    <string name="trust_feature_encryption_value_enabled">Povoleno</string>
+    <string name="trust_feature_encryption_value_nolock">Je potřeba zabezpečená zamykací obrazovka</string>
+    <string name="trust_feature_encryption_value_disabled">Vypnuto</string>
+    <string name="trust_feature_encryption_explain">Šifrování zařízení zabraňuje přístupu k vašim údajům pokud je telefon vypnutý nebo v režimu recovery. Toto je obzvláště důležité v případě odcizení telefonu a zabraňuje ostatním ve čtení vašich zpráv, kontaktů a jiných soukromých informací bez znalosti hesla.\nAby bylo šifrování efektivní, musíte nastavit bezpečný zámek obrazovky.</string>
+    <string name="trust_category_tools">Soukromí</string>
+    <string name="trust_notification_alerts_title">Bezpečnostní výstrahy</string>
+    <string name="trust_restrict_usb_title">Omezit USB</string>
+    <string name="trust_restrict_usb_summary">Podpora ovládání připojení USB, jako jsou sluchátka, úložná zařízení, vstupy (myši, klávesnice, herní ovladače) a ADB</string>
+    <string name="trust_restrict_usb_always">Zamítnout připojení USB</string>
+    <string name="trust_restrict_usb_disabled">Vždy povolit připojení USB</string>
+    <string name="trust_onboarding_description">Trust pomáhá udržovat vaše zařízení bezpečné a chrání vaše soukromí.\nIkona Trust se zobrazí pouze tehdy, když byl obsah stránky ověřen.</string>
+    <string name="trust_warnings_alerts_intro">Můžete vybrat bezpečnostní problémy, na které chcete upozornit. Pro vaši bezpečnost doporučujeme povolit všechna upozornění</string>
+    <string name="trust_warnings_selinux">Stav SELinux</string>
+    <string name="trust_warnings_keys">Podpis sestavení</string>
+    <string name="sleep_button_label">Uspat</string>
+    <string name="system_sleep_confirm">Uspát nyní?</string>
+    <string name="shutdown_button_label">Vypnout</string>
+    <string name="system_shutdown_confirm">Vypnout nyní?</string>
+    <string name="convertible_port_busy_title">USB port 1 je používán</string>
+    <string name="convertible_port_busy_warning">Odpojte všechna zařízení nebo příslušenství a zkuste to znovu</string>
+    <string name="mtp_enable_title">Přístup ke složkám SHIELD na PC pomocí USB</string>
+    <string name="mtp_enable_warning">USB port 1 je nyní nakonfigurován pro SHIELD pro připojení k PC jako mediálnímu zařízení.\n\nTento port již nezjistí USB paměťová média ani USB příslušenství a nemůže být použit pro nabíjecí zařízení.</string>
+    <string name="mtp_retry_error">Nezdařilo se, zkuste to prosím znovu!</string>
+    <string name="mtp_summary">V tomto režimu USB port není funkční pro jiné použití</string>
+    <string name="mtp_title">Přenos souborů na počítač používající USB</string>
+    <string name="mtp_unexpected_error">Neočekávaná chyba. Opakujte akci později.</string>
+    <string name="usb_debugging_enable_title">Ladění USB povoleno</string>
+    <string name="usb_debugging_enable_warning">USB port 1 je nyní nakonfigurován pro SHIELD pro připojení k PC jako mediálnímu zařízení.\n\nTento port již nezjistí USB paměťová média ani USB příslušenství a nemůže být použit pro nabíjecí zařízení.</string>
+</resources>

@@ -1,0 +1,175 @@
+// Copyright 2018 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_sdk_library {
+    name: "android.net.ipsec.ike",
+    installable: true,
+    defaults: ["framework-module-defaults"],
+
+    // ike is used as a shared library.
+    shared_library: true,
+    compile_dex: true,
+
+    aidl: {
+        local_include_dirs: ["src/java"],
+    },
+    srcs: [":ike-srcs"],
+
+    static_libs: [
+        "ike-internals",
+    ],
+
+    libs: [
+        "unsupportedappusage",
+        "framework-annotations-lib",
+        "conscrypt.module.public.api",
+        "framework-configinfrastructure",
+        "framework-connectivity.stubs.module_lib",
+        "framework-connectivity-t.stubs.module_lib",
+        "framework-statsd.stubs.module_lib",
+    ],
+    stub_only_libs: [
+        "framework-connectivity.stubs.module_lib",
+        "framework-connectivity-t.stubs.module_lib",
+    ],
+
+    api_packages: [
+        "android.net.eap",
+        "android.net.ipsec.ike",
+        "android.net.ipsec.ike.exceptions",
+        "android.net.ipsec.ike.exceptions.protocol",
+        "android.net.ipsec.ike.ike3gpp",
+    ],
+
+    hidden_api_packages: [
+        "com.android.internal.net",
+    ],
+
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
+
+    // Shared filegroups of BouncyCastle and frameworks are jar-jar'ed to avoid
+    // being overwritten by the frameworks class copies.
+    jarjar_rules: "jarjar-rules-shared.txt",
+
+    hostdex: true, // for hiddenapi check
+    apex_available: [
+        "com.android.ipsec",
+        "test_com.android.ipsec",
+    ],
+
+    permitted_packages: [
+        "com.android.internal.net",
+        "android.net.ipsec.ike",
+        "android.net.eap",
+    ],
+    min_sdk_version: "30",
+}
+
+filegroup {
+    name: "ike-srcs",
+    defaults: ["framework-sources-module-defaults"],
+    srcs: [
+        ":ike-internal-srcs",
+        ":framework-ike-shared-srcs",
+        ":statslog-ike-java-gen",
+    ],
+}
+
+filegroup {
+    name: "ike-internal-srcs",
+    srcs: [
+        "src/java/**/*.java",
+    ],
+    path: "src/java/",
+}
+
+filegroup {
+    name: "ike-aes-xcbc",
+    srcs: ["src/java/**/AesXCbcImpl.java"],
+}
+
+// Provides internal classes needed to build the ike sources.
+java_library {
+    name: "ike-internals",
+    min_sdk_version: "30",
+    apex_available: [
+        "com.android.ipsec",
+        "test_com.android.ipsec",
+    ],
+    static_libs: [
+        "bouncycastle_ike_digests",
+        "modules-utils-build",
+        "modules-utils-statemachine",
+    ],
+    sdk_version: "module_current",
+}
+
+java_library {
+    name: "ike_test",
+    installable: false, // Used only for testing; never installed alone.
+    srcs: [":ike-srcs"],
+    libs: [
+        "unsupportedappusage",
+        "conscrypt.module.public.api",
+    ],
+    static_libs: ["ike-internals"],
+
+    // Shared filegroups of BouncyCastle and frameworks are jar-jar'ed to avoid
+    // being overwritten by the frameworks class copies and break code coverage
+    // reports. IKE source files are jarjared to avoid this test jar being
+    // overshadowed by the IKE jar in framework and bootclasspath which will
+    // cause compiling and runtime errors respectively.
+    jarjar_rules: "jarjar-rules-test.txt",
+}
+
+java_library {
+    name: "ike-test-utils-dependency",
+    installable: false, // Used only for building the "ike-test-utils"
+    srcs: ["src/java/**/IkeCertUtils.java"],
+    jarjar_rules: "jarjar-rules-test.txt",
+}
+
+java_library {
+    name: "ike-test-utils",
+    srcs: [
+        "src/java/**/PolicyDirection.java",
+        "tests/iketests/src/java/**/CertUtils.java",
+    ],
+    static_libs: ["ike-test-utils-dependency"],
+    libs: ["androidx.test.rules"],
+    visibility: ["//packages/modules/IPsec/tests/cts"],
+}
+
+sdk {
+    name: "ipsec-module-sdk",
+    apexes: [
+        // Adds exportable dependencies of the APEX to the sdk,
+        // e.g. *classpath_fragments.
+        "com.android.ipsec",
+    ],
+}
+
+genrule {
+    name: "statslog-ike-java-gen",
+    tools: ["stats-log-api-gen"],
+    cmd: "$(location stats-log-api-gen) --java $(out) --module ike" +
+        " --javaPackage com.android.internal.net.ipsec.ike.utils --javaClass IkeMetricsInterface",
+    out: ["com/android/internal/net/ipsec/ike/utils/IkeMetricsInterface.java"],
+}

@@ -1,0 +1,35 @@
+// Top level module dumpsys data schema
+//
+// Possible field privacy levels from strongest to weakest.
+// When unspecified defaults to the strongest privacy level.
+//
+// privacy:"Private"
+// privacy:"Opaque"
+// privacy:"Anonymized"
+// privacy:"Any"
+
+
+include "common/init_flags.fbs";
+include "hci/hci_acl_manager.fbs";
+include "hci/hci_controller.fbs";
+include "l2cap/classic/l2cap_classic_module.fbs";
+include "module_unittest.fbs";
+include "os/wakelock_manager.fbs";
+include "shim/dumpsys.fbs";
+
+namespace bluetooth;
+
+attribute "privacy";
+
+table DumpsysData {
+    title:string (privacy:"Any");
+    init_flags:common.InitFlagsData (privacy:"Any");
+    wakelock_manager_data:bluetooth.os.WakelockManagerData (privacy:"Any");
+    shim_dumpsys_data:bluetooth.shim.DumpsysModuleData (privacy:"Any");
+    l2cap_classic_dumpsys_data:bluetooth.l2cap.classic.L2capClassicModuleData (privacy:"Any");
+    hci_acl_manager_dumpsys_data:bluetooth.hci.AclManagerData (privacy:"Any");
+    hci_controller_dumpsys_data:bluetooth.hci.ControllerData (privacy:"Any");
+    module_unittest_data:bluetooth.ModuleUnitTestData; // private
+}
+
+root_type DumpsysData;

@@ -1,0 +1,30 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "CarDeveloperOptionsUnitTests",
+
+    certificate: "platform",
+
+    srcs: ["src/**/*.java"],
+
+    libs: [
+        "android.test.runner",
+        "android.test.base",
+    ],
+
+    static_libs: [
+        "androidx.test.core",
+        "androidx.test.rules",
+        "androidx.test.ext.junit",
+        "androidx.test.ext.truth",
+    ],
+
+    instrumentation_for: "CarDeveloperOptions",
+
+    test_suites: [
+        "automotive-general-tests",
+        "general-tests",
+    ],
+}

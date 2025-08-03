@@ -1,0 +1,556 @@
+[
+  {
+    "name": "winningCA",
+    "buyer": "ba-buyer-5jyy5ulagq-uc.a.run.app",
+    "activationTime": "2022-12-20T15:48:08.688Z",
+    "expirationTime": "2022-12-20T16:03:08.688Z",
+    "dailyUpdateUri": "https://ba-buyer-5jyy5ulagq-uc.a.run.app/update",
+    "biddingLogicUri": "https://ba-buyer-5jyy5ulagq-uc.a.run.app/rb/bjs",
+    "userBiddingSignals": {
+      "signals": []
+    },
+    "trustedBiddingData": {
+      "trustedBiddingKeys": [
+        "1j7245936676"
+      ],
+      "trustedBiddingUri": "https://ba-buyer-5jyy5ulagq-uc.a.run.app/rb/bts"
+    },
+    "ads": [
+      {
+        "ad_render_id": "1a",
+        "render_uri": "https://ba-buyer-5jyy5ulagq-uc.a.run.app/1j7245936676/ad?adg_id=123394967410&cr_id=618898865445&cv_id=1",
+        "metadata": {
+          "metadata": [
+            "123394967410",
+            "618898865445",
+            "1",
+            "14898603099"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "name": "b1ca2",
+    "buyer": "ba-buyer-5jyy5ulagq-uc.a.run.app",
+    "activationTime": "2022-12-20T15:48:08.688Z",
+    "expirationTime": "2022-12-20T16:03:08.688Z",
+    "dailyUpdateUri": "https://ba-buyer-5jyy5ulagq-uc.a.run.app/update",
+    "biddingLogicUri": "https://ba-buyer-5jyy5ulagq-uc.a.run.app/rb/bjs",
+    "userBiddingSignals": {
+      "signals": []
+    },
+    "trustedBiddingData": {
+      "trustedBiddingKeys": [
+        "1j7245936676"
+      ],
+      "trustedBiddingUri": "https://ba-buyer-5jyy5ulagq-uc.a.run.app/rb/bts"
+    },
+    "ads": [
+      {
+        "ad_render_id": "1a",
+        "render_uri": "https://ba-buyer-5jyy5ulagq-uc.a.run.app/1j7245936676/ad?adg_id=123394967410&cr_id=618898865445&cv_id=1",
+        "metadata": {
+          "metadata": [
+            "123394967410",
+            "618898865445",
+            "1",
+            "14898603099"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "name": "b1ca3",
+    "buyer": "ba-buyer-5jyy5ulagq-uc.a.run.app",
+    "activationTime": "2022-12-20T15:48:08.688Z",
+    "expirationTime": "2022-12-20T16:03:08.688Z",
+    "dailyUpdateUri": "https://ba-buyer-5jyy5ulagq-uc.a.run.app/update",
+    "biddingLogicUri": "https://ba-buyer-5jyy5ulagq-uc.a.run.app/rb/bjs",
+    "userBiddingSignals": {
+      "signals": []
+    },
+    "trustedBiddingData": {
+      "trustedBiddingKeys": [
+        "1j7245936676"
+      ],
+      "trustedBiddingUri": "https://ba-buyer-5jyy5ulagq-uc.a.run.app/rb/bts"
+    },
+    "ads": [
+      {
+        "ad_render_id": "1a",
+        "render_uri": "https://ba-buyer-5jyy5ulagq-uc.a.run.app/1j7245936676/ad?adg_id=123394967410&cr_id=618898865445&cv_id=1",
+        "metadata": {
+          "metadata": [
+            "123394967410",
+            "618898865445",
+            "1",
+            "14898603099"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "name": "b1ca4",
+    "buyer": "ba-buyer-5jyy5ulagq-uc.a.run.app",
+    "activationTime": "2022-12-20T15:48:08.688Z",
+    "expirationTime": "2022-12-20T16:03:08.688Z",
+    "dailyUpdateUri": "https://ba-buyer-5jyy5ulagq-uc.a.run.app/update",
+    "biddingLogicUri": "https://ba-buyer-5jyy5ulagq-uc.a.run.app/rb/bjs",
+    "userBiddingSignals": {
+      "signals": []
+    },
+    "trustedBiddingData": {
+      "trustedBiddingKeys": [
+        "1j7245936676"
+      ],
+      "trustedBiddingUri": "https://ba-buyer-5jyy5ulagq-uc.a.run.app/rb/bts"
+    },
+    "ads": [
+      {
+        "ad_render_id": "1a",
+        "render_uri": "https://ba-buyer-5jyy5ulagq-uc.a.run.app/1j7245936676/ad?adg_id=123394967410&cr_id=618898865445&cv_id=1",
+        "metadata": {
+          "metadata": [
+            "123394967410",
+            "618898865445",
+            "1",
+            "14898603099"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "name": "b1ca5",
+    "buyer": "ba-buyer-5jyy5ulagq-uc.a.run.app",
+    "activationTime": "2022-12-20T15:48:08.688Z",
+    "expirationTime": "2022-12-20T16:03:08.688Z",
+    "dailyUpdateUri": "https://ba-buyer-5jyy5ulagq-uc.a.run.app/update",
+    "biddingLogicUri": "https://ba-buyer-5jyy5ulagq-uc.a.run.app/rb/bjs",
+    "userBiddingSignals": {
+      "signals": []
+    },
+    "trustedBiddingData": {
+      "trustedBiddingKeys": [
+        "1j7245936676"
+      ],
+      "trustedBiddingUri": "https://ba-buyer-5jyy5ulagq-uc.a.run.app/rb/bts"
+    },
+    "ads": [
+      {
+        "ad_render_id": "1a",
+        "render_uri": "https://ba-buyer-5jyy5ulagq-uc.a.run.app/1j7245936676/ad?adg_id=123394967410&cr_id=618898865445&cv_id=1",
+        "metadata": {
+          "metadata": [
+            "123394967410",
+            "618898865445",
+            "1",
+            "14898603099"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "name": "secondBuyer",
+    "buyer": "ba-buyer2-5jyy5ulagq-uc.a.run.app",
+    "activationTime": "2022-12-20T15:48:08.688Z",
+    "expirationTime": "2022-12-20T16:03:08.688Z",
+    "dailyUpdateUri": "https://ba-buyer2-5jyy5ulagq-uc.a.run.app/update",
+    "biddingLogicUri": "https://ba-buyer2-5jyy5ulagq-uc.a.run.app/rb/bjs",
+    "userBiddingSignals": {
+      "signals": []
+    },
+    "trustedBiddingData": {
+      "trustedBiddingKeys": [
+        "sb_1j7245936676"
+      ],
+      "trustedBiddingUri": "https://ba-buyer2-5jyy5ulagq-uc.a.run.app/rb/bts"
+    },
+    "ads": [
+      {
+        "ad_render_id": "1a",
+        "render_uri": "https://ba-buyer2-5jyy5ulagq-uc.a.run.app/1j7245936676/ad?adg_id=123394967410&cr_id=618898865445&cv_id=1",
+        "metadata": {
+          "metadata": [
+            "123394967410",
+            "618898865445",
+            "1",
+            "14898603099"
+          ]
+        }
+      },
+      {
+        "ad_render_id": "2a",
+        "render_uri": "https://ba-buyer2-5jyy5ulagq-uc.a.run.app/1j7245936676/ad?adg_id=123394967410&cr_id=618898865445&cv_id=1",
+        "metadata": {
+          "metadata": [
+            "123394967410",
+            "618898865445",
+            "1",
+            "14898603099"
+          ]
+        }
+      },
+      {
+        "ad_render_id": "3a",
+        "render_uri": "https://ba-buyer2-5jyy5ulagq-uc.a.run.app/1j7245936676/ad?adg_id=123394967410&cr_id=618898865445&cv_id=1",
+        "metadata": {
+          "metadata": [
+            "123394967410",
+            "618898865445",
+            "1",
+            "14898603099"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "name": "b2ca3",
+    "buyer": "ba-buyer2-5jyy5ulagq-uc.a.run.app",
+    "activationTime": "2022-12-20T15:48:08.688Z",
+    "expirationTime": "2022-12-20T16:03:08.688Z",
+    "dailyUpdateUri": "https://ba-buyer2-5jyy5ulagq-uc.a.run.app/update",
+    "biddingLogicUri": "https://ba-buyer2-5jyy5ulagq-uc.a.run.app/rb/bjs",
+    "userBiddingSignals": {
+      "signals": []
+    },
+    "trustedBiddingData": {
+      "trustedBiddingKeys": [
+        "sb_1j7245936676"
+      ],
+      "trustedBiddingUri": "https://ba-buyer2-5jyy5ulagq-uc.a.run.app/rb/bts"
+    },
+    "ads": [
+      {
+        "ad_render_id": "1a",
+        "render_uri": "https://ba-buyer2-5jyy5ulagq-uc.a.run.app/1j7245936676/ad?adg_id=123394967410&cr_id=618898865445&cv_id=1",
+        "metadata": {
+          "metadata": [
+            "123394967410",
+            "618898865445",
+            "1",
+            "14898603099"
+          ]
+        }
+      },
+      {
+        "ad_render_id": "2a",
+        "render_uri": "https://ba-buyer2-5jyy5ulagq-uc.a.run.app/1j7245936676/ad?adg_id=123394967410&cr_id=618898865445&cv_id=1",
+        "metadata": {
+          "metadata": [
+            "123394967410",
+            "618898865445",
+            "1",
+            "14898603099"
+          ]
+        }
+      },
+      {
+        "ad_render_id": "3a",
+        "render_uri": "https://ba-buyer2-5jyy5ulagq-uc.a.run.app/1j7245936676/ad?adg_id=123394967410&cr_id=618898865445&cv_id=1",
+        "metadata": {
+          "metadata": [
+            "123394967410",
+            "618898865445",
+            "1",
+            "14898603099"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "name": "b2ca2",
+    "buyer": "ba-buyer2-5jyy5ulagq-uc.a.run.app",
+    "activationTime": "2022-12-20T15:48:08.688Z",
+    "expirationTime": "2022-12-20T16:03:08.688Z",
+    "dailyUpdateUri": "https://ba-buyer2-5jyy5ulagq-uc.a.run.app/update",
+    "biddingLogicUri": "https://ba-buyer2-5jyy5ulagq-uc.a.run.app/rb/bjs",
+    "userBiddingSignals": {
+      "signals": []
+    },
+    "trustedBiddingData": {
+      "trustedBiddingKeys": [
+        "sb_1j7245936676"
+      ],
+      "trustedBiddingUri": "https://ba-buyer2-5jyy5ulagq-uc.a.run.app/rb/bts"
+    },
+    "ads": [
+      {
+        "ad_render_id": "1a",
+        "render_uri": "https://ba-buyer2-5jyy5ulagq-uc.a.run.app/1j7245936676/ad?adg_id=123394967410&cr_id=618898865445&cv_id=1",
+        "metadata": {
+          "metadata": [
+            "123394967410",
+            "618898865445",
+            "1",
+            "14898603099"
+          ]
+        }
+      },
+      {
+        "ad_render_id": "2a",
+        "render_uri": "https://ba-buyer2-5jyy5ulagq-uc.a.run.app/1j7245936676/ad?adg_id=123394967410&cr_id=618898865445&cv_id=1",
+        "metadata": {
+          "metadata": [
+            "123394967410",
+            "618898865445",
+            "1",
+            "14898603099"
+          ]
+        }
+      },
+      {
+        "ad_render_id": "3a",
+        "render_uri": "https://ba-buyer2-5jyy5ulagq-uc.a.run.app/1j7245936676/ad?adg_id=123394967410&cr_id=618898865445&cv_id=1",
+        "metadata": {
+          "metadata": [
+            "123394967410",
+            "618898865445",
+            "1",
+            "14898603099"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "name": "b2ca4",
+    "buyer": "ba-buyer2-5jyy5ulagq-uc.a.run.app",
+    "activationTime": "2022-12-20T15:48:08.688Z",
+    "expirationTime": "2022-12-20T16:03:08.688Z",
+    "dailyUpdateUri": "https://ba-buyer2-5jyy5ulagq-uc.a.run.app/update",
+    "biddingLogicUri": "https://ba-buyer2-5jyy5ulagq-uc.a.run.app/rb/bjs",
+    "userBiddingSignals": {
+      "signals": []
+    },
+    "trustedBiddingData": {
+      "trustedBiddingKeys": [
+        "sb_1j7245936676"
+      ],
+      "trustedBiddingUri": "https://ba-buyer2-5jyy5ulagq-uc.a.run.app/rb/bts"
+    },
+    "ads": [
+      {
+        "ad_render_id": "1a",
+        "render_uri": "https://ba-buyer2-5jyy5ulagq-uc.a.run.app/1j7245936676/ad?adg_id=123394967410&cr_id=618898865445&cv_id=1",
+        "metadata": {
+          "metadata": [
+            "123394967410",
+            "618898865445",
+            "1",
+            "14898603099"
+          ]
+        }
+      },
+      {
+        "ad_render_id": "2a",
+        "render_uri": "https://ba-buyer2-5jyy5ulagq-uc.a.run.app/1j7245936676/ad?adg_id=123394967410&cr_id=618898865445&cv_id=1",
+        "metadata": {
+          "metadata": [
+            "123394967410",
+            "618898865445",
+            "1",
+            "14898603099"
+          ]
+        }
+      },
+      {
+        "ad_render_id": "3a",
+        "render_uri": "https://ba-buyer2-5jyy5ulagq-uc.a.run.app/1j7245936676/ad?adg_id=123394967410&cr_id=618898865445&cv_id=1",
+        "metadata": {
+          "metadata": [
+            "123394967410",
+            "618898865445",
+            "1",
+            "14898603099"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "name": "b2ca5",
+    "buyer": "ba-buyer2-5jyy5ulagq-uc.a.run.app",
+    "activationTime": "2022-12-20T15:48:08.688Z",
+    "expirationTime": "2022-12-20T16:03:08.688Z",
+    "dailyUpdateUri": "https://ba-buyer2-5jyy5ulagq-uc.a.run.app/update",
+    "biddingLogicUri": "https://ba-buyer2-5jyy5ulagq-uc.a.run.app/rb/bjs",
+    "userBiddingSignals": {
+      "signals": []
+    },
+    "trustedBiddingData": {
+      "trustedBiddingKeys": [
+        "sb_1j7245936676"
+      ],
+      "trustedBiddingUri": "https://ba-buyer2-5jyy5ulagq-uc.a.run.app/rb/bts"
+    },
+    "ads": [
+      {
+        "ad_render_id": "1a",
+        "render_uri": "https://ba-buyer2-5jyy5ulagq-uc.a.run.app/1j7245936676/ad?adg_id=123394967410&cr_id=618898865445&cv_id=1",
+        "metadata": {
+          "metadata": [
+            "123394967410",
+            "618898865445",
+            "1",
+            "14898603099"
+          ]
+        }
+      },
+      {
+        "ad_render_id": "2a",
+        "render_uri": "https://ba-buyer2-5jyy5ulagq-uc.a.run.app/1j7245936676/ad?adg_id=123394967410&cr_id=618898865445&cv_id=1",
+        "metadata": {
+          "metadata": [
+            "123394967410",
+            "618898865445",
+            "1",
+            "14898603099"
+          ]
+        }
+      },
+      {
+        "ad_render_id": "3a",
+        "render_uri": "https://ba-buyer2-5jyy5ulagq-uc.a.run.app/1j7245936676/ad?adg_id=123394967410&cr_id=618898865445&cv_id=1",
+        "metadata": {
+          "metadata": [
+            "123394967410",
+            "618898865445",
+            "1",
+            "14898603099"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "name": "thirdBuyer",
+    "buyer": "ba-buyer3-5jyy5ulagq-uc.a.run.app",
+    "activationTime": "2022-12-20T15:48:08.688Z",
+    "expirationTime": "2022-12-20T16:03:08.688Z",
+    "dailyUpdateUri": "https://ba-buyer3-5jyy5ulagq-uc.a.run.app/update",
+    "biddingLogicUri": "https://ba-buyer3-5jyy5ulagq-uc.a.run.app/rb/bjs",
+    "userBiddingSignals": {
+      "signals": []
+    },
+    "trustedBiddingData": {
+      "trustedBiddingKeys": [
+        "sb_1j7245936676"
+      ],
+      "trustedBiddingUri": "https://ba-buyer3-5jyy5ulagq-uc.a.run.app/rb/bts"
+    },
+    "ads": [
+      {
+        "ad_render_id": "1a",
+        "render_uri": "https://ba-buyer3-5jyy5ulagq-uc.a.run.app/1j7245936676/ad?adg_id=123394967410&cr_id=618898865445&cv_id=1",
+        "metadata": {
+          "metadata": [
+            "123394967410",
+            "618898865445",
+            "1",
+            "14898603099"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "name": "b3ca2",
+    "buyer": "ba-buyer3-5jyy5ulagq-uc.a.run.app",
+    "activationTime": "2022-12-20T15:48:08.688Z",
+    "expirationTime": "2022-12-20T16:03:08.688Z",
+    "dailyUpdateUri": "https://ba-buyer3-5jyy5ulagq-uc.a.run.app/update",
+    "biddingLogicUri": "https://ba-buyer3-5jyy5ulagq-uc.a.run.app/rb/bjs",
+    "userBiddingSignals": {
+      "signals": []
+    },
+    "trustedBiddingData": {
+      "trustedBiddingKeys": [
+        "sb_1j7245936676"
+      ],
+      "trustedBiddingUri": "https://ba-buyer3-5jyy5ulagq-uc.a.run.app/rb/bts"
+    },
+    "ads": [
+      {
+        "ad_render_id": "1a",
+        "render_uri": "https://ba-buyer3-5jyy5ulagq-uc.a.run.app/1j7245936676/ad?adg_id=123394967410&cr_id=618898865445&cv_id=1",
+        "metadata": {
+          "metadata": [
+            "123394967410",
+            "618898865445",
+            "1",
+            "14898603099"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "name": "fourthBuyer",
+    "buyer": "ba-buyer4-5jyy5ulagq-uc.a.run.app",
+    "activationTime": "2022-12-20T15:48:08.688Z",
+    "expirationTime": "2022-12-20T16:03:08.688Z",
+    "dailyUpdateUri": "https://ba-buyer4-5jyy5ulagq-uc.a.run.app/update",
+    "biddingLogicUri": "https://ba-buyer4-5jyy5ulagq-uc.a.run.app/rb/bjs",
+    "userBiddingSignals": {
+      "signals": []
+    },
+    "trustedBiddingData": {
+      "trustedBiddingKeys": [
+        "sb_1j7245936676"
+      ],
+      "trustedBiddingUri": "https://ba-buyer4-5jyy5ulagq-uc.a.run.app/rb/bts"
+    },
+    "ads": [
+      {
+        "ad_render_id": "1a",
+        "render_uri": "https://ba-buyer4-5jyy5ulagq-uc.a.run.app/1j7245936676/ad?adg_id=123394967410&cr_id=618898865445&cv_id=1",
+        "metadata": {
+          "metadata": [
+            "123394967410",
+            "618898865445",
+            "1",
+            "14898603099"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "name": "fifthBuyer",
+    "buyer": "ba-buyer5-5jyy5ulagq-uc.a.run.app",
+    "activationTime": "2022-12-20T15:48:08.688Z",
+    "expirationTime": "2022-12-20T16:03:08.688Z",
+    "dailyUpdateUri": "https://ba-buyer5-5jyy5ulagq-uc.a.run.app/update",
+    "biddingLogicUri": "https://ba-buyer5-5jyy5ulagq-uc.a.run.app/rb/bjs",
+    "userBiddingSignals": {
+      "signals": []
+    },
+    "trustedBiddingData": {
+      "trustedBiddingKeys": [
+        "sb_1j7245936676"
+      ],
+      "trustedBiddingUri": "https://ba-buyer5-5jyy5ulagq-uc.a.run.app/rb/bts"
+    },
+    "ads": [
+      {
+        "ad_render_id": "1a",
+        "render_uri": "https://ba-buyer5-5jyy5ulagq-uc.a.run.app/1j7245936676/ad?adg_id=123394967410&cr_id=618898865445&cv_id=1",
+        "metadata": {
+          "metadata": [
+            "123394967410",
+            "618898865445",
+            "1",
+            "14898603099"
+          ]
+        }
+      }
+    ]
+  }
+]

@@ -1,0 +1,6 @@
+magdi@google.com
+teog@google.com
+csitari@google.com
+pakoch@google.com
+
+include platform/packages/modules/common:/MODULES_OWNERS  # see go/mainline-owners-policy

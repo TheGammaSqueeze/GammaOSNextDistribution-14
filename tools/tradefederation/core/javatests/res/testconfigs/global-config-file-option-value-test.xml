@@ -1,0 +1,6 @@
+<configuration>
+    <host_options class="com.android.tradefed.host.HostOptions">
+        <option name="service-account-json-key-file" key="api-key" value="/tradefed/api-key.json"/>
+        <option name="service-account-json-key-file" key="other-key" value="gs:/tradefed/other-key.json"/>
+    </host_options>
+</configuration>

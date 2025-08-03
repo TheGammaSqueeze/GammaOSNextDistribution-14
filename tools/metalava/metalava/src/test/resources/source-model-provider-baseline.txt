@@ -1,0 +1,324 @@
+com.android.tools.metalava.AddAdditionalOverridesTest
+  Do not elide method inherited from inaccessible class and default method from interface[turbine]
+  Elide methods inherited from one inaccessible class if they override method inherited from another inaccessible class[turbine]
+
+com.android.tools.metalava.AndroidApiChecksTest
+  Document Permissions[turbine]
+
+com.android.tools.metalava.AnnotationsMergerTest
+  Merge @FlaggedApi inclusion annotations from Java stub files[turbine]
+  Merge Contract and Language annotations from XML files[turbine]
+  Merge Contract and Language annotations from signature files[turbine]
+  Merge nullability into child[turbine]
+  Merge qualifier annotations from Java stub files making sure they apply to public members of hidden superclasses[turbine]
+  Merge qualifier annotations from Java stub files onto stubs that are not in the API signature file[turbine]
+  Merge qualifier annotations from Java stub files[turbine]
+  Merge type use qualifier annotations from Java stub files[turbine]
+  Merged class and method annotations with no arguments[turbine]
+  Signature files contain annotations[turbine]
+
+com.android.tools.metalava.ApiAnalyzerTest
+  Test PrivateSuperclass for inner class[turbine]
+  Test deprecated status not propagated to removed items[turbine]
+  Test inherited method from hidden class into deprecated class inherits deprecated status[turbine]
+  Test inheriting methods from hidden class preserves deprecated status[turbine]
+  Test inheriting methods from hidden generic class preserves deprecated status[turbine]
+  Test references deprecated errors do not apply to inner class of deprecated class[turbine]
+  Test that usage of effectively deprecated class is flagged[turbine]
+
+com.android.tools.metalava.ApiFileTest
+  Annotation class extraction[turbine]
+  Annotation value visibility[turbine]
+  Check @remove class[turbine]
+  Check all modifiers[turbine]
+  Check basic @remove scenarios[turbine]
+  Check generic type signature insertion[turbine]
+  Check skipping implicit final or deprecated override[turbine]
+  Check various generics signature subtleties[turbine]
+  Implementing package private class[turbine]
+  Indirect Field Includes from Interfaces[turbine]
+  Inheriting from package private classes, package private class should be included[turbine]
+  Inheriting generic method from package private class[turbine]
+  Kotlin expect-actual with JvmOverloads[psi,k2]
+  Remove findViewById type nullness annotation[turbine]
+  Skip inherited package private methods from private parents[turbine]
+  Subclass definition is not included in removed api file[turbine]
+  Test KDoc suppress[turbine]
+  Test inherited hidden methods for descendant classes - Package private[turbine]
+  Test inherited methods that use generics[turbine]
+  Type substitution for generic method referencing parent type parameter[turbine]
+  Type-use annotations can be included in signature files[turbine]
+  When implementing rather than extending package private class, inline members instead[turbine]
+
+com.android.tools.metalava.BaselineTest
+  Check baseline[turbine]
+
+com.android.tools.metalava.CoreApiTest
+  Hidden with --hide-annotation[turbine]
+  Hidden with package javadoc and hiding default constructor explicitly[turbine]
+
+com.android.tools.metalava.ExtractAnnotationsTest
+  Check java typedef extraction and warning about non-source retention of typedefs[turbine]
+  Check warning about unexpected returns from typedef method[turbine]
+  Extract permission annotations[turbine]
+  Include merged annotations in exported source annotations[turbine]
+  Inlining typedef signatures in api files[turbine]
+  Only including class retention annotations in stubs[turbine]
+  Test generics in XML attributes are encoded[turbine]
+  Test string literal encoding[turbine]
+
+com.android.tools.metalava.FlaggedApiTest
+  Basic test that FlaggedApi annotated items can be hidden[turbine,system with flagged api]
+  Basic test that FlaggedApi annotated items can be hidden[turbine,system without flagged api, with foo/bar]
+  Test that annotated class members are handled correctly when flagged APIs are hidden[turbine,system with flagged api]
+  Test that annotated class members are handled correctly when flagged APIs are hidden[turbine,system without flagged api, with foo/bar]
+  Test that cross references are handled correctly when flagged APIs are hidden[turbine,system with flagged api]
+  Test that cross references are handled correctly when flagged APIs are hidden[turbine,system without flagged api, with foo/bar]
+  Test that method overrides are handled correctly when flagged APIs are hidden[turbine,system with flagged api]
+  Test that method overrides are handled correctly when flagged APIs are hidden[turbine,system without flagged api, with foo/bar]
+  Test that previously released APIs which are now public and flagged are not removed[turbine,module_lib with flagged api]
+  Test that previously released APIs which are now public and flagged are not removed[turbine,module_lib without  flagged api]
+  Test that previously released APIs which are now public and flagged are not removed[turbine,module_lib without flagged api, with foo/bar]
+  Test that previously released APIs which are now public and flagged are not removed[turbine,public with flagged api]
+  Test that previously released APIs which are now public and flagged are not removed[turbine,public without  flagged api]
+  Test that previously released APIs which are now public and flagged are not removed[turbine,public without flagged api, with foo/bar]
+  Test that previously released APIs which are now public and flagged are not removed[turbine,system with flagged api]
+  Test that previously released APIs which are now public and flagged are not removed[turbine,system without  flagged api]
+  Test that previously released APIs which are now public and flagged are not removed[turbine,system without flagged api, with foo/bar]
+  Test that previously released APIs which are now system and flagged are not removed[turbine,module_lib with flagged api]
+  Test that previously released APIs which are now system and flagged are not removed[turbine,module_lib without  flagged api]
+  Test that previously released APIs which are now system and flagged are not removed[turbine,module_lib without flagged api, with foo/bar]
+  Test that previously released APIs which are now system and flagged are not removed[turbine,system with flagged api]
+  Test that previously released APIs which are now system and flagged are not removed[turbine,system without  flagged api]
+  Test that previously released APIs which are now system and flagged are not removed[turbine,system without flagged api, with foo/bar]
+
+com.android.tools.metalava.HideAnnotationTest
+  Using hide annotation interface order[turbine]
+
+com.android.tools.metalava.Java9LanguageFeaturesTest
+  Basic class signature extraction[turbine]
+  Using JDK APIs[turbine]
+
+com.android.tools.metalava.JavadocTest
+  Check references to inherited field constants[turbine]
+  Ensure references to classes in JavaDoc of hidden members do not affect imports[turbine]
+  Handle @attr references[turbine]
+  Javadoc link to innerclass constructor[turbine]
+  Relative documentation links in stubs[turbine]
+  Rewrite parameter list 2[turbine]
+  Rewrite parameter list[turbine]
+  Rewrite relative documentation links in doc-stubs 3[turbine]
+  Rewrite relative documentation links in doc-stubs 4[turbine]
+  Rewrite relative documentation links in doc-stubs but preserve custom link text[turbine]
+  Rewrite relative documentation links in doc-stubs[turbine]
+  Warn about unresolved[turbine]
+
+com.android.tools.metalava.KeepFileTest
+  Arrays with Inner class[turbine]
+  Multi dimensional arrays[turbine]
+
+com.android.tools.metalava.NormalizeOutputAnnotationTest
+  Normalize nested permission annotations (java)[turbine]
+
+com.android.tools.metalava.NullabilityAnnotationsValidatorTest
+  Empty report when all expected annotations present[turbine]
+  Error from NullFromTypeParam not on type param[turbine]
+  Error from annotation on primitive[turbine]
+  Missing parameter annotation[turbine]
+  Missing return type annotations[turbine]
+  Using class list[turbine]
+
+com.android.tools.metalava.NullnessMigrationTest
+  Convert libcore nullness annotations to support[turbine]
+  Do not migrate type-use annotations when not changed[turbine]
+  Migrate nullness for type-use annotations[turbine]
+  Test inherited methods[turbine]
+
+com.android.tools.metalava.PolymorphicMethodsTest
+  Test MethodHandle[turbine]
+  Test VarHandle[turbine]
+
+com.android.tools.metalava.RequiresFeatureTest
+  Check RequiresFeature handling - custom enforcement[turbine]
+  Check RequiresFeature handling - hidden feature[turbine]
+  Check RequiresFeature handling - invalid enforcement[turbine]
+  Check RequiresFeature handling - missing feature[turbine]
+  Check RequiresFeature handling[turbine]
+
+com.android.tools.metalava.SdkFileWriterTest
+  Test generating activity actions[turbine]
+  Test generating broadcast actions[turbine]
+
+com.android.tools.metalava.ShowAnnotationTest
+  Can't expose item from a hidden parent[turbine]
+  Include interface-inherited fields in stubs[turbine]
+  Testing parsing an annotation whose attribute references the annotated class[turbine]
+  showAnnotation with default parameters[turbine]
+
+com.android.tools.metalava.SymlinkTest
+  Symlink test making sure we don't iterate forever[turbine]
+
+com.android.tools.metalava.SyntaxErrorTest
+  Invalid syntax[turbine]
+
+com.android.tools.metalava.SystemServiceCheckTest
+  Check SystemService -- can miss a permission with anyOf[turbine]
+  Check SystemService -- missing manifest permissions[turbine]
+  Check SystemService -- missing one permission with allOf[turbine]
+  Check SystemService -- must be system permission, not normal[turbine]
+  Check SystemService -- no permission annotation[turbine]
+  Check SystemService such that at least one permission must be defined with anyOf[turbine]
+  Invalid manifest[turbine]
+  SystemService OK, loaded from signature file[turbine]
+  SystemService OK, loaded from source[turbine]
+  Warning suppressed via annotation[turbine]
+
+com.android.tools.metalava.UnhideApisTest
+  Including private interfaces from types[turbine]
+  Report hidden API access rather than opening up access[turbine]
+
+com.android.tools.metalava.apilevels.ApiGeneratorTest
+  APIs annotated with suppress-compatibility-meta-annotations appear in output[turbine]
+
+com.android.tools.metalava.compatibility.CheckAndroidApisShard1Test
+  Test All Android API levels[turbine,4 to 5]
+  Test All Android API levels[turbine,5 to 6]
+  Test All Android API levels[turbine,6 to 7]
+  Test All Android API levels[turbine,7 to 8]
+
+com.android.tools.metalava.compatibility.CheckAndroidApisShard2Test
+  Test All Android API levels[turbine,17 to 18]
+  Test All Android API levels[turbine,18 to 19]
+  Test All Android API levels[turbine,19 to 20]
+
+com.android.tools.metalava.compatibility.CheckAndroidApisShard3Test
+  Test All Android API levels[turbine,25 to 26]
+
+com.android.tools.metalava.compatibility.CompatibilityCheckTest
+  Change item in nested SystemApi[turbine]
+  Conversion from AutoCloseable to Closeable is not API-breaking[turbine]
+  Conversion from MutableCollection to AbstractMutableCollection is not API-breaking[turbine]
+  Empty bundle files[turbine]
+  Expected API changes converting collections to Kotlin[turbine]
+  Implementing undefined interface[turbine]
+  Implicit modifiers from inherited super classes[turbine]
+  Incompatible method change -- final[turbine]
+  Inherited systemApi method in an inner class[turbine]
+  No issues using the same classpath class twice[turbine]
+  Partial text file which references inner classes not listed elsewhere[turbine]
+  Removed method from classpath[turbine]
+  Test inherited methods[turbine]
+  Wildcard comparisons[turbine]
+  unchanged self-referencing type parameter is compatible[turbine]
+
+com.android.tools.metalava.compatibility.FastPathTest
+  Check fast path not taken for removed[turbine]
+  Check fast path not taken[turbine]
+  Check fast path taken for removed[turbine]
+  Check fast path taken[turbine]
+
+com.android.tools.metalava.compatibility.ParameterNameChangeTest
+  Flag renaming a parameter from the classpath[turbine]
+  Java Parameter Name Change[turbine]
+
+com.android.tools.metalava.doc.DocAnalyzerRangeTest
+  Add new parameter when doc exists but no param doc[turbine]
+  Add new parameter when no doc exists[turbine]
+  Add new parameter, sorted correctly between existing ones[turbine]
+  Add new return value[turbine]
+  Add to existing parameter[turbine]
+  Add to existing return value (ensuring it appears last)[turbine]
+  Document ranges[turbine]
+  Merge API levels[turbine]
+  Trailing comment close[turbine]
+  Typedefs combined with ranges[turbine]
+  Typedefs[turbine]
+
+com.android.tools.metalava.doc.DocAnalyzerTest
+  @sdkExtSince (finalized, no codename)[turbine]
+  @sdkExtSince (not finalized)[turbine]
+  Add to existing multi-line method documentation[turbine]
+  Add to existing single-line method documentation[turbine]
+  Add to method when there are existing parameter docs and appear before these[turbine]
+  Annotation annotating itself indirectly[turbine]
+  Api levels around current and preview[turbine]
+  Basic documentation generation test[turbine]
+  Check RequiresApi handling[turbine]
+  Check construct ApiLookup works correctly[turbine]
+  Create method documentation from nothing[turbine]
+  Document Permissions[turbine]
+  Generate API level javadocs[turbine]
+  Generate overview html docs[turbine]
+  Merge Multiple sections[turbine]
+  Merge deprecation levels[turbine]
+  Merging in documentation snippets from annotation memberDoc and classDoc[turbine]
+  No api levels on SystemApi only elements[turbine]
+  Test Column annotation[turbine]
+  Warn about missing field[turbine]
+  Warn about multiple threading annotations[turbine]
+  memberDoc crash[turbine]
+
+com.android.tools.metalava.lint.ApiLintTest
+  Check package layering[turbine]
+  Check suppress works on inherited methods[turbine]
+  CompletableFuture and plain Future not allowed[turbine]
+  Constructors return types don't require nullability[turbine]
+  Listener replaceable with OutcomeReceiver or ListenableFuture[turbine]
+  Nullability check for generic methods referencing parent type parameter[turbine]
+  Test listeners[turbine]
+  Typedef must be hidden[turbine]
+
+com.android.tools.metalava.lint.CheckBuilderTest
+  Check builders[turbine]
+
+com.android.tools.metalava.lint.FlaggedApiLintTest
+  Dont require @FlaggedApi on existing items inherited into new SystemApi classes[turbine]
+  Require @FlaggedApi on new APIs[turbine]
+  Require @FlaggedApi to reference generated fields[turbine]
+
+com.android.tools.metalava.stub.StubsAnnotationTest
+  Annotation default values[turbine]
+  Annotation nested rewriting[turbine]
+  Pass through libcore annotations[turbine]
+  Rewrite unknown nullability annotations as doc stubs[turbine]
+
+com.android.tools.metalava.stub.StubsClassTest
+  Check inheriting from package private class[turbine]
+  Include package private classes referenced from public API[turbine]
+
+com.android.tools.metalava.stub.StubsConstructorTest
+  Arguments to super constructors with showAnnotations[turbine]
+  Arguments to super constructors[turbine]
+  Picking Constructors[turbine]
+  Picking Super Constructors[turbine]
+  Varargs constructor parameter requiring cast[turbine]
+
+com.android.tools.metalava.stub.StubsGenericTest
+  Generate stubs for additional generics scenarios[turbine]
+  Generics Variable Rewriting[turbine]
+
+com.android.tools.metalava.stub.StubsInterfaceTest
+  Check generating required stubs from hidden super classes and interfaces[turbine]
+  Check implementing a package private interface[turbine]
+  Rewriting type parameters in interfaces from hidden super classes and in throws lists[turbine]
+
+com.android.tools.metalava.stub.StubsPackageInfoTest
+  Check writing package info file[turbine]
+  Check writing package info from package html file[turbine]
+  Test package-info documentation in doc stubs[turbine]
+  Test package-info documentation in stubs[turbine]
+
+com.android.tools.metalava.stub.StubsTest
+  Arrays in type arguments[turbine]
+  Compilable stubs are not generated when inheriting class exists in jar passed via classpath[turbine]
+  DocOnly members should be included when requested[turbine]
+  DocOnly members should be omitted[turbine]
+  Ensure that when generating stubs from signature files the constructors are setup correctly[turbine]
+  Generate documentation stubs with --exclude-documentation-from-stubs[turbine]
+  Generate stubs for various modifier scenarios[turbine]
+  Missing overridden method[turbine]
+  Picking super class throwables[turbine]
+  Rewriting implements class references[turbine]
+  Skip type variables in casts[turbine]
+  Translate DeprecatedForSdk to Deprecated[turbine]
+  Type-use annotations are not included in stubs[turbine]

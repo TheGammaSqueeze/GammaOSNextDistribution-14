@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  Copyright (C) 2022 The Android Open Source Project
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+          http://www.apache.org/licenses/LICENSE-2.0
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<configuration description="List test modules of HealthFitness module. This is a placeholder xml instead of a runnable plan.">
+      <option name="compatibility:include-filter" value="CtsHealthFitnessDeviceTestCases" />
+      <option name="compatibility:include-filter" value="CtsHealthFitnessDeviceTestCasesNoPermission" />
+      <option name="compatibility:include-filter" value="HealthFitnessUnitTests" />
+      <option name="compatibility:include-filter" value="HealthConnectControllerUITests" />
+      <option name="compatibility:include-filter" value="CtsHealthConnectControllerTestCases" />
+      <option name="compatibility:include-filter" value="HealthFitnessIntegrationTests" />
+      <option name="compatibility:include-filter" value="HealthConnectBackupRestoreUnitTests" />
+      <option name="compatibility:include-filter" value="CtsHealthFitnessDeviceTestCasesRateLimiter"/>
+      <option name="compatibility:include-filter" value="CtsHealthFitnessShowMigrationInfoIntentAbsentTests"/>
+      <option name="compatibility:include-filter" value="HealthFitnessIntegrationBackupRestoreTests"/>
+
+      <option name="compatibility:module-arg" value="CtsHealthFitnessDeviceTestCases:enable:true" />
+      <option name="compatibility:module-arg" value="CtsHealthFitnessDeviceTestCasesNoPermission:enable:true" />
+      <option name="compatibility:module-arg" value="HealthFitnessUnitTests:enable:true" />
+      <option name="compatibility:module-arg" value="HealthConnectControllerUITests:enable:true" />
+      <option name="compatibility:module-arg" value="CtsHealthConnectControllerTestCases:enable:true" />
+      <option name="compatibility:module-arg" value="HealthFitnessIntegrationTests:enable:true" />
+      <option name="compatibility:module-arg" value="HealthConnectBackupRestoreUnitTests:enable:true" />
+      <option name="compatibility:module-arg" value="CtsHealthFitnessDeviceTestCasesRateLimiter:enable:true" />
+      <option name="compatibility:module-arg" value="CtsHealthFitnessShowMigrationInfoIntentAbsentTests:enable:true" />
+      <option name="compatibility:module-arg" value="HealthFitnessIntegrationBackupRestoreTests:enable:true" />
+
+</configuration>

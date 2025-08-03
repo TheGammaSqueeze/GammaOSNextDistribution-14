@@ -1,0 +1,58 @@
+<!--
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/status_icon_panel_bg_color">
+    <com.android.car.ui.FocusParkingView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+    <com.android.car.ui.FocusArea
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:paddingTop="@dimen/car_profile_switcher_padding_top"
+                app:layout_constraintHeight_default="wrap"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toTopOf="@+id/qc_profile_footer_button">
+                <com.android.systemui.car.qc.SystemUIQCView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    app:localQCProvider="com.android.systemui.car.qc.CarUiPortraitProfileSwitcher"/>
+            </ScrollView>
+            <com.android.systemui.car.qc.QCFooterButton
+                android:id="@+id/qc_profile_footer_button"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                style="@style/QCFooterButtonStyle"
+                android:text="@string/qc_footer_profiles_accounts_settings"
+                app:intent="intent:#Intent;component=com.android.car.settings/.common.CarSettingActivities$ProfileDetailsActivity;launchFlags=0x08080000;end"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.android.car.ui.FocusArea>
+</FrameLayout>

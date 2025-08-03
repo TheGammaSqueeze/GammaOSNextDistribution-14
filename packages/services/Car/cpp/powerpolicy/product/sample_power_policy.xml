@@ -1,0 +1,70 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<!-- Sample power policy XML configuration
+
+     Power policy XML configuration should be copied to /vendor/etc/automotive/power_policy.xml.
+     Use power_policy_configuration.dtd with xmllint tool, to validate XML configuration file
+-->
+
+<powerPolicy version="1.0">
+    <!-- version section contains a “version" tag in the form “major.minor" e.g version="1.0" -->
+
+    <policyGroups>
+        <policyGroup id="basic_policy_group">
+            <defaultPolicy state="WaitForVHAL" id="sample_policy_01"/>
+            <defaultPolicy state="On" id="sample_policy_02"/>
+        </policyGroup>
+        <policyGroup id="no_default_policy">
+            <noDefaultPolicy state="WaitForVHAL"/>
+            <noDefaultPolicy state="On"/>
+        </policyGroup>
+        <policyGroup id="mixed_default_policy">
+            <noDefaultPolicy state="WaitForVHAL"/>
+            <defaultPolicy state="On" id="sample_policy_02"/>
+        </policyGroup>
+    </policyGroups>
+
+    <policies>
+        <policy id="sample_policy_01">
+            <otherComponents behavior="off"/>
+            <component id="POWER_COMPONENT_AUDIO">on</component>
+            <component id="POWER_COMPONENT_DISPLAY">on</component>
+            <component id="POWER_COMPONENT_WIFI">on</component>
+            <component id="POWER_COMPONENT_VISUAL_INTERACTION">on</component>
+            <component id="POWER_COMPONENT_TRUSTED_DEVICE_DETECTION">on</component>
+        </policy>
+        <policy id="sample_policy_02">
+            <otherComponents behavior="untouched"/>
+            <component id="POWER_COMPONENT_AUDIO">on</component>
+            <component id="POWER_COMPONENT_DISPLAY">on</component>
+            <component id="POWER_COMPONENT_BLUETOOTH">off</component>
+            <component id="POWER_COMPONENT_WIFI">off</component>
+            <component id="POWER_COMPONENT_VOICE_INTERACTION">on</component>
+            <component id="POWER_COMPONENT_VISUAL_INTERACTION">on</component>
+            <component id="POWER_COMPONENT_TRUSTED_DEVICE_DETECTION">on</component>
+        </policy>
+        <policy id="sample_policy_03">
+            <otherComponents behavior="on"/>
+            <component id="POWER_COMPONENT_AUDIO">off</component>
+            <component id="POWER_COMPONENT_VOICE_INTERACTION">off</component>
+            <component id="POWER_COMPONENT_VISUAL_INTERACTION">off</component>
+            <component id="POWER_COMPONENT_TRUSTED_DEVICE_DETECTION">off</component>
+        </policy>
+        <policy id="sample_policy_04">
+            <component id="POWER_COMPONENT_AUDIO">off</component>
+            <component id="POWER_COMPONENT_WIFI">on</component>
+            <component id="POWER_COMPONENT_VOICE_INTERACTION">off</component>
+            <component id="POWER_COMPONENT_VISUAL_INTERACTION">off</component>
+            <component id="POWER_COMPONENT_TRUSTED_DEVICE_DETECTION">off</component>
+        </policy>
+    </policies>
+
+    <systemPolicyOverrides>
+        <policy id="system_power_policy_no_user_interaction">
+            <component id="POWER_COMPONENT_BLUETOOTH">on</component>
+            <component id="POWER_COMPONENT_NFC">on</component>
+            <component id="POWER_COMPONENT_TRUSTED_DEVICE_DETECTION">off</component>
+        </policy>
+    </systemPolicyOverrides>
+
+</powerPolicy>

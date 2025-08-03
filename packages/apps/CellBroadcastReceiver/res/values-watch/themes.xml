@@ -1,0 +1,5 @@
+<resources>
+    <style name="CellBroadcastSettingsTheme" parent="@android:style/Theme.DeviceDefault"/>
+
+    <style name="CellBroadcastSettingsDialogTheme" parent="@android:style/Theme.DeviceDefault.Dialog"/>
+</resources>

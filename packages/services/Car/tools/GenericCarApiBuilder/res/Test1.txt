@@ -1,0 +1,176 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package android.car.user;
+
+/**
+ *
+ * @hide
+ */
+@SystemApi
+public final class Test1 {
+
+    /** @hide */
+    @AddedInOrBefore(majorVersion = 33)
+    public static final String FIELD_1 = "value1";
+
+    public static final int FIELD_2 = 500;
+
+    /**
+     * @hide
+     */
+    @SystemApi
+
+    @AddedIn(majorVersion = 33)
+    @RequiresApi(api=34)
+    public static final int FIELD_3;
+
+    /**
+     * @hide
+     */
+    @SystemApi
+    @AddedIn(PlatformVersion.TIRAMISU_0)
+    @RequiresApi(api=Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    public static final int FIELD_4 = 2;
+
+    /**
+     * @hide
+     */
+    @SystemApi
+    @RequiresApi(34)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final int FIELD_5 = 2;
+
+    /**
+     * @hide
+     */
+    @SystemApi
+    @AddedInOrBefore(majorVersion = 33, minorVersion = 3)
+    @AddedIn(majorVersion = 33)
+    @AddedIn(value=PlatformVersion.TIRAMISU_0)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+     public static final int FIELD_6 = 2;
+
+    /**
+     * @hide
+     */
+    public Test1(@NonNull Car car, @NonNull IBinder service) {
+        this(car, ICarUserService.Stub.asInterface(service),
+                car.getContext().getSystemService(UserManager.class));
+    }
+
+    /**
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
+            android.Manifest.permission.INTERACT_ACROSS_USERS})
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public void method_1(@NonNull UserStopRequest request,
+            @NonNull @CallbackExecutor Executor executor,
+            @NonNull ResultCallback<UserStopResponse> callback) {
+            UserStopResponse response = mService.stopUser(request);
+            executor.execute(() -> callback.onResult(response));
+    }
+
+    private AndroidAsyncFuture<UserSwitchResult> privateMethod(
+            @UserSwitchResult.Status int status) {
+        AndroidFuture<UserSwitchResult> future = new AndroidFuture<>();
+        future.complete(new UserSwitchResult(status, null));
+        return new AndroidAsyncFuture<>(future);
+    }
+
+
+    /**
+     * @hide
+     */
+    @Deprecated
+    @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
+            android.Manifest.permission.CREATE_USERS})
+    @AddedInOrBefore(majorVersion = 33)
+    public void method_2() {
+        Log.w(TAG, "updatePreCreatedUsers(): This method should not be called."
+                + " Pre-created users are no longer supported.");
+    }
+
+    @Deprecated
+    @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
+            android.Manifest.permission.CREATE_USERS})
+    @AddedInOrBefore(majorVersion = 33)
+    @RequiresApi(34)
+    public int method_3() {
+        Log.w(TAG, "updatePreCreatedUsers(): This method should not be called."
+                + " Pre-created users are no longer supported.");
+        return 0;
+    }
+
+    /**
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public int method_4() {
+            assertPlatformVersionAtLeastU();
+            return 0;
+    }
+
+    public static final class UserLifecycleEvent {
+        private final @UserLifecycleEventType int mEventType;
+        private final @UserIdInt int mUserId;
+        private final @UserIdInt int mPreviousUserId;
+
+        /** @hide */
+        public UserLifecycleEvent(@UserLifecycleEventType int eventType,
+                @UserIdInt int from, @UserIdInt int to) {
+            mEventType = eventType;
+            mPreviousUserId = from;
+            mUserId = to;
+        }
+
+        public UserLifecycleEvent(@UserLifecycleEventType int eventType, @UserIdInt int to) {
+            this(eventType, UserManagerHelper.USER_NULL, to);
+        }
+
+        @UserLifecycleEventType
+        @AddedInOrBefore(majorVersion = 33)
+        public int getEventType() {
+            return mEventType;
+        }
+
+       /**
+        * @hide
+        */
+        @SystemApi
+        public interface UserLifecycleListener2 {
+            @AddedInOrBefore(majorVersion = 33)
+            void onEvent(@NonNull UserLifecycleEvent event);
+        }
+    }
+
+    /**
+     * @hide
+     */
+    @SystemApi
+    public interface UserLifecycleListener {
+        @AddedInOrBefore(majorVersion = 33)
+        void onEvent(@NonNull UserLifecycleEvent event);
+    }
+}

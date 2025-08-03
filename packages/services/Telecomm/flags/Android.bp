@@ -1,0 +1,44 @@
+//
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+aconfig_declarations {
+    name: "telecom_flags",
+    package: "com.android.server.telecom.flags",
+    container: "system",
+    srcs: [
+        "telecom_broadcast_flags.aconfig",
+        "telecom_ringer_flag_declarations.aconfig",
+        "telecom_api_flags.aconfig",
+        "telecom_call_filtering_flags.aconfig",
+        "telecom_incallservice_flags.aconfig",
+        "telecom_default_phone_account_flags.aconfig",
+        "telecom_callaudioroutestatemachine_flags.aconfig",
+        "telecom_call_flags.aconfig",
+        "telecom_calls_manager_flags.aconfig",
+        "telecom_anomaly_report_flags.aconfig",
+        "telecom_callaudiomodestatemachine_flags.aconfig",
+        "telecom_calllog_flags.aconfig",
+        "telecom_resolve_hidden_dependencies.aconfig",
+        "telecom_bluetoothroutemanager_flags.aconfig",
+        "telecom_work_profile_flags.aconfig",
+        "telecom_connection_service_wrapper_flags.aconfig",
+        "telecom_profile_user_flags.aconfig",
+    ],
+}

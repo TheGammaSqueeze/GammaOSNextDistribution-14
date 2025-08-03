@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2014 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="settings_app_name">Agordoj</string>
+    <string name="launcher_settings_app_name">Agordoj</string>
+    <string name="launcher_network_app_name">Reto</string>
+    <string name="header_category_device">Aparato</string>
+    <string name="applications_category_title">Aplikaĵoj</string>
+    <string name="accessibility_category_title">Alirebleco</string>
+    <string name="add_account">Aldoni konton</string>
+    <string name="surround_sound_enable_unsupported_dialog_cancel">Nuligi</string>
+    <string name="match_content_frame_rate_never">Neniam</string>
+    <string name="resolution_selection_dialog_cancel">Nuligi</string>
+    <string name="accessory_state_canceled">Nuligita</string>
+    <string name="bluetooth_cancel">Nuligi</string>
+    <string name="system_language">Lingvo</string>
+    <string name="system_keyboard">Klavaro</string>
+    <string name="system_search">Serĉi</string>
+    <string name="wifi_action_try_again">Reprovi</string>
+    <string name="wifi_forget_network">Forgesi reton</string>
+    <string name="title_cancel">Nuligi</string>
+    <string name="storage_apps_usage">Aplikaĵoj</string>
+    <string name="system_location">Loko</string>
+    <string name="captions_language">Lingvo</string>
+    <string name="system_hdcp_checking_never">Neniam</string>
+    <string name="enable_opengl_traces_error">Call stack on glGetError</string>
+    <string name="track_frame_time_gfxinfo">In adb shell dumpsys gfxinfo</string>
+    <string name="input_header_names">Nomo</string>
+    <string name="restriction_location_enable_title">Loko</string>
+    <string name="restricted_profile_configure_title">Agordoj</string>
+    <string name="restriction_description"><xliff:g id="description">%1$s</xliff:g>\n<xliff:g id="value">%2$s</xliff:g></string>
+    <string name="device_apps_app_management_uninstall">Malinstali</string>
+    <string name="settings_cancel">Nuligi</string>
+    <string name="network_connection_timeout_dialog_ok">Reprovi</string>
+</resources>

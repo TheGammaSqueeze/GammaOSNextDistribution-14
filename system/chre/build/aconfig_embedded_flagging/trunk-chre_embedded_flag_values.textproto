@@ -1,0 +1,6 @@
+flag_value {
+    package: "android.embedded.chre.flags"
+    name: "post_release_24q1"
+    state: DISABLED
+    permission: READ_ONLY
+}

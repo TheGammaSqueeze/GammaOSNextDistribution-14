@@ -1,0 +1,251 @@
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "CtsHealthFitnessDeviceTestCases",
+    defaults: ["cts_defaults"],
+    libs: [
+        "android.test.runner",
+        "android.test.base",
+        "framework-healthfitness",
+        "framework-configinfrastructure",
+        "framework-sdkextensions"
+    ],
+    srcs: [
+        ":healthfitness-cts-testapp-srcs",
+        ":healthfitness-permissions-testapp-srcs",
+        "src/android/healthconnect/cts/*.java",
+        "src/android/healthconnect/cts/aggregation/*.java",
+        "src/android/healthconnect/cts/changelogs/*.java",
+        "src/android/healthconnect/cts/datatypes/**/*.java",
+        "src/android/healthconnect/cts/migration/*.java",
+        "src/android/healthconnect/cts/readdata/*.java",
+        "src/android/healthconnect/cts/historicaccess/HistoricAccessLimitTest.java",
+    ],
+    // Tag this module as a cts test artifact
+    test_suites: [
+        "cts",
+        "general-tests",
+        "mts-healthfitness",
+        "mcts-healthfitness",
+    ],
+    static_libs: [
+        "androidx.test.rules",
+        "androidx.test.ext.truth",
+        "compatibility-device-util-axt",
+        "ctstestrunner-axt",
+        "cts-wm-util",
+        "modules-utils-build",
+        "testng",
+        "cts-healthconnect-utils",
+    ],
+    min_sdk_version: "34",
+    sdk_version: "module_current",
+    data: [
+        ":HealthFitnessCtsTestApp",
+        ":HealthFitnessCtsTestApp2",
+        ":HealthFitnessPermsTestApp",
+    ],
+}
+
+android_test {
+    name: "CtsHealthFitnessDeviceTestCasesNoPermission",
+    defaults: ["cts_defaults"],
+    libs: [
+        "android.test.runner",
+        "android.test.base",
+        "framework-healthfitness",
+    ],
+    srcs: [
+        "src/android/healthconnect/cts/nopermission/*.java",
+    ],
+    // Tag this module as a cts test artifact
+    test_suites: [
+        "cts",
+        "general-tests",
+        "mts-healthfitness",
+        "mcts-healthfitness",
+    ],
+    static_libs: [
+        "androidx.test.rules",
+        "androidx.test.ext.truth",
+        "compatibility-device-util-axt",
+        "ctstestrunner-axt",
+        "cts-wm-util",
+        "testng",
+        "cts-healthconnect-utils",
+    ],
+    min_sdk_version: "34",
+    sdk_version: "module_current",
+    test_config:"AndroidTestNoPermission.xml",
+    manifest: "AndroidManifestNoPermission.xml",
+}
+
+android_test {
+    name: "CtsHealthFitnessDeviceTestCasesRateLimiter",
+    defaults: ["cts_defaults"],
+    libs: [
+        "android.test.runner",
+        "android.test.base",
+        "framework-healthfitness",
+        "framework-configinfrastructure",
+        "framework-sdkextensions"
+    ],
+    srcs: [
+        "src/android/healthconnect/cts/ratelimiter/*.java",
+    ],
+    // Tag this module as a cts test artifact
+    test_suites: [
+        "cts",
+        "general-tests",
+        "mts-healthfitness",
+        "mcts-healthfitness",
+    ],
+    static_libs: [
+        "androidx.test.rules",
+        "androidx.test.ext.truth",
+        "compatibility-device-util-axt",
+        "ctstestrunner-axt",
+        "cts-wm-util",
+        "modules-utils-build",
+        "testng",
+        "cts-healthconnect-utils",
+    ],
+    min_sdk_version: "34",
+    sdk_version: "module_current",
+    test_config:"AndroidTestRateLimiter.xml",
+    manifest: "AndroidManifestRateLimiter.xml",
+}
+
+android_test {
+    name: "CtsHealthConnectControllerTestCases",
+    defaults: ["cts_defaults"],
+    libs: [
+        "android.test.runner",
+        "android.test.base",
+        "framework-healthfitness",
+    ],
+    srcs: [
+        ":healthfitness-cts-testapp-srcs",
+        ":healthfitness-cts-testapp2-srcs",
+        "src/android/healthconnect/cts/ui/**/*.kt",
+        "src/com/android/cts/install/lib/*.java",
+    ],
+    // Tag this module as a cts test artifact
+    test_suites: [
+        "cts",
+        "general-tests",
+        "mts-healthfitness",
+        "mcts-healthfitness",
+    ],
+    static_libs: [
+        "androidx.test.rules",
+        "androidx.test.ext.truth",
+        "compatibility-device-util-axt",
+        "ctstestrunner-axt",
+        "cts-wm-util",
+        "testng",
+        "cts-healthconnect-lib",
+        "cts-install-lib",
+        "cts-healthconnect-utils",
+    ],
+    min_sdk_version: "34",
+    sdk_version: "module_current",
+    test_config:"AndroidTestUI.xml",
+    manifest: "AndroidManifestUI.xml",
+    data: [
+            ":HealthFitnessCtsTestApp",
+            ":HealthFitnessCtsTestApp2",
+            ":CtsHealthConnectTestAppAWithNormalReadWritePermission",
+            ":CtsHealthConnectTestAppBWithNormalReadWritePermission",
+        ],
+}
+
+android_test {
+    name: "CtsHealthFitnessShowMigrationInfoIntentAbsentTests",
+    defaults: ["cts_defaults"],
+    libs: [
+        "android.test.runner",
+        "android.test.base",
+        "framework-healthfitness",
+        "framework-sdkextensions"
+    ],
+    srcs: [
+        "src/android/healthconnect/cts/showmigrationinfointent/ShowMigrationInfoIntentAbsentTest.java",
+    ],
+    // Tag this module as a cts test artifact
+    test_suites: [
+        "cts",
+        "general-tests",
+        "mts-healthfitness",
+        "mcts-healthfitness",
+    ],
+    static_libs: [
+        "androidx.test.rules",
+        "androidx.test.ext.truth",
+        "compatibility-device-util-axt",
+        "ctstestrunner-axt",
+        "cts-wm-util",
+	"modules-utils-build",
+        "testng",
+        "cts-healthconnect-utils",
+    ],
+    min_sdk_version: "34",
+    sdk_version: "module_current",
+    test_config:"AndroidTestShowMigrationInfoIntentAbsent.xml",
+    manifest: "AndroidManifestShowMigrationInfoIntentAbsent.xml",
+}
+
+android_test {
+    name: "CtsHealthFitnessDeviceTestCasesHistoricAccessLimitWithPermission",
+    defaults: ["cts_defaults"],
+    libs: [
+        "android.test.runner",
+        "android.test.base",
+        "framework-healthfitness",
+        "framework-configinfrastructure",
+        "framework-sdkextensions"
+    ],
+    srcs: [
+        "src/android/healthconnect/cts/historicaccess/HistoricAccessLimitWithPermissionTest.java",
+    ],
+    // Tag this module as a cts test artifact
+    test_suites: [
+        "cts",
+        "general-tests",
+        "mts-healthfitness",
+        "mcts-healthfitness",
+    ],
+    static_libs: [
+        "androidx.test.rules",
+        "androidx.test.ext.truth",
+        "compatibility-device-util-axt",
+        "ctstestrunner-axt",
+        "cts-wm-util",
+        "modules-utils-build",
+        "testng",
+        "cts-healthconnect-utils",
+    ],
+    min_sdk_version: "34",
+    sdk_version: "module_current",
+    test_config:"AndroidTestHistoricAccessLimitWithPermission.xml",
+    manifest: "AndroidManifestHistoricAccessLimitWithPermission.xml",
+    data: [
+        ":HealthFitnessPermsTestApp",
+    ],
+}

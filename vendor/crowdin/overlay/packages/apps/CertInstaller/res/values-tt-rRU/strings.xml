@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2009 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Сертификат урнаштыручы</string>
+    <string name="pick_file_title">Сертификатны сайлау</string>
+    <string name="pkcs12_password_dialog_title">Сертификатны чыгару</string>
+    <string name="extracting_pkcs12">Чыгару\u2026</string>
+    <string name="name_credential_dialog_title">Сертификатны атагыз</string>
+    <string name="certificate_name">Сертификат исеме</string>
+    <string name="credential_password">Сертификатларны чыгару өчен серсүзне языгыз.</string>
+    <string name="credential_info">Пакетта нәрсә бар:</string>
+    <string name="userkey_type">Алгоритм: </string>
+    <string name="password_error">Дөрес серсүзне языгыз.</string>
+    <string name="password_empty_error">Серсүз языгыз.</string>
+    <string name="name_empty_error">Исем языгыз.</string>
+    <string name="name_char_error">Хәреф һәм саннар гына булган исем языгыз.</string>
+    <string name="cert_not_saved">Сертификат урнаштырылмады.</string>
+    <string name="no_cert_to_saved">Урнаштырырдай сертификат юк.</string>
+    <string name="invalid_cert">Сертификат яраксыз.</string>
+    <string name="action_missing_private_key">Сертификатны урнаштыру өчен шәхси ачкыч кирәк</string>
+    <string name="action_missing_user_cert">Шәхси ачкычны урнаштыру өчен сертификат кирәк</string>
+    <string name="select_certificate_usage_title">Сертификатның төрен сайлау</string>
+    <string name="redirect_ca_certificate_title">Көйләүләрдә CA сертификатларын урнаштыру</string>
+    <string name="redirect_ca_certificate_with_app_info_message">Әлеге <xliff:g id="requesting_app" example="Some App">%1$s</xliff:g>
+        сертификаты көйләүләрдә урнаштырылырга тиеш. Үзегез ышанган
+        оешмаларның гына CA сертификатларын урнаштырыгыз.</string>
+    <string name="invalid_certificate_title">Бу файл кулланыла алмый</string>
+    <string name="invalid_certificate_message">Бу файл <xliff:g id="certificate_usage">%1$s</xliff:g> буларак кулланыла алмый</string>
+    <string name="ca_certificate">CA сертификаты</string>
+    <string name="wifi_certificate">Wi\u2011Fi сертификаты</string>
+    <string name="ca_cert_is_added">CA сертификаты урнаштырылды</string>
+    <string name="user_cert_is_added">Кулланучы сертификаты урнаштырылды</string>
+    <string name="wifi_cert_is_added">Wi\u2011Fi сертификаты урнаштырылды</string>
+    <string name="cert_too_large_error">Сертификат артык зур булганга урнаштырыла алмый.</string>
+    <string name="cert_missing_error">Сертификат табылмаганга күрә урнаштырыла алмый.</string>
+    <string name="cert_read_error">Сертификат укыла алмаганга күрә урнаштырыла алмый.</string>
+    <string-array name="credential_usage">
+        <item>VPN and apps</item>
+        <item>Wi-Fi</item>
+    </string-array>
+    <string name="wifi_installing_label">Урнаштыру</string>
+    <string name="wifi_tls_config_text">Клиент сертификаты:\n%1$s\nАчкыч: %2$s\n</string>
+    <string name="wifi_sim_config_text">SIM: %s\n</string>
+    <string name="wifi_trust_config_text">Ышаныч сертификаты:\n%s\n</string>
+    <string name="wifi_installer_download_error">Йөкләнеп алынган файлда проблемалар бар һәм ул урнаштырыла алмый.Файлны дөрес чыганактан йөкләп алуыгызга инаныгыз.</string>
+    <string name="wifi_installer_fail_no_wifi_title">Урнаштыру кире кагылды</string>
+    <string name="wifi_installer_fail_title">Урнаштырып булмый</string>
+    <string name="wifi_installer_fail_no_wifi">Wi-Fi\'ны кабызыгыз һәм кабатлап карагыз.</string>
+</resources>

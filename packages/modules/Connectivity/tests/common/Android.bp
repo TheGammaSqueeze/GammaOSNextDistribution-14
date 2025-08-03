@@ -1,0 +1,203 @@
+//
+// Copyright (C) 2019 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+// Tests in this folder are included both in unit tests and CTS.
+// They must be fast and stable, and exercise public or test APIs.
+package {
+    default_team: "trendy_team_fwk_core_networking",
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+// The target SDK version of the "latest released SDK" CTS tests.
+// This should be updated soon after a new SDK level is finalized.
+// It is different from the target SDK version of production code (e.g., the Tethering,
+// NetworkStack, and CaptivePortalLogin APKs):
+// - The target SDK of production code influences the behaviour of the production code.
+// - The target SDK of the CTS tests validates the behaviour seen by apps that call production APIs.
+// - The behaviour seen by apps that target previous SDKs is tested by previous CTS versions
+//   (currently, CTS 10, 11, and 12).
+java_defaults {
+    name: "ConnectivityTestsLatestSdkDefaults",
+    target_sdk_version: "34",
+}
+
+java_library {
+    name: "FrameworksNetCommonTests",
+    defaults: ["framework-connectivity-internal-test-defaults"],
+    srcs: [
+        "java/**/*.java",
+        "java/**/*.kt",
+    ],
+    static_libs: [
+        "androidx.core_core",
+        "androidx.test.rules",
+        "junit",
+        "mockito-target-minus-junit4",
+        "modules-utils-build",
+        "net-tests-utils",
+        "net-utils-framework-common",
+        "platform-compat-test-rules",
+        "platform-test-annotations",
+    ],
+    libs: [
+        "android.test.base.stubs",
+    ],
+}
+
+// Combine Connectivity, NetworkStack and Tethering jarjar rules for coverage target.
+// The jarjar files are simply concatenated in the order specified in srcs.
+// jarjar stops at the first matching rule, so order of concatenation affects the output.
+genrule {
+    name: "ConnectivityCoverageJarJarRules",
+    defaults: ["jarjar-rules-combine-defaults"],
+    srcs: [
+        "tethering-jni-jarjar-rules.txt",
+        ":frameworks-net-tests-jarjar-rules",
+        ":TetheringTestsJarJarRules",
+        ":NetworkStackJarJarRules",
+    ],
+    out: ["jarjar-rules-connectivity-coverage.txt"],
+    visibility: ["//visibility:private"],
+}
+
+android_library {
+    name: "ConnectivityCoverageTestsLib",
+    min_sdk_version: "30",
+    static_libs: [
+        "FrameworksNetTestsLib",
+        "NetdStaticLibTestsLib",
+        "NetworkStaticLibTestsLib",
+        "NetworkStackTestsLib",
+        "TetheringTestsLatestSdkLib",
+        "TetheringIntegrationTestsLatestSdkLib",
+    ],
+    jarjar_rules: ":ConnectivityCoverageJarJarRules",
+    manifest: "AndroidManifest_coverage.xml",
+    visibility: ["//visibility:private"],
+}
+
+android_test {
+    name: "ConnectivityCoverageTests",
+    // Tethering started on SDK 30
+    min_sdk_version: "30",
+    test_suites: [
+        "general-tests",
+        "mts-tethering",
+    ],
+    defaults: [
+        "ConnectivityTestsLatestSdkDefaults",
+        "framework-connectivity-internal-test-defaults",
+        "FrameworksNetTests-jni-defaults",
+        "libnetworkstackutilsjni_deps",
+    ],
+    manifest: "AndroidManifest_coverage.xml",
+    test_config: "AndroidTest_Coverage.xml",
+    static_libs: [
+        // Added first so all tests use extended mockito, instead of all tests using regular mockito
+        // (some tests would fail).
+        // TODO: consider removing extended mockito usage in tests that use it, for performance
+        "mockito-target-extended-minus-junit4",
+        "modules-utils-native-coverage-listener",
+        "ConnectivityCoverageTestsLib",
+    ],
+    jni_libs: [
+        // For mockito extended
+        "libdexmakerjvmtiagent",
+        "libstaticjvmtiagent",
+        // For NetworkStackUtils included in NetworkStackBase
+        "libnetworkstackutilsjni",
+        "libandroid_net_connectivity_com_android_net_module_util_jni",
+        "libcom_android_networkstack_tethering_util_jni",
+        // For framework tests
+        "libservice-connectivity",
+    ],
+    libs: [
+        // Although not required to compile the static libs together, the "libs" used to build each
+        // of the common static test libs are necessary for R8 to avoid "Missing class" warnings and
+        // incorrect optimizations
+        "framework-tethering.impl",
+        "framework-wifi.stubs.module_lib",
+    ],
+    compile_multilib: "both",
+}
+
+// defaults for tests that need to build against framework-connectivity's @hide APIs
+// Only usable from targets that have visibility on framework-connectivity.impl.
+// Instead of using this, consider avoiding to depend on hidden connectivity APIs in
+// tests.
+java_defaults {
+    name: "framework-connectivity-test-defaults",
+    sdk_version: "core_platform", // tests can use @CorePlatformApi's
+    libs: [
+        // order matters: classes in framework-connectivity are resolved before framework,
+        // meaning @hide APIs in framework-connectivity are resolved before @SystemApi
+        // stubs in framework
+        "framework-connectivity.impl",
+        "framework-connectivity-t.impl",
+        "framework-tethering.impl",
+        "framework",
+
+        // if sdk_version="" this gets automatically included, but here we need to add manually.
+        "framework-res",
+    ],
+}
+
+// defaults for tests that need to build against framework-connectivity's @hide APIs, but also
+// using fully @hide classes that are jarjared (because they have no API member). Similar to
+// framework-connectivity-test-defaults above but uses pre-jarjar class names.
+// Only usable from targets that have visibility on framework-connectivity-pre-jarjar, and apply
+// connectivity jarjar rules so that references to jarjared classes still match: this is limited to
+// connectivity internal tests only.
+java_defaults {
+    name: "framework-connectivity-internal-test-defaults",
+    sdk_version: "core_platform", // tests can use @CorePlatformApi's
+    libs: [
+        // order matters: classes in framework-connectivity are resolved before framework,
+        // meaning @hide APIs in framework-connectivity are resolved before @SystemApi
+        // stubs in framework
+        "framework-connectivity-pre-jarjar",
+        "framework-connectivity-t-pre-jarjar",
+        "framework-tethering.impl",
+        "framework",
+
+        // if sdk_version="" this gets automatically included, but here we need to add manually.
+        "framework-res",
+    ],
+    defaults_visibility: ["//packages/modules/Connectivity/tests:__subpackages__"],
+}
+
+// Defaults for tests that want to run in mainline-presubmit.
+// Not widely used because many of our tests have AndroidTest.xml files and
+// use the mainline-param config-descriptor metadata in AndroidTest.xml.
+
+// test_mainline_modules is an array of strings. Each element in the array is a list of modules
+// separated by "+". The modules in this list must be in alphabetical order.
+// See SuiteModuleLoader.java.
+// TODO: why are the modules separated by + instead of being separate entries in the array?
+mainline_presubmit_modules = [
+    "CaptivePortalLoginGoogle.apk+NetworkStackGoogle.apk+com.google.android.resolv.apex+com.google.android.tethering.apex",
+]
+
+cc_defaults {
+    name: "connectivity-mainline-presubmit-cc-defaults",
+    test_mainline_modules: mainline_presubmit_modules,
+}
+
+java_defaults {
+    name: "connectivity-mainline-presubmit-java-defaults",
+    test_mainline_modules: mainline_presubmit_modules,
+}

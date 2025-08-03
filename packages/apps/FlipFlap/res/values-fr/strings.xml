@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  Copyright (c) 2017 The LineageOS Project
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ Also add information on how to contact you by electronic and paper mail.
+
+-->
+<resources>
+    <string name="app_name">FlipFlap</string>
+    <string name="notification_title">Smart cover detectée</string>
+    <string name="alarm_label">ALARME</string>
+    <string name="abbrev_wday_month_day_no_year">EEE, d MMMM</string>
+    <string name="answer_call">RÉPONDRE</string>
+    <string name="ignore_call">IGNORER</string>
+    <string name="end_call">RACCROCHER</string>
+    <string name="settings_name">Verrouillage intelligent</string>
+    <string name="settings_enable">Activer le contrôle de la couverture intelligente</string>
+    <string name="settings_summary">Contrôler le comportement des accessoires</string>
+    <string name="category_behaviour">Comportement</string>
+    <string name="pass_to_security_view_title">Passer directement à la saisie du mot de passe</string>
+    <string name="pass_to_security_view_summary">L\'ouverture de l\'étui montre directement l\'écran de verrouillage</string>
+    <string name="use_high_touch_sensitivity_title">Haute sensibilité tactile</string>
+    <string name="use_high_touch_sensitivity_summary">Augmenter la sensibilité tactile quand le rabat est fermé</string>
+    <string name="category_design">Style</string>
+    <string name="switch_charging_status_title">Afficher l\'état de la charge</string>
+    <string name="switch_charging_status_summary">Changer de couleur en fonction de la charge actuelle de la batterie</string>
+    <string name="category_timeouts">Délais</string>
+    <string name="timeout_plugged_title">Lors du chargement</string>
+    <string name="timeout_unplugged_title">Débranché</string>
+    <string name="timeout_summary">Afficher l\'application de la protection pendant %s après son rabattement</string>
+    <string name="timeout_summary_never">L\'écran restera toujours allumé après avoir fermé l\'étui</string>
+    <string name="timeout_summary_immediately">L\'écran s\'éteindra lors du rabattement de la protection</string>
+    <string name="timeout_entry_immediately">Immédiatement</string>
+    <string name="timeout_entry_5s">5 secondes</string>
+    <string name="timeout_entry_10s">10 secondes</string>
+    <string name="timeout_entry_30s">30 secondes</string>
+    <string name="timeout_entry_1min">1 minute</string>
+    <string name="timeout_entry_5min">5 minutes</string>
+    <string name="timeout_entry_never">Jamais</string>
+</resources>

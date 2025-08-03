@@ -1,0 +1,82 @@
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "platform-screenshot-diff-test",
+    manifest: "src/androidTest/manifest/AndroidManifest.xml",
+    platform_apis: true,
+    optimize: {
+        enabled: false,
+    },
+    srcs: [
+        "src/**/*.java",
+        "src/**/*.kt",
+    ],
+    static_libs: [
+        "androidx.test.core",
+        "androidx.test.ext.junit",
+        "androidx.test.runner",
+        "androidx.test.rules",
+        "androidx.test.uiautomator_uiautomator",
+        "launcher-helper-lib",
+        "metrics-helper-lib",
+        "platform-screenshot-diff-core",
+        "platform-test-annotations",
+        "truth",
+    ],
+    asset_dirs: ["src/androidTest/assets"],
+    test_suites: ["general-tests"],
+}
+
+android_library {
+    name: "platform-screenshot-diff-core",
+    manifest: "AndroidManifest.xml",
+    platform_apis: true,
+    lint: {
+        test: true,
+    },
+    optimize: {
+        enabled: false,
+    },
+    srcs: [
+        "src/main/java/platform/test/screenshot/**/*.java",
+        "src/main/java/platform/test/screenshot/**/*.kt",
+    ],
+    static_libs: [
+        "androidx.annotation_annotation",
+        "androidx.test.ext.junit",
+        "platform-screenshot-diff-proto",
+        "androidx.test.runner",
+        "androidx.test.espresso.core",
+        "androidx.appcompat_appcompat",
+        "guava",
+        "uiautomator-helpers",
+        "androidx.concurrent_concurrent-futures-ktx",
+    ],
+}
+
+java_library {
+    name: "platform-screenshot-diff-proto",
+    srcs: [
+        "**/*.proto",
+    ],
+    optimize: {
+        enabled: false,
+    },
+}

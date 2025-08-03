@@ -1,0 +1,225 @@
+//
+// Copyright (C) 2019 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    default_team: "trendy_team_fwk_core_networking",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+// Defaults to enable/disable java targets which uses development APIs. "enabled" may have a
+// different value depending on the branch.
+java_defaults {
+    name: "ConnectivityNextEnableDefaults",
+    enabled: true,
+}
+
+java_defaults {
+    name: "NetworkStackApiShimSettingsForCurrentBranch",
+    // API shims to include in the networking modules built from the branch. Branches that disable
+    // the "next" targets must use stable shims (latest stable API level) instead of current shims
+    // (X_current API level).
+    static_libs: ["NetworkStackApiCurrentShims"],
+}
+
+apex_defaults {
+    name: "ConnectivityApexDefaults",
+    // Tethering app to include in the AOSP apex. Branches that disable the "next" targets may use
+    // a stable tethering app instead, but will generally override the AOSP apex to use updatable
+    // package names and keys, so that apex will be unused anyway.
+    apps: ["TetheringNext"], // Replace to "Tethering" if ConnectivityNextEnableDefaults is false.
+}
+
+enable_tethering_next_apex = true
+// This is a placeholder comment to avoid merge conflicts
+// as the above target may have different "enabled" values
+// depending on the branch
+
+apex_defaults {
+    name: "CronetInTetheringApexDefaults",
+    jni_libs: [
+        "cronet_aml_components_cronet_android_cronet",
+        "//external/cronet/third_party/boringssl:libcrypto",
+        "//external/cronet/third_party/boringssl:libssl",
+    ],
+}
+
+apex {
+    name: "com.android.tethering",
+    defaults: [
+        "ConnectivityApexDefaults",
+        "CronetInTetheringApexDefaults",
+        "r-launched-apex-module",
+    ],
+    compile_multilib: "both",
+    bootclasspath_fragments: [
+        "com.android.tethering-bootclasspath-fragment",
+    ],
+    systemserverclasspath_fragments: [
+        "com.android.tethering-systemserverclasspath-fragment",
+    ],
+    multilib: {
+        first: {
+            jni_libs: [
+                "libservice-connectivity",
+                "libservice-thread-jni",
+                "libandroid_net_connectivity_com_android_net_module_util_jni",
+            ],
+            native_shared_libs: [
+                "libcom.android.tethering.dns_helper",
+                "libcom.android.tethering.connectivity_native",
+                "libnetd_updatable",
+            ],
+        },
+        both: {
+            jni_libs: [
+                "libframework-connectivity-jni",
+                "libframework-connectivity-tiramisu-jni",
+            ],
+        },
+    },
+    binaries: [
+        "clatd",
+        "ethtool",
+        "netbpfload",
+        "ot-daemon",
+    ],
+    canned_fs_config: "canned_fs_config",
+    bpfs: [
+        "block.o",
+        "clatd.o",
+        "dscpPolicy.o",
+        "netd.o",
+        "offload.o",
+        "offload@btf.o",
+        "test.o",
+        "test@btf.o",
+    ],
+    apps: [
+        "ServiceConnectivityResources",
+    ],
+    prebuilts: [
+        "current_sdkinfo",
+        "netbpfload.mainline.rc",
+        "ot-daemon.init.34rc",
+    ],
+    manifest: "manifest.json",
+    key: "com.android.tethering.key",
+    // Indicates that pre-installed version of this apex can be compressed.
+    // Whether it actually will be compressed is controlled on per-device basis.
+    compressible: true,
+
+    androidManifest: "AndroidManifest.xml",
+
+    compat_configs: [
+        "connectivity-platform-compat-config",
+    ],
+}
+
+apex_key {
+    name: "com.android.tethering.key",
+    public_key: "com.android.tethering.avbpubkey",
+    private_key: "com.android.tethering.pem",
+}
+
+android_app_certificate {
+    name: "com.android.tethering.certificate",
+    certificate: "com.android.tethering",
+}
+
+filegroup {
+    name: "connectivity-hiddenapi-files",
+    srcs: [
+        ":connectivity-t-hiddenapi-files",
+        "hiddenapi/*.txt",
+    ],
+    visibility: ["//packages/modules/Connectivity:__subpackages__"],
+}
+
+// Encapsulate the contributions made by the com.android.tethering to the bootclasspath.
+bootclasspath_fragment {
+    name: "com.android.tethering-bootclasspath-fragment",
+    contents: [
+        "framework-connectivity",
+        "framework-connectivity-t",
+        "framework-tethering",
+    ],
+    apex_available: ["com.android.tethering"],
+
+    // The bootclasspath_fragments that provide APIs on which this depends.
+    fragments: [
+        {
+            apex: "com.android.art",
+            module: "art-bootclasspath-fragment",
+        },
+    ],
+
+    // Additional stubs libraries that this fragment's contents use which are
+    // not provided by another bootclasspath_fragment.
+    additional_stubs: [
+        "android-non-updatable",
+    ],
+
+    // Additional hidden API flag files to override the defaults. This must only be
+    // modified by the Soong or platform compat team.
+    hidden_api: {
+        max_target_o_low_priority: [
+            "hiddenapi/hiddenapi-max-target-o-low-priority.txt",
+        ],
+        unsupported: [
+            "hiddenapi/hiddenapi-unsupported.txt",
+        ],
+
+        // The following packages contain classes from other modules on the
+        // bootclasspath. That means that the hidden API flags for this module
+        // has to explicitly list every single class this module provides in
+        // that package to differentiate them from the classes provided by other
+        // modules. That can include private classes that are not part of the
+        // API.
+        split_packages: [
+            "android.app.usage",
+            "android.nearby",
+            "android.net",
+            "android.net.http",
+            "android.net.netstats",
+            "android.net.util",
+        ],
+
+        // The following packages and all their subpackages currently only
+        // contain classes from this bootclasspath_fragment. Listing a package
+        // here won't prevent other bootclasspath modules from adding classes in
+        // any of those packages but it will prevent them from adding those
+        // classes into an API surface, e.g. public, system, etc.. Doing so will
+        // result in a build failure due to inconsistent flags.
+        package_prefixes: [
+            "android.nearby.aidl",
+            "android.remoteauth.aidl",
+            "android.remoteauth",
+            "android.net.apf",
+            "android.net.connectivity",
+            "android.net.http.apihelpers",
+            "android.net.netstats.provider",
+            "android.net.nsd",
+            "android.net.thread",
+            "android.net.wear",
+        ],
+    },
+}
+
+systemserverclasspath_fragment {
+    name: "com.android.tethering-systemserverclasspath-fragment",
+    standalone_contents: ["service-connectivity"],
+    apex_available: ["com.android.tethering"],
+}

@@ -1,0 +1,84 @@
+/*
+ * Copyright (C) 2018 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package {
+    // http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // the below license kinds from "system_sepolicy_license":
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_sepolicy_license"],
+}
+
+cc_defaults {
+    name: "sepolicy_tools_defaults",
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+    static_libs: ["libsepol"],
+    stl: "none",
+}
+
+cc_binary_host {
+    name: "checkseapp",
+    defaults: ["sepolicy_tools_defaults"],
+    srcs: ["check_seapp.c"],
+    whole_static_libs: ["libpcre2"],
+    cflags: ["-DLINK_SEPOL_STATIC"],
+}
+
+cc_binary_host {
+    name: "checkfc",
+    defaults: ["sepolicy_tools_defaults"],
+    srcs: ["checkfc.c"],
+    static_libs: ["libselinux"],
+}
+
+cc_binary_host {
+    name: "sepolicy-check",
+    defaults: ["sepolicy_tools_defaults"],
+    srcs: ["sepolicy-check.c"],
+}
+
+cc_binary_host {
+    name: "version_policy",
+    defaults: ["sepolicy_tools_defaults"],
+    srcs: ["version_policy.c"],
+}
+
+cc_binary {
+    name: "seamendc",
+    defaults: ["sepolicy_tools_defaults"],
+    srcs: ["seamendc.c"],
+    host_supported: true,
+}
+
+python_binary_host {
+    name: "insertkeys",
+    srcs: ["insertkeys.py"],
+}
+
+python_binary_host {
+    name: "sepolicy_generate_compat",
+    srcs: ["sepolicy_generate_compat.py"],
+    libs: ["mini_cil_parser", "pysepolwrap"],
+    data: [":libsepolwrap"],
+}
+
+python_binary_host {
+    name: "fuzzer_bindings_check",
+    srcs: ["fuzzer_bindings_check.py"],
+}

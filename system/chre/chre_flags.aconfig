@@ -1,0 +1,51 @@
+package: "android.chre.flags"
+container: "system"
+
+flag {
+  name: "flag_log_nanoapp_load_metrics"
+  namespace: "context_hub"
+  description: "This flag controls nanoapp load failure logging in the HAL and the addition of MetricsReporter"
+  bug: "298459533"
+}
+
+flag {
+  name: "metrics_reporter_in_the_daemon"
+  namespace: "context_hub"
+  description: "This flag controls the addition of MetricsReporter into the CHRE daemon"
+  bug: "298459533"
+}
+
+flag {
+  name: "wait_for_preloaded_nanoapp_start"
+  namespace: "context_hub"
+  description: "This flag controls the waiting-for-nanoapp-start behavior in the CHRE daemon"
+  bug: "298459533"
+}
+
+flag {
+  name: "remove_ap_wakeup_metric_report_limit"
+  namespace: "context_hub"
+  description: "This flag controls removing a count limit on reporting the AP wakeup metric"
+  bug: "298459533"
+}
+
+flag {
+  name: "context_hub_callback_uuid_enabled"
+  namespace: "context_hub"
+  description: "Call IContextHubCallback.getUuid() to retrieve the UUID when this flag is on"
+  bug: "247124878"
+}
+
+flag {
+  name: "reliable_message"
+  namespace: "context_hub"
+  description: "Enable the reliable message APIs"
+  bug: "314081414"
+}
+
+flag {
+  name: "reliable_message_implementation"
+  namespace: "context_hub"
+  description: "Enable support for reliable messages in CHRE"
+  bug: "314081414"
+}

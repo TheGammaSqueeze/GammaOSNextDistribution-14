@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+
+  <style name="FeedbackConsentTheme" parent="@style/Theme.Leanback">
+    <item name="android:backgroundDimEnabled">false</item>
+    <item name="android:windowContentOverlay">@null</item>
+    <item name="android:windowNoTitle">true</item>
+  </style>
+
+
+  <style name="FeedbackConsentRowText">
+    <item name="android:layout_width">match_parent</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:layout_marginBottom">5dp</item>
+    <item name="android:fontFamily">sans-serif</item>
+    <item name="android:lineSpacingExtra">
+      @dimen/feedback_consent_line_spacing_extra
+    </item>
+    <item name="android:layout_marginHorizontal">
+      @dimen/feedback_consent_padding_horizontal
+    </item>
+    <item name="android:textColor">
+      @color/feedback_consent_action_text_color_state_list
+    </item>
+
+  </style>
+
+  <style name="FeedbackConsentRowTitleText" parent="FeedbackConsentRowText">
+    <item name="android:textStyle">bold</item>
+    <item name="android:textSize">@dimen/feedback_consent_title_text_size</item>
+    <item name="android:lineHeight">@dimen/feedback_consent_title_line_height
+    </item>
+  </style>
+
+  <style name="FeedbackConsentRowLegalText" parent="FeedbackConsentRowText">
+    <item name="android:textSize">@dimen/feedback_consent_legal_text_size</item>
+    <item name="android:lineHeight">
+      @dimen/feedback_consent_legal_text_line_height
+    </item>
+
+  </style>
+
+  <style name="FeedbackConsentSwitch" parent="android:style/Widget.Button">
+    <item name="android:layout_width">match_parent</item>
+    <item name="android:layout_height">
+      @dimen/feedback_consent_action_button_height
+    </item>
+    <item name="android:gravity">center_vertical</item>
+    <item name="android:fontFamily">sans-serif-medium</item>
+    <item name="android:paddingHorizontal">
+      @dimen/feedback_consent_padding_horizontal
+    </item>
+    <item name="android:drawablePadding">
+      @dimen/feedback_consent_action_button_drawable_padding
+    </item>
+    <item name="android:thumbTint">@drawable/feedback_consent_switch_thumb
+    </item>
+    <item name="android:trackTint">@drawable/feedback_consent_switch_track
+    </item>
+    <item name="android:background">@color/google_transparent</item>
+  </style>
+
+  <style name="FeedbackConsentActionButton" parent="android:style/Widget.Button">
+    <item name="android:layout_width">match_parent</item>
+    <item name="android:layout_height">
+      @dimen/feedback_consent_action_button_height
+    </item>
+    <item name="android:gravity">start|center_vertical</item>
+    <item name="android:fontFamily">sans-serif-medium</item>
+    <item name="android:textSize">@dimen/feedback_consent_title_text_size</item>
+    <item name="android:paddingHorizontal">
+      @dimen/feedback_consent_padding_horizontal
+    </item>
+    <item name="android:drawablePadding">
+      @dimen/feedback_consent_action_button_drawable_padding
+    </item>
+    <item name="android:textColor">
+      @color/feedback_consent_action_text_color_state_list
+    </item>
+    <item name="android:background">
+      @drawable/feedback_consent_action_background
+    </item>
+    <item name="android:stateListAnimator">
+      @animator/feedback_consent_action_animator
+    </item>
+  </style>
+
+  <style name="ViewLogsDialogTheme" parent="@android:style/Theme.DeviceDefault.Dialog.Alert" >
+    <item name="android:windowContentOverlay">@null</item>
+    <item name="android:windowNoTitle">true</item>
+    <item name="android:windowIsFloating">true</item>
+    <item name="android:backgroundDimEnabled">true</item>
+  </style>
+
+</resources>

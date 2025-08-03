@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2012 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="description_dialpad_overflow">Méi Optiounen</string>
+    <string name="description_delete_button">Récktast</string>
+    <string name="description_image_button_plus">Plus</string>
+    <string name="description_voicemail_button">Mailbox</string>
+    <string name="default_notification_description">Standardtoun (<xliff:g id="default_sound_title">%1$s</xliff:g>)</string>
+    <string name="callFailed_userBusy">Nummer besat</string>
+    <string name="callFailed_congestion">Netzwierk besat</string>
+    <string name="callFailed_timedOut">Keng Äntwert, Zäitiwwerschreidung</string>
+    <string name="callFailed_server_unreachable">Server net erreechbar</string>
+    <string name="callFailed_number_unreachable">Nummer net erreechbar</string>
+    <string name="callFailed_invalid_credentials">Ongëltege Benotzernumm oder Passwuert</string>
+    <string name="callFailed_out_of_network">Uruff aus dem Netzwierk</string>
+    <string name="callFailed_server_error">Serverfeeler. Probéier méi spéit nees.</string>
+    <string name="callFailed_noSignal">Kee Signal</string>
+    <string name="callFailed_limitExceeded">ACM-Grenzwäert iwwerschratt</string>
+    <string name="callFailed_powerOff">Radio aus</string>
+    <string name="callFailed_simError">Keng SIM-Kaart oder SIM-Feeler</string>
+    <string name="callFailed_outOfService">Handynetzwierk net disponibel</string>
+    <string name="callFailed_fdn_only">Erausgoend Uriff ginn duerch eng Uruffaschränkung limitéiert.</string>
+    <string name="callFailed_cb_enabled">Du kanns keng Uriff maachen, wann d\'Uruffspär aktivéiert ass.</string>
+    <string name="callFailed_dsac_restricted">Uriff ginn duerch d\'Zougrëffssteierung beschränkt.</string>
+    <string name="callFailed_dsac_restricted_emergency">Noutriff ginn duerch d\'Zougrëffssteierung begrenzt.</string>
+    <string name="callFailed_dsac_restricted_normal">Normal Uriff ginn duerch d\'Zougrëffssteierung begrenzt.</string>
+    <string name="callFailed_unobtainable_number">Ongëlteg Nummer</string>
+    <string name="incall_error_missing_voicemail_number">Mailbox-Nummer onbekannt.</string>
+</resources>

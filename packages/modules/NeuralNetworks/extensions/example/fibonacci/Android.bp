@@ -1,0 +1,13 @@
+package {
+    // Inherits all licenses from parent to get Apache 2.0 and package name
+    default_applicable_licenses: [
+        "packages_modules_NeuralNetworks_license",
+    ],
+}
+
+cc_library_headers {
+    name: "neuralnetworks_example_fibonacci_extension",
+    host_supported: true,
+    vendor_available: true,
+    export_include_dirs: ["."],
+}

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2015 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="car_permission_label_bind_projection_service" msgid="6976251734714662552">"ခန့်မှန်းခြင်းဆိုင်ရာ ဝန်ဆောင်မှုနှင့် ပူးပေါင်းပါမည်"</string>
+    <string name="car_permission_desc_bind_projection_service" msgid="4610418233070289810">"ဖုန်းကိုင်ထားသူနှင့် ပုံရိပ်ပြသသော ဝန်ဆောင်မှု၏ ထိပ်ပိုင်းအင်တာဖေ့စ် ကို ပူးပေါင်းခွင့်ပေးသည်။ ပုံမှန် အက်ပ်များအတွက် မည်သည့်အခါမျှ မလိုအပ်ပါ။"</string>
+    <string name="car_permission_label_bind_vms_client" msgid="1298928874094319701">"VMS ကလိုင်းယင့် ဝန်ဆောင်မှု"</string>
+    <string name="car_permission_desc_bind_vms_client" msgid="7758142590449847602">"VMS ကလိုင်းယင့်များနှင့် ပူးပေါင်းခြင်း"</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="6723392540805279625">"ကိရိယာအစုအဝေးကို ပြင်ဆင်ခြင်း"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="2583711303360788080">"ကိရိယာအစုအဝေး ဒေတာကို လက်ခံရန်"</string>
+    <string name="car_permission_label_bind_input_service" msgid="6647238478703096557">"ကား၏ အချက်အလက်ထည့်သွင်းခြင်း ဝန်ဆောင်မှု"</string>
+    <string name="car_permission_desc_bind_input_service" msgid="8460218104132496613">"အချက်အလက်ထည့်သွင်းခြင်း အစီအစဉ်များကို စီမံပါမည်"</string>
+    <string name="activity_blocked_text" msgid="5991043857905412794">"ကားမောင်းနေစဉ် ဤဝန်ဆောင်မှုကို သုံး၍မရပါ"</string>
+    <string name="exit_button_message" msgid="5375678491245394542">"စိတ်ချရသော အက်ပ်လုပ်ဆောင်ချက်များနှင့်အတူ အစမှပြန်စရန် <xliff:g id="EXIT_BUTTON">%s</xliff:g> ကို ရွေးချယ်ပါ။"</string>
+    <string name="exit_button" msgid="3491899413031549265">"နောက်သို့"</string>
+    <string name="exit_button_close_application" msgid="5153716684207539041">"အက်ပ်ကိုပိတ်ရန်"</string>
+    <string name="exit_button_go_back" msgid="6921595432375141935">"နောက်သို့"</string>
+    <string name="importance_default" msgid="8017186728206153704">"ပုံမှန် အရေးပါမှု"</string>
+    <string name="importance_high" msgid="3393374688015554727">"အလွန်အရေးပါသည်"</string>
+    <string name="android_system_label" msgid="9209428539477894959">"Android စနစ်"</string>
+    <string name="factory_reset_notification_title" msgid="6177770995437355965">"စက်ရုံထုတ်အတိုင်း ပြင်ဆင်သတ်မှတ်ရန် လိုအပ်သည်"</string>
+    <string name="factory_reset_notification_text" msgid="6051393302193696102">"သတင်းနှင့်ဖျော်ဖြေရေး စနစ်ရှိ ဒေတာအားလုံးကို ဖျက်လိုက်ပါမည်။ ပြင်ဆင်သတ်မှတ်ပြီးနောက် ပရိုဖိုင်အသစ် ထည့်သွင်းနိုင်သည်။"</string>
+    <string name="factory_reset_notification_button" msgid="6926734587145351076">"နောက်ထပ်"</string>
+    <string name="factory_reset_warning" msgid="8463356329619149262">"သင့်ကိရိယာအား ပယ်ဖျက်လိမ့်မည်"</string>
+    <string name="factory_reset_message" msgid="1972536809866779972">"စီမံခန့်သူအက်ပ်ကို သုံး၍မရပါ။ သင်၏စက်ကို ဒေတာ ယခုဖျက်လိုက်ပါမည်။\n\nမေးစရာများရှိပါက သင့်အဖွဲ့အစည်း၏ စီမံခန့်ခွဲသူကို ဆက်သွယ်ပါ။"</string>
+    <string name="resource_overuse_notification_title" msgid="1622015333965744463">"<xliff:g id="ID_1">^1</xliff:g> သည် သင့်စနစ်၏ စွမ်းဆောင်ရည်ကို ထိခိုက်စေသည်"</string>
+    <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"ဤအက်ပ်ကို နောက်ခံတွင် လုပ်ဆောင်ခြင်းမှ တားမြစ်ထားသည်။ နောက်ခံတွင် ဆက်သုံးရန် အက်ပ်အား ဦးစားပေးပါ။"</string>
+    <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"ပိတ်ရန်"</string>
+    <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"အက်ပ်ကို ဦးစားပေးရန်"</string>
+</resources>

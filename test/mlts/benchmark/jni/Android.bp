@@ -1,0 +1,126 @@
+/*
+ * Copyright 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package {
+    // http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // the below license kinds from "test_mlts_benchmark_license":
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["test_mlts_benchmark_license"],
+}
+
+cc_defaults {
+    name: "libnnbenchmark_jni_defaults",
+    sdk_version: "current",
+    min_sdk_version: "29",
+    srcs: [
+        "benchmark_jni.cpp",
+        "crashtest_jni.cpp",
+        "run_tflite.cpp",
+    ],
+    header_libs: [
+        "flatbuffer_headers",
+        "jni_headers",
+        "tensorflow_headers",
+    ],
+    shared_libs: [
+        "liblog",
+    ],
+    static_libs: [
+        "libtflite_static",
+    ],
+    cflags: [
+        "-Wno-sign-compare",
+        "-Wno-unused-parameter",
+    ],
+    stl: "libc++_static",
+    strip: {
+        keep_symbols: true,
+    },
+}
+
+cc_library_shared {
+    name: "libnnbenchmark_jni",
+    defaults: ["libnnbenchmark_jni_defaults"],
+}
+
+cc_library_static {
+    name: "libnnbenchmark_jni_static",
+    defaults: ["libnnbenchmark_jni_defaults"],
+    export_include_dirs: ["."],
+}
+
+cc_library {
+    name: "librandom_graph_test_jni",
+    srcs: [
+        "random_graph_test_jni.cpp",
+    ],
+    header_libs: [
+        "jni_headers",
+        "libneuralnetworks_headers_ndk",
+        "libneuralnetworks_generated_test_harness_headers_for_cts",
+    ],
+    shared_libs: [
+        "libandroid",
+        "liblog",
+        "libneuralnetworks",
+    ],
+    whole_static_libs: [
+        "NeuralNetworksTest_random_graph",
+    ],
+    static_libs: [
+        "libbase_ndk",
+        "libgmock_ndk",
+        "libgtest_ndk_c++",
+    ],
+    cflags: [
+        "-Wno-sign-compare",
+        "-Wno-unused-parameter",
+    ],
+    sdk_version: "current",
+    stl: "libc++_static",
+    strip: {
+        keep_symbols: true,
+    },
+}
+
+cc_library {
+    name: "libsupport_library_jni",
+    sdk_version: "current",
+    min_sdk_version: "29",
+    srcs: [
+        "support_library_jni.cpp",
+    ],
+    header_libs: [
+        "flatbuffer_headers",
+        "jni_headers",
+        "tensorflow_headers",
+    ],
+    shared_libs: [
+        "liblog",
+    ],
+    static_libs: [
+        "libtflite_static",
+    ],
+    cflags: [
+        "-Wno-sign-compare",
+        "-Wno-unused-parameter",
+    ],
+    stl: "libc++_static",
+    strip: {
+        keep_symbols: true,
+    },
+}

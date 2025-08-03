@@ -1,0 +1,19 @@
+# Code owners for various security-related things on Android.
+
+# Sanitizers
+mitchp@google.com
+eugenis@google.com
+fmayer@google.com
+
+
+# Haiku members (fuzzing-on-Android)
+hamzeh@google.com
+kalder@google.com
+mspector@google.com
+
+# ASA
+olorin@google.com
+
+# Remote Provisioning
+jbires@google.com
+swillden@google.com

@@ -1,0 +1,28 @@
+[package]
+name = "netsim-cli"
+version = "0.2.14"
+edition = "2021"
+build = "build.rs"
+
+[lib]
+crate-type = ["staticlib", "lib"]
+doctest = false
+test = false
+
+[dependencies]
+hex = "0.4.3"
+clap = { version = "4.1.8", default-features = false, features = [
+    "derive",
+    "error-context",
+    "help",
+    "std",
+    "usage",
+] }
+netsim-proto = { path = "../proto" }
+netsim-common = { path = "../common" }
+protobuf = "3.2.0"
+cxx = { version = ">=1.0.85", features = ["c++17"] }
+log = "0.4.17"
+
+[build-dependencies]
+cxx-build = "1.0.92"

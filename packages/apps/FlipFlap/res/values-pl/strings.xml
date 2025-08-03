@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  Copyright (c) 2017 The LineageOS Project
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ Also add information on how to contact you by electronic and paper mail.
+
+-->
+<resources>
+    <string name="app_name">FlipFlap</string>
+    <string name="notification_title">Wykryto inteligentną obudowę</string>
+    <string name="alarm_label">BUDZIK</string>
+    <string name="abbrev_wday_month_day_no_year">EEE, MMMM d</string>
+    <string name="answer_call">ODBIERZ</string>
+    <string name="ignore_call">IGNORUJ</string>
+    <string name="end_call">ZAKOŃCZ ROZMOWĘ</string>
+    <string name="settings_name">Inteligentna obudowa</string>
+    <string name="settings_enable">Włącz obsługę inteligentnego etui</string>
+    <string name="settings_summary">Kontroluj zachowanie twoich akcesoriów</string>
+    <string name="category_behaviour">Zachowanie</string>
+    <string name="pass_to_security_view_title">Przejdź bezpośrednio do wprowadzenia hasła</string>
+    <string name="pass_to_security_view_summary">Otwarcie etui bezpośrednio pokazuje ekran blokady</string>
+    <string name="use_high_touch_sensitivity_title">Wysoka czułość dotyku</string>
+    <string name="use_high_touch_sensitivity_summary">Zwiększa czułość dotyku, gdy etui jest zamknięte</string>
+    <string name="category_design">Kompozycja</string>
+    <string name="switch_charging_status_title">Pokazuj stan ładowania</string>
+    <string name="switch_charging_status_summary">Zmienia kolor w zależności od aktualnego stanu naładowania baterii</string>
+    <string name="category_timeouts">Limity czasu</string>
+    <string name="timeout_plugged_title">Podczas ładowania</string>
+    <string name="timeout_unplugged_title">Odłączony</string>
+    <string name="timeout_summary">Wyświetlaj nakładkę aplikacji przez %s po zamknięciu pokrywy</string>
+    <string name="timeout_summary_never">Po zamknięciu pokrywy, nakładka aplikacji pozostanie włączona</string>
+    <string name="timeout_summary_immediately">Ekran zostanie wyłączony podczas zamykania pokrywy</string>
+    <string name="timeout_entry_immediately">Natychmiast</string>
+    <string name="timeout_entry_5s">5 sekund</string>
+    <string name="timeout_entry_10s">10 sekund</string>
+    <string name="timeout_entry_30s">30 sekund</string>
+    <string name="timeout_entry_1min">1 minuta</string>
+    <string name="timeout_entry_5min">5 minut</string>
+    <string name="timeout_entry_never">Nigdy</string>
+</resources>

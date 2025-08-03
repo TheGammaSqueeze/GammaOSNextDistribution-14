@@ -1,0 +1,180 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "4410f85d4543ed441bdc968315b345f6",
+    "entities": [
+      {
+        "tableName": "ad_selection",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ad_selection_id` INTEGER NOT NULL, `contextual_signals` TEXT, `bidding_logic_uri` TEXT, `winning_ad_render_uri` TEXT, `winning_ad_bid` REAL NOT NULL, `creation_timestamp` INTEGER, `caller_package_name` TEXT, `custom_audience_signals_owner` TEXT, `custom_audience_signals_buyer` TEXT, `custom_audience_signals_name` TEXT, `custom_audience_signals_activation_time` INTEGER, `custom_audience_signals_expiration_time` INTEGER, `custom_audience_signals_user_bidding_signals` TEXT, PRIMARY KEY(`ad_selection_id`))",
+        "fields": [
+          {
+            "fieldPath": "mAdSelectionId",
+            "columnName": "ad_selection_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mContextualSignals",
+            "columnName": "contextual_signals",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mBiddingLogicUri",
+            "columnName": "bidding_logic_uri",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mWinningAdRenderUri",
+            "columnName": "winning_ad_render_uri",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mWinningAdBid",
+            "columnName": "winning_ad_bid",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mCreationTimestamp",
+            "columnName": "creation_timestamp",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mCallerPackageName",
+            "columnName": "caller_package_name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mCustomAudienceSignals.mOwner",
+            "columnName": "custom_audience_signals_owner",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mCustomAudienceSignals.mBuyer",
+            "columnName": "custom_audience_signals_buyer",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mCustomAudienceSignals.mName",
+            "columnName": "custom_audience_signals_name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mCustomAudienceSignals.mActivationTime",
+            "columnName": "custom_audience_signals_activation_time",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mCustomAudienceSignals.mExpirationTime",
+            "columnName": "custom_audience_signals_expiration_time",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mCustomAudienceSignals.mUserBiddingSignals",
+            "columnName": "custom_audience_signals_user_bidding_signals",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "ad_selection_id"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_ad_selection_bidding_logic_uri",
+            "unique": false,
+            "columnNames": [
+              "bidding_logic_uri"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ad_selection_bidding_logic_uri` ON `${TABLE_NAME}` (`bidding_logic_uri`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "buyer_decision_logic",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`bidding_logic_uri` TEXT NOT NULL, `buyer_decision_logic_js` TEXT NOT NULL, PRIMARY KEY(`bidding_logic_uri`))",
+        "fields": [
+          {
+            "fieldPath": "mBiddingLogicUri",
+            "columnName": "bidding_logic_uri",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mBuyerDecisionLogicJs",
+            "columnName": "buyer_decision_logic_js",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "bidding_logic_uri"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "ad_selection_overrides",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ad_selection_config_id` TEXT NOT NULL, `app_package_name` TEXT NOT NULL, `decision_logic` TEXT NOT NULL, `trusted_scoring_signals` TEXT NOT NULL, PRIMARY KEY(`ad_selection_config_id`))",
+        "fields": [
+          {
+            "fieldPath": "adSelectionConfigId",
+            "columnName": "ad_selection_config_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "appPackageName",
+            "columnName": "app_package_name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "decisionLogicJS",
+            "columnName": "decision_logic",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "trustedScoringSignals",
+            "columnName": "trusted_scoring_signals",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "ad_selection_config_id"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4410f85d4543ed441bdc968315b345f6')"
+    ]
+  }
+}

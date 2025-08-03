@@ -1,0 +1,9 @@
+service uprobestats /system/bin/uprobestats ${uprobestats.start_with_config}
+    disabled
+    user uprobestats
+    group uprobestats readproc
+    oneshot
+    capabilities PERFMON
+
+on property:uprobestats.start_with_config=*
+    start uprobestats

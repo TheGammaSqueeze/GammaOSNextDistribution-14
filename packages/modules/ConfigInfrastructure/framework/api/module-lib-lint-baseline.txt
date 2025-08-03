@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+UnflaggedApi: android.provider.DeviceConfig#NAMESPACE_TETHERING_NATIVE:
+    New API must be flagged with @FlaggedApi: field android.provider.DeviceConfig.NAMESPACE_TETHERING_NATIVE

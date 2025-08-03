@@ -1,0 +1,63 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_bt_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_bt_license"],
+}
+
+cc_defaults {
+    name: "audio_hearing_aid_hw_defaults",
+    defaults: ["bluetooth_cflags"],
+    shared_libs: ["libchrome"],
+    include_dirs: [
+        "packages/modules/Bluetooth/system",
+        "packages/modules/Bluetooth/system/gd",
+        "packages/modules/Bluetooth/system/include",
+        "packages/modules/Bluetooth/system/types",
+    ],
+}
+
+// Audio A2DP shared library for target
+cc_library {
+    name: "audio.hearing_aid.default",
+    defaults: ["audio_hearing_aid_hw_defaults"],
+    relative_install_path: "hw",
+    srcs: [
+        "src/audio_hearing_aid_hw.cc",
+        "src/audio_hearing_aid_hw_utils.cc",
+    ],
+    apex_available: [
+        "com.android.btservices",
+    ],
+    shared_libs: [
+        "liblog",
+    ],
+    static_libs: [
+        "libbluetooth_log",
+        "libosi",
+    ],
+}
+
+// Audio A2DP library unit tests for target and host
+cc_test {
+    name: "net_test_audio_hearing_aid_hw",
+    test_suites: ["general-tests"],
+    defaults: [
+        "audio_hearing_aid_hw_defaults",
+        "mts_defaults",
+    ],
+    srcs: [
+        "test/audio_hearing_aid_hw_test.cc",
+    ],
+    shared_libs: [
+        "liblog",
+    ],
+    static_libs: [
+        "audio.hearing_aid.default",
+        "libbluetooth_log",
+        "libosi",
+    ],
+    min_sdk_version: "29",
+}

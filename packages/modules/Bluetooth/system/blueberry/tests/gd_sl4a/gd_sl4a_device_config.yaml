@@ -1,0 +1,35 @@
+_description: Bluetooth cert testing with SL4A
+TestBeds:
+  - Name: AndroidDeviceCert
+    Controllers:
+      GdDevice:
+        - grpc_port: '8898'
+          grpc_root_server_port: '8896'
+          signal_port: '8894'
+          label: cert
+          serial_number: 'CERT'
+          name: Cert Device
+          cmd:
+            - "adb"
+            - "-s"
+            - "$(serial_number)"
+            - "shell"
+            - "ASAN_OPTIONS=detect_container_overflow=0"
+            - "/system/bin/bluetooth_stack_with_facade"
+            - "--grpc-port=$(grpc_port)"
+            - "--root-server-port=$(grpc_root_server_port)"
+            - "--btsnoop=/data/misc/bluetooth/logs/btsnoop_hci.log"
+            - "--btsnooz=/data/misc/bluetooth/logs/btsnooz_hci.log"
+            - "--btconfig=/data/misc/bluedroid/bt_config.conf"
+            - "--signal-port=$(signal_port)"
+      AndroidDevice:
+        - label: dut
+          # Preferred client port number on the PC host side for SL4A
+          client_port: '8895'
+          # Preferred server port number forwarded from Android to the host PC
+          # via adb for SL4A connections
+          forwarded_port: '8899'
+          # Preferred server port used by SL4A on Android device
+          server_port: '8899'
+          serial: 'DUT'
+logpath: "/tmp/logs"

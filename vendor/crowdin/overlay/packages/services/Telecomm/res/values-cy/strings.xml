@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2013 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="telecommAppLabel" product="default">Galwadau Ffôn</string>
+    <string name="userCallActivityLabel" product="default">Ffôn</string>
+    <string name="unknown">Anhysybys</string>
+    <string name="notification_missedCallTitle">Galwad wedi ei methu</string>
+    <string name="notification_missedWorkCallTitle">Galwad gwaith wedi\'i methu</string>
+    <string name="notification_missedCallsTitle">Galwadau wedi eu methu</string>
+    <string name="notification_missedCallsMsg"><xliff:g id="num_missed_calls">%s</xliff:g> galwad wedi eu methu</string>
+    <string name="notification_missedCallTicker">Wedi methu galwad gan <xliff:g id="missed_call_from">%s</xliff:g></string>
+    <string name="notification_missedCall_call_back">Galw nôl</string>
+    <string name="notification_missedCall_message">Neges</string>
+    <string name="notification_disconnectedCall_title">Galwad wedi\'i datgysylltu</string>
+    <string name="notification_disconnectedCall_body">Datgysylltwyd yr alwad â <xliff:g id="caller">%s</xliff:g> am fod galwad brys wedi ei gwneud.</string>
+    <string name="notification_disconnectedCall_generic_body">        Cafodd dy alwad ei datgysylltu am fod galwad brys wedi ei gwneud.
+    </string>
+    <string name="notification_audioProcessing_title">Galwad yn y cefndir</string>
+    <string name="notification_audioProcessing_body">        Mae <xliff:g id="audio_processing_app_name">%s</xliff:g> yn prosesu galwad yn y cefndir.
+        Gall fod yr ap hwn yn cael at sain ac yn ei chwarae dros yr alwad.
+    </string>
+    <string name="notification_incallservice_not_responding_title">        Stopiodd <xliff:g id="in_call_service_app_name">%s</xliff:g> ymateb
+    </string>
+    <string name="notification_incallservice_not_responding_body">        Defnyddiodd dy alwad yr ap ffôn daeth gyda dy ddyfais
+    </string>
+    <string name="accessibility_call_muted">Galwad wedi\'i distewi.</string>
+    <string name="accessibility_speakerphone_enabled">Seinydd uchel wedi\'i alluogi.</string>
+    <string name="respond_via_sms_canned_response_1">Methu siarad nawr. Be sy\'?</string>
+    <string name="respond_via_sms_canned_response_2">Mi alwa\'i nôl yn fuan.</string>
+    <string name="respond_via_sms_canned_response_3">Mi alwa\'i nôl yn hwyrach.</string>
+    <string name="respond_via_sms_canned_response_4">Methu siarad nawr. Galw fi\'n hwyrach?</string>
+    <string name="respond_via_sms_setting_title">Atebion cyflym</string>
+    <string name="respond_via_sms_setting_title_2">Golygu atebion cyflym</string>
+    <string name="respond_via_sms_edittext_dialog_title">Ateb cyflym</string>
+    <string name="respond_via_sms_confirmation_format">Anfonwyd neges at <xliff:g id="phone_number">%s</xliff:g>.</string>
+    <string name="respond_via_sms_failure_format">Methwyd ag anfon y neges at <xliff:g id="phone_number">%s</xliff:g>.</string>
+    <string name="enable_account_preference_title">Cyfrifon galw</string>
+    <string name="outgoing_call_not_allowed_user_restriction">Dim ond galwadau brys sydd yn bosib.</string>
+    <string name="outgoing_call_not_allowed_no_permission">Ni all yr ap hwn wneud galwadau allan heb ganiatâd y Ffôn.</string>
+    <string name="outgoing_call_error_no_phone_number_supplied">I wneud galwad, rho rif dilys.</string>
+    <string name="duplicate_video_call_not_allowed">Methu ag ychwanegu\'r alwad ar hyn o bryd.</string>
+    <string name="no_vm_number">Rhif lleisbost ar goll</string>
+    <string name="no_vm_number_msg">Does dim rhif ar gyfer lleisbost wedi ei gadw ar y cerdyn SIM.</string>
+    <string name="add_vm_number_str">Ychwanegu rhif</string>
+    <string name="change_default_dialer_dialog_title">Gosod <xliff:g id="new_app">%s</xliff:g> fel dy ap Ffôn arferol?</string>
+    <string name="change_default_dialer_dialog_affirmative">Gosod fel Rhagosodiad</string>
+    <string name="change_default_dialer_dialog_negative">Diddymu</string>
+    <string name="change_default_dialer_warning_message">Bydd <xliff:g id="new_app">%s</xliff:g> yn medru gwneud a rheoli pob agwedd o alwadau. Dylid ond osod ap wyt ti\'n ymddiried ynddo fel dy ap Ffôn diofyn.</string>
+    <string name="change_default_call_screening_dialog_title">Gosod <xliff:g id="new_app">%s</xliff:g> fel dy ap arferol i sgrinio galwadau?</string>
+    <string name="change_default_call_screening_warning_message_for_disable_old_app">Ni fydd <xliff:g id="old_app">%s</xliff:g> bellach yn medru sgrinio galwadau.</string>
+    <string name="change_default_call_screening_warning_message">Bydd <xliff:g id="new_app">%s</xliff:g> yn medru gweld gwybodaeth am alwadau na sydd yn dy gysylltiadau ac yn medru rhwystro\u2019r galwadau hyn. Dylid ond defnyddio ap rwyt yn ymddiried ynddynt fel dy ap sgrinio galwadau.</string>
+    <string name="change_default_call_screening_dialog_affirmative">Gosod fel Rhagosodiad</string>
+    <string name="change_default_call_screening_dialog_negative">Diddymu</string>
+    <string name="blocked_numbers">Rhifau wedi eu rhwystro</string>
+    <string name="blocked_numbers_msg">Ni fyddi\'n derbyn galwadau na negesuon testun oddi wrth rifau wedi\'u rhwystro.</string>
+    <string name="block_number">Ychwanegu rhif</string>
+    <string name="unblock_dialog_body">Dadrwystro <xliff:g id="number_to_block">%1$s</xliff:g>?</string>
+    <string name="unblock_button">Dadrwystro</string>
+    <string name="add_blocked_dialog_body">Rhwystro galwadau a negesuon testun oddi wrth</string>
+    <string name="add_blocked_number_hint">Rhif ffôn</string>
+    <string name="block_button">Rhwystro</string>
+    <string name="non_primary_user">Dim ond perchennog y ddyfais gall gweld a rheoli rhifau wedi eu rhwystro.</string>
+    <string name="delete_icon_description">Dadrwystro</string>
+    <string name="blocked_numbers_butter_bar_title">Rhwystro wedi ei diffodd dros dro</string>
+    <string name="blocked_numbers_butter_bar_body">Ar ôl deialu neu anfon neges at rif argyfwng, mae rhwystro yn cael ei diffodd i sicrhau bod modd i\'r gwasanaethau brys cysylltu â thi.</string>
+    <string name="blocked_numbers_butter_bar_button">Ail-alluogi nawr</string>
+    <string name="blocked_numbers_number_blocked_message"><xliff:g id="blocked_number">%1$s</xliff:g> wedi\'i rwystro</string>
+    <string name="blocked_numbers_number_unblocked_message"><xliff:g id="unblocked_number">%1$s</xliff:g> wedi\'i dadrwystro</string>
+    <string name="blocked_numbers_block_emergency_number_message">Amhosib rhwystro rhif argyfwng.</string>
+    <string name="blocked_numbers_number_already_blocked_message">Mae <xliff:g id="blocked_number">%1$s</xliff:g> eisoes wedi ei rwystro.</string>
+    <string name="test_account_0_label">Q Mobile</string>
+    <string name="test_account_1_label">Market Wireless</string>
+    <string name="test_account_2_label">Sonoma Circles Talk Plus</string>
+    <string name="test_account_3_label">Bay Voice Chat Pro</string>
+    <string name="test_account_0_short_description">Account with Q Mobile</string>
+    <string name="test_account_1_short_description">Account with Market Wireless</string>
+    <string name="test_account_2_short_description">Talk to everyone in your Circles!</string>
+    <string name="test_account_3_short_description">Chat with Chat Network users</string>
+    <string name="handle_restricted">CYFYNGEDIG</string>
+    <string name="toast_personal_call_msg">Defnyddio\'r deialydd personol i wneud yr alwad</string>
+    <string name="notification_incoming_call">Galwad <xliff:g id="call_via">%1$s</xliff:g> oddi wrth <xliff:g id="call_from">%2$s</xliff:g></string>
+    <string name="notification_incoming_video_call">Galwad fideo <xliff:g id="call_via">%1$s</xliff:g> oddi wrth <xliff:g id="call_from">%2$s</xliff:g></string>
+    <string name="answering_ends_other_call">Bydd ateb yn dod a dy alwad <xliff:g id="call_via">%1$s</xliff:g> i ben.</string>
+    <string name="answering_ends_other_calls">Bydd ateb yn dod a dy alwadau <xliff:g id="call_via">%1$s</xliff:g> i ben.</string>
+    <string name="answering_ends_other_video_call">Bydd ateb yn dod a dy alwad fideo <xliff:g id="call_via">%1$s</xliff:g> i ben.</string>
+    <string name="answering_ends_other_managed_call">Bydd ateb yn dod a dy alwad presennol i ben.</string>
+    <string name="answering_ends_other_managed_calls">Bydd ateb yn dod a dy alwadau presennol i ben.</string>
+    <string name="answering_ends_other_managed_video_call">Bydd ateb yn dod a dy alwad fideo presennol i ben.</string>
+    <string name="answer_incoming_call">Ateb</string>
+    <string name="decline_incoming_call">Gwrthod</string>
+    <string name="cant_call_due_to_no_supported_service">Ni ellir gwneud y galwad am nad oes unrhyw gyfrifon galw sy\u2019n cefnogi\u2019r math hwn o alwad.</string>
+    <string name="cant_call_due_to_ongoing_call">Ni ellir wneud yr alwad oherwydd dy alwad <xliff:g id="other_call">%1$s</xliff:g>.</string>
+    <string name="cant_call_due_to_ongoing_calls">Ni ellir wneud yr alwad oherwydd dy alwadau <xliff:g id="other_call">%1$s</xliff:g>.</string>
+    <string name="cant_call_due_to_ongoing_unknown_call">Ni ellir gwneud galwad tra bod galwad ar y gweill mewn ap arall.</string>
+    <string name="notification_channel_incoming_call">Galwadau i mewn</string>
+    <string name="notification_channel_missed_call">Galwadau wedi eu methu</string>
+    <string name="notification_channel_call_blocking">Rhwystro Galwadau</string>
+    <string name="notification_channel_background_calls">Galwadau yn y cefndir</string>
+    <string name="notification_channel_disconnected_calls">Galwadau wedi\'u datgysylltu</string>
+    <string name="notification_channel_in_call_service_crash">Apiau ffôn wedi chwalu</string>
+    <string name="notification_channel_call_streaming">Ffrydio galwadau</string>
+    <string name="alert_outgoing_call">Bydd gwneud yr alwad hon yn dod a dy alwad <xliff:g id="other_app">%1$s</xliff:g> i ben.</string>
+    <string name="alert_redirect_outgoing_call_or_not">Dewisa sut i wneud yr alwad hon</string>
+    <string name="alert_place_outgoing_call_with_redirection">Ailgyfierio\u2019r alwad gan ddefnyddio <xliff:g id="other_app">%1$s</xliff:g></string>
+    <string name="alert_place_unredirect_outgoing_call">Galw gan ddefnyddio fy rhif ffôn</string>
+    <string name="alert_redirect_outgoing_call_timeout">Ni ellir gwneud y galwad gyda <xliff:g id="other_app">%1$s</xliff:g>. Rho gynnig ar ap arall sy\u2019n ailgyfeirio galwadau neu cysyllta â\'r datblygwr am gymorth.</string>
+    <string name="phone_settings_call_blocking_txt">Rhwystro Galwadau</string>
+    <string name="phone_settings_number_not_in_contact_txt">Rhifau dim yng Nghysylltiadau</string>
+    <string name="phone_settings_number_not_in_contact_summary_txt">Rhwystro rhifau na sydd yn dy Gysylltiadau</string>
+    <string name="phone_settings_private_num_txt">Preifat</string>
+    <string name="phone_settings_private_num_summary_txt">Rhwystro galwyr na sy\'n datgelu eu rhif</string>
+    <string name="phone_settings_payphone_txt">Ffôn cyhoeddus</string>
+    <string name="phone_settings_payphone_summary_txt">Rhwystro galwadau o ffonau cyhoeddus</string>
+    <string name="phone_settings_unknown_txt">Anhysybys</string>
+    <string name="phone_settings_unknown_summary_txt">Rhwystro galwadau gan bobol anhysbys</string>
+    <string name="phone_settings_unavailable_txt">Dim ar gael</string>
+    <string name="phone_settings_unavailable_summary_txt">Rhwystro galwadau pan nad yw\'r rhif ar gael</string>
+    <string name="phone_strings_call_blocking_turned_off_notification_title_txt">Rhwystro Galwadau</string>
+    <string name="phone_strings_call_blocking_turned_off_notification_text_txt">Analluogwyd Rhwystro Galwadau</string>
+    <string name="phone_strings_emergency_call_made_dialog_title_txt">Wedi gwneud galwad brys</string>
+    <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt">Mae Rhwystro Galwadau wedi ei analluogi i ganiatáu’r gwasanaethau brys i gysylltu â thi.</string>
+    <string name="developer_title">Dewislen Datblygwr Telathrebu</string>
+    <string name="toast_emergency_can_not_pull_call">Ni ellir gwneud galwadau tra bo galwad brys ar y gweill.</string>
+    <string name="cancel">Diddymu</string>
+    <string name="back">Nôl</string>
+    <string name="callendpoint_name_earpiece">Clustffon</string>
+    <string name="callendpoint_name_bluetooth">Bluetooth</string>
+    <string name="callendpoint_name_wiredheadset">Penset gwifr</string>
+    <string name="callendpoint_name_speaker">Seinydd</string>
+    <string name="callendpoint_name_streaming">Allanol</string>
+    <string name="callendpoint_name_unknown">Anhysybys</string>
+    <string name="call_streaming_notification_body">Yn ffrydio sain at ddyfais arall</string>
+    <string name="call_streaming_notification_action_hang_up">Gorffen yr alwad</string>
+    <string name="call_streaming_notification_action_switch_here">Newid i yma</string>
+</resources>

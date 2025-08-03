@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/calm_mode_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        style="@style/CalmModeBackgroundImage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <com.android.car.ui.FocusParkingView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextClock
+        android:id="@+id/date"
+        style="@style/CalmModeText.Date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/calm_mode_padding_vertical"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/temperature_icon"
+        app:layout_constraintHorizontal_chainStyle="packed" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/temperature_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="temperature_icon,temperature" />
+
+    <TextView
+        android:id="@+id/temperature_icon"
+        style="@style/CalmModeText.Temperature"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@id/temperature"
+        app:layout_constraintStart_toEndOf="@id/date"
+        app:layout_constraintEnd_toStartOf="@id/temperature"
+        android:text="@string/calm_mode_separator" />
+
+    <TextView
+        android:id="@+id/temperature"
+        style="@style/CalmModeText.Temperature"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/calm_mode_padding_vertical"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@id/temperature_icon"
+        app:layout_constraintEnd_toStartOf="@id/nav_state_icon" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/nav_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="nav_state_icon,nav_state" />
+
+    <ImageView
+        android:id="@+id/nav_state_icon"
+        style="@style/CalmModeIcon"
+        android:layout_width="@dimen/calm_mode_icon_size_regular"
+        android:layout_height="@dimen/calm_mode_icon_size_regular"
+        android:layout_marginStart="@dimen/calm_mode_icon_margin"
+        android:layout_marginEnd="@dimen/calm_mode_icon_margin"
+        android:src="@drawable/ic_navigation"
+        app:layout_constraintTop_toTopOf="@id/nav_state"
+        app:layout_constraintBottom_toBottomOf="@id/nav_state"
+        app:layout_constraintEnd_toStartOf="@id/nav_state"
+        app:layout_constraintStart_toEndOf="@id/temperature" />
+
+    <TextView
+        android:id="@+id/nav_state"
+        style="@style/CalmModeText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/calm_mode_padding_vertical"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@id/nav_state_icon"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextClock
+        android:id="@+id/clock"
+        style="@style/CalmModeClock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/date"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/media_title"
+        style="@style/CalmModeText.MediaTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/calm_mode_clock_media_title_margin"
+        app:layout_constraintTop_toBottomOf="@id/clock"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

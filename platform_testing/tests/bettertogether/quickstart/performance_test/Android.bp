@@ -1,0 +1,164 @@
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+python_defaults {
+  name: "quick_start_perf_test_defaults",
+  pkg_path: "performance_test",
+}
+
+python_library_host {
+    name: "nc_constants",
+    defaults: ["quick_start_perf_test_defaults",],
+    srcs: [
+        "nc_constants.py",
+    ],
+    libs: [
+    ],
+}
+
+python_library_host {
+    name: "gms_auto_updates_util",
+    defaults: ["quick_start_perf_test_defaults",],
+    srcs: [
+        "gms_auto_updates_util.py",
+    ],
+    libs: [
+        "mobly",
+    ],
+}
+
+python_library_host {
+    name: "setup_utils",
+    defaults: ["quick_start_perf_test_defaults",],
+    srcs: [
+        "setup_utils.py",
+    ],
+    libs: [
+        "gms_auto_updates_util",
+        "nc_constants",
+        "mobly",
+    ],
+}
+
+python_library_host {
+    name: "nc_base_test",
+    defaults: ["quick_start_perf_test_defaults",],
+    srcs: [
+        "nc_base_test.py",
+    ],
+    libs: [
+        "nc_constants",
+        "setup_utils",
+        "mobly",
+    ],
+}
+
+python_library_host {
+    name: "nearby_connection_wrapper",
+    defaults: ["quick_start_perf_test_defaults",],
+    srcs: [
+        "nearby_connection_wrapper.py",
+    ],
+    libs: [
+        "nc_constants",
+        "setup_utils",
+        "mobly",
+    ],
+}
+
+python_test_host {
+    name: "quick_start_stress_test",
+    main: "quick_start_stress_test.py",
+    srcs: ["quick_start_stress_test.py",],
+    libs: [
+        "nc_constants",
+        "setup_utils",
+        "nearby_connection_wrapper",
+        "nc_base_test",
+        "mobly",],
+    test_suites: [],
+    test_options: {
+        unit_test: false, // as Mobly tests require device(s)
+        // This tag is used to enable the ATest Mobly runner
+      	tags: ["mobly"],
+    },
+    data: [
+        "local_dev_testbed.yml",
+        // package the snippes for atest
+        ":nearby_snippet",
+        ":nearby_snippet_2",],
+    version: {
+        py3: {
+            embedded_launcher: false,
+        },
+    },
+}
+
+python_test_host {
+    name: "esim_transfer_stress_test",
+    main: "esim_transfer_stress_test.py",
+    srcs: ["esim_transfer_stress_test.py",],
+    libs: [
+        "nc_constants",
+        "setup_utils",
+        "nearby_connection_wrapper",
+        "nc_base_test",
+        "mobly",],
+    test_suites: [],
+    test_options: {
+        unit_test: false, // as Mobly tests require device(s)
+        // This tag is used to enable the ATest Mobly runner
+        tags: ["mobly"],
+    },
+    data: [
+        "local_esim_testbed.yml",
+        // package the snippes for atest
+        ":nearby_snippet",],
+    version: {
+        py3: {
+            embedded_launcher: false,
+        },
+    },
+}
+
+python_test_host {
+    name: "nearby_share_stress_test",
+    main: "nearby_share_stress_test.py",
+    srcs: ["nearby_share_stress_test.py",],
+    libs: [
+        "nc_constants",
+        "setup_utils",
+        "nearby_connection_wrapper",
+        "nc_base_test",
+        "mobly",],
+    test_suites: [],
+    test_options: {
+        unit_test: false, // as Mobly tests require device(s)
+        // This tag is used to enable the ATest Mobly runner
+        tags: ["mobly"],
+    },
+    data: [
+        "local_nearby_share_testbed.yml",
+        // package the snippes for atest
+        ":nearby_snippet",],
+    version: {
+        py3: {
+            embedded_launcher: false,
+        },
+    },
+}

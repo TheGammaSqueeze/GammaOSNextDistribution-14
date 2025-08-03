@@ -1,0 +1,71 @@
+CATBOX Trade Federation
+------------------------
+
+CATBOX Trade Federation, catbox-tradefed for short, is the next
+generation test harness for CAT (Complete Automotive Testing).
+
+catbox-tradefed is built on top of the Android Trade Federation test harness.
+
+Configuring catbox-tradefed
+----------------------------
+
+1. Ensure 'adb' is in your current PATH. adb can be found in the
+Android SDK available from http://developer.android.com
+
+Example:
+  PATH=$PATH:/home/myuser/android-sdk-linux_x86/platform-tools
+
+2. Follow the 'ADB and AAPT' setup steps documented in the
+User Manual. The User Manual can be found at
+https://source.android.com/compatibility/cts/setup#adb
+
+3. Connect the device to the host machine.
+
+4. Ensure device is visible via 'adb devices'
+
+Using catbox-tradefed
+----------------------
+
+To run a test plan on a single device:
+
+1. Make sure you have at least one device connected
+2. Launch the catbox-tradefed console by running the 'catbox-tradefed'. If you've
+downloaded and extracted the CATBOX zip, the script can be found at
+  android-catbox/tools/catbox-tradefed
+Or else if you are working from the Android source tree and have run make catbox,
+the script can be found at
+  out/host/linux-x86/catbox/android-catbox/tools/catbox-tradefed
+3. Type:
+'run catbox' to run the default CATBOX plan
+
+Some other useful commands are
+
+To run a test module:
+'run catbox --module <module_name>'
+
+To run a specific test:
+'run catbox --test <test_name>'
+
+To shard a plan test run on multiple devices
+'run catbox --shards <number of shards>
+note: all connected devices must be running the same build
+
+For more options:
+'run catbox --help'
+
+CATBOX Tradefed Development
+----------------------------
+See http://source.android.com for instructions on obtaining the Android
+platform source code and setting up a build environment.
+
+The source for the tradefed framework can be found on the 'tradefed' branch.
+
+Perform these steps to build and run catbox-tradefed from the development
+environment:
+cd <path to android source root>
+make catbox
+catbox-tradefed
+
+More documentation and details on using and extending trade federation will
+be forthcoming in the near future.
+

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  Copyright (C) 2022 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<resources>
+    <dimen name="spacing_xsmall">6dp</dimen>
+    <dimen name="spacing_small">8dp</dimen>
+    <dimen name="spacing_data_entries">12dp</dimen>
+    <dimen name="spacing_normal">16dp</dimen>
+    <dimen name="spacing_large">24dp</dimen>
+    <dimen name="spacing_xlarge">32dp</dimen>
+    <dimen name="spacing_page_title">84dp</dimen>
+    <dimen name="spacing_banner">20dp</dimen>
+
+    <dimen name="button_size">48dp</dimen>
+
+    <dimen name="icon_size">24dp</dimen>
+    <dimen name="route_request_icon_size">20dp</dimen>
+    <dimen name="chip_icon_size">18dp</dimen>
+    <dimen name="app_icon_size">32dp</dimen>
+    <dimen name="app_header_icon_size">48dp</dimen>
+    <dimen name="category_icon_size">24dp</dimen>
+    <dimen name="category_header_icon_size">48dp</dimen>
+    <dimen name="round_map_size">60dp</dimen>
+
+    <dimen name="banner_corner_radius">28dp</dimen>
+    <dimen name="banner_alpha" type="float">0.05</dimen>
+    <dimen name="banner_alpha_selected" type="float">0.14</dimen>
+
+    <dimen name="filter_corner_radius">8dp</dimen>
+    <dimen name="button_corner_radius">50dp</dimen>
+
+    <dimen name="timeline_divider_height">26dp</dimen>
+    <dimen name="timeline_divider_margin_start">26dp</dimen>
+
+    <dimen name="list_item_min_height">64dp</dimen>
+    <dimen name="recent_access_date_min_width">60dp</dimen>
+    <dimen name="recent_access_fab_bottom_padding">90dp</dimen>
+
+    <dimen name="tab_corner_radius">12dp</dimen>
+
+</resources>

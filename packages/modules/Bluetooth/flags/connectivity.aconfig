@@ -1,0 +1,23 @@
+package: "com.android.bluetooth.flags"
+container: "com.android.btservices"
+
+flag {
+    name: "api_get_connection_state_using_identity_address"
+    namespace: "bluetooth"
+    description: "Use identity address to check current connection state"
+    bug: "319471537"
+}
+
+flag {
+    name: "use_le_shim_connection_map_guard"
+    namespace: "bluetooth"
+    description: "Guard the le shim connection map with a mutex"
+    bug: "302054609"
+}
+
+flag {
+    name: "api_get_connection_state_sync_on_main"
+    namespace: "bluetooth"
+    description: "API call is unprotected from thread race conditions"
+    bug: "325333718"
+}

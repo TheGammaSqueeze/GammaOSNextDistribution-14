@@ -1,0 +1,93 @@
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+package {
+    default_team: "trendy_team_android_rubidium",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "AdServicesApkUnitTests",
+    srcs: [
+        "src/**/*.java",
+        ":adservicesapk-filegroup",
+    ],
+    certificate: "platform",
+    privileged: true,
+    defaults: ["adservices-extended-mockito-defaults"],
+    sdk_version: "module_current",
+    min_sdk_version: "Tiramisu",
+    static_libs: [
+        "adservices-service-core",
+        "adservices-assets",
+        "adservices-test-utility",
+        "androidx.fragment_fragment",
+        "androidx.test.espresso.contrib",
+        "androidx.test.ext.junit",
+        "androidx.test.rules",
+        "compatibility-device-util-axt",
+        "mockito-target-extended-minus-junit4",
+        "truth",
+        "androidx.room_room-runtime",
+    ],
+    libs: [
+        "android.test.base",
+        "android.test.mock.stubs",
+        "framework-adservices.impl",
+        "framework-annotations-lib",
+    ],
+    test_suites: [
+        "general-tests",
+        "mts-adservices",
+    ],
+    instrumentation_for: "AdServicesApk",
+}
+
+android_test {
+    name: "AdExtServicesApkUnitTests",
+    srcs: [
+        "src/**/*.java",
+        ":adservicesapk-filegroup",
+    ],
+    certificate: "platform",
+    privileged: true,
+    defaults: ["adservices-extended-mockito-defaults"],
+    sdk_version: "module_current",
+    min_sdk_version: "30",
+    max_sdk_version: "32",
+    static_libs: [
+        "adservices-assets",
+        "adservices-service-core",
+        "adservices-test-utility",
+        "androidx.fragment_fragment",
+        "androidx.room_room-runtime",
+        "androidx.test.espresso.contrib",
+        "androidx.test.ext.junit",
+        "androidx.test.rules",
+        "compatibility-device-util-axt",
+        "mockito-target-extended-minus-junit4",
+        "truth",
+    ],
+    libs: [
+        "android.ext.adservices",
+        "android.test.base",
+        "android.test.mock.stubs",
+        "framework-annotations-lib",
+    ],
+    test_suites: [
+        "general-tests",
+        "mts-extservices",
+    ],
+    instrumentation_for: "ExtServices-sminus",
+    test_config: "AndroidTest.ExtServices.xml",
+}

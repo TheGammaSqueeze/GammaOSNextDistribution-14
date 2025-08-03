@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+* Copyright (C) 2017 The Android Open Source Project
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="recent_task_option_pin">Fisse</string>
+    <string name="recent_task_option_freeform">Forme libare</string>
+    <string name="recents_empty_message">Nissun element resint</string>
+    <string name="accessibility_app_usage_settings">Impostazions utilizazion aplicazion</string>
+    <string name="recents_clear_all">Nete dut</string>
+    <string name="accessibility_recent_apps">Aplicazions resintis</string>
+    <string name="task_view_closed">Ativitât sierade</string>
+    <string name="task_contents_description_with_remaining_time"><xliff:g id="task_description" example="GMail">%1$s</xliff:g>, <xliff:g id="remaining_time" example="7 minutes left today">%2$s</xliff:g></string>
+    <string name="shorter_duration_less_than_one_minute">&lt; 1 minût</string>
+    <string name="time_left_for_app">Vuê a mancjin: <xliff:g id="time" example="7 minutes">%1$s</xliff:g></string>
+    <string name="title_app_suggestions">Sugjeriments di aplicazions</string>
+    <string name="all_apps_prediction_tip">Aplicazions previodudis par te</string>
+    <string name="hotseat_edu_title_migrate">Ricêf lis aplicazions sugjeridis te rie inferiôr de tô schermade iniziâl</string>
+    <string name="hotseat_edu_title_migrate_landscape">Ricêf lis aplicazions sugjeridis te rie dai preferîts te schermade di Inizi</string>
+    <string name="hotseat_edu_message_migrate">Rive cun facilitât aes tôs aplicazion dopradis dispès, juste te schermade di Inizi. I sugjeriments a cambiaran in base al to dran dran. Lis aplicazions te rie inferiôr si spostaran in sù te tô schermade iniziâl. </string>
+    <string name="hotseat_edu_message_migrate_landscape">Rive cun facilitât aes aplicazions dopradis dispès, juste te schermade di Inizi. I sugjeriments a cambiaran in base al to dran dran. Lis aplicazions te rie dai preferîts si spostaran te tô schermade iniziâl.</string>
+    <string name="hotseat_edu_accept">Ricêf sugjeriments di aplicazions</string>
+    <string name="hotseat_edu_dismiss">No, graciis</string>
+    <string name="hotseat_prediction_settings">Impostazions</string>
+    <string name="hotseat_auto_enrolled">Lis aplicazions plui dopradis a vignaran fûr achì e a cambiin in base al ûs abituâl</string>
+    <string name="hotseat_tip_no_empty_slots">Strissine lis aplicazions fûr de rie inferiôr par ricevi sugjeriments di aplicazions</string>
+    <string name="hotseat_tip_gaps_filled">Sugjeriments di aplicazion zontâts tal spazi vueit</string>
+    <string name="hotsaet_tip_prediction_enabled">Sugjeriments di aplicazion ativâts</string>
+    <string name="hotsaet_tip_prediction_disabled">I sugjeriments di aplicazion a son disativâts</string>
+    <string name="hotseat_prediction_content_description">Aplicazion predete: <xliff:g id="title" example="Chrome">%1$s</xliff:g></string>
+    <string name="gesture_tutorial_rotation_prompt_title">Volte il to dispositîf</string>
+    <string name="gesture_tutorial_rotation_prompt">Volte il to dispositîf par completâ il seminari pe navigazion a mots</string>
+    <string name="back_gesture_feedback_swipe_too_far_from_edge">Viôt di scori dal ôr plui a diestre o plui a çampe</string>
+    <string name="back_gesture_feedback_cancelled">Viôt di scori dal ôr di diestre o di çampe al mielç dal schermi e molâ</string>
+    <string name="back_gesture_feedback_complete_with_overview_follow_up">Tu âs imparât cemût scori de diestre par tornâ indaûr. Cumò impare cemût cambiâ aplicazions.</string>
+    <string name="back_gesture_feedback_complete_with_follow_up">Tu âs completât il mot par tornâ indaûr. Cumò impare cemût passâ di une aplicazion a chê altre.</string>
+    <string name="back_gesture_feedback_complete_without_follow_up">Tu âs completât il mot par tornâ indaûr</string>
+    <string name="back_gesture_feedback_swipe_in_nav_bar">Viôt di no scori masse dongje dal ôr inferiôr dal schermi</string>
+    <string name="back_gesture_tutorial_confirm_subtitle">Par cambiâ la sensibilitât dal mot indaûr, va in Impostazions</string>
+    <string name="back_gesture_intro_title">Scor par tornâ indaûr</string>
+    <string name="back_gesture_intro_subtitle">Par tornâ indaûr ae ultime schermade, scor partint di çampe o di diestre fintal mieç dal schermi.</string>
+    <string name="back_gesture_spoken_intro_subtitle">Par tornâ indaûr ae ultime schermade, scor cun 2 dêts partint di çampe o di diestre fintal mieç dal schermi.</string>
+    <string name="back_gesture_tutorial_title">Tone indaûr</string>
+    <string name="back_gesture_tutorial_subtitle">Scor partint di çampe o di diestre fintal mieç dal schermi</string>
+    <string name="home_gesture_feedback_swipe_too_far_from_edge">Viôt di scori in sù partint dal ôr inferiôr dal schermi</string>
+    <string name="home_gesture_feedback_overview_detected">Viôt di no fâ pausis prime di molâ</string>
+    <string name="home_gesture_feedback_wrong_swipe_direction">Viôt di scori dret in sù</string>
+    <string name="home_gesture_feedback_complete_with_follow_up">Tu âs completât il mot par lâ te schermade di inizi. Cumò impare cemût lâ indaûr.</string>
+    <string name="home_gesture_feedback_complete_without_follow_up">Tu âs completât il mot par lâ ae schermade iniziâl</string>
+    <string name="home_gesture_intro_title">Scor par lâ ae schermade iniziâl</string>
+    <string name="home_gesture_intro_subtitle">Scor in sù partint dal bas dal schermi. Chest mot ti puarte simpri ae tô schermade di Inizi.</string>
+    <string name="home_gesture_spoken_intro_subtitle">Scor in sù cun 2 dêts partint dal bas dal schermi. Chest mot ti puarte simpri ae schermade di Inizi.</string>
+    <string name="home_gesture_tutorial_title">Va al Inizi</string>
+    <string name="home_gesture_tutorial_subtitle">Scor in sù partint dal bas dal schermi</string>
+    <string name="home_gesture_tutorial_success">Biel lavôr!</string>
+    <string name="overview_gesture_feedback_swipe_too_far_from_edge">Viôt di scori in sù partint dal ôr inferiôr dal schermi</string>
+    <string name="overview_gesture_feedback_home_detected">Cîr di tignî il barcon plui a dilunc prime di molâlu</string>
+    <string name="overview_gesture_feedback_wrong_swipe_direction">Viôt di scori dret in sù, dopo fâs une pause</string>
+    <string name="overview_gesture_feedback_complete_with_follow_up">Tu âs imparât cemût doprâ i mots. Par disativâ i mots, va tes Impostazions.</string>
+    <string name="overview_gesture_feedback_complete_without_follow_up">Tu âs completât il mot par passâ di une aplicazion a chê altre</string>
+    <string name="overview_gesture_intro_title">Scor par cambiâ aplicazions</string>
+    <string name="overview_gesture_intro_subtitle">Par passâ di une aplicazion a chê altre, scor in sù partint dal bas dal schermi, ten fracât e mole.</string>
+    <string name="overview_gesture_spoken_intro_subtitle">Par cambiâ aplicazions, scor in sù cun 2 dêts partint dal bas dal schermi, ten fracât e dopo mole.</string>
+    <string name="overview_gesture_tutorial_title">Passâ di une aplicazion a chê altre</string>
+    <string name="overview_gesture_tutorial_subtitle">Scor in sù partint dal bas dal schermi, ten fracât e dopo mole</string>
+    <string name="overview_gesture_tutorial_success">Ben fate!</string>
+    <string name="gesture_tutorial_confirm_title">Completât!</string>
+    <string name="gesture_tutorial_action_button_label">Fat</string>
+    <string name="gesture_tutorial_action_button_label_settings">Impostazions</string>
+    <string name="gesture_tutorial_try_again">Torne prove</string>
+    <string name="gesture_tutorial_nice">Biel!</string>
+    <string name="gesture_tutorial_step">Seminari <xliff:g id="current">%1$d</xliff:g>/<xliff:g id="total">%2$d</xliff:g></string>
+    <string name="allset_title">Completât!</string>
+    <string name="allset_hint">Scor in sù par lâ ae schermade iniziâl</string>
+    <string name="allset_button_hint">Tocje il boton Inizi par la te tô schermade iniziâl</string>
+    <string name="allset_description_generic">Dut pront par scomençâ a doprâ il to <xliff:g id="device" example="Pixel 6">%1$s</xliff:g></string>
+    <string name="default_device_name">dispositîf</string>
+    <string name="allset_navigation_settings"><annotation id="link">Impostazions Navigazion dal sisteme</annotation></string>
+    <string name="action_share">Condivît</string>
+    <string name="action_screenshot">Acuisizion schermade</string>
+    <string name="action_split">Divît</string>
+    <string name="toast_split_select_app">Tocje une altre aplicazion par doprâ il schermi dividût</string>
+    <string name="toast_contextual_split_select_app">Sielç une altre aplicazion par doprâ il schermi dividût</string>
+    <string name="toast_split_select_app_cancel"><b>Anule</b></string>
+    <string name="toast_split_select_cont_desc">Jes de selezion pal schermi dividût</string>
+    <string name="toast_split_app_unsupported">Sielç une altre aplicazion par doprâ il schermi dividût</string>
+    <string name="blocked_by_policy">Cheste azion no je consintude de aplicazion de tô organizazion</string>
+    <string name="split_widgets_not_supported">Pal moment no son supuartâts i widgets, selezione une altre aplicazion</string>
+    <string name="skip_tutorial_dialog_title">Saltâ il seminari pe navigazion?</string>
+    <string name="skip_tutorial_dialog_subtitle">Tu puedis cjatâlu plui tart te aplicazion <xliff:g id="name">%1$s</xliff:g></string>
+    <string name="gesture_tutorial_action_button_label_cancel">Anule</string>
+    <string name="gesture_tutorial_action_button_label_skip">Salte</string>
+    <string name="accessibility_rotate_button">Volte il schermi</string>
+    <string name="taskbar_edu_a11y_title">Educazion sbare ativitâts</string>
+    <string name="taskbar_edu_splitscreen">Strissine une aplicazion in bande par doprâ 2 aplicazions intune volte sole</string>
+    <string name="taskbar_edu_stashing">Scor planc in sù par mostrâ la sbare des ativitâts</string>
+    <string name="taskbar_edu_suggestions">Ricêf sugjeriments di aplicazions in base al to dran dran</string>
+    <string name="taskbar_edu_pinning">Une pression lungje sul divisôr par fissâ la sbare des ativitâts</string>
+    <string name="taskbar_edu_features">Altris funzions cu la sbare des ativitâts</string>
+    <string name="taskbar_edu_pinning_title">Mostre simpri la sbare des ativitâts</string>
+    <string name="taskbar_edu_pinning_standalone">Par mostrâ simpri la sbare des ativitâts te part inferiôr dal schermi, tocje e ten fracât il divisôr</string>
+    <string name="taskbar_edu_close">Siere</string>
+    <string name="taskbar_edu_done">Fat</string>
+    <string name="taskbar_button_home">Inizi</string>
+    <string name="taskbar_button_a11y">Acès facilitât</string>
+    <string name="taskbar_button_back">Indaûr</string>
+    <string name="taskbar_button_ime_switcher">Comutadôr IME</string>
+    <string name="taskbar_button_recents">Resints</string>
+    <string name="taskbar_button_notifications">Notifichis</string>
+    <string name="taskbar_button_quick_settings">Impostazions rapidis</string>
+    <string name="taskbar_a11y_title">Sbare des ativitâts</string>
+    <string name="taskbar_a11y_shown_title">Sbare des ativitâts mostrade</string>
+    <string name="taskbar_a11y_hidden_title">Sbare des ativitâts platade</string>
+    <string name="taskbar_phone_a11y_title">Sbare di navigazion</string>
+    <string name="always_show_taskbar">Mostre simpri sbare ativitâts</string>
+    <string name="change_navigation_mode">Cambie modalitât di navigazion</string>
+    <string name="taskbar_divider_a11y_title">Divisôr de sbare des ativitâts</string>
+    <string name="move_drop_target_top_or_left">Sposte in alt/çampe</string>
+    <string name="move_drop_target_bottom_or_right">Sposte in bas/diestre</string>
+    <string name="quick_switch_overflow">{count, plural,
+            one {}=1{Mostre # altre aplicazion.}
+            other{Mostre altris # aplicazions.}
+        }</string>
+    <string name="quick_switch_split_task"><xliff:g id="app_name_1" example="Chrome">%1$s</xliff:g> e <xliff:g id="app_name_2" example="Gmail">%2$s</xliff:g></string>
+    <string name="desktop_select_app_toast">Daûr a zontâ une aplicazion al Scritori</string>
+    <string name="desktop_button_close_app_toast">Anule</string>
+</resources>

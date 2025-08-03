@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    Copyright (C) 2021 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="brand_screen_header" msgid="4382251935798018352">"இது நிறுவனத்தின் வாகனம்"</string>
+    <string name="contact_device_provider" msgid="338577979231875837">"மேலும் அறிய <xliff:g id="IT_ADMIN">%1$s</xliff:g> ஐத் தொடர்புகொள்ளவும்."</string>
+    <string name="organization_admin" msgid="6551608903069550652">"நிறுவனத்தின் நிர்வாகி"</string>
+    <string name="if_questions_contact_admin" msgid="4645510019575736238">"கேள்விகள் இருந்தால் நிறுவனத்தின் நிர்வாகியைத் தொடர்புகொள்ளவும்"</string>
+    <string name="admin_has_ability_to_monitor_device" msgid="3132155961508293345">"அமைப்புகள், கார்ப்பரேட் அணுகல், ஆப்ஸ், அனுமதிகள், இந்த வாகனத்துடன் தொடர்புடைய தரவு (நெட்வொர்க் செயல்படும் வாகனத்தின் இருப்பிடமும் இதில் அடங்கும்) ஆகியவற்றை உங்கள் நிறுவனத்தின் நிர்வாகியால் கண்காணிக்கவும் நிர்வகிக்கவும் முடியும்.<xliff:g id="LINE_BREAK">
+
+</xliff:g>கூடுதல் தகவல்களுக்கு (நிறுவனத்தின் தனியுரிமைக் கொள்கைகள் உட்பட) நிறுவனத்தின் நிர்வாகியைத் தொடர்புகொள்ளவும்."</string>
+    <string name="contact_your_admin_for_more_info" msgid="1419852317652804536">"கூடுதல் தகவல்களுக்கு (நிறுவனத்தின் தனியுரிமைக் கொள்கைகள் உட்பட) நிறுவனத்தின் நிர்வாகியைத் தொடர்புகொள்ளவும்."</string>
+    <string name="managed_device_info" msgid="2134697391634083944">"இது ஒரு நிர்வகிக்கப்படும் வாகனம்"</string>
+    <string name="contact_your_admin_for_help" msgid="1741496631607502730">"உதவிக்கு நிறுவனத்தின் நிர்வாகியைத் தொடர்புகொள்ளவும்"</string>
+    <string name="fully_managed_device_provisioning_accept_header" msgid="8767138982035307813">"நிர்வகிக்கப்படும் வாகனத்தை அமையுங்கள்"</string>
+    <string name="fully_managed_device_provisioning_step_1_header" msgid="8704166635032524345">"உங்கள் நிறுவனத்தின் ஆப்ஸை அணுகுங்கள்"</string>
+    <string name="fully_managed_device_provisioning_step_1_description" msgid="5960961281295355254">"இன்ஃபோடெயின்மென்ட் சிஸ்டத்தை அமைக்கிறது..."</string>
+    <string name="fully_managed_device_provisioning_step_2_header" msgid="5888602026900289468">"இன்ஃபோடெயின்மென்ட் சிஸ்டம் தரவு தனிப்பட்டது அல்ல"</string>
+    <string name="fully_managed_device_provisioning_step_2_subheader_title" msgid="1421575203782743214">"உங்கள் செயல்பாடு &amp; தரவு"</string>
+    <string name="fully_managed_device_provisioning_step_2_subheader" msgid="4881961368653838979">"இந்த வாகனத்திலுள்ள உங்கள் தரவையும் செயல்பாட்டையும் நிறுவனத்தின் நிர்வாகி பார்க்கக்கூடும்."</string>
+    <string name="fully_managed_device_provisioning_permissions_secondary_subheader" msgid="8955791361423166123">"இந்த வாகனத்திலுள்ள ஆப்ஸுக்கான அனுமதிகளை (மைக்ரோஃபோன், இருப்பிட அனுமதிகள் போன்றவை) நிறுவனத்தின் நிர்வாகியால் அமைக்க முடியும்."</string>
+    <string name="fully_managed_device_with_permission_control_provisioning_summary" msgid="2503568673345133100">"உங்கள் பணி ஆப்ஸை எளிதாக அணுக, இந்த வாகனத்தின் இன்ஃபோடெயின்மென்ட் சிஸ்டத்தைப் பயன்படுத்துங்கள். இந்த வாகனம் தனிப்பட்டது அல்ல. எனவே உங்கள் செயல்பாட்டையும் தரவையும் நிறுவனத்தின் நிர்வாகி பார்க்கக்கூடும். இந்த வாகனத்திலுள்ள ஆப்ஸுக்கான அனுமதிகளையும் (மைக்ரோஃபோன், இருப்பிடம் போன்றவை) நிறுவனத்தின் நிர்வாகியால் அமைக்க முடியும்."</string>
+    <string name="fully_managed_device_provisioning_summary" msgid="4323948058344613817">"உங்கள் பணி ஆப்ஸை எளிதாக அணுக, இந்த வாகனத்தின் இன்ஃபோடெயின்மென்ட் சிஸ்டத்தைப் பயன்படுத்துங்கள். இந்த வாகனம் தனிப்பட்டது அல்ல. எனவே உங்கள் தரவையும் செயல்பாட்டையும் நிறுவனத்தின் நிர்வாகி பார்க்கக்கூடும்."</string>
+    <string name="fully_managed_device_provisioning_progress_label" msgid="988594700479673633">"நிர்வகிக்கப்படும் வாகனத்தை அமைக்கிறது"</string>
+    <string name="fully_managed_device_provisioning_return_device_title" msgid="1578111657911434819">"அமைவை ரத்துசெய்து வாகனத்தைத் திருப்பியளியுங்கள்"</string>
+    <string name="fully_managed_device_provisioning_return_device_subheader" msgid="5809488930429106172">"அமைவைத் தொடர, இந்த வாகனத்திலுள்ள தரவை மீட்டமைத்து நிறுவனத்தின் நிர்வாகியிடம் திருப்பியளியுங்கள் அல்லது முந்தைய திரைக்குச் செல்லுங்கள்."</string>
+    <string name="fully_managed_device_cancel_setup_button" msgid="4113790677940440998">"அமைவை ரத்துசெய்"</string>
+    <string name="fully_managed_device_reset_and_return_button" msgid="4951274590516561428">"மீட்டமை &amp; திருப்பியளி"</string>
+    <string name="fully_managed_device_provisioning_privacy_title" msgid="4789425994893472324">"தனியுரிமை அறிக்கை"</string>
+    <string name="fully_managed_device_provisioning_privacy_body" msgid="5549745709511179391">"இந்த வாகனத்திலுள்ள உங்கள் தரவையும் செயல்பாட்டையும் நிறுவனத்தின் நிர்வாகி பார்க்கக்கூடும்."</string>
+</resources>

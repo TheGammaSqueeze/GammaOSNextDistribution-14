@@ -1,0 +1,12 @@
+{
+  "provideLibs": [
+    "a.so",
+    "b.so",
+    "c.so"
+  ],
+  "requireLibs": [
+    "foo.so",
+    "bar.so",
+    "baz.so"
+  ]
+}

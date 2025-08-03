@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    tools:context=".ui.main.TestConfigFragment">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginBottom="8dp"
+        android:scrollbarStyle="outsideInset"
+        app:layout_constraintBottom_toTopOf="@id/layout_buttons"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/request_app_type" />
+
+            <EditText
+                android:id="@+id/editAppType"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="numberSigned" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/request_naf_url" />
+
+            <EditText
+                android:id="@+id/editUrl"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="textUri" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/request_org" />
+
+            <EditText
+                android:id="@+id/editOrg"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="numberSigned" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/request_security_protocol" />
+
+            <EditText
+                android:id="@+id/editSpId"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="numberSigned" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/request_tls_cipher_suite" />
+
+            <EditText
+                android:id="@+id/editTlsCs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="numberSigned" />
+
+            <CheckBox
+                android:id="@+id/checkBoxForce"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/request_force_bootstrapping" />
+
+        </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/layout_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="false"
+        android:layout_gravity="bottom"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <Button
+            android:id="@+id/client_config_clear"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/button_name_clear" />
+
+        <Button
+            android:id="@+id/client_config_done"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/button_name_done" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

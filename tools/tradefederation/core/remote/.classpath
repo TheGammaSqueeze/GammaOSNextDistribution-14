@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/ddmlib"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="TRADEFED_ROOT/prebuilts/misc/common/json/json-prebuilt.jar"/>
+	<classpathentry kind="var" path="TRADEFED_ROOT/prebuilts/misc/common/sdklib/sdklib-prebuilt.jar"/>
+	<classpathentry kind="var" path="TRADEFED_ROOT/prebuilts/misc/common/tools-common/tools-common-prebuilt.jar"/>
+	<classpathentry kind="var" path="TRADEFED_ROOT/out/soong/.intermediates/external/guava/guava-jre/linux_glibc_common/combined/guava-jre.jar"/>
+	<classpathentry kind="var" path="TRADEFED_ROOT/external/error_prone/error_prone/error_prone_annotations-2.23.0.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

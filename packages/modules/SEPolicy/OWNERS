@@ -1,0 +1,6 @@
+include platform/system/sepolicy:/OWNERS
+
+bwb@google.com
+ioffe@google.com
+maco@google.com
+satayev@google.com

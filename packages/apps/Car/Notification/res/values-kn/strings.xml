@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    Copyright (C) 2018 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label" msgid="5911862216123243843">"ಕಾರ್ ನೋಟಿಫಿಕೇಶನ್ ನಿರ್ವಾಹಕ"</string>
+    <string name="assist_action_play_label" msgid="6278705468288338172">"ಪ್ಲೇ ಮಾಡಿ"</string>
+    <string name="assist_action_reply_label" msgid="6946087036560525072">"ಪ್ರತ್ಯುತ್ತರಿಸಿ"</string>
+    <string name="action_mute_short" msgid="5239851786101022633">"ಮ್ಯೂಟ್"</string>
+    <string name="action_mute_long" msgid="6846675719189989477">"ಸಂವಾದವನ್ನು ಮ್ಯೂಟ್ ಮಾಡಿ"</string>
+    <string name="action_unmute_short" msgid="7157822835069715986">"ಅನ್‌ಮ್ಯೂಟ್"</string>
+    <string name="action_unmute_long" msgid="22482625837159466">"ಸಂವಾದವನ್ನು ಅನ್‌ಮ್ಯೂಟ್ ಮಾಡಿ"</string>
+    <string name="action_canned_reply" msgid="4045960823021872834">"\"ಡ್ರೈವ್ ಮಾಡುತ್ತಿದ್ದೇನೆ.\""</string>
+    <string name="canned_reply_message" msgid="7959257272917598063">"ಡ್ರೈವ್ ಮಾಡುತ್ತಿದ್ದೇನೆ."</string>
+    <string name="toast_message_sent_success" msgid="1159956191974273064">"ಸಂದೇಶವನ್ನು ಯಶಸ್ವಿಯಾಗಿ ಕಳುಹಿಸಲಾಗಿದೆ."</string>
+    <string name="notification_service_label" msgid="7512186049723777468">"ಕಾರ್‌ ನೋಟಿಫಿಕೇಶನ್ ಕೇಳುವ ಸೇವೆ"</string>
+    <string name="notifications" msgid="2865534625906329283">"ಅಧಿಸೂಚನೆಯ ಕೇಂದ್ರ"</string>
+    <string name="clear_all" msgid="1845314281571237722">"ತೆರವುಗೊಳಿಸಿ"</string>
+    <string name="ellipsized_string" msgid="6993649229498857557">"…"</string>
+    <string name="show_more" msgid="7291378544926443344">"ಹೆಚ್ಚು ತೋರಿಸಿ"</string>
+    <string name="notification_header" msgid="324550431063568049">"ಅಧಿಸೂಚನೆಗಳು"</string>
+    <string name="notification_recents" msgid="5855769440781958546">"ಇತ್ತೀಚಿನವುಗಳು"</string>
+    <string name="notification_older" msgid="8162161020296499690">"ಹಳೆಯ ಅಧಿಸೂಚನೆಗಳು"</string>
+    <string name="empty_notification_header" msgid="4928379791607839720">"ಯಾವುದೇ ಅಧಿಸೂಚನೆಗಳಿಲ್ಲ"</string>
+    <string name="collapse_group" msgid="3487426973871208501">"ಕಡಿಮೆ ತೋರಿಸಿ"</string>
+    <string name="show_more_from_app" msgid="4270626118092846628">"<xliff:g id="APP">%2$s</xliff:g> ನಿಂದ ಇನ್ನೂ <xliff:g id="COUNT">%1$d</xliff:g>"</string>
+    <string name="show_count_more" msgid="480555295700318609">"<xliff:g id="COUNT">%d</xliff:g> ಇನ್ನಷ್ಟು ತೋರಿಸಿ"</string>
+    <plurals name="message_unshown_count" formatted="false" msgid="2454776257150137504">
+      <item quantity="one">ಇನ್ನೂ <xliff:g id="COUNT_1">%d</xliff:g> ಸಂದೇಶಗಳು</item>
+      <item quantity="other">ಇನ್ನೂ <xliff:g id="COUNT_1">%d</xliff:g> ಸಂದೇಶಗಳು</item>
+    </plurals>
+    <plurals name="restricted_numbered_message_content" formatted="false" msgid="232398073855919710">
+      <item quantity="one"><xliff:g id="COUNT_1">%d</xliff:g> ಹೊಸ ಸಂದೇಶಗಳು</item>
+      <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> ಹೊಸ ಸಂದೇಶಗಳು</item>
+    </plurals>
+    <string name="see_more_message" msgid="6343183827924395955">"ಇನ್ನಷ್ಟು ನೋಡಿ"</string>
+    <string name="restricted_hun_message_content" msgid="631111937988857716">"ಹೊಸ ಸಂದೇಶ"</string>
+    <string name="manage_text" msgid="4225197445283791757">"ನಿರ್ವಹಿಸಿ"</string>
+    <string name="category_navigation" msgid="4406139232918521087">"ನ್ಯಾವಿಗೇಶನ್"</string>
+    <string name="category_call" msgid="2249490790700877973">"ಕರೆ"</string>
+    <string name="category_message" msgid="451360226248504859">"ಸಂದೇಶ"</string>
+    <string name="hun_suppression_channel_name" msgid="8298850157350352525">"ಗಮನ ರಸ್ತೆ ಕಡೆಗೆ ಇರಲಿ ಫೀಚರ್‌ನ ನಿರ್ಬಂಧ"</string>
+    <string name="hun_suppression_notification_title_park" msgid="2790860076784227523">"ಇತ್ತೀಚಿನ ಎಪಿಸೋಡ್‌ಗಳನ್ನು ವೀಕ್ಷಿಸಿ"</string>
+    <string name="hun_suppression_notification_title_drive" msgid="4403363470548899844">"ವಾಹನ ಚಾಲನೆಯ ಮೇಲೆ ಗಮನಹರಿಸಿ"</string>
+    <string name="hun_suppression_notification_description" msgid="5269238832987802104">"ಕೆಲವು ಹೊಸ ನೋಟಿಫಿಕೇಶನ್‌ಗಳನ್ನು ನೋಟಿಫಿಕೇಶನ್‌ ಕೇಂದ್ರದಲ್ಲಿ ಉಳಿಸಲಾಗುತ್ತದೆ"</string>
+</resources>

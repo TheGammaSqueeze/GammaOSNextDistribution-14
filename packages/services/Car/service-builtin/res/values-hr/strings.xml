@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2015 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="car_permission_label_bind_projection_service" msgid="6976251734714662552">"vezati se na uslugu projekcije"</string>
+    <string name="car_permission_desc_bind_projection_service" msgid="4610418233070289810">"Nositelju omogućuje vezanje uz sučelje najviše razine usluge za projiciranje. Ne bi smjelo biti potrebno za normalne aplikacije."</string>
+    <string name="car_permission_label_bind_vms_client" msgid="1298928874094319701">"VMS usluga za klijente"</string>
+    <string name="car_permission_desc_bind_vms_client" msgid="7758142590449847602">"vezati se na VMS klijente"</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="6723392540805279625">"generiranje na instrumentnoj ploči"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="2583711303360788080">"primati podatke instrumentne ploče"</string>
+    <string name="car_permission_label_bind_input_service" msgid="6647238478703096557">"usluga automobilskog unosa"</string>
+    <string name="car_permission_desc_bind_input_service" msgid="8460218104132496613">"rukovati događajima unosa"</string>
+    <string name="activity_blocked_text" msgid="5991043857905412794">"Tu značajku ne možete upotrebljavati tijekom vožnje"</string>
+    <string name="exit_button_message" msgid="5375678491245394542">"Da biste započeli ponovo sa sigurnim značajkama aplikacije, odaberite <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
+    <string name="exit_button" msgid="3491899413031549265">"Natrag"</string>
+    <string name="exit_button_close_application" msgid="5153716684207539041">"Zatvori aplikaciju"</string>
+    <string name="exit_button_go_back" msgid="6921595432375141935">"Natrag"</string>
+    <string name="importance_default" msgid="8017186728206153704">"Zadana važnost"</string>
+    <string name="importance_high" msgid="3393374688015554727">"Velika važnost"</string>
+    <string name="android_system_label" msgid="9209428539477894959">"Sustav Android"</string>
+    <string name="factory_reset_notification_title" msgid="6177770995437355965">"Potrebno je vraćanje na tvorničke postavke"</string>
+    <string name="factory_reset_notification_text" msgid="6051393302193696102">"Izbrisat će se svi podaci u sustavu za informiranje i zabavu. Nakon resetiranja možete postaviti novi profil."</string>
+    <string name="factory_reset_notification_button" msgid="6926734587145351076">"Više"</string>
+    <string name="factory_reset_warning" msgid="8463356329619149262">"Uređaj će se izbrisati"</string>
+    <string name="factory_reset_message" msgid="1972536809866779972">"Administratorska aplikacija ne može se upotrebljavati. Uređaj će se izbrisati.\n\nAko imate pitanja, obratite se administratoru organizacije."</string>
+    <string name="resource_overuse_notification_title" msgid="1622015333965744463">"Aplikacija <xliff:g id="ID_1">^1</xliff:g> utječe na izvedbu sustava"</string>
+    <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"Ovoj je aplikaciji onemogućeno izvođenje u pozadini. Postavite je kao prioritet da bi se nastavila upotreba u pozadini."</string>
+    <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"Zatvori"</string>
+    <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"Prioritet: aplikacija"</string>
+</resources>

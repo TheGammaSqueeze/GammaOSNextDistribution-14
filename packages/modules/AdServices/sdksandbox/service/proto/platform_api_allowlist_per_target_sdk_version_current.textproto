@@ -1,0 +1,63 @@
+# Allowlists are not final
+allowlist_per_target_sdk {
+    key : 33
+    value: {
+        allowed_apis [
+            {
+                allow : true
+                class_name : "Landroid/*"
+            },
+            {
+                allow : true
+                class_name : "Landroidx/*"
+            },
+            {
+                allow : true
+                class_name : "Lcom/android/*"
+            },
+            {
+                allow : true
+                class_name : "Lcom/google/android/*"
+            },
+            {
+                allow : true
+                class_name : "Ljava/*"
+            },
+            {
+                allow : true
+                class_name : "Ljavax/*"
+            }
+        ]
+    }
+}
+allowlist_per_target_sdk {
+    key : 34
+    value: {
+        allowed_apis [
+            {
+                allow : true
+                class_name : "Landroid/*"
+            },
+            {
+                allow : true
+                class_name : "Landroidx/*"
+            },
+            {
+                allow : true
+                class_name : "Lcom/android/*"
+            },
+            {
+                allow : true
+                class_name : "Lcom/google/android/*"
+            },
+            {
+                allow : true
+                class_name : "Ljava/*"
+            },
+            {
+                allow : true
+                class_name : "Ljavax/*"
+            }
+        ]
+    }
+}

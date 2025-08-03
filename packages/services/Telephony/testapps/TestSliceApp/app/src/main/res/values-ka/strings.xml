@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="1265450418387661962">"TestSliceApp"</string>
+    <string name="hello_blank_fragment" msgid="1245093642770491175">"მოგესალმებით, ეს ცარიელი ფრაგმენტია"</string>
+    <string name="request_network" msgid="8945235490804849914">"მოთხოვნილი ქსელი"</string>
+    <string name="release_network" msgid="174252378593535238">"გამოშვების ქსელი"</string>
+    <string name="ping" msgid="7890607576220714932">"ზუზუნი"</string>
+    <string name="result_prefix" msgid="3522796186427501399">"შედეგი:"</string>
+    <string name="latency_title" msgid="963052613947017009">"უპირატესობა მიანიჭეთ რეაგირების დროს"</string>
+    <string name="bw_title" msgid="3902162973688221344">"პრიორიტეტული გამტარუნარიანობა"</string>
+    <string name="cbs_title" msgid="5234410535569935600">"CBS"</string>
+    <string name="purchase" msgid="7843181995697372128">"შეიძინეთ ქსელის პრემიუმი"</string>
+    <string name="network_available" msgid="4780293262690730734">"შედეგი: მოთხოვნილი ქსელი უკვე ხელმისაწვდომია!"</string>
+    <string name="network_requested" msgid="5646123922691865991">"შედეგი: ქსელი მოთხოვნილია!"</string>
+    <string name="network_released" msgid="2992280481133877025">"შედეგი: ქსელი გათავისუფლდა!"</string>
+    <string name="network_release_failed" msgid="256471231420029151">"შედეგი: ქსელის გათავისუფლება ვერ მოხერხდა"</string>
+    <string name="purchase_exception" msgid="8876841120055716671">"შედეგი: გამონაკლისი ქსელის პრემიუმის შეძენისას!!!"</string>
+    <string name="purchase_empty_result" msgid="7497824191649973928">"შედეგი: მიიღეთ ცარიელი შედეგი ქსელის პრემიუმის შეძენისას!!!"</string>
+    <string name="premium_not_available" msgid="7346368693802644748">"შედეგი: ქსელის პრემია არ არის ხელმისაწვდომი შესაძენად!!!"</string>
+    <string name="purchase_in_progress" msgid="5450288183685032424">"შედეგი:მიმდინარეობს ქსელის პრემიუმ შესყიდვა ..."</string>
+</resources>

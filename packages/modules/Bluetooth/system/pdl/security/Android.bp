@@ -1,0 +1,52 @@
+genrule {
+    name: "BluetoothGeneratedPacketsSmp_h",
+    defaults: ["BluetoothGeneratedPackets_default"],
+    srcs: ["smp_packets.pdl"],
+    out: ["security/smp_packets.h"],
+    visibility: ["//visibility:private"],
+}
+
+cc_library_headers {
+    name: "libbluetooth_smp_pdl_header",
+    generated_headers: [
+        "BluetoothGeneratedPacketsSmp_h",
+    ],
+    export_generated_headers: [
+        "BluetoothGeneratedPacketsSmp_h",
+    ],
+    host_supported: true,
+    apex_available: [
+        "com.android.btservices",
+    ],
+    min_sdk_version: "33",
+}
+
+cc_library_static {
+    name: "libbluetooth_smp_pdl",
+    header_libs: [
+        "libbluetooth_smp_pdl_header",
+    ],
+    export_header_lib_headers: [
+        "libbluetooth_smp_pdl_header",
+    ],
+    host_supported: true,
+    apex_available: [
+        "com.android.btservices",
+    ],
+    min_sdk_version: "33",
+}
+
+// Generate the python parser+serializer backend
+genrule {
+    name: "gd_smp_packets_python3_gen",
+    defaults: ["pdl_python_generator_defaults"],
+    cmd: "$(location :pdlc) $(in) |" +
+        " $(location :pdl_python_generator)" +
+        " --output $(out) --custom-type-location blueberry.utils.bluetooth",
+    srcs: [
+        "smp_packets.pdl",
+    ],
+    out: [
+        "smp_packets.py",
+    ],
+}

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2017-2021 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <string name="app_name">Recorder</string>
+    <string name="share">Diele</string>
+    <string name="stop">Stopje</string>
+    <string name="play">Ofspylje</string>
+    <string name="delete">Fuortsmite</string>
+    <string name="cancel">Annulearje</string>
+    <string name="delete_title">Opname fuortsmite</string>
+    <string name="sound_notification_title">Lûddsrecorder</string>
+    <string name="sound_notification_message">Audiolingte: %1$s</string>
+    <string name="sound_recording_title_working">Opnimme</string>
+    <string name="sound_last_title">Lêste opname</string>
+    <string name="sound_channel_title">Lûd opnimme</string>
+    <string name="sound_channel_desc">Permaninte notifikaasje wylst it opnimmen fan lûd en in notifikaasje neidat dit foltôge is</string>
+    <string name="dialog_permissions_title">Machtigingen</string>
+    <string name="dialog_permissions_mic">Recorder hat tagong ta de mikrofoan nedich om lûd op nimme te kinnen</string>
+    <string name="dialog_permissions_phone">Recorder hat tagong nedich ta de telefoansteat om foar te kommen dat dizze app opnimt wylst oproppen</string>
+    <string name="dialog_permissions_mic_phone">Recorder hat tagong nedich ta de mikrofoan om audio op nimme te kinnen en tagong nedich ta de telefoansteat om foar te kommen dat dizze app opnimt wylst oproppen</string>
+    <string name="dialog_permissions_ask">Opnij freegje</string>
+    <string name="dialog_permissions_dismiss">Slute</string>
+    <string name="snack_permissions_no_permission">Fereaske machtigingen waarden wegere, skeakelje se yn yn Ynstellingen om opname te starten</string>
+    <string name="main_sound_action">Lûd opnimme</string>
+</resources>

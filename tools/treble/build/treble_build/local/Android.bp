@@ -1,0 +1,22 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+bootstrap_go_package {
+    name: "treble_report_local",
+    srcs: [
+        "cmd.go",
+        "defaults.go",
+        "git.go",
+        "ninja.go",
+    ],
+    deps: [
+        "treble_report_app",
+    ],
+    testSrcs: [
+        "git_test.go",
+        "ninja_test.go",
+    ],
+    pkgPath: "tools/treble/build/report/local",
+    pluginFor: ["soong_build"],
+}

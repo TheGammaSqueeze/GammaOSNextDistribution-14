@@ -1,0 +1,90 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "google.trusty.benchmark.schema.json",
+    "title": "BenchmarkResults",
+    "description": "Results of trusty Benchmarks",
+    "type": "object",
+    "properties": {
+        "suite_name": {
+            "description": "The name of the bench suite.",
+            "type": "string"
+        },
+        "bench_name": {
+            "description": "The name of the bench.",
+            "type": "string"
+        },
+        "schema_version": {
+            "type": "number",
+            "minimum": 3,
+            "maximum": 3
+        },
+        "results": {
+            "type": "array",
+            "items": {
+                "$ref": "#/$defs/result"
+            },
+            "minItems": 1,
+            "uniqueItems": true
+        }
+    },
+    "required": [
+        "suite_name",
+        "bench_name",
+        "results",
+        "schema_version"
+    ],
+    "$defs": {
+        "result": {
+            "type": "object",
+            "properties": {
+                "metric_name": {
+                    "description": "The name of the metric associated.",
+                    "type": "string"
+                },
+                "param_id": {
+                    "description": "The Id of the param associated.",
+                    "type": "integer"
+                },
+                "param_name": {
+                    "description": "The Formatted Name of the param associated.",
+                    "type": "string"
+                },
+                "min": {
+                    "type": "string"
+                },
+                "max": {
+                    "type": "string"
+                },
+                "avg": {
+                    "type": "string"
+                },
+                "cold": {
+                    "type": "string"
+                },
+                "raw_min": {
+                    "type": "integer"
+                },
+                "raw_max": {
+                    "type": "integer"
+                },
+                "raw_avg": {
+                    "type": "integer"
+                },
+                "raw_cold": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "metric_name",
+                "min",
+                "max",
+                "avg",
+                "cold",
+                "raw_min",
+                "raw_max",
+                "raw_avg",
+                "raw_cold"
+            ]
+        }
+    }
+}

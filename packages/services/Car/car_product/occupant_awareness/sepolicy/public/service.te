@@ -1,0 +1,1 @@
+type hal_occupant_awareness_service, hal_service_type, service_manager_type;

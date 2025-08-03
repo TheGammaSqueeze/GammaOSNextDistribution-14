@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry excluding="Android.bp" kind="src" path="test_observatory"/>
+	<classpathentry excluding="Android.bp" kind="src" path="external_dependencies"/>
+	<classpathentry excluding="Android.bp" kind="src" path="isolation"/>
+	<classpathentry excluding="Android.bp" kind="src" path="lite"/>
+	<classpathentry excluding="Android.bp" kind="src" path="test_framework"/>
+	<classpathentry excluding="Android.bp" kind="src" path="invocation_interfaces"/>
+	<classpathentry excluding="Android.bp" kind="src" path="test_result_interfaces"/>
+	<classpathentry excluding="Android.bp" kind="src" path="clearcut_client"/>
+	<classpathentry kind="src" path="res"/>
+	<classpathentry kind="src" path="hamcrest"/>
+	<classpathentry kind="src" path="junit"/>
+	<classpathentry excluding="Android.bp" kind="src" path="common_util"/>
+	<classpathentry kind="src" path="global_configuration"/>
+	<classpathentry excluding="Android.bp" kind="src" path="device_build_interfaces"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/tf-remote-client"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/ddmlib"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/loganalysis"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="TRADEFED_ROOT/out/soong/.intermediates/external/apache-commons-compress/apache-commons-compress/linux_glibc_common/combined/apache-commons-compress.jar"/>
+	<classpathentry kind="var" path="TRADEFED_ROOT/prebuilts/misc/common/devtools-annotations/devtools-annotations-prebuilt.jar"/>
+	<classpathentry kind="var" path="TRADEFED_ROOT/prebuilts/misc/common/kxml2/kxml2-2.3.0.jar"/>
+	<classpathentry kind="var" path="TRADEFED_ROOT/prebuilts/misc/common/sdklib/sdklib-prebuilt.jar"/>
+	<classpathentry kind="var" path="TRADEFED_ROOT/external/error_prone/error_prone/error_prone_annotations-2.23.0.jar"/>
+	<classpathentry kind="var" path="TRADEFED_ROOT/out/soong/.intermediates/external/protobuf/libprotobuf-java-full/linux_glibc_common/javac/libprotobuf-java-full.jar"/>
+	<classpathentry kind="var" path="TRADEFED_ROOT/out/soong/.intermediates/external/junit-params/junit-params/linux_glibc_common/combined/junit-params.jar"/>
+	<classpathentry kind="var" path="TRADEFED_ROOT/out/soong/.intermediates/external/junit/junit/linux_glibc_common/combined/junit.jar"/>
+	<classpathentry kind="var" path="TRADEFED_ROOT/out/soong/.intermediates/prebuilts/tools/common/google-api-services-compute/google-api-services-compute/linux_glibc_common/combined/google-api-services-compute.jar"/>
+	<classpathentry kind="var" path="TRADEFED_ROOT/prebuilts/misc/common/frameworks/platformprotos-prebuilt.jar"/>
+	<classpathentry kind="var" path="TRADEFED_ROOT/out/soong/.intermediates/external/jacoco/jacoco-cli/linux_glibc_common/combined/jacoco-cli.jar"/>
+	<classpathentry kind="var" path="TRADEFED_ROOT/prebuilts/tools/common/google-api-services-storage/1.24.1/google-api-services-storage-v1-rev155-1.24.1.jar"/>
+	<classpathentry kind="var" path="TRADEFED_ROOT/out/soong/.intermediates/tools/tradefederation/core/tradefed-protos/linux_glibc_common/combined/tradefed-protos.jar"/>
+	<classpathentry kind="var" path="TRADEFED_ROOT/out/soong/.intermediates/external/gson/gson/linux_glibc_common/javac/gson.jar"/>
+	<classpathentry kind="var" path="TRADEFED_ROOT/out/soong/.intermediates/external/protobuf/libprotobuf-java-util-full/linux_glibc_common/combined/libprotobuf-java-util-full.jar"/>
+	<classpathentry kind="var" path="TRADEFED_ROOT/out/soong/.intermediates/tools/tradefederation/core/isolation/tradefed-isolation-protos/linux_glibc_common/combined/tradefed-isolation-protos.jar"/>
+	<classpathentry kind="var" path="TRADEFED_ROOT/out/soong/.intermediates/external/perfetto/perfetto_metrics-full/linux_glibc_common/combined/perfetto_metrics-full.jar"/>
+	<classpathentry kind="var" path="TRADEFED_ROOT/out/soong/.intermediates/external/snakeyaml/snakeyaml/linux_glibc_common/javac/snakeyaml.jar"/>
+	<classpathentry kind="var" path="TRADEFED_ROOT/out/soong/.intermediates/prebuilts/tools/common/m2/diffutils-prebuilt-jar/linux_glibc_common/combined/diffutils-prebuilt-jar.jar"/>
+	<classpathentry kind="var" path="TRADEFED_ROOT/out/soong/.intermediates/prebuilts/misc/common/commons-cli/commons-cli-1.2/linux_glibc_common/combined/commons-cli-1.2.jar"/>
+	<classpathentry kind="var" path="TRADEFED_ROOT/out/soong/.intermediates/external/grpc-grpc-java/grpc-java/linux_glibc_common/combined/grpc-java.jar"/>
+	<classpathentry kind="var" path="TRADEFED_ROOT/out/soong/.intermediates/prebuilts/tools/common/google-api-java-client/1.33.2/google-api-java-client-assembly/linux_glibc_common/combined/google-api-java-client-assembly.jar"/>
+	<classpathentry kind="var" path="TRADEFED_ROOT/out/soong/.intermediates/tools/asuite/asuite_proto_java/linux_glibc_common/combined/asuite_proto_java.jar"/>
+	<classpathentry kind="var" path="TRADEFED_ROOT/out/soong/.intermediates/tools/tradefederation/core/tradefed-service-grpc-lib/linux_glibc_common/combined/tradefed-service-grpc-lib.jar"/>
+	<classpathentry kind="var" path="TRADEFED_ROOT/out/soong/.intermediates/external/jline/jline/linux_glibc_common/combined/jline.jar"/>
+	<classpathentry kind="var" path="TRADEFED_ROOT/out/soong/.intermediates/tools/tradefederation/core/aoa_helper/aoa-helper/linux_glibc_common/combined/aoa-helper.jar"/>
+	<classpathentry kind="var" path="TRADEFED_ROOT/out/soong/.intermediates/tools/tradefederation/core/tradefed-invocation-grpc/linux_glibc_common/javac/tradefed-invocation-grpc.jar"/>
+	<classpathentry kind="var" path="TRADEFED_ROOT/out/soong/.intermediates/tools/tradefederation/core/lab-resource-grpc/linux_glibc_common/javac/lab-resource-grpc.jar"/>
+	<classpathentry kind="var" path="TRADEFED_ROOT/out/soong/.intermediates/tools/tradefederation/core/tradefed-device-manager-grpc/linux_glibc_common/javac/tradefed-device-manager-grpc.jar"/>
+	<classpathentry kind="var" path="TRADEFED_ROOT/out/soong/.intermediates/external/perfetto/perfetto_trace-full/linux_glibc_common/combined/perfetto_trace-full.jar"/>
+	<classpathentry kind="var" path="TRADEFED_ROOT/out/soong/.intermediates/prebuilts/tools/common/m2/google-auth-library-credentials-0.13.0/linux_glibc_common/combined/google-auth-library-credentials-0.13.0.jar"/>
+	<classpathentry kind="var" path="TRADEFED_ROOT/out/soong/.intermediates/prebuilts/tools/common/m2/google-auth-library-oauth2-http-0.13.0/linux_glibc_common/combined/google-auth-library-oauth2-http-0.13.0.jar"/>
+	<classpathentry kind="var" path="TRADEFED_ROOT/out/soong/.intermediates/tools/tradefederation/core/tradefed-dynamic-sharding-grpc/linux_glibc_common/javac/tradefed-dynamic-sharding-grpc.jar"/>
+	<classpathentry kind="var" path="TRADEFED_ROOT/out/soong/.intermediates/prebuilts/misc/common/tools-common/tools-common-prebuilt/linux_glibc_common/combined/tools-common-prebuilt.jar"/>
+	<classpathentry kind="var" path="TRADEFED_ROOT/out/soong/.intermediates/prebuilts/misc/common/json/json-prebuilt/linux_glibc_common/combined/json-prebuilt.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

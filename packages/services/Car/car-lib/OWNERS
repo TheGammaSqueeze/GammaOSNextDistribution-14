@@ -1,0 +1,47 @@
+# App
+per-file src/android/car/app/* = ycheo@google.com
+
+# AppFocus
+per-file src/android/car/app/IAppFocus* = ycheo@google.com
+
+# Audio
+per-file src/android/car/media/CarAudio*.java = oscarazu@google.com, ericjeong@google.com
+per-file src/android/car/media/ICarAudio.aidl = oscarazu@google.com, ericjeong@google.com
+per-file src/android/car/media/ICarVolumeCallback.aidl = oscarazu@google.com, ericjeong@google.com
+
+# Cluster
+per-file src/android/car/cluster/* = ycheo@google.com
+
+# Input
+per-file src/android/car/input/* = ycheo@google.com, kanant@google.com
+
+# Navigation
+per-file src/android/car/navigation/* = ycheo@google.com
+
+# OccupantZone
+per-file src/android/car/CarOccupantZoneManager.* = ycheo@google.com, oscarazu@google.com, ericjeong@google.com
+per-file src/android/car/ICarOccupantZone* = ycheo@google.com, oscarazu@google.com, ericjeong@google.com
+
+# PackageManager
+per-file src/android/car/content/pm/* = ycheo@google.com
+
+# Power
+per-file src/android/car/hardware/power/* = ericjeong@google.com
+
+# Property
+per-file src/android/car/Vehicle* = tylertrephan@google.com, shanyu@google.com
+per-file src/android/car/hardware/Car* = tylertrephan@google.com, shanyu@google.com
+per-file src/android/car/hardware/property/* = tylertrephan@google.com, shanyu@google.com
+per-file generated-prop-config/* = tylertrephan@google.com, shanyu@google.com
+per-file src/com/android/car/internal/property/* = tylertrephan@google.com, shanyu@google.com
+per-file src/com/android/car/internal/util/PairSparseArray.java = aaqibismail@google.com, tylertrephan@google.com, shanyu@google.com
+
+# RemoteAccess
+per-file src/android/car/remoteaccess/* = ericjeong@google.com, shanyu@google.com
+
+# StorageMonitoring
+per-file src/android/car/storagemonitoring/* = lakshmana@google.com
+
+# Watchdog
+per-file src/android/car/watchdog/* = lakshmana@google.com, jahdiel@google.com
+per-file src/android/car/os/* = lakshmana@google.com, jahdiel@google.com

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="non_spam_notification_title">¿Sabes quién es %1$s?</string>
+  <string name="spam_notification_title">¿La llamada que recibiste de %1$s era una llamada de spam?</string>
+  <string name="spam_notification_non_spam_call_expanded_text">Esta es la primera vez que este número te llama. Si la llamada fue spam, puedes bloquear este número y denunciarlo.</string>
+  <string name="spam_notification_dialog_add_contact_action_text">Agregar a contactos</string>
+  <string name="spam_notification_dialog_block_report_spam_action_text">Bloquear y marcar como spam</string>
+  <string name="spam_notification_was_not_spam_action_text">No, no es spam</string>
+  <string name="spam_notification_block_spam_action_text">Sí, bloquear el número</string>
+  <string name="spam_notification_action_dismiss">Ignorar</string>
+</resources>

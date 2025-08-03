@@ -1,0 +1,17 @@
+# Bug component: 1388912
+
+jstembridge@google.com
+arkivanov@google.com
+itsleo@google.com
+jhummel@google.com
+junioraw@google.com
+luisamez@google.com
+magdi@google.com
+mertcan@google.com
+nickelc@google.com
+pratyushmore@google.com
+rosiebye@google.com
+sameerj@google.com
+ymq@google.com
+
+include platform/packages/modules/common:/MODULES_OWNERS  # see go/mainline-owners-policy

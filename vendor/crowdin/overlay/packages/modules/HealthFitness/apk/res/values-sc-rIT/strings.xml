@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (C) 2022 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="share_data_description" description="Content description for how the user can share data with apps">Sèbera is datos chi onni aplicatzione potzat lèghere o iscrìere in Connessione salude</string>
+    <string name="chromium" description="Chromium, an essential nutrient required for sugar and fat metabolism. [CHAR LIMIT=50]">Cromu</string>
+    <string name="iron" description="Iron, a mineral that helps maintain healthy blood. [CHAR LIMIT=50]">Ferru</string>
+    <string name="manganese" description="Manganese, a micromineral found in nuts and leafy greens. [CHAR LIMIT=50]">manganese</string>
+    <string name="molybdenum" description="Molybdenum, a mineral which activates enzymes that help break down harmful sulfites and prevent toxins from building up in the body. [CHAR LIMIT=50]">Molibdenu</string>
+    <string name="phosphorus" description="Phosphorus, a mineral that works with calcium to help build bones. [CHAR LIMIT=50]">Fòsforu</string>
+    <string name="potassium" description="Potassium, a mineral with main role in the body to help maintain normal levels of fluid inside our cells. [CHAR LIMIT=50]">Potàssiu</string>
+    <string name="protein" description="Protein, a macronutrient, one of the building blocks of body tissue and can also serve as a fuel source. [CHAR LIMIT=50]">Proteina</string>
+    <string name="selenium" description="Selenium, an essential trace mineral that supports many bodily processes. [CHAR LIMIT=50]">Selèniu</string>
+    <string name="sodium" description="Sodium is an essential nutrient and is needed by the body in relatively small amounts. [CHAR LIMIT=50]">Sòdiu</string>
+    <string name="sugar" description="Sugar is the generic name for sweet-tasting, soluble carbohydrates, many of which are used in food. [CHAR LIMIT=50]">Tzùcaru</string>
+    <string name="zinc" description="Zinc is a trace mineral necessary for almost 100 enzymes to carry out vital chemical reactions. [CHAR LIMIT=50]">Zingu</string>
+</resources>

@@ -1,0 +1,25 @@
+# Car power policy server
+typeattribute carpowerpolicyd coredomain;
+typeattribute carpowerpolicyd mlstrustedsubject;
+
+type carpowerpolicyd_exec, exec_type, file_type, system_file_type;
+
+init_daemon_domain(carpowerpolicyd)
+add_service(carpowerpolicyd, carpowerpolicyd_service)
+binder_use(carpowerpolicyd)
+binder_service(carpowerpolicyd)
+
+hwbinder_use(carpowerpolicyd)
+get_prop(carpowerpolicyd, system_boot_reason_prop)
+get_prop(carpowerpolicyd, hwservicemanager_prop)
+hal_client_domain(carpowerpolicyd, hal_vehicle)
+
+# Configuration for carpowerpolicyd to check car_service.
+allow carpowerpolicyd carservice_service:service_manager find;
+
+# Allow reading and writing /sys/power/
+allow carpowerpolicyd sysfs_power:file rw_file_perms;
+
+# Allow updating properties to control boot animation
+set_prop(carpowerpolicyd, debug_prop)
+set_prop(carpowerpolicyd, bootanim_system_prop)

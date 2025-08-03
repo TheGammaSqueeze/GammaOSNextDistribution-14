@@ -1,0 +1,54 @@
+---
+Requested Tests:
+- test_discovery_base_test_case
+Type: TestNameList
+---
+Begin Time: 1653685740998
+Details: Expected to get at least 2 controller objects, got 1.
+End Time: 1653685744333
+Extra Errors: {}
+Extras: null
+Result: ERROR
+Retry Parent: null
+Signature: setup_class-1653685740998
+Stacktrace: "Traceback (most recent call last):\n  File \"/tmp/tf-workfolder12930091851407068341/cts-virtualenv/lib/python3.9/site-packages/mobly/base_test.py\"\
+    , line 393, in _setup_class\n    self.setup_class()\n  File \"/tmp/Soong.python_wyed271g/wifi_aware_test.py\"\
+    , line 28, in setup_class\n    self.publisher, self.subscriber = self.register_controller(\n\
+    \  File \"/tmp/tf-workfolder12930091851407068341/cts-virtualenv/lib/python3.9/site-packages/mobly/base_test.py\"\
+    , line 332, in register_controller\n    return self._controller_manager.register_controller(module,\
+    \ required,\n  File \"/tmp/tf-workfolder12930091851407068341/cts-virtualenv/lib/python3.9/site-packages/mobly/controller_manager.py\"\
+    , line 135, in register_controller\n    raise signals.ControllerError(\nmobly.signals.ControllerError:\
+    \ Expected to get at least 2 controller objects, got 1.\n"
+Test Class: WifiAwareTest
+Test Name: setup_class
+Type: Record
+UID: null
+---
+Begin Time: null
+Details: Expected to get at least 2 controller objects, got 1.
+End Time: null
+Extra Errors: {}
+Extras: null
+Result: SKIP
+Retry Parent: null
+Signature: null
+Stacktrace: "Traceback (most recent call last):\n  File \"/tmp/tf-workfolder12930091851407068341/cts-virtualenv/lib/python3.9/site-packages/mobly/base_test.py\"\
+    , line 393, in _setup_class\n    self.setup_class()\n  File \"/tmp/Soong.python_wyed271g/wifi_aware_test.py\"\
+    , line 28, in setup_class\n    self.publisher, self.subscriber = self.register_controller(\n\
+    \  File \"/tmp/tf-workfolder12930091851407068341/cts-virtualenv/lib/python3.9/site-packages/mobly/base_test.py\"\
+    , line 332, in register_controller\n    return self._controller_manager.register_controller(module,\
+    \ required,\n  File \"/tmp/tf-workfolder12930091851407068341/cts-virtualenv/lib/python3.9/site-packages/mobly/controller_manager.py\"\
+    , line 135, in register_controller\n    raise signals.ControllerError(\nmobly.signals.ControllerError:\
+    \ Expected to get at least 2 controller objects, got 1.\n"
+Test Class: WifiAwareTest
+Test Name: test_discovery_base_test_case
+Type: Record
+UID: null
+---
+Error: 1
+Executed: 0
+Failed: 0
+Passed: 0
+Requested: 1
+Skipped: 1
+Type: Summary

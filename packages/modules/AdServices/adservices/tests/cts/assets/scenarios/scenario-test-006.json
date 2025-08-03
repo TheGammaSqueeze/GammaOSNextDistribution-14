@@ -1,0 +1,20 @@
+{
+  "mocks": [
+    {
+      "request": {
+        "path": "bidding"
+      },
+      "response": {
+        "body": "DefaultResponse.txt"
+      }
+    },
+    {
+      "request": {
+        "path": "scoring"
+      },
+      "response": {
+        "body": "DefaultResponse.txt"
+      }
+    }
+  ]
+}

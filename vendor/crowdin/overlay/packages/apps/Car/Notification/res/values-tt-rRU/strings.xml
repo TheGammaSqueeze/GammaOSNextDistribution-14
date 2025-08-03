@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (C) 2018 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="action_canned_reply">\"Мин әлегә рульдә.\"</string>
+    <string name="canned_reply_message">Мин әлегә рульдә.</string>
+    <string name="toast_message_sent_success">Хәбәр уңышлы җибәрелде.</string>
+    <string name="notifications">Искәртү үзәге</string>
+    <string name="clear_all">Барысын чистарту</string>
+    <string name="ellipsized_string">…</string>
+    <string name="notification_recents">Соңгылары</string>
+    <string name="notification_older">Искерәк искәртүләр</string>
+    <string name="empty_notification_header">Искәртүләр юк</string>
+    <string name="restricted_hun_message_content">Яңа хәбәр</string>
+    <string name="category_car_emergency">car_emergency</string>
+    <string name="pkg_car_dialer">com.android.car.dialer</string>
+</resources>

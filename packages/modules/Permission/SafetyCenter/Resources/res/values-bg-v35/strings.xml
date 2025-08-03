@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="cellular_network_security_title" msgid="2986431282931510973">"Сигурност на мобилната мрежа"</string>
+    <string name="cellular_network_security_summary" msgid="7319307247487475572">"Тип мрежа, шифроване, контроли за известията"</string>
+    <string name="biometrics_title_for_private_profile" msgid="542819107383037820"></string>
+    <string name="private_space_title" msgid="6158245041481535879">"Лично пространство"</string>
+    <string name="private_space_summary" msgid="529869826714610294">"Настройване на лично пространство и др."</string>
+    <string name="private_space_search_terms" msgid="4820808478299116258">"Лично пространство"</string>
+</resources>

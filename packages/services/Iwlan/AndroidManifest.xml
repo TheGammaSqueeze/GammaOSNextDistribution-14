@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    coreApp="true"
+    android:sharedUserId="android.uid.system"
+    package="com.google.android.iwlan">
+
+  <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+  <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+  <uses-permission android:name="android.permission.INTERNET"/>
+  <uses-permission android:name="android.permission.MANAGE_IPSEC_TUNNELS" />
+  <uses-permission android:name="android.permission.CONNECTIVITY_USE_RESTRICTED_NETWORKS"/>
+  <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+  <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE" />
+  <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+  <uses-permission android:name="android.permission.WAKE_LOCK" />
+  <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+
+  <application
+      android:directBootAware="true"
+      android:defaultToDeviceProtectedStorage="true">
+    <service android:name=".IwlanDataService"
+         android:exported="true"
+         android:permission="android.permission.BIND_TELEPHONY_DATA_SERVICE"
+         android:enabled="true" >
+         <intent-filter>
+               <action android:name="android.telephony.data.DataService" />
+         </intent-filter>
+      </service>
+      <service android:name=".IwlanNetworkService"
+               android:exported="true"
+               android:permission="android.permission.BIND_TELEPHONY_NETWORK_SERVICE"
+               android:enabled="true" >
+          <intent-filter>
+              <action android:name="android.telephony.NetworkService" />
+          </intent-filter>
+      </service>
+    <receiver android:name=".IwlanBroadcastReceiver"
+              android:exported="true">
+         <intent-filter>
+            <action android:name="android.telephony.action.CARRIER_SIGNAL_PCO_VALUE"/>
+         </intent-filter>
+    </receiver>
+      <uses-library android:name="android.net.ipsec.ike" />
+  </application>
+</manifest>

@@ -1,0 +1,37 @@
+[
+  {
+    "property": "version_info",
+    "taxonomy_type": "chrome_and_mobile_taxonomy",
+    "taxonomy_version": "2",
+    "build_id": "1986",
+    "updated_date": "2023-06-20"
+  },
+  {
+    "asset_name": "labels_topics",
+    "asset_version": "2",
+    "path": "assets/classifier/labels_topics.txt",
+    "checksum": "4fb7585de37fc727dbc5692e465adec270f9427756bab67b19dc32424f6f5e33",
+    "updated_date": "2022-09-10"
+  },
+  {
+    "asset_name": "precomputed_app_list",
+    "asset_version": "2",
+    "path": "assets/classifier/precomputed_app_list.csv",
+    "checksum": "12a8b7da9566c800e2422543267fa63a2484849b5afeffddd9177825d2e2e157",
+    "updated_date": "2022-09-10"
+  },
+  {
+    "asset_name": "topic_id_to_name",
+    "asset_version": "2",
+    "path": "assets/classifier/topic_id_to_name.csv",
+    "checksum": "747a71cc8c84bb39159c5db12d885c67350ca8beee7fc82945a31a6932484b3b",
+    "updated_date": "2022-09-10"
+  },
+  {
+    "asset_name": "tflite_model",
+    "asset_version": "5",
+    "path": "assets/classifier/model.tflite",
+    "checksum": "2dbaf48fc1f40179a2dd81e306a8ddac8cce1e426c4258890ab83cc12f8ad3d0",
+    "updated_date": "2023-06-20"
+  }
+]

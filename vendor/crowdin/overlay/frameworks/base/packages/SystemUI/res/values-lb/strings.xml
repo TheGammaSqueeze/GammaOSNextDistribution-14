@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/**
+ * Copyright (c) 2009, The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label">System-UI</string>
+    <string name="battery_low_percent_format"><xliff:g id="percentage">%s</xliff:g> iwwreg</string>
+    <string name="battery_saver_confirmation_ok">Uschalten</string>
+    <string name="battery_saver_start_action">Uschalten</string>
+    <string name="battery_saver_dismiss_action">Nee Merci</string>
+    <string name="status_bar_settings_auto_rotation">Schierm automatesch rotéieren</string>
+    <string name="usb_accessory_uri_prompt">Keng installéiert App fir dësen USB-Accessoire. Méi iwwer dësen Accessoire gewuer ginn op <xliff:g id="url">%1$s</xliff:g></string>
+    <string name="title_usb_accessory">USB-Accessoire</string>
+    <string name="label_view">Ukucken</string>
+    <string name="usb_debugging_title">USB-Debugging erlaben?</string>
+    <string name="usb_debugging_message">Den RSA-Fangerofdrock vum Computer ass:\n<xliff:g id="fingerprint">%1$s</xliff:g></string>
+    <string name="usb_debugging_always">Ëmmer vun dësem Computer erlaben</string>
+    <string name="screenshot_saving_title">Schiermfoto gëtt gespäichert\u2026</string>
+    <string name="immersive_cling_positive">Verstanen</string>
+    <string name="accessibility_back">Zréck</string>
+    <string name="accessibility_home">Heem</string>
+    <string name="accessibility_menu">Menü</string>
+    <string name="accessibility_recent">Iwwersiicht</string>
+    <string name="accessibility_camera_button">Fotoapparat</string>
+    <string name="accessibility_phone_button">Telefon</string>
+    <string name="biometric_re_enroll_dialog_confirm">Ariichten</string>
+    <string name="accessibility_bluetooth_connected">Bluetooth connectéiert.</string>
+    <string name="accessibility_bluetooth_name">Verbonne mat <xliff:g id="bluetooth" example="Car Audio">%s</xliff:g>.</string>
+    <string name="accessibility_not_connected">Net connectéiert.</string>
+    <string name="data_connection_roaming">Roaming</string>
+    <string name="accessibility_airplane_mode">Fligermodus.</string>
+    <string name="accessibility_battery_level">Akku <xliff:g id="number">%d</xliff:g> Prozent.</string>
+    <string name="accessibility_tty_enabled">Schreiftelefonie aktivéiert.</string>
+    <string name="accessibility_ringer_vibrate">Schellmodus \"Vibratioun\".</string>
+    <string name="accessibility_ringer_silent">Schellmodus \"Roueg\".</string>
+    <string name="accessibility_desc_notification_shade">Notifikatiounsläischt.</string>
+    <string name="accessibility_desc_quick_settings">Séier Astellungen.</string>
+    <string name="accessibility_desc_lock_screen">Schierm spären.</string>
+    <string name="accessibility_quick_settings_bluetooth_on">Bluetooth un.</string>
+    <string name="accessibility_quick_settings_alarm">Alarm gesat fir <xliff:g id="time" example="Wed 3:30 PM">%s</xliff:g>.</string>
+    <string name="accessibility_quick_settings_more_time">Méi Zäit.</string>
+    <string name="accessibility_quick_settings_less_time">Manner Zäit.</string>
+    <string name="accessibility_casting_turned_off">Cast vum Schierm gestoppt.</string>
+    <string name="accessibility_brightness">Schiermhellegkeet</string>
+    <string name="accessibility_location_active">Standuertufroen aktiv</string>
+    <string name="accessibility_clear_all">Notifikatiounen eidel maachen.</string>
+    <string name="accessibility_rotation_lock_on_landscape">De Schierm ass am Breetformat gespaart.</string>
+    <string name="accessibility_rotation_lock_on_portrait">De Schierm ass am Héichformat gespaart.</string>
+    <string name="dessert_case">Dessertskëscht</string>
+    <string name="ethernet_label">Ethernet</string>
+    <string name="quick_settings_bluetooth_label">Bluetooth</string>
+    <string name="quick_settings_bluetooth_detail_empty_text">Keng gekoppelt Apparater disponibel</string>
+    <string name="quick_settings_bluetooth_device_connected">Verbonnen</string>
+    <string name="quick_settings_rotation_unlocked_label">Automatesch rotéieren</string>
+    <string name="accessibility_quick_settings_rotation">Schierm automatesch rotéieren</string>
+    <string name="quick_settings_location_label">Standuert</string>
+    <string name="quick_settings_media_device_label">Medienapparat</string>
+    <string name="quick_settings_user_title">Benotzer</string>
+    <string name="quick_settings_wifi_label">WLAN</string>
+    <string name="quick_settings_casting">Casten</string>
+    <string name="quick_settings_cast_device_default_name">Apparat ouni Numm</string>
+    <string name="quick_settings_cast_detail_empty_text">Keng Apparater disponibel</string>
+    <string name="quick_settings_brightness_dialog_title">Hellegkeet</string>
+    <string name="quick_settings_done">Fäerdeg</string>
+    <string name="quick_settings_connected">Verbonnen</string>
+    <string name="quick_settings_connecting">Gëtt connectéiert...</string>
+    <string name="quick_settings_hotspot_label">Zougankspunkt</string>
+    <string name="quick_settings_flashlight_label">Täscheluucht</string>
+    <string name="quick_settings_cellular_detail_data_usage">Dateverbrauch</string>
+    <string name="quick_settings_cellular_detail_remaining_data">Iwwreg Daten</string>
+    <string name="quick_settings_cellular_detail_over_limit">Iwwer d\'Limitt</string>
+    <string name="quick_settings_cellular_detail_data_used"><xliff:g id="data_used" example="2.0 GB">%s</xliff:g> benotzt</string>
+    <string name="quick_settings_cellular_detail_data_limit"><xliff:g id="data_limit" example="2.0 GB">%s</xliff:g>-Limitt</string>
+    <string name="quick_settings_cellular_detail_data_warning"><xliff:g id="data_limit" example="2.0 GB">%s</xliff:g> Warnung</string>
+    <string name="button_to_remove_widget">Ewechhuelen</string>
+    <string name="hub_mode_editing_exit_button_text">Fäerdeg</string>
+    <string name="accessibility_multi_user_switch_switcher">Benotzer wiesselen</string>
+    <string name="guest_exit_guest_dialog_message">All d\'Appen an Daten an dëser Sëtzung gi geläscht.</string>
+    <string name="guest_wipe_session_title">Wëllkomm zréck, Gaascht!</string>
+    <string name="guest_wipe_session_message">Wëlls du deng Sëtzung weiderféieren?</string>
+    <string name="guest_wipe_session_wipe">Vu vir ufänken</string>
+    <string name="guest_wipe_session_dontwipe">Jo, weidermaachen</string>
+    <string name="user_remove_user_remove">Ewechhuelen</string>
+    <string name="clear_all_notifications_text">Alles eidel maachen</string>
+    <string name="notification_section_header_alerting">Notifikatiounen</string>
+    <string name="media_projection_action_text">Elo starten</string>
+    <string name="empty_shade_text">Keng Notifikatiounen</string>
+    <string name="quick_settings_disclosure_monitoring">D\'Netzwierk kéint iwwerwaacht sinn</string>
+    <string name="zen_mode_and_condition"><xliff:g id="zen_mode" example="Priority interruptions only">%1$s</xliff:g>. <xliff:g id="exit_condition" example="For one hour">%2$s</xliff:g></string>
+    <string name="volume_panel_dialog_settings_button">Astellungen</string>
+    <string name="screen_pinning_positive">Verstanen</string>
+    <string name="screen_pinning_negative">Nee Merci</string>
+    <string name="stream_voice_call">Call</string>
+    <string name="stream_ring">Ring</string>
+    <string name="stream_bluetooth_sco">Bluetooth</string>
+    <string name="volume_ringer_status_normal">Ring</string>
+    <string name="status_bar_ethernet">Ethernet</string>
+    <string name="status_bar_airplane">Fligermodus</string>
+    <string name="accessibility_status_bar_hotspot">Zougankspunkt</string>
+    <string name="got_it">Verstanen</string>
+    <string name="enable_bluetooth_confirmation_ok">Uschalten</string>
+    <string name="inline_done_button">Fäerdeg</string>
+    <string name="notification_more_settings">Méi Astellungen</string>
+    <string name="keyboard_key_home">Heem</string>
+    <string name="keyboard_key_back">Zréck</string>
+    <string name="keyboard_key_move_home">Heem</string>
+    <string name="keyboard_shortcut_group_system_home">Heem</string>
+    <string name="keyboard_shortcut_group_system_back">Zréck</string>
+    <string name="keyboard_shortcut_group_system_notifications">Notifikatiounen</string>
+    <string name="tuner_time">Zäit</string>
+    <string name="tuner_menu">Menü</string>
+    <string name="app_info">App-Info</string>
+    <string name="auto_data_switch_dialog_negative_button">Nee Merci</string>
+    <string name="no_auto_saver_action">Nee Merci</string>
+    <string name="accessibility_magnification_done">Fäerdeg</string>
+    <string name="accessibility_floating_button_action_remove_menu">Ewechhuelen</string>
+    <string name="controls_dialog_remove">Ewechhuelen</string>
+    <string name="controls_settings_dialog_neutral_button">Nee Merci</string>
+    <string name="controls_media_dismiss_button">Verstoppen</string>
+    <string name="controls_media_settings_button">Astellungen</string>
+    <string name="mobile_data_connection_active">Verbonnen</string>
+    <string name="clipboard_edit_text_done">Fäerdeg</string>
+    <string name="privacy_dialog_done_button">Fäerdeg</string>
+</resources>

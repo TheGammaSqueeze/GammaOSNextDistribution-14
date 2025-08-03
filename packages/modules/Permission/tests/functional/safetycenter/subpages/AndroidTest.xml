@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<configuration description="Config for SafetyCenter subpages testcases">
+
+    <object
+        class="com.android.tradefed.testtype.suite.module.Sdk34ModuleController"
+        type="module_controller"/>
+
+    <option name="config-descriptor:metadata" key="component" value="framework"/>
+    <option name="config-descriptor:metadata" key="parameter"
+            value="not_instant_app"/>
+    <option name="config-descriptor:metadata" key="parameter"
+            value="not_multi_abi"/>
+    <option name="config-descriptor:metadata" key="parameter"
+            value="secondary_user"/>
+    <option name="config-descriptor:metadata" key="mainline-param" value="com.google.android.permission.apex" />
+    <option name="config-descriptor:metadata" key="parameter" value="all_foldable_states" />
+
+    <option name="test-suite-tag" value="functional"/>
+
+    <target_preparer
+        class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
+        <option name="cleanup-apks" value="true"/>
+        <option name="test-file-name" value="SafetyCenterSubpagesTestCases.apk"/>
+    </target_preparer>
+
+    <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer">
+        <!-- Ensure all broadcasts are dispatched prior to running our tests, to make sure they
+             aren't polluted by `BOOT_COMPLETED` or similar broadcasts still being delivered, which
+             causes our `ActivityManager#waitForBroadcastIdle()` calls to timeout. -->
+        <option name="run-command" value="am wait-for-broadcast-idle" />
+        <option name="run-command" value="am wait-for-broadcast-barrier" />
+        <!-- Disable syncing to prevent overwriting flags during testing. -->
+        <option name="run-command" value="device_config set_sync_disabled_for_tests persistent" />
+        <option name="teardown-command" value="device_config set_sync_disabled_for_tests none" />
+        <!-- Dismiss any system dialogs (e.g. crashes, ANR). -->
+        <option name="run-command" value="am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS --receiver-foreground"  />
+    </target_preparer>
+
+    <metrics_collector class="com.android.tradefed.device.metric.FilePullerLogCollector">
+        <option name="directory-keys" value="/data/user/0/android.safetycenter.functional.subpages/files" />
+        <option name="collect-on-run-ended-only" value="true" />
+    </metrics_collector>
+
+    <test class="com.android.tradefed.testtype.AndroidJUnitTest">
+        <option name="package" value="android.safetycenter.functional.subpages"/>
+        <option name="exclude-annotation" value="org.junit.Ignore"/>
+        <option name="runtime-hint" value="10m"/>
+    </test>
+</configuration>

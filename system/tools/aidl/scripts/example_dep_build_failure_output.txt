@@ -1,0 +1,88 @@
+============================================
+PLATFORM_VERSION_CODENAME=UpsideDownCake
+PLATFORM_VERSION=UpsideDownCake
+TARGET_PRODUCT=aosp_cf_x86_64_phone
+TARGET_BUILD_VARIANT=userdebug
+TARGET_ARCH=x86_64
+TARGET_ARCH_VARIANT=silvermont
+TARGET_2ND_ARCH=x86
+TARGET_2ND_ARCH_VARIANT=silvermont
+HOST_OS=linux
+HOST_OS_EXTRA=Linux-5.18.16-1rodete1-amd64-x86_64-Debian-GNU/Linux-rodete
+HOST_CROSS_OS=windows
+BUILD_ID=AOSP.MASTER
+OUT_DIR=out
+============================================
+[100% 1/1] analyzing Android.bp files and generating ninja file at out/soong/build.ninja
+FAILED: out/soong/build.ninja
+cd "$(dirname "out/host/linux-x86/bin/soong_build")" && BUILDER="$PWD/$(basename "out/host/linux-x86/bin/soong_build")" && cd / && env -i  "$BUILDER"     --top "$TOP"     --soong_out "out/soong"     --out "out"     -o out/soong/build.ninja --globListDir build --globFile out/soong/globs-build.ninja -t -l out/.module_paths/Android.bp.list --available_env out/soong/soong.environment.available --used_env out/soong/soong.environment.used.build Android.bp
+error: hardware/interfaces/automotive/audiocontrol/aidl/Android.bp:12:1: module "android.hardware.automotive.audiocontrol-V2-java" variant "android_common" (created by module "android.hardware.automotive.audiocontrol-V2-java-generator" (created by module "android.hardware.automotive.audiocontrol_interface")): depends on multiple versions of the same aidl_interface: android.media.audio.common.types-V1-java-source, android.media.audio.common.types-V2-java-source
+error: hardware/interfaces/automotive/audiocontrol/aidl/Android.bp:12:1: module "android.hardware.automotive.audiocontrol-V2-java" variant "android_common" (created by module "android.hardware.automotive.audiocontrol-V2-java-generator" (created by module "android.hardware.automotive.audiocontrol_interface")): Dependency path: 
+           via tag java.dependencyTag: { name:staticlib runtimeLinked:false toolchain:false}
+    -> android.hardware.audio.common-V1-java{os:android,arch:common,apex:}
+           via tag java.dependencyTag: { name:staticlib runtimeLinked:false toolchain:false}
+    -> android.media.audio.common.types-V1-java{os:android,arch:common,apex:}
+           via tag android.sourceOrOutputDependencyTag: { moduleName:android.media.audio.common.types-V1-java-source tag:}
+    -> android.media.audio.common.types-V1-java-source{}
+error: hardware/interfaces/automotive/audiocontrol/aidl/Android.bp:12:1: module "android.hardware.automotive.audiocontrol-V2-java" variant "android_common" (created by module "android.hardware.automotive.audiocontrol-V2-java-generator" (created by module "android.hardware.automotive.audiocontrol_interface")): Dependency path: 
+           via tag java.dependencyTag: { name:staticlib runtimeLinked:false toolchain:false}
+    -> android.media.audio.common.types-V2-java{os:android,arch:common,apex:}
+           via tag android.sourceOrOutputDependencyTag: { moduleName:android.media.audio.common.types-V2-java-source tag:}
+    -> android.media.audio.common.types-V2-java-source{}
+error: hardware/interfaces/automotive/audiocontrol/aidl/Android.bp:12:1: module "android.hardware.automotive.audiocontrol-V1-java" variant "android_common" (created by module "android.hardware.automotive.audiocontrol-V1-java-generator" (created by module "android.hardware.automotive.audiocontrol_interface")): depends on multiple versions of the same aidl_interface: android.media.audio.common.types-V1-java-source, android.media.audio.common.types-V2-java-source
+error: hardware/interfaces/automotive/audiocontrol/aidl/Android.bp:12:1: module "android.hardware.automotive.audiocontrol-V1-java" variant "android_common" (created by module "android.hardware.automotive.audiocontrol-V1-java-generator" (created by module "android.hardware.automotive.audiocontrol_interface")): Dependency path: 
+           via tag java.dependencyTag: { name:staticlib runtimeLinked:false toolchain:false}
+    -> android.hardware.audio.common-V1-java{os:android,arch:common,apex:}
+           via tag java.dependencyTag: { name:staticlib runtimeLinked:false toolchain:false}
+    -> android.media.audio.common.types-V1-java{os:android,arch:common,apex:}
+           via tag android.sourceOrOutputDependencyTag: { moduleName:android.media.audio.common.types-V1-java-source tag:}
+    -> android.media.audio.common.types-V1-java-source{}
+error: hardware/interfaces/automotive/audiocontrol/aidl/Android.bp:12:1: module "android.hardware.automotive.audiocontrol-V1-java" variant "android_common" (created by module "android.hardware.automotive.audiocontrol-V1-java-generator" (created by module "android.hardware.automotive.audiocontrol_interface")): Dependency path: 
+           via tag java.dependencyTag: { name:staticlib runtimeLinked:false toolchain:false}
+    -> android.media.audio.common.types-V2-java{os:android,arch:common,apex:}
+           via tag android.sourceOrOutputDependencyTag: { moduleName:android.media.audio.common.types-V2-java-source tag:}
+    -> android.media.audio.common.types-V2-java-source{}
+error: hardware/interfaces/audio/aidl/Android.bp:90:1: module "android.hardware.audio.core-V1-java" variant "android_common" (created by module "android.hardware.audio.core-V1-java-generator" (created by module "android.hardware.audio.core_interface")): depends on multiple versions of the same aidl_interface: android.media.audio.common.types-V1-java-source, android.media.audio.common.types-V2-java-source
+error: hardware/interfaces/audio/aidl/Android.bp:90:1: module "android.hardware.audio.core-V1-java" variant "android_common" (created by module "android.hardware.audio.core-V1-java-generator" (created by module "android.hardware.audio.core_interface")): Dependency path: 
+           via tag java.dependencyTag: { name:staticlib runtimeLinked:false toolchain:false}
+    -> android.hardware.audio.common-V1-java{os:android,arch:common,apex:}
+           via tag java.dependencyTag: { name:staticlib runtimeLinked:false toolchain:false}
+    -> android.media.audio.common.types-V1-java{os:android,arch:common,apex:}
+           via tag android.sourceOrOutputDependencyTag: { moduleName:android.media.audio.common.types-V1-java-source tag:}
+    -> android.media.audio.common.types-V1-java-source{}
+error: hardware/interfaces/audio/aidl/Android.bp:90:1: module "android.hardware.audio.core-V1-java" variant "android_common" (created by module "android.hardware.audio.core-V1-java-generator" (created by module "android.hardware.audio.core_interface")): Dependency path: 
+           via tag java.dependencyTag: { name:staticlib runtimeLinked:false toolchain:false}
+    -> android.media.audio.common.types-V2-java{os:android,arch:common,apex:}
+           via tag android.sourceOrOutputDependencyTag: { moduleName:android.media.audio.common.types-V2-java-source tag:}
+    -> android.media.audio.common.types-V2-java-source{}
+error: hardware/interfaces/automotive/audiocontrol/aidl/Android.bp:12:1: module "android.hardware.automotive.audiocontrol-V3-java" variant "android_common" (created by module "android.hardware.automotive.audiocontrol-V3-java-generator" (created by module "android.hardware.automotive.audiocontrol_interface")): depends on multiple versions of the same aidl_interface: android.media.audio.common.types-V1-java-source, android.media.audio.common.types-V2-java-source
+error: hardware/interfaces/automotive/audiocontrol/aidl/Android.bp:12:1: module "android.hardware.automotive.audiocontrol-V3-java" variant "android_common" (created by module "android.hardware.automotive.audiocontrol-V3-java-generator" (created by module "android.hardware.automotive.audiocontrol_interface")): Dependency path: 
+           via tag java.dependencyTag: { name:staticlib runtimeLinked:false toolchain:false}
+    -> android.hardware.audio.common-V1-java{os:android,arch:common,apex:}
+           via tag java.dependencyTag: { name:staticlib runtimeLinked:false toolchain:false}
+    -> android.media.audio.common.types-V1-java{os:android,arch:common,apex:}
+           via tag android.sourceOrOutputDependencyTag: { moduleName:android.media.audio.common.types-V1-java-source tag:}
+    -> android.media.audio.common.types-V1-java-source{}
+error: hardware/interfaces/automotive/audiocontrol/aidl/Android.bp:12:1: module "android.hardware.automotive.audiocontrol-V3-java" variant "android_common" (created by module "android.hardware.automotive.audiocontrol-V3-java-generator" (created by module "android.hardware.automotive.audiocontrol_interface")): Dependency path: 
+           via tag java.dependencyTag: { name:staticlib runtimeLinked:false toolchain:false}
+    -> android.media.audio.common.types-V2-java{os:android,arch:common,apex:}
+           via tag android.sourceOrOutputDependencyTag: { moduleName:android.media.audio.common.types-V2-java-source tag:}
+    -> android.media.audio.common.types-V2-java-source{}
+error: hardware/interfaces/audio/aidl/Android.bp:147:1: module "android.hardware.audio.effect-V1-java" variant "android_common" (created by module "android.hardware.audio.effect-V1-java-generator" (created by module "android.hardware.audio.effect_interface")): depends on multiple versions of the same aidl_interface: android.media.audio.common.types-V1-java-source, android.media.audio.common.types-V2-java-source
+error: hardware/interfaces/audio/aidl/Android.bp:147:1: module "android.hardware.audio.effect-V1-java" variant "android_common" (created by module "android.hardware.audio.effect-V1-java-generator" (created by module "android.hardware.audio.effect_interface")): Dependency path: 
+           via tag java.dependencyTag: { name:staticlib runtimeLinked:false toolchain:false}
+    -> android.hardware.audio.common-V1-java{os:android,arch:common,apex:}
+           via tag java.dependencyTag: { name:staticlib runtimeLinked:false toolchain:false}
+    -> android.media.audio.common.types-V1-java{os:android,arch:common,apex:}
+           via tag android.sourceOrOutputDependencyTag: { moduleName:android.media.audio.common.types-V1-java-source tag:}
+    -> android.media.audio.common.types-V1-java-source{}
+error: hardware/interfaces/audio/aidl/Android.bp:147:1: module "android.hardware.audio.effect-V1-java" variant "android_common" (created by module "android.hardware.audio.effect-V1-java-generator" (created by module "android.hardware.audio.effect_interface")): Dependency path: 
+           via tag java.dependencyTag: { name:staticlib runtimeLinked:false toolchain:false}
+    -> android.media.audio.common.types-V2-java{os:android,arch:common,apex:}
+           via tag android.sourceOrOutputDependencyTag: { moduleName:android.media.audio.common.types-V2-java-source tag:}
+    -> android.media.audio.common.types-V2-java-source{}
+ninja: build stopped: subcommand failed.
+21:43:11 soong bootstrap failed with: exit status 1
+
+[0;31m#### failed to build some targets (46 seconds) ####[00m
+

@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2019 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="wifiResourcesAppLabel" product="default">Recursos del sistema Wi-Fi </string>
+    <string name="wifi_available_title">Conéctate a una rede Wi\u2011Fi abierta</string>
+    <string name="wifi_available_title_connecting">Conectando a la rede Wi\u2011Fi</string>
+    <string name="wifi_available_title_connected">Conectóse a la rede Wi\u2011Fi</string>
+    <string name="wifi_available_title_failed_to_connect">Nun se pudo conectar a la rede Wi\u2011Fi</string>
+    <string name="wifi_available_content_failed_to_connect">Toca pa ver toles redes</string>
+    <string name="wifi_available_action_connect">Conectar</string>
+    <string name="wifi_available_action_all_networks">Toles redes</string>
+    <string name="notification_channel_network_status">Estáu de la rede</string>
+    <string name="notification_channel_network_alerts">Alertes de la rede</string>
+    <string name="notification_channel_network_available">Hai una rede disponible</string>
+    <string name="notification_channel_apm_alerts">Alertes d\'APM</string>
+    <string name="wifi_suggestion_title">¿Quies permitir les redes Wi\u2011Fi suxeríes?</string>
+    <string name="wifi_suggestion_content">Redes suxeríes de l\'aplicación «<xliff:g id="name" example="App123">%s</xliff:g>». El preséu pue conectase automáticamente. </string>
+    <string name="wifi_suggestion_action_allow_app">Permitir</string>
+    <string name="wifi_suggestion_action_disallow_app">Non, gracies</string>
+    <string name="wifi_suggestion_imsi_privacy_title">¿Quies conectate a la Wi\u2011Fi de la operadora «<xliff:g id="carrierName" example="xxxMobile">%s</xliff:g>»?</string>
+    <string name="wifi_suggestion_imsi_privacy_content">Estes redes reciben una ID de SIM que se pue usar pa facer un siguimientu de la llocalización del preséu</string>
+    <string name="wifi_suggestion_action_allow_imsi_privacy_exemption_carrier">Conectar</string>
+    <string name="wifi_suggestion_action_disallow_imsi_privacy_exemption_carrier">Nun conectar</string>
+    <string name="wifi_suggestion_imsi_privacy_exemption_confirmation_title">¿Quies confirmar la conexón?</string>
+    <string name="wifi_suggestion_imsi_privacy_exemption_confirmation_content">Si te conectes, les redes Wi\u2011Fi de la operadora «<xliff:g id="carrierName" example="xxxMobile">%s</xliff:g>» puen acceder o compartir la ID única asociada a la SIM. Ye posible qu\'esta aición permita facer un siguimientu de la llocalización del preséu.</string>
+    <string name="wifi_suggestion_action_allow_imsi_privacy_exemption_confirmation">Conectar</string>
+    <string name="wifi_suggestion_action_disallow_imsi_privacy_exemption_confirmation">Nun conectar</string>
+    <string name="wifi_wakeup_onboarding_title">La Wi\u2011Fi va activase automáticamente</string>
+    <string name="wifi_wakeup_onboarding_subtext">Cuando teas cerca d\'una rede calidable guardada</string>
+    <string name="wifi_wakeup_onboarding_action_disable">Nun volver activar</string>
+    <string name="wifi_wakeup_enabled_title">La Wi\u2011Fi activóse automáticamente</string>
+    <string name="wifi_wakeup_enabled_content">Tas cerca d\'una rede guardada: <xliff:g id="network_ssid">%1$s</xliff:g></string>
+    <string name="wifi_watchdog_network_disabled">Nun se pudo conectar a la Wi-Fi</string>
+    <string name="wifi_watchdog_network_disabled_detailed">\u0020tien una conexón mala a internet.</string>
+    <string name="wifi_connect_alert_title">¿Quies permitir la conexón?</string>
+    <string name="wifi_connect_alert_message">L\'aplicación «%1$s» quier conectase a la rede Wi-Fi «%2$s»</string>
+    <string name="wifi_connect_default_application">Una aplicación</string>
+    <string name="accept">Aceptar</string>
+    <string name="decline">Refugar</string>
+    <string name="ok">D\'acuerdu</string>
+    <string name="wifi_p2p_invitation_sent_title">Unvióse la invitación</string>
+    <string name="wifi_p2p_invitation_to_connect_title">Invitación pa conectase</string>
+    <string name="wifi_p2p_invitation_seconds_remaining">        {0, plural,
+            one {}=1 {Aceptar in # segundu.}
+            other {Aceptar in # segundos.}
+        }
+    </string>
+    <string name="wifi_p2p_from_message">De: </string>
+    <string name="wifi_p2p_to_message">Pa: </string>
+    <string name="wifi_p2p_enter_pin_message">Teclexa\'l PIN riquíu: </string>
+    <string name="wifi_p2p_show_pin_message">PIN: </string>
+    <string name="wifi_p2p_frequency_conflict_message">El preséu va desconectase temporalmente de la Wi-FI mentanto tea conectáu a «<xliff:g id="device_name">%1$s</xliff:g>»</string>
+    <string name="dlg_ok">D\'acuerdu</string>
+    <string name="wifi_cannot_connect_with_randomized_mac_title">Nun se pue conectar a «<xliff:g id="ssid">%1$s</xliff:g>»</string>
+    <string name="wifi_cannot_connect_with_randomized_mac_message">Toca pa camudar la configuración de privacidá y volvi tentalo</string>
+    <string name="wifi_disable_mac_randomization_dialog_title">¿Quies camudar la configuración de privacidá?</string>
+    <string name="wifi_disable_mac_randomization_dialog_message"> Pa conectase, «<xliff:g id="ssid">%1$s</xliff:g>» tien d\'usar la direición MAC del preséu, un identificador únicu. Anguaño, la configuración de privacidá pa esta rede usa un identificador aleatoriu.
+        \n\nYe posible qu\'esti cambéu permita a los preseos próximos que faigan un siguimientu de la llocalización del preséu. </string>
+    <string name="wifi_disable_mac_randomization_dialog_confirm_text">Camudar la configuración</string>
+    <string name="wifi_disable_mac_randomization_dialog_success">Anovóse la configuración. Volvi probar a conectate.</string>
+    <string name="wifi_disable_mac_randomization_dialog_failure">Nun se pue camudar la configuración de privacidá</string>
+    <string name="wifi_disable_mac_randomization_dialog_network_not_found">Nun s\'atopó la rede</string>
+    <string name="wifi_eap_error_message_code_32756"><xliff:g id="ssid">%1$s</xliff:g>: error 32756 de l\'autenticación d\'EAP</string>
+    <string name="wifi_eap_error_message_code_32760"><xliff:g id="ssid">%1$s</xliff:g>: error 32760 de l\'autenticación d\'EAP</string>
+    <string-array name="wifi_eap_error_message_code_32760_carrier_overrides">
+        <item><xliff:g id="carrier_id_prefix">:::1839:::</xliff:g><xliff:g id="ssid">%1$s</xliff:g>: nun pues conectate a Verizon Wi-Fi Access dende fuera l\'área de cobertoria. (Error = 32760)</item>
+    </string-array>
+    <string name="wifi_eap_error_message_code_32761"><xliff:g id="ssid">%1$s</xliff:g>: error 32761 de l\'autenticación d\'EAP</string>
+    <string-array name="wifi_eap_error_message_code_32761_carrier_overrides">
+        <item><xliff:g id="carrier_id_prefix">:::1839:::</xliff:g><xliff:g id="ssid">%1$s</xliff:g>: nun te soscribiesti a Verizon Wi-Fi Access. Llámanos al 800-922-0204. (Error = 32761)</item>
+    </string-array>
+    <string name="wifi_eap_error_message_code_32762"><xliff:g id="ssid">%1$s</xliff:g>: error 32762 de l\'autenticación d\'EAP</string>
+    <string-array name="wifi_eap_error_message_code_32762_carrier_overrides">
+        <item><xliff:g id="carrier_id_prefix">:::1839:::</xliff:g><xliff:g id="ssid">%1$s</xliff:g>: hai un problema cola cuenta de Verizon Wi-Fi Access. Llámanos al 800-922-0204. (Error = 32762)</item>
+    </string-array>
+    <string name="wifi_eap_error_message_code_32763"><xliff:g id="ssid">%1$s</xliff:g>: error 32763 de l\'autenticación d\'EAP</string>
+    <string-array name="wifi_eap_error_message_code_32763_carrier_overrides">
+        <item><xliff:g id="carrier_id_prefix">:::1839:::</xliff:g><xliff:g id="ssid">%1$s</xliff:g>: yá te conectesti a Verizon Wi-Fi Access. (Error = 32763)</item>
+    </string-array>
+    <string name="wifi_eap_error_message_code_32764"><xliff:g id="ssid">%1$s</xliff:g>: error 32764 de l\'autenticación d\'EAP</string>
+    <string-array name="wifi_eap_error_message_code_32764_carrier_overrides">
+        <item><xliff:g id="carrier_id_prefix">:::1839:::</xliff:g><xliff:g id="ssid">%1$s</xliff:g>: hai un problema al conectate a Verizon Wi-Fi Access. Llámanos al 800-922-0204. (Error = 32764)</item>
+    </string-array>
+    <string name="wifi_eap_error_message_code_32765"><xliff:g id="ssid">%1$s</xliff:g>: error 32765 de l\'autenticación d\'EAP</string>
+    <string-array name="wifi_eap_error_message_code_32765_carrier_overrides">
+        <item><xliff:g id="carrier_id_prefix">:::1839:::</xliff:g><xliff:g id="ssid">%1$s</xliff:g>: hai un problema cola to cuenta de Verizon Wi-Fi Access. Llámanos al 800-922-0204. (Error = 32765)</item>
+    </string-array>
+    <string name="wifi_eap_error_message_code_32766"><xliff:g id="ssid">%1$s</xliff:g>: error 32766 de l\'autenticación d\'EAP</string>
+    <string-array name="wifi_eap_error_message_code_32766_carrier_overrides">
+        <item><xliff:g id="carrier_id_prefix">:::1839:::</xliff:g><xliff:g id="ssid">%1$s</xliff:g>: Verizon Wi-Fi Access nun ta disponible dende la to llocalización. Volvi tentalo dempués o prueba dende otru llugar. (Error = 32766)</item>
+    </string-array>
+    <string name="wifi_eap_error_message_code_32767"><xliff:g id="ssid">%1$s</xliff:g>: error 32767 de l\'autenticación d\'EAP</string>
+    <string-array name="wifi_eap_error_message_code_32767_carrier_overrides">
+        <item><xliff:g id="carrier_id_prefix">:::1839:::</xliff:g><xliff:g id="ssid">%1$s</xliff:g> : hai un problema al conectate a Verizon Wi-Fi Access. Volvi tentalo dempués o prueba dende otru llugar. (Error = 32767)</item>
+    </string-array>
+    <string name="wifi_eap_error_message_code_16384"><xliff:g id="ssid">%1$s</xliff:g>: error 16384 de l\'autenticación d\'EAP</string>
+    <string-array name="wifi_eap_error_message_code_16384_carrier_overrides">
+        <item><xliff:g id="carrier_id_prefix">:::1839:::</xliff:g><xliff:g id="ssid">%1$s</xliff:g> : hai un problema al conectate a Verizon Wi-Fi Access. (Error = 16384)</item>
+    </string-array>
+    <string name="wifi_eap_error_message_code_16385"><xliff:g id="ssid">%1$s</xliff:g>: error 16385 de l\'autenticación d\'EAP</string>
+    <string-array name="wifi_eap_error_message_code_16385_carrier_overrides">
+        <item><xliff:g id="carrier_id_prefix">:::1839:::</xliff:g><xliff:g id="ssid">%1$s</xliff:g> : hai un problema al conectate a Verizon Wi-Fi Access. (Error = 16385)</item>
+    </string-array>
+    <string name="wifi_eap_error_message_unknown_error_code"><xliff:g id="ssid">%1$s</xliff:g>: error de l\'autenticación d\'EAP, códigu d\'error desconocíu</string>
+    <string-array name="wifi_eap_error_message_unknown_error_code_carrier_overrides">
+        <item><xliff:g id="carrier_id_prefix">:::1839:::</xliff:g><xliff:g id="ssid">%1$s</xliff:g> : hai un problema al conectate a Verizon Wi-Fi Access. (Desconozse l\'error)</item>
+    </string-array>
+    <string name="wifi_softap_auto_shutdown_timeout_expired_title">Desactivóse\'l puntu Wi-Fi</string>
+    <string name="wifi_softap_auto_shutdown_timeout_expired_summary">Nun hai nengún preséu conectáu. Toca pa modificalo.</string>
+    <string name="wifi_sim_required_title">Desconectóse la Wi\u2011Fi</string>
+    <string name="wifi_sim_required_message">Pa conectate a «<xliff:g id="ssid">%1$s</xliff:g>», inxerta una SIM de la operadora «<xliff:g id="carrier_name">%2$s</xliff:g>»</string>
+    <string name="wifi_interface_priority_title">«<xliff:g id="app">%1$s</xliff:g>» quier usar un recursu de rede</string>
+    <string name="wifi_interface_priority_message">Esta aición pue causar problemes a l\'aplicación «<xliff:g id="apps">%3$s</xliff:g>».</string>
+    <string name="wifi_interface_priority_message_plural">Esta aición pue causar problemes a estes aplicaciones: <xliff:g id="apps">%3$s</xliff:g>.</string>
+    <string name="wifi_interface_priority_approve">Permitir</string>
+    <string name="wifi_interface_priority_reject">Nun permitir</string>
+    <string name="wifi_interface_priority_interface_name_sta">STA</string>
+    <string name="wifi_interface_priority_interface_name_ap">Puntu Wi\u2011Fi</string>
+    <string name="wifi_interface_priority_interface_name_ap_bridge">Puntu Wi\u2011Fi</string>
+    <string name="wifi_interface_priority_interface_name_p2p">Wi\u2011Fi Direct</string>
+    <string name="wifi_interface_priority_interface_name_nan">Wi\u2011Fi Aware</string>
+    <string name="wifi_ca_cert_dialog_title">¿Esta rede ye d\'enfotu?</string>
+    <string name="wifi_ca_cert_dialog_continue_text">Sí, conectase</string>
+    <string name="wifi_ca_cert_dialog_abort_text">Non, nun se conectar</string>
+    <string name="wifi_ca_cert_dialog_message_hint">Permite qu\'esta rede se conecte namás si la información d\'abaxo paez correuta.\n\n</string>
+    <string name="wifi_ca_cert_dialog_message_server_name_text">Nome del sirvidor:\n<xliff:g id="value">%1$s</xliff:g>\n\n</string>
+    <string name="wifi_ca_cert_dialog_message_issuer_name_text">Nome del emisor:\n<xliff:g id="value">%1$s</xliff:g>\n\n</string>
+    <string name="wifi_ca_cert_dialog_message_organization_text">Organización:\n<xliff:g id="value">%1$s</xliff:g>\n\n</string>
+    <string name="wifi_ca_cert_dialog_message_expiration_text">Caducidá del certificáu:\n<xliff:g id="value">%1$s</xliff:g>\n\n</string>
+    <string name="wifi_ca_cert_dialog_message_signature_name_text">Buelga SHA-256:\n<xliff:g id="value">%1$s</xliff:g>\n\n</string>
+    <string name="wifi_ca_cert_dialog_message_contact_text">Contautu:\n<xliff:g id="value">%1$s</xliff:g>\n\n</string>
+    <string name="wifi_ca_cert_notification_title">La rede tien de ser verificada</string>
+    <string name="wifi_ca_cert_notification_message">Revisa los detalles de la rede «<xliff:g id="ssid">%1$s</xliff:g>» enantes de conectate. Toca equí pa siguir.</string>
+    <string name="wifi_ca_cert_failed_to_install_ca_cert">La instalación del certificáu falló.</string>
+    <string name="wifi_tofu_invalid_cert_chain_title">Nun se pue conectar a «<xliff:g id="value">%1$s</xliff:g>»</string>
+    <string name="wifi_tofu_invalid_cert_chain_message">La cadena de certificaos del sirvidor ye inválida.</string>
+    <string name="wifi_tofu_invalid_cert_chain_ok_text">D\'acuerdu</string>
+    <string name="wifi_ca_cert_dialog_preT_title">Nun se pue verificar esta rede</string>
+    <string name="wifi_ca_cert_dialog_preT_continue_text">Caltener la conexón</string>
+    <string name="wifi_ca_cert_dialog_preT_abort_text">Desconectase agora</string>
+    <string name="wifi_ca_cert_dialog_preT_message_hint">A la rede «<xliff:g id="ssid">%1$s</xliff:g>» fálta-y un certificáu.</string>
+    <string name="wifi_ca_cert_dialog_preT_message_link">Conoz cómo amestar certificaos</string>
+    <string name="wifi_ca_cert_notification_preT_title">Nun se pue verificar esta rede</string>
+    <string name="wifi_ca_cert_notification_preT_message">A la rede «<xliff:g id="ssid">%1$s</xliff:g>» fálta-y un certificáu.. Toca pa saber cómo amestar certificaos.</string>
+    <string name="wifi_ca_cert_notification_preT_continue_text">Conectase de toes toes</string>
+    <string name="wifi_ca_cert_notification_preT_abort_text">Nun se conectar</string>
+    <string name="wifi_enable_request_dialog_title">¿Quies permitir a «<xliff:g id="app_name" example="App123">%1$s</xliff:g>» qu\'habilite\'l Wi\u2011Fi?</string>
+    <string name="wifi_enable_request_dialog_message">Pues inhabilitar el Wi\u2011Fi na configuración rápida</string>
+    <string name="wifi_enable_request_dialog_positive_button">Permitir</string>
+    <string name="wifi_enable_request_dialog_negative_button">Nun permitir</string>
+    <string name="wifi_enabled_apm_first_time_title">Wi\u2011Fi activáu nel mou avión</string>
+    <string name="wifi_enabled_apm_first_time_message">Si dexes el Wi\u2011Fi activáu, el preséu va recordar dexalu nesi estáu la próxima vegada que teas nel mou avión</string>
+    <string name="apm_enabled_first_time_title">El Wi\u2011Fi queda activáu</string>
+    <string name="apm_enabled_first_time_message">El preséu recuerda dexar el Wi\u2011Fi activáu nel mou avión. Desactívalu si nun quies que quede activáu.</string>
+    <string name="wifi_network_disabled_by_admin_title">Rede non disponible</string>
+    <string name="wifi_network_disabled_by_admin_message">L\'alministrador desactivó la rede «<xliff:g id="ssid">%1$s</xliff:g>»</string>
+    <string name="wifi_network_disabled_by_admin_button">Zarrar</string>
+    <string name="wifi_network_switch_dialog_title_no_internet">Paez que la rede «<xliff:g id="ssid">%1$s</xliff:g>» nun tien accesu a internet. ¿Quies cambiar a la rede «<xliff:g id="ssid">%2$s</xliff:g>»?</string>
+    <string name="wifi_network_switch_dialog_title_bad_internet">La rede «<xliff:g id="ssid">%1$s</xliff:g>» ye de calidá baxa. ¿Quies cambiar a la rede «<xliff:g id="ssid">%2$s</xliff:g>»?</string>
+    <string name="wifi_network_switch_dialog_positive_button">Cambiar</string>
+    <string name="wifi_network_switch_dialog_negative_button">Nun cambiar</string>
+</resources>

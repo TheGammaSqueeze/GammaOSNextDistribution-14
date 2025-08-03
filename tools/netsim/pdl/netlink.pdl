@@ -1,0 +1,54 @@
+// PDL grammar file for netlink packet format.
+//
+// This only includes definitions necessary for the mac80211_hwsim
+// use case.
+//
+// See
+//   - [RFC 3549](https://datatracker.ietf.org/doc/html/rfc3549)
+//   - netlink.h
+
+
+// Host byte order
+little_endian_packets
+
+// Netlink Message Header
+
+struct NlMsgHdr {
+    nlmsg_len : 32,             // Length of message including header
+    nlmsg_type : 16,            // Message type identifier
+    nlmsg_flags : 16,           // Flags (NLM_F_)
+    nlmsg_seq : 32,             // Sequence number
+    nlmsg_pid : 32,             // Sending process port ID
+}
+
+// Netlink Attribute Header
+
+/*
+ *  <------- NLA_HDRLEN ------> <-- NLA_ALIGN(payload)-->
+ * +---------------------+- - -+- - - - - - - - - -+- - -+
+ * |        Header       | Pad |     Payload       | Pad |
+ * |   (struct nlattr)   | ing |                   | ing |
+ * +---------------------+- - -+- - - - - - - - - -+- - -+
+ *  <-------------- nlattr->nla_len -------------->
+ */
+
+/*
+ * nla_type (16 bits)
+ * +---+---+-------------------------------+
+ * | N | O | Attribute Type                |
+ * +---+---+-------------------------------+
+ * N := Carries nested attributes
+ * O := Payload stored in network byte order
+ *
+ * Note: The N and O flag are mutually exclusive.
+ */
+
+// Base netlink attribute TLV header.
+
+struct NlAttrHdr {
+    nla_len : 16,
+    nla_type: 14,
+    nla_m : 1,
+    nla_o : 1,
+}
+

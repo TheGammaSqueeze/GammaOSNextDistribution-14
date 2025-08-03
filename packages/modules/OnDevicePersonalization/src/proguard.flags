@@ -1,0 +1,20 @@
+-keep class com.android.ondevicepersonalization.services.process.OnDevicePersonalizationPlugin
+
+-keep class org.apache.velocity.runtime.** {
+    <init>(...);
+}
+
+-keep class org.apache.velocity.util.introspection.** {
+    <init>(...);
+}
+
+# Stop proguard from stripping away code used by tensorflow JNI library.
+-keepclassmembers class org.tensorflow.lite.NativeInterpreterWrapper {
+    private long inferenceDurationNanoseconds;
+}
+
+-keep class org.tensorflow.lite.annotations.UsedByReflection
+-keep @org.tensorflow.lite.annotations.UsedByReflection class *
+-keepclassmembers class * {
+    @org.tensorflow.lite.annotations.UsedByReflection *;
+}

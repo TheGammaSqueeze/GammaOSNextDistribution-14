@@ -1,0 +1,18 @@
+These scripts are used to generate and verify overlayable.xml files.
+
+Sample invocations (Media Center as an example).
+
+To generate:
+PROJECT_TOP=$ANDROID_BUILD_TOP/packages/apps/Car/Media
+python $ANDROID_BUILD_TOP/packages/apps/Car/libs/tools/rro/generate-overlayable.py \
+    -n CarMediaApp \
+    -r $PROJECT_TOP/res \
+    -e $PROJECT_TOP/res/values/overlayable.xml $PROJECT_TOP/res/xml/automotive_app_desc.xml \
+    -o $PROJECT_TOP/res/values/overlayable.xml
+
+To verify:
+PROJECT_TOP=$ANDROID_BUILD_TOP/packages/apps/Car/Media
+python $ANDROID_BUILD_TOP/packages/apps/Car/libs/tools/rro/verify-overlayable.py \
+    -r $PROJECT_TOP/res \
+    -e $PROJECT_TOP/res/values/overlayable.xml $PROJECT_TOP/res/xml/automotive_app_desc.xml \
+    -o $PROJECT_TOP/res/values/overlayable.xml

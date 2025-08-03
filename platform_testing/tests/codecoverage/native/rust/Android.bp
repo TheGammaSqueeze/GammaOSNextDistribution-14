@@ -1,0 +1,19 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_test {
+    name: "CoverageRustSmokeTest",
+    srcs: [
+        "coverage_rust_smoke_test.rs",
+    ],
+    compile_multilib: "both",
+    multilib: {
+        lib32: {
+            suffix: "32",
+        },
+        lib64: {
+            suffix: "64",
+        },
+    },
+}

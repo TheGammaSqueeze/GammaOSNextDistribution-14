@@ -1,0 +1,7 @@
+service adb_root /system_ext/bin/adb_root
+    class main
+    user root
+    group root
+
+on post-fs-data
+    mkdir /data/adbroot 0700 root root

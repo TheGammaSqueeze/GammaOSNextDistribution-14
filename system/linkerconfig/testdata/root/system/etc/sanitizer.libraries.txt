@@ -1,0 +1,8 @@
+libclang_rt.asan-i686-android.so
+libclang_rt.hwasan-i686-android.so
+libclang_rt.ubsan_standalone-i686-android.so
+libclang_rt.tsan-i686-android.so
+libclang_rt.asan-arm-android.so
+libclang_rt.hwasan-arm-android.so
+libclang_rt.ubsan_standalone-arm-android.so
+libclang_rt.tsan-arm-android.so

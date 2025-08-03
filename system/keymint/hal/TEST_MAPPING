@@ -1,0 +1,7 @@
+{
+  "presubmit": [
+    {
+      "name": "libkmr_hal_test"
+    }
+  ]
+}

@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (c) 2009, 2011-2013 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2014-2015 The CyanogenMod Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *    * Neither the name of The Linux Foundation nor
+ *      the names of its contributors may be used to endorse or promote
+ *      products derived from this software without specific prior written
+ *      permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NON-INFRINGEMENT ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">FM Radio</string>
+    <string name="tx_app_name">Transmetuesi FM</string>
+    <string name="menu_scan_start">Skano</string>
+    <string name="menu_scan_stop">Ndalo kërkimin</string>
+    <string name="menu_record_start">Regjistro</string>
+    <string name="menu_record_stop">Ndalo regjistrimin</string>
+    <string name="menu_settings">Parametrat</string>
+    <string name="menu_sleep">Fli</string>
+    <string name="menu_sleep_cancel">Anullo fjetjen</string>
+    <string name="menu_all_channels">Të gjithë kanalet</string>
+    <string name="menu_display_tags">Trego etiketat</string>
+    <string name="button_text_stop">Ndalo</string>
+    <string name="msg_seeking">Duke kërkuar stacion FM\u2026</string>
+    <string name="msg_scanning">Duke skanuar për të gjithë stacionet FM\u2026</string>
+    <string name="msg_scanning_pty">Duke skanuar për \'<xliff:g id="pty_name">%1$s</xliff:g>\'\u2026</string>
+    <string name="msg_search_title"><xliff:g id="frequency_string">%1$s</xliff:g> MHz</string>
+    <string name="msg_searching_title">Përzgjedhje automatike e kanaleve</string>
+    <string name="msg_searching">Duke kërkuar për stacione për të krijuar një listë\u2026</string>
+    <string name="msg_noantenna">Ju lutemi lidhni kufjet për të përdorur radion FM</string>
+    <string name="dialog_sleep_title">Kohëmatësi i fikjes automatike</string>
+    <string name="presetlist_select_name">Zgjidh \'<xliff:g id="presetlist_name">%1$s</xliff:g>\'</string>
+    <string name="presetlist_add_new">Shto një listë të re</string>
+    <string name="dialog_presetlist_rename_title">Vendos emrin</string>
+    <string name="presetlist_autoselect_title">Konfirmo zgjedhjen automatike</string>
+    <string name="preset_replace">Zëvendëso</string>
+    <string name="preset_tune">Akordo</string>
+    <string name="preset_rename">Riemërto</string>
+    <string name="preset_delete">Fshi</string>
+    <string name="preset_search">Kërko për \'<xliff:g id="preset_pi">%1$s</xliff:g>\'</string>
+    <string name="stat_notif_frequency">\'<xliff:g id="frequency">%1$s</xliff:g>\' MHz</string>
+    <string name="regional_band">Bandë rajonale</string>
+    <string name="regional_band_entry_north_america">Amerika Veriore</string>
+    <string name="regional_band_entry_europe">Evrope</string>
+    <string name="regional_band_entry_japan">Japoni</string>
+    <string name="regional_band_entry_japan_wide">Japoni (e gjerë)</string>
+    <string name="regional_band_entry_australia">Australi</string>
+    <string name="regional_band_entry_austria">Austri</string>
+    <string name="regional_band_entry_belgium">Belgjikë</string>
+    <string name="regional_band_entry_brazil">Brazil</string>
+    <string name="regional_band_entry_china">Kinë</string>
+    <string name="regional_band_entry_czech_republic">Republika Çeke</string>
+    <string name="regional_band_entry_denmark">Danimarkë</string>
+    <string name="regional_band_entry_finland">Finlandë</string>
+    <string name="regional_band_entry_france">Francë</string>
+    <string name="regional_band_entry_germany">Gjermani</string>
+    <string name="regional_band_entry_greece">Greqi</string>
+    <string name="regional_band_entry_hong_kong">Hong Kong</string>
+    <string name="regional_band_entry_india">Indi</string>
+    <string name="regional_band_entry_indonesia">Indonezi</string>
+    <string name="regional_band_entry_ireland">Irlandë</string>
+    <string name="regional_band_entry_italy">Itali</string>
+    <string name="regional_band_entry_korea">Kore</string>
+    <string name="regional_band_entry_mexico">Meksikë</string>
+    <string name="regional_band_entry_netherlands">Hollandë</string>
+    <string name="regional_band_entry_new_zealand">Zelanda e Re</string>
+    <string name="regional_band_entry_norway">Norvegji</string>
+    <string name="regional_band_entry_poland">Poloni</string>
+    <string name="regional_band_entry_portugal">Portugali</string>
+    <string name="regional_band_entry_russia">Rusi</string>
+    <string name="regional_band_entry_singapore">Singapor</string>
+    <string name="regional_band_entry_slovakia">Sllovaki</string>
+    <string name="regional_band_entry_spain">Spanjë</string>
+    <string name="regional_band_entry_switzerland">Zvicër</string>
+    <string name="regional_band_entry_sweden">Suedi</string>
+    <string name="regional_band_entry_taiwan">Taivan</string>
+    <string name="regional_band_entry_turkey">Turqi</string>
+    <string name="regional_band_entry_united_kingdom">Mbretëria e Bashkuar</string>
+    <string name="regional_band_entry_united_states">Shtetet e Bashkuara të Amerikës</string>
+    <string name="regional_band_entry_user_defined">Bandë e përcaktuar nga përdoruesi</string>
+    <string name="regional_band_summary_north_america">Amerika e Veriut (87.5 deri në 108.0MHz me gjerësi 200 kHz)</string>
+    <string name="regional_band_summary_europe">Evropë (87.5 deri në 108.0MHz me gjerësi 100 kHz)</string>
+    <string name="regional_band_summary_japan">Japoni (76.0 deri në 90.0MHz me gjerësi 100 kHz)</string>
+    <string name="regional_band_summary_japan_wide">Japoni (e gjerë) (90.0 deri në 108.0MHz me gjerësi 50 kHz)</string>
+    <string name="regional_band_summary_australia">Australi (87.7 deri në 108.0MHz me gjerësi 100 kHz)</string>
+    <string name="regional_band_summary_austria">Austri (87.5 deri në 108.0MHz me gjerësi 50 kHz)</string>
+    <string name="regional_band_summary_belgium">Belgjikë (87.5 deri në 108.0MHz me gjerësi 100 kHz)</string>
+    <string name="regional_band_summary_brazil">Brazil (87.5 deri në 108.0MHz me gjerësi 200 kHz)</string>
+    <string name="regional_band_summary_china">Kinë (87.0 deri në 108.0MHz me gjerësi 100 kHz)</string>
+    <string name="regional_band_summary_czech_republic">Republika Çeke (87.5 deri në 108.0MHz me gjerësi 100 kHz)</string>
+    <string name="regional_band_summary_denmark">Danimarkë (87.5 deri në 108.0MHz me gjerësi 50 kHz)</string>
+    <string name="regional_band_summary_finland">Finlandë (87.5 deri në 108.0MHz me gjerësi 100 kHz)</string>
+    <string name="regional_band_summary_france">Francë (87.5 deri në 108.0MHz me gjerësi 100 kHz)</string>
+    <string name="regional_band_summary_germany">Gjermani (87.5 deri në 108.0MHz me gjerësi 50 kHz)</string>
+    <string name="regional_band_summary_greece">Greqi (87.5 deri në 108.0MHz me gjerësi 50 kHz)</string>
+    <string name="regional_band_summary_hong_kong">Hong Kong (87.5 deri në 108.0MHz me gjerësi 100 kHz)</string>
+    <string name="regional_band_summary_india">Indi (87.5 deri në 108.0MHz me gjerësi 100 kHz)</string>
+    <string name="regional_band_summary_indonesia">Indonezi (87.5 deri në 108.0MHz me gjerësi 100 kHz)</string>
+    <string name="regional_band_summary_ireland">Irlandë (87.5 deri në 108.0MHz me gjerësi 50 kHz)</string>
+    <string name="regional_band_summary_italy">Itali (87.5 deri në 108.0MHz me gjerësi 50 kHz)</string>
+    <string name="regional_band_summary_korea">Kore (87.5 deri në 108.0MHz me gjerësi 200 kHz)</string>
+    <string name="regional_band_summary_mexico">Meksikë (88.1 deri në 107.9MHz me gjerësi 200 kHz)</string>
+    <string name="regional_band_summary_netherlands">Hollandë (87.5 deri në 108.0MHz me gjerësi 100 kHz)</string>
+    <string name="regional_band_summary_new_zealand">Zelanda e Re (88.0 deri në 107.0MHz me gjerësi 100 kHz)</string>
+    <string name="regional_band_summary_norway">Norvegji (87.5 deri në 108.0MHz me gjerësi 100 kHz)</string>
+    <string name="regional_band_summary_poland">Poloni (87.5 deri në 108.0MHz me gjerësi 100 kHz)</string>
+    <string name="regional_band_summary_portugal">Portugali (87.5 deri në 108.0MHz me gjerësi 50 kHz)</string>
+    <string name="regional_band_summary_russia">Rusi (87.5 deri në 108.0MHz me gjerësi 100 kHz)</string>
+    <string name="regional_band_summary_singapore">Singapor (88.0 deri në 108.0MHz me gjerësi 100 kHz)</string>
+    <string name="regional_band_summary_slovakia">Sllovaki (87.5 deri në 108.0MHz me gjerësi 100 kHz)</string>
+    <string name="regional_band_summary_spain">Spanjë (87.5 deri në 108.0MHz me gjerësi 100 kHz)</string>
+    <string name="regional_band_summary_switzerland">Zvicër (87.5 deri në 108.0MHz me gjerësi 100 kHz)</string>
+    <string name="regional_band_summary_sweden">Suedi (87.5 deri në 108.0MHz me gjerësi 100 kHz)</string>
+    <string name="regional_band_summary_taiwan">Taivan (87.5 deri në 108.0MHz me gjerësi 100 kHz)</string>
+    <string name="regional_band_summary_turkey">Turqi (87.5 deri në 108.0MHz me gjerësi 100 kHz)</string>
+    <string name="regional_band_summary_united_kingdom">Mbretëria e Bashkuar (87.5 deri në 108.0MHz me gjerësi 100 kHz)</string>
+    <string name="regional_band_summary_united_states">Shtetet e Bashkuara të Amerikës (88.1 deri në 107.9MHz me gjerësi 200 kHz)</string>
+    <string name="regional_band_summary_user_defined">Bandë e përcaktuar nga përdoruesi</string>
+    <string name="aud_output_mode">Modaliteti i daljes së zërit</string>
+    <string name="audio_type_stereo">Stereo</string>
+    <string name="audio_type_mono">Mono</string>
+    <string name="record_dur">Regjistro kohëzgjatjen</string>
+    <string name="auto_select_af">Frekuencë alternative</string>
+    <string name="settings_revert_defaults_title">Rikthe në gjendjen fillestare</string>
+    <string name="settings_revert_defaults_summary">Rikthe në gjëndje të mëparshme të gjitha parametrat</string>
+    <string name="settings_revert_confirm_title">Konfirmo rikthimin</string>
+    <string name="settings_revert_confirm_msg">Kjo do të pastrojë të gjithë parametrat e programit, përfshirë parametrat paraprakë. Të vazhdoj?</string>
+    <string name="no_storage">Monto kartën SD para nisjes së regjistimit.</string>
+    <string name="preparing_sd">Duke përgatitur kartën SD\u2026</string>
+    <string name="access_sd_fail">Karta SD nuk mund të aksesohet.</string>
+    <string name="spaceIsLow_content">Hapësira në kartën SD është pothuajse e mbushur plot. Ndrysho parametrat e cilësisë ose fshi disa imazhe apo disa skedarë të tjerë për të liruar vënd.</string>
+    <string name="FMRecording_reach_size_limit">U arrit kufiri i madhësisë.</string>
+    <string name="menu_scan_for_preset">Kërko për kanale</string>
+    <string name="fm_off">FM u çaktivizua.</string>
+    <string name="fm_call">FM s\'mund të përdoret gjatë telefonatës.</string>
+    <string name="alert_dialog_hint">Vendos një emër</string>
+    <string name="search_dialog_title">Skano stacionet</string>
+    <string name="fm_command_timeout_title">Koha mbaroi</string>
+    <string name="fm_tune_timeout_msg">Nuk u mor asnjë përgjigje për të akorduar kanalet FM. Nëse problemi vazhdon, ju lutemi fikeni FM dhe ndizeni sërish.</string>
+    <string name="fm_command_failed_title">Veprimi FM dështoi</string>
+    <string name="fm_cmd_failed_msg">Funksionimi i FM, dështoi. Nëse problemi vazhdon, ju lutemi fikeni FM dhe ndizeni sërish.</string>
+    <string name="fm_cmd_failed_msg_hdmi">Funksionimi i FM dështoi. Nuk mundësohet funksionimi i njëkohëshëm i FM dhe HDMI.</string>
+    <string name="fm_cmd_failed_call_on">Funksionimi i FM dështoi. Radio FM nuk lejohet gjatë telefonatave.</string>
+    <string name="audio_db_title_format"><xliff:g id="format">yyyy-MM-dd HH:mm:ss</xliff:g></string>
+    <string name="audio_db_artist_name">Regjistrimet e mia FM</string>
+    <string name="audio_db_album_name">Regjistrimet FM</string>
+    <string name="audio_db_playlist_name">Regjistrimet FM</string>
+    <string name="station_name">Stacioni:</string>
+    <string name="station_exists">Kjo frekuencë ekziston tashmë!</string>
+    <string name="station_list_delete_station">Fshi: <xliff:g id="name">%s</xliff:g></string>
+    <string name="station_list_delete_station_prompt">A jeni të sigurt që doni të fshini \'<xliff:g id="name">%s</xliff:g>\'?</string>
+    <string name="station_name_empty">Emri i stacionit është bosh. Ju lutem vendoseni përsëri.</string>
+    <string name="station_name_exist">\'<xliff:g id="name">%s</xliff:g>\' është në përdorim, ju lutem vendosni një emër tjetër.</string>
+    <string name="rt_plus_tags">Etiketat</string>
+    <string name="usr_def_band_min">Frekuenca më e ulët (MHz)</string>
+    <string name="usr_def_band_max">Frekuenca më e lartë (MHz)</string>
+    <string name="chanl_spacing">Hapësira midis kanaleve</string>
+    <string name="set">Cakto</string>
+    <string name="user_defind_band_msg">Vendos frekuencën nga 76.0 deri në 108.0 MHz me të paktën 1 hapësirë midis kanaleve dhe me hapësirë 100 kHz midis frekuencës minimale dhe asaj maksimale</string>
+    <string name="save_record_file">Regjistrimi FM u ruajt në \'<xliff:g id="record_file">%1$s</xliff:g>\'</string>
+    <string name="fm_search_no_results">Nuk u gjet asnjë stacion i përshtatshëm</string>
+    <string name="typ_All_stations">Të gjitha stacionet</string>
+    <string name="typ_Culture">Kulturë</string>
+    <string name="typ_Current_affairs">Aktualitet</string>
+    <string name="typ_Children">Programe për fëmijë</string>
+    <string name="typ_Country">Muzikë Country</string>
+    <string name="typ_Documentary">Dokumentar</string>
+    <string name="typ_Drama">Dramë</string>
+    <string name="typ_Easy_listening">Muzikë e lehtë</string>
+    <string name="typ_Education">Edukim</string>
+    <string name="typ_Emergency">Emergjenca</string>
+    <string name="typ_Emergency_test">Test emergjence</string>
+    <string name="typ_Finance">Financë</string>
+    <string name="typ_Folk">Muzikë folk</string>
+    <string name="typ_Information">Informacion</string>
+    <string name="typ_Jazz">Muzikë Xhaz</string>
+    <string name="typ_Light_classical">Klasike e lehtë</string>
+    <string name="typ_Leisure">Argëtim</string>
+    <string name="typ_News">Lajme</string>
+    <string name="typ_National">Muzikë kombëtare</string>
+    <string name="typ_Other">Muzikë tjetër</string>
+    <string name="typ_Oldies">Muzikë e vjetër</string>
+    <string name="typ_Phone_in">Telefoni ne</string>
+    <string name="typ_Pop">Muzikë Pop</string>
+    <string name="typ_Religion">Fetare</string>
+    <string name="typ_Rock">Muzikë Rock</string>
+    <string name="typ_Science">Shkencë</string>
+    <string name="typ_Serious_classical">Klasike serioze</string>
+    <string name="typ_Social_affairs">Çështje shoqërore</string>
+    <string name="typ_Sport">Sport</string>
+    <string name="typ_Travel">Udhëtime</string>
+    <string name="typ_Varied">Të ndryshme</string>
+    <string name="typ_Weather">Moti</string>
+    <string name="typ_Adult_hits">Hite për të rinj</string>
+    <string name="typ_Classical">Klasike</string>
+    <string name="typ_Classic_Rock">Rock Klasik</string>
+    <string name="typ_College">Universitet</string>
+    <string name="typ_Foreign_language">Gjuhë e huaj</string>
+    <string name="typ_Hiphop">Hip Hop</string>
+    <string name="typ_Nostalgia">Nostalgji</string>
+    <string name="typ_Personality">Personalitete</string>
+    <string name="typ_Public">Publik</string>
+    <string name="typ_Religious_music">Muzikë fetare</string>
+    <string name="typ_Religious_talk">Biseda fetare</string>
+    <string name="typ_Rhythm_and_Blues">Rhythm and Blues</string>
+    <string name="typ_Spanish_music">Muzikë spanjolle</string>
+    <string name="typ_Spanish_talk">Biseda në spanjisht</string>
+    <string name="typ_Soft">E lehtë</string>
+    <string name="typ_Soft_Rock">Rock i lehtë</string>
+    <string name="typ_Soft_Rhythm_and_Blues">Rhythm and Blues i lehtë</string>
+    <string name="typ_Sports">Sporte</string>
+    <string name="typ_Talk">Biseda</string>
+    <string name="typ_Top_40">Top 40</string>
+</resources>

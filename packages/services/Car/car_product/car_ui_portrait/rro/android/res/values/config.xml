@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- IME should not hide nav bar -->
+    <bool name="config_hideNavBarForKeyboard">false</bool>
+
+    <!-- Uses customized system bar controls -->
+    <bool name="config_remoteInsetsControllerControlsSystemBars">true</bool>
+
+    <!-- Device supports Sustained Performance Mode-->
+    <bool name="config_sustainedPerformanceModeSupported">false</bool>
+
+    <!-- Colon separated list of package names that should be granted Notification Listener access -->
+    <string name="config_defaultListenerAccessPackages" translatable="false">com.android.car.notification</string>
+
+    <!-- Default body font family used across the system -->
+    <string name="config_bodyFontFamily" translatable="false">roboto-regular</string>
+
+    <!-- Default medium body font family used across the system -->
+    <string name="config_bodyFontFamilyMedium" translatable="false">roboto-regular</string>
+
+    <!-- Default headline font family used across the system -->
+    <string name="config_headlineFontFamilyMedium" translatable="false">roboto-regular</string>
+
+    <!-- Use round icon if it is provided by the package -->
+    <bool name="config_useRoundIcon">true</bool>
+
+    <!-- Setting the icon mask to circular path data -->
+    <string name="config_icon_mask" translatable="false">"M50 0A50 50,0,1,1,50 100A50 50,0,1,1,50 0"</string>
+
+    <!-- Whether the device allows users to start in background visible on displays.
+     Should be false for most devices, except automotive vehicle with passenger displays. -->
+    <bool name="config_multiuserVisibleBackgroundUsers">false</bool>
+
+    <string name="config_recentsComponentName" translatable="false">
+        com.android.car.portraitlauncher/.recents.PortraitCarRecentsActivity
+    </string>
+
+    <!-- Vertical position of a center of the letterboxed app window.
+    0 corresponds to the upper side of the screen and 1 to the lower side. If given value < 0
+    or > 1 it is ignored and for non-tabletop mode central position is used (0.5); for
+     tabletop mode top (0.0) is used. -->
+    <item name="config_letterboxVerticalPositionMultiplier" format="float" type="dimen">0.5</item>
+
+    <!-- Whether vertical reachability repositioning is allowed for letterboxed fullscreen apps. -->
+    <bool name="config_letterboxIsVerticalReachabilityEnabled">true</bool>
+</resources>

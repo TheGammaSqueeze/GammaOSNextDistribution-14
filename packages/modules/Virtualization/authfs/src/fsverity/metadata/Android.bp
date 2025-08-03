@@ -1,0 +1,27 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_bindgen {
+    name: "libauthfs_fsverity_metadata_bindgen",
+    wrapper_src: "metadata.hpp",
+    defaults: ["avf_build_flags_rust"],
+    crate_name: "authfs_fsverity_metadata_bindgen",
+    source_stem: "metadata_bindings",
+    apex_available: ["com.android.virt"],
+}
+
+rust_library {
+    name: "libauthfs_fsverity_metadata",
+    crate_name: "authfs_fsverity_metadata",
+    defaults: ["avf_build_flags_rust"],
+    srcs: [
+        "metadata.rs",
+    ],
+    rustlibs: [
+        "libauthfs_fsverity_metadata_bindgen",
+        "libopenssl",
+    ],
+    edition: "2021",
+    apex_available: ["com.android.virt"],
+}

@@ -1,0 +1,19 @@
+{
+  "put": {
+    "AAAAAQ==": "AAAAZQ==",
+    "AAAAAg==": "AAAAZg=="
+  },
+  "append": {
+    "AAAAAw==": {
+      "values": [
+        "AAAAZw=="
+      ],
+      "max_signals": 3
+    }
+  },
+  "put_if_not_present": {
+    "AAAABA==": "AAAAaQ==",
+    "AAAABQ==": "AAAAag=="
+  },
+  "update_encoder": {}
+}

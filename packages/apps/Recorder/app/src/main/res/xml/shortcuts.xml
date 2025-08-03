@@ -1,0 +1,19 @@
+<!--
+     SPDX-FileCopyrightText: 2017 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <shortcut
+        android:shortcutId="list"
+        android:enabled="true"
+        android:icon="@drawable/ic_library_music"
+        android:shortcutShortLabel="@string/list_title"
+        android:shortcutLongLabel="@string/list_title">
+
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="org.lineageos.recorder"
+            android:targetClass="org.lineageos.recorder.ListActivity" />
+    </shortcut>
+</shortcuts>

@@ -1,0 +1,15 @@
+{
+    "presubmit": [
+        {
+            "name": "IntentResolver-tests-unit"
+        },
+        {
+            "name": "IntentResolver-tests-activity"
+        }
+    ],
+    "postsubmit": [
+        {
+            "name": "IntentResolver-tests-integration"
+        }
+    ]
+}

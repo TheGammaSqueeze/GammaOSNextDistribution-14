@@ -1,0 +1,21 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_library {
+    name: "libvmconfig",
+    crate_name: "vmconfig",
+    defaults: ["avf_build_flags_rust"],
+    srcs: ["src/lib.rs"],
+    edition: "2021",
+    rustlibs: [
+        "android.system.virtualizationservice-rust",
+        "libanyhow",
+        "libsemver",
+        "libserde",
+        "libserde_json",
+    ],
+    apex_available: [
+        "com.android.virt",
+    ],
+}

@@ -1,0 +1,4 @@
+# Services referenced in the manifest. They could be moved to a different package as there are no
+# hardcoded reference to them in AOSP, but it is possible that OEM customizations are relying on
+# the naming.
+com\.android\.server\.NetworkStackService(\$.+)?

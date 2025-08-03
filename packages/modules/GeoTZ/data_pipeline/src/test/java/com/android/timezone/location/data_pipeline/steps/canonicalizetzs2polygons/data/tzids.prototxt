@@ -1,0 +1,27 @@
+ianaVersion: "2020a"
+
+# A much simplified version of the United Kingdom for tests.
+countryMappings {
+  isoCode: "gb"
+  timeZoneIds: "Europe/London"
+  timeZoneLinks {
+    alternativeId: "GB"
+    preferredId: "Europe/London"
+  }
+}
+
+# A much simplified version of Argentina for tests.
+countryMappings {
+  isoCode: "ar"
+  timeZoneIds: "America/Argentina/Buenos_Aires"
+  timeZoneReplacements {
+    replacedId: "America/Argentina/Cordoba"
+    replacementId: "America/Argentina/Buenos_Aires"
+    fromMillis: 687931200000
+  }
+  timeZoneReplacements {
+    replacedId: "America/Argentina/Ushuaia"
+    replacementId: "America/Argentina/Buenos_Aires"
+    fromMillis: 1087704000000
+  }
+}

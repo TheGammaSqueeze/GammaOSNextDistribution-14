@@ -1,0 +1,100 @@
+// Copyright 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_defaults {
+    name: "evsmanagerd_fuzz_default",
+    defaults: ["evsmanagerd_defaults"],
+    shared_libs: [
+        "libcamera_client",
+        "libnativewindow",
+    ],
+    static_libs: [
+        "libbinder_random_parcel",
+        "libevsmanagerd_static",
+        "liblog",
+        "libmockevshal",
+        "libgmock",
+        "libgtest",
+    ],
+    header_libs: ["libmockevshal_headers"],
+    srcs: [
+        "Common.cpp",
+    ],
+    cflags: [
+        "-Wno-unused-parameter",
+    ],
+    fuzz_config: {
+        cc: [
+            "aae-engprod-fuzz@google.com",
+            "aaos-camerasystems-bug-triage@google.com",
+        ],
+        // Android > Automotive > Embedded > Test Bugs
+        componentid: 162915,
+        // aae-fuzz-bugs
+        hotlists: ["1986127"],
+        libfuzzer_options: [
+            "timeout=120",
+        ],
+    },
+}
+
+cc_fuzz {
+    name: "evs_enumerator_fuzzer",
+    defaults: [
+        "evsmanagerd_fuzz_default",
+        "service_fuzzer_defaults",
+    ],
+    srcs: [
+        //":evsmanagerd_sources",
+        "EnumeratorFuzzer.cpp",
+    ],
+    fuzz_config: {
+        cc: [
+            "keithmok@google.com",
+        ],
+    },
+}
+
+cc_fuzz {
+    name: "evsmanagerd_halcamera_fuzzer",
+    srcs: [
+        "HalCameraFuzzer.cpp",
+    ],
+    defaults: ["evsmanagerd_fuzz_default"],
+}
+
+cc_fuzz {
+    name: "evsmanagerd_virtualcamera_fuzzer",
+    srcs: [
+        "VirtualCameraFuzzer.cpp",
+    ],
+    defaults: ["evsmanagerd_fuzz_default"],
+    fuzz_config: {
+        libfuzzer_options: [
+            "max_len=4096",
+        ],
+    },
+}
+
+cc_fuzz {
+    name: "evsmanagerd_haldisplay_fuzzer",
+    srcs: [
+        "HalDisplayFuzzer.cpp",
+    ],
+    defaults: ["evsmanagerd_fuzz_default"],
+}

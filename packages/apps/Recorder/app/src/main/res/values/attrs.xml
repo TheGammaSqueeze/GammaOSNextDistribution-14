@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2021 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+
+    <declare-styleable name="WaveFormView">
+        <attr name="numOfWaves" format="integer" />
+        <attr name="density" format="float" />
+        <attr name="maxAudioValue" format="integer" />
+        <attr name="defaultFrequency" format="float" />
+        <attr name="defaultAmplitude" format="float" />
+        <attr name="defaultPhaseShift" format="float" />
+    </declare-styleable>
+</resources>

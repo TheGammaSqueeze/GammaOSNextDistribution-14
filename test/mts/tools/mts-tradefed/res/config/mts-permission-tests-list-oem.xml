@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Copyright (C) 2020 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<configuration description="List MTS permission tests for OEM.">
+    <option name="compatibility:include-filter" value="PermissionApexTests" />
+    <option name="compatibility:include-filter" value="PermissionControllerMockingTests" />
+    <option name="compatibility:include-filter" value="PermissionControllerOutOfProcessTests" />
+    <option name="compatibility:include-filter" value="PermissionUiTestCases" />
+    <option name="compatibility:include-filter" value="CtsPermissionTestCases android.permission.cts.AccessibilityPrivacySourceTest" />
+    <option name="compatibility:include-filter" value="CtsPermissionTestCases android.permission.cts.BackgroundPermissionsTest" />
+    <option name="compatibility:include-filter" value="CtsPermissionTestCases android.permission.cts.LocationAccessCheckTest" />
+    <option name="compatibility:include-filter" value="CtsPermissionTestCases android.permission.cts.NotificationListenerCheckTest" />
+    <option name="compatibility:include-filter" value="CtsPermissionTestCases android.permission.cts.NotificationListenerCheckWithSafetyCenterUnsupportedTest" />
+    <option name="compatibility:include-filter" value="CtsPermissionTestCases android.permission.cts.OneTimePermissionTest" />
+    <option name="compatibility:include-filter" value="CtsPermissionTestCases android.permission.cts.PermissionControllerTest" />
+    <option name="compatibility:include-filter" value="CtsPermissionTestCases android.permission.cts.PlatformPermissionGroupMappingTest" />
+    <option name="compatibility:module-arg" value="CtsPermissionTestCases:exclude-annotation:android.permission.cts.MtsIgnore" />
+    <option name="compatibility:include-filter" value="CtsPermissionUiTestCases" />
+    <option name="compatibility:module-arg" value="CtsPermissionUiTestCases:exclude-annotation:android.permission.cts.MtsIgnore" />
+    <option name="compatibility:include-filter" value="CtsBackupTestCases android.backup.cts.PermissionTest" />
+    <option name="compatibility:module-arg" value="CtsBackupTestCases:exclude-annotation:android.permission.cts.MtsIgnore" />
+    <option name="compatibility:include-filter" value="CtsDevicePolicyManagerTestCases" />
+    <option name="compatibility:module-arg" value="CtsDevicePolicyManagerTestCases:include-annotation:com.android.cts.devicepolicy.annotations.PermissionsTest" />
+    <option name="compatibility:module-arg" value="CtsDevicePolicyManagerTestCases:exclude-annotation:android.platform.test.annotations.FlakyTest" />
+    <option name="compatibility:include-filter" value="CtsHibernationTestCases" />
+    <option name="compatibility:module-arg" value="CtsHibernationTestCases:exclude-annotation:android.permission.cts.MtsIgnore" />
+    <option name="compatibility:include-filter" value="CtsRoleTestCases" />
+    <option name="compatibility:module-arg" value="CtsRoleTestCases:exclude-annotation:android.permission.cts.MtsIgnore" />
+    <option name="compatibility:include-filter" value="CtsSafetyCenterTestCases" />
+    <option name="compatibility:module-arg" value="CtsSafetyCenterTestCases:exclude-annotation:android.permission.cts.MtsIgnore" />
+    <option name="compatibility:include-filter" value="GtsIncidentManagerTestCases" />
+    <option name="compatibility:module-arg" value="GtsIncidentManagerTestCases:exclude-annotation:android.permission.cts.MtsIgnore" />
+    <option name="compatibility:include-filter" value="GtsSafetyCenterTestCases" />
+    <option name="compatibility:module-arg" value="GtsSafetyCenterTestCases:exclude-annotation:android.permission.cts.MtsIgnore" />
+    <option name="compatibility:include-filter" value="SafetyCenterSubpagesTestCases" />
+    <option name="compatibility:module-arg" value="SafetyCenterSubpagesTestCases:exclude-annotation:android.permission.cts.MtsIgnore" />
+    <option name="compatibility:include-filter" value="SafetyCenterFunctionalTestCases" />
+    <option name="compatibility:module-arg" value="SafetyCenterFunctionalTestCases:exclude-annotation:android.permission.cts.MtsIgnore" />
+    <option name="compatibility:include-filter" value="SafetyCenterConfigTests" />
+    <option name="compatibility:module-arg" value="SafetyCenterConfigTests:exclude-annotation:android.permission.cts.MtsIgnore" />
+    <option name="compatibility:include-filter" value="GtsPermissionUiTestCases" />
+    <option name="compatibility:module-arg" value="GtsPermissionUiTestCases:exclude-annotation:android.permission.cts.MtsIgnore" />
+    <option name="compatibility:include-filter" value="SafetyCenterFunctionalMultiUsersTestCases" />
+    <option name="compatibility:module-arg" value="SafetyCenterFunctionalMultiUsersTestCases:exclude-annotation:android.permission.cts.MtsIgnore" />
+    <option name="compatibility:include-filter" value="SafetyCenterActivityFunctionalTestCases" />
+    <option name="compatibility:module-arg" value="SafetyCenterActivityFunctionalTestCases:exclude-annotation:android.permission.cts.MtsIgnore" />
+    <option name="compatibility:include-filter" value="SafetyCenterHostSideTestCases" />
+    <option name="compatibility:module-arg" value="SafetyCenterHostSideTestCases:exclude-annotation:android.platform.test.annotations.FlakyTest" />
+</configuration>

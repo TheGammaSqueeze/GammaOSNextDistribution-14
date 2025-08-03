@@ -1,0 +1,11 @@
+drops {
+  dest_file: "LICENSE"
+  version: "360-20231220-000023"
+  version_group: "content_addressed_storage"
+  git_project: "platform/tools/content_addressed_storage/prebuilts"
+  local_drop {
+    source_file: "/tmp/deviceinfra_kokoro_release/drop/casuploader/LICENSE"
+  }
+  git_branch: "main"
+  transform: TRANSFORM_NONE
+}

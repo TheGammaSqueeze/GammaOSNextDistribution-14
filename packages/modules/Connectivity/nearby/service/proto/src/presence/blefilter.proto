@@ -1,0 +1,135 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// Proto Messages define the interface between Nearby nanoapp and its host.
+//
+// Host registers its interest in BLE event by configuring nanoapp with Filters.
+// The nanoapp keeps watching BLE events and notifies host once an event matches
+// a Filter.
+//
+// Each Filter is defined by its id (required) with optional fields of rssi,
+// uuid, MAC etc. The host should guarantee the uniqueness of ids. It is
+// convenient to assign id incrementally when adding a Filter such that its id
+// is the same as the index of the repeated field in Filters.
+//
+// The nanoapp compares each BLE event against the list of Filters, and notifies
+// host when the event matches a Filter. The Field's id will be sent back to
+// host in the FilterResult.
+//
+// It is possible for the nanoapp to return multiple ids when an event matches
+// multiple Filters.
+
+syntax = "proto2";
+
+package service.proto;
+
+// Certificate to verify BLE events from trusted devices.
+// When receiving an advertisement from a remote device, it will
+// be decrypted by authenticity_key and SHA hashed. The device
+// is verified as trusted if the hash result is equal to
+// metadata_encryption_key_tag.
+// See details in go/ns-certificates.
+message PublicateCertificate {
+  optional bytes authenticity_key = 1;
+  optional bytes metadata_encryption_key_tag = 2;
+}
+
+// Public credential returned in BleFilterResult.
+message PublicCredential {
+  optional bytes secret_id = 1;
+  optional bytes authenticity_key = 2;
+  optional bytes public_key = 3;
+  optional bytes encrypted_metadata = 4;
+  optional bytes encrypted_metadata_tag = 5;
+}
+
+message DataElement {
+  enum ElementType {
+    DE_NONE = 0;
+    DE_FAST_PAIR_ACCOUNT_KEY = 9;
+    DE_CONNECTION_STATUS = 10;
+    DE_BATTERY_STATUS = 11;
+    // Reserves 128 Test DEs.
+    DE_TEST_BEGIN = 2147483520;  // INT_MAX - 127
+    DE_TEST_END = 2147483647;    // INT_MAX
+  }
+
+  optional int32 key = 1;
+  optional bytes value = 2;
+  optional uint32 value_length = 3;
+}
+
+// A single filter used to filter BLE events.
+message BleFilter {
+  optional uint32 id = 1;  // Required, unique id of this filter.
+  // Maximum delay to notify the client after an event occurs.
+  optional uint32 latency_ms = 2;
+  optional uint32 uuid = 3;
+  // MAC address of the advertising device.
+  optional bytes mac_address = 4;
+  optional bytes mac_mask = 5;
+  // Represents an action that scanners should take when they receive this
+  // packet. See go/nearby-presence-spec for details.
+  optional uint32 intent = 6;
+  // Notify the client if the advertising device is within the distance.
+  // For moving object, the distance is averaged over data sampled within
+  // the period of latency defined above.
+  optional float distance_m = 7;
+  // Used to verify the list of trusted devices.
+  repeated PublicateCertificate certificate = 8;
+  // Data Elements for extended properties.
+  repeated DataElement data_element = 9;
+}
+
+message BleFilters {
+  repeated BleFilter filter = 1;
+}
+
+// FilterResult is returned to host when a BLE event matches a Filter.
+message BleFilterResult {
+  enum ResultType {
+    RESULT_NONE = 0;
+    RESULT_PRESENCE = 1;
+    RESULT_FAST_PAIR = 2;
+  }
+
+  optional uint32 id = 1;  // id of the matched Filter.
+  optional int32 tx_power = 2;
+  optional int32 rssi = 3;
+  optional uint32 intent = 4;
+  optional bytes bluetooth_address = 5;
+  optional PublicCredential public_credential = 6;
+  repeated DataElement data_element = 7;
+  optional bytes ble_service_data = 8;
+  optional ResultType result_type = 9;
+  // Timestamp when the device is discovered, in nanoseconds,
+  // relative to Android SystemClock.elapsedRealtimeNanos().
+  optional uint64 timestamp_ns = 10;
+}
+
+message BleFilterResults {
+  repeated BleFilterResult result = 1;
+}
+
+message BleConfig {
+  // True to start BLE scan. Otherwise, stop BLE scan.
+  optional bool start_scan = 1;
+  // True when screen is turned on. Otherwise, set to false when screen is
+  // turned off.
+  optional bool screen_on = 2;
+  // Fast Pair cache expires after this time period.
+  optional uint64 fast_pair_cache_expire_time_sec = 3;
+}

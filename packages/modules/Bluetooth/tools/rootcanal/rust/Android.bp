@@ -1,0 +1,77 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_bt_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_bt_license"],
+}
+
+rust_ffi {
+    name: "librootcanal_rs",
+    host_supported: true,
+    vendor_available: true,
+    crate_name: "rootcanal_rs",
+    srcs: [
+        "src/lib.rs",
+
+        ":rootcanal_hci_packets_rust_gen",
+        ":rootcanal_llcp_packets_rust_gen",
+        ":rootcanal_lmp_packets_rust_gen",
+    ],
+    edition: "2018",
+    proc_macros: ["libnum_derive"],
+    rustlibs: [
+        "libbytes",
+        "libnum_bigint",
+        "libnum_integer",
+        "libnum_traits",
+        "libpdl_runtime",
+        "libpin_utils",
+        "librand",
+        "libthiserror",
+    ],
+    include_dirs: ["include"],
+}
+
+genrule {
+    name: "rootcanal_lmp_packets_rust_gen",
+    defaults: ["pdl_rust_generator_defaults"],
+    srcs: ["lmp_packets.pdl"],
+    out: ["lmp_packets.rs"],
+}
+
+genrule {
+    name: "rootcanal_llcp_packets_rust_gen",
+    defaults: ["pdl_rust_generator_defaults"],
+    srcs: ["llcp_packets.pdl"],
+    out: ["llcp_packets.rs"],
+}
+
+rust_test_host {
+    name: "rootcanal_rs_test",
+    crate_name: "rootcanal_rs",
+    srcs: [
+        "src/lib.rs",
+
+        ":rootcanal_hci_packets_rust_gen",
+        ":rootcanal_llcp_packets_rust_gen",
+        ":rootcanal_lmp_packets_rust_gen",
+    ],
+    auto_gen_config: true,
+    edition: "2018",
+    proc_macros: [
+        "libnum_derive",
+        "libpaste",
+    ],
+    rustlibs: [
+        "libbytes",
+        "libnum_bigint",
+        "libnum_integer",
+        "libnum_traits",
+        "libpdl_runtime",
+        "libpin_utils",
+        "librand",
+        "libthiserror",
+    ],
+}

@@ -1,0 +1,40 @@
+package {
+    default_team: "trendy_team_android_kernel",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_app {
+    name: "ThemePickerShell",
+    defaults: ["ThemePicker_defaults"],
+    platform_apis: true,
+    static_libs: ["ThemePickerTestLib"],
+}
+
+android_robolectric_test {
+    name: "ThemePickerRoboTests",
+    srcs: [
+        "src/**/*.java",
+        "src/**/*.kt",
+    ],
+    java_resource_dirs: ["config"],
+
+    // Do not add picker-related dependencies here. Add them to ThemePickerShell
+    // instead.
+    static_libs: [
+        "androidx.test.rules",
+        "junit",
+        "kotlinx_coroutines_test",
+        "truth",
+        "SystemUICustomizationTestUtils",
+        "ThemePickerApplicationLib",
+    ],
+
+    libs: [
+        "androidx.test.core",
+        "androidx.test.runner",
+    ],
+
+    upstream: true,
+
+    instrumentation_for: "ThemePickerShell",
+}

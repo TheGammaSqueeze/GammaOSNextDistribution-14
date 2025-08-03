@@ -1,0 +1,36 @@
+x-test-params: &test-params
+  wifi_ssid: ""
+  wifi_password: ""
+  advertising_discovery_medium: 2 # 0 - auto, 2 - BLE_ONLY
+
+x-controllers: &controllers
+  Controllers:
+    AndroidDevice:
+      - serial: "123456ABCDEF"
+        role: "source_device"
+      - serial: "ABCDEF123456"
+        role: "target_device"
+
+TestBeds:
+- Name: LocalCustomizedTestbed
+  <<: *controllers
+  TestParams:
+      <<: *test-params
+
+- Name: Local2GTestbed
+  <<: *controllers
+  TestParams:
+      <<: *test-params
+      test_report_alias_name: "Wi-Fi_2G"
+      wifi_ssid: "AP-2G"
+      wifi_password: "AP-2G"
+      bt_transfer_throughput_median_benchmark_kbps: 20
+
+- Name: Local5GTestbed
+  <<: *controllers
+  TestParams:
+      <<: *test-params
+      test_report_alias_name: "Wi-Fi_5G"
+      wifi_ssid: "AP-5G"
+      wifi_password: "AP-5G"
+      bt_transfer_throughput_median_benchmark_kbps: 40

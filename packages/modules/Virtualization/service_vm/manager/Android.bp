@@ -1,0 +1,25 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_library {
+    name: "libservice_vm_manager",
+    crate_name: "service_vm_manager",
+    defaults: ["avf_build_flags_rust"],
+    srcs: ["src/lib.rs"],
+    prefer_rlib: true,
+    rustlibs: [
+        "android.system.virtualizationservice-rust",
+        "libanyhow",
+        "libciborium",
+        "liblazy_static",
+        "liblog_rust",
+        "libnix",
+        "libservice_vm_comm",
+        "libvmclient",
+        "libvsock",
+    ],
+    apex_available: [
+        "com.android.virt",
+    ],
+}

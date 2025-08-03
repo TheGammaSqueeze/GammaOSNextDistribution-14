@@ -1,0 +1,21 @@
+// Baseline format: 1.0
+BannedThrow: android.app.usage.NetworkStatsManager#queryDetailsForUidTagState(android.net.NetworkTemplate, long, long, int, int, int):
+    Methods must not mention RuntimeException subclasses in throws clauses (was `java.lang.SecurityException`)
+BannedThrow: android.app.usage.NetworkStatsManager#querySummary(android.net.NetworkTemplate, long, long):
+    Methods must not mention RuntimeException subclasses in throws clauses (was `java.lang.SecurityException`)
+BannedThrow: android.app.usage.NetworkStatsManager#queryTaggedSummary(android.net.NetworkTemplate, long, long):
+    Methods must not mention RuntimeException subclasses in throws clauses (was `java.lang.SecurityException`)
+
+
+MissingPermission: android.net.IpSecManager#startTunnelModeTransformMigration(android.net.IpSecTransform, java.net.InetAddress, java.net.InetAddress):
+    Feature field FEATURE_IPSEC_TUNNEL_MIGRATION required by method android.net.IpSecManager.startTunnelModeTransformMigration(android.net.IpSecTransform, java.net.InetAddress, java.net.InetAddress) is hidden or removed
+
+
+RequiresPermission: android.app.usage.NetworkStatsManager#registerUsageCallback(android.net.NetworkTemplate, long, java.util.concurrent.Executor, android.app.usage.NetworkStatsManager.UsageCallback):
+    Method 'registerUsageCallback' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.EthernetManager#disableInterface(String, java.util.concurrent.Executor, android.os.OutcomeReceiver<java.lang.String,android.net.EthernetNetworkManagementException>):
+    Method 'disableInterface' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.EthernetManager#enableInterface(String, java.util.concurrent.Executor, android.os.OutcomeReceiver<java.lang.String,android.net.EthernetNetworkManagementException>):
+    Method 'enableInterface' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.EthernetManager#updateConfiguration(String, android.net.EthernetNetworkUpdateRequest, java.util.concurrent.Executor, android.os.OutcomeReceiver<java.lang.String,android.net.EthernetNetworkManagementException>):
+    Method 'updateConfiguration' documentation mentions permissions already declared by @RequiresPermission

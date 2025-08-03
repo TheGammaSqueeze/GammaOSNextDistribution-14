@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="pbap_session_key_dialog_title">Iscrie sa crae de sessione pro %1$s</string>
+    <string name="pbap_session_key_dialog_header">Crae de sessione Bluetooth recherta</string>
+    <string name="pbap_acceptance_timeout_message">Est agabbadu su tempus pro atzetare sa connessione cun %1$s</string>
+    <string name="pbap_authentication_timeout_message">Est agabbadu su tempus pro pònnere sa crae de sessione cun %1$s</string>
+    <string name="auth_notif_ticker">Rechesta de autenticatzione Obex</string>
+    <string name="auth_notif_title">Crae de sessione</string>
+    <string name="auth_notif_message">Iscrie sa crae de sessione pro %1$s</string>
+    <string name="defaultname">Pachete de vetura</string>
+    <string name="unknownName">Nùmene disconnotu</string>
+    <string name="localPhoneName">Nùmene miu</string>
+    <string name="defaultnumber">000000</string>
+</resources>

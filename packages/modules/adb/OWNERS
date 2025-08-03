@@ -1,0 +1,6 @@
+# Bug component: 1352
+shaju@google.com
+enh@google.com
+
+per-file docs/user/adb1.md,docs/user/trace.md,daemon/jdwp_service.*,client/*mdns*.*=sanglardf@google.com
+include platform/packages/modules/common:/MODULES_OWNERS  # see go/mainline-owners-policy

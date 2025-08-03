@@ -1,0 +1,8 @@
+{
+    "requireLibs": [
+        "libtest.so"
+    ],
+    "provideLibs": [
+        "libvendorprovide.so"
+    ]
+}

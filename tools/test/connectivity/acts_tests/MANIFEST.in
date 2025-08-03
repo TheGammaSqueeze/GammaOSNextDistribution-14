@@ -1,0 +1,3 @@
+recursive-include acts_contrib *
+global-exclude .DS_Store
+global-exclude *.pyc

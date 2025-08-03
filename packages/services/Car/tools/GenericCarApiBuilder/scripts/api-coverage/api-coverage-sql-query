@@ -1,0 +1,26 @@
+CREATE TEMP TABLE FUNCTION TEST_COVERAGE_VIEW () AS
+  SELECT
+    -- Target,
+    -- BuildNum,
+    CoverageMethods.Method AS MethodName,
+    CoverageMethods.Package AS Package,
+    CoverageMethods.Class AS ClassName,
+
+    -- count % coverage
+    1 - (SUM(IFNULL(
+      CoverageResults.CoverageData.instructions_missed, 0
+    )) / SUM(CoverageResults.CoverageData.instructions_total)) AS Coverage
+    -- 1-(missed/total)
+
+  FROM `/span/global/blackbox-eng-jobs:database`.TestSuiteResults.TestSuiteResultsByBranchTarget
+      JOIN `/span/global/blackbox-eng-jobs:database`.CoverageResults USING (TestSuiteResultsId)
+          HASH JOIN `/span/global/blackbox-eng-jobs:database`.CoverageMethods USING (CoverageResultsId)
+  WHERE HasCoverage
+      AND BuildNum = build_num
+      AND Branch = "git_udc-car-dev"
+      AND Target = "cf_x86_64_auto-userdebug_coverage"
+      AND TestSuite = "coverage/complete_car_coverage"
+  GROUP BY MethodName, Package, ClassName, TestSuite
+;
+
+SELECT MethodName FROM TEST_COVERAGE_VIEW WHERE Coverage = 0 AND Package LIKE "android.car%" ORDER BY MethodName;

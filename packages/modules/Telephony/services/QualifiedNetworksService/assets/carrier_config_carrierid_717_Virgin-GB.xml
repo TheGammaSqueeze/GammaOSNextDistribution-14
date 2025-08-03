@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<carrier_config>
+    <int name="qns.mms_transport_type_int" value="2"/>
+    <int name="qns.mms_rat_preference_int" value="3"/>
+</carrier_config>

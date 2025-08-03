@@ -1,0 +1,42 @@
+# TLs
+dnek@google.com
+igorr@google.com
+
+# Audio
+per-file src/com/google/android/car/kitchensink/AudioAutoStartActivity.java = oscarazu@google.com, ericjeong@google.com
+per-file src/com/google/android/car/kitchensink/audio/* = oscarazu@google.com, ericjeong@google.com
+per-file src/com/google/android/car/kitchensink/volume/* = oscarazu@google.com, ericjeong@google.com
+
+# Bluetooth
+per-file src/com/google/android/car/kitchensink/bluetooth/* = salsavage@google.com, chengandrew@google.com
+
+# Connectivity
+per-file src/com/google/android/car/kitchensink/connectivity/* = salsavage@google.com, twasilczyk@google.com
+
+# Cluster
+per-file src/com/google/android/car/kitchensink/cluster/* = ycheo@google.com
+
+# OccupantZone
+per-file src/com/google/android/car/kitchensink/OccupantZoneStartActivity.java = ycheo@google.com, oscarazu@google.com, ericjeong@google.com
+
+# PackageManager
+per-file src/com/google/android/car/kitchensink/packageinfo/* = ycheo@google.com
+
+# Power
+per-file src/com/google/android/car/kitchensink/power/* = ericjeong@google.com
+
+# Radio
+per-file src/com/google/android/car/kitchensink/radio/* = xuweilin@google.com, oscarazu@google.com, ericjeong@google.com
+
+# Watchdog
+per-file src/com/google/android/car/kitchensink/CarWatchdogClient.java = lakshmana@google.com
+per-file src/com/google/android/car/kitchensink/watchdog/* = lakshmana@google.com
+
+# Property
+per-file src/com/google/android/car/kitchensink/property/* = ericjeong@google.com, tylertrephan@google.com, shanyu@google.com
+
+# Sensor
+per-file src/com/google/android/car/kitchensink/sensor/* = ericjeong@google.com, tylertrephan@google.com, evaschen@google.com
+
+# res folder
+per-file res/** = oscarazu@google.com, salsavage@google.com, chengandrew@google.com, twasilczyk@google.com, xuweilin@google.com, lakshmana@google.com, tylertrephan@google.com, shanyu@google.com, evaschen@google.com

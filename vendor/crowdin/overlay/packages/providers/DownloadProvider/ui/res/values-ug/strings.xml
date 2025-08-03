@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2010 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="download_title_sorted_by_date">چۈشۈرۈش - چېسلا بويىچە تەرتىپلە</string>
+    <string name="download_title_sorted_by_size">چۈشۈرۈش - چوڭلۇقى بويىچە تەرتىپلە</string>
+    <string name="no_downloads">چۈشۈرۈشلەر يوق.</string>
+    <string name="missing_title">&lt;يوچۇن&gt;</string>
+    <string name="button_sort_by_date">چېسلا بويىچە تەرتىپلە</string>
+    <string name="download_success">تامام</string>
+    <string name="dialog_title_not_available">چۈشۈرەلمەيدۇ</string>
+    <string name="dialog_failed_body">چۈشۈرۈۋاتقان ھۆججەتنى قايتا سىنامسىز ياكى ئۇنى قاتاردىن ئۆچۈرۈۋېتەمسىز؟</string>
+    <string name="dialog_title_queued_body">ھۆججەت ئۆچىرەتتە</string>
+    <string name="dialog_queued_body">كەلگۈسىدە چۈشۈرۈش ئۈچۈن بۇ ھۆججەت قاتارغا قوشۇلدى شۇڭا ئىشلەتكىلى بولمايدۇ.</string>
+    <string name="dialog_file_missing_body">چۈشۈرگەن ھۆججەتنى تاپالمىدى.</string>
+    <string name="dialog_insufficient_space_on_external">چۈشۈرۈشنى تاماملىيالمايدۇ. سىرتقى ساقلىغۇچتا يېتەرلىك بوشلۇق يوق.</string>
+    <string name="dialog_insufficient_space_on_cache">چۈشۈرۈشنى تاماملىيالمايدۇ. ئىچىدىكى ساقلىغۇچتا يېتەرلىك بوشلۇق يوق.</string>
+    <string name="dialog_cannot_resume">چۈشۈرۈش ئۈزۈلدى. ئاخىرىنى داۋاملاشتۇرالمايدۇ.</string>
+    <string name="dialog_file_already_exists">چۈشۈرەلمەيدۇ. نىشان ھۆججەت مەۋجۇت.</string>
+    <string name="dialog_media_not_found">چۈشۈرەلمەيدۇ. سىرتقى ۋاستىنى ئىشلەتكىلى بولمايدۇ.</string>
+    <string name="keep_queued_download">ساقلاپ قال</string>
+    <string name="selected_count"><xliff:g id="number" example="3">%1$d</xliff:g>/<xliff:g id="total" example="15">%2$d</xliff:g> تاللاندى</string>
+</resources>

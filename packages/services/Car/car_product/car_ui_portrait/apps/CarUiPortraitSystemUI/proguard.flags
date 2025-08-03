@@ -1,0 +1,4 @@
+-keep class com.android.car.caruiportrait.common.service.CarUiPortraitService
+-keep class com.android.systemui.car.qc.CarUiPortraitProfileSwitcher { *; }
+
+-include ../../../../../../../packages/apps/Car/SystemUI/proguard.flags

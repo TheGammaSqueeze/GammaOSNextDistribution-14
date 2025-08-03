@@ -1,0 +1,18 @@
+{
+    "uuid": "50a0686a-48b7-4089-87b1-20093168ef52",
+    "min_heap": 4096,
+    "min_stack": 4096,
+    "mgmt_flags": {
+            "restart_on_exit": false,
+            "deferred_start": true
+    },
+    "start_ports": [
+        {
+            "name": "START_PORT",
+            "flags": {
+                "allow_ta_connect": true,
+                "allow_ns_connect": false
+            }
+        }
+    ]
+}

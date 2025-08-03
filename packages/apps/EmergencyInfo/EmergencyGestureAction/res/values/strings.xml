@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- Button text for canceling an operation. [CHAR_LIMIT=15] -->
+    <string name="cancel">Cancel</string>
+    <!-- Title for the emergency action view. This is the view which will be launched when the user looks for help from their device. [CHAR LIMIT=25]-->
+    <string name="emergency_action_title">Emergency SOS</string>
+    <!-- Subtitle for the emergency action view. This is the view which will be launched when the user looks for help from their device. [CHAR LIMIT=NONE]-->
+    <string name="emergency_action_subtitle">Preparing a call to <xliff:g id="emergency_number" example="911">%1$s</xliff:g></string>
+    <!-- The abbreviation of time unit "second". [CHAR LIMIT=NONE]-->
+    <string name="count_down_unit">s</string>
+    <!-- Content description for the countdown timer to indicate the remaining time (in seconds) [CHAR_LIMIT=NONE] -->
+    <string name="countdown_text_content_description">
+        {seconds_left, plural,
+        =1    {1 second}
+        other {# seconds}
+        }
+    </string>
+    <!-- Content description for slider button [CHAR_LIMIT=NONE]-->
+    <string name="slider_seek_bar_content_description">Slide with two fingers to activate</string>
+</resources>

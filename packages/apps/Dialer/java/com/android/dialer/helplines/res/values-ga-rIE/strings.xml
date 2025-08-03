@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2019-2021 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="helplines_name">Línte cabhrach</string>
+    <string name="helplines_loading">Ag lódáil\u2026</string>
+    <string name="helplines_empty">Níor aimsíodh aon línte cabhrach.\nCuir isteach cárta SIM agus bain triail eile as</string>
+    <string name="helplines_help">Cabhrú</string>
+    <string name="helplines_help_title">Tá siad seo sábháilte le glaoch</string>
+    <string name="helplines_help_message">Níl aon cheann de na huimhreacha seo le feiceáil i stair do ghlaonna.\nIs féidir leat cliceáil ar aon rud le haghaidh tuilleadh eolais</string>
+    <string name="helplines_help_more_message">Tá liosta na línte cabhrach líonta le faisnéis a nuashonraíonn rannchuiditheoirí de láimh. Má thagann tú ar aon eolas atá in easnamh nó mícheart, ná bíodh drogall ort teagmháil a dhéanamh linn ag <xliff:g id="helplines_contact_url" example="www.lineageos.org">%1$s</xliff:g></string>
+    <string name="helpline_button_more">Tuilleadh</string>
+    <string name="unknown_helpline_name">Eagraíocht anaithnid</string>
+    <string name="helpline_name">Ainm</string>
+    <string name="helpline_org">Eagraíocht</string>
+    <string name="helpline_categories">Catagóirí</string>
+    <string name="helpline_number">Uimhir</string>
+    <string name="helpline_website">Suíomh Gréasáin</string>
+    <string name="helpline_name_format_country"><xliff:g id="helpline_name" example="Líne Chabhrach Tacaíochta Mhothúchánach">%1$s</xliff:g> (<xliff:g id="helpline_county" example="US">%2$s</xliff:g>)</string>
+    <string name="helpline_language_cree">Cree</string>
+    <string name="helpline_language_english">Béarla</string>
+    <string name="helpline_language_french">Fraincis</string>
+    <string name="helpline_language_german">Gearmáinis</string>
+    <string name="helpline_language_inuktitut">Inuktitut</string>
+    <string name="helpline_language_ojibway">Ojibway</string>
+    <string name="helpline_language_turkish">Tuircis</string>
+</resources>

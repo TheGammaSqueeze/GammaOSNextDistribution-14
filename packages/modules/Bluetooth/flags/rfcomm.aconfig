@@ -1,0 +1,9 @@
+package: "com.android.bluetooth.flags"
+container: "com.android.btservices"
+
+flag {
+    name: "rfcomm_always_use_mitm"
+    namespace: "bluetooth"
+    description: "Use MITM initially to avoid abrupt peer disconnection b/312840315"
+    bug: "316824288"
+}

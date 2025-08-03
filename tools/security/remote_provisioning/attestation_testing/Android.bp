@@ -1,0 +1,16 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_app {
+    name: "AttestationTestTool",
+    srcs: [
+        "java/**/*.java",
+    ],
+    manifest: "AndroidManifest.xml",
+    resource_dirs: ["res"],
+    static_libs: ["androidx.appcompat_appcompat",
+                  "bouncycastle-unbundled",
+                  "guava"],
+    platform_apis: true,
+}

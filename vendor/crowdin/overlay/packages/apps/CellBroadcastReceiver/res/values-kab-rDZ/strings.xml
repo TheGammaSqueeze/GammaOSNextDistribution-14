@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2011 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:android="http://schemas.android.com/apk/res/android" xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="button_dismiss">Γas</string>
+    <string name="menu_view_details">Beqqeḍ ifatusen</string>
+    <string name="button_delete">Kkes</string>
+    <string name="button_cancel">Sefsex</string>
+    <string name="emergency_alerts_title">Ilɣuten</string>
+    <string name="enable_alert_vibrate_title">Argigi</string>
+    <string name="cmas_category_security">Taγellist</string>
+    <string name="cmas_category_fire">Times</string>
+    <string name="cmas_category_health">Tadawsa</string>
+    <string name="cmas_category_other">Wayeḍ</string>
+    <string name="cmas_response_shelter">Aglat</string>
+    <string name="cmas_response_execute">Sselkem</string>
+    <string name="cmas_response_monitor">Asefrak</string>
+    <string name="cmas_response_none">Ulac</string>
+    <string name="delivery_time_heading">Yettwarmes:</string>
+    <string name="cmas_opt_out_button_yes">Ih</string>
+    <string name="cmas_opt_out_button_no">Uhu</string>
+    <string name="action_delete">Kkes</string>
+    <string-array name="alert_reminder_interval_entries">
+        <item>Tikkelt</item>
+        <item>Every 2 minutes</item>
+        <item>Every 5 minutes</item>
+        <item>Every 15 minutes</item>
+        <item>Weṛǧin</item>
+    </string-array>
+    <string name="seconds">tasinin</string>
+</resources>

@@ -1,0 +1,2 @@
+# Properties used only in /system
+system_internal_prop(carwatchdog_config_prop)

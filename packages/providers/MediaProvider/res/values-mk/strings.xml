@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2009 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="uid_label" msgid="8421971615411294156">"Аудиовизуелни содржини"</string>
+    <string name="storage_description" msgid="4081716890357580107">"Локална меморија"</string>
+    <string name="picker_app_label" msgid="1195424381053599122">"Избирач на аудиовизуелни содржини"</string>
+    <string name="artist_label" msgid="8105600993099120273">"Изведувач"</string>
+    <string name="unknown" msgid="2059049215682829375">"Непознат"</string>
+    <string name="root_images" msgid="5861633549189045666">"Слики"</string>
+    <string name="root_videos" msgid="8792703517064649453">"Видеа"</string>
+    <string name="root_audio" msgid="3505830755201326018">"Аудио"</string>
+    <string name="root_documents" msgid="3829103301363849237">"Документи"</string>
+    <string name="permission_required" msgid="1460820436132943754">"Потребна е дозвола за менување или бришење на ставкава."</string>
+    <string name="permission_required_action" msgid="706370952366113539">"Продолжи"</string>
+    <string name="grant_dialog_button_allow" msgid="1644287024501033471">"Дозволи"</string>
+    <string name="grant_dialog_button_deny" msgid="6190589471415815741">"Одбиј"</string>
+    <string name="permission_more_thumb" msgid="1938863829470531577">"{count,plural, =1{+ <xliff:g id="COUNT_0">^1</xliff:g>}one{+ <xliff:g id="COUNT_1">^1</xliff:g>}other{+ <xliff:g id="COUNT_1">^1</xliff:g>}}"</string>
+    <string name="permission_more_text" msgid="2471785045095597753">"{count,plural, =1{Плус <xliff:g id="COUNT_0">^1</xliff:g> дополнителна ставка}one{Плус <xliff:g id="COUNT_1">^1</xliff:g> дополнителна ставка}other{Плус <xliff:g id="COUNT_1">^1</xliff:g> дополнителни ставки}}"</string>
+    <string name="cache_clearing_dialog_title" msgid="8907893815183913664">"Избриши ги привремените датотеки на апликацијата"</string>
+    <string name="cache_clearing_dialog_text" msgid="7057784635111940957">"<xliff:g id="APP_SEEKING_PERMISSION">%s</xliff:g> сака да избрише некои привремени датотеки. Поради тоа може да дојде до зголемено користење на батеријата или мобилниот интернет."</string>
+    <string name="cache_clearing_in_progress_title" msgid="6902220064511664209">"Се бришат привремените датотеки на апликацијата…"</string>
+    <string name="clear" msgid="5524638938415865915">"Избриши"</string>
+    <string name="allow" msgid="8885707816848569619">"Дозволи"</string>
+    <string name="deny" msgid="6040983710442068936">"Одбиј"</string>
+    <string name="picker_browse" msgid="5554477454636075934">"Прелистувајте…"</string>
+    <string name="picker_settings" msgid="6443463167344790260">"Апликација за содржини во облак"</string>
+    <string name="picker_settings_system_settings_menu_title" msgid="3055084757610063581">"Апликација за содржини во облак"</string>
+    <string name="picker_settings_title" msgid="5647700706470673258">"Апликација за аудиовизуелни содржини во облак"</string>
+    <string name="picker_settings_description" msgid="2916686824777214585">"Пристапувајте до вашите аудиовизуелни содржини во облак кога некоја апликација или веб-сајт ќе побара да изберете фотографии или видеа"</string>
+    <string name="picker_settings_selection_message" msgid="245453573086488596">"Пристапувајте до аудиовизуелните содржини во облак од"</string>
+    <string name="picker_settings_no_provider" msgid="2582311853680058223">"Нема"</string>
+    <string name="picker_settings_toast_error" msgid="697274445512467469">"Не може да се промени апликацијата за аудиовизуелни содржини во облак во моментов."</string>
+    <string name="picker_sync_notification_channel" msgid="1867105708912627993">"Избирач на аудиовизуелни содржини"</string>
+    <string name="picker_sync_notification_title" msgid="1122713382122055246">"Избирач на аудиовизуелни содржини"</string>
+    <string name="picker_sync_notification_text" msgid="8204423917712309382">"Се синхронизираат аудиовизуелните содржини…"</string>
+    <string name="add" msgid="2894574044585549298">"Додај"</string>
+    <string name="deselect" msgid="4297825044827769490">"Поништи го изборот"</string>
+    <string name="deselected" msgid="8488133193326208475">"Изборот е поништен"</string>
+    <string name="select" msgid="2704765470563027689">"Избери"</string>
+    <string name="selected" msgid="9151797369975828124">"Избрано"</string>
+    <string name="select_up_to" msgid="6994294169508439957">"{count,plural, =1{Изберете до <xliff:g id="COUNT_0">^1</xliff:g> ставка}one{Изберете до <xliff:g id="COUNT_1">^1</xliff:g> ставка}other{Изберете до <xliff:g id="COUNT_1">^1</xliff:g> ставки}}"</string>
+    <string name="recent" msgid="6694613584743207874">"Неодамнешни"</string>
+    <string name="picker_photos_empty_message" msgid="5980619500554575558">"Нема фотографии или видеа"</string>
+    <string name="picker_album_media_empty_message" msgid="7061850698189881671">"Нема поддржани фотографии или видеа"</string>
+    <string name="picker_albums_empty_message" msgid="8341079772950966815">"Нема албуми"</string>
+    <string name="picker_view_selected" msgid="2266031384396143883">"Прикажи ги избраните"</string>
+    <string name="picker_photos" msgid="7415035516411087392">"Фотографии"</string>
+    <!-- no translation found for picker_videos (2886971435439047097) -->
+    <skip />
+    <string name="picker_albums" msgid="4822511902115299142">"Албуми"</string>
+    <string name="picker_preview" msgid="6257414886055861039">"Преглед"</string>
+    <string name="picker_work_profile" msgid="2083221066869141576">"Префрлете се на работен профил"</string>
+    <string name="picker_personal_profile" msgid="639484258397758406">"Префрлете се на личен профил"</string>
+    <string name="picker_personal_profile_label" msgid="6189198163209597344">"Личен"</string>
+    <string name="picker_profile_admin_title" msgid="4172022376418293777">"Блокирано од администраторот"</string>
+    <string name="picker_profile_admin_msg_from_personal" msgid="1941639895084555723">"Не е дозволено пристапување до работни податоци од лична апликација"</string>
+    <string name="picker_profile_admin_msg_from_work" msgid="8048524337462790110">"Не е дозволено пристапување до лични податоци од работна апликација"</string>
+    <string name="picker_profile_admin_msg" msgid="4060112887923255178">"Пристапот до податоците од <xliff:g id="PROFILE1">%1$s</xliff:g> од апликација на <xliff:g id="PROFILE2">%2$s</xliff:g> не е дозволен"</string>
+    <string name="picker_profile_switch_message" msgid="1133817927412489487">"Префрлете на <xliff:g id="PROFILE">%s</xliff:g>"</string>
+    <string name="picker_profile_work_paused_title" msgid="382212880704235925">"Работните апликации се паузирани"</string>
+    <string name="picker_profile_paused_title" msgid="2079739512895529028">"Апликациите на <xliff:g id="PROFILE">%s</xliff:g> се паузирани"</string>
+    <string name="picker_profile_work_paused_msg" msgid="6321552322125246726">"За да ги отворите работните фотографии, вклучете ги работните апликации, па обидете се повторно"</string>
+    <string name="picker_profile_paused_msg" msgid="1215076898583993782">"За да ги отворите фотографиите од <xliff:g id="PROFILE1">%1$s</xliff:g>, вклучете ги апликациите на <xliff:g id="PROFILE2">%2$s</xliff:g>, па обидете се повторно"</string>
+    <string name="picker_privacy_message" msgid="9132700451027116817">"Апликацијава може да пристапи само до фотографиите што ќе ги изберете"</string>
+    <string name="picker_header_permissions" msgid="675872774407768495">"Изберете ги фотографиите и видеата до кои ѝ дозволувате пристап на апликацијава"</string>
+    <string name="picker_album_item_count" msgid="4420723302534177596">"{count,plural, =1{<xliff:g id="COUNT_0">^1</xliff:g> ставка}one{<xliff:g id="COUNT_1">^1</xliff:g> ставка}other{<xliff:g id="COUNT_1">^1</xliff:g> ставки}}"</string>
+    <string name="picker_add_button_multi_select" msgid="4005164092275518399">"Додај (<xliff:g id="COUNT">^1</xliff:g>)"</string>
+    <string name="picker_add_button_multi_select_permissions" msgid="5138751105800138838">"Дозволи (<xliff:g id="COUNT">^1</xliff:g>)"</string>
+    <string name="picker_add_button_allow_none_option" msgid="9183772732922241035">"Ниедна"</string>
+    <string name="picker_category_camera" msgid="4857367052026843664">"Камера"</string>
+    <string name="picker_category_downloads" msgid="793866660287361900">"Преземања"</string>
+    <string name="picker_category_favorites" msgid="7008495397818966088">"Омилени"</string>
+    <string name="picker_category_screenshots" msgid="7216102327587644284">"Слики од екранот"</string>
+    <!-- no translation found for picker_category_videos (1478458836380241356) -->
+    <skip />
+    <string name="picker_motion_photo_text" msgid="5016603812468180816">"Подвижна фотографија"</string>
+    <string name="picker_item_content_desc" msgid="7680591530155286423">"<xliff:g id="ITEM_NAME">%1$s</xliff:g> снимена на <xliff:g id="TIME">%2$s</xliff:g>"</string>
+    <string name="picker_video_item_content_desc" msgid="7828900089119214801">"Видеото е снимено на <xliff:g id="TIME">%1$s</xliff:g> со траење од <xliff:g id="DURATION">%2$s</xliff:g>"</string>
+    <string name="picker_photo" msgid="1739342083494962153">"Фотографија"</string>
+    <string name="picker_gif" msgid="8333318083107368726">"GIF"</string>
+    <string name="picker_motion_photo" msgid="4385182195289546308">"Подвижна фотографија"</string>
+    <string name="picker_mute_video" msgid="2496585809229800096">"Исклучете звук на видео"</string>
+    <string name="picker_unmute_video" msgid="6611741290641963568">"Вклучете звук на видео"</string>
+    <string name="picker_play_video" msgid="7106025944628666250">"Пушти"</string>
+    <string name="picker_pause_video" msgid="1092718225234326702">"Пауза"</string>
+    <string name="picker_error_snackbar" msgid="5970192792792369203">"Не може да пушти видеото"</string>
+    <string name="picker_error_dialog_title" msgid="4540095603788920965">"Проблем со пуштањето видео"</string>
+    <string name="picker_error_dialog_body" msgid="2515738446802971453">"Проверете ја интернет-врската и обидете се повторно"</string>
+    <string name="picker_error_dialog_positive_action" msgid="749544129082109232">"Повторно"</string>
+    <string name="not_selected" msgid="2244008151669896758">"не е избрано"</string>
+    <string name="preloading_dialog_title" msgid="4974348221848532887">"Вашите избрани аудиовизуелни содржини се подготвуваат"</string>
+    <string name="preloading_progress_message" msgid="4741327138031980582">"Подготвени: <xliff:g id="NUMBER_PRELOADED">%1$d</xliff:g> од <xliff:g id="NUMBER_TOTAL">%2$d</xliff:g>"</string>
+    <string name="preloading_cancel_button" msgid="824053521307342209">"Откажи"</string>
+    <string name="picker_banner_cloud_first_time_available_title" msgid="5912973744275711595">"Сега се опфатени фотографии од бекап"</string>
+    <string name="picker_banner_cloud_first_time_available_desc" msgid="5570916598348187607">"Можете да изберете фотографии од сметката <xliff:g id="USER_ACCOUNT">%2$s</xliff:g> на <xliff:g id="APP_NAME">%1$s</xliff:g>"</string>
+    <string name="picker_banner_cloud_account_changed_title" msgid="4825058474378077327">"Сметката на <xliff:g id="APP_NAME">%1$s</xliff:g> е ажурирана"</string>
+    <string name="picker_banner_cloud_account_changed_desc" msgid="3433218869899792497">"Фотографиите од <xliff:g id="USER_ACCOUNT">%1$s</xliff:g> сега се вклучени овде"</string>
+    <string name="picker_banner_cloud_choose_app_title" msgid="3165966147547974251">"Изберете апликација за аудиовизуелни содржини во облак"</string>
+    <string name="picker_banner_cloud_choose_app_desc" msgid="2359212653555524926">"За да го вклучите бекапот од фотографиите овде, изберете апликација за аудиовизуелни содржини во облак во „Поставките“"</string>
+    <string name="picker_banner_cloud_choose_account_title" msgid="5010901185639577685">"Изберете сметка на <xliff:g id="APP_NAME">%1$s</xliff:g>"</string>
+    <string name="picker_banner_cloud_choose_account_desc" msgid="8868134443673142712">"За да вклучите фотографии од <xliff:g id="APP_NAME">%1$s</xliff:g> овде, изберете сметка во апликацијата"</string>
+    <string name="picker_banner_cloud_dismiss_button" msgid="2935903078288463882">"Отфрли"</string>
+    <string name="picker_banner_cloud_choose_app_button" msgid="934085679890435479">"Изберете апликација"</string>
+    <string name="picker_banner_cloud_choose_account_button" msgid="7979484877116991631">"Изберете сметка"</string>
+    <string name="picker_banner_cloud_change_account_button" msgid="8361239765828471146">"Променете ја сметката"</string>
+    <string name="picker_loading_photos_message" msgid="6449180084857178949">"Се вчитуваат сите ваши фотографии"</string>
+    <string name="permission_write_audio" msgid="8819694245323580601">"{count,plural, =1{Да се дозволи <xliff:g id="APP_NAME_0">^1</xliff:g> да ја измени аудиодатотекава?}one{Да се дозволи <xliff:g id="APP_NAME_1">^1</xliff:g> да измени <xliff:g id="COUNT">^2</xliff:g> аудиодатотека?}other{Да се дозволи <xliff:g id="APP_NAME_1">^1</xliff:g> да измени <xliff:g id="COUNT">^2</xliff:g> аудиодатотеки?}}"</string>
+    <string name="permission_progress_write_audio" msgid="6029375427984180097">"{count,plural, =1{Се изменува аудиодатотеката…}one{Се изменуваат <xliff:g id="COUNT">^1</xliff:g> аудиодатотека…}other{Се изменуваат <xliff:g id="COUNT">^1</xliff:g> аудиодатотеки…}}"</string>
+    <string name="permission_write_video" msgid="103902551603700525">"{count,plural, =1{Да се дозволи <xliff:g id="APP_NAME_0">^1</xliff:g> да го измени видеово?}one{Да се дозволи <xliff:g id="APP_NAME_1">^1</xliff:g> да измени <xliff:g id="COUNT">^2</xliff:g> видео?}other{Да се дозволи <xliff:g id="APP_NAME_1">^1</xliff:g> да измени <xliff:g id="COUNT">^2</xliff:g> видеа?}}"</string>
+    <string name="permission_progress_write_video" msgid="7014908418349819148">"{count,plural, =1{Се изменува видеото…}one{Се изменуваат <xliff:g id="COUNT">^1</xliff:g> видео…}other{Се изменуваат <xliff:g id="COUNT">^1</xliff:g> видеа…}}"</string>
+    <string name="permission_write_image" msgid="3518991791620523786">"{count,plural, =1{Да се дозволи <xliff:g id="APP_NAME_0">^1</xliff:g> да ја измени фотографијава?}one{Да се дозволи <xliff:g id="APP_NAME_1">^1</xliff:g> да измени <xliff:g id="COUNT">^2</xliff:g> фотографија?}other{Да се дозволи <xliff:g id="APP_NAME_1">^1</xliff:g> да измени <xliff:g id="COUNT">^2</xliff:g> фотографии?}}"</string>
+    <string name="permission_progress_write_image" msgid="3623580315590025262">"{count,plural, =1{Се изменува фотографијата…}one{Се изменуваат <xliff:g id="COUNT">^1</xliff:g> фотографија…}other{Се изменуваат <xliff:g id="COUNT">^1</xliff:g> фотографии…}}"</string>
+    <string name="permission_write_generic" msgid="7431128739233656991">"{count,plural, =1{Да се дозволи <xliff:g id="APP_NAME_0">^1</xliff:g> да ја измени ставкава?}one{Да се дозволи <xliff:g id="APP_NAME_1">^1</xliff:g> да измени <xliff:g id="COUNT">^2</xliff:g> ставка?}other{Да се дозволи <xliff:g id="APP_NAME_1">^1</xliff:g> да измени <xliff:g id="COUNT">^2</xliff:g> ставки?}}"</string>
+    <string name="permission_progress_write_generic" msgid="2806560971318391443">"{count,plural, =1{Се изменува ставката…}one{Се изменуваат <xliff:g id="COUNT">^1</xliff:g> ставка…}other{Се изменуваат <xliff:g id="COUNT">^1</xliff:g> ставки…}}"</string>
+    <string name="permission_trash_audio" msgid="6554672354767742206">"{count,plural, =1{Да се дозволи <xliff:g id="APP_NAME_0">^1</xliff:g> да ја премести аудиодатотекава во корпата?}one{Да се дозволи <xliff:g id="APP_NAME_1">^1</xliff:g> да премести <xliff:g id="COUNT">^2</xliff:g> аудиодатотека во корпата?}other{Да се дозволи <xliff:g id="APP_NAME_1">^1</xliff:g> да премести <xliff:g id="COUNT">^2</xliff:g> аудиодатотеки во корпата?}}"</string>
+    <string name="permission_progress_trash_audio" msgid="3116279868733641329">"{count,plural, =1{Се преместува аудиодатотеката во корпата…}one{Се преместуваат <xliff:g id="COUNT">^1</xliff:g> аудиодатотека во корпата…}other{Се преместуваат <xliff:g id="COUNT">^1</xliff:g> аудиодатотеки во корпата…}}"</string>
+    <string name="permission_trash_video" msgid="7555850843259959642">"{count,plural, =1{Да се дозволи <xliff:g id="APP_NAME_0">^1</xliff:g> да го премести видеово во корпата?}one{Да се дозволи <xliff:g id="APP_NAME_1">^1</xliff:g> да премести <xliff:g id="COUNT">^2</xliff:g> видео во корпата?}other{Да се дозволи <xliff:g id="APP_NAME_1">^1</xliff:g> да премести <xliff:g id="COUNT">^2</xliff:g> видеа во корпата?}}"</string>
+    <string name="permission_progress_trash_video" msgid="4637821778329459681">"{count,plural, =1{Се преместува видеото во корпата…}one{Се преместуваат <xliff:g id="COUNT">^1</xliff:g> видео во корпата…}other{Се преместуваат <xliff:g id="COUNT">^1</xliff:g> видеа во корпата…}}"</string>
+    <string name="permission_trash_image" msgid="3333128084684156675">"{count,plural, =1{Да се дозволи <xliff:g id="APP_NAME_0">^1</xliff:g> да ја премести фотографијава во корпата?}one{Да се дозволи <xliff:g id="APP_NAME_1">^1</xliff:g> да премести <xliff:g id="COUNT">^2</xliff:g> фотографија во корпата?}other{Да се дозволи <xliff:g id="APP_NAME_1">^1</xliff:g> да премести <xliff:g id="COUNT">^2</xliff:g> фотографии во корпата?}}"</string>
+    <string name="permission_progress_trash_image" msgid="3063857679090024764">"{count,plural, =1{Се преместува фотографијата во корпата…}one{Се преместуваат <xliff:g id="COUNT">^1</xliff:g> фотографија во корпата…}other{Се преместуваат <xliff:g id="COUNT">^1</xliff:g> фотографии во корпата…}}"</string>
+    <string name="permission_trash_generic" msgid="5545420534785075362">"{count,plural, =1{Да се дозволи <xliff:g id="APP_NAME_0">^1</xliff:g> да ја премести ставкава во корпата?}one{Да се дозволи <xliff:g id="APP_NAME_1">^1</xliff:g> да премести <xliff:g id="COUNT">^2</xliff:g> ставка во корпата?}other{Да се дозволи <xliff:g id="APP_NAME_1">^1</xliff:g> да премести <xliff:g id="COUNT">^2</xliff:g> ставки во корпата?}}"</string>
+    <string name="permission_progress_trash_generic" msgid="7815124979717814057">"{count,plural, =1{Се преместува ставката во корпата…}one{Се преместуваат <xliff:g id="COUNT">^1</xliff:g> ставка во корпата…}other{Се преместуваат <xliff:g id="COUNT">^1</xliff:g> ставки во корпата…}}"</string>
+    <string name="permission_untrash_audio" msgid="8404597563284002472">"{count,plural, =1{Да се дозволи <xliff:g id="APP_NAME_0">^1</xliff:g> да ја извади аудиодатотекава од корпата?}one{Да се дозволи <xliff:g id="APP_NAME_1">^1</xliff:g> да извади <xliff:g id="COUNT">^2</xliff:g> аудиодатотека од корпата?}other{Да се дозволи <xliff:g id="APP_NAME_1">^1</xliff:g> да извади <xliff:g id="COUNT">^2</xliff:g> аудиодатотеки од корпата?}}"</string>
+    <string name="permission_progress_untrash_audio" msgid="2775372344946464508">"{count,plural, =1{Се вади аудиодатотеката од корпата…}one{Се вадат <xliff:g id="COUNT">^1</xliff:g> аудиодатотека од корпата…}other{Се вадат <xliff:g id="COUNT">^1</xliff:g> аудиодатотеки од корпата…}}"</string>
+    <string name="permission_untrash_video" msgid="3178914827607608162">"{count,plural, =1{Да се дозволи <xliff:g id="APP_NAME_0">^1</xliff:g> да го извади видеово од корпата?}one{Да се дозволи <xliff:g id="APP_NAME_1">^1</xliff:g> да извади <xliff:g id="COUNT">^2</xliff:g> видео од корпата?}other{Да се дозволи <xliff:g id="APP_NAME_1">^1</xliff:g> да извади <xliff:g id="COUNT">^2</xliff:g> видеа од корпата?}}"</string>
+    <string name="permission_progress_untrash_video" msgid="5500929409733841567">"{count,plural, =1{Се вади видеото од корпата…}one{Се вадат <xliff:g id="COUNT">^1</xliff:g> видео од корпата…}other{Се вадат <xliff:g id="COUNT">^1</xliff:g> видеа од корпата…}}"</string>
+    <string name="permission_untrash_image" msgid="3397523279351032265">"{count,plural, =1{Да се дозволи <xliff:g id="APP_NAME_0">^1</xliff:g> да ја извади фотографијава од корпата?}one{Да се дозволи <xliff:g id="APP_NAME_1">^1</xliff:g> да извади <xliff:g id="COUNT">^2</xliff:g> фотографија од корпата?}other{Да се дозволи <xliff:g id="APP_NAME_1">^1</xliff:g> да извади <xliff:g id="COUNT">^2</xliff:g> фотографии од корпата?}}"</string>
+    <string name="permission_progress_untrash_image" msgid="5295061520504846264">"{count,plural, =1{Се вади фотографијата од корпата…}one{Се вадат <xliff:g id="COUNT">^1</xliff:g> фотографија од корпата…}other{Се вадат <xliff:g id="COUNT">^1</xliff:g> фотографии од корпата…}}"</string>
+    <string name="permission_untrash_generic" msgid="2118366929431671046">"{count,plural, =1{Да се дозволи <xliff:g id="APP_NAME_0">^1</xliff:g> да ја извади ставкава од корпата?}one{Да се дозволи <xliff:g id="APP_NAME_1">^1</xliff:g> да извади <xliff:g id="COUNT">^2</xliff:g> ставка од корпата?}other{Да се дозволи <xliff:g id="APP_NAME_1">^1</xliff:g> да извади <xliff:g id="COUNT">^2</xliff:g> ставки од корпата?}}"</string>
+    <string name="permission_progress_untrash_generic" msgid="1489511601966842579">"{count,plural, =1{Се вади ставката од корпата…}one{Се вадат <xliff:g id="COUNT">^1</xliff:g> ставка од корпата…}other{Се вадат <xliff:g id="COUNT">^1</xliff:g> ставки од корпата…}}"</string>
+    <string name="permission_delete_audio" msgid="3326674742892796627">"{count,plural, =1{Да се дозволи <xliff:g id="APP_NAME_0">^1</xliff:g> да ја избрише аудиодатотекава?}one{Да се дозволи <xliff:g id="APP_NAME_1">^1</xliff:g> да избрише <xliff:g id="COUNT">^2</xliff:g> аудиодатотека?}other{Да се дозволи <xliff:g id="APP_NAME_1">^1</xliff:g> да избрише <xliff:g id="COUNT">^2</xliff:g> аудиодатотеки?}}"</string>
+    <string name="permission_progress_delete_audio" msgid="1734871539021696401">"{count,plural, =1{Се брише аудиодатотеката…}one{Се бришат <xliff:g id="COUNT">^1</xliff:g> аудиодатотека…}other{Се бришат <xliff:g id="COUNT">^1</xliff:g> аудиодатотеки…}}"</string>
+    <string name="permission_delete_video" msgid="604024971828349279">"{count,plural, =1{Да се дозволи <xliff:g id="APP_NAME_0">^1</xliff:g> да го избрише видеово?}one{Да се дозволи <xliff:g id="APP_NAME_1">^1</xliff:g> да избрише <xliff:g id="COUNT">^2</xliff:g> видео?}other{Да се дозволи <xliff:g id="APP_NAME_1">^1</xliff:g> да избрише <xliff:g id="COUNT">^2</xliff:g> видеа?}}"</string>
+    <string name="permission_progress_delete_video" msgid="1846702435073793157">"{count,plural, =1{Се брише видеото…}one{Се бришат <xliff:g id="COUNT">^1</xliff:g> видео…}other{Се бришат <xliff:g id="COUNT">^1</xliff:g> видеа…}}"</string>
+    <string name="permission_delete_image" msgid="3109056012794330510">"{count,plural, =1{Да се дозволи <xliff:g id="APP_NAME_0">^1</xliff:g> да ја избрише фотографијава?}one{Да се дозволи <xliff:g id="APP_NAME_1">^1</xliff:g> да избрише <xliff:g id="COUNT">^2</xliff:g> фотографија?}other{Да се дозволи <xliff:g id="APP_NAME_1">^1</xliff:g> да избрише <xliff:g id="COUNT">^2</xliff:g> фотографии?}}"</string>
+    <string name="permission_progress_delete_image" msgid="8580517204901148906">"{count,plural, =1{Се брише фотографијата…}one{Се бришат <xliff:g id="COUNT">^1</xliff:g> фотографија…}other{Се бришат <xliff:g id="COUNT">^1</xliff:g> фотографии…}}"</string>
+    <string name="permission_delete_generic" msgid="7891939881065520271">"{count,plural, =1{Да се дозволи <xliff:g id="APP_NAME_0">^1</xliff:g> да ја избрише ставкава?}one{Да се дозволи <xliff:g id="APP_NAME_1">^1</xliff:g> да избрише <xliff:g id="COUNT">^2</xliff:g> ставка?}other{Да се дозволи <xliff:g id="APP_NAME_1">^1</xliff:g> да избрише <xliff:g id="COUNT">^2</xliff:g> ставки?}}"</string>
+    <string name="permission_progress_delete_generic" msgid="6709118146245087898">"{count,plural, =1{Се брише ставката…}one{Се бришат <xliff:g id="COUNT">^1</xliff:g> ставка…}other{Се бришат <xliff:g id="COUNT">^1</xliff:g> ставки…}}"</string>
+    <string name="transcode_denied" msgid="6760546817138288976">"<xliff:g id="APP_NAME">%s</xliff:g> не може да обработува датотеки со аудиовизуелни содржини"</string>
+    <string name="transcode_processing_cancelled" msgid="5340383917746945590">"Транскодирањето е откажано"</string>
+    <string name="transcode_processing_error" msgid="8921643164508407874">"Грешка при транскодирање"</string>
+    <string name="transcode_processing_success" msgid="447288876429730122">"Транскодирањето е успешно"</string>
+    <string name="transcode_processing_started" msgid="7789086308155361523">"Транскодирањето започна"</string>
+    <string name="transcode_processing" msgid="6753136468864077258">"Се транскодира…"</string>
+    <string name="transcode_cancel" msgid="8555752601907598192">"Откажи"</string>
+    <string name="transcode_wait" msgid="8909773149560697501">"Почекајте"</string>
+    <string name="safety_protection_icon_label" msgid="6714354052747723623">"Безбедносна заштита"</string>
+    <string name="transcode_alert_channel" msgid="997332371757680478">"Предупредувања за матичното транскодирање"</string>
+    <string name="transcode_progress_channel" msgid="6905136787933058387">"Напредок на матичното транскодирање"</string>
+    <string name="dialog_error_message" msgid="5120432204743681606">"Обидете се повторно подоцна. Вашите фотографии ќе бидат достапни откако ќе се реши проблемот."</string>
+    <string name="dialog_error_title" msgid="636349284077820636">"Некои фотографии не може да се вчитаат"</string>
+    <string name="dialog_button_text" msgid="351366485240852280">"Сфатив"</string>
+    <string name="permlab_accessMediaOwnerPackageName" msgid="3849443148060165651">"Пристап до името на пакетот на сопственикот на аудиовизуелните содржини"</string>
+    <string name="permdesc_accessMediaOwnerPackageName" msgid="7381563109363105371">"Дозволува апликацијата да пристапува до имињата на пакетите на сопствениците на сите пристапни датотеки со аудиовизуелни содржини."</string>
+</resources>

@@ -1,0 +1,547 @@
+# Rules for all domains.
+
+# Allow reaping by init.
+allow domain init:process sigchld;
+
+# Intra-domain accesses.
+allow domain self:process {
+    fork
+    sigchld
+    sigkill
+    sigstop
+    signull
+    signal
+    getsched
+    setsched
+    getsession
+    getpgid
+    setpgid
+    getcap
+    setcap
+    getattr
+    setrlimit
+};
+allow domain self:fd use;
+allow domain proc:dir r_dir_perms;
+allow domain proc_net_type:dir search;
+r_dir_file(domain, self)
+allow domain self:{ fifo_file file } rw_file_perms;
+allow domain self:unix_dgram_socket { create_socket_perms sendto };
+allow domain self:unix_stream_socket { create_stream_socket_perms connectto };
+
+# Inherit or receive open files from others.
+allow domain init:fd use;
+
+# Root fs.
+allow domain tmpfs:dir { getattr search };
+allow domain rootfs:dir search;
+allow domain rootfs:lnk_file { read getattr };
+
+# Device accesses.
+allow domain device:dir search;
+allow domain dev_type:lnk_file r_file_perms;
+allow domain devpts:dir search;
+allow domain socket_device:dir r_dir_perms;
+allow domain owntty_device:chr_file rw_file_perms;
+allow domain null_device:chr_file rw_file_perms;
+allow domain zero_device:chr_file rw_file_perms;
+
+allow domain ptmx_device:chr_file rw_file_perms;
+allow domain random_device:chr_file rw_file_perms;
+allow domain proc_random:dir r_dir_perms;
+allow domain proc_random:file r_file_perms;
+allow domain properties_device:dir { search getattr };
+allow domain properties_serial:file r_file_perms;
+allow domain property_info:file r_file_perms;
+
+allow domain property_contexts_file:file r_file_perms;
+
+dontaudit domain property_type:file audit_access;
+
+allow domain init:key search;
+
+# Everyone can send log and read ro.log.file_logger.* properties
+allow domain log_device:chr_file ra_file_perms;
+get_prop(domain, log_prop)
+
+# Directory/link file access for path resolution.
+allow domain {
+    system_file
+    system_lib_file
+    system_seccomp_policy_file
+    system_security_cacerts_file
+}:dir r_dir_perms;
+allow domain system_file:lnk_file { getattr read };
+
+# Global access to /system/etc/security/cacerts/*, /system/etc/seccomp_policy/*, /system/lib[64]/*,
+# /(system|product|system_ext)/etc/(group|passwd), linker and its config.
+allow domain system_seccomp_policy_file:file r_file_perms;
+# cacerts are accessible from public Java API.
+allow domain system_security_cacerts_file:file r_file_perms;
+allow domain system_group_file:file r_file_perms;
+allow domain system_passwd_file:file r_file_perms;
+allow domain system_linker_exec:file { execute read open getattr map };
+allow domain system_linker_config_file:file r_file_perms;
+allow domain system_lib_file:file { execute read open getattr map };
+# To allow following symlinks at /system/bin/linker, /system/lib/libc.so, etc.
+allow domain system_linker_exec:lnk_file { read open getattr };
+allow domain system_lib_file:lnk_file { read open getattr };
+
+allow domain system_event_log_tags_file:file r_file_perms;
+
+allow coredomain system_file:file { execute read open getattr map };
+
+# All domains get access to /vendor/etc
+allow domain vendor_configs_file:dir r_dir_perms;
+allow domain vendor_configs_file:file { read open getattr map };
+
+# Allow all domains to be able to follow /system/vendor and/or
+# /vendor/odm symlinks.
+allow domain vendor_file_type:lnk_file { getattr open read };
+
+# This is required to be able to search & read /vendor/lib64
+# in order to lookup vendor libraries. The execute permission
+# for coredomains is granted *only* for same process HALs
+allow domain vendor_file:dir { getattr search };
+
+# Allow reading and executing out of /vendor to all vendor domains
+allow { domain -coredomain } vendor_file_type:dir r_dir_perms;
+allow { domain -coredomain } vendor_file_type:file { read open getattr execute map };
+allow { domain -coredomain } vendor_file_type:lnk_file { getattr read };
+
+# read and stat any sysfs symlinks
+allow domain sysfs:lnk_file { getattr read };
+
+# Lots of processes access current CPU information
+r_dir_file(domain, sysfs_devices_system_cpu)
+
+# If kernel CONFIG_TRANSPARENT_HUGEPAGE is enabled, libjemalloc5 (statically
+# included by libc) reads /sys/kernel/mm/transparent_hugepage/enabled.
+allow domain sysfs_transparent_hugepage:dir search;
+allow domain sysfs_transparent_hugepage:file r_file_perms;
+
+allow coredomain system_data_file:dir getattr;
+# /data has the label system_data_root_file. Vendor components need the search
+# permission on system_data_root_file for path traversal to /data/vendor.
+allow domain system_data_root_file:dir { search getattr } ;
+allow domain system_data_file:dir search;
+# TODO restrict this to non-coredomain
+allow domain vendor_data_file:dir { getattr search };
+
+# required by the dynamic linker
+allow domain proc:lnk_file { getattr read };
+
+# /proc/cpuinfo
+allow domain proc_cpuinfo:file r_file_perms;
+
+# profiling needs to read /proc/sys/kernel/perf_event_max_sample_rate
+allow domain proc_perf:file r_file_perms;
+
+# toybox loads libselinux which stats /sys/fs/selinux/
+allow domain selinuxfs:dir search;
+allow domain selinuxfs:file getattr;
+allow domain sysfs:dir search;
+allow domain selinuxfs:filesystem getattr;
+
+# Almost all processes log tracing information to
+# /sys/kernel/debug/tracing/trace_marker
+# The reason behind this is documented in b/6513400
+allow domain debugfs:dir search;
+allow domain debugfs_tracing:dir search;
+allow domain debugfs_tracing_debug:dir search;
+allow domain debugfs_trace_marker:file w_file_perms;
+
+# Linux lockdown mode offers coarse-grained definitions for access controls.
+# The "confidentiality" level detects access to tracefs or the perf subsystem.
+# This overlaps with more precise declarations in Android's policy. The
+# debugfs_trace_marker above is an example in which all processes should have
+# some access to tracefs. Therefore, allow all domains to access this level.
+# The "integrity" level is however enforced.
+allow domain self:lockdown confidentiality;
+
+# Filesystem access.
+allow domain fs_type:filesystem getattr;
+allow domain fs_type:dir getattr;
+
+# Restrict all domains to an allowlist for common socket types. Additional
+# ioctl commands may be added to individual domains, but this sets safe
+# defaults for all processes. Note that granting this allowlist to domain does
+# not grant the ioctl permission on these socket types. That must be granted
+# separately.
+allowxperm domain domain:{ icmp_socket rawip_socket tcp_socket udp_socket }
+  ioctl { unpriv_sock_ioctls unpriv_tty_ioctls };
+# default allowlist for unix sockets.
+allowxperm domain domain:{ unix_dgram_socket unix_stream_socket }
+  ioctl unpriv_unix_sock_ioctls;
+
+# Restrict PTYs to only allowed ioctls.
+# Note that granting this allowlist to domain does
+# not grant the wider ioctl permission. That must be granted
+# separately.
+allowxperm domain devpts:chr_file ioctl unpriv_tty_ioctls;
+
+# All domains must clearly enumerate what ioctls they use
+# on filesystem objects (plain files, directories, symbolic links,
+# named pipes, and named sockets). We start off with a safe set.
+allowxperm domain { file_type fs_type domain dev_type }:{ dir notdevfile_class_set blk_file } ioctl { FIOCLEX FIONCLEX };
+
+# Allow a process to make a determination whether a file descriptor
+# for a plain file or pipe (fifo_file) is a tty. Note that granting
+# this allowlist to domain does not grant the ioctl permission to
+# these files. That must be granted separately.
+allowxperm domain { file_type fs_type }:file ioctl { TCGETS };
+allowxperm domain domain:fifo_file ioctl { TCGETS };
+
+# If a domain has access to perform an ioctl on a block device, allow these
+# very common, benign ioctls
+allowxperm domain dev_type:blk_file ioctl { BLKGETSIZE64 BLKSSZGET };
+
+# read APEX dir and stat any symlink pointing to APEXs.
+allow domain apex_mnt_dir:dir { getattr search };
+allow domain apex_mnt_dir:lnk_file r_file_perms;
+
+# globally readable properties
+get_prop(domain, arm64_memtag_prop)
+get_prop(domain, bootloader_prop)
+get_prop(domain, build_prop)
+get_prop(domain, debuggable_prop)
+get_prop(domain, debug_prop)
+get_prop(domain, fingerprint_prop)
+get_prop(domain, init_service_status_prop)
+get_prop(domain, libc_debug_prop)
+get_prop(domain, log_tag_prop)
+get_prop(domain, property_service_version_prop)
+
+allow domain linkerconfig_file:dir search;
+allow domain linkerconfig_file:file r_file_perms;
+
+#-----------------------------------------
+# Path resolution access in cgroups.
+allow domain cgroup:dir search;
+allow { domain } cgroup:dir w_dir_perms;
+allow { domain } cgroup:file w_file_perms;
+
+allow domain cgroup_v2:dir search;
+allow { domain } cgroup_v2:dir w_dir_perms;
+allow { domain } cgroup_v2:file w_file_perms;
+
+allow domain task_profiles_file:file r_file_perms;
+allow domain task_profiles_api_file:file r_file_perms;
+
+# Allow all processes to connect to PRNG seeder daemon.
+unix_socket_connect(domain, prng_seeder, prng_seeder)
+
+# cgroupfs directories can be created, but not files within them.
+neverallow domain cgroup:file create;
+neverallow domain cgroup_v2:file create;
+
+dontaudit domain proc_type:dir write;
+dontaudit domain sysfs_type:dir write;
+dontaudit domain cgroup:file create;
+dontaudit domain cgroup_v2:file create;
+
+#-----------------------------------------
+# Allow access to fsverity keyring.
+allow domain kernel:key search;
+
+# Transition to crash_dump when /system/bin/crash_dump* is executed.
+# This occurs when the process crashes.
+domain_auto_trans({domain -no_crash_dump_domain}, crash_dump_exec, crash_dump);
+allow domain crash_dump:process sigchld;
+
+# Properties that microdroid doesn't have but some still want to read.
+dontaudit domain { heapprofd_prop timezone_prop }:file r_file_perms;
+
+# Allow all processes to "read" non_existing_prop to suppress libc's access denial logs.
+# dontaudit is not enough; it's still fine because they can't be written, by neverallow rules
+get_prop(domain, non_existing_prop)
+
+###
+### neverallow rules
+###
+
+# Don't allow raw read/write/open access to generic devices.
+# Rather force a relabel to a more specific type.
+neverallow domain device:chr_file { open read write };
+
+# No executable memory unless backed by an unmodified file
+neverallow * self:process { execmem execheap execstack };
+neverallow * *:file execmod;
+
+# All ioctls on file-like objects (except chr_file and blk_file) and
+# sockets must be restricted to an allowlist.
+neverallowxperm * *:{ dir notdevfile_class_set socket_class_set blk_file } ioctl { 0 };
+
+# b/68014825 and https://android-review.googlesource.com/516535
+# rfc6093 says that processes should not use the TCP urgent mechanism
+neverallowxperm domain domain:socket_class_set ioctl { SIOCATMARK };
+
+# TIOCSTI is only ever used for exploits. Block it.
+# b/33073072, b/7530569
+# http://www.openwall.com/lists/oss-security/2016/09/26/14
+neverallowxperm * devpts:chr_file ioctl TIOCSTI;
+
+# Do not allow any domain other than init to create unlabeled files.
+neverallow { domain -init } unlabeled:dir_file_class_set create;
+
+# Limit device node creation to these allowed domains.
+neverallow {
+  domain
+  -kernel
+  -init
+  -ueventd
+} self:global_capability_class_set mknod;
+
+# No process can map low memory (< CONFIG_LSM_MMAP_MIN_ADDR).
+neverallow * self:memprotect mmap_zero;
+
+# No domain needs mac_override as it is unused by SELinux.
+neverallow * self:global_capability2_class_set mac_override;
+
+# Disallow attempts to set contexts not defined in current policy
+# This helps guarantee that unknown or dangerous contents will not ever
+# be set.
+neverallow * self:global_capability2_class_set mac_admin;
+
+# Once the policy has been loaded there shall be none to modify the policy.
+# It is sealed.
+neverallow * kernel:security load_policy;
+
+# Only init prior to switching context should be able to set enforcing mode.
+# init starts in kernel domain and switches to init domain via setcon in
+# the init.rc, so the setenforce occurs while still in kernel. After
+# switching domains, there is never any need to setenforce again by init.
+neverallow * kernel:security setenforce;
+neverallow { domain -kernel } kernel:security setcheckreqprot;
+
+# No booleans in AOSP policy, so no need to ever set them.
+neverallow * kernel:security setbool;
+
+# Adjusting the AVC cache threshold.
+# Not presently allowed to anything in policy, but possibly something
+# that could be set from init.rc.
+neverallow { domain -init } kernel:security setsecparam;
+
+# Only the kernel hwrng thread should be able to read from the HW RNG.
+neverallow {
+  domain
+  -prng_seeder # PRNG seeder daemon periodically reseeds itself from HW RNG
+  -shell # For CTS, restricted to just getattr in shell.te
+  -ueventd # To create the /dev/hw_random file
+} hw_random_device:chr_file *;
+
+# Ensure that all entrypoint executables are in exec_type.
+neverallow * { file_type -exec_type }:file entrypoint;
+
+# Only init should be able to configure kernel usermodehelpers or
+# security-sensitive proc settings.
+neverallow { domain -init } usermodehelper:file { append write };
+neverallow { domain -init -ueventd } sysfs_usermodehelper:file { append write };
+neverallow { domain -init -vendor_init } proc_security:file { append open read write };
+
+# Init can't do anything with binder calls. If this neverallow rule is being
+# triggered, it's probably due to a service with no SELinux domain.
+neverallow * init:binder *;
+neverallow * vendor_init:binder *;
+
+# Don't allow raw read/write/open access to block_device
+# Rather force a relabel to a more specific type
+neverallow { domain -kernel -init } block_device:blk_file { open read write };
+
+# Do not allow renaming of block files or character files
+# Ability to do so can lead to possible use in an exploit chain
+# e.g. https://googleprojectzero.blogspot.com/2016/12/chrome-os-exploit-one-byte-overflow-and.html
+neverallow * *:{ blk_file chr_file } rename;
+
+# Only the init property service should write to /data/property and /dev/__properties__
+neverallow { domain -init } property_type:file { no_w_file_perms no_x_file_perms };
+neverallow { domain -init } properties_device:file { no_w_file_perms no_x_file_perms };
+neverallow { domain -init } properties_serial:file { no_w_file_perms no_x_file_perms };
+
+# Nobody should be doing writes to /system & /vendor
+# These partitions are intended to be read-only and must never be
+# modified. Doing so would violate important Android security guarantees
+# and invalidate dm-verity signatures.
+neverallow domain {
+    system_file_type
+    vendor_file_type
+    exec_type
+}:dir_file_class_set { create write setattr relabelfrom append unlink link rename };
+
+neverallow { domain -kernel } { system_file_type vendor_file_type exec_type }:dir_file_class_set relabelto;
+
+# Don't allow mounting on top of /system files or directories
+neverallow * exec_type:dir_file_class_set mounton;
+
+# Nothing should be writing to files in the rootfs.
+neverallow * rootfs:file { create write setattr relabelto append unlink link rename };
+
+# Restrict context mounts to specific types marked with
+# the contextmount_type attribute.
+neverallow * {fs_type -contextmount_type}:filesystem relabelto;
+
+# Ensure that context mount types are not writable, to ensure that
+# the write to /system restriction above is not bypassed via context=
+# mount to another type.
+neverallow * { contextmount_type -authfs_fuse -encryptedstore_file }:dir_file_class_set
+    { create relabelfrom relabelto append link rename };
+neverallow domain { contextmount_type -authfs_fuse -encryptedstore_file }:dir_file_class_set { write unlink };
+
+neverallow { domain -init -vendor_init } vendor_default_prop:property_service set;
+
+neverallow { domain -init } build_prop:property_service set;
+neverallow { domain -init -init_debug_policy } debuggable_prop:property_service set;
+
+# Android does not support System V IPCs.
+#
+# The reason for this is due to the fact that, by design, they lead to global
+# kernel resource leakage.
+#
+# For example, there is no way to automatically release a SysV semaphore
+# allocated in the kernel when:
+#
+# - a buggy or malicious process exits
+# - a non-buggy and non-malicious process crashes or is explicitly killed.
+#
+# Killing processes automatically to make room for new ones is an
+# important part of Android's application lifecycle implementation. This means
+# that, even assuming only non-buggy and non-malicious code, it is very likely
+# that over time, the kernel global tables used to implement SysV IPCs will fill
+# up.
+neverallow * *:{ shm sem msg msgq } *;
+
+# Do not mount on top of symlinks, fifos, or sockets.
+# Feature parity with Chromium LSM.
+neverallow * { file_type fs_type dev_type }:{ lnk_file fifo_file sock_file } mounton;
+
+neverallow { domain -init } proc_type:{ file dir } mounton;
+
+# Ensure that all types assigned to processes are included
+# in the domain attribute, so that all allow and neverallow rules
+# written on domain are applied to all processes.
+# This is achieved by ensuring that it is impossible to transition
+# from a domain to a non-domain type and vice versa.
+# TODO - rework this: neverallow domain ~domain:process { transition dyntransition };
+neverallow ~domain domain:process { transition dyntransition };
+
+#
+# Only system_app and system_server should be creating or writing
+# their files. The proper way to share files is to setup
+# type transitions to a more specific type or assigning a type
+# to its parent directory via a file_contexts entry.
+# Example type transition:
+#  mydomain.te:file_type_auto_trans(mydomain, system_data_file, new_file_type)
+#
+neverallow {
+  domain
+  -init
+  -vendor_init
+  -toolbox # TODO(b/141108496) We want to remove toolbox
+} system_data_file:file no_w_file_perms;
+
+#
+# Only these domains should transition to shell domain. This domain is
+# permissible for the "shell user". If you need a process to exec a shell
+# script with differing privilege, define a domain and set up a transition.
+#
+neverallow {
+  domain
+  -adbd
+  -init
+} shell:process { transition dyntransition };
+
+# Minimize read access to shell-writable symlinks.
+# This is to prevent malicious symlink attacks.
+neverallow {
+  domain
+  -shell
+} shell_data_file:lnk_file read;
+
+# In addition to the symlink reading restrictions above, restrict
+# write access to shell owned directories. The /data/local/tmp
+# directory is untrustworthy, and non-allowed domains should
+# not be trusting any content in those directories.
+neverallow {
+  domain
+  -adbd
+  -init
+  -vendor_init
+  -shell
+} shell_data_file:dir no_w_dir_perms;
+
+neverallow {
+  domain
+  -adbd
+  -init
+  -vendor_init
+  -shell
+} shell_data_file:dir { open search };
+
+# Prevent assigning non property types to properties
+# TODO - rework this: neverallow * ~property_type:property_service set;
+
+# Domain types should never be assigned to any files other
+# than the /proc/pid files associated with a process. The
+# executable file used to enter a domain should be labeled
+# with its own _exec type, not with the domain type.
+# Conventionally, this looks something like:
+# $ cat mydaemon.te
+# type mydaemon, domain;
+# type mydaemon_exec, exec_type, file_type;
+# init_daemon_domain(mydaemon)
+# $ grep mydaemon file_contexts
+# /system/bin/mydaemon -- u:object_r:mydaemon_exec:s0
+neverallow * domain:file { execute execute_no_trans entrypoint };
+
+# Do not allow access to the generic debugfs label. This is too broad.
+# Instead, if access to part of debugfs is desired, it should have a
+# more specific label.
+neverallow { domain -init -vendor_init } debugfs:{ file lnk_file } no_rw_file_perms;
+
+# Do not allow executable files in debugfs.
+neverallow domain debugfs_type:file { execute execute_no_trans };
+
+# Don't allow access to the FUSE control filesystem, except to init's
+neverallow { domain -init -vendor_init } fusectlfs:file no_rw_file_perms;
+
+# Enforce restrictions on kernel module origin.
+# Do not allow kernel module loading except from system,
+# vendor, and boot partitions.
+neverallow * ~{ system_file_type vendor_file_type rootfs }:system module_load;
+
+# Only allow filesystem caps to be set at build time. Runtime changes
+# to filesystem capabilities are not permitted.
+neverallow * self:global_capability_class_set setfcap;
+
+# Enforce AT_SECURE for executing crash_dump.
+neverallow domain crash_dump:process noatsecure;
+
+# If an already existing file is opened with O_CREAT, the kernel might generate
+# a false report of a create denial. Silence these denials and make sure that
+# inappropriate permissions are not granted.
+
+# These filesystems don't allow files or directories to be created, so the permission
+# to do so should never be granted.
+neverallow domain {
+  proc_type
+  sysfs_type
+}:dir { add_name create link remove_name rename reparent rmdir write };
+
+# cgroupfs directories can be created, but not files within them.
+neverallow domain cgroup:file create;
+neverallow domain cgroup_v2:file create;
+
+neverallow { domain -init -vendor_init -traced_probes } debugfs_tracing_printk_formats:file *;
+
+# Linux lockdown "integrity" level is enforced for user builds.
+neverallow { domain userdebug_or_eng(`-domain') } self:lockdown integrity;
+
+# These domains must not be crash dumped
+neverallow no_crash_dump_domain crash_dump_exec:file no_x_file_perms;
+neverallow no_crash_dump_domain crash_dump:process { transition dyntransition };
+
+# Ensure that no one can execute from encrypted storage, which is a writable partition in VM.
+neverallow domain encryptedstore_file:file no_x_file_perms;
+
+# Only crash_dump is allowed to access ptrace
+neverallow { domain -crash_dump } domain:process ptrace;

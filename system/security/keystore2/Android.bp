@@ -1,0 +1,175 @@
+// Copyright 2020, The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_security_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_security_license"],
+}
+
+rust_defaults {
+    name: "libkeystore2_defaults",
+    crate_name: "keystore2",
+    srcs: ["src/lib.rs"],
+    defaults: [
+        "keymint_use_latest_hal_aidl_rust",
+        "keystore2_use_latest_aidl_rust",
+    ],
+
+    rustlibs: [
+        "android.hardware.security.rkp-V3-rust",
+        "android.hardware.security.secureclock-V1-rust",
+        "android.hardware.security.sharedsecret-V1-rust",
+        "android.os.permissions_aidl-rust",
+        "android.security.apc-rust",
+        "android.security.authorization-rust",
+        "android.security.compat-rust",
+        "android.security.maintenance-rust",
+        "android.security.metrics-rust",
+        "android.security.rkp_aidl-rust",
+        "libaconfig_android_hardware_biometrics_rust",
+        "libandroid_security_flags_rust",
+        "libanyhow",
+        "libbinder_rs",
+        "libkeystore2_aaid-rust",
+        "libkeystore2_apc_compat-rust",
+        "libkeystore2_crypto_rust",
+        "libkeystore2_flags_rust",
+        "libkeystore2_hal_names_rust",
+        "libkeystore2_km_compat",
+        "libkeystore2_selinux",
+        "liblazy_static",
+        "liblibc",
+        "liblog_event_list",
+        "liblog_rust",
+        "libmessage_macro",
+        "librand",
+        "librkpd_client",
+        "librustutils",
+        "libserde",
+        "libserde_cbor",
+        "libthiserror",
+        "libtokio",
+        "libwatchdog_rs",
+    ],
+    shared_libs: [
+        "libcutils",
+    ],
+    features: [
+        "watchdog",
+    ],
+}
+
+rust_library {
+    name: "libkeystore2",
+    defaults: ["libkeystore2_defaults"],
+    rustlibs: [
+        "liblibsqlite3_sys",
+        "librusqlite",
+    ],
+}
+
+rust_library {
+    name: "libkeystore2_with_test_utils",
+    defaults: ["libkeystore2_defaults"],
+    features: [
+        "keystore2_blob_test_utils",
+    ],
+    rustlibs: [
+        "libkeystore2_test_utils",
+        "liblibsqlite3_sys",
+        "librusqlite",
+    ],
+}
+
+rust_test {
+    name: "keystore2_test",
+    crate_name: "keystore2",
+    test_suites: ["general-tests"],
+    auto_gen_config: true,
+    compile_multilib: "first",
+    defaults: ["libkeystore2_defaults"],
+    rustlibs: [
+        "libandroid_logger",
+        "libhex",
+        "libkeystore2_test_utils",
+        "libkeystore2_with_test_utils",
+        "liblibsqlite3_sys",
+        "libnix",
+        "librusqlite",
+    ],
+    // The test should always include watchdog.
+    features: [
+        "keystore2_blob_test_utils",
+        "watchdog",
+    ],
+    require_root: true,
+}
+
+rust_defaults {
+    name: "keystore2_defaults",
+    srcs: ["src/keystore2_main.rs"],
+    rustlibs: [
+        "libandroid_logger",
+        "libbinder_rs",
+        "liblog_rust",
+    ],
+    init_rc: ["keystore2.rc"],
+
+    // In S, keystore2 is the only process using dynamically linked Rust from
+    // /system. As a result, the usual savings from sharing libraries don't
+    // apply.
+    // Remove `prefer_rlib: true` once we have several processes, once a space
+    // calculation shows net RAM savings, or once we have automatic variant
+    // selection available in the build system.
+    prefer_rlib: true,
+
+    vintf_fragments: ["android.system.keystore2-service.xml"],
+
+    required: ["keystore_cli_v2"],
+}
+
+rust_binary {
+    name: "keystore2",
+    defaults: ["keystore2_defaults"],
+    rustlibs: [
+        "libkeystore2",
+        "liblegacykeystore-rust",
+        "librusqlite",
+    ],
+    afdo: true,
+}
+
+// Keystore Flag definitions
+aconfig_declarations {
+    name: "keystore2_flags",
+    package: "android.security.keystore2",
+    container: "system",
+    srcs: ["aconfig/flags.aconfig"],
+}
+
+rust_aconfig_library {
+    name: "libkeystore2_flags_rust",
+    crate_name: "keystore2_flags",
+    aconfig_declarations: "keystore2_flags",
+}
+
+rust_aconfig_library {
+    name: "libaconfig_android_hardware_biometrics_rust",
+    crate_name: "aconfig_android_hardware_biometrics_rust",
+    aconfig_declarations: "android.hardware.biometrics.flags-aconfig",
+}

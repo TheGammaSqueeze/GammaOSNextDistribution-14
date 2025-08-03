@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--   Copyright (C) 2023 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+  -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="cmas_extreme_alert" msgid="3751964445127743376">"ការជូនដំណឹង​ពេលមានអាសន្នធ្ងន់ធ្ងរខ្លាំង"</string>
+    <string name="cmas_severe_alert" msgid="4773544726385840011">"ការជូនដំណឹង​ពេលមានអាសន្នធ្ងន់ធ្ងរ"</string>
+    <string name="cmas_required_monthly_test" msgid="5274965928258227096">"ការជូនដំណឹង​អំពី​ការហ្វឹកហាត់"</string>
+    <string name="cmas_exercise_alert" msgid="4971838389621550184">"ការជូនដំណឹងអំពីការសាកល្បងបច្ចេកទេស"</string>
+    <string name="enable_cmas_extreme_threat_alerts_title" msgid="3095141156358640879">"ការ​គំរាមកំហែងដ៏ធ្ងន់ធ្ងរបំផុត"</string>
+    <string name="enable_cmas_extreme_threat_alerts_summary" msgid="6931853411327178941">"ការគំរាមកំហែងដល់អាយុជីវិត និងទ្រព្យសម្បត្តិដ៏ធ្ងន់ធ្ងរបំផុត"</string>
+    <string name="enable_cmas_severe_threat_alerts_title" msgid="2603680055509729555">"ការ​គំរាម​កំហែង​ធ្ងន់ធ្ងរ"</string>
+    <string name="enable_cmas_severe_threat_alerts_summary" msgid="405751015446465202">"ការគំរាមកំហែងដល់អាយុជីវិត និងទ្រព្យសម្បត្តិធ្ងន់ធ្ងរ"</string>
+    <string name="enable_cmas_test_alerts_title" msgid="5550182663333808054">"ការសាកល្បងក្នុងមូលដ្ឋាន និងរដ្ឋ"</string>
+    <string name="enable_cmas_test_alerts_summary" msgid="5713628754819156297">"ទទួល​សារ​សាកល្បង​ពីអាជ្ញាធរ​មូលដ្ឋាន និងរដ្ឋ"</string>
+    <string name="enable_exercise_test_alerts_title" msgid="1926178722994782168">"ការជូនដំណឹងអំពីការសាកល្បងបច្ចេកទេស"</string>
+    <string name="enable_exercise_test_alerts_summary" msgid="2009461083781266766">"ទទួលសារ​សាកល្បង"</string>
+</resources>

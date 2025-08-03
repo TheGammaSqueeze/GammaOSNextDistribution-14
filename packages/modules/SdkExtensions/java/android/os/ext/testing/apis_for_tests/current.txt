@@ -1,0 +1,11 @@
+// Signature format: 2.0
+package android.os.ext.testing {
+
+  public class Test {
+    ctor public Test();
+    method public void publicMethod();
+    method public static void staticPublicMethod();
+  }
+
+}
+

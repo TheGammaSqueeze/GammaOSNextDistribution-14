@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="permlab_bluetoothShareManager">Manaidsear nan luchdaidhean a-nuas inntrigeadh.</string>
+    <string name="permdesc_bluetoothShareManager">Leigidh seo leis an aplacaid
+        manaidsear BluetoothShare inntrigeadh ’s a chleachdadh airson faidhlichean a thar-chur. </string>
+    <string name="bt_share_picker_label">Bluetooth</string>
+    <string name="unknown_device">Uidheam nach aithne dhuinn</string>
+    <string name="unknownNumber">Neo-aithnichte</string>
+    <string name="airplane_error_title">Am modh itealain</string>
+    <string name="airplane_error_msg">Chan urrainn dhut Bluetooth a chleachdadh sa mhodh itealain.</string>
+    <string name="bt_enable_line1">Feumaidh tu Bluetooth a chur air mus cleachd thu seirbheisean Bluetooth.</string>
+    <string name="bt_enable_line2">An cuir thu Bluetooth air an-dràsta?</string>
+    <string name="bt_enable_cancel">Sguir dheth</string>
+    <string name="bt_enable_ok">Cuir air</string>
+    <string name="incoming_file_confirm_title">Tar-chur fhaidhlichean</string>
+    <string name="incoming_file_confirm_content">An gabh thu ris an fhaidhle a’ tighinn a-steach? </string>
+    <string name="incoming_file_confirm_cancel">Diùlt</string>
+    <string name="incoming_file_confirm_ok">Gabh ris</string>
+    <string name="incoming_file_confirm_timeout_ok">Ceart ma-thà</string>
+    <string name="incoming_file_confirm_timeout_content">Dh’fhalbh an ùine air gabhail ri faidhle a’ tighinn a-steach o \u0022<xliff:g id="sender">%1$s</xliff:g>\u0022</string>
+    <string name="incoming_file_confirm_Notification_title">Faidhle a’ tighinn a-steach</string>
+    <string name="notification_receiving">Co-roinneadh Bluetooth: A’ faighinn <xliff:g id="file">%1$s</xliff:g></string>
+    <string name="notification_received">Co-roinneadh Bluetooth: Air <xliff:g id="file">%1$s</xliff:g> fhaighinn</string>
+    <string name="notification_received_fail">Co-roinneadh Bluetooth: Cha d’ fhuair sinn <xliff:g id="file">%1$s</xliff:g></string>
+    <string name="notification_sending">Co-roinneadh Bluetooth: A’ cur <xliff:g id="file">%1$s</xliff:g></string>
+    <string name="notification_sent">Co-roinneadh Bluetooth: Chaidh <xliff:g id="file">%1$s</xliff:g> a chur</string>
+    <string name="notification_sent_complete">100% coileanta</string>
+    <string name="notification_sent_fail">Co-roinneadh Bluetooth: Cha deach am faidhle <xliff:g id="file">%1$s</xliff:g> a chur</string>
+    <string name="download_title">Tar-chur fhaidhlichean</string>
+    <string name="download_line1">O: \u0022<xliff:g id="sender">%1$s</xliff:g>\u0022</string>
+    <string name="download_line2">Faidhle: <xliff:g id="file">%1$s</xliff:g></string>
+    <string name="download_line3">Meud an fhaidhle: <xliff:g id="size">%1$s</xliff:g></string>
+    <string name="download_line5">A’ faighinn faidhle\u2026</string>
+    <string name="download_cancel">Cuir stad air</string>
+    <string name="download_ok">Cuir am falach</string>
+    <string name="incoming_line1">O</string>
+    <string name="incoming_line2">Ainm an fhaidhle</string>
+    <string name="incoming_line3">Meud</string>
+    <string name="download_fail_line1">Cha b’ urrainn dhuinn am faidhle fhaighinn</string>
+    <string name="download_fail_line2">Faidhle: <xliff:g id="file">%1$s</xliff:g></string>
+    <string name="download_fail_line3">Adhbhar: <xliff:g id="reason">%1$s</xliff:g></string>
+    <string name="download_fail_ok">Ceart ma-thà</string>
+    <string name="download_succ_line5">Faidhle air fhaighinn</string>
+    <string name="download_succ_ok">Fosgail</string>
+    <string name="upload_line1">Gu: \u0022<xliff:g id="recipient">%1$s</xliff:g>\u0022</string>
+    <string name="upload_line3">Seòrsa an fhaidhle: <xliff:g id="type">%1$s</xliff:g> (<xliff:g id="size">%2$s</xliff:g>)</string>
+    <string name="upload_line5">A’ cur faidhle\u2026</string>
+    <string name="upload_succ_line5">Chaidh am faidhle a chur</string>
+    <string name="upload_succ_ok">Ceart ma-thà</string>
+    <string name="upload_fail_line1">Cha deach am faidhle a chur gu “<xliff:g id="recipient">%1$s</xliff:g>”.</string>
+    <string name="upload_fail_line1_2">Faidhle: <xliff:g id="file">%1$s</xliff:g></string>
+    <string name="upload_fail_cancel">Dùin</string>
+    <string name="bt_error_btn_ok">Ceart ma-thà</string>
+    <string name="unknown_file">Faidhle neo-aithnichte</string>
+    <string name="unknown_file_desc">Chan eil aplacaid ann a làimhsicheas am faidhle seo. \n</string>
+    <string name="not_exist_file">Chan eil faidhle ann</string>
+    <string name="not_exist_file_desc">Chan eil am faidhle ann. \n</string>
+    <string name="enabling_progress_title">Fuirich ort\u2026</string>
+    <string name="enabling_progress_content">A’ cur Bluetooth air\u2026</string>
+    <string name="bt_toast_1">Gheibh sinn am faidhle. Thoir sùil air an adhartas ann am panail nam brathan.</string>
+    <string name="bt_toast_2">Chan urrainn dhuinn am faidhle fhaighinn.</string>
+    <string name="bt_toast_3">Chaidh stad a chur air faighinn an fhaidhle o “<xliff:g id="sender">%1$s</xliff:g>”</string>
+    <string name="bt_toast_4">A’ cur faidhle gu “<xliff:g id="recipient">%1$s</xliff:g>”</string>
+    <string name="bt_toast_5">A’ cur faidhlichean (<xliff:g id="number">%1$s</xliff:g>) gu “<xliff:g id="recipient">%2$s</xliff:g>”</string>
+    <string name="bt_toast_6">Chaidh sgur de chur faidhle gu “<xliff:g id="recipient">%1$s</xliff:g>”</string>
+    <string name="bt_sm_2_1_nosdcard">Chan eil stòras USB gu leòr ann airson am faidhle a shàbhaladh.</string>
+    <string name="bt_sm_2_1_default">Chan eil stòras gu leòr air a’ chairt SD airson am faidhle a shàbhaladh.</string>
+    <string name="bt_sm_2_2">Feum air àite: <xliff:g id="size">%1$s</xliff:g></string>
+    <string name="ErrorTooManyRequests">Tha cus iarrtasan ann. Feuch ris a-rithist an ceann greis.</string>
+    <string name="status_pending">Cha do thòisich tar-chur an fhaidhle fhathast.</string>
+    <string name="status_running">Tha faidhle ’ga thar-chur.</string>
+    <string name="status_success">Chaidh faidhle a thar-chur.</string>
+    <string name="status_not_accept">Chan eil taic ris an t-susbaint seo.</string>
+    <string name="status_forbidden">Dhiùlt an t-uidheam-amais an tar-chur.</string>
+    <string name="status_canceled">Sguir cleachdaiche dhen tar-chur.</string>
+    <string name="status_file_error">Duilgheadas leis an stòras.</string>
+    <string name="status_no_sd_card_nosdcard">Chan eil stòras USB ann.</string>
+    <string name="status_no_sd_card_default">Chan eil cairt SD ann. Cuir a-steach cairt SD airson nam faidhlichean air an tar-chur a chur oirre.</string>
+    <string name="status_connection_error">Cha deach leis a’ cheangal.</string>
+    <string name="status_protocol_error">Chan urrainn dhuinn an t-iarrtas a làimhseachadh mar bu chòir.</string>
+    <string name="status_unknown_error">Mearachd nach aithne dhuinn.</string>
+    <string name="btopp_live_folder">Air fhaighinn air Bluetooth</string>
+    <string name="opp_notification_group">Co-roinneadh Bluetooth</string>
+    <string name="download_success"> Chaidh <xliff:g id="file_size">%1$s</xliff:g> fhaighinn.</string>
+    <string name="upload_success"> Chaidh <xliff:g id="file_size">%1$s</xliff:g> a chur.</string>
+    <string name="inbound_history_title">Tar-chuir a-steach</string>
+    <string name="outbound_history_title">Tar-chuir a-mach</string>
+    <string name="no_transfers">Tha eachdraidh nan tar-chur falamh.</string>
+    <string name="transfer_clear_dlg_msg">Thèid a h-uile nì a thoirt far an liosta.</string>
+    <string name="outbound_noti_title">Co-roinneadh Bluetooth: Faidhlichean air an cur</string>
+    <string name="inbound_noti_title">Co-roinneadh Bluetooth: Faidhlichean air am faighinn</string>
+    <plurals name="noti_caption_unsuccessful">
+        <item quantity="one">Cha deach le <xliff:g id="unsuccessful_number">%1$d</xliff:g> dhiubh.</item>
+        <item quantity="two">Cha deach le <xliff:g id="unsuccessful_number">%1$d</xliff:g> dhiubh.</item>
+        <item quantity="few">Cha deach le <xliff:g id="unsuccessful_number">%1$d</xliff:g> dhiubh.</item>
+        <item quantity="other">Cha deach le <xliff:g id="unsuccessful_number">%1$d</xliff:g> dhiubh.</item>
+    </plurals>
+    <plurals name="noti_caption_success">
+        <item quantity="one">Chaidh le <xliff:g id="successful_number">%1$d</xliff:g> dhuibh, %2$s</item>
+        <item quantity="two">Chaidh le <xliff:g id="successful_number">%1$d</xliff:g> dhuibh, %2$s</item>
+        <item quantity="few">Chaidh le <xliff:g id="successful_number">%1$d</xliff:g> dhuibh, %2$s</item>
+        <item quantity="other">Chaidh le <xliff:g id="successful_number">%1$d</xliff:g> dhuibh, %2$s</item>
+    </plurals>
+    <string name="transfer_menu_clear_all">Falamhaich an liosta</string>
+    <string name="transfer_menu_open">Fosgail</string>
+    <string name="transfer_menu_clear">Falamhaich on liosta</string>
+    <string name="transfer_clear_dlg_title">Falamhaich</string>
+    <string name="bluetooth_a2dp_sink_queue_name">Now Playing</string>
+    <string name="bluetooth_map_settings_save">Save</string>
+    <string name="bluetooth_map_settings_cancel">Sguir dheth</string>
+    <string name="bluetooth_map_settings_intro">Tagh na cunntasan a bu toigh leat a cho-roinneadh thar Bluetooth. Feumaidh tu fhathast gabhail ri inntrigeadh sam bith dha na cunntasan nuair a nì thu ceangal.</string>
+    <string name="bluetooth_map_settings_count">Slots air fhàgail:</string>
+    <string name="bluetooth_map_settings_app_icon">Ìomhaigheag na h-aplacaid</string>
+    <string name="bluetooth_map_settings_title">Roghainnean co-roinneadh theachdaireachdan air Bluetooth</string>
+    <string name="bluetooth_map_settings_no_account_slots_left">Cha ghabh cunntas a thaghadh. 0 slots air fhàgail</string>
+    <string name="bluetooth_connected">Tha fuaim Bluetooth ceangailte</string>
+    <string name="bluetooth_disconnected">Chaidh ceangal fuaim Bluetooth a bhriseadh\"</string>
+    <string name="a2dp_sink_mbs_label">Fuaim Bluetooth</string>
+    <string name="bluetooth_opp_file_limit_exceeded">Cha ghabh faidhlichean a tha nas motha na 4GB a thar-chur</string>
+    <string name="bluetooth_connect_action">Dèan ceangal ri Bluetooth</string>
+</resources>

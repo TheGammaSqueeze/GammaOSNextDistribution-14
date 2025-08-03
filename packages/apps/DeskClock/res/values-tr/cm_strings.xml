@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2012-2016 The CyanogenMod Project
+     Copyright (C) 2017-2025 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="flip_action_title">Cihazı çevirme eylemi</string>
+    <string name="shake_action_title">Cihazı sallama eylemi</string>
+    <string-array name="action_setting_entries">
+        <item>Ertele</item>
+        <item>Reddet</item>
+        <item>Hiçbiri</item>
+    </string-array>
+    <string name="firing_alarms_timers_channel">Alarmı ve zamanlayıcıları tetikler</string>
+    <string name="alarm_missed_channel">Alarmlar kaçırıldı</string>
+    <string name="alarm_snooze_channel">Alarmları ertele</string>
+    <string name="alarm_upcoming_channel">Yaklaşan alarmlar</string>
+    <string name="stopwatch_channel">Kronometre</string>
+    <string name="timer_channel">Zamanlayıcı</string>
+    <string name="add_label">Etiket ekle</string>
+    <string name="dialog_permissions_title">İzinler</string>
+    <string name="dialog_permissions_ask">Tekrar sor</string>
+    <string name="dialog_permissions_dismiss">Reddet</string>
+    <string name="dialog_permissions_settings">Ayarlar</string>
+    <string name="dialog_permissions_power_off_alarm">Bu izin olmadan cihazınız alarm çalmak için kendiliğinden açılamayacak</string>
+    <string name="dialog_permissions_no_permission">Gerekli izinler reddedildi, Ayarlar uygulamasından etkinleştirin</string>
+    <string name="dialog_permissions_post_notifications">Bu uygulama bildirimlere dayanmaktadır. Bildirimler olmadan çalışamaz!</string>
+    <string name="selected">Seçildi</string>
+    <string name="more_options">Daha fazla seçenek</string>
+    <string name="widget_choice_title">Stilinizi seçin</string>
+    <string name="widget_name_transparent">Desteksiz</string>
+    <string name="widget_name_solid">Destekli</string>
+    <string name="clock_brightness_percentage">%%%s</string>
+    <string name="night_mode_enabled_title">Etkin</string>
+    <string name="night_mode_dnd_title">Rahatsız Etme Modunu takip et</string>
+    <string name="night_mode_dnd_summary">Gece modu, Rahatsız Etme Modunu takip ediyor</string>
+    <string name="show_ampm_title">ÖÖ/ÖS bildirimini göster</string>
+    <string name="bold_text_title">Saat metni kalın</string>
+    <string name="night_mode_brightness_text_title">Parlaklık</string>
+    <string name="clock_color_title">Renk</string>
+    <string-array name="clock_color_entries">
+        <item>Beyaz</item>
+        <item>Kırmızı</item>
+        <item>Yeşil</item>
+        <item>Mavi</item>
+    </string-array>
+    <string name="screensaver_settings_title">Ekran koruyucu</string>
+    <string name="screensaver_preview">Ön İzleme</string>
+    <string name="screensaver_preview_summary">Ekran koruyucu hemen başlar</string>
+    <string name="screensaver_change_settings">Ayarlar</string>
+    <string name="screensaver_change_settings_summary">Saatin ekran koruyucu ayarı açılır</string>
+    <string name="screensaver_daydream_settings">Ekran koruyucuyu seçip etkinleştir</string>
+    <string name="screensaver_daydream_settings_summary">Ana ekran koruyucu ayarı açılır</string>
+</resources>

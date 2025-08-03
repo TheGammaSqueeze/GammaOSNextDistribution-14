@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (C) 2021 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/double_column_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:baselineAligned="false"
+    android:divider="@drawable/page_vertical_divider"
+    android:showDividers="middle"
+    android:dividerPadding="@dimen/landscape_page_margin_top"
+    android:paddingHorizontal="@dimen/suw_page_margin_horizontal">
+
+    <!-- Start side: header/main content -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="@integer/suw_title_column_weight"
+        android:layout_marginTop="@dimen/landscape_page_margin_top"
+        android:paddingEnd="@dimen/suw_column_inner_padding_horizontal"
+        android:orientation="vertical">
+        <ImageView
+            android:id="@+id/title_logo"
+            android:layout_height="@dimen/header_icon_size"
+            android:layout_width="@dimen/header_icon_size"
+            android:tint="@color/primary_icon"/>
+        <TextView
+            android:id="@+id/description_title"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_marginTop="@dimen/header_margin"
+            android:layout_marginBottom="@dimen/header_margin"
+            android:textDirection="locale"
+            android:textColor="@color/suw_color_primary"
+            android:textSize="@dimen/header_font_size"/>
+        <TextView
+            android:id="@+id/description"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:textDirection="locale"
+            android:textColor="@color/suw_color_secondary"
+            android:textSize="@dimen/header_description_font_size"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="@integer/suw_content_column_weight">
+        <ViewStub
+            android:id="@+id/sub_content_stub"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+    </LinearLayout>
+</LinearLayout>

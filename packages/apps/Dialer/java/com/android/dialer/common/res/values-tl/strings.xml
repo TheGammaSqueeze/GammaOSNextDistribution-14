@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="content_description_overflow">Higit pang opsyon</string>
+  <string name="snackbar_undo">I-UNDO</string>
+  <string name="ok_got_it">OK</string>
+</resources>

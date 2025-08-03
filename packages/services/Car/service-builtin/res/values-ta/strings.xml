@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2015 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="car_permission_label_bind_projection_service" msgid="6976251734714662552">"காட்சிப்படுத்தல் சேவையுடன் இணைக்க வேண்டும்"</string>
+    <string name="car_permission_desc_bind_projection_service" msgid="4610418233070289810">"காட்சிப்படுத்தல் சேவையின் உயர் நிலை இடைமுகத்துடன் இணைப்பதற்கு ஹோல்டரை அனுமதிக்கிறது. வழக்கமான ஆப்ஸிற்கு எப்போதுமே தேவைப்படாது."</string>
+    <string name="car_permission_label_bind_vms_client" msgid="1298928874094319701">"VMS கிளையண்ட் சேவை"</string>
+    <string name="car_permission_desc_bind_vms_client" msgid="7758142590449847602">"VMS கிளையண்ட்டுகளுடன் இணைத்தல்"</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="6723392540805279625">"இன்ஸ்ட்ருமெண்ட் கிளஸ்டரை ஒழுங்கமைத்தல்"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="2583711303360788080">"இன்ஸ்ட்ருமெண்ட் கிளஸ்டர் தரவைப் பெறுதல்"</string>
+    <string name="car_permission_label_bind_input_service" msgid="6647238478703096557">"காருக்கு உற்பத்தியாளர் வழங்கும் சேவை"</string>
+    <string name="car_permission_desc_bind_input_service" msgid="8460218104132496613">"உற்பத்தியாளர் வழங்கும் சேவைகளைக் கையாளுதல்"</string>
+    <string name="activity_blocked_text" msgid="5991043857905412794">"வாகனம் ஓட்டும்போது இந்த அம்சத்தைப் பயன்படுத்த முடியாது"</string>
+    <string name="exit_button_message" msgid="5375678491245394542">"ஆப்ஸைப் பாதுகாப்பான அம்சங்களுடன் மீண்டும் தொடங்க <xliff:g id="EXIT_BUTTON">%s</xliff:g>ஐத் தேர்ந்தெடுக்கவும்."</string>
+    <string name="exit_button" msgid="3491899413031549265">"பின்செல்"</string>
+    <string name="exit_button_close_application" msgid="5153716684207539041">"ஆப்ஸை மூடு"</string>
+    <string name="exit_button_go_back" msgid="6921595432375141935">"பின்செல்"</string>
+    <string name="importance_default" msgid="8017186728206153704">"இயல்புநிலை முக்கியத்துவம்"</string>
+    <string name="importance_high" msgid="3393374688015554727">"அதிக முக்கியத்துவம்"</string>
+    <string name="android_system_label" msgid="9209428539477894959">"Android அமைப்பு"</string>
+    <string name="factory_reset_notification_title" msgid="6177770995437355965">"ஆரம்பநிலைக்கு மீட்டமைக்க வேண்டும்"</string>
+    <string name="factory_reset_notification_text" msgid="6051393302193696102">"இன்ஃபோடெயின்மென்ட் சிஸ்டத்திலுள்ள அனைத்துத் தரவும் அழிக்கப்படும். மீட்டமைத்த பிறகு, புதிய சுயவிவரத்தை அமைக்கலாம்."</string>
+    <string name="factory_reset_notification_button" msgid="6926734587145351076">"மேலும்"</string>
+    <string name="factory_reset_warning" msgid="8463356329619149262">"சாதனத் தரவு அழிக்கப்படும்"</string>
+    <string name="factory_reset_message" msgid="1972536809866779972">"நிர்வாகி ஆப்ஸைப் பயன்படுத்த முடியாது. உங்கள் சாதனம் ஆரம்ப நிலைக்கு மீட்டமைக்கப்படும்.\n\nகேள்விகள் இருந்தால் உங்கள் நிறுவனத்தின் நிர்வாகியைத் தொடர்புகொள்ளவும்."</string>
+    <string name="resource_overuse_notification_title" msgid="1622015333965744463">"உங்கள் சிஸ்டத்தின் செயல்திறனை <xliff:g id="ID_1">^1</xliff:g> பாதிக்கிறது"</string>
+    <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"இந்த ஆப்ஸ் பின்னணியில் இயங்குவதிலிருந்து தடுக்கப்பட்டுள்ளது. ஆப்ஸ் பின்னணியில் தொடர்ந்து இயங்க அதற்கு முன்னுரிமை அளியுங்கள்."</string>
+    <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"மூடுக"</string>
+    <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"ஆப்ஸை முன்னுரிமைப்படுத்துங்கள்"</string>
+</resources>

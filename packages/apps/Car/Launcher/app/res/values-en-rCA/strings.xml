@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    Copyright (C) 2018 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- no translation found for app_title (1056886619192068947) -->
+    <skip />
+    <string name="default_media_song_title" msgid="7837564242036091946"></string>
+    <!-- no translation found for tap_for_more_info_text (4240146824238692769) -->
+    <skip />
+    <!-- no translation found for tap_to_launch_text (7150379866796152196) -->
+    <skip />
+    <!-- no translation found for ongoing_call_duration_text_separator (2140398350095052096) -->
+    <skip />
+    <!-- no translation found for ongoing_call_text (7160701768924041827) -->
+    <skip />
+    <!-- no translation found for dialing_call_text (3286036311692512894) -->
+    <skip />
+    <!-- no translation found for projected_launch_text (5034079820478748609) -->
+    <skip />
+    <!-- no translation found for projected_onclick_launch_error_toast_text (8853804785626030351) -->
+    <skip />
+    <!-- no translation found for projection_devices (2556503818120676439) -->
+    <skip />
+    <!-- no translation found for weather_app_name (4356705068077942048) -->
+    <skip />
+    <!-- no translation found for fake_weather_main_text (2545755284647327839) -->
+    <skip />
+    <!-- no translation found for fake_weather_footer_text (8640814250285014485) -->
+    <skip />
+    <!-- no translation found for times_separator (1962841895013564645) -->
+    <skip />
+    <!-- no translation found for recents_empty_state_text (8228569970506899117) -->
+    <skip />
+    <!-- no translation found for recents_clear_all_text (3594272268167720553) -->
+    <skip />
+    <!-- no translation found for failure_opening_recent_task_message (963567570097465902) -->
+    <skip />
+    <!-- no translation found for calm_mode_title (4364804976931157567) -->
+    <skip />
+</resources>

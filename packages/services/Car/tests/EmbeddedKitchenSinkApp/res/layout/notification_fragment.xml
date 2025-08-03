@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2018 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/content"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:fadeScrollbars="false">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:background="#663333">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Some space added to the top to allow buttons to be touchable
+                while heads up notification(s) are active."
+                android:layout_marginTop="100dp"
+                android:layout_marginBottom="100dp"/>
+        </LinearLayout>
+
+        <View
+            android:id="@+id/fragment_top"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ongoing notifications can only be dismissed by the CANCEL ALL button. Red: heads-up; Blue: no heads-up."/>
+
+        <Button
+            android:id="@+id/cancel_all_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="Cancel All Kitchensink Notifications"
+            android:textSize="30sp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#334666"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_gravity="center_vertical"
+                    android:text="Number of messages:"/>
+
+                <NumberPicker
+                    android:id="@+id/number_messages"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="30sp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_gravity="center_vertical"
+                    android:text="Number of people:"/>
+
+                <NumberPicker
+                    android:id="@+id/number_people"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="30sp"/>
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/customizable_message_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="50dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:textColor="#1da9ff"
+                android:text="Customizable message notification builder"
+                android:textSize="30sp"/>
+
+            <Button
+                android:id="@+id/category_call_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:textColor="#ffa9a8"
+                android:text="Call (Shows persistent heads-up, only dismissed on cancel)"
+                android:textSize="30sp"/>
+
+            <Button
+                android:id="@+id/incoming_notificationbuilder_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="#ffa9a8"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:text="Incoming Call (old api)"
+                android:textSize="30sp"/>
+
+            <Button
+                android:id="@+id/incoming_forIncomingCall_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="#ffa9a8"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:text="Incoming Call (CallStyle api)"
+                android:textSize="30sp"/>
+
+            <Button
+                android:id="@+id/category_message_diff_person_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:textColor="#ffa9a8"
+                android:text="Message from diff person"
+                android:textSize="30sp"/>
+
+            <Button
+                android:id="@+id/category_message_same_person_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:textColor="#ffa9a8"
+                android:text="Message from same person"
+                android:textSize="30sp"/>
+
+            <Button
+                android:id="@+id/category_long_message_same_person_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:textColor="#ffa9a8"
+                android:text="Long message from same person"
+                android:textSize="30sp"/>
+
+            <Button
+                android:id="@+id/category_message_same_group_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:textColor="#ffa9a8"
+                android:text="Message in same group"
+                android:textSize="30sp"/>
+
+            <Button
+                android:id="@+id/category_message_mute_action_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:textColor="#ffa9a8"
+                android:text="Message with mute pending intent provided"
+                android:textSize="30sp"/>
+
+            <Button
+                android:id="@+id/test_message_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:textColor="#ffa9a8"
+                android:text="Message (auto update every 6 secs)"
+                android:textSize="30sp"/>
+
+            <Button
+                android:id="@+id/navigation_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:textColor="#ffa9a8"
+                android:text="Navigation (Only show heads-up, not shown in notification center)"
+                android:textSize="30sp"/>
+
+            <Button
+                android:id="@+id/media_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:textColor="#ffa9a8"
+                android:text="Media (Not shown anywhere)"
+                android:textSize="30sp"/>
+
+            <Button
+                android:id="@+id/ongoing_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="Persistent (Can't dismiss)"
+                android:textSize="30sp"/>
+
+            <Button
+                android:id="@+id/progress_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="Progress (Can't dismiss)"
+                android:textSize="30sp"/>
+
+            <Button
+                android:id="@+id/progress_button_colorized"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="Progress Colorized (Can't dismiss)"
+                android:textSize="30sp"/>
+
+            <Button
+                android:id="@+id/custom_group_summary_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="Custom Group Summary of 6 (Inbox Style, Should behave the same as phone)"
+                android:textSize="30sp"/>
+
+            <Button
+                android:id="@+id/group_without_summary_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="Custom Group Without Summary of 6 (Should not group)"
+                android:textSize="30sp"/>
+
+            <Button
+                android:id="@+id/actions_with_icons"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="Notification with custom action icons"
+                android:textSize="30sp"/>
+
+            <Button
+                android:id="@+id/self_dismiss_notification"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="Notification that gets dismissed on click"
+                android:textSize="30sp"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#5a6633"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/importance_high_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:textColor="#ffa9a8"
+                android:text="Importance: HIGH"
+                android:textSize="30sp"/>
+
+            <Button
+                android:id="@+id/importance_default_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="Importance: DEFAULT"
+                android:textSize="30sp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#5a6633"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/importance_low_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="Importance: LOW"
+                android:textSize="30sp"/>
+
+            <Button
+                android:id="@+id/importance_min_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="Importance: MIN"
+                android:textSize="30sp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#33664d"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/category_car_emergency_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:textColor="#ffa9a8"
+                android:text="Car Emergency"
+                android:textSize="30sp"/>
+
+            <Button
+                android:id="@+id/category_car_warning_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:textColor="#ffa9a8"
+                android:text="Car Warning"
+                android:textSize="30sp"/>
+
+            <Button
+                android:id="@+id/category_car_info_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="Car Information"
+                android:textSize="30sp"/>
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

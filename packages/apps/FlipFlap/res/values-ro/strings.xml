@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  Copyright (c) 2017 The LineageOS Project
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ Also add information on how to contact you by electronic and paper mail.
+
+-->
+<resources>
+    <string name="app_name">FlipFlap</string>
+    <string name="notification_title">Husă inteligentă detectată</string>
+    <string name="alarm_label">ALARMĂ</string>
+    <string name="abbrev_wday_month_day_no_year">EEE, d MMMM</string>
+    <string name="answer_call">RĂSPUNDEȚI</string>
+    <string name="ignore_call">IGNORAȚI</string>
+    <string name="end_call">ÎNCHIDEȚI APELUL</string>
+    <string name="settings_name">Copertă inteligentă</string>
+    <string name="settings_enable">Activează controlul inteligent al coperții</string>
+    <string name="settings_summary">Controlați comportamentul accesoriilor dvs.</string>
+    <string name="category_behaviour">Comportament</string>
+    <string name="pass_to_security_view_title">Arată direct introducere parolă</string>
+    <string name="pass_to_security_view_summary">Deschiderea carcasei va arăta în mod direct ecranul de blocare</string>
+    <string name="use_high_touch_sensitivity_title">Sensibilitate tactilă înaltă</string>
+    <string name="use_high_touch_sensitivity_summary">Crește sensibilitatea tactilă în timp ce cover-ul e închis</string>
+    <string name="category_design">Design</string>
+    <string name="switch_charging_status_title">Afişează starea încărcării</string>
+    <string name="switch_charging_status_summary">Schimbă culoarea în funcţie de încărcarea curentă a bateriei</string>
+    <string name="category_timeouts">Timeout-uri</string>
+    <string name="timeout_plugged_title">În timpul încărcării</string>
+    <string name="timeout_unplugged_title">Deconectat</string>
+    <string name="timeout_summary">Afișează aplicația copertă pentru %s după închiderea capacului</string>
+    <string name="timeout_summary_never">După închiderea capacului, aplicația copertă va rămâne întotdeauna pornită</string>
+    <string name="timeout_summary_immediately">Ecranul va fi oprit când se va închide coperta</string>
+    <string name="timeout_entry_immediately">Imediat</string>
+    <string name="timeout_entry_5s">5 secunde</string>
+    <string name="timeout_entry_10s">10 secunde</string>
+    <string name="timeout_entry_30s">30 de secunde</string>
+    <string name="timeout_entry_1min">1 minut</string>
+    <string name="timeout_entry_5min">5 minute</string>
+    <string name="timeout_entry_never">Niciodată</string>
+</resources>

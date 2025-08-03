@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2023 The Android Open Source Project
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<resources>
+    <!-- Columns -->
+    <integer name="car_app_selector_column_number">5</integer>
+    <integer name="car_app_selector_row_number">3</integer>
+
+    <!-- Number of milliseconds users need to hover the app icon on the side of the app grid during
+    drag and drop before the page is scrolled in the direction it was held.-->
+    <integer name="ms_off_page_hover_before_scroll">500</integer>
+
+    <!-- Duration for animating the resizing of app icon on long press-->
+    <integer name="ms_long_press_animation_duration">150</integer>
+
+    <!-- Duration for animating the resizing after long press is released -->
+    <integer name="ms_release_animation_duration">50</integer>
+
+    <!-- Delay before animating the drop animation when a valid drop event has been received -->
+    <integer name="ms_drop_animation_delay">25</integer>
+
+    <!-- Duration to animate the app item highlight when it is targeted during drag drop  -->
+    <integer name="ms_background_highlight_duration">75</integer>
+
+    <!-- Durations for animating scroll state change in page indicator  -->
+    <integer name="ms_scrollbar_appear_animation_duration">50</integer>
+    <integer name="ms_scrollbar_appear_animation_delay">0</integer>
+    <integer name="ms_scrollbar_fade_animation_duration">50</integer>
+    <integer name="ms_scrollbar_fade_animation_delay">500</integer>
+
+</resources>

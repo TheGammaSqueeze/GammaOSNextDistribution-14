@@ -1,0 +1,11 @@
+{
+  "presubmit": [
+    {
+      "name": "DocumentsUIGoogleTests",
+      "keywords": ["primary-device"]
+    },
+    {
+      "name": "DocumentsUIUnitTests"
+    }
+  ]
+}

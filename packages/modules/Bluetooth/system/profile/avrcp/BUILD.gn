@@ -1,0 +1,68 @@
+#
+#  Copyright 2018 Android Open Source Project
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at:
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#
+
+config("avrcp_config") {
+  include_dirs = [
+    "//bt/system/",
+    "//bt/system/stack/include",
+    "//bt/system/profile/avrcp",
+    "//bt/system/packet",
+    "//bt/system/packet/include",
+    "//bt/system/include/hardware/avrcp",
+  ]
+
+  configs = [
+    "//bt/system:target_defaults",
+    "//bt/system/log:log_defaults",
+  ]
+}
+
+static_library("profile_avrcp") {
+  sources = [
+    "connection_handler.cc",
+    "device.cc",
+  ]
+
+  deps = [
+    "//bt/system/gd/rust/shim:libbluetooth_rust_interop",
+  ]
+
+  configs += [
+    ":avrcp_config"
+  ]
+}
+
+if (use.test) {
+  executable("net_test_avrcp") {
+    sources = [
+      "tests/avrcp_connection_handler_test.cc",
+      "tests/avrcp_device_test.cc",
+    ]
+
+    deps = [
+      ":profile_avrcp",
+      "//bt/system/device:device",
+      "//bt/system/osi:osi",
+      "//bt/system/packet:packet",
+      "//bt/system/types:types",
+    ]
+
+    configs += [
+      "//bt/system:external_gmock_main",
+      ":avrcp_config",
+    ]
+  }
+}

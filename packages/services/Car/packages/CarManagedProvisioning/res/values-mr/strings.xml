@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    Copyright (C) 2021 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="brand_screen_header" msgid="4382251935798018352">"हे वाहन या संस्थेचे आहे"</string>
+    <string name="contact_device_provider" msgid="338577979231875837">"अधिक जाणून घेण्यासाठी, <xliff:g id="IT_ADMIN">%1$s</xliff:g> शी संपर्क साधा."</string>
+    <string name="organization_admin" msgid="6551608903069550652">"संस्थेचा व्यवस्थापक"</string>
+    <string name="if_questions_contact_admin" msgid="4645510019575736238">"तुम्हाला प्रश्न असल्यास, संस्थेच्या व्यवस्थापकाशी संपर्क साधा"</string>
+    <string name="admin_has_ability_to_monitor_device" msgid="3132155961508293345">"संस्थेचा व्यवस्थापक सेटिंग्ज, कॉर्पोरेट अ‍ॅक्सेस, अ‍ॅप्स, परवानग्या आणि या वाहनासंबंधित डेटा जसे की, नेटवर्क अ‍ॅक्टिव्हिटी तसेच या वाहनाच्या स्थानाचे निरीक्षण आणि व्यवस्थापन करू शकतो.<xliff:g id="LINE_BREAK">
+
+</xliff:g>संस्थेच्या गोपनीयता धोरणांसह अधिक माहितीसाठी संस्थेच्या व्यवस्थापकाशी संपर्क साधा."</string>
+    <string name="contact_your_admin_for_more_info" msgid="1419852317652804536">"संस्थेच्या गोपनीयता धोरणांसह अधिक माहितीसाठी संस्थेच्या व्यवस्थापकाशी संपर्क साधा."</string>
+    <string name="managed_device_info" msgid="2134697391634083944">"हे व्यवस्थापित वाहन आहे"</string>
+    <string name="contact_your_admin_for_help" msgid="1741496631607502730">"मदतीसाठी संस्थेच्या व्यवस्थापकाशी संपर्क साधा"</string>
+    <string name="fully_managed_device_provisioning_accept_header" msgid="8767138982035307813">"व्यवस्थापित वाहन सेट करा"</string>
+    <string name="fully_managed_device_provisioning_step_1_header" msgid="8704166635032524345">"तुमच्या संस्थेची ॲप्स अ‍ॅक्सेस करा"</string>
+    <string name="fully_managed_device_provisioning_step_1_description" msgid="5960961281295355254">"इंफोटेनमेंट सिस्टीम सेट करत आहे…"</string>
+    <string name="fully_managed_device_provisioning_step_2_header" msgid="5888602026900289468">"इंफोटेनमेंट सिस्टीम डेटा हा खाजगी नसतो"</string>
+    <string name="fully_managed_device_provisioning_step_2_subheader_title" msgid="1421575203782743214">"तुमची अ‍ॅक्टिव्हिटी आणि डेटा"</string>
+    <string name="fully_managed_device_provisioning_step_2_subheader" msgid="4881961368653838979">"संस्थेचा व्यवस्थापक कदाचित या वाहनावरील तुमची अ‍ॅक्टिव्हिटी आणि डेटा पाहू शकतो."</string>
+    <string name="fully_managed_device_provisioning_permissions_secondary_subheader" msgid="8955791361423166123">"संस्थेचा व्यवस्थापक या वाहनावरील ॲप्ससाठी परवानग्या सेट करू शकतो जसे की, मायक्रोफोन आणि स्थान परवानग्या."</string>
+    <string name="fully_managed_device_with_permission_control_provisioning_summary" msgid="2503568673345133100">"तुमची कार्य ॲप्स सहजरीत्या अ‍ॅक्सेस करण्यासाठी या वाहनाची इंफोटेनमेंट सिस्टीम वापरा. हे वाहन खाजगी नाही, त्यामुळे संस्थेचा व्यवस्थापक कदाचित तुमची अ‍ॅक्टिव्हिटी आणि डेटा पाहू शकतो. संस्थेचा व्यवस्थापक या वाहनावरील ॲप्ससाठी परवानग्यादेखील सेट करू शकतो जसे की, मायक्रोफोन आणि स्थान परवानग्या."</string>
+    <string name="fully_managed_device_provisioning_summary" msgid="4323948058344613817">"तुमची कार्य ॲप्स सहजरीत्या अ‍ॅक्सेस करण्यासाठी या वाहनाची इंफोटेनमेंट सिस्टीम वापरा. हे वाहन खाजगी नाही, त्यामुळे संस्थेचा व्यवस्थापक कदाचित तुमचा डेटा आणि अ‍ॅक्टिव्हिटी पाहू शकतो."</string>
+    <string name="fully_managed_device_provisioning_progress_label" msgid="988594700479673633">"व्यवस्थापित वाहन सेट करत आहे"</string>
+    <string name="fully_managed_device_provisioning_return_device_title" msgid="1578111657911434819">"सेट करणे रद्द करा आणि वाहन परत करा"</string>
+    <string name="fully_managed_device_provisioning_return_device_subheader" msgid="5809488930429106172">"रीसेट करा आणि हे वाहन संस्थेच्या व्यवस्थापकाला परत करा किंवा सेट करणे पुढे सुरू ठेवण्यासाठी मागील स्क्रीनवर परत जा."</string>
+    <string name="fully_managed_device_cancel_setup_button" msgid="4113790677940440998">"सेट करणे रद्द करा"</string>
+    <string name="fully_managed_device_reset_and_return_button" msgid="4951274590516561428">"रीसेट करा आणि परत करा"</string>
+    <string name="fully_managed_device_provisioning_privacy_title" msgid="4789425994893472324">"गोपनीयता सूचना"</string>
+    <string name="fully_managed_device_provisioning_privacy_body" msgid="5549745709511179391">"संस्थेचा व्यवस्थापक कदाचित या वाहनावरील तुमचा डेटा आणि अ‍ॅक्टिव्हिटी पाहू शकतो."</string>
+</resources>

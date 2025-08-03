@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+     SPDX-FileCopyrightText: 2009 The Android Open Source Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <!-- Dashboard padding in its container -->
+    <dimen name="dashboard_padding_start">0dp</dimen>
+    <dimen name="dashboard_padding_end">0dp</dimen>
+    <dimen name="dashboard_padding_top">0dp</dimen>
+    <dimen name="dashboard_padding_bottom">0dp</dimen>
+
+    <!-- Dashboard category panel elevation -->
+    <dimen name="dashboard_category_elevation">2dp</dimen>
+
+    <dimen name="settings_side_margin">0dip</dimen>
+
+    <dimen name="oval_notification_size">26dp</dimen>
+
+    <dimen name="pager_tabs_padding">0dp</dimen>
+    <dimen name="pager_tabs_title_padding">16dp</dimen>
+    <dimen name="pager_tabs_selected_indicator_height">3dp</dimen>
+
+    <!-- System profiles -->
+    <dimen name="profile_instruction_padding">8dp</dimen>
+
+    <!-- Trust onBoarding -->
+    <dimen name="trust_logo_vertical_margin">48dp</dimen>
+    <dimen name="trust_logo_horizontal_margin">40dp</dimen>
+    <dimen name="trust_logo_height">-2px</dimen>
+    <dimen name="trust_logo_width">-1px</dimen>
+
+    <dimen name="package_list_padding_top">16dp</dimen>
+
+    <dimen name="color_mode_preview_height">320dp</dimen>
+</resources>
+

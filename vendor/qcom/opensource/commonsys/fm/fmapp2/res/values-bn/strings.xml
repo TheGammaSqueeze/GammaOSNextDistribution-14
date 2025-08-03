@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (c) 2009, 2011-2013 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2014-2015 The CyanogenMod Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *    * Neither the name of The Linux Foundation nor
+ *      the names of its contributors may be used to endorse or promote
+ *      products derived from this software without specific prior written
+ *      permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NON-INFRINGEMENT ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">এফএম বেতার</string>
+    <string name="tx_app_name">এফএম প্রেরকযন্ত্র</string>
+    <string name="menu_scan_start">স্ক্যান</string>
+    <string name="menu_scan_stop">অনুসন্ধান বন্ধ</string>
+    <string name="menu_record_stop">রেকর্ডিং বন্ধ করুন</string>
+    <string name="menu_sleep">স্লিপ</string>
+    <string name="menu_sleep_cancel">স্লিপ বাতিল</string>
+    <string name="menu_all_channels">সমস্ত চ্যানেল</string>
+    <string name="menu_display_tags">ট্যাগ প্রদর্শন</string>
+    <string name="msg_noantenna">এফএম বেতার ব্যবহার করতে অনুগ্রহ করে হেডসেট যুক্ত করুন</string>
+    <string name="presetlist_add_new">নতুন তালিকায় যুক্ত</string>
+    <string name="preset_tune">টিউন</string>
+    <string name="preset_rename">পুনঃনামকরণ</string>
+    <string name="preset_search">\'<xliff:g id="preset_pi">%1$s</xliff:g>\' এর জন্যে অনুসন্ধান</string>
+    <string name="stat_notif_frequency">\'<xliff:g id="frequency">%1$s</xliff:g>\' মেগাহার্টজ</string>
+    <string name="regional_band">আঞ্চলিক ব্যান্ড</string>
+    <string name="regional_band_entry_north_america">উত্তর আমেরিকা</string>
+    <string name="regional_band_entry_europe">ইউরোপ</string>
+    <string name="regional_band_entry_japan">জাপান</string>
+    <string name="regional_band_entry_japan_wide">জাপান (ওয়াইড)</string>
+    <string name="regional_band_entry_australia">অস্ট্রেলিয়া</string>
+    <string name="regional_band_entry_austria">অস্ট্রিয়া</string>
+    <string name="regional_band_entry_belgium">বেলজিয়াম</string>
+    <string name="regional_band_entry_brazil">ব্রাজিল</string>
+    <string name="regional_band_entry_china">চীন</string>
+    <string name="regional_band_entry_czech_republic">Czech Republic</string>
+    <string name="regional_band_entry_denmark">ডেনমার্ক</string>
+    <string name="regional_band_entry_finland">ফিনল্যান্ড</string>
+    <string name="regional_band_entry_france">ফ্রান্স</string>
+    <string name="regional_band_entry_germany">জার্মানি</string>
+    <string name="regional_band_entry_greece">গ্রিস</string>
+    <string name="regional_band_entry_hong_kong">হংকং</string>
+    <string name="regional_band_entry_india">ভারত</string>
+    <string name="regional_band_entry_indonesia">Indonesia</string>
+    <string name="regional_band_entry_ireland">আয়ারল্যান্ড</string>
+    <string name="regional_band_entry_italy">ইতালি</string>
+    <string name="regional_band_entry_korea">কোরিয়া</string>
+    <string name="regional_band_entry_mexico">মেক্সিকো</string>
+    <string name="regional_band_entry_netherlands">নেদারল্যান্ড</string>
+    <string name="regional_band_entry_new_zealand">নিউজিল্যান্ড</string>
+    <string name="regional_band_entry_norway">নরওয়ে</string>
+    <string name="regional_band_entry_poland">পোল্যান্ড</string>
+    <string name="regional_band_entry_portugal">পর্তুগাল</string>
+    <string name="regional_band_entry_russia">রাশিয়া</string>
+    <string name="regional_band_entry_singapore">সিঙ্গাপুর</string>
+    <string name="regional_band_entry_slovakia">স্লোভাকিয়া</string>
+    <string name="regional_band_entry_spain">স্পেন</string>
+    <string name="regional_band_entry_switzerland">সুইজারল্যান্ড</string>
+    <string name="regional_band_entry_sweden">সুইডেন</string>
+    <string name="regional_band_entry_taiwan">তাইওয়ান</string>
+    <string name="regional_band_entry_turkey">তুরস্ক</string>
+    <string name="regional_band_entry_united_kingdom">United Kingdom</string>
+    <string name="regional_band_entry_united_states">মার্কিন যুক্তরাষ্ট্র</string>
+    <string name="regional_band_entry_user_defined">ব্যবহারকারী নির্ধারিত ব্যান্ড</string>
+    <string name="regional_band_summary_user_defined">ব্যবহারকারী নির্ধারিত ব্যান্ড</string>
+    <string name="aud_output_mode">অডিও আউটপুট মোড</string>
+    <string name="audio_type_stereo">স্টেরিও</string>
+    <string name="audio_type_mono">মোনো</string>
+    <string name="record_dur">রেকর্ড সময়কাল</string>
+    <string name="settings_revert_defaults_title">কারখানা পূর্ব-নির্ধারিত অবস্থায় প্রত্যাবর্তন</string>
+    <string name="settings_revert_defaults_summary">সকল রুপান্তর নির্ধারণ পুন:স্থাপন</string>
+    <string name="no_storage">রেকর্ডিং শুরু করার আগে এসডি কার্ড মাউন্ট করুন।</string>
+    <string name="access_sd_fail">এসডি কার্ডে প্রবেশ করা যাচ্ছে না।</string>
+    <string name="spaceIsLow_content">আপনার এসডি কার্ডে স্থান স্বল্পতা আছে। যায়গার রুপান্তর নির্ধারণ করুন অথবা জায়গা খালি করতে কিছু অন্যান্য ফাইল মুছে ফেলুন।</string>
+    <string name="menu_scan_for_preset">প্রিসেটের জন্য স্ক্যান</string>
+    <string name="alert_dialog_hint">একটি নাম লিখুন</string>
+    <string name="search_dialog_title">স্টেশন স্ক্যান</string>
+    <string name="fm_command_timeout_title">সময়োত্তীর্ণ</string>
+    <string name="fm_tune_timeout_msg">এফএম কেন্দ্র থেকে কোনও সাড়া পাওয়া যায়নি। যদি সমস্যাটি থেকে যায়, অনুগ্রহ করে এফএম বন্ধ করুন এবং এটি পুনরায় চালু করুন।</string>
+    <string name="fm_command_failed_title">এফএম অপারেশন ব্যর্থ হয়েছে</string>
+    <string name="fm_cmd_failed_msg">এফএম অপারেশন ব্যর্থ হয়েছে। যদি সমস্যাটি থেকে যায়, অনুগ্রহ করে এফএম বন্ধ করুন এবং এটি পুনরায় চালু করুন।</string>
+    <string name="fm_cmd_failed_msg_hdmi">এফএম অপারেশন ব্যর্থ হয়েছে। এফএম এবং এইচডিএমআই সহঅবস্থান সমর্থিত নয়।</string>
+    <string name="fm_cmd_failed_call_on">এফএম কার্যক্রমটি ব্যর্থ হয়েছে। কল চলাকালীন সময়ে এফএম অডিও অনুমোদিত নয়।</string>
+    <string name="station_exists">এই ফ্রিকোয়েন্সি ইতিমধ্যেই বিদ্যমান!</string>
+    <string name="station_name_empty">কেন্দ্রের নাম খালি, দয়া করে আবার নামটি লিখুন।</string>
+    <string name="rt_plus_tags">ট্যাগস</string>
+    <string name="chanl_spacing">চ্যানেল ব্যবধান</string>
+</resources>

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="rtt_promotion_title">Қоңырау кезінде хабар жіберу мүмкіндігі</string>
+  <string name="rtt_promotion_details">RTT қызметі мүлдем естімейтін, есту немесе сөйлеу қабілеті нашар немесе дыбысқа қосымша басқа қызметтерді қажет ететін адамдарға көмек ретінде қолданылады. RTT мәтіндік хабар транскрипциялары құрылғыңыздағы қоңыраулар тарихына сақталады. %1$s</string>
+</resources>

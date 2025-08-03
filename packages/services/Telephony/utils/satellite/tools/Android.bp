@@ -1,0 +1,80 @@
+// Copyright (C) 2020 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_library_host {
+    name: "satellite-s2storage-tools",
+    srcs: [
+        "src/main/java/**/*.java",
+    ],
+    static_libs: [
+        "jcommander",
+        "guava",
+        "satellite-s2storage-rw",
+        "s2storage_tools",
+        "s2-geometry-library-java",
+    ],
+}
+
+// A tool to create a binary satellite S2 file.
+java_binary_host {
+    name: "satellite_createsats2file",
+    main_class: "com.android.telephony.tools.sats2.CreateSatS2File",
+    static_libs: [
+        "satellite-s2storage-tools",
+    ],
+}
+
+// A tool to look up a location in the input binary satellite S2 file.
+java_binary_host {
+    name: "satellite_location_lookup",
+    main_class: "com.android.telephony.tools.sats2.SatS2LocationLookup",
+    static_libs: [
+        "satellite-s2storage-tools",
+    ],
+}
+
+// A tool to create a test satellite S2 file.
+java_binary_host {
+    name: "satellite_createsats2file_test",
+    main_class: "com.android.telephony.tools.sats2.CreateTestSatS2File",
+    static_libs: [
+        "satellite-s2storage-tools",
+    ],
+}
+
+// A tool to dump a satellite S2 file as text for debugging.
+java_binary_host {
+    name: "satellite_dumpsats2file",
+    main_class: "com.android.telephony.tools.sats2.DumpSatS2File",
+    static_libs: [
+        "satellite-s2storage-tools",
+    ],
+}
+
+// Tests for CreateSatS2File.
+java_test_host {
+    name: "SatelliteToolsTests",
+    srcs: ["src/test/java/**/*.java"],
+    static_libs: [
+        "junit",
+        "satellite-s2storage-tools",
+        "s2-geometry-library-java",
+        "satellite-s2storage-testutils"
+    ],
+    test_suites: ["general-tests"],
+}

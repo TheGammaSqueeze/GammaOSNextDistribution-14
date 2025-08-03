@@ -1,0 +1,29 @@
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "TelephonyProviderTests",
+    static_libs: [
+        "mockito-target",
+        "compatibility-device-util-axt",
+        "androidx.test.rules",
+        "truth",
+        "androidx.test.core",
+    ],
+    libs: [
+        "android.test.runner",
+        "telephony-common",
+        "android.test.base",
+        "android.test.mock",
+    ],
+    srcs: [
+        "src/**/*.java",
+        ":telephonyprovider-shared-srcs",
+    ],
+    platform_apis: true,
+    test_suites: ["device-tests"],
+    certificate: "platform",
+    instrumentation_for: "TelephonyProvider",
+}

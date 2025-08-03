@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2013-2015 The CyanogenMod Project
+     SPDX-FileCopyrightText: 2017-2024 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">ಸೆಟಪ್ ವಿಝಾರ್ಡ್</string>
+    <string name="next">ಮುಂದೆ</string>
+    <string name="skip">ಸ್ಕಿಪ್</string>
+    <string name="start">ಪ್ರಾರಂಭಿಸಿ</string>
+    <string name="done">ಆಯ್ತು</string>
+    <string name="ok">ಆಯ್ತು</string>
+    <string name="loading">ಒಂದು ಕ್ಷಣದಲ್ಲಿ\u2026</string>
+    <string name="emergency_call">ತುರ್ತುಸ್ಥಿತಿ ಕರೆ</string>
+    <string name="setup_locale">ಭಾಷೆ</string>
+    <string name="sim_locale_changed">%1$s SIM ಪತ್ತೆಯಾಗಿದೆ</string>
+    <string name="setup_sim_missing">ಸಿಮ್ ಕಾರ್ಡ್ ಇಲ್ಲ</string>
+    <string name="sim_missing_summary" product="tablet">ನಿಮ್ಮ ಟ್ಯಾಬ್ಲೆಟ್‍ನಲ್ಲಿ SIM ಪತ್ತೆಯಾಗಿಲ್ಲ. SIM ಅಳವಡಿಸಲು, ನಿಮ್ಮ ಸಾಧನದೊಂದಿಗೆ ಬಂದಿರುವ ಆದೇಶಗಳನ್ನು ಓದಿ.</string>
+    <string name="sim_missing_summary" product="default">ನಿಮ್ಮ ಫೋನ್ನಲ್ಲಿ SIM ಪತ್ತೆಯಾಗಿಲ್ಲ. SIM ಅಳವಡಿಸಲು, ನಿಮ್ಮ ಸಾಧನದೊಂದಿಗೆ ಬಂದಿರುವ ಆದೇಶಗಳನ್ನು ಓದಿ.</string>
+    <string name="setup_datetime">ದಿನಾಂಕ &amp; ಸಮಯ</string>
+    <string name="date_time_summary">ಅಗತ್ಯವಿದ್ದಲ್ಲಿ ನಿಮ್ಮ ಸಮಯ ವಲಯವನ್ನು ಹಾಗು ಪ್ರಸ್ತುತ ದಿನಾಂಕ ಮತ್ತು ಗಂಟೆಯನ್ನು ಹೊಂದಿಸಿ</string>
+    <string name="setup_current_date">ಪ್ರಸ್ತುತ ದಿನಾಂಕ</string>
+    <string name="setup_current_time">ಪ್ರಸ್ತುತ ಸಮಯ</string>
+    <string name="setup_location">ಸ್ಥಳ ಸೇವೇಗಳು</string>
+    <string name="location_access_summary"><b>ನಿಮ್ಮ ಅನುಮತಿಗಳನ್ನು ಕೇಳಿರುವ ಆಪ್‍ಗಳಿಗೆ</b> ನಿಮ್ಮ ಸ್ಥಳದ ಮಾಹಿತಿಯನ್ನು ಉಪಯೋಗಿಸಲು ಅನುಮತಿಸುತ್ತದೆ. ಇದು ನಿಮ್ಮ ಪ್ರಸ್ತುತ ಸ್ಥಳ ಮತ್ತು ಹಿಂದಿನ ಸ್ಥಳಗಳನ್ನೂ ಒಳಗೊಂಡಿರಬಹುದು.</string>
+    <string name="setup_services">LineageOS ವೈಶಿಷ್ಟ್ಯಗಳು</string>
+    <string name="services_help_improve_cm"><xliff:g id="name" example="LineageOS">%s</xliff:g> ಸುಧಾರಿಸಲು ನೆರವಾಗು</string>
+    <string name="services_os_nav_keys_label">ಯಂತ್ರಾಂಶ ಕೀಲಿಗಳ ಬದಲಾಗಿ <b>ಪರದೆಯ ಮೇಲಿನ ಸಂಚಾಲನೆ ಕೀಲಿಗಳನ್ನು ಉಪಯೋಗಿಸಿ</b>.</string>
+</resources>

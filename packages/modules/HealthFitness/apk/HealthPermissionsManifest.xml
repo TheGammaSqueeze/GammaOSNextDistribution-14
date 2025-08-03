@@ -1,0 +1,508 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.android.healthconnect.controller">
+
+    <permission
+        android:name="android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND"
+        android:label="@string/background_read_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.READ_HEALTH_DATA_HISTORY"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <!-- Read permissions for activities -->
+    <!-- Allows an application to read calories burnt.
+         <p>Protection level: dangerous
+     -->
+    <permission
+        android:name="android.permission.health.READ_ACTIVE_CALORIES_BURNED"
+        android:label="@string/active_calories_burned_read_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.READ_DISTANCE"
+        android:label="@string/distance_read_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.READ_ELEVATION_GAINED"
+        android:label="@string/elevation_gained_read_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.READ_EXERCISE"
+        android:label="@string/exercise_read_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.READ_EXERCISE_ROUTES"
+        android:label="@string/exercise_routes_read_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.READ_EXERCISE_ROUTE"
+        android:label="@string/exercise_route_read_content_description"
+        android:protectionLevel="signature" />
+
+    <permission
+        android:name="android.permission.health.READ_FLOORS_CLIMBED"
+        android:label="@string/floors_climbed_read_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.READ_STEPS"
+        android:label="@string/steps_read_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.READ_TOTAL_CALORIES_BURNED"
+        android:label="@string/total_calories_burned_read_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.READ_VO2_MAX"
+        android:label="@string/vo2_max_read_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.READ_WHEELCHAIR_PUSHES"
+        android:label="@string/wheelchair_pushes_read_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.READ_POWER"
+        android:label="@string/power_read_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.READ_SPEED"
+        android:label="@string/speed_read_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <!-- Read permissions for measurements -->
+    <permission
+        android:name="android.permission.health.READ_BASAL_METABOLIC_RATE"
+        android:label="@string/basal_metabolic_rate_read_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.READ_BODY_FAT"
+        android:label="@string/body_fat_read_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.READ_BODY_WATER_MASS"
+        android:label="@string/body_water_mass_read_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.READ_BONE_MASS"
+        android:label="@string/bone_mass_read_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.READ_HEIGHT"
+        android:label="@string/height_read_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.READ_LEAN_BODY_MASS"
+        android:label="@string/lean_body_mass_read_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.READ_WEIGHT"
+        android:label="@string/weight_read_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <!-- Read permissions for cycle tracking -->
+    <permission
+        android:name="android.permission.health.READ_CERVICAL_MUCUS"
+        android:label="@string/cervical_mucus_read_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.READ_INTERMENSTRUAL_BLEEDING"
+        android:label="@string/intermenstrual_bleeding_read_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.READ_MENSTRUATION"
+        android:label="@string/menstruation_read_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.READ_OVULATION_TEST"
+        android:label="@string/ovulation_test_read_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.READ_SEXUAL_ACTIVITY"
+        android:label="@string/sexual_activity_read_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <!-- Read permissions for nutrition -->
+    <permission
+        android:name="android.permission.health.READ_HYDRATION"
+        android:label="@string/hydration_read_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.READ_NUTRITION"
+        android:label="@string/nutrition_read_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <!-- Read permissions for sleep -->
+    <permission
+        android:name="android.permission.health.READ_SLEEP"
+        android:label="@string/sleep_read_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <!-- Read permissions for vitals -->
+    <permission
+        android:name="android.permission.health.READ_BASAL_BODY_TEMPERATURE"
+        android:label="@string/basal_body_temperature_read_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.READ_BLOOD_GLUCOSE"
+        android:label="@string/blood_glucose_read_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.READ_BLOOD_PRESSURE"
+        android:label="@string/blood_pressure_read_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.READ_BODY_TEMPERATURE"
+        android:label="@string/body_temperature_read_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.READ_HEART_RATE"
+        android:label="@string/heart_rate_read_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.READ_HEART_RATE_VARIABILITY"
+        android:label="@string/heart_rate_variability_read_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.READ_OXYGEN_SATURATION"
+        android:label="@string/oxygen_saturation_read_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.READ_RESPIRATORY_RATE"
+        android:label="@string/respiratory_rate_read_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.READ_RESTING_HEART_RATE"
+        android:label="@string/resting_heart_rate_read_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.READ_SKIN_TEMPERATURE"
+        android:label="@string/skin_temperature_read_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.READ_PLANNED_EXERCISE"
+        android:label="@string/skin_temperature_read_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <!-- Write permissions -->
+    <!-- Write permissions for activities -->
+    <permission
+        android:name="android.permission.health.WRITE_ACTIVE_CALORIES_BURNED"
+        android:label="@string/active_calories_burned_write_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.WRITE_DISTANCE"
+        android:label="@string/distance_write_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.WRITE_ELEVATION_GAINED"
+        android:label="@string/elevation_gained_write_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.WRITE_EXERCISE"
+        android:label="@string/exercise_write_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.WRITE_EXERCISE_ROUTE"
+        android:label="@string/exercise_route_write_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.WRITE_FLOORS_CLIMBED"
+        android:label="@string/floors_climbed_write_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.WRITE_STEPS"
+        android:label="@string/steps_write_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.WRITE_TOTAL_CALORIES_BURNED"
+        android:label="@string/total_calories_burned_write_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.WRITE_VO2_MAX"
+        android:label="@string/vo2_max_write_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.WRITE_WHEELCHAIR_PUSHES"
+        android:label="@string/wheelchair_pushes_write_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.WRITE_POWER"
+        android:label="@string/power_write_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.WRITE_SPEED"
+        android:label="@string/speed_write_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <!-- Write permissions for measurements -->
+    <permission
+        android:name="android.permission.health.WRITE_BASAL_METABOLIC_RATE"
+        android:label="@string/basal_metabolic_rate_write_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.WRITE_BODY_FAT"
+        android:label="@string/body_fat_write_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.WRITE_BODY_WATER_MASS"
+        android:label="@string/body_water_mass_write_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.WRITE_BONE_MASS"
+        android:label="@string/bone_mass_write_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.WRITE_HEIGHT"
+        android:label="@string/height_write_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.WRITE_LEAN_BODY_MASS"
+        android:label="@string/lean_body_mass_write_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.WRITE_WEIGHT"
+        android:label="@string/weight_write_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <!-- Write permissions for cycle tracking -->
+    <permission
+        android:name="android.permission.health.WRITE_CERVICAL_MUCUS"
+        android:label="@string/cervical_mucus_write_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.WRITE_INTERMENSTRUAL_BLEEDING"
+        android:label="@string/intermenstrual_bleeding_write_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.WRITE_MENSTRUATION"
+        android:label="@string/menstruation_write_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.WRITE_OVULATION_TEST"
+        android:label="@string/ovulation_test_write_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.WRITE_SEXUAL_ACTIVITY"
+        android:label="@string/sexual_activity_write_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <!-- Write permissions for nutrition -->
+    <permission
+        android:name="android.permission.health.WRITE_HYDRATION"
+        android:label="@string/hydration_write_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.WRITE_NUTRITION"
+        android:label="@string/nutrition_write_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <!-- Write permissions for sleep -->
+    <permission
+        android:name="android.permission.health.WRITE_SLEEP"
+        android:label="@string/sleep_write_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <!-- Write permissions for vitals -->
+    <permission
+        android:name="android.permission.health.WRITE_BASAL_BODY_TEMPERATURE"
+        android:label="@string/basal_body_temperature_write_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.WRITE_BLOOD_GLUCOSE"
+        android:label="@string/blood_glucose_write_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.WRITE_BLOOD_PRESSURE"
+        android:label="@string/blood_pressure_write_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.WRITE_BODY_TEMPERATURE"
+        android:label="@string/body_temperature_write_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.WRITE_HEART_RATE"
+        android:label="@string/heart_rate_write_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.WRITE_HEART_RATE_VARIABILITY"
+        android:label="@string/heart_rate_variability_write_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.WRITE_OXYGEN_SATURATION"
+        android:label="@string/oxygen_saturation_write_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.WRITE_RESPIRATORY_RATE"
+        android:label="@string/respiratory_rate_write_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.WRITE_RESTING_HEART_RATE"
+        android:label="@string/resting_heart_rate_write_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.WRITE_SKIN_TEMPERATURE"
+        android:label="@string/skin_temperature_write_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+
+    <permission
+        android:name="android.permission.health.WRITE_PLANNED_EXERCISE"
+        android:label="@string/skin_temperature_write_content_description"
+        android:protectionLevel="dangerous"
+        android:permissionGroup="android.permission-group.HEALTH" />
+</manifest>

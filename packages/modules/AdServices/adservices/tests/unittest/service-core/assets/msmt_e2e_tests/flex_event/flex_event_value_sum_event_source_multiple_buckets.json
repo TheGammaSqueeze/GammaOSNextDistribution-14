@@ -1,0 +1,139 @@
+{
+  "description": "value sum on navigation source, trigger are cross multiple bucket",
+  "phflags_override": {
+    "measurement_flexible_event_reporting_api_enabled": "true"
+  },
+  "input": {
+    "sources": [
+      {
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech1.test",
+          "source_type": "navigation",
+          "registrant": "example.1s1.test"
+        },
+        "responses": [
+          {
+            "url": "https://www.ad-tech1.test",
+            "response": {
+              "Attribution-Reporting-Register-Source": {
+                "source_event_id": "2",
+                "destination": "android-app://example.2d1.test",
+                "priority": "20",
+                "expiry": "604801",
+                "trigger_specs": [
+                  {
+                    "trigger_data": [
+                      0,
+                      1
+                    ],
+                    "event_report_windows": {
+                      "start_time": 0,
+                      "end_times": [
+                        172800,
+                        604800
+                      ]
+                    },
+                    "summary_window_operator": "value_sum",
+                    "summary_buckets": [
+                      10,
+                      100
+                    ]
+                  }
+                ],
+                "max_event_level_reports": 2
+              },
+              "Location": null,
+              "Attribution-Reporting-Redirect": null
+            }
+          }
+        ],
+        "timestamp": "1800000600001"
+      }
+    ],
+    "triggers": [
+      {
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech1.test",
+          "registrant": "example.2d1.test"
+        },
+        "responses": [
+          {
+            "url": "https://www.ad-tech1.test",
+            "response": {
+              "Attribution-Reporting-Register-Trigger": {
+                "event_trigger_data": [
+                  {
+                    "trigger_data": "0",
+                    "priority": "100",
+                    "deduplication_key": "10",
+                    "value": 20
+                  }
+                ]
+              },
+              "Location": null,
+              "Attribution-Reporting-Redirect": null
+            }
+          }
+        ],
+        "timestamp": "1800001800001"
+      },
+      {
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech1.test",
+          "registrant": "example.2d1.test"
+        },
+        "responses": [
+          {
+            "url": "https://www.ad-tech1.test",
+            "response": {
+              "Attribution-Reporting-Register-Trigger": {
+                "event_trigger_data": [
+                  {
+                    "trigger_data": "0",
+                    "priority": "101",
+                    "deduplication_key": "9",
+                    "value": 90
+                  }
+                ]
+              },
+              "Location": null,
+              "Attribution-Reporting-Redirect": null
+            }
+          }
+        ],
+        "timestamp": "1800203600001"
+      }
+    ]
+  },
+  "output": {
+    "event_level_results": [
+      {
+        "report_time": "1800177000001",
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/report-event-attribution",
+        "payload": {
+          "attribution_destination": "android-app://example.2d1.test",
+          "scheduled_report_time": "1800177000",
+          "source_event_id": "2",
+          "trigger_data": "0",
+          "source_type": "navigation",
+          "trigger_summary_bucket": [10, 99],
+          "randomized_trigger_rate": 0.0000125
+        }
+      },
+      {
+        "report_time": "1800609000001",
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/report-event-attribution",
+        "payload": {
+          "attribution_destination": "android-app://example.2d1.test",
+          "scheduled_report_time": "1800609000",
+          "source_event_id": "2",
+          "trigger_data": "0",
+          "source_type": "navigation",
+          "trigger_summary_bucket": [100, 4294967295],
+          "randomized_trigger_rate": 0.0000125
+        }
+      }
+    ],
+    "aggregatable_results": []
+  }
+}

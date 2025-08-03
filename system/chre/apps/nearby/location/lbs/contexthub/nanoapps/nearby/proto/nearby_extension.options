@@ -1,0 +1,39 @@
+//  Copyright (C) 2023 The Android Open Source Project
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//       http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+
+nearby_extension.ExtConfigRequest.FilterConfig.oem_filter max_size:800
+nearby_extension.ExtConfigRequest.FilterConfig.oem_filter type:FT_INLINE
+
+nearby_extension.ExtConfigRequest.FilterConfig.hardware_filter max_count:10
+nearby_extension.ExtConfigRequest.FilterConfig.hardware_filter type:FT_STATIC
+
+nearby_extension.ExtConfigRequest.ServiceConfig.data max_size:800
+nearby_extension.ExtConfigRequest.ServiceConfig.data type:FT_INLINE
+
+nearby_extension.ChreBleGenericFilter.data max_size:29
+nearby_extension.ChreBleGenericFilter.data type:FT_INLINE
+
+nearby_extension.ChreBleGenericFilter.data_mask max_size:29
+nearby_extension.ChreBleGenericFilter.data_mask type:FT_INLINE
+
+nearby_extension.FilterResult.report max_count:1
+nearby_extension.FilterResult.report type:FT_STATIC
+
+nearby_extension.ChreBleAdvertisingReport.address max_size:6
+nearby_extension.ChreBleAdvertisingReport.address type:FT_INLINE
+
+nearby_extension.ChreBleAdvertisingReport.data max_size:255
+nearby_extension.ChreBleAdvertisingReport.data type:FT_INLINE
+
+
+

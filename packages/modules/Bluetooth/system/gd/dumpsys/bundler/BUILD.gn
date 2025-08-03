@@ -1,0 +1,51 @@
+#
+#  Copyright 2021 Google, Inc.
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at:
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
+import("//bt/system/gd/dumpsys/bundler/bundler.gni")
+import("//common-mk/flatbuffer.gni")
+
+bt_flatc_binary_schema("BluetoothGeneratedBundlerSchema_h_bfbs") {
+  sources = [ "bundler_schema.fbs" ]
+  include_dir = "bt/system/gd"
+  gen_header = true
+}
+
+#
+# The remaining rules are for building on the host
+#
+
+config("bundler_defaults") {
+  cflags = [ "-fPIC" ]
+
+  cflags_cc = [
+    "-std=c++17",
+    "-Wno-unused-parameter",
+    "-Wno-unused-variable",
+    "-Wno-poison-system-directories",
+  ]
+}
+
+executable("bluetooth_flatbuffer_bundler") {
+  sources = [
+    "bundler.cc",
+    "main.cc",
+  ]
+
+  libs = [ "flatbuffers" ]
+
+  deps = [ ":BluetoothGeneratedBundlerSchema_h_bfbs" ]
+
+  configs += [ ":bundler_defaults" ]
+}

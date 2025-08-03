@@ -1,0 +1,45 @@
+syntax = "proto2";
+
+message Duration {
+  required int64 seconds = 1;
+  required int32 nanos = 2;
+}
+
+// Proto used by Adevice Tool for Users
+message AdeviceLogEvent {
+  // ------------------------
+  // EVENT DEFINITIONS
+  // ------------------------
+  // Occurs immediately upon execution of adevice
+  message AdeviceStartEvent {
+    optional string command_line = 1;
+    repeated string test_references = 2;
+    optional string cwd = 3;
+    optional string os = 4;
+    optional string target = 5;
+  }
+  // Occurs when adevice exits for any reason
+  message AdeviceExitEvent {
+    optional Duration duration = 1;
+    optional int32 exit_code = 2;
+    optional string stacktrace = 3;
+    optional string logs = 4;
+  }
+  // Occurs when an action is performed by adevice
+  message AdeviceActionEvent {
+    optional string action = 1;
+    optional string outcome = 2;
+    repeated string file_changed = 3;
+    optional Duration duration = 4;
+  }
+  // ------------------------
+  // FIELDS FOR ADEVICELOGEVENT
+  // ------------------------
+  optional string user_key = 1;
+  optional string run_id = 2;
+  oneof event {
+    AdeviceStartEvent adevice_start_event = 3;
+    AdeviceExitEvent adevice_exit_event = 4;
+    AdeviceActionEvent adevice_action_event = 5;
+  }
+}

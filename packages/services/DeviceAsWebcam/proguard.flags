@@ -1,0 +1,9 @@
+# Keeps methods that are invoked by JNI.
+
+-keep class com.android.DeviceAsWebcam.annotations.UsedBy*
+
+-keep @com.android.DeviceAsWebcam.annotations.UsedBy* class *
+-keepclassmembers class * {
+  @com.android.DeviceAsWebcam.annotations.UsedByNative *;
+}
+

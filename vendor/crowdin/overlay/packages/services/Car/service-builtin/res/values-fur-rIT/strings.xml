@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2015 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="car_permission_label_bind_projection_service">associâ a un servizi di proiezion</string>
+    <string name="car_permission_desc_bind_projection_service">Al permet al titolâr di associâsi ae interface di nivel superiôr di un servizi di proiezion. Nol varès di coventâ mai pes normâls aplicazions.</string>
+    <string name="car_permission_label_bind_vms_client">Servizi client VMS</string>
+    <string name="car_permission_desc_bind_vms_client">Vincolâ a clients VMS</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering">Rapresentazion sul cuadri struments</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering">Ricevi dâts dal cuadri struments</string>
+    <string name="car_permission_label_bind_input_service">Servizi di input de machine</string>
+    <string name="car_permission_desc_bind_input_service">Gjestî i events di input</string>
+    <string name="activity_blocked_text">No tu puedis doprâ cheste funzion intant che tu vuidis</string>
+    <string name="exit_button_message">Selezione <xliff:g id="exit_button" example="Back">%s</xliff:g> par tornâ a scomençâ cu lis funzionalitâts siguris de aplicazion.</string>
+    <string name="exit_button">Indaûr</string>
+    <string name="exit_button_close_application">Siere la aplicazion</string>
+    <string name="exit_button_go_back">Indaûr</string>
+    <string name="importance_default">Impuartance predefinide</string>
+    <string name="importance_high">Impuartance elevade</string>
+    <string name="android_system_label">Sisteme Android</string>
+    <string name="factory_reset_notification_title">Ripristinment di fabriche necessari</string>
+    <string name="factory_reset_notification_text">A vignaran scancelâts ducj i dâts tal sisteme di infotainment. Dopo vê ripristinât, tu podarâs configurâ un gnûf profîl.</string>
+    <string name="factory_reset_notification_button">Altri</string>
+    <string name="factory_reset_warning">Il to dispositîf al vignarà scancelât</string>
+    <string name="factory_reset_message">Nol è pussibil doprâ la aplicazion di aministrazion. Cumò il to dispositîf al vignarà
+        scancelât.\n\nSe tu âs domandis, contate l\'aministradôr de to organizazion.</string>
+    <string name="resource_overuse_notification_title">La aplic. <xliff:g name="app_name" example="Maps">^1</xliff:g> e sta influençant lis prestazions dal sisteme</string>
+    <string name="resource_overuse_notification_text_disabled_app">A cheste aplicazion e je stade impedide la esecuzion in sotfont. Da prioritât ae aplicazion par continuâ la utilizazion in sotfont.</string>
+    <string name="resource_overuse_notification_button_close_app">Siere</string>
+    <string name="resource_overuse_notification_button_prioritize_app">Da prioritât a aplicazion</string>
+</resources>

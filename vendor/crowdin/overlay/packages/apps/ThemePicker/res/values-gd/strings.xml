@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2018 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="theme_title">Stoidhle</string>
+    <string name="clock_color">Dath</string>
+    <string name="apply_theme_btn">Cuir an sàs</string>
+    <string name="edit_custom_theme_lbl">Thoir gnogag gus a dheasachadh</string>
+    <string name="keep_my_wallpaper">Cùm am pàipear-balla làithreach</string>
+    <string name="theme_preview_card_content_description">Ro-shealladh na stoidhle</string>
+    <string name="grid_preview_card_content_description">Ro-shealladh a’ ghrioda</string>
+    <string name="font_preview_content_description">Ro-shealladh a’ chrutha-chlò</string>
+    <string name="icon_preview_content_description">Ro-shealladh nan ìomhaigheagan</string>
+    <string name="color_preview_content_description">Ro-shealladh nan dathan</string>
+    <string name="shape_preview_content_description">Ro-shealladh nan cruthan</string>
+    <string name="option_applied_description"><xliff:g name="style_name">%1$s</xliff:g>, an sàs an-dràsta</string>
+    <string name="option_applied_previewed_description"><xliff:g name="style_name">%1$s</xliff:g>, an sàs is san ro-shealladh an-dràsta</string>
+    <string name="option_previewed_description"><xliff:g name="style_name">%1$s</xliff:g>, san ro-shealladh an-dràsta</string>
+    <string name="theme_description">Cruth-clò: <xliff:g name="font_name">%1$s</xliff:g>, ìomhaigheagan: <xliff:g name="icon_name">%2$s</xliff:g>, cruth: <xliff:g name="shape_name">%3$s</xliff:g>, dath: <xliff:g name="color_name">%4$s</xliff:g> </string>
+    <string name="default_theme_title">Bun-roghainn</string>
+    <string name="preview_name_font">Cruth-clò</string>
+    <string name="preview_name_icon">Ìomhaigheag</string>
+    <string name="preview_name_color">Dath</string>
+    <string name="preview_name_shape">Cruth</string>
+    <string name="preview_name_wallpaper">Pàipear-balla</string>
+    <string name="font_card_title">ÀBC • àbc • 123</string>
+    <string name="font_card_body">Cuir na cruthan-clò as fheàrr leat ri gach sgrìn</string>
+    <string name="grid_options_title">Tagh meud a’ ghrioda</string>
+    <string name="grid_title_pattern"><xliff:g name="num_cols" example="1">%1$d</xliff:g>x<xliff:g name="num_rows" example="1">%2$d</xliff:g></string>
+    <string name="applied_theme_msg">Chaidh an stoidhle a shuidheachadh</string>
+    <string name="applied_clock_msg">Chaidh an cleoc a shuidheachadh</string>
+    <string name="applied_grid_msg">Chaidh an griod a shuidheachadh</string>
+    <string name="apply_theme_error_msg">Thachair duilgheadas le cur an sàs na stoidhle</string>
+    <string name="custom_theme_next">Air adhart</string>
+    <string name="custom_theme_previous">Air ais</string>
+    <string name="custom_theme">Gnàthaichte</string>
+    <string name="custom_theme_title">Gnàthaichte <xliff:g name="custom_num" example="1">%1$d</xliff:g></string>
+    <string name="custom_theme_fragment_title">Stoidhle ghnàthaichte</string>
+    <string name="custom_theme_delete">Sguab às</string>
+    <string name="font_component_title">Tagh cruth-clò</string>
+    <string name="icon_component_title">Tagh ìomhaigheagan</string>
+    <string name="color_component_title">Tagh dath</string>
+    <string name="shape_component_title">Tagh cruth</string>
+    <string name="name_component_title">Thoir ainm air an stoidhle agad</string>
+    <string name="icon_component_label">Ìomhaigheagan <xliff:g name="component_number" example="1">%1$d</xliff:g></string>
+    <string name="delete_custom_theme_confirmation">An sguab thu às an stoidhle ghnàthaichte?</string>
+    <string name="delete_custom_theme_button">Sguab às</string>
+    <string name="cancel">Sguir dheth</string>
+    <string name="set_theme_wallpaper_dialog_message">Suidhich pàipear-balla na stoidhle</string>
+    <string name="use_style_instead_title">An cleachd thu <xliff:g name="style_name">%1$s</xliff:g> ’na àite?</string>
+    <string name="use_style_instead_body">Tha na co-phàirtean a thagh thu san stoidhle <xliff:g name="style_name">%1$s</xliff:g>. Am bu toigh leat <xliff:g name="style_name">%1$s</xliff:g> a chleachdadh ’na àite?</string>
+    <string name="use_style_button">Cleachd <xliff:g name="style_name">%1$s</xliff:g></string>
+    <string name="no_thanks">Cha bu toigh, mòran taing</string>
+    <string name="clock_preview_content_description">Ro-shealladh air cleoc <xliff:g name="clock_name">%1$s</xliff:g></string>
+    <string name="something_went_wrong">Oich! Chaidh rudeigin ceàrr.</string>
+    <string name="theme_preview_icons_section_title">Dathan / Ìomhaigheagan</string>
+    <string name="style_info_description">Ro-shealladh air a’ chruth-chlò, na h-ìomhaigheagan, cruth nan aplacaidean is nan dathan</string>
+</resources>

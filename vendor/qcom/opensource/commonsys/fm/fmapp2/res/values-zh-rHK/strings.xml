@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (c) 2009, 2011-2013 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2014-2015 The CyanogenMod Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *    * Neither the name of The Linux Foundation nor
+ *      the names of its contributors may be used to endorse or promote
+ *      products derived from this software without specific prior written
+ *      permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NON-INFRINGEMENT ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">FM 收音機</string>
+    <string name="tx_app_name">FM 發射器</string>
+    <string name="menu_scan_start">掃描</string>
+    <string name="menu_scan_stop">停止搜尋</string>
+    <string name="menu_settings">設定</string>
+    <string name="menu_sleep">休眠</string>
+    <string name="menu_sleep_cancel">取消休眠</string>
+    <string name="menu_all_channels">所有頻道</string>
+    <string name="menu_display_tags">顯示標籤</string>
+    <string name="button_text_stop">停止</string>
+    <string name="msg_seeking">正在搜尋 FM 電台\u2026</string>
+    <string name="msg_scanning">正在掃描以獲取所有 FM 電台\u2026</string>
+    <string name="msg_scanning_pty">正在掃描以獲取「<xliff:g id="pty_name">%1$s</xliff:g>」\u2026</string>
+    <string name="msg_search_title"><xliff:g id="frequency_string">%1$s</xliff:g> MHz</string>
+    <string name="msg_searching_title">自動選擇預設值</string>
+    <string name="msg_searching">正在搜尋接收良好的電台來創建一個預設清單\u2026</string>
+    <string name="msg_noantenna">請插上耳機來使用 FM 收音機</string>
+    <string name="dialog_sleep_title">自動關閉休眠時間</string>
+    <string name="presetlist_select_name">選擇「<xliff:g id="presetlist_name">%1$s</xliff:g>」</string>
+    <string name="presetlist_add_new">新增新清單</string>
+    <string name="dialog_presetlist_rename_title">輸入名稱</string>
+    <string name="presetlist_autoselect_title">確認自動選擇</string>
+    <string name="preset_tune">調整</string>
+    <string name="preset_rename">重新命名</string>
+    <string name="preset_delete">刪除</string>
+    <string name="preset_search">搜尋「<xliff:g id="preset_pi">%1$s</xliff:g>」</string>
+    <string name="stat_notif_frequency">\'<xliff:g id="frequency">%1$s</xliff:g>\' MHz</string>
+    <string name="regional_band">地區波段</string>
+    <string name="regional_band_entry_north_america">北美</string>
+    <string name="regional_band_entry_europe">歐洲</string>
+    <string name="regional_band_entry_japan">日本</string>
+    <string name="regional_band_entry_japan_wide">日本 (廣泛)</string>
+    <string name="regional_band_entry_australia">澳洲</string>
+    <string name="regional_band_entry_austria">奧地利</string>
+    <string name="regional_band_entry_belgium">比利時</string>
+    <string name="regional_band_entry_brazil">巴西</string>
+    <string name="regional_band_entry_china">中國</string>
+    <string name="regional_band_entry_czech_republic">Czech Republic</string>
+    <string name="regional_band_entry_denmark">丹麥</string>
+    <string name="regional_band_entry_finland">芬蘭</string>
+    <string name="regional_band_entry_france">法國</string>
+    <string name="regional_band_entry_germany">德國</string>
+    <string name="regional_band_entry_greece">希臘</string>
+    <string name="regional_band_entry_hong_kong">香港</string>
+    <string name="regional_band_entry_india">印度</string>
+    <string name="regional_band_entry_indonesia">Indonesia</string>
+    <string name="regional_band_entry_ireland">愛爾蘭</string>
+    <string name="regional_band_entry_italy">意大利</string>
+    <string name="regional_band_entry_korea">韓國</string>
+    <string name="regional_band_entry_mexico">墨西哥</string>
+    <string name="regional_band_entry_netherlands">荷蘭</string>
+    <string name="regional_band_entry_new_zealand">紐西蘭</string>
+    <string name="regional_band_entry_norway">挪威</string>
+    <string name="regional_band_entry_poland">波蘭</string>
+    <string name="regional_band_entry_portugal">葡萄牙</string>
+    <string name="regional_band_entry_russia">俄羅斯</string>
+    <string name="regional_band_entry_singapore">新加坡</string>
+    <string name="regional_band_entry_slovakia">斯洛伐克</string>
+    <string name="regional_band_entry_spain">西班牙</string>
+    <string name="regional_band_entry_switzerland">瑞士</string>
+    <string name="regional_band_entry_sweden">瑞典</string>
+    <string name="regional_band_entry_taiwan">台灣</string>
+    <string name="regional_band_entry_turkey">土耳其</string>
+    <string name="regional_band_entry_united_kingdom">United Kingdom</string>
+    <string name="regional_band_entry_united_states">美國</string>
+    <string name="regional_band_entry_user_defined">使用者定義的頻段</string>
+    <string name="regional_band_summary_user_defined">使用者定義的頻段</string>
+    <string name="aud_output_mode">音訊輸出模式</string>
+    <string name="audio_type_stereo">立體聲</string>
+    <string name="record_dur">記錄時間</string>
+    <string name="auto_select_af">備用頻率</string>
+    <string name="settings_revert_defaults_title">恢復到出廠預設</string>
+    <string name="settings_revert_defaults_summary">清除所有設定</string>
+    <string name="settings_revert_confirm_msg">將會清除所有應用程式設定，包括已儲存的預設值。是否繼續？</string>
+    <string name="access_sd_fail">無法存取 SD 卡。</string>
+    <string name="spaceIsLow_content">您的 SD 卡儲存空間用完，更改質量設定或刪除一些其他的檔案以釋放空間。</string>
+    <string name="menu_scan_for_preset">掃描預設</string>
+    <string name="fm_off">FM 已關閉。</string>
+    <string name="fm_call">FM 不能在通話時使用。</string>
+    <string name="search_dialog_title">掃描電台</string>
+    <string name="fm_command_timeout_title">逾時</string>
+    <string name="fm_tune_timeout_msg">沒有收到要 FM 電台的回應。如果問題仍然存在，請關閉 FM，並將其重新開啟。</string>
+    <string name="fm_command_failed_title">FM 操作失敗</string>
+    <string name="fm_cmd_failed_msg">FM 操作失敗。如果問題仍然存在，請關閉 FM 及重新開啟。</string>
+    <string name="fm_cmd_failed_msg_hdmi">FM 操作失敗。不支援 FM 和 HDMI 的並行。</string>
+    <string name="fm_cmd_failed_call_on">FM 操作失敗。通話期間不允許 FM 音頻。</string>
+    <string name="station_name">電台：</string>
+    <string name="station_exists">此頻率已存在!</string>
+    <string name="station_list_delete_station">刪除：<xliff:g id="name">%s</xliff:g></string>
+    <string name="station_list_delete_station_prompt">是否確定要刪除「<xliff:g id="name">%s</xliff:g>」？</string>
+    <string name="station_name_empty">電台名字不能為空，請新重輸入</string>
+    <string name="station_name_exist">「<xliff:g id="name">%s</xliff:g>」已被使用，請輸入其他名稱。</string>
+    <string name="rt_plus_tags">標籤</string>
+    <string name="usr_def_band_min">最低頻率 (MHz)</string>
+    <string name="usr_def_band_max">最高頻率 (MHz)</string>
+    <string name="chanl_spacing">頻道距間</string>
+    <string name="set">設定</string>
+    <string name="fm_search_no_results">找不到相容的電台</string>
+</resources>

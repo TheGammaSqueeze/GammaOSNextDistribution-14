@@ -1,0 +1,37 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "MtsProfilingModuleTests",
+    defaults: ["cts_defaults"],
+    static_libs: [
+        "androidx.test.rules",
+        "androidx.test.ext.truth",
+        "compatibility-device-util-axt",
+        "ctstestrunner-axt",
+        "cts-wm-util",
+        "modules-utils-build",
+        "service-profiling",
+        "android.os.profiling.flags-aconfig-java",
+        "framework-profiling.impl",
+        "testng",
+    ],
+    libs: [
+        "android.test.runner",
+        "android.test.base",
+        "framework-profiling-proto",
+        "android.test.mock",
+        "junit",
+    ],
+    srcs: [
+        "src/android/profiling/cts/*.java",
+    ],
+    test_suites: [
+        "cts",
+        "general-tests",
+        "mts-profiling",
+    ],
+    min_sdk_version: "34",
+    sdk_version: "module_current",
+}

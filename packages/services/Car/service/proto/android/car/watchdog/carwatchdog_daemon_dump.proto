@@ -1,0 +1,75 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto3";
+
+package android.automotive.watchdog;
+
+import "performance_stats.proto";
+import "health_check_client_info.proto";
+
+// Represents the CarWatchdog daemon dump.
+message CarWatchdogDaemonDump {
+  optional PerformanceProfilerDump performance_profiler_dump = 1;
+  optional HealthCheckServiceDump health_check_service_dump = 2;
+  // TODO(b/183436216): Add a field to capture flash memory overuse stats from
+  // the CarWatchdog daemon and CarWatchdogService.
+}
+
+message PerformanceProfilerDump {
+  enum EventType {
+    EVENT_TYPE_UNSPECIFIED = 0;
+    INIT = 1;
+    TERMINATED = 2;
+    BOOT_TIME_COLLECTION = 3;
+    PERIODIC_COLLECTION = 4;
+    USER_SWITCH_COLLECTION = 5;
+    WAKE_UP_COLLECTION = 6;
+    CUSTOM_COLLECTION = 7;
+  }
+  optional EventType current_event = 1;
+  optional PerformanceStats performance_stats = 2;
+}
+
+message HealthCheckServiceDump {
+  optional bool is_enabled = 1;
+  optional bool is_monitor_registered = 2;
+  optional bool is_system_shut_down_in_progress = 3;
+  repeated int32 stopped_users = 4;
+  optional int64 critical_health_check_window_millis = 5;
+  optional int64 moderate_health_check_window_millis = 6;
+  optional int64 normal_health_check_window_millis = 7;
+  optional VhalHealthCheckInfo vhal_health_check_info = 8;
+  repeated HealthCheckClientInfo registered_client_infos = 9;
+}
+
+// Represents the VHAL health check information.
+message VhalHealthCheckInfo {
+  enum CachingProgressState {
+    CACHING_PROGRESS_STATE_UNSPECIFIED = 0;
+    IN_PROGRESS = 1;
+    SUCCESS = 2;
+    FAILURE = 3;
+  }
+
+  optional bool is_enabled = 1;
+  optional int64 health_check_window_millis = 2;
+  optional int64 last_heartbeat_update_ago_millis = 3;
+  optional bool is_client_registered = 4;
+  optional CachingProgressState pid_caching_progress_state = 5;
+  optional int32 pid = 6;
+  optional int64 start_time_millis = 7;
+}

@@ -1,0 +1,322 @@
+#!/sbin/sh
+
+OUTFD="/proc/self/fd/$2"
+ZIP=$3
+
+set_con() {
+  chcon -h u:object_r:"$1":s0 $2
+  chcon u:object_r:"$1":s0 $2
+}
+
+set_perm() {
+  chmod $1 $2
+}
+
+set_owner() {
+  chown $1:$2 $3
+}
+
+ui_print() {
+  echo "ui_print $1" > "$OUTFD";
+  echo "ui_print" > "$OUTFD";
+}
+
+getprop2() {
+  grep -m 1 "^$2=" $1 | cut -d= -f2
+}
+
+cleanup() {
+  ui_print "Cleaning up files"
+  rm -rf $TMP/system
+  rm -rf $TMP/bin
+  rm $TMP/toybox
+
+  ui_print "Unmounting partitions"
+  umount -l "$SYSTEM_MNT"
+  umount -l /product || true
+  umount -l /system_ext || true
+}
+
+error() {
+  ui_print "$1"
+  cleanup
+  exit 1
+}
+
+error_no_space() {
+  error "Not enough space for GApps! Aborting"
+}
+
+error_mounting() {
+  error "Could not mount $1! Aborting"
+}
+
+get_block_for_mount_point() {
+  grep -v "^#" /etc/recovery.fstab | grep "[[:blank:]]$1[[:blank:]]" | tail -n1 | tr -s [:blank:] ' ' | cut -d' ' -f1
+}
+
+find_block() {
+  local name="$1"
+  local fstab_entry=$(get_block_for_mount_point "/$name")
+  # P-SAR hacks
+  [ -z "$fstab_entry" ] && [ "$name" = "system" ] && fstab_entry=$(get_block_for_mount_point "/")
+  [ -z "$fstab_entry" ] && [ "$name" = "system" ] && fstab_entry=$(get_block_for_mount_point "/system_root")
+
+  local dev
+  if [ "$DYNAMIC_PARTITIONS" = "true" ]; then
+    if [ -n "$fstab_entry" ]; then
+      dev="${BLK_PATH}/${fstab_entry}${SLOT_SUFFIX}"
+    else
+      dev="${BLK_PATH}/${name}${SLOT_SUFFIX}"
+    fi
+  else
+    if [ -n "$fstab_entry" ]; then
+      dev="${fstab_entry}${SLOT_SUFFIX}"
+    else
+      dev="${BLK_PATH}/${name}${SLOT_SUFFIX}"
+    fi
+  fi
+
+  if [ -b "$dev" ]; then
+    echo "$dev"
+  fi
+}
+
+compute_apps_size() {
+  NEEDED_STORAGE_SYSTEM=$(expr $(du -cs `find -maxdepth 1 -mindepth 1 ! -name product ! -name system_ext` | tail -n1 | cut -f1) + $STORAGE_BUFFER)
+  NEEDED_STORAGE_PRODUCT=$(expr $(du -s ./product | cut -f1) + $STORAGE_BUFFER)
+  NEEDED_STORAGE_SYSTEM_EXT=$(expr $(du -s ./system_ext | cut -f1) + $STORAGE_BUFFER)
+
+  RECLAIMABLE_STORAGE_SYSTEM=$(find . ! -path "./product/*" ! -path "./system_ext/*" -type f | sed "s|^./|$SYSTEM_OUT/|" | xargs ls -d 2>/dev/null | xargs du -cs PLACEHOLDER 2>/dev/null | tail -n1 |  cut -f1)
+  NEEDED_STORAGE_SYSTEM=$(expr $NEEDED_STORAGE_SYSTEM - $RECLAIMABLE_STORAGE_SYSTEM)
+
+  RECLAIMABLE_STORAGE_PRODUCT=$(find ./product -type f | sed "s|^./|$SYSTEM_OUT/|" | xargs ls -d 2>/dev/null | xargs du -cs PLACEHOLDER 2>/dev/null | tail -n1 |  cut -f1)
+  NEEDED_STORAGE_PRODUCT=$(expr $NEEDED_STORAGE_PRODUCT - $RECLAIMABLE_STORAGE_PRODUCT)
+
+  RECLAIMABLE_STORAGE_SYSTEM_EXT=$(find ./system_ext -type f | sed "s|^./|$SYSTEM_OUT/|" | xargs ls -d 2>/dev/null | xargs du -cs PLACEHOLDER 2>/dev/null | tail -n1 |  cut -f1)
+  NEEDED_STORAGE_SYSTEM_EXT=$(expr $NEEDED_STORAGE_SYSTEM_EXT - $RECLAIMABLE_STORAGE_SYSTEM_EXT)
+
+  if [ -z "$PRODUCT_BLOCK" ]; then
+    NEEDED_STORAGE_SYSTEM=$(expr $NEEDED_STORAGE_SYSTEM + $NEEDED_STORAGE_PRODUCT - $STORAGE_BUFFER)
+  fi
+  if [ -z "$SYSTEM_EXT_BLOCK" ]; then
+    NEEDED_STORAGE_SYSTEM=$(expr $NEEDED_STORAGE_SYSTEM + $NEEDED_STORAGE_SYSTEM_EXT - $STORAGE_BUFFER)
+  fi
+}
+
+remove_big_optional_apps() {
+  ui_print "Low resource device detected, removing large extras"
+  rm -rf product/app/GoogleTTS
+  rm -rf product/app/MarkupGoogle
+  rm -rf product/app/SpeechServicesByGoogle
+  rm -rf product/app/talkback
+  rm -rf product/priv-app/GoogleRestore
+  rm -rf product/priv-app/Velvet
+  rm -rf product/priv-app/VelvetTitan
+  rm -rf product/priv-app/Wellbeing
+  rm -rf system_ext/priv-app/SetupWizard
+}
+
+ui_print "**********************"
+ui_print "MindTheGapps installer"
+ui_print "**********************"
+
+ui_print "Extracting files"
+TMP=/tmp
+cd "$TMP"
+unzip -o "$ZIP"
+rm -rf META-INF
+
+# Check for arch. We need to do this before extracting our toybox, since that might be
+# compiled for a different architecture. Just hope that all environments have at least
+# a proper `grep` and `uname`.
+GAPPS_ARCH=$(getprop2 $TMP/build.prop arch)
+CPU_ARCH=$(getprop ro.bionic.arch)
+if [ $GAPPS_ARCH != $CPU_ARCH ]; then
+  error "This package is built for $GAPPS_ARCH but your device is $CPU_ARCH! Aborting"
+fi
+
+ui_print "Setting up environment"
+TOYBOX="${TMP}/toybox"
+chmod +x "$TOYBOX"
+
+TOYS_PATH="${TMP}/bin"
+rm -rf "$TOYS_PATH";
+$TOYBOX install -d "$TOYS_PATH"
+for toy in $($TOYBOX); do
+  $TOYBOX ln -sf "$TOYBOX" "${TOYS_PATH}/${toy}"
+done
+PATH="${TOYS_PATH}:${PATH}"
+
+ui_print "Mounting partitions"
+
+# Ensure system is unmounted so mounting succeeds
+umount /system || umount /mnt/system || true
+umount /product || true
+umount /system_ext || true
+
+# Find partitions
+DYNAMIC_PARTITIONS=`getprop ro.boot.dynamic_partitions`
+if [ "$DYNAMIC_PARTITIONS" = "true" ]; then
+    BLK_PATH="/dev/block/mapper"
+else
+    BLK_PATH=/dev/block/bootdevice/by-name
+fi
+
+CURRENTSLOT=`getprop ro.boot.slot_suffix`
+if [ ! -z "$CURRENTSLOT" ]; then
+  if [ "$CURRENTSLOT" == "_a" ]; then
+    SLOT_SUFFIX="_a"
+  else
+    SLOT_SUFFIX="_b"
+  fi
+fi
+
+SYSTEM_BLOCK=$(find_block "system")
+PRODUCT_BLOCK=$(find_block "product")
+SYSTEM_EXT_BLOCK=$(find_block "system_ext")
+
+# Disable rw protection on dynamic partitions
+if [ "$DYNAMIC_PARTITIONS" = "true" ]; then
+  blockdev --setrw "$SYSTEM_BLOCK"
+  if [ -n "$PRODUCT_BLOCK" ]; then
+    blockdev --setrw "$PRODUCT_BLOCK"
+  fi
+  if [ -n "$SYSTEM_EXT_BLOCK" ]; then
+    blockdev --setrw "$SYSTEM_EXT_BLOCK"
+  fi
+fi
+
+# Mount and define SYSTEM_OUT
+SYSTEM_MNT=/mnt/system
+mkdir -p "$SYSTEM_MNT" || true
+if mount -o rw "$SYSTEM_BLOCK" "$SYSTEM_MNT"; then
+ui_print "$SYSTEM_MNT mounted"
+else
+error_mounting "$SYSTEM_MNT"
+fi
+SYSTEM_OUT="${SYSTEM_MNT}/system"
+
+# Compare sdk version
+GAPPS_VERSION=$(getprop2 $TMP/build.prop version)
+ANDROID_VERSION=$(getprop2 $SYSTEM_OUT/build.prop ro.build.version.sdk)
+if [ "$GAPPS_VERSION" != "$ANDROID_VERSION" ]; then
+  gapps_version_nice=$(getprop2 $TMP/build.prop version_nice)
+  android_version_nice=$(getprop2 $SYSTEM_OUT/build.prop ro.build.version.release)
+  error "This package is for Android $gapps_version_nice (SDK $GAPPS_VERSION) but your system is Android $android_version_nice (SDK $ANDROID_VERSION)! Aborting"
+fi
+
+# Ignore {product,system_ext} block devices in case they are symlinks
+# This is common on devices where maintainers have chosen not to use
+# real partitions because of their size being too small to be useful
+if [ -L "${SYSTEM_MNT}/product" ]; then
+PRODUCT_BLOCK=""
+fi
+if [ -L "${SYSTEM_MNT}/system_ext" ]; then
+SYSTEM_EXT_BLOCK=""
+fi
+
+if [ -n "$PRODUCT_BLOCK" ]; then
+  mkdir /product || true
+  if mount -o rw "$PRODUCT_BLOCK" /product; then
+    ui_print "/product mounted"
+  else
+    error_mounting "/product"
+  fi
+fi
+if [ -n "$SYSTEM_EXT_BLOCK" ]; then
+  mkdir /system_ext || true
+  if mount -o rw "$SYSTEM_EXT_BLOCK" /system_ext; then
+    ui_print "/system_ext mounted"
+  else
+    error_mounting "/system_ext"
+  fi
+fi
+
+# Compute storage requirements
+SYSTEM_STORAGE=`df $SYSTEM_MNT | tail -1 | tr -s ' ' | cut -d ' ' -f4`
+if [ -n "$PRODUCT_BLOCK" ]; then
+  PRODUCT_STORAGE=`df /product | tail -1 | tr -s ' ' | cut -d ' ' -f4`
+fi
+if [ -n "$SYSTEM_EXT_BLOCK" ]; then
+  SYSTEM_EXT_STORAGE=`df /system_ext | tail -1 | tr -s ' ' | cut -d ' ' -f4`
+fi
+STORAGE_BUFFER=10240
+
+cd system
+
+# Detect tangorpro
+DEVICE=$(getprop ro.build.product)
+if [ "$DEVICE" == "tangorpro" ]; then
+  ui_print "Detected tangorpro device. Deleting normal Velvet app"
+  rm -rf product/priv-app/Velvet
+else
+  rm -rf product/priv-app/VelvetTitan
+fi
+
+compute_apps_size
+
+if [ "$SYSTEM_STORAGE" -lt "$NEEDED_STORAGE_SYSTEM" ]; then
+  remove_big_optional_apps
+  compute_apps_size
+  if [ "$SYSTEM_STORAGE" -lt "$NEEDED_STORAGE_SYSTEM" ]; then
+    error_no_space
+  fi
+fi
+if [ -n "$PRODUCT_BLOCK" ] && [ "$PRODUCT_STORAGE" -lt "$NEEDED_STORAGE_PRODUCT" ]; then
+  remove_big_optional_apps
+  compute_apps_size
+  if [ "$PRODUCT_STORAGE" -lt "$NEEDED_STORAGE_PRODUCT" ]; then
+    error_no_space
+  fi
+fi
+if [ -n "$SYSTEM_EXT_BLOCK" ] && [ "$SYSTEM_EXT_STORAGE" -lt "$NEEDED_STORAGE_SYSTEM_EXT" ]; then
+  remove_big_optional_apps
+  compute_apps_size
+  if [ "$SYSTEM_EXT_STORAGE" -lt "$NEEDED_STORAGE_SYSTEM_EXT" ]; then
+    error_no_space
+  fi
+fi
+
+ui_print "Generating addon.d file"
+cat addon.d/addond_head > addon.d/30-gapps.sh
+for f in `find . ! -path "./addon.d/*" -type f`; do
+  line=$(echo "$f" | sed 's/\.\///')
+  echo "$line" >> addon.d/30-gapps.sh
+done
+cat addon.d/addond_tail >> addon.d/30-gapps.sh
+rm addon.d/addond_head addon.d/addond_tail
+
+ui_print "Preparing files for copying"
+for d in `find . -mindepth 1 -type d -type d`; do
+  set_perm 0755 $d
+  set_owner root root $d
+done
+for f in `find . -type f`; do
+  type=$(echo "$f" | sed 's/.*\.//')
+  if [ "$type" == "sh" ] || [ "$type" == "$f" ]; then
+    set_perm 0755 $f
+  else
+    set_perm 0644 $f
+  fi
+  set_owner root root $f
+  set_con system_file $f
+done
+
+ui_print "Copying files"
+cp --preserve=a -r ./* "${SYSTEM_OUT}/"
+if [ -n "$PRODUCT_BLOCK" ]; then
+  cp --preserve=a -r ./product/* /product
+fi
+if [ -n "$SYSTEM_EXT_BLOCK" ]; then
+  cp --preserve=a -r ./system_ext/* /system_ext
+fi
+
+if [ -e system_ext/priv-app/SetupWizard ] ; then
+  rm -rf "${SYSTEM_OUT}/system_ext/priv-app/Provision"
+fi
+
+cleanup
+
+ui_print "Done!"
+exit 0

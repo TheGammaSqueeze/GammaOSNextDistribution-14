@@ -1,0 +1,214 @@
+/*
+ * Copyright (C) 2019 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package {
+    default_team: "trendy_team_context_hub",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_chre_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_chre_license"],
+}
+
+// Everything needed to run CHPP on Linux, except for the link layer.
+// Note that this is cc_defaults and not a lib because modules that inherit
+// these defaults may need to change compilation flags for sources here.
+cc_defaults {
+    name: "chre_chpp_core_without_link",
+    vendor: true,
+    cflags: [
+        "-Wall",
+        "-Wcast-align",
+        "-Wcast-qual",
+        "-Wconversion",
+        "-Werror",
+        "-Wextra",
+        "-Wno-strict-aliasing",
+        "-Wpointer-arith",
+        "-Wshadow",
+        "-Wswitch",
+        "-DCHPP_MAX_REGISTERED_CLIENTS=3",
+        "-DCHPP_MAX_REGISTERED_SERVICES=3",
+        "-DCHPP_ENABLE_WORK_MONITOR",
+        "-DCHPP_DEBUG_ASSERT_ENABLED",
+        "-DCHPP_CLIENT_ENABLED_TRANSPORT_LOOPBACK",
+        "-DCHPP_SERVICE_ENABLED_TRANSPORT_LOOPBACK",
+
+        // clock_gettime() requires _POSIX_C_SOURCE >= 199309L
+        "-D_POSIX_C_SOURCE=199309L",
+        // Required for pthread_setname_np()
+        "-D_GNU_SOURCE",
+        // Enable assert (i.e. CHPP_ASSERT, ...)
+        "-UNDEBUG",
+    ],
+    conlyflags: [
+        "-std=c11",
+        "-Wmissing-prototypes",
+        "-Wsign-compare",
+        "-Wstrict-prototypes",
+    ],
+    srcs: [
+        "transport.c",
+        "app.c",
+        "clients.c",
+        "platform/pal_api.c",
+        "platform/linux/memory.c",
+        "platform/linux/notifier.c",
+        "platform/shared/crc.c",
+        "services.c",
+        "services/discovery.c",
+        "services/loopback.c",
+        "services/nonhandle.c",
+        "services/timesync.c",
+    ],
+    export_include_dirs: [
+        "platform/linux/include",
+        "include",
+    ],
+    header_libs: [
+        "chre_pal",
+        "chre_api",
+    ],
+    export_header_lib_headers: [
+        "chre_pal",
+        "chre_api",
+    ],
+    static_libs: ["chre_pal_linux"],
+    host_supported: true,
+}
+
+// Meant to be combined with chre_chpp_core_without_link to add in the full set
+// of optional clients and services.
+cc_defaults {
+    name: "chre_chpp_clients_and_services",
+    cflags: [
+        "-DCHPP_CLIENT_ENABLED_DISCOVERY",
+        "-DCHPP_CLIENT_ENABLED_LOOPBACK",
+        "-DCHPP_CLIENT_ENABLED_TIMESYNC",
+        "-DCHPP_CLIENT_ENABLED_GNSS",
+        "-DCHPP_CLIENT_ENABLED_WIFI",
+        "-DCHPP_CLIENT_ENABLED_WWAN",
+        "-DCHPP_SERVICE_ENABLED_GNSS",
+        "-DCHPP_SERVICE_ENABLED_WIFI",
+        "-DCHPP_SERVICE_ENABLED_WWAN",
+        "-DCHPP_WIFI_DEFAULT_CAPABILITIES=0xf",
+        "-DCHPP_WWAN_DEFAULT_CAPABILITIES=0x1",
+        "-DCHPP_GNSS_DEFAULT_CAPABILITIES=0x7",
+    ],
+    srcs: [
+        "clients/discovery.c",
+        "clients/loopback.c",
+        "clients/timesync.c",
+        "clients/gnss.c",
+        "clients/wifi.c",
+        "clients/wwan.c",
+        "common/gnss_convert.c",
+        "common/wifi_convert.c",
+        "common/wifi_utils.c",
+        "common/wwan_convert.c",
+        "platform/linux/services/platform_gnss.c",
+        "services/gnss.c",
+        "services/wifi.c",
+        "services/wwan.c",
+    ],
+}
+
+cc_library_static {
+    name: "chre_chpp_linux",
+    defaults: [
+        "chre_chpp_core_without_link",
+        "chre_chpp_clients_and_services",
+    ],
+    srcs: [
+        "platform/linux/link.c",
+    ],
+}
+
+cc_test_host {
+    name: "chre_chpp_linux_tests",
+    // TODO(b/232537107): Evaluate if isolated can be turned on
+    isolated: false,
+    cflags: [
+        "-DCHPP_CLIENT_ENABLED_TRANSPORT_LOOPBACK",
+        "-DCHPP_CHECKSUM_ENABLED",
+        "-DCHPP_MAX_REGISTERED_CLIENTS=3",
+        "-DCHPP_MAX_REGISTERED_SERVICES=3",
+        "-DCHPP_WIFI_DEFAULT_CAPABILITIES=0xf",
+        "-DCHPP_WWAN_DEFAULT_CAPABILITIES=0x1",
+        "-DCHPP_GNSS_DEFAULT_CAPABILITIES=0x7",
+        "-DCHPP_ENABLE_WORK_MONITOR",
+    ],
+    srcs: [
+        "test/app_test_base.cpp",
+        "test/app_test.cpp",
+        "test/gnss_test.cpp",
+        "test/transport_test.cpp",
+        "test/app_timeout_test.cpp",
+        "test/app_discovery_test.cpp",
+        "test/app_req_resp_test.cpp",
+        "test/app_notification_test.cpp",
+    ],
+    static_libs: [
+        "chre_chpp_linux",
+        "chre_pal_linux",
+    ],
+    sanitize: {
+        address: true,
+    },
+}
+
+cc_test_host {
+    name: "chre_chpp_convert_tests",
+    cflags: [
+        "-Wcast-align",
+        "-Wsign-compare",
+    ],
+    header_libs: [
+        "chre_test_common",
+    ],
+    srcs: [
+        "test/wifi_convert_test.cpp",
+        "test/wwan_convert_test.cpp",
+    ],
+    static_libs: ["chre_chpp_linux"],
+}
+
+cc_test_host {
+    name: "chre_chpp_fake_link_sync_tests",
+    defaults: ["chre_chpp_core_without_link"],
+    cflags: [
+        // Speed up tests by setting timeouts to 50 ms.
+        // Note: the value shouldn't be too low to avoid timeouts on slow test servers.
+        "-DCHPP_TRANSPORT_TX_TIMEOUT_NS=50000000",
+        "-DCHPP_TRANSPORT_RX_TIMEOUT_NS=50000000",
+    ],
+    local_include_dirs: [
+        "include",
+
+        // Note: this needs to come before platform/linux/include
+        "test/include/fake_link",
+        "platform/linux/include",
+    ],
+    srcs: [
+        "test/fake_link.cpp",
+        "test/fake_link_sync_test.cpp",
+        "test/packet_util.cpp",
+    ],
+    header_libs: [
+        "libbase_headers",
+    ],
+}

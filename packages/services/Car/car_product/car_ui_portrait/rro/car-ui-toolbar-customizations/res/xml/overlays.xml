@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (C) 2021 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<overlay>
+    <item target="layout/car_ui_base_layout_toolbar" value="@layout/car_ui_base_layout_toolbar"/>
+    <item target="layout/car_ui_toolbar_tab_item" value="@layout/car_ui_toolbar_tab_item"/>
+
+    <item target="bool/car_ui_toolbar_logo_fills_nav_icon_space" value="@bool/car_ui_toolbar_logo_fills_nav_icon_space" />
+    <item target="bool/car_ui_toolbar_tab_flexible_layout" value="@bool/car_ui_toolbar_tab_flexible_layout" />
+    <item target="bool/car_ui_scrollbar_enable" value="@bool/car_ui_scrollbar_enable" />
+    <item target="bool/car_ui_toolbar_tabs_on_second_row" value="@bool/car_ui_toolbar_tabs_on_second_row" />
+
+    <item target="id/car_ui_toolbar_nav_icon_container" value="@id/car_ui_toolbar_nav_icon_container" />
+    <item target="id/car_ui_toolbar_nav_icon" value="@id/car_ui_toolbar_nav_icon" />
+    <item target="id/car_ui_toolbar_logo" value="@id/car_ui_toolbar_logo" />
+    <item target="id/car_ui_toolbar_title_logo_container" value="@id/car_ui_toolbar_title_logo_container" />
+    <item target="id/car_ui_toolbar_title_logo" value="@id/car_ui_toolbar_title_logo" />
+    <item target="id/car_ui_toolbar_title" value="@id/car_ui_toolbar_title" />
+    <item target="id/car_ui_toolbar_title_container" value="@id/car_ui_toolbar_title_container" />
+    <item target="id/car_ui_toolbar_subtitle" value="@id/car_ui_toolbar_subtitle" />
+    <item target="id/car_ui_toolbar_tabs" value="@id/car_ui_toolbar_tabs" />
+    <item target="id/car_ui_toolbar_menu_items_container" value="@id/car_ui_toolbar_menu_items_container" />
+    <item target="id/car_ui_toolbar_search_view_container" value="@id/car_ui_toolbar_search_view_container" />
+    <item target="id/car_ui_toolbar_progress_bar" value="@id/car_ui_toolbar_progress_bar" />
+    <item target="id/car_ui_base_layout_content_container" value="@id/car_ui_base_layout_content_container" />
+    <item target="id/car_ui_toolbar_tab_item_icon" value="@id/car_ui_toolbar_tab_item_icon" />
+    <item target="id/car_ui_toolbar_tab_item_text" value="@id/car_ui_toolbar_tab_item_text" />
+
+    <item target="attr/layout_constraintGuide_begin" value="@attr/layout_constraintGuide_begin"/>
+    <item target="attr/layout_constraintGuide_end" value="@attr/layout_constraintGuide_end"/>
+    <item target="attr/layout_constraintStart_toStartOf" value="@attr/layout_constraintStart_toStartOf"/>
+    <item target="attr/layout_constraintStart_toEndOf" value="@attr/layout_constraintStart_toEndOf"/>
+    <item target="attr/layout_constraintEnd_toStartOf" value="@attr/layout_constraintEnd_toStartOf"/>
+    <item target="attr/layout_constraintEnd_toEndOf" value="@attr/layout_constraintEnd_toEndOf"/>
+    <item target="attr/layout_constraintLeft_toLeftOf" value="@attr/layout_constraintLeft_toLeftOf"/>
+    <item target="attr/layout_constraintLeft_toRightOf" value="@attr/layout_constraintLeft_toRightOf"/>
+    <item target="attr/layout_constraintRight_toLeftOf" value="@attr/layout_constraintRight_toLeftOf"/>
+    <item target="attr/layout_constraintRight_toRightOf" value="@attr/layout_constraintRight_toRightOf"/>
+    <item target="attr/layout_constraintTop_toTopOf" value="@attr/layout_constraintTop_toTopOf"/>
+    <item target="attr/layout_constraintTop_toBottomOf" value="@attr/layout_constraintTop_toBottomOf"/>
+    <item target="attr/layout_constraintBottom_toTopOf" value="@attr/layout_constraintBottom_toTopOf"/>
+    <item target="attr/layout_constraintBottom_toBottomOf" value="@attr/layout_constraintBottom_toBottomOf"/>
+    <item target="attr/layout_constraintHorizontal_bias" value="@attr/layout_constraintHorizontal_bias"/>
+    <item target="attr/layout_goneMarginLeft" value="@attr/layout_goneMarginLeft"/>
+    <item target="attr/layout_goneMarginRight" value="@attr/layout_goneMarginRight"/>
+    <item target="attr/layout_goneMarginTop" value="@attr/layout_goneMarginTop"/>
+    <item target="attr/layout_goneMarginBottom" value="@attr/layout_goneMarginBottom"/>
+    <item target="attr/layout_goneMarginStart" value="@attr/layout_goneMarginStart"/>
+    <item target="attr/layout_goneMarginEnd" value="@attr/layout_goneMarginEnd"/>
+    <item target="attr/layout_constraintHorizontal_chainStyle" value="@attr/layout_constraintHorizontal_chainStyle"/>
+    <item target="attr/state_ux_restricted" value="@attr/state_ux_restricted"/>
+</overlay>

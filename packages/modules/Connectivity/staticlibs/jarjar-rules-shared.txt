@@ -1,0 +1,3 @@
+rule android.annotation.** com.android.net.module.annotation.@1
+rule com.android.internal.annotations.** com.android.net.module.annotation.@1
+rule com.android.modules.utils.build.** com.android.net.module.util.build.$1

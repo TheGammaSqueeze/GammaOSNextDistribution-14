@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2021 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="whichApplication" msgid="2309561338625872614">"បញ្ចប់​សកម្មភាព​ដោយ​ប្រើ"</string>
+    <string name="whichApplicationNamed" msgid="8514249643796783492">"បញ្ចប់​សកម្មភាព​ដោយ​ប្រើ <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="whichApplicationLabel" msgid="4312929689807826793">"បញ្ចប់សកម្មភាព"</string>
+    <string name="whichViewApplication" msgid="7660051361612888119">"បើក​ជា​មួយ"</string>
+    <string name="whichViewApplicationNamed" msgid="8231810543224200555">"បើក​ដោយ​ប្រើ <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="whichViewApplicationLabel" msgid="9123647023323311663">"បើក"</string>
+    <string name="whichOpenHostLinksWith" msgid="6664206254809230738">"បើក​តំណ <xliff:g id="HOST">%1$s</xliff:g> ដោយប្រើ"</string>
+    <string name="whichOpenLinksWith" msgid="3468042265545684416">"បើកតំណដោយប្រើ"</string>
+    <string name="whichOpenLinksWithApp" msgid="8832514962474825330">"បើក​តំណដោយប្រើ <xliff:g id="APPLICATION">%1$s</xliff:g>"</string>
+    <string name="whichOpenHostLinksWithApp" msgid="6626134603937682461">"បើក​តំណ <xliff:g id="HOST">%1$s</xliff:g> ដោយប្រើ <xliff:g id="APPLICATION">%2$s</xliff:g>"</string>
+    <string name="whichGiveAccessToApplicationLabel" msgid="5120142857844152131">"ផ្តល់សិទ្ធិចូលប្រើ"</string>
+    <string name="whichEditApplication" msgid="5097563012157950614">"កែសម្រួល​ជាមួយ"</string>
+    <string name="whichEditApplicationNamed" msgid="3150137489226219100">"កែដោយប្រើ <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="whichEditApplicationLabel" msgid="5992662938338600364">"កែ"</string>
+    <string name="whichSendApplication" msgid="59510564281035884">"ចែករំលែក"</string>
+    <string name="whichSendApplicationNamed" msgid="495577664218765855">"ចែក​រំលែក​ជា​មួយ <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="whichSendApplicationLabel" msgid="2391198069286568035">"ចែករំលែក"</string>
+    <string name="whichSendToApplication" msgid="2724450540348806267">"ផ្ញើដោយប្រើ"</string>
+    <string name="whichSendToApplicationNamed" msgid="1996548940365954543">"ផ្ញើដោយប្រើ <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="whichSendToApplicationLabel" msgid="6909037198280591110">"ផ្ញើ"</string>
+    <string name="whichHomeApplication" msgid="8797832422254564739">"ជ្រើសរើស​កម្មវិធីអេក្រង់​ដើម"</string>
+    <string name="whichHomeApplicationNamed" msgid="3943122502791761387">"ប្រើ <xliff:g id="APP">%1$s</xliff:g> ជាកម្មវិធីដើម"</string>
+    <string name="whichHomeApplicationLabel" msgid="2066319585322981524">"ថតរូប"</string>
+    <string name="whichImageCaptureApplication" msgid="7830965894804399333">"ថតរូបជាមួយ"</string>
+    <string name="whichImageCaptureApplicationNamed" msgid="5927801386307049780">"ថតរូបដោយប្រើ <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="whichImageCaptureApplicationLabel" msgid="987153638235357094">"ថតរូប"</string>
+    <string name="use_a_different_app" msgid="2062380818535918975">"ប្រើ​កម្មវិធី​ផ្សេង"</string>
+    <string name="chooseActivity" msgid="6659724877523973446">"ជ្រើសរើស​សកម្មភាព​​"</string>
+    <string name="noApplications" msgid="1139487441772284671">"មិន​មាន​​កម្មវិធី​ដែលអាចធ្វើ​សកម្មភាពនេះ​បាន​ទេ។"</string>
+    <string name="forward_intent_to_owner" msgid="6454987608971162379">"អ្នក​កំពុង​ប្រើ​កម្មវិធី​នេះ​នៅ​ខាងក្រៅ​ប្រវត្តិរូប​​ការងារ​របស់​អ្នក"</string>
+    <string name="forward_intent_to_work" msgid="2906094223089139419">"អ្នក​កំពុង​ប្រើ​កម្មវិធី​នេះ​ក្នុង​ប្រវត្តិរូប​ការងារ​របស់​អ្នក"</string>
+    <string name="activity_resolver_use_always" msgid="8674194687637555245">"ជា​និច្ច"</string>
+    <string name="activity_resolver_use_once" msgid="594173435998892989">"តែ​ម្ដង"</string>
+    <string name="activity_resolver_work_profiles_support" msgid="8228711455685203580">"<xliff:g id="APP">%1$s</xliff:g> មិនស្គាល់​កម្រងព័ត៌មាន​ការងារ​ទេ"</string>
+    <string name="pin_specific_target" msgid="5057063421361441406">"ខ្ទាស់ <xliff:g id="LABEL">%1$s</xliff:g>"</string>
+    <string name="unpin_specific_target" msgid="3115158908159857777">"ដកខ្ទាស់ <xliff:g id="LABEL">%1$s</xliff:g>"</string>
+    <string name="screenshot_edit" msgid="3857183660047569146">"កែ"</string>
+    <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # ឯកសារ}other{+ # ឯកសារ}}"</string>
+    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{ឯកសារ + # ទៀត}other{ឯកសារ + # ទៀត}}"</string>
+    <string name="sharing_text" msgid="8137537443603304062">"កំពុងចែករំលែក​សារជាអក្សរ"</string>
+    <string name="sharing_link" msgid="2307694372813942916">"កំពុងចែករំលែកតំណ"</string>
+    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{កំពុងចែក​រំលែករូបភាព}other{កំពុងចែក​រំលែករូបភាព #}}"</string>
+    <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{កំពុងចែករំលែកវីដេអូ}other{កំពុងចែករំលែកវីដេអូ #}}"</string>
+    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{កំពុង​ចែករំលែកឯកសារ #}other{កំពុង​ចែករំលែកឯកសារ #}}"</string>
+    <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{ចែករំលែករូបភាពជាមួយអក្សរ}other{ចែករំលែករូបភាព # ជាមួយអក្សរ}}"</string>
+    <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{ចែករំលែករូបភាពជាមួយតំណ}other{ចែករំលែករូបភាព # ជាមួយតំណ}}"</string>
+    <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{ចែករំលែកវីដេអូជាមួយអក្សរ}other{ចែករំលែក # វីដេអូជាមួយអក្សរ}}"</string>
+    <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{ចែករំលែកវីដេអូជាមួយតំណ}other{ចែករំលែក # វីដេអូជាមួយតំណ}}"</string>
+    <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{ចែករំលែកឯកសារជាមួយអក្សរ}other{ចែករំលែក # ឯកសារជាមួយអក្សរ}}"</string>
+    <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{ចែករំលែកឯកសារជាមួយតំណ}other{ចែករំលែកឯកសារ # ជាមួយតំណ}}"</string>
+    <string name="sharing_album" msgid="191743129899503345">"កំពុងចែករំលែកអាល់ប៊ុម"</string>
+    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{រូបភាព​តែប៉ុណ្ណោះ}other{រូបភាពតែប៉ុណ្ណោះ}}"</string>
+    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{​វីដេអូតែប៉ុណ្ណោះ}other{វីដេអូតែប៉ុណ្ណោះ}}"</string>
+    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{ឯកសារតែប៉ុណ្ណោះ}other{ឯកសារតែប៉ុណ្ណោះ}}"</string>
+    <string name="image_preview_a11y_description" msgid="297102643932491797">"រូបក្របតំណាងការមើលរូបភាពសាកល្បង"</string>
+    <string name="video_preview_a11y_description" msgid="683440858811095990">"រូបក្របតំណាងការមើលវីដេអូសាកល្បង"</string>
+    <string name="file_preview_a11y_description" msgid="7397224827802410602">"រូបក្របតំណាងការមើលឯកសារសាកល្បង"</string>
+    <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"មិនមាន​មនុស្សដែល​បានណែនាំ​សម្រាប់​ចែករំលែក​ជាមួយទេ"</string>
+    <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"កម្មវិធីនេះ​មិនទាន់បាន​ទទួលសិទ្ធិ​ថតសំឡេង​នៅឡើយទេ ប៉ុន្តែអាច​ថតសំឡេង​តាមរយៈ​ឧបករណ៍ USB នេះបាន។"</string>
+    <string name="resolver_personal_tab" msgid="1381052735324320565">"ផ្ទាល់ខ្លួន"</string>
+    <string name="resolver_work_tab" msgid="3588325717455216412">"ការងារ"</string>
+    <string name="resolver_private_tab" msgid="3707548826254095157">"ឯកជន"</string>
+    <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"ទិដ្ឋភាពផ្ទាល់ខ្លួន"</string>
+    <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"ទិដ្ឋភាព​ការងារ"</string>
+    <string name="resolver_private_tab_accessibility" msgid="2513122834337197252">"ទិដ្ឋភាពឯកជន"</string>
+    <string name="resolver_cross_profile_blocked" msgid="3515194063758605377">"បានទប់ស្កាត់ដោយ​អ្នកគ្រប់គ្រង​ផ្នែកព័ត៌មានវិទ្យា​របស់អ្នក"</string>
+    <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"ខ្លឹមសារនេះ​មិនអាចចែករំលែក​តាមរយៈ​កម្មវិធី​ការងារ​បានទេ"</string>
+    <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"ខ្លឹមសារនេះ​មិនអាចបើក​តាមរយៈ​កម្មវិធី​ការងារ​បានទេ"</string>
+    <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"មិនអាចចែករំលែកខ្លឹមសារនេះ​ជាមួយ​កម្មវិធី​ផ្ទាល់ខ្លួន​បានទេ"</string>
+    <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"ខ្លឹមសារនេះ​មិនអាចបើក​តាមរយៈ​កម្មវិធី​ផ្ទាល់ខ្លួន​បានទេ"</string>
+    <string name="resolver_turn_on_work_apps" msgid="7115260573975624516">"កម្មវិធី​ការងារ​ត្រូវបានផ្អាក"</string>
+    <string name="resolver_switch_on_work" msgid="8678893259344318807">"ឈប់ផ្អាក"</string>
+    <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"គ្មាន​កម្មវិធី​ការងារ​ទេ"</string>
+    <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"គ្មាន​កម្មវិធី​ផ្ទាល់ខ្លួន​ទេ"</string>
+    <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"បើក <xliff:g id="APP">%s</xliff:g> នៅក្នុងកម្រង​ព័ត៌មាន​ផ្ទាល់​ខ្លួនរបស់អ្នកឬ?"</string>
+    <string name="miniresolver_open_in_work" msgid="4271638122142624693">"បើក <xliff:g id="APP">%s</xliff:g> នៅក្នុងកម្រងព័ត៌មានការងាររបស់អ្នកឬ?"</string>
+    <string name="miniresolver_use_personal_browser" msgid="1428911732509069292">"ប្រើ​កម្មវិធីរុករក​តាមអ៊ីនធឺណិត​ផ្ទាល់ខ្លួន"</string>
+    <string name="miniresolver_use_work_browser" msgid="7892699758493230342">"ប្រើ​កម្មវិធីរុករក​តាមអ៊ីនធឺណិត​សម្រាប់​ការងារ"</string>
+    <string name="exclude_text" msgid="5508128757025928034">"មិនរួមបញ្ចូលអក្សរ"</string>
+    <string name="include_text" msgid="642280283268536140">"រួមបញ្ចូលអក្សរ"</string>
+    <string name="exclude_link" msgid="1332778255031992228">"មិនរួមបញ្ចូលតំណ"</string>
+    <string name="include_link" msgid="827855767220339802">"រួមបញ្ចូល​តំណ"</string>
+    <string name="pinned" msgid="7623664001331394139">"បាន​ខ្ទាស់"</string>
+</resources>

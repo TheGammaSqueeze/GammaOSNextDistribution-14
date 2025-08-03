@@ -1,0 +1,9 @@
+package: "com.android.server.telecom.flags"
+container: "system"
+
+flag {
+  name: "set_audio_mode_before_abandon_focus"
+  namespace: "telecom"
+  description: "Set audio mode to MODE_NORMAL before abandon the audio focus."
+  bug: "281841785"
+}

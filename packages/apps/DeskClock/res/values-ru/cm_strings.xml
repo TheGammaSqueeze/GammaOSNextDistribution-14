@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2012-2016 The CyanogenMod Project
+     Copyright (C) 2017-2025 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="flip_action_title">Действие при повороте устройства</string>
+    <string name="shake_action_title">Действие при встряхивании устройства</string>
+    <string-array name="action_setting_entries">
+        <item>Отложить</item>
+        <item>Отклонить</item>
+        <item>Ничего</item>
+    </string-array>
+    <string name="firing_alarms_timers_channel">Важные сигналы и таймеры</string>
+    <string name="alarm_missed_channel">Пропущенные будильники</string>
+    <string name="alarm_snooze_channel">Отложенные будильники</string>
+    <string name="alarm_upcoming_channel">Предстоящие будильники</string>
+    <string name="stopwatch_channel">Секундомер</string>
+    <string name="timer_channel">Таймер</string>
+    <string name="add_label">Добавить метку</string>
+    <string name="dialog_permissions_title">Разрешения</string>
+    <string name="dialog_permissions_ask">Спросить снова</string>
+    <string name="dialog_permissions_dismiss">Отклонить</string>
+    <string name="dialog_permissions_settings">Настройки</string>
+    <string name="dialog_permissions_power_off_alarm">Без этого разрешения ваше устройство не сможет включиться для срабатывания будильника.</string>
+    <string name="dialog_permissions_no_permission">Требуемые разрешения были отклонены, включите их в настройках</string>
+    <string name="dialog_permissions_post_notifications">Это приложение использует уведомления. Без них оно не может быть запущено!</string>
+    <string name="selected">Выбрано</string>
+    <string name="more_options">Дополнительные опции</string>
+    <string name="widget_choice_title">Выберите свой стиль</string>
+    <string name="widget_name_transparent">Без фона</string>
+    <string name="widget_name_solid">С фоном</string>
+    <string name="clock_brightness_percentage">%s%%</string>
+    <string name="night_mode_enabled_title">Включен</string>
+    <string name="night_mode_dnd_title">Следовать \"Не беспокоить\"</string>
+    <string name="night_mode_dnd_summary">Ночной режим следует за режимом \"Не беспокоить\"</string>
+    <string name="show_ampm_title">Показывать индикатор AM/PM</string>
+    <string name="bold_text_title">Жирный текст часов</string>
+    <string name="night_mode_brightness_text_title">Яркость</string>
+    <string name="clock_color_title">Цвет</string>
+    <string-array name="clock_color_entries">
+        <item>Белый</item>
+        <item>Красный</item>
+        <item>Зеленый</item>
+        <item>Синий</item>
+    </string-array>
+    <string name="screensaver_settings_title">Заставка</string>
+    <string name="screensaver_preview">Предварительный просмотр</string>
+    <string name="screensaver_preview_summary">Немедленно запускает заставку</string>
+    <string name="screensaver_change_settings">Настройки</string>
+    <string name="screensaver_change_settings_summary">Открыть настройки заставки часов</string>
+    <string name="screensaver_daydream_settings">Выбрать/включить заставку</string>
+    <string name="screensaver_daydream_settings_summary">Открыть основные настройки заставки</string>
+</resources>

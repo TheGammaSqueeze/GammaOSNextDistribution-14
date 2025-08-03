@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="security_privacy_brand_name" msgid="7303621734258440812">"பாதுகாப்பும் தனியுரிமையும்"</string>
+    <string name="privacy_subpage_controls_header" msgid="4152396976713749322">"கட்டுப்பாடுகள்"</string>
+    <string name="health_connect_title" msgid="2132233890867430855">"Health Connect"</string>
+    <string name="health_connect_summary" msgid="815473513776882296">"உடல் ஆரோக்கியத் தரவுக்கான ஆப்ஸ் அணுகலை நிர்வகிக்கலாம்"</string>
+    <string name="location_settings" msgid="8863940440881290182">"இருப்பிட அணுகல்"</string>
+    <string name="mic_toggle_description" msgid="1504101620086616040">"ஆப்ஸ் மற்றும் சேவைகளுக்கு. இந்த அமைப்பு முடக்கப்பட்டிருந்தாலும் அவசர உதவி எண்ணை நீங்கள் அழைக்கும்போது மைக்ரோஃபோன் தரவு பகிரப்படலாம்"</string>
+</resources>

@@ -1,0 +1,10 @@
+{
+    "header": "metrics_consts.h",
+    "constants":[
+        {
+            "name": "METRICS_UUID",
+            "value": "9dcb8bff-14b0-4c15-8d12-8e033692ffef",
+            "type": "uuid"
+        }
+    ]
+}

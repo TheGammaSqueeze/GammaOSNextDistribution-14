@@ -1,0 +1,78 @@
+plugins {
+    id 'com.android.application'
+    id 'com.google.gms.google-services'
+    id 'com.github.sherter.google-java-format' version '0.9'
+}
+
+android {
+    compileSdkVersion 30
+
+    defaultConfig {
+        applicationId "com.android.car.debuggingrestrictioncontroller"
+        minSdkVersion 30
+        targetSdkVersion 30
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        def rootCACertFile = new File("${System.env.DRC_ROOT_CA_CERT}")
+        if (!rootCACertFile.isFile()) {
+            buildConfigField "boolean", "TOKEN_USES_SELF_SIGNED_CA", "false"
+            buildConfigField "String", "ROOT_CA_CERT", "\"\""
+        } else {
+            buildConfigField "boolean", "TOKEN_USES_SELF_SIGNED_CA", "true"
+            buildConfigField "String", "ROOT_CA_CERT",
+                    "\"${rootCACertFile.getText("UTF-8").replaceAll("\\R", "\\\\n")}\""
+        }
+        buildConfigField "String", "TOKEN_ISSUER_HOST_NAME",
+                "\"${System.env.DRC_API_HOSTNAME}\""
+        buildConfigField "String", "TOKEN_ISSUER_API_NAME",
+                "\"${System.env.DRC_API_NAME}\""
+    }
+
+    buildTypes {
+        debug {
+            buildConfigField "String", "DRC_TEST_EMAIL",
+                    "\"${System.env.DRC_TEST_EMAIL}\""
+            buildConfigField "String", "DRC_TEST_PASSWORD",
+                    "\"${System.env.DRC_TEST_PASSWORD}\""
+            testCoverageEnabled true
+        }
+        release {
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'),
+                    'proguard-rules.pro'
+            minifyEnabled true
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    testOptions {
+        animationsDisabled = true
+    }
+
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+    }
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'com.google.android.material:material:1.2.1'
+    implementation 'androidx.annotation:annotation:1.1.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.2.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0'
+    implementation 'com.google.api-client:google-api-client:1.30.10'
+    implementation platform('com.google.firebase:firebase-bom:26.2.0')
+    implementation 'com.google.firebase:firebase-auth'
+    implementation 'com.google.firebase:firebase-functions'
+    implementation 'androidx.test.espresso:espresso-idling-resource:3.3.0'
+    testImplementation 'junit:junit:4.+'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.3.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-intents:3.3.0'
+}

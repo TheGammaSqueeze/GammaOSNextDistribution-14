@@ -1,0 +1,58 @@
+package: "com.android.bluetooth.flags"
+container: "com.android.btservices"
+
+flag {
+    name: "mfi_has_uuid"
+    namespace: "bluetooth"
+    description: "Use MFi HAS uuid to judge if a device is hearing aid"
+    bug: "310543599"
+}
+
+flag {
+    name: "support_metadata_device_types_apis"
+    namespace: "bluetooth"
+    description: "Support more device types in bt device metadata"
+    bug: "289584302"
+}
+
+flag {
+    name: "support_exclusive_manager"
+    namespace: "bluetooth"
+    description: "Support setting/retrieving the exclusive manager app for a BluetoothDevice"
+    bug: "319716512"
+}
+
+flag {
+    name: "key_missing_broadcast"
+    namespace: "bluetooth"
+    description: "Broadcast when remote device it lost bond"
+    bug: "311447399"
+}
+
+flag {
+    name: "keep_stopped_media_browser_service"
+    namespace: "bluetooth"
+    description: "Do not start stopped media browser services"
+    bug: "314855224"
+}
+
+flag {
+    name: "identity_address_null_if_unknown"
+    namespace: "bluetooth"
+    description: "Return null for identity address if identity address is not known"
+    bug: "317120534"
+}
+
+flag {
+    name: "get_address_type_api"
+    namespace: "bluetooth"
+    description: "Change visibility of BluetoothDevice#getAddressType API to public"
+    bug: "321120941"
+}
+
+flag {
+    name: "remove_bond_with_address_map"
+    namespace: "bluetooth"
+    description: "Removes the address map when the bond is removed"
+    bug: "326603271"
+}

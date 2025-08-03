@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="background_color">@android:color/background_dark</color>
+    <color name="primary_text_color">@color/primary_text_default_material_dark</color>
+    <!-- TODO(291112732) replace color hex code with color file on R-->
+    <color name="adservices_primary_dark_device_default_settings">#191C1E</color>
+    <color name="adservices_accent_primary_variant">#4BB6E8</color>
+    <color name="adservices_colorAccentPrimary">#C1E8FF</color>
+</resources>

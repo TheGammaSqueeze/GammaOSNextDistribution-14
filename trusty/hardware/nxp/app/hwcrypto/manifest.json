@@ -1,0 +1,22 @@
+{
+    "uuid": "IMX_HWCRYPTO_UUID",
+    "min_heap": 8192,
+    "min_stack": 4096,
+    "mem_map": [
+        {
+            "id": "CAAM_MMIO_ID",
+            "addr": "CAAM_PHY_BASE_ADDR",
+            "size": "CAAM_REG_SIZE"
+        },
+        {
+            "id": "CAAM_SEC_RAM_MMIO_ID",
+            "addr": "CAAM_PHY_ARB_BASE_ADDR",
+            "size": "CAAM_SEC_RAM_SIZE"
+        },
+        {
+            "id": "CCM_MMIO_ID",
+            "addr": "CCM_PHY_BASE_ADDR",
+            "size": "CCM_REG_SIZE"
+        }
+    ]
+}

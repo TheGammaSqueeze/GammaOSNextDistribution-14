@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2015 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="car_permission_label_bind_projection_service">rhwymo at wasanaeth taflunio</string>
+    <string name="car_permission_desc_bind_projection_service">Mae\u2019n caniatáu i\u2019r deiliad glymu at ryngwyneb lefel uchaf gwasanaeth taflunio. Ni ddylid byth fod ei angen ar apiau arferol.</string>
+    <string name="car_permission_label_bind_vms_client">Gwasanaeth Cleient VMS</string>
+    <string name="car_permission_desc_bind_vms_client">Tenynnu at gleientiaid VMS</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering">Rendro\u2019r Clwstwr Offerynnau</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering">Derbyn data\u2019r clwstwr offerynnau</string>
+    <string name="car_permission_label_bind_input_service">Gwasanaeth Mewnbwn y Car</string>
+    <string name="car_permission_desc_bind_input_service">Delio â digwyddiadau mewnbwn</string>
+    <string name="activity_blocked_text">Ni ellir ddefnyddio\u2019r nodwedd hon tra\u2019n gyrru.</string>
+    <string name="exit_button_message">I ddechrau eto gyda nodweddion ap diogel, dewisa <xliff:g id="exit_button" example="Back">%s</xliff:g></string>
+    <string name="exit_button">Nôl</string>
+    <string name="exit_button_close_application">Cau\'r ap</string>
+    <string name="exit_button_go_back">Nôl</string>
+    <string name="importance_default">Pwysigrwydd rhagosodedig</string>
+    <string name="importance_high">Pwysigrwydd uchel</string>
+    <string name="android_system_label">System Android</string>
+    <string name="factory_reset_notification_title">Angen ailosod i fel yr oedd o\u2019r ffatri</string>
+    <string name="factory_reset_notification_text">Caiff yr holl ddata yn y system gwybodloniant ei ddileu. Ar ôl ail-osod, gellir gosod proffil newydd.</string>
+    <string name="factory_reset_notification_button">Rhagor</string>
+    <string name="factory_reset_warning">Bydd yr holl ddata ar dy ddyfais yn cael ei dileu</string>
+    <string name="factory_reset_message">Ni ellir defnyddio\u2019r ap gweinyddu. Caiff yr holl ddata ar dy ddyfais nawr ei ddileu.\n\nOs oes unrhyw gwestiynau, cysyllta ag adran TGCh dy sefydliad.</string>
+    <string name="resource_overuse_notification_title">Mae <xliff:g name="app_name" example="Maps">^1</xliff:g> yn effeithio ar berfformiad dy system</string>
+    <string name="resource_overuse_notification_text_disabled_app">Cafodd yr ap hwn ei rwystro rhag rhedeg yn y cefndir. Blaenoriaetha\u2019r ap iddo barhau yn y cefndir.</string>
+    <string name="resource_overuse_notification_button_close_app">Cau</string>
+    <string name="resource_overuse_notification_button_prioritize_app">Blaenoriaethu\'r ap</string>
+</resources>

@@ -1,0 +1,6 @@
+LIBUPROBESTATS_CLIENT {
+  global:
+    AUprobestatsClient_startUprobestats; # systemapi
+  local:
+    *;
+};

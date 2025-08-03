@@ -1,0 +1,16 @@
+r0: ed812b54
+r1: 0
+r2: de6
+r3: 0
+r4: 0
+r5: 0
+r6: ed812b50
+r7: f0
+r8: ed812c90
+r9: 1
+r10: ed90b62c
+r11: ffffffff
+ip: ed812af0
+sp: ed812ae0
+lr: ed8511f9
+pc: ed8dc324

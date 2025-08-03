@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2017-2021 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <string name="app_name">Opnemer</string>
+    <string name="share">Deel</string>
+    <string name="stop">Stop</string>
+    <string name="play">Speel</string>
+    <string name="delete">Verwyder</string>
+    <string name="delete_title">Verwyde opname</string>
+    <string name="sound_notification_title">Klankopnemer</string>
+    <string name="sound_notification_message">Oudio-lengte: %1$s</string>
+    <string name="sound_recording_title_working">Neem tans op</string>
+    <string name="sound_last_title">Laaste opname</string>
+    <string name="dialog_permissions_title">Toestemmings</string>
+    <string name="dialog_permissions_mic">Opnemer benodig mikrofoon toestemming om oudio op te neem</string>
+    <string name="dialog_permissions_phone">Opnemer het foon status toegang nodig om te voorkom dat hierdie toep jou opneem terwyl jy bel</string>
+    <string name="dialog_permissions_mic_phone">Opnemer benodig mikrofoon toegang om oudio op te neem en foon status toegang om te verhoed dat hierdie toep jou oproep opneem terwyl jy bel</string>
+    <string name="dialog_permissions_ask">Vra weer</string>
+    <string name="dialog_permissions_dismiss">Maak toe</string>
+    <string name="snack_permissions_no_permission">Nodige toestemmings geweier, aktiveer hulle vanaf Instellings toep om die opname te begin</string>
+</resources>

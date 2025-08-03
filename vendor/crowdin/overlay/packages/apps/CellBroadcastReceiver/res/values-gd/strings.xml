@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2011 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:android="http://schemas.android.com/apk/res/android" xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label">Rabhaidhean èiginn gun uèir</string>
+    <string name="sms_cb_settings">Rabhaidhean èiginn gun uèir</string>
+    <string name="sms_cb_sender_name_default">Rabhaidhean èiginn gun uèir</string>
+    <string name="sms_cb_sender_name_presidential">Rabhaidhean èiginn gun uèir</string>
+    <string name="sms_cb_sender_name_emergency">Rabhaidhean èiginn gun uèir</string>
+    <string name="cell_broadcast_settings_not_available">Chan eil roghainnean rabhadh èiginn gun uèir ri fhaighinn airson a’ cleachdaiche seo</string>
+    <string name="button_dismiss">Ceart ma-thà</string>
+    <string name="no_cell_broadcasts">Chan eil rabhadh roimhe ann</string>
+    <string name="menu_delete_all">Sguab às na craolaidhean</string>
+    <string name="message_options">Roghainnean na teachdaireachd</string>
+    <string name="menu_view_details">Seall am mion-fhiosrachadh</string>
+    <string name="menu_delete">Sguab às an craoladh</string>
+    <string name="view_details_title">Fiosrachadh an rabhaidh</string>
+    <string name="view_details_debugging_title">Fiosrachadh an rabhaidh a chùm dì-bhugachadh</string>
+    <string name="confirm_delete_broadcast">An sguab thu às an craoladh seo?</string>
+    <string name="confirm_delete_all_broadcasts">Sguab às gach teachdaireachd craolaidh a fhuair thu?</string>
+    <string name="button_delete">Sguab às</string>
+    <string name="button_cancel">Sguir dheth</string>
+    <string name="etws_earthquake_warning">Rabhadh ro chrith-thalmhainn</string>
+    <string name="etws_tsunami_warning">Rabhadh ro tsunami</string>
+    <string name="etws_earthquake_and_tsunami_warning">Rabhadh ro chrith-thalmhainn is tsunami</string>
+    <string name="etws_test_message">Teachdaireachd deuchainn ETWS</string>
+    <string name="etws_other_emergency_type">Rabhadh èiginn</string>
+    <string name="cmas_presidential_level_alert">Rabhadh a’ chinn-shuidhe</string>
+    <string name="cmas_extreme_alert">Dearg-rabhadh èiginn</string>
+    <string name="cmas_extreme_immediate_observed_alert">Dearg-rabhadh èiginn</string>
+    <string name="cmas_extreme_immediate_likely_alert">Dearg-rabhadh èiginn</string>
+    <string name="cmas_severe_alert">Mòr-rabhadh èiginn</string>
+    <string name="cmas_amber_alert">Clann fo bhruid (Amber alert)</string>
+    <string name="cmas_required_monthly_test">Deuchainn mhìosail riatanach</string>
+    <string name="cmas_exercise_alert">Rabhadh èiginn (deuchainn)</string>
+    <string name="cmas_operator_defined_alert">Rabhadh èiginn (giùlanair)</string>
+    <string name="cb_other_message_identifiers">Teachdaireachdan craolaidh</string>
+    <string name="public_safety_message">Teachdaireachd sàbhailteachd poblaich</string>
+    <string name="state_local_test_alert">Deuchainn stàite/ionadail</string>
+    <string name="emergency_alert">Rabhadh èiginn</string>
+    <string name="emergency_alerts_title">Rabhaidhean</string>
+    <string name="notification_channel_broadcast_messages">Teachdaireachdan craolaidh</string>
+    <string name="notification_channel_emergency_alerts">Rabhaidhean èiginn</string>
+    <string name="notification_channel_broadcast_messages_in_voicecall">Rabhaidhean èiginn ann an gairm gutha</string>
+    <string name="enable_alerts_master_toggle_title">Ceadaich rabhaidhean</string>
+    <string name="enable_alerts_master_toggle_summary">Faigh brathan air rabhaidhean èiginn gun uèir</string>
+    <string name="alert_reminder_interval_title">Alert reminder</string>
+    <string name="enable_alert_speech_title">Speak alert message</string>
+    <string name="enable_alert_speech_summary">Cleachd teacsa-na-chainnt airson nan teachdaireachdan rabhadh èiginn gun uèir a ràdh</string>
+    <string name="alert_reminder_dialog_title">A reminder sound will play at regular volume</string>
+    <string name="emergency_alert_history_title">Eachdraidh nan rabhaidhean èiginn</string>
+    <string name="alert_preferences_title">Roghainnean nan rabhaidhean</string>
+    <string name="enable_etws_test_alerts_title">Craolaidhean deuchainn ETWS</string>
+    <string name="enable_etws_test_alerts_summary">Craolaidhean deuchainn air siostam nan rabhaidhean mu chrith-thalmhainn is tsunami</string>
+    <string name="enable_cmas_extreme_threat_alerts_title">Dearg-chunnartan</string>
+    <string name="enable_cmas_extreme_threat_alerts_summary">Dearg-chunnart beatha no shealbh</string>
+    <string name="enable_cmas_severe_threat_alerts_title">Mòr-chunnartan</string>
+    <string name="enable_cmas_severe_threat_alerts_summary">Mòr-chunnart beatha no shealbh</string>
+    <string name="enable_cmas_amber_alerts_title">Rabhaidhean AMBER</string>
+    <string name="enable_cmas_amber_alerts_summary">Sanasan mu chlann fo bhruid</string>
+    <string name="enable_alert_message_title">Teachdaireachdan rabhaidh</string>
+    <string name="enable_alert_message_summary">Thoir rabhadh dhomh mu bhagairtean sàbhailteachd gus teachd</string>
+    <string name="enable_public_safety_messages_title">Teachdaireachdan sàbhailteachd poblaich</string>
+    <string name="enable_public_safety_messages_summary">Gnìomhan a mholar a shàbhaileas beathannan no sealbhan</string>
+    <string name="enable_state_local_test_alerts_title">Deuchainnean stàite is ionadail</string>
+    <string name="enable_state_local_test_alerts_summary">Faigh teachdaireachdan deuchainne o ùghdarrasan ionadail ’s na stàite</string>
+    <string name="enable_emergency_alerts_message_title">Rabhaidhean èiginn</string>
+    <string name="enable_emergency_alerts_message_summary">Thoir rabhadh dhomh mu thachartasan a chuireas beatha fo chunnart</string>
+    <string name="enable_cmas_test_alerts_title">Rabhaidhean deuchainne</string>
+    <string name="enable_cmas_test_alerts_summary">Faigh deuchainnean on ghiùlanair agus deuchainnean mìosail o shiostam nan rabhaidhean sàbhailteachd</string>
+    <string name="enable_alert_vibrate_title">Crith</string>
+    <string name="override_dnd_title">Cuir làn-àirde na fuaime air rabhaidhean an-còmhnaidh</string>
+    <string name="override_dnd_summary">Leig seachad “Na bris a-steach orm” ⁊ roghainnean àirde na fuaime eile</string>
+    <string name="enable_area_update_info_alerts_title">Craolaidhean ùrachadh na sgìre</string>
+    <string name="enable_area_update_info_alerts_summary">Seall fiosrachadh an ùrachaidh ann an staid an t-SIM</string>
+    <string name="cmas_category_heading">Roinn-seòrsa an rabhaidh:</string>
+    <string name="cmas_category_geo">An talamh</string>
+    <string name="cmas_category_met">Aimsir</string>
+    <string name="cmas_category_safety">Sàbhailteachd</string>
+    <string name="cmas_category_security">Tèarainteachd</string>
+    <string name="cmas_category_rescue">Teasairg</string>
+    <string name="cmas_category_fire">Teine</string>
+    <string name="cmas_category_health">Slàinte</string>
+    <string name="cmas_category_env">Àrainneachd</string>
+    <string name="cmas_category_transport">Còmhdhail</string>
+    <string name="cmas_category_infra">Bun-structar</string>
+    <string name="cmas_category_cbrne">Ceimigeach/Bith-eòlach/Niùclasach/Spreadhadh</string>
+    <string name="cmas_category_other">Rabhadh eile</string>
+    <string name="cmas_response_heading">Seòrsa na freagairt:</string>
+    <string name="cmas_response_shelter">Gabh fasgadh</string>
+    <string name="cmas_response_evacuate">Falamhaich</string>
+    <string name="cmas_response_prepare">Ullaich</string>
+    <string name="cmas_response_execute">Cuir an gnìomh</string>
+    <string name="cmas_response_monitor">Cum sùil air</string>
+    <string name="cmas_response_avoid">Seachain</string>
+    <string name="cmas_response_assess">Meas</string>
+    <string name="cmas_response_none">Gun fhreagairt</string>
+    <string name="cmas_severity_heading">Donad:</string>
+    <string name="cmas_severity_extreme">Dearg-chunnart</string>
+    <string name="cmas_severity_severe">Mòr-chunnart</string>
+    <string name="cmas_urgency_heading">Èiginneachd:</string>
+    <string name="cmas_urgency_immediate">Sa bhad</string>
+    <string name="cmas_urgency_expected">Dùil ris</string>
+    <string name="cmas_certainty_heading">Cinnt:</string>
+    <string name="cmas_certainty_observed">Beachdaichte</string>
+    <string name="cmas_certainty_likely">Coltach</string>
+    <string name="delivery_time_heading">Air fhaighinn:</string>
+    <string name="notification_multiple">Rabhaidhean gun leughadh (<xliff:g id="count">%s</xliff:g>).</string>
+    <string name="notification_multiple_title">Rabhaidhean ùra</string>
+    <string name="show_cmas_opt_out_summary">Seall còmhradh gus an ro-aonta a thoirt air falbh às dèidh a’ chiad chaismeachd a shealltainn (seach rabhaidhean a’ chinn-shuidhe).</string>
+    <string name="show_cmas_opt_out_title">Seall còmhradh an ro-aonta</string>
+    <string name="cmas_opt_out_dialog_text">Gheibh thu rabhaidhean èiginn gun uèir. A bheil thu airson am faighinn fhathast?</string>
+    <string name="cmas_opt_out_button_yes">Tha</string>
+    <string name="cmas_opt_out_button_no">Chan eil</string>
+    <string name="cb_list_activity_title">"Eachdraidh nan rabhaidhean èiginn"</string>
+    <string name="action_delete">Sguab às</string>
+    <string-array name="alert_reminder_interval_entries">
+        <item>Aon turas</item>
+        <item>Gach 2 mhionaid</item>
+        <item>Gach 5 mionaidean</item>
+        <item>Gach cairteal na h-uarach</item>
+        <item>Chan ann idir</item>
+    </string-array>
+    <string name="emergency_alert_settings_title_watches">Rabhaidhean èiginn gun uèir</string>
+    <string name="enable_cmas_presidential_alerts_title">Rabhaidhean a’ chinn-shuidhe</string>
+    <string name="enable_cmas_presidential_alerts_summary">Teachdaireachdan rabhaidh nàiseanta ’gam foillseachadh leis a’ chinn-suidhe. Cha ghabh an cur dheth.</string>
+    <string name="testing_mode_enabled">Tha modh deuchainn a’ chraolaidh mobile an comas.</string>
+    <string name="testing_mode_disabled">Tha modh deuchainn a’ chraolaidh mobile à comas.</string>
+    <string name="show_all_messages">Seall a h-uile teachdaireachd</string>
+    <string name="show_regular_messages">Seall na teachdaireachdan àbhaisteach</string>
+    <string name="message_identifier">Aithnichear:</string>
+    <string name="message_serial_number">Àireamh shreathach:</string>
+    <string name="data_coding_scheme">Sgeama còdachadh dàta:</string>
+    <string name="message_content">Susbaint na teachdaireachd:</string>
+    <string name="location_check_time">Àm sgrùdadh an ionaid:</string>
+    <string name="message_displayed">An teachdaireachd ’ga sealltainn:</string>
+    <string name="message_coordinates">Co-chomharran:</string>
+    <string name="maximum_waiting_time">Ùine as motha a’ feitheamh:</string>
+    <string name="seconds">diog</string>
+    <string name="message_copied">Chaidh lethbhreac dhen teachdaireachd a dhèanamh</string>
+</resources>

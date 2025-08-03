@@ -1,0 +1,58 @@
+schedule: TIMESTAMPED
+scenarios [
+  {
+    at: "09:00:00"
+    journey: "android.adservices.test.scenario.adservices.topics.GetTopicsApiCall"
+    extras {
+      key: "sdk_name"
+      value: "sdk2"
+    }
+    after_test: STAY_IN_APP
+  },
+  {
+    at: "09:10:00"
+    journey: "android.adservices.test.scenario.adservices.topics.GetTopicsApiCall"
+    extras {
+      key: "sdk_name"
+      value: "sdk2"
+    }
+    after_test: STAY_IN_APP
+  },
+  {
+    at: "09:20:00"
+    journey: "android.adservices.test.scenario.adservices.topics.TopicsEpochComputationPrecomputedClassifier"
+    after_test: STAY_IN_APP
+  },
+  {
+    at: "09:30:00"
+    journey: "android.adservices.test.scenario.adservices.topics.GetTopicsApiCall"
+    extras {
+      key: "sdk_name"
+      value: "sdk3"
+    }
+    after_test: STAY_IN_APP
+  },
+  {
+    at: "09:40:00"
+    journey: "android.adservices.test.scenario.adservices.topics.GetTopicsApiCall"
+    extras {
+      key: "sdk_name"
+      value: "sdk3"
+    }
+    after_test: STAY_IN_APP
+  },
+  {
+    at: "09:50:00"
+    journey: "android.adservices.test.scenario.adservices.topics.TopicsEpochComputationPrecomputedClassifier"
+    after_test: STAY_IN_APP
+  },
+  {
+    at: "10:00:00"
+    journey: "android.adservices.test.scenario.adservices.topics.GetTopicsApiCall"
+    extras {
+      key: "sdk_name"
+      value: "sdk5"
+    }
+    after_test: STAY_IN_APP
+  }
+]

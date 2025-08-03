@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2013-2016 The CyanogenMod Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="text_download_speed"><xliff:g id="text">%1$s</xliff:g>, <xliff:g id="size" example="230 kB">%2$s</xliff:g>/s</string>
+    <string name="download_paused">Sos</string>
+    <string name="download_paused_percent">Ar sos, %d%%</string>
+    <string name="button_resume_download">Tosaigh arís</string>
+    <string name="button_pause_download">Sos</string>
+    <string name="notif_summary_paused">%d ar sos</string>
+</resources>

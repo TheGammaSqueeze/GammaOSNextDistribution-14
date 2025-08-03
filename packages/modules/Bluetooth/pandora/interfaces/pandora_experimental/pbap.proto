@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+option java_outer_classname = "PbapProto";
+
+package pandora;
+
+service PBAP {
+}

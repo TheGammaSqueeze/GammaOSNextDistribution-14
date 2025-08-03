@@ -1,0 +1,6 @@
+service aidl_lazy_cb_test /system_ext/bin/aidl_lazy_cb_test_server
+    interface aidl aidl_lazy_cb_test
+    user system
+    group system
+    oneshot
+    disabled

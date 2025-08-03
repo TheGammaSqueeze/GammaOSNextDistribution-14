@@ -1,0 +1,66 @@
+// Copyright 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package netsim.packet;
+
+import "netsim/hci_packet.proto";
+import "netsim/startup.proto";
+
+/**
+ * This is the packet service for the network simulator.
+ *
+ * Android Virtual Devices (AVDs) and accessory devices use this service to
+ * connect to the network simulator and pass packets back and forth.
+ *
+ * AVDs running in a guest VM are built with virtual controllers for each radio
+ * chip. These controllers route chip requests to host emulators (qemu and
+ * crosvm) using virtio and from there they are forwarded to this gRpc service.
+ *
+ * This setup provides a transparent radio environment across AVDs and
+ * accessories because the network simulator contains libraries to emulate
+ * Bluetooth, 80211MAC, UWB, and Rtt chips.
+ *
+ */
+service PacketStreamer {
+  // Attach a virtual radio controller to the network simulation.
+  rpc StreamPackets(stream PacketRequest) returns (stream PacketResponse);
+}
+
+message PacketRequest {
+  // The pattern of oneof in a stream from grpc/load_balancer.proto
+  oneof request_type {
+    // This message should be sent on the first request to the network
+    // simulator. Specifies the device name and chip type for the packet stream.
+    // If bt_properties is provided, it will override the default
+    // configuration.
+    netsim.startup.ChipInfo initial_info = 1;
+    // The streamed data for an attached hci radio chip
+    HCIPacket hci_packet = 2;
+    // The streamed data for other radio chips
+    bytes packet = 3;
+  }
+}
+
+message PacketResponse {
+  oneof response_type {
+    // Error during streaming
+    string error = 1;
+    // The streamed data for an attached hci radio chip
+    HCIPacket hci_packet = 2;
+    // The streamed data for other radio chips
+    bytes packet = 3;
+  }
+}

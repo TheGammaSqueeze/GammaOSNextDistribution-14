@@ -1,0 +1,42 @@
+//
+// SPDX-FileCopyrightText: 2017-2024 The LineageOS Project
+// SPDX-License-Identifier: Apache-2.0
+//
+
+android_app {
+    name: "Recorder",
+
+    defaults: ["aapt_version_code_defaults"],
+
+    manifest: "src/main/AndroidManifest.xml",
+    resource_dirs: ["src/main/res"],
+
+    srcs: [
+        "src/main/java/**/*.kt",
+    ],
+
+    product_specific: true,
+
+    static_libs: [
+        // DO NOT EDIT THIS SECTION MANUALLY
+        "androidx.activity_activity-ktx",
+        "androidx.appcompat_appcompat",
+        "androidx-constraintlayout_constraintlayout",
+        "androidx.core_core-ktx",
+        "androidx.lifecycle_lifecycle-livedata-ktx",
+        "androidx.lifecycle_lifecycle-service",
+        "androidx.lifecycle_lifecycle-viewmodel-ktx",
+        "androidx.recyclerview_recyclerview",
+        "androidx.recyclerview_recyclerview-selection",
+        "Recorder_com.google.android.material_material",
+        "kotlin-stdlib-jdk8",
+    ],
+
+    sdk_version: "34",
+
+    optimize: {
+        optimize: true,
+        proguard_flags_files: ["proguard-rules.pro"],
+        shrink_resources: true,
+    },
+}

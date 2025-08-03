@@ -1,0 +1,140 @@
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_visibility: [":__subpackages__"],
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+genrule {
+    name: "statslog-ondevicepersonalization-java-gen",
+    tools: ["stats-log-api-gen"],
+    cmd: "$(location stats-log-api-gen) --java $(out) --module ondevicepersonalization" +
+         " --javaPackage com.android.ondevicepersonalization" +
+         " --javaClass OnDevicePersonalizationStatsLog",
+    out: ["com/android/ondevicepersonalization/OnDevicePersonalizationStatsLog.java"],
+}
+
+java_defaults {
+    name: "ondevicepersonalization-java-defaults",
+    lint: {
+        strict_updatability_linting: true,
+    },
+    plugins: [
+        "staledataclass-annotation-processor",
+    ],
+    // Exports needed for staledataclass-annotation-processor, see b/139342589.
+    javacflags: [
+        "-J--add-modules=jdk.compiler",
+        "-J--add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
+        "-J--add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED",
+        "-J--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
+        "-J--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
+    ],
+    min_sdk_version: "Tiramisu",
+}
+
+filegroup {
+    name: "ondevicepersonalization-sources",
+    srcs: [
+        "src/**/*.java",
+        "src/**/*.aidl",
+        "src/com/android/ondevicepersonalization/services/policyengine/**/*.kt"
+    ],
+    path: "src",
+}
+
+filegroup {
+    name: "chronicle-sources",
+    srcs: [
+        "src/com/android/libraries/**/*.kt",
+    ],
+    path: "src",
+}
+
+java_library {
+    name: "ondevicepersonalization-protos",
+    proto: {
+        type: "lite",
+    },
+    sdk_version: "system_current",
+    min_sdk_version: "Tiramisu",
+    srcs: ["src/**/*.proto"],
+    apex_available: [
+        "com.android.ondevicepersonalization",
+    ]
+}
+
+java_genrule {
+    name: "ondevicepersonalization-fbs",
+    tools: [
+        "flatc",
+        "soong_zip",
+    ],
+    host_supported: true,
+    srcs: ["src/**/*.fbs"],
+    out: ["ondevicepersonalization-fbs.srcjar"],
+    cmd: "$(location flatc) -o $(genDir) --java $(in) " +
+        "&& $(location soong_zip) -o $(out) -C $(genDir) -D $(genDir)",
+}
+
+android_app {
+    name: "OnDevicePersonalization",
+    srcs: [
+        ":ondevicepersonalization-sources",
+        ":chronicle-sources",
+        ":ondevicepersonalization-fbs",
+        ":statslog-ondevicepersonalization-java-gen",
+    ],
+    libs: [
+        "framework-adservices", // For user consent
+        "framework-annotations-lib",
+        "framework-configinfrastructure",
+        "framework-connectivity.stubs.module_lib",
+        "framework-location.stubs.module_lib",
+        "framework-ondevicepersonalization.impl",
+        "framework-statsd.stubs.module_lib", // For WW logging
+        "kotlin-annotations",
+    ],
+    static_libs: [
+        "androidx.concurrent_concurrent-futures",
+        "guava",
+        "kotlin-stdlib",
+        "kotlinx_coroutines",
+        "kotlinx-coroutines-android",
+        "ondevicepersonalization-protos",
+        "mobile_data_downloader_lib",
+        "modules-utils-build",
+        "ondevicepersonalization-plugin-lib",
+        "flatbuffers-java",
+        "apache-velocity-engine-core",
+        "owasp-java-encoder",
+        "tensorflowlite_java",
+        "tensorflow_core_proto_java_lite",
+        "adservices-shared-spe",
+    ],
+    sdk_version: "module_current",
+    min_sdk_version: "33",
+    updatable: true,
+    certificate: "platform",
+    privileged: true,
+    apex_available: ["com.android.ondevicepersonalization"],
+    defaults: [
+        "ondevicepersonalization-java-defaults",
+    ],
+    optimize: {
+        shrink_resources: true,
+        proguard_flags_files: ["src/proguard.flags"],
+    },
+}

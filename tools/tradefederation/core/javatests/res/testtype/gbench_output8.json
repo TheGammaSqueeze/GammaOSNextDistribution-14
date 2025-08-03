@@ -1,0 +1,16 @@
+{
+  "context": {
+    "date": "2020-10-20T01:52:25+00:00",
+    "host_name": "localhost",
+    "executable": "/data/benchmarktest/minikin_perftests/minikin_perftests",
+    "num_cpus": 8,
+    "mhz_per_cpu": 1766,
+    "cpu_scaling_enabled": true,
+    "caches": [
+    ],
+    "load_avg": [],
+    "library_build_type": "release"
+  },
+  "benchmarks": [
+FontFamily must contain at least one font.
+Aborted 

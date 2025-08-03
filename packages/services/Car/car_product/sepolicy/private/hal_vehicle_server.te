@@ -1,0 +1,2 @@
+# Allow Vehicle HAL to write to the fd passed by Car Service through "dump"
+allow hal_vehicle_server carservice_app:fifo_file { getattr open read write };

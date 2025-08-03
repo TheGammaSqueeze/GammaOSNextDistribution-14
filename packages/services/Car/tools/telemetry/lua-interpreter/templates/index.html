@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Lua Telemetry Interpreter</title>
+  <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+  <link rel="stylesheet" href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+  <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
+  <script src="{{ url_for('static', filename='js/index.bundle.js') }}"></script>
+</head>
+
+<body class="mdc-theme--background mdc-typography">
+  <form action="{{ url_for('execute_script') }}" method="post">
+    <div class="input-container">
+      <div class="script-container">
+        <div class="script-input-container">
+          <textarea class="hide" id="script-input" placeholder="Input script here..."
+            name="script">{{ script }}</textarea>
+        </div>
+        <textarea class="function-name" id="function-name-input" placeholder="Input function name here..."
+          name="function-name">{{ function_name }}</textarea>
+      </div>
+      <div class="data-container">
+
+        <div class="published-data-container">
+          <div class="published-data-button-group" id="published-data-button-group"
+            title="Populates the published data with example data from various publishers.">
+            <!-- Container for the published data buttons populated in index.js. -->
+          </div>
+          <div class="published-data-input-container">
+            <textarea class="hide" id="published-data-input" placeholder="Input published data here as a JSON..."
+              name="published-data">{{ published_data }}</textarea>
+          </div>
+        </div>
+        <div class="saved-state-input-container">
+          <textarea class="hide" id="saved-state-input" placeholder="Input saved state here as a JSON..."
+            name="saved-state">{{ saved_state }}</textarea>
+        </div>
+      </div>
+    </div>
+    <button type="submit" class="mdc-button mdc-button--raised submit">
+      <span class="mdc-button__ripple"></span>
+      <span class="mdc-button__label">Run</span>
+    </button>
+  </form>
+
+  <div class="mdc-theme--on-surface script-output" id="script-output">
+    {% for item in output %}
+    <span>
+      <pre>{{ item|replace('\n', '<br>'|safe)}}</pre>
+    </span>
+    {% endfor %}
+  </div>
+</body>
+
+</html>

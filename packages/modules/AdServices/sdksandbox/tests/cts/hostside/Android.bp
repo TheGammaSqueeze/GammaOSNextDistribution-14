@@ -1,0 +1,122 @@
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_team: "trendy_team_rubidium_sdk_runtime",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_test_host {
+    name: "CtsSdkSandboxHostSideTests",
+    srcs: [
+        "src/**/*.java",
+        ":CtsHostsideTestsAppSecurityUtil",
+    ],
+    libs: ["tradefed"],
+    static_libs: [
+        "modules-utils-build-testing",
+        "SdkSandboxHostTestUtils",
+    ],
+    test_suites: [
+        "cts",
+        "mts-adservices",
+        "general-tests",
+        "mcts-adservices",
+    ],
+    data: [
+        ":CtsSdkSandboxHostTestApp",
+        ":CtsSdkSandboxHostTestApp2",
+        ":SdkSandboxDataIsolationTestProvider",
+        ":SdkSandboxStorageTestProvider",
+    ],
+}
+
+android_test_helper_app {
+    name: "CtsSdkSandboxHostTestApp",
+    manifest: "app/AndroidManifest.xml",
+    defaults: ["platform_app_defaults"],
+    srcs: [
+        "app/src/**/app/*.java",
+    ],
+    libs: [
+        "framework-sdksandbox.impl",
+    ],
+    static_libs: [
+        "CtsStorageTestSdkApi",
+        "CtsDataIsolationTestSdkApi",
+        "SdkSandboxTestUtils",
+        "androidx.core_core",
+        "androidx.test.ext.junit",
+        "compatibility-device-util-axt",
+    ],
+    min_sdk_version: "33",
+    target_sdk_version: "33",
+}
+
+android_test_helper_app {
+    name: "CtsSdkSandboxHostTestApp2",
+    manifest: "app/AndroidManifest2.xml",
+    srcs: [
+        "app/src/**/app2/*.java",
+    ],
+    defaults: ["platform_app_defaults"],
+    min_sdk_version: "33",
+    target_sdk_version: "33",
+}
+
+android_test_helper_app {
+    name: "SdkSandboxDataIsolationTestProvider",
+    manifest: "provider/AndroidManifest.xml",
+    defaults: ["platform_app_defaults"],
+    certificate: ":sdksandbox-test",
+    srcs: [
+        "provider/src/**/dataisolationtest/*.java",
+    ],
+    static_libs: [
+        "CtsDataIsolationTestSdkApi",
+        "compatibility-device-util-axt",
+    ],
+    min_sdk_version: "33",
+    target_sdk_version: "33",
+}
+
+java_library {
+    name: "CtsDataIsolationTestSdkApi",
+    srcs: [
+        "provider/src/**/dataisolationtest/*.aidl",
+    ],
+}
+
+android_test_helper_app {
+    name: "SdkSandboxStorageTestProvider",
+    manifest: "provider/StorageTestManifest.xml",
+    defaults: ["platform_app_defaults"],
+    certificate: ":sdksandbox-test",
+    srcs: [
+        "provider/src/**/storagetest/*.java",
+    ],
+    static_libs: [
+        "CtsStorageTestSdkApi",
+        "compatibility-device-util-axt",
+    ],
+    min_sdk_version: "33",
+    target_sdk_version: "33",
+}
+
+java_library {
+    name: "CtsStorageTestSdkApi",
+    srcs: [
+        "provider/src/**/storagetest/*.aidl",
+    ],
+}

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2018 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="cmas_presidential_level_alert" msgid="6968323372438785870">"നിർണ്ണായക അടിയന്തര റിപ്പോർട്ട്"</string>
+    <string name="alerts_header_summary" msgid="8898082819299479687">"പ്രകൃതി ദുരന്തങ്ങൾക്കിടയിൽ ഒഴിപ്പിക്കൽ നിർദ്ദേശങ്ങൾ പോലുള്ള മുന്നറിയിപ്പുകൾ അയയ്ക്കാൻ നിങ്ങളുടെ ഫോണിന് കഴിയും. ഈ സേവനം നാഷണൽ എമർജൻസി മാനേജ്മെന്റ് ഏജൻസി, നെറ്റ്‍വർക്ക് സേവന ദാതാക്കൾ, ഉൽപ്പന്ന നിർമ്മാതാക്കൾ എന്നിവരുടെ സഹകരണത്തിന്റെ ഫലമാണ്.\n\nഉപകരണത്തിന് എന്തെങ്കിലും പ്രശ്‌നമുണ്ടെങ്കിലോ.നെറ്റ്‌വർക്ക് സാഹചര്യങ്ങൾ മോശമാണെങ്കിലോ നിങ്ങൾക്ക് മുന്നറിയിപ്പുകൾ ലഭിച്ചേക്കില്ല."</string>
+</resources>

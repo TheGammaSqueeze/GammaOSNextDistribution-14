@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="safetyCenterResourcesAppLabel" msgid="4043334186295695930">"ຊັບ​ພະ​ຍາ​ກອນສູນຄວາມປອດໄພ"</string>
+    <string name="lock_screen_sources_title" msgid="3317906280484627707">"ການລັອກອຸປະກອນ"</string>
+    <string name="lock_screen_sources_summary" msgid="7220439741282516496"></string>
+    <string name="lock_screen_title" msgid="4069104894527169877">"ລັອກໜ້າຈໍ"</string>
+    <string name="lock_screen_summary_disabled" msgid="354071230916616692">"ບໍ່ມີຂໍ້ມູນເທື່ອ"</string>
+    <string name="lock_screen_search_terms" msgid="2678486357779794826">"ລັອກອຸປະກອນ, ລັອກໜ້າຈໍ, ໜ້າຈໍລັອກ, ການລັອກໜ້າຈໍ, ລະຫັດຜ່ານ, PIN, ຮູບແບບ"</string>
+    <string name="biometrics_title" msgid="5859504610285212938">"ລະບົບຊີວະມິຕິ"</string>
+    <string name="biometrics_search_terms" msgid="6040319118762671981">"ລາຍນິ້ວມື, ນິ້ວມື, ເພີ່ມລາຍນິ້ວມື, ປົດລັອກດ້ວຍໜ້າ, ໜ້າ"</string>
+    <string name="privacy_sources_title" msgid="4061110826457365957">"ຄວາມເປັນສ່ວນຕົວ"</string>
+    <string name="privacy_sources_summary" msgid="4089719981155120864">"ແຜງໜ້າປັດ, ການອະນຸຍາດ, ການຄວບຄຸມ"</string>
+    <string name="permission_usage_title" msgid="3633779688945350407">"ແຜງໜ້າປັດຄວາມເປັນສ່ວນຕົວ"</string>
+    <string name="permission_usage_summary" msgid="5323079206029964468">"ສະແດງວ່າແອັບໃດໃຊ້ການອະນຸຍາດຫຼ້າສຸດ"</string>
+    <string name="permission_usage_search_terms" msgid="3852343592870257104">"ຄວາມເປັນສ່ວນຕົວ, ແຜງໜ້າປັດຄວາມເປັນສ່ວນຕົວ"</string>
+    <string name="permission_manager_title" msgid="5277347862821255015">"ຕົວຈັດການສິດອະນຸຍາດ"</string>
+    <string name="permission_manager_summary" msgid="8099852107340970790">"ຄວບຄຸມສິດເຂົ້າເຖິງແອັບທີ່ມີຕໍ່ຂໍ້ມູນຂອງທ່ານ"</string>
+    <string name="permission_manager_search_terms" msgid="2895147613099694722">"ການອະນຸຍາດ, ຜູ້ຈັດການສິດອະນຸຍາດ"</string>
+    <string name="privacy_controls_title" msgid="5322875777945432395">"ການຄວບຄຸມຄວາມເປັນສ່ວນຕົວ"</string>
+    <string name="privacy_controls_summary" msgid="2402066941190435424">"ຄວບຄຸມສິດເຂົ້າເຖິງອຸປະກອນຫາໄມໂຄຣໂຟນ, ກ້ອງຖ່າຍຮູບ ແລະ ອື່ນໆ"</string>
+    <string name="privacy_controls_search_terms" msgid="3774472175934304165">"ຄວາມເປັນສ່ວນຕົວ, ການຄວບຄຸມຄວາມເປັນສ່ວນຕົວ"</string>
+    <string name="advanced_title" msgid="8745436380690561172">"ການຕັ້ງຄ່າເພີ່ມເຕີມ"</string>
+    <string name="advanced_security_title" msgid="1126833338772188155">"ການຕັ້ງຄ່າຄວາມປອດໄພເພີ່ມເຕີມ"</string>
+    <string name="advanced_security_summary" msgid="6172253327022425123">"ການເຂົ້າລະຫັດ, ຂໍ້ມູນການເຂົ້າສູ່ລະບົບ ແລະ ອື່ນໆ"</string>
+    <string name="advanced_security_search_terms" msgid="3350609555814362075"></string>
+    <string name="advanced_privacy_title" msgid="1117725225706176643">"ການຕັ້ງຄ່າຄວາມເປັນສ່ວນຕົວເພີ່ມເຕີມ"</string>
+    <string name="advanced_privacy_summary" msgid="2281203390575069543">"ການຕື່ມຂໍ້ມູນອັດຕະໂນມັດ, ການຄວບຄຸມການເຄື່ອນໄຫວ ແລະ ອື່ນໆ"</string>
+    <string name="advanced_privacy_search_terms" msgid="5044404599789175222"></string>
+</resources>

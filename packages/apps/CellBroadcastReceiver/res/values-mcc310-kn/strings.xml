@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2019 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label" msgid="6018514276739876277">"Wireless Emergency Alerts"</string>
+    <string name="sms_cb_settings" msgid="1556918270840502446">"ವೈರ್‌ಲೆಸ್ ತುರ್ತು ಅಲರ್ಟ್‌ಗಳು"</string>
+    <string name="emergency_alert_settings_title_watches" msgid="5702555089013313773">"ವೈರ್‌ಲೆಸ್ ತುರ್ತು ಅಲರ್ಟ್‌ಗಳು"</string>
+    <string name="receive_cmas_in_second_language_title" msgid="7539080017840218665">"ಸ್ಪ್ಯಾನಿಶ್"</string>
+    <string name="receive_cmas_in_second_language_summary" msgid="4482209573334686904">"ಸಾಧ್ಯವಾದಾಗ ಸ್ಪ್ಯಾನಿಶ್ ಭಾಷೆಯಲ್ಲಿ ತುರ್ತು ಎಚ್ಚರಿಕೆಗಳನ್ನು ಸ್ವೀಕರಿಸಿ"</string>
+    <string name="confirm_delete_broadcast" msgid="6808374217554967811">"ಈ ಅಲರ್ಟ್ ಅನ್ನು ಅಳಿಸುವುದೇ?"</string>
+    <string name="confirm_delete_all_broadcasts" msgid="4748571670736214158">"ಸ್ವೀಕರಿಸಿದ ಎಲ್ಲಾ ಅಲರ್ಟ್‌ಗಳನ್ನು ಅಳಿಸುವುದೇ?"</string>
+    <string name="menu_delete" msgid="2691868773984777519">"ಅಲರ್ಟ್ ಅನ್ನು ಅಳಿಸಿ"</string>
+    <string name="menu_delete_all" msgid="8991615021908376216">"ಅಲರ್ಟ್‌ಗಳನ್ನು ಅಳಿಸಿ"</string>
+    <!-- no translation found for enable_cmas_test_alerts_title (3722503121618497385) -->
+    <skip />
+    <string name="enable_cmas_test_alerts_summary" msgid="6138676147687910935">"ಸುರಕ್ಷತಾ ಎಚ್ಚರಿಕೆ ವ್ಯವಸ್ಥೆಯಿಂದ ಅಗತ್ಯವಾದ ಮಾಸಿಕ ಪರೀಕ್ಷೆಗಳನ್ನು ಸ್ವೀಕರಿಸಿ"</string>
+    <string name="cmas_presidential_level_alert" msgid="5810314558991898384">"ರಾಷ್ಟ್ರೀಯ ಎಚ್ಚರಿಕೆ"</string>
+    <string name="show_cmas_opt_out_summary" msgid="5612381687166765604">"ಮೊದಲ ಎಚ್ಚರಿಕೆಯನ್ನು (ರಾಷ್ಟ್ರೀಯ ಎಚ್ಚರಿಕೆ ಹೊರತುಪಡಿಸಿ) ಪ್ರದರ್ಶಿಸಿದ ಬಳಿಕ ಆಯ್ಕೆಯಿಂದ ಹೊರಗುಳಿದ ಸಂವಾದ ತೋರಿಸಿ."</string>
+    <string name="enable_cmas_presidential_alerts_title" msgid="3871388542233245120">"ರಾಷ್ಟ್ರೀಯ ಎಚ್ಚರಿಕೆಗಳು"</string>
+    <string name="enable_cmas_presidential_alerts_summary" msgid="1292969668875568075">"ರಾಷ್ಟ್ರೀಯ ಎಚ್ಚರಿಕೆ ಸಂದೇಶಗಳು. ಆಫ್ ಮಾಡಲು ಸಾಧ್ಯವಿಲ್ಲ."</string>
+</resources>

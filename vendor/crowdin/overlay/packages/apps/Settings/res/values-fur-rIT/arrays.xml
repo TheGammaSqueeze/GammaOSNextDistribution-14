@@ -1,0 +1,538 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+**
+** Copyright 2007 The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string-array name="screen_timeout_entries">
+        <item>15 seconts</item>
+        <item>30 seconts</item>
+        <item>1 minût</item>
+        <item>2 minûts</item>
+        <item>5 minûts</item>
+        <item>10 minûts</item>
+        <item>30 minûts</item>
+    </string-array>
+    <string-array name="dark_ui_scheduler_preference_titles">
+        <item>@string/dark_ui_auto_mode_never</item>
+        <item>@string/dark_ui_auto_mode_custom</item>
+        <item>@string/dark_ui_auto_mode_auto</item>
+    </string-array>
+    <string-array name="dark_ui_scheduler_with_bedtime_preference_titles">
+        <item>@string/dark_ui_auto_mode_never</item>
+        <item>@string/dark_ui_auto_mode_custom</item>
+        <item>@string/dark_ui_auto_mode_auto</item>
+        <item>@string/dark_ui_auto_mode_custom_bedtime</item>
+    </string-array>
+    <string-array name="lock_after_timeout_entries">
+        <item>Daurman</item>
+        <item>5 seconts</item>
+        <item>15 seconts</item>
+        <item>30 seconts</item>
+        <item>1 minût</item>
+        <item>2 minûts</item>
+        <item>5 minûts</item>
+        <item>10 minûts</item>
+        <item>30 minûts</item>
+    </string-array>
+    <string-array name="wifi_status">
+        <item/>
+        <item>Daûr a cirî\u2026</item>
+        <item>Daûr a coneti\u2026</item>
+        <item>Daûr a autenticâsi\u2026</item>
+        <item>Daûr a otignî la direzion IP\u2026</item>
+        <item>Conetude</item>
+        <item>Sospindude</item>
+        <item>Daûr a disconeti\u2026</item>
+        <item>Disconetude</item>
+        <item>Operazion lade strucje</item>
+        <item>Blocât</item>
+        <item>Pal moment a vegnin evitadis conessions scjarsis</item>
+    </string-array>
+    <string-array name="wifi_tether_security">
+        <item>@string/wifi_security_sae</item>
+        <item>@string/wifi_security_psk_sae</item>
+        <item>@string/wifi_security_wpa2</item>
+        <item>@string/wifi_security_none</item>
+    </string-array>
+    <string-array name="eap_ocsp_type" translatable="true">
+        <item>No sta verificâ</item>
+        <item>Domande stât dal certificât</item>
+        <item>Pretint stât dal certificât</item>
+    </string-array>
+    <string-array name="wifi_p2p_status">
+        <item>Conetût</item>
+        <item>Invitât</item>
+        <item>Operazion lade strucje</item>
+        <item>Disponibil</item>
+        <item>Fûr puartade</item>
+    </string-array>
+    <string-array name="bluetooth_leaudio_mode">
+        <item>Disativadis</item>
+        <item>Unicast</item>
+        <item>Unicast e Broadcast</item>
+    </string-array>
+    <string-array name="bluetooth_max_connected_audio_devices">
+        <item>Dopre predefinît di sisteme: <xliff:g id="default_bluetooth_max_connected_audio_devices">%1$d</xliff:g></item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
+    <string-array name="bluetooth_audio_routing_titles">
+        <item>Dopre la aplicazion predefinide</item>
+        <item>Riprodûs sul aparât acustic</item>
+        <item>Riprodûs su la casse dal telefon</item>
+    </string-array>
+    <string-array name="wifi_signal">
+        <item>Scjarse</item>
+        <item>Scjarse</item>
+        <item>Discrete</item>
+        <item>Buine</item>
+        <item>Ecelente</item>
+    </string-array>
+    <string-array name="wifi_peap_phase2_entries">
+        <item>MSCHAPV2</item>
+        <item>GTC</item>
+    </string-array>
+    <string-array name="wifi_ttls_phase2_entries">
+        <item>PAP</item>
+        <item>MSCHAP</item>
+        <item>MSCHAPV2</item>
+        <item>GTC</item>
+    </string-array>
+    <string-array name="wifi_ip_settings">
+        <item>DHCP</item>
+        <item>Static</item>
+    </string-array>
+    <string-array name="wifi_proxy_settings">
+        <item>Nissun</item>
+        <item>Manuâl</item>
+        <item>Auto-configurazion proxy</item>
+    </string-array>
+    <string-array name="apn_auth_entries">
+        <item>Nissun</item>
+        <item>PAP</item>
+        <item>CHAP</item>
+        <item>PAP o CHAP</item>
+    </string-array>
+    <string-array name="apn_protocol_entries">
+        <item>IPv4</item>
+        <item>IPv6</item>
+        <item>IPv4/IPv6</item>
+    </string-array>
+    <string-array name="bearer_entries">
+        <item>No specificât</item>
+        <item>LTE</item>
+        <item>HSPAP</item>
+        <item>HSPA</item>
+        <item>HSUPA</item>
+        <item>HSDPA</item>
+        <item>UMTS</item>
+        <item>EDGE</item>
+        <item>GPRS</item>
+        <item>eHRPD</item>
+        <item>EVDO_B</item>
+        <item>EVDO_A</item>
+        <item>EVDO_0</item>
+        <item>1xRTT</item>
+        <item>IS95B</item>
+        <item>IS95A</item>
+        <item>NR</item>
+    </string-array>
+    <string-array name="mvno_type_entries">
+        <item>Nissun</item>
+        <item translatable="false">SPN</item>
+        <item translatable="false">IMSI</item>
+        <item translatable="false">GID</item>
+    </string-array>
+    <string-array name="app_ops_summaries">
+        <item>posizion a voli</item>
+        <item>posizion precise</item>
+        <item>GPS</item>
+        <item>vibre</item>
+        <item>lei contats</item>
+        <item>modificâ contats</item>
+        <item>lei il regjistri des clamadis</item>
+        <item>modificâ il regjistri des clamadis</item>
+        <item>lei il calendari</item>
+        <item>modificâ il calendari</item>
+        <item>scansion wi-fi</item>
+        <item>notifiche</item>
+        <item>scansion de rêt mobil</item>
+        <item>clamâ telefon</item>
+        <item>lei SMS</item>
+        <item>scrivi SMS</item>
+        <item>ricevi SMS</item>
+        <item>ricevi SMS di emergjence</item>
+        <item>ricevi MMS</item>
+        <item>ricevi push WAP</item>
+        <item>inviâ SMS</item>
+        <item>lei SMS ICC</item>
+        <item>scrivi SMS ICC</item>
+        <item>modificâ impostazions</item>
+        <item>disegnâ in alt</item>
+        <item>acedi aes notifichis</item>
+        <item>fotocjamare</item>
+        <item>regjistrâ audio</item>
+        <item>riprodusi audio</item>
+        <item>lei notis</item>
+        <item>modificâ notis</item>
+        <item>botons multimediâi</item>
+        <item>concentrazion audio</item>
+        <item>volum principâl</item>
+        <item>volum vôs</item>
+        <item>volum sunarie</item>
+        <item>volum multimedia</item>
+        <item>volum svee</item>
+        <item>volum des notifichis</item>
+        <item>volum bluetooth</item>
+        <item>tignî atîf</item>
+        <item>monitorâ posizion</item>
+        <item>monitorâ posizion di alte potence</item>
+        <item>otignî statistichis di ûs</item>
+        <item>cidinâ/ativâ microfon</item>
+        <item>mostrâ notifiche a comparse</item>
+        <item>elemens multimediâi dai progjets</item>
+        <item>ativâ VPN</item>
+        <item>scrivi fonts</item>
+        <item>struture event indiret</item>
+        <item>Schermade event indiret</item>
+        <item>lei il stât dal telefon</item>
+        <item>zontâ messaçs in segretarie</item>
+        <item>doprâ sip</item>
+        <item>elaborâ clamadis in jessude</item>
+        <item>impront digjitâl</item>
+        <item>sensôrs corporâls</item>
+        <item>lei trasmissions de cele</item>
+        <item>posizion pustice</item>
+        <item>lei la memorie di archiviazion</item>
+        <item>scrivi te memorie di archiviazion</item>
+        <item>ativâ il schermi</item>
+        <item>otignî i accounts</item>
+        <item>zirâ in sotfont</item>
+        <item>volum di acès facilitât</item>
+    </string-array>
+    <string-array name="app_ops_labels">
+        <item>Posizion</item>
+        <item>Posizion</item>
+        <item>Posizion</item>
+        <item>Vibre</item>
+        <item>Lei i contats</item>
+        <item>Modificâ i contats</item>
+        <item>Lei il regjistri des clamadis</item>
+        <item>Modificâ il regjistri des clamadis</item>
+        <item>Lei il calendari</item>
+        <item>Modificâ il calendari</item>
+        <item>Posizion</item>
+        <item>Publicâ notifiche</item>
+        <item>Posizion</item>
+        <item>Clamâ telefon</item>
+        <item>Lei SMS/MMS</item>
+        <item>Scrivi SMS/MMS</item>
+        <item>Ricevi SMS/MMS</item>
+        <item>Ricevi SMS/MMS</item>
+        <item>Ricevi SMS/MMS</item>
+        <item>Ricevi SMS/MMS</item>
+        <item>Inviâ SMS/MMS</item>
+        <item>Lei SMS/MMS</item>
+        <item>Scrivi SMS/MMS</item>
+        <item>Modificâ impostazions</item>
+        <item>Dissegne in alt</item>
+        <item>Acedi aes notifichis</item>
+        <item>Fotocjamare</item>
+        <item>Regjistrâ audio</item>
+        <item>Riprodusi audio</item>
+        <item>Lei notis</item>
+        <item>Modificâ notis</item>
+        <item>Botons multimediâi</item>
+        <item>Concentrazion audio</item>
+        <item>Volum principâl</item>
+        <item>Volum vôs</item>
+        <item>Volum sunarie</item>
+        <item>Volum contignûts multimediâi</item>
+        <item>Volum svee</item>
+        <item>Volum notifichis</item>
+        <item>Volum Bluetooth</item>
+        <item>Manten atîf</item>
+        <item>Posizion</item>
+        <item>Gjeolocalizazion</item>
+        <item>Oten statistichis di ûs</item>
+        <item>Cidine/ative microfon</item>
+        <item>Mostre notifiche a comparse</item>
+        <item>Elements multimediâi dai progjets</item>
+        <item>Ative VPN</item>
+        <item>Scrîf fonts</item>
+        <item>Struture event indiret</item>
+        <item>Schermade event indiret</item>
+        <item>Lei il stât dal telefon</item>
+        <item>Zonte messaçs vocâl</item>
+        <item>Dopre sip</item>
+        <item>Elabore clamadis in jessude</item>
+        <item>Impront digjitâl</item>
+        <item>Sensôrs corporâls</item>
+        <item>Lei lis trasmissions de cele</item>
+        <item>Posizion pustice</item>
+        <item>Lei la memorie di archiviazion</item>
+        <item>Scrîf te memorie di archiviazion</item>
+        <item>Ative il schermi</item>
+        <item>Oten i accounts</item>
+        <item>Zire in sotfont</item>
+        <item>Volum acès facilitât</item>
+    </string-array>
+    <string-array name="long_press_timeout_selector_titles">
+        <item>Curte</item>
+        <item>Medie</item>
+        <item>Lungje</item>
+    </string-array>
+    <string-array name="long_press_timeout_selector_list_titles">
+        <item>Curte</item>
+        <item>Medie</item>
+        <item>Lungje</item>
+    </string-array>
+    <string-array name="captioning_typeface_selector_titles">
+        <item>Predefinît</item>
+        <item>Sans-serif</item>
+        <item>Sans-serif condensât</item>
+        <item>Sans-serif monospace</item>
+        <item>Serif</item>
+        <item>Serif monospace</item>
+        <item>Casual</item>
+        <item>Corsîf</item>
+        <item>Maiusculis piçulis</item>
+    </string-array>
+    <string-array name="captioning_font_size_selector_titles">
+        <item>Une vore piçul</item>
+        <item>Piçul</item>
+        <item>Medie</item>
+        <item>Grant</item>
+        <item>Une vore grant</item>
+    </string-array>
+    <string-array name="captioning_edge_type_selector_titles">
+        <item>Predefinide</item>
+        <item>Nissun</item>
+        <item>Ôr</item>
+        <item>Ombrene</item>
+        <item>In rilêf</item>
+        <item>Basrilêf</item>
+    </string-array>
+    <string-array name="captioning_opacity_selector_titles">
+        <item>25%</item>
+        <item>50%</item>
+        <item>75%</item>
+        <item>100%</item>
+    </string-array>
+    <string-array name="captioning_preset_selector_titles">
+        <item>Stabilît de aplicazion</item>
+        <item>Blanc su neri</item>
+        <item>Neri su blanc</item>
+        <item>Zâl su neri</item>
+        <item>Zâl su blu</item>
+        <item>Personalizât</item>
+    </string-array>
+    <string-array name="accessibility_button_location_selector_titles">
+        <item>Mobile sore altris aplicazions</item>
+        <item>Sbare di navigazion</item>
+    </string-array>
+    <string-array name="accessibility_button_gesture_selector_titles">
+        <item>Boton</item>
+        <item>Mots</item>
+    </string-array>
+    <string-array name="accessibility_button_size_selector_titles">
+        <item>Piçulis</item>
+        <item>Grandis</item>
+    </string-array>
+    <string-array name="vpn_proxy_settings">
+        <item>Nissun</item>
+        <item>Manuâl</item>
+    </string-array>
+    <string-array name="vpn_states">
+        <item>Disconetude</item>
+        <item>Daûr a inizializâ\u2026</item>
+        <item>Daûr a conetisi\u2026</item>
+        <item>Conetude</item>
+        <item>Timp scjadût</item>
+        <item>Falide</item>
+    </string-array>
+    <string-array name="security_settings_premium_sms_values">
+        <item>Domande</item>
+        <item>No sta permeti mai</item>
+        <item>Permet simpri</item>
+    </string-array>
+    <string-array name="ram_states">
+        <item>Normâl</item>
+        <item>Moderât</item>
+        <item>Bas</item>
+        <item>Critic</item>
+        <item>\?</item>
+    </string-array>
+    <string-array name="color_picker">
+        <item>Cian</item>
+        <item>Blu</item>
+        <item>Vert</item>
+        <item>Viole</item>
+        <item>Rose</item>
+        <item>Naranç</item>
+    </string-array>
+    <string-array name="automatic_storage_management_days">
+        <item>Plui di 30 dîs</item>
+        <item>Plui di 60 dîs</item>
+        <item>Plui di 90 dîs</item>
+    </string-array>
+    <string-array name="swipe_direction_titles">
+        <item>@string/swipe_direction_rtl</item>
+        <item>@string/swipe_direction_ltr</item>
+    </string-array>
+    <string-array name="swipe_direction_values">
+        <item>1</item>
+        <item>0</item>
+    </string-array>
+    <string-array name="wifi_metered_entries">
+        <item>Rileve in automatic</item>
+        <item>Trate come a consum</item>
+        <item>No sta tratâ come a consum</item>
+    </string-array>
+    <string-array name="wifi_privacy_entries">
+        <item>Dopre MAC casuâl (predefinît)</item>
+        <item>Dopre MAC dal dispositîf</item>
+    </string-array>
+    <string-array name="wifi_hidden_entries">
+        <item>No</item>
+        <item>Sì</item>
+    </string-array>
+    <string-array name="autofill_logging_level_entries">
+        <item>Off</item>
+        <item>Debug</item>
+        <item>Detaiât</item>
+    </string-array>
+    <string-array name="cdma_system_select_choices">
+        <item>Dome domestiche</item>
+        <item>Automatic</item>
+    </string-array>
+    <string-array name="preferred_network_mode_choices">
+        <item>GSM/WCDMA preferît</item>
+        <item>Dome GSM</item>
+        <item>Dome WCDMA</item>
+        <item>GSM/WCDMA automatic</item>
+        <item>CDMA/EvDo automatic</item>
+        <item>CDMA cence EvDo</item>
+        <item>Dome EvDo</item>
+        <item>CDMA/EvDo/GSM/WCDMA</item>
+        <item>CDMA + LTE/EvDo</item>
+        <item>GSM/WCDMA/LTE</item>
+        <item>LTE/CDMA/EvDo/GSM/WCDMA</item>
+        <item>LTE</item>
+        <item>LTE / WCDMA</item>
+        <item>Dome TDSCDMA</item>
+        <item>TDSCDMA/WCDMA</item>
+        <item>LTE/TDSCDMA</item>
+        <item>TDSCDMA/GSM</item>
+        <item>LTE/TDSCDMA/GSM</item>
+        <item>TDSCDMA/GSM/WCDMA</item>
+        <item>LTE/TDSCDMA/WCDMA</item>
+        <item>LTE/TDSCDMA/GSM/WCDMA</item>
+        <item>TDSCDMA/CDMA/EVDO/GSM/WCDMA </item>
+        <item>LTE/TDSCDMA/CDMA/EVDO/GSM/WCDMA</item>
+        <item>Dome NR</item>
+        <item>NR/LTE</item>
+        <item>NR/LTE/CDMA/EvDo</item>
+        <item>NR/LTE/GSM/WCDMA</item>
+        <item>Globâl</item>
+        <item>NR/LTE/WCDMA</item>
+        <item>NR/LTE/TDSCDMA</item>
+        <item>NR/LTE/TDSCDMA/GSM</item>
+        <item>NR/LTE/TDSCDMA/WCDMA</item>
+        <item>NR/LTE/TDSCDMA/GSM/WCDMA</item>
+        <item>NR/LTE/TDSCDMA/CDMA/EvDo/GSM/WCDMA</item>
+    </string-array>
+    <string-array name="cdma_subscription_choices">
+        <item>RUIM/SIM</item>
+        <item>NV</item>
+    </string-array>
+    <string-array name="enhanced_4g_lte_mode_title_variant">
+        <item>@string/enhanced_4g_lte_mode_title</item>
+        <item>@string/enhanced_4g_lte_mode_title_advanced_calling</item>
+        <item>@string/enhanced_4g_lte_mode_title_4g_calling</item>
+    </string-array>
+    <string-array name="rtt_setting_mode">
+        <item/>
+        <item>@string/rtt_settings_no_visible</item>
+        <item>@string/rtt_settings_visible_during_call</item>
+        <item>@string/rtt_settings_always_visible</item>
+    </string-array>
+    <string-array name="nfc_payment_favor">
+        <item>Simpri</item>
+        <item>Gjavant che no sedi viert une altre aplicazion pai paiaments</item>
+    </string-array>
+    <string-array name="nfc_payment_favor_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+    <string-array name="switch_to_dock_user_when_docked_timeout_entries">
+        <item>Mai</item>
+        <item>Dopo 1 minût</item>
+        <item>Dopo 5 minûts</item>
+    </string-array>
+    <string-array name="ingress_rate_limit_entries">
+        <item>@string/ingress_rate_limit_no_limit_entry</item>
+        <item>128kbps</item>
+        <item>256kbps</item>
+        <item>1Mbps</item>
+        <item>5Mbps</item>
+        <item>15Mbps</item>
+    </string-array>
+    <string-array name="ingress_rate_limit_values">
+        <item>-1</item>
+        <item>16000</item>
+        <item>32000</item>
+        <item>125000</item>
+        <item>625000</item>
+        <item>1875000</item>
+        </string-array>
+    <string-array name="temperature_units">
+        <item>default</item>
+        <item>celsius</item>
+        <item>fahrenhe</item>
+    </string-array>
+    <string-array name="first_day_of_week">
+        <item>default</item>
+        <item>sun</item>
+        <item>mon</item>
+        <item>tue</item>
+        <item>wed</item>
+        <item>thu</item>
+        <item>fri</item>
+        <item>sat</item>
+    </string-array>
+    <string-array name="terms_of_address_unsupported_locales">
+        <item>fr-CA</item>
+        </string-array>
+    <string-array name="terms_of_address_supported_languages">
+        <item>fr</item>
+        </string-array>
+    <string-array name="notification_polite_options">
+        <item>@string/notification_polite_all_apps</item>
+        <item>@string/notification_polite_conversations</item>
+        <item>@string/notification_polite_disabled</item>
+    </string-array>
+    <string-array name="private_space_auto_lock_options">
+        <item>@string/private_space_auto_lock_every_time</item>
+        <item>@string/private_space_auto_lock_after_inactivity</item>
+        <item>@string/private_space_auto_lock_never</item>
+    </string-array>
+</resources>

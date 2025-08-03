@@ -1,0 +1,1 @@
+rule com.android.modules.utils.** android.provider.internal.modules.utils.@1

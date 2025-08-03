@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="feedback_system_logs_title_text">Inclût ducj i regjistris dal dispositîf (sisteme e aplicazions)</string>
+    <string name="feedback_system_logs_legal_text">La condivision di ducj i regjistri dal dispositîf (sisteme e aplicazions) e podarès inviâ a Google i detais come non utents, ubicazions, IDs dispositîf e informazions su la rêt. Google al dopre chestis informazions par comedâ problemis tecnics e miorâ i servizis. Plui informazions su g.co/android/devicelogs.</string>
+    <string name="feedback_bugreport_title_text">Inclût segnalazion di erôr</string>
+    <string name="feedback_bugreport_legal_display_text"> La segnalazion di erôr (di %1$s) e inclût dâts come par esempli nons utent, ubicazion, IDs dispositîf e informazions su la rêt, par podê judâ Google a capî e comedâ il probleme.</string>
+    <string name="next">Indevant</string>
+    <string name="feedback_view_system_logs_button_text">Viôt regjistris di sisteme</string>
+    <string name="feedback_view_logs_dialog_title">Regjistris di sisteme</string>
+    <string name="feedback_view_logs_dialog_body">Chescj regjistris a contegnin informazions che nus coventin par podê frontâ il to coment.</string>
+    <string name="annotated_back_indicator_string">Frache il boton INDAÛR par tornâ indaûr.</string>
+    <string name="loading">Daûr a cjariâ</string>
+</resources>

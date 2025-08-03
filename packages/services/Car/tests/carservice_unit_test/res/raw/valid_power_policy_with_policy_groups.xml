@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<powerPolicy version="1.0">
+    <policyGroups >
+        <policyGroup id="policy_group_1">
+            <defaultPolicy state="WaitForVHAL" id="wait_for_vhal_policy"/>
+            <defaultPolicy state="On" id="empty_policy"/>
+        </policyGroup>
+    </policyGroups>
+
+    <policies>
+        <policy id="empty_policy">
+            <otherComponents behavior="untouched"/>
+        </policy>
+        <policy id="wait_for_vhal_policy">
+            <otherComponents behavior="off"/>
+        </policy>
+        <policy id="on_policy">
+            <otherComponents behavior="on"/>
+        </policy>
+    </policies>
+</powerPolicy>

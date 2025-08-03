@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2013 The CyanogenMod Project
+     SPDX-FileCopyrightText: 2021-2022 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <integer name="local_picker_items">3</integer>
+    <bool name="check_custom_theme_by_default">true</bool>
+    <string name="wizard_script_uri" translatable="false">android.resource://org.lineageos.setupwizard/raw/wizard_script</string>
+    <string name="wizard_script_user_uri" translatable="false">android.resource://org.lineageos.setupwizard/raw/wizard_script_user</string>
+    <bool name="config_isLargeNoTouch">false</bool>
+</resources>

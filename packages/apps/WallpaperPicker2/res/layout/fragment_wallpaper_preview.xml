@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.android.wallpaper.picker.TouchForwardingLayout
+        android:id="@+id/touch_forwarding_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/transparent"
+        android:contentDescription="@string/preview_screen_description"/>
+
+    <FrameLayout
+        android:id="@+id/hide_floating_sheet_touch_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/transparent"
+        android:clickable="true"/>
+
+    <include layout="@layout/wallpaper_preview" />
+
+    <View
+        android:id="@+id/preview_scrim"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/gradient_black_scrim"
+        android:importantForAccessibility="noHideDescendants" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/transparent"
+        android:fitsSystemWindows="true">
+
+        <Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="0dp"
+            android:layout_height="?android:attr/actionBarSize"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/barrier_start" />
+
+        <FrameLayout
+            android:id="@+id/button_set_wallpaper_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="@dimen/set_wallpaper_button_min_height"
+            android:elevation="@dimen/wallpaper_preview_buttons_elevation"
+            android:layout_gravity="center_vertical"
+            android:gravity="center"
+            android:clickable="true"
+            android:layout_marginEnd="@dimen/set_wallpaper_button_margin_end"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/toolbar"
+            app:layout_constraintBottom_toBottomOf="@+id/toolbar">
+            <Button
+                android:id="@+id/button_set_wallpaper"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:background="@drawable/set_wallpaper_button_background"
+                android:text="@string/set_wallpaper_button_text"
+                android:textColor="@color/text_color_on_accent"/>
+        </FrameLayout>
+
+        <Button
+            android:id="@+id/exit_full_preview_button"
+            android:contentDescription="@string/show_preview_controls_action"
+            android:layout_width="@dimen/wallpaper_control_button_size"
+            android:layout_height="@dimen/wallpaper_control_button_size"
+            android:layout_gravity="center_vertical"
+            android:foreground="@drawable/exit_full_preview_cross"
+            android:elevation="@dimen/wallpaper_preview_buttons_elevation"
+            android:gravity="center"
+            android:layout_marginEnd="@dimen/set_wallpaper_button_margin_end"
+            android:visibility="gone"
+            android:clickable="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/toolbar"
+            app:layout_constraintBottom_toBottomOf="@+id/toolbar" />
+
+        <com.android.wallpaper.widget.WallpaperDownloadButton
+            android:id="@+id/button_download_wallpaper"
+            android:layout_width="@dimen/wallpaper_control_button_size"
+            android:layout_height="@dimen/wallpaper_control_button_size"
+            android:layout_marginEnd="@dimen/wallpaper_control_button_group_margin_end"
+            android:elevation="@dimen/wallpaper_preview_buttons_elevation"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/toolbar"
+            app:layout_constraintBottom_toBottomOf="@+id/toolbar"
+            android:visibility="gone"/>
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="start"
+            app:constraint_referenced_ids="button_set_wallpaper_container, button_download_wallpaper" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier_bottom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="button_set_wallpaper_container, button_download_wallpaper" />
+
+        <com.android.wallpaper.widget.WallpaperControlButtonGroup
+            android:id="@+id/wallpaper_control_button_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/wallpaper_control_button_group_margin_top"
+            android:layout_marginEnd="@dimen/wallpaper_control_button_group_margin_end"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/barrier_bottom"/>
+
+        <com.android.wallpaper.widget.DuoTabs
+            android:id="@+id/overlay_tabs"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="@dimen/full_preview_page_tabs_horizontal_padding"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <ProgressBar
+            android:id="@+id/action_progress"
+            android:layout_width="@dimen/effect_generating_progress_bar_size"
+            android:layout_height="@dimen/effect_generating_progress_bar_size"
+            android:indeterminateTint="?android:attr/textColorSecondary"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.android.wallpaper.widget.FloatingSheet
+        android:id="@+id/floating_sheet"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent" />
+
+</FrameLayout>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2018 Google Inc. All Rights Reserved. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="android.platform.test.scenario" >
+    <uses-sdk android:minSdkVersion="24" android:targetSdkVersion="30" />
+    <uses-permission android:name="android.permission.ACCESS_ADSERVICES_AD_ID" />
+    <uses-permission android:name="android.permission.DUMP" />
+    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" />
+    <uses-permission android:name="android.permission.STOP_APP_SWITCHES" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
+    <uses-permission android:name="android.permission.READ_LOGS" />
+    <uses-permission android:name="android.permission.REAL_GET_TASKS" />
+    <uses-permission android:name="android.permission.MANAGE_USERS" />
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS_PRIVILEGED" />
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+    <uses-permission android:name="android.permission.ACCESS_ADSERVICES_TOPICS" />
+    <uses-permission android:name="android.permission.SET_ORIENTATION" />
+    <uses-permission android:name="android.permission.STATUS_BAR_SERVICE" />
+    <uses-permission android:name="android.permission.SET_WALLPAPER" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_ADSERVICES_CUSTOM_AUDIENCE" />
+    <uses-permission android:name="android.permission.ACCESS_ADSERVICES_ATTRIBUTION" />
+
+    <application>
+        <uses-library android:name="android.test.runner"/>
+        <property android:name="android.adservices.AD_SERVICES_CONFIG"
+                  android:resource="@xml/ad_services_config" />
+    </application>
+    <instrumentation
+        android:name="androidx.test.runner.AndroidJUnitRunner"
+        android:targetPackage="android.platform.test.scenario"
+        android:label="Platform Scenario-Based Tests" />
+</manifest>

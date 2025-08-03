@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  Copyright (c) 2017 The LineageOS Project
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ Also add information on how to contact you by electronic and paper mail.
+
+-->
+<resources>
+    <string name="app_name">FlipFlap</string>
+    <string name="notification_title">აღმოჩენილია გონიერი შალითა</string>
+    <string name="alarm_label">მაღვიძარა</string>
+    <string name="abbrev_wday_month_day_no_year">EEE, d MMMM</string>
+    <string name="answer_call">პასუხი</string>
+    <string name="ignore_call">აცილება</string>
+    <string name="end_call">ზარის დასრულება</string>
+    <string name="settings_name">გონიერი შალითა</string>
+    <string name="settings_enable">გონიერი შალითით მართვა</string>
+    <string name="settings_summary">დამატებითი აღჭურვილობის მართვა</string>
+    <string name="category_behaviour">მოქმედება</string>
+    <string name="pass_to_security_view_title">პიდაპირ გადასვლა პაროლის შეყვანაზე</string>
+    <string name="pass_to_security_view_summary">შალითის გახსნისას პირდაპირ ჩამკეტი ეკრანის გამოჩენა</string>
+    <string name="use_high_touch_sensitivity_title">შეხების მაღალი მგრძნობელობა</string>
+    <string name="use_high_touch_sensitivity_summary">შეხების მგრძნობელობის გაზრდა, როცა შალითა დახურულია</string>
+    <string name="category_design">იერსახე</string>
+    <string name="switch_charging_status_title">დამუხტვის მდგომარეობის ჩვენება</string>
+    <string name="switch_charging_status_summary">ფერის ცვლა ბატარეის მუხტის მიხედვით</string>
+    <string name="category_timeouts">დაყოვნება</string>
+    <string name="timeout_plugged_title">დამუხტვისას</string>
+    <string name="timeout_unplugged_title">გამოერთებული</string>
+    <string name="timeout_summary">შალითის აპი გამოჩნდეს %s გადაფარების შემდგომ</string>
+    <string name="timeout_summary_never">დახურვის შემდგომ შალითის აპი მუდმივად ჩართული დარჩება</string>
+    <string name="timeout_summary_immediately">ეკრანი ჩაქრება შალითის დაფარებისას</string>
+    <string name="timeout_entry_immediately">დაუყოვნებლივ</string>
+    <string name="timeout_entry_5s">5 წამი</string>
+    <string name="timeout_entry_10s">10 წამი</string>
+    <string name="timeout_entry_30s">30 წამი</string>
+    <string name="timeout_entry_1min">1 წუთი</string>
+    <string name="timeout_entry_5min">5 წუთი</string>
+    <string name="timeout_entry_never">არასდროს</string>
+</resources>

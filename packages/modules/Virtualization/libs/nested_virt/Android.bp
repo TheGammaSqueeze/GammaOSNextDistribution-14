@@ -1,0 +1,19 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_library {
+    name: "libnested_virt",
+    crate_name: "nested_virt",
+    defaults: ["avf_build_flags_rust"],
+    srcs: ["src/lib.rs"],
+    edition: "2021",
+    rustlibs: [
+        "libanyhow",
+        "librustutils",
+    ],
+    apex_available: [
+        "com.android.compos",
+        "com.android.virt",
+    ],
+}

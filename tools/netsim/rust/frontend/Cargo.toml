@@ -1,0 +1,23 @@
+[package]
+name = "frontend"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+protobuf = "3.2.0"
+protoc-grpcio = "3.0.0"
+protoc-rust = "2.27"
+grpcio = "0.13.0"
+grpcio-sys = "0.12.1"
+futures = "0.3.26"
+
+##[build-dependencies]
+##protoc-grpcio = "3.0.0"
+
+##[[bin]]
+##name = "server"
+##path = "src/server.rs"
+
+##[[bin]]
+##name = "netsim-grpc"
+##path = "src/client.rs"

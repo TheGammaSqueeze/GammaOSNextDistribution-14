@@ -1,0 +1,278 @@
+//
+// Copyright (C) 2018 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+// AIDL interfaces between the core system and the networking mainline module.
+package {
+    default_team: "trendy_team_fwk_core_networking",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+aidl_interface {
+    name: "ipmemorystore-aidl-interfaces",
+    local_include_dir: "src",
+    srcs: [
+        "src/android/net/IIpMemoryStore.aidl",
+        "src/android/net/IIpMemoryStoreCallbacks.aidl",
+        "src/android/net/ipmemorystore/**/*.aidl",
+        // New AIDL classes should go into android.net.networkstack.aidl so they can be clearly
+        // identified
+        "src/android/net/networkstack/aidl/quirks/IPv6ProvisioningLossQuirkParcelable.aidl",
+    ],
+    backend: {
+        java: {
+            apex_available: [
+                "//apex_available:platform",
+                "com.android.btservices",
+                "com.android.wifi",
+                "com.android.tethering",
+            ],
+            // this is part of updatable modules(NetworkStack) which targets 30(R)
+            min_sdk_version: "30",
+        },
+        ndk: {
+            enabled: false,
+        },
+        cpp: {
+            enabled: false,
+        },
+        rust: {
+            enabled: false,
+        },
+    },
+
+    visibility: [
+        "//system/tools/aidl/build",
+    ],
+    versions_with_info: [
+        {
+            version: "1",
+            imports: [],
+        },
+        {
+            version: "2",
+            imports: [],
+        },
+        {
+            version: "3",
+            imports: [],
+        },
+        {
+            version: "4",
+            imports: [],
+        },
+        {
+            version: "5",
+            imports: [],
+        },
+        {
+            version: "6",
+            imports: [],
+        },
+        {
+            version: "7",
+            imports: [],
+        },
+        {
+            version: "8",
+            imports: [],
+        },
+        {
+            version: "9",
+            imports: [],
+        },
+        {
+            version: "10",
+            imports: [],
+        },
+
+    ],
+
+}
+
+aidl_interface {
+    name: "networkstack-aidl-interfaces",
+    local_include_dir: "src",
+    include_dirs: [
+        // For framework parcelables.
+        "frameworks/base/core/java",
+        // For API parcelables in connectivity
+        "packages/modules/Connectivity/framework/aidl-export",
+        "frameworks/native/aidl/binder", // For PersistableBundle.aidl
+    ],
+    srcs: [
+        "src/android/net/DataStallReportParcelable.aidl",
+        "src/android/net/DhcpResultsParcelable.aidl",
+        "src/android/net/INetworkMonitor.aidl",
+        "src/android/net/INetworkMonitorCallbacks.aidl",
+        "src/android/net/INetworkStackConnector.aidl",
+        "src/android/net/INetworkStackStatusCallback.aidl",
+        "src/android/net/InitialConfigurationParcelable.aidl",
+        "src/android/net/InformationElementParcelable.aidl",
+        "src/android/net/Layer2InformationParcelable.aidl",
+        "src/android/net/Layer2PacketParcelable.aidl",
+        "src/android/net/NattKeepalivePacketDataParcelable.aidl",
+        "src/android/net/NetworkTestResultParcelable.aidl",
+        "src/android/net/PrivateDnsConfigParcel.aidl",
+        "src/android/net/ProvisioningConfigurationParcelable.aidl",
+        "src/android/net/ScanResultInfoParcelable.aidl",
+        "src/android/net/TcpKeepalivePacketDataParcelable.aidl",
+        "src/android/net/dhcp/DhcpLeaseParcelable.aidl",
+        "src/android/net/dhcp/DhcpServingParamsParcel.aidl",
+        "src/android/net/dhcp/IDhcpEventCallbacks.aidl",
+        "src/android/net/dhcp/IDhcpServer.aidl",
+        "src/android/net/dhcp/IDhcpServerCallbacks.aidl",
+        "src/android/net/ip/IIpClient.aidl",
+        "src/android/net/ip/IIpClientCallbacks.aidl",
+        // New AIDL classes should go into android.net.networkstack.aidl so they can be clearly
+        // identified
+        "src/android/net/networkstack/aidl/NetworkMonitorParameters.aidl",
+        "src/android/net/networkstack/aidl/dhcp/DhcpOption.aidl",
+        "src/android/net/networkstack/aidl/ip/ReachabilityLossInfoParcelable.aidl",
+        "src/android/net/networkstack/aidl/ip/ReachabilityLossReason.aidl",
+    ],
+    backend: {
+        java: {
+            apex_available: [
+                "//apex_available:platform",
+                "com.android.btservices",
+                "com.android.wifi",
+                "com.android.tethering",
+            ],
+            // this is part of updatable modules(NetworkStack) which targets 30(R)
+            min_sdk_version: "30",
+            lint: {
+                enabled: false,
+            },
+        },
+        ndk: {
+            enabled: false,
+        },
+        cpp: {
+            enabled: false,
+        },
+        rust: {
+            enabled: false,
+        },
+    },
+    imports: ["ipmemorystore-aidl-interfaces-V10"],
+    // TODO: have tethering depend on networkstack-client and set visibility to private
+    visibility: [
+        "//system/tools/aidl/build",
+        "//frameworks/base/packages/Tethering",
+        "//packages/modules/Connectivity/Tethering",
+    ],
+    versions_with_info: [
+        // Remove old networkstack aidl interface version info that is no longer used.
+        {
+            version: "13",
+            imports: ["ipmemorystore-aidl-interfaces-V10"],
+        },
+        {
+            version: "14",
+            imports: ["ipmemorystore-aidl-interfaces-V10"],
+        },
+        {
+            version: "15",
+            imports: ["ipmemorystore-aidl-interfaces-V10"],
+        },
+        {
+            version: "16",
+            imports: ["ipmemorystore-aidl-interfaces-V10"],
+        },
+        {
+            version: "17",
+            imports: ["ipmemorystore-aidl-interfaces-V10"],
+        },
+        {
+            version: "18",
+            imports: ["ipmemorystore-aidl-interfaces-V10"],
+        },
+        {
+            version: "19",
+            imports: ["ipmemorystore-aidl-interfaces-V10"],
+        },
+        {
+            version: "20",
+            imports: ["ipmemorystore-aidl-interfaces-V10"],
+        },
+        {
+            version: "21",
+            imports: ["ipmemorystore-aidl-interfaces-V10"],
+        },
+
+    ],
+    frozen: true,
+}
+
+java_library {
+    name: "networkstack-aidl-latest",
+    sdk_version: "system_current",
+    min_sdk_version: "30",
+    static_libs: [
+        "ipmemorystore-aidl-interfaces-V10-java",
+        "networkstack-aidl-interfaces-V21-java",
+    ],
+    visibility: ["//packages/modules/NetworkStack:__subpackages__"],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.btservices",
+        "com.android.tethering",
+        "com.android.wifi",
+    ],
+}
+
+java_library {
+    name: "networkstack-client",
+    sdk_version: "module_current",
+    // this is part of updatable modules(NetworkStack) which runs on R and above
+    min_sdk_version: "30",
+    srcs: [
+        "src/android/net/ip/**/*.java",
+        "src/android/net/IpMemoryStore.java",
+        "src/android/net/IpMemoryStoreClient.java",
+        "src/android/net/ipmemorystore/**/*.java",
+        "src/android/net/NetworkMonitorManager.java",
+        "src/android/net/networkstack/**/*.java",
+        "src/android/net/networkstack/aidl/quirks/**/*.java",
+        "src/android/net/shared/**/*.java",
+        "src/android/net/util/**/*.java",
+    ],
+    libs: [
+        // Since this library is sdk_version: "module_current", "framework-connectivity" is just
+        // the module_current API stubs of framework-connectivity
+        "framework-connectivity",
+        "framework-annotations-lib",
+    ],
+    static_libs: [
+        "networkstack-aidl-latest",
+    ],
+    visibility: [
+        "//packages/modules/Connectivity/Tethering",
+        "//packages/modules/Connectivity/service",
+        "//frameworks/base/services/net",
+        "//frameworks/opt/net/wifi/service",
+        "//packages/apps/Bluetooth",
+        "//packages/modules/Bluetooth/android/app",
+        "//packages/modules/NetworkStack",
+        "//packages/modules/Wifi/service:__subpackages__",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.btservices",
+        "com.android.tethering",
+        "com.android.wifi",
+    ],
+}

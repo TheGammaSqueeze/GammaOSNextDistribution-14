@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (c) 2009, 2011-2013 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2014-2015 The CyanogenMod Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *    * Neither the name of The Linux Foundation nor
+ *      the names of its contributors may be used to endorse or promote
+ *      products derived from this software without specific prior written
+ *      permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NON-INFRINGEMENT ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="regional_band_summary_north_america">Северна Америка (87,5 до 108,0 MHz во 200 kHz во чекори)</string>
+    <string name="regional_band_summary_europe">Европа (87.5 до 108.0 MHz во 100 kHz во чекори)</string>
+    <string name="regional_band_summary_japan">Јапонија (76.0 до 90.0 MHz во 100 kHz во чекори)</string>
+    <string name="regional_band_summary_japan_wide">Јапонија (широко) (90,0 до 108,0 MHz во 50 kHz во чекори)</string>
+    <string name="regional_band_summary_australia">Австралија (87,7 до 108,0 MHz во 100 kHz во чекори)</string>
+    <string name="regional_band_summary_austria">Австрија (87,5 до 108,0 MHz во 50 kHz во чекори)</string>
+    <string name="regional_band_summary_belgium">Белгија (87,5 до 108,0 MHz во 100 kHz во чекори)</string>
+    <string name="regional_band_summary_brazil">Бразил (87.5 до 108.0 MHz во 200 kHz во чекори)</string>
+    <string name="regional_band_summary_china">Кина (87.0 до 108.0 MHz во 100 kHz во чекори)</string>
+    <string name="regional_band_summary_czech_republic">Чешка (87,5 до 108,0 MHz во 100 kHz чекори)</string>
+    <string name="regional_band_summary_denmark">Данска (87,5 до 108,0 MHz во 50 kHz чекори)</string>
+    <string name="regional_band_summary_finland">Финска (87,5 до 108,0 MHz во 100 kHz во чекори)</string>
+    <string name="regional_band_summary_france">Франција (87.5 до 108.0 MHz во 100 kHz во чекори)</string>
+    <string name="regional_band_summary_germany">Германија (87,5 до 108,0 MHz во чекори 50 kHz во чекори)</string>
+    <string name="regional_band_summary_greece">Грција (87,5 до 108,0 MHz во 50 kHz во чекори)</string>
+    <string name="regional_band_summary_hong_kong">Хонг Конг (87,5 до 108,0 MHz во 100 kHz во чекори)</string>
+    <string name="regional_band_summary_india">Индија (87,5 до 108,0 MHz во 100 kHz во чекори)</string>
+    <string name="regional_band_summary_indonesia">Индонезија (87,5 до 108,0 MHz во 100 kHz во чекори)</string>
+    <string name="regional_band_summary_ireland">Ирска (87,5 до 108,0 MHz во 50 kHz во чекори)</string>
+    <string name="regional_band_summary_italy">Италија (87,5 до 108,0 MHz во 50 kHz во чекори)</string>
+    <string name="regional_band_summary_korea">Кореја (87,5 до 108,0 MHz во 200 kHz во чекори)</string>
+    <string name="regional_band_summary_mexico">Мексико (88,1 до 107,9 MHz во 200 kHz во чекори)</string>
+    <string name="regional_band_summary_netherlands">Холандија (87,5 до 108,0 MHz во 100 kHz во чекори)</string>
+    <string name="regional_band_summary_new_zealand">Нов Зеланд (88,0 до 107,0 MHz во 100 kHz во чекори)</string>
+    <string name="regional_band_summary_norway">Норвешка (87,5 до 108,0 MHz во 100 kHz во чекори)</string>
+    <string name="regional_band_summary_poland">Полска (87,5 до 108,0 MHz во 100 kHz во чекори)</string>
+    <string name="regional_band_summary_portugal">Португалија (87,5 до 108,0 MHz во 50 kHz во чекори)</string>
+    <string name="regional_band_summary_russia">Русија (87,5 до 108,0 MHz во 100 kHz во чекори)</string>
+    <string name="regional_band_summary_singapore">Сингапур (88,0 до 108,0 MHz во 100 kHz во чекори)</string>
+    <string name="regional_band_summary_slovakia">Словачка (87,5 до 108,0 MHz во 100 kHz во чекори)</string>
+    <string name="regional_band_summary_spain">Шпанија (87,5 до 108,0 MHz во 100 kHz во чекори)</string>
+    <string name="regional_band_summary_switzerland">Швајцарија (87,5 до 108,0 MHz во 100 kHz во чекори)</string>
+    <string name="regional_band_summary_sweden">Шведска (87,5 до 108,0 MHz во 100 kHz во чекори)</string>
+    <string name="regional_band_summary_taiwan">Тајван (87,5 до 108,0 MHz во 100 kHz во чекори)</string>
+    <string name="regional_band_summary_turkey">Турција (87,5 до 108,0 MHz во 100 kHz во чекори)</string>
+    <string name="regional_band_summary_united_kingdom">Обединето Кралство (87,5 до 108,0 MHz во 100 kHz во чекори)</string>
+    <string name="regional_band_summary_united_states">САД (88.1 до 107.9 MHz во 200 kHz во чекори)</string>
+    <string name="user_defind_band_msg">Внесете фреквенција од 76,0 до 108,0 MHz со минимум 1 канал простор и 100 kHz простор помеѓу мин и максимална фреквенција</string>
+</resources>

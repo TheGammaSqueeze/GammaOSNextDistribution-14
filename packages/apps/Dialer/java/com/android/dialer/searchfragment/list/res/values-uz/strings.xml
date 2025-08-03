@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="new_permission_no_search">Kontaktlarni qidirish uchun “Kontaktlar” ruxsatnomasini yoqing.</string>
+  <string name="search_shortcut_make_voice_call">Chaqiruv: %1$s</string>
+</resources>

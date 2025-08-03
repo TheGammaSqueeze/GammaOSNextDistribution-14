@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  Copyright (c) 2022, The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="5655878067457216814">"Device Lock Controller"</string>
+    <string name="next_button" msgid="1856423430963548653">"Kitas"</string>
+    <string name="reset_button" msgid="4649354411129240809">"Nustatyti iš naujo"</string>
+    <string name="setup_more_button" msgid="4456370972302510109">"Daugiau"</string>
+    <string name="setup_info_title_text" msgid="299562193092219293">"Kaip „<xliff:g id="CREDITOR_APP">%1$s</xliff:g>“ gali valdyti šį įrenginį?"</string>
+    <string name="setup_failed_title_text" msgid="9045111389981992536">"Nepavyko įdiegti programos „<xliff:g id="CREDITOR_APP">%1$s</xliff:g>“"</string>
+    <string name="setup_failed_reset_device_text" msgid="178419033440060908">"Įrenginys nustatomas iš naujo, kad galėtumėte bandyti dar kartą."</string>
+    <string name="setup_failed_reset_device_timer_text" msgid="5270970227714985986">"{count,plural, =1{Iš naujo nustatykite šį įrenginį ir bandykite jį nustatyti dar kartą. Jis bus automatiškai nustatytas iš naujo už vienos sekundės.}one{Iš naujo nustatykite šį įrenginį ir bandykite jį nustatyti dar kartą. Jis bus automatiškai nustatytas iš naujo už # sekundės.}few{Iš naujo nustatykite šį įrenginį ir bandykite jį nustatyti dar kartą. Jis bus automatiškai nustatytas iš naujo už # sekundžių.}many{Iš naujo nustatykite šį įrenginį ir bandykite jį nustatyti dar kartą. Jis bus automatiškai nustatytas iš naujo už # sekundės.}other{Iš naujo nustatykite šį įrenginį ir bandykite jį nustatyti dar kartą. Jis bus automatiškai nustatytas iš naujo už # sekundžių.}}"</string>
+    <string name="setup_progress_title_text" msgid="2388779167610656852">"Įdiegiama programa „<xliff:g id="CREDITOR_APP">%1$s</xliff:g>“<xliff:g id="ELLIPSIS">…</xliff:g>"</string>
+    <string name="setup_finish_title_text" msgid="2810842695806992743">"Atidaroma „<xliff:g id="CREDITOR_APP">%1$s</xliff:g>“ programa<xliff:g id="ELLIPSIS">…</xliff:g>"</string>
+    <string name="setup_error_title_text" msgid="1123742279081942535">"Nepavyko atidaryti programos „<xliff:g id="CREDITOR_APP">%1$s</xliff:g>“"</string>
+    <string name="try_again" msgid="5964839819170927721">"Bandyti dar kartą"</string>
+    <string name="reset_phone" msgid="1161657350311160627">"Iš naujo nustatyti telefoną"</string>
+    <string name="control_section_title" msgid="2213476068991045785">"Ką gali daryti „<xliff:g id="CREDITOR_APP">%1$s</xliff:g>“?"</string>
+    <string name="control_lock_device_text" msgid="8253302484073757764">"Apriboti šį įrenginį, jei neatliksite mokėjimo"</string>
+    <string name="control_download_text" msgid="8514650561843088172">"Atsisiųsti, įdiegti ir atnaujinti programą „<xliff:g id="CREDITOR_APP">%1$s</xliff:g>“"</string>
+    <string name="control_disable_debug_text" msgid="8112443250013094442">"Išjungti derinimo funkcijas"</string>
+    <string name="locked_section_title" msgid="2748725389334076510">"Kas veikia, kai šis įrenginys užrakintas?"</string>
+    <string name="locked_emergency_text" msgid="3509216445555779286">"Skambinimo pagalbos numeriais paslaugos"</string>
+    <string name="locked_phone_usage_text" msgid="1913605870324552847">"Gaunamieji ir kai kurie siunčiamieji skambučiai"</string>
+    <string name="locked_settings_usage_text" msgid="8336476063187737700">"Nustatymai"</string>
+    <string name="locked_backup_and_restore_text" msgid="104616318625243429">"&lt;a href=https://support.google.com/android/answer/2819582&gt;Atsarginės duomenų kopijos kūrimas ir&lt;/a&gt; duomenų atkūrimas"</string>
+    <string name="exposure_section_title" msgid="2329122144337528752">"Ką „<xliff:g id="CREDITOR_APP">%1$s</xliff:g>“ mato?"</string>
+    <string name="exposure_install_text" msgid="2631074166447765453">"Kada programa „<xliff:g id="CREDITOR_APP">%1$s</xliff:g>“ įdiegiama ar pašalinama"</string>
+    <string name="exposure_lock_unlock_text" msgid="6827412845847260579">"Visos „<xliff:g id="CREDITOR_APP">%1$s</xliff:g>“ pateiktos užrakinimo ar atrakinimo užklausos"</string>
+    <string name="exposure_disable_dlc_text" msgid="2898692398106736423">"Jei programa „<xliff:g id="CREDITOR_APP">%1$s</xliff:g>“ nepasiekiama"</string>
+    <string name="open_source_licenses" msgid="6464389386262455443">"Atvirojo šaltinio licencijos"</string>
+    <string name="footer_notice_content_description" msgid="2160540400079419440">"Tvarkymo funkcijos, esančios finansuojamo įrenginio skiltyje „Saugos nustatymai“, netaikomos šiam įrenginiui."</string>
+    <string name="device_provided_by_provider" msgid="290593329676291991">"Šį įrenginį teikia „<xliff:g id="PROVIDER_NAME">%1$s</xliff:g>“"</string>
+    <string name="download_kiosk_app" msgid="1845089944897502656">"Viešojo terminalo programa bus atsiųsta ir įdiegta automatiškai"</string>
+    <string name="install_kiosk_app_secondary_user" msgid="49911908012320834">"Viešojo terminalo programa bus įdiegta šiam naudotojui"</string>
+    <string name="restrict_device_if_missing_payment" msgid="8883980285859496904">"„<xliff:g id="PROVIDER_NAME">%1$s</xliff:g>“ gali apriboti įrenginį, jei praleisite mokėjimą. Jei reikia išsamios informacijos, žr. skiltį <xliff:g id="TERMS_AND_CONDITIONS_LINK_START">&lt;a href=%2$s&gt;</xliff:g>„Taisyklės ir nuostatos“<xliff:g id="TERMS_AND_CONDITIONS_LINK_END">&lt;/a&gt;</xliff:g>."</string>
+    <string name="restrict_device_if_dont_make_payment" msgid="1619095674945507015">"„<xliff:g id="PROVIDER_NAME">%1$s</xliff:g>“ gali apriboti šį įrenginį, jei neatliksite reikiamų mokėjimų. Jei reikia išsamios informacijos, žr. skiltį <xliff:g id="TERMS_AND_CONDITIONS_LINK_START">&lt;a href=%2$s&gt;</xliff:g>„Taisyklės ir nuostatos“<xliff:g id="TERMS_AND_CONDITIONS_LINK_END">&lt;/a&gt;</xliff:g>."</string>
+    <string name="contact_provider_for_help" msgid="3872028089834808884">"Jei reikia pagalbos, <xliff:g id="SUPPORT_LINK_START">&lt;a href=%2$s&gt;</xliff:g>susisiekite su „<xliff:g id="PROVIDER_NAME">%1$s</xliff:g>“<xliff:g id="SUPPORT_LINK_END">&lt;/a&gt;</xliff:g>."</string>
+    <string name="previous" msgid="5241891780917802570">"Ankstesnis"</string>
+    <string name="next" msgid="8248291863254324326">"Kitas"</string>
+    <string name="start" msgid="2842214844667658537">"Pradėti"</string>
+    <string name="ok" msgid="3568398726528719749">"Gerai"</string>
+    <string name="done" msgid="4507782734740410307">"Atlikta"</string>
+    <string name="do_it_in_one_hour" msgid="2727777340568739453">"Atlikti už 1 val."</string>
+    <string name="header_icon_content_description" msgid="6069602031334473195">"Informacija"</string>
+    <string name="provision_info_item_icon_content_description" msgid="2306298178610632507">"Pateikimo informac."</string>
+    <string name="enroll_your_device_header" msgid="2226305405591945098">"Užregistruokite įrenginį"</string>
+    <string name="enroll_your_device_financing_subheader" msgid="8810608106273097451">"Dabar galite užregistruoti įrenginį „<xliff:g id="PROVIDER_NAME">%1$s</xliff:g>“ finansavimo programoje"</string>
+    <string name="enroll_your_device_subsidy_subheader" msgid="8598730780370624995">"Dabar galite užregistruoti įrenginį „<xliff:g id="PROVIDER_NAME">%1$s</xliff:g>“ subsidijų programoje"</string>
+    <string name="subsidy_program_header" msgid="2321508488856303554">"Dalyvaujate „<xliff:g id="PROVIDER_NAME">%1$s</xliff:g>“ subsidijų programoje"</string>
+    <string name="device_enrollment_header_text" msgid="5283341102404741658">"Įrenginio registracija"</string>
+    <string name="device_financing_enrollment_body_text" msgid="5506086383249511498">"Įrenginys bus užregistruotas „<xliff:g id="PROVIDER_NAME">%1$s</xliff:g>“ finansavimo programoje per 30 dienų"</string>
+    <string name="device_subsidy_enrollment_body_text" msgid="3971584929178719388">"Įrenginys bus užregistruotas „<xliff:g id="PROVIDER_NAME">%1$s</xliff:g>“ subsidijų programoje per 30 dienų"</string>
+    <string name="device_enrollment_notification_body_text" msgid="8755080244956655854">"Registracija bus tęsiama <xliff:g id="TIME">%1$s</xliff:g>. Galite toliau naudoti įrenginį."</string>
+    <string name="continue_using_device" msgid="5816570734692191190">"Galite toliau naudoti įrenginį"</string>
+    <string name="device_paid" msgid="6606280698381856804">"Už įrenginį jau sumokėjote"</string>
+    <string name="device_removed_from_subsidy_program" msgid="1243434945619071051">"Įrenginys pašalintas iš „<xliff:g id="PROVIDER_NAME">%1$s</xliff:g>“ subsidijų programos"</string>
+    <string name="device_removed_from_finance_program" msgid="825548999540107578">"Įrenginys buvo pašalintas iš „<xliff:g id="PROVIDER_NAME">%1$s</xliff:g>“ finansavimo programos"</string>
+    <string name="restrictions_lifted" msgid="5785586265984319396">"Visi įrenginio apribojimai panaikinti"</string>
+    <string name="uninstall_kiosk_app" msgid="3459557395024053988">"Galite pašalinti viešojo terminalo programą iš įrenginio"</string>
+    <string name="getting_device_ready" msgid="2829009584599871699">"Ruošiamas įrenginys…"</string>
+    <string name="this_may_take_a_few_minutes" msgid="2482876246874429351">"Tai gali užtrukti kelias minutes"</string>
+    <string name="installing_kiosk_app" msgid="324208168205545860">"Diegiama „<xliff:g id="CREDITOR_APP">%1$s</xliff:g>“ programa…"</string>
+    <string name="opening_kiosk_app" msgid="2021888641430165654">"Atidaroma „<xliff:g id="CREDITOR_APP">%1$s</xliff:g>“ programa…"</string>
+    <string name="settings_banner_title" msgid="527041021011279252">"Įrenginį teikia „<xliff:g id="PROVIDER_NAME">%1$s</xliff:g>“"</string>
+    <string name="settings_banner_body" msgid="5814902066260202824">"„<xliff:g id="PROVIDER_NAME">%1$s</xliff:g>“ gali keisti šio įrenginio nustatymus"</string>
+    <string name="settings_banner_button" msgid="1831020849782670907">"Sužinokite daugiau"</string>
+    <string name="settings_screen_title" msgid="721470080648091035">"Finansuojamo įrenginio informacija"</string>
+    <string name="settings_intro_device_financing" msgid="2548476558131048133">"„<xliff:g id="PROVIDER_NAME_0">%1$s</xliff:g>“ gali keisti nustatymus ir įdiegti viešojo terminalo programą šiame įrenginyje.\n\nJei praleisite mokėjimą, „<xliff:g id="PROVIDER_NAME_1">%1$s</xliff:g>“ gali apriboti įrenginį.\n\nJei norite sužinoti daugiau, susisiekite su „<xliff:g id="PROVIDER_NAME_2">%1$s</xliff:g>“."</string>
+    <string name="settings_intro_device_subsidy" msgid="4274945644204818702">"„<xliff:g id="PROVIDER_NAME_0">%1$s</xliff:g>“ gali keisti nustatymus ir įdiegti viešojo terminalo programą šiame įrenginyje.\n\n„<xliff:g id="PROVIDER_NAME_1">%1$s</xliff:g>“ gali apriboti šį įrenginį, jei praleisite mokėjimą arba nustosite naudoti „<xliff:g id="PROVIDER_NAME_2">%1$s</xliff:g>“ SIM kortelę.\n\nJei norite sužinoti daugiau, susisiekite su „<xliff:g id="PROVIDER_NAME_3">%1$s</xliff:g>“."</string>
+    <string name="settings_intro_preference_key" msgid="6610461073400554162">"settings_intro_preference_key"</string>
+    <string name="settings_restrictions_category" msgid="5746868117342406677">"Nesumokėję už įrenginį negalėsite atlikti nurodytų veiksmų."</string>
+    <string name="settings_restrictions_category_preference_key" msgid="88318147152676512">"settings_restrictions_category_preference_key"</string>
+    <string name="settings_install_apps" msgid="3634279771448183713">"Įdiegti programas ne iš „Play“ parduotuvės"</string>
+    <string name="settings_install_apps_preference_key" msgid="27542314345238427">"settings_install_apps_preference_key"</string>
+    <string name="settings_safe_mode" msgid="3035228015586375153">"Paleisti įrenginį iš naujo saugos režimu"</string>
+    <string name="settings_safe_mode_preference_key" msgid="2106617747358027424">"settings_safe_mode_preference_key"</string>
+    <string name="settings_developer_options" msgid="880701002025216672">"Naudoti kūrėjo parinktis"</string>
+    <string name="settings_developer_options_preference_key" msgid="6807036808722582954">"settings_developer_options_preference_key"</string>
+    <string name="settings_credit_provider_capabilities_category" msgid="1274440595211820868">"Kilus problemų dėl įrenginio, „<xliff:g id="PROVIDER_NAME">%1$s</xliff:g>“ gali:"</string>
+    <string name="settings_credit_provider_capabilities_category_preference_key" msgid="4571685720898641262">"settings_credit_provider_capabilities_category_preference_key"</string>
+    <string name="settings_IMEI" msgid="697965824361262506">"Pasiekti IMEI numerį"</string>
+    <string name="settings_IMEI_preference_key" msgid="608809590948249412">"settings_IMEI_preference_key"</string>
+    <string name="settings_factory_reset" msgid="418045189048067625">"Atkurti gamyklinius įrenginio nustatymus"</string>
+    <string name="settings_factory_reset_preference_key" msgid="2168528486393635382">"settings_factory_reset_preference_key"</string>
+    <string name="settings_locked_mode_category" msgid="6307525048618331737">"Jei įrenginys užrakintas, juo galite atlikti tik nurodytus veiksmus."</string>
+    <string name="settings_locked_mode_category_preference_key" msgid="7202573929427220258">"settings_locked_mode_category_preference_key"</string>
+    <string name="settings_emergency_calls" msgid="2460996367176786040">"Skambinti pagalbos numeriais"</string>
+    <string name="settings_emergency_calls_preference_key" msgid="737598609727181316">"settings_emergency_calls_preference_key"</string>
+    <string name="settings_system_info" msgid="1352629332624774940">"Peržiūrėti sistemos informaciją, pvz., datą, laiką, tinklo būseną ir akumuliatoriaus informaciją"</string>
+    <string name="settings_system_info_preference_key" msgid="8607675914059202598">"settings_system_info_preference_key"</string>
+    <string name="settings_turn_on_off_device" msgid="5414836621603462439">"Įjungti arba išjungti įrenginį"</string>
+    <string name="settings_turn_on_off_device_preference_key" msgid="5981163790552677734">"settings_turn_on_off_device_preference_key"</string>
+    <string name="settings_notifications" msgid="63348993899505034">"Peržiūrėti pranešimus ir teksto pranešimus"</string>
+    <string name="settings_notifications_preference_key" msgid="4527872342061056462">"settings_notifications_preference_key"</string>
+    <string name="settings_allowlisted_apps" msgid="5531810497056091097">"Pasiekti programas, kurias leidžia „<xliff:g id="PROVIDER_NAME">%1$s</xliff:g>“"</string>
+    <string name="settings_allowlisted_apps_preference_key" msgid="8662705531235468080">"settings_allowlisted_apps_preference_key"</string>
+    <string name="settings_fully_paid_category" msgid="2459776591689824433">"Sumokėję visą sumą galėsite atlikti nurodytus veiksmus."</string>
+    <string name="settings_fully_paid_category_preference_key" msgid="1759690898170600559">"settings_fully_paid_category_preference_key"</string>
+    <string name="settings_restrictions_removed" msgid="1398080654904863221">"„<xliff:g id="PROVIDER_NAME">%1$s</xliff:g>“ negali apriboti įrenginio ar keisti įrenginio nustatymų"</string>
+    <string name="settings_restrictions_removed_preference_key" msgid="7741933477145197391">"settings_restrictions_removed_preference_key"</string>
+    <string name="settings_uninstall_kiosk_app" msgid="2611134364295637875">"Galite pašalinti programą „<xliff:g id="KIOSK_APP">%1$s</xliff:g>“"</string>
+    <string name="settings_uninstall_kiosk_app_preference_key" msgid="5578103644009268125">"settings_uninstall_kiosk_app_preference_key"</string>
+    <string name="settings_support_category" msgid="7210906871924935770">"Jei reikia pagalbos, atlikite toliau nurodytus veiksmus."</string>
+    <string name="settings_support_category_preference_key" msgid="1818953199283261021">"settings_support_category_preference_key"</string>
+    <string name="settings_contact_provider" msgid="2481819956474692039">"<xliff:g id="SUPPORT_LINK_START">&lt;a href=%2$s&gt;</xliff:g>Susisiekite su „<xliff:g id="PROVIDER_NAME">%1$s</xliff:g>“<xliff:g id="SUPPORT_LINK_END">&lt;/a&gt;</xliff:g>"</string>
+    <string name="settings_contact_provider_preference_key" msgid="2703619536229342624">"settings_contact_provider_preference_key"</string>
+    <string name="provision_notification_channel_name" msgid="6123500714047647805">"Pateikimas"</string>
+    <string name="device_reset_in_days_notification_title" msgid="920859483535317727">"{count,plural, =1{Įrenginys bus nustatytas iš naujo už vienos dienos}one{Įrenginys bus nustatytas iš naujo už # dienos}few{Įrenginys bus nustatytas iš naujo už # dienų}many{Įrenginys bus nustatytas iš naujo už # dienos}other{Įrenginys bus nustatytas iš naujo už # dienų}}"</string>
+    <string name="device_reset_timer_notification_title" msgid="301978346002711614">"Įrenginys bus nustatytas iš naujo už <xliff:g id="TIMER">%s</xliff:g>"</string>
+    <string name="device_reset_notification_content" msgid="7642367488663440437">"Visi įrenginio duomenys bus ištrinti. Jei reikia pagalbos dėl įrenginio registracijos, susisiekite su „<xliff:g id="PROVIDER_NAME">%1$s</xliff:g>“"</string>
+    <string name="provisioning_failed" msgid="5350252817004028300">"Finansavimo pateikti nepavyko"</string>
+    <string name="click_to_contact_financier" msgid="9107827438262930445">"Spustelėkite čia ir sužinokite, kaip susisiekti su finansuotoju. <xliff:g id="SUPPORT_URL_START">&lt;a href=%1$s&gt;</xliff:g>Sužinokite daugiau<xliff:g id="SUPPORT_URL_END">&lt;/a&gt;</xliff:g>"</string>
+    <string name="exit" msgid="645084771882733921">"Išeiti"</string>
+    <string name="retry" msgid="7497287909193345356">"Bandyti dar kartą"</string>
+</resources>

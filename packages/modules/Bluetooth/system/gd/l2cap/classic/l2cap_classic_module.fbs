@@ -1,0 +1,20 @@
+namespace bluetooth.l2cap.classic;
+
+attribute "privacy";
+
+table ChannelData {
+  cid:int;
+}
+
+table LinkData {
+  address:string;
+  dynamic_channels:[ChannelData];
+  fixed_channels:[ChannelData];
+}
+
+table L2capClassicModuleData {
+    title:string (privacy:"Any");
+    active_links:[LinkData] (privacy:"Any");
+}
+
+root_type L2capClassicModuleData;

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="pbap_session_key_dialog_title" msgid="5103201901254778256">"Մուտքագրեք աշխատաշրջանի բանալին %1$s-ի համար"</string>
+    <string name="pbap_session_key_dialog_header" msgid="5073165544713355581">"Պահանջվում է Bluetooth-ի աշխատաշրջանի բանալի"</string>
+    <string name="pbap_acceptance_timeout_message" msgid="3071798915563151284">"«%1$s»-ի հետ կապի ընդունման ժամանակը սպառվեց"</string>
+    <string name="pbap_authentication_timeout_message" msgid="2089914949828656737">"%1$s-ով աշխատաշրջանի բանալու մուտքագրման ժամանակը սպառվեց"</string>
+    <string name="auth_notif_ticker" msgid="7344125635314034621">"Կասեցնել նույնականացման հարցումը"</string>
+    <string name="auth_notif_title" msgid="6639277119990416473">"Աշխատաշրջանի բանալի"</string>
+    <string name="auth_notif_message" msgid="7044369885874418693">"Մուտքագրեք աշխատաշրջանի բանալի %1$s-ի համար"</string>
+    <string name="defaultname" msgid="6200530814398805541">"Carkit"</string>
+    <string name="unknownName" msgid="6755061296103155293">"Անհայտ անուն"</string>
+    <string name="localPhoneName" msgid="9119254982537191352">"Իմ անունը"</string>
+    <string name="defaultnumber" msgid="5348816189286607406">"000000"</string>
+    <string name="pbap_notification_group" msgid="4215789331721465381">"Bluetooth կոնտակտների համօգտագործում"</string>
+    <string name="phonebook_advance_feature_support" msgid="8129553051734505128">"Աջակցվում են հեռախոսագրքի ընդլայնված գործառույթը"</string>
+    <string name="repair_for_adv_phonebook_feature" msgid="3489797973131684927">"Վերազուգակցում հեռախոսագրքի ընդլայնված գործառույթի համար"</string>
+</resources>

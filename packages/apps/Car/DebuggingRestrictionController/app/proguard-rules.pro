@@ -1,0 +1,2 @@
+-dontwarn java.lang.ClassValue
+-dontwarn javax.servlet.ServletContextListener

@@ -1,0 +1,8 @@
+service aconfigd /system/bin/aconfigd
+    class core
+    user system
+    group system
+    oneshot
+    disabled # does not start with the core class
+    reboot_on_failure reboot
+    socket aconfigd seqpacket 660 system system

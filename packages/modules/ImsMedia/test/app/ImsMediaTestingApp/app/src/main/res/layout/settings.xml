@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+
+    <TextView
+        android:id="@+id/remoteDeviceTitle"
+        android:textStyle="bold"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:layout_marginStart="15dp"
+        android:text="@string/settings_remote_device_title"
+        android:textAlignment="center" />
+
+    <EditText
+        android:id="@+id/remoteDeviceIpEditText"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+        android:layout_below="@+id/remoteDeviceTitle"
+        android:ems="15"
+        android:hint="@string/ip_address_placeholder"
+        android:importantForAutofill="no"
+        android:inputType="phone"
+        android:minHeight="48dp"
+        android:textAlignment="center" />
+
+    <EditText
+        android:id="@+id/remotePortNumberEditText"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:layout_marginStart="15dp"
+        android:layout_below="@+id/remoteDeviceIpEditText"
+        android:ems="5"
+        android:hint="@string/port_number_placeholder"
+        android:importantForAutofill="no"
+        android:inputType="phone"
+        android:textAlignment="center" />
+
+    <TextView
+        android:id="@+id/audioCodecTitle"
+        android:textStyle="bold"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:layout_marginStart="15dp"
+        android:layout_below="@id/remotePortNumberEditText"
+        android:text="@string/audio_codec_settings"
+        android:textAlignment="center" />
+
+    <TextView
+        android:id="@+id/evsBandwidthTitle"
+        android:textStyle="bold"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:layout_below="@id/remotePortNumberEditText"
+        android:layout_alignStart="@id/evsBandwidthsList"
+        android:text="@string/evs_bandwidths"
+        android:textAlignment="center" />
+
+    <ListView
+        android:id="@+id/audioCodecList"
+        android:layout_width="150dp"
+        android:layout_height="200dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="15dp"
+        android:layout_below="@id/audioCodecTitle"
+        android:choiceMode="multipleChoice"
+        android:fadeScrollbars="false" />
+
+    <ListView
+        android:id="@+id/evsBandwidthsList"
+        android:layout_width="215dp"
+        android:layout_height="200dp"
+        android:layout_marginStart="15dp"
+        android:layout_alignTop="@id/audioCodecList"
+        android:layout_toEndOf="@id/audioCodecList"
+        android:choiceMode="multipleChoice"
+        android:fadeScrollbars="false"
+        android:saveEnabled="true"
+        android:visibility="visible" />
+
+    <TextView
+        android:id="@+id/amrModesTitle"
+        android:textStyle="bold"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:layout_marginStart="15dp"
+        android:layout_below="@id/audioCodecList"
+        android:text="@string/amr_modes"
+        android:textAlignment="center" />
+
+    <ListView
+        android:id="@+id/amrModesList"
+        android:layout_width="175dp"
+        android:layout_height="200dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
+        android:layout_below="@id/amrModesTitle"
+        android:choiceMode="multipleChoice" />
+
+    <TextView
+        android:id="@+id/evsModesTitle"
+        android:textStyle="bold"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:layout_marginEnd="15dp"
+        android:layout_below="@id/evsBandwidthsList"
+        android:layout_alignStart="@id/evsBandwidthsList"
+        android:text="@string/evs_modes"
+        android:textAlignment="center" />
+
+    <ListView
+        android:id="@+id/evsModesList"
+        android:layout_width="175dp"
+        android:layout_height="200dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
+        android:layout_below="@id/amrModesTitle"
+        android:layout_toEndOf="@id/amrModesList"
+        android:choiceMode="multipleChoice" />
+
+    <Button
+        android:id="@+id/saveSettingsButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="15dp"
+        android:layout_below="@+id/amrModesList"
+        android:layout_centerHorizontal="true"
+        android:background="@color/teal_700"
+        android:hapticFeedbackEnabled="true"
+        android:onClick="saveSettingsOnClick"
+        android:text="@string/save" />
+
+</RelativeLayout>

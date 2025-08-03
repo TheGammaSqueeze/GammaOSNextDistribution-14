@@ -1,0 +1,45 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_defaults {
+    name: "libservice_vm_requests_nostd_defaults",
+    crate_name: "service_vm_requests",
+    defaults: ["avf_build_flags_rust"],
+    srcs: ["src/lib.rs"],
+    prefer_rlib: true,
+    apex_available: [
+        "com.android.virt",
+    ],
+    no_stdlibs: true,
+    stdlibs: [
+        "libcore.rust_sysroot",
+    ],
+    rustlibs: [
+        "libbssl_avf_error_nostd",
+        "libbssl_avf_nostd",
+        "libcbor_util_nostd",
+        "libciborium_nostd",
+        "libcoset_nostd",
+        "libder_nostd",
+        "libdiced_open_dice_nostd",
+        "liblog_rust_nostd",
+        "libmicrodroid_kernel_hashes",
+        "libserde_nostd",
+        "libservice_vm_comm_nostd",
+        "libspki_nostd",
+        "libx509_cert_nostd",
+        "libzeroize_nostd",
+    ],
+}
+
+rust_library_rlib {
+    name: "libservice_vm_requests_nostd",
+    defaults: ["libservice_vm_requests_nostd_defaults"],
+}
+
+rust_test {
+    name: "libservice_vm_requests.test",
+    defaults: ["libservice_vm_requests_nostd_defaults"],
+    test_suites: ["general-tests"],
+}

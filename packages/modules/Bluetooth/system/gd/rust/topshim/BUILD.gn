@@ -1,0 +1,91 @@
+#
+#  Copyright 2021 Google
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at:
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#
+
+import("//common-mk/cxxbridge.gni")
+
+config("rust_topshim_config") {
+  include_dirs = [ "//bt/system/gd/rust/topshim" ]
+}
+
+cxxbridge_header("btif_bridge_header") {
+  sources = [
+    "src/btif.rs",
+    "src/controller.rs",
+    "src/metrics.rs",
+    "src/profiles/a2dp.rs",
+    "src/profiles/avrcp.rs",
+    "src/profiles/gatt.rs",
+    "src/profiles/hfp.rs",
+  ]
+  all_dependent_configs = [ ":rust_topshim_config" ]
+  deps = [ ":cxxlibheader" ]
+}
+
+cxxbridge_cc("btif_bridge_code") {
+  sources = [
+    "src/btif.rs",
+    "src/controller.rs",
+    "src/metrics.rs",
+    "src/profiles/a2dp.rs",
+    "src/profiles/avrcp.rs",
+    "src/profiles/gatt.rs",
+    "src/profiles/hfp.rs",
+  ]
+  deps = [
+    ":btif_bridge_header",
+    "//bt/system/pdl:BluetoothGeneratedPackets_h",
+  ]
+  configs = [
+    "//bt/system/gd:gd_defaults",
+    "//bt/system/log:log_defaults",
+  ]
+}
+
+source_set("btif_cxx_bridge_code") {
+  sources = [
+    "btav/btav_shim.cc",
+    "btav_sink/btav_sink_shim.cc",
+    "btif/btif_shim.cc",
+    "controller/controller_shim.cc",
+    "gatt/gatt_ble_advertiser_shim.cc",
+    "gatt/gatt_ble_scanner_shim.cc",
+    "gatt/gatt_shim.cc",
+    "hfp/hfp_shim.cc",
+    "metrics/metrics_shim.cc",
+  ]
+
+  deps = [
+    ":btif_bridge_header",
+    "//bt/system/gd/metrics:BluetoothMetricsSources",
+    "//bt/system/pdl:BluetoothGeneratedPackets_h",
+  ]
+  configs += [
+    "//bt/system/gd:gd_defaults",
+    "//bt/system/log:log_defaults",
+  ]
+}
+
+cxxbridge_libheader("cxxlibheader") {
+  deps = []
+}
+
+static_library("libbluetooth_topshim") {
+  deps = [
+    ":btif_bridge_code",
+    ":btif_cxx_bridge_code",
+    ":cxxlibheader",
+  ]
+}

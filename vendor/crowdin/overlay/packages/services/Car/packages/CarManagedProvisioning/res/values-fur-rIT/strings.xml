@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (C) 2021 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="brand_screen_header">Chest veicul al aparten ae organizazion</string>
+  <string name="contact_device_provider">Par vê plui informazions, contatâ <xliff:g id="it_admin" example="organizations manager">%1$s</xliff:g>.</string>
+  <string name="organization_admin">gjestôr de organizazion</string>
+  <string name="if_questions_contact_admin">Se tu âs domandis, contate il gjestôr de organizazion</string>
+  <string name="admin_has_ability_to_monitor_device">Il gjestôr de organizazion al à la pussibilitât di monitorâ e gjestî lis impostazions, l\'acès aziendâl, lis aplicazions, i permès e i dâts associâts a chest dispositîf, includûde la ativitât di rêt e ancje la posizion dal veicul.<xliff:g id="line_break">\n\n</xliff:g>Contate il gjestôr de organizazion par vê plui informazions, includudis lis politichis pe riservatece de organizazion.</string>
+  <string name="contact_your_admin_for_more_info">Contate il gjestôr de organizazion par vê plui informazions, includudis lis politichis pe riservatece de organizazion.</string>
+  <string name="managed_device_info">Chest al è un veicul gjestît</string>
+  <string name="contact_your_admin_for_help">Contate il gjestôr de organizazion par jutori</string>
+  <string name="fully_managed_device_provisioning_accept_header">Configure il veicul gjestît</string>
+  <string name="fully_managed_device_provisioning_step_1_header">Acès aes aplicazions de tô organizazion</string>
+  <string name="fully_managed_device_provisioning_step_1_description">Daûr a configurâ il sisteme di infotainment...</string>
+  <string name="fully_managed_device_provisioning_step_2_header">I dâts dal sisteme di infotainment no son privâts</string>
+  <string name="fully_managed_device_provisioning_step_2_subheader_title">Lis tôs ativitâts e i tiei dâts</string>
+  <string name="fully_managed_device_provisioning_step_2_subheader">Il gjestôr de tô organizazion al rivarà a viodi lis tôs ativitâts e i tiei dâts su chest veicul.</string>
+  <string name="fully_managed_device_provisioning_permissions_secondary_subheader">Il gjestôr de organizazion al pues determinâ i permès pes aplicazions su chest veicul, par esempli i permès pal microfon e pe posizion.</string>
+  <string name="fully_managed_device_with_permission_control_provisioning_summary">Dopre il sisteme di infotainment di chest veicul par acedi cun facilitât aes tôs aplicazions di lavôr. Chest veicul nol è privât, duncje il gjestôr de organizazion al podarès rivâ a viodi lis tôs ativitâts e i tiei dâts. Il gjestôr de organizazion al pues ancje stabilî i permès pes aplicazions su chest veicul, par esempli i permès pal microfon e pe posizion.</string>
+  <string name="fully_managed_device_provisioning_summary">Dopre il sisteme di infotainment di chest veicul par acedi cun facilitât aes tôs aplicazions di lavôr. Chest veicul nol è privât, duncje il gjestôr de organizazion al podarès rivâ a viodi i tiei dâts e lis tôs ativitâts.</string>
+  <string name="fully_managed_device_provisioning_progress_label">Daûr a configurâ il veicul gjestît</string>
+  <string name="fully_managed_device_provisioning_return_device_title">Anule configurazion e restituìs il veicul</string>
+  <string name="fully_managed_device_provisioning_return_device_subheader">Ripristine e restituìs chest veicul al gjestôr de organizazion, opûr torne indaûr ae schermade di prime par continuâ la configurazion.</string>
+  <string name="fully_managed_device_cancel_setup_button">Anule configurazion</string>
+  <string name="fully_managed_device_reset_and_return_button">Ripristine e restituìs</string>
+  <string name="fully_managed_device_provisioning_privacy_title">Informative su la riservatece</string>
+  <string name="fully_managed_device_provisioning_privacy_body">Il gjestôr de organizazion al rivarà a viodi i tiei dâts e lis tôs ativitâts su chest veicul.</string>
+</resources>

@@ -1,0 +1,69 @@
+{
+  "mocks": [
+    {
+      "request": {
+        "path": "bidding"
+      },
+      "response": {
+        "body": "BiddingLogicV2.js"
+      }
+    },
+    {
+      "request": {
+        "path": "scoring"
+      },
+      "response": {
+        "body": "ScoringLogic.js"
+      }
+    },
+    {
+      "request": {
+        "path": "scoring/trusted"
+      },
+      "response": {
+        "body": "ScoringSignals.json"
+      }
+    },
+    {
+      "request": {
+        "path": "bidding/trusted"
+      },
+      "response": {
+        "body": "BiddingSignals.json"
+      }
+    },
+    {
+      "request": {
+        "path": "bidding/daily/shoes"
+      },
+      "response": {
+        "body": "OverlyLargeDailyUpdateResponse.json"
+      },
+      "verify_called": true
+    },
+    {
+      "request": {
+        "path": "buyer/reportImpression"
+      },
+      "response": {
+        "body": null
+      }
+    },
+    {
+      "request": {
+        "path": "seller/reportImpression"
+      },
+      "response": {
+        "body": null
+      }
+    }
+  ],
+  "substitutions": {
+    "<daily-update-uri>": "{base_url}/bidding/daily",
+    "<ad-render-uri-1>": "{base_url}/render_ad/1",
+    "<ad-render-uri-2>": "{base_url}/render_ad/2",
+    "<buyer-trusted-bidding-uri>": "{base_url}/bidding/trusted",
+    "<buyer-reporting-uri>": "{base_url}/buyer/reportImpression",
+    "<seller-reporting-uri>": "{base_url}/seller/reportImpression"
+  }
+}

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2013 The CyanogenMod Project
+     SPDX-FileCopyrightText: 2017-2023 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <dimen name="content_margin_top">26dp</dimen>
+    <dimen name="content_margin_left">26dp</dimen>
+    <dimen name="content_margin_right">14dp</dimen>
+    <dimen name="location_margin_left">20dp</dimen>
+    <dimen name="location_text_margin_left">10dp</dimen>
+    <dimen name="location_text_margin_right">30dp</dimen>
+    <dimen name="base_margin_top">0dp</dimen>
+
+    <dimen name="welcome_content_container_padding_bottom">30dp</dimen>
+    <dimen name="welcome_content_container_padding_end">24dp</dimen>
+    <dimen name="welcome_content_container_padding_start">40dp</dimen>
+    <dimen name="welcome_title_text_size">56sp</dimen>
+    <dimen name="welcome_title_padding_bottom">16dp</dimen>
+    <dimen name="welcome_title_line_height">64dp</dimen>
+    <dimen name="welcome_accessibility_text_size">20sp</dimen>
+</resources>

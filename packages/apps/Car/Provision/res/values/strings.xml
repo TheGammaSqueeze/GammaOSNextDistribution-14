@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2020 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" translatable="false">Reference Setup Wizard for Cars</string>
+    <string name="description" translatable="false">This app is used to emulate a Setup Wizard.\n
+    \n
+    It\'s integrated with car-specific features (such as exiting setup when car moves)
+    plus a UI where the user can emulate setup-time options like provisioning a Device Owner.
+    </string>
+    <string name="error_prompt" translatable="false">Error:</string>
+    <string name="finish_setup" translatable="false">Finish Setup</string>
+    <string name="factory_reset" translatable="false">Factory Reset</string>
+    <string name="provision_device" translatable="false">Provision device</string>
+    <string name="legacy_provision_workflow" translatable="false">Legacy</string>
+    <string name="provision_workflow" translatable="false">New workflow</string>
+    <string name="exited_setup_title" translatable="false">Setup Exited</string>
+    <string name="exited_setup_content" translatable="false">Don\'t worry, this is just a friendly
+    FYI, there\'s nothing to do, you are good to go.\nHave fun!</string>
+    <string name="select_dpc" translatable="false">Select DPC!\n</string>
+    <string name="provision_failure_message" translatable="false">Device could not be provisioned!\n
+    \nOn a production device, it should trigger a factory reset, but for development purposes, this
+    Setup Wizard is not doing so.</string>
+    <string name="factory_reset_warning" translatable="false">Factory Reset is irreversible, are you
+    sure?</string>
+</resources>

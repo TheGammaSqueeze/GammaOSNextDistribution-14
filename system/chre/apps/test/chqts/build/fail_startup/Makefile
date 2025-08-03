@@ -1,0 +1,10 @@
+NANOAPP_NAME := fail_startup
+NANOAPP_SRC_FILES := fail_startup.cc
+
+NANOAPP_ID := 0x476f6f6754fffffe
+NANOAPP_VERSION := 0x00000000
+NANOAPP_NAME_STRING := \"CHQTS\ Fail\ Startup\"
+
+COMMON_CFLAGS += -DNANOAPP_MINIMUM_LOG_LEVEL=CHRE_LOG_LEVEL_DEBUG
+
+include ../shared_make.mk

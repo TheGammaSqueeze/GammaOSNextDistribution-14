@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Name of a font family to use for headlines in SettingsLib.
+    This overrides the default value which points to a private resource.
+    Setting it to an empty value allows it to fallback to the default on the device. -->
+    <string name="settingslib_config_headlineFontFamily" translatable="false">@string/config_headlineFontFamily</string>
+</resources>

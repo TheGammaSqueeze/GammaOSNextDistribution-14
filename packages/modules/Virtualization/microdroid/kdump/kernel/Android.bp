@@ -1,0 +1,25 @@
+package {
+    default_applicable_licenses: ["microdroid_crashdump_kernel_license"],
+}
+
+license {
+    name: "microdroid_crashdump_kernel_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-GPL-2.0-only",
+    ],
+}
+
+prebuilt_etc {
+    name: "microdroid_crashdump_kernel",
+    compile_multilib: "64",
+    arch: {
+        arm64: {
+            src: "arm64/kernel-5.15",
+        },
+        x86_64: {
+            src: "x86_64/kernel-5.15",
+        },
+    },
+    installable: false,
+}

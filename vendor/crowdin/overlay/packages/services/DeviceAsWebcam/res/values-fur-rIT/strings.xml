@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2023 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources>
+    <string name="app_label">Servizi Webcam</string>
+    <string name="view_finder_description">Smire</string>
+    <string name="zoom_ratio_description">Fatôr di zoom</string>
+    <string name="zoom_ratio_button_current_description">Fatôr di ingrandiment corint</string>
+    <string name="zoom_seek_bar_description">Sbare di scoriment dal zoom</string>
+    <string name="toggle_camera_button_description_back">Passe ae fotocjamare posteriôr</string>
+    <string name="toggle_camera_button_description_front">Passe ae fotocjamare frontâl</string>
+    <string name="toggle_high_quality_description_off">Disative cualitât elevade</string>
+    <string name="toggle_high_quality_description_on">Ative cualitât elevade</string>
+    <string name="notif_channel_name">Servizi in prin plan</string>
+    <string name="notif_ticker">Webcam</string>
+    <string name="notif_title">Webcam</string>
+    <string name="notif_desc">Tocje par viodi in anteprime e configurâ la jessude de webcam</string>
+    <string name="hq_warning_dialog_title">Modalitât cualitât elevade</string>
+    <string name="hq_warning_dialog_content_1">La modalitât cualitât elevade e disative lis otimizazions di consum par miorâ la cualitât de webcam. La utilizazion di cheste modalitât e podarès consumâ une vore di energjie, che e podarès scjaldâ il dispositîf.</string>
+    <string name="hq_warning_dialog_content_2"><b><u>ATENZION:</u></b> La utilizazion sprolungjade a temperaduris altis e podarès vê efiets negatîfs su la salût de batarie di chest dispositîf cul lâ dal timp.</string>
+    <string name="hq_warning_dialog_dont_show_again">No sta mostrâ plui</string>
+    <string name="hq_warning_dialog_button_ack">Ricognòs</string>
+    <string name="prefs_file_name">com.android.DeviceAsWebcam.user.prefs</string>
+    <string name="prefs_camera_id_key">camera.id</string>
+    <string name="prefs_back_camera_id_key">back.camera.id</string>
+    <string name="prefs_front_camera_id_key">front.camera.id</string>
+    <string name="prefs_zoom_ratio_key">zoom.ratio.%s</string>
+    <string name="prefs_high_quality_mode_enabled">high.quality.mode.enabled</string>
+    <string name="prefs_high_quality_warning_enabled">high.quality.warning.enabled</string>
+    <string name="list_item_text_back_camera">Fotocjamare posteriôr</string>
+    <string name="list_item_text_front_camera">Fotocjamare frontâl</string>
+    <string name="list_item_text_standard_camera">Fotocjamare standard</string>
+    <string name="list_item_text_wide_angle_camera">Fotocjamare grandangolâr</string>
+    <string name="list_item_text_ultra_wide_camera">Fotocjamare ultragrandangolâr</string>
+    <string name="list_item_text_telephoto_camera">Fotocjamare teleobietîf</string>
+    <string name="list_item_text_other_camera">Altre fotocjamare</string>
+    <string name="list_item_text_unknown_camera">Fotocjamare no cognossude</string>
+    <string name="camera_options_list_description">Opzions di fotocjamare disponibilis</string>
+</resources>

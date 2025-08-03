@@ -1,0 +1,51 @@
+package: "com.android.sdksandbox.flags"
+container: "com.android.adservices"
+
+flag {
+    name: "sandbox_activity_sdk_based_context"
+    namespace: "sdk_sandbox"
+    bug: "290326267"
+    description: "This flag make the sandbox activity context based on its corresponding SDK package info instead of the sandbox App package info"
+}
+
+flag {
+    name: "sandbox_client_importance_listener"
+    namespace: "sdk_sandbox"
+    bug: "267760787"
+    description: "Enables SDKs in the sandbox to know about specific changes in the client's importance"
+}
+
+flag {
+    name: "selinux_sdk_sandbox_audit"
+    namespace: "sdk_sandbox"
+    bug: "295861450"
+    description: "Enables the SELinux domain sdk_sandbox_audit"
+}
+
+flag {
+    name: "first_and_last_sdk_sandbox_uid_public"
+    namespace: "sdk_sandbox"
+    description: "Make Process#FIRST_SDK_SANDBOX_UID and Process#LAST_SDK_SANDBOX_UID public"
+    bug: "314270319"
+}
+
+flag {
+    name: "sdk_sandbox_instrumentation_info"
+    namespace: "sdk_sandbox"
+    bug: "315018061"
+    description: "Enables the getSdkSandboxApplicationInfoForInstrumentation API for tests"
+}
+
+flag {
+    name: "sdk_sandbox_uid_to_app_uid_api"
+    namespace: "sdk_sandbox"
+    description: "Get the app uid for the input sdk sandbox uid"
+    bug: "314270319"
+}
+
+flag {
+    name: "get_effective_target_sdk_version_api"
+    namespace: "sdk_sandbox"
+    description: "Get the the effective target Sdk version for the sdk sandbox process"
+    bug: "271547387"
+}

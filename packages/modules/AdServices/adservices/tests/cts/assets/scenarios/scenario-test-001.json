@@ -1,0 +1,13 @@
+{
+  "mocks": [
+    {
+      "request": {
+        "path": "bidding"
+      },
+      "response": {
+        "body": "BiddingLogicV2.js"
+      },
+      "verify_called": true
+    }
+  ]
+}

@@ -1,0 +1,261 @@
+/*
+ * Copyright (C) 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// Partial clone of frameworks/proto_logging/stats/atoms.proto. CarWatchdogService only uses small
+// number of atoms.
+
+syntax = "proto2";
+
+package android.car.watchdog;
+option java_package = "com.android.car.watchdog";
+option java_outer_classname = "AtomsProto";
+
+/**
+ * Logs the current state of an application/process before it is killed.
+ *
+ * Keep in sync with proto file at frameworks/proto_logging/stats/atoms.proto
+ */
+message CarWatchdogKillStatsReported {
+  // Linux process uid for the package.
+  optional int32 uid = 1;
+
+  // State of the uid when it was killed.
+  enum UidState {
+    UNKNOWN_UID_STATE = 0;
+    BACKGROUND_MODE = 1;
+    FOREGROUND_MODE = 2;
+  }
+  optional UidState uid_state = 2;
+
+  // System state indicating whether the system was in normal mode or garage mode.
+  enum SystemState {
+    UNKNOWN_SYSTEM_STATE = 0;
+    USER_INTERACTION_MODE = 1;
+    USER_NO_INTERACTION_MODE = 2;
+    GARAGE_MODE = 3;
+  }
+  optional SystemState system_state = 3;
+
+  // Reason for killing the application.
+  // Keep in sync with proto file at packages/services/Car/cpp/watchdog/proto
+  enum KillReason {
+    UNKNOWN_KILL_REASON = 0;
+    KILLED_ON_ANR = 1;
+    KILLED_ON_IO_OVERUSE = 2;
+    KILLED_ON_MEMORY_OVERUSE = 3;
+  }
+  optional KillReason kill_reason = 4;
+
+  // Stats of the processes owned by the application when the application was killed.
+  // The process stack traces are not collected when the application was killed due to IO_OVERUSE.
+  optional CarWatchdogProcessStats process_stats = 5;
+
+  // The application's I/O overuse stats logged only when the kill reason is KILLED_ON_IO_OVERUSE.
+  optional CarWatchdogIoOveruseStats io_overuse_stats = 6;
+}
+
+/**
+ * Logs the I/O overuse stats for an application on detecting I/O overuse.
+ *
+ * Keep in sync with proto file at frameworks/proto_logging/stats/atoms.proto
+ */
+message CarWatchdogIoOveruseStatsReported {
+  // Linux process uid for the package.
+  optional int32 uid = 1;
+
+  // The application's I/O overuse stats.
+  optional CarWatchdogIoOveruseStats io_overuse_stats = 2;
+}
+
+/**
+ * Logs I/O overuse stats for a package.
+ *
+ * Keep in sync with proto file at frameworks/proto_logging/stats/atoms.proto
+ */
+message CarWatchdogIoOveruseStats {
+  enum Period {
+    UNKNOWN_PERIOD = 0;
+    DAILY = 1;
+    WEEKLY = 2;
+  }
+
+  // Threshold and usage stats period.
+  optional Period period = 1;
+
+  // Threshold in-terms of write bytes defined for the package.
+  optional CarWatchdogPerStateBytes threshold = 2;
+
+  // Number of write bytes in each state for the specified period.
+  optional CarWatchdogPerStateBytes written_bytes = 3;
+
+  // Application or service uptime during the aforemetioned period.
+  optional uint64 uptime_millis = 4;
+};
+
+/**
+ * Logs bytes attributed to each application and system states.
+ *
+ * Keep in sync with proto file at frameworks/proto_logging/stats/atoms.proto
+ */
+message CarWatchdogPerStateBytes {
+  // Number of bytes attributed to the application foreground.
+  optional int64 foreground_bytes = 1;
+
+  // Number of bytes attributed to the application background.
+  optional int64 background_bytes = 2;
+
+  // Number of bytes attributed to the garage mode.
+  optional int64 garage_mode_bytes = 3;
+}
+
+/**
+ * Logs each CarWatchdogProcessStat in CarWatchdogProcessStats.
+ *
+ * Keep in sync with proto file at frameworks/proto_logging/stats/atoms.proto
+ */
+message CarWatchdogProcessStats {
+  // Records the stats of the processes owned by an application.
+  repeated CarWatchdogProcessStat process_stat = 1;
+}
+
+/**
+ * Logs a process's stats.
+ *
+ * Keep in sync with proto file at frameworks/proto_logging/stats/atoms.proto
+ */
+message CarWatchdogProcessStat {
+  // Command name of the process.
+  optional string process_name = 1;
+
+  // Process uptime.
+  optional uint64 uptime_millis = 2;
+
+  // Number of major page faults caused by the process and its children.
+  optional uint64 major_page_faults = 3;
+
+  // Peak virtual memory size in kb.
+  optional uint64 vm_peak_kb = 4;
+
+  // Virtual memory size in kb.
+  optional uint64 vm_size_kb = 5;
+
+  // Peak resident set size (high water mark) in kb.
+  optional uint64 vm_hwm_kb = 6;
+
+  // Resident set size in kb.
+  optional uint64 vm_rss_kb = 7;
+}
+
+/**
+ * Logs total I/O usage summary for all applications and services running in the system.
+ *
+ * Keep in sync with proto file at
+ * packages/services/Car/service/src/com/android/car/watchdog/proto/atoms.proto
+ *
+ * Pulled from:
+ *  packages/services/Car/service/src/com/android/car/watchdog/WatchdogPerfHandler.java
+ */
+message CarWatchdogSystemIoUsageSummary {
+  // I/O usage summary for the system.
+  optional CarWatchdogIoUsageSummary io_usage_summary = 1;
+
+  // Start time of the event in milliseconds since epoch.
+  // Note: This field must be a top-level field as it is used to slice the metrics.
+  optional int64 start_time_millis = 2;
+}
+
+/**
+ * Logs I/O usage summary for an UID.
+ *
+ * Keep in sync with proto file at
+ * packages/services/Car/service/src/com/android/car/watchdog/proto/atoms.proto
+ *
+ * Pulled from:
+ *  packages/services/Car/service/src/com/android/car/watchdog/WatchdogPerfHandler.java
+ */
+message CarWatchdogUidIoUsageSummary {
+  // UID of the application/service whose usage summary are recorded.
+  optional int32 uid = 1;
+
+  // I/O usage summary for the UID.
+  optional CarWatchdogIoUsageSummary io_usage_summary = 2;
+
+  // Start time of the event in milliseconds since epoch.
+  // Note: This field must be a top-level field as it is used to slice the metrics.
+  optional int64 start_time_millis = 3;
+}
+
+/**
+ * Logs I/O usage summary for a time period.
+ *
+ * Keep in sync with proto file at
+ * packages/services/Car/service/src/com/android/car/watchdog/proto/atoms.proto
+ *
+ * Pulled from:
+ *  packages/services/Car/service/src/com/android/car/watchdog/WatchdogPerfHandler.java
+ */
+message CarWatchdogIoUsageSummary {
+  // Summary event time period.
+  optional CarWatchdogEventTimePeriod event_time_period = 1;
+
+  // Daily I/O usage summary for the period. Logs summary entries only for days with I/O usage.
+  // The entries are ordered beginning from the event_time_period.start_time_millis.
+  repeated CarWatchdogDailyIoUsageSummary daily_io_usage_summary = 2;
+}
+
+/**
+ * Logs a car watchdog event's time period.
+ *
+ * Keep in sync with proto file at
+ * packages/services/Car/service/src/com/android/car/watchdog/proto/atoms.proto
+ *
+ * Pulled from:
+ *  packages/services/Car/service/src/com/android/car/watchdog/WatchdogPerfHandler.java
+ */
+message CarWatchdogEventTimePeriod {
+  enum Period {
+    UNKNOWN_PERIOD = 0;
+    WEEKLY = 1;
+    BIWEEKLY = 2;
+    MONTHLY = 3;
+  }
+
+  // Deprecated field - Start time of the event in milliseconds since epoch.
+  optional uint64 start_time_millis = 1 [deprecated = true];
+
+  // Period for the event.
+  optional Period period = 2;
+}
+
+/**
+ * Logs daily I/O usage summary.
+ *
+ * Keep in sync with proto file at
+ * packages/services/Car/service/src/com/android/car/watchdog/proto/atoms.proto
+ *
+ * Pulled from:
+ *  packages/services/Car/service/src/com/android/car/watchdog/WatchdogPerfHandler.java
+ */
+message CarWatchdogDailyIoUsageSummary {
+  // Total bytes written to disk during a day.
+  optional CarWatchdogPerStateBytes written_bytes = 1;
+
+  // Total uptime for the system or service or application during a day.
+  optional uint64 uptime_millis = 2;
+
+  // Total disk I/O overuses during a day.
+  optional int32 overuse_count = 3;
+}

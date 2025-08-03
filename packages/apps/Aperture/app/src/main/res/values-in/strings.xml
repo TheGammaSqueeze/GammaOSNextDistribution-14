@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2022-2024 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Kamera</string>
+    <string name="video_camera_label">Perekam video</string>
+    <string name="cancel_button_description">Batalkan</string>
+    <string name="confirm_button_description">Konfirmasi</string>
+    <string name="flash_button_description">Mode flash</string>
+    <string name="flip_camera_button_description">Balikkan kamera</string>
+    <string name="gallery_button_description">Galeri</string>
+    <string name="google_lens_button_description">Buka Google Lens</string>
+    <string name="image_view_description">Pratinjau gambar</string>
+    <string name="video_recording_state_button_description">Jeda/lanjutkan perekaman video</string>
+    <string name="video_framerate_auto">FPS OTOMATIS</string>
+    <string name="video_framerate_value"><xliff:g contoh="60" id="fps">%d</xliff:g> FPS</string>
+    <string name="effect_none">TIDAK ADA</string>
+    <string name="effect_night">MALAM</string>
+    <string name="effect_auto">OTOMATIS</string>
+    <string name="settings">PENGATURAN</string>
+    <string name="qr_copy_description">Salin ke papan klip</string>
+    <string name="qr_icon_description">Ikon</string>
+    <string name="qr_share_description">Bagikan</string>
+    <string name="qr_address_title">Tambahkan kontak</string>
+    <string name="qr_address_content_description">Tambahkan kontak</string>
+    <string name="qr_calendar_title">Tambahkan kegiatan ke kalender</string>
+    <string name="qr_calendar_content_description">Tambahkan kegiatan ini ke kalender</string>
+    <string name="qr_dpp_description">Konfigurasikan perangkat ini</string>
+    <string name="qr_email_title">Kirim email baru</string>
+    <string name="qr_geo_title">Buka lokasi ini</string>
+    <string name="qr_geo_content_description">Buka lokasi ini</string>
+    <string name="qr_text">Teks</string>
+    <string name="qr_uri_title">Buka URL</string>
+    <string name="qr_wifi_title">Sambungkan ke jaringan Wi-Fi ini</string>
+    <string name="title_activity_settings">Pengaturan</string>
+    <string name="general_header">Umum</string>
+    <string name="video_header">Video</string>
+    <string name="advanced_header">Lanjutan</string>
+    <string name="bright_screen_title">Kecerahan layar</string>
+    <string name="bright_screen_summary" formatted="false">Kunci kecerahan ke 100%</string>
+    <string name="save_location_title">Lokasi penyimpanan data</string>
+    <string name="shutter_sound_title">Suara rana</string>
+    <string name="volume_buttons_title">Tombol volume</string>
+    <string name="zoom_buttons_title">Tombol zoom</string>
+    <string name="photo_capture_mode_maximize_quality">Maksimalkan kualitas</string>
+    <string name="photo_capture_mode_minimize_latency">Minimalkan latensi</string>
+    <string name="video_stabilization_title">Aktifkan stabilisasi video</string>
+    <string name="video_stabilization_summary">Ketika tersedia, aktifkan stabilisasi video untuk meminimalisir guncangan kamera saat perekaman</string>
+    <string name="processing_title">Memproses</string>
+    <string name="edge_mode_off">Nonaktif</string>
+    <string name="edge_mode_fast">Cepat</string>
+    <string name="edge_mode_high_quality">Kualitas tinggi</string>
+    <string name="noise_reduction_mode_off">Nonaktif</string>
+    <string name="noise_reduction_mode_fast">Cepat</string>
+    <string name="noise_reduction_mode_high_quality">Kualitas tinggi</string>
+    <string name="shading_mode_off">Nonaktif</string>
+    <string name="shading_mode_fast">Cepat</string>
+    <string name="shading_mode_high_quality">Kualitas tinggi</string>
+    <string name="color_correction_aberration_mode_off">Nonaktif</string>
+    <string name="color_correction_aberration_mode_fast">Cepat</string>
+    <string name="color_correction_aberration_mode_high_quality">Kualitas tinggi</string>
+    <string name="distortion_correction_mode_title">Koreksi distorsi</string>
+    <string name="distortion_correction_mode_off">Nonaktif</string>
+    <string name="distortion_correction_mode_fast">Cepat</string>
+    <string name="distortion_correction_mode_high_quality">Kualitas tinggi</string>
+    <string name="hot_pixel_mode_off">Nonaktif</string>
+    <string name="hot_pixel_mode_fast">Cepat</string>
+    <string name="hot_pixel_mode_high_quality">Kualitas tinggi</string>
+    <string name="shortcut_selfie">Ambil foto selfie</string>
+    <string name="shortcut_video">Ambil video</string>
+    <string name="shortcut_qr">Pindai barcode</string>
+    <string name="location_permission_dialog_title">Tambahkan lokasi foto dan video</string>
+    <string name="location_permission_dialog_description">Petakan kenangan Anda dengan menyertakan metadata lokasi pada setiap pengambilan.</string>
+    <string name="location_permission_dialog_later">Nanti</string>
+    <string name="location_permission_dialog_turn_on">Hidupkan</string>
+    <string name="gesture_action_focus">Fokus</string>
+    <string name="gesture_action_zoom">Zoom</string>
+    <string name="gesture_action_nothing">Tidak ada</string>
+    <string name="camera_mode_photo">Foto</string>
+    <string name="camera_mode_video">Video</string>
+    <string name="camera_mode_qr">Pindai</string>
+    <string name="video_mirror_mode_off">Nonaktif</string>
+    <string name="video_mirror_mode_on">Aktif</string>
+</resources>

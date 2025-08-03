@@ -1,0 +1,62 @@
+; CDDL for the CSR sent from the client VM to the RKP VM for pVM remote attestation.
+
+Csr = [
+    DiceCertChain,      ; The DICE chain containing measurement of the client VM. See
+                        ; keymint/generateCertificateRequestV2.cddl for the DiceCertChain
+                        ; definition.
+    SignedData,
+]
+
+; COSE_Sign [RFC9052 s4.1]
+SignedData = [
+    protected: {},            ; The signing algorithms are specified in each signature
+                              ; separately.
+    unprotected: {},
+    payload: bstr .cbor CsrPayload,
+    Signatures,
+]
+
+CsrPayload = [                    ; CBOR Array defining the payload for CSR
+   challenge: bstr .size (0..64), ; The challenge is provided by the client server.
+                                  ; It will be included in the certificate chain in the
+                                  ; attestation result, serving as proof of the freshness
+                                  ; of the result.
+   PublicKey,                     ; COSE_Key encoded EC P-256 public key [ RFC9053 s7.1.1 ]
+                                  ; to be attested. See keymint/PublicKey.cddl for the
+                                  ; definition, the test flag `-70000` is never used.
+]
+
+Signatures = [
+    dice_cdi_leaf_signature: COSE_Signature_Dice_Cdi_Leaf,
+    attestation_key_signature: COSE_Signature_Attestation_Key,
+]
+
+; COSE_Signature [RFC9052 s4.1]
+COSE_Signature_Dice_Cdi_Leaf = [
+    protected: bstr .cbor { 1: AlgorithmEdDSA },
+    unprotected: {},
+    signature: bstr,                         ; Ed25519(CDI_Leaf_Priv, SigStruct)
+]
+
+; COSE_Signature [RFC9052 s4.1]
+COSE_Signature_Attestation_Key = [
+    protected: bstr .cbor { 1: AlgorithmES256 },
+    unprotected: {},
+    signature: bstr,                         ; ECDSA(PrivateKey, SigStruct)
+]
+
+; Sig_structure for SignedData [ RFC9052 s4.4 ]
+SigStruct = {
+    context: "Signature",
+    external_aad: bstr .size 0,
+    payload: bstr .cbor CsrPayload,
+}
+
+; ASN.1 DER-encoded EC P-256 ECPrivateKey [ RFC 5915 s3 ]:
+; ECPrivateKey ::= SEQUENCE {
+;     version        INTEGER { ecPrivkeyVer1(1) } (ecPrivkeyVer1),
+;     privateKey     OCTET STRING,
+;     parameters [0] ECParameters {{ NamedCurve }} OPTIONAL,
+;     publicKey  [1] BIT STRING OPTIONAL
+;}
+PrivateKey = bstr

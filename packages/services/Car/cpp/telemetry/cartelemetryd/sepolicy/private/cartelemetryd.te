@@ -1,0 +1,12 @@
+### See //system/sepolicy/public/te_macros to learn about some SELinux macros.
+
+type cartelemetryd_exec, system_file_type, exec_type, file_type;
+
+binder_use(cartelemetryd)
+binder_service(cartelemetryd)  # allow binder IPC to the various system services
+
+add_service(cartelemetryd, cartelemetryd_service)
+
+init_daemon_domain(cartelemetryd)
+
+allow cartelemetryd carservice_app:binder call;

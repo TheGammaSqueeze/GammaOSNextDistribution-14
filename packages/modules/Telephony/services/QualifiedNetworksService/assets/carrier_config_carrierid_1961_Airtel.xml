@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<carrier_config>
+    <int name="qns.sos_transport_type_int" value="2" />
+    <boolean name="qns.support_wfc_during_airplane_mode_bool" value="false"/>
+    <string-array name="qns.ims_cellular_allowed_rat_string_array" num="1">
+        <item value="LTE" />
+    </string-array>
+    <int name="qns.mms_rat_preference_int" value="3"/>
+    <int name="qns.mms_transport_type_int" value="2"/>
+</carrier_config>

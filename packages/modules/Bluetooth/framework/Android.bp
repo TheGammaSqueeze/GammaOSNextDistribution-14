@@ -1,0 +1,129 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_defaults {
+    name: "bluetooth-module-sdk-version-defaults",
+    min_sdk_version: "Tiramisu",
+}
+
+filegroup {
+    name: "framework-bluetooth-sources",
+    defaults: ["framework-sources-module-defaults"],
+    srcs: [
+        "java/**/*.aidl",
+        "java/**/*.java",
+    ],
+    path: "java",
+}
+
+// defaults shared between `framework-bluetooth` & `framework-bluetooth-pre-jarjar`
+// java_sdk_library `framework-bluetooth` needs sources to generate stubs, so it cannot reuse
+// `framework-bluetooth-pre-jarjar`
+java_defaults {
+    name: "framework-bluetooth-defaults",
+    defaults: ["bluetooth-module-sdk-version-defaults"],
+    static_libs: [
+        "PlatformProperties",
+        "bluetooth_flags_java_lib",
+        "modules-utils-expresslog",
+        "modules-utils-synchronous-result-receiver",
+    ],
+    libs: [
+        "app-compat-annotations",
+        "framework-tethering.stubs.module_lib",
+        "unsupportedappusage", // for android.compat.annotation.UnsupportedAppUsage
+    ],
+    stub_only_libs: ["framework-tethering.stubs.module_lib"],
+    srcs: [
+        ":Bluetooth-binder-aidl",
+        ":framework-bluetooth-sources",
+        ":service-bluetooth-binder-aidl",
+    ],
+}
+
+// bluetooth-service needs pre-jarjared version of framework-bluetooth so it can reference copied utility
+// classes before they are renamed.
+java_library {
+    name: "framework-bluetooth-pre-jarjar",
+    defaults: ["framework-bluetooth-defaults"],
+    sdk_version: "module_current",
+    libs: ["framework-annotations-lib"],
+    installable: false,
+}
+
+// post-jarjar version of framework-bluetooth
+java_sdk_library {
+    name: "framework-bluetooth",
+    defaults: [
+        "framework-bluetooth-defaults",
+        "framework-module-defaults",
+    ],
+
+    jarjar_rules: ":bluetooth-jarjar-rules",
+    installable: true,
+    optimize: {
+        enabled: false,
+    },
+    hostdex: true, // for hiddenapi check
+
+    impl_library_visibility: [
+        "//external/sl4a/Common",
+        "//frameworks/opt/wear",
+        "//packages/modules/Bluetooth/android/app/tests/unit",
+        "//packages/modules/Bluetooth/android/pandora/server",
+        "//packages/modules/Bluetooth/framework/tests/bumble",
+        "//packages/modules/Bluetooth/service",
+        "//packages/services/Car/car-builtin-lib",
+        // TODO(240720385)
+        "//packages/services/Car/tests/carservice_unit_test",
+        ":__subpackages__",
+    ],
+
+    apex_available: [
+        "com.android.btservices",
+    ],
+
+    permitted_packages: [
+        "android.bluetooth",
+        "com.android.bluetooth.flags",
+        // Created by jarjar rules.
+        "com.android.bluetooth.x",
+    ],
+    errorprone: {
+        javacflags: [
+            "-Xep:InlineMeSuggester:OFF", // The @InlineMe annotation is not available
+            "-XepExcludedPaths:.*/srcjars/.*", // Exclude generated files
+        ],
+        enabled: true,
+    },
+    lint: {
+        strict_updatability_linting: true,
+    },
+}
+
+// defaults for tests that need to build against framework-bluetooths's @hide APIs
+java_defaults {
+    name: "framework-bluetooth-tests-defaults",
+    sdk_version: "core_platform",
+    libs: [
+        // order matters: classes in framework-bluetooth are resolved before framework, meaning
+        // @hide APIs in framework-bluetooth are resolved before @SystemApi stubs in framework
+        "framework-bluetooth.impl",
+
+        "framework",
+        // if sdk_version="" this gets automatically included, but here we need to add manually.
+        "framework-res",
+    ],
+    defaults_visibility: ["//visibility:public"],
+}
+
+filegroup {
+    name: "bluetooth-jarjar-rules",
+    srcs: ["jarjar-rules.txt"],
+}
+
+platform_compat_config {
+    name: "framework-bluetooth-compat-config",
+    src: ":framework-bluetooth",
+}

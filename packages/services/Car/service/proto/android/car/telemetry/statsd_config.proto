@@ -1,0 +1,181 @@
+/*
+ * Copyright (C) 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// Partial clone of packages/modules/StatsD/statsd/src/statsd_config.proto. The service only
+// uses some parameters when configuring StatsD.
+
+syntax = "proto2";
+
+package android.car.telemetry;
+
+option java_package = "com.android.car.telemetry";
+option java_outer_classname = "StatsdConfigProto";
+
+enum TimeUnit {
+  TIME_UNIT_UNSPECIFIED = 0;
+  FIVE_MINUTES = 2;
+  TEN_MINUTES = 3;
+  THIRTY_MINUTES = 4;
+  ONE_HOUR = 5;
+  reserved 1, 6, 7, 8, 9, 10, 1000;
+}
+
+message FieldMatcher {
+  optional int32 field = 1;
+
+  repeated FieldMatcher child = 3;
+
+  reserved 2;
+}
+
+message SimpleAtomMatcher {
+  optional int32 atom_id = 1;
+
+  reserved 2;
+}
+
+message AtomMatcher {
+  optional int64 id = 1;
+
+  oneof contents {
+    SimpleAtomMatcher simple_atom_matcher = 2;
+  }
+
+  reserved 3;
+}
+
+message FieldFilter {
+  optional bool include_all = 1 [default = false];
+  optional FieldMatcher fields = 2;
+}
+
+message EventMetric {
+  optional int64 id = 1;
+  optional int64 what = 2;
+  optional int64 condition = 3;
+
+  reserved 4;
+  reserved 100;
+  reserved 101;
+}
+
+message GaugeMetric {
+  optional int64 id = 1;
+
+  optional int64 what = 2;
+
+  optional FieldFilter gauge_fields_filter = 3;
+
+  optional int64 condition = 4;
+
+  optional FieldMatcher dimensions_in_what = 5;
+
+  optional TimeUnit bucket = 6;
+
+  enum SamplingType {
+    RANDOM_ONE_SAMPLE = 1;
+    CONDITION_CHANGE_TO_TRUE = 3;
+    FIRST_N_SAMPLES = 4;
+    reserved 2;
+  }
+  optional SamplingType sampling_type = 9 [default = RANDOM_ONE_SAMPLE];
+
+  optional int64 max_num_gauge_atoms_per_bucket = 11 [default = 10];
+
+  optional int32 max_pull_delay_sec = 13 [default = 30];
+
+  reserved 7, 8, 10, 12, 14;
+  reserved 100;
+  reserved 101;
+}
+
+message PullAtomPackages {
+  optional int32 atom_id = 1;
+
+  repeated string packages = 2;
+}
+
+message SimplePredicate {
+  optional int64 start = 1;
+
+  optional int64 stop = 2;
+
+  optional bool count_nesting = 3 [default = true];
+
+  optional int64 stop_all = 4;
+
+  enum InitialValue {
+    UNKNOWN = 0;
+    FALSE = 1;
+  }
+
+  optional InitialValue initial_value = 5;
+
+  optional FieldMatcher dimensions = 6;
+}
+
+enum LogicalOperation {
+  LOGICAL_OPERATION_UNSPECIFIED = 0;
+  AND = 1;
+  OR = 2;
+  NOT = 3;
+  NAND = 4;
+  NOR = 5;
+}
+
+message Predicate {
+  optional int64 id = 1;
+
+  message Combination {
+    optional LogicalOperation operation = 1;
+
+    repeated int64 predicate = 2;
+  }
+
+  oneof contents {
+    SimplePredicate simple_predicate = 2;
+    Combination combination = 3;
+  }
+}
+
+message StatsdConfig {
+  optional int64 id = 1;
+
+  repeated EventMetric event_metric = 2;
+
+  repeated GaugeMetric gauge_metric = 5;
+
+  repeated AtomMatcher atom_matcher = 7;
+
+  repeated Predicate predicate = 8;
+
+  repeated string allowed_log_source = 12;
+
+  optional int64 ttl_in_seconds = 15;
+
+  optional bool hash_strings_in_metric_report = 16 [default = true];
+
+  optional bool persist_locally = 20 [default = false];
+
+  repeated PullAtomPackages pull_atom_packages = 23;
+
+  repeated int32 whitelisted_atom_ids = 24;
+
+  reserved 3, 4, 6, 9, 10, 11, 13, 14, 17, 18, 19, 21, 22, 25;
+
+  // Do not use.
+  reserved 1000, 1001;
+}

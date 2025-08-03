@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017-2024 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="system_reboot_confirm_cm">Torne invie in:</string>
+    <string name="global_action_restart_system">Sisteme</string>
+    <string name="global_action_restart_recovery">Recovery</string>
+    <string name="global_action_restart_bootloader">Bootloader</string>
+    <plurals name="show_dev_countdown_cm">
+        <item quantity="one">Ti mancje <xliff:g id="step_count">%1$d</xliff:g> passaç par ativâ lis impostazions di disvilup.</item>
+        <item quantity="other">Ti mancjin <xliff:g id="step_count">%1$d</xliff:g> passaçs par ativâ lis impostazions di disvilup.</item>
+    </plurals>
+    <string name="show_dev_on_cm">Tu âs abilitât lis impostazions di disvilup!</string>
+    <string name="show_dev_already_cm">Nol covente, tu âs za abilitât lis impostazions di disvilup.</string>
+    <string name="system_buttons">Botons</string>
+    <string name="power_button_long_press_action_title">Azion ae pression sprolungjade dal boton di impiament</string>
+    <string name="power_button_long_press_for_power_menu_action">Vierç il menù di impiament</string>
+    <string name="power_button_long_press_for_assistant_action">Vierç l\'assistent</string>
+    <string name="inputs_volume_control_enabled">Control dal volum CEC</string>
+    <string name="inputs_volume_control_enabled_desc">Controle il volum TV/AVR al puest di chel interni</string>
+    <string name="enable_adb_root">Debug cun acès root</string>
+    <string name="enable_adb_root_summary">Permet la esecuzion dal debug di Android come root</string>
+    <string name="advanced_restart_title">Tornâ a inviâ avanzât</string>
+    <string name="advanced_restart_summary">Mostre lis opzions par tornâ a inviâ in recovery, bootloader o par fâ un gnûf inviament parziâl</string>
+    <string name="adb_over_network">ADB midiant rêt</string>
+    <string name="adb_over_network_summary">Abilite il debug TCP/IP vie interfacis di rêt (Wi\u2011Fi, rêts USB). Cheste impostazion e ven ripristinade al inviament dal dispositîf</string>
+    <string name="adb_over_network_warning">ATENZION: Se ADB vie rêt al è ativât, il telefon al pues vê intrusions su dutis lis rêts conetudis!\n\nDopre cheste funzionalitât dome se si sta doprant une conession a une rêt atendibile.\n\nAbilitâ pardabon cheste funzionalitât?</string>
+    <string name="trust_category_features">Stât</string>
+    <string name="trust_feature_selinux">SELinux</string>
+    <string name="trust_feature_selinux_value_enforcing">Imponût</string>
+    <string name="trust_feature_selinux_value_disabled">Disativât</string>
+    <string name="trust_feature_selinux_explain">SELinux al definìs i procès che a àn acès a cierts files/percors sul dispositîf.\nChest al impedìs aes aplicazions e ai servizis di acedi a files che no varessin di gjestî: in cheste maniere un potenziâl procès malevul al sarà limitât e la tô sigurece preservade.</string>
+    <string name="trust_feature_security_patches">Corezions di sigurece Android</string>
+    <string name="trust_feature_security_patches_value_base">Plateforme: %1$s\nProdutôr: %2$s</string>
+    <string name="trust_feature_security_patches_value_new">Inzornadis</string>
+    <string name="trust_feature_security_patches_value_medium">No inzornadis di cualchi mês</string>
+    <string name="trust_feature_security_patches_value_old">No inzornadis</string>
+    <string name="trust_feature_security_patches_explain">Lis corezions di sigurece a vegnin publicadis ogni mês di Google in cooperazion cui produtôrs di SoC par risolvi problemis che a podaressin vignî sfrutâts da lis aplicazions malevulis par scjavalgjâ lis restrizions di sigurece e provocâ dams permanents al dispositîf. Lis corezions dadis fûr di Google a son aplicadis a ducj i dispositîfs supuartâts, ma chês relativis ai components proprietaris a puedin jessi aplicadis dome dal produtôr dal dispositîf. Par mantignî il dispositîf sigûr, controle che la tô version di LineageOS e sedi simpri inzornade e in câs controle che i components proprietaris, come i firmwares e la imagjin dal vendidôr, a sedin chei racomandâts di LineageOS.</string>
+    <string name="trust_feature_encryption">Cifradure</string>
+    <string name="trust_feature_encryption_value_enabled">Ative</string>
+    <string name="trust_feature_encryption_value_nolock">E necessite di une schermade di bloc sigure</string>
+    <string name="trust_feature_encryption_value_disabled">Disativade</string>
+    <string name="trust_feature_encryption_explain">Abilitant la criptazion dal dispositîf al ven blocât l\'acès ai tiei dâts, cuant che il to telefon nol ven inviât in Android. Chest al è une vore impuartant se il to telefon al ven robât, viodût che al impedìs aes personis di lei i tiei messaçs, i contats e altris informazions privadis cence l\'inseriment de tô password.\nPar rindi la criptazion dal dispositîf plui valide tu scugnis configurâ une password di bloc schermi sigure</string>
+    <string name="trust_category_tools">Riservatece</string>
+    <string name="trust_notification_alerts_title">Avîs di sigurece</string>
+    <string name="trust_restrict_usb_title">Restrizions USB</string>
+    <string name="trust_restrict_usb_summary">Controle il supuart pes conessions USB come i auricolârs, i dispositîfs di archiviazion, di input (mouse, tastieris, joysticks) e ADB</string>
+    <string name="trust_restrict_usb_always">Dinee conessions USB</string>
+    <string name="trust_restrict_usb_disabled">Permet simpri conessions USB</string>
+    <string name="trust_onboarding_description">Trust al jude a mantignî il to dispositîf sigûr e al protêç la tô riservatece.\nLa icone di Trust e vignarà fûr dome tal moment che e ven verificade la sigurece dai contignûts de pagjine.</string>
+    <string name="trust_warnings_alerts_intro">Tu puedis sielzi di vê avîs in merit a determinâts problemis di sigurece. Pe tô sigurece al è conseât ativâ ducj i avîs</string>
+    <string name="trust_warnings_selinux">Stât di SELinux</string>
+    <string name="trust_warnings_keys">Firme de compilazion</string>
+    <string name="sleep_button_label">Met in polse</string>
+    <string name="system_sleep_confirm">Meti in polse cumò?</string>
+    <string name="shutdown_button_label">Distude</string>
+    <string name="system_shutdown_confirm">Distudâ daurman?</string>
+    <string name="convertible_port_busy_title">La puarte USB 1 e je in ûs</string>
+    <string name="convertible_port_busy_warning">Distache ducj i dispositîfs o i acessoris e torne prove</string>
+    <string name="mtp_enable_title">Acès aes cartelis SHIELD su PC midiant USB</string>
+    <string name="mtp_enable_warning">Cumò la porte USB 1 e je configurade par coneti SHIELD a un PC tant che dispositîf multimediâl.\n\nCheste puarte no rilevarà plui supuarts di archiviazion o acessoris USB e nol sarà pussibil doprâle par meti in cjarie dispositîfs.</string>
+    <string name="mtp_retry_error">Erôr. Torne prove.</string>
+    <string name="mtp_summary">In cheste modalitât, la puarte USB no funzione par altris finalitâts</string>
+    <string name="mtp_title">Trasferìs files suntun computer doprant l\'USB</string>
+    <string name="mtp_unexpected_error">Erôr inspietât. Torne prove plui indevant.</string>
+    <string name="usb_debugging_enable_title">Debug USB abilitât</string>
+    <string name="usb_debugging_enable_warning">Cumò la porte USB 1 e je configurade par coneti SHIELD a un PC tant che dispositîf multimediâl.\n\nCheste puarte no rilevarà plui supuarts di archiviazion o acessoris USB e nol sarà pussibil doprâle par meti in cjarie dispositîfs.</string>
+</resources>

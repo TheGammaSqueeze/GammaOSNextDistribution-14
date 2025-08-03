@@ -1,0 +1,2 @@
+public com_android_art libnativehelper.so
+public com_android_i18n libicui18n.so:libicuuc.so

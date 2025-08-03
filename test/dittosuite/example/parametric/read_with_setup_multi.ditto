@@ -1,0 +1,57 @@
+init: {
+  instruction_set: {
+    instructions: [
+      {
+        open_file: {
+          path_name: "test.txt",
+          create: true,
+          output_fd: "test_file"
+        }
+      },
+      {
+        resize_file: {
+          input_fd: "test_file",
+          size: 1048576
+        }
+      },
+      {
+        write_file: {
+          input_fd: "test_file",
+          fsync: true
+        }
+      }
+    ]
+  }
+},
+main: {
+  multithreading: {
+    threads: [
+      {
+        instruction: {
+          read_file: {
+            input_fd: "test_file"
+          },
+          repeat: 100
+        },
+        spawn: $PARAMETER_1$
+      }
+    ]
+  }
+},
+clean_up: {
+  instruction_set: {
+    instructions: [
+      {
+        close_file: {
+          input_fd: "test_file"
+        }
+      },
+      {
+        delete_file: {
+          path_name: "test.txt"
+        }
+      }
+    ]
+  }
+},
+global {}

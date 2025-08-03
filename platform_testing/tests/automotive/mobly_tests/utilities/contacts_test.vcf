@@ -1,0 +1,40 @@
+BEGIN:VCARD
+VERSION:2.1
+N:Boo;Anna;;;
+FN:Anna Goo
+TEL;CELL:1-844-825-5234
+TEL;WORK:
+ADR;TYPE#WORK;PREF#1;LABEL#"Normality\nTesttown\, XX 00000\nTestland":;;111 Test Street;Testtown;XX;00000;Testland
+END:VCARD
+BEGIN:VCARD
+VERSION:2.1
+N:Johnson;Boris;;;
+FN:Boris Johnson
+TEL;CELL:56355
+TEL;WORK:
+ADR;TYPE#WORK;PREF#1;LABEL#"Normality\nTesttown\, XX 00000\nTestland":;;111 Test Street;Testtown;XX;00000;Testland
+END:VCARD
+BEGIN:VCARD
+VERSION:2.1
+N:Smith;John;;;
+FN:John Smith Jr
+TEL;CELL:611
+TEL;WORK:123
+ADR;TYPE#WORK;PREF#1;LABEL#"Normality\nTesttown\, XX 00000\nTestland":;;111 Test Street;Testtown;XX;00000;Testland
+END:VCARD
+BEGIN:VCARD
+VERSION:2.1
+N:Alder;Maha;;;
+FN:Maha Halder
+TEL;CELL:611
+TEL;WORK:1-844-825-5234
+ADR;TYPE#WORK;PREF#1;LABEL#"Normality\nTesttown\, XX 00000\nTestland":;;111 Test Street;Testtown;XX;00000;Testland
+END:VCARD
+BEGIN:VCARD
+VERSION:2.1
+N:Williams;Sarah;;;
+FN:Sarah Williams
+TEL;CELL:852
+TEL;WORK:
+ADR;TYPE#WORK;PREF#1;LABEL#"Normality\nTesttown\, XX 00000\nTestland":;;111 Test Street;Testtown;XX;00000;Testland
+END:VCARD

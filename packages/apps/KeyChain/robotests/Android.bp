@@ -1,0 +1,19 @@
+//############################################################
+// KeyChain Robolectric test target.                         #
+//############################################################
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_robolectric_test {
+    name: "KeyChainRoboTests",
+
+    srcs: ["src/**/*.java"],
+
+    java_resource_dirs: ["config"],
+
+    instrumentation_for: "KeyChain",
+
+    upstream: true,
+}

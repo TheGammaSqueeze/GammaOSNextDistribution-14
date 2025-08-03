@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="alerts_header_summary" msgid="4824339599027800065">"ਕੁਦਰਤੀ ਆਫ਼ਤ ਦੇ ਮਾਮਲੇ ਵਿੱਚ, ਡੀਵਾਈਸ ਵੱਲੋਂ ਖਾਲੀ ਕਰਨ ਦੀ ਚਿਤਾਵਨੀ ਨਾਲ ਮਿਲਦੀ-ਜੁਲਦੀ ਸੂਚਨਾ ਪ੍ਰਾਪਤ ਕੀਤੀ ਜਾ ਸਕਦੀ ਹੈ। \nਇਹ ਸੇਵਾ ਆਫ਼ਤ ਚਿਤਾਵਨੀ ਸੁਨੇਹਾ ਰਿਲੀਜ਼ ਕਰਨ ਵਾਲੀ ਸੰਸਥਾ (ਜਿਵੇਂ ਕਿ ਭੂਚਾਲ ਪ੍ਰਸ਼ਾਸਨ), ਨੈੱਟਵਰਕ ਓਪਰੇਟਰਾਂ ਅਤੇ ਡੀਵਾਈਸ ਨਿਰਮਾਤਾਵਾਂ ਵੱਲੋਂ ਮੁਹੱਈਆ ਕੀਤੀ ਜਾਂਦੀ ਹੈ। \nਡੀਵਾਈਸ ਖਰਾਬ ਹੋਣ ਜਾਂ ਖਰਾਬ ਨੈੱਟਵਰਕ ਵਾਤਾਵਰਣ ਦੇ ਮਾਮਲੇ ਵਿੱਚ ਸੂਚਨਾ ਜਾਣਕਾਰੀ ਪ੍ਰਾਪਤ ਨਹੀਂ ਹੋ ਸਕਦੀ।"</string>
+</resources>

@@ -1,0 +1,7 @@
+{
+  "imports": [
+    {
+      "path": "java/com/android/annotationvisitor"
+    }
+  ]
+}

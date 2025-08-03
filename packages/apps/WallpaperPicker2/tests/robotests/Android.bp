@@ -1,0 +1,42 @@
+package {
+    default_team: "trendy_team_customization_picker",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_app {
+    name: "WallpaperPicker2Shell",
+    defaults: ["WallpaperPicker2_defaults"],
+    platform_apis: true,
+    static_libs: [
+        "WallpaperPicker2ApplicationLib",
+        "WallpaperPicker2TestLib",
+    ],
+}
+
+android_robolectric_test {
+    enabled: true,
+
+    name: "WallpaperPicker2RoboTests",
+
+    srcs: [
+        "src/**/*.java",
+        "src/**/*.kt",
+    ],
+
+    java_resource_dirs: ["config"],
+
+    // Do not add picker-related dependencies here. Add them to
+    // WallpaperPicker2Shell instead.
+    static_libs: [
+        "hilt_android_testing",
+    ],
+
+    libs: [
+        "androidx.test.core",
+        "androidx.test.runner",
+    ],
+
+    upstream: true,
+
+    instrumentation_for: "WallpaperPicker2Shell",
+}

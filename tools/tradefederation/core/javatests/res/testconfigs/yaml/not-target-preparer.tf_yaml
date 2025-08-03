@@ -1,0 +1,14 @@
+description: "Human friendly description of the test"
+
+dependencies:
+
+target_preparers:
+   - com.android.tradefed.testtype.AndroidJUnitTest:
+        options:
+          - package: "android.package"
+
+tests:
+   - com.android.tradefed.testtype.AndroidJUnitTest:
+        options:
+          - package: "android.package"
+

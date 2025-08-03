@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <string name="pref_key_tracing_on">tracing_on</string>
+    <string name="pref_key_stack_sampling_on">stack_sampling_on</string>
+    <string name="pref_key_heap_dump_on">heap_dump_on</string>
+    <string name="pref_key_recording_was_trace">recording_was_trace</string>
+    <string name="pref_key_recording_was_stack_samples">recording_was_stack_samples</string>
+    <string name="pref_key_tags">current_tags_10</string>
+    <string name="pref_key_apps">all_apps</string>
+    <string name="pref_key_winscope">winscope</string>
+    <string name="pref_key_buffer_size">buffer_size</string>
+    <string name="pref_key_long_traces">long_traces</string>
+    <string name="pref_key_max_long_trace_size">max_long_trace_size</string>
+    <string name="pref_key_max_long_trace_duration">max_long_trace_duration</string>
+    <string name="pref_key_quick_setting">quick_setting_enabled</string>
+    <string name="pref_key_stop_on_bugreport">stop_on_bugreport_enabled</string>
+    <string name="pref_key_attach_to_bugreport">attach_to_bugreport</string>
+    <string name="pref_key_heap_dump_processes">heap_dump_processes</string>
+    <string name="pref_key_continuous_heap_dump">continuous_heap_dump</string>
+    <string name="pref_key_continuous_heap_dump_interval">continuous_heap_dump_interval</string>
+</resources>

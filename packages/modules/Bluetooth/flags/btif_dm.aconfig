@@ -1,0 +1,23 @@
+package: "com.android.bluetooth.flags"
+container: "com.android.btservices"
+
+flag {
+    name: "ignore_bond_type_for_le"
+    namespace: "bluetooth"
+    description: "Bond type is not applicable for LE SMP pairing"
+    bug: "319695663"
+}
+
+flag {
+    name: "reset_pairing_only_for_related_service_discovery"
+    namespace: "bluetooth"
+    description: "Don't reset the pairing state if service discovery concludes for a different device"
+    bug: "321996502"
+}
+
+flag {
+    name: "force_bredr_for_sdp_retry"
+    namespace: "bluetooth"
+    description: "Force BR/EDR transport for retrying SDP service discovery"
+    bug: "326656580"
+}

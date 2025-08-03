@@ -1,0 +1,138 @@
+# Copyright (C) 2022 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# proto-message: TraceConfig
+
+# Trace config originally supplied in b/230177578.
+
+# Periodically writes the central tracing buffers (defined below) to disk.
+write_into_file: true
+file_write_period_ms: 1000
+
+# Ensure worst-case reordering of events in the central tracing buffers.
+flush_period_ms: 30000
+
+# The trace buffers need to be big enough to hold |file_write_period_ms| of
+# trace data. The trace buffer sizing depends on the number of trace categories
+# enabled and the device activity.
+buffers: {
+  size_kb: 20480
+  fill_policy: RING_BUFFER
+}
+
+data_sources: {
+  config: {
+    name: "linux.ftrace"
+    target_buffer: 0
+    ftrace_config: {
+      throttle_rss_stat: true
+      compact_sched: {
+        enabled: true
+      }
+
+      # core: scheduling
+      ftrace_events: "sched/sched_switch"
+      ftrace_events: "sched/sched_waking"
+
+      # core: process lifetime events
+      ftrace_events: "sched/sched_wakeup_new"
+      ftrace_events: "sched/sched_process_exit"
+      ftrace_events: "sched/sched_process_free"
+      ftrace_events: "task/task_newtask"
+      ftrace_events: "task/task_rename"
+
+      # scheduling: why any given thread is blocked
+      ftrace_events: "sched/sched_blocked_reason"
+      # device suspend/resume events
+      ftrace_events: "power/suspend_resume"
+
+      # RSS and ION buffer events
+      ftrace_events: "dmabuf_heap/dma_heap_stat"
+      ftrace_events: "fastrpc/fastrpc_dma_stat"
+      ftrace_events: "gpu_mem/gpu_mem_total"
+      ftrace_events: "ion/ion_stat"
+      ftrace_events: "kmem/ion_heap_grow"
+      ftrace_events: "kmem/ion_heap_shrink"
+      ftrace_events: "kmem/rss_stat"
+
+      # optional: LMK
+      atrace_apps: "lmkd"
+      ftrace_events: "lowmemorykiller/lowmemory_kill"
+      ftrace_events: "oom/oom_score_adj_update"
+      ftrace_events: "oom/mark_victim"
+
+      # userspace events from system_server
+      atrace_categories: "ss"
+      atrace_apps: "system_server"
+      # userspace events from activity and window managers
+      atrace_categories: "am"
+      atrace_categories: "wm"
+      # userspace events from java and c runtimes
+      atrace_categories: "dalvik"
+      atrace_categories: "bionic"
+      # userspace events from systemui
+      atrace_apps: "com.android.systemui"
+
+      # groups that expand into power events (mix of userspace and ftrace)
+      atrace_categories: "freq"
+      # "thermal" removed for APIs <= 30, temporarily.
+      atrace_categories: "power"
+
+      # binder & HALs
+      atrace_categories: "aidl"
+      atrace_categories: "hal"
+      atrace_categories: "binder_driver"
+
+      # Other userspace event groups, see
+      # frameworks/native/cmds/atrace/atrace.cpp in the Android tree for
+      # available categories. The encoding of userspace events is very verbose
+      # so keep the list focused or you will need to readjust the buffer sizes
+      # to avoid data loss.
+      atrace_categories: "disk"
+      atrace_categories: "gfx"
+      atrace_categories: "res"
+      atrace_categories: "view"
+      atrace_categories: "idle"
+      atrace_categories: "webview"
+
+      # Default to enabling userspace events from all apps.
+      atrace_apps: "*"
+
+      # Following line will be used to inject additional configs. Do not remove or modify.
+      # {injected_config}
+    }
+  }
+}
+
+data_sources {
+  config {
+    name: "linux.process_stats"
+    target_buffer: 0
+    # polled per-process memory counters and process/thread names.
+    # If you don't want the polled counters, remove the "process_stats_config"
+    # section, but keep the data source itself as it still provides on-demand
+    # thread/process naming for ftrace data below.
+    process_stats_config {
+      proc_stats_poll_ms: 500
+      scan_all_processes_on_start: true
+    }
+  }
+}
+
+data_sources: {
+  config {
+    # rendering: expected vs actual frame timeline tracks
+    name: "android.surfaceflinger.frametimeline"
+    target_buffer: 0
+  }
+}

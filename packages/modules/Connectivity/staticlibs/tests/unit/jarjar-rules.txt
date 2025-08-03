@@ -1,0 +1,1 @@
+rule com.android.net.module.util.** com.android.net.moduletests.util.@1

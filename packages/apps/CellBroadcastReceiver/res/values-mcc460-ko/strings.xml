@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="alerts_header_summary" msgid="4824339599027800065">"자연재해 발생시 휴대전화에서 대피 안내와 같은 경고 알림을 받아볼 수 있습니다. \n이 서비스는 돌발 공공사건 경보 발행 기구(예: 지진국 등) , 네트워크 공급자, 기기 제조업체와의 공조로 제공됩니다. \n기기에 문제가 있거나 네트워크 상태가 좋지 않을 경우 알림을 받지 못할 수 있습니다."</string>
+</resources>

@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<!--
+  SPDX-FileCopyrightText: 2020 The Calyx Institute
+  SPDX-License-Identifier: Apache-2.0
+  -->
+<exceptions>
+    <exception package="com.stevesoltys.seedvault">
+        <!-- Notifications -->
+        <permission name="android.permission.POST_NOTIFICATIONS" fixed="false"/>
+        <!-- Needed to back up original files with all metadata -->
+        <permission name="android.permission.ACCESS_MEDIA_LOCATION" fixed="true"/>
+    </exception>
+</exceptions>

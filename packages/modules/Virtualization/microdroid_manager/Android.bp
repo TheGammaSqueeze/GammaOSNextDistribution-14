@@ -1,0 +1,88 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_defaults {
+    name: "microdroid_manager_defaults",
+    crate_name: "microdroid_manager",
+    defaults: [
+        "avf_build_flags_rust",
+        "secretkeeper_use_latest_hal_aidl_rust",
+    ],
+    srcs: ["src/main.rs"],
+    edition: "2021",
+    prefer_rlib: true,
+    rustlibs: [
+        "android.system.virtualizationcommon-rust",
+        "android.system.virtualizationservice-rust",
+        "android.system.virtualmachineservice-rust",
+        "android.system.virtualization.payload-rust",
+        "libandroid_logger",
+        "libanyhow",
+        "libapkmanifest",
+        "libavflog",
+        "libapexutil_rust",
+        "libapkverify",
+        "libbinder_rs",
+        "libbyteorder",
+        "libcap_rust",
+        "libclient_vm_csr",
+        "libciborium",
+        "libcoset",
+        "libdice_policy_builder",
+        "libdiced_open_dice",
+        "libdiced_sample_inputs",
+        "libglob",
+        "libhex",
+        "libitertools",
+        "libkeystore2_crypto_rust",
+        "liblibc",
+        "liblog_rust",
+        "libmicrodroid_metadata",
+        "libmicrodroid_payload_config",
+        "libmicrodroid_uids",
+        "libnix",
+        "libonce_cell",
+        "libopenssl",
+        "libprotobuf",
+        "librpcbinder_rs",
+        "librustutils",
+        "libsecretkeeper_client",
+        "libsecretkeeper_comm_nostd",
+        "libscopeguard",
+        "libserde",
+        "libserde_cbor",
+        "libserde_json",
+        "libthiserror",
+        "libuuid",
+        "libvsock",
+        "librand",
+        "libzeroize",
+    ],
+    init_rc: ["microdroid_manager.rc"],
+    multilib: {
+        lib32: {
+            enabled: false,
+        },
+    },
+}
+
+rust_binary {
+    name: "microdroid_manager",
+    defaults: ["microdroid_manager_defaults"],
+    bootstrap: true,
+}
+
+rust_test {
+    name: "microdroid_manager_test",
+    defaults: ["microdroid_manager_defaults"],
+    test_suites: ["general-tests"],
+    rustlibs: [
+        "libtempfile",
+    ],
+    multilib: {
+        lib32: {
+            enabled: false,
+        },
+    },
+}

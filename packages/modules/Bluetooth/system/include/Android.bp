@@ -1,0 +1,55 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_bt_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_bt_license"],
+}
+
+cc_library_headers {
+    name: "avrcp_headers",
+    export_include_dirs: ["./hardware/avrcp/"],
+    header_libs: ["internal_include_headers"],
+    export_header_lib_headers: ["internal_include_headers"],
+
+    // We need this in case some file outside of the Bluetooth project includes
+    // bluetooth.h but doesn't include libchrome which avrcp.h depends on.
+    static_libs: ["libchrome"],
+    export_static_lib_headers: ["libchrome"],
+
+    vendor_available: true,
+    host_supported: true,
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.btservices",
+    ],
+    min_sdk_version: "30",
+}
+
+cc_library_headers {
+    name: "libbluetooth_headers",
+    visibility: [
+        "//packages/apps/Test/connectivity/sl4n",
+        "//packages/modules/Bluetooth:__subpackages__",
+        "//vendor:__subpackages__",
+    ],
+    header_libs: [
+        "avrcp_headers",
+        "libbluetooth-types-header",
+        "libbtcore_headers",
+    ],
+    export_header_lib_headers: [
+        "avrcp_headers",
+        "libbluetooth-types-header",
+        "libbtcore_headers",
+    ],
+    export_include_dirs: ["./"],
+    vendor_available: true,
+    host_supported: true,
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.btservices",
+    ],
+    min_sdk_version: "30",
+}

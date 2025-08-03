@@ -1,0 +1,38 @@
+# evs_mock mock hardware driver service
+type hal_evs_default, domain;
+hal_server_domain(hal_evs_default, hal_evs)
+
+# allow init to launch processes in this context
+type hal_evs_default_exec, exec_type, vendor_file_type, file_type;
+init_daemon_domain(hal_evs_default)
+
+# allow to use a graphic buffer
+hal_client_domain(hal_evs_default, hal_configstore)
+hal_client_domain(hal_evs_default, hal_graphics_allocator)
+hal_client_domain(hal_evs_default, hal_graphics_composer)
+
+# allow to use automotive display service
+binder_call(hal_evs_default, automotive_display_service_server)
+allow hal_evs_default fwk_automotive_display_hwservice:hwservice_manager find;
+allow hal_evs_default fwk_automotive_display_service:service_manager find;
+
+# allow to use hidl token service to retrieve HGBP object
+allow hal_evs_default hidl_token_hwservice:hwservice_manager find;
+
+# allow to access data from surfaceflinger
+allow hal_evs_default surfaceflinger:fd use;
+
+# allow to access EGL
+allow hal_evs_default gpu_device:chr_file rw_file_perms;
+allow hal_evs_default gpu_device:dir search;
+
+# allow to monitor uevents and access video devices
+allow hal_evs_default device:dir r_dir_perms;
+allow hal_evs_default video_device:chr_file rw_file_perms;
+
+# allow to access graphics related properties
+get_prop(hal_evs_default, graphics_config_prop);
+get_prop(hal_evs_default, graphics_config_writable_prop)
+
+# allow to use binder IPC.
+binder_use(hal_evs_default)

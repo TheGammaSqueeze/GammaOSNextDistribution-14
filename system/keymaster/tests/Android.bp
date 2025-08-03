@@ -1,0 +1,66 @@
+package {
+    default_team: "trendy_team_android_hardware_backed_security",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_keymaster_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_keymaster_license"],
+}
+
+shared_test_libs = [
+    "libbase",
+    "libcrypto",
+    "libcutils",
+    "libhidlbase",
+    "libkeymaster_messages",
+    "libkeymaster_portable",
+    "liblog",
+    "libsoft_attestation_cert",
+    "libutils",
+]
+
+static_test_libs = [
+    "libcppbor_external",
+    "libsoftkeymasterdevice",
+    "libcppcose_rkp",
+]
+
+test_cflags = [
+    "-DKEYMASTER_NAME_TAGS",
+    "-Wall",
+    "-Werror",
+    "-Wextra",
+    "-Wunused-variable",
+]
+
+cc_test {
+    name: "keymaster_tests",
+    cflags: test_cflags,
+    tidy_timeout_srcs: [
+        "android_keymaster_messages_test.cpp",
+        "authorization_set_test.cpp",
+    ],
+    srcs: [
+        "gtest_main.cpp",
+        "keymaster_configuration_test.cpp",
+        "hmac_test.cpp",
+        "android_keymaster_test_utils.cpp",
+        "ckdf_test.cpp",
+        "hkdf_test.cpp",
+        "kdf_test.cpp",
+        "kdf1_test.cpp",
+        "kdf2_test.cpp",
+        "ecies_kem_test.cpp",
+        "nist_curve_key_exchange_test.cpp",
+        "authorization_set_test.cpp",
+        "key_blob_test.cpp",
+        "android_keymaster_messages_test.cpp",
+        "keymaster_enforcement_test.cpp",
+        "attestation_record_test.cpp",
+        "wrapped_key_test.cpp",
+    ],
+    shared_libs: shared_test_libs,
+    static_libs: static_test_libs,
+    test_suites: ["general-tests"],
+}

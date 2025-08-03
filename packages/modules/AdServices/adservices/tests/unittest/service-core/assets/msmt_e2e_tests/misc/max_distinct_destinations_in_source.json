@@ -1,0 +1,223 @@
+{
+  "api_config": {
+    "max_destinations_per_source_site_reporting_site": "1"
+  },
+  "input": {
+    "sources": [
+      // Source is registered on September 14
+      {
+        "registration_request": {
+          "registrant": "com.example1",
+          "attribution_src_url": "https://adtech.test",
+          "source_type": "event"
+        },
+        "responses": [
+          {
+            "url": "https://adtech.test",
+            "response": {
+              "Attribution-Reporting-Register-Source": {
+                "source_event_id": "17091290759398822382",
+                "destination": "android-app://com.example2",
+                "filter_data": {},
+                "priority": "2",
+                "expiry": "2592000",
+                "event_report_windows": {
+                  "end_times": [
+                    1721612,
+                    1909566,
+                    1997183
+                  ]
+                }
+              },
+              "Location": null,
+              "Attribution-Reporting-Redirect": null
+            }
+          }
+        ],
+        "timestamp": "1694703591631"
+      },
+      // Source is registered on September 17 since publisher is different
+      {
+        "registration_request": {
+          "registrant": "com.example3",
+          "attribution_src_url": "https://adtech.test",
+          "source_type": "navigation"
+        },
+        "responses": [
+          {
+            "url": "https://adtech.test",
+            "response": {
+              "Attribution-Reporting-Register-Source": {
+                "source_event_id": "17091290776578691566",
+                "destination": "android-app://com.example2",
+                "filter_data": {},
+                "priority": "2",
+                "expiry": "2591999",
+                "event_report_windows": {
+                  "end_times": [
+                    1002663,
+                    1549094,
+                    2299515
+                  ]
+                }
+              },
+              "Location": null,
+              "Attribution-Reporting-Redirect": null
+            }
+          }
+        ],
+        "timestamp": "1694946596408"
+      },
+      // Source is not registered on October 11 -- the publisher is the same as the source
+      // from September 14, which was deactivated by attribution on October 5 to the
+      // second registered source but still counts towards the limit.
+      {
+        "registration_request": {
+          "registrant": "com.example1",
+          "attribution_src_url": "https://adtech.test",
+          "source_type": "navigation"
+        },
+        "responses": [
+          {
+            "url": "https://adtech.test",
+            "response": {
+              "Attribution-Reporting-Register-Source": {
+                "source_event_id": "17091290841003201006",
+                "destination": "android-app://com.example3",
+                "filter_data": {},
+                "priority": "1"
+              },
+              "Location": null,
+              "Attribution-Reporting-Redirect": null
+            }
+          }
+        ],
+        "timestamp": "1697008567816"
+      },
+      // Source is not registered on October 23 since the first source expired.
+      {
+        "registration_request": {
+          "registrant": "com.example1",
+          "attribution_src_url": "https://adtech.test",
+          "source_type": "navigation"
+        },
+        "responses": [
+          {
+            "url": "https://adtech.test",
+            "response": {
+              "Attribution-Reporting-Register-Source": {
+                "source_event_id": "17091290883952873966",
+                "destination": "android-app://com.example4",
+                "filter_data": {},
+                "priority": "0",
+                "expiry": "2591999",
+                "event_report_windows": {
+                  "end_times": [
+                    1690494
+                  ]
+                }
+              },
+              "Location": null,
+              "Attribution-Reporting-Redirect": null
+            }
+          }
+        ],
+        "timestamp": "1698076977065"
+      }
+    ],
+    "triggers": [
+      // Trigger is registered October 5 and attributed to the source from September 17
+      {
+        "registration_request": {
+          "attribution_src_url": "https://adtech.test",
+          "registrant": "com.example2"
+        },
+        "responses": [
+          {
+            "url": "https://adtech.test",
+            "response": {
+              "Attribution-Reporting-Register-Trigger": {
+                "event_trigger_data": [
+                  {
+                    "trigger_data": "1",
+                    "priority": "1",
+                    "deduplication_key": "2",
+                    "filters": {},
+                    "not_filters": {}
+                  }
+                ],
+                "filters": {},
+                "not_filters": {}
+              },
+              "Location": null,
+              "Attribution-Reporting-Redirect": null
+            }
+          }
+        ],
+        "timestamp": "1696538373504"
+      },
+      // Trigger is matched with the source from October 23
+      {
+        "registration_request": {
+          "attribution_src_url": "https://adtech.test",
+          "registrant": "com.example4"
+        },
+        "responses": [
+          {
+            "url": "https://adtech.test",
+            "response": {
+              "Attribution-Reporting-Register-Trigger": {
+                "event_trigger_data": [
+                  {
+                    "trigger_data": "0",
+                    "priority": "0",
+                    "deduplication_key": "1",
+                    "filters": {
+                      "source_type": [
+                        "navigation"
+                      ]
+                    },
+                    "not_filters": {}
+                  }
+                ],
+                "filters": {},
+                "not_filters": {}
+              },
+              "Location": null,
+              "Attribution-Reporting-Redirect": null
+            }
+          }
+        ],
+        "timestamp": "1699606491488"
+      }
+    ]
+  },
+  "output": {
+    "event_level_results": [
+      {
+        "payload": {
+          "attribution_destination": "android-app://com.example4",
+          "randomized_trigger_rate": 0.0001372,
+          "scheduled_report_time": "1699771071",
+          "source_event_id": "17091290883952873966",
+          "source_type": "navigation",
+          "trigger_data": "0"
+        },
+        "report_time": "1699771071065",
+        "report_url": "https://adtech.test/.well-known/attribution-reporting/report-event-attribution"
+      },
+      {
+        "payload": {
+          "attribution_destination": "android-app://com.example2",
+          "scheduled_report_time": "1697249711",
+          "source_event_id": "17091290776578691566",
+          "trigger_data": "1",
+          "source_type": "navigation",
+          "randomized_trigger_rate": 0.0024263
+        },
+        "report_time": "1697249711408",
+        "report_url": "https://adtech.test/.well-known/attribution-reporting/report-event-attribution"
+      }
+    ]
+  }
+}

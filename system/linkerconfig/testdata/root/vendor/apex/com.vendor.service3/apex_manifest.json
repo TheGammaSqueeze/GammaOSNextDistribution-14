@@ -1,0 +1,7 @@
+{
+  "name": "com.vendor.service3",
+  "version": 1,
+  "provideNativeLibs": [
+    "libvendorpublic.so"
+  ]
+}

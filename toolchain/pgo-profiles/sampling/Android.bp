@@ -1,0 +1,139 @@
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+soong_namespace{
+}
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+fdo_profile {
+    name: "keystore2",
+    profile: "keystore2.afdo",
+}
+
+fdo_profile {
+    name: "libart",
+    arch: {
+        arm64: {
+            profile: "libart_arm64.afdo",
+        }
+    }
+}
+
+fdo_profile {
+    name: "libartbase",
+    arch: {
+        arm64: {
+            profile: "libartbase_arm64.afdo",
+        }
+    }
+}
+
+fdo_profile {
+    name: "libbinder",
+    profile: "libbinder.afdo",
+    native_bridge_supported: true,
+}
+
+fdo_profile {
+    name: "libbinder_ndk",
+    profile: "libbinder_ndk.afdo",
+    native_bridge_supported: true,
+}
+
+fdo_profile {
+    name: "libc++",
+    profile: "libc++.afdo",
+    native_bridge_supported: true,
+}
+
+fdo_profile {
+    name: "libgui",
+    profile: "libgui.afdo",
+}
+
+fdo_profile {
+    name: "libhidlbase",
+    profile: "libhidlbase.afdo",
+    native_bridge_supported: true,
+}
+
+fdo_profile {
+    name: "libhwui",
+    arch: {
+        arm64: {
+            profile: "libhwui_arm64.afdo",
+        }
+    }
+}
+
+fdo_profile {
+    name: "liblog",
+    profile: "liblog.afdo",
+    native_bridge_supported: true,
+}
+
+fdo_profile {
+    name: "libsensorservice",
+    profile: "libsensorservice.afdo",
+}
+
+fdo_profile {
+    name: "libui",
+    profile: "libui.afdo"
+}
+
+fdo_profile {
+    name: "libutils",
+    profile: "libutils.afdo",
+    native_bridge_supported: true,
+}
+
+fdo_profile {
+    name: "linker",
+    arch: {
+        arm64: {
+            profile: "linker_arm64.afdo",
+        }
+    }
+}
+
+fdo_profile {
+    name: "lmkd",
+    profile: "lmkd.afdo"
+}
+
+fdo_profile {
+    name: "surfaceflinger",
+    profile: "surfaceflinger.afdo"
+}
+
+fdo_profile {
+    name: "libsqlite",
+    profile: "libsqlite.afdo",
+    native_bridge_supported: true,
+}
+
+fdo_profile {
+    name: "libcrypto",
+    profile: "libcrypto.afdo",
+    native_bridge_supported: true,
+}
+
+fdo_profile {
+    name: "server_configurable_flags",
+    profile: "server_configurable_flags.afdo"
+}

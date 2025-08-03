@@ -1,0 +1,93 @@
+{
+  "description": "One source and one trigger that match. Event report task within the expiry window sends one report. The debug report type (source-noised) is expected since noise is applied and debug reporting is enabled.",
+  "input": {
+    "sources": [{
+      "registration_request": {
+        "attribution_src_url": "https://www.ad-tech1.test",
+        "source_type": "navigation",
+        "registrant": "example.1s1.com"
+      },
+      "responses": [{
+        "url": "https://www.ad-tech1.test",
+        "has_ad_id_permission": true,
+        "response": {
+          "Attribution-Reporting-Register-Source": {
+            "source_event_id": "1",
+            "destination": "android-app://example.2d1.com",
+            "priority": "100",
+            "expiry": "172801",
+            "debug_key": "347982378",
+            "debug_reporting": true
+          },
+          "Location": null,
+          "Attribution-Reporting-Redirect": null
+        }
+      }],
+      "timestamp": "800000000001"
+    }],
+    "triggers": [{
+      "registration_request": {
+        "attribution_src_url": "https://www.ad-tech1.test",
+        "registrant": "example.2d1.test"
+      },
+      "responses": [{
+        "url": "https://www.ad-tech1.test",
+        "response": {
+          "Attribution-Reporting-Register-Trigger": {
+            "event_trigger_data": [
+              {
+                "trigger_data": "2",
+                "priority": "101"
+              }
+            ]
+          },
+          "Location": null,
+          "Attribution-Reporting-Redirect": null
+        }
+      }],
+      "timestamp": "800000000002"
+    }]
+  },
+  "output": {
+    "event_level_results": [{
+      "report_time": "800176400001",
+      "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/report-event-attribution",
+      "payload": {
+        "attribution_destination": "android-app://example.2d1.com",
+        "source_event_id": "1",
+        "trigger_data": "2",
+        "source_type": "navigation",
+        "randomized_trigger_rate": 0.0024263,
+        "source_debug_key": "347982378"
+      }
+    }],
+    "debug_event_level_results": [{
+      "report_time": "800176400001",
+      "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/report-event-attribution",
+      "payload": {
+        "attribution_destination": "android-app://example.2d1.com",
+        "source_event_id": "1",
+        "trigger_data": "2",
+        "source_type": "navigation",
+        "randomized_trigger_rate": 0.0024263,
+        "source_debug_key": "347982378"
+      }
+    }],
+
+    "verbose_debug_reports": [
+      {
+        "report_url": "https://www.ad-tech1.com/.well-known/attribution-reporting/debug/verbose",
+        "payload": [{
+            "type": "source-noised",
+            "body": {
+              "source_event_id": "1",
+              "attribution_destination": "android-app://example.2d1.com",
+              "source_site": "android-app://example.1s1.com",
+              "source_debug_key": "347982378"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

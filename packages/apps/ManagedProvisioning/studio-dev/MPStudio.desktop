@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Managed Provisioning Studio
+Exec=%STUDIOW_PATH% %u
+Path=%ANDROID_TOP%
+Icon=%STUDIOW_ICON%
+Terminal=false
+Type=Application
+Categories=Development;IDE;Java;
+StartupWMClass=jetbrains-studio
+X-Desktop-File-Install-Version=0.26

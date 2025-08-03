@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="non_spam_notification_title">هل تعرف %1$s؟</string>
+  <string name="spam_notification_title">هل كان المتصل %1$s غير مرغوب فيه؟</string>
+  <string name="spam_notification_non_spam_call_expanded_text">هذه هي المرة الأولى التي تتلقى فيها اتصالاً من هذا الرقم. إذا كانت هذه المكالمة غير مرغوب فيها، يمكنك حظر هذا الرقم والإبلاغ عنه.</string>
+  <string name="spam_notification_dialog_add_contact_action_text">إضافة إلى جهات الاتصال</string>
+  <string name="spam_notification_dialog_block_report_spam_action_text">حظر الرقم والإبلاغ عنه كرقم غير مرغوب فيه</string>
+  <string name="spam_notification_was_not_spam_action_text">لا، مرغوب فيها</string>
+  <string name="spam_notification_block_spam_action_text">نعم، حظر الرقم</string>
+  <string name="spam_notification_action_dismiss">رفض</string>
+</resources>

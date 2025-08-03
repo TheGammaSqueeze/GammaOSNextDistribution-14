@@ -1,0 +1,15 @@
+{
+    "header": "metrics_test_crasher_consts.h",
+    "constants":[
+        {
+            "name": "METRICS_TEST_CRAHSER_UUID",
+            "value": "36f5b435-5bd3-4526-8b76-200e3a7e79f3",
+            "type": "uuid"
+        },
+        {
+            "name": "METRICS_TEST_CRAHSER_PORT",
+            "value": "com.android.trusty.metrics.test.crasher",
+            "type": "port"
+        }
+    ]
+}

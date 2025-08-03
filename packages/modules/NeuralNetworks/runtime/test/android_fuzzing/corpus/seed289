@@ -1,0 +1,84 @@
+model {
+  main {
+    operands {
+      operand {
+        type: TENSOR_FLOAT32
+        dimensions {
+          dimension: 1
+          dimension: 1
+          dimension: 1
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 1077936128
+        }
+      }
+      operand {
+        type: TENSOR_INT32
+        dimensions {
+          dimension: 3
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 2838501199
+        }
+      }
+      operand {
+        type: BOOL
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 965637500
+        }
+      }
+      operand {
+        type: TENSOR_FLOAT32
+        dimensions {
+          dimension: 1
+        }
+        lifetime: SUBGRAPH_OUTPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 1077936128
+        }
+      }
+    }
+    operations {
+      operation {
+        type: REDUCE_MAX
+        inputs {
+          index: 0
+          index: 1
+          index: 2
+        }
+        outputs {
+          index: 3
+        }
+      }
+    }
+    input_indexes {
+      index: 0
+    }
+    output_indexes {
+      index: 3
+    }
+  }
+  referenced {
+  }
+}

@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+     Copyright (C) 2017 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="wallpaper_app_name" msgid="1719889291772891695">"Taustakuvat"</string>
+    <!-- no translation found for app_name (8773648973927541493) -->
+    <skip />
+    <string name="select_wallpaper_label" msgid="6989581259339646085">"Taustakuvaluokat"</string>
+    <string name="set_wallpaper_button_text" msgid="5445978864530156290">"Aseta taustakuva"</string>
+    <string name="set_wallpaper_progress_message" msgid="7986528287618716715">"Asetetaan taustakuvaa…"</string>
+    <string name="try_again" msgid="8278874823700921234">"Yritä uudelleen"</string>
+    <string name="set_wallpaper_error_message" msgid="6819986999041085130">"Taustakuvan asettaminen epäonnistui."</string>
+    <string name="load_wallpaper_error_message" msgid="7913278480467707374">"Taustakuvan lataaminen epäonnistui. Kuva on joko vioittunut tai se ei ole käytettävissä."</string>
+    <string name="static_wallpaper_presentation_mode_message" msgid="417940227049360906">"Nykyinen taustakuva"</string>
+    <string name="rotating_wallpaper_presentation_mode_message" msgid="3361676041605733288">"Päivän taustakuva"</string>
+    <string name="wallpaper_destination_both" msgid="1124197176741944063">"Aloitus- ja lukitusnäyttö"</string>
+    <string name="choose_a_wallpaper_section_title" msgid="1009823506890453891">"Valitse taustakuva"</string>
+    <string name="creative_wallpaper_title" msgid="3581650238648981372">"Luo taustakuva"</string>
+    <string name="home_screen_message" msgid="106444102822522813">"Aloitusnäyttö"</string>
+    <string name="lock_screen_message" msgid="1534506081955058013">"Lukitusnäyttö"</string>
+    <string name="home_and_lock_short_label" msgid="2937922943541927983">"Aloitus- ja lukitusnäyttö"</string>
+    <string name="set_wallpaper_dialog_message" msgid="2110475703996853076">"Ota taustakuva käyttöön"</string>
+    <string name="set_wallpaper_home_screen_destination" msgid="7315594722013109354">"Aloitusnäyttö"</string>
+    <string name="set_wallpaper_lock_screen_destination" msgid="6224685559375417945">"Lukitusnäyttö"</string>
+    <string name="set_wallpaper_both_destination" msgid="2536004558738350775">"Aloitusnäyttö ja lukitusnäyttö"</string>
+    <string name="no_backup_image_wallpaper_label" msgid="6316627676107284851">"Vaihtuva taustakuva"</string>
+    <string name="permission_needed_explanation" msgid="139166837541426823">"<xliff:g id="APP_NAME">%1$s</xliff:g> tarvitsee laitteen tallennustilan käyttöoikeuden, jotta nykyinen taustakuva voidaan näyttää tässä."</string>
+    <string name="permission_needed_explanation_go_to_settings" msgid="3923551582092599609">"Jotta Taustakuvat voi näyttää nykyisen taustakuvan tässä, se tarvitsee laitteesi tallennustilan käyttöoikeuden.\n\nVoit muokata tätä asetusta Taustakuvien sovellustiedoissa olevassa käyttöoikeusosiossa."</string>
+    <string name="permission_needed_allow_access_button_label" msgid="1943133660612924306">"Anna käyttöoikeus"</string>
+    <string name="no_backup_image_wallpaper_description" msgid="8303268619408738057">"Live-taustakuvapalvelu taustakuvien vaihtamista varten"</string>
+    <string name="daily_refresh_tile_title" msgid="3270456074558525091">"Päivän taustakuva"</string>
+    <string name="daily_refresh_tile_subtitle" msgid="3976682014885446443">"Ota käyttöön koskettamalla"</string>
+    <string name="start_rotation_dialog_body_live_wallpaper_needed" msgid="5132580257563846082">"Taustakuva vaihtuu automaattisesti joka päivä. Suorita määritys loppuun valitsemalla &lt;strong&gt;Aseta taustakuva&lt;/strong&gt; seuraavalla näytöllä."</string>
+    <string name="start_rotation_dialog_wifi_only_option_message" msgid="3126269859713666225">"Lataa taustakuvat tulevaisuudessa vain Wi-Fi-yhteydellä"</string>
+    <string name="start_rotation_dialog_continue" msgid="276678987852274872">"Jatka"</string>
+    <string name="start_rotation_progress_message" msgid="7872623873682262083">"Ladataan ensimmäistä taustakuvaa…"</string>
+    <string name="start_rotation_error_message" msgid="3053799836719618972">"Ensimmäisen taustakuvan lataaminen epäonnistui. Tarkista verkkoasetukset ja yritä uudelleen."</string>
+    <string name="start_rotation_dialog_body" msgid="7903554799046364916">"Taustakuva vaihtuu automaattisesti joka päivä."</string>
+    <string name="settings_button_label" msgid="8724734130079207955">"Asetukset"</string>
+    <string name="explore" msgid="7468719504199497281">"Tutki"</string>
+    <string name="next_wallpaper" msgid="3911873152952596232">"Seuraava taustakuva"</string>
+    <string name="wallpaper_disabled_message" msgid="7309484130562148185">"Taustakuvan asettaminen on poistettu käytöstä tällä laitteella."</string>
+    <string name="wallpaper_disabled_by_administrator_message" msgid="1551430406714747884">"Järjestelmänvalvojasi on poistanut taustakuvan asettamisen käytöstä."</string>
+    <string name="wallpaper_set_successfully_message" msgid="2958998799111688578">"Taustakuvan asettaminen onnistui."</string>
+    <string name="wallpapers_unavailable_offline_message" msgid="8136405438621689532">"Taustakuvien katselu edellyttää internetyhteyttä. Muodosta yhteys ja yritä uudelleen."</string>
+    <string name="currently_set_home_wallpaper_thumbnail" msgid="4022381436821898917">"Aloitusnäytön nykyisen taustakuvan pikkukuva"</string>
+    <string name="currently_set_lock_wallpaper_thumbnail" msgid="2094209303934569997">"Lukitusnäytön nykyisen taustakuvan pikkukuva"</string>
+    <string name="currently_set_wallpaper_thumbnail" msgid="8651887838745545107">"Nykyisen taustakuvan pikkukuva"</string>
+    <string name="wallpaper_thumbnail" msgid="569931475923605974">"Taustakuvan pikkukuva"</string>
+    <string name="explore_home_screen" msgid="8756346794535765482">"Tutustu aloitusnäytön taustakuvaan"</string>
+    <string name="explore_lock_screen" msgid="268938342103703665">"Tutustu lukitusnäytön taustakuvaan"</string>
+    <string name="refresh_daily_wallpaper_home_content_description" msgid="2770445044556164259">"Päivitä etusivun päivittäinen taustakuva."</string>
+    <string name="refresh_daily_wallpaper_content_description" msgid="4362142658237147583">"Siirry seuraavaan taustakuvaan"</string>
+    <string name="preview_screen_description" msgid="3386387053327775919">"Taustakuvan esikatselunäkymä"</string>
+    <string name="refreshing_daily_wallpaper_dialog_message" msgid="1975910873362855761">"Päivitetään päivän taustakuvaa…"</string>
+    <string name="refresh_daily_wallpaper_failed_message" msgid="4749879993812557166">"Päivän taustakuvan päivittäminen epäonnistui. Tarkista verkkoasetukset ja yritä uudelleen."</string>
+    <string name="on_device_wallpapers_category_title" msgid="805819102071369004">"Laitteella olevat taustakuvat"</string>
+    <string name="on_device_wallpapers_category_title_desktop" msgid="316919420410065369">"Laitteella"</string>
+    <string name="on_device_wallpaper_title" msgid="5262564748034629524">"Android-taustakuva"</string>
+    <string name="live_wallpapers_category_title" msgid="1814374812192366349">"Live-taustakuvat"</string>
+    <string name="my_photos_category_title" msgid="4294567122144565273">"Omat kuvat"</string>
+    <string name="my_photos_generic_wallpaper_title" msgid="7002867526154631172">"Oma kuva"</string>
+    <string name="fallback_wallpaper_title" msgid="6154655421012506001">"Taustakuva"</string>
+    <string name="app_not_found" msgid="4431461707854088231">"Sovellusta ei ole asennettu."</string>
+    <string name="center_wallpaper_position" msgid="4166894762352288883">"Keskusta"</string>
+    <string name="center_crop_wallpaper_position" msgid="1681980019815343348">"Keskirajaus"</string>
+    <string name="stretch_wallpaper_position" msgid="5002680983147456935">"Venytä"</string>
+    <string name="preview" msgid="1774602101743861071">"Esikatselu"</string>
+    <string name="tab_info" msgid="818614080690111416">"Tiedot"</string>
+    <string name="tab_customize" msgid="2533745409174959960">"Personoi"</string>
+    <string name="tab_effects" msgid="3213606157589233901">"Tehosteet"</string>
+    <string name="tab_share" msgid="6676269624804601227">"Jaa"</string>
+    <string name="my_photos" msgid="8613021349284084982">"Omat kuvat"</string>
+    <string name="configure_wallpaper" msgid="849882179182976621">"Asetukset…"</string>
+    <string name="delete_live_wallpaper" msgid="589212696102662329">"Poista"</string>
+    <string name="edit_live_wallpaper" msgid="3132060073690558045">"Muokkaa"</string>
+    <string name="delete_wallpaper_confirmation" msgid="1905114562243802354">"Poistetaanko tämä taustakuva laitteelta?"</string>
+    <string name="bottom_action_bar_back" msgid="2620581414970740784">"Siirry ylös"</string>
+    <string name="bottom_action_bar_edit" msgid="1214742990893082138">"Muokkaa"</string>
+    <string name="bottom_action_bar_download" msgid="3983122338076389421">"Lataa"</string>
+    <string name="bottom_action_bar_slideshow_wallpaper" msgid="509770525179533154">"Diasarja taustakuvana"</string>
+    <string name="bottom_action_bar_apply" msgid="2983308349819178932">"Käytä"</string>
+    <string name="accessibility_preview_pager" msgid="1839869637405028575">"Sivu <xliff:g id="ID_1">%1$d</xliff:g>/<xliff:g id="ID_2">%2$d</xliff:g>"</string>
+    <string name="next_page_content_description" msgid="6268461446679584152">"Seuraava"</string>
+    <string name="previous_page_content_description" msgid="1138597031571078429">"Edellinen"</string>
+    <string name="wallpaper_title" msgid="6754214682228331092">"Taustakuva"</string>
+    <string name="wallpaper_preview_card_content_description" msgid="6049261033541034584">"Taustakuvan esikatselu"</string>
+    <string name="lock_wallpaper_preview_card_content_description" msgid="5236839857695985498">"Lukitusnäytön taustakuvan esikatselu"</string>
+    <string name="home_wallpaper_preview_card_content_description" msgid="4059418716070821630">"Aloitusnäytön taustakuvan esikatselu"</string>
+    <string name="collection_not_exist_msg" msgid="3504852962885064842">"Kyseistä kokoelmaa ei ole olemassa"</string>
+    <string name="wallpaper_exit_split_screen" msgid="1928870664619591636">"Sulje jaettu näyttö ja yritä uudelleen"</string>
+    <string name="set_wallpaper_dialog_set_button" msgid="5760149969510325088">"Valitse"</string>
+    <string name="cancel" msgid="4970902691067201584">"Peru"</string>
+    <string name="hide_ui_preview_text" msgid="6766076482511252295">"Piilota UI:n esikatselu"</string>
+    <string name="hint_hide_ui_preview" msgid="4527603797714586070">"UI on piilotettu. Näytä kaksoisnapauttamalla"</string>
+    <string name="show_ui_preview_text" msgid="5993063062417070806">"Näytä UI:n esikatselu"</string>
+    <string name="hide_preview_controls_content_description" msgid="894958599274977655">"Esikatselun ohjaimet näytetään. Piilota kaksoisnapauttamalla"</string>
+    <string name="hide_preview_controls_action" msgid="3419260118386783295">"Piilota esikatselun ohjaimet"</string>
+    <string name="show_preview_controls_content_description" msgid="908147864005440602">"Esikatselun ohjaimet on piilotettu. Näytä kaksoisnapauttamalla"</string>
+    <string name="show_preview_controls_action" msgid="7700775001986890400">"Näytä esikatselun ohjaimet"</string>
+    <string name="hide_wallpaper_info_action" msgid="6572492484253895374">"Piilota taustakuvatiedot"</string>
+    <string name="hint_show_ui_preview" msgid="2744155435325318349">"UI on näkyvissä. Piilota kaksoisnapauttamalla"</string>
+    <string name="wallpaper_picker_entry_title" msgid="5185793991582084891">"Vaihda taustakuva"</string>
+    <string name="lockscreen_wallpaper_preview_card_content_description" msgid="2244890820627302245">"Lukitusnäytön taustakuvan esikatselu"</string>
+    <string name="apply_btn" msgid="5764555565943538528">"Käytä"</string>
+    <string name="accessibility_customize_hidden" msgid="6320568529768181691">"Yksilöinti piilotettu"</string>
+    <string name="accessibility_customize_shown" msgid="590964727831547651">"Yksilöinti näkyvissä"</string>
+    <string name="accessibility_info_hidden" msgid="2288603712350168107">"Tiedot piilotettu"</string>
+    <string name="accessibility_info_shown" msgid="6626025722456105632">"Tiedot näkyvissä"</string>
+    <string name="settings_snackbar_description" msgid="890168814524778486">"Ota tiedostot ja media käyttöön asetuksista."</string>
+    <string name="settings_snackbar_enable" msgid="5992112808061426068">"Ota käyttöön"</string>
+    <string name="open_my_photos" msgid="4107196465713868381">"Avaa Omat kuvat"</string>
+    <string name="lock_screen_tab" msgid="6672930765010407652">"Lukitusnäyttö"</string>
+    <string name="home_screen_tab" msgid="1080445697837877526">"Aloitusnäyttö"</string>
+    <string name="reset" msgid="4945445169532850631">"Nollaa"</string>
+    <string name="reset_confirmation_dialog_title" msgid="3391905685838213712">"Nollataanko muutokset?"</string>
+    <string name="reset_confirmation_dialog_message" msgid="888669268626289603">"Muutoksia ei tallenneta"</string>
+    <string name="more_wallpapers" msgid="8116268433411881705">"Lisää taustakuvia"</string>
+    <string name="recents_wallpaper_label" msgid="8653165542635660222">"%1$s, %2$d"</string>
+    <string name="default_wallpaper_title" msgid="2541071182656978180">"Taustakuva"</string>
+    <string name="small_preview_tooltip" msgid="1920430079013352071">"Muokkaa kuvaa napauttamalla"</string>
+    <string name="full_preview_tooltip" msgid="4648994028015322759">"Säädä kuvien paikkaa, mittakaavaa ja kulmaa"</string>
+</resources>

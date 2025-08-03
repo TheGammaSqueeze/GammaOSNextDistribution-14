@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="feedback_system_logs_title_text" msgid="8162964763101361628">"डिभाइसका सबै लग (सिस्टम र एप) समावेश गर्नुहोस्"</string>
+    <string name="feedback_system_logs_legal_text" msgid="4770068793128503597">"सिस्टम तथा एपका डिभाइसका सबै लग सेयर गर्नाले Google लाई युजरनेम, लोकेसन, डिभाइसको ID तथा नेटवर्कसम्बन्धी जानकारी जस्ता विवरण पठाउन सक्छ। Google ले प्राविधिक समस्या समाधान गर्न र सेवाहरूको गुणस्तर सुधार्न यो जानकारी प्रयोग गर्छ। g.co/android/devicelogs मा गई थप जान्नुहोस्।"</string>
+    <string name="feedback_bugreport_title_text" msgid="8863884817986711122">"त्रुटिसम्बन्धी रिपोर्ट समावेश गरियोस्"</string>
+    <string name="feedback_bugreport_legal_display_text" msgid="4486929548753044585">"समस्यासम्बन्धी यो रिपोर्ट (%1$s बाट प्राप्त) मा युजरनेम, लोकेसन, डिभाइसको ID तथा नेटवर्कसम्बन्धी जानकारी जस्ता कुरा समावेश गरिएको छ। यसो गर्नुको उद्देश्य Google लाई समस्याको पहिचान गर्न र त्यसको समाधान गर्न सघाउनु हो।"</string>
+    <string name="next" msgid="3308587969183798652">"अर्को"</string>
+    <string name="feedback_view_system_logs_button_text" msgid="1889709679017124924">"सिस्टम लगहरू हेर्नुहोस्"</string>
+    <string name="feedback_view_logs_dialog_title" msgid="1937861449450135462">"सिस्टम लगहरू"</string>
+    <string name="feedback_view_logs_dialog_body" msgid="2496560711853644250">"यी लगहरूमा हामीलाई तपाईंले दिनुभएको प्रतिक्रियाअनुसार काम गर्नका निम्ति चाहिने जानकारी समावेश हुन्छ।"</string>
+    <string name="annotated_back_indicator_string" msgid="3197935392074998004">"पछाडि जान \"पछाडि\" बटन थिच्नुहोस्।"</string>
+    <string name="loading" msgid="1709842456101615353">"लोड हुँदै छ"</string>
+</resources>

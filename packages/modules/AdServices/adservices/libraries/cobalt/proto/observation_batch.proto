@@ -1,0 +1,85 @@
+// Copyright 2023 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+syntax = "proto3";
+
+package cobalt;
+
+import "common.proto";
+import "encrypted_message.proto";
+
+option java_multiple_files = true;
+option java_package = "com.google.cobalt";
+
+////////////////////////////////////////////////////////////////////////////////
+// NOTE: This file is used by the Cobalt client and the Cobalt servers.
+// The source-of-truth of this file is located in Google's internsl code
+// repository, and the file is copied to Android where it is used by the Cobalt
+// client. Do not edit the copy of this file in this Android repo as those edits
+// will be overwritten when the file is next copied.
+////////////////////////////////////////////////////////////////////////////////
+
+// ObservationMetadata describes the parts of an observation other than the
+// secret payload.
+message ObservationMetadata {
+  // next id: 8
+
+  // An Observation is for a particular Cobalt Report.
+  // The following four values together specify that metric.
+  uint32 customer_id = 1;
+  uint32 project_id = 2;
+  uint32 metric_id = 3;
+  uint32 report_id = 7;
+
+  // The day on which the observation occurred, expressed as the zero-based
+  // index relative to January 1, 1970.
+  // i.e. 0 = January 1, 1970
+  //      1 = January 2, 1970
+  //      etc.
+  //
+  // We intentionally leave the meaning of this vague and leave it to each
+  // Encoder Client to define how to make it precise. Which day it is depends on
+  // time zone. The Encoder client is free to use the local time zone or a
+  // different time zone. The Encoder client is free to add some random noise to
+  // the time at which an event occurred and this might change the day.
+  uint32 day_index = 4;
+
+  // The profile of the client system on which the Observation was collected.
+  SystemProfile system_profile = 5;
+
+  // We used to have a field called |backend|.
+  reserved 6;
+  reserved "backend";
+}
+
+// A batch of encrypted Observations with common metadata.
+// The Observations are encrypted to the public key of an Analyzer so the
+// Shuffler cannot read them. |Observation| is defined in Cobalt's
+// observation.proto.
+//
+// ObservationBatches are used for both input to and output from the Shuffler.
+// As input they are organized into Envelopes, each Envelope coming from some
+// client device. |Envelope| is defined in Cobalt's envelope.proto.
+//
+// The output from the Shuffler consists of shuffled
+// ObservationBatches, each ObservationBatch consisting of Observations
+// from many clients.
+//
+message ObservationBatch {
+  // The common Metadata for all of the encrypted observations in this batch.
+  ObservationMetadata meta_data = 1;
+
+  // Each EncryptedMessage contains the ciphertext of an Observation that has
+  // been encrypted to the public key of the Analyzer.
+  repeated EncryptedMessage encrypted_observation = 2;
+}

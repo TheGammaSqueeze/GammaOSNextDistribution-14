@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="role_dialer_request_description" msgid="6188305064871543419">"ଆପଣଙ୍କୁ ବିଜ୍ଞପ୍ତିଗୁଡ଼ିକ ପଠାଇବା ପାଇଁ ଏହି ଆପକୁ ଅନୁମତି ଦିଆଯିବ ଏବଂ ଏହାକୁ ଆପଣଙ୍କ କ୍ୟାମେରା, ଯୋଗାଯୋଗ, ମାଇକ୍ରୋଫୋନ, ଫୋନ ଏବଂ SMSକୁ ଆକ୍ସେସ ଦିଆଯିବ"</string>
+    <string name="role_sms_request_description" msgid="1506966389698625395">"ଆପଣଙ୍କୁ ବିଜ୍ଞପ୍ତିଗୁଡ଼ିକ ପଠାଇବା ପାଇଁ ଏହି ଆପକୁ ଅନୁମତି ଦିଆଯିବ ଏବଂ ଏହାକୁ ଆପଣଙ୍କ କ୍ୟାମେରା, ଯୋଗାଯୋଗ, ଫାଇଲ, ମାଇକ୍ରୋଫୋନ, ଫୋନ ଏବଂ SMSକୁ ଆକ୍ସେସ ଦିଆଯିବ"</string>
+    <string name="permission_description_summary_storage" msgid="1917071243213043858">"ଏହି ଅନୁମତି ଥିବା ଆପ୍ସ ଏଇ ଡିଭାଇସରେ ସମସ୍ତ ଫାଇଲକୁ ଆକ୍ସେସ କରିପାରିବ"</string>
+    <string name="work_policy_title" msgid="832967780713677409">"ଆପଣଙ୍କ ୱାର୍କ ନୀତି ସୂଚନା"</string>
+    <string name="work_policy_summary" msgid="3886113358084963931">"ଆପଣଙ୍କ IT ଆଡମିନଙ୍କ ଦ୍ୱାରା ପରିଚାଳିତ ସେଟିଂସ"</string>
+    <string name="safety_center_entry_group_expand_action" msgid="5358289574941779652">"ତାଲିକାକୁ ବିସ୍ତାର କରି ଦେଖାନ୍ତୁ"</string>
+    <string name="safety_center_entry_group_collapse_action" msgid="1525710152244405656">"ତାଲିକାକୁ ସଙ୍କୁଚିତ କରି ସେଟିଂସକୁ ଲୁଚାନ୍ତୁ"</string>
+    <string name="safety_center_entry_group_content_description" msgid="7048420958214443333">"ତାଲିକା। <xliff:g id="ENTRY_TITLE">%1$s</xliff:g>। <xliff:g id="ENTRY_SUMMARY">%2$s</xliff:g>"</string>
+    <string name="safety_center_entry_group_with_actions_needed_content_description" msgid="2708884606775932657">"ତାଲିକା। <xliff:g id="ENTRY_TITLE">%1$s</xliff:g>। ପଦକ୍ଷେପ ନେବା ଆବଶ୍ୟକ। <xliff:g id="ENTRY_SUMMARY">%2$s</xliff:g>"</string>
+    <string name="safety_center_entry_group_item_content_description" msgid="7348298582877249787">"ତାଲିକା ଆଇଟମ। <xliff:g id="ENTRY_ITEM_TITLE">%1$s</xliff:g>। <xliff:g id="ENTRY_ITEM_SUMMARY">%2$s</xliff:g>"</string>
+    <string name="safety_center_entry_content_description" msgid="3639565652938224321">"<xliff:g id="ENTRY_ITEM_TITLE">%1$s</xliff:g>। <xliff:g id="ENTRY_ITEM_SUMMARY">%2$s</xliff:g>"</string>
+    <string name="safety_center_more_issues_card_title" msgid="7425844746197493312">"ଅଧିକ ଆଲର୍ଟ"</string>
+    <string name="safety_center_dismissed_issues_card_title" msgid="2340129842725145733">"ଖାରଜ କରାଯାଇଥିବା ଆଲର୍ଟଗୁଡ଼ିକ"</string>
+    <string name="safety_center_more_issues_card_expand_action" msgid="7109451851052272946">"{count,plural, =1{ବିସ୍ତାର କରି ଆଉ ଗୋଟିଏ ଆଲର୍ଟ ଦେଖନ୍ତୁ}other{ବିସ୍ତାର କରି ଆଉ #ଟି ଆଲର୍ଟ ଦେଖନ୍ତୁ}}"</string>
+    <string name="safety_center_issue_card_prefix_content_description" msgid="1447445289637043544">"ଆଲର୍ଟ। <xliff:g id="ISSUE_CARD_TITLE">%1$s</xliff:g>"</string>
+    <string name="safety_center_resolved_issue_fallback" msgid="8548932070610766651">"କାର୍ଯ୍ୟ ସମୂର୍ଣ୍ଣ ହୋଇଛି"</string>
+    <string name="safety_center_qs_status_summary" msgid="5193925895830451177">"ଆପଣଙ୍କ ଡିଭାଇସରେ ସୁରକ୍ଷା ଯୋଗ କରୁଥିବା ସେଟିଂସକୁ ଦେଖନ୍ତୁ"</string>
+    <string name="safety_center_qs_page_landing" msgid="1717368301679228128">"ସୁରକ୍ଷା ଏବଂ ଗୋପନୀୟତା କ୍ୱିକ ସେଟିଂସ"</string>
+    <string name="safety_center_qs_close_button" msgid="1352313308176244599">"ବନ୍ଦ କରନ୍ତୁ"</string>
+    <string name="safety_center_qs_expand_action" msgid="2193190557696484169">"ବିସ୍ତାର କରି ବିକଳ୍ପଗୁଡ଼ିକ ଦେଖାନ୍ତୁ"</string>
+    <string name="safety_center_qs_collapse_action" msgid="5809657430125309183">"ସଙ୍କୁଚିତ କରନ୍ତୁ"</string>
+    <string name="safety_center_qs_privacy_control" msgid="1160682635058529673">"ସ୍ୱିଚ କରନ୍ତୁ। <xliff:g id="PRIVACY_CONTROL_TITLE">%1$s</xliff:g>। <xliff:g id="PRIVACY_CONTROL_STATUS">%2$s</xliff:g>"</string>
+    <string name="safety_center_qs_toggle_action" msgid="5920465736488119255">"ଟୋଗଲ କରନ୍ତୁ"</string>
+    <string name="safety_center_qs_open_action" msgid="2760200829912423728">"ଖୋଲନ୍ତୁ"</string>
+    <string name="safety_center_review_settings_button" msgid="938981137942443930">"ସେଟିଂସର ସମୀକ୍ଷା କରନ୍ତୁ"</string>
+    <string name="safety_center_gear_label" msgid="5175877094379694098">"ସେଟିଂସ"</string>
+    <string name="safety_center_info_label" msgid="8993181584061825412">"ସୂଚନା"</string>
+</resources>

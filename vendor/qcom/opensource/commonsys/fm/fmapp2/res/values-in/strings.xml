@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (c) 2009, 2011-2013 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2014-2015 The CyanogenMod Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *    * Neither the name of The Linux Foundation nor
+ *      the names of its contributors may be used to endorse or promote
+ *      products derived from this software without specific prior written
+ *      permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NON-INFRINGEMENT ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Radio FM</string>
+    <string name="tx_app_name">Pemancar FM</string>
+    <string name="menu_scan_start">Cari</string>
+    <string name="menu_scan_stop">Hentikan pencarian</string>
+    <string name="menu_record_start">Rekam</string>
+    <string name="menu_record_stop">Hentikan merekam</string>
+    <string name="menu_settings">Pengaturan</string>
+    <string name="menu_sleep">Tidur</string>
+    <string name="menu_sleep_cancel">Batalkan tidur</string>
+    <string name="menu_all_channels">Semua saluran</string>
+    <string name="menu_display_tags">Tampilkan tag</string>
+    <string name="button_text_stop">Hentikan</string>
+    <string name="msg_seeking">Mencari stasiun FM\u2026</string>
+    <string name="msg_scanning">Mencari semua stasiun FM\u2026</string>
+    <string name="msg_scanning_pty">Mencari untuk \'<xliff:g id="pty_name">%1$s</xliff:g>\'\u2026</string>
+    <string name="msg_search_title"><xliff:g id="frequency_string">%1$s</xliff:g> MHz</string>
+    <string name="msg_searching_title">Otomatis-memilih preset</string>
+    <string name="msg_searching">Mencari stasiun yang kuat untuk membuat daftar preset\u2026</string>
+    <string name="msg_noantenna">Silakan hubungkan headset untuk menggunakan radio FM</string>
+    <string name="dialog_sleep_title">Waktu tidur mati-otomatis</string>
+    <string name="presetlist_select_name">Pilih \'<xliff:g id="presetlist_name">%1$s</xliff:g>\'</string>
+    <string name="presetlist_add_new">Tambah daftar baru</string>
+    <string name="dialog_presetlist_rename_title">Masukkan nama</string>
+    <string name="presetlist_autoselect_title">Konfirmasi seleksi-otomatis</string>
+    <string name="preset_replace">Ganti</string>
+    <string name="preset_tune">Putar</string>
+    <string name="preset_rename">Ubah Nama</string>
+    <string name="preset_delete">Hapus</string>
+    <string name="preset_search">Mencari \'<xliff:g id="preset_pi">%1$s</xliff:g>\'</string>
+    <string name="stat_notif_frequency">\'<xliff:g id="frequency">%1$s</xliff:g>\' MHz</string>
+    <string name="regional_band">Pita regional</string>
+    <string name="regional_band_entry_north_america">Amerika Utara</string>
+    <string name="regional_band_entry_europe">Eropa</string>
+    <string name="regional_band_entry_japan">Jepang</string>
+    <string name="regional_band_entry_japan_wide">Jepang (luas)</string>
+    <string name="regional_band_entry_australia">Australia</string>
+    <string name="regional_band_entry_austria">Austria</string>
+    <string name="regional_band_entry_belgium">Belgia</string>
+    <string name="regional_band_entry_brazil">Brasil</string>
+    <string name="regional_band_entry_china">Tiongkok</string>
+    <string name="regional_band_entry_czech_republic">Republik Ceko</string>
+    <string name="regional_band_entry_denmark">Denmark</string>
+    <string name="regional_band_entry_finland">Finlandia</string>
+    <string name="regional_band_entry_france">Perancis</string>
+    <string name="regional_band_entry_germany">Jerman</string>
+    <string name="regional_band_entry_greece">Yunani</string>
+    <string name="regional_band_entry_hong_kong">Hong Kong</string>
+    <string name="regional_band_entry_india">India</string>
+    <string name="regional_band_entry_indonesia">Indonesia</string>
+    <string name="regional_band_entry_ireland">Irlandia</string>
+    <string name="regional_band_entry_italy">Italia</string>
+    <string name="regional_band_entry_korea">Korea</string>
+    <string name="regional_band_entry_mexico">Meksiko</string>
+    <string name="regional_band_entry_netherlands">Belanda</string>
+    <string name="regional_band_entry_new_zealand">Selandia Baru</string>
+    <string name="regional_band_entry_norway">Norwegia</string>
+    <string name="regional_band_entry_poland">Polandia</string>
+    <string name="regional_band_entry_portugal">Portugal</string>
+    <string name="regional_band_entry_russia">Rusia</string>
+    <string name="regional_band_entry_singapore">Singapura</string>
+    <string name="regional_band_entry_slovakia">Slowakia</string>
+    <string name="regional_band_entry_spain">Sepanyol</string>
+    <string name="regional_band_entry_switzerland">Swiss</string>
+    <string name="regional_band_entry_sweden">Swedia</string>
+    <string name="regional_band_entry_taiwan">Taiwan</string>
+    <string name="regional_band_entry_turkey">Turki</string>
+    <string name="regional_band_entry_united_kingdom">Inggris</string>
+    <string name="regional_band_entry_united_states">Amerika Serikat</string>
+    <string name="regional_band_entry_user_defined">Pita disesuikan pengguna</string>
+    <string name="regional_band_summary_north_america">Amerika Utara (87.5 sampai 108.0. MHz di 200 kHz)</string>
+    <string name="regional_band_summary_europe">Eropa (87.5 sampai 108.0 MHz di 100 kHz)</string>
+    <string name="regional_band_summary_japan">Jepang (76.0 sampai 90.0 MHz di 100 kHz)</string>
+    <string name="regional_band_summary_japan_wide">Jepang (luas) (90,0 sampai 108.0 MHz di 50 kHz)</string>
+    <string name="regional_band_summary_australia">Australia (87.7 sampai 108.0 MHz di 100 kHz)</string>
+    <string name="regional_band_summary_austria">Austria (87.5 sampai 108.0 MHz di 50 kHz)</string>
+    <string name="regional_band_summary_belgium">Belgia (87,5 sampai 108,0 MHz di 100 kHz)</string>
+    <string name="regional_band_summary_brazil">Brasil (87.5 sampai 108.0 MHz di 200 kHz)</string>
+    <string name="regional_band_summary_china">Tiongkok (87,0 sampai 108,0 MHz di 100 kHz)</string>
+    <string name="regional_band_summary_czech_republic">Republik Ceko (87,5 sampai 108,0 MHz di 100 kHz)</string>
+    <string name="regional_band_summary_denmark">Denmark (87.5 sampai 108.0 MHz di 50 kHz)</string>
+    <string name="regional_band_summary_finland">Finlandia (87.5 sampai 108.0 MHz di 100 kHz)</string>
+    <string name="regional_band_summary_france">Prancis (87.5 sampai 108.0 MHz di 100 kHz)</string>
+    <string name="regional_band_summary_germany">Jerman (87.5 sampai 108.0 MHz di 50 kHz)</string>
+    <string name="regional_band_summary_greece">Yunani (87.5 sampai 108.0 MHz di 50 kHz)</string>
+    <string name="regional_band_summary_hong_kong">Hong Kong (87.5 sampai 108.0 MHz di 100 kHz)</string>
+    <string name="regional_band_summary_india">India (87.5 sampai 108.0 MHz di 100 kHz)</string>
+    <string name="regional_band_summary_indonesia">Indonesia (87.5 sampai 108.0 MHz di 100 kHz)</string>
+    <string name="regional_band_summary_ireland">Irlandia (87.5 sampai 108.0 MHz di 50 kHz)</string>
+    <string name="regional_band_summary_italy">Italia (87.5 sampai 108.0 MHz di 50 kHz)</string>
+    <string name="regional_band_summary_korea">Korea (87.5 sampai 108.0 MHz di 200 kHz)</string>
+    <string name="regional_band_summary_mexico">Meksiko (88,1 sampai 107,9 di 200 kHz)</string>
+    <string name="regional_band_summary_netherlands">Belanda (87.5 sampai 108.0 MHz di 100 kHz)</string>
+    <string name="regional_band_summary_new_zealand">Selandia Baru (88.0 sampai 107.0 MHz di 100 kHz)</string>
+    <string name="regional_band_summary_norway">Norwegia (87.5 sampai 108.0 MHz di 100 kHz)</string>
+    <string name="regional_band_summary_poland">Polandia (87.5 sampai 108.0 MHz di 100 kHz)</string>
+    <string name="regional_band_summary_portugal">Portugal (87.5 sampai 108.0 MHz di 50 kHz)</string>
+    <string name="regional_band_summary_russia">Rusia (87.5 sampai 108.0 MHz di 100 kHz)</string>
+    <string name="regional_band_summary_singapore">Singapura (88.0 sampai 108.0 MHz di 100 kHz)</string>
+    <string name="regional_band_summary_slovakia">Slowakia (87.5 sampai 108.0 MHz di 100 kHz)</string>
+    <string name="regional_band_summary_spain">Spanyol (87.5 sampai 108.0 MHz di 100 kHz)</string>
+    <string name="regional_band_summary_switzerland">Swiss (87.5 sampai 108.0 MHz di 100 kHz)</string>
+    <string name="regional_band_summary_sweden">Swedia (87.5 sampai 108.0 MHz di 100 kHz)</string>
+    <string name="regional_band_summary_taiwan">Taiwan (87.5 sampai 108.0 MHz di 100 kHz)</string>
+    <string name="regional_band_summary_turkey">Turki (87.5 sampai 108.0 MHz di 100 kHz)</string>
+    <string name="regional_band_summary_united_kingdom">Inggris (87.5 sampai 108.0 MHz di 100 kHz)</string>
+    <string name="regional_band_summary_united_states">Amerika Serikat (88,1 sampai 107,9 MHz di 200 kHz)</string>
+    <string name="regional_band_summary_user_defined">Pita disesuikan pengguna</string>
+    <string name="aud_output_mode">Modus output audio</string>
+    <string name="audio_type_stereo">Stereo</string>
+    <string name="audio_type_mono">Mono</string>
+    <string name="record_dur">Durasi rekaman</string>
+    <string name="auto_select_af">Frekuensi alternatif</string>
+    <string name="settings_revert_defaults_title">Kembalikan ke pengaturan pabrik</string>
+    <string name="settings_revert_defaults_summary">Kembalikan semua pengaturan</string>
+    <string name="settings_revert_confirm_title">Konfirmasi pratayang</string>
+    <string name="settings_revert_confirm_msg">Ini akan menghapus semua pengaturan aplikasi, termasuk preset yang tersimpan. Lanjutkan?</string>
+    <string name="no_storage">Pasang kartu SD sebelum memulai rekaman.</string>
+    <string name="preparing_sd">Menyiapkan kartu SD</string>
+    <string name="access_sd_fail">Tidak dapat mengakses kartu SD.</string>
+    <string name="spaceIsLow_content">Kartu SD Anda kehabisan ruang penyimpanan. Ubah pengaturan kualitas atau hapus beberapa berkas lain untuk membebaskan ruang penyimpanan.</string>
+    <string name="FMRecording_reach_size_limit">Batas ukuran tercapai.</string>
+    <string name="menu_scan_for_preset">Cari preset</string>
+    <string name="fm_off">FM dimatikan.</string>
+    <string name="fm_call">FM tidak dapat digunakan saat melakukan panggilan.</string>
+    <string name="alert_dialog_hint">Masukkan nama</string>
+    <string name="search_dialog_title">Cari stasiun</string>
+    <string name="fm_command_timeout_title">Batas waktu</string>
+    <string name="fm_tune_timeout_msg">Tidak ada tanggapan diterima saat mencari stasiun FM. Jika masalah berlanjut, silahkan matikan FM dan menghidupkannya kembali.</string>
+    <string name="fm_command_failed_title">Pengoperasian FM gagal</string>
+    <string name="fm_cmd_failed_msg">Pengoperasian FM gagal. Jika masalah berlanjut, silahkan matikan FM dan menghidupkannya kembali.</string>
+    <string name="fm_cmd_failed_msg_hdmi">Pengoperasian FM gagal. Pengoperasian FM dan HDMI secara bersamaan tidak didukung.</string>
+    <string name="fm_cmd_failed_call_on">Pengoperasian FM gagal. Audio FM tidak diizinkan selama panggilan.</string>
+    <string name="audio_db_title_format"><xliff:g id="format">dd-MM-yyyy- HH:mm:ss</xliff:g></string>
+    <string name="audio_db_artist_name">Rekaman FM saya</string>
+    <string name="audio_db_album_name">Rekaman FM</string>
+    <string name="audio_db_playlist_name">Rekaman FM</string>
+    <string name="station_name">Stasiun:</string>
+    <string name="station_exists">Frekuensi ini sudah ada!</string>
+    <string name="station_list_delete_station">Hapus: <xliff:g id="name">%s</xliff:g></string>
+    <string name="station_list_delete_station_prompt">Yakin akan menghapus \'<xliff:g id="name">%s</xliff:g>\'?</string>
+    <string name="station_name_empty">Nama stasiun kosong, silakan masukkan kembali.</string>
+    <string name="station_name_exist">\' <xliff:g id="name">%s\'</xliff:g> sudah digunakan, masukkan nama yang berbeda.</string>
+    <string name="rt_plus_tags">Tag</string>
+    <string name="usr_def_band_min">Frekuensi terendah (MHz)</string>
+    <string name="usr_def_band_max">Frekuensi tertinggi (MHz)</string>
+    <string name="chanl_spacing">Lebar saluran</string>
+    <string name="set">Atur</string>
+    <string name="user_defind_band_msg">Masukkan frekuensi di antara 76,0 dan 108,0 MHz, dengan minimum 1 spasi kanal (channel spacing) dan jarak di antara frekuensi minimal dan maksimal sebesar 100 kHz</string>
+    <string name="save_record_file">Berkas rekaman FM disimpan di \'<xliff:g id="record_file">%1$s</xliff:g>\'</string>
+    <string name="fm_search_no_results">Tidak ada stasiun kompatibel yang ditemukan</string>
+    <string name="typ_All_stations">Semua stasiun</string>
+    <string name="typ_Culture">Budaya</string>
+    <string name="typ_Current_affairs">Berita terkini</string>
+    <string name="typ_Children">Program anak</string>
+    <string name="typ_Country">Musik country</string>
+    <string name="typ_Documentary">Dokumenter</string>
+    <string name="typ_Drama">Drama</string>
+    <string name="typ_Easy_listening">Enak didengar</string>
+    <string name="typ_Education">Edukasi</string>
+    <string name="typ_Emergency">Darurat</string>
+    <string name="typ_Emergency_test">Tes darurat</string>
+    <string name="typ_Finance">Keuangan</string>
+    <string name="typ_Folk">Musik rakyat</string>
+    <string name="typ_Information">Informasi</string>
+    <string name="typ_Jazz">Musik jazz</string>
+    <string name="typ_Light_classical">Klasik ringan</string>
+    <string name="typ_Leisure">Rekreasi</string>
+    <string name="typ_News">Berita</string>
+    <string name="typ_National">Musik nasional</string>
+    <string name="typ_Other">Musik yang lainnya</string>
+    <string name="typ_Oldies">Musik lawas</string>
+    <string name="typ_Phone_in">Telepon masuk</string>
+    <string name="typ_Pop">Musik pop</string>
+    <string name="typ_Religion">Religi</string>
+    <string name="typ_Rock">Musik rock</string>
+    <string name="typ_Science">Ilmu pengetahuan</string>
+    <string name="typ_Serious_classical">Klasik serius</string>
+    <string name="typ_Social_affairs">Urusan sosial</string>
+    <string name="typ_Sport">Olahraga</string>
+    <string name="typ_Travel">Perjalanan</string>
+    <string name="typ_Varied">Bervariasi</string>
+    <string name="typ_Weather">Cuaca</string>
+    <string name="typ_Adult_hits">Hit dewasa</string>
+    <string name="typ_Classical">Klasik</string>
+    <string name="typ_Classic_Rock">Rock klasik</string>
+    <string name="typ_College">Perguruan tinggi</string>
+    <string name="typ_Foreign_language">Bahasa asing</string>
+    <string name="typ_Hiphop">Hip Hop</string>
+    <string name="typ_Nostalgia">Nostalgia</string>
+    <string name="typ_Personality">Kepribadian</string>
+    <string name="typ_Public">Umum</string>
+    <string name="typ_Religious_music">Musik religi</string>
+    <string name="typ_Religious_talk">Bincang religi</string>
+    <string name="typ_Rhythm_and_Blues">Rhythm dan Blues</string>
+    <string name="typ_Spanish_music">Musik Spanyol</string>
+    <string name="typ_Spanish_talk">Obrolan Spanyol</string>
+    <string name="typ_Soft">Santai</string>
+    <string name="typ_Soft_Rock">Rock santai</string>
+    <string name="typ_Soft_Rhythm_and_Blues">Rhythm santai dan Blues santai</string>
+    <string name="typ_Sports">Olahraga</string>
+    <string name="typ_Talk">Perbincangan</string>
+    <string name="typ_Top_40">40 teratas</string>
+</resources>

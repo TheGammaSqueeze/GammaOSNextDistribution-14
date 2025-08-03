@@ -1,0 +1,84 @@
+// Copyright (C) 2020 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// A library to parse kernel versions, including kernel releases and KMI versions.
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_defaults {
+    name: "libkver-defaults",
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+}
+
+cc_library_static {
+    name: "libkver",
+    host_supported: true,
+    recovery_available: true,
+    defaults: ["libkver-defaults"],
+    export_include_dirs: ["include"],
+    shared_libs: [
+        "libbase",
+        "liblog",
+    ],
+    srcs: [
+        "kernel_release.cpp",
+        "kmi_version.cpp",
+        "utils.cpp",
+    ],
+}
+
+cc_test {
+    name: "libkver_test",
+    defaults: ["libkver-defaults"],
+    host_supported: true,
+    static_libs: [
+        "libkver",
+    ],
+    shared_libs: [
+        "libbase",
+        "liblog",
+    ],
+    test_suites: [
+        "general-tests",
+    ],
+    srcs: [
+        "test.cpp",
+    ],
+}
+
+cc_fuzz {
+    name: "libkver_fuzzer",
+    dictionary: "fuzzer.dict",
+    corpus: ["corpus/*"],
+    host_supported: true,
+    fuzz_config: {
+        cc: ["android-systems-team+bugs@google.com"],
+        componentid: 30545, // Android Systems
+        hotlists: ["2515285"], // gki-updates
+        fuzz_on_haiku_host: true,
+        fuzz_on_haiku_device: false,
+    },
+    static_libs: [
+        "libbase",
+        "libkver",
+        "liblog",
+    ],
+    srcs: [
+        "fuzzer.cpp",
+    ],
+}

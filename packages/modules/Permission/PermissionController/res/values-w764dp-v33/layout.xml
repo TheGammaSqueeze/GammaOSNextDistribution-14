@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="action_button_list_responsive" type="layout">
+        @layout/action_button_list_large_screen
+    </item>
+</resources>

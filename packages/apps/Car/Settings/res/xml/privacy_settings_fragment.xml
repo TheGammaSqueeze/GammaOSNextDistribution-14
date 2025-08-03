@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright 2020 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:settings="http://schemas.android.com/apk/res-auto"
+    android:title="@string/privacy_settings_title"
+    android:key="@string/psk_privacy_settings">
+
+    <Preference
+        android:fragment="com.android.car.settings.privacy.MicrophoneSettingsFragment"
+        android:key="@string/pk_mute_mic_switch"
+        android:title="@string/mute_mic_title"
+        android:summary="@string/mute_mic_summary"
+        android:icon="@drawable/privacy_mic"
+        settings:controller="com.android.car.settings.privacy.MicPreferenceController"/>
+
+    <Preference
+        android:fragment="com.android.car.settings.privacy.CameraSettingsFragment"
+        android:key="@string/pk_mute_camera_switch"
+        android:title="@string/mute_camera_title"
+        android:summary="@string/mute_camera_summary"
+        android:icon="@drawable/privacy_camera"
+        settings:controller="com.android.car.settings.privacy.CameraPreferenceController"/>
+
+    <Preference
+        android:fragment="com.android.car.settings.location.LocationSettingsFragment"
+        android:key="@string/pk_location_settings_entry"
+        android:title="@string/location_settings_title"
+        android:summary="@string/privacy_location_summary"
+        android:icon="@drawable/privacy_location"
+        settings:controller="com.android.car.settings.common.DefaultRestrictionsPreferenceController"/>
+
+    <Preference
+        android:key="@string/pk_privacy_manage_perms"
+        android:title="@string/app_permissions"
+        android:summary="@string/app_permissions_summary"
+        android:icon="@drawable/privacy_app_permissions"
+        settings:controller="com.android.car.settings.common.DefaultRestrictionsPreferenceController">
+        <intent android:action="android.permission.action.REVIEW_PERMISSION_DECISIONS"/>
+    </Preference>
+
+    <Preference
+        android:fragment="com.android.car.settings.privacy.VehicleDataFragment"
+        android:key="@string/pk_vehicle_data"
+        android:summary="@string/vehicle_data_summary"
+        android:title="@string/vehicle_data_title"
+        android:icon="@drawable/privacy_vehicle_data"
+        settings:controller="com.android.car.settings.common.DefaultRestrictionsPreferenceController"/>
+
+    <com.android.car.settings.common.LogicalPreferenceGroup
+        android:key="@string/pk_privacy_extra_settings"
+        settings:controller="com.android.car.settings.common.ExtraSettingsPreferenceController">
+        <intent>
+            <extra android:name="com.android.settings.category"
+                   android:value="com.android.settings.category.ia.privacy"/>
+        </intent>
+    </com.android.car.settings.common.LogicalPreferenceGroup>
+
+    <!--  NOTE: must be multi-line as it uses the app label, whose size is undefined -->
+    <Preference
+        android:key="@string/pk_privacy_work_policy"
+        android:title="@string/work_policy_privacy_settings_no_org_name"
+        android:summary="@string/work_policy_privacy_settings_summary"
+        android:icon="@drawable/ic_corp_icon"
+        settings:controller="com.android.car.settings.enterprise.WorkPolicyInfoPreferenceController"
+        settings:singleLineTitle="false">
+    </Preference>
+
+</PreferenceScreen>

@@ -1,0 +1,401 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2015 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="audio_channel_mono">mono</string>
+    <string name="audio_channel_stereo">stereo</string>
+    <string name="menu_title_play_controls">Controi di riproduzion</string>
+    <string name="menu_title_channels">Canâi</string>
+    <string name="menu_title_options">Opzions TV</string>
+    <string name="play_controls_unavailable">Controi di riproduzion no disponibii par chest canâl</string>
+    <string name="play_controls_description_play_pause">Riprodûs o met in pause</string>
+    <string name="play_controls_description_fast_forward">Avanze svelt</string>
+    <string name="play_controls_description_fast_rewind">Involuce</string>
+    <string name="play_controls_description_skip_next">Indenant</string>
+    <string name="play_controls_description_skip_previous">Indaûr</string>
+    <string name="channels_item_program_guide">Vuide ai programs</string>
+    <string name="channels_item_up">Canâl sù</string>
+    <string name="channels_item_down">Canâl jù</string>
+    <string name="channels_item_setup">Gnûfs canâi disponibii</string>
+    <string name="channels_item_app_link_app_launcher">Vierç <xliff:g id="app_name" example="YouTube">%1$s</xliff:g></string>
+    <string name="options_item_closed_caption">Sottitui</string>
+    <string name="options_item_display_mode">Mût visualizazion</string>
+    <string name="options_item_pip">PIP</string>
+    <string name="options_item_multi_audio">Multi-audio</string>
+    <string name="options_item_more_channels">Oten plui canâi</string>
+    <string name="options_item_settings">Impostazions</string>
+    <string name="input_long_label_for_tuner">TV (antene/cabli)</string>
+    <string name="no_program_information">Nissune informazion sul program</string>
+    <string name="program_title_for_no_information">Nissune informazion</string>
+    <string name="program_title_for_blocked_channel">Canâl blocât</string>
+    <string name="multi_audio_unknown_language">Lenghe no cognossude</string>
+    <string name="closed_caption_unknown_language">Sottitui par <xliff:g id="unknown_language_index" example="1">%1$d</xliff:g></string>
+    <string name="side_panel_title_closed_caption">Sottitui</string>
+    <string name="closed_caption_option_item_off">Off</string>
+    <string name="closed_caption_system_settings">Personalize formatazion</string>
+    <string name="closed_caption_system_settings_description">Stabilìs lis preferencis a nivel di sisteme pai sottitui</string>
+    <string name="side_panel_title_display_mode">Modalitât di visualizazion</string>
+    <string name="side_panel_title_multi_audio">Multi-audio</string>
+    <string name="multi_audio_channel_mono">mono</string>
+    <string name="multi_audio_channel_stereo">stereo</string>
+    <string name="multi_audio_channel_surround_6">5.1 surround</string>
+    <string name="multi_audio_channel_surround_8">7.1 surround</string>
+    <string name="multi_audio_channel_suffix"><xliff:g id="audio_channel_count" example="5">%d</xliff:g> canâi</string>
+    <string name="side_panel_title_edit_channels_for_an_input">Personalize la liste dai canâi</string>
+    <string name="edit_channels_item_select_group">Selezione grup</string>
+    <string name="edit_channels_item_deselect_group">Deselezione grup</string>
+    <string name="edit_channels_item_group_by">Met dongje par</string>
+    <string name="edit_channels_group_by_sources">Sorzint dal canâl</string>
+    <string name="edit_channels_group_by_hd_sd">HD/SD</string>
+    <string name="edit_channels_group_divider_for_hd">HD</string>
+    <string name="edit_channels_group_divider_for_sd">SD</string>
+    <string name="side_panel_title_group_by">Met dongje par</string>
+    <string name="program_guide_content_locked">Chest program al è blocât</string>
+    <string name="program_guide_content_locked_unrated">Chest program nol è classificât</string>
+    <string name="program_guide_content_locked_format">Chest program al è classificât <xliff:g id="rating" example="TV_MA">%1$s</xliff:g></string>
+    <string name="msg_no_setup_activity">La jentrade no supuarte la ricercje automatiche</string>
+    <string name="msg_unable_to_start_setup_activity">Impussibil inviâ la ricercje automatiche par \'<xliff:g id="tv_input" example="Built-in Tuner">%s</xliff:g>\'</string>
+    <string name="msg_unable_to_start_system_captioning_settings">Impussibil inviâ lis preferencis a nivel di sisteme pai sottitui.</string>
+    <plurals name="msg_channel_added">
+        <item quantity="one">%1$d canâl zontât</item>
+        <item quantity="other">%1$d canâi zontâts</item>
+    </plurals>
+    <string name="msg_no_channel_added">Nissun canâl zontât</string>
+    <string name="menu_parental_controls">Controi parentâi</string>
+    <string name="option_toggle_parental_controls_on">On</string>
+    <string name="option_toggle_parental_controls_off">Off</string>
+    <string name="option_channels_locked">Canâi blocâts</string>
+    <string name="option_channels_lock_all">Bloche dut</string>
+    <string name="option_channels_unlock_all">Sbloche dut</string>
+    <string name="option_channels_subheader_hidden">Canâi platâts</string>
+    <string name="option_program_restrictions">Limitazions programs</string>
+    <string name="option_change_pin">Cambie PIN</string>
+    <string name="option_country_rating_systems">Classificazions</string>
+    <string name="option_ratings">Classificazions</string>
+    <string name="option_see_all_rating_systems">Viôt dutis lis classificazions</string>
+    <string name="other_countries">Altris paîs</string>
+    <string name="option_no_locked_channel">Nissun</string>
+    <string name="option_no_enabled_rating_system">Nissune</string>
+    <string name="unrated_rating_name">Cence classificazion</string>
+    <string name="option_block_unrated_programs">Bloche progr. cence classific.</string>
+    <string name="option_rating_none">Nissune</string>
+    <string name="option_rating_high">Limitazions altis</string>
+    <string name="option_rating_medium">Limitazions mediis</string>
+    <string name="option_rating_low">Limitazions bassis</string>
+    <string name="option_rating_custom">Personalizade</string>
+    <string name="option_rating_high_description">Contignût adat ai fruts</string>
+    <string name="option_rating_medium_description">Contignût adat ai fruts plui grancj</string>
+    <string name="option_rating_low_description">Contignût adat ai fantats</string>
+    <string name="option_rating_custom_description">Limitazions manuâls</string>
+    <string name="option_attribution">Origjins pes descrizions des classificazions</string>
+    <string name="option_subrating_title">%1$s e sot-classificazions</string>
+    <string name="option_subrating_header">Classificazions secondariis</string>
+    <string name="pin_enter_unlock_channel">Inserìs il to PIN par cjalâ chest canâl</string>
+    <string name="pin_enter_unlock_program">Inserìs il to PIN par cjalâ chest program</string>
+    <string name="pin_enter_unlock_dvr">Chest program al è classificât <xliff:g id="rating" example="TV_MA">%1$s</xliff:g>. Inserìs il to PIN par viodi chest program</string>
+    <string name="pin_enter_unlock_dvr_unrated">Chest program nol è classificât. Inserìs il to PIN par cjalâ chest program</string>
+    <string name="pin_enter_pin">Inserìs il to PIN</string>
+    <string name="pin_enter_create_pin">Par configurâ i controi parentâi, cree un PIN</string>
+    <string name="pin_enter_new_pin">Inserìs un gnûf PIN</string>
+    <string name="pin_enter_again">Conferme il to PIN</string>
+    <string name="pin_enter_old_pin">Inserìs il to PIN atuâl</string>
+    <plurals name="pin_enter_countdown">
+        <item quantity="one">Tu âs inserît un PIN sbaliât par 5 voltis.\nTorne prove ca di<xliff:g id="remaining_seconds" example="1">%1$d</xliff:g> secont.</item>
+        <item quantity="other">Tu âs inserît un PIN sbaliât par 5 voltis.\nTorne prove ca di <xliff:g id="remaining_seconds" example="60">%1$d</xliff:g> seconts.</item>
+    </plurals>
+    <string name="pin_toast_wrong">Chel PIN al jere sbaliât. Torne prove.</string>
+    <string name="pin_toast_not_match">Torne prove, il PIN nol corispuint</string>
+    <string name="side_panel_title_settings">Impostazions</string>
+    <string name="settings_channel_source_item_customize_channels">Personalize la liste dai canâi</string>
+    <string name="settings_channel_source_item_customize_channels_description">Sielç i canâi pe tô vuide ai programs</string>
+    <string name="settings_channel_source_item_setup">Sorzints dai canâi</string>
+    <string name="settings_channel_source_item_setup_new_inputs">Gnûfs canâi disponibii</string>
+    <string name="settings_parental_controls">Controi parentâi</string>
+    <string name="settings_trickplay">Modifiche temporâl</string>
+    <string name="settings_trickplay_description">Regjistre intant che tu cjalis cussì che tu puedis meti in pause o tornâ indaûr sui programs in direte.\nAtenzion: cheste funzion e podarès fâ diminuî la vite de memorie di archiviazion interne, viodût l\'ûs intensîf de memorie.</string>
+    <string name="settings_menu_licenses">Licencis di codiç viert</string>
+    <string name="settings_send_feedback">Mande opinion</string>
+    <string name="settings_menu_version">Version</string>
+    <string name="tvview_channel_locked">Par cjalâ chest canâl, frache Diestre e inserìs il to PIN</string>
+    <string name="tvview_channel_locked_talkback">Par cjalâ chest canâl, frache selezione e inserìs il to PIN</string>
+    <string name="tvview_content_locked">Par cjalâ chest program, frache Diestre e inserìs il to PIN</string>
+    <string name="tvview_content_locked_talkback">Par cjalâ chest program, frache selezione e inserìs il to PIN</string>
+    <string name="tvview_content_locked_unrated">Chest program nol è classificât.\nPar cjalâ chest program, frache Diestre e inserìs il to PIN</string>
+    <string name="tvview_content_locked_unrated_talkback">Chest program nol è classificât.\nPar cjalâ chest program, frache selezione e inserìs il to PIN</string>
+    <string name="tvview_content_locked_format_talkback">Chest program al è classificât <xliff:g id="rating" example="TV_MA">%1$s</xliff:g>.\nPar cjalâ chest program, frache selezione e inserìs il to PIN.</string>
+    <string name="tvview_content_locked_format">Chest program al è classificât <xliff:g id="rating" example="TV_MA">%1$s</xliff:g>.\nPar cjalâ chest program, frache Diestre e inserìs il to PIN.</string>
+    <string name="tvview_channel_locked_no_permission">Par cjalâ chest canâl, doprela aplicazion TV predefinide.</string>
+    <string name="tvview_content_locked_no_permission">Par cjalâ chest program, doprela aplicazion TV predefinide.</string>
+    <string name="tvview_content_locked_unrated_no_permission">Chest program nol è classificât.\nPar cjalâ chest program, dopre la aplicazion TV predefinide.</string>
+    <string name="tvview_content_locked_format_no_permission">Chest program al è classificât <xliff:g id="rating" example="TV_MA">%1$s</xliff:g>.\nPar cjalâ chest program, dopre la aplicazion TV predefinide.</string>
+    <string name="shrunken_tvview_content_locked">Il program al è blocât</string>
+    <string name="shrunken_tvview_content_locked_unrated">Chest program nol è classificât</string>
+    <string name="shrunken_tvview_content_locked_format">Chest program al è classifcât <xliff:g id="rating" example="TV_MA">%1$s</xliff:g></string>
+    <string name="tvview_msg_audio_only">Dome audio</string>
+    <string name="tvview_msg_weak_signal">Segnâl debil</string>
+    <string name="tvview_msg_no_internet_connection">Nissune conession a internet</string>
+    <plurals name="tvview_msg_input_no_resource">
+        <item quantity="one">Nol è pussibil riprodusi chest canâl fin <xliff:g id="end_time" example="9:30 PM">%1$s</xliff:g> parcè che un altri canâl al è in regjistrazion.
+\n\nFrache Diestre par regolâ la planificazion de regjistrazion.</item>
+        <item quantity="other">Nol è pussibil riprodusi chest canâl fin <xliff:g id="end_time" example="9:30 PM">%1$s</xliff:g> parcè che altris canâi a son in regjistrazion.
+\n\nFrache Diestre par regolâ la planificazion de regjistrazion.</item>
+    </plurals>
+    <string name="empty_input_status_title_format"><xliff:g id="input_label" example="HDMI 1">%1$s</xliff:g> - Cence segnâl</string>
+    <string name="empty_input_status_info">Controle la conession o selezione une sorzint di jentrade diferente</string>
+    <string name="input_banner_v2_active_input">Jentrade ative</string>
+    <string name="input_banner_v2_input_label_format"><xliff:g example="HDMI 1" id="label">%1$s</xliff:g> · <xliff:g example="Play Station" id="custom_label">%2$s</xliff:g></string>
+    <string name="channel_banner_no_title">Cence titul</string>
+    <string name="channel_banner_locked_channel_title">Canâl blocât</string>
+    <string name="setup_category_new">Gnovis</string>
+    <string name="setup_category_done">Sorzints</string>
+    <plurals name="setup_input_channels">
+        <item quantity="one">%1$d canâl</item>
+        <item quantity="other">%1$d canâi</item>
+    </plurals>
+    <string name="setup_input_no_channels">Nissun canâl disponibil</string>
+    <string name="setup_input_new">Gnûf</string>
+    <string name="setup_input_setup_now">No configurât</string>
+    <string name="setup_store_action_title">Oten plui sorzints</string>
+    <string name="setup_store_action_description">Eplore lis aplicazions che a ufrissin diretis TV</string>
+    <string name="new_sources_title">Gnovis sorzints di canâi disponibilis</string>
+    <string name="new_sources_description">Gnovis sorzints di canâi disponibilis.\nConfigurilis cumò o fâlu plui indevant te impostazion sorzints di canâi.</string>
+    <string name="new_sources_action_setup">Configure cumò</string>
+    <string name="new_sources_action_skip">Va ben, capît</string>
+    <string name="intro_title">@string/app_name</string>
+    <string name="intro_description"><b>Frache SELEZIONE</b> par acedi al menù de TV.</string>
+    <string name="msg_no_input">Nissune jentrade di TV cjatade</string>
+    <string name="msg_no_specific_input">Impussibil cjatâ la jentrade de TV</string>
+    <string name="msg_not_passthrough_input">Il gjenar di sintonizadôr nol è adat. Invie la aplicazion <xliff:g id="app_name">Live TV</xliff:g> pe jentrade TV di genar sintonizadôr.</string>
+    <string name="msg_tune_failed">Sintonizazion falide</string>
+    <string name="msg_missing_app">No je stade cjatade nissune aplicazion par gjestî cheste azion.</string>
+    <string name="msg_all_channels_hidden">Ducj i canâi de sorzint a son platâts.\nSelezione almancul un canâl di cjalâ.</string>
+    <string name="msg_channel_unavailable_unknown">Il video al è di colp no disponibil</string>
+    <string name="msg_channel_unavailable_not_connected">Assence di segnâl. Controle la conession de sorzint.</string>
+    <string name="msg_back_key_guide">Il tast INDAÛR al è pal dispositîf conetût. Frache il boton INIZI par jessî.</string>
+    <string name="msg_read_tv_listing_permission_denied">La aplicazion <xliff:g id="app_name">Live TV</xliff:g> e à bisugne dal permès par lei lis listis de TV.</string>
+    <string name="dvr_notification_channel_name"><xliff:g id="app_name">Live TV</xliff:g> DVR</string>
+    <string name="dvr_notification_content_title"><xliff:g id="app_name">Live TV</xliff:g> DVR</string>
+    <string name="dvr_notification_content_text_recording"><xliff:g id="app_name">Live TV</xliff:g> in regjistrazion.</string>
+    <string name="dvr_notification_content_text_loading"><xliff:g id="app_name">Live TV</xliff:g> in inzornament des planificazions di regjistrazion.</string>
+    <string name="setup_sources_text">Configure lis tôs sorzints</string>
+    <string name="channels_item_dvr">Regjistrazions e programazions</string>
+    <string name="recording_start_dialog_10_min_duration">10 minûts</string>
+    <string name="recording_start_dialog_30_min_duration">30 minûts</string>
+    <string name="recording_start_dialog_1_hour_duration">1 ore</string>
+    <string name="recording_start_dialog_3_hours_duration">3 oris</string>
+    <string name="dvr_main_recent">Resints</string>
+    <string name="dvr_main_scheduled">Programadis</string>
+    <string name="dvr_main_series">Seriis</string>
+    <string name="dvr_main_others">Altris</string>
+    <string name="dvr_msg_cannot_record_channel">Nol è pussibil regjistrâ il canâl.</string>
+    <string name="dvr_msg_cannot_record_program">Nol è pussibil regjistrâ il program.</string>
+    <string name="dvr_msg_program_scheduled">E je stade programade la regjistrazion di <xliff:g id="programName" example="Big bang theory">%1$s</xliff:g></string>
+    <string name="dvr_msg_current_program_scheduled">Regjistrazion di <xliff:g id="programName" example="Big bang theory">%1$s</xliff:g> di cumò fin <xliff:g id="endTime" example="12:30 PM">%2$s</xliff:g></string>
+    <string name="dvr_history_card_view_title">Cronologjie regjistrazions</string>
+    <string name="dvr_full_schedule_card_view_title">Planificazion complete</string>
+    <string name="dvr_recording_failed">Regjistrazion falide.</string>
+    <string name="dvr_recording_failed_no_period">Regjistrazion falide</string>
+    <string name="dvr_recording_conflict">Conflit di regjistrazion</string>
+    <plurals name="dvr_full_schedule_card_view_content">
+        <item quantity="one">Il prossim (%1$d) dì</item>
+        <item quantity="other">I prossims %1$d dîs</item>
+    </plurals>
+    <plurals name="dvr_program_duration">
+        <item quantity="one">%1$d minût</item>
+        <item quantity="other">%1$d minûts</item>
+    </plurals>
+    <plurals name="dvr_count_new_recordings">
+        <item quantity="one">%1$d gnove regjistrazion</item>
+        <item quantity="other">%1$d gnovis regjistrazions</item>
+    </plurals>
+    <plurals name="dvr_count_recordings">
+        <item quantity="one">%1$d regjistrazion</item>
+        <item quantity="other">%1$d regjistrazions</item>
+    </plurals>
+    <plurals name="dvr_count_scheduled_recordings">
+        <item quantity="one">%1$d regjistrazion programade</item>
+        <item quantity="other">%1$d regjistrazions programadis</item>
+    </plurals>
+    <string name="dvr_detail_schedule_recording">Programe regjistrazion</string>
+    <string name="dvr_detail_cancel_recording">Anule regjistrazion</string>
+    <string name="dvr_detail_stop_recording">Ferme regjistrazion</string>
+    <string name="dvr_detail_watch">Cjale</string>
+    <string name="dvr_detail_play_from_beginning">Riprodûs dal inizi</string>
+    <string name="dvr_detail_resume_play">Ripie la riproduzion</string>
+    <string name="dvr_detail_delete">Elimine</string>
+    <string name="dvr_detail_series_delete">Elimine lis regjistrazions</string>
+    <string name="dvr_detail_series_resume">Ripie</string>
+    <string name="dvr_detail_series_season_title">Stagjon <xliff:g id="season_number">%1$s</xliff:g></string>
+    <string name="dvr_detail_view_schedule">Viôt planificazion</string>
+    <string name="dvr_detail_read_more">Lei dut</string>
+    <string name="dvr_recording_failed_system_failure">Vuast di sisteme. (Codiç di erôr: <xliff:g id="errorCode" example="0">%1$d</xliff:g>)</string>
+    <string name="dvr_recording_failed_not_started">La regjistrazion no je partide. Controle la antene e lis conessions al disc fis (se presint).</string>
+    <string name="dvr_recording_failed_resource_busy">Impussibil sintonizâsi al canâl. Causis pussibilis: segnâl debil, conession ae antene scjarse o conflit di regjistrazion.</string>
+    <string name="dvr_recording_failed_input_unavailable"><xliff:g id="inputId" example="com.example.partnersupportsampletvinput/.SampleTvInputService">%1$s</xliff:g> no disponibil.</string>
+    <string name="dvr_recording_failed_input_dvr_unsupported">La regjistrazion di chest canâl no je supuartade.</string>
+    <string name="dvr_recording_failed_insufficient_space">Spazi insuficient. Conet un dispositîf di memorie esterne o elimine cualchi regjistrazion esistente.</string>
+    <string name="dvr_series_deletion_title">Elimine regjistrazions</string>
+    <string name="dvr_series_deletion_description">Selezione lis pontadis che tu desideris eliminâ. Une volte eliminadis nol sarà pussibil recuperâlis.</string>
+    <string name="dvr_series_deletion_no_recordings">Nissune regjistrazion di eliminâ.</string>
+    <string name="dvr_series_select_watched">Selezione lis pontadis viodudis</string>
+    <string name="dvr_series_select_all">Selezione dutis lis pontadis</string>
+    <string name="dvr_series_deselect_all">Deselezione dutis lis pontadis</string>
+    <string name="dvr_series_watched_info_minutes"><xliff:g id="watched">%1$d</xliff:g> di <xliff:g id="duration">%2$d</xliff:g> minûts viodûts</string>
+    <string name="dvr_series_watched_info_seconds"><xliff:g id="watched">%1$d</xliff:g> di <xliff:g id="duration">%2$d</xliff:g> seconts viodûts</string>
+    <string name="dvr_series_never_watched">Mai viodudis</string>
+    <plurals name="dvr_msg_episodes_deleted">
+        <item quantity="one">%1$d di %2$d pontadis eliminadis</item>
+        <item quantity="other">%1$d di %2$d pontadis eliminadis</item>
+    </plurals>
+    <string name="dvr_series_settings_title">Impostazions regjistrazion</string>
+    <string name="dvr_series_settings_priority">Prioritât</string>
+    <string name="dvr_series_settings_priority_highest">Massime</string>
+    <string name="dvr_series_settings_priority_lowest">Minime</string>
+    <string name="dvr_series_settings_priority_rank">N. <xliff:g id="rank">%1$d</xliff:g></string>
+    <string name="dvr_series_settings_channels">Canâi</string>
+    <string name="dvr_series_settings_channels_all">Cualsisei</string>
+    <string name="dvr_priority_title">Sielç la prioritât</string>
+    <string name="dvr_priority_description">Cuant che a son masse programs di regjistrâ tal stes moment, a vignaran regjistrâts dome chei cu la prioritât plui alte.</string>
+    <string name="dvr_priority_button_action_save">Salve</string>
+    <string name="dvr_priority_action_one_time_recording">Lis regjistrazions unichis a àn la massime prioritât</string>
+    <string name="dvr_action_delete_schedule">Elimine programazion</string>
+    <string name="dvr_action_record_program">Regjistre program</string>
+    <string name="dvr_action_error_storage_settings">Vierç impostazions archiviazion</string>
+    <string name="dvr_action_stop">Interomp</string>
+    <string name="dvr_action_view_schedules">Planificazion regjistrazions</string>
+    <string name="dvr_action_record_episode">Chest singul program</string>
+    <string name="dvr_action_record_episode_from_now_description">cumò - <xliff:g id="endTime" example="11:30">%1$s</xliff:g></string>
+    <string name="dvr_action_record_series">Dute la serie…</string>
+    <string name="dvr_action_record_anyway">Programe distès</string>
+    <string name="dvr_action_record_instead">Regjistre chest chi invezit</string>
+    <string name="dvr_action_record_cancel">Anule cheste regjistrazion</string>
+    <string name="dvr_action_watch_now">Cjale cumò</string>
+    <string name="dvr_action_delete_recordings">Elimine regjistrazions…</string>
+    <string name="dvr_epg_program_recordable">Regjistrabil</string>
+    <string name="dvr_epg_program_recording_scheduled">Regjistrazion programade</string>
+    <string name="dvr_epg_program_recording_conflict">Conflit di regjistrazion</string>
+    <string name="dvr_epg_program_recording_in_progress">Daûr a regjistrâ</string>
+    <string name="dvr_epg_program_recording_failed">Regjistrazion falide</string>
+    <string name="dvr_epg_channel_watch_conflict_dialog_title">Programazions iminentis</string>
+    <string name="dvr_epg_channel_watch_conflict_dialog_description">Il program nol vignarà regjistrât se tu continuis a cjalâ chest canâl. Anule la regjistrazion o chest canâl al vignarà blocât cuant che e scomençarà la regjistrazion.</string>
+    <string name="dvr_series_progress_message_reading_programs">Leture dai programs</string>
+    <string name="dvr_error_insufficient_space_action_view_recent_recordings">Viôt lis regjistrazions resintis</string>
+    <string name="dvr_error_insufficient_space_title_one_recording">La regjistrazion di <xliff:g id="programName" example="Friends">%1$s</xliff:g> no je complete.</string>
+    <string name="dvr_error_insufficient_space_title_two_recordings">Lis regjistrazions di <xliff:g id="programName_1" example="Friends">%1$s</xliff:g> e <xliff:g id="programName_2" example="Friends">%2$s</xliff:g> no son completis.</string>
+    <string name="dvr_error_insufficient_space_title_three_or_more_recordings">Lis regjistrazions di <xliff:g id="programName_1" example="Friends">%1$s</xliff:g>, <xliff:g id="programName_2" example="Friends">%2$s</xliff:g> e <xliff:g id="programName_3" example="Friends">%3$s</xliff:g> no son completis.</string>
+    <string name="dvr_error_insufficient_space_description_one_recording">La regjistrazion di <xliff:g id="programName" example="Friends">%1$s</xliff:g> no je stade completade par vie de memorie insuficiente.</string>
+    <string name="dvr_error_insufficient_space_description_two_recordings">Lis regjistrazions di <xliff:g id="programName_1" example="Friends">%1$s</xliff:g> e <xliff:g id="programName_2" example="Friends">%2$s</xliff:g> no son stadis completadis par vie de memorie insuficiente.</string>
+    <string name="dvr_error_insufficient_space_description_three_or_more_recordings">Lis regjistrazion di <xliff:g id="programName_1" example="Friends">%1$s</xliff:g>, <xliff:g id="programName_2" example="Friends">%2$s</xliff:g> e <xliff:g id="programName_3" example="Friends">%3$s</xliff:g> no son stadis completadis par vie de memorie insuficiente.</string>
+    <string name="dvr_error_small_sized_storage_title">E covente plui memorie di archiviazion</string>
+    <string name="dvr_error_small_sized_storage_description">Tu rivarâs a regjistrâ programs. Dut câs nol sarà vonde spazi sul dispositîf par scomençâ la regjistrazion. Conet une unitât esterne di <xliff:g id="storage_size" example="10GB">%1$d</xliff:g>GB o plui e va daûr dai passaçs par formatâle come dispositîf di archiviazion.</string>
+    <string name="dvr_error_no_free_space_title">No vonde memorie di archivazion</string>
+    <string name="dvr_error_no_free_space_description">Chest program nol vignarà regjistrât parcè che no je vonde memorie di archiviazion. Prove a eliminâ cualchi regjistrazion esistente.</string>
+    <string name="dvr_error_missing_storage_title">E mancje la memorie</string>
+    <string name="dvr_error_missing_storage_description">E mancje part de memorie doprade pe regjistrazion. Conet la unitât esterne che tu âs doprât prime di tornâ a ativâ il regjistradôr. In alternative, se no je plui disponibile, tu puedis dismenteâ la memorie di archivazion tes impostazions di archiviazion.</string>
+    <string name="dvr_toast_recording_deleted">Regjistrazion no cjatade.</string>
+    <string name="dvr_stop_recording_dialog_title">Interompi la regjistrazion?</string>
+    <string name="dvr_stop_recording_dialog_description">I contignûts regjistrâts a vignaran salvâts.</string>
+    <string name="dvr_stop_recording_dialog_description_on_conflict">La regjistrazion di <xliff:g id="programName" example="Friends">%1$s</xliff:g> e vignarà interote parcè che e va in conflit cun chest program. Il contignût regjistrât al vignarà salvât.</string>
+    <string name="dvr_program_conflict_dialog_title">Regjistrazion programade ma e à conflits</string>
+    <string name="dvr_channel_conflict_dialog_title">La regjistrazion e je scomençade ma e à conflits</string>
+    <string name="dvr_program_conflict_dialog_description_prefix">Al vignarà regjistrât il program <xliff:g id="programName" example="Friends">%1$s</xliff:g>.</string>
+    <string name="dvr_channel_conflict_dialog_description_prefix">Regjistrazion in cors di <xliff:g id="channelName" example="KQED">%1$s</xliff:g>.</string>
+    <string name="dvr_program_conflict_dialog_description_1">Cualchi part di <xliff:g id="conflictProgramName" example="Friends">%1$s</xliff:g> no vignarà regjistrade.</string>
+    <string name="dvr_program_conflict_dialog_description_2">Cualchi part di <xliff:g id="conflictProgramName_1" example="Friends">%1$s</xliff:g> e di <xliff:g id="conflictProgramName_2" example="Friends">%2$s</xliff:g> no vignarà regjistrade.</string>
+    <string name="dvr_program_conflict_dialog_description_3">Cualchi part di <xliff:g id="conflictProgramName_1" example="Friends">%1$s</xliff:g>, di <xliff:g id="conflictProgramName_2" example="Friends">%2$s</xliff:g> e di une altre programazion no vignarà regjistrade.</string>
+    <plurals name="dvr_program_conflict_dialog_description_many">
+        <item quantity="one">Cualchi part di <xliff:g id="conflictProgramName_1" example="Friends">%1$s</xliff:g>, di <xliff:g id="conflictProgramName_2" example="Friends">%2$s</xliff:g> e di %3$d altre programazion no vignarà regjistrade.</item>
+        <item quantity="other">Cualchi part di <xliff:g id="conflictProgramName_1" example="Friends">%1$s</xliff:g>, di <xliff:g id="conflictProgramName_2" example="Friends">%2$s</xliff:g> e di %3$d altris programazions no vignaran regjistradis.</item>
+    </plurals>
+    <string name="dvr_schedule_dialog_title">Ce desideristu regjistrâ?</string>
+    <string name="dvr_channel_record_duration_dialog_title">Par trop vûstu regjistrâ?</string>
+    <string name="dvr_already_scheduled_dialog_title">Za in programazion</string>
+    <string name="dvr_already_scheduled_dialog_description">E je za stade programade la regjistrazion dal stes program aes <xliff:g id="programStartTime" example="7:30 AM on Jun 27.">%1$s</xliff:g>.</string>
+    <string name="dvr_already_recorded_dialog_title">Za regjistrât</string>
+    <string name="dvr_already_recorded_dialog_description">Chest program al è za stât regjistrât. Al è disponibil te racuelte DVR.</string>
+    <string name="dvr_series_recording_dialog_title">Regjistrazion des seriis programade</string>
+    <plurals name="dvr_series_scheduled_no_conflict">
+        <item quantity="one"><xliff:g id="numberOfRecordings" example="1">%1$d</xliff:g> regjistrazion e je stade planificade pe serie <xliff:g id="seriesName" example="Friends">%2$s</xliff:g>.</item>
+        <item quantity="other"><xliff:g id="numberOfRecordings" example="5">%1$d</xliff:g> regjistrazions a son stadis planificadis pe serie <xliff:g id="seriesName" example="Friends">%2$s</xliff:g>.</item>
+    </plurals>
+    <plurals name="dvr_series_recording_scheduled_only_this_series_conflict">
+        <item quantity="one"><xliff:g id="numberOfRecordings" example="1">%1$d</xliff:g> regjistrazion e je stade planificade pe serie <xliff:g id="seriesName" example="Friends">%2$s</xliff:g>. No vignarà regjistrade par vie di conflits.</item>
+        <item quantity="other"><xliff:g id="numberOfRecordings" example="5">%1$d</xliff:g> regjistrazions a son stadis planificadis pe serie <xliff:g id="seriesName" example="Friends">%2$s</xliff:g>. <xliff:g id="numberOfConflictRecordings" example="2">%3$d</xliff:g> di lôr no vignaran regjistradis par vie di conflits.</item>
+    </plurals>
+    <plurals name="dvr_series_scheduled_this_and_other_series_conflict">
+        <item quantity="one"><xliff:g id="numberOfRecordings" example="1">%1$d</xliff:g> regjistrazion e je stade planificade pe serie <xliff:g id="seriesName" example="Friends">%2$s</xliff:g>. <xliff:g id="numberOfConflictEpisodes" example="1">%3$d</xliff:g> pontadis di cheste serie e di altris seriis no vignaran regjistradis par vie di conflits.</item>
+        <item quantity="other"><xliff:g id="numberOfRecordings" example="5">%1$d</xliff:g> regjistrazions a son stadis planificadis pe serie <xliff:g id="seriesName" example="Friends">%2$s</xliff:g>. <xliff:g id="numberOfConflictEpisodes" example="2">%3$d</xliff:g> pontadis di cheste serie e di altris seriis no vignaran regjistradis par vie di conflits.</item>
+    </plurals>
+    <plurals name="dvr_series_scheduled_only_other_series_one_conflict">
+        <item quantity="one"><xliff:g id="numberOfRecordings" example="1">%1$d</xliff:g> regjistrazion e je stade planificade pe serie <xliff:g id="seriesName" example="Friends">%2$s</xliff:g>. 1 pontade di une altre serie no vignarà regjistrade par vie di conflits.</item>
+        <item quantity="other"><xliff:g id="numberOfRecordings" example="5">%1$d</xliff:g> regjistrazions a son stadis planificadis pe serie <xliff:g id="seriesName" example="Friends">%2$s</xliff:g>. 1 planificazion di une altre serie no vignarà regjistrade par vie di conflits.</item>
+    </plurals>
+    <plurals name="dvr_series_scheduled_only_other_series_many_conflicts">
+        <item quantity="one"><xliff:g id="numberOfRecordings" example="1">%1$d</xliff:g> regjistrazion e je stade planificade pe serie <xliff:g id="seriesName" example="Friends">%2$s</xliff:g>. <xliff:g id="numberOfConflictEpisodes" example="1">%3$d</xliff:g> pontadis di altris seriis no vignaran regjistradis par vie di conflits.</item>
+        <item quantity="other"><xliff:g id="numberOfRecordings" example="5">%1$d</xliff:g> regjistrazions a son stadis planificadis pe serie <xliff:g id="seriesName" example="Friends">%2$s</xliff:g>. <xliff:g id="numberOfConflictEpisodes" example="2">%3$d</xliff:g> pontadis di altris seriis no vignaran regjistradis par vie di conflits.</item>
+    </plurals>
+    <string name="dvr_program_not_found">Program regjistrât no cjatât.</string>
+    <string name="dvr_playback_related_recordings">Regjistrazions coreladis</string>
+    <string name="dvr_recording_till_format">Daûr a regjistrâ fin <xliff:g id="recordingEndTime" example="9:00pm">%1$s</xliff:g></string>
+    <plurals name="dvr_schedules_section_subtitle">
+        <item quantity="one">%1$d regjistrazion</item>
+        <item quantity="other">%1$d regjistrazions</item>
+    </plurals>
+    <string name="dvr_schedules_information_separator"> / </string>
+    <string name="dvr_schedules_deletion_info"><xliff:g id="programName" example="Big bang theory">%1$s</xliff:g> gjavât de planificazion di regjistrazion</string>
+    <string name="dvr_schedules_tuner_conflict_will_be_partially_recorded">Regjistrazion parziâl par vie di conflits cul sintonizadôr.</string>
+    <string name="dvr_schedules_tuner_conflict_will_not_be_recorded_info">Impussibil regjistrâ par vie di conflits cul sintonizadôr.</string>
+    <string name="dvr_schedules_empty_state">No son ancjemò regjistrazions in program.\nTu puedis planificâ lis regjistrazions da la vuide ai programs.</string>
+    <string name="dvr_history_empty_state">No je nissune cronologjie di regjistrazions.\nTu puedis planificâ lis regjistrazions da la vuide ai programs.</string>
+    <plurals name="dvr_series_schedules_header_description">
+        <item quantity="one">%1$d conflit di regjistrazion</item>
+        <item quantity="other">%1$d conflits di regjistrazion</item>
+    </plurals>
+    <string name="dvr_series_schedules_settings">Impostazions pe serie</string>
+    <string name="dvr_series_schedules_start">Scomence regjistrazion serie</string>
+    <string name="dvr_series_schedules_stop">Interomp regjistrazion serie</string>
+    <string name="dvr_series_schedules_stop_dialog_title">Interompi la regjistrazion de serie?</string>
+    <string name="dvr_series_schedules_stop_dialog_description">Lis pontadis regjistradis a restaran disponibilis te racuelte DVR.</string>
+    <string name="dvr_series_schedules_stop_dialog_action_stop">Interomp</string>
+    <string name="dvr_series_schedules_stopped_empty_state">Nissune pontade in onde cumò</string>
+    <string name="dvr_series_schedules_empty_state">No je nissune pontade disponibile.\nA vignaran regjistradis cuant che a saran disponibilis.</string>
+    <plurals name="dvr_schedules_recording_duration">
+        <item quantity="one">(%1$d minût) </item>
+        <item quantity="other">(%1$d minûts)</item>
+    </plurals>
+    <string name="dvr_recording_failed_short">Erôr.</string>
+    <string name="dvr_recording_failed_not_started_short">Nol è stât pussibil scomençâ la regjistrazion.</string>
+    <string name="dvr_recording_failed_resource_busy_short">Nol è stât pussibil sintonizâsi al canâl.</string>
+    <string name="dvr_recording_failed_input_unavailable_short"><xliff:g id="inputId" example="com.example.partnersupportsampletvinput/.SampleTvInputService">%1$s</xliff:g> no disponibil.</string>
+    <string name="dvr_recording_failed_input_dvr_unsupported_short">Regjistrazion no supuartade.</string>
+    <string name="dvr_recording_failed_insufficient_space_short">Spazi insuficient.</string>
+    <string name="dvr_date_today">Vuê</string>
+    <string name="dvr_date_tomorrow">Doman</string>
+    <string name="dvr_date_yesterday">Îr</string>
+    <string name="dvr_date_today_time"><xliff:g id="time_range" example="10:00 am - 11:00 am">%1$s</xliff:g> di vuê</string>
+    <string name="dvr_date_tomorrow_time"><xliff:g id="time_range" example="10:00 am - 11:00 am">%1$s</xliff:g> di doman</string>
+    <string name="program_guide_critic_score">Ponts</string>
+    <string name="recorded_programs_preview_channel">Programs regjistrâts</string>
+    <string name="write_storage_permission_rationale_title">Richieste di permès</string>
+    <string name="write_storage_permission_rationale_description">Ti vignarà domandât: \"Permeti a <xliff:g id="app_name">Live TV</xliff:g> di acedi a fotos, contignûts multimediâi e files sul to dispositîf?\"\n
+        Selezionant \"Permet\", al consint a <xliff:g id="app_name">Live TV</xliff:g> di
+        liberâ daurman spazi di archiviazion cuant che si elimine i programs TV regjistrâts.
+        Chest al cree plui spazi disponibil pes gnovis regjistrazions.</string>
+    <string name="tv_app_dialog_title">E je stade cjatade une aplicazion interative. Desideristu ativâ lis aplicazions interativis?</string>
+    <string name="interactive_app_settings">Impostazions aplicazions interativis</string>
+    <string name="tv_iapp_on">On</string>
+    <string name="tv_iapp_off">Off</string>
+</resources>

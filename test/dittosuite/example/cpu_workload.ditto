@@ -1,0 +1,30 @@
+main: {
+  multithreading: {
+    fork: true;
+    threads: [
+      {
+        name: "Cycles"
+        instruction: {
+          cpu_work: {
+            cycles: 1000000
+          }
+          repeat: 100,
+          period_us: 40000
+        },
+        spawn: 2
+      },
+      {
+        name: "Util"
+        instruction: {
+          cpu_work: {
+            utilization: 0.3,
+          }
+          repeat: 100,
+          period_us: 50000
+        },
+        spawn: 2
+      }
+    ]
+  }
+}
+global: {}

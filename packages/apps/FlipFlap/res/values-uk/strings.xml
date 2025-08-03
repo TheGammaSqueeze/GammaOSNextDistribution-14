@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  Copyright (c) 2017 The LineageOS Project
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ Also add information on how to contact you by electronic and paper mail.
+
+-->
+<resources>
+    <string name="app_name">FlipFlap</string>
+    <string name="notification_title">Виявлено смарт чохол</string>
+    <string name="alarm_label">БУДИЛЬНИК</string>
+    <string name="abbrev_wday_month_day_no_year">EEE, d MMMM</string>
+    <string name="answer_call">ВІДПОВІСТИ</string>
+    <string name="ignore_call">ВІДХИЛИТИ</string>
+    <string name="end_call">Завершити</string>
+    <string name="category_behaviour">Поведінка</string>
+    <string name="pass_to_security_view_title">Відразу пропонувати введення паролю</string>
+    <string name="pass_to_security_view_summary">Відкриття чохла показує екран розблокування</string>
+    <string name="use_high_touch_sensitivity_title">Висока чутливість дотику</string>
+    <string name="use_high_touch_sensitivity_summary">Збільшення чутливості дотику при закритій кришці</string>
+    <string name="category_design">Оформлення</string>
+    <string name="switch_charging_status_title">Показати статус зарядки</string>
+    <string name="switch_charging_status_summary">Змінювати колір в залежності від рівня заряду батареї</string>
+    <string name="category_timeouts">Затримка</string>
+    <string name="timeout_plugged_title">Під час зарядки</string>
+    <string name="timeout_unplugged_title">Від\'єднано</string>
+    <string name="timeout_summary">Показувати додаток чохла для %s після закриття</string>
+    <string name="timeout_summary_never">Після закриття чохла, програму буде увімкнено</string>
+    <string name="timeout_summary_immediately">Під час закриття чохла екран буде вимкнено</string>
+    <string name="timeout_entry_immediately">Негайно</string>
+    <string name="timeout_entry_5s">5 секунд</string>
+    <string name="timeout_entry_10s">10 секунд</string>
+    <string name="timeout_entry_30s">30 секунд</string>
+    <string name="timeout_entry_1min">1 хвилина</string>
+    <string name="timeout_entry_5min">5 хвилин</string>
+    <string name="timeout_entry_never">Ніколи</string>
+</resources>

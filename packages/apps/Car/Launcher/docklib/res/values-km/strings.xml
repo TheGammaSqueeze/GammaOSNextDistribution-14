@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="broadcast_sender_permission_label" msgid="5269973644784898827">"កម្មវិធីបញ្ជូនការផ្សាយរបស់ធ្នើរ"</string>
+    <string name="broadcast_sender_permission_desc" msgid="5052882219053515363">"ការអនុញ្ញាតដែលតម្រូវឱ្យមានសម្រាប់កញ្ចប់ ដើម្បីផ្សាយព្រឹត្តិការណ៍ទៅធ្នើរ។"</string>
+    <string name="broadcast_receiver_permission_label" msgid="6015991948761587466">"កម្មវិធី​ទទួលការផ្សាយរបស់ធ្នើរ"</string>
+    <string name="broadcast_receiver_permission_desc" msgid="1623002370607914795">"ការអនុញ្ញាតដែលតម្រូវឱ្យមានសម្រាប់ការស្ដាប់កញ្ចប់ ដើម្បីផ្សាយព្រឹត្តិការណ៍សម្រាប់ធ្នើរ។"</string>
+    <string name="pin_failed_no_spots" msgid="745687732976464502">"មិនមានកន្លែងដែលអាចខ្ទាស់បានទេ"</string>
+</resources>

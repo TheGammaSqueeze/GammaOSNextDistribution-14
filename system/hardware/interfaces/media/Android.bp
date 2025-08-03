@@ -1,0 +1,335 @@
+// Copyright 2020, The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+aidl_interface {
+    name: "android.media.audio.common.types",
+    vendor_available: true,
+    host_supported: true,
+    double_loadable: true,
+    flags: [
+        "-Werror",
+        "-Weverything",
+    ],
+    local_include_dir: "aidl",
+    srcs: [
+        "aidl/android/media/audio/common/AudioAttributes.aidl",
+        "aidl/android/media/audio/common/AudioChannelLayout.aidl",
+        "aidl/android/media/audio/common/AudioConfig.aidl",
+        "aidl/android/media/audio/common/AudioConfigBase.aidl",
+        "aidl/android/media/audio/common/AudioContentType.aidl",
+        "aidl/android/media/audio/common/AudioDevice.aidl",
+        "aidl/android/media/audio/common/AudioDeviceAddress.aidl",
+        "aidl/android/media/audio/common/AudioDeviceDescription.aidl",
+        "aidl/android/media/audio/common/AudioDeviceType.aidl",
+        "aidl/android/media/audio/common/AudioDualMonoMode.aidl",
+        "aidl/android/media/audio/common/AudioEncapsulationMetadataType.aidl",
+        "aidl/android/media/audio/common/AudioEncapsulationMode.aidl",
+        "aidl/android/media/audio/common/AudioEncapsulationType.aidl",
+        "aidl/android/media/audio/common/AudioFlag.aidl",
+        "aidl/android/media/audio/common/AudioFormatDescription.aidl",
+        "aidl/android/media/audio/common/AudioFormatType.aidl",
+        "aidl/android/media/audio/common/AudioGain.aidl",
+        "aidl/android/media/audio/common/AudioGainConfig.aidl",
+        "aidl/android/media/audio/common/AudioGainMode.aidl",
+        "aidl/android/media/audio/common/AudioHalAttributesGroup.aidl",
+        "aidl/android/media/audio/common/AudioHalCapCriterion.aidl",
+        "aidl/android/media/audio/common/AudioHalCapCriterionType.aidl",
+        "aidl/android/media/audio/common/AudioHalEngineConfig.aidl",
+        "aidl/android/media/audio/common/AudioHalProductStrategy.aidl",
+        "aidl/android/media/audio/common/AudioHalVolumeCurve.aidl",
+        "aidl/android/media/audio/common/AudioHalVolumeGroup.aidl",
+        "aidl/android/media/audio/common/AudioInputFlags.aidl",
+        "aidl/android/media/audio/common/AudioIoFlags.aidl",
+        "aidl/android/media/audio/common/AudioLatencyMode.aidl",
+        "aidl/android/media/audio/common/AudioMMapPolicy.aidl",
+        "aidl/android/media/audio/common/AudioMMapPolicyInfo.aidl",
+        "aidl/android/media/audio/common/AudioMMapPolicyType.aidl",
+        "aidl/android/media/audio/common/AudioMode.aidl",
+        "aidl/android/media/audio/common/AudioOffloadInfo.aidl",
+        "aidl/android/media/audio/common/AudioOutputFlags.aidl",
+        "aidl/android/media/audio/common/AudioPlaybackRate.aidl",
+        "aidl/android/media/audio/common/AudioPort.aidl",
+        "aidl/android/media/audio/common/AudioPortConfig.aidl",
+        "aidl/android/media/audio/common/AudioPortDeviceExt.aidl",
+        "aidl/android/media/audio/common/AudioPortExt.aidl",
+        "aidl/android/media/audio/common/AudioPortMixExt.aidl",
+        "aidl/android/media/audio/common/AudioPortMixExtUseCase.aidl",
+        "aidl/android/media/audio/common/AudioProductStrategyType.aidl",
+        "aidl/android/media/audio/common/AudioProfile.aidl",
+        "aidl/android/media/audio/common/AudioSource.aidl",
+        "aidl/android/media/audio/common/AudioStandard.aidl",
+        "aidl/android/media/audio/common/AudioStreamType.aidl",
+        "aidl/android/media/audio/common/AudioUsage.aidl",
+        "aidl/android/media/audio/common/AudioUuid.aidl",
+        "aidl/android/media/audio/common/Boolean.aidl",
+        "aidl/android/media/audio/common/Byte.aidl",
+        "aidl/android/media/audio/common/ExtraAudioDescriptor.aidl",
+        "aidl/android/media/audio/common/Float.aidl",
+        "aidl/android/media/audio/common/Double.aidl",
+        "aidl/android/media/audio/common/HeadTracking.aidl",
+        "aidl/android/media/audio/common/Int.aidl",
+        "aidl/android/media/audio/common/Long.aidl",
+        "aidl/android/media/audio/common/MicrophoneDynamicInfo.aidl",
+        "aidl/android/media/audio/common/MicrophoneInfo.aidl",
+        "aidl/android/media/audio/common/PcmType.aidl",
+        "aidl/android/media/audio/common/Spatialization.aidl",
+        "aidl/android/media/audio/common/Void.aidl",
+    ],
+    stability: "vintf",
+    backend: {
+        cpp: {
+            min_sdk_version: "29",
+            apex_available: [
+                "//apex_available:platform",
+                "com.android.media",
+            ],
+        },
+        java: {
+            sdk_version: "module_current",
+            min_sdk_version: "29",
+            apex_available: [
+                "//apex_available:platform",
+                "com.android.car.framework",
+            ],
+            lint: {
+                baseline_filename: "lint-baseline.xml",
+            },
+        },
+        ndk: {
+            min_sdk_version: "29",
+            apex_available: [
+                "//apex_available:platform",
+                "com.android.btservices",
+            ],
+        },
+    },
+    versions_with_info: [
+        {
+            version: "1",
+            imports: [],
+        },
+        {
+            version: "2",
+            imports: [],
+        },
+        {
+            version: "3",
+            imports: [],
+        },
+
+        // IMPORTANT: Update latest_android_media_audio_common_types every time
+        // you add the latest frozen version to versions_with_info
+    ],
+    frozen: true,
+
+}
+
+// Note: This should always be one version ahead of the last frozen version
+latest_android_media_audio_common_types = "android.media.audio.common.types-V3"
+
+// Modules that depend on android.media.audio.common.types directly can include
+// the following cc_defaults to avoid explicitly managing dependency versions
+// across many scattered files.
+cc_defaults {
+    name: "latest_android_media_audio_common_types_cpp_shared",
+    shared_libs: [
+        latest_android_media_audio_common_types + "-cpp",
+    ],
+}
+
+cc_defaults {
+    name: "latest_android_media_audio_common_types_cpp_export_shared",
+    defaults: [
+        "latest_android_media_audio_common_types_cpp_shared",
+    ],
+    export_shared_lib_headers: [
+        latest_android_media_audio_common_types + "-cpp",
+    ],
+}
+
+cc_defaults {
+    name: "latest_android_media_audio_common_types_cpp_static",
+    static_libs: [
+        latest_android_media_audio_common_types + "-cpp",
+    ],
+}
+
+cc_defaults {
+    name: "latest_android_media_audio_common_types_cpp_export_static",
+    defaults: [
+        "latest_android_media_audio_common_types_cpp_static",
+    ],
+    export_static_lib_headers: [
+        latest_android_media_audio_common_types + "-cpp",
+    ],
+}
+
+cc_defaults {
+    name: "latest_android_media_audio_common_types_ndk_shared",
+    shared_libs: [
+        latest_android_media_audio_common_types + "-ndk",
+    ],
+}
+
+cc_defaults {
+    name: "latest_android_media_audio_common_types_ndk_static",
+    static_libs: [
+        latest_android_media_audio_common_types + "-ndk",
+    ],
+}
+
+cc_defaults {
+    name: "latest_android_media_audio_common_types_cpp_target_shared",
+    target: {
+        android: {
+            shared_libs: [
+                latest_android_media_audio_common_types + "-cpp",
+            ],
+        },
+    },
+}
+
+aidl_interface_defaults {
+    name: "latest_android_media_audio_common_types_import_interface",
+    imports: [
+        latest_android_media_audio_common_types,
+    ],
+}
+
+aidl_interface {
+    name: "android.media.soundtrigger.types",
+    vendor_available: true,
+    host_supported: true,
+    flags: [
+        "-Werror",
+        "-Weverything",
+    ],
+    local_include_dir: "aidl",
+    srcs: [
+        "aidl/android/media/soundtrigger/AudioCapabilities.aidl",
+        "aidl/android/media/soundtrigger/ConfidenceLevel.aidl",
+        "aidl/android/media/soundtrigger/ModelParameter.aidl",
+        "aidl/android/media/soundtrigger/ModelParameterRange.aidl",
+        "aidl/android/media/soundtrigger/Phrase.aidl",
+        "aidl/android/media/soundtrigger/PhraseRecognitionEvent.aidl",
+        "aidl/android/media/soundtrigger/PhraseRecognitionExtra.aidl",
+        "aidl/android/media/soundtrigger/PhraseSoundModel.aidl",
+        "aidl/android/media/soundtrigger/Properties.aidl",
+        "aidl/android/media/soundtrigger/RecognitionConfig.aidl",
+        "aidl/android/media/soundtrigger/RecognitionEvent.aidl",
+        "aidl/android/media/soundtrigger/RecognitionMode.aidl",
+        "aidl/android/media/soundtrigger/RecognitionStatus.aidl",
+        "aidl/android/media/soundtrigger/SoundModel.aidl",
+        "aidl/android/media/soundtrigger/SoundModelType.aidl",
+        "aidl/android/media/soundtrigger/Status.aidl",
+    ],
+    stability: "vintf",
+    backend: {
+        cpp: {
+            enabled: true,
+        },
+        java: {
+            sdk_version: "module_current",
+        },
+    },
+    imports: [
+        latest_android_media_audio_common_types,
+    ],
+    versions_with_info: [
+        {
+            version: "1",
+            imports: ["android.media.audio.common.types-V2"],
+        },
+        {
+            version: "2",
+            imports: ["android.media.audio.common.types-V3"],
+        },
+
+    ],
+    frozen: true,
+
+}
+
+// Note: This should always be one version ahead of the last frozen version
+latest_android_media_soundtrigger_types = "android.media.soundtrigger.types-V2"
+
+cc_defaults {
+    name: "latest_android_media_soundtrigger_types_cpp_shared",
+    shared_libs: [
+        latest_android_media_soundtrigger_types + "-cpp",
+    ],
+}
+
+cc_defaults {
+    name: "latest_android_media_soundtrigger_types_cpp_export_shared",
+    defaults: [
+        "latest_android_media_soundtrigger_types_cpp_shared",
+    ],
+    export_shared_lib_headers: [
+        latest_android_media_soundtrigger_types + "-cpp",
+    ],
+}
+
+cc_defaults {
+    name: "latest_android_media_soundtrigger_types_cpp_static",
+    static_libs: [
+        latest_android_media_soundtrigger_types + "-cpp",
+    ],
+}
+
+cc_defaults {
+    name: "latest_android_media_soundtrigger_types_cpp_export_static",
+    defaults: [
+        "latest_android_media_soundtrigger_types_cpp_static",
+    ],
+    export_static_lib_headers: [
+        latest_android_media_soundtrigger_types + "-cpp",
+    ],
+}
+
+cc_defaults {
+    name: "latest_android_media_soundtrigger_types_ndk_shared",
+    shared_libs: [
+        latest_android_media_soundtrigger_types + "-ndk",
+    ],
+}
+
+cc_defaults {
+    name: "latest_android_media_soundtrigger_types_ndk_static",
+    static_libs: [
+        latest_android_media_soundtrigger_types + "-ndk",
+    ],
+}
+
+cc_defaults {
+    name: "latest_android_media_soundtrigger_types_cpp_target_shared",
+    target: {
+        android: {
+            shared_libs: [
+                latest_android_media_soundtrigger_types + "-cpp",
+            ],
+        },
+    },
+}
+
+aidl_interface_defaults {
+    name: "latest_android_media_soundtrigger_types_import_interface",
+    imports: [
+        latest_android_media_soundtrigger_types,
+    ],
+}

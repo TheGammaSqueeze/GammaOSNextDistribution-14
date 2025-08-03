@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017-2024 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="system_reboot_confirm_cm">Yeniden başlat:</string>
+    <string name="global_action_restart_system">Sistem</string>
+    <string name="global_action_restart_recovery">Kurtarma</string>
+    <string name="global_action_restart_bootloader">Ön yükleyici</string>
+    <plurals name="show_dev_countdown_cm">
+        <item quantity="one">Geliştirici seçeneklerini etkinleştirmenize <xliff:g id="step_count">%1$d</xliff:g> adım kaldı.</item>
+        <item quantity="other">Geliştirici seçeneklerini etkinleştirmenize <xliff:g id="step_count">%1$d</xliff:g> adım kaldı.</item>
+    </plurals>
+    <string name="show_dev_on_cm">Geliştirici seçenekleri etkinleştirildi.</string>
+    <string name="show_dev_already_cm">Gerek yok, geliştirici seçenekleri zaten etkinleştirildi.</string>
+    <string name="system_buttons">Düğmeler</string>
+    <string name="power_button_long_press_action_title">Güç düğmesine uzun basma eylemi</string>
+    <string name="power_button_long_press_for_power_menu_action">Güç menüsüne erişim</string>
+    <string name="power_button_long_press_for_assistant_action">Asistanı aç</string>
+    <string name="inputs_volume_control_enabled">Sesle Kontrol Düzeyi</string>
+    <string name="inputs_volume_control_enabled_desc">Dahili ses yerine TV veya AVR cihazın sesini kontrol edin</string>
+    <string name="enable_adb_root">Rootlu hata ayıklama</string>
+    <string name="enable_adb_root_summary">Android hata ayıklamanın rootlu olarak çalışmasına izin verin</string>
+    <string name="advanced_restart_title">Gelişmiş yeniden başlatma</string>
+    <string name="advanced_restart_summary">Kurtarma modu, ön yükleyici veya normal yeniden başlatma için seçenekleri göster.</string>
+    <string name="adb_over_network">Ağ üzerinden ADB</string>
+    <string name="adb_over_network_summary">Ağ arayüzleri (Wi\u2011Fi, USB ağları) üzerinde TCP/IP hata ayıklamayı etkinleştir. Bu ayar yeniden başlatılmada sıfırlanır</string>
+    <string name="adb_over_network_warning">Uyarı: Ağ üzerinden ADB etkinken telefonunuz tüm bağlantılı ağlar üzerinde yetkisiz erişimlere açıktır.\n\nBu özelliği sadece güvenli ağlar üzerindeyken kullanın.\n\nGerçekten bu işlevi kullanmak istiyor musunuz?</string>
+    <string name="trust_category_features">Durum</string>
+    <string name="trust_feature_selinux">SELinux</string>
+    <string name="trust_feature_selinux_value_enforcing">Çalışıyor</string>
+    <string name="trust_feature_selinux_value_disabled">Devre dışı</string>
+    <string name="trust_feature_selinux_explain">SELinux, hangi işlemlerin cihazınızdaki hangi dosyalara ve klasörlere erişebileceğini belirler.\nBöylece uygulamaların ve hizmetlerin ilgilenmemeleri dosyalara erişmesini önler; bu sayede olası kötü amaçlı bir işlem sınırlandırılır ve güvenliğiniz korunur.</string>
+    <string name="trust_feature_security_patches">Android güvenlik yamaları</string>
+    <string name="trust_feature_security_patches_value_base">Platform: %1$s\nÜretici: %2$s</string>
+    <string name="trust_feature_security_patches_value_new">Güncel</string>
+    <string name="trust_feature_security_patches_value_medium">Birkaç ay eski</string>
+    <string name="trust_feature_security_patches_value_old">Güncel değil</string>
+    <string name="trust_feature_security_patches_explain">Güvenlik kısıtlamalarını atlamak ve cihazınızda kalıcı hasara neden olmak için kötü amaçlı uygulamalar tarafından kötüye kullanılabilecek hataları gidermek için SoC satıcılarıyla işbirliği içinde Google tarafından aylık olarak güvenlik yamaları yayınlanır. Google tarafından kullanıma sunulan yamalar, desteklenen tüm cihazlarda her ay uygulanır, ancak tescilli koddaki yamalar sadece cihazınızın üreticisi tarafından uygulanabilir. Cihazınızı güvende tutmak için LineageOS yapınızın her zaman güncel olduğundan ve (varsa) satıcı dosyanızın LineageOS tarafından önerilen en yeni sürüme güncellendiğinden emin olun.</string>
+    <string name="trust_feature_encryption">Şifreleme</string>
+    <string name="trust_feature_encryption_value_enabled">Etkin</string>
+    <string name="trust_feature_encryption_value_nolock">Güvenli bir kilit ekranı gerekli</string>
+    <string name="trust_feature_encryption_value_disabled">Devre dışı</string>
+    <string name="trust_feature_encryption_explain">Cihazınızı şifrelemek, telefonunuz Android\'e önyükleme yapılmadığında verilerinize erişimi engeller. Bu; özellikle telefonunuz çalındığında önemlidir ve kişilerin mesajlarınızı, kişilerinizi ve diğer kişisel bilgilerinizi parolanız olmadan okunmasını engeller.\nŞifrelemeyi daha etkili hale getirmek için güvenli bir kilit ekranı parolası ayarlamanız gerekir.</string>
+    <string name="trust_category_tools">Gizlilik</string>
+    <string name="trust_notification_alerts_title">Güvenlik uyarıları</string>
+    <string name="trust_restrict_usb_title">USB\'yi kısıtla</string>
+    <string name="trust_restrict_usb_summary">Kulaklık, depolama, giriş cihazları (fareler, klavyeler, oyun çubukları) ve ADB gibi USB bağlantıları için kontrol desteği</string>
+    <string name="trust_restrict_usb_always">USB bağlantılarını reddet</string>
+    <string name="trust_restrict_usb_disabled">USB bağlantılarına her zaman izin ver</string>
+    <string name="trust_onboarding_description">Güven, cihazınızı güvende tutmanıza ve gizliliğinizi korumanıza yardımcı olur.\nGüven simgesi, sadece sayfanın içeriği doğrulandığında gösterilir.</string>
+    <string name="trust_warnings_alerts_intro">Uyarılmak istediğiniz güvenlik sorunlarını seçebilirsiniz. Güvenliğiniz için tüm uyarıları etkinleştirmeniz önerilir</string>
+    <string name="trust_warnings_selinux">SELinux durumu</string>
+    <string name="trust_warnings_keys">Yapı imzası</string>
+    <string name="sleep_button_label">Uyku</string>
+    <string name="system_sleep_confirm">Şimdi uykuya geçilsin mi?</string>
+    <string name="shutdown_button_label">Kapat</string>
+    <string name="system_shutdown_confirm">Şimdi kapatılsın mı?</string>
+    <string name="convertible_port_busy_title">1. USB yuvası kullanımda</string>
+    <string name="convertible_port_busy_warning">Tüm aygıt ve donatıları çıkarıp tekrar dene</string>
+    <string name="mtp_enable_title">USB kullanarak PC üzerinde SHIELD klasörlerine erişim</string>
+    <string name="mtp_enable_warning">USB bağlantı noktası 1 artık SHIELD\'ın bir medya cihazı olarak bir PC\'ye bağlanması için yapılandırılmıştır.\n\nBu bağlantı noktası artık USB depolama ortamını veya USB aksesuarlarını algılamaz ve cihazları şarj etmek için kullanılamaz.</string>
+    <string name="mtp_retry_error">Başarısız. Lütfen tekrar dene.</string>
+    <string name="mtp_summary">Bu modda, USB bağlantı noktası diğer kullanımlar için işlevsel değildir</string>
+    <string name="mtp_title">USB kullanarak dosyaları bir bilgisayara aktarma</string>
+    <string name="mtp_unexpected_error">Beklenmeyen hata. Lütfen daha sonra tekrar deneyin.</string>
+    <string name="usb_debugging_enable_title">USB hata ayıklama etkin</string>
+    <string name="usb_debugging_enable_warning">USB bağlantı noktası 1 artık SHIELD\'ın bir PC\'ye medya cihazı olarak bağlanması için yapılandırılmıştır.\n\nBu bağlantı noktası artık USB depolama ortamını veya USB aksesuarlarını algılamayacaktır ve cihazları şarj etmek için kullanılamaz.</string>
+</resources>

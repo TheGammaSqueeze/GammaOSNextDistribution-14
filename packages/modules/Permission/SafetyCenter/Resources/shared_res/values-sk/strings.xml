@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="scanning_title" msgid="5424849039854311398">"Kontroluje sa"</string>
+    <string name="loading_summary" msgid="3740846439782713910">"Kontrolujú sa nastavenia zariadenia…"</string>
+    <string name="overall_severity_level_ok_title" msgid="2041250138727564565">"Všetko v poriadku"</string>
+    <string name="overall_severity_level_ok_summary" msgid="383626536912856690">"Nenašli sa žiadne problémy"</string>
+    <string name="overall_severity_level_tip_summary" msgid="1935765582243024999">"{count,plural, =1{Zobraziť odporúčanie}few{Zobraziť odporúčania}many{See recommendations}other{Zobraziť odporúčania}}"</string>
+    <string name="overall_severity_level_action_taken_summary" msgid="8064091657855656545">"{count,plural, =1{Bola vykonaná akcia}few{Boli vykonané akcie}many{Actions taken}other{Boli vykonané akcie}}"</string>
+    <string name="overall_severity_level_ok_review_title" msgid="1494321117696765360">"Kontrola nastavení"</string>
+    <string name="overall_severity_level_ok_review_summary" msgid="7743619617413076275">"Kontrolný zoznam nastavení"</string>
+    <string name="overall_severity_level_device_recommendation_title" msgid="5250040236433061827">"Zariadenie môže byť ohrozené"</string>
+    <string name="overall_severity_level_critical_device_warning_title" msgid="5901771721834272596">"Zariadenie je ohrozené"</string>
+    <string name="overall_severity_level_data_recommendation_title" msgid="1424269714861655302">"Vaše údaje môžu byť ohrozené"</string>
+    <string name="overall_severity_level_critical_data_warning_title" msgid="1012704126634698604">"Vaše údaje sú ohrozené"</string>
+    <string name="overall_severity_level_passwords_recommendation_title" msgid="8625105570296877719">"Odhalené heslá (staré)"</string>
+    <string name="overall_severity_level_critical_passwords_warning_title" msgid="7859047988648851217">"Odhalené heslá (nové)"</string>
+    <string name="overall_severity_level_personal_recommendation_title" msgid="5493814377982623779">"Vaše zabezpečenie môže byť ohrozené"</string>
+    <string name="overall_severity_level_critical_personal_warning_title" msgid="5070434468955164734">"Vaše zabezpečenie je ohrozené"</string>
+    <string name="overall_severity_level_safety_recommendation_title" msgid="4291797434760242793">"Boli nájdené potenciálne riziká"</string>
+    <string name="overall_severity_level_critical_safety_warning_title" msgid="6666640109779586868">"Boli nájdené riziká"</string>
+    <string name="overall_severity_level_account_recommendation_title" msgid="2267542168734275090">"Účet môže byť ohrozený"</string>
+    <string name="overall_severity_level_critical_account_warning_title" msgid="1913235490583842004">"Účet je ohrozený"</string>
+    <string name="overall_severity_n_alerts_summary" msgid="3262010942295408403">"{count,plural, =1{Zobraziť upozornenie}few{Zobraziť upozornenia}many{See alerts}other{Zobraziť upozornenia}}"</string>
+    <string name="redirecting_error" msgid="8146983632878233202">"Stránku sa nepodarilo otvoriť"</string>
+    <string name="resolving_action_error" msgid="371968886143262375">"Upozornenie sa nepodarilo vyriešiť"</string>
+    <string name="refresh_error" msgid="656062128422446177">"{count,plural, =1{Nastavenie sa nepodarilo skontrolovať}few{Nastavenia sa nepodarilo skontrolovať}many{Nastavenia sa nepodarilo skontrolovať}other{Nastavenia sa nepodarilo skontrolovať}}"</string>
+    <string name="work_profile_paused" msgid="7037400224040869079">"Pracovný profil je pozastavený"</string>
+    <string name="group_unknown_summary" msgid="6951386960814105641">"Zatiaľ žiadne informácie"</string>
+    <string name="notification_channel_group_name" msgid="7155072032524876859">"Zabezpečenie a ochrana súkromia"</string>
+    <string name="notification_channel_name_information" msgid="2966444432152990166">"Odporúčania"</string>
+    <string name="notification_channel_name_recommendation" msgid="7847408286580217922">"Varovania"</string>
+    <string name="notification_channel_name_critical_warning" msgid="5994320322108351769">"Dôležité varovania"</string>
+</resources>

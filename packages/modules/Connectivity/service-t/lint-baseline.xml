@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.4.0-alpha01" type="baseline" client="" dependencies="true" name="" variant="all" version="8.4.0-alpha01">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `new android.net.EthernetNetworkSpecifier`"
+        errorLine1="                .setNetworkSpecifier(new EthernetNetworkSpecifier(ifaceName))"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service-t/src/com/android/server/ethernet/EthernetNetworkFactory.java"
+            line="156"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Cast from `EthernetNetworkSpecifier` to `NetworkSpecifier` requires API level 31 (current min is 30)"
+        errorLine1="                .setNetworkSpecifier(new EthernetNetworkSpecifier(ifaceName))"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service-t/src/com/android/server/ethernet/EthernetNetworkFactory.java"
+            line="156"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `new android.net.EthernetNetworkSpecifier`"
+        errorLine1="            nc.setNetworkSpecifier(new EthernetNetworkSpecifier(iface));"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service-t/src/com/android/server/ethernet/EthernetServiceImpl.java"
+            line="218"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Cast from `EthernetNetworkSpecifier` to `NetworkSpecifier` requires API level 31 (current min is 30)"
+        errorLine1="            nc.setNetworkSpecifier(new EthernetNetworkSpecifier(iface));"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service-t/src/com/android/server/ethernet/EthernetServiceImpl.java"
+            line="218"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 31 (current min is 30): `android.net.EthernetNetworkSpecifier`"
+        errorLine1="        if (!(spec instanceof EthernetNetworkSpecifier)) {"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service-t/src/com/android/server/ethernet/EthernetServiceImpl.java"
+            line="221"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.net.EthernetNetworkSpecifier#getInterfaceName`"
+        errorLine1="        if (!((EthernetNetworkSpecifier) spec).getInterfaceName().matches(iface)) {"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service-t/src/com/android/server/ethernet/EthernetServiceImpl.java"
+            line="224"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 31 (current min is 30): `android.net.EthernetNetworkSpecifier`"
+        errorLine1="        if (!((EthernetNetworkSpecifier) spec).getInterfaceName().matches(iface)) {"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service-t/src/com/android/server/ethernet/EthernetServiceImpl.java"
+            line="224"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `java.net.InetAddress#parseNumericAddress`"
+        errorLine1="                    staticIpConfigBuilder.setGateway(InetAddress.parseNumericAddress(value));"
+        errorLine2="                                                                 ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service-t/src/com/android/server/ethernet/EthernetTracker.java"
+            line="885"
+            column="66"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `java.net.InetAddress#parseNumericAddress`"
+        errorLine1="                        dnsAddresses.add(InetAddress.parseNumericAddress(address));"
+        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service-t/src/com/android/server/ethernet/EthernetTracker.java"
+            line="890"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `libcore.io.IoUtils#closeQuietly`"
+        errorLine1="            IoUtils.closeQuietly(mSocket);"
+        errorLine2="                    ~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service-t/src/com/android/server/IpSecService.java"
+            line="1042"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `libcore.io.IoUtils#closeQuietly`"
+        errorLine1="                IoUtils.closeQuietly(sockFd);"
+        errorLine2="                        ~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service-t/src/com/android/server/IpSecService.java"
+            line="1318"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 31 (current min is 30): `android.system.OsConstants#UDP_ENCAP`"
+        errorLine1="                    OsConstants.UDP_ENCAP,"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service-t/src/com/android/server/IpSecService.java"
+            line="1326"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 31 (current min is 30): `android.system.OsConstants#UDP_ENCAP_ESPINUDP`"
+        errorLine1="                    OsConstants.UDP_ENCAP_ESPINUDP);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service-t/src/com/android/server/IpSecService.java"
+            line="1327"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `BpfNetMaps`"
+        errorLine1="            return new BpfNetMaps(ctx);"
+        errorLine2="                   ~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service-t/src/com/android/server/net/NetworkStatsFactory.java"
+            line="111"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `swapActiveStatsMap`"
+        errorLine1="            mBpfNetMaps.swapActiveStatsMap();"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service-t/src/com/android/server/net/NetworkStatsFactory.java"
+            line="185"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.net.UnderlyingNetworkInfo#getInterface`"
+        errorLine1="            delta.migrateTun(info.getOwnerUid(), info.getInterface(),"
+        errorLine2="                                                      ~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service-t/src/com/android/server/net/NetworkStatsFactory.java"
+            line="240"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.net.UnderlyingNetworkInfo#getOwnerUid`"
+        errorLine1="            delta.migrateTun(info.getOwnerUid(), info.getInterface(),"
+        errorLine2="                                  ~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service-t/src/com/android/server/net/NetworkStatsFactory.java"
+            line="240"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.net.UnderlyingNetworkInfo#getUnderlyingInterfaces`"
+        errorLine1="                    info.getUnderlyingInterfaces());"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service-t/src/com/android/server/net/NetworkStatsFactory.java"
+            line="241"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `libcore.io.IoUtils#closeQuietly`"
+        errorLine1="                IoUtils.closeQuietly(os);"
+        errorLine2="                        ~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service-t/src/com/android/server/net/NetworkStatsRecorder.java"
+            line="580"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 35 (current min is 34): `newInstance`"
+        errorLine1="                            opts = BroadcastOptionsShimImpl.newInstance("
+        errorLine2="                                                            ~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service-t/src/com/android/server/net/NetworkStatsService.java"
+            line="562"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `new android.util.AtomicFile`"
+        errorLine1="        mFile = new AtomicFile(new File(path), logger);"
+        errorLine2="                ~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service-t/src/com/android/server/net/PersistentInt.java"
+            line="53"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `addOrUpdateInterfaceAddress`"
+        errorLine1="                    mCb.addOrUpdateInterfaceAddress(ifaddrMsg.index, la);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service-t/src/com/android/server/connectivity/mdns/internal/SocketNetlinkMonitor.java"
+            line="69"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `deleteInterfaceAddress`"
+        errorLine1="                mCb.deleteInterfaceAddress(ifaddrMsg.index, la);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service-t/src/com/android/server/connectivity/mdns/internal/SocketNetlinkMonitor.java"
+            line="73"
+            column="21"/>
+    </issue>
+
+</issues>

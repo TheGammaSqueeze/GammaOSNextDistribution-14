@@ -1,0 +1,550 @@
+{
+  "libs": [],
+  "meta": {
+    "abi": "aarch64",
+    "appBuildID": null,
+    "asyncstack": 1,
+    "categories": [
+      {
+        "color": "yellow",
+        "name": "User",
+        "subcategories": [
+          "Other"
+        ]
+      },
+      {
+        "color": "orange",
+        "name": "Kernel",
+        "subcategories": [
+          "Other"
+        ]
+      },
+      {
+        "color": "yellow",
+        "name": "Native",
+        "subcategories": [
+          "Other"
+        ]
+      },
+      {
+        "color": "green",
+        "name": "DEX",
+        "subcategories": [
+          "Other"
+        ]
+      },
+      {
+        "color": "green",
+        "name": "OAT",
+        "subcategories": [
+          "Other"
+        ]
+      },
+      {
+        "color": "blue",
+        "name": "Off-CPU",
+        "subcategories": [
+          "Other"
+        ]
+      },
+      {
+        "color": "grey",
+        "name": "Other",
+        "subcategories": [
+          "Other"
+        ]
+      },
+      {
+        "color": "green",
+        "name": "JIT",
+        "subcategories": [
+          "Other"
+        ]
+      }
+    ],
+    "debug": 0,
+    "device": "Google:Pixel 2:walleye",
+    "gcpoison": 0,
+    "interval": 1,
+    "markerSchema": [],
+    "oscpu": null,
+    "platform": null,
+    "presymbolicated": true,
+    "processType": 0,
+    "product": "/data/local/tmp/simpleperf record -e sched:sched_switch -e cpu-cycles sleep 1",
+    "shutdownTime": null,
+    "stackwalk": 1,
+    "startTime": 1512941771000,
+    "version": 24
+  },
+  "pausedRanges": [],
+  "processes": [],
+  "threads": [
+    {
+      "frameTable": {
+        "data": [
+          [
+            0,
+            false,
+            0,
+            null,
+            null,
+            null,
+            null,
+            1,
+            0
+          ],
+          [
+            1,
+            false,
+            0,
+            null,
+            null,
+            null,
+            null,
+            1,
+            0
+          ],
+          [
+            2,
+            false,
+            0,
+            null,
+            null,
+            null,
+            null,
+            5,
+            0
+          ],
+          [
+            3,
+            false,
+            0,
+            null,
+            null,
+            null,
+            null,
+            1,
+            0
+          ],
+          [
+            4,
+            false,
+            0,
+            null,
+            null,
+            null,
+            null,
+            1,
+            0
+          ],
+          [
+            5,
+            false,
+            0,
+            null,
+            null,
+            null,
+            null,
+            1,
+            0
+          ],
+          [
+            6,
+            false,
+            0,
+            null,
+            null,
+            null,
+            null,
+            1,
+            0
+          ],
+          [
+            7,
+            false,
+            0,
+            null,
+            null,
+            null,
+            null,
+            1,
+            0
+          ],
+          [
+            8,
+            false,
+            0,
+            null,
+            null,
+            null,
+            null,
+            1,
+            0
+          ],
+          [
+            9,
+            false,
+            0,
+            null,
+            null,
+            null,
+            null,
+            1,
+            0
+          ],
+          [
+            10,
+            false,
+            0,
+            null,
+            null,
+            null,
+            null,
+            1,
+            0
+          ]
+        ],
+        "schema": {
+          "category": 7,
+          "column": 6,
+          "implementation": 3,
+          "innerWindowID": 2,
+          "line": 5,
+          "location": 0,
+          "optimizations": 4,
+          "relevantForJS": 1,
+          "subcategory": 8
+        }
+      },
+      "markers": {
+        "data": [],
+        "schema": {
+          "category": 4,
+          "data": 5,
+          "endTime": 2,
+          "name": 0,
+          "phase": 3,
+          "startTime": 1
+        }
+      },
+      "name": "sleep",
+      "pid": 9896,
+      "processType": "default",
+      "registerTime": 0,
+      "samples": {
+        "data": [
+          [
+            0,
+            536732415.65594,
+            0
+          ],
+          [
+            1,
+            536732415.663024,
+            0
+          ],
+          [
+            2,
+            536732415.855628,
+            0
+          ],
+          [
+            3,
+            536732416.562399,
+            0
+          ],
+          [
+            2,
+            536732416.922451,
+            0
+          ],
+          [
+            4,
+            536732418.120784,
+            0
+          ],
+          [
+            2,
+            536732418.371201,
+            0
+          ],
+          [
+            5,
+            536732419.142503,
+            0
+          ],
+          [
+            5,
+            536732419.14969,
+            0
+          ],
+          [
+            2,
+            536732419.966826,
+            0
+          ],
+          [
+            6,
+            536732420.235419,
+            0
+          ],
+          [
+            2,
+            536732420.924794,
+            0
+          ],
+          [
+            7,
+            536732421.171461,
+            0
+          ],
+          [
+            2,
+            536732421.250211,
+            0
+          ],
+          [
+            4,
+            536732421.445836,
+            0
+          ],
+          [
+            2,
+            536732421.544899,
+            0
+          ],
+          [
+            7,
+            536732421.800888,
+            0
+          ],
+          [
+            8,
+            536732421.836878,
+            0
+          ],
+          [
+            9,
+            536732421.841878,
+            0
+          ],
+          [
+            2,
+            536732421.87318,
+            0
+          ],
+          [
+            2,
+            536732421.900315,
+            0
+          ],
+          [
+            5,
+            536732422.094638,
+            0
+          ],
+          [
+            2,
+            536732422.188128,
+            0
+          ],
+          [
+            2,
+            536732422.43094,
+            0
+          ],
+          [
+            2,
+            536732422.702972,
+            0
+          ],
+          [
+            2,
+            536732423.006357,
+            0
+          ],
+          [
+            2,
+            536732423.138076,
+            0
+          ],
+          [
+            2,
+            536732423.500628,
+            0
+          ],
+          [
+            2,
+            536732423.76943,
+            0
+          ],
+          [
+            2,
+            536732425.676201,
+            0
+          ],
+          [
+            2,
+            536732426.086722,
+            0
+          ],
+          [
+            2,
+            536732426.35693,
+            0
+          ],
+          [
+            2,
+            536732426.801513,
+            0
+          ],
+          [
+            2,
+            536732426.916774,
+            0
+          ],
+          [
+            2,
+            536732427.020263,
+            0
+          ],
+          [
+            2,
+            536732427.455524,
+            0
+          ],
+          [
+            2,
+            536732428.163961,
+            0
+          ],
+          [
+            2,
+            536732428.383753,
+            0
+          ],
+          [
+            2,
+            536732428.868284,
+            0
+          ],
+          [
+            2,
+            536732429.336982,
+            0
+          ],
+          [
+            2,
+            536732429.894222,
+            0
+          ],
+          [
+            2,
+            536732430.261357,
+            0
+          ],
+          [
+            10,
+            536732430.486097,
+            0
+          ],
+          [
+            2,
+            536732433.741565,
+            0
+          ],
+          [
+            2,
+            536732434.293857,
+            0
+          ]
+        ],
+        "schema": {
+          "responsiveness": 2,
+          "stack": 0,
+          "time": 1
+        }
+      },
+      "stackTable": {
+        "data": [
+          [
+            null,
+            0,
+            0
+          ],
+          [
+            null,
+            1,
+            0
+          ],
+          [
+            null,
+            2,
+            0
+          ],
+          [
+            null,
+            3,
+            0
+          ],
+          [
+            null,
+            4,
+            0
+          ],
+          [
+            null,
+            5,
+            0
+          ],
+          [
+            null,
+            6,
+            0
+          ],
+          [
+            null,
+            7,
+            0
+          ],
+          [
+            null,
+            8,
+            0
+          ],
+          [
+            null,
+            9,
+            0
+          ],
+          [
+            null,
+            10,
+            0
+          ]
+        ],
+        "schema": {
+          "category": 2,
+          "frame": 1,
+          "prefix": 0
+        }
+      },
+      "stringTable": [
+        "perf_event_exec (in [kernel.kallsyms])",
+        "memcpy (in [kernel.kallsyms])",
+        "__schedule (in [kernel.kallsyms])",
+        "schedule_timeout (in [kernel.kallsyms])",
+        "filemap_fault (in [kernel.kallsyms])",
+        "_raw_spin_unlock_irq (in [kernel.kallsyms])",
+        "__wait_on_bit_lock (in [kernel.kallsyms])",
+        "generic_file_read_iter (in [kernel.kallsyms])",
+        "__do_softirq (in [kernel.kallsyms])",
+        "_raw_spin_unlock_irqrestore (in [kernel.kallsyms])",
+        "__clean_dcache_area_pou (in [kernel.kallsyms])"
+      ],
+      "tid": 9896,
+      "unregisterTime": null
+    }
+  ]
+}

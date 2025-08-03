@@ -1,0 +1,10 @@
+description: "Human friendly description of the test"
+
+dependencies:
+
+# object without options
+tests:
+   - com.android.tradefed.testtype.AndroidJUnitTest
+   - com.android.tradefed.testtype.AndroidJUnitTest:
+        options:
+          - package: "android.package"

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2009 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:android="http://schemas.android.com/apk/res/android" xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="sharedUserLabel">Apiau Craidd Android</string>
+    <string name="app_label">Storfa Cysylltiadau</string>
+    <string name="provider_label">Cysylltiadau</string>
+    <string name="upgrade_out_of_memory_notification_ticker">Mae angen rhagor o gof er mwyn uwchraddio cysylltiadau.</string>
+    <string name="upgrade_out_of_memory_notification_title">Yn uwchraddio\'r storfa ar gyfer cysylltiadau</string>
+    <string name="upgrade_out_of_memory_notification_text">Tapia i gwblhau\'r uwchraddio.</string>
+    <string name="default_directory">Cysylltiadau</string>
+    <string name="local_invisible_directory">Arall</string>
+    <string name="voicemail_from_column">"Neges llais oddi wrth "</string>
+    <string name="debug_dump_title">Cadw copi o gronfa ddata cysylltiadau</string>
+    <string name="debug_dump_database_message">Rwyt ar fin gwneud 1) copi o dy gronfa ddata sy\'n cynnwys dy holl gysylltiadau, gwybodaeth gysylltiedig â chofnod galwadau i\'r storfa fewnol, a 2) ei e-bostio. Cofia dileu\'r copi cyn gynted â dy fod wedi ei gopïo oddi ar y ddyfais neu pan fydd yr e-bost wedi ei dderbyn a\'i lawrlwytho.</string>
+    <string name="debug_dump_delete_button">Dileu nawr</string>
+    <string name="debug_dump_start_button">Cychwyn</string>
+    <string name="debug_dump_email_sender_picker">Dewisa raglen i anfon dy ffeil</string>
+    <string name="debug_dump_email_subject">Cronfa ddata cysylltiadau wedi ei hatodi</string>
+    <string name="debug_dump_email_body">Wedi ei hatodi mae cronfa ddata gyda manylion fy holl gysylltiadau. Rhaid cadw\'r wybodaeth yn ddiogel a chyfrinachol.</string>
+</resources>

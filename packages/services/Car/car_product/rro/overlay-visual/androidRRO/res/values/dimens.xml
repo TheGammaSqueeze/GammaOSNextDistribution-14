@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+** Copyright 2016, The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+-->
+<!-- Consider other dimension overrides in values-xxx when adding/changing the value here! -->
+<resources>
+    <dimen name="status_bar_height">76dp</dimen>
+    <dimen name="status_bar_height_default">76dp</dimen>
+    <dimen name="status_bar_height_landscape">76dp</dimen>
+    <dimen name="status_bar_height_portrait">76dp</dimen>
+    <dimen name="car_qs_header_system_icons_area_height">76dp</dimen>
+    <dimen name="navigation_bar_height">96dp</dimen>
+    <dimen name="navigation_bar_height_landscape">96dp</dimen>
+
+    <!-- Original dp unit notification icon size in the status bar. -->
+    <dimen name="status_bar_icon_size">32dp</dimen>
+    <!-- New sp unit notification icon size in the status bar. -->
+    <dimen name="status_bar_icon_size_sp">32sp</dimen>
+    <!-- System status icon size in the status bar. -->
+    <dimen name="status_bar_system_icon_size">32dp</dimen>
+
+    <!-- The size of the right icon. This size is used to down-sample the bitmaps for "large icon". -->
+    <dimen name="notification_right_icon_size">@*android:dimen/car_touch_target_size</dimen>
+
+    <!-- The height of the header of a notification. -->
+    <dimen name="notification_header_height">58dp</dimen>
+
+    <!-- The absolute size of the notification expand icon. -->
+    <dimen name="notification_header_expand_icon_size">55dp</dimen>
+
+    <!-- The top padding for the notification expand button. -->
+    <dimen name="notification_expand_button_padding_top">0dp</dimen>
+
+    <!-- The end margin after the application icon in the notification header -->
+    <dimen name="notification_header_icon_margin_end">10dp</dimen>
+
+    <!-- The absolute size of the application icon in the notification header. -->
+    <dimen name="notification_header_icon_size">24dp</dimen>
+
+    <!-- The margins before and after each of the items in the notification header.-->
+    <dimen name="notification_header_separating_margin">6dp</dimen>
+
+    <!-- The margins before the start of the app name in the header. -->
+    <dimen name="notification_header_app_name_margin_start">@*android:dimen/notification_header_separating_margin</dimen>
+
+    <!-- The padding at the top of the notification header. -->
+    <dimen name="notification_header_padding_top">0dp</dimen>
+
+    <!-- The padding at the bottom of the notification header. -->
+    <dimen name="notification_header_padding_bottom">0dp</dimen>
+
+    <!-- The margin at the bottom of the notification header. -->
+    <dimen name="notification_header_margin_bottom">0dp</dimen>
+
+    <!-- The absolute height for the header in a media notification. -->
+    <dimen name="media_notification_header_height">@*android:dimen/media_notification_header_height</dimen>
+
+    <!-- Top margin to accommodate for the header before the notification content. This value
+         is 8dp smaller than the notification_header_height to bring the text closer. Otherwise,
+         spacing in the font itself makes the space look too large. -->
+    <dimen name="notification_content_margin_top">55dp</dimen>
+
+    <!-- The bottom margin after the notification content.-->
+    <dimen name="notification_content_margin_bottom">24dp</dimen>
+
+    <!-- The margin on the start of the content view. This value should match card keyline1. -->
+    <dimen name="notification_content_margin_start">24dp</dimen>
+
+    <!-- The margin on the end of the content view. Keep in sync with
+         notification_content_plus_picture_margin! -->
+    <dimen name="notification_content_margin_end">@*android:dimen/notification_content_margin_start</dimen>
+
+    <!-- The margin on the end of the content view with a picture. This value is the size of
+         the right icon (64dp) + notification_content_margin_end + 16dp. -->
+    <dimen name="notification_content_picture_margin">106dp</dimen>
+
+    <!-- The margin on the end of the content view with a picture, plus the standard
+        content end margin. -->
+    <dimen name="notification_content_plus_picture_margin_end">80dp</dimen>
+
+    <!-- Size of notification text titles (see TextAppearance.StatusBar.EventContent.Title). -->
+    <dimen name="notification_title_text_size">32sp</dimen>
+
+    <!-- Size of notification text (see TextAppearance.StatusBar.EventContent). -->
+    <dimen name="notification_text_size">26sp</dimen>
+
+    <!-- Size of smaller notification text (see TextAppearance.StatusBar.EventContent.Line2,
+         Info, Time). -->
+    <dimen name="notification_subtext_size">@*android:dimen/notification_text_size</dimen>
+
+    <!-- The margin on top of the text of the notification. -->
+    <dimen name="notification_text_margin_top">0dp</dimen>
+
+    <!-- The height of the notification action list. -->
+    <dimen name="notification_action_list_height">76dp</dimen>
+
+    <!-- The size of the media actions in the media notification. -->
+    <dimen name="media_notification_action_button_size">36dp</dimen>
+
+    <!-- The bottom padding for the media actions container. -->
+    <dimen name="media_notification_actions_padding_bottom">0dp</dimen>
+
+    <!-- The height of the progress bar. -->
+    <dimen name="notification_progress_bar_height">25dp</dimen>
+
+    <!-- The top margin before the notification progress bar.  -->
+    <dimen name="notification_progress_margin_top">16dp</dimen>
+
+    <!-- Make the dots in lock pattern thicker in Car -->
+    <dimen name="lock_pattern_dot_size">24dp</dimen>
+
+    <!-- Focus dimensions -->
+    <dimen name="focus_stroke_width">8dp</dimen>
+    <dimen name="focus_pressed_stroke_width">4dp</dimen>
+
+    <!-- Autofill save dialog padding -->
+    <dimen name="autofill_save_outer_top_margin">@*android:dimen/car_padding_2</dimen>
+    <dimen name="autofill_save_outer_top_padding">@*android:dimen/car_padding_2</dimen>
+    <dimen name="autofill_elevation">@*android:dimen/car_padding_2</dimen>
+    <dimen name="autofill_save_inner_padding">@*android:dimen/car_padding_2</dimen>
+    <dimen name="autofill_save_icon_size">@*android:dimen/car_primary_icon_size</dimen>
+    <dimen name="autofill_save_title_start_padding">@*android:dimen/car_padding_4</dimen>
+    <dimen name="autofill_save_scroll_view_top_margin">@*android:dimen/car_padding_4</dimen>
+    <dimen name="autofill_save_button_bar_padding">@*android:dimen/car_keyline_1</dimen>
+
+    <!-- Floating toolbar dimensions -->
+    <dimen name="floating_toolbar_menu_button_side_padding">@*android:dimen/car_padding_2</dimen>
+    <dimen name="floating_toolbar_menu_image_width">@*android:dimen/car_primary_icon_size</dimen>
+    <dimen name="floating_toolbar_menu_image_button_vertical_padding">@*android:dimen/car_padding_2</dimen>
+    <dimen name="floating_toolbar_text_size">@*android:dimen/car_body1_size</dimen>
+
+    <!-- Switch dimensions -->
+    <dimen name="car_switch_track_height">48dp</dimen>
+    <dimen name="car_switch_track_width">88dp</dimen>
+    <!-- Increases the vertical touch target size. -->
+    <dimen name="car_switch_track_margin_vertical">14dp</dimen>
+    <!-- Switch focus ring height. -->
+    <dimen name="car_switch_track_focus_ring_height">72dp</dimen>
+    <!-- Switch focus ring width. -->
+    <dimen name="car_switch_track_focus_ring_width">112dp</dimen>
+    <!-- Switch focus ring padding. -->
+    <dimen name="car_switch_track_focus_ring_padding">12dp</dimen>
+    <!-- Should be the half of car_switch_track_focus_ring_height. -->
+    <dimen name="car_switch_track_focus_ring_outer_radius">36dp</dimen>
+    <!-- Should be the half of car_switch_track_height. -->
+    <dimen name="car_switch_thumb_outer_radius">24dp</dimen>
+    <!--  The difference between the track size and the thumb size. -->
+    <dimen name="car_switch_thumb_stroke_width">4dp</dimen>
+    <!-- car_switch_thumb_size + car_switch_thumb_stroke_width == car_switch_track_height -->
+    <dimen name="car_switch_thumb_size">40dp</dimen>
+
+    <!-- Toast Dimensions -->
+    <dimen name="toast_corner_radius">48dp</dimen>
+    <dimen name="toast_elevation">0dp</dimen>
+    <dimen name="toast_width">1050dp</dimen>
+    <dimen name="toast_y_offset">268dp</dimen>
+
+    <!-- Button Dimensions -->
+    <dimen name="car_button_height">88dp</dimen>
+    <dimen name="car_button_min_height">88dp</dimen>
+    <dimen name="car_button_height_small">64dp</dimen>
+    <dimen name="car_button_min_height_small">64dp</dimen>
+    <dimen name="car_button_min_width">158dp</dimen>
+    <dimen name="car_button_radius">44dp</dimen>
+    <dimen name="car_button_small_radius">32dp</dimen>
+
+    <!-- Radio button dimensions -->
+    <dimen name="car_radio_button_outer_ring_size">45dp</dimen>
+    <dimen name="car_radio_button_outer_ring_stroke_width">4dp</dimen>
+    <dimen name="car_radio_button_inner_circle_size">32dp</dimen>
+    <dimen name="car_radio_button_focus_ring_size">69dp</dimen>
+    <dimen name="car_radio_button_focus_ring_padding">12dp</dimen>
+
+    <!-- Checkbox dimensions. -->
+    <!-- 77dp scales the material checkbox to provide a 44dp x 44dp checkbox rectangle. -->
+    <dimen name="car_checkbox_size">77dp</dimen>
+    <!-- The checkbox focus ring size -->
+    <dimen name="car_checkbox_focus_ring_size">66dp</dimen>
+
+    <!-- SeekBar dimensions. -->
+    <!-- Allows thumb to extend out of the range of the track. -->
+    <!-- For more information see android.widget.SeekBar#attr_android:thumbOffset. -->
+    <dimen name="car_seekbar_thumb_offset">24dp</dimen>
+    <!-- Horizontal padding for the SeekBar.-->
+    <dimen name="car_seekbar_horizontal_padding">24dp</dimen>
+    <!-- The SeekBar track height.-->
+    <dimen name="car_seekbar_track_height">24dp</dimen>
+    <!-- Vertical padding that extends the touch area for the SeekBar. -->
+    <dimen name="car_seekbar_track_vertical_padding">26dp</dimen>
+    <!-- The stroke with of the ring around the SeekBar thumb when selected. -->
+    <dimen name="car_seekbar_thumb_selected_stroke_width">8dp</dimen>
+    <!-- The size of the SeekBar thumb. -->
+    <dimen name="car_seekbar_thumb_size">68dp</dimen>
+    <!-- The radius of the end of the SeekbarTrack. -->
+    <dimen name="car_seekbar_thumb_outer_radius">24dp</dimen>
+
+    <!-- Sets the Theme android:disabledAlpha value -->
+    <dimen name="car_disabled_alpha">0.35</dimen>
+</resources>

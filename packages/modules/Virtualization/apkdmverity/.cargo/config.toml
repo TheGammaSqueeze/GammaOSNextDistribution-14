@@ -1,0 +1,3 @@
+# Configuring loop devices and device mampper require root privilege.
+[target.x86_64-unknown-linux-gnu]
+runner = 'sudo -E'

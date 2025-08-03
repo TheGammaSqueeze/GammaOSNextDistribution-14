@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+UnflaggedApi: android.net.eap.EapSessionConfig.EapAkaConfig:
+    New API must be flagged with @FlaggedApi: class android.net.eap.EapSessionConfig.EapAkaConfig
+UnflaggedApi: android.net.eap.EapSessionConfig.EapSimConfig:
+    New API must be flagged with @FlaggedApi: class android.net.eap.EapSessionConfig.EapSimConfig

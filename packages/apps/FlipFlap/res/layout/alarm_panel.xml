@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<org.lineageos.flipflap.AlarmPanel xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:visibility="gone" >
+
+    <ImageButton
+        android:id="@+id/snooze_button"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:scaleType="fitXY"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="60dip"
+        android:layout_centerVertical="true"
+        android:src="@drawable/ic_snooze_white_24"
+        android:background="@android:color/transparent" />
+
+    <ImageView android:id="@+id/alarm_alert_icon"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:drawablePadding="2dip"
+        android:gravity="center"
+        android:src="@drawable/ic_alarm_small"
+        android:tint="@color/clock_white" />
+
+    <ImageButton android:id="@+id/dismiss_button"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:scaleType="fitXY"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="60dip"
+        android:src="@drawable/ic_alarm_off_white_24"
+        android:background="@android:color/transparent"/>
+
+    <TextView
+        android:id="@+id/alarm_alert_text"
+        style="@style/widget_small_bold"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textColor="@color/clock_white"
+        android:layout_below="@id/alarm_alert_icon"
+        android:text="@string/alarm_label"
+        android:textAlignment="center" />
+</org.lineageos.flipflap.AlarmPanel>

@@ -1,0 +1,6 @@
+{
+    "app_name": "stats_test",
+    "uuid": "STATS_TEST_UUID",
+    "min_heap": 4096,
+    "min_stack": 4096
+}

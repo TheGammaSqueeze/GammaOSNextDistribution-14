@@ -1,0 +1,244 @@
+// Copyright (C) 2018 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["tools_acloud_license"],
+}
+
+// Added automatically by a large-scale-change
+// http://go/android-license-faq
+license {
+    name: "tools_acloud_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+python_binary_host {
+    name: "acloud",
+    // Make acloud's built name to acloud-dev default build python3 binary.
+    stem: "acloud-dev",
+    pkg_path: "acloud",
+    main: "public/acloud_main.py",
+    srcs: [
+        "public/acloud_main.py",
+        "errors.py"
+    ],
+    data: [
+        "public/data/default.config",
+        ":acloud_version",
+    ],
+    libs: [
+        "acloud_create",
+        "acloud_delete",
+        "acloud_reconnect",
+        "acloud_internal",
+        "acloud_list",
+        "acloud_pull",
+        "acloud_powerwash",
+        "acloud_metrics",
+        "acloud_proto",
+        "acloud_public",
+        "acloud_restart",
+        "acloud_setup",
+        "acloud_hostcleanup",
+        "py-apitools",
+        "py-dateutil",
+        "py-google-api-python-client",
+        "py-oauth2client",
+        "py-six",
+    ],
+    dist: {
+        targets: ["droidcore"],
+    },
+}
+
+python_test_host {
+    name: "acloud_test",
+    pkg_path: "acloud",
+    main: "acloud_test.py",
+    data: [
+        "public/data/default.config",
+    ],
+    srcs: [
+        "acloud_test.py",
+        "errors.py",
+        "public/*_test.py",
+        "public/actions/*_test.py",
+        "internal/lib/*_test.py",
+        "metrics/*.py",
+    ],
+    libs: [
+        "acloud_create",
+        "acloud_delete",
+        "acloud_reconnect",
+        "acloud_internal",
+        "acloud_list",
+        "acloud_powerwash",
+        "acloud_public",
+        "acloud_pull",
+        "acloud_proto",
+        "acloud_restart",
+        "acloud_setup",
+        "acloud_hostcleanup",
+        "asuite_cc_client",
+        "py-apitools",
+        "py-dateutil",
+        "py-google-api-python-client",
+        "py-oauth2client",
+    ],
+    test_config: "acloud_unittest.xml",
+    test_suites: [
+        "general-tests",
+    ],
+    test_options: {
+        // TODO(b/270225397)
+        unit_test: false,
+        tags: ["no-remote"],
+    }
+}
+
+python_library_host {
+    name: "acloud_public",
+    pkg_path: "acloud",
+    srcs: [
+        "public/*.py",
+        "public/actions/*.py",
+    ],
+    exclude_srcs: [
+        "public/*_test.py",
+        "public/actions/*_test.py",
+        "public/acloud_main.py",
+    ]
+}
+
+python_library_host {
+    name: "acloud_internal",
+    pkg_path: "acloud",
+    srcs: [
+        "internal/*.py",
+        "internal/lib/*.py",
+    ],
+    exclude_srcs: [
+        "internal/lib/*_test.py",
+    ]
+}
+
+python_library_host {
+    name: "acloud_proto",
+    pkg_path: "acloud",
+    srcs: [
+        "internal/proto/*.proto",
+    ],
+    proto: {
+        canonical_path_from_root: false,
+    },
+}
+
+python_library_host{
+    name: "acloud_setup",
+    pkg_path: "acloud",
+    srcs: [
+         "setup/*.py",
+    ],
+    exclude_srcs: [
+        "setup/*_test.py",
+    ],
+}
+
+python_library_host{
+    name: "acloud_create",
+    pkg_path: "acloud",
+    srcs: [
+         "create/*.py",
+    ],
+}
+
+python_library_host{
+    name: "acloud_delete",
+    pkg_path: "acloud",
+    srcs: [
+         "delete/*.py",
+    ],
+}
+
+python_library_host{
+    name: "acloud_list",
+    pkg_path: "acloud",
+    srcs: [
+         "list/*.py",
+    ],
+}
+
+python_library_host{
+    name: "acloud_reconnect",
+    pkg_path: "acloud",
+    srcs: [
+         "reconnect/*.py",
+    ],
+}
+
+python_library_host{
+    name: "acloud_pull",
+    pkg_path: "acloud",
+    srcs: [
+         "pull/*.py",
+    ],
+}
+
+python_library_host{
+    name: "acloud_powerwash",
+    pkg_path: "acloud",
+    srcs: [
+         "powerwash/*.py",
+    ],
+}
+
+python_library_host{
+    name: "acloud_restart",
+    pkg_path: "acloud",
+    srcs: [
+         "restart/*.py",
+    ],
+}
+
+python_library_host{
+    name: "acloud_hostcleanup",
+    pkg_path: "acloud",
+    srcs: [
+         "hostcleanup/*.py",
+    ],
+}
+
+python_library_host{
+    name: "acloud_metrics",
+    pkg_path: "acloud",
+    srcs: [
+         "metrics/*.py",
+    ],
+    libs: [
+         "asuite_cc_client",
+    ],
+}
+
+genrule {
+    name: "acloud_version",
+    tool_files: ["gen_version.sh"],
+    cmd: "$(location gen_version.sh) $(out)",
+    out: ["public/data/VERSION"],
+}

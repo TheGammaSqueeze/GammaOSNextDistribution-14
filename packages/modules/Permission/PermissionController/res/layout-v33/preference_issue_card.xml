@@ -1,0 +1,93 @@
+<!--
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/issue_card"
+    android:clickable="false"
+    android:screenReaderFocusable="true"
+    style="@style/SafetyCenterCard.Issue">
+
+    <ImageButton
+        android:id="@+id/issue_card_dismiss_btn"
+        android:src="@drawable/ic_safety_issue_dismiss"
+        android:contentDescription="@string/safety_center_issue_card_dismiss_button"
+        style="@style/SafetyCenterIssueDismiss" />
+
+    <TextView
+        android:id="@+id/issue_card_attribution_title"
+        android:text="@string/summary_placeholder"
+        android:screenReaderFocusable="false"
+        style="@style/SafetyCenterIssueAttributionTitle" />
+
+    <TextView
+        android:id="@+id/issue_card_title"
+        android:text="@string/summary_placeholder"
+        android:screenReaderFocusable="false"
+        style="@style/SafetyCenterIssueTitle" />
+
+    <TextView
+        android:id="@+id/issue_card_subtitle"
+        android:text="@string/summary_placeholder"
+        android:screenReaderFocusable="false"
+        style="@style/SafetyCenterIssueSubtitle" />
+
+    <TextView
+        android:id="@+id/issue_card_summary"
+        android:text="@string/summary_placeholder"
+        android:screenReaderFocusable="false"
+        style="@style/SafetyCenterIssueSummary" />
+
+    <include
+      android:id="@+id/issue_card_action_button_list"
+        layout="?attr/scActionButtonListLayout"/>
+
+    <com.android.permissioncontroller.permission.ui.v33.widget.SafetyProtectionSectionView
+        android:id="@+id/issue_card_protected_by_android"
+        android:importantForAccessibility="no"
+        style="@style/SafetyCenterIssueSafetyProtectionSection" />
+
+    <ImageView
+        android:id="@+id/resolved_issue_image"
+        android:src="@drawable/safety_center_issue_resolved_avd"
+        android:importantForAccessibility="no"
+        style="@style/SafetyCenterIssueCardResolvedImage" />
+
+    <TextView
+        android:id="@+id/resolved_issue_text"
+        android:text="@string/safety_center_resolved_issue_fallback"
+        style="@style/SafetyCenterIssueCardResolvedTitle" />
+
+    <!--  This group doesn't contain issue_card_attribution_title, issue_card_dismiss_btn,
+          issue_card_subtitle or issue_card_protected_by_android since the version of
+          ConstraintLayout we're using doesn't allow us to override the group's visibility on
+          individual group members. See b/242705351 for context. -->
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/default_issue_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        app:constraint_referenced_ids="issue_card_title,issue_card_summary,issue_card_action_button_list" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/resolved_issue_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="resolved_issue_image,resolved_issue_text" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

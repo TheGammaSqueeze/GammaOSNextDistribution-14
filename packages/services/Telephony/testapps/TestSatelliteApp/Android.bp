@@ -1,0 +1,20 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_app {
+    name: "SatelliteTestApp",
+    system_ext_specific: true,
+    platform_apis: true,
+    manifest: "AndroidManifest.xml",
+    srcs: [
+        "src/**/*.java",
+        "src/**/I*.aidl",
+    ],
+    static_libs: [
+        "SatelliteClient",
+    ],
+    owner: "google",
+    privileged: true,
+    certificate: "platform",
+}

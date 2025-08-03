@@ -1,0 +1,74 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package devicelockcontroller;
+
+option java_package = "com.android.devicelockcontroller.proto";
+option java_multiple_files = true;
+
+enum ConfigurationStatus {
+  CONFIGURATION_STATUS_UNSPECIFIED = 0;
+  // The configuration created by a user passed all validation checks and was
+  // successfully inserted into the database.
+  CONFIGURATION_STATUS_ACTIVE = 1;
+  // The configuration was initially active but the user decided to archive the
+  // configuration. In order to archive the configuration, there has to be no
+  // device assigned to this configuration. Also, a device cannot be assigned an
+  // archived configuration.
+  CONFIGURATION_STATUS_ARCHIVED = 2;
+}
+
+message ConfigurationInfo {
+  // The URL to download the kiosk app for non-GMS devices.
+  optional string kiosk_app_download_url = 1;
+
+  // The name of the provider of the kiosk app, e.g. "Foo Bar Inc".
+  optional string kiosk_app_provider_name = 2;
+
+  // The package name of the kiosk app, e.g. "com.foo.bar".
+  optional string kiosk_app_package = 3;
+
+  // The checksum used to sign the kiosk app.
+  //
+  // This is for verifying the validity of the kiosk app.
+  optional string kiosk_app_signature_checksum = 4;
+
+  // The package component of the activity of the kiosk app that the user
+  // would interact when the device is locked (i.e. this activity allows the
+  // user to make a payment), e.g. "com.foo.bar/com.foo.bar.MainActivity".
+  optional string kiosk_app_main_activity = 5;
+
+  // The list of apps that a user can use when the device is locked.
+  repeated string kiosk_app_allowlist_packages = 6;
+
+  // Whether the user can make phone calls when the device is locked.
+  optional bool kiosk_app_enable_outgoing_calls = 7;
+
+  // Whether notifications are shown to the user when the device is locked.
+  optional bool kiosk_app_enable_notifications = 8;
+
+  // Whether installing application from unknown sources is disallowed on this device once
+  // provisioned.
+  optional bool disallow_installing_from_unknown_sources = 9;
+
+  // The URL to the Terms and Conditions of the partner for enrolling in a Device Lock program.
+  optional string terms_and_conditions_url = 10;
+
+  // The URL to the support page the user can use to get help.
+  optional string support_url = 11;
+}

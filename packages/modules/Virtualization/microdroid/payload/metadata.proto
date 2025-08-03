@@ -1,0 +1,81 @@
+/*
+ * Copyright (C) 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto3";
+
+package android.microdroid;
+
+option java_package = "com.android.virt";
+option java_outer_classname = "PayloadMetadataProtos";
+
+// Metadata is the body of the "metadata" partition
+message Metadata {
+  uint32 version = 1;
+
+  repeated ApexPayload apexes = 2;
+
+  ApkPayload apk = 3;
+
+  oneof payload {
+    // Path to JSON config file inside the APK.
+    string config_path = 4;
+    PayloadConfig config = 5;
+  }
+}
+
+message ApexPayload {
+  // Next id: 9
+
+  // Required.
+  string name = 1;
+  string partition_name = 2;
+
+  // Optional.
+  // When specified, apex payload should be verified against these values.
+  bytes public_key = 3;
+  bytes root_digest = 4;
+  int64 manifest_version = 7;
+  string manifest_name = 8;
+
+  // Required.
+  // The timestamp in seconds when the APEX was last updated. This should match the value in
+  // apex-info-list.xml.
+  uint64 last_update_seconds = 5;
+
+  // Required.
+  // Whether the APEX is a factory version or not.
+  bool is_factory = 6;
+}
+
+message ApkPayload {
+  // Required.
+  // The name of APK.
+  string name = 1;
+
+  string payload_partition_name = 2;
+
+  string idsig_partition_name = 3;
+}
+
+message PayloadConfig {
+  // Required.
+  // Name of the payload binary file inside the APK.
+  string payload_binary_name = 1;
+
+  // Optional.
+  // The number of extra APKs that are present.
+  uint32 extra_apk_count = 2;
+}

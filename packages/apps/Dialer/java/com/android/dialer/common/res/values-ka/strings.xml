@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="content_description_overflow">სხვა ვარიანტები</string>
+  <string name="snackbar_undo">მოქმედების გაუქმება</string>
+  <string name="ok_got_it">კარგი, გასაგებია</string>
+</resources>

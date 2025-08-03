@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.google.snippet.uwb">
+
+  <uses-permission android:name="android.permissions.UWB_PRIVILEGED" />
+  <uses-permission android:name="android.permission.UWB_RANGING" />
+
+  <application>
+    <!-- Add any classes that implement the Snippet interface as meta-data, whose
+         value is a comma-separated string, each section being the package path
+         of a snippet class -->
+    <meta-data
+        android:name="mobly-snippets"
+        android:value="com.google.snippet.uwb.UwbManagerSnippet" />
+  </application>
+  <!-- Add an instrumentation tag so that the app can be launched through an
+       instrument command. The runner `com.google.android.mobly.snippet.SnippetRunner`
+       is derived from `AndroidJUnitRunner`, and is required to use the
+       Mobly Snippet Lib. -->
+  <instrumentation
+      android:name="com.google.android.mobly.snippet.SnippetRunner"
+      android:targetPackage="com.google.snippet.uwb" />
+</manifest>

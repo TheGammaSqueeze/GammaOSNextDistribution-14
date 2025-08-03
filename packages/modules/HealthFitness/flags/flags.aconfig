@@ -1,0 +1,23 @@
+package: "com.android.healthconnect.flags"
+container: "com.android.healthconnect"
+
+flag {
+    name: "read_exercise_routes_all_enabled"
+    namespace: "healthconnect"
+    description: "Enables reading third-party exercise routes by apps who hold the corresponding permission."
+    bug: "232379924"
+    is_fixed_read_only: true
+}
+
+flag {
+    name: "skin_temperature"
+    namespace: "healthconnect"
+    description: "Flag for adding the new data type skin temperature."
+    bug: "319602927"
+}
+flag {
+    name: "training_plans"
+    namespace: "healthconnect"
+    description: "Flag for adding the new data type planned exercise sessions."
+    bug: "319604661"
+}

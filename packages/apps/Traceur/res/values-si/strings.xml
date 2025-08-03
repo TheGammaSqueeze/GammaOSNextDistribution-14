@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="system_tracing" msgid="4719188511746319848">"පද්ධති හඹා යාම"</string>
+    <string name="record_system_activity" msgid="4339462312915377825">"පද්ධති ක්‍රියාකාරකම් වාර්තා කර කාර්ය සාධනය වැඩි දියුණු කිරීම සඳහා පසුව එය විශ්ලේෂණය කරන්න"</string>
+    <string name="record_trace" msgid="6416875085186661845">"වාර්තා හඹා යාම"</string>
+    <string name="record_trace_summary" msgid="6705357754827849292">"\"හෝඩුවා සැකසීම්\" තුළ ඇති වින්‍යාස කට්ටලය භාවිත කර පද්ධති හෝඩුවාවක් ග්‍රහණය කරයි"</string>
+    <string name="record_stack_samples" msgid="3498368637185702335">"CPU පැතිකඩ වාර්තා කරන්න"</string>
+    <string name="record_stack_samples_summary" msgid="7827953921526410478">"\"cpu\" ප්‍රවර්ගය පිරික්සීම මගින් Callstack නියැදිකරණය හෝඩුවා තුළ සක්‍රීය කළ හැක"</string>
+    <string name="record_heap_dump" msgid="1688550222066812696">"සංච නික්‍ෂේපය වාර්තා කරන්න"</string>
+    <string name="record_heap_dump_summary_enabled" msgid="5038675257021221777">"\"සංච නික්‍ෂේප ක්‍රියාවලි\" තුළ තෝරා ගත් ක්‍රියාවලිවල සංච නික්‍ෂේපයක් ග්‍රහණය කරයි"</string>
+    <string name="record_heap_dump_summary_disabled" msgid="4640319333930345311">"සංච නික්‍ෂේපය එකතු කිරීමට \"සංච නික්‍ෂේප ක්‍රියාවලි\" තුළ අවම වශයෙන් එක් ක්‍රියාවලියක් තෝරන්න"</string>
+    <string name="start_new_trace" msgid="8177130420802170353">"නව හඹා යාම ආරම්භ කරන්න"</string>
+    <string name="winscope_tracing" msgid="5818984791154837458">"Winscope හෝඩුවා එකතු කරන්න"</string>
+    <string name="winscope_tracing_summary" msgid="7040550156722395894">"සවිස්තරාත්මක UI දුරස්ථමාන දත්ත ඇතුළත් වේ (ජැන්ක් ඇති කළ හැක)"</string>
+    <string name="trace_debuggable_applications" msgid="7957069895298887899">"දෝෂහරණය කළ හැකි යෙදුම් හඹා යන්න"</string>
+    <string name="categories" msgid="2280163673538611008">"ප්‍රවර්ග"</string>
+    <string name="restore_default_categories" msgid="5090536794637169521">"පෙරනිමි ප්‍රවර්ග ප්‍රතිසාධනය කරන්න"</string>
+    <string name="default_categories_restored" msgid="6861683793680564181">"පෙරනිමි ප්‍රවර්ග ප්‍රතිසාධනය කරන ලදී"</string>
+    <string name="default_categories" msgid="2117679794687799407">"පෙරනිමි"</string>
+    <string name="num_categories_selected" msgid="5772630335027553995">"{count,plural, =1{#ක් තෝරා ගන්නා ලදී}one{#ක් තෝරා ගන්නා ලදී}other{#ක් තෝරා ගන්නා ලදී}}"</string>
+    <string name="heap_dump_processes" msgid="2500105180344901939">"සංච නික්‍ෂේප ක්‍රියාවලි"</string>
+    <string name="heap_dump_processes_summary" msgid="4570434268024622765">"අඩු තරමින් එක් මිතිකයක් තේරිය යුතු ය"</string>
+    <string name="clear_heap_dump_processes" msgid="295101454741555286">"සංච නික්‍ෂේප ක්‍රියාවලි පැහැදිලි කරන්න"</string>
+    <string name="clear_heap_dump_processes_toast" msgid="3658510557596150797">"ක්‍රියාවලි ලැයිස්තුව හිස් කරන ලදි"</string>
+    <string name="continuous_heap_dump" msgid="390369382946204224">"අඛණ්ඩ Heap පැතිකඩ"</string>
+    <string name="continuous_heap_dump_summary" msgid="4581643248161659581">"නිශ්චිත කාල පරතරයකට වරක් සංච නික්‍ෂේපය අල්ලා ගන්න"</string>
+    <string name="continuous_heap_dump_interval" msgid="842533896492001433">"සංච නික්‍ෂේප කාල පරතරය"</string>
+    <string name="five_seconds" msgid="7018465440929299712">"තත්පර 5"</string>
+    <string name="ten_seconds" msgid="863416601384309033">"තත්පර 10"</string>
+    <string name="thirty_seconds" msgid="7945396361369598222">"තත්පර 30"</string>
+    <string name="one_minute" msgid="4182508213840684258">"1 විනාඩියක්"</string>
+    <string name="applications" msgid="521776761270770549">"යෙදුම්"</string>
+    <string name="no_debuggable_apps" msgid="4386209254520471208">"දෝෂහරණය කළ හැකි යෙදුම් ලබා ගත නොහැකිය"</string>
+    <string name="buffer_size" msgid="3944311026715111454">"CPU එකකට අන්තරාචයන ප්‍රමාණය"</string>
+    <string name="show_quick_settings_tile" msgid="4971147332635291585">"ඉක්මන් සැකසීම් ටයිලය පෙන්වන්න"</string>
+    <string name="saving_trace" msgid="1468692734770800541">"හඹා යාම බෙදා ගනිමින්"</string>
+    <string name="trace_saved" msgid="5869970594780992309">"හඹා යාම සුරකින ලදී"</string>
+    <string name="saving_stack_samples" msgid="8174915522390525221">"තොග සාම්පල සුරැකීම"</string>
+    <string name="stack_samples_saved" msgid="8863295751647724616">"සාම්පල තොග සුරකින ලදී"</string>
+    <string name="saving_heap_dump" msgid="6118616780825771824">"සංච නික්‍ෂේපය සුරැකීම"</string>
+    <string name="heap_dump_saved" msgid="6720583137473857098">"සංච නික්‍ෂේපය සුරැකිණි"</string>
+    <string name="tap_to_share" msgid="4440713575852187545">"ඔබේ පටිගත කිරීම බෙදා ගැනීමට තට්ටු කරන්න"</string>
+    <string name="attaching_to_report" msgid="2629202947947275886">"දෝෂ වාර්තාවට හෝඩුවාව අමුණමින්"</string>
+    <string name="attached_to_report" msgid="5806905349184608870">"දෝෂ වාර්තාවට හෝඩුවාව අමුණන ලදි"</string>
+    <string name="attached_to_report_summary" msgid="7665675771190391355">"BetterBug විවෘත කිරීමට තට්ටු කරන්න"</string>
+    <string name="stop_tracing" msgid="8916938308534164152">"හෝඩුවාව නතර කරන්න"</string>
+    <string name="tracing_categories_unavailable" msgid="5609076391417077752">"සමහර හඹා යාම් ප්‍රවර්ග ලබා ගත නොහැකිය:"</string>
+    <string name="trace_is_being_recorded" msgid="5947378146009337469">"හෝඩුවාව පටිගත කරමින් පවතී"</string>
+    <string name="tap_to_stop_tracing" msgid="6533282719573871806">"හෝඩුවාව නතර කිරීමට තට්ටු කරන්න"</string>
+    <string name="stack_samples_are_being_recorded" msgid="8669254939248349583">"තොග සාම්පල සටහන් වෙමින් පවතී"</string>
+    <string name="tap_to_stop_stack_sampling" msgid="5911317684139059415">"තොග නියැදිකරණය නැවැත්වීමට තට්ටු කරන්න"</string>
+    <string name="heap_dump_is_being_recorded" msgid="3789315106110524969">"සංච නික්‍ෂේපය පටිගත වෙමින් පවතී"</string>
+    <string name="tap_to_stop_heap_dump" msgid="6475699275834526902">"සංච නික්‍ෂේපය නැවැත්වීමට තට්ටු කරන්න"</string>
+    <string name="clear_saved_files" msgid="9156079311231446825">"සුරකින ලද ගොනු හිස් කරන්න"</string>
+    <string name="clear_saved_files_summary" msgid="109751867417553670">"මාසයකට පසු පටිගත කිරීම් ඉවත් කෙරේ"</string>
+    <string name="clear_saved_files_question" msgid="8586686617760838834">"සුරැකි ගොනු හිස් කරන්න ද?"</string>
+    <string name="all_recordings_will_be_deleted" msgid="7731693738485947891">"/data/local/traces වෙතින් සියලුම පටිගත කිරීම් මකනු ලැබේ"</string>
+    <string name="clear" msgid="5484761795406948056">"හිස් කරන්න"</string>
+    <string name="system_traces_storage_title" msgid="8294090839883366871">"පද්ධති ලුහුබැඳීම්"</string>
+    <string name="keywords" msgid="736547007949049535">"systrace, හඹා යාම, කාර්ය සාධනය"</string>
+    <string name="share_file" msgid="1982029143280382271">"ගොනුව බෙදා ගන්න ද?"</string>
+    <string name="system_trace_sensitive_data" msgid="3069389866696009549">"පද්ධති හඹා යාම් ගොනුවලට සංවේදී පද්ධති සහ යෙදුම් දත්ත ඇතුළත් විය හැකිය (යෙදුම් භාවිතය වැනි). ඔබ විශ්වාස කරන පුද්ගලයන් සහ යෙදුම් සමඟ පමණක් පද්ධති හඹා යාම් බෙදා ගන්න."</string>
+    <string name="share" msgid="8443979083706282338">"බෙදා ගන්න"</string>
+    <string name="dont_show_again" msgid="6662492041164390600">"නැවත නොපෙන්වන්න"</string>
+    <string name="long_traces" msgid="5110949471775966329">"දීර්ඝ හඹා යෑම්"</string>
+    <string name="long_traces_summary" msgid="419034282946761469">"දිගටම උපාංග ආචයනයට සුරකිනු ලැබේ"</string>
+    <string name="long_traces_summary_betterbug" msgid="445546400875135624">"උපාංග ගබඩාවට අඛණ්ඩව සුරකින ලදි (දෝෂ වාර්තාවලට ස්වයංක්‍රියව අමුණනු නොලැබේ)"</string>
+    <string name="max_long_trace_size" msgid="1943788179787181241">"උපරිම දීර්ඝ හඹා යෑම් ප්‍රමාණය"</string>
+    <string name="max_long_trace_duration" msgid="8009837944364246785">"උපරිම දීර්ඝ හඹා යෑම් කාලය"</string>
+    <string name="two_hundred_mb" msgid="4950018549725084512">"200 MB"</string>
+    <string name="one_gb" msgid="590396985168692037">"1 GB"</string>
+    <string name="five_gb" msgid="7883941043220621649">"5 GB"</string>
+    <string name="ten_gb" msgid="4150452462544299276">"10 GB"</string>
+    <string name="twenty_gb" msgid="5717308686812140465">"20 GB"</string>
+    <string name="ten_minutes" msgid="7039181194343961324">"විනාඩි 10ක්"</string>
+    <string name="thirty_minutes" msgid="2575810799813531395">"විනාඩි 30ක්"</string>
+    <string name="one_hour" msgid="5219232935307966891">"1 පැයක්"</string>
+    <string name="eight_hours" msgid="3207620892104451552">"පැය 8ක"</string>
+    <string name="twelve_hours" msgid="4647143276394563496">"පැය 12ක්"</string>
+    <string name="twentyfour_hours" msgid="2789663313550030791">"පැය 24"</string>
+    <string name="four_thousand_kb" msgid="5156346740862105703">"4096 KB"</string>
+    <string name="eight_thousand_kb" msgid="8815334985638334081">"8192 KB"</string>
+    <string name="sixteen_thousand_kb" msgid="7342517169232459259">"16384 KB"</string>
+    <string name="thirtytwo_thousand_kb" msgid="654328198799196150">"32768 KB"</string>
+    <string name="sixtyfive_thousand_kb" msgid="8168144138598305306">"65536 KB"</string>
+    <string name="stop_on_bugreport" msgid="4591832600597126422">"දෝෂ වාර්තා සඳහා පටිගත කිරීම නවත්වන්න"</string>
+    <string name="stop_on_bugreport_summary" msgid="1601834864982891381">"දෝෂ වාර්තාවක් ආරම්භ කළ විට සක්‍රීය පටිගත කිරීම් අවසන් කරයි"</string>
+    <string name="attach_to_bug_report" msgid="5388986830016247490">"දෝෂ වාර්තාවලට පටිගත කිරීම් අමුණන්න"</string>
+    <string name="attach_to_bug_report_summary" msgid="4213730623971240002">"දෝෂ වාර්තාවක් එක් කළ විට ප්‍රගතිය පටිගත කිරීම් ස්වයංක්‍රීයව BetterBug වෙත යවන්න"</string>
+    <string name="link_to_traces" msgid="1404687523304348490">"සුරකින ලද ගොනු බලන්න"</string>
+    <string name="pref_category_trace_settings" msgid="6507535407023329628">"හඹා යාමේ සැකසීම්"</string>
+    <string name="pref_category_saved_files" msgid="1477491400970413291">"සුරැකි ගොනු"</string>
+    <string name="pref_category_misc" msgid="6217624054980014683">"විවිධ"</string>
+    <string name="pref_category_heap_dump_settings" msgid="2234681064312605310">"සංච නික්‍ෂේපය සැකසීම්"</string>
+</resources>

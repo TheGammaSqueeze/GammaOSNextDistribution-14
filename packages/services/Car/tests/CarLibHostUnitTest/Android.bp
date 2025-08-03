@@ -1,0 +1,53 @@
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_library {
+    name: "android.car-no-dep",
+    defaults: [
+        "android.car-defaults",
+    ],
+    aidl: {
+        include_dirs: [
+            "packages/services/Car/car-lib/src",
+            "packages/modules/Bluetooth/framework/aidl-export",
+        ],
+    },
+    static_libs: [
+        "fake.com.android.car.internal.dep",
+    ],
+    sdk_version: "module_current",
+}
+
+android_ravenwood_test {
+    name: "CarLibHostUnitTest",
+    static_libs: [
+        "android.car-no-dep",
+        "android.car.test.utils",
+        "androidx.annotation_annotation",
+        "androidx.test.rules",
+        "vehicle-hal-support-lib",
+    ],
+    srcs: [
+        "src/**/*.java",
+    ],
+    libs: [
+        "android.test.base",
+        "framework-annotations-lib",
+    ],
+    auto_gen_config: true,
+}

@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2012-2013 Andrew Neal
+     Copyright (C) 2012-2014 The CyanogenMod Project
+     Copyright (C) 2017-2020 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">آهنگ‌</string>
+    <string name="page_artists">هنرمندان</string>
+    <string name="page_albums">آلبوم‌ها</string>
+    <string name="page_songs">آهنگ‌ها</string>
+    <string name="page_playlists">فهرست‌های پخش</string>
+    <string name="page_play_queue">صف پخش</string>
+    <string name="header_albums">آلبوم‌ها</string>
+    <string name="header_all_songs">همه آهنگ‌ها</string>
+    <string name="menu_settings">تنظیمات</string>
+    <string name="menu_shuffle_item">بر زدن</string>
+    <string name="menu_shuffle_all">بر زدن همه</string>
+    <string name="menu_shuffle_playlist">بر زدن فهرست پخش</string>
+    <string name="menu_shuffle_album">بر زدن آلبوم</string>
+    <string name="menu_shuffle_artist">بر زدن هنرمند</string>
+    <string name="menu_shuffle_top_tracks">بر زدن آهنگ‌های برتر</string>
+    <string name="menu_shuffle_recent">بر زدن قطعه‌های اخیر</string>
+    <string name="menu_shuffle_last_added">بر زدن افزوده‌های اخیر</string>
+    <string name="menu_sort_by">چینش با</string>
+    <string name="menu_clear_list">پاک‌سازی فهرست</string>
+    <string name="menu_clear_queue">پاک‌سازی صف</string>
+    <string name="menu_save_queue">ذخیره صف در فهرست پخش</string>
+    <string name="menu_equalizer">اکولایزر</string>
+    <string name="add_to_playlist">افزودن به فهرست پخش</string>
+    <string name="add_to_queue">افزودن به صف</string>
+    <string name="remove_from_queue">برداشتن از صف</string>
+    <string name="sort_order_entry_az">آ-ی</string>
+    <string name="sort_order_entry_za">ی-آ</string>
+    <string name="sort_order_entry_artist">هنرمند</string>
+    <string name="sort_order_entry_album">آلبوم</string>
+    <string name="sort_order_entry_year">سال</string>
+    <string name="sort_order_entry_duration">طول</string>
+    <string name="sort_order_entry_number_of_songs">تعداد آهنگ‌ها</string>
+    <string name="sort_order_entry_number_of_albums">تعداد آلبوم‌ها</string>
+    <string name="sort_order_entry_filename">نام پرونده</string>
+    <string name="playlist_last_added">آخرین افزوده</string>
+    <string name="playlist_recently_played">اخیراً پخش‌شده</string>
+    <string name="playlist_top_tracks">قطعه‌های برتر من</string>
+    <string name="new_playlist">فهرست پخش جدید</string>
+    <string name="save">ذخیره</string>
+    <string name="cancel">لغو</string>
+    <string name="overwrite">رونویسی</string>
+    <string name="clear">پاک‌سازی</string>
+    <string name="new_playlist_name_template">فهرست پخش <xliff:g id="number">%d</xliff:g></string>
+    <string name="create_playlist_prompt">نام فهرست پخش</string>
+    <string name="delete_dialog_title">حذف <xliff:g id="item" example="album">%s</xliff:g>؟</string>
+    <string name="clear_top_tracks_title">پاک‌سازی قطعه‌های برتر؟</string>
+    <string name="clear_recent_title">پاک‌سازی اخیراً پخش‌شده‌ها؟</string>
+    <string name="clear_last_added">پاک‌سازی آخرین افزوده‌ها؟</string>
+    <string name="cannot_be_undone">این کار برگشت‌پذیر نیست</string>
+    <string name="delete_warning">این کار تصاویر ذخیره شده را برای همیشه حذف می‌کند</string>
+    <string name="new_photo">گزینش عکس از گالری</string>
+    <string name="use_default">استفاده از عکس پیش‌فرض</string>
+    <string name="visualizer_perm_denied">مجوز ضبط صدا رد شد، برای فعال سازی تجسم موسیقی آن را از نرم‌افزار \"تنظیمات\" فعال کنید.</string>
+    <string name="context_menu_play_selection">پخش</string>
+    <string name="context_menu_play_next">پخش بعدی</string>
+    <string name="context_menu_play_album">پخش آلبوم</string>
+    <string name="context_menu_more_by_artist">بیشتر از این هنرمند</string>
+    <string name="context_menu_rename_playlist">تغییرنام</string>
+    <string name="context_menu_delete">حذف</string>
+    <string name="context_menu_fetch_album_art">دریافت تصویر آلبوم</string>
+    <string name="context_menu_fetch_artist_image">دریافت تصویر هنرمند</string>
+    <string name="context_menu_remove_from_recent">برداشتن از اخیر</string>
+    <string name="context_menu_use_as_ringtone">استفاده به عنوان صدای زنگ</string>
+    <string name="context_menu_remove_from_playlist">برداشتن از لیست‌‍پخش</string>
+    <string name="context_menu_change_image">تغییر تصویر</string>
+    <string name="accessibility_play">پخش</string>
+    <string name="accessibility_pause">مکث</string>
+    <string name="accessibility_next">بعدی</string>
+    <string name="accessibility_prev">پیشین</string>
+    <string name="accessibility_shuffle">تصادفی</string>
+    <string name="accessibility_shuffle_all">همه تصادفی</string>
+    <string name="accessibility_repeat">تکرار</string>
+    <string name="accessibility_repeat_all">تکرار همه</string>
+    <string name="accessibility_repeat_one">تکرار یکی</string>
+    <string name="set_as_ringtone">\'<xliff:g id="name" example="Alarm Bell">%s</xliff:g>\' به‌عنوان صدای زنگ تنظیم شد</string>
+    <string name="settings_storage_category">ذخیره‌سازی</string>
+    <string name="settings_delete_cache_title">حذف حافظه نهان</string>
+    <string name="settings_delete_cache_summary">حذف همه تصاویر ذخیره شده</string>
+    <string name="settings_general_category">عمومي</string>
+    <string name="settings_show_music_visualization_title">نمایش رقص نور موسیقی</string>
+    <string name="settings_use_blur_title">تاری پس‌زمینه</string>
+    <string name="settings_show_lyrics_title">نمایش ترانهٔ آهنگ</string>
+    <string name="settings_show_lyrics_summary">برای آهنگ‌های دارای فایل srt</string>
+    <string name="settings_shake_to_play">برای پخش بلرزانید</string>
+    <string name="settings_shake_to_play_summary">برای پخش آهنگ بعدی، دستگاه خود را بلرزانید</string>
+    <string name="app_widget_small">موسیقی: مربع</string>
+    <string name="app_widget_large">موسیقی: ۴ \u00d7 ۲</string>
+    <string name="app_widget_large_alt">موسیقی: ۴ \u00d7 ۲ (جایگزین)</string>
+    <string name="no_effects_for_you">اکولایزر باز نمی‌شود.</string>
+    <string name="empty_recent_main">آهنگ اخیری وجود ندارد</string>
+    <string name="empty_recent">آهنگ‌های تازه شنیده شده در اینجا نمایش داده خواهند شد.</string>
+    <string name="empty_playlist_main">هیچ آهنگی در لیست پخش نیست</string>
+    <string name="empty_playlist_secondary">برای افزودن آهنگ به این لیست پخش، بر روی گزینه‌های منو در آهنگ، آلبوم یا هنرمند ضربه بزنید و «افزودن به لیست پخش» را انتخاب کنید.</string>
+    <string name="empty_top_tracks_main">بدون آهنگ عالی</string>
+    <string name="empty_top_tracks_secondary">آهنگ‌های زیاد شنیده شده به این لیست افزوده می‌شوند.</string>
+    <string name="empty_last_added_main">هیچ آهنگی اخیرا اضافه نشده است</string>
+    <string name="empty_last_added">آهنگهای افزوده‌شده در ماه اخیر در اینجا نشان داده می‌شوند.</string>
+    <string name="empty_generic_main">هیچ موسیقی پیدا نشد</string>
+    <string name="empty_generic_secondary">برای کپی موسیقی از کامپیوتر به دستگاهتان، از یک کابل USB استفاده کنید.</string>
+    <string name="empty_queue_main">هیچ آهنگی در صف پخش نیست</string>
+    <string name="empty_queue_secondary">برای افزودن آهنگ به صف پخش خود، بر روی گزینه‌های منو در آهنگ، آلبوم یا هنرمند ضربه بزنید و «افزودن به صف» را انتخاب کنید.</string>
+    <string name="error_playing_track">پخش تراک %1$s ناموفق بود</string>
+    <string name="header_unknown_year">سال ناشناخته</string>
+    <string name="header_less_than_30s">کمتر از ۳۰ ثانیه</string>
+    <string name="header_30_to_60_seconds">۳۰ - ۶۰ ثانیه</string>
+    <string name="header_1_to_2_minutes">۱ - ۲ دقیقه</string>
+    <string name="header_2_to_3_minutes">۲ - ۳ دقیقه</string>
+    <string name="header_3_to_4_minutes">۳ - ۴ دقیقه</string>
+    <string name="header_4_to_5_minutes">۴ - ۵ دقیقه</string>
+    <string name="header_5_to_10_minutes">۵ - ۱۰ دقیقه</string>
+    <string name="header_10_to_30_minutes">۱۰ - ۳۰ دقیقه</string>
+    <string name="header_30_to_60_minutes">۳۰ - ۶۰ دقیقه</string>
+    <string name="header_greater_than_60_minutes">بیشتر از ۶۰ دقیقه</string>
+    <string name="header_1_song">۱ آهنگ</string>
+    <string name="header_2_to_4_songs">۲ - ۴ آهنگ ها</string>
+    <string name="header_5_to_9_songs">۵ - ۹ آهنگ</string>
+    <string name="header_10_plus_songs">+۱۰ آهنگ</string>
+    <string name="header_5_plus_albums">+۵ آلبوم</string>
+    <string name="header_other">"دیگر"</string>
+    <string name="duration_format"><xliff:g id="hours">%1$s</xliff:g> <xliff:g id="minutes">%2$s</xliff:g></string>
+    <string name="channel_music">پخش آهنگ</string>
+    <string name="widget_track_name">نام آهنگ</string>
+    <string name="widget_artist_name">نام هنرمند</string>
+    <string name="widget_album_name">نام آلبوم</string>
+</resources>

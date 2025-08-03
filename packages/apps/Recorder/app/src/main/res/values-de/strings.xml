@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2017-2021 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <string name="app_name">Rekorder</string>
+    <string name="share">Teilen</string>
+    <string name="share_selected">Ausgewählte teilen</string>
+    <string name="stop">Stoppen</string>
+    <string name="play">Wiedergabe</string>
+    <string name="pause">Pause</string>
+    <string name="resume">Fortsetzen</string>
+    <string name="delete">Löschen</string>
+    <string name="delete_all">Alle löschen</string>
+    <string name="delete_selected">Ausgewählte löschen</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="rename">Umbenennen</string>
+    <string name="delete_title">Aufnahme löschen</string>
+    <string name="delete_recording_message">Möchtest du die Aufnahme wirklich löschen? Das kann nicht rückgängig gemacht werden</string>
+    <string name="confirm">Bestätigen</string>
+    <string name="discard">Verwerfen</string>
+    <string name="record_again">Aufnahme wiederholen</string>
+    <string name="confirm_result_title">Aufnahme verwenden?</string>
+    <string name="confirm_result_message">Möchtest du die letzte Aufnahme verwenden?</string>
+    <string name="sound_notification_title">Soundrekorder</string>
+    <string name="sound_notification_message">Audiolänge: %1$s</string>
+    <string name="sound_recording_title_working">Wird aufgenommen</string>
+    <string name="sound_recording_title_paused">Pausiert</string>
+    <string name="sound_last_title">Letzte Aufnahme</string>
+    <string name="sound_channel_title">Tonaufnahme</string>
+    <string name="sound_channel_desc">Dauerhafte Benachrichtigung bei der Tonaufnahme und Benachrichtigung nach Abschluss der Aufnahme</string>
+    <string name="settings_title">Einstellungen</string>
+    <string name="settings_location_message">Aufnahmen mit deiner aktuellen Position markieren</string>
+    <string name="settings_quality_high">Aufnehmen in hoher Qualität</string>
+    <string name="dialog_permissions_title">Berechtigungen</string>
+    <string name="dialog_permissions_mic">Rekorder benötigt Zugriff auf das Mikrofon, um Ton aufzunehmen</string>
+    <string name="dialog_permissions_phone">Rekorder benötigt Zugriff auf den Telefonstatus, um zu verhindern, dass diese App deine Anrufe aufzeichnet</string>
+    <string name="dialog_permissions_notifications">Rekorder benötigt die Berechtigung für Benachrichtigungen, um Aufzeichnungssteuerelemente anzuzeigen</string>
+    <string name="dialog_permissions_mic_phone">Rekorder benötigt Zugriff auf das Mikrofon, um Aufnahmen zu erstellen und Zugriff auf den Telefonstatus, um zu verhindern, dass diese App Aufzeichnungen erstellt, während du telefonierst</string>
+    <string name="dialog_permissions_mic_notifications">Rekorder benötigt die Berechtigung für das Mikrofon, um Aufzeichnungssteuerelemente anzuzeigen</string>
+    <string name="dialog_permissions_phone_notifications">Rekorder benötigt Zugriff auf den Telefonstatus, um zu verhindern, dass diese App während eines Anrufs aufzeichnet und Benachrichtigungsrechte für die Aufzeichnungssteuerung</string>
+    <string name="dialog_permissions_mic_phone_notifications">Rekorder benötigt die Berechtigung für das Mikrofon um Ton aufzuzeichnen, Zugriff auf den Telefonstatus, um zu verhindern, dass diese App während eines Anrufs aufzeichnet, und Benachrichtigungsrechte für die Aufnahmesteuerung</string>
+    <string name="dialog_permissions_location">Der Rekorder benötigt die Standortberechtigung, um deine Aufnahmen für eine leichtere Organisation automatisch  zu markieren</string>
+    <string name="dialog_permissions_ask">Erneut nachfragen</string>
+    <string name="dialog_permissions_dismiss">Verwerfen</string>
+    <string name="snack_permissions_no_permission">Erforderliche Berechtigungen wurden verweigert, aktiviere diese in den Einstellungen, um mit der Aufnahme zu beginnen</string>
+    <string name="snack_permissions_no_permission_location">Standortberechtigung wurde verweigert, aktiviere sie in der Einstellungen-App, um deine Aufnahmen markieren zu können</string>
+    <string name="main_sound_action">Ton aufnehmen</string>
+    <string name="list_title">Meine Aufnahmen</string>
+    <string name="list_error_empty">Alle deine Aufnahmen werden hier angezeigt</string>
+    <string name="list_edit_title">Aufzeichnungsname ändern</string>
+    <string name="list_edit_confirm">Ändern</string>
+    <string name="list_item_menu">Weitere Aktionen</string>
+    <string name="delete_all_title">Alle löschen</string>
+    <string name="delete_all_message">Möchtest du wirklich alle Aufnahmen löschen? Dies kann nicht rückgängig gemacht werden</string>
+    <string name="delete_selected_title">Markierte löschen</string>
+    <string name="delete_selected_message">Möchtest du die ausgewählten Aufnahmen wirklich löschen? Dies kann nicht rückgängig gemacht werden</string>
+    <plurals name="recording_selection_count">
+        <item quantity="one">%d ausgewählt</item>
+        <item quantity="other">%d ausgewählt</item>
+    </plurals>
+</resources>

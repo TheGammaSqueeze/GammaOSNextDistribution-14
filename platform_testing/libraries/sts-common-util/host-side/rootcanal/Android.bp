@@ -1,0 +1,17 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+sh_test {
+    name: "sts-rootcanal-sidebins",
+    src: "empty.sh",
+    test_suites: [
+        "sts",
+        "sts-lite",
+    ],
+    data_bins: [
+        "android.hardware.bluetooth@1.1-service.sim",
+        "android.hardware.bluetooth@1.1-impl-sim"
+    ],
+    data: ["android.hardware.bluetooth@1.1-service.sim.rc"],
+}

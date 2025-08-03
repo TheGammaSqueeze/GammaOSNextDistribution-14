@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2012-2016 The CyanogenMod Project
+     Copyright (C) 2017-2025 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="flip_action_title">Effaith troi\'r ddyfais drosodd</string>
+    <string name="shake_action_title">Effaith ysgwyd y ddyfais</string>
+    <string-array name="action_setting_entries">
+        <item>Hepian</item>
+        <item>Diystyru</item>
+        <item>Dim byd</item>
+    </string-array>
+    <string name="firing_alarms_timers_channel">Tanio larymau ac amseryddion</string>
+    <string name="alarm_missed_channel">Larymau wedi\'u methu</string>
+    <string name="alarm_snooze_channel">Larymau wedi\'u hepian</string>
+    <string name="alarm_upcoming_channel">Larymau yn dod i fyny</string>
+    <string name="stopwatch_channel">Stopwats</string>
+    <string name="timer_channel">Amserydd</string>
+    <string name="add_label">Ychwanegu label</string>
+    <string name="dialog_permissions_title">Caniatâd</string>
+    <string name="dialog_permissions_ask">Gofyn eto</string>
+    <string name="dialog_permissions_dismiss">Diystyru</string>
+    <string name="dialog_permissions_settings">Gosodiadau</string>
+    <string name="dialog_permissions_power_off_alarm">Heb y caniatâd hwn ni fydd dy ddyfails yn gallu troi ei hun ymlaen i ganu larwm</string>
+    <string name="dialog_permissions_no_permission">Gwrthodwyd ganiatâd angenrheidiol. Gellir rhoi caniatâd o\'r ap Gosodiadau.</string>
+    <string name="dialog_permissions_post_notifications">Mae\'r ap hwn yn dibynnu ar hysbysiadau. Hebddynt, ni all redeg!</string>
+    <string name="selected">Dewiswyd</string>
+    <string name="more_options">Rhagor o ddewisiadau</string>
+    <string name="widget_choice_title">Dewis dy arddull</string>
+    <string name="screensaver_change_settings">Gosodiadau</string>
+</resources>

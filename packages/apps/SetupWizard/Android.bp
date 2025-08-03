@@ -1,0 +1,42 @@
+//
+// SPDX-FileCopyrightText: 2021-2024 The LineageOS Project
+// SPDX-License-Identifier: Apache-2.0
+//
+
+android_app {
+    name: "LineageSetupWizard",
+
+    srcs: ["src/**/*.java"],
+
+    certificate: "platform",
+    privileged: true,
+    system_ext_specific: true,
+    platform_apis: true,
+
+    overrides: ["Provision"],
+
+    optimize: {
+        proguard_flags_files: ["proguard.flags"],
+    },
+
+    static_libs: [
+        "androidx.activity_activity",
+        "SettingsLib",
+        "setupcompat",
+        "setupdesign",
+        "SystemUISharedLib",
+        "org.lineageos.platform.internal",
+    ],
+
+    libs: ["telephony-common"],
+
+    required: ["privapp_whitelist_org.lineageos.setupwizard"],
+}
+
+prebuilt_etc {
+    name: "privapp_whitelist_org.lineageos.setupwizard",
+    system_ext_specific: true,
+    src: "privapp_whitelist_org.lineageos.setupwizard.xml",
+    sub_dir: "permissions",
+    filename_from_src: true,
+}

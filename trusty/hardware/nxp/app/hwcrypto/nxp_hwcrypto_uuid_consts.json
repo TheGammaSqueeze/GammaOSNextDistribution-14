@@ -1,0 +1,20 @@
+{
+    "header": "nxp_hwcrypto_uuid_consts.h",
+    "constants":[
+        {
+            "name": "IMX_HWCRYPTO_UUID",
+            "value": "1adaf827-806b-4bcf-bcec-7e7d2f5a0a5c",
+            "type": "uuid"
+        },
+        {
+            "name": "HWCRYPTO_UNITTEST_APP_UUID",
+            "value": "ab742471-d6e6-4806-85f6-0555b024f4da",
+            "type": "uuid"
+        },
+        {
+            "name": "SECURE_STORAGE_SERVER_APP_UUID",
+            "value": "cea8706d-6cb4-49f3-b994-29e0e478bd29",
+            "type": "uuid"
+        }
+    ]
+}

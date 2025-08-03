@@ -1,0 +1,153 @@
+#
+#  Copyright 2023 The Android Open Source Project
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at:
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#
+
+import("//common-mk/install_config.gni")
+
+group("mmc") {
+  deps = [
+    ":install_dbus_config",
+    ":install_init",
+    ":install_minijail_config",
+    ":install_system_service",
+    ":install_tmpfiles_config",
+    ":mmc_service",
+    "//bt/system/stack/mmc/codec_client:libcodec_client",
+    "//bt/system/stack/mmc/proto:mmc_config_proto",
+  ]
+  if (use.test) {
+    deps += [
+      ":hfp_lc3_mmc_encoder_test",
+      ":hfp_lc3_mmc_decoder_test",
+    ]
+  }
+}
+
+pkg_config("target_defaults") {
+  include_dirs = [
+    "//bt/system",
+    "//bt/system/gd",
+    "//bt/system/include",
+    "//bt/system/stack",
+    "//bt/system/stack/include",
+  ]
+  pkg_deps = [
+    "libchrome",
+  ]
+  if (use.fuzzer) {
+    pkg_deps += [ "protobuf" ]
+  } else {
+    pkg_deps += [ "protobuf-lite" ]
+  }
+  if (!(defined(use.bt_nonstandard_codecs) && use.bt_nonstandard_codecs)) {
+    defines = [ "EXCLUDE_NONSTANDARD_CODECS" ]
+  }
+}
+
+install_config("install_dbus_config") {
+  sources = [ "dbus_permissions/org.chromium.mmc.CodecManager.conf" ]
+  install_path = "/etc/dbus-1/system.d"
+}
+
+install_config("install_system_service") {
+  sources = [ "dbus_service/org.chromium.mmc.CodecManager.service" ]
+  install_path = "/usr/share/dbus-1/system-services"
+}
+
+install_config("install_init") {
+  sources = [ "init/mmc_service.conf" ]
+  install_path = "/etc/init"
+}
+
+install_config("install_tmpfiles_config") {
+  sources = [ "tmpfiles.d/mmc.conf" ]
+  install_path = "/usr/lib/tmpfiles.d"
+}
+
+install_config("install_minijail_config") {
+  sources = [ "minijail/mmc.conf" ]
+  install_path = "/usr/share/minijail"
+}
+
+source_set("libmmc") {
+  configs += [ ":target_defaults" ]
+  sources = [
+    "daemon/service.cc",
+  ]
+  deps = [
+    "//bt/system/common",
+    "//bt/system/stack/mmc/proto:mmc_service_proto",
+    "//bt/system/stack/mmc/codec_server:libcodec_server_hfp_lc3",
+  ]
+  if (defined(use.bt_nonstandard_codecs) && use.bt_nonstandard_codecs) {
+    deps += [ "//bt/system/stack/mmc/codec_server:libcodec_server_a2dp_aac" ]
+  }
+}
+
+executable("mmc_service") {
+  configs += [ ":target_defaults" ]
+  deps = [ ":libmmc" ]
+  sources = [ "main.cc" ]
+}
+
+if (use.test) {
+  executable("hfp_lc3_mmc_encoder_test") {
+    sources = [
+      "codec_server/hfp_lc3_mmc_encoder.cc",
+      "test/hfp_lc3_mmc_encoder_test.cc",
+      "test/mock/mock_embdrv_lc3.cc",
+      "//bt/system/test/mock/mock_common_address_obfuscator.cc",
+      "//bt/system/test/mock/mock_osi_allocator.cc",
+      "//bt/system/test/common/mock_functions.cc",
+    ]
+    include_dirs = [
+      "//bt/system/types",
+    ]
+    configs += [
+      ":target_defaults",
+      "//bt/system:external_gtest_main",
+    ]
+    deps = [
+      "//bt/system/stack/mmc/proto:mmc_config_proto",
+      "//bt/system/common",
+      "//bt/system/osi",
+      "//bt/system/types",
+    ]
+  }
+
+  executable("hfp_lc3_mmc_decoder_test") {
+    sources = [
+      "codec_server/hfp_lc3_mmc_decoder.cc",
+      "test/hfp_lc3_mmc_decoder_test.cc",
+      "test/mock/mock_embdrv_lc3.cc",
+      "//bt/system/test/mock/mock_common_address_obfuscator.cc",
+      "//bt/system/test/mock/mock_osi_allocator.cc",
+      "//bt/system/test/common/mock_functions.cc",
+    ]
+    include_dirs = [
+      "//bt/system/types",
+    ]
+    configs += [
+      ":target_defaults",
+      "//bt/system:external_gtest_main",
+    ]
+    deps = [
+      "//bt/system/stack/mmc/proto:mmc_config_proto",
+      "//bt/system/common",
+      "//bt/system/osi",
+      "//bt/system/types",
+    ]
+  }
+}

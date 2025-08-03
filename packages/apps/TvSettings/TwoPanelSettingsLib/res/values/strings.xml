@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2020 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License
+  -->
+
+<resources>
+    <string name="preference_title_text_font" translatable="false">sans-serif</string>
+    <string name="preference_subtitle_text_font" translatable="false">sans-serif</string>
+    <string name="preference_category_text_font" translatable="false">sans-serif-medium</string>
+    <string name="preference_list_item_text_font" translatable="false">sans-serif</string>
+    <string name="preference_list_item_secondary_text_font" translatable="false">roboto-regular</string>
+    <!-- Informational text indicating on state of a SwitchPreference toggle [CHAR LIMIT=50] -->
+    <string name="info_status_on">On</string>
+    <!-- Informational text indicating off state of a SwitchPreference toggle [CHAR LIMIT=50] -->
+    <string name="info_status_off">Off</string>
+    <!-- Talkback description of SwitchPreference toggle state on [CHAR LIMIT=NONE] -->
+    <string name="switch_on">ON</string>
+    <!-- Talkback description of SwitchPreference toggle state off [CHAR LIMIT=NONE] -->
+    <string name="switch_off">OFF</string>
+    <!-- Talkback description of a SwitchPreference [CHAR LIMIT=NONE] -->
+    <string name="switch_talkback_identifier">Switch</string>
+</resources>

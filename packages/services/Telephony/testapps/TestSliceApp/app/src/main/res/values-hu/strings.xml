@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="1265450418387661962">"TestSliceApp"</string>
+    <string name="hello_blank_fragment" msgid="1245093642770491175">"Üres üdvözlő rész"</string>
+    <string name="request_network" msgid="8945235490804849914">"Hálózat kérése"</string>
+    <string name="release_network" msgid="174252378593535238">"Hálózat felszabadítása"</string>
+    <string name="ping" msgid="7890607576220714932">"Ping"</string>
+    <string name="result_prefix" msgid="3522796186427501399">"Eredmény:"</string>
+    <string name="latency_title" msgid="963052613947017009">"Várakozási idő előnyben"</string>
+    <string name="bw_title" msgid="3902162973688221344">"Sávszélesség előnyben"</string>
+    <string name="cbs_title" msgid="5234410535569935600">"CBS"</string>
+    <string name="purchase" msgid="7843181995697372128">"A hálózati prémium megvásárlása"</string>
+    <string name="network_available" msgid="4780293262690730734">"Eredmény: A kért hálózat már rendelkezésre áll."</string>
+    <string name="network_requested" msgid="5646123922691865991">"Eredmény: A hálózat igénylése megtörtént."</string>
+    <string name="network_released" msgid="2992280481133877025">"Eredmény: A hálózat felszabadult."</string>
+    <string name="network_release_failed" msgid="256471231420029151">"Eredmény: Nem sikerült felszabadítani a hálózatot."</string>
+    <string name="purchase_exception" msgid="8876841120055716671">"Eredmény: Kivétel a hálózati prémium megvásárlásakor."</string>
+    <string name="purchase_empty_result" msgid="7497824191649973928">"Eredmény: Üres eredmény érkezett vissza a hálózati prémium megvásárlásakor."</string>
+    <string name="premium_not_available" msgid="7346368693802644748">"Eredmény: A hálózati prémium nem vásárolható meg."</string>
+    <string name="purchase_in_progress" msgid="5450288183685032424">"Eredmény: A hálózati prémium megvásárlása folyamatban van..."</string>
+</resources>

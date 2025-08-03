@@ -1,0 +1,76 @@
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+python_defaults {
+    name: "CtsWifiMultiDevicePythonDefaults",
+    libs: [
+        "mobly",
+    ],
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+}
+
+python_test_host {
+    name: "CtsWifiAwareTestCases",
+    main: "aware/wifi_aware_test.py",
+    srcs: ["aware/wifi_aware_test.py"],
+    test_config: "aware/AndroidTest.xml",
+    data: [
+        // Package the snippet with the mobly test
+        ":wifi_aware_snippet",
+	    "requirements.txt",
+    ],
+    test_options: {
+        unit_test: false,
+    },
+    defaults: ["CtsWifiMultiDevicePythonDefaults"],
+}
+
+python_library_host {
+    name: "wifi_direct_constants",
+    srcs: ["direct/constants.py"],
+}
+
+python_test_host {
+    name: "WifiDirectMoblyTests",
+    main: "direct/wifi_direct_test.py",
+    srcs: ["direct/wifi_direct_test.py"],
+    libs: [
+        "mobly",
+        "wifi_direct_constants",
+    ],
+    data: [":wifi_direct_mobly_snippet"],
+    test_options: {
+        unit_test: false,
+        tags: ["mobly"],
+    },
+    test_suites: ["general-tests"],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+}
+

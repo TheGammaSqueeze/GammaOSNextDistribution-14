@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (c) 2022, The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="setup_failed_reset_device_timer_text">        {count, plural,
+            zero {}
+            one {Ail-osoda\u2019r ddyfais, yna ceisio ei gosod eto. Caiff ei ail-osod yn awgomatig ymhen # eiliad.}
+            two {Ail-osoda\u2019r ddyfais, yna ceisio ei gosod eto. Caiff ei ail-osod yn awgomatig ymhen # eiliad.}
+            few {Ail-osoda\u2019r ddyfais, yna ceisio ei gosod eto. Caiff ei ail-osod yn awgomatig ymhen # eiliad.}
+            many {Ail-osoda\u2019r ddyfais, yna ceisio ei gosod eto. Caiff ei ail-osod yn awgomatig ymhen # eiliad.}=1    {Ail-osoda\u2019r ddyfais, yna ceisio ei gosod eto. Caiff ei ail-osod yn awgomatig ymhen # eiliad.}
+            other {Ail-osoda\u2019r ddyfais, yna ceisio ei gosod eto. Caiff ei ail-osod yn awgomatig ymhen # eiliad.}
+        }
+    </string>
+    <string name="device_reset_in_days_notification_title">{count, plural,
+        zero {}
+        =1  {Bydd y ddyfais yn ailosod ymhen # diwrnod}
+        one {Bydd y ddyfais yn ailosod ymhen # diwrnod}
+        two {Bydd y ddyfais yn ailosod ymhen # ddiwrnod}
+        few {Bydd y ddyfais yn ailosod ymhen # diwrnod}
+        many {Bydd y ddyfais yn ailosod ymhen # diwrnod}
+        other   {Bydd y ddyfais yn ailosod ymhen # diwrnod}
+    }</string>
+</resources>

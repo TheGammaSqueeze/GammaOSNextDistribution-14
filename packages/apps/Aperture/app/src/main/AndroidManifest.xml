@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2022-2023 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="org.lineageos.aperture">
+
+    <uses-feature android:name="android.hardware.camera.any" />
+    <uses-feature
+        android:name="android.hardware.camera.autofocus"
+        android:required="false" />
+
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission
+        android:name="android.permission.CAMERA"
+        tools:ignore="PermissionImpliesUnsupportedChromeOsHardware" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+
+    <queries>
+        <package android:name="com.google.android.apps.googlecamera.fishfood" />
+        <package android:name="com.google.android.googlequicksearchbox" />
+        <package android:name="org.lineageos.aperture.auto_generated_rro_product__" />
+        <package android:name="org.lineageos.aperture.auto_generated_rro_vendor__" />
+    </queries>
+
+    <application
+        android:name=".ApertureApplication"
+        android:enableOnBackInvokedCallback="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Aperture"
+        tools:targetApi="tiramisu">
+
+        <uses-library
+            android:name="androidx.camera.extensions.impl"
+            android:required="false" />
+
+        <activity
+            android:name=".CameraActivity"
+            android:clearTaskOnLaunch="true"
+            android:configChanges="orientation|screenLayout|screenSize|smallestScreenSize|keyboardHidden"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:screenOrientation="nosensor"
+            android:taskAffinity=".CameraActivity"
+            android:theme="@style/Theme.Aperture.Camera"
+            android:windowSoftInputMode="stateAlwaysHidden|adjustPan">
+            <intent-filter>
+                <action android:name="android.media.action.STILL_IMAGE_CAMERA" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.VOICE" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity-alias
+            android:name=".CameraLauncher"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:targetActivity=".CameraActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity
+            android:name=".CaptureActivity"
+            android:configChanges="orientation|screenLayout|screenSize|smallestScreenSize|keyboardHidden"
+            android:exported="true"
+            android:screenOrientation="nosensor"
+            android:theme="@style/Theme.Aperture.Camera"
+            android:visibleToInstantApps="true"
+            android:windowSoftInputMode="stateAlwaysHidden|adjustPan">
+            <intent-filter>
+                <action android:name="android.media.action.IMAGE_CAPTURE" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.VOICE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".QrScannerActivity"
+            android:configChanges="orientation|screenLayout|screenSize|smallestScreenSize|keyboardHidden"
+            android:exported="true"
+            android:screenOrientation="nosensor"
+            android:theme="@style/Theme.Aperture.Camera"
+            android:visibleToInstantApps="true"
+            android:windowSoftInputMode="stateAlwaysHidden|adjustPan" />
+
+        <!-- Video camera and capture use the Camcorder label and icon. -->
+        <activity-alias
+            android:name=".VideoCamera"
+            android:exported="true"
+            android:label="@string/video_camera_label"
+            android:targetActivity=".CaptureActivity">
+            <intent-filter>
+                <action android:name="android.media.action.VIDEO_CAMERA" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.VOICE" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.media.action.VIDEO_CAPTURE" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.VOICE" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity
+            android:name=".SecureCameraActivity"
+            android:clearTaskOnLaunch="true"
+            android:configChanges="orientation|screenLayout|screenSize|smallestScreenSize|keyboardHidden"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:taskAffinity=".SecureCameraActivity"
+            android:theme="@style/Theme.Aperture.Camera"
+            android:windowSoftInputMode="stateAlwaysHidden|adjustPan">
+            <intent-filter>
+                <action android:name="android.media.action.STILL_IMAGE_CAMERA_SECURE" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.media.action.IMAGE_CAPTURE_SECURE" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".SettingsActivity"
+            android:configChanges="orientation|screenLayout|screenSize|smallestScreenSize|keyboardHidden"
+            android:exported="false"
+            android:label="@string/title_activity_settings"
+            android:theme="@style/Theme.SettingsLib" />
+
+    </application>
+
+</manifest>

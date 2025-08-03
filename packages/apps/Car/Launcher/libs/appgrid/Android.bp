@@ -1,0 +1,97 @@
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_library_static {
+    name: "launcher_item",
+    host_supported: true,
+    proto: {
+        type: "lite",
+    },
+    sdk_version: "module_current",
+    min_sdk_version: "31",
+    srcs: ["lib/src/com/android/car/carlauncher/proto/launcher_item.proto"],
+}
+
+android_library {
+    name: "CarAppGrid-lib",
+    platform_apis: true,
+
+    srcs: [
+        "lib/src/**/*.java",
+        "lib/src/**/*.kt",
+        ":hidden_api_enabled_srcs",
+    ],
+
+    resource_dirs: ["lib/res"],
+
+    static_libs: [
+        "CarLauncherCommon",
+        "androidx-constraintlayout_constraintlayout-solver",
+        "androidx-constraintlayout_constraintlayout",
+        "androidx.lifecycle_lifecycle-extensions",
+        "car-media-common",
+        "guava",
+        "car-ui-lib",
+        "launcher_item",
+        "CarDockUtilLib",
+        "androidx.lifecycle_lifecycle-runtime-ktx",
+        "androidx.lifecycle_lifecycle-viewmodel-ktx",
+        "androidx.activity_activity-ktx",
+        "androidx.fragment_fragment-ktx",
+        "androidx.core_core-ktx",
+        "kotlinx-coroutines-core",
+        "kotlinx-coroutines-android",
+    ],
+
+    libs: ["android.car"],
+
+    manifest: "lib/AndroidManifest.xml",
+    // TODO(b/319708040): re-enable use_resource_processor
+    use_resource_processor: false,
+}
+
+// Uses test key instead of the regular "platform" key
+CERTIFICATE = ":com-android-car-launcher-test"
+
+android_app {
+    name: "CarAppGridTestApp",
+
+    manifest: "app/src/main/AndroidManifest.xml",
+
+    resource_dirs: ["app/src/main/res"],
+
+    srcs: [
+        "app/src/**/*.java",
+        "app/src/**/*.kt",
+    ],
+
+    platform_apis: true,
+
+    required: ["allowed_privapp_com.android.car.appgrid.test"],
+
+    certificate: CERTIFICATE,
+
+    privileged: true,
+
+    static_libs: ["CarAppGrid-lib"],
+
+    optimize: {
+        enabled: true,
+    },
+}

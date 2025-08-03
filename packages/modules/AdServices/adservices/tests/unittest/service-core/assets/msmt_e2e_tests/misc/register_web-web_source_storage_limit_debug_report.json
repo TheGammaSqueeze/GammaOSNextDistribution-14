@@ -1,0 +1,140 @@
+{
+  "description": "Two sources when max_sources_per_origin is set to 1, debug_permission (ar_debug permission) is enabled. Expected source-storage-limit debug report",
+  "phflags_override": {
+    "measurement_max_sources_per_publisher": "1"
+  },
+  "input": {
+    "web_sources": [
+      {
+        "registration_request": {
+          "source_origin": "android-app://example.1s1.test",
+          "source_type": "navigation",
+          "web_destination": "https://example.2d1.test",
+          "registrant": "example.1s1.test",
+          "source_params": [{
+            "attribution_src_url": "https://www.ad-tech1.test"
+          }]
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "debug_permission" : true,
+          "response": {
+            "Attribution-Reporting-Register-Source": {
+              "source_event_id": "1",
+              "web_destination": "https://example.2d1.test",
+              "priority": "100",
+              "expiry": "172801",
+              "debug_key": "347982378",
+              "debug_reporting": true
+            },
+            "Location": null,
+            "Attribution-Reporting-Redirect": null
+          }
+        }],
+        "timestamp": "800000000001"
+      },
+      {
+        "registration_request": {
+          "source_origin": "android-app://example.1s1.test",
+          "source_type": "navigation",
+          "web_destination": "https://example.2d1.test",
+          "registrant": "example.1s1.test",
+          "source_params": [{
+            "attribution_src_url": "https://www.ad-tech1.test"
+          }]
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "debug_permission" : true,
+          "response": {
+            "Attribution-Reporting-Register-Source": {
+              "source_event_id": "1",
+              "web_destination": "https://example.2d1.test",
+              "priority": "100",
+              "expiry": "172801",
+              "debug_key": "347982379",
+              "debug_reporting": true
+            },
+            "Location": null,
+            "Attribution-Reporting-Redirect": null
+          }
+        }],
+        "timestamp": "800000000001"
+      }],
+    "web_triggers": [
+      {
+        "registration_request": {
+          "destination_origin": "https://example.2d1.test",
+          "registrant": "example.2d1.test",
+          "trigger_params": [{
+            "attribution_src_url": "https://www.ad-tech1.test"
+          }]
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "debug_permission" : true,
+          "response": {
+            "Attribution-Reporting-Register-Trigger": {
+              "event_trigger_data": [
+                {
+                  "trigger_data": "2",
+                  "priority": "101"
+                }
+              ],
+              "debug_key": "8971346783"
+            },
+            "Location": null,
+            "Attribution-Reporting-Redirect": null
+          }
+        }],
+        "timestamp": "800000600001"
+      }]
+  },
+  "output": {
+    "event_level_results": [{
+      "report_time": "800176400001",
+      "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/report-event-attribution",
+      "payload": {
+        "attribution_destination": "https://2d1.test",
+        "scheduled_report_time": "800176400",
+        "source_event_id": "1",
+        "trigger_data": "2",
+        "source_type": "navigation",
+        "randomized_trigger_rate": 0.0008051
+      }
+    }],
+    "verbose_debug_reports": [
+      {
+        "report_time": "800000000001",
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/debug/verbose",
+        "payload": [
+          {
+            "type": "source-success",
+            "body": {
+              "source_event_id": "1",
+              "attribution_destination": "https://2d1.test",
+              "source_site": "android-app://1s1.test",
+              "source_debug_key": "347982378"
+            }
+          }
+        ]
+      },
+      {
+        "report_time": "800000000001",
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/debug/verbose",
+        "payload": [
+          {
+            "type": "source-storage-limit",
+            "body": {
+              "source_event_id": "1",
+              "attribution_destination": "https://2d1.test",
+              "source_site": "android-app://1s1.test",
+              "limit": "1",
+              "source_debug_key": "347982379"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

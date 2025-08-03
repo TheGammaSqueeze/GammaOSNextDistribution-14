@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2012 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="description_dialpad_back">Dir p\'atrás</string>
+    <string name="description_dialpad_overflow">Más opciones</string>
+    <string name="description_delete_button">retrocesu</string>
+    <string name="description_image_button_plus">más</string>
+    <string name="description_voicemail_button">buzón de voz</string>
+    <string name="default_notification_description">Soníu predetermináu (<xliff:g id="default_sound_title">%1$s</xliff:g>)</string>
+    <string name="callFailed_userBusy">La llinia ta ocupada</string>
+    <string name="callFailed_congestion">La rede ta ocupada</string>
+    <string name="callFailed_timedOut">Nun hai rempuesta. Escosó\'l tiempu d\'espera.</string>
+    <string name="callFailed_server_unreachable">Nun se pue acceder al sividor</string>
+    <string name="callFailed_number_unreachable">El númberu nun ye accesible</string>
+    <string name="callFailed_invalid_credentials">Nome d\'usuariu o contraseña incorreutos</string>
+    <string name="callFailed_out_of_network">Llamada de fuera de la rede</string>
+    <string name="callFailed_server_error">Error del sirvidor. Volvi tentalo dempués.</string>
+    <string name="callFailed_noSignal">Nun hai señal</string>
+    <string name="callFailed_limitExceeded">Superóse la llende d\'ACM</string>
+    <string name="callFailed_powerOff">La señal móvil ta desactivada</string>
+    <string name="callFailed_simError">Nun hai nenguna SIM o produxo un error</string>
+    <string name="callFailed_outOfService">La rede móvil nun ta disponible</string>
+    <string name="callFailed_fdn_only">Los NMF torguen les llamaes salientes.</string>
+    <string name="callFailed_dialToUssd">La llamada camudó a una solicitú USSD</string>
+    <string name="callFailed_dialToSs">La llamada camudó a una solicitú SS</string>
+    <string name="callFailed_dialToDial">Cambióse a otru númberu</string>
+    <string name="callFailed_dialToDialVideo">Cambióse a una videollamada</string>
+    <string name="callFailed_dialVideoToSs">La videollamada camudó a una solicitú SS</string>
+    <string name="callFailed_dialVideoToUssd">La videollamada camudó a una solicitú USSD</string>
+    <string name="callFailed_dialVideoToDial">Cambióse a una llamada normal</string>
+    <string name="callFailed_dialVideoToDialVideo">Cambióse a otru númberu</string>
+    <string name="callFailed_cb_enabled">Nun se puen facer llamaes salientes mentanto\'l bloquéu de llamaes ta activáu.</string>
+    <string name="callFailed_dsac_restricted">El control d\'accesu torga les llamaes.</string>
+    <string name="callFailed_dsac_restricted_emergency">El control d\'accesu torga les llamaes d\'emerxencia.</string>
+    <string name="callFailed_dsac_restricted_normal">El control d\'accesu torga les llamaes estándar.</string>
+    <string name="callFailed_unobtainable_number">El númberu ye inválidu</string>
+    <string name="incall_error_missing_voicemail_number">El númberu del buzón de voz ye desconocíu.</string>
+    <string name="callFailed_video_call_tty_enabled">Nun se puen facer videollamaes cuando\'l TTY ta activáu.</string>
+    <string name="callEnded_pulled">La llamada tresfirióse a otru preséu.</string>
+    <string name="ringtone_silent">Nengún</string>
+    <string name="ringtone_unknown">Timbre desconocíu</string>
+    <string name="callFailed_maximum_reached">Toles llinies disponibles tán n\'usu.  Pa facer una llamada, desconecta una de les llamaes nesti preséu o n\'otru de los tos preseos.</string>
+    <string name="callFailed_data_disabled">La llamada finó porque se desactivaron los datos móviles.</string>
+    <string name="callFailed_data_limit_reached_description">La llamada finó porque s\'algamó la llende de datos móviles.</string>
+    <string name="callFailed_data_limit_reached">Algamóse la llende de datos y la llamada finó.</string>
+</resources>

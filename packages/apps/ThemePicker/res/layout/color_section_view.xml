@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2023 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<com.android.customization.picker.color.ui.view.ColorSectionView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/section_bottom_padding"
+    android:layout_marginHorizontal="@dimen/section_horizontal_padding"
+    android:orientation="vertical"
+    android:background="@drawable/top_connected_section_background">
+
+    <!--
+        This is just an invisible placeholder put in place so that the parent keeps its height
+        stable as the RecyclerView updates from 0 items to N items. Keeping it stable allows the
+        layout logic to keep the size of the preview container stable as well, which bodes well
+        for setting up the SurfaceView for remote rendering without changing its size after the
+        content is loaded into the RecyclerView.
+
+        It's critical for any TextViews inside the included layout to have text.
+        -->
+    <LinearLayout
+        android:id="@+id/color_section_option_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingVertical="20dp"
+        android:paddingHorizontal="24dp"
+        android:weightSum="@integer/color_section_num_columns">
+        <include
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            layout="@layout/color_option_overflow_no_background"
+            android:visibility="invisible"
+            android:layout_weight="1"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/more_colors"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="10dp"
+        android:minHeight="48dp"
+        android:gravity="center"
+        android:drawablePadding="12dp"
+        android:drawableStart="@drawable/ic_nav_color"
+        android:drawableTint="@color/system_primary"
+        android:text="@string/more_colors"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"
+        android:textColor="@color/system_primary"
+        android:visibility="gone"
+        tools:ignore="UseCompatTextViewDrawableXml" />
+</com.android.customization.picker.color.ui.view.ColorSectionView>

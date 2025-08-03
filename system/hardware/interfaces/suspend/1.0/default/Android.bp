@@ -1,0 +1,202 @@
+// Copyright (C) 2018 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//       http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_defaults {
+    name: "system_suspend_defaults",
+    shared_libs: [
+        "libbase",
+        "libbinder",
+        "libbinder_ndk",
+        "libcutils",
+        "libhidlbase",
+        "liblog",
+        "libutils",
+    ],
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wthread-safety",
+    ],
+}
+
+cc_defaults {
+    name: "system_suspend_stats_defaults",
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+}
+
+cc_defaults {
+    name: "android.system.suspend-service_defaults",
+    defaults: [
+        "system_suspend_defaults",
+        "system_suspend_stats_defaults",
+    ],
+    shared_libs: [
+        "android.system.suspend-V1-ndk",
+    ],
+    static_libs: [
+        "android.system.suspend.control-V1-cpp",
+        "android.system.suspend.control.internal-cpp",
+        "android.system.suspend@1.0",
+        "libSuspendProperties",
+    ],
+    srcs: [
+        "SuspendControlService.cpp",
+        "SystemSuspend.cpp",
+        "SystemSuspendHidl.cpp",
+        "SystemSuspendAidl.cpp",
+        "WakeLockEntryList.cpp",
+        "WakeupList.cpp",
+    ],
+}
+
+cc_binary {
+    name: "android.system.suspend-service",
+    relative_install_path: "hw",
+    defaults: [
+        "android.system.suspend-service_defaults",
+    ],
+    init_rc: ["android.system.suspend-service.rc"],
+    vintf_fragments: ["android.system.suspend-service.xml"],
+    srcs: [
+        "main.cpp",
+    ],
+}
+
+// Unit tests for ISystemSuspend implementation.
+// Do *NOT* use for compliance with *TS.
+cc_test {
+    name: "SystemSuspendV1_0UnitTest",
+    defaults: [
+        "system_suspend_defaults",
+        "system_suspend_stats_defaults",
+    ],
+    static_libs: [
+        "android.system.suspend-V1-ndk",
+        "android.system.suspend.control-V1-cpp",
+        "android.system.suspend.control.internal-cpp",
+        "libgmock",
+    ],
+    tidy_timeout_srcs: [
+        "SystemSuspendUnitTest.cpp",
+    ],
+    srcs: [
+        "SuspendControlService.cpp",
+        "SystemSuspend.cpp",
+        "SystemSuspendAidl.cpp",
+        "SystemSuspendUnitTest.cpp",
+        "WakeLockEntryList.cpp",
+        "WakeupList.cpp",
+    ],
+    test_suites: ["device-tests"],
+    require_root: true,
+}
+
+cc_test {
+    name: "SystemSuspendV1_0AidlTest",
+    srcs: [
+        "SystemSuspendAidlTest.cpp",
+    ],
+    shared_libs: [
+        "libbinder",
+        "libutils",
+    ],
+    static_libs: [
+        "android.system.suspend.control-V1-cpp",
+    ],
+    test_suites: [
+        "device-tests",
+        "vts",
+    ],
+    require_root: true,
+}
+
+sh_test {
+    name: "SuspendSepolicyTests",
+    src: "SuspendSepolicyTests.sh",
+    test_suites: [
+        "device-tests",
+        "vts",
+    ],
+    test_config: "suspend-sepolicy-tests.xml",
+}
+
+cc_benchmark {
+    name: "SystemSuspendBenchmark",
+    defaults: [
+        "system_suspend_defaults",
+    ],
+    shared_libs: [
+        "android.system.suspend.control-V1-cpp",
+        "android.system.suspend.control.internal-cpp",
+        "android.system.suspend-V1-ndk",
+    ],
+    srcs: [
+        "SystemSuspendBenchmark.cpp",
+    ],
+}
+
+sysprop_library {
+    name: "SuspendProperties",
+    srcs: ["SuspendProperties.sysprop"],
+    property_owner: "Platform",
+}
+
+cc_defaults {
+    name: "suspend_fuzzer_defaults",
+    defaults: [
+        "service_fuzzer_defaults",
+        "fuzzer_disable_leaks",
+        "android.system.suspend-service_defaults",
+    ],
+    static_libs: [
+        "liblog",
+    ],
+    fuzz_config: {
+        cc: [
+            "kaleshsingh@google.com",
+        ],
+        triage_assignee: "waghpawan@google.com",
+    },
+    include_dirs: ["system/hardware/interfaces/suspend/1.0/default/"],
+    cflags: [
+        "-DFUZZ_MODE_SUSPEND_SERVICE=1",
+    ],
+}
+
+cc_fuzz {
+    name: "suspend_service_fuzzer",
+    defaults: [
+        "suspend_fuzzer_defaults",
+    ],
+    srcs: [
+        "fuzzers/SuspendServiceFuzzer.cpp",
+    ],
+}
+
+cc_fuzz {
+    name: "suspend_service_internal_fuzzer",
+    defaults: [
+        "suspend_fuzzer_defaults",
+    ],
+    srcs: [
+        "fuzzers/SuspendServiceInternalFuzzer.cpp",
+    ],
+}

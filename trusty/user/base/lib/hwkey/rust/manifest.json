@@ -1,0 +1,9 @@
+{
+    "app_name": "hwkey-rust-test",
+    "uuid": "7e15bb1a-571b-4404-9337-eeef60ed96e9",
+    "min_heap": 16384,
+    "min_stack": 20480,
+    "mgmt_flags": {
+        "non_critical_app": true
+    }
+}

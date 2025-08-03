@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ~ Copyright (C) 2020 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+    <!-- A list of package names that provide the cards to display on the home screen -->
+    <string-array name="config_homeCardModuleClasses" translatable="false">
+        <item>com.android.car.carlauncher.homescreen.assistive.AssistiveCardModule</item>
+        <item>com.android.car.carlauncher.homescreen.audio.AudioCardModule</item>
+    </string-array>
+
+    <!--
+        A list of preferred intents to use for displaying the maps card. Intents
+        are formatted according to Intent.URI_ANDROID_APP_SCHEME.
+        This list will be used as follows:
+
+        * Pick the first item that is in the same package as the default handler
+          for CATEGORY_APP_MAPS.
+        * Pick the default handler if no such item is in the list.
+        * Pick the first item from the list if there is no default handler.
+    -->
+    <string-array name="config_homeCardPreferredMapActivities" translatable="false">
+    <!--
+        <item>android-app://com.example.map#Intent;category=android.intent.category.GADGET;end</item>
+        <item>android-app://com.example.nav#Intent;component=com.example.nav/.MapsCardActivity;end</item>
+    -->
+    </string-array>
+
+    <!-- An intent to start a map activity with limited functionality, optimized for small canvas.
+         The default map intent is used, if this value is empty or cannot be parsed as an intent
+         URI, for example:
+         "intent:#Intent;component=com.google.android.apps.maps/com.google.android.maps.LimitedMapsActivity;end"
+    -->
+    <string name="config_smallCanvasOptimizedMapIntent" translatable="false"></string>
+
+    <!-- An intent to start tos map activity when user has not accepted terms of service
+         URI, for example:
+         "intent:#Intent;component=com.android.car.carlauncher/com.android.car.carlauncher.homescreen.MapActivityTos;action=android.intent.action.MAIN;end"
+    -->
+    <string name="config_tosMapIntent" translatable="false"></string>
+
+    <!--
+        A list of package names that will prompt a restart of the Task inside TaskView,
+        when the package is updated.
+        E.g.) If a map is running in TaskView, the package names of the map and the service
+        which the map depends on should be enumerated
+    -->
+    <string-array name="config_taskViewPackages" translatable="false">
+    </string-array>
+
+    <!--
+        The Activity to use as a passenger Launcher, if empty, it assumes CarLauncher can do
+        the passenger Launcher role too.
+    -->
+    <string name="config_passengerLauncherComponent">com.android.car.multidisplay/.launcher.LauncherActivity</string>
+
+    <!-- Boolean value to indicate if the secondary descriptive text of homescreen cards
+         without controls should have multiple lines -->
+    <bool name="config_homecard_single_line_secondary_descriptive_text">true</bool>
+
+    <!-- Config values for Calm mode and information shown on the Calm mode screen -->
+    <bool name="config_enableCalmMode">true</bool>
+    <bool name="config_calmMode_showClock">true</bool>
+    <bool name="config_calmMode_showMedia">true</bool>
+    <bool name="config_calmMode_showNavigation">true</bool>
+    <bool name="config_calmMode_showDate">true</bool>
+    <bool name="config_calmMode_showTemperature">true</bool>
+    <string name="config_calmMode_componentName">com.android.car.carlauncher/com.android.car.carlauncher.calmmode.CalmModeActivity</string>
+
+</resources>

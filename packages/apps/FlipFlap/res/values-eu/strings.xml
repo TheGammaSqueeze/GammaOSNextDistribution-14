@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  Copyright (c) 2017 The LineageOS Project
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ Also add information on how to contact you by electronic and paper mail.
+
+-->
+<resources>
+    <string name="app_name">FlipFlap</string>
+    <string name="notification_title">Azal adimentsua antzeman da</string>
+    <string name="alarm_label">ALARMA</string>
+    <string name="abbrev_wday_month_day_no_year">EEE, MMMM d</string>
+    <string name="answer_call">ERANTZUN</string>
+    <string name="ignore_call">EZIKUSI</string>
+    <string name="end_call">AMAITU DEIA</string>
+    <string name="settings_name">Azal adimentsua</string>
+    <string name="settings_summary">Kontrolatu zure gehigarriaren portaera</string>
+    <string name="category_behaviour">Portaera</string>
+    <string name="pass_to_security_view_title">Jo zuzenean pasahitzaren sarrerara</string>
+    <string name="pass_to_security_view_summary">Azala irekitzean blokeo-pantaila erakutsiko da zuzenean</string>
+    <string name="use_high_touch_sensitivity_title">Ukipen sentsibilitate altua</string>
+    <string name="use_high_touch_sensitivity_summary">Areagotu ukipen sentsibilitatea azala itxita dagoenean</string>
+    <string name="category_design">Diseinua</string>
+    <string name="switch_charging_status_title">Erakutsi kargatze-egoera</string>
+    <string name="switch_charging_status_summary">Aldatu kolorea uneko bateriaren kargaren arabera</string>
+    <string name="category_timeouts">Denbora-mugak</string>
+    <string name="timeout_plugged_title">Kargatzean</string>
+    <string name="timeout_unplugged_title">Entxufatu gabe</string>
+    <string name="timeout_summary">Bistaratu %s azalaren aplikazioa azala itxi eta gero</string>
+    <string name="timeout_summary_never">Azala itxi eta gero, azaleko aplikazioa beti piztuta mantenduko da</string>
+    <string name="timeout_summary_immediately">Pantaila itzaliko da azala ixtean</string>
+    <string name="timeout_entry_immediately">Berehala</string>
+    <string name="timeout_entry_5s">5 segundo</string>
+    <string name="timeout_entry_10s">10 segundo</string>
+    <string name="timeout_entry_30s">30 segundo</string>
+    <string name="timeout_entry_1min">minutu 1</string>
+    <string name="timeout_entry_5min">5 minutu</string>
+    <string name="timeout_entry_never">Inoiz ez</string>
+</resources>

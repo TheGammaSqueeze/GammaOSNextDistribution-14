@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/le_audio_device_fragment"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="4dp">
+
+    <LinearLayout
+        android:id="@+id/root_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingLeft="10dp"
+        android:paddingTop="3dp"
+        android:paddingRight="10dp"
+        android:paddingBottom="3dp">
+
+        <include layout="@layout/header_layout" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:layout_marginVertical="2dp"
+            android:background="@drawable/dotted_line"
+            android:layerType="software"
+            android:orientation="vertical" />
+
+        <include layout="@layout/vc_layout" />
+
+        <View
+            android:id="@+id/view"
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:layout_marginVertical="2dp"
+            android:background="@drawable/dotted_line"
+            android:layerType="software"
+            android:orientation="vertical" />
+
+        <include layout="@layout/le_audio_layout" />
+
+        <View
+            android:id="@+id/view2"
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:layout_marginVertical="2dp"
+            android:background="@drawable/dotted_line"
+            android:layerType="software"
+            android:orientation="vertical" />
+
+        <include layout="@layout/bass_layout" />
+
+        <View
+            android:id="@+id/view3"
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:layout_marginVertical="2dp"
+            android:background="@drawable/dotted_line"
+            android:layerType="software"
+            android:orientation="vertical" />
+
+        <include
+            layout="@layout/hap_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

@@ -1,0 +1,27 @@
+package {
+    default_team: "trendy_team_fwk_core_networking",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_library {
+    name: "netd-client",
+    srcs: ["netd/**/*"],
+    sdk_version: "system_current",
+    min_sdk_version: "30",
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.tethering",
+        "com.android.wifi",
+    ],
+    visibility: [
+        "//packages/modules/Connectivity:__subpackages__",
+        "//frameworks/base/services:__subpackages__",
+        "//frameworks/base/packages:__subpackages__",
+        "//packages/modules/Wifi/service:__subpackages__",
+    ],
+    libs: ["androidx.annotation_annotation"],
+    static_libs: [
+        "netd_aidl_interface-lateststable-java",
+        "netd_event_listener_interface-lateststable-java",
+    ],
+}

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+* Copyright 2019, The Android Open Source Project
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+-->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:importantForAccessibility="no"
+    android:background="?androidprv:attr/materialColorSurfaceContainer">
+
+    <ViewStub
+        android:id="@+id/chooser_headline_row_stub"
+        android:layout="@layout/chooser_headline_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="@dimen/chooser_edge_margin_normal"
+        android:layout_marginBottom="@dimen/chooser_view_spacing" />
+
+    <com.android.intentresolver.widget.ScrollableImagePreviewView
+        android:id="@+id/scrollable_image_preview"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/chooser_preview_image_height_tall"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="8dp"
+        app:itemInnerSpacing="3dp"
+        app:itemOuterSpacing="@dimen/chooser_edge_margin_normal"/>
+
+    <include layout="@layout/chooser_action_row"/>
+</LinearLayout>

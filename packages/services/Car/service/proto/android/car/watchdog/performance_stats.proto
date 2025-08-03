@@ -1,0 +1,175 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto3";
+
+package android.automotive.watchdog;
+
+// Represents the performance stats captured by the CarWatchdog daemon.
+message PerformanceStats {
+  optional StatsCollection boot_time_stats = 1;
+  optional StatsCollection wake_up_stats = 2;
+  repeated UserSwitchStatsCollection user_switch_stats = 3;
+  optional StatsCollection last_n_minutes_stats = 4;
+  optional StatsCollection custom_collection_stats = 5;
+}
+
+// Represents the performance stats captured during a single event as a record.
+message StatsCollection {
+  optional int64 collection_interval_millis = 1;
+  repeated StatsRecord records = 2;
+}
+
+// Represents user switch performance stats captured during a single event.
+message UserSwitchStatsCollection {
+  optional int32 to_user_id = 1;
+  optional int32 from_user_id = 2;
+  optional StatsCollection user_switch_collection = 3;
+}
+
+// Represents the performance stats captured during a single poll.
+message StatsRecord {
+  optional int32 id = 1;
+  optional Date date = 2;
+  optional TimeOfDay time = 3;
+  optional SystemWideStats system_wide_stats = 4;
+  repeated PackageCpuStats package_cpu_stats = 5;
+  repeated PackageStorageIoStats package_storage_io_read_stats = 6;
+  repeated PackageStorageIoStats package_storage_io_write_stats = 7;
+  repeated PackageTaskStateStats package_task_state_stats = 8;
+  repeated PackageMajorPageFaults package_major_page_faults = 9;
+}
+
+// Represents the system-wide performance summary stats.
+message SystemWideStats {
+  optional int32 io_wait_time_millis = 1;
+  optional int32 idle_cpu_time_millis = 2;
+  optional int32 total_cpu_time_millis = 3;
+  optional int64 total_cpu_cycles = 4;
+  optional int64 total_context_switches = 5;
+  optional int32 total_io_blocked_processes = 6;
+  optional int32 total_major_page_faults = 7;
+  optional StorageIoStats total_storage_io_stats = 8;
+}
+
+// Represents the CPU stats for a user package.
+message PackageCpuStats {
+  message CpuStats {
+    optional int32 cpu_time_millis = 1;
+    optional int64 cpu_cycles = 2;
+  }
+
+  message ProcessCpuStats {
+    optional string command = 1;
+    optional CpuStats cpu_stats = 2;
+  }
+
+  optional UserPackageInfo user_package_info = 1;
+  optional CpuStats cpu_stats = 2;
+  repeated ProcessCpuStats process_cpu_stats = 3;
+}
+
+// Represents the storage I/O stats for a user package.
+message PackageStorageIoStats {
+  optional UserPackageInfo user_package_info = 1;
+  optional StorageIoStats storage_io_stats = 2;
+}
+
+message StorageIoStats {
+  optional int64 fg_bytes = 1;
+  optional int32 fg_fsync = 2;
+  optional int64 bg_bytes = 3;
+  optional int32 bg_fsync = 4;
+}
+
+// Represents the task state stats for a user package.
+message PackageTaskStateStats {
+  message ProcessTaskStateStats {
+    optional string command = 1;
+    optional int32 io_blocked_task_count = 2;
+  }
+
+  optional UserPackageInfo user_package_info = 1;
+  optional int32 io_blocked_task_count = 2;
+  optional int32 total_task_count = 3;
+  repeated ProcessTaskStateStats process_task_state_stats = 4;
+}
+
+// Represents the major page fault stats for a user package.
+message PackageMajorPageFaults {
+  optional UserPackageInfo user_package_info = 1;
+  optional int32 major_page_faults_count = 2;
+}
+
+message UserPackageInfo {
+  optional int32 user_id = 1;
+  optional string package_name = 2;
+}
+
+// Represents a whole or partial calendar date, such as a birthday. The time of
+// day and time zone are either specified elsewhere or are insignificant. The
+// date is relative to the Gregorian Calendar. This can represent one of the
+// following:
+//
+// * A full date, with non-zero year, month, and day values
+// * A month and day value, with a zero year, such as an anniversary
+// * A year on its own, with zero month and day values
+// * A year and month value, with a zero day, such as a credit card expiration
+// date
+//
+// Related types are [google.type.TimeOfDay][google.type.TimeOfDay] and
+// `google.protobuf.Timestamp`.
+//
+// Copied from:
+// https://github.com/googleapis/googleapis/blob/master/google/type/date.proto
+message Date {
+  // Year of the date. Must be from 1 to 9999, or 0 to specify a date without
+  // a year.
+  optional int32 year = 1;
+
+  // Month of a year. Must be from 1 to 12, or 0 to specify a year without a
+  // month and day.
+  optional int32 month = 2;
+
+  // Day of a month. Must be from 1 to 31 and valid for the year and month, or 0
+  // to specify a year by itself or a year and month where the day isn't
+  // significant.
+  optional int32 day = 3;
+}
+
+// Represents a time of day. The date and time zone are either not significant
+// or are specified elsewhere. An API may choose to allow leap seconds. Related
+// types are [google.type.Date][google.type.Date] and
+// `google.protobuf.Timestamp`.
+//
+// Copied from:
+// https://github.com/googleapis/googleapis/blob/master/google/type/timeofday.proto
+message TimeOfDay {
+  // Hours of day in 24 hour format. Should be from 0 to 23. An API may choose
+  // to allow the value "24:00:00" for scenarios like business closing time.
+  optional int32 hours = 1;
+
+  // Minutes of hour of day. Must be from 0 to 59.
+  optional int32 minutes = 2;
+
+  // Seconds of minutes of the time. Must normally be from 0 to 59. An API may
+  // allow the value 60 if it allows leap-seconds.
+  optional int32 seconds = 3;
+
+  // Modified from nanoseconds.
+  // Fractions of seconds in milliseconds. Must be from 0 to 999.
+  optional int32 millis = 4;
+}

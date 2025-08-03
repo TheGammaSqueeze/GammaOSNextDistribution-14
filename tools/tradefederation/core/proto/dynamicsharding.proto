@@ -1,0 +1,71 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
+//----------------------------------------------------------------------------//
+//  THIS FILE IS AUTOMATICALLY SYNCED TO THE **PUBLIC** AOSP REPOSITORY       //
+//  DO NOT ADD ANY NON-PUBLIC INFORMATION TO THIS FILE                        //
+//----------------------------------------------------------------------------//
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
+
+syntax = "proto3";
+
+package google.internal.android.engprod.v1;
+
+option java_multiple_files = true;
+option java_package = "com.google.internal.android.engprod.v1";
+
+service DynamicTestTargetProvider {
+  // Seed the server pool with new work to be completed.
+  rpc ProvideTestTarget(ProvideTestTargetRequest)
+      returns (ProvideTestTargetResponse) {}
+
+  // Request new work from the server, may request more than one work unit at a
+  // time, and reports whether there are more or not.
+  rpc RequestTestTarget(RequestTestTargetRequest)
+      returns (RequestTestTargetResponse) {}
+}
+
+message ProvideTestTargetRequest {
+  // The pool identifier for the targets set
+  string reference_pool_id = 1;
+  // The set of test target to be seeded under the pool id
+  repeated SerializedTestTarget test_targets = 2;
+  // Use one-shot seeding mode in order to speed up pool initialization
+  optional bool use_one_shot_seeding = 3;
+}
+
+// Placeholder response for providing test targets.
+// The method will raise an error code in the event of an error.
+message ProvideTestTargetResponse {}
+
+message RequestTestTargetRequest {
+  // The pool id we are requesting from
+  string reference_pool_id = 1;
+  // Number of targets we want [default =1]
+  // Future: int32 target_count = 2;
+}
+
+// Response with the requested test targets
+message RequestTestTargetResponse {
+  // List of test targets to be executed
+  repeated SerializedTestTarget test_targets = 1;
+}
+
+message SerializedTestTarget {
+  string target_name = 1;
+  optional uint32 attempt_number = 2;
+}

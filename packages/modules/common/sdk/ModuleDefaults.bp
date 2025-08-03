@@ -1,0 +1,301 @@
+// Copyright (C) 2019 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_visibility: [":__subpackages__"],
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+// Defaults common to all mainline module java_sdk_library instances.
+java_defaults {
+    name: "framework-module-common-defaults",
+
+    // Use the source of annotations that affect metalava doc generation, since
+    // the relevant generation instructions are themselves in javadoc, which is
+    // not present in class files.
+    api_srcs: [":framework-metalava-annotations"],
+
+    // Make the source retention annotations available on the classpath when compiling
+    // the implementation library. (This should be in impl_only_libs but some modules
+    // use these defaults for java_library, sigh.)
+    libs: ["framework-annotations-lib"],
+
+    // Framework modules are not generally shared libraries, i.e. they are not
+    // intended, and must not be allowed, to be used in a <uses-library> manifest
+    // entry.
+    shared_library: false,
+
+    // Prevent dependencies that do not specify an sdk_version from accessing the
+    // implementation library by default and force them to use stubs instead.
+    default_to_stubs: true,
+
+    // Enable api lint. This will eventually become the default for java_sdk_library
+    // but it cannot yet be turned on because some usages have not been cleaned up.
+    // TODO(b/156126315) - Remove when no longer needed.
+    api_lint: {
+        enabled: true,
+        legacy_errors_allowed: false,
+    },
+
+    // The API scope specific properties.
+    public: {
+        enabled: true,
+        sdk_version: "module_current",
+    },
+
+    // installable implies we'll create a non-apex (platform) variant, which
+    // we shouldn't ordinarily need (and it can create issues), so disable that.
+    installable: false,
+
+    // Configure framework module specific metalava options.
+    droiddoc_options: [
+        "--error UnhiddenSystemApi",
+        "--error UnflaggedApi",
+        "--hide CallbackInterface",
+        "--enhance-documentation",
+    ],
+
+    annotations_enabled: true,
+
+    // Allow access to the stubs from anywhere
+    visibility: ["//visibility:public"],
+    stubs_library_visibility: ["//visibility:public"],
+
+    // Hide impl library and stub sources
+    impl_library_visibility: [
+        ":__pkg__",
+        "//frameworks/base/api", // For framework-all
+    ],
+    stubs_source_visibility: ["//visibility:private"],
+
+    defaults_visibility: ["//visibility:private"],
+
+    dist_group: "android",
+}
+
+// Defaults for the java_sdk_libraries of non-updatable modules.
+// java_sdk_libraries using these defaults should also add themselves to the
+// non_updatable_modules list in frameworks/base/api/api.go
+java_defaults {
+    name: "non-updatable-framework-module-defaults",
+    defaults: ["framework-module-common-defaults"],
+
+    system: {
+        enabled: true,
+        sdk_version: "module_current",
+    },
+    module_lib: {
+        enabled: true,
+        sdk_version: "module_current",
+    },
+    // Non-updatable modules are allowed to provide @TestApi
+    test: {
+        enabled: true,
+        sdk_version: "module_current",
+    },
+
+    defaults_visibility: [
+        "//frameworks/base",
+        "//frameworks/base/api",
+        "//packages/modules/Virtualization:__subpackages__",
+    ],
+}
+
+// Defaults for mainline module provided java_sdk_library instances.
+java_defaults {
+    name: "framework-module-defaults",
+    defaults: ["framework-module-common-defaults"],
+    sdk_version: "module_current",
+
+    system: {
+        enabled: true,
+        sdk_version: "module_current",
+    },
+    module_lib: {
+        enabled: true,
+        sdk_version: "module_current",
+    },
+
+    defaults_visibility: [
+        ":__subpackages__",
+        // TODO(b/237461653): Move this to packages/modules/Nfc
+        "//frameworks/base/nfc",
+        "//frameworks/base/apex:__subpackages__",
+        "//frameworks/base/libs/hwui",
+        "//frameworks/base/wifi",
+        "//packages/modules:__subpackages__",
+        "//packages/providers/MediaProvider:__subpackages__",
+        "//system/apex/apexd:__subpackages__",
+    ],
+}
+
+// Defaults for mainline module system server provided java_sdk_library instances.
+java_defaults {
+    name: "framework-system-server-module-defaults",
+    defaults: ["framework-module-common-defaults"],
+    sdk_version: "system_server_current",
+
+    system_server: {
+        enabled: true,
+        sdk_version: "system_server_current",
+    },
+
+    defaults_visibility: [
+        ":__subpackages__",
+        "//art/libartservice:__subpackages__",
+        "//frameworks/base/apex:__subpackages__",
+        "//packages/modules:__subpackages__",
+        "//system/apex/apexd:__subpackages__",
+    ],
+}
+
+filegroup_defaults {
+    name: "framework-sources-module-defaults",
+    visibility: [
+        "//frameworks/base",
+        "//frameworks/base/api",
+    ],
+    defaults_visibility: ["//visibility:public"],
+}
+
+// These apex_defaults serve as a common place to add properties which should
+// affect all mainline modules.
+
+APEX_LOWEST_MIN_SDK_VERSION = "30"
+DCLA_MIN_SDK_VERSION = "31"
+
+apex_defaults {
+    name: "any-launched-apex-modules",
+    updatable: true,
+    defaults_visibility: ["//visibility:public"],
+}
+
+apex_defaults {
+    name: "q-launched-apex-module",
+    defaults: ["any-launched-apex-modules"],
+    min_sdk_version: APEX_LOWEST_MIN_SDK_VERSION,
+    defaults_visibility: ["//visibility:public"],
+}
+
+soong_config_module_type_import {
+    from: "system/apex/Android.bp",
+    module_types: [
+        "library_linking_strategy_apex_defaults",
+        "library_linking_strategy_cc_defaults",
+    ],
+}
+
+library_linking_strategy_apex_defaults {
+    name: "q-launched-dcla-enabled-apex-module",
+    defaults_visibility: [
+         "//external/conscrypt/apex",
+         "//packages/modules/DnsResolver/apex",
+         "//frameworks/av/apex"
+    ],
+    defaults: ["q-launched-apex-module"],
+    soong_config_variables: {
+        library_linking_strategy: {
+            // Use the Q min_sdk_version
+            prefer_static: {},
+            // Override the Q min_sdk_version to min_sdk_version that supports dcla
+            conditions_default: {
+                min_sdk_version: DCLA_MIN_SDK_VERSION,
+            },
+        },
+    },
+}
+
+apex_defaults {
+    name: "r-launched-apex-module",
+    defaults: ["any-launched-apex-modules"],
+    min_sdk_version: "30",
+    defaults_visibility: ["//visibility:public"],
+}
+
+library_linking_strategy_apex_defaults {
+    name: "r-launched-dcla-enabled-apex-module",
+    defaults_visibility: [
+         "//packages/modules/adb:__subpackages__",
+         "//packages/modules/Connectivity/Tethering/apex",
+    ],
+    defaults: ["r-launched-apex-module"],
+    soong_config_variables: {
+        library_linking_strategy: {
+            // Use the R min_sdk_version
+            prefer_static: {},
+            // Override the R min_sdk_version to min_sdk_version that supports dcla
+            conditions_default: {
+                min_sdk_version: DCLA_MIN_SDK_VERSION,
+            },
+        },
+    },
+}
+
+apex_defaults {
+    name: "s-launched-apex-module",
+    defaults: ["any-launched-apex-modules"],
+    min_sdk_version: "31",
+    // Indicates that pre-installed version of this apex can be compressed.
+    // Whether it actually will be compressed is controlled on per-device basis.
+    compressible:true,
+    defaults_visibility: [
+        "//art:__subpackages__",
+        "//packages/modules:__subpackages__",
+    ],
+}
+
+apex_defaults {
+    name: "t-launched-apex-module",
+    defaults: ["any-launched-apex-modules"],
+    min_sdk_version: "Tiramisu",
+    // Indicates that pre-installed version of this apex can be compressed.
+    // Whether it actually will be compressed is controlled on per-device basis.
+    compressible: true,
+    defaults_visibility: ["//packages/modules:__subpackages__"],
+}
+
+apex_defaults {
+    name: "u-launched-apex-module",
+    defaults: ["any-launched-apex-modules"],
+    min_sdk_version: "UpsideDownCake",
+    // Indicates that pre-installed version of this apex can be compressed.
+    // Whether it actually will be compressed is controlled on per-device basis.
+    compressible: true,
+    defaults_visibility: ["//packages/modules:__subpackages__"],
+}
+
+apex_defaults {
+    name: "v-launched-apex-module",
+    defaults: ["any-launched-apex-modules"],
+    min_sdk_version: "VanillaIceCream",
+    // Indicates that pre-installed version of this apex can be compressed.
+    // Whether it actually will be compressed is controlled on per-device basis.
+    compressible: true,
+    defaults_visibility: ["//packages/modules:__subpackages__"],
+}
+
+library_linking_strategy_cc_defaults {
+    name: "apex-lowest-min-sdk-version",
+    defaults_visibility: [
+         "//system/core/libutils:__subpackages__",
+    ],
+    min_sdk_version: APEX_LOWEST_MIN_SDK_VERSION,
+    soong_config_variables: {
+        library_linking_strategy: {
+            prefer_static: {
+                min_sdk_version: "apex_inherit",
+            },
+        },
+    },
+}

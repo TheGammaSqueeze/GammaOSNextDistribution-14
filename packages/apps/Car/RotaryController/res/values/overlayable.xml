@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Copyright (C) 2021 The Android Open Source Project
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.-->
+<!--
+THIS FILE WAS AUTO GENERATED, DO NOT EDIT MANUALLY.
+REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
+-->
+<resources>
+  <overlayable name="CarRotaryController">
+    <policy type="system|product|signature">
+      <item type="array" name="off_screen_nudge_global_actions"/>
+      <item type="array" name="off_screen_nudge_intents"/>
+      <item type="array" name="off_screen_nudge_key_codes"/>
+      <item type="array" name="projected_apps"/>
+      <item type="bool" name="clear_focus_area_history_when_rotating"/>
+      <item type="bool" name="config_showHeadsUpNotificationOnBottom"/>
+      <item type="dimen" name="notification_headsup_card_margin_horizontal"/>
+      <item type="integer" name="after_focus_timeout_ms"/>
+      <item type="integer" name="after_scroll_timeout_ms"/>
+      <item type="integer" name="ignore_view_clicked_ms"/>
+      <item type="integer" name="long_press_ms"/>
+      <item type="integer" name="rotation_acceleration_2x_ms"/>
+      <item type="integer" name="rotation_acceleration_3x_ms"/>
+      <item type="string" name="default_touch_input_method"/>
+      <item type="string" name="rotary_input_method"/>
+    </policy>
+  </overlayable>
+</resources>

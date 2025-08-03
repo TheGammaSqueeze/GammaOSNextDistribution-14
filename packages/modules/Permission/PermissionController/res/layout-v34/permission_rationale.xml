@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!--
+  ~ A lot of content in this file is identical to grant_permissions.xml
+  ~ Be sure to update both files when making changes.
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/permission_rationale_singleton"
+    android:importantForAccessibility="no"
+    android:focusable="false"
+    style="@style/PermissionRationaleSingleton">
+
+    <!-- The dialog -->
+    <LinearLayout
+        android:id="@+id/permission_rationale_dialog"
+        android:theme="@style/Theme.PermissionRationaleDialog"
+        android:importantForAccessibility="no"
+        style="@style/PermissionRationaleDialog">
+
+        <!-- In (hopefully very rare) case dialog is too high: allow scrolling -->
+        <ScrollView
+            style="@style/PermissionRationaleScrollView">
+
+            <LinearLayout
+                android:id="@+id/content_container"
+                style="@style/PermissionRationaleContent">
+
+                <LinearLayout
+                    style="@style/PermissionRationaleTitleContainer">
+
+                    <ImageView
+                        android:id="@+id/permission_icon"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/ic_shield_exclamation_outline"
+                        style="@style/PermissionRationaleTitleIcon" />
+
+                    <TextView
+                        android:id="@+id/permission_rationale_title"
+                        style="@style/PermissionRationaleTitleMessage" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/data_sharing_source_section"
+                    style="@style/PermissionRationaleSectionOuterContainer">
+                    <ImageView
+                        android:id="@+id/data_sharing_source_icon"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/ic_info_24dp"
+                        style="@style/PermissionRationaleSectionIcon" />
+                    <LinearLayout style="@style/PermissionRationaleSectionInnerContainer">
+                        <TextView
+                            android:id="@+id/data_sharing_source_title"
+                            android:text="@string/permission_rationale_data_sharing_source_title"
+                            style="@style/PermissionRationaleSectionTitle" />
+                        <TextView
+                            android:id="@+id/data_sharing_source_message"
+                            style="@style/PermissionRationaleSectionMessage" />
+                    </LinearLayout>
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/purpose_section"
+                    style="@style/PermissionRationaleSectionOuterContainer">
+                    <ImageView
+                        android:id="@+id/purpose_icon"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/ic_help"
+                        style="@style/PermissionRationaleSectionIcon" />
+                    <LinearLayout style="@style/PermissionRationaleSectionInnerContainer">
+                        <TextView
+                            android:id="@+id/purpose_title"
+                            style="@style/PermissionRationaleSectionTitle" />
+                        <TextView
+                            android:id="@+id/purpose_message"
+                            style="@style/PermissionRationaleSectionPurposeList" />
+                    </LinearLayout>
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/learn_more_section"
+                    style="@style/PermissionRationaleSectionOuterContainer">
+                    <ImageView
+                        android:id="@+id/learn_more_icon"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/ic_collections_bookmark"
+                        style="@style/PermissionRationaleSectionIcon" />
+                    <LinearLayout style="@style/PermissionRationaleSectionInnerContainer">
+                        <TextView
+                            android:id="@+id/learn_more_title"
+                            android:text="@string/permission_rationale_permission_data_sharing_varies_title"
+                            style="@style/PermissionRationaleSectionTitle" />
+                        <TextView
+                            android:id="@+id/learn_more_message"
+                            android:text="@string/permission_rationale_data_sharing_varies_message"
+                            style="@style/PermissionRationaleSectionMessage" />
+                    </LinearLayout>
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/settings_section"
+                    style="@style/PermissionRationaleSectionOuterContainer">
+                    <ImageView
+                        android:id="@+id/settings_icon"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/ic_gear"
+                        style="@style/PermissionRationaleSectionIcon" />
+                    <LinearLayout style="@style/PermissionRationaleSectionInnerContainer">
+                        <TextView
+                            android:id="@+id/settings_title"
+                            android:text="@string/permission_rationale_location_settings_title"
+                            style="@style/PermissionRationaleSectionTitle" />
+                        <TextView
+                            android:id="@+id/settings_message"
+                            style="@style/PermissionRationaleSectionMessage" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+
+        <LinearLayout style="@style/PermissionRationaleButtonContainer">
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/back_button"
+                android:text="@string/back"
+                android:theme="@style/Theme.Material3.DayNight"
+                style="@style/PermissionRationaleBackButton" />
+        </LinearLayout>
+
+    </LinearLayout>
+</LinearLayout>

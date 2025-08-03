@@ -1,0 +1,26 @@
+package {
+    default_team: "trendy_team_updatable_sdk_apis",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "StorageManagerUnitTests",
+
+    libs: [
+        "android.test.runner",
+        "android.test.base",
+        "android.test.mock",
+    ],
+
+    static_libs: [
+        "androidx.test.rules",
+        "mockito-target",
+    ],
+
+    // Include all test java files.
+    srcs: ["src/**/*.java"],
+
+    platform_apis: true,
+
+    instrumentation_for: "StorageManager",
+}

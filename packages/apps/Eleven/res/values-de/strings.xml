@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2012-2013 Andrew Neal
+     Copyright (C) 2012-2014 The CyanogenMod Project
+     Copyright (C) 2017-2020 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Musik</string>
+    <string name="page_artists">Interpreten</string>
+    <string name="page_albums">Alben</string>
+    <string name="page_songs">Titel</string>
+    <string name="page_playlists">Wiedergabelisten</string>
+    <string name="page_play_queue">Wiedergabe-Warteschlange</string>
+    <string name="header_albums">Alben</string>
+    <string name="header_all_songs">Alle Titel</string>
+    <string name="menu_settings">Einstellungen</string>
+    <string name="menu_shuffle_item">Zufällige Wiedergabe</string>
+    <string name="menu_shuffle_all">Alles zufällig wiedergeben</string>
+    <string name="menu_shuffle_playlist">Wiedergabeliste zufällig abspielen</string>
+    <string name="menu_shuffle_album">Album zufällig wiedergeben</string>
+    <string name="menu_shuffle_artist">Titel dieses Interpreten zufällig wiedergeben</string>
+    <string name="menu_shuffle_top_tracks">Toptitel zufällig wiedergeben</string>
+    <string name="menu_shuffle_recent">Kürzlich gehörte Titel zufällig wiedergeben</string>
+    <string name="menu_shuffle_last_added">Zuletzt hinzugefügte Titel zufällig wiedergeben</string>
+    <string name="menu_sort_by">Sortieren nach</string>
+    <string name="menu_clear_list">Liste löschen</string>
+    <string name="menu_clear_queue">Warteschlange löschen</string>
+    <string name="menu_save_queue">Warteschlange als Wiedergabeliste speichern</string>
+    <string name="menu_equalizer">Equalizer</string>
+    <string name="add_to_playlist">Zur Wiedergabeliste hinzufügen</string>
+    <string name="add_to_queue">Zur Warteschlange hinzufügen</string>
+    <string name="remove_from_queue">Aus Warteschlange entfernen</string>
+    <string name="sort_order_entry_az">A-Z</string>
+    <string name="sort_order_entry_za">Z-A</string>
+    <string name="sort_order_entry_artist">Interpret</string>
+    <string name="sort_order_entry_album">Album</string>
+    <string name="sort_order_entry_year">Jahr</string>
+    <string name="sort_order_entry_duration">Titellänge</string>
+    <string name="sort_order_entry_number_of_songs">Titelanzahl</string>
+    <string name="sort_order_entry_number_of_albums">Albenanzahl</string>
+    <string name="sort_order_entry_filename">Dateiname</string>
+    <string name="playlist_last_added">Zuletzt hinzugefügt</string>
+    <string name="playlist_recently_played">Kürzlich gespielt</string>
+    <string name="playlist_top_tracks">Meine Toptitel</string>
+    <string name="new_playlist">Neue Wiedergabeliste</string>
+    <string name="save">Speichern</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="overwrite">Überschreiben</string>
+    <string name="clear">Löschen</string>
+    <string name="new_playlist_name_template">Wiedergabeliste <xliff:g id="number">%d</xliff:g></string>
+    <string name="create_playlist_prompt">Name der Wiedergabeliste</string>
+    <string name="delete_dialog_title"><xliff:g id="item" example="album">%s</xliff:g> löschen?</string>
+    <string name="clear_top_tracks_title">Toptitel löschen?</string>
+    <string name="clear_recent_title">Liste der kürzlich gespielten Titel löschen?</string>
+    <string name="clear_last_added">Liste der zuletzt hinzugefügten Titel löschen?</string>
+    <string name="cannot_be_undone">Dies kann nicht rückgängig gemacht werden.</string>
+    <string name="delete_warning">Alle zwischengespeicherten Bilder werden hiermit endgültig gelöscht.</string>
+    <string name="new_photo">Foto aus Galerie auswählen</string>
+    <string name="use_default">Standardfoto verwenden</string>
+    <string name="visualizer_perm_denied">Berechtigung zur Audioaufnahme wurde verweigert. Erlaube sie in den App-Einstellungen, um die Musikvisualisierung zu aktivieren.</string>
+    <string name="context_menu_play_selection">Wiedergeben</string>
+    <string name="context_menu_play_next">Als nächstes wiedergeben</string>
+    <string name="context_menu_play_album">Album wiedergeben</string>
+    <string name="context_menu_more_by_artist">Mehr von diesem Künstler</string>
+    <string name="context_menu_rename_playlist">Umbenennen</string>
+    <string name="context_menu_delete">Löschen</string>
+    <string name="context_menu_fetch_album_art">Albumcover herunterladen</string>
+    <string name="context_menu_fetch_artist_image">Interpretenbild herunterladen</string>
+    <string name="context_menu_remove_from_recent">Aus \"Kürzlich gehört\" entfernen</string>
+    <string name="context_menu_use_as_ringtone">Als Klingelton verwenden</string>
+    <string name="context_menu_remove_from_playlist">Aus Wiedergabeliste entfernen</string>
+    <string name="context_menu_change_image">Bild ändern</string>
+    <string name="accessibility_play">Wiedergeben</string>
+    <string name="accessibility_pause">Pause</string>
+    <string name="accessibility_next">Weiter</string>
+    <string name="accessibility_prev">Vorheriger Titel</string>
+    <string name="accessibility_shuffle">Zufällige Wiedergabe</string>
+    <string name="accessibility_shuffle_all">Alles zufällig wiedergeben</string>
+    <string name="accessibility_repeat">Wiederholen</string>
+    <string name="accessibility_repeat_all">Alle Titel wiederholen</string>
+    <string name="accessibility_repeat_one">Aktuellen Titel wiederholen</string>
+    <string name="set_as_ringtone">\"<xliff:g id="name" example="Alarm Bell">%s</xliff:g>\" wurde als Klingelton festgelegt.</string>
+    <string name="settings_storage_category">Speicher</string>
+    <string name="settings_delete_cache_title">Cache löschen</string>
+    <string name="settings_delete_cache_summary">Alle zwischengespeicherten Bilder löschen</string>
+    <string name="settings_general_category">Allgemein</string>
+    <string name="settings_show_music_visualization_title">Musik-Visualisierung anzeigen</string>
+    <string name="settings_use_blur_title">Hintergrund weichzeichnen</string>
+    <string name="settings_show_lyrics_title">Songtexte zeigen</string>
+    <string name="settings_show_lyrics_summary">Für Titel mit einer SRT-Datei</string>
+    <string name="settings_shake_to_play">Zum Abspielen schütteln</string>
+    <string name="settings_shake_to_play_summary">Schüttel dein Gerät, um den nächsten Titel abzuspielen.</string>
+    <string name="app_widget_small">Musik: Quadrat</string>
+    <string name="app_widget_large">Musik: 4 \u00d7 2</string>
+    <string name="app_widget_large_alt">Musik: 4 \u00d7 2 (alternativ)</string>
+    <string name="no_effects_for_you">Der Equalizer konnte nicht geöffnet werden.</string>
+    <string name="empty_recent_main">Keine kürzlich gespielten Titel</string>
+    <string name="empty_recent">Zuletzt gehörte Titel werden hier angezeigt.</string>
+    <string name="empty_playlist_main">Keine Titel in der Wiedergabeliste</string>
+    <string name="empty_playlist_secondary">Tippe im Optionsmenü auf einen Titel, Künstler oder ein Album und wähle \"Zur Wiedergabeliste hinzufügen\", um den jeweiligen Eintrag zu dieser Liste hinzuzufügen.</string>
+    <string name="empty_top_tracks_main">Keine Toptitel</string>
+    <string name="empty_top_tracks_secondary">Meistgespielte Titel werden dieser Liste hinzugefügt.</string>
+    <string name="empty_last_added_main">Keine kürzlich hinzugefügten Titel</string>
+    <string name="empty_last_added">Hier werden Titel angezeigt, die innerhalb des letzten Monats hinzugefügt wurden.</string>
+    <string name="empty_generic_main">Keine Musik gefunden</string>
+    <string name="empty_generic_secondary">Verwende ein USB-Kabel, um Musik von deinem Computer auf dein Gerät zu kopieren.</string>
+    <string name="empty_queue_main">Keine Titel in der Warteschlange</string>
+    <string name="empty_queue_secondary">Um Titel zur Warteschlange hinzuzufügen, wähle im Optionsmenü eines Titels, Albums oder Interpreten \"Zur Warteschlange hinzufügen\".</string>
+    <string name="error_playing_track">Der Titel \"%1$s\" konnte nicht abgespielt werden.</string>
+    <string name="header_unknown_year">Unbekanntes Jahr</string>
+    <string name="header_less_than_30s">Weniger als 30 Sekunden</string>
+    <string name="header_30_to_60_seconds">30–60 Sekunden</string>
+    <string name="header_1_to_2_minutes">1–2 Minuten</string>
+    <string name="header_2_to_3_minutes">2–3 Minuten</string>
+    <string name="header_3_to_4_minutes">3–4 Minuten</string>
+    <string name="header_4_to_5_minutes">4–5 Minuten</string>
+    <string name="header_5_to_10_minutes">5–10 Minuten</string>
+    <string name="header_10_to_30_minutes">10–30 Minuten</string>
+    <string name="header_30_to_60_minutes">30–60 Minuten</string>
+    <string name="header_greater_than_60_minutes">Länger als 60 Minuten</string>
+    <string name="header_1_song">1 Titel</string>
+    <string name="header_2_to_4_songs">2–4 Titel</string>
+    <string name="header_5_to_9_songs">5–9 Titel</string>
+    <string name="header_10_plus_songs">Mehr als 10 Titel</string>
+    <string name="header_5_plus_albums">Mehr als 5 Alben</string>
+    <string name="header_other">"Anderes"</string>
+    <string name="duration_format"><xliff:g id="hours">%1$s</xliff:g> <xliff:g id="minutes">%2$s</xliff:g></string>
+    <string name="channel_music">Musikwiedergabe</string>
+    <string name="widget_track_name">Name des Titels</string>
+    <string name="widget_artist_name">Name des Interpreten</string>
+    <string name="widget_album_name">Name des Albums</string>
+</resources>

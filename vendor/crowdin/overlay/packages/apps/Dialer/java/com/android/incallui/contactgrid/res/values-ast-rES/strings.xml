@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2016 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="incall_calling_via_template">Llamando per <xliff:g id="provider_name">%s</xliff:g></string>
+  <string name="incall_calling_on_same_carrier_template">Llamando pela mesma operadora «<xliff:g id="provider_name">%s</xliff:g>»</string>
+  <string name="incall_calling_on_recent_choice_template">Llamando pela seleición recién «<xliff:g id="provider_name">%s</xliff:g>»</string>
+  <string name="incall_connecting">Llamando…</string>
+  <string name="incall_connecting_assited_dialed">Llamando con +<xliff:g example="1" id="ad_country_code">%1$s</xliff:g> (<xliff:g example="1" id="ad_user_home_locale">%2$s</xliff:g>)\u2026</string>
+  <string name="incall_connecting_assited_dialed_component">Usando +<xliff:g example="1" id="ad_country_code">%1$s</xliff:g> (<xliff:g example="1" id="ad_user_home_locale">%2$s</xliff:g>)\u2026</string>
+  <string name="incall_transferring">Tresfiriendo…</string>
+  <string name="incall_video_call_requesting">Faciendo una videollamada pela operadora…</string>
+  <string name="incall_wifi_video_call_requesting">Faciendo una videollamada Wi-Fi pela operadora…</string>
+  <string name="incall_video_call_upgrade_request">Cambiando a una videollamada pela operadora…</string>
+  <string name="incall_video_call_request_failed">Nun ye posible conectar</string>
+  <string name="incall_video_call_request_rejected">Refugóse la llamada</string>
+  <string name="incall_video_call_request_timed_out">Escosó\'l tiempu d\'espera de la llamada</string>
+  <string name="incall_video_call_operation_failed">Nun ye posible operar</string>
+  <string name="incall_hanging_up">Colgando</string>
+  <string name="incall_call_ended">La llamada finó</string>
+  <string name="incall_remotely_held">N\'espera</string>
+  <string name="contact_grid_incoming_video_call">Videollamada pela operadora de:</string>
+  <string name="contact_grid_incoming_wifi_video_call">Videollamada Wi-Fi pela operadora de:</string>
+  <string name="contact_grid_incoming_voice_call">Llamada de:</string>
+  <string name="contact_grid_incoming_work_call">Llamada del perfil llaboral de:</string>
+  <string name="contact_grid_incoming_via_template">Llamada per «<xliff:g id="provider_name">%s</xliff:g>» de:</string>
+  <string name="contact_grid_incoming_suspected_spam">Llamador sospechosu de spam</string>
+  <string name="contact_grid_callback_number">Númberu d\'esti teléfonu: <xliff:g id="light_number">%1$s</xliff:g></string>
+</resources>

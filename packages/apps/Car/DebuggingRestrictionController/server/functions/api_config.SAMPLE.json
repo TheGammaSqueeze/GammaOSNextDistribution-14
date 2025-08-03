@@ -1,0 +1,9 @@
+{
+    "key": "*** Put PEM-encoded private key here ***",
+    "certificates.0": "-----BEGIN CERTIFICATE-----\nTOKEN_SIGNING_CERT\n-----END CERTIFICATE-----\n",
+    "certificates.1": "-----BEGIN CERTIFICATE-----\nINTERMEDIATE_CA_CERT\n-----END CERTIFICATE-----\n",
+    "certificates.2": "-----BEGIN CERTIFICATE-----\nROOT_CA_CERT\n-----END CERTIFICATE-----\n",
+    "expiration": "30m",
+    "issuer": "Debugging Access Token Issuer",
+    "audience": "IHU"
+}

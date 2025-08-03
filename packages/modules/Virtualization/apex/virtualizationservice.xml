@@ -1,0 +1,7 @@
+<manifest version="1.0" type="framework">
+    <hal format="aidl">
+        <name>android.hardware.security.keymint</name>
+        <version>3</version>
+        <fqname>IRemotelyProvisionedComponent/avf</fqname>
+    </hal>
+</manifest>

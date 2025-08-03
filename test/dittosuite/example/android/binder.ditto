@@ -1,0 +1,36 @@
+main: {
+  multithreading: {
+    fork: true,
+    threads: [
+      {
+        name: "binder_server"
+        instruction: {
+          binder_service: {
+            name: "hello",
+            threads: 1,
+          },
+          repeat: 1,
+        }
+      },
+      {
+        name: "binder_client"
+        instruction: {
+          multithreading: {
+            threads: [
+              {
+                instruction: {
+                  binder_request: {
+                    service_name: "hello",
+                  },
+                  repeat: 500,
+                }
+                spawn: 2000,
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+},
+global {}

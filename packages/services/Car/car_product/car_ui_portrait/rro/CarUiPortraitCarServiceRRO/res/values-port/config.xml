@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources>
+    <!--
+    Specifies configuration of displays in system telling its usage / type and assigned
+    occupant.
+
+    Some examples are:
+    <item>displayPort=0,displayType=MAIN,occupantZoneId=0,inputTypes=DPAD_KEYS|
+        NAVIGATE_KEYS|ROTARY_NAVIGATION|TOUCH_SCREEN</item>
+    <item>displayPort=1,displayType=INSTRUMENT_CLUSTER,occupantZoneId=0,
+        inputTypes=DPAD_KEYS</item>
+    <item>displayPort=2,displayType=MAIN,occupantZoneId=1,
+        inputTypes=TOUCH_SCREEN</item>
+    <item>displayPort=3,displayType=MAIN,occupantZoneId=2,
+        inputTypes=TOUCH_SCREEN</item>
+    <item>displayUniqueId=virtual:com.example:MainD,displayType=MAIN,occupantZoneId=3,
+        inputTypes=TOUCH_SCREEN</item>
+
+    displayPort: Unique port id for the display.
+    displayType: Display type for the display. Use * part from
+                   CarOccupantZoneManager.DISPLAY_TYPE_* like MAIN, INSTRUMENT_CLUSTER and
+                   etc.
+    occupantZoneId: occupantZoneId specified from config_occupant_zones.
+    inputTypes: supported input types for the corresponding display.
+-->
+    <string-array translatable="false" name="config_occupant_display_mapping">
+        <item>displayPort=136,displayType=MAIN,occupantZoneId=0,inputTypes=TOUCH_SCREEN|DPAD_KEYS|NAVIGATE_KEYS|ROTARY_NAVIGATION</item>
+    </string-array>
+    <!--
+        Specifies optional features that can be enabled by this image. Note that vhal can disable
+        them depending on product variation.
+        Feature name can be either service name defined in Car.*_SERVICE for Car*Manager or any
+        optional feature defined under @OptionalFeature annotation.
+        Note that '/' is used to have subfeature under main feature like "MAIN_FEATURE/SUB_FEATURE".
+
+        Some examples are:
+        <item>storage_monitoring</item>
+        <item>com.android.car.user.CarUserNoticeService</item>
+        <item>com.example.Feature/SubFeature</item>
+
+        The default list defined below will enable all optional features defined.
+    -->
+    <string-array translatable="false" name="config_allowed_optional_car_features">
+        <item>car_navigation_service</item>
+        <item>cluster_service</item>
+        <item>com.android.car.user.CarUserNoticeService</item>
+        <item>diagnostic</item>
+        <item>storage_monitoring</item>
+        <item>vehicle_map_service</item>
+        <item>car_evs_service</item>
+        <item>car_telemetry_service</item>
+    </string-array>
+</resources>

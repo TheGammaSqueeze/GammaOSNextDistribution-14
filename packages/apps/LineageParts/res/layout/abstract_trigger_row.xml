@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2014 The CyanogenMod Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:paddingStart="@*android:dimen/preference_item_padding_side"
+    android:paddingEnd="@*android:dimen/preference_item_padding_side">
+
+    <ImageView
+        android:id="@+id/icon"
+
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginRight="6dip"
+
+        android:src="@android:drawable/ic_menu_add" />
+
+    <TextView
+        android:id="@+id/desc"
+
+        android:layout_width="fill_parent"
+        android:layout_height="26dip"
+        android:paddingLeft="16dp"
+
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_toEndOf="@id/icon"
+
+        android:ellipsize="marquee"
+        android:singleLine="true" />
+
+    <TextView
+        android:id="@+id/title"
+
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="16dp"
+        android:paddingTop="12dip"
+
+        android:layout_above="@id/desc"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_toEndOf="@id/icon"
+
+        android:gravity="center_vertical"
+        android:textAppearance="@android:style/TextAppearance.Material.Subhead" />
+
+</RelativeLayout>

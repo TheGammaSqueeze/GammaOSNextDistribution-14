@@ -1,0 +1,6 @@
+{
+  "_comment": "Operator should register with its application package name, carrierId and all the corresponding  SHAIDs",
+  "_comment": "Example format :: << \"packageName\" : {\"carrierId\":<int>, \"callerSHA1Id\":[<SHAID1>, <SHAID2>]} >>",
+  "com.vzw.hss.myverizon":{"carrierId":1839,"callerSHA1Id":["C58EE7871896786F8BF70EBDB137DE10074043E9","AE23A03436DF07B0CD70FE881CDA2EC1D21215D7B7B0CC68E67B67F5DF89526A"]},
+  "com.google.android.apps.tycho":{"carrierId":1989,"callerSHA1Id":["B9CFCE1C47A6AC713442718F15EF55B00B3A6D1A6D48CB46249FA8EB51465350","4C36AF4A5BDAD97C1F3D8B283416D244496C2AC5EAFE8226079EF6F676FD1859"]}
+}

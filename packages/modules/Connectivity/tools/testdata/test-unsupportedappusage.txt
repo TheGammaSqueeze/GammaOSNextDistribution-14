@@ -1,0 +1,1 @@
+Ltest/unsupportedappusage/TestUnsupportedAppUsageClass;->testMethod()V

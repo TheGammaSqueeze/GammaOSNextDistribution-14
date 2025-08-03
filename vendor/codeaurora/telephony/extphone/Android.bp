@@ -1,0 +1,63 @@
+
+java_library {
+    name: "extphonelib",
+    provides_uses_lib: "com.qti.extphone.extphonelib",
+    installable: true,
+    sdk_version: "system_current",
+    libs: [
+        "framework-annotations-lib",
+    ],
+    srcs: [
+        "src/com/**/*.java",
+        "src/com/**/I*.aidl",
+    ],
+
+    static_libs: [
+        "android.hardware.radio-V1.6-java",
+    ],
+
+    system_ext_specific: true,
+}
+
+java_library {
+    name: "extphonelib-product",
+    provides_uses_lib: "com.qti.extphone.extphonelib-product",
+    installable: true,
+    sdk_version: "system_current",
+    libs: [
+        "framework-annotations-lib",
+    ],
+    srcs: [
+        "src/com/**/*.java",
+        "src/com/**/I*.aidl",
+    ],
+
+    static_libs: [
+        "android.hardware.radio-V1.6-java",
+    ],
+
+    product_specific: true,
+}
+
+// ==========================================
+
+prebuilt_etc {
+
+    name: "extphonelib.xml",
+    // This will install the file in /system_ext/etc/permissions
+
+    src: "extphonelib.xml",
+    sub_dir: "permissions",
+    system_ext_specific: true,
+}
+
+prebuilt_etc {
+
+    name: "extphonelib_product.xml",
+
+    // This will install the file in /product/etc/permissions
+
+    src: "extphonelib_product.xml",
+    sub_dir: "permissions",
+    product_specific: true,
+}

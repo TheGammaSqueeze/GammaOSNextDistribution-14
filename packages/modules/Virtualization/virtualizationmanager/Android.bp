@@ -1,0 +1,102 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_defaults {
+    name: "virtualizationmanager_defaults",
+    crate_name: "virtualizationmanager",
+    defaults: [
+        "avf_build_flags_rust",
+        "secretkeeper_use_latest_hal_aidl_rust",
+        "authgraph_use_latest_hal_aidl_rust",
+    ],
+    edition: "2021",
+    // Only build on targets which crosvm builds on.
+    enabled: false,
+    target: {
+        android64: {
+            compile_multilib: "64",
+            enabled: true,
+        },
+        linux_bionic_arm64: {
+            enabled: true,
+        },
+    },
+    prefer_rlib: true,
+    rustlibs: [
+        "android.system.virtualizationcommon-rust",
+        "android.system.virtualizationservice-rust",
+        "android.system.virtualizationservice_internal-rust",
+        "android.system.virtualmachineservice-rust",
+        "android.os.permissions_aidl-rust",
+        "libandroid_logger",
+        "libanyhow",
+        "libapkverify",
+        "libavf_features",
+        "libavflog",
+        "libbase_rust",
+        "libbinder_rs",
+        "libcfg_if",
+        "libclap",
+        "libcstr",
+        "libcommand_fds",
+        "libdisk",
+        "libglob",
+        "libhex",
+        "libhypervisor_props",
+        "liblazy_static",
+        "liblibc",
+        "liblog_rust",
+        "libmicrodroid_metadata",
+        "libmicrodroid_payload_config",
+        "libnested_virt",
+        "libnix",
+        "libonce_cell",
+        "libregex",
+        "librpcbinder_rs",
+        "librustutils",
+        "libsemver",
+        "libselinux_bindgen",
+        "libserde",
+        "libserde_json",
+        "libserde_xml_rs",
+        "libshared_child",
+        "libstatslog_virtualization_rust",
+        "libtombstoned_client_rust",
+        "libvbmeta_rust",
+        "libvm_control",
+        "libvmconfig",
+        "libzip",
+        "libvsock",
+        "liblibfdt",
+        "libfsfdt",
+        // TODO(b/202115393) stabilize the interface
+        "packagemanager_aidl-rust",
+    ],
+    shared_libs: [
+        "libselinux",
+    ],
+}
+
+rust_binary {
+    name: "virtmgr",
+    defaults: ["virtualizationmanager_defaults"],
+    srcs: ["src/main.rs"],
+    apex_available: ["com.android.virt"],
+}
+
+rust_test {
+    name: "virtualizationmanager_device_test",
+    srcs: ["src/main.rs"],
+    defaults: ["virtualizationmanager_defaults"],
+    rustlibs: [
+        "libtempfile",
+    ],
+    data: [
+        ":test_avf_debug_policy_with_ramdump",
+        ":test_avf_debug_policy_without_ramdump",
+        ":test_avf_debug_policy_with_adb",
+        ":test_avf_debug_policy_without_adb",
+    ],
+    test_suites: ["general-tests"],
+}

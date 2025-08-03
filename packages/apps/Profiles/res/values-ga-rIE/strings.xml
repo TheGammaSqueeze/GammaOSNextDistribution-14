@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2015 The CyanogenMod Project
+
+     Licensed under the Apache License, Version 2.0 (the "License"
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources>
+    <string name="app_label">Soláthraí Iontaobhais Próifílí</string>
+    <string name="profile_picker_title">Próifílí</string>
+    <string name="profile_none">Dada</string>
+    <string name="profile_trust_agent_title">Gníomhaire Iontaobhais Próifílí</string>
+    <string name="profile_trust_agent_summary">Ligeann sé do Phróifílí cosaint scáileáin ghlais a dhíchumasú go sealadach</string>
+    <string name="trust_by_profile">Iontaofa ag Próifíl</string>
+</resources>

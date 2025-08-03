@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.4.0-alpha01" type="baseline" client="" dependencies="true" name="" variant="all" version="8.4.0-alpha01">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 24): `android.app.UiAutomation#adoptShellPermissionIdentity`"
+        errorLine1="        mUiAutomation.adoptShellPermissionIdentity(CREATE_USERS_PERMISSION);"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="platform_testing/tests/automotive/health/multiuser/src/android/platform/scenario/multiuser/nonui/SwitchToExistingSecondaryUser.java"
+            line="58"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 24): `android.app.UiAutomation#dropShellPermissionIdentity`"
+        errorLine1="        mUiAutomation.dropShellPermissionIdentity();"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="platform_testing/tests/automotive/health/multiuser/src/android/platform/scenario/multiuser/nonui/SwitchToExistingSecondaryUser.java"
+            line="88"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 24): `android.app.UiAutomation#adoptShellPermissionIdentity`"
+        errorLine1="            mUiAutomation.adoptShellPermissionIdentity(CREATE_USERS_PERMISSION);"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="platform_testing/tests/automotive/health/multiuser/src/android/platform/scenario/multiuser/nonui/SwitchToExistingSecondaryUser.java"
+            line="95"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 24): `android.app.UiAutomation#dropShellPermissionIdentity`"
+        errorLine1="            mUiAutomation.dropShellPermissionIdentity();"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="platform_testing/tests/automotive/health/multiuser/src/android/platform/scenario/multiuser/nonui/SwitchToExistingSecondaryUser.java"
+            line="102"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 24): `android.app.UiAutomation#adoptShellPermissionIdentity`"
+        errorLine1="        mUiAutomation.adoptShellPermissionIdentity(CREATE_USERS_PERMISSION);"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="platform_testing/tests/automotive/health/multiuser/src/android/platform/scenario/multiuser/nonui/SwitchToExistingSecondaryUser.java"
+            line="110"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 24): `android.app.UiAutomation#dropShellPermissionIdentity`"
+        errorLine1="        mUiAutomation.dropShellPermissionIdentity();"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="platform_testing/tests/automotive/health/multiuser/src/android/platform/scenario/multiuser/nonui/SwitchToExistingSecondaryUser.java"
+            line="114"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 24): `android.app.UiAutomation#adoptShellPermissionIdentity`"
+        errorLine1="        mUiAutomation.adoptShellPermissionIdentity(CREATE_USERS_PERMISSION);"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="platform_testing/tests/automotive/health/multiuser/src/android/platform/scenario/multiuser/nonui/SwitchToNewGuest.java"
+            line="56"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 24): `android.app.UiAutomation#dropShellPermissionIdentity`"
+        errorLine1="        mUiAutomation.dropShellPermissionIdentity();"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="platform_testing/tests/automotive/health/multiuser/src/android/platform/scenario/multiuser/nonui/SwitchToNewGuest.java"
+            line="60"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 24): `android.app.UiAutomation#adoptShellPermissionIdentity`"
+        errorLine1="            mUiAutomation.adoptShellPermissionIdentity(CREATE_USERS_PERMISSION);"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="platform_testing/tests/automotive/health/multiuser/src/android/platform/scenario/multiuser/nonui/SwitchToNewGuest.java"
+            line="67"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 24): `android.app.UiAutomation#dropShellPermissionIdentity`"
+        errorLine1="            mUiAutomation.dropShellPermissionIdentity();"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="platform_testing/tests/automotive/health/multiuser/src/android/platform/scenario/multiuser/nonui/SwitchToNewGuest.java"
+            line="72"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 24): `android.app.UiAutomation#adoptShellPermissionIdentity`"
+        errorLine1="            mUiAutomation.adoptShellPermissionIdentity(CREATE_USERS_PERMISSION);"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="platform_testing/tests/automotive/health/multiuser/src/android/platform/scenario/multiuser/nonui/SwitchToNewGuest.java"
+            line="78"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 24): `android.app.UiAutomation#dropShellPermissionIdentity`"
+        errorLine1="            mUiAutomation.dropShellPermissionIdentity();"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="platform_testing/tests/automotive/health/multiuser/src/android/platform/scenario/multiuser/nonui/SwitchToNewGuest.java"
+            line="82"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 24): `android.app.UiAutomation#adoptShellPermissionIdentity`"
+        errorLine1="        mUiAutomation.adoptShellPermissionIdentity(CREATE_USERS_PERMISSION);"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="platform_testing/tests/automotive/health/multiuser/src/android/platform/scenario/multiuser/nonui/SwitchToNewGuest.java"
+            line="91"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 24): `android.app.UiAutomation#dropShellPermissionIdentity`"
+        errorLine1="        mUiAutomation.dropShellPermissionIdentity();"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="platform_testing/tests/automotive/health/multiuser/src/android/platform/scenario/multiuser/nonui/SwitchToNewGuest.java"
+            line="100"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 24): `android.app.UiAutomation#adoptShellPermissionIdentity`"
+        errorLine1="        mUiAutomation.adoptShellPermissionIdentity(CREATE_USERS_PERMISSION);"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="platform_testing/tests/automotive/health/multiuser/src/android/platform/scenario/multiuser/nonui/SwitchToNewSecondaryUser.java"
+            line="57"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 24): `android.app.UiAutomation#dropShellPermissionIdentity`"
+        errorLine1="        mUiAutomation.dropShellPermissionIdentity();"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="platform_testing/tests/automotive/health/multiuser/src/android/platform/scenario/multiuser/nonui/SwitchToNewSecondaryUser.java"
+            line="61"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 24): `android.app.UiAutomation#adoptShellPermissionIdentity`"
+        errorLine1="            mUiAutomation.adoptShellPermissionIdentity(CREATE_USERS_PERMISSION);"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="platform_testing/tests/automotive/health/multiuser/src/android/platform/scenario/multiuser/nonui/SwitchToNewSecondaryUser.java"
+            line="67"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 24): `android.app.UiAutomation#dropShellPermissionIdentity`"
+        errorLine1="            mUiAutomation.dropShellPermissionIdentity();"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="platform_testing/tests/automotive/health/multiuser/src/android/platform/scenario/multiuser/nonui/SwitchToNewSecondaryUser.java"
+            line="72"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 24): `android.app.UiAutomation#adoptShellPermissionIdentity`"
+        errorLine1="        mUiAutomation.adoptShellPermissionIdentity(CREATE_USERS_PERMISSION);"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="platform_testing/tests/automotive/health/multiuser/src/android/platform/scenario/multiuser/nonui/SwitchToNewSecondaryUser.java"
+            line="75"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 24): `android.app.UiAutomation#dropShellPermissionIdentity`"
+        errorLine1="        mUiAutomation.dropShellPermissionIdentity();"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="platform_testing/tests/automotive/health/multiuser/src/android/platform/scenario/multiuser/nonui/SwitchToNewSecondaryUser.java"
+            line="90"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 24): `android.app.UiAutomation#adoptShellPermissionIdentity`"
+        errorLine1="        mUiAutomation.adoptShellPermissionIdentity(CREATE_USERS_PERMISSION);"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="platform_testing/tests/automotive/health/multiuser/src/android/platform/scenario/multiuser/nonui/SwitchToNewSecondaryUser.java"
+            line="97"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 24): `android.app.UiAutomation#dropShellPermissionIdentity`"
+        errorLine1="        mUiAutomation.dropShellPermissionIdentity();"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="platform_testing/tests/automotive/health/multiuser/src/android/platform/scenario/multiuser/nonui/SwitchToNewSecondaryUser.java"
+            line="106"
+            column="23"/>
+    </issue>
+
+</issues>

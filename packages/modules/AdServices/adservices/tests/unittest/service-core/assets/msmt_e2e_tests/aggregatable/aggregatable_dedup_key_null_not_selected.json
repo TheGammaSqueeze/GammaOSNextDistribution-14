@@ -1,0 +1,126 @@
+{
+  "description": "When a null dedup key will be considered in the order they're presented by the server.",
+  "input": {
+    "sources": [
+      {
+        "timestamp": "1643235573000",
+        "registration_request": {
+          "attribution_src_url": "https://reporter.test/register-source",
+          "source_type": "navigation",
+          "registrant": "source.test"
+        },
+        "responses": [{
+          "url": "https://reporter.test/register-source",
+          "response": {
+            "Attribution-Reporting-Register-Source": {
+              "destination": "android-app://destination.test",
+              "source_event_id": "123",
+              "event_report_window": "86400",
+              "aggregation_keys": {
+                "a": "0x159"
+              },
+              "filter_data": {
+                "category": ["filter_1", "filter_2"]
+              }
+            }
+          }
+        }]
+      }
+    ],
+    "triggers": [
+      // 10 is selected as the dedup key..
+      // Will produce an Aggregate report.
+      {
+        "timestamp": "1643235574000",
+        "registration_request": {
+          "attribution_src_url": "https://reporter.test/register-trigger",
+          "registrant": "destination.test"
+        },
+        "responses": [{
+          "url": "https://reporter.test/register-trigger",
+          "response": {
+            "Attribution-Reporting-Register-Trigger": {
+              "aggregatable_trigger_data": [
+                {
+                  "source_keys": ["a"],
+                  "key_piece": "0x400"
+                }
+              ],
+              "aggregatable_values": {
+                "a": 123
+              },
+              "aggregatable_deduplication_keys":
+              [
+                {
+                  "deduplication_key": "10",
+                  "filters": {
+                    "category": ["filter_1", "filter_2"]
+                  }
+                },
+                {
+                  "filters": {
+                    "category": ["filter_1", "filter_2"]
+                  }
+                }
+              ]
+            }
+          }
+        }]
+      },
+      // 10 is selected as the dedup key..
+      // Will not produce an Aggregate report.
+      {
+        "timestamp": "1643321974000",
+        "registration_request": {
+          "attribution_src_url": "https://reporter.test/register-trigger",
+          "registrant": "destination.test"
+        },
+        "responses": [{
+          "url": "https://reporter.test/register-trigger",
+          "response": {
+            "Attribution-Reporting-Register-Trigger": {
+              "aggregatable_trigger_data": [
+                {
+                  "source_keys": ["a"],
+                  "key_piece": "0x400"
+                }
+              ],
+              "aggregatable_values": {
+                "a": 456
+              },
+              "aggregatable_deduplication_keys":
+              [
+                {
+                  "deduplication_key": "10",
+                  "filters": {
+                    "category": ["filter_1", "filter_2"]
+                  }
+                }
+              ]
+            }
+          }
+        }]
+      }
+    ]
+  },
+  "output": {
+    "event_level_results": [
+    ],
+    "aggregatable_results": [
+      {
+        "payload": {
+          "attribution_destination": "android-app://destination.test",
+          "histograms": [
+            {
+              "key": "0x559",
+              "value": 123
+            }
+          ],
+          "source_registration_time": "1643155200"
+        },
+        "report_url": "https://reporter.test/.well-known/attribution-reporting/report-aggregate-attribution",
+        "report_time": "1643239174000"
+      }
+    ]
+  }
+}

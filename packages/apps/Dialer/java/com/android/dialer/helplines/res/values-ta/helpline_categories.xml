@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2019-2021 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources>
+    <string name="helpline_category_abuse">நிந்தை</string>
+    <string name="helpline_category_acohol">மது</string>
+    <string name="helpline_category_addiction">போதை</string>
+    <string name="helpline_category_adolescents">குமரவர்</string>
+    <string name="helpline_category_adults">முதிர்ந்தோர்</string>
+    <string name="helpline_category_aids">எய்ட்ஸ்</string>
+    <string name="helpline_category_birth">பிறப்பு</string>
+    <string name="helpline_category_bullying">தறுகண்மை</string>
+    <string name="helpline_category_children">சிறுவர்</string>
+    <string name="helpline_category_crime">குற்றம்</string>
+    <string name="helpline_category_crime_victims">குற்றப்பலியாளர்</string>
+    <string name="helpline_category_corruption">ஊழல்</string>
+    <string name="helpline_category_discrimination">பேதம்</string>
+    <string name="helpline_category_domestic_violence">குடும்ப வன்முறை</string>
+    <string name="helpline_category_drugs">போதைப்பொருள்</string>
+    <string name="helpline_category_emotional_support">மனவெழுச்சி ஒத்துழைப்பு</string>
+    <string name="helpline_category_family">குடும்பம்</string>
+    <string name="helpline_category_gambling">சூதாட்டம்</string>
+    <string name="helpline_category_gender">பாலினம்</string>
+    <string name="helpline_category_generic">பொதுமை</string>
+    <string name="helpline_category_hiv">எச்ஐவி</string>
+    <string name="helpline_category_human_rights">மனிதவுரிமைகள் </string>
+    <string name="helpline_category_human_trafficking">ஆட்கடத்தல்</string>
+    <string name="helpline_category_immigration">குடியேற்றம்</string>
+    <string name="helpline_category_legal_aid">சட்டவுதவி</string>
+    <string name="helpline_category_lgbtq">நெகிழ்பாலுறவாளர்</string>
+    <string name="helpline_category_men">ஆடவர்</string>
+    <string name="helpline_category_mental_health">மனநலம்</string>
+    <string name="helpline_category_missing_children">காணாமற்போன சிறுவர்</string>
+    <string name="helpline_category_mothers">அன்னையர்</string>
+    <string name="helpline_category_muslim">இசுலாமியம்</string>
+    <string name="helpline_category_parents">பெற்றோர்</string>
+    <string name="helpline_category_pregnancy">சூல்</string>
+    <string name="helpline_category_psychological">உளவியல்</string>
+    <string name="helpline_category_religion">மதம்</string>
+    <string name="helpline_category_senior">மூத்தோர்</string>
+    <string name="helpline_category_sexual_abuse">பாலியல் வன்கொடுமை</string>
+    <string name="helpline_category_sexual_assault">பாலியல் தாக்குதல்</string>
+    <string name="helpline_category_sexual_rights">பாலியல் உரிமைகள்</string>
+    <string name="helpline_category_sexuality">பாற்றன்மை</string>
+    <string name="helpline_category_soldiers">படைவீரர்</string>
+    <string name="helpline_category_suicide">தற்கொலை தடுப்பு</string>
+    <string name="helpline_category_trans">மாறிய பாலினம்</string>
+    <string name="helpline_category_veterans">ஆரறிவாளர்</string>
+    <string name="helpline_category_violence">கொடுமை</string>
+    <string name="helpline_category_war">போர்</string>
+    <string name="helpline_category_women">பெண்டிர்</string>
+    <string name="helpline_category_youth"> இளையோர்</string>
+</resources>

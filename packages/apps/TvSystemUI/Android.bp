@@ -1,0 +1,87 @@
+//
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+prebuilt_etc {
+    name: "privapp_extension_com.android.systemui",
+    system_ext_specific: true,
+    sub_dir: "permissions",
+    src: "com.android.systemui_extension.xml",
+    filename_from_src: true,
+}
+
+android_library {
+    name: "TvSystemUI-res",
+    resource_dirs: [
+        "res",
+    ],
+    manifest: "AndroidManifest-res.xml",
+    use_resource_processor: true,
+}
+
+android_library {
+    name: "TvSystemUI-core",
+    srcs: [
+        "src/**/*.java",
+        "src/**/*.kt",
+    ],
+    resource_dirs: [],
+    use_resource_processor: true,
+    static_libs: [
+        "SystemUI-core",
+        "SystemUIPluginLib",
+        "SystemUISharedLib",
+        "TvSystemUI-res",
+    ],
+    javacflags: ["-Adagger.fastInit=enabled"],
+    manifest: "AndroidManifest.xml",
+    additional_manifests: ["AndroidManifest-exclude-overrides.xml"],
+    plugins: ["dagger2-compiler"],
+}
+
+android_app {
+    name: "TvSystemUI",
+    defaults: [
+        "platform_app_defaults",
+        "SystemUI_optimized_defaults",
+    ],
+    static_libs: [
+        "TvSystemUI-core"
+    ],
+    overrides: [
+        "SystemUI",
+    ],
+    resource_dirs: [],
+    use_resource_processor: true,
+
+    platform_apis: true,
+    system_ext_specific: true,
+    certificate: "platform",
+    privileged: true,
+
+    kotlincflags: ["-Xjvm-default=all"],
+
+    dxflags: ["--multi-dex"],
+    optimize: {
+        proguard_flags_files: ["proguard.flags"],
+    },
+    required: [
+        "privapp_whitelist_com.android.systemui",
+        "privapp_extension_com.android.systemui"
+    ],
+}

@@ -1,0 +1,209 @@
+// Copyright 2023 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+syntax = "proto3";
+
+package cobalt;
+
+option java_multiple_files = true;
+option java_package = "com.google.cobalt";
+
+////////////////////////////////////////////////////////////////////////////////
+// NOTE: This file is used by the Cobalt client and the Cobalt servers.
+// The source-of-truth of this file is located in Cobalt's open source code
+// repository, and the file is copied to Android where it is used by the Cobalt
+// client. Do not edit the copy of this file in this Android repo as those edits
+// will be overwritten when the file is next copied.
+////////////////////////////////////////////////////////////////////////////////
+
+// An Observation is a piece of data sent from a Cobalt client to the Cobalt
+// server as input to a Report.
+//
+// Observations are associated with a specific Metric. They are built on a
+// Fuchsia client based on the Events logged for that Metric. Observations are
+// associated with a specific Report. They are built for the purpose of
+// generating that Report. They are transmitted from the Fuchsia client to
+// the Cobalt server where they are aggregated and analyzed in order to generate
+// the Report.
+//
+// Observations may store their data using special privacy-preserving encodings.
+// The specification of how to do this is part of the definition of a Report.
+// Observations are built for a particular Report and so use an encoding
+// appropriate for that Report.
+//
+// There are different types of Observations that are appropriate for different
+// types of Metrics and different types of Reports.
+//
+// An Observation is always transmitted and stored along with
+// some ObservationMetadata that describes, among other things, which Metric
+// and which Report it is for and on which day the Observation was formed.
+//
+// Observations are transmitted from the client to the server encrypted, inside
+// the |ciphertext| field of an EncryptedMessage. Many encrypted Observations
+// are transmitted together inside of an ObservationBatch.
+message Observation {
+  // Next observation_type ID: 9
+  // Next general ID: 1002;
+  reserved 1, 2, 3, 4, 5, 6, 7, 8, 1000;
+
+  // An Observation has one of the following types.
+  oneof observation_type {
+    SumAndCountObservation sum_and_count = 9;
+    IntegerObservation integer = 10;
+    IndexHistogramObservation index_histogram = 11;
+    StringHistogramObservation string_histogram = 12;
+    PrivateIndexObservation private_index = 13;
+    ReportParticipationObservation report_participation = 10000;
+  }
+
+  // A quasi-unique identifier for this observation. This is randomly generated
+  // on the client and used on the server as part of a fully-unique identifier.
+  // This field allows the operation of sending an Observation to the Cobalt
+  // server to be idempotent: If the same Observation is transmitted twice then
+  // the server will store the observation only once.
+  bytes random_id = 1001;
+}
+
+// Observations of type SumAndCountObservation contain one or more triples of
+// event vectors, a signed integer recording a sum and an unsigned integer
+// recording a count.
+//
+// This type of observation is used only for the FLEETWIDE_MEANS report type.
+message SumAndCountObservation {
+  message SumAndCount {
+    // Event vector to which the sum and count are associated.
+    repeated uint32 event_codes = 1;
+
+    // The device-level sum.
+    sint64 sum = 2;
+
+    // the device-level count.
+    uint64 count = 3;
+  }
+
+  repeated SumAndCount sums_and_counts = 1;
+}
+
+// Observations of type IntegerObservation contain one or more pairs of
+// event vectors and signed integers.
+//
+// This type of observation is used for the following report types:
+// FLEETWIDE_OCCURRENCE_COUNTS
+// HOURLY_VALUE_NUMERIC_STATS
+// HOURLY_VALUE_HISTOGRAMS
+// UNIQUE_DEVICE_COUNTS
+// UNIQUE_DEVICE_NUMERIC_STATS
+// UNIQUE_DEVICE_HISTOGRAMS
+message IntegerObservation {
+  message Value {
+    // Event vector to which the value is associated.
+    repeated uint32 event_codes = 1;
+
+    // The value depends upon the report type.
+    //
+    // FLEETWIDE_OCCURRENCE_COUNTS
+    // Device-level count of events with the associated event vector.
+    // Value is between 0 and the configured maximum count (inclusive).
+    //
+    // UNIQUE_DEVICE_COUNTS
+    // 1 if the associated event vector was observed.
+    //
+    // HOURLY_VALUE_NUMERIC_STATS
+    // UNIQUE_DEVICE_NUMERIC_STATS
+    // HOURLY_VALUE_HISTOGRAMS
+    // UNIQUE_DEVICE_HISTOGRAMS
+    // Device-level aggregate value for the associated event vector.
+    sint64 value = 2;
+  }
+
+  repeated Value values = 1;
+}
+
+// IndexHistogram represents a list of counts for each bucket of a histogram
+// associated with a particular event vector.
+message IndexHistogram {
+  // Event vector to which the histogram is associated.
+  repeated uint32 event_codes = 1;
+
+  // bucket_counts[i] is the count for the bucket_indices[i]th index in the
+  // histogram.
+  repeated uint32 bucket_indices = 2;
+  repeated sint64 bucket_counts = 3;
+}
+
+// Observations of type IndexHistogramObservation contain one or more pairs of
+// event vectors and lists of bucket counts.
+//
+// This type of observation is used with the FLEETWIDE_HISTOGRAMS report type.
+message IndexHistogramObservation {
+  repeated IndexHistogram index_histograms = 1;
+}
+
+// Observations of the type StringHistogramObservation contain a list of strings
+// mapping string hashes to indices and one or more pairs of event vectors
+// and lists of bucket counts.
+//
+// This type of observation is used for the following report types:
+// STRING_COUNTS
+// UNIQUE_DEVICE_STRING_COUNTS
+message StringHistogramObservation {
+  // TODO(b/322409910): Delete string_hashes after clients stop sending
+  // the field.
+  repeated bytes string_hashes = 1 [deprecated = true];
+
+  // List of hashes of strings (hashed using Farmhash Fingerprint64).
+  // The string that hashes to the bytes value in the ith position in
+  // |string_hashes| corresponds to the bucket with index i in each of the
+  // |bucket_indices| values in |string_histograms|.
+  //
+  // Only one of `string_hashes` or `string_hashes_ff64` should be used.
+  repeated bytes string_hashes_ff64 = 3;
+
+  repeated IndexHistogram string_histograms = 2;
+}
+
+// An observation of type PrivateIndexObservation contains a single integer.
+// Observations of this type are produced by the PrivacyEncoder: given a single
+// Observation of some other type, the PrivacyEncoder outputs one or more
+// PrivateIndexObservations. All data for reports with a nontrivial
+// privacy level will be transported from client to server in the form of
+// PrivateIndexObservations.
+//
+// The field |index| of a PrivateIndexObservation is an index into an
+// enumeration of the set of possible Observations of another type (after
+// bucketing some parameters, as specified in the ReportDefinition for which the
+// Observation was generated.) The details of this enumeration depend on the
+// type of Observation which was given to the PrivacyEncoder.
+message PrivateIndexObservation {
+  uint64 index = 1;
+}
+
+// A pair consisting of a bucket index and a count. Each bucket is
+// an integer range. The definition of the buckets and their indices
+// is given in the MetricDefinition.
+// TODO(b/262785064): don't use this for the public LoggerInterface.
+message HistogramBucket {
+  // The index of one of the buckets.
+  uint32 index = 1;
+  // The count for that bucket.
+  uint64 count = 2;
+}
+
+// Observations of this type are used to signal that a given device was
+// collecting data for a given report, over some window of time. This
+// Observation type has no required fields.
+//
+// ReportParticipationObservations are produced by the PrivacyEncoder and
+// consumed by the ReportGenerator for reports that use local differential
+// privacy.
+message ReportParticipationObservation {}

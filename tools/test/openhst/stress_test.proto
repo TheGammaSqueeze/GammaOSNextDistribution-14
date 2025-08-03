@@ -1,0 +1,186 @@
+/*
+ * Copyright 2020 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto3";
+
+package stress_test;
+
+option optimize_for = CODE_SIZE;
+
+message LoggingEventConfig {
+  // The process name that this event can be found on, or LOGCAT to come from
+  // 'adb logcat'.
+  string source = 1;
+  // The name of the event to trigger.
+  string name = 2;
+  // A list of regexes that can be used to detect the specified event.
+  repeated string regex = 3;
+}
+
+message TimeStampConfig {
+  enum TimeStampType {
+    UNKNOWN = 0;
+    DATE = 1;
+    MONOTONIC = 2;
+  }
+  // If the type is DATE, then we assume it can be parsed by a python datetime.
+  // MONOTONIC sources are from the device's boot time.
+  TimeStampType type = 3;
+  // The regex to extract the string containing the timestamp.
+  string regex = 4;
+  // The format string to pass to the python datetime constructor for the
+  // matched regex.
+  string date_format = 5;
+  // The multiplier used on the parsed monotonic time to convert it to seconds.
+  double monotonic_to_seconds_multiplier = 6;
+}
+
+message FileConfig {
+  // The file that should be cat-ed on device to get information. Will be used
+  // by LoggingEventConfigs.
+  string source = 1;
+  // The filepath to save the output of this file on the local machine. If
+  // blank, will be discarded.
+  string destination = 2;
+  // The information needed to extract timestamps from the config.
+  TimeStampConfig time_stamp = 3;
+  // True if the file spits out a bit of the buffer that it did previously when
+  // reopened (like the logcat does).
+  bool repeats_output_on_open = 4;
+}
+
+message ProcessConfig {
+  // The command to run to produce logging output.
+  string command = 1;
+  // The name of the process to be used in LoggingEventConfigs.
+  string name = 2;
+  // The filepath to save the output of this process on the local machine. If
+  // blank, will be discarded.
+  string destination = 3;
+  // The information needed to extract timestamps from the config.
+  TimeStampConfig time_stamp = 4;
+  // Restart the process if it crashes randomly.
+  bool restart = 5;
+  // True if the file spits out a bit of the buffer that it did previously when
+  // reopened (like the logcat does).
+  bool repeats_output_on_open = 6;
+}
+
+message DeviceConfig {
+  // Commands to run once at the beginning of the test for the device.
+  repeated string setup_command = 1;
+  // Files that should have their contents monitored for events.
+  repeated FileConfig file_to_watch = 2;
+  // Files that should be moved to the local machine after every iteration of
+  // the stress test.
+  repeated FileConfig file_to_move = 3;
+  // All events that can be triggered by this device.
+  repeated LoggingEventConfig event = 5;
+  // Any processes that should be monitored for events.
+  repeated ProcessConfig daemon_process = 6;
+  // Include any other device definitions before processing the contents of this
+  // one. Note that if duplicate entries exist for the repeated elements (based
+  // on the name), only the "latest" in the include chain will be used.
+  repeated string include = 7;
+  // A list of tags that should be squelched from the logcat - useful for super
+  // spammy irrelevant logcat tags.
+  repeated string tag_to_suppress = 8;
+  // Either a TestEventConfig without a condition (but a name) that allows extra
+  // actions to take place when a specific test event occurs, or a standard test
+  // event that will be invoked regardless of which test is running.
+  repeated TestEventConfig test_event = 9;
+}
+
+message TestStep {
+  // Path to raw audio file to play during this test step.
+  string audio_file = 1;
+  // Sample rate of audio file.
+  int32 audio_file_sample_rate = 2;
+  // Number of channels in audio file.
+  int32 audio_file_num_channels = 3;
+  // The sox format of the audio file.
+  string audio_file_format = 4;
+  // Command to run on this test step.
+  string command = 5;
+  // How many seconds to wait before executing the command/playing the sound in
+  // this step.
+  float delay_before = 6;
+  // How many seconds to wait after executing the command/playing the sound in
+  // this step.
+  float delay_after = 7;
+}
+
+message ExpectedResult {
+  int32 aohd_hotword_detected = 1;
+  int32 assistant_started = 2;
+  int32 dsp_false_accept = 3;
+  int32 logcat_iteration = 4;
+  int32 software_hotword = 5;
+  int32 speaker_id_rejected = 6;
+  int32 vis_software_hotword = 7;
+}
+
+message TestEventConfig {
+  // The name of the event. (Used for readability/allowing devices to add custom
+  // actions when an event of a specific name occurs).
+  string name = 1;
+  // An eval condition that should only be true when the actions in this event
+  // should be executed.
+  string condition = 2;
+  // List of actions to take when the condition is satisfied. BUGREPORT, NOTIFY,
+  // REMOVE_DEVICE and ABORT are all special values that take a bugreport, send
+  // an email, remove the device from the test or stops stress testing
+  // respectively.
+  repeated string action = 3;
+}
+
+message StressTestConfig {
+  // Description of what the test does.
+  string description = 1;
+  // List of steps to take in sequence repeatedly to do the stress test.
+  repeated TestStep step = 2;
+  // Events that trigger special actions on the device when the condition is
+  // satisfied.
+  repeated TestEventConfig event = 3;
+  // Commands that should be run at the beginning of the test to setup the
+  // device.
+  repeated string setup_command = 4;
+  // Definition of Expected test result
+  repeated ExpectedResult expected_result = 5;
+}
+
+message EventLogDetails {
+  int32 iteration = 1;
+  string name = 2;
+}
+
+message EventLog {
+  repeated EventLogDetails event = 1;
+}
+
+message DeviceIdentifier {
+  string device_type = 1;
+  string serial_number = 2;
+}
+
+message StressTestInfo {
+  // Metadata info describing the devices involved in the stress test, and a bit
+  // about what test was actually run.
+  string test_name = 1;
+  string test_description = 2;
+  string uuid = 3;
+  repeated DeviceIdentifier device = 4;
+}

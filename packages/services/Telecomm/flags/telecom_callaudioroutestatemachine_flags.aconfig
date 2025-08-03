@@ -1,0 +1,72 @@
+package: "com.android.server.telecom.flags"
+container: "system"
+
+flag {
+  name: "available_routes_never_updated_after_set_system_audio_state"
+  namespace: "telecom"
+  description: "Fix supported routes wrongly include bluetooth issue."
+  bug: "292599751"
+}
+
+flag {
+  name: "use_refactored_audio_route_switching"
+  namespace: "telecom"
+  description: "Refactored audio routing"
+  bug: "306395598"
+}
+
+flag {
+  name: "ensure_audio_mode_updates_on_foreground_call_change"
+  namespace: "telecom"
+  description: "Ensure that the audio mode is updated anytime the foreground call changes."
+  bug: "289861657"
+}
+
+flag {
+  name: "ignore_auto_route_to_watch_device"
+  namespace: "telecom"
+  description: "Ignore auto routing to wearable devices."
+  bug: "294378768"
+}
+
+flag {
+  name: "transit_route_before_audio_disconnect_bt"
+  namespace: "telecom"
+  description: "Fix audio route transition issue on call disconnection when bt audio connected."
+  bug: "306113816"
+}
+
+flag {
+  name: "call_audio_communication_device_refactor"
+  namespace: "telecom"
+  description: "Refactor call audio set/clear communication device and include unsupported routes."
+  bug: "308968392"
+}
+
+flag {
+  name: "communication_device_protected_by_lock"
+  namespace: "telecom"
+  description: "Protect set/clear communication device operation with lock to avoid race condition."
+  bug: "303001133"
+}
+
+flag {
+  name: "reset_mute_when_entering_quiescent_bt_route"
+  namespace: "telecom"
+  description: "Reset mute state when entering quiescent bluetooth route."
+  bug: "311313250"
+}
+
+flag {
+  name: "update_route_mask_when_bt_connected"
+  namespace: "telecom"
+  description: "Update supported route mask when Bluetooth devices audio connected."
+  bug: "301695370"
+}
+
+flag {
+  name: "clear_communication_device_after_audio_ops_complete"
+  namespace: "telecom"
+  description: "Clear the requested communication device after the audio operations are completed."
+  bug: "315865533"
+}

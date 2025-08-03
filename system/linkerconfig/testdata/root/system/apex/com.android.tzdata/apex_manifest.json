@@ -1,0 +1,6 @@
+{
+  "name": "com.android.tzdata",
+  "version": 299900000,
+  "provideNativeLibs": [],
+  "requireNativeLibs": []
+}

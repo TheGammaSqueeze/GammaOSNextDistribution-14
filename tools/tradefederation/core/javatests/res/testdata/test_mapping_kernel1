@@ -1,0 +1,12 @@
+{
+  "presubmit": [
+    {
+      "name": "test1"
+    }
+  ],
+  "imports": [
+    {
+      "path": "src2"
+    }
+  ]
+}

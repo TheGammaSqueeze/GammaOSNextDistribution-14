@@ -1,0 +1,25 @@
+// anything starting with "//" will ignored.
+// Need to keep updating this file to keep track of the hidden APIs.
+// This file contains the APIs which have corresponding bug for new hidden API
+
+android.car CarRemoteDeviceManager void onCarDisconnected()
+android.car.app CarActivityManager void onTaskAppeared(ActivityManager.RunningTaskInfo , SurfaceControl )
+android.car.app CarActivityManager Pair<SurfaceControl,Rect> getMirroredSurface(IBinder )
+android.car.drivingstate CarUxRestrictionsConfiguration.Builder int validateOccupantZoneId(int )
+android.car.drivingstate CarUxRestrictionsConfiguration.Builder int validateDisplayType(int )
+android.car.drivingstate CarUxRestrictionsConfiguration.Builder Builder setOccupantZoneId(int )
+android.car.drivingstate CarUxRestrictionsConfiguration.Builder Builder setDisplayType(int )
+android.car.hardware.property CarPropertyEvent boolean equals(Object )
+android.car.hardware.property CarPropertyEvent int hashCode()
+android.car.hardware.property VehicleHalStatusCode String toString(int )
+android.car.occupantconnection CarOccupantConnectionManager void onCarDisconnected()
+android.car.remoteaccess CarRemoteAccessManager void onCarDisconnected()
+android.car.test CarTestManager String dumpVhal(List<String> , long )
+android.car.test CarTestManager boolean hasAidlVhal()
+android.car.hardware.power CarPowerManager void notifyUserActivity(int )
+android.car.hardware.property VehicleHalStatusCode int STATUS_NOT_AVAILABLE_DISABLED
+android.car.hardware.property VehicleHalStatusCode int STATUS_NOT_AVAILABLE_SPEED_LOW
+android.car.hardware.property VehicleHalStatusCode int STATUS_NOT_AVAILABLE_SPEED_HIGH
+android.car.hardware.property VehicleHalStatusCode int STATUS_NOT_AVAILABLE_POOR_VISIBILITY
+android.car.hardware.property VehicleHalStatusCode int STATUS_NOT_AVAILABLE_SAFETY
+

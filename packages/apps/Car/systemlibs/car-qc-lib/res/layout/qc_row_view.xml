@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<com.android.car.ui.uxr.DrawableStateConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_centerVertical="true"
+    android:layout_marginVertical="@dimen/qc_row_margin_vertical"
+    android:clipToPadding="false"
+    android:minHeight="@dimen/qc_row_min_height"
+    android:paddingEnd="@dimen/qc_row_padding_end"
+    android:paddingStart="@dimen/qc_row_padding_start">
+
+    <LinearLayout
+        android:id="@+id/qc_row_start_items"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/qc_action_items_horizontal_margin"
+        android:orientation="horizontal"
+        android:divider="@drawable/qc_row_action_divider"
+        android:showDividers="middle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/qc_row_content"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"/>
+
+    <com.android.car.ui.uxr.DrawableStateConstraintLayout
+        android:id="@+id/qc_row_content"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="?android:attr/selectableItemBackground"
+        app:layout_constraintStart_toEndOf="@+id/qc_row_start_items"
+        app:layout_constraintEnd_toStartOf="@+id/qc_row_end_items"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHeight_default="wrap"
+        app:layout_constraintHeight_min="@dimen/qc_row_min_height">
+
+        <com.android.car.ui.uxr.DrawableStateImageView
+            android:id="@+id/qc_icon"
+            android:layout_width="@dimen/qc_row_icon_size"
+            android:layout_height="@dimen/qc_row_icon_size"
+            android:layout_marginEnd="@dimen/qc_row_icon_margin_end"
+            android:scaleType="fitCenter"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/barrier1"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/barrier2"/>
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="end"
+            app:barrierAllowsGoneWidgets="false"/>
+
+        <com.android.car.ui.uxr.DrawableStateTextView
+            android:id="@+id/qc_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:singleLine="true"
+            style="@style/TextAppearance.QC.Title"
+            app:layout_constraintStart_toEndOf="@+id/barrier1"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/qc_summary"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintVertical_chainStyle="packed"/>
+
+        <com.android.car.ui.uxr.DrawableStateTextView
+            android:id="@+id/qc_summary"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            style="@style/TextAppearance.QC.Subtitle"
+            app:layout_constraintStart_toEndOf="@+id/barrier1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/qc_title"
+            app:layout_constraintBottom_toTopOf="@+id/barrier2"/>
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="top"
+            app:constraint_referenced_ids="qc_seekbar_wrapper"/>
+
+        <androidx.preference.UnPressableLinearLayout
+            android:id="@+id/qc_seekbar_wrapper"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/qc_seekbar_padding_top"
+            android:focusable="true"
+            android:background="@drawable/qc_seekbar_wrapper_background"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:layout_centerVertical="true"
+            android:orientation="vertical"
+            android:visibility="gone"
+            app:layout_constraintStart_toEndOf="@+id/barrier1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/barrier2"
+            app:layout_constraintBottom_toBottomOf="parent">
+            <com.android.car.qc.view.QCSeekBarView
+                android:id="@+id/qc_seekbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/Widget.QC.SeekBar"/>
+        </androidx.preference.UnPressableLinearLayout>
+
+    </com.android.car.ui.uxr.DrawableStateConstraintLayout>
+
+    <LinearLayout
+        android:id="@+id/qc_row_end_items"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/qc_action_items_horizontal_margin"
+        android:orientation="horizontal"
+        android:divider="@drawable/qc_row_action_divider"
+        android:showDividers="middle"
+        app:layout_constraintStart_toEndOf="@+id/qc_row_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+</com.android.car.ui.uxr.DrawableStateConstraintLayout>

@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2021 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
+    <!-- Title of the IntentResolver application. [CHAR LIMIT=50] -->
+    <string name="app_label" translatable="false">IntentResolver</string>
+
+    <!-- Title of intent resolver dialog when selecting an application to run. -->
+    <string name="whichApplication">Complete action using</string>
+    <!-- Title of intent resolver dialog when selecting an application to run
+         and a previously used application is known. -->
+    <string name="whichApplicationNamed">Complete action using <xliff:g id="app" example="YouTube">%1$s</xliff:g></string>
+    <!-- Generic label for a link to a intent resolver. -->
+    <string name="whichApplicationLabel">Complete action</string>
+    <!-- Title of intent resolver dialog when selecting a viewer application to run. -->
+    <string name="whichViewApplication">Open with</string>
+    <!-- Title of intent resolver dialog when selecting a viewer application to run
+         and a previously used application is known. -->
+    <string name="whichViewApplicationNamed">Open with <xliff:g id="app" example="YouTube">%1$s</xliff:g></string>
+    <!-- Label for a link to a intent resolver dialog to view something -->
+    <string name="whichViewApplicationLabel">Open</string>
+    <!-- Title of intent resolver dialog when selecting a browser/application that opens specific URIs
+         [CHAR LIMIT=128]. -->
+    <string name="whichOpenHostLinksWith">Open <xliff:g id="host" example="mail.google.com">%1$s</xliff:g> links with</string>
+    <!-- Title of intent resolver dialog when selecting a browser that opens URI
+         [CHAR LIMIT=128]. -->
+    <string name="whichOpenLinksWith">Open links with</string>
+    <!-- Title of intent resolver dialog when defaulting to a specific browser that opens URI
+         [CHAR LIMIT=128]. -->
+    <string name="whichOpenLinksWithApp">Open links with <xliff:g id="application" example="Chrome">%1$s</xliff:g></string>
+    <!-- Title of intent resolver dialog when defaulting to a specific browser that opens URI
+         [CHAR LIMIT=128]. -->
+    <string name="whichOpenHostLinksWithApp">Open <xliff:g id="host" example="mail.google.com">%1$s</xliff:g> links with <xliff:g id="application" example="Chrome">%2$s</xliff:g></string>
+    <!-- Label for a link to an intent resolver dialog to open URI [CHAR LIMIT=18] -->
+    <string name="whichGiveAccessToApplicationLabel">Give access</string>
+    <!-- Title of intent resolver dialog when selecting an editor application to run. -->
+    <string name="whichEditApplication">Edit with</string>
+    <!-- Title of intent resolver dialog when selecting an editor application to run
+         and a previously used application is known. -->
+    <string name="whichEditApplicationNamed">Edit with <xliff:g id="app" example="YouTube">%1$s</xliff:g></string>
+    <!-- Label for a link to a intent resolver dialog when selecting an editor application -->
+    <string name="whichEditApplicationLabel">Edit</string>
+    <!-- Title of intent resolver dialog when selecting a sharing application to run. -->
+    <string name="whichSendApplication">Share</string>
+    <!-- Title of intent resolver dialog when selecting a sharing application to run
+         and a previously used application is known. -->
+    <string name="whichSendApplicationNamed">Share with <xliff:g id="app" example="YouTube">%1$s</xliff:g></string>
+    <!-- Label for a link to a intent resolver dialog to sharing something -->
+    <string name="whichSendApplicationLabel">Share</string>
+    <!-- Title of intent resolver dialog when selecting an application to run to
+         send content to a specific recipient. Often used for email. -->
+    <string name="whichSendToApplication">Send using</string>
+    <!-- Title of intent resolver dialog when selecting an application to run to
+         send content to a specific recipient and a previously used application is known.
+         Often used for email. -->
+    <string name="whichSendToApplicationNamed">Send using <xliff:g id="app" example="YouTube">%1$s</xliff:g></string>
+    <!-- Label for a link to a intent resolver dialog to send content to a specific recipient. -->
+    <string name="whichSendToApplicationLabel">Send</string>
+    <!-- Title of intent resolver dialog when selecting a HOME application to run. -->
+    <string name="whichHomeApplication">Select a Home app</string>
+    <!-- Title of intent resolver dialog when selecting a HOME application to run
+         and a previously used application is known. -->
+    <string name="whichHomeApplicationNamed">Use <xliff:g id="app" example="YouTube">%1$s</xliff:g> as Home</string>
+    <!-- Label for a link to a intent resolver dialog when selecting a HOME -->
+    <string name="whichHomeApplicationLabel">Capture image</string>
+    <!-- Option to always use the selected application resolution in the future. See the "Complete action using" dialog title-->
+    <!-- Title of intent resolver dialog when capturing an image. -->
+    <string name="whichImageCaptureApplication">Capture image with</string>
+    <!-- Title of intent resolver dialog when capturing an image
+         and a previously used application is known. -->
+    <string name="whichImageCaptureApplicationNamed">Capture image with <xliff:g id="app" example="YouTube">%1$s</xliff:g></string>
+    <!-- Label for a link to a intent resolver dialog when capturing an image -->
+    <string name="whichImageCaptureApplicationLabel">Capture image</string>
+
+     <!-- Title of the list of alternate options to complete an action shown when the
+         last used option is being displayed separately. -->
+    <string name="use_a_different_app">Use a different app</string>
+    <!-- Default title for the activity chooser, when one is not given. Android allows multiple
+         activities to perform an action.  for example, there may be many ringtone pickers installed.
+         A dialog is shown to the user allowing them to pick which activity should be used.  This is
+         the title. -->
+    <string name="chooseActivity">Choose an action</string>
+    <!-- Text to display when there are no activities found to display in the
+         activity chooser. See the "Select an action" title. -->
+    <string name="noApplications">No apps can perform this action.</string>
+
+    <!-- Message to show when an intent automatically switches users into the personal profile. -->
+    <string name="forward_intent_to_owner">You\'re using this app outside of your work profile</string>
+    <!-- Message to show when an intent automatically switches users into a work profile. -->
+    <string name="forward_intent_to_work">You\'re using this app in your work profile</string>
+
+    <!-- Title for a button to choose the currently selected activity
+         as the default in the activity resolver. [CHAR LIMIT=25] -->
+    <string name="activity_resolver_use_always">Always</string>
+
+    <!-- Title for a button to choose the currently selected activity
+         from the activity resolver to use just this once. [CHAR LIMIT=25] -->
+    <string name="activity_resolver_use_once">Just once</string>
+
+    <!-- Text for the toast that is shown when the user clicks on a launcher that
+         doesn't support the work profile. [CHAR LIMIT=100] -->
+    <string name="activity_resolver_work_profiles_support"><xliff:g id="app" example="YouTube">%1$s</xliff:g> doesn\'t support work profile</string>
+
+    <!-- Resolver target actions strings -->
+    <!-- Pin this app to the top of the Sharesheet app list. [CHAR LIMIT=60]-->
+    <string name="pin_specific_target">Pin <xliff:g id="label" example="Tweet">%1$s</xliff:g></string>
+    <!-- Un-pin this app in the Sharesheet, so that it is sorted normally. [CHAR LIMIT=60]-->
+    <string name="unpin_specific_target">Unpin <xliff:g id="label" example="Tweet">%1$s</xliff:g></string>
+
+    <!-- Notification action for editing a screenshot (drawing on it, cropping it, etc) -->
+    <string name="screenshot_edit">Edit</string>
+
+    <!-- Represents a number of other files also being shared; used as an item at the end of a list -->
+    <string name="other_files">{count, plural,
+        =1    {+ # file}
+        other {+ # files}
+    }
+    </string>
+
+    <!-- Text label indicating the  number of other files also being shared -->
+    <string name="more_files">{count, plural,
+        =1    {+ # more file}
+        other {+ # more files}
+        }
+    </string>
+
+    <!-- Title atop a sharing UI indicating that text is being shared [CHAR_LIMIT=50] -->
+    <string name="sharing_text">Sharing text</string>
+    <!-- Title atop a sharing UI indicating that a link (URL) is being shared [CHAR_LIMIT=50] -->
+    <string name="sharing_link">Sharing link</string>
+    <!-- Title atop a sharing UI indicating that some images are being shared [CHAR_LIMIT=50] -->
+    <string name="sharing_images">{count, plural,
+        =1    {Sharing image}
+        other {Sharing # images}
+    }
+    </string>
+    <!-- Title atop a sharing UI indicating that some videos are being shared [CHAR_LIMIT=50] -->
+    <string name="sharing_videos">{count, plural,
+        =1    {Sharing video}
+        other {Sharing # videos}
+        }
+    </string>
+    <!-- Title atop a sharing UI indicating that some number of files are being shared
+         (for example: sharing a mixture of photos and videos) [CHAR_LIMIT=50] -->
+    <string name="sharing_files">{count, plural,
+        =1    {Sharing # file}
+        other {Sharing # files}
+        }
+    </string>
+
+    <!-- Title atop a sharing UI indicating that some number of images are being shared
+         along with text [CHAR_LIMIT=50] -->
+    <string name="sharing_images_with_text">{count, plural,
+        =1    {Sharing image with text}
+        other {Sharing # images with text}
+        }
+    </string>
+
+    <!-- Title atop a sharing UI indicating that some number of images are being shared
+         along with a web link [CHAR_LIMIT=50] -->
+    <string name="sharing_images_with_link">{count, plural,
+        =1    {Sharing image with link}
+        other {Sharing # images with link}
+        }
+    </string>
+
+    <!-- Title atop a sharing UI indicating that some number of videos are being shared
+         along with text [CHAR_LIMIT=50] -->
+    <string name="sharing_videos_with_text">{count, plural,
+        =1    {Sharing video with text}
+        other {Sharing # videos with text}
+        }
+    </string>
+
+    <!-- Title atop a sharing UI indicating that some number of videos are being shared
+         along with a web link [CHAR_LIMIT=50] -->
+    <string name="sharing_videos_with_link">{count, plural,
+        =1    {Sharing video with link}
+        other {Sharing # videos with link}
+        }
+    </string>
+
+    <!-- Title atop a sharing UI indicating that some number of files are being shared
+         along with text [CHAR_LIMIT=50] -->
+    <string name="sharing_files_with_text">{count, plural,
+        =1    {Sharing file with text}
+        other {Sharing # files with text}
+        }
+    </string>
+
+    <!-- Title atop a sharing UI indicating that some number of files are being shared
+         along with a web link [CHAR_LIMIT=50] -->
+    <string name="sharing_files_with_link">{count, plural,
+        =1    {Sharing file with link}
+        other {Sharing # files with link}
+        }
+    </string>
+
+
+    <!-- Title atop a sharing UI indicating that an album (typically of photos/videos) is being
+         shared [CHAR_LIMIT=50] -->
+    <string name="sharing_album">Sharing album</string>
+
+    <!-- Message indicating that the attached text has been removed from this share and only the
+         images are being shared.  [CHAR LIMIT=none] -->
+    <string name="sharing_images_only">{count, plural,
+        =1    {Image only}
+        other {Images only}
+        }
+    </string>
+
+    <!-- Message indicating that the attached text has been removed from this share and only the
+         videos are being shared.  [CHAR LIMIT=none] -->
+    <string name="sharing_videos_only">{count, plural,
+        =1    {Video only}
+        other {Videos only}
+        }
+    </string>
+
+    <!-- Message indicating that the attached text has been removed from this share and only the
+         files are being shared.  [CHAR LIMIT=none] -->
+    <string name="sharing_files_only">{count, plural,
+        =1    {File only}
+        other {Files only}
+        }
+    </string>
+
+    <!-- Accessibility announcement when a preview thumbnail for a shared image is selected in the
+         Chooser content preview -->
+    <string name="image_preview_a11y_description">Image preview thumbnail</string>
+    <!-- Accessibility announcement when a preview thumbnail for a shared vide item is selected in
+         the Chooser content preview -->
+    <string name="video_preview_a11y_description">Video preview thumbnail</string>
+    <!-- Accessibility announcement when a preview thumbnail for a shared file is selected in the
+         Chooser content preview -->
+    <string name="file_preview_a11y_description">File preview thumbnail</string>
+
+    <!-- ChooserActivity - No direct share targets are available. [CHAR LIMIT=NONE] -->
+    <string name="chooser_no_direct_share_targets">No recommended people to share with</string>
+
+     <!-- Prompt for the USB device resolver dialog with warning text for USB device dialogs.  [CHAR LIMIT=200] -->
+    <string name="usb_device_resolve_prompt_warn">This app has not been granted record permission but could capture audio through this USB device.</string>
+
+    <!-- ChooserActivity + ResolverActivity - profile tabs -->
+    <!-- Label of a tab on a screen. A user can tap this tap to switch to the 'Personal' view (that shows their personal content) if they have a work profile on their device. [CHAR LIMIT=NONE] -->
+    <string name="resolver_personal_tab">Personal</string>
+    <!-- Label of a tab on a screen. A user can tap this tab to switch to the 'Work' view (that shows their work content) if they have a work profile on their device. [CHAR LIMIT=NONE] -->
+    <string name="resolver_work_tab">Work</string>
+    <!-- Label of a tab on a screen. A user can tap this tab to switch to the 'Private' view (that shows their Private Space content) if they have private space configured on their device. [CHAR LIMIT=NONE] -->
+    <string name="resolver_private_tab">Private</string>
+
+    <!-- Accessibility label for the personal tab button. [CHAR LIMIT=NONE] -->
+    <string name="resolver_personal_tab_accessibility">Personal view</string>
+    <!-- Accessibility label for the work tab button. [CHAR LIMIT=NONE] -->
+    <string name="resolver_work_tab_accessibility">Work view</string>
+    <!-- Accessibility label for the private tab button. [CHAR LIMIT=NONE] -->
+    <string name="resolver_private_tab_accessibility">Private view</string>
+
+    <!-- Title of a screen. This text lets the user know that their IT admin doesn't allow them to share this content across profiles. [CHAR LIMIT=NONE] -->
+    <string name="resolver_cross_profile_blocked">Blocked by your IT admin</string>
+    <!-- Error message. This text is explaining that the user's IT admin doesn't allow this specific content to be shared with apps in the work profile. [CHAR LIMIT=NONE] -->
+    <string name="resolver_cant_share_with_work_apps_explanation">This content can\u2019t be shared with work apps</string>
+
+    <!-- Error message. This message lets the user know that their IT admin doesn't allow them to open this specific content with an app in their work profile. [CHAR LIMIT=NONE] -->
+    <string name="resolver_cant_access_work_apps_explanation">This content can\u2019t be opened with work apps</string>
+
+    <!-- Error message. This text is explaining that the user's IT admin doesn't allow them to share this specific content with apps in their personal profile. [CHAR LIMIT=NONE] -->
+    <string name="resolver_cant_share_with_personal_apps_explanation">This content can\u2019t be shared with personal apps</string>
+
+    <!-- Error message. This message lets the user know that their IT admin doesn't allow them to open this specific content with an app in their personal profile. [CHAR LIMIT=NONE] -->
+    <string name="resolver_cant_access_personal_apps_explanation">This content can\u2019t be opened with personal apps</string>
+
+    <!-- Error message. This text lets the user know that they need to turn on work apps in order to share or open content. There's also a button a user can tap to turn on the apps. [CHAR LIMIT=NONE] -->
+    <string name="resolver_turn_on_work_apps">Work apps are paused</string>
+    <!-- Button text. This button unpauses a user's work apps and data. [CHAR LIMIT=NONE] -->
+    <string name="resolver_switch_on_work">Unpause</string>
+
+    <!-- Error message. This text lets the user know that their current work apps don't support the specific content. [CHAR LIMIT=NONE] -->
+    <string name="resolver_no_work_apps_available">No work apps</string>
+
+    <!-- Error message. This text lets the user know that their current personal apps don't support the specific content. [CHAR LIMIT=NONE] -->
+    <string name="resolver_no_personal_apps_available">No personal apps</string>
+
+    <!-- Dialog title. User must choose between opening content in a cross-profile app or same-profile browser. [CHAR LIMIT=NONE] -->
+    <string name="miniresolver_open_in_personal">Open <xliff:g id="app" example="YouTube">%s</xliff:g> in your personal profile?</string>
+    <!-- Dialog title. User must choose between opening content in a cross-profile app or same-profile browser. [CHAR LIMIT=NONE] -->
+    <string name="miniresolver_open_in_work">Open <xliff:g id="app" example="YouTube">%s</xliff:g> in your work profile?</string>
+    <!-- Button option. Open the link in the personal browser. [CHAR LIMIT=NONE] -->
+    <string name="miniresolver_use_personal_browser">Use personal browser</string>
+    <!-- Button option. Open the link in the work browser. [CHAR LIMIT=NONE] -->
+    <string name="miniresolver_use_work_browser">Use work browser</string>
+
+    <!-- Title for a button. Excludes a text from the shared content (a media and a text). -->
+    <string name="exclude_text">Exclude text</string>
+    <!-- Title for a button. Adds back a (previously excluded) text into the shared content. -->
+    <string name="include_text">Include text</string>
+    <!-- Title for a button. Excludes a web link from the shared content (a media and a text). -->
+    <string name="exclude_link">Exclude link</string>
+    <!-- Title for a button. Adds back a (previously excluded) web link into the shared content. -->
+    <string name="include_link">Include link</string>
+
+    <!-- Accesssibility content description for a sharesheet target that has been pinned to the
+         front of the list by the user. [CHAR LIMIT=NONE] -->
+    <string name="pinned">Pinned</string>
+</resources>

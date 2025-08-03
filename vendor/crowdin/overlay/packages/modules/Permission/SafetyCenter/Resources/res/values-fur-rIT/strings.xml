@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="safetyCenterResourcesAppLabel">Risorsis dal Centri di sigurece</string>
+    <string name="lock_screen_sources_title" description="The title of the group of safety settings relating to screen lock and biometrics">Bloc dal dispositîf</string>
+    <string name="lock_screen_title" description="The default title of the setting for managing the screen lock on the device">Bloc dal schermi</string>
+    <string name="lock_screen_summary_disabled" description="The default summary of the setting for managing screen lock on the device before the current state is known to safety center">Ancjemò nissune informazion</string>
+    <string name="lock_screen_search_terms" description="Search keywords of the setting for managing the screen lock on the device">Bloc dispositîf, Bloc schermi, Blocâ schermi, Bloche-schermi, Password, Fissâ, Motîf</string>
+    <string name="biometrics_title" description="The default title of the setting for managing biometric options on the device">Dâts biometrics</string>
+    <string name="biometrics_search_terms" description="Search keywords of the setting for managing biometric options on the device">Impront digjitâl, Dêt, Zonte impront, Sbloc cu la muse, Muse</string>
+    <string name="privacy_sources_title" description="The title of the group of safety settings relating to privacy">Riservatece</string>
+    <string name="privacy_sources_summary" description="The summary of the group of safety settings relating to privacy, which describes the group contents">Cruscot, permès, controi</string>
+    <string name="permission_usage_title" description="Permission usage title">Cruscot de riservatece</string>
+    <string name="permission_usage_summary" description="Permission usage summary, which describes what the permissions usage does">Mostre lis aplicazions che di resint a àn doprât permès</string>
+    <string name="permission_usage_search_terms" description="Permission usage search keywords">Riservatece, Cruscot de riservatece</string>
+    <string name="permission_manager_title" description="Permission manager title">Gjestôr dai permès</string>
+    <string name="permission_manager_summary" description="Permission manager summary, which describes what the permission manager does">Controle l\'acès des aplicazions ai tiei dâts</string>
+    <string name="permission_manager_search_terms" description="Permission manager search keywords">Permès, Gjestôr permès</string>
+    <string name="privacy_controls_title" description="Privacy controls title">Controi di riservatece</string>
+    <string name="privacy_controls_summary" description="Privacy controls summary, which describes what the privacy controls are">Controle l\'acès dal dispositîf a microfon, fotocjamare e altri</string>
+    <string name="privacy_controls_search_terms" description="Privacy controls search keywords">Riservatece, Controi di riservatece</string>
+    <string name="advanced_title" description="The title of the group of advanced settings">Altris impostazions</string>
+    <string name="advanced_security_title" description="The title of the entry for advanced security settings">Altris impostazions di sigurece</string>
+    <string name="advanced_security_summary" description="The summary of the entry for advanced security settings, which describes the page contents">Cifradure, credenziâls e altri</string>
+    <string name="advanced_privacy_title" description="The title of the entry for advanced privacy settings">Altris impostazions di riservatece</string>
+    <string name="advanced_privacy_summary" description="The summary of the entry for advanced privacy settings, which describes the page contents">Compilazion automatiche, controi ativitâts e altri</string>
+</resources>

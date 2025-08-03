@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (c) 2009, 2011-2013 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2014-2015 The CyanogenMod Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *    * Neither the name of The Linux Foundation nor
+ *      the names of its contributors may be used to endorse or promote
+ *      products derived from this software without specific prior written
+ *      permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NON-INFRINGEMENT ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Ραδιόφωνο FM</string>
+    <string name="tx_app_name">Πομπός FM</string>
+    <string name="menu_scan_start">Σάρωση</string>
+    <string name="menu_scan_stop">Διακοπή αναζήτησης</string>
+    <string name="menu_record_start">Ηχογράφηση</string>
+    <string name="menu_record_stop">Διακοπή ηχογράφησης</string>
+    <string name="menu_settings">Ρυθμίσεις</string>
+    <string name="menu_sleep">Αναστολή</string>
+    <string name="menu_sleep_cancel">Ακύρωση αναστολής</string>
+    <string name="menu_all_channels">Όλα τα κανάλια</string>
+    <string name="menu_display_tags">Εμφάνιση ετικετών</string>
+    <string name="button_text_stop">Διακοπή</string>
+    <string name="msg_seeking">Αναζήτηση σταθμού FM\u2026</string>
+    <string name="msg_scanning">Αναζήτηση όλων των σταθμών FM\u2026</string>
+    <string name="msg_scanning_pty">Αναζήτηση για \'<xliff:g id="pty_name">%1$s</xliff:g>\'\u2026</string>
+    <string name="msg_search_title"><xliff:g id="frequency_string">%1$s</xliff:g> MHz</string>
+    <string name="msg_searching_title">Αυτόματη επιλογή προκαθορισμένων</string>
+    <string name="msg_searching">Αναζήτηση για σταθμούς με ισχυρό σήμα για δημιουργία μιας λίστας προκαθορισμένων\u2026</string>
+    <string name="msg_noantenna">Παρακαλώ συνδέστε ακουστικά για να χρησιμοποιήσετε το ραδιόφωνο FM</string>
+    <string name="dialog_sleep_title">Χρόνος αυτόματης αναστολής</string>
+    <string name="presetlist_select_name">Επιλογή \'<xliff:g id="presetlist_name">%1$s</xliff:g>\'</string>
+    <string name="presetlist_add_new">Προσθήκη νέας λίστας</string>
+    <string name="dialog_presetlist_rename_title">Εισάγετε όνομα</string>
+    <string name="presetlist_autoselect_title">Επιβεβαίωση αυτόματης επιλογής</string>
+    <string name="preset_replace">Αντικατάσταση</string>
+    <string name="preset_tune">Συντονισμός</string>
+    <string name="preset_rename">Μετονομασία</string>
+    <string name="preset_delete">Διαγραφή</string>
+    <string name="preset_search">Αναζήτηση για \'<xliff:g id="preset_pi">%1$s</xliff:g>\'</string>
+    <string name="stat_notif_frequency">\'<xliff:g id="frequency">%1$s</xliff:g>\' MHz</string>
+    <string name="regional_band">Ζώνη περιφέρειας</string>
+    <string name="regional_band_entry_north_america">Βόρεια Αμερική</string>
+    <string name="regional_band_entry_europe">Ευρώπη</string>
+    <string name="regional_band_entry_japan">Ιαπωνία</string>
+    <string name="regional_band_entry_japan_wide">Ιαπωνία (πλατιά)</string>
+    <string name="regional_band_entry_australia">Αυστραλία</string>
+    <string name="regional_band_entry_austria">Αυστρία</string>
+    <string name="regional_band_entry_belgium">Βέλγιο</string>
+    <string name="regional_band_entry_brazil">Βραζιλία</string>
+    <string name="regional_band_entry_china">Κίνα</string>
+    <string name="regional_band_entry_czech_republic">Τσεχική Δημοκρατία</string>
+    <string name="regional_band_entry_denmark">Δανία</string>
+    <string name="regional_band_entry_finland">Φινλανδία</string>
+    <string name="regional_band_entry_france">Γαλλία</string>
+    <string name="regional_band_entry_germany">Γερμανία</string>
+    <string name="regional_band_entry_greece">Ελλάδα</string>
+    <string name="regional_band_entry_hong_kong">Χονγκ Κονγκ</string>
+    <string name="regional_band_entry_india">Ινδία</string>
+    <string name="regional_band_entry_indonesia">Ινδονησία</string>
+    <string name="regional_band_entry_ireland">Ιρλανδία</string>
+    <string name="regional_band_entry_italy">Ιταλία</string>
+    <string name="regional_band_entry_korea">Κορέα</string>
+    <string name="regional_band_entry_mexico">Μεξικό</string>
+    <string name="regional_band_entry_netherlands">Ολλανδία</string>
+    <string name="regional_band_entry_new_zealand">Νέα Ζηλανδία</string>
+    <string name="regional_band_entry_norway">Νορβηγία</string>
+    <string name="regional_band_entry_poland">Πολωνία</string>
+    <string name="regional_band_entry_portugal">Πορτογαλία</string>
+    <string name="regional_band_entry_russia">Ρωσία</string>
+    <string name="regional_band_entry_singapore">Σιγκαπούρη</string>
+    <string name="regional_band_entry_slovakia">Σλοβακία</string>
+    <string name="regional_band_entry_spain">Ισπανία</string>
+    <string name="regional_band_entry_switzerland">Ελβετία</string>
+    <string name="regional_band_entry_sweden">Σουηδία</string>
+    <string name="regional_band_entry_taiwan">Ταϊβάν</string>
+    <string name="regional_band_entry_turkey">Τουρκία</string>
+    <string name="regional_band_entry_united_kingdom">Ηνωμένο Βασίλειο</string>
+    <string name="regional_band_entry_united_states">Ηνωμένες Πολιτείες</string>
+    <string name="regional_band_entry_user_defined">Προσαρμοσμένη μπάντα</string>
+    <string name="regional_band_summary_north_america">Βόρεια Αμερική (87.5 έως 108.0 MHz με βήματα 200 kHz)</string>
+    <string name="regional_band_summary_europe">Ευρώπη (87.5 έως 108.0 MHz με βήματα 100 kHz)</string>
+    <string name="regional_band_summary_japan">Ιαπωνία (76.0 έως 90.0 MHz με βήματα 100 kHz)</string>
+    <string name="regional_band_summary_japan_wide">Ιαπωνία (πλατιά) (90.0 έως 108.0 MHz με βήματα 50 kHz)</string>
+    <string name="regional_band_summary_australia">Αυστραλία (87,7 έως 108.0 MHz με βήματα 100 kHz)</string>
+    <string name="regional_band_summary_austria">Αυστρία (87.5 έως 108.0 MHz με βήματα 50 kHz)</string>
+    <string name="regional_band_summary_belgium">Βέλγιο (87.5 έως 108.0 MHz με βήματα 100 kHz)</string>
+    <string name="regional_band_summary_brazil">Βραζιλία (87.5 έως 108.0 MHz με βήματα 200 kHz)</string>
+    <string name="regional_band_summary_china">Κίνα (87.0 έως 108.0 MHz με βήματα 100 kHz)</string>
+    <string name="regional_band_summary_czech_republic">Τσεχία (87.5 έως 108.0 MHz με βήματα 100 kHz)</string>
+    <string name="regional_band_summary_denmark">Δανία (87.5 έως 108.0 MHz με βήματα 50 kHz)</string>
+    <string name="regional_band_summary_finland">Φινλανδία (87.5 έως 108.0 MHz με βήματα 100 kHz)</string>
+    <string name="regional_band_summary_france">Γαλλία (87.5 έως 108.0 MHz με βήματα 100 kHz)</string>
+    <string name="regional_band_summary_germany">Γερμανία (87.5 έως 108.0 MHz με βήματα 50 kHz)</string>
+    <string name="regional_band_summary_greece">Ελλάδα (87.5 έως 108.0 MHz με βήματα 50 kHz)</string>
+    <string name="regional_band_summary_hong_kong">Χονγκ Κονγκ (87.5 έως 108.0 MHz με βήματα 100 kHz)</string>
+    <string name="regional_band_summary_india">Ινδία (87.5 έως 108.0 MHz με βήματα 100 kHz)</string>
+    <string name="regional_band_summary_indonesia">Ινδονησία (87.5 έως 108.0 MHz με βήματα 100 kHz)</string>
+    <string name="regional_band_summary_ireland">Ιρλανδία (87.5 έως 108.0 MHz με βήματα 50 kHz)</string>
+    <string name="regional_band_summary_italy">Ιταλία (87.5 έως 108.0 MHz με βήματα 50 kHz)</string>
+    <string name="regional_band_summary_korea">Κορέα (87.5 έως 108.0 MHz με βήματα 200 kHz)</string>
+    <string name="regional_band_summary_mexico">Μεξικό (88.1 έως 107.9 MHz με βήματα 200 kHz)</string>
+    <string name="regional_band_summary_netherlands">Ολλανδία (87.5 έως 108.0 MHz με βήματα 100 kHz)</string>
+    <string name="regional_band_summary_new_zealand">Νέα Ζηλανδία (88,0 έως 107.0 MHz με βήματα 100 kHz)</string>
+    <string name="regional_band_summary_norway">Νορβηγία (87.5 έως 108.0 MHz με βήματα 100 kHz)</string>
+    <string name="regional_band_summary_poland">Πολωνία (87.5 έως 108.0 MHz με βήματα 100 kHz)</string>
+    <string name="regional_band_summary_portugal">Πορτογαλία (87.5 έως 108.0 MHz με βήματα 50 kHz)</string>
+    <string name="regional_band_summary_russia">Ρωσία (87.5 έως 108.0 MHz με βήματα 100 kHz)</string>
+    <string name="regional_band_summary_singapore">Σιγκαπούρη (88,0 έως 108.0 MHz με βήματα 100 kHz)</string>
+    <string name="regional_band_summary_slovakia">Σλοβακία (87.5 έως 108.0 MHz με βήματα 100 kHz)</string>
+    <string name="regional_band_summary_spain">Ισπανία (87.5 έως 108.0 MHz με βήματα 100 kHz)</string>
+    <string name="regional_band_summary_switzerland">Ελβετία (87.5 έως 108.0 MHz με βήματα 100 kHz)</string>
+    <string name="regional_band_summary_sweden">Σουηδία (87.5 έως 108.0 MHz με βήματα 100 kHz)</string>
+    <string name="regional_band_summary_taiwan">Ταϊβάν (87.5 έως 108.0 MHz με βήματα 100 kHz)</string>
+    <string name="regional_band_summary_turkey">Τουρκία (87.5 έως 108.0 MHz με βήματα 100 kHz)</string>
+    <string name="regional_band_summary_united_kingdom">Ηνωμένο Βασίλειο (87.5 έως 108.0 MHz με βήματα 100 kHz)</string>
+    <string name="regional_band_summary_united_states">Ηνωμένες Πολιτείες (88.1 έως 107.9 MHz με βήματα 200 kHz)</string>
+    <string name="regional_band_summary_user_defined">Προσαρμοσμένη μπάντα</string>
+    <string name="aud_output_mode">Λειτουργία εξόδου ήχου</string>
+    <string name="audio_type_stereo">Στερεοφωνικό</string>
+    <string name="audio_type_mono">Μονοφωνικό</string>
+    <string name="record_dur">Διάρκεια ηχογράφησης</string>
+    <string name="auto_select_af">Εναλλακτική συχνότητα</string>
+    <string name="settings_revert_defaults_title">Επαναφορά στις εργοστασιακές προεπιλογές</string>
+    <string name="settings_revert_defaults_summary">Επαναφορά όλων των ρυθμίσεων</string>
+    <string name="settings_revert_confirm_title">Επιβεβαίωση επαναφοράς</string>
+    <string name="settings_revert_confirm_msg">Αυτό θα διαγράψει όλες τις ρυθμίσεις εφαρμογής, συμπεριλαμβανομένων των αποθηκευμένων προκαθορισμένων. Συνέχεια;</string>
+    <string name="no_storage">Τοποθετήστε την κάρτα SD πριν την έναρξη της εγγραφής.</string>
+    <string name="preparing_sd">Προετοιμασία κάρτας SD\u2026</string>
+    <string name="access_sd_fail">Δεν ήταν δυνατή η πρόσβαση στην κάρτα SD.</string>
+    <string name="spaceIsLow_content">Ο αποθηκευτικός χώρος της κάρτας SD σας εξαντλείται. Αλλάξτε τη ρύθμιση ποιότητας ή διαγράψτε κάποια άλλα αρχεία για να ελευθερώσετε χώρο.</string>
+    <string name="FMRecording_reach_size_limit">Συμπληρώθηκε το όριο μεγέθους.</string>
+    <string name="menu_scan_for_preset">Σάρωση για προκαθορισμένα</string>
+    <string name="fm_off">Το FM είναι απενεργοποιημένο.</string>
+    <string name="fm_call">Το FM δεν μπορεί να χρησιμοποιηθεί κατά τη διάρκεια μιας κλήσης.</string>
+    <string name="alert_dialog_hint">Πληκτρολογήστε ένα όνομα</string>
+    <string name="search_dialog_title">Σάρωση σταθμών</string>
+    <string name="fm_command_timeout_title">Χρονικό όριο</string>
+    <string name="fm_tune_timeout_msg">Δεν ελήφθη καμία απάντηση για τον συντονισμό του σταθμού FM. Εάν το πρόβλημα παραμένει, παρακαλούμε απενεργοποιήστε το FM και ενεργοποιήστε το ξανά.</string>
+    <string name="fm_command_failed_title">Η λειτουργία FM απέτυχε</string>
+    <string name="fm_cmd_failed_msg">Η λειτουργία FM απέτυχε. Εάν το πρόβλημα παραμένει, παρακαλούμε απενεργοποιήστε το FM και ενεργοποιήστε το ξανά.</string>
+    <string name="fm_cmd_failed_msg_hdmi">Η λειτουργία FM απέτυχε. Δεν υποστηρίζονται ταυτόχρονα FM και HDMI.</string>
+    <string name="fm_cmd_failed_call_on">Η λειτουργία FM απέτυχε. Ο ήχος από FM δεν επιτρέπεται κατά τη διάρκεια κλήσης.</string>
+    <string name="audio_db_title_format"><xliff:g id="format">dd-MM-yyyy HH:mm:ss</xliff:g></string>
+    <string name="audio_db_artist_name">Οι ηχογραφήσεις FM μου</string>
+    <string name="audio_db_album_name">Ηχογραφήσεις FM</string>
+    <string name="audio_db_playlist_name">Ηχογραφήσεις FM</string>
+    <string name="station_name">Σταθμός:</string>
+    <string name="station_exists">Αυτή η συχνότητα υπάρχει ήδη!</string>
+    <string name="station_list_delete_station">Διαγραφή: <xliff:g id="name">%s</xliff:g></string>
+    <string name="station_list_delete_station_prompt">Είστε βέβαιοι ότι θέλετε να διαγράψετε το \'<xliff:g id="name">%s</xliff:g>\';</string>
+    <string name="station_name_empty">Το όνομα του σταθμού είναι άδειο, πληκτρολογήστε ξανά.</string>
+    <string name="station_name_exist">Το \'<xliff:g id="name">%s</xliff:g>\' είναι ήδη σε χρήση, παρακαλώ εισάγετε ένα διαφορετικό όνομα.</string>
+    <string name="rt_plus_tags">Ετικέτες</string>
+    <string name="usr_def_band_min">Χαμηλότερη συχνότητα (MHz)</string>
+    <string name="usr_def_band_max">Υψηλότερη συχνότητα (MHz)</string>
+    <string name="chanl_spacing">Διάστημα καναλιών</string>
+    <string name="set">Ορισμός</string>
+    <string name="user_defind_band_msg">Εισάγετε συχνότητα από 76,0 έως 108.0 MHz με ελάχιστη απόσταση 1 κανάλι και 100 kHz απόσταση μεταξύ ελάχιστης και μέγιστης συχνότητας</string>
+    <string name="save_record_file">Το αρχείο FM που ηχογραφήθηκε αποθηκεύτηκε στο \'<xliff:g id="record_file">%1$s</xliff:g>\'</string>
+    <string name="fm_search_no_results">Δε βρέθηκαν συμβατοί σταθμοί</string>
+    <string name="typ_All_stations">Όλοι οι σταθμοί</string>
+    <string name="typ_Culture">Πολιτισμός</string>
+    <string name="typ_Current_affairs">Επικαιρότητα</string>
+    <string name="typ_Children">Παιδικά προγράμματα</string>
+    <string name="typ_Country">Κάντρι</string>
+    <string name="typ_Documentary">Ντοκιμαντέρ</string>
+    <string name="typ_Drama">Δράμα</string>
+    <string name="typ_Easy_listening">Μουσική που ακούγεται εύκολα</string>
+    <string name="typ_Education">Εκπαίδευση</string>
+    <string name="typ_Emergency">Έκτακτη ανάγκη</string>
+    <string name="typ_Emergency_test">Δοκιμή έκτακτης ανάγκης</string>
+    <string name="typ_Finance">Οικονομικά</string>
+    <string name="typ_Folk">Παραδοσιακή μουσική</string>
+    <string name="typ_Information">Πληροφορίες</string>
+    <string name="typ_Jazz">Τζαζ μουσική</string>
+    <string name="typ_Light_classical">Ελαφριά κλασική</string>
+    <string name="typ_Leisure">Αναψυχή</string>
+    <string name="typ_News">Ειδήσεις</string>
+    <string name="typ_National">Εθνική μουσική</string>
+    <string name="typ_Other">Άλλη μουσική</string>
+    <string name="typ_Oldies">Oldies μουσική</string>
+    <string name="typ_Phone_in">Τηλέφωνο</string>
+    <string name="typ_Pop">Ποπ μουσική</string>
+    <string name="typ_Religion">Θρησκεία</string>
+    <string name="typ_Rock">Ροκ μουσική</string>
+    <string name="typ_Science">Επιστήμη</string>
+    <string name="typ_Serious_classical">Σοβαρή κλασική</string>
+    <string name="typ_Social_affairs">Κοινωνικές υποθέσεις</string>
+    <string name="typ_Sport">Αθλητισμός</string>
+    <string name="typ_Travel">Ταξίδια</string>
+    <string name="typ_Varied">Ποικίλη</string>
+    <string name="typ_Weather">Καιρός</string>
+    <string name="typ_Adult_hits">Hits ενηλίκων</string>
+    <string name="typ_Classical">Κλασική</string>
+    <string name="typ_Classic_Rock">Κλασικό ροκ</string>
+    <string name="typ_College">Κολλέγιο</string>
+    <string name="typ_Foreign_language">Ξενόγλωσσα</string>
+    <string name="typ_Hiphop">Χιπ χοπ</string>
+    <string name="typ_Nostalgia">Νοσταλγία</string>
+    <string name="typ_Personality">Προσωπικότητα</string>
+    <string name="typ_Public">Δημόσια</string>
+    <string name="typ_Religious_music">Θρησκευτική μουσική</string>
+    <string name="typ_Religious_talk">Θρησκευτική ομιλία</string>
+    <string name="typ_Rhythm_and_Blues">RnB</string>
+    <string name="typ_Spanish_music">Ισπανική μουσική</string>
+    <string name="typ_Spanish_talk">Ισπανική ομιλία</string>
+    <string name="typ_Soft">Απαλή</string>
+    <string name="typ_Soft_Rock">Απαλό rock</string>
+    <string name="typ_Soft_Rhythm_and_Blues">Απαλό RnB</string>
+    <string name="typ_Sports">Αθλήματα</string>
+    <string name="typ_Talk">Συζήτηση</string>
+    <string name="typ_Top_40">Top 40</string>
+</resources>

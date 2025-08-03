@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package blueberry.facade.hci;
+
+import "google/protobuf/empty.proto";
+import "blueberry/facade/common.proto";
+
+service HciFacade {
+  rpc SendCommand(blueberry.facade.Data) returns (google.protobuf.Empty) {}
+
+  rpc RequestEvent(EventRequest) returns (google.protobuf.Empty) {}
+  rpc StreamEvents(google.protobuf.Empty) returns (stream blueberry.facade.Data) {}
+
+  rpc RequestLeSubevent(EventRequest) returns (google.protobuf.Empty) {}
+  rpc StreamLeSubevents(google.protobuf.Empty) returns (stream blueberry.facade.Data) {}
+
+  rpc SendAcl(blueberry.facade.Data) returns (google.protobuf.Empty) {}
+  rpc StreamAcl(google.protobuf.Empty) returns (stream blueberry.facade.Data) {}
+}
+
+message EventRequest {
+  uint32 code = 1;
+}

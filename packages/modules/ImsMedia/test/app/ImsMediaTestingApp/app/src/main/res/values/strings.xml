@@ -1,0 +1,171 @@
+<resources>
+
+  <string name="app_name">IMS Media Testing App</string>
+  <string name="settings">settings_button</string>
+  <string name="settings_video">settings_video_button</string>
+  <string name="home">home_button</string>
+
+  <!-- MainActivity page Strings -->
+  <string name="local_device_label">Local Device</string>
+  <string name="local_ip_label">Local IP: %s</string>
+  <string name="port_closed_label">Port:  - -</string>
+  <string name="reception_port_label">Port: %s</string>
+  <string name="rtp_reception_port_label">RTP Port: %s</string>
+  <string name="rtcp_reception_port_label">RTCP Port: %s</string>
+
+  <string name="connection_details_label">Remote Device</string>
+  <string name="other_device_ip_label">IP: %s</string>
+  <string name="handshake_port_label">Handshake Port: %s</string>
+
+  <string name="preview_label">Local View</string>
+  <string name="display_label">Peer View</string>
+
+  <!-- Allow calls button text -->
+  <string name="allow_calls_button_text">ALLOW\nCALLS </string>
+  <string name="disable_calls_button_text">DISABLE\nCALLS</string>
+
+  <!-- Connect button text -->
+  <string name="connect_button_text">Connect</string>
+  <string name="disconnect_button_text">Disconnect</string>
+
+  <!-- Open session button text -->
+  <string name="open_session_button_text">OPEN SESSION</string>
+
+  <!-- Close session button text -->
+  <string name="close_session_button_text">CLOSE\nSESSION</string>
+
+  <!-- Allow calls button toast text -->
+  <string name="allowing_calls_toast_text">Allowing calls</string>
+  <string name="connecting_call_toast_text">Connecting</string>
+  <string name="connected_call_toast_text">Connected!</string>
+  <string name="connection_failed_toast_text">Connection failed!</string>
+
+  <!-- Send Header extension button text -->
+  <string name="send_header_extension_button_text">Send RtpHdrExt</string>
+
+  <!-- Invoke apply delay button text -->
+  <string name="apply_delay_button_text">Apply Delay</string>
+
+
+  <!-- Settings page Strings -->
+  <string name="settings_remote_device_title">Remote Device</string>
+  <string name="port_number_placeholder">port number</string>
+  <string name="ip_address_placeholder">ip address</string>
+  <string name="audio_codec_settings">Audio Codecs</string>
+  <string name="amr_modes">Amr Modes</string>
+  <string name="evs_modes">EVS Modes</string>
+  <string name="evs_bandwidths">EVS Bandwidths</string>
+
+  <!-- Settings_video page Strings -->
+  <string name="video_codec_setting">Video Codecs</string>
+  <string name="video_codec_profile">Codec Profile</string>
+  <string name="video_codec_level">Codec Level</string>
+  <string name="video_modes">Video Modes</string>
+  <string name="video_camera_id">Camera Id</string>
+  <string name="video_camera_zoom">Camera Zoom Level</string>
+  <string name="video_framerate">Video Framerate</string>
+  <string name="video_bitrate">Video Bitrate</string>
+  <string name="video_device_orientation">Device Orientation</string>
+  <string name="video_pause_image_path">Pause Image Path</string>
+  <string name="video_cvo_value">CVO Value</string>
+  <string name="video_resolution">Resolution</string>
+
+  <!-- Save button text -->
+  <string name="save">SAVE</string>
+
+  <!-- Save button toast text -->
+  <string name="save_button_action_toast">Settings saved</string>
+  <string name="connected">CONNECTED</string>
+  <string name="loop_back_mode_switch_text">LOOP BACK</string>
+  <string name="speaker_mode_switch_text">SPEAKER</string>
+
+  <!-- Additional Media items text -->
+  <string name="media_none">NONE</string>
+  <string name="media_video">VIDEO</string>
+  <string name="media_text">TEXT</string>
+
+  <!-- text labels text -->
+  <string name="text_sending">Sending</string>
+  <string name="text_received">Received</string>
+
+  <!-- Dialer buttons text -->
+  <string name="dialer_button_1_text">1</string>
+  <string name="dialer_button_2_text">2</string>
+  <string name="dialer_button_3_text">3</string>
+  <string name="dialer_button_4_text">4</string>
+  <string name="dialer_button_5_text">5</string>
+  <string name="dialer_button_6_text">6</string>
+  <string name="dialer_button_7_text">7</string>
+  <string name="dialer_button_8_text">8</string>
+  <string name="dialer_button_9_text">9</string>
+  <string name="dialer_button_0_text">0</string>
+  <string name="dialer_button_pound_text">#</string>
+  <string name="dialer_button_star_text">*</string>
+  <string name="dialerButtonDescription">open dialer</string>
+  <string name="clear_dtmf_input_button">CLEAR</string>
+  <string name="dtmfInputPlaceholder">…</string>
+
+  <!-- Media direction change text -->
+  <string name="hold">HOLD</string>
+  <string name="media_direction_send_only">SEND_ONLY</string>
+  <string name="media_direction_receive_only">RECEIVE_ONLY</string>
+  <string name="media_direction_send_receive">SEND_RECEIVE</string>
+  <string name="media_direction_no_flow">NO_FLOW</string>
+  <string name="media_direction_inactive">INACTIVE</string>
+
+  <!-- Audio codec change text -->
+  <string name="change_audio_codec_title">Switch Audio Codecs</string>
+  <string name="change_codec">Change Codec</string>
+  <string name="select_an_audio_codec">Select an audio codec</string>
+  <string name="select_a_mode">Select a mode</string>
+  <string name="select_an_evs_band">Select an EVS Band</string>
+
+  <!-- Amr Modes items text -->
+  <string name="amr_mode_0">AMR_MODE_0</string>
+  <string name="amr_mode_1">AMR_MODE_1</string>
+  <string name="amr_mode_2">AMR_MODE_2</string>
+  <string name="amr_mode_3">AMR_MODE_3</string>
+  <string name="amr_mode_4">AMR_MODE_4</string>
+  <string name="amr_mode_5">AMR_MODE_5</string>
+  <string name="amr_mode_6">AMR_MODE_6</string>
+  <string name="amr_mode_7">AMR_MODE_7</string>
+  <string name="amr_mode_8">AMR_MODE_8</string>
+
+  <!-- Evs Modes items text -->
+  <string name="evs_mode_0">EVS_MODE_0</string>
+  <string name="evs_mode_1">EVS_MODE_1</string>
+  <string name="evs_mode_2">EVS_MODE_2</string>
+  <string name="evs_mode_3">EVS_MODE_3</string>
+  <string name="evs_mode_4">EVS_MODE_4</string>
+  <string name="evs_mode_5">EVS_MODE_5</string>
+  <string name="evs_mode_6">EVS_MODE_6</string>
+  <string name="evs_mode_7">EVS_MODE_7</string>
+  <string name="evs_mode_8">EVS_MODE_8</string>
+  <string name="evs_mode_9">EVS_MODE_9</string>
+  <string name="evs_mode_10">EVS_MODE_10</string>
+  <string name="evs_mode_11">EVS_MODE_11</string>
+  <string name="evs_mode_12">EVS_MODE_12</string>
+  <string name="evs_mode_13">EVS_MODE_13</string>
+  <string name="evs_mode_14">EVS_MODE_14</string>
+  <string name="evs_mode_15">EVS_MODE_15</string>
+  <string name="evs_mode_16">EVS_MODE_16</string>
+  <string name="evs_mode_17">EVS_MODE_17</string>
+  <string name="evs_mode_18">EVS_MODE_18</string>
+  <string name="evs_mode_19">EVS_MODE_19</string>
+  <string name="evs_mode_20">EVS_MODE_20</string>
+
+  <!-- Evs Bandwidths items text -->
+  <string name="evs_band_none">EVS_BAND_NONE</string>
+  <string name="evs_narrow_band">EVS_NARROW_BAND</string>
+  <string name="evs_wide_band">EVS_WIDE_BAND</string>
+  <string name="evs_super_wide_band">EVS_SUPER_WIDE_BAND</string>
+  <string name="evs_full_band">EVS_FULL_BAND</string>
+
+  <!-- Codec Types items text -->
+  <string name="codec_amr">CODEC_AMR</string>
+  <string name="codec_amr_wb">CODEC_AMR_WB</string>
+  <string name="codec_evs">CODEC_EVS</string>
+  <string name="codec_pcma">CODEC_PCMA</string>
+  <string name="codec_pcmu">CODEC_PCMU</string>
+
+</resources>

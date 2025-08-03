@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+  <configuration description="Bumble bluetooth tests.">
+    <target_preparer class="com.android.tradefed.targetprep.RootTargetPreparer">
+        <option name="force-root" value="true"/>
+    </target_preparer>
+
+    <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
+        <option name="cleanup-apks" value="true" />
+        <option name="test-file-name" value="BumbleBluetoothTestsApp.apk" />
+        <option name="install-arg" value="-g" />
+    </target_preparer>
+
+    <target_preparer class="com.android.tradefed.targetprep.PythonVirtualenvPreparer">
+        <option name="dep-module" value="grpcio==1.51.1" />
+        <option name="dep-module" value="cryptography==35" />
+        <option name="dep-module" value="click" />
+    </target_preparer>
+
+    <target_preparer class="com.android.tradefed.targetprep.RunHostCommandTargetPreparer">
+      <option name="python-virtualenv" value="true"/>
+
+      <option name="host-setup-command" value="adb -s $SERIAL forward tcp:6211 vsock:2:7300" />
+      <option name="host-teardown-command" value="adb -s $SERIAL forward --remove tcp:6211" />
+
+      <option name="host-setup-command" value="adb -s $SERIAL reverse tcp:7999 tcp:7999" />
+      <option name="host-background-command"
+        value="$EXTRA_FILE(host_testcases)/BumbleBluetoothTests/bumble_pandora_server --rootcanal-port 6211 --config $EXTRA_FILE(host_testcases)/BumbleBluetoothTests/bumble_config.json"/>
+      <option name="host-teardown-command" value="adb -s $SERIAL reverse --remove tcp:7999" />
+    </target_preparer>
+
+    <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer">
+        <option name="throw-if-cmd-fail" value="true" />
+        <option name="run-command" value="setprop persist.bluetooth.btsnooplogmode full" />
+        <option name="run-command" value="device_config set_sync_disabled_for_tests persistent" />
+        <option name="run-command"
+                value="device_config put bluetooth INIT_logging_debug_enabled_for_all true" />
+        <option name="run-command"
+                value="device_config put bluetooth INIT_default_log_level_str LOG_VERBOSE" />
+        <option name="run-command" value="settings put global ble_scan_always_enabled 0" />
+        <option name="run-command" value="cmd bluetooth_manager disable" />
+        <option name="run-command" value="cmd bluetooth_manager wait-for-state:STATE_OFF" />
+        <option name="run-command" value="cmd bluetooth_manager enable" />
+        <option name="run-command" value="cmd bluetooth_manager wait-for-state:STATE_ON" />
+    </target_preparer>
+
+    <option name="test-tag" value="BumbleBluetoothTests" />
+    <test class="com.android.tradefed.testtype.AndroidJUnitTest" >
+        <option name="package" value="android.bluetooth" />
+    </test>
+
+    <!-- Only run if the Bluetooth Mainline module is installed. -->
+    <object type="module_controller"
+            class="com.android.tradefed.testtype.suite.module.MainlineTestModuleController">
+        <option name="mainline-module-package-name" value="com.android.btservices" />
+        <option name="mainline-module-package-name" value="com.google.android.btservices" />
+    </object>
+
+    <!-- Collect Bluetooth snoop logs for each test run -->
+    <metrics_collector class="com.android.tradefed.device.metric.FilePullerLogCollector">
+        <option name="directory-keys" value="/data/misc/bluetooth/logs" />
+        <option name="collect-on-run-ended-only" value="false" />
+        <option name="clean-up" value="false" />
+    </metrics_collector>
+</configuration>
+

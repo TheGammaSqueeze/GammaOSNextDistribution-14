@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  Copyright (C) 2022 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="@dimen/spacing_small"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="?attr/alertDialogTitleGravity">
+            <ImageView
+                android:id="@+id/dialog_icon"
+                android:layout_width="@dimen/icon_size"
+                android:layout_height="@dimen/icon_size"
+                android:layout_marginTop="@dimen/spacing_large"
+                android:layout_marginBottom="@dimen/spacing_normal"
+                android:visibility="?attr/alertDialogTitleIconVisibility"
+                android:tint="?android:attr/colorAccent" />
+
+            <TextView
+                android:id="@+id/dialog_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="@dimen/spacing_small"
+                android:layout_marginBottom="@dimen/spacing_normal"
+                android:maxLines="4"
+                android:singleLine="false"
+                android:textAlignment="?attr/alertDialogTitleTextAlignment"
+                android:textAppearance="?attr/textAppearanceHeadline4" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/time_range_message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="?android:attr/listPreferredItemPaddingStart"
+            android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
+            android:paddingBottom="@dimen/spacing_small"
+            style="?attr/textAppearanceSummary"
+            android:text="@string/time_range_message_all" />
+        <!-- by default the first radio button is checked -->
+        <RadioGroup
+            android:id="@+id/radio_group_time_range"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:paddingStart="?android:attr/listPreferredItemPaddingStart"
+            android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
+            android:checkedButton="@+id/radio_button_one_day">
+
+            <RadioButton
+                android:id="@+id/radio_button_one_day"
+                android:text="@string/time_range_one_day"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="?android:attr/listPreferredItemHeight"
+                android:paddingStart="?android:attr/listPreferredItemPaddingStart"
+                android:paddingEnd="0dp"
+                android:textAppearance="?attr/textAppearanceSummary"
+                android:textColor="?android:attr/textColorPrimary"/>
+
+            <RadioButton
+                android:id="@+id/radio_button_one_week"
+                android:text="@string/time_range_one_week"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="?android:attr/listPreferredItemHeight"
+                android:paddingStart="?android:attr/listPreferredItemPaddingStart"
+                android:paddingEnd="0dp"
+                android:textAppearance="?attr/textAppearanceSummary"
+                android:textColor="?android:attr/textColorPrimary"/>
+
+            <RadioButton
+                android:id="@+id/radio_button_one_month"
+                android:text="@string/time_range_one_month"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="?android:attr/listPreferredItemHeight"
+                android:paddingStart="?android:attr/listPreferredItemPaddingStart"
+                android:paddingEnd="0dp"
+                android:textAppearance="?attr/textAppearanceSummary"
+                android:textColor="?android:attr/textColorPrimary"/>
+
+            <RadioButton
+                android:id="@+id/radio_button_all"
+                android:text="@string/time_range_all"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="?android:attr/listPreferredItemHeight"
+                android:paddingStart="?android:attr/listPreferredItemPaddingStart"
+                android:paddingEnd="0dp"
+                android:textAppearance="?attr/textAppearanceSummary"
+                android:textColor="?android:attr/textColorPrimary"/>
+        </RadioGroup>
+    </LinearLayout>
+</ScrollView>

@@ -1,0 +1,11 @@
+module: "android.sysprop.bluetooth.Avrcp"
+owner: Platform
+
+prop {
+    api_name: "absolute_volume"
+    type: Boolean
+    scope: Internal
+    access: Readonly
+    prop_name: "bluetooth.avrcp.absolute_volume.enabled"
+}
+

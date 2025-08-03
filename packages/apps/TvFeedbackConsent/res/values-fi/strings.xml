@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="feedback_system_logs_title_text" msgid="8162964763101361628">"Lokit (järjestelmä &amp; sovellus)"</string>
+    <string name="feedback_system_logs_legal_text" msgid="4770068793128503597">"Kaikkien järjestelmän ja sovellusten laitteiden lokien jakaminen voi lähettää Googlelle tietoja, esimerkiksi käyttäjänimiä, sijainteja, laitetunnuksia ja verkkotietoja. Google käyttää näitä tietoja teknisten ongelmien korjaamiseen ja palvelujen parantamiseen. Lue lisää osoitteesta g.co/android/devicelogs."</string>
+    <string name="feedback_bugreport_title_text" msgid="8863884817986711122">"Lisää mukaan virheraportti"</string>
+    <string name="feedback_bugreport_legal_display_text" msgid="4486929548753044585">"Virheraportti (lähde: %1$s) sisältää dataa, esimerkiksi käyttäjänimiä, sijainteja, laitetunnuksia ja verkkotietoja, jotka auttavat Googlea ongelman korjaamisessa."</string>
+    <string name="next" msgid="3308587969183798652">"Seuraava"</string>
+    <string name="feedback_view_system_logs_button_text" msgid="1889709679017124924">"Katso järjestelmälokit"</string>
+    <string name="feedback_view_logs_dialog_title" msgid="1937861449450135462">"Järjestelmälokit"</string>
+    <string name="feedback_view_logs_dialog_body" msgid="2496560711853644250">"Lokit sisältävät tietoja, joita tarvitsemme palautteesi käsittelyyn."</string>
+    <string name="annotated_back_indicator_string" msgid="3197935392074998004">"Palaa takaisin painamalla takaisin-painiketta."</string>
+    <string name="loading" msgid="1709842456101615353">"Ladataan"</string>
+</resources>

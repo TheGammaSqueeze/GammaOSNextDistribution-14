@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2006 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label">Kalendar</string>
+    <string name="when_label">Bila</string>
+    <string name="today">Hari ini</string>
+    <string name="tomorrow">Esok</string>
+    <string name="today_at_time_fmt">"Hari ini pada <xliff:g id="TIME_INTERVAL">%s</xliff:g>"</string>
+    <string name="tomorrow_at_time_fmt">"Esok pada <xliff:g id="TIME_INTERVAL">%s</xliff:g>"</string>
+    <string name="date_time_fmt">"<xliff:g id="DATE">%1$s</xliff:g>, <xliff:g id="TIME_INTERVAL">%2$s</xliff:g>"</string>
+    <string name="no_title_label">(Tiada tajuk)</string>
+    <plurals name="Nminutes">
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> minit</item>
+    </plurals>
+    <plurals name="Nmins">
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> min</item>
+    </plurals>
+    <plurals name="Nhours">
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> jam</item>
+    </plurals>
+    <plurals name="Ndays">
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> hari</item>
+    </plurals>
+    <string name="show_day_view">"Tunjukkan hari"</string>
+    <string name="agenda_view">"Agenda"</string>
+    <string name="day_view">"Hari"</string>
+    <string name="week_view">"Minggu"</string>
+    <string name="month_view">"Bulan"</string>
+    <string name="event_view">"Lihat acara"</string>
+    <string name="event_create">"Acara baharu"</string>
+    <string name="event_edit">"Edit acara"</string>
+    <string name="event_delete">"Padam acara"</string>
+    <string name="goto_today">"Hari ini"</string>
+    <string name="menu_preferences">"Tetapan"</string>
+    <string name="search">"Carian"</string>
+    <string name="hide_controls">"Sembunyikan kawalan"</string>
+    <string name="show_controls">"Tunjukkan kawalan"</string>
+    <string name="select_synced_calendars_button">Kalendar untuk disegerakkan</string>
+    <string name="hint_what">"Nama acara"</string>
+    <string name="hint_where">"Lokasi"</string>
+    <string name="hint_description">"Huraian"</string>
+    <string name="hint_attendees">"Tetamu"</string>
+    <string name="creating_event">"Acara sudah dibuat."</string>
+    <string name="saving_event">"Acara sudah disimpan."</string>
+    <string name="empty_event">"Acara kosong tidak dibuat."</string>
+    <string name="creating_event_with_guest">"Jemputan akan dihantar."</string>
+    <string name="saving_event_with_guest">"Kemas kini akan dihantar."</string>
+    <string name="rsvp_accepted">"Menjawab ya."</string>
+    <string name="rsvp_tentative">"Menjawab mungkin."</string>
+    <string name="rsvp_declined">"Menjawab tidak."</string>
+    <string name="create_event_dialog_save">Simpan</string>
+    <string name="alert_title">Pemberitahuan kalendar</string>
+    <string name="event_info_title">Lihat acara</string>
+    <string name="event_info_title_invite">Jemputan pertemuan</string>
+    <string name="edit_event_all_day_label">Sepanjang hari</string>
+    <string name="edit_event_calendar_label">Kalendar</string>
+    <string name="presence_label">Tunjukkan saya sebagai</string>
+    <string name="privacy_label">Privasi</string>
+    <string name="reminders_label">Tambah peringatan</string>
+    <string name="no_syncable_calendars">Tiada kalendar</string>
+    <string name="view_event_calendar_label">Kalendar</string>
+    <string name="view_event_organizer_label">Penganjur:</string>
+    <string name="choose_event_color_label">Pilih warna acara</string>
+    <string name="event_color_picker_dialog_title">Warna Acara</string>
+    <string name="event_color_set_to_default">Tetapkan kepada warna kalendar lalai</string>
+    <string name="calendar_color_picker_dialog_title">Warna Kalendar</string>
+    <string name="calendar_square_color_picker_description">Pemilih warna</string>
+    <string name="view_event_response_label">Hadir?</string>
+    <string name="response_yes">Ya</string>
+    <string name="response_maybe">Mungkin</string>
+    <string name="response_no">Tidak</string>
+    <string name="email_guests_label">Hantarkan e-mel kepada tetamu</string>
+    <string name="email_organizer_label">Hantarkan e-mel kepada penganjur</string>
+    <string name="email_picker_label">E-mel dengan</string>
+    <string name="event_not_found">"Acara tidak dijumpai."</string>
+    <string name="map_label">Peta</string>
+    <string name="call_label">Panggil</string>
+    <string name="quick_response_settings">Respons pantas</string>
+    <string name="quick_response_settings_summary">Edit jawapan lalai semasa menghantar e-mel kepada tetamu</string>
+    <string name="quick_response_settings_edit_title">Respons pantas</string>
+    <string name="quick_response_dialog_title">Pilih respons pantas</string>
+    <string name="quick_response_email_failed">Gagal mencari program e-mel</string>
+    <string-array name="quick_response_defaults">
+        <item>Terlewat beberapa minit sahaja.</item>
+        <item>Ada di sana dalam kira-kira 10 minit.</item>
+        <item>Teruskan dan mulakan tanpa saya.</item>
+        <item>Maaf, saya tidak dapat datang. Kita perlu menjadualkannya semula.</item>
+    </string-array>
+    <string name="quick_response_custom_msg">Tulis sendiri…</string>
+    <string name="event_info_organizer">Penganjur:</string>
+    <string name="event_info_reminders_label">Peringatan</string>
+    <string name="loading">Memuatkan...</string>
+    <string name="show_older_events">Sentuh untuk melihat acara sebelum <xliff:g id="OLDEST_SEARCH_RANGE">%1$s</xliff:g></string>
+    <string name="show_newer_events">Sentuh untuk melihat acara selepas <xliff:g id="NEWEST_SEARCH_RANGE">%1$s</xliff:g></string>
+    <string name="search_title">Cari dalam kalendar saya</string>
+    <string name="edit_event_label">"Butiran"</string>
+    <string name="edit_label">"Edit"</string>
+    <string name="delete_label">"Padam"</string>
+    <string name="save_label">Selesai</string>
+    <string name="discard_label">Batal</string>
+    <string name="dismiss_all_label">"Ketepikan semua"</string>
+    <string name="snooze_label">"Tidur sekejap"</string>
+    <string name="does_not_repeat">Acara satu kali</string>
+    <string name="endByDate">; sehingga <xliff:g id="DATE">%s</xliff:g></string>
+    <plurals name="endByCount">
+        <item quantity="other">; utk <xliff:g id="NUMBER">%d</xliff:g> kali</item>
+    </plurals>
+    <plurals name="daily">
+        <item quantity="other">Setiap <xliff:g id="NUMBER">%d</xliff:g> hari</item>
+    </plurals>
+    <string name="every_weekday">"Setiap hari kerja (Isn-Jum)"</string>
+    <plurals name="weekly">
+        <item quantity="other">Setiap <xliff:g id="NUMBER">%1$d</xliff:g> minggu pada <xliff:g id="DAYS_OF_WEEK">%2$s</xliff:g></item>
+    </plurals>
+    <string name="monthly">Bulanan</string>
+    <string name="yearly_plain">Tahunan</string>
+    <string name="custom" product="default">"Peribadi (tidak boleh diperibadikan pada telefon)"</string>
+    <string name="modify_event">Tukar acara ini sahaja</string>
+    <string name="modify_all">Tukar semua acara dalam siri</string>
+    <string name="modify_all_following">Tukar acara ini dan semua acara masa depan</string>
+    <string name="new_event_dialog_label">"Acara baharu"</string>
+    <string name="new_event_dialog_option">"Acara baharu"</string>
+    <string name="delete_this_event_title">Padamkan acara ini?</string>
+    <string name="delete_recurring_event_title">Padam <xliff:g id="EVENTTITLE">%s</xliff:g>?</string>
+    <string name="change_response_title">Tukar jawapan</string>
+    <string name="preferences_title">"Tetapan"</string>
+    <string name="preferences_general_title">Tetapan paparan kalendar</string>
+    <string name="preferences_reminder_title">Pemberitahuan &amp; peringatan</string>
+    <string name="preferences_hide_declined_title">Sembunyikan acara yang ditolak</string>
+    <string name="preferences_week_start_day_title">Minggu bermula pada</string>
+    <string name="preferences_week_start_day_dialog">Minggu bermula pada</string>
+    <string name="preferences_clear_search_history_title">Padam bersih sejarah carian</string>
+    <string name="preferences_clear_search_history_summary">Alih keluar semua carian yang telah anda lakukan</string>
+    <string name="search_history_cleared">Sejarah carian dipadam bersih.</string>
+    <string name="preferences_alerts_title">Pemberitahuan</string>
+    <string name="preferences_alerts_vibrateWhen_title">Getar</string>
+    <string name="preferences_alerts_ringtone_title">Bunyi</string>
+    <string name="preferences_alerts_popup_title">Pemberitahuan pop timbul</string>
+    <string name="preferences_default_reminder_title">Waktu peringatan lalai</string>
+    <string name="preferences_default_reminder_dialog">Waktu peringatan lalai</string>
+    <string name="preferences_default_reminder_default">10</string>
+    <string name="preferences_use_home_tz_title">Guna zon waktu rmh</string>
+    <string name="preferences_use_home_tz_descrip">Pprkn msa klendar dan acara dlm zon waktu rmah bila bergerak</string>
+    <string name="preferences_home_tz_title">Zon waktu rumah</string>
+    <string name="preferences_show_week_num_title">Tunjukkan nombor minggu</string>
+    <string name="preferences_build_version">Versi binaan</string>
+    <plurals name="month_more_events">
+        <item quantity="other">+<xliff:g id="NUMBER">%d</xliff:g></item>
+    </plurals>
+    <string name="gadget_no_events">Tiada acara kalendar yang akan datang</string>
+    <string name="preferences_experimental_category">Percubaan</string>
+    <string name="preferences_reminders_responded_label">Langkau Peringatan</string>
+    <string name="preferences_reminders_responded_dialog">Langkau Peringatan</string>
+    <string name="copy_db">Hantar pangkalan data</string>
+    <string name="directory_searching_fmt">Mencari <xliff:g id="DOMAIN">%s</xliff:g>...</string>
+    <string name="accessibility_remove_attendee">Alih keluar hadirin</string>
+    <string name="accessibility_pick_start_date">Tarikh mula</string>
+    <string name="accessibility_pick_start_time">Masa mula</string>
+    <string name="accessibility_pick_end_date">Tarikh akhir</string>
+    <string name="accessibility_pick_end_time">Masa tamat</string>
+    <string name="accessibility_pick_time_zone">Zon waktu</string>
+    <string name="accessibility_pick_recurrence">Ulang acara</string>
+    <string name="accessibility_add_reminder">Tambah peringatan</string>
+    <string name="accessibility_remove_reminder">Alih keluar peringatan</string>
+    <string name="accessibility_add_attendee">Tambah hadirin</string>
+    <string name="accessibility_all_day">Acara sepanjang hari</string>
+    <string name="accessibility_reminder_time">Waktu peringatan</string>
+    <string name="accessibility_reminder_type">Jenis peringatan</string>
+    <string name="accessibility_reminder_showmeas">Tunjukkan saya sebagai</string>
+    <string name="accessibility_reminder_privacy">Privasi</string>
+    <string name="day_view_new_event_hint">+ Acara baru</string>
+    <string name="template_announce_item_index">Acara <xliff:g id="ITEM_INDEX">%1$s</xliff:g> daripada <xliff:g id="ITEM_COUNT">%2$s</xliff:g>.</string>
+    <plurals name="Nevents">
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> acara</item>
+    </plurals>
+    <plurals name="N_remaining_events">
+        <item quantity="other">+<xliff:g id="COUNT">%d</xliff:g> acara</item>
+    </plurals>
+    <string name="acessibility_selected_marker_description">Acara dipilih</string>
+    <plurals name="recurrence_interval_daily">
+        <item quantity="other">Setiap <xliff:g id="COUNT">%d</xliff:g> hari</item>
+    </plurals>
+    <plurals name="recurrence_interval_weekly">
+        <item quantity="other">Setiap <xliff:g id="COUNT">%d</xliff:g> minggu</item>
+    </plurals>
+    <plurals name="recurrence_interval_monthly">
+        <item quantity="other">Setiap <xliff:g id="COUNT">%d</xliff:g> bulan</item>
+    </plurals>
+    <plurals name="recurrence_interval_yearly">
+        <item quantity="other">Setiap <xliff:g id="COUNT">%d</xliff:g> tahun</item>
+    </plurals>
+    <string name="recurrence_month_pattern_by_day">hari sama setiap bln</string>
+    <string name="recurrence_end_continously">Selamanya</string>
+    <string name="recurrence_end_date_label">Sehingga tarikh</string>
+    <string name="recurrence_end_date">Sehingga <xliff:g id="DATE">%s</xliff:g></string>
+    <string name="recurrence_end_count_label">Untuk sejumlah acara</string>
+    <plurals name="recurrence_end_count">
+        <item quantity="other">Untuk <xliff:g id="EVENT_COUNT">%d</xliff:g> acara</item>
+    </plurals>
+    <string name="acessibility_recurrence_choose_end_date_description">tukar tarikh akhir</string>
+    <string name="cancel">Batal</string>
+</resources>

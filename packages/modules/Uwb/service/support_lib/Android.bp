@@ -1,0 +1,158 @@
+//
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+package {
+    default_team: "trendy_team_fwk_uwb",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_defaults {
+    name: "support-lib-uwb-common-defaults",
+    sdk_version: "system_31",
+    min_sdk_version: "30",
+    libs: [
+        "androidx.annotation_annotation",
+    ],
+    static_libs: [
+        "guava",
+    ],
+    apex_available: [
+        "com.android.uwb",
+        "com.android.tethering",
+        "//apex_available:platform",
+    ],
+    visibility: [
+        "//external/sl4a/Common",
+        "//packages/modules/Uwb:__subpackages__",
+        "//packages/modules/Connectivity/remoteauth:__subpackages__",
+    ],
+}
+
+java_library {
+    name: "com.uwb.support.base",
+    defaults: ["support-lib-uwb-common-defaults"],
+    srcs: [
+        "src/com/google/uwb/support/base/**/*.java",
+    ],
+}
+
+java_library {
+    name: "com.uwb.support.aliro",
+    defaults: ["support-lib-uwb-common-defaults"],
+    srcs: [
+        "src/com/google/uwb/support/aliro/**/*.java",
+    ],
+    static_libs: [
+        "com.uwb.support.base",
+    ],
+}
+
+java_library {
+    name: "com.uwb.support.ccc",
+    defaults: ["support-lib-uwb-common-defaults"],
+    srcs: [
+        "src/com/google/uwb/support/ccc/**/*.java",
+    ],
+    static_libs: [
+        "com.uwb.support.base",
+    ],
+}
+
+java_library {
+    name: "com.uwb.support.fira",
+    defaults: ["support-lib-uwb-common-defaults"],
+    srcs: [
+        "src/com/google/uwb/support/fira/**/*.java",
+    ],
+    static_libs: [
+        "com.uwb.support.base",
+    ],
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
+}
+
+java_library {
+    name: "com.uwb.support.generic",
+    defaults: ["support-lib-uwb-common-defaults"],
+    srcs: [
+        "src/com/google/uwb/support/generic/**/*.java",
+    ],
+    static_libs: [
+        "com.uwb.support.aliro",
+        "com.uwb.support.base",
+        "com.uwb.support.ccc",
+        "com.uwb.support.fira",
+        "com.uwb.support.radar",
+    ],
+}
+
+java_library {
+    name: "com.uwb.support.multichip",
+    defaults: ["support-lib-uwb-common-defaults"],
+    srcs: [
+        "src/com/google/uwb/support/multichip/**/*.java",
+    ],
+}
+
+java_library {
+    name: "com.uwb.support.profile",
+    defaults: ["support-lib-uwb-common-defaults"],
+    srcs: [
+        "src/com/google/uwb/support/profile/**/*.java",
+    ],
+    static_libs: [
+        "com.uwb.support.base",
+        "com.uwb.support.fira",
+    ],
+}
+
+java_library {
+    name: "com.uwb.support.oemextension",
+    defaults: ["support-lib-uwb-common-defaults"],
+    srcs: [
+        "src/com/google/uwb/support/oemextension/**/*.java",
+    ],
+    static_libs: [
+        "com.uwb.support.base",
+    ],
+    lint: {
+        baseline_filename: "lint-baseline2.xml",
+    },
+}
+
+java_library {
+    name: "com.uwb.support.dltdoa",
+    defaults: ["support-lib-uwb-common-defaults"],
+    srcs: [
+        "src/com/google/uwb/support/dltdoa/**/*.java",
+    ],
+    static_libs: [
+        "com.uwb.support.base",
+        "com.uwb.support.fira",
+    ],
+}
+
+java_library {
+    name: "com.uwb.support.radar",
+    defaults: ["support-lib-uwb-common-defaults"],
+    srcs: [
+        "src/com/google/uwb/support/radar/**/*.java",
+    ],
+    static_libs: [
+        "com.uwb.support.base",
+        "com.uwb.support.fira",
+    ],
+}

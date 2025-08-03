@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/* //device/apps/common/assets/res/any/strings.xml
+**
+** Copyright 2006, The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="byteShort">B</string>
+    <string name="untitled">&lt;Sentitola&gt;</string>
+    <string name="emptyPhoneNumber">(Neniu telefonnumero)</string>
+    <string name="unknownName">Nekonata</string>
+    <string name="passwordIncorrect">Malĝusta pasvorto.</string>
+    <string name="imei">IMEI</string>
+    <string name="meid">MEID</string>
+    <string name="me">Mi</string>
+    <string name="global_actions_toggle_airplane_mode">Aviadila reĝimo</string>
+    <string name="global_action_settings">Agordoj</string>
+    <string name="status_bar_notification_info_overflow">999+</string>
+    <string name="safeMode">Sekura reĝimo</string>
+    <string name="permgrouplab_contacts">Kontaktoj</string>
+    <string name="permgrouplab_location">Loko</string>
+    <string name="permgrouplab_calendar">Kalendaro</string>
+    <string name="permgrouplab_microphone">Mikrofono</string>
+    <string name="permgrouplab_phone">Telefono</string>
+    <string name="permlab_killBackgroundProcesses">fermi aliajn aplikaĵojn</string>
+    <string name="permlab_readContacts">legi viajn kontaktojn</string>
+    <string-array name="fingerprint_acquired_vendor"/>
+    <string-array name="fingerprint_error_vendor"/>
+    <string-array name="face_acquired_vendor"/>
+    <string-array name="face_error_vendor"/>
+    <string name="phoneTypeCustom">Propra</string>
+    <string name="eventTypeCustom">Propra</string>
+    <string name="eventTypeBirthday">Naskiĝtago</string>
+    <string name="eventTypeAnniversary">Datreveno</string>
+    <string name="emailTypeCustom">Propra</string>
+    <string name="postalTypeCustom">Propra</string>
+    <string name="imTypeCustom">Propra</string>
+    <string name="imProtocolCustom">Propra</string>
+    <string name="orgTypeCustom">Propra</string>
+    <string name="relationTypeCustom">Propra</string>
+    <string name="relationTypeBrother">Frato</string>
+    <string name="relationTypeFather">Patro</string>
+    <string name="relationTypeFriend">Amiko</string>
+    <string name="relationTypeMother">Patrino</string>
+    <string name="relationTypeSister">Fratino</string>
+    <string name="sipAddressTypeCustom">Propra</string>
+    <string name="lockscreen_pattern_wrong">Reprovi</string>
+    <string name="lockscreen_password_wrong">Reprovi</string>
+    <string name="lockscreen_glogin_password_hint">Pasvorto</string>
+    <string name="lockscreen_unlock_label">Malŝlosi</string>
+    <string name="keyguard_accessibility_widget_empty_slot">Malplena</string>
+    <string name="granularity_label_word">vorto</string>
+    <string name="menu_delete_shortcut_label">forigi</string>
+    <string name="search_go">Serĉi</string>
+    <string name="searchview_description_search">Serĉi</string>
+    <string name="day">tago</string>
+    <string name="days">tagoj</string>
+    <string name="hour">horo</string>
+    <string name="hours">horoj</string>
+    <string name="week">semajno</string>
+    <string name="weeks">semajnoj</string>
+    <string name="year">jaro</string>
+    <string name="years">jaroj</string>
+    <string name="relative_time">"<xliff:g id="date" example="4 hours ago">%1$s</xliff:g>, <xliff:g id="time" example="11:00 am">%2$s</xliff:g>"</string>
+    <string name="elapsed_time_short_format_mm_ss"><xliff:g id="minutes" example="1">%1$02d</xliff:g>:<xliff:g id="seconds" example="23">%2$02d</xliff:g></string>
+    <string name="elapsed_time_short_format_h_mm_ss"><xliff:g id="hours" example="1">%1$d</xliff:g>:<xliff:g id="minutes" example="43">%2$02d</xliff:g>:<xliff:g id="seconds" example="33">%3$02d</xliff:g></string>
+    <string name="cut">Eltondi</string>
+    <string name="copy">Kopii</string>
+    <string name="paste">Alglui</string>
+    <string name="delete">Forigi</string>
+    <string name="deleteText">Forigi</string>
+    <string name="cancel">Nuligi</string>
+    <string name="no">Nuligi</string>
+    <string name="loading">Ŝarĝado\u2026</string>
+    <string name="whichViewApplication">Malfermi per</string>
+    <string name="whichEditApplicationLabel">Redakti</string>
+    <string name="whichSendApplication">Konigi</string>
+    <string name="whichSendApplicationLabel">Konigi</string>
+    <string name="whichSendToApplicationLabel">Sendi</string>
+    <string name="ringtone_unknown">Nekonata</string>
+    <string name="sms_control_yes">Permesi</string>
+    <string name="sms_control_no">Malpermesi</string>
+    <string name="sms_short_code_confirm_allow">Sendi</string>
+    <string name="sms_short_code_confirm_deny">Nuligi</string>
+    <string name="date_time_set">Agordi</string>
+    <string name="ext_media_status_removed">Forigita</string>
+    <string name="ime_action_go">Ek</string>
+    <string name="ime_action_search">Serĉi</string>
+    <string name="ime_action_send">Sendi</string>
+    <string name="allow">Permesi</string>
+    <string name="deny">Malpermesi</string>
+    <string name="accessibility_binding_label">Alirebleco</string>
+    <string name="alternate_eri_file">/data/eri.xml</string>
+    <string name="upload_file">Elekti dosieron</string>
+    <string name="share">Konigi</string>
+    <string name="gpsVerifYes">Jes</string>
+    <string name="gpsVerifNo">Ne</string>
+    <string name="keyboardview_keycode_cancel">Nuligi</string>
+    <string name="keyboardview_keycode_delete">Forigi</string>
+    <string name="action_bar_home_description_format">%1$s, %2$s</string>
+    <string name="storage_sd_card">SD-karto</string>
+    <string name="extract_edit_menu_button">Redakti</string>
+    <string name="fingerprints">Fingrospuroj:</string>
+    <string name="activity_resolver_use_always">Ĉiam</string>
+    <string name="default_audio_route_name" product="default">Telefono</string>
+    <string name="default_audio_route_category_name">Sistemo</string>
+    <string name="media_route_chooser_extended_settings">Agordoj</string>
+    <string name="kg_login_password_hint">Pasvorto</string>
+    <string name="kg_text_message_separator" product="default">" \u2014 "</string>
+    <string name="kg_reordering_delete_drop_target_text">Forigi</string>
+    <string name="accessibility_dialog_button_allow">Permesi</string>
+    <string name="accessibility_dialog_button_deny">Malpermesi</string>
+    <string name="owner_name" msgid="3879126011135546571">Posedanto</string>
+    <string name="error_message_title">Eraro</string>
+    <string name="write_fail_reason_cancelled">Nuligita</string>
+    <string name="reason_unknown">nekonata</string>
+    <string name="locale_search_menu">Serĉi</string>
+    <string name="app_category_accessibility">Alirebleco</string>
+    <string name="time_picker_hour_label">horo</string>
+    <string name="autofill_save_never">Neniam</string>
+    <string name="screenshot_edit">Redakti</string>
+    <string name="notification_app_name_system">Sistemo</string>
+    <string name="notification_app_name_settings">Agordoj</string>
+    <string name="notification_appops_microphone_active">Mikrofono</string>
+</resources>

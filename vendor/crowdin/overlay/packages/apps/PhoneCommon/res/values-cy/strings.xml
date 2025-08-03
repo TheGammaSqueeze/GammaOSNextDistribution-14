@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2012 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="description_dialpad_back">Navigate back</string>
+    <string name="description_dialpad_overflow">Rhagor o ddewisiadau</string>
+    <string name="description_delete_button">bysell backspace</string>
+    <string name="description_image_button_plus">plws</string>
+    <string name="description_voicemail_button">lleisbost</string>
+    <string name="default_notification_description">Sain rhagosodedig (<xliff:g id="default_sound_title">%1$s</xliff:g>)</string>
+    <string name="callFailed_userBusy">Llinell yn brysur</string>
+    <string name="callFailed_congestion">Rhwydwaith yn brysur</string>
+    <string name="callFailed_timedOut">Dim ymateb, wedi dod i ben</string>
+    <string name="callFailed_server_unreachable">Methu â chael gafael â\'r gweinydd</string>
+    <string name="callFailed_number_unreachable">Methu â chael gafael â\'r rhif</string>
+    <string name="callFailed_invalid_credentials">Enw defnyddiwr neu gyfrinair anghywir</string>
+    <string name="callFailed_out_of_network">Galwad allan-o-rwydwaith</string>
+    <string name="callFailed_server_error">Gwall gweinydd. Ceisia eto\'n hwyrach.</string>
+    <string name="callFailed_noSignal">Dim signal</string>
+    <string name="callFailed_limitExceeded">Wedi cyrraedd terfyn ACM</string>
+    <string name="callFailed_powerOff">Radio i ffwrdd</string>
+    <string name="callFailed_simError">Dim SIM neu wall SIM</string>
+    <string name="callFailed_outOfService">Rhwydwaith symudol dim ar gael.</string>
+    <string name="callFailed_fdn_only">Mae galwadau allan wedi eu cyfyngu gan FDN.</string>
+    <string name="callFailed_dialToUssd">Newidiwyd yr alwad i gais USSD</string>
+    <string name="callFailed_dialToSs">Newidiwyd yr alwad i gais SS</string>
+    <string name="callFailed_dialToDial">Newidiwyd i rif gwahanol</string>
+    <string name="callFailed_dialToDialVideo">Newidiwyd i alwad fideo</string>
+    <string name="callFailed_dialVideoToSs">Newidiwyd yr alwad fideo i gais SS</string>
+    <string name="callFailed_dialVideoToUssd">Newidiwyd yr alwad fideo i gais USSD</string>
+    <string name="callFailed_dialVideoToDial">Newidiwyd i alwad arferol</string>
+    <string name="callFailed_dialVideoToDialVideo">Newidiwyd i rif gwahanol</string>
+    <string name="callFailed_cb_enabled">Nid yw\'n bosib gwneud galwadau tra bod cyfyngu galwadau ar waith.</string>
+    <string name="callFailed_dsac_restricted">Mae rheolaeth mynediad yn cyfyngu\'r gallu i wneud galwadau.</string>
+    <string name="callFailed_dsac_restricted_emergency">Mae rheolaeth mynediad yn cyfyngu\'r gallu i wneud galwadau brys.</string>
+    <string name="callFailed_dsac_restricted_normal">Mae rheolaeth mynediad yn cyfyngu\'r gallu i wneud galwadau arferol.</string>
+    <string name="callFailed_unobtainable_number">Rhif annilys</string>
+    <string name="incall_error_missing_voicemail_number">Dim yn gwybod rhif llaisbost</string>
+    <string name="callFailed_video_call_tty_enabled">Nid yw\'n bosib gwneud galwadau fideo tra bo TTY wed\'i alluogi.</string>
+    <string name="callEnded_pulled">Trosglwyddwyd yr alwad i ddyfais arall.</string>
+    <string name="ringtone_silent">Dim</string>
+    <string name="ringtone_unknown">Tôn caniad anhysbys</string>
+    <string name="callFailed_maximum_reached">Mae pob llinell yn brysur. I wneud galwad, datgysyllta un o\'r galwadau ar y ddyfais hon, neu ar un o dy ddyfeisiau eraill.</string>
+    <string name="callFailed_data_disabled">Daeth yr alwad i ben gan fod data symudol wedi ei analluogi.</string>
+    <string name="callFailed_data_limit_reached_description">Daeth yr alwad i ben gan fod terfyn data symudol wedi ei gyrraedd.</string>
+    <string name="callFailed_data_limit_reached">Terfyn data wedi ei gyrraedd. Diwedd yr alwad.</string>
+</resources>

@@ -1,0 +1,142 @@
+# microdroid_manager is a daemon running in the microdroid.
+
+type microdroid_manager, domain, coredomain;
+type microdroid_manager_exec, exec_type, file_type, system_file_type;
+
+# allow domain transition from init
+init_daemon_domain(microdroid_manager)
+
+# Allow microdroid_manager to set boot status
+set_prop(microdroid_manager, boot_status_prop)
+
+# microdroid_manager accesses a virtual disk block device to read VM payload
+# It needs write access as it updates the instance image
+allow microdroid_manager block_device:dir r_dir_perms;
+allow microdroid_manager block_device:lnk_file r_file_perms;
+allow microdroid_manager vd_device:blk_file rw_file_perms;
+# microdroid_manager verifies DM-verity mounted APK payload
+allow microdroid_manager dm_device:blk_file r_file_perms;
+
+# microdroid_manager can query AVF flags in the device tree
+r_dir_file(microdroid_manager, proc_dt_avf)
+r_dir_file(microdroid_manager, sysfs_dt_avf)
+
+# Read config from the open-dice driver.
+allow microdroid_manager open_dice_device:chr_file rw_file_perms;
+
+# Block crash dumps to ensure the DICE secrets are not leaked.
+typeattribute microdroid_manager no_crash_dump_domain;
+
+# Allow microdroid_manager to do blkflsbuf on instance disk image. The ioctl
+# requires sys_admin cap as well.
+allowxperm microdroid_manager vd_device:blk_file ioctl BLKFLSBUF;
+allow microdroid_manager self:global_capability_class_set sys_admin;
+
+# Allow microdroid_manager to remove capabilities from it's capability bounding set.
+allow microdroid_manager self:global_capability_class_set setpcap;
+
+# Allow microdroid_manager to start payload tasks in a different uid/gid.
+domain_auto_trans(microdroid_manager, microdroid_app_exec, microdroid_app)
+domain_auto_trans(microdroid_manager, compos_exec, compos)
+allow microdroid_manager self:global_capability_class_set { setuid setgid };
+
+# Allow microdroid_manager to start apk verity binaries
+domain_auto_trans(microdroid_manager, apkdmverity_exec, apkdmverity)
+domain_auto_trans(microdroid_manager, zipfuse_exec, zipfuse)
+
+# Allow microdroid_manager to start encryptedstore binary
+domain_auto_trans(microdroid_manager, encryptedstore_exec, encryptedstore)
+
+# Microdroid Manager needs read related permission for syncing encrypted storage fs
+allow microdroid_manager encryptedstore_file:dir r_dir_perms;
+
+# Allow microdroid_manager to run kexec to load crashkernel
+domain_auto_trans(microdroid_manager, kexec_exec, kexec)
+
+# Let microdroid_manager kernel-log.
+allow microdroid_manager kmsg_device:chr_file w_file_perms;
+
+# Let microdroid_manager to create a vsock connection back to the host VM
+allow microdroid_manager self:vsock_socket { create_socket_perms_no_ioctl };
+
+# Allow microdroid_manager to read the CID of the VM.
+allow microdroid_manager vsock_device:chr_file { ioctl open read };
+
+# microdroid_manager is using bootstrap bionic
+use_bootstrap_libs(microdroid_manager)
+
+# microdroid_manager create /apex/vm-payload-metadata for apexd
+# TODO(b/199371341) create a new label for the file so that only microdroid_manager can create it.
+allow microdroid_manager apex_mnt_dir:dir w_dir_perms;
+allow microdroid_manager apex_mnt_dir:file create_file_perms;
+
+# Allow microdroid_manager to start various services
+set_prop(microdroid_manager, ctl_apexd_vm_prop)
+set_prop(microdroid_manager, ctl_apkdmverity_prop)
+set_prop(microdroid_manager, ctl_authfs_prop)
+set_prop(microdroid_manager, ctl_seriallogging_prop)
+set_prop(microdroid_manager, ctl_zipfuse_prop)
+
+# Allow microdroid_manager to wait for linkerconfig to be ready
+get_prop(microdroid_manager, apex_config_prop)
+
+# Allow microdroid_manager to wait for zipfuse to be ready
+get_prop(microdroid_manager, microdroid_manager_zipfuse_prop)
+
+# Allow microdroid_manager to pass the roothash to apkdmverity
+set_prop(microdroid_manager, microdroid_manager_roothash_prop)
+
+# Allow microdroid_manager to set sysprops calculated from the payload config
+set_prop(microdroid_manager, microdroid_config_prop)
+
+# Allow microdroid_manager to set sysprops related to microdroid_lifecycle (ex. init_done)
+set_prop(microdroid_manager, microdroid_lifecycle_prop)
+
+# Allow microdroid_manager to shutdown the device when verification fails
+set_prop(microdroid_manager, powerctl_prop)
+
+# Allow microdroid_manager to read bootconfig so that it can reject a bootconfig
+# that is different from what is recorded in the instance.img file.
+allow microdroid_manager proc_bootconfig:file r_file_perms;
+
+# microdroid_manager needs to read /proc/cmdline to see if crashkernel= parameter is set
+# or not; if set, it executes kexec to load the crashkernel into memory.
+allow microdroid_manager proc_cmdline:file r_file_perms;
+
+# microdroid_manager needs to read /proc/stat and /proc_meminfo to collect CPU & memory usage
+# for creating atoms used in AVF telemetry metrics
+allow microdroid_manager proc_meminfo:file r_file_perms;
+allow microdroid_manager proc_stat:file r_file_perms;
+
+# Allow microdroid_manager to set up zram-backed swap:
+#  - Read & Write zram properties in sysfs to set/get zram disksize
+#  - Read & Write to zram block device needed for mkswap and swapon
+allow microdroid_manager sysfs_zram:dir { search };
+allow microdroid_manager sysfs_zram:file rw_file_perms;
+allow microdroid_manager ram_device:blk_file rw_file_perms;
+
+# Allow microdroid_manager to read/write failure serial device
+allow microdroid_manager serial_device:chr_file w_file_perms;
+
+# Allow microdroid_manager to handle extra_apks
+allow microdroid_manager extra_apk_file:dir create_dir_perms;
+
+# Allow microdroid_manager to write kmsg_debug (stdio_to_kmsg).
+allow microdroid_manager kmsg_debug_device:chr_file w_file_perms;
+
+# Domains other than microdroid can't write extra_apks
+neverallow { domain -microdroid_manager -init -vendor_init } extra_apk_file:file no_w_file_perms;
+neverallow { domain -microdroid_manager -init -vendor_init } extra_apk_file:dir no_w_dir_perms;
+
+# Only microdroid_payload and a few other critical binaries can be run by microdroid_manager,
+# in their own domains.
+neverallow microdroid_manager { file_type fs_type }:file execute_no_trans;
+neverallow microdroid_manager {
+  domain
+  -crash_dump
+  -microdroid_payload
+  -apkdmverity
+  -encryptedstore
+  -zipfuse
+  -kexec
+}:process transition;

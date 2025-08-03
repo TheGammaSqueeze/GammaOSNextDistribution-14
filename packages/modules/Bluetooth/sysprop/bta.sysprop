@@ -1,0 +1,12 @@
+module: "android.sysprop.bluetooth.Bta"
+owner: Platform
+
+prop {
+    api_name: "disable_delay"
+    type: Integer
+    scope: Internal
+    access: Readonly
+    prop_name: "bluetooth.bta.disable_delay.millis"
+}
+
+

@@ -1,0 +1,134 @@
+{
+  "description": "W2W same registrant test for trigger-event-report-window-passes debug report",
+  "input": {
+    "web_sources": [
+      {
+        "registration_request": {
+          "source_origin": "android-app://example.1s1.test",
+          "source_type": "navigation",
+          "web_destination": "https://example.2d1.test",
+          "registrant": "example.1r1.test",
+          "source_params": [{
+            "attribution_src_url": "https://www.ad-tech1.test"
+          }]
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "debug_permission" : true,
+          "response": {
+            "Attribution-Reporting-Register-Source": {
+              "source_event_id": "1",
+              "web_destination": "https://example.2d1.test",
+              "event_report_window": "86400",
+              "debug_key": "347982378"
+            }
+          }
+        }],
+        "timestamp": "1643235573000"
+      }
+    ],
+    "web_triggers": [
+      {
+        "registration_request": {
+          "destination_origin": "https://example.2d1.test",
+          "registrant": "example.1r1.test",
+          "trigger_params": [{
+            "attribution_src_url": "https://www.ad-tech1.test"
+          }]
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "debug_permission" : true,
+          "response": {
+            "Attribution-Reporting-Register-Trigger": {
+              "event_trigger_data": [
+                {
+                  "trigger_data": "1",
+                  "priority": "1"
+                }
+              ],
+              "debug_reporting": true,
+              "debug_key": "8971346781"
+            }
+          }
+        }],
+        "timestamp": "1643235575000"
+      },
+      // Should not generate event-level report as event report window has passed.
+      {
+        "registration_request": {
+          "destination_origin": "https://example.2d1.test",
+          "registrant": "example.1r1.test",
+          "trigger_params": [{
+            "attribution_src_url": "https://www.ad-tech1.test"
+          }]
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "debug_permission" : true,
+          "response": {
+            "Attribution-Reporting-Register-Trigger": {
+              "event_trigger_data": [
+                {
+                  "trigger_data": "2",
+                  "priority": "1"
+                }
+              ],
+              "debug_reporting": true,
+              "debug_key": "8971346782"
+            }
+          }
+        }],
+        "timestamp": "1643321974000"
+      }
+    ]
+  },
+  "output": {
+    "event_level_results": [{
+      "report_time": "1643325573000",
+      "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/report-event-attribution",
+      "payload": {
+        "attribution_destination": "https://2d1.test",
+        "scheduled_report_time": "1643325573",
+        "source_event_id": "1",
+        "trigger_data": "1",
+        "source_type": "navigation",
+        "source_debug_key": "347982378",
+        "trigger_debug_key": "8971346781",
+        "randomized_trigger_rate": 0.0001372
+      }
+    }],
+    "debug_event_level_results": [{
+      "report_time": "1643235575000",
+      "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/debug/report-event-attribution",
+      "payload": {
+        "attribution_destination": "https://2d1.test",
+        "scheduled_report_time": "1643325573",
+        "source_event_id": "1",
+        "trigger_data": "1",
+        "source_type": "navigation",
+        "source_debug_key": "347982378",
+        "trigger_debug_key": "8971346781",
+        "randomized_trigger_rate": 0.0001372
+      }
+    }],
+    "verbose_debug_reports": [
+      {
+        "report_time": "1643321974000",
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/debug/verbose",
+        "payload": [
+          {
+            "type": "trigger-event-report-window-passed",
+            "body": {
+              "attribution_destination": "https://2d1.test",
+              "trigger_debug_key": "8971346782",
+              "source_debug_key": "347982378",
+              "source_event_id": "1",
+              "source_site": "android-app://1s1.test"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

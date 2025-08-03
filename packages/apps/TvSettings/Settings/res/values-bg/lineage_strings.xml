@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017-2024 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="system_reboot_confirm_cm">Рестартирай към:</string>
+    <string name="global_action_restart_system">Система</string>
+    <string name="global_action_restart_recovery">Режим на възстановяване</string>
+    <string name="global_action_restart_bootloader">Буутлоудър</string>
+    <plurals name="show_dev_countdown_cm">
+        <item quantity="one">Вие сте на <xliff:g id="step_count">%1$d</xliff:g> стъпка към включване на настройки на разработника</item>
+        <item quantity="other">Вие сте на <xliff:g id="step_count">%1$d</xliff:g> стъпки към включване на настройки на разработника</item>
+    </plurals>
+    <string name="show_dev_on_cm">Настройки за разработчици активирани!</string>
+    <string name="show_dev_already_cm">Няма нужда, настройките за разработчици вече са активирани</string>
+    <string name="system_buttons">Бутони</string>
+    <string name="power_button_long_press_action_title">Действие при задържане на пускови бутон</string>
+    <string name="power_button_long_press_for_power_menu_action">Достъпване меню за захранване</string>
+    <string name="power_button_long_press_for_assistant_action">Отвори Асистент</string>
+    <string name="inputs_volume_control_enabled">Регулатор на звук CEC</string>
+    <string name="inputs_volume_control_enabled_desc">Регулиране TV/AVR звука, вместо на устройството</string>
+    <string name="enable_adb_root">Отстраняване на грешки с администраторски права (root)</string>
+    <string name="enable_adb_root_summary">Разрешете отстраняване на грешки в Android с администраторски права</string>
+    <string name="advanced_restart_title">Разширено рестартиране</string>
+    <string name="advanced_restart_summary">Покажи опции за рестартиране в режим на възстановяване, bootloader или извършване на мек рестарт</string>
+    <string name="adb_over_network">Режим за отстраняване на грешки през мрежата</string>
+    <string name="adb_over_network_summary">Разреши TCP/IP откриване на грешки през мрежови интерфейси (Wi\u2011Fi, USB мрежи). Тази настройка се нулира при рестартиране</string>
+    <string name="adb_over_network_warning">Предупреждение: Когато ADB по мрежата е разрешен, телефонът ви е отворен за проникване от всички свързани мрежи! \n\nИзползвай тази функция, само когато сте свързан с надеждни мрежи.\n\nНаистина ли искате да разрешите тази функция?</string>
+    <string name="trust_category_features">Статус</string>
+    <string name="trust_feature_selinux">SELinux</string>
+    <string name="trust_feature_selinux_value_enforcing">Прилагане на</string>
+    <string name="trust_feature_selinux_value_disabled">Деактивиран</string>
+    <string name="trust_feature_selinux_explain">SELinux диктува кои процеси имат достъп до файлове на вашето устройство. \nТова предотвратява приложения и услуги да имат достъп до файлове, които те не би трябвало да имат. По този начин зловреден процес е ограничен, така че вашата сигурност се запазва.</string>
+    <string name="trust_feature_security_patches">Андроид защитни кръпки</string>
+    <string name="trust_feature_security_patches_value_base">Платформа: %1$s\nVendor: %2$s</string>
+    <string name="trust_feature_security_patches_value_new">Актуално</string>
+    <string name="trust_feature_security_patches_value_medium">Необновявано от няколко месеца</string>
+    <string name="trust_feature_security_patches_value_old">Неактуална версия</string>
+    <string name="trust_feature_security_patches_explain">Защитните пакети се разпространяват ежемесечно от Google заедно с доставчиците на SoC, за да се поправят уязвимостите в системата, които могат да бъдат използвани от злонамерени приложения, който да заобиколят ограниченията за сигурност и да причинят необратими щети на вашето устройство. Корекциите, предоставени от Google, се прилагат всеки месец на всички поддържани устройства, но поправките за патентования код могат да се прилагат само от производителя на устройството ви. За да поддържате устройството си в безопасно състояние, уверете се, че използвате последната версия на LineageOS.</string>
+    <string name="trust_feature_encryption">Шифроване</string>
+    <string name="trust_feature_encryption_value_enabled">Активирано</string>
+    <string name="trust_feature_encryption_value_nolock">Нужно е сигурно заключване на екрана</string>
+    <string name="trust_feature_encryption_value_disabled">Деактивирано</string>
+    <string name="trust_feature_encryption_explain">Шифроване на устройството предотвратява достъпа до вашите данни, когато телефонът ви е изключен. Това е особено важно, ако телефонът ви е откраднат и възпрепятства достъпа до вашите съобщения, контакти и друга лична информация без парола. \nЗа да направите по-ефективно шифроване, трябва да зададете заключване на екрана.</string>
+    <string name="trust_category_tools">Поверителност</string>
+    <string name="trust_notification_alerts_title">Предупреждения за защита</string>
+    <string name="trust_restrict_usb_title">Ограничаване на USB</string>
+    <string name="trust_restrict_usb_summary">Контролирайте поддръжката на свързване с USB като слушалки, устройства за съхранение, въвеждане (мишки, клавиатури, контролери) и ADB</string>
+    <string name="trust_restrict_usb_always">Отказ на USB свързване</string>
+    <string name="trust_restrict_usb_disabled">Винаги позволявай USB свързване</string>
+    <string name="trust_onboarding_description">Trust Ви помага да защитите устройството и вашата поверителност. \nИконата ще се показва само когато съдържанието на страницата е проверено.</string>
+    <string name="trust_warnings_alerts_intro">Можете да изберете да бъдете предупреждавани за проблеми със сигурността. За ваша безопасност се препоръчва се да разрешите всички предупреждения</string>
+    <string name="trust_warnings_selinux">SELinux статус</string>
+    <string name="trust_warnings_keys">Създаване на подпис</string>
+    <string name="sleep_button_label">Заспиване</string>
+    <string name="system_sleep_confirm">Запиване сега?</string>
+    <string name="shutdown_button_label">Изключване</string>
+    <string name="system_shutdown_confirm">Изключи сега?</string>
+    <string name="convertible_port_busy_title">USB порт 1 се използва</string>
+    <string name="convertible_port_busy_warning">Изключи всички устойства и периферия и опитай отново</string>
+    <string name="mtp_enable_title">Достъпване на SHIELD папки на компютъра чрез USB</string>
+    <string name="mtp_enable_warning">USB порт 1 е конфигуриран така, че SHIELD да бъде свързано към компютър като медийно устройство. \n\nТози порт вече няма да засича USB памет или USB устройства и не може да бъде използван за зареждане на устройства</string>
+    <string name="mtp_retry_error">Неуспешно. Моля, опитайте отново.</string>
+    <string name="mtp_summary">В този режим, USB порта е нефункционален за други употреби</string>
+    <string name="mtp_title">Трансфер на файлове към компютър чрез USB</string>
+    <string name="mtp_unexpected_error">Неочаквана грешка. Моля, опитайте отново по-късно.</string>
+    <string name="usb_debugging_enable_title">USB отстраняване на грешки е включено</string>
+    <string name="usb_debugging_enable_warning">USB порт 1 е конфигуриран така, че SHIELD да бъде свързано към компютър като медийно устройство. \n\nТози порт вече няма да засича USB памет или USB устройства и не може да бъде използван за зареждане на устройства</string>
+</resources>

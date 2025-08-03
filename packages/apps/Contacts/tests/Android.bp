@@ -1,0 +1,42 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "packages_apps_Contacts_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    //   SPDX-license-identifier-CC-BY
+    default_applicable_licenses: [
+        "packages_apps_Contacts_license",
+        "Android-Apache-2.0",
+    ],
+}
+
+android_test {
+    name: "ContactsTests",
+
+    certificate: "shared",
+
+    srcs: ["src/**/*.java"],
+
+    instrumentation_for: "Contacts",
+
+    sdk_version: "current",
+    min_sdk_version: "21",
+
+    static_libs: [
+        "androidx.test.rules",
+        "androidx.test.runner",
+        "androidx.test.ext.junit",
+        "hamcrest-library",
+        "mockito-target-minus-junit4",
+        "androidx.test.uiautomator_uiautomator",
+    ],
+
+    libs: [
+        "android.test.runner.stubs",
+        "android.test.base.stubs",
+        "android.test.mock.stubs",
+    ],
+
+    test_suites: ["general-tests"],
+}

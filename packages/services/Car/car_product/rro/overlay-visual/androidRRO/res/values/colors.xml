@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+** Copyright 2017, The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+-->
+<resources>
+
+    <!-- The background color for the container of notification actions. -->
+    <color name="notification_action_list">@*android:color/car_colorSecondary</color>
+
+    <!-- The primary text color if the text is on top of a light background. -->
+    <color name="notification_primary_text_color_light">@*android:color/car_body1</color>
+
+    <!-- The primary text color if the text is on top of a dark background. -->
+    <color name="notification_primary_text_color_dark">@*android:color/car_body1</color>
+
+    <!-- The secondary text color if the text is on top of a light background. -->
+    <color name="notification_secondary_text_color_light">@*android:color/car_body2</color>
+
+    <!-- The secondary text color if the text is on top of a dark background. -->
+    <color name="notification_secondary_text_color_dark">@*android:color/car_body2</color>
+
+    <!-- The default color for text in a notification. This color is also the default color for
+         icons. -->
+    <color name="notification_default_color">@*android:color/car_accent</color>
+
+    <!-- Focus colors -->
+    <color name="focus_stroke_color">#94CBFF</color>
+    <color name="focus_fill_color">#3D94CBFF</color>
+    <color name="focus_pressed_stroke_color">#94CBFF</color>
+    <color name="focus_pressed_fill_color">#8A94CBFF</color>
+
+    <!-- The Switch track background color when checked. -->
+    <color name="car_switch_track_background_checked">@color/car_primary</color>
+    <!-- The Switch track background color when unchecked. -->
+    <color name="car_switch_track_background_unchecked">@color/car_secondary_container</color>
+    <!-- The Switch track's background color. -->
+    <color name="car_seekbar_track_background">@color/car_surface_variant</color>
+    <!-- The Switch track's progress color. -->
+    <color name="car_seekbar_track_progress">@color/car_primary</color>
+    <!-- The Switch track's secondary progress color. -->
+    <color name="car_seekbar_track_progress_secondary">@color/car_secondary</color>
+    <!-- Color of the outer ring when the SeekBar is selected. -->
+    <color name="car_seekbar_thumb_selected_stroke_color">@color/car_rotary_focus_stroke_color</color>
+    <!-- Color of the background of the ring when the SeekBar is selected. -->
+    <color name="car_seekbar_thumb_selected_background_color">@color/car_rotary_focus_fill_color</color>
+    <!-- The SeekBar thumb color. -->
+    <color name="car_seekbar_thumb">@color/car_inverse_surface</color>
+    <!-- The SeekBar thumb color when disabled -->
+    <color name="car_seekbar_thumb_disabled">@color/car_neutral_40</color>
+    <!-- The SeekBar thumb shadow color. -->
+    <color name="car_seekbar_thumb_shadow">#8F000000</color>
+
+    <!-- Color for launcher icon background -->
+    <color name="ic_launcher_android_background">#1A73E8</color>
+
+    <!-- Button colors -->
+    <color name="car_button_background">@color/car_secondary_container</color>
+    <color name="car_button_foreground">@color/car_on_secondary_container</color>
+
+    <!-- Toggle button colors -->
+    <color name="car_button_toggle_background_checked">@color/car_primary</color>
+    <color name="car_button_toggle_background_unchecked">@color/car_secondary</color>
+    <color name="car_button_toggle_foreground_checked">@color/car_on_primary</color>
+    <color name="car_button_toggle_foreground_unchecked">@color/car_on_secondary</color>
+
+    <!-- Dialog colors -->
+    <color name="car_alert_dialog_background_color">@color/car_surface_2</color>
+</resources>

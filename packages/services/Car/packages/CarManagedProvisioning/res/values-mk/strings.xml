@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    Copyright (C) 2021 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="brand_screen_header" msgid="4382251935798018352">"Возилово припаѓа на организацијата"</string>
+    <string name="contact_device_provider" msgid="338577979231875837">"За да дознаете повеќе, контактирајте со <xliff:g id="IT_ADMIN">%1$s</xliff:g>."</string>
+    <string name="organization_admin" msgid="6551608903069550652">"управник на организација"</string>
+    <string name="if_questions_contact_admin" msgid="4645510019575736238">"Ако имате прашања, контактирајте со управникот на организацијата"</string>
+    <string name="admin_has_ability_to_monitor_device" msgid="3132155961508293345">"Управникот на организацијата може да ги следи и да управува со поставките, корпоративниот пристап, апликациите, дозволите и податоците поврзани со возилово, заедно со вашата активност на мрежата, како и локацијата на возилово.<xliff:g id="LINE_BREAK">
+
+</xliff:g>Контактирајте со управникот на организацијата за повеќе информации, меѓу кои и за политиките за приватност на организацијата."</string>
+    <string name="contact_your_admin_for_more_info" msgid="1419852317652804536">"Контактирајте со управникот на организацијата за повеќе информации, вклучително политиките за приватност на организацијата."</string>
+    <string name="managed_device_info" msgid="2134697391634083944">"Ова е управувано возило"</string>
+    <string name="contact_your_admin_for_help" msgid="1741496631607502730">"Контактирајте со управникот на органиацијата за помош"</string>
+    <string name="fully_managed_device_provisioning_accept_header" msgid="8767138982035307813">"Поставете го управуваното возило"</string>
+    <string name="fully_managed_device_provisioning_step_1_header" msgid="8704166635032524345">"Пристапете до апликациите на вашата организација"</string>
+    <string name="fully_managed_device_provisioning_step_1_description" msgid="5960961281295355254">"Се поставува системот за информации и забава…"</string>
+    <string name="fully_managed_device_provisioning_step_2_header" msgid="5888602026900289468">"Податоците на системот за информации и забава не се приватни"</string>
+    <string name="fully_managed_device_provisioning_step_2_subheader_title" msgid="1421575203782743214">"Вашите податоци и активност"</string>
+    <string name="fully_managed_device_provisioning_step_2_subheader" msgid="4881961368653838979">"Управникот на организацијата можеби ќе може да ги види вашите податоци и активност на возилово."</string>
+    <string name="fully_managed_device_provisioning_permissions_secondary_subheader" msgid="8955791361423166123">"Управникот на организацијата може да поставува дозволи за апликациите на возилово, како што се дозволите за микрофонот и локацијата."</string>
+    <string name="fully_managed_device_with_permission_control_provisioning_summary" msgid="2503568673345133100">"Користете го системот за информации и забава на возилово за лесен пристап до работните апликации. Возилово не е приватно, така што управникот на организацијата можеби ќе може да ги види вашите податоци и активност. Управникот на организацијата може да поставува и дозволи за апликациите на возилово, како дозволи за микрофон и локација."</string>
+    <string name="fully_managed_device_provisioning_summary" msgid="4323948058344613817">"Користете го системот за информации и забава на возилово за лесен пристап до работните апликации. Возилово не е приватно, така што управникот на организацијата можеби ќе може да ги види вашите податоци и активност."</string>
+    <string name="fully_managed_device_provisioning_progress_label" msgid="988594700479673633">"Поставување управувано возило"</string>
+    <string name="fully_managed_device_provisioning_return_device_title" msgid="1578111657911434819">"Откажете го поставувањето и вратете го возилото"</string>
+    <string name="fully_managed_device_provisioning_return_device_subheader" msgid="5809488930429106172">"Ресетирајте го и вратете го возилово на управникот на организацијата или одете назад на претходниот екран за да го продолжите поставувањето."</string>
+    <string name="fully_managed_device_cancel_setup_button" msgid="4113790677940440998">"Откажи поставување"</string>
+    <string name="fully_managed_device_reset_and_return_button" msgid="4951274590516561428">"Ресетирај и врати"</string>
+    <string name="fully_managed_device_provisioning_privacy_title" msgid="4789425994893472324">"Белешка за приватностa"</string>
+    <string name="fully_managed_device_provisioning_privacy_body" msgid="5549745709511179391">"Управникот на организацијата можеби ќе може да ги види вашите податоци и активност на возилово."</string>
+</resources>

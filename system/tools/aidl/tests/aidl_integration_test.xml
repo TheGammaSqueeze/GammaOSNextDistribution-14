@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2020 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<configuration description="Runs AIDL on-device integration tests.">
+    <option name="test-suite-tag" value="apct" />
+    <option name="test-suite-tag" value="apct-native" />
+
+    <target_preparer class="com.android.tradefed.targetprep.RootTargetPreparer"/>
+
+    <target_preparer class="com.android.tradefed.targetprep.PushFilePreparer">
+      <!-- We would like to abort, but currently there is not a simple way to specify installation of both bitnesses of targets. -->
+      <option name="abort-on-push-failure" value="false"/>
+
+      <option name="push" value="aidl_test_client32->/data/nativetest/aidl_test_client/aidl_test_client32" />
+      <option name="push" value="aidl_test_client64->/data/nativetest64/aidl_test_client/aidl_test_client64" />
+
+      <option name="push" value="aidl_test_v1_client32->/data/nativetest/aidl_test_v1_client/aidl_test_v1_client32" />
+      <option name="push" value="aidl_test_v1_client64->/data/nativetest64/aidl_test_v1_client/aidl_test_v1_client64" />
+
+      <option name="push" value="aidl_test_client_ndk32->/data/nativetest/aidl_test_client_ndk/aidl_test_client_ndk32" />
+      <option name="push" value="aidl_test_client_ndk64->/data/nativetest64/aidl_test_client_ndk/aidl_test_client_ndk64" />
+
+      <option name="push" value="aidl_test_service32->/data/nativetest/aidl_test_service/aidl_test_service32" />
+      <option name="push" value="aidl_test_service64->/data/nativetest64/aidl_test_service/aidl_test_service64" />
+
+      <option name="push" value="aidl_test_service_ndk32->/data/nativetest/aidl_test_service_ndk/aidl_test_service_ndk32" />
+      <option name="push" value="aidl_test_service_ndk64->/data/nativetest64/aidl_test_service_ndk/aidl_test_service_ndk64" />
+
+      <option name="push" value="aidl_test_rust_client32->/data/nativetest/aidl_test_rust_client/aidl_test_rust_client32" />
+      <option name="push" value="aidl_test_rust_client64->/data/nativetest64/aidl_test_rust_client/aidl_test_rust_client64" />
+
+      <option name="push" value="aidl_test_rust_service32->/data/nativetest/aidl_test_rust_service/aidl_test_rust_service32" />
+      <option name="push" value="aidl_test_rust_service64->/data/nativetest64/aidl_test_rust_service/aidl_test_rust_service64" />
+
+      <option name="push" value="aidl_test_rust_service_async32->/data/nativetest/aidl_test_rust_service_async/aidl_test_rust_service_async32" />
+      <option name="push" value="aidl_test_rust_service_async64->/data/nativetest64/aidl_test_rust_service_async/aidl_test_rust_service_async64" />
+
+      <option name="push" value="aidl_test_java_client.jar->/data/framework/aidl_test_java_client.jar" />
+      <option name="push" value="aidl_test_java_service.jar->/data/framework/aidl_test_java_service.jar" />
+
+      <option name="push" value="aidl_test_java_client_sdk29.jar->/data/framework/aidl_test_java_client_sdk29.jar" />
+      <option name="push" value="aidl_test_java_service_sdk29.jar->/data/framework/aidl_test_java_service_sdk29.jar" />
+
+      <option name="push" value="aidl_test_java_client_sdk1.jar->/data/framework/aidl_test_java_client_sdk1.jar" />
+      <option name="push" value="aidl_test_java_service_sdk1.jar->/data/framework/aidl_test_java_service_sdk1.jar" />
+
+      <option name="push" value="aidl_test_java_client_permission.jar->/data/framework/aidl_test_java_client_permission.jar" />
+      <option name="push" value="aidl_test_java_service_permission.jar->/data/framework/aidl_test_java_service_permission.jar" />
+
+      <option name="cleanup" value="true" />
+    </target_preparer>
+
+    <test class="com.android.tradefed.testtype.python.PythonBinaryHostTest" >
+        <option name="par-file-name" value="aidl_integration_test" />
+        <option name="test-timeout" value="5m" />
+    </test>
+</configuration>
+

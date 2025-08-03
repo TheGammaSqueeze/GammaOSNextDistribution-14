@@ -1,0 +1,10 @@
+{
+    "header": "storage_consts.h",
+    "constants": [
+        {
+            "name": "STORAGE_SERVICE_UUID",
+            "value": "cea8706d-6cb4-49f3-b994-29e0e478bd29",
+            "type": "uuid"
+        }
+    ]
+}

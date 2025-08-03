@@ -1,0 +1,11 @@
+namespace testing;
+
+table TestSubTable {
+  placeholder:int;
+}
+
+table TestTableStruct{
+  sub_table:TestSubTable;
+}
+
+root_type TestTableStruct;

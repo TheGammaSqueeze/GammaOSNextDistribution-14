@@ -1,0 +1,180 @@
+syntax = "proto3";
+
+package blueberry.facade.hci;
+
+import "google/protobuf/empty.proto";
+import "blueberry/facade/common.proto";
+
+service LeAdvertisingManagerFacade {
+  rpc CreateAdvertiser(CreateAdvertiserRequest) returns (CreateAdvertiserResponse) {}
+  rpc ExtendedCreateAdvertiser(ExtendedCreateAdvertiserRequest) returns (ExtendedCreateAdvertiserResponse) {}
+  rpc EnableAdvertiser(EnableAdvertiserRequest) returns (google.protobuf.Empty) {}
+  rpc SetData(SetDataRequest) returns (google.protobuf.Empty) {}
+  rpc SetParameters(SetParametersRequest) returns (google.protobuf.Empty) {}
+  rpc SetPeriodicParameters(SetPeriodicParametersRequest) returns (google.protobuf.Empty) {}
+  rpc SetPeriodicData(SetPeriodicDataRequest) returns (google.protobuf.Empty) {}
+  rpc EnablePeriodicAdvertising(EnablePeriodicAdvertisingRequest) returns (google.protobuf.Empty) {}
+  rpc GetOwnAddress(GetOwnAddressRequest) returns (google.protobuf.Empty) {}
+  rpc GetNumberOfAdvertisingInstances(google.protobuf.Empty) returns (GetNumberOfAdvertisingInstancesResponse) {}
+  rpc RemoveAdvertiser(RemoveAdvertiserRequest) returns (google.protobuf.Empty) {}
+  rpc FetchCallbackEvents(google.protobuf.Empty) returns (stream AdvertisingCallbackMsg) {}
+  rpc FetchAddressEvents(google.protobuf.Empty) returns (stream AddressMsg) {}
+}
+
+message GapDataMsg {
+  bytes data = 1;
+}
+
+enum AdvertisingEventType {
+  ADV_IND = 0x0;
+  ADV_DIRECT_IND = 0x1;
+  ADV_SCAN_IND = 0x2;
+  ADV_NONCONN_IND = 0x3;
+  ADV_DIRECT_IND_LOW = 0x4;
+}
+
+enum AdvertisingFilterPolicy {
+  ALL_DEVICES = 0x0;
+  LISTED_SCAN = 0x1;
+  LISTED_CONNECT = 0x2;
+  LISTED_SCAN_AND_CONNECT = 0x3;
+};
+
+enum AdvertisingProperty {
+  NONE = 0x00;
+  INCLUDE_TX_POWER = 0x06;
+};
+
+enum AdvertisingStatus {
+  ADV_SUCCESS = 0x00;
+  ADV_DATA_TOO_LARGE = 0x01;
+  ADV_TOO_MANY_ADVERTISERS = 0x02;
+  ADV_ALREADY_STARTED = 0x03;
+  ADV_INTERNAL_ERROR = 0x04;
+  ADV_FEATURE_UNSUPPORTED = 0x05;
+};
+
+message AdvertisingConfig {
+  repeated GapDataMsg advertisement = 1;
+  repeated GapDataMsg scan_response = 2;
+  // Unit: number of Bluetooth slots in 0.125 ms increment
+  int32 interval_min = 4;
+  // Unit: number of Bluetooth slots in 0.125 ms increment
+  int32 interval_max = 5;
+  AdvertisingEventType advertising_type = 6;
+  blueberry.facade.BluetoothOwnAddressTypeEnum own_address_type = 7;
+  blueberry.facade.BluetoothPeerAddressTypeEnum peer_address_type = 8;
+  blueberry.facade.BluetoothAddress peer_address = 9;
+  int32 channel_map = 10;
+  AdvertisingFilterPolicy filter_policy = 11;
+  int32 tx_power = 12;
+}
+
+message ExtendedAdvertisingConfig {
+  AdvertisingConfig advertising_config = 1;
+  bool connectable = 2;
+  bool scannable = 3;
+  bool directed = 4;
+  bool high_duty_directed_connectable = 5;
+  bool legacy_pdus = 6;
+  bool anonymous = 7;
+  bool include_tx_power = 8;
+  bool use_le_coded_phy = 9;
+  int32 secondary_max_skip = 10;
+  int32 secondary_advertising_phy = 11;
+  int32 sid = 12;
+  bool enable_scan_request_notifications = 13;
+}
+
+message PeriodicAdvertisingParameters {
+  int32 min_interval = 1;
+  int32 max_interval = 2;
+  AdvertisingProperty advertising_property = 3;
+}
+
+message CreateAdvertiserRequest {
+  AdvertisingConfig config = 1;
+}
+
+message CreateAdvertiserResponse {
+  // -1 on error
+  int32 advertiser_id = 1;
+}
+
+message ExtendedCreateAdvertiserRequest {
+  ExtendedAdvertisingConfig config = 1;
+}
+
+message ExtendedCreateAdvertiserResponse {
+  // -1 on error
+  int32 advertiser_id = 1;
+}
+
+message EnableAdvertiserRequest {
+  int32 advertiser_id = 1;
+  bool enable = 2;
+}
+
+message SetDataRequest {
+  int32 advertiser_id = 1;
+  bool set_scan_rsp = 2;
+  repeated GapDataMsg data = 3;
+}
+
+message SetParametersRequest {
+  int32 advertiser_id = 1;
+  AdvertisingConfig config = 2;
+}
+
+message SetPeriodicParametersRequest {
+  int32 advertiser_id = 1;
+  PeriodicAdvertisingParameters config = 2;
+}
+
+message SetPeriodicDataRequest {
+  int32 advertiser_id = 1;
+  repeated GapDataMsg data = 2;
+}
+
+message EnablePeriodicAdvertisingRequest {
+  int32 advertiser_id = 1;
+  bool enable = 2;
+  bool include_adi = 3;
+}
+
+message GetOwnAddressRequest {
+  int32 advertiser_id = 1;
+}
+
+message GetNumberOfAdvertisingInstancesResponse {
+  int32 num_advertising_instances = 1;
+}
+
+message RemoveAdvertiserRequest {
+  int32 advertiser_id = 1;
+}
+
+enum AdvertisingCallbackMsgType {
+  ADVERTISING_SET_STARTED = 0;
+  ADVERTISING_ENABLED = 1;
+  ADVERTISING_DATA_SET = 2;
+  SCAN_RESPONSE_DATA_SET = 3;
+  ADVERTISING_PARAMETERS_UPDATED = 4;
+  PERIODIC_ADVERTISING_PARAMETERS_UPDATED = 5;
+  PERIODIC_ADVERTISING_DATA_SET = 6;
+  PERIODIC_ADVERTISING_ENABLED = 7;
+  OWN_ADDRESS_READ = 8;
+}
+
+message AdvertisingCallbackMsg {
+  AdvertisingCallbackMsgType message_type = 1;
+  uint32 advertiser_id = 2;
+  AdvertisingStatus status = 3;
+  uint32 data = 4;
+}
+
+message AddressMsg {
+  AdvertisingCallbackMsgType message_type = 1;
+  uint32 advertiser_id = 2;
+  blueberry.facade.BluetoothAddressWithType address = 3;
+}

@@ -1,0 +1,274 @@
+/*
+ * Copyright (C) 2019 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_tools_hidl_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_tools_hidl_license"],
+}
+
+genrule_defaults {
+    name: "hidl2aidl_test_gen_defaults",
+    tools: ["hidl2aidl"],
+    cmd: "$(location hidl2aidl) -f -o $(genDir)/ " +
+        "-rhidl2aidl.test:system/tools/hidl/hidl2aidl/test " +
+        "hidl2aidl.test@1.2 && " +
+        "$(location hidl2aidl) -f -o $(genDir)/ " +
+        "-rhidl2aidl.test:system/tools/hidl/hidl2aidl/test " +
+        "hidl2aidl.test.extension@1.2 && " +
+        "$(location hidl2aidl) -o $(genDir)/ " +
+        "-rhidl2aidl.test:system/tools/hidl/hidl2aidl/test " +
+        "hidl2aidl.test@2.0 && " +
+        "mv $(genDir)/include/hidl2aidl/test/translate-ndk.h $(genDir)/hidl2aidl/test/ && " +
+        "mv $(genDir)/include/hidl2aidl/test/translate-cpp.h $(genDir)/hidl2aidl/test/ &&" +
+        "mv $(genDir)/include/hidl2aidl/test/extension/translate-ndk.h $(genDir)/hidl2aidl/test/extension/ && " +
+        "mv $(genDir)/include/hidl2aidl/test/extension/translate-cpp.h $(genDir)/hidl2aidl/test/extension/ ",
+    srcs: [
+        ":android.hidl.base@1.0_hal",
+        ":android.hidl.safe_union@1.0_hal",
+        ":hidl2aidl.test@1.0_hal",
+        ":hidl2aidl.test@1.1_hal",
+        ":hidl2aidl.test@1.2_hal",
+        ":hidl2aidl.test@2.0_hal",
+        ":hidl2aidl.test.extension@1.2_hal",
+        "1.0/IBar.hal",
+        "1.0/IFoo.hal",
+        "1.0/types.hal",
+        "1.1/IFoo.hal",
+        "1.1/types.hal",
+        "1.2/IFoo.hal",
+        "2.0/IFoo.hal",
+        "extension/1.2/IFoo.hal",
+        "extension/1.2/types.hal",
+    ],
+}
+
+genrule {
+    name: "hidl2aidl_test_gen_aidl",
+    defaults: ["hidl2aidl_test_gen_defaults"],
+    out: [
+        "hidl2aidl/test/ArrayFoo.aidl",
+        "hidl2aidl/test/VectorFoo.aidl",
+        "hidl2aidl/test/FooFlag.aidl",
+        "hidl2aidl/test/IBar.aidl",
+        "hidl2aidl/test/IFoo.aidl",
+        "hidl2aidl/test/NameCollision.aidl",
+        "hidl2aidl/test/OnlyIn10.aidl",
+        "hidl2aidl/test/OnlyIn11.aidl",
+        "hidl2aidl/test/Outer.aidl",
+        "hidl2aidl/test/OverrideMe.aidl",
+        "hidl2aidl/test/SafeUnionBar.aidl",
+        "hidl2aidl/test/UnionFoo.aidl",
+        "hidl2aidl/test/Value.aidl",
+        "hidl2aidl/test2/IFoo.aidl",
+        "hidl2aidl/test/extension/IFoo.aidl",
+        "hidl2aidl/test/extension/FooFlag.aidl",
+        "hidl2aidl/test/extension/ArrayFoo.aidl",
+    ],
+}
+
+genrule {
+    name: "hidl2aidl_translate_ndk_test_gen_src",
+    defaults: ["hidl2aidl_test_gen_defaults"],
+    out: [
+        "translate/hidl2aidl/test/translate-ndk.cpp",
+        "translate/hidl2aidl/test/extension/translate-ndk.cpp",
+    ],
+}
+
+genrule {
+    name: "hidl2aidl_translate_ndk_test_gen_headers",
+    defaults: ["hidl2aidl_test_gen_defaults"],
+    out: [
+        "hidl2aidl/test/translate-ndk.h",
+        "hidl2aidl/test/extension/translate-ndk.h",
+    ],
+}
+
+genrule {
+    name: "hidl2aidl_translate_cpp_test_gen_src",
+    defaults: ["hidl2aidl_test_gen_defaults"],
+    out: [
+        "translate/hidl2aidl/test/translate-cpp.cpp",
+        "translate/hidl2aidl/test/extension/translate-cpp.cpp",
+    ],
+}
+
+genrule {
+    name: "hidl2aidl_translate_cpp_test_gen_headers",
+    defaults: ["hidl2aidl_test_gen_defaults"],
+    out: [
+        "hidl2aidl/test/translate-cpp.h",
+        "hidl2aidl/test/extension/translate-cpp.h",
+    ],
+}
+
+genrule {
+    name: "hidl2aidl_translate_java_test_gen_src",
+    defaults: ["hidl2aidl_test_gen_defaults"],
+    out: [
+        "translate/hidl2aidl/test/Translate.java",
+        "translate/hidl2aidl/test/extension/Translate.java",
+    ],
+}
+
+aidl_interface {
+    name: "hidl2aidl_test_gen",
+    owner: "test",
+    stability: "vintf",
+    srcs: [":hidl2aidl_test_gen_aidl"],
+    backend: {
+        java: {
+            sdk_version: "system_current",
+        },
+    },
+    flags: [
+        "-Werror",
+        "-Wno-mixed-oneway",
+    ],
+}
+
+cc_test_library {
+    name: "hidl2aidl_test_comp_cc",
+    srcs: [
+        "cpp_test_compile.cpp",
+        "ndk_test_compile.cpp",
+    ],
+    shared_libs: [
+        "hidl2aidl_test_gen-V1-cpp",
+        "hidl2aidl_test_gen-V1-ndk",
+        "libbinder",
+        "libbinder_ndk",
+        "libutils",
+    ],
+    gtest: false,
+}
+
+cc_test {
+    name: "hidl2aidl_translate_ndk_test",
+    test_suites: ["general-tests"],
+
+    cflags: [
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-g",
+    ],
+    srcs: [
+        ":hidl2aidl_translate_ndk_test_gen_src",
+        "translate_ndk_test.cpp",
+    ],
+    generated_headers: [
+        "hidl2aidl_translate_ndk_test_gen_headers",
+    ],
+    shared_libs: [
+        "libbinder_ndk",
+        "libhidlbase",
+        "liblog",
+    ],
+    static_libs: [
+        "hidl2aidl_test_gen-V1-ndk",
+        "hidl2aidl.test@1.0",
+        "hidl2aidl.test@1.1",
+        "hidl2aidl.test@1.2",
+        "hidl2aidl.test.extension@1.2",
+    ],
+    host_required: [
+        "hidl2aidl",
+    ],
+}
+
+cc_test {
+    name: "hidl2aidl_translate_cpp_test",
+    test_suites: ["general-tests"],
+
+    cflags: [
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-g",
+        "-DHIDL2AIDLTESTING",
+    ],
+    srcs: [
+        ":hidl2aidl_translate_cpp_test_gen_src",
+        "translate_cpp_test.cpp",
+    ],
+    generated_headers: [
+        "hidl2aidl_translate_cpp_test_gen_headers",
+    ],
+    shared_libs: [
+        "libbinder",
+        "libhidlbase",
+        "libutils",
+        "liblog",
+    ],
+    static_libs: [
+        "hidl2aidl_test_gen-V1-cpp",
+        "hidl2aidl.test@1.0",
+        "hidl2aidl.test@1.1",
+        "hidl2aidl.test@1.2",
+        "hidl2aidl.test.extension@1.2",
+    ],
+    host_required: [
+        "hidl2aidl",
+    ],
+}
+
+android_test {
+    name: "hidl2aidl_translate_java_test",
+    platform_apis: true,
+    // Turn off Java optimization tools to speed up our test iterations.
+    optimize: {
+        enabled: false,
+    },
+    dex_preopt: {
+        enabled: false,
+    },
+    srcs: [
+        ":hidl2aidl_translate_java_test_gen_src",
+        "TranslateJavaTest.java",
+    ],
+    static_libs: [
+        "androidx.test.core",
+        "androidx.test.runner",
+        "hidl2aidl_test_gen-V1-java",
+        "hidl2aidl.test-V1.0-java",
+        "hidl2aidl.test-V1.1-java",
+        "hidl2aidl.test-V1.2-java",
+        "hidl2aidl.test.extension-V1.2-java",
+    ],
+    host_required: [
+        "hidl2aidl",
+    ],
+    test_suites: ["general-tests"],
+}
+
+phony {
+    name: "hidl2aidl_test",
+    required: [
+        "hidl2aidl_test_comp_cc",
+        "hidl2aidl_test_gen-V1-java",
+        "hidl2aidl_translate_ndk_test",
+        "hidl2aidl_translate_cpp_test",
+    ],
+}
+
+hidl_package_root {
+    name: "hidl2aidl.test",
+}

@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package blueberry.facade.hci;
+
+import "google/protobuf/empty.proto";
+import "blueberry/facade/common.proto";
+
+service LeAclManagerFacade {
+  rpc CreateConnection(CreateConnectionMsg) returns (stream LeConnectionEvent) {}
+  rpc CancelConnection(blueberry.facade.BluetoothAddressWithType) returns (google.protobuf.Empty) {}
+  rpc Disconnect(LeHandleMsg) returns (google.protobuf.Empty) {}
+  rpc ConnectionCommand(LeConnectionCommandMsg) returns (google.protobuf.Empty) {}
+  rpc SendAclData(LeAclData) returns (google.protobuf.Empty) {}
+  rpc FetchAclData(LeHandleMsg) returns (stream LeAclData) {}
+  rpc FetchIncomingConnection(google.protobuf.Empty) returns (stream LeConnectionEvent) {}
+  rpc AddDeviceToResolvingList(IrkMsg) returns (google.protobuf.Empty) {}
+  rpc IsOnBackgroundList(BackgroundRequestMsg) returns (BackgroundResultMsg) {}
+  rpc RemoveFromBackgroundList(BackgroundRequestMsg)
+      returns (google.protobuf.Empty) {}
+}
+
+message LeHandleMsg {
+  uint32 handle = 1;
+}
+
+message LeConnectionEvent {
+  bytes payload = 1;
+}
+
+message LeConnectionCommandMsg {
+  bytes packet = 1;
+}
+
+message LeAclData {
+  uint32 handle = 1;
+  bytes payload = 2;
+}
+
+message CreateConnectionMsg {
+  blueberry.facade.BluetoothAddressWithType peer_address = 1;
+  bool is_direct = 2;
+}
+
+message IrkMsg {
+  blueberry.facade.BluetoothAddressWithType peer = 1;
+  bytes peer_irk = 2;
+  bytes local_irk = 3;
+}
+
+message BackgroundRequestMsg {
+  blueberry.facade.BluetoothAddressWithType peer_address = 1;
+}
+
+message BackgroundResultMsg {
+  bool is_on_background_list = 1;
+}

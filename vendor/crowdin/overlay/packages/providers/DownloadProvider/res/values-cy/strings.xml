@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label">Rheolwr Lawrlwytho</string>
+    <string name="storage_description">Llwythi</string>
+    <string name="permlab_downloadManager">Mynediad at y rheolwr lawrlwytho.</string>
+    <string name="permdesc_downloadManager">Mae\'n caniatáu\'r ap i gael mynediad at y rheolwr lawrlwytho a\'i defnyddio i lawrlwytho ffeiliau. Gall apiau maleisus ei ddefnyddio i ymyrryd mewn lawrlwytho a chael mynediad at wybodaeth breifat.</string>
+    <string name="permlab_downloadManagerAdvanced">Swyddogaethau uwch y
+        rheolwr lawrlwytho.</string>
+    <string name="permdesc_downloadManagerAdvanced">Mae\'n caniatáu\'r ap i gael mynediad at nodweddion uwch y rheolwr lawrlwytho.  Gall apiau maleisus ei ddefnyddio i ymyrryd mewn lawrlwytho a chael mynediad at wybodaeth breifat.</string>
+    <string name="permlab_downloadCompletedIntent">Anfon hysbysiadau lawrlwytho.</string>
+    <string name="permdesc_downloadCompletedIntent">Mae\'n caniatáu\'r ap i anfon hysbysiadau am lawrlwythi wedi eu cwblhau. Gall apiau maleisus defnyddio hyn i ddrysu apiau eraill sy\'n lawrlwytho ffeiliau.</string>
+    <string name="permlab_downloadCacheNonPurgeable">Cadw lle yn y cuddstôr lawrlwytho</string>
+    <string name="permdesc_downloadCacheNonPurgeable">Mae\u2019n caniatáu yr ap i lawrlwytho ffeiliau i\u2019r cof llawrlwytho dros dro, na sy\u2019n bosib eu dileu yn awtomatig pan fo angen rhagor o le ar y rheolwr lawrlwytho.</string>
+    <string name="permlab_downloadWithoutNotification">lawrlwytho ffeiliau heb roi hysbysiad</string>
+    <string name="permdesc_downloadWithoutNotification">Mae\'n caniatáu\'r ap i lawrlwytho ffeiliau trwy\'r rheolwr lawrlwytho heb ddangos unrhyw hysbysiad i\'r defnyddiwr.</string>
+    <string name="permlab_accessAllDownloads">Mynediad at holl
+    lwythi system</string>
+    <string name="permdesc_accessAllDownloads">Mae\'n caniatáu\'r ap i weld ac addasu unrhyw lawrlwythi gan unrhyw ap ar y system.</string>
+    <string name="download_unknown_title">&lt;Di-deitl&gt;</string>
+    <string name="notification_download_complete">Lawrlwytho wedi\'i gwblhau.</string>
+    <string name="notification_download_failed">Lawrlwytho aflwyddiannus.</string>
+    <string name="notification_need_wifi_for_size">Mae angen gysylltiad Wi-Fi oherwydd maint y llwyth.</string>
+    <string name="notification_paused_in_background">Wedi oedi yn y cefndir.</string>
+    <string name="wifi_required_title">Maint i\'w lawrlwytho yn ormod i\'r darparwr rhwydwaith</string>
+    <string name="wifi_required_body">Rhaid defnyddio Wi-Fi i gwblhau lawrlwytho\u2019r <xliff:g id="size" example="12.3KB">%1$s</xliff:g> hwn.\n\nCyffyrdda <xliff:g id="queue_text" example="Queue">%2$s</xliff:g> i ddechrau lawrlwytho\u2019r tro nesaf wyt yn cysylltu â rhwydwaith Wi-Fi.</string>
+    <string name="wifi_recommended_title">Ciwio i\'w lawrlwytho\'n hwyrach?</string>
+    <string name="wifi_recommended_body">Gall dechrau lawrlwytho\u2019r <xliff:g id="size" example="12.3KB">%1$s</xliff:g> hwn nawr defnyddio dipyn o bŵer dy fatri ac achosi defnydd uchel o dy gysylltiad data symudol a gall hyn olygu costau gan dy ddarparwr, yn dibynnu ar delerau dy wasanaeth ffôn symudol.\n\nCyffyrdda <xliff:g id="queue_text" example="Queue">%2$s</xliff:g> i gychwyn lawrlwytho y tro nesaf rwyt wedi cysylltu â rhwydwaith Wi-Fi.</string>
+    <string name="button_queue_for_wifi">Ciwio</string>
+    <string name="button_cancel_download">Diddymu</string>
+    <string name="button_start_now">Dechrau nawr</string>
+    <plurals name="notif_summary_active">
+        <item quantity="zero"><xliff:g id="number">%d</xliff:g> ffeiliau yn lawrlwytho</item>
+        <item quantity="one">1 ffeil yn lawrlwytho</item>
+        <item quantity="two"><xliff:g id="number">%d</xliff:g> ffeil yn lawrlwytho</item>
+        <item quantity="few"><xliff:g id="number">%d</xliff:g> ffeil yn lawrlwytho</item>
+        <item quantity="many"><xliff:g id="number">%d</xliff:g> ffeil yn lawrlwytho</item>
+        <item quantity="other"><xliff:g id="number">%d</xliff:g> ffeil yn lawrlwytho</item>
+    </plurals>
+    <plurals name="notif_summary_waiting">
+        <item quantity="zero"><xliff:g id="number">%d</xliff:g> ffeilau yn disgwyl</item>
+        <item quantity="one">1 ffeil yn disgwyl</item>
+        <item quantity="two"><xliff:g id="number">%d</xliff:g> ffeil yn disgwyl</item>
+        <item quantity="few"><xliff:g id="number">%d</xliff:g> ffeil yn disgwyl</item>
+        <item quantity="many"><xliff:g id="number">%d</xliff:g> ffeil yn disgwyl</item>
+        <item quantity="other"><xliff:g id="number">%d</xliff:g> ffeil yn disgwyl</item>
+    </plurals>
+    <string name="download_remaining"><xliff:g id="duration" example="3 minutes">%s </xliff:g> yn weddill</string>
+    <string name="download_no_application_title">Methu ag agor y ffeil</string>
+    <string name="root_downloads">Llwythi</string>
+    <string name="download_queued">Mewn ciw</string>
+    <string name="download_running">Ar y gweill</string>
+    <string name="download_error">Aflwyddiannus</string>
+    <string name="download_running_percent">Ar y gweill, <xliff:g id="percentage" example="50%">%s</xliff:g></string>
+</resources>

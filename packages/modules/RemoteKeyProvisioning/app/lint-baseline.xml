@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.4.0-alpha01" type="baseline" client="" dependencies="true" name="" variant="all" version="8.4.0-alpha01">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 34 (current min is 33): `android.os.ServiceManager#getDeclaredInstances`"
+        errorLine1="        return Arrays.stream(ServiceManager.getDeclaredInstances(irpcInterface))"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/RemoteKeyProvisioning/app/src/com/android/rkpdapp/interfaces/ServiceManagerInterface.java"
+            line="76"
+            column="45"/>
+    </issue>
+
+</issues>

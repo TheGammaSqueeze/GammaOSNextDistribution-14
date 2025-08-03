@@ -1,0 +1,77 @@
+model {
+  main {
+    operands {
+      operand {
+        type: TENSOR_QUANT8_ASYMM
+        dimensions {
+          dimension: 2
+          dimension: 3
+          dimension: 2
+          dimension: 2
+        }
+        scale: 0.1
+        zero_point: 32
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 3574222664
+        }
+      }
+      operand {
+        type: INT32
+        dimensions {
+        }
+        lifetime: CONSTANT_COPY
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 1
+        }
+      }
+      operand {
+        type: TENSOR_QUANT8_ASYMM
+        dimensions {
+          dimension: 2
+          dimension: 3
+          dimension: 2
+          dimension: 2
+        }
+        scale: 0.0078125
+        zero_point: 128
+        lifetime: SUBGRAPH_OUTPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 3623408506
+        }
+      }
+    }
+    operations {
+      operation {
+        type: L2_NORMALIZATION
+        inputs {
+          index: 0
+          index: 1
+        }
+        outputs {
+          index: 2
+        }
+      }
+    }
+    input_indexes {
+      index: 0
+    }
+    output_indexes {
+      index: 2
+    }
+  }
+  referenced {
+  }
+}

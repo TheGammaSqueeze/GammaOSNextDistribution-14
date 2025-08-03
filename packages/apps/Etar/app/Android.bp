@@ -1,0 +1,100 @@
+android_app {
+    name: "Etar",
+    overrides: ["Calendar"],
+
+    asset_dirs: ["src/main/assets"],
+
+    resource_dirs: ["src/main/res"],
+
+    srcs: [
+        "src/main/java/**/*.kt",
+        "src/main/java/**/*.java",
+        "src_aosp/**/*.java",
+        "src_aosp/**/*.kt",
+    ],
+
+    manifest: "src/main/AndroidManifest.xml",
+
+    product_specific: true,
+
+    static_libs: [
+        // DO NOT EDIT THIS SECTION MANUALLY
+        "androidx.core_core-ktx",
+        "androidx.preference_preference",
+        "androidx.appcompat_appcompat",
+        "androidx-constraintlayout_constraintlayout",
+        "com.google.android.material_material",
+        "kotlinx-coroutines-core",
+        "kotlinx-coroutines-android",
+        "Etar-Calendar_org.dmfs_lib-recur",
+        "androidx.lifecycle_lifecycle-livedata-ktx",
+    ] + [
+        "android-common",
+        "android-opt-timezonepicker",
+        "calendar-common",
+        "colorpicker",
+        "libchips",
+    ],
+
+    optimize: {
+        proguard_flags_files: ["proguard-rules.pro"],
+    },
+
+    sdk_version: "current",
+
+    aaptflags: [
+        "--custom-package",
+        "ws.xsoh.etar",
+    ],
+
+    kotlincflags: ["-Xjvm-default=all"],
+
+    required: [
+        "org.lineageos.etar.allowlist",
+        "initial-package-stopped-states-org.lineageos.etar",
+        "preinstalled-packages-org.lineageos.etar",
+    ],
+}
+
+android_test {
+    name: "CalendarTests",
+
+    srcs: [
+        "src/test/java/**/*.kt",
+        "src/test/java/**/*.java",
+    ],
+
+    manifest: "src/test/AndroidManifest.xml",
+
+    libs: [
+        "android.test.runner",
+    ],
+
+    certificate: "platform",
+
+    instrumentation_for: "Etar",
+}
+
+prebuilt_etc {
+    name: "org.lineageos.etar.allowlist",
+    product_specific: true,
+    sub_dir: "sysconfig",
+    src: "org.lineageos.etar.allowlist.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
+    name: "initial-package-stopped-states-org.lineageos.etar",
+    product_specific: true,
+    sub_dir: "sysconfig",
+    src: "initial-package-stopped-states-org.lineageos.etar.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
+    name: "preinstalled-packages-org.lineageos.etar",
+    product_specific: true,
+    sub_dir: "sysconfig",
+    src: "preinstalled-packages-org.lineageos.etar.xml",
+    filename_from_src: true,
+}

@@ -1,0 +1,16 @@
+package: "com.android.bluetooth.flags"
+container: "com.android.btservices"
+
+flag {
+    name: "unix_file_socket_creation_failure"
+    namespace: "bluetooth"
+    description: "New socket exception code for better logging and error handling"
+    bug: "318886332"
+}
+
+flag {
+    name: "bt_socket_api_l2cap_cid"
+    namespace: "bluetooth"
+    description: "New socket API to get L2CAP channel ID"
+    bug: "326351678"
+}

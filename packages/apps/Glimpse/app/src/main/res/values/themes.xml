@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2023-2024 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme -->
+    <style name="Theme.Glimpse" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">always</item>
+        <item name="android:windowLightStatusBar">?attr/isLightTheme</item>
+        <item name="windowActionModeOverlay">true</item>
+    </style>
+
+    <!-- Collapsing toolbar style -->
+    <style name="Theme.Glimpse.ToolbarCollapsed" parent="@android:style/TextAppearance.DeviceDefault.Widget.ActionBar.Title">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="Theme.Glimpse.ToolbarExpanded" parent="Theme.Glimpse.ToolbarCollapsed">
+        <item name="android:textSize">36sp</item>
+        <item name="android:drawablePadding">10dp</item>
+    </style>
+
+    <!-- Top app bar option -->
+    <style name="Theme.Glimpse.TopAppBarOption">
+        <item name="android:iconTint">?attr/colorOnSurface</item>
+        <item name="iconTint">?attr/colorOnSurface</item>
+    </style>
+
+    <!-- Bottom app bar option -->
+    <style name="Theme.Glimpse.BottomAppBarOption">
+        <item name="android:iconTint">?attr/colorOnSurface</item>
+        <item name="iconTint">?attr/colorOnSurface</item>
+    </style>
+
+    <!-- Media viewer -->
+    <style name="Theme.Glimpse.MediaViewer" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">always</item>
+        <item name="android:windowLightStatusBar">?attr/isLightTheme</item>
+    </style>
+
+    <!-- Media viewer bottom sheet -->
+    <style name="Theme.Glimpse.MediaViewer.BottomSheet" />
+
+    <!-- Media viewer bottom sheet buttons -->
+    <style name="Theme.Glimpse.MediaViewer.BottomSheet.Button">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:drawableTint">@android:color/white</item>
+        <item name="android:hyphenationFrequency">normal</item>
+        <item name="android:maxLines">3</item>
+        <item name="android:maxWidth">320dp</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:textAppearance">?attr/textAppearanceCaption</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="backgroundTint">@android:color/transparent</item>
+        <item name="rippleColor">?attr/colorControlHighlight</item>
+    </style>
+
+    <!-- Media info bottom sheet dialog -->
+    <style name="Theme.Glimpse.MediaInfoBottomSheetDialog" />
+
+    <!-- Media info bottom sheet dialog date/time text -->
+    <style name="Theme.Glimpse.MediaInfoBottomSheetDialog.DateTimeText">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:letterSpacing">0.03</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">?attr/colorOnSecondaryContainer</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:typeface">monospace</item>
+    </style>
+
+    <!-- Media info bottom sheet dialog list item -->
+    <style name="Theme.Glimpse.MediaInfoBottomSheetDialog.ListItem">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <!-- Set wallpaper dialog theme -->
+    <style name="Theme.Glimpse.SetWallpaperDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog.Centered">
+        <item name="listItemLayout">@layout/set_wallpaper_dialog_item</item>
+    </style>
+</resources>

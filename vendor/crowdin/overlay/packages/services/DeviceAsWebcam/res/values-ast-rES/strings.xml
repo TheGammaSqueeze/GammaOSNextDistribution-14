@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2023 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources>
+    <string name="app_label">Serviciu de cámara web</string>
+    <string name="view_finder_description">Visor</string>
+    <string name="zoom_ratio_description">Proporción de zoom</string>
+    <string name="zoom_ratio_button_current_description">Proporción de zoom actual</string>
+    <string name="zoom_seek_bar_description">Barra p\'averar o alloñar el zoom</string>
+    <string name="toggle_camera_button_description_back">Cambiar a la cámara d\'atrás</string>
+    <string name="toggle_camera_button_description_front">Cambiar a la cámara d\'alantre</string>
+    <string name="toggle_high_quality_description_off">Desactivar la calidá alta</string>
+    <string name="toggle_high_quality_description_on">Activar la calidá alta</string>
+    <string name="notif_channel_name">Serviciu en primer planu</string>
+    <string name="notif_ticker">Cámara web</string>
+    <string name="notif_title">Cámara web</string>
+    <string name="notif_desc">Toca pa previsualizar y configurar la salida de la cámara web</string>
+    <string name="hq_warning_dialog_title">Mou de calidá alta</string>
+    <string name="hq_warning_dialog_content_1">El mou de calidá alta desactiva les optimizaciones d\'enerxía p\'ameyorar la calidá de la cámara web. L\'usu d\'esti mou pue causar un consumu d\'enerxía escomanáu que caleza\'l preséu.</string>
+    <string name="hq_warning_dialog_content_2"><b><u>ALVERTENCIA:</u></b> l\'usu prollongáu a temperatures altes pue tener un efeutu adversu na vida útil de la batería d\'esti preséu.</string>
+    <string name="hq_warning_dialog_dont_show_again">Nun volver amosar</string>
+    <string name="hq_warning_dialog_button_ack">Aceptar</string>
+    <string name="list_item_text_back_camera">Cámara d\'atrás</string>
+    <string name="list_item_text_front_camera">Cámara d\'alantre</string>
+    <string name="list_item_text_standard_camera">Cámara estándar</string>
+    <string name="list_item_text_wide_angle_camera">Cámara gran angular</string>
+    <string name="list_item_text_ultra_wide_camera">Cámara ultra gran angular</string>
+    <string name="list_item_text_telephoto_camera">Cámara con teleoxetivu</string>
+    <string name="list_item_text_other_camera">Otra cámara</string>
+    <string name="list_item_text_unknown_camera">Cámara desconocida</string>
+    <string name="camera_options_list_description">Opciones de cámara disponibles</string>
+</resources>

@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*********************************************************************
+*
+* Copyright (c) 2017, The Linux Foundation. All rights reserved.
+*
+* Redistribution and use in source and binary forms, with or without
+* modification, are permitted provided that the following conditions are
+* met:
+*     * Redistributions of source code must retain the above copyright
+*       notice, this list of conditions and the following disclaimer.
+*     * Redistributions in binary form must reproduce the above
+*       copyright notice, this list of conditions and the following
+*       disclaimer in the documentation and/or other materials provided
+*       with the distribution.
+*     * Neither the name of The Linux Foundation nor the names of its
+*       contributors may be used to endorse or promote products derived
+*       from this software without specific prior written permission.
+*
+* THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED
+* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT
+* ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS
+* BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+* CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+* SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+* BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+* WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+* IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*
+************************************************************************/
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/conference_call_frame">
+
+    <RelativeLayout
+        android:id="@+id/conference_call"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#f9f9f9" >
+        <!-- input area -->
+        <RelativeLayout
+            android:id="@+id/input_area"
+            android:layout_marginRight="28dp"
+            android:layout_marginTop="29dp"
+            android:layout_marginLeft="28dp"
+            android:layout_width="match_parent"
+            android:layout_height="116dp"
+            android:background="#E2E2E2"
+            android:gravity="bottom"
+            android:orientation="vertical"
+            android:weightSum="1" >
+            <ImageButton
+                android:id="@+id/btn_pick_callLog"
+                android:src="@drawable/ic_call_log_picker"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_marginRight="5dp"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentBottom="true"
+                android:gravity="center"
+                android:background="@null"
+            />
+            <EditText
+                android:id="@+id/edit_number"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="80dp"
+                android:layout_alignParentBottom="true"
+                android:minWidth="40dp"
+                android:hint="@string/add_uri_list_to_dial"
+                android:textColor="#000000"
+                android:textColorHint="#c1c1c1"
+            />
+            <ImageButton
+                android:id="@+id/contactlist"
+                android:src="@drawable/ic_person_edit_number"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_marginRight="40dp"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentBottom="true"
+                android:gravity="center"
+                android:background="@null"
+            />
+       </RelativeLayout>
+
+       <Button
+            android:id="@+id/btn_start_call"
+            android:layout_below="@+id/input_area"
+            android:layout_width="match_parent"
+            android:layout_height="42dp"
+            android:layout_marginRight="28dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginLeft="28dp"
+            android:background="#00C853"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:text="@string/button_start_conference_call"
+        />
+        <Button
+            android:id="@+id/btn_video_call"
+            android:layout_below="@+id/btn_start_call"
+            android:layout_width="match_parent"
+            android:layout_height="42dp"
+            android:layout_marginRight="28dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="28dp"
+            android:background="#1CF67F"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:text="@string/button_start_video_conference_call"
+            android:visibility="gone"
+        />
+        <Button
+           android:id="@+id/btn_cancel"
+           android:layout_below="@+id/btn_video_call"
+           android:layout_width="match_parent"
+           android:layout_height="42dp"
+           android:layout_marginRight="28dp"
+           android:layout_marginTop="10dp"
+           android:layout_marginLeft="28dp"
+           android:background="#F50057"
+           android:textColor="#FFFFFF"
+           android:textStyle="bold"
+           android:text="@string/qti_edit_number_cancel_key"/>
+
+    </RelativeLayout>
+</FrameLayout>
+

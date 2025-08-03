@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2016 The Android Open Source Project
+     Copyright (C) 2023 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@android:id/background"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_background"
+    android:backgroundTint="?appWidgetBackgroundTint"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="@dimen/widget_padding"
+    tools:theme="@style/Theme.DeskClock.DigitalWidgetDarkBg">
+
+    <TextClock
+        android:id="@+id/clock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:ellipsize="none"
+        android:format12Hour="@string/lock_screen_12_hour_format"
+        android:format24Hour="@string/lock_screen_24_hour_format"
+        android:includeFontPadding="false"
+        android:singleLine="true"
+        android:textAppearance="?appWidgetTextAppearancePrimary"
+        tools:text="0123"
+        tools:textColor="@android:color/white"
+        tools:textSize="@dimen/big_font_size" />
+
+    <LinearLayout
+        android:id="@+id/bottom_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="-10dp">
+
+        <TextClock
+            android:id="@+id/date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:ellipsize="none"
+            android:includeFontPadding="false"
+            android:singleLine="true"
+            android:textAppearance="?appWidgetTextAppearancePrimaryLabel"
+            tools:text="01. Jan, 2023"
+            tools:textColor="@android:color/white"
+            tools:textSize="@dimen/label_font_size" />
+
+        <ImageView
+            android:id="@+id/nextAlarmIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:adjustViewBounds="true"
+            android:contentDescription="@null"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_alarm"
+            android:tint="?appWidgetLabelTint"
+            app:tint="?appWidgetLabelTint"
+            tools:ignore="UseAppTint"
+            tools:tint="@color/white" />
+
+        <TextView
+            android:id="@+id/nextAlarm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:ellipsize="none"
+            android:includeFontPadding="false"
+            android:singleLine="true"
+            android:textAppearance="?appWidgetTextAppearancePrimaryLabel"
+            tools:text="08:30"
+            tools:textColor="@android:color/white"
+            tools:textSize="@dimen/label_font_size" />
+
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/world_city_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|top"
+        android:layout_marginTop="10dp"
+        android:divider="@null"
+        android:visibility="gone"
+        tools:listitem="@layout/world_clock_remote_list_item" />
+
+</LinearLayout>

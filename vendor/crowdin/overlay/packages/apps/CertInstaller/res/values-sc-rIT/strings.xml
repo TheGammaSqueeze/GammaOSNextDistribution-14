@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2009 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Installadores de tzertificadu</string>
+    <string name="pick_file_title">Sèbera unu tzertificadu</string>
+    <string name="pkcs12_password_dialog_title">Boga tzertificadu</string>
+    <string name="extracting_pkcs12">Boghende\u2026</string>
+    <string name="pkcs12_file_password_dialog_title">Boga dae %s</string>
+    <string name="credential_password">Iscrie sa crae pro nde bogare is tzertificados.</string>
+    <string name="credential_info">Su pachete cuntenet:</string>
+    <string name="p12_description">Tzertificados in s\'archìviu craes PKCS12.</string>
+    <string name="one_userkey">una crae de utente</string>
+    <string name="one_usercrt">unu tzertificadu de utente</string>
+    <string name="one_cacrt">unu tzertificadu CA</string>
+    <string name="n_cacrts">%d tzertificados CA</string>
+    <string name="password_error">Iscrie sa crae curreta.</string>
+    <string name="password_empty_error">Iscrie sa crae.</string>
+    <string name="name_empty_error">Iscrie unu nùmene.</string>
+    <string name="name_char_error">Iscrie unu nùmene chi tèngiat petzi lìteras e nùmeros.</string>
+    <string name="unable_to_save_cert">No at fatu a sarvare su tzertificadu. S\'archìviu credentziales no est abilitadu inghitzadu in manera curreta.</string>
+    <string name="cert_not_saved">Tzertificadu no installadu</string>
+    <string name="no_cert_to_saved">Perunu tzertificadu de installare.</string>
+    <string name="invalid_cert">Su tzertificadu no est bàlidu.</string>
+    <string name="cert_too_large_error">No at fatu a ddu installare ca sa mannària de su tzertificadu est tropu.</string>
+    <string name="cert_missing_error">No est installadu ca s\'archìviu de su tzertificadu non at fato a ddu positzionare. </string>
+    <string name="cert_read_error">No at fatu a installare ca s\'archìviu de su tzertificadu no at fatu a ddu lèghere.</string>
+    <string name="only_primary_user_allowed">Petzi su mere de custu dispositivu podet installare is tzertificados.</string>
+    <string name="credential_usage_label">Impreu credentziales:</string>
+    <string-array name="credential_usage">
+        <item>VPN e aplicatziones</item>
+        <item>Wi-Fi</item>
+    </string-array>
+    <string name="wifi_title">Profilu Wi-Fi</string>
+    <string name="wifi_detail_title">Detàllios pro %s</string>
+    <string name="wifi_detail_label">Detàllios</string>
+    <string name="wifi_install_label">Installa</string>
+    <string name="wifi_installing_label">Installende</string>
+    <string name="wifi_cancel_label">Annulla</string>
+    <string name="wifi_dismiss_label">Iscarta</string>
+    <string name="wifi_no_config">Perunu</string>
+    <string name="wifi_config_text">Nùmene: %1$s\nFQDN: %2$s\nRoaming Consortiums: %3$s\nRealm: %4$s\nMètodu de autenticatzione: EAP-%5$s\n</string>
+    <string name="wifi_ttls_config_text">Nùmene utente: %s\n</string>
+    <string name="wifi_tls_config_text">Tzertificadu cliente:\n%1$s\nKey: %2$s\n</string>
+    <string name="wifi_sim_config_text">SIM: %s\n</string>
+    <string name="wifi_trust_config_text">Tzertificadu de fide:\n%s\n</string>
+    <string name="install_done_title">Credentziales installadas</string>
+    <string name="done_label">FATU</string>
+    <string name="wifi_installer_fail_no_wifi_title">Installatzione cantzellada</string>
+    <string name="wifi_installer_fail_title">Non faghet a installare</string>
+</resources>

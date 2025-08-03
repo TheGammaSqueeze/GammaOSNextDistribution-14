@@ -1,0 +1,46 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "ManagedProvisioningTests",
+
+    platform_apis: true,
+    certificate: "platform",
+
+    static_libs: ["ManagedProvisioningTestsLib"],
+
+    instrumentation_for: "ManagedProvisioning",
+    test_suites: ["device-tests"],
+
+}
+
+android_library {
+    name: "ManagedProvisioningTestsLib",
+    srcs: [
+        "src/**/*.java",
+        "src/**/*.kt",
+    ],
+    manifest: "AndroidManifest.xml",
+    libs: [
+        "android.test.runner",
+        "android.test.base",
+        "android.test.mock",
+    ],
+    static_libs: [
+        "androidx.test.rules",
+        "mockito-target-minus-junit4",
+        "androidx.test.espresso.core",
+        "androidx.test.espresso.contrib",
+        "androidx.test.espresso.intents",
+        "truth",
+        "testng", // used only for assertThrows
+        "androidx.test.uiautomator_uiautomator", // used for unlocking the device
+        "TestApp",
+        "ctstestrunner-axt",
+        "Harrier",
+        "flag-junit",
+        "platform-test-annotations",
+        "ManagedProvisioningLib",
+    ],
+}

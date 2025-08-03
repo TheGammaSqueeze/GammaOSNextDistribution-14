@@ -1,0 +1,52 @@
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+apex_key {
+    name: "com.android.apex.system_ext.test.key",
+    public_key: "com.android.apex.system_ext.test.avbpubkey",
+    private_key: "com.android.apex.system_ext.test.pem",
+}
+
+android_app_certificate {
+    name: "com.android.apex.system_ext.test.certificate",
+    certificate: "com.android.apex.system_ext.test",
+}
+
+apex {
+    name: "com.android.apex.system_ext.test",
+    manifest: "manifest.json",
+    file_contexts: ":apex.test-file_contexts",  // Default, please edit, see go/android-apex-howto
+    key: "com.android.apex.system_ext.test.key",
+    updatable: false,
+    apps: ["com.android.apex.system_ext.app.test"],
+}
+
+android_app {
+    name: "com.android.apex.system_ext.app.test",
+    manifest: "App_AndroidManifest.xml",
+    sdk_version: "31",
+    privileged: true,
+    apex_available: [
+        "com.android.apex.system_ext.test",
+    ]
+}
+
+filegroup {
+    name: "com.android.apex.system_ext.app.test.xml",
+    srcs: ["com.android.apex.system_ext.app.test.xml"],
+}

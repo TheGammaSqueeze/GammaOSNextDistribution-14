@@ -1,0 +1,41 @@
+// Jpeg Streaming native
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_library_shared {
+    name: "libjni_jpegstream",
+    product_specific: true,
+
+    static_libs: ["libjpeg_static_ndk"],
+    shared_libs: ["liblog"],
+
+    arch: {
+        arm: {
+            instruction_set: "arm",
+        },
+    },
+    cflags: [
+        "-ffast-math",
+        "-O3",
+        "-funroll-loops",
+
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+    ],
+    header_libs: ["jni_headers"],
+    local_include_dirs: ["src"],
+    sdk_version: "17",
+
+    srcs: [
+        "src/inputstream_wrapper.cpp",
+        "src/jpegstream.cpp",
+        "src/jerr_hook.cpp",
+        "src/jpeg_hook.cpp",
+        "src/jpeg_writer.cpp",
+        "src/jpeg_reader.cpp",
+        "src/outputstream_wrapper.cpp",
+        "src/stream_wrapper.cpp",
+    ],
+}

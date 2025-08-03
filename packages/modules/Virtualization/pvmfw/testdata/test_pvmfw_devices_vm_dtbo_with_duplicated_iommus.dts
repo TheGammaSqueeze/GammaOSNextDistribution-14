@@ -1,0 +1,35 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+    host {
+        #address-cells = <0x2>;
+        #size-cells = <0x1>;
+        rng {
+            reg = <0x0 0x12f00000 0xFF>;
+            iommus = <&iommu0 0x3>;
+            android,pvmfw,target = <&rng>;
+        };
+        led {
+            reg = <0x0 0x12000000 0x9>;
+            iommus = <&iommu0 0x3>;
+            android,pvmfw,target = <&led>;
+        };
+        iommu0: iommu0 {
+            #iommu-cells = <0x1>;
+            android,pvmfw,token = <0x0 0x12e40000>;
+        };
+    };
+};
+
+&{/} {
+    rng: rng {
+        compatible = "android,rng";
+        android,rng,ignore-gctrl-reset;
+    };
+
+    led: led {
+        compatible = "android,led";
+        prop = <0x555>;
+    };
+};

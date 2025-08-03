@@ -1,0 +1,49 @@
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_binary {
+    name: "cardisplayproxyd",
+    srcs: ["**/*.cpp"],
+    cflags: [
+        "-DLOG_TAG=\"cardisplayproxyd\"",
+        "-Wall",
+        "-Wno-missing-field-initializers",
+        "-Werror",
+        "-Wno-unused-variable",
+        "-Wunused-parameter",
+    ],
+    local_include_dirs: ["include"],
+    shared_libs: [
+        "android.frameworks.automotive.display-V2-ndk",
+        "android.hardware.graphics.bufferqueue@1.0",
+        "android.hardware.graphics.bufferqueue@2.0",
+        "android.hidl.token@1.0-utils",
+        "libcutils",
+        "libbase",
+        "libbinder",
+        "libbinder_ndk",
+        "libgui",
+        "libhidlbase",
+        "libnativewindow",
+        "libui",
+        "libutils",
+    ],
+    static_libs: ["libaidlcommonsupport"],
+    init_rc: ["cardisplayproxyd.rc"],
+    vintf_fragments: ["manifest_cardisplayproxyd.xml"],
+}

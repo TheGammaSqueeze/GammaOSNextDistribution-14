@@ -1,0 +1,115 @@
+// Copyright (C) 2016 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+//
+
+package {
+    default_team: "trendy_team_aaos_framework",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "CarServiceUnitTest",
+
+    srcs: [
+        "src/**/*.java",
+        "src/**/*.aidl",
+        ":car-service-dump-proto-srcs",
+    ],
+    proto: {
+        type: "lite",
+    },
+
+    aidl: {
+        include_dirs: [
+            "packages/services/Car/car-lib/src",
+        ],
+    },
+
+    aaptflags: [
+        "--extra-packages com.android.car",
+        "--auto-add-overlay",
+    ],
+
+    platform_apis: true,
+
+    certificate: "platform",
+
+    optimize: {
+        enabled: false,
+    },
+
+    instrumentation_for: "CarService",
+
+    sdk_version: "core_platform",
+
+    libs: [
+        "android.car",
+        "android.car.builtin.impl",
+        "android.car.watchdoglib",
+        "android.test.runner",
+        "android.test.base",
+        "android.test.mock",
+        // The following three lines are needed for tests that build against framework-bluetooth's
+        // @hide APIs. Order matters for the first two: classes in framework-bluetooth are
+        // resolved before framework, meaning @hide APIs in framework-bluetooth are resolved
+        // before @SystemApi stubs in framework. If sdk_version="", then the third line would get
+        // automatically included; since it isn't, it needs to be manually added here.
+        // (Ref: "framework-bluetooth-tests-defaults" in packages/modules/Bluetooth/framework/Android.bp)
+        "framework-bluetooth.impl",
+        "framework",
+        "framework-res",
+    ],
+
+    defaults: [
+        "car-framework-aconfig-libraries",
+    ],
+
+    static_libs: [
+        "android.car.testapi",
+        "android.car.test.utils",
+        "androidx.test.core",
+        "androidx.test.ext.junit",
+        "androidx.test.rules",
+        "car-service-test-static-lib",
+        "car-service-builtin-test-static-lib",
+        "car-helper-lib",
+        "com.android.car.test.lib",
+        "compatibility-device-util-axt",
+        "frameworks-base-testutils",
+        "flag-junit",
+        "mockito-target-extended",
+        "SettingsLib",
+        "servicestests-utils",
+        "truth",
+        "WindowManager-Shell", // for CarActivityServiceTaskMonitorUnitTest
+        "vehicle-hal-support-lib",
+    ],
+
+    test_suites: [
+        "general-tests",
+        "automotive-tests",
+        "automotive-general-tests",
+    ],
+
+    // mockito-target-inline dependency
+    jni_libs: [
+        "libcarservicejni",
+        "libcarservicejni_test",
+        "libdexmakerjvmtiagent",
+        "libstaticjvmtiagent",
+    ],
+    // TODO(b/319708040): re-enable use_resource_processor
+    use_resource_processor: false,
+}

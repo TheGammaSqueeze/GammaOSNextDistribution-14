@@ -1,0 +1,6 @@
+[book]
+authors = ["Bill Schilit"]
+language = "en"
+multilingual = false
+src = "src"
+title = "Wireless Network Simulation with netsim"

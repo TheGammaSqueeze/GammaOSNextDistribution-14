@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2015 The Android Open Source Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <string name="app_name">Calcoladorie</string>
+    <string name="dec_point">,</string>
+    <string name="mode_deg">grât</string>
+    <string name="mode_rad">rad</string>
+    <string name="cleared">netade</string>
+    <string name="desc_const_e">numar di Euler</string>
+    <string name="desc_const_pi">pi grêc</string>
+    <string name="desc_dec_point">pont, virgule</string>
+    <string name="desc_paren">parentesi</string>
+    <string name="desc_lparen">parentesi vierte</string>
+    <string name="desc_rparen">parentesi sierade</string>
+    <string name="desc_fun_cos">cosen</string>
+    <string name="desc_fun_ln">logaritmi naturâl</string>
+    <string name="desc_fun_log">logaritmi</string>
+    <string name="desc_fun_sin">sen</string>
+    <string name="desc_fun_tan">tangjente</string>
+    <string name="desc_fun_arccos">cosen inviers</string>
+    <string name="desc_fun_arcsin">sen inviers</string>
+    <string name="desc_fun_arctan">tangjente invierse</string>
+    <string name="desc_fun_10pow">dîs elevât a</string>
+    <string name="desc_fun_exp">funzion esponenziâl</string>
+    <string name="desc_op_sqr">cuadrât</string>
+    <string name="desc_op_add">adizion</string>
+    <string name="desc_op_div">division</string>
+    <string name="desc_op_fact">fatoriâl</string>
+    <string name="desc_op_mul">moltiplicazion</string>
+    <string name="desc_op_pct">percentuâl</string>
+    <string name="desc_op_pow">potence</string>
+    <string name="desc_op_sqrt">lidrîs cuadrade</string>
+    <string name="desc_op_sub">sotrazion</string>
+    <string name="desc_mode_deg">modalitât grât</string>
+    <string name="desc_mode_rad">modalitât radiant</string>
+    <string name="desc_switch_deg">passe ai grâts</string>
+    <string name="desc_switch_rad">passe ai radiants</string>
+    <string name="desc_eq">avuâl</string>
+    <string name="desc_clr">nete</string>
+    <string name="desc_del">cancele</string>
+    <string name="desc_inv_off">mostre funzions inviersis</string>
+    <string name="desc_inv_on">plate funzions inviersis</string>
+    <string name="desc_formula">Nissune formule</string>
+    <string name="desc_result">Nissun risultât</string>
+    <string name="error_nan">Nol è un numar</string>
+    <string name="error_syntax">Espression sbaliade</string>
+    <string name="error_aborted">Interot</string>
+    <string name="error_overflow">Infinît?</string>
+    <string name="error_zero_divide">Impussibil dividi par 0</string>
+    <string name="text_copied_toast">Test copiât</string>
+    <string name="cancelled">Calcul anulât.</string>
+    <string name="timeout">Al è pussibil che il valôr al sedi infinît o indefinît.</string>
+    <string name="ok_remove_timeout">Dopre timps di spiete plui luncs</string>
+    <string name="dismiss">Scarte</string>
+    <string name="exact">(esat)</string>
+    <string name="approximate">(±1 te ultime cifre)</string>
+    <string name="menu_leading">Rispuint cu lis cifris iniziâls</string>
+    <string name="menu_fraction">Rispuint come frazion</string>
+    <string name="menu_licenses">Licencis di codiç viert</string>
+    <string name="menu_history">Cronologjie</string>
+    <string name="menu_clear_history">Nete</string>
+    <string name="title_history">Cronologjie</string>
+    <string name="desc_navigate_up">Va in sù</string>
+    <string name="dialog_timeout">Timp di spiete</string>
+    <string name="dialog_clear">Netâ la cronologjie e la memorie?</string>
+    <string name="title_current_expression">Espression atuâl</string>
+    <string name="no_history">Cronologjie vueide</string>
+</resources>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2012 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="description_dialpad_back">Navigate back</string>
+    <string name="description_dialpad_overflow">Altris opzions</string>
+    <string name="description_delete_button">cancele indaûr</string>
+    <string name="description_image_button_plus">plui</string>
+    <string name="description_voicemail_button">segretarie telefoniche</string>
+    <string name="default_notification_description">Sun predefinît (<xliff:g id="default_sound_title">%1$s</xliff:g>)</string>
+    <string name="callFailed_userBusy">Linie ocupade</string>
+    <string name="callFailed_congestion">Rêt ocupade</string>
+    <string name="callFailed_timedOut">Nissune rispueste, timp scjadût</string>
+    <string name="callFailed_server_unreachable">Impussibil rivâ al servidôr</string>
+    <string name="callFailed_number_unreachable">Impussibil rivâ al numar</string>
+    <string name="callFailed_invalid_credentials">Non utent o password sbaliâts</string>
+    <string name="callFailed_out_of_network">Clamade fûr\u2011di\u2011rêt</string>
+    <string name="callFailed_server_error">Erôr dal servidôr. Torne prove plui tart.</string>
+    <string name="callFailed_noSignal">Cence segnâl</string>
+    <string name="callFailed_limitExceeded">Limit ACM superât</string>
+    <string name="callFailed_powerOff">Segnâl radio distudât</string>
+    <string name="callFailed_simError">Nissune SIM o erôr SIM</string>
+    <string name="callFailed_outOfService">Rêt celulâr no disponibile</string>
+    <string name="callFailed_fdn_only">Lis clamadis in jessude a son limitadis di FDN.</string>
+    <string name="callFailed_dialToUssd">Clamade cambiade a richieste USSD</string>
+    <string name="callFailed_dialToSs">Clamade cambiade a richieste SS</string>
+    <string name="callFailed_dialToDial">Cambiât a un numar diferent</string>
+    <string name="callFailed_dialToDialVideo">Cambiât a videoclamade</string>
+    <string name="callFailed_dialVideoToSs">Videoclamade cambiade a richieste SS</string>
+    <string name="callFailed_dialVideoToUssd">Videoclamade cambiade a richieste USSD</string>
+    <string name="callFailed_dialVideoToDial">Cambiât a clamade regolâr</string>
+    <string name="callFailed_dialVideoToDialVideo">Cambiât a un numar diferent</string>
+    <string name="callFailed_cb_enabled">Impussibil fâ clamadis in jessude intant che il bloc des clamadis al è atîf.</string>
+    <string name="callFailed_dsac_restricted">Clamadis limitadis dal control di acès.</string>
+    <string name="callFailed_dsac_restricted_emergency">Clamadis di emergjence limitadis dal control di acès.</string>
+    <string name="callFailed_dsac_restricted_normal">Clamadis normâls limitadis dal control di acès.</string>
+    <string name="callFailed_unobtainable_number">Numar no valit</string>
+    <string name="incall_error_missing_voicemail_number">Numar de segretarie no cognossût.</string>
+    <string name="callFailed_video_call_tty_enabled">Impussibil fâ videoclamadis se TTY al è atîf.</string>
+    <string name="callEnded_pulled">Clamade trasferide suntun altri dispositîf.</string>
+    <string name="ringtone_silent">Nissun</string>
+    <string name="ringtone_unknown">Sunarie no cognossude</string>
+    <string name="callFailed_maximum_reached">A son dopradis dutis lis liniis disponibilis. Par fâ une clamade, disconet une des clamadis di chest dispositîf opûr une suntun dai tiei altris dispositîfs.</string>
+    <string name="callFailed_data_disabled">Clamade terminade parcè che i dâts mobii a jerin disativâts.</string>
+    <string name="callFailed_data_limit_reached_description">Clamade terminade parcè che si è rivâts al limit dai dâts mobii.</string>
+    <string name="callFailed_data_limit_reached">Rivâts al limit dai dâts. Clamade terminade.</string>
+</resources>

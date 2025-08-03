@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/**
+ * Copyright (C) 2014 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="app_label">Configurazion di lavôr</string>
+  <string name="provisioning_error_title">Orpo!</string>
+  <string name="setup_work_profile">Configure il profîl di lavôr</string>
+  <string name="company_controls_workspace">La tô organizazion e controle chest profîl e lu ten al sigûr. Tu tu controlis dut il rest su chest dispositîf.</string>
+  <string name="company_controls_device">La tô organizazion e controlarà chest dispositîf e lu tignarà al sigûr.</string>
+  <string name="the_following_is_your_mdm">Cheste aplicazion e varà bisugne di acedi a chest profîl:</string>
+  <string name="the_following_is_your_mdm_for_device">Cheste aplicazion e gjestirà il to dispositîf:</string>
+  <string name="next">Indenant</string>
+  <string name="setting_up_workspace">Daûr a configurâ il profîl di lavôr\u2026</string>
+  <string name="admin_has_ability_to_monitor_profile">Il to aministradôr di IT al pues monitorâ e gjestî lis impostazions, l\'acès aziendâl, lis aplicazions, i dâts e la ativitât in rêt associâts a chest profîl e ancjemò la tô cronologjie des clamadis e la cronologjie di ricercje dai contats. Contate il to aministradôr di IT par vê plui informazions in merit aes politichis su la riservatece de tô organizazion.</string>
+  <string name="admin_has_ability_to_monitor_device">Il to aministradôr di IT al à la pussibilitât di monitorâ e gjestî lis impostazions, l\'acès aziendâl, lis aplicazions, i permès e i dâts associâts a chest dispositîf <xliff:g id="device_name" example="Pixel">%1$s</xliff:g>, includude la ativitât in rêt e la posizion dal dispositîf, la cronologjie des clamadis e de ricercje dai contats.<xliff:g id="line_break">\n\n</xliff:g>Contate il to aministradôr di IT par vê plui informazions, includudis lis politichis su la riservatece de organizazion.</string>
+  <string name="theft_protection_disabled_warning">Par doprâ lis funzionalitâts di protezion de robarie, tu scugnis vê un bloc dal schermi protet di password pal to dispositîf.</string>
+  <string name="contact_your_admin_for_more_info">Contate il to aministradôr IT par vê plui informazions, includudis lis politichis su la riservatece de tô organizazion.</string>
+  <string name="learn_more_link">Plui informazions </string>
+  <string name="cancel_setup">Anule</string>
+  <string name="ok_setup">Va ben</string>
+  <string name="user_consent_msg">O doi il consens</string>
+  <string name="url_error">Impussibil visualizâ chest colegament.</string>
+  <string name="navigation_button_description">Va in sù</string>
+  <string name="terms">Tiermins</string>
+  <string name="work_profile_info">Informazions sul profîl di lavôr</string>
+  <string name="managed_device_info">Informazion sul dispositîf gjestît</string>
+  <string name="default_managed_profile_name">Profîl di lavôr</string>
+  <string name="delete_profile_title">Eliminâ il profîl esistent?</string>
+  <string name="opening_paragraph_delete_profile">Tu âs za un profîl di lavôr. Al è gjestît doprant cheste aplicazion:</string>
+  <string name="read_more_delete_profile">Prime di continuâ, <a href="#read_this_link">lei chest</a>.</string>
+  <string name="sure_you_want_to_delete_profile">Se tu continuis, dutis lis aplicazions e i dâts in chest profîl a vignaran eliminâts.</string>
+  <string name="delete_profile">Elimine</string>
+  <string name="cancel_delete_profile">Anule</string>
+  <string name="encrypt_device_text_for_profile_owner_setup">Par confgurâ il to profîl di lavôr, il to dispositîf <xliff:g id="device_name" example="Pixel">%1$s</xliff:g> al à bisugne di jessi cifrât. Cheste operazion e podarès tirâle a dilunc.</string>
+  <string name="encrypt_device_text_for_device_owner_setup">Par configurâ chest dispositîf <xliff:g id="device_name" example="Pixel">%1$s</xliff:g>, al à prime di sei cifrât. Cheste operazion e podarès tirâle a dilunc.</string>
+  <string name="encrypt_this_device_question">Cifrâ chest dispositîf?</string>
+  <string name="encrypt">Cifre</string>
+  <string name="continue_provisioning_notify_title">Criptazion completade</string>
+  <string name="continue_provisioning_notify_text">Tocje par continuâ a configurâ il to profîl di lavôr</string>
+  <string name="managed_provisioning_error_text">Nol è stât pussibil configurâ il to profîl di lavôr. Contate il dipartiment IT o torne prove plui tart.</string>
+  <string name="cant_add_work_profile">Impussibil zontâ il profîl di lavôr</string>
+  <string name="cant_replace_or_remove_work_profile">Impussibil sostituî o gjavâ il profîl di lavôr</string>
+  <string name="work_profile_cant_be_added_contact_admin">Nol è pussibil zontâ un profîl di lavôr su chest dispositîf <xliff:g id="device_name" example="Pixel">%1$s</xliff:g>. Se tu âs domandis, contate l\'aministradôr IT.</string>
+  <string name="change_device_launcher">Cambie l\'inviadôr dal dispositîf</string>
+  <string name="launcher_app_cant_be_used_by_work_profile">Il to profîl di lavôr nol pues doprâ cheste aplicazion di inviament </string>
+  <string name="cancel_provisioning">Anule</string>
+  <string name="pick_launcher">Va ben</string>
+  <string name="user_setup_incomplete">Configurazion utent incomplete</string>
+  <string name="default_owned_device_username">Utent dal dispositîf di lavôr</string>
+  <string name="setup_work_device">Daûr a configurâ il dispositîf di lavôr\u2026</string>
+  <string name="device_doesnt_allow_encryption_contact_admin">Chest dispositîf <xliff:g id="device_name" example="Pixel">%1$s</xliff:g> nol permet la criptazion, che e covente pe configurazion. Pal jutori, contate il to aministradôr di IT.</string>
+  <string name="stop_setup_reset_device_question">Interompi la configurazion e ripristinâ <xliff:g id="device_name" example="Pixel">%1$s</xliff:g>?</string>
+  <string name="this_will_reset_take_back_first_screen">Cheste operazion e ripristinarà il to dispositîf <xliff:g id="device_name" example="Pixel">%1$s</xliff:g> e ti puartarà indaûr ae prime schermade</string>
+  <string name="device_owner_cancel_message">Fermâ di configurâ e scancelâ i dâts dal to dispositîf?</string>
+  <string name="device_owner_cancel_cancel">Anule</string>
+  <string name="device_owner_error_ok">Va ben</string>
+  <string name="reset">Ristabilìs</string>
+  <string name="cant_set_up_profile">Impussibil configurâ il profîl</string>
+  <string name="cant_set_up_device">Impussibil configurâ il dispositîf</string>
+  <string name="something_went_wrong">Alc al è lât strucj</string>
+  <string name="couldnt_set_up_device">Nol è stât pussibil configurâ il dispositîf. Pal jutori, contate il to aministradôr di IT.</string>
+  <string name="contact_your_admin_for_help">Contate il to aministradôr di IT par vê jutori</string>
+  <string name="reset_device">Ripristine chest dispositîf <xliff:g id="device_name" example="Pixel">%1$s</xliff:g> e prove a configurâlu di gnûf</string>
+  <string name="device_already_set_up">Il dispositîf <xliff:g id="device_name" example="Pixel">%1$s</xliff:g> al è za configurât</string>
+  <string name="error_wifi">Nol è stât pussibil conetisi al Wi-Fi</string>
+  <string name="device_has_reset_protection_contact_admin">Il to dispositîf <xliff:g id="device_name" example="Pixel">%1$s</xliff:g> al à la protezion di ripristinament ativade. Pal jutori, contate il to aministradôr di IT.</string>
+  <string name="frp_clear_progress_title">Daûr a scancelâ</string>
+  <string name="frp_clear_progress_text">Par plasê spiete...</string>
+  <string name="error_hash_mismatch">Nol è stât pussibil doprâ la aplicazion di aministrazion par vie di un erôr di sume di control. Pal jutori, contate il to aministradôr di IT.</string>
+  <string name="error_download_failed">Nol è stât pussibil discjamâ la aplicazion di aministrazion</string>
+  <string name="error_package_invalid">Impussibil doprâ la aplicazion di aministrazion. A mancjin components opûr e je ruvinade. Pal jutori, contate il to aministradôr di IT.</string>
+  <string name="error_installation_failed">Nol è stât pussibil instalâ la aplicazion di aministrazion</string>
+  <string name="profile_owner_cancel_message">Fermâ la configurazion?</string>
+  <string name="profile_owner_cancel_cancel">No</string>
+  <string name="profile_owner_cancel_ok">Sì</string>
+  <string name="profile_owner_cancelling">Daûr a anulâ\u2026</string>
+  <string name="work_profile_setup_later_title">Fermâ la configurazion dal profîl?</string>
+  <string name="work_profile_setup_later_message">Tu puedis configurâ il to profîl di lavôr plui tart te aplicazion di gjestion dal dispositîf de tô organizazion</string>
+  <string name="continue_button">Continue</string>
+  <string name="work_profile_setup_stop">Ferme</string>
+  <string name="dismiss">Siere</string>
+  <string name="profile_owner_info">Tu stâs par creâ un profîl di lavôr che al vignarà gjestît e monitorât de tô organizazion. A vignaran aplicadis cundizions.</string>
+  <string name="profile_owner_info_with_terms_headers">Tu stâs par creâ un profîl di lavôr che al vignarà gjestît e monitorât de tô organizazion. A vignaran aplicadis lis cundizions di <xliff:g id="terms_headers" example="EMM Partner A, Company B and Google">%1$s</xliff:g>.</string>
+  <string name="profile_owner_info_comp">Al vignarà creât un profîl pes tôs aplicazions di lavôr. Chest profîl e il rest dal to dispositîf a vignaran gjestîts e monitorâts de tô organizazion. A vignaran aplicadis cundizions.</string>
+  <string name="profile_owner_info_with_terms_headers_comp">Al vignarà creât un profîl pes tôs aplicazions di lavôr. Chest profîl e il rest dal to dispositîf a vignaran gjestîts e monitorâts de tô organizazion. A vignaran aplicadis lis cundizions di <xliff:g id="terms_headers" example="EMM Partner A, Company B and Google">%1$s</xliff:g>.</string>
+  <string name="device_owner_info">Chest dispositîf al vignarà gjestît, monitorât e tignût al sigûr di <xliff:g id="your organization" example="your organization">%1$s</xliff:g>. A vignaran aplicadis cundizions. <xliff:g id="view_terms" example="View Terms">%2$s</xliff:g></string>
+  <string name="device_owner_info_with_terms_headers">Chest dispositîf al vignarà gjestît, monitorât e tignût al sigûr di <xliff:g id="your organization" example="your organization">%1$s</xliff:g>. A vignaran aplicadis lis cundizions di <xliff:g id="terms_headers" example="EMM Partner A, Company B and Google">%2$s</xliff:g>. <xliff:g id="view_terms" example="View Terms">%3$s</xliff:g></string>
+  <string name="link_isnt_secure_and_cant_be_opened_until_device_setup_finished">Chest colegament nol è sigûr e nol è pussibil vierzilu fintremai che no ven completade la configurazion dal dispositîf: <xliff:g id="link_raw_test" example="http://insecure-http-link.com/?p1=v1&amp;p2=v2">%1$s</xliff:g></string>
+  <string name="contact_device_provider">Par vê plui informazions, contate: <xliff:g id="it_admin" example="it_admin">%1$s</xliff:g>. </string>
+  <string name="if_questions_contact_admin">Se tu âs domandis, contate il to aministradôr di IT</string>
+  <string name="setup_isnt_finished_contact_admin">La configurazion no je finide. Par jutori, contate il to aministradôr di IT.</string>
+  <string name="for_help_contact_admin">Par jutori, contate il to aministradôr di IT</string>
+  <string name="organization_admin">Aministradôr di IT</string>
+  <string name="your_org_app_used"><xliff:g id="Your organization" example="Your organization">%1$s</xliff:g> e gjestirà e e monitorarà chest dispositîf doprant cheste aplicazion:</string>
+  <string name="your_organization_beginning">La tô organizazion</string>
+  <string name="your_organization_middle">la tô organizazion</string>
+  <string name="view_terms">Visualize tiermins</string>
+  <string name="accept_and_continue">Acete e continue</string>
+  <string name="back">Indaûr</string>
+  <string name="set_up_your_device">Configure il to dispositîf</string>
+  <string name="info_anim_title_0">Cambie la maniere di lavorâ</string>
+  <string name="info_anim_title_1">Separe il lavoratîf dal personâl</string>
+  <string name="one_place_for_work_apps">Un puest pes aplicazions di lavôr</string>
+  <string name="info_anim_title_2">Disative il lavôr cuant che tu âs finît</string>
+  <string name="provisioning">Furniment</string>
+  <string name="copying_certs">Daûr a configurâ i certificâts CA</string>
+  <string name="setup_profile">Configure il to profîl</string>
+  <string name="profile_benefits_description">Doprant un profîl di lavôr, tu puedis separâ i dâts di lavôr di chei personâi</string>
+  <string name="comp_profile_benefits_description">Doprant un profîl di lavôr, tu puedis tignî lis tôs aplicazions di lavôr intun puest</string>
+  <string name="setup_profile_encryption">Configure il to profîl. Cifradure</string>
+  <string name="setup_profile_progress">Configure il to profîl. Visualizazion avanzament</string>
+  <string name="setup_device">Configure il to dispositîf <xliff:g id="device_name" example="Pixel">%1$s</xliff:g></string>
+  <string name="setup_device_encryption">Configure il to dispositîf <xliff:g id="device_name" example="Pixel">%1$s</xliff:g>. Cifradure</string>
+  <string name="setup_device_progress">Configure il to dispositîf <xliff:g id="device_name" example="Pixel">%1$s</xliff:g>. Visualizazion avanzament</string>
+  <string name="learn_more_label">Boton par savê di plui</string>
+  <string name="mdm_icon_label">Icone <xliff:g id="icon_label" example="Test App">%1$s</xliff:g></string>
+  <string name="section_heading">Intestazion di sezion <xliff:g id="section_heading" example="Early Renaissance">%1$s</xliff:g>.</string>
+  <string name="section_content">Contignût de sezion <xliff:g id="section_heading" example="Early Renaissance">%1$s</xliff:g>: <xliff:g id="section_content" example="Once upon a time [...]">%2$s</xliff:g></string>
+  <string name="expand">Slargje</string>
+  <string name="collapse">Strenç</string>
+  <string name="access_list_of_links">Acès a une liste di colegaments</string>
+  <string name="access_links">Acès a colegaments</string>
+  <string name="access_terms">Acès a cundizions</string>
+  <string name="read_terms">Leture di cundizions</string>
+  <string name="close_list">Siere liste</string>
+  <string name="cancel_setup_and_factory_reset_dialog_title">Finî configurazion e ripristinâ di fabriche?</string>
+  <string name="cancel_setup_and_factory_reset_dialog_msg">Terminant cheste configurazion tu ripristinarâs ai valôrs di fabriche il to dispositîf e tu tornarâs ae prime schermade.</string>
+  <string name="cancel_setup_and_factory_reset_dialog_cancel">Anule</string>
+  <string name="cancel_setup_and_factory_reset_dialog_ok">Ripristine dispositîf</string>
+  <string name="join_two_items"><xliff:g id="first_item">%1$s</xliff:g> e <xliff:g id="second_item">%2$s</xliff:g></string>
+  <string name="join_many_items_last"><xliff:g id="all_but_last_item">%1$s</xliff:g> e <xliff:g id="last_item">%2$s</xliff:g></string>
+  <string name="join_many_items_first"><xliff:g id="first_item">%1$s</xliff:g>, <xliff:g id="all_but_first_and_last_item">%2$s</xliff:g></string>
+  <string name="join_many_items_middle"><xliff:g id="added_item">%1$s</xliff:g>, <xliff:g id="rest_of_items">%2$s</xliff:g></string>
+  <string name="take_a_few_minutes">Chest al po puartâ vie un pôcs di minûts</string>
+  <string name="work_profile_description">Lis tôs aplicazions di lavôr a vignaran tignudis in chest profîl e a saran gjestidis de tô organizazion</string>
+  <string name="device_owner_description">Chest dispositîf al vignarà tignût sigûr e gjestît de tô organizazion</string>
+  <string name="setup_provisioning_header">Daûr a prontâ la configurazion dal dispositîf di lavôr\u2026</string>
+  <string name="setup_provisioning_header_description">Daûr a configurâ la aplicazion di aministrazion</string>
+  <string name="brand_screen_header">Chest dispositîf al aparten ae tô organizazion</string>
+  <string name="brand_screen_subheader">Chestis aplicazions a vignaran dopradis par gjestî e monitorâ chest telefon</string>
+  <string name="account_management_disclaimer_header">Il to account al è gjestît</string>
+  <string name="account_management_disclaimer_subheader">Il to aministradôr di IT al dopre la gjestion dai dispositîfs mobii par aplicâ lis politichis su la sigurece</string>
+  <string name="downloading_administrator_header">Daûr a prontâ i preparatîfs pal lavôr\u2026</string>
+  <string name="work_profile_provisioning_accept_header_post_suw">Configurìn il to profîl di lavôr</string>
+  <string name="work_profile_provisioning_step_1_header">Lis aplicazions di lavôr a vignaran tignudis tal to profîl di lavôr</string>
+  <string name="work_profile_provisioning_step_2_header">Met in pause lis aplicazions di lavôr se tu âs finît di lavorâ pe zornade</string>
+  <string name="work_profile_provisioning_step_3_header">Il to aministradôr IT al podarà viodi i dâts tal to profîl di lavôr</string>
+  <string name="work_profile_provisioning_progress_label">Daûr a configurâ il to profîl di lavôr\u2026</string>
+  <string name="work_profile_provisioning_summary">Lis aplicazions di lavôr a vegnin tignudis tal to profîl di lavôr. Tu puedis meti in pause lis tôs aplicazions di lavôr se tu âs finît di lavorâ pe zornade. Il to aministradôr di IT al podarà viodi i dâts che a son tal to profîl di lavôr.</string>
+  <string name="fully_managed_device_provisioning_accept_header">Configurìn il to dispositîf di lavôr</string>
+  <string name="fully_managed_device_provisioning_step_1_header">Ten lis tôs aplicazions di lavôr a puartade di dêt</string>
+  <string name="fully_managed_device_provisioning_step_2_header">Chest dispositîf <xliff:g id="device_name" example="Pixel">%1$s</xliff:g> nol è privât</string>
+  <string name="fully_managed_device_provisioning_step_2_subheader">Il to aministradôr di IT al podarès rivâ a viodi i tiei dâts e lis ativitâts su chest dispositîf <xliff:g id="device_name" example="Pixel">%1$s</xliff:g>.</string>
+  <string name="fully_managed_device_provisioning_permissions_header">Lis tôs ativitâts e i tiei dâts</string>
+  <string name="fully_managed_device_provisioning_permissions_secondary_header">Permès de aplicazion</string>
+  <string name="fully_managed_device_provisioning_permissions_secondary_subheader">Il to aministradôr di IT al pues stabilî i permès pes aplicazions su chest dispositîf <xliff:g id="device_name" example="Pixel">%1$s</xliff:g>, come i permès dal microfon, de fotocjamare e de posizion.</string>
+  <string name="fully_managed_device_provisioning_progress_label">Daûr a configurâ il to dispositîf\u2026</string>
+  <string name="fully_managed_device_provisioning_summary">Dopre chest dispositîf <xliff:g id="device_name" example="Pixel">%1$s</xliff:g> par acedi cun facilitât aes tôs aplicazions di lavôr. Chest dispositîf <xliff:g id="device_name" example="Pixel">%1$s</xliff:g> nol è privât, duncje il to aministradôr di IT al podarès rivâ a viodi i tiei dâts e la ativitât.</string>
+  <string name="fully_managed_device_with_permission_control_provisioning_summary">Dopre chest dispositîf <xliff:g id="device_name" example="Pixel">%1$s</xliff:g> par acedi cun facilitât aes tôs aplicazions di lavôr. Chest dispositîf <xliff:g id="device_name" example="Pixel">%1$s</xliff:g> nol è privât, duncje il to aministradôr di IT al podarès rivâ a viodi la tô ativitât e i tiei dâts. L\'aministradôr di IT al pues ancje stabilî i permès pes aplicazions su chest dispositîf, come i permès dal microfon, de fotocjamare e de posizion.</string>
+  <string name="fully_managed_device_provisioning_return_device_title">Torne chest dispositîf al to aministradôr di IT</string>
+  <string name="fully_managed_device_provisioning_return_device_subheader">Torne indaûr ae schermade precedente o ripristine chest dispositîf e tornilu al to aministradôr di IT.</string>
+  <string name="fully_managed_device_cancel_setup_button">Anule configurazion</string>
+  <string name="fully_managed_device_reset_and_return_button">Ripristine e restituìs il dispositîf</string>
+  <string name="fully_managed_device_unsupported_DPC_in_headless_mode_header">Impussibil configurâ il dispositîf</string>
+  <string name="fully_managed_device_unsupported_DPC_in_headless_mode_subheader">Impussibil regjistrâ chest dispositîf in modalitât gjestide ad implen. Ripristine il to dispositîf aes impostazions di fabriche e contate il to aministradôr di IT.</string>
+  <string name="fully_managed_device_reset_button">Ripristinament di fabriche</string>
+  <string name="cope_provisioning_step_1_header">Lis aplicazions di lavôr a son tignudis tal to profîl di lavôr e a son gjestidis dal to aministradôr IT</string>
+  <string name="cope_provisioning_step_2_header">Lis aplicazions personâls a son separadis e platadis da lis aplicazions di lavôr</string>
+  <string name="cope_provisioning_step_3_header">Il to aministradôr di IT al pues controlâ chest dispositîf e blocâ ciertis aplicazions</string>
+  <string name="cope_provisioning_summary">Lis aplicazions di lavôr a son tignudis tal to profîl di lavôr e a son gjestidis dal to aministradôr di IT. Lis aplicazions personâls a son separadis e platadis da lis aplicazions di lavôr. Il to aministradôr di IT al pues controlâ chest dispositîf <xliff:g id="device_name" example="Pixel">%1$s</xliff:g> e blocâ ciertis aplicazions.</string>
+  <string name="just_a_sec">Dome un secont\u2026</string>
+  <string name="fully_managed_device_provisioning_privacy_title">Pro memoria di riservatece</string>
+  <string name="fully_managed_device_provisioning_privacy_body">Il to aministradôr di IT al podarès rivâ a viodi i tiei dâts e lis ativitâts su chest dispositîf <xliff:g id="device_name" example="Pixel">%1$s</xliff:g></string>
+  <string name="financed_device_screen_header">Chest <xliff:g id="device_name" example="Pixel">%1$s</xliff:g> al è furnît di <xliff:g id="creditor_name" example="creditor_name">%2$s</xliff:g></string>
+  <string name="financed_make_payments_subheader_title">Fâs i paiaments par chest <xliff:g id="device_name" example="Pixel">%1$s</xliff:g></string>
+  <string name="financed_make_payments_subheader_description"><xliff:g id="creditor_name" example="creditor_name">%1$s</xliff:g> al pues instalâ la aplicazion di <xliff:g id="creditor_name" example="creditor_name">%2$s</xliff:g> cussì che tu puedis fâ i paiaments par chest <xliff:g id="device_name" example="Pixel">%3$s</xliff:g>.</string>
+  <string name="financed_restrict_device_subheader_title">Chest <xliff:g id="device_name" example="Pixel">%1$s</xliff:g> al pues vignî limitât</string>
+  <string name="financed_restrict_device_subheader_description"><xliff:g id="creditor_name" example="creditor_name">%1$s</xliff:g> al pues limitâ l\'acès a chest <xliff:g id="device_name" example="Pixel">%2$s</xliff:g> se no tu fasis i paiaments.</string>
+  <string name="error_role_holder_hash_mismatch">Impussibil configurâ il dispositîf <xliff:g id="device_name" example="Pixel">%1$s</xliff:g>. Contate il to aministradôr di IT e riferìs \"Invalid checksum\" (sume di control no valide).</string>
+  <string name="error_role_holder_download_install_failed">Prove plui indenant o domande aiût al to aministradôr di IT</string>
+  <string name="error_role_holder_package_invalid">Impussibil configurâ il dispositîf <xliff:g id="device_name" example="Pixel">%1$s</xliff:g>. Contate il to aministradôr di IT e riferìs \"Missing or corrupted components\" (a mancjin components o a son ruvinâts).</string>
+  <string name="setting_up">Daûr a configurâ\u2026</string>
+</resources>

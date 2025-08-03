@@ -1,0 +1,94 @@
+//
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    default_team: "trendy_team_fwk_core_networking",
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+// Build tool used to generate jarjar rules for all classes in a jar, except those that are
+// API, UnsupportedAppUsage or otherwise excluded.
+python_binary_host {
+    name: "jarjar-rules-generator",
+    srcs: [
+        "gen_jarjar.py",
+    ],
+    main: "gen_jarjar.py",
+    visibility: ["//packages/modules/Connectivity:__subpackages__"],
+}
+
+genrule_defaults {
+    name: "jarjar-rules-combine-defaults",
+    // Concat files with a line break in the middle
+    cmd: "for src in $(in); do cat $${src}; echo; done > $(out)",
+    defaults_visibility: ["//packages/modules/Connectivity:__subpackages__"],
+}
+
+java_library {
+    name: "jarjar-rules-generator-testjavalib",
+    srcs: ["testdata/java/**/*.java"],
+    libs: ["unsupportedappusage"],
+    sdk_version: "core_platform",
+    visibility: ["//visibility:private"],
+}
+
+// TODO(b/233723405) - Remove this workaround.
+// Temporary work around of b/233723405. Using the module_lib stub directly
+// in the test causes it to sometimes get the dex jar and sometimes get the
+// classes jar due to b/233111644. Statically including it here instead
+// ensures that it will always get the classes jar.
+java_library {
+    name: "framework-connectivity.stubs.module_lib-for-test",
+    visibility: ["//visibility:private"],
+    static_libs: [
+        "framework-connectivity.stubs.module_lib",
+    ],
+    sdk_version: "module_current",
+    // Not strictly necessary but specified as this MUST not have generate
+    // a dex jar as that will break the tests.
+    compile_dex: false,
+}
+
+java_library {
+    name: "framework-connectivity-t.stubs.module_lib-for-test",
+    visibility: ["//visibility:private"],
+    static_libs: [
+        "framework-connectivity-t.stubs.module_lib",
+    ],
+    sdk_version: "module_current",
+    // Not strictly necessary but specified as this MUST not have generate
+    // a dex jar as that will break the tests.
+    compile_dex: false,
+}
+
+python_test_host {
+    name: "jarjar-rules-generator-test",
+    srcs: [
+        "gen_jarjar.py",
+        "gen_jarjar_test.py",
+    ],
+    data: [
+        "testdata/test-jarjar-excludes.txt",
+        // two unsupportedappusage lists with different classes to test using multiple lists
+        "testdata/test-unsupportedappusage.txt",
+        "testdata/test-other-unsupportedappusage.txt",
+        ":framework-connectivity.stubs.module_lib-for-test",
+        ":framework-connectivity-t.stubs.module_lib-for-test",
+        ":jarjar-rules-generator-testjavalib",
+    ],
+    main: "gen_jarjar_test.py",
+}

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" translatable="false">Railway Reference App</string>
+    <string name="update_button_title">Update</string>
+    <string name="connect_button_title">Bind Interface</string>
+    <string name="enable_button_title">Enable</string>
+    <string name="disable_button_title">Disable</string>
+    <string name="activity_title">Vehicular Networking App</string>
+    <string name="update_configuration_section_title">Update Configuration</string>
+    <string name="allowed_package_names_title">Allowed Package Names</string>
+    <string name="ip_configuration_title">Update Configuration (IPv4 only)</string>
+    <string name="interface_name_title">Interface Name</string>
+    <string name="network_capabilities_title">Network Capabilities</string>
+    <string name="enable_disable_section_title">Enable/Disable/Bind Interface</string>
+    <string name="current_ethernet_networks_section_title">Current Ethernet Networks</string>
+    <string name="success">Success</string>
+    <string name="error">Error</string>
+</resources>

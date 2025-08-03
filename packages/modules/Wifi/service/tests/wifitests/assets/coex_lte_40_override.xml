@@ -1,0 +1,18 @@
+<table>
+    <entry>
+        <rat>LTE</rat>
+        <band>40</band>
+        <override>
+            <override2g>
+                <channel>6</channel>
+                <channel>11</channel>
+            </override2g>
+            <override5g>
+                <category>20Mhz</category>
+                <category>40Mhz</category>
+                <channel>50</channel>
+                <channel>114</channel>
+            </override5g>
+        </override>
+    </entry>
+</table>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="scanning_title" msgid="5424849039854311398">"स्कैन किया जा रहा है"</string>
+    <string name="loading_summary" msgid="3740846439782713910">"डिवाइस की सेटिंग की जांच की जा रही है…"</string>
+    <string name="overall_severity_level_ok_title" msgid="2041250138727564565">"डिवाइस सुरक्षित लग रहा है"</string>
+    <string name="overall_severity_level_ok_summary" msgid="383626536912856690">"कोई समस्या नहीं मिली"</string>
+    <string name="overall_severity_level_tip_summary" msgid="1935765582243024999">"{count,plural, =1{सुझाव देखें}one{सुझाव देखें}other{सुझावों को देखें}}"</string>
+    <string name="overall_severity_level_action_taken_summary" msgid="8064091657855656545">"{count,plural, =1{कार्रवाई की गई है}one{कार्रवाई की गई है}other{कार्रवाइयां की गई हैं}}"</string>
+    <string name="overall_severity_level_ok_review_title" msgid="1494321117696765360">"सेटिंग देखें"</string>
+    <string name="overall_severity_level_ok_review_summary" msgid="7743619617413076275">"सेटिंग की सूची देखें"</string>
+    <string name="overall_severity_level_device_recommendation_title" msgid="5250040236433061827">"डिवाइस की सुरक्षा शायद खतरे में है"</string>
+    <string name="overall_severity_level_critical_device_warning_title" msgid="5901771721834272596">"डिवाइस की सुरक्षा खतरे में है"</string>
+    <string name="overall_severity_level_data_recommendation_title" msgid="1424269714861655302">"डेटा की सुरक्षा खतरे में हो सकती है"</string>
+    <string name="overall_severity_level_critical_data_warning_title" msgid="1012704126634698604">"डेटा की सुरक्षा खतरे में है"</string>
+    <string name="overall_severity_level_passwords_recommendation_title" msgid="8625105570296877719">"पासवर्ड हैक हो गया (पुराना)"</string>
+    <string name="overall_severity_level_critical_passwords_warning_title" msgid="7859047988648851217">"पासवर्ड हैक हो गया (नया)"</string>
+    <string name="overall_severity_level_personal_recommendation_title" msgid="5493814377982623779">"शायद आपकी सुरक्षा खतरे में है"</string>
+    <string name="overall_severity_level_critical_personal_warning_title" msgid="5070434468955164734">"आपकी सुरक्षा खतरे में है"</string>
+    <string name="overall_severity_level_safety_recommendation_title" msgid="4291797434760242793">"संभावित खतरे का पता चला"</string>
+    <string name="overall_severity_level_critical_safety_warning_title" msgid="6666640109779586868">"खतरे का पता चला"</string>
+    <string name="overall_severity_level_account_recommendation_title" msgid="2267542168734275090">"खाते की सुरक्षा खतरे में हो सकती है"</string>
+    <string name="overall_severity_level_critical_account_warning_title" msgid="1913235490583842004">"खाता की सुरक्षा खतरे में है"</string>
+    <string name="overall_severity_n_alerts_summary" msgid="3262010942295408403">"{count,plural, =1{चेतावनी देखें}one{चेतावनी देखें}other{चेतावनियां देखें}}"</string>
+    <string name="redirecting_error" msgid="8146983632878233202">"पेज को खोला नहीं जा सका"</string>
+    <string name="resolving_action_error" msgid="371968886143262375">"चेतावनी में बताई गई समस्या को ठीक नहीं किया जा सका"</string>
+    <string name="refresh_error" msgid="656062128422446177">"{count,plural, =1{सेटिंग की जांच नहीं की जा सकी}one{सेटिंग की जांच नहीं की जा सकी}other{सेटिंग की जांच नहीं की जा सकी}}"</string>
+    <string name="work_profile_paused" msgid="7037400224040869079">"वर्क प्रोफ़ाइल रोक दी गई है"</string>
+    <string name="group_unknown_summary" msgid="6951386960814105641">"कोई जानकारी मौजूद नहीं है"</string>
+    <string name="notification_channel_group_name" msgid="7155072032524876859">"सुरक्षा और निजता"</string>
+    <string name="notification_channel_name_information" msgid="2966444432152990166">"सुझाव"</string>
+    <string name="notification_channel_name_recommendation" msgid="7847408286580217922">"चेतावनियां"</string>
+    <string name="notification_channel_name_critical_warning" msgid="5994320322108351769">"अहम चेतावनियां"</string>
+</resources>

@@ -1,0 +1,4 @@
+# Car watchdog server for public services
+android.automotive.watchdog.ICarWatchdog/default  u:object_r:carwatchdogd_service:s0
+# Car watchdog server for system services
+android.automotive.watchdog.internal.ICarWatchdog/default u:object_r:carwatchdogd_service:s0

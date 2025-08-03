@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="error_user_locked">Thoir a’ ghlas far an fhòn agad airson am fiosrachadh pàighidh agad a luchdadh</string>
+    <string name="accessibility_menu">Clàr-taice</string>
+    <string name="error_generic">Duilgheadas a’ faighinn nan cairtean agad, feuch ris a-rithist an ceann greis</string>
+    <string name="settings">Roghainnean</string>
+</resources>

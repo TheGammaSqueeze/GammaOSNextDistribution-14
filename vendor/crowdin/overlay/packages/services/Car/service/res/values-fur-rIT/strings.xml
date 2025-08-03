@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2015 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="car_permission_label">Informazions su la auto</string>
+    <string name="car_permission_desc">acedi aes informazions de machine</string>
+    <string name="car_permission_label_camera">acedi ae videocjamare de auto</string>
+    <string name="car_permission_desc_camera">Al permet di acedi ae(s) videocjamare(-is) de machine.</string>
+    <string name="car_permission_label_energy">acedi aes informazions su la cjarie de auto</string>
+    <string name="car_permission_desc_energy">Al permet di acedi aes informazions su la cjarie de machine.</string>
+    <string name="car_permission_label_control_car_energy">Controlâ lis impostazions di ricjarie eletriche de machine</string>
+    <string name="car_permission_desc_control_car_energy">Al permet di controlâ lis impostazions pe ricjarie eletriche de tô machine.</string>
+    <string name="car_permission_label_adjust_range_remaining">regolazion de autonomie che e reste de machine</string>
+    <string name="car_permission_desc_adjust_range_remaining">Al permet di regolâ il valôr de autonomie che e reste de machine.</string>
+    <string name="car_permission_label_hvac">acedi ae climatizazion de auto</string>
+    <string name="car_permission_desc_hvac">Al permet di acedi ae climatizazion (HVAC) de machine.</string>
+    <string name="car_permission_label_mileage">acedi aes informazions sul consum di carburant de auto</string>
+    <string name="car_permission_desc_mileage">Al permet di acedi aes informazions sul consum di carburant de machine.</string>
+    <string name="car_permission_label_speed">lei la velocitât de auto</string>
+    <string name="car_permission_desc_speed">Al permet di lei la velocitât de machine.</string>
+    <string name="car_permission_label_vehicle_dynamics_state">acedi al stât dai components dinamics de machine</string>
+    <string name="car_permission_desc_vehicle_dynamics_state">Al permet di acedi al stât dai components dinamics de machine.</string>
+    <string name="car_permission_label_control_vehicle_dynamics_state">controlâ il stât dai components dinamics de machine</string>
+    <string name="car_permission_desc_control_vehicle_dynamics_state">Al permet di controlâ il stât dai components dinamics de tô machine.</string>
+    <string name="car_permission_label_vendor_extension">acedi al canâl dal produtôr de machine</string>
+    <string name="car_permission_desc_vendor_extension">Al permet di acedi al canâl dal produtôr dal automobil
+        par scambiâ informazions specifichis su la machine.</string>
+    <string name="car_permission_label_radio">gjestî la radio de auto</string>
+    <string name="car_permission_desc_radio">Al permet di gjestî la radio de machine.</string>
+    <string name="car_permission_label_projection">proietâ la interface di un telefon sul schermi de auto</string>
+    <string name="car_permission_desc_projection">Al permet a une aplicazion di proietâ une interface dal telefon al schermi de machine.</string>
+    <string name="car_permission_label_access_projection_status">acedi al stât des proiezions</string>
+    <string name="car_permission_desc_access_projection_status">Al permet a une aplicazion di otignî il stât di altris aplicazions che a proietin contignûts sul schermi de machine.</string>
+    <string name="car_permission_label_audio_volume">controlâ il volum acustic de auto</string>
+    <string name="car_permission_label_audio_settings">gjestî lis impostazions audio de auto</string>
+    <string name="car_permission_label_mock_vehicle_hal">emulâ il nivel di astrazion hardware (HAL) dal veicul</string>
+    <string name="car_permission_label_receive_ducking">ricevi events di atenuazion automatiche dal audio</string>
+    <string name="car_permission_desc_receive_ducking">Al permet a une aplicazion di vignî notificade cuant che il so volum
+        al ven sbassât come risultât di altris flus audio in riproduzion te machine.</string>
+    <string name="car_permission_desc_mock_vehicle_hal">Al permet di emulâ il nivel di astrazion hardware dal veicul par
+        finalitâts di prove internis.</string>
+    <string name="car_permission_desc_audio_volume">Al permet di controlâ il volum audio de machine.</string>
+    <string name="car_permission_desc_audio_settings">Al permet di controlâ lis impostazions audio de machine.</string>
+    <string name="car_permission_label_control_app_blocking">Bloc di aplicazions</string>
+    <string name="car_permission_desc_control_app_blocking">Al permet di controlâ il bloc des aplicazions intant che
+        tu vuidis.</string>
+    <string name="car_permission_car_navigation_manager">Gjestôr de navigazion</string>
+    <string name="car_permission_desc_car_navigation_manager">Al permet di segnalâ dâts di navigazion al cuadri
+        struments</string>
+    <string name="car_permission_car_display_in_cluster">Rapresentazion direte sul cuadri struments</string>
+    <string name="car_permission_desc_car_display_in_cluster">Al permet a une aplicazion di comunicâ
+      la visualizazion des ativitâts sul cuadri struments</string>
+    <string name="car_permission_car_cluster_control">Control dal cuadri struments</string>
+    <string name="car_permission_desc_car_cluster_control">Inviâ aplicazion tal cuadri struments</string>
+    <string name="car_permission_car_monitor_cluster_navigation_state">Stât di navigazion dal cuadri struments</string>
+    <string name="car_permission_desc_car_monitor_cluster_navigation_state">Scoltâ lis modifichis dal stât di navigazion dal cuadri struments</string>
+    <string name="car_permission_label_car_ux_restrictions_configuration">Configurazion des limitazions de esperience utent</string>
+    <string name="car_permission_desc_car_ux_restrictions_configuration">Al permet di configurâ lis restrizions de esperience utent</string>
+    <string name="car_permission_label_access_private_display_id">Acès in leture al ID dal schermi privât</string>
+    <string name="car_permission_desc_access_private_display_id">Al permet l\'acès in leture al ID dal schermi privât</string>
+    <string name="car_permission_label_car_handle_usb_aoap_device">Comunicâ cun dispositîfs USB in modalitât AOAP</string>
+    <string name="car_permission_desc_car_handle_usb_aoap_device">Al permet a une aplicazion di comunicâ cuntun dispositîf in modalitât AOAP</string>
+    <string name="car_permission_label_read_car_occupant_awareness_state">Acès in leture dal Occupant Awareness System</string>
+    <string name="car_permission_desc_read_car_occupant_awareness_state">Al permet la leture dal stât e i dâts di rilevament pal Occupant Awareness System</string>
+    <string name="car_permission_label_control_car_occupant_awareness_system">Control dal grafic dal Occupant Awareness System</string>
+    <string name="car_permission_desc_control_car_occupant_awareness_system">Al permet il control dal inviament e de interuzion dal grafic dal Occupant Awareness System</string>
+    <string name="car_permission_label_read_driver_monitoring_settings">Lei lis informazions des impostazions di monitorament dal vuidadôr de machine</string>
+    <string name="car_permission_desc_read_driver_monitoring_settings">Lei lis informazions des impostazions di monitorament dal vuidadôr de machine.</string>
+    <string name="car_permission_label_control_driver_monitoring_settings">Controlâ lis informazions des impostazions di monitorament dal vuidadôr de machine</string>
+    <string name="car_permission_desc_control_driver_monitoring_settings">Controlâ lis informazions des impostazions di monitorament dal vuidadôr de machine.</string>
+    <string name="car_permission_label_read_driver_monitoring_states">Lei lis informazions dai stâts di monitorament dal vuidadôr de machine</string>
+    <string name="car_permission_desc_read_driver_monitoring_states">Lei lis informazions dai stâts di monitorament dal vuidadôr de machine.</string>
+    <string name="car_permission_label_diag_read">lei dâts diagnostics</string>
+    <string name="car_permission_desc_diag_read">Al permet di lei dâts diagnostics de machine.</string>
+    <string name="car_permission_label_diag_clear">cancelâ dâts diagnostics</string>
+    <string name="car_permission_desc_diag_clear">Al permet di cancelâ dâts diagnostics de machine.</string>
+    <string name="car_permission_label_vms_publisher">Publicadôr VMS</string>
+    <string name="car_permission_desc_vms_publisher">Publicâ messaçs VMS</string>
+    <string name="car_permission_label_vms_subscriber">Sotscritôr VMS</string>
+    <string name="car_permission_desc_vms_subscriber">Sotscrivi ai messaçs VMS</string>
+    <string name="car_permission_label_read_ultrasonics_sensor_data">Lei i dâts dai sensôrs a ultrasuns.</string>
+    <string name="car_permission_desc_read_ultrasonics_sensor_data">Lei i dâts dai sensôrs a ultrasus de machine.</string>
+    <string name="car_permission_label_storage_monitoring">Monitorament de memorie flash</string>
+    <string name="car_permission_desc_storage_monitoring">Al permeti di monitorâ l\'ûs de memorie flash</string>
+    <string name="car_permission_label_driving_state">scoltâ il stât di vuide</string>
+    <string name="car_permission_desc_driving_state">Al permet di scoltâ lis modifichis dal stât di vuide</string>
+    <string name="car_permission_label_use_telemetry_service">Doprâ il servizi di telemetrie de machine</string>
+    <string name="car_permission_desc_use_telemetry_service">Tirâ dongje dâts su la salût dal sisteme de auto.</string>
+    <string name="car_permission_label_use_evs_service">Doprâ il servizi EVS de auto</string>
+    <string name="car_permission_desc_use_evs_service">Sotscrivi ai flus video EVS</string>
+    <string name="car_permission_label_request_evs_activity">Domandâ la ativitât di anteprime EVS</string>
+    <string name="car_permission_desc_request_evs_activity">Domandâ al sisteme di inviâ la ativitât di anteprime EVS</string>
+    <string name="car_permission_label_control_evs_activity">Controlâ la ativitât di anteprime EVS</string>
+    <string name="car_permission_desc_control_evs_activity">Controlâ la ativitât di anteprime EVS dal sisteme</string>
+    <string name="car_permission_label_use_evs_camera">Doprâ la fotocjamare EVS</string>
+    <string name="car_permission_desc_use_evs_camera">Sotscrivi ai flus de fotocjamare EVS</string>
+    <string name="car_permission_label_monitor_evs_status">Monitorâ il stât dal servizi EVS</string>
+    <string name="car_permission_desc_monitor_evs_status">Scoltâ lis modifichis di stât dal servizi EVS</string>
+    <string name="car_permission_label_car_engine_detailed">acedi a informazions detaiadis sul motôr de machine</string>
+    <string name="car_permission_desc_car_engine_detailed">Al permet di acedi a informazions detaiadis sul motôr de machine.</string>
+    <string name="car_permission_label_car_energy_ports">acedi ae portele dal serbatori di carburant e ae portele di ricjarie de machine</string>
+    <string name="car_permission_desc_car_energy_ports">Al permet di acedi ae portele dal serbatori di carburant e ae portele di ricjarie de machine.</string>
+    <string name="car_permission_label_control_car_energy_ports">controlâ la portele dal serbatori di carburant e la portele di ricjarie de machine</string>
+    <string name="car_permission_desc_control_car_energy_ports">Al permet di controlâ la portele dal serbatori di carburant e la portele di ricjarie de machine.</string>
+    <string name="car_permission_label_car_identification">lei la identificazion dal automobil</string>
+    <string name="car_permission_desc_car_identification">Al permet di acedi ae identificazion de machine</string>
+    <string name="car_permission_label_control_car_doors">controlâ lis portelis de machine</string>
+    <string name="car_permission_desc_control_car_doors">Al permet di controlâ lis portelis de machine.</string>
+    <string name="car_permission_label_control_car_windows">controlâ i barcons de machine</string>
+    <string name="car_permission_desc_control_car_windows">Al permet di controlâ i barcons de machine.</string>
+    <string name="car_permission_label_control_car_mirrors">controlâ i spiei de machine</string>
+    <string name="car_permission_desc_control_car_mirrors">Al permet di controlâ i spiei de machine.</string>
+    <string name="car_permission_label_control_car_seats">controlâ lis sentis de machine</string>
+    <string name="car_permission_desc_control_car_seats">Al permet di controlâ lis sentis de machine.</string>
+    <string name="car_permission_label_read_car_seat_belts">lei lis cinturiis de machine</string>
+    <string name="car_permission_desc_read_car_seat_belts">Al permet di lei lis cinturiis de machine.</string>
+    <string name="car_permission_label_read_impact_sensors">lei i sensôrs di impat de machine</string>
+    <string name="car_permission_desc_read_impact_sensors">Al permet di lei i sensôrs di bote de machine.</string>
+    <string name="car_permission_label_read_valet_mode">lei la modalitât parcadôr</string>
+    <string name="car_permission_desc_read_valet_mode">Al permet di lei la modalitât parcadôr.</string>
+    <string name="car_permission_label_control_valet_mode">controlâ la modalitât parcadôr</string>
+    <string name="car_permission_desc_control_valet_mode">Al permet di controlâ la modalitât parcadôr.</string>
+    <string name="car_permission_label_read_head_up_display_status">lei il stât dal schermi trasparent</string>
+    <string name="car_permission_desc_read_head_up_display_status">Al permet di lei il stât dal schermi trasparent.</string>
+    <string name="car_permission_label_control_head_up_display">controlâ il schermi trasparent</string>
+    <string name="car_permission_desc_control_head_up_display">Al permet di controlâ il schermi trasparent.</string>
+    <string name="car_permission_label_read_car_airbags">lei i cussins di sigurece de machine</string>
+    <string name="car_permission_desc_read_car_airbags">Al permet di lei i cussins di sigurece de machine.</string>
+    <string name="car_permission_label_control_car_airbags">controlâ i cussins di sigurece de machine.</string>
+    <string name="car_permission_desc_control_car_airbags">Al permet di controlâ i cussins di sigurece de machine.</string>
+    <string name="car_permission_label_car_info">acedi aes informazions di base de machine</string>
+    <string name="car_permission_desc_car_info">Al permet di acedi aes informazions di base de machine.</string>
+    <string name="car_permission_label_privileged_car_info">acedi a informazions privilegjadis de machine</string>
+    <string name="car_permission_desc_privileged_car_info">Al permet di acedi a informazions privilegjadis de machine.</string>
+    <string name="car_permission_label_vendor_permission_info">acedi aes informazions sui permès dal produtôr de machine</string>
+    <string name="car_permission_desc_vendor_permission_info">Al permet di acedi aes informazions sui permès dal produtôr de machine.</string>
+    <string name="car_permission_label_car_exterior_lights">lei il stât des lûs esternis de machine</string>
+    <string name="car_permission_desc_car_exterior_lights">Al permet di acedi al stât des lûs esternis de machine.</string>
+    <string name="car_permission_label_control_glove_box">acedi al stât dal scansel dal cruscot</string>
+    <string name="car_permission_desc_control_glove_box">Al permet di acedi al stât dal scansel dal cruscot/puarte-documents.</string>
+    <string name="car_permission_label_car_epoch_time">acedi ae ore Unix de machine</string>
+    <string name="car_permission_desc_car_epoch_time">Al permet di acedi ae ore Unix de machine.</string>
+    <string name="car_permission_label_control_car_exterior_lights">lei lis lûs esternis de auto</string>
+    <string name="car_permission_desc_control_car_exterior_lights">Al permet di controlâ lis lûs esternis de machine.</string>
+    <string name="car_permission_label_car_interior_lights">lei lis lûs internis de auto</string>
+    <string name="car_permission_desc_car_interior_lights">Al permet di acedi al stât des lûs internis de machine.</string>
+    <string name="car_permission_label_control_car_interior_lights">controlâ lis lûs internis de auto</string>
+    <string name="car_permission_desc_control_car_interior_lights">Al permet di controlâ lis lûs internis de machine.</string>
+    <string name="car_permission_label_car_exterior_environment">lei la temperadure esterne de auto</string>
+    <string name="car_permission_desc_car_exterior_environment">Al permet di acedi ae temperadure esterne rilevade de machine.</string>
+    <string name="car_permission_label_car_tires">acedi aes informazions sui pneumatics de auto</string>
+    <string name="car_permission_desc_car_tires">Al permet di acedi aes informazions sui pneumatics de machine.</string>
+    <string name="car_permission_label_car_steering">lei lis informazions sul angul di stierç de auto</string>
+    <string name="car_permission_desc_car_steering">Al permet di acedi aes informazions sul angul di stierç de machine.</string>
+    <string name="car_permission_label_read_car_display_units">lei il schermi de auto</string>
+    <string name="car_permission_desc_read_car_display_units">Al permet di lei lis unitâts sul schermi.</string>
+    <string name="car_permission_label_control_car_display_units">controlâ il schermi de auto</string>
+    <string name="car_permission_desc_control_car_display_units">Al permet di controlâ lis unitâts dal schermi.</string>
+    <string name="car_permission_label_control_car_powertrain">controlâ lis informazions di trazion de machine</string>
+    <string name="car_permission_desc_control_car_powertrain">Al permet di controlâ lis informazions di trazion de machine.</string>
+    <string name="car_permission_label_car_powertrain">lei lis informazions di trazion de auto</string>
+    <string name="car_permission_desc_car_powertrain">Al permet di acedi aes informazions su la trazion de machine.</string>
+    <string name="car_permission_label_car_power">lei il stât di alimentazion de auto</string>
+    <string name="car_permission_desc_car_power">Al permet di acedi al stât di alimentazion de machine.</string>
+    <string name="car_permission_label_enroll_trust">Regjistrâ dispositîfs atendibii</string>
+    <string name="car_permission_desc_enroll_trust">Al permet la regjistrazion di dispositîfs atendibii</string>
+    <string name="car_permission_label_car_test_service">Controlâ la modalitât di prove de auto</string>
+    <string name="car_permission_desc_car_test_service">Controlâ la modalitât di prove de auto</string>
+    <string name="car_permission_label_control_car_features">Ativâ o disativâ lis funzionalitâts de auto</string>
+    <string name="car_permission_desc_control_car_features">Ativâ o disativâ lis funzionalitâts de auto.</string>
+    <string name="car_permission_label_use_car_watchdog">doprâ il watchdog de auto</string>
+    <string name="car_permission_desc_use_car_watchdog">Al permet di doprâ il watchdog de machine.</string>
+    <string name="car_permission_label_control_car_watchdog_config">controlâ la configurazion dal watchdog de auto</string>
+    <string name="car_permission_desc_control_car_watchdog_config">Al permet di controlâ la configurazion dal watchdog de machine.</string>
+    <string name="car_permission_label_collect_car_watchdog_metrics">colezionâ metrichis dal watchdog de auto</string>
+    <string name="car_permission_desc_collect_car_watchdog_metrics">Al permet di tirâ dongje lis metrichis dal watchdog de machine.</string>
+    <string name="car_permission_label_read_car_power_policy">lei la politiche di alimentazion de auto</string>
+    <string name="car_permission_desc_read_car_power_policy">Al permet di lei i criteris su la alimentazion de auto.</string>
+    <string name="car_permission_label_control_car_power_policy">controlâ la politiche di alimentazion de auto</string>
+    <string name="car_permission_desc_control_car_power_policy">Al permet di controlâ i criteris di alimentazion de auto.</string>
+    <string name="car_permission_label_adjust_shutdown_process">regolâ il procès di distudament</string>
+    <string name="car_permission_desc_adjust_shutdown_process">Al permet di regolâ il procès di distudament.</string>
+    <string name="car_permission_label_template_renderer">rapresentâ modei</string>
+    <string name="car_permission_desc_template_renderer">Al permet di rapresentâ modei.</string>
+    <string name="car_permission_label_control_car_app_launch">controlâ l\'inviament di aplicazions</string>
+    <string name="car_permission_desc_control_car_app_launch">Al permet di controlâ di fâ partî aplicazions.</string>
+    <string name="car_permission_label_manage_thread_priority">gjestî la prioritât dai threads</string>
+    <string name="car_permission_desc_manage_thread_priority">Al permet di gjestî la prioritât dai threads.</string>
+    <string name="car_permission_label_manage_occupant_zone">gjestî la zone passizîr</string>
+    <string name="car_permission_desc_manage_occupant_zone">Al permet di gjestî la zone dal passizîr.</string>
+    <string name="car_permission_label_use_remote_access">doprâ l\'acès di lontan</string>
+    <string name="car_permission_desc_use_remote_access">Al permet di doprâ l\'acès di lontan.</string>
+    <string name="car_permission_label_control_remote_access">controlâ l\'acès di lontan</string>
+    <string name="car_permission_desc_control_remote_access">Al permet di controlâ l\'acès di lontan.</string>
+    <string name="car_permission_label_control_steering_wheel">controlâ il volant de machine</string>
+    <string name="car_permission_desc_control_steering_wheel">Al permet di controlâ il volant de machine.</string>
+    <string name="car_permission_label_read_adas_settings">lei lis informazions des impostazions ADAS de machine</string>
+    <string name="car_permission_desc_read_adas_settings">Al permet di lei lis informazions des impostazions ADAS de machine.</string>
+    <string name="car_permission_label_control_adas_settings">controlâ lis informazions des impostazions ADAS de machine</string>
+    <string name="car_permission_desc_control_adas_settings">Al permet di controlâ lis informazions des impostazions ADAS de machine.</string>
+    <string name="car_permission_label_read_adas_states">lei lis informazions dai stâts ADAS de machine</string>
+    <string name="car_permission_desc_read_adas_states">Al permet di lei lis informazions dai stâts ADAS de machine.</string>
+    <string name="car_permission_label_control_adas_states">controlâ lis informazions dai stâts ADAS de machine</string>
+    <string name="car_permission_desc_control_adas_states">Al permet di controlâ lis informazions dai stâts ADAS de machine.</string>
+    <string name="car_permission_label_read_windshield_wipers">lei i neteveris de machine</string>
+    <string name="car_permission_desc_read_windshield_wipers">Al permet di lei i neteveris de machine.</string>
+    <string name="car_permission_label_control_windshield_wipers">controlâ i neteveris de machine</string>
+    <string name="car_permission_desc_control_windshield_wipers">Al permet di controlâ i neteveris de machine.</string>
+    <string name="car_permission_label_query_display_compatibility">interogâ i pachets in modalitât compatibile cul schermi</string>
+    <string name="car_permission_desc_query_display_compatibility">Al permet di interogâ i pachets che a zirin in modalitât compatibile cul schermi.</string>
+    <string name="car_permission_label_manage_remote_device">monitorâ il stât des zonis dai
+        passizîrs te machine e lis aplicazions \"peer\" (aplicazions cul stes non di pachet dal clamant)
+        instaladis in chês zonis, e gjestî la alimentazion di chês zonis.</string>
+    <string name="car_permission_desc_manage_remote_device">Al permet di monitorâ i stâts des zonis dai
+        passizîrs te machine e lis aplicazions \"peer\" (aplicazions cul stes non di pachet dal clamant)
+        instaladis in chês zonis e gjestî la alimentazion di chês zonis.</string>
+    <string name="car_permission_label_manage_occupant_connection">stabilî la conession e
+        comunicâ cu lis aplicazions \"peer\" (aplicazions cul stes non di pachet dal clamant) instaladis tes
+        zonis dai passizîrs te machine</string>
+    <string name="car_permission_desc_manage_occupant_connection">Al permet di stabilî la conession e
+        comunicâ cu lis aplicazions \"peer\" (aplicazions cul stes non di pachet dal clamant) instaladis tes
+        zonis dai passizîrs te machine.</string>
+    <string name="car_permission_label_access_mirrored_surface">spieglâ il schermi di altris aplicazions</string>
+    <string name="car_permission_desc_access_mirrored_surface">Al permet di spieglâ il schermi di altris aplicazions.</string>
+    <string name="car_permission_label_mirror_display">spieglâ il schermi di altris utents</string>
+    <string name="car_permission_desc_mirror_display">Al permet di spieglâ il schermi di altris utents.</string>
+    <string name="car_permission_label_register_car_system_ui_proxy">Furnî un proxy di interface utent dal sisteme
+         che altris aplicazions a puedin doprâ par gjestî la interface di sisteme e creâ viodudis di ativitâts.</string>
+    <string name="car_permission_desc_register_car_system_ui_proxy">Furnî un proxy di interface utent di sisteme
+         che lis altris aplicazions a puedin doprâ par gjestî la interface dal sisteme e creâ viodudis di ativitâts.</string>
+    <string name="car_permission_label_manage_car_system_ui">Comunicâ cu la interface utent di sisteme de machine
+        par creâ viodudis di ativitâts o otignî notifichis su lis modifichis de interface di sisteme.</string>
+    <string name="car_permission_desc_manage_car_system_ui">Comunicâ cu la interface utent di sisteme de machine
+        par creâ viodudis di ativitâts o otignî notifichis su lis modifichis de interface di sisteme.</string>
+    <string name="car_permission_label_read_persist_tethering_settings">Lei lis impostazions dal
+        tethering persistent de machine</string>
+    <string name="car_permission_desc_read_persist_tethering_settings">Lei lis impostazions dal
+        tethering persistent de machine</string>
+    <string name="car_can_bus_failure">Comunicazion vie CAN bus falide</string>
+    <string name="car_can_bus_failure_desc">Il CAN bus nol rispuint. Distache e torne tache la unitât principâl
+        e torne impie la machine</string>
+    <string name="trust_device_default_name">Gno dispositîf</string>
+    <string name="default_guest_name">Ospit</string>
+</resources>

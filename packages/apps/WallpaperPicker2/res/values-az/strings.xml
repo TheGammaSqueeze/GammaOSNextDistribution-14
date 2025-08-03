@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+     Copyright (C) 2017 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="wallpaper_app_name" msgid="1719889291772891695">"Divar kağızları"</string>
+    <!-- no translation found for app_name (8773648973927541493) -->
+    <skip />
+    <string name="select_wallpaper_label" msgid="6989581259339646085">"Divar kağızı kateqoriyaları"</string>
+    <string name="set_wallpaper_button_text" msgid="5445978864530156290">"Divar kağızı ayarlayın"</string>
+    <string name="set_wallpaper_progress_message" msgid="7986528287618716715">"Divar kağızı ayarlanır..."</string>
+    <string name="try_again" msgid="8278874823700921234">"Yenidən sınayın"</string>
+    <string name="set_wallpaper_error_message" msgid="6819986999041085130">"Divar kağızı ayarlamaq mümkün olmadı."</string>
+    <string name="load_wallpaper_error_message" msgid="7913278480467707374">"Divar kağızını yükləmək olmadı. Şəkil ya zədələnib, ya da əlçatan deyil."</string>
+    <string name="static_wallpaper_presentation_mode_message" msgid="417940227049360906">"Hazırda ayarlanıb"</string>
+    <string name="rotating_wallpaper_presentation_mode_message" msgid="3361676041605733288">"Günlük divar kağızları"</string>
+    <string name="wallpaper_destination_both" msgid="1124197176741944063">"Əsas səhifə &amp; Ekran kilidi"</string>
+    <string name="choose_a_wallpaper_section_title" msgid="1009823506890453891">"Divar kağızı seçin"</string>
+    <string name="creative_wallpaper_title" msgid="3581650238648981372">"Divar kağızı yaradın"</string>
+    <string name="home_screen_message" msgid="106444102822522813">"Əsas ekran"</string>
+    <string name="lock_screen_message" msgid="1534506081955058013">"Ekran kilidi"</string>
+    <string name="home_and_lock_short_label" msgid="2937922943541927983">"Əsas səhifə və Kilid"</string>
+    <string name="set_wallpaper_dialog_message" msgid="2110475703996853076">"Divar kağızını aktiv edin"</string>
+    <string name="set_wallpaper_home_screen_destination" msgid="7315594722013109354">"Əsas ekran"</string>
+    <string name="set_wallpaper_lock_screen_destination" msgid="6224685559375417945">"Ekran kilidi"</string>
+    <string name="set_wallpaper_both_destination" msgid="2536004558738350775">"Əsas səhifə və kilid ekranları"</string>
+    <string name="no_backup_image_wallpaper_label" msgid="6316627676107284851">"Firlanan Şəkilli Divar Kağızları"</string>
+    <string name="permission_needed_explanation" msgid="139166837541426823">"Burada cari divar kağızını göstərmək üçün, <xliff:g id="APP_NAME">%1$s</xliff:g> cihaz yaddaşına giriş tələb edir."</string>
+    <string name="permission_needed_explanation_go_to_settings" msgid="3923551582092599609">"Cari divar kağızını burada göstərmək üçün Divarkağızı cihaz yaddaşına giriş tələb edir.\n\nBu ayarı dəyişmək üçün Divarkağızı tətbiqində İcazələr bölməsinə daxil olun."</string>
+    <string name="permission_needed_allow_access_button_label" msgid="1943133660612924306">"Girişə icazə verin"</string>
+    <string name="no_backup_image_wallpaper_description" msgid="8303268619408738057">"Fırlanan divar kağızları üçün canlı divar kağızı xidməti"</string>
+    <string name="daily_refresh_tile_title" msgid="3270456074558525091">"Günlük divar kağızları"</string>
+    <string name="daily_refresh_tile_subtitle" msgid="3976682014885446443">"Aktiv etmək üçün tıklayın"</string>
+    <string name="start_rotation_dialog_body_live_wallpaper_needed" msgid="5132580257563846082">"Divar kağızı hər gün avtomatik dəyişəcək. Ayarlamanı tamamlamaq üçün növbəti ekranda &lt;strong&gt;Divar kağızı ayarlayın&lt;/strong&gt; seçiminə klikləyin."</string>
+    <string name="start_rotation_dialog_wifi_only_option_message" msgid="3126269859713666225">"Gələcəkdə divar kağızlarını yalnız Wi-Fi ilə endirin"</string>
+    <string name="start_rotation_dialog_continue" msgid="276678987852274872">"Davam edin"</string>
+    <string name="start_rotation_progress_message" msgid="7872623873682262083">"İlk divar kağızı endirilir…"</string>
+    <string name="start_rotation_error_message" msgid="3053799836719618972">"İlk divar kağızını endirmək mümkün olmadı. Şəbəkə ayarlarınızı yoxlayın və yenidən cəhd edin."</string>
+    <string name="start_rotation_dialog_body" msgid="7903554799046364916">"Divar kağızları hər gün avtomatik dəyişəcək"</string>
+    <string name="settings_button_label" msgid="8724734130079207955">"Ayarlar"</string>
+    <string name="explore" msgid="7468719504199497281">"Araşdırın"</string>
+    <string name="next_wallpaper" msgid="3911873152952596232">"Növbəti divar kağızı"</string>
+    <string name="wallpaper_disabled_message" msgid="7309484130562148185">"Bu cihazda divar kağızını ayarlamaq deaktiv edilib"</string>
+    <string name="wallpaper_disabled_by_administrator_message" msgid="1551430406714747884">"Divar kağızını ayarlamaq cihaz administratoru tərəfindən deaktiv edilib"</string>
+    <string name="wallpaper_set_successfully_message" msgid="2958998799111688578">"Divar kağızı ayarlandı"</string>
+    <string name="wallpapers_unavailable_offline_message" msgid="8136405438621689532">"Divar kağızlarını görmək üçün İnternet bağlantısı olmalıdır. Qoşulun və yenidən cəhd edin."</string>
+    <string name="currently_set_home_wallpaper_thumbnail" msgid="4022381436821898917">"Hazırda ayarlanmış əsas ekran divar kağızı miniatürü"</string>
+    <string name="currently_set_lock_wallpaper_thumbnail" msgid="2094209303934569997">"Hazırda ayarlanmış kilid ekranı divar kağızı miniatürü"</string>
+    <string name="currently_set_wallpaper_thumbnail" msgid="8651887838745545107">"Hazırda ayarlanmış divar kağızı miniatürü"</string>
+    <string name="wallpaper_thumbnail" msgid="569931475923605974">"Divar kağızı miniatürü"</string>
+    <string name="explore_home_screen" msgid="8756346794535765482">"Əsas ekran divar kağızını araşdırın"</string>
+    <string name="explore_lock_screen" msgid="268938342103703665">"Ekran kilidi divar kağızını araşdırın"</string>
+    <string name="refresh_daily_wallpaper_home_content_description" msgid="2770445044556164259">"Əsas ekranın divar kağızını gündəlik yeniləyin"</string>
+    <string name="refresh_daily_wallpaper_content_description" msgid="4362142658237147583">"Divar kağızını gündəlik yeniləyin"</string>
+    <string name="preview_screen_description" msgid="3386387053327775919">"Divar kağızını önizləmə ekranı"</string>
+    <string name="refreshing_daily_wallpaper_dialog_message" msgid="1975910873362855761">"Günlük divar kağızı yenilənir..."</string>
+    <string name="refresh_daily_wallpaper_failed_message" msgid="4749879993812557166">"Gündəlik divar kağızını yeniləmək olmadı. Şəbəkəni yoxlayın və yenidən cəhd edin."</string>
+    <string name="on_device_wallpapers_category_title" msgid="805819102071369004">"Cihazdakı divar kağızları"</string>
+    <string name="on_device_wallpapers_category_title_desktop" msgid="316919420410065369">"Cihazda"</string>
+    <string name="on_device_wallpaper_title" msgid="5262564748034629524">"Android divar kağızı"</string>
+    <string name="live_wallpapers_category_title" msgid="1814374812192366349">"Canlı divar kağızları"</string>
+    <string name="my_photos_category_title" msgid="4294567122144565273">"Fotolarım"</string>
+    <string name="my_photos_generic_wallpaper_title" msgid="7002867526154631172">"Fotom"</string>
+    <string name="fallback_wallpaper_title" msgid="6154655421012506001">"Divar kağızı"</string>
+    <string name="app_not_found" msgid="4431461707854088231">"Tətbiq quraşdırılmayıb."</string>
+    <string name="center_wallpaper_position" msgid="4166894762352288883">"Mərkəz"</string>
+    <string name="center_crop_wallpaper_position" msgid="1681980019815343348">"Mərkəzi kəsim"</string>
+    <string name="stretch_wallpaper_position" msgid="5002680983147456935">"Dartın"</string>
+    <string name="preview" msgid="1774602101743861071">"Önizləmə"</string>
+    <string name="tab_info" msgid="818614080690111416">"Məlumat"</string>
+    <string name="tab_customize" msgid="2533745409174959960">"Fərdiləşdirin"</string>
+    <string name="tab_effects" msgid="3213606157589233901">"Effektlər"</string>
+    <string name="tab_share" msgid="6676269624804601227">"Paylaşın"</string>
+    <string name="my_photos" msgid="8613021349284084982">"Fotolarım"</string>
+    <string name="configure_wallpaper" msgid="849882179182976621">"Ayarlar…"</string>
+    <string name="delete_live_wallpaper" msgid="589212696102662329">"Silin"</string>
+    <string name="edit_live_wallpaper" msgid="3132060073690558045">"Redaktə edin"</string>
+    <string name="delete_wallpaper_confirmation" msgid="1905114562243802354">"Bu divar kağızı cihazınızdan silinsin?"</string>
+    <string name="bottom_action_bar_back" msgid="2620581414970740784">"Yuxarı keçin"</string>
+    <string name="bottom_action_bar_edit" msgid="1214742990893082138">"Düzəliş"</string>
+    <string name="bottom_action_bar_download" msgid="3983122338076389421">"Endirin"</string>
+    <string name="bottom_action_bar_slideshow_wallpaper" msgid="509770525179533154">"Divar Kağızı Slaydşou"</string>
+    <string name="bottom_action_bar_apply" msgid="2983308349819178932">"Tətbiq edin"</string>
+    <string name="accessibility_preview_pager" msgid="1839869637405028575">"Səhifə <xliff:g id="ID_1">%1$d</xliff:g>/<xliff:g id="ID_2">%2$d</xliff:g>"</string>
+    <string name="next_page_content_description" msgid="6268461446679584152">"Növbəti"</string>
+    <string name="previous_page_content_description" msgid="1138597031571078429">"Əvvəlki"</string>
+    <string name="wallpaper_title" msgid="6754214682228331092">"Divar kağızı"</string>
+    <string name="wallpaper_preview_card_content_description" msgid="6049261033541034584">"Divar Kağızı önizləməsi"</string>
+    <string name="lock_wallpaper_preview_card_content_description" msgid="5236839857695985498">"Kilid ekranında divar kağızı önizləməsi"</string>
+    <string name="home_wallpaper_preview_card_content_description" msgid="4059418716070821630">"Əsas ekranda divar kağızı önizləməsi"</string>
+    <string name="collection_not_exist_msg" msgid="3504852962885064842">"Kolleksiya mövcud deyil"</string>
+    <string name="wallpaper_exit_split_screen" msgid="1928870664619591636">"Bölünmüş ekran rejimindən çıxıb, yenidən cəhd edin"</string>
+    <string name="set_wallpaper_dialog_set_button" msgid="5760149969510325088">"Ayarlayın"</string>
+    <string name="cancel" msgid="4970902691067201584">"Ləğv edin"</string>
+    <string name="hide_ui_preview_text" msgid="6766076482511252295">"UI Önizləməsini gizlədin"</string>
+    <string name="hint_hide_ui_preview" msgid="4527603797714586070">"UI önizləmədə gizlədilib. Göstərmək üçün iki dəfə toxunun"</string>
+    <string name="show_ui_preview_text" msgid="5993063062417070806">"UI Önizləməsini göstərin"</string>
+    <string name="hide_preview_controls_content_description" msgid="894958599274977655">"Önizləmə nizamlayıcıları göstərilir. Gizlətmək üçün iki dəfə toxunun"</string>
+    <string name="hide_preview_controls_action" msgid="3419260118386783295">"Önizləmə nizamlayıcılarını gizlədin"</string>
+    <string name="show_preview_controls_content_description" msgid="908147864005440602">"Önizləmə nizamlayıcıları gizlədilib. Göstərmək üçün iki dəfə toxunun"</string>
+    <string name="show_preview_controls_action" msgid="7700775001986890400">"Önizləmə nizamlayıcılarını göstərin"</string>
+    <string name="hide_wallpaper_info_action" msgid="6572492484253895374">"Divar kağızı məlumatını gizlədin"</string>
+    <string name="hint_show_ui_preview" msgid="2744155435325318349">"UI önizləmədə göstərilir. Gizlətmək üçün iki dəfə toxunun"</string>
+    <string name="wallpaper_picker_entry_title" msgid="5185793991582084891">"Divar kağızını dəyişin"</string>
+    <string name="lockscreen_wallpaper_preview_card_content_description" msgid="2244890820627302245">"Kilid ekranında divar kağızı önizləməsi"</string>
+    <string name="apply_btn" msgid="5764555565943538528">"Tətbiq edin"</string>
+    <string name="accessibility_customize_hidden" msgid="6320568529768181691">"Fərdiləşdirmə paneli gizlədilib"</string>
+    <string name="accessibility_customize_shown" msgid="590964727831547651">"Fərdiləşdirmə paneli göstərilir"</string>
+    <string name="accessibility_info_hidden" msgid="2288603712350168107">"Məlumat gizlədilib"</string>
+    <string name="accessibility_info_shown" msgid="6626025722456105632">"Məlumat göstərilir"</string>
+    <string name="settings_snackbar_description" msgid="890168814524778486">"Ayarlarda faylları və medianı aktiv edin."</string>
+    <string name="settings_snackbar_enable" msgid="5992112808061426068">"Aktiv edin"</string>
+    <string name="open_my_photos" msgid="4107196465713868381">"Fotolarımı açın"</string>
+    <string name="lock_screen_tab" msgid="6672930765010407652">"Ekran kilidi"</string>
+    <string name="home_screen_tab" msgid="1080445697837877526">"Əsas ekran"</string>
+    <string name="reset" msgid="4945445169532850631">"Sıfırlayın"</string>
+    <string name="reset_confirmation_dialog_title" msgid="3391905685838213712">"Dəyişikliklər sıfırlansın?"</string>
+    <string name="reset_confirmation_dialog_message" msgid="888669268626289603">"Dəyişiklikləriniz yadda saxlanılmayacaq"</string>
+    <string name="more_wallpapers" msgid="8116268433411881705">"Digər divar kağızları"</string>
+    <string name="recents_wallpaper_label" msgid="8653165542635660222">"%1$s, %2$d"</string>
+    <string name="default_wallpaper_title" msgid="2541071182656978180">"Divar kağızı"</string>
+    <string name="small_preview_tooltip" msgid="1920430079013352071">"Toxunaraq fotonu redaktə edin"</string>
+    <string name="full_preview_tooltip" msgid="4648994028015322759">"Fotoların mövqe, miqyas və bucağını tənzimləyin"</string>
+</resources>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="connectivityResourcesAppLabel" msgid="2476261877900882974">"စနစ်ချိတ်ဆက်နိုင်မှု ရင်းမြစ်များ"</string>
+    <string name="wifi_available_sign_in" msgid="8041178343789805553">"ဝိုင်ဖိုင်ကွန်ရက်သို့ လက်မှတ်ထိုးဝင်ပါ"</string>
+    <string name="network_available_sign_in" msgid="2622520134876355561">"ကွန်ယက်သို့ လက်မှတ်ထိုးဝင်ရန်"</string>
+    <!-- no translation found for network_available_sign_in_detailed (8439369644697866359) -->
+    <skip />
+    <string name="mobile_network_available_no_internet" msgid="1000871587359324217">"အင်တာနက် မရှိပါ"</string>
+    <string name="mobile_network_available_no_internet_detailed" msgid="5438738723127062816">"<xliff:g id="NETWORK_CARRIER">%1$s</xliff:g> ထံမှ ဒေတာကုန်သွားခြင်း ဖြစ်နိုင်သည်။ ရွေးစရာများကြည့်ရန် တို့ပါ။"</string>
+    <string name="mobile_network_available_no_internet_detailed_unknown_carrier" msgid="5375681117265354337">"ဒေတာကုန်သွားခြင်း ဖြစ်နိုင်သည်။ ရွေးစရာများကြည့်ရန် တို့ပါ။"</string>
+    <string name="wifi_no_internet" msgid="1326348603404555475">"<xliff:g id="NETWORK_SSID">%1$s</xliff:g> တွင် အင်တာနက်အသုံးပြုခွင့် မရှိပါ"</string>
+    <string name="wifi_no_internet_detailed" msgid="1746921096565304090">"အခြားရွေးချယ်စရာများကိုကြည့်ရန် တို့ပါ"</string>
+    <string name="mobile_no_internet" msgid="4087718456753201450">"မိုဘိုင်းကွန်ရက်တွင် အင်တာနက်ချိတ်ဆက်မှု မရှိပါ"</string>
+    <string name="other_networks_no_internet" msgid="5693932964749676542">"ကွန်ရက်တွင် အင်တာနက်အသုံးပြုခွင့် မရှိပါ"</string>
+    <string name="private_dns_broken_detailed" msgid="2677123850463207823">"သီးသန့် ဒီအန်အက်စ် (DNS) ဆာဗာကို သုံး၍မရပါ။"</string>
+    <string name="network_partial_connectivity" msgid="5549503845834993258">"<xliff:g id="NETWORK_SSID">%1$s</xliff:g> တွင် ချိတ်ဆက်မှုကို ကန့်သတ်ထားသည်"</string>
+    <string name="network_partial_connectivity_detailed" msgid="4732435946300249845">"မည်သို့ပင်ဖြစ်စေ ချိတ်ဆက်ရန် တို့ပါ"</string>
+    <string name="network_switch_metered" msgid="5016937523571166319">"<xliff:g id="NETWORK_TYPE">%1$s</xliff:g> သို့ ပြောင်းလိုက်ပြီ"</string>
+    <string name="network_switch_metered_detail" msgid="1257300152739542096">"<xliff:g id="PREVIOUS_NETWORK">%2$s</xliff:g> ဖြင့် အင်တာနက် အသုံးမပြုနိုင်သည့်အချိန်တွင် စက်ပစ္စည်းသည် <xliff:g id="NEW_NETWORK">%1$s</xliff:g> ကို သုံးပါသည်။ ဒေတာသုံးစွဲခ ကျသင့်နိုင်ပါသည်။"</string>
+    <string name="network_switch_metered_toast" msgid="70691146054130335">"<xliff:g id="PREVIOUS_NETWORK">%1$s</xliff:g> မှ <xliff:g id="NEW_NETWORK">%2$s</xliff:g> သို့ ပြောင်းလိုက်ပြီ"</string>
+  <string-array name="network_switch_type_name">
+    <item msgid="3004933964374161223">"မိုဘိုင်းဒေတာ"</item>
+    <item msgid="5624324321165953608">"Wi-Fi"</item>
+    <item msgid="5667906231066981731">"ဘလူးတုသ်"</item>
+    <item msgid="346574747471703768">"အီသာနက်"</item>
+    <item msgid="5734728378097476003">"VPN"</item>
+  </string-array>
+    <string name="network_switch_type_name_unknown" msgid="5116448402191972082">"အမည်မသိကွန်ရက်အမျိုးအစား"</string>
+</resources>

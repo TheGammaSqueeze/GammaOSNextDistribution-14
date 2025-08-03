@@ -1,0 +1,72 @@
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "OnDevicePersonalizationManualTests",
+    srcs: [
+        "src/**/*.java",
+        ":ondevicepersonalization-sources",
+        ":ondevicepersonalization-fbs",
+        ":chronicle-sources",
+        ":statslog-ondevicepersonalization-java-gen",
+    ],
+    libs: [
+        "android.test.base",
+        "android.test.runner",
+        "framework-adservices", // For user consent
+        "framework-annotations-lib",
+        "framework-configinfrastructure",
+        "framework-connectivity.stubs.module_lib",
+        "framework-location.stubs.module_lib",
+        "kotlin-annotations",
+        "truth",
+        "framework-ondevicepersonalization.impl",
+        "framework-statsd.stubs.module_lib", // For WW logging
+    ],
+    static_libs: [
+        "androidx.test.ext.junit",
+        "androidx.test.ext.truth",
+        "androidx.test.rules",
+        "kotlin-stdlib",
+        "kotlin-test",
+        "kotlinx-coroutines-android",
+        "mobile_data_downloader_lib",
+        "modules-utils-build",
+        "ondevicepersonalization-protos",
+        "ondevicepersonalization-plugin-lib",
+        "apache-velocity-engine-core",
+        "flatbuffers-java",
+        "modules-utils-list-slice",
+        "owasp-java-encoder",
+        "tensorflowlite_java",
+        "adservices-shared-spe",
+    ],
+    sdk_version: "module_current",
+    target_sdk_version: "current",
+    min_sdk_version: "Tiramisu",
+    test_suites: [
+        "general-tests",
+    ],
+    manifest: "AndroidManifest.xml",
+    test_config: "AndroidTest.xml",
+    jni_libs: [
+        "libdexmakerjvmtiagent",
+        "libstaticjvmtiagent",
+        "libfcp_cpp_dep_jni",
+    ],
+}

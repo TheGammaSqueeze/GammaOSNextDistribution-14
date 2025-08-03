@@ -1,0 +1,26 @@
+{
+  "name": "com.android.art",
+  "version": 1,
+  "provideNativeLibs": [
+    "libandroidio.so",
+    "libdexfile.so",
+    "libdexfiled.so",
+    "libnativebridge.so",
+    "libnativehelper.so",
+    "libnativeloader.so"
+  ],
+  "requireNativeLibs": [
+    "libandroidicu.so",
+    "libicu.so",
+    "libicuuc.so",
+    "libicui18n.so",
+    "libicu_jni.so",
+    "libneuralnetworks.so",
+    "libadbconnection_client.so",
+    "libc.so",
+    "libdl.so",
+    "libdl_android.so",
+    "liblog.so",
+    "libm.so"
+  ]
+}

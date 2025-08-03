@@ -1,0 +1,11 @@
+Package: floss
+Section: custom
+Priority: optional
+Maintainer: Martin Brabham <optedoblivion@google.com>
+Version: 0.1
+Homepage: https://www.google.com
+Depends: debmake, ninja-build, flatbuffers-compiler, flex, g++-multilib, gcc-multilib, generate-ninja, gnupg, gperf, libc++-dev, libdbus-1-dev, libevent-dev, libevent-dev, libflatbuffers-dev, libflatbuffers1, libfmt-dev, libfmt9, libgl1-mesa-dev, libglib2.0-dev, liblz4-tool, libncurses5, libnss3-dev, libprotobuf-dev, libre2-9, libssl-dev, libtinyxml2-dev, libx11-dev, libxml2-utils, ninja-build, openssl, protobuf-compiler, unzip, x11proto-core-dev, xsltproc, zip, zlib1g-dev, modp-b64, libchrome
+Architecture: all
+Essential: no
+Installed-Size: 490MB
+Description: The Fluoride Bluetooth stack on Linux

@@ -1,0 +1,135 @@
+// Copyright 2020, The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_security_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_security_license"],
+}
+
+rust_library {
+    name: "libkeystore2_km_compat",
+    crate_name: "keystore2_km_compat",
+    srcs: ["lib.rs"],
+    defaults: [
+        "keymint_use_latest_hal_aidl_rust",
+    ],
+    rustlibs: [
+        "android.security.compat-rust",
+    ],
+    shared_libs: [
+        "libkm_compat_service",
+    ],
+}
+
+rust_test {
+    name: "keystore2_km_compat_test",
+    crate_name: "keystore2",
+    srcs: ["lib.rs"],
+    test_suites: ["general-tests"],
+    auto_gen_config: true,
+    defaults: [
+        "keymint_use_latest_hal_aidl_rust",
+    ],
+    rustlibs: [
+        "android.security.compat-rust",
+    ],
+    shared_libs: [
+        "libkm_compat_service",
+    ],
+}
+
+cc_library {
+    name: "libkm_compat",
+    srcs: ["km_compat.cpp"],
+    defaults: [
+        "keymint_use_latest_hal_aidl_ndk_shared",
+        "keystore2_use_latest_aidl_ndk_shared",
+    ],
+    shared_libs: [
+        "android.hardware.keymaster@3.0",
+        "android.hardware.keymaster@4.0",
+        "android.hardware.keymaster@4.1",
+        "android.hardware.security.secureclock-V1-ndk",
+        "android.hardware.security.sharedsecret-V1-ndk",
+        "android.security.compat-ndk",
+        "libbase",
+        "libbinder_ndk",
+        "libcrypto",
+        "libhidlbase",
+        "libkeymaster4_1support",
+        "libkeymint",
+        "libkeymint_support",
+        "libkeystore2_crypto",
+        "libutils",
+    ],
+}
+
+cc_library {
+    name: "libkm_compat_service",
+    srcs: ["km_compat_service.cpp"],
+    defaults: [
+        "keymint_use_latest_hal_aidl_ndk_shared",
+    ],
+    shared_libs: [
+        "android.hardware.security.secureclock-V1-ndk",
+        "android.hardware.security.sharedsecret-V1-ndk",
+        "android.security.compat-ndk",
+        "libbinder_ndk",
+        "libcrypto",
+        "libkeymaster4_1support",
+        "libkeystore2_crypto",
+        "libkm_compat",
+    ],
+}
+
+cc_test {
+    name: "keystore2_km_compat_test_cpp",
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+    ],
+    srcs: [
+        "certificate_test.cpp",
+        "gtest_main.cpp",
+        "parameter_conversion_test.cpp",
+        "slot_test.cpp",
+    ],
+    defaults: [
+        "keymint_use_latest_hal_aidl_ndk_shared",
+        "keystore2_use_latest_aidl_ndk_shared",
+    ],
+    shared_libs: [
+        "android.hardware.keymaster@3.0",
+        "android.hardware.keymaster@4.0",
+        "android.hardware.keymaster@4.1",
+        "android.hardware.security.secureclock-V1-ndk",
+        "android.hardware.security.sharedsecret-V1-ndk",
+        "android.security.compat-ndk",
+        "libbase",
+        "libbinder_ndk",
+        "libcrypto",
+        "libhidlbase",
+        "libkeymaster4_1support",
+        "libkeymint_support",
+        "libkeystore2_crypto",
+        "libkm_compat",
+        "libkm_compat_service",
+        "libutils",
+    ],
+}

@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package blueberry.facade.hci;
+
+import "google/protobuf/empty.proto";
+
+service AclManagerFacade {
+  rpc CreateConnection(ConnectionMsg) returns (stream ConnectionEvent) {}
+  rpc CancelConnection(ConnectionMsg) returns (google.protobuf.Empty) {}
+  rpc Disconnect(HandleMsg) returns (google.protobuf.Empty) {}
+  rpc WriteDefaultLinkPolicySettings(PolicyMsg) returns (google.protobuf.Empty) {}
+  rpc AuthenticationRequested(HandleMsg) returns (google.protobuf.Empty) {}
+  rpc ConnectionCommand(ConnectionCommandMsg) returns (google.protobuf.Empty) {}
+  rpc SwitchRole(RoleMsg) returns (google.protobuf.Empty) {}
+  rpc SendAclData(AclData) returns (google.protobuf.Empty) {}
+  rpc FetchAclData(HandleMsg) returns (stream AclData) {}
+  rpc FetchIncomingConnection(google.protobuf.Empty) returns (stream ConnectionEvent) {}
+}
+
+message HandleMsg {
+  uint32 handle = 1;
+}
+
+message ConnectionMsg {
+  bytes address = 1;
+}
+
+message PolicyMsg {
+  uint32 policy = 1;
+}
+
+enum NewRole {
+  CENTRAL = 0;
+  PERIPHERAL = 1;
+}
+
+message RoleMsg {
+  bytes address = 1;
+  NewRole role = 2;
+}
+
+message ConnectionCommandMsg {
+  bytes packet = 1;
+}
+
+message ConnectionEvent {
+  bytes payload = 1;
+}
+
+message AclData {
+  uint32 handle = 1;
+  bytes payload = 2;
+}

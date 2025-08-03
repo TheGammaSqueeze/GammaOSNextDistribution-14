@@ -1,0 +1,59 @@
+CTS-Root Trade Federation
+-------------------------
+
+CTS-Root Trade Federation, cts-root-tradefed for short, is built on
+top of the Android Trade Federation test harness for general compatibility tests
+that require root privileges or a debuggable device to run.
+
+Configuring cts-root-tradefed
+-----------------------------
+
+Ensure 'adb' is in your current PATH. adb can be found in the
+Android SDK available from http://developer.android.com
+
+Example:
+  PATH=$PATH:/home/myuser/android-sdk-linux_x86/platform-tools
+
+And ensure device is visible via 'adb devices'
+
+Using cts-root-tradefed
+-----------------------
+
+To run a test plan on a single device:
+
+1. Make sure you have at least one device connected
+2. Launch the cts-root-tradefed console by running 'cts-root-tradefed'. If you
+are working from the Android source tree and have run 'm cts_root',
+the script can be found at
+  out/host/linux-x86/ats/android-cts_root/tools/cts-root-tradefed
+3. Type:
+'run cts-root' to run the default MTS plan
+
+Some other useful commands are
+
+To run a test module:
+'run cts-root --module <module_name>'
+
+To run a specific test:
+'run cts-root --test <test_name>'
+
+To shard a plan test run on multiple devices
+'run cts-root --shards <number of shards>
+note: all connected devices must be running the same build
+
+For more options:
+'run cts-root --help'
+
+CTS-Root Tradefed Development
+-----------------------------
+See http://source.android.com for instructions on obtaining the Android
+platform source code and setting up a build environment.
+
+The source for the tradefed framework can be found on the 'tradefed' branch.
+
+Perform these steps to build and run cts-root-tradefed from the development
+environment:
+cd <path to android source root>
+m cts_root
+cts-root-tradefed
+

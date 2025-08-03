@@ -1,0 +1,140 @@
+# Domain to run Car Service (com.android.car)
+app_domain(carservice_app);
+
+# Allow Car Service to be the client of Vehicle and Audio Control HALs
+hal_client_domain(carservice_app, hal_audiocontrol)
+hal_client_domain(carservice_app, hal_health)
+hal_client_domain(carservice_app, hal_vehicle)
+
+# Allow Car Service to be the client of remoteaccess HAL.
+hal_client_domain(carservice_app, hal_remoteaccess)
+
+# Allow Car Service to use EVS service
+hal_client_domain(carservice_app, hal_evs)
+
+# Allow Car Service to use IVN HAL.
+hal_client_domain(carservice_app, hal_ivn)
+
+# Allow to set boot.car_service_created property
+set_prop(carservice_app, system_prop)
+
+# Allow Car Service to register/access itself with ServiceManager
+add_service(carservice_app, carservice_service)
+
+# Allow Car Service to access certain system services.
+# Keep alphabetically sorted.
+allow carservice_app {
+    accessibility_service
+    activity_service
+    activity_task_service
+    audio_service
+    audioserver_service
+    autofill_service
+    bluetooth_manager_service
+    connectivity_service
+    content_service
+    device_policy_service
+    deviceidle_service
+    display_service
+    graphicsstats_service
+    input_method_service
+    input_service
+    location_service
+    lock_settings_service
+    media_session_service
+    media_communication_service
+    netstats_service  # for CarTelemetryService
+    network_management_service
+    overlay_service
+    power_service
+    procfsinspector_service
+    sensorservice_service
+    statsmanager_service
+    surfaceflinger_service
+    telecom_service
+    tethering_service
+    thermal_service
+    timedetector_service
+    timezonedetector_service
+    uimode_service
+    usagestats_service
+    voiceinteraction_service
+    wifi_service
+    wifiscanner_service
+}:service_manager find;
+
+# Read and write /data/data subdirectory.
+allow carservice_app system_app_data_file:dir create_dir_perms;
+allow carservice_app system_app_data_file:{ file lnk_file } create_file_perms;
+# R/W /data/system/car
+allow carservice_app system_car_data_file:dir create_dir_perms;
+allow carservice_app system_car_data_file:{ file lnk_file } create_file_perms;
+
+net_domain(carservice_app)
+
+allow carservice_app cgroup:file rw_file_perms;
+
+# For I/O stats tracker
+allow carservice_app proc_uid_io_stats:file { read open getattr };
+
+allow carservice_app procfsinspector:binder call;
+
+# Allow binder calls with statsd
+allow carservice_app statsd:binder call;
+
+# To access /sys/fs/<type>/<partition>/lifetime_write_kbytes
+allow carservice_app sysfs:dir { open read search };
+allow carservice_app sysfs_fs_ext4_features:dir { open read search};
+allow carservice_app sysfs_fs_f2fs:dir { open read search };
+
+# Allow reading and writing /sys/power/
+allow carservice_app sysfs_power:file rw_file_perms;
+
+# Allow reading system property sys.boot.reason
+allow carservice_app system_boot_reason_prop:file { getattr open read map };
+
+## CarBugreportManagerService rules
+set_prop(carservice_app, ctl_start_prop)
+set_prop(carservice_app, ctl_stop_prop)
+unix_socket_connect(carservice_app, dumpstate, dumpstate)
+# Allow setting "dumpstate.dry_run"
+userdebug_or_eng(`
+  set_prop(carservice_app, exported_dumpstate_prop)
+')
+
+# Allow reading vehicle-specific configuration
+get_prop(carservice_app, vehicle_hal_prop)
+
+# Allow writing carwatchdog configuration
+set_prop(carservice_app, carwatchdog_config_prop)
+
+# Allow CarWatchdogService to access car watchdog daemon
+carwatchdog_client_domain(carservice_app)
+
+# Allow CarPowerManagementService to access car power policy daemon
+allow carservice_app carpowerpolicyd_service:service_manager find;
+
+# Allow CarPowerManagementService to serve a callback from car power policy daemon
+carpowerpolicy_callback_domain(carservice_app)
+
+# For ActivityBlockingActiviy
+allow carservice_app gpu_device:chr_file rw_file_perms;
+allow carservice_app gpu_device:dir r_dir_perms;
+allow carservice_app gpu_service:service_manager find;
+binder_call(carservice_app, gpuservice)
+
+# Allow reading and writing /proc/loadavg/
+allow carservice_app proc_loadavg:file { open read getattr };
+
+# Allow reading /proc/meminfo/ for telemetry
+allow carservice_app proc_meminfo:file { open read getattr };
+
+# Allow finding game_service and content_capture_service
+allow carservice_app game_service:service_manager find;
+allow carservice_app content_capture_service:service_manager find;
+
+# Allow finding hint_service
+allow carservice_app hint_service:service_manager find;
+
+# Allow finding AIDL EVS service
+allow carservice_app evsmanagerd_service:service_manager find;

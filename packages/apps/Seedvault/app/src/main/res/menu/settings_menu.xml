@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  SPDX-FileCopyrightText: 2020 The Calyx Institute
+  SPDX-License-Identifier: Apache-2.0
+  -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_backup"
+        android:enabled="false"
+        android:title="@string/settings_backup_now"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_restore"
+        android:enabled="false"
+        android:title="@string/restore_backup_button"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_settings_expert"
+        android:title="@string/settings_expert_title"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_about"
+        android:title="@string/about_title"
+        app:showAsAction="never" />
+
+</menu>

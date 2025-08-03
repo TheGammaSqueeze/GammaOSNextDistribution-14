@@ -1,0 +1,33 @@
+[run]
+branch = True
+
+# module names must be listed one per line.
+source =
+    acloud
+
+# omit file patterns must be listed one per line. */.local/* /usr/*
+omit =
+    *_test.py
+    *__init__.py
+    *_args.py
+    *public/acloud_kernel/*
+    *public/acloud_common.py
+    *public/acloud_main.py
+    # TODO: Remove the bottom 2 when the files are deleted.
+    *public/__main__.py
+    *setup.py
+    # gce is not support now.
+    *create/gce_local_image_remote_instance.py
+    *create/gce_remote_image_remote_instance.py
+
+[report]
+# Regexes for lines to exclude from consideration
+exclude_lines =
+    # Don't complain about missing code for debugging purpose:
+    def __repr__
+    raise NotImplementedError
+    logger.info(.*)
+    logger.warning(.*)
+    logger.debug(.*)
+
+    if __name__ == .__main__.:

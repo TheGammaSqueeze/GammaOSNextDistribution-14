@@ -1,0 +1,9 @@
+package: "com.android.server.telecom.flags"
+container: "system"
+
+flag {
+  name: "is_new_outgoing_call_broadcast_unblocking"
+  namespace: "telecom"
+  description: "When set, the ACTION_NEW_OUTGOING_CALL broadcast is unblocking."
+  bug: "224550864"
+}

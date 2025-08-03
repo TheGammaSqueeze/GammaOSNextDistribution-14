@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources>
+    <string name="app_name">دەزگای سیمکارت</string>
+    <string name="menu_end_session">کۆتایی هینان بە پەیوەندیەکە</string>
+    <string name="help">یارمەتی</string>
+    <string name="menu_back">دواوە</string>
+    <string name="service_name">ناوی خزمەتگوزاری</string>
+    <string name="stk_no_service">خزمەتگوزاری لە بەردەست نیە</string>
+    <string name="button_ok">باشه‌</string>
+    <string name="button_cancel">هەڵوەشاندنەوە</string>
+    <string name="button_yes">بەڵێ</string>
+    <string name="button_no">نا</string>
+    <string name="alphabet">پیتەکەن</string>
+    <string name="digits">ژمارەکان (0-9، *،+)</string>
+    <string name="default_call_setup_msg">پەیوەندیەک لە ئارادایە\u2026</string>
+    <string name="stk_app_state">دۆخی بەنامەکە</string>
+    <string name="enable_app">چالاک</string>
+    <string name="disable_app">ناچالاککراو</string>
+    <string name="stk_dialog_title">دەزگای سیمکارت</string>
+    <string name="default_open_channel_msg">کەناڵەکە بکرێتەوە؟</string>
+    <string name="default_send_data_msg">ناردنی زانیاری</string>
+    <string name="default_receive_data_msg">وەرگرتنی زانیاری</string>
+    <string name="default_close_channel_msg">کەناڵەکە داخرا</string>
+    <string name="stk_dialog_accept">بەڵێ</string>
+    <string name="stk_dialog_reject">نەخێر</string>
+</resources>

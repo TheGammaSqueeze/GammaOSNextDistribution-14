@@ -1,0 +1,81 @@
+---
+Requested Tests:
+- test_should_error
+- test_should_fail
+- test_should_pass
+- test_should_skip
+Type: TestNameList
+...
+---
+Begin Time: 1000
+Details: pass
+End Time: 2000
+Extra Errors: {}
+Extras: null
+Result: PASS
+Retry Parent: null
+Signature: test_should_pass-1000
+Stacktrace: null
+Termination Signal Type: TestPass
+Test Class: SampleTest
+Test Name: test_should_pass
+Type: Record
+UID: null
+...
+---
+Begin Time: null
+Details: fail
+End Time: null
+Extra Errors: {}
+Extras: null
+Result: FAIL
+Retry Parent: null
+Signature: test_should_fail-1000
+Stacktrace: "mobly.signals.TestFailure"
+Termination Signal Type: TestFailure
+Test Class: SampleTest
+Test Name: test_should_fail
+Type: Record
+UID: null
+...
+---
+Begin Time: 1000
+Details: error
+End Time: 2000
+Extra Errors: {}
+Extras: null
+Result: ERROR
+Retry Parent: null
+Signature: test_should_error-1000
+Stacktrace: "Exception: error"
+Termination Signal Type: Exception
+Test Class: SampleTest
+Test Name: test_should_error
+Type: Record
+UID: null
+...
+---
+Begin Time: 1000
+Details: skip
+End Time: 2000
+Extra Errors: {}
+Extras: null
+Result: SKIP
+Retry Parent: null
+Signature: test_should_skip-1000
+Stacktrace: "mobly.signals.TestSkip"
+Termination Signal Type: TestSkip
+Test Class: SampleTest
+Test Name: test_should_skip
+Type: Record
+UID: null
+...
+---
+Error: 1
+Executed: 3
+Failed: 1
+Passed: 1
+Requested: 4
+Skipped: 1
+Type: Summary
+...

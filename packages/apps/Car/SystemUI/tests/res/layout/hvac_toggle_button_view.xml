@@ -1,0 +1,101 @@
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:systemui="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:paddingStart="20dp"
+    android:paddingEnd="20dp"
+    android:gravity="center">
+
+    <com.android.systemui.car.hvac.toggle.HvacBooleanToggleButton
+        android:id="@+id/bool_toggle_button_default"
+        android:background="@drawable/hvac_panel_button_bg"
+        style="@style/HvacButton"
+        systemui:hvacAreaId="1"
+        systemui:hvacPropertyId="354419973"
+        systemui:hvacToggleOnButtonDrawable="@drawable/ic_front_defroster_on"
+        systemui:hvacToggleOffButtonDrawable="@drawable/ic_front_defroster_off"/>
+
+    <com.android.systemui.car.hvac.toggle.HvacBooleanToggleButton
+        android:id="@+id/bool_toggle_button_do_not_turn_off_when_power_off"
+        android:background="@drawable/hvac_panel_button_bg"
+        style="@style/HvacButton"
+        systemui:hvacAreaId="1"
+        systemui:hvacPropertyId="354419973"
+        systemui:hvacToggleOnButtonDrawable="@drawable/ic_front_defroster_on"
+        systemui:hvacToggleOffButtonDrawable="@drawable/ic_front_defroster_off"/>
+
+    <com.android.systemui.car.hvac.toggle.HvacBooleanToggleButton
+        android:id="@+id/bool_toggle_button_turn_off_when_auto_on"
+        android:background="@drawable/hvac_panel_button_bg"
+        style="@style/HvacButton"
+        systemui:hvacAreaId="1"
+        systemui:hvacPropertyId="354419973"
+        systemui:hvacDisableViewIfAutoOn="true"
+        systemui:hvacToggleOnButtonDrawable="@drawable/ic_front_defroster_on"
+        systemui:hvacToggleOffButtonDrawable="@drawable/ic_front_defroster_off"/>
+
+    <com.android.systemui.car.hvac.toggle.HvacIntegerToggleButton
+        android:id="@+id/int_toggle_button_default"
+        android:background="@drawable/hvac_panel_button_bg"
+        style="@style/HvacButton"
+        systemui:hvacAreaId="1"
+        systemui:hvacPropertyId="356517120"
+        systemui:hvacToggleOnButtonDrawable="@drawable/ic_front_defroster_on"
+        systemui:hvacToggleOffButtonDrawable="@drawable/ic_front_defroster_off"
+        systemui:onValue="1"
+        systemui:offValue="0"/>
+
+    <com.android.systemui.car.hvac.toggle.HvacIntegerToggleButton
+        android:id="@+id/int_toggle_button_do_not_turn_off_when_power_off"
+        android:background="@drawable/hvac_panel_button_bg"
+        style="@style/HvacButton"
+        systemui:hvacAreaId="1"
+        systemui:hvacPropertyId="356517120"
+        systemui:hvacToggleOnButtonDrawable="@drawable/ic_front_defroster_on"
+        systemui:hvacToggleOffButtonDrawable="@drawable/ic_front_defroster_off"
+        systemui:onValue="1"
+        systemui:offValue="0"/>
+
+    <com.android.systemui.car.hvac.toggle.HvacIntegerToggleButton
+        android:id="@+id/int_toggle_button_turn_off_when_auto_on"
+        android:background="@drawable/hvac_panel_button_bg"
+        style="@style/HvacButton"
+        systemui:hvacAreaId="1"
+        systemui:hvacPropertyId="356517120"
+        systemui:hvacDisableViewIfAutoOn="true"
+        systemui:hvacToggleOnButtonDrawable="@drawable/ic_front_defroster_on"
+        systemui:hvacToggleOffButtonDrawable="@drawable/ic_front_defroster_off"
+        systemui:onValue="1"
+        systemui:offValue="0"/>
+
+    <com.android.systemui.car.hvac.toggle.HvacIntegerToggleButton
+        android:id="@+id/int_toggle_button_keep_on_prevent_off"
+        android:background="@drawable/hvac_panel_button_bg"
+        style="@style/HvacButton"
+        systemui:hvacAreaId="1"
+        systemui:hvacPropertyId="356517120"
+        systemui:hvacToggleOnButtonDrawable="@drawable/ic_front_defroster_on"
+        systemui:hvacToggleOffButtonDrawable="@drawable/ic_front_defroster_off"
+        systemui:onValue="1"
+        systemui:offValue="0"
+        systemui:preventToggleOff="true"/>
+
+</LinearLayout>

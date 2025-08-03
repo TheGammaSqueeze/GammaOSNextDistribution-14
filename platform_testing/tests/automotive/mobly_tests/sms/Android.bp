@@ -1,0 +1,267 @@
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+python_test_host {
+    name: "SMSTimeSyncTest",
+    main: "bt_sms_time_sync_test.py",
+    srcs: ["bt_sms_time_sync_test.py"],
+    libs: [
+        "mobly",
+        "utilities",
+        "bluetooth_test",
+    ],
+    test_suites: [
+        "catbox",
+    ],
+    test_options: {
+        unit_test: false,
+    },
+    data: [
+        // Package the snippet with the mobly test
+        ":AutomotiveSnippet",
+        ":PhoneSnippet",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+}
+
+python_test_host {
+    name: "BTSMSDeviceNotPairedTest",
+    main: "bt_sms_test_device_not_paired.py",
+    srcs: ["bt_sms_test_device_not_paired.py"],
+    libs: [
+        "mobly",
+        "utilities",
+        "bluetooth_test",
+    ],
+    test_suites: [
+        "catbox",
+    ],
+    test_options: {
+        unit_test: false,
+    },
+    data: [
+        // Package the snippet with the mobly test
+        ":AutomotiveSnippet",
+        ":PhoneSnippet",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+}
+
+python_test_host {
+    name: "BTSMSUtilityTest",
+    main: "bt_sms_utility_test.py",
+    srcs: ["bt_sms_utility_test.py"],
+    libs: [
+        "mobly",
+        "utilities",
+        "BluetoothSMSTestLibrary",
+    ],
+    test_suites: [
+        "catbox",
+    ],
+    test_options: {
+        unit_test: false,
+    },
+    data: [
+        // Package the snippet with the mobly test
+        ":AutomotiveSnippet",
+        ":PhoneSnippet",
+        "bt_sms_config.yaml",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+}
+
+python_test_host {
+    name: "SMSNewUnreadSMSAutoSyncTest",
+    main: "bt_sms_new_unread_sms_auto_sync_test.py",
+    srcs: ["bt_sms_new_unread_sms_auto_sync_test.py"],
+    libs: [
+        "mobly",
+        "utilities",
+        "BluetoothSMSTestLibrary",
+    ],
+    test_suites: [
+        "catbox",
+    ],
+    test_options: {
+        unit_test: false,
+    },
+    data: [
+        // Package the snippet with the mobly test
+        ":AutomotiveSnippet",
+        ":PhoneSnippet",
+        "bt_sms_config.yaml",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+}
+
+python_test_host {
+    name: "SMSNoSMSTest",
+    main: "bt_sms_no_messages_test.py",
+    srcs: ["bt_sms_no_messages_test.py"],
+    libs: [
+        "mobly",
+        "utilities",
+        "BluetoothSMSTestLibrary",
+    ],
+    test_suites: [
+        "catbox",
+    ],
+    test_options: {
+        unit_test: false,
+    },
+    data: [
+        // Package the snippet with the mobly test
+        ":AutomotiveSnippet",
+        ":PhoneSnippet",
+        "bt_sms_config.yaml",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+}
+
+python_test_host {
+    name: "SMSUnreadMessageDBSyncTest",
+    main: "bt_sms_unread_sms_messagedb_sync_test.py",
+    srcs: ["bt_sms_unread_sms_messagedb_sync_test.py"],
+    libs: [
+        "mobly",
+        "utilities",
+        "BluetoothSMSTestLibrary",
+    ],
+    test_suites: [
+        "catbox",
+    ],
+    test_options: {
+        unit_test: false,
+    },
+    data: [
+        // Package the snippet with the mobly test
+        ":AutomotiveSnippet",
+        ":PhoneSnippet",
+        "bt_sms_config.yaml",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+}
+
+python_test_host {
+    name: "SMSReadAutoSync",
+    main: "bt_sms_read_auto_sync_test.py",
+    srcs: ["bt_sms_read_auto_sync_test.py"],
+    libs: [
+        "mobly",
+        "utilities",
+        "BluetoothSMSTestLibrary",
+    ],
+    test_suites: [
+        "catbox",
+    ],
+    test_options: {
+        unit_test: false,
+    },
+    data: [
+        // Package the snippet with the mobly test
+        ":AutomotiveSnippet",
+        ":PhoneSnippet",
+        "bt_sms_config.yaml",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+}
+
+python_test_host {
+    name: "SMSReadMessageDBSync",
+    main: "bt_sms_read_messagebd_sync_test.py",
+    srcs: ["bt_sms_read_messagebd_sync_test.py"],
+    libs: [
+        "mobly",
+        "utilities",
+        "BluetoothSMSTestLibrary",
+    ],
+    test_suites: [
+        "catbox",
+    ],
+    test_options: {
+        unit_test: false,
+    },
+    data: [
+        // Package the snippet with the mobly test
+        ":AutomotiveSnippet",
+        ":PhoneSnippet",
+        "bt_sms_config.yaml",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+}
+
+python_test_host {
+    name: "SMSReplyFromPhoneSync",
+    main: "bt_sms_reply_from_phone_sync_test.py",
+    srcs: ["bt_sms_reply_from_phone_sync_test.py"],
+    libs: [
+        "mobly",
+        "utilities",
+        "BluetoothSMSTestLibrary",
+    ],
+    test_suites: [
+        "catbox",
+    ],
+    test_options: {
+        unit_test: false,
+    },
+    data: [
+        // Package the snippet with the mobly test
+        ":AutomotiveSnippet",
+        ":PhoneSnippet",
+        "bt_sms_config.yaml",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+}

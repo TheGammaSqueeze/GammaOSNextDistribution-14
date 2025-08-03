@@ -1,0 +1,29 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+aidl_interface {
+    name: "compos_aidl_interface",
+    unstable: true,
+    srcs: [
+        "com/android/compos/*.aidl",
+    ],
+    backend: {
+        java: {
+            apex_available: [
+                "com.android.compos",
+            ],
+        },
+        rust: {
+            enabled: true,
+            apex_available: [
+                "com.android.compos",
+            ],
+        },
+        ndk: {
+            apex_available: [
+                "com.android.compos",
+            ],
+        },
+    },
+}

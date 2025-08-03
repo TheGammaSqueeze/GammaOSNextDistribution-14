@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017-2024 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="system_reboot_confirm_cm">Uruchom ponownie:</string>
+    <string name="global_action_restart_system">System</string>
+    <string name="global_action_restart_recovery">W trybie Recovery</string>
+    <string name="global_action_restart_bootloader">W trybie Bootloader</string>
+    <plurals name="show_dev_countdown_cm">
+        <item quantity="one">Jesteś o <xliff:g id="step_count">%1$d</xliff:g> krok od włączenia ustawień programistycznych.</item>
+        <item quantity="few">Jesteś <xliff:g id="step_count">%1$d</xliff:g> kroki od włączenia ustawień programistycznych.</item>
+        <item quantity="many">Jesteś <xliff:g id="step_count">%1$d</xliff:g> kroków od włączenia ustawień programistycznych.</item>
+        <item quantity="other">Jesteś <xliff:g id="step_count">%1$d</xliff:g> kroków od włączenia ustawień programistycznych.</item>
+    </plurals>
+    <string name="show_dev_on_cm">Aktywowano opcje programistyczne!</string>
+    <string name="show_dev_already_cm">Opcje programistyczne już zostały aktywowane.</string>
+    <string name="system_buttons">Przyciski</string>
+    <string name="power_button_long_press_action_title">Długie naciśnięcie przycisku zasilania</string>
+    <string name="power_button_long_press_for_power_menu_action">Dostęp do menu zasilania</string>
+    <string name="power_button_long_press_for_assistant_action">Uruchom Asystenta</string>
+    <string name="inputs_volume_control_enabled">Kontrola głośności CEC</string>
+    <string name="inputs_volume_control_enabled_desc">Kontroluj głośność TV/AVR zamiast głośności wewnętrznej</string>
+    <string name="enable_adb_root">Debugowanie jako root</string>
+    <string name="enable_adb_root_summary">Zezwól na debugowanie Androida jako root</string>
+    <string name="advanced_restart_title">Opcje ponownego uruchamiania</string>
+    <string name="advanced_restart_summary">Pokazuj opcje ponownego uruchomienia w trybie Recovery, Bootloadera lub wykonania miękkiego restartu</string>
+    <string name="adb_over_network">ADB przez sieć</string>
+    <string name="adb_over_network_summary">Włącza debugowanie TCP/IP przez interfejs sieciowy (Wi\u2011Fi, sieci USB). Ustawienie zostanie zresetowane po ponownym uruchomieniu</string>
+    <string name="adb_over_network_warning">OSTRZEŻENIE: Gdy funkcja ADB przez sieć jest włączona, telefon jest otwarty na włamania we wszystkich połączonych sieciach!\n\nUżywaj tej funkcji tylko wtedy, gdy łączysz się z zaufanymi sieciami.\n\nCzy naprawdę chcesz włączyć tę funkcję?</string>
+    <string name="trust_category_features">Stan</string>
+    <string name="trust_feature_selinux">SELinux</string>
+    <string name="trust_feature_selinux_value_enforcing">Restrykcyjny</string>
+    <string name="trust_feature_selinux_value_disabled">Wyłączono</string>
+    <string name="trust_feature_selinux_explain">SELinux określa, które procesy mają dostęp do plików/ścieżek na urządzeniu.\nZapobiega to niepowołanemu dostępowi aplikacji i usług do plików, do których nie powinny mieć dostępu. W ten sposób potencjalnie złośliwy proces jest ograniczony, a bezpieczeństwo jest zachowane.</string>
+    <string name="trust_feature_security_patches">Poprawki zabezpieczeń Androida</string>
+    <string name="trust_feature_security_patches_value_base">Platforma: %1$s\nDostawca: %2$s</string>
+    <string name="trust_feature_security_patches_value_new">Aktualne</string>
+    <string name="trust_feature_security_patches_value_medium">Nieaktualne od kilku miesięcy</string>
+    <string name="trust_feature_security_patches_value_old">Nieaktualne</string>
+    <string name="trust_feature_security_patches_explain">Aktualizacje zabezpieczeń są wydawane co miesiąc przez Google we współpracy z dostawcami SoC w celu łatania luk w systemie, które mogą zostać wykorzystane przez złośliwe oprogramowanie w celu obejścia zabezpieczeń oraz wyrządzenia trwałych szkód w twoim urządzeniu. Łatki udostępniane przez Google są aktualizowane miesięcznie na wszystkich wspieranych urządzeniach, ale poprawki dla kodu własnościowego mogą być wdrażane tylko przez producenta twojego telefonu. Aby zapewnić bezpieczeństwo swojego urządzenia, upewnij się, że kompilacja LineageOS jest zawsze aktualna i (jeśli dotyczy) upewnij się, że obraz dostawcy jest zaktualizowany do najnowszego, zalecanego przez LineageOS.</string>
+    <string name="trust_feature_encryption">Szyfrowanie</string>
+    <string name="trust_feature_encryption_value_enabled">Włączono</string>
+    <string name="trust_feature_encryption_value_nolock">Wymaga zabezpieczonego ekranu blokady</string>
+    <string name="trust_feature_encryption_value_disabled">Wyłączono</string>
+    <string name="trust_feature_encryption_explain">Szyfrowanie urządzenia uniemożliwia dostęp do danych, gdy telefon nie jest uruchomiony w systemie Android. Jest to szczególnie ważne w przypadku kradzieży telefonu, ponieważ uniemożliwia odczytanie wiadomości, kontaktów i innych prywatnych informacji bez podania hasła.\nAby szyfrowanie było bardziej skuteczne, należy ustawić bezpieczne hasło ekranu blokady.</string>
+    <string name="trust_category_tools">Prywatność</string>
+    <string name="trust_notification_alerts_title">Ostrzeżenia dotyczące bezpieczeństwa</string>
+    <string name="trust_restrict_usb_title">Ograniczenia portu USB</string>
+    <string name="trust_restrict_usb_summary">Obsługa połączeń poprzez port USB, takich jak: słuchawki, urządzenia pamięci masowej, urządzeń wejścia (myszy, klawiatury, dżojstiki) oraz ADB</string>
+    <string name="trust_restrict_usb_always">Blokada połączeń USB</string>
+    <string name="trust_restrict_usb_disabled">Zawsze zezwalaj na połączenia USB</string>
+    <string name="trust_onboarding_description">Trust pomaga utrzymać twoje urządzenie bezpiecznym oraz chronić twoją prywatność.\nIkona Trust pojawi się dopiero po zweryfikowaniu zawartości strony.</string>
+    <string name="trust_warnings_alerts_intro">Możesz wybrać, o których problemach związanych z bezpieczeństwem ma zostać wyświetlone ostrzeżenie. Dla twojego bezpieczeństwa zalecane jest włączenie wszystkich ostrzeżeń</string>
+    <string name="trust_warnings_selinux">Stan SELinux</string>
+    <string name="trust_warnings_keys">Sygnatura kompilacji</string>
+    <string name="sleep_button_label">Uśpij</string>
+    <string name="system_sleep_confirm">Uśpić teraz?</string>
+    <string name="shutdown_button_label">Wyłącz</string>
+    <string name="system_shutdown_confirm">Wyłączyć teraz?</string>
+    <string name="convertible_port_busy_title">Port USB 1 jest w użyciu</string>
+    <string name="convertible_port_busy_warning">Odłącz wszystkie urządzenia lub akcesoria i spróbuj ponownie</string>
+    <string name="mtp_enable_title">Uzyskiwanie dostępu do katalogów SHIELD na komputerze poprzez port USB</string>
+    <string name="mtp_enable_warning">Port USB 1 jest teraz skonfigurowany dla SHIELD, aby mogło łączyć się z komputerem jako urządzenie multimedialne.\n\nPort ten nie wykrywa już nośników pamięci USB ani akcesoriów USB i nie może być używany do ładowania urządzeń.</string>
+    <string name="mtp_retry_error">Niepowodzenie. Spróbuj ponownie.</string>
+    <string name="mtp_summary">W tym trybie port USB nie działa dla innych zastosowań</string>
+    <string name="mtp_title">Przesyłanie plików do komputera przy użyciu portu USB</string>
+    <string name="mtp_unexpected_error">Nieoczekiwany błąd. Spróbuj ponownie później.</string>
+    <string name="usb_debugging_enable_title">Debugowanie USB włączone</string>
+    <string name="usb_debugging_enable_warning">Port USB 1 jest teraz skonfigurowany dla SHIELD, aby mogło łączyć się z komputerem jako urządzenie multimedialne.\n\nPort ten nie wykrywa już nośników pamięci USB ani akcesoriów USB i nie może być używany do ładowania urządzeń.</string>
+</resources>

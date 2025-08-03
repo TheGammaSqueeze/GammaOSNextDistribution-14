@@ -1,0 +1,25 @@
+{
+  "presubmit": [
+    {
+      "name": "import-test1",
+      "host": true
+    },
+    {
+      "name": "import-test2",
+      "host": true
+    },
+    {
+      "name": "import-test3",
+      "options": [
+        {
+          "include-filter": "some-filter"
+        }
+      ]
+    }
+  ],
+  "imports": [
+    {
+      "path": "path2"
+    }
+  ]
+}

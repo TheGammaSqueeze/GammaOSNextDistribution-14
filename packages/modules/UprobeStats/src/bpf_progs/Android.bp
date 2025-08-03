@@ -1,0 +1,14 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+bpf {
+    name: "BitmapAllocation.o",
+    srcs: ["BitmapAllocation.c"],
+    btf: true,
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+    sub_dir: "uprobestats",
+}

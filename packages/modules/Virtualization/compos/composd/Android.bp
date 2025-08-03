@@ -1,0 +1,34 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_binary {
+    name: "composd",
+    srcs: ["src/composd_main.rs"],
+    edition: "2021",
+    prefer_rlib: true,
+    defaults: ["avf_build_flags_rust"],
+    rustlibs: [
+        "android.system.composd-rust",
+        "android.system.virtualizationservice-rust",
+        "compos_aidl_interface-rust",
+        "libandroid_logger",
+        "libanyhow",
+        "libbinder_rs",
+        "libcompos_common",
+        "libcomposd_native_rust",
+        "libfsverity_rs",
+        "libminijail_rust",
+        "libnix",
+        "liblibc",
+        "liblog_rust",
+        "libodsign_proto_rust",
+        "libprotobuf",
+        "librustutils",
+        "libshared_child",
+        "libvmclient",
+    ],
+    apex_available: [
+        "com.android.compos",
+    ],
+}

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+    <string name="title_activity_main" description="Launcher title">Sdk Sandbox Test</string>
+    <string name="reset_preferences">Reset Preferences</string>
+    <string name="sdks" description="SDKs title">SDKs</string>
+    <string name="add_death_callback">Add Death Callback</string>
+    <string name="release_all_scvh">Release All SCVH</string>
+    <string name="remove_death_callback">Remove Death Callback</string>
+    <string name="ads" description="Ads title">Ads</string>
+    <string name="new_banner_ad">New Banner Ad</string>
+    <string name="new_fullscreen_ad">New Fullscreen Ad</string>
+    <string name="new_app_webview">New App WebView</string>
+    <string name="extra" description="Extra title">Extra</string>
+    <string name="get_filedescriptor">Get File Descriptor</string>
+    <string name="send_filedescriptor">Send File Descriptor</string>
+    <string name="create_file">Create File</string>
+    <string name="sync_keys">Sync Keys</string>
+    <string name="enable_sdk_sdk">Enable SDK to SDK comm</string>
+    <string name="dump_sandbox">Dump Sandbox</string>
+    <string name="ad_space" description="Ad Space title">Ad Space</string>
+    <string name="snackbar_dismiss">Dismiss</string>
+    <string name="new_app_video">New App Video</string>
+    <string name="start_app_video">Start Video</string>
+    <!-- Banner Options -->
+    <string name="banner_options_title" description="Banner Ad Options Title">Banner Ad Options</string>
+    <string name="view">View</string>
+    <string name="view_type">View Type</string>
+    <string name="video_url">Video URL</string>
+    <string name="behaviour">Behaviour</string>
+    <string name="on_click">On Click</string>
+    <string name="on_click_package">Package To Open</string>
+    <string name="positioning">Positioning</string>
+    <string name="placement">Placement</string>
+    <string name="size">Size</string>
+    <string name="ad_size">Ad Size</string>
+    <string name="feature_flags">Feature Flags</string>
+</resources>

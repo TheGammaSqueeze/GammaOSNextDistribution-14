@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+    <!-- Color for name of user icon -->
+    <color name="car_internal_user_name_icon_1">#FF6259</color><!-- red -->
+    <color name="car_internal_user_name_icon_2">#AF5CF7</color><!-- purple -->
+    <color name="car_internal_user_name_icon_3">#5DABF3</color><!-- blue -->
+    <color name="car_internal_user_name_icon_4">#FF7CB3</color><!-- pink -->
+    <color name="car_internal_user_name_icon_5">#9EE151</color><!-- green -->
+    <color name="car_internal_user_name_icon_6">#0FB6CC</color><!-- cyan -->
+    <color name="car_internal_user_name_icon_7">#ECA844</color><!-- yellow -->
+    <color name="car_internal_user_name_icon_8">#FD7044</color><!-- orange -->
+
+    <!-- Color for background of user icon -->
+    <color name="car_internal_user_background_icon_1">#2B1C1C</color><!-- red -->
+    <color name="car_internal_user_background_icon_2">#26202A</color><!-- purple -->
+    <color name="car_internal_user_background_icon_3">#1F222C</color><!-- blue -->
+    <color name="car_internal_user_background_icon_4">#211B21</color><!-- pink -->
+    <color name="car_internal_user_background_icon_5">#212421</color><!-- green -->
+    <color name="car_internal_user_background_icon_6">#162022</color><!-- cyan -->
+    <color name="car_internal_user_background_icon_7">#292115</color><!-- yellow -->
+    <color name="car_internal_user_background_icon_8">#2f211C</color><!-- orange -->
+
+    <color name="car_internal_user_icon_default_background_color">#131313</color>
+
+    <color name="car_internal_guest_user_avatar_color">#DADCE0</color>
+    <color name="car_internal_guest_user_background_color">#202124</color>
+</resources>

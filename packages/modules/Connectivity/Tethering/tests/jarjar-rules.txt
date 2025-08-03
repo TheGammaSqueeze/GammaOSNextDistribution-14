@@ -1,0 +1,29 @@
+# Don't jar-jar the entire package because this test use some
+# internal classes (like ArrayUtils in com.android.internal.util)
+rule com.android.internal.util.BitUtils* com.android.networkstack.tethering.util.BitUtils@1
+rule com.android.internal.util.IndentingPrintWriter* com.android.networkstack.tethering.util.IndentingPrintWriter@1
+rule com.android.internal.util.IState* com.android.networkstack.tethering.util.IState@1
+rule com.android.internal.util.MessageUtils* com.android.networkstack.tethering.util.MessageUtils@1
+rule com.android.internal.util.State* com.android.networkstack.tethering.util.State@1
+rule com.android.internal.util.StateMachine* com.android.networkstack.tethering.util.StateMachine@1
+rule com.android.internal.util.TrafficStatsConstants* com.android.networkstack.tethering.util.TrafficStatsConstants@1
+# Keep other com.android.internal.util as-is
+rule com.android.internal.util.** @0
+
+rule android.util.LocalLog* com.android.networkstack.tethering.util.LocalLog@1
+
+# Classes from net-utils-framework-common
+rule com.android.net.module.util.** com.android.networkstack.tethering.util.@1
+
+# Classes from net-tests-utils
+rule com.android.testutils.TestBpfMap* com.android.networkstack.tethering.testutils.TestBpfMap@1
+
+# TODO: either stop using frameworks-base-testutils or remove the unit test classes it contains.
+# TestableLooper from "testables" can be used instead of TestLooper from frameworks-base-testutils.
+zap android.os.test.TestLooperTest*
+zap com.android.test.filters.SelectTestTests*
+
+# When used in combined test suites like ConnectivityCoverageTests, these test jarjar rules are
+# combined with the jarjar-rules.txt of other included modules (like NetworkStack jarjar rules).
+# They will effectively be added after the following line break. Note that jarjar stops at the first
+# matching rule, so any rule in this file takes precedence over rules in the following ones.

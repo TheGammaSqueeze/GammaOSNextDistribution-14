@@ -1,0 +1,56 @@
+; Configuration Descriptor used in the DICE node that describes the payload of a Microdroid virtual
+; machine.
+;
+; See the Open DICE specification
+; https://pigweed.googlesource.com/open-dice/+/HEAD/docs/specification.md,
+; and the Android Profile for DICE
+; https://pigweed.googlesource.com/open-dice/+/HEAD/docs/android.md.
+;
+; CDDL for the normal Configuration Descriptor can be found at
+; https://cs.android.com/android/platform/superproject/main/+/main:hardware/interfaces/security/rkp/aidl/android/hardware/security/keymint/generateCertificateRequestV2.cddl
+
+; The configuration descriptor node for a Microdroid VM, with extensions to describe the contents
+; of the VM payload.
+; The subcomponents describe the APKs and then the APEXes that are part of the VM. The main APK
+; is first, followed by any extra APKs in the order they are specified in the VM config.
+; The APEXes are listed in the order specified when the VM is created, which is normally alphabetic
+; order by name.
+VmConfigDescriptor = {
+    -70002 : "Microdroid payload",      ; Component name
+    (? -71000: tstr //                  ; Path to the payload config file
+    ? -71001: PayloadConfig),
+    ? -71002: [+ SubcomponentDescriptor],
+}
+
+PayloadConfig = {
+    1: tstr                             ; Path to the binary file where payload execution starts
+}
+
+; Describes a unit of code (e.g. an APK or an APEX) present inside the VM.
+;
+; For an APK, the fields are as follows:
+; - Component name: The string "apk:" followed by the package name.
+; - Security version: The long version code from the APK manifest
+;   (https://developer.android.com/reference/android/content/pm/PackageInfo#getLongVersionCode()).
+; - Code hash: This is the root hash of a Merkle tree computed over all bytes of the APK, as used
+;   in the APK Signature Scheme v4 (https://source.android.com/docs/security/features/apksigning/v4)
+;   with empty salt and using SHA-256 as the hash algorithm.
+; - Authority hash: The SHA-512 hash of the DER representation of the X.509 certificate for the
+;   public key used to sign the APK.
+;
+; For an APEX, they are as follows:
+; - Component name: The string "apex:" followed by the APEX name as specified in the APEX Manifest
+;   (see https://source.android.com/docs/core/ota/apex).
+; - Security version: The version number from the APEX Manifest.
+; - Code hash: The root hash of the apex_payload.img file within the APEX, taken from the first
+;   hashtree descriptor in the VBMeta image
+;   (see https://android.googlesource.com/platform/external/avb/+/master/README.md).
+; - Authority hash: The SHA-512 hash of the public key used to sign the file system image in the
+;   APEX (as stored in the apex_pubkey file). The format is as described for AvbRSAPublicKeyHeader
+;   in https://cs.android.com/android/platform/superproject/main/+/main:external/avb/libavb/avb_crypto.h.
+SubcomponentDescriptor = {
+  1: tstr,                              ; Component name
+  2: uint,                              ; Security version
+  3: bstr,                              ; Code hash
+  4: bstr,                              ; Authority hash
+}

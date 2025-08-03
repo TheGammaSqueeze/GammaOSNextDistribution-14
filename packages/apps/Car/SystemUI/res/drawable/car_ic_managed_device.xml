@@ -1,0 +1,23 @@
+<!-- Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="@*android:dimen/car_touch_target_size"
+        android:height="@*android:dimen/car_touch_target_size"
+        android:viewportWidth="24.0"
+        android:viewportHeight="24.0">
+    <path
+        android:fillColor="@color/car_managed_device_icon_color"
+        android:pathData="M4 21Q3.175 21 2.588 20.413Q2 19.825 2 19V8Q2 7.175 2.588 6.588Q3.175 6 4 6H8V4Q8 3.175 8.588 2.587Q9.175 2 10 2H14Q14.825 2 15.413 2.587Q16 3.175 16 4V6H20Q20.825 6 21.413 6.588Q22 7.175 22 8V19Q22 19.825 21.413 20.413Q20.825 21 20 21ZM10 6H14V4Q14 4 14 4Q14 4 14 4H10Q10 4 10 4Q10 4 10 4ZM4 19H20Q20 19 20 19Q20 19 20 19V8Q20 8 20 8Q20 8 20 8H4Q4 8 4 8Q4 8 4 8V19Q4 19 4 19Q4 19 4 19ZM20 19H4Q4 19 4 19Q4 19 4 19V8Q4 8 4 8Q4 8 4 8H20Q20 8 20 8Q20 8 20 8V19Q20 19 20 19Q20 19 20 19Z"/>
+</vector>

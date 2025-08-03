@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License
+  -->
+
+<resources>
+    <string name="app_name">RcsClient</string>
+    <string name="provisioning_test">Provisioning Test</string>
+    <string name="delegate_test">Delegate Test</string>
+    <string name="uce_test">UCE Test</string>
+    <string name="gba_test">GBA Test</string>
+    <string name="test_msg_client">TestMessageClient</string>
+    <string name="db_client">DBClient</string>
+    <string name="rcs_profile">RcsProfile:</string>
+    <string name="register_provisioning_callback">registerProvisioningCallback</string>
+    <string name="unregister_provisioning_callback">unRegisterProvisioningCallback</string>
+    <string name="isRcsVolteSingleRegCapable">isRcsVolteSingleRegCapable</string>
+    <string name="result">Result:</string>
+    <string name="callback_result">Callback Result:</string>
+    <string name="initialize_delegate">initializeSipDelegate</string>
+    <string name="destroy_delegate">destroySipDelegate</string>
+    <string name="uce_description">Enter the number to query capability and separate by \',\' if
+        multiple ones.</string>
+    <string name="number">Number: </string>
+    <string name="request_capability">requestCapability</string>
+    <string name="request_availability">requestNetworkAvailability (1st number)</string>
+    <string name="gba_bootstrap">bootstrapAuthenticationRequest</string>
+    <string name="start_chat">Start Chat</string>
+    <string name="to">To:</string>
+    <string name="chat_message">Chat Message</string>
+    <string name="send">Send</string>
+    <string name="ok">OK</string>
+    <string name="session_initiating">Initializing chat session..</string>
+    <string name="session_timeout">Session initialization timeout</string>
+    <string name="session_succeeded">Session initialization succeeded</string>
+    <string name="session_failed">Session initialization failed</string>
+    <string name="session_broken_or_not_ready">Session broken or not ready</string>
+    <string name="organization">Organization:</string>
+    <string name="uicc_type">UICC Type:</string>
+    <string name="protocol">Protocol:</string>
+    <string name="tls_cs">TLS Cipher Suite:</string>
+    <string name="naf">NAF URI:</string>
+    <string name="standalone_pager">Standalone Pager</string>
+    <string name="standalone_large">Standalone Large</string>
+    <string name="standalone_deferred">Standalone Deferred</string>
+    <string name="standalone_pager_large">Standalone Large Pager</string>
+    <string name="chat">Chat</string>
+    <string name="file_transfer">File Transfer</string>
+    <string name="geolocation_sms">Geolocation SMS</string>
+    <string name="chatbot_session">Chatbot Session</string>
+    <string name="chatbot_standalone">Chatbot Standalone</string>
+    <string name="chatbot_version">Chatbot Version</string>
+    <string name="start_provisioning">Start Provisioning....</string>
+    <string name="provisioning_timeout">Provisioning timeout.</string>
+    <string name="provisioning_done">Provisioning done, Start registering...</string>
+    <string name="registration_timeout">Registration timeout</string>
+    <string name="registration_done">Registration done. Enjoy chat!</string>
+    <string name="registration_failed">Registration failed</string>
+    <string name="attach">+</string>
+    <string name="browse">Browse</string>
+    <string name="upload">Upload</string>
+    <string name="upload_file_gba">Upload File with GBA</string>
+    <string name="setCarrierLockMode">CarrierLock</string>
+
+    <string name="invalid_parameters">Invalid Parameters</string>
+    <string name="server">Server:</string>
+    <string name="file_name">File Name:</string>
+    <string name="server_empty">Server is empty</string>
+    <string name="file_empty">File is empty</string>
+    <string name="version_info">Version: %s</string>
+
+    <string name="no_LockMode">NoLock/ UnLocked</string>
+    <string name="no_LockTo_VZW">Lock to Verizon</string>
+    <string name="no_LockTo_ATT">Lock to ATT</string>
+    <string name="no_LockTo_TMO">Lock to TMO</string>
+    <string name="no_LockTo_KOODOS">Lock to KOODO</string>
+    <string name="no_LockTo_TELUS">Lock to TELUS</string>
+
+    <string-array name="rcs_profile">
+        <item>UP_1.0</item>
+        <item>UP_2.3</item>
+    </string-array>
+    <string-array name="organization">
+        <item>NONE</item>
+        <item>3GPP</item>
+        <item>3GPP2</item>
+        <item>OMA</item>
+        <item>GSMA</item>
+        <item>LOCAL</item>
+    </string-array>
+    <string-array name="protocol">
+        <item>SUBSCRIBER_CERTIFICATE</item>
+        <item>MBMS</item>
+        <item>HTTP_DIGEST_AUTH</item>
+        <item>3GPP_HTTP_BASED_MBMS</item>
+        <item>GENERIC_PUSH_LAYER</item>
+        <item>IMS_MEDIA_PLANE</item>
+        <item>GENERATION_TMPI</item>
+        <item>3GPP_HTTP_BASED_MBMS</item>
+        <item>TLS_DEFAULT</item>
+        <item>TLS_BROWSER</item>
+    </string-array>
+    <string-array name="uicc_type">
+        <item>UNKNOWN</item>
+        <item>SIM</item>
+        <item>USIM</item>
+        <item>RSIM</item>
+        <item>CSIM</item>
+        <item>ISIM</item>
+    </string-array>
+    <string-array name="server">
+        <item>STAGING</item>
+        <item>PRODUCTION</item>
+    </string-array>
+
+</resources>

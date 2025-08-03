@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.android.systemui">
+    <!--  This manifest exists only to exclude components and permissions of the common system UI
+          which are not used on TV.  -->
+    <application>
+        <!-- Remove overridden functionality -->
+        <activity android:name=".sensorprivacy.SensorUseStartedActivity" tools:node="remove" />
+        <activity android:name=".usb.UsbConfirmActivity" tools:node="remove" />
+        <activity android:name=".usb.UsbPermissionActivity" tools:node="remove" />
+
+        <!-- Remove unused functionality from phone system UI -->
+        <service android:name=".wallet.controller.WalletContextualLocationsService"
+            tools:node="remove" />
+        <service android:name=".screenshot.TakeScreenshotService"
+            tools:node="remove" />
+        <receiver android:name=".screenshot.ScreenshotServiceErrorReceiver"
+            tools:node="remove" />
+        <activity android:name=".screenshot.LongScreenshotActivity"
+            tools:node="remove" />
+        <service android:name=".screenshot.ScreenshotProxyService"
+            tools:node="remove" />
+        <service android:name=".screenshot.ScreenshotCrossProfileService"
+            tools:node="remove" />
+        <activity android:name=".screenshot.appclips.AppClipsTrampolineActivity"
+            tools:node="remove" />
+        <activity android:name=".screenshot.appclips.AppClipsActivity"
+            tools:node="remove" />
+        <service android:name=".screenshot.appclips.AppClipsScreenshotHelperService"
+            tools:node="remove" />
+        <service android:name=".screenshot.appclips.AppClipsService"
+            tools:node="remove" />
+        <service android:name=".screenrecord.RecordingService"
+            tools:node="remove" />
+        <receiver android:name=".screenshot.ActionProxyReceiver"
+            tools:node="remove" />
+        <receiver android:name=".screenshot.DeleteScreenshotReceiver"
+            tools:node="remove" />
+        <receiver android:name=".screenshot.SmartActionsReceiver"
+            tools:node="remove" />
+        <!-- TODO(b/295161958) check if this can be removed safely -->
+        <activity android:name=".usb.UsbAccessoryUriActivity"
+            tools:node="remove" />
+        <!-- TODO(b/295161958) check if this can be removed safely -->
+        <activity android:name=".usb.UsbContaminantActivity"
+            tools:node="remove" />
+        <!-- TODO(b/295161958) check if this can be removed safely -->
+        <activity android:name=".usb.UsbDebuggingActivity"
+            tools:node="remove" />
+        <!-- TODO(b/295161958) check if this can be removed safely -->
+        <activity android:name=".usb.UsbDebuggingSecondaryUserActivity"
+            tools:node="remove" />
+        <!-- TODO(b/295161958) check if this can be removed safely -->
+        <activity android:name=".wifi.WifiDebuggingActivity"
+            tools:node="remove" />
+        <!-- TODO(b/295161958) check if this can be removed safely -->
+        <activity-alias android:name=".WifiDebuggingActivityAlias"
+            android:targetActivity=".wifi.WifiDebuggingActivity"
+            tools:node="remove" />
+        <!-- TODO(b/295161958) check if this can be removed safely -->
+        <activity android:name=".wifi.WifiDebuggingSecondaryUserActivity"
+            tools:node="remove" />
+        <!-- TODO(b/295161958) check if this can be removed safely -->
+        <activity android:name=".net.NetworkOverLimitActivity"
+            tools:node="remove" />
+        <activity android:name=".media.MediaProjectionAppSelectorActivity"
+            tools:node="remove" />
+        <!-- TODO(b/295161958) check if this can be removed safely -->
+        <activity android:name=".SlicePermissionActivity"
+            tools:node="remove" />
+        <activity android:name=".telephony.ui.activity.SwitchToManagedProfileForCallActivity"
+            tools:node="remove" />
+        <!-- platform logo easter egg activity -->
+        <activity android:name=".DessertCase"
+            tools:node="remove" />
+        <activity android:name=".people.PeopleSpaceActivity"
+            tools:node="remove" />
+        <activity android:name=".people.widget.LaunchConversationActivity"
+            tools:node="remove" />
+        <receiver android:name=".people.widget.PeopleSpaceWidgetProvider"
+            tools:node="remove" />
+        <receiver android:name=".people.widget.PeopleSpaceWidgetPinnedReceiver"
+            tools:node="remove" />
+        <service android:name=".people.PeopleBackupFollowUpJob"
+            tools:node="remove" />
+        <service android:name=".DessertCaseDream"
+            tools:node="remove" />
+        <service android:name=".keyguard.KeyguardService"
+            tools:node="remove" />
+        <service android:name=".dreams.DreamOverlayService"
+            tools:node="remove" />
+        <activity android:name=".keyguard.WorkLockActivity"
+            tools:node="remove" />
+        <!-- TODO(b/295161958) check if this can be removed safely -->
+        <activity android:name=".user.CreateUserActivity"
+            tools:node="remove" />
+        <activity android:name=".Somnambulator"
+            tools:node="remove" />
+        <activity android:name=".settings.brightness.BrightnessDialog"
+            tools:node="remove" />
+        <activity android:name=".contrast.ContrastDialogActivity"
+            tools:node="remove" />
+        <activity android:name=".ForegroundServicesDialog"
+            tools:node="remove" />
+        <activity android:name=".clipboardoverlay.EditTextActivity"
+            tools:node="remove" />
+        <activity android:name=".controls.management.ControlsProviderSelectorActivity"
+            tools:node="remove" />
+        <activity android:name=".controls.management.ControlsEditingActivity"
+            tools:node="remove" />
+        <activity android:name=".controls.management.ControlsFavoritingActivity"
+            tools:node="remove" />
+        <activity android:name=".controls.ui.ControlsActivity"
+            tools:node="remove" />
+        <activity android:name=".wallet.ui.WalletActivity"
+            tools:node="remove" />
+        <receiver android:name=".controls.management.ControlsRequestReceiver"
+            tools:node="remove" />
+        <service android:name=".controls.controller.AuxiliaryPersistenceWrapper$DeletionJobService"
+            tools:node="remove" />
+        <activity android:name=".notetask.shortcut.CreateNoteTaskShortcutActivity"
+            tools:node="remove" />
+        <service android:name=".notetask.NoteTaskControllerUpdateService"
+            tools:node="remove" />
+        <service android:name=".notetask.NoteTaskBubblesController$NoteTaskBubblesService"
+            tools:node="remove" />
+        <activity android:name=".notetask.shortcut.LaunchNoteTaskActivity"
+            tools:node="remove" />
+        <activity android:name=".notetask.LaunchNotesRoleSettingsTrampolineActivity"
+            tools:node="remove" />
+        <activity android:name=".controls.management.ControlsRequestDialog"
+            tools:node="remove" />
+        <service android:name=".doze.DozeService"
+            tools:node="remove" />
+        <receiver android:name=".tuner.TunerService$ClearReceiver"
+            tools:node="remove" />
+        <receiver android:name=".statusbar.KeyboardShortcutsReceiver"
+            tools:node="remove" />
+
+        <provider android:name="com.android.systemui.people.PeopleProvider"
+            android:authorities="${applicationId}.people.PeopleProvider"
+            tools:node="remove" />
+        <provider android:name=".keyguard.KeyguardSliceProvider"
+            android:authorities="${applicationId}.keyguard"
+            tools:node="remove" />
+        <provider android:name=".keyguard.CustomizationProvider"
+            android:authorities="${applicationId}.customization"
+            tools:node="remove" />
+
+        <!-- Remove unused functionality from SystemUI libraries -->
+        <activity android:name="com.android.wm.shell.legacysplitscreen.ForcedResizableInfoActivity"
+            tools:node="remove" />
+        <activity android:name="com.android.settingslib.users.AvatarPickerActivity"
+            tools:node="remove" />
+        <service android:name="androidx.room.MultiInstanceInvalidationService"
+            tools:node="remove" />
+        <receiver android:name="androidx.remotecallback.ProviderRelayReceiver"
+            tools:node="remove" />
+        <activity android:name="androidx.slice.compat.SlicePermissionActivity"
+            tools:node="remove" />
+        <receiver android:name="androidx.profileinstaller.ProfileInstallReceiver"
+            tools:node="remove" />
+    </application>
+</manifest>

@@ -1,0 +1,18 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+blueprint_go_binary {
+    name: "treble_build",
+    srcs: [
+        "host.go",
+        "main.go",
+        "paths.go",
+        "query.go",
+    ],
+    deps: [
+        "treble_report_app",
+        "treble_report_module",
+        "treble_report_local",
+    ],
+}

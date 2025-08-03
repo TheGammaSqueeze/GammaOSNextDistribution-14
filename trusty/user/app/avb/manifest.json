@@ -1,0 +1,14 @@
+{
+    "uuid": "905bcb84-2dc4-419d-b951-7255027d318c",
+    "min_heap": 8192,
+    "min_stack": 4096,
+    "start_ports": [
+        {
+            "name": "com.android.trusty.avb",
+            "flags": {
+                "allow_ta_connect": false,
+                "allow_ns_connect": true
+            }
+        }
+    ]
+}

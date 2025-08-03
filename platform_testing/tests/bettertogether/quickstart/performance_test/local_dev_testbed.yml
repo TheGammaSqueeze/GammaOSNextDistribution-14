@@ -1,0 +1,63 @@
+x-test-params: &test-params
+  wifi_country_code: "US"
+  wifi_ssid: ""
+  wifi_password: ""
+  advertising_discovery_medium: 2 # 0 - auto, 2 - BLE_ONLY
+  target_post_wifi_connection_idle_time_sec: 10
+
+x-controllers: &controllers
+  Controllers:
+    AndroidDevice:
+      - serial: "123456ABCDEF"
+        role: "source_device"
+      - serial: "ABCDEF123456"
+        role: "target_device"
+
+TestBeds:
+- Name: LocalCustomizedTestbed
+  <<: *controllers
+  TestParams:
+      <<: *test-params
+
+- Name: LocalUS2GTestbed
+  <<: *controllers
+  TestParams:
+      <<: *test-params
+      test_report_alias_name: "US-2G"
+      wifi_ssid: "AP-2437"
+      wifi_password: "YOURPASSWORD"
+      bt_transfer_throughput_median_benchmark_kbps: 20
+      wifi_transfer_throughput_median_benchmark_kbps: 10240
+
+- Name: LocalUS5GTestbed
+  <<: *controllers
+  TestParams:
+      <<: *test-params
+      test_report_alias_name: "US-5G"
+      wifi_ssid: "AP-5180"
+      wifi_password: "YOURPASSWORD"
+      bt_transfer_throughput_median_benchmark_kbps: 40
+      wifi_transfer_throughput_median_benchmark_kbps: 20480
+
+- Name: LocalJP5GTestbed
+  <<: *controllers
+  TestParams:
+      <<: *test-params
+      test_report_alias_name: "JP-5G"
+      wifi_country_code: "JP"
+      wifi_ssid: "AP-5180"
+      wifi_password: "YOURPASSWORD"
+      bt_transfer_throughput_median_benchmark_kbps: 40
+      wifi_transfer_throughput_median_benchmark_kbps: 10240
+
+- Name: LocalGB5GTestbed
+  <<: *controllers
+  TestParams:
+      <<: *test-params
+      test_report_alias_name: "GB-5G"
+      wifi_country_code: "GB"
+      wifi_ssid: "AP-5260"
+      wifi_password: "YOURPASSWORD"
+      upgrade_medium: 7
+      bt_transfer_throughput_median_benchmark_kbps: 40
+      wifi_transfer_throughput_median_benchmark_kbps: 10240

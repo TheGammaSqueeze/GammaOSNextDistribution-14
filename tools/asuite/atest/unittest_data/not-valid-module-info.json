@@ -1,0 +1,3 @@
+{
+  "AmSlam": { "class": ["APPS"],  "path": ["foo/bar/AmSlam"],  "tags": ["tests"],  "installed": ["out/target/product/generic/data/app/AmSlam/AmSlam.apk"], "module_name": "AmSlam"
+}

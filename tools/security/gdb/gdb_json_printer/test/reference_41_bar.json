@@ -1,0 +1,17 @@
+{
+    "type": "struct",
+    "ctype": "Bar",
+    "address": "0x7fffffffd74e",
+    "fields": [
+        {
+            "field": "b",
+            "value": {
+                "type": "int",
+                "ctype": "uint16_t",
+                "address": "0x7fffffffd74e",
+                "value": "2"
+            }
+        }
+    ],
+    "base_classes": []
+}

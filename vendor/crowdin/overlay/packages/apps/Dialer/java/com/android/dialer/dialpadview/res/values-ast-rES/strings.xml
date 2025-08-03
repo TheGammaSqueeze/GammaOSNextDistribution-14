@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2012 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="description_dialpad_back">Dir p\'atrás</string>
+  <string name="description_dialpad_overflow">Más opciones</string>
+  <string name="description_delete_button">retrocesu</string>
+  <string name="description_image_button_plus">marcar el signu más</string>
+  <string name="description_voicemail_button">llamar al buzón de voz</string>
+  <string name="description_dial_button">marcar</string>
+  <string name="dialog_voicemail_airplane_mode_message">Pa llamar al buzón de voz, desactiva primero\'l mou avión.</string>
+  <string name="dialog_voicemail_not_ready_message">Pa configurar el buzón de voz, ve a Menú &gt; Configuración.</string>
+  <string name="add_2sec_pause">Amestar una posa de 2 segundos</string>
+  <string name="add_wait">Amestar una espera</string>
+  <string name="dialer_useDtmfDialpad">Usar el tecláu de tonos</string>
+  <string name="dialer_returnToInCallScreen">Volver a la llamada en cursu</string>
+  <string name="dialer_addAnotherCall">Amestar una llamada</string>
+  <string name="imei">IMEI</string>
+  <string name="meid">MEID</string>
+  <string name="simContacts_emptyLoading">Cargando dende la tarxeta SIM\u2026</string>
+  <string name="simContacts_title">Contautos de la tarxeta SIM</string>
+  <string name="menu_callNumber">Llamar al <xliff:g id="Number">%s</xliff:g></string>
+  <string name="dialpad_hint_emergency_calling_not_available">Nun se puen facer llames d\'emerxencia per Wi-Fi</string>
+</resources>

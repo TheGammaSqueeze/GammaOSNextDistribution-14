@@ -1,0 +1,32 @@
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_library {
+    name: "aosp_test_rcs_client_base",
+
+    srcs: ["src/com/android/libraries/rcs/**/*.java"],
+
+    static_libs: [
+        "androidx.annotation_annotation",
+        "androidx.concurrent_concurrent-futures",
+        "guava",
+        "nist-sip",
+    ],
+
+    libs: [
+        "auto_value_annotations",
+        "org.apache.http.legacy",
+    ],
+
+    plugins: [
+        "auto_value_plugin",
+    ],
+
+    sdk_version: "system_current",
+    min_sdk_version: "30",
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
+}

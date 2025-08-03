@@ -1,0 +1,105 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_bt_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_bt_license"],
+}
+
+rust_defaults {
+    name: "bt_topshim_facade.defaults",
+    defaults: [
+        "gd_rust_defaults",
+    ],
+    crate_name: "bt_topshim_facade",
+    srcs: ["src/main.rs"],
+    ld_flags: [
+        "-fsanitize-minimal-runtime",
+        "-fsanitize=undefined",
+    ],
+    rustlibs: [
+        "libbluetooth_core_rs_for_facade",
+        "libbluetooth_rs",
+        "libbt_common",
+        "libbt_facade_helpers",
+        "libbt_packets",
+        "libbt_shim",
+        "libbt_topshim",
+        "libbt_topshim_facade_protobuf",
+        "libclap",
+        "libfutures",
+        "libgrpcio",
+        "liblazy_static",
+        "liblog_rust",
+        "libnix",
+        "libnum_traits",
+        "libtokio",
+    ],
+    static_libs: [
+        "avrcp-target-service",
+        "lib-bt-packets",
+        "lib-bt-packets-avrcp",
+        "lib-bt-packets-base",
+        "libFraunhoferAAC",
+        "libaudio-a2dp-hw-utils",
+        "libbluetooth-dumpsys",
+        "libbluetooth-gdx",
+        "libbluetooth-types",
+        "libbluetooth_core_rs",
+        "libbluetooth_crypto_toolbox",
+        "libbluetooth_gd", // Gabeldorsche
+        "libbluetooth_log",
+        "libbt-audio-asrc",
+        "libbt-audio-hal-interface",
+        "libbt-bta",
+        "libbt-bta-core",
+        "libbt-btu-main-thread",
+        "libbt-common",
+        "libbt-hci",
+        "libbt-jni-thread",
+        "libbt-sbc-decoder",
+        "libbt-sbc-encoder",
+        "libbt-stack",
+        "libbt-stack-core",
+        "libbt_shim_bridge",
+        "libbt_topshim_cxx",
+        "libbtcore",
+        "libbtdevice",
+        "libbte",
+        "libbthalutils",
+        "libbtif",
+        "libbtif-core",
+        "libc++fs",
+        "libchrome",
+        "libevent",
+        "libflatbuffers-cpp",
+        "libg722codec",
+        "liblc3",
+        "libopus",
+        "libosi",
+        "libudrv-uipc",
+    ],
+    shared_libs: [
+        "libcrypto",
+        "libcutils",
+        "libgrpc++",
+        "libgrpc_wrap",
+        "liblog",
+        "server_configurable_flags",
+    ],
+    proc_macros: [
+        "libpaste",
+    ],
+}
+
+rust_binary_host {
+    name: "bt_topshim_facade",
+    defaults: ["bt_topshim_facade.defaults"],
+}
+
+rust_test_host {
+    name: "bt_topshim_facade.test",
+    defaults: ["bt_topshim_facade.defaults"],
+    test_suites: ["general-tests"],
+}

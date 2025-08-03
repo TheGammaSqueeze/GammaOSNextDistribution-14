@@ -1,0 +1,5 @@
+# Bug component: 847766
+# This contains the reference code and data for a Location Time Zone Provider.
+# See README.md.
+include platform/frameworks/base:/services/core/java/com/android/server/timezonedetector/OWNERS
+include platform/system/timezone:/OWNERS

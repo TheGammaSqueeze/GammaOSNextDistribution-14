@@ -1,0 +1,78 @@
+// Copyright 2022, The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_team: "trendy_team_android_hardware_backed_security",
+    default_applicable_licenses: ["system_authgraph_license"],
+}
+
+rust_library {
+    name: "libauthgraph_wire",
+    crate_name: "authgraph_wire",
+    srcs: ["src/lib.rs"],
+    host_supported: true,
+    vendor_available: true,
+    edition: "2021",
+    lints: "android",
+    rustlibs: [
+        "libciborium",
+        "libciborium_io",
+    ],
+    proc_macros: [
+        "libauthgraph_derive",
+        "libenumn",
+    ],
+}
+
+// _nostd variant of the build target, to help vendors who use Soong to
+// build for their secure environments.
+rust_library_rlib {
+    name: "libauthgraph_wire_nostd",
+    crate_name: "authgraph_wire",
+    srcs: ["src/lib.rs"],
+    vendor_available: true,
+    edition: "2021",
+    lints: "android",
+    rustlibs: [
+        "libciborium_nostd",
+        "libciborium_io_nostd",
+    ],
+    proc_macros: [
+        "libauthgraph_derive",
+        "libenumn",
+    ],
+    prefer_rlib: true,
+    no_stdlibs: true,
+    stdlibs: [
+        "libcompiler_builtins.rust_sysroot",
+        "libcore.rust_sysroot",
+    ],
+}
+
+rust_test {
+    name: "libauthgraph_wire_test",
+    crate_name: "authgraph_wire_test",
+    srcs: ["src/lib.rs"],
+    host_supported: true,
+    rustlibs: [
+        "libciborium",
+        "libciborium_io",
+        "libhex",
+    ],
+    proc_macros: [
+        "libauthgraph_derive",
+        "libenumn",
+    ],
+    test_suites: ["general-tests"],
+}

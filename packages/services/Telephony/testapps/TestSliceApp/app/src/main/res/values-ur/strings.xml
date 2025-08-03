@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="1265450418387661962">"TestSliceApp"</string>
+    <string name="hello_blank_fragment" msgid="1245093642770491175">"Hello blank fragment"</string>
+    <string name="request_network" msgid="8945235490804849914">"نیٹ ورک کی درخواست کریں"</string>
+    <string name="release_network" msgid="174252378593535238">"نیٹ ورک ریلیز کریں"</string>
+    <string name="ping" msgid="7890607576220714932">"پنگ"</string>
+    <string name="result_prefix" msgid="3522796186427501399">"نتیجہ:"</string>
+    <string name="latency_title" msgid="963052613947017009">"تاخیر کو ترجیح دیں"</string>
+    <string name="bw_title" msgid="3902162973688221344">"بینڈوتھ کو ترجیح دیں"</string>
+    <string name="cbs_title" msgid="5234410535569935600">"CBS"</string>
+    <string name="purchase" msgid="7843181995697372128">"نیٹ ورک پریمیم خریدیں"</string>
+    <string name="network_available" msgid="4780293262690730734">"نتیجہ: درخواست کردہ نیٹ ورک اب دستیاب ہے!"</string>
+    <string name="network_requested" msgid="5646123922691865991">"نتیجہ: نیٹ ورک کی درخواست کی گئی ہے!"</string>
+    <string name="network_released" msgid="2992280481133877025">"نتیجہ: نیٹ ورک ریلیز کر دیا گیا ہے!"</string>
+    <string name="network_release_failed" msgid="256471231420029151">"نتیجہ: نیٹ ورک ریلیز کرنے میں ناکام!!!"</string>
+    <string name="purchase_exception" msgid="8876841120055716671">"نتیجہ: نیٹ ورک پریمیم کی خریداری کرتے وقت استثنا!!!"</string>
+    <string name="purchase_empty_result" msgid="7497824191649973928">"نتیجہ: نیٹ ورک پریمیم کی خریداری کرتے وقت خالی نتیجہ ملا!!!"</string>
+    <string name="premium_not_available" msgid="7346368693802644748">"نتیجہ: نیٹ ورک پریمیم خریداری کے لیے دستیاب نہیں ہے!!!"</string>
+    <string name="purchase_in_progress" msgid="5450288183685032424">"نتیجہ: نیٹ ورک پریمیم خریداری جاری ہے..."</string>
+</resources>

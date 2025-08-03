@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string-array name="reminder_methods_labels">
+        <item>Benachrichtigung</item>
+        <item>E-Mail</item>
+        <item>SMS</item>
+        <item>Wecker</item>
+    </string-array>
+    <string-array name="preferences_week_start_day_labels">
+        <item>Gebietsschema - Standard</item>
+        <item>Samstag</item>
+        <item>Sonntag</item>
+        <item>Montag</item>
+    </string-array>
+    <string-array name="availability">
+        <item>Beschäftigt</item>
+        <item>Verfügbar</item>
+        <item>Mit Vorbehalt</item>
+    </string-array>
+    <string-array name="response_labels1">
+        <item>Keine Antwort</item>
+        <item>Ja</item>
+        <item>Vielleicht</item>
+        <item>Nein</item>
+    </string-array>
+    <string-array name="delete_repeating_labels">
+        <item>Nur dieser Termin</item>
+        <item>Dieser und zukünftige Termine</item>
+        <item>Alle Termine</item>
+    </string-array>
+    <string-array name="change_response_labels">
+        <item>Nur diesen Termin</item>
+        <item>Alle Termine in der Reihe</item>
+    </string-array>
+    <string-array name="buttons_list">
+        <item>Tag</item>
+        <item>Woche</item>
+        <item>Monat</item>
+        <item>Terminübersicht</item>
+    </string-array>
+    <string-array name="preferences_skip_reminders_labels">
+        <item>Nur bei Ablehnung</item>
+        <item>Bei Ablehnung oder keine Antwort</item>
+    </string-array>
+    <string-array name="recurrence_freq">
+        <item>Täglich</item>
+        <item>Jede Woche</item>
+        <item>Jeden Monat</item>
+        <item>Jedes Jahr</item>
+    </string-array>
+    <string-array name="repeat_by_nth_sun">
+        <item>an jedem ersten Sonntag</item>
+        <item>an jedem zweiten Sonntag</item>
+        <item>an jedem dritten Sonntag</item>
+        <item>an jedem vierten Sonntag</item>
+        <item>an jedem letzten Sonntag</item>
+    </string-array>
+    <string-array name="repeat_by_nth_mon">
+        <item>an jedem ersten Montag</item>
+        <item>an jedem zweiten Montag</item>
+        <item>an jedem dritten Montag</item>
+        <item>an jedem vierten Montag</item>
+        <item>an jedem letzten Montag</item>
+    </string-array>
+    <string-array name="repeat_by_nth_tues">
+        <item>an jedem ersten Dienstag</item>
+        <item>an jedem zweiten Dienstag</item>
+        <item>an jedem dritten Dienstag</item>
+        <item>an jedem vierten Dienstag</item>
+        <item>an jedem letzten Dienstag</item>
+    </string-array>
+    <string-array name="repeat_by_nth_wed">
+        <item>an jedem ersten Mittwoch</item>
+        <item>an jedem zweiten Mittwoch</item>
+        <item>an jedem dritten Mittwoch</item>
+        <item>an jedem vierten Mittwoch</item>
+        <item>an jedem letzten Mittwoch</item>
+    </string-array>
+    <string-array name="repeat_by_nth_thurs">
+        <item>an jedem ersten Donnerstag</item>
+        <item>an jedem zweiten Donnerstag</item>
+        <item>an jedem dritten Donnerstag</item>
+        <item>an jedem vierten Donnerstag</item>
+        <item>an jedem letzten Donnerstag</item>
+    </string-array>
+    <string-array name="repeat_by_nth_fri">
+        <item>an jedem ersten Freitag</item>
+        <item>an jedem zweiten Freitag</item>
+        <item>an jedem dritten Freitag</item>
+        <item>an jedem vierten Freitag</item>
+        <item>an jedem letzten Freitag</item>
+    </string-array>
+    <string-array name="repeat_by_nth_sat">
+        <item>an jedem ersten Samstag</item>
+        <item>an jedem zweiten Samstag</item>
+        <item>an jedem dritten Samstag</item>
+        <item>an jedem vierten Samstag</item>
+        <item>an jedem letzten Samstag</item>
+    </string-array>
+</resources>

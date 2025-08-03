@@ -1,0 +1,4 @@
+typeattribute su coredomain;
+
+# su is also permissive to permit setenforce.
+permissive su;

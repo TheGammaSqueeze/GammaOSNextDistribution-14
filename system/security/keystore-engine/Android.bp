@@ -1,0 +1,84 @@
+// Copyright (C) 2012 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_security_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-BSD
+    default_applicable_licenses: ["system_security_license"],
+}
+
+// This is expected to be cc_test_library but due to issue mentioned in b/298668920, b/314110490
+// we are creating cc_library and using static library to link with `keystore_client_tests`.
+cc_library {
+    name: "libkeystore-engine",
+
+    defaults: [
+        "keystore2_use_latest_aidl_ndk_shared",
+    ],
+    srcs: [
+        "android_engine.cpp",
+        "keystore2_engine.cpp",
+    ],
+
+    cflags: [
+        "-fvisibility=hidden",
+        "-Wall",
+        "-Werror",
+    ],
+
+    shared_libs: [
+        "android.system.keystore2-V4-ndk",
+        "libbinder_ndk",
+        "libcrypto",
+        "libcutils",
+        "liblog",
+        "libbase",
+        "libutils",
+    ],
+
+}
+
+// This builds a variant of libkeystore-engine that is available vendor.
+// It used to use a HIDL interface to connect to keystore through wificond.
+// Now That Keystore 2.0 has a vintf stable interface this library is
+// actually identical to libkeystore-engine.
+cc_library_shared {
+    name: "libkeystore-engine-wifi-hidl",
+
+    srcs: [
+        "android_engine.cpp",
+        "keystore2_engine.cpp",
+    ],
+
+    cflags: [
+        "-fvisibility=hidden",
+        "-Wall",
+        "-Werror",
+    ],
+
+    shared_libs: [
+        "android.system.keystore2-V1-ndk",
+        "libbase",
+        "libbinder_ndk",
+        "libcrypto",
+        "liblog",
+        "libcutils",
+        "libutils",
+    ],
+
+    vendor: true,
+}

@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <!-- This is the user visible name of the app and title. The purpose of the app is to allow the user to take a "Trace" of the activity on their system, recording it for later review. Here's a description of the process, but we'd like to refer to it using the general term "tracing": https://developer.android.com/studio/command-line/systrace.html -->
+    <string name="system_tracing">System Tracing</string>
+
+    <!-- This string is a description of what "System Tracing" is. It is used as a subtitle or summary text to describe this System Tracing app. -->
+    <string name="record_system_activity">Record system activity and analyze it later to improve performance</string>
+
+    <!-- This is the label for a toggle button. When the toggle is enabled, we will begin recording a "Trace" of activity on the user's phone. This is also used as a Quick Settings tile label. -->
+    <string name="record_trace">Record trace</string>
+    <!-- This is the subtitle for the "Record trace" button, which explains that the "trace" function will use the settings configured in "Trace settings". -->
+    <string name="record_trace_summary">Captures a system trace using the configuration set in \"Trace settings\"</string>
+
+    <!-- This is the label for a toggle button. When the toggle is enabled, we will begin recording a "CPU profile" on the user's device. See "Sample Java Methods" and "Sample C/C++ Functions" here: https://developer.android.com/studio/profile/record-traces#configurations -->
+    <string name="record_stack_samples">Record CPU profile</string>
+    <!-- This is the subtitle for the "Record CPU profile" button, which explains that the same functionality can also be enabled in traces with the "cpu" category. -->
+    <string name="record_stack_samples_summary">Callstack sampling can also be enabled in traces by checking the \"cpu\" category</string>
+
+    <!-- This is the label for a toggle button. When the toggle is enabled, we will begin recording a "heap dump" on the user's device. -->
+    <string name="record_heap_dump">Record heap dump</string>
+    <!-- This is the subtitle for the "Record heap dump" button if heap dumps are enabled. -->
+    <string name="record_heap_dump_summary_enabled">Captures a heap dump of the processes selected in \"Heap dump processes\"</string>
+    <!-- This is the subtitle for the "Record heap dump" button if heap dumps are disabled. -->
+    <string name="record_heap_dump_summary_disabled">Select at least one process in \"Heap dump processes\" to collect heap dumps</string>
+
+    <!-- This is the label for the button to start a new trace from a notification. -->
+    <string name="start_new_trace">Start new trace</string>
+
+    <!-- This is the text for a toggle that will let the user choose whether to include Winscope traces in the trace they are collecting. -->
+    <string name="winscope_tracing">Collect Winscope traces</string>
+    <string name="winscope_tracing_summary">Includes detailed UI telemetry data (can cause jank)</string>
+
+    <!-- This is the label for a toggle that will let the user choose whether to trace debuggable applications in the trace they are collecting. -->
+    <string name="trace_debuggable_applications">Trace debuggable applications</string>
+
+    <!-- This is the title for a list of trace categories. The user will be able to select as many categories as they want to from this list (that list will not be translated). Categories are explained here: https://developer.android.com/studio/command-line/systrace.html -->
+    <string name="categories">Categories</string>
+    <!-- When the user taps this button, the default list of categories to trace will be restored. -->
+    <string name="restore_default_categories">Restore default categories</string>
+    <!-- This is the label for a toast that appears when the user taps the "Restore default categories" button.-->
+    <string name="default_categories_restored">Default categories restored</string>
+    <!-- This is the subtitle for when the default categories are selected. -->
+    <string name="default_categories">Default</string>
+    <!-- This is the subtitle to show the number of categories that are selected. -->
+    <string name="num_categories_selected"> {count, plural,
+        =1    {# selected}
+        other {# selected}
+    }</string>
+
+    <!-- This is the label for a button. When this button is pressed, a checklist is opened that allows the user to select process names. -->
+    <string name="heap_dump_processes">Heap dump processes</string>
+    <!-- This is the subtitle for the "Heap dump processes" button. -->
+    <string name="heap_dump_processes_summary">At least one process must be selected</string>
+    <!-- This is the label for a button that will clear the processes that were previously selected by the user in "Heap dump processes". -->
+    <string name="clear_heap_dump_processes">Clear heap dump processes</string>
+    <!-- This is the text for a pop-up notification when user-input processes are cleared with "Clear heap dump processes". -->
+    <string name="clear_heap_dump_processes_toast">Process list cleared</string>
+    <!-- This is the label for a toggle that will cause heap dumps to be taken continuously. -->
+    <string name="continuous_heap_dump">Continuous heap profile</string>
+    <!-- This is the summary for the "Continuous heap profile" toggle that explains that a heap dump will be taken every specified interval. .-->
+    <string name="continuous_heap_dump_summary">Capture a heap dump once per specified interval</string>
+    <!-- This is the label for a picker that will let the user specify the interval at which to continuously record heap dumps. -->
+    <string name="continuous_heap_dump_interval">Heap dump interval</string>
+
+    <!-- Choice for the user to select a time interval that continuous heap dumps will be recorded at. -->
+    <string name="five_seconds">5 seconds</string>
+    <!-- Choice for the user to select a time interval that continuous heap dumps will be recorded at. -->
+    <string name="ten_seconds">10 seconds</string>
+    <!-- Choice for the user to select a time interval that continuous heap dumps will be recorded at. -->
+    <string name="thirty_seconds">30 seconds</string>
+    <!-- Choice for the user to select a time interval that continuous heap dumps will be recorded at. -->
+    <string name="one_minute">1 minute</string>
+
+    <!-- This is the label for a list of applications on the device that the user can add to their trace. The user will be able to select one or more applications from this list (that list will not be translated). -->
+    <string name="applications">Applications</string>
+    <!-- This is an optional subtitle under the Applications label, indicating that there are no applications available to be traced because the device doesn't have any applications in debug mode. -->
+    <string name="no_debuggable_apps">No debuggable applications are available</string>
+
+    <!-- This is the label for a picker that will let the user select the buffer size to use for their trace. -->
+    <string name="buffer_size">Per-CPU buffer size</string>
+
+    <!-- This setting is the label for a toggle button. When enabled, a Quick Settings tile will be available in the Quick Settings bar (available when you swipe down from the top of the screen). -->
+    <string name="show_quick_settings_tile">Show Quick Settings tile</string>
+
+    <!-- This is the title for a notification that appears while a trace is being saved. -->
+    <string name="saving_trace">Saving trace</string>
+    <!-- This is the title for a notification that appears after a trace was saved. -->
+    <string name="trace_saved">Trace saved</string>
+    <!-- This is the title for a notification that appears while stack samples are being saved. -->
+    <string name="saving_stack_samples">Saving stack samples</string>
+    <!-- This is the title for a notification that appears after stack samples were saved. -->
+    <string name="stack_samples_saved">Stack samples saved</string>
+    <!-- This is the title for a notification that appears while a heap dump is being saved. -->
+    <string name="saving_heap_dump">Saving heap dump</string>
+    <!-- This is the title for a notification that appears after a heap dump was saved. -->
+    <string name="heap_dump_saved">Heap dump saved</string>
+    <!-- This is the subtitle for a notification that appears after a recording was saved. Tapping it will open the 'share sheet' that will appear at the bottom of the screen and will allow the user to share the recording, for example to email. -->
+    <string name="tap_to_share">Tap to share your recording</string>
+
+    <!-- This is the title for a notification that appears when Traceur is handling saving a trace to a bug report. -->
+    <string name="attaching_to_report">Attaching trace to bug report</string>
+    <!-- This is the title for a notification that appears after a trace was saved to a bug report. -->
+    <string name="attached_to_report">Attached trace to bug report</string>
+    <!-- This is the subtitle for a notification that appears after a trace was saved to a bug report. -->
+    <string name="attached_to_report_summary">Tap to open BetterBug</string>
+
+    <!-- This is a message prompting the user to stop tracing. -->
+    <string name="stop_tracing">Stop tracing</string>
+
+    <!-- This is the title for a notification that appears when a trace begins but for some reason a desired tracing category is not available. This ends in a colon because the subtitle for this notification is a list of the unavailable tracing categories. That list could contain one or more categories. (This should rarely happen) -->
+    <string name="tracing_categories_unavailable">Some tracing categories are unavailable:</string>
+
+    <!-- This is the title for a notification that appears while a trace is being recorded. -->
+    <string name="trace_is_being_recorded">Trace is being recorded</string>
+    <!-- This is the subtitle for a notification that appears while a trace is being recorded. Tapping the notification will stop the recording. -->
+    <string name="tap_to_stop_tracing">Tap to stop tracing</string>
+
+    <!-- This is the title for a notification that appears while stack samples are being recorded. -->
+    <string name="stack_samples_are_being_recorded">Stack samples are being recorded</string>
+    <!-- This is the subtitle for a notification that appears while stack samples are being recorded. Tapping the notification will stop the recording. -->
+    <string name="tap_to_stop_stack_sampling">Tap to stop stack sampling</string>
+
+    <!-- This is the title for a notification that appears while a heap dump is being recorded. -->
+    <string name="heap_dump_is_being_recorded">Heap dump is being recorded</string>
+    <!-- This is the subtitle for a notification that appears while a heap dump is being recorded. Tapping the notification will stop the recording. -->
+    <string name="tap_to_stop_heap_dump">Tap to stop heap dump</string>
+
+    <!-- This is the label for a button that will clear all of the saved recordings, removing them all from the directory they are saved to. There will be a confirmation dialog after this button is tapped, but clearing the traces after confirming is not reversible. -->
+    <string name="clear_saved_files">Clear saved files</string>
+    <string name="clear_saved_files_summary">Recordings are cleared after one month</string>
+
+    <!-- This is the title for a confirmation dialog asking the user to confirm that they want to clear, or delete, all of the recordings they have saved. -->
+    <string name="clear_saved_files_question">Clear saved files?</string>
+    <!-- This is the confirmation dialog for deleting all of the saved traces. Don't translate "/data/local/traces". After confirming, this decision is not reversible. -->
+    <string name="all_recordings_will_be_deleted">All recordings will be deleted from /data/local/traces</string>
+    <!-- This is the confirmation button indicating that the user does want to clear, or delete, all of the saved traces from their device. -->
+    <string name="clear">Clear</string>
+
+    <!-- This is the title for the directory holding the system traces. The user sees this when using a directory browsing app like the Files app. -->
+    <string name="system_traces_storage_title">System traces</string>
+
+    <!-- These are keywords that the user can use to search for this app. 'systrace' should not be translated, as it is an app name. -->
+    <string name="keywords">systrace, trace, performance</string>
+
+    <!-- Title of a dialog asking the user to confirm whether they want to share the recorded file. -->
+    <string name="share_file">Share file?</string>
+
+    <!-- Text informing user about contents of a trace file. This string appears when users share a trace file or reveal the System Traces directory in a directory browsing app like Files. -->
+    <string name="system_trace_sensitive_data">System Tracing files may include sensitive system and app data (such as app usage). Only share system traces with people and apps you trust.</string>
+
+    <!-- Button on a dialog asking the user to confirm whether they want to share the trace. Clicking this button confirms that the user does want to share the trace. -->
+    <string name="share">Share</string>
+
+    <!-- Checkbox that indicates this dialog should not be shown again when the next trace is taken. -->
+    <string name="dont_show_again">Don\'t show again</string>
+
+    <string name="long_traces">Long traces</string>
+    <string name="long_traces_summary">Saved continuously to device storage</string>
+    <string name="long_traces_summary_betterbug">Saved continuously to device storage (will not be automatically attached to bug reports)</string>
+    <string name="max_long_trace_size">Maximum long trace size</string>
+    <string name="max_long_trace_duration">Maximum long trace duration</string>
+
+    <!-- Choice for the user to select a maximum trace size. -->
+    <string name="two_hundred_mb">200 MB</string>
+    <!-- Choice for the user to select a maximum trace size. -->
+    <string name="one_gb">1 GB</string>
+    <!-- Choice for the user to select a maximum trace size. -->
+    <string name="five_gb">5 GB</string>
+    <!-- Choice for the user to select a maximum trace size. -->
+    <string name="ten_gb">10 GB</string>
+    <!-- Choice for the user to select a maximum trace size. -->
+    <string name="twenty_gb">20 GB</string>
+    <!-- Choice for the user to select a maximum trace time. -->
+    <string name="ten_minutes">10 minutes</string>
+    <!-- Choice for the user to select a maximum trace time. -->
+    <string name="thirty_minutes">30 minutes</string>
+    <!-- Choice for the user to select a maximum trace time. -->
+    <string name="one_hour">1 hour</string>
+    <!-- Choice for the user to select a maximum trace time. -->
+    <string name="eight_hours">8 hours</string>
+    <!-- Choice for the user to select a maximum trace time. -->
+    <string name="twelve_hours">12 hours</string>
+    <!-- Choice for the user to select a maximum trace time. -->
+    <string name="twentyfour_hours">24 hours</string>
+    <!-- Choice for the user to select a maximum trace buffer size. -->
+    <string name="four_thousand_kb">4096 KB</string>
+    <!-- Choice for the user to select a maximum trace buffer size. -->
+    <string name="eight_thousand_kb">8192 KB</string>
+    <!-- Choice for the user to select a maximum trace buffer size. -->
+    <string name="sixteen_thousand_kb">16384 KB</string>
+    <!-- Choice for the user to select a maximum trace buffer size. -->
+    <string name="thirtytwo_thousand_kb">32768 KB</string>
+    <!-- Choice for the user to select a maximum trace buffer size. -->
+    <string name="sixtyfive_thousand_kb">65536 KB</string>
+
+    <!-- When enabled, causes Traceur to end any active recording sessions when a bug report is started. -->
+    <string name="stop_on_bugreport">Stop recording for bug reports</string>
+    <string name="stop_on_bugreport_summary">Ends active recordings when a bugreport is started</string>
+
+    <!-- When enabled, the tracing service can take the in-progress recording session and attach it to a bug report. -->
+    <string name="attach_to_bug_report">Attach recordings to bug reports</string>
+    <string name="attach_to_bug_report_summary">Automatically send in-progress recordings to BetterBug when a bug report is collected</string>
+
+    <!-- On click, takes the user to the directory containing on-device Traceur files. -->
+    <string name="link_to_traces">View saved files</string>
+
+    <!-- This is the title for the list of settings related to tracing. -->
+    <string name="pref_category_trace_settings">Trace settings</string>
+    <!-- This is the title for the options related to viewing or deleting saved Traceur files. -->
+    <string name="pref_category_saved_files">Saved files</string>
+    <!-- This is the title for the miscellaneous options. -->
+    <string name="pref_category_misc">Miscellaneous</string>
+    <!-- This is the title for the list of settings related to heap dumps. -->
+    <string name="pref_category_heap_dump_settings">Heap dump settings</string>
+</resources>

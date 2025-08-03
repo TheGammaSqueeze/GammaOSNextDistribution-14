@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2023 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="energy_mode_low_title" msgid="5700567801191430606">"കുറവ്"</string>
+    <string name="energy_mode_low_subtitle" msgid="7660632849388740009">"സ്‌റ്റാൻഡ്‌ബൈ"</string>
+    <string name="energy_mode_low_info" msgid="3931173640626998821">"സ്‌റ്റാൻഡ്‌ബൈ — ടിവി ഉപയോഗത്തിലില്ലാത്തപ്പോൾ നെറ്റ്‌വർക്ക് കണക്ഷൻ ഓഫാണ്"</string>
+  <string-array name="energy_mode_low_features">
+    <item msgid="4002284890471636101">"[ഫീച്ചർ 1 ചേർക്കുക]"</item>
+    <item msgid="7072772341455731040">"[ഫീച്ചർ 2 ചേർക്കുക]"</item>
+  </string-array>
+    <string name="energy_mode_low_eco_hint" msgid="2421460758847643655"></string>
+    <string name="energy_mode_moderate_title" msgid="8612259261851051150">"ഒപ്റ്റിമൈസ് ചെയ്‌തത്"</string>
+    <string name="energy_mode_moderate_subtitle" msgid="5565533500130453270">"നെറ്റ്‌വർക്ക് കണക്ഷനിലൂടെ ട്രിഗർ ചെയ്യാവുന്ന സ്റ്റാൻഡ്ബൈ"</string>
+    <string name="energy_mode_moderate_info" msgid="3188005033276283994">"നെറ്റ്‌വർക്ക് കണക്ഷനിലൂടെ ട്രിഗർ ചെയ്യാവുന്ന സ്റ്റാൻഡ്ബൈ — നെറ്റ്‌വർക്കിലൂടെ ടിവിയെ സജീവമാക്കുന്ന ഫീച്ചറുകൾ പ്രവർത്തനക്ഷമമാക്കുന്നു"</string>
+  <string-array name="energy_mode_moderate_features">
+    <item msgid="2654586107956150296">"[ഫീച്ചർ 1 ചേർക്കുക]"</item>
+    <item msgid="8724721267222341891">"[ഫീച്ചർ 2 ചേർക്കുക]"</item>
+  </string-array>
+    <string name="energy_mode_moderate_eco_hint" msgid="252189162446856286"></string>
+    <string name="energy_mode_high_title" msgid="7596672058005896920">"കൂടുതൽ"</string>
+    <string name="energy_mode_high_subtitle" msgid="5994284096495805422">"എല്ലായ്‌പ്പോഴും കണക്‌റ്റ് ചെയ്‌തിരിക്കുന്നു"</string>
+    <string name="energy_mode_high_info" msgid="8805447042714350186">"എല്ലായ്‌പ്പോഴും കണക്‌റ്റ് ചെയ്‌തിരിക്കുന്നു — ടിവി ഉപയോഗത്തിലില്ലാത്തപ്പോൾ നെറ്റ്‌വർക്ക് ഫീച്ചറുകൾ പ്രവർത്തനക്ഷമമാക്കുന്നു"</string>
+  <string-array name="energy_mode_high_features">
+    <item msgid="3018897868803319747">"[ഫീച്ചർ 1 ചേർക്കുക]"</item>
+    <item msgid="170760143032597722">"[ഫീച്ചർ 2 ചേർക്കുക]"</item>
+  </string-array>
+    <!-- no translation found for energy_mode_high_eco_hint (3266580507783627848) -->
+    <skip />
+</resources>

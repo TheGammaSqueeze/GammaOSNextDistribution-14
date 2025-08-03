@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="2922839697457005451">"GbaTestApp"</string>
+    <string name="label_settings" msgid="8030871890526865502">"설정"</string>
+    <string name="label_carrier" msgid="1470455313066422804">"이동통신사 구성"</string>
+    <string name="label_service" msgid="2668963955237345578">"서비스 구성"</string>
+    <string name="label_test" msgid="8425079572898571918">"테스트 구성"</string>
+    <string name="button_name_running" msgid="4557363091224858010">"실행 중"</string>
+    <string name="button_name_exit" msgid="8025683733431538975">"종료"</string>
+    <string name="label_test_result" msgid="892984695972956196">"테스트 결과"</string>
+    <string name="button_name_clear" msgid="436313515327318537">"초기화"</string>
+    <string name="button_name_done" msgid="6030406534322497491">"완료"</string>
+    <string name="title_activity_carrier_config" msgid="7807803900475957717">"CarrierConfigActivity"</string>
+    <string name="title_activity_service_config" msgid="5394662739555577279">"ServiceConfigActivity"</string>
+    <string name="title_activity_test_config" msgid="7585204485536359713">"TestConfigActivity"</string>
+    <string name="service_package_name" msgid="7204809439090483315">"GBA 서비스의 패키지 이름"</string>
+    <string name="service_release_time" msgid="532937496122890892">"통화 후 서비스 릴리스까지 시간"</string>
+    <string name="request_app_type" msgid="3975978141673475612">"UICC 앱 유형"</string>
+    <string name="request_naf_url" msgid="4487793541217737042">"네트워크 애플리케이션 기능(NAF) URL"</string>
+    <string name="request_force_bootstrapping" msgid="206043602616214325">"부트스트랩을 강제 시작하시겠습니까?"</string>
+    <string name="request_org" msgid="8416693445448308975">"조직 코드"</string>
+    <string name="request_security_protocol" msgid="1444164827561010482">"UA 보안 프로토콜 ID"</string>
+    <string name="request_tls_cipher_suite" msgid="6659854717595308404">"TLS Cipher Suite ID"</string>
+    <string name="response_success" msgid="2469204471244527663">"GBA 인증 성공 여부"</string>
+    <string name="response_fail_reason" msgid="3401426967253202496">"실패 사유 ID"</string>
+    <string name="response_key" msgid="8839847772051686309">"GBA 키(CK 및 IK)"</string>
+    <string name="response_btid" msgid="2550216722679350756">"B-TID(Bootstrapping Transaction Identifier)"</string>
+    <string name="sample_naf" msgid="255371174145881001">"3GPP-bootstrapping@naf1.operator.com"</string>
+    <string name="sample_btid" msgid="6967620309576384966">"(B-TID)"</string>
+    <string name="sample_key" msgid="3337589659405527482">"6629fae49393a05397450978507c4ef1"</string>
+</resources>

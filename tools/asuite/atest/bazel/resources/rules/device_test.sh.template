@@ -1,0 +1,14 @@
+#!/bin/bash
+set -e
+set -x
+
+RUNNER_EXECUTABLE="{runner}"
+TEST_EXECUTABLE="{test_script}"
+
+if [ -z "$RUNNER_EXECUTABLE" ]
+then
+  echo "No devices setup script"
+else
+  echo "There is devices setup script"
+  $RUNNER_EXECUTABLE $TEST_EXECUTABLE
+fi

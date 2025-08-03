@@ -1,0 +1,186 @@
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_team: "trendy_team_rubidium_sdk_runtime",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_test_host {
+    name: "SdkSandboxLifecycleHostTest",
+    srcs: [
+        "src/**/SdkSandboxLifecycleHostTest.java",
+        ":CtsHostsideTestsAppSecurityUtil",
+    ],
+    test_config: "SdkSandboxLifecycleHostTest.xml",
+    libs: ["tradefed"],
+    test_suites: ["general-tests"],
+    static_libs: [
+        "cts-install-lib-host",
+        "modules-utils-build-testing",
+        "SdkSandboxHostTestUtils",
+    ],
+    data: [
+        ":TestCodeProvider",
+        ":TestCodeProvider2",
+        ":SdkSandboxTestApp",
+        ":SdkSandboxTestApp2",
+        ":SdkSandboxTestSharedApp1",
+        ":SdkSandboxTestSharedApp2",
+    ],
+    compile_multilib: "both",
+}
+
+java_test_host {
+    name: "SdkSandboxShellHostTest",
+    srcs: ["src/**/SdkSandboxShellHostTest.java"],
+    test_config: "SdkSandboxShellHostTest.xml",
+    libs: ["tradefed"],
+    test_suites: ["general-tests"],
+    data: [
+        ":TestCodeProvider",
+        ":TestCodeProvider2",
+        ":SdkSandboxTestApp",
+        ":SdkSandboxTestDebuggableApp",
+    ],
+}
+
+android_test_helper_app {
+    name: "SdkSandboxTestApp",
+    manifest: "app/SdkSandboxTestAppManifest.xml",
+    defaults: ["platform_app_defaults"],
+    platform_apis: true,
+    srcs: [
+        "app/src/**/SdkSandboxTestActivity.java",
+    ],
+    static_libs: [
+        "androidx.core_core",
+        "androidx.test.ext.junit",
+        "SdkSandboxTestUtils",
+        "SdkSandbox-java-lib",
+    ],
+    min_sdk_version: "33",
+    target_sdk_version: "33",
+}
+
+android_test_helper_app {
+    name: "SdkSandboxTestApp2",
+    manifest: "app/SdkSandboxTestApp2Manifest.xml",
+    defaults: ["platform_app_defaults"],
+    platform_apis: true,
+    srcs: [
+        "app/src/**/SdkSandboxEmptyActivity.java",
+        "app/src/**/SdkSandboxTestActivity2.java",
+    ],
+    static_libs: [
+        "androidx.core_core",
+        "SdkSandboxTestUtils",
+        "SdkSandbox-java-lib",
+    ],
+    min_sdk_version: "33",
+    target_sdk_version: "33",
+}
+
+android_test_helper_app {
+    name: "SdkSandboxTestDebuggableApp",
+    manifest: "app/SdkSandboxTestDebuggableAppManifest.xml",
+    defaults: ["platform_app_defaults"],
+    platform_apis: true,
+    srcs: [
+        "app/src/**/SdkSandboxTestDebuggableActivity.java",
+    ],
+    static_libs: [
+        "androidx.core_core",
+        "SdkSandboxTestUtils",
+        "SdkSandbox-java-lib",
+    ],
+    min_sdk_version: "33",
+    target_sdk_version: "33",
+}
+
+android_test_helper_app {
+    name: "SdkSandboxTestSharedApp1",
+    manifest: "app/SdkSandboxTestSharedApp1Manifest.xml",
+    srcs: [
+        "app/src/**/SdkSandboxTestSharedActivity.java",
+        ":framework-sdksandbox-sources",
+        ":sdksandbox_aidl",
+        ":sdksandbox-sources",
+    ],
+    defaults: ["framework-sdksandbox-jarjar-defaults"],
+    test_suites: ["general-tests"],
+    static_libs: [
+        "androidx.core_core",
+        "compatibility-device-util-axt",
+        "SdkSandboxTestUtils",
+    ],
+    platform_apis: true,
+    min_sdk_version: "33",
+    target_sdk_version: "33",
+}
+
+android_test_helper_app {
+    name: "SdkSandboxTestSharedApp2",
+    manifest: "app/SdkSandboxTestSharedApp2Manifest.xml",
+    srcs: [
+        "app/src/**/SdkSandboxTestSharedApp2.java",
+        "app/src/**/shared/app2/SdkSandboxEmptyActivity.java",
+        ":framework-sdksandbox-sources",
+        ":sdksandbox_aidl",
+        ":sdksandbox-sources",
+    ],
+    defaults: ["framework-sdksandbox-jarjar-defaults"],
+    test_suites: ["general-tests"],
+    static_libs: [
+        "androidx.core_core",
+        "androidx.test.ext.junit",
+        "compatibility-device-util-axt",
+        "SdkSandboxTestUtils",
+    ],
+    platform_apis: true,
+    min_sdk_version: "33",
+    target_sdk_version: "33",
+}
+
+android_test_helper_app {
+    name: "TestCodeProvider",
+    manifest: "codeprovider/TestCodeProviderManifest.xml",
+    defaults: ["platform_app_defaults"],
+    certificate: ":sdksandbox-test",
+    srcs: [
+        "codeprovider/src/**/TestSandboxedSdkProvider.java",
+    ],
+    libs: [
+        "framework-sdksandbox.impl",
+    ],
+    platform_apis: true,
+    min_sdk_version: "33",
+    target_sdk_version: "33",
+}
+
+android_test_helper_app {
+    name: "TestCodeProvider2",
+    manifest: "codeprovider/TestCodeProvider2Manifest.xml",
+    certificate: ":sdksandbox-test",
+    defaults: ["platform_app_defaults"],
+    srcs: [
+        "codeprovider/src/**/TestSandboxedSdkProvider2.java",
+    ],
+    libs: [
+        "framework-sdksandbox.impl",
+    ],
+    platform_apis: true,
+    min_sdk_version: "33",
+    target_sdk_version: "33",
+}

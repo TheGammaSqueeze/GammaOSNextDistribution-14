@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="1265450418387661962">"TestSliceApp"</string>
+    <string name="hello_blank_fragment" msgid="1245093642770491175">"ഹലോ ബ്ലാങ്ക് ഫ്രാഗ്‌മെന്റ്"</string>
+    <string name="request_network" msgid="8945235490804849914">"ഒരു നെറ്റ്‌വർക്ക് അഭ്യർത്ഥിക്കുക"</string>
+    <string name="release_network" msgid="174252378593535238">"നെറ്റ്‌വർക്ക് റിലീസ് ചെയ്യുക"</string>
+    <string name="ping" msgid="7890607576220714932">"പിംഗ്"</string>
+    <string name="result_prefix" msgid="3522796186427501399">"ഫലം:"</string>
+    <string name="latency_title" msgid="963052613947017009">"പ്രതികരണ സമയത്തിന് മുൻഗണന നൽകുക"</string>
+    <string name="bw_title" msgid="3902162973688221344">"ബാൻഡ്‌വിഡ്‌ത്തിന് മുൻഗണന നൽകുക"</string>
+    <string name="cbs_title" msgid="5234410535569935600">"CBS"</string>
+    <string name="purchase" msgid="7843181995697372128">"നെറ്റ്‌വർക്ക് പ്രീമിയം വാങ്ങുക"</string>
+    <string name="network_available" msgid="4780293262690730734">"ഫലം: അഭ്യർത്ഥിച്ച നെറ്റ്‌വർക്ക് ഇപ്പോൾ ലഭ്യമാണ്!"</string>
+    <string name="network_requested" msgid="5646123922691865991">"ഫലം: നെറ്റ്‌വർക്കിന് അഭ്യർത്ഥിച്ചു!"</string>
+    <string name="network_released" msgid="2992280481133877025">"ഫലം: നെറ്റ്‌വർക്ക് റിലീസ് ചെയ്തിരിക്കുന്നു!"</string>
+    <string name="network_release_failed" msgid="256471231420029151">"ഫലം: നെറ്റ്‌വർക്ക് റിലീസ് ചെയ്യാനായില്ല!!!"</string>
+    <string name="purchase_exception" msgid="8876841120055716671">"ഫലം: നെറ്റ്‌വർക്ക് പ്രീമിയം വാങ്ങുമ്പോൾ ഒഴിവാക്കുന്നവ!!!"</string>
+    <string name="purchase_empty_result" msgid="7497824191649973928">"ഫലം: നെറ്റ്‌വർക്ക് പ്രീമിയം വാങ്ങുമ്പോൾ ഫലം ലഭിക്കുന്നില്ല!!!"</string>
+    <string name="premium_not_available" msgid="7346368693802644748">"ഫലം: നെറ്റ്‌വർക്ക് പ്രീമിയം വാങ്ങുന്നതിന് ലഭ്യമല്ല!!!"</string>
+    <string name="purchase_in_progress" msgid="5450288183685032424">"ഫലം: നെറ്റ്‌വർക്ക് പ്രീമിയം വാങ്ങൽ പുരോഗമിക്കുന്നു ..."</string>
+</resources>

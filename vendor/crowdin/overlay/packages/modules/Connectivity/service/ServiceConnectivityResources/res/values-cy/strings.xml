@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="connectivityResourcesAppLabel">Adnoddau Cysylltedd System</string>
+    <string name="wifi_available_sign_in">Mewngofnodi i rwydwaith Wi-Fi</string>
+    <string name="network_available_sign_in">Mewngofnodi i rwydwaith</string>
+    <string name="network_available_sign_in_detailed"><xliff:g id="network_ssid">%1$s</xliff:g></string>
+    <string name="mobile_network_available_no_internet">Dim rhyngrwyd</string>
+    <string name="mobile_network_available_no_internet_detailed">Efallai dy fod allan o ddata gan <xliff:g id="network_carrier" example="Android Mobile">%1$s</xliff:g>. Tapia am ddewisiadau.</string>
+    <string name="mobile_network_available_no_internet_detailed_unknown_carrier">Efallai dy fod allan o ddata. Tapia am ddewisiadau.</string>
+    <string name="wifi_no_internet">Nid oes gan <xliff:g id="network_ssid" example="GoogleGuest">%1$s</xliff:g> mynediad at y rhyngrwyd.</string>
+    <string name="wifi_no_internet_detailed">Tapia am ddewisiadau</string>
+    <string name="mobile_no_internet">Nid oes gan y rhwydwaith symudol fynediad at y rhyngrwyd</string>
+    <string name="other_networks_no_internet">Nid oes gan y rhwydwaith fynediad at y rhyngrwyd</string>
+    <string name="private_dns_broken_detailed">Nid oes modd cael mynediad at weinydd DNS preifat</string>
+    <string name="network_partial_connectivity">Mae gan <xliff:g id="network_ssid" example="GoogleGuest">%1$s</xliff:g> cysylltedd cyfyngedig.</string>
+    <string name="network_partial_connectivity_detailed">Tapia i\'w ddewis beth bynnag</string>
+    <string name="network_switch_metered">Wedi newid i <xliff:g id="network_type">%1$s</xliff:g></string>
+    <string name="network_switch_metered_detail">Mae\'r ddyfais yn defnyddio <xliff:g id="new_network">%1$s</xliff:g> pan nad oes gan <xliff:g id="previous_network">%2$s</xliff:g> mynediad at y rhyngrwyd. Gall fod costau defnydd data symudol.</string>
+    <string name="network_switch_metered_toast">Newidiwyd o <xliff:g id="previous_network">%1$s</xliff:g> i <xliff:g id="new_network">%2$s</xliff:g></string>
+    <string-array name="network_switch_type_name">
+        <item>data symudol</item>
+        <item>Wi-Fi</item>
+        <item>Bluetooth</item>
+        <item>Ether-rwyd</item>
+        <item>VPN</item>
+    </string-array>
+    <string name="network_switch_type_name_unknown">math rhwydwaith anhysbys</string>
+</resources>

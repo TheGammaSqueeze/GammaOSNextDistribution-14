@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="feedback_system_logs_title_text" msgid="8162964763101361628">"සියලු උපාංග ලොග (පද්ධති සහ යෙදුම) ඇතුළත් කරන්න"</string>
+    <string name="feedback_system_logs_legal_text" msgid="4770068793128503597">"සියලු පද්ධති සහ යෙදුම් උපාංග ලොග බෙදා ගැනීම පරිශීලක නාම, ස්ථානය, උපාංග IDs, සහ ජාල තතු වැනි Google විස්තර යැවිය හැක. තාක්ෂණික ගැටලු නිරාකරණයට සහ සේවා වැඩි දියුණු කිරීමට Google මෙම තතු භාවිත කරයි. g.co/android/devicelogs හි දී තව දැන ගන්න."</string>
+    <string name="feedback_bugreport_title_text" msgid="8863884817986711122">"දෝෂ වාර්තාව ඇතුළත් කරන්න"</string>
+    <string name="feedback_bugreport_legal_display_text" msgid="4486929548753044585">"දෝෂ වාර්තාවේ (%1$s සිට) Google හට ගැටලුව තේරුම් ගැනීමට සහ නිරාකරණයට උදවු කිරීම සඳහා පරිශීලක නාම, ස්ථානය, උපාංග IDs, සහ ජාල තතු වැනි දත්ත ඇතුළත් වේ."</string>
+    <string name="next" msgid="3308587969183798652">"මීළඟ"</string>
+    <string name="feedback_view_system_logs_button_text" msgid="1889709679017124924">"පද්ධති ලොග බලන්න"</string>
+    <string name="feedback_view_logs_dialog_title" msgid="1937861449450135462">"පද්ධති ලොග්"</string>
+    <string name="feedback_view_logs_dialog_body" msgid="2496560711853644250">"ඔබේ ප්‍රතිපෝෂණය පිළිබඳව කටයුතු කිරීමට අපට අවශ්‍ය තොරතුරු මෙම ලොගවල අඩංගු වේ."</string>
+    <string name="annotated_back_indicator_string" msgid="3197935392074998004">"ආපසු යාමට ආපසු බොත්තම ඔබන්න."</string>
+    <string name="loading" msgid="1709842456101615353">"පූරණය වේ"</string>
+</resources>

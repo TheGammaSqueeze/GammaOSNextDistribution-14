@@ -1,0 +1,177 @@
+# Copyright (C) 2021 The Android Open Source Project
+#
+# init.rc for microdroid. This contains a minimal script plus basic service definitions (e.g. apexd)
+# needed for microdroid to run.
+# TODO(b/179340780): support APEX init scripts
+#
+# IMPORTANT: Do not create world writable files or directories.
+# This is a common source of Android security bugs.
+#
+
+import /init.environ.rc
+
+# Cgroups are mounted right before early-init using list from /etc/cgroups.json
+on early-init
+    # Android doesn't need kernel module autoloading, and it causes SELinux
+    # denials.  So disable it by setting modprobe to the empty string.  Note: to
+    # explicitly set a sysctl to an empty string, a trailing newline is needed.
+    write /proc/sys/kernel/modprobe \n
+
+    # set RLIMIT_NICE to allow priorities from 19 to -20
+    setrlimit nice 40 40
+
+    start ueventd
+
+    # Generate empty linker config to suppress warnings
+    write /linkerconfig/ld.config.txt \#
+    chmod 644 /linkerconfig/ld.config.txt
+
+    # Applies debug policy to decide whether to enable adb, adb root, and logcat.
+    # We don't directly exec the binary to specify stdio_to_kmsg.
+    exec_start init_debug_policy
+
+    # Wait for ueventd to have finished cold boot.
+    # This is needed by prng-seeder (at least).
+    # (In Android this happens inside apexd-bootstrap.)
+    wait_for_prop ro.cold_boot_done true
+
+on init
+    mkdir /mnt/apk 0755 root root
+    mkdir /mnt/extra-apk 0755 root root
+
+    # Allow the payload access to the console (default is 0600)
+    chmod 0666 /dev/console
+
+    # Microdroid_manager starts apkdmverity/zipfuse/apexd
+    start microdroid_manager
+
+    # Wait for apexd to finish activating APEXes before starting more processes.
+    # Microdroid starts apexd in VM mode in which apexd doesn't wait for init after setting
+    # apexd.status to activated, but immediately transitions to ready. Therefore, it's not safe to
+    # wait for the activated status, by the time this line is reached it may be already be ready.
+    wait_for_prop apexd.status ready
+    perform_apex_config
+
+    # Notify to microdroid_manager that perform_apex_config is done.
+    # Microdroid_manager shouldn't execute payload before this, because app
+    # payloads are not designed to run with bootstrap bionic
+    setprop apex_config.done true
+
+on property:microdroid_manager.init_done=1
+    # Stop ueventd to save memory
+    stop ueventd
+
+on init && property:ro.boot.microdroid.debuggable=1
+    # Mount tracefs (with GID=AID_READTRACEFS)
+    mount tracefs tracefs /sys/kernel/tracing gid=3012
+
+on property:init_debug_policy.adbd.enabled=1
+    start adbd
+
+# Mount filesystems and start core system services.
+on late-init
+    trigger early-fs
+
+    # Mount fstab in init.{$device}.rc by mount_all command. Optional parameter
+    # '--early' can be specified to skip entries with 'latemount'.
+    # /system and /vendor must be mounted by the end of the fs stage,
+    # while /data is optional.
+    trigger fs
+    trigger post-fs
+
+    # Mount fstab in init.{$device}.rc by mount_all with '--late' parameter
+    # to only mount entries with 'latemount'. This is needed if '--early' is
+    # specified in the previous mount_all command on the fs stage.
+    # With /system mounted and properties form /system + /factory available,
+    # some services can be started.
+    trigger late-fs
+
+    # Wait for microdroid_manager to finish setting up sysprops from the payload config.
+    # Some further actions in the boot sequence might depend on the sysprops from the payloag,
+    # e.g. microdroid.config.enable_authfs configures whether to run authfs_service after
+    # /data is mounted.
+    wait_for_prop microdroid_manager.config_done 1
+
+    trigger post-fs-data
+
+    trigger early-boot
+    trigger boot
+
+on post-fs
+    # Once everything is setup, no need to modify /.
+    # The bind+remount combination allows this to work in containers.
+    mount rootfs rootfs / remount bind ro nodev
+
+    # TODO(b/185767624): change the hard-coded size?
+    mount tmpfs tmpfs /data noatime nosuid nodev noexec rw size=128M
+
+    # We chown/chmod /data again so because mount is run as root + defaults
+    chown system system /data
+    chmod 0771 /data
+
+    # We restorecon /data in case the userdata partition has been reset.
+    restorecon /data
+
+    # set up misc directory structure first so that we can end early boot
+    # and start apexd
+    mkdir /data/misc 01771 system misc
+    # work around b/183668221
+    restorecon /data/misc
+
+    mkdir /data/misc/authfs 0700 root root
+
+on late-fs && property:ro.debuggable=1
+    # Ensure that tracefs has the correct permissions.
+    # This does not work correctly if it is called in post-fs.
+    chmod 0755 /sys/kernel/tracing
+    chmod 0755 /sys/kernel/debug/tracing
+
+on post-fs-data
+    mark_post_data
+
+    mkdir /data/vendor 0771 root root
+    mkdir /data/vendor_ce 0771 root root
+    mkdir /data/vendor_de 0771 root root
+    mkdir /data/vendor/hardware 0771 root root
+
+    # For security reasons, /data/local/tmp should always be empty.
+    # Do not place files or directories in /data/local/tmp
+    mkdir /data/local 0751 root root
+    mkdir /data/local/tmp 0771 shell shell
+
+on post-fs-data && property:microdroid_manager.authfs.enabled=1
+    start authfs_service
+
+on boot
+    # Mark boot completed. This will notify microdroid_manager to run payload.
+    setprop dev.bootcomplete 1
+
+service apexd-vm /system/bin/apexd --vm
+    user root
+    group system
+    oneshot
+    disabled
+    capabilities CHOWN DAC_OVERRIDE DAC_READ_SEARCH FOWNER SYS_ADMIN
+
+service ueventd /system/bin/ueventd
+    user root
+    group root
+    class core
+    critical
+    seclabel u:r:ueventd:s0
+    capabilities CHOWN DAC_OVERRIDE DAC_READ_SEARCH FOWNER FSETID MKNOD NET_ADMIN SETGID SETUID SYS_MODULE SYS_RAWIO SYS_ADMIN
+
+service console /system/bin/sh
+    class core
+    console
+    disabled
+    user shell
+    group shell log readproc
+    seclabel u:r:shell:s0
+    setenv HOSTNAME console
+
+service init_debug_policy /system/bin/init_debug_policy
+    user root
+    oneshot
+    disabled
+    stdio_to_kmsg

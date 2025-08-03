@@ -1,0 +1,83 @@
+// Copyright (C) 2015 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+//
+
+package {
+    default_team: "trendy_team_aaos_framework",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "CarServiceTest",
+
+    srcs: ["src/**/*.java"],
+
+    resource_dirs: ["res"],
+
+    aaptflags: [
+        "--extra-packages com.android.car",
+        "--auto-add-overlay",
+    ],
+
+    platform_apis: true,
+
+    // for system|privileged permission.
+    certificate: "platform",
+
+    // When built explicitly put it in the data partition
+
+    optimize: {
+        enabled: false,
+    },
+
+    static_libs: [
+        "junit",
+        "android.car.test.utils",
+        "android.car.testapi",
+        "androidx.test.ext.junit",
+        "androidx.test.rules",
+        "android.frameworks.automotive.powerpolicy-V2-java",
+        "android.hardware.automotive.vehicle-V2.0-java",
+        "car-service-test-static-lib",
+        "car-service-builtin-test-static-lib",
+        "com.android.car.test.lib",
+        "mockito-target-extended",
+        "truth",
+        "compatibility-device-util-axt",
+        "vehicle-hal-support-lib",
+    ],
+
+    libs: [
+        "android.car",
+        "android.car.watchdoglib",
+        "android.test.runner",
+        "android.test.base",
+    ],
+
+    // mockito-target-inline dependency
+    jni_libs: [
+        "libdexmakerjvmtiagent",
+        "libstaticjvmtiagent",
+        "libcarservicejni",
+    ],
+
+    test_suites: [
+        "general-tests",
+        "automotive-tests",
+        "automotive-general-tests",
+    ],
+    // TODO(b/319708040): re-enable use_resource_processor
+    use_resource_processor: false,
+}

@@ -1,0 +1,50 @@
+{
+  "description": "A2A test: given no source, trigger has adid permission enabled. Expected trigger-no-matching-source for additional debug report",
+  "input": {
+    "triggers": [
+      {
+        "timestamp": "800000000001",
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech1.test",
+          "registrant": "example.1d1.test",
+          "destination_origin": "android-app://example.1d1.test"
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "has_ad_id_permission": true,
+          "response": {
+            "Attribution-Reporting-Register-Trigger": {
+              "event_trigger_data": [
+                {
+                  "trigger_data": "2",
+                  "priority": "101"
+                }
+              ],
+              "debug_reporting": true,
+              "debug_key": "8971346783"
+            },
+            "Location": null,
+            "Attribution-Reporting-Redirect": null
+          }
+        }]
+      }
+    ]
+  },
+  "output": {
+    "verbose_debug_reports": [
+      {
+        "report_time": "800000000001",
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/debug/verbose",
+        "payload": [
+          {
+            "type": "trigger-no-matching-source",
+            "body": {
+              "attribution_destination": "android-app://example.1d1.test",
+              "trigger_debug_key": "8971346783"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

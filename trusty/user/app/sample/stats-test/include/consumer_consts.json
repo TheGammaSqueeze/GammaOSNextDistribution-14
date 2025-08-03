@@ -1,0 +1,10 @@
+{
+    "header": "consumer_consts.h",
+    "constants":[
+        {
+            "name": "CONSUMER_PORT_TEST_CTL",
+            "value": "com.android.trusty.stats.test.consumer.test_ctl",
+            "type": "port"
+        }
+    ]
+}

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    Copyright (C) 2021 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="brand_screen_header" msgid="4382251935798018352">"Бұл көлік ұйымдікі"</string>
+    <string name="contact_device_provider" msgid="338577979231875837">"Толық ақпарат алу үшін <xliff:g id="IT_ADMIN">%1$s</xliff:g> хабарласыңыз."</string>
+    <string name="organization_admin" msgid="6551608903069550652">"ұйым басқарушысына"</string>
+    <string name="if_questions_contact_admin" msgid="4645510019575736238">"Сұрақтарыңыз болса, ұйым басқарушысына хабарласыңыз."</string>
+    <string name="admin_has_ability_to_monitor_device" msgid="3132155961508293345">"Ұйым басқарушысы корпоративтік ресурстарды пайдалануды, қолданбаларды, рұқсаттарды және осы көлікпен байланысты деректерді, соның ішінде желідегі белсенділікті, құрылғының орналасқан жерін бақылай және басқара алады.<xliff:g id="LINE_BREAK">
+
+</xliff:g>Қосымша ақпарат, соның ішінде ұйымның құпиялық саясаттары туралы ақпарат алу үшін ұйым басқарушысына хабарласыңыз."</string>
+    <string name="contact_your_admin_for_more_info" msgid="1419852317652804536">"Қосымша ақпарат, соның ішінде ұйымның құпиялық саясаттары туралы ақпарат алу үшін ұйым басқарушысына хабарласыңыз."</string>
+    <string name="managed_device_info" msgid="2134697391634083944">"Бұл — басқарылатын көлік"</string>
+    <string name="contact_your_admin_for_help" msgid="1741496631607502730">"Көмек алу үшін ұйым басқарушысына хабарласыңыз."</string>
+    <string name="fully_managed_device_provisioning_accept_header" msgid="8767138982035307813">"Басқарылатын көлікті реттеу"</string>
+    <string name="fully_managed_device_provisioning_step_1_header" msgid="8704166635032524345">"Ұйымның қолданбаларын пайдалану"</string>
+    <string name="fully_managed_device_provisioning_step_1_description" msgid="5960961281295355254">"Ақпараттық-сауықтық жүйе реттелуде..."</string>
+    <string name="fully_managed_device_provisioning_step_2_header" msgid="5888602026900289468">"Ақпараттық-сауықтық жүйе дерегі қорғалмаған"</string>
+    <string name="fully_managed_device_provisioning_step_2_subheader_title" msgid="1421575203782743214">"Әрекетіңіз және дерегіңіз"</string>
+    <string name="fully_managed_device_provisioning_step_2_subheader" msgid="4881961368653838979">"Ұйым басқарушысы көліктегі әрекетіңізді және дерегіңізді көре алады."</string>
+    <string name="fully_managed_device_provisioning_permissions_secondary_subheader" msgid="8955791361423166123">"Ұйым басқарушысы осы көліктегі қолданбалар үшін микрофон, камера және геодерек рұқсаттары сияқты рұқсаттарды орната алады."</string>
+    <string name="fully_managed_device_with_permission_control_provisioning_summary" msgid="2503568673345133100">"Жұмыс қолданбаларына оңай кіру үшін осы көліктің ақпараттық-сауықтық жүйесін пайдаланыңыз. Бұл көлік қорғалмаған. Ұйым басқарушысы көліктегі әрекетіңізді және дерегіңізді көре алады. Ұйым басқарушысы осы көліктегі қолданбалар үшін микрофон, камера және геодерек рұқсаттары сияқты рұқсаттарды орната алады."</string>
+    <string name="fully_managed_device_provisioning_summary" msgid="4323948058344613817">"Жұмыс қолданбаларына оңай кіру үшін осы көліктің ақпараттық-сауықтық жүйесін пайдаланыңыз. Бұл көлік қорғалмаған. Ұйым басқарушысы көліктегі дерегіңізді және әрекетіңізді көре алады."</string>
+    <string name="fully_managed_device_provisioning_progress_label" msgid="988594700479673633">"Басқарылатын көлікті реттеу"</string>
+    <string name="fully_managed_device_provisioning_return_device_title" msgid="1578111657911434819">"Реттеуден бас тартып, көлікке оралу"</string>
+    <string name="fully_managed_device_provisioning_return_device_subheader" msgid="5809488930429106172">"Көлікті ұйым басқарушысына қайтарыңыз немесе реттеуді жалғастыру үшін алдыңғы экранға оралыңыз."</string>
+    <string name="fully_managed_device_cancel_setup_button" msgid="4113790677940440998">"Реттеуден бас тарту"</string>
+    <string name="fully_managed_device_reset_and_return_button" msgid="4951274590516561428">"Нөлдеу және қайтару"</string>
+    <string name="fully_managed_device_provisioning_privacy_title" msgid="4789425994893472324">"Құпиялық туралы ескерту"</string>
+    <string name="fully_managed_device_provisioning_privacy_body" msgid="5549745709511179391">"Әкімші осы көліктегі деректі және әрекетіңізді көруі мүмкін."</string>
+</resources>

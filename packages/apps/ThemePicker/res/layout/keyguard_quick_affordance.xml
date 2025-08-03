@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  -->
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="@dimen/option_item_size"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:clipChildren="false">
+
+    <FrameLayout
+        android:layout_width="@dimen/option_item_size"
+        android:layout_height="@dimen/option_item_size"
+        android:clipChildren="false">
+
+        <ImageView
+            android:id="@id/selection_border"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/option_item_border"
+            android:alpha="0"
+            android:importantForAccessibility="no" />
+
+        <ImageView
+            android:id="@id/background"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/option_item_background"
+            android:importantForAccessibility="no" />
+
+        <ImageView
+            android:id="@id/foreground"
+            android:layout_width="@dimen/keyguard_quick_affordance_icon_size"
+            android:layout_height="@dimen/keyguard_quick_affordance_icon_size"
+            android:layout_gravity="center"
+            android:tint="@color/system_on_surface" />
+
+    </FrameLayout>
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="8dp" />
+
+    <TextView
+        android:id="@id/text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:textColor="@color/system_on_surface"
+        android:maxLines="2"
+        android:hyphenationFrequency="normal"
+        android:ellipsize="end"
+        android:text="Placeholder for stable size calculation, please do not remove."
+        tools:ignore="HardcodedText" />
+
+</LinearLayout>

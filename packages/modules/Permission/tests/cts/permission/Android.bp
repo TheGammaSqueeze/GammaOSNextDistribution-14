@@ -1,0 +1,130 @@
+//
+// Copyright (C) 2008 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "CtsPermissionTestCases",
+    defaults: [
+        "cts_defaults",
+        "mts-target-sdk-version-current",
+    ],
+    min_sdk_version: "30",
+    // Tag this module as a cts test artifact
+    test_suites: [
+        "cts",
+        "general-tests",
+        "sts",
+        "mts-permission",
+        "mcts-permission",
+    ],
+    // Include both the 32 and 64 bit versions
+    compile_multilib: "both",
+    static_libs: [
+        "ctstestrunner-axt",
+        "guava",
+        "android-ex-camera2",
+        "compatibility-device-util-axt",
+        "truth",
+        "androidx.annotation_annotation",
+        "platformprotosnano",
+        "permission-test-util-lib",
+        "nativetesthelper",
+        // TODO(b/175251166): remove once Android migrates to JUnit 4.12,
+        // which provides assertThrows
+        "testng",
+        "bluetooth-test-util-lib",
+        "CtsAccessibilityCommon",
+        "safety-center-internal-data",
+        "sts-device-util",
+        "platform-test-rules",
+        "CtsVirtualDeviceCommonLib",
+        "android.permission.flags-aconfig-java",
+        "androidx.test.rules",
+    ],
+    jni_libs: [
+        "libctspermission_jni",
+        "libpermissionmanager_native_test",
+        "libnativehelper_compat_libc++",
+    ],
+    srcs: [
+        "src/**/*.java",
+        "src/**/*.aidl",
+        "src/**/*.kt",
+    ],
+    sdk_version: "test_current",
+    libs: [
+        "android.test.runner",
+        "android.test.base",
+    ],
+    data: [
+        ":AppThatDefinesUndefinedPermissionGroupElement",
+        ":AppThatDoesNotHaveBgLocationAccess",
+        ":CtsAdversarialPermissionDefinerApp",
+        ":CtsAdversarialPermissionUserApp",
+        ":CtsAppThatAccessesLocationOnCommand",
+        ":CtsAppThatAlsoDefinesPermissionA",
+        ":CtsAppThatAlsoDefinesPermissionADifferentCert",
+        ":CtsAppThatAlsoDefinesPermissionGroupADifferentCert",
+        ":CtsAppThatAlsoDefinesPermissionGroupADifferentCert30",
+        ":CtsAppThatDefinesPermissionA",
+        ":CtsAppThatDefinesPermissionInPlatformGroup",
+        ":CtsAppThatDefinesPermissionWithInvalidGroup",
+        ":CtsAppThatDefinesPermissionWithInvalidGroup30",
+        ":CtsAppThatHasNotificationListener",
+        ":CtsAppThatRequestsBluetoothPermission30",
+        ":CtsAppThatRequestsCalendarContactsBodySensorCustomPermission",
+        ":CtsAppThatRequestsBluetoothPermission31",
+        ":CtsAppThatRequestsBluetoothPermissionNeverForLocation31",
+        ":CtsAppThatRequestsContactsAndCallLogPermission16",
+        ":CtsAppThatRequestsContactsPermission15",
+        ":CtsAppThatRequestsContactsPermission16",
+        ":CtsAppThatRequestsLocationAndBackgroundPermission28",
+        ":CtsAppThatRequestsLocationAndBackgroundPermission29",
+        ":CtsAppThatRequestsBluetoothPermissionNeverForLocationNoProvider",
+        ":CtsAppThatRequestsLocationPermission22",
+        ":CtsAppThatRequestsLocationPermission28",
+        ":CtsAppThatRequestsLocationPermission29",
+        ":CtsAppThatRequestsLocationPermission29v4",
+        ":CtsAppThatRequestsOneTimePermission",
+        ":CtsAppThatRequestsPermissionAandB",
+        ":CtsAppThatRequestsPermissionAandC",
+        ":CtsAppThatRequestsStoragePermission28",
+        ":CtsAppThatRequestsStoragePermission29",
+        ":CtsAppThatRunsRationaleTests",
+        ":CtsAppToTestRevokeSelfPermission",
+        ":CtsAppWithSharedUidThatRequestsLocationPermission28",
+        ":CtsAppWithSharedUidThatRequestsLocationPermission29",
+        ":CtsAppWithSharedUidThatRequestsNoPermissions",
+        ":CtsAppWithSharedUidThatRequestsPermissions",
+        ":CtsInstallPermissionDefinerApp",
+        ":CtsInstallPermissionEscalatorApp",
+        ":CtsInstallPermissionUserApp",
+        ":CtsRuntimePermissionDefinerApp",
+        ":CtsRuntimePermissionUserApp",
+        ":CtsStorageEscalationApp28",
+        ":CtsStorageEscalationApp29Full",
+        ":CtsStorageEscalationApp29Scoped",
+        ":CtsVictimPermissionDefinerApp",
+        ":CtsAppThatRequestsMultiplePermissionsWithMinMaxSdk",
+        ":CtsAppThatRequestsSystemAlertWindow22",
+        ":CtsAppThatRequestsSystemAlertWindow23",
+        ":CtsAppThatRequestCustomCameraPermission",
+        ":CtsAppThatRequestsDevicePermissions",
+    ],
+    per_testcase_directory: true,
+}

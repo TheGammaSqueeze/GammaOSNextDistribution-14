@@ -1,0 +1,26 @@
+<!--
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="48dp"
+        android:height="48dp"
+        android:viewportWidth="48"
+        android:viewportHeight="48">
+
+    <path
+        android:fillColor="@color/launcher_home_icon_color"
+        android:fillType="evenOdd"
+        android:pathData="M24 48C37.2548 48 48 37.2548 48 24C48 10.7452 37.2548 0 24 0C10.7452 0 0 10.7452 0 24C0 37.2548 10.7452 48 24 48ZM13.4395 20.16V35.52H17.3995V22.72H30.5995V35.52H34.5595V20.16L23.9995 12.48L13.4395 20.16ZM27.9595 30.4V32.96H20.0395V30.4H27.9595ZM27.9595 25.28V27.84H20.0395V25.28H27.9595Z" />
+</vector>

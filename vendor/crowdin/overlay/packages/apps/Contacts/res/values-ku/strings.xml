@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2006 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="contactsList">ناوەکان</string>
+    <string name="shortcutContact">ناوەکان</string>
+    <string name="shortcutDialContact">په‌یوه‌ندیی ڕاستەوخۆ</string>
+    <string name="shortcutMessageContact">نامەی ڕاستەخۆ</string>
+    <string name="contactPickerActivityTitle">ناوێک هەڵبژێرە</string>
+    <string name="searchHint">گەڕانی ناوەکان</string>
+    <string name="menu_addStar">زیادیکه‌ بۆ دڵخوازه‌کان</string>
+    <string name="menu_removeStar">بیسڕه‌وه‌ له‌ دڵخوازه‌کان</string>
+    <string name="menu_editContact">دەستکاریی</string>
+    <string name="menu_deleteContact">سڕینه‌وه‌</string>
+    <string name="separatorJoinAggregateSuggestions">ناوە پێشنیارکراوەکان</string>
+    <string name="separatorJoinAggregateAll">هەموو ناوەکان</string>
+    <string name="menu_set_ring_tone">دانانی زەنگ</string>
+    <string name="deleteConfirmation_positive_button">سڕینه‌وه‌</string>
+    <string name="invalidContactMessage">ناوه‌که‌ بوونی نییه‌.</string>
+    <string name="attach_photo_dialog_title">وێنەی ناو</string>
+    <string name="customLabelPickerTitle">ناوزه‌دی ئاسایی</string>
+    <string name="removePhoto">سڕینەوەی وێنە</string>
+    <string name="listFoundAllContactsZero">ناو نییە</string>
+    <string name="add_contact_dlg_message_fmt">\"<xliff:g id="email">%s</xliff:g>\" زیاد ده‌که‌یت بۆ ناوه‌کان؟</string>
+    <string name="search_settings_description">لسیتی ناوه‌کانت</string>
+    <string name="missing_app">هیچ بەرنامەیەک نەدۆزرایەوە بۆ هه‌ڵسوڕانی ئەم چالاکییە.</string>
+    <string name="menu_share">په‌رشیکه‌</string>
+    <string name="audio_chat">چاتی ده‌نگیی</string>
+    <string name="video_chat">چاتی ڤیدیۆیی</string>
+    <string name="account_type_format"><xliff:g id="source" example="Gmail">%1$s</xliff:g> ناو</string>
+    <string name="take_photo">وێنە بگرە</string>
+    <string name="take_new_photo">وێنەی نوێ بگرە</string>
+    <string name="search_results_searching">گەڕان\u2026</string>
+    <string name="event_edit_field_hint_text">به‌روار</string>
+    <string name="aggregation_suggestion_edit_dialog_message">ده‌یگۆڕیت بۆ ده‌ستکاریی کردنی
+        ناوی دیاریکراو؟ ئه‌و زانیارییانه‌ی تا ئێستا تێت کردوون له‌به‌ریان ده‌گیرێته‌وه‌.</string>
+    <string name="contact_directory_description">ڕێبه‌ریی <xliff:g id="type" example="Corporate Directory">%1$s</xliff:g></string>
+    <string name="activity_title_settings">ڕێکخستنه‌کان</string>
+    <string name="menu_settings" msgid="377929915873428211">ڕێکخستنه‌کان</string>
+    <string name="non_phone_caption">ژماره‌ی مۆبایل</string>
+    <string name="non_phone_add_to_contacts">زیادیکه‌ بۆ ناوه‌کان</string>
+    <string name="non_phone_close">داخستن</string>
+    <string name="contacts_unavailable_add_account">هه‌ژمار زیاد بکه‌</string>
+    <string name="copy_text">له‌به‌ری بگره‌وه‌ بۆ ته‌خته‌نووس</string>
+    <string name="set_default">له‌سه‌ر بنه‌ڕه‌تیی دایبنێ</string>
+    <string name="clear_default">پاکردنەوەی بنەڕەتی</string>
+    <string name="toast_text_copied">ده‌ق له‌به‌ری گیرایه‌وه‌</string>
+    <string name="enter_contact_name">گەڕانی ناوەکان</string>
+    <string name="local_profile_title">په‌ڕه‌ی ژینی ناوخۆییم</string>
+    <string name="external_profile_title">په‌ڕه‌ی <xliff:g id="external_source">%1$s</xliff:g> ژینم</string>
+    <string name="add_account">هه‌ژمار زیاد بکه‌</string>
+    <string name="add_new_account">هه‌ژماری نوێ زیاد بکه‌</string>
+    <string name="menu_export_database">هەناردەی فایلەکانی بنكه‌دراوه‌</string>
+    <string name="editor_contact_photo_content_description">وێنەی ناو</string>
+    <string name="local_search_label">هەموو ناوەکان</string>
+    <string name="organizationLabelsGroup">ڕێکخستن</string>
+    <string name="label_custom_field">دروستکراو</string>
+    <string name="list_filter_all_accounts">هەموو ناوەکان</string>
+    <string name="list_filter_all_starred">ئه‌ستێره‌دار</string>
+    <string name="list_filter_single">ناوەکان</string>
+    <string name="display_all_contacts">هەموو ناوەکان</string>
+    <string name="hint_findContacts">گەڕانی ناوەکان</string>
+    <string name="contactsFavoritesLabel">دڵخوازه‌کان</string>
+    <string name="description_delete_contact">سڕینه‌وه‌</string>
+</resources>

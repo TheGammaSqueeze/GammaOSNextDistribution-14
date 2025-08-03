@@ -1,0 +1,154 @@
+[
+    {
+        "merged": "me.phh.treble.app-merged_res-20:/xml_pref_oneplus.xml.flat",
+        "source": "me.phh.treble.app-main-21:/xml/pref_oneplus.xml"
+    },
+    {
+        "merged": "me.phh.treble.app-merged_res-20:/xml_pref_mydevice.xml.flat",
+        "source": "me.phh.treble.app-main-21:/xml/pref_mydevice.xml"
+    },
+    {
+        "merged": "me.phh.treble.app-merged_res-20:/drawable-v24_ic_launcher_foreground.xml.flat",
+        "source": "me.phh.treble.app-main-21:/drawable-v24/ic_launcher_foreground.xml"
+    },
+    {
+        "merged": "me.phh.treble.app-merged_res-20:/xml_pref_misc.xml.flat",
+        "source": "me.phh.treble.app-main-21:/xml/pref_misc.xml"
+    },
+    {
+        "merged": "me.phh.treble.app-merged_res-20:/xml_pref_oppo.xml.flat",
+        "source": "me.phh.treble.app-main-21:/xml/pref_oppo.xml"
+    },
+    {
+        "merged": "me.phh.treble.app-merged_res-20:/drawable_tile_fan_control.xml.flat",
+        "source": "me.phh.treble.app-main-21:/drawable/tile_fan_control.xml"
+    },
+    {
+        "merged": "me.phh.treble.app-merged_res-20:/mipmap-xhdpi_ic_launcher.png.flat",
+        "source": "me.phh.treble.app-main-21:/mipmap-xhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "me.phh.treble.app-merged_res-20:/mipmap-mdpi_ic_launcher_round.png.flat",
+        "source": "me.phh.treble.app-main-21:/mipmap-mdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "me.phh.treble.app-merged_res-20:/xml_pref_samsung.xml.flat",
+        "source": "me.phh.treble.app-main-21:/xml/pref_samsung.xml"
+    },
+    {
+        "merged": "me.phh.treble.app-merged_res-20:/xml_pref_qualcomm.xml.flat",
+        "source": "me.phh.treble.app-main-21:/xml/pref_qualcomm.xml"
+    },
+    {
+        "merged": "me.phh.treble.app-merged_res-20:/xml_pref_nubia.xml.flat",
+        "source": "me.phh.treble.app-main-21:/xml/pref_nubia.xml"
+    },
+    {
+        "merged": "me.phh.treble.app-merged_res-20:/xml_pref_ims.xml.flat",
+        "source": "me.phh.treble.app-main-21:/xml/pref_ims.xml"
+    },
+    {
+        "merged": "me.phh.treble.app-merged_res-20:/xml_pref_asus.xml.flat",
+        "source": "me.phh.treble.app-main-21:/xml/pref_asus.xml"
+    },
+    {
+        "merged": "me.phh.treble.app-merged_res-20:/xml_pref_transsion.xml.flat",
+        "source": "me.phh.treble.app-main-21:/xml/pref_transsion.xml"
+    },
+    {
+        "merged": "me.phh.treble.app-merged_res-20:/drawable_ic_settings.xml.flat",
+        "source": "me.phh.treble.app-main-21:/drawable/ic_settings.xml"
+    },
+    {
+        "merged": "me.phh.treble.app-merged_res-20:/mipmap-xxxhdpi_ic_launcher.png.flat",
+        "source": "me.phh.treble.app-main-21:/mipmap-xxxhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "me.phh.treble.app-merged_res-20:/xml_pref_custom.xml.flat",
+        "source": "me.phh.treble.app-main-21:/xml/pref_custom.xml"
+    },
+    {
+        "merged": "me.phh.treble.app-merged_res-20:/drawable_tile_game_mode.xml.flat",
+        "source": "me.phh.treble.app-main-21:/drawable/tile_game_mode.xml"
+    },
+    {
+        "merged": "me.phh.treble.app-merged_res-20:/mipmap-xxhdpi_ic_launcher_round.png.flat",
+        "source": "me.phh.treble.app-main-21:/mipmap-xxhdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "me.phh.treble.app-merged_res-20:/xml_pref_headers.xml.flat",
+        "source": "me.phh.treble.app-main-21:/xml/pref_headers.xml"
+    },
+    {
+        "merged": "me.phh.treble.app-merged_res-20:/layout_activity_updater.xml.flat",
+        "source": "me.phh.treble.app-main-21:/layout/activity_updater.xml"
+    },
+    {
+        "merged": "me.phh.treble.app-merged_res-20:/mipmap-xxxhdpi_ic_launcher_round.png.flat",
+        "source": "me.phh.treble.app-main-21:/mipmap-xxxhdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "me.phh.treble.app-merged_res-20:/mipmap-mdpi_ic_launcher.png.flat",
+        "source": "me.phh.treble.app-main-21:/mipmap-mdpi/ic_launcher.png"
+    },
+    {
+        "merged": "me.phh.treble.app-merged_res-20:/xml_pref_doze.xml.flat",
+        "source": "me.phh.treble.app-main-21:/xml/pref_doze.xml"
+    },
+    {
+        "merged": "me.phh.treble.app-merged_res-20:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "me.phh.treble.app-main-21:/mipmap-anydpi-v26/ic_launcher_round.xml"
+    },
+    {
+        "merged": "me.phh.treble.app-merged_res-20:/xml_pref_huawei.xml.flat",
+        "source": "me.phh.treble.app-main-21:/xml/pref_huawei.xml"
+    },
+    {
+        "merged": "me.phh.treble.app-merged_res-20:/mipmap-hdpi_ic_launcher.png.flat",
+        "source": "me.phh.treble.app-main-21:/mipmap-hdpi/ic_launcher.png"
+    },
+    {
+        "merged": "me.phh.treble.app-merged_res-20:/mipmap-hdpi_ic_launcher_round.png.flat",
+        "source": "me.phh.treble.app-main-21:/mipmap-hdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "me.phh.treble.app-merged_res-20:/menu_menu_main.xml.flat",
+        "source": "me.phh.treble.app-main-21:/menu/menu_main.xml"
+    },
+    {
+        "merged": "me.phh.treble.app-merged_res-20:/mipmap-xhdpi_ic_launcher_round.png.flat",
+        "source": "me.phh.treble.app-main-21:/mipmap-xhdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "me.phh.treble.app-merged_res-20:/xml_pref_vsmart.xml.flat",
+        "source": "me.phh.treble.app-main-21:/xml/pref_vsmart.xml"
+    },
+    {
+        "merged": "me.phh.treble.app-merged_res-20:/drawable_ic_system_update.xml.flat",
+        "source": "me.phh.treble.app-main-21:/drawable/ic_system_update.xml"
+    },
+    {
+        "merged": "me.phh.treble.app-merged_res-20:/xml_pref_xiaomi.xml.flat",
+        "source": "me.phh.treble.app-main-21:/xml/pref_xiaomi.xml"
+    },
+    {
+        "merged": "me.phh.treble.app-merged_res-20:/xml_pref_lenovo.xml.flat",
+        "source": "me.phh.treble.app-main-21:/xml/pref_lenovo.xml"
+    },
+    {
+        "merged": "me.phh.treble.app-merged_res-20:/drawable-night_ic_settings.xml.flat",
+        "source": "me.phh.treble.app-main-21:/drawable-night/ic_settings.xml"
+    },
+    {
+        "merged": "me.phh.treble.app-merged_res-20:/drawable_ic_launcher_background.xml.flat",
+        "source": "me.phh.treble.app-main-21:/drawable/ic_launcher_background.xml"
+    },
+    {
+        "merged": "me.phh.treble.app-merged_res-20:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "me.phh.treble.app-main-21:/mipmap-anydpi-v26/ic_launcher.xml"
+    },
+    {
+        "merged": "me.phh.treble.app-merged_res-20:/mipmap-xxhdpi_ic_launcher.png.flat",
+        "source": "me.phh.treble.app-main-21:/mipmap-xxhdpi/ic_launcher.png"
+    }
+]

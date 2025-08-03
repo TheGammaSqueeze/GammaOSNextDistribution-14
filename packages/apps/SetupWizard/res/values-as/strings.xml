@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2013-2015 The CyanogenMod Project
+     SPDX-FileCopyrightText: 2017-2024 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">ছেটআপ ৱিজাৰ্ড</string>
+    <string name="next">পৰৱৰ্তী</string>
+    <string name="skip">বাদ দিয়া</string>
+    <string name="start">আৰম্ভ</string>
+    <string name="ok">ঠিক</string>
+    <string name="loading">মাত্র একছেকেণ্ড\u2026</string>
+    <string name="emergency_call">জৰুৰীকালীন কল</string>
+    <string name="sim_locale_changed">%1$s SIM চিনাক্ত কৰা হৈছে</string>
+    <string name="setup_sim_missing">SIM কার্ড হেৰাইছে</string>
+    <string name="sim_missing_summary" product="tablet">আপোনাৰ টেবলেটত এখন SIM কাৰ্ড চিনাক্ত কৰা হোৱা নাই। এখন SIM কাৰ্ড আন্তঃসংযোগ কৰিবলৈ আপোনাৰ ডিভাইচৰ সৈতে অহা নিৰ্দেশনা পঢ়ক।</string>
+    <string name="sim_missing_summary" product="default">আপোনাৰ ফোনত এখন SIM কাৰ্ড চিনাক্ত কৰা হোৱা নাই। এখন SIM কাৰ্ড আন্তঃসংযোগ কৰিবলৈ আপোনাৰ ডিভাইচৰ সৈতে অহা নিৰ্দেশনা পঢ়ক।</string>
+    <string name="setup_datetime">তাৰিখ আৰু সময়</string>
+    <string name="date_time_summary">যদি প্ৰয়োজন হয় তেন্তে চলিত তাৰিখ আৰু সময় মিলাওক</string>
+    <string name="setup_current_date">চলিত তাৰিখ</string>
+    <string name="setup_current_time">চলিত সময়</string>
+    <string name="setup_location">স্থান সেৱাসমূহ</string>
+    <string name="location_access_summary">আপোনাৰ অৱস্থান তথ্য ব্যৱহাৰ কৰিবলৈ <b>অনুমতি বিচৰা এপ্প্‌বোৰক অনুমতি দিয়ক</b>। ইয়াত আপোনাৰ চলিত আৰু অতীতৰ অৱস্থান অন্তৰ্ভুক্ত থাকিব পাৰে।</string>
+    <string name="services_os_nav_keys_label">হাৰ্ডৱেৰ কীবোৰৰ পৰিৱৰ্তে স্ক্ৰীণ <b>নেভিগেচন কীবোৰ ব্যৱহাৰ কৰক</b>।</string>
+</resources>

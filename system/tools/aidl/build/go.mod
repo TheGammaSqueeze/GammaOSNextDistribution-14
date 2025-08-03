@@ -1,0 +1,35 @@
+module android/soong/aidl
+
+go 1.21
+
+require (
+	android/soong v0.0.0
+	github.com/google/blueprint v0.0.0
+)
+
+require (
+	go.starlark.net v0.0.0 // indirect
+	google.golang.org/protobuf v1.25.0 // indirect
+	prebuilts/bazel/common/proto/analysis_v2 v0.0.0 // indirect
+	prebuilts/bazel/common/proto/build v0.0.0 // indirect
+)
+
+replace android/soong v0.0.0 => ../../../../build/soong
+
+replace google.golang.org/protobuf v0.0.0 => ../../../../external/golang-protobuf
+
+replace github.com/google/blueprint v0.0.0 => ../../../../build/blueprint
+
+// Indirect deps from golang-protobuf
+exclude github.com/golang/protobuf v1.5.0
+
+replace github.com/google/go-cmp v0.5.5 => ../../../../external/go-cmp
+
+// Indirect dep from go-cmp
+exclude golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
+
+replace prebuilts/bazel/common/proto/analysis_v2 v0.0.0 => ../../../../prebuilts/bazel/common/proto/analysis_v2
+
+replace prebuilts/bazel/common/proto/build v0.0.0 => ../../../../prebuilts/bazel/common/proto/build
+
+replace go.starlark.net v0.0.0 => ../../../../external/starlark-go

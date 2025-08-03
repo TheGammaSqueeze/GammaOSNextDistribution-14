@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2020 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<configuration description="List MTS smoke tests.">
+
+     <!-- adbd -->
+     <option name="compatibility:include-filter" value="adbd_test" />
+
+     <!-- Cell Broadcast -->
+     <option name="compatibility:include-filter" value="CellBroadcastReceiverOemUnitTests" />
+     <option name="compatibility:include-filter" value="CellBroadcastServiceTests" />
+
+     <!-- Conscrypt -->
+     <option name="compatibility:include-filter" value="MtsConscryptTestCases com.android.org.conscrypt.java.security.SignatureTest" />
+
+     <!-- DNS Resolver -->
+     <option name="compatibility:include-filter" value="CtsNativeNetDnsTestCases" />
+     <option name="compatibility:include-filter" value="resolv_unit_test" />
+     <option name="compatibility:include-filter" value="resolv_integration_test" />
+     <option name="compatibility:include-filter" value="resolv_gold_test" />
+     <option name="compatibility:include-filter" value="resolv_stress_test" />
+
+     <!-- DocumentsUI -->
+     <option name="compatibility:include-filter" value="DocumentsUIGoogleTests com.android.documentsui.FileCopyUiTest#testCopyDocuments_FromSdCard"/>
+     <option name="compatibility:include-filter" value="DocumentsUIGoogleTests com.android.documentsui.FileCopyUiTest#testCopyDocuments_ToSdCard"/>
+     <option name="compatibility:include-filter" value="DocumentsUIUnitTests com.android.documentsui.files.ActionHandlerTest#testDocumentPicked_Recent_ManagesApks"/>
+     <option name="compatibility:include-filter" value="DocumentsUIUnitTests com.android.documentsui.RecentsLoaderTests#testContentsUpdate_observable"/>
+
+     <!-- ExtServices -->
+     <option name="compatibility:module-arg" value="CtsPackageWatchdogTestCases:enable:true" />
+     <option name="compatibility:module-arg" value="CtsTextClassifierTestCases:enable:true" />
+     <option name="compatibility:module-arg" value="ExtServicesUnitTests-tplus:enable:true" />
+     <option name="compatibility:module-arg" value="ExtServicesUnitTests-sminus:enable:true" />
+     <option name="compatibility:module-arg" value="TextClassifierNotificationTests:enable:true" />
+     <option name="compatibility:module-arg" value="TextClassifierServiceTest:enable:true" />
+     <option name="compatibility:module-arg" value="libtextclassifier_tests-tplus:enable:true" />
+     <option name="compatibility:module-arg" value="libtextclassifier_tests-sminus:enable:true" />
+
+     <!-- IPsec -->
+     <option name="compatibility:include-filter" value="FrameworksIkeTests" />
+     <option name="compatibility:include-filter" value="CtsIkeTestCases" />
+
+     <!-- Media -->
+     <option name="compatibility:include-filter" value="CtsMediaDecoderTestCases android.media.decoder.cts.DecoderTest#testAV1Decode30fps3840x2160" />
+     <option name="compatibility:include-filter" value="CtsMediaDecoderTestCases android.media.decoder.cts.DecoderTest#testBFrames" />
+     <option name="compatibility:include-filter" value="CtsMediaDecoderTestCases android.media.decoder.cts.DecoderTest#testCodecBasicH263" />
+     <option name="compatibility:include-filter" value="CtsMediaDecoderTestCases android.media.decoder.cts.DecoderTest#testCodecBasicH264" />
+     <option name="compatibility:include-filter" value="CtsMediaDecoderTestCases android.media.decoder.cts.DecoderTest#testCodecBasicHEVC" />
+     <option name="compatibility:include-filter" value="CtsMediaDecoderTestCases android.media.decoder.cts.DecoderTest#testCodecBasicMpeg2" />
+     <option name="compatibility:include-filter" value="CtsMediaDecoderTestCases android.media.decoder.cts.DecoderTest#testCodecBasicMpeg4" />
+     <option name="compatibility:include-filter" value="CtsMediaDecoderTestCases android.media.decoder.cts.DecoderTest#testCodecBasicVP8" />
+     <option name="compatibility:include-filter" value="CtsMediaDecoderTestCases android.media.decoder.cts.DecoderTest#testCodecBasicVP9" />
+     <option name="compatibility:include-filter" value="CtsMediaDecoderTestCases android.media.decoder.cts.DecoderTest#testDecode51M4a" />
+     <option name="compatibility:include-filter" value="CtsMediaDecoderTestCases android.media.decoder.cts.DecoderTest#testDecodeAacTs" />
+     <option name="compatibility:include-filter" value="CtsMediaDecoderTestCases android.media.decoder.cts.DecoderTest#testDecodeFlac" />
+     <option name="compatibility:include-filter" value="CtsMediaDecoderTestCases android.media.decoder.cts.DecoderTest#testDecodeFlacMkv" />
+     <option name="compatibility:include-filter" value="CtsMediaDecoderTestCases android.media.decoder.cts.DecoderTest#testDecodeFlacMp4" />
+     <option name="compatibility:include-filter" value="CtsMediaDecoderTestCases android.media.decoder.cts.DecoderTest#testDecodeFragmented" />
+     <option name="compatibility:include-filter" value="CtsMediaDecoderTestCases android.media.decoder.cts.DecoderTest#testDecodeG711ChannelsAndRates" />
+     <option name="compatibility:include-filter" value="CtsMediaDecoderTestCases android.media.decoder.cts.DecoderTest#testDecodeM4a" />
+     <option name="compatibility:include-filter" value="CtsMediaDecoderTestCases android.media.decoder.cts.DecoderTest#testDecodeMonoGsm" />
+     <option name="compatibility:include-filter" value="CtsMediaDecoderTestCases android.media.decoder.cts.DecoderTest#testDecodeMonoM4a" />
+     <option name="compatibility:include-filter" value="CtsMediaDecoderTestCases android.media.decoder.cts.DecoderTest#testDecodeMonoMp3" />
+     <option name="compatibility:include-filter" value="CtsMediaDecoderTestCases android.media.decoder.cts.DecoderTest#testDecodeMonoOgg" />
+     <option name="compatibility:include-filter" value="CtsMediaDecoderTestCases android.media.decoder.cts.DecoderTest#testDecodeOgg" />
+     <option name="compatibility:include-filter" value="CtsMediaDecoderTestCases android.media.decoder.cts.DecoderTest#testDecodeOpus" />
+     <option name="compatibility:include-filter" value="CtsMediaDecoderTestCases android.media.decoder.cts.DecoderTest#testDecodeOpusChannelsAndRates" />
+     <option name="compatibility:include-filter" value="CtsMediaDecoderTestCases android.media.decoder.cts.DecoderTest#testDecodeOpusMp4" />
+     <option name="compatibility:include-filter" value="CtsMediaDecoderTestCases android.media.decoder.cts.DecoderTest#testDecodeVorbis" />
+     <option name="compatibility:include-filter" value="CtsMediaDecoderTestCases android.media.decoder.cts.DecoderTest#testDecodeWav" />
+     <option name="compatibility:include-filter" value="CtsMediaDecoderTestCases android.media.decoder.cts.DecoderTest#testMpeg2Decode30fps1920x1080" />
+     <option name="compatibility:include-filter" value="CtsMediaDecoderTestCases android.media.decoder.cts.DecoderTest#testMpeg2Decode30fps1920x1080Tv" />
+     <option name="compatibility:include-filter" value="CtsMediaDecoderTestCases android.media.decoder.cts.DecoderTestAacDrc#testDecodeAacDrcLevelM4a" />
+     <option name="compatibility:include-filter" value="CtsMediaDecoderTestCases android.media.decoder.cts.DecoderTestAacDrc#testDecodeAacDrcHeavyM4a" />
+     <option name="compatibility:include-filter" value="CtsMediaDecoderTestCases android.media.decoder.cts.DecoderTestAacDrc#testDecodeAacDrcFullM4a" />
+     <option name="compatibility:include-filter" value="CtsMediaDecoderTestCases android.media.decoder.cts.DecoderTestAacDrc#testDecodeAacInternalClipM4a" />
+     <option name="compatibility:include-filter" value="CtsMediaDecoderTestCases android.media.decoder.cts.DecoderTestAacDrc#testDecodeAacDrcOutputLoudnessM4a" />
+     <option name="compatibility:include-filter" value="CtsMediaDecoderTestCases android.media.decoder.cts.DecoderTestAacDrc#testDecodeAacDrcOffM4a" />
+     <option name="compatibility:include-filter" value="CtsMediaDecoderTestCases android.media.decoder.cts.DecoderTestAacDrc#testDecodeAacDrcHalfM4a" />
+     <option name="compatibility:include-filter" value="CtsMediaDecoderTestCases android.media.decoder.cts.DecoderTestAacDrc#testDecodeAacDrcClipM4a" />
+
+     <option name="compatibility:include-filter" value="CtsMediaDrmTestCases android.mediadrm.cts.MediaDrmClearkeyTest#testClearKeyPlaybackWebm" />
+     <option name="compatibility:include-filter" value="CtsMediaDrmTestCases android.mediadrm.cts.MediaExtractorTest#testAC3inMP4" />
+     <option name="compatibility:include-filter" value="CtsMediaDrmTestCases android.mediadrm.cts.MediaExtractorTest#testAC3inTS" />
+     <option name="compatibility:include-filter" value="CtsMediaDrmTestCases android.mediadrm.cts.MediaExtractorTest#testAC4inMP4" />
+     <option name="compatibility:include-filter" value="CtsMediaDrmTestCases android.mediadrm.cts.MediaExtractorTest#testAV1InMP4" />
+     <option name="compatibility:include-filter" value="CtsMediaDrmTestCases android.mediadrm.cts.MediaExtractorTest#testAdvance" />
+     <option name="compatibility:include-filter" value="CtsMediaDrmTestCases android.mediadrm.cts.MediaExtractorTest#testDolbyVisionInMP4" />
+     <option name="compatibility:include-filter" value="CtsMediaDrmTestCases android.mediadrm.cts.MediaExtractorTest#testDolbyVisionMediaExtractorProfileDvav1" />
+     <option name="compatibility:include-filter" value="CtsMediaDrmTestCases android.mediadrm.cts.MediaExtractorTest#testDolbyVisionMediaExtractorProfileDvav1_2" />
+     <option name="compatibility:include-filter" value="CtsMediaDrmTestCases android.mediadrm.cts.MediaExtractorTest#testDolbyVisionMediaExtractorProfileDvavSe" />
+     <option name="compatibility:include-filter" value="CtsMediaDrmTestCases android.mediadrm.cts.MediaExtractorTest#testDolbyVisionMediaExtractorProfileDvheDtr" />
+     <option name="compatibility:include-filter" value="CtsMediaDrmTestCases android.mediadrm.cts.MediaExtractorTest#testDolbyVisionMediaExtractorProfileDvheSt" />
+     <option name="compatibility:include-filter" value="CtsMediaDrmTestCases android.mediadrm.cts.MediaExtractorTest#testDolbyVisionMediaExtractorProfileDvheStn" />
+     <option name="compatibility:include-filter" value="CtsMediaDrmTestCases android.mediadrm.cts.MediaExtractorTest#testEAC3inMP4" />
+     <option name="compatibility:include-filter" value="CtsMediaDrmTestCases android.mediadrm.cts.MediaExtractorTest#testEAC3inTS" />
+     <option name="compatibility:include-filter" value="CtsMediaDrmTestCases android.mediadrm.cts.MediaExtractorTest#testExtractFromAMediaDataSource" />
+     <option name="compatibility:include-filter" value="CtsMediaDrmTestCases android.mediadrm.cts.MediaExtractorTest#testExtractFromAssetFileDescriptor" />
+     <option name="compatibility:include-filter" value="CtsMediaDrmTestCases android.mediadrm.cts.MediaExtractorTest#testExtractorFailsIfMediaDataSourceReturnsAnError" />
+     <option name="compatibility:include-filter" value="CtsMediaDrmTestCases android.mediadrm.cts.MediaExtractorTest#testExtractorFailsIfMediaDataSourceThrows" />
+     <option name="compatibility:include-filter" value="CtsMediaDrmTestCases android.mediadrm.cts.MediaExtractorTest#testExtractorGetCachedDuration" />
+     <option name="compatibility:include-filter" value="CtsMediaDrmTestCases android.mediadrm.cts.MediaExtractorTest#testExtractorHasCacheReachedEndOfStream" />
+     <option name="compatibility:include-filter" value="CtsMediaDrmTestCases android.mediadrm.cts.MediaExtractorTest#testFlacIdentity" />
+     <option name="compatibility:include-filter" value="CtsMediaDrmTestCases android.mediadrm.cts.MediaExtractorTest#testFlacMovExtraction" />
+     <option name="compatibility:include-filter" value="CtsMediaDrmTestCases android.mediadrm.cts.MediaExtractorTest#testFragmentedHttpRead" />
+     <option name="compatibility:include-filter" value="CtsMediaDrmTestCases android.mediadrm.cts.MediaExtractorTest#testFragmentedRead" />
+     <option name="compatibility:include-filter" value="CtsMediaDrmTestCases android.mediadrm.cts.MediaExtractorTest#testGetAudioPresentations" />
+     <option name="compatibility:include-filter" value="CtsMediaDrmTestCases android.mediadrm.cts.MediaExtractorTest#testGetDrmInitData" />
+     <option name="compatibility:include-filter" value="CtsMediaDrmTestCases android.mediadrm.cts.MediaExtractorTest#testMediaDataSourceIsClosedOnRelease" />
+     <option name="compatibility:include-filter" value="CtsMediaDrmTestCases android.mediadrm.cts.MediaExtractorTest#testNullMediaDataSourceIsRejected" />
+     <option name="compatibility:include-filter" value="CtsMediaDrmTestCases android.mediadrm.cts.MediaExtractorTest#testPcmBeInMov" />
+     <option name="compatibility:include-filter" value="CtsMediaDrmTestCases android.mediadrm.cts.MediaExtractorTest#testPcmLeInMov" />
+     <option name="compatibility:include-filter" value="CtsMediaDrmTestCases android.mediadrm.cts.MediaExtractorTest#testProgramStreamExtraction" />
+     <option name="compatibility:include-filter" value="CtsMediaDrmTestCases android.mediadrm.cts.MediaExtractorTest#testVideoPresentationTimeStampsMatch" />
+
+     <option name="compatibility:include-filter" value="CtsMediaPlayerTestCases android.media.player.cts.MediaPlayerTest#testDeselectTrackForTimedTextTrack" />
+     <option name="compatibility:include-filter" value="CtsMediaPlayerTestCases android.media.player.cts.MediaPlayerTest#testLocalVideo_cp1251_3_a_ms_acm_mp3" />
+     <option name="compatibility:include-filter" value="CtsMediaPlayerTestCases android.media.player.cts.MediaPlayerTest#testPlayMidi" />
+
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#test3gppMetadata" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#testAlbumArtInOgg" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#testBitsPerSampleAndSampleRate" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#testGenreParsing" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#testGetEmbeddedPicture" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#testGetFrameAtTimeClosest" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#testGetFrameAtTimeClosestEditList" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#testGetFrameAtTimeClosestEmptyNormalEditList" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#testGetFrameAtTimeClosestSync" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#testGetFrameAtTimeClosestSyncEditList" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#testGetFrameAtTimeClosestSyncEmptyNormalEditList" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#testGetFrameAtTimeNextSync" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#testGetFrameAtTimeNextSyncEditList" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#testGetFrameAtTimeNextSyncEmptyNormalEditList" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#testGetFrameAtTimePreviousSync" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#testGetFrameAtTimePreviousSyncEditList" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#testGetFrameAtTimePreviousSyncEmptyNormalEditList" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#testGetFramesAtIndex" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#testGetImageAtIndex" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#testGetScaledFrameAtTime" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#testGetScaledFrameAtTimeWithInvalidResolutions" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#testID3v230ExtHeader" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#testID3v230ExtHeaderBigEndian" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#testID3v240ExtHeader" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#testID3v2Metadata" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#testID3v2Unsynchronization" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#testMediaDataSourceIsClosedOnRelease" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#testMp4AlbumArt" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#testNullMediaDataSourceIsRejected" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#testRetrieveFailsIfMediaDataSourceReturnsAnError" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#testRetrieveFailsIfMediaDataSourceThrows" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#testSetDataSourceNullPath" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#testSetDataSourceNullUri" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#testSetDataSourcePath" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#testSetDataSourceUri" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#testThumbnailAV1Hdr" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#testThumbnailH263" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#testThumbnailH264" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#testThumbnailHDR10" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#testThumbnailHEVC" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#testThumbnailMPEG4" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#testThumbnailVP8" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#testThumbnailVP9" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#testThumbnailVP9Hdr" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaMetadataRetrieverTest#testThumbnailWithRotation" />
+
+     <option name="compatibility:include-filter" value="CtsMediaAudioTestCases android.media.audio.cts.SoundPoolMidiTest#testLoad" />
+     <option name="compatibility:include-filter" value="CtsMediaAudioTestCases android.media.audio.cts.SoundPoolMidiTest#testSoundPoolOp" />
+
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testFlacNoNumSamples" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testMp4WithAc4" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testMp3WithVariableBitrateAndXingHeader" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testAdtsTruncatedWithConstantBitrateSeeking" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testOggBear" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testPsWithH262MpegAudio" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testFlacNoSeekTableAndNoNumSamples" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testGetParserNamesByMimeType" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testAdtsWithConstantBitrateSeeking" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testWavWithImaAdpcm" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testAc3" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testAc4" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testFlv" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testMp4" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testWav" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testOggBearFlac" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testMatroskaSubsampleEncryptedNoAltref" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testTsWithSdt" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testOggOpusHeaderSniff" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testTsWithH264MpegAudio" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testAdts" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testEac3" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testMatroskaOutOfBandCrypto" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testTsWithH262MpegAudio" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testMp4Fragmented" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testTsWithH264DetectAccessUnits" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testFlacWithPicture" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testOggBearVorbis" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testSetKnownParameters" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testTsWithH264DtsAudio" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testSupportsParameter" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testOggFlacHeaderSniff" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testTsWithH265" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testTsWithLatm" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testSetUnknownParameter" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testMp3WithTrimmedSample" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testMatroskaSubsampleEncryptedAltref" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testOggInvalidHeaderSniff" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testMatroskaFullBlocks" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testMp4FragmentedSei" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testMp4Ac4Fragmented" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testFlacNoMinMaxFrameSize" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testMp4AndrdoidSlowMotion" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testGetParserNamesForUnsupportedMimeType" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testFlacSample" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testMp3WithId3" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testAmrNarrowBandSamplesWithConstantBitrateSeeking" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testFlacUncommonSampleRateFlac" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testAmrWideBandSamplesWithConstantBitrateSeeking" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testMatroskaFile" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testAmrNarrowBandSamples" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testFlacWithVorbisComments" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testMp3WithNoSeekTableVariableBitrate" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testPsElphantsDream" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testLackOfSupportForUnsupportedParameter" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testMp4FragmentedOutOfBandCrypto" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testGetAllParserNames" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testFlacWithId3" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testAmrWideBandSamples" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testMp3WithNoSeekTableVariableFrameSize" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testMp4WithProtectedAc4" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testOggNoFlacSeekTable" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testMp4MdatTooLong" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testMp4FragmentedSeekable" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testPsWithAc3" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testFlacOneMetadataBlock" />
+     <option name="compatibility:include-filter" value="CtsMediaParserTestCases android.media.mediaparser.cts.MediaParserTest#testCreationByName" />
+
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaSession2ServiceTest#testAllControllersDisconnected_oneSession" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaSession2ServiceTest#testGetSessions" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaSession2ServiceTest#testOnGetSession_returnsSession" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaSession2ServiceTest#testOnUpdateNotification" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaSession2ServiceTest#testAddSessions_removedWhenClose" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaSession2ServiceTest#testMediaNotification" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaSession2ServiceTest#testAllControllersDisconnected_multipleSessions" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaSession2ServiceTest#testOnGetSession_rejectsConnection" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaSession2ServiceTest#testOnBind" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaSession2ServiceTest#testOnGetSessionIsCalled" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaSession2ServiceTest#testOnGetSession_returnsDifferentSessions" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaController2Test#testGetConnectedToken" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaController2Test#testCallback_onCommandResult" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaController2Test#testBuilder_setConnectionHints_withCustomParcelable" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaController2Test#testCreatingControllerWithoutCallback" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaController2Test#testCancelSessionCommand" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaController2Test#testCallback_onConnected_onDisconnected" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaController2Test#testBuilder_withIllegalArguments" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaController2Test#testBuilder_setConnectionHints_withFrameworkParcelable" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaController2Test#testCallback_onSessionCommand" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaSession2Test#testBuilder_setExtras_withCustomParcelable" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaSession2Test#testSession2Token_writeToParcel" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaSession2Test#testBuilder_setExtras_withFrameworkParcelable" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaSession2Test#testBuilder_setSessionActivity" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaSession2Test#testGetConnectedControllers_closedController" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaSession2Test#testCallback_onPostConnect_connected" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaSession2Test#testCallback_onCommandResult" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaSession2Test#testBuilder_setIllegalArguments" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaSession2Test#testBroadcastSessionCommand" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaSession2Test#testBuilder_createSessionWithDupId" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaSession2Test#testBuilder_createSessionWithoutId" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaSession2Test#testCancelSessionCommand" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaSession2Test#testSession2Token" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaSession2Test#testCallback_onPostConnect_rejected" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaSession2Test#testSetPlaybackActive" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaSession2Test#testSession2Token_extrasNotSet" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaSession2Test#testGetConnectedControllers_newController" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaSession2Test#testCallback_onSessionCommand" />
+     <option name="compatibility:include-filter" value="CtsMediaMiscTestCases android.media.misc.cts.MediaSession2Test#testCallback_onConnect_onDisconnect" />
+
+     <!-- MediaProvider -->
+     <option name="compatibility:include-filter" value="CtsScopedStorageHostTest android.scopedstorage.cts.host.ScopedStorageHostTest#testCallingIdentityCacheInvalidation" />
+
+     <!-- Network -->
+     <option name="compatibility:include-filter" value="CtsNetTestCases" />
+
+     <!-- NeuralNetworks -->
+     <option name="compatibility:include-filter" value="CtsNNAPIBenchmarkTestCases" />
+     <option name="compatibility:include-filter" value="CtsTfliteNnapiDelegateTestCases" />
+
+     <!-- Permission -->
+     <option name="compatibility:include-filter" value="CtsRoleTestCases android.app.role.cts.RoleManagerTest#addAndRemoveRoleHolderThenRoleIsNotHeld" />
+     <option name="compatibility:include-filter" value="CtsRoleTestCases android.app.role.cts.RoleManagerTest#requestRoleFirstTimeNoDontAskAgain" />
+     <option name="compatibility:include-filter" value="CtsRoleTestCases android.app.role.cts.RoleManagerTest#addAndRemoveRoleHolderThenIsNotRoleHolder" />
+     <option name="compatibility:include-filter" value="CtsRoleTestCases android.app.role.cts.RoleManagerTest#openDefaultAppListThenIsNotDefaultAppInList" />
+     <option name="compatibility:include-filter" value="CtsRoleTestCases android.app.role.cts.RoleManagerTest#requestRoleAndDenyWithDontAskAgainReturnsCanceled" />
+     <option name="compatibility:include-filter" value="CtsRoleTestCases android.app.role.cts.RoleManagerTest#roleIsAvailable" />
+     <option name="compatibility:include-filter" value="CtsRoleTestCases android.app.role.cts.RoleManagerTest#addRoleHolderThenIsRoleHolder" />
+     <option name="compatibility:include-filter" value="CtsRoleTestCases android.app.role.cts.RoleManagerTest#openDefaultAppListAndSetDefaultAppThenIsDefaultApp" />
+     <option name="compatibility:include-filter" value="CtsRoleTestCases android.app.role.cts.RoleManagerTest#requestHoldingRoleThenAllowedAutomatically" />
+     <option name="compatibility:include-filter" value="CtsRoleTestCases android.app.role.cts.RoleManagerTest#requestUnqualifiedRoleThenDeniedAutomatically" />
+     <option name="compatibility:include-filter" value="CtsRoleTestCases android.app.role.cts.RoleManagerTest#requestRoleAndAllowThenIsRoleHolder" />
+     <option name="compatibility:include-filter" value="CtsRoleTestCases android.app.role.cts.RoleManagerTest#addRoleHolderThenRoleIsHeld" />
+     <option name="compatibility:include-filter" value="CtsRoleTestCases android.app.role.cts.RoleManagerTest#requestRoleAndDenyThenHasDontAskAgain" />
+     <option name="compatibility:include-filter" value="CtsRoleTestCases android.app.role.cts.RoleManagerTest#openDefaultAppDetailsAndSetDefaultAppThenIsDefaultApp" />
+     <option name="compatibility:include-filter" value="CtsRoleTestCases android.app.role.cts.RoleManagerTest#openDefaultAppDetailsAndSetDefaultAppAndSetAnotherThenIsNotDefaultApp" />
+     <option name="compatibility:include-filter" value="CtsRoleTestCases android.app.role.cts.RoleManagerTest#openDefaultAppDetailsThenIsNotDefaultApp" />
+     <option name="compatibility:include-filter" value="CtsRoleTestCases android.app.role.cts.RoleManagerTest#addAndClearRoleHoldersThenIsNotRoleHolder" />
+     <option name="compatibility:include-filter" value="CtsRoleTestCases android.app.role.cts.RoleManagerTest#openDefaultAppListAndSetDefaultAppThenIsDefaultAppInList" />
+     <option name="compatibility:include-filter" value="CtsRoleTestCases android.app.role.cts.RoleManagerTest#dontAddRoleHolderThenIsNotRoleHolder" />
+     <option name="compatibility:include-filter" value="CtsRoleTestCases android.app.role.cts.RoleManagerTest#openDefaultAppListThenHasDefaultApp" />
+     <option name="compatibility:include-filter" value="CtsRoleTestCases android.app.role.cts.RoleManagerTest#requestRoleAndDenyThenIsNotRoleHolder" />
+     <option name="compatibility:include-filter" value="CtsRoleTestCases android.app.role.cts.RoleManagerTest#requestRoleAndDenyWithDontAskAgainThenDeniedAutomatically" />
+     <option name="compatibility:include-filter" value="CtsRoleTestCases android.app.role.cts.RoleManagerTest#dontAddRoleHolderThenRoleIsNotHeld" />
+     <option name="compatibility:include-filter" value="CtsPermissionUiTestCases	android.permission3.cts.PermissionTest23#testRequestNonRuntimePermission" />
+     <option name="compatibility:include-filter" value="CtsPermissionUiTestCases	android.permission3.cts.PermissionTest23#testNullAndRealPermission" />
+     <option name="compatibility:include-filter" value="CtsPermissionUiTestCases	android.permission3.cts.PermissionTest23#testCancelledPermissionRequest" />
+     <option name="compatibility:include-filter" value="CtsPermissionUiTestCases	android.permission3.cts.PermissionTest23#testInvalidPermission" />
+     <option name="compatibility:include-filter" value="CtsPermissionUiTestCases	android.permission3.cts.PermissionTest23#testDefault" />
+     <option name="compatibility:include-filter" value="CtsPermissionUiTestCases	android.permission3.cts.PermissionTest23#testNullPermissionRequest" />
+     <option name="compatibility:include-filter" value="CtsPermissionUiTestCases	android.permission3.cts.PermissionTest23#testRuntimeGroupGrantSpecificity" />
+     <option name="compatibility:include-filter" value="CtsPermissionUiTestCases	android.permission3.cts.PermissionTest23#testRequestGrantedPermission" />
+     <option name="compatibility:include-filter" value="CtsPermissionUiTestCases	android.permission3.cts.PermissionTest23#testRequestPermissionFromTwoGroups" />
+     <option name="compatibility:include-filter" value="CtsPermissionUiTestCases	android.permission3.cts.PermissionTest23#testInteractiveGrant" />
+     <option name="compatibility:include-filter" value="CtsPermissionUiTestCases	android.permission3.cts.PermissionTest23#testRequestNonExistentPermission" />
+
+
+     <!-- SDKExtensions -->
+     <option name="compatibility:include-filter" value="CtsSdkExtensionsTestCases" />
+
+     <!-- Statsd -->
+     <option name="compatibility:include-filter" value="FrameworkStatsdTest" />
+     <option name="compatibility:include-filter" value="libstatspull_test" />
+     <option name="compatibility:include-filter" value="libstatssocket_test" />
+
+     <!-- Tethering and Wifi -->
+     <option name="compatibility:include-filter" value="CtsWifiTestCases android.net.wifi.aware.cts.SingleDeviceTest#testSubscribeDiscoverySuccess" />
+     <option name="compatibility:include-filter" value="CtsWifiTestCases android.net.wifi.aware.cts.SingleDeviceTest#testPublishDiscoverySuccess" />
+     <option name="compatibility:include-filter" value="CtsWifiTestCases android.net.wifi.cts.WifiBackupRestoreTest#testRestoreFromV1_0BackupFormat" />
+     <option name="compatibility:include-filter" value="CtsWifiTestCases android.net.wifi.cts.WifiBackupRestoreTest#testCanRestoreBackupData" />
+     <option name="compatibility:include-filter" value="CtsWifiTestCases android.net.wifi.cts.WifiBackupRestoreTest#testRestoreFromV1_1BackupFormat" />
+     <option name="compatibility:include-filter" value="CtsWifiTestCases android.net.wifi.cts.WifiBackupRestoreTest#testRestoreFromV1_2BackupFormat" />
+     <option name="compatibility:include-filter" value="CtsWifiTestCases android.net.wifi.cts.WifiBackupRestoreTest#testRestoreFromLegacyBackupFormat" />
+     <option name="compatibility:include-filter" value="CtsWifiTestCases android.net.wifi.cts.WifiBackupRestoreTest#testCanRestoreSoftApBackupData" />
+     <option name="compatibility:include-filter" value="CtsWifiTestCases android.net.wifi.cts.WifiConfigurationTest#testWifiConfiguration" />
+     <option name="compatibility:include-filter" value="CtsWifiTestCases android.net.wifi.cts.WifiInfoTest#testWifiInfoProperties" />
+     <option name="compatibility:include-filter" value="CtsWifiTestCases android.net.wifi.cts.WifiManagerTest#testForget" />
+     <option name="compatibility:include-filter" value="CtsWifiTestCases android.net.wifi.cts.WifiManagerTest#testWifiManagerScanWhenWifiOffLocationTurnedOn" />
+     <option name="compatibility:include-filter" value="CtsWifiTestCases android.net.wifi.cts.WifiManagerTest#testConnectWithNetworkId" />
+     <option name="compatibility:include-filter" value="GtsGmscoreHostTestCases com.google.android.gts.wifi.WifiHostTest#testWifiScannerOneShotChannels" />
+
+     <!-- Timezone -->
+     <option name="compatibility:include-filter" value="MtsTimeZoneDataTestCases" />
+
+</configuration>

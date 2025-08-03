@@ -1,0 +1,79 @@
+#  Copyright 2021 Google, Inc.
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at:
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
+source_set("BluetoothOsSources_chromeos") {
+  sources = [
+    "chromeos/metrics.cc",
+    "chromeos/parameter_provider.cc",
+    "chromeos/system_properties.cc",
+    "chromeos/wakelock_native.cc",
+    "system_properties_common.cc",
+    "syslog.cc",
+  ]
+
+  configs += [
+    "//bt/system/gd:gd_defaults",
+    "//bt/system/log:log_defaults",
+  ]
+  deps = [
+    "//bt/system:libbt-platform-protos-lite",
+    "//bt/system/gd/rust/shim:init_flags_bridge_header",
+  ]
+}
+
+source_set("BluetoothOsSources_linux") {
+  sources = [
+    "linux/metrics.cc",
+    "linux/parameter_provider.cc",
+    "linux/system_properties.cc",
+    "linux/wakelock_native.cc",
+    "system_properties_common.cc",
+    "syslog.cc",
+  ]
+
+  configs += [
+    "//bt/system/gd:gd_defaults",
+    "//bt/system/log:log_defaults",
+  ]
+  deps = [
+    "//bt/system:libbt-platform-protos-lite",
+    "//bt/system/gd/rust/shim:init_flags_bridge_header",
+  ]
+}
+
+source_set("BluetoothOsSources_linux_generic") {
+  sources = [
+    "handler.cc",
+    "logging/log_redaction.cc",
+    "linux_generic/alarm.cc",
+    "linux_generic/files.cc",
+    "linux_generic/reactive_semaphore.cc",
+    "linux_generic/reactor.cc",
+    "linux_generic/repeating_alarm.cc",
+    "linux_generic/thread.cc",
+    "linux_generic/wakelock_manager.cc",
+  ]
+
+  configs += [
+    "//bt/system/gd:gd_defaults",
+    "//bt/system/log:log_defaults",
+  ]
+  deps = [ "//bt/system/gd:gd_default_deps" ]
+
+  if (target_os == "chromeos") {
+    deps += [ ":BluetoothOsSources_chromeos" ]
+  } else {
+    deps += [ ":BluetoothOsSources_linux" ]
+  }
+}

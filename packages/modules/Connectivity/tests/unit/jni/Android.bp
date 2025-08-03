@@ -1,0 +1,51 @@
+package {
+    default_team: "trendy_team_fwk_core_networking",
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_library_shared {
+    name: "libnetworkstatsfactorytestjni",
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wno-unused-parameter",
+        "-Wthread-safety",
+    ],
+
+    header_libs: ["bpf_connectivity_headers"],
+
+    srcs: [
+        ":lib_networkStatsFactory_native",
+        "test_onload.cpp",
+    ],
+
+    shared_libs: [
+        "liblog",
+        "libnativehelper",
+        "libnetdutils",
+        "libnetworkstats",
+    ],
+}
+
+cc_library_shared {
+    name: "libandroid_net_frameworktests_util_jni",
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wno-unused-parameter",
+        "-Wthread-safety",
+    ],
+    srcs: [
+        "android_net_frameworktests_util/onload.cpp",
+    ],
+    static_libs: [
+        "libnet_utils_device_common_bpfjni",
+        "libtcutils",
+    ],
+    shared_libs: [
+        "liblog",
+        "libnativehelper",
+    ],
+}

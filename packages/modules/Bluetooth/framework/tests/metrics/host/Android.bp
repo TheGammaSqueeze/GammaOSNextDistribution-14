@@ -1,0 +1,32 @@
+// This empty test host is needed for building required host binary
+// "bumble_pandora_server" and include it in test zip
+java_test_host {
+    name: "BluetoothMetricsTests",
+
+    srcs: [
+        "**/*.kt",
+    ],
+
+    static_libs: [
+        "cts-statsd-atom-host-test-utils",
+        "platformprotos",
+    ],
+
+    libs: [
+        "tradefed",
+    ],
+
+    data: [
+        ":BluetoothMetricsTestApp",
+    ],
+
+    data_native_bins: [
+        "bumble_pandora_server",
+    ],
+
+    required: ["bumble_pandora_server"],
+
+    test_suites: [
+        "general-tests",
+    ],
+}

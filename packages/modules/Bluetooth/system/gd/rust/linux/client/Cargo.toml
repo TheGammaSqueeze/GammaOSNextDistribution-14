@@ -1,0 +1,35 @@
+[package]
+name = "client"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+rustyline = "10"
+rustyline-derive = "0.4.0"
+bt_topshim = { path = "../../topshim" }
+btstack = { path = "../stack" }
+manager_service = { path = "../mgmt" }
+
+dbus = "0.9.2"
+dbus-crossroads = "0.4.0"
+dbus-tokio = "0.7.6"
+
+dbus_projection = { path = "../dbus_projection" }
+dbus_macros = { path = "../dbus_projection/dbus_macros" }
+
+futures = "0.3.13"
+num-traits = "0.2"
+shell-words = "1.1.0"
+tokio = { version = "1", features = ['bytes', 'fs', 'io-util', 'libc', 'macros', 'mio', 'net', 'num_cpus', 'rt', 'rt-multi-thread', 'sync', 'time', 'tokio-macros'] }
+
+clap = "2.33.3"
+chrono = "0.4.24"
+bitflags = "1.2"
+hex = "0.4.3"
+[build-dependencies]
+pkg-config = "0.3.19"
+
+[[bin]]
+name = "btclient"
+path = "src/main.rs"
+build = "build.rs"

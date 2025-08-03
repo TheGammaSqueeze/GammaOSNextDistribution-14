@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (c) 2009, 2011-2013 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2014-2015 The CyanogenMod Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *    * Neither the name of The Linux Foundation nor
+ *      the names of its contributors may be used to endorse or promote
+ *      products derived from this software without specific prior written
+ *      permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NON-INFRINGEMENT ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">FM Radio</string>
+    <string name="tx_app_name">FM-stjoerder</string>
+    <string name="menu_scan_start">Sykje</string>
+    <string name="menu_scan_stop">Sykjen annulearje</string>
+    <string name="menu_record_start">Opnimme</string>
+    <string name="menu_record_stop">Opnimmen stopje</string>
+    <string name="menu_settings">Ynstellingen</string>
+    <string name="menu_sleep">Sliepstân</string>
+    <string name="menu_sleep_cancel">Sliepstân annulearje</string>
+    <string name="menu_all_channels">Alle kanalen</string>
+    <string name="menu_display_tags">Labels toane</string>
+    <string name="button_text_stop">Stopje</string>
+    <string name="msg_seeking">FM-stjoerder sykje\u2026</string>
+    <string name="msg_scanning">Alle FM-stjoerders sykje\u2026</string>
+    <string name="msg_scanning_pty">\'<xliff:g id="pty_name">%1$s</xliff:g>\' sykje\u2026</string>
+    <string name="msg_search_title"><xliff:g id="frequency_string">%1$s</xliff:g> MHz</string>
+    <string name="msg_searching_title">Automatysk favoriten selektearje</string>
+    <string name="msg_searching">Sykje nei goed berikbere stjoerders foar favoritelist\u2026</string>
+    <string name="msg_noantenna">Slút in koptelefoan oan om de FM-radio te brûken</string>
+    <string name="dialog_sleep_title">Slaaptiid</string>
+    <string name="presetlist_select_name">‘<xliff:g id="presetlist_name">%1$s</xliff:g>’ selektearje</string>
+    <string name="presetlist_add_new">Nije list tafoegje</string>
+    <string name="dialog_presetlist_rename_title">Namme ynfiere</string>
+    <string name="presetlist_autoselect_title">Automatyske seleksje befêstigje</string>
+    <string name="preset_replace">Ferfange</string>
+    <string name="preset_tune">Ofstimme</string>
+    <string name="preset_rename">Omneame</string>
+    <string name="preset_delete">Fuortsmite</string>
+    <string name="preset_search">‘<xliff:g id="preset_pi">%1$s</xliff:g>’ sykje</string>
+    <string name="stat_notif_frequency">‘<xliff:g id="frequency">%1$s</xliff:g>’ MHz</string>
+    <string name="regional_band">Regionale bân</string>
+    <string name="regional_band_entry_north_america">Noard-Amearika</string>
+    <string name="regional_band_entry_europe">Jeropa</string>
+    <string name="regional_band_entry_japan">Japan</string>
+    <string name="regional_band_entry_japan_wide">Japan (wide)</string>
+    <string name="regional_band_entry_australia">Austraalje</string>
+    <string name="regional_band_entry_austria">Eastenryk</string>
+    <string name="regional_band_entry_belgium">Belgje</string>
+    <string name="regional_band_entry_brazil">Brazylje</string>
+    <string name="regional_band_entry_china">Sina</string>
+    <string name="regional_band_entry_czech_republic">Czech Republic</string>
+    <string name="regional_band_entry_denmark">Denemark</string>
+    <string name="regional_band_entry_finland">Finlân</string>
+    <string name="regional_band_entry_france">Frankryk</string>
+    <string name="regional_band_entry_germany">Dútslân</string>
+    <string name="regional_band_entry_greece">Grikelân</string>
+    <string name="regional_band_entry_hong_kong">Hongkong</string>
+    <string name="regional_band_entry_india">Yndia</string>
+    <string name="regional_band_entry_indonesia">Yndoneezje</string>
+    <string name="regional_band_entry_ireland">Ierlân</string>
+    <string name="regional_band_entry_italy">Itaalje</string>
+    <string name="regional_band_entry_korea">Koreä</string>
+    <string name="regional_band_entry_mexico">Meksiko</string>
+    <string name="regional_band_entry_netherlands">Nederlân</string>
+    <string name="regional_band_entry_new_zealand">Nij-Seelân</string>
+    <string name="regional_band_entry_norway">Noarwegen</string>
+    <string name="regional_band_entry_poland">Poalen</string>
+    <string name="regional_band_entry_portugal">Portegal</string>
+    <string name="regional_band_entry_russia">Ruslân</string>
+    <string name="regional_band_entry_singapore">Singapoer</string>
+    <string name="regional_band_entry_slovakia">Slowakije</string>
+    <string name="regional_band_entry_spain">Spanje</string>
+    <string name="regional_band_entry_switzerland">Switserlân</string>
+    <string name="regional_band_entry_sweden">Sweden</string>
+    <string name="regional_band_entry_taiwan">Taiwan</string>
+    <string name="regional_band_entry_turkey">Turkije</string>
+    <string name="regional_band_entry_united_kingdom">Feriene Keninkryk</string>
+    <string name="regional_band_entry_united_states">Feriene Steaten</string>
+    <string name="regional_band_entry_user_defined">User defined band</string>
+    <string name="regional_band_summary_north_america">Noard-Amearika (87,5 MHz oant 108,0 MHz yn stappen fan 200 kHz)</string>
+    <string name="regional_band_summary_europe">Europa (87,5 MHz oant 108,0 MHz yn stappen fan 100 kHz)</string>
+    <string name="regional_band_summary_japan">Japan (76,0 MHz oant 90,0 MHz yn stappen fan 100 kHz)</string>
+    <string name="regional_band_summary_japan_wide">Japan (breed) (90,0 MHz oant 108,0 MHz yn stappen fan 50 kHz)</string>
+    <string name="regional_band_summary_australia">Australië (87,7 MHz oant 108,0 MHz yn stappen fan 100 kHz)</string>
+    <string name="regional_band_summary_austria">Eastenryk (87,5 MHz oant 108,0 MHz yn stappen fan 50 kHz)</string>
+    <string name="regional_band_summary_belgium">België (87,5 MHz oant 108,0 MHz yn stappen fan 100 kHz)</string>
+    <string name="regional_band_summary_brazil">Brazilië (87,5 MHz oant 108,0 MHz yn stappen fan 200 kHz)</string>
+    <string name="regional_band_summary_china">Sina (87,0 MHz oant 108,0 MHz yn stappen fan 100 kHz)</string>
+    <string name="regional_band_summary_czech_republic">Tsjechië (87,5 MHz oant 108,0 MHz yn stappen fan 100 kHz)</string>
+    <string name="regional_band_summary_denmark">Denemarken (87,5 MHz oant 108,0 MHz yn stappen fan 50 kHz)</string>
+    <string name="regional_band_summary_finland">Finlân (87,5 MHz oant 108,0 MHz yn stappen fan 100 kHz)</string>
+    <string name="regional_band_summary_france">Frankryk (87,5 MHz oant 108,0 MHz yn stappen fan 100 kHz)</string>
+    <string name="regional_band_summary_germany">Dútslân (87,5 MHz oant 108,0 MHz yn stappen fan 50 kHz)</string>
+    <string name="regional_band_summary_greece">Grikelân (87,5 MHz oant 108,0 MHz yn stappen fan 50 kHz)</string>
+    <string name="regional_band_summary_hong_kong">Hong Kong (87,5 MHz oant 108,0 MHz yn stappen fan 100 kHz)</string>
+    <string name="regional_band_summary_india">Yndia (87,5 MHz oant 108,0 MHz yn stappen fan 100 kHz)</string>
+    <string name="regional_band_summary_indonesia">Yndonezië (87,5 MHz oant 108,0 MHz yn stappen fan 100 kHz)</string>
+    <string name="regional_band_summary_ireland">Ierlân (87,5 MHz oant 108,0 MHz yn stappen fan 50 kHz)</string>
+    <string name="regional_band_summary_italy">Italië (87,5 MHz oant 108,0 MHz yn stappen fan 50 kHz)</string>
+    <string name="regional_band_summary_korea">Korea (87,5 MHz oant 108,0 MHz yn stappen fan 200 kHz)</string>
+    <string name="regional_band_summary_mexico">Meksiko (88,1 MHz oant 107,9 MHz yn stappen fan 200 kHz)</string>
+    <string name="regional_band_summary_netherlands">Nederlân (87,5 MHz oant 108,0 MHz yn stappen fan 100 kHz)</string>
+    <string name="regional_band_summary_new_zealand">Nij Seelân (88,0 MHz oant 107,0 MHz yn stappen fan 100 kHz)</string>
+    <string name="regional_band_summary_norway">Noarwegen (87,5 MHz oant 108,0 MHz yn stappen fan 100 kHz)</string>
+    <string name="regional_band_summary_poland">Poalen (87,5 MHz oant 108,0 MHz yn stappen fan 100 kHz)</string>
+    <string name="regional_band_summary_portugal">Portugal (87,5 MHz oant 108,0 MHz yn stappen fan 50 kHz)</string>
+    <string name="regional_band_summary_russia">Ruslân (87,5 MHz oant 108,0 MHz yn stappen fan 100 kHz)</string>
+    <string name="regional_band_summary_singapore">Singapoer (88,0 MHz oant 108,0 MHz yn stappen fan 100 kHz)</string>
+    <string name="regional_band_summary_slovakia">Slowakije (87,5 MHz oant 108,0 MHz yn stappen fan 100 kHz)</string>
+    <string name="regional_band_summary_spain">Spanje (87,5 MHz oant 108,0 MHz yn stappen fan 100 kHz)</string>
+    <string name="regional_band_summary_switzerland">Switserlân (87,5 MHz oant 108,0 MHz yn stappen fan 100 kHz)</string>
+    <string name="regional_band_summary_sweden">Sweden (87,5 MHz oant 108,0 MHz yn stappen fan 100 kHz)</string>
+    <string name="regional_band_summary_taiwan">Taiwan (87,5 MHz oant 108,0 MHz yn stappen fan 100 kHz)</string>
+    <string name="regional_band_summary_turkey">Turkije (87,5 MHz oant 108,0 MHz yn stappen fan 100 kHz)</string>
+    <string name="regional_band_summary_united_kingdom">Ferienige Keninkryk (87,5 MHz oant 108,0 MHz yn stappen fan 100 kHz)</string>
+    <string name="regional_band_summary_united_states">Ferienige Steaten (88,1 MHz oant 107,9 MHz yn stappen fan 200 kHz)</string>
+    <string name="regional_band_summary_user_defined">Oanpaste bân</string>
+    <string name="aud_output_mode">Audio-útfiermodus</string>
+    <string name="audio_type_stereo">Stereo</string>
+    <string name="audio_type_mono">Mono</string>
+    <string name="record_dur">Opnamedoer</string>
+    <string name="auto_select_af">Alternative frekwinsje</string>
+    <string name="settings_revert_defaults_title">Fabryksynstellingen opnij ynstelle</string>
+    <string name="settings_revert_defaults_summary">Alles opnij ynstelle</string>
+    <string name="settings_revert_confirm_title">Opnij ynstelle befêstigje</string>
+    <string name="settings_revert_confirm_msg">Dit sil alle ynstellingen fuortsmite ynklusyf bewarre favoriten. Trochgean?</string>
+    <string name="no_storage">Pleats SD-kaart om opnimme te kinnen.</string>
+    <string name="preparing_sd">SD-kaart tariede\u2026</string>
+    <string name="access_sd_fail">Gjin tagong ta SD-kaart.</string>
+    <string name="spaceIsLow_content">Jo SD-kaart is hast fol. Ferminderje de opnamekwaliteit of smyt bestannen fuort om romte frij te meitsjen.</string>
+    <string name="FMRecording_reach_size_limit">Opnamelimyt berikke.</string>
+    <string name="menu_scan_for_preset">Favoriten sykje</string>
+    <string name="fm_off">FM is útskeakele.</string>
+    <string name="fm_call">FM kin net brûkt wurde wylst it bellen.</string>
+    <string name="alert_dialog_hint">Namme ynfiere</string>
+    <string name="search_dialog_title">Stjoerders sykje</string>
+    <string name="fm_command_timeout_title">Time-out</string>
+    <string name="fm_tune_timeout_msg">Gjin FM-stjoerders ûntfongen. As it probleem bestean bliuwt, skeakel FM-radio út en oan.</string>
+    <string name="fm_command_failed_title">FM-bewurking mislearre</string>
+    <string name="fm_cmd_failed_msg">FM-bewurking mislearre. As it probleem bestean bliuwt, skeakel FM-radio út en oan.</string>
+    <string name="fm_cmd_failed_msg_hdmi">FM-bewurking mislearre. FM en HDMI tagelyk wurdt net stipe.</string>
+    <string name="fm_cmd_failed_call_on">FM-bewurking mislearre. FM audio net tastien wylst in telefoanpetear.</string>
+    <string name="audio_db_artist_name">Myn FM-opnamen</string>
+    <string name="audio_db_album_name">FM-opnamen</string>
+    <string name="audio_db_playlist_name">FM-opnamen</string>
+    <string name="station_name">Stjoerder:</string>
+    <string name="station_exists">Dizze frekwinsje bestiet al!</string>
+    <string name="station_list_delete_station">Fuortsmite: <xliff:g id="name">%s</xliff:g></string>
+    <string name="station_list_delete_station_prompt">Binne jo wis dat jo ‘<xliff:g id="name">%s</xliff:g>’ fuortsmite wolle?</string>
+    <string name="station_name_empty">Stjoerdernamme is leech, opnij ynfiere.</string>
+    <string name="station_name_exist">‘<xliff:g id="name">%s</xliff:g>’ is al yn gebrûk, fier in oare namme yn.</string>
+    <string name="rt_plus_tags">Labels</string>
+    <string name="usr_def_band_min">Leechste frekwinsje (MHz)</string>
+    <string name="usr_def_band_max">Heechste frekwinsje (MHz)</string>
+    <string name="chanl_spacing">Kanaalôfstân</string>
+    <string name="set">Ynstelle</string>
+    <string name="user_defind_band_msg">Fier in frekwinsje yn tusken 76.0 en 108.0 MHz mei in tuskenromte fan in kanaal en 100 KHz romte tusken minimale en maksimale frekwinsje</string>
+    <string name="save_record_file">FM-opname bewarre yn ‘<xliff:g id="record_file">%1$s</xliff:g>’</string>
+    <string name="fm_search_no_results">Gjin stjoerders fûn</string>
+    <string name="typ_All_stations">Alle stjoerders</string>
+    <string name="typ_Culture">Kultuer</string>
+    <string name="typ_Current_affairs">Aktualiteiten</string>
+    <string name="typ_Children">Berneprogramma\'s</string>
+    <string name="typ_Country">Countrymuzyk</string>
+    <string name="typ_Documentary">Dokumintêre</string>
+    <string name="typ_Drama">Drama</string>
+    <string name="typ_Easy_listening">Easy listening</string>
+    <string name="typ_Education">Edukatyf</string>
+    <string name="typ_Emergency">Needgefal</string>
+    <string name="typ_Emergency_test">Needgefallentest</string>
+    <string name="typ_Finance">Finansjeel</string>
+    <string name="typ_Folk">Folksmuzyk</string>
+    <string name="typ_Information">Ynformaasje</string>
+    <string name="typ_Jazz">Jazz</string>
+    <string name="typ_Light_classical">Ljocht klassyk</string>
+    <string name="typ_Leisure">Untspanning</string>
+    <string name="typ_News">Nijs</string>
+    <string name="typ_National">Nasjonale muzyk</string>
+    <string name="typ_Other">Oare muzyk</string>
+    <string name="typ_Oldies">Oldies</string>
+    <string name="typ_Phone_in">Ynbelle</string>
+    <string name="typ_Pop">Popmuzyk</string>
+    <string name="typ_Religion">Religieus</string>
+    <string name="typ_Rock">Rock</string>
+    <string name="typ_Science">Wittenskiplik</string>
+    <string name="typ_Serious_classical">Serieus klassyk</string>
+    <string name="typ_Social_affairs">Sosjale saken</string>
+    <string name="typ_Sport">Sport</string>
+    <string name="typ_Travel">Reizigje</string>
+    <string name="typ_Varied">Fariearre</string>
+    <string name="typ_Weather">Waar</string>
+    <string name="typ_Adult_hits">Hits</string>
+    <string name="typ_Classical">Klassyk</string>
+    <string name="typ_Classic_Rock">Klassike rock</string>
+    <string name="typ_College">Kampusradio</string>
+    <string name="typ_Foreign_language">Frjemde talen</string>
+    <string name="typ_Hiphop">Hiphop</string>
+    <string name="typ_Nostalgia">Nostalgysk</string>
+    <string name="typ_Personality">Persoanlikheid</string>
+    <string name="typ_Public">Iepenbier</string>
+    <string name="typ_Religious_music">Religieus</string>
+    <string name="typ_Religious_talk">Religieus sprutsen</string>
+    <string name="typ_Rhythm_and_Blues">Rhythm en blues</string>
+    <string name="typ_Spanish_music">Spaanske muzyk</string>
+    <string name="typ_Spanish_talk">Spaansktalich</string>
+    <string name="typ_Soft">Ljochte muzyk</string>
+    <string name="typ_Soft_Rock">Softrock</string>
+    <string name="typ_Soft_Rhythm_and_Blues">Soft Rhythm en blues</string>
+    <string name="typ_Sports">Sport</string>
+    <string name="typ_Talk">Sprutsen</string>
+    <string name="typ_Top_40">Top 40</string>
+</resources>

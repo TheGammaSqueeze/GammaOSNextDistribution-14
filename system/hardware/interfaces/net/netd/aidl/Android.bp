@@ -1,0 +1,29 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+aidl_interface {
+    name: "android.system.net.netd",
+    vendor_available: true,
+    srcs: ["android/system/net/netd/*.aidl"],
+    stability: "vintf",
+    backend: {
+        cpp: {
+            enabled: false,
+        },
+        java: {
+            sdk_version: "module_current",
+        },
+        ndk: {
+            enabled: true,
+        },
+    },
+    versions_with_info: [
+        {
+            version: "1",
+            imports: [],
+        },
+    ],
+    frozen: true,
+
+}

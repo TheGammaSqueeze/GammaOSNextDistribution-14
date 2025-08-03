@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017-2024 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="system_reboot_confirm_cm"/>
+    <string name="global_action_restart_system">Systeem</string>
+    <string name="global_action_restart_recovery">Herstel</string>
+    <string name="global_action_restart_bootloader">Bootloader</string>
+    <plurals name="show_dev_countdown_cm">
+        <item quantity="one">U bent nog <xliff:g id="step_count">%1$d</xliff:g> stap verwijderd van het inschakelen van de ontwikkelaars opties.</item>
+        <item quantity="other">U bent nog <xliff:g id="step_count">%1$d</xliff:g> stappen verwijderd van het inschakelen van de ontwikkelaars opties.</item>
+    </plurals>
+    <string name="show_dev_on_cm">U hebt de opties voor ontwikkelaars ingeschakeld!</string>
+    <string name="show_dev_already_cm">Niet nodig, u hebt de opties voor ontwikkelaars al ingeschakeld.</string>
+    <string name="system_buttons">Knoppen</string>
+    <string name="power_button_long_press_action_title">Aan/uit knop lang indrukken actie</string>
+    <string name="power_button_long_press_for_power_menu_action">Toegang tot Powermenu</string>
+    <string name="power_button_long_press_for_assistant_action">Open assistent</string>
+    <string name="inputs_volume_control_enabled">CEC Volumecontrole</string>
+    <string name="inputs_volume_control_enabled_desc">Beheer TV/AVR volume in plaats van intern volume</string>
+    <string name="enable_adb_root">Root foutopsporing</string>
+    <string name="enable_adb_root_summary">Uitvoeren van Android foutopsporing als root toestaan</string>
+    <string name="advanced_restart_title">Geavanceerd herstarten</string>
+    <string name="advanced_restart_summary">Toon opties voor herstarten naar recovery, bootloader of het uitvoeren van een zachte herstart</string>
+    <string name="adb_over_network">ADB over netwerk</string>
+    <string name="adb_over_network_summary">TCP/IP-foutopsporing inschakelen over netwerkinterfaces (Wi\u2011Fi, USB-netwerken). Wordt gereset bij opstarten</string>
+    <string name="adb_over_network_warning">Let op: als ADB over netwerk is ingeschakeld, kan op uw apparaat worden ingebroken via alle aangesloten netwerken!\n\nGebruik deze functie alleen indien u verbonden bent met vertrouwde netwerken.\n\nWeet u zeker dat u deze functie wilt inschakelen?</string>
+    <string name="trust_category_features">Status</string>
+    <string name="trust_feature_selinux">SELinux</string>
+    <string name="trust_feature_selinux_value_enforcing">Afdwingen</string>
+    <string name="trust_feature_selinux_value_disabled">Uitgeschakeld</string>
+    <string name="trust_feature_selinux_explain">SELinux bepaalt welke processen toegang hebben tot welke bestanden/mappen op uw apparaat.\nDit voorkomt dat applicaties en services toegang krijgen tot bestanden die ze niet nodig hebben: op deze manier wordt een potentieel kwaadaardig proces beperkt en uw veiligheid behouden.</string>
+    <string name="trust_feature_security_patches">Android-beveiligingspatches</string>
+    <string name="trust_feature_security_patches_value_base">Platform: %1$s\nProvider: %2$s</string>
+    <string name="trust_feature_security_patches_value_new">Bijgewerkt</string>
+    <string name="trust_feature_security_patches_value_medium">Een paar maanden oud</string>
+    <string name="trust_feature_security_patches_value_old">Verouderd</string>
+    <string name="trust_feature_security_patches_explain">Beveiligingspatches worden maandelijks door Google vrijgegeven in samenwerking met SoC-leveranciers om fouten aan te pakken die kunnen worden uitgebuit door kwaadwillende apps om beveiligingsbeperkingen te omzeilen en permanente schade aan uw apparaat te veroorzaken. Patches die door Google beschikbaar worden gesteld, worden elke maand op alle ondersteunde apparaten toegepast, maar patches voor bedrijfseigen code kunnen alleen door de fabrikant van uw apparaat worden toegepast. Om uw apparaat veilig te houden, moet u ervoor zorgen dat uw LineageOS-build altijd up-to-date is en (indien van toepassing) zorgen dat uw leveranciers-image wordt geüpdatet naar de laatste die door LineageOS wordt aanbevolen.</string>
+    <string name="trust_feature_encryption">Encryptie</string>
+    <string name="trust_feature_encryption_value_enabled">Ingeschakeld</string>
+    <string name="trust_feature_encryption_value_nolock">Vereist een veilig vergrendelingsscherm</string>
+    <string name="trust_feature_encryption_value_disabled">Uitgeschakeld</string>
+    <string name="trust_feature_encryption_explain">Versleutelen van uw apparaat voorkomt toegang tot uw gegevens wanneer uw telefoon niet is opgestart in Android. Dit is vooral belangrijk als uw telefoon wordt gestolen, omdat dit voorkomt dat mensen uw berichten, contacten en andere privégegevens zonder uw wachtwoord lezen.\nOm de codering effectiever te maken, moet u een veilig wachtwoord voor het vergrendelscherm instellen.</string>
+    <string name="trust_category_tools">Vertrouwelijkheid</string>
+    <string name="trust_notification_alerts_title">Beveiligingswaarschuwingen</string>
+    <string name="trust_restrict_usb_title">Beperk USB</string>
+    <string name="trust_restrict_usb_summary">Beheer ondersteuning voor USB-verbindingen zoals oortelefoon, opslagapparaten, invoer (microfoon, toetsenborden, joysticks) en ADB</string>
+    <string name="trust_restrict_usb_always">Weiger USB-verbindingen</string>
+    <string name="trust_restrict_usb_disabled">Sta USB-verbindingen altijd toe</string>
+    <string name="trust_onboarding_description">Trust helpt u uw apparaat veilig te houden en uw vertrouwelijkheid te beschermen.\nHet pictogram Trust wordt alleen weergegeven als de inhoud van de pagina is geverifieerd.</string>
+    <string name="trust_warnings_alerts_intro">U kunt kiezen voor welke beveiligingsproblemen u gewaarschuwd wil worden. Uit veiligheidsoverwegingen is het raadzaam om alle waarschuwingen in te schakelen</string>
+    <string name="trust_warnings_selinux">SELinux-status</string>
+    <string name="trust_warnings_keys">Build handtekening</string>
+    <string name="sleep_button_label">Slaap</string>
+    <string name="system_sleep_confirm">Nu slapen?</string>
+    <string name="shutdown_button_label">Afsluiten</string>
+    <string name="system_shutdown_confirm">Nu afsluiten?</string>
+    <string name="convertible_port_busy_title">USB-poort 1 is in gebruik</string>
+    <string name="convertible_port_busy_warning">Ontkoppel alle apparaten of accessoires en probeer het opnieuw</string>
+    <string name="mtp_enable_title">Benadert SHIELD-mappen op PC met behulp van USB</string>
+    <string name="mtp_enable_warning">USB-poort 1 is nu geconfigureerd voor SHIELD om een PC als een media-apparaat te verbinden.\n\nDeze poort detecteert geen USB-opslag media of USB-accessoires meer en kan niet worden gebruikt voor het opladen van apparaten.</string>
+    <string name="mtp_retry_error">Mislukt. Probeer het opnieuw.</string>
+    <string name="mtp_summary">In deze modus is de USB-poort niet functioneel voor andere toepassingen</string>
+    <string name="mtp_title">Zet bestanden over naar een computer met behulp van USB</string>
+    <string name="mtp_unexpected_error">Onverwachte fout. Probeer het later opnieuw.</string>
+    <string name="usb_debugging_enable_title">USB-foutopsporing is ingeschakeld</string>
+    <string name="usb_debugging_enable_warning">USB-poort 1 is nu geconfigureerd voor SHIELD om een PC als een media-apparaat te verbinden.\n\nDeze poort detecteert geen USB-opslag media of USB-accessoires meer en kan niet worden gebruikt voor het opladen van apparaten.</string>
+</resources>

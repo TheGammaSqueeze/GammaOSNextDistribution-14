@@ -1,0 +1,14 @@
+The test data is generated as follows:
+
+$ mkdir dir
+$ base64 /dev/urandom | head -c 100000 > dir/file1
+$ base64 /dev/urandom | head -c 100000 > dir/file2
+$ soong_zip -o test.zip -D dir
+
+Running zipinfo shows that the files are compressed using deflate (defN)
+$ zipinfo test.zip
+Archive:  test.zip
+Zip file size: 151594 bytes, number of entries: 2
+-rw-------  2.0 unx   100000 bl defN 08-Jan-01 00:00 dir/file1
+-rw-------  2.0 unx   100000 bl defN 08-Jan-01 00:00 dir/file2
+2 files, 200000 bytes uncompressed, 151352 bytes compressed:  24.3%

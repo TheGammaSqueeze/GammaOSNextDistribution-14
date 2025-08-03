@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2009 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="uid_label" msgid="8421971615411294156">"मीडिया"</string>
+    <string name="storage_description" msgid="4081716890357580107">"स्थानिक स्टोरेज"</string>
+    <string name="picker_app_label" msgid="1195424381053599122">"मीडिया पिकर"</string>
+    <string name="artist_label" msgid="8105600993099120273">"कलाकार"</string>
+    <string name="unknown" msgid="2059049215682829375">"अज्ञात"</string>
+    <string name="root_images" msgid="5861633549189045666">"इमेज"</string>
+    <string name="root_videos" msgid="8792703517064649453">"व्हिडिओ"</string>
+    <string name="root_audio" msgid="3505830755201326018">"ऑडिओ"</string>
+    <string name="root_documents" msgid="3829103301363849237">"दस्तऐवज"</string>
+    <string name="permission_required" msgid="1460820436132943754">"या आयटममध्ये बदल करण्यसाठी किंवा तो हटवण्यासाठी परवानगीची आवश्यकता आहे."</string>
+    <string name="permission_required_action" msgid="706370952366113539">"सुरू ठेवा"</string>
+    <string name="grant_dialog_button_allow" msgid="1644287024501033471">"अनुमती द्या"</string>
+    <string name="grant_dialog_button_deny" msgid="6190589471415815741">"नाकारा"</string>
+    <string name="permission_more_thumb" msgid="1938863829470531577">"{count,plural, =1{+<xliff:g id="COUNT_0">^1</xliff:g>}other{+<xliff:g id="COUNT_1">^1</xliff:g>}}"</string>
+    <string name="permission_more_text" msgid="2471785045095597753">"{count,plural, =1{आणखी <xliff:g id="COUNT_0">^1</xliff:g> अतिरिक्त आयटम}other{आणखी <xliff:g id="COUNT_1">^1</xliff:g> अतिरिक्त आयटम}}"</string>
+    <string name="cache_clearing_dialog_title" msgid="8907893815183913664">"तात्पुरत्या अ‍ॅप फाइल साफ करा"</string>
+    <string name="cache_clearing_dialog_text" msgid="7057784635111940957">"<xliff:g id="APP_SEEKING_PERMISSION">%s</xliff:g> ला काही तात्पुरत्या फाइल साफ करायच्या आहेत. यामुळे बॅटरी किंवा सेल्युलर डेटाच्या वापरात वाढ होऊ शकते."</string>
+    <string name="cache_clearing_in_progress_title" msgid="6902220064511664209">"तात्‍पुरत्‍या ॲप फाइल काढून टाकत आहे…"</string>
+    <string name="clear" msgid="5524638938415865915">"साफ करा"</string>
+    <string name="allow" msgid="8885707816848569619">"अनुमती द्या"</string>
+    <string name="deny" msgid="6040983710442068936">"नकार द्या"</string>
+    <string name="picker_browse" msgid="5554477454636075934">"ब्राउझ करा…"</string>
+    <string name="picker_settings" msgid="6443463167344790260">"क्लाउड मीडिया अ‍ॅप"</string>
+    <string name="picker_settings_system_settings_menu_title" msgid="3055084757610063581">"क्लाउड मीडिया अ‍ॅप"</string>
+    <string name="picker_settings_title" msgid="5647700706470673258">"क्लाउड मीडिया अ‍ॅप"</string>
+    <string name="picker_settings_description" msgid="2916686824777214585">"एखादे ॲप किंवा वेबसाइट तुम्हाला फोटो किंवा व्हिडिओ निवडण्यास सांगते, तेव्हा तुमचा क्लाउड मीडिया अ‍ॅक्सेस करा"</string>
+    <string name="picker_settings_selection_message" msgid="245453573086488596">"येथून क्लाउड मीडिया अ‍ॅक्सेस करा"</string>
+    <string name="picker_settings_no_provider" msgid="2582311853680058223">"काहीही नाही"</string>
+    <string name="picker_settings_toast_error" msgid="697274445512467469">"क्लाउड मीडिया अ‍ॅप या क्षणी बदलू शकत नाही."</string>
+    <string name="picker_sync_notification_channel" msgid="1867105708912627993">"मीडिया पिकर"</string>
+    <string name="picker_sync_notification_title" msgid="1122713382122055246">"मीडिया पिकर"</string>
+    <string name="picker_sync_notification_text" msgid="8204423917712309382">"मीडिया सिंक करत आहे…"</string>
+    <string name="add" msgid="2894574044585549298">"जोडा"</string>
+    <string name="deselect" msgid="4297825044827769490">"निवड रद्द करा"</string>
+    <string name="deselected" msgid="8488133193326208475">"निवड रद्द केली आहे"</string>
+    <string name="select" msgid="2704765470563027689">"निवडा"</string>
+    <string name="selected" msgid="9151797369975828124">"निवडले आहे"</string>
+    <string name="select_up_to" msgid="6994294169508439957">"{count,plural, =1{कमाल <xliff:g id="COUNT_0">^1</xliff:g> आयटम निवडा}other{कमाल <xliff:g id="COUNT_1">^1</xliff:g> आयटम निवडा}}"</string>
+    <string name="recent" msgid="6694613584743207874">"अलीकडील"</string>
+    <string name="picker_photos_empty_message" msgid="5980619500554575558">"कोणतेही फोटो किंवा व्हिडिओ नाहीत"</string>
+    <string name="picker_album_media_empty_message" msgid="7061850698189881671">"कोणतेही सपोर्ट असलेले फोटो किंवा व्हिडिओ नाहीत"</string>
+    <string name="picker_albums_empty_message" msgid="8341079772950966815">"कोणतेही अल्बम नाहीत"</string>
+    <string name="picker_view_selected" msgid="2266031384396143883">"निवडलेले पहा"</string>
+    <string name="picker_photos" msgid="7415035516411087392">"फोटो"</string>
+    <!-- no translation found for picker_videos (2886971435439047097) -->
+    <skip />
+    <string name="picker_albums" msgid="4822511902115299142">"अल्बम"</string>
+    <string name="picker_preview" msgid="6257414886055861039">"पूर्वावलोकन"</string>
+    <string name="picker_work_profile" msgid="2083221066869141576">"ऑफिसवर स्विच करा"</string>
+    <string name="picker_personal_profile" msgid="639484258397758406">"वैयक्तिकवर स्विच करा"</string>
+    <string name="picker_personal_profile_label" msgid="6189198163209597344">"वैयक्तिक"</string>
+    <string name="picker_profile_admin_title" msgid="4172022376418293777">"तुमच्या ॲडमिनने ब्लॉक केले"</string>
+    <string name="picker_profile_admin_msg_from_personal" msgid="1941639895084555723">"वैयक्तिक ॲपवरून कामाशी संबंधित डेटा अ‍ॅक्सेस करण्याची परवानगी नाही"</string>
+    <string name="picker_profile_admin_msg_from_work" msgid="8048524337462790110">"कामाशी संबंधित ॲपवरून वैयक्तिक डेटा अ‍ॅक्सेस करण्याची परवानगी नाही"</string>
+    <string name="picker_profile_admin_msg" msgid="4060112887923255178">"<xliff:g id="PROFILE2">%2$s</xliff:g> ॲपवरून <xliff:g id="PROFILE1">%1$s</xliff:g> चा डेटा ॲक्सेस करण्याची परवानगी नाही"</string>
+    <string name="picker_profile_switch_message" msgid="1133817927412489487">"<xliff:g id="PROFILE">%s</xliff:g> वर स्विच करा"</string>
+    <string name="picker_profile_work_paused_title" msgid="382212880704235925">"कामाशी संबंधित अ‍ॅप्स थांबवली आहेत"</string>
+    <string name="picker_profile_paused_title" msgid="2079739512895529028">"<xliff:g id="PROFILE">%s</xliff:g> ॲप्स थांबवली आहेत"</string>
+    <string name="picker_profile_work_paused_msg" msgid="6321552322125246726">"कामाशी संबंधित फोटो उघडण्यासाठी, कामाशी संबंधित अ‍ॅप्स सुरू करा त्यानंतर पुन्हा प्रयत्न करा"</string>
+    <string name="picker_profile_paused_msg" msgid="1215076898583993782">"<xliff:g id="PROFILE1">%1$s</xliff:g> शी संबंधित फोटो उघडण्यासाठी, तुमची <xliff:g id="PROFILE2">%2$s</xliff:g> ॲप्स सुरू करा, त्यानंतर पुन्हा प्रयत्न करा"</string>
+    <string name="picker_privacy_message" msgid="9132700451027116817">"हे ॲप फक्त तुम्ही निवडलेले फोटो अ‍ॅक्सेस करू शकते"</string>
+    <string name="picker_header_permissions" msgid="675872774407768495">"तुम्ही या ॲपला अ‍ॅक्सेस करण्याची अनुमती दिलेले फोटो आणि व्हिडिओ निवडा"</string>
+    <string name="picker_album_item_count" msgid="4420723302534177596">"{count,plural, =1{<xliff:g id="COUNT_0">^1</xliff:g> आयटम}other{<xliff:g id="COUNT_1">^1</xliff:g> आयटम}}"</string>
+    <string name="picker_add_button_multi_select" msgid="4005164092275518399">"(<xliff:g id="COUNT">^1</xliff:g>) जोडा"</string>
+    <string name="picker_add_button_multi_select_permissions" msgid="5138751105800138838">"(<xliff:g id="COUNT">^1</xliff:g>) ला अनुमती द्या"</string>
+    <string name="picker_add_button_allow_none_option" msgid="9183772732922241035">"काहीही नाही याला अनुमती द्या"</string>
+    <string name="picker_category_camera" msgid="4857367052026843664">"कॅमेरा"</string>
+    <string name="picker_category_downloads" msgid="793866660287361900">"डाउनलोड"</string>
+    <string name="picker_category_favorites" msgid="7008495397818966088">"आवडते"</string>
+    <string name="picker_category_screenshots" msgid="7216102327587644284">"स्क्रीनशॉट"</string>
+    <!-- no translation found for picker_category_videos (1478458836380241356) -->
+    <skip />
+    <string name="picker_motion_photo_text" msgid="5016603812468180816">"मोशन फोटो"</string>
+    <string name="picker_item_content_desc" msgid="7680591530155286423">"<xliff:g id="ITEM_NAME">%1$s</xliff:g> <xliff:g id="TIME">%2$s</xliff:g> वाजता घेतला"</string>
+    <string name="picker_video_item_content_desc" msgid="7828900089119214801">"<xliff:g id="TIME">%1$s</xliff:g> रोजी घेतलेला <xliff:g id="DURATION">%2$s</xliff:g> कालावधीचा व्हिडिओ"</string>
+    <string name="picker_photo" msgid="1739342083494962153">"फोटो"</string>
+    <string name="picker_gif" msgid="8333318083107368726">"GIF"</string>
+    <string name="picker_motion_photo" msgid="4385182195289546308">"मोशन फोटो"</string>
+    <string name="picker_mute_video" msgid="2496585809229800096">"व्हिडिओ म्‍यूट करा"</string>
+    <string name="picker_unmute_video" msgid="6611741290641963568">"व्हिडिओ अनम्यूट करा"</string>
+    <string name="picker_play_video" msgid="7106025944628666250">"प्ले करा"</string>
+    <string name="picker_pause_video" msgid="1092718225234326702">"थांबवा"</string>
+    <string name="picker_error_snackbar" msgid="5970192792792369203">"व्हिडिओ प्ले करू शकत नाही"</string>
+    <string name="picker_error_dialog_title" msgid="4540095603788920965">"व्हिडिओ प्ले करण्यात समस्या आली"</string>
+    <string name="picker_error_dialog_body" msgid="2515738446802971453">"तुमचे इंटरनेट कनेक्शन तपासा आणि पुन्हा प्रयत्न करा"</string>
+    <string name="picker_error_dialog_positive_action" msgid="749544129082109232">"पुन्हा प्रयत्न करा"</string>
+    <string name="not_selected" msgid="2244008151669896758">"निवडला नाही"</string>
+    <string name="preloading_dialog_title" msgid="4974348221848532887">"तुमचा निवडलेला मीडिया तयार करत आहे"</string>
+    <string name="preloading_progress_message" msgid="4741327138031980582">"<xliff:g id="NUMBER_TOTAL">%2$d</xliff:g> पैकी <xliff:g id="NUMBER_PRELOADED">%1$d</xliff:g> तयार"</string>
+    <string name="preloading_cancel_button" msgid="824053521307342209">"रद्द करा"</string>
+    <string name="picker_banner_cloud_first_time_available_title" msgid="5912973744275711595">"बॅकअप घेतलेल्या फोटोचा आता समावेश केला आहे"</string>
+    <string name="picker_banner_cloud_first_time_available_desc" msgid="5570916598348187607">"तुम्ही <xliff:g id="APP_NAME">%1$s</xliff:g> खात्याच्या <xliff:g id="USER_ACCOUNT">%2$s</xliff:g> वरून फोटो निवडू शकता"</string>
+    <string name="picker_banner_cloud_account_changed_title" msgid="4825058474378077327">"<xliff:g id="APP_NAME">%1$s</xliff:g> खाते अपडेट केले"</string>
+    <string name="picker_banner_cloud_account_changed_desc" msgid="3433218869899792497">"<xliff:g id="USER_ACCOUNT">%1$s</xliff:g> मधील फोटोचा आता येथे समावेश केला आहे"</string>
+    <string name="picker_banner_cloud_choose_app_title" msgid="3165966147547974251">"क्लाउड मीडिया अ‍ॅप निवडा"</string>
+    <string name="picker_banner_cloud_choose_app_desc" msgid="2359212653555524926">"येथे बॅकअप घेतलेल्या फोटोचा समावेश करण्यासाठी, सेटिंग्ज मध्ये क्लाउड मीडिया अ‍ॅप निवडा"</string>
+    <string name="picker_banner_cloud_choose_account_title" msgid="5010901185639577685">"<xliff:g id="APP_NAME">%1$s</xliff:g> खाते निवडा"</string>
+    <string name="picker_banner_cloud_choose_account_desc" msgid="8868134443673142712">"येथे <xliff:g id="APP_NAME">%1$s</xliff:g> मधील फोटोचा समावेश करण्यासाठी, ॲपमधील खाते निवडा"</string>
+    <string name="picker_banner_cloud_dismiss_button" msgid="2935903078288463882">"डिसमिस करा"</string>
+    <string name="picker_banner_cloud_choose_app_button" msgid="934085679890435479">"ॲप निवडा"</string>
+    <string name="picker_banner_cloud_choose_account_button" msgid="7979484877116991631">"खाते निवडा"</string>
+    <string name="picker_banner_cloud_change_account_button" msgid="8361239765828471146">"खाते बदला"</string>
+    <string name="picker_loading_photos_message" msgid="6449180084857178949">"तुमचे सर्व फोटो मिळवत आहे"</string>
+    <string name="permission_write_audio" msgid="8819694245323580601">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> ला या ऑडिओ फाइलमध्ये फेरबदल करण्याची अनुमती द्यायची आहे का?}other{<xliff:g id="APP_NAME_1">^1</xliff:g> ला <xliff:g id="COUNT">^2</xliff:g> ऑडिओ फाइलमध्ये फेरबदल करण्याची अनुमती द्यायची आहे का?}}"</string>
+    <string name="permission_progress_write_audio" msgid="6029375427984180097">"{count,plural, =1{ऑडिओ फाइलमध्ये फेरबदल करत आहे…}other{<xliff:g id="COUNT">^1</xliff:g> ऑडिओ फाइलमध्ये फेरबदल करत आहे…}}"</string>
+    <string name="permission_write_video" msgid="103902551603700525">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> ला या व्हिडिओमध्ये फेरबदल करण्याची अनुमती द्यायची आहे का?}other{<xliff:g id="APP_NAME_1">^1</xliff:g> ला <xliff:g id="COUNT">^2</xliff:g> व्हिडिओमध्ये फेरबदल करण्याची अनुमती द्यायची आहे का?}}"</string>
+    <string name="permission_progress_write_video" msgid="7014908418349819148">"{count,plural, =1{व्हिडिओमध्ये फेरबदल करत आहे…}other{<xliff:g id="COUNT">^1</xliff:g> व्हिडिओमध्ये फेरबदल करत आहे…}}"</string>
+    <string name="permission_write_image" msgid="3518991791620523786">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> ला या फोटोमध्ये फेरबदल करण्याची अनुमती द्यायची आहे का?}other{<xliff:g id="APP_NAME_1">^1</xliff:g> ला <xliff:g id="COUNT">^2</xliff:g> फोटोमध्ये फेरबदल करण्याची अनुमती द्यायची आहे का?}}"</string>
+    <string name="permission_progress_write_image" msgid="3623580315590025262">"{count,plural, =1{फोटोमध्ये फेरबदल करत आहे…}other{<xliff:g id="COUNT">^1</xliff:g> फोटोमध्ये फेरबदल करत आहे…}}"</string>
+    <string name="permission_write_generic" msgid="7431128739233656991">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> ला या आयटममध्ये फेरबदल करण्याची अनुमती द्यायची आहे का?}other{<xliff:g id="APP_NAME_1">^1</xliff:g> ला <xliff:g id="COUNT">^2</xliff:g> आयटममध्ये फेरबदल करण्याची अनुमती द्यायची आहे का?}}"</string>
+    <string name="permission_progress_write_generic" msgid="2806560971318391443">"{count,plural, =1{आयटममध्ये फेरबदल करत आहे…}other{<xliff:g id="COUNT">^1</xliff:g> आयटममध्ये फेरबदल करत आहे…}}"</string>
+    <string name="permission_trash_audio" msgid="6554672354767742206">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> ला ही ऑडिओ फाइल ट्रॅशमध्ये हलवण्याची अनुमती द्यायची आहे का?}other{<xliff:g id="APP_NAME_1">^1</xliff:g> ला <xliff:g id="COUNT">^2</xliff:g> ऑडिओ फाइल ट्रॅशमध्ये हलवण्याची अनुमती द्यायची आहे का?}}"</string>
+    <string name="permission_progress_trash_audio" msgid="3116279868733641329">"{count,plural, =1{ऑडिओ फाइल ट्रॅशमध्ये हलवत आहे…}other{<xliff:g id="COUNT">^1</xliff:g> ऑडिओ फाइल ट्रॅशमध्ये हलवत आहे…}}"</string>
+    <string name="permission_trash_video" msgid="7555850843259959642">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> ला हा व्हिडिओ ट्रॅशमध्ये हलवण्याची अनुमती द्यायची आहे का?}other{<xliff:g id="APP_NAME_1">^1</xliff:g> ला <xliff:g id="COUNT">^2</xliff:g> व्हिडिओ ट्रॅशमध्ये हलवण्याची अनुमती द्यायची आहे का?}}"</string>
+    <string name="permission_progress_trash_video" msgid="4637821778329459681">"{count,plural, =1{व्हिडिओ ट्रॅशमध्ये हलवत आहे…}other{<xliff:g id="COUNT">^1</xliff:g> व्हिडिओ ट्रॅशमध्ये हलवत आहे…}}"</string>
+    <string name="permission_trash_image" msgid="3333128084684156675">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> ला हा फोटो ट्रॅशमध्ये हलवण्याची अनुमती द्यायची आहे का?}other{<xliff:g id="APP_NAME_1">^1</xliff:g> ला <xliff:g id="COUNT">^2</xliff:g> फोटो ट्रॅशमध्ये हलवण्याची अनुमती द्यायची आहे का?}}"</string>
+    <string name="permission_progress_trash_image" msgid="3063857679090024764">"{count,plural, =1{फोटो ट्रॅशमध्ये हलवत आहे…}other{<xliff:g id="COUNT">^1</xliff:g> फोटो ट्रॅशमध्ये हलवत आहे…}}"</string>
+    <string name="permission_trash_generic" msgid="5545420534785075362">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> ला हा आयटम ट्रॅशमध्ये हलवण्याची अनुमती द्यायची आहे का?}other{<xliff:g id="APP_NAME_1">^1</xliff:g> ला <xliff:g id="COUNT">^2</xliff:g> आयटम ट्रॅशमध्ये हलवण्याची अनुमती द्यायची आहे का?}}"</string>
+    <string name="permission_progress_trash_generic" msgid="7815124979717814057">"{count,plural, =1{आयटम ट्रॅशमध्ये हलवत आहे…}other{<xliff:g id="COUNT">^1</xliff:g> आयटम ट्रॅशमध्ये हलवत आहे…}}"</string>
+    <string name="permission_untrash_audio" msgid="8404597563284002472">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> ला ही ऑडिओ फाइल ट्रॅशमधून हलवण्याची अनुमती द्यायची आहे का?}other{<xliff:g id="APP_NAME_1">^1</xliff:g> ला <xliff:g id="COUNT">^2</xliff:g> ऑडिओ फाइल ट्रॅशमधून हलवण्याची अनुमती द्यायची आहे का?}}"</string>
+    <string name="permission_progress_untrash_audio" msgid="2775372344946464508">"{count,plural, =1{ऑडिओ फाइल ट्रॅशमधून हलवत आहे…}other{<xliff:g id="COUNT">^1</xliff:g> ऑडिओ फाइल ट्रॅशमधून हलवत आहे…}}"</string>
+    <string name="permission_untrash_video" msgid="3178914827607608162">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> ला हा व्हिडिओ ट्रॅशमधून हलवण्याची अनुमती द्यायची आहे का?}other{<xliff:g id="APP_NAME_1">^1</xliff:g> ला <xliff:g id="COUNT">^2</xliff:g> व्हिडिओ ट्रॅशमधून हलवण्याची अनुमती द्यायची आहे का?}}"</string>
+    <string name="permission_progress_untrash_video" msgid="5500929409733841567">"{count,plural, =1{व्हिडिओ ट्रॅशमधून हलवत आहे…}other{<xliff:g id="COUNT">^1</xliff:g> व्हिडिओ ट्रॅशमधून हलवत आहे…}}"</string>
+    <string name="permission_untrash_image" msgid="3397523279351032265">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> ला हा फोटो ट्रॅशमधून हलवण्याची अनुमती द्यायची आहे का?}other{<xliff:g id="APP_NAME_1">^1</xliff:g> ला <xliff:g id="COUNT">^2</xliff:g> फोटो ट्रॅशमधून हलवण्याची अनुमती द्यायची आहे का?}}"</string>
+    <string name="permission_progress_untrash_image" msgid="5295061520504846264">"{count,plural, =1{फोटो ट्रॅशमधून हलवत आहे…}other{<xliff:g id="COUNT">^1</xliff:g> फोटो ट्रॅशमधून हलवत आहे…}}"</string>
+    <string name="permission_untrash_generic" msgid="2118366929431671046">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> ला हा आयटम ट्रॅशमधून हलवण्याची अनुमती द्यायची आहे का?}other{<xliff:g id="APP_NAME_1">^1</xliff:g> ला <xliff:g id="COUNT">^2</xliff:g> आयटम ट्रॅशमधून हलवण्याची अनुमती द्यायची आहे का?}}"</string>
+    <string name="permission_progress_untrash_generic" msgid="1489511601966842579">"{count,plural, =1{आयटम ट्रॅशमधून हलवत आहे…}other{<xliff:g id="COUNT">^1</xliff:g> आयटम ट्रॅशमधून हलवत आहे…}}"</string>
+    <string name="permission_delete_audio" msgid="3326674742892796627">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> ला ही ऑडिओ फाइल हटवण्याची अनुमती द्यायची आहे का?}other{<xliff:g id="APP_NAME_1">^1</xliff:g> ला <xliff:g id="COUNT">^2</xliff:g> ऑडिओ फाइल हटवण्याची अनुमती द्यायची आहे का?}}"</string>
+    <string name="permission_progress_delete_audio" msgid="1734871539021696401">"{count,plural, =1{ऑडिओ फाइल हटवत आहे…}other{<xliff:g id="COUNT">^1</xliff:g> ऑडिओ फाइल हटवत आहे…}}"</string>
+    <string name="permission_delete_video" msgid="604024971828349279">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> ला हा व्हिडिओ हटवण्याची अनुमती द्यायची आहे का?}other{<xliff:g id="APP_NAME_1">^1</xliff:g> ला <xliff:g id="COUNT">^2</xliff:g> व्हिडिओ हटवण्याची अनुमती द्यायची आहे का?}}"</string>
+    <string name="permission_progress_delete_video" msgid="1846702435073793157">"{count,plural, =1{व्हिडिओ हटवत आहे…}other{<xliff:g id="COUNT">^1</xliff:g> व्हिडिओ हटवत आहे…}}"</string>
+    <string name="permission_delete_image" msgid="3109056012794330510">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> ला हा फोटो हटवण्याची अनुमती द्यायची आहे का?}other{<xliff:g id="APP_NAME_1">^1</xliff:g> ला <xliff:g id="COUNT">^2</xliff:g> फोटो हटवण्याची अनुमती द्यायची आहे का?}}"</string>
+    <string name="permission_progress_delete_image" msgid="8580517204901148906">"{count,plural, =1{फोटो हटवत आहे…}other{<xliff:g id="COUNT">^1</xliff:g> फोटो हटवत आहे…}}"</string>
+    <string name="permission_delete_generic" msgid="7891939881065520271">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> ला हा आयटम हटवण्याची अनुमती द्यायची आहे का?}other{<xliff:g id="APP_NAME_1">^1</xliff:g> ला <xliff:g id="COUNT">^2</xliff:g> आयटम हटवण्याची अनुमती द्यायची आहे का?}}"</string>
+    <string name="permission_progress_delete_generic" msgid="6709118146245087898">"{count,plural, =1{आयटम हटवत आहे…}other{<xliff:g id="COUNT">^1</xliff:g> आयटम हटवत आहे…}}"</string>
+    <string name="transcode_denied" msgid="6760546817138288976">"<xliff:g id="APP_NAME">%s</xliff:g> मीडिया फाइलवर प्रक्रिया करू नाही"</string>
+    <string name="transcode_processing_cancelled" msgid="5340383917746945590">"मीडियावर प्रक्रिया करणे रद्द केले"</string>
+    <string name="transcode_processing_error" msgid="8921643164508407874">"मीडियावर प्रक्रिया करण्यासंबंधित एरर"</string>
+    <string name="transcode_processing_success" msgid="447288876429730122">"मीडियावर प्रक्रिया करणे यशस्वी झाले"</string>
+    <string name="transcode_processing_started" msgid="7789086308155361523">"मीडियावर प्रक्रिया सुरू झाली"</string>
+    <string name="transcode_processing" msgid="6753136468864077258">"मीडियावर प्रक्रिया सुरू आहे…"</string>
+    <string name="transcode_cancel" msgid="8555752601907598192">"रद्द करा"</string>
+    <string name="transcode_wait" msgid="8909773149560697501">"प्रतीक्षा करा"</string>
+    <string name="safety_protection_icon_label" msgid="6714354052747723623">"सुरक्षितता संरक्षण"</string>
+    <string name="transcode_alert_channel" msgid="997332371757680478">"मूळ ट्रान्सकोड सूचना"</string>
+    <string name="transcode_progress_channel" msgid="6905136787933058387">"मूळ ट्रान्सकोड प्रगती"</string>
+    <string name="dialog_error_message" msgid="5120432204743681606">"नंतर पुन्हा प्रयत्न करा. समस्येचे निराकरण झाल्यावर तुमचे फोटो उपलब्ध होतील."</string>
+    <string name="dialog_error_title" msgid="636349284077820636">"काही फोटो लोड करू शकत नाही"</string>
+    <string name="dialog_button_text" msgid="351366485240852280">"समजले"</string>
+    <string name="permlab_accessMediaOwnerPackageName" msgid="3849443148060165651">"मीडिया मालकाच्या पॅकेजचे नाव अ‍ॅक्सेस करा"</string>
+    <string name="permdesc_accessMediaOwnerPackageName" msgid="7381563109363105371">"ॲपला सर्व अ‍ॅक्सेसिबल मीडिया फाइलच्या मालकाच्या पॅकेजची नावे अ‍ॅक्सेस करण्याची अनुमती देते."</string>
+</resources>

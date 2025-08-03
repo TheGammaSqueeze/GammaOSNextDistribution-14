@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  Copyright (c) 2017 The LineageOS Project
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ Also add information on how to contact you by electronic and paper mail.
+
+-->
+<resources>
+    <string name="alarm_label">ದಿಗಿಲುಗಂಟೆ</string>
+    <string name="answer_call">ಉತ್ತರಿಸು</string>
+    <string name="ignore_call">ನಿರ್ಲಕ್ಷಿಸು</string>
+    <string name="end_call">ಕರೆ ಅಂತ್ಯ</string>
+    <string name="settings_name">ಜಾಣ ಹೊದಿಕೆ</string>
+    <string name="settings_summary">ನಿಮ್ಮ ಉಪಸಾಧನದ ವರ್ತನೆ ನಿಯಂತ್ರಿಸು</string>
+    <string name="category_behaviour">ವರ್ತನೆ</string>
+    <string name="pass_to_security_view_title">ನೇರವಾಗಿ ಪ್ರವೇಶಪದ ನಮೂದಿಗೆ ಹೋಗು</string>
+    <string name="use_high_touch_sensitivity_title">ಅಧಿಕ ಸ್ಪರ್ಶ ಸಂವೇದನೆ</string>
+    <string name="use_high_touch_sensitivity_summary">ಹೊದಿಕೆ ಮುಚ್ಚಿರುವಾಗ ಸ್ಪರ್ಶ ಸಂವೇದನತೆ ಹೆಚ್ಚಿಸು</string>
+    <string name="category_design">ವಿನ್ಯಾಸ</string>
+    <string name="switch_charging_status_summary">ಪ್ರಸ್ತುತ ಮಿಂತಿಣಿ ಮಟ್ಟ ಅವಲಂಬಿಸಿ ಬಣ್ಣವನ್ನು ಬದಲಾಯಿಸು</string>
+    <string name="timeout_plugged_title">ಮಿಂತಿಣಿ ತುಂಬುವಾಗ</string>
+    <string name="timeout_summary">ಮುಚ್ಚಳ ಮುಚ್ಚಿದ ನಂತರ %s ಕವರ್ ಆಪನ್ನು ಪ್ರದರ್ಶಿಸು</string>
+    <string name="timeout_summary_never">ಮುಚ್ಚಳ ಮುಚ್ಚಿದ ನಂತರ, ಹೊದಿಕೆ ಆಪ್ ಯಾವಾಗಲೂ ಚಲಿಸುತಲಿರುತ್ತದೆ</string>
+    <string name="timeout_entry_immediately">ತಕ್ಷಣ</string>
+    <string name="timeout_entry_5s">೫ ಕ್ಷಣ</string>
+    <string name="timeout_entry_10s">೧೦ ಕ್ಷಣ</string>
+    <string name="timeout_entry_30s">೩೦ ಕ್ಷಣ</string>
+    <string name="timeout_entry_1min">೧ ನಿಮಿಷ</string>
+    <string name="timeout_entry_5min">೫ ನಿಮಿಷ</string>
+</resources>

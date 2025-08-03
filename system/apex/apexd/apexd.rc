@@ -1,0 +1,30 @@
+service apexd /system/bin/apexd
+    interface aidl apexservice
+    class core
+    user root
+    group system
+    oneshot
+    disabled # does not start with the core class
+    reboot_on_failure reboot,apexd-failed
+    # CAP_CHOWN, CAP_DAC_OVERRIDE, CAP_DAC_READ_SEARCH required for apexdata snapshot & restore
+    # CAP_SYS_ADMIN is required to access device-mapper and to use mount syscall
+    capabilities CHOWN DAC_OVERRIDE DAC_READ_SEARCH FOWNER SYS_ADMIN
+
+service apexd-bootstrap /system/bin/apexd --bootstrap
+    user root
+    group system
+    oneshot
+    disabled
+    reboot_on_failure reboot,bootloader,bootstrap-apexd-failed
+    # CAP_SYS_ADMIN is required to access device-mapper and to use mount syscall
+    # apexd-bootstrap doesn't manage apexdata snapshot & restore, hence no need for other capabilities.
+    capabilities SYS_ADMIN
+
+service apexd-snapshotde /system/bin/apexd --snapshotde
+    user root
+    group system
+    oneshot
+    disabled
+    # CAP_CHOWN, CAP_DAC_OVERRIDE, CAP_DAC_READ_SEARCH required for apexdata snapshot & restore
+    # apexd-snapshotde doesn't mount APEXes, hence no need for SYS_ADMIN capability
+    capabilities CHOWN DAC_OVERRIDE DAC_READ_SEARCH FOWNER

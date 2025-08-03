@@ -1,0 +1,25 @@
+<!--
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="@dimen/car_quick_controls_icon_drawable_width"
+        android:height="@dimen/car_quick_controls_icon_drawable_height"
+        android:viewportWidth="36"
+        android:viewportHeight="36">
+    <path
+        android:fillColor="@color/car_quick_controls_icon_drawable_color"
+        android:fillType="evenOdd"
+        android:pathData="M21 7.93497V4.84497C27.015 6.20997 31.5 11.58 31.5 18C31.5 24.42 27.015 29.79 21 31.155V28.065C25.335 26.775 28.5 22.755 28.5 18C28.5 13.245 25.335 9.22497 21 7.93497ZM4.5 22.5V13.5H10.5L18 5.99997V30L10.5 22.5H4.5ZM15 22.755V13.245L11.745 16.5H7.5V19.5H11.745L15 22.755ZM24.75 18C24.75 15.345 23.22 13.065 21 11.955V24.03C23.22 22.935 24.75 20.655 24.75 18Z"/>
+</vector>

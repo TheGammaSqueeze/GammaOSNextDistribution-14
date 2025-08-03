@@ -1,0 +1,13 @@
+<uwbChipConfig>
+    <defaultChipId>chipIdString</defaultChipId>
+    <chipGroup>
+        <chip>
+            <id>chipIdString</id>
+            <position>
+                <x>1.0</x>
+                <y>2.0</y>
+                <z>3.0</z>
+            </position>
+        </chip>
+    </chipGroup>
+</uwbChipConfig>

@@ -1,0 +1,10 @@
+# People who can approve changes for submission.
+
+# Primary
+eschiang@google.com
+cassieyw@google.com
+
+# Secondary (only if people in Primary are unreachable)
+dnek@google.com
+alexstetson@google.com
+igorr@google.com

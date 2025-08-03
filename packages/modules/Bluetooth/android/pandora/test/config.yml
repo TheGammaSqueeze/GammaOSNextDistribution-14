@@ -1,0 +1,15 @@
+---
+
+TestBeds:
+- Name: android.bumbles
+  Controllers:
+    AndroidDevice: '*'
+    BumbleDevice:
+    - tcp: ${ROOTCANAL_HCI_ADDRESS}
+    - tcp: ${ROOTCANAL_HCI_ADDRESS}
+- Name: bumble.bumbles
+  Controllers:
+    BumbleDevice:
+    - transport: 'tcp-client:127.0.0.1:7300'
+    - transport: 'tcp-client:127.0.0.1:7300'
+    - transport: 'tcp-client:127.0.0.1:7300'

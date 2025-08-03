@@ -1,0 +1,3 @@
+# Statically included android internal util.
+rule com.android.internal.util.** com.android.server.adservices.internal.util.@1
+rule com.android.modules.utils.** com.android.server.adservices.@1

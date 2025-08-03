@@ -1,0 +1,12 @@
+#################################################
+# MLS policy constraints
+#
+
+# We aren't using MLS in Microdroid. But the policy grammar requires
+# at least one MLS declaration, and checkpolicy enforces this. We
+# don't want to disable MLS, since we share some file labels with the
+# host (e.g. files in APEXes) which does have MLS. So we include this
+# fairly harmless constraint.
+
+# Process transition:  Require equivalence.
+mlsconstrain process { transition dyntransition } (h1 eq h2 and l1 eq l2);

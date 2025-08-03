@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2011 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:android="http://schemas.android.com/apk/res/android" xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="button_dismiss">جەزملە</string>
+    <string name="menu_delete_all">ئاڭلىتىشلارنى ئۆچۈر</string>
+    <string name="message_options">ئۇچۇر تاللانما</string>
+    <string name="menu_view_details">تەپسىلاتىنى كۆرسەت</string>
+    <string name="menu_delete">ئاڭلىتىشنى ئۆچۈر</string>
+    <string name="view_details_title">ئاگاھلاندۇرۇش تەپسىلاتى</string>
+    <string name="confirm_delete_broadcast">بۇ ئاڭلىتىشنى ئۆچۈرەمدۇ؟</string>
+    <string name="confirm_delete_all_broadcasts">تاپشۇرۇۋالغان ھەممە ئاڭلىتىش ئۇچۇرلىرىنى ئۆچۈرەمدۇ؟</string>
+    <string name="button_delete">ئۆچۈر</string>
+    <string name="button_cancel">ۋاز كەچ</string>
+    <string name="etws_earthquake_warning">يەر تەۋرەش ئاگاھلاندۇرۇشى</string>
+    <string name="etws_tsunami_warning">دېڭىز تاشقىن ئاگاھلاندۇرۇشى</string>
+    <string name="etws_earthquake_and_tsunami_warning">يەر تەۋرەش ۋە دېڭىز تاشقىن ئاگاھلاندۇرۇشى</string>
+    <string name="etws_test_message">يەر تەۋرەش ۋە دېڭىز تاشقىن ئاگاھلاندۇرۇش سىستېمىسى سىناق ئۇچۇرى</string>
+    <string name="etws_other_emergency_type">جىددىي ئاگاھلاندۇرۇش</string>
+    <string name="cmas_presidential_level_alert">ئەل باش ئاگاھلاندۇرۇشى</string>
+    <string name="cmas_extreme_alert">جىددىي ئاگاھلاندۇرۇش: بەك ئېغىر</string>
+    <string name="cmas_extreme_immediate_observed_alert">جىددىي ئاگاھلاندۇرۇش: بەك ئېغىر</string>
+    <string name="cmas_extreme_immediate_likely_alert">جىددىي ئاگاھلاندۇرۇش: بەك ئېغىر</string>
+    <string name="cmas_severe_alert">جىددىي ئاگاھلاندۇرۇش: ئېغىر</string>
+    <string name="cmas_amber_alert">بالىلار گۆرۈدە (سېرىق رەڭلىك (Amber) ئاگاھلاندۇرۇش)</string>
+    <string name="cmas_exercise_alert">جىددىي ئاگاھلاندۇرۇش (مەشىق)</string>
+    <string name="cmas_operator_defined_alert">جىددىي ئاگاھلاندۇرۇش (مەشغۇلاتچى)</string>
+    <string name="emergency_alert">جىددىي ئاگاھلاندۇرۇش</string>
+    <string name="alert_reminder_interval_title">ئاگاھلاندۇرۇش ئەسكەرتىشى</string>
+    <string name="enable_alert_speech_title">ئاگاھلاندۇرۇش ئۇچۇرىنى ئوقۇ</string>
+    <string name="cmas_category_heading">ئاگاھلاندۇرۇش تۈرى:</string>
+    <string name="cmas_category_geo">گېئوفىزىكىلىق</string>
+    <string name="cmas_category_met">مېتېئورولوگىيەلىك</string>
+    <string name="cmas_category_safety">ئامانلىق</string>
+    <string name="cmas_category_security">بىخەتەرلىك</string>
+    <string name="cmas_category_rescue">قۇتقۇزۇش</string>
+    <string name="cmas_category_fire">ئوت ئاپىتى</string>
+    <string name="cmas_category_health">ساغلاملىق</string>
+    <string name="cmas_category_env">مۇھىت</string>
+    <string name="cmas_category_transport">قاتناش</string>
+    <string name="cmas_category_infra">ئاساسىي قۇرۇلۇش</string>
+    <string name="cmas_category_cbrne">خىمىيەلىك/بىيولوگىيەلىك/يادرو/پارتلاش</string>
+    <string name="cmas_category_other">باشقا</string>
+    <string name="cmas_response_heading">ئىنكاس تىپى:</string>
+    <string name="cmas_response_shelter">پاناھلىنىش</string>
+    <string name="cmas_response_evacuate">تارقاقلاشتۇرۇش</string>
+    <string name="cmas_response_prepare">تەييارلىنىش</string>
+    <string name="cmas_response_execute">ئىجرا قىل</string>
+    <string name="cmas_response_monitor">كۆزەتكۈچ</string>
+    <string name="cmas_response_avoid">خەتەردىن ساقلىنىش</string>
+    <string name="cmas_response_assess">مۆلچەرلەش</string>
+    <string name="cmas_response_none">يوق</string>
+    <string name="cmas_severity_heading">مۇھىملىقى:</string>
+    <string name="cmas_severity_extreme">كەسكىن</string>
+    <string name="cmas_severity_severe">ئېغىر</string>
+    <string name="cmas_urgency_heading">جىددىي:</string>
+    <string name="cmas_urgency_immediate">دەرھال</string>
+    <string name="cmas_urgency_expected">مۆلچەردىكى</string>
+    <string name="cmas_certainty_heading">ئىشەنچلىكلىكى:</string>
+    <string name="cmas_certainty_observed">كۆزەتكەن</string>
+    <string name="cmas_certainty_likely">ئېھتىمال</string>
+    <string name="delivery_time_heading">تاپشۇرۇۋالغىنى:</string>
+    <string name="notification_multiple"><xliff:g id="COUNT">%s</xliff:g> ئوقۇلمىغان ئاگاھلاندۇرۇش.</string>
+    <string name="notification_multiple_title">يېڭى ئاگاھلاندۇرۇش</string>
+    <string name="show_cmas_opt_out_title">ئاگاھلاندۇرۇشنى توختىتىش سۆزلەشكۈنى كۆرسەت</string>
+    <string name="cmas_opt_out_button_yes">ھەئە</string>
+    <string name="cmas_opt_out_button_no">ياق</string>
+    <string name="action_delete">ئۆچۈر</string>
+    <string-array name="alert_reminder_interval_entries">
+        <item>بىر قېتىملىق</item>
+        <item>ھەر 2 مىنۇتتا</item>
+        <item>Every 5 minutes</item>
+        <item>ھەر 15 مىنۇتتا</item>
+        <item>Never</item>
+    </string-array>
+</resources>

@@ -1,0 +1,106 @@
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_team: "trendy_team_android_permissions",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+filegroup {
+    name: "framework-permission-s-sources",
+    defaults: ["framework-sources-module-defaults"],
+    srcs: [
+        "java/**/*.java",
+        "java/**/*.aidl",
+    ],
+    path: "java",
+}
+
+filegroup {
+    name: "safetycenter-config-api-sources",
+    srcs: ["java/android/safetycenter/config/*.java"],
+    path: "java",
+    visibility: ["//packages/modules/Permission/SafetyCenter/ConfigLintChecker"],
+}
+
+filegroup {
+    name: "safetycenter-config-schemas",
+    srcs: ["java/android/safetycenter/config/safety_center_config*.xsd"],
+    path: "java/android/safetycenter/config/",
+    visibility: ["//packages/modules/Permission/SafetyCenter/ConfigLintChecker"],
+}
+
+java_library {
+    name: "framework-permission-s-shared",
+    srcs: [":framework-permission-s-shared-srcs"],
+    libs: [
+        "error_prone_annotations",
+        "framework-annotations-lib",
+        "unsupportedappusage",
+    ],
+    apex_available: [
+        "com.android.permission",
+        "test_com.android.permission",
+    ],
+    installable: false,
+    min_sdk_version: "30",
+    sdk_version: "module_current",
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
+}
+
+platform_compat_config {
+    name: "framework-permission-s-compat-config",
+    src: ":framework-permission-s",
+}
+
+java_sdk_library {
+    name: "framework-permission-s",
+    defaults: ["framework-module-defaults"],
+    srcs: [
+        ":framework-permission-s-sources",
+    ],
+    libs: [
+        "androidx.annotation_annotation",
+        "app-compat-annotations",
+        "framework-annotations-lib",
+    ],
+    static_libs: [
+        "framework-permission-s-shared",
+        "modules-utils-build",
+        "android.permission.flags-aconfig-java",
+        "permissions-aconfig-flags-lib",
+    ],
+    apex_available: [
+        "com.android.permission",
+        "test_com.android.permission",
+    ],
+    hostdex: true,
+    // Restrict access to implementation library.
+    impl_library_visibility: [
+        "//frameworks/base/apex/permission:__subpackages__",
+        "//packages/modules/Permission:__subpackages__",
+    ],
+    installable: true,
+    jarjar_rules: "jarjar-rules.txt",
+    min_sdk_version: "31",
+    permitted_packages: [
+        "android.permission",
+        "android.app.role",
+        "android.app.ecm",
+        "android.safetycenter",
+        "android.safetylabel",
+    ],
+}

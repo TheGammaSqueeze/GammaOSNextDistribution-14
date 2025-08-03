@@ -1,0 +1,52 @@
+#
+#  Copyright 2021 Google, Inc.
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at:
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
+[package]
+name = "bt_shim"
+version = "0.0.1"
+edition = "2018"
+
+[dependencies]
+# BT dependencies
+bt_common = { path = "../common" }
+bt_facade_helpers = { path = "../facade/helpers" }
+bluetooth_rs = { path = "../stack" }
+bt_packets = { path = "../packets" }
+
+# All external dependencies. Keep all versions at build/rust/Cargo.toml
+bindgen = "0.64"
+bytes = "1.0"
+cxx = { version = "1.0.42", features = ["c++17"] }
+env_logger = "0.8"
+futures = "0.3"
+grpcio = { version = "0.13.0", default-features = false, features = ["protobufv3-codec", "openssl"] }
+grpcio-sys = { version = "0.13.0", features = ["openssl"] }
+lazy_static = "1.4"
+log = "0.4"
+nix = "0.23"
+num-derive = "0.3"
+num-traits = "0.2"
+pdl-runtime = "0.2.2"
+paste = "1.0"
+proc-macro2 = "1.0.24"
+protobuf = "3.2"
+protoc-grpcio = "3.0"
+quote = "1.0.8"
+thiserror = "1.0"
+syn = { version = "2.0.1", features = ['default', 'full'] }
+walkdir = "2.2"
+
+[lib]
+path = "src/lib.rs"

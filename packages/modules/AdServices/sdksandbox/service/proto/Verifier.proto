@@ -1,0 +1,60 @@
+
+// Copyright 2023 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package com.android.server.sdksandbox.proto;
+
+message AllowedApisPerTargetSdk {
+    // Map from targetSdkVersion to allowlist
+    map<int64, AllowedApisList> allowlist_per_target_sdk = 1;
+}
+
+message AllowedApisList {
+    repeated AllowedApi allowed_apis = 1;
+}
+// Rules are applied based on longest matching prefix, so specific rules will
+// have precedence over general rules and literal match takes precedence over
+// wildcard match. For example:
+//{
+//     allow : false
+//     class_name : "Landroid/view/Display"
+//     method_name : "getFlags"
+// }
+// takes precedence over
+// {
+//     allow : false
+//     class_name : "Landroid/view/Display"
+// }
+// and the latter takes precedence over
+// {
+//     allow : true
+//     class_name : "Landroid/view/*"
+// }
+message AllowedApi {
+    // If true, a match with this rule allows the usage.
+    bool allow = 1;
+    // Full name of the class, supports wildcards after a divider (/*)
+    // to match a package.
+    string class_name = 2;
+    // If empty, this matches any method.
+    string method_name = 3;
+    // If empty, this matches any parameter type list. To match only
+    // methods without parameters, a single parameter "V" should be added.
+    repeated string parameters = 4;
+    // If empty matches any return type. This should be used to get only
+    // one of the overloads of a function.
+    string return_type = 5;
+}

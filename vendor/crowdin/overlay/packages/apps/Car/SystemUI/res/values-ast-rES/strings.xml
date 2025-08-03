@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2018 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="end_session">Zarrar la sesión</string>
+    <string name="user_add_user_message_setup">Dempués de crear un perfil, el propietariu de la cuenta pue personalizalu.</string>
+    <string name="user_add_user_message_update">Cualesquier perfil pue instalar anovamientos que, dempués, los demás perfiles van tener disponibles. </string>
+    <string name="profile_limit_reached_message">        {count, plural,
+            one {}=1    {Namás pues crear un perfil.}
+            other {Pues crear hasta # perfiles.}
+        }
+    </string>
+    <string name="privacy_chip_off_content">El sensor «<xliff:g id="sensor" example="Microphone">%1$s</xliff:g>» ta desactiváu.</string>
+    <string name="privacy_chip_use_sensor">Usar el sensor «<xliff:g id="sensor" example="microphone">%1$s</xliff:g>»</string>
+    <string name="privacy_chip_settings">Configuración de la privacidá</string>
+    <string name="privacy_chip_app_using_sensor_suffix">«<xliff:g id="app" example="Assistant">%1$s</xliff:g>» ta usando\'l sensor «<xliff:g id="sensor" example="microphone">%2$s</xliff:g>»</string>
+    <string name="privacy_chip_app_recently_used_sensor_suffix">«<xliff:g id="app" example="Assistant">%1$s</xliff:g>» usó\'l sensor «<xliff:g id="sensor" example="microphone">%2$s</xliff:g>» apocayá</string>
+    <string name="privacy_chip_apps_recently_used_sensor_suffix">«<xliff:g id="app" example="Assistant">%1$s</xliff:g>» y «<xliff:g id="additional_app_count" example="2">%2$d</xliff:g>» aplicaciones más usaron el sensor «<xliff:g id="sensor" example="microphone">%3$s</xliff:g>» apocayá</string>
+    <string name="camera_privacy_chip_app_using_camera_suffix">«<xliff:g id="app" example="Assistant">%s</xliff:g>» ta usando la cámara</string>
+    <string name="camera_privacy_chip_apps_using_camera_suffix">«<xliff:g id="app_list" example="Assistant &amp; Phone">%s</xliff:g>» tán usando la cámara</string>
+    <string name="camera_privacy_chip_app_recently_used_camera_suffix">«<xliff:g id="app" example="Assistant">%s</xliff:g>» usó la cámara apocayá</string>
+    <string name="camera_privacy_chip_apps_recently_used_camera_suffix">«<xliff:g id="app" example="Assistant">%1$s</xliff:g>» y <xliff:g id="additional_app_count" example="2">%2$d</xliff:g> aplicaciones más usaron la cámara apocayá</string>
+    <string name="camera_privacy_chip_on_toast">Activóse la cámara</string>
+    <string name="camera_privacy_chip_off_toast">Desactivóse la cámara</string>
+    <string name="sensor_privacy_start_use_camera_dialog_title">¿Quies activar la cámara del vehículu?</string>
+    <string name="sensor_privacy_start_use_camera_dialog_content">Pa siguir, activa la cámara del sistema d\'información y entretenimientu. Esta aición va activar la cámara pa toles aplicaciones que tengan permisu.</string>
+    <string name="system_bar_home_label">Pantalla d\'aniciu</string>
+    <string name="system_bar_phone_label">Teléfonu</string>
+    <string name="system_bar_applications_label">Aplicaciones</string>
+    <string name="system_bar_climate_control_label">Control de la climatización</string>
+    <string name="system_bar_notifications_label">Avisos</string>
+    <string name="system_bar_maps_label">Mapes</string>
+    <string name="system_bar_media_label">Multimedia</string>
+    <string name="system_bar_control_center_label">Centru de control</string>
+    <string name="system_bar_assistant_label">Asistente</string>
+    <string name="system_bar_mic_privacy_chip">Indicador de privacidá del micrófonu</string>
+    <string name="system_bar_user_avatar">Avatar d\'usuariu</string>
+    <string name="system_bar_user_name_text">Nome d\'usuariu</string>
+    <string name="hvac_decrease_button_label">Baxar la temperatura</string>
+    <string name="hvac_increase_button_label">Xubir la temperatura</string>
+    <string name="status_icon_bluetooth_disconnected">Configuración del Bluetooth: desconectóse</string>
+    <string name="status_icon_bluetooth_connected">Configuración del Bluetooth: conectóse</string>
+    <string name="status_icon_bluetooth_off">Configuración del Bluetooth: inhabilitóse</string>
+    <string name="status_icon_signal_mobile">Configuración de la señal: datos móviles n\'usu</string>
+    <string name="status_icon_signal_wifi">Configuración de la señal: Wi-Fi activada</string>
+    <string name="status_icon_signal_hotspot">Configuración de la señal: puntu Wi-Fi activáu</string>
+    <string name="status_icon_display_status">Configuración de la pantalla</string>
+    <string name="status_icon_drive_mode">Mou de conducción</string>
+    <string name="activity_blocked_text">Nun pues usar esta función mentanto conduces</string>
+    <string name="exit_button_close_application">Zarrar l\'aplicación</string>
+    <string name="exit_button_go_back">Atrás</string>
+    <string name="drive_mode_modes_comfort">Cómodu</string>
+    <string name="drive_mode_modes_eco">Eco</string>
+    <string name="drive_mode_modes_sport">Deportivu</string>
+    <string name="qc_drive_mode_active_subtitle">Mou activu</string>
+    <string name="qc_footer_settings">Configuración</string>
+    <string name="display_input_lock_text">La pantalla ta bloquiada</string>
+    <string name="display_input_lock_started_text">Bloquióse la pantalla</string>
+    <string name="display_input_lock_stopped_text">La pantalla yá ta desbloquiada</string>
+    <string name="user_logout_title">¿De xuru que quies zarrar la sesión?</string>
+    <string name="user_logout_message">Esta aición va zarrar toles aplicaciones abiertes</string>
+    <string name="user_logout">Zarrar la sesión</string>
+    <string name="user_switching_message">Cambiando de perfil\u2026</string>
+    <string name="user_adding_message">Creando\'l perfil\u2026</string>
+    <string name="max_user_limit_reached_message">Pues crear hasta <xliff:g id="user_limit" example="10">%d</xliff:g> perfiles</string>
+    <string name="already_logged_in_message">Pa siguir, «<xliff:g id="user_name" example="Peter">%1$s</xliff:g>» habría zarrar la sesión de la pantalla del <xliff:g id="seat_location" example="Driver">%2$s</xliff:g></string>
+    <string name="header_bar_text_in_logged_out_state">Seleiciona un perfil pa comenzar</string>
+    <string name="logged_in_text">Anicióse la sesión</string>
+    <string name="prefix_logged_in_info_for_other_seat">Anicióse la sesión na pantalla del <xliff:g id="seat_location" example="Driver">%s</xliff:g></string>
+    <string name="create_user_failed_message">Nun se pue crear el perfil. Volvi tentalo dempués.</string>
+    <string name="guest_creation_failed_message">Nun se pue aniciar el perfil Convidáu. Volvi tentalo dempués.</string>
+    <string name="stopping_user_text">Zarrando la sesión…</string>
+    <string name="wait_for_until_stopped_message">Ta zarrándose la sesión de «<xliff:g id="user_name" example="Peter">%s</xliff:g>». Volvi tentalo dempués.</string>
+    <string name="seat_driver">asientu del conductor</string>
+    <string name="seat_front">asientu frontal</string>
+    <string name="seat_rear">asientu traseru</string>
+    <string name="seat_left_side">asientu esquierdu</string>
+    <string name="seat_center_side">asientu central</string>
+    <string name="seat_right_side">asientu derechu</string>
+    <string name="car_keyguard_enter_your_pin">Introduz el PIN</string>
+    <string name="car_keyguard_enter_your_pattern">Introduz el patrón</string>
+    <string name="car_keyguard_enter_your_password">Introduz la contraseña</string>
+    <string name="backspace_key">Tecla de retrocesu</string>
+    <string name="enter_key">Tecla d\'intro</string>
+    <string name="back_btn">Atrás</string>
+    <string name="fullscreen">Pantalla completa</string>
+</resources>

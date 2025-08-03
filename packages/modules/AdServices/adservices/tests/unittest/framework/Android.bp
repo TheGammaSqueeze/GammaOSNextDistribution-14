@@ -1,0 +1,80 @@
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "AdServicesFrameworkUnitTests",
+    srcs: [
+        "src/**/*.java",
+    ],
+    static_libs: [
+        "androidx.test.runner",
+        "androidx.test.core",
+        "mockito-target-extended-minus-junit4",
+        "truth",
+        "adservices-test-fixtures",
+        "adservices-test-utility",
+    ],
+    libs: [
+        "android.test.base",
+        "android.test.mock",
+        "android.test.runner",
+        "framework-adservices.impl",
+        "framework-sdksandbox.impl",
+        "framework-annotations-lib",
+    ],
+    sdk_version: "module_current",
+    min_sdk_version: "Tiramisu",
+    target_sdk_version: "Tiramisu",
+    test_suites: [
+        "general-tests",
+        "mts-adservices",
+    ],
+    instrumentation_for: "AdServicesApk",
+}
+
+android_test {
+    name: "AdExtServicesFrameworkUnitTests",
+    srcs: [
+        "src/**/*.java",
+    ],
+    static_libs: [
+        "adservices-test-fixtures",
+        "adservices-test-utility",
+        "androidx.test.core",
+        "androidx.test.runner",
+        "mockito-target-extended-minus-junit4",
+        "truth",
+    ],
+    libs: [
+        "android.ext.adservices",
+        "android.test.base",
+        "android.test.mock",
+        "android.test.runner",
+        "framework-annotations-lib",
+        "framework-sdksandbox.impl",
+    ],
+    sdk_version: "module_current",
+    min_sdk_version: "30",
+    target_sdk_version: "30",
+    test_suites: [
+        "general-tests",
+        "mts-extservices",
+    ],
+    test_config: "AndroidTest.ExtServices.xml",
+    instrumentation_for: "ExtServices-sminus",
+}

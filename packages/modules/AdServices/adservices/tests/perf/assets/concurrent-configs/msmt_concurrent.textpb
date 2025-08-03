@@ -1,0 +1,63 @@
+# Measurement Concurrent Profile for Load Testing.
+# Timestamp based example schedule
+schedule: TIMESTAMPED
+scenarios [
+  {
+    at: "09:00:00"
+    journeys [
+      {
+        journey: "android.adservices.test.scenario.adservices.measurement.load.scenarios.CallRegisterSource"
+        methodName: "registerSourceClick"
+        extras [
+          {
+            key: "sdk_name"
+            value: "sdk3"
+          }
+        ]
+      },
+      {
+        journey: "android.adservices.test.scenario.adservices.measurement.load.scenarios.CallRegisterSource"
+        methodName: "registerSourceView"
+        extras [
+          {
+            key: "sdk_name"
+            value: "sdk3"
+          }
+        ]
+      }
+    ]
+    after_test: STAY_IN_APP
+  },
+  {
+    at: "09:02:00"
+    journeys [
+      {
+        journey: "android.adservices.test.scenario.adservices.measurement.load.scenarios.CallRegisterSource"
+        methodName: "registerSourceClick"
+        extras [
+          {
+            key: "sdk_name"
+            value: "sdk4"
+          }
+        ]
+      }
+    ]
+    after_test: STAY_IN_APP
+  },
+  {
+      at: "19:31:00"
+      journeys [
+        {
+          journey: "android.adservices.test.scenario.adservices.measurement.load.scenarios.CallRegisterSource"
+          methodName: "registerSourceView"
+          extras [
+            {
+              key: "sdk_name"
+              value: "sdk4"
+            }
+          ]
+        }
+      ]
+      after_test: STAY_IN_APP
+    }
+]

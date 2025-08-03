@@ -1,0 +1,91 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_bt_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_bt_license"],
+}
+
+filegroup {
+    name: "BluetoothFlatbufferBundlerSources",
+    visibility: ["//visibility:private"],
+    srcs: [
+        "bundler.cc",
+        "main.cc",
+    ],
+}
+
+filegroup {
+    name: "BluetoothFlatbufferBundlerTestSources",
+    visibility: ["//visibility:private"],
+    srcs: [
+        "bundler.cc",
+        "test.cc",
+    ],
+}
+
+// Flatbuffer bundler schema that wraps the bundled binary module schema
+genrule {
+    name: "BluetoothGeneratedBundlerSchema_h_bfbs",
+    visibility: [
+        "//packages/modules/Bluetooth/system/btif",
+        "//packages/modules/Bluetooth/system/gd",
+        "//packages/modules/Bluetooth/system/main",
+        "//packages/modules/Bluetooth/system/rust",
+        "//packages/modules/Bluetooth/system/stack",
+    ],
+    tools: [
+        "flatc",
+    ],
+    cmd: "$(location flatc) -I packages/modules/Bluetooth/system/gd -b --schema -o $(genDir) --cpp $(in) ",
+    srcs: [
+        "bundler_schema.fbs",
+    ],
+    out: [
+        "bundler_schema.bfbs",
+        "bundler_schema_generated.h",
+    ],
+}
+
+cc_defaults {
+    name: "bluetooth_flatbuffer_bundler_defaults",
+    defaults: ["bluetooth_cflags"],
+    generated_headers: [
+        "BluetoothGeneratedBundlerSchema_h_bfbs",
+    ],
+    sanitize: {
+        misc_undefined: ["bounds"],
+    },
+    static_libs: [
+        "libflatbuffers-cpp",
+    ],
+}
+
+cc_binary_host {
+    name: "bluetooth_flatbuffer_bundler",
+    srcs: [
+        ":BluetoothFlatbufferBundlerSources",
+    ],
+    defaults: [
+        "bluetooth_flatbuffer_bundler_defaults",
+    ],
+    cflags: ["-Wno-unused-parameter"],
+}
+
+cc_test_host {
+    name: "bluetooth_flatbuffer_bundler_test",
+    srcs: [
+        ":BluetoothFlatbufferBundlerTestSources",
+    ],
+    defaults: [
+        "bluetooth_flatbuffer_bundler_defaults",
+    ],
+    data: [
+        "test.bfbs",
+    ],
+    test_options: {
+        unit_test: true,
+    },
+    cflags: ["-Wno-unused-parameter"],
+}

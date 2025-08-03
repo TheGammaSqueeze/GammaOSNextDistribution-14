@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  Copyright (c) 2017 The LineageOS Project
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ Also add information on how to contact you by electronic and paper mail.
+
+-->
+<resources>
+    <string name="app_name">FlipFlap</string>
+    <string name="notification_title">Rilevade cuvierte inteligjente</string>
+    <string name="alarm_label">SVEE</string>
+    <string name="abbrev_wday_month_day_no_year">EEE, dd MMMM</string>
+    <string name="answer_call">RISPUINT</string>
+    <string name="ignore_call">IGNORE</string>
+    <string name="end_call">BUTE JÙ CLAMADE</string>
+    <string name="settings_name">Cuvierte inteligjente</string>
+    <string name="settings_enable">Abilite il control de cuvierte inteligjente</string>
+    <string name="settings_summary">Controle il compuartament dal acessori</string>
+    <string name="category_behaviour">Compuartament</string>
+    <string name="pass_to_security_view_title">Va daurman ae vôs de password</string>
+    <string name="pass_to_security_view_summary">Vierzint la custodie e vignarà mostrade la schermade di acès dal bloc schermi</string>
+    <string name="use_high_touch_sensitivity_title">Tocjade a alte sensibilitât</string>
+    <string name="use_high_touch_sensitivity_summary">Aumente la sensibilitât de tocjade intant che la cuvierte e je sierade</string>
+    <string name="category_design">Stîl</string>
+    <string name="switch_charging_status_title">Mostre il stât de cjame</string>
+    <string name="switch_charging_status_summary">Cambie il colôr in base ae cjame de batarie</string>
+    <string name="category_timeouts">Timps limit</string>
+    <string name="timeout_plugged_title">Dilunc la ricjarie</string>
+    <string name="timeout_unplugged_title">Distacât</string>
+    <string name="timeout_summary">Visualize la aplicazion pe cuvierte %s dopo vêle sierade</string>
+    <string name="timeout_summary_never">Dopo vê sierade la cuvierte, la aplicazion de cuvierte e restarà ative</string>
+    <string name="timeout_summary_immediately">Il schermi si distudarà tal moment che tu sierarâs la cuvierte</string>
+    <string name="timeout_entry_immediately">Daurman</string>
+    <string name="timeout_entry_5s">5 seconts</string>
+    <string name="timeout_entry_10s">10 seconts</string>
+    <string name="timeout_entry_30s">30 seconts</string>
+    <string name="timeout_entry_1min">1 minût</string>
+    <string name="timeout_entry_5min">5 minûts</string>
+    <string name="timeout_entry_never">Mai</string>
+</resources>

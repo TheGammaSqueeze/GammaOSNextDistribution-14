@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2018 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="cmas_presidential_level_alert" msgid="6968323372438785870">"ਗੰਭੀਰ ਐਮਰਜੈਂਸੀ ਅਲਰਟ"</string>
+    <string name="alerts_header_summary" msgid="8898082819299479687">"ਕੁਦਰਤੀ ਆਫ਼ਤਾਂ ਦੌਰਾਨ ਤੁਹਾਡਾ ਫ਼ੋਨ ਤੁਹਾਨੂੰ ਅਲਰਟ, ਜਿਵੇਂ ਕਿ ਨਿਕਾਸ ਸੰਬੰਧੀ ਹਿਦਾਇਤਾਂ, ਭੇਜ ਸਕਦਾ ਹੈ। ਇਹ ਸੇਵਾ ਰਾਸ਼ਟਰੀ ਐਮਰਜੈਂਸੀ ਪ੍ਰਬੰਧਨ ਏਜੰਸੀ, ਨੈੱਟਵਰਕ ਪ੍ਰਦਾਨਕਾਂ ਅਤੇ ਡੀਵਾਈਸ ਨਿਰਮਾਤਾਵਾਂ ਵਿਚਲਾ ਸਹਿਯੋਗ ਹੈ।\n\nਤੁਹਾਡੇ ਡੀਵਾਈਸ ਵਿੱਚ ਸਮੱਸਿਆ ਹੋਣ \'ਤੇ ਜਾਂ ਖਰਾਬ ਨੈੱਟਵਰਕ ਹਾਲਾਤਾਂ ਦੇ ਚਲਦੇ ਸ਼ਾਇਦ ਤੁਹਾਨੂੰ ਅਲਰਟ ਪ੍ਰਾਪਤ ਨਾ ਹੋਣ।"</string>
+</resources>

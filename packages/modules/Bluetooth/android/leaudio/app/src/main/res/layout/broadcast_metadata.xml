@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/broadcast_metadata_view"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="4dp"
+    android:padding="4dp"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/device_addr_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="" />
+
+    <TextView
+        android:id="@+id/adv_sid_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="" />
+
+    <TextView
+        android:id="@+id/pasync_interval_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="" />
+
+    <TextView
+        android:id="@+id/is_encrypted_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="" />
+
+    <TextView
+        android:id="@+id/is_public_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="" />
+
+    <TextView
+        android:id="@+id/broadcast_name_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="" />
+
+    <TextView
+        android:id="@+id/public_program_info_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="" />
+
+    <TextView
+        android:id="@+id/broadcast_code_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="" />
+
+    <TextView
+        android:id="@+id/presentation_delay_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="" />
+</LinearLayout>

@@ -1,0 +1,18 @@
+package(default_visibility = ["//visibility:public"])
+
+java_library(
+    name = "bazel-result-reporter",
+    srcs = glob(["src/**/*.java"]),
+    target_compatible_with = ["//build/bazel_common_rules/platforms/os:linux"],
+    deps = [
+        ":tradefed",
+    ],
+)
+
+java_import(
+    name = "tradefed",
+    jars = [
+        "//tools/tradefederation/prebuilts/filegroups/tradefed:tradefed-prebuilt",
+    ],
+    target_compatible_with = ["//build/bazel_common_rules/platforms/os:linux"],
+)

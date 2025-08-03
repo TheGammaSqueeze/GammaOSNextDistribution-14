@@ -1,0 +1,8 @@
+rule android.os.HandlerExecutor android.permission.jarjar.@0
+rule android.permission.flags.*Flags* android.permission.jarjar.@0
+rule android.permission.flags.Flags android.permission.jarjar.@0
+rule android.util.IndentingPrintWriter android.permission.jarjar.@0
+rule com.android.internal.** android.permission.jarjar.@0
+rule com.android.modules.** android.permission.jarjar.@0
+rule com.android.permission.flags.*Flags* android.permission.jarjar.@0
+rule com.android.permission.flags.Flags android.permission.jarjar.@0

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    Copyright (C) 2021 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="brand_screen_header" msgid="4382251935798018352">"ეს მანქანა ეკუთვნის ორგანიზაციას"</string>
+    <string name="contact_device_provider" msgid="338577979231875837">"დამატებითი ინფორმაციისთვის მიმართეთ <xliff:g id="IT_ADMIN">%1$s</xliff:g>-ს."</string>
+    <string name="organization_admin" msgid="6551608903069550652">"ორგანიზაციის მმართველი"</string>
+    <string name="if_questions_contact_admin" msgid="4645510019575736238">"შეკითხვების შემთხვევაში დაუკავშირდით ორგანიზაციის მენეჯერს"</string>
+    <string name="admin_has_ability_to_monitor_device" msgid="3132155961508293345">"ორგანიზაციის მმართველს შეუძლია პარამეტრების, კორპორაციული წვდომის, აპების, ნებართვებისა და ამ მანქანასთან დაკავშირებულ მონაცემთა, მათ შორის, ქსელის აქტივობისა და მანქანის მდებარეობის, მონიტორინგი და მართვა.<xliff:g id="LINE_BREAK">
+
+</xliff:g>დამატებითი ინფორმაციის (მათ შორის, კონფიდენციალურობის დებულებების შესახებ) მისაღებად დაუკავშირდით ორგანიზაციის მმართველს."</string>
+    <string name="contact_your_admin_for_more_info" msgid="1419852317652804536">"დამატებითი ინფორმაციის (მათ შორის, კონფიდენციალურობის დებულებების შესახებ) მისაღებად დაუკავშირდით ორგანიზაციის მმართველს."</string>
+    <string name="managed_device_info" msgid="2134697391634083944">"ეს მართული მანქანაა"</string>
+    <string name="contact_your_admin_for_help" msgid="1741496631607502730">"დახმარების მისაღებად დაუკავშირდით ორგანიზაციის მმართველს."</string>
+    <string name="fully_managed_device_provisioning_accept_header" msgid="8767138982035307813">"მართული მანქანების დაყენება"</string>
+    <string name="fully_managed_device_provisioning_step_1_header" msgid="8704166635032524345">"თქვენი ორგანიზაციის აპებზე წვდომა"</string>
+    <string name="fully_managed_device_provisioning_step_1_description" msgid="5960961281295355254">"მიმდინარეობს გართობის/საინფორმაციო სისტემის დაყენება..."</string>
+    <string name="fully_managed_device_provisioning_step_2_header" msgid="5888602026900289468">"გართობის/საინფორმაციო სისტემის მონაცემები არ არის პირადი"</string>
+    <string name="fully_managed_device_provisioning_step_2_subheader_title" msgid="1421575203782743214">"თქვენი აქტივობა და მონაცემები"</string>
+    <string name="fully_managed_device_provisioning_step_2_subheader" msgid="4881961368653838979">"ორგანიზაციის მმართველი შეძლებს ამ მანქანასთან დაკავშირებული თქვენი მონაცემებისა და აქტივობის ნახვას."</string>
+    <string name="fully_managed_device_provisioning_permissions_secondary_subheader" msgid="8955791361423166123">"ორგანიზაციის მმართველს შეუძლია ამ მანქანაზე აპებისთვის ისეთი ნებართვების დაყენება, როგორებიცაა მიკროფონისა და მდებარეობის ნებართვები."</string>
+    <string name="fully_managed_device_with_permission_control_provisioning_summary" msgid="2503568673345133100">"გამოიყენეთ ამ მანქანის გართობის/საინფორმაციო სისტემა თქვენს სამსახურის აპებზე მარტივად წვდომისთვის. ეს მანქანა არ არის პირადი, ამიტომაც ორგანიზაციის მმართველი შეძლებს ამ მანქანასთან დაკავშირებული თქვენი მონაცემებისა და აქტივობის ნახვას. ორგანიზაციის მმართველს შეუძლია ამ მანქანაზე აპებისთვის ისეთი ნებართვების დაყენება, როგორებიცაა მიკროფონისა და მდებარეობის ნებართვები."</string>
+    <string name="fully_managed_device_provisioning_summary" msgid="4323948058344613817">"გამოიყენეთ ამ მანქანის გართობის/საინფორმაციო სისტემა თქვენს სამსახურის აპებზე მარტივად წვდომისთვის. ეს მანქანა არ არის პირადი, ამიტომაც ორგანიზაციის მმართველი შეძლებს ამ მანქანასთან დაკავშირებული თქვენი მონაცემებისა და აქტივობის ნახვას."</string>
+    <string name="fully_managed_device_provisioning_progress_label" msgid="988594700479673633">"მიმდინარეობს მართული მანქანის დაყენება"</string>
+    <string name="fully_managed_device_provisioning_return_device_title" msgid="1578111657911434819">"გააუქმეთ დაყენება და დააბრუნეთ მანქანა"</string>
+    <string name="fully_managed_device_provisioning_return_device_subheader" msgid="5809488930429106172">"გადააყენეთ და დაუბრუნეთ ეს მანქანა ორგანიზაციის მმართველს ან დაყენების გასაგრძელებლად დაბრუნდით წინა გვერდზე."</string>
+    <string name="fully_managed_device_cancel_setup_button" msgid="4113790677940440998">"დაყენების გაუქმება"</string>
+    <string name="fully_managed_device_reset_and_return_button" msgid="4951274590516561428">"გადაყენება &amp; დაბრუნება"</string>
+    <string name="fully_managed_device_provisioning_privacy_title" msgid="4789425994893472324">"კონფიდენციალურობის შეტყობინება"</string>
+    <string name="fully_managed_device_provisioning_privacy_body" msgid="5549745709511179391">"ორგანიზაციის მმართველი შეძლებს ამ მანქანასთან დაკავშირებული თქვენი მონაცემებისა და აქტივობის ნახვას."</string>
+</resources>

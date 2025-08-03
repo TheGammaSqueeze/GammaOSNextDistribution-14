@@ -1,0 +1,76 @@
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_team: "trendy_team_fwk_core_networking",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+filegroup {
+    name: "remoteauth-service-srcs",
+    srcs: [],
+}
+
+// Main lib for remoteauth services.
+java_library {
+    name: "service-remoteauth-pre-jarjar",
+    srcs: [":remoteauth-service-srcs"],
+    required: ["libremoteauth_jni_rust"],
+    defaults: [
+        "enable-remoteauth-targets",
+        "framework-system-server-module-defaults",
+    ],
+    libs: [
+        "androidx.annotation_annotation",
+        "framework-bluetooth",
+        "framework-connectivity",
+        "error_prone_annotations",
+        "framework-configinfrastructure",
+        "framework-connectivity-pre-jarjar",
+        "framework-connectivity-t-pre-jarjar",
+        "framework-statsd",
+    ],
+    static_libs: [
+        "modules-utils-build",
+        "modules-utils-handlerexecutor",
+        "modules-utils-preconditions",
+        "modules-utils-backgroundthread",
+        "uwb_androidx_backend",
+    ],
+    sdk_version: "system_server_current",
+    // This is included in service-connectivity which is 30+
+    // TODO (b/293613362): allow APEXes to have service jars with higher min_sdk than the APEX
+    // (service-connectivity is only used on 31+) and use 31 here
+    min_sdk_version: "30",
+
+    dex_preopt: {
+        enabled: false,
+        app_image: false,
+    },
+    visibility: [
+        "//packages/modules/RemoteAuth/apex",
+    ],
+    apex_available: [
+        "com.android.tethering",
+    ],
+}
+
+genrule {
+    name: "statslog-remoteauth-java-gen",
+    tools: ["stats-log-api-gen"],
+    cmd: "$(location stats-log-api-gen) --java $(out) --module remoteauth " +
+        " --javaPackage com.android.server.remoteauth.proto --javaClass RemoteAuthStatsLog" +
+        " --minApiLevel 33",
+    out: ["com/android/server/remoteauth/proto/RemoteAuthStatsLog.java"],
+}

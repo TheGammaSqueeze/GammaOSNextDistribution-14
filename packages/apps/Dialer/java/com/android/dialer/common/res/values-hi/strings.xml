@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="content_description_overflow">ज़्यादा विकल्प</string>
+  <string name="snackbar_undo">पहले जैसा</string>
+  <string name="ok_got_it">ठीक है</string>
+</resources>

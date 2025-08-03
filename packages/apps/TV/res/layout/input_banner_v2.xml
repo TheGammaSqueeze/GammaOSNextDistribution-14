@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!--  All info banners have the same id for use by TvTransitionManager. -->
+<com.android.tv.ui.InputBannerViewV2 xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scene_transition_common"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="start|top"
+    android:layout_marginStart="24dp"
+    android:layout_marginTop="24dp"
+    android:background="@drawable/input_banner_v2_background"
+    android:maxWidth="@dimen/input_banner_item_label_max_width"
+    android:minWidth="76dp"
+    android:minHeight="39dp"
+    android:orientation="vertical"
+    android:elevation="8dp"
+    android:focusable="false"
+    android:paddingStart="20dp"
+    android:paddingTop="16dp"
+    android:paddingEnd="20dp"
+    android:paddingBottom="16dp">
+
+    <TextView
+        android:id="@+id/input_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:ellipsize="end"
+        android:fontFamily="google-sans-text-medium"
+        android:gravity="start"
+        android:singleLine="true"
+        android:text="@string/input_banner_v2_active_input"
+        android:textColor="#CCD2E3FC"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/input_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginTop="2dp"
+        android:ellipsize="end"
+        android:fontFamily="google-sans-text-medium"
+        android:gravity="start"
+        android:singleLine="true"
+        android:textColor="#E8F0FE"
+        android:textSize="18sp" />
+
+</com.android.tv.ui.InputBannerViewV2>

@@ -1,0 +1,121 @@
+// Signature format: 2.0
+package com.android.server.wifi.coex {
+
+  public class DefaultChannels {
+    ctor public DefaultChannels();
+    method public int getDefault2g();
+    method public int getDefault5g();
+    method public void setDefault2g(int);
+    method public void setDefault5g(int);
+  }
+
+  public class Entry {
+    ctor public Entry();
+    method public int getBand();
+    method public com.android.server.wifi.coex.Override getOverride();
+    method public com.android.server.wifi.coex.Params getParams();
+    method public int getPowerCapDbm();
+    method public com.android.server.wifi.coex.RatType getRat();
+    method public void setBand(int);
+    method public void setOverride(com.android.server.wifi.coex.Override);
+    method public void setParams(com.android.server.wifi.coex.Params);
+    method public void setPowerCapDbm(int);
+    method public void setRat(com.android.server.wifi.coex.RatType);
+  }
+
+  public class HarmonicParams {
+    ctor public HarmonicParams();
+    method public int getN();
+    method public int getOverlap();
+    method public void setN(int);
+    method public void setOverlap(int);
+  }
+
+  public class IntermodParams {
+    ctor public IntermodParams();
+    method public int getM();
+    method public int getN();
+    method public int getOverlap();
+    method public void setM(int);
+    method public void setN(int);
+    method public void setOverlap(int);
+  }
+
+  public class NeighborThresholds {
+    ctor public NeighborThresholds();
+    method public int getCellVictimMhz();
+    method public int getWifiVictimMhz();
+    method public void setCellVictimMhz(int);
+    method public void setWifiVictimMhz(int);
+  }
+
+  public class Override {
+    ctor public Override();
+    method public com.android.server.wifi.coex.Override2g getOverride2g();
+    method public com.android.server.wifi.coex.Override5g getOverride5g();
+    method public void setOverride2g(com.android.server.wifi.coex.Override2g);
+    method public void setOverride5g(com.android.server.wifi.coex.Override5g);
+  }
+
+  public class Override2g {
+    ctor public Override2g();
+    method public java.util.List<com.android.server.wifi.coex.OverrideCategory2g> getCategory();
+    method public java.util.List<java.lang.Integer> getChannel();
+  }
+
+  public class Override5g {
+    ctor public Override5g();
+    method public java.util.List<com.android.server.wifi.coex.OverrideCategory5g> getCategory();
+    method public java.util.List<java.lang.Integer> getChannel();
+  }
+
+  public enum OverrideCategory2g {
+    method public String getRawName();
+    enum_constant public static final com.android.server.wifi.coex.OverrideCategory2g all;
+  }
+
+  public enum OverrideCategory5g {
+    method public String getRawName();
+    enum_constant public static final com.android.server.wifi.coex.OverrideCategory5g _160Mhz;
+    enum_constant public static final com.android.server.wifi.coex.OverrideCategory5g _20Mhz;
+    enum_constant public static final com.android.server.wifi.coex.OverrideCategory5g _40Mhz;
+    enum_constant public static final com.android.server.wifi.coex.OverrideCategory5g _80Mhz;
+    enum_constant public static final com.android.server.wifi.coex.OverrideCategory5g all;
+  }
+
+  public class Params {
+    ctor public Params();
+    method public com.android.server.wifi.coex.DefaultChannels getDefaultChannels();
+    method public com.android.server.wifi.coex.HarmonicParams getHarmonicParams2g();
+    method public com.android.server.wifi.coex.HarmonicParams getHarmonicParams5g();
+    method public com.android.server.wifi.coex.IntermodParams getIntermodParams2g();
+    method public com.android.server.wifi.coex.IntermodParams getIntermodParams5g();
+    method public com.android.server.wifi.coex.NeighborThresholds getNeighborThresholds();
+    method public void setDefaultChannels(com.android.server.wifi.coex.DefaultChannels);
+    method public void setHarmonicParams2g(com.android.server.wifi.coex.HarmonicParams);
+    method public void setHarmonicParams5g(com.android.server.wifi.coex.HarmonicParams);
+    method public void setIntermodParams2g(com.android.server.wifi.coex.IntermodParams);
+    method public void setIntermodParams5g(com.android.server.wifi.coex.IntermodParams);
+    method public void setNeighborThresholds(com.android.server.wifi.coex.NeighborThresholds);
+  }
+
+  public enum RatType {
+    method public String getRawName();
+    enum_constant public static final com.android.server.wifi.coex.RatType LTE;
+    enum_constant public static final com.android.server.wifi.coex.RatType NR;
+  }
+
+  public class Table {
+    ctor public Table();
+    method public java.util.List<com.android.server.wifi.coex.Entry> getEntry();
+  }
+
+  public class XmlParser {
+    ctor public XmlParser();
+    method public static com.android.server.wifi.coex.Table readTable(java.io.InputStream) throws javax.xml.datatype.DatatypeConfigurationException, java.io.IOException, org.xmlpull.v1.XmlPullParserException;
+    method public static String readText(org.xmlpull.v1.XmlPullParser) throws java.io.IOException, org.xmlpull.v1.XmlPullParserException;
+    method public static void skip(org.xmlpull.v1.XmlPullParser) throws java.io.IOException, org.xmlpull.v1.XmlPullParserException;
+  }
+
+}
+

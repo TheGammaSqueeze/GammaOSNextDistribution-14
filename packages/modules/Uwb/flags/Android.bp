@@ -1,0 +1,85 @@
+//
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    default_team: "trendy_team_fwk_uwb",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+aconfig_declarations {
+    name: "uwb_aconfig_flags",
+    package: "com.android.uwb.flags",
+    container: "com.android.uwb",
+    srcs: ["uwb_flags.aconfig"],
+}
+
+java_aconfig_library {
+    name: "uwb_aconfig_flags_lib",
+    aconfig_declarations: "uwb_aconfig_flags",
+    min_sdk_version: "33",
+    apex_available: [
+        "com.android.uwb",
+    ],
+}
+
+java_library {
+    name: "uwb_flags_lib",
+    sdk_version: "system_current",
+    min_sdk_version: "33",
+    srcs: [
+        "lib/**/*.java",
+    ],
+    static_libs: [
+        "uwb_aconfig_flags_lib",
+    ],
+    apex_available: [
+        "com.android.uwb",
+    ],
+    installable: false,
+    visibility: [
+        "//packages/modules/Uwb:__subpackages__",
+        "//external/uwb:__subpackages__",
+    ],
+}
+
+rust_aconfig_library {
+    name: "libuwb_aconfig_flags_rust",
+    crate_name: "uwb_aconfig_flags_rust",
+    aconfig_declarations: "uwb_aconfig_flags",
+    min_sdk_version: "33",
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.uwb",
+    ],
+    host_supported: true,
+    visibility: [
+        "//packages/modules/Uwb:__subpackages__",
+        "//external/uwb:__subpackages__",
+    ],
+}
+
+rust_aconfig_library {
+    name: "libuwb_aconfig_flags_rust_test",
+    crate_name: "uwb_aconfig_flags_rust_test",
+    aconfig_declarations: "uwb_aconfig_flags",
+    min_sdk_version: "33",
+    host_supported: true,
+    visibility: [
+        "//packages/modules/Uwb:__subpackages__",
+        "//external/uwb:__subpackages__",
+    ],
+    mode: "test",
+}

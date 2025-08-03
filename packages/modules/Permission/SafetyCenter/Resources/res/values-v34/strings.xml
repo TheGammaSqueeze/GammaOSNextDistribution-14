@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <!-- Device unlock -->
+  <string name="lock_screen_sources_title" description="The title of the group of safety settings relating to screen lock and biometrics">Device unlock</string>
+
+  <string name="biometrics_title_for_work" description="The default title of the setting for managing biometric options on the device for work apps">Biometrics for work</string>
+
+  <!-- Privacy -->
+  <string name="privacy_sources_summary" description="The summary of the group of safety settings relating to privacy, which describes the group contents">Permissions, dashboard, controls</string>
+
+  <string name="health_connect_title" description="Health connect title">Health&#160;Connect</string>
+  <string name="health_connect_search_terms" description="Health connect search words">Health, Health Connect</string>
+  <string name="app_data_sharing_updates_title" description="App data sharing updates title">Data sharing updates for location</string>
+  <string name="app_data_sharing_updates_search_terms" description="App data sharing updates search words">Data, Data sharing, Data sharing updates, Data sharing updates for location, sharing</string>
+
+  <!-- More settings -->
+  <string name="advanced_title" description="The title of the group of advanced settings">Other settings</string>
+  <string name="more_settings_title" description="The title of the entry for More Settings">More security &amp; privacy</string>
+  <string name="more_settings_summary" description="The summary of the entry for More Settings, which describes the page contents">Autofill, notifications, and more</string>
+  <string name="more_settings_search_terms" description="Search keywords of the entry for More Settings"><!-- Empty placeholder--></string>
+  <string name="work_policy_title" description="Title for the work policy entry under Other Settings in Safety Center, this is for managed devices">Your work policy info</string>
+
+</resources>

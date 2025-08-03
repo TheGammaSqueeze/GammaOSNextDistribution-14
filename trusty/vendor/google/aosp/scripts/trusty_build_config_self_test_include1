@@ -1,0 +1,79 @@
+# Copyright (C) 2018 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+[
+    build(
+        projects=[
+            "self_test.build_yes.tests_none.1m.build_false.2i.build_true",
+            "self_test.build_yes.tests_none.1m.build_none.2i.build_true",
+            "self_test.build_no.tests_none.1m.build_false.2i.build_true.3ii.build_false",
+        ],
+        enabled=True,
+    ),
+    build(
+        projects=[
+            "self_test.build_no.tests_none.1m.2i.build_false",
+            "self_test.build_yes.tests_none.1m.2i.build_false.3ii.build_true",
+            "self_test.build_no.tests_none.1m.build_true.2i.build_false",
+        ],
+        enabled=False,
+    ),
+    testmap(
+        projects=[
+            "self_test.build_yes.tests_host.1m.2i.test_host",
+            "self_test.build_no.tests_host.1i.test_host",
+        ],
+        tests=[
+            hosttest("self_test.a.1"),
+            hosttest("self_test.c.2"),
+            hosttest("self_test.b.3"),
+        ],
+    ),
+    testmap(
+        projects=[
+            "self_test.build_yes.tests_unit.1m.2i.test_unit",
+        ],
+        tests=[
+            boottests([
+                porttest("self_test.c.1"),
+                porttest("self_test.a.2"),
+                porttest("self_test.b.3"),
+                hosttest("self_test.d.5"),
+                compositetest(
+                    name="self_test.composite.a",
+                    sequence=[
+                        porttest("self_test.a.4").needs(storage_boot=True),
+                        reboot(),
+                    ],
+                ),
+            ]),
+        ],
+    ),
+    testmap(
+        projects=[
+            "self_test.build_yes.tests_both.1m.2i.test_both",
+        ],
+        tests=[
+            hosttest("self_test.1"),
+            boottests([
+                porttest("self_test.2"),
+                porttest("self_test.3"),
+                porttest("self_test.4"),
+            ]),
+            include("./trusty_build_config_self_test_include_none", optional=True),
+        ],
+    ),
+
+    include("./trusty_build_config_self_test_include2"),
+]

@@ -1,0 +1,43 @@
+{
+  "presubmit": [
+    {
+      "name": "aidl_unittests"
+    },
+    {
+      "name": "aidl_integration_test"
+    },
+    {
+      "name": "aidl_lazy_test"
+    },
+    {
+      "name": "CtsNdkBinderTestCases"
+    },
+    {
+      "name": "hal_implementation_test"
+    },
+    {
+      "name": "resolv_integration_test"
+    },
+    {
+      "name": "FrameworksTelephonyTests",
+      "options": [
+        {
+          "include-filter": "com.android.internal.telephony.ServiceStateTrackerTest"
+        }
+      ]
+    },
+    {
+      "name": "EnforcePermissionTests"
+    }
+  ],
+  "imports": [
+    {
+      "path": "frameworks/native/libs/binder"
+    }
+  ],
+  "auto-presubmit": [
+    {
+      "name": "hal_implementation_test"
+    }
+  ]
+}

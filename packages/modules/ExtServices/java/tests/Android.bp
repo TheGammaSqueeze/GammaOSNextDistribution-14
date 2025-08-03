@@ -1,0 +1,88 @@
+package {
+    default_team: "trendy_team_android_rubidium",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "packages_modules_ExtServices_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["packages_modules_ExtServices_license"],
+}
+
+android_test {
+    name: "ExtServicesUnitTests-tplus",
+
+    // Include all test java and kotlinfiles.
+    srcs: [
+        "src/**/*.java",
+        "src/**/*.kt",
+    ],
+
+    libs: [
+        "android.test.runner",
+        "android.test.base",
+    ],
+
+    static_libs: [
+        "ExtServices-core",
+        "androidx.test.rules",
+        "compatibility-device-util-axt",
+        "mockito-target-extended-minus-junit4",
+        "androidx.test.espresso.core",
+        "truth",
+        "testables",
+        "testng",
+    ],
+    jni_libs: [
+        "libdexmakerjvmtiagent",
+        "libextservices_jni",
+        "libstaticjvmtiagent",
+    ],
+    test_suites: [
+        "general-tests",
+        "mts-extservices",
+        "automotive-tests",
+        "automotive-general-tests",
+    ],
+    min_sdk_version: "33",
+    sdk_version: "test_current",
+    compile_multilib: "both",
+    test_config: "AndroidTest-tplus.xml",
+}
+
+android_test {
+    name: "ExtServicesUnitTests-sminus",
+
+    // Include all test java files.
+    srcs: ["src/**/*.java"],
+
+    libs: [
+        "android.test.runner",
+        "android.test.base",
+    ],
+
+    static_libs: [
+        "ExtServices-core",
+        "androidx.test.rules",
+        "compatibility-device-util-axt",
+        "mockito-target-extended-minus-junit4",
+        "androidx.test.espresso.core",
+        "truth",
+        "testables",
+        "testng",
+    ],
+    jni_libs: [
+        "libdexmakerjvmtiagent",
+        "libextservices_jni",
+        "libstaticjvmtiagent",
+    ],
+    test_suites: [
+        "general-tests",
+        "mts-extservices",
+        "automotive-tests",
+        "automotive-general-tests",
+    ],
+    min_sdk_version: "30",
+    sdk_version: "test_current",
+    compile_multilib: "both",
+    test_config: "AndroidTest-sminus.xml",
+}

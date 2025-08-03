@@ -1,0 +1,15 @@
+versions {
+  version: 1
+  requirements {
+    module: MEDIA_PROVIDER
+    version {
+      version: 1
+    }
+  }
+  requirements {
+    module: MEDIA_PROVIDER
+    version {
+      version: 2
+    }
+  }
+}

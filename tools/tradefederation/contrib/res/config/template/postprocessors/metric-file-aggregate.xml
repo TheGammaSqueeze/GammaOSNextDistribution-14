@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2021 Google Inc. All Rights Reserved -->
+<configuration description="Aggregates metrics across multiple iterations of the same test and write the results to a text file." >
+    <metric_post_processor class="com.android.tradefed.postprocessor.MetricFilePostProcessor">
+        <option name="aggregate-similar-tests" value="true" />
+        <option name="enable-per-test-log" value="false" />
+    </metric_post_processor>
+</configuration>

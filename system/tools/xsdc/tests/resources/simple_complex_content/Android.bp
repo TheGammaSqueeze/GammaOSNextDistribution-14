@@ -1,0 +1,23 @@
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+xsd_config {
+    name: "xsdc_simple_complex_content_tests",
+    srcs: ["simple_complex_content.xsd"],
+    package_name: "simple.complex.content",
+    gen_writer: true,
+    gen_has: true,
+    root_elements: ["person", "person2"],
+}
+
+xsd_config {
+    name: "xsdc_simple_complex_content_tinyxml_tests",
+    srcs: ["simple_complex_content.xsd"],
+    package_name: "simple.complex.content",
+    gen_writer: true,
+    gen_has: true,
+    tinyxml: true,
+    root_elements: ["person", "person2"],
+}

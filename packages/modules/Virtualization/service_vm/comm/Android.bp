@@ -1,0 +1,76 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_defaults {
+    name: "libservice_vm_comm_defaults",
+    crate_name: "service_vm_comm",
+    defaults: ["avf_build_flags_rust"],
+    srcs: ["src/lib.rs"],
+    prefer_rlib: true,
+    apex_available: [
+        "com.android.virt",
+    ],
+}
+
+rust_library_rlib {
+    name: "libservice_vm_comm_nostd",
+    defaults: ["libservice_vm_comm_defaults"],
+    no_stdlibs: true,
+    stdlibs: [
+        "libcore.rust_sysroot",
+    ],
+    rustlibs: [
+        "libbssl_avf_error_nostd",
+        "libciborium_nostd",
+        "libcbor_util_nostd",
+        "libcoset_nostd",
+        "libder_nostd",
+        "liblog_rust_nostd",
+        "libserde_nostd",
+    ],
+}
+
+rust_library {
+    name: "libservice_vm_comm",
+    defaults: ["libservice_vm_comm_defaults"],
+    rustlibs: [
+        "libbssl_avf_error",
+        "libciborium",
+        "libcbor_util",
+        "libcoset",
+        "liblog_rust",
+        "libserde",
+    ],
+    features: [
+        "std",
+    ],
+}
+
+rust_defaults {
+    name: "libservice_vm_comm_test_defaults",
+    crate_name: "diced_open_dice_test",
+    srcs: ["tests/*.rs"],
+    test_suites: ["general-tests"],
+    prefer_rlib: true,
+    rustlibs: [
+        "libdiced_sample_inputs",
+        "libdiced_open_dice",
+    ],
+}
+
+rust_test {
+    name: "libservice_vm_comm.test",
+    defaults: ["libservice_vm_comm_test_defaults"],
+    rustlibs: [
+        "libservice_vm_comm",
+    ],
+}
+
+rust_test {
+    name: "libservice_vm_comm_nostd.test",
+    defaults: ["libservice_vm_comm_test_defaults"],
+    rustlibs: [
+        "libservice_vm_comm_nostd",
+    ],
+}

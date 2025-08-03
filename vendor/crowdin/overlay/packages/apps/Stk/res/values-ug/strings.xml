@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources>
+    <string name="app_name">SIM قورال بوغچىسى</string>
+    <string name="menu_end_session">سۆزلىشىش ئاخىرلاشتۇر</string>
+    <string name="help">ياردەم</string>
+    <string name="menu_back">قايت</string>
+    <string name="service_name">مۇلازىمەت ئاتى</string>
+    <string name="stk_no_service">ئىشلىتىلىشچان مۇلازىمەت يوق</string>
+    <string name="button_ok">جەزملە</string>
+    <string name="button_cancel">ۋاز كەچ</string>
+    <string name="button_yes">ھەئە</string>
+    <string name="button_no">ياق</string>
+    <string name="alphabet">ئېلىپبە</string>
+    <string name="digits">سان (0-9, *, #, +)</string>
+    <string name="default_call_setup_msg">چاقىرىۋاتىدۇ…</string>
+    <string name="stk_app_state">ئەپ ھالىتى</string>
+    <string name="enable_app">قوزغىتىلغان</string>
+    <string name="disable_app">چەكلەنگەن</string>
+    <string name="stk_dialog_title">SIM قورال بوغچىسى</string>
+    <string name="default_open_channel_msg">قانال ئاچامدۇ؟</string>
+    <string name="default_send_data_msg">سانلىق مەلۇمات يوللاۋاتىدۇ</string>
+    <string name="default_receive_data_msg">سانلىق مەلۇمات قوبۇللاۋاتىدۇ</string>
+    <string name="default_close_channel_msg">قانال تاقالدى</string>
+    <string name="stk_dialog_accept">ھەئە</string>
+    <string name="stk_dialog_reject">ياق</string>
+</resources>

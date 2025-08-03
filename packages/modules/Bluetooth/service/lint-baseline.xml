@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.4.0-alpha01" type="baseline" client="" dependencies="true" name="" variant="all" version="8.4.0-alpha01">
+
+    <issue
+        id="NotificationPermission"
+        message="When targeting Android 13 or higher, posting a permission requires holding the `POST_NOTIFICATIONS` permission">
+        <location
+            file="packages/modules/Bluetooth/service/src/com/android/server/bluetooth/BluetoothNotificationManager.java"
+            line="125"/>
+    </issue>
+
+    <issue
+        id="VisibleForTests"
+        message="This method should only be accessed from tests or within private scope">
+        <location
+            file="packages/modules/Bluetooth/service/src/com/android/server/bluetooth/BluetoothAirplaneModeListener.java"
+            line="239"/>
+    </issue>
+
+    <issue
+        id="VisibleForTests"
+        message="This method should only be accessed from tests or within private scope">
+        <location
+            file="packages/modules/Bluetooth/service/src/com/android/server/bluetooth/BluetoothAirplaneModeListener.java"
+            line="247"/>
+    </issue>
+
+    <issue
+        id="VisibleForTests"
+        message="This method should only be accessed from tests or within private scope">
+        <location
+            file="packages/modules/Bluetooth/service/src/com/android/server/bluetooth/BluetoothManagerService.java"
+            line="1532"/>
+    </issue>
+
+    <issue
+        id="VisibleForTests"
+        message="This method should only be accessed from tests or within private scope">
+        <location
+            file="packages/modules/Bluetooth/service/src/com/android/server/bluetooth/BluetoothSatelliteModeListener.java"
+            line="48"/>
+    </issue>
+
+    <issue
+        id="VisibleForTests"
+        message="This method should only be accessed from tests or within private scope">
+        <location
+            file="packages/modules/Bluetooth/service/src/com/android/server/bluetooth/BluetoothSatelliteModeListener.java"
+            line="51"/>
+    </issue>
+
+</issues>

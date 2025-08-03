@@ -1,0 +1,18 @@
+
+
+cc_fuzz {
+    name: "example_afl_fuzzer",
+    srcs: [
+        "example_afl_fuzzer.cpp",
+    ],
+    fuzz_config: {
+        triage_assignee: "cobark@google.com",
+    },
+    fuzzing_frameworks: {
+        afl: true,
+        libfuzzer: false,
+    },
+    cflags: [
+        "-Wno-array-bounds",
+    ],
+}

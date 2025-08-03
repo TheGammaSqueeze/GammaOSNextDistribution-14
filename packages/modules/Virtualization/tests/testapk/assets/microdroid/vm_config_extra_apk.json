@@ -1,0 +1,15 @@
+{
+  "os": {
+    "name": "microdroid"
+  },
+  "task": {
+    "type": "microdroid_launcher",
+    "command": "MicrodroidTestNativeLib.so"
+  },
+  "extra_apks": [
+    {
+      "path": "/system/etc/security/fsverity/BuildManifest.apk"
+    }
+  ],
+  "export_tombstones": true
+}

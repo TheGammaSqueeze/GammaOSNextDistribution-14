@@ -1,0 +1,35 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_binary {
+    name: "vfio_handler",
+    crate_name: "vfio_handler",
+    defaults: ["avf_build_flags_rust"],
+    edition: "2021",
+    srcs: ["src/main.rs"],
+    // Only build on targets which crosvm builds on.
+    enabled: false,
+    target: {
+        android64: {
+            compile_multilib: "64",
+            enabled: true,
+        },
+        linux_bionic_arm64: {
+            enabled: true,
+        },
+    },
+    prefer_rlib: true,
+    rustlibs: [
+        "android.system.virtualizationservice_internal-rust",
+        "libandroid_logger",
+        "libanyhow",
+        "libbinder_rs",
+        "liblazy_static",
+        "liblog_rust",
+        "libnix",
+        "librustutils",
+        "libzerocopy",
+    ],
+    apex_available: ["com.android.virt"],
+}

@@ -1,0 +1,78 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+aidl_interface {
+    name: "android.system.suspend.control.internal",
+    unstable: true,
+    local_include_dir: ".",
+    srcs: [
+        "android/system/suspend/internal/*.aidl",
+    ],
+    backend: {
+        java: {
+            sdk_version: "28",
+        },
+    },
+}
+
+aidl_interface {
+    name: "android.system.suspend.control",
+    local_include_dir: ".",
+    srcs: [
+        "android/system/suspend/ISuspendControlService.aidl",
+        "android/system/suspend/ISuspendCallback.aidl",
+        "android/system/suspend/IWakelockCallback.aidl",
+    ],
+    backend: {
+        ndk: {
+            apex_available: [
+                "//apex_available:platform",
+                "com.android.btservices",
+            ],
+            min_sdk_version: "30",
+        },
+        java: {
+            sdk_version: "28",
+        },
+    },
+    versions: ["1"],
+}
+
+aidl_interface {
+    name: "android.system.suspend",
+    vendor_available: true,
+    stability: "vintf",
+    srcs: [
+        "android/system/suspend/ISystemSuspend.aidl",
+        "android/system/suspend/IWakeLock.aidl",
+        "android/system/suspend/WakeLockType.aidl",
+    ],
+    backend: {
+        cpp: {
+            enabled: false,
+        },
+        java: {
+            enabled: false,
+        },
+        ndk: {
+            apex_available: [
+                "//apex_available:platform",
+                "com.android.uwb",
+                "com.android.btservices",
+            ],
+            min_sdk_version: "30",
+            vndk: {
+                enabled: true,
+            },
+        },
+    },
+    frozen: true,
+    versions_with_info: [
+        {
+            version: "1",
+            imports: [],
+        },
+    ],
+
+}

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="2894617184221823208">"แอปเซิร์ฟเวอร์ทดสอบ"</string>
+    <string name="action_settings" msgid="1335152369747372374">"การตั้งค่า"</string>
+    <string name="server_running" msgid="2780193626090379172">"เซิร์ฟเวอร์กำลังทำงาน..."</string>
+    <string name="stop_server" msgid="6192029827529013598">"หยุดเซิร์ฟเวอร์"</string>
+    <string name="server_down" msgid="1030249207496490556">"เซิร์ฟเวอร์ขัดข้อง"</string>
+    <string name="start_server" msgid="3878573341408591975">"เริ่มต้นเซิร์ฟเวอร์"</string>
+  <string-array name="entitlement_status">
+    <item msgid="5560300387618996934">"ปิดใช้อยู่"</item>
+    <item msgid="3193389681837907872">"เปิดใช้อยู่"</item>
+    <item msgid="3124590179479393815">"ใช้งานร่วมกันไม่ได้"</item>
+    <item msgid="1606753456265236910">"การจัดสรร"</item>
+    <item msgid="3930807209231347454">"รวมอยู่ด้วย"</item>
+  </string-array>
+  <string-array name="provision_status">
+    <item msgid="3486273747926710021">"ยังไม่ได้จัดสรร"</item>
+    <item msgid="7598231293776486217">"จัดสรรแล้ว"</item>
+    <item msgid="3720547957514534185">"ไม่บังคับ"</item>
+    <item msgid="1264673582354896949">"อยู่ในระหว่างดำเนินการ"</item>
+  </string-array>
+</resources>

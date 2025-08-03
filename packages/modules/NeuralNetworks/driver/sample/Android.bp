@@ -1,0 +1,150 @@
+/*
+ * Copyright 2017 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package {
+    // Inherits all licenses from parent to get Apache 2.0 and package name
+    default_applicable_licenses: [
+        "packages_modules_NeuralNetworks_license",
+    ],
+}
+
+cc_library_static {
+    name: "neuralnetworks_canonical_sample_driver",
+    defaults: ["neuralnetworks_defaults"],
+    host_supported: true,
+    vendor_available: true,
+    // b/109953668, disable OpenMP
+    // openmp: true,
+    srcs: [
+        "Canonical*.cpp",
+        "LimitedSupportDevice.cpp",
+    ],
+    header_libs: ["libneuralnetworks_headers"],
+    export_include_dirs: ["."],
+    static_libs: ["libneuralnetworks_common"],
+    shared_libs: [
+        "libbase",
+    ],
+    target: {
+        android: {
+            shared_libs: [
+                "libnativewindow",
+            ],
+        },
+        host: {
+            cflags: [
+                "-D__INTRODUCED_IN(n)=",
+            ],
+        },
+    },
+}
+
+cc_library_static {
+    name: "neuralnetworks_canonical_sample_driver_cl",
+    defaults: ["neuralnetworks_cl_defaults"],
+    // b/109953668, disable OpenMP
+    // openmp: true,
+    srcs: [
+        "Canonical*.cpp",
+        "LimitedSupportDevice.cpp",
+    ],
+    header_libs: ["libneuralnetworks_headers_ndk"],
+    export_include_dirs: ["."],
+    static_libs: [
+        "libbase_ndk",
+        "libneuralnetworks_common_cl",
+        "neuralnetworks_types_cl",
+    ],
+    shared_libs: [
+        "libnativewindow",
+    ],
+}
+
+// neuralnetworks_sample_sl_driver is an example NNAPI Support Library object.
+// In general, the SL should be built against the _cl variants, including:
+// * neuralnetworks_types_cl
+// * libneuralnetworks_common_cl
+// * libneuralnetworks_cl
+//
+// neuralnetworks_sample_sl_driver is not vendor_available, so it is not able
+// to be used directly by the build system for a vendor service. This SL object
+// is used as a prebuilt in packages/modules/NeuralNetworks/driver/sample_shim/.
+//
+// To see an example where the driver code is available as a vendor service
+// directly in the build system, refer to how the sAIDL adapter is used in
+// android.hardware.neuralnetworks-service-sample-limited in the file
+// packages/modules/NeuralNetworks/driver/sample_aidl/Android.bp.
+cc_library_shared {
+    name: "neuralnetworks_sample_sl_driver",
+    defaults: ["neuralnetworks_cl_defaults"],
+    srcs: ["SampleDriverSL.cpp"],
+    shared_libs: [
+        "liblog",
+        "libnativewindow",
+    ],
+    // Change the soname, this library will be added as cc_prebuilt_library_shared
+    // with different name to android.hardware.neuralnetworks-shim-service-sample
+    ldflags: [
+        "-Wl,-soname,neuralnetworks_sample_sl_driver_prebuilt.so",
+    ],
+    static_libs: [
+        "libbase_ndk",
+        "libcrypto_static",
+        "libneuralnetworks_common_cl_cpu",
+        "libtflite_static",
+        "neuralnetworks_canonical_sample_driver_cl",
+        "neuralnetworks_types_cl",
+    ],
+    whole_static_libs: [
+        "libneuralnetworks_cl",
+    ],
+}
+
+cc_fuzz {
+    name: "android.hardware.neuralnetworks-service.example_fuzzer",
+    host_supported: true,
+    defaults: [
+        "neuralnetworks_defaults",
+        "neuralnetworks_use_latest_utils_hal_aidl",
+        "service_fuzzer_defaults",
+    ],
+    header_libs: [
+        "libneuralnetworks_headers",
+    ],
+    shared_libs: [
+        "liblog",
+        "libtextclassifier_hash",
+    ],
+    static_libs: [
+        "libaidlcommonsupport",
+        "libneuralnetworks_common",
+        "neuralnetworks_canonical_sample_driver",
+        "neuralnetworks_utils_hal_adapter_aidl",
+    ],
+    target: {
+        android: {
+            shared_libs: [
+                "libnativewindow",
+            ],
+        },
+    },
+    srcs: ["Fuzzer.cpp"],
+    fuzz_config: {
+        cc: [
+            "butlermichael@google.com",
+        ],
+    },
+}

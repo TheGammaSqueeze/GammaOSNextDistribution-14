@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="role_dialer_request_description" msgid="6188305064871543419">"මෙම යෙදුමට ඔබට දැනුම්දීම් එවීමට ඉඩ දෙනු ඇති අතර, ඔබගේ කැමරාව, සම්බන්ධතා, මයික්‍රෆෝනය, දුරකථනය සහ SMS වෙත ප්‍රවේශය ලබා දෙනු ඇත"</string>
+    <string name="role_sms_request_description" msgid="1506966389698625395">"මෙම යෙදුමට ඔබට දැනුම්දීම් එවීමට ඉඩ දෙනු ඇති අතර, ඔබගේ කැමරාව, සම්බන්ධතා, Files, මයික්‍රෆෝනය, දුරකථනය සහ SMS වෙත ප්‍රවේශය ලබා දෙනු ඇත"</string>
+    <string name="permission_description_summary_storage" msgid="1917071243213043858">"මෙම අවසරය ඇති යෙදුම්වලට මෙම උපාංගයේ ඇති සියලු ගොනු වෙත ප්‍රවේශ විය හැකිය"</string>
+    <string name="work_policy_title" msgid="832967780713677409">"ඔබගේ කාර්යාල ප්‍රතිපත්ති තතු"</string>
+    <string name="work_policy_summary" msgid="3886113358084963931">"ඔබගේ IT පරිපාලක විසින් කළමනාකරණය කරන සැකසීම්"</string>
+    <string name="safety_center_entry_group_expand_action" msgid="5358289574941779652">"පුළුල් කර ලැයිස්තුව පෙන්වන්න"</string>
+    <string name="safety_center_entry_group_collapse_action" msgid="1525710152244405656">"ලැයිස්තුව හකුළන්න සහ සැකසීම් සඟවන්න"</string>
+    <string name="safety_center_entry_group_content_description" msgid="7048420958214443333">"ලැයිස්තුව. <xliff:g id="ENTRY_TITLE">%1$s</xliff:g>. <xliff:g id="ENTRY_SUMMARY">%2$s</xliff:g>"</string>
+    <string name="safety_center_entry_group_with_actions_needed_content_description" msgid="2708884606775932657">"ලැයිස්තුව. <xliff:g id="ENTRY_TITLE">%1$s</xliff:g>. ක්‍රියාමාර්ග අවශ්‍යයි. <xliff:g id="ENTRY_SUMMARY">%2$s</xliff:g>"</string>
+    <string name="safety_center_entry_group_item_content_description" msgid="7348298582877249787">"ලැයිස්තු අයිතමය. <xliff:g id="ENTRY_ITEM_TITLE">%1$s</xliff:g>. <xliff:g id="ENTRY_ITEM_SUMMARY">%2$s</xliff:g>"</string>
+    <string name="safety_center_entry_content_description" msgid="3639565652938224321">"<xliff:g id="ENTRY_ITEM_TITLE">%1$s</xliff:g>. <xliff:g id="ENTRY_ITEM_SUMMARY">%2$s</xliff:g>"</string>
+    <string name="safety_center_more_issues_card_title" msgid="7425844746197493312">"තවත් ඇඟවීම්"</string>
+    <string name="safety_center_dismissed_issues_card_title" msgid="2340129842725145733">"අස් කළ ඇඟවීම්"</string>
+    <string name="safety_center_more_issues_card_expand_action" msgid="7109451851052272946">"{count,plural, =1{පුළුල් කර තවත් එක් ඇඟවීමක් බලන්න}one{පුළුල් කර තවත් ඇඟවීම් #ක් බලන්න}other{පුළුල් කර තවත් ඇඟවීම් #ක් බලන්න}}"</string>
+    <string name="safety_center_issue_card_prefix_content_description" msgid="1447445289637043544">"ඇඟවීම. <xliff:g id="ISSUE_CARD_TITLE">%1$s</xliff:g>"</string>
+    <string name="safety_center_resolved_issue_fallback" msgid="8548932070610766651">"ක්‍රියාමාර්ගය සම්පූර්ණයි"</string>
+    <string name="safety_center_qs_status_summary" msgid="5193925895830451177">"ඔබේ උපාංගයට ආරක්ෂණය එක් කළ හැකි සැකසීම් පරීක්ෂා කරන්න"</string>
+    <string name="safety_center_qs_page_landing" msgid="1717368301679228128">"ආරක්ෂාව සහ පෞද්ගලිකත්වය ඉක්මන් සැකසීම්"</string>
+    <string name="safety_center_qs_close_button" msgid="1352313308176244599">"වසන්න"</string>
+    <string name="safety_center_qs_expand_action" msgid="2193190557696484169">"පුළුල් කර විකල්ප පෙන්වන්න"</string>
+    <string name="safety_center_qs_collapse_action" msgid="5809657430125309183">"හකුළන්න"</string>
+    <string name="safety_center_qs_privacy_control" msgid="1160682635058529673">"මාරු කරන්න. <xliff:g id="PRIVACY_CONTROL_TITLE">%1$s</xliff:g>. <xliff:g id="PRIVACY_CONTROL_STATUS">%2$s</xliff:g>"</string>
+    <string name="safety_center_qs_toggle_action" msgid="5920465736488119255">"ටොගල් කරන්න"</string>
+    <string name="safety_center_qs_open_action" msgid="2760200829912423728">"විවෘත කරන්න"</string>
+    <string name="safety_center_review_settings_button" msgid="938981137942443930">"සැකසීම් සමාලෝචනය කරන්න"</string>
+    <string name="safety_center_gear_label" msgid="5175877094379694098">"සැකසීම්"</string>
+    <string name="safety_center_info_label" msgid="8993181584061825412">"තොරතුරු"</string>
+</resources>

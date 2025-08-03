@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="pbap_session_key_dialog_title" msgid="5103201901254778256">"%1$sအတွက် ဆက်ရှင်ကီး တစ်ခုကို ရိုက်သွင်းပါ"</string>
+    <string name="pbap_session_key_dialog_header" msgid="5073165544713355581">"ဘလူးတုသ် ဆက်ရှင်ကီး လိုအပ်ပါသည်"</string>
+    <string name="pbap_acceptance_timeout_message" msgid="3071798915563151284">"%1$sနှင့် ဆက်သွယ်မှုကိုလက်ခံရန် အချိန်ကုန်သွားပါသည်"</string>
+    <string name="pbap_authentication_timeout_message" msgid="2089914949828656737">"%1$sနှင့် ဆက်ရှင်ကီးကို ရိုက်သွင်းရန်အချိန် ကုန်သွားပါသည်"</string>
+    <string name="auth_notif_ticker" msgid="7344125635314034621">"Obex (အချင်းအချင်းဖလှယ်ရန်) စစ်မှန်ကြောင်းတောင်းခံခြင်း"</string>
+    <string name="auth_notif_title" msgid="6639277119990416473">"ကဏ္ဏတစ်ခု၏ ကီး"</string>
+    <string name="auth_notif_message" msgid="7044369885874418693">"%1$sအတွက် ဆက်ရှင်ကီးကို ရိုက်ပါ"</string>
+    <string name="defaultname" msgid="6200530814398805541">"ကားကစ်"</string>
+    <string name="unknownName" msgid="6755061296103155293">"အမည်မသိ"</string>
+    <string name="localPhoneName" msgid="9119254982537191352">"ကျွန်ုပ်နာမည်"</string>
+    <string name="defaultnumber" msgid="5348816189286607406">"၀၀၀၀၀၀"</string>
+    <string name="pbap_notification_group" msgid="4215789331721465381">"ဘလူးတုသ်ဖြင့် အဆက်အသွယ်မျှဝေခြင်း"</string>
+    <string name="phonebook_advance_feature_support" msgid="8129553051734505128">"‘ဖုန်းစာအုပ် အဆင့်မြင့်တူးလ်’ ကို ပံ့ပိုးထားသည်"</string>
+    <string name="repair_for_adv_phonebook_feature" msgid="3489797973131684927">"‘အဆင့်မြင့်ဖုန်းစာအုပ် တူးလ်’ အတွက် ပြန်လည်တွဲချိတ်ရန်"</string>
+</resources>

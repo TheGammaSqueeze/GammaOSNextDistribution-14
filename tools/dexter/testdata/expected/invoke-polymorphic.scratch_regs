@@ -1,0 +1,166 @@
+
+method Main.getHandleForStatic(java.lang.Class, java.lang.String, java.lang.invoke.MethodType):java.lang.invoke.MethodHandle
+{
+	    0| move-object/16 v13, v25
+	    3| move-object/16 v14, v26
+	    6| move-object/16 v15, v27
+	    9| move-object/16 v12, v13
+	   12| move-object/16 v13, v14
+	   15| move-object/16 v14, v15
+	   18| move-object/16 v11, v12
+	   21| move-object/16 v12, v13
+	   24| move-object/16 v13, v14
+	   27| invoke-static {}, java.lang.invoke.MethodHandles.publicLookup():java.lang.invoke.MethodHandles$Lookup
+	   30| move-result-object v9
+	   31| invoke-virtual {v9,v11,v12,v13}, java.lang.invoke.MethodHandles$Lookup.findStatic(java.lang.Class, java.lang.String, java.lang.invoke.MethodType):java.lang.invoke.MethodHandle
+	   34| move-result-object v10
+	   35| return-object v10
+}
+
+method Main.getHandleForVirtual(java.lang.Class, java.lang.String, java.lang.invoke.MethodType):java.lang.invoke.MethodHandle
+{
+	    0| move-object/16 v13, v25
+	    3| move-object/16 v14, v26
+	    6| move-object/16 v15, v27
+	    9| move-object/16 v12, v13
+	   12| move-object/16 v13, v14
+	   15| move-object/16 v14, v15
+	   18| move-object/16 v11, v12
+	   21| move-object/16 v12, v13
+	   24| move-object/16 v13, v14
+	   27| invoke-static {}, java.lang.invoke.MethodHandles.publicLookup():java.lang.invoke.MethodHandles$Lookup
+	   30| move-result-object v9
+	   31| invoke-virtual {v9,v11,v12,v13}, java.lang.invoke.MethodHandles$Lookup.findVirtual(java.lang.Class, java.lang.String, java.lang.invoke.MethodType):java.lang.invoke.MethodHandle
+	   34| move-result-object v10
+	   35| return-object v10
+}
+
+method Main.getLongCompareToHandle():java.lang.invoke.MethodHandle
+{
+	    0| new-instance v0, java.lang.Long
+	    2| const-wide v1:v2, #+0 (0x0000000000000000 | 0.00000)
+	    7| invoke-direct {v0,v1,v2}, java.lang.Long.<init>(long):void
+	   10| invoke-virtual {v0}, java.lang.Object.getClass():java.lang.Class
+	   13| move-result-object v0
+	   14| sget-object v1, java.lang.Integer.TYPE
+	   16| invoke-static {v1,v0}, java.lang.invoke.MethodType.methodType(java.lang.Class, java.lang.Class):java.lang.invoke.MethodType
+	   19| move-result-object v2
+	   20| const-string v3, "compareTo"
+	   22| invoke-static {v0,v3,v2}, Main.getHandleForVirtual(java.lang.Class, java.lang.String, java.lang.invoke.MethodType):java.lang.invoke.MethodHandle
+	   25| move-result-object v0
+	   26| return-object v0
+}
+
+method Main.getStringConcatHandle():java.lang.invoke.MethodHandle
+{
+	    0| const-string v0, "concat"
+	    2| invoke-virtual {v0}, java.lang.Object.getClass():java.lang.Class
+	    5| move-result-object v1
+	    6| invoke-static {v1,v1}, java.lang.invoke.MethodType.methodType(java.lang.Class, java.lang.Class):java.lang.invoke.MethodType
+	    9| move-result-object v2
+	   10| invoke-static {v1,v0,v2}, Main.getHandleForVirtual(java.lang.Class, java.lang.String, java.lang.invoke.MethodType):java.lang.invoke.MethodHandle
+	   13| move-result-object v0
+	   14| return-object v0
+}
+
+method Main.getStringValueOfLongHandle():java.lang.invoke.MethodHandle
+{
+	    0| sget-object v0, java.lang.Long.TYPE
+	    2| const-string v1, "valueOf"
+	    4| invoke-virtual {v1}, java.lang.Object.getClass():java.lang.Class
+	    7| move-result-object v2
+	    8| invoke-static {v2,v0}, java.lang.invoke.MethodType.methodType(java.lang.Class, java.lang.Class):java.lang.invoke.MethodType
+	   11| move-result-object v3
+	   12| invoke-static {v2,v1,v3}, Main.getHandleForStatic(java.lang.Class, java.lang.String, java.lang.invoke.MethodType):java.lang.invoke.MethodHandle
+	   15| move-result-object v0
+	   16| return-object v0
+}
+
+method Main.getStringValueOfObjectHandle():java.lang.invoke.MethodHandle
+{
+	    0| new-instance v0, java.lang.Object
+	    2| invoke-direct {v0}, java.lang.Object.<init>():void
+	    5| invoke-virtual {v0}, java.lang.Object.getClass():java.lang.Class
+	    8| move-result-object v0
+	    9| const-string v1, "valueOf"
+	   11| invoke-virtual {v1}, java.lang.Object.getClass():java.lang.Class
+	   14| move-result-object v2
+	   15| invoke-static {v2,v0}, java.lang.invoke.MethodType.methodType(java.lang.Class, java.lang.Class):java.lang.invoke.MethodType
+	   18| move-result-object v3
+	   19| invoke-static {v2,v1,v3}, Main.getHandleForStatic(java.lang.Class, java.lang.String, java.lang.invoke.MethodType):java.lang.invoke.MethodHandle
+	   22| move-result-object v0
+	   23| return-object v0
+}
+
+method Main.main(java.lang.String[]):void
+{
+	    0| move-object/16 v15, v27
+	    3| move-object/16 v14, v15
+	    6| move-object/16 v13, v14
+	    9| invoke-static {}, Main.getStringConcatHandle():java.lang.invoke.MethodHandle
+	   12| move-result-object v9
+	   13| const-string v10, "[String1]"
+	   15| const-string v11, "+[String2]"
+	   17| invoke-polymorphic {v9,v10,v11}, java.lang.invoke.MethodHandle.invokeExact(java.lang.Object[]):java.lang.Object, (java.lang.String, java.lang.String):java.lang.String
+	   21| move-result-object v12
+	   22| sget-object v13, java.lang.System.out
+	   24| invoke-virtual {v13,v12}, java.io.PrintStream.println(java.lang.String):void
+	   27| invoke-static {}, Main.getStringValueOfObjectHandle():java.lang.invoke.MethodHandle
+	   30| move-result-object v9
+	   31| const-string v10, "[String1]"
+	   33| invoke-polymorphic {v9,v10}, java.lang.invoke.MethodHandle.invokeExact(java.lang.Object[]):java.lang.Object, (java.lang.Object):java.lang.String
+	   37| move-result-object v12
+	   38| sget-object v13, java.lang.System.out
+	   40| invoke-virtual {v13,v12}, java.io.PrintStream.println(java.lang.String):void
+	   43| invoke-static {}, Main.getStringConcatHandle():java.lang.invoke.MethodHandle
+	   46| move-result-object v9
+	   47| const-string v10, "[String1]"
+	   49| const-string v11, "+[String2]"
+	   51| invoke-polymorphic {v9,v10,v11}, java.lang.invoke.MethodHandle.invoke(java.lang.Object[]):java.lang.Object, (java.lang.Object, java.lang.Object):java.lang.String
+	   55| move-result-object v12
+	   56| sget-object v13, java.lang.System.out
+	   58| invoke-virtual {v13,v12}, java.io.PrintStream.println(java.lang.String):void
+	   61| invoke-static {}, Main.getStringValueOfLongHandle():java.lang.invoke.MethodHandle
+	   64| move-result-object v9
+	   65| const-wide v10:v11, #+42 (0x000000000000002a | 2.07508e-322)
+	   70| invoke-polymorphic {v9,v10,v11}, java.lang.invoke.MethodHandle.invokeExact(java.lang.Object[]):java.lang.Object, (long):java.lang.String
+	   74| move-result-object v12
+	   75| sget-object v13, java.lang.System.out
+	   77| invoke-virtual {v13,v12}, java.io.PrintStream.println(java.lang.String):void
+	   80| const v10, #+40 (0x00000028 | 5.60519e-44)
+	   83| invoke-polymorphic {v9,v10}, java.lang.invoke.MethodHandle.invoke(java.lang.Object[]):java.lang.Object, (int):java.lang.String
+	   87| move-result-object v12
+	   88| sget-object v13, java.lang.System.out
+	   90| invoke-virtual {v13,v12}, java.io.PrintStream.println(java.lang.String):void
+	   93| new-instance v10, java.lang.Long
+	   95| const-wide v11:v12, #+43 (0x000000000000002b | 2.12448e-322)
+	  100| invoke-direct {v10,v11,v12}, java.lang.Long.<init>(long):void
+	  103| invoke-polymorphic {v9,v10}, java.lang.invoke.MethodHandle.invoke(java.lang.Object[]):java.lang.Object, (java.lang.Long):java.lang.String
+	  107| move-result-object v12
+	  108| sget-object v13, java.lang.System.out
+	  110| invoke-virtual {v13,v12}, java.io.PrintStream.println(java.lang.String):void
+	  113| new-instance v10, java.lang.Integer
+	  115| const v11, #+44 (0x0000002c | 6.16571e-44)
+	  118| invoke-direct {v10,v11}, java.lang.Integer.<init>(int):void
+	  121| invoke-polymorphic {v9,v10}, java.lang.invoke.MethodHandle.invoke(java.lang.Object[]):java.lang.Object, (java.lang.Integer):java.lang.String
+	  125| move-result-object v12
+	  126| sget-object v13, java.lang.System.out
+	  128| invoke-virtual {v13,v12}, java.io.PrintStream.println(java.lang.String):void
+	  131| invoke-static {}, Main.getLongCompareToHandle():java.lang.invoke.MethodHandle
+	  134| move-result-object v9
+	  135| new-instance v10, java.lang.Long
+	  137| const-wide v11:v12, #+43 (0x000000000000002b | 2.12448e-322)
+	  142| invoke-direct {v10,v11,v12}, java.lang.Long.<init>(long):void
+	  145| invoke-polymorphic {v9,v10,v10}, java.lang.invoke.MethodHandle.invoke(java.lang.Object[]):java.lang.Object, (java.lang.Long, java.lang.Long):int
+	  149| move-result v12
+	  150| sget-object v13, java.lang.System.out
+	  152| invoke-virtual {v13,v12}, java.io.PrintStream.println(int):void
+	  155| const-wide v11:v12, #+44 (0x000000000000002c | 2.17389e-322)
+	  160| invoke-polymorphic {v9,v10,v11,v12}, java.lang.invoke.MethodHandle.invoke(java.lang.Object[]):java.lang.Object, (java.lang.Long, long):int
+	  164| move-result v12
+	  165| sget-object v13, java.lang.System.out
+	  167| invoke-virtual {v13,v12}, java.io.PrintStream.println(int):void
+	  170| invoke-polymorphic/range {v16..v21}, java.lang.invoke.MethodHandle.invoke(java.lang.Object[]):java.lang.Object, (java.lang.Long, long):int
+	  174| invoke-polymorphic/range {v12..v52}, java.lang.invoke.MethodHandle.invoke(java.lang.Object[]):java.lang.Object, (java.lang.Long, long):int
+	  178| return-void
+}

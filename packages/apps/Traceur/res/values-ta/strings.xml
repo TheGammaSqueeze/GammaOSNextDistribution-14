@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="system_tracing" msgid="4719188511746319848">"சிஸ்டம் டிரேஸிங்"</string>
+    <string name="record_system_activity" msgid="4339462312915377825">"செயல்திறனை மேம்படுத்த, சிஸ்டம் செயல்பாட்டைப் பதிவுசெய்து, அதைப் பின்னர் பகுப்பாய்வு செய்யும்"</string>
+    <string name="record_trace" msgid="6416875085186661845">"டிரேஸை ரெக்கார்டு செய்யும் பட்டன்"</string>
+    <string name="record_trace_summary" msgid="6705357754827849292">"\"டிரேஸ் அமைப்புகள்\" என்பதில் அமைக்கப்பட்டுள்ள உள்ளமைவைப் பயன்படுத்தி சிஸ்டம் டிரேஸைப் படமெடுக்கும்"</string>
+    <string name="record_stack_samples" msgid="3498368637185702335">"CPU ப்ரொஃபைலை ரெக்கார்டு செய்தல்"</string>
+    <string name="record_stack_samples_summary" msgid="7827953921526410478">"\"cpu\" வகையைத் தேர்வுசெய்வதன் மூலம் டிரேஸ்களிலும் கால்ஸ்டாக் சாம்பிளிங்கை இயக்கலாம்"</string>
+    <string name="record_heap_dump" msgid="1688550222066812696">"ஹீப் டம்ப்பை ரெக்கார்டு செய்தல்"</string>
+    <string name="record_heap_dump_summary_enabled" msgid="5038675257021221777">"\'ஹீப் டம்ப் செயல்முறைகளில்\' தேர்ந்தெடுக்கப்பட்ட செயல்முறைகளின் ஹீப் டம்ப்பைப் பதிவுசெய்கிறது"</string>
+    <string name="record_heap_dump_summary_disabled" msgid="4640319333930345311">"ஹீப் டம்ப்களைச் சேகரிக்க \'ஹீப் டம்ப் செயல்முறைகளில்\' குறைந்தது ஒரு செயல்முறையாவது தேர்ந்தெடுங்கள்"</string>
+    <string name="start_new_trace" msgid="8177130420802170353">"புதிய டிரேஸைத் தொடங்கு"</string>
+    <string name="winscope_tracing" msgid="5818984791154837458">"வின்ஸ்கோப் டிரேஸ்களைச் சேகரித்தல்"</string>
+    <string name="winscope_tracing_summary" msgid="7040550156722395894">"விரிவான UI டெலிமெட்ரி தரவும் அடங்கும் (மந்தமான செயல்பாட்டை உண்டாக்கலாம்)"</string>
+    <string name="trace_debuggable_applications" msgid="7957069895298887899">"பிழை திருத்தக்கூடிய ஆப்ஸை டிரேஸ் செய்"</string>
+    <string name="categories" msgid="2280163673538611008">"வகைகள்"</string>
+    <string name="restore_default_categories" msgid="5090536794637169521">"இயல்புநிலை வகைகளை மீட்டமை"</string>
+    <string name="default_categories_restored" msgid="6861683793680564181">"இயல்புநிலை வகைகள் மீட்டமைக்கப்பட்டன"</string>
+    <string name="default_categories" msgid="2117679794687799407">"இயல்புநிலை"</string>
+    <string name="num_categories_selected" msgid="5772630335027553995">"{count,plural, =1{# தேர்ந்தெடுக்கப்பட்டது}other{# தேர்ந்தெடுக்கப்பட்டன}}"</string>
+    <string name="heap_dump_processes" msgid="2500105180344901939">"ஹீப் டம்ப் செயல்முறைகள்"</string>
+    <string name="heap_dump_processes_summary" msgid="4570434268024622765">"குறைந்தது ஒரு செயல்முறையாவது தேர்ந்தெடுக்கப்பட வேண்டும்"</string>
+    <string name="clear_heap_dump_processes" msgid="295101454741555286">"ஹீப் டம்ப் செயல்முறைகளை அழி"</string>
+    <string name="clear_heap_dump_processes_toast" msgid="3658510557596150797">"செயல்முறைப் பட்டியல் அழிக்கப்பட்டது"</string>
+    <string name="continuous_heap_dump" msgid="390369382946204224">"தொடர்ச்சியான ஹீப் ப்ரொஃபைல்"</string>
+    <string name="continuous_heap_dump_summary" msgid="4581643248161659581">"ஒரு குறிப்பிட்ட இடைவெளிக்கு ஒருமுறை ஹீப் டம்ப்பைப் பதிவுசெய்யும்"</string>
+    <string name="continuous_heap_dump_interval" msgid="842533896492001433">"ஹீப் டம்ப் இடைவெளி"</string>
+    <string name="five_seconds" msgid="7018465440929299712">"5 வினாடிகள்"</string>
+    <string name="ten_seconds" msgid="863416601384309033">"10 வினாடிகள்"</string>
+    <string name="thirty_seconds" msgid="7945396361369598222">"30 வினாடிகள்"</string>
+    <string name="one_minute" msgid="4182508213840684258">"1 நிமிடம்"</string>
+    <string name="applications" msgid="521776761270770549">"ஆப்ஸ்"</string>
+    <string name="no_debuggable_apps" msgid="4386209254520471208">"பிழை திருத்தக்கூடிய ஆப்ஸ் சாதனத்தில் இல்லை"</string>
+    <string name="buffer_size" msgid="3944311026715111454">"ஒவ்வொரு CPUவுக்குமான பஃபர் அளவு"</string>
+    <string name="show_quick_settings_tile" msgid="4971147332635291585">"விரைவு அமைப்புகள் தேர்வியைக் காட்டு"</string>
+    <string name="saving_trace" msgid="1468692734770800541">"டிரேஸைச் சேமிக்கிறது"</string>
+    <string name="trace_saved" msgid="5869970594780992309">"டிரேஸ் சேமிக்கப்பட்டது"</string>
+    <string name="saving_stack_samples" msgid="8174915522390525221">"ஸ்டாக் சாம்பிள்களைச் சேமிக்கிறது"</string>
+    <string name="stack_samples_saved" msgid="8863295751647724616">"ஸ்டாக் சாம்பிள்கள் சேமிக்கப்பட்டன"</string>
+    <string name="saving_heap_dump" msgid="6118616780825771824">"ஹீப் டம்ப்பைச் சேமிக்கிறது"</string>
+    <string name="heap_dump_saved" msgid="6720583137473857098">"ஹீப் டம்ப் சேமிக்கப்பட்டது"</string>
+    <string name="tap_to_share" msgid="4440713575852187545">"உங்கள் ரெக்கார்டிங்கைப் பகிர தட்டுங்கள்"</string>
+    <string name="attaching_to_report" msgid="2629202947947275886">"பிழை அறிக்கையுடன் டிரேஸை இணைக்கிறது"</string>
+    <string name="attached_to_report" msgid="5806905349184608870">"பிழை அறிக்கையுடன் டிரேஸ் இணைக்கப்பட்டது"</string>
+    <string name="attached_to_report_summary" msgid="7665675771190391355">"BetterBug கருவியைத் திறக்க தட்டவும்"</string>
+    <string name="stop_tracing" msgid="8916938308534164152">"டிரேஸ் செய்வதை நிறுத்தவும்"</string>
+    <string name="tracing_categories_unavailable" msgid="5609076391417077752">"கிடைக்காத டிரேஸ் வகைகள்:"</string>
+    <string name="trace_is_being_recorded" msgid="5947378146009337469">"டிரேஸ் பதிவுசெய்யப்படுகிறது"</string>
+    <string name="tap_to_stop_tracing" msgid="6533282719573871806">"டிரேஸ் செய்வதை நிறுத்த, தட்டவும்"</string>
+    <string name="stack_samples_are_being_recorded" msgid="8669254939248349583">"ஸ்டாக் சாம்பிள்கள் ரெக்கார்டு செய்யப்படுகின்றன"</string>
+    <string name="tap_to_stop_stack_sampling" msgid="5911317684139059415">"ஸ்டாக் சாம்பிளிங்கை நிறுத்த தட்டுங்கள்"</string>
+    <string name="heap_dump_is_being_recorded" msgid="3789315106110524969">"ஹீப் டம்ப் ரெக்கார்டு செய்யப்படுகிறது"</string>
+    <string name="tap_to_stop_heap_dump" msgid="6475699275834526902">"ஹீப் டம்ப்பை நிறுத்த தட்டுங்கள்"</string>
+    <string name="clear_saved_files" msgid="9156079311231446825">"சேமிக்கப்பட்ட ஃபைல்களை அழி"</string>
+    <string name="clear_saved_files_summary" msgid="109751867417553670">"ஒரு மாதத்திற்குப் பிறகு ரெக்கார்டிங்குகள் அழிக்கப்படும்"</string>
+    <string name="clear_saved_files_question" msgid="8586686617760838834">"சேமிக்கப்பட்ட ஃபைல்களை அழிக்கவா?"</string>
+    <string name="all_recordings_will_be_deleted" msgid="7731693738485947891">"/data/local/traces இலிருந்து அனைத்து ரெக்கார்டிங்குகளும் நீக்கப்படும்"</string>
+    <string name="clear" msgid="5484761795406948056">"அழி"</string>
+    <string name="system_traces_storage_title" msgid="8294090839883366871">"சிஸ்டம் டிரேஸ்கள்"</string>
+    <string name="keywords" msgid="736547007949049535">"சிஸ்டிரேஸ், டிரேஸ், செயல்திறன்"</string>
+    <string name="share_file" msgid="1982029143280382271">"ஃபைலைப் பகிரவா?"</string>
+    <string name="system_trace_sensitive_data" msgid="3069389866696009549">"சிஸ்டம் டிரேஸிங் ஃபைல்களில் பாதுகாக்கவேண்டிய சிஸ்டம் மற்றும் ஆப்ஸ் தரவு (ஆப்ஸ் உபயோக விவரம் போன்றவை) இருக்கலாம். உங்களுக்கு நம்பகமானவர்களுடனும் ஆப்ஸுடனும் மட்டுமே பகிரவும்."</string>
+    <string name="share" msgid="8443979083706282338">"பகிர்"</string>
+    <string name="dont_show_again" msgid="6662492041164390600">"மீண்டும் காட்டாதே"</string>
+    <string name="long_traces" msgid="5110949471775966329">"நீண்ட டிரேஸ்கள்"</string>
+    <string name="long_traces_summary" msgid="419034282946761469">"சாதனச் சேமிப்பகத்தில் தொடர்ந்து சேமிக்கப்படும்"</string>
+    <string name="long_traces_summary_betterbug" msgid="445546400875135624">"சாதனச் சேமிப்பகத்தில் தொடர்ந்து சேமிக்கப்படும் (பிழை அறிக்கைகளில் தானாக இணைக்கப்படாது)"</string>
+    <string name="max_long_trace_size" msgid="1943788179787181241">"டிரேஸ் செய்யக்கூடிய அதிகபட்ச அளவு"</string>
+    <string name="max_long_trace_duration" msgid="8009837944364246785">"நீண்ட டிரேஸின் அதிகபட்ச கால அளவு"</string>
+    <string name="two_hundred_mb" msgid="4950018549725084512">"200 மெ.பை."</string>
+    <string name="one_gb" msgid="590396985168692037">"1 ஜி.பை."</string>
+    <string name="five_gb" msgid="7883941043220621649">"5 ஜி.பை."</string>
+    <string name="ten_gb" msgid="4150452462544299276">"10 ஜி.பை."</string>
+    <string name="twenty_gb" msgid="5717308686812140465">"20 ஜி.பை."</string>
+    <string name="ten_minutes" msgid="7039181194343961324">"10 நிமிடங்கள்"</string>
+    <string name="thirty_minutes" msgid="2575810799813531395">"30 நிமிடங்கள்"</string>
+    <string name="one_hour" msgid="5219232935307966891">"1 மணிநேரம்"</string>
+    <string name="eight_hours" msgid="3207620892104451552">"8 மணிநேரம்"</string>
+    <string name="twelve_hours" msgid="4647143276394563496">"12 மணிநேரம்"</string>
+    <string name="twentyfour_hours" msgid="2789663313550030791">"24 மணிநேரம்"</string>
+    <string name="four_thousand_kb" msgid="5156346740862105703">"4096 கி.பை."</string>
+    <string name="eight_thousand_kb" msgid="8815334985638334081">"8192 கி.பை."</string>
+    <string name="sixteen_thousand_kb" msgid="7342517169232459259">"16384 கி.பை."</string>
+    <string name="thirtytwo_thousand_kb" msgid="654328198799196150">"32768 கி.பை."</string>
+    <string name="sixtyfive_thousand_kb" msgid="8168144138598305306">"65536 கி.பை."</string>
+    <string name="stop_on_bugreport" msgid="4591832600597126422">"பிழை அறிக்கைக்காக ரெக்கார்டிங்கை நிறுத்துதல்"</string>
+    <string name="stop_on_bugreport_summary" msgid="1601834864982891381">"பிழை அறிக்கை தொடங்கியதும் செயலிலுள்ள ரெக்கார்டிங்குகளை நிறுத்திவிடும்"</string>
+    <string name="attach_to_bug_report" msgid="5388986830016247490">"பிழை அறிக்கைகளில் ரெக்கார்டிங்குகளை இணைத்தல்"</string>
+    <string name="attach_to_bug_report_summary" msgid="4213730623971240002">"பிழை அறிக்கை சேகரிக்கப்பட்டதும் செயலிலுள்ள ரெக்கார்டிங்குகள் தானாகவே BetterBug கருவிக்கு அனுப்பப்படும்"</string>
+    <string name="link_to_traces" msgid="1404687523304348490">"சேமிக்கப்பட்ட ஃபைல்களைப் பாருங்கள்"</string>
+    <string name="pref_category_trace_settings" msgid="6507535407023329628">"அமைப்புகளை டிரேஸ் செய்யுங்கள்"</string>
+    <string name="pref_category_saved_files" msgid="1477491400970413291">"சேமித்த ஃபைல்கள்"</string>
+    <string name="pref_category_misc" msgid="6217624054980014683">"மற்றவை"</string>
+    <string name="pref_category_heap_dump_settings" msgid="2234681064312605310">"ஹீப் டம்ப் அமைப்புகள்"</string>
+</resources>

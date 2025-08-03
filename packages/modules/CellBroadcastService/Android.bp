@@ -1,0 +1,107 @@
+// Copyright 2019 The Android Open Source Project
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_defaults {
+    name: "CellBroadcastServiceCommon",
+    min_sdk_version: "30",
+    srcs: [
+      "src/**/*.java",
+      ":statslog-cellbroadcast-module-java-gen",
+    ],
+    libs: [
+        "framework-annotations-lib",
+        "framework-statsd",
+        "framework-location.stubs.module_lib",
+        "unsupportedappusage",
+    ],
+    sdk_version: "module_current",
+    static_libs: [
+        "modules-utils-build",
+        "modules-utils-handlerexecutor",
+        "modules-utils-locallog",
+        "modules-utils-preconditions",
+        "modules-utils-statemachine",
+    ],
+    certificate: "platform",
+    privileged: true,
+    resource_dirs: ["res"],
+    optimize: {
+        shrink_resources: true,
+        proguard_flags_files: ["proguard.flags"],
+    },
+    jarjar_rules: "cellbroadcast-jarjar-rules.txt",
+    lint: {
+        strict_updatability_linting: true,
+    },
+}
+
+android_app {
+    name: "CellBroadcastServiceModule",
+    defaults: ["CellBroadcastServiceCommon"],
+    certificate: "networkstack",
+    manifest: "AndroidManifest.xml",
+    apex_available: ["com.android.cellbroadcast"],
+    privapp_allowlist: ":privapp_allowlist_com.android.cellbroadcastservice.xml",
+}
+
+android_app {
+     name: "CellBroadcastServiceModulePlatform",
+     target_sdk_version: "33",
+     defaults: ["CellBroadcastServiceCommon"],
+     certificate: "platform",
+     // CellBroadcastServicePlatformModule is a replacement for com.android.cellbroadcast apex
+     // which consists of CellBroadcastServiceModule
+     overrides: ["com.android.cellbroadcast"],
+     manifest: "AndroidManifest_Platform.xml",
+     privapp_allowlist: ":platform_privapp_allowlist_com.android.cellbroadcastservice.xml",
+}
+
+genrule {
+  name: "statslog-cellbroadcast-java-gen",
+  tools: ["stats-log-api-gen"],
+  cmd: "$(location stats-log-api-gen) --java $(out) --module cellbroadcast" +
+       " --javaPackage com.android.cellbroadcastservice --javaClass CellBroadcastStatsLog" +
+       " --minApiLevel 30",
+  out: ["com/android/cellbroadcastservice/CellBroadcastStatsLog.java"],
+}
+
+genrule {
+  name: "statslog-cellbroadcast-module-java-gen",
+  tools: ["stats-log-api-gen"],
+  cmd: "$(location stats-log-api-gen) --java $(out) --module cellbroadcast" +
+       " --javaPackage com.android.cellbroadcastservice --javaClass CellBroadcastModuleStatsLog" +
+       " --minApiLevel 30",
+  out: ["com/android/cellbroadcastservice/CellBroadcastModuleStatsLog.java"],
+}
+
+// used to share common constants between cellbroadcastservice and cellbroadcastreceier
+filegroup {
+    name: "cellbroadcast-constants-shared-srcs",
+    srcs: [
+        "src/com/android/cellbroadcastservice/SmsCbConstants.java",
+        "src/com/android/cellbroadcastservice/CellBroadcastMetrics.java",
+        ":statslog-cellbroadcast-module-java-gen",
+    ],
+}
+
+// used to share src with cellbroadcastreceiver test app
+filegroup {
+    name: "cellbroadcast-util-shared-srcs",
+    srcs: [
+        "src/com/android/cellbroadcastservice/GsmAlphabet.java",
+        "src/com/android/cellbroadcastservice/CbGeoUtils.java",
+        "src/com/android/cellbroadcastservice/SmsCbHeader.java",
+        "src/com/android/cellbroadcastservice/CellBroadcastServiceMetrics.java",
+    ],
+}
+
+// used to share src with unit test app
+filegroup {
+    name: "cellbroadcast-shared-srcs",
+    srcs: [
+        "src/**/*.java",
+        ":statslog-cellbroadcast-module-java-gen",
+    ],
+}

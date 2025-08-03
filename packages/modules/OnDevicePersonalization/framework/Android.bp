@@ -1,0 +1,104 @@
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+filegroup {
+    name: "framework-ondevicepersonalization-aidl",
+    srcs: [
+        "java/**/*.aidl",
+    ],
+    visibility: [
+        "//frameworks/base",
+        "//packages/modules/OnDevicePersonalization:__subpackages__"
+    ],
+    path: "java",
+}
+
+filegroup {
+    name: "framework-ondevicepersonalization-sources",
+    defaults: ["framework-sources-module-defaults"],
+    srcs: [
+        "java/**/*.java",
+    ],
+    visibility: ["//packages/modules/OnDevicePersonalization:__subpackages__"],
+    path: "java",
+}
+
+filegroup {
+    name: "framework-ondevicepersonalization-jarjar",
+    srcs: ["jarjar_rules.txt"]
+}
+
+java_sdk_library {
+    name: "framework-ondevicepersonalization",
+    srcs: [
+        ":framework-ondevicepersonalization-aidl",
+        ":framework-ondevicepersonalization-sources",
+    ],
+    libs: [
+        "modules-utils-preconditions",
+        "framework-connectivity.stubs.module_lib",
+        "ondevicepersonalization_flags_lib",
+    ],
+    stub_only_libs: [
+        "framework-connectivity.stubs.module_lib",
+    ],
+    sdk_version: "module_current",
+    defaults: [
+        "framework-module-defaults",
+        "ondevicepersonalization-java-defaults",
+    ],
+    permitted_packages: [
+        "android.adservices.ondevicepersonalization",
+        "android.ondevicepersonalization",
+        "com.android.adservices.ondevicepersonalization",
+        "com.android.ondevicepersonalization.internal",
+        "android.federatedcompute",
+        "com.android.federatedcompute.internal",
+    ],
+    jarjar_rules: ":framework-ondevicepersonalization-jarjar",
+    static_libs: [
+            "modules-utils-build",
+            "modules-utils-list-slice",
+    ],
+    impl_library_visibility: ["//visibility:public"],
+    min_sdk_version: "Tiramisu",
+    apex_available: ["com.android.ondevicepersonalization"],
+    aconfig_declarations: [
+            "ondevicepersonalization_flags",
+    ],
+}
+
+java_defaults {
+    name: "framework-ondevicepersonalization-cts-defaults",
+    sdk_version: "core_current",
+    libs: [
+        "framework-ondevicepersonalization.impl",
+        "framework",
+        "framework-res",
+    ],
+    defaults_visibility: ["//visibility:public"],
+}
+
+// defaults for tests that need to build against framework-odp's @hide APIs
+java_defaults {
+    name: "framework-ondevicepersonalization-test-defaults",
+    sdk_version: "module_Tiramisu",
+    libs: [
+        "framework-ondevicepersonalization.impl",
+    ],
+}

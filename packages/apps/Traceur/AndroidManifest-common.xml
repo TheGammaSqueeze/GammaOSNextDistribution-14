@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2024 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!--
+    This is a minimal manifest that only includes necessary permissions required to get SystemUI
+    to be able to build the parts of the Traceur codebase it requires, and to avoid SysUi Studio
+    warning messages. The entire manifest used for building Traceur app can be found in
+    packages/apps/Traceur.
+  -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.android.traceur.common"
+    tools:ignore="ImpliedTouchscreenHardware,MissingLeanbackLauncher,MissingLeanbackSupport,ProtectedPermissions">
+    <!--- Used to query for Betterbug. -->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission" />
+
+    <!-- Used to trigger the trace start/stop service. -->
+    <uses-permission android:name="android.permission.START_FOREGROUND_SERVICES_FROM_BACKGROUND"/>
+
+    <!-- Used for brief periods where the trace service is foregrounded. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+
+    <!-- Used to control IME Winscope tracing (not yet migrated to perfetto). -->
+    <uses-permission android:name="android.permission.CONTROL_UI_TRACING" />
+
+    <!-- Used to control view capture Winscope tracing (not yet migrated to perfetto). -->
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
+</manifest>

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017-2024 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="system_reboot_confirm_cm">Újraindítás a következőbe:</string>
+    <string name="global_action_restart_system">Rendszer</string>
+    <string name="global_action_restart_recovery">Recovery</string>
+    <string name="global_action_restart_bootloader">Bootloader</string>
+    <plurals name="show_dev_countdown_cm">
+        <item quantity="one">Ön <xliff:g id="step_count">%1$d</xliff:g> gombnyomásra van attól, hogy bekapcsolja a fejlesztői beállításokat.</item>
+        <item quantity="other">Ön <xliff:g id="step_count">%1$d</xliff:g> gombnyomásra van attól, hogy bekapcsolja a fejlesztői beállításokat.</item>
+    </plurals>
+    <string name="show_dev_on_cm">Most már láthatja a fejlesztői beállításokat!</string>
+    <string name="show_dev_already_cm">Már korábban engedélyezte a fejlesztői beállításokat.</string>
+    <string name="system_buttons">Gombok</string>
+    <string name="power_button_long_press_action_title">A bekapcsológomb hosszan nyomására induló művelet</string>
+    <string name="power_button_long_press_for_power_menu_action">Kikapcsolási menü</string>
+    <string name="power_button_long_press_for_assistant_action">Asszisztens-indítás</string>
+    <string name="inputs_volume_control_enabled">Hangerőszabályozó CEC</string>
+    <string name="inputs_volume_control_enabled_desc">A telefon hengereje helyett a TV/VCR hangerejét módosítja</string>
+    <string name="enable_adb_root">Rootolt hibakeresés</string>
+    <string name="enable_adb_root_summary">Rootolva engedélyezi az Android hibakeresését</string>
+    <string name="advanced_restart_title">Speciális újraindítás</string>
+    <string name="advanced_restart_summary">Egyéni újraindítási lehetőségek: recovery-be, bootloader-be vagy rendszerfelületre</string>
+    <string name="adb_over_network">ADB hálózaton keresztül</string>
+    <string name="adb_over_network_summary">Engedélyezi a TCP/IP hibakeresést hálózati eszközön keresztül (Wi-Fi, USB-hálózatok). Ez az engedéky csak a következő újraindításig szól.</string>
+    <string name="adb_over_network_warning">VIGYÁZAT: Ha a funkció engedélyezve van, a készülék megtámadható az összes kapcsolódó hálózatról!\n\nCsak biztonságos hálózatra csatlakozva szabad engedélyezni.\n\nBiztosan engedélyezni szeretné?</string>
+    <string name="trust_category_features">Állapot</string>
+    <string name="trust_feature_selinux">SELinux</string>
+    <string name="trust_feature_selinux_value_enforcing">Kényszerítve</string>
+    <string name="trust_feature_selinux_value_disabled">Kikapcsolva</string>
+    <string name="trust_feature_selinux_explain">A SELinux szabja meg, hogy mely folyamatok melyik fájlokhoz/helyekhez férhetnek hozzá az Ön készülékén.\nEz megakadályozza, hogy az alkalmazások és szolgáltatások hozzáférjenek azokhoz a fájlokhoz, amelyekhez nincs közük. Így a rosszindulatú folyamatnak korlátozható a hozzáférése és az Ön biztonsága megmarad.</string>
+    <string name="trust_feature_security_patches">Android biztonsági hibajavító csomag</string>
+    <string name="trust_feature_security_patches_value_base">Android-felület: %1$s\nGyártói felület: %2$s</string>
+    <string name="trust_feature_security_patches_value_new">Naprakész</string>
+    <string name="trust_feature_security_patches_value_medium">Pár hónapja elavult</string>
+    <string name="trust_feature_security_patches_value_old">Elavult</string>
+    <string name="trust_feature_security_patches_explain">Az Androidos biztonsági hibajavító csomagok havonta jelennek meg a Google és a SoC gyártók jóvoltából, a rendszerben fellépő olyan hibák kezelésére, amelyeket a rosszindulatú alkalmazások kihasználhatnak a biztonsági korlátozások megkerülésére, és ideiglenesen vagy tartósan károsíthatják a készüléket.\nMíg a platformjavítások havonta frissülnek globálisan, a gyártói javításokat csak időnként frissítik az OEM-eken keresztül.\nA készülékbiztonság megőrzéséhez győződjön meg róla, hogy az Ön LineageOS kiadása mindig naprakész-e, és (ha elérhető) biztosítja, hogy a gyártói képet a LineageOS által ajánlott legfrissebbre frissítse.</string>
+    <string name="trust_feature_encryption">Titkosítás</string>
+    <string name="trust_feature_encryption_value_enabled">Engedélyezve</string>
+    <string name="trust_feature_encryption_value_nolock">Biztonságos zárolási képernyő szükséges</string>
+    <string name="trust_feature_encryption_value_disabled">Kikapcsolva</string>
+    <string name="trust_feature_encryption_explain">Ha készüléke titkosításra kerül, azzal megakadályozza, hogy hozzáférhessenek adataihoz, ha a készüléket nem Android rendszerrel indítják (pl recovery módban). Ez különösen fontos, ha telefonját ellopják, és megakadályozza, hogy illetéktelen személy megnézhesse az üzeneteket, névjegyeket és más személyes információkat jelszó használata nélkül.\nA titkosítás hatékonyabbá tételéhez biztonsági képernyőzárat kell beállítania.</string>
+    <string name="trust_category_tools">Adatvédelem</string>
+    <string name="trust_notification_alerts_title">Biztonsági figyelmeztetések</string>
+    <string name="trust_restrict_usb_title">Az USB korlátozása</string>
+    <string name="trust_restrict_usb_summary">Az USB-csatlakozások, mint fejhallgatók, tárhelyek, beviteli eszközök (egér, billentyű, botkormány) és az ADB vezérlése</string>
+    <string name="trust_restrict_usb_always">Az USB-kapcsolatok tiltása</string>
+    <string name="trust_restrict_usb_disabled">Állandóan engedélyezett az USB-kapcsolat</string>
+    <string name="trust_onboarding_description">A Trust segít, hogy készüléke biztonságos legyen, és védi személyes adatait.\nA Trust ikon csak akkor jelenik meg, amikor az oldal tartalma ellenőrzött.</string>
+    <string name="trust_warnings_alerts_intro">Kiválaszthatja azokat a biztonsági eseményeket, amikről értesítést kíván kapni. Saját biztonsága érdekében ajánlott, hogy engedélyezze az összes figyelmeztetést</string>
+    <string name="trust_warnings_selinux">SELinux-állapot</string>
+    <string name="trust_warnings_keys">A kiadás aláírása</string>
+    <string name="sleep_button_label">Alvó mód</string>
+    <string name="system_sleep_confirm">Most kerüljön alvó módba?</string>
+    <string name="shutdown_button_label">Leállítás</string>
+    <string name="system_shutdown_confirm">Most kapcsolódjon ki?</string>
+    <string name="convertible_port_busy_title">Az USB-port 1 használatban van</string>
+    <string name="convertible_port_busy_warning">Húzzon le egy felcsatlakoztatott készüléket vagy kiegészítőt, majd próbálja újra</string>
+    <string name="mtp_enable_title">A SHIELD-mappák elérése számítógépen USB-n keresztül</string>
+    <string name="mtp_enable_warning">Az USB-port 1 most SHIELD-ként van konfigurálva, hogy csatlakozzon a számítógéphez médiaeszközként.\n\nEz a port már nem érzékeli az USB-tárolóeszközt vagy az USB-tartozékokat, és nem használható eszközök töltésére.</string>
+    <string name="mtp_retry_error">Nem sikerült, kérjük, próbálja újra!</string>
+    <string name="mtp_summary">Ebben az üzemmódban az USB-port más célra nem használható</string>
+    <string name="mtp_title">Fájlok átvitele számítógépre USB-n keresztül</string>
+    <string name="mtp_unexpected_error">Váratlan hiba. Kérjük, próbálja újra később.</string>
+    <string name="usb_debugging_enable_title">Az USB-hibakeresés bekapcsolva</string>
+    <string name="usb_debugging_enable_warning">Az USB-port 1 most SHIELD-ként van konfigurálva, hogy csatlakozzon a számítógéphez médiaeszközként.\n\nEz a port már nem érzékeli az USB-tárolóeszközt vagy az USB-tartozékokat, és nem használható eszközök töltésére.</string>
+</resources>

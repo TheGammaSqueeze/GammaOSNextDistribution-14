@@ -1,0 +1,339 @@
+class @hide @SystemApi AudioManagerHelper package android.car.builtin.media
+    field TIRAMISU_0 int UNDEFINED_STREAM_TYPE = -1;
+    method TIRAMISU_0 boolean setAudioDeviceGain(AudioManager audioManager, String address, int gainInMillibels, boolean isOutput);
+    method TIRAMISU_0 AudioGainInfo getAudioGainInfo(AudioDeviceInfo deviceInfo);
+    method TIRAMISU_0 AudioPatchInfo createAudioPatch(AudioDeviceInfo sourceDevice, AudioDeviceInfo sinkDevice, int gainInMillibels);
+    method TIRAMISU_0 boolean releaseAudioPatch(AudioManager audioManager, AudioPatchInfo info);
+    method TIRAMISU_0 String usageToString(int usage);
+    method TIRAMISU_0 String usageToXsdString(int usage);
+    method TIRAMISU_0 int xsdStringToUsage(String usage);
+    method TIRAMISU_0 int getUsageVirtualSource();
+    method TIRAMISU_0 String adjustToString(int adjustment);
+    method TIRAMISU_0 void setMasterMute(AudioManager audioManager, boolean mute, int flags);
+    method TIRAMISU_0 boolean isMasterMute(AudioManager audioManager);
+    method TIRAMISU_0 void registerVolumeAndMuteReceiver(Context context, VolumeAndMuteReceiver audioAndMuteHelper);
+    method TIRAMISU_0 void unregisterVolumeAndMuteReceiver(Context context, VolumeAndMuteReceiver audioAndMuteHelper);
+    method TIRAMISU_0 boolean isCallFocusRequestClientId(String clientId);
+class AudioManagerHelper.AudioGainInfo package android.car.builtin.media
+    method TIRAMISU_0 int getMinGain();
+    method TIRAMISU_0 int getMaxGain();
+    method TIRAMISU_0 int getDefaultGain();
+    method TIRAMISU_0 int getStepValue();
+class AudioManagerHelper.AudioPatchInfo package android.car.builtin.media
+    method TIRAMISU_0 int getHandleId();
+    method TIRAMISU_0 String getSourceAddress();
+    method TIRAMISU_0 String getSinkAddress();
+    method TIRAMISU_0 String toString();
+class AudioManagerHelper.VolumeAndMuteReceiver package android.car.builtin.media
+    method TIRAMISU_0 void onVolumeChanged(int streamType);
+    method TIRAMISU_0 void onMuteChanged();
+class @hide @SystemApi PackageManagerHelper package android.car.builtin.content.pm
+    field TIRAMISU_0 String PROPERTY_CAR_SERVICE_PACKAGE_NAME = "ro.android.car.carservice.package";
+    field TIRAMISU_0 String PROPERTY_CAR_SERVICE_OVERLAY_PACKAGES = "ro.android.car.carservice.overlay.packages";
+    method TIRAMISU_0 String getSystemUiPackageName(Context context);
+    method TIRAMISU_0 PackageInfo getPackageInfoAsUser(PackageManager pm, String packageName, int packageInfoFlags, int userId);
+    method TIRAMISU_0 int getPackageUidAsUser(PackageManager pm, String packageName, int userId);
+    method TIRAMISU_0 String[] getNamesForUids(PackageManager pm, int[] uids);
+    method TIRAMISU_0 int getApplicationEnabledSettingForUser(String packageName, int userId);
+    method TIRAMISU_0 void setApplicationEnabledSettingForUser(String packageName, int newState, int flags, int userId, String callingPackage);
+    method TIRAMISU_0 boolean isOemApp(ApplicationInfo appInfo);
+    method TIRAMISU_0 boolean isOdmApp(ApplicationInfo appInfo);
+    method TIRAMISU_0 boolean isVendorApp(ApplicationInfo appInfo);
+    method TIRAMISU_0 boolean isSystemApp(ApplicationInfo appInfo);
+    method TIRAMISU_0 boolean isUpdatedSystemApp(ApplicationInfo appInfo);
+    method TIRAMISU_0 boolean isProductApp(ApplicationInfo appInfo);
+    method TIRAMISU_0 boolean isSystemExtApp(ApplicationInfo appInfo);
+    method TIRAMISU_0 ComponentName getComponentName(ComponentInfo info);
+class @hide @SystemApi ContextHelper package android.car.builtin.content
+    method TIRAMISU_0 int getDisplayId(Context context);
+    method TIRAMISU_0 void startActivityAsUser(Context context, Intent intent, Bundle options, UserHandle user);
+class @hide @SystemApi JobSchedulerHelper package android.car.builtin.job
+    method TIRAMISU_0 int getNumberOfRunningJobsAtIdle(Context context);
+    method TIRAMISU_0 int getNumberOfPendingJobs(Context context);
+class @hide @SystemApi DisplayHelper package android.car.builtin.view
+    field TIRAMISU_0 int INVALID_PORT = -1;
+    field TIRAMISU_0 int TYPE_INTERNAL = Display.TYPE_INTERNAL;
+    field TIRAMISU_0 int TYPE_EXTERNAL = Display.TYPE_EXTERNAL;
+    field TIRAMISU_0 int TYPE_VIRTUAL = Display.TYPE_VIRTUAL;
+    method TIRAMISU_0 int getPhysicalPort(Display display);
+    method TIRAMISU_0 String getUniqueId(Display display);
+    method TIRAMISU_0 int getType(Display display);
+class @hide @SystemApi KeyEventHelper package android.car.builtin.view
+    method TIRAMISU_0 void setDisplayId(KeyEvent keyEvent, int newDisplayId);
+class @hide @SystemApi DisplayAreaOrganizerHelper package android.car.builtin.window
+    field TIRAMISU_0 int FEATURE_UNDEFINED = DisplayAreaOrganizer.FEATURE_UNDEFINED;
+class @hide @SystemApi LockPatternHelper package android.car.builtin.widget
+    method TIRAMISU_0 boolean isSecure(Context context, int userId);
+class @hide @SystemApi AdvertisingSetHelper package android.car.builtin.bluetooth.le
+    method TIRAMISU_1 void getOwnAddress(AdvertisingSet advertisingSet);
+class @hide @SystemApi AdvertisingSetCallbackHelper package android.car.builtin.bluetooth.le
+    method TIRAMISU_1 AdvertisingSetCallback createRealCallbackFromProxy(Callback proxy);
+class AdvertisingSetCallbackHelper.Callback package android.car.builtin.bluetooth.le
+    method TIRAMISU_1 void onAdvertisingSetStarted(AdvertisingSet advertisingSet, int txPower, int status);
+    method TIRAMISU_1 void onAdvertisingSetStopped(AdvertisingSet advertisingSet);
+    method TIRAMISU_1 void onAdvertisingEnabled(AdvertisingSet advertisingSet, boolean enable, int status);
+    method TIRAMISU_1 void onAdvertisingDataSet(AdvertisingSet advertisingSet, int status);
+    method TIRAMISU_1 void onScanResponseDataSet(AdvertisingSet advertisingSet, int status);
+    method TIRAMISU_1 void onAdvertisingParametersUpdated(AdvertisingSet advertisingSet, int txPower, int status);
+    method TIRAMISU_1 void onPeriodicAdvertisingParametersUpdated(AdvertisingSet advertisingSet, int status);
+    method TIRAMISU_1 void onPeriodicAdvertisingDataSet(AdvertisingSet advertisingSet, int status);
+    method TIRAMISU_1 void onPeriodicAdvertisingEnabled(AdvertisingSet advertisingSet, boolean enable, int status);
+    method TIRAMISU_1 void onOwnAddressRead(AdvertisingSet advertisingSet, int addressType, String address);
+class @hide @SystemApi BluetoothHeadsetClientHelper package android.car.builtin.bluetooth
+    method TIRAMISU_0 List<BluetoothDevice> getConnectedBvraDevices(BluetoothHeadsetClient headsetClient);
+    method TIRAMISU_0 boolean startVoiceRecognition(BluetoothHeadsetClient headsetClient, BluetoothDevice device);
+    method TIRAMISU_0 boolean stopVoiceRecognition(BluetoothHeadsetClient headsetClient, BluetoothDevice device);
+class @hide @SystemApi InputManagerHelper package android.car.builtin.input
+    method TIRAMISU_0 boolean injectInputEvent(InputManager inputManager, android.view.InputEvent event);
+class @hide @SystemApi VoiceInteractionHelper package android.car.builtin.app
+    method TIRAMISU_0 boolean isAvailable();
+    method TIRAMISU_0 void setEnabled(boolean enabled);
+class @hide @SystemApi TaskInfoHelper package android.car.builtin.app
+    method TIRAMISU_0 int getDisplayId(TaskInfo task);
+    method TIRAMISU_0 int getUserId(TaskInfo task);
+    method TIRAMISU_0 boolean isVisible(TaskInfo task);
+    method TIRAMISU_0 String toString(TaskInfo task);
+class @hide @SystemApi ActivityManagerHelper package android.car.builtin.app
+    field TIRAMISU_0 int INVALID_TASK_ID = ActivityTaskManager.INVALID_TASK_ID;
+    method TIRAMISU_0 boolean startUserInBackground(int userId);
+    method TIRAMISU_0 boolean startUserInForeground(int userId);
+    method TIRAMISU_0 int stopUserWithDelayedLocking(int userId, boolean force);
+    method TIRAMISU_0 boolean unlockUser(int userId);
+    method TIRAMISU_0 void stopAllTasksForUser(int userId);
+    method TIRAMISU_0 ActivityOptions createActivityOptions(Bundle bOptions);
+    method TIRAMISU_0 void setFocusedRootTask(int taskId);
+    method TIRAMISU_0 boolean removeTask(int taskId);
+    method TIRAMISU_0 void registerProcessObserverCallback(ProcessObserverCallback callback);
+    method TIRAMISU_0 void unregisterProcessObserverCallback(ProcessObserverCallback callback);
+    method TIRAMISU_0 int checkComponentPermission(String permission, int uid, int owningUid, boolean exported);
+class ActivityManagerHelper.ProcessObserverCallback package android.car.builtin.app
+    field TIRAMISU_0 IProcessObserver.Stub mIProcessObserver = new IProcessObserver.Stub() {
+
+    @Override
+    public void onForegroundActivitiesChanged(int pid, int uid, boolean foregroundActivities) throws RemoteException {
+        ProcessObserverCallback.this.onForegroundActivitiesChanged(pid, uid, foregroundActivities);
+    }
+
+    @Override
+    public void onForegroundServicesChanged(int pid, int uid, int fgServiceTypes) throws RemoteException {
+    // Not used
+    }
+
+    @Override
+    public void onProcessDied(int pid, int uid) throws RemoteException {
+        ProcessObserverCallback.this.onProcessDied(pid, uid);
+    }
+};
+    method TIRAMISU_0 void onForegroundActivitiesChanged(int pid, int uid, boolean foregroundActivities);
+    method TIRAMISU_0 void onProcessDied(int pid, int uid);
+class @hide @SystemApi KeyguardManagerHelper package android.car.builtin.app
+    method TIRAMISU_0 boolean isKeyguardLocked();
+class @hide @SystemApi PermissionHelper package android.car.builtin
+    field TIRAMISU_0 String MONITOR_INPUT = android.Manifest.permission.MONITOR_INPUT;
+class @hide @SystemApi AtomicFileHelper package android.car.builtin.util
+    method TIRAMISU_0 boolean exists(AtomicFile file);
+class @hide @SystemApi EventLogHelper package android.car.builtin.util
+    method TIRAMISU_0 void writeCarHelperStart();
+    method TIRAMISU_0 void writeCarHelperBootPhase(int phase);
+    method TIRAMISU_0 void writeCarHelperUserStarting(int userId);
+    method TIRAMISU_0 void writeCarHelperUserSwitching(int fromUserId, int toUserId);
+    method TIRAMISU_0 void writeCarHelperUserUnlocking(int userId);
+    method TIRAMISU_0 void writeCarHelperUserUnlocked(int userId);
+    method TIRAMISU_0 void writeCarHelperUserStopping(int userId);
+    method TIRAMISU_0 void writeCarHelperUserStopped(int userId);
+    method TIRAMISU_0 void writeCarHelperServiceConnected();
+    method TIRAMISU_0 void writeCarServiceInit(int numberServices);
+    method TIRAMISU_0 void writeCarServiceVhalReconnected(int numberServices);
+    method TIRAMISU_0 void writeCarServiceSetCarServiceHelper(int pid);
+    method TIRAMISU_0 void writeCarServiceOnUserLifecycle(int type, int fromUserId, int toUserId);
+    method TIRAMISU_0 void writeCarServiceCreate(boolean hasVhal);
+    method TIRAMISU_0 void writeCarServiceConnected(String interfaceName);
+    method TIRAMISU_0 void writeCarServiceDestroy(boolean hasVhal);
+    method TIRAMISU_0 void writeCarServiceVhalDied(long cookie);
+    method TIRAMISU_0 void writeCarServiceInitBootUser();
+    method TIRAMISU_0 void writeCarServiceOnUserRemoved(int userId);
+    method TIRAMISU_0 void writeCarUserServiceInitialUserInfoReq(int requestType, int timeout, int currentUserId, int currentUserFlags, int numberExistingUsers);
+    method TIRAMISU_0 void writeCarUserServiceInitialUserInfoResp(int status, int action, int userId, int flags, String safeName, String userLocales);
+    method TIRAMISU_0 void writeCarUserServiceSetInitialUser(int userId);
+    method TIRAMISU_0 void writeCarUserServiceSetLifecycleListener(int uid, String packageName);
+    method TIRAMISU_0 void writeCarUserServiceResetLifecycleListener(int uid, String packageName);
+    method TIRAMISU_0 void writeCarUserServiceSwitchUserReq(int userId, int timeout);
+    method TIRAMISU_0 void writeCarUserServiceSwitchUserResp(int halCallbackStatus, int userSwitchStatus, String errorMessage);
+    method TIRAMISU_0 void writeCarUserServiceLogoutUserReq(int userId, int timeout);
+    method TIRAMISU_0 void writeCarUserServiceLogoutUserResp(int halCallbackStatus, int userSwitchStatus, String errorMessage);
+    method TIRAMISU_0 void writeCarUserServicePostSwitchUserReq(int targetUserId, int currentUserId);
+    method TIRAMISU_0 void writeCarUserServiceGetUserAuthReq(int uid, int userId, int numberTypes);
+    method TIRAMISU_0 void writeCarUserServiceGetUserAuthResp(int numberValues);
+    method TIRAMISU_0 void writeCarUserServiceSwitchUserUiReq(int userId);
+    method TIRAMISU_0 void writeCarUserServiceSwitchUserFromHalReq(int requestId, int uid);
+    method TIRAMISU_0 void writeCarUserServiceSetUserAuthReq(int uid, int userId, int numberAssociations);
+    method TIRAMISU_0 void writeCarUserServiceSetUserAuthResp(int numberValues, String errorMessage);
+    method TIRAMISU_0 void writeCarUserServiceCreateUserReq(String safeName, String userType, int flags, int timeout, int hasCallerRestrictions);
+    method TIRAMISU_0 void writeCarUserServiceCreateUserResp(int status, int result, String errorMessage);
+    method TIRAMISU_0 void writeCarUserServiceCreateUserUserCreated(int userId, String safeName, String userType, int flags);
+    method TIRAMISU_0 void writeCarUserServiceCreateUserUserRemoved(int userId, String reason);
+    method TIRAMISU_0 void writeCarUserServiceRemoveUserReq(int userId, int hascallerrestrictions);
+    method TIRAMISU_0 void writeCarUserServiceRemoveUserResp(int userId, int result);
+    method TIRAMISU_0 void writeCarUserServiceNotifyAppLifecycleListener(int uid, String packageName, int eventType, int fromUserId, int toUserId);
+    method TIRAMISU_0 void writeCarUserServiceNotifyInternalLifecycleListener(String listenerName, int eventType, int fromUserId, int toUserId);
+    method TIRAMISU_0 void writeCarUserServicePreCreationRequested(int numberUsers, int numberGuests);
+    method TIRAMISU_0 void writeCarUserServicePreCreationStatus(int numberExistingUsers, int numberUsersToAdd, int numberUsersToRemove, int numberExistingGuests, int numberGuestsToAdd, int numberGuestsToRemove, int numberInvalidUsersToRemove);
+    method TIRAMISU_0 void writeCarUserServiceStartUserInBackgroundReq(int userId);
+    method TIRAMISU_0 void writeCarUserServiceStartUserInBackgroundResp(int userId, int result);
+    method TIRAMISU_0 void writeCarUserServiceStopUserReq(int userId);
+    method TIRAMISU_0 void writeCarUserServiceStopUserResp(int userId, int result);
+    method TIRAMISU_0 void writeCarUserServiceInitialUserInfoReqComplete(int requestType);
+    method TIRAMISU_0 void writeCarUserHalInitialUserInfoReq(int requestId, int requestType, int timeout);
+    method TIRAMISU_0 void writeCarUserHalInitialUserInfoResp(int requestId, int status, int action, int userId, int flags, String safeName, String userLocales);
+    method TIRAMISU_0 void writeCarUserHalSwitchUserReq(int requestId, int userId, int userFlags, int timeout);
+    method TIRAMISU_0 void writeCarUserHalSwitchUserResp(int requestId, int status, int result, String errorMessage);
+    method TIRAMISU_0 void writeCarUserHalPostSwitchUserReq(int requestId, int targetUserId, int currentUserId);
+    method TIRAMISU_0 void writeCarUserHalGetUserAuthReq(Object[] int32Values);
+    method TIRAMISU_0 void writeCarUserHalGetUserAuthResp(Object[] valuesAndError);
+    method TIRAMISU_0 void writeCarUserHalLegacySwitchUserReq(int requestId, int targetUserId, int currentUserId);
+    method TIRAMISU_0 void writeCarUserHalSetUserAuthReq(Object[] int32Values);
+    method TIRAMISU_0 void writeCarUserHalSetUserAuthResp(Object[] valuesAndError);
+    method TIRAMISU_0 void writeCarUserHalOemSwitchUserReq(int requestId, int targetUserId);
+    method TIRAMISU_0 void writeCarUserHalCreateUserReq(int requestId, String safeName, int flags, int timeout);
+    method TIRAMISU_0 void writeCarUserHalCreateUserResp(int requestId, int status, int result, String errorMessage);
+    method TIRAMISU_0 void writeCarUserHalRemoveUserReq(int targetUserId, int currentUserId);
+    method TIRAMISU_0 void writeCarUserManagerAddListener(int uid, String packageName, boolean hasFilter);
+    method TIRAMISU_0 void writeCarUserManagerRemoveListener(int uid, String packageName);
+    method TIRAMISU_0 void writeCarUserManagerDisconnected(int uid);
+    method TIRAMISU_0 void writeCarUserManagerSwitchUserReq(int uid, int userId);
+    method TIRAMISU_0 void writeCarUserManagerSwitchUserResp(int uid, int status, String errorMessage);
+    method TIRAMISU_0 void writeCarUserManagerLogoutUserReq(int uid);
+    method TIRAMISU_0 void writeCarUserManagerLogoutUserResp(int uid, int status, String errorMessage);
+    method TIRAMISU_0 void writeCarUserManagerGetUserAuthReq(Object[] types);
+    method TIRAMISU_0 void writeCarUserManagerGetUserAuthResp(Object[] values);
+    method TIRAMISU_0 void writeCarUserManagerSetUserAuthReq(Object[] typesAndValuesPairs);
+    method TIRAMISU_0 void writeCarUserManagerSetUserAuthResp(Object[] values);
+    method TIRAMISU_0 void writeCarUserManagerCreateUserReq(int uid, String safeName, String userType, int flags);
+    method TIRAMISU_0 void writeCarUserManagerCreateUserResp(int uid, int status, String errorMessage);
+    method TIRAMISU_0 void writeCarUserManagerRemoveUserReq(int uid, int userId);
+    method TIRAMISU_0 void writeCarUserManagerRemoveUserResp(int uid, int status);
+    method TIRAMISU_0 void writeCarUserManagerNotifyLifecycleListener(int numberListeners, int eventType, int fromUserId, int toUserId);
+    method TIRAMISU_0 void writeCarUserManagerPreCreateUserReq(int uid);
+    method TIRAMISU_0 void writeCarDevicePolicyManagerRemoveUserReq(int uid, int userId);
+    method TIRAMISU_0 void writeCarDevicePolicyManagerRemoveUserResp(int uid, int status);
+    method TIRAMISU_0 void writeCarDevicePolicyManagerCreateUserReq(int uid, String safeName, int flags);
+    method TIRAMISU_0 void writeCarDevicePolicyManagerCreateUserResp(int uid, int status);
+    method TIRAMISU_0 void writeCarDevicePolicyManagerStartUserInBackgroundReq(int uid, int userId);
+    method TIRAMISU_0 void writeCarDevicePolicyManagerStartUserInBackgroundResp(int uid, int status);
+    method TIRAMISU_0 void writeCarDevicePolicyManagerStopUserReq(int uid, int userId);
+    method TIRAMISU_0 void writeCarDevicePolicyManagerStopUserResp(int uid, int status);
+    method TIRAMISU_0 void writePowerPolicyChange(String policy);
+    method TIRAMISU_0 void writeCarPowerManagerStateChange(int state);
+    method TIRAMISU_0 void writeCarPowerManagerStateRequest(int state, int param);
+    method TIRAMISU_0 void writeGarageModeEvent(int status);
+class @hide @SystemApi Slogf package android.car.builtin.util
+    method TIRAMISU_0 boolean isLoggable(String tag, int level);
+    method TIRAMISU_0 int v(String tag, String msg);
+    method TIRAMISU_0 int v(String tag, String msg, Throwable tr);
+    method TIRAMISU_0 int d(String tag, String msg);
+    method TIRAMISU_0 int d(String tag, String msg, Throwable tr);
+    method TIRAMISU_0 int i(String tag, String msg);
+    method TIRAMISU_0 int i(String tag, String msg, Throwable tr);
+    method TIRAMISU_0 int w(String tag, String msg);
+    method TIRAMISU_0 int w(String tag, String msg, Throwable tr);
+    method TIRAMISU_0 int w(String tag, Throwable tr);
+    method TIRAMISU_0 int e(String tag, String msg);
+    method TIRAMISU_0 int e(String tag, String msg, Throwable tr);
+    method TIRAMISU_0 int wtf(String tag, String msg);
+    method TIRAMISU_0 int wtf(String tag, Throwable tr);
+    method TIRAMISU_0 int wtf(String tag, String msg, Throwable tr);
+    method TIRAMISU_0 void v(String tag, String format, Object args);
+    method TIRAMISU_0 void d(String tag, String format, Object args);
+    method TIRAMISU_0 void i(String tag, String format, Object args);
+    method TIRAMISU_0 void w(String tag, String format, Object args);
+    method TIRAMISU_0 void w(String tag, Exception exception, String format, Object args);
+    method TIRAMISU_0 void e(String tag, String format, Object args);
+    method TIRAMISU_0 void e(String tag, Exception exception, String format, Object args);
+    method TIRAMISU_0 void wtf(String tag, String format, Object args);
+    method TIRAMISU_0 void wtf(String tag, Exception exception, String format, Object args);
+class @hide @SystemApi AssistUtilsHelper package android.car.builtin.util
+    field TIRAMISU_0 String EXTRA_CAR_PUSH_TO_TALK = "com.android.car.input.EXTRA_CAR_PUSH_TO_TALK";
+    method TIRAMISU_0 boolean isSessionRunning(Context context);
+    method TIRAMISU_0 void hideCurrentSession(Context context);
+    method TIRAMISU_0 void registerVoiceInteractionSessionListenerHelper(Context context, VoiceInteractionSessionListenerHelper sessionListener);
+    method TIRAMISU_0 boolean showPushToTalkSessionForActiveService(Context context, VoiceInteractionSessionShowCallbackHelper callback);
+interface AssistUtilsHelper.VoiceInteractionSessionShowCallbackHelper package android.car.builtin.util
+    method  void onFailed();
+    method  void onShown();
+interface AssistUtilsHelper.VoiceInteractionSessionListenerHelper package android.car.builtin.util
+    method  void onVoiceSessionShown();
+    method  void onVoiceSessionHidden();
+class @hide @SystemApi TimeUtils package android.car.builtin.util
+    method TIRAMISU_0 void dumpTime(PrintWriter pw, long time);
+    method TIRAMISU_0 void formatDuration(long duration, PrintWriter pw);
+class @hide @SystemApi TimingsTraceLog package android.car.builtin.util
+    method TIRAMISU_0 void traceBegin(String name);
+    method TIRAMISU_0 void traceEnd();
+    method TIRAMISU_0 void logDuration(String name, long timeMs);
+class @hide @SystemApi ValidationHelper package android.car.builtin.util
+    method TIRAMISU_0 boolean isUserIdValid(int userId);
+    method TIRAMISU_0 boolean isAppIdValid(int appId);
+class @hide @SystemApi PowerManagerHelper package android.car.builtin.power
+    method TIRAMISU_0 int getMaximumScreenBrightnessSetting(Context context);
+    method TIRAMISU_0 int getMinimumScreenBrightnessSetting(Context context);
+    method TIRAMISU_0 void setDisplayState(Context context, boolean on, long upTime);
+    method TIRAMISU_0 void shutdown(Context context, boolean confirm, String reason, boolean wait);
+class @hide @SystemApi BinderHelper package android.car.builtin.os
+    method TIRAMISU_0 void dumpRemoteCallbackList(RemoteCallbackList<?> list, PrintWriter pw);
+    method TIRAMISU_0 boolean onTransactForCmd(int code, Parcel data, Parcel reply, int flags, ShellCommandListener cmdListener);
+interface BinderHelper.ShellCommandListener package android.car.builtin.os
+    method TIRAMISU_0 int onShellCommand(FileDescriptor in, FileDescriptor out, FileDescriptor err, String[] args);
+class @hide @SystemApi ServiceManagerHelper package android.car.builtin.os
+    method TIRAMISU_0 IBinder getService(String name);
+    method TIRAMISU_0 IBinder checkService(String name);
+    method TIRAMISU_0 IBinder waitForDeclaredService(String name);
+    method TIRAMISU_0 void addService(String name, IBinder service);
+class @hide @SystemApi SystemPropertiesHelper package android.car.builtin.os
+    method TIRAMISU_0 void set(String key, String val);
+class @hide @SystemApi ParcelHelper package android.car.builtin.os
+    method TIRAMISU_0 String[] readStringArray(Parcel parcel);
+    method TIRAMISU_0 byte[] readBlob(Parcel parcel);
+    method TIRAMISU_0 void writeBlob(Parcel parcel, byte[] b);
+    method TIRAMISU_0 ArraySet<? extends Object> readArraySet(Parcel parcel, ClassLoader loader);
+    method TIRAMISU_0 void writeArraySet(Parcel parcel, ArraySet<? extends Object> val);
+class @hide @SystemApi BuildHelper package android.car.builtin.os
+    method TIRAMISU_0 boolean isUserBuild();
+    method TIRAMISU_0 boolean isEngBuild();
+    method TIRAMISU_0 boolean isUserDebugBuild();
+    method TIRAMISU_0 boolean isDebuggableBuild();
+class @hide @SystemApi UserManagerHelper package android.car.builtin.os
+    field TIRAMISU_0 int USER_NULL = UserHandle.USER_NULL;
+    field TIRAMISU_0 int USER_SYSTEM = UserHandle.USER_SYSTEM;
+    field TIRAMISU_0 int FLAG_PRIMARY = UserInfo.FLAG_PRIMARY;
+    field TIRAMISU_0 int FLAG_ADMIN = UserInfo.FLAG_ADMIN;
+    field TIRAMISU_0 int FLAG_GUEST = UserInfo.FLAG_GUEST;
+    field TIRAMISU_0 int FLAG_RESTRICTED = UserInfo.FLAG_RESTRICTED;
+    field TIRAMISU_0 int FLAG_INITIALIZED = UserInfo.FLAG_INITIALIZED;
+    field TIRAMISU_0 int FLAG_MANAGED_PROFILE = UserInfo.FLAG_MANAGED_PROFILE;
+    field TIRAMISU_0 int FLAG_DISABLED = UserInfo.FLAG_DISABLED;
+    field TIRAMISU_0 int FLAG_QUIET_MODE = UserInfo.FLAG_QUIET_MODE;
+    field TIRAMISU_0 int FLAG_EPHEMERAL = UserInfo.FLAG_EPHEMERAL;
+    field TIRAMISU_0 int FLAG_DEMO = UserInfo.FLAG_DEMO;
+    field TIRAMISU_0 int FLAG_FULL = UserInfo.FLAG_FULL;
+    field TIRAMISU_0 int FLAG_SYSTEM = UserInfo.FLAG_SYSTEM;
+    field TIRAMISU_0 int FLAG_PROFILE = UserInfo.FLAG_PROFILE;
+    method TIRAMISU_0 List<UserHandle> getUserHandles(UserManager userManager, boolean excludePartial, boolean excludeDying, boolean excludePreCreated);
+    method TIRAMISU_0 boolean isEphemeralUser(UserManager userManager, UserHandle user);
+    method TIRAMISU_0 boolean isEnabledUser(UserManager userManager, UserHandle user);
+    method TIRAMISU_0 boolean isPreCreatedUser(UserManager userManager, UserHandle user);
+    method TIRAMISU_0 boolean isInitializedUser(UserManager userManager, UserHandle user);
+    method TIRAMISU_0 String getDefaultUserTypeForUserInfoFlags(int userInfoFlag);
+    method TIRAMISU_0 UserHandle preCreateUser(UserManager userManager, String type);
+    method TIRAMISU_0 String getDefaultUserName(Context context);
+    method TIRAMISU_0 int getMaxRunningUsers(Context context);
+    method TIRAMISU_0 boolean markGuestForDeletion(UserManager userManager, UserHandle user);
+    method TIRAMISU_0 int getUserId(int uid);
+class @hide @SystemApi SharedMemoryHelper package android.car.builtin.os
+    method TIRAMISU_0 ParcelFileDescriptor createParcelFileDescriptor(SharedMemory memory);
+class @hide @SystemApi TraceHelper package android.car.builtin.os
+    field TIRAMISU_0 long TRACE_TAG_CAR_SERVICE = Trace.TRACE_TAG_SYSTEM_SERVER;
+class @hide @SystemApi SettingsHelper package android.car.builtin.provider
+    field TIRAMISU_0 String SYSTEM_LOCALES = "system_locales";
+class @hide @SystemApi CarBuiltin package android.car.builtin
+    field TIRAMISU_0 int PLATFORM_VERSION_MINOR_INT = SystemProperties.getInt(PROPERTY_PLATFORM_MINOR_VERSION, /* def= */
+0);

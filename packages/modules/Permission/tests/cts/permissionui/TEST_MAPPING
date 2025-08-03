@@ -1,0 +1,32 @@
+{
+  "presubmit-large": [
+    {
+      "name": "CtsPermissionUiTestCases",
+      "options": [
+        {
+          "exclude-annotation": "androidx.test.filters.FlakyTest"
+        }
+      ]
+    }
+  ],
+  "mainline-presubmit": [
+        {
+            "name": "CtsPermissionUiTestCases[com.google.android.permission.apex]",
+            "options": [
+                {
+                    "exclude-annotation": "androidx.test.filters.FlakyTest"
+                }
+            ]
+        }
+  ],
+  "postsubmit": [
+    {
+      "name": "CtsPermissionUiTestCases"
+    }
+  ],
+  "mainline-postsubmit": [
+    {
+        "name": "CtsPermissionUiTestCases[com.google.android.permission.apex]"
+    }
+  ]
+}

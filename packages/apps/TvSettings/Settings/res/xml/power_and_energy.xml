@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2020 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    android:title="@string/power_and_energy">
+
+    <com.android.tv.settings.widget.SwitchWithSoundPreference
+        android:key="limit_network_in_standby"
+        android:fragment="com.android.tv.settings.device.eco.LimitNetworkInStandbyInfoFragment"
+        android:title="@string/limit_network_in_standby_toggle_title"
+        android:summary="@string/limit_network_in_standby_toggle_summary"/>
+
+    <Preference
+        android:key="energy_modes"
+        android:fragment="com.android.tv.settings.device.eco.EnergyModesFragment"
+        android:icon="@drawable/ic_settings_eco"
+        android:title="@string/energy_modes"/>
+
+    <Preference
+        android:key="shutofftimer"
+        android:fragment="com.android.tv.settings.device.display.daydream.EnergySaverFragment"
+        android:icon="@drawable/ic_settings_energy_saver"
+        android:title="@string/device_energy_saver"
+        android:summary="@string/device_energy_saver_summary"/>
+
+    <com.android.tv.twopanelsettings.slices.SlicePreference
+        android:fragment="com.android.tv.twopanelsettings.slices.SliceFragment"
+        android:key="power_on_behavior"
+        android:title="@string/power_on_behavior"
+        android:icon="@drawable/ic_settings_power"
+        custom:isPreferenceVisible="false"
+        custom:uri="@string/power_boot_resume_slice_uri"/>
+
+    <com.android.tv.settings.LongClickPreference
+        android:icon="@drawable/ic_restart_alt"
+        android:key="reboot"
+        android:title="@string/restart_button_label"
+        android:fragment="com.android.tv.settings.about.RebootConfirmFragment" />
+
+    <Preference
+        android:icon="@drawable/ic_sleep"
+        android:key="sleep"
+        android:title="@string/sleep_button_label"
+        android:fragment="com.android.tv.settings.about.SleepConfirmFragment" />
+
+    <Preference
+        android:icon="@drawable/ic_shutdown"
+        android:key="shutdown"
+        android:title="@string/shutdown_button_label"
+        android:fragment="com.android.tv.settings.about.ShutdownConfirmFragment" />
+
+</PreferenceScreen>

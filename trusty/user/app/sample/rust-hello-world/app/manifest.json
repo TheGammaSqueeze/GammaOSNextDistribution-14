@@ -1,0 +1,6 @@
+{
+    "app_name": "rust_hello_world_app",
+    "uuid": "4cc42d35-7748-45e5-b7bb-1e8c2bb415b8",
+    "min_heap": 4096,
+    "min_stack": 4096
+}

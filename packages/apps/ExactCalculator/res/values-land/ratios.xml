@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2023 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <!-- layout_display_ratio + layout_pads_ratio = 1 -->
+    <item type="dimen" format="float" name="layout_display_ratio">0.4</item>
+    <item type="dimen" format="float" name="layout_pads_ratio">0.6</item>
+
+    <item type="dimen" format="float" name="layout_advanced_pad_ratio">0.33</item>
+</resources>

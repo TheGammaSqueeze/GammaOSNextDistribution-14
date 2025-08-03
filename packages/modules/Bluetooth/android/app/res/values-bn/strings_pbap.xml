@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="pbap_session_key_dialog_title" msgid="5103201901254778256">"%1$s এর জন্য সেশন কী টাইপ করুন"</string>
+    <string name="pbap_session_key_dialog_header" msgid="5073165544713355581">"ব্লুটুথ সেশন কী প্রয়োজন"</string>
+    <string name="pbap_acceptance_timeout_message" msgid="3071798915563151284">"%1$s এর মাধ্যমে সংযোগ স্বীকার করার সময় অতিবাহিত হয়ে গেছে"</string>
+    <string name="pbap_authentication_timeout_message" msgid="2089914949828656737">"%1$s এর মাধ্যেমে সেশন কী ইনপুট করার সময় অতিবাহিত হয়ে গেছে"</string>
+    <string name="auth_notif_ticker" msgid="7344125635314034621">"Obex যাচাইকরণ অনুরোধ"</string>
+    <string name="auth_notif_title" msgid="6639277119990416473">"সেশন কী"</string>
+    <string name="auth_notif_message" msgid="7044369885874418693">"%1$s এর জন্য সেশন কী টাইপ করুন"</string>
+    <string name="defaultname" msgid="6200530814398805541">"কারকিট"</string>
+    <string name="unknownName" msgid="6755061296103155293">"অজানা নাম"</string>
+    <string name="localPhoneName" msgid="9119254982537191352">"আমার নাম"</string>
+    <string name="defaultnumber" msgid="5348816189286607406">"০০০০০০"</string>
+    <string name="pbap_notification_group" msgid="4215789331721465381">"ব্লুটুথ পরিচিতির সাথে শেয়ার করা"</string>
+    <string name="phonebook_advance_feature_support" msgid="8129553051734505128">"ফোনবুক উন্নত ফিচার কাজ করবে"</string>
+    <string name="repair_for_adv_phonebook_feature" msgid="3489797973131684927">"উন্নত ফোনবুক ফিচারের জন্য আবার পেয়ার করুন"</string>
+</resources>

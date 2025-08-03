@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  Copyright (c) 2022, The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="5655878067457216814">"DeviceLockController"</string>
+    <string name="next_button" msgid="1856423430963548653">"මීළඟ"</string>
+    <string name="reset_button" msgid="4649354411129240809">"යළි සකසන්න"</string>
+    <string name="setup_more_button" msgid="4456370972302510109">"තව"</string>
+    <string name="setup_info_title_text" msgid="299562193092219293">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> හට මෙම උපාංගය කළමනාකරණය කළ හැකි ආකාරය"</string>
+    <string name="setup_failed_title_text" msgid="9045111389981992536">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> යෙදුම ස්ථාපන කළ නොහැක"</string>
+    <string name="setup_failed_reset_device_text" msgid="178419033440060908">"නැවත උත්සාහ කිරීමට උපාංගය යළි සකසමින්."</string>
+    <string name="setup_failed_reset_device_timer_text" msgid="5270970227714985986">"{count,plural, =1{මෙම උපාංගය යළි සකසා, අනතුරුව එය නැවත පිහිටුවීමට උත්සාහ කරන්න. එය තත්පර 1ක් තුළ ස්වයංක්‍රීයව යළි සැකසෙනු ඇත.}one{මෙම උපාංගය යළි සකසා, අනතුරුව එය නැවත පිහිටුවීමට උත්සාහ කරන්න. එය තත්පර #ක් තුළ ස්වයංක්‍රීයව යළි සැකසෙනු ඇත.}other{මෙම උපාංගය යළි සකසා, අනතුරුව එය නැවත පිහිටුවීමට උත්සාහ කරන්න. එය තත්පර #ක් තුළ ස්වයංක්‍රීයව යළි සැකසෙනු ඇත.}}"</string>
+    <string name="setup_progress_title_text" msgid="2388779167610656852">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> යෙදුම ස්ථාපනය කරමින්<xliff:g id="ELLIPSIS">…</xliff:g>"</string>
+    <string name="setup_finish_title_text" msgid="2810842695806992743">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> යෙදුම විවෘත කරමින්<xliff:g id="ELLIPSIS">…</xliff:g>"</string>
+    <string name="setup_error_title_text" msgid="1123742279081942535">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> යෙදුම විවෘත කළ නොහැක"</string>
+    <string name="try_again" msgid="5964839819170927721">"නැවත උත්සාහ කරන්න"</string>
+    <string name="reset_phone" msgid="1161657350311160627">"දුරකථනය යළි සකසන්න"</string>
+    <string name="control_section_title" msgid="2213476068991045785">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> හට කුමක් කළ හැකි ද?"</string>
+    <string name="control_lock_device_text" msgid="8253302484073757764">"ඔබ ගෙවීමක් නොකරන්නේ නම් මෙම උපාංගය සීමා කරන්න"</string>
+    <string name="control_download_text" msgid="8514650561843088172">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> යෙදුම බාගන්න, ස්ථාපනය කරන්න, සහ යාවත්කාලීන කරන්න"</string>
+    <string name="control_disable_debug_text" msgid="8112443250013094442">"නිදොස් කිරීමේ විශේෂාංග ක්‍රියා විරහිත කරන්න"</string>
+    <string name="locked_section_title" msgid="2748725389334076510">"මෙම උපාංගය අගුළු දමා තිබේ නම් ක්‍රියා කරන්නේ මොනවා ද?"</string>
+    <string name="locked_emergency_text" msgid="3509216445555779286">"හදිසි ඇමතුම් සේවා"</string>
+    <string name="locked_phone_usage_text" msgid="1913605870324552847">"එන සහ සමහර යන ඇමතුම්"</string>
+    <string name="locked_settings_usage_text" msgid="8336476063187737700">"සැකසීම්"</string>
+    <string name="locked_backup_and_restore_text" msgid="104616318625243429">"&lt;a href=https://support.google.com/android/answer/2819582&gt;ඔබේ දත්ත උපස්ථ කිරීම සහ&lt;/a&gt; ප්‍රතිසාධනය කිරීම"</string>
+    <string name="exposure_section_title" msgid="2329122144337528752">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g>ට දෘශ්‍යමාන විය හැක්කේ මොනවා ද?"</string>
+    <string name="exposure_install_text" msgid="2631074166447765453">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> යෙදුම ස්ථාපනය කරන හෝ අස්ථාපනය කරන වේලාව"</string>
+    <string name="exposure_lock_unlock_text" msgid="6827412845847260579">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> වෙතින් වන කිනම් හෝ අගුළු දැමීමේ හෝ අගුළු හැරීමේ ඉල්ලීම්"</string>
+    <string name="exposure_disable_dlc_text" msgid="2898692398106736423">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> යෙදුම ලබා ගත නොහැකි නම්"</string>
+    <string name="open_source_licenses" msgid="6464389386262455443">"විවෘත මූලාශ්‍ර බලපත්‍ර"</string>
+    <string name="footer_notice_content_description" msgid="2160540400079419440">"ආරක්ෂක සැකසීම්වල මූල්‍යමය උපාංග අංශයේ කළමනාකරණ හැකියා මෙම උපාංගයට අදාළ නොවේ."</string>
+    <string name="device_provided_by_provider" msgid="290593329676291991">"මෙම උපාංගය <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> මගින් සපයනු ලබයි"</string>
+    <string name="download_kiosk_app" msgid="1845089944897502656">"Kiosk යෙදුම ස්වයංක්‍රීයව බාගත කර ස්ථාපනය කරනු ලැබේ"</string>
+    <string name="install_kiosk_app_secondary_user" msgid="49911908012320834">"මෙම පරිශීලකයා සඳහා Kiosk යෙදුම ස්ථාපනය කරනු ලැබේ"</string>
+    <string name="restrict_device_if_missing_payment" msgid="8883980285859496904">"<xliff:g id="PROVIDER_NAME">%1$s</xliff:g> හට ඔබට ගෙවීමක් මඟ හැරුණහොත් උපාංගය සීමා කළ හැක. විස්තර සඳහා, <xliff:g id="TERMS_AND_CONDITIONS_LINK_START">&lt;a href=%2$s&gt;</xliff:g>නියමයන් සහ කොන්දේසි<xliff:g id="TERMS_AND_CONDITIONS_LINK_END">&lt;/a&gt;</xliff:g> බලන්න."</string>
+    <string name="restrict_device_if_dont_make_payment" msgid="1619095674945507015">"<xliff:g id="PROVIDER_NAME">%1$s</xliff:g> හට ඔබ අවශ්‍ය ගෙවීම් නොකරන්නේ නම් මෙම උපාංගය සීමා කළ හැක. විස්තර සඳහා, <xliff:g id="TERMS_AND_CONDITIONS_LINK_START">&lt;a href=%2$s&gt;</xliff:g>නියමයන් සහ කොන්දේසි<xliff:g id="TERMS_AND_CONDITIONS_LINK_END">&lt;/a&gt;</xliff:g> බලන්න."</string>
+    <string name="contact_provider_for_help" msgid="3872028089834808884">"උදවු සඳහා, <xliff:g id="SUPPORT_LINK_START">&lt;a href=%2$s&gt;</xliff:g><xliff:g id="PROVIDER_NAME">%1$s</xliff:g> සම්බන්ධ කර ගන්න<xliff:g id="SUPPORT_LINK_END">&lt;/a&gt;</xliff:g>."</string>
+    <string name="previous" msgid="5241891780917802570">"පෙර"</string>
+    <string name="next" msgid="8248291863254324326">"මීළඟ"</string>
+    <string name="start" msgid="2842214844667658537">"ආරම්භය"</string>
+    <string name="ok" msgid="3568398726528719749">"හරි"</string>
+    <string name="done" msgid="4507782734740410307">"නිමයි"</string>
+    <string name="do_it_in_one_hour" msgid="2727777340568739453">"එය පැය 1කින් කරන්න"</string>
+    <string name="header_icon_content_description" msgid="6069602031334473195">"තතු"</string>
+    <string name="provision_info_item_icon_content_description" msgid="2306298178610632507">"ප්‍රතිපාදන තතු"</string>
+    <string name="enroll_your_device_header" msgid="2226305405591945098">"ඔබේ උපාංගය ලියාපදිංචි කරන්න"</string>
+    <string name="enroll_your_device_financing_subheader" msgid="8810608106273097451">"ඔබට දැන් <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>ගේ සහනාධාර වැඩසටහනට ඔබේ උපාංගය ලියාපදිංචි කළ හැක"</string>
+    <string name="enroll_your_device_subsidy_subheader" msgid="8598730780370624995">"ඔබට දැන් <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>ගේ සහනාධාර වැඩසටහනට ඔබේ උපාංගය ලියාපදිංචි කළ හැක"</string>
+    <string name="subsidy_program_header" msgid="2321508488856303554">"ඔබ <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>ගේ සහනාධාර වැඩසටහනේ සිටී"</string>
+    <string name="device_enrollment_header_text" msgid="5283341102404741658">"උපාංගය ලියාපදිංචි කිරීම"</string>
+    <string name="device_financing_enrollment_body_text" msgid="5506086383249511498">"ඔබේ උපාංගය දින 30ක් ඇතුළත <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>ගේ මූල්‍ය වැඩසටහනට ඇතුළත් වනු ඇත"</string>
+    <string name="device_subsidy_enrollment_body_text" msgid="3971584929178719388">"ඔබේ උපාංගය දින 30ක් ඇතුළත <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>ගේ සහනාධාර වැඩසටහනට ඇතුළත් වනු ඇත"</string>
+    <string name="device_enrollment_notification_body_text" msgid="8755080244956655854">"<xliff:g id="TIME">%1$s</xliff:g>ට ලියාපදිංචි කිරීම නැවත ආරම්භ වනු ඇත. ඔබට ඔබේ උපාංගය දිගටම භාවිත කළ හැක."</string>
+    <string name="continue_using_device" msgid="5816570734692191190">"ඔබට ඔබේ උපාංගය දිගටම භාවිත කළ හැක"</string>
+    <string name="device_paid" msgid="6606280698381856804">"ඔබ ඔබේ උපාංගය සඳහා ගෙවා ඇත"</string>
+    <string name="device_removed_from_subsidy_program" msgid="1243434945619071051">"<xliff:g id="PROVIDER_NAME">%1$s</xliff:g> සහනාධාර වැඩසටහනෙන් උපාංගය ඉවත් කරන ලදි"</string>
+    <string name="device_removed_from_finance_program" msgid="825548999540107578">"ඔබේ උපාංගය <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>ගේ මූල්‍ය වැඩසටහනෙන් ඉවත් කර ඇත"</string>
+    <string name="restrictions_lifted" msgid="5785586265984319396">"ඔබේ උපාංගයෙහි සියලු සීමා ඉවත් කර ඇත"</string>
+    <string name="uninstall_kiosk_app" msgid="3459557395024053988">"ඔබට ඔබේ උපාංගයෙන් Kiosk යෙදුම අස්ථාපනය කළ හැක"</string>
+    <string name="getting_device_ready" msgid="2829009584599871699">"ඔබේ උපාංගය සූදානම් කර ගනිමින්…"</string>
+    <string name="this_may_take_a_few_minutes" msgid="2482876246874429351">"මෙයට මිනිත්තු කිහිපයක් ගත විය හැක"</string>
+    <string name="installing_kiosk_app" msgid="324208168205545860">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> යෙදුම ස්ථාපනය කරමින්…"</string>
+    <string name="opening_kiosk_app" msgid="2021888641430165654">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> යෙදුම විවෘත කරමින්…"</string>
+    <string name="settings_banner_title" msgid="527041021011279252">"<xliff:g id="PROVIDER_NAME">%1$s</xliff:g> විසින් සපයන ලද උපාංගය"</string>
+    <string name="settings_banner_body" msgid="5814902066260202824">"<xliff:g id="PROVIDER_NAME">%1$s</xliff:g> හට මෙම උපාංගයෙහි සැකසීම් වෙනස් කළ හැක"</string>
+    <string name="settings_banner_button" msgid="1831020849782670907">"තව දැන ගන්න"</string>
+    <string name="settings_screen_title" msgid="721470080648091035">"මූල්‍යනය කළ උපාංග තතු"</string>
+    <string name="settings_intro_device_financing" msgid="2548476558131048133">"<xliff:g id="PROVIDER_NAME_0">%1$s</xliff:g> හට සැකසීම් වෙනස් කර උපාංගයෙහි Kiosk යෙදුම ස්ථාපනය කළ හැක.\n\nඔබට ගෙවීමක් මග හැරුණහොත්, <xliff:g id="PROVIDER_NAME_1">%1$s</xliff:g> හට ඔබේ උපාංගය සීමා කළ හැක.\n\nතව දැන ගැනීම සඳහා, <xliff:g id="PROVIDER_NAME_2">%1$s</xliff:g> සම්බන්ධ කර ගන්න."</string>
+    <string name="settings_intro_device_subsidy" msgid="4274945644204818702">"<xliff:g id="PROVIDER_NAME_0">%1$s</xliff:g> හට සැකසීම් වෙනස් කර උපාංගයෙහි Kiosk යෙදුම ස්ථාපනය කළ හැක.\n\n<xliff:g id="PROVIDER_NAME_1">%1$s</xliff:g> ඔබට ගෙවීමක් මග හැරුණහොත් හෝ <xliff:g id="PROVIDER_NAME_2">%1$s</xliff:g>ගේ SIM භාවිතා කිරීම නැවැත්වූ විට මෙම උපාංගය සීමා කිරීම ද කළ හැක.\n\nතව දැන ගැනීම සඳහා, <xliff:g id="PROVIDER_NAME_3">%1$s</xliff:g> සම්බන්ධ කර ගන්න."</string>
+    <string name="settings_intro_preference_key" msgid="6610461073400554162">"settings_intro_preference_key"</string>
+    <string name="settings_restrictions_category" msgid="5746868117342406677">"ඔබ ඔබේ උපාංගය සඳහා ගෙවන තුරු, ඔබට කළ නොහැක:"</string>
+    <string name="settings_restrictions_category_preference_key" msgid="88318147152676512">"settings_restrictions_category_preference_key"</string>
+    <string name="settings_install_apps" msgid="3634279771448183713">"Play Store වෙතින් පිටත යෙදුම් ස්ථාපනය කරන්න"</string>
+    <string name="settings_install_apps_preference_key" msgid="27542314345238427">"settings_install_apps_preference_key"</string>
+    <string name="settings_safe_mode" msgid="3035228015586375153">"ඔබේ උපාංගය ආරක්ෂිත ප්‍රකාරයට නැවත පණ ගැන්වීම"</string>
+    <string name="settings_safe_mode_preference_key" msgid="2106617747358027424">"settings_safe_mode_preference_key"</string>
+    <string name="settings_developer_options" msgid="880701002025216672">"සංවර්ධක විකල්ප භාවිත කිරීම"</string>
+    <string name="settings_developer_options_preference_key" msgid="6807036808722582954">"settings_developer_options_preference_key"</string>
+    <string name="settings_credit_provider_capabilities_category" msgid="1274440595211820868">"ඔබේ උපාංගයේ යම් දෙයක් වැරදී ගියහොත්, <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> හට හැක්කේ:"</string>
+    <string name="settings_credit_provider_capabilities_category_preference_key" msgid="4571685720898641262">"settings_credit_provider_capabilities_category_preference_key"</string>
+    <string name="settings_IMEI" msgid="697965824361262506">"ඔබේ IMEI අංකය වෙත ප්‍රවේශ වන්න"</string>
+    <string name="settings_IMEI_preference_key" msgid="608809590948249412">"settings_IMEI_preference_key"</string>
+    <string name="settings_factory_reset" msgid="418045189048067625">"ඔබේ උපාංගය කර්මාන්තශාලා යළි සැකසීම"</string>
+    <string name="settings_factory_reset_preference_key" msgid="2168528486393635382">"settings_factory_reset_preference_key"</string>
+    <string name="settings_locked_mode_category" msgid="6307525048618331737">"ඔබේ උපාංගය අගුළු දමා තිබේ නම්, ඔබට එය මේවා කිරීමට පමණක් භාවිත කළ හැක:"</string>
+    <string name="settings_locked_mode_category_preference_key" msgid="7202573929427220258">"settings_locked_mode_category_preference_key"</string>
+    <string name="settings_emergency_calls" msgid="2460996367176786040">"හදිසි අවස්ථා අංකවලට ඇමතුම් ගන්න"</string>
+    <string name="settings_emergency_calls_preference_key" msgid="737598609727181316">"settings_emergency_calls_preference_key"</string>
+    <string name="settings_system_info" msgid="1352629332624774940">"දිනය, වේලාව, ජාල තත්ත්වය සහ බැටරිය වැනි පද්ධති තතු බැලීම"</string>
+    <string name="settings_system_info_preference_key" msgid="8607675914059202598">"settings_system_info_preference_key"</string>
+    <string name="settings_turn_on_off_device" msgid="5414836621603462439">"ඔබේ උපාංගය ක්‍රියාත්මක හෝ ක්‍රියාවිරහිත කිරීම"</string>
+    <string name="settings_turn_on_off_device_preference_key" msgid="5981163790552677734">"settings_turn_on_off_device_preference_key"</string>
+    <string name="settings_notifications" msgid="63348993899505034">"දැනුම්දීම් සහ පෙළ පණිවිඩ බලන්න"</string>
+    <string name="settings_notifications_preference_key" msgid="4527872342061056462">"settings_notifications_preference_key"</string>
+    <string name="settings_allowlisted_apps" msgid="5531810497056091097">"<xliff:g id="PROVIDER_NAME">%1$s</xliff:g> විසින් ඉඩ දී ඇති යෙදුම් වෙත ප්‍රවේශ වන්න"</string>
+    <string name="settings_allowlisted_apps_preference_key" msgid="8662705531235468080">"settings_allowlisted_apps_preference_key"</string>
+    <string name="settings_fully_paid_category" msgid="2459776591689824433">"ඔබ සම්පූර්ණ මුදල ගෙවූ විට:"</string>
+    <string name="settings_fully_paid_category_preference_key" msgid="1759690898170600559">"settings_fully_paid_category_preference_key"</string>
+    <string name="settings_restrictions_removed" msgid="1398080654904863221">"<xliff:g id="PROVIDER_NAME">%1$s</xliff:g> හට ඔබේ උපාංගය සීමා කිරීමට හෝ උපාංග සැකසීම් වෙනස් කිරීමට නොහැක"</string>
+    <string name="settings_restrictions_removed_preference_key" msgid="7741933477145197391">"settings_restrictions_removed_preference_key"</string>
+    <string name="settings_uninstall_kiosk_app" msgid="2611134364295637875">"ඔබට <xliff:g id="KIOSK_APP">%1$s</xliff:g> යෙදුම අස්ථාපනය කළ හැක"</string>
+    <string name="settings_uninstall_kiosk_app_preference_key" msgid="5578103644009268125">"settings_uninstall_kiosk_app_preference_key"</string>
+    <string name="settings_support_category" msgid="7210906871924935770">"උදවු ලබා ගැනීම සඳහා:"</string>
+    <string name="settings_support_category_preference_key" msgid="1818953199283261021">"settings_support_category_preference_key"</string>
+    <string name="settings_contact_provider" msgid="2481819956474692039">"<xliff:g id="SUPPORT_LINK_START">&lt;a href=%2$s&gt;</xliff:g><xliff:g id="PROVIDER_NAME">%1$s</xliff:g> සම්බන්ධ කර ගන්න<xliff:g id="SUPPORT_LINK_END">&lt;/a&gt;</xliff:g>"</string>
+    <string name="settings_contact_provider_preference_key" msgid="2703619536229342624">"settings_contact_provider_preference_key"</string>
+    <string name="provision_notification_channel_name" msgid="6123500714047647805">"සැපයීම"</string>
+    <string name="device_reset_in_days_notification_title" msgid="920859483535317727">"{count,plural, =1{උපාංගය 1 දිනකින් යළි සකසනු ඇත}one{උපාංගය දින #කින් යළි සකසනු ඇත}other{උපාංගය දින #කින් යළි සකසනු ඇත}}"</string>
+    <string name="device_reset_timer_notification_title" msgid="301978346002711614">"උපාංගය <xliff:g id="TIMER">%s</xliff:g>කින් යළි සකසනු ඇත"</string>
+    <string name="device_reset_notification_content" msgid="7642367488663440437">"සියලු උපාංග දත්ත මකා දැමෙනු ඇත. ඔබේ උපාංගය ලියාපදිංචි කිරීමට උදවු සඳහා, <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> සම්බන්ධ කර ගන්න"</string>
+    <string name="provisioning_failed" msgid="5350252817004028300">"මූල්‍ය ප්‍රතිපාදන අසමත් වී ඇත"</string>
+    <string name="click_to_contact_financier" msgid="9107827438262930445">"ඔබේ මූල්‍යකරු සම්බන්ධ කර ගැනීමට ක්‍රම සඳහා මෙතැන ක්ලික් කරන්න. <xliff:g id="SUPPORT_URL_START">&lt;a href=%1$s&gt;</xliff:g>තව දැන ගන්න<xliff:g id="SUPPORT_URL_END">&lt;/a&gt;</xliff:g>"</string>
+    <string name="exit" msgid="645084771882733921">"පිටවන්න"</string>
+    <string name="retry" msgid="7497287909193345356">"යළි උත්සාහ කරන්න"</string>
+</resources>

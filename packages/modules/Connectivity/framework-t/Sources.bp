@@ -1,0 +1,54 @@
+//
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+filegroup {
+    name: "framework-connectivity-tiramisu-updatable-sources",
+    defaults: ["framework-sources-module-defaults"],
+    srcs: [
+        "src/**/*.java",
+        "src/**/*.aidl",
+    ],
+    path: "src",
+    visibility: ["//packages/modules/Connectivity:__subpackages__"],
+}
+
+cc_library_shared {
+    name: "libframework-connectivity-tiramisu-jni",
+    min_sdk_version: "30",
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wno-unused-parameter",
+        // Don't warn about S API usage even with
+        // min_sdk 30: the library is only loaded
+        // on S+ devices
+        "-Wno-unguarded-availability",
+        "-Wthread-safety",
+    ],
+    srcs: [
+        "jni/android_net_TrafficStats.cpp",
+        "jni/onload.cpp",
+    ],
+    shared_libs: [
+        "libandroid",
+        "liblog",
+        "libnativehelper",
+    ],
+    stl: "none",
+    apex_available: [
+        "com.android.tethering",
+    ],
+}

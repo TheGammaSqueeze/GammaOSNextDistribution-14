@@ -1,0 +1,65 @@
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+    default_visibility: [
+        ":__subpackages__",
+        "//art/libartservice:__subpackages__",
+        "//packages/modules:__subpackages__",
+    ],
+}
+
+// Needed because otherwise java_defaults would resolve it in module directory.
+filegroup {
+    name: "framework-system-server-module-optimize-proguard-rules",
+    srcs: [
+        "system-api.pro",
+        "system-server.pro",
+    ],
+}
+
+java_defaults {
+    name: "framework-system-server-module-optimize-defaults",
+    optimize: {
+        enabled: true,
+        shrink: true,
+        optimize: false,
+        obfuscate: false,
+        proguard_compatibility: false,
+        ignore_warnings: false,
+        proguard_flags_files: [":framework-system-server-module-optimize-proguard-rules"],
+    },
+}
+
+// Needed because otherwise java_defaults would resolve it in module directory.
+filegroup {
+    name: "standalone-system-server-module-optimize-proguard-rules",
+    srcs: [
+        "system-server.pro",
+    ],
+}
+
+java_defaults {
+    name: "standalone-system-server-module-optimize-defaults",
+    optimize: {
+        enabled: true,
+        shrink: true,
+        optimize: false,
+        obfuscate: false,
+        proguard_compatibility: false,
+        ignore_warnings: false,
+        proguard_flags_files: [":standalone-system-server-module-optimize-proguard-rules"],
+    },
+}

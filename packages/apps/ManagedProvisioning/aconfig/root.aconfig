@@ -1,0 +1,12 @@
+# proto-file: build/make/tools/aconfig/protos/aconfig.proto
+# proto-message: flag_declarations
+
+package: "com.android.managedprovisioning.flags"
+container: "system"
+
+flag {
+  name: "is_cosmic_ray_enabled"
+  namespace: "enterprise"
+  description: "Enables Cosmic Ray features"
+  bug: "288413994"
+}

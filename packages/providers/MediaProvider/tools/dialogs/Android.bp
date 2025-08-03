@@ -1,0 +1,11 @@
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_app {
+    name: "MediaProviderDialogsTool",
+    manifest: "AndroidManifest.xml",
+    srcs: ["src/**/*.java"],
+    sdk_version: "system_current",
+}

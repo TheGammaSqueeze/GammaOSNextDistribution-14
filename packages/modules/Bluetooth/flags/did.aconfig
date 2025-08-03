@@ -1,0 +1,9 @@
+package: "com.android.bluetooth.flags"
+container: "com.android.btservices"
+
+flag {
+    name: "load_did_config_from_sysprops"
+    namespace: "bluetooth"
+    description: "Replace bt_did.config by sysprops"
+    bug: "327667978"
+}

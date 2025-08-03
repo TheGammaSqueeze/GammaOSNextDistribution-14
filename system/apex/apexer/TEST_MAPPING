@@ -1,0 +1,13 @@
+{
+  "presubmit": [
+    {
+      "name": "apexer_test"
+    }
+  ],
+  "imports": [
+    {
+      "path": "system/apex/tests"
+    }
+  ]
+}
+

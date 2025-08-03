@@ -1,0 +1,10 @@
+TestBeds:
+  - Name: SampleTestBed
+    Controllers:
+      AndroidDevice:
+        - serial: 94GAZ00A5C
+          phone_number: 12341234
+      DerivedBtDevice:
+        - ModuleName: iclever_hb01
+          ClassName:  IcleverHb01
+          Params: '{"config":{"mac_address":"C4:45:67:02:94:F0","fifo_id":"AH06IVJP","arduino_port":"1"}}'

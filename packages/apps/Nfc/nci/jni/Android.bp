@@ -1,0 +1,113 @@
+package {
+    default_team: "trendy_team_fwk_nfc",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_library_shared {
+    name: "libnfc_nci_jni",
+
+    cflags: [
+        "-Wall",
+        "-Wextra",
+        "-Wno-unused-parameter",
+        "-Werror",
+
+        "-DNXP_UICC_ENABLE",
+    ],
+
+    srcs: ["**/*.cpp"],
+    exclude_srcs: ["NfcTagTest.cpp"],
+
+    include_dirs: [
+        "system/nfc/src/nfa/include",
+        "system/nfc/src/nfc/include",
+        "system/nfc/src/include",
+        "system/nfc/src/gki/ulinux",
+        "system/nfc/src/gki/common",
+        "system/nfc/utils/include",
+    ],
+
+    shared_libs: [
+        "libnativehelper",
+        "libcutils",
+        "libutils",
+        "liblog",
+        "libbase",
+        // Treble configuration
+        "libhidlbase",
+        "libutils",
+        "libbinder_ndk",
+        "libstatssocket",
+        "libz",
+    ],
+
+    static_libs: [
+        "android.hardware.nfc@1.0",
+        "android.hardware.nfc@1.1",
+        "android.hardware.nfc@1.2",
+        // Add for AIDL
+        "android.hardware.nfc-V1-ndk",
+        "libnfcutils",
+        "libnfc-nci",
+        "libnfc-nci_flags",
+        "libstatslog_nfc",
+        "android_nfc_flags_aconfig_c_lib",
+        "server_configurable_flags",
+        "libxml2",
+    ],
+
+    product_variables: {
+        debuggable: {
+            cflags: [
+                "-DDCHECK_ALWAYS_ON",
+                "-DDTA_ENABLED",
+            ],
+        },
+    },
+    sanitize: {
+        integer_overflow: true,
+        misc_undefined: ["bounds"],
+        scs: true,
+    },
+    stl: "libc++_static",
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.nfcservices",
+    ],
+    required: [
+        // Provide a default libnfc-nci.conf in /system/etc for devices that
+        // does not ship one in /product
+        "libnfc-nci.conf-default",
+    ],
+}
+
+cc_test {
+    name: "nfc.nci.jni.tests",
+
+    srcs: ["NfcTagTest.cpp"],
+
+    shared_libs: [
+        "libnfc-nci",
+        "libnfc_nci_jni",
+        "libstatslog_nfc",
+    ],
+
+    static_libs: [
+        "libgmock",
+        "libgtest",
+    ],
+
+    header_libs: [
+        "jni_headers",
+    ],
+
+    include_dirs: [
+        "packages/apps/Nfc/nci/jni",
+        "system/nfc/src/include",
+        "system/nfc/src/gki/common",
+        "system/nfc/src/gki/ulinux",
+        "system/nfc/src/nfa/include",
+        "system/nfc/src/nfc/include",
+        "system/nfc/utils/include",
+    ],
+}

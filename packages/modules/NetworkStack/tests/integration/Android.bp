@@ -1,0 +1,164 @@
+//
+// Copyright (C) 2019 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    default_team: "trendy_team_fwk_core_networking",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_defaults {
+    name: "NetworkStackIntegrationTestsJniDefaults",
+    defaults: ["libnetworkstackutilsjni_deps"],
+    jni_libs: [
+        // For mockito extended
+        "libdexmakerjvmtiagent",
+        "libstaticjvmtiagent",
+        // For NetworkStackUtils included in NetworkStackBase
+        "libnetworkstackutilsjni",
+    ],
+    jni_uses_sdk_apis: true,
+    visibility: ["//visibility:private"],
+}
+
+java_defaults {
+    name: "NetworkStackIntegrationTestsDefaults",
+    defaults: [
+        "framework-connectivity-test-defaults",
+        "NetworkStackReleaseTargetSdk",
+    ],
+    srcs: [
+        "common/**/*.java",
+        "common/**/*.kt",
+    ],
+    static_libs: [
+        "androidx.annotation_annotation",
+        "androidx.test.rules",
+        "mockito-target-extended-minus-junit4",
+        "net-tests-utils",
+        "testables",
+    ],
+    libs: [
+        "android.test.runner",
+        "android.test.base",
+        "android.test.mock",
+    ],
+    visibility: ["//visibility:private"],
+}
+
+android_library {
+    name: "NetworkStackIntegrationTestsLib",
+    defaults: ["NetworkStackIntegrationTestsDefaults"],
+    srcs: [
+        "signature/**/*.java",
+        "signature/**/*.kt",
+    ],
+    min_sdk_version: "30",
+    static_libs: [
+        "NetworkStackApiStableLib",
+    ],
+}
+
+// Network stack integration tests.
+android_test {
+    name: "NetworkStackIntegrationTests",
+    defaults: [
+        "NetworkStackReleaseTargetSdk",
+        "NetworkStackIntegrationTestsJniDefaults",
+    ],
+    static_libs: ["NetworkStackIntegrationTestsLib"],
+    certificate: "networkstack",
+    platform_apis: true,
+    test_suites: ["device-tests"],
+    jarjar_rules: ":NetworkStackJarJarRules",
+    host_required: ["net-tests-utils-host-common"],
+    test_config_template: "AndroidTestTemplate_Integration.xml",
+}
+
+// Network stack next integration tests.
+android_test {
+    name: "NetworkStackNextIntegrationTests",
+    defaults: [
+        "NetworkStackIntegrationTestsDefaults",
+        "NetworkStackIntegrationTestsJniDefaults",
+        "ConnectivityNextEnableDefaults",
+    ],
+    srcs: [
+        "signature/**/*.java",
+        "signature/**/*.kt",
+    ],
+    static_libs: [
+        "NetworkStackApiStableLib",
+    ],
+    certificate: "networkstack",
+    platform_apis: true,
+    test_suites: ["device-tests"],
+    jarjar_rules: ":NetworkStackJarJarRules",
+    host_required: ["net-tests-utils-host-common"],
+    test_config_template: "AndroidTestTemplate_Integration.xml",
+}
+
+// Network stack integration root tests.
+android_test {
+    name: "NetworkStackRootTests",
+    defaults: [
+        "NetworkStackIntegrationTestsDefaults",
+        "NetworkStackIntegrationTestsJniDefaults",
+    ],
+    srcs: [
+        "root/**/*.java",
+        "root/**/*.kt",
+    ],
+    static_libs: [
+        "NetworkStackApiStableLib",
+    ],
+    platform_apis: true,
+    test_suites: [
+        "general-tests",
+        "mts-networking",
+    ],
+    compile_multilib: "both",
+    manifest: "AndroidManifest_root.xml",
+    jarjar_rules: ":NetworkStackJarJarRules",
+    host_required: ["net-tests-utils-host-common"],
+    test_config_template: "AndroidTestTemplate_Integration.xml",
+}
+
+// Special version of the network stack tests that includes all tests necessary for code coverage
+// purposes. This is currently the union of NetworkStackTests and NetworkStackIntegrationTests.
+android_test {
+    name: "NetworkStackCoverageTests",
+    certificate: "networkstack",
+    platform_apis: true,
+    test_suites: [
+        "device-tests",
+        "mts-networking",
+    ],
+    test_config: "AndroidTest_Coverage.xml",
+    defaults: [
+        "NetworkStackReleaseTargetSdk",
+        "NetworkStackIntegrationTestsJniDefaults",
+    ],
+    static_libs: [
+        "modules-utils-native-coverage-listener",
+        "NetworkStackTestsLib",
+        "NetworkStackIntegrationTestsLib",
+        "NetworkStaticLibTestsLib",
+        "NetdStaticLibTestsLib",
+    ],
+    compile_multilib: "both",
+    manifest: "AndroidManifest_coverage.xml",
+    jarjar_rules: ":NetworkStackJarJarRules",
+}

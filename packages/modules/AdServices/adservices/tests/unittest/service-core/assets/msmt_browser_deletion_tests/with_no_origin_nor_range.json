@@ -1,0 +1,361 @@
+{
+  "name": "With no origin nor range",
+  "description": "Delete nothing because input list is empty with MATCH_BEHAVIOR_DELETE.",
+  "input": {
+    "sources": [
+      {
+        "id": "S1",
+        "eventId": 1,
+        "sourceType": "navigation",
+        "publisher": "android-app://com.site1",
+        "enrollmentId": "enrollment-id",
+        "eventTime": 8640000001,
+        "expiryTime": 8640000030,
+        "eventReportWindow": 8640000030,
+        "priority": 100,
+        "status": 0,
+        "registrant": "android-app://com.registrant.toBeDeleted"
+      },
+      {
+        "id": "S2",
+        "eventId": 2,
+        "sourceType": "navigation",
+        "publisher": "android-app://com.site1",
+        "enrollmentId": "enrollment-id",
+        "eventTime": 8640000001,
+        "expiryTime": 8640000030,
+        "eventReportWindow": 8640000030,
+        "priority": 100,
+        "status": 0,
+        "registrant": "android-app://com.registrant2"
+      }
+    ],
+    "source_destinations": [
+      {
+        "sourceId": "S1",
+        "destination": "android-app://com.site3",
+        "destinationType": 0
+      },
+      {
+        "sourceId": "S2",
+        "destination": "android-app://com.site3",
+        "destinationType": 0
+      }
+    ],
+    "triggers": [
+      {
+        "id": "T1",
+        "attributionDestination": "android-app://com.site3",
+        "enrollmentId": "enrollment-id",
+        "status": 0,
+        "triggerTime": 8640000002,
+        "registrant": "android-app://com.registrant.toBeDeleted",
+        "eventTriggers": [
+          {
+            "trigger_data": 2,
+            "priority": 101,
+            "filters": {
+              "key_1": ["value_1"]
+            }
+          }
+        ],
+        "aggregatableSourceRegistrationTimeConfig": "INCLUDE"
+      },
+      {
+        "id": "T2",
+        "attributionDestination": "android-app://com.site3",
+        "enrollmentId": "enrollment-id",
+        "status": 0,
+        "triggerTime": 8640000002,
+        "registrant": "android-app://com.registrant2",
+        "eventTriggers": [
+          {
+            "trigger_data": 2,
+            "priority": 101,
+            "filters": {
+              "key_1": ["value_1"]
+            }
+          }
+        ],
+        "aggregatableSourceRegistrationTimeConfig": "INCLUDE"
+      }
+    ],
+    "event_reports": [
+      {
+        "id": "E1",
+        "sourceEventId": 1,
+        "attributionDestination": "android-app://com.site3.toBeDeletedBecauseOfsourceEventId1",
+        "enrollmentId": "enrollment-id",
+        "triggerData": 2,
+        "triggerTime": 8640000002,
+        "status": 0,
+        "reportTime": -1,
+        "triggerPriority": 101,
+        "sourceType": "navigation",
+        "sourceId": "S1",
+        "triggerId": "T1"
+      },
+      {
+        "id": "E2",
+        "sourceEventId": 2,
+        "attributionDestination": "android-app://com.site3",
+        "enrollmentId": "enrollment-id",
+        "triggerData": 2,
+        "triggerTime": 8640000002,
+        "status": 0,
+        "reportTime": -1,
+        "triggerPriority": 101,
+        "sourceType": "navigation",
+        "sourceId": "S2",
+        "triggerId": "T2"
+      }
+    ],
+    "attributions": [
+      {
+        "id": "A1",
+        "sourceSite": "android-app://com.site1",
+        "sourceOrigin": "android-app://com.site1",
+        "destinationSite": "android-app://com.site3",
+        "destinationOrigin": "android-app://com.site3",
+        "enrollmentId": "enrollment-id",
+        "triggerTime": 10,
+        "triggerId": "ignored10",
+        "registrant": "android-app://com.registrant.toBeDeleted",
+        "sourceId": "S1",
+        "triggerId": "T1"
+      },
+      {
+        "id": "A2",
+        "sourceSite": "android-app://com.site1",
+        "sourceOrigin": "android-app://com.site1",
+        "destinationSite": "android-app://com.site3",
+        "destinationOrigin": "android-app://com.site3",
+        "enrollmentId": "enrollment-id",
+        "triggerTime": 10,
+        "triggerId": "ignored10",
+        "registrant": "android-app://com.registrant2",
+        "sourceId": "S2",
+        "triggerId": "T2"
+      }
+    ],
+    "async_registrations": [
+      {
+        "registrationId": "AR1",
+        "registrationUri": "https://foo.com",
+        "topOrigin": "https://deleteCandidate1.site.test",
+        "registrant": "android-app://com.registrant.deleteCandidate",
+        "osDestination": "https://foo.com",
+        "requestTime": 1648665733601,
+        "adIdPermission": false,
+        "id": "id1",
+        "registrationType": 0,
+        "platformAdId": "platform",
+        "debugKeyAllowed": false,
+        "retryCount": 1,
+        "verifiedDestination": "https://foo.com",
+        "webDestination": "https://foo.com",
+        "sourceType": 1,
+        "redirectBehavior": "AS_IS"
+      },
+      {
+        "registrationId": "AR2",
+        "registrationUri": "https://foo.com",
+        "topOrigin": "https://deleteCandidate2.site.test",
+        "registrant": "android-app://com.registrant.deleteCandidate",
+        "osDestination": "https://foo.com",
+        "requestTime": 1648665733605,
+        "adIdPermission": false,
+        "id": "id2",
+        "registrationType": 0,
+        "platformAdId": "platform",
+        "debugKeyAllowed": false,
+        "retryCount": 1,
+        "verifiedDestination": "https://foo.com",
+        "webDestination": "https://foo.com",
+        "sourceType": 1,
+        "redirectBehavior": "AS_IS"
+      }
+    ]
+  },
+  "output": {
+    "sources": [
+      {
+        "id": "S1",
+        "eventId": 1,
+        "sourceType": "navigation",
+        "publisher": "android-app://com.site1",
+        "enrollmentId": "enrollment-id",
+        "eventTime": 8640000001,
+        "expiryTime": 8640000030,
+        "eventReportWindow": 8640000030,
+        "priority": 100,
+        "status": 0,
+        "registrant": "android-app://com.registrant.toBeDeleted"
+      },
+      {
+        "id": "S2",
+        "eventId": 2,
+        "sourceType": "navigation",
+        "publisher": "android-app://com.site1",
+        "enrollmentId": "enrollment-id",
+        "eventTime": 8640000001,
+        "expiryTime": 8640000030,
+        "eventReportWindow": 8640000030,
+        "priority": 100,
+        "status": 0,
+        "registrant": "android-app://com.registrant2"
+      }
+    ],
+    "source_destinations": [
+      {
+        "sourceId": "S1",
+        "destination": "android-app://com.site3",
+        "destinationType": 0
+      },
+      {
+        "sourceId": "S2",
+        "destination": "android-app://com.site3",
+        "destinationType": 0
+      }
+    ],
+    "triggers": [
+      {
+        "id": "T1",
+        "attributionDestination": "android-app://com.site3",
+        "enrollmentId": "enrollment-id",
+        "status": 0,
+        "triggerTime": 8640000002,
+        "registrant": "android-app://com.registrant.toBeDeleted",
+        "eventTriggers": [
+          {
+            "trigger_data": 2,
+            "priority": 101,
+            "filters": {
+              "key_1": ["value_1"]
+            }
+          }
+        ],
+        "aggregatableSourceRegistrationTimeConfig": "INCLUDE"
+      },
+      {
+        "id": "T2",
+        "attributionDestination": "android-app://com.site3",
+        "enrollmentId": "enrollment-id",
+        "status": 0,
+        "triggerTime": 8640000002,
+        "registrant": "android-app://com.registrant2",
+        "eventTriggers": [
+          {
+            "trigger_data": 2,
+            "priority": 101,
+            "filters": {
+              "key_1": ["value_1"]
+            }
+          }
+        ],
+        "aggregatableSourceRegistrationTimeConfig": "INCLUDE"
+      }
+    ],
+    "event_reports": [
+      {
+        "id": "E1",
+        "sourceEventId": 1,
+        "attributionDestination": "android-app://com.site3.toBeDeletedBecauseOfsourceEventId1",
+        "enrollmentId": "enrollment-id",
+        "triggerData": 2,
+        "triggerTime": 8640000002,
+        "status": 0,
+        "reportTime": -1,
+        "triggerPriority": 101,
+        "sourceType": "navigation",
+        "sourceId": "S1",
+        "triggerId": "T1"
+      },
+      {
+        "id": "E2",
+        "sourceEventId": 2,
+        "attributionDestination": "android-app://com.site3",
+        "enrollmentId": "enrollment-id",
+        "triggerData": 2,
+        "triggerTime": 8640000002,
+        "status": 0,
+        "reportTime": -1,
+        "triggerPriority": 101,
+        "sourceType": "navigation",
+        "sourceId": "S2",
+        "triggerId": "T2"
+      }
+    ],
+    "attributions": [
+      {
+        "id": "A1",
+        "sourceSite": "android-app://com.site1",
+        "sourceOrigin": "android-app://com.site1",
+        "destinationSite": "android-app://com.site3",
+        "destinationOrigin": "android-app://com.site3",
+        "enrollmentId": "enrollment-id",
+        "triggerTime": 10,
+        "triggerId": "ignored10",
+        "registrant": "android-app://com.registrant.toBeDeleted",
+        "sourceId": "S1",
+        "triggerId": "T1"
+      },
+      {
+        "id": "A2",
+        "sourceSite": "android-app://com.site1",
+        "sourceOrigin": "android-app://com.site1",
+        "destinationSite": "android-app://com.site3",
+        "destinationOrigin": "android-app://com.site3",
+        "enrollmentId": "enrollment-id",
+        "triggerTime": 10,
+        "triggerId": "ignored10",
+        "registrant": "android-app://com.registrant2",
+        "sourceId": "S2",
+        "triggerId": "T2"
+      }
+    ],
+    "async_registrations": [
+      {
+        "registrationId": "AR1",
+        "registrationUri": "https://foo.com",
+        "topOrigin": "https://deleteCandidate1.site.test",
+        "registrant": "android-app://com.registrant.deleteCandidate",
+        "osDestination": "https://foo.com",
+        "requestTime": 1648665733601,
+        "adIdPermission": false,
+        "id": "id1",
+        "registrationType": 0,
+        "platformAdId": "platform",
+        "debugKeyAllowed": false,
+        "retryCount": 1,
+        "verifiedDestination": "https://foo.com",
+        "webDestination": "https://foo.com",
+        "sourceType": 1,
+        "redirectBehavior": "AS_IS"
+      },
+      {
+        "registrationId": "AR2",
+        "registrationUri": "https://foo.com",
+        "topOrigin": "https://deleteCandidate2.site.test",
+        "registrant": "android-app://com.registrant.deleteCandidate",
+        "osDestination": "https://foo.com",
+        "requestTime": 1648665733605,
+        "adIdPermission": false,
+        "id": "id2",
+        "registrationType": 0,
+        "platformAdId": "platform",
+        "debugKeyAllowed": false,
+        "retryCount": 1,
+        "verifiedDestination": "https://foo.com",
+        "webDestination": "https://foo.com",
+        "sourceType": 1,
+        "redirectBehavior": "AS_IS"
+      }
+    ]
+  },
+  "param": {
+    "registrant": "com.registrant.toBeDeleted",
+    "origins": [],
+    "domains": []
+  }
+}

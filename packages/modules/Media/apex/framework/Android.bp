@@ -1,0 +1,183 @@
+// Copyright (C) 2020 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+// The dex jar produced by this is used in the APEX but otherwise this is not
+// used.
+java_library {
+    name: "updatable-media",
+
+    static_libs: [
+        "framework-media.impl",
+    ],
+
+    permitted_packages: [
+        "android.media",
+    ],
+
+    // Optimize the dex jar for the APEX.
+    optimize: {
+        enabled: true,
+        shrink: true,
+        proguard_flags_files: ["updatable-media-proguard.flags"],
+    },
+
+    installable: true,
+
+    sdk_version: "module_current",
+
+    hostdex: true, // for hiddenapi check
+    apex_available: [
+        "com.android.media",
+        "test_com.android.media",
+    ],
+    min_sdk_version: "29",
+    visibility: [
+        // This MUST not be used for compilation within the media module, use
+        // framework-media.impl instead.
+        "//frameworks/av/apex:__subpackages__",
+
+        // DO NOT REMOVE: Legacy visibility, needed for snapshots that are
+        // generated for the S build.
+        "//frameworks/base",
+        "//frameworks/base/apex/media/service",
+    ],
+}
+
+filegroup {
+    name: "updatable-media-srcs",
+    defaults: ["framework-sources-module-defaults"],
+    srcs: [
+        "java/android/media/MediaFrameworkInitializer.java",
+        ":media-aidl-srcs",
+        ":mediaparceledlistslice-java-srcs",
+        ":mediaparser-srcs",
+        ":mediasession2-java-srcs",
+        ":mediatranscoding-srcs",
+    ],
+}
+
+filegroup {
+    name: "mediasession2-java-srcs",
+    srcs: [
+        "java/android/media/Controller2Link.java",
+        "java/android/media/MediaConstants.java",
+        "java/android/media/MediaController2.java",
+        "java/android/media/MediaSession2.java",
+        "java/android/media/MediaSession2Service.java",
+        "java/android/media/Session2Command.java",
+        "java/android/media/Session2CommandGroup.java",
+        "java/android/media/Session2Link.java",
+        "java/android/media/Session2Token.java",
+        "java/android/media/MediaCommunicationManager.java",
+    ],
+    path: "java",
+}
+
+filegroup {
+    name: "mediaparceledlistslice-java-srcs",
+    srcs: [
+        "java/android/media/MediaParceledListSlice.java",
+        "java/android/media/BaseMediaParceledListSlice.java",
+    ],
+    path: "java",
+}
+
+filegroup {
+    name: "mediaparser-srcs",
+    srcs: [
+        "java/android/media/MediaParser.java",
+    ],
+    path: "java",
+}
+
+filegroup {
+    name: "mediatranscoding-srcs",
+    srcs: [
+        "java/android/media/ApplicationMediaCapabilities.java",
+        "java/android/media/MediaFeature.java",
+        "java/android/media/MediaTranscodingManager.java",
+    ],
+    path: "java",
+}
+
+java_sdk_library {
+    name: "framework-media",
+    defaults: ["framework-module-defaults"],
+
+    srcs: [
+        ":updatable-media-srcs",
+    ],
+
+    impl_library_visibility: [
+        "//frameworks/base/api", // For framework-all
+        "//packages/modules/Media:__subpackages__",
+    ],
+
+    sdk_version: "module_current",
+    impl_only_libs: [
+        "androidx.annotation_annotation",
+        "framework-annotations-lib",
+    ],
+    impl_only_static_libs: [
+        "exoplayer-media_apex",
+        "mediatranscoding_aidl_interface-java",
+        "modules-annotation-minsdk",
+        "modules-utils-build",
+    ],
+    jarjar_rules: "jarjar_rules.txt",
+
+    apex_available: [
+        "com.android.media",
+        "test_com.android.media",
+    ],
+    lint: {
+        strict_updatability_linting: true,
+    },
+    min_sdk_version: "29",
+    permitted_packages: [
+        "android.media",
+    ],
+    static_libs: [
+        "media_mainline_flags_java_lib",
+    ]
+}
+
+cc_library_shared {
+    name: "libmediaparser-jni",
+    srcs: [
+        "jni/android_media_MediaParserJNI.cpp",
+    ],
+    header_libs: ["jni_headers"],
+    shared_libs: [
+        "libandroid",
+        "liblog",
+        "libmediametrics",
+    ],
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wno-unused-parameter",
+        "-Wunreachable-code",
+        "-Wunused",
+    ],
+    apex_available: [
+        "com.android.media",
+    ],
+    min_sdk_version: "29",
+}

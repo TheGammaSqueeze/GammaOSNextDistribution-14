@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="system_tracing" msgid="4719188511746319848">"Järjestelmän seuranta"</string>
+    <string name="record_system_activity" msgid="4339462312915377825">"Tallenna järjestelmän tapahtumia ja analysoi niitä myöhemmin suorituskyvyn parantamiseksi"</string>
+    <string name="record_trace" msgid="6416875085186661845">"Tallenna jälkiä"</string>
+    <string name="record_trace_summary" msgid="6705357754827849292">"Tallentaa järjestelmän jäljityksen käyttämällä Jäljitysasetusten määritystä"</string>
+    <string name="record_stack_samples" msgid="3498368637185702335">"Aloita CPU-profiilin tallennus"</string>
+    <string name="record_stack_samples_summary" msgid="7827953921526410478">"Kutsupinon näytteenotto voidaan ottaa käyttöön jäljityksellä valitsemalla CPU-kategoria"</string>
+    <string name="record_heap_dump" msgid="1688550222066812696">"Tallenna keon vedos"</string>
+    <string name="record_heap_dump_summary_enabled" msgid="5038675257021221777">"Tallentaa kohdasta \"Keon vedos ‑prosessit\" valitun vedoksen"</string>
+    <string name="record_heap_dump_summary_disabled" msgid="4640319333930345311">"Valitse ainakin yksi keon vedos ‑prosessi, jotta voit kerätä vedoksia"</string>
+    <string name="start_new_trace" msgid="8177130420802170353">"Aloita uusi jälki"</string>
+    <string name="winscope_tracing" msgid="5818984791154837458">"Kerää Winscope-jälkiä"</string>
+    <string name="winscope_tracing_summary" msgid="7040550156722395894">"Sisällyttää yksityiskohtaista UI-telemetriadataa (voi aiheuttaa katkoja)"</string>
+    <string name="trace_debuggable_applications" msgid="7957069895298887899">"Tallenna viankorjausta tukevien sovellusten jäljet"</string>
+    <string name="categories" msgid="2280163673538611008">"Luokat"</string>
+    <string name="restore_default_categories" msgid="5090536794637169521">"Palauta oletusluokat"</string>
+    <string name="default_categories_restored" msgid="6861683793680564181">"Oletusluokat palautettu"</string>
+    <string name="default_categories" msgid="2117679794687799407">"Oletus"</string>
+    <string name="num_categories_selected" msgid="5772630335027553995">"{count,plural, =1{# valittu}other{# valittu}}"</string>
+    <string name="heap_dump_processes" msgid="2500105180344901939">"Keon vedos ‑prosessit"</string>
+    <string name="heap_dump_processes_summary" msgid="4570434268024622765">"Valitse vähintään yksi prosessi"</string>
+    <string name="clear_heap_dump_processes" msgid="295101454741555286">"Tyhjennä keon vedos ‑prosessit"</string>
+    <string name="clear_heap_dump_processes_toast" msgid="3658510557596150797">"Prosessit tyhjennetty"</string>
+    <string name="continuous_heap_dump" msgid="390369382946204224">"Jatkuvan keon profiili"</string>
+    <string name="continuous_heap_dump_summary" msgid="4581643248161659581">"Tallenna keon vedos kerran valitun jakson aikana"</string>
+    <string name="continuous_heap_dump_interval" msgid="842533896492001433">"Keon vedoksen ajanjakso"</string>
+    <string name="five_seconds" msgid="7018465440929299712">"5 sekuntia"</string>
+    <string name="ten_seconds" msgid="863416601384309033">"10 sekuntia"</string>
+    <string name="thirty_seconds" msgid="7945396361369598222">"30 sekuntia"</string>
+    <string name="one_minute" msgid="4182508213840684258">"1 minuutti"</string>
+    <string name="applications" msgid="521776761270770549">"Sovellukset"</string>
+    <string name="no_debuggable_apps" msgid="4386209254520471208">"Ei sovelluksia, joihin viankorjausta voidaan käyttää"</string>
+    <string name="buffer_size" msgid="3944311026715111454">"CPU-kohtainen puskurin koko"</string>
+    <string name="show_quick_settings_tile" msgid="4971147332635291585">"Näytä pika-asetusruutu"</string>
+    <string name="saving_trace" msgid="1468692734770800541">"Tallennetaan jälkeä"</string>
+    <string name="trace_saved" msgid="5869970594780992309">"Jälki tallennettu"</string>
+    <string name="saving_stack_samples" msgid="8174915522390525221">"Tallennetaan pinon näytteitä"</string>
+    <string name="stack_samples_saved" msgid="8863295751647724616">"Pinon näytteet tallennettu"</string>
+    <string name="saving_heap_dump" msgid="6118616780825771824">"Keon vedosta tallennetaan"</string>
+    <string name="heap_dump_saved" msgid="6720583137473857098">"Keon vedos tallennettu"</string>
+    <string name="tap_to_share" msgid="4440713575852187545">"Jaa tallenne napauttamalla"</string>
+    <string name="attaching_to_report" msgid="2629202947947275886">"Jäljitystä liitetään virheraporttiin"</string>
+    <string name="attached_to_report" msgid="5806905349184608870">"Jäljitys liitetty virheraporttiin"</string>
+    <string name="attached_to_report_summary" msgid="7665675771190391355">"Avaa BetterBug napauttamalla"</string>
+    <string name="stop_tracing" msgid="8916938308534164152">"Lopeta jälkien tallentaminen"</string>
+    <string name="tracing_categories_unavailable" msgid="5609076391417077752">"Osa jälkiluokista ei ole käytettävissä:"</string>
+    <string name="trace_is_being_recorded" msgid="5947378146009337469">"Jälkeä tallennetaan"</string>
+    <string name="tap_to_stop_tracing" msgid="6533282719573871806">"Lopeta jälkien tallentaminen napauttamalla"</string>
+    <string name="stack_samples_are_being_recorded" msgid="8669254939248349583">"Pinon näytteitä tallennetaan"</string>
+    <string name="tap_to_stop_stack_sampling" msgid="5911317684139059415">"Lopeta pinon näytteenotto napauttamalla"</string>
+    <string name="heap_dump_is_being_recorded" msgid="3789315106110524969">"Keon vedosta tallennetaan"</string>
+    <string name="tap_to_stop_heap_dump" msgid="6475699275834526902">"Keskeytä keon vedos napauttamalla"</string>
+    <string name="clear_saved_files" msgid="9156079311231446825">"Poista tallennetut tiedostot"</string>
+    <string name="clear_saved_files_summary" msgid="109751867417553670">"Tallenteet poistetaan kuukauden päästä"</string>
+    <string name="clear_saved_files_question" msgid="8586686617760838834">"Poistetaanko tallennetut tiedostot?"</string>
+    <string name="all_recordings_will_be_deleted" msgid="7731693738485947891">"Kaikki tallenteet poistetaan paikasta /data/local/traces"</string>
+    <string name="clear" msgid="5484761795406948056">"Poista"</string>
+    <string name="system_traces_storage_title" msgid="8294090839883366871">"Järjestelmän jäljitystiedostot"</string>
+    <string name="keywords" msgid="736547007949049535">"systrace, jälki, suorituskyky"</string>
+    <string name="share_file" msgid="1982029143280382271">"Jaetaanko tiedosto?"</string>
+    <string name="system_trace_sensitive_data" msgid="3069389866696009549">"Järjestelmän jäljitystiedostoissa voi olla arkaluontoista järjestelmä- ja sovellusdataa (esim. sovellusten käytöstä). Jaa jäljitystiedostoja vain luotettavien ihmisten ja sovellusten kanssa."</string>
+    <string name="share" msgid="8443979083706282338">"Jaa"</string>
+    <string name="dont_show_again" msgid="6662492041164390600">"Älä näytä uudelleen"</string>
+    <string name="long_traces" msgid="5110949471775966329">"Pitkät jäljet"</string>
+    <string name="long_traces_summary" msgid="419034282946761469">"Tallennetaan jatkuvasti laitteen tallennustilaan"</string>
+    <string name="long_traces_summary_betterbug" msgid="445546400875135624">"Tallennetaan jatkuvasti laitteen tallennustilaan (ei liitetä automaattisesti virheraportteihin)"</string>
+    <string name="max_long_trace_size" msgid="1943788179787181241">"Pitkän jäljen enimmäiskoko"</string>
+    <string name="max_long_trace_duration" msgid="8009837944364246785">"Pitkän jäljen enimmäiskesto"</string>
+    <string name="two_hundred_mb" msgid="4950018549725084512">"200 Mt"</string>
+    <string name="one_gb" msgid="590396985168692037">"1 Gt"</string>
+    <string name="five_gb" msgid="7883941043220621649">"5 Gt"</string>
+    <string name="ten_gb" msgid="4150452462544299276">"10 Gt"</string>
+    <string name="twenty_gb" msgid="5717308686812140465">"20 Gt"</string>
+    <string name="ten_minutes" msgid="7039181194343961324">"10 minuuttia"</string>
+    <string name="thirty_minutes" msgid="2575810799813531395">"30 minuuttia"</string>
+    <string name="one_hour" msgid="5219232935307966891">"1 tunti"</string>
+    <string name="eight_hours" msgid="3207620892104451552">"8 tuntia"</string>
+    <string name="twelve_hours" msgid="4647143276394563496">"12 tuntia"</string>
+    <string name="twentyfour_hours" msgid="2789663313550030791">"24 tuntia"</string>
+    <string name="four_thousand_kb" msgid="5156346740862105703">"4 096 Kt"</string>
+    <string name="eight_thousand_kb" msgid="8815334985638334081">"8 192 Kt"</string>
+    <string name="sixteen_thousand_kb" msgid="7342517169232459259">"16 384 Kt"</string>
+    <string name="thirtytwo_thousand_kb" msgid="654328198799196150">"32 768 Kt"</string>
+    <string name="sixtyfive_thousand_kb" msgid="8168144138598305306">"65 536 Kt"</string>
+    <string name="stop_on_bugreport" msgid="4591832600597126422">"Lopeta tallennus virheraporttien aikana"</string>
+    <string name="stop_on_bugreport_summary" msgid="1601834864982891381">"Lopettaa aktiiviset tallenteet, kun virheraportti luodaan"</string>
+    <string name="attach_to_bug_report" msgid="5388986830016247490">"Liitä tallenteet virheraportteihin"</string>
+    <string name="attach_to_bug_report_summary" msgid="4213730623971240002">"Lähetä keskeneräiset tallenteet BetterBugille automaattisesti virheraportin keräyksen yhteydessä"</string>
+    <string name="link_to_traces" msgid="1404687523304348490">"Katso tallennetut tiedostot"</string>
+    <string name="pref_category_trace_settings" msgid="6507535407023329628">"Jäljittämisasetukset"</string>
+    <string name="pref_category_saved_files" msgid="1477491400970413291">"Tallennetut tiedostot"</string>
+    <string name="pref_category_misc" msgid="6217624054980014683">"Muut"</string>
+    <string name="pref_category_heap_dump_settings" msgid="2234681064312605310">"Keon vedoksen asetukset"</string>
+</resources>

@@ -1,0 +1,49 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_defaults {
+    name: "microdroid_metadata_default",
+    defaults: ["avf_build_flags_cc"],
+    host_supported: true,
+    srcs: [
+        "metadata.proto",
+        "metadata.cc",
+    ],
+    shared_libs: [
+        "libbase",
+        "liblog",
+    ],
+    export_include_dirs: ["include"],
+}
+
+cc_library_static {
+    name: "lib_microdroid_metadata_proto",
+    proto: {
+        export_proto_headers: true,
+        type: "full",
+    },
+    defaults: ["microdroid_metadata_default"],
+}
+
+rust_protobuf {
+    name: "libmicrodroid_metadata_proto_rust",
+    crate_name: "microdroid_metadata",
+    protos: ["metadata.proto"],
+    source_stem: "microdroid_metadata",
+    host_supported: true,
+    apex_available: [
+        "com.android.virt",
+    ],
+}
+
+java_library_host {
+    name: "microdroid_payload_metadata",
+    srcs: [
+        "src/**/*.java",
+        "metadata.proto",
+    ],
+    proto: {
+        type: "lite",
+    },
+}

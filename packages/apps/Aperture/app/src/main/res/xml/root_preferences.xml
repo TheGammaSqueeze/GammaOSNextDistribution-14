@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2022-2024 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:title="@string/general_header">
+
+        <SwitchPreference
+            app:defaultValue="false"
+            app:iconSpaceReserved="false"
+            app:key="bright_screen"
+            app:summary="@string/bright_screen_summary"
+            app:title="@string/bright_screen_title" />
+
+        <SwitchPreference
+            app:defaultValue="false"
+            app:iconSpaceReserved="false"
+            app:key="save_location"
+            app:summary="@string/save_location_summary"
+            app:title="@string/save_location_title" />
+
+        <SwitchPreference
+            app:defaultValue="true"
+            app:iconSpaceReserved="false"
+            app:key="shutter_sound"
+            app:summary="@string/shutter_sound_summary"
+            app:title="@string/shutter_sound_title" />
+
+        <SwitchPreference
+            app:defaultValue="false"
+            app:iconSpaceReserved="false"
+            app:key="leveler"
+            app:summary="@string/leveler_summary"
+            app:title="@string/leveler_title" />
+
+        <Preference
+            app:fragment="org.lineageos.aperture.SettingsActivity$GesturesSettingsFragment"
+            app:iconSpaceReserved="false"
+            app:title="@string/gestures_title" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:title="@string/photos_header">
+
+        <ListPreference
+            app:defaultValue="minimize_latency"
+            app:entries="@array/photo_capture_mode_entries"
+            app:entryValues="@array/photo_capture_mode_values"
+            app:iconSpaceReserved="false"
+            app:key="photo_capture_mode"
+            app:title="@string/photo_capture_mode_title"
+            app:useSimpleSummaryProvider="true" />
+
+        <SwitchPreference
+            app:defaultValue="false"
+            app:iconSpaceReserved="false"
+            app:key="enable_zsl"
+            app:summary="@string/enable_zsl_summary"
+            app:title="@string/enable_zsl_title" />
+
+        <SwitchPreference
+            app:defaultValue="true"
+            app:iconSpaceReserved="false"
+            app:key="photo_ffc_mirror"
+            app:summary="@string/photo_ffc_mirror_summary"
+            app:title="@string/photo_ffc_mirror_title" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:title="@string/video_header">
+
+        <SwitchPreference
+            app:defaultValue="true"
+            app:iconSpaceReserved="false"
+            app:key="video_stabilization"
+            app:summary="@string/video_stabilization_summary"
+            app:title="@string/video_stabilization_title" />
+
+        <ListPreference
+            app:defaultValue="off"
+            app:entries="@array/video_mirror_mode_entries"
+            app:entryValues="@array/video_mirror_mode_values"
+            app:iconSpaceReserved="false"
+            app:key="video_mirror_mode"
+            app:title="@string/video_mirror_mode_title"
+            app:useSimpleSummaryProvider="true" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:title="@string/advanced_header">
+
+        <Preference
+            app:fragment="org.lineageos.aperture.SettingsActivity$ProcessingSettingsFragment"
+            app:iconSpaceReserved="false"
+            app:title="@string/processing_title" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

@@ -1,0 +1,150 @@
+<!--
+  Copyright (C) 2022 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<resources>
+
+    <style name="Base.Theme.HealthConnect" parent="@style/Theme.SubSettingsBase">
+        <!-- REGION ICONS -->
+        <item name="healthConnectIcon">@drawable/ic_health_connect</item>
+
+        <!-- Home page -->
+        <item name="appPermissionsIcon">@drawable/ic_app_permissions</item>
+        <item name="dataAndAccessIcon">@drawable/ic_data_and_access</item>
+        <item name="seeAllIcon">@drawable/ic_right_arrow</item>
+        <item name="recentAccessTimelineDividerDrawable">@drawable/ic_timeline_divider</item>
+        <item name="manageDataIcon">@drawable/ic_build</item>
+
+        <!-- App permissions page-->
+        <item name="removeAccessForAllAppsIcon">@drawable/ic_remove_access_for_all_apps</item>
+        <item name="helpAndFeedbackIcon">@drawable/ic_help_and_feedback</item>
+        <item name="checkForUpdatesIcon">@drawable/ic_check_for_updates</item>
+        <item name="seeAllCompatibleAppsIcon">@drawable/ic_see_all_compatible_apps</item>
+        <item name="sendFeedbackIcon">@drawable/ic_send_feedback</item>
+        <item name="searchIcon">@drawable/ic_find_in_page</item>
+
+        <!-- Categories page -->
+        <item name="autoDeleteIcon">@drawable/ic_auto_delete</item>
+        <item name="autoDeleteOffIcon">@drawable/ic_auto_delete_off</item>
+        <item name="deleteIcon">@drawable/ic_delete</item>
+        <item name="exportDataIcon">@drawable/ic_export_data</item>
+        <item name="activityCategoryIcon">@drawable/ic_category_activity</item>
+        <item name="bodyMeasurementsCategoryIcon">@drawable/ic_category_body_measurements</item>
+        <item name="cycleTrackingCategoryIcon">@drawable/ic_category_cycle_tracking</item>
+        <item name="nutritionCategoryIcon">@drawable/ic_category_nutrition</item>
+        <item name="sleepCategoryIcon">@drawable/ic_category_sleep</item>
+        <item name="vitalsCategoryIcon">@drawable/ic_category_vitals</item>
+
+        <!-- Permission types page -->
+        <item name="appPriorityIcon">@drawable/ic_view_list</item>
+
+        <!-- Data access page -->
+        <item name="seeAllEntriesIcon">@drawable/ic_view_list</item>
+
+        <!-- Dialogs -->
+        <item name="deletionSettingsIcon">@drawable/ic_deletion_settings</item>
+        <item name="successIcon">@drawable/ic_success</item>
+        <item name="failureIcon">@drawable/ic_failure</item>
+        <item name="disconnectAllIcon">@drawable/ic_remove_access_for_all_apps</item>
+        <item name="disconnectIcon">@drawable/ic_disconnect</item>
+        <item name="deniedAppsBannerIcon">@drawable/ic_denied_apps_banner</item>
+        <item name="dialogPreferredPadding">@dimen/spacing_large</item>
+        <item name="priorityItemDragIcon">@drawable/ic_item_drag</item>
+        <item name="manageSettingsIcon">@drawable/ic_manage_settings</item>
+        <item name="syncIcon">@drawable/ic_sync</item>
+        <item name="checkIcon">@drawable/ic_check</item>
+
+        <!-- Request permissions -->
+        <item name="chooseDataIcon">@drawable/ic_choose_data</item>
+        <item name="accessHistoryIcon">@drawable/ic_access_history</item>
+        <item name="privacyPolicyIcon">@drawable/ic_privacy_policy</item>
+
+        <!--  Migration -->
+        <item name="moreSpaceNeededIcon">@drawable/ic_storage</item>
+        <item name="updateNeededIcon">@drawable/ic_system_security_update</item>
+        <item name="settingsAlertIcon">@drawable/ic_settings_alert</item>
+
+        <!-- Data sources & priority -->
+        <item name="addIcon">@drawable/ic_add</item>
+        <item name="editIcon">@drawable/ic_edit</item>
+        <item name="closeIcon">@drawable/ic_close</item>
+
+        <!-- Export -->
+        <item name="repeatIcon">@drawable/ic_repeat</item>
+
+        <!-- END REGION -->
+
+        <!-- REGION DIALOG GRAVITY -->
+        <!-- Gravity for dialogs -->
+        <item name="dialogGravity">@integer/dialog_gravity</item>
+        <item name="alertDialogTitleGravity">@integer/dialog_title_gravity</item>
+        <item name="alertDialogTitleTextAlignment">@integer/dialog_title_text_alignment</item>
+        <item name="alertDialogTitleIconVisibility">@integer/dialog_title_icon_visibility</item>
+        <!-- END REGION -->
+
+        <!-- REGION STYLES -->
+        <!-- Typography-->
+        <item name="textAppearanceSummary">@style/TextAppearance.PreferenceSummary.SettingsLib</item>
+        <item name="textAppearanceSummaryLarge">@style/TextAppearance.HealthConnect.SummaryLarge</item>
+        <item name="textAppearanceLabel">@style/TextAppearance.HealthConnect.Label</item>
+        <item name="textAppearanceLabelCompact">@style/TextAppearance.HealthConnect.Label.Compact</item>
+        <item name="textAppearanceHeadline6">@style/TextAppearance.HealthConnect.Headline6</item>
+        <item name="textAppearanceItem">@style/TextAppearance.PreferenceTitle.SettingsLib</item>
+        <item name="textAppearanceHeadline4">@style/TextAppearance.HealthConnect.Headline4</item>
+        <item name="textAppearanceHeadline3">@style/TextAppearance.HealthConnect.Headline3</item>
+        <item name="textAppearanceHeadline2">@style/TextAppearance.HealthConnect.Headline2</item>
+        <item name="textAppearanceLabelSmall">@style/TextAppearance.HealthConnect.Label.Small</item>
+        <item name="textAppearanceSubheader">@style/TextAppearance.HealthConnect.Subheader</item>
+        <item name="textAppearanceSubheader2">@style/TextAppearance.HealthConnect.Subheader2</item>
+        <item name="textAppearanceSubheader3">@style/TextAppearance.HealthConnect.Subheader3</item>
+        <item name="textAppearanceRouteRequest">@style/TextAppearance.HealthConnect.RouteRequest</item>
+        <item name="textAppearancePreferenceCategory">@style/PreferenceCategoryTitleTextStyle.HealthConnect</item>
+
+        <!-- Buttons -->
+        <item name="dialogButtonFull">@style/Widget.HealthConnect.DialogButton.Full</item>
+        <item name="dialogButtonOutline">@style/Widget.HealthConnect.DialogButton.Outline</item>
+        <item name="baseButton">@style/Widget.HealthConnect.Button</item>
+        <item name="buttonBorderLess">@style/Widget.HealthConnect.Button.Borderless</item>
+        <item name="permissionGrantButtonList">@style/PermissionGrantButtonListMaterial3</item>
+        <item name="permissionGrantButtonTop">@style/PermissionGrantButtonTop</item>
+        <item name="permissionGrantButtonButton">@style/PermissionGrantButtonBottom</item>
+
+        <!-- Dialogs -->
+        <item name="alertDialogTheme">@style/Theme.HealthConnect.Dialog.Alert</item>
+        <item name="dialogButtonBar">@style/Widget.HealthConnect.Dialog.ButtonBar</item>
+
+        <item name="android:checkboxStyle">@style/Widget.HealthConnect.CheckBox</item>
+        <item name="chipStyle">@style/Widget.HealthConnect.RadioButton.Chip</item>
+        <item name="spinnerStyle">@style/Widget.HealthConnect.CalendarSpinner</item>
+        <item name="tabStyle">@style/Widget.HealthConnect.TabLayout</item>
+        <!-- END REGION -->
+
+        <!-- REGION DIMENSIONS -->
+        <item name="android:listPreferredItemPaddingStart">@dimen/spacing_large</item>
+        <item name="android:listPreferredItemPaddingEnd">@dimen/spacing_large</item>
+        <item name="listItemPaddingTop">@dimen/spacing_small</item>
+        <item name="listItemPaddingBottom">@dimen/spacing_small</item>
+        <item name="largeListItemPaddingTop">@dimen/spacing_normal</item>
+        <item name="largeListItemPaddingBottom">@dimen/spacing_normal</item>
+        <item name="listItemMinHeight">@dimen/list_item_min_height</item>
+        <item name="recentAccessTimelineDividerHeight">@dimen/timeline_divider_height</item>
+        <!-- END REGION -->
+
+        <!-- Popup Menu -->
+        <item name="android:itemBackground">@color/settingslib_dialog_background</item>
+        <!-- END REGION -->
+    </style>
+
+    <style name="Theme.HealthConnect" parent="Base.Theme.HealthConnect" />
+</resources>

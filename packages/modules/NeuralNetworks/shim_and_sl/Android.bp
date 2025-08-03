@@ -1,0 +1,135 @@
+/*
+ * Copyright 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// package has name collision with other module, must use licenses in targets
+// Inherits all licenses from parent to get Apache 2.0 and package name.
+// package {
+//     default_applicable_licenses: ["packages_modules_NeuralNetworks_license"],
+// }
+
+cc_library_headers {
+    name: "neuralnetworks_supportlibrary_types_ndk",
+    host_supported: false,
+    export_include_dirs: ["public"],
+    licenses: ["packages_modules_NeuralNetworks_license"],
+    sdk_version: "current",
+    vendor_available: true,
+    min_sdk_version: "29",
+}
+
+/** Version of the shim (Adapter between SL/Updatable Driver and sAIDL service)
+ * intended to be used by a non-updatable (without an OTA) NNAPI vendor drivers
+ * backed by a SL/Updatable Driver.
+ */
+package {
+    default_applicable_licenses: ["packages_modules_NeuralNetworks_license"],
+}
+
+cc_library_static {
+    name: "libneuralnetworks_shim_static",
+    defaults: [
+        "neuralnetworks_use_latest_utils_hal_aidl",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.neuralnetworks",
+        "test_com.android.neuralnetworks",
+    ],
+    srcs: [
+        "NeuralNetworksShim.cpp",
+        "ShimBufferTracker.cpp",
+        "ShimConverter.cpp",
+        "ShimDevice.cpp",
+        "ShimDeviceManager.cpp",
+        "ShimPreparedModel.cpp",
+        "ShimUtils.cpp",
+    ],
+    licenses: ["packages_modules_NeuralNetworks_license"],
+    vendor_available: true,
+    min_sdk_version: "30",
+    cflags: [
+        // Needed by neuralnetworks_supportlibrary_loader
+        // Should be removed after doing b/117845862
+        "-DNNTEST_SLTS",
+        "-DNN_COMPATIBILITY_LIBRARY_BUILD",
+        "-Wall",
+        "-Werror",
+    ],
+    header_libs: [
+        "libneuralnetworks_headers",
+    ],
+    local_include_dirs: [
+        "include",
+    ],
+    static_libs: [
+        "libaidlcommonsupport",
+        "libarect",
+        "libcutils",
+        "libneuralnetworks_common",
+        "neuralnetworks_supportlibrary_loader",
+        "neuralnetworks_utils_hal_common",
+    ],
+    shared_libs: [
+        "libbase",
+        "libbinder_ndk",
+        "libhidlbase",
+        "libhidlmemory",
+        "liblog",
+        "libnativewindow",
+    ],
+    export_include_dirs: [
+        "public",
+    ],
+}
+
+cc_library_static {
+    name: "neuralnetworks_supportlibrary_loader",
+    host_supported: false,
+    srcs: [
+        "SupportLibrary.cpp",
+        "SupportLibraryWrapper.cpp",
+    ],
+    shared_libs: [
+        "libnativewindow",
+    ],
+    cflags: [
+        "-DNNTEST_COMPUTE_MODE",
+        "-DNNTEST_ONLY_PUBLIC_API",
+        "-DNNTEST_SLTS",
+        "-DNN_COMPATIBILITY_LIBRARY_BUILD",
+        "-Wall",
+        "-Werror",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.neuralnetworks",
+        "test_com.android.neuralnetworks",
+    ],
+    export_include_dirs: [
+        "include",
+        "public",
+    ],
+    static_libs: [
+        "libarect",
+        "libbase",
+    ],
+    licenses: ["packages_modules_NeuralNetworks_license"],
+    vendor_available: true,
+    min_sdk_version: "29",
+    header_libs: [
+        "libneuralnetworks_headers",
+    ],
+}

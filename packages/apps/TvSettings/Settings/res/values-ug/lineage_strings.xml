@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017-2024 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="system_reboot_confirm_cm">قايتا قوزغات:</string>
+    <string name="global_action_restart_system">سىستېما</string>
+    <string name="global_action_restart_recovery">ئەسلىگە كەلتۈر</string>
+    <string name="global_action_restart_bootloader">قوزغىتىش يۈكلىگۈچ</string>
+    <plurals name="show_dev_countdown_cm">
+        <item quantity="one">ھازىر ئىجادىيەت تەڭشىكىنى قوزغىتىشقا <xliff:g id="step_count">%1$d</xliff:g> قەدەم قالدى.</item>
+        <item quantity="other">ھازىر ئىجادىيەت تەڭشىكىنى قوزغىتىشقا <xliff:g id="step_count">%1$d</xliff:g> قەدەم قالدى.</item>
+    </plurals>
+    <string name="show_dev_on_cm">ئىجادىيەت تەڭشەكلىرىنى قوزغاتتىڭىز!</string>
+    <string name="show_dev_already_cm">ھاجەتسىز، سىز ئاللىبۇرۇن ئىجادىيەت تەڭشەكلىرىنى قوزغاتقان.</string>
+    <string name="system_buttons">توپچە</string>
+    <string name="power_button_long_press_action_title">توك مەنبە توپچىسىنى ئۇزۇن بېسىش مەشغۇلاتى</string>
+    <string name="power_button_long_press_for_power_menu_action">توك مەنبە تىزىملىك زىيارەت</string>
+    <string name="power_button_long_press_for_assistant_action">ياردەمچىنى ئاچ</string>
+    <string name="inputs_volume_control_enabled">CEC ئاۋاز تىزگىنى</string>
+    <string name="inputs_volume_control_enabled_desc">ئىچكى ئاۋازنى ئەمەس TV/AVR ئاۋازىنى تىزگىنلەيدۇ</string>
+    <string name="enable_adb_root">Root سالاھىيىتىدە سازلايدۇ</string>
+    <string name="enable_adb_root_summary">Root سالاھىيىتىدە Android سازلاشنى ئىجرا قىلىشقا يول قويىدۇ</string>
+    <string name="advanced_restart_title">ئالىي قايتا قوزغىتىش</string>
+    <string name="advanced_restart_summary">قايتا قوزغىتىپ ئەسلىگە قايتۇرۇش، قوزغىتىپ يىتەكلەش ياكى يۇمشاق قايتا قوزغىتىش ھالىتىگە كىرىش تاللانمىلىرىنى كۆرسىتىدۇ</string>
+    <string name="adb_over_network">ADB تور سازلاش</string>
+    <string name="adb_over_network_summary">تور ئېغىزى (Wi\u2011Fi, USB تور) ئارقىلىق TCP/IP سازلاشنى قوزغىتىدۇ، بۇ تەڭشەك قايتا قوزغىتىلغاندىن كېيىن كۈچتىن قالىدۇ</string>
+    <string name="adb_over_network_warning">ئاگاھلاندۇرۇش: تور ھالقىغان ADB سازلاش قوزغىتىلغاندا، ئۈسكۈنىڭىز باغلانغان توردىن بۇيرۇق قوبۇل قىلىدۇ!\n\nپەقەت سىز ئىشىنىدىغان توردىلا بۇ ئىقتىدارنى قوزغىتىڭ.\n\nسىز راستلا بۇ ئىقتىدارنى قوزغىتامسىز؟</string>
+    <string name="trust_category_features">ھالەت</string>
+    <string name="trust_feature_selinux">SELinux</string>
+    <string name="trust_feature_selinux_value_enforcing">مەجبۇرىي ئىجرا قىلىنىۋاتىدۇ</string>
+    <string name="trust_feature_selinux_value_disabled">چەكلەنگەن</string>
+    <string name="trust_feature_selinux_explain">SELinux قايسى جەريانلارنىڭ ئۈسكۈنىڭىزدىكى قايسى ھۆججەتلەرنى زىيارەت قىلالايدىغانلىقىنى بەلگىلىگەن.\nبۇ مېخانىزم ئەپ ۋە مۇلازىمەتلەرنىڭ زىيارەت قىلماسلىكى كېرەك بولغان ھۆججەتلەرنى زىيارەت قىلىشىنىڭ ئالدىنى ئالىدۇ، شۇڭلاشقا زەھەرخەندە جەرياننىڭ زىيارىتىمۇ چەكلىمىگە ئۇچرايدۇ، بىخەتەرلىكىڭىز قوغدىلىدۇ.</string>
+    <string name="trust_feature_security_patches">Android بىخەتەرلىك يامىقى</string>
+    <string name="trust_feature_security_patches_value_base">سۇپا: %1$s\nسودىگەر: %2$s</string>
+    <string name="trust_feature_security_patches_value_new">ئەڭ يېڭى</string>
+    <string name="trust_feature_security_patches_value_medium">بىر قانچە ئاي ۋاقتى ئۆتكەن</string>
+    <string name="trust_feature_security_patches_value_old">ۋاقتى ئۆتكەن</string>
+    <string name="trust_feature_security_patches_explain">بىخەتەرلىك يامىقىنى Google ۋە SoC سودىگەرلىرى ھەر ئايدا تارقىتىپ، زەھەرخەندە ئەپلەر پايدىلىنىپ، بىخەتەرلىك چەكلىمىسىدىن ئاتلاپ ئۈسكۈنىڭىزنى ۋاقىتلىق ياكى مەڭگۈلۈك زەخىملەندۈرىدىغان يوچۇقنى يامايدۇ. سۇپا يامىقى ھەر ئايدا بىر تۇتاش يېڭىلىنىدۇ، ئەمما سودىگەرلەر يامىقىنى پەقەت ئۈسكۈنە زاۋۇتىدىنلا ئېرىشكىلى بولىدۇ. ئۈسكۈنىڭىزنىڭ بىخەتەرلىكىگە كاپالەتلىك قىلىش ئۈچۈن، ئەڭ يېڭى نەشرىدىكى LineageOS نى ئىشلىتىش تەۋسىيە قىلىنىدۇ.</string>
+    <string name="trust_feature_encryption">شىفىرلاش</string>
+    <string name="trust_feature_encryption_value_enabled">قوزغىتىلغان</string>
+    <string name="trust_feature_encryption_value_nolock">بىخەتەر ئېكران قۇلۇپىنى تەڭشەك كېرەك</string>
+    <string name="trust_feature_encryption_value_disabled">چەكلەنگەن</string>
+    <string name="trust_feature_encryption_explain">ئۈسكۈنىڭىزنى شىفىرلاش ئارقىلىق باشقىلارنىڭ تېلېفونىڭىز تاقالغان ھالەتتە ياكى ئەسلىگە قايتۇرۇش ھالىتىدە سانلىق مەلۇماتلىرىڭىزنى زىيارەت قىلىشىنىڭ ئالدىنى ئالىدۇ. ئۈسكۈنىڭىز ئوغرىلانسا، بۇ مۇھىم ئالاھىدىلىك باشقىلار ئىم يول ئەھۋالدا سىزنىڭ قىسقا ئۇچۇر، ئالاقىلىشىش خاتىرىسى ۋە باشقا شەخسىي ئۇچۇرلىرىڭىزنى ئوقۇشنىڭ ئالدىنى ئالىدۇ. شىفىرلاشنىڭ تېخىمۇ ئۈنۈملۈك بولۇشى ئۈچۈن قۇلۇپ ئېكرانىغا ئىم تەڭشىشىڭىز كېرەك.</string>
+    <string name="trust_category_tools">شەخسىيەت</string>
+    <string name="trust_notification_alerts_title">بىخەتەرلىك ئاگاھلاندۇرۇش</string>
+    <string name="trust_restrict_usb_title">USB چەكلە</string>
+    <string name="trust_restrict_usb_summary">تىڭشىغۇچ، ساقلىغۇچ ئۈسكۈنىسى، كىرگۈزگۈچ (چاشقىنەك، ھەرپتاختا، ئويۇن تاختا) ۋە ADB باغلىنىشىنى تىزگىنلەشنى قوللايدۇ</string>
+    <string name="trust_restrict_usb_always">USB باغلىنىشىنى رەت قىلىدۇ</string>
+    <string name="trust_restrict_usb_disabled">ھەمىشە USB باغلىنىشىغا يول قويىدۇ</string>
+    <string name="trust_onboarding_description">ئىشەنچ ئۈسكۈنىڭىزنىڭ بىخەتەرلىكىنى ساقلاپ ھەمدە شەخسىيىتىڭىزنى قوغدايدۇ.\nئىشەنچ سىنبەلگىسى بەت مەزمۇننىڭ بىخەتەرلىكى دەلىللەنگەندىن كېيىن ئاندىن كۆرۈنىدۇ.</string>
+    <string name="trust_warnings_alerts_intro">ئاگاھلاندۇرۇش كېرەك بولغان بىخەتەرلىك مەسىلىسىنى تاللىيالايسىز. ئەمما بىخەتەرلىكىڭىز ئۈچۈن بارلىق ئاگاھلاندۇرۇشلارنى قوزغىتىش تەۋسىيە قىلىنىدۇ</string>
+    <string name="trust_warnings_selinux">SELinux ھالىتى</string>
+    <string name="trust_warnings_keys">ھاسىللىغان ئىمزا</string>
+    <string name="sleep_button_label">ئۇخلات</string>
+    <string name="system_sleep_confirm">ھازىر ئۇخلىتامدۇ؟</string>
+    <string name="shutdown_button_label">تاقا</string>
+    <string name="system_shutdown_confirm">ھازىر تاقامدۇ؟</string>
+    <string name="convertible_port_busy_title">USB نىڭ 1-ئېغىزىنى ئىشلىتىۋاتىدۇ</string>
+    <string name="convertible_port_busy_warning">ھەر قانداق ئۈسكۈنە ياكى زاپچاسنى تارتىۋېتىپ ئاندىن قايتا سىناڭ</string>
+    <string name="mtp_enable_title">USB ئىشلىتىپ شەخسىي كومپيۇتېردىكى SHIELD قىسقۇچنى زىيارەت قىلىدۇ</string>
+    <string name="mtp_enable_warning">USB نىڭ 1-ئېغىزى SHIELD قىلىپ سەپلىنىپ يەككە كومپيۇتېر ۋاسىتە ئۈسكۈنىسى سۈپىتىدە باغلاندى.\n\nبۇ ئېغىز USB ساقلىغۇچ ۋاسىتىسى ياكى USB زاپچاسنى بايقىمايدۇ ھەمدە توكلاش ئۈسكۈنىسى قىلىپ ئىشلىتىلمەيدۇ.</string>
+    <string name="mtp_retry_error">مەغلۇپ بولدى. قايتا سىناڭ.</string>
+    <string name="mtp_summary">بۇ ھالەتتە، USB ئېغىزىنى باشقا مەقسەتتە ئىشلەتكىلى بولمايدۇ</string>
+    <string name="mtp_title">ھۆججەت USB ئارقىلىق كومپيۇتېرغا يوللىنىدۇ</string>
+    <string name="mtp_unexpected_error">كۈتۈلمىگەن خاتالىق. كېيىن قايتا سىناڭ.</string>
+    <string name="usb_debugging_enable_title">USB سازلاش قوزغىتىلدى</string>
+    <string name="usb_debugging_enable_warning">USB نىڭ 1-ئېغىزى SHIELD قىلىپ سەپلىنىپ يەككە كومپيۇتېر ۋاسىتە ئۈسكۈنىسى سۈپىتىدە باغلاندى.\n\nبۇ ئېغىز USB ساقلىغۇچ ۋاسىتىسى ياكى USB زاپچاسنى بايقىمايدۇ ھەمدە توكلاش ئۈسكۈنىسى قىلىپ ئىشلىتىلمەيدۇ.</string>
+</resources>

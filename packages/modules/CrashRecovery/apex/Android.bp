@@ -1,0 +1,163 @@
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+soong_config_module_type {
+    name: "custom_bootclasspath_fragment",
+    module_type: "bootclasspath_fragment",
+    config_namespace: "ANDROID",
+    bool_variables: [
+        "release_crashrecovery_module",
+    ],
+    properties: [
+        "enabled"
+    ],
+}
+
+// Encapsulate the contributions made by the com.android.crashrecovery to the bootclasspath.
+custom_bootclasspath_fragment {
+    // This fragment will be enabled using release_crashrecovery_module flag
+    enabled: false,
+    soong_config_variables: {
+      release_crashrecovery_module: {
+        enabled: true,
+      },
+    },
+
+    name: "com.android.crashrecovery-bootclasspath-fragment",
+    contents: ["framework-crashrecovery"],
+    apex_available: ["com.android.crashrecovery"],
+    hidden_api: {
+        split_packages: ["*"] // TODO(b/289203818) be more specific
+    },
+    // The bootclasspath_fragments that provide APIs on which this depends.
+    fragments: [
+
+        // Needed to access core java APIs.
+        {
+            apex: "com.android.art",
+            module: "art-bootclasspath-fragment",
+        },
+    ],
+
+    // Additional stubs libraries that this fragment's contents use which are
+    // not provided by another bootclasspath_fragment.
+    additional_stubs: [
+        // Needed to access platform APIs.
+        "android-non-updatable",
+    ],
+}
+
+soong_config_module_type {
+    name: "custom_systemserverclasspath_fragment",
+    module_type: "systemserverclasspath_fragment",
+    config_namespace: "ANDROID",
+    bool_variables: [
+        "release_crashrecovery_module",
+    ],
+    properties: [
+        "enabled"
+    ],
+}
+
+// Encapsulate the contributions made by the com.android.crashrecovery to the systemserverclasspath.
+custom_systemserverclasspath_fragment {
+    // This fragment will be enabled using release_crashrecovery_module flag
+    enabled: false,
+    soong_config_variables: {
+      release_crashrecovery_module: {
+        enabled: true,
+      },
+    },
+
+    name: "com.android.crashrecovery-systemserverclasspath-fragment",
+    contents: ["service-crashrecovery"],
+    apex_available: ["com.android.crashrecovery"],
+}
+
+apex_key {
+    name: "com.android.crashrecovery.key",
+    public_key: "com.android.crashrecovery.avbpubkey",
+    private_key: "com.android.crashrecovery.pem",
+}
+
+android_app_certificate {
+    name: "com.android.crashrecovery.certificate",
+    certificate: "com.android.crashrecovery",
+}
+
+soong_config_module_type {
+    name: "custom_apex",
+    module_type: "apex",
+    config_namespace: "ANDROID",
+    bool_variables: [
+        "release_crashrecovery_module",
+    ],
+    properties: [
+        "enabled"
+    ],
+}
+
+custom_apex {
+    // This apex will be enabled using release_crashrecovery_module flag
+    enabled: false,
+    soong_config_variables: {
+        release_crashrecovery_module: {
+          enabled: true,
+        },
+    },
+
+    name: "com.android.crashrecovery",
+    defaults: ["v-launched-apex-module"],
+    bootclasspath_fragments: ["com.android.crashrecovery-bootclasspath-fragment"],
+    systemserverclasspath_fragments: [
+    "com.android.crashrecovery-systemserverclasspath-fragment",
+    ],
+    file_contexts: ":com.android.crashrecovery-file_contexts",
+    prebuilts: [
+      "current_sdkinfo",
+    ],
+    key: "com.android.crashrecovery.key",
+    certificate: ":com.android.crashrecovery.certificate",
+    manifest: "manifest.json",
+    min_sdk_version: "34",
+}
+
+soong_config_module_type {
+    name: "custom_sdk",
+    module_type: "sdk",
+    config_namespace: "ANDROID",
+    bool_variables: [
+        "release_crashrecovery_module",
+    ],
+    properties: [
+        "enabled"
+    ],
+}
+
+custom_sdk {
+    // This sdk will be enabled using release_crashrecovery_module flag
+    enabled: false,
+    soong_config_variables: {
+        release_crashrecovery_module: {
+          enabled: true,
+        },
+    },
+
+    name: "crashrecovery-sdk",
+    apexes: ["com.android.crashrecovery"],
+}

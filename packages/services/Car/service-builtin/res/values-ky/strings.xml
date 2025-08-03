@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2015 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="car_permission_label_bind_projection_service" msgid="6976251734714662552">"долбоорлоо кызматына туташуу"</string>
+    <string name="car_permission_desc_bind_projection_service" msgid="4610418233070289810">"Ээсине долбоорлоо кызматынын жогорку деңгээл интерфейсине туташуу мүмкүнчүлүгүн берет. Жалпыга багышталган колдонмолордо эч качан колдонулбашы керек."</string>
+    <string name="car_permission_label_bind_vms_client" msgid="1298928874094319701">"VMS кардарларды тейлөө кызматы"</string>
+    <string name="car_permission_desc_bind_vms_client" msgid="7758142590449847602">"VMS кардарларына туташуу"</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="6723392540805279625">"Куралдар кластери түзүлүүдө"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="2583711303360788080">"Куралдар кластеринин дайындарын алуу"</string>
+    <string name="car_permission_label_bind_input_service" msgid="6647238478703096557">"Унаанын киргизүү кызматы"</string>
+    <string name="car_permission_desc_bind_input_service" msgid="8460218104132496613">"Киргизүү аракеттерин башкаруу"</string>
+    <string name="activity_blocked_text" msgid="5991043857905412794">"Бул функцияны унаа айдап баратканда колдоно албайсыз"</string>
+    <string name="exit_button_message" msgid="5375678491245394542">"Колдонмонун коопсуз функцияларын иштетүү үчүн <xliff:g id="EXIT_BUTTON">%s</xliff:g> баскычын басыңыз."</string>
+    <string name="exit_button" msgid="3491899413031549265">"Артка"</string>
+    <string name="exit_button_close_application" msgid="5153716684207539041">"Колдонмону жабуу"</string>
+    <string name="exit_button_go_back" msgid="6921595432375141935">"Артка"</string>
+    <string name="importance_default" msgid="8017186728206153704">"Демейки маанилүүлүк"</string>
+    <string name="importance_high" msgid="3393374688015554727">"Өтө маанилүү"</string>
+    <string name="android_system_label" msgid="9209428539477894959">"Android системасы"</string>
+    <string name="factory_reset_notification_title" msgid="6177770995437355965">"Баштапкы абалга кайтаруу талап кылынат"</string>
+    <string name="factory_reset_notification_text" msgid="6051393302193696102">"Инфозоок тутумундагы бардык нерселер өчүрүлөт. Баштапкы абалга келтирилгенден кийин жаңы профилди жөндөп алсаңыз болот."</string>
+    <string name="factory_reset_notification_button" msgid="6926734587145351076">"Дагы"</string>
+    <string name="factory_reset_warning" msgid="8463356329619149262">"Түзмөгүңүз тазаланат"</string>
+    <string name="factory_reset_message" msgid="1972536809866779972">"Түзмөктү башкаруучу колдонмо жараксыз. Түзмөгүңүз азыр тазаланат.\n\nСуроолоруңуз болсо, ишканаңыздын администраторуна кайрылыңыз."</string>
+    <string name="resource_overuse_notification_title" msgid="1622015333965744463">"<xliff:g id="ID_1">^1</xliff:g> системанын ишине кедергисин тийгизип жатат"</string>
+    <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"Бул колдонмого фондук режимде иштөөгө тыюу салынган. Колдонмону фондо иштетүү үчүн ага артыкчылык бериңиз."</string>
+    <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"Жабуу"</string>
+    <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"Колдонмого артыкчылык берүү"</string>
+</resources>

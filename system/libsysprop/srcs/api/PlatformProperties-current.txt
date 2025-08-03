@@ -1,0 +1,527 @@
+props {
+  module: "android.sysprop.ApkVerityProperties"
+  prop {
+    api_name: "apk_verity_mode"
+    type: Integer
+    access: Writeonce
+    prop_name: "ro.apk_verity.mode"
+  }
+}
+props {
+  module: "android.sysprop.BluetoothProperties"
+  prop {
+    api_name: "dsa_transport_preference"
+    type: StringList
+    prop_name: "bluetooth.core.le.dsa_transport_preference"
+  }
+  prop {
+    api_name: "factory_reset"
+    access: ReadWrite
+    prop_name: "persist.bluetooth.factoryreset"
+  }
+  prop {
+    api_name: "getClassOfDevice"
+    type: UIntList
+    prop_name: "bluetooth.device.class_of_device"
+  }
+  prop {
+    api_name: "getDefaultDeviceName"
+    type: String
+    prop_name: "bluetooth.device.default_name"
+  }
+  prop {
+    api_name: "getDefaultDuplexAudioProfile"
+    type: Integer
+    prop_name: "bluetooth.device.default_duplex_audio_profile"
+  }
+  prop {
+    api_name: "getDefaultOutputOnlyAudioProfile"
+    type: Integer
+    prop_name: "bluetooth.device.default_output_only_audio_profile"
+  }
+  prop {
+    api_name: "getGapLeConnMinLimit"
+    type: Integer
+    prop_name: "bluetooth.core.gap.le.conn.min.limit"
+  }
+  prop {
+    api_name: "getHardwareIdleCurrentMa"
+    type: Integer
+    prop_name: "bluetooth.hardware.power.idle_cur_ma"
+  }
+  prop {
+    api_name: "getHardwareOperatingVoltageMv"
+    type: Integer
+    prop_name: "bluetooth.hardware.power.operating_voltage_mv"
+  }
+  prop {
+    api_name: "getHardwareRxCurrentMa"
+    type: Integer
+    prop_name: "bluetooth.hardware.power.rx_cur_ma"
+  }
+  prop {
+    api_name: "getHardwareTxCurrentMa"
+    type: Integer
+    prop_name: "bluetooth.hardware.power.tx_cur_ma"
+  }
+  prop {
+    api_name: "getLeMaxNumberOfConcurrentConnections"
+    type: UInt
+    prop_name: "bluetooth.core.le.max_number_of_concurrent_connections"
+  }
+  prop {
+    api_name: "isAdapterAddressValidationEnabled"
+    prop_name: "bluetooth.framework.adapter_address_validation"
+  }
+  prop {
+    api_name: "isGapLePrivacyEnabled"
+    prop_name: "bluetooth.core.gap.le.privacy.enabled"
+  }
+  prop {
+    api_name: "isLeAudioInbandRingtoneSupported"
+    prop_name: "bluetooth.core.le_audio.inband_ringtone.supported"
+  }
+  prop {
+    api_name: "isProfileA2dpSinkEnabled"
+    prop_name: "bluetooth.profile.a2dp.sink.enabled"
+  }
+  prop {
+    api_name: "isProfileA2dpSourceEnabled"
+    prop_name: "bluetooth.profile.a2dp.source.enabled"
+  }
+  prop {
+    api_name: "isProfileAshaCentralEnabled"
+    prop_name: "bluetooth.profile.asha.central.enabled"
+  }
+  prop {
+    api_name: "isProfileAvrcpControllerEnabled"
+    prop_name: "bluetooth.profile.avrcp.controller.enabled"
+  }
+  prop {
+    api_name: "isProfileAvrcpTargetEnabled"
+    prop_name: "bluetooth.profile.avrcp.target.enabled"
+  }
+  prop {
+    api_name: "isProfileBapBroadcastAssistEnabled"
+    prop_name: "bluetooth.profile.bap.broadcast.assist.enabled"
+  }
+  prop {
+    api_name: "isProfileBapBroadcastSourceEnabled"
+    prop_name: "bluetooth.profile.bap.broadcast.source.enabled"
+  }
+  prop {
+    api_name: "isProfileBapUnicastClientEnabled"
+    prop_name: "bluetooth.profile.bap.unicast.client.enabled"
+  }
+  prop {
+    api_name: "isProfileBasClientEnabled"
+    prop_name: "bluetooth.profile.bas.client.enabled"
+  }
+  prop {
+    api_name: "isProfileBassClientEnabled"
+    prop_name: "bluetooth.profile.bass.client.enabled"
+  }
+  prop {
+    api_name: "isProfileCcpServerEnabled"
+    prop_name: "bluetooth.profile.ccp.server.enabled"
+  }
+  prop {
+    api_name: "isProfileCsipSetCoordinatorEnabled"
+    prop_name: "bluetooth.profile.csip.set_coordinator.enabled"
+  }
+  prop {
+    api_name: "isProfileGattEnabled"
+    prop_name: "bluetooth.profile.gatt.enabled"
+  }
+  prop {
+    api_name: "isProfileHapClientEnabled"
+    prop_name: "bluetooth.profile.hap.client.enabled"
+  }
+  prop {
+    api_name: "isProfileHfpAgEnabled"
+    prop_name: "bluetooth.profile.hfp.ag.enabled"
+  }
+  prop {
+    api_name: "isProfileHfpHfEnabled"
+    prop_name: "bluetooth.profile.hfp.hf.enabled"
+  }
+  prop {
+    api_name: "isProfileHidDeviceEnabled"
+    prop_name: "bluetooth.profile.hid.device.enabled"
+  }
+  prop {
+    api_name: "isProfileHidHostEnabled"
+    prop_name: "bluetooth.profile.hid.host.enabled"
+  }
+  prop {
+    api_name: "isProfileMapClientEnabled"
+    prop_name: "bluetooth.profile.map.client.enabled"
+  }
+  prop {
+    api_name: "isProfileMapServerEnabled"
+    prop_name: "bluetooth.profile.map.server.enabled"
+  }
+  prop {
+    api_name: "isProfileMcpServerEnabled"
+    prop_name: "bluetooth.profile.mcp.server.enabled"
+  }
+  prop {
+    api_name: "isProfileOppEnabled"
+    prop_name: "bluetooth.profile.opp.enabled"
+  }
+  prop {
+    api_name: "isProfilePanNapEnabled"
+    prop_name: "bluetooth.profile.pan.nap.enabled"
+  }
+  prop {
+    api_name: "isProfilePanPanuEnabled"
+    prop_name: "bluetooth.profile.pan.panu.enabled"
+  }
+  prop {
+    api_name: "isProfilePbapClientEnabled"
+    prop_name: "bluetooth.profile.pbap.client.enabled"
+  }
+  prop {
+    api_name: "isProfilePbapServerEnabled"
+    prop_name: "bluetooth.profile.pbap.server.enabled"
+  }
+  prop {
+    api_name: "isProfilePbapSimEnabled"
+    prop_name: "bluetooth.profile.pbap.sim.enabled"
+  }
+  prop {
+    api_name: "isProfileSapServerEnabled"
+    prop_name: "bluetooth.profile.sap.server.enabled"
+  }
+  prop {
+    api_name: "isProfileVcpControllerEnabled"
+    prop_name: "bluetooth.profile.vcp.controller.enabled"
+  }
+  prop {
+    api_name: "isScoManagedByAudioEnabled"
+    prop_name: "bluetooth.sco.managed_by_audio"
+  }
+  prop {
+    api_name: "isSupportPersistedStateEnabled"
+    prop_name: "bluetooth.framework.support_persisted_state"
+  }
+  prop {
+    api_name: "le_audio_allow_list"
+    type: StringList
+    access: ReadWrite
+    prop_name: "persist.bluetooth.leaudio.allow_list"
+  }
+  prop {
+    api_name: "snoop_default_mode"
+    type: Enum
+    access: ReadWrite
+    prop_name: "persist.bluetooth.btsnoopdefaultmode"
+    enum_values: "empty|disabled|filtered|full"
+  }
+  prop {
+    api_name: "snoop_log_filter_profile_a2dp_enabled"
+    access: ReadWrite
+    prop_name: "persist.bluetooth.snooplogfilter.profiles.a2dp.enabled"
+  }
+  prop {
+    api_name: "snoop_log_filter_profile_map"
+    type: Enum
+    access: ReadWrite
+    prop_name: "persist.bluetooth.snooplogfilter.profiles.map"
+    enum_values: "empty|disabled|fullfilter|header|magic"
+  }
+  prop {
+    api_name: "snoop_log_filter_profile_pbap"
+    type: Enum
+    access: ReadWrite
+    prop_name: "persist.bluetooth.snooplogfilter.profiles.pbap"
+    enum_values: "empty|disabled|fullfilter|header|magic"
+  }
+  prop {
+    api_name: "snoop_log_filter_profile_rfcomm_enabled"
+    access: ReadWrite
+    prop_name: "persist.bluetooth.snooplogfilter.profiles.rfcomm.enabled"
+  }
+  prop {
+    api_name: "snoop_log_filter_snoop_headers_enabled"
+    access: ReadWrite
+    prop_name: "persist.bluetooth.snooplogfilter.headers.enabled"
+  }
+  prop {
+    api_name: "snoop_log_mode"
+    type: Enum
+    access: ReadWrite
+    prop_name: "persist.bluetooth.btsnooplogmode"
+    enum_values: "empty|disabled|filtered|full"
+  }
+}
+props {
+  owner: Odm
+  module: "android.sysprop.DeviceProperties"
+  prop {
+    api_name: "media_performance_class"
+    type: Integer
+    prop_name: "ro.odm.build.media_performance_class"
+  }
+}
+props {
+  module: "android.sysprop.HypervisorProperties"
+  prop {
+    api_name: "hypervisor_protected_vm_supported"
+    prop_name: "ro.boot.hypervisor.protected_vm.supported"
+  }
+  prop {
+    api_name: "hypervisor_version"
+    type: String
+    prop_name: "ro.boot.hypervisor.version"
+  }
+  prop {
+    api_name: "hypervisor_vm_supported"
+    prop_name: "ro.boot.hypervisor.vm.supported"
+  }
+}
+props {
+  module: "android.sysprop.MediaProperties"
+  prop {
+    api_name: "codec2_dmabuf_padding"
+    type: Integer
+    prop_name: "media.c2.dmabuf.padding"
+  }
+  prop {
+    api_name: "codec2_hal_selection"
+    type: Enum
+    prop_name: "media.c2.hal.selection"
+    enum_values: "aidl|hidl"
+  }
+  prop {
+    api_name: "resolution_limit_32bit"
+    type: Integer
+    prop_name: "media.resolution.limit.32bit"
+  }
+  prop {
+    api_name: "swcodec_ion_align"
+    type: Integer
+    prop_name: "ro.com.android.media.swcodec.ion.align"
+  }
+  prop {
+    api_name: "swcodec_ion_flags"
+    type: Integer
+    prop_name: "ro.com.android.media.swcodec.ion.flags"
+  }
+  prop {
+    api_name: "swcodec_ion_heapmask"
+    type: Integer
+    prop_name: "ro.com.android.media.swcodec.ion.heapmask"
+  }
+}
+props {
+  module: "android.sysprop.MemoryProperties"
+  prop {
+    api_name: "memory_ddr_size"
+    type: String
+    prop_name: "ro.boot.ddr_size"
+  }
+}
+props {
+  module: "android.sysprop.NetworkProperties"
+  prop {
+    api_name: "isCellular464XlatEnabled"
+    prop_name: "net.464xlat.cellular.enabled"
+  }
+  prop {
+    api_name: "tcp_init_rwnd"
+    type: Integer
+    access: ReadWrite
+    prop_name: "net.tcp_def_init_rwnd"
+  }
+}
+props {
+  module: "android.sysprop.NfcProperties"
+  prop {
+    api_name: "debug_enabled"
+    access: ReadWrite
+    prop_name: "persist.nfc.debug_enabled"
+  }
+  prop {
+    api_name: "initialized"
+    access: ReadWrite
+    prop_name: "nfc.initialized"
+  }
+  prop {
+    api_name: "skipNdefRead"
+    prop_name: "nfc.dta.skip_ndef_read"
+    legacy_prop_name: "nfc.dta.skipNdefRead"
+  }
+  prop {
+    api_name: "snoop_log_mode"
+    type: Enum
+    access: ReadWrite
+    prop_name: "persist.nfc.snoop_log_mode"
+    enum_values: "full|filtered"
+  }
+  prop {
+    api_name: "vendor_debug_enabled"
+    access: ReadWrite
+    prop_name: "persist.nfc.vendor_debug_enabled"
+  }
+}
+props {
+  module: "android.sysprop.OtaProperties"
+  prop {
+    api_name: "ab_ota_partitions"
+    type: String
+    prop_name: "ro.product.ab_ota_partitions"
+  }
+  prop {
+    api_name: "virtual_ab_enabled"
+    prop_name: "ro.virtual_ab.enabled"
+  }
+  prop {
+    api_name: "virtual_ab_retrofit"
+    prop_name: "ro.virtual_ab.retrofit"
+  }
+  prop {
+    api_name: "warm_reset"
+    access: ReadWrite
+    prop_name: "ota.warm_reset"
+    integer_as_bool: true
+  }
+}
+props {
+  module: "android.sysprop.PowerProperties"
+  prop {
+    api_name: "fixed_performance_scale_factor"
+    type: Integer
+    prop_name: "ro.power.fixed_performance_scale_factor"
+  }
+}
+props {
+  module: "android.sysprop.SocProperties"
+  prop {
+    api_name: "soc_manufacturer"
+    type: String
+    prop_name: "ro.soc.manufacturer"
+  }
+  prop {
+    api_name: "soc_model"
+    type: String
+    prop_name: "ro.soc.model"
+  }
+}
+props {
+  module: "android.sysprop.TelephonyProperties"
+  prop {
+    api_name: "call_ring_delay"
+    type: Integer
+    prop_name: "ro.telephony.call_ring.delay"
+  }
+  prop {
+    api_name: "disable_call"
+    prop_name: "ro.telephony.disable-call"
+  }
+  prop {
+    api_name: "ecm_exit_timer"
+    type: Long
+    prop_name: "ro.cdma.ecmexittimer"
+  }
+  prop {
+    api_name: "ignore_nitz"
+    prop_name: "telephony.test.ignore.nitz"
+  }
+  prop {
+    api_name: "in_ecm_mode"
+    access: ReadWrite
+    prop_name: "ril.cdma.inecmmode"
+  }
+  prop {
+    api_name: "max_active_modems"
+    type: Integer
+    prop_name: "telephony.active_modems.max_count"
+  }
+  prop {
+    api_name: "mobile_data"
+    prop_name: "ro.com.android.mobiledata"
+  }
+  prop {
+    api_name: "multi_sim_config"
+    type: String
+    access: ReadWrite
+    prop_name: "persist.radio.multisim.config"
+  }
+  prop {
+    api_name: "operator_idp_string"
+    type: String
+    access: ReadWrite
+    prop_name: "gsm.operator.idpstring"
+  }
+  prop {
+    api_name: "operator_iso_country"
+    type: StringList
+    access: ReadWrite
+    prop_name: "gsm.operator.iso-country"
+  }
+  prop {
+    api_name: "reset_on_radio_tech_change"
+    prop_name: "persist.radio.reset_on_switch"
+  }
+  prop {
+    api_name: "ril_sends_multiple_call_ring"
+    prop_name: "ro.telephony.call_ring.multiple"
+  }
+  prop {
+    api_name: "sim_slots_count"
+    type: Integer
+    prop_name: "ro.telephony.sim_slots.count"
+  }
+  prop {
+    api_name: "test_csim"
+    prop_name: "persist.radio.test-csim"
+  }
+  prop {
+    api_name: "wake_lock_timeout"
+    type: Integer
+    prop_name: "ro.ril.wake_lock_timeout"
+  }
+}
+props {
+  module: "android.sysprop.ThreadNetworkProperties"
+  prop {
+    api_name: "country_code"
+    type: String
+    prop_name: "threadnetwork.country_code"
+  }
+}
+props {
+  module: "android.sysprop.VndkProperties"
+  prop {
+    api_name: "product_vndk_version"
+    type: String
+    prop_name: "ro.product.vndk.version"
+  }
+  prop {
+    api_name: "vendor_vndk_version"
+    type: String
+    prop_name: "ro.vndk.version"
+  }
+}
+props {
+  module: "android.sysprop.WidevineProperties"
+  prop {
+    api_name: "forcel3_enabled"
+    access: ReadWrite
+    prop_name: "persist.drm.forcel3.enabled"
+  }
+}
+props {
+  module: "android.sysprop.WifiProperties"
+  prop {
+    api_name: "start_supplicant"
+    access: Writeonce
+    prop_name: "ctl.start$supplicant"
+  }
+  prop {
+    api_name: "stop_supplicant"
+    access: Writeonce
+    prop_name: "ctl.stop$supplicant"
+  }
+}

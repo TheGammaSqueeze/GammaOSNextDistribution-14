@@ -1,0 +1,9 @@
+<resources>
+    <integer name="view_visible">0</integer> <!-- This is VISIBLE -->
+    <integer name="view_invisible">1</integer> <!-- This is INVISIBLE -->
+    <integer name="view_gone">2</integer> <!-- This is GONE -->
+
+    <integer name="measurement_switch_bar_spacing">@integer/view_gone</integer>
+    <integer name="adservices_ppapi_title_spacing">@integer/view_visible</integer>
+
+</resources>

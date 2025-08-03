@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (c) 2009, 2011-2013 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2014-2015 The CyanogenMod Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *    * Neither the name of The Linux Foundation nor
+ *      the names of its contributors may be used to endorse or promote
+ *      products derived from this software without specific prior written
+ *      permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NON-INFRINGEMENT ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">பண்பலை வானொலி</string>
+    <string name="tx_app_name">பண்பலைப்பரப்பி</string>
+    <string name="menu_scan_start">துழவுக</string>
+    <string name="menu_scan_stop">தேடலை நிறுத்துக</string>
+    <string name="menu_record_start">பதிவுசெய்க</string>
+    <string name="menu_record_stop">பதிவித்தலை நிறுத்துக</string>
+    <string name="menu_settings">அமைப்புகள்</string>
+    <string name="menu_sleep">உறக்கமுறை</string>
+    <string name="menu_sleep_cancel">உறக்கமுறையை விலக்குக</string>
+    <string name="menu_all_channels">அலைவரிசை அனைத்தும்</string>
+    <string name="menu_display_tags">குறிகளைக் காட்டுக</string>
+    <string name="button_text_stop">நிறுத்துக</string>
+    <string name="msg_seeking">பண்பலை நிலையத்தைத் தேடுகிறது\u2026</string>
+    <string name="msg_scanning">பண்பலை நிலையங்கள் அனைத்தையும் துழவுகிறது\u2026</string>
+    <string name="msg_scanning_pty">\'<xliff:g id="pty_name">%1$s</xliff:g>\'\u2026 என்பதற்காகத் துழவுகிறது</string>
+    <string name="msg_search_title"><xliff:g id="frequency_string">%1$s</xliff:g> MHz</string>
+    <string name="msg_searching_title">தற்தெரிவுசெய்தல் முன்னமைவுகளை</string>
+    <string name="msg_searching">ஒரு முன்னமைவுப் பட்டியலை உருவாக்க வலிய நிலையங்களைத் தேடுகிறது\u2026</string>
+    <string name="msg_noantenna">தலையணியைச் செருகவும் வானொலியைப் பயன்படுத்த</string>
+    <string name="dialog_sleep_title">உறக்க நேரத்தைத் தன்னணைக்க</string>
+    <string name="presetlist_select_name">\'<xliff:g id="presetlist_name">%1$s</xliff:g>\' என்பதைத்தேர்க</string>
+    <string name="presetlist_add_new">புதுப்பட்டியலைச் சேர்க்க</string>
+    <string name="dialog_presetlist_rename_title">பெயரை உள்ளிடுக</string>
+    <string name="presetlist_autoselect_title">தற்தெரிவுசெய்தலை உறுதிசெய்க</string>
+    <string name="preset_replace">மாற்றிடுக</string>
+    <string name="preset_tune">இசை</string>
+    <string name="preset_rename">மறுபெயரிடுக</string>
+    <string name="preset_delete">நீக்குக</string>
+    <string name="preset_search">\'<xliff:g id="preset_pi">%1$s</xliff:g>\' என்பதற்காகத் தேடுக</string>
+    <string name="stat_notif_frequency">\'<xliff:g id="frequency">%1$s</xliff:g>\' MHz</string>
+    <string name="regional_band">மண்டலக் கற்றை</string>
+    <string name="regional_band_entry_north_america">வட அமெரிக்கா</string>
+    <string name="regional_band_entry_europe">ஐரோப்பா</string>
+    <string name="regional_band_entry_japan">ஜப்பான்</string>
+    <string name="regional_band_entry_japan_wide">ஜப்பான் (பரவலாக)</string>
+    <string name="regional_band_entry_australia">ஆத்திரேலியா</string>
+    <string name="regional_band_entry_austria">ஆத்திரியா</string>
+    <string name="regional_band_entry_belgium">பெல்ஜியம்</string>
+    <string name="regional_band_entry_brazil">பிரேசில்</string>
+    <string name="regional_band_entry_china">சீனா</string>
+    <string name="regional_band_entry_czech_republic">செக் குடியரசு</string>
+    <string name="regional_band_entry_denmark">டென்மார்க்</string>
+    <string name="regional_band_entry_finland">பின்லாந்து</string>
+    <string name="regional_band_entry_france">பிரான்சு</string>
+    <string name="regional_band_entry_germany">ஜெர்மனி</string>
+    <string name="regional_band_entry_greece">கிரேக்கம்</string>
+    <string name="regional_band_entry_hong_kong">ஹாங் காங்</string>
+    <string name="regional_band_entry_india">இந்தியா</string>
+    <string name="regional_band_entry_indonesia">இந்தோனேசியா</string>
+    <string name="regional_band_entry_ireland">அயர்லாந்து</string>
+    <string name="regional_band_entry_italy">இத்தாலி</string>
+    <string name="regional_band_entry_korea">கொரியா</string>
+    <string name="regional_band_entry_mexico">மெக்சிக்கோ</string>
+    <string name="regional_band_entry_netherlands">நெதர்லாந்து</string>
+    <string name="regional_band_entry_new_zealand">நியூசிலாந்து</string>
+    <string name="regional_band_entry_norway">நார்வே</string>
+    <string name="regional_band_entry_poland">போலந்து</string>
+    <string name="regional_band_entry_portugal">போர்த்துகல்</string>
+    <string name="regional_band_entry_russia">உருசியா</string>
+    <string name="regional_band_entry_singapore">சிங்கப்பூர்</string>
+    <string name="regional_band_entry_slovakia">சிலோவாக்கியா</string>
+    <string name="regional_band_entry_spain">எசுப்பானியா</string>
+    <string name="regional_band_entry_switzerland">சுவிட்சர்லாந்து</string>
+    <string name="regional_band_entry_sweden">சுவீடன்</string>
+    <string name="regional_band_entry_taiwan">தைவான்</string>
+    <string name="regional_band_entry_turkey">துருக்கி</string>
+    <string name="regional_band_entry_united_kingdom">ஐக்கிய பேரரசு</string>
+    <string name="regional_band_entry_united_states">அமெரிக்க ஐக்கிய நாடுகள்</string>
+    <string name="regional_band_entry_user_defined">பயனர் வரையறுத்த கற்றை</string>
+    <string name="regional_band_summary_north_america">வட அமெரிக்கா (87.5 முதல் 108.0 MHz வரை 200 kHz படிகளில்)</string>
+    <string name="regional_band_summary_europe">ஐரோப்பா (87.5 முதல் 108.0 MHz வரை 100 kHz படிகளில்)</string>
+    <string name="regional_band_summary_japan">ஜப்பான் (76.0 முதல் 90.0 MHz வரை 100 kHz படிகளில்)</string>
+    <string name="regional_band_summary_japan_wide">ஜப்பான் (பரவலாக) (90.0 முதல் 108.0 MHz வரை 50 kHz படிகளில்)</string>
+    <string name="regional_band_summary_australia">ஆத்திரேலியா (87.7 முதல் 108.0 MHz வரை 100 kHz படிகளில்)</string>
+    <string name="regional_band_summary_austria">ஆத்திரியா (87.5 முதல் 108.0 MHz வரை 50 kHz படிகளில்)</string>
+    <string name="regional_band_summary_belgium">பெல்ஜியம் (87.5 முதல் 108.0 MHz வரை 100 kHz படிகளில்)</string>
+    <string name="regional_band_summary_brazil">பிரேசில் (87.5 முதல் 108.0 MHz வரை 200 kHz படிகளில்)</string>
+    <string name="regional_band_summary_china">சீனா (87.0 முதல் 108.0 MHz வரை 100 kHz படிகளில்)</string>
+    <string name="regional_band_summary_czech_republic">செக் குடியரசு (87.5 முதல் 108.0 MHz வரை 100 kHz படிகளில்)</string>
+    <string name="regional_band_summary_denmark">டென்மார்க் (87.5 முதல் 108.0 MHz வரை 50 kHz படிகளில்)</string>
+    <string name="regional_band_summary_finland">பின்லாந்து (87.5 முதல் 108.0 MHz வரை 100 kHz படிகளில்)</string>
+    <string name="regional_band_summary_france">பிரான்சு (87.5 முதல் 108.0 MHz வரை 100 kHz படிகளில்)</string>
+    <string name="regional_band_summary_germany">ஜெர்மனி (87.5 முதல் 108.0 MHz வரை 50 kHz படிகளில்)</string>
+    <string name="regional_band_summary_greece">கிரேக்கம் (87.5 முதல் 108.0 MHz வரை 50 kHz படிகளில்)</string>
+    <string name="regional_band_summary_hong_kong">ஹாங் காங் (87.5 முதல் 108.0 MHz வரை 100 kHz படிகளில்)</string>
+    <string name="regional_band_summary_india">இந்தியா (87.5 முதல் 108.0 MHz வரை 100 kHz படிகளில்)</string>
+    <string name="regional_band_summary_indonesia">இந்தோனேசியா (87.5 முதல் 108.0 MHz வரை 100 kHz படிகளில்)</string>
+    <string name="regional_band_summary_ireland">அயர்லாந்து (87.5 முதல் 108.0 MHz வரை 50 kHz படிகளில்)</string>
+    <string name="regional_band_summary_italy">இத்தாலி (87.5 முதல் 108.0 MHz வரை 50 kHz படிகளில்)</string>
+    <string name="regional_band_summary_korea">கொரியா (87.5 முதல் 108.0 MHz வரை 200 kHz படிகளில்)</string>
+    <string name="regional_band_summary_mexico">மெக்சிக்கோ (88.1 முதல் 107.9 MHz வரை 200 kHz படிகளில்)</string>
+    <string name="regional_band_summary_netherlands">நெதர்லாந்து (87.5 முதல் 108.0 MHz வரை 100 kHz படிகளில்)</string>
+    <string name="regional_band_summary_new_zealand">நியூசிலாந்து (88.0 முதல் 107.0 MHz வரை 100 kHz படிகளில்)</string>
+    <string name="regional_band_summary_norway">நார்வே (87.5 முதல் 108.0 MHz வரை 100 kHz படிகளில்)</string>
+    <string name="regional_band_summary_poland">போலந்து (87.5 முதல் 108.0 MHz வரை 100 kHz படிகளில்)</string>
+    <string name="regional_band_summary_portugal">போர்த்துகல் (87.5 முதல் 108.0 MHz வரை 50 kHz படிகளில்)</string>
+    <string name="regional_band_summary_russia">உருசியா (87.5 முதல் 108.0 MHz வரை 100 kHz படிகளில்)</string>
+    <string name="regional_band_summary_singapore">சிங்கப்பூர் (88.0 முதல் 108.0 MHz வரை 100 kHz படிகளில்)</string>
+    <string name="regional_band_summary_slovakia">சிலோவாக்கியா (87.5 முதல் 108.0 MHz வரை 100 kHz படிகளில்)</string>
+    <string name="regional_band_summary_spain">எசுப்பானியா (87.5 முதல் 108.0 MHz வரை 100 kHz படிகளில்)</string>
+    <string name="regional_band_summary_switzerland">சுவிட்சர்லாந்து (87.5 முதல் 108.0 MHz வரை 100 kHz படிகளில்)</string>
+    <string name="regional_band_summary_sweden">சுவீடன் (87.5 முதல் 108.0 MHz வரை 100 kHz படிகளில்)</string>
+    <string name="regional_band_summary_taiwan">தைவான் (87.5 முதல் 108.0 MHz வரை 100 kHz படிகளில்)</string>
+    <string name="regional_band_summary_turkey">துருக்கி (87.5 முதல் 108.0 MHz வரை 100 kHz படிகளில்)</string>
+    <string name="regional_band_summary_united_kingdom">ஐக்கிய பேரரசு (87.5 முதல் 108.0 MHz வரை 100 kHz படிகளில்)</string>
+    <string name="regional_band_summary_united_states">அமெரிக்க ஐக்கிய நாடுகள் (88.1 முதல் 107.9 MHz வரை 200 kHz படிகளில்)</string>
+    <string name="regional_band_summary_user_defined">பயனர் வரையறுத்த கற்றை</string>
+    <string name="aud_output_mode">ஒலி வெளியீடு பயன்முறை</string>
+    <string name="audio_type_stereo">பன்னொலி</string>
+    <string name="audio_type_mono">ஒருவொலி</string>
+    <string name="record_dur">பதிவித்தல் காலம்</string>
+    <string name="auto_select_af">மாற்று அதிர்வெண்</string>
+    <string name="settings_revert_defaults_title">தொழிற்சாலை இயல்புநிலைக்கு மீட்டமைக்க</string>
+    <string name="settings_revert_defaults_summary">அமைப்புகள் யாவையும் மீளமைக்க</string>
+    <string name="settings_revert_confirm_title">மீளமைத்தலை உறுதிசெய்க</string>
+    <string name="settings_revert_confirm_msg">சேமிக்கப்பட்ட முன்னமைவுகள் உட்பட, பயன்பாட்டு அமைப்புகள் முழுதும் இ்ஃது அழிக்கும். தொடரவா?</string>
+    <string name="no_storage">பதிவுசெய்யத் தொடங்கும் முன் SD அட்டையை மூட்டுக.</string>
+    <string name="preparing_sd">SD அட்டை ஏற்படுத்துகிறது\u2026</string>
+    <string name="access_sd_fail">SD அட்டையை அணுக முடியவில்லை.</string>
+    <string name="spaceIsLow_content">இடமின்றி உமது SD அட்டை சேமிப்பகம் தொடருகிறது. தர அமைப்பை மாற்றியோ, சில கோப்புகளை நீக்கியோ இடத்தை வெறுமையாக்குக.</string>
+    <string name="FMRecording_reach_size_limit">அளவு வரம்படைந்தது.</string>
+    <string name="menu_scan_for_preset">முன்னமைவுகளுக்காகத் துழவுக</string>
+    <string name="fm_off">பண்பலை அணைக்கப்பட்டுள்ளது.</string>
+    <string name="fm_call">பண்பலையை அழைப்பின்போது பயன்படுத்த முடியாது.</string>
+    <string name="alert_dialog_hint">ஒரு பெயரை உள்ளிடுக</string>
+    <string name="search_dialog_title">நிலையங்களைத் துழவுக</string>
+    <string name="fm_command_timeout_title">நேரமுடிவு</string>
+    <string name="fm_tune_timeout_msg">பண்பலை நிலையத்தை இசைவிக்க மறுமொழி பெறப்படவில்லை. பிறழ்வினை தொடர்ந்தால், பண்பலையை அணைத்து மீண்டும் இயக்குக.</string>
+    <string name="fm_command_failed_title">பண்பலைச் செயற்பாடு செயலிழந்தது</string>
+    <string name="fm_cmd_failed_msg">பண்பலைச் செயற்பாடு செயலிழந்தது. பிறழ்வினை தொடர்ந்தால், பண்பலையை அணைத்து மீண்டும் இயக்குக.</string>
+    <string name="fm_cmd_failed_msg_hdmi">பண்பலைச் செயற்பாடு செயலிழந்தது. FM, HDMI ஒத்திசைவு ஆகியவை ஆதரிக்கவில்லை.</string>
+    <string name="fm_cmd_failed_call_on">பண்பலைச் செயற்பாடு செயலிழந்தது. அழைப்பின்போது பண்பலை ஒலி அனுமதிக்கப்படாது.</string>
+    <string name="audio_db_title_format"><xliff:g id="format">yyyy-MM-dd HH:mm:ss</xliff:g></string>
+    <string name="audio_db_artist_name">என் பண்பலைப்பதிவுகள்</string>
+    <string name="audio_db_album_name">பண்பலைப்பதிவுகள்</string>
+    <string name="audio_db_playlist_name">பண்பலைப்பதிவுகள்</string>
+    <string name="station_name">நிலையம்:</string>
+    <string name="station_exists">இந்த அதிர்வெண் ஏற்கெனவே இருக்கிறது!</string>
+    <string name="station_list_delete_station">நீக்குக: <xliff:g id="name">%s</xliff:g></string>
+    <string name="station_list_delete_station_prompt">\'<xliff:g id="name">%s</xliff:g>\' இதை உறுதியாக நீக்க விரும்புகிறீரா?</string>
+    <string name="station_name_empty">நிலையப்பெயர் வெறுமையாக உள்ளது, மீண்டும் உள்ளிடுக.</string>
+    <string name="station_name_exist">\'<xliff:g id="name">%s</xliff:g>\' ஏற்கெனவே பயன்பாட்டில் உள்ளது, வேறு பெயரை உள்ளிடுக.</string>
+    <string name="rt_plus_tags">குறிசொற்கள்</string>
+    <string name="usr_def_band_min">குறைந்த அதிர்வெண் (MHz)</string>
+    <string name="usr_def_band_max">உயர்ந்த அதிர்வெண்(MHz)</string>
+    <string name="chanl_spacing">கற்றையகலம்</string>
+    <string name="set">அமைக்க</string>
+    <string name="user_defind_band_msg">76.0 முதல் 108.0 MHz வரையிலான அதிர்வெண்ணை மீச்சிறு ஓர் அலைவரிசை இடைவெளியுடனும், சிறும பெரும அதிர்வெண்ணுக்கு இடையே 100 kHz இடைவெளியுடனும் உள்ளிடுக</string>
+    <string name="save_record_file">பண்பலைப் பதிவு \'<xliff:g id="record_file"> %1$s</xliff:g>\' கோப்பில் சேமிக்கப்பட்டது</string>
+    <string name="fm_search_no_results">இணக்கமான நிலையங்கள் எவையும் இல்லை</string>
+    <string name="typ_All_stations">நிலையங்கள் அனைத்தும்</string>
+    <string name="typ_Culture">பண்பாடு</string>
+    <string name="typ_Current_affairs">நடப்பு நிகழ்வுகள்</string>
+    <string name="typ_Children">குழந்தைகள் நிகழ்ச்சிகள்</string>
+    <string name="typ_Country">நாட்டிசை</string>
+    <string name="typ_Documentary">ஆவணஞ்சார்</string>
+    <string name="typ_Drama">நாடகம்</string>
+    <string name="typ_Easy_listening">எளிதாகக் கேட்கின்ற இசை</string>
+    <string name="typ_Education">கல்வி</string>
+    <string name="typ_Emergency">நெருக்கடி</string>
+    <string name="typ_Emergency_test">நெருக்கடி ஆய்வு</string>
+    <string name="typ_Finance">நிதி</string>
+    <string name="typ_Folk">நாட்டுப்புற இசை</string>
+    <string name="typ_Information">தகவல்</string>
+    <string name="typ_Jazz">ஜாஸ் இசை</string>
+    <string name="typ_Light_classical">இலகிய செவ்வியல்</string>
+    <string name="typ_Leisure">ஓய்வு</string>
+    <string name="typ_News">செய்திகள்</string>
+    <string name="typ_National">தேசிய இசை</string>
+    <string name="typ_Other">மற்ற இசை</string>
+    <string name="typ_Oldies">பழங்கால இசை</string>
+    <string name="typ_Phone_in">தொலைப்பேசியில்</string>
+    <string name="typ_Pop">பாப் இசை</string>
+    <string name="typ_Religion">மதம்</string>
+    <string name="typ_Rock">ராக் இசை</string>
+    <string name="typ_Science">அறிவியல்</string>
+    <string name="typ_Serious_classical">வலிய செவ்வியல்</string>
+    <string name="typ_Social_affairs">சமூக நிகழ்வுகள்</string>
+    <string name="typ_Sport">விளையாட்டு</string>
+    <string name="typ_Travel">பயணம்</string>
+    <string name="typ_Varied">பல்வேறு</string>
+    <string name="typ_Weather">வானிலை</string>
+    <string name="typ_Adult_hits">முதிர்ந்தோர் வெற்றி</string>
+    <string name="typ_Classical">செவ்வியல்</string>
+    <string name="typ_Classic_Rock">கிளாசிக் ராக்</string>
+    <string name="typ_College">கல்லூரி</string>
+    <string name="typ_Foreign_language">அயற்மொழி</string>
+    <string name="typ_Hiphop">ஹிப் ஹாப்</string>
+    <string name="typ_Nostalgia">நீங்கா நினைவு</string>
+    <string name="typ_Personality">ஆட்பண்பு</string>
+    <string name="typ_Public">பொது</string>
+    <string name="typ_Religious_music">மத இசை</string>
+    <string name="typ_Religious_talk">மதப் பேச்சு</string>
+    <string name="typ_Rhythm_and_Blues">ரிதம் மற்றும் ப்ளூஸ்</string>
+    <string name="typ_Spanish_music">எசுப்பானியா இசை</string>
+    <string name="typ_Spanish_talk">எசுப்பானியாப் பேச்சு</string>
+    <string name="typ_Soft">மெல்லிசை</string>
+    <string name="typ_Soft_Rock">மெல்லிய ராக்</string>
+    <string name="typ_Soft_Rhythm_and_Blues">மெல்லிய ரிதம் மற்றும் ப்ளூஸ்</string>
+    <string name="typ_Sports">விளையாட்டு</string>
+    <string name="typ_Talk">பேச்சு</string>
+    <string name="typ_Top_40">முதல் 40</string>
+</resources>

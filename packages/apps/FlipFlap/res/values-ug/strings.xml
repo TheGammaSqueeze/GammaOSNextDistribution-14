@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  Copyright (c) 2017 The LineageOS Project
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ Also add information on how to contact you by electronic and paper mail.
+
+-->
+<resources>
+    <string name="app_name">FlipFlap</string>
+    <string name="notification_title">ئىدراكلىق قوغدىغۇچ بايقالدى</string>
+    <string name="alarm_label">قوڭغۇراق</string>
+    <string name="abbrev_wday_month_day_no_year">MMMM-ئاينىڭ d-كۈنى، EEEE</string>
+    <string name="answer_call">جاۋاب</string>
+    <string name="ignore_call">پەرۋا قىلما</string>
+    <string name="end_call">چاقىرىشنى ئاخىرلاشتۇر</string>
+    <string name="settings_name">ئىدراكلىق قوغدىغۇچ</string>
+    <string name="settings_enable">ئىدراكلىق قوغدىغۇچ تىزگىنىنى قوزغىتىدۇ</string>
+    <string name="settings_summary">قۇشۇمچە قىلمىشلارنى تىزگىنلەيدۇ</string>
+    <string name="category_behaviour">قىلمىش</string>
+    <string name="pass_to_security_view_title">ئىم كىرگۈزۈشكە بىۋاسىتە يۆتكىلىدۇ</string>
+    <string name="pass_to_security_view_summary">قوغدىغۇچنى ئاچقاندا قۇلۇپ ئېكراننى بىۋاسىتە كۆرسىتىدۇ</string>
+    <string name="use_high_touch_sensitivity_title">سەزگۈر ئېكراننىڭ يۇقىرى سېزىمچانلىقى</string>
+    <string name="use_high_touch_sensitivity_summary">قوغدىغۇچ تاقالغاندا تېگىشكە سەزگۈرلۈكى ئاشىدۇ</string>
+    <string name="category_design">لايىھە</string>
+    <string name="switch_charging_status_title">توكلاش ھالىتىنى كۆرسىتىدۇ</string>
+    <string name="switch_charging_status_summary">نۆۋەتتىكى توكداننى توكلاش ھالىتىگە ئاساسەن رەڭگىنى ئۆزگەرتىدۇ</string>
+    <string name="category_timeouts">ۋاقىت ھالقىش</string>
+    <string name="timeout_plugged_title">توكلاۋاتقاندا</string>
+    <string name="timeout_unplugged_title">توك چېتىلمىدى</string>
+    <string name="timeout_summary">قاپقاقنى ياپقاندىن كېيىن %s قوغدىغۇچ ئەپنى كۆرسىتىدۇ</string>
+    <string name="timeout_summary_never">قاپقاقنى ياپقاندىن كېيىن، ھەمىشە قوغدىغۇچ ئەپنى كۆرسىتىدۇ</string>
+    <string name="timeout_summary_immediately">قاپقاق يېپىلغاندا ئېكران تاقىلىدۇ</string>
+    <string name="timeout_entry_immediately">دەرھال</string>
+    <string name="timeout_entry_5s">5 سېكۇنت</string>
+    <string name="timeout_entry_10s">10 سېكۇنت</string>
+    <string name="timeout_entry_30s">30 سېكۇنت</string>
+    <string name="timeout_entry_1min">1 مىنۇت</string>
+    <string name="timeout_entry_5min">5 مىنۇت</string>
+    <string name="timeout_entry_never">ھەرگىز</string>
+</resources>

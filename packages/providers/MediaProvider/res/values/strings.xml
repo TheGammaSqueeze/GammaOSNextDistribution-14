@@ -1,0 +1,543 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2009 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- Label to show to user for all apps using this UID. -->
+    <string name="uid_label">Media</string>
+
+    <!-- Label to show client applications a short description of storage location -->
+    <string name="storage_description">Local storage</string>
+
+    <!-- Label to show to user for this package and for Photo picker. -->
+    <string name="picker_app_label">Media picker</string>
+
+    <!-- Description line for music artists in the search/suggestion results -->
+    <string name="artist_label">Artist</string>
+
+    <!-- Label for a file or directory which has no valid user-visible description [CHAR LIMIT=32] -->
+    <string name="unknown">Unknown</string>
+
+    <!-- Title for documents backend that offers images. [CHAR LIMIT=24] -->
+    <string name="root_images">Images</string>
+    <!-- Title for documents backend that offers videos. [CHAR LIMIT=24] -->
+    <string name="root_videos">Videos</string>
+    <!-- Title for documents backend that offers audio. [CHAR LIMIT=24] -->
+    <string name="root_audio">Audio</string>
+    <!-- Title for documents backend that offers documents. [CHAR LIMIT=24] -->
+    <string name="root_documents">Documents</string>
+
+    <!-- Message telling users that the app must request permission before working with a media item. [CHAR LIMIT=128] -->
+    <string name="permission_required">Permission required to modify or delete this item.</string>
+    <!-- Button text that users can click on to request permission before working with a media item. [CHAR LIMIT=32] -->
+    <string name="permission_required_action">Continue</string>
+
+    <!-- Title for the dialog button to allow a permission grant. [CHAR LIMIT=15]  -->
+    <string name="grant_dialog_button_allow">Allow</string>
+    <!-- Title for the dialog button to deny a permission grant. [CHAR LIMIT=15]  -->
+    <string name="grant_dialog_button_deny">Deny</string>
+
+    <!-- Text placed over a visual thumbnail indicating that there are more items beyond the number currently displayed on the screen. [CHAR LIMIT=6] -->
+    <string name="permission_more_thumb"> {count, plural,
+        =1    {+<xliff:g id="count" example="1">^1</xliff:g>}
+        other {+<xliff:g id="count" example="42">^1</xliff:g>}
+    }</string>
+
+    <!-- Text shown at the end of a list indicating that there are more items beyond the number currently displayed on the screen. [CHAR LIMIT=32]  -->
+    <string name="permission_more_text"> {count, plural,
+        =1    {Plus <xliff:g id="count" example="1">^1</xliff:g> additional item}
+        other {Plus <xliff:g id="count" example="42">^1</xliff:g> additional items}
+    }</string>
+
+    <!-- Cache clearing permission dialog warning title. [CHAR LIMIT=NONE] -->
+    <string name="cache_clearing_dialog_title">Clear temporary app files</string>
+
+    <!-- Cache clearing permission dialog warning text. [CHAR LIMIT=NONE] -->
+    <string name="cache_clearing_dialog_text"><xliff:g id="app_seeking_permission" example="File manager">%s</xliff:g> would like to clear some temporary files. This may result in an increased usage of battery or cellular data.</string>
+
+    <!-- Cache clearing in progress title. [CHAR LIMIT=NONE] -->
+    <string name="cache_clearing_in_progress_title">Clearing temporary app files\u2026</string>
+
+    <!--  Cache clearing permission dialog Clear button text. [CHAR LIMIT=30] -->
+    <string name="clear">Clear</string>
+
+    <!-- Allow dialog action text. [CHAR LIMIT=30] -->
+    <string name="allow">Allow</string>
+
+    <!-- Deny dialog action text. [CHAR LIMIT=30] -->
+    <string name="deny">Deny</string>
+
+    <!-- Add browse menu item in Photo Picker to browse items in DocumentsUI. [CHAR LIMIT=30] -->
+    <string name="picker_browse">Browse\u2026</string>
+
+    <!-- Settings menu item in Photo Picker menu which allows users to change the cloud media provider app. [CHAR LIMIT=30] -->
+    <string name="picker_settings">Cloud media app</string>
+
+    <!-- PhotoPicker Settings item title in the System Settings menu. [CHAR LIMIT=40] -->
+    <string name="picker_settings_system_settings_menu_title">Cloud media app</string>
+
+    <!-- Settings page title in Photo Picker. [CHAR LIMIT=NONE] -->
+    <string name="picker_settings_title">Cloud media app</string>
+
+    <!-- Settings page description in Photo Picker. [CHAR LIMIT=NONE] -->
+    <string name="picker_settings_description">Access your cloud media when an app or website asks you to select photos or videos</string>
+
+    <!-- Settings page select cloud provider message in Photo Picker. [CHAR LIMIT=NONE] -->
+    <string name="picker_settings_selection_message">Access cloud media from</string>
+
+    <!-- A label for an option in a single-select choice list that lets user select a Cloud media provider application. [CHAR LIMIT=NONE] -->
+    <string name="picker_settings_no_provider">None</string>
+
+    <!-- Error message displayed to the user when the user is not able to change cloud media app preference in Picker Settings. [CHAR LIMIT=50] -->
+    <string name="picker_settings_toast_error">Could not change cloud media app at this time.</string>
+
+    <!-- PhotoPicker notification channel for sync updates [CHAR LIMIT=40] -->
+    <string name="picker_sync_notification_channel">Media picker</string>
+
+    <!-- PhotoPicker sync notification title [CHAR LIMIT=40] -->
+    <string name="picker_sync_notification_title">Media picker</string>
+
+    <!-- PhotoPicker sync notification text [CHAR LIMIT=60] -->
+    <string name="picker_sync_notification_text">Syncing media&#8230;</string>
+
+    <!-- Add button for PhotoPicker. [CHAR LIMIT=30] -->
+    <string name="add">Add</string>
+
+    <!-- Deselect button for PhotoPicker. [CHAR LIMIT=30] -->
+    <string name="deselect">Deselect</string>
+
+    <!-- Deselected check button for PhotoPicker. [CHAR LIMIT=30] -->
+    <string name="deselected">Deselected</string>
+
+    <!-- Select button for PhotoPicker. [CHAR LIMIT=30] -->
+    <string name="select">Select</string>
+
+    <!-- Selected check button for PhotoPicker. [CHAR LIMIT=30] -->
+    <string name="selected">Selected</string>
+
+    <!-- Select up to max label message for PhotoPicker. [CHAR LIMIT=30] -->
+    <string name="select_up_to"> {count, plural,
+        =1    {Select up to <xliff:g id="count" example="1">^1</xliff:g> item}
+        other {Select up to <xliff:g id="count" example="42">^1</xliff:g> items}
+    }</string>
+
+    <!-- Recent header for PhotoPicker. [CHAR LIMIT=50] -->
+    <string name="recent">Recent</string>
+
+    <!-- The message for empty message on Photos tab in PhotoPicker when the item count is zero. [CHAR LIMIT=NONE] -->
+    <string name="picker_photos_empty_message">No photos or videos</string>
+    <!-- The empty message for an album in PhotoPicker when the item count is zero. [CHAR LIMIT=NONE] -->
+    <string name="picker_album_media_empty_message">No supported photos or videos</string>
+    <!-- The message for empty message on Albums tab in PhotoPicker when the item count is zero. [CHAR LIMIT=NONE] -->
+    <string name="picker_albums_empty_message">No albums</string>
+
+    <!-- PhotoPicker view selected action text. [CHAR LIMIT=17] -->
+    <string name="picker_view_selected">View selected</string>
+
+    <!-- The text of the photos tab in PhotoPicker for 'Image/' mime type. [CHAR LIMIT=30] -->
+    <string name="picker_photos">Photos</string>
+
+    <!-- The text of the photos tab in PhotoPicker for 'Video/' mime type. [CHAR LIMIT=30] -->
+    <string name="picker_videos">@string/root_videos</string>
+
+    <!-- The text of the albums tab for PhotoPicker. [CHAR LIMIT=30] -->
+    <string name="picker_albums">Albums</string>
+
+    <!-- The text of the preview page for PhotoPicker. [CHAR LIMIT=30] -->
+    <string name="picker_preview">Preview</string>
+
+    <!-- The text of the switching work/personal profile in PhotoPicker. [CHAR LIMIT=80] -->
+    <string name="picker_work_profile">Switch to work</string>
+    <!-- The text of the switching work/personal profile in PhotoPicker. [CHAR LIMIT=80] -->
+    <string name="picker_personal_profile">Switch to personal</string>
+    <!-- personal profile label in PhotoPicker -->
+    <string name="picker_personal_profile_label">Personal</string>
+    <!-- The title for error dialog in PhotoPicker when the admin blocks cross user interaction for
+    the intent. [CHAR LIMIT=100] -->
+    <string name="picker_profile_admin_title">Blocked by your admin</string>
+    <!-- The message for error dialog in PhotoPicker when the admin blocks cross user interaction
+    for the intent. [CHAR LIMIT=NONE] -->
+    <string name="picker_profile_admin_msg_from_personal">Accessing work data from a personal app is not permitted</string>
+    <!-- The message for error dialog in PhotoPicker when the admin blocks cross user interaction
+    for the intent. [CHAR LIMIT=NONE] -->
+    <string name="picker_profile_admin_msg_from_work">Accessing personal data from a work app is not permitted</string>
+    <!-- The message for error dialog in PhotoPicker when the admin of any user profile blocks cross
+     user interaction for the intent. [CHAR LIMIT=NONE] -->
+    <string name="picker_profile_admin_msg">Accessing <xliff:g id="profile1" example="work">%1$s</xliff:g> data from a <xliff:g id="profile2" example="personal">%2$s</xliff:g> app is not permitted</string>
+    <!-- The text of the switching profile in PhotoPicker. [CHAR LIMIT=80] -->
+    <string name="picker_profile_switch_message">Switch to <xliff:g id="profile" example="personal">%s</xliff:g></string>
+    <!-- The title of the error dialog in PhotoPicker when the user tries to switch to work content,
+     but work profile is off. [CHAR LIMIT=80] -->
+    <string name="picker_profile_work_paused_title">Work apps are paused</string>
+    <!-- The title of the error dialog in PhotoPicker when the user tries to switch to other profile
+     content, but the other profile is off. [CHAR LIMIT=80] -->
+    <string name="picker_profile_paused_title"><xliff:g id="profile" example="work">%s</xliff:g> apps are paused</string>
+    <!-- The message of the error dialog in PhotoPicker when the user tries to switch to work
+    content, but work profile is off. [CHAR LIMIT=NONE] -->
+    <string name="picker_profile_work_paused_msg">To open work photos, turn on your work apps then try again</string>
+    <!-- The message of the error dialog in PhotoPicker when the user tries to switch to other
+    profile content, but the other profile is off. [CHAR LIMIT=NONE] -->
+    <string name="picker_profile_paused_msg">To open <xliff:g id="profile1" example="work">%1$s</xliff:g> photos, turn on your <xliff:g id="profile2" example="work">%2$s</xliff:g> apps then try again</string>
+    <!-- PhotoPicker privacy message. [CHAR LIMIT=80] -->
+    <string name="picker_privacy_message">This app can only access the photos you select</string>
+    <!-- PhotoPicker header message in permission select mode -->
+    <string name="picker_header_permissions">"Select photos and videos you allow this app to access"</string>
+
+    <!-- Text shown on the album item in PhotoPicker. [CHAR LIMIT=30]  -->
+    <string name="picker_album_item_count"> {count, plural,
+        =1    {<xliff:g id="count" example="1">^1</xliff:g> item}
+        other {<xliff:g id="count" example="42">^1</xliff:g> items}
+    }</string>
+
+    <!-- Text shown on the add button for multi-select in PhotoPicker. [CHAR LIMIT=30]  -->
+    <string name="picker_add_button_multi_select">Add (<xliff:g id="count" example="42">^1</xliff:g>)</string>
+
+    <!-- Text shown on the add button for multi-select in PhotoPicker when granting photo access to apps. [CHAR LIMIT=30]  -->
+    <!-- TODO(b/257208235): Update with finalized UX string. !-->
+    <string name="picker_add_button_multi_select_permissions">Allow (<xliff:g id="count" example="42">^1</xliff:g>)</string>
+
+    <!-- Text shown on the add button for multi-select in Picker Choice when no photo is selected.[CHAR LIMIT=30]  -->
+    <string name="picker_add_button_allow_none_option">Allow none</string>
+
+    <!-- Title for the category in the picker that offers items in Camera folder. [CHAR LIMIT=24] -->
+    <string name="picker_category_camera">Camera</string>
+    <!-- Title for the category in the picker that offers downloaded items. [CHAR LIMIT=24] -->
+    <string name="picker_category_downloads">Downloads</string>
+    <!-- Title for the category in the picker that offers favorite items. [CHAR LIMIT=24] -->
+    <string name="picker_category_favorites">Favorites</string>
+    <!-- Title for the category in the picker that offers screenshots. [CHAR LIMIT=24] -->
+    <string name="picker_category_screenshots">Screenshots</string>
+    <!-- Title for the category in the picker that offers videos. [CHAR LIMIT=24] -->
+    <string name="picker_category_videos">@string/root_videos</string>
+
+    <!-- Special format text in preview screen for Motion Photo. [CHAR LIMIT=30] -->
+    <string name="picker_motion_photo_text">Motion Photo</string>
+
+    <!-- Content description of when a photo was taken on [CHAR LIMIT=NONE] -->
+    <string name="picker_item_content_desc"><xliff:g id="item_name" example="Photo">%1$s</xliff:g> taken on <xliff:g id="time" example="Jul 7, 2020, 12:00:00 AM">%2$s</xliff:g></string>
+
+    <!-- Content description of an video item [CHAR LIMIT=NONE] -->
+    <string name="picker_video_item_content_desc">Video taken on <xliff:g id="time" example="Jul 7, 2020, 12:00:00 AM">%1$s</xliff:g> with duration <xliff:g id="duration" example="00:03">%2$s</xliff:g></string>
+
+    <!-- Title of the picker photo item [CHAR LIMIT=40] -->
+    <string name="picker_photo">Photo</string>
+
+    <!-- Title of the picker GIF item [CHAR LIMIT=40] -->
+    <string name="picker_gif">GIF</string>
+
+    <!-- Title of the picker motion photo item [CHAR LIMIT=60] -->
+    <string name="picker_motion_photo">Motion Photo</string>
+
+    <!-- Content description for a button that mutes the current video. [CHAR LIMIT=50] -->
+    <string name="picker_mute_video">Mute video</string>
+
+    <!-- Content description for a button that unmutes the current video. [CHAR LIMIT=50] -->
+    <string name="picker_unmute_video">Unmute video</string>
+
+    <!-- Content description for a button that playes the current video. [CHAR LIMIT=50] -->
+    <string name="picker_play_video">Play</string>
+
+    <!-- Content description for a button that pauses the current video. [CHAR LIMIT=50] -->
+    <string name="picker_pause_video">Pause</string>
+
+    <!-- Permanent error notification text displayed on a Snackbar to notify the user -->
+    <string name="picker_error_snackbar">Can\'t play video</string>
+
+    <!-- Retriable error dialog title -->
+    <string name="picker_error_dialog_title">Trouble playing video</string>
+
+    <!-- Retriable error dialog body -->
+    <string name="picker_error_dialog_body">Check your internet connection and try again</string>
+
+    <!-- Retriable error dialog positive action button text -->
+    <string name="picker_error_dialog_positive_action">Retry</string>
+
+    <!-- Default not selected text used by accessibility for an element that can be unselected. [CHAR LIMIT=NONE] -->
+    <string name="not_selected">not selected</string>
+
+    <!-- Title of the preloading progress dialog -->
+    <string name="preloading_dialog_title">"Preparing your selected media"</string>
+    <!-- A message for the Progress Dialog shown while preloading selected items before "closing" Photo Picker. [CHAR LIMIT=NONE] -->
+    <string name="preloading_progress_message"><xliff:g id="number_preloaded">%1$d</xliff:g> of <xliff:g id="number_total">%2$d</xliff:g> ready</string>
+
+    <string name="preloading_cancel_button">Cancel</string>
+
+    <!-- ========================= PHOTO PICKER CLOUD EDUCATION BANNERS ========================= -->
+
+    <!-- Title for the banner notifying the user that the cloud media is now available in the picker [CHAR LIMIT=NONE] -->
+    <string name="picker_banner_cloud_first_time_available_title">Backed up photos now included</string>
+
+    <!-- Description for the banner notifying the user that the cloud media is now available in the picker [CHAR LIMIT=NONE] -->
+    <string name="picker_banner_cloud_first_time_available_desc">You can select photos from <xliff:g id="app_name" example="Photos">%1$s</xliff:g> account <xliff:g id="user_account" example="johndoe123@gmail.com">%2$s</xliff:g></string>
+
+    <!-- Title for the banner notifying the user about the account change in the cloud media app [CHAR LIMIT=NONE] -->
+    <string name="picker_banner_cloud_account_changed_title"><xliff:g id="app_name" example="Photos">%1$s</xliff:g> account updated</string>
+
+    <!-- Description for the banner notifying the user about the account change in the cloud media app [CHAR LIMIT=NONE] -->
+    <string name="picker_banner_cloud_account_changed_desc">Photos from <xliff:g id="user_account" example="johndoe123@gmail.com">%1$s</xliff:g> are now included here</string>
+
+    <!-- Title for the banner notifying the user to choose a cloud media app in the picker [CHAR LIMIT=NONE] -->
+    <string name="picker_banner_cloud_choose_app_title">Choose cloud media app</string>
+
+    <!-- Description for the banner notifying the user to choose a cloud provider app in the picker [CHAR LIMIT=NONE] -->
+    <string name="picker_banner_cloud_choose_app_desc">To include backed up photos here, choose a cloud media app in Settings</string>
+
+    <!-- Title for the banner notifying the user to choose an account in the cloud media app [CHAR LIMIT=NONE] -->
+    <string name="picker_banner_cloud_choose_account_title">Choose <xliff:g id="app_name" example="Photos">%1$s</xliff:g> account</string>
+
+    <!-- Description for the banner notifying the user to choose an account in the cloud media app [CHAR LIMIT=NONE] -->
+    <string name="picker_banner_cloud_choose_account_desc">To include photos from <xliff:g id="app_name" example="Photos">%1$s</xliff:g> here, choose an account in the app</string>
+
+    <!-- Dismiss button for banners [CHAR LIMIT=25] -->
+    <string name="picker_banner_cloud_dismiss_button">Dismiss</string>
+
+    <!-- Choose app button for banners [CHAR LIMIT=25] -->
+    <string name="picker_banner_cloud_choose_app_button">Choose app</string>
+
+    <!-- Choose account button for banners [CHAR LIMIT=25] -->
+    <string name="picker_banner_cloud_choose_account_button">Choose account</string>
+
+    <!-- Change account button for banners [CHAR LIMIT=25] -->
+    <string name="picker_banner_cloud_change_account_button">Change account</string>
+
+    <!-- A messaged displayed on top of the prgressbar when photos are being loaded. [CHAR LIMIT=80]-->
+    <string name="picker_loading_photos_message">Getting all your photos</string>
+
+
+    <!-- ========================= BEGIN AUTO-GENERATED BY gen_strings.py ========================= -->
+
+    <!-- ========================= WRITE STRINGS ========================= -->
+
+    <!-- Dialog title asking if user will allow write permission to the audio item displayed below this string. [CHAR LIMIT=128] -->
+    <string name="permission_write_audio"> {count, plural,
+        =1    {Allow <xliff:g id="app_name" example="Gmail">^1</xliff:g> to modify this audio file?}
+        other {Allow <xliff:g id="app_name" example="Gmail">^1</xliff:g> to modify <xliff:g id="count" example="42">^2</xliff:g> audio files?}
+    }</string>
+    <!-- Progress dialog message after user allows write permission to the audio item [CHAR LIMIT=128] -->
+    <string name="permission_progress_write_audio"> {count, plural,
+        =1    {Modifying audio file&#8230;}
+        other {Modifying <xliff:g id="count" example="42">^1</xliff:g> audio files&#8230;}
+    }</string>
+    <!-- Dialog title asking if user will allow write permission to the video item displayed below this string. [CHAR LIMIT=128] -->
+    <string name="permission_write_video"> {count, plural,
+        =1    {Allow <xliff:g id="app_name" example="Gmail">^1</xliff:g> to modify this video?}
+        other {Allow <xliff:g id="app_name" example="Gmail">^1</xliff:g> to modify <xliff:g id="count" example="42">^2</xliff:g> videos?}
+    }</string>
+    <!-- Progress dialog message after user allows write permission to the video item [CHAR LIMIT=128] -->
+    <string name="permission_progress_write_video"> {count, plural,
+        =1    {Modifying video&#8230;}
+        other {Modifying <xliff:g id="count" example="42">^1</xliff:g> videos&#8230;}
+    }</string>
+    <!-- Dialog title asking if user will allow write permission to the image item displayed below this string. [CHAR LIMIT=128] -->
+    <string name="permission_write_image"> {count, plural,
+        =1    {Allow <xliff:g id="app_name" example="Gmail">^1</xliff:g> to modify this photo?}
+        other {Allow <xliff:g id="app_name" example="Gmail">^1</xliff:g> to modify <xliff:g id="count" example="42">^2</xliff:g> photos?}
+    }</string>
+    <!-- Progress dialog message after user allows write permission to the image item [CHAR LIMIT=128] -->
+    <string name="permission_progress_write_image"> {count, plural,
+        =1    {Modifying photo&#8230;}
+        other {Modifying <xliff:g id="count" example="42">^1</xliff:g> photos&#8230;}
+    }</string>
+    <!-- Dialog title asking if user will allow write permission to the generic item displayed below this string. [CHAR LIMIT=128] -->
+    <string name="permission_write_generic"> {count, plural,
+        =1    {Allow <xliff:g id="app_name" example="Gmail">^1</xliff:g> to modify this item?}
+        other {Allow <xliff:g id="app_name" example="Gmail">^1</xliff:g> to modify <xliff:g id="count" example="42">^2</xliff:g> items?}
+    }</string>
+    <!-- Progress dialog message after user allows write permission to the generic item [CHAR LIMIT=128] -->
+    <string name="permission_progress_write_generic"> {count, plural,
+        =1    {Modifying item&#8230;}
+        other {Modifying <xliff:g id="count" example="42">^1</xliff:g> items&#8230;}
+    }</string>
+
+    <!-- ========================= TRASH STRINGS ========================= -->
+
+    <!-- Dialog title asking if user will allow trash permission to the audio item displayed below this string. [CHAR LIMIT=128] -->
+    <string name="permission_trash_audio"> {count, plural,
+        =1    {Allow <xliff:g id="app_name" example="Gmail">^1</xliff:g> to move this audio file to trash?}
+        other {Allow <xliff:g id="app_name" example="Gmail">^1</xliff:g> to move <xliff:g id="count" example="42">^2</xliff:g> audio files to trash?}
+    }</string>
+    <!-- Progress dialog message after user allows trash permission to the audio item [CHAR LIMIT=128] -->
+    <string name="permission_progress_trash_audio"> {count, plural,
+        =1    {Moving audio file to trash&#8230;}
+        other {Moving <xliff:g id="count" example="42">^1</xliff:g> audio files to trash&#8230;}
+    }</string>
+    <!-- Dialog title asking if user will allow trash permission to the video item displayed below this string. [CHAR LIMIT=128] -->
+    <string name="permission_trash_video"> {count, plural,
+        =1    {Allow <xliff:g id="app_name" example="Gmail">^1</xliff:g> to move this video to trash?}
+        other {Allow <xliff:g id="app_name" example="Gmail">^1</xliff:g> to move <xliff:g id="count" example="42">^2</xliff:g> videos to trash?}
+    }</string>
+    <!-- Progress dialog message after user allows trash permission to the video item [CHAR LIMIT=128] -->
+    <string name="permission_progress_trash_video"> {count, plural,
+        =1    {Moving video to trash&#8230;}
+        other {Moving <xliff:g id="count" example="42">^1</xliff:g> videos to trash&#8230;}
+    }</string>
+    <!-- Dialog title asking if user will allow trash permission to the image item displayed below this string. [CHAR LIMIT=128] -->
+    <string name="permission_trash_image"> {count, plural,
+        =1    {Allow <xliff:g id="app_name" example="Gmail">^1</xliff:g> to move this photo to trash?}
+        other {Allow <xliff:g id="app_name" example="Gmail">^1</xliff:g> to move <xliff:g id="count" example="42">^2</xliff:g> photos to trash?}
+    }</string>
+    <!-- Progress dialog message after user allows trash permission to the image item [CHAR LIMIT=128] -->
+    <string name="permission_progress_trash_image"> {count, plural,
+        =1    {Moving photo to trash&#8230;}
+        other {Moving <xliff:g id="count" example="42">^1</xliff:g> photos to trash&#8230;}
+    }</string>
+    <!-- Dialog title asking if user will allow trash permission to the generic item displayed below this string. [CHAR LIMIT=128] -->
+    <string name="permission_trash_generic"> {count, plural,
+        =1    {Allow <xliff:g id="app_name" example="Gmail">^1</xliff:g> to move this item to trash?}
+        other {Allow <xliff:g id="app_name" example="Gmail">^1</xliff:g> to move <xliff:g id="count" example="42">^2</xliff:g> items to trash?}
+    }</string>
+    <!-- Progress dialog message after user allows trash permission to the generic item [CHAR LIMIT=128] -->
+    <string name="permission_progress_trash_generic"> {count, plural,
+        =1    {Moving item to trash&#8230;}
+        other {Moving <xliff:g id="count" example="42">^1</xliff:g> items to trash&#8230;}
+    }</string>
+
+    <!-- ========================= UNTRASH STRINGS ========================= -->
+
+    <!-- Dialog title asking if user will allow untrash permission to the audio item displayed below this string. [CHAR LIMIT=128] -->
+    <string name="permission_untrash_audio"> {count, plural,
+        =1    {Allow <xliff:g id="app_name" example="Gmail">^1</xliff:g> to move this audio file out of trash?}
+        other {Allow <xliff:g id="app_name" example="Gmail">^1</xliff:g> to move <xliff:g id="count" example="42">^2</xliff:g> audio files out of trash?}
+    }</string>
+    <!-- Progress dialog message after user allows untrash permission to the audio item [CHAR LIMIT=128] -->
+    <string name="permission_progress_untrash_audio"> {count, plural,
+        =1    {Moving audio file out of trash&#8230;}
+        other {Moving <xliff:g id="count" example="42">^1</xliff:g> audio files out of trash&#8230;}
+    }</string>
+    <!-- Dialog title asking if user will allow untrash permission to the video item displayed below this string. [CHAR LIMIT=128] -->
+    <string name="permission_untrash_video"> {count, plural,
+        =1    {Allow <xliff:g id="app_name" example="Gmail">^1</xliff:g> to move this video out of trash?}
+        other {Allow <xliff:g id="app_name" example="Gmail">^1</xliff:g> to move <xliff:g id="count" example="42">^2</xliff:g> videos out of trash?}
+    }</string>
+    <!-- Progress dialog message after user allows untrash permission to the video item [CHAR LIMIT=128] -->
+    <string name="permission_progress_untrash_video"> {count, plural,
+        =1    {Moving video out of trash&#8230;}
+        other {Moving <xliff:g id="count" example="42">^1</xliff:g> videos out of trash&#8230;}
+    }</string>
+    <!-- Dialog title asking if user will allow untrash permission to the image item displayed below this string. [CHAR LIMIT=128] -->
+    <string name="permission_untrash_image"> {count, plural,
+        =1    {Allow <xliff:g id="app_name" example="Gmail">^1</xliff:g> to move this photo out of trash?}
+        other {Allow <xliff:g id="app_name" example="Gmail">^1</xliff:g> to move <xliff:g id="count" example="42">^2</xliff:g> photos out of trash?}
+    }</string>
+    <!-- Progress dialog message after user allows untrash permission to the image item [CHAR LIMIT=128] -->
+    <string name="permission_progress_untrash_image"> {count, plural,
+        =1    {Moving photo out of trash&#8230;}
+        other {Moving <xliff:g id="count" example="42">^1</xliff:g> photos out of trash&#8230;}
+    }</string>
+    <!-- Dialog title asking if user will allow untrash permission to the generic item displayed below this string. [CHAR LIMIT=128] -->
+    <string name="permission_untrash_generic"> {count, plural,
+        =1    {Allow <xliff:g id="app_name" example="Gmail">^1</xliff:g> to move this item out of trash?}
+        other {Allow <xliff:g id="app_name" example="Gmail">^1</xliff:g> to move <xliff:g id="count" example="42">^2</xliff:g> items out of trash?}
+    }</string>
+    <!-- Progress dialog message after user allows untrash permission to the generic item [CHAR LIMIT=128] -->
+    <string name="permission_progress_untrash_generic"> {count, plural,
+        =1    {Moving item out of trash&#8230;}
+        other {Moving <xliff:g id="count" example="42">^1</xliff:g> items out of trash&#8230;}
+    }</string>
+
+    <!-- ========================= DELETE STRINGS ========================= -->
+
+    <!-- Dialog title asking if user will allow delete permission to the audio item displayed below this string. [CHAR LIMIT=128] -->
+    <string name="permission_delete_audio"> {count, plural,
+        =1    {Allow <xliff:g id="app_name" example="Gmail">^1</xliff:g> to delete this audio file?}
+        other {Allow <xliff:g id="app_name" example="Gmail">^1</xliff:g> to delete <xliff:g id="count" example="42">^2</xliff:g> audio files?}
+    }</string>
+    <!-- Progress dialog message after user allows delete permission to the audio item [CHAR LIMIT=128] -->
+    <string name="permission_progress_delete_audio"> {count, plural,
+        =1    {Deleting audio file&#8230;}
+        other {Deleting <xliff:g id="count" example="42">^1</xliff:g> audio files&#8230;}
+    }</string>
+    <!-- Dialog title asking if user will allow delete permission to the video item displayed below this string. [CHAR LIMIT=128] -->
+    <string name="permission_delete_video"> {count, plural,
+        =1    {Allow <xliff:g id="app_name" example="Gmail">^1</xliff:g> to delete this video?}
+        other {Allow <xliff:g id="app_name" example="Gmail">^1</xliff:g> to delete <xliff:g id="count" example="42">^2</xliff:g> videos?}
+    }</string>
+    <!-- Progress dialog message after user allows delete permission to the video item [CHAR LIMIT=128] -->
+    <string name="permission_progress_delete_video"> {count, plural,
+        =1    {Deleting video&#8230;}
+        other {Deleting <xliff:g id="count" example="42">^1</xliff:g> videos&#8230;}
+    }</string>
+    <!-- Dialog title asking if user will allow delete permission to the image item displayed below this string. [CHAR LIMIT=128] -->
+    <string name="permission_delete_image"> {count, plural,
+        =1    {Allow <xliff:g id="app_name" example="Gmail">^1</xliff:g> to delete this photo?}
+        other {Allow <xliff:g id="app_name" example="Gmail">^1</xliff:g> to delete <xliff:g id="count" example="42">^2</xliff:g> photos?}
+    }</string>
+    <!-- Progress dialog message after user allows delete permission to the image item [CHAR LIMIT=128] -->
+    <string name="permission_progress_delete_image"> {count, plural,
+        =1    {Deleting photo&#8230;}
+        other {Deleting <xliff:g id="count" example="42">^1</xliff:g> photos&#8230;}
+    }</string>
+    <!-- Dialog title asking if user will allow delete permission to the generic item displayed below this string. [CHAR LIMIT=128] -->
+    <string name="permission_delete_generic"> {count, plural,
+        =1    {Allow <xliff:g id="app_name" example="Gmail">^1</xliff:g> to delete this item?}
+        other {Allow <xliff:g id="app_name" example="Gmail">^1</xliff:g> to delete <xliff:g id="count" example="42">^2</xliff:g> items?}
+    }</string>
+    <!-- Progress dialog message after user allows delete permission to the generic item [CHAR LIMIT=128] -->
+    <string name="permission_progress_delete_generic"> {count, plural,
+        =1    {Deleting item&#8230;}
+        other {Deleting <xliff:g id="count" example="42">^1</xliff:g> items&#8230;}
+    }</string>
+
+    <!-- ========================= END AUTO-GENERATED BY gen_strings.py ========================= -->
+
+    <!-- ========================= TRANSCODE STRINGS ========================= -->
+
+    <!-- Transcode denied toast text. [CHAR LIMIT=NONE] -->
+    <string name="transcode_denied"><xliff:g id="app_name" example="File manager">%s</xliff:g> can\'t process media files</string>
+
+    <!-- Transcode cancelled notification. -->
+    <string name="transcode_processing_cancelled">Media processing cancelled</string>
+
+    <!-- Transcode error notification. -->
+    <string name="transcode_processing_error">Media processing error</string>
+
+    <!-- Transcode success notification. -->
+    <string name="transcode_processing_success">Media processing success</string>
+
+    <!-- Transcode started notification. -->
+    <string name="transcode_processing_started">Media processing started</string>
+
+    <!-- Transcode processing notification. -->
+    <string name="transcode_processing">Processing media&#8230;</string>
+
+    <!-- Transcode intermediate ANR dialog cancel button. -->
+    <string name="transcode_cancel">Cancel</string>
+
+    <!-- Transcode intermediate ANR dialog wait button. -->
+    <string name="transcode_wait">Wait</string>
+
+    <!-- Safety Protection shield icon. -->
+    <string name="safety_protection_icon_label">Safety protection</string>
+
+    <!-- Transcode alert channel name. -->
+    <string name="transcode_alert_channel">Native Transcode Alerts</string>
+
+    <!-- Transcode progress channel name. -->
+    <string name="transcode_progress_channel">Native Transcode Progress</string>
+
+    <!-- Dialog error message-->
+    <string name="dialog_error_message">Try again later. Your photos will be available once the issue is resolved.</string>
+
+    <!-- Dialog error title-->
+    <string name="dialog_error_title">Can\'t load some Photos</string>
+
+    <!-- Error dialog OK button text-->
+    <string name="dialog_button_text">Got it</string>
+
+    <!-- Title of ACCESS_OWNER_PACKAGE_NAME permission-->
+    <string name="permlab_accessMediaOwnerPackageName">Access media owner package name</string>
+    <!-- Description of ACCESS_OWNER_PACKAGE_NAME permission-->
+    <string name="permdesc_accessMediaOwnerPackageName">Allows the app to access owner package names of all accessible media files.</string>
+</resources>

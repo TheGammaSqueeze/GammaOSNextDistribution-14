@@ -1,0 +1,70 @@
+/*
+ * Copyright (C) 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+option java_package = "com.android.timezone.tzids.proto";
+option java_multiple_files = false;
+
+package com.android.timezone.tzids.proto;
+
+// Information about Olson IDs used / preferred by Android.
+message TimeZoneIds {
+    // The IANA TZDB version the data was generated from.
+    optional string ianaVersion = 1;
+
+    // Information about IDs that are mapped to ISO 3166 Alpha-2 country codes.
+    repeated CountryMapping countryMappings = 2;
+}
+
+// Information about Olson IDs recognized by Android as being related to a country.
+message CountryMapping {
+    // The ISO 3166 Alpha-2 country code.
+    required string isoCode = 1;
+
+    // The IANA TZDB Olson IDs preferred by Android for the country.
+    repeated string timeZoneIds = 2;
+
+    // Links for time zones that are recognized as being for the country, but are not preferred.
+    // These links are for time zones that have always been equivalent.
+    // e.g. "GB-Eire" is linked to "Europe/London" because "GB-Eire"" is just an obsoleted synonym.
+    repeated TimeZoneLink timeZoneLinks = 3;
+
+    // Replacements for time zones where the replaced time zone is not identical to the replacement
+    // before some point in time. After that point in time, the two zones have been judged as
+    // equivalent. e.g. "America/Boise" has the same rules as "America/Denver" after Sun, 03 Feb
+    // 1974, so the two can be considered equivalent today, but not for dates before that.
+    repeated TimeZoneReplacement timeZoneReplacements = 4;
+}
+
+// An ID replacement when one time zone Olson ID is just direct synonym for another.
+message TimeZoneLink {
+    // The alternative Olson ID. This will typically be an obsoleted Olson ID.
+    required string alternativeId = 1;
+    // The Android preferred Olson ID. This will typically be a newer / more correct Olson ID.
+    required string preferredId = 2;
+}
+
+// The functional replacement of one time zone ID by another after a point in time.
+// Computed by looking at offset behavior / zone metadata.
+message TimeZoneReplacement {
+    // The Olson ID that was replaced / ceased to be distinct.
+    required string replacedId = 1;
+    // The Olson ID that is better / to use in place of replacedId on Android after fromMillis.
+    required string replacementId = 2;
+    // When replacementId replaced replacedId. Milliseconds from the start of the Unix epoch.
+    required int64 fromMillis = 3;
+}

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<com.android.systemui.car.systembar.CarSystemBarView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:systemui="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/car_top_bar"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="horizontal">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/qc_entry_points_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/car_quick_controls_entry_points_start_margin"
+            android:orientation="horizontal"
+            android:layout_centerVertical="true"
+            android:layout_toStartOf="@+id/clock"
+            android:layout_alignParentStart="true"/>
+
+        <com.android.systemui.statusbar.policy.Clock
+            android:id="@+id/clock"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:paddingStart="@dimen/car_padding_2"
+            android:paddingEnd="@dimen/car_padding_2"
+            android:elevation="@dimen/clock_elevation"
+            android:singleLine="true"
+            style="@style/TextAppearance.TopSystemBar.Text"
+            systemui:amPmStyle="normal"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="end"
+            android:layout_alignParentEnd="true"
+            android:layout_toEndOf="@+id/clock"
+            android:orientation="horizontal"
+            android:gravity="end|center_vertical">
+
+            <include layout="@layout/camera_privacy_chip"
+                     android:layout_width="@dimen/top_system_bar_icon_size"
+                     android:layout_height="@dimen/top_system_bar_icon_size"
+                     android:layout_marginStart="@dimen/top_system_bar_icon_horizontal_margin"
+                     android:layout_marginEnd="@dimen/top_system_bar_icon_horizontal_margin"
+            />
+
+            <include layout="@layout/mic_privacy_chip"
+                     android:layout_width="@dimen/top_system_bar_icon_size"
+                     android:layout_height="@dimen/top_system_bar_icon_size"
+                     android:layout_marginStart="@dimen/top_system_bar_icon_horizontal_margin"
+                     android:layout_marginEnd="@dimen/top_system_bar_icon_horizontal_margin"            />
+
+            <com.android.systemui.car.statusicon.StatusIconView
+                android:id="@+id/read_only_sensor_text"
+                android:layout_width="@dimen/statusbar_sensor_text_width"
+                android:layout_height="match_parent"
+                android:layout_marginHorizontal="@dimen/top_system_bar_icon_horizontal_margin"
+                android:layout_gravity="center"
+                systemui:controller="com.android.systemui.car.statusicon.ui.StatusBarSensorInfoController"/>
+
+            <com.android.systemui.car.systembar.CarTopSystemBarButton
+                android:id="@+id/user_name"
+                style="@style/CarTopSystemBarButton"
+                android:background="@drawable/status_icon_background"
+                systemui:intent="intent:#Intent;component=com.android.car.settings/.profiles.ProfileSwitcherActivity;launchFlags=0x24000000;end" >
+                <ImageView
+                    android:id="@+id/user_avatar"
+                    android:layout_gravity="center"
+                    android:layout_width="@dimen/top_system_bar_icon_drawing_size"
+                    android:layout_height="@dimen/top_system_bar_icon_drawing_size"
+                    android:src="@drawable/car_ic_user_icon"
+                    android:tint="@color/system_bar_icon_color_with_selection"
+                />
+            </com.android.systemui.car.systembar.CarTopSystemBarButton>
+        </LinearLayout>
+    </RelativeLayout>
+</com.android.systemui.car.systembar.CarSystemBarView>

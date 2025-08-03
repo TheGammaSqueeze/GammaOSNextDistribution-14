@@ -1,0 +1,26 @@
+<!--
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<overlay>
+    <item target="bool/enable_control_bar_overflow" value="@bool/enable_control_bar_overflow"/>
+    <item target="color/action_button_icon_tint" value="@color/action_button_icon_tint"/>
+    <item target="dimen/control_bar_button_padding" value="@dimen/control_bar_button_padding" />
+    <item target="dimen/control_bar_button_size" value="@dimen/control_bar_button_size"/>
+    <item target="dimen/play_pause_image_size" value="@dimen/play_pause_image_size"/>
+    <item target="drawable/ic_overflow_button" value="@drawable/ic_overflow_button"/>
+    <item target="integer/control_bar_columns" value="@integer/control_bar_columns"/>
+    <item target="style/Widget.ActionButton.PlayPause" value="@style/Widget.ActionButton.PlayPause" />
+</overlay>

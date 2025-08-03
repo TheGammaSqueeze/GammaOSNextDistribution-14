@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2009 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">گۇۋاھنامە ئورناتقۇچ</string>
+    <string name="pick_file_title">بىر گۇۋاھنامە تاللاڭ</string>
+    <string name="pkcs12_password_dialog_title">گۇۋاھنامە يەش</string>
+    <string name="extracting_pkcs12">يېشىۋاتىدۇ…</string>
+    <string name="pkcs12_file_password_dialog_title">%s دىن يېشىۋاتىدۇ</string>
+    <string name="credential_password">گۇۋاھنامە يېشىدىغان ئىمنى كىرگۈزۈڭ.</string>
+    <string name="credential_info">بوغچىنىڭ ئىچىدە:</string>
+    <string name="p12_description">PKCS12 شىفىرلىق ئاچقۇچ ئامبىرىدىكى گۇۋاھنامە</string>
+    <string name="one_userkey">بىر ئىشلەتكۈچى ئاچقۇچى</string>
+    <string name="one_usercrt">بىر ئىشلەتكۈچى گۇۋاھنامىسى</string>
+    <string name="one_cacrt">بىر CA گۇۋاھنامىسى</string>
+    <string name="n_cacrts">%d CA گۇۋاھنامىسى</string>
+    <string name="password_error">توغرا ئىمنى كىرگۈزۈڭ.</string>
+    <string name="password_empty_error">ئىم كىرگۈزۈڭ.</string>
+    <string name="name_empty_error">ئات كىرگۈزۈڭ.</string>
+    <string name="name_char_error">ئىسىم ۋە ساننىلا ئۆز ئىچىگە ئالغان ئىسىم كىرگۈزۈڭ.</string>
+    <string name="unable_to_save_cert">گۇۋاھنامىنى ساقلىيالمايدۇ، جەزملەنى چېكىپ قايتا سىناڭ. دەلىل ساقلاش قوزغىتىلمىغان ياكى توغرا دەسلەپلەشتۈرۈلمىگەن.</string>
+    <string name="cert_not_saved">بۇ گۇۋاھنامە ئورنىتىلمىغان.</string>
+    <string name="no_cert_to_saved">ئورنىتىدىغان گۇۋاھنامە يوق.</string>
+    <string name="invalid_cert">گۇۋاھنامە ئىناۋەتسىز.</string>
+    <string name="cert_too_large_error">ئورنىتالمىدى چۈنكى گۇۋاھنامە بەك چوڭ.</string>
+    <string name="cert_missing_error">ئورنىتالمىدى چۈنكى گۇۋاھنامە گۇۋاھنامە ھۆججەتنى تاپالمىدى.</string>
+    <string name="cert_read_error">ئورنىتالمىدى چۈنكى گۇۋاھنامە گۇۋاھنامە ھۆججەتنى ئۇقۇيالمىدى.</string>
+    <string name="only_primary_user_allowed">پەقەت بۇ ئۈسكۈنىنىڭ ئىگىسىلا گۇۋاھنامە ئورنىتالايدۇ.</string>
+    <string name="credential_usage_label">ئىسپاتلىق ئىشلىتىش:</string>
+    <string-array name="credential_usage">
+        <item>VPN ۋە ئەپلەر</item>
+        <item>Wi-Fi</item>
+    </string-array>
+</resources>

@@ -1,0 +1,17 @@
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_app {
+    name: "SampleLocationAttribution",
+    resource_dirs: ["res"],
+    static_libs: [
+        "androidx.core_core",
+        "androidx.appcompat_appcompat",
+    ],
+    // Build all java files in the src subdirectory
+    srcs: ["src/**/*.java"],
+    sdk_version: "current",
+    product_specific: true,
+}

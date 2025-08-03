@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  Copyright (c) 2017 The LineageOS Project
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ Also add information on how to contact you by electronic and paper mail.
+
+-->
+<resources>
+    <string name="app_name">FlipFlap</string>
+    <string name="notification_title">스마트 커버 감지됨</string>
+    <string name="alarm_label">알람</string>
+    <string name="abbrev_wday_month_day_no_year">MMMM d EEE</string>
+    <string name="answer_call">응답</string>
+    <string name="ignore_call">무시</string>
+    <string name="end_call">통화 종료</string>
+    <string name="settings_name">스마트 커버</string>
+    <string name="settings_enable">스마트 커버 제어 사용</string>
+    <string name="settings_summary">액세서리의 동작 제어</string>
+    <string name="category_behaviour">동작</string>
+    <string name="pass_to_security_view_title">바로 비밀번호 입력 화면 보기</string>
+    <string name="pass_to_security_view_summary">케이스를 열면 바로 잠금 화면 표시</string>
+    <string name="use_high_touch_sensitivity_title">터치 감도 높이기</string>
+    <string name="use_high_touch_sensitivity_summary">커버가 닫혀 있는 동안 터치 감도를 높입니다.</string>
+    <string name="category_design">디자인</string>
+    <string name="switch_charging_status_title">충전 상태 표시</string>
+    <string name="switch_charging_status_summary">현재 배터리 상태에 따라 색상 변경</string>
+    <string name="category_timeouts">유지 시간</string>
+    <string name="timeout_plugged_title">충전 중일 때</string>
+    <string name="timeout_unplugged_title">방전 중일 때</string>
+    <string name="timeout_summary">덮개를 닫은 후 %s 동안 커버 앱을 표시</string>
+    <string name="timeout_summary_never">덮개를 닫은 후 커버 앱을 항상 표시</string>
+    <string name="timeout_summary_immediately">커버를 닫으면 화면을 끔</string>
+    <string name="timeout_entry_immediately">즉시</string>
+    <string name="timeout_entry_5s">5초</string>
+    <string name="timeout_entry_10s">10초</string>
+    <string name="timeout_entry_30s">30초</string>
+    <string name="timeout_entry_1min">1분</string>
+    <string name="timeout_entry_5min">5분</string>
+    <string name="timeout_entry_never">사용 안 함</string>
+</resources>

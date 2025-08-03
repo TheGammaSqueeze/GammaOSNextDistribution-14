@@ -1,0 +1,149 @@
+import kotlin.Triple
+import org.apache.tools.ant.taskdefs.condition.Os
+
+plugins {
+    id("org.jetbrains.gradle.plugin.idea-ext") version "1.1.7"
+}
+
+final boolean IS_ARM_MAC = Os.isFamily(Os.FAMILY_MAC) &&
+        System.getProperty("os.arch") == "aarch64"
+
+allprojects {
+    ext {
+        ANDROID_TOP = "${new File("${rootDir}", ANDROID_RELATIVE_TOP).canonicalPath}"
+        SYS_UI_DIR = "${ANDROID_TOP}/frameworks/base/packages/SystemUI"
+        SETTINGS_DIR = "${ANDROID_TOP}/frameworks/base/packages/SettingsLib"
+        GOOGLE_SYS_UI_DIR = "${ANDROID_TOP}/vendor/unbundled_google/packages/SystemUIGoogle/"
+        MANAGED_PROVISIONING_DIR = "${ANDROID_TOP}/packages/apps/ManagedProvisioning/"
+        // We need to explicitly request x86_64 binaries on M1 Macs since protoc compiler
+        // for ARM doesn't exist for current protobuf version.
+        PROTO_ARCH_SUFFIX = IS_ARM_MAC ? ":osx-x86_64" : ""
+
+        // Whether we should compile SystemUI with Compose enabled or not.
+        USE_COMPOSE = true
+    }
+}
+
+final String GRADLE_BUILD_ROOT = "${ANDROID_TOP}/out/gradle/build"
+buildDir = "${GRADLE_BUILD_ROOT}/${rootProject.name}/build"
+
+gradle.beforeProject {
+    rootProject.subprojects {
+        buildDir = "${GRADLE_BUILD_ROOT}/${rootProject.name}/${project.name}/build"
+    }
+}
+
+tasks.register('updateSdkSources', SdkSourceUpdaterTask) {
+    androidRoot = new File("${ANDROID_TOP}")
+}
+
+idea {
+    project {
+        settings {
+            taskTriggers {
+                afterSync tasks.named("updateSdkSources")
+            }
+        }
+    }
+}
+
+final Map<String, Triple> LIB_VERSION_MAP = new RepoDependencyMapper()
+        .mapPath("${ANDROID_TOP}/prebuilts/sdk/current/androidx/m2repository")
+        .mapPath("${ANDROID_TOP}/prebuilts/sdk/current/androidx-legacy/m2repository")
+        .mapPath("${ANDROID_TOP}/prebuilts/sdk/current/extras/material-design-x")
+        .mapPath("${ANDROID_TOP}/prebuilts/misc/common/androidx-test")
+        .getMap()
+
+allprojects {
+    configurations.configureEach {
+        resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+            // Override any transitive dependency to also use the local version
+            Triple targetOverride = LIB_VERSION_MAP.get(details.requested.module.toString())
+            if (targetOverride != null) {
+                if (targetOverride.second != null) {
+                    details.useTarget group: targetOverride.first, name: targetOverride.second, version: targetOverride.third
+                } else {
+                    details.useVersion(targetOverride.third)
+                }
+            }
+        }
+    }
+}
+
+Properties properties = new Properties()
+properties.load(project.rootProject.file('studiow.properties').newDataInputStream())
+// String like UdcDevForTree456b
+rootProject.ext.set("compileSdkPreviewString", properties.getProperty('compile.sdk.preview'))
+// String like android-UdcDevForTree456b
+rootProject.ext.set("compileSdkVersionString", properties.getProperty('compile.sdk.version'))
+
+// Check env var to see if the gradle script was launched using the studiow script. Launching
+// Android Studio and then opening the Gradle project afterwards IS UNSUPPORTED. Android Studio
+// needs to be lunched using studiow so that it can validate settings and update the build
+// environment.
+if (System.getenv('STUDIO_LAUNCHED_WITH_WRAPPER') == null) {
+    throw new Exception("Android Studio for SystemUI must be launched using " +
+            "the studiow script found in \$ANDROID_BUILD_TOP/" +
+            "vendor/unbundled_google/packages/SystemUIGoogle/studio-dev/studiow.")
+}
+
+subprojects {
+    afterEvaluate { project ->
+        if (project.hasProperty("android")) {
+            android {
+                // Settings compileSdkVersion also sets compileSdkPreview. No need to set both
+                compileSdkVersion(compileSdkVersionString)
+                buildToolsVersion BUILD_TOOLS_VERSION
+                defaultConfig {
+                    minSdkPreview TARGET_SDK
+                }
+                compileOptions {
+                    sourceCompatibility JavaVersion.VERSION_17
+                    targetCompatibility JavaVersion.VERSION_17
+                }
+
+                if (android.hasProperty("kotlinOptions")) {
+                    kotlinOptions {
+                        jvmTarget = "17"
+                        freeCompilerArgs = ["-Xjvm-default=all"]
+                    }
+                }
+
+                // Disable abortOnError everywhere. Otherwise, the :build task will fail for 100%
+                // of our projects
+                lint {
+                    abortOnError false
+                }
+            }
+        }
+
+        /**
+         * TODO(b/269759002): Replace this workaround with DSL like "disableCompileSdk" if available
+         * AndroidX uses the same workaround in their internal build by setting androidx.useMaxDepVersions
+         *
+         * Workaround to fix the following error:
+         *
+         * 3 issues were found when checking AAR metadata:
+         *
+         *   1.  Dependency 'androidx.window:window:1.1.0-alpha06' requires libraries and applications that
+         *       depend on it to compile against codename "UpsideDownCake" of the
+         *       Android APIs.
+         *
+         *       :ComposeGallery is currently compiled against android-UpsideDownCakeForSysUiStudioRev456b2dc4.
+         *
+         *       Recommended action: Use a different version of dependency 'androidx.window:window:1.1.0-alpha06',
+         *       or set compileSdkPreview to "UpsideDownCake" in your build.gradle
+         *       file if you intend to experiment with that preview SDK.
+         */
+//        tasks.withType(CheckAarMetadataTask).configureEach({ task ->
+//            task.enabled = false
+//        })
+    }
+}
+
+tasks.named('wrapper') {
+    // Delete gradlew.bat because Windows builds are not supported
+    doLast {
+        delete "${projectDir}/gradlew.bat"
+    }
+}

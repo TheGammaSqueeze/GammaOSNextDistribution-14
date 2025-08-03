@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+     Copyright (C) 2018 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="1647136562008520313">"ຮູບພື້ນຫຼັງ ແລະ ຮູບແບບ"</string>
+    <string name="theme_title" msgid="2144932106319405101">"ຮູບແບບ"</string>
+    <string name="clock_title" msgid="1974314575211361352">"ໂມງທີ່ກຳນົດເອງ"</string>
+    <string name="clock_description" msgid="3563839327378948">"ເລືອກໂມງກຳນົດເອງ"</string>
+    <string name="clock_picker_entry_content_description" msgid="8377139273468595734">"ປ່ຽນໂມງກຳນົດເອງ"</string>
+    <string name="select_clock_action_description" msgid="5025888763471843648">"ຕົວເລືອກໜ້າປັດໂມງ <xliff:g id="ID_1">%1$s</xliff:g>"</string>
+    <string name="clock_settings_title" msgid="2050906379377120431">"ສີ ແລະ ຂະໜາດໂມງ"</string>
+    <string name="clock_color_and_size_title" msgid="7146791234905111351">"ສີ ແລະ ຂະໜາດໂມງ"</string>
+    <string name="clock_color_and_size_description" msgid="6578061553012886817">"<xliff:g id="ID_1">%1$s</xliff:g>, <xliff:g id="ID_2">%2$s</xliff:g>"</string>
+    <string name="clock_color" msgid="8081608867289156163">"ສີ"</string>
+    <string name="clock_color_red" msgid="3843504214807597810">"ສີແດງ"</string>
+    <string name="clock_color_orange" msgid="4175805201144275804">"ສີສົ້ມ"</string>
+    <string name="clock_color_yellow" msgid="7391699163247349977">"ສີເຫຼືອງ"</string>
+    <string name="clock_color_green" msgid="1991157556500156596">"ສີຂຽວ"</string>
+    <string name="clock_color_blue" msgid="4037792003465759149">"ສີຟ້າ"</string>
+    <string name="clock_color_indigo" msgid="8910855386698452917">"ສີຄາມ"</string>
+    <string name="clock_color_violet" msgid="3454503847169375826">"ສີມ່ວງ"</string>
+    <string name="clock_color_gray" msgid="9221530636948859231">"ສີເທົາ"</string>
+    <string name="clock_color_teal" msgid="7499223425741344251">"ສີຟ້າອົມຂຽວ"</string>
+    <string name="clock_size" msgid="5028923902364418263">"ຂະໜາດ"</string>
+    <string name="clock_size_dynamic" msgid="1023930312455061642">"ໄດນາມິກ"</string>
+    <string name="clock_size_dynamic_description" msgid="2776620745774561662">"ຂະໜາດຂອງໂມງປ່ຽນຕາມເນື້ອຫາໃນໜ້າຈໍລັອກ"</string>
+    <string name="clock_size_large" msgid="3143248715744138979">"ໃຫຍ່"</string>
+    <string name="clock_size_small" msgid="2280449912094164133">"ນ້ອຍ"</string>
+    <string name="clock_size_small_description" msgid="4089511196955732480">"ໂມງນ້ອຍທີ່ສະແດງຢູ່ໃນມຸມຂອງໜ້າຈໍທ່ານ"</string>
+    <string name="grid_title" msgid="1688173478777254123">"ຕາຕະລາງແອັບ"</string>
+    <string name="apply_theme_btn" msgid="6293081192321303991">"ນຳໃຊ້"</string>
+    <string name="edit_custom_theme_lbl" msgid="5211377705710775224">"ແຕະເພື່ອແກ້ໄຂ"</string>
+    <string name="keep_my_wallpaper" msgid="8012385376769568517">"ໃຊ້ຮູບພື້ນຫຼັງປັດຈຸບັນ"</string>
+    <string name="theme_preview_card_content_description" msgid="5989222908619535533">"ຕົວຢ່າງຮູບແບບ"</string>
+    <string name="grid_preview_card_content_description" msgid="8449383777584714842">"ຕົວຢ່າງຊ່ອງ"</string>
+    <string name="font_preview_content_description" msgid="128230439293337891">"ຕົວຢ່າງຟອນ"</string>
+    <string name="icon_preview_content_description" msgid="7761101284351952890">"ຕົວຢ່າງໄອຄອນ"</string>
+    <string name="color_preview_content_description" msgid="4879120462082058124">"ຕົວຢ່າງສີ"</string>
+    <string name="shape_preview_content_description" msgid="6479487796176550432">"ຕົວຢ່າງຮູບຮ່າງ"</string>
+    <string name="option_applied_description" msgid="5022305212078053534">"<xliff:g id="ID_1">%1$s</xliff:g>, ຕອນນີ້ນຳໃຊ້ແລ້ວ"</string>
+    <string name="option_applied_previewed_description" msgid="5269654286638446858">"<xliff:g id="ID_1">%1$s</xliff:g>, ຕອນນີ້ນຳໃຊ້ ແລະ ເບິ່ງຕົວຢ່າງແລ້ວ"</string>
+    <string name="option_previewed_description" msgid="3467217598865047661">"<xliff:g id="ID_1">%1$s</xliff:g>, ຕອນນີ້ເບິ່ງຕົວຢ່າງແລ້ວ"</string>
+    <string name="option_change_applied_previewed_description" msgid="9197311327728570816">"<xliff:g id="ID_1">%1$s</xliff:g>, ເລືອກ ແລະ ເບິ່ງຕົວຢ່າງການປ່ຽນແປງແລ້ວ"</string>
+    <string name="theme_description" msgid="3697012391785254635">"ຟອນ: <xliff:g id="ID_1">%1$s</xliff:g>, ໄອຄອນ: <xliff:g id="ID_2">%2$s</xliff:g>, ຮູບຮ່າງ: <xliff:g id="ID_3">%3$s</xliff:g>, ສີ: <xliff:g id="ID_4">%4$s</xliff:g>"</string>
+    <string name="default_theme_title" msgid="2555741736622366797">"ຄ່າເລີ່ມຕົ້ນ"</string>
+    <string name="preview_name_font" msgid="4465423899630037038">"ຟອນ"</string>
+    <string name="preview_name_icon" msgid="6818927315316316440">"ໄອຄອນ"</string>
+    <string name="preview_name_color" msgid="8776203144994416172">"ສີ"</string>
+    <string name="preview_name_shape" msgid="5676971146080968721">"ຮູບຊົງ"</string>
+    <string name="preview_name_wallpaper" msgid="1738652462949531828">"ຮູບພື້ນຫຼັງ"</string>
+    <string name="font_card_title" msgid="2343292653502548685">"ABC • abc • 123"</string>
+    <string name="font_card_body" msgid="6790525594503904468">"ເພີ່ມຟອນທີ່ທ່ານມັກໃສ່ທຸກໜ້າຈໍ"</string>
+    <string name="grid_options_title" msgid="7071930966989877023">"ເລືອກຂະໜາດຊ່ອງ"</string>
+    <string name="grid_title_pattern" msgid="9188866567612607806">"<xliff:g id="ID_1">%1$d</xliff:g>x<xliff:g id="ID_2">%2$d</xliff:g>"</string>
+    <string name="apply_grid_btn_note" msgid="2966021967355139181">"ການປ່ຽນຂະໜາດໂຄງຮ່າງຕາຕະລາງຈະໂຫຼດບ່ອນເຮັດວຽກ ແລະ ອາດໃຊ້ເວລາສອງສາມວິນາທີ."</string>
+    <string name="toast_of_changing_grid" msgid="3515633981312731121">"ກຳລັງໂຫຼດບ່ອນເຮັດວຽກຄືນໃໝ່ດ້ວຍໂຄງຮ່າງຕາຕະລາງ %1$s"</string>
+    <string name="toast_of_failure_to_change_grid" msgid="1349622908271736044">"ໂຫຼດບ່ອນເຮັດວຽກຄືນໃໝ່ດ້ວຍໂຄງຮ່າງຕາຕະລາງ %1$s ບໍ່ສຳເລັດ"</string>
+    <string name="applied_theme_msg" msgid="3749018706366796244">"ຕັ້ງຮູບແບບສຳເລັດແລ້ວ"</string>
+    <string name="applied_clock_msg" msgid="1303338016701443767">"ຕັ້ງໂມງສຳເລັດແລ້ວ"</string>
+    <string name="applied_grid_msg" msgid="3250499654436933034">"ຕັ້ງຊ່ອງສຳເລັດແລ້ວ"</string>
+    <string name="apply_theme_error_msg" msgid="791364062636538317">"ເກີດບັນຫາໃນການນຳໃຊ້ຮູບແບບ"</string>
+    <string name="custom_theme_next" msgid="6235420097213197301">"ຕໍ່ໄປ"</string>
+    <string name="custom_theme_previous" msgid="4941132112640503022">"ຜ່ານມາ"</string>
+    <string name="custom_theme" msgid="1618351922263478163">"ກຳນົດເອງ"</string>
+    <string name="custom_theme_title" msgid="2192300350332693631">"ແບບກຳນົດເອງ <xliff:g id="ID_1">%1$d</xliff:g>"</string>
+    <string name="custom_theme_fragment_title" msgid="6615547284702040280">"ຮູບແບບກຳນົດເອງ"</string>
+    <string name="custom_theme_delete" msgid="4744494663184126202">"ລຶບ"</string>
+    <string name="font_component_title" msgid="8800340833695292049">"ເລືອກຟອນ"</string>
+    <string name="icon_component_title" msgid="5779787138399083903">"ເລືອກໄອຄອນ"</string>
+    <string name="color_component_title" msgid="1194089273921078816">"ເລືອກ​ສີ"</string>
+    <string name="shape_component_title" msgid="8366847436022025538">"ເລືອກຮູບຮ່າງ"</string>
+    <string name="name_component_title" msgid="532425087968663437">"ຕັ້ງຊື່ຮູບແບບຂອງທ່ານ"</string>
+    <string name="icon_component_label" msgid="2625784884001407944">"ໄອຄອນ <xliff:g id="ID_1">%1$d</xliff:g>"</string>
+    <string name="delete_custom_theme_confirmation" msgid="4452137183628769394">"ລຶບຮູບແບບກຳນົດເອງບໍ?"</string>
+    <string name="delete_custom_theme_button" msgid="5102462988130208824">"ລຶບ"</string>
+    <string name="cancel" msgid="4651030493668562067">"ຍົກເລີກ"</string>
+    <string name="set_theme_wallpaper_dialog_message" msgid="2179661027350908003">"ຕັ້ງຮູບພື້ນຫຼັງຮູບແບບ"</string>
+    <string name="use_style_instead_title" msgid="1578754995763917502">"ໃຊ້ <xliff:g id="ID_1">%1$s</xliff:g> ແທນບໍ?"</string>
+    <string name="use_style_instead_body" msgid="3051937045807471496">"ອົງປະກອບທີ່ທ່ານເລືອກກົງກັບຮູບແບບສີສັນ <xliff:g id="ID_1">%1$s</xliff:g>. ທ່ານຕ້ອງການໃຊ້ <xliff:g id="ID_2">%1$s</xliff:g> ແທນບໍ່?"</string>
+    <string name="use_style_button" msgid="1754493078383627019">"ໃຊ້ <xliff:g id="ID_1">%1$s</xliff:g>"</string>
+    <string name="no_thanks" msgid="7286616980115687627">"ບໍ່, ຂອບໃຈ"</string>
+    <string name="clock_preview_content_description" msgid="5460561185905717460">"ຕົວຢ່າງໂມງ <xliff:g id="ID_1">%1$s</xliff:g>"</string>
+    <string name="something_went_wrong" msgid="529840112449799117">"ຂໍອະໄພ! ເກີດບາງຢ່າງຜິດພາດຂຶ້ນ."</string>
+    <string name="theme_preview_icons_section_title" msgid="7064768910744000643">"ສີ / ໄອຄອນ"</string>
+    <string name="style_info_description" msgid="2612473574431003251">"ຕົວຢ່າງຟອນ, ໄອຄອນ, ຮູບຮ່າງ ແລະ ສີແອັບ"</string>
+    <string name="accessibility_custom_font_title" msgid="966867359157303705">"ຟອນກຳນົດເອງ"</string>
+    <string name="accessibility_custom_icon_title" msgid="5753297905849062296">"ໄອຄອນກຳນົດເອງ"</string>
+    <string name="accessibility_custom_color_title" msgid="4124246598886320663">"ສີກຳນົດເອງ"</string>
+    <string name="accessibility_custom_shape_title" msgid="7708408259374643129">"ຮູບຮ່າງກຳນົດເອງ"</string>
+    <string name="accessibility_custom_name_title" msgid="5494460518085463262">"ຊື່ຮູບແບບສີສັນກຳນົດເອງ"</string>
+    <string name="accessibility_clock_slider_description" msgid="8374135133110681332">"ຄວາມເຂັ້ມຂອງສີ"</string>
+    <string name="mode_title" msgid="2394873501427436055">"ຮູບແບບສີສັນມືດ"</string>
+    <string name="mode_disabled_msg" msgid="9196245518435936512">"ຖືກປິດການນຳໃຊ້ຊົ່ວຄາວເນື່ອງຈາກຕົວປະຢັດ​ແບັດເຕີຣີ"</string>
+    <string name="mode_changed" msgid="2243581369395418584">"ປ່ຽນຮູບແບບສີສັນແລ້ວ"</string>
+    <string name="themed_icon_title" msgid="7312460430471956558">"ໄອຄອນຕາມຮູບແບບສີສັນ"</string>
+    <string name="beta_title" msgid="8703819523760746458">"ເບຕ້າ"</string>
+    <string name="gird_picker_entry_content_description" msgid="9087651470212293439">"ປ່ຽນຕາຕະລາງແອັບ"</string>
+    <string name="wallpaper_color_tab" msgid="1447926591721403840">"ສີຮູບພື້ນຫຼັງ"</string>
+    <string name="wallpaper_color_subheader" msgid="4044464573669965670">"ໄອຄອນ, ຂໍ້ຄວາມ ແລະ ອື່ນໆຈະມີສີທີ່ເຂົ້າກັບຮູບພື້ນຫຼັງຂອງທ່ານ"</string>
+    <string name="wallpaper_color_title" msgid="5687965239180986458">"ສີຮູບພື້ນຫຼັງ"</string>
+    <string name="preset_color_tab" msgid="3133391839341329314">"ສີພື້ນຖານ"</string>
+    <string name="preset_color_tab_2" msgid="1444107326712562538">"ສີອື່ນໆ"</string>
+    <string name="preset_color_subheader" msgid="8230588536141279371">"ເລືອກສີໃດກໍໄດ້ໃຫ້ກັບໄອຄອນ, ໂມງ ແລະ ສິ່ງອື່ນໆຂອງທ່ານ"</string>
+    <string name="color_changed" msgid="7029571720331641235">"ປ່ຽນສີແລ້ວ"</string>
+    <string name="adaptive_color_title" msgid="1336508599235896205">"ໄດນາມິກ"</string>
+    <string name="color_picker_title" msgid="6666830057938082864">"ສີຂອງລະບົບ"</string>
+    <string name="keyguard_slot_name_bottom_start" msgid="8747677880200629719">"ທາງລັດຊ້າຍ"</string>
+    <string name="keyguard_slot_name_bottom_end" msgid="2525487375680217083">"ທາງລັດຂວາ"</string>
+    <string name="keyguard_affordance_none" msgid="1751643933430782312">"ບໍ່ມີ"</string>
+    <string name="keyguard_affordance_enablement_dialog_headline" msgid="365379085932610314">"ບໍ່ສາມາດເພີ່ມທາງລັດໄດ້"</string>
+    <string name="keyguard_affordance_enablement_dialog_action_template" msgid="8117011931337357438">"ເປີດ <xliff:g id="APPNAME">%1$s</xliff:g>"</string>
+    <string name="keyguard_affordance_enablement_dialog_message" msgid="6136286758939253570">"ເພື່ອເພີ່ມແອັບ <xliff:g id="APPNAME">%1$s</xliff:g> ເປັນທາງລັດ, ກະລຸນາກວດສອບໃຫ້ແນ່ໃຈວ່າ"</string>
+    <string name="keyguard_affordance_enablement_dialog_dismiss_button" msgid="629754625264422508">"ແລ້ວໆ"</string>
+    <string name="keyguard_quick_affordance_title" msgid="4242813186995735584">"ທາງລັດ"</string>
+    <string name="keyguard_quick_affordance_section_title" msgid="2806304242671717309">"ທາງລັດ"</string>
+    <string name="keyguard_quick_affordance_two_selected_template" msgid="1757099194522296363">"<xliff:g id="FIRST">%1$s</xliff:g>, <xliff:g id="SECOND">%2$s</xliff:g>"</string>
+    <string name="keyguard_quick_affordance_none_selected" msgid="8494127020144112003">"ບໍ່ມີ"</string>
+    <string name="show_notifications_on_lock_screen" msgid="4157744243084646720">"ສະແດງການແຈ້ງເຕືອນຢູ່ໜ້າຈໍລັອກ"</string>
+    <string name="more_settings_section_title" msgid="1331425454775815958">"ຕົວເລືອກໜ້າຈໍລັອກເພີ່ມເຕີມ"</string>
+    <string name="more_settings_section_description" msgid="1860115709122398325">"ຄວາມເປັນສ່ວນຕົວ, Now Playing ແລະ ອື່ນໆ"</string>
+    <string name="more_colors" msgid="3191071655353004591">"ສີເພີ່ມເຕີມ"</string>
+    <string name="content_description_dynamic_color_option" msgid="2191721655642529886">"ຮູບແບບສີສັນຫຼັກແບບໄດນາມິກ"</string>
+    <string name="content_description_neutral_color_option" msgid="3385443834001275301">"ຮູບແບບສີສັນຫຼັກແບບໃຊ້ສີໂທນກາງ"</string>
+    <string name="content_description_vibrant_color_option" msgid="2230249305878632821">"ຮູບແບບສີສັນຫຼັກແບບສີສັນສົດໃສ"</string>
+    <string name="content_description_expressive_color_option" msgid="6081295313456341282">"ຮູບແບບສີສັນຫຼັກແບບຊັດເຈນ"</string>
+    <string name="content_description_default_color_option" msgid="7011899327541080695">"ຕົວເລືອກສີຄ່າເລີ່ມຕົ້ນ"</string>
+    <string name="content_description_color_option" msgid="4169813692012119578">"ຕົວເລືອກສີ <xliff:g id="ID_1">%1$d</xliff:g>"</string>
+    <string name="scroll_forward_and_select" msgid="6156132388656395769">"ປັດຊ້າຍເພື່ອເລືອກໜ້າປັດໂມງແບບຕ່າງໆ"</string>
+    <string name="scroll_backward_and_select" msgid="5472202348434803757">"ປັດຂວາເພື່ອເລືອກໜ້າປັດໂມງແບບຕ່າງໆ"</string>
+    <string name="custom_clocks_label" msgid="8168419717593569347">"ໜ້າປັດໂມງແບບກຳນົດເອງ"</string>
+</resources>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017-2024 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="system_reboot_confirm_cm">Khởi động lại vào:</string>
+    <string name="global_action_restart_system">Hệ thống</string>
+    <string name="global_action_restart_recovery">Chế độ phục hồi</string>
+    <string name="global_action_restart_bootloader">Trình nạp khởi động</string>
+    <plurals name="show_dev_countdown_cm">
+        <item quantity="other">Bạn còn <xliff:g id="step_count">%1$d</xliff:g> bước nữa để bật cài đặt nhà phát triển.</item>
+    </plurals>
+    <string name="show_dev_on_cm">Bạn đã bật cài đặt nhà phát triển!</string>
+    <string name="show_dev_already_cm">Không cần thiết, bạn đã bật cài đặt nhà phát triển.</string>
+    <string name="system_buttons">Phím</string>
+    <string name="power_button_long_press_action_title">Hành động nhấn giữ nút nguồn</string>
+    <string name="power_button_long_press_for_power_menu_action">Truy cập menu Nguồn</string>
+    <string name="power_button_long_press_for_assistant_action">Mở Trợ lý</string>
+    <string name="inputs_volume_control_enabled">Kiểm soát âm lượng CEC</string>
+    <string name="inputs_volume_control_enabled_desc">Điều khiển âm lượng TV/AVR thay vì âm lượng bên trong</string>
+    <string name="enable_adb_root">Gỡ lỗi với quyền root</string>
+    <string name="enable_adb_root_summary">Cho phép chạy gỡ lỗi Android với quyền root</string>
+    <string name="advanced_restart_title">Khởi động lại nâng cao</string>
+    <string name="advanced_restart_summary">Hiển thị các tùy chọn để khởi động lại vào chế độ phục hồi, trình nạp khởi động hoặc thực hiện khởi động lại</string>
+    <string name="adb_over_network">ADB qua mạng</string>
+    <string name="adb_over_network_summary">Bật tính năng gỡ lỗi TCP/IP qua giao diện mạng (mạng Wi\u2011Fi, USB). Thiết lập này sẽ được đặt lại khi khởi động lại máy</string>
+    <string name="adb_over_network_warning">CẢNH BÁO: Khi ADB qua mạng được bật, điện thoại của bạn sẽ có thể bị xâm nhập trên tất cả các mạng kết nối!\n\nChỉ sử dụng tính năng này khi bạn đang kết nối trên các mạng đáng tin cậy.\n\nBạn có thực sự muốn bật chức năng này?</string>
+    <string name="trust_category_features">Trạng thái</string>
+    <string name="trust_feature_selinux">SELinux</string>
+    <string name="trust_feature_selinux_value_enforcing">Thực thi</string>
+    <string name="trust_feature_selinux_value_disabled">Đã tắt</string>
+    <string name="trust_feature_selinux_explain">SELinux quy định những quy trình nào có quyền truy cập vào các tệp/đường dẫn trên thiết bị của bạn.\nĐiều này ngăn các ứng dụng và dịch vụ truy cập các tệp mà chúng không được cho phép: Bằng cách này, quy trình độc hại tiềm ẩn sẽ được hạn chế và bảo mật của bạn được bảo toàn.</string>
+    <string name="trust_feature_security_patches">Bản vá bảo mật của Android</string>
+    <string name="trust_feature_security_patches_value_base">Nền tảng: %1$s\nNhà cung cấp: %2$s</string>
+    <string name="trust_feature_security_patches_value_new">Đã cập nhật</string>
+    <string name="trust_feature_security_patches_value_medium">Đã lỗi thời vài tháng</string>
+    <string name="trust_feature_security_patches_value_old">Lỗi thời</string>
+    <string name="trust_feature_security_patches_explain">Các bản vá bảo mật được Google phát hành hàng tháng với sự hợp tác của các nhà cung cấp SoC để giải quyết các lỗi có thể bị các ứng dụng độc hại khai thác để vượt qua các hạn chế bảo mật và gây thiệt hại vĩnh viễn cho thiết bị của bạn. Các bản vá được Google cung cấp được áp dụng hàng tháng trên tất cả các thiết bị được hỗ trợ, nhưng bản vá cho mã độc quyền chỉ có thể được nhà sản xuất thiết bị của bạn áp dụng. Để giữ cho thiết bị của bạn an toàn, hãy đảm bảo rằng việc xây dựng LineageOS của bạn luôn được cập nhật và (nếu có) đảm bảo hình ảnh của nhà cung cấp của bạn được cập nhật thành hình ảnh mới nhất do LineageOS đề xuất.</string>
+    <string name="trust_feature_encryption">Mã hóa</string>
+    <string name="trust_feature_encryption_value_enabled">Đã bật</string>
+    <string name="trust_feature_encryption_value_nolock">Cần một màn hình khóa an toàn</string>
+    <string name="trust_feature_encryption_value_disabled">Đã tắt</string>
+    <string name="trust_feature_encryption_explain">Mã hóa thiết bị của bạn ngăn truy cập vào dữ liệu của bạn khi điện thoại của bạn không được khởi động vào Android. Điều này đặc biệt quan trọng nếu điện thoại của bạn bị đánh cắp, vì nó ngăn người khác đọc tin nhắn, danh bạ và các thông tin cá nhân khác của bạn mà không cần mật khẩu.\nĐể mã hóa hiệu quả hơn, bạn cần đặt mật khẩu màn hình khóa an toàn.</string>
+    <string name="trust_category_tools">Quyền riêng tư</string>
+    <string name="trust_notification_alerts_title">Cảnh báo bảo mật</string>
+    <string name="trust_restrict_usb_title">Hạn chế USB</string>
+    <string name="trust_restrict_usb_summary">Hỗ trợ điều khiển cho các kết nối USB như tai nghe, thiết bị lưu trữ, đầu vào (chuột, bàn phím, cần điều khiển) và ADB</string>
+    <string name="trust_restrict_usb_always">Từ chối kết nối USB</string>
+    <string name="trust_restrict_usb_disabled">Luôn cho phép kết nối USB</string>
+    <string name="trust_onboarding_description">Trust giúp bạn giữ an toàn cho thiết bị của mình và bảo vệ quyền riêng tư của bạn.\nBiểu tượng Trust sẽ chỉ hiển thị khi nội dung của trang đã được xác minh.</string>
+    <string name="trust_warnings_alerts_intro">Bạn có thể chọn các vấn đề bảo mật mà bạn muốn được cảnh báo. Vì sự an toàn của bạn, bạn nên bật tất cả cảnh báo</string>
+    <string name="trust_warnings_selinux">Trạng thái SELinux</string>
+    <string name="trust_warnings_keys">Tạo chữ ký</string>
+    <string name="sleep_button_label">Ngủ</string>
+    <string name="system_sleep_confirm">Ngủ ngay?</string>
+    <string name="shutdown_button_label">Tắt nguồn</string>
+    <string name="system_shutdown_confirm">Tắt nguồn ngay?</string>
+    <string name="convertible_port_busy_title">Cổng USB 1 đang được sử dụng</string>
+    <string name="convertible_port_busy_warning">Hãy rút đầu cắm của mọi thiết bị hoặc phụ kiện rồi thử lại</string>
+    <string name="mtp_enable_title">Truy cập thư mục SHIELD trên máy tính bằng USB</string>
+    <string name="mtp_enable_warning">Cổng USB 1 hiện đã được định cấu hình để SHIELD kết nối với máy tính dưới dạng thiết bị đa phương tiện.\n\nCổng này sẽ không còn phát hiện phương tiện lưu trữ USB hoặc phụ kiện USB và không thể sử dụng để sạc các thiết bị.</string>
+    <string name="mtp_retry_error">Thất bại. Vui lòng thử lại.</string>
+    <string name="mtp_summary">Ở chế độ này, cổng USB không hoạt động cho các mục đích sử dụng khác</string>
+    <string name="mtp_title">Truyền tệp sang máy tính bằng USB</string>
+    <string name="mtp_unexpected_error">Lỗi không mong muốn. Vui lòng thử lại sau.</string>
+    <string name="usb_debugging_enable_title">Đã bật gỡ lỗi USB</string>
+    <string name="usb_debugging_enable_warning">Cổng USB 1 hiện đã được định cấu hình để SHIELD kết nối với máy tính dưới dạng thiết bị đa phương tiện.\n\nCổng này sẽ không còn phát hiện phương tiện lưu trữ USB hoặc phụ kiện USB và không thể sử dụng để sạc các thiết bị.</string>
+</resources>

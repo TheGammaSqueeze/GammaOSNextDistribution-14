@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2016 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Gjestôr de memorie</string>
+    <string name="cancel">Anule</string>
+    <string name="storage_menu_free">Libere spazi</string>
+    <string name="deletion_helper_title">Gjave elements</string>
+    <string name="deletion_helper_app_summary"><xliff:g id="days" example="67">%1$d</xliff:g> dîs indaûr</string>
+    <string name="deletion_helper_app_summary_item_size"><xliff:g id="used" example="1.2GB">%1$s</xliff:g></string>
+    <string name="deletion_helper_app_summary_never_used">No doprât tal ultin an</string>
+    <string name="deletion_helper_app_summary_unknown_used">Nissune certece de ultime volte che al è stât doprât</string>
+    <string name="deletion_helper_free_button">Libere <xliff:g id="freeable" example="1.2GB">%1$s</xliff:g></string>
+    <string name="deletion_helper_photos_title">Fotos e videos cun backup</string>
+    <string name="deletion_helper_photos_age_summary">Plui vecjis di 30 dîs</string>
+    <string name="deletion_helper_photos_summary"><xliff:g id="used" example="1.2GB">%1$s</xliff:g></string>
+    <string name="deletion_helper_downloads_title">Discjariâts</string>
+    <string name="deletion_helper_downloads_category_summary"><xliff:g id="used" example="1.2GB">%1$s</xliff:g></string>
+    <string name="deletion_helper_downloads_summary_empty"><xliff:g id="used" example="1.2GB">%1$s</xliff:g></string>
+    <string name="deletion_helper_clear_dialog_title">Libere spazi</string>
+    <string name="deletion_helper_clear_dialog_message"><xliff:g id="clearable_bytes" example="1.2GB">%1$s</xliff:g> di contignûts a vignaran gjavâts dal to dispositîf</string>
+    <string name="deletion_helper_clear_dialog_remove">Libere spazi</string>
+    <string name="deletion_helper_upsell_title">Gjestî in automatic la memorie di archiviazion?</string>
+    <string name="deletion_helper_upsell_summary"><xliff:g id="used" example="1.2GB">%1$s</xliff:g> cumò libars. Lassâ che il gjestôr de memorie al liberi spazi in automatic gjavant dal to dispositîf il contignût che al à vût fat il backup?</string>
+    <string name="deletion_helper_upsell_cancel">No, graciis</string>
+    <string name="deletion_helper_upsell_activate">Ative</string>
+    <string name="deletion_helper_apps_group_title">Aplicazions dopradis pôc</string>
+    <string name="deletion_helper_apps_group_summary"><xliff:g id="used" example="1.2GB">%1$s</xliff:g></string>
+    <string name="deletion_helper_automatic_title">Automatichis</string>
+    <string name="deletion_helper_manual_title">Manuâls</string>
+    <string name="deletion_helper_preference_title">Libere spazi cumò</string>
+    <string name="automatic_storage_manager_service_label">Servizi gjestion automatiche de memorie</string>
+    <string name="automatic_storage_manager_notification_title" product="default">Spazi sul telefon in esauriment</string>
+    <string name="automatic_storage_manager_notification_title" product="tablet">Spazi sul tablet in esauriment</string>
+    <string name="automatic_storage_manager_notification_summary">Lasse che il Gjestôr de memorie al liberi spazi eliminant in automatic lis fotos e i videos vecjos cuant che il telefon al torne a jemplâsi. </string>
+    <string name="automatic_storage_manager_cancel_button">No, graciis</string>
+    <string name="automatic_storage_manager_activate_button">Ative</string>
+    <string name="deletion_helper_photos_loading_title">Fotos e videos cun backup</string>
+    <string name="deletion_helper_photos_loading_summary">Daûr a cjatâ i elements…</string>
+    <string name="deletion_helper_no_threshold">Mostre ducj i elements</string>
+    <string name="deletion_helper_default_threshold">Plate i elements resints</string>
+    <string name="deletion_helper_clear_dialog_message_first_time"><xliff:g id="clearable_bytes" example="1.2GB">%1$s</xliff:g> di contignûts a vignaran gjavâts dal to dispositîf</string>
+    <string name="automatic_storage_manager_activation_warning">La tô memorie di archiviazion cumò e je gjestide dal gestôr de memorie di archiviazion</string>
+    <string name="empty_state_title">Nuie di gjavâ</string>
+    <string name="empty_state_review_items_link">Riviôt i elements resints</string>
+    <string name="empty_state_summary">Nol esist nissun file plui vieri di gjavâ. Par fâ spazi, gjave fotos, videos e aplicazions resintis.</string>
+    <string name="app_requesting_space"><xliff:g id="app" example="Dialer">%1$s</xliff:g> al à bisugne di <xliff:g id="clearable_bytes" example="1.2GB">%2$s</xliff:g> di spazi</string>
+</resources>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2023 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources>
+    <!-- App title of DeviceAsWebcam -->
+    <string name="app_label">Webcam Service</string>
+    <!-- Accessibility description for the view finder texture view -->
+    <string name="view_finder_description">View finder</string>
+    <!-- Accessibility description for the zoom ratio container -->
+    <string name="zoom_ratio_description">Zoom ratio</string>
+    <!-- Accessibility description for the currently selected Zoom ratio button -->
+    <string name="zoom_ratio_button_current_description">Current Zoom Ratio</string>
+    <!-- Accessibility description for Zoom Seek Bar -->
+    <string name="zoom_seek_bar_description">Zoom Seek Bar</string>
+    <!-- Accessibility description for the toggle camera image button -->
+    <string name="toggle_camera_button_description_back">Switch to back camera</string>
+    <string name="toggle_camera_button_description_front">Switch to front camera</string>
+    <!-- Accessibility description for the toggle high quality button -->
+    <string name="toggle_high_quality_description_off">Switch High Quality off</string>
+    <string name="toggle_high_quality_description_on">Switch High Quality on</string>
+    <!-- Notification  -->
+    <string name="notif_channel_name">Foreground Service</string>
+    <string name="notif_ticker">Webcam</string>
+    <string name="notif_title">Webcam</string>
+    <string name="notif_desc">Tap to preview and configure webcam output</string>
+    <!-- High Quality warning dialog -->
+    <string name="hq_warning_dialog_title">High Quality Mode</string>
+    <string name="hq_warning_dialog_content_1">High Quality Mode disables power optimizations to improve webcam quality. Using this mode may cause significant power draw which can heat up the device.</string>
+    <string name="hq_warning_dialog_content_2"><b><u>WARNING:</u></b> Prolonged usage at high temperatures may have an adverse effect on the long term battery health of this device.</string>
+    <string name="hq_warning_dialog_dont_show_again">Don\'t show again</string>
+    <string name="hq_warning_dialog_button_ack">Acknowledge</string>
+
+    <!-- Strings for reading/writing user preferences to SharedPreferences -->
+    <string name="prefs_file_name">com.android.DeviceAsWebcam.user.prefs</string>
+    <string name="prefs_camera_id_key">camera.id</string>
+    <string name="prefs_back_camera_id_key">back.camera.id</string>
+    <string name="prefs_front_camera_id_key">front.camera.id</string>
+    <string name="prefs_zoom_ratio_key">zoom.ratio.%s</string>
+    <string name="prefs_high_quality_mode_enabled">high.quality.mode.enabled</string>
+    <string name="prefs_high_quality_warning_enabled">high.quality.warning.enabled</string>
+
+    <!-- Strings for switch camera selector dialog -->
+    <string name="list_item_text_back_camera">Back camera</string>
+    <string name="list_item_text_front_camera">Front camera</string>
+    <string name="list_item_text_standard_camera">Standard camera</string>
+    <string name="list_item_text_wide_angle_camera">Wide angle camera</string>
+    <string name="list_item_text_ultra_wide_camera">Ultra wide camera</string>
+    <string name="list_item_text_telephoto_camera">Telephoto camera</string>
+    <string name="list_item_text_other_camera">Other camera</string>
+    <string name="list_item_text_unknown_camera">Unknown camera</string>
+    <!-- Accessibility description for the OK button -->
+    <string name="camera_options_list_description">Available camera options</string>
+</resources>

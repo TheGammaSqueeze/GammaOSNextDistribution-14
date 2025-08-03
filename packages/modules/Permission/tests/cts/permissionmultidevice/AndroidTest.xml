@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<configuration description="Config for CTS permission multi-device test cases">
+
+    <option name="test-suite-tag" value="cts" />
+
+    <option name="config-descriptor:metadata" key="component" value="permissions" />
+    <option name="config-descriptor:metadata" key="parameter" value="no_foldable_states" />
+    <option name="config-descriptor:metadata" key="parameter" value="not_instant_app" />
+    <option name="config-descriptor:metadata" key="parameter" value="not_multi_abi" />
+    <option name="config-descriptor:metadata" key="parameter" value="secondary_user" />
+    <option name="config-descriptor:metadata" key="parameter" value="run_on_sdk_sandbox" />
+    <option name="config-descriptor:metadata" key="mainline-param" value="com.google.android.permission.apex" />
+    <object type="module_controller" class="com.android.tradefed.testtype.suite.module.Sdk34ModuleController" />
+
+    <target_preparer class="com.android.tradefed.targetprep.DeviceSetup">
+        <option name="force-skip-system-props" value="true" /> <!-- avoid restarting device -->
+        <option name="set-global-setting" key="verifier_verify_adb_installs" value="0" />
+        <option name="restore-settings" value="true" />
+        <option name="screen-always-on" value="on" />
+        <option name="disable-device-config-sync" value="true" />
+    </target_preparer>
+
+    <target_preparer class="com.android.tradefed.targetprep.FeatureFlagTargetPreparer">
+        <option name="flag-value"
+            value="permissions/com.android.permission.flags.device_aware_permission_grant=true"/>
+        <option name="flag-value"
+            value="virtual_devices/android.companion.virtual.flags.stream_permissions=true"/>
+    </target_preparer>
+
+    <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
+        <option name="cleanup-apks" value="true" />
+        <option name="test-file-name" value="CtsPermissionMultiDeviceTestCases.apk" />
+    </target_preparer>
+
+    <target_preparer class="com.android.compatibility.common.tradefed.targetprep.FilePusher">
+        <option name="push" value="CtsAccessRemoteDeviceCamera.apk->/data/local/tmp/cts-permissionmultidevice/CtsAccessRemoteDeviceCamera.apk" />
+    </target_preparer>
+
+    <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer">
+        <option name="run-command" value="appops set android.permissionmultidevice.cts REQUEST_INSTALL_PACKAGES allow" />
+        <!-- disable DeprecatedAbi warning -->
+        <option name="run-command" value="setprop debug.wm.disable_deprecated_abi_dialog 1" />
+        <!-- disable DeprecatedTargetSdk warning -->
+        <option name="run-command" value="setprop debug.wm.disable_deprecated_target_sdk_dialog 1" />
+        <!-- Ensure all broadcasts are dispatched prior to running our tests, to make sure they
+     aren't polluted by `BOOT_COMPLETED` or similar broadcasts still being delivered, which
+     causes our `ActivityManager#waitForBroadcastIdle()` calls to timeout. -->
+        <option name="run-command" value="am wait-for-broadcast-idle" />
+        <option name="run-command" value="am wait-for-broadcast-barrier"  />
+        <!-- Dismiss any system dialogs (e.g. crashes, ANR). -->
+        <option name="run-command" value="am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS --receiver-foreground"  />
+    </target_preparer>
+
+    <!-- Create place to store apks -->
+    <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer">
+        <option name="run-command" value="mkdir -p /data/local/tmp/cts-permissionmultidevice" />
+        <option name="teardown-command" value="rm -rf /data/local/tmp/cts-permissionmultidevice"/>
+    </target_preparer>
+
+    <test class="com.android.tradefed.testtype.AndroidJUnitTest" >
+        <option name="package" value="android.permissionmultidevice.cts" />
+        <option name="runtime-hint" value="5m" />
+    </test>
+
+</configuration>

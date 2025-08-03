@@ -1,0 +1,16 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_app {
+    name: "CarFrameworkPackageStubs",
+
+    srcs: ["src/**/*.java"],
+
+    platform_apis: true,
+
+    // Required to allow non 0 intent filter priority
+    privileged: true,
+
+    certificate: "platform",
+}

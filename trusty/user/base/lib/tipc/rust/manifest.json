@@ -1,0 +1,9 @@
+{
+    "app_name": "tipc-rust-test",
+    "uuid": "3c322c86-b9f9-4f4b-92c5-1565db7e3a29",
+    "min_heap": 32768,
+    "min_stack": 32768,
+    "mgmt_flags": {
+        "non_critical_app": true
+    }
+}

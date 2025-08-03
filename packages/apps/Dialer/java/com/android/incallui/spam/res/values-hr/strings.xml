@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="non_spam_notification_title">Poznajete li broj %1$s?</string>
+  <string name="spam_notification_title">Je li poziv s broja %1$s bio neželjeni?</string>
+  <string name="spam_notification_non_spam_call_expanded_text">Prvi put ste primili poziv s tog broja. Ako je poziv bio neželjen, broj možete blokirati i prijaviti ga.</string>
+  <string name="spam_notification_dialog_add_contact_action_text">Dodaj u kontakte</string>
+  <string name="spam_notification_dialog_block_report_spam_action_text">Blokiranje i prijava neželjenog poziva</string>
+  <string name="spam_notification_was_not_spam_action_text">Ne, nije neželjeni poziv</string>
+  <string name="spam_notification_block_spam_action_text">Da, blokiraj broj</string>
+  <string name="spam_notification_action_dismiss">Odbacivanje</string>
+</resources>

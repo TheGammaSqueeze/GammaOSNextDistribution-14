@@ -1,0 +1,20 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_library {
+    name: "libmicrodroid_metadata",
+    host_supported: true,
+    crate_name: "microdroid_metadata",
+    srcs: ["src/lib.rs"],
+    prefer_rlib: true,
+    edition: "2021",
+    rustlibs: [
+        "libanyhow",
+        "libmicrodroid_metadata_proto_rust",
+        "libprotobuf",
+    ],
+    apex_available: [
+        "com.android.virt",
+    ],
+}

@@ -1,0 +1,28 @@
+// Signature format: 2.0
+package android.app.sdksandbox {
+
+  public final class SdkSandboxManager {
+    field public static final String ACTION_START_SANDBOXED_ACTIVITY = "android.app.sdksandbox.action.START_SANDBOXED_ACTIVITY";
+  }
+
+  public class SdkSandboxManagerFrameworkInitializer {
+    method public static void registerServiceWrappers();
+  }
+
+}
+
+package android.app.sdksandbox.sandboxactivity {
+
+  @FlaggedApi("com.android.sdksandbox.flags.sandbox_activity_sdk_based_context") public interface ActivityContextInfo {
+    method public default int getContextFlags();
+    method @NonNull public android.content.pm.ApplicationInfo getSdkApplicationInfo();
+  }
+
+  @FlaggedApi("com.android.sdksandbox.flags.sandbox_activity_sdk_based_context") public abstract class SdkSandboxActivityAuthority {
+    method @NonNull public android.app.sdksandbox.sandboxactivity.ActivityContextInfo getActivityContextInfo(@NonNull android.content.Intent);
+    method @NonNull public static android.app.sdksandbox.sandboxactivity.SdkSandboxActivityAuthority getInstance();
+    method public static boolean isSdkSandboxActivityIntent(@NonNull android.content.Context, @Nullable android.content.Intent);
+  }
+
+}
+

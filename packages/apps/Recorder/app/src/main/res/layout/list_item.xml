@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2021-2024 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    android:paddingHorizontal="16dp"
+    android:paddingVertical="8dp">
+
+    <ImageView
+        android:id="@+id/playImageView"
+        style="@style/AppTheme.ImageButton"
+        android:contentDescription="@string/play"
+        android:src="@drawable/ic_play_circle"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:paddingStart="2dp"
+        android:paddingEnd="2dp"
+        android:paddingTop="2dp"
+        android:paddingBottom="2dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="?attr/colorOnBackground" />
+
+    <ImageView
+        android:id="@+id/menuImageView"
+        style="@style/AppTheme.ImageButton"
+        android:contentDescription="@string/list_item_menu"
+        android:src="@drawable/ic_menu"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="?attr/colorOnBackground" />
+
+    <TextView
+        android:id="@+id/dateTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="8dp"
+        android:layout_marginStart="16dp"
+        android:textColor="?android:attr/textColorSecondary"
+        app:layout_constraintStart_toEndOf="@id/playImageView"
+        app:layout_constraintTop_toBottomOf="@id/titleTextView"
+        tools:text="1970-01-01" />
+
+    <TextView
+        android:id="@+id/titleTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:ellipsize="marquee"
+        android:singleLine="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:textColor="?android:attr/textColorPrimary"
+        android:textSize="16sp"
+        app:layout_constraintStart_toEndOf="@id/playImageView"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/menuImageView"
+        tools:text="Recording name" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

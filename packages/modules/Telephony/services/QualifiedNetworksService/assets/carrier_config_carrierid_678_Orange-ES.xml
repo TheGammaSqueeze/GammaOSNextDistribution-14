@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<carrier_config>
+    <int name="qns.mms_rat_preference_int" value="3"/>
+    <int name="qns.mms_transport_type_int" value="2"/>
+    <int-array name="qns.idle_wifi_rssi_int_array" num="2">
+        <item value="-65"/>
+        <item value="-75"/>
+    </int-array>
+    <int-array name="qns.idle_wifi_rssi_without_cellular_int_array" num="2">
+        <item value="-85"/>
+        <item value="-90"/>
+    </int-array>
+    <int-array name="qns.voice_wifi_rssi_int_array" num="2">
+        <item value="-65"/>
+        <item value="-75"/>
+    </int-array>
+    <int-array name="qns.voice_wifi_rssi_without_cellular_int_array" num="2">
+        <item value="-85"/>
+        <item value="-90"/>
+    </int-array>
+</carrier_config>

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017-2024 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="system_reboot_confirm_cm">Restart to:</string>
+    <string name="global_action_restart_system">System</string>
+    <string name="global_action_restart_recovery">Recovery</string>
+    <string name="global_action_restart_bootloader">Bootloader</string>
+    <plurals name="show_dev_countdown_cm">
+        <item quantity="one">You are now <xliff:g id="step_count">%1$d</xliff:g> step away from enabling development settings.</item>
+        <item quantity="other">You are now <xliff:g id="step_count">%1$d</xliff:g> steps away from enabling development settings.</item>
+    </plurals>
+    <string name="show_dev_on_cm">You have enabled development settings!</string>
+    <string name="show_dev_already_cm">No need, you have already enabled development settings.</string>
+    <string name="system_buttons">Buttons</string>
+    <string name="power_button_long_press_action_title">Power button long press action</string>
+    <string name="power_button_long_press_for_power_menu_action">Access Power menu</string>
+    <string name="power_button_long_press_for_assistant_action">Open Assistant</string>
+    <string name="inputs_volume_control_enabled">CEC Volume Control</string>
+    <string name="inputs_volume_control_enabled_desc">Control TV/AVR volume instead of internal volume</string>
+    <string name="enable_adb_root">Rooted debugging</string>
+    <string name="enable_adb_root_summary">Allow running Android debugging as root</string>
+    <string name="advanced_restart_title">Advanced restart</string>
+    <string name="advanced_restart_summary">Show options for restarting into recovery, bootloader or performing a soft restart</string>
+    <string name="adb_over_network">ADB over network</string>
+    <string name="adb_over_network_summary">Enable TCP/IP debugging over network interfaces (Wi\u2011Fi, USB networks). This setting is reset on reboot</string>
+    <string name="adb_over_network_warning">WARNING: When ADB over network is enabled, your phone is open for intrusions on all connected networks!\n\nOnly use this feature when you are connected on trusted networks.\n\nDo you really want to enable this function?</string>
+    <string name="trust_category_features">Status</string>
+    <string name="trust_feature_selinux">SELinux</string>
+    <string name="trust_feature_selinux_value_enforcing">Enforcing</string>
+    <string name="trust_feature_selinux_value_disabled">Disabled</string>
+    <string name="trust_feature_selinux_explain">SELinux dictates what processes have access to which files/paths on your device.\nThis prevents apps and services from accessing files that they are not supposed to: this way a potential malicious process is limited, and your security preserved.</string>
+    <string name="trust_feature_security_patches">Android security patches</string>
+    <string name="trust_feature_security_patches_value_base">Platform: %1$s\nVendor: %2$s</string>
+    <string name="trust_feature_security_patches_value_new">Up to date</string>
+    <string name="trust_feature_security_patches_value_medium">A few months out of date</string>
+    <string name="trust_feature_security_patches_value_old">Out of date</string>
+    <string name="trust_feature_security_patches_explain">Security patches are released monthly by Google in cooperation with SoC vendors to address flaws which could be exploited by malicious apps to bypass security restrictions and cause permanent damage to your device. Patches made available by Google are applied every month on all supported devices, but patches to proprietary code can only be applied by your device\'s manufacturer. To keep your device safe make sure your LineageOS build is always up-to-date, and (if applicable) ensure your vendor image is updated to the latest one recommended by LineageOS.</string>
+    <string name="trust_feature_encryption">Encryption</string>
+    <string name="trust_feature_encryption_value_enabled">Enabled</string>
+    <string name="trust_feature_encryption_value_nolock">Needs a secure lock screen</string>
+    <string name="trust_feature_encryption_value_disabled">Disabled</string>
+    <string name="trust_feature_encryption_explain">Encrypting your device prevents access to your data when your phone is not booted into Android. This is particularly important if your phone is stolen, as it prevents people from reading your messages, contacts, and other private information without your password.\nTo make the encryption more effective you need to set a secure lock screen password.</string>
+    <string name="trust_category_tools">Privacy</string>
+    <string name="trust_notification_alerts_title">Security alerts</string>
+    <string name="trust_restrict_usb_title">Restrict USB</string>
+    <string name="trust_restrict_usb_summary">Control support for USB connections such as earphones, storage devices, input (mice, keyboards, joysticks) and ADB</string>
+    <string name="trust_restrict_usb_always">Deny USB connections</string>
+    <string name="trust_restrict_usb_disabled">Always allow USB connections</string>
+    <string name="trust_onboarding_description">Trust helps you keep your device secure and protect your privacy.\nThe Trust icon will only show when the contents of the page have been verified.</string>
+    <string name="trust_warnings_alerts_intro">You can select the security issues you want to be warned about. For your safety, it is recommended to enable all alerts</string>
+    <string name="trust_warnings_selinux">SELinux status</string>
+    <string name="trust_warnings_keys">Build signature</string>
+    <string name="sleep_button_label">Sleep</string>
+    <string name="system_sleep_confirm">Sleep now?</string>
+    <string name="shutdown_button_label">Shutdown</string>
+    <string name="system_shutdown_confirm">Shutdown now?</string>
+    <string name="convertible_port_busy_title">USB port 1 is in use</string>
+    <string name="convertible_port_busy_warning">Unplug any devices or accessories and try again</string>
+    <string name="mtp_enable_title">Accessing SHIELD folders on PC using USB</string>
+    <string name="mtp_enable_warning">USB port 1 is now configured for SHIELD to connect to a PC as a media device.\n\nThis port will no longer detect USB storage media or USB accessories and cannot be used for charging devices.</string>
+    <string name="mtp_retry_error">Failed. Please retry.</string>
+    <string name="mtp_summary">In this mode, the USB port is not functional for other uses</string>
+    <string name="mtp_title">Transfer files to a computer using USB</string>
+    <string name="mtp_unexpected_error">Unexpected error. Please retry later.</string>
+    <string name="usb_debugging_enable_title">USB debugging enabled</string>
+    <string name="usb_debugging_enable_warning">USB port 1 is now configured for SHIELD to connect to a PC as a media device.\n\nThis port will no longer detect USB storage media or USB accessories and cannot be used for charging devices.</string>
+</resources>

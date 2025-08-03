@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <drawable name="system_accent1_0">@*android:color/system_accent1_0</drawable>
+    <drawable name="system_accent1_10">@*android:color/system_accent1_10</drawable>
+    <drawable name="system_accent1_50">@*android:color/system_accent1_50</drawable>
+    <drawable name="system_accent1_100">@*android:color/system_accent1_100</drawable>
+    <drawable name="system_accent1_200">@*android:color/system_accent1_200</drawable>
+    <drawable name="system_accent1_300">@*android:color/system_accent1_300</drawable>
+    <drawable name="system_accent1_400">@*android:color/system_accent1_400</drawable>
+    <drawable name="system_accent1_500">@*android:color/system_accent1_500</drawable>
+    <drawable name="system_accent1_600">@*android:color/system_accent1_600</drawable>
+    <drawable name="system_accent1_700">@*android:color/system_accent1_700</drawable>
+    <drawable name="system_accent1_800">@*android:color/system_accent1_800</drawable>
+    <drawable name="system_accent1_900">@*android:color/system_accent1_900</drawable>
+    <drawable name="system_accent1_1000">@*android:color/system_accent1_1000</drawable>
+
+    <drawable name="system_accent2_0">@*android:color/system_accent2_0</drawable>
+    <drawable name="system_accent2_10">@*android:color/system_accent2_10</drawable>
+    <drawable name="system_accent2_50">@*android:color/system_accent2_50</drawable>
+    <drawable name="system_accent2_100">@*android:color/system_accent2_100</drawable>
+    <drawable name="system_accent2_200">@*android:color/system_accent2_200</drawable>
+    <drawable name="system_accent2_300">@*android:color/system_accent2_300</drawable>
+    <drawable name="system_accent2_400">@*android:color/system_accent2_400</drawable>
+    <drawable name="system_accent2_500">@*android:color/system_accent2_500</drawable>
+    <drawable name="system_accent2_600">@*android:color/system_accent2_600</drawable>
+    <drawable name="system_accent2_700">@*android:color/system_accent2_700</drawable>
+    <drawable name="system_accent2_800">@*android:color/system_accent2_800</drawable>
+    <drawable name="system_accent2_900">@*android:color/system_accent2_900</drawable>
+    <drawable name="system_accent2_1000">@*android:color/system_accent2_1000</drawable>
+
+    <drawable name="system_accent3_0">@*android:color/system_accent3_0</drawable>
+    <drawable name="system_accent3_10">@*android:color/system_accent3_10</drawable>
+    <drawable name="system_accent3_50">@*android:color/system_accent3_50</drawable>
+    <drawable name="system_accent3_100">@*android:color/system_accent3_100</drawable>
+    <drawable name="system_accent3_200">@*android:color/system_accent3_200</drawable>
+    <drawable name="system_accent3_300">@*android:color/system_accent3_300</drawable>
+    <drawable name="system_accent3_400">@*android:color/system_accent3_400</drawable>
+    <drawable name="system_accent3_500">@*android:color/system_accent3_500</drawable>
+    <drawable name="system_accent3_600">@*android:color/system_accent3_600</drawable>
+    <drawable name="system_accent3_700">@*android:color/system_accent3_700</drawable>
+    <drawable name="system_accent3_800">@*android:color/system_accent3_800</drawable>
+    <drawable name="system_accent3_900">@*android:color/system_accent3_900</drawable>
+    <drawable name="system_accent3_1000">@*android:color/system_accent3_1000</drawable>
+
+</resources>

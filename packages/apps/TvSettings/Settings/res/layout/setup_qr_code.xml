@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/wifi_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_vertical">
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="40dp"
+        android:layout_marginStart="40dp"
+        app:layout_constraintStart_toEndOf="@id/setup_qrcode_guideline"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/setup_qrcode_view"
+            android:layout_width="280dp"
+            android:layout_height="280dp"
+            android:src="@android:color/transparent" />
+
+        <ProgressBar
+            android:id="@+id/setup_qrcode_progress"
+            style="@android:style/Widget.Material.Light.ProgressBar.Large"
+            android:layout_width="@dimen/setup_progress_spinner_size"
+            android:layout_height="@dimen/setup_progress_spinner_size"
+            android:layout_gravity="center"
+            android:indeterminate="true"
+            android:indeterminateTint="@color/setup_list_item_background_focused"
+            android:indeterminateTintMode="src_in" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="40dp"
+        android:layout_marginStart="120dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toStartOf="@id/setup_qrcode_guideline"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginTop="20dp"
+            android:text="@string/title_wifi_scan_qr_code"
+            android:textColor="#E8EAED"
+            android:textSize="32sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginVertical="24dp"
+            android:lineSpacingExtra="6sp"
+            android:text="@string/wifi_scan_qr_code_description"
+            android:textColor="#9AA0A6"
+            android:textSize="15sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="@string/wifi_scan_qr_code_back_description"
+            android:textColor="#5F6368"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/setup_qrcode_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.55" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

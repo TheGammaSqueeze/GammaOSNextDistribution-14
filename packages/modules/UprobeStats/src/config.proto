@@ -1,0 +1,49 @@
+syntax = "proto2";
+
+package uprobestats.protos;
+
+message UprobestatsConfig {
+
+  // A Task consists of one or more probes that target the same process and are
+  // activated and deactivated together.
+  message Task {
+
+    // A ProbeConfig defines the spec of a single probe, including which BPF to
+    // use and where to place the probe.
+    message ProbeConfig {
+
+      // Name of the BPF program and function. E.g.
+      // prog_BitmapAllocation_uprobe_bitmap_constructor_heap. Note that this
+      // does not include the full BPF program path.
+      optional string bpf_name = 1;
+
+      // Path to an executable or a library. E.g.
+      // /system/framework/arm64/boot-framework.oat. This is made a repeated
+      // paths to allow backup paths to be provided. Sometimes a library may be
+      // re-compiled by ART and stored in a different location. uprobestats
+      // would try to place the probe on each of the paths in the order
+      // specified here until the probe is successfully placed.
+      repeated string file_paths = 2;
+
+      // Full method signature. E.g.
+      // void android.content.pm.PackageManagerInternal.finishPackageInstall(int, boolean)
+      optional string method_signature = 3;
+    }
+
+    repeated ProbeConfig probe_configs = 1;
+
+    // Name of the process to be probed, e.g. system_server.
+    optional string target_process_name = 2;
+
+    // How long the probes should remain active.
+    optional int32 duration_seconds = 3;
+
+    message StatsdLoggingConfig {
+      optional int64 atom_id = 1;
+    }
+    optional StatsdLoggingConfig statsd_logging_config = 5;
+
+  }
+
+  repeated Task tasks = 1;
+}

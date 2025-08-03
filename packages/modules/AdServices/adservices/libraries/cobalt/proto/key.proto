@@ -1,0 +1,46 @@
+// Copyright 2023 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+syntax = "proto3";
+
+package cobalt;
+
+option java_multiple_files = true;
+option java_package = "com.google.cobalt";
+
+////////////////////////////////////////////////////////////////////////////////
+// NOTE: This file is used by the Cobalt client and the Cobalt servers.
+// The source-of-truth of this file is located in Cobalt's open source code
+// repository, and the file is copied to Android where it is used by the Cobalt
+// client. Do not edit the copy of this file in this Android repo as those edits
+// will be overwritten when the file is next copied.
+////////////////////////////////////////////////////////////////////////////////
+
+// A CobaltEncryptionKey carries a Cobalt encryption key (public key) along with
+// metadata about the key.
+message CobaltEncryptionKey {
+  // Serialized key.
+  bytes serialized_key = 1;
+
+  // Unique index for this key. Used in EncryptedMessage.
+  uint32 key_index = 2;
+
+  enum KeyPurpose {
+    UNSET = 0;
+    SHUFFLER = 1;
+    ANALYZER = 2;
+  }
+
+  // Encrypt messages for shuffler or analyzer?
+  KeyPurpose purpose = 3;
+}

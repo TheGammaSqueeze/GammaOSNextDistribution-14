@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2023 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="8dp"
+    android:orientation="vertical"
+    tools:context=".ThreadNetworkSettingsFragment" >
+
+    <Button android:id="@+id/button_join_network"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Join Network" />
+    <Button android:id="@+id/button_leave_network"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Leave Network" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16dp"
+        android:textStyle="bold"
+        android:text="State" />
+    <TextView
+        android:id="@+id/text_state"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="12dp"
+        android:typeface="monospace" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:textSize="16dp"
+        android:textStyle="bold"
+        android:text="Network Info" />
+    <TextView
+        android:id="@+id/text_network_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="12dp" />
+
+    <Button android:id="@+id/button_migrate_network"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Migrate Network" />
+    <TextView
+        android:id="@+id/text_migrate_network_state"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="12dp" />
+</LinearLayout>

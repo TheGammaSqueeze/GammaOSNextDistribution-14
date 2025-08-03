@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2018 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License
+  -->
+<resources>
+    <string name="config_statusBarComponent" translatable="false">
+        com.android.systemui.statusbar.car.CarStatusBar
+    </string>
+    <!-- How many milliseconds to wait before force hiding the UserSwitchTransitionView -->
+    <integer name="config_userSwitchTransitionViewShownTimeoutMs" translatable="false">5000
+    </integer>
+
+    <!-- Configure which system bars should be displayed. -->
+    <bool name="config_enableTopSystemBar">true</bool>
+    <bool name="config_enableLeftSystemBar">false</bool>
+    <bool name="config_enableRightSystemBar">false</bool>
+    <bool name="config_enableBottomSystemBar">true</bool>
+
+    <!-- Configure the type of each system bar. Each system bar must have a unique type. -->
+    <!--    STATUS_BAR = 0-->
+    <!--    NAVIGATION_BAR = 1-->
+    <!--    STATUS_BAR_EXTRA = 2-->
+    <!--    NAVIGATION_BAR_EXTRA = 3-->
+    <integer name="config_topSystemBarType">0</integer>
+    <integer name="config_leftSystemBarType">2</integer>
+    <integer name="config_rightSystemBarType">3</integer>
+    <integer name="config_bottomSystemBarType">1</integer>
+
+    <!-- Location of the system bar privacy indicator. This value should be consistent with the
+         layout file where the view for system bar privacy indicator is put. -->
+    <!-- For example the view is put car_top_system_bar.xml, this value should be
+         config_topSystemBarType. -->
+    <integer name="config_privacyIndicatorLocation">@integer/config_topSystemBarType</integer>
+
+    <!-- Configure the relative z-order among the system bars. When two system bars overlap (e.g.
+         if both top bar and left bar are enabled, it creates an overlapping space in the upper left
+         corner), the system bar with the higher z-order takes the overlapping space and padding is
+         applied to the other bar.-->
+    <!-- NOTE: If two overlapping system bars have the same z-order, SystemBarConfigs will throw a
+         RuntimeException, since their placing order cannot be determined. Bars that do not overlap
+         are allowed to have the same z-order. -->
+    <!-- NOTE: If the z-order of a bar is 10 or above, it will also appear on top of HUN's.    -->
+    <integer name="config_topSystemBarZOrder">1</integer>
+    <integer name="config_leftSystemBarZOrder">0</integer>
+    <integer name="config_rightSystemBarZOrder">0</integer>
+    <integer name="config_bottomSystemBarZOrder">10</integer>
+
+    <!-- If set to true, the corresponding system bar will be hidden when Keyboard (IME) appears.
+         NOTE: hideBottomSystemBarKeyboard must not be overlaid directly here. To change its value,
+         overlay config_hideNavBarForKeyboard in framework/base/core/res/res. -->
+    <bool name="config_hideTopSystemBarForKeyboard">false</bool>
+    <bool name="config_hideLeftSystemBarForKeyboard">false</bool>
+    <bool name="config_hideRightSystemBarForKeyboard">false</bool>
+    <bool name="config_hideBottomSystemBarForKeyboard">@*android:bool/config_hideNavBarForKeyboard</bool>
+
+    <!-- If set to false, requests CarSystemBarViews to not intercept touch events to make it easier
+        to touch the buttons without accidentally expanding the notification panel.-->
+    <bool name="config_systemBarButtonsDraggable">false</bool>
+
+    <!--
+    Car SystemUI's notification mediator. Replace with other notification mediators to have
+    the notification panel show from another system bar. The system bar should be enabled to
+    use the mediator with that system bar.
+    Example: config_enableBottomSystemBar=true
+             config_notificationPanelViewMediator=
+                com.android.systemui.car.notification.BottomNotificationPanelViewMediator -->
+    <string name="config_notificationPanelViewMediator" translatable="false">
+        com.android.systemui.car.notification.TopNotificationPanelViewMediator</string>
+
+    <!-- Whether the Notification Panel should be inset by the top system bar. -->
+    <bool name="config_notif_panel_inset_by_top_systembar" translatable="false">false</bool>
+    <!-- Whether the Notification Panel should be inset by the bottom system bar. -->
+    <bool name="config_notif_panel_inset_by_bottom_systembar" translatable="false">true</bool>
+    <!-- Whether the Notification Panel should be inset by the left system bar. -->
+    <bool name="config_notif_panel_inset_by_left_systembar" translatable="false">false</bool>
+    <!-- Whether the Notification Panel should be inset by the right system bar. -->
+    <bool name="config_notif_panel_inset_by_right_systembar" translatable="false">false</bool>
+
+    <!-- Whether navigationBar touch events should be consumed before reaching the CarFacetButton \
+         when the notification panel is open. -->
+    <bool name="config_consumeSystemBarTouchWhenNotificationPanelOpen">false</bool>
+
+    <!-- Whether heads-up notifications should be shown when panel is open. -->
+    <bool name="config_enableHeadsUpNotificationWhenNotificationPanelOpen">true</bool>
+
+    <!-- Whether or not the profile panel should be disabled while driving. -->
+    <bool name="config_profile_panel_disabled_while_driving">true</bool>
+
+    <!--
+        Initial alpha percent value for the background when the notification
+        panel is open. Should be a number between, and inclusive, 0 and 100.
+        If the number is 0, then the background alpha starts off fully
+        transparent. If the number if 100, then the background alpha starts off
+        fully opaque. -->
+    <integer name="config_initialNotificationBackgroundAlpha">0</integer>
+    <!--
+        Final alpha percent value for the background when the notification
+        panel is fully open. Should be a number between, and inclusive, 0 and
+        100. If this value is smaller than
+        config_initialNotificationBackgroundAlpha, the background will default
+        to a constant alpha percent value using the initial alpha. -->
+    <integer name="config_finalNotificationBackgroundAlpha">100</integer>
+
+    <!-- Car System UI's OverlayViewsMediator.
+         Whenever a new class is added, make sure to also add that class to OverlayWindowModule. -->
+    <string-array name="config_carSystemUIOverlayViewsMediators" translatable="false">
+        <item>@string/config_notificationPanelViewMediator</item>
+        <item>com.android.systemui.car.hvac.HvacPanelOverlayViewMediator</item>
+        <item>com.android.systemui.car.keyguard.CarKeyguardOverlayViewMediator</item>
+        <item>com.android.systemui.car.systemdialogs.SystemDialogsViewMediator</item>
+        <item>com.android.systemui.car.userswitcher.FullscreenUserSwitcherViewMediator</item>
+        <item>com.android.systemui.car.userswitcher.UserSwitchTransitionViewMediator</item>
+    </string-array>
+
+    <!-- List of StatusIconControllers associated with icons to display for QC entry points.
+         The icons will be added to the view in the order their controllers appear on this list. -->
+    <string-array name="config_quickControlsEntryPointIconControllers" translatable="false">
+        <item>com.android.systemui.car.statusicon.ui.BluetoothStatusIconController</item>
+        <item>com.android.systemui.car.statusicon.ui.SignalStatusIconController</item>
+        <item>com.android.systemui.car.statusicon.ui.DisplayStatusIconController</item>
+    </string-array>
+
+    <string-array name="config_quickControlsSubIconControllers" translatable="false">
+        <item>com.android.systemui.car.statusicon.ui.MediaVolumeStatusIconController</item>
+        <item>com.android.systemui.car.statusicon.ui.SignalStatusIconController</item>
+    </string-array>
+
+    <!-- List of package names that are allowed sources of app installation. -->
+    <string-array name="config_allowedAppInstallSources" translatable="false">
+        <item>com.android.vending</item>
+    </string-array>
+
+    <!-- Defines system icons to be excluded from the display. That is to say, the icons in the
+         status bar that are part of this list are never displayed. Each item in the list must be a
+         string defined in core/res/res/config.xml to properly exclude the icon.
+     -->
+    <string-array name="config_statusBarIconsToExclude" translatable="false">
+        <item>@*android:string/status_bar_rotate</item>
+        <item>@*android:string/status_bar_headset</item>
+        <item>@*android:string/status_bar_microphone</item>
+    </string-array>
+
+    <!-- Packages that can post toasts even if it isn't a system application. -->
+    <string-array name="config_restrictedToastsPackageNameAllowList" translatable="false">
+        <!-- These packages may be used for CTS purposes. -->
+        <item>android.widget.cts</item>
+        <item>android.server.wm.app</item>
+        <item>android.server.wm.cts</item>
+        <item>android.server.wm.second</item>
+        <item>com.android.cts.verifier</item>
+    </string-array>
+
+    <!-- Specifies the component name of the app grid activity -->
+    <string name="config_appGridComponentName" translatable="false">com.android.car.carlauncher/.AppGridActivity</string>
+
+    <!--Percentage of the screen height, from the top, where the border between HVAC panel closing
+        or opening, depending on where its handle bar is released after being dragged, would be
+        drawn.
+
+        The idea is that if the HVAC panel handle bar is dragged and then released too close to the
+        panel's origin, then the intent to close the panel is seen to have been canceled, and the
+        panel is expanded back to its original height. On the other hand, if the handle bar is
+        released far enough from the panel's origin, then the panel is collapsed and dismissed.
+
+        If the HVAC panel expands from below, then the HVAC panel handle bar being released below
+        this border would result in the panel being dismissed and collapsed, while it being released
+        above the border results in the panel being expanded back to the original height.
+
+        If the HVAC panel expands from the top, then the HVAC panel handle bar being released above
+        this border would result in the panel being dismissed and collapsed, while it being released
+        below the border results in the panel being expanded back to the original height.
+    -->
+    <integer name="hvac_panel_settle_close_percentage">50</integer>
+
+    <!-- Determines whether the shell features all run on another thread. -->
+    <bool name="config_enableShellMainThread">true</bool>
+
+    <!-- Determines whether the shell task organizer be registered automatiacly or not.
+         It needs to be disabled for CarSystemUI as CarLauncher already registers one. With 2
+         organizers there can be recovery problems if either of the process crashes. -->
+    <!-- TODO(b/228598071): Enabled this to fix b/250675259. -->
+    <bool name="config_registerShellTaskOrganizerOnInit">true</bool>
+
+    <!-- disable standard privacy chip animation (only show immersive) -->
+    <bool name="config_enablePrivacyChipAnimation">false</bool>
+    <!-- show the privacy chip indicator in full screen mode. -->
+    <bool name="config_enableImmersivePrivacyChip">true</bool>
+    <!-- enable animation for the privacy chip indicator in full screen mode. -->
+    <bool name="config_enableImmersivePrivacyChipAnimation">true</bool>
+
+
+    <!-- Animation duration (in milliseconds) when dismissing display input lock icon. -->
+    <integer name="config_displayInputLockIconAnimDuration">250</integer>
+    <!-- The number of milliseconds before the display input lock icon auto-dismisses. -->
+    <integer name="config_displayInputLockIconDismissDelay">250</integer>
+    <!-- The number of milliseconds before the initial display input lock notification auto-dismisses. -->
+    <integer name="config_displayInputLockInitialDismissDelay">3000</integer>
+
+    <!-- Determines whether the car system UI should register the System UI Proxy with the
+     CarService. -->
+    <bool name="config_registerCarSystemUIProxy">true</bool>
+
+    <!-- Determines whether the secondary user SystemUI must be overlaid -->
+    <bool name="config_enableSecondaryUserRRO">true</bool>
+    <!-- RRO package name of the secondary user SystemUI -->
+    <string name="config_secondaryUserSystemUIRROPackageName">
+        com.android.systemui.md.passenger.car.rro
+    </string>
+
+    <!-- App drawer system bar button intent -->
+    <string name="system_bar_app_drawer_intent" translatable="false">intent:#Intent;action=com.android.car.carlauncher.ACTION_APP_GRID;package=com.android.car.carlauncher;launchFlags=0x24000000;end</string>
+    <!-- Determines whether Recents entry point should be shown / should trigger to open Recents -->
+    <bool name="config_enableRecentsEntryPoint">true</bool>
+
+    <!-- set to false to use the default TaskDisplayArea -->
+    <!-- TODO(b/300930725): launcher doesn't show until it's restarted -->
+    <bool name="config_useRemoteLaunchTaskView">false</bool>
+
+    <!-- Determines which system bar to use for display compat toolbar. -->
+    <!-- 0 disabled -->
+    <!-- 1 left -->
+    <!-- 2 right -->
+    <integer name="config_showDisplayCompatToolbarOnSystemBar">0</integer>
+
+    <!-- Determines how to show navigation bar and status bar on app's immersive request, only
+        works if config_remoteInsetsControllerControlsSystemBars is set to true-->
+    <!-- 0 non_immersive show all system bars on immersive request. -->
+    <!-- 1 immersive, hide both bars -->
+    <!-- 2 immersive_with_nav, show nav bar and hide status bar -->
+    <integer name="config_systemBarPersistency">1</integer>
+
+    <!-- Determines the orientation of the status icon. -->
+    <!-- 0 horizontal. -->
+    <!-- 1 vertical -->
+    <integer name="config_statusIconLayoutOrientation">0</integer>
+</resources>

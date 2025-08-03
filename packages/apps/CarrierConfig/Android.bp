@@ -1,0 +1,14 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_app {
+    name: "CarrierConfig",
+    srcs: ["src/**/*.java"],
+    platform_apis: true,
+    certificate: "platform",
+    system_ext_specific: true,
+    privileged: true,
+    required: ["privapp_whitelist_com.android.carrierconfig"],
+    aaptflags: ["--keep-raw-values"],
+}

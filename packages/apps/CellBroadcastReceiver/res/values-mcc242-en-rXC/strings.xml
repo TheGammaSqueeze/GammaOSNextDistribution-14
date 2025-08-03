@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2019 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="sms_cb_settings" msgid="4911123515920531602">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‏‏‏‏‏‏‏‎‎‎‏‎‎‎‎‏‎‎‏‏‏‏‏‎‏‎‎‎‎‏‏‎‏‎‎‎‏‎‏‎‎‎‏‏‎‏‎‎‎‎‎‏‎‏‏‎‎‎‎‎‎‏‎‎‏‎‎‏‎‎Emergency alerts‎‏‎‎‏‎"</string>
+    <string name="enable_cmas_severe_threat_alerts_title" msgid="1222446927484539779">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‏‏‏‏‎‏‏‎‎‎‎‏‏‏‏‎‏‏‏‎‎‎‎‎‎‎‏‎‎‎‎‎‎‎‎‏‏‏‏‎‏‎‏‎‏‏‏‏‎‏‏‏‏‎‏‎‎‏‏‏‎‎‎‎‎‏‏‎Important warning‎‏‎‎‏‎"</string>
+    <string name="enable_cmas_severe_threat_alerts_summary" msgid="5264650363636546708"></string>
+    <string name="enable_public_safety_messages_title" msgid="1666398582465886587">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‏‏‏‏‎‏‏‎‏‏‏‎‎‏‎‎‎‎‎‎‎‏‏‏‏‎‎‏‎‏‎‏‏‏‎‏‎‎‎‏‎‏‎‎‎‎‏‎‏‏‏‏‏‏‏‏‎‎‏‎‏‏‏‏‎‏‏‎Important warning‎‏‎‎‏‎"</string>
+    <string name="enable_public_safety_messages_summary" msgid="8656325124971237730"></string>
+    <string name="enable_cmas_test_alerts_title" msgid="107991897262879596">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‏‏‏‎‎‏‏‎‏‏‏‏‏‏‏‏‎‏‎‏‎‏‎‎‎‎‎‏‏‏‎‏‏‏‏‎‎‏‎‏‏‏‏‏‎‎‏‎‏‏‏‎‎‏‏‎‏‏‎‏‏‎‎‎Test‎‏‎‎‏‎"</string>
+    <string name="enable_cmas_test_alerts_summary" msgid="1932494086651246943"></string>
+    <!-- no translation found for enable_exercise_test_alerts_title (2648553794188849480) -->
+    <skip />
+    <string name="enable_exercise_test_alerts_summary" msgid="4842002775607974522"></string>
+    <string name="cmas_presidential_level_alert" msgid="8560179450341183206">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‏‏‏‏‏‏‏‏‏‎‏‏‎‏‏‎‎‏‎‏‏‏‏‎‏‏‏‎‏‏‏‎‏‏‎‏‏‎‎‏‏‎‏‏‏‎‎‏‎‏‏‏‏‎‏‎‎‏‏‏‎‏‏‏‎‎‏‏‎‎Immediate danger‎‏‎‎‏‎"</string>
+    <string name="cmas_extreme_alert" msgid="4683045289146531158">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‏‏‏‏‏‏‏‎‎‎‎‎‎‏‏‏‏‏‏‎‏‏‎‎‎‎‏‎‎‏‏‏‎‎‎‎‎‏‏‏‎‏‏‏‎‏‎‏‎‎‏‎‏‎‎‏‏‏‏‎‏‎‏‎‏‎‏‏‎‎Immediate danger‎‏‎‎‏‎"</string>
+    <string name="cmas_severe_alert" msgid="2665253672594857676">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‏‏‏‏‏‎‏‎‎‏‎‎‏‏‏‏‏‏‎‎‏‏‏‎‎‎‏‎‎‎‎‏‏‎‎‎‎‎‎‏‎‏‏‏‎‏‎‏‎‎‏‎‎‏‎‏‏‏‏‎‏‏‎‎‏‏‎‎‎Important warning‎‏‎‎‏‎"</string>
+    <string name="public_safety_message" msgid="2020859584085947883">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‏‏‏‏‎‏‏‏‏‎‎‎‎‎‎‏‎‏‏‏‎‎‎‏‎‎‏‎‎‎‏‎‏‎‏‏‎‏‏‎‎‏‎‎‏‏‎‎‎‏‎‏‏‏‏‎‏‎‏‏‏‏‎‏‎‏‏‎Important warning‎‏‎‎‏‎"</string>
+    <string name="cmas_required_monthly_test" msgid="1315149070558613722">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‏‏‏‏‎‏‏‎‎‏‎‎‏‎‎‎‎‎‎‎‏‎‏‏‎‎‏‎‎‎‏‏‏‎‎‏‎‎‏‏‎‎‏‎‏‎‏‎‏‎‎‏‏‎‏‎‎‎‎‏‏‎‏‏‎‏‎‎Test‎‏‎‎‏‎"</string>
+    <string name="cmas_exercise_alert" msgid="2029172551386965751">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‏‏‏‏‎‏‏‏‏‎‎‎‎‏‎‏‎‎‏‎‎‎‏‎‎‎‏‏‎‏‎‏‏‏‏‎‎‏‏‏‎‎‏‎‏‏‎‎‏‎‎‏‎‏‎‎‏‏‎‏‏‏‏‎‏‏‏‎Exercise‎‏‎‎‏‎"</string>
+</resources>

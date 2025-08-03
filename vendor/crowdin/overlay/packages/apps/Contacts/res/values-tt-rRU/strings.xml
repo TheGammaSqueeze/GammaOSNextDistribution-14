@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2006 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="shortcutDialContact">Туры җыю</string>
+    <string name="menu_addStar">Сайланмаларга өстәү</string>
+    <string name="menu_removeStar">Сайланмалардан бетерү</string>
+    <string name="description_action_menu_remove_star">Сайланмалардан бетерелде</string>
+    <string name="description_action_menu_add_star">Сайланмаларга өстәлде</string>
+    <string name="menu_change_photo">Фотоны үзгәртү</string>
+    <string name="menu_renameGroup">Элмәкнең исемен үзгәртү</string>
+    <string name="menu_deleteGroup">Элмәкне бетерү</string>
+    <string name="menu_removeFromGroup">Элмәген алу</string>
+    <string name="menu_new_group_action_bar">Элмәк ясау</string>
+    <string name="splitConfirmationWithPendingChanges_positive_button">Саклау һәм аеру</string>
+    <string name="joinConfirmation">Сез ясаган үзгәртүләрегезне саклап, бу контактны сайланганы белән бәйләргә телисезме?</string>
+    <string name="joinConfirmation_positive_button">Саклау һәм бәйләү</string>
+    <string name="contacts_linking_progress_bar">Бәйләү</string>
+    <string name="menu_linkedContacts">Бәйләнгән контактларны карау</string>
+    <string name="titleJoinContactDataWith">Контактларны бәйләү</string>
+    <string name="blurbJoinContactDataWith"><xliff:g id="name">%s</xliff:g> белән кайсы контактны бәйлисен сайлагыз:</string>
+    <string name="separatorJoinAggregateSuggestions">Тәкъдим ителгән контактлар</string>
+    <string name="contactsJoinedMessage">Контактлар бәйләнде</string>
+    <string name="title_from_google">Google\'дан</string>
+    <string name="menu_set_ring_tone">Рингтон кую</string>
+    <string name="readOnlyContactWarning">Бу контактны карап кына була. Аны бетерергә ярамый, ләкин сез аны яшерә аласыз.</string>
+    <string name="single_delete_confirmation">Бу контактны бетерергәме?</string>
+    <string name="batch_delete_confirmation">Сайланган контактларны бетерергәме?</string>
+    <string name="deleteConfirmation">Бу контактны бетерергәме?</string>
+    <string name="invalidContactMessage">Мондый контакт юк.</string>
+    <string name="createContactShortcutSuccessful_NoName">Контакт төп экранга өстәлде.</string>
+    <string name="photoPickerNotFoundText">Бу җайланмада сурәтләр юк.</string>
+    <string name="customLabelPickerTitle">Махсус элмәк исеме</string>
+    <string name="removePhoto">Фотоны бетерү</string>
+    <string name="noContacts">Сезнең контактлар исемлеге буш</string>
+    <string name="emptyGroup">Мондый элмәкле контактлар юк</string>
+    <string name="emptyAccount">Бу аккаунтта контактлар юк</string>
+    <string name="emptyMainList">Сезнең контактлар исемлеге буш</string>
+    <string name="contactUnlinkedToast">Контактлар аерылды</string>
+    <string name="contactSavedErrorToast">Контакттагы үзгәртүләрне саклап булмады</string>
+    <string name="contactUnlinkErrorToast">Контактны аерып булмады</string>
+    <string name="contactJoinErrorToast">Контактны бәйләп булмады</string>
+    <string name="contactGenericErrorToast">Контактны саклаганда хата килеп чыкты</string>
+    <string name="contactPhotoSavedErrorToast">Контактның фотосын үзгәртүне саклап булмады</string>
+    <string name="groupLoadErrorToast">Элмәкне йөкләгәндә хата чыкты</string>
+    <string name="groupDeletedToast">Элмәк бетерелде</string>
+    <string name="groupCreatedToast">Элмәк ясалды</string>
+    <string name="groupCreateFailedToast">Элмәкне ясап булмый</string>
+    <string name="groupUpdatedToast">Элмәк яңартылды</string>
+    <string name="groupMembersRemovedToast">Элмәге алынды</string>
+    <string name="groupMembersAddedToast">Элмәк өстәлде</string>
+    <string name="groupSavedErrorToast">Элмәкне үзгәртүләрне саклап булмады</string>
+    <string name="groupExistsErrorMessage">Мондый элмәк инде бар</string>
+    <string name="groupSomeContactsNoEmailsToast">Кайбер контактларның электрон почталары юк.</string>
+    <string name="groupSomeContactsNoPhonesToast">Кайбер контактларның телефон номерлары юк.</string>
+    <string name="search_settings_description">Контактларыгызның исемнәре</string>
+    <string name="quickcontact_transparent_view_description">Баштагы экранга кайту өчен басыгыз</string>
+    <string name="quickcontact_add_phone_number">Телефон номерын өстәү</string>
+    <string name="quickcontact_add_email">Электрон почтаны өстәү</string>
+    <string name="missing_app">Бу гамәлне үтәү өчен кушымта табылмады.</string>
+    <string name="dialog_new_group_account">Аккаунтны сайлау</string>
+    <string name="group_name_dialog_insert_title">Элмәк ясау</string>
+    <string name="group_name_dialog_update_title">Элмәкнең исемен үзгәртү</string>
+    <string name="group_name_dialog_hint">Элмәк исеме</string>
+    <string name="label_name_dialog_hint">Элмәк исеме</string>
+    <string name="audio_chat">Тавышлы әңгәмә</string>
+    <string name="video_chat">Видеоәңгәмә</string>
+    <string name="account_type_format"><xliff:g id="source" example="Gmail">%1$s</xliff:g> контакты</string>
+    <string name="take_photo">Фото ясау</string>
+    <string name="take_new_photo">Яңадан фотога төшерү</string>
+    <string name="pick_new_photo">Яңа фото сайлау</string>
+    <string name="menu_help">Ярдәм &amp; кайтаваз</string>
+    <string name="organization_entry_two_field">        <xliff:g id="first" example="Google">%1$s</xliff:g>
+         •
+         <xliff:g id="second" example="Developer">%2$s</xliff:g>
+    </string>
+    <string name="organization_entry_all_field">        <xliff:g id="company" example="Google">%1$s</xliff:g>
+         •
+         <xliff:g id="department" example="People">%2$s</xliff:g>
+         •
+         <xliff:g id="title" example="Developer">%3$s</xliff:g>
+    </string>
+    <string name="non_phone_caption">Телефон номеры</string>
+    <string name="date_year_toggle">Елны кертеп</string>
+    <string name="create_group_item_label">Яңаны ясау…</string>
+    <string name="set_default">Гадәти итеп кую</string>
+    <string name="clear_default">Гадәтине чистарту</string>
+    <string name="toast_text_copied">Текст күчереп алынды</string>
+    <string name="cancel_confirmation_dialog_message">Үзгәртүләрне кире кагаргамы?</string>
+    <string name="cancel_confirmation_dialog_cancel_editing_button">Кире кагу</string>
+    <string name="leave_customize_confirmation_dialog_message">Үзгәртүләрне кире кагаргамы?</string>
+    <string name="local_profile_title">Локаль профилем</string>
+    <string name="external_profile_title"><xliff:g id="external_source">%1$s</xliff:g> профилем</string>
+    <string name="contact_editor_prompt_zero_accounts">Google\'да контактларыгызның резерв күчермәсен ясаячак аккаунтны өстәгез.</string>
+    <string name="contact_editor_prompt_one_account">Яңа контактлар <xliff:g id="account_name">%1$s</xliff:g> аккаунтында сакланачак.</string>
+    <string name="contact_editor_prompt_multiple_accounts">Яңа контактлар өчен гадәти аккаунтны сайлагыз:</string>
+    <string name="contact_editor_title_existing_contact">Контактны үзгәртү</string>
+    <string name="contact_editor_title_read_only_contact">Карау өчен генә</string>
+    <string name="contact_editor_pick_raw_contact_to_edit_dialog_title">Үзгәртәсе контактны сайлау</string>
+    <string name="contact_editor_pick_linked_contact_dialog_title">Бәйләнгән контактлар</string>
+    <string name="add_account">Аккаунт өстәү</string>
+    <string name="add_new_account">Яңа аккаунт өстәү</string>
+    <string name="expanding_entry_card_view_see_less">Әзрәк карау</string>
+    <string name="toast_making_personal_copy">Шәхси күчермәне ясау…</string>
+    <string name="header_organization_entry">Оешма</string>
+    <string name="header_nickname_entry">Кушамат</string>
+    <string name="header_relation_entry">Мөнәсәбәт</string>
+    <string name="content_description_directions">урынга юллар</string>
+    <string name="editor_more_fields">Күбрәк кырлар</string>
+    <string name="editor_change_photo_content_description">Контакт фотосын үзгәртү</string>
+    <string name="editor_failed_to_load">Үзгәрткечне ачып булмады</string>
+    <string name="editor_account_selector_title">Саклау...</string>
+    <string name="editor_account_selector_read_only_title"><xliff:g id="account">%s</xliff:g> аккаунтындагы контактларны үзгәртеп булмый</string>
+    <string name="quickcontact_suggestion_link_button">КОНТАКТЛАРНЫ БӘЙЛӘҮ</string>
+    <string name="suggestion_card_duplicates_title">Мөмкин булган тиңдәшләр</string>
+    <string name="suggestion_card_help_message">Бу контактларның бер үк кеше булуы ихтимал. Сез аларны бер контакт буларак бәйли аласыз.</string>
+    <string name="navigation_drawer_open">Юл төзүчене ачу</string>
+    <string name="navigation_drawer_close">Юл төзүчене ябу</string>
+    <string name="menu_title_filters">Аккаунтлар</string>
+    <string name="hamburger_feature_highlight_header">Тәкъдимнәр</string>
+    <string name="hamburger_feature_highlight_body">Контактларыгызны оешкан һәм файдалы итеп саклагыз</string>
+    <string name="call_home">Өйнекенә шалтырату</string>
+    <string name="call_mobile">Телефонныкына шалтырату</string>
+    <string name="call_work">Эшнекенә шалтырату</string>
+    <string name="call_fax_work">Эш факсына шалтырату</string>
+    <string name="call_fax_home">Өй факсына шалтырату</string>
+    <string name="call_pager">Пейджерга шалтырату</string>
+    <string name="call_car">Машинага шалтырату</string>
+    <string name="account_sim">SIM</string>
+    <string name="ghostData_company">Компания</string>
+    <string name="ghostData_department">Бүлек</string>
+    <string name="label_sip_address">SIP</string>
+    <string name="import_from_sim_summary_fmt">SIM <xliff:g id="sim_name">%1$s</xliff:g></string>
+    <string name="fail_reason_unknown">Билгесез хата.</string>
+    <string name="exporting_contact_failed_title">Экспортлап булмады</string>
+    <string name="caching_vcard_title">Кэшлау</string>
+    <string name="display_options_phonetic_name_fields">Фонетик исеме</string>
+    <string name="editor_options_always_show_phonetic_names">Һәрвакыт күрсәтү</string>
+    <string name="editor_options_hide_phonetic_names_if_empty">Буш булса яшерү</string>
+    <string name="display_options_view_names_as">Исем форматы</string>
+    <string name="settings_accounts">Аккаунтлар</string>
+    <string name="default_editor_account">Яңа контактлар өчен гадәти аккаунт</string>
+    <string name="hint_findContacts">Контактлар эзләү</string>
+    <string name="menu_blocked_numbers">Блокланган номерлар</string>
+    <string name="contact_status_update_attribution_with_date"><xliff:g id="date" example="3 hours ago">%1$s</xliff:g> <xliff:g id="source" example="Google Talk">%2$s</xliff:g> аша</string>
+    <string name="letter_tile_letter_font_family">sans-serif-medium</string>
+    <string name="description_clear_search">Эзләүне чистарту</string>
+    <string name="search_font_family">sans-serif</string>
+    <string name="set_default_account">Һәрвакыт моннан шалтырату</string>
+    <string name="send_and_call_button">ҖИБӘРҮ &amp; ШАЛТЫРАТУ</string>
+    <string name="call_subject_limit"><xliff:g id="count" example="4">%1$s</xliff:g> / <xliff:g id="limit" example="64">%2$s</xliff:g></string>
+    <string name="call_subject_type_and_number"><xliff:g id="type" example="Mobile">%1$s</xliff:g> • <xliff:g id="number" example="(650) 555-1212">%2$s</xliff:g></string>
+    <string name="about_build_version">Билд версиясе</string>
+    <string name="dynamic_shortcut_contact_removed_message">Контакт бетерелде</string>
+    <string name="sim_import_empty_message">SIM картагызда контактлар юк</string>
+    <string name="single_sim_display_label">SIM</string>
+</resources>

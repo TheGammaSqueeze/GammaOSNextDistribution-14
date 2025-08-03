@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2017-2024 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <string name="app_name">المتصفح</string>
+    <string name="menu_new_tab">علامة تبويب جديدة</string>
+    <string name="menu_incognito">علامة التبويب التخفي</string>
+    <string name="menu_fav_add">إضافة إلى المفضلة</string>
+    <string name="menu_share">مشاركة</string>
+    <string name="menu_favorites">المفضلة</string>
+    <string name="menu_history">السجل</string>
+    <string name="menu_shortcut">إضافة اختصار</string>
+    <string name="menu_settings">الإعدادات</string>
+    <string name="menu_download">تنزيل</string>
+    <string name="menu_in_new_tab">فتح في علامة تبويب جديدة</string>
+    <string name="menu_search">البحث في الصفحة</string>
+    <string name="menu_print">طباعة</string>
+    <string name="share_title">إرسال إلى</string>
+    <string name="dismiss">تجاهل</string>
+    <string name="download_title">تنزيل الملف</string>
+    <string name="download_message">هل تريد تنزيل %1$s؟</string>
+    <string name="download_positive">تنزيل</string>
+    <string name="settings_title">الإعدادات</string>
+    <string name="pref_search_engine">محرك البحث</string>
+    <string name="pref_start_page">الصفحة الرئيسية</string>
+    <string name="pref_start_page_dialog_title">تحديد الصفحة الرئيسية</string>
+    <string name="pref_start_page_dialog_message">اكتب عنوان URL للصفحة الرئيسية</string>
+    <string name="pref_start_page_dialog_reset">إعادة تعيين</string>
+    <string name="pref_privacy_security">الخصوصية والأمان</string>
+    <string name="pref_looklock_title">قفل الوصول</string>
+    <string name="pref_looklock_summary">منع التطبيقات الأخرى من قراءة محتوى المتصفح</string>
+    <string name="pref_js_title">جافا سكريبت</string>
+    <string name="pref_js_summary">تمكين جافا سكريبت</string>
+    <string name="pref_location_title">الموقع</string>
+    <string name="pref_location_summary">السماح لمواقع الويب بطلب حق الوصول إلى موقعك</string>
+    <string name="pref_cookie_title">ملفات تعريف الارتباط</string>
+    <string name="pref_cookie_summary">السماح لمواقع الويب بحفظ وتحميل ملفات تعريف الارتباط</string>
+    <string name="pref_screenshot_snap_title">مشاركة متقّدمة</string>
+    <string name="pref_screenshot_snap_summary">مشاركة المعاينة لصفحة الويب المشاركة</string>
+    <string name="pref_cookie_clear">مسح ملفات تعريف الارتباط</string>
+    <string name="pref_cookie_clear_done">مسح كافة ملفات تعريف الارتباط</string>
+    <string name="pref_do_not_track_title">لا تتبع</string>
+    <string name="pref_do_not_track_summary">إرسال طلب \"لا تتبع\" إلى مواقع الويب التي تزورها</string>
+    <string name="pref_suggestions_provider">مُوفر الاقتراحات</string>
+    <string name="pref_reach_mode_title">وضع الوصول</string>
+    <string name="pref_reach_mode_summary">نقل مواقع عناصر الواجهة لتسهيل الاستخدام بيد واحدة</string>
+    <string name="history_title">السجل</string>
+    <string name="history_empty">لا يوجد شيء هنا، تصفح على شبكة الإنترنت لرؤية سجلك هنا</string>
+    <string name="history_date_format">EEEE MMMM dd yyyy hh: mm</string>
+    <string name="history_delete_title">محو السجل</string>
+    <string name="history_delete_message">ستقوم بحذف كافة المحفوظات، لا يمكن التراجع عن هذا الإجراء. هل تريد المتابعة؟</string>
+    <string name="history_delete_positive">محو</string>
+    <string name="history_deleting_message">يتم محو السجل</string>
+    <string name="history_snackbar_item_deleted">تم حذف الإدخال</string>
+    <string name="history_snackbar_item_deleted_message">تراجع</string>
+    <string name="favorite_title">المفضلة</string>
+    <string name="favorite_added">تمت الإضافة إلى المفضلة</string>
+    <string name="favorite_empty">لا يوجد شيء هنا، أضف رابط مفضل لمشاهدته هنا</string>
+    <string name="favorite_edit_dialog_title">تحرير المفضلة</string>
+    <string name="favorite_edit_title">العنوان</string>
+    <string name="favorite_edit_url">URL</string>
+    <string name="favorite_edit_positive">تعديل</string>
+    <string name="favorite_edit_delete">حذف</string>
+    <string name="favorite_edit_error">أدخل عنوان URL صالح</string>
+    <string name="error_no_activity_found">لا يوجد تطبيق يمكنه التعامل مع هذا الرابط</string>
+    <string name="auth_dialog_title">مطلوب المصادقة</string>
+    <string name="auth_dialog_username">اسم المستخدم:</string>
+    <string name="auth_dialog_password">كلمة المرور:</string>
+    <string name="auth_dialog_detail">%1$s يتطلب اسم مستخدم وكلمة مرور.</string>
+    <string name="auth_dialog_login">تسجيل الدخول</string>
+    <string name="shortcut_new_incognito_tab">علامة تبويب جديدة للتصفح الخفي</string>
+    <string name="suggestions_provider_none">لا شيء</string>
+    <string name="search_bar_hint">بحث</string>
+    <string name="ssl_cert_dialog_title">تفاصيل شهادة SSL</string>
+    <string name="ssl_cert_dialog_domain">النطاق</string>
+    <string name="ssl_cert_dialog_issued_to">إصدرت لـ</string>
+    <string name="ssl_cert_dialog_issued_by">أصدرت بواسطة</string>
+    <string name="ssl_cert_dialog_validity">مدة الصلاحية</string>
+    <string name="ssl_cert_dialog_common_name">الاسم الشائع (CN)</string>
+    <string name="ssl_cert_dialog_organization">المنظمة (O)</string>
+    <string name="ssl_cert_dialog_organizational_unit">الوحدة التنظيمية (UN)</string>
+    <string name="ssl_cert_dialog_issued_on">الصادر في</string>
+    <string name="ssl_cert_dialog_expires_on">تنتهي صلاحيته في</string>
+    <string name="ssl_cert_dialog_dismiss">تجاهل</string>
+</resources>

@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources>
+
+    <!-- primary colors -->
+    <color name="car_primary">@color/car_primary_80</color>
+    <color name="car_on_primary">@color/car_primary_20</color>
+    <color name="car_primary_container">@color/car_primary_30</color>
+    <color name="car_on_primary_container">@color/car_primary_90</color>
+
+    <!-- secondary colors -->
+    <color name="car_secondary">@color/car_secondary_80</color>
+    <color name="car_on_secondary">@color/car_secondary_20</color>
+    <color name="car_secondary_container">@color/car_secondary_30</color>
+    <color name="car_on_secondary_container">@color/car_secondary_90</color>
+
+    <!-- tertiary colors -->
+    <color name="car_tertiary">@color/car_tertiary_80</color>
+    <color name="car_on_tertiary">@color/car_tertiary_20</color>
+    <color name="car_tertiary_container">@color/car_tertiary_30</color>
+    <color name="car_on_tertiary_container">@color/car_tertiary_90</color>
+
+    <!-- error colors -->
+    <color name="car_error">@color/car_error_80</color>
+    <color name="car_on_error">@color/car_error_20</color>
+    <color name="car_error_container">@color/car_error_30</color>
+    <color name="car_on_error_container">@color/car_error_80</color>
+
+    <!-- background colors -->
+    <color name="car_background">@color/car_neutral_10</color>
+    <color name="car_on_background">@color/car_neutral_90</color>
+
+    <!-- surface colors -->
+    <color name="car_surface">@color/car_neutral_10</color>
+    <color name="car_on_surface">@color/car_neutral_90</color>
+    <color name="car_surface_variant">@color/car_neutral_variant_30</color>
+    <color name="car_on_surface_variant">@color/car_neutral_variant_80</color>
+    <color name="car_outline">@color/car_neutral_variant_60</color>
+    <color name="car_shadow">@color/car_neutral_variant_0</color>
+    <color name="car_inverse_surface">@color/car_neutral_90</color>
+    <color name="car_inverse_on_surface">@color/car_neutral_20</color>
+    <color name="car_inverse_primary">@color/car_primary_40</color>
+    <color name="car_surface_1">#222429</color>
+    <color name="car_surface_2">#272930</color>
+    <color name="car_surface_3">#2b2e37</color>
+    <color name="car_surface_4">#2d2f39</color>
+    <color name="car_surface_5">#30333e</color>
+
+    <!-- red colors -->
+    <color name="car_red_color">@color/car_error_80</color>
+    <color name="car_red_on_color">#690002</color>
+    <color name="car_red_color_container">#940005</color>
+    <color name="car_red_on_color_container">@color/car_error_90</color>
+    <color name="car_red_tint">#dc362e</color>
+    <color name="car_decline_red">#d77163</color>
+    <color name="car_on_decline_red">#1c0f0d</color>
+
+    <!-- blue colors -->
+    <color name="car_blue_color">#acc7ff</color>
+    <color name="car_blue_on_color">#002e6c</color>
+    <color name="car_blue_color_container">#004397</color>
+    <color name="car_blue_on_color_container">#d6e2ff</color>
+    <color name="car_blue_tint">#4285f4</color>
+
+    <!-- green colors -->
+    <color name="car_green_color">#5cdf7b</color>
+    <color name="car_green_on_color">#003912</color>
+    <color name="car_green_color_container">#00531e</color>
+    <color name="car_green_on_color_container">#7afd95</color>
+    <color name="car_green_tint">#37be5f</color>
+    <color name="car_confirm_green">#75b885</color>
+    <color name="car_on_confirm_green">#0f1811</color>
+
+    <!-- yellow colors -->
+    <color name="car_yellow_color">#fbbc04</color>
+    <color name="car_yellow_on_color">#402d00</color>
+    <color name="car_yellow_color_container">#5c4200</color>
+    <color name="car_yellow_on_color_container">#ffdf9c</color>
+    <color name="car_yellow_tint">#fbbc04</color>
+
+    <!-- android dark colors -->
+    <color name="car_color_accent_primary">@color/car_primary_90</color>
+    <color name="car_color_accent_primary_variant">@color/car_primary_70</color>
+    <color name="car_color_accent_secondary">@color/car_secondary_90</color>
+    <color name="car_color_accent_secondary_variant">@color/car_secondary_70</color>
+    <color name="car_color_accent_tertiary">@color/car_tertiary_90</color>
+    <color name="car_color_accent_tertiary_variant">@color/car_tertiary_70</color>
+    <color name="car_text_color_primary">@color/car_neutral_95</color>
+    <color name="car_text_color_secondary">@color/car_neutral_variant_80</color>
+    <color name="car_text_color_tertiary">@color/car_neutral_variant_60</color>
+    <color name="car_text_color_primary_inverse">@color/car_neutral_10</color>
+    <color name="car_text_color_secondary_inverse">@color/car_neutral_30</color>
+    <color name="car_text_color_tertiary_inverse">@color/car_neutral_50</color>
+    <color name="car_color_background">@color/car_neutral_10</color>
+    <color name="car_color_background_floating">@color/car_neutral_10</color>
+    <color name="car_color_surface">@color/car_neutral_20</color>
+    <color name="car_color_surface_variant">@color/car_neutral_30</color>
+    <color name="car_color_surface_highlight">@color/car_neutral_35</color>
+    <color name="car_surface_header">@color/car_neutral_30</color>
+    <color name="car_under_surface">@color/car_neutral_0</color>
+    <color name="car_off_state">@color/car_neutral_20</color>
+    <color name="car_accent_surface">@color/car_primary_95</color>
+    <color name="car_text_primary_on_accent">@color/car_neutral_10</color>
+    <color name="car_text_secondary_on_accent">@color/car_neutral_variant_30</color>
+    <color name="car_volume_background">@color/car_neutral_25</color>
+    <color name="car_scrim">@color/car_neutral_80</color>
+
+    <!-- control highlight colors -->
+    <color name="car_control_highlight">#99d9e2ff</color>
+
+    <!-- control focus colors -->
+    <color name="car_focus_background">#99b0c5ff</color>
+
+    <color name="car_panel_border">#4D5057</color>
+</resources>

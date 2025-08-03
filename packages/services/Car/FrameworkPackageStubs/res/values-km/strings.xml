@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="6179574017413146651">"Stub សកម្មភាព"</string>
+    <string name="message_not_supported" msgid="133939962837892495">"គ្មានកម្មវិធី​អាចគ្រប់គ្រងសកម្មភាពនេះបាន​ទេ"</string>
+    <string name="pip_not_supported" msgid="8681268258599412706">"មិនអាចប្រើមុខងារ​រូបក្នុងរូបនៅលើ​ឧបករណ៍នេះ​បានទេ"</string>
+    <string name="manage_unknown_app_sources_not_supported" msgid="7368611099531260439">"មិនអាចគ្រប់គ្រងកម្មវិធីដែលមិនស្គាល់នៅលើឧបករណ៍នេះបានទេ"</string>
+    <string name="documentsui_not_supported" msgid="2786636475647817501">"មិនអាចប្រើការគ្រប់គ្រងឯកសារនៅលើឧបករណ៍នេះទេ"</string>
+    <string name="stub_name" msgid="3987164490218189006">"គ្មាន"</string>
+</resources>

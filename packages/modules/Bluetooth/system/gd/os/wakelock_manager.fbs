@@ -1,0 +1,26 @@
+
+namespace bluetooth.os;
+
+attribute "privacy";
+
+table WakelockManagerData {
+    title:string;
+    is_acquired:bool;
+    is_native:bool;
+    acquired_count:int;
+    released_count:int;
+    acquired_error_count:int;
+    released_error_count:int;
+    last_acquire_error_code:int;
+    last_release_error_code:int;
+    last_acquired_timestamp_millis:int64;
+    last_released_timestamp_millis:int64;
+    last_interval_millis:int64;
+    max_interval_millis:int64;
+    min_interval_millis:int64;
+    avg_interval_millis:int64;
+    total_interval_millis:int64;
+    total_time_since_reset_millis:int64;
+}
+
+root_type WakelockManagerData;

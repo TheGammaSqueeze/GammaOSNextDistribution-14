@@ -1,0 +1,80 @@
+{
+    "header": "hwcrypto_consts.h",
+    "constants": [
+        {
+            "name": "GEN_HWCRYPTO_UUID",
+            "value": "23fe5938-ccd5-4a78-8baf-0f3d05ffc2df",
+            "type": "uuid"
+        },
+        {
+            "name": "HWCRYPTO_UNITTEST_APP_UUID",
+            "value": "ab742471-d6e6-4806-85f6-0555b024f4da",
+            "type": "uuid"
+        },
+        {
+            "name": "HWCRYPTO_UNITTEST_RUST_APP_UUID",
+            "value": "7e15bb1a-571b-4404-9337-eeef60ed96e9",
+            "type": "uuid"
+        },
+        {
+            "name": "SECURE_STORAGE_SERVER_APP_UUID",
+            "value": "cea8706d-6cb4-49f3-b994-29e0e478bd29",
+            "type": "uuid"
+        },
+        {
+            "name": "KM_APP_UUID",
+            "value": "5f902ace-5e5c-4cd8-ae54-87b88c22ddaf",
+            "type": "uuid"
+        },
+        {
+            "name": "KM_RUST_APP_UUID",
+            "value": "2e5415f0-d4d5-4a18-838f-29647dfc01d7",
+            "type": "uuid"
+        },
+        {
+            "name": "KM_RUST_UNITTEST_UUID",
+            "value": "d322eec9-6d03-49fa-821c-1ccd2705719c",
+            "type": "uuid"
+        },
+        {
+            "name": "APPLOADER_APP_UUID",
+            "value": "081ba88f-f1ee-452e-b5e8-a7e9ef173a97",
+            "type": "uuid"
+        },
+        {
+            "name": "SAMPLE_HWAES_APP_UUID",
+            "value": "6f4a2303-f4f8-431d-82d1-3ec52aebbb89",
+            "type": "uuid"
+        },
+        {
+            "name": "HWAES_UNITTEST_APP_UUID",
+            "value": "ab8a6820-1cc2-44d5-bee0-22b51befa835",
+            "type": "uuid"
+        },
+        {
+            "name": "HWAES_BENCH_APP_UUID",
+            "value": "9b424d86-9b1e-4755-942c-dca639de4289",
+            "type": "uuid"
+        },
+        {
+            "name": "GATEKEEPER_APP_UUID",
+            "value": "38ba0cdc-df0e-11e4-9869-233fb6ae4795",
+            "type": "uuid"
+        },
+        {
+            "name": "SAMPLE_HWBCC_APP_UUID",
+            "value": "f758d162-3481-4bb4-ab54-5ed41652f44e",
+            "type": "uuid"
+        },
+        {
+            "name": "HWBCC_UNITTEST_APP_UUID",
+            "value": "0e109d31-8bbe-47d6-bb47-e1dd08910e16",
+            "type": "uuid"
+        },
+        {
+            "name": "HWBCC_UNITTEST_RUST_APP_UUID",
+            "value": "67925337-2c03-49ed-9240-d51b6fea3e30",
+            "type": "uuid"
+        }
+    ]
+}

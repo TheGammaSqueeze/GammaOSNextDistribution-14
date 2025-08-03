@@ -1,0 +1,86 @@
+<configuration>
+    <!-- Home Screen search icon -->
+
+    <!-- OEMs can define which apps will show up in the favorite apps row out of
+    box in the Home Screen by providing a list of apps (name and package
+    name). This list should be up to 8 apps and the system will use the first
+    8 apps on this list of more than 8 are provided.
+    The list should comply with the GTVS app placement requirements
+    (see: requirements page)
+    -->
+    <partner-favorite-apps-out-of-box-order>
+        <app name="Youtube" package_name="com.google.android.youtube.tv"/>
+        <app name="SmartTube" package_name="com.teamsmart.videomanager.tv"/>
+        <app name="STN Beta" package_name="com.liskovsoft.smarttubetv.beta"/>
+        <app name="Google Movies" package_name="com.google.android.videos"/>
+    </partner-favorite-apps-out-of-box-order>
+
+    <!-- OEMs can customize the initial order of apps in the apps row of the Apps
+    View by providing a list of up to 20 apps (name and package name). All
+    other games will be sorted alphabetically.
+    The list should comply with the GTVS app placement requirements
+    (see: requirements page)
+    -->
+    <partner-all-apps-out-of-box-order>
+        <app name="Youtube" package_name="com.google.android.youtube.tv"/>
+        <app name="SmartTube" package_name="com.teamsmart.videomanager.tv"/>
+        <app name="STN Beta" package_name="com.liskovsoft.smarttubetv.beta"/>
+        <app name="Google Movies" package_name="com.google.android.videos"/>
+        <app name="YouTube Music" package_name="com.google.android.youtube.tvmusic"/>
+        <app name="Google PlayStore" package_name="com.android.vending"/>
+    </partner-all-apps-out-of-box-order>
+
+    <!-- OEMs can customize the initial order of apps in the games row of the Apps
+    View by providing a list of up to 10 apps (name and package name). All
+    other games will be sorted alphabetically.
+    -->
+    <partner-games-out-of-box-order>
+    </partner-games-out-of-box-order>
+
+    <!-- By default channels are added to the UI in the order that they are added
+    by apps. A channel will be added to the bottom of the list of channel
+    when it is added by an app. OEMs can customize the initial order by
+    providing a list of package names. When one of the packages in the list
+    inserts a channel the system will insert it in the position indicated in
+    list. If while the channels are being inserted, the user changed to order
+    of the channels manually, the system will make the best effort to respect
+    the initial order while still preserving the user's channels order setup.
+    The initial order is limited to one channel per app, duplicates will be
+    ignored.
+    The list should comply with the GTVS app placement requirements
+    (see: requirements page)
+    -->
+    <partner-channels-out-of-box-order>
+        <package-name>com.google.android.youtube.tv</package-name>
+        <package-name>com.teamsmart.videomanager.tv</package-name>
+        <package-name>com.liskovsoft.smarttubetv.beta</package-name>
+        <package-name>com.google.android.videos</package-name>
+        <package-name>com.google.android.youtube.tvmusic</package-name>
+    </partner-channels-out-of-box-order>
+
+    <!-- Android TV supports a limited set of system notifications. The system
+    filters all notifications and shows notifications only from a limited list
+    of whitelisted packages. The list is controlled by the system and already
+    includes Google's packages. OEMs can whitelist more packages by adding
+    them to the notification whitelist.
+    This list should only be used to whitelist system apps that want to show
+    important notifications that the user must handle (examples are: no
+    network, low battery on the remote, low storage etc…). It should NOT be
+    used by apps to promote content or features.
+    -->
+    <partner-package-notification-whitelist>
+    </partner-package-notification-whitelist>
+
+    <!-- By default, each app gets to show one channel in the UI without user's
+    approval. OEMs can change the number of channels allowed without user's
+    approval by providing a list of apps and and the number of pre-approved
+    channels (quota) for each app.
+    -->
+    <partner-app-channel-quota>
+        <app package_name="com.google.android.youtube.tv" quota="8"/>
+        <app package_name="com.teamsmart.videomanager.tv" quota="8"/>
+        <app package_name="com.liskovsoft.smarttubetv.beta" quota="8"/>
+        <app package_name="com.google.android.videos" quota="8"/>
+        <app package_name="com.google.android.youtube.tvmusic" quota="8"/>
+    </partner-app-channel-quota>
+</configuration>

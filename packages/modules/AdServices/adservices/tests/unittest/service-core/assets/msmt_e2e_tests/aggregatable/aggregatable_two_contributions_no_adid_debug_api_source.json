@@ -1,0 +1,126 @@
+{
+  "description": "Given two entries in the \"Attribution-Reporting-Register-Aggregatable-Source\" header, generate an aggregate report with two contributions, with source debug key only and without adid permission",
+  "input": {
+    "sources": [{
+      "registration_request": {
+        "attribution_src_url": "https://www.ad-tech1.test",
+        "source_origin": "android-app://example.1s1.test",
+        "source_type": "navigation",
+        "registrant": "example.1s1.test"
+      },
+      "responses": [{
+        "url": "https://www.ad-tech1.test",
+        "response": {
+          "Attribution-Reporting-Register-Source": {
+            "source_event_id": "1",
+            "destination": "android-app://example.2d1.test",
+            "priority": "100",
+            "expiry": "172801",
+            "debug_key": "347982378",
+            "filter_data": {
+              "conversion_subdomain": [
+                "electronics.megastore"
+              ],
+              "product": [
+                "1234",
+                "234"
+              ],
+              "ctid": [
+                "id"
+              ]
+            },
+            "aggregation_keys": {
+              "campaignCounts": "0x159",
+              "geoValue": "0x5"
+            }
+          },
+          "Location": null,
+          "Attribution-Reporting-Redirect": null
+        }
+      }],
+      "timestamp": "800000000001"
+    }],
+    "triggers": [{
+      "registration_request": {
+        "attribution_src_url": "https://www.ad-tech1.test",
+        "destination_origin": "android-app://example.2d1.test",
+        "registrant": "example.2d1.test"
+      },
+      "responses": [{
+        "url": "https://www.ad-tech1.test",
+        "response": {
+          "Attribution-Reporting-Register-Trigger": {
+            "event_trigger_data": [
+              {
+                "trigger_data": "2",
+                "priority": "101"
+              }
+            ],
+            "aggregatable_trigger_data": [
+              {
+                "key_piece": "0x400",
+                "source_keys": [
+                  "campaignCounts"
+                ],
+                "filters": {
+                  "product": [
+                    "1234"
+                  ],
+                  "ctid": [
+                    "id"
+                  ]
+                },
+                "not_filters": {
+                  "product": [
+                    "100"
+                  ]
+                }
+              },
+              {
+                "key_piece": "0xA80",
+                "source_keys": [
+                  "geoValue",
+                  "nonMatch"
+                ]
+              }
+            ],
+            "aggregatable_values": {
+              "campaignCounts": 32768,
+              "geoValue": 1664
+            }
+          },
+          "Location": null,
+          "Attribution-Reporting-Redirect": null
+        }
+      }],
+      "timestamp": "800000000002"
+    }]
+  },
+  "output": {
+    "event_level_results": [{
+      "report_time": "800176400001",
+      "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/report-event-attribution",
+      "payload": {
+        "attribution_destination": "android-app://example.2d1.test",
+        "scheduled_report_time": "800176400",
+        "source_event_id": "1",
+        "trigger_data": "2",
+        "source_type": "navigation",
+        "randomized_trigger_rate": 0.0008051
+      }
+    }],
+    "aggregatable_results": [{
+      "report_time": "800003600002",
+      "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/report-aggregate-attribution",
+      "payload": {
+        "attribution_destination": "android-app://example.2d1.test",
+        "source_site": "android-app://example.1s1.test",
+        "histograms": [
+          {"key": "0x559", "value": 32768},
+          {"key": "0xa85", "value": 1664}
+        ],
+        "source_registration_time": "799977600"
+      }
+    }]
+  }
+}

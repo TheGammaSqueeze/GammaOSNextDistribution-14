@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright 2018 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<resources>
+    <!-- Whether all activities should be single pane views or not. -->
+    <bool name="config_global_force_single_pane">true</bool>
+    <!-- Fully qualified class name for the homepage fragment. -->
+    <string name="config_homepage_fragment_class" translatable="false">com.android.car.settings.home.HomepageFragment</string>
+    <!-- Whether to show the launcher icon for settings home or not. -->
+    <bool name="config_enable_home_settings_icon">true</bool>
+    <!-- Whether system_update_settings should be shown or not. -->
+    <bool name="config_show_system_update_settings">true</bool>
+    <!-- Whether Wi-Fi Mac address should be shown or not. -->
+    <bool name="config_show_wifi_mac_address">true</bool>
+    <!-- Whether to show regulatory info or not. -->
+    <bool name="config_show_regulatory_info">false</bool>
+    <!-- Whether premium SMS should be shown or not. -->
+    <bool name="config_show_premium_sms">true</bool>
+    <!-- Whether exit button in settings' root action bar should be shown or not -->
+    <bool name="config_show_settings_root_exit_icon">true</bool>
+    <!--
+        Array of bluetooth device major classes that should be used for unbonded
+        device filter.
+
+        The values of the device major classes can be found in
+        android.bluetooth.BluetoothClass. If the array is empty, the device
+        filter will return all unbonded devices.
+
+        Example usage:
+        <integer-array name="config_unbonded_device_filter_allowlist">
+            <item>0x0200</item>
+        </integer-array>
+
+        This filter would only return unbonded devices which correspond to the
+        major class for PHONE.
+    -->
+    <integer-array name="config_unbonded_device_filter_allowlist"/>
+    <!--
+        Array of keys that should be used for determining how audio attribute
+        usage should be mapped to ringtone uris.
+
+        The values of the keys can be found in android.media.AudioAttributes.
+        The number of items in this array must equal the number of items in
+        config_ringtone_uri_map_value, and the usages are mapped to the ringtone
+        uri based on positions in the array. The lowest rank usage (based on the
+        order in car_volume_items.xml) in each audio group (in Car service's
+        car_volume_groups.xml) will be used to sound for a given volume group's
+        slider.
+
+        If empty, all ringtones will default to the default ringtone uri.
+
+        TODO(b/144382611): Instead of mapping by usage, we should map by audio
+        group so as to make it clearer to define the sound to be played with a
+        given slider.
+    -->
+    <integer-array name="config_ringtone_audio_attribute_usages_map_key">
+        <item>5</item>
+        <item>4</item>
+    </integer-array>
+    <!--
+        Array of values that should be used to determine how audio attribute
+        usage should be mapped to ringtone uris.
+
+        The values should be uri strings that can be parsed into Uri. The number
+        of items in this array must equal the number of items in
+        config_ringtone_audio_attributes_map_key, and the ringtone uris are
+        mapped to the audio attributes based on positions in the array.
+
+        If empty, all ringtones will default to the default ringtone uri.
+    -->
+    <bool name="config_allow_audio_destination_selection">true</bool>
+    <string-array name="config_ringtone_uri_map_value" translatable="false">
+        <item>content://settings/system/notification_sound</item>
+        <item>content://settings/system/alarm_alert</item>
+    </string-array>
+    <!-- Whether all preferences should always ignore UX Restrictions -->
+    <bool name="config_always_ignore_ux_restrictions">false</bool>
+    <!-- Array of Preference Keys that ignore UX Restrictions -->
+    <string-array name="config_ignore_ux_restrictions" translatable="false">
+        <item>@string/pk_display_settings_entry</item>
+        <item>@string/pk_brightness_level</item>
+        <item>@string/pk_adaptive_brightness_switch</item>
+        <item>@string/pk_sound_settings_entry</item>
+        <item>@string/pk_volume_settings</item>
+        <item>@string/pk_network_and_internet_entry</item>
+        <item>@string/pk_wifi_tether_settings_entry</item>
+        <item>@string/pk_wifi_tether_state_switch</item>
+        <item>@string/pk_mobile_network_settings_entry</item>
+        <item>@string/pk_mobile_data_toggle</item>
+        <item>@string/pk_wifi_entry_group</item>
+        <item>@string/pk_wifi_entry_state_switch</item>
+        <item>@string/pk_wifi_settings_entry</item>
+        <item>@string/pk_wifi_state_switch</item>
+        <item>@string/pk_bluetooth_settings_entry</item>
+        <item>@string/pk_bluetooth_state_switch</item>
+        <item>@string/pk_bluetooth_paired_devices</item>
+    </string-array>
+
+    <!--
+        Whether to allow chevrons on top-level preferences when enabled for
+        car-ui-lib preferences.
+    -->
+    <bool name="config_top_level_enable_chevrons">true</bool>
+    <!-- Whether to show top level icon background. When this is set to be true, adjust the value
+         for top_level_foreground_icon_inset accordingly. -->
+    <bool name="config_show_top_level_icon_background">false</bool>
+    <!-- The shape for top-level icons: 0=RECTANGLE, 1=OVAL -->
+    <integer name="config_top_level_icon_shape" translatable="false">1</integer>
+    <!--
+        Whether to always override the background color of the injecting application in favor of
+        the default color.
+    -->
+    <bool name="config_top_level_injection_background_always_use_default">false</bool>
+    <!-- Whether to include the preference summaries of injected top-level preferences. -->
+    <bool name="config_top_level_injection_enable_summaries">true</bool>
+    <!-- Array of injected setting categories that appear in the top-level menu. -->
+    <string-array name="config_top_level_injection_categories">
+        <item>com.android.settings.category.wireless</item>
+        <item>com.android.settings.category.ia.device</item>
+        <item>com.android.settings.category.personal</item>
+    </string-array>
+
+    <!-- The component which listens for the enabling of developer options. -->
+    <string name="config_dev_options_module" translatable="false">
+        com.android.car.developeroptions/.CarDevelopmentSettingsDashboardActivity
+    </string>
+
+    <!-- Settings intelligence package name -->
+    <string name="config_settingsintelligence_package_name" translatable="false">
+        com.android.settings.intelligence
+    </string>
+
+    <!-- Package Installer package name -->
+    <string name="config_package_installer_package_name" translatable="false">
+        com.android.packageinstaller
+    </string>
+
+    <!--
+        Maximum number of devices to show for paired bluetooth device quick control.
+        Set to -1 for unlimited.
+     -->
+    <integer name="config_qc_bluetooth_device_limit">3</integer>
+
+    <!--
+         The value here should be the component name of the system default screen reader if one
+         exists. If it is left blank then no screen reader will show up in settings.
+    -->
+    <string name="config_default_screen_reader" translatable="false"></string>
+
+    <!--
+        Delay in milliseconds between preference onclick calls
+    -->
+    <integer name="config_preference_onclick_debounce_ms">200</integer>
+
+    <!-- Whether to scan and start a custom pair device flow. -->
+    <bool name="config_use_custom_pair_device_flow">true</bool>
+
+    <!-- Whether to allow the ADAS Location Switch to be clickable. -->
+    <bool name="config_allow_adas_location_switch_clickable">true</bool>
+
+    <!-- Packages (other than settings and systemui) allowed to enable bluetooth scanning. -->
+    <string-array name="config_allowed_bluetooth_scanning_packages">
+        <item>com.android.car.carlauncher</item>
+    </string-array>
+
+    <!--
+        List of packages whose android.permission.BIND_NOTIFICATION_LISTENER_SERVICE permission
+         shouldn't be changed.
+     -->
+    <string-array name="config_fixed_notification_access_packages">
+        <item>com.android.car.notification</item>
+    </string-array>
+</resources>

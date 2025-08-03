@@ -1,0 +1,213 @@
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+//
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_defaults {
+    name: "evsmanagerd_defaults",
+    defaults: ["android.hardware.graphics.common-ndk_static"],
+    shared_libs: [
+        "android.hardware.automotive.evs@1.0",
+        "android.hardware.automotive.evs@1.1",
+        "libbase",
+        "libbinder_ndk",
+        "libcamera_metadata",
+        "libhardware",
+        "libhidlbase",
+        "liblog",
+        "libprocessgroup",
+        "libstatslog_evsmanagerd",
+        "libutils",
+    ],
+    static_libs: [
+        "android.hardware.automotive.evs-V2-ndk",
+        "android.hardware.common-V2-ndk",
+        "libaidlcommonsupport",
+        "libc++fs",
+        "libcutils",
+    ],
+    header_libs: [
+        "libarect_headers",
+        "libui_headers",
+    ],
+    cflags: [
+        "-DGL_GLEXT_PROTOTYPES",
+        "-DEGL_EGLEXT_PROTOTYPES",
+        "-D_LIBCPP_ENABLE_THREAD_SAFETY_ANNOTATIONS",
+        "-Wall",
+        "-Werror",
+        "-Wunused",
+        "-Wunreachable-code",
+        "-Wthread-safety",
+    ],
+    export_include_dirs: [
+        ".",
+        "./include",
+        "./stats/include",
+        "./wrappers/include",
+    ],
+    product_variables: {
+        debuggable: {
+            cflags: [
+                "-DEVS_DEBUG",
+            ],
+        },
+    },
+}
+
+filegroup {
+    name: "evsmanagerd_sources",
+    srcs: [
+        "wrappers/src/HidlCameraStream.cpp",
+        "wrappers/src/AidlDisplay.cpp",
+        "wrappers/src/AidlCamera.cpp",
+        "wrappers/src/HidlEnumerator.cpp",
+        "wrappers/src/AidlCameraStream.cpp",
+        "wrappers/src/AidlEnumerator.cpp",
+        "wrappers/src/HidlDisplay.cpp",
+        "wrappers/src/HidlCamera.cpp",
+        "stats/src/CameraUsageStats.cpp",
+        "stats/src/StatsCollector.cpp",
+        "stats/src/LooperWrapper.cpp",
+        "utils/src/Utils.cpp",
+        "src/HalDisplay.cpp",
+        "src/VirtualCamera.cpp",
+        "src/Enumerator.cpp",
+        "src/HalCamera.cpp",
+    ],
+}
+
+cc_library_static {
+    name: "libevsmanagerd_static",
+    defaults: ["evsmanagerd_defaults"],
+    srcs: [":evsmanagerd_sources"],
+    export_include_dirs: [
+        "./include",
+        "./stats/include",
+        "./wrappers/include",
+    ],
+}
+
+cc_binary {
+    name: "evsmanagerd",
+    defaults: ["evsmanagerd_defaults"],
+    static_libs: ["libevsmanagerd_static"],
+    srcs: ["src/service.cpp"],
+    init_rc: ["evsmanagerd.rc"],
+    vintf_fragments: ["manifest_evsmanagerd.xml"],
+}
+
+cc_test {
+    name: "evsmanagerd_test",
+    defaults: ["evsmanagerd_defaults"],
+    test_suites: [
+        "general-tests",
+        "automotive-tests",
+    ],
+    srcs: [
+        ":evsmanagerd_sources",
+        "tests/unit/**/*.cpp",
+    ],
+    local_include_dirs: ["tests/unit/include"],
+    shared_libs: [
+        "libcamera_client",
+        "libnativewindow",
+        "libui",
+    ],
+    static_libs: [
+        "libgmock",
+        "libgtest",
+        "libevsmanagerd_static",
+    ],
+}
+
+cc_test_library {
+    name: "libmockevshal",
+    defaults: ["android.hardware.graphics.common-ndk_static"],
+    local_include_dirs: [
+        "include",
+        "tests/unit/include",
+    ],
+    export_include_dirs: ["tests/unit/include"],
+    srcs: [
+        "tests/unit/src/MockEvsHal.cpp",
+        "tests/unit/src/MockHidlEvsHal.cpp",
+        "tests/unit/src/MockHidlEvsHal_1_0.cpp",
+    ],
+    shared_libs: [
+        "android.hardware.automotive.evs@1.0",
+        "android.hardware.automotive.evs@1.1",
+        "libbase",
+        "libbinder_ndk",
+        "libcamera_client",
+        "libcamera_metadata",
+        "libcutils",
+        "libhidlbase",
+        "libnativewindow",
+        "libui",
+        "libutils",
+    ],
+    static_libs: [
+        "android.hardware.automotive.evs-V2-ndk",
+        "android.hardware.common-V2-ndk",
+        "libaidlcommonsupport",
+        "libgmock",
+        "libgtest",
+    ],
+    cflags: ["-DLOG_TAG=\"MockEVS\""],
+}
+
+cc_library_headers {
+    name: "libmockevshal_headers",
+    export_include_dirs: ["tests/unit/include"],
+}
+
+cc_library {
+    name: "libstatslog_evsmanagerd",
+    generated_sources: ["statslog_evsmanagerd.cpp"],
+    generated_headers: ["statslog_evsmanagerd.h"],
+    export_generated_headers: ["statslog_evsmanagerd.h"],
+    min_sdk_version: "30",
+    shared_libs: [
+        "libbinder",
+        "libstatsbootstrap",
+        "libutils",
+        "android.os.statsbootstrap_aidl-cpp",
+    ],
+}
+
+genrule {
+    name: "statslog_evsmanagerd.h",
+    tools: ["stats-log-api-gen"],
+    cmd: "$(location stats-log-api-gen) --header $(genDir)/statslog_evsmanagerd.h --module evs" +
+        " --namespace aidl,android,automotive,evs,stats --bootstrap",
+    out: [
+        "statslog_evsmanagerd.h",
+    ],
+}
+
+genrule {
+    name: "statslog_evsmanagerd.cpp",
+    tools: ["stats-log-api-gen"],
+    cmd: "$(location stats-log-api-gen) --cpp $(genDir)/statslog_evsmanagerd.cpp --module evs" +
+        " --namespace aidl,android,automotive,evs,stats --importHeader statslog_evsmanagerd.h" +
+        " --bootstrap",
+    out: [
+        "statslog_evsmanagerd.cpp",
+    ],
+}

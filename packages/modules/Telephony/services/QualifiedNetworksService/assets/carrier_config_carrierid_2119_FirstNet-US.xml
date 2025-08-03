@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<carrier_config>
+    <int-array name="qns.idle_eutran_rsrp_int_array" num="2">
+        <item value="-90"/>
+        <item value="-108"/>
+    </int-array>
+    <int-array name="qns.voice_eutran_rsrp_int_array" num="2">
+        <item value="65535"/>
+        <item value="-108"/>
+    </int-array>
+    <int-array name="qns.video_eutran_rsrp_int_array" num="2">
+        <item value="65535"/>
+        <item value="65535"/>
+    </int-array>
+    <int-array name="qns.idle_eutran_rssnr_int_array" num="2">
+        <item value="2"/>
+        <item value="-3"/>
+    </int-array>
+    <int-array name="qns.voice_eutran_rssnr_int_array" num="2">
+        <item value="65535"/>
+        <item value="-3"/>
+    </int-array>
+    <int-array name="qns.idle_ngran_ssrsrp_int_array" num="2">
+        <item value="-90"/>
+        <item value="-108"/>
+    </int-array>
+    <int-array name="qns.voice_ngran_ssrsrp_int_array" num="2">
+        <item value="65535"/>
+        <item value="-108"/>
+    </int-array>
+    <int-array name="qns.video_ngran_ssrsrp_int_array" num="2">
+        <item value="65535"/>
+        <item value="65535"/>
+    </int-array>
+    <int-array name="qns.idle_ngran_sssinr_int_array" num="2">
+        <item value="2"/>
+        <item value="-3"/>
+    </int-array>
+    <int-array name="qns.voice_ngran_sssinr_int_array" num="2">
+        <item value="65535"/>
+        <item value="-3"/>
+    </int-array>
+    <int-array name="qns.idle_utran_rscp_int_array" num="2">
+        <item value="-73"/>
+        <item value="-93"/>
+    </int-array>
+    <int-array name="qns.video_utran_rscp_int_array" num="2">
+        <item value="65535"/>
+        <item value="65535"/>
+    </int-array>
+    <int-array name="qns.idle_utran_ecno_int_array" num="2">
+        <item value="-11"/>
+        <item value="-15"/>
+    </int-array>
+    <int-array name="qns.video_geran_rssi_int_array" num="2">
+        <item value="65535"/>
+        <item value="65535"/>
+    </int-array>
+    <int name="qns.sos_transport_type_int" value="2"/>
+    <int name="qns.mms_transport_type_int" value="2"/>
+    <int name="qns.xcap_transport_type_int" value="2"/>
+    <int name="qns.mms_rat_preference_int" value="3"/>
+    <int name="qns.xcap_rat_preference_int" value="3"/>
+    <int-array name="qns.choose_wfc_preferred_transport_in_both_bad_condition_int_array" num="1">
+        <item value="1"/>
+    </int-array>
+    <string-array name="qns.ims_cellular_allowed_rat_string_array" num="3">
+        <item value="LTE"/>
+        <item value="NR"/>
+        <item value="3G"/>
+    </string-array>
+    <boolean name="qns.prefer_current_transport_type_in_voice_call_bool" value="true"/>
+    <int-array name="qns.ims_wlan_hysteresis_timer_ms_int_array" num="3">
+        <item value="5000"/>
+        <item value="0"/>
+        <item value="0"/>
+    </int-array>
+    <int-array name="qns.ims_wwan_hysteresis_timer_ms_int_array" num="3">
+        <item value="5000"/>
+        <item value="0"/>
+        <item value="0"/>
+    </int-array>
+    <boolean name="qns.allow_video_over_iwlan_with_cellular_limited_case_bool" value="true"/>
+    <int-array name="qns.in_call_rovein_allowed_and_fallback_reason_int_array" num="2">
+        <item value="1"/>
+        <item value="2"/>
+    </int-array>
+    <int name="qns.media_threshold_rtp_packet_loss_time_millis" value="12000"/>
+    <int name="qns.wifi_rssi_thresholdbackhaul_timer_int" value="0"/>
+    <int name="qns.sip_dialog_session_policy_int" value="1"/>
+</carrier_config>

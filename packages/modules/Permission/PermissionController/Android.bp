@@ -1,0 +1,202 @@
+//
+// Copyright (C) 2019 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    default_team: "trendy_team_android_permissions",
+    default_applicable_licenses: [
+        "packages_modules_Permission_PermissionController_license",
+    ],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "packages_modules_Permission_PermissionController_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+genrule {
+    name: "statslog-permissioncontroller-java-gen",
+    tools: ["stats-log-api-gen"],
+    cmd: "$(location stats-log-api-gen) --java $(out) --module permissioncontroller" +
+        " --javaPackage com.android.permissioncontroller" +
+        " --javaClass PermissionControllerStatsLog --minApiLevel 30",
+    out: ["com/android/permissioncontroller/PermissionControllerStatsLog.java"],
+}
+
+java_library {
+    name: "permissioncontroller-statsd",
+    sdk_version: "system_current",
+    min_sdk_version: "30",
+    apex_available: [
+        "com.android.permission",
+    ],
+    srcs: [
+        ":statslog-permissioncontroller-java-gen",
+    ],
+}
+
+java_library {
+    name: "permissioncontroller-protos",
+    sdk_version: "system_current",
+    min_sdk_version: "30",
+    srcs: [
+        "src/**/*.proto",
+    ],
+    proto: {
+        type: "lite",
+        include_dirs: ["packages/modules/Permission/PermissionController/src/com/android/permissioncontroller"],
+    },
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.permission",
+    ],
+}
+
+android_library {
+    name: "PermissionController-lib",
+    sdk_version: "system_current",
+    min_sdk_version: "30",
+    use_resource_processor: true,
+    manifest: "AndroidManifest-lib.xml",
+    srcs: [
+        "src/**/*.java",
+        "src/**/*.kt",
+    ],
+
+    //javacflags: ["-Werror"],
+    kotlincflags: [
+        "-Werror",
+        "-opt-in=kotlinx.coroutines.DelicateCoroutinesApi",
+        "-Xjvm-default=all",
+    ],
+
+    libs: [
+        "android.car-stubs",
+        "safety-center-annotations",
+    ],
+
+    static_libs: [
+        "permissioncontroller-protos",
+        "iconloader_sc_mainline_prod",
+        "com.google.android.material_material",
+        "androidx.transition_transition",
+        "androidx-constraintlayout_constraintlayout",
+        "androidx.core_core",
+        "androidx.media_media",
+        "androidx.legacy_legacy-support-core-utils",
+        "androidx.legacy_legacy-support-core-ui",
+        "androidx.fragment_fragment",
+        "androidx.appcompat_appcompat",
+        "androidx.preference_preference",
+        "androidx.recyclerview_recyclerview",
+        "androidx.legacy_legacy-preference-v14",
+        "androidx.leanback_leanback",
+        "androidx.leanback_leanback-preference",
+        "androidx.lifecycle_lifecycle-extensions",
+        "androidx.lifecycle_lifecycle-common-java8",
+        "kotlin-stdlib",
+        "kotlinx-coroutines-android",
+        "androidx.navigation_navigation-common-ktx",
+        "androidx.navigation_navigation-fragment-ktx",
+        "androidx.navigation_navigation-runtime-ktx",
+        "androidx.navigation_navigation-ui-ktx",
+        "SettingsLibHelpUtils",
+        "SettingsLibRestrictedLockUtils",
+        "SettingsLibAppPreference",
+        "SettingsLibSearchWidget",
+        "SettingsLibLayoutPreference",
+        "SettingsLibBarChartPreference",
+        "SettingsLibActionBarShadow",
+        "SettingsLibProgressBar",
+        "SettingsLibCollapsingToolbarBaseActivity",
+        "SettingsLibActivityEmbedding",
+        "SettingsLibSettingsTheme",
+        "SettingsLibFooterPreference",
+        "SettingsLibSelectorWithWidgetPreference",
+        "SettingsLibTwoTargetPreference",
+        "SettingsLibIllustrationPreference",
+        "androidx.annotation_annotation",
+        "permissioncontroller-statsd",
+        "car-ui-lib",
+        "libprotobuf-java-lite",
+        "safety-center-internal-data",
+        "safety-center-pending-intents",
+        "SettingsLibUtils",
+        "modules-utils-build_system",
+        "safety-center-resources-lib",
+        "lottie",
+        "safety-label",
+        "role-controller",
+        "permissions-aconfig-flags-lib",
+        "android.permission.flags-aconfig-java",
+        "androidx.compose.foundation_foundation",
+        "androidx.compose.runtime_runtime",
+        "androidx.compose.runtime_runtime-livedata",
+        "androidx.compose.ui_ui",
+        "androidx.wear.compose_compose-material",
+    ],
+
+    lint: {
+        error_checks: ["Recycle"],
+        baseline_filename: "lint-baseline.xml",
+    },
+
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.permission",
+    ],
+
+    // TODO(b/313706381): Remove jarjar once flagging lib is fixed
+    jarjar_rules: "jarjar-rules.txt",
+}
+
+android_app {
+    name: "PermissionController",
+    // Compiling against "module_current" would allow using non-APIs within the permission APEX
+    // boundaries, which may be unsafe because PermissionController is also shipped as a standalone
+    // artifact. See also b/209458854.
+    sdk_version: "system_current",
+    min_sdk_version: "30",
+    updatable: true,
+    privileged: true,
+    certificate: "platform",
+    use_resource_processor: true,
+    rename_resources_package: false,
+    privapp_allowlist: ":privapp_allowlist_com.android.permissioncontroller.xml",
+
+    static_libs: ["PermissionController-lib"],
+
+    lint: {
+        error_checks: ["Recycle"],
+    },
+
+    optimize: {
+        proguard_compatibility: false, // TODO(b/215530220): remove when this is default behavior
+        proguard_flags_files: ["proguard.flags"],
+    },
+
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.permission",
+    ],
+}

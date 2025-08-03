@@ -1,0 +1,69 @@
+namespace bluetooth.hci;
+
+attribute "privacy";
+
+table LocalVersionInformationData {
+  hci_version : string (privacy:"Any");
+  hci_revision : ushort (privacy:"Any");
+  lmp_version : string (privacy:"Any");
+  manufacturer_name : ushort (privacy:"Any");
+  lmp_subversion : ushort (privacy:"Any");
+}
+
+struct BufferSizeData {
+  data_packet_length : ushort (privacy:"Any");
+  total_num_packets : ubyte (privacy:"Any");
+}
+
+struct LeMaximumDataLengthData {
+ supported_max_tx_octets : ushort (privacy:"Any");
+ supported_max_tx_time : ushort (privacy:"Any");
+ supported_max_rx_octets : ushort (privacy:"Any");
+ supported_max_rx_time : ushort (privacy:"Any");
+}
+
+struct VendorCapabilitiesData {
+  is_supported : ubyte (privacy:"Any");
+  max_advt_instances : ubyte (privacy:"Any");
+  offloaded_resolution_of_private_address : ubyte (privacy:"Any");
+  total_scan_results_storage : ushort (privacy:"Any");
+  max_irk_list_sz : ubyte (privacy:"Any");
+  filtering_support : ubyte (privacy:"Any");
+  max_filter : ubyte (privacy:"Any");
+  activity_energy_info_support : ubyte (privacy:"Any");
+  version_supported : ushort (privacy:"Any");
+  total_num_of_advt_tracked : ushort (privacy:"Any");
+  extended_scan_support : ubyte (privacy:"Any");
+  debug_logging_supported : ubyte (privacy:"Any");
+  le_address_generation_offloading_support : ubyte (privacy:"Any");
+  a2dp_source_offload_capability_mask : uint (privacy:"Any");
+  bluetooth_quality_report_support : ubyte (privacy:"Any");
+}
+
+struct LocalSupportedCommandsData {
+  index : ubyte (privacy:"Any");
+  value: ubyte (privacy:"Any");
+}
+
+table ControllerData {
+  title : string (privacy:"Any");
+  local_version_information : LocalVersionInformationData (privacy:"Any");
+  acl_buffer_size : BufferSizeData (privacy:"Any");
+  sco_buffer_size : BufferSizeData (privacy:"Any");
+  iso_buffer_size : BufferSizeData (privacy:"Any");
+  le_buffer_size : BufferSizeData (privacy:"Any");
+  le_accept_list_size : uint64 (privacy:"Any");
+  le_resolving_list_size : uint64 (privacy:"Any");
+  le_maximum_data_length : LeMaximumDataLengthData (privacy:"Any");
+  le_maximum_advertising_data_length : ushort (privacy:"Any");
+  le_suggested_default_data_length : ushort (privacy:"Any");
+  le_number_supported_advertising_sets : ubyte (privacy:"Any");
+  le_periodic_advertiser_list_size : ubyte (privacy:"Any");
+  local_supported_commands : [LocalSupportedCommandsData] (privacy:"Any");
+  extended_lmp_features_array : [uint64] (privacy:"Any");
+  le_local_supported_features : int64 (privacy:"Any");
+  le_supported_states : uint64 (privacy:"Any");
+  vendor_capabilities : VendorCapabilitiesData (privacy:"Any");
+}
+
+root_type ControllerData;

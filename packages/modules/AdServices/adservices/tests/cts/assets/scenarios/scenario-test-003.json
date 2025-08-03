@@ -1,0 +1,21 @@
+{
+  "mocks": [
+    {
+      "request": {
+        "path": "bidding"
+      },
+      "response": {
+        "body": "BiddingLogicV2.js"
+      }
+    },
+    {
+      "request": {
+        "path": "scoring"
+      },
+      "response": {
+        "body": "ScoringLogic.js"
+      },
+      "verify_not_called": true
+    }
+  ]
+}

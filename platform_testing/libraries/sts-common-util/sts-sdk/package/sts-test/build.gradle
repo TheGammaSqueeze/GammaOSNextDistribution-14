@@ -1,0 +1,31 @@
+plugins {
+    id 'java-library'
+}
+
+task copyConfig(type: Copy) {
+    from layout.projectDirectory.file('src/hostsidetest.config.tmpl')
+    rename 'hostsidetest.config.tmpl', 'hostsidetest.config'
+    filter { l -> l.replaceAll('@@jarname@@', jar.outputs.getFiles().getSingleFile().getName()) }
+    into layout.buildDirectory.dir('config')
+}
+
+task copyHostSideTest(type: Copy) {
+    from jar
+    from copyConfig
+    into layout.buildDirectory.dir('testcases')
+}
+
+dependencies {
+    implementation files('libs/sts-tradefed.jar')
+    implementation files('libs/tradefed.jar')
+    implementation files('libs/compatibility-host-util.jar')
+    implementation files('libs/sts-host-util.jar')
+
+    implementation 'androidx.annotation:annotation:1.4.0'
+    implementation files('libs/hamcrest-library.jar')
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/vc_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_weight="5"
+    android:orientation="vertical"
+    tools:showIn="@layout/le_audio_device_fragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        tools:context=".VcDeviceFragment">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="153dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="5dp"
+                android:layout_weight="1"
+                android:paddingHorizontal="20dp"
+                android:text="Volume" />
+
+            <SeekBar
+                android:id="@+id/volume_seek_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="5dp"
+                android:layout_weight="1"
+                android:max="255"
+                android:min="0" />
+        </LinearLayout>
+
+        <Switch
+            android:id="@+id/mute_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:layout_weight="0"
+            android:text="Mute" />
+
+    </LinearLayout>
+
+    <include
+        layout="@layout/vc_inputs_layout"
+        android:visibility="visible" />
+
+    <include
+        layout="@layout/vc_outputs_layout"
+        android:visibility="visible" />
+
+</LinearLayout>

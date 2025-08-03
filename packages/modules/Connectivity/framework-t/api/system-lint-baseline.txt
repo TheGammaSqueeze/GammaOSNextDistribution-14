@@ -1,0 +1,165 @@
+// Baseline format: 1.0
+BuilderSetStyle: android.net.IpSecTransform.Builder#buildTunnelModeTransform(java.net.InetAddress, android.net.IpSecManager.SecurityParameterIndex):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method android.net.IpSecTransform.Builder.buildTunnelModeTransform(java.net.InetAddress,android.net.IpSecManager.SecurityParameterIndex)
+
+
+GenericException: android.net.IpSecManager.IpSecTunnelInterface#finalize():
+    Methods must not throw generic exceptions (`java.lang.Throwable`)
+
+
+MissingPermission: android.net.IpSecManager#startTunnelModeTransformMigration(android.net.IpSecTransform, java.net.InetAddress, java.net.InetAddress):
+    Feature field FEATURE_IPSEC_TUNNEL_MIGRATION required by method android.net.IpSecManager.startTunnelModeTransformMigration(android.net.IpSecTransform, java.net.InetAddress, java.net.InetAddress) is hidden or removed
+
+
+RequiresPermission: android.net.EthernetManager#disableInterface(String, java.util.concurrent.Executor, android.os.OutcomeReceiver<java.lang.String,android.net.EthernetNetworkManagementException>):
+    Method 'disableInterface' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.EthernetManager#enableInterface(String, java.util.concurrent.Executor, android.os.OutcomeReceiver<java.lang.String,android.net.EthernetNetworkManagementException>):
+    Method 'enableInterface' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.net.EthernetManager#updateConfiguration(String, android.net.EthernetNetworkUpdateRequest, java.util.concurrent.Executor, android.os.OutcomeReceiver<java.lang.String,android.net.EthernetNetworkManagementException>):
+    Method 'updateConfiguration' documentation mentions permissions already declared by @RequiresPermission
+
+
+UnflaggedApi: android.nearby.CredentialElement#equals(Object):
+    New API must be flagged with @FlaggedApi: method android.nearby.CredentialElement.equals(Object)
+UnflaggedApi: android.nearby.CredentialElement#hashCode():
+    New API must be flagged with @FlaggedApi: method android.nearby.CredentialElement.hashCode()
+UnflaggedApi: android.nearby.DataElement#equals(Object):
+    New API must be flagged with @FlaggedApi: method android.nearby.DataElement.equals(Object)
+UnflaggedApi: android.nearby.DataElement#hashCode():
+    New API must be flagged with @FlaggedApi: method android.nearby.DataElement.hashCode()
+UnflaggedApi: android.nearby.NearbyDevice#equals(Object):
+    New API must be flagged with @FlaggedApi: method android.nearby.NearbyDevice.equals(Object)
+UnflaggedApi: android.nearby.NearbyDevice#hashCode():
+    New API must be flagged with @FlaggedApi: method android.nearby.NearbyDevice.hashCode()
+UnflaggedApi: android.nearby.NearbyDevice#toString():
+    New API must be flagged with @FlaggedApi: method android.nearby.NearbyDevice.toString()
+UnflaggedApi: android.nearby.OffloadCapability#equals(Object):
+    New API must be flagged with @FlaggedApi: method android.nearby.OffloadCapability.equals(Object)
+UnflaggedApi: android.nearby.OffloadCapability#hashCode():
+    New API must be flagged with @FlaggedApi: method android.nearby.OffloadCapability.hashCode()
+UnflaggedApi: android.nearby.OffloadCapability#toString():
+    New API must be flagged with @FlaggedApi: method android.nearby.OffloadCapability.toString()
+UnflaggedApi: android.nearby.PresenceCredential#equals(Object):
+    New API must be flagged with @FlaggedApi: method android.nearby.PresenceCredential.equals(Object)
+UnflaggedApi: android.nearby.PresenceCredential#hashCode():
+    New API must be flagged with @FlaggedApi: method android.nearby.PresenceCredential.hashCode()
+UnflaggedApi: android.nearby.PublicCredential#equals(Object):
+    New API must be flagged with @FlaggedApi: method android.nearby.PublicCredential.equals(Object)
+UnflaggedApi: android.nearby.PublicCredential#hashCode():
+    New API must be flagged with @FlaggedApi: method android.nearby.PublicCredential.hashCode()
+UnflaggedApi: android.nearby.ScanRequest#equals(Object):
+    New API must be flagged with @FlaggedApi: method android.nearby.ScanRequest.equals(Object)
+UnflaggedApi: android.nearby.ScanRequest#hashCode():
+    New API must be flagged with @FlaggedApi: method android.nearby.ScanRequest.hashCode()
+UnflaggedApi: android.nearby.ScanRequest#toString():
+    New API must be flagged with @FlaggedApi: method android.nearby.ScanRequest.toString()
+UnflaggedApi: android.net.EthernetNetworkManagementException#equals(Object):
+    New API must be flagged with @FlaggedApi: method android.net.EthernetNetworkManagementException.equals(Object)
+UnflaggedApi: android.net.EthernetNetworkManagementException#hashCode():
+    New API must be flagged with @FlaggedApi: method android.net.EthernetNetworkManagementException.hashCode()
+UnflaggedApi: android.net.EthernetNetworkUpdateRequest#equals(Object):
+    New API must be flagged with @FlaggedApi: method android.net.EthernetNetworkUpdateRequest.equals(Object)
+UnflaggedApi: android.net.EthernetNetworkUpdateRequest#hashCode():
+    New API must be flagged with @FlaggedApi: method android.net.EthernetNetworkUpdateRequest.hashCode()
+UnflaggedApi: android.net.EthernetNetworkUpdateRequest#toString():
+    New API must be flagged with @FlaggedApi: method android.net.EthernetNetworkUpdateRequest.toString()
+UnflaggedApi: android.net.IpSecManager.IpSecTunnelInterface#finalize():
+    New API must be flagged with @FlaggedApi: method android.net.IpSecManager.IpSecTunnelInterface.finalize()
+UnflaggedApi: android.net.IpSecManager.IpSecTunnelInterface#toString():
+    New API must be flagged with @FlaggedApi: method android.net.IpSecManager.IpSecTunnelInterface.toString()
+UnflaggedApi: android.net.IpSecTransform.Builder#buildTunnelModeTransform(java.net.InetAddress, android.net.IpSecManager.SecurityParameterIndex):
+    New API must be flagged with @FlaggedApi: method android.net.IpSecTransform.Builder.buildTunnelModeTransform(java.net.InetAddress,android.net.IpSecManager.SecurityParameterIndex)
+UnflaggedApi: android.net.NetworkStats.Entry#toString():
+    New API must be flagged with @FlaggedApi: method android.net.NetworkStats.Entry.toString()
+UnflaggedApi: android.net.nsd.NsdManager#registerOffloadEngine(String, long, long, java.util.concurrent.Executor, android.net.nsd.OffloadEngine):
+    New API must be flagged with @FlaggedApi: method android.net.nsd.NsdManager.registerOffloadEngine(String,long,long,java.util.concurrent.Executor,android.net.nsd.OffloadEngine)
+UnflaggedApi: android.net.nsd.NsdManager#unregisterOffloadEngine(android.net.nsd.OffloadEngine):
+    New API must be flagged with @FlaggedApi: method android.net.nsd.NsdManager.unregisterOffloadEngine(android.net.nsd.OffloadEngine)
+UnflaggedApi: android.net.nsd.OffloadEngine:
+    New API must be flagged with @FlaggedApi: class android.net.nsd.OffloadEngine
+UnflaggedApi: android.net.nsd.OffloadEngine#OFFLOAD_CAPABILITY_BYPASS_MULTICAST_LOCK:
+    New API must be flagged with @FlaggedApi: field android.net.nsd.OffloadEngine.OFFLOAD_CAPABILITY_BYPASS_MULTICAST_LOCK
+UnflaggedApi: android.net.nsd.OffloadEngine#OFFLOAD_TYPE_FILTER_QUERIES:
+    New API must be flagged with @FlaggedApi: field android.net.nsd.OffloadEngine.OFFLOAD_TYPE_FILTER_QUERIES
+UnflaggedApi: android.net.nsd.OffloadEngine#OFFLOAD_TYPE_FILTER_REPLIES:
+    New API must be flagged with @FlaggedApi: field android.net.nsd.OffloadEngine.OFFLOAD_TYPE_FILTER_REPLIES
+UnflaggedApi: android.net.nsd.OffloadEngine#OFFLOAD_TYPE_REPLY:
+    New API must be flagged with @FlaggedApi: field android.net.nsd.OffloadEngine.OFFLOAD_TYPE_REPLY
+UnflaggedApi: android.net.nsd.OffloadEngine#onOffloadServiceRemoved(android.net.nsd.OffloadServiceInfo):
+    New API must be flagged with @FlaggedApi: method android.net.nsd.OffloadEngine.onOffloadServiceRemoved(android.net.nsd.OffloadServiceInfo)
+UnflaggedApi: android.net.nsd.OffloadEngine#onOffloadServiceUpdated(android.net.nsd.OffloadServiceInfo):
+    New API must be flagged with @FlaggedApi: method android.net.nsd.OffloadEngine.onOffloadServiceUpdated(android.net.nsd.OffloadServiceInfo)
+UnflaggedApi: android.net.nsd.OffloadServiceInfo:
+    New API must be flagged with @FlaggedApi: class android.net.nsd.OffloadServiceInfo
+UnflaggedApi: android.net.nsd.OffloadServiceInfo#CONTENTS_FILE_DESCRIPTOR:
+    New API must be flagged with @FlaggedApi: field android.net.nsd.OffloadServiceInfo.CONTENTS_FILE_DESCRIPTOR
+UnflaggedApi: android.net.nsd.OffloadServiceInfo#CREATOR:
+    New API must be flagged with @FlaggedApi: field android.net.nsd.OffloadServiceInfo.CREATOR
+UnflaggedApi: android.net.nsd.OffloadServiceInfo#OffloadServiceInfo(android.net.nsd.OffloadServiceInfo.Key, java.util.List<java.lang.String>, String, byte[], int, long):
+    New API must be flagged with @FlaggedApi: constructor android.net.nsd.OffloadServiceInfo(android.net.nsd.OffloadServiceInfo.Key,java.util.List<java.lang.String>,String,byte[],int,long)
+UnflaggedApi: android.net.nsd.OffloadServiceInfo#PARCELABLE_STABILITY_LOCAL:
+    New API must be flagged with @FlaggedApi: field android.net.nsd.OffloadServiceInfo.PARCELABLE_STABILITY_LOCAL
+UnflaggedApi: android.net.nsd.OffloadServiceInfo#PARCELABLE_STABILITY_VINTF:
+    New API must be flagged with @FlaggedApi: field android.net.nsd.OffloadServiceInfo.PARCELABLE_STABILITY_VINTF
+UnflaggedApi: android.net.nsd.OffloadServiceInfo#PARCELABLE_WRITE_RETURN_VALUE:
+    New API must be flagged with @FlaggedApi: field android.net.nsd.OffloadServiceInfo.PARCELABLE_WRITE_RETURN_VALUE
+UnflaggedApi: android.net.nsd.OffloadServiceInfo#describeContents():
+    New API must be flagged with @FlaggedApi: method android.net.nsd.OffloadServiceInfo.describeContents()
+UnflaggedApi: android.net.nsd.OffloadServiceInfo#equals(Object):
+    New API must be flagged with @FlaggedApi: method android.net.nsd.OffloadServiceInfo.equals(Object)
+UnflaggedApi: android.net.nsd.OffloadServiceInfo#getHostname():
+    New API must be flagged with @FlaggedApi: method android.net.nsd.OffloadServiceInfo.getHostname()
+UnflaggedApi: android.net.nsd.OffloadServiceInfo#getKey():
+    New API must be flagged with @FlaggedApi: method android.net.nsd.OffloadServiceInfo.getKey()
+UnflaggedApi: android.net.nsd.OffloadServiceInfo#getOffloadPayload():
+    New API must be flagged with @FlaggedApi: method android.net.nsd.OffloadServiceInfo.getOffloadPayload()
+UnflaggedApi: android.net.nsd.OffloadServiceInfo#getOffloadType():
+    New API must be flagged with @FlaggedApi: method android.net.nsd.OffloadServiceInfo.getOffloadType()
+UnflaggedApi: android.net.nsd.OffloadServiceInfo#getPriority():
+    New API must be flagged with @FlaggedApi: method android.net.nsd.OffloadServiceInfo.getPriority()
+UnflaggedApi: android.net.nsd.OffloadServiceInfo#getSubtypes():
+    New API must be flagged with @FlaggedApi: method android.net.nsd.OffloadServiceInfo.getSubtypes()
+UnflaggedApi: android.net.nsd.OffloadServiceInfo#hashCode():
+    New API must be flagged with @FlaggedApi: method android.net.nsd.OffloadServiceInfo.hashCode()
+UnflaggedApi: android.net.nsd.OffloadServiceInfo#toString():
+    New API must be flagged with @FlaggedApi: method android.net.nsd.OffloadServiceInfo.toString()
+UnflaggedApi: android.net.nsd.OffloadServiceInfo#writeToParcel(android.os.Parcel, int):
+    New API must be flagged with @FlaggedApi: method android.net.nsd.OffloadServiceInfo.writeToParcel(android.os.Parcel,int)
+UnflaggedApi: android.net.nsd.OffloadServiceInfo.Key:
+    New API must be flagged with @FlaggedApi: class android.net.nsd.OffloadServiceInfo.Key
+UnflaggedApi: android.net.nsd.OffloadServiceInfo.Key#CONTENTS_FILE_DESCRIPTOR:
+    New API must be flagged with @FlaggedApi: field android.net.nsd.OffloadServiceInfo.Key.CONTENTS_FILE_DESCRIPTOR
+UnflaggedApi: android.net.nsd.OffloadServiceInfo.Key#CREATOR:
+    New API must be flagged with @FlaggedApi: field android.net.nsd.OffloadServiceInfo.Key.CREATOR
+UnflaggedApi: android.net.nsd.OffloadServiceInfo.Key#Key(String, String):
+    New API must be flagged with @FlaggedApi: constructor android.net.nsd.OffloadServiceInfo.Key(String,String)
+UnflaggedApi: android.net.nsd.OffloadServiceInfo.Key#PARCELABLE_STABILITY_LOCAL:
+    New API must be flagged with @FlaggedApi: field android.net.nsd.OffloadServiceInfo.Key.PARCELABLE_STABILITY_LOCAL
+UnflaggedApi: android.net.nsd.OffloadServiceInfo.Key#PARCELABLE_STABILITY_VINTF:
+    New API must be flagged with @FlaggedApi: field android.net.nsd.OffloadServiceInfo.Key.PARCELABLE_STABILITY_VINTF
+UnflaggedApi: android.net.nsd.OffloadServiceInfo.Key#PARCELABLE_WRITE_RETURN_VALUE:
+    New API must be flagged with @FlaggedApi: field android.net.nsd.OffloadServiceInfo.Key.PARCELABLE_WRITE_RETURN_VALUE
+UnflaggedApi: android.net.nsd.OffloadServiceInfo.Key#describeContents():
+    New API must be flagged with @FlaggedApi: method android.net.nsd.OffloadServiceInfo.Key.describeContents()
+UnflaggedApi: android.net.nsd.OffloadServiceInfo.Key#equals(Object):
+    New API must be flagged with @FlaggedApi: method android.net.nsd.OffloadServiceInfo.Key.equals(Object)
+UnflaggedApi: android.net.nsd.OffloadServiceInfo.Key#getServiceName():
+    New API must be flagged with @FlaggedApi: method android.net.nsd.OffloadServiceInfo.Key.getServiceName()
+UnflaggedApi: android.net.nsd.OffloadServiceInfo.Key#getServiceType():
+    New API must be flagged with @FlaggedApi: method android.net.nsd.OffloadServiceInfo.Key.getServiceType()
+UnflaggedApi: android.net.nsd.OffloadServiceInfo.Key#hashCode():
+    New API must be flagged with @FlaggedApi: method android.net.nsd.OffloadServiceInfo.Key.hashCode()
+UnflaggedApi: android.net.nsd.OffloadServiceInfo.Key#toString():
+    New API must be flagged with @FlaggedApi: method android.net.nsd.OffloadServiceInfo.Key.toString()
+UnflaggedApi: android.net.nsd.OffloadServiceInfo.Key#writeToParcel(android.os.Parcel, int):
+    New API must be flagged with @FlaggedApi: method android.net.nsd.OffloadServiceInfo.Key.writeToParcel(android.os.Parcel,int)
+UnflaggedApi: android.net.thread.ThreadNetworkController:
+    New API must be flagged with @FlaggedApi: class android.net.thread.ThreadNetworkController
+UnflaggedApi: android.net.thread.ThreadNetworkController#THREAD_VERSION_1_3:
+    New API must be flagged with @FlaggedApi: field android.net.thread.ThreadNetworkController.THREAD_VERSION_1_3
+UnflaggedApi: android.net.thread.ThreadNetworkController#getThreadVersion():
+    New API must be flagged with @FlaggedApi: method android.net.thread.ThreadNetworkController.getThreadVersion()
+UnflaggedApi: android.net.thread.ThreadNetworkManager:
+    New API must be flagged with @FlaggedApi: class android.net.thread.ThreadNetworkManager
+UnflaggedApi: android.net.thread.ThreadNetworkManager#getAllThreadNetworkControllers():
+    New API must be flagged with @FlaggedApi: method android.net.thread.ThreadNetworkManager.getAllThreadNetworkControllers()

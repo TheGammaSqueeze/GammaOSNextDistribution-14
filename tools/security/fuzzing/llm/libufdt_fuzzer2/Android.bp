@@ -1,0 +1,26 @@
+// Copyright 2024 The Android Open Source Project
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_fuzz {
+    name: "libufdt_fuzzer2",
+    srcs: [
+        "libufdt_fuzzer2.cpp",
+    ],
+    static_libs: [
+        "libfdt",
+        "libufdt_silent",
+        "libufdt_sysdeps",
+    ],
+
+    include_dirs: [
+        "system/libufdt/include/",
+    ],
+
+    fuzz_config: {
+        cc: [ "hamzeh@google.com" ],
+        componentid: 330367,
+    },
+    host_supported: true,
+}

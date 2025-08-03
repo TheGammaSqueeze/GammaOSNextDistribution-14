@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    Copyright (C) 2021 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="brand_screen_header" msgid="4382251935798018352">"ఈ వాహనం మీ సంస్థకు చెందినది"</string>
+    <string name="contact_device_provider" msgid="338577979231875837">"మరింత తెలుసుకోవడానికి, <xliff:g id="IT_ADMIN">%1$s</xliff:g>‌ను సంప్రదించండి."</string>
+    <string name="organization_admin" msgid="6551608903069550652">"సంస్థ మేనేజర్"</string>
+    <string name="if_questions_contact_admin" msgid="4645510019575736238">"మీకు ఏవైనా సందేహాలు ఉంటే, సంస్థ మేనేజర్‌ను సంప్రదించండి"</string>
+    <string name="admin_has_ability_to_monitor_device" msgid="3132155961508293345">"నెట్‌వర్క్ యాక్టివిటీతో పాటు ఈ వాహనం లొకేషన్‌తో సహా ఈ వాహనంతో అనుబంధించబడిన సెట్టింగ్‌లు, కార్పొరేట్ యాక్సెస్, యాప్‌లు, అనుమతులు, డేటాను పర్యవేక్షించగల మరియు మేనేజ్ చేయగల సామర్థ్యం సంస్థ మేనేజర్‌కు ఉంది.<xliff:g id="LINE_BREAK">
+
+</xliff:g>సంస్థ గోప్యతా పాలసీలతో పాటు మరింత సమాచారం కావాలంటే సంస్థ మేనేజర్‌ను సంప్రదించండి."</string>
+    <string name="contact_your_admin_for_more_info" msgid="1419852317652804536">"సంస్థ గోప్యతా పాలసీలతో సహా, మరింత సమాచారం కోసం సంస్థ మేనేజర్‌ను సంప్రదించండి."</string>
+    <string name="managed_device_info" msgid="2134697391634083944">"ఇది మేనేజ్ చేయబడిన వాహనం"</string>
+    <string name="contact_your_admin_for_help" msgid="1741496631607502730">"సహాయం కోసం సంస్థ మేనేజర్‌ను సంప్రదించండి"</string>
+    <string name="fully_managed_device_provisioning_accept_header" msgid="8767138982035307813">"మేనేజ్ చేసిన వాహనాన్ని సెటప్ చేయండి"</string>
+    <string name="fully_managed_device_provisioning_step_1_header" msgid="8704166635032524345">"మీ సంస్థ యాప్‌లను యాక్సెస్ చేయండి"</string>
+    <string name="fully_managed_device_provisioning_step_1_description" msgid="5960961281295355254">"సమాచారంతో కూడిన వినోదం సిస్టమ్‌ను సెటప్ చేస్తోంది..."</string>
+    <string name="fully_managed_device_provisioning_step_2_header" msgid="5888602026900289468">"సమాచారంతో కూడిన వినోదం సిస్టమ్ డేటా ప్రైవేట్ కాదు"</string>
+    <string name="fully_managed_device_provisioning_step_2_subheader_title" msgid="1421575203782743214">"మీ యాక్టివిటీ, డేటా"</string>
+    <string name="fully_managed_device_provisioning_step_2_subheader" msgid="4881961368653838979">"సంస్థ మేనేజర్ ఈ వాహనంలో మీ యాక్టివిటీని చూసే అవకాశం ఉంది."</string>
+    <string name="fully_managed_device_provisioning_permissions_secondary_subheader" msgid="8955791361423166123">"సంస్థ మేనేజర్ ఈ వాహనంలోని యాప్‌ల కోసం అనుమతులను సెటప్ చేయవచ్చు. ఉదాహరణకు మైక్రోఫోన్, లొకేషన్ అనుమతులు."</string>
+    <string name="fully_managed_device_with_permission_control_provisioning_summary" msgid="2503568673345133100">"మీ వర్క్ యాప్‌లను సులభంగా యాక్సెస్ చేయడానికి ఈ వాహనం సమాచారంతో కూడిన వినోదం సిస్టమ్‌ను ఉపయోగించండి. ఈ వాహనం ప్రైవేట్ కాదు, కాబట్టి సంస్థ మేనేజర్ మీ యాక్టివిటీ, డేటాను చూసే అవకాశం ఉంది. సంస్థ మేనేజర్ ఈ వాహనంలోని యాప్‌ల కోసం అనుమతులను కూడా సెటప్ చేయవచ్చు. ఉదాహరణకు మైక్రోఫోన్, లొకేషన్ అనుమతులు."</string>
+    <string name="fully_managed_device_provisioning_summary" msgid="4323948058344613817">"మీ వర్క్ యాప్‌లను సులభంగా యాక్సెస్ చేయడానికి ఈ వాహనం సమాచారంతో కూడిన వినోదం సిస్టమ్‌ను ఉపయోగించండి. ఈ వాహనం ప్రైవేట్ కాదు, కాబట్టి సంస్థ మేనేజర్ మీ డేటా, యాక్టివిటీని చూసే అవకాశం ఉంది."</string>
+    <string name="fully_managed_device_provisioning_progress_label" msgid="988594700479673633">"మేనేజ్ చేసిన వాహనాన్ని సెటప్ చేస్తోంది"</string>
+    <string name="fully_managed_device_provisioning_return_device_title" msgid="1578111657911434819">"సెటప్‌ను రద్దు చేసి, వాహనాన్ని తిరిగి ఇవ్వండి"</string>
+    <string name="fully_managed_device_provisioning_return_device_subheader" msgid="5809488930429106172">"ఈ వాహనాన్ని రీసెట్ చేసి, సంస్థ మేనేజర్‌కు తిరిగి ఇవ్వండి, లేదా సెటప్‌ను కొనసాగించడానికి మునుపటి స్క్రీన్‌కు వెళ్లండి."</string>
+    <string name="fully_managed_device_cancel_setup_button" msgid="4113790677940440998">"సెటప్‌ను రద్దు చేయండి"</string>
+    <string name="fully_managed_device_reset_and_return_button" msgid="4951274590516561428">"రీసెట్ చేయండి &amp; తిరిగి ఇవ్వండి"</string>
+    <string name="fully_managed_device_provisioning_privacy_title" msgid="4789425994893472324">"గోప్యతా ప్రకటన"</string>
+    <string name="fully_managed_device_provisioning_privacy_body" msgid="5549745709511179391">"సంస్థ మేనేజర్ ఈ వాహనంలో మీ డేటా, యాక్టివిటీని చూసే అవకాశం ఉంది."</string>
+</resources>

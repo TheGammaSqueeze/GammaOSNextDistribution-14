@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2020 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="wifi_eap_error_message_code_32760" msgid="3261764688537859713">"<xliff:g id="SSID">%1$s</xliff:g>: te ei saa väljaspool Verizoni leviala Verizon Wi-Fi Accessiga ühendust luua. (Viga = 32760)"</string>
+    <string name="wifi_eap_error_message_code_32761" msgid="1871122777148389539">"<xliff:g id="SSID">%1$s</xliff:g>: te ei ole Verizon Wi-Fi Accessi tellinud. Helistage meile numbril 800 922 0204. (Viga = 32761)"</string>
+    <string name="wifi_eap_error_message_code_32762" msgid="7021976880137083261">"<xliff:g id="SSID">%1$s</xliff:g>: teie Verizon Wi-Fi Accessi kontoga on probleem. Helistage meile numbril 800 922 0204. (Viga = 32762)"</string>
+    <string name="wifi_eap_error_message_code_32763" msgid="6747866353019749815">"<xliff:g id="SSID">%1$s</xliff:g>: olete Verizon Wi-Fi Accessiga juba ühendatud. (Viga = 32763)"</string>
+    <string name="wifi_eap_error_message_code_32764" msgid="5438673929477381203">"<xliff:g id="SSID">%1$s</xliff:g>: teie ja Verizon Wi-Fi Accessi vahelise ühenduse loomisel on probleem. Helistage meile numbril 800 922 0204. (Viga = 32764)"</string>
+    <string name="wifi_eap_error_message_code_32765" msgid="2927499260559495889">"<xliff:g id="SSID">%1$s</xliff:g>: teie Verizon Wi-Fi Accessi kontoga on probleem. Helistage meile numbril 800 922 0204. (Viga = 32765)"</string>
+    <string name="wifi_eap_error_message_code_32766" msgid="825723520633879152">"<xliff:g id="SSID">%1$s</xliff:g>: Verizon Wi-Fi Access ei ole teie asukohas saadaval. Proovige hiljem või mõnes teises asukohas uuesti. (Viga = 32766)"</string>
+    <string name="wifi_eap_error_message_code_32767" msgid="5227394021313254586">"<xliff:g id="SSID">%1$s</xliff:g>: teie ja Verizon Wi-Fi Accessi vahelise ühenduse loomisel on probleem. Proovige hiljem või mõnes teises asukohas uuesti."</string>
+    <string name="wifi_eap_error_message_code_32768" msgid="5139270879227638419"></string>
+    <string name="wifi_eap_error_message_code_32769" msgid="1736674109204049023"></string>
+    <string name="wifi_eap_error_message_code_16384" msgid="1100339784338115021">"<xliff:g id="SSID">%1$s</xliff:g>: teie ja Verizon Wi-Fi Accessi vahelise ühenduse loomisel on probleem vea 16384 tõttu."</string>
+    <string name="wifi_eap_error_message_code_16385" msgid="4279775601920162197">"<xliff:g id="SSID">%1$s</xliff:g>: teie ja Verizon Wi-Fi Accessi vahelise ühenduse loomisel on probleem vea 16385 tõttu."</string>
+    <string name="wifi_eap_error_message_unknown_error_code" msgid="3323018400668273886">"<xliff:g id="SSID">%1$s</xliff:g>: teie ja Verizon Wi-Fi Accessi vahelise ühenduse loomisel on probleem."</string>
+</resources>

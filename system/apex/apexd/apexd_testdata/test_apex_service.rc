@@ -1,0 +1,4 @@
+# TODO(b/243734220): Add a customized binary for vendor apex install test
+service test_apex_service /system/bin/yes
+    user shell
+    group shell

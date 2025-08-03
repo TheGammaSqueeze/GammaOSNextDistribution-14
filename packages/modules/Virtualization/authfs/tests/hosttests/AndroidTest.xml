@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2021 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<configuration description="Config for authfs tests">
+    <!-- Need root to start virtualizationservice -->
+    <target_preparer class="com.android.tradefed.targetprep.RootTargetPreparer"/>
+
+    <!-- Still need to define SELinux policy for authfs and fd_server properly. -->
+    <target_preparer class="com.android.tradefed.targetprep.DisableSELinuxTargetPreparer"/>
+
+    <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer">
+        <option name="throw-if-cmd-fail" value="true" />
+        <!-- Prepare test directories. -->
+        <option name="run-command" value="mkdir -p /data/local/tmp/authfs/mnt" />
+        <option name="teardown-command" value="rm -rf /data/local/tmp/authfs" />
+    </target_preparer>
+
+    <target_preparer class="com.android.tradefed.targetprep.PushFilePreparer">
+        <option name="cleanup" value="true" />
+        <option name="abort-on-push-failure" value="true" />
+
+        <!-- Test executable -->
+        <option name="push-file" key="open_then_run" value="/data/local/tmp/open_then_run" />
+        <option name="push-file" key="fsverity" value="/data/local/tmp/fsverity" />
+
+        <!-- Test data files -->
+        <option name="push-file" key="cert.der" value="/data/local/tmp/authfs/cert.der" />
+        <option name="push-file" key="input.4m" value="/data/local/tmp/authfs/input.4m" />
+        <option name="push-file" key="input.4k1" value="/data/local/tmp/authfs/input.4k1" />
+        <option name="push-file" key="input.4k" value="/data/local/tmp/authfs/input.4k" />
+        <option name="push-file" key="input.4m.fsv_meta"
+            value="/data/local/tmp/authfs/input.4m.fsv_meta" />
+        <option name="push-file" key="input.4k1.fsv_meta"
+            value="/data/local/tmp/authfs/input.4k1.fsv_meta" />
+        <option name="push-file" key="input.4k.fsv_meta"
+            value="/data/local/tmp/authfs/input.4k.fsv_meta" />
+        <option name="push-file" key="input.4m.fsv_meta.bad_merkle"
+            value="/data/local/tmp/authfs/input.4m.fsv_meta.bad_merkle" />
+
+        <option name="push-file" key="input.4m" value="/data/local/tmp/authfs/input.file" />
+    </target_preparer>
+
+    <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer">
+        <option name="throw-if-cmd-fail" value="true" />
+        <!-- Now that the files are pushed to the device, enable fs-verity for the targeting file. -->
+        <option name="run-command" value="cd /data/local/tmp/authfs; ../fsverity enable input.file" />
+    </target_preparer>
+
+    <test class="com.android.compatibility.common.tradefed.testtype.JarHostTest" >
+        <option name="jar" value="AuthFsHostTest.jar" />
+    </test>
+</configuration>

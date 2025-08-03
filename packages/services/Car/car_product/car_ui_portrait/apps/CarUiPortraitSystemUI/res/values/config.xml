@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+    <!-- App drawer system bar button intent -->
+    <string name="system_bar_app_drawer_intent" translatable="false">intent:#Intent;action=com.android.car.carlauncher.ACTION_APP_GRID;package=com.android.car.portraitlauncher;launchFlags=0x24000000;end</string>
+
+    <!-- Determines whether the car system UI should register the System UI Proxy with the
+         CarService. -->
+    <bool name="config_registerCarSystemUIProxy">true</bool>
+    <!-- Determines whether Recents entry point should be shown / should trigger to open Recents -->
+    <bool name="config_enableRecentsEntryPoint">true</bool>
+
+    <!-- Car System UI's OverlayViewsMediator.
+         Whenever a new class is added, make sure to also add that class to OverlayWindowModule. -->
+    <string-array name="config_carSystemUIOverlayViewsMediators" translatable="false">
+        <item>com.android.systemui.car.hvac.AutoDismissHvacPanelOverlayViewMediator</item>
+        <item>com.android.systemui.car.keyguard.CarKeyguardOverlayViewMediator</item>
+        <item>com.android.systemui.car.userswitcher.FullscreenUserSwitcherViewMediator</item>
+        <item>com.android.systemui.car.userswitcher.UserSwitchTransitionViewMediator</item>
+        <!-- add the below line to display welcome screen -->
+        <item>com.android.systemui.car.loading.LoadingViewMediator</item>
+    </string-array>
+
+    <integer name="hvac_num_fan_speeds">8</integer>
+
+    <integer name="config_hvacAutoDismissDurationMs">15000</integer>
+
+    <!-- Allow foreground DA to have rounded corner -->
+    <bool name="config_enableRoundedCornerForForegroundDisplayArea">false</bool>
+
+    <string-array name="config_systemUIServiceComponentsInclude" translatable="false">
+        <item>com.android.systemui.car.systembar.CarSystemBar</item>
+        <item>com.android.systemui.car.voicerecognition.ConnectedDeviceVoiceRecognitionNotifier
+        </item>
+        <item>com.android.systemui.car.window.SystemUIOverlayWindowManager</item>
+        <item>com.android.systemui.car.toast.CarToastUI</item>
+        <item>com.android.systemui.car.volume.VolumeUI</item>
+        <item>com.android.systemui.car.cluster.ClusterDisplayController</item>
+        <item>com.android.systemui.car.displayarea.DisplayAreaComponent</item>
+    </string-array>
+
+    <string name="config_notificationCenterActivity" translatable="false">
+        com.android.car.notification/.CarNotificationCenterActivity
+    </string>
+
+    <string name="config_VoiceAssistantActivity" translatable="false">
+        com.google.android.carassistant/com.google.android.apps.gsa.binaries.auto.app.voiceplate.VoicePlateActivity
+    </string>
+
+    <!-- Determines which system bar to use for display compat toolbar. -->
+    <!-- 0 disabled -->
+    <!-- 1 left -->
+    <!-- 2 right -->
+    <integer name="config_showDisplayCompatToolbarOnSystemBar">0</integer>
+</resources>

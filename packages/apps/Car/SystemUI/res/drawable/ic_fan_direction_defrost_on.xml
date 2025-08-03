@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:viewportWidth="96"
+        android:viewportHeight="96"
+        android:width="@dimen/hvac_icon_drawable_width"
+        android:height="@dimen/hvac_icon_drawable_height">
+    <path
+        android:pathData="M24,0L72,0A24,24 0,0 1,96 24L96,72A24,24 0,0 1,72 96L24,96A24,24 0,0 1,0 72L0,24A24,24 0,0 1,24 0z"
+        android:fillColor="@color/hvac_icon_on_background_color"/>
+    <path
+        android:pathData="M29.09,51.65H25L30.84,57.48L36.67,51.65H32.59V38.81H29.09V51.65Z"
+        android:fillColor="@color/hvac_icon_on_foreground_color"/>
+    <path
+        android:pathData="M54.52,57.48L56.92,47.91L58.31,42.31C58.9,40.34 60.22,39.36 61.44,39.02C62.19,38.81 62.98,38.74 63.75,38.88C66.67,39.39 68.58,42.12 68.09,44.97L64.94,58.78C64.29,62.09 61.42,64.47 58.06,64.47H42.08L33.17,71.47L29.67,67.97L43.13,57.47H54.52V57.48Z"
+        android:fillColor="@color/hvac_icon_on_foreground_color"/>
+    <path
+        android:pathData="M63.15,35.63C61.05,34.14 60.54,31.24 62.01,29.12C63.48,27.02 66.4,26.51 68.52,27.98C70.62,29.47 71.13,32.37 69.66,34.49C68.17,36.59 65.28,37.1 63.15,35.63Z"
+        android:fillColor="@color/hvac_icon_on_foreground_color"/>
+    <path
+        android:pathData="M42.65,41.04C42.65,40.64 42.56,40.48 42.4,40.21C42.21,39.88 41.95,39.43 41.95,38.63C41.95,37.83 42.21,37.38 42.4,37.06C42.56,36.79 42.65,36.63 42.65,36.23C42.65,35.83 42.56,35.67 42.4,35.4C42.21,35.07 41.95,34.62 41.95,33.82H43.35C43.35,34.22 43.44,34.38 43.6,34.65C43.79,34.98 44.05,35.43 44.05,36.23C44.05,37.03 43.79,37.48 43.6,37.8C43.44,38.07 43.35,38.23 43.35,38.63C43.35,39.03 43.44,39.19 43.6,39.46C43.79,39.79 44.05,40.24 44.05,41.04C44.05,41.05 42.65,41.06 42.65,41.04Z"
+        android:fillColor="@color/hvac_icon_on_foreground_color"/>
+    <path
+        android:pathData="M46.3,41.04C46.3,40.64 46.21,40.48 46.05,40.21C45.86,39.88 45.6,39.43 45.6,38.63C45.6,37.83 45.86,37.38 46.05,37.06C46.21,36.79 46.3,36.63 46.3,36.23C46.3,35.83 46.21,35.67 46.05,35.4C45.86,35.07 45.6,34.62 45.6,33.82H47C47,34.22 47.09,34.38 47.25,34.65C47.44,34.98 47.7,35.43 47.7,36.23C47.7,37.03 47.44,37.48 47.25,37.8C47.09,38.07 47,38.23 47,38.63C47,39.03 47.09,39.19 47.25,39.46C47.44,39.79 47.7,40.24 47.7,41.04C47.7,41.05 46.3,41.06 46.3,41.04Z"
+        android:fillColor="@color/hvac_icon_on_foreground_color"/>
+    <path
+        android:pathData="M49.85,41.04C49.85,40.64 49.76,40.48 49.6,40.21C49.41,39.88 49.15,39.43 49.15,38.63C49.15,37.83 49.41,37.38 49.6,37.06C49.76,36.79 49.85,36.63 49.85,36.23C49.85,35.83 49.76,35.67 49.6,35.4C49.41,35.07 49.15,34.62 49.15,33.82H50.55C50.55,34.22 50.64,34.38 50.8,34.65C50.99,34.98 51.25,35.43 51.25,36.23C51.25,37.03 50.99,37.48 50.8,37.8C50.64,38.07 50.55,38.23 50.55,38.63C50.55,39.03 50.64,39.19 50.8,39.46C50.99,39.79 51.25,40.24 51.25,41.04C51.25,41.05 49.85,41.06 49.85,41.04Z"
+        android:fillColor="@color/hvac_icon_on_foreground_color"/>
+    <path
+        android:pathData="M54.37,40.22L52.85,39.4L56.48,32.32C56.11,31.89 55.42,31.18 54.37,30.47C52.17,28.99 49.52,28.24 46.5,28.24C43.48,28.24 40.83,28.99 38.63,30.47C37.58,31.18 36.89,31.89 36.52,32.32L40.15,39.4L38.63,40.22L34.5,32.16L34.79,31.72C34.93,31.51 38.36,26.47 46.5,26.47C54.64,26.47 58.07,31.5 58.21,31.72L58.5,32.16L54.37,40.22Z"
+        android:fillColor="@color/hvac_icon_on_foreground_color"/>
+</vector>

@@ -1,0 +1,5 @@
+file:platform/frameworks/base:/core/java/android/app/admin/Provisioning_OWNERS
+
+# Only UX writers can approve strings.xml
+per-file res/values/strings.xml = set noparent
+per-file res/values/strings.xml = lestill@google.com, bronwynj@google.com

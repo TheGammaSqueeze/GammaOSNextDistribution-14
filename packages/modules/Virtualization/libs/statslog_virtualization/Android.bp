@@ -1,0 +1,75 @@
+//
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Autogenerate the class (and respective headers) with logging methods and constants
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+genrule {
+    name: "statslog_virtualization_header.rs",
+    tools: ["stats-log-api-gen"],
+    cmd: "$(location stats-log-api-gen) --module virtualizationservice --minApiLevel 34 --rustHeader $(genDir)/statslog_virtualization_header.rs --rustHeaderCrate statslog_virtualization_rust_header",
+    out: [
+        "statslog_virtualization_header.rs",
+    ],
+}
+
+rust_defaults {
+    name: "libstatslog_virtualization_rust_defaults",
+    defaults: ["avf_build_flags_rust"],
+    edition: "2021",
+    rustlibs: [
+        "libstatspull_bindgen",
+    ],
+    apex_available: [
+        "com.android.virt",
+    ],
+}
+
+rust_library {
+    name: "libstatslog_virtualization_rust_header",
+    defaults: ["libstatslog_virtualization_rust_defaults"],
+    crate_name: "statslog_virtualization_rust_header",
+    srcs: [
+        "statslog_header_wrapper.rs",
+        ":statslog_virtualization_header.rs",
+    ],
+    rustlibs: [
+        "libthiserror",
+    ],
+}
+
+genrule {
+    name: "statslog_virtualization.rs",
+    tools: ["stats-log-api-gen"],
+    cmd: "$(location stats-log-api-gen) --module virtualizationservice --minApiLevel 34 --rustHeaderCrate statslog_virtualization_rust_header --rust $(genDir)/statslog_virtualization.rs",
+    out: [
+        "statslog_virtualization.rs",
+    ],
+}
+
+rust_library {
+    name: "libstatslog_virtualization_rust",
+    defaults: ["libstatslog_virtualization_rust_defaults"],
+    crate_name: "statslog_virtualization_rust",
+    srcs: [
+        "statslog_wrapper.rs",
+        ":statslog_virtualization.rs",
+    ],
+    rustlibs: [
+        "libstatslog_virtualization_rust_header",
+    ],
+}

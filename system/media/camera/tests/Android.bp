@@ -1,0 +1,36 @@
+// Build the unit tests.
+package {
+    // http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // the below license kinds from "system_media_license":
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_media_license"],
+}
+
+cc_test {
+    name: "camera_metadata_tests",
+    srcs: ["camera_metadata_tests.cpp"],
+    test_suites: ["device-tests"],
+
+    shared_libs: [
+        "libutils",
+        "libcamera_metadata",
+    ],
+
+    include_dirs: ["system/media/private/camera/include"],
+
+    cflags: [
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+    ],
+
+    multilib: {
+        lib32: {
+            stem: "camera_metadata_tests",
+        },
+        lib64: {
+            stem: "camera_metadata_tests64",
+        },
+    },
+}

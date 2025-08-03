@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2023 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources>
+    <string-array translatable="false" name="clock_color_ids">
+        <item>GRAY</item>
+        <item>RED</item>
+        <item>ORANGE</item>
+        <item>YELLOW</item>
+        <item>GREEN</item>
+        <item>BLUE</item>
+        <item>INDIGO</item>
+        <item>VIOLET</item>
+        <item>TEAL</item>
+    </string-array>
+    <array name="clock_color_names">
+        <item>@string/clock_color_gray</item>
+        <item>@string/clock_color_red</item>
+        <item>@string/clock_color_orange</item>
+        <item>@string/clock_color_yellow</item>
+        <item>@string/clock_color_green</item>
+        <item>@string/clock_color_blue</item>
+        <item>@string/clock_color_indigo</item>
+        <item>@string/clock_color_violet</item>
+        <item>@string/clock_color_teal</item>
+    </array>
+    <array name="clock_colors">
+        <item>#B9B9B9</item>
+        <item>#FFA3A7</item>
+        <item>#F7AC69</item>
+        <item>#FFC951</item>
+        <item>#88D86A</item>
+        <item>#8EC8FF</item>
+        <item>#B9AAFF</item>
+        <item>#F6A2FF</item>
+        <item>#40D9CF</item>
+    </array>
+    <array name="clock_color_tone_min">
+        <item>0</item>
+        <item>20</item>
+        <item>20</item>
+        <item>50</item>
+        <item>20</item>
+        <item>20</item>
+        <item>10</item>
+        <item>20</item>
+        <item>20</item>
+    </array>
+    <array name="clock_color_tone_max">
+        <item>100</item>
+        <item>95</item>
+        <item>95</item>
+        <item>95</item>
+        <item>99</item>
+        <item>95</item>
+        <item>95</item>
+        <item>97</item>
+        <item>99</item>
+    </array>
+</resources>

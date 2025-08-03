@@ -1,0 +1,38 @@
+// An example application that uses the reference
+// offlinelocationtimezoneprovider impl.
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_app {
+    name: "OfflineLocationTimeZoneProviderService",
+    manifest: "AndroidManifest.xml",
+    certificate: "platform",
+    privileged: true,
+    sdk_version: "system_31",
+    java_resource_dirs: ["resources/"],
+    java_resources: [":tzs2.dat-resources"],
+    srcs: [
+        "src/main/java/**/*.java",
+    ],
+    libs: [
+        "androidx.annotation_annotation",
+    ],
+    static_libs: [
+        "guava",
+        "offlinelocationtimezoneprovider",
+    ],
+    required: [
+        "privapp-permissions-com.android.timezone.location.provider",
+    ],
+    optimize: {
+        proguard_flags_files: ["proguard.txt"],
+    },
+}
+
+prebuilt_etc {
+    name: "privapp-permissions-com.android.timezone.location.provider",
+    src: "privapp-permissions-com.android.timezone.location.provider.xml",
+    sub_dir: "permissions",
+    filename_from_src: true,
+}

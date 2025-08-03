@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  SPDX-FileCopyrightText: 2020 The Calyx Institute
+  SPDX-License-Identifier: Apache-2.0
+  -->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <SwitchPreferenceCompat
+        android:defaultValue="false"
+        android:key="unlimited_quota"
+        android:summary="@string/settings_expert_quota_summary"
+        android:title="@string/settings_expert_quota_title" />
+    <SwitchPreferenceCompat
+        android:id="@+id/d2d_backup_preference"
+        android:defaultValue="false"
+        android:key="d2d_backups"
+        android:summary="@string/settings_expert_d2d_summary"
+        android:title="@string/settings_expert_d2d_title" />
+    <Preference
+        android:icon="@drawable/ic_bug_report"
+        android:key="logcat"
+        android:summary="@string/settings_expert_logcat_summary"
+        android:title="@string/settings_expert_logcat_title" />
+</PreferenceScreen>

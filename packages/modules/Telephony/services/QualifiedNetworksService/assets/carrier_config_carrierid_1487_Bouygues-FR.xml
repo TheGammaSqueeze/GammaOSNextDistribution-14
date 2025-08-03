@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<carrier_config>
+    <string-array name="qns.ims_cellular_allowed_rat_string_array" num="4">
+        <item value="LTE"/>
+        <item value="NR"/>
+        <item value="3G"/>
+        <item value="2G"/>
+    </string-array>
+    <int-array name="qns.idle_eutran_rsrp_int_array" num="2">
+        <item value="-110"/>
+        <item value="-120"/>
+    </int-array>
+    <int-array name="qns.idle_utran_rscp_int_array" num="2">
+        <item value="-90"/>
+        <item value="-100"/>
+    </int-array>
+    <int-array name="qns.idle_geran_rssi_int_array" num="2">
+        <item value="-60"/>
+        <item value="-70"/>
+    </int-array>
+    <int-array name="qns.idle_wifi_rssi_int_array" num="2">
+        <item value="-70"/>
+        <item value="-79"/>
+    </int-array>
+    <int-array name="qns.voice_eutran_rsrp_int_array" num="2">
+        <item value="-110"/>
+        <item value="-120"/>
+    </int-array>
+    <int-array name="qns.voice_utran_rscp_int_array" num="2">
+        <item value="-90"/>
+        <item value="-100"/>
+    </int-array>
+    <int-array name="qns.voice_geran_rssi_int_array" num="2">
+        <item value="-60"/>
+        <item value="-70"/>
+    </int-array>
+    <int-array name="qns.voice_wifi_rssi_int_array" num="2">
+        <item value="-70"/>
+        <item value="-79"/>
+    </int-array>
+</carrier_config>

@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (c) 2009, 2011-2013 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2014-2015 The CyanogenMod Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *    * Neither the name of The Linux Foundation nor
+ *      the names of its contributors may be used to endorse or promote
+ *      products derived from this software without specific prior written
+ *      permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NON-INFRINGEMENT ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">FM رادىيو</string>
+    <string name="tx_app_name">FM تارقاتقۇچ</string>
+    <string name="menu_scan_start">تەكشۈرۈش</string>
+    <string name="menu_scan_stop">ئىزدەشنى توختات</string>
+    <string name="menu_record_start">خاتىرىلەش</string>
+    <string name="menu_record_stop">خاتىرىلەشنى توختىتىش</string>
+    <string name="menu_settings">تەڭشەكلەر</string>
+    <string name="menu_sleep">ئۇخلىتىش</string>
+    <string name="menu_sleep_cancel">ئويغىتىش</string>
+    <string name="menu_all_channels">ھەممە قاناللار</string>
+    <string name="menu_display_tags">بەلگىلەرنى كۆرسىتىش</string>
+    <string name="button_text_stop">توختىتىش</string>
+    <string name="msg_seeking">FM قانىلى ئىزدەۋاتىدۇ\u2026</string>
+    <string name="msg_scanning">ھەممە FM قاناللىرىنى ئىزدەۋاتىدۇ\u2026</string>
+    <string name="msg_scanning_pty">ئىزدەۋاتقىنى \'<xliff:g id="pty_name">%1$s</xliff:g>\'\u2026</string>
+    <string name="msg_search_title"><xliff:g id="frequency_string">%1$s</xliff:g> MHz</string>
+    <string name="msg_searching_title">ئالدىن تاللاشنى ئۆزلۈكىدىن تاللاش</string>
+    <string name="msg_searching">سىگنالى كۈچەيتىلگەن پونكىتنى ئىزدەپ بىر تىزىملىك قۇرۋاتىدۇ\u2026</string>
+    <string name="msg_noantenna">تېڭىشىغۇچ سېلىپ FM رادىئوسىنى ئاڭلاڭ</string>
+    <string name="dialog_sleep_title">ئۇخلاش ۋاقتىدا ئاپتۇماتېك تاقىلىش</string>
+    <string name="presetlist_select_name">تاللاڭ \"<xliff:g id="presetlist_name">%1$s</xliff:g>\"</string>
+    <string name="presetlist_add_new">يېڭى تىزىملىك قوشۇش</string>
+    <string name="dialog_presetlist_rename_title">ئىسىم كىرگۈزۈڭ</string>
+    <string name="presetlist_autoselect_title">ئاپتۇماتېك تاللاشنى جەزىملەش</string>
+    <string name="preset_replace">ئالماشتۇرۈش</string>
+    <string name="preset_tune">سىمفونىيە</string>
+    <string name="preset_rename">ئىسمىنى ئۆزگەرتىش</string>
+    <string name="preset_delete">ئۆچۈرۈش</string>
+    <string name="preset_search">ئىزدەش \"<xliff:g id="preset_pi">%1$s</xliff:g>\"</string>
+    <string name="stat_notif_frequency">\'<xliff:g id="frequency">%1$s</xliff:g>\' MHz</string>
+    <string name="regional_band">رايون دولقۇن بۆلىكى</string>
+    <string name="regional_band_entry_north_america">شىمالىي ئامېرىكا</string>
+    <string name="regional_band_entry_europe">ياۋروپا</string>
+    <string name="regional_band_entry_japan">ياپونىيە</string>
+    <string name="regional_band_entry_japan_wide">ياپونىيە (كەڭ)</string>
+    <string name="regional_band_entry_australia">ئاۋسترالىيە</string>
+    <string name="regional_band_entry_austria">ئاۋسترىيە</string>
+    <string name="regional_band_entry_belgium">بىلگىيە</string>
+    <string name="regional_band_entry_brazil">بىرازىلىيە</string>
+    <string name="regional_band_entry_china">جۇڭگو</string>
+    <string name="regional_band_entry_czech_republic">چېخ جۇمھۇرىيىتى</string>
+    <string name="regional_band_entry_denmark">دانىيە</string>
+    <string name="regional_band_entry_finland">فىنلاندىيە</string>
+    <string name="regional_band_entry_france">فىرانسىيە</string>
+    <string name="regional_band_entry_germany">گېرمانىيە</string>
+    <string name="regional_band_entry_greece">گىرېتسىيە</string>
+    <string name="regional_band_entry_hong_kong">شياڭگاڭ</string>
+    <string name="regional_band_entry_india">ھىندىستان</string>
+    <string name="regional_band_entry_indonesia">ھىندونېزىيە</string>
+    <string name="regional_band_entry_ireland">ئىرلاندىيە</string>
+    <string name="regional_band_entry_italy">ئىتالىيە</string>
+    <string name="regional_band_entry_korea">كورېيە</string>
+    <string name="regional_band_entry_mexico">مېكسىكا</string>
+    <string name="regional_band_entry_netherlands">گوللاندىيە</string>
+    <string name="regional_band_entry_new_zealand">يېڭى زىلاندىيە</string>
+    <string name="regional_band_entry_norway">نورۋېگىيە</string>
+    <string name="regional_band_entry_poland">پولشا</string>
+    <string name="regional_band_entry_portugal">پورتۇگالىيە</string>
+    <string name="regional_band_entry_russia">رۇسىيە</string>
+    <string name="regional_band_entry_singapore">سىنگاپور</string>
+    <string name="regional_band_entry_slovakia">سىلوۋاكىيە</string>
+    <string name="regional_band_entry_spain">ئىسپانىيە</string>
+    <string name="regional_band_entry_switzerland">شىۋېتسارىيە</string>
+    <string name="regional_band_entry_sweden">شىۋېتسىيە</string>
+    <string name="regional_band_entry_taiwan">تەيۋەن</string>
+    <string name="regional_band_entry_turkey">تۈركىيە</string>
+    <string name="regional_band_entry_united_kingdom">ئەنگلىيە</string>
+    <string name="regional_band_entry_united_states">ئامېرىكا قوشما شتاتلىرى</string>
+    <string name="regional_band_entry_user_defined">ئىشلەتكۈچى بەلگىلىگەن چاستوتا</string>
+    <string name="regional_band_summary_north_america">شىمالىي ئامېرىكا (87.5MHz-108.0MHz ئارىسىدىكى 200KHz ئارىلىقىدا)</string>
+    <string name="regional_band_summary_europe">ياۋروپا (87.5MHz-108.0MHz ئارىسىدىكى 100KHz ئارىلىقىدا)</string>
+    <string name="regional_band_summary_japan">ياپونىيە (76.0MHz-90.0MHz ئارىسىدىكى 100KHz ئارىلىقىدا)</string>
+    <string name="regional_band_summary_japan_wide">ياپونىيە (كەڭ) (90.0MHz-108.0MHz ئارىسىدىكى 50KHz ئارىلىقىدا)</string>
+    <string name="regional_band_summary_australia">ئاۋسترالىيە (87.5MHz-108.0MHz ئارىسىدكى 100KHz ئارىلىقىدا)</string>
+    <string name="regional_band_summary_austria">ئاۋسترىيە (87.5MHz-108.0MHz ئارىسىدىكى 50KHz ئارىلىقىدا)</string>
+    <string name="regional_band_summary_belgium">بىلگىيە (87.5MHz-108.0MHz ئارىسىدىكى 100KHz ئارىلىقىدا)</string>
+    <string name="regional_band_summary_brazil">بىرازىلىيە (87.5MHz-108.0MHz ئارىسىدىكى 200KHz ئارىلىقىدا)</string>
+    <string name="regional_band_summary_china">جۇڭگو (87.5MHz-108.0MHz ئارىسىدىكى 100KHz ئارىلىقىدا)</string>
+    <string name="regional_band_summary_czech_republic">چېخ جۇمھۇرىيىتى (87.5MHz-108.0MHz ئارىسىدىكى 100KHz ئارىلىقىدا)</string>
+    <string name="regional_band_summary_denmark">دانىيە (87.5MHz-108.0MHz ئارىسىدىكى 50KHz ئارىلىقىدا)</string>
+    <string name="regional_band_summary_finland">فىنلاندىيە (87.5MHz-108.0MHz ئارىسىدىكى 100KHz ئارىلىقىدا)</string>
+    <string name="regional_band_summary_france">فىرانسىيە (87.5MHz-108.0MHz ئارىسىدىكى 100KHz ئارىلىقىدا)</string>
+    <string name="regional_band_summary_germany">گېرمانىيە (87.5MHz-108.0MHz ئارىسىدىكى 50KHz ئارىلىقىدا)</string>
+    <string name="regional_band_summary_greece">گىرېتسىيە (87.5MHz-108.0MHz، ئارىسىدىكى 50KHz ئارىلىقتا)</string>
+    <string name="regional_band_summary_hong_kong">شياڭگاڭ (87.5MHz-108.0MHz ئارىسىدىكى 100KHz ئارىلىقتا)</string>
+    <string name="regional_band_summary_india">ھىندىستان (87.5MHz-108.0MHz ئارىسىدىكى 100KHz ئارىلىقتا)</string>
+    <string name="regional_band_summary_indonesia">ھىندونېزىيە (87.5MHz-108.0MHz ئارىسىدىكى 100KHz ئارىلىقىدا)</string>
+    <string name="regional_band_summary_ireland">ئىرېلاندىيە (87.5MHz-108.0MHz ئارىسىدىكى 50KHz ئارىلىقتا)</string>
+    <string name="regional_band_summary_italy">ئىتالىيە (87.5MHz-108.0MHz ئارىسىدىكى 50KHz ئارىلىقتا)</string>
+    <string name="regional_band_summary_korea">كورېيە (87.5MHz-108.0MHz ئارىسىدىكى 200KHz ئارىلىقتا)</string>
+    <string name="regional_band_summary_mexico">مېكسىكا (88.1MHz-107.9MHz ئارىسىدىكى 200KHz ئارىلىقتا)</string>
+    <string name="regional_band_summary_netherlands">گوللاندىيە (87.5MHz-108.0MHz ئارىسىدىكى 100KHz ئارىلىقتا)</string>
+    <string name="regional_band_summary_new_zealand">يېڭى زېلاندىيە (88.0MHz-107.0MHz ئارىسىدىكى 100KHz ئارىلىقتا)</string>
+    <string name="regional_band_summary_norway">نورۋېگىيە (87.5MHz-108.0MHz ئارىسىدىكى 100KHz ئارىلىقتا)</string>
+    <string name="regional_band_summary_poland">پولشا (87.5MHz-108.0MHz ئارىسىدىكى 100KHz ئارىلىقتا)</string>
+    <string name="regional_band_summary_portugal">پورتۇگالىيە (87.5MHz-108.0MHz ئارىسىدىكى 50KHz ئارىلىقتا)</string>
+    <string name="regional_band_summary_russia">رۇسىيە (87.5MHz-108.0MHz ئارىسىدىكى 100KHz ئارىلىقتا)</string>
+    <string name="regional_band_summary_singapore">سىنگاپور (88.0MHz-108.0MHz ئارىسىدىكى 100KHz ئارىلىقتا)</string>
+    <string name="regional_band_summary_slovakia">سىلوۋاكىيە (87.5MHz-108.0MHz ئارىسىدىكى 100KHz ئارىلىقتا)</string>
+    <string name="regional_band_summary_spain">ئىسپانىيە (87.5MHz-108.0MHz ئارىسىدىكى 100KHz ئارىلىقتا)</string>
+    <string name="regional_band_summary_switzerland">شىۋېتسارىيە (87.5MHz-108.0MHz ئارىسىدىكى 100KHz ئارىلىقتا)</string>
+    <string name="regional_band_summary_sweden">شىۋىتسىيە (87.5MHz-108.0MHz ئارىسىدىكى 100KHz ئارىلىقتا)</string>
+    <string name="regional_band_summary_taiwan">تەيۋەن (87.5MHz-108.0MHz ئارىسىدىكى 100KHz ئارىلىقتا)</string>
+    <string name="regional_band_summary_turkey">تۈركىيە (87.5MHz-108.0MHz ئارىسىدىكى 100KHz ئارىلىقتا)</string>
+    <string name="regional_band_summary_united_kingdom">ئەنگلىيە (87.5MHz-108.0MHz ئارىسىدىكى 100KHz ئارىلىقتا)</string>
+    <string name="regional_band_summary_united_states">ئامېرىكا قوشما ئىشتاتلىرى (88.1MHz-107.9MHz ئارىسىدىكى 200KHz ئارىلىقتا)</string>
+    <string name="regional_band_summary_user_defined">ئىشلەتكۈچى بەلگىلىگەن چاستوتا</string>
+    <string name="aud_output_mode">ئاۋاز چاستوتىسى چىقىرىش ھالىتى</string>
+    <string name="audio_type_stereo">سىتېرېئو</string>
+    <string name="audio_type_mono">رەڭسىز</string>
+    <string name="record_dur">ئۈن ئېلىش ئۇزۇنلىقى</string>
+    <string name="auto_select_af">زاپاس چاستوتا</string>
+    <string name="settings_revert_defaults_title">زاۋۇتتىن چىققان ھالەتكە قايتۇرۇش</string>
+    <string name="settings_revert_defaults_summary">بارلىق تەڭشەكنى تازىلاش</string>
+    <string name="settings_revert_confirm_title">قايتا بېكىتىشنى جەزىملەش</string>
+    <string name="settings_revert_confirm_msg">بۇ بارلىق ئەپنىڭ تەڭشىكىنى يۇيۋېتىدۇ، داۋاملاشتۇرامسىز؟</string>
+    <string name="no_storage">ئۈنگە ئېلىشتىن ئىلگىرى SD كارتىنى ئېگەرلەڭ.</string>
+    <string name="preparing_sd">SD كارتا تەييارلاۋاتىدۇ…</string>
+    <string name="access_sd_fail">SD كارتىنى زىيارەت قىلالمايدۇ.</string>
+    <string name="spaceIsLow_content">سىزنىڭ SD كارتىڭىزدا بوشلۇق يېتىشمىدى. سۈپەت تەڭشىكىنى ئۆزگەرتىڭ ياكى باشقا ھۆججەتنى ئۆچۈرۈپ بوشلۇق ئاجىرىتىڭ.</string>
+    <string name="FMRecording_reach_size_limit">چوڭلۇق چېكىگە يەتتى.</string>
+    <string name="menu_scan_for_preset">ئالدىن بېكىتمىنى سىكاننېرلاش</string>
+    <string name="fm_off">FM تاقالدى.</string>
+    <string name="fm_call">سۆزلىشىۋاتقاندا FM نى ئىشلەتكىلى بولمايدۇ.</string>
+    <string name="alert_dialog_hint">بىر ئىسىم كىرگۈزۈڭ</string>
+    <string name="search_dialog_title">پونكىت ئىزدەۋاتىدۇ</string>
+    <string name="fm_command_timeout_title">ۋاقىت ھالقىش</string>
+    <string name="fm_tune_timeout_msg">FM پونكىتىدىن كەلگەن ئۇچۇرنى تاپشۇرۇپ ئالالمىدۇق. ئەگەر يەنىلا مەسىلە بولسا، FM تاقاپ قايتا قوزغىتىڭ.</string>
+    <string name="fm_command_failed_title">FDN مەشغۇلاتى مەغلۇپ بولدى</string>
+    <string name="fm_cmd_failed_msg">FM مەشخۇلاتى مەغلۇب بولدى. ئەگەر يەنىلا مەسىلە بولسا، FM تاقاپ قايتا قوزغىتىڭ.</string>
+    <string name="fm_cmd_failed_msg_hdmi">FM مەشخۇلاتى مەغلۇب بولدى. FM ۋە HDMI بىرگە ئەۋەتىشنى قوللىمايدۇ.</string>
+    <string name="fm_cmd_failed_call_on">FM مەشخۇلاتى مەغلۇب بولدى. سۆزلىشىش جەريانىدا FM ئاۋاز چاستوتىسى چەكلىنىدۇ.</string>
+    <string name="audio_db_title_format"><xliff:g id="format">yyyy-MM-dd HH:mm:ss</xliff:g></string>
+    <string name="audio_db_artist_name">مېنىڭ FM ئۈن خاتىرەم</string>
+    <string name="audio_db_album_name">FM ئۈن خاتىرىلەر</string>
+    <string name="audio_db_playlist_name">FM ئۈن خاتىرىلەر</string>
+    <string name="station_name">پونكىت:</string>
+    <string name="station_exists">بۇ چاستوتا مەۋجۇت!</string>
+    <string name="station_list_delete_station">ئۆچۈرۈش: <xliff:g id="name">%s</xliff:g></string>
+    <string name="station_list_delete_station_prompt">سىز \"<xliff:g id="name">%s</xliff:g>\" نى ئۆچۈرۈشنى جەزىملەشتۈرەمسىز؟</string>
+    <string name="station_name_empty">پونكىت ئىسمى قۇرۇق بولسا بولمايدۇ، قايتا كىرگۈزۈڭ.</string>
+    <string name="station_name_exist">ئىسىم \"<xliff:g id="name">%s</xliff:g>\" ئىشلىتىپ بۇلۇنغان، قايتا ئوخشىمىغان ئىسىم كىرگۈزۈڭ.</string>
+    <string name="rt_plus_tags">خەتكۈچلەر</string>
+    <string name="usr_def_band_min">ئەڭ تۆۋەن چاستوتا(MHz)</string>
+    <string name="usr_def_band_max">ئەڭ يوقىرى چاستوتا(MHz)</string>
+    <string name="chanl_spacing">چاستوتا ئارىلىقى</string>
+    <string name="set">تەڭشەك</string>
+    <string name="user_defind_band_msg">76.0-108.0 مېگا گېرتس ئارلىقىدىكى ئەڭ چوڭ قانال ئارلىقى 1 بولغان ۋە ئەڭ چوڭ چاستوتا ئارىلىقى 100 كىلوگېرتىس بولغان چاستوتىنى كىرگۈزۈڭ</string>
+    <string name="save_record_file">FM ئۈن خاتىرە ھۆججىتى <xliff:g id="record_file">%1$s</xliff:g> غا ساقلاندى</string>
+    <string name="fm_search_no_results">ماسلىشىشچان چاستوتا تاپالمىدى</string>
+    <string name="typ_All_stations">بارلىق ئىستانسىلار</string>
+    <string name="typ_Culture">مەدەنىيەت</string>
+    <string name="typ_Current_affairs">نۆۋەتتىكى ئىشلار</string>
+    <string name="typ_Children">بالىلار پىروگراممىسى</string>
+    <string name="typ_Country">سەھرا نەغمىسى</string>
+    <string name="typ_Documentary">ھۆججەتلىك فىلىم</string>
+    <string name="typ_Drama">دراما</string>
+    <string name="typ_Easy_listening">لەرزان نەغمە</string>
+    <string name="typ_Education">مائارىپ</string>
+    <string name="typ_Emergency">جىددىي ئەھۋال</string>
+    <string name="typ_Emergency_test">جىددىي سىناق</string>
+    <string name="typ_Finance">ئىقتىساد</string>
+    <string name="typ_Folk">ئەل ئارا نەغمە</string>
+    <string name="typ_Information">ئۇچۇر</string>
+    <string name="typ_Jazz">جاز نەغمە</string>
+    <string name="typ_Light_classical">يىنىك كىلاسسىك</string>
+    <string name="typ_Leisure">لەرزان</string>
+    <string name="typ_News">خەۋەرلەر</string>
+    <string name="typ_National">مىللىي نەغمە</string>
+    <string name="typ_Other">باشقا نەغمە</string>
+    <string name="typ_Oldies">قەدىمكى نەغمە</string>
+    <string name="typ_Phone_in">تېلېفوندىن</string>
+    <string name="typ_Pop">مودا نەغمە</string>
+    <string name="typ_Religion">دىنى</string>
+    <string name="typ_Rock">روك نەغمە</string>
+    <string name="typ_Science">ئىلىم-پەن</string>
+    <string name="typ_Serious_classical">جىددىي كىلاسسىك</string>
+    <string name="typ_Social_affairs">ئىجتىمائىي ئىشلار</string>
+    <string name="typ_Sport">تەنتەربىيە</string>
+    <string name="typ_Travel">ساياھەت</string>
+    <string name="typ_Varied">خىلمۇ-خىل</string>
+    <string name="typ_Weather">ھاۋارايى</string>
+    <string name="typ_Adult_hits">چوڭلار نەغمىسى</string>
+    <string name="typ_Classical">كىلاسسىك</string>
+    <string name="typ_Classic_Rock">كىلاسسىك روك</string>
+    <string name="typ_College">مەكتەپ</string>
+    <string name="typ_Foreign_language">چەتئەل تىلى</string>
+    <string name="typ_Hiphop">خىپخوپ</string>
+    <string name="typ_Nostalgia">يۇرتىنى سېغىنىش</string>
+    <string name="typ_Personality">خاسلىق</string>
+    <string name="typ_Public">ئاممىۋى</string>
+    <string name="typ_Religious_music">دىنىي نەغمە</string>
+    <string name="typ_Religious_talk">دىنىي سۆھبەت</string>
+    <string name="typ_Rhythm_and_Blues">رىتىم ۋە بىلۇز</string>
+    <string name="typ_Spanish_music">ئىسپانىيە مۇزىكىسى</string>
+    <string name="typ_Spanish_talk">ئىسپانىيە پارىڭى</string>
+    <string name="typ_Soft">يۇمشاق</string>
+    <string name="typ_Soft_Rock">يۇمشاق تولغىما ئۇسسۇل</string>
+    <string name="typ_Soft_Rhythm_and_Blues">يۇمشاق رىتىم ۋە بىلۇز</string>
+    <string name="typ_Sports">تەنتەربىيە</string>
+    <string name="typ_Talk">سۆھبەت</string>
+    <string name="typ_Top_40">ئالدىنقى 40</string>
+</resources>

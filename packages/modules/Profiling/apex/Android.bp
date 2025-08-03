@@ -1,0 +1,131 @@
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+apex_key {
+    name: "com.android.profiling.key",
+    public_key: "com.android.profiling.avbpubkey",
+    private_key: "com.android.profiling.pem",
+}
+
+android_app_certificate {
+    name: "com.android.profiling.certificate",
+    certificate: "com.android.profiling",
+}
+
+soong_config_module_type {
+    name: "custom_apex",
+    module_type: "apex",
+    config_namespace: "ANDROID",
+    bool_variables: [
+        "release_package_profiling_module",
+    ],
+    properties: [
+        "enabled",
+    ],
+}
+
+custom_apex {
+    // This apex will be enabled with release_package_profiling_module flag
+    enabled: false,
+    soong_config_variables: {
+        release_package_profiling_module: {
+            enabled: true,
+        },
+    },
+
+    name: "com.android.profiling",
+    manifest: "manifest.json",
+    file_contexts: ":apex.test-file_contexts",
+    key: "com.android.profiling.key",
+    certificate: ":com.android.profiling.certificate",
+    defaults: ["v-launched-apex-module"],
+    min_sdk_version: "34",
+
+    bootclasspath_fragments: ["com.android.profiling-bootclasspath-fragment"],
+    systemserverclasspath_fragments: ["com.android.profiling-systemserverclasspath-fragment"],
+}
+
+soong_config_module_type {
+    name: "custom_systemserverclasspath_fragment",
+    module_type: "systemserverclasspath_fragment",
+    config_namespace: "ANDROID",
+    bool_variables: [
+        "release_package_profiling_module",
+    ],
+    properties: [
+        "enabled",
+    ],
+}
+
+custom_systemserverclasspath_fragment {
+    // This fragment will be enabled with release_package_profiling_module flag
+    enabled: false,
+    soong_config_variables: {
+        release_package_profiling_module: {
+            enabled: true,
+        },
+    },
+
+    name: "com.android.profiling-systemserverclasspath-fragment",
+    standalone_contents: ["service-profiling"],
+    apex_available: ["com.android.profiling"],
+}
+
+soong_config_module_type {
+    name: "custom_bootclasspath_fragment",
+    module_type: "bootclasspath_fragment",
+    config_namespace: "ANDROID",
+    bool_variables: [
+        "release_package_profiling_module",
+    ],
+    properties: [
+        "enabled",
+    ],
+}
+
+custom_bootclasspath_fragment {
+    // This fragment will be enabled with release_package_profiling_module flag
+    enabled: false,
+    soong_config_variables: {
+        release_package_profiling_module: {
+            enabled: true,
+        },
+    },
+
+    name: "com.android.profiling-bootclasspath-fragment",
+    contents: ["framework-profiling"],
+    apex_available: ["com.android.profiling"],
+
+    // The bootclasspath_fragments that provide APIs on which this depends.
+    fragments: [
+        {
+            apex: "com.android.art",
+            module: "art-bootclasspath-fragment",
+        },
+    ],
+
+    // Additional stubs libraries that this fragment's contents use which are
+    // not provided by another bootclasspath_fragment.
+    additional_stubs: [
+        "android-non-updatable",
+    ],
+
+    hidden_api: {
+        split_packages: ["*"],
+    },
+}

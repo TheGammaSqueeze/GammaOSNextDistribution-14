@@ -1,0 +1,48 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_bt_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_bt_license"],
+}
+
+java_library_static {
+    name: "bluetooth-protos-lite",
+    host_supported: true,
+    proto: {
+        type: "lite",
+    },
+    srcs: [
+        "bluetooth/metrics/bluetooth.proto",
+    ],
+    apex_available: [
+        "com.android.btservices",
+    ],
+    min_sdk_version: "30",
+    sdk_version: "current",
+}
+
+filegroup {
+    name: "bluetooth-metrics-proto",
+    srcs: [
+        "bluetooth/metrics/bluetooth.proto",
+    ],
+}
+
+cc_library_static {
+    name: "libbluetooth-protos",
+    host_supported: true,
+    proto: {
+        export_proto_headers: true,
+        type: "lite",
+        include_dirs: ["external/protobuf/src"],
+    },
+    srcs: [
+        "bluetooth/metrics/bluetooth.proto",
+    ],
+    apex_available: [
+        "com.android.btservices",
+    ],
+    min_sdk_version: "30",
+}

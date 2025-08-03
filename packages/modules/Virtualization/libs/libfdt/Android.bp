@@ -1,0 +1,117 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_bindgen {
+    name: "liblibfdt_bindgen",
+    crate_name: "libfdt_bindgen",
+    defaults: ["avf_build_flags_rust"],
+    wrapper_src: "bindgen/fdt.h",
+    source_stem: "bindings",
+    bindgen_flags: [
+        "--allowlist-type=fdt_.*",
+        "--allowlist-function=fdt_.*",
+        "--allowlist-var=FDT_.*",
+        "--use-core",
+        "--raw-line=#![no_std]",
+        "--ctypes-prefix=core::ffi",
+    ],
+    static_libs: [
+        "libfdt",
+    ],
+    apex_available: ["com.android.virt"],
+}
+
+rust_library_rlib {
+    name: "liblibfdt",
+    crate_name: "libfdt",
+    defaults: ["avf_build_flags_rust"],
+    srcs: [
+        "src/lib.rs",
+        ":liblibfdt_bindgen",
+    ],
+    edition: "2021",
+    no_stdlibs: true,
+    prefer_rlib: true,
+    stdlibs: [
+        "libcore.rust_sysroot",
+    ],
+    rustlibs: [
+        "libcstr",
+        "liblibfdt_bindgen",
+        "libmemoffset_nostd",
+        "libstatic_assertions",
+        "libzerocopy_nostd",
+    ],
+    whole_static_libs: [
+        "libfdt",
+    ],
+    apex_available: ["com.android.virt"],
+}
+
+rust_test {
+    name: "liblibfdt.integration_test",
+    crate_name: "libfdt_test",
+    defaults: ["avf_build_flags_rust"],
+    srcs: ["tests/*.rs"],
+    test_suites: ["general-tests"],
+    data: [
+        ":fdt_test_tree_one_memory_range_dtb",
+        ":fdt_test_tree_multiple_memory_ranges_dtb",
+        ":fdt_test_tree_empty_memory_range_dtb",
+        ":fdt_test_tree_no_memory_node_dtb",
+        ":fdt_test_tree_phandle_dtb",
+    ],
+    prefer_rlib: true,
+    rustlibs: [
+        "libcstr",
+        "liblibfdt",
+    ],
+}
+
+genrule {
+    name: "fdt_test_tree_one_memory_range_dtb",
+    tools: ["dtc"],
+    srcs: [
+        "tests/data/test_tree_one_memory_range.dts",
+        "tests/data/test_tree_no_memory_node.dts",
+    ],
+    cmd: "$(location dtc) -I dts -O dtb $(location tests/data/test_tree_one_memory_range.dts) -o $(out)",
+    out: ["data/test_tree_one_memory_range.dtb"],
+}
+
+genrule {
+    name: "fdt_test_tree_multiple_memory_ranges_dtb",
+    tools: ["dtc"],
+    srcs: [
+        "tests/data/test_tree_multiple_memory_ranges.dts",
+        "tests/data/test_tree_no_memory_node.dts",
+    ],
+    cmd: "$(location dtc) -I dts -O dtb $(location tests/data/test_tree_multiple_memory_ranges.dts) -o $(out)",
+    out: ["data/test_tree_multiple_memory_ranges.dtb"],
+}
+
+genrule {
+    name: "fdt_test_tree_empty_memory_range_dtb",
+    tools: ["dtc"],
+    srcs: [
+        "tests/data/test_tree_empty_memory_range.dts",
+        "tests/data/test_tree_no_memory_node.dts",
+    ],
+    cmd: "$(location dtc) -I dts -O dtb $(location tests/data/test_tree_empty_memory_range.dts) -o $(out)",
+    out: ["data/test_tree_empty_memory_range.dtb"],
+}
+
+genrule {
+    name: "fdt_test_tree_no_memory_node_dtb",
+    defaults: ["dts_to_dtb"],
+    srcs: ["tests/data/test_tree_no_memory_node.dts"],
+    out: ["data/test_tree_no_memory_node.dtb"],
+}
+
+genrule {
+    name: "fdt_test_tree_phandle_dtb",
+    defaults: ["dts_to_dtb"],
+    srcs: ["tests/data/test_tree_phandle.dts"],
+    out: ["data/test_tree_phandle.dtb"],
+}

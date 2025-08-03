@@ -1,0 +1,45 @@
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_sdk_library {
+    name: "framework-configinfrastructure",
+    srcs: [
+        "java/**/*.java",
+        "java/**/*.aidl",
+    ],
+    defaults: ["framework-module-defaults"],
+    permitted_packages: [
+        "android.provider",
+        "android.provider.aidl",
+    ],
+    apex_available: [
+        "com.android.configinfrastructure",
+    ],
+    min_sdk_version: "34",
+    sdk_version: "module_current",
+    impl_library_visibility: [
+        "//packages/modules/ConfigInfrastructure:__subpackages__",
+    ],
+    static_libs: [
+        "modules-utils-build",
+    ],
+    jarjar_rules: "jarjar-rules.txt",
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
+}

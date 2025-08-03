@@ -1,0 +1,42 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+python_defaults {
+    name: "treble_build_default",
+    pkg_path: "treble/build",
+}
+
+python_library_host {
+  name: "treble_build_lib",
+  defaults: ["treble_build_default"],
+  srcs: [
+      "sandbox/build_android_sandboxed.py",
+      "sandbox/config.py",
+      "sandbox/nsjail.py",
+      "sandbox/overlay.py",
+      "sandbox/rbe.py",
+  ],
+}
+
+python_test_host {
+    name: "treble_build_test",
+    main: "test.py",
+    defaults: ["treble_build_default"],
+    srcs: [
+        "sandbox/build_android_sandboxed_test.py",
+        "sandbox/config_test.py",
+        "sandbox/nsjail_test.py",
+        "sandbox/overlay_test.py",
+        "sandbox/rbe_test.py",
+        "test.py",
+        "sample_test.py",
+    ],
+    libs: [
+        "treble_build_lib",
+    ],
+    test_config: "test.xml",
+    test_options: {
+        unit_test: true,
+    },
+}

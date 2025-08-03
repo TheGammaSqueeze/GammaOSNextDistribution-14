@@ -1,0 +1,16 @@
+package: "com.android.bluetooth.flags"
+container: "com.android.btservices"
+
+flag {
+    name: "higher_l2cap_flush_threshold"
+    namespace: "bluetooth"
+    description: "Use a higher threshold for flushing L2CAP packets"
+    bug: "315500864"
+}
+
+flag {
+    name: "asha_asrc"
+    namespace: "bluetooth"
+    description: "Sync audio stream with the bluetooth link clock"
+    bug: "321057945"
+}

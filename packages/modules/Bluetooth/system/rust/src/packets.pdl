@@ -1,0 +1,253 @@
+little_endian_packets
+
+enum AttOpcode : 8 {
+  ERROR_RESPONSE = 0x01,
+
+  EXCHANGE_MTU_REQUEST = 0x02,
+  EXCHANGE_MTU_RESPONSE = 0x03,
+
+  FIND_INFORMATION_REQUEST = 0x04,
+  FIND_INFORMATION_RESPONSE = 0x05,
+
+  FIND_BY_TYPE_VALUE_REQUEST = 0x06,
+  FIND_BY_TYPE_VALUE_RESPONSE = 0x07,
+
+  READ_BY_TYPE_REQUEST = 0x08,
+  READ_BY_TYPE_RESPONSE = 0x09,
+
+  READ_REQUEST = 0x0A,
+  READ_RESPONSE = 0x0B,
+
+  READ_BLOB_REQUEST = 0x0C,
+  READ_BLOB_RESPONSE = 0x0D,
+
+  READ_MULTIPLE_REQUEST = 0x0E,
+  READ_MULTIPLE_RESPONSE = 0x0F,
+
+  READ_BY_GROUP_TYPE_REQUEST = 0x10,
+  READ_BY_GROUP_TYPE_RESPONSE = 0x11,
+
+  WRITE_REQUEST = 0x12,
+  WRITE_RESPONSE = 0x13,
+
+  WRITE_COMMAND = 0x52,
+
+  PREPARE_WRITE_REQUEST = 0x16,
+  PREPARE_WRITE_RESPONSE = 0x17,
+  EXECUTE_WRITE_REQUEST = 0x18,
+  EXECUTE_WRITE_RESPONSE = 0x19,
+
+  READ_MULTIPLE_VARIABLE_REQUEST = 0x20,
+  READ_MULTIPLE_VARIABLE_RESPONSE = 0x21,
+
+  HANDLE_VALUE_NOTIFICATION = 0x1B,
+
+  HANDLE_VALUE_INDICATION = 0x1D,
+  HANDLE_VALUE_CONFIRMATION = 0x1E,
+
+  SIGNED_WRITE_COMMAND = 0xD2,
+}
+
+packet Att {
+  opcode : AttOpcode,
+  _payload_,
+}
+
+// TODO(aryarahul) - add support for profile-specific error codes
+// So probably this enum will need to move out of PDL
+enum AttErrorCode : 8 {
+  INVALID_HANDLE = 0x01,
+  READ_NOT_PERMITTED = 0x02,
+  WRITE_NOT_PERMITTED = 0x03,
+  INVALID_PDU = 0x04,
+  INSUFFICIENT_AUTHENTICATION = 0x05,
+  REQUEST_NOT_SUPPORTED = 0x06,
+  ATTRIBUTE_NOT_FOUND = 0x0A,
+  ATTRIBUTE_NOT_LONG = 0x0B,
+  UNLIKELY_ERROR = 0x0E,
+  UNSUPPORTED_GROUP_TYPE = 0x10,
+  APPLICATION_ERROR = 0x80,
+  WRITE_REQUEST_REJECTED = 0xFC,
+  CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR_IMPROPERLY_CONFIGURED = 0xFD,
+  PROCEDURE_ALREADY_IN_PROGRESS = 0xFE,
+  OUT_OF_RANGE = 0xFF,
+}
+
+struct AttHandle {
+  handle : 16,
+}
+
+packet AttFindInformationRequest : Att(opcode = FIND_INFORMATION_REQUEST) {
+  starting_handle : AttHandle,
+  ending_handle : AttHandle,
+}
+
+struct Uuid {
+  data: 8[],
+}
+
+struct Uuid16 {
+  data: 16,
+}
+
+struct Uuid128 {
+  data: 8[16],
+}
+
+enum AttFindInformationResponseFormat : 8 {
+  SHORT = 0x01,
+  LONG = 0x02,
+}
+
+struct AttFindInformationResponseShortEntry {
+  handle : AttHandle,
+  uuid : Uuid16,
+}
+
+struct AttFindInformationResponseLongEntry {
+  handle : AttHandle,
+  uuid : Uuid128,
+}
+
+packet AttFindInformationResponse : Att(opcode = FIND_INFORMATION_RESPONSE) {
+  format : AttFindInformationResponseFormat,
+  _payload_,
+}
+
+packet AttFindInformationShortResponse : AttFindInformationResponse(format = SHORT) {
+  data: AttFindInformationResponseShortEntry[],
+}
+
+packet AttFindInformationLongResponse : AttFindInformationResponse(format = LONG) {
+  data: AttFindInformationResponseLongEntry[],
+}
+
+struct GattCharacteristicProperties {
+  broadcast: 1,
+  read: 1,
+  write_without_response: 1,
+  write: 1,
+  notify: 1,
+  indicate: 1,
+  authenticated_signed_writes: 1,
+  extended_properties: 1,
+}
+
+struct GattCharacteristicDeclarationValue : AttAttributeData {
+  properties: GattCharacteristicProperties,
+  handle: AttHandle,
+  uuid: Uuid,
+}
+
+struct GattServiceDeclarationValue : AttAttributeData {
+  uuid: Uuid,
+}
+
+struct GattClientCharacteristicConfiguration : AttAttributeData {
+  notification: 1,
+  indication: 1,
+  _reserved_: 14,
+}
+
+struct GattServiceChanged : AttAttributeData {
+  start_handle: AttHandle,
+  end_handle: AttHandle,
+}
+
+struct UuidAsAttData : AttAttributeData {
+  uuid: Uuid,
+}
+
+struct AttAttributeData {
+  _payload_
+}
+
+packet AttFindByTypeValueRequest : Att(opcode = FIND_BY_TYPE_VALUE_REQUEST) {
+  starting_handle : AttHandle,
+  ending_handle : AttHandle,
+  attribute_type : Uuid16,
+  attribute_value : AttAttributeData,
+}
+
+struct AttributeHandleRange {
+  found_attribute_handle : AttHandle,
+  group_end_handle : AttHandle,
+}
+
+packet AttFindByTypeValueResponse : Att(opcode = FIND_BY_TYPE_VALUE_RESPONSE) {
+  handles_info : AttributeHandleRange[],
+}
+
+packet AttReadByGroupTypeRequest : Att(opcode = READ_BY_GROUP_TYPE_REQUEST) {
+  starting_handle : AttHandle,
+  ending_handle : AttHandle,
+  attribute_group_type : Uuid,
+}
+
+struct AttReadByGroupTypeDataElement {
+  handle : AttHandle,
+  end_group_handle : AttHandle,
+  value : AttAttributeData,
+}
+
+packet AttReadByGroupTypeResponse : Att(opcode = READ_BY_GROUP_TYPE_RESPONSE) {
+  _elementsize_(data) : 8,
+  data: AttReadByGroupTypeDataElement[],
+}
+
+packet AttReadByTypeRequest : Att(opcode = READ_BY_TYPE_REQUEST) {
+  starting_handle : AttHandle,
+  ending_handle : AttHandle,
+  attribute_type : Uuid,
+}
+
+struct AttReadByTypeDataElement {
+  handle : AttHandle,
+  value : AttAttributeData,
+}
+
+packet AttReadByTypeResponse : Att(opcode = READ_BY_TYPE_RESPONSE) {
+  _elementsize_(data) : 8,
+  data: AttReadByTypeDataElement[],
+}
+
+packet AttReadRequest : Att(opcode = READ_REQUEST) {
+  attribute_handle : AttHandle,
+}
+
+packet AttReadResponse : Att(opcode = READ_RESPONSE) {
+  value: AttAttributeData,
+}
+
+packet AttWriteRequest : Att(opcode = WRITE_REQUEST) {
+  handle : AttHandle,
+  value : AttAttributeData,
+}
+
+packet AttWriteResponse : Att(opcode = WRITE_RESPONSE) {}
+
+packet AttErrorResponse : Att(opcode = ERROR_RESPONSE) {
+  opcode_in_error: AttOpcode,
+  handle_in_error: AttHandle,
+  error_code: AttErrorCode,
+}
+
+packet AttHandleValueIndication : Att(opcode = HANDLE_VALUE_INDICATION) {
+  handle: AttHandle,
+  value: AttAttributeData,
+}
+
+packet AttHandleValueConfirmation : Att(opcode = HANDLE_VALUE_CONFIRMATION) {}
+
+packet AttExchangeMtuRequest : Att(opcode = EXCHANGE_MTU_REQUEST) {
+  mtu: 16,
+}
+
+packet AttExchangeMtuResponse : Att(opcode = EXCHANGE_MTU_RESPONSE) {
+  mtu: 16,
+}
+
+packet AttWriteCommand : Att(opcode = WRITE_COMMAND) {
+  handle : AttHandle,
+  value : AttAttributeData,
+}

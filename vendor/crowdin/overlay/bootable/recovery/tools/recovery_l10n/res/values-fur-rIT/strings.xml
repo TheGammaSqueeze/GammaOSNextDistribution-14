@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="recovery_installing">Daûr a instalâ l\'inzornament di sisteme</string>
+  <string name="recovery_erasing">Daûr a scancelâ</string>
+  <string name="recovery_no_command">Nissun comant</string>
+  <string name="recovery_error">Erôr!</string>
+  <string name="recovery_installing_security">Daûr a instalâ l\'inzornament di sigurece</string>
+  <string name="recovery_wipe_data_menu_header">Impussibil cjariâ il sisteme
+    Android. Al è pussibil che i tiei dâts a sedin ruvinâts. Se tu continuis a
+    ricevi chest messaç, al pussibil che tu vedis di ripristinâ ai valôrs di fabriche
+    e scancelâ ducj i dâts dai utents memorizâts su chest dispositîf.</string>
+  <string name="recovery_try_again">Torne prove</string>
+  <string name="recovery_factory_data_reset">Ripristinament dai dâts di fabriche</string>
+  <string name="recovery_wipe_data_confirmation">Gjavâ vie ducj i dâts utent?\n\n
+    NOL SARÀ PUSSIBIL DISFÂ CHESTE OPERAZION!</string>
+  <string name="recovery_cancel_wipe_data">Anule</string>
+</resources>

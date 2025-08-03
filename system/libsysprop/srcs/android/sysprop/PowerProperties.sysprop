@@ -1,0 +1,56 @@
+# Copyright (C) 2020 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+module: "android.sysprop.PowerProperties"
+owner: Platform
+
+# Returns the scale factor to be used when verifying the FIXED_PERFORMANCE
+# power mode as described in the Power HAL AIDL description
+prop {
+    api_name: "fixed_performance_scale_factor"
+    type: Integer
+    scope: Public
+    access: Readonly
+    prop_name: "ro.power.fixed_performance_scale_factor"
+}
+
+# Suspends charge input into the battery. When this property is set,
+# the device will drain battery even when connected to a power source.
+prop {
+    api_name: "battery_input_suspended"
+    type: Boolean
+    scope: Internal
+    access: ReadWrite
+    prop_name: "power.battery_input.suspended"
+}
+
+# Allows apps to turn the screen on with android.os.PowerManager#ACQUIRE_CAUSES_WAKEUP
+# without being granted android.app.AppOpsManager#OP_TURN_SCREEN_ON.
+prop {
+    api_name: "permissionless_turn_screen_on"
+    type: Boolean
+    scope: Internal
+    access: ReadWrite
+    prop_name: "debug.power.permissionless_turn_screen_on"
+}
+
+# Waives the minimum target-sdk check for android.os.PowerManager#ACQUIRE_CAUSES_WAKEUP
+# and only allows the flag for apps holding android.permission.TURN_SCREEN_ON
+prop {
+    api_name: "waive_target_sdk_check_for_turn_screen_on"
+    type: Boolean
+    scope: Internal
+    access: Readonly
+    prop_name: "ro.power.waive_target_sdk_check_for_turn_screen_on"
+}

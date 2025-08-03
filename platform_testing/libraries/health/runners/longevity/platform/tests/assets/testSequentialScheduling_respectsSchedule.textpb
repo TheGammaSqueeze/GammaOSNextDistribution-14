@@ -1,0 +1,8 @@
+schedule: SEQUENTIAL
+scenarios [{
+    journey: "android.platform.test.longevity.samples.testing.SampleBasicProfileSuite$PassingTest1"
+}, {
+    journey: "android.platform.test.longevity.samples.testing.SampleBasicProfileSuite$PassingTest2"
+}, {
+    journey: "android.platform.test.longevity.samples.testing.SampleBasicProfileSuite$PassingTest1"
+}]

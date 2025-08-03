@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".stresstest.MainActivity">
+
+  <TextView
+      android:id="@+id/accelerator_label"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="Accelerator"
+      android:textStyle="bold"
+      />
+  <Spinner
+      android:id="@+id/accelerator_name"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_below="@id/accelerator_label"
+      android:layout_marginBottom="10dp"
+      />
+
+  <TextView
+      android:id="@+id/model_label"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="Model"
+      android:textStyle="bold"
+      android:layout_below="@id/accelerator_name"
+      />
+  <Spinner
+      android:id="@+id/test_model"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_below="@id/model_label"
+      android:layout_marginBottom="10dp"
+      />
+
+  <TextView
+      android:id="@+id/test_type_label"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="Test type"
+      android:layout_below="@id/test_model"
+      android:textStyle="bold"
+      />
+  <Spinner
+      android:id="@+id/test_type"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_below="@id/test_type_label"
+      android:layout_marginBottom="10dp"
+      />
+
+  <CheckBox
+      android:id="@+id/compile_only"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="Run models compilation only"
+      android:layout_below="@id/test_type"
+      android:textStyle="bold"
+      />
+
+  <CheckBox
+      android:id="@+id/mmap_model"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="Memory map model"
+      android:layout_below="@id/compile_only"
+      android:textStyle="bold"
+      />
+
+  <TextView
+      android:id="@+id/thread_count_label"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="Thread count"
+      android:textStyle="bold"
+      android:layout_below="@id/mmap_model"
+      android:layout_marginRight="10dp"
+      />
+  <NumberPicker
+      android:id="@+id/thread_count"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_below="@id/thread_count_label"
+      android:layout_marginRight="10dp"
+      />
+
+  <TextView
+      android:id="@+id/duration_label"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="Duration (mins)"
+      android:textStyle="bold"
+      android:layout_below="@id/mmap_model"
+      android:layout_toRightOf="@id/thread_count_label"
+      />
+  <NumberPicker
+      android:id="@+id/duration_minutes"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_below="@id/duration_label"
+      android:layout_toRightOf="@id/thread_count"
+      />
+
+  <Button
+      android:id="@+id/start_button"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="36dp"
+      android:layout_marginLeft="36dp"
+      android:onClick="startTestClicked"
+      android:layout_below="@id/duration_minutes"
+      android:text="Start NN API Stress Test"
+      />
+
+  <TextView
+      android:id="@+id/message"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginStart="8dp"
+      android:layout_marginTop="16dp"
+      android:text=""
+      android:layout_below="@id/start_button"
+      android:layout_alignParentLeft="true"
+      />
+
+
+</RelativeLayout>

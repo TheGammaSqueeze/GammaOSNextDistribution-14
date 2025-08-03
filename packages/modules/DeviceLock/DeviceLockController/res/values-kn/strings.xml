@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  Copyright (c) 2022, The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="5655878067457216814">"DeviceLockController"</string>
+    <string name="next_button" msgid="1856423430963548653">"ಮುಂದಿನದು"</string>
+    <string name="reset_button" msgid="4649354411129240809">"ರೀಸೆಟ್ ಮಾಡಿ"</string>
+    <string name="setup_more_button" msgid="4456370972302510109">"ಇನ್ನಷ್ಟು"</string>
+    <string name="setup_info_title_text" msgid="299562193092219293">"ಈ ಸಾಧನವನ್ನು <xliff:g id="CREDITOR_APP">%1$s</xliff:g> ಹೇಗೆ ನಿರ್ವಹಿಸಬಹುದು"</string>
+    <string name="setup_failed_title_text" msgid="9045111389981992536">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> ಆ್ಯಪ್ ಇನ್‌ಸ್ಟಾಲ್ ಮಾಡಲು ಸಾಧ್ಯವಿಲ್ಲ"</string>
+    <string name="setup_failed_reset_device_text" msgid="178419033440060908">"ಪುನಃ ಪ್ರಯತ್ನಿಸಲು ಸಾಧನವನ್ನು ರೀಸೆಟ್ ಮಾಡಲಾಗುತ್ತಿದೆ."</string>
+    <string name="setup_failed_reset_device_timer_text" msgid="5270970227714985986">"{count,plural, =1{ಈ ಸಾಧನವನ್ನು ರೀಸೆಟ್ ಮಾಡಿ ಮತ್ತು ಅದನ್ನು ಪುನಃ ಸೆಟಪ್ ಮಾಡಲು ಪ್ರಯತ್ನಿಸಿ. ಇದು 1 ಸೆಕೆಂಡ್‌ನಲ್ಲಿ ಸ್ವಯಂಚಾಲಿತವಾಗಿ ರೀಸೆಟ್ ಆಗುತ್ತದೆ.}one{ಈ ಸಾಧನವನ್ನು ರೀಸೆಟ್ ಮಾಡಿ ಮತ್ತು ಅದನ್ನು ಪುನಃ ಸೆಟಪ್ ಮಾಡಲು ಪ್ರಯತ್ನಿಸಿ. ಇದು # ಸೆಕೆಂಡ್‌ಗಳಲ್ಲಿ ಸ್ವಯಂಚಾಲಿತವಾಗಿ ರೀಸೆಟ್ ಆಗುತ್ತದೆ.}other{ಈ ಸಾಧನವನ್ನು ರೀಸೆಟ್ ಮಾಡಿ ಮತ್ತು ಅದನ್ನು ಪುನಃ ಸೆಟಪ್ ಮಾಡಲು ಪ್ರಯತ್ನಿಸಿ. ಇದು # ಸೆಕೆಂಡ್‌ಗಳಲ್ಲಿ ಸ್ವಯಂಚಾಲಿತವಾಗಿ ರೀಸೆಟ್ ಆಗುತ್ತದೆ.}}"</string>
+    <string name="setup_progress_title_text" msgid="2388779167610656852">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> ಆ್ಯಪ್ ಅನ್ನು ಇನ್‌ಸ್ಟಾಲ್ ಮಾಡಲಾಗುತ್ತಿದೆ<xliff:g id="ELLIPSIS">…</xliff:g>"</string>
+    <string name="setup_finish_title_text" msgid="2810842695806992743">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> ಆ್ಯಪ್<xliff:g id="ELLIPSIS">…</xliff:g> ಅನ್ನು ತೆರೆಯಲಾಗುತ್ತಿದೆ"</string>
+    <string name="setup_error_title_text" msgid="1123742279081942535">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> ಆ್ಯಪ್ ತೆರೆಯಲು ಸಾಧ್ಯವಿಲ್ಲ"</string>
+    <string name="try_again" msgid="5964839819170927721">"ಪುನಃ ಪ್ರಯತ್ನಿಸಿ"</string>
+    <string name="reset_phone" msgid="1161657350311160627">"ಫೋನ್‌ ರೀಸೆಟ್ ಮಾಡಿ"</string>
+    <string name="control_section_title" msgid="2213476068991045785">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> ಆ್ಯಪ್ ಏನನ್ನು ಮಾಡಬಹುದು?"</string>
+    <string name="control_lock_device_text" msgid="8253302484073757764">"ನೀವು ಪಾವತಿ ಮಾಡದಿದ್ದರೆ, ಸಾಧನವನ್ನು ನಿರ್ಬಂಧಿಸಲಾಗುತ್ತದೆ"</string>
+    <string name="control_download_text" msgid="8514650561843088172">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> ಆ್ಯಪ್ ಅನ್ನು ಡೌನ್‌ಲೋಡ್, ಇನ್‌ಸ್ಟಾಲ್ ಮತ್ತು ಅಪ್‌ಡೇಟ್‌ ಮಾಡುವುದು"</string>
+    <string name="control_disable_debug_text" msgid="8112443250013094442">"ಡೀಬಗ್ ಮಾಡುವ ಫೀಚರ್‌ಗಳನ್ನು ಆಫ್ ಮಾಡುವುದು"</string>
+    <string name="locked_section_title" msgid="2748725389334076510">"ಈ ಸಾಧನವು ಲಾಕ್ ಆದರೆ ಏನು ಕಾರ್ಯನಿರ್ವಹಿಸುತ್ತದೆ?"</string>
+    <string name="locked_emergency_text" msgid="3509216445555779286">"ತುರ್ತು ಕರೆ ಮಾಡುವಿಕೆ ಸೌಲಭ್ಯಗಳು"</string>
+    <string name="locked_phone_usage_text" msgid="1913605870324552847">"ಒಳಬರುವ ಮತ್ತು ಕೆಲವು ಹೊರಹೋಗುವ ಕರೆಗಳು"</string>
+    <string name="locked_settings_usage_text" msgid="8336476063187737700">"ಸೆಟ್ಟಿಂಗ್‌ಗಳು"</string>
+    <string name="locked_backup_and_restore_text" msgid="104616318625243429">"&lt;a href=https://support.google.com/android/answer/2819582&gt;ನಿಮ್ಮ ಡೇಟಾವನ್ನು&lt;/a&gt; ಬ್ಯಾಕಪ್ ಮಾಡುವುದು ಮತ್ತು ಮರುಸ್ಥಾಪಿಸುವುದು"</string>
+    <string name="exposure_section_title" msgid="2329122144337528752">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> ಗೆ ಏನು ಗೋಚರಿಸುತ್ತದೆ?"</string>
+    <string name="exposure_install_text" msgid="2631074166447765453">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> ಆ್ಯಪ್ ಅನ್ನು ಇನ್‌ಸ್ಟಾಲ್ ಅಥವಾ ಅನ್‌ಇನ್‌ಸ್ಟಾಲ್ ಮಾಡಿದಾಗ"</string>
+    <string name="exposure_lock_unlock_text" msgid="6827412845847260579">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> ನಿಂದ ಎಲ್ಲಾ ಲಾಕ್ ಅಥವಾ ಅನ್‌ಲಾಕ್ ವಿನಂತಿಗಳು"</string>
+    <string name="exposure_disable_dlc_text" msgid="2898692398106736423">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> ಆ್ಯಪ್ ಲಭ್ಯವಿಲ್ಲದಿದ್ದರೆ"</string>
+    <string name="open_source_licenses" msgid="6464389386262455443">"ಓಪನ್ ಸೋರ್ಸ್ ಲೈಸೆನ್ಸ್‌ಗಳು"</string>
+    <string name="footer_notice_content_description" msgid="2160540400079419440">"ಈ ಸಾಧನಕ್ಕೆ ಸುರಕ್ಷತಾ ಸೆಟ್ಟಿಂಗ್‌ಗಳ ಹಣಕಾಸು ಸಾಧನ ವಿಭಾಗದಲ್ಲಿರುವ ನಿರ್ವಹಣಾ ಸಾಮರ್ಥ್ಯಗಳು ಅನ್ವಯಿಸುವುದಿಲ್ಲ."</string>
+    <string name="device_provided_by_provider" msgid="290593329676291991">"ಈ ಸಾಧನವನ್ನು <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> ಒದಗಿಸಿದ್ದಾರೆ"</string>
+    <string name="download_kiosk_app" msgid="1845089944897502656">"kiosk ಆ್ಯಪ್ ಅನ್ನು ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಡೌನ್‌ಲೋಡ್ ಹಾಗೂ ಇನ್‌ಸ್ಟಾಲ್ ಮಾಡಲಾಗುತ್ತದೆ"</string>
+    <string name="install_kiosk_app_secondary_user" msgid="49911908012320834">"ಈ ಬಳಕೆದಾರರಿಗಾಗಿ Kiosk ಆ್ಯಪ್ ಅನ್ನು ಇನ್‌ಸ್ಟಾಲ್ ಮಾಡಲಾಗುತ್ತದೆ"</string>
+    <string name="restrict_device_if_missing_payment" msgid="8883980285859496904">"ನೀವು ಪಾವತಿಯನ್ನು ಮಿಸ್ ಮಾಡಿದರೆ <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> ಸಾಧನವನ್ನು ನಿರ್ಬಂಧಿಸಬಹುದು. ವಿವರಗಳಿಗಾಗಿ, <xliff:g id="TERMS_AND_CONDITIONS_LINK_START">&lt;a href=%2$s&gt;</xliff:g>ನಿಯಮಗಳು ಮತ್ತು ನಿಬಂಧನೆಗಳನ್ನು<xliff:g id="TERMS_AND_CONDITIONS_LINK_END">&lt;/a&gt;</xliff:g> ವೀಕ್ಷಿಸಿ."</string>
+    <string name="restrict_device_if_dont_make_payment" msgid="1619095674945507015">"ನೀವು ಅಗತ್ಯವಿರುವ ಪಾವತಿಗಳನ್ನು ಮಾಡದಿದ್ದರೆ <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> ಈ ಸಾಧನವನ್ನು ನಿರ್ಬಂಧಿಸಬಹುದು. ವಿವರಗಳಿಗಾಗಿ, <xliff:g id="TERMS_AND_CONDITIONS_LINK_START">&lt;a href=%2$s&gt;</xliff:g>ನಿಯಮಗಳು ಮತ್ತು ಷರತ್ತುಗಳನ್ನು<xliff:g id="TERMS_AND_CONDITIONS_LINK_END">&lt;/a&gt;</xliff:g> ನೋಡಿ."</string>
+    <string name="contact_provider_for_help" msgid="3872028089834808884">"ಸಹಾಯಕ್ಕಾಗಿ, <xliff:g id="SUPPORT_LINK_START">&lt;a href=%2$s&gt;</xliff:g><xliff:g id="PROVIDER_NAME">%1$s</xliff:g> ಅನ್ನು ಸಂಪರ್ಕಿಸಿ<xliff:g id="SUPPORT_LINK_END">&lt;/a&gt;</xliff:g>."</string>
+    <string name="previous" msgid="5241891780917802570">"ಹಿಂದಿನದು"</string>
+    <string name="next" msgid="8248291863254324326">"ಮುಂದಿನದು"</string>
+    <string name="start" msgid="2842214844667658537">"ಪ್ರಾರಂಭಿಸಿ"</string>
+    <string name="ok" msgid="3568398726528719749">"ಸರಿ"</string>
+    <string name="done" msgid="4507782734740410307">"ಮುಗಿದಿದೆ"</string>
+    <string name="do_it_in_one_hour" msgid="2727777340568739453">"1 ಗಂಟೆಯೊಳಗೆ ಮಾಡಿ"</string>
+    <string name="header_icon_content_description" msgid="6069602031334473195">"ಮಾಹಿತಿ"</string>
+    <string name="provision_info_item_icon_content_description" msgid="2306298178610632507">"ಪೂರೈಕೆಯ ಮಾಹಿತಿ"</string>
+    <string name="enroll_your_device_header" msgid="2226305405591945098">"ನಿಮ್ಮ ಸಾಧನವನ್ನು ನೋಂದಣಿ ಮಾಡಿ"</string>
+    <string name="enroll_your_device_financing_subheader" msgid="8810608106273097451">"ನೀವು ಈಗ ನಿಮ್ಮ ಸಾಧನವನ್ನು <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> ನ ಹಣಕಾಸು ಪ್ರೋಗ್ರಾಂಗೆ ನೋಂದಣಿ ಮಾಡಬಹುದು"</string>
+    <string name="enroll_your_device_subsidy_subheader" msgid="8598730780370624995">"ನೀವು ಈಗ ನಿಮ್ಮ ಸಾಧನವನ್ನು <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> ನ ಸಬ್ಸಿಡಿ ಪ್ರೋಗ್ರಾಂನಲ್ಲಿ ನೋಂದಾಯಿಸಿಕೊಳ್ಳಬಹುದು"</string>
+    <string name="subsidy_program_header" msgid="2321508488856303554">"ನೀವು <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> ನ ಸಬ್ಸಿಡಿ ಪ್ರೋಗ್ರಾಂನಲ್ಲಿದ್ದೀರಿ"</string>
+    <string name="device_enrollment_header_text" msgid="5283341102404741658">"ಸಾಧನದ ನೋಂದಣಿ"</string>
+    <string name="device_financing_enrollment_body_text" msgid="5506086383249511498">"ನಿಮ್ಮ ಸಾಧನವನ್ನು 30 ದಿನಗಳಲ್ಲಿ <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> ನ ಹಣಕಾಸು ಪ್ರೋಗ್ರಾಂಗೆ ನೋಂದಣಿ ಮಾಡಲಾಗುತ್ತದೆ"</string>
+    <string name="device_subsidy_enrollment_body_text" msgid="3971584929178719388">"ನಿಮ್ಮ ಸಾಧನವನ್ನು 30 ದಿನಗಳಲ್ಲಿ <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> ನ ಸಬ್ಸಿಡಿ ಪ್ರೋಗ್ರಾಂಗೆ ನೋಂದಣಿ ಮಾಡಲಾಗುತ್ತದೆ"</string>
+    <string name="device_enrollment_notification_body_text" msgid="8755080244956655854">"ನೋಂದಣಿಯು <xliff:g id="TIME">%1$s</xliff:g> ಸಮಯಕ್ಕೆ ಪುನರಾರಂಗೊಳ್ಳುತ್ತದೆ. ನಿಮ್ಮ ಸಾಧನ ಬಳಸುವುದನ್ನು ನೀವು ಮುಂದುವರಿಸಬಹುದು."</string>
+    <string name="continue_using_device" msgid="5816570734692191190">"ನಿಮ್ಮ ಸಾಧನ ಬಳಸುವುದನ್ನು ಮುಂದುವರಿಸಬಹುದು"</string>
+    <string name="device_paid" msgid="6606280698381856804">"ನಿಮ್ಮ ಸಾಧನಕ್ಕಾಗಿ ನೀವು ಪಾವತಿಸಿದ್ದೀರಿ"</string>
+    <string name="device_removed_from_subsidy_program" msgid="1243434945619071051">"<xliff:g id="PROVIDER_NAME">%1$s</xliff:g> ಸಬ್ಸಿಡಿ ಪ್ರೋಗ್ರಾಂನಿಂದ ಸಾಧನವನ್ನು ತೆಗೆದುಹಾಕಲಾಗಿದೆ"</string>
+    <string name="device_removed_from_finance_program" msgid="825548999540107578">"ನಿಮ್ಮ ಸಾಧನವನ್ನು <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> ನ ಹಣಕಾಸು ಪ್ರೋಗ್ರಾಂನಿಂದ ತೆಗೆದುಹಾಕಲಾಗಿದೆ"</string>
+    <string name="restrictions_lifted" msgid="5785586265984319396">"ನಿಮ್ಮ ಸಾಧನದಲ್ಲಿನ ಎಲ್ಲಾ ನಿರ್ಬಂಧಗಳನ್ನು ತೆಗೆದುಹಾಕಲಾಗಿದೆ"</string>
+    <string name="uninstall_kiosk_app" msgid="3459557395024053988">"ನಿಮ್ಮ ಸಾಧನದಿಂದ ನೀವು kiosk ಆ್ಯಪ್ ಅನ್ನು ಅನ್‌ಇನ್‌ಸ್ಟಾಲ್ ಮಾಡಬಹುದು"</string>
+    <string name="getting_device_ready" msgid="2829009584599871699">"ನಿಮ್ಮ ಸಾಧನವನ್ನು ಸಿದ್ಧಪಡಿಸಲಾಗುತ್ತಿದೆ…"</string>
+    <string name="this_may_take_a_few_minutes" msgid="2482876246874429351">"ಇದು ಕೆಲವು ನಿಮಿಷಗಳನ್ನು ತೆಗೆದುಕೊಳ್ಳಬಹುದು"</string>
+    <string name="installing_kiosk_app" msgid="324208168205545860">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> ಆ್ಯಪ್ ಅನ್ನು ಇನ್‌ಸ್ಟಾಲ್ ಮಾಡಲಾಗುತ್ತಿದೆ…"</string>
+    <string name="opening_kiosk_app" msgid="2021888641430165654">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> ಆ್ಯಪ್ ಅನ್ನು ತೆರೆಯಲಾಗುತ್ತಿದೆ…"</string>
+    <string name="settings_banner_title" msgid="527041021011279252">"ಸಾಧನವನ್ನು <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> ಒದಗಿಸಿದ್ದಾರೆ"</string>
+    <string name="settings_banner_body" msgid="5814902066260202824">"ಈ ಸಾಧನದಲ್ಲಿ ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> ಬದಲಾಯಿಸಬಹುದು"</string>
+    <string name="settings_banner_button" msgid="1831020849782670907">"ಇನ್ನಷ್ಟು ತಿಳಿಯಿರಿ"</string>
+    <string name="settings_screen_title" msgid="721470080648091035">"ಸಾಲ ಪಡೆದು ಖರೀದಿಸಿದ ಸಾಧನದ ಮಾಹಿತಿ"</string>
+    <string name="settings_intro_device_financing" msgid="2548476558131048133">"<xliff:g id="PROVIDER_NAME_0">%1$s</xliff:g> ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ಬದಲಾಯಿಸಬಹುದು ಮತ್ತು ಸಾಧನದಲ್ಲಿ Kiosk ಆ್ಯಪ್ ಅನ್ನು ಇನ್‌ಸ್ಟಾಲ್ ಮಾಡಬಹುದು.\n\nನೀವು ಪಾವತಿಯನ್ನು ಮಿಸ್ ಮಾಡಿಕೊಂಡರೆ, <xliff:g id="PROVIDER_NAME_1">%1$s</xliff:g> ನಿಮ್ಮ ಸಾಧನವನ್ನು ನಿರ್ಬಂಧಿಸಬಹುದು.\n\nಇನ್ನಷ್ಟು ತಿಳಿಯಲು, <xliff:g id="PROVIDER_NAME_2">%1$s</xliff:g> ಅನ್ನು ಸಂಪರ್ಕಿಸಿ."</string>
+    <string name="settings_intro_device_subsidy" msgid="4274945644204818702">"<xliff:g id="PROVIDER_NAME_0">%1$s</xliff:g> ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ಬದಲಾಯಿಸಬಹುದು ಮತ್ತು ಸಾಧನದಲ್ಲಿ Kiosk ಆ್ಯಪ್ ಅನ್ನು ಇನ್‌ಸ್ಟಾಲ್ ಮಾಡಬಹುದು.\n\nನೀವು ಪಾವತಿಯನ್ನು ಮಿಸ್ ಮಾಡಿಕೊಂಡರೆ ಅಥವಾ <xliff:g id="PROVIDER_NAME_2">%1$s</xliff:g> ನ SIM ಬಳಸುವುದನ್ನು ನಿಲ್ಲಿಸಿದರೆ, <xliff:g id="PROVIDER_NAME_1">%1$s</xliff:g> ಈ ಸಾಧನವನ್ನು ನಿರ್ಬಂಧಿಸಬಹುದು.\n\nಇನ್ನಷ್ಟು ತಿಳಿಯಲು, <xliff:g id="PROVIDER_NAME_3">%1$s</xliff:g> ಅನ್ನು ಸಂಪರ್ಕಿಸಿ."</string>
+    <string name="settings_intro_preference_key" msgid="6610461073400554162">"settings_intro_preference_key"</string>
+    <string name="settings_restrictions_category" msgid="5746868117342406677">"ನಿಮ್ಮ ಸಾಧನಕ್ಕೆ ಪಾವತಿಸುವವರೆಗೆ, ನಿಮಗೆ ಇದನ್ನು ಮಾಡಲು ಸಾಧ್ಯವಿಲ್ಲ:"</string>
+    <string name="settings_restrictions_category_preference_key" msgid="88318147152676512">"settings_restrictions_category_preference_key"</string>
+    <string name="settings_install_apps" msgid="3634279771448183713">"Play Store ನ ಹೊರಗಿನಿಂದ ಆ್ಯಪ್‌ಗಳನ್ನು ಇನ್‌ಸ್ಟಾಲ್ ಮಾಡಿ"</string>
+    <string name="settings_install_apps_preference_key" msgid="27542314345238427">"settings_install_apps_preference_key"</string>
+    <string name="settings_safe_mode" msgid="3035228015586375153">"ನಿಮ್ಮ ಸಾಧನವನ್ನು ಸುರಕ್ಷಿತ ಮೋಡ್‌ಗೆ ರೀಬೂಟ್ ಮಾಡಿ"</string>
+    <string name="settings_safe_mode_preference_key" msgid="2106617747358027424">"settings_safe_mode_preference_key"</string>
+    <string name="settings_developer_options" msgid="880701002025216672">"ಡೆವಲಪರ್ ಆಯ್ಕೆಗಳನ್ನು ಬಳಸಿ"</string>
+    <string name="settings_developer_options_preference_key" msgid="6807036808722582954">"settings_developer_options_preference_key"</string>
+    <string name="settings_credit_provider_capabilities_category" msgid="1274440595211820868">"ಸಾಧನದಲ್ಲಿ ಸಮಸ್ಯೆಯಾದರೆ, <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> ಹೀಗೆ ಮಾಡಬಹುದು:"</string>
+    <string name="settings_credit_provider_capabilities_category_preference_key" msgid="4571685720898641262">"settings_credit_provider_capabilities_category_preference_key"</string>
+    <string name="settings_IMEI" msgid="697965824361262506">"ನಿಮ್ಮ IMEI ಸಂಖ್ಯೆಯನ್ನು ಆ್ಯಕ್ಸೆಸ್ ಮಾಡಿ"</string>
+    <string name="settings_IMEI_preference_key" msgid="608809590948249412">"settings_IMEI_preference_key"</string>
+    <string name="settings_factory_reset" msgid="418045189048067625">"ನಿಮ್ಮ ಸಾಧನವನ್ನು ಫ್ಯಾಕ್ಟರಿ ರೀಸೆಟ್ ಮಾಡಿರಿ"</string>
+    <string name="settings_factory_reset_preference_key" msgid="2168528486393635382">"settings_factory_reset_preference_key"</string>
+    <string name="settings_locked_mode_category" msgid="6307525048618331737">"ನಿಮ್ಮ ಸಾಧನವನ್ನು ನಿರ್ಬಂಧಿಸಲಾಗಿದ್ದರೆ, ನೀವು ಅದನ್ನು ಇದಕ್ಕಾಗಿ ಮಾತ್ರ ಬಳಸಬಹುದು:"</string>
+    <string name="settings_locked_mode_category_preference_key" msgid="7202573929427220258">"settings_locked_mode_category_preference_key"</string>
+    <string name="settings_emergency_calls" msgid="2460996367176786040">"ತುರ್ತು ಸಂಖ್ಯೆಗಳಿಗೆ ಕರೆಗಳನ್ನು ಮಾಡಿ"</string>
+    <string name="settings_emergency_calls_preference_key" msgid="737598609727181316">"settings_emergency_calls_preference_key"</string>
+    <string name="settings_system_info" msgid="1352629332624774940">"ದಿನಾಂಕ, ಸಮಯ, ನೆಟ್‌ವರ್ಕ್‌ನ ಸ್ಥಿತಿ ಮತ್ತು ಬ್ಯಾಟರಿಯಂತಹ ಸಿಸ್ಟಂ ಮಾಹಿತಿಯನ್ನು ವೀಕ್ಷಿಸಿ"</string>
+    <string name="settings_system_info_preference_key" msgid="8607675914059202598">"settings_system_info_preference_key"</string>
+    <string name="settings_turn_on_off_device" msgid="5414836621603462439">"ನಿಮ್ಮ ಸಾಧನವನ್ನು ಆನ್ ಅಥವಾ ಆಫ್ ಮಾಡಿ"</string>
+    <string name="settings_turn_on_off_device_preference_key" msgid="5981163790552677734">"settings_turn_on_off_device_preference_key"</string>
+    <string name="settings_notifications" msgid="63348993899505034">"ನೋಟಿಫಿಕೇಶನ್‌ಗಳು ಮತ್ತು ಪಠ್ಯ ಸಂದೇಶಗಳನ್ನು ವೀಕ್ಷಿಸಿ"</string>
+    <string name="settings_notifications_preference_key" msgid="4527872342061056462">"settings_notifications_preference_key"</string>
+    <string name="settings_allowlisted_apps" msgid="5531810497056091097">"<xliff:g id="PROVIDER_NAME">%1$s</xliff:g> ನಿಂದ ಅನುಮತಿಸಲಾದ ಆ್ಯಪ್‌ಗಳನ್ನು ಆ್ಯಕ್ಸೆಸ್ ಮಾಡಿ"</string>
+    <string name="settings_allowlisted_apps_preference_key" msgid="8662705531235468080">"settings_allowlisted_apps_preference_key"</string>
+    <string name="settings_fully_paid_category" msgid="2459776591689824433">"ನೀವು ಪೂರ್ಣ ಮೊತ್ತವನ್ನು ಪಾವತಿಸಿದ ನಂತರ:"</string>
+    <string name="settings_fully_paid_category_preference_key" msgid="1759690898170600559">"settings_fully_paid_category_preference_key"</string>
+    <string name="settings_restrictions_removed" msgid="1398080654904863221">"ನಿಮ್ಮ ಸಾಧನವನ್ನು ನಿರ್ಬಂಧಿಸಲು ಅಥವಾ ಸಾಧನದ ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ಬದಲಾಯಿಸಲು <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> ಗೆ ಸಾಧ್ಯವಿಲ್ಲ"</string>
+    <string name="settings_restrictions_removed_preference_key" msgid="7741933477145197391">"settings_restrictions_removed_preference_key"</string>
+    <string name="settings_uninstall_kiosk_app" msgid="2611134364295637875">"ನೀವು <xliff:g id="KIOSK_APP">%1$s</xliff:g> ಆ್ಯಪ್ ಅನ್ನು ಅನ್‌ಇನ್‌ಸ್ಟಾಲ್ ಮಾಡಬಹುದು"</string>
+    <string name="settings_uninstall_kiosk_app_preference_key" msgid="5578103644009268125">"settings_uninstall_kiosk_app_preference_key"</string>
+    <string name="settings_support_category" msgid="7210906871924935770">"ಸಹಾಯ ಪಡೆಯಲು:"</string>
+    <string name="settings_support_category_preference_key" msgid="1818953199283261021">"settings_support_category_preference_key"</string>
+    <string name="settings_contact_provider" msgid="2481819956474692039">"<xliff:g id="SUPPORT_LINK_START">&lt;a href=%2$s&gt;</xliff:g><xliff:g id="PROVIDER_NAME">%1$s</xliff:g> ಅನ್ನು ಸಂಪರ್ಕಿಸಿ<xliff:g id="SUPPORT_LINK_END">&lt;/a&gt;</xliff:g>"</string>
+    <string name="settings_contact_provider_preference_key" msgid="2703619536229342624">"settings_contact_provider_preference_key"</string>
+    <string name="provision_notification_channel_name" msgid="6123500714047647805">"ಪೂರೈಕೆ"</string>
+    <string name="device_reset_in_days_notification_title" msgid="920859483535317727">"{count,plural, =1{ಸಾಧನವನ್ನು 1 ದಿನದಲ್ಲಿ ರೀಸೆಟ್ ಮಾಡಲಾಗುತ್ತದೆ}one{ಸಾಧನವನ್ನು # ದಿನಗಳಲ್ಲಿ ರೀಸೆಟ್ ಮಾಡಲಾಗುತ್ತದೆ}other{ಸಾಧನವನ್ನು # ದಿನಗಳಲ್ಲಿ ರೀಸೆಟ್ ಮಾಡಲಾಗುತ್ತದೆ}}"</string>
+    <string name="device_reset_timer_notification_title" msgid="301978346002711614">"ಸಾಧನವು <xliff:g id="TIMER">%s</xliff:g> ಗೆ ರೀಸೆಟ್ ಆಗಲಿದೆ"</string>
+    <string name="device_reset_notification_content" msgid="7642367488663440437">"ಎಲ್ಲಾ ಸಾಧನ ಡೇಟಾವನ್ನು ಅಳಿಸಲಾಗುತ್ತದೆ. ನಿಮ್ಮ ಸಾಧನವನ್ನು ನೋಂದಾಯಿಸಲು ಸಹಾಯಕ್ಕಾಗಿ, <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> ಅನ್ನು ಸಂಪರ್ಕಿಸಿ"</string>
+    <string name="provisioning_failed" msgid="5350252817004028300">"ಹಣಕಾಸು ಒದಗಿಸುವಿಕೆ ವಿಫಲವಾಗಿದೆ"</string>
+    <string name="click_to_contact_financier" msgid="9107827438262930445">"ನಿಮ್ಮ ಫೈನಾನ್ಷಿಯರ್ ಅನ್ನು ಸಂಪರ್ಕಿಸುವ ಮಾರ್ಗಗಳಿಗಾಗಿ ಇಲ್ಲಿ ಕ್ಲಿಕ್ ಮಾಡಿ. <xliff:g id="SUPPORT_URL_START">&lt;a href=%1$s&gt;</xliff:g>ಇನ್ನಷ್ಟು ತಿಳಿಯಿರಿ<xliff:g id="SUPPORT_URL_END">&lt;/a&gt;</xliff:g>"</string>
+    <string name="exit" msgid="645084771882733921">"ನಿರ್ಗಮಿಸಿ"</string>
+    <string name="retry" msgid="7497287909193345356">"ಮರುಪ್ರಯತ್ನಿಸಿ"</string>
+</resources>

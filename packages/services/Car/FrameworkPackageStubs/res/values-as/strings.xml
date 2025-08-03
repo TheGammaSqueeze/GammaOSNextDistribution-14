@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="6179574017413146651">"কাৰ্যকলাপৰ ষ্টাব"</string>
+    <string name="message_not_supported" msgid="133939962837892495">"এই কাৰ্যটো কৰিবলৈ কোনো এপ্‌ নাই"</string>
+    <string name="pip_not_supported" msgid="8681268258599412706">"এই ডিভাইচটোত চিত্ৰৰ ভিতৰত চিত্ৰ সুবিধাটো সমৰ্থিত নহয়"</string>
+    <string name="manage_unknown_app_sources_not_supported" msgid="7368611099531260439">"এই ডিভাইচটোত অজ্ঞাত এপৰ উৎস পৰিচালনা কৰাটো সমৰ্থিত নহয়"</string>
+    <string name="documentsui_not_supported" msgid="2786636475647817501">"এই ডিভাইচটোত ফাইল পৰিচালনা কৰাটো সমৰ্থিত নহয়"</string>
+    <string name="stub_name" msgid="3987164490218189006">"নাই"</string>
+</resources>

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2018 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources>
+
+    <!-- Main themes -->
+    <style name="CustomizationTheme" parent="@android:style/Theme.DeviceDefault.Settings">
+        <item name="colorPrimary">?android:colorPrimary</item>
+
+        <item name="android:navigationBarColor">?android:colorPrimaryDark</item>
+        <item name="android:navigationBarDividerColor">@android:color/transparent</item>
+
+        <item name="selectableItemBackground">?android:attr/selectableItemBackground</item>
+        <item name="dialogPreferredPadding">24dp</item>
+        <item name="colorControlHighlight">@color/ripple_material_dark</item>
+
+        <item name="actionButtonStyle">?android:actionButtonStyle</item>
+        <item name="actionMenuTextColor">?android:actionMenuTextColor</item>
+    </style>
+
+    <style name="CustomizationTheme.NoActionBar">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:fitsSystemWindows">false</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowDisablePreview">true</item>
+        <item name="snackbarStyle">@style/SnackbarMargin</item>
+
+        <item name="borderlessButtonStyle">@style/Widget.AppCompat.Button.Borderless</item>
+        <item name="colorAccent">@color/accent_color</item>
+        <item name="colorSurface">@color/design_default_color_surface</item>
+        <item name="colorOnSurface">@color/design_default_color_on_surface</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="motionDurationLong1">500</item>
+    </style>
+
+    <!-- Snackbar margin -->
+    <style name="SnackbarMargin" parent="Widget.MaterialComponents.Snackbar">
+        <item name="android:layout_margin">48dp</item>
+    </style>
+
+    <!-- Bottom nav -->
+    <style name="BottomNavStyle">
+        <item name="itemIconTint">@color/bottom_nav_item_color</item>
+        <item name="itemTextColor">@color/bottom_nav_item_color</item>
+        <item name="itemTextAppearanceActive">@style/BottomNavTextAppearanceActive</item>
+        <item name="itemTextAppearanceInactive">@style/BottomNavTextAppearance</item>
+        <item name="itemBackground">?android:attr/selectableItemBackgroundBorderless</item>
+        <item name="android:background">?android:colorBackground</item>
+    </style>
+
+    <style name="BottomNavTextAppearance" parent="TitleTextAppearance">
+        <item name="android:textSize">@dimen/bottom_navbar_font_text_size</item>
+    </style>
+
+    <style name="BottomNavTextAppearanceActive" parent="BottomNavTextAppearance">
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- Common components and widgets -->
+    <style name="TitleTextAppearance" parent="@android:style/TextAppearance.DeviceDefault.Widget.ActionBar.Title">
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="ActionPrimaryButton" parent="android:Widget.DeviceDefault.Button.Colored"/>
+
+    <style name="ActionSecondaryButton" parent="android:Widget.DeviceDefault.Button.Borderless.Colored"/>
+
+    <style name="CardTitleTextAppearance" parent="TitleTextAppearance">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">@dimen/card_title_text_size</item>
+    </style>
+
+    <style name="FontCardTitleStyle" parent="TitleTextAppearance">
+        <item name="android:textAlignment">center</item>
+        <item name="android:textSize">28dp</item>
+    </style>
+
+    <style name="FontCardBodyTextStyle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:maxWidth">@dimen/font_preview_body_width</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:textSize">20dp</item>
+        <item name="android:textAppearance">@android:style/TextAppearance.DeviceDefault</item>
+    </style>
+
+    <!-- Custom theme editor -->
+
+    <style name="CustomThemeNameEditText" parent="@android:style/Widget.DeviceDefault.EditText">
+        <item name="android:background">@drawable/edittext_background</item>
+        <item name="android:paddingTop">16dp</item>
+        <item name="android:paddingBottom">16dp</item>
+        <item name="android:paddingStart">12dp</item>
+        <item name="android:paddingEnd">12dp</item>
+        <item name="android:textAlignment">viewStart</item>
+        <item name="android:textColor">@color/edittext_text_color</item>
+        <item name="android:inputType">text</item>
+        <item name="android:maxLength">100</item>
+    </style>
+
+    <style name="SectionTitleTextStyle">
+        <item name="android:fontFamily">@*android:string/config_headlineFontFamily</item>
+        <item name="android:textColor">@color/system_on_surface</item>
+        <item name="android:textDirection">locale</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:lineHeight">24dp</item>
+    </style>
+
+    <style name="SectionSubtitleTextStyle" parent="SectionTitleTextStyle">
+        <item name="android:fontFamily">@*android:string/config_bodyFontFamily</item>
+        <item name="android:textColor">@color/system_on_surface_variant</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineHeight">16sp</item>
+    </style>
+
+    <style name="BetaTagTextStyle" parent="SectionTitleTextStyle">
+        <item name="android:textSize">12sp</item>
+        <item name="android:lineHeight">15dp</item>
+        <item name="android:letterSpacing">0.02</item>
+        <item name="android:background">@drawable/beta_tag_background</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+</resources>

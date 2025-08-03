@@ -1,0 +1,68 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_bt_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_bt_license"],
+}
+
+// AIDL interface between Bluetooth and framework.jar
+filegroup {
+    name: "Bluetooth-binder-aidl",
+    srcs: [
+        ":framework-bluetooth-updatable-exported-aidl-sources",
+        ":modules-utils-synchronous-result-receiver-aidl",
+        "android/bluetooth/IBluetooth.aidl",
+        "android/bluetooth/IBluetoothA2dp.aidl",
+        "android/bluetooth/IBluetoothA2dpSink.aidl",
+        "android/bluetooth/IBluetoothActivityEnergyInfoListener.aidl",
+        "android/bluetooth/IBluetoothAvrcpController.aidl",
+        "android/bluetooth/IBluetoothAvrcpTarget.aidl",
+        "android/bluetooth/IBluetoothBattery.aidl",
+        "android/bluetooth/IBluetoothCallback.aidl",
+        "android/bluetooth/IBluetoothConnectionCallback.aidl",
+        "android/bluetooth/IBluetoothCsipSetCoordinator.aidl",
+        "android/bluetooth/IBluetoothCsipSetCoordinatorCallback.aidl",
+        "android/bluetooth/IBluetoothCsipSetCoordinatorLockCallback.aidl",
+        "android/bluetooth/IBluetoothGatt.aidl",
+        "android/bluetooth/IBluetoothGattCallback.aidl",
+        "android/bluetooth/IBluetoothGattServerCallback.aidl",
+        "android/bluetooth/IBluetoothHapClient.aidl",
+        "android/bluetooth/IBluetoothHapClientCallback.aidl",
+        "android/bluetooth/IBluetoothHeadset.aidl",
+        "android/bluetooth/IBluetoothHeadsetClient.aidl",
+        "android/bluetooth/IBluetoothHearingAid.aidl",
+        "android/bluetooth/IBluetoothHidDevice.aidl",
+        "android/bluetooth/IBluetoothHidDeviceCallback.aidl",
+        "android/bluetooth/IBluetoothHidHost.aidl",
+        "android/bluetooth/IBluetoothLeAudio.aidl",
+        "android/bluetooth/IBluetoothLeAudioCallback.aidl",
+        "android/bluetooth/IBluetoothLeBroadcastAssistant.aidl",
+        "android/bluetooth/IBluetoothLeBroadcastAssistantCallback.aidl",
+        "android/bluetooth/IBluetoothLeBroadcastCallback.aidl",
+        "android/bluetooth/IBluetoothLeCallControl.aidl",
+        "android/bluetooth/IBluetoothLeCallControlCallback.aidl",
+        "android/bluetooth/IBluetoothMap.aidl",
+        "android/bluetooth/IBluetoothMapClient.aidl",
+        "android/bluetooth/IBluetoothMcpServiceManager.aidl",
+        "android/bluetooth/IBluetoothMetadataListener.aidl",
+        "android/bluetooth/IBluetoothOobDataCallback.aidl",
+        "android/bluetooth/IBluetoothPan.aidl",
+        "android/bluetooth/IBluetoothPanCallback.aidl",
+        "android/bluetooth/IBluetoothPbap.aidl",
+        "android/bluetooth/IBluetoothPbapClient.aidl",
+        "android/bluetooth/IBluetoothPreferredAudioProfilesCallback.aidl",
+        "android/bluetooth/IBluetoothProfileServiceConnection.aidl",
+        "android/bluetooth/IBluetoothQualityReportReadyCallback.aidl",
+        "android/bluetooth/IBluetoothSap.aidl",
+        "android/bluetooth/IBluetoothSocketManager.aidl",
+        "android/bluetooth/IBluetoothVolumeControl.aidl",
+        "android/bluetooth/IBluetoothVolumeControlCallback.aidl",
+        "android/bluetooth/IncomingRfcommSocketInfo.aidl",
+        "android/bluetooth/le/IAdvertisingSetCallback.aidl",
+        "android/bluetooth/le/IDistanceMeasurementCallback.aidl",
+        "android/bluetooth/le/IPeriodicAdvertisingCallback.aidl",
+        "android/bluetooth/le/IScannerCallback.aidl",
+    ],
+}

@@ -1,0 +1,11 @@
+{
+    "type": "pointer",
+    "ctype": "int16_t *",
+    "address": "0x7fffffffd778",
+    "reference": {
+        "type": "int",
+        "ctype": "int16_t",
+        "address": "0x7fffffffd76a",
+        "value": "3"
+    }
+}

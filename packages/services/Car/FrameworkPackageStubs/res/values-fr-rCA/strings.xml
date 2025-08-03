@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="6179574017413146651">"Blocage d\'activité"</string>
+    <string name="message_not_supported" msgid="133939962837892495">"Aucune app ne peut gérer cette action"</string>
+    <string name="pip_not_supported" msgid="8681268258599412706">"Cet appareil ne prend pas en charge la fonctionnalité d\'incrustation d\'image"</string>
+    <string name="manage_unknown_app_sources_not_supported" msgid="7368611099531260439">"La gestion des applications provenant de sources inconnues n\'est pas prise en charge par cet appareil"</string>
+    <string name="documentsui_not_supported" msgid="2786636475647817501">"La gestion des fichiers n\'est pas prise en charge par cet appareil"</string>
+    <string name="stub_name" msgid="3987164490218189006">"Aucun"</string>
+</resources>

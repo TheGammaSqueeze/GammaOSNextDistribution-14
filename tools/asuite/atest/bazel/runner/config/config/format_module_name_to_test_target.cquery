@@ -1,0 +1,14 @@
+def format(target):
+    """Return a pair of 'module_name target_label' for the given tradefed test target, '' otherwise."""
+    p = providers(target)
+    if not p:
+        return ""
+    tradefed_test_info = p.get(
+        "//bazel/rules:tradefed_test.bzl%TradefedTestInfo")
+    if tradefed_test_info:
+    # Use space as a delimiter as Bazel labels can use many spacial characters in their target
+    # labels. See: https://bazel.build/concepts/labels#target-names
+        return "%s %s" % (tradefed_test_info.module_name, target.label)
+    else:
+        return ""
+    return ""

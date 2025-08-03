@@ -1,0 +1,76 @@
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+apex_key {
+    name: "com.android.compos.key",
+    public_key: "com.android.compos.avbpubkey",
+    private_key: "com.android.compos.pem",
+}
+
+android_app_certificate {
+    name: "com.android.compos.certificate",
+    certificate: "com.android.compos",
+}
+
+apex {
+    name: "com.android.compos",
+    manifest: "manifest.json",
+    file_contexts: ":com.android.compos-file_contexts",
+    key: "com.android.compos.key",
+    certificate: ":com.android.compos.certificate",
+
+    // TODO(b/206618706): make it updatable
+    updatable: false,
+    future_updatable: false,
+    platform_apis: true,
+
+    system_ext_specific: true,
+
+    binaries: [
+        // Used in Android
+        "compos_verify",
+        "composd",
+        "composd_cmd",
+
+        // Used in VM
+        "compos_key_helper",
+        "compsvc",
+    ],
+
+    systemserverclasspath_fragments: ["com.android.compos-systemserverclasspath-fragment"],
+
+    apps: [
+        "CompOSPayloadApp",
+    ],
+
+    prebuilts: [
+        "com.android.compos.init.rc",
+    ],
+}
+
+systemserverclasspath_fragment {
+    name: "com.android.compos-systemserverclasspath-fragment",
+    contents: ["service-compos"],
+    apex_available: ["com.android.compos"],
+}
+
+prebuilt_etc {
+    name: "com.android.compos.init.rc",
+    src: "composd.rc",
+    filename: "init.rc",
+    installable: false,
+}

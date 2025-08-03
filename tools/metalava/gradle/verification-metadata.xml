@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<verification-metadata xmlns="https://schema.gradle.org/dependency-verification" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://schema.gradle.org/dependency-verification https://schema.gradle.org/dependency-verification/dependency-verification-1.3.xsd">
+   <configuration>
+      <verify-metadata>true</verify-metadata>
+      <verify-signatures>true</verify-signatures>
+      <key-servers enabled="false"/>
+      <trusted-artifacts>
+         <trust group="androidx.databinding"/>
+         <trust group="com.google.testing.platform"/>
+         <trust group="gradle" name="gradle"/>
+         <trust file=".*-javadoc[.]jar" regex="true"/>
+         <trust file=".*-sources[.]jar" regex="true"/>
+         <trust group="^androidx($|([.].*))" regex="true" reason="not signed yet"/>
+         <trust group="^com.android($|([.].*))" regex="true"/>
+      </trusted-artifacts>
+      <trusted-keys>
+         <trusted-key id="03C123038C20AAE9E286C857479D601F3A7B5C1A" group="com.github.ajalt.clikt" name="clikt-jvm"/>
+         <trusted-key id="04543577D6A9CC626239C50C7ECBD740FF06AEB5">
+            <trusting group="com.sun.istack"/>
+            <trusting group="com.sun.xml.bind"/>
+            <trusting group="com.sun.xml.bind.mvn"/>
+            <trusting group="com.sun.xml.fastinfoset"/>
+            <trusting group="org.glassfish.jaxb"/>
+            <trusting group="org.jvnet.staxex"/>
+         </trusted-key>
+         <trusted-key id="0785B3EFF60B1B1BEA94E0BB7C25280EAE63EBE5" group="org.apache.httpcomponents"/>
+         <trusted-key id="08F0AAB4D0C1A4BDDE340765B341DDB020FCB6AB" group="org.bouncycastle"/>
+         <trusted-key id="0CC641C3A62453AB390066C4A41F13C999945293" group="commons-logging"/>
+         <trusted-key id="0D35D3F60078655126908E8AF3D1600878E85A3D" group="io.netty"/>
+         <trusted-key id="0F07D1201BDDAB67CFB84EB479752DB6C966F0B8" group="com.google.android"/>
+         <trusted-key id="10F3C7A02ECA55E502BADCF3991EFB94DB91127D" group="org.ow2"/>
+         <trusted-key id="11B581967F079A30A3E93140D57506CD188FD842" group="com.google.api.grpc"/>
+         <trusted-key id="147B691A19097624902F4EA9689CBE64F4BC997F" group="org.mockito"/>
+         <trusted-key id="160A7A9CF46221A56B06AD64461A804F2609FD89" group="com.github.shyiko.klob"/>
+         <trusted-key id="190D5A957FF22273E601F7A7C92C5FEC70161C62" group="org.apache"/>
+         <trusted-key id="19BEAB2D799C020F17C69126B16698A4ADF4D638" group="org.checkerframework"/>
+         <trusted-key id="1FA37FBE4453C1073E7EF61D6449005F96BC97A3" group="de.undercouch"/>
+         <trusted-key id="2BCBDD0F23EA1CAFCC11D4860374CF2E8DD1BDFD">
+            <trusting group="net.java"/>
+            <trusting group="org.codehaus"/>
+         </trusted-key>
+         <trusted-key id="2DB4F1EF0FA761ECC4EA935C86FDC7E2A11262CB">
+            <trusting group="commons-codec"/>
+            <trusting group="commons-io"/>
+            <trusting group="org.apache.commons"/>
+            <trusting group="xml-apis"/>
+         </trusted-key>
+         <trusted-key id="2E3A1AFFE42B5F53AF19F780BCF4173966770193" group="org.jetbrains"/>
+         <trusted-key id="2E92113263FC31C74CCBAAB20E91C2DE43B72BB1" group="org.ec4j.core"/>
+         <trusted-key id="3051D45031E13516A6E8FAFF280D66A55F5316C5" group="org.bitbucket.b_c"/>
+         <trusted-key id="314FE82E5A4C5377BCA2EDEC5208812E1E4A6DB0" group="com.gradle"/>
+         <trusted-key id="31BAE2E51D95E0F8AD9B7BCC40A3C4432BD7308C" group="com.googlecode.juniversalchardet"/>
+         <trusted-key id="31FAE244A81D64507B47182E1B2718089CE964B8" group="com.thoughtworks.qdox"/>
+         <trusted-key id="3288B8BE8512D6C0CA185268C51E6CBC7FF46F0B" group="com.google.auto"/>
+         <trusted-key id="33FD4BFD33554634053D73C0C2148900BCD3C2AF" group="org.jetbrains"/>
+         <trusted-key id="34441E504A937F43EB0DAEF96A65176A0FB1CD0B" group="org.codehaus.groovy"/>
+         <trusted-key id="3872ED7D5904493D23D78FA2C4C8CB73B1435348" group="com.android.tools.build"/>
+         <trusted-key id="3D11126EA77E4E07FBABB38614A84C976D265B25" group="com.google.protobuf"/>
+         <trusted-key id="41CD49B4EF5876F9E9F691DABAC30622339994C4" group="com.google.truth"/>
+         <trusted-key id="44FBDBBC1A00FE414F1C1873586654072EAD6677" group="org.sonatype.oss"/>
+         <trusted-key id="47504B76CF89C15C0512D9AFE16AB52D79FD224F" group="com.google.api.grpc"/>
+         <trusted-key id="475F3B8E59E6E63AA78067482C7B12F2A511E325" group="org.slf4j"/>
+         <trusted-key id="47EB6836245D2D40E89DFB4136D4E9618F3ADAB5" group="io.github.microutils"/>
+         <trusted-key id="4BF79B8259007B566D2FCE82296CD27F60EED12C" group="com.google.crypto.tink"/>
+         <trusted-key id="4DB1A49729B053CAF015CEE9A6ADFC93EF34893E" group="org.hamcrest"/>
+         <trusted-key id="4F7E32D440EF90A83011A8FC6425559C47CC79C4">
+            <trusting group="com.sun.activation"/>
+            <trusting group="javax.annotation"/>
+         </trusted-key>
+         <trusted-key id="4F8FEC6785F611D9A712EA2734918B7D3969D2F5" group="com.google.dagger"/>
+         <trusted-key id="517B94F8D0A46317A28D8AB30DA8A5EC02D11EAD" group="net.sf.jopt-simple"/>
+         <trusted-key id="51B52DC5DD452F92BE342CC2858FC4C4F43856A3" group="xerces"/>
+         <trusted-key id="55E770230E69CC6DE143FB5B62C82E50836EB3EE" group="com.github.gundy"/>
+         <trusted-key id="5897253BEA3046AEEA95A067E93671C7272B7B3F" group="org.jdom"/>
+         <trusted-key id="5CE325996A35213326AE2C68912D2C0ECCDA55C0" group="com.google.errorprone"/>
+         <trusted-key id="5FA41C402006EAC55D72AAFD99CE9D9F22DC5C99" group="org.json"/>
+         <trusted-key id="60200AC4AE761F1614D6C46766D68DAA073BE985">
+            <trusting group="ch.qos.logback"/>
+            <trusting group="org.slf4j"/>
+         </trusted-key>
+         <trusted-key id="6214760097DC5CFAD0175AC2C9FBAA83A8753994">
+            <trusting group="com.fasterxml"/>
+            <trusting group="com.fasterxml.jackson"/>
+            <trusting group="com.fasterxml.jackson.core"/>
+            <trusting group="com.fasterxml.jackson.dataformat"/>
+            <trusting group="com.fasterxml.jackson.module"/>
+            <trusting group="com.fasterxml.woodstox"/>
+            <trusting group="org.codehaus.woodstox"/>
+         </trusted-key>
+         <trusted-key id="648190996EC0930A6D7D49A978178478013521D0" group="com.facebook"/>
+         <trusted-key id="694621A7227D8D5289699830ABE9F3126BB741C1">
+            <trusting group="com.google.guava"/>
+            <trusting group="com.google.jimfs"/>
+         </trusted-key>
+         <trusted-key id="696B6199A2A9D8C29CE78CC0D041CAD2E452550F" group="com.google.protobuf"/>
+         <trusted-key id="6BDACA2C0493CCA133B372D09C4F7E9D98B1CC53" group="org.apache"/>
+         <trusted-key id="6DD3B8C64EF75253BEB2C53AD908A43FB7EC07AC">
+            <trusting group="com.sun.activation"/>
+            <trusting group="jakarta.activation"/>
+         </trusted-key>
+         <trusted-key id="6F538074CCEBF35F28AF9B066A0975F8B1127B83">
+            <trusting group="org.jetbrains.kotlin"/>
+            <trusting group="org.jetbrains.kotlin.jvm"/>
+         </trusted-key>
+         <trusted-key id="6F7E5ACBCD02DB60DFD232E45E1F79A7C298661E" group="com.google.auto"/>
+         <trusted-key id="720746177725A89207A7075BFD5DEA07FCB690A8" group="org.codehaus.mojo"/>
+         <trusted-key id="7615AD56144DF2376F49D98B1669C4BB543E0445" group="com.google.errorprone"/>
+         <trusted-key id="7616EB882DAF57A11477AAF559A252FB1199D873" group="com.google.code.findbugs"/>
+         <trusted-key id="78DA3333F653B1C54A938BE24DB7BC57DFDBCEA4" group="net.java.dev.jna"/>
+         <trusted-key id="7CD52B5A8295137C88FB5748DDDAFA7674E54418" group="org.testng"/>
+         <trusted-key id="7E22D50A7EBD9D2CD269B2D4056ACA74D46000BF" group="io.netty"/>
+         <trusted-key id="7F36E793AE3252E5D9E9B98FEE9E7DC9D92FC896" group="com.google.errorprone"/>
+         <trusted-key id="7FAA0F2206DE228F0DB01AD741321490758AAD6F" group="org.codehaus.groovy"/>
+         <trusted-key id="8254180BFC943B816E0B5E2E5E2F2B3D474EFE6B" group="it.unimi.dsi"/>
+         <trusted-key id="84789D24DF77A32433CE1F079EB80E92EB2135B1">
+            <trusting group="org.apache"/>
+            <trusting group="org.codehaus.mojo"/>
+         </trusted-key>
+         <trusted-key id="8569C95CADC508B09FE90F3002216ED811210DAA" group="io.github.detekt.sarif4k"/>
+         <trusted-key id="8756C4F765C9AC3CB6B85D62379CE192D401AB61">
+            <trusting group="com.github.javaparser"/>
+            <trusting group="info.picocli"/>
+            <trusting group="org.jetbrains.intellij.deps"/>
+            <trusting group="org.jetbrains.kotlinx"/>
+         </trusted-key>
+         <trusted-key id="90EE19787A7BCF6FD37A1E9180C08B1C29100955" group="com.squareup"/>
+         <trusted-key id="98465301A4939C0279F2E847D89D05374952262B" group="org.jetbrains.dokka"/>
+         <trusted-key id="A0E7010544C02BD4C072B1803E3D777C909A447C" group="io.opencensus"/>
+         <trusted-key id="A5BD02B93E7A40482EB1D66A5F69AD087600B22C" group="org.ow2.asm"/>
+         <trusted-key id="A6D6C97108B8585F91B158748671A8DF71296252" group="com.squareup"/>
+         <trusted-key id="A7892505CF1A58076453E52D7999BEFBA1039E8B" group="net.bytebuddy"/>
+         <trusted-key id="AA417737BD805456DB3CBDDE6601E5C08DCCBB96" group="info.picocli"/>
+         <trusted-key id="AA70C7C433D501636392EC02153E7A3C2B4E5118" group="org.eclipse.ee4j"/>
+         <trusted-key id="AFCC4C7594D09E2182C60E0F7A01B0F236E5430F" group="com.google.code.gson"/>
+         <trusted-key id="B02335AA54CCF21E52BBF9ABD9C565AA72BA2FDD" group="io.grpc"/>
+         <trusted-key id="B47034C19C9B1F3DC3702F8D476634A4694E716A" group="com.googlecode.java-diff-utils"/>
+         <trusted-key id="B6E73D84EA4FCC47166087253FAAD2CD5ECBB314" group="org.apache.commons"/>
+         <trusted-key id="B801E2F8EF035068EC1139CC29579F18FA8FD93B" group="com.google.j2objc"/>
+         <trusted-key id="BCC135FC7ED8214F823D73E97FE9900F412D622E" group="com.google.flatbuffers"/>
+         <trusted-key id="BDB5FA4FE719D787FB3D3197F6D4A1D411E9D1AE" group="com.google.guava"/>
+         <trusted-key id="C6F7D1C804C821F49AF3BFC13AD93C3C677A106E" group="io.perfmark"/>
+         <trusted-key id="C70B844F002F21F6D2B9C87522E44AC0622B91C3" group="com.beust"/>
+         <trusted-key id="C7BE5BCC9FEC15518CFDA882B0F3710FA64900E7">
+            <trusting group="com.google.auto.value"/>
+            <trusting group="com.google.code.gson"/>
+         </trusted-key>
+         <trusted-key id="CC4483CD6A3EB2939B948667A1B4460D8BA7B9AF" group="org.mockito"/>
+         <trusted-key id="CE8075A251547BEE249BC151A2115AE15F6B8B72">
+            <trusting group="org.apache.ant"/>
+            <trusting group="org.apache.commons"/>
+         </trusted-key>
+         <trusted-key id="D433F9C895710DB8AB087FA6B7C3B43D18EAA8B7">
+            <trusting group="org.codehaus.mojo"/>
+            <trusting group="org.codehouse.mojo"/>
+         </trusted-key>
+         <trusted-key id="D477D51812E692011DB11E66A6EA2E2BF22E0543" group="io.github.java-diff-utils"/>
+         <trusted-key id="D4C89EA4AAF455FD88B22087EFE8086F9E93774E" group="junit"/>
+         <trusted-key id="D6F1BC78607808EC8E9F69437A8860944FAD5F62" group="org.apache.commons"/>
+         <trusted-key id="DA7A1BB85B19E4FB05073431205C8673DC742C7C" group="org.apache"/>
+         <trusted-key id="DB0597E3144342256BC81E3EC727D053C4481CF5" group="org.tensorflow"/>
+         <trusted-key id="DCBA03381EF6C89096ACD985AC5EC74981F9CDA6" group="org.testng"/>
+         <trusted-key id="E62231331BCA7E1F292C9B88C1B12A5D99C0729D" group="org.jetbrains"/>
+         <trusted-key id="E77417AC194160A3FABD04969A259C7EE636C5ED">
+            <trusting group="com.google.errorprone"/>
+            <trusting group="com.google.googlejavaformat"/>
+         </trusted-key>
+         <trusted-key id="E7DC75FC24FB3C8DFE8086AD3D5839A2262CBBFB" group="org.jetbrains.kotlinx"/>
+         <trusted-key id="E82D2EAF2E83830CE1F7F6BE571A5291E827E1C7" group="net.java"/>
+         <trusted-key id="E85AED155021AF8A6C6B7A4A7C7D8456294423BA" group="org.objenesis"/>
+         <trusted-key id="EA23DB1360D9029481E7F2EFECDFEA3CB4493B94" group="jline"/>
+         <trusted-key id="EB1B3DE71713C9EC2E87CC26EE92349AD86DE446" group="com.google.j2objc"/>
+         <trusted-key id="EE0CA873074092F806F59B65D364ABAA39A47320">
+            <trusting group="com.google.errorprone"/>
+            <trusting group="com.google.turbine"/>
+         </trusted-key>
+         <trusted-key id="F1A51E051F527E0C8E24D54D4B1E11D5A4B91E89" group="com.google.protobuf"/>
+         <trusted-key id="F254B35617DC255D9344BCFA873A8E86B4372146">
+            <trusting group="org.apache"/>
+            <trusting group="org.codehaus.mojo"/>
+         </trusted-key>
+         <trusted-key id="F3184BCD55F4D016E30D4C9BF42E87F9665015C9" group="org.jsoup"/>
+         <trusted-key id="FA1703B1D287CAEA3A60F931E0130A3ED5A2079E" group="org.webjars"/>
+         <trusted-key id="FA77DCFEF2EE6EB2DEBEDD2C012579464D01C06A" group="org.apache"/>
+         <trusted-key id="FA7929F83AD44C4590F6CC6815C71C0A4E0B8EDD" group="net.java.dev.jna"/>
+         <trusted-key id="FC411CD3CB7DCB0ABC9801058118B3BCDB1A5000" group="jakarta.xml.bind"/>
+         <trusted-key id="FF6E2C001948C5F2F38B0CC385911F425EC61B51">
+            <trusting group="junit"/>
+            <trusting group="org.junit"/>
+            <trusting group="org.junit.jupiter"/>
+            <trusting group="org.junit.platform"/>
+            <trusting group="org.opentest4j"/>
+         </trusted-key>
+      </trusted-keys>
+   </configuration>
+   <components>
+      <component group="javax.inject" name="javax.inject" version="1">
+         <artifact name="javax.inject-1.jar">
+            <sha256 value="91c77044a50c481636c32d916fd89c9118a72195390452c81065080f957de7ff" origin="Generated by Gradle" reason="Artifact is not signed"/>
+         </artifact>
+         <artifact name="javax.inject-1.pom">
+            <sha256 value="943e12b100627804638fa285805a0ab788a680266531e650921ebfe4621a8bfa" origin="Generated by Gradle" reason="Artifact is not signed"/>
+         </artifact>
+      </component>
+      <component group="net.sf.kxml" name="kxml2" version="2.3.0">
+         <artifact name="kxml2-2.3.0.jar">
+            <sha256 value="f264dd9f79a1fde10ce5ecc53221eff24be4c9331c830b7d52f2f08a7b633de2" origin="Generated by Gradle" reason="Artifact is not signed. b/294916131"/>
+         </artifact>
+         <artifact name="kxml2-2.3.0.pom">
+            <sha256 value="31ce606f4e9518936299bb0d27c978fa61e185fd1de7c9874fe959a53e34a685" origin="Generated by Gradle" reason="Artifact is not signed. b/294916131"/>
+         </artifact>
+      </component>
+      <component group="org.ow2" name="ow2" version="1.5">
+         <artifact name="ow2-1.5.pom">
+            <sha256 value="0f8a1b116e760b8fe6389c51b84e4b07a70fc11082d4f936e453b583dd50b43b" origin="Generated by Gradle" reason="Artifact is not signed"/>
+         </artifact>
+      </component>
+      <component group="org.sonatype.oss" name="oss-parent" version="7">
+         <artifact name="oss-parent-7.pom">
+            <sha256 value="b51f8867c92b6a722499557fc3a1fdea77bdf9ef574722fe90ce436a29559454" origin="Generated by Gradle" reason="Artifact is not signed"/>
+         </artifact>
+      </component>
+   </components>
+</verification-metadata>

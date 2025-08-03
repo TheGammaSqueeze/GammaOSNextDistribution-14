@@ -1,0 +1,31 @@
+{
+  "mocks": [
+    {
+      "request": {
+        "path": "bidding"
+      },
+      "response": {
+        "body": "BiddingLogicV2.js"
+      },
+      "verify_called": true
+    },
+    {
+      "request": {
+        "path": "scoring"
+      },
+      "response": {
+        "body": "ScoringLogic.js"
+      },
+      "verify_called": true
+    },
+    {
+      "request": {
+        "path": "seller/reportImpression"
+      },
+      "response": {
+        "body": "DefaultResponse.txt"
+      },
+      "verify_called": true
+    }
+  ]
+}

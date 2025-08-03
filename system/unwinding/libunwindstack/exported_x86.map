@@ -1,0 +1,8 @@
+LIBUNWINDSTACK {
+  global:
+    *unwindstack*;
+    AsmGetRegs;
+
+  local:
+    *;
+};

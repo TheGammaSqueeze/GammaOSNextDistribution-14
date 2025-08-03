@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    Copyright (C) 2021 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="brand_screen_header" msgid="4382251935798018352">"此車輛屬於機構"</string>
+    <string name="contact_device_provider" msgid="338577979231875837">"如要瞭解詳情，請聯絡<xliff:g id="IT_ADMIN">%1$s</xliff:g>。"</string>
+    <string name="organization_admin" msgid="6551608903069550652">"機構管理員"</string>
+    <string name="if_questions_contact_admin" msgid="4645510019575736238">"如有任何問題，請聯絡機構管理員"</string>
+    <string name="admin_has_ability_to_monitor_device" msgid="3132155961508293345">"機構管理員可監察和管理與此車輛相關的設定、公司存取權、應用程式、權限和資料，包括網絡活動和車輛位置。<xliff:g id="LINE_BREAK">
+
+</xliff:g>請聯絡機構管理員瞭解詳情 (包括機構的私隱權政策)。"</string>
+    <string name="contact_your_admin_for_more_info" msgid="1419852317652804536">"聯絡機構管理員瞭解詳情，包括機構的私隱權政策。"</string>
+    <string name="managed_device_info" msgid="2134697391634083944">"這是受管理車輛"</string>
+    <string name="contact_your_admin_for_help" msgid="1741496631607502730">"聯絡機構管理員以尋求協助"</string>
+    <string name="fully_managed_device_provisioning_accept_header" msgid="8767138982035307813">"設定受管理車輛"</string>
+    <string name="fully_managed_device_provisioning_step_1_header" msgid="8704166635032524345">"存取你機構的應用程式"</string>
+    <string name="fully_managed_device_provisioning_step_1_description" msgid="5960961281295355254">"正在設定資訊娛樂系統…"</string>
+    <string name="fully_managed_device_provisioning_step_2_header" msgid="5888602026900289468">"資訊娛樂系統資料並非私人"</string>
+    <string name="fully_managed_device_provisioning_step_2_subheader_title" msgid="1421575203782743214">"你的活動和資料"</string>
+    <string name="fully_managed_device_provisioning_step_2_subheader" msgid="4881961368653838979">"機構管理員或可查看你在此車輛上的活動和資料。"</string>
+    <string name="fully_managed_device_provisioning_permissions_secondary_subheader" msgid="8955791361423166123">"機構管理員可設定此車輛的應用程式權限，例如麥克風和位置資訊權限。"</string>
+    <string name="fully_managed_device_with_permission_control_provisioning_summary" msgid="2503568673345133100">"透過呢部車嘅資訊娛樂系統輕鬆使用工作應用程式。呢部車並唔係私人嘅，所以機構管理員或者可以睇到你嘅活動同資料。機構管理員亦都可以設定呢部車嘅應用程式權限，例如咪高風同位置資訊權限。"</string>
+    <string name="fully_managed_device_provisioning_summary" msgid="4323948058344613817">"透過呢部車嘅資訊娛樂系統輕鬆使用工作應用程式。呢部車並唔係私人嘅，所以機構管理員或者可以睇到你嘅資料同活動。"</string>
+    <string name="fully_managed_device_provisioning_progress_label" msgid="988594700479673633">"正在設定受管理車輛"</string>
+    <string name="fully_managed_device_provisioning_return_device_title" msgid="1578111657911434819">"取消設定及交還車輛"</string>
+    <string name="fully_managed_device_provisioning_return_device_subheader" msgid="5809488930429106172">"重設此車輛並交還至機構管理員，或返回上一個畫面以繼續設定。"</string>
+    <string name="fully_managed_device_cancel_setup_button" msgid="4113790677940440998">"取消設定"</string>
+    <string name="fully_managed_device_reset_and_return_button" msgid="4951274590516561428">"重設並交還"</string>
+    <string name="fully_managed_device_provisioning_privacy_title" msgid="4789425994893472324">"私隱聲明"</string>
+    <string name="fully_managed_device_provisioning_privacy_body" msgid="5549745709511179391">"機構管理員或可查看你在此車輛上的資料和活動。"</string>
+</resources>

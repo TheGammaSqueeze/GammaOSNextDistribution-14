@@ -1,0 +1,27 @@
+//############################################################
+// StorageManager Robolectric test target.                   #
+//############################################################
+
+package {
+    default_team: "trendy_team_nearby",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_robolectric_test {
+    name: "StorageManagerRoboTests",
+
+    srcs: ["src/**/*.java"],
+
+    java_resource_dirs: ["config"],
+
+    libs: [
+        "truth",
+    ],
+
+    instrumentation_for: "StorageManager",
+
+    test_options: {
+        timeout: 36000,
+    },
+    upstream: true,
+}

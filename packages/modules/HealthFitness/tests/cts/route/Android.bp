@@ -1,0 +1,73 @@
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "CtsExerciseRouteTestCases",
+    manifest: "AndroidManifest.xml",
+    test_config: "AndroidTest.xml",
+    defaults: ["cts_defaults"],
+    srcs: [
+        "src/**/*.java",
+        "src/**/*.kt"
+        ],
+    static_libs: [
+        "cts-healthconnect-lib",
+        "modules-utils-build_system",
+        "androidx.test.rules",
+        "androidx.test.ext.truth",
+        "compatibility-device-util-axt",
+        "ctstestrunner-axt",
+        "cts-wm-util",
+        "testng",
+        "cts-healthconnect-utils",
+    ],
+    test_suites: [
+        "cts",
+        "general-tests",
+        "mts-healthfitness",
+        "mcts-healthfitness",
+    ],
+    sdk_version: "test_current",
+    min_sdk_version: "34",
+    libs: [
+        "android.test.base",
+        "android.test.mock",
+        "android.test.runner",
+        "framework-healthfitness",
+    ],
+    data : [
+          ":CtsExerciseRouteTestRouteWriterApp",
+          ":CtsExerciseRouteTestRouteReaderWriterApp",
+    ]
+}
+
+android_test_helper_app {
+    name: "CtsExerciseRouteTestRouteWriterApp",
+    manifest: "RouteWriterAppManifest.xml",
+    static_libs: ["cts-healthconnect-lib", "cts-healthconnect-test-helper"],
+    sdk_version: "test_current",
+    min_sdk_version: "34",
+}
+
+android_test_helper_app {
+    name: "CtsExerciseRouteTestRouteReaderWriterApp",
+    manifest: "RouteReaderWriterAppManifest.xml",
+    static_libs: ["cts-healthconnect-lib", "cts-healthconnect-test-helper"],
+    sdk_version: "test_current",
+    min_sdk_version: "34",
+}

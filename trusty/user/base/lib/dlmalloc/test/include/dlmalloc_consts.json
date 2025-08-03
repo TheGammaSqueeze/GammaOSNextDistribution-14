@@ -1,0 +1,10 @@
+{
+    "header": "dlmalloc_consts.h",
+    "constants":[
+        {
+            "name": "DLMALLOC_TEST_SRV_PORT",
+            "value": "com.android.trusty.dlmalloctest.srv",
+            "type": "port"
+        }
+    ]
+}

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+    <!-- Background color for launcher icon. -->
+    <color name="ic_launcher_settings_background">#1A73E8</color>
+    <!-- Background color for toolbar icon. -->
+    <color name="ic_toolbar_settings_background">#B0C5FF</color>
+
+    <!--
+        Default CarSettings icon color.
+        A color resource is used instead of an attribute since certain CarSettings drawables may be
+        used by other applications, which won't load colors specified in theme attributes.
+    -->
+    <color name="icon_color_default">@color/car_ui_text_color_primary</color>
+
+    <!-- Top-level icon colors -->
+    <color name="top_level_icon_default">@color/car_grey_400_with_disable</color>
+    <color name="top_level_display_icon">@color/top_level_icon_default</color>
+    <color name="top_level_sound_icon">@color/top_level_icon_default</color>
+    <color name="top_level_network_and_internet_icon">@color/top_level_icon_default</color>
+    <color name="top_level_bluetooth_icon">@color/top_level_icon_default</color>
+    <color name="top_level_units_icon">@color/top_level_icon_default</color>
+    <color name="top_level_location_icon">@color/top_level_icon_default</color>
+    <color name="top_level_applications_icon">@color/top_level_icon_default</color>
+    <color name="top_level_notifications_icon">@color/top_level_icon_default</color>
+    <color name="top_level_profiles_and_accounts_icon">@color/top_level_icon_default</color>
+    <color name="top_level_privacy_icon">@color/top_level_icon_default</color>
+    <color name="top_level_storage_icon">@color/top_level_icon_default</color>
+    <color name="top_level_security_icon">@color/top_level_icon_default</color>
+    <color name="top_level_system_icon">@color/top_level_icon_default</color>
+    <color name="top_level_accessibility_icon">@color/top_level_icon_default</color>
+    <color name="top_level_assistant_and_voice_icon">@color/top_level_icon_default</color>
+    <!-- Default foreground color for injected top-level icons -->
+    <color name="top_level_injected_icon_default">@color/top_level_icon_default</color>
+
+    <!-- Default background color for injected top-level icons -->
+    <color name="top_level_injected_default_background">#4285F4</color>
+
+    <!-- Bluetooth -->
+    <color name="bluetooth_bonded_device_off_background_color">#626262</color>
+    <color name="bluetooth_bonded_device_icon_color_checked">@android:color/black</color>
+    <color name="bluetooth_bonded_device_icon_color_unchecked">@android:color/white</color>
+    <color name="bluetooth_disabled_device_background_color">@android:color/black</color>
+    <color name="bluetooth_disabled_device_icon_color">#75FFFFFF</color>
+    <color name="bluetooth_device_icon_color">@android:color/white</color>
+
+    <!-- Quick Controls -->
+    <!--
+        By default, the Quick Controls view will tint the provided icon to the configured value.
+        Therefore, the color specified here is more of a placeholder to create the initial fill.
+    -->
+    <color name="qc_default_icon_color">@android:color/white</color>
+
+    <!-- Semi-transparent background color for user disclaimer activity. -->
+    <color name="user_disclaimer_activity_background">#c7000000</color>
+    <!-- Color of text in new user disclaimer activity. -->
+    <color name="user_disclaimer_text_color">@android:color/white</color>
+    <!-- Background color of button. -->
+    <color name="user_disclaimer_action_button_background_color">@*android:color/car_grey_868</color>
+</resources>

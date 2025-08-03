@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017-2024 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="system_reboot_confirm_cm">Перезапустить в:</string>
+    <string name="global_action_restart_system">Система</string>
+    <string name="global_action_restart_recovery">Відновлення</string>
+    <string name="global_action_restart_bootloader">Загрузчик</string>
+    <plurals name="show_dev_countdown_cm">
+        <item quantity="one">Нажмите еще <xliff:g id="step_count">%1$d</xliff:g> раз, чтобы включить настройки для разработчиков.</item>
+        <item quantity="few">Нажмите еще <xliff:g id="step_count">%1$d</xliff:g> раза, чтобы включить настройки для разработчиков.</item>
+        <item quantity="many">Нажмите еще <xliff:g id="step_count">%1$d</xliff:g> раз, чтобы включить настройки для разработчиков.</item>
+        <item quantity="other">Нажмите еще <xliff:g id="step_count">%1$d</xliff:g> раза, чтобы включить настройки для разработчиков.</item>
+    </plurals>
+    <string name="show_dev_on_cm">Настройки для разработчиков включены!</string>
+    <string name="show_dev_already_cm">Нет необходимости, вы уже включили параметры разработки.</string>
+    <string name="system_buttons">Кнопки</string>
+    <string name="power_button_long_press_action_title">Длительное нажатие кнопки питания</string>
+    <string name="power_button_long_press_for_power_menu_action">Доступ к меню питания</string>
+    <string name="power_button_long_press_for_assistant_action">Запуск ассистента</string>
+    <string name="inputs_volume_control_enabled">Регулятор громкости CEC</string>
+    <string name="inputs_volume_control_enabled_desc">Управляйте громкостью ТВ/AVR вместо внутренней громкости</string>
+    <string name="enable_adb_root">Отладка суперпользователем</string>
+    <string name="enable_adb_root_summary">Разрешить запуск отладки Android с правами суперпользователя</string>
+    <string name="advanced_restart_title">Варианты перезапуска</string>
+    <string name="advanced_restart_summary">Показать варианты перезапуска в recovery, загрузчик или выполнения мягкой перезагрузки</string>
+    <string name="adb_over_network">ADB по сети</string>
+    <string name="adb_over_network_summary">Включить отладку TCP/IP через сетевые интерфейсы (Wi\u2011Fi и USB-сети). Эта настройка сбрасывается при перезагрузке</string>
+    <string name="adb_over_network_warning">Внимание: при включении отладки по сети, возможен неконтролируемый доступ к вашему устройству.\n\nИспользуйте эту функцию только при подключении к доверенным сетям.\n\nВы действительно хотите включить эту функцию?</string>
+    <string name="trust_category_features">Статус</string>
+    <string name="trust_feature_selinux">SELinux</string>
+    <string name="trust_feature_selinux_value_enforcing">Принудительный</string>
+    <string name="trust_feature_selinux_value_disabled">Отключен</string>
+    <string name="trust_feature_selinux_explain">SELinux определяет какие процессы имеют доступ к файлам/путям на вашем устройстве.\nЭто предотвращает доступ приложений и служб к файлам, к которым они не должны иметь доступа: таким образом ограничивается доступ потенциальных вредоносных процессов, что позволяет сохранить вашу защищенность.</string>
+    <string name="trust_feature_security_patches">Обновления безопасности Android</string>
+    <string name="trust_feature_security_patches_value_base">Платформа: %1$s\nПроизводитель: %2$s</string>
+    <string name="trust_feature_security_patches_value_new">актуален</string>
+    <string name="trust_feature_security_patches_value_medium">устарел на несколько месяцев</string>
+    <string name="trust_feature_security_patches_value_old">устарел</string>
+    <string name="trust_feature_security_patches_explain">Исправления безопасности ежемесячно выпускаются Google совместно с поставщиками SoC для устранения уязвимостей в системе, которые могут быть использованы вредоносными приложениями для обхода ограничений безопасности и нанесения необратимого повреждения вашему устройству. Исправления, предоставляемые Google, применяются каждый месяц на всех поддерживаемых устройствах, но исправления для проприетарного кода могут применяться только производителем вашего устройства. Для поддержания вашего устройства в безопасном состоянии, убедитесь, что ваша сборка LineageOS актуальна ​​и (если применимо) образ производителя обновлен до последней версии, рекомендованной LineageOS.</string>
+    <string name="trust_feature_encryption">Шифрование</string>
+    <string name="trust_feature_encryption_value_enabled">Включено</string>
+    <string name="trust_feature_encryption_value_nolock">Необходима защита экрана блокировки</string>
+    <string name="trust_feature_encryption_value_disabled">Отключено</string>
+    <string name="trust_feature_encryption_explain">Шифрование вашего устройства предотвращает доступ к личным данным, когда ОС Android не загружена. Это особенно важно в случае кражи телефона, так как функция препятствует получению доступа к вашим сообщениям, контактам и другой личной информации без пароля.\nЧтобы сделать шифрование более эффективным, необходимо настроить защиту экрана блокировки.</string>
+    <string name="trust_category_tools">Конфиденциальность</string>
+    <string name="trust_notification_alerts_title">Оповещения безопасности</string>
+    <string name="trust_restrict_usb_title">Ограничение USB</string>
+    <string name="trust_restrict_usb_summary">Поддержка управления USB-подключениями, такими как наушники, устройства хранения данных, ввода (мыши, клавиатуры, джойстики) и ADB</string>
+    <string name="trust_restrict_usb_always">Запретить USB-подключения</string>
+    <string name="trust_restrict_usb_disabled">Всегда разрешать USB-подключения</string>
+    <string name="trust_onboarding_description">Trust помогает поддерживать защиту вашего устройства и конфиденциальность.\nЗначок Trust будет отображаться при проверке отображаемого контента.</string>
+    <string name="trust_warnings_alerts_intro">Вы можете выбрать проблемы безопасности, о которых хотите получать предупреждения. Для вашей защиты рекомендуется включить все предупреждения</string>
+    <string name="trust_warnings_selinux">Статус SELinux</string>
+    <string name="trust_warnings_keys">Подпись сборки</string>
+    <string name="sleep_button_label">Спящий режим</string>
+    <string name="system_sleep_confirm">Спящий режим сейчас?</string>
+    <string name="shutdown_button_label">Выключение</string>
+    <string name="system_shutdown_confirm">Выключить сейчас?</string>
+    <string name="convertible_port_busy_title">USB-порт 1 используется</string>
+    <string name="convertible_port_busy_warning">Отсоедините все устройства и аксессуары и повторите попытку.</string>
+    <string name="mtp_enable_title">Доступ к папкам SHIELD на ПК с помощью USB</string>
+    <string name="mtp_enable_warning">Порт USB 1 теперь настроен для подключения SHIELD к ПК в качестве медиаустройства.\n\nЭтот порт больше не будет обнаруживать USB-носители или USB-аксессуары и не может быть использован для зарядки устройств.</string>
+    <string name="mtp_retry_error">Ошибка. Повторите попытку.</string>
+    <string name="mtp_summary">В этом режиме порт USB не работает в других целях</string>
+    <string name="mtp_title">Передача файлов на компьютер через USB</string>
+    <string name="mtp_unexpected_error">Неожиданная ошибка. Повторите попытку позднее.</string>
+    <string name="usb_debugging_enable_title">Включена отладка по USB</string>
+    <string name="usb_debugging_enable_warning">Порт USB 1 теперь настроен для подключения SHIELD к ПК в качестве медиаустройства.\n\nЭтот порт больше не будет обнаруживать USB-носители или USB-аксессуары и не может быть использован для зарядки устройств.</string>
+</resources>

@@ -1,0 +1,29 @@
+// Copyright 2023 Google, LLC
+
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: [
+        "Android-Apache-2.0",
+    ],
+}
+
+// setup nearby connection test
+android_test_import {
+    name: "nearby_snippet",
+    owner: "google",
+    apk: "nearby_snippet.apk",
+    preprocessed: true,
+    presigned: true,
+    test_suites:[],
+}
+
+// setup the 2nd nearby connection test, as
+// one client only allow to set up 1 connection.
+android_test_import {
+    name: "nearby_snippet_2",
+    owner: "google",
+    apk: "nearby_snippet_2.apk",
+    preprocessed: true,
+    presigned: true,
+    test_suites: [],
+}

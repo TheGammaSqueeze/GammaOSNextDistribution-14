@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<vector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="@dimen/icon_size"
+    android:height="@dimen/icon_size"
+    android:viewportHeight="44.0"
+    android:viewportWidth="44.0">
+    <path
+        android:fillColor="@color/icon_color_default"
+        android:pathData="M25.6668 7.33337H36.6668V11H31.6618C34.3172 13.3215 36.1314 16.5807 36.5661 20.2753C35.7393 20.095 34.8807 20 34.0001 20C33.6039 20 33.2121 20.0192 32.8256 20.0568C32.3806 17.6123 31.1121 15.4637 29.3335 13.86V18.3334H25.6668V7.33337Z"/>
+    <path
+        android:fillColor="@color/icon_color_default"
+        android:pathData="M12.3385 33.0001C9.27683 30.3234 7.3335 26.4001 7.3335 22.0001C7.3335 15.1617 12.0085 9.44173 18.3335 7.81006V11.6417C14.0618 13.1634 11.0002 17.2151 11.0002 22.0001C11.0002 25.2451 12.4302 28.1234 14.6668 30.1401V25.6667H18.3335V36.6667H7.3335V33.0001H12.3385Z"/>
+    <path
+        android:fillColor="@color/icon_color_default"
+        android:fillType="evenOdd"
+        android:pathData="M25.0001 32.1667C25.0001 27.1067 29.1068 23 34.1668 23C39.2268 23 43.3335 27.1067 43.3335 32.1667C43.3335 37.2267 39.2268 41.3333 34.1668 41.3333C29.1068 41.3333 25.0001 37.2267 25.0001 32.1667ZM37.3935 36.7133L38.6951 35.4117L35.4685 32.1667L38.7135 28.9217L37.4118 27.62L34.1668 30.865L30.9218 27.62L29.6201 28.9217L32.8651 32.1667L29.6201 35.4117L30.9218 36.7133L34.1668 33.4683L37.3935 36.7133Z"/>
+</vector>

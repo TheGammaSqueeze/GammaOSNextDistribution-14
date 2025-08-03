@@ -1,0 +1,71 @@
+// Copyright 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto2";
+
+package netsim.stats;
+
+// Message for Invalid Packet
+message InvalidPacket {
+  enum Reason {
+    UNKNOWN = 0;
+    PARSE_ERROR = 1;
+    UNSUPPORTED = 2;
+    OTHERS = 3;
+  }
+  optional Reason reason = 1;
+  optional string description = 2;
+  optional bytes packet = 3;
+}
+
+// Radio statistics for a netsim session.
+message NetsimRadioStats {
+  // The kind of radio
+  enum Kind {
+    UNSPECIFIED = 0;
+    BLUETOOTH_LOW_ENERGY = 1;
+    BLUETOOTH_CLASSIC = 2;
+    // built-in BLE beacon
+    BLE_BEACON = 3;
+    WIFI = 4;
+    UWB = 5;
+    NFC = 6;
+  }
+  optional uint32 device_id = 1;
+  optional Kind kind = 2;
+  // The duration of the controller connection
+  optional uint64 duration_secs = 3;
+  // TX/RX messages for phy layer
+  optional int32 tx_count = 4;
+  optional int32 rx_count = 5;
+  // TX/RX bytes for HostController
+  optional int32 tx_bytes = 6;
+  optional int32 rx_bytes = 7;
+  // Recent Invalid Packets
+  repeated InvalidPacket invalid_packets = 8;
+}
+
+// Statistics for a netsim session.
+message NetsimStats {
+  // The length of the session in seconds
+  optional uint64 duration_secs = 1;
+  // The total number of devices that connected
+  optional int32 device_count = 2;
+  // The peak number of concurrent devices connected
+  optional int32 peak_concurrent_devices = 3;
+  // Individual chip statistics
+  repeated NetsimRadioStats radio_stats = 4;
+  // The version of netsim daemon
+  optional string version = 5;
+}

@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package blueberry.facade;
+
+message Data {
+  bytes payload = 1;
+}
+
+message BluetoothAddress {
+  bytes address = 1;
+}
+
+enum BluetoothAddressTypeEnum {
+  PUBLIC_DEVICE_ADDRESS = 0x0;
+  RANDOM_DEVICE_ADDRESS = 0x1;
+  PUBLIC_IDENTITY_ADDRESS = 0x2;
+  RANDOM_IDENTITY_ADDRESS = 0x3;
+}
+
+enum BluetoothOwnAddressTypeEnum {
+  USE_PUBLIC_DEVICE_ADDRESS = 0x0;
+  USE_RANDOM_DEVICE_ADDRESS = 0x1;
+  RESOLVABLE_OR_PUBLIC_ADDRESS = 0x2;
+  RESOLVABLE_OR_RANDOM_ADDRESS = 0x3;
+}
+
+message BluetoothAddressWithType {
+  BluetoothAddress address = 1;
+  BluetoothAddressTypeEnum type = 2;
+}
+
+enum BluetoothPeerAddressTypeEnum {
+  PUBLIC_DEVICE_OR_IDENTITY_ADDRESS = 0x0;
+  RANDOM_DEVICE_OR_IDENTITY_ADDRESS = 0x1;
+}

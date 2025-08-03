@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2023 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<configuration description="VTS Audio HAL Test Plan">
+  <include name="vts" />
+  <include name="vts-presubmit-exclude" />
+
+  <option name="plan" value="vts-hal-audio" />
+  <option name="test-tag" value="vts-hal-audio" />
+
+  <!-- AudioCore -->
+  <option name="compatibility:include-filter" value="VtsHalAudioCoreTargetTest" />
+
+  <!-- AudioEffects -->
+  <option name="compatibility:include-filter" value="VtsHalAECTargetTest" />
+  <option name="compatibility:include-filter" value="VtsHalAGC1TargetTest" />
+  <option name="compatibility:include-filter" value="VtsHalAGC2TargetTest" />
+  <option name="compatibility:include-filter" value="VtsHalAudioEffectFactoryTargetTest" />
+  <option name="compatibility:include-filter" value="VtsHalAudioEffectTargetTest" />
+  <option name="compatibility:include-filter" value="VtsHalBassBoostTargetTest" />
+  <option name="compatibility:include-filter" value="VtsHalDownmixTargetTest" />
+  <option name="compatibility:include-filter" value="VtsHalDynamicsProcessingTargetTest" />
+  <option name="compatibility:include-filter" value="VtsHalEnvironmentalReverbTargetTest" />
+  <option name="compatibility:include-filter" value="VtsHalEqualizerTargetTest" />
+  <option name="compatibility:include-filter" value="VtsHalHapticGeneratorTargetTest" />
+  <option name="compatibility:include-filter" value="VtsHalLoudnessEnhancerTargetTest" />
+  <option name="compatibility:include-filter" value="VtsHalNSTargetTest" />
+  <option name="compatibility:include-filter" value="VtsHalPresetReverbTargetTest" />
+  <option name="compatibility:include-filter" value="VtsHalVirtualizerTargetTest" />
+  <option name="compatibility:include-filter" value="VtsHalVisualizerTargetTest" />
+  <option name="compatibility:include-filter" value="VtsHalVolumeTargetTest" />
+
+  <!-- SoundDose -->
+  <option name="compatibility:include-filter" value="VtsHalSoundDoseFactoryTargetTest" />
+
+</configuration>

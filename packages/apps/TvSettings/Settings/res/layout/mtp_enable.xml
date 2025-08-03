@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main_layout"
+    android:background="#101518"
+    android:focusable="true"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <ImageView
+        android:id="@+id/ports_image"
+        android:paddingTop="151dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/mtp_diagram"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:textSize="36dp"
+        android:textColor="#eeeeee"
+        android:gravity="center_horizontal"
+        android:id="@+id/title_text"
+        android:paddingTop="64dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/mtp_enable_title"
+        android:layout_below="@+id/ports_image"
+        android:fontFamily="sans-serif-light" />
+
+    <TextView
+        android:textSize="15dp"
+        android:textColor="#eeeeee"
+        android:gravity="center_horizontal"
+        android:id="@+id/description_text"
+        android:paddingTop="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/mtp_enable_warning"
+        android:layout_below="@+id/title_text"
+        android:fontFamily="sans-serif-light" />
+
+</RelativeLayout>

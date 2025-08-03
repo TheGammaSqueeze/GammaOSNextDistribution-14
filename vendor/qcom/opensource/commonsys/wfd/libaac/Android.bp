@@ -1,0 +1,25 @@
+cc_library_shared {
+    name: "libwfdaac_vendor",
+
+    srcs: [
+        "aacEncode.cpp",
+        "aacDecode.cpp",
+    ],
+
+    include_dirs: [
+        "external/aac/libAACenc/include",
+        "external/aac/libAACdec/include",
+        "external/aac/libSYS/include",
+    ],
+
+    shared_libs: ["liblog"],
+    static_libs: ["libFraunhoferAAC"],
+
+    vendor: true,
+
+    cflags: ["-Werror"],
+
+    sanitize: {
+        integer_overflow: true,
+    },
+}

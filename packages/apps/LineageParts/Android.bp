@@ -1,0 +1,48 @@
+/*
+ * SPDX-FileCopyrightText: 2019-2022 The LineageOS Project
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+android_app {
+    name: "LineageParts",
+
+    // Include SettingsLib and it's dependencies
+    defaults: ["SettingsLibDefaults"],
+
+    srcs: ["src/**/*.java"],
+    resource_dirs: ["res"],
+
+    manifest: "AndroidManifest.xml",
+
+    platform_apis: true,
+    certificate: "platform",
+    system_ext_specific: true,
+    privileged: true,
+
+    optimize: {
+        proguard_flags_files: ["proguard.flags"],
+    },
+
+    static_libs: [
+        "androidx.appcompat_appcompat",
+        "androidx.dynamicanimation_dynamicanimation",
+        "androidx.palette_palette",
+        "androidx.recyclerview_recyclerview",
+        "jsr305",
+        "org.lineageos.platform.internal",
+        "SystemUISharedLib",
+        "LineagePreferenceLib",
+    ],
+
+    required: [
+        "privapp_whitelist_org.lineageos.lineageparts"
+    ],
+}
+
+prebuilt_etc {
+    name: "privapp_whitelist_org.lineageos.lineageparts",
+    system_ext_specific: true,
+    sub_dir: "permissions",
+    src: "privapp_whitelist_org.lineageos.lineageparts.xml",
+    filename_from_src: true,
+}

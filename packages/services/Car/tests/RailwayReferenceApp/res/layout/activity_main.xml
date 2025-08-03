@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                                   xmlns:app="http://schemas.android.com/apk/res-auto"
+                                                   android:layout_width="match_parent"
+                                                   android:layout_height="match_parent"
+                                                   android:layout_margin="@dimen/margin_size"
+                                                   android:background="@color/activity_background">
+
+    <Button
+        android:id="@+id/updateButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.AppCompat.Button"
+        android:text="@string/update_button_title"
+        android:layout_margin="@dimen/margin_size"
+        app:layout_constraintBottom_toBottomOf="@id/interfaceNameInput"
+        app:layout_constraintEnd_toStartOf="@id/guideline50"
+        app:layout_constraintStart_toStartOf="@id/guideline25"
+        app:layout_constraintTop_toBottomOf="@id/networkCapabilitiesInput"
+        android:backgroundTint="@color/green_button_background"/>
+    <Button
+        android:id="@+id/connectButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.AppCompat.Button"
+        android:text="@string/connect_button_title"
+        android:layout_margin="@dimen/margin_size"
+        app:layout_constraintBottom_toBottomOf="@id/interfaceNameInput2"
+        app:layout_constraintEnd_toStartOf="@id/guideline50"
+        app:layout_constraintStart_toStartOf="@id/guideline25"
+        app:layout_constraintTop_toBottomOf="@id/enableDisableTitle"
+        android:backgroundTint="@color/green_button_background" />
+    <Button
+        android:id="@+id/enableButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.AppCompat.Button"
+        android:text="@string/enable_button_title"
+        android:layout_margin="@dimen/margin_size"
+        app:layout_constraintEnd_toStartOf="@id/guideline25"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/interfaceNameInput2"
+        android:backgroundTint="@color/green_button_background" />
+
+    <Button
+        android:id="@+id/disableButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.AppCompat.Button"
+        android:text="@string/disable_button_title"
+        android:layout_margin="@dimen/margin_size"
+        app:layout_constraintEnd_toStartOf="@id/guideline50"
+        app:layout_constraintStart_toStartOf="@id/guideline25"
+        app:layout_constraintTop_toBottomOf="@id/interfaceNameInput2"
+        android:backgroundTint="@color/red_button_background" />
+
+    <EditText
+        android:id="@+id/allowedPackageNamesInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_size"
+        android:textAppearance="@style/InputText"
+        android:textColor="@null"
+        android:background="@android:color/white"
+        app:layout_constraintEnd_toStartOf="@id/guideline50"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/allowedPackageNamesTitle" />
+
+    <EditText
+        android:id="@+id/ipConfigurationInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/InputText"
+        android:textColor="@null"
+        android:layout_margin="@dimen/margin_size"
+        android:background="@android:color/white"
+        app:layout_constraintEnd_toStartOf="@id/guideline25"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/ipConfigurationTitle" />
+
+    <EditText
+        android:id="@+id/interfaceNameInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/InputText"
+        android:textColor="@null"
+        android:layout_margin="@dimen/margin_size"
+        android:background="@android:color/white"
+        app:layout_constraintEnd_toStartOf="@id/guideline25"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/interfaceNameTitle" />
+    <EditText
+        android:id="@+id/networkCapabilitiesInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/InputText"
+        android:textColor="@null"
+        android:layout_margin="@dimen/margin_size"
+        android:background="@android:color/white"
+        app:layout_constraintEnd_toStartOf="@id/guideline50"
+        app:layout_constraintStart_toStartOf="@id/guideline25"
+        app:layout_constraintTop_toBottomOf="@id/networkCapabilitiesTitle" />
+
+    <EditText
+        android:id="@+id/interfaceNameInput2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/InputText"
+        android:textColor="@null"
+        android:layout_margin="@dimen/margin_size"
+        android:background="@android:color/white"
+        app:layout_constraintEnd_toStartOf="@id/guideline25"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/interfaceNameTitle2" />
+    <ScrollView
+        android:id="@+id/currentEthernetNetworksScrollView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_size"
+        android:textAppearance="@style/InputText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/guideline50"
+        app:layout_constraintTop_toBottomOf="@id/currentEthernetNetworksTitle">
+        <TextView
+            android:id="@+id/currentEthernetNetworksOutput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/InputText"
+            android:background="@color/scrolling_text_field_background" />
+    </ScrollView>
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_size"
+        android:textAppearance="@style/TitleText"
+        android:text="@string/activity_title"
+        app:layout_constraintEnd_toStartOf="@id/guideline50"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+    <TextView
+        android:id="@+id/updateConfigurationTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_size"
+        android:layout_marginTop="32dp"
+        android:textAppearance="@style/SectionHeaderText"
+        android:text="@string/update_configuration_section_title"
+        app:layout_constraintEnd_toStartOf="@id/guideline50"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/title" />
+
+    <TextView
+        android:id="@+id/allowedPackageNamesTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_size"
+        android:textAppearance="@style/BodyText"
+        android:text="@string/allowed_package_names_title"
+        app:layout_constraintEnd_toStartOf="@id/guideline50"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/updateConfigurationTitle" />
+
+    <TextView
+        android:id="@+id/ipConfigurationTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_size"
+        android:textAppearance="@style/BodyText"
+        android:text="@string/ip_configuration_title"
+        app:layout_constraintEnd_toStartOf="@id/guideline25"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/allowedPackageNamesInput" />
+
+    <TextView
+        android:id="@+id/interfaceNameTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_size"
+        android:textAppearance="@style/BodyText"
+        android:text="@string/interface_name_title"
+        app:layout_constraintEnd_toStartOf="@id/guideline25"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/ipConfigurationInput" />
+    <TextView
+        android:id="@+id/networkCapabilitiesTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_size"
+        android:textAppearance="@style/BodyText"
+        android:text="@string/network_capabilities_title"
+        app:layout_constraintEnd_toStartOf="@id/guideline50"
+        app:layout_constraintStart_toStartOf="@id/guideline25"
+        app:layout_constraintTop_toBottomOf="@id/allowedPackageNamesInput" />
+
+    <TextView
+        android:id="@+id/enableDisableTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_size"
+        android:layout_marginTop="32dp"
+        android:textAppearance="@style/SectionHeaderText"
+        android:text="@string/enable_disable_section_title"
+        app:layout_constraintEnd_toStartOf="@id/guideline50"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/interfaceNameInput" />
+
+    <TextView
+        android:id="@+id/interfaceNameTitle2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_size"
+        android:textAppearance="@style/BodyText"
+        android:text="@string/interface_name_title"
+        app:layout_constraintEnd_toStartOf="@id/guideline25"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/enableDisableTitle" />
+
+    <TextView
+        android:id="@+id/currentEthernetNetworksTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_size"
+        android:text="@string/current_ethernet_networks_section_title"
+        android:textAppearance="@style/SectionHeaderText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/guideline50"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline50"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_size"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".5" />
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline25"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_size"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".25" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

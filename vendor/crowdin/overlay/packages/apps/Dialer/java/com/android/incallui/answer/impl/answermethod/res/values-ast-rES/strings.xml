@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="call_incoming_swipe_to_answer">Esliza p\'arriba pa contestar</string>
+  <string name="call_incoming_swipe_to_reject">Esliza p\'abaxo pa refugar</string>
+  <string name="a11y_incoming_call_swipe_to_answer">Esliza p\'arriba con dos deos pa contestar la llamada o p\'abaxo pa refugala</string>
+  <string name="call_incoming_will_disconnect">Si contestes esta llamada, la videollamada va finar</string>
+  <string name="a11y_call_incoming_decline_description">Refugar</string>
+  <string name="call_incoming_decline">Refugar</string>
+  <string name="a11y_call_incoming_answer_description">Contestar</string>
+  <string name="call_incoming_answer">Contestar</string>
+</resources>

@@ -1,0 +1,8 @@
+# AAOS Dock Utility
+
+This library is to provides helper classes for dock in AAOS.
+
+This library provides:
+- Broadcast event and sender utility
+
+This library can be used by multiple packages in the system.

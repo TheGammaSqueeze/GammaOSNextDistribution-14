@@ -1,0 +1,63 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+aidl_interface {
+    name: "android.automotive.computepipe.runner",
+    vendor_available: true,
+    srcs: [
+        "android/automotive/computepipe/runner/*.aidl",
+        "android/automotive/computepipe/*.aidl",
+    ],
+    imports: [
+        "android.hardware.graphics.common-V5",
+    ],
+    stability: "vintf",
+    // Automotive has different platform schedule. We shouldn't need to
+    // freeze Auto interfaces when the mainline Android launches.
+    owner: "automotive",
+    frozen: false,
+    backend: {
+        java: {
+            enabled: false,
+        },
+        cpp: {
+            enabled: false,
+        },
+    },
+    versions_with_info: [
+        {
+            version: "1",
+            imports: ["android.hardware.graphics.common-V1"],
+        },
+    ],
+}
+
+aidl_interface {
+    name: "android.automotive.computepipe.registry",
+    vendor_available: true,
+    imports: ["android.automotive.computepipe.runner-V2"],
+    srcs: [
+        "android/automotive/computepipe/registry/*.aidl",
+        "android/automotive/computepipe/*.aidl",
+    ],
+    stability: "vintf",
+    // Automotive has different platform schedule. We shouldn't need to
+    // freeze Auto interfaces when the mainline Android launches.
+    owner: "automotive",
+    frozen: false,
+    backend: {
+        java: {
+            enabled: false,
+        },
+        cpp: {
+            enabled: false,
+        },
+    },
+    versions_with_info: [
+        {
+            version: "1",
+            imports: ["android.automotive.computepipe.runner-V1"],
+        },
+    ],
+}

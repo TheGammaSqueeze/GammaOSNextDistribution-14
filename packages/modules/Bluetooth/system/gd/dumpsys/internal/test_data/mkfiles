@@ -1,0 +1,9 @@
+../../../../../out/host/linux-x86/bin/flatc -b --schema --cpp string.fbs
+xxd -i string.bfbs > string_bfbs.h
+../../../../../out/host/linux-x86/bin/flatc -b --schema --cpp integer.fbs
+xxd -i integer.bfbs > integer_bfbs.h
+../../../../../out/host/linux-x86/bin/flatc -b --schema --cpp float.fbs
+xxd -i float.bfbs > float_bfbs.h
+../../../../../out/host/linux-x86/bin/flatc -b --schema --cpp struct.fbs
+xxd -i struct.bfbs > struct_bfbs.h
+

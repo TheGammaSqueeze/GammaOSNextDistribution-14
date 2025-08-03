@@ -1,0 +1,5 @@
+{
+    "uuid": "f7fc6e07-78d8-5efa-b4a9-ecf5e077fd63",
+    "min_heap": 16384,
+    "min_stack": 4096
+}

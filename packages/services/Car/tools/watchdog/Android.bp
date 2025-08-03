@@ -1,0 +1,56 @@
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+python_binary_host {
+    name: "perf_stats_parser",
+    main: "parser/perf_stats_parser.py",
+    srcs: [
+        "parser/carwatchdog_dump_parser.py",
+        "parser/perf_stats_parser.py",
+        "parser/perf_stats_proto_utils.py",
+    ],
+    libs: [
+        "perf_stats_proto",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+}
+
+python_library_host {
+    name: "perf_stats_proto",
+    srcs: ["parser/*.proto"],
+    proto: {
+        canonical_path_from_root: false,
+    },
+}
+
+cc_binary {
+    name: "watchdog_cycles",
+    srcs: ["cpufreq/watchdog_cycles_task.cpp"],
+    header_libs: ["libeigen"],
+    cppflags: [
+        "-O2",
+        "-Wall",
+        "-Werror",
+        "-Wno-missing-field-initializers",
+        "-Wno-sign-compare",
+    ],
+}

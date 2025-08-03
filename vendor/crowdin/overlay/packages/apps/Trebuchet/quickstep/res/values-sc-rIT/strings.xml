@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+* Copyright (C) 2017 The Android Open Source Project
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="recents_empty_message">Nissunu elementu reghente</string>
+    <string name="accessibility_recent_apps">Aplicatziones reghentes</string>
+    <string name="shorter_duration_less_than_one_minute">&lt; 1 minutu</string>
+    <string name="hotseat_edu_dismiss">Nono, gràtzias</string>
+    <string name="hotseat_prediction_settings">Cunfiguratziones</string>
+    <string name="overview_gesture_tutorial_success">Bene fatu!</string>
+    <string name="gesture_tutorial_confirm_title">Totu prontu</string>
+    <string name="gesture_tutorial_action_button_label">Fatu</string>
+    <string name="gesture_tutorial_action_button_label_settings">Cunfiguratziones</string>
+    <string name="gesture_tutorial_try_again">Torra a proare</string>
+    <string name="default_device_name">dispositivu</string>
+    <string name="allset_navigation_settings"><annotation id="link">Cunfiguratziones de navigatzione de sistema</annotation></string>
+    <string name="action_share">Cumpartzi</string>
+    <string name="action_screenshot">Ischermada</string>
+    <string name="action_split">Partzi</string>
+    <string name="toast_split_select_app">Toca un\'àtera aplicatzione pro impreare s\'ischermu partzidu</string>
+    <string name="toast_contextual_split_select_app">Issèbera un\'àtera aplicatzione pro impreare s\'ischermu partzidu</string>
+    <string name="toast_split_select_app_cancel"><b>Annulla</b></string>
+    <string name="toast_split_select_cont_desc">Essi dae sa seletzione de s\'ischermu partzidu</string>
+    <string name="toast_split_app_unsupported">Issèbera un\'àtera aplicatzione pro impreare s\'ischermu partzidu</string>
+    <string name="blocked_by_policy">Custa atzione no est permìtida dae s\'aplicatzione o dae s\'organizatzione tua</string>
+    <string name="gesture_tutorial_action_button_label_cancel">Annulla</string>
+    <string name="gesture_tutorial_action_button_label_skip">Brinca</string>
+    <string name="desktop_select_app_toast">Agiunghende s\'aplicatzione a s\'iscrivania</string>
+    <string name="desktop_button_close_app_toast">Annulla</string>
+</resources>

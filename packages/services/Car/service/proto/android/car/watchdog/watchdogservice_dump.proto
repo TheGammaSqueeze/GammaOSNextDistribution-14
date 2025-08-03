@@ -1,0 +1,230 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package com.android.car.watchdog;
+
+option java_multiple_files = true;
+
+message CarWatchdogDumpProto {
+  optional bool current_garage_mode = 1;
+  optional SystemHealthDump system_health_dump = 2;
+  optional PerformanceDump performance_dump = 3;
+
+  message SystemHealthDump {
+    repeated RegisteredClient registered_clients = 1;
+    repeated int32 stopped_users = 2;
+  }
+
+  message RegisteredClient {
+    optional int64 pid = 1;
+    optional UserPackageInfo user_package_info = 2;
+    optional HealthCheckTimeout health_check_timeout = 3;
+  }
+
+  enum HealthCheckTimeout {
+    HEALTH_CHECK_TIMEOUT_UNSPECIFIED = 0;
+    CRITICAL = 1;
+    MODERATE = 2;
+    NORMAL = 3;
+  }
+}
+
+message UserPackageInfo {
+  optional int32 user_id = 1;
+  optional string package_name = 2;
+}
+
+message PerformanceDump {
+  optional UxState current_ux_state = 1;
+  repeated UserPackageInfo disabled_user_packages = 2;
+  optional int64 uid_io_usage_summary_top_count = 3;
+  optional int64 io_usage_summary_min_system_total_written_bytes = 4;
+  optional int64 package_killable_state_reset_days = 5;
+  optional int64 recurring_overuse_period_days = 6;
+  optional int64 resource_overuse_notification_base_id = 7;
+  optional int64 resource_overuse_notification_max_offset = 8;
+  optional bool is_connected_to_daemon = 9;
+  optional bool is_heads_up_notification_sent = 10;
+  optional int64 current_overuse_notification_id_offset = 11;
+  optional bool is_garage_mode_active = 12;
+  optional int64 overuse_handling_delay_millis = 13;
+  optional DateTime last_system_io_usage_summary_reported_utc_datetime = 14;
+  optional DateTime last_uid_io_usage_summary_reported_utc_datetime = 15;
+  repeated UsageByUserPackage usage_by_user_packages = 16;
+  repeated ResourceOveruseListenerInfo overuse_listener_infos = 17;
+  repeated ResourceOveruseListenerInfo system_overuse_listener_infos = 18;
+  repeated string default_not_killable_generic_packages = 19;
+  repeated UserPackageInfo user_notifiable_packages = 20;
+  repeated UserPackageInfo active_user_notifications = 21;
+  repeated UserPackageInfo actionable_user_packages = 22;
+  optional bool is_pending_resource_overuse_configurations_request = 23;
+  optional OveruseConfigurationCacheDump overuse_configuration_cache_dump = 24;
+
+  message OveruseConfigurationCacheDump {
+    repeated string safe_to_kill_system_packages = 1;
+    repeated string safe_to_kill_vendor_packages = 2;
+    repeated string vendor_package_prefixes = 3;
+    repeated PackageByAppCategory packages_by_app_category = 4;
+    repeated IoThresholdByComponent generic_io_thresholds_by_component = 5;
+    repeated IoThresholdByPackage io_thresholds_by_package = 6;
+    repeated IoThresholdByAppCategory thresholds_by_app_category = 7;
+  }
+
+  message PackageByAppCategory {
+    optional ApplicationCategory application_category = 1;
+    repeated string package_name = 2;
+  }
+
+  message IoThresholdByComponent {
+    optional ComponentType component_type = 1;
+    optional PerStateBytes threshold = 2;
+  }
+
+  message IoThresholdByPackage {
+    optional ComponentType package_type = 1;
+    optional PerStateBytes threshold = 2;
+    optional string package_name = 3;
+  }
+
+  message IoThresholdByAppCategory {
+    optional ApplicationCategory application_category = 1;
+    optional PerStateBytes threshold = 2;
+  }
+
+  message UsageByUserPackage {
+    optional UserPackageInfo user_package_info = 1;
+    optional KillableState killable_state = 2;
+    optional PackageIoUsage package_io_usage = 3;
+  }
+
+  message PackageIoUsage {
+    optional IoOveruseStats io_overuse_stats = 1;
+    optional PerStateBytes forgiven_write_bytes = 2;
+    optional int64 forgiven_overuses = 3;
+    optional int64 historical_not_forgiven_overuses = 4;
+    optional int64 total_times_killed = 5;
+  }
+
+  message IoOveruseStats {
+    optional bool killable_on_overuse = 1;
+    optional PerStateBytes remaining_write_bytes = 2;
+    optional int64 start_time = 3;
+    optional int64 duration = 4;
+    optional PerStateBytes written_bytes = 5;
+    optional int64 total_overuses = 6;
+  }
+
+  message PerStateBytes {
+    optional int64 foreground_bytes = 1;
+    optional int64 background_bytes = 2;
+    optional int64 garagemode_bytes = 3;
+  }
+
+  message ResourceOveruseListenerInfo {
+    optional int64 flag = 1;
+    optional int64 pid = 2;
+    optional UserPackageInfo user_package_info = 3;
+  }
+
+  enum UxState {
+    UX_STATE_UNSPECIFIED = 0;
+    UX_STATE_NO_DISTRACTION = 1;
+    UX_STATE_USER_NOTIFICATION = 2;
+    UX_STATE_NO_INTERACTION = 3;
+  }
+
+  enum KillableState {
+    KILLABLE_STATE_UNSPECIFIED = 0;
+    KILLABLE_STATE_YES = 1;
+    KILLABLE_STATE_NO = 2;
+    KILLABLE_STATE_NEVER = 3;
+  }
+
+  enum ApplicationCategory {
+    APPLICATION_CATEGORY_UNSPECIFIED = 0;
+    OTHERS = 1;
+    MAPS = 2;
+    MEDIA = 3;
+  }
+
+  enum ComponentType {
+    COMPONENT_TYPE_UNSPECIFIED = 0;
+    SYSTEM = 1;
+    VENDOR = 2;
+    THIRD_PARTY = 3;
+  }
+}
+
+message DateTime {
+  optional Date date = 1;
+  optional TimeOfDay time_of_day = 2;
+}
+
+// Represents a whole or partial calendar date, such as a birthday. The time of
+// day and time zone are either specified elsewhere or are insignificant. The
+// date is relative to the Gregorian Calendar. This can represent one of the
+// following:
+//
+// * A full date, with non-zero year, month, and day values
+// * A month and day value, with a zero year, such as an anniversary
+// * A year on its own, with zero month and day values
+// * A year and month value, with a zero day, such as a credit card expiration
+// date
+//
+// Related types are [google.type.TimeOfDay][google.type.TimeOfDay] and
+// `google.protobuf.Timestamp`.
+//
+// Copied from:
+// https://github.com/googleapis/googleapis/blob/master/google/type/date.proto
+message Date {
+  // Year of the date. Must be from 1 to 9999, or 0 to specify a date without
+  // a year.
+  optional int32 year = 1;
+
+  // Month of a year. Must be from 1 to 12, or 0 to specify a year without a
+  // month and day.
+  optional int32 month = 2;
+
+  // Day of a month. Must be from 1 to 31 and valid for the year and month, or 0
+  // to specify a year by itself or a year and month where the day isn't
+  // significant.
+  optional int32 day = 3;
+}
+
+// Represents a time of day. The date and time zone are either not significant
+// or are specified elsewhere. An API may choose to allow leap seconds. Related
+// types are [google.type.Date][google.type.Date] and
+// `google.protobuf.Timestamp`.
+//
+// Copied from:
+// https://github.com/googleapis/googleapis/blob/master/google/type/timeofday.proto
+message TimeOfDay {
+  // Hours of day in 24 hour format. Should be from 0 to 23. An API may choose
+  // to allow the value "24:00:00" for scenarios like business closing time.
+  optional int32 hours = 1;
+
+  // Minutes of hour of day. Must be from 0 to 59.
+  optional int32 minutes = 2;
+
+  // Seconds of minutes of the time. Must normally be from 0 to 59. An API may
+  // allow the value 60 if it allows leap-seconds.
+  optional int32 seconds = 3;
+
+  // Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
+  optional int32 nanos = 4;
+}

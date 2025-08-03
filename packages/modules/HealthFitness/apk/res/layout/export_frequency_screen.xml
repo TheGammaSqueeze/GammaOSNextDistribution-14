@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (C) 2024 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/export_frequency_screen"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingHorizontal="@dimen/spacing_large">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/export_frequency_header_repeat_icon"
+            android:layout_width="@dimen/app_header_icon_size"
+            android:layout_height="@dimen/app_header_icon_size"
+            android:layout_marginTop="@dimen/spacing_large"
+            android:layout_marginBottom="@dimen/spacing_normal"
+            android:importantForAccessibility="no"
+            android:src="?attr/repeatIcon"/>
+
+        <TextView
+            android:id="@+id/export_frequency_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/spacing_normal"
+            android:text="@string/choose_frequency"
+            android:textAppearance="?attr/textAppearanceHeadline2" />
+
+        <TextView
+            android:id="@+id/export_frequency_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_normal"
+            android:layout_marginBottom="@dimen/spacing_xlarge"
+            android:text="@string/choose_frequency_description"
+            android:textAppearance="?attr/textAppearanceSummaryLarge" />
+
+        <RadioGroup
+            android:id="@+id/radio_group_frequency"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <RadioButton
+                android:id="@+id/radio_button_daily"
+                android:text="@string/frequency_daily"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="?android:attr/listPreferredItemHeight"
+                android:paddingStart="?android:attr/listPreferredItemPaddingStart"
+                android:paddingEnd="0dp"
+                android:textAppearance="?attr/textAppearanceItem" />
+            <RadioButton
+                android:id="@+id/radio_button_weekly"
+                android:text="@string/frequency_weekly"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="?android:attr/listPreferredItemHeight"
+                android:paddingStart="?android:attr/listPreferredItemPaddingStart"
+                android:paddingEnd="0dp"
+                android:textAppearance="?attr/textAppearanceItem" />
+            <RadioButton
+                android:id="@+id/radio_button_monthly"
+                android:text="@string/frequency_monthly"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="?android:attr/listPreferredItemHeight"
+                android:paddingStart="?android:attr/listPreferredItemPaddingStart"
+                android:paddingEnd="0dp"
+                android:textAppearance="?attr/textAppearanceItem"/>
+        </RadioGroup>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="@dimen/spacing_large"
+        android:baselineAligned="false"
+        android:orientation="horizontal">
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+            <Button
+                android:id="@+id/export_back_button"
+                android:minHeight="@dimen/button_size"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start|center_vertical"
+                android:gravity="center"
+                android:maxLines="2"
+                android:text="@string/export_back_button"
+                style="@style/Widget.HealthConnect.Button.Borderless" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <Button
+                android:id="@+id/export_next_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="@dimen/button_size"
+                android:layout_gravity="end|center_vertical"
+                android:text="@string/export_next_button"
+                style="@style/Widget.HealthConnect.DialogButton.Full" />
+
+        </FrameLayout>
+    </LinearLayout>
+</LinearLayout>

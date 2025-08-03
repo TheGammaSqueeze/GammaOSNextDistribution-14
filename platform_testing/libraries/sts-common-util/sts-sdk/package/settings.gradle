@@ -1,0 +1,27 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.name = 'STS test'
+
+if (new File('native-poc').isDirectory()) {
+    include ':native-poc'
+}
+
+if (new File('test-app').isDirectory()) {
+    include ':test-app'
+}
+
+include ':sts-test'

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2017-2021 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <string name="app_name">Grabadora</string>
+    <string name="share">Compartir</string>
+    <string name="stop">Parar</string>
+    <string name="play">Reproducir</string>
+    <string name="delete">Borrar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="delete_title">Borrando grabación</string>
+    <string name="sound_notification_title">Grabadora de sonidos</string>
+    <string name="sound_notification_message">Duración del audio: %1$s</string>
+    <string name="sound_recording_title_working">Grabando</string>
+    <string name="sound_last_title">Última grabación</string>
+    <string name="sound_channel_title">Grabación de sonido</string>
+    <string name="sound_channel_desc">Notificación persistente al grabar sonido y notificación al completar</string>
+    <string name="dialog_permissions_title">Permisos</string>
+    <string name="dialog_permissions_mic">La grabadora necesita acceder al micrófono para grabar el audio</string>
+    <string name="dialog_permissions_phone">La grabadora de sonidos necesita acceder al estado del teléfono para evitar grabar durante una llamada</string>
+    <string name="dialog_permissions_mic_phone">La grabadora necesita acceder al micrófono para grabar audio y al estado del teléfono para evitar grabar durante una llamada</string>
+    <string name="dialog_permissions_ask">Preguntar de nuevo</string>
+    <string name="dialog_permissions_dismiss">Descartar</string>
+    <string name="snack_permissions_no_permission">Permisos necesarios denegados, actívelos desde la aplicación de Ajustes para iniciar la grabación</string>
+    <string name="main_sound_action">Grabar sonido</string>
+</resources>

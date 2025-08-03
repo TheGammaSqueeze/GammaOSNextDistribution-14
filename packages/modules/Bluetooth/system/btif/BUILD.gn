@@ -1,0 +1,127 @@
+#
+#  Copyright 2015 Google, Inc.
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at:
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#
+
+static_library("btif") {
+  sources = [
+    # TODO(abps) - Do we need this?
+    "//bt/system/audio_a2dp_hw/src/audio_a2dp_hw_utils.cc",
+    "//bt/system/audio_hearing_aid_hw/src/audio_hearing_aid_hw_utils.cc",
+
+    # AVRCP Target Service
+    "avrcp/avrcp_service.cc",
+
+    # Callouts
+    "co/bta_av_co.cc",
+    "co/bta_av_co_peer.cc",
+    "co/bta_dm_co.cc",
+    "co/bta_gatts_co.cc",
+    "co/bta_hh_co.cc",
+    "co/bta_pan_co.cc",
+
+    # HAL layer
+    "src/bluetooth.cc",
+
+    # BTIF implementation
+    "src/btif_a2dp.cc",
+
+    "src/btif_a2dp_control.cc",
+    "src/btif_a2dp_sink.cc",
+    "src/btif_a2dp_source.cc",
+    "src/btif_av.cc",
+
+    # TODO(abps) - Move this abstraction elsewhere
+    # "src/btif_avrcp_audio_track.cc",
+    "src/btif_avrcp_audio_track_linux.cc",
+    "src/btif_ble_scanner.cc",
+    "src/btif_bqr.cc",
+    "src/btif_csis_client.cc",
+    "src/btif_config.cc",
+    "src/btif_config_cache.cc",
+    "src/btif_core.cc",
+    "src/btif_debug_conn.cc",
+    "src/btif_dm.cc",
+    "src/btif_gatt.cc",
+    "src/btif_gatt_client.cc",
+    "src/btif_gatt_server.cc",
+    "src/btif_gatt_test.cc",
+    "src/btif_gatt_util.cc",
+    "src/btif_hd.cc",
+    "src/btif_vc.cc",
+    "src/btif_le_audio_broadcaster.cc",
+    "src/btif_has_client.cc",
+    "src/btif_hearing_aid.cc",
+    "src/btif_hf.cc",
+    "src/btif_hf_client.cc",
+    "src/btif_hh.cc",
+    "src/btif_iot_config.cc",
+    "src/btif_jni_task.cc",
+    "src/btif_keystore.cc",
+    "src/btif_le_audio.cc",
+    "src/btif_metrics_logging.cc",
+    "src/btif_pan.cc",
+    "src/btif_profile_queue.cc",
+    "src/btif_profile_storage.cc",
+    "src/btif_rc.cc",
+    "src/btif_sdp.cc",
+    "src/btif_sdp_server.cc",
+    "src/btif_sock.cc",
+    "src/btif_sock_l2cap.cc",
+    "src/btif_sock_rfc.cc",
+    "src/btif_sock_sco.cc",
+    "src/btif_sock_sdp.cc",
+    "src/btif_sock_thread.cc",
+    "src/btif_sock_util.cc",
+    "src/btif_storage.cc",
+    "src/btif_uid.cc",
+    "src/btif_util.cc",
+    "src/stack_manager.cc",
+  ]
+
+  include_dirs = [
+    "include",
+    "//bt/system/",
+    "//bt/system/bta/dm",
+    "//bt/system/linux_include",
+    "//bt/system/audio_a2dp_hw/include",
+    "//bt/system/audio_hearing_aid_hw/include",
+    "//bt/system/bta/include",
+    "//bt/system/bta/sys",
+    "//bt/system/device/include",
+    "//bt/system/embdrv/sbc/encoder/include",
+    "//bt/system/embdrv/sbc/decoder/include",
+    "//bt/system/gd",
+    "//bt/system/stack/a2dp",
+    "//bt/system/stack/btm",
+    "//bt/system/stack/l2cap",
+    "//bt/system/stack/include",
+    "//bt/system/udrv/include",
+    "//bt/system/vnd/include",
+    "//bt/system/profile/avrcp",
+  ]
+
+  deps = [
+    "//bt/system:libbt-platform-protos-lite",
+    "//bt/system/common",
+    "//bt/system/gd/rust/shim:init_flags_bridge_header",
+    "//bt/system/profile/avrcp:profile_avrcp",
+  ]
+
+  configs += [
+    "//bt/system:target_defaults",
+    "//bt/system/log:log_defaults",
+    "//bt/system:external_tinyxml2",
+  ]
+}

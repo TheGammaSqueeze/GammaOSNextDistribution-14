@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (C) 2022 Google Inc.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_title">Car launcher reference</string>
+    <string name="base_layer_failure_recovery_title_string">Something went wrong</string>
+    <string name="base_layer_failure_recovery_message_string">Please open a navigation app</string>
+
+    <!-- Audio route selection dialog. Placeholder resources for overriding -->
+    <string name="audio_route_dialog_title">Audio output</string>
+
+    <!-- Audio route -->
+    <!-- Label for routing phone audio to the vehicle using car speakers [CHAR LIMIT=30] -->
+    <string name="audio_route_vehicle">Car speakers</string>
+    <!-- Label for routing phone audio to the phone speaker [CHAR LIMIT=30] -->
+    <string name="audio_route_phone_speaker">Phone speaker</string>
+    <!-- Label for routing phone audio to the phone earpiece. [CHAR LIMIT=30] -->
+    <string name="audio_route_handset">Phone</string>
+    <!-- AutoEnhance back button [CHAR LIMIT=30] -->
+    <string name="back">Back</string>
+    <!-- AutoEnhance fullscreen button [CHAR LIMIT=30] -->
+    <string name="fullscreen">Full Screen</string>
+</resources>

@@ -1,0 +1,158 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "tools_netsim_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["tools_netsim_license"],
+}
+
+filegroup {
+    name: "netsim-protos",
+    srcs: [
+        "netsim/common.proto",
+        "netsim/frontend.proto",
+        "netsim/hci_packet.proto",
+        "netsim/model.proto",
+        "netsim/packet_streamer.proto",
+        "netsim/startup.proto",
+        "netsim/stats.proto",
+    ],
+}
+
+genrule_defaults {
+    name: "netsim-grpc-gen-defaults",
+    tools: [
+        "aprotoc",
+        "protoc-gen-grpc-cpp-plugin",
+    ],
+    cmd: "$(location aprotoc)" +
+        "    -Itools/netsim/proto" +
+        "    -Iexternal/protobuf/src" +
+        "    -Ipackages/modules/Bluetooth/tools/rootcanal/proto" +
+        "    --plugin=protoc-gen-grpc=$(location protoc-gen-grpc-cpp-plugin)" +
+        "    --grpc_out=$(genDir)" +
+        "    --cpp_out=$(genDir)" +
+        "    $(locations :netsim-protos)",
+    srcs: [
+        ":libprotobuf-internal-protos",
+        ":netsim-protos",
+        ":rootcanal-protos",
+    ],
+}
+
+genrule {
+    name: "FrontendStub_h",
+    defaults: ["netsim-grpc-gen-defaults"],
+    out: ["netsim/frontend.grpc.pb.h"],
+}
+
+genrule {
+    name: "FrontendStub_cc",
+    defaults: ["netsim-grpc-gen-defaults"],
+    out: ["netsim/frontend.grpc.pb.cc"],
+}
+
+genrule {
+    name: "PacketStreamerStub_h",
+    defaults: ["netsim-grpc-gen-defaults"],
+    out: ["netsim/packet_streamer.grpc.pb.h"],
+}
+
+genrule {
+    name: "PacketStreamerStub_cc",
+    defaults: ["netsim-grpc-gen-defaults"],
+    out: ["netsim/packet_streamer.grpc.pb.cc"],
+}
+
+cc_library {
+    name: "lib-netsim-frontend-proto",
+    host_supported: true,
+    proto: {
+        export_proto_headers: true,
+        type: "full",
+        canonical_path_from_root: false,
+        include_dirs: [
+            "external/protobuf/src",
+            "tools/netsim/proto",
+            "packages/modules/Bluetooth/tools/rootcanal/proto",
+        ],
+    },
+    shared_libs: [
+        "libprotobuf-cpp-full",
+    ],
+    srcs: [
+        "netsim/common.proto",
+        "netsim/config.proto",
+        "netsim/frontend.proto",
+        "netsim/hci_packet.proto",
+        "netsim/model.proto",
+        "netsim/startup.proto",
+        ":rootcanal-protos",
+    ],
+}
+
+cc_library {
+    name: "lib-netsimd-proto",
+    host_supported: true,
+    proto: {
+        export_proto_headers: true,
+        type: "full",
+        canonical_path_from_root: false,
+        include_dirs: [
+            "external/protobuf/src",
+            "tools/netsim/proto",
+            "packages/modules/Bluetooth/tools/rootcanal/proto",
+        ],
+    },
+    srcs: [
+        "netsim/common.proto",
+        "netsim/config.proto",
+        "netsim/frontend.proto",
+        "netsim/hci_packet.proto",
+        "netsim/model.proto",
+        "netsim/packet_streamer.proto",
+        "netsim/startup.proto",
+        ":rootcanal-protos",
+    ],
+}
+
+genrule {
+    name: "netsim-python-src",
+    tools: [
+        "aprotoc",
+        "protoc-gen-grpc-python-plugin",
+    ],
+    cmd: "$(location aprotoc)" +
+        "    -Itools/netsim/proto" +
+        "    -Ipackages/modules/Bluetooth/tools/rootcanal/proto" +
+        "    -Iexternal/protobuf/src" +
+        "    --plugin=protoc-gen-grpc=$(location protoc-gen-grpc-python-plugin)" +
+        "    --python_out=$(genDir)" +
+        "    --grpc_out=$(genDir)" +
+        "    $(locations :netsim-protos)" +
+        "    $(locations :rootcanal-protos) &&" +
+        "touch $(genDir)/netsim/__init__.py",
+    srcs: [
+        ":libprotobuf-internal-protos",
+        ":netsim-protos",
+        ":rootcanal-protos",
+    ],
+    out: [
+        "netsim/__init__.py",
+        "netsim/common_pb2.py",
+        "netsim/common_pb2_grpc.py",
+        "netsim/frontend_pb2.py",
+        "netsim/frontend_pb2_grpc.py",
+        "netsim/hci_packet_pb2.py",
+        "netsim/hci_packet_pb2_grpc.py",
+        "netsim/model_pb2.py",
+        "netsim/model_pb2_grpc.py",
+        "netsim/startup_pb2.py",
+        "netsim/startup_pb2_grpc.py",
+        "rootcanal/configuration_pb2.py",
+    ],
+    visibility: [
+        "//packages/modules/Bluetooth/android/pandora/mmi2grpc",
+    ],
+}

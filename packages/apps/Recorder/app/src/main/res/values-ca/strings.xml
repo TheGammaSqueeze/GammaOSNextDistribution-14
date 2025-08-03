@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2017-2021 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <string name="app_name">Gravadora</string>
+    <string name="share">Comparteix</string>
+    <string name="share_selected">Comparteix selecció</string>
+    <string name="stop">Para</string>
+    <string name="play">Reprodueix</string>
+    <string name="pause">Pausa</string>
+    <string name="resume">Reprèn</string>
+    <string name="delete">Elimina</string>
+    <string name="delete_all">Elimina-ho tot</string>
+    <string name="delete_selected">Elimina els seleccionats</string>
+    <string name="cancel">Cancel·la</string>
+    <string name="rename">Reanomena</string>
+    <string name="delete_title">S\'està eliminant el registre</string>
+    <string name="delete_recording_message">Esteu segur que voleu suprimir aquesta gravació? Això no es pot desfer</string>
+    <string name="confirm">Confirma</string>
+    <string name="discard">Descarta</string>
+    <string name="record_again">Enregistra de nou</string>
+    <string name="confirm_result_title">Voleu utilitzar l\'enregistrament?</string>
+    <string name="confirm_result_message">Voleu fer servir l\'últim enregistrament?</string>
+    <string name="sound_notification_title">Gravadora de so</string>
+    <string name="sound_notification_message">Durada de l\'àudio: %1$s</string>
+    <string name="sound_recording_title_working">S\'està gravant</string>
+    <string name="sound_recording_title_paused">Pausat</string>
+    <string name="sound_last_title">Darrer enregistrament</string>
+    <string name="sound_channel_title">Enregistrament de so</string>
+    <string name="sound_channel_desc">Notificació persistent quan s\'està enregistrant so i notificació quan s\'hagi acabat</string>
+    <string name="settings_title">Configuració</string>
+    <string name="settings_location_message">Etiqueteu les gravacions amb la vostra posició actual</string>
+    <string name="settings_quality_high">Grava en alta qualitat</string>
+    <string name="dialog_permissions_title">Permisos</string>
+    <string name="dialog_permissions_mic">La gravadora necessita permís d\'accés al micròfon per enregistrar so</string>
+    <string name="dialog_permissions_phone">La gravadora necessita accedir a l\'estat del telèfon per evitar que aquesta aplicació enregistri mentre estàs trucant</string>
+    <string name="dialog_permissions_notifications">La gravadora necessita permís de notificacions per mostrar els controls de gravació</string>
+    <string name="dialog_permissions_mic_phone">La gravadora de sons necessita permís d\'accés al micròfon per enregistrar so i d\'accés a l\'estat del telèfon per evitar que aquesta aplicació enregistri mentre estàs trucant</string>
+    <string name="dialog_permissions_mic_notifications">La gravadora necessita permís del micròfon per gravar àudio i permís de notificacions per mostrar els controls de gravació</string>
+    <string name="dialog_permissions_phone_notifications">La gravadora necessita accés a l\'estat del telèfon per evitar que aquesta aplicació gravi mentre truqueu i permís de notificacions per mostrar els controls de gravació</string>
+    <string name="dialog_permissions_mic_phone_notifications">La gravadora necessita permís del micròfon per gravar àudio, accés a l\'estat del telèfon per evitar que aquesta aplicació gravi mentre truqueu i permís de notificacions per mostrar els controls de gravació</string>
+    <string name="dialog_permissions_location">La Gravadora necessita el permís d\'ubicació per etiquetar automàticament les gravacions per ajudar-lo a organitzar-les</string>
+    <string name="dialog_permissions_ask">Torna a preguntar</string>
+    <string name="dialog_permissions_dismiss">Descarta</string>
+    <string name="snack_permissions_no_permission">Els permisos necessaris han estat denegats, habilita\'ls des de l\'aplicació Configuració per iniciar l\'enregistrament</string>
+    <string name="snack_permissions_no_permission_location">El permís d\'ubicació s\'ha denegat. Activeu-lo des de l\'aplicació Configuració per etiquetar les gravacions</string>
+    <string name="main_sound_action">Enregistra el so</string>
+    <string name="list_title">Les meves gravacions</string>
+    <string name="list_error_empty">Totes les gravacions es mostraran aquí</string>
+    <string name="list_edit_title">Edita el nom de la gravació</string>
+    <string name="list_edit_confirm">Canvia</string>
+    <string name="list_item_menu">Més accions</string>
+    <string name="delete_all_title">Elimina-ho tot</string>
+    <string name="delete_all_message">Esteu segur que voleu suprimir tots els enregistraments? Això no es pot desfer</string>
+    <string name="delete_selected_title">Elimina els seleccionats</string>
+    <string name="delete_selected_message">Esteu segur que voleu suprimir els enregistraments seleccionats? Això no es pot desfer</string>
+    <plurals name="recording_selection_count">
+        <item quantity="one">%d seleccionat</item>
+        <item quantity="other">%d seleccionats</item>
+    </plurals>
+</resources>

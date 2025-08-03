@@ -1,0 +1,24 @@
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="@dimen/car_quick_controls_icon_drawable_width"
+        android:height="@dimen/car_quick_controls_icon_drawable_height"
+        android:viewportWidth="32"
+        android:viewportHeight="32">
+    <path
+        android:fillColor="@color/car_quick_controls_icon_drawable_color"
+        android:pathData="M16 31.0667L20.4667 26.6667H26.6667V20.4667L31.1 16L26.6667 11.5333V5.33333H20.4667L16 0.899998L11.5333 5.33333H5.33333V11.5333L0.9 16L5.33333 20.4667V26.6667H11.5333L16 31.0667ZM16 22.6C14.1778 22.6 12.6222 21.9556 11.3333 20.6667C10.0444 19.3778 9.4 17.8222 9.4 16C9.4 14.1556 10.0444 12.5889 11.3333 11.3C12.6222 10.0111 14.1778 9.36666 16 9.36666C17.8444 9.36666 19.4111 10.0111 20.7 11.3C21.9889 12.5889 22.6333 14.1556 22.6333 16C22.6333 17.8222 21.9889 19.3778 20.7 20.6667C19.4111 21.9556 17.8444 22.6 16 22.6ZM16 20.1667C14.8444 20.1667 13.8556 19.7667 13.0333 18.9667C12.2333 18.1444 11.8333 17.1556 11.8333 16C11.8333 14.8222 12.2333 13.8333 13.0333 13.0333C13.8556 12.2333 14.8444 11.8333 16 11.8333C17.1778 11.8333 18.1667 12.2333 18.9667 13.0333C19.7667 13.8333 20.1667 14.8222 20.1667 16C20.1667 17.1556 19.7667 18.1444 18.9667 18.9667C18.1667 19.7667 17.1778 20.1667 16 20.1667ZM16 27.6333L12.5667 24.2333H7.76667V19.4333L4.33333 16L7.76667 12.5667V7.76666H12.5667L16 4.33333L19.4333 7.76666H24.2333V12.5667L27.6667 16L24.2333 19.4333V24.2333H19.4333L16 27.6333ZM16 20.1667C14.8444 20.1667 13.8556 19.7667 13.0333 18.9667C12.2333 18.1444 11.8333 17.1556 11.8333 16C11.8333 14.8222 12.2333 13.8333 13.0333 13.0333C13.8556 12.2333 14.8444 11.8333 16 11.8333C17.1778 11.8333 18.1667 12.2333 18.9667 13.0333C19.7667 13.8333 20.1667 14.8222 20.1667 16C20.1667 17.1556 19.7667 18.1444 18.9667 18.9667C18.1667 19.7667 17.1778 20.1667 16 20.1667Z" />
+</vector>

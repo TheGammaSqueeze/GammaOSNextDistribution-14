@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="6179574017413146651">"Stub กิจกรรม"</string>
+    <string name="message_not_supported" msgid="133939962837892495">"ไม่มีแอปพลิเคชันใดทำงานนี้ได้"</string>
+    <string name="pip_not_supported" msgid="8681268258599412706">"อุปกรณ์นี้ไม่รองรับการแสดงภาพซ้อนภาพ"</string>
+    <string name="manage_unknown_app_sources_not_supported" msgid="7368611099531260439">"อุปกรณ์นี้ไม่รองรับฟังก์ชันจัดการแหล่งที่มาแอปที่ไม่รู้จัก"</string>
+    <string name="documentsui_not_supported" msgid="2786636475647817501">"อุปกรณ์นี้ไม่รองรับการจัดการไฟล์"</string>
+    <string name="stub_name" msgid="3987164490218189006">"ไม่มี"</string>
+</resources>

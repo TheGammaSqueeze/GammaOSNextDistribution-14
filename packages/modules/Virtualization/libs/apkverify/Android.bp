@@ -1,0 +1,60 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_defaults {
+    name: "libapkverify.defaults",
+    crate_name: "apkverify",
+    defaults: ["avf_build_flags_rust"],
+    srcs: ["src/lib.rs"],
+    edition: "2021",
+    rustlibs: [
+        "libanyhow",
+        "libapkzip",
+        "libbyteorder",
+        "libbytes",
+        "libhex",
+        "liblog_rust",
+        "libnum_traits",
+        "libopenssl",
+        "libserde",
+    ],
+    proc_macros: ["libnum_derive"],
+}
+
+rust_library {
+    name: "libapkverify",
+    defaults: ["libapkverify.defaults"],
+    // TODO(b/204562227): move to host_supported to the defaults to include tests
+    host_supported: true,
+    apex_available: ["com.android.virt"],
+}
+
+rust_test {
+    name: "libapkverify.test",
+    defaults: ["libapkverify.defaults"],
+    prefer_rlib: true,
+    test_suites: ["general-tests"],
+    data: ["tests/data/*"],
+}
+
+rust_test {
+    name: "libapkverify.integration_test",
+    crate_name: "apkverify_test",
+    defaults: ["avf_build_flags_rust"],
+    srcs: ["tests/*_test.rs"],
+    prefer_rlib: true,
+    edition: "2021",
+    test_suites: ["general-tests"],
+    rustlibs: [
+        "libandroid_logger",
+        "libanyhow",
+        "libapkverify",
+        "libapkzip",
+        "libbyteorder",
+        "liblog_rust",
+        "libopenssl",
+        "libzip",
+    ],
+    data: ["tests/data/*"],
+}

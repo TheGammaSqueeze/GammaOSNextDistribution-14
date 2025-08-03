@@ -1,0 +1,8 @@
+service cardisplayproxyd /system/bin/cardisplayproxyd
+    class hal
+    user graphics
+    group automotive_evs
+    disabled
+
+on late-init
+    start cardisplayproxyd

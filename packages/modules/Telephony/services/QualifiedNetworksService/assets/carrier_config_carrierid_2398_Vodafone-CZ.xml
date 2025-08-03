@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<carrier_config>
+    <boolean name="qns.block_iwlan_in_international_roaming_without_wwan_bool" value="true"/>
+    <int name="qns.mms_rat_preference_int" value="3"/>
+    <int name="qns.mms_transport_type_int" value="2"/>
+</carrier_config>

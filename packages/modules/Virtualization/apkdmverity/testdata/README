@@ -1,0 +1,24 @@
+The test data is generated as follows:
+
+$ keytool -keystore keystore -genkey -alias mykey
+The password for the keystore and the key is 123456.
+
+The signer information is set as follows:
+
+CN=Android, OU=Android, O=Android, L=Mountain View, ST=CA, C=US
+
+Build a random apk (Bluetooth.apk is chosen arbitrary)
+
+$ m Bluetooth
+$ cp $ANDROID_PRODUCT_OUT/system/app/Bluetooth.apk ./test.apk
+
+Sign it using the apksigner.
+
+$ m apksigner
+$ apksigner sign --ks keystore ./test.apk
+
+Check that the idsig file is created.
+
+$ ls -l test.apk*
+-rw-r----- 1 jiyong primarygroup 3888734 Jun  4 01:08 test.apk
+-rw-r----- 1 jiyong primarygroup   39115 Jun  4 01:08 test.apk.idsig

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ~ Copyright (C) 2020 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/CardViewStyle"
+    android:id="@+id/card_view"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:visibility="gone">
+
+    <FrameLayout
+        android:id="@+id/card_background"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.android.car.apps.common.CrossfadeImageView
+            android:id="@+id/card_background_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"/>
+
+        <View
+            android:id="@+id/card_background_scrim"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:focusable="false"
+            android:background="@color/card_background_scrim"
+            android:alpha="@dimen/card_background_scrim_alpha"/>
+    </FrameLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:layout_marginEnd="@dimen/card_content_margin"
+        android:layout_marginStart="@dimen/card_content_margin">
+
+        <ImageView
+            android:id="@+id/card_icon"
+            android:layout_height="@dimen/card_icon_size"
+            android:layout_width="@dimen/card_icon_size"
+            app:layout_constraintTop_toTopOf="@+id/card_name"
+            app:layout_constraintBottom_toBottomOf="@+id/card_name"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <TextView
+            android:id="@+id/card_name"
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_marginStart="@dimen/card_name_margin_start"
+            android:layout_marginTop="@dimen/card_content_margin"
+            android:singleLine="true"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/card_icon"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <!-- Card Content can be displayed using one of the following layouts -->
+        <FrameLayout
+            android:layout_height="0dp"
+            android:layout_width="match_parent"
+            app:layout_constraintTop_toBottomOf="@+id/card_name"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <ViewStub android:id="@+id/descriptive_text_layout"
+                      android:inflatedId="@+id/descriptive_text_layout"
+                      android:layout_height="match_parent"
+                      android:layout_width="match_parent"
+                      android:visibility="gone"
+                      android:layout="@layout/card_content_descriptive_text_only"/>
+
+            <ViewStub android:id="@+id/text_block_layout"
+                      android:inflatedId="@+id/text_block_layout"
+                      android:layout_height="match_parent"
+                      android:layout_width="match_parent"
+                      android:visibility="gone"
+                      android:layout="@layout/card_content_text_block"/>
+
+            <ViewStub android:id="@+id/descriptive_text_with_controls_layout"
+                      android:inflatedId="@+id/descriptive_text_with_controls_layout"
+                      android:layout_height="match_parent"
+                      android:layout_width="match_parent"
+                      android:visibility="gone"
+                      android:layout="@layout/card_content_descriptive_text_with_controls"/>
+
+            <ViewStub android:id="@+id/media_layout"
+                      android:inflatedId="@+id/media_layout"
+                      android:layout_height="match_parent"
+                      android:layout_width="match_parent"
+                      android:visibility="gone"
+                      android:layout="@layout/card_content_media"/>
+        </FrameLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <include layout="@layout/optional_seek_bar_with_times"
+             android:id="@+id/optional_seek_bar_with_times_container"/>
+</androidx.cardview.widget.CardView>

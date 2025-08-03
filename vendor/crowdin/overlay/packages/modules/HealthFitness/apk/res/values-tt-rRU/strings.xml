@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (C) 2022 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="data_type_separator" description="Separator (comma and whitespace in English) for a potentially long list of data type names listed in data access entry, as in 'Write: Steps, Distance, Calories'. [CHAR_LIMIT=NONE]">,\u0020</string>
+    <string name="select_all_apps_title" description="Title shown for clearing filters. [CHAR_LIMIT=40]">Барлык кушымталар</string>
+    <string name="sleep_stage_default" description="Label that shows sleep session duration.[CHAR LIMIT=80]"><xliff:g example="4 hours" id="duration">%1$s</xliff:g> <xliff:g example="light sleep" id="name">%2$s</xliff:g></string>
+    <string name="hour_minute_duration_accessibility" translation_description="Hour and minute time duration representation used by accessibility, 'space' between minute and second should be deleted or replaced according to each language to translate [CHAR LIMIT=NONE]">  <xliff:g example="2 hours" id="hours">%1$s</xliff:g> <xliff:g example="2 minutes" id="minutes">%2$s</xliff:g>
+  </string>
+    <string name="day_duration" translation_description="Days duration representation [CHAR LIMIT=8]"><xliff:g example="2 days" id="days">%1$s</xliff:g></string>
+    <string name="vitamin_a" description="Vitamin A, also known as retinol, is key for good vision, a healthy immune system, and cell growth. [CHAR LIMIT=50]">A витамины</string>
+    <string name="vitamin_b12" description="Vitamin B12, also known as cobalamin, is a water-soluble vitamin involved in metabolism. [CHAR LIMIT=50]">B12 витамины</string>
+    <string name="vitamin_b6" description="Vitamin B6 is one of the B vitamins, and thus an essential nutrient. [CHAR LIMIT=50]">B6 витамины</string>
+    <string name="vitamin_c" description="Vitamin C is a water-soluble vitamin found in various foods and sold as a dietary supplement. [CHAR LIMIT=50]">C витамины</string>
+    <string name="vitamin_d" description="Vitamin D helps regulate the amount of calcium and phosphate in the body. [CHAR LIMIT=50]">D витамины</string>
+    <string name="vitamin_e" description="Vitamin E is an important fat-soluble nutrient. It's a powerful antioxidant and is needed for immune health and cellular signaling in your body. [CHAR LIMIT=50]">E витамины</string>
+    <string name="vitamin_k" description="Vitamin K is a group of vitamins that the body needs for blood clotting, helping wounds to heal. [CHAR LIMIT=50]">K витамины</string>
+    <string name="nutrient_with_value" description="Used for formatting nutrition data. Example: Copper: 29g [CHAR LIMIT=50]"><xliff:g example="Copper" id="nutrient">%1$s</xliff:g>: <xliff:g example="29g" id="amount">%2$s</xliff:g></string>
+    <string name="stone_pound_short_label" translation_description="Weight in stone and pounds. Example: 9st 2lb. [ICU][CHAR LIMIT=60]">{stone_part} {pound_part}</string>
+    <string name="stone_pound_long_label" translation_description="Weight in stone and pounds representation used by accessibility. Example: 9 stone, 2 pounds. [ICU][CHAR LIMIT=60]">{stone_part} {pound_part}</string>
+    <string name="temperature_celsius" description="Temperature value with unit. [ICU SYNTAX][CHAR LIMIT=80]">{value, plural, =1 {1 ℃} other {# ℃}}</string>
+    <string name="temperature_kelvin" description="Temperature value with unit. [ICU SYNTAX][CHAR LIMIT=80]">{value, plural, =1 {1 K} other {# K}}</string>
+    <string name="temperature_fahrenheit" description="Temperature value with unit. [ICU SYNTAX][CHAR LIMIT=80]">{value, plural, =1 {1 ℉} other {# ℉}}</string>
+    <string name="feet_inches_format" translation_description="Format for displaying height in feet and inches in compacted form e.g. 5′11″ [CHAR LIMIT=10]"><xliff:g example="5′" id="ft">%1$s</xliff:g><xliff:g example="11″" id="in">%2$s</xliff:g></string>
+    <string name="feet_inches_format_long" translation_description="Format for displaying height in feet and inches in long form e.g. 5 feet 11 inches [CHAR LIMIT=60]"><xliff:g example="5 feet" id="ft">%1$s</xliff:g> <xliff:g example="11 inches" id="in">%2$s</xliff:g></string>
+    <string name="percent" description="Percentage value with unit. [ICU SYNTAX][CHAR LIMIT=80]" formatted="false">{value, plural, =1 {1%} other {#%}}</string>
+    <string name="playstore_app_title" description="Navigates to the Play Store and shows a collection of apps compatible with Health Connect [CHAR_LIMIT=40]">Play Store</string>
+    <string name="date_owner_format" description="Format for displaying a date attributed to the data and the name of the application the data comes from. Example: Mon 13 Jun - Nokia Health Mate. [CHAR LIMIT=NONE]"><xliff:g example="Mon 13 Jun" id="date">%1$s</xliff:g> \u2022 <xliff:g example="Nokia Health Mate" id="app_name">%2$s</xliff:g></string>
+</resources>

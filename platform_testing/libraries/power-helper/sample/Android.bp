@@ -1,0 +1,16 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "DummyPowerTest",
+    srcs: ["src/**/*.java"],
+
+    static_libs: [
+        "PowerTestHelper-src",
+        "android.test.runner.stubs",
+        "androidx.test.uiautomator_uiautomator",
+        "android.test.base.stubs",
+        "junit",
+    ],
+}

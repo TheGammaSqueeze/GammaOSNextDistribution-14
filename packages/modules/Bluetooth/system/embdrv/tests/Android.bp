@@ -1,0 +1,46 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_bt_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_bt_license"],
+}
+
+cc_test {
+    name: "libaptx_enc_tests",
+    defaults: [
+        "mts_defaults",
+    ],
+    test_suites: ["general-tests"],
+    host_supported: true,
+    test_options: {
+        unit_test: true,
+    },
+    srcs: ["src/aptx.cc"],
+    whole_static_libs: ["libaptx_enc"],
+    sanitize: {
+        address: true,
+        cfi: true,
+    },
+    min_sdk_version: "33",
+}
+
+cc_test {
+    name: "libaptxhd_enc_tests",
+    defaults: [
+        "mts_defaults",
+    ],
+    test_suites: ["general-tests"],
+    host_supported: true,
+    test_options: {
+        unit_test: true,
+    },
+    srcs: ["src/aptxhd.cc"],
+    whole_static_libs: ["libaptxhd_enc"],
+    sanitize: {
+        address: true,
+        cfi: true,
+    },
+    min_sdk_version: "33",
+}

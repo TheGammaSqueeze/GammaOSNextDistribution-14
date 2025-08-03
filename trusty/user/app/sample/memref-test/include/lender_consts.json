@@ -1,0 +1,10 @@
+{
+    "header": "lender_consts.h",
+    "constants":[
+        {
+            "name": "LENDER_PORT",
+            "value": "com.android.memref.lender",
+            "type": "port"
+        }
+    ]
+}

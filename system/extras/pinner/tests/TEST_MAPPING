@@ -1,0 +1,10 @@
+{
+  "postsubmit": [
+    {
+      "name": "pintool_tests"
+    },
+    {
+      "name": "meminspect_tests"
+    }
+  ]
+}

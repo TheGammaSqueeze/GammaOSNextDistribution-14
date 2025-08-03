@@ -1,0 +1,300 @@
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+apex_key {
+    name: "com.android.apex.vendor.foo.key",
+    public_key: "com.android.apex.vendor.foo.avbpubkey",
+    private_key: "com.android.apex.vendor.foo.pem",
+}
+
+android_app_certificate {
+    name: "com.android.apex.vendor.foo.certificate",
+    certificate: "com.android.apex.vendor.foo",
+}
+
+apex_defaults {
+    name: "com.android.apex.vendor.foo.defaults",
+    manifest: "manifest_v1.json",
+    file_contexts: "file_contexts",
+    key: "com.android.apex.vendor.foo.key",
+    certificate: ":com.android.apex.vendor.foo.certificate",
+    vendor: true,
+    updatable: false,
+    installable: false,
+}
+
+apex_test {
+    name: "com.android.apex.vendor.foo",
+    defaults: [
+        "com.android.apex.vendor.foo.defaults",
+    ],
+}
+
+apex_test {
+    name: "com.android.apex.vendor.foo.v2",
+    defaults: [
+        "com.android.apex.vendor.foo.defaults",
+    ],
+    manifest: "manifest_v2.json",
+}
+
+apex_test {
+    name: "com.android.apex.vendor.foo.v2_with_requireNativeLibs",
+    defaults: [
+        "com.android.apex.vendor.foo.defaults",
+    ],
+    manifest: "manifest_v2.json",
+    binaries: [
+        "apex_vendor_foo_test_binary",
+    ],
+}
+
+cc_binary {
+    name: "apex_vendor_foo_test_binary",
+    shared_libs: [
+        "libbinder_ndk", // will add "requireNativeLibs"
+    ],
+    srcs: [
+        "apex_vendor_foo_test_binary.cpp",
+    ],
+    vendor: true,
+    installable: false,
+}
+
+apex_test {
+    name: "com.android.apex.vendor.foo.apex.all.ready",
+    defaults: [
+        "com.android.apex.vendor.foo.defaults",
+    ],
+    prebuilts: [
+        "foo.apex.all.ready.rc",
+    ],
+}
+
+prebuilt_etc {
+    name: "foo.apex.all.ready.rc",
+    src: "foo.apex.all.ready.rc",
+}
+
+// Runs forever like /bin/yes
+cc_binary {
+    name: "apex_vendor_foo",
+    srcs: [
+        "apex_vendor_foo.cpp",
+    ],
+    vendor: true,
+    installable: false,
+}
+
+prebuilt_etc {
+    name: "apex_vendor_foo_v1.rc",
+    src: "apex_vendor_foo_v1.rc",
+}
+
+prebuilt_etc {
+    name: "apex_vendor_foo_v2.rc",
+    src: "apex_vendor_foo_v2.rc",
+}
+
+prebuilt_etc {
+    name: "apex_vendor_foo_v2_vintf",
+    src: "apex_vendor_foo_v2.xml",
+    relative_install_path: "vintf",
+    installable: false,
+}
+
+apex_test {
+    name: "com.android.apex.vendor.foo.v1_with_service",
+    defaults: [
+        "com.android.apex.vendor.foo.defaults",
+    ],
+    manifest: "manifest_v1.json",
+    binaries: [
+        "apex_vendor_foo",
+    ],
+    prebuilts: [
+        "apex_vendor_foo_v1.rc",
+    ],
+}
+
+apex_test {
+    name: "com.android.apex.vendor.foo.v2_with_service",
+    defaults: [
+        "com.android.apex.vendor.foo.defaults",
+    ],
+    manifest: "manifest_v2.json",
+    binaries: [
+        "apex_vendor_foo",
+    ],
+    prebuilts: [
+        "apex_vendor_foo_v2.rc",
+    ],
+}
+
+apex_test {
+    name: "com.android.apex.vendor.foo.v2_with_wrong_vndk_version",
+    defaults: [
+        "com.android.apex.vendor.foo.defaults",
+    ],
+    manifest: ":manifest_v2_with_wrong_vndk_version.json",
+}
+
+genrule {
+    name: "manifest_v2_with_wrong_vndk_version.json",
+    out: ["manifest_v2_with_wrong_vndk_version.json"],
+    srcs: ["manifest_v2.json"],
+    tools: ["jsonmodify"],
+    cmd: "$(location jsonmodify) -v vndkVersion WrongVndkVersion $(in) -o $(out)",
+}
+
+apex_test {
+    name: "com.android.apex.vendor.foo.with_vintf",
+    defaults: [
+        "com.android.apex.vendor.foo.defaults",
+    ],
+    manifest: "manifest_v2.json",
+    binaries: [
+        "apex_vendor_foo",
+    ],
+    prebuilts: [
+        "apex_vendor_foo_v2.rc",
+        "apex_vendor_foo_v2_vintf",
+    ],
+}
+
+// Test apex for updating com.android.hardware.wifi, with an
+//    updatable-via-apex value that doesn't match wifi's interface.
+apex_test {
+    name: "test.bad1.com.android.hardware.wifi",
+    manifest: "wifi_manifest_rebootless.json",
+    key: "com.android.hardware.key",
+    certificate: ":com.android.hardware.certificate",
+    file_contexts: "wifi_file_contexts",
+    use_vndk_as_stable: true,
+    updatable: false,
+    soc_specific: true,
+    installable: false,
+    prebuilts: [
+        "vintf_fragment_wifi_bad1.xml",
+        "com.android.hardware.wifi.rc",
+    ],
+}
+
+prebuilt_etc {
+    name: "vintf_fragment_wifi_bad1.xml",
+    src: "vintf_fragment_wifi_bad1.xml",
+    installable: false,
+    sub_dir: "vintf", // Puts fragment into etc/vintf
+}
+
+// Creates wifi test apex where its vintf fragment has invalid XML syntax
+//    (an unclosed tag)
+apex_test {
+    name: "test.bad2.com.android.hardware.wifi",
+    manifest: "wifi_manifest_rebootless.json",
+    key: "com.android.hardware.key",
+    certificate: ":com.android.hardware.certificate",
+    file_contexts: "wifi_file_contexts",
+    use_vndk_as_stable: true,
+    updatable: false,
+    soc_specific: true,
+    installable: false,
+    prebuilts: [
+        "vintf_fragment_wifi_bad2.xml",
+        "com.android.hardware.wifi.rc",
+    ],
+}
+
+prebuilt_etc {
+    name: "vintf_fragment_wifi_bad2.xml",
+    src: "vintf_fragment_wifi_bad2.xml",
+    installable: false,
+    sub_dir: "vintf",
+}
+
+// Creates wifi test apex that is updating interface for other hardware
+//    (picked an HAL that exists elsewhere, and for hardware that has
+//     updatable-via-apex="true", and still gets caught - good!)
+apex_test {
+    name: "test.bad3.com.android.hardware.wifi",
+    manifest: "wifi_manifest_rebootless.json",
+    key: "com.android.hardware.key",
+    certificate: ":com.android.hardware.certificate",
+    file_contexts: "wifi_file_contexts",
+    use_vndk_as_stable: true,
+    updatable: false,
+    soc_specific: true,
+    installable: false,
+    prebuilts: [
+        "vintf_fragment_wifi_bad3.xml",
+        "com.android.hardware.wifi.rc",
+    ],
+}
+
+prebuilt_etc {
+    name: "vintf_fragment_wifi_bad3.xml",
+    src: "vintf_fragment_wifi_bad3.xml",
+    installable: false,
+    sub_dir: "vintf",
+}
+
+// Test apex for updating com.android.hardware.wifi, with a
+//    good apex
+apex_test {
+    name: "test.good1.com.android.hardware.wifi",
+    manifest: "wifi_manifest_rebootless.json",
+    key: "com.android.hardware.key",
+    certificate: ":com.android.hardware.certificate",
+    file_contexts: "wifi_file_contexts",
+    use_vndk_as_stable: true,
+    updatable: false,
+    soc_specific: true,
+    installable: false,
+    prebuilts: [
+        "vintf_fragment_wifi_good1.xml",
+        "com.android.hardware.wifi.rc",
+    ],
+}
+
+prebuilt_etc {
+    name: "vintf_fragment_wifi_good1.xml",
+    src: "vintf_fragment_wifi_service.xml",
+    installable: false,
+    sub_dir: "vintf", // Puts fragment into etc/vintf
+}
+
+prebuilt_etc {
+    name: "apex_vendor_foo_bootstrap.rc",
+    src: "apex_vendor_foo_bootstrap.rc",
+    vendor: true,
+    installable: false,
+}
+
+apex_test {
+    name: "com.android.apex.vendor.foo.bootstrap",
+    defaults: [
+        "com.android.apex.vendor.foo.defaults",
+    ],
+    binaries: [
+        "apex_vendor_foo",
+    ],
+    prebuilts: [
+        "apex_vendor_foo_bootstrap.rc",
+    ],
+    manifest: "manifest_bootstrap.json",
+}

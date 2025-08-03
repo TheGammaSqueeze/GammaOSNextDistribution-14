@@ -1,0 +1,74 @@
+package {
+    default_visibility: [":__subpackages__"],
+    default_applicable_licenses: ["system_bt_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+// See: http://go/android-license-faq
+license {
+    name: "system_bt_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-MIT",
+        "legacy_unencumbered",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+filegroup {
+    name: "BluetoothTestConfigTemplate",
+    srcs: [
+        "AndroidTestTemplate.xml",
+    ],
+}
+
+// This default contains properties that should be common to all the cc targets
+// developed by the Bluetooth team.
+//
+// Be careful when adding new properties here:
+//  - The option should not impact negatively any target, for example "-Wno-*"
+//    options should not be added here but instead on every targets needing
+//    them to avoid allowing adding new warnings in targets that didn't contained
+//    them (you can use the bpmodify tool to ease the work of adding this warning
+//    everywhere) and also allows cleaning them one at a time.
+//
+//  - The option should apply to all the c/c++ code developed by the Bluetooth team:
+//    test, tools, fuzzers, etc, not only production targets, if you need to add an option
+//    for a subset of Bluetooth cc targets you should look at the defaults including this
+//    defaults like "fluoride_defaults" and "gd_defaults".
+//
+//  - Try to keep the name as precise as possible to document to the dependent of what
+//    this default contains. This also means that if you add a new option that isn't
+//    documented by the name of this default, rename it.
+//
+//  - Try avoiding adding option that would not fit "future" targets, for exemple dependencies,
+//    even if every modules of Bluetooth depends on a specific dependency it should be left out
+//    from this default to not push it for future targets that might not need it.
+cc_defaults {
+    name: "bluetooth_cflags",
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+        // Override global.go that demote the error to a warning
+        "-Werror=reorder-init-list",
+    ],
+    c_std: "c99",
+    cpp_std: "c++20",
+}

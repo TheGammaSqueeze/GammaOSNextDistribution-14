@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2015 The Android Open Source Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="26dp"
+    android:height="24dp"
+    android:viewportWidth="26"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="?attr/wifi_signal_color"
+        android:pathData="M13.0,22.0L25.6,6.5C25.1,6.1 20.3,2.1 13.0,2.1S0.9,6.1 0.4,6.5L13.0,22.0L13.0,22.0L13.0,22.0L13.0,22.0L13.0,22.0z"/>
+</vector>

@@ -1,0 +1,9 @@
+## People who can approve changes
+
+# Android auto
+rlagos@google.com # OWNER for SUW related code
+alexstetson@google.com # OWNER for Car Settings related code
+
+# Mobile Settings
+stanleytfwang@google.com
+chiujason@google.com

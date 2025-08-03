@@ -1,0 +1,623 @@
+knownDifferences {
+  cityName: "Paral\303\255mni"
+  s2CellId: 1504138485882159104
+  referenceDataResult {
+    isoCountryCodes: "cy"
+    zoneIds: "Asia/Famagusta"
+  }
+  actualResult {
+    isoCountryCodes: "cy"
+    zoneIds: "Asia/Nicosia"
+  }
+  comment: "Add a comment here"
+  type: "UNKNOWN"
+  bugUri: "http://b/bugId"
+}
+knownDifferences {
+  cityName: "M\303\263rfou"
+  s2CellId: 1503634935863312384
+  referenceDataResult {
+    isoCountryCodes: "cy"
+    zoneIds: "Asia/Nicosia"
+  }
+  actualResult {
+    isoCountryCodes: "cy"
+    zoneIds: "Asia/Famagusta"
+  }
+  comment: "Add a comment here"
+  type: "UNKNOWN"
+  bugUri: "http://b/bugId"
+}
+knownDifferences {
+  cityName: "L\303\251fka"
+  s2CellId: 1506270495299862528
+  referenceDataResult {
+    isoCountryCodes: "cy"
+    zoneIds: "Asia/Nicosia"
+  }
+  actualResult {
+    isoCountryCodes: "cy"
+    zoneIds: "Asia/Famagusta"
+  }
+  comment: "Add a comment here"
+  type: "UNKNOWN"
+  bugUri: "http://b/bugId"
+}
+knownDifferences {
+  cityName: "Sarupathar"
+  s2CellId: 3979576377476120576
+  referenceDataResult {
+    isoCountryCodes: "in"
+    zoneIds: "Asia/Kolkata"
+  }
+  actualResult {
+    isoCountryCodes: "mm"
+    zoneIds: "Asia/Yangon"
+  }
+  comment: "Add a comment here"
+  type: "UNKNOWN"
+  bugUri: "http://b/bugId"
+}
+knownDifferences {
+  cityName: "Gueltat Zemmour"
+  s2CellId: 878731753160704000
+  referenceDataResult {
+    isoCountryCodes: "ma"
+    zoneIds: "Africa/Casablanca"
+  }
+  actualResult {
+    isoCountryCodes: "eh"
+    zoneIds: "Africa/El_Aaiun"
+  }
+  comment: "Add a comment here"
+  type: "UNKNOWN"
+  bugUri: "http://b/bugId"
+}
+knownDifferences {
+  cityName: "Ciudad Gustavo D\303\255az Ordaz"
+  s2CellId: 9683960664191664128
+  referenceDataResult {
+    isoCountryCodes: "mx"
+    zoneIds: "America/Mexico_City"
+  }
+  actualResult {
+    isoCountryCodes: "mx"
+    zoneIds: "America/Matamoros"
+  }
+  comment: "Add a comment here"
+  type: "UNKNOWN"
+  bugUri: "http://b/bugId"
+}
+knownDifferences {
+  cityName: "Nuevo Progreso"
+  s2CellId: 9684281293700857856
+  referenceDataResult {
+    isoCountryCodes: "mx"
+    zoneIds: "America/Mexico_City"
+  }
+  actualResult {
+    isoCountryCodes: "us"
+    isoCountryCodes: "mx"
+    zoneIds: "America/Chicago"
+    zoneIds: "America/Matamoros"
+  }
+  comment: "Add a comment here"
+  type: "UNKNOWN"
+  bugUri: "http://b/bugId"
+}
+knownDifferences {
+  cityName: "Ciudad Camargo"
+  s2CellId: 9683967764309475328
+  referenceDataResult {
+    isoCountryCodes: "mx"
+    zoneIds: "America/Mexico_City"
+  }
+  actualResult {
+    isoCountryCodes: "mx"
+    zoneIds: "America/Matamoros"
+  }
+  comment: "Add a comment here"
+  type: "UNKNOWN"
+  bugUri: "http://b/bugId"
+}
+knownDifferences {
+  cityName: "Camargo"
+  s2CellId: 9683978736340303872
+  referenceDataResult {
+    isoCountryCodes: "mx"
+    zoneIds: "America/Mexico_City"
+  }
+  actualResult {
+    isoCountryCodes: "mx"
+    zoneIds: "America/Matamoros"
+  }
+  comment: "Add a comment here"
+  type: "UNKNOWN"
+  bugUri: "http://b/bugId"
+}
+knownDifferences {
+  cityName: "Zaragoza"
+  s2CellId: 9724756775588069376
+  referenceDataResult {
+    isoCountryCodes: "mx"
+    zoneIds: "America/Mexico_City"
+  }
+  actualResult {
+    isoCountryCodes: "mx"
+    zoneIds: "America/Matamoros"
+  }
+  comment: "Add a comment here"
+  type: "UNKNOWN"
+  bugUri: "http://b/bugId"
+}
+knownDifferences {
+  cityName: "San Juan de Abajo"
+  s2CellId: 9520952381521526784
+  referenceDataResult {
+    isoCountryCodes: "mx"
+    zoneIds: "America/Chihuahua"
+  }
+  actualResult {
+    isoCountryCodes: "mx"
+    zoneIds: "America/Mexico_City"
+  }
+  comment: "Add a comment here"
+  type: "UNKNOWN"
+  bugUri: "http://b/bugId"
+}
+knownDifferences {
+  cityName: "Puerto Palomas"
+  s2CellId: 9717679136561954816
+  referenceDataResult {
+    isoCountryCodes: "mx"
+    zoneIds: "America/Chihuahua"
+  }
+  actualResult {
+    isoCountryCodes: "us"
+    isoCountryCodes: "mx"
+    zoneIds: "America/Denver"
+    zoneIds: "America/Ojinaga"
+  }
+  comment: "Add a comment here"
+  type: "UNKNOWN"
+  bugUri: "http://b/bugId"
+}
+knownDifferences {
+  cityName: "Ascensi\303\263n"
+  s2CellId: 9717780864472973312
+  referenceDataResult {
+    isoCountryCodes: "mx"
+    zoneIds: "America/Chihuahua"
+  }
+  actualResult {
+    isoCountryCodes: "mx"
+    zoneIds: "America/Ojinaga"
+  }
+  comment: "Add a comment here"
+  type: "UNKNOWN"
+  bugUri: "http://b/bugId"
+}
+knownDifferences {
+  cityName: "Ascenci\303\263n"
+  s2CellId: 9717780938024288256
+  referenceDataResult {
+    isoCountryCodes: "mx"
+    zoneIds: "America/Chihuahua"
+  }
+  actualResult {
+    isoCountryCodes: "mx"
+    zoneIds: "America/Ojinaga"
+  }
+  comment: "Add a comment here"
+  type: "UNKNOWN"
+  bugUri: "http://b/bugId"
+}
+knownDifferences {
+  cityName: "El Porvenir"
+  s2CellId: 9520970009141051392
+  referenceDataResult {
+    isoCountryCodes: "mx"
+    zoneIds: "America/Chihuahua"
+  }
+  actualResult {
+    isoCountryCodes: "mx"
+    zoneIds: "America/Mexico_City"
+  }
+  comment: "Add a comment here"
+  type: "UNKNOWN"
+  bugUri: "http://b/bugId"
+}
+knownDifferences {
+  cityName: "Las Jarretaderas"
+  s2CellId: 9520968612739809280
+  referenceDataResult {
+    isoCountryCodes: "mx"
+    zoneIds: "America/Chihuahua"
+  }
+  actualResult {
+    isoCountryCodes: "mx"
+    zoneIds: "America/Mexico_City"
+  }
+  comment: "Add a comment here"
+  type: "UNKNOWN"
+  bugUri: "http://b/bugId"
+}
+knownDifferences {
+  cityName: "Khandyga"
+  s2CellId: 6627854273046642688
+  referenceDataResult {
+    isoCountryCodes: "ru"
+    zoneIds: "Asia/Vladivostok"
+  }
+  actualResult {
+    isoCountryCodes: "ru"
+    zoneIds: "Asia/Chita"
+  }
+  comment: "Add a comment here"
+  type: "UNKNOWN"
+  bugUri: "http://b/bugId"
+}
+knownDifferences {
+  cityName: "Yuzhno-Kurilsk"
+  s2CellId: 6875727886649655296
+  referenceDataResult {
+    isoCountryCodes: "ru"
+    zoneIds: "Asia/Sakhalin"
+  }
+  actualResult {
+    isoCountryCodes: "ru"
+    zoneIds: "Asia/Vladivostok"
+  }
+  comment: "Add a comment here"
+  type: "UNKNOWN"
+  bugUri: "http://b/bugId"
+}
+knownDifferences {
+  cityName: "Ust-Nera"
+  s2CellId: 6619674109473193984
+  referenceDataResult {
+    isoCountryCodes: "ru"
+    zoneIds: "Asia/Magadan"
+  }
+  actualResult {
+    isoCountryCodes: "ru"
+    zoneIds: "Asia/Vladivostok"
+  }
+  comment: "Add a comment here"
+  type: "UNKNOWN"
+  bugUri: "http://b/bugId"
+}
+knownDifferences {
+  cityName: "Buq\342\200\230\304\201t\304\201"
+  s2CellId: 1521848172031246336
+  referenceDataResult {
+    isoCountryCodes: "sy"
+    zoneIds: "Asia/Damascus"
+  }
+  actualResult {
+    isoCountryCodes: "il"
+    zoneIds: "Asia/Jerusalem"
+  }
+  comment: "Add a comment here"
+  type: "UNKNOWN"
+  bugUri: "http://b/bugId"
+}
+knownDifferences {
+  cityName: "Mbamba Bay"
+  s2CellId: 1793190554238976000
+  referenceDataResult {
+    isoCountryCodes: "tz"
+    zoneIds: "Africa/Dar_es_Salaam"
+  }
+  actualResult {
+    isoCountryCodes: "mw"
+    zoneIds: "Africa/Blantyre"
+  }
+  comment: "Add a comment here"
+  type: "UNKNOWN"
+  bugUri: "http://b/bugId"
+}
+knownDifferences {
+  cityName: "Lanett"
+  s2CellId: 9839419099266940928
+  referenceDataResult {
+    isoCountryCodes: "us"
+    zoneIds: "America/Chicago"
+  }
+  actualResult {
+    isoCountryCodes: "us"
+    zoneIds: "America/New_York"
+  }
+  comment: "Add a comment here"
+  type: "UNKNOWN"
+  bugUri: "http://b/bugId"
+}
+knownDifferences {
+  cityName: "Smiths Station"
+  s2CellId: 9839459936889733120
+  referenceDataResult {
+    isoCountryCodes: "us"
+    zoneIds: "America/Chicago"
+  }
+  actualResult {
+    isoCountryCodes: "us"
+    zoneIds: "America/New_York"
+  }
+  comment: "Add a comment here"
+  type: "UNKNOWN"
+  bugUri: "http://b/bugId"
+}
+knownDifferences {
+  cityName: "Valley"
+  s2CellId: 9839420315816427520
+  referenceDataResult {
+    isoCountryCodes: "us"
+    zoneIds: "America/Chicago"
+  }
+  actualResult {
+    isoCountryCodes: "us"
+    zoneIds: "America/New_York"
+  }
+  comment: "Add a comment here"
+  type: "UNKNOWN"
+  bugUri: "http://b/bugId"
+}
+knownDifferences {
+  cityName: "Sa Pa"
+  s2CellId: 3948884386023211008
+  referenceDataResult {
+    isoCountryCodes: "vn"
+    zoneIds: "Asia/Bangkok"
+  }
+  actualResult {
+    isoCountryCodes: "th"
+    zoneIds: "Asia/Bangkok"
+  }
+  comment: "Add a comment here"
+  type: "UNKNOWN"
+  bugUri: "http://b/bugId"
+}
+knownDifferences {
+  cityName: "Lai Ch\303\242u"
+  s2CellId: 3950397419786600448
+  referenceDataResult {
+    isoCountryCodes: "vn"
+    zoneIds: "Asia/Bangkok"
+  }
+  actualResult {
+    isoCountryCodes: "th"
+    zoneIds: "Asia/Bangkok"
+  }
+  comment: "Add a comment here"
+  type: "UNKNOWN"
+  bugUri: "http://b/bugId"
+}
+knownDifferences {
+  cityName: "Zubin Potok"
+  s2CellId: 1392518728846934016
+  referenceDataResult {
+    isoCountryCodes: "xk"
+    zoneIds: "Europe/Belgrade"
+  }
+  actualResult {
+    isoCountryCodes: "rs"
+    zoneIds: "Europe/Belgrade"
+  }
+  comment: "Add a comment here"
+  type: "UNKNOWN"
+  bugUri: "http://b/bugId"
+}
+knownDifferences {
+  cityName: "\305\240trpce"
+  s2CellId: 1392607471998074880
+  referenceDataResult {
+    isoCountryCodes: "xk"
+    zoneIds: "Europe/Belgrade"
+  }
+  actualResult {
+    isoCountryCodes: "rs"
+    zoneIds: "Europe/Belgrade"
+  }
+  comment: "Add a comment here"
+  type: "UNKNOWN"
+  bugUri: "http://b/bugId"
+}
+knownDifferences {
+  cityName: "Srbica"
+  s2CellId: 1392573506859827200
+  referenceDataResult {
+    isoCountryCodes: "xk"
+    zoneIds: "Europe/Belgrade"
+  }
+  actualResult {
+    isoCountryCodes: "rs"
+    zoneIds: "Europe/Belgrade"
+  }
+  comment: "Add a comment here"
+  type: "UNKNOWN"
+  bugUri: "http://b/bugId"
+}
+knownDifferences {
+  cityName: "Obiliq"
+  s2CellId: 1392562494563680256
+  referenceDataResult {
+    isoCountryCodes: "xk"
+    zoneIds: "Europe/Belgrade"
+  }
+  actualResult {
+    isoCountryCodes: "rs"
+    zoneIds: "Europe/Belgrade"
+  }
+  comment: "Add a comment here"
+  type: "UNKNOWN"
+  bugUri: "http://b/bugId"
+}
+knownDifferences {
+  cityName: "Novo Brdo"
+  s2CellId: 1392902028371427328
+  referenceDataResult {
+    isoCountryCodes: "xk"
+    zoneIds: "Europe/Belgrade"
+  }
+  actualResult {
+    isoCountryCodes: "rs"
+    zoneIds: "Europe/Belgrade"
+  }
+  comment: "Add a comment here"
+  type: "UNKNOWN"
+  bugUri: "http://b/bugId"
+}
+knownDifferences {
+  cityName: "Mamu\305\241a"
+  s2CellId: 1392623797705637888
+  referenceDataResult {
+    isoCountryCodes: "xk"
+    zoneIds: "Europe/Belgrade"
+  }
+  actualResult {
+    isoCountryCodes: "rs"
+    zoneIds: "Europe/Belgrade"
+  }
+  comment: "Add a comment here"
+  type: "UNKNOWN"
+  bugUri: "http://b/bugId"
+}
+knownDifferences {
+  cityName: "Lipljan"
+  s2CellId: 1392881501648977920
+  referenceDataResult {
+    isoCountryCodes: "xk"
+    zoneIds: "Europe/Belgrade"
+  }
+  actualResult {
+    isoCountryCodes: "rs"
+    zoneIds: "Europe/Belgrade"
+  }
+  comment: "Add a comment here"
+  type: "UNKNOWN"
+  bugUri: "http://b/bugId"
+}
+knownDifferences {
+  cityName: "Kamenica"
+  s2CellId: 1392994896301785088
+  referenceDataResult {
+    isoCountryCodes: "xk"
+    zoneIds: "Europe/Belgrade"
+  }
+  actualResult {
+    isoCountryCodes: "rs"
+    zoneIds: "Europe/Belgrade"
+  }
+  comment: "Add a comment here"
+  type: "UNKNOWN"
+  bugUri: "http://b/bugId"
+}
+knownDifferences {
+  cityName: "Klina"
+  s2CellId: 1392473184476856320
+  referenceDataResult {
+    isoCountryCodes: "xk"
+    zoneIds: "Europe/Belgrade"
+  }
+  actualResult {
+    isoCountryCodes: "rs"
+    zoneIds: "Europe/Belgrade"
+  }
+  comment: "Add a comment here"
+  type: "UNKNOWN"
+  bugUri: "http://b/bugId"
+}
+knownDifferences {
+  cityName: "Ka\304\215anik"
+  s2CellId: 1392861833919987712
+  referenceDataResult {
+    isoCountryCodes: "xk"
+    zoneIds: "Europe/Belgrade"
+  }
+  actualResult {
+    isoCountryCodes: "rs"
+    zoneIds: "Europe/Belgrade"
+  }
+  comment: "Add a comment here"
+  type: "UNKNOWN"
+  bugUri: "http://b/bugId"
+}
+knownDifferences {
+  cityName: "Isniq"
+  s2CellId: 1392269132728107008
+  referenceDataResult {
+    isoCountryCodes: "xk"
+    zoneIds: "Europe/Belgrade"
+  }
+  actualResult {
+    isoCountryCodes: "rs"
+    zoneIds: "Europe/Belgrade"
+  }
+  comment: "Add a comment here"
+  type: "UNKNOWN"
+  bugUri: "http://b/bugId"
+}
+knownDifferences {
+  cityName: "Strellc i Ep\303\253rm"
+  s2CellId: 1392456273579999232
+  referenceDataResult {
+    isoCountryCodes: "xk"
+    zoneIds: "Europe/Belgrade"
+  }
+  actualResult {
+    isoCountryCodes: "rs"
+    zoneIds: "Europe/Belgrade"
+  }
+  comment: "Add a comment here"
+  type: "UNKNOWN"
+  bugUri: "http://b/bugId"
+}
+knownDifferences {
+  cityName: "Hani i Elezit"
+  s2CellId: 1392859005147152384
+  referenceDataResult {
+    isoCountryCodes: "xk"
+    zoneIds: "Europe/Belgrade"
+  }
+  actualResult {
+    isoCountryCodes: "rs"
+    isoCountryCodes: "mk"
+    zoneIds: "Europe/Belgrade"
+    zoneIds: "Europe/Skopje"
+  }
+  comment: "Add a comment here"
+  type: "UNKNOWN"
+  bugUri: "http://b/bugId"
+}
+knownDifferences {
+  cityName: "Tyuratam"
+  s2CellId: 4752462147261300736
+  referenceDataResult {
+    isoCountryCodes: "kz"
+    zoneIds: "Asia/Almaty"
+  }
+  actualResult {
+    isoCountryCodes: "kz"
+    zoneIds: "Asia/Oral"
+  }
+  comment: "Add a comment here"
+  type: "UNKNOWN"
+  bugUri: "http://b/bugId"
+}
+knownDifferences {
+  cityName: "Th\341\273\213 Tr\341\272\245n \304\220\341\273\223ng \304\220\304\203ng"
+  s2CellId: 3942156659056443392
+  referenceDataResult {
+    isoCountryCodes: "vn"
+    zoneIds: "Asia/Bangkok"
+  }
+  actualResult {
+    isoCountryCodes: "th"
+    isoCountryCodes: "cn"
+    zoneIds: "Asia/Bangkok"
+    zoneIds: "Asia/Shanghai"
+  }
+  comment: "Add a comment here"
+  type: "UNKNOWN"
+  bugUri: "http://b/bugId"
+}

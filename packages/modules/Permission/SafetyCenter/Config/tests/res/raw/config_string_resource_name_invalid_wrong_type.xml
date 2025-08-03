@@ -1,0 +1,15 @@
+<safety-center-config>
+    <safety-sources-config>
+        <safety-sources-group
+            id="id"
+            title="@com.android.safetycenter.config.tests:raw/config_string_resource_name_invalid_wrong_type"
+            summary="@com.android.safetycenter.config.tests:string/reference">
+            <static-safety-source
+                id="id"
+                title="@com.android.safetycenter.config.tests:string/reference"
+                summary="@com.android.safetycenter.config.tests:string/reference"
+                intentAction="intent"
+                profile="1"/>
+        </safety-sources-group>
+    </safety-sources-config>
+</safety-center-config>

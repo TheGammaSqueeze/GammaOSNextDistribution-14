@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="audio_mode_speaker">Динамик</string>
+    <string name="audio_mode_bluetooth">Bluetooth</string>
+    <string name="add_vm_number_str">Номерны өстәү</string>
+    <string-array name="preferred_network_mode_choices">
+        <item>GSM/WCDMA preferred</item>
+        <item>GSM only</item>
+        <item>WCDMA only</item>
+        <item>GSM/WCDMA auto</item>
+        <item>CDMA/EvDo auto</item>
+        <item>CDMA w/o EvDo</item>
+        <item>EvDo only</item>
+        <item>CDMA/EvDo/GSM/WCDMA</item>
+        <item>CDMA + LTE/EvDo</item>
+        <item>GSM/WCDMA/LTE</item>
+        <item>Global</item>
+        <item>LTE</item>
+        <item>LTE / WCDMA</item>
+        <item>TDSCDMA only</item>
+        <item>TDSCDMA/WCDMA</item>
+        <item>LTE/TDSCDMA</item>
+        <item>TDSCDMA/GSM</item>
+        <item>LTE/TDSCDMA/GSM</item>
+        <item>TDSCDMA/GSM/WCDMA</item>
+        <item>LTE/TDSCDMA/WCDMA</item>
+        <item>LTE/TDSCDMA/GSM/WCDMA</item>
+        <item>TDSCDMA/CDMA/EVDO/GSM/WCDMA </item>
+        <item>LTE/TDSCDMA/CDMA/EVDO/GSM/WCDMA</item>
+        <item>NR only</item>
+        <item>NR/LTE</item>
+        <item>NR/LTE/CDMA/EvDo</item>
+        <item>NR/LTE/GSM/WCDMA</item>
+        <item>NR/LTE/CDMA/EvDo/GSM/WCDMA</item>
+        <item>NR/LTE/WCDMA</item>
+        <item>NR/LTE/TDSCDMA</item>
+        <item>NR/LTE/TDSCDMA/GSM</item>
+        <item>NR/LTE/TDSCDMA/WCDMA</item>
+        <item>NR/LTE/TDSCDMA/GSM/WCDMA</item>
+        <item>NR/LTE/TDSCDMA/CDMA/EvDo/GSM/WCDMA</item>
+    </string-array>
+    <string-array name="enhanced_4g_lte_mode_sumary_variant">
+        <item>@string/enhanced_4g_lte_mode_summary</item>
+        <item>@string/enhanced_4g_lte_mode_summary</item>
+        <item>@string/enhanced_4g_lte_mode_summary_o2</item>
+    </string-array>
+    <string name="roaming_reenable_message">Мәгълүмат роумингы сүндерелгән. Кабызу өчен басыгыз.</string>
+    <string name="carrier_settings_euicc_summary"><xliff:g id="carrier_name">%1$s</xliff:g> — <xliff:g id="phone_number">%2$s</xliff:g></string>
+    <string-array name="list_language_values">
+        <item>"1"</item>
+        <item>"2"</item>
+        <item>"3"</item>
+        <item>"4"</item>
+        <item>"5"</item>
+        <item>"6"</item>
+        <item>"7"</item>
+    </string-array>
+    <string-array name="cdma_subscription_choices">
+        <item>RUIM/SIM</item>
+        <item>NV</item>
+    </string-array>
+    <string-array name="cdma_subscription_values">
+        <item>"0"</item>
+        <item>"1"</item>
+    </string-array>
+    <string name="menu_add">Контакт өстәү</string>
+    <string name="menu_edit">Контактны үзгәртү</string>
+    <string name="enter_pin_text">SIM картаның PIN коды:</string>
+    <string name="enter_pin2_text">PIN2</string>
+    <string name="notification_voicemail_title_count">Яңа тавышлы хат (<xliff:g id="count">%d</xliff:g>)</string>
+    <string name="description_concat_format">%1$s, %2$s</string>
+    <string-array name="tty_mode_entries">
+        <item>TTY Off</item>
+        <item>TTY Full</item>
+        <item>TTY HCO</item>
+        <item>TTY VCO</item>
+    </string-array>
+    <string name="call_settings_title_font_family">sans-serif-light</string>
+    <string name="pstn_connection_service_label">Эчке SIM карталар</string>
+    <string name="voicemail_visual_voicemail_key">voicemail_visual_voicemail_key</string>
+    <string name="voicemail_change_pin_key">voicemail_change_pin_key</string>
+    <string name="tty_mode_key">button_tty_mode_key</string>
+    <string name="wifi_calling_settings_key">button_wifi_calling_settings_key</string>
+    <string name="mobile_data_status_roaming_turned_off_subtext">Мәгълүмат роумингы сүндерелгән</string>
+    <string name="mobile_data_status_roaming_turned_on_subtext">Мәгълүмат роумингы кабызылган</string>
+    <string name="supp_service_incoming_calls_barred">Керүче шалтыратулар тыелган.</string>
+    <string name="radioInfo_menu_getIMS">IMS хезмәтенең халәте</string>
+    <string name="radioInfo_phone_ringing">Шалтырату</string>
+    <string name="radioInfo_display_dbm">dBm</string>
+    <string name="radioInfo_display_asu">asu</string>
+    <string name="radioInfo_lac">LAC</string>
+    <string name="radioInfo_cid">CID</string>
+    <string name="radio_info_cell_info_refresh_rate">Кәрәз турында мәгълүматны яңарту ешлыгы:</string>
+    <string name="radio_info_imei_label">IMEI:</string>
+    <string name="radio_info_imsi_label">IMSI:</string>
+    <string name="radio_info_message_waiting_label">Хәбәр көтү:</string>
+    <string name="radio_info_data_network_type_label">Мәгълүмат челтәре төре:</string>
+    <string name="radio_info_smsc_label">SMSC:</string>
+    <string name="radio_info_toggle_dns_check_label">DNS тикшерүне сүндерү/кабызу</string>
+    <string name="oem_radio_info_label">OEM\'га бәйле мәгълүмат/көйләүләр</string>
+</resources>

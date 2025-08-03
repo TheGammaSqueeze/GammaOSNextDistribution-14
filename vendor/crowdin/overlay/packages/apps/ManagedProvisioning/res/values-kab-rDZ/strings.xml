@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/**
+ * Copyright (C) 2014 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="provisioning_error_title">Ayhuh!</string>
+  <string name="next">Uḍfiṛ</string>
+  <string name="cancel_setup">Semmet</string>
+  <string name="ok_setup">Ih</string>
+  <string name="terms">Awalen</string>
+  <string name="delete_profile">Mḥu</string>
+  <string name="cancel_delete_profile">Semmet</string>
+  <string name="cancel_provisioning">Semmet</string>
+  <string name="pick_launcher">Ih</string>
+  <string name="device_owner_cancel_cancel">Semmet</string>
+  <string name="device_owner_error_ok">Ih</string>
+  <string name="reset">Wennez</string>
+  <string name="something_went_wrong">Yella wayen yeḍran</string>
+  <string name="frp_clear_progress_text">Ttxil-k rǧu...</string>
+  <string name="profile_owner_cancel_cancel">Uhu</string>
+  <string name="profile_owner_cancel_ok">Ih</string>
+  <string name="continue_button">Kemmel</string>
+  <string name="work_profile_setup_stop">Seḥbes</string>
+  <string name="dismiss">Suref</string>
+  <string name="your_organization_beginning">Tuddsa-inek·inem</string>
+  <string name="back">Tuɣalin</string>
+  <string name="setup_profile">Sbadu amaɣnu-inek.inem</string>
+  <string name="expand">Snefli</string>
+  <string name="collapse">Ḍfes</string>
+  <string name="cancel_setup_and_factory_reset_dialog_cancel">Semmet</string>
+  <string name="just_a_sec">Yiwet tasint kan\u2026</string>
+</resources>

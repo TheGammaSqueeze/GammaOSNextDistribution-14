@@ -1,0 +1,5 @@
+{
+    "uuid": "GEN_HWCRYPTO_UUID",
+    "min_heap": 24576,
+    "min_stack": 8192
+}

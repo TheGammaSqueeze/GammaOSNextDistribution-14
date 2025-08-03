@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="performance_boost_notification_channel">Crèschida de su rendimentu</string>
+    <string name="performance_boost_notification_title">Optziones 5G de s\'operadore tuo</string>
+    <string name="performance_boost_notification_detail">Bìsita su situ web de %s pro bìdere optziones pro s\'esperièntzia tua cun s\'aplicatzione</string>
+    <string name="performance_boost_notification_button_not_now">Immoe nono</string>
+    <string name="performance_boost_notification_button_manage">Gesti</string>
+    <string name="slice_purchase_app_label">Còmpora una crèschida de rendimentu.</string>
+</resources>

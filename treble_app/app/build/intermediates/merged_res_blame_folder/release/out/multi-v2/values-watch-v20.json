@@ -1,0 +1,20 @@
+{
+    "logs": [
+        {
+            "outputFile": "me.phh.treble.app-mergeReleaseResources-18:/values-watch-v20/values-watch-v20.xml",
+            "map": [
+                {
+                    "source": "/home/gamma/.gradle/caches/transforms-3/bba1b2bc066e026b9a9ad300f8aa4c44/transformed/appcompat-1.1.0/res/values-watch-v20/values-watch-v20.xml",
+                    "from": {
+                        "startLines": "2,5,8",
+                        "startColumns": "4,4,4",
+                        "startOffsets": "55,214,385",
+                        "endLines": "4,7,10",
+                        "endColumns": "12,12,12",
+                        "endOffsets": "209,380,553"
+                    }
+                }
+            ]
+        }
+    ]
+}

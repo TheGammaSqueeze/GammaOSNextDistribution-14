@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package blueberry.facade.hal;
+
+import "google/protobuf/empty.proto";
+import "blueberry/facade/common.proto";
+
+service HciHalFacade {
+  rpc SendCommand(blueberry.facade.Data) returns (google.protobuf.Empty) {}
+  rpc StreamEvents(google.protobuf.Empty) returns (stream blueberry.facade.Data) {}
+
+  rpc SendAcl(blueberry.facade.Data) returns (google.protobuf.Empty) {}
+  rpc StreamAcl(google.protobuf.Empty) returns (stream blueberry.facade.Data) {}
+
+  rpc SendSco(blueberry.facade.Data) returns (google.protobuf.Empty) {}
+  rpc StreamSco(google.protobuf.Empty) returns (stream blueberry.facade.Data) {}
+
+  rpc SendIso(blueberry.facade.Data) returns (google.protobuf.Empty) {}
+  rpc StreamIso(google.protobuf.Empty) returns (stream blueberry.facade.Data) {}
+}

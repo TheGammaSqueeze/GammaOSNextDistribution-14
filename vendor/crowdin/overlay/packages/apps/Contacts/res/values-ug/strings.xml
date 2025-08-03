@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2006 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="applicationLabel">ئالاقەداشلار</string>
+    <string name="contactsList">ئالاقەداشلار</string>
+    <string name="shortcutContact">ئالاقەداش</string>
+    <string name="shortcutDialContact">بىۋاسىتە نومۇر بۇراش</string>
+    <string name="shortcutMessageContact">بىۋاسىتە ئۇچۇر يوللاش</string>
+    <string name="contactPickerActivityTitle">بىر ئالاقەداش تاللاڭ</string>
+    <string name="searchHint">ئالاقەداش ئىزدە</string>
+    <string name="menu_addStar">يىغقۇچقا قوش</string>
+    <string name="menu_removeStar">يىغقۇچتىن چىقىرىۋەت</string>
+    <string name="menu_editContact">تەھرىر</string>
+    <string name="menu_deleteContact">ئۆچۈر</string>
+    <string name="separatorJoinAggregateSuggestions">تەۋسىيە ئالاقەداشلار</string>
+    <string name="separatorJoinAggregateAll">ھەممە ئالاقەداشلار</string>
+    <string name="menu_set_ring_tone">قوڭغۇراق ئاۋاز تەڭشىكى</string>
+    <string name="deleteConfirmation_positive_button">ئۆچۈر</string>
+    <string name="invalidContactMessage">ئالاقەداش مەۋجۇت ئەمەس</string>
+    <string name="attach_photo_dialog_title">ئالاقەداش سۈرىتى</string>
+    <string name="customLabelPickerTitle">ئۆزلەشتۈرگەن بەلگە ئاتى</string>
+    <string name="removePhoto">سۈرەتنى چىقىرىۋەت</string>
+    <string name="listFoundAllContactsZero">ئالاقەداش يوق</string>
+    <string name="add_contact_dlg_message_fmt"><xliff:g id="EMAIL">%s</xliff:g> نى ئالاقەداشقا قوشامدۇ؟</string>
+    <string name="search_settings_description">ئالاقەداشنىڭ ئاتى</string>
+    <string name="menu_share">ھەمبەھىر</string>
+    <string name="audio_chat">ئاۋازلىق سۆھبەت</string>
+    <string name="video_chat">سىنلىق پاراڭ</string>
+    <string name="account_type_format"><xliff:g id="SOURCE">%1$s</xliff:g> ئالاقەداش</string>
+    <string name="take_photo">رەسىم تارت</string>
+    <string name="take_new_photo">يېڭى سۈرەت تارت</string>
+    <string name="search_results_searching">ئىزدەۋاتىدۇ…</string>
+    <string name="event_edit_field_hint_text">چېسلا</string>
+    <string name="aggregation_suggestion_edit_dialog_message">تاللانغان ئالاقەداشنى تەھرىرلەشكە ئالمىشامدۇ؟ سىستېما ھازىرغا قەدەر كىرگۈزگەن ھەممە ئۇچۇرنى كۆچۈرىدۇ.</string>
+    <string name="contact_directory_description">مۇندەرىجە <xliff:g id="TYPE">%1$s</xliff:g></string>
+    <string name="activity_title_settings">تەڭشەكلەر</string>
+    <string name="menu_settings" msgid="377929915873428211">تەڭشەكلەر</string>
+    <string name="non_phone_caption">تېلېفون نومۇرى</string>
+    <string name="non_phone_add_to_contacts">ئالاقەداشقا قوش</string>
+    <string name="non_phone_close">ياپ</string>
+    <string name="contacts_unavailable_add_account">ھېسابات قوش</string>
+    <string name="copy_text">چاپلاش تاختىسىغا كۆچۈر</string>
+    <string name="set_default">كۆڭۈلدىكىگە تەڭشە</string>
+    <string name="clear_default">كۆڭۈلدىكىنى تازىلا</string>
+    <string name="toast_text_copied">تېكىست كۆچۈرۈلدى</string>
+    <string name="enter_contact_name">ئالاقەداش ئىزدە</string>
+    <string name="local_profile_title">يەرلىك سەپلىمە ھۆججىتىم</string>
+    <string name="external_profile_title"><xliff:g id="EXTERNAL_SOURCE">%1$s</xliff:g> سەپلىمە ھۆججىتىم</string>
+    <string name="add_account">ھېسابات قوش</string>
+    <string name="add_new_account">يېڭى ھېسابات قوش</string>
+    <string name="menu_export_database">ساندان ھۆججەتلىرىنى چىقار</string>
+    <string name="editor_contact_photo_content_description">ئالاقەداش سۈرىتى</string>
+    <string name="local_search_label">ھەممە ئالاقەداشلار</string>
+    <string name="organizationLabelsGroup">تەشكىل</string>
+    <string name="label_custom_field">ئىختىيارىيلاشقان</string>
+    <string name="list_filter_all_accounts">ھەممە ئالاقەداشلار</string>
+    <string name="list_filter_all_starred">يۇلتۇزلۇق</string>
+    <string name="list_filter_single">ئالاقەداش</string>
+    <string name="display_all_contacts">ھەممە ئالاقەداشلار</string>
+    <string name="hint_findContacts">ئالاقەداش ئىزدە</string>
+    <string name="contactsFavoritesLabel">يىغقۇچ</string>
+    <string name="description_delete_contact">ئۆچۈر</string>
+</resources>

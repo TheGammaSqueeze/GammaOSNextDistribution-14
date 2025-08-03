@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2012 The Android Open Source Project
+     Copyright (C) 2023-2025 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+          http://www.apache.org/licenses/LICENSE-2.0
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:title="@string/app_label">
+
+    <ListPreference
+        android:defaultValue="@string/default_clock_style"
+        android:dialogTitle="@string/clock_style"
+        android:entries="@array/clock_style_entries"
+        android:entryValues="@array/clock_style_values"
+        android:key="screensaver_clock_style"
+        android:title="@string/clock_style"
+        app:iconSpaceReserved="false" />
+
+    <ListPreference
+        android:defaultValue="@string/default_clock_color"
+        android:entries="@array/clock_color_entries"
+        android:entryValues="@array/clock_color_values"
+        android:key="screensaver_clock_color"
+        android:title="@string/clock_color_title"
+        app:iconSpaceReserved="false" />
+
+    <SwitchPreferenceCompat
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:defaultValue="@bool/default_clock_bold_text"
+        android:key="screensaver_bold_text"
+        android:title="@string/bold_text_title"
+        app:iconSpaceReserved="false" />
+
+    <SwitchPreferenceCompat
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:defaultValue="@bool/default_clock_show_ampm"
+        android:key="screensaver_show_ampm"
+        android:title="@string/show_ampm_title"
+        app:iconSpaceReserved="false" />
+
+    <PreferenceCategory
+        android:title="@string/night_mode_title"
+        app:iconSpaceReserved="false" >
+
+        <SwitchPreferenceCompat
+            android:defaultValue="@bool/default_clock_night_mode"
+            android:key="screensaver_night_mode"
+            android:summary="@string/night_mode_summary"
+            android:title="@string/night_mode_enabled_title"
+            app:iconSpaceReserved="false" />
+
+        <SwitchPreferenceCompat
+            android:defaultValue="@bool/default_clock_night_mode_dnd"
+            android:key="screensaver_clock_night_mode_dnd"
+            android:summary="@string/night_mode_dnd_summary"
+            android:title="@string/night_mode_dnd_title"
+            android:dependency="screensaver_night_mode"
+            app:iconSpaceReserved="false" />
+
+        <ListPreference
+            android:defaultValue="@string/default_clock_color"
+            android:entries="@array/clock_color_entries"
+            android:entryValues="@array/clock_color_values"
+            android:key="screensaver_clock_night_mode_color"
+            android:title="@string/clock_color_title"
+            android:dependency="screensaver_night_mode"
+            app:iconSpaceReserved="false" />
+
+        <SeekBarPreference
+            android:defaultValue="@string/default_clock_night_mode_brightness"
+            android:key="screensaver_clock_night_mode_brightness"
+            android:title="@string/night_mode_brightness_text_title"
+            android:dependency="screensaver_night_mode"
+            android:min="0"
+            android:max="100"
+            app:iconSpaceReserved="false" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

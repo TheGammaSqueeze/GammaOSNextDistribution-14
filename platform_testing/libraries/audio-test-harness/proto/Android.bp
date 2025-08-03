@@ -1,0 +1,156 @@
+/*
+ * Copyright (C) 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// Proto Targets for the Audio Test Harness System.
+// These protos are used on both the host and device side and thus are
+// included in both lite and full variants.
+// DEFINITIONS ==============================================================
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+PROTO_TOOLS = [
+    "aprotoc",
+    "protoc-gen-grpc-java-plugin",
+    "soong_zip",
+]
+FULL_PROTO_CMD = "mkdir -p $(genDir)/gen && " +
+    "$(location aprotoc) -Iplatform_testing/libraries -Iexternal/protobuf/src " +
+    "--plugin=protoc-gen-grpc-java=$(location protoc-gen-grpc-java-plugin) --grpc-java_out=$(genDir)/gen $(in) && " +
+    "$(location soong_zip) -o $(out) -C $(genDir)/gen -D $(genDir)/gen"
+LITE_PROTO_CMD = "mkdir -p $(genDir)/gen && " +
+    "$(location aprotoc) --java_opt=annotate_code=false -Iplatform_testing/libraries -Iexternal/protobuf/src " +
+    "--plugin=protoc-gen-grpc-java=$(location protoc-gen-grpc-java-plugin) --grpc-java_out=lite:$(genDir)/gen $(in) && " +
+    "$(location soong_zip) -o $(out) -C $(genDir)/gen -D $(genDir)/gen"
+
+// PROTO SOURCE ==============================================================
+
+// Common protos shared between the server and client libraries as model classes.
+filegroup {
+    name: "audiotestharness-commonproto",
+    srcs: [
+        "audio_device.proto",
+        "audio_format.proto",
+    ],
+}
+
+// The protos for the Audio Test Harness service definition.
+filegroup {
+    name: "audiotestharness-serviceproto",
+    srcs: [
+        "audio_test_harness_service.proto",
+    ],
+}
+
+// GRPC GENERATED ==============================================================
+
+// The generated gRPC Stub based on the above service definition.
+genrule {
+    name: "audiotestharness-servicestub-full",
+    tools: PROTO_TOOLS,
+    cmd: FULL_PROTO_CMD,
+    srcs: [
+        ":audiotestharness-serviceproto",
+    ],
+    out: [
+        "protos.srcjar",
+    ],
+}
+
+genrule {
+    name: "audiotestharness-servicestub-lite",
+    tools: PROTO_TOOLS,
+    cmd: LITE_PROTO_CMD,
+    srcs: [
+        ":audiotestharness-serviceproto",
+    ],
+    out: [
+        "protos.srcjar",
+    ],
+}
+
+// LIBRARIES ==============================================================
+
+java_library_host {
+    name: "audiotestharness-commonprotolib-full",
+    srcs: [
+        ":audiotestharness-commonproto",
+    ],
+    static_libs: [
+        "libprotobuf-java-full",
+    ],
+    proto: {
+        type: "full",
+    },
+}
+
+java_library {
+    name: "audiotestharness-commonprotolib-lite",
+    host_supported: true,
+    srcs: [
+        ":audiotestharness-commonproto",
+    ],
+    static_libs: [
+        "libprotobuf-java-lite",
+    ],
+    proto: {
+        type: "lite",
+    },
+    sdk_version: "current",
+}
+
+java_library_host {
+    name: "audiotestharness-servicegrpclib-full",
+    srcs: [
+        ":audiotestharness-servicestub-full",
+        ":audiotestharness-serviceproto",
+    ],
+    libs: [
+        "javax_annotation-api_1.3.2",
+    ],
+    static_libs: [
+        "libprotobuf-java-full",
+        "grpc-java",
+        "opencensus-java-api",
+        "opencensus-java-contrib-grpc-metrics",
+    ],
+    proto: {
+        type: "full",
+    },
+}
+
+java_library {
+    name: "audiotestharness-servicegrpclib-lite",
+    host_supported: true,
+    srcs: [
+        ":audiotestharness-servicestub-lite",
+        ":audiotestharness-serviceproto",
+    ],
+    libs: [
+        "javax_annotation-api_1.3.2",
+    ],
+    static_libs: [
+        "libprotobuf-java-lite",
+        "grpc-java-okhttp-client-lite",
+        "opencensus-java-api",
+        "opencensus-java-contrib-grpc-metrics",
+    ],
+    proto: {
+        type: "lite",
+    },
+    sdk_version: "current",
+}

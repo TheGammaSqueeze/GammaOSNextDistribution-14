@@ -1,0 +1,14 @@
+<configuration description="Runs sample instrumentation test.">
+    <option name="test-suite-tag" value="apct" />
+    <option name="test-suite-tag" value="apct-instrumentation" />
+    <target_preparer class="com.android.tradefed.targetprep.TestAppInstallSetup">
+        <option name="test-file-name" value="CoverageInstrumentationSampleTest.apk" />
+    </target_preparer>
+
+    <option name="test-suite-tag" value="apct" />
+    <option name="test-tag" value="SampleInstrumentationTest" />
+    <test class="com.android.tradefed.testtype.AndroidJUnitTest" >
+        <option name="package" value="android.platform.test.coverage" />
+        <option name="runner" value="androidx.test.runner.AndroidJUnitRunner" />
+    </test>
+</configuration>

@@ -1,0 +1,17 @@
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_app {
+    name: "Provision",
+    srcs: ["**/*.java"],
+    platform_apis: true,
+    system_ext_specific: true,
+    certificate: "platform",
+    privileged: true,
+    required: ["privapp_whitelist_com.android.provision"],
+    optimize: {
+        proguard_flags_files: ["proguard.flags"],
+    },
+}

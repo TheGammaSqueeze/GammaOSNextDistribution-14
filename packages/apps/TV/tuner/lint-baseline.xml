@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.4.0-alpha01" type="baseline" client="" dependencies="true" name="" variant="all" version="8.4.0-alpha01">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `android.app.NotificationManager#createNotificationChannel`"
+        errorLine1="        notificationManager.createNotificationChannel("
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/apps/TV/tuner/src/com/android/tv/tuner/setup/BaseTunerSetupActivity.java"
+            line="399"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `new android.app.NotificationChannel`"
+        errorLine1="                new NotificationChannel("
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/apps/TV/tuner/src/com/android/tv/tuner/setup/BaseTunerSetupActivity.java"
+            line="400"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `new android.app.Notification.Builder`"
+        errorLine1="                new Notification.Builder(context, TUNER_SET_UP_NOTIFICATION_CHANNEL_ID)"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/apps/TV/tuner/src/com/android/tv/tuner/setup/BaseTunerSetupActivity.java"
+            line="406"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `new android.app.Notification.TvExtender`"
+        errorLine1="                        .extend(new Notification.TvExtender())"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/apps/TV/tuner/src/com/android/tv/tuner/setup/BaseTunerSetupActivity.java"
+            line="416"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Cast from `TvExtender` to `Extender` requires API level 26 (current min is 23)"
+        errorLine1="                        .extend(new Notification.TvExtender())"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/apps/TV/tuner/src/com/android/tv/tuner/setup/BaseTunerSetupActivity.java"
+            line="416"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `android.app.job.JobScheduler#getPendingJob`"
+        errorLine1="            JobInfo pendingJob = jobScheduler.getPendingJob(DVR_STORAGE_CLEANUP_JOB_ID);"
+        errorLine2="                                              ~~~~~~~~~~~~~">
+        <location
+            file="packages/apps/TV/tuner/src/com/android/tv/tuner/tvinput/BaseTunerTvInputService.java"
+            line="94"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Extending RecordingSessionCompat requires API level 24 (current min is 23): `RecordingSessionCompat`"
+        errorLine1="public class TunerRecordingSession extends RecordingSessionCompat {"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/apps/TV/tuner/src/com/android/tv/tuner/tvinput/TunerRecordingSession.java"
+            line="39"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `RecordingSessionCompat`"
+        errorLine1="        super(context);"
+        errorLine2="        ~~~~~">
+        <location
+            file="packages/apps/TV/tuner/src/com/android/tv/tuner/tvinput/TunerRecordingSession.java"
+            line="54"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `android.media.tv.TvInputService.RecordingSession#notifyTuned`"
+        errorLine1="        notifyTuned(channelUri);"
+        errorLine2="        ~~~~~~~~~~~">
+        <location
+            file="packages/apps/TV/tuner/src/com/android/tv/tuner/tvinput/TunerRecordingSession.java"
+            line="107"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `notifyRecordingStarted`"
+        errorLine1="        notifyRecordingStarted(recUri);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/apps/TV/tuner/src/com/android/tv/tuner/tvinput/TunerRecordingSession.java"
+            line="116"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `android.media.tv.TvInputService.RecordingSession#notifyRecordingStopped`"
+        errorLine1="        notifyRecordingStopped(recordedProgramUri);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/apps/TV/tuner/src/com/android/tv/tuner/tvinput/TunerRecordingSession.java"
+            line="125"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `android.media.tv.TvInputService.RecordingSession#notifyError`"
+        errorLine1="        notifyError(reason);"
+        errorLine2="        ~~~~~~~~~~~">
+        <location
+            file="packages/apps/TV/tuner/src/com/android/tv/tuner/tvinput/TunerRecordingSession.java"
+            line="131"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Extending RecordingSessionCompat requires API level 24 (current min is 23): `RecordingSessionCompat`"
+        errorLine1="public class TunerRecordingSessionExoV2 extends RecordingSessionCompat {"
+        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/apps/TV/tuner/src/com/android/tv/tuner/tvinput/TunerRecordingSessionExoV2.java"
+            line="39"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `RecordingSessionCompat`"
+        errorLine1="        super(context);"
+        errorLine2="        ~~~~~">
+        <location
+            file="packages/apps/TV/tuner/src/com/android/tv/tuner/tvinput/TunerRecordingSessionExoV2.java"
+            line="54"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `android.media.tv.TvInputService.RecordingSession#notifyTuned`"
+        errorLine1="        notifyTuned(channelUri);"
+        errorLine2="        ~~~~~~~~~~~">
+        <location
+            file="packages/apps/TV/tuner/src/com/android/tv/tuner/tvinput/TunerRecordingSessionExoV2.java"
+            line="107"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `notifyRecordingStarted`"
+        errorLine1="        notifyRecordingStarted(recUri);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/apps/TV/tuner/src/com/android/tv/tuner/tvinput/TunerRecordingSessionExoV2.java"
+            line="116"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `android.media.tv.TvInputService.RecordingSession#notifyRecordingStopped`"
+        errorLine1="        notifyRecordingStopped(recordedProgramUri);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/apps/TV/tuner/src/com/android/tv/tuner/tvinput/TunerRecordingSessionExoV2.java"
+            line="125"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `android.media.tv.TvInputService.RecordingSession#notifyError`"
+        errorLine1="        notifyError(reason);"
+        errorLine2="        ~~~~~~~~~~~">
+        <location
+            file="packages/apps/TV/tuner/src/com/android/tv/tuner/tvinput/TunerRecordingSessionExoV2.java"
+            line="131"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 24 (current min is 23): `android.media.tv.TvContract.RecordedPrograms#CONTENT_URI`"
+        errorLine1="                .insert(TvContract.RecordedPrograms.CONTENT_URI, values);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/apps/TV/tuner/src/com/android/tv/tuner/tvinput/TunerRecordingSessionWorker.java"
+            line="616"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 24 (current min is 23): `android.media.tv.TvContract.RecordedPrograms#CONTENT_URI`"
+        errorLine1="        Uri uri = TvContract.RecordedPrograms.CONTENT_URI;"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/apps/TV/tuner/src/com/android/tv/tuner/tvinput/TunerRecordingSessionWorker.java"
+            line="689"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 24 (current min is 23): `android.media.tv.TvContract.RecordedPrograms#CONTENT_URI`"
+        errorLine1="                .insert(TvContract.RecordedPrograms.CONTENT_URI, values);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/apps/TV/tuner/src/com/android/tv/tuner/tvinput/TunerRecordingSessionWorkerExoV2.java"
+            line="619"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 24 (current min is 23): `android.media.tv.TvContract.RecordedPrograms#CONTENT_URI`"
+        errorLine1="        Uri uri = TvContract.RecordedPrograms.CONTENT_URI;"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/apps/TV/tuner/src/com/android/tv/tuner/tvinput/TunerRecordingSessionWorkerExoV2.java"
+            line="692"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 24 (current min is 23): `android.media.tv.TvContract.RecordedPrograms#CONTENT_URI`"
+        errorLine1="                            TvContract.RecordedPrograms.CONTENT_URI,"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/apps/TV/tuner/src/com/android/tv/tuner/tvinput/TunerStorageCleanUpService.java"
+            line="101"
+            column="29"/>
+    </issue>
+
+</issues>

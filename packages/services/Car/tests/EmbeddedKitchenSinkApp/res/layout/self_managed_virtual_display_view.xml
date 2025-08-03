@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<!--
+    NOTE: This layout is meant to be used by the SelfManagedVirtualDisplayView widget only
+-->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+    <LinearLayout
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:enabled="false"
+            android:text="Display Id:"/>
+        <EditText
+            android:id="@+id/display_id"
+            android:layout_width="70dp"
+            android:layout_height="match_parent"
+            android:enabled="false"/>
+        <Button
+            android:id="@+id/create"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="Create"/>
+        <Button
+            android:id="@+id/delete"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="Delete"/>
+        <com.google.android.car.kitchensink.users.UsersSpinner
+            android:id="@+id/users"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"/>
+        <Button
+            android:id="@+id/switch_user"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="Switch"/>
+
+    </LinearLayout>
+    <com.google.android.car.kitchensink.display.VirtualDisplayView
+        android:id="@+id/virtual_display"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+</LinearLayout>

@@ -1,0 +1,153 @@
+# Measurement Concurrent Profile for Load Testing.
+# Tests aggressive usage of Measurement Source Registration followed by Deletion
+schedule: TIMESTAMPED
+scenarios [
+  {
+    at: "09:00:00"
+    journeys [
+      {
+        journey: "android.adservices.test.scenario.adservices.measurement.load.scenarios.DeviceChangeTime"
+        methodName: "setDate"
+        extras [
+          {
+            key: "date"
+            value: "2023-04-01"
+          }
+        ]
+      }
+    ]
+    after_test: STAY_IN_APP
+  },
+  {
+    at: "09:00:01"
+    journeys [
+      {
+        journey: "android.adservices.test.scenario.adservices.measurement.load.scenarios.CallRegisterSource"
+        methodName: "repeatedlyRegisterSourceView"
+        extras [
+          {
+            key: "repeat_count"
+            value: "2500"
+          },
+          {
+            key: "ms_delay_pre"
+            value: "100"
+          },
+          {
+            key: "sdk_name"
+            value: "sdk3"
+          }
+        ]
+      }
+    ]
+    after_test: STAY_IN_APP
+  },
+  {
+    at: "09:01:00"
+    journeys [
+      {
+        journey: "android.adservices.test.scenario.adservices.measurement.load.scenarios.CallRegisterSource"
+        methodName: "repeatedlyRegisterSourceClick"
+        extras [
+          {
+            key: "repeat_count"
+            value: "2500"
+          },
+          {
+            key: "ms_delay_pre"
+            value: "100"
+          },
+          {
+            key: "sdk_name"
+            value: "sdk3"
+          }]
+      }
+    ]
+    after_test: STAY_IN_APP
+  },
+  {
+    at: "09:10:00"
+    journeys [
+      {
+        journey: "android.adservices.test.scenario.adservices.measurement.load.scenarios.ForceRunJob"
+        methodName: "forceRunJob"
+        extras [
+          {
+            key: "job_id"
+            value: "19"
+          }
+        ]
+      }
+    ]
+    after_test: STAY_IN_APP
+  },
+  {
+    at: "09:11:00"
+    journeys [
+      {
+        journey: "android.adservices.test.scenario.adservices.measurement.load.scenarios.ForceRunJob"
+        methodName: "forceRunJob"
+        extras [
+          {
+            key: "job_id"
+            value: "19"
+          }
+        ]
+      }
+    ]
+    after_test: STAY_IN_APP
+  },
+  {
+    at: "09:20:00"
+    journeys [
+      {
+        journey: "android.adservices.test.scenario.adservices.measurement.load.scenarios.DeviceChangeTime"
+        methodName: "setDate"
+        extras [
+          {
+            key: "date"
+            value: "2023-06-01"
+          }
+        ]
+      }
+    ]
+    after_test: STAY_IN_APP
+  },
+  {
+    at: "09:20:05"
+    journeys [
+      {
+        journey: "android.adservices.test.scenario.adservices.measurement.load.scenarios.ForceRunJob"
+        methodName: "forceRunJob"
+        extras [
+          {
+            key: "job_id"
+            value: "4"
+          }
+        ]
+      }
+    ]
+    after_test: STAY_IN_APP
+  },
+  {
+    at: "09:20:10"
+    journeys [
+      {
+        journey: "android.adservices.test.scenario.adservices.measurement.load.scenarios.DeviceExecuteShellCommand"
+        methodName: "executeShellCommand"
+        extras [
+          {
+            key: "shell_command"
+            value: "am kill $(ps -ef | grep -o [a-z.]*.adservices.api"
+          },
+          {
+            key: "ms_delay_pre"
+            value: "5000"
+          }
+        ]
+      }
+    ]
+    after_test: STAY_IN_APP
+  }
+]
+repetitions: 1

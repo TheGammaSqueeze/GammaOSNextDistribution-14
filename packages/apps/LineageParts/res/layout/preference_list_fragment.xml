@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+     SPDX-FileCopyrightText: 2014 The Android Open Source Project
+     SPDX-FileCopyrightText: 2023 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/container_material"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent">
+
+    <FrameLayout android:id="@+id/pinned_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/windowBackground"
+        android:elevation="1dp"
+        android:visibility="gone"/>
+
+    <FrameLayout
+        android:id="@android:id/list_container"
+        android:layout_height="0px"
+        android:layout_weight="1"
+        android:layout_width="match_parent">
+
+        <include layout="@layout/loading_container" />
+
+    </FrameLayout>
+
+    <TextView android:id="@android:id/empty"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:padding="@*android:dimen/preference_fragment_padding_side"
+        android:layout_gravity="center"
+        android:gravity="center_vertical"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:visibility="gone" />
+
+    <RelativeLayout android:id="@+id/button_bar"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_weight="0"
+        android:visibility="gone">
+
+        <Button android:id="@+id/back_button"
+            android:layout_width="150dip"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dip"
+            android:layout_alignParentStart="true"
+            android:text="@*android:string/back_button_label"
+            />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true">
+
+            <Button android:id="@+id/skip_button"
+                android:layout_width="150dip"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dip"
+                android:text="@*android:string/skip_button_label"
+                android:visibility="gone"
+                />
+
+            <Button android:id="@+id/next_button"
+                android:layout_width="150dip"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dip"
+                android:text="@*android:string/next_button_label"
+                />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</LinearLayout>
+

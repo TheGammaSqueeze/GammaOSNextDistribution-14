@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2023 The Android Open Source Project
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+          http://www.apache.org/licenses/LICENSE-2.0
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/evs_preview_container"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:weightSum="15"
+              android:background="@android:color/transparent"
+              android:orientation="vertical">
+
+    <ViewSwitcher android:id="@+id/evs_preview_switcher"
+                  android:layout_width="match_parent"
+                  android:layout_height="0dp"
+                  android:layout_weight="12">
+        <LinearLayout android:id="@+id/evs_switcher_view"
+                      android:layout_width="match_parent"
+                      android:layout_height="match_parent"
+                      android:layout_weight="12"
+                      android:gravity="center"
+                      android:orientation="vertical"/>
+    </ViewSwitcher>
+
+    <LinearLayout android:id="@+id/evs_checkboxes_container0"
+                  android:layout_weight="1"
+                  android:layout_width="match_parent"
+                  android:layout_height="0dp">
+
+        <TextView android:id="@+id/checkbox_label"
+                  android:layout_weight="1"
+                  android:layout_width="0dp"
+                  android:layout_height="match_parent"
+                  android:gravity="center"
+                  android:background="@color/textview_background"
+                  android:textSize="@dimen/checkbox_text_size"
+                  android:text="@string/textview_text_car0"/>
+
+        <CheckBox android:id="@+id/checkbox_rearview"
+                  android:textSize="@dimen/checkbox_text_size"
+                  android:textColor="@color/checkbox_text"
+                  android:background="@color/checkbox_background"
+                  android:layout_weight="1"
+                  android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:text="@string/checkbox_text_rearview"/>
+
+        <CheckBox android:id="@+id/checkbox_frontview"
+                  android:textSize="@dimen/checkbox_text_size"
+                  android:textColor="@color/checkbox_text"
+                  android:background="@color/checkbox_background"
+                  android:layout_weight="1"
+                  android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:text="@string/checkbox_text_frontview"/>
+
+        <CheckBox android:id="@+id/checkbox_leftview"
+                  android:textSize="@dimen/checkbox_text_size"
+                  android:textColor="@color/checkbox_text"
+                  android:background="@color/checkbox_background"
+                  android:layout_weight="1"
+                  android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:text="@string/checkbox_text_leftview"/>
+
+        <CheckBox android:id="@+id/checkbox_rightview"
+                  android:textSize="@dimen/checkbox_text_size"
+                  android:textColor="@color/checkbox_text"
+                  android:background="@color/checkbox_background"
+                  android:layout_weight="1"
+                  android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:text="@string/checkbox_text_rightview"/>
+
+    </LinearLayout>
+
+    <LinearLayout android:id="@+id/evs_checkboxes_container1"
+                  android:layout_weight="1"
+                  android:layout_width="match_parent"
+                  android:layout_height="0dp">
+
+        <TextView android:id="@+id/checkbox1_label"
+                  android:layout_weight="1"
+                  android:layout_width="0dp"
+                  android:layout_height="match_parent"
+                  android:gravity="center"
+                  android:background="@color/textview_background"
+                  android:textSize="@dimen/checkbox_text_size"
+                  android:text="@string/textview_text_car1"/>
+
+        <CheckBox android:id="@+id/checkbox1_rearview"
+                  android:textSize="@dimen/checkbox_text_size"
+                  android:textColor="@color/checkbox_text"
+                  android:background="@color/checkbox_background"
+                  android:layout_weight="1"
+                  android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:text="@string/checkbox_text_rearview"/>
+
+        <CheckBox android:id="@+id/checkbox1_frontview"
+                  android:textSize="@dimen/checkbox_text_size"
+                  android:textColor="@color/checkbox_text"
+                  android:background="@color/checkbox_background"
+                  android:layout_weight="1"
+                  android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:text="@string/checkbox_text_frontview"/>
+
+        <CheckBox android:id="@+id/checkbox1_leftview"
+                  android:textSize="@dimen/checkbox_text_size"
+                  android:textColor="@color/checkbox_text"
+                  android:background="@color/checkbox_background"
+                  android:layout_weight="1"
+                  android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:text="@string/checkbox_text_leftview"/>
+
+        <CheckBox android:id="@+id/checkbox1_rightview"
+                  android:textSize="@dimen/checkbox_text_size"
+                  android:textColor="@color/checkbox_text"
+                  android:background="@color/checkbox_background"
+                  android:layout_weight="1"
+                  android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:text="@string/checkbox_text_rightview"/>
+
+    </LinearLayout>
+
+    <LinearLayout android:id="@+id/evs_buttons_container"
+                  android:layout_weight="1"
+                  android:layout_width="match_parent"
+                  android:layout_height="0dp"
+                  style="?android:attr/buttonBarStyle">
+
+        <Button android:id="@+id/apply_button"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/apply_button_text"
+                android:textColor="@color/button_text"
+                android:background="@color/button_background"
+                android:textSize="@dimen/close_button_text_size"
+                style="?android:attr/buttonBarButtonStyle"/>
+
+        <Button android:id="@+id/close_button"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/close_button_text"
+                android:textColor="@color/button_text"
+                android:background="@color/button_background"
+                android:textSize="@dimen/close_button_text_size"
+                style="?android:attr/buttonBarButtonStyle"/>
+      </LinearLayout>
+</LinearLayout>

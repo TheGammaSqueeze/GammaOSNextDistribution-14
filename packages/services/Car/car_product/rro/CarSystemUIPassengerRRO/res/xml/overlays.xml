@@ -1,0 +1,111 @@
+<!--
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<overlay>
+    <item target="layout/car_bottom_system_bar" value="@layout/car_passenger_bottom_system_bar"/>
+
+    <item target="array/config_quickControlsEntryPointIconControllers" value="@array/config_quickControlsEntryPointIconControllers"/>
+
+    <item target="bool/config_enableTopSystemBar" value="false"/>
+    <item target="string/config_notificationPanelViewMediator" value="@string/config_notificationPanelViewMediator" />
+
+    <item target="id/notifications" value="@id/notifications" />
+    <item target="string/system_bar_notifications_label" value="@string/system_bar_notifications_label"/>
+    <item target="drawable/car_ic_notification" value="@drawable/car_ic_notification" />
+    <item target="attr/icon" value="@attr/icon"/>
+    <item target="attr/selectedIcon" value="@attr/selectedIcon"/>
+    <item target="attr/unselectedAlpha" value="@attr/unselectedAlpha"/>
+    <item target="attr/intent" value="@attr/intent"/>
+    <item target="attr/longIntent" value="@attr/longIntent"/>
+    <item target="attr/componentNames" value="@attr/componentNames"/>
+    <item target="attr/highlightWhenSelected" value="@attr/highlightWhenSelected"/>
+    <item target="attr/categories" value="@attr/categories"/>
+    <item target="attr/packages" value="@attr/packages"/>
+    <item target="attr/hvacAreaId" value="@attr/hvacAreaId"/>
+    <item target="attr/hvacPropertyId" value="@attr/hvacPropertyId"/>
+    <item target="attr/hvacTempFormat" value="@attr/hvacTempFormat"/>
+    <item target="attr/hvacPivotOffset" value="@attr/hvacPivotOffset"/>
+    <item target="attr/clearBackStack" value="@attr/clearBackStack"/>
+    <item target="attr/hvacMinValue" value="@attr/hvacMinValue"/>
+    <item target="attr/hvacMaxValue" value="@attr/hvacMaxValue"/>
+    <item target="attr/hvacMinText" value="@attr/hvacMinText"/>
+    <item target="attr/hvacMaxText" value="@attr/hvacMaxText"/>
+    <!-- start the intent as a broad cast instead of an activity if true-->
+    <item target="attr/broadcast" value="@attr/broadcast"/>
+
+
+    <item target="attr/layoutDescription" value="@attr/layoutDescription"/>
+    <item target="attr/layout_constraintGuide_end" value="@attr/layout_constraintGuide_end"/>
+    <item target="attr/layout_constraintBottom_toBottomOf" value="@attr/layout_constraintBottom_toBottomOf"/>
+    <item target="attr/layout_constraintEnd_toEndOf" value="@attr/layout_constraintEnd_toEndOf"/>
+    <item target="attr/layout_constraintStart_toEndOf" value="@attr/layout_constraintStart_toEndOf"/>
+    <item target="attr/layout_constraintTop_toBottomOf" value="@attr/layout_constraintTop_toBottomOf"/>
+
+
+
+    <item target="id/nav_buttons" value="@id/nav_buttons"/>
+    <item target="id/home" value="@id/home"/>
+    <item target="id/passenger_hvac" value="@id/passenger_hvac"/>
+    <item target="id/hvac_decrease_button" value="@id/hvac_decrease_button"/>
+    <item target="id/hvac_temperature_text" value="@id/hvac_temperature_text"/>
+    <item target="id/hvac_increase_button" value="@id/hvac_increase_button"/>
+    <item target="id/qc_entry_points_container" value="@id/qc_entry_points_container"/>
+    <item target="id/control_center_nav" value="@id/control_center_nav"/>
+    <item target="string/system_bar_control_center_label" value="@string/system_bar_control_center_label"/>
+    <item target="dimen/system_bar_button_size" value="@dimen/system_bar_button_size"/>
+    <item target="dimen/system_bar_button_padding" value="@dimen/system_bar_button_padding"/>
+    <item target="style/ControlCenterSystemBarButton" value="@style/ControlCenterSystemBarButton"/>
+
+
+    <!-- Passenger QuickControls related fields -->
+    <item target="color/system_bar_icon_selected_color" value="@color/system_bar_icon_selected_color"/>
+    <item target="color/system_bar_icon_color" value="@color/system_bar_icon_color"/>
+    <item target="color/system_bar_text_color_with_selection" value="@color/system_bar_text_color_with_selection"/>
+    <item target="color/system_bar_text_selected_color" value="@color/system_bar_text_selected_color"/>
+    <item target="color/system_bar_text_color" value="@color/system_bar_text_color"/>
+    <item target="dimen/system_bar_user_icon_drawing_size" value="@dimen/system_bar_user_icon_drawing_size"/>
+    <item target="drawable/car_user_icon_circle_background" value="@drawable/car_user_icon_circle_background"/>
+    <item target="color/car_user_switcher_add_user_background_color" value="@color/car_user_switcher_add_user_background_color"/>
+    <item target="dimen/user_icon_background_size" value="@dimen/user_icon_background_size"/>
+    <item target="drawable/status_icon_background" value="@drawable/status_icon_background"/>
+    <item target="color/status_icon_selected_button_color" value="@color/status_icon_selected_button_color"/>
+    <item target="dimen/system_bar_pill_radius" value="@dimen/system_bar_pill_radius"/>
+    <item target="drawable/system_bar_pill_rotary_background" value="@drawable/system_bar_pill_rotary_background"/>
+    <item target="color/system_bar_background_pill_color" value="@color/system_bar_background_pill_color"/>
+    <item target="drawable/system_bar_background_pill" value="@drawable/system_bar_background_pill"/>
+    <item target="attr/showAsDropDown" value="@attr/showAsDropDown"/>
+    <item target="attr/panelGravity" value="@attr/panelGravity"/>
+    <item target="layout/car_qc_entry_points_button" value="@layout/car_qc_entry_points_button"/>
+    <item target="id/user_icon" value="@id/user_icon"/>
+    <item target="id/user_name_text" value="@id/user_name_text"/>
+    <item target="id/clock" value="@id/clock"/>
+    <item target="attr/amPmStyle" value="@attr/amPmStyle"/>
+    <item target="style/QuickControlEntryPointButton" value="@style/QuickControlEntryPointButton"/>
+    <item target="drawable/system_bar_background" value="@drawable/system_bar_background"/>
+    <item target="attr/showDark" value="@attr/showDark"/>
+    <item target="dimen/car_quick_controls_entry_points_icon_width" value="@dimen/car_quick_controls_entry_points_icon_width"/>
+    <item target="dimen/car_quick_controls_entry_points_icon_space" value="@dimen/car_quick_controls_entry_points_icon_space"/>
+    <item target="dimen/car_quick_controls_entry_points_button_margin_top" value="@dimen/car_quick_controls_entry_points_button_margin_top"/>
+    <item target="dimen/car_quick_controls_entry_points_button_margin_bottom" value="@dimen/car_quick_controls_entry_points_button_margin_bottom"/>
+    <item target="dimen/car_quick_controls_entry_points_button_margin_start" value="@dimen/car_quick_controls_entry_points_button_margin_start"/>
+    <item target="dimen/car_quick_controls_entry_points_button_margin_end" value="@dimen/car_quick_controls_entry_points_button_margin_end"/>
+    <item target="dimen/car_body1_size" value="@dimen/car_body1_size"/>
+    <item target="dimen/car_padding_1" value="@dimen/car_padding_1"/>
+    <item target="dimen/car_padding_2" value="@dimen/car_padding_2"/>
+    <item target="dimen/car_padding_3" value="@dimen/car_padding_3"/>
+    <item target="string/qc_icon_tag" value="@string/qc_icon_tag"/>
+    <item target="style/TextAppearance.SystemBar.ClockWithSelection" value="@style/TextAppearance.SystemBar.ClockWithSelection"/>
+</overlay>

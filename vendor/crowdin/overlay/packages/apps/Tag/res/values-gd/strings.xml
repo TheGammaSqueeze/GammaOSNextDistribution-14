@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2010 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Tagaichean</string>
+    <string name="title_scanned_tag">Chaidh taga ùr a chruinneachadh</string>
+    <string name="title_existing_tag">Taga</string>
+    <string name="tag_unknown">Seòrsa de thaga nach aithne dhuinn</string>
+    <string name="tag_empty">Taga falamh</string>
+    <string name="button_done">Deiseil</string>
+    <string name="action_text">Cuir teacsa gu <xliff:g id="phone_number">%s</xliff:g></string>
+    <string name="action_call">Cuir gairm gu <xliff:g id="phone_number">%s</xliff:g></string>
+    <string name="empty_tag_prompt">Tha an taga seo falamh.</string>
+    <string name="import_vcard">Ion-phortaich ^1</string>
+    <string name="mime_display_name">Dàta o thaga NFC</string>
+    <string name="vcard_title">Fiosrachadh conaltraidh airson ^1</string>
+    <string name="call_phone_permission_denied">Tha an aplacaid seo feumach air cead dhan fòn ach cuir i gairmean. ’S urrainn dhut ceadan nan tagaichean a shuidheachadh sna “Roghainnean”</string>
+    <string name="external_storage_permission_denied">Tha an aplacaid seo feumach air cead dhan stòras air an taobh a-muigh ach an inntrig i faidhlichean. ’S urrainn dhut ceadan nan tagaichean a shuidheachadh sna “Roghainnean”</string>
+</resources>

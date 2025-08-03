@@ -1,0 +1,57 @@
+{
+    "type": "array",
+    "element_type": "Bar",
+    "values": [
+        {
+            "type": "struct",
+            "ctype": "Bar",
+            "address": "0x7fffffffd72a",
+            "fields": [
+                {
+                    "field": "b",
+                    "value": {
+                        "type": "int",
+                        "ctype": "uint16_t",
+                        "address": "0x7fffffffd72a",
+                        "value": "2"
+                    }
+                }
+            ],
+            "base_classes": []
+        },
+        {
+            "type": "struct",
+            "ctype": "Bar",
+            "address": "0x7fffffffd72c",
+            "fields": [
+                {
+                    "field": "b",
+                    "value": {
+                        "type": "int",
+                        "ctype": "uint16_t",
+                        "address": "0x7fffffffd72c",
+                        "value": "2"
+                    }
+                }
+            ],
+            "base_classes": []
+        },
+        {
+            "type": "struct",
+            "ctype": "Bar",
+            "address": "0x7fffffffd72e",
+            "fields": [
+                {
+                    "field": "b",
+                    "value": {
+                        "type": "int",
+                        "ctype": "uint16_t",
+                        "address": "0x7fffffffd72e",
+                        "value": "2"
+                    }
+                }
+            ],
+            "base_classes": []
+        }
+    ]
+}

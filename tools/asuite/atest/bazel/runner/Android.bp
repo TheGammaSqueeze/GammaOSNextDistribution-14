@@ -1,0 +1,90 @@
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_library_host {
+    name: "bazel-test-runner",
+    srcs: [
+        "src/com/android/tradefed/testtype/bazel/BazelTest.java",
+        "src/com/android/tradefed/testtype/bazel/BepFileTailer.java",
+        "src/com/android/tradefed/testtype/bazel/ForwardingTestListener.java",
+        "src/com/android/tradefed/testtype/bazel/BazelTestListener.java",
+        "src/com/android/tradefed/testtype/bazel/NullTestListener.java",
+        "src/com/android/tradefed/testtype/bazel/InvocationLogCollector.java",
+        "src/com/android/tradefed/testtype/bazel/LogPathUpdatingListener.java",
+        "src/com/android/tradefed/testtype/bazel/TestListeners.java",
+        "src/com/android/tradefed/testtype/bazel/SparseTestListener.java",
+        "src/main/protobuf/*.proto",
+    ],
+    // b/267831518: Pin tradefed and dependencies to Java 11.
+    java_version: "11",
+    libs: [
+        "tradefed",
+    ],
+    java_resource_dirs: [
+        "config",
+    ],
+    proto: {
+        type: "full",
+        include_dirs: [
+            "external/protobuf/src",
+        ],
+        canonical_path_from_root: false,
+    },
+}
+
+java_genrule_host {
+    name: "empty-bazel-test-suite",
+    cmd: "BAZEL_SUITE_DIR=$(genDir)/android-bazel-suite && " +
+        "mkdir \"$${BAZEL_SUITE_DIR}\" && " +
+        "mkdir \"$${BAZEL_SUITE_DIR}\"/tools && " +
+        "mkdir \"$${BAZEL_SUITE_DIR}\"/testcases && " +
+        "cp $(location :tradefed) \"$${BAZEL_SUITE_DIR}\"/tools && " +
+        "cp $(location :compatibility-host-util) \"$${BAZEL_SUITE_DIR}\"/tools && " +
+        "cp $(location :compatibility-tradefed) \"$${BAZEL_SUITE_DIR}\"/tools && " +
+        "cp $(location :bazel-test-runner) \"$${BAZEL_SUITE_DIR}\"/testcases && " +
+        "$(location soong_zip) -o $(out) -d -C $(genDir) -D \"$${BAZEL_SUITE_DIR}\" -sha256",
+    out: ["empty-bazel-test-suite.zip"],
+    srcs: [
+        ":tradefed",
+        ":bazel-test-runner",
+        ":compatibility-host-util",
+        ":compatibility-tradefed",
+    ],
+    tools: [
+        "soong_zip",
+    ],
+    dist: {
+        targets: ["empty-bazel-test-suite"],
+    },
+}
+
+java_test_host {
+    name: "bazel-test-runner-tests",
+    srcs: [
+        "tests/src/com/android/tradefed/testtype/bazel/BazelTestTest.java",
+    ],
+    static_libs: [
+        "bazel-test-runner",
+        "tradefed",
+        "mockito",
+        "objenesis",
+    ],
+    test_options: {
+        unit_test: true,
+    },
+}

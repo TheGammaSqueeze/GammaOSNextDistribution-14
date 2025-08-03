@@ -1,0 +1,2 @@
+This directory contains emulator specific RROs and mk files that shouldn't be included on real
+hardware.

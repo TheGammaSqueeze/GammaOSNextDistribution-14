@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2021 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="whichApplication" msgid="2309561338625872614">"ବ୍ୟବହାର କରି କାର୍ଯ୍ୟ ସମ୍ପୂର୍ଣ୍ଣ କରନ୍ତୁ"</string>
+    <string name="whichApplicationNamed" msgid="8514249643796783492">"<xliff:g id="APP">%1$s</xliff:g> ବ୍ୟବହାର କରି କାର୍ଯ୍ୟ ସମ୍ପୂର୍ଣ୍ଣ କରନ୍ତୁ"</string>
+    <string name="whichApplicationLabel" msgid="4312929689807826793">"କାର୍ଯ୍ୟ ସମ୍ପୂର୍ଣ୍ଣ କରନ୍ତୁ"</string>
+    <string name="whichViewApplication" msgid="7660051361612888119">"ସହିତ ଖୋଲନ୍ତୁ"</string>
+    <string name="whichViewApplicationNamed" msgid="8231810543224200555">"<xliff:g id="APP">%1$s</xliff:g>ରେ ଖୋଲନ୍ତୁ"</string>
+    <string name="whichViewApplicationLabel" msgid="9123647023323311663">"ଖୋଲନ୍ତୁ"</string>
+    <string name="whichOpenHostLinksWith" msgid="6664206254809230738">"ଏଥିରେ <xliff:g id="HOST">%1$s</xliff:g> ଲିଙ୍କ୍‍ଗୁଡ଼ିକ ଖୋଲନ୍ତୁ"</string>
+    <string name="whichOpenLinksWith" msgid="3468042265545684416">"ଏଥିରେ ଲିଙ୍କ୍‍ଗୁଡ଼ିକ ଖୋଲନ୍ତୁ"</string>
+    <string name="whichOpenLinksWithApp" msgid="8832514962474825330">"<xliff:g id="APPLICATION">%1$s</xliff:g> ମାଧ୍ୟମରେ ଲିଙ୍କ୍‍ଗୁଡ଼ିକ ଖୋଲନ୍ତୁ"</string>
+    <string name="whichOpenHostLinksWithApp" msgid="6626134603937682461">"<xliff:g id="APPLICATION">%2$s</xliff:g> ମାଧ୍ୟମରେ <xliff:g id="HOST">%1$s</xliff:g> ଲିଙ୍କ୍‍ଗୁଡ଼ିକ ଖୋଲନ୍ତୁ"</string>
+    <string name="whichGiveAccessToApplicationLabel" msgid="5120142857844152131">"ଆକ୍ସେସ ଦିଅନ୍ତୁ"</string>
+    <string name="whichEditApplication" msgid="5097563012157950614">"ସହିତ ଏଡିଟ କରନ୍ତୁ"</string>
+    <string name="whichEditApplicationNamed" msgid="3150137489226219100">"<xliff:g id="APP">%1$s</xliff:g> ମାଧ୍ୟମରେ ଏଡିଟ କରନ୍ତୁ"</string>
+    <string name="whichEditApplicationLabel" msgid="5992662938338600364">"ଏଡିଟ କରନ୍ତୁ"</string>
+    <string name="whichSendApplication" msgid="59510564281035884">"ସେୟାର କରନ୍ତୁ"</string>
+    <string name="whichSendApplicationNamed" msgid="495577664218765855">"<xliff:g id="APP">%1$s</xliff:g> ସହ ସେୟାର କରନ୍ତୁ"</string>
+    <string name="whichSendApplicationLabel" msgid="2391198069286568035">"ସେୟାର୍‌ କରନ୍ତୁ"</string>
+    <string name="whichSendToApplication" msgid="2724450540348806267">"ଏହା ଜରିଆରେ ପଠାନ୍ତୁ"</string>
+    <string name="whichSendToApplicationNamed" msgid="1996548940365954543">"<xliff:g id="APP">%1$s</xliff:g> ବ୍ୟବହାର କରି ପଠାନ୍ତୁ"</string>
+    <string name="whichSendToApplicationLabel" msgid="6909037198280591110">"ପଠାନ୍ତୁ"</string>
+    <string name="whichHomeApplication" msgid="8797832422254564739">"ଏକ ହୋମ ଆପ ଚୟନ କରନ୍ତୁ"</string>
+    <string name="whichHomeApplicationNamed" msgid="3943122502791761387">"ହୋମ ଭାବେ <xliff:g id="APP">%1$s</xliff:g>କୁ ବ୍ୟବହାର କରନ୍ତୁ"</string>
+    <string name="whichHomeApplicationLabel" msgid="2066319585322981524">"ଇମେଜ୍‍ କ୍ୟାପଚର୍ କରନ୍ତୁ"</string>
+    <string name="whichImageCaptureApplication" msgid="7830965894804399333">"ଏହା ସହ ଇମେଜ୍‍ କ୍ୟାପଚର୍ କରନ୍ତୁ"</string>
+    <string name="whichImageCaptureApplicationNamed" msgid="5927801386307049780">"<xliff:g id="APP">%1$s</xliff:g> ମାଧ୍ୟମରେ ଇମେଜ କେପଚର କରନ୍ତୁ"</string>
+    <string name="whichImageCaptureApplicationLabel" msgid="987153638235357094">"ଇମେଜ୍‍ କ୍ୟାପଚର୍ କରନ୍ତୁ"</string>
+    <string name="use_a_different_app" msgid="2062380818535918975">"ଏକ ଭିନ୍ନ ଆପ୍‌ର ବ୍ୟବହାର କରନ୍ତୁ"</string>
+    <string name="chooseActivity" msgid="6659724877523973446">"ଏକ କାର୍ଯ୍ୟ ବାଛନ୍ତୁ"</string>
+    <string name="noApplications" msgid="1139487441772284671">"କୌଣସି ଆପ୍‍ ଏହି କାର୍ଯ୍ୟ କରିପାରିବ ନାହିଁ।"</string>
+    <string name="forward_intent_to_owner" msgid="6454987608971162379">"ଆପଣ ନିଜର ୱର୍କ ପ୍ରୋଫାଇଲ୍‌ ବାହାରେ ଏହି ଆପ୍‌ର ପ୍ରୟୋଗ କରୁଛନ୍ତି"</string>
+    <string name="forward_intent_to_work" msgid="2906094223089139419">"ଆପଣ ନିଜ ୱର୍କ ପ୍ରୋଫାଇଲ୍‌ରେ ଏହି ଆପ୍‌ର ବ୍ୟବହାର କରୁଛନ୍ତି"</string>
+    <string name="activity_resolver_use_always" msgid="8674194687637555245">"ସର୍ବଦା"</string>
+    <string name="activity_resolver_use_once" msgid="594173435998892989">"ଥରେ ମାତ୍ର"</string>
+    <string name="activity_resolver_work_profiles_support" msgid="8228711455685203580">"<xliff:g id="APP">%1$s</xliff:g> ୱାର୍କ ପ୍ରୋଫାଇଲକୁ ସମର୍ଥନ କରେ ନାହିଁ"</string>
+    <string name="pin_specific_target" msgid="5057063421361441406">"<xliff:g id="LABEL">%1$s</xliff:g>କୁ ପିନ କରନ୍ତୁ"</string>
+    <string name="unpin_specific_target" msgid="3115158908159857777">"<xliff:g id="LABEL">%1$s</xliff:g>ରେ ଅନ୍‌ପିନ୍ କରନ୍ତୁ"</string>
+    <string name="screenshot_edit" msgid="3857183660047569146">"ଏଡିଟ କରନ୍ତୁ"</string>
+    <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ #ଟି ଫାଇଲ}other{+ #ଟି ଫାଇଲ}}"</string>
+    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{+ #ଟି ଅଧିକ ଫାଇଲ}other{+ #ଟି ଅଧିକ ଫାଇଲ}}"</string>
+    <string name="sharing_text" msgid="8137537443603304062">"ଟେକ୍ସଟ ସେୟାର କରାଯାଉଛି"</string>
+    <string name="sharing_link" msgid="2307694372813942916">"ଲିଙ୍କ ସେୟାର କରାଯାଉଛି"</string>
+    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{ଇମେଜ ସେୟାର କରାଯାଉଛି}other{#ଟିି ଇମେଜ ସେୟାର କରାଯାଉଛି}}"</string>
+    <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{ଭିଡିଓ ସେୟାର କରାଯାଉଛି}other{#ଟି ଭିଡିଓ ସେୟାର କରାଯାଉଛି}}"</string>
+    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{#ଟି ଫାଇଲ ସେୟାର କରାଯାଉଛି}other{#ଟି ଫାଇଲ ସେୟାର କରାଯାଉଛି}}"</string>
+    <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{ଟେକ୍ସଟ ସହ ଇମେଜ ସେୟାର କରାଯାଉଛି}other{ଟେକ୍ସଟ ସହ #ଟି ଇମେଜ ସେୟାର କରାଯାଉଛି}}"</string>
+    <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{ଲିଙ୍କ ସହ ଇମେଜ ସେୟାର କରାଯାଉଛି}other{ଲିଙ୍କ ସହ #ଟି ଇମେଜ ସେୟାର କରାଯାଉଛି}}"</string>
+    <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{ଟେକ୍ସଟ ସହ ଭିଡିଓ ସେୟାର କରାଯାଉଛି}other{ଟେକ୍ସଟ ସହ #ଟି ଭିଡିଓ ସେୟାର କରାଯାଉଛି}}"</string>
+    <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{ଲିଙ୍କ ସହ ଭିଡିଓ ସେୟାର କରାଯାଉଛି}other{ଲିଙ୍କ ସହ #ଟି ଭିଡିଓ ସେୟାର କରାଯାଉଛି}}"</string>
+    <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{ଟେକ୍ସଟ ସହ ଫାଇଲ ସେୟାର କରାଯାଉଛି}other{ଟେକ୍ସଟ ସହ #ଟି ଫାଇଲ ସେୟାର କରାଯାଉଛି}}"</string>
+    <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{ଲିଙ୍କ ସହ ଫାଇଲ ସେୟାର କରାଯାଉଛି}other{ଲିଙ୍କ ସହ #ଟି ଫାଇଲ ସେୟାର କରାଯାଉଛି}}"</string>
+    <string name="sharing_album" msgid="191743129899503345">"ଆଲବମ ସେୟାର କରାଯାଉଛି"</string>
+    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{କେବଳ ଇମେଜ}other{କେବଳ ଇମେଜଗୁଡ଼ିକ}}"</string>
+    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{କେବଳ ଭିଡିଓ}other{କେବଳ ଭିଡିଓଗୁଡ଼ିକ}}"</string>
+    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{କେବଳ ଫାଇଲ}other{କେବଳ ଫାଇଲଗୁଡ଼ିକ}}"</string>
+    <string name="image_preview_a11y_description" msgid="297102643932491797">"ଇମେଜ ପ୍ରିଭ୍ୟୁର ଥମ୍ବନେଲ"</string>
+    <string name="video_preview_a11y_description" msgid="683440858811095990">"ଭିଡିଓ ପ୍ରିଭ୍ୟୁର ଥମ୍ବନେଲ"</string>
+    <string name="file_preview_a11y_description" msgid="7397224827802410602">"ଫାଇଲ ପ୍ରିଭ୍ୟୁର ଥମ୍ବନେଲ"</string>
+    <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"ଏହାକୁ ସେୟାର କରିବା ପାଇଁ କୌଣସି ସୁପାରିଶ କରାଯାଇଥିବା ଲୋକ ନାହାଁନ୍ତି"</string>
+    <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"ଏହି ଆପ୍‌କୁ ରେକର୍ଡ କରିବାକୁ ଅନୁମତି ଦିଆଯାଇ ନାହିଁ କିନ୍ତୁ ଏହି USB ଡିଭାଇସ୍ ଜରିଆରେ ଅଡିଓ କ୍ୟାପ୍‍ଚର୍‍ କରିପାରିବ।"</string>
+    <string name="resolver_personal_tab" msgid="1381052735324320565">"ବ୍ୟକ୍ତିଗତ"</string>
+    <string name="resolver_work_tab" msgid="3588325717455216412">"ୱାର୍କ"</string>
+    <string name="resolver_private_tab" msgid="3707548826254095157">"ପ୍ରାଇଭେଟ"</string>
+    <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"ବ୍ୟକ୍ତିଗତ ଭ୍ୟୁ"</string>
+    <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"ୱାର୍କ ଭ୍ୟୁ"</string>
+    <string name="resolver_private_tab_accessibility" msgid="2513122834337197252">"ପ୍ରାଇଭେଟ ଭ୍ୟୁ"</string>
+    <string name="resolver_cross_profile_blocked" msgid="3515194063758605377">"ଆପଣଙ୍କ IT ଆଡମିନଙ୍କ ଦ୍ୱାରା ବ୍ଲକ୍ କରାଯାଇଛି"</string>
+    <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"ଏହି ବିଷୟବସ୍ତୁ ୱାର୍କ ଆପଗୁଡ଼ିକରେ ସେୟାର୍ କରାଯାଇପାରିବ ନାହିଁ"</string>
+    <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"ଏହି ବିଷୟବସ୍ତୁ ୱାର୍କ ଆପଗୁଡ଼ିକରେ ଖୋଲାଯାଇପାରିବ ନାହିଁ"</string>
+    <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"ଏହି ବିଷୟବସ୍ତୁ ବ୍ୟକ୍ତିଗତ ଆପଗୁଡ଼ିକରେ ସେୟାର୍ କରାଯାଇପାରିବ ନାହିଁ"</string>
+    <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"ଏହି ବିଷୟବସ୍ତୁ ବ୍ୟକ୍ତିଗତ ଆପଗୁଡ଼ିକରେ ଖୋଲାଯାଇପାରିବ ନାହିଁ"</string>
+    <string name="resolver_turn_on_work_apps" msgid="7115260573975624516">"ୱାର୍କ ଆପ୍ସକୁ ବିରତ କରାଯାଇଛି"</string>
+    <string name="resolver_switch_on_work" msgid="8678893259344318807">"ପୁଣି ଚାଲୁ କରନ୍ତୁ"</string>
+    <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"କୌଣସି ୱାର୍କ ଆପ୍ ନାହିଁ"</string>
+    <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"କୌଣସି ବ୍ୟକ୍ତିଗତ ଆପ୍ ନାହିଁ"</string>
+    <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"<xliff:g id="APP">%s</xliff:g>କୁ ଆପଣଙ୍କ ବ୍ୟକ୍ତିଗତ ପ୍ରୋଫାଇଲରେ ଖୋଲିବେ?"</string>
+    <string name="miniresolver_open_in_work" msgid="4271638122142624693">"<xliff:g id="APP">%s</xliff:g>କୁ ଆପଣଙ୍କ ୱାର୍କ ପ୍ରୋଫାଇଲରେ ଖୋଲିବେ?"</string>
+    <string name="miniresolver_use_personal_browser" msgid="1428911732509069292">"ବ୍ୟକ୍ତିଗତ ବ୍ରାଉଜର୍ ବ୍ୟବହାର କରନ୍ତୁ"</string>
+    <string name="miniresolver_use_work_browser" msgid="7892699758493230342">"ୱାର୍କ ବ୍ରାଉଜର୍ ବ୍ୟବହାର କରନ୍ତୁ"</string>
+    <string name="exclude_text" msgid="5508128757025928034">"ଟେକ୍ସଟକୁ ବାଦ ଦିଅନ୍ତୁ"</string>
+    <string name="include_text" msgid="642280283268536140">"ଟେକ୍ସଟକୁ ଅନ୍ତର୍ଭୁକ୍ତ କରନ୍ତୁ"</string>
+    <string name="exclude_link" msgid="1332778255031992228">"ଲିଙ୍କକୁ ବାଦ ଦିଅନ୍ତୁ"</string>
+    <string name="include_link" msgid="827855767220339802">"ଲିଙ୍କକୁ ଅନ୍ତର୍ଭୁକ୍ତ କରନ୍ତୁ"</string>
+    <string name="pinned" msgid="7623664001331394139">"ପିନ କରାଯାଇଛି"</string>
+</resources>

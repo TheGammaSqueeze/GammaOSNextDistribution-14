@@ -1,0 +1,18 @@
+SMC service
+===========
+
+SMC service is a dumb pipe that routes Trusty userspace calls to SMC back and
+forth. SMC service can be used to implement userspace drivers.
+
+TIPC Interface
+==============
+
+SMC service provides userspace a simple synchronous protocol over TIPC:
+- Service can only process one message at a time.
+- Clients must process the response before sending another message.
+
+Messages sent to and received from SMC service are represented by
+struct smc_msg.
+
+All necessary data structure(s) for both kernel and userspace are declared in:
+- trusty/user/base/interface/smc/include/interface/smc/smc.h

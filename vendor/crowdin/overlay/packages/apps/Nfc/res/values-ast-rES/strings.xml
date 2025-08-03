@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Serviciu NFC</string>
+    <string name="nfcUserLabel">NFC</string>
+    <string name="accessibility_nfc_enabled">NFC habilitáu.</string>
+    <string name="tap_to_beam">Toca pa tresferir</string>
+    <string name="beam_progress">Tresferencia entrante…</string>
+    <string name="beam_outgoing">Tresfiriendo…</string>
+    <string name="beam_complete">Completóse la tresferencia</string>
+    <string name="beam_failed">La tresferencia nun se completó</string>
+    <string name="beam_canceled">Encaboxóse la tresferencia</string>
+    <string name="cancel">Encaboxar</string>
+    <string name="beam_tap_to_view">Toca pa ver el conteníu</string>
+    <string name="beam_handover_not_supported">El preséu del receutor nun ye compatible cola tresferencia de ficheros grandes.</string>
+    <string name="beam_try_again">Volvi axuntar los preseos</string>
+    <string name="beam_busy">La tresferencia nun ta disponible. Volvi tentalo cuando se complete l\'anterior.</string>
+    <string name="device">preséu</string>
+    <string name="connecting_peripheral">Conectando «<xliff:g id="device_name">%1$s</xliff:g>»</string>
+    <string name="connected_peripheral">«<xliff:g id="device_name">%1$s</xliff:g>» conectóse</string>
+    <string name="connect_peripheral_failed">Nun se pudo conectar «<xliff:g id="device_name">%1$s</xliff:g>»</string>
+    <string name="disconnecting_peripheral">Desconectando «<xliff:g id="device_name">%1$s</xliff:g>»</string>
+    <string name="disconnected_peripheral">«<xliff:g id="device_name">%1$s</xliff:g>» desconectóse</string>
+    <string name="pairing_peripheral">Empareyando «<xliff:g id="device_name">%1$s</xliff:g>»</string>
+    <string name="pairing_peripheral_failed">Nun se pudo empareyar «<xliff:g id="device_name">%1$s</xliff:g>»</string>
+    <string name="failed_to_enable_bt">Nun se pudo habilitar el Bluetooth</string>
+    <string name="confirm_pairing">¿De xuru que quies empareyar el preséu Bluetooth «<xliff:g id="device_name">%1$s</xliff:g>»?</string>
+    <string name="pair_yes">Sí</string>
+    <string name="pair_no">Non</string>
+    <string name="tap_again_to_pay">Volvi tocar pa pagar con «<xliff:g id="app">%1$s</xliff:g>»</string>
+    <string name="tap_again_to_complete">Volvi tocar pa completar l\'aición con «<xliff:g id="app">%1$s</xliff:g>»</string>
+    <string name="tap_again_description">Avera\'l preséu al llector</string>
+    <string name="appchooser_description">Escueyi una aplicación pa escaniar</string>
+    <string name="transaction_failure">Esta transaición nun se pudo completar con «<xliff:g id="app">%1$s</xliff:g>».</string>
+    <string name="could_not_use_app">Nun se pudo usar «<xliff:g id="app">%1$s</xliff:g>».</string>
+    <string name="pay_with">Pagar con</string>
+    <string name="complete_with">Completar l\'aición con</string>
+    <string name="default_pay_app_removed">Quitóse\'l serviciu preferíu de «Tocar y pagar». ¿Quies escoyer otru?</string>
+    <string name="ask_nfc_tap">Toca otru preséu pa completar l\'aición</string>
+    <string name="wifi_connect">Conectar</string>
+    <string name="status_unable_to_connect">Nun ye posible conectase a la rede</string>
+    <string name="status_wifi_connected">Conectóse</string>
+    <string name="title_connect_to_network">Conexón a la rede</string>
+    <string name="prompt_connect_to_network">¿Quies conectate a la rede «<xliff:g id="network_ssid">%1$s</xliff:g>»?</string>
+    <string name="beam_requires_nfc_enabled">Android Beam rique que\'l NFC tea habilitáu. ¿Quies habilitalu?</string>
+    <string name="android_beam">Android Beam</string>
+    <string name="beam_requires_external_storage_permission">L\'aplicación nun tien el permisu «Almacenamientu esternu» que ye obligatoriu pa tresferir esti ficheru</string>
+    <string name="title_confirm_url_open">¿Quies abrir l\'enllaz?</string>
+    <string name="summary_confirm_url_open">El teléfonu recibió un enllaz pente NFC:</string>
+    <string name="summary_confirm_url_open_tablet">La tableta recibió un enllaz pente NFC:</string>
+    <string name="action_confirm_url_open">Abrir l\'enllaz</string>
+    <string name="tag_read_error">Error de llectura de la etiqueta NFC. Volvi tentalo.</string>
+    <string name="tag_dispatch_failed">Nun hai nenguna aplicación compatible con esta etiqueta NFC</string>
+    <string name="nfc_blocking_alert_title">Ye posible que\'l NFC tea bloquiáu</string>
+    <string name="nfc_blocking_alert_message">Toca pa saber cómo igualo.</string>
+    <string name="nfc_logging_alert_title">Tán rexistrándose los datos de NFC</string>
+    <string name="nfc_logging_alert_message">Toca pa dexar de rexistrar.</string>
+</resources>

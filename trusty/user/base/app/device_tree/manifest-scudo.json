@@ -1,0 +1,6 @@
+{
+    "uuid": "185b4dbc-8935-4a1e-89ee-df027b89bc7a",
+    "app_name": "device_tree_user_service",
+    "min_heap": 32768,
+    "min_stack": 12288
+}

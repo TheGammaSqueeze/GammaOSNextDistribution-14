@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="1265450418387661962">"TestSliceApp"</string>
+    <string name="hello_blank_fragment" msgid="1245093642770491175">"Hello blank fragment"</string>
+    <string name="request_network" msgid="8945235490804849914">"நெட்வொர்க்கைக் கோரு"</string>
+    <string name="release_network" msgid="174252378593535238">"நெட்வொர்க்கை வெளியிடு"</string>
+    <string name="ping" msgid="7890607576220714932">"பிங்"</string>
+    <string name="result_prefix" msgid="3522796186427501399">"முடிவு:"</string>
+    <string name="latency_title" msgid="963052613947017009">"தாமதத்திற்கு முன்னுரிமை வழங்கு"</string>
+    <string name="bw_title" msgid="3902162973688221344">"இணைய வேகத்திற்கு முன்னுரிமை வழங்கு"</string>
+    <string name="cbs_title" msgid="5234410535569935600">"CBS"</string>
+    <string name="purchase" msgid="7843181995697372128">"நெட்வொர்க் பிரீமியத்தை வாங்கு"</string>
+    <string name="network_available" msgid="4780293262690730734">"முடிவு: கோரப்பட்ட நெட்வொர்க் இப்போது கிடைக்கிறது!"</string>
+    <string name="network_requested" msgid="5646123922691865991">"முடிவு: நெட்வொர்க் கோரப்பட்டுள்ளது!"</string>
+    <string name="network_released" msgid="2992280481133877025">"முடிவு: நெட்வொர்க் வெளியிடப்பட்டுள்ளது!"</string>
+    <string name="network_release_failed" msgid="256471231420029151">"முடிவு: நெட்வொர்க்கை வெளியிட முடியவில்லை!!!"</string>
+    <string name="purchase_exception" msgid="8876841120055716671">"முடிவு: நெட்வொர்க் பிரீமியம் வாங்கும்போது விதிவிலக்கு!!!"</string>
+    <string name="purchase_empty_result" msgid="7497824191649973928">"முடிவு: நெட்வொர்க் பிரீமியம் வாங்கும்போது முடிவு எதுவும் கிடைக்கவில்லை!!!"</string>
+    <string name="premium_not_available" msgid="7346368693802644748">"முடிவு: வாங்குவதற்கு நெட்வொர்க் பிரீமியம் கிடைக்கவில்லை!!!"</string>
+    <string name="purchase_in_progress" msgid="5450288183685032424">"முடிவு: நெட்வொர்க் பிரீமியம் வாங்கப்படுகிறது..."</string>
+</resources>

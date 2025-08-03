@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  Copyright (c) 2022, The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="5655878067457216814">"DeviceLockController"</string>
+    <string name="next_button" msgid="1856423430963548653">"Далі"</string>
+    <string name="reset_button" msgid="4649354411129240809">"Скинути"</string>
+    <string name="setup_more_button" msgid="4456370972302510109">"Більше"</string>
+    <string name="setup_info_title_text" msgid="299562193092219293">"Як <xliff:g id="CREDITOR_APP">%1$s</xliff:g> може керувати цим пристроєм"</string>
+    <string name="setup_failed_title_text" msgid="9045111389981992536">"Не вдається встановити додаток <xliff:g id="CREDITOR_APP">%1$s</xliff:g>"</string>
+    <string name="setup_failed_reset_device_text" msgid="178419033440060908">"Налаштування пристрою скидаються, щоб повторити спробу."</string>
+    <string name="setup_failed_reset_device_timer_text" msgid="5270970227714985986">"{count,plural, =1{Скиньте параметри цього пристрою, а тоді спробуйте налаштувати його знову. Цю дію буде виконано автоматично через 1 секунду.}one{Скиньте параметри цього пристрою, а тоді спробуйте налаштувати його знову. Цю дію буде виконано автоматично через # секунду.}few{Скиньте параметри цього пристрою, а тоді спробуйте налаштувати його знову. Цю дію буде виконано автоматично через # секунди.}many{Скиньте параметри цього пристрою, а тоді спробуйте налаштувати його знову. Цю дію буде виконано автоматично через # секунд.}other{Скиньте параметри цього пристрою, а тоді спробуйте налаштувати його знову. Цю дію буде виконано автоматично через # секунди.}}"</string>
+    <string name="setup_progress_title_text" msgid="2388779167610656852">"Встановлення додатка <xliff:g id="CREDITOR_APP">%1$s</xliff:g><xliff:g id="ELLIPSIS">…</xliff:g>"</string>
+    <string name="setup_finish_title_text" msgid="2810842695806992743">"Відкриття додатка <xliff:g id="CREDITOR_APP">%1$s</xliff:g><xliff:g id="ELLIPSIS">…</xliff:g>"</string>
+    <string name="setup_error_title_text" msgid="1123742279081942535">"Не вдається відкрити додаток <xliff:g id="CREDITOR_APP">%1$s</xliff:g>"</string>
+    <string name="try_again" msgid="5964839819170927721">"Повторити спробу"</string>
+    <string name="reset_phone" msgid="1161657350311160627">"Скинути налаштування телефона"</string>
+    <string name="control_section_title" msgid="2213476068991045785">"Що може робити <xliff:g id="CREDITOR_APP">%1$s</xliff:g>?"</string>
+    <string name="control_lock_device_text" msgid="8253302484073757764">"Обмежувати користування пристроєм, якщо не здійснити платіж"</string>
+    <string name="control_download_text" msgid="8514650561843088172">"Завантажувати, встановлювати й оновлювати додаток <xliff:g id="CREDITOR_APP">%1$s</xliff:g>"</string>
+    <string name="control_disable_debug_text" msgid="8112443250013094442">"Вимикати функції налагодження"</string>
+    <string name="locked_section_title" msgid="2748725389334076510">"Які функції працюватимуть на заблокованому пристрої?"</string>
+    <string name="locked_emergency_text" msgid="3509216445555779286">"Сервіси для екстрених викликів"</string>
+    <string name="locked_phone_usage_text" msgid="1913605870324552847">"Вхідні й деякі вихідні виклики"</string>
+    <string name="locked_settings_usage_text" msgid="8336476063187737700">"Налаштування"</string>
+    <string name="locked_backup_and_restore_text" msgid="104616318625243429">"&lt;a href=https://support.google.com/android/answer/2819582&gt;Резервне копіювання й відновлення&lt;/a&gt; ваших даних"</string>
+    <string name="exposure_section_title" msgid="2329122144337528752">"До яких даних має доступ <xliff:g id="CREDITOR_APP">%1$s</xliff:g>?"</string>
+    <string name="exposure_install_text" msgid="2631074166447765453">"Дати встановлення й видалення додатка <xliff:g id="CREDITOR_APP">%1$s</xliff:g>"</string>
+    <string name="exposure_lock_unlock_text" msgid="6827412845847260579">"Усі запити на блокування й розблокування з додатка <xliff:g id="CREDITOR_APP">%1$s</xliff:g>"</string>
+    <string name="exposure_disable_dlc_text" msgid="2898692398106736423">"Інформація про відсутність додатка <xliff:g id="CREDITOR_APP">%1$s</xliff:g>"</string>
+    <string name="open_source_licenses" msgid="6464389386262455443">"Ліцензії відкритого коду"</string>
+    <string name="footer_notice_content_description" msgid="2160540400079419440">"До цього пристрою не застосовуються функції керування, описані в розділі налаштування безпеки для пристроїв, придбаних у кредит."</string>
+    <string name="device_provided_by_provider" msgid="290593329676291991">"Цей пристрій надала організація <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>"</string>
+    <string name="download_kiosk_app" msgid="1845089944897502656">"Додаток-термінал буде завантажено й установлено автоматично"</string>
+    <string name="install_kiosk_app_secondary_user" msgid="49911908012320834">"Для цього користувача буде встановлено додаток-термінал"</string>
+    <string name="restrict_device_if_missing_payment" msgid="8883980285859496904">"Якщо не здійснити платіж, організація <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> може обмежити користування пристроєм. Щоб дізнатися більше, перегляньте <xliff:g id="TERMS_AND_CONDITIONS_LINK_START">&lt;a href=%2$s&gt;</xliff:g>Умови використання<xliff:g id="TERMS_AND_CONDITIONS_LINK_END">&lt;/a&gt;</xliff:g>."</string>
+    <string name="restrict_device_if_dont_make_payment" msgid="1619095674945507015">"Якщо не здійснити необхідні платежі, організація <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> може обмежити користування цим пристроєм. Щоб дізнатися більше, перегляньте <xliff:g id="TERMS_AND_CONDITIONS_LINK_START">&lt;a href=%2$s&gt;</xliff:g>Умови використання<xliff:g id="TERMS_AND_CONDITIONS_LINK_END">&lt;/a&gt;</xliff:g>."</string>
+    <string name="contact_provider_for_help" msgid="3872028089834808884">"Щоб отримати допомогу, <xliff:g id="SUPPORT_LINK_START">&lt;a href=%2$s&gt;</xliff:g>зв’яжіться з оператором <xliff:g id="PROVIDER_NAME">%1$s</xliff:g><xliff:g id="SUPPORT_LINK_END">&lt;/a&gt;</xliff:g>."</string>
+    <string name="previous" msgid="5241891780917802570">"Назад"</string>
+    <string name="next" msgid="8248291863254324326">"Далі"</string>
+    <string name="start" msgid="2842214844667658537">"Почати"</string>
+    <string name="ok" msgid="3568398726528719749">"OK"</string>
+    <string name="done" msgid="4507782734740410307">"Готово"</string>
+    <string name="do_it_in_one_hour" msgid="2727777340568739453">"Зроблю за годину"</string>
+    <string name="header_icon_content_description" msgid="6069602031334473195">"Інформація"</string>
+    <string name="provision_info_item_icon_content_description" msgid="2306298178610632507">"Дані про підготовку"</string>
+    <string name="enroll_your_device_header" msgid="2226305405591945098">"Зареєструйте свій пристрій"</string>
+    <string name="enroll_your_device_financing_subheader" msgid="8810608106273097451">"Тепер ви можете зареєструвати пристрій у програмі фінансування організації <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>"</string>
+    <string name="enroll_your_device_subsidy_subheader" msgid="8598730780370624995">"Тепер ви можете зареєструвати пристрій у програмі субсидій організації <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>"</string>
+    <string name="subsidy_program_header" msgid="2321508488856303554">"Ви учасник програми субсидій (<xliff:g id="PROVIDER_NAME">%1$s</xliff:g>)"</string>
+    <string name="device_enrollment_header_text" msgid="5283341102404741658">"Реєстрація пристрою"</string>
+    <string name="device_financing_enrollment_body_text" msgid="5506086383249511498">"Ваш пристрій буде зареєстровано в програмі фінансування організації <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> протягом 30 днів"</string>
+    <string name="device_subsidy_enrollment_body_text" msgid="3971584929178719388">"Ваш пристрій буде зареєстровано в програмі субсидій організації <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> протягом 30 днів"</string>
+    <string name="device_enrollment_notification_body_text" msgid="8755080244956655854">"Реєстрація відновиться о <xliff:g id="TIME">%1$s</xliff:g>. Ви можете надалі користуватися пристроєм."</string>
+    <string name="continue_using_device" msgid="5816570734692191190">"Ви можете надалі користуватися пристроєм"</string>
+    <string name="device_paid" msgid="6606280698381856804">"Ви заплатили за свій пристрій"</string>
+    <string name="device_removed_from_subsidy_program" msgid="1243434945619071051">"Пристрій вилучено з програми субсидій організації <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>"</string>
+    <string name="device_removed_from_finance_program" msgid="825548999540107578">"Ваш пристрій вилучено з програми фінансування організації <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>"</string>
+    <string name="restrictions_lifted" msgid="5785586265984319396">"З вашого пристрою знято всі обмеження"</string>
+    <string name="uninstall_kiosk_app" msgid="3459557395024053988">"Ви можете видалити додаток-термінал зі свого пристрою"</string>
+    <string name="getting_device_ready" msgid="2829009584599871699">"Підготовка пристрою…"</string>
+    <string name="this_may_take_a_few_minutes" msgid="2482876246874429351">"Це може зайняти кілька хвилин"</string>
+    <string name="installing_kiosk_app" msgid="324208168205545860">"Встановлення додатка <xliff:g id="CREDITOR_APP">%1$s</xliff:g>…"</string>
+    <string name="opening_kiosk_app" msgid="2021888641430165654">"Відкриття додатка <xliff:g id="CREDITOR_APP">%1$s</xliff:g>…"</string>
+    <string name="settings_banner_title" msgid="527041021011279252">"Пристрій надала організація <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>"</string>
+    <string name="settings_banner_body" msgid="5814902066260202824">"Організація <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> може змінювати налаштування на цьому пристрої"</string>
+    <string name="settings_banner_button" msgid="1831020849782670907">"Докладніше"</string>
+    <string name="settings_screen_title" msgid="721470080648091035">"Дані про пристрій, куплений у кредит"</string>
+    <string name="settings_intro_device_financing" msgid="2548476558131048133">"<xliff:g id="PROVIDER_NAME_0">%1$s</xliff:g> може змінювати налаштування й встановлювати додаток-термінал на пристрої.\n\nЯкщо не здійснити платіж, організація <xliff:g id="PROVIDER_NAME_1">%1$s</xliff:g> може обмежити користування пристроєм.\n\nЩоб дізнатися більше, зв’яжіться з організацією <xliff:g id="PROVIDER_NAME_2">%1$s</xliff:g>."</string>
+    <string name="settings_intro_device_subsidy" msgid="4274945644204818702">"<xliff:g id="PROVIDER_NAME_0">%1$s</xliff:g> може змінювати налаштування й встановлювати додаток-термінал на пристрої.\n\nЯкщо ви не здійснюватимете необхідні платежі або припините користуватися SIM-картою <xliff:g id="PROVIDER_NAME_2">%1$s</xliff:g>, організація <xliff:g id="PROVIDER_NAME_1">%1$s</xliff:g> може обмежити користування цим пристроєм.\n\nЩоб дізнатися більше, зв’яжіться з організацією <xliff:g id="PROVIDER_NAME_3">%1$s</xliff:g>."</string>
+    <string name="settings_intro_preference_key" msgid="6610461073400554162">"settings_intro_preference_key"</string>
+    <string name="settings_restrictions_category" msgid="5746868117342406677">"Доки ви не заплатите за пристрій, ви не зможете:"</string>
+    <string name="settings_restrictions_category_preference_key" msgid="88318147152676512">"settings_restrictions_category_preference_key"</string>
+    <string name="settings_install_apps" msgid="3634279771448183713">"встановлювати додатки не з Google Play"</string>
+    <string name="settings_install_apps_preference_key" msgid="27542314345238427">"settings_install_apps_preference_key"</string>
+    <string name="settings_safe_mode" msgid="3035228015586375153">"перезапускати пристрій у безпечному режимі"</string>
+    <string name="settings_safe_mode_preference_key" msgid="2106617747358027424">"settings_safe_mode_preference_key"</string>
+    <string name="settings_developer_options" msgid="880701002025216672">"використовувати параметри розробника"</string>
+    <string name="settings_developer_options_preference_key" msgid="6807036808722582954">"settings_developer_options_preference_key"</string>
+    <string name="settings_credit_provider_capabilities_category" msgid="1274440595211820868">"Якщо щось станеться з пристроєм, організація <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> зможе:"</string>
+    <string name="settings_credit_provider_capabilities_category_preference_key" msgid="4571685720898641262">"settings_credit_provider_capabilities_category_preference_key"</string>
+    <string name="settings_IMEI" msgid="697965824361262506">"отримувати доступ до номера IMEI"</string>
+    <string name="settings_IMEI_preference_key" msgid="608809590948249412">"settings_IMEI_preference_key"</string>
+    <string name="settings_factory_reset" msgid="418045189048067625">"скидати налаштування пристрою"</string>
+    <string name="settings_factory_reset_preference_key" msgid="2168528486393635382">"settings_factory_reset_preference_key"</string>
+    <string name="settings_locked_mode_category" msgid="6307525048618331737">"Якщо користування пристроєм обмежено, ви можете виконувати на ньому лише такі дії:"</string>
+    <string name="settings_locked_mode_category_preference_key" msgid="7202573929427220258">"settings_locked_mode_category_preference_key"</string>
+    <string name="settings_emergency_calls" msgid="2460996367176786040">"здійснювати дзвінки на екстрені номери"</string>
+    <string name="settings_emergency_calls_preference_key" msgid="737598609727181316">"settings_emergency_calls_preference_key"</string>
+    <string name="settings_system_info" msgid="1352629332624774940">"переглядати системну інформацію, наприклад дату, час, статус мережі, заряд акумулятора"</string>
+    <string name="settings_system_info_preference_key" msgid="8607675914059202598">"settings_system_info_preference_key"</string>
+    <string name="settings_turn_on_off_device" msgid="5414836621603462439">"вмикати й вимикати пристрій"</string>
+    <string name="settings_turn_on_off_device_preference_key" msgid="5981163790552677734">"settings_turn_on_off_device_preference_key"</string>
+    <string name="settings_notifications" msgid="63348993899505034">"переглядати сповіщення й текстові повідомлення"</string>
+    <string name="settings_notifications_preference_key" msgid="4527872342061056462">"settings_notifications_preference_key"</string>
+    <string name="settings_allowlisted_apps" msgid="5531810497056091097">"отримувати доступ до додатків, дозволених організацією <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>"</string>
+    <string name="settings_allowlisted_apps_preference_key" msgid="8662705531235468080">"settings_allowlisted_apps_preference_key"</string>
+    <string name="settings_fully_paid_category" msgid="2459776591689824433">"Коли ви сплатите повну суму:"</string>
+    <string name="settings_fully_paid_category_preference_key" msgid="1759690898170600559">"settings_fully_paid_category_preference_key"</string>
+    <string name="settings_restrictions_removed" msgid="1398080654904863221">"організація <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> не зможе обмежувати ваш пристрій або змінювати його налаштування"</string>
+    <string name="settings_restrictions_removed_preference_key" msgid="7741933477145197391">"settings_restrictions_removed_preference_key"</string>
+    <string name="settings_uninstall_kiosk_app" msgid="2611134364295637875">"ви зможете видалити додаток <xliff:g id="KIOSK_APP">%1$s</xliff:g>"</string>
+    <string name="settings_uninstall_kiosk_app_preference_key" msgid="5578103644009268125">"settings_uninstall_kiosk_app_preference_key"</string>
+    <string name="settings_support_category" msgid="7210906871924935770">"Щоб отримати допомогу:"</string>
+    <string name="settings_support_category_preference_key" msgid="1818953199283261021">"settings_support_category_preference_key"</string>
+    <string name="settings_contact_provider" msgid="2481819956474692039">"<xliff:g id="SUPPORT_LINK_START">&lt;a href=%2$s&gt;</xliff:g>Зв’язатися з постачальником пристрою \"<xliff:g id="PROVIDER_NAME">%1$s</xliff:g>\"<xliff:g id="SUPPORT_LINK_END">&lt;/a&gt;</xliff:g>"</string>
+    <string name="settings_contact_provider_preference_key" msgid="2703619536229342624">"settings_contact_provider_preference_key"</string>
+    <string name="provision_notification_channel_name" msgid="6123500714047647805">"Підготовка"</string>
+    <string name="device_reset_in_days_notification_title" msgid="920859483535317727">"{count,plural, =1{Налаштування пристрою буде скинуто через 1 день}one{Налаштування пристрою буде скинуто через # день}few{Налаштування пристрою буде скинуто через # дні}many{Налаштування пристрою буде скинуто через # днів}other{Налаштування пристрою буде скинуто через # дня}}"</string>
+    <string name="device_reset_timer_notification_title" msgid="301978346002711614">"Налаштування пристрою буде скинуто за <xliff:g id="TIMER">%s</xliff:g>"</string>
+    <string name="device_reset_notification_content" msgid="7642367488663440437">"Усі дані пристрою буде видалено. Щоб отримати допомогу з реєстрацією пристрою, зв’яжіться з організацією <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>"</string>
+    <string name="provisioning_failed" msgid="5350252817004028300">"Фінансування не надано"</string>
+    <string name="click_to_contact_financier" msgid="9107827438262930445">"Натисніть тут, щоб дізнатися, як зв’язатися зі своїм кредитором. <xliff:g id="SUPPORT_URL_START">&lt;a href=%1$s&gt;</xliff:g>Докладніше<xliff:g id="SUPPORT_URL_END">&lt;/a&gt;</xliff:g>"</string>
+    <string name="exit" msgid="645084771882733921">"Закрити"</string>
+    <string name="retry" msgid="7497287909193345356">"Повторити"</string>
+</resources>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+    <color name="car_nav_icon_fill_color">#8F8F8F</color>
+
+    <color name="system_bar_text_color">#FFFFFF</color>
+
+    <!-- colors for hvac temperature view -->
+    <color name="hvac_temperature_adjust_button_color">#3C4043</color>
+    <color name="hvac_temperature_decrease_arrow_color">#8AB4F8</color>
+    <color name="hvac_temperature_increase_arrow_color">#F28B82</color>
+
+    <!-- Adjust temperature view lower temperature label-->
+    <string name="hvac_decrease_button_label">Lower temperature</string>
+    <!-- Adjust temperature view raise temperature label-->
+    <string name="hvac_increase_button_label">Raise temperature</string>
+
+    <color name="system_bar_background_pill_color">#282A2D</color>
+    <color name="status_icon_selected_button_color">#66B5FF</color>
+    <color name="car_nav_icon_fill_color_selected">#ffffff</color>
+    <color name="system_bar_icon_selected_color">#000000</color>
+    <color name="system_bar_icon_color">#FFFFFF</color>
+    <color name="system_bar_text_selected_color">#000000</color>
+    <color name="car_user_switcher_add_user_background_color">#131313</color>
+</resources>

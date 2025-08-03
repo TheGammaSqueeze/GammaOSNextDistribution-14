@@ -1,0 +1,25 @@
+// Signature format: 2.0
+package reference {
+
+  public class Class {
+    ctor public Class();
+    method @Nullable public String getName();
+    method @Nullable public java.util.List<java.lang.String> getStudent();
+    method public void setName(@Nullable String);
+  }
+
+  public class XmlParser {
+    ctor public XmlParser();
+    method @Nullable public static reference.Class read(@NonNull java.io.InputStream) throws javax.xml.datatype.DatatypeConfigurationException, java.io.IOException, org.xmlpull.v1.XmlPullParserException;
+    method @Nullable public static String readText(@NonNull org.xmlpull.v1.XmlPullParser) throws java.io.IOException, org.xmlpull.v1.XmlPullParserException;
+    method public static void skip(@NonNull org.xmlpull.v1.XmlPullParser) throws java.io.IOException, org.xmlpull.v1.XmlPullParserException;
+  }
+
+  public class XmlWriter implements java.io.Closeable {
+    ctor public XmlWriter(@NonNull java.io.PrintWriter);
+    method public void close();
+    method public static void write(@NonNull reference.XmlWriter, @NonNull reference.Class) throws java.io.IOException;
+  }
+
+}
+

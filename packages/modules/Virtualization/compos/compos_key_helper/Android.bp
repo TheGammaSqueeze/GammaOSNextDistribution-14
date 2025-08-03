@@ -1,0 +1,47 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_defaults {
+    name: "compos_key_defaults",
+    defaults: ["avf_build_flags_cc"],
+    apex_available: ["com.android.compos"],
+
+    shared_libs: [
+        "libbase",
+        "libcrypto",
+    ],
+}
+
+cc_library {
+    name: "libcompos_key",
+    defaults: ["compos_key_defaults"],
+    srcs: ["compos_key.cpp"],
+    export_include_dirs: ["."],
+}
+
+cc_binary {
+    name: "compos_key_helper",
+    defaults: ["compos_key_defaults"],
+    srcs: ["compos_key_main.cpp"],
+
+    header_libs: ["vm_payload_restricted_headers"],
+    static_libs: [
+        "libcompos_key",
+    ],
+    shared_libs: [
+        "libvm_payload#current",
+        "libbinder_ndk",
+    ],
+}
+
+cc_test {
+    name: "compos_key_tests",
+    defaults: ["compos_key_defaults"],
+    test_suites: [
+        "general-tests",
+    ],
+
+    srcs: ["compos_key_test.cpp"],
+    static_libs: ["libcompos_key"],
+}

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources>
+    <!-- primary colors -->
+    <color name="car_primary_100">#ffffff</color>
+    <color name="car_primary_99">#fcfcfc</color>
+    <color name="car_primary_95">#ffede0</color>
+    <color name="car_primary_93">#ffe6d4</color>
+    <color name="car_primary_90">#ffdcc2</color>
+    <color name="car_primary_80">#ffb77c</color>
+    <color name="car_primary_70">#f99131</color>
+    <color name="car_primary_60">#d97815</color>
+    <color name="car_primary_50">#b76000</color>
+    <color name="car_primary_40">#934c00</color>
+    <color name="car_primary_30">#703800</color>
+    <color name="car_primary_25">#5f2f00</color>
+    <color name="car_primary_20">#4e2500</color>
+    <color name="car_primary_10">#2f1400</color>
+    <color name="car_primary_0">#000000</color>
+
+    <!-- secondary colors -->
+    <color name="car_secondary_100">#ffffff</color>
+    <color name="car_secondary_99">#fcfcfc</color>
+    <color name="car_secondary_95">#ffede0</color>
+    <color name="car_secondary_93">#ffe6d4</color>
+    <color name="car_secondary_90">#ffdcc2</color>
+    <color name="car_secondary_80">#e4c0a7</color>
+    <color name="car_secondary_70">#c7a58d</color>
+    <color name="car_secondary_60">#aa8a73</color>
+    <color name="car_secondary_50">#8f715b</color>
+    <color name="car_secondary_40">#755945</color>
+    <color name="car_secondary_30">#5a422f</color>
+    <color name="car_secondary_25">#4e3624</color>
+    <color name="car_secondary_20">#422c1a</color>
+    <color name="car_secondary_10">#2a1707</color>
+    <color name="car_secondary_0">#000000</color>
+
+    <!-- tertiary colors -->
+    <color name="car_tertiary_100">#ffffff</color>
+    <color name="car_tertiary_99">#fdffd0</color>
+    <color name="car_tertiary_95">#f0f5bd</color>
+    <color name="car_tertiary_93">#ebefb8</color>
+    <color name="car_tertiary_90">#e2e7af</color>
+    <color name="car_tertiary_80">#c6cb95</color>
+    <color name="car_tertiary_70">#aaaf7c</color>
+    <color name="car_tertiary_60">#8f9463</color>
+    <color name="car_tertiary_50">#767b4c</color>
+    <color name="car_tertiary_40">#5d6236</color>
+    <color name="car_tertiary_30">#464a21</color>
+    <color name="car_tertiary_25">#3a3e17</color>
+    <color name="car_tertiary_20">#2f330c</color>
+    <color name="car_tertiary_10">#1a1e00</color>
+    <color name="car_tertiary_0">#000000</color>
+
+    <!-- neutral colors -->
+    <color name="car_neutral_100">#ffffff</color>
+    <color name="car_neutral_99">#fcfcfc</color>
+    <color name="car_neutral_95">#ffede0</color>
+    <color name="car_neutral_93">#f5e9e2</color>
+    <color name="car_neutral_90">#ece0da</color>
+    <color name="car_neutral_80">#cfc4be</color>
+    <color name="car_neutral_70">#b3a9a3</color>
+    <color name="car_neutral_60">#988f89</color>
+    <color name="car_neutral_50">#7e7570</color>
+    <color name="car_neutral_40">#655d58</color>
+    <color name="car_neutral_35">#59514c</color>
+    <color name="car_neutral_30">#4c4541</color>
+    <color name="car_neutral_25">#413a36</color>
+    <color name="car_neutral_20">#352f2b</color>
+    <color name="car_neutral_10">#201a17</color>
+    <color name="car_neutral_0">#000000</color>
+
+    <!-- neutral variant colors -->
+    <color name="car_neutral_variant_100">#ffffff</color>
+    <color name="car_neutral_variant_99">#fcfcfc</color>
+    <color name="car_neutral_variant_95">#ffede0</color>
+    <color name="car_neutral_variant_93">#fce7da</color>
+    <color name="car_neutral_variant_90">#f3dfd2</color>
+    <color name="car_neutral_variant_80">#d6c3b7</color>
+    <color name="car_neutral_variant_70">#baa89c</color>
+    <color name="car_neutral_variant_60">#9e8d82</color>
+    <color name="car_neutral_variant_50">#847469</color>
+    <color name="car_neutral_variant_40">#6a5b51</color>
+    <color name="car_neutral_variant_30">#51443b</color>
+    <color name="car_neutral_variant_25">#463930</color>
+    <color name="car_neutral_variant_20">#3a2e25</color>
+    <color name="car_neutral_variant_10">#241912</color>
+    <color name="car_neutral_variant_0">#000000</color>
+
+        <!-- error colors -->
+    <color name="car_error_100">#ffffff</color>
+    <color name="car_error_99">#FCFCFC</color>
+    <color name="car_error_95">#FFEDE9</color>
+    <color name="car_error_90">#FFDAD4</color>
+    <color name="car_error_80">#FFB4A9</color>
+    <color name="car_error_70">#FF897A</color>
+    <color name="car_error_60">#FF5449</color>
+    <color name="car_error_50">#DD3730</color>
+    <color name="car_error_40">#BA1B1B</color>
+    <color name="car_error_30">#930006</color>
+    <color name="car_error_20">#680003</color>
+    <color name="car_error_10">#410001</color>
+    <color name="car_error_0">#000000</color>
+</resources>

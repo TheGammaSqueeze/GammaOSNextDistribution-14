@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- BT Slice EXTRA_INTENT. To support Settings 2 panel, BT slice can't use PendingIntent.send(). Therefore, here defines the Slice EXTRA_INTENT. -->
+    <string name="config_bt_slice_extra_intent" translatable="false">com.google.android.gms.nearby.discovery.EXTRA_INTENT</string>
+
+    <!-- BT Slice EXTRA_PENDING_INTENT. To support Settings 2 panel, BT slice can't use PendingIntent.send(). Therefore, here defines the Slice EXTRA_PENDING_INTENT. -->
+    <string name="config_bt_slice_extra_pending_intent" translatable="false">com.google.android.gms.nearby.discovery.EXTRA_PENDING_INTENT</string>
+
+    <!-- BT Slice intent action. To support Settings 2 panel, BT slice can't use PendingIntent.send(). Therefore, here defines the Slice intent action. -->
+    <string name="config_bt_slice_intent_action" translatable="false">com.google.android.gms.nearby.discovery.ACTION_LOG_SLICE_AND_LAUNCH_INTENT</string>
+
+    <!-- BT Slice pending intent action. To support Settings 2 panel, BT slice can't use PendingIntent.send(). Therefore, here defines the Slice pending intent action. -->
+    <string name="config_bt_slice_pending_intent_action" translatable="false">com.google.android.gms.nearby.discovery.ACTION_LOG_SLICE_AND_SEND_PENDING_INTENT</string>
+</resources>

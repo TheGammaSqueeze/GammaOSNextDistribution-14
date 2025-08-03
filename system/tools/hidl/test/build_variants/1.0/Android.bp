@@ -1,0 +1,16 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_tools_hidl_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_tools_hidl_license"],
+}
+
+hidl_interface {
+    name: "hidl_test_system_ext@1.0",
+    root: "hidl_test_system_ext",
+    system_ext_specific: true,
+    srcs: ["IFoo.hal"],
+    interfaces: ["android.hidl.base@1.0"],
+}

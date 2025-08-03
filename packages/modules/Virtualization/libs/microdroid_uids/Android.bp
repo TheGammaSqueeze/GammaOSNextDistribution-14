@@ -1,0 +1,14 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_library {
+    name: "libmicrodroid_uids",
+    crate_name: "microdroid_uids",
+    srcs: ["src/lib.rs"],
+    edition: "2021",
+    defaults: ["avf_build_flags_rust"],
+    apex_available: [
+        "com.android.virt",
+    ],
+}

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  Copyright (c) 2017 The LineageOS Project
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ Also add information on how to contact you by electronic and paper mail.
+
+-->
+<resources>
+    <string name="app_name">FlipFlap</string>
+    <string name="notification_title">Fann snjall-lok</string>
+    <string name="alarm_label">ÁMINNING</string>
+    <string name="abbrev_wday_month_day_no_year">EEE, d. MMMM</string>
+    <string name="answer_call">SVARA</string>
+    <string name="ignore_call">HUNSA</string>
+    <string name="end_call">LJÚKA SÍMTALI</string>
+    <string name="settings_name">Snjall-lok</string>
+    <string name="settings_enable">Virkja snjall-loks stýringu</string>
+    <string name="settings_summary">Stýrðu hegðun fylgihlutarins þins</string>
+    <string name="category_behaviour">Hegðun</string>
+    <string name="pass_to_security_view_title">Fara beint í innsetningu lykilorðs</string>
+    <string name="pass_to_security_view_summary">Opnun hulsturs birtir læsiskjá beint</string>
+    <string name="use_high_touch_sensitivity_title">Mikil snertinæmni</string>
+    <string name="use_high_touch_sensitivity_summary">Auka næmni snertingar á meðan lok er lagt aftur</string>
+    <string name="category_design">Hönnun</string>
+    <string name="switch_charging_status_title">Sýna hleðslustöðu</string>
+    <string name="switch_charging_status_summary">Aðlaga lit miðað við hleðslu á rafhlöðu</string>
+    <string name="category_timeouts">Tímamörk</string>
+    <string name="timeout_plugged_title">Við hleðslu</string>
+    <string name="timeout_unplugged_title">Ekki í sambandi</string>
+    <string name="timeout_summary">Sýna lokforrit í %s eftir að lok hefur verið lagt aftur</string>
+    <string name="timeout_summary_never">Eftir að lok hefur verið lagt aftur, mun haldast kveikt á lokforriti</string>
+    <string name="timeout_summary_immediately">Slökkt verður á skjánum þegar lokið er lagt aftur</string>
+    <string name="timeout_entry_immediately">Strax</string>
+    <string name="timeout_entry_5s">5 sekúndur</string>
+    <string name="timeout_entry_10s">10 sekúndur</string>
+    <string name="timeout_entry_30s">30 sekúndur</string>
+    <string name="timeout_entry_1min">1 mínúta</string>
+    <string name="timeout_entry_5min">5 mínútur</string>
+    <string name="timeout_entry_never">Aldrei</string>
+</resources>

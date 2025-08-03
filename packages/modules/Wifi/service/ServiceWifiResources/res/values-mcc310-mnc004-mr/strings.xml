@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2020 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="wifi_eap_error_message_code_32760" msgid="7899190980723541970">"<xliff:g id="SSID">%1$s</xliff:g> : तुम्ही Verizon कव्हरेज क्षेत्राच्या बाहेरून Verizon वाय-फाय अ‍ॅक्सेस शी कनेक्ट करू शकत नाही. (एरर = 32760)"</string>
+    <string name="wifi_eap_error_message_code_32761" msgid="4502241555553812761">"<xliff:g id="SSID">%1$s</xliff:g> : तुम्ही Verizon वाय-फाय अ‍ॅक्सेस चे सदस्यत्व घेतलेले नाही. कृपया आम्हाला ८००-९२२-०२०४ वर कॉल करा. (एरर = 32761)"</string>
+    <string name="wifi_eap_error_message_code_32762" msgid="8636803855192974833">"<xliff:g id="SSID">%1$s</xliff:g> : तुमच्या Verizon वाय-फाय अ‍ॅक्सेस खात्यामध्ये समस्या आहे. कृपया आम्हाला ८००-९२२-०२०४ वर कॉल करा. (एरर = 32762)"</string>
+    <string name="wifi_eap_error_message_code_32763" msgid="2907148732721960554">"<xliff:g id="SSID">%1$s</xliff:g> : तुम्ही आधीपासून Verizon वाय-फाय अ‍ॅक्सेस शी कनेक्ट केलेले आहे. (एरर = 32763)"</string>
+    <string name="wifi_eap_error_message_code_32764" msgid="7893339226278701313">"<xliff:g id="SSID">%1$s</xliff:g> : तुम्हाला Verizon वाय-फाय अ‍ॅक्सेस शी कनेक्ट करताना समस्या आली. कृपया आम्हाला ८००-९२२-०२०४ वर कॉल करा. (एरर = 32764)"</string>
+    <string name="wifi_eap_error_message_code_32765" msgid="280860840894726014">"<xliff:g id="SSID">%1$s</xliff:g> : तुमच्या Verizon वाय-फाय अ‍ॅक्सेस खात्यामध्ये समस्या आहे. कृपया आम्हाला ८००-९२२-०२०४ वर कॉल करा. (एरर = 32765)"</string>
+    <string name="wifi_eap_error_message_code_32766" msgid="8240516953105404383">"<xliff:g id="SSID">%1$s</xliff:g> : तुमच्या स्थानावरून Verizon वाय-फाय अ‍ॅक्सेस उपलब्ध नाही. नंतर पुन्हा प्रयत्न करा किंवा वेगळ्या स्थानावरून प्रयत्न करा. (एरर = 32766)"</string>
+    <string name="wifi_eap_error_message_code_32767" msgid="2748970858713796197">"<xliff:g id="SSID">%1$s</xliff:g> : तुम्हाला Verizon वाय-फाय अ‍ॅक्सेस शी कनेक्ट करताना समस्या आली. नंतर पुन्हा प्रयत्न करा किंवा वेगळ्या स्थानावरून प्रयत्न करा."</string>
+    <string name="wifi_eap_error_message_code_32768" msgid="6940754993270246981"></string>
+    <string name="wifi_eap_error_message_code_32769" msgid="4532250424174893199"></string>
+    <string name="wifi_eap_error_message_code_16384" msgid="3188087130800435510">"<xliff:g id="SSID">%1$s</xliff:g> : 16384 एरर आल्यामुळे तुम्हाला Verizon वाय-फाय अ‍ॅक्सेस शी कनेक्ट करताना समस्या आली."</string>
+    <string name="wifi_eap_error_message_code_16385" msgid="5914307659373687387">"<xliff:g id="SSID">%1$s</xliff:g> : 16385 एरर आल्यामुळे तुम्हाला Verizon वाय-फाय अ‍ॅक्सेस शी कनेक्ट करताना समस्या आली."</string>
+    <string name="wifi_eap_error_message_unknown_error_code" msgid="4276024988348676667">"<xliff:g id="SSID">%1$s</xliff:g> : तुम्हाला Verizon वाय-फाय अ‍ॅक्सेस शी कनेक्ट करताना समस्या आली."</string>
+</resources>

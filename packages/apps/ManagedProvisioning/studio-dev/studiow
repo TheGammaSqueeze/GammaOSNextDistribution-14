@@ -1,0 +1,1115 @@
+#!/bin/bash
+set -e
+set -m
+
+# This is a wrapper script that runs the specific version of Android Studio that is recommended for developing in this repository.
+# (This serves a similar purpose to gradlew)
+
+# Get the property value by a properties file
+function getProperyValue() {
+  getProperyValueAbs ${scriptDir}/$1 $2
+}
+
+function getProperyValueAbs() {
+  # Use --no-messages to suppress error messages about non-existant files
+  echo "$(grep --no-messages "$2[[:space:]]*=[[:space:]]*" ${1} | sed 's/[^=]*=[[:space:]]*//')"
+}
+
+# Get the studio version corresponding to the gradle version defined in gradle.properties
+function fetchStudioUrl() {
+  local cache_file=.studio_version_cache
+  local studioVersion="$(echo "$(getProperyValue ManagedProvisioningGradleProject/gradle/libs.versions.toml android-studio)" | sed 's/"//g')"
+  local cachedVersion="$(getProperyValue $cache_file cached_studio_version)"
+
+  if [ ! "$studioVersion" == "$cachedVersion" ]; then
+    local content="$(curl -L https://developer.android.com/studio/archive.html)"
+    local iframe_url="$(echo $content | egrep -o 'iframe src="[^"]+"' | cut -d '"' -f 2)"
+    content="$(curl -L $iframe_url)"
+
+    if [ "$osName" == "mac" ]; then
+      content="$(echo $content | egrep -o "Android Studio [^0-9]+$studioVersion.+?section")"
+    else
+      content="$(echo $content | grep -Po "Android Studio [^0-9]+$studioVersion.+?section")"
+    fi
+
+    local mac_url
+    if [ "$arch" == "arm" ]; then
+      mac_url="$(echo $content | egrep -o '"[^"]+mac_arm.zip"' | cut -d '"' -f 2)"
+    else
+      mac_url="$(echo $content | egrep -o '"[^"]+mac.zip"' | cut -d '"' -f 2)"
+    fi
+    mac_url="$(echo $mac_url | cut -d " " -f 1)"
+
+    local linux_url="$(echo $content | egrep -o '"[^"]+linux[^"]*"' | cut -d '"' -f 2 | cut -d " " -f 1)"
+    linux_url="$(echo $linux_url | cut -d " " -f 1)"
+
+    echo cached_studio_version=$studioVersion > ${scriptDir}/$cache_file
+    echo mac=$mac_url >> ${scriptDir}/$cache_file
+    echo linux=$linux_url >> ${scriptDir}/$cache_file
+  fi
+  studioUrl="https://dl.google.com/dl/android/studio/$(getProperyValue $cache_file $osName | egrep -o  'ide-zips/.*')"
+}
+
+# Escape sequence to print bold colors
+RED='\033[1;31m'
+GREEN='\033[1;32m'
+YELLOW='\033[1;33m'
+# Escape sequence to clear formatting
+NC='\033[0m'
+
+printError() {
+  local logMessage="$1"
+  echo -e "${RED}ERROR:${NC} ${logMessage}"
+}
+
+printWarning() {
+  local logMessage="$1"
+  echo -e "${YELLOW}WARNING:${NC} ${logMessage}"
+}
+
+printInfo() {
+  local logMessage="$1"
+  echo -e "${GREEN}INFO:${NC} ${logMessage}"
+}
+
+
+acceptsLicenseAgreement="false"
+runStudio="true"
+downloadStudioZip="true"
+cleanProjectFiles="false"
+scriptDir="$(cd $(dirname $0) && pwd)"
+projectDir=$scriptDir/ManagedProvisioningGradleProject
+androidBuildTop="$(cd "${scriptDir}/../../../../"; pwd)"
+
+gradleOutDir="${androidBuildTop}/out/gradle"
+usingDefaultSettingsDir='true'
+androidStudioSettingsDir="${gradleOutDir}/AndroidStudio"
+# Where to put the generated idea.properties file relative to $androidStudioSettingsDir, used for
+# STUDIO_PROPERTIES
+ideaPropRelPath="bin/idea.properties"
+
+# TODO(b/249826650): Maybe we shouldn't write to ~/.AndroidStudio* named directories. Android Studio
+# searches for these directories and tries to use them when opening for the first time elsewhere.
+# See:
+#  - Implementation details: http://shortn/_Q0gp64FPj3
+#  - Screenshot: http://screen/4sCQBhNyVTMPPf3.png
+studioHomeDir="${HOME}/.AndroidStudioSystemUI"
+studioSetupDir="${studioHomeDir}/bin"
+function getOsName() {
+  local unameOutput="$(uname)"
+  local osName=""
+  if [ "${unameOutput}" == "Linux" ]; then
+    osName="linux"
+  else
+    osName="mac"
+  fi
+  echo "${osName}"
+}
+osName="$(getOsName)"
+arch="$(uname -p)"
+studioUrl=
+# If empty string, don't update the SDK. Otherwise, the string indicates the method used for
+# fetching the artifacts needed to generate the SDK. Currently, either 'adb' or 'soong'
+updateSdk=''
+copySdkSourceDir=''
+
+function setupBuildSrcSymlinks() {
+  # Builtbots can't write to the source dirs, and there is no gradle option to overwrite the .gradle
+  # location of buildSrc, so we use symlinks. The dirs must be created before running the build.
+  #
+  # Alternatively, we could migrate from buildSrc/ to a composite build to avoid needing the
+  # symlinks. See: http://go/gh/gradle/gradle/issues/2472#issuecomment-315376378
+  cd "${scriptDir}/ManagedProvisioningGradleProject/buildSrc"
+  mkdir -p $(readlink .gradle)
+  mkdir -p $(readlink build)
+  cd - > /dev/null
+}
+
+# Used to keep track of whether we confirmed adb root works. We only want to check once.
+adbChecked='false'
+function assertHasAdbRoot() {
+  if [[ "${adbChecked}" == 'false' && "${updateSdk}" == 'adb' ]]; then
+    adb root || {
+      printError 'adb root failed. You must have a rooted device attached to use "--update-sdk adb".'
+      if [ "${osName}" != "mac" ]; then
+        echo 'NOTE: On Linux, you can use "--update-sdk soong" to compile the SDK from source.'
+      fi
+      exit 1
+    }
+    adb wait-for-device
+    adbChecked='true'
+  fi
+}
+
+function getUpstreamGitBranch() {
+  echo "$(git -C "${androidBuildTop}/.repo/manifests" for-each-ref --format='%(upstream:short)' refs/heads | sed 's/origin\///')"
+}
+function toUpperCase() {
+  local dashedName="$1"
+  IFS='-'
+  local words=($dashedName)
+  unset IFS
+  local upperCaseName=''
+  for word in "${words[@]}"; do
+    upperCaseName="${upperCaseName}$(echo "$word" | sed 's/[a-z]/\U&/')"
+  done
+  echo "$upperCaseName"
+}
+# Find the name of the branch (e.g. udc-dev) and change it to camel-case (e.g. UdcDev)
+# (e.g. udc-dev)
+branchName="$(getUpstreamGitBranch)"
+# (e.g. UdcDev)
+upperCaseBranchName="$(toUpperCase "$branchName")"
+
+sdkVersionInt="$(getProperyValue ManagedProvisioningGradleProject/gradle.properties TARGET_SDK)"
+# Use the first 4 chars of the SHA of $ANDROID_BUILD_TOP as a unique ID for this Android tree.
+# We will use this to associate this tree with the generated SDK so that all platform SDK can share
+# the same SDK home. This is just for preventing collisions if someone has the same branch checked
+# out twice. Otherwise, we'd just use $upperCaseBranchName
+androidTreeUniqueId="$(echo "$androidBuildTop" | shasum -a 256 | head -c 4)"
+
+# ---- ---- ---- ----
+# The following variables are to correspond with the Android Gradle DSL property of the same name:
+# Public docs: http://go/android-reference/tools/gradle-api/8.0/com/android/build/api/dsl/SettingsExtension#compileSdkPreview()
+# Parsing code: http://go/aocs/android/platform/superproject/+/studio-main:tools/base/build-system/gradle-core/src/main/java/com/android/build/gradle/internal/dsl/CommonExtensionImpl.kt
+compileSdkPreview="${upperCaseBranchName}ForTree${androidTreeUniqueId}"
+compileSdkVersion="android-${compileSdkPreview}"
+# ---- ---- ---- ----
+
+prebuiltsDir="${androidBuildTop}/prebuilts"
+function getLegacySdkDir() {
+  if [ "${osName}" == "mac" ]; then
+    echo "${prebuiltsDir}/fullsdk-darwin"
+  else
+    echo "${prebuiltsDir}/fullsdk-linux"
+  fi
+}
+function getLegacySdkDir2() {
+  if [ "${osName}" == "mac" ]; then
+    echo "${studioHomeDir}/fullsdk-darwin"
+  else
+    echo "${studioHomeDir}/fullsdk-linux"
+  fi
+}
+function getSdkDir() {
+  echo "${gradleOutDir}/MockSdk"
+}
+sdkDir="$(getSdkDir)"
+platformDir="$sdkDir/platforms/$compileSdkVersion"
+
+function printHelpAndExit() {
+  local message=(
+    'Usage: studiow [OPTION...]'
+    '\n'
+    '\n  -y, --accept-license-agreement'
+    '\n  --update-only'
+    '\n  --no-download'
+    '\n  --update-sdk [ARTIFACT SOURCE (adb, soong, or copy)]'
+    '\n  --project-dir'
+    '\n  --settings-dir'
+    '\n  --clean'
+    '\n  --uninstall'
+  )
+  local fmt_cmd=(fmt -w 100 --split-only)
+  if [ "$osName" == "mac" ]; then
+    fmt_cmd=(fmt -w 100)
+  fi
+  printf "$(printf %s "${message[@]}")" | ${fmt_cmd[@]}
+  exit 1
+}
+
+
+function parseOptions() {
+  while :; do
+    case "$1" in
+      -y|--accept-license-agreement)
+        acceptsLicenseAgreement="true"
+        ;;
+      --update-only)
+        runStudio="false"
+        ;;
+      --no-download)
+        downloadStudioZip="false"
+        runStudio="false"
+        ;;
+      --update-sdk)
+        if [[ -n "$2" && "$2" != -* ]]; then
+          updateSdk="$2"
+          shift
+        fi
+        case "$updateSdk" in
+          adb)
+            ;;
+          soong)
+            if [[ "${osName}" == "mac" ]]; then
+              printError 'MacOS does not support soong builds'
+              exit 1
+            elif [[ ! -f "$androidBuildTop/build/soong/soong_ui.bash" ]]; then
+              printError 'You must have a full platform branch to compile the SDK. Minimal checkouts (e.g. *-sysui-studio-dev) do not support soong builds.'
+              exit 1
+            fi
+            ;;
+          copy)
+            if [[ -n "$2" && "$2" != -* ]]; then
+              copySdkSourceDir="$2"
+              shift
+            else
+              printError 'You must specify a directoy to copy the SDK from'
+              echo ''
+              echo 'Usage: ./studiow --update-sdk copy [DIR]'
+              echo ''
+              echo 'Directory can be local or remote in the form of [user@]host:[path].'
+              echo ''
+              echo 'For example, to copy the SDK from a remote host, run the following:'
+              echo ''
+              echo '  ./studiow --update-sdk copy example.corp.google.com:/path/to/out/gradle/MockSdk/platforms/android-31'
+              echo ''
+              exit 1
+            fi
+            ;;
+          *)
+            if [[ -z "${updateSdk}" ]]; then
+              printError 'You must specify artifact source when using --update-sdk.'
+            else
+              printError "Unknown SDK artifact source: $updateSdk"
+            fi
+            echo ''
+            echo 'Usage: ./studiow --update-sdk [ARTIFACT SOURCE]'
+            echo ''
+            echo 'Available options are:'
+            echo '  adb: Pull the artifacts from attached device (default)'
+            echo '  soong: Build the artifacts using soong (recommended)'
+            echo '  copy: Copy android.jar and framework.aidl from the given directory'
+            echo ''
+            echo 'NOTE: soong option can only be used on Linux with a full checkout'
+            exit 1
+            ;;
+        esac
+        ;;
+      --pull-sdk)
+        printWarning "--pull-sdk is deprecated. It is equivalent to '--update-sdk adb'"
+        updateSdk='adb'
+        ;;
+      --project-dir)
+        shift
+        projectDir="$1"
+        ;;
+      --settings-dir)
+        shift
+        usingDefaultSettingsDir='false'
+        if [[ -z "$1" ]] ; then
+          echo "--settings-dir expects a directory. Usage: --settings-dir [dir name]"
+          exit 1
+        elif [[ ! -d "$1" ]] ; then
+          echo "Invalid --settings-dir: $1 does not exist or is not a directory"
+          exit 1
+        fi
+        androidStudioSettingsDir="$(cd "$1"; pwd)"
+        ;;
+      --clean)
+        cleanProjectFiles="true"
+        ;;
+      --uninstall)
+        uninstallAndroidStudio="true"
+        ;;
+      -h|--help|-?)
+        printHelpAndExit
+        ;;
+      *)
+        if [ -z "$1" ]; then
+          # If $1 is an empty string, it means we reached the end of the passed arguments
+          break
+        else
+          echo "Unknown option: $1"
+          exit
+        fi
+    esac
+
+    shift
+  done
+}
+
+# $1 - string to print
+# $2 - default, either 'y' or 'n'
+function yesNo() {
+  local question="$1"
+  local defaultResponse="${2:-y}"
+  local yesNoPrompt=''
+
+  if [[ "${defaultResponse::1}" =~ [yY] ]]; then
+    yesNoPrompt='[Y/n]'
+  else
+    yesNoPrompt='[y/N]'
+  fi
+
+  read -r -n 1 -p "$question ${yesNoPrompt}? " -s reply
+  if [ -z "${reply}" ]; then
+    # Replace the empty string with the default response
+    reply="${defaultResponse::1}"
+  fi
+
+  # Print the response so there is no confusion
+  echo "${reply::1}"
+
+  case "${reply::1}" in
+    [yY])
+      true
+      ;;
+    *)
+      false
+      ;;
+  esac
+}
+
+function downloadFile() {
+  fromUrl="$1"
+  destPath="$2"
+  tempPath="${destPath}.tmp"
+  if [ -f "${destPath}" ]; then
+    if yesNo "File already exists. Do you want to delete and re-download?"; then
+      rm "${destPath}"
+    fi
+  fi
+
+  if [ -f "${destPath}" ]; then
+    echo "Using existing file from ${destPath}"
+  else
+    echo "Downloading ${fromUrl} to ${destPath}"
+    curl "${fromUrl}" > "${tempPath}"
+    mv "${tempPath}" "${destPath}"
+  fi
+}
+
+function findStudioMacAppPath() {
+  echo "$(find "${studioUnzippedPath}" -type d -depth 1 -name "Android Studio*.app")"
+}
+
+function getLicensePath() {
+  if [ "${osName}" == "mac" ]; then
+    appPath="$(findStudioMacAppPath)"
+    echo "${appPath}/Contents/Resources/LICENSE.txt"
+  else
+    echo "${studioUnzippedPath}/android-studio/LICENSE.txt"
+  fi
+}
+
+function checkLicenseAgreement() {
+  # TODO: Is there a more official way to check that the user accepts the license?
+
+  licenseAcceptedPath="${studioUnzippedPath}/STUDIOW_LICENSE_ACCEPTED"
+
+  if [ ! -f "${licenseAcceptedPath}" ]; then
+    if [ "${acceptsLicenseAgreement}" == "true" ]; then
+      touch "${licenseAcceptedPath}"
+    else
+      if yesNo "Do you accept the license agreement at $(getLicensePath)"; then
+        touch "${licenseAcceptedPath}"
+      else
+        exit 1
+      fi
+    fi
+  fi
+}
+
+# Inserts a snippet into the studio.sh launch script that prevents it from running if
+# STUDIO_LAUNCHED_WITH_WRAPPER is not set. This is to prevent people from launching studio.sh
+# directly, which can result in build errors. This only works on Linux. Unfortunately, there is no
+# equivalent for Mac OS.
+#
+# Inputs:
+#   osName - Either mac or linux
+#   studioPath - Path to the studio.sh script on Linux
+function updateStudioLaunchScript() {
+  # Only Linux uses the studio.sh script
+  if [ "${osName}" == "mac" ]; then
+    return
+  fi
+  # If studio.sh already contains 'STUDIO_LAUNCHED_WITH_WRAPPER', don't do anything
+  grep -qF 'STUDIO_LAUNCHED_WITH_WRAPPER' "$studioPath" && return
+
+  local tmpStudioSh="$(mktemp)"
+
+  # Find the first line OS_TYPE, and use this as our insertion point.
+  local insertionPoint="$(grep --line-number OS_TYPE "$studioPath" | head -n 1 | cut -d ':' -f 1)"
+
+  # Dump everything from line 0 through $insertionPoint-1 into the tmp file
+  head -n "$(("$insertionPoint"-1))" "$studioPath" > "$tmpStudioSh"
+
+  # Insert a conditional to prevent launching studiow when STUDIO_LAUNCHED_WITH_WRAPPER is unset
+  ( cat <<'EOF'
+if [ -z "$STUDIO_LAUNCHED_WITH_WRAPPER" ]; then
+  message 'This installation of Android Studio must be launched using the studiow script found in $ANDROID_BUILD_TOP/packages/apps/ManagedProvisioning/studio-dev/studiow.'
+  exit 1
+fi
+EOF
+) >> "$tmpStudioSh"
+
+  # Dump everything from $insertionPoint until the end studio.sh into the tmp file
+  tail -n +"$insertionPoint" "$studioPath" >> "$tmpStudioSh"
+
+  # Ensure that the tmp file has the same permissions as the original studio.sh
+  chmod --reference="$studioPath" "$tmpStudioSh"
+
+  echo "Inserting the following snippet into studio.sh to prevent launching it outside of studiow:"
+  diff "$studioPath" "$tmpStudioSh" || :
+  mv "$tmpStudioSh" "$studioPath"
+}
+
+# Creates an idea.properties file where all the configs are specific to this checkout of the Android
+# tree and not shared between different branches.
+#
+# Inputs:
+#  scriptDir - The path to this script (studiow)
+#  androidStudioSettingsDir - The common dir for Android Studio settings per checkout
+#  studioPropertiesFile - Where to put the generated idea.properties file, used for STUDIO_PROPERTIES
+function updateIdeaProperties() {
+  local ideaPropRefFile="${scriptDir}/development/studio/idea.properties"
+  mkdir -p "$(dirname "$studioPropertiesFile")"
+  echo "SYSUI_STUDIO_SETTINGS_DIR=$androidStudioSettingsDir" > "$studioPropertiesFile"
+  chmod 640 "$studioPropertiesFile"
+  cat "${ideaPropRefFile}" >> "$studioPropertiesFile"
+}
+
+# Creates the DO_NOT_RUN_ANDROID_STUDIO_FROM_HERE file
+#
+# Inputs:
+#   studioSetupDir - Path to Android Studio bin dir. Assumes the dir already exists.
+function createWarningTextFile() {
+  ( cat <<'EOF'
+The installations of Android Studio found in this directory MUST be launched using the studiow
+script found in:
+$ANDROID_BUILD_TOP/packages/apps/ManagedProvisioning/studio-dev/studiow
+
+Do NOT launch Android Studio by running studio.sh (on Linux) or by opening Android Studio.app (on
+MacOS). Otherwise, you won't be able to work on multiple branches of Android simultaneously.
+EOF
+) > "${studioSetupDir}/DO_NOT_RUN_ANDROID_STUDIO_FROM_HERE"
+}
+
+function updateStudio() {
+
+  # skip if already up-to-date
+  if stat "${studioUnzippedPath}" >/dev/null 2>/dev/null; then
+    # already up-to-date
+    createWarningTextFile
+    return
+  fi
+
+  mkdir -p "${studioSetupDir}"
+  downloadFile "${studioUrl}" "${studioZipPath}"
+  echo
+
+  echo "Unzipping"
+  if [[ $studioZipPath = *.zip ]]; then
+    unzip "${studioZipPath}" -d "${studioUnzippedPath}"
+  elif [[ $studioZipPath = *.tar.gz ]]; then
+    mkdir -p $studioUnzippedPath
+    tar -xf $studioZipPath -C $studioUnzippedPath
+  fi
+
+  createWarningTextFile
+}
+
+# ANDROID_LINT_NULLNESS_IGNORE_DEPRECATED environment variable prevents Studio from showing IDE
+# inspection warnings for nullability issues, if the context is deprecated
+# This environment variable is consumed by InteroperabilityDetector.kt
+
+function runStudioLinux() {
+  studioPath="${studioUnzippedPath}/android-studio/bin/studio.sh"
+  updateStudioLaunchScript
+  echo "$studioPath &"
+  env LAUNCHED_VIA_STUDIOW='true' \
+    STUDIO_PROPERTIES="${studioPropertiesFile}" \
+    STUDIO_VM_OPTIONS="${scriptDir}/development/studio/studio.vmoptions" \
+    ANDROID_LINT_NULLNESS_IGNORE_DEPRECATED="true" \
+    "${studioPath}" "${projectDir}" &>/dev/null &
+}
+
+function runStudioMac() {
+  appPath="$(findStudioMacAppPath)"
+  echo "open ${appPath}"
+  env STUDIO_PROPERTIES="${studioPropertiesFile}" \
+    STUDIO_VM_OPTIONS="${scriptDir}/development/studio/studio.vmoptions" \
+    ANDROID_LINT_NULLNESS_IGNORE_DEPRECATED="true" \
+    open -a "${appPath}" "${projectDir}"
+}
+
+function runStudio() {
+  local studioPropertiesFile="${androidStudioSettingsDir}/${ideaPropRelPath}"
+  updateIdeaProperties
+  # Export an env var so the gradle script can check that Android Studio was launched using this
+  # script. Launching Android Studio and then opening the Gradle project after-the-fact IS
+  # UNSUPPORTED. Android Studio needs to be lunched using studiow so that it can validate settings
+  # and update the build environment.
+  export STUDIO_LAUNCHED_WITH_WRAPPER='true'
+  if [ "${osName}" == "mac" ]; then
+    runStudioMac
+  else
+    runStudioLinux
+  fi
+}
+
+function runCleanProjectFiles() {
+  local projects=(
+    //external/setupcompat
+    //external/setupdesign
+    //frameworks/base
+    //frameworks/libs/systemui
+    //packages/apps/Launcher3
+    //platform_testing
+    //vendor/unbundled_google/libraries
+    //vendor/unbundled_google/packages/NexusLauncher
+    //packages/apps/ManagedProvisioning
+  )
+  local gitPath
+  for gitPath in "${projects[@]}"; do
+    cleanProjectFiles "$gitPath"
+  done
+  removeDirIfExists "${gradleOutDir}/build" || :
+}
+
+function cleanProjectFiles() {
+  local projectPath="$1"
+  local gitPath="${androidBuildTop}/${gitPath:1}"
+  local cleanPreview="$(git -C "$gitPath" clean --dry-run --force -X -d .)"
+  if [[ -z "$cleanPreview" ]]; then
+    echo "$projectPath already clean. Nothing to do."
+  else
+    echo "$projectPath cleaning:"
+    echo "$cleanPreview"
+    if yesNo 'Do you want to delete these files?' 'n'; then
+      git -C "$gitPath" clean --force -X -d .
+    else
+      echo "Clean operation cancelled."
+    fi
+  fi
+}
+
+function removeDirIfExists() {
+  local dir="$1"
+  if [[ -z "${dir}" ]] ; then
+    echo 'script error: removeDirIfExists expects 1 arg'
+    exit 1
+  fi
+  if [[ -d "${dir}" ]] ; then
+    if yesNo "Remove ${dir}?" 'n'; then
+      rm -rf "${dir}"
+    fi
+    return 0
+  fi
+  return 1
+}
+
+function runUninstallAndroidStudio() {
+  if ! yesNo 'This will remove the local Android Studio installation, local SDK, and project gradle files. Proceed?'; then
+    echo "Uninstall operation cancelled."
+    return
+  fi
+  removeDirIfExists "$studioHomeDir" || echo "Android Studio installation not found."
+  removeDirIfExists "$(getLegacySdkDir)" || :
+  removeDirIfExists "$(getLegacySdkDir2)" || :
+  removeDirIfExists "${gradleOutDir}" || :
+
+  runCleanProjectFiles
+}
+
+function adbGetProp() {
+  local prop="$1"
+  echo "$(adb shell getprop $prop 2>/dev/null || true)"
+}
+
+function askToUpdateSdkUsingAdb() {
+  echo ''
+  if yesNo "Update SDK using adb?"; then
+    updateSdk="adb"
+  fi
+}
+
+function checkSdkNeedsUpdate() {
+  printInfo "Android SDK Location: $sdkDir"
+  local localSdkTime="$(getProperyValueAbs $platformDir/build.prop ro.system.build.date.utc)"
+  local localSdkFingerprint="$(getProperyValueAbs $platformDir/build.prop ro.system.build.fingerprint)"
+  local utcTimeOneWeekAgo="$(expr $(date +%s) - 604800)"
+  if [[ -z "$localSdkFingerprint" ]]; then
+    localSdkFingerprint='<Unknown>'
+  fi
+
+  local sdkGenSrc="$(getProperyValueAbs $platformDir/build.prop ro.sdk.gensrc)"
+  sdkGenSrc="${sdkGenSrc:-adb}"
+  printInfo "Android SDK Fingerprint: $localSdkFingerprint"
+  printInfo "Android SDK was last updated using \"--update-sdk ${sdkGenSrc}\""
+  if [[ -z "$localSdkTime" ]]; then
+    printWarning 'Could not determine age of Android SDK. This means your SDK is corrupt or out of date.'
+    askToUpdateSdkUsingAdb
+  elif [[ "$utcTimeOneWeekAgo" -gt "$localSdkTime" ]]; then
+    printWarning 'Android SDK is more than 7 days old.'
+    askToUpdateSdkUsingAdb
+  else
+    local serial="$(adb get-serialno 2> /dev/null)"
+    if [[ -z "$serial" ]]; then
+      local noDeviceMessage='Skipping adb build check. No devices/emulators found.'
+      if [[ "$sdkGenSrc" == 'adb' ]]; then
+        printWarning "$noDeviceMessage"
+      else
+        printInfo "$noDeviceMessage"
+      fi
+    else
+      local adbSdkBuildTime="$(adbGetProp ro.system.build.date.utc)"
+      if [ "${updateSdk}" != "true" ]; then
+        if [ $adbSdkBuildTime -gt $localSdkTime ]; then
+          printWarning "Attached device has newer SDK."
+          askToUpdateSdkUsingAdb
+        fi
+      fi
+    fi
+  fi
+}
+
+function createPackageXml() {
+  local targetFile="$1"
+  local localPackage="$2"
+  local buildToolsVersion="$3"
+  local typeDetails="$4"
+  local displayName="$5"
+
+  # Split X.Y.Z-rcN into an array of X, Y, Z, and rcN
+  IFS='.-'
+  local versionNumbers=($buildToolsVersion)
+  unset IFS
+  local majorVersionString=""
+  local minorVersionString=""
+  local microVersionString=""
+  local previewVersionString=""
+  if [[ -n "${versionNumbers[0]}" ]]; then
+    majorVersionString="<major>${versionNumbers[0]}</major>"
+  fi
+  if [[ -n "${versionNumbers[1]}" ]]; then
+    minorVersionString="<minor>${versionNumbers[1]}</minor>"
+  fi
+  if [[ -n "${versionNumbers[2]}" ]]; then
+    microVersionString="<micro>${versionNumbers[2]}</micro>"
+  fi
+  # preview version includes rc if it's set, e.g. rc1. It could also be an empty string if it's not
+  # a preview version at all
+  if [[ -n "${versionNumbers[3]}" ]]; then
+    # Remove rc from the preview version number
+    previewVersionString="<preview>${versionNumbers[3]#rc}</preview>"
+  fi
+
+  ( cat <<'EOF'
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?><ns2:repository xmlns:ns2="http://schemas.android.com/repository/android/common/02" xmlns:ns3="http://schemas.android.com/repository/android/common/01" xmlns:ns4="http://schemas.android.com/repository/android/generic/01" xmlns:ns5="http://schemas.android.com/repository/android/generic/02" xmlns:ns6="http://schemas.android.com/sdk/android/repo/addon2/01" xmlns:ns7="http://schemas.android.com/sdk/android/repo/addon2/02" xmlns:ns8="http://schemas.android.com/sdk/android/repo/addon2/03" xmlns:ns9="http://schemas.android.com/sdk/android/repo/repository2/01" xmlns:ns10="http://schemas.android.com/sdk/android/repo/repository2/02" xmlns:ns11="http://schemas.android.com/sdk/android/repo/repository2/03" xmlns:ns12="http://schemas.android.com/sdk/android/repo/sys-img2/03" xmlns:ns13="http://schemas.android.com/sdk/android/repo/sys-img2/02" xmlns:ns14="http://schemas.android.com/sdk/android/repo/sys-img2/01"><license id="android-sdk-license" type="text">Terms and Conditions
+
+This is the Android Software Development Kit License Agreement
+</license>
+EOF
+) > "$targetFile"
+echo "<localPackage path=\"$localPackage\" obsolete=\"false\">
+    <type-details xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"ns11:platformDetailsType\">$typeDetails</type-details>
+    <revision>
+      $majorVersionString
+      $minorVersionString
+      $microVersionString
+      $previewVersionString
+    </revision>
+    <display-name>$displayName</display-name>
+    <uses-license ref=\"android-sdk-license\"/>
+  </localPackage>
+</ns2:repository>
+" >> $targetFile
+}
+
+function appendLineIfNotExists() {
+  grep -qxF "$1" $2 || echo "$1" >> $2
+}
+
+function setupMockSdk() {
+  rm -rf $sdkDir
+  mkdir -p $sdkDir
+
+  local toolsName
+  if [ "${osName}" == "mac" ]; then
+    toolsName="darwin"
+  else
+    toolsName="linux"
+  fi
+
+  # e.g. 33.0.1 OR 34.0.0-rc1
+  # In Gradle, there's a space before 'rc', but when packaged in Android/Sdk, there's a dash.
+  # To work with that, replace ' ' with '-' for usage in the script
+  local buildToolsVersion="$(getProperyValue ManagedProvisioningGradleProject/gradle.properties BUILD_TOOLS_VERSION | sed 's/ /-/')"
+
+  local adbRelPath="out/host/$toolsName-x86/bin/adb"
+  local compiledAdb="$androidBuildTop/$adbRelPath"
+  # platform tools
+  if [ ! -f $compiledAdb ]; then
+    # Check if adb exists in path (don't exit if `which` fails)
+    compiledAdb="$(which adb || true)"
+    if [ ! -f $compiledAdb ]; then
+      printError "Could not find adb at $adbRelPath or in the environment path"
+      echo "Did you build system image once?"
+      exit 1
+    fi
+  fi
+  printInfo "Using adb binary found at $compiledAdb"
+  mkdir $sdkDir/platform-tools
+  ln -s $compiledAdb $sdkDir/platform-tools/adb
+  createPackageXml $sdkDir/platform-tools/package.xml "platform-tools" "$buildToolsVersion" "" "Android SDK Platform-Tools"
+
+  # Setup build tools
+  mkdir -p $sdkDir/build-tools
+  cp -r $prebuiltsDir/sdk/tools/$toolsName/bin $sdkDir/build-tools/$buildToolsVersion
+  cp -r $prebuiltsDir/sdk/tools/$toolsName/lib $sdkDir/build-tools/$buildToolsVersion/lib
+  cp -r $prebuiltsDir/sdk/tools/$toolsName/lib64 $sdkDir/build-tools/$buildToolsVersion/lib64
+  ln -s $prebuiltsDir/sdk/renderscript $sdkDir/build-tools/$buildToolsVersion/renderscript
+  # All tools are now validated by studio, so we need to collect them all
+  cp -r $prebuiltsDir/sdk/tools/lib/* $sdkDir/build-tools/$buildToolsVersion/lib
+  cp $prebuiltsDir/sdk/tools/dx $sdkDir/build-tools/$buildToolsVersion
+
+  cp -r $prebuiltsDir/build-tools/$toolsName-x86/bin/* $sdkDir/build-tools/$buildToolsVersion/
+  cp -r $prebuiltsDir/build-tools/$toolsName-x86/lib64/* $sdkDir/build-tools/$buildToolsVersion/lib64/
+  createPackageXml $sdkDir/build-tools/$buildToolsVersion/package.xml "build-tools;$buildToolsVersion" "$buildToolsVersion" "" "Android SDK Build-Tools $buildToolsVersion"
+
+  # Setup platforms
+  mkdir -p $platformDir
+  createPackageXml $platformDir/package.xml "platforms;$compileSdkVersion" "1" "<api-level>$sdkVersionInt</api-level><codename>$compileSdkPreview</codename><layoutlib api=\"15\" />" "Android SDK Platform $upperCaseBranchName for SysUiStudio (tree=$androidBuildTop, branch=$branchName, treeId=$androidTreeUniqueId)"
+
+  prebuiltAndroidJar=$prebuiltsDir/sdk/current/system/android.jar
+
+  # Setup test and optional packages
+  mkdir $platformDir/optional
+  cp -r $prebuiltsDir/sdk/current/test/*.*.jar $platformDir/optional/
+  list=
+  for f in $platformDir/optional/*.jar; do
+    filename=$(basename -- "$f")
+    libname="${filename%.*}"
+
+    [ ! -z "$list" ] && list="$list,"
+    br=$'\n'
+    list="$list$br{ \"name\": \"$libname\", \"jar\": \"$filename\", \"manifest\": false }"
+  done
+  echo "[$list]" > $platformDir/optional/optional.json
+}
+
+function createPlatformSdk() {
+  assertHasAdbRoot
+  echo "Setting up SDK from scratch"
+  setupMockSdk
+
+  echo "Updating private apis sdk"
+  local android_jar_outfile="$platformDir/android.jar"
+  local framework_aidl="$platformDir/framework.aidl"
+  rm -rf $android_jar_outfile
+
+  local buildPropFile="$platformDir/build.prop"
+  local buildDate=
+  local buildFingerprint=
+
+  if [[ "$updateSdk" == 'adb' ]]; then
+    local tempFiles="$(mktemp -d)"
+
+    buildDate="$(adbGetProp ro.system.build.date.utc)"
+    buildFingerprint="$(adbGetProp ro.system.build.fingerprint)"
+
+    printInfo "Pulling SDK artifacts from device $buildFingerprint using adb"
+    adb pull /system/framework/framework-res.apk $tempFiles/
+    adb pull /system/framework/framework.jar $tempFiles/
+    adb pull /system/framework/framework-location.jar $tempFiles/
+
+    local dexList="--dex $tempFiles/framework.jar"
+    dexList="$dexList --dex $tempFiles/framework-location.jar"
+    local apexJars=($(adb shell ls /apex/*/javalib/*.jar))
+    for f in "${apexJars[@]}"
+    do
+      local fileBasename="$(basename $f)"
+      if [[ ! $f = *@* ]] && [[ "$fileBasename" != service-* ]]; then
+        local target="$tempFiles/$(basename $f)"
+        adb pull $f $target
+        dexList="$dexList --dex $target"
+      fi
+    done
+
+    cp $prebuiltsDir/sdk/current/public/framework.aidl $framework_aidl
+
+    java -jar $scriptDir/StubGenerator/StubGenerator.jar -o $android_jar_outfile \
+        $dexList \
+        --zip $tempFiles/framework-res.apk \
+        --zip $prebuiltAndroidJar \
+        --aidl $framework_aidl
+
+    echo "Removing temp files"
+    rm -rf $tempFiles
+
+    cp $prebuiltsDir/sdk/current/module-lib/core-for-system-modules.jar "$platformDir"
+  elif [[ "$updateSdk" == 'soong' ]]; then
+    printInfo "Building SDK artifacts using soong"
+
+    # TODO(b/251871740): Replace these steps with the output of a soong target
+    #
+    # ---- begin ----
+    #
+    local frameworks_deps=(
+      out/soong/.intermediates/build/soong/java/core-libraries/legacy.core.platform.api.stubs/android_common/turbine-combined/legacy.core.platform.api.stubs.jar
+      out/soong/.intermediates/libcore/core-lambda-stubs-for-system-modules/android_common/turbine-combined/core-lambda-stubs-for-system-modules.jar
+      out/soong/.intermediates/libcore/core-generated-annotation-stubs/android_common/turbine-combined/core-generated-annotation-stubs.jar
+      out/soong/.intermediates/frameworks/base/framework/android_common/turbine-combined/framework.jar
+      out/soong/.intermediates/frameworks/base/ext/android_common/turbine-combined/ext.jar
+      out/soong/.intermediates/frameworks/base/core/res/framework-res/android_common/package-res.apk
+      out/soong/.intermediates/tools/metalava/private-stub-annotations-jar/android_common/turbine-combined/private-stub-annotations-jar.jar
+    )
+
+    cd $androidBuildTop
+
+    . ./build/envsetup.sh
+    if [[ -n "$TARGET_PRODUCT" && -n "$TARGET_BUILD_VARIANT" ]]; then
+      if [[ -n "$TARGET_RELEASE" ]]; then
+        lunch "$TARGET_PRODUCT-$TARGET_RELEASE-$TARGET_BUILD_VARIANT"
+      else
+        lunch "$TARGET_PRODUCT-$TARGET_BUILD_VARIANT"
+      fi
+    else
+      lunch aosp_arm64-trunk_staging-userdebug
+    fi
+
+    m merge_zips sdkparcelables ${frameworks_deps[@]}
+
+    echo "Updating private apis sdk"
+    merge_zips --ignore-duplicates $android_jar_outfile ${frameworks_deps[@]}
+
+    sdkparcelables "$android_jar_outfile" "$framework_aidl"
+    # TODO(b/259594098): sdkparcelables output aidl file doesn't include all the interfaces we need
+    appendLineIfNotExists "interface android.app.IApplicationThread;" "$framework_aidl"
+    appendLineIfNotExists "interface android.view.IRecentsAnimationController;" "$framework_aidl"
+    appendLineIfNotExists "interface android.view.IRecentsAnimationRunner;" "$framework_aidl"
+    appendLineIfNotExists "interface android.view.IRemoteAnimationRunner;" "$framework_aidl"
+    appendLineIfNotExists "interface android.window.IOnBackInvokedCallback;" "$framework_aidl"
+
+    cp $prebuiltsDir/sdk/current/module-lib/core-for-system-modules.jar "$platformDir"
+    #
+    # ---- end ----
+    #
+    buildDate="$(date +%s)"
+    buildFingerprint="$(cat $ANDROID_PRODUCT_OUT/build_fingerprint.txt)"
+
+    printInfo "If you'd like to use this SDK on your laptop too, run ./studiow --update-sdk copy $(hostname):$platformDir"
+  elif [[ "${updateSdk}" == 'copy' ]]; then
+    scp "${copySdkSourceDir}"/{framework.aidl,android.jar,build.prop,core-for-system-modules.jar} "$platformDir/."
+    # Copy the build date and fingerprint from build.prop, then delete the file
+    buildDate="$(getProperyValueAbs $buildPropFile ro.system.build.date.utc)"
+    buildFingerprint="$(getProperyValueAbs $buildPropFile ro.system.build.fingerprint)"
+    rm "$buildPropFile"
+  else
+    printError "Internal error. Unknown SDK update source: $updateSdk"
+    exit 1
+  fi
+
+  {
+    echo "ro.system.build.version.sdk=$sdkVersionInt"
+    echo "ro.build.version.codename=$compileSdkPreview"
+    echo "ro.system.build.date.utc=$buildDate"
+    echo "ro.system.build.fingerprint=$buildFingerprint"
+    echo "ro.sdk.gensrc=$updateSdk"
+  } > "$buildPropFile"
+
+  cp "${scriptDir}/development/sdk/sdk.properties" "${platformDir}"
+
+  ( cat <<EOF
+Pkg.Desc=Android SDK Platform $upperCaseBranchName
+Pkg.UserSrc=false
+Platform.Version=$compileSdkPreview
+Platform.CodeName=$compileSdkPreview
+Pkg.Revision=1
+AndroidVersion.ApiLevel=$sdkVersionInt
+AndroidVersion.CodeName=$compileSdkPreview
+AndroidVersion.ExtensionLevel=5
+AndroidVersion.IsBaseSdk=true
+Layoutlib.Api=15
+Layoutlib.Revision=1
+Platform.MinToolsRev=22
+EOF
+) > "${platformDir}/source.properties"
+
+
+  echo "Generating sdk data"
+  # Sympolic link does not work here with android
+  mkdir -p $platformDir/data
+  cp -r $androidBuildTop/frameworks/base/core/res/res $platformDir/data/
+  mv $platformDir/data/res/values/public-final.xml $platformDir/data/res/values/public.xml
+
+  echo "Removing build cache"
+  rm -rf "${scriptDir}/ManagedProvisioningGradleProject/.build-cache"
+
+  echo "Accepting license"
+  cp -r ${prebuiltsDir}/cmdline-tools $sdkDir/
+  yes | $sdkDir/cmdline-tools/tools/bin/sdkmanager --licenses >/dev/null
+  rm -rf $sdkDir/cmdline-tools
+
+  echo "Linking sources"
+  ln -s $androidBuildTop/frameworks/base/core/java $platformDir/sources
+
+  echo "Done"
+}
+
+function copyFileIfAbsent() {
+  SRC=$1
+  DEST=$2
+  if [ ! -f $DEST ]; then
+    mkdir -p $(dirname $DEST)
+    cp $SRC $DEST
+  fi
+}
+
+# On mac, a newer JDK must be installed manually.
+function checkJdkVersion() {
+  if [ "${osName}" == "mac" ]; then
+    local javaHome
+    javaHome="$(/usr/libexec/java_home -v 17)"
+    if [[ "$?" -eq 0 && -n "$javaHome" ]]; then
+      return 0
+    else
+      printError "Compatible JDK not found. studiow requires JDK 17 to run Android's command-line tools for generating the SDK. Install the JDK using 'mule install jdk19' and re-run this script."
+      exit
+    fi
+  fi
+}
+
+function updateLocalGradleProperties() {
+  export ANDROID_HOME="${sdkDir}"
+  ( cat <<EOF
+sdk.dir=${sdkDir}
+EOF
+) > "$projectDir/local.properties"
+  ( cat <<EOF
+compile.sdk.preview=${compileSdkPreview}
+compile.sdk.version=${compileSdkVersion}
+EOF
+) > "$projectDir/studiow.properties"
+}
+
+function updateStudioConfig() {
+  local legacy_config_dir="${studioHomeDir}/config"
+  local config_dir="${androidStudioSettingsDir}/config"
+  if [[ "${usingDefaultSettingsDir}" == 'true' && -d "$legacy_config_dir" ]]; then
+    local message=(
+      '\n-------------------------------------------------------------------------------------\n\n'
+      "${YELLOW}WARNING:${NC} You have config files stored in ~/.AndroidStudioSystemUI/config "
+      'which will NOT be used by this instance of sysui-studio. '
+      'To support multi-branch development, '
+      "the config directory has moved to \$TOP${config_dir#"$androidBuildTop"}"
+      '\n\n'
+      'Each tree now has its own config directory. This means you may need to change your '
+      'settings for Android Studio multiple times (per branch) if, for example, you want to '
+      'change the default keymap.'
+      '\n\n'
+      'Your existing configs have NOT been automatically moved or deleted for the following '
+      'reasons:'
+      '\n\n'
+      '  1) You may want to inspect your old settings\n'
+      '  2) The old config may still be used by branches on revisions predate this change.'
+      '\n\n'
+      'For more info, see http://b/249826650'
+      '\n\n'
+      'To make this warning go away, delete ~/.AndroidStudioSystemUI/config'
+      '\n\n'
+      'To launch Android Studio with the old config, run the following:'
+      '\n'
+      '\n    studiow --settings-dir ~/.AndroidStudioSystemUI'
+      '\n'
+      '\nYou can then export your old settings using File > Manage IDE Settings > Export Settings'
+      '\n'
+      '\n-------------------------------------------------------------------------------------\n\n'
+
+    )
+    local fmt_cmd=(fmt -w 100 --split-only)
+    if [ "$osName" == "mac" ]; then
+      fmt_cmd=(fmt -w 100)
+    fi
+    printf "$(printf %s "${message[@]}")" | ${fmt_cmd[@]}
+  fi
+
+  mkdir -p "${config_dir}"
+  # Disable update checks
+  copyFileIfAbsent $scriptDir/development/studio/updates.xml "${androidStudioSettingsDir}/updates.xml"
+  # Disable instant run
+  copyFileIfAbsent $scriptDir/development/studio/instant-run.xml $config_dir/options/instant-run.xml
+  # Copy android code style
+  copyFileIfAbsent $scriptDir/development/studio/AndroidStyle.xml $config_dir/codestyles/AndroidStyle.xml
+  copyFileIfAbsent $scriptDir/development/studio/code.style.schemes.xml $config_dir/options/code.style.schemes.xml
+  # Disable notification to update gradle
+  copyFileIfAbsent $scriptDir/development/studio/notifications.xml $config_dir/options/notifications.xml
+
+  # Disable dialog that asks to trust the project
+  local trustedPathsFile="$config_dir/options/trusted-paths.xml"
+  if [ ! -f $trustedPathsFile ]; then
+    sed "s|__PROJECT_DIR_PLACEHOLDER__|$projectDir|" $scriptDir/development/studio/trusted-paths.xml > $trustedPathsFile
+  fi
+
+  # Disable dialog that asks whether to use Studio SDK or Project SDK
+  local jdkPathsFile="$config_dir/options/jdk.table.xml"
+  if [ ! -f $jdkPathsFile ]; then
+    sed "s|__SDK_DIR_PLACEHOLDER__|$sdkDir|g;s|__SDK_VERSION_NAME_PLACEHOLDER__|$compileSdkVersion|g;" $scriptDir/development/studio/jdk.table.xml > $jdkPathsFile
+  fi
+}
+
+function main() {
+  parseOptions "$@"
+
+  if [ "${uninstallAndroidStudio}" == "true" ]; then
+    runUninstallAndroidStudio
+    exit
+  fi
+
+  if [ "${cleanProjectFiles}" == "true" ]; then
+    runCleanProjectFiles
+    exit
+  fi
+
+  assertHasAdbRoot
+  setupBuildSrcSymlinks
+
+  if [ "${downloadStudioZip}" == "true" ]; then
+    fetchStudioUrl
+
+    studioDestName="$(basename ${studioUrl})"
+    studioZipPath="${studioSetupDir}/${studioDestName}"
+    studioUnzippedPath="$(echo ${studioZipPath} | sed 's/\.zip$//' | sed 's/\.tar\.gz$//')"
+  fi
+
+  # Checks if a platform SDK already exists. If it doesn't, automatically adjust the flags so that
+  # an SDK is generated by pulling files off the device.
+  if [[ -z "$updateSdk" ]]; then
+    if [[ ! -f $platformDir/android.jar ]]; then
+      printInfo "Android SDK not found. Automatically appending '--update-sdk adb' to the argument list."
+      updateSdk='adb'
+    else
+      checkSdkNeedsUpdate
+    fi
+  fi
+
+  checkJdkVersion
+
+  if [ -n "${updateSdk}" ]; then
+    createPlatformSdk
+    updateLocalGradleProperties
+  fi
+
+  if [ "${downloadStudioZip}" == "true" ]; then
+    updateStudio
+    createDesktopEntry
+  fi
+  if [ "${runStudio}" == "true" ]; then
+    checkLicenseAgreement
+    updateLocalGradleProperties
+    updateStudioConfig
+    runStudio
+  fi
+}
+
+function createDesktopEntry() {
+  studiow_path="${scriptDir}/studiow"
+  studiow_icon="${studioUnzippedPath}/android-studio/bin/studio.png"
+  targetDir="${HOME}/.local/share/applications"
+  mkdir -p "$targetDir"
+  cat "${scriptDir}/MPStudio.desktop" | sed "s|%STUDIOW_PATH%|${studiow_path}|g" | sed "s|%ANDROID_TOP%|${androidBuildTop}|g" | sed "s|%STUDIOW_ICON%|${studiow_icon}|g" > "${targetDir}/MPStudio.desktop"
+}
+createDesktopEntry
+main "$@"

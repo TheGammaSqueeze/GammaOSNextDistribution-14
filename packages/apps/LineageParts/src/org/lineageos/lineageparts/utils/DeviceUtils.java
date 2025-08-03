@@ -1,0 +1,285 @@
+/*
+ * SPDX-FileCopyrightText: 2016 The CyanogenMod project
+ * SPDX-FileCopyrightText: 2017-2023 The LineageOS project
+ * SPDX-License-Identifier: Apache-2.0
+ */
+package org.lineageos.lineageparts.utils;
+
+import static android.view.WindowManagerPolicyConstants.NAV_BAR_MODE_2BUTTON;
+import static android.view.WindowManagerPolicyConstants.NAV_BAR_MODE_GESTURAL;
+
+import android.app.Activity;
+import android.bluetooth.BluetoothManager;
+import android.content.Context;
+import android.content.pm.ActivityInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.res.Configuration;
+import android.graphics.Point;
+import android.graphics.Rect;
+import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraManager;
+import android.nfc.NfcAdapter;
+import android.os.Build;
+import android.os.SystemProperties;
+import android.telephony.TelephonyManager;
+import android.telephony.SubscriptionManager;
+import android.text.TextUtils;
+import android.view.Display;
+import android.view.DisplayCutout;
+import android.view.KeyCharacterMap;
+import android.view.KeyEvent;
+import android.view.Surface;
+
+import static org.lineageos.internal.util.DeviceKeysConstants.*;
+
+import androidx.annotation.NonNull;
+
+public class DeviceUtils {
+
+    /* returns whether the device has a centered display cutout or not. */
+    public static boolean hasCenteredCutout(Context context) {
+        Display display = context.getDisplay();
+        DisplayCutout cutout = display.getCutout();
+        if (cutout != null) {
+            Point realSize = new Point();
+            display.getRealSize(realSize);
+
+            switch (display.getRotation()) {
+                case Surface.ROTATION_0: {
+                    Rect rect = cutout.getBoundingRectTop();
+                    return !(rect.left <= 0 || rect.right >= realSize.x);
+                }
+                case Surface.ROTATION_90: {
+                    Rect rect = cutout.getBoundingRectLeft();
+                    return !(rect.top <= 0 || rect.bottom >= realSize.y);
+                }
+                case Surface.ROTATION_180: {
+                    Rect rect = cutout.getBoundingRectBottom();
+                    return !(rect.left <= 0 || rect.right >= realSize.x);
+                }
+                case Surface.ROTATION_270: {
+                    Rect rect = cutout.getBoundingRectRight();
+                    return !(rect.top <= 0 || rect.bottom >= realSize.y);
+                }
+            }
+        }
+        return false;
+    }
+
+    public static int getDeviceKeys(Context context) {
+        return context.getResources().getInteger(
+                org.lineageos.platform.internal.R.integer.config_deviceHardwareKeys);
+    }
+
+    public static int getDeviceWakeKeys(Context context) {
+        return context.getResources().getInteger(
+                org.lineageos.platform.internal.R.integer.config_deviceHardwareWakeKeys);
+    }
+
+    /* returns whether the device has power key or not. */
+    public static boolean hasPowerKey() {
+        return KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_POWER);
+    }
+
+    /* returns whether the device has home key or not. */
+    public static boolean hasHomeKey(Context context) {
+        return (getDeviceKeys(context) & KEY_MASK_HOME) != 0;
+    }
+
+    /* returns whether the device has back key or not. */
+    public static boolean hasBackKey(Context context) {
+        return (getDeviceKeys(context) & KEY_MASK_BACK) != 0;
+    }
+
+    /* returns whether the device has menu key or not. */
+    public static boolean hasMenuKey(Context context) {
+        return (getDeviceKeys(context) & KEY_MASK_MENU) != 0;
+    }
+
+    /* returns whether the device has assist key or not. */
+    public static boolean hasAssistKey(Context context) {
+        return (getDeviceKeys(context) & KEY_MASK_ASSIST) != 0;
+    }
+
+    /* returns whether the device has app switch key or not. */
+    public static boolean hasAppSwitchKey(Context context) {
+        return (getDeviceKeys(context) & KEY_MASK_APP_SWITCH) != 0;
+    }
+
+    /* returns whether the device has camera key or not. */
+    public static boolean hasCameraKey(Context context) {
+        return (getDeviceKeys(context) & KEY_MASK_CAMERA) != 0;
+    }
+
+    /* returns whether the device has volume rocker or not. */
+    public static boolean hasVolumeKeys(Context context) {
+        return (getDeviceKeys(context) & KEY_MASK_VOLUME) != 0;
+    }
+
+    /* returns whether the device can be waken using the home key or not. */
+    public static boolean canWakeUsingHomeKey(Context context) {
+        return (getDeviceWakeKeys(context) & KEY_MASK_HOME) != 0;
+    }
+
+    /* returns whether the device can be waken using the back key or not. */
+    public static boolean canWakeUsingBackKey(Context context) {
+        return (getDeviceWakeKeys(context) & KEY_MASK_BACK) != 0;
+    }
+
+    /* returns whether the device can be waken using the menu key or not. */
+    public static boolean canWakeUsingMenuKey(Context context) {
+        return (getDeviceWakeKeys(context) & KEY_MASK_MENU) != 0;
+    }
+
+    /* returns whether the device can be waken using the assist key or not. */
+    public static boolean canWakeUsingAssistKey(Context context) {
+        return (getDeviceWakeKeys(context) & KEY_MASK_ASSIST) != 0;
+    }
+
+    /* returns whether the device can be waken using the app switch key or not. */
+    public static boolean canWakeUsingAppSwitchKey(Context context) {
+        return (getDeviceWakeKeys(context) & KEY_MASK_APP_SWITCH) != 0;
+    }
+
+    /* returns whether the device can be waken using the camera key or not. */
+    public static boolean canWakeUsingCameraKey(Context context) {
+        return (getDeviceWakeKeys(context) & KEY_MASK_CAMERA) != 0;
+    }
+
+    /* returns whether the device can be waken using the volume rocker or not. */
+    public static boolean canWakeUsingVolumeKeys(Context context) {
+        return (getDeviceWakeKeys(context) & KEY_MASK_VOLUME) != 0;
+    }
+
+    /* returns whether the device supports button backlight adjusment or not. */
+    public static boolean hasButtonBacklightSupport(Context context) {
+        final boolean buttonBrightnessControlSupported = context.getResources().getInteger(
+                org.lineageos.platform.internal.R.integer
+                        .config_deviceSupportsButtonBrightnessControl) != 0;
+
+        // All hardware keys besides volume and camera can possibly have a backlight
+        return buttonBrightnessControlSupported
+                && (hasHomeKey(context) || hasBackKey(context) || hasMenuKey(context)
+                || hasAssistKey(context) || hasAppSwitchKey(context));
+    }
+
+    /* returns whether the device supports keyboard backlight adjustment or not. */
+    public static boolean hasKeyboardBacklightSupport(Context context) {
+        return context.getResources().getInteger(org.lineageos.platform.internal.R.integer
+                .config_deviceSupportsKeyboardBrightnessControl) != 0;
+    }
+
+    public static boolean isPackageInstalled(Context context, String pkg, boolean ignoreState) {
+        if (pkg != null) {
+            try {
+                PackageInfo pi = context.getPackageManager().getPackageInfo(pkg,
+                        PackageManager.PackageInfoFlags.of(0));
+                if (!pi.applicationInfo.enabled && !ignoreState) {
+                    return false;
+                }
+            } catch (PackageManager.NameNotFoundException e) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Locks the activity orientation to the current device orientation
+     */
+    public static void lockCurrentOrientation(Activity activity) {
+        int currentRotation = activity.getDisplay().getRotation();
+        int orientation = activity.getResources().getConfiguration().orientation;
+        int frozenRotation = 0;
+        switch (currentRotation) {
+            case Surface.ROTATION_0:
+                frozenRotation = orientation == Configuration.ORIENTATION_LANDSCAPE
+                        ? ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                        : ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+                break;
+            case Surface.ROTATION_90:
+                frozenRotation = orientation == Configuration.ORIENTATION_PORTRAIT
+                        ? ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT
+                        : ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+                break;
+            case Surface.ROTATION_180:
+                frozenRotation = orientation == Configuration.ORIENTATION_LANDSCAPE
+                        ? ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE
+                        : ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
+                break;
+            case Surface.ROTATION_270:
+                frozenRotation = orientation == Configuration.ORIENTATION_PORTRAIT
+                        ? ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                        : ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
+                break;
+        }
+        activity.setRequestedOrientation(frozenRotation);
+    }
+
+    public static boolean isDozeAvailable(Context context) {
+        String name = Build.IS_DEBUGGABLE ? SystemProperties.get("debug.doze.component") : null;
+        if (TextUtils.isEmpty(name)) {
+            name = context.getResources().getString(
+                    com.android.internal.R.string.config_dozeComponent);
+        }
+        return !TextUtils.isEmpty(name);
+    }
+
+    public static boolean deviceSupportsMobileData(Context ctx) {
+        TelephonyManager telephonyManager = ctx.getSystemService(TelephonyManager.class);
+        return telephonyManager.isDataCapable();
+    }
+
+    public static boolean deviceSupportsBluetooth(Context ctx) {
+        BluetoothManager bluetoothManager = (BluetoothManager)
+                ctx.getSystemService(Context.BLUETOOTH_SERVICE);
+        return (bluetoothManager.getAdapter() != null);
+    }
+
+    public static boolean deviceSupportsNfc(Context ctx) {
+        return NfcAdapter.getDefaultAdapter(ctx) != null;
+    }
+
+    public static boolean deviceSupportsFlashLight(@NonNull Context context) {
+        CameraManager cameraManager = context.getSystemService(CameraManager.class);
+        try {
+            String[] ids = cameraManager.getCameraIdList();
+            for (String id : ids) {
+                CameraCharacteristics c = cameraManager.getCameraCharacteristics(id);
+                Boolean flashAvailable = c.get(CameraCharacteristics.FLASH_INFO_AVAILABLE);
+                Integer lensFacing = c.get(CameraCharacteristics.LENS_FACING);
+                if (flashAvailable != null
+                        && flashAvailable
+                        && lensFacing != null
+                        && lensFacing == CameraCharacteristics.LENS_FACING_BACK) {
+                    return true;
+                }
+            }
+        } catch (CameraAccessException | AssertionError e) {
+            // Ignore
+        }
+        return false;
+    }
+
+    public static boolean isMobileDataEnabled(Context context) {
+        TelephonyManager telephonyManager = context.getSystemService(TelephonyManager.class);
+        int subId = SubscriptionManager.getDefaultDataSubscriptionId();
+        return telephonyManager.createForSubscriptionId(subId).isDataEnabled();
+    }
+
+    public static boolean isSwipeUpEnabled(Context context) {
+        if (isEdgeToEdgeEnabled(context)) {
+            return false;
+        }
+        return NAV_BAR_MODE_2BUTTON == context.getResources().getInteger(
+                com.android.internal.R.integer.config_navBarInteractionMode);
+    }
+
+    public static boolean isEdgeToEdgeEnabled(Context context) {
+        return NAV_BAR_MODE_GESTURAL == context.getResources().getInteger(
+                com.android.internal.R.integer.config_navBarInteractionMode);
+    }
+}

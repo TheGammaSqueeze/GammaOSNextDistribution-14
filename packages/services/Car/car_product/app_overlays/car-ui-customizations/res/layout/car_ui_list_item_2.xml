@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2019 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- Note that in this RRO layout, ViewStubs are used. Depending on the type of list item (i.e., how
+    many tap targets are used) some of these ViewStubs will be inflated with a View hierarchy which
+    contains a top level tap target (or two) and descendant ui/text elements. If the version of
+    car-ui-lib that the app is compiled with doesn't support car_ui_list_item_2, it will default to
+    the static implementation's layout which is car_ui_list_item which doesn't support talkback. -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:tag="carUiListItem"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="116dp"
+    android:orientation="horizontal">
+    <ViewStub
+        android:id="@+id/car_ui_list_item_touch_interceptor"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:layout="@layout/car_ui_list_item_touch_interceptor"/>
+    <ViewStub
+        android:id="@+id/car_ui_list_item_reduced_touch_interceptor"
+        android:layout_height="match_parent"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout="@layout/car_ui_list_item_reduced_touch_interceptor"/>
+    <ViewStub
+        android:id="@+id/car_ui_list_item_action_container_touch_interceptor"
+        android:layout_height="match_parent"
+        android:layout_width="112dp"
+        android:layout="@layout/car_ui_list_item_action_container_touch_interceptor"/>
+</LinearLayout>

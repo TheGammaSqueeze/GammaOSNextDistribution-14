@@ -1,0 +1,10 @@
+package: "com.android.adservices.ondevicepersonalization.flags"
+container: "com.android.ondevicepersonalization"
+
+flag {
+    name: "on_device_personalization_apis_enabled"
+    namespace: "on_device_personalization"
+    # TODO(b/320156647): Add bug number and description
+    bug: "320156647"
+    description: "Enter a description per b/320156647"
+}

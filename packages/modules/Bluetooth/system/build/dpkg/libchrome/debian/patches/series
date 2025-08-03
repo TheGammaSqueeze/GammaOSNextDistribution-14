@@ -1,0 +1,4 @@
+0001-Remove-absl-from-pkgconfig.patch
+0001-Add-missing-includes.patch
+0001-rebase_path-for-write_args.patch
+0001-Perfetto-instance-hack.patch

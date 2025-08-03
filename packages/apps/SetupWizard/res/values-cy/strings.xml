@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2013-2015 The CyanogenMod Project
+     SPDX-FileCopyrightText: 2017-2024 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Dewin gosod</string>
+    <string name="next">Nesaf</string>
+    <string name="skip">Neidio</string>
+    <string name="start">Dechrau</string>
+    <string name="done">Cwblhau</string>
+    <string name="ok">Iawn</string>
+    <string name="loading">Un eiliad\u2026</string>
+    <string name="setup_welcome_message">Croeso i <xliff:g id="name" example="LineageOS">%1$s</xliff:g></string>
+    <string name="setup_managed_profile_welcome_message">Gosod dy broffil gwaith</string>
+    <string name="emergency_call">Galwad brys</string>
+    <string name="accessibility_settings">Gosodiadau hygyrchedd</string>
+    <string name="setup_locale">Iaith</string>
+    <string name="sim_locale_changed">Synhwyrwyd %1$s SIM</string>
+    <string name="setup_sim_missing">Cerdyn SIM ar goll</string>
+    <string name="sim_missing_summary" product="tablet">Nid yw\'n ymddangos bod cerdyn SIM yn dy lechen. I osod cerdyn SIM, gweler y cyfarwyddiadau a ddaeth gyda dy ddyfais.</string>
+    <string name="sim_missing_summary" product="default">Nid yw\'n ymddangos bod cerdyn SIM yn dy ffôn. I osod cerdyn SIM, gweler y cyfarwyddiadau a ddaeth gyda dy ddyfais.</string>
+    <string name="setup_datetime">Dyddiad ac amser</string>
+    <string name="date_time_summary">Gosoda dy gylchfa amser ac addasu’r dyddiad ac amser os oes angen.</string>
+    <string name="setup_current_date">Dyddiad heddiw</string>
+    <string name="setup_current_time">Amser nawr</string>
+    <string name="intro_restore_title">Adfer apiau a data</string>
+    <string name="intro_restore_button">Adfer o gopi wrth gefn</string>
+    <string name="setup_location">Gwasanaethau lleoliad</string>
+    <string name="location_access_summary"><b>Caniatáu i apiau sydd wedi gofyn am dy ganiatâd</b> medru defnyddio gwybodaeth dy leoliad. Gall hyn gynnwys dy leoliad cyfredol a lleoliadau yn y gorffennol.</string>
+    <string name="update_recovery_title">Diweddaru Modd Adfer Lineage </string>
+    <string name="update_recovery_description">Mae\'n diweddaru Lineage Recovery wrth y cychwyn cyntaf wedi pob diweddariad.</string>
+    <string name="update_recovery_warning">Caiff Recovery ei ddiweddaru yn syth ar ôl cwblhau\'r gosod. Os hoffet ti ei gadw\'n gyfan, analluoga\'r nodwedd hon.</string>
+    <string name="update_recovery_setting">Diweddaru Lineage Recovery ochr yn ochr â\'r OS</string>
+    <string name="update_recovery_full_description"><xliff:g id="recovery_update_description">%1$s</xliff:g>\n<xliff:g id="recovery_update_warning">%2$s</xliff:g></string>
+    <string name="setup_services">Nodweddion LineageOS</string>
+    <string name="services_pp_explanation">Mae\'r gwasanaethau hyn yn gweithio i ti fedru ymestyn gallu dy ddyfais. Caiff data ei ddefnyddio yn ôl polisi preifatrwydd <xliff:g id="name" example="LineageOS">%1$s</xliff:g>.</string>
+    <string name="services_find_privacy_policy">Gellir darllen y polisi preifatrwydd ar ddyfais arall wrth ymweld â <xliff:g id="uri" example="https://lineageos.org/legal">%1$s</xliff:g></string>
+    <string name="services_help_improve_cm">Helpu i wella <xliff:g id="name" example="CyanogenMod">%s</xliff:g></string>
+    <string name="services_metrics_label"><xliff:g id="name" example="Help improve LineageOS">%1$s</xliff:g> wrth anfon gwybodaeth ddiagnostig a defnydd data at <xliff:g id="name" example="LineageOS">%2$s</xliff:g>. Ni fydd yn bosib defnyddio\'r wybodaeth i dy adnabod di ac mi fydd o help mawr i\'r timau sy\'n gweithio ar bethau fel gwella perfformiad apiau a bywyd batri a chreu nodweddion newydd yn <xliff:g id="name" example="LineageOS">%3$s</xliff:g>.</string>
+    <string name="services_os_nav_keys_label"><b>Defnyddio bysellau llywio ar y sgrin</b> yn hytrach na botymau\'r ddyfais.</string>
+    <string name="services_full_description"><xliff:g id="pp_explanation">%1$s</xliff:g>\n<xliff:g id="pp_find">%2$s</xliff:g></string>
+    <string name="setup_navigation">Llywio</string>
+    <string name="navigation_summary">Dewisa pa ddull llywio sydd well gennyt</string>
+    <string name="gesture_navigation">Llywio ag ystumiau</string>
+    <string name="two_button_navigation">Llywio 2-fotwm</string>
+    <string name="navbar_navigation">Llywio 3-botwm</string>
+    <string name="hide_gesture_hint">Cuddio hintiau llywio ag ystumiau</string>
+</resources>

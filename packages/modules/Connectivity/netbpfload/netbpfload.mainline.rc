@@ -1,0 +1,8 @@
+service bpfloader /apex/com.android.tethering/bin/netbpfload
+    capabilities CHOWN SYS_ADMIN NET_ADMIN
+    group root graphics network_stack net_admin net_bw_acct net_bw_stats net_raw system
+    user root
+    rlimit memlock 1073741824 1073741824
+    oneshot
+    reboot_on_failure reboot,bpfloader-failed
+    override

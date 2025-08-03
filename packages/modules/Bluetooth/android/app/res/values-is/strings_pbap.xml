@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="pbap_session_key_dialog_title" msgid="5103201901254778256">"Sláðu inn lotulykil fyrir %1$s"</string>
+    <string name="pbap_session_key_dialog_header" msgid="5073165544713355581">"Bluetooth-lotulykils krafist"</string>
+    <string name="pbap_acceptance_timeout_message" msgid="3071798915563151284">"Rann út á tíma við að samþykkja tengingu við %1$s"</string>
+    <string name="pbap_authentication_timeout_message" msgid="2089914949828656737">"Rann út á tíma við að færa inn lotulykil fyrir %1$s"</string>
+    <string name="auth_notif_ticker" msgid="7344125635314034621">"Obex-sannvottunarbeiðni"</string>
+    <string name="auth_notif_title" msgid="6639277119990416473">"Lotulykill"</string>
+    <string name="auth_notif_message" msgid="7044369885874418693">"Sláðu inn lotulykil fyrir %1$s"</string>
+    <string name="defaultname" msgid="6200530814398805541">"Bílabúnaður"</string>
+    <string name="unknownName" msgid="6755061296103155293">"Óþekkt heiti"</string>
+    <string name="localPhoneName" msgid="9119254982537191352">"Nafnið mitt"</string>
+    <string name="defaultnumber" msgid="5348816189286607406">"000000"</string>
+    <string name="pbap_notification_group" msgid="4215789331721465381">"Tengiliðum deilt með Bluetooth"</string>
+    <string name="phonebook_advance_feature_support" msgid="8129553051734505128">"Ítareiginleikar símaskrár studdir"</string>
+    <string name="repair_for_adv_phonebook_feature" msgid="3489797973131684927">"Lagfæring á ítareiginleikum símaskrár"</string>
+</resources>

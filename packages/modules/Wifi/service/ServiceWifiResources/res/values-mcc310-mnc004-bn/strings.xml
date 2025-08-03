@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2020 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="wifi_eap_error_message_code_32760" msgid="7899190980723541970">"<xliff:g id="SSID">%1$s</xliff:g> : Verizon-এর কভারেজ এলাকার বাইরে থেকে আপনি Verizon Wi-Fi Access-এ কানেক্ট করতে পারবেন না। (সমস্যা = ৩২৭৬০)"</string>
+    <string name="wifi_eap_error_message_code_32761" msgid="4502241555553812761">"<xliff:g id="SSID">%1$s</xliff:g> : আপনি Verizon Wi-Fi Access-এ সাবস্ক্রাইব করেননি। ৮০০-৯২২-০২০৪ নম্বরে যোগাযোগ করুন। (সমস্যা = ৩২৭৬১)"</string>
+    <string name="wifi_eap_error_message_code_32762" msgid="8636803855192974833">"<xliff:g id="SSID">%1$s</xliff:g> : আপনার Verizon Wi-Fi Access অ্যাকাউন্ট নিয়ে কোনও সমস্যা হয়েছে। ৮০০-৯২২-০২০৪ নম্বরে যোগাযোগ করুন। (সমস্যা = ৩২৭৬২)"</string>
+    <string name="wifi_eap_error_message_code_32763" msgid="2907148732721960554">"<xliff:g id="SSID">%1$s</xliff:g> : আপনি আগেই Verizon Wi-Fi Access-এ কানেক্ট করেছেন। (সমস্যা = ৩২৭৬৩)"</string>
+    <string name="wifi_eap_error_message_code_32764" msgid="7893339226278701313">"<xliff:g id="SSID">%1$s</xliff:g> : Verizon Wi-Fi Access-এর সাথে কানেক্ট করার সময় কিছু সমস্যা হয়েছে। ৮০০-৯২২-০২০৪ নম্বরে যোগাযোগ করুন। (সমস্যা = ৩২৭৬৪)"</string>
+    <string name="wifi_eap_error_message_code_32765" msgid="280860840894726014">"<xliff:g id="SSID">%1$s</xliff:g> : আপনার Verizon Wi-Fi Access অ্যাকাউন্ট নিয়ে কোনও সমস্যা হয়েছে। ৮০০-৯২২-০২০৪ নম্বরে যোগাযোগ করুন। (সমস্যা = ৩২৭৬৫)"</string>
+    <string name="wifi_eap_error_message_code_32766" msgid="8240516953105404383">"<xliff:g id="SSID">%1$s</xliff:g> : আপনার লোকেশনে Verizon Wi-Fi Access উপলভ্য নেই। পরে আবার চেষ্টা করুন বা অন্য লোকেশন থেকে চেষ্টা করুন। (সমস্যা = ৩২৭৬৬)"</string>
+    <string name="wifi_eap_error_message_code_32767" msgid="2748970858713796197">"<xliff:g id="SSID">%1$s</xliff:g> : Verizon Wi-Fi Access-এর সাথে কানেক্ট করার সময় কিছু সমস্যা হয়েছে। পরে আবার চেষ্টা করুন বা অন্য লোকেশন থেকে চেষ্টা করুন।"</string>
+    <string name="wifi_eap_error_message_code_32768" msgid="6940754993270246981"></string>
+    <string name="wifi_eap_error_message_code_32769" msgid="4532250424174893199"></string>
+    <string name="wifi_eap_error_message_code_16384" msgid="3188087130800435510">"<xliff:g id="SSID">%1$s</xliff:g> : ১৬৩৮৪ সমস্যার জন্য Verizon Wi-Fi Access-এর সাথে আপনাকে কানেক্ট করা যাচ্ছে না।"</string>
+    <string name="wifi_eap_error_message_code_16385" msgid="5914307659373687387">"<xliff:g id="SSID">%1$s</xliff:g> : ১৬৩৮৫ সমস্যার জন্য Verizon Wi-Fi Access-এর সাথে আপনাকে কানেক্ট করা যাচ্ছে না।"</string>
+    <string name="wifi_eap_error_message_unknown_error_code" msgid="4276024988348676667">"<xliff:g id="SSID">%1$s</xliff:g> : Verizon Wi-Fi Access-এর সাথে কানেক্ট করার সময় কিছু সমস্যা হয়েছে।"</string>
+</resources>

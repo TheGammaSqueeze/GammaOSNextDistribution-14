@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2009 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="calendar_storage">Archiviazion Calendari</string>
+    <string name="calendar_default_name">Predefinît</string>
+    <string name="calendar_info">Info calendari</string>
+    <string name="calendar_info_error">Erôr</string>
+    <string name="calendar_info_no_calendars">Nissun calendari</string>
+    <string name="calendar_info_events">Events: <xliff:g id="events">%1$d</xliff:g></string>
+    <string name="calendar_info_events_dirty">Events: <xliff:g id="events">%1$d</xliff:g>, No salvâts: <xliff:g id="dirty events">%2$d</xliff:g></string>
+    <string name="provider_label">Calendari</string>
+    <string name="debug_tool_delete_button">Elimine daurman</string>
+    <string name="debug_tool_start_button">Scomence</string>
+    <string name="debug_tool_message">Tu stâs par 1) fâ une copie de tô base di dâts dal calendari su la memorie USB/schede SD, che e pues vignî lete di dutis lis aplicazions, e 2) mandâle vie e-mail. Visiti di eliminâ la copie a pene che tu le âs copiade cun sucès fûr dal dispositîf o dopo che la e-mail e je stade ricevude.</string>
+    <string name="debug_tool_email_sender_picker">Sielç un program par mandâ il to file</string>
+    <string name="debug_tool_email_subject">Base di dâts dal calendari zontade</string>
+    <string name="debug_tool_email_body">Chi zontade e je la mê base di dâts dal calendari, cun ducj i apontaments e lis informazions personâls.  Tratâ cun cure.</string>
+</resources>

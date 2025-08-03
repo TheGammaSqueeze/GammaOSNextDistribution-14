@@ -1,0 +1,150 @@
+// Copyright (C) 2019 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+// See: http://go/android-license-faq
+license {
+    // res/drawable contains at least 1 Public Domain file
+    name: "packages_apps_DocumentsUI_res_drawable_pd_license",
+    visibility: ["//visibility:private"],
+    license_kinds: [
+        "legacy_unencumbered",
+    ],
+    license_text: [],
+}
+
+java_defaults {
+    name: "documentsui_defaults",
+
+    static_libs: [
+        "androidx.appcompat_appcompat",
+        "androidx.legacy_legacy-support-core-ui",
+        "androidx.legacy_legacy-support-v13",
+        "androidx.legacy_legacy-support-v4",
+        "androidx.recyclerview_recyclerview",
+        "androidx.recyclerview_recyclerview-selection",
+        "androidx.transition_transition",
+        "apache-commons-compress",
+        "com.google.android.material_material",
+        "guava",
+        "modules-utils-build_system",
+    ],
+
+    libs: [
+        "app-compat-annotations",
+    ],
+
+    privileged: true,
+
+    certificate: "platform",
+
+    optimize: {
+        shrink_resources: true,
+        proguard_flags_files: ["proguard.flags"],
+    },
+
+    sdk_version: "system_current",
+    min_sdk_version: "29",
+}
+
+platform_compat_config {
+    name: "documents-ui-compat-config",
+    src: ":DocumentsUI",
+}
+
+java_library {
+    name: "docsui-statsd",
+    srcs: [
+        ":statslog-docsui-java-gen",
+    ],
+    libs: [
+        "androidx.annotation_annotation",
+    ],
+    lint: {
+        strict_updatability_linting: true,
+    },
+}
+
+genrule {
+    name: "statslog-docsui-java-gen",
+    tools: ["stats-log-api-gen"],
+    cmd: "$(location stats-log-api-gen) --java $(out) --module docsui" +
+        " --javaPackage com.android.documentsui --javaClass DocumentsStatsLog --minApiLevel 29",
+    out: ["com/android/documentsui/DocumentsStatsLog.java"],
+}
+
+android_library {
+    name: "DocumentsUI-lib",
+    defaults: ["documentsui_defaults"],
+
+    manifest: "AndroidManifestLib.xml",
+
+    resource_dirs: [
+        "res",
+    ],
+
+    aaptflags: [
+        "--auto-add-overlay",
+    ],
+
+    srcs: [
+        "src/**/*.java",
+        ":statslog-docsui-java-gen",
+    ],
+
+    sdk_version: "system_current",
+    target_sdk_version: "33",
+    min_sdk_version: "29",
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
+}
+
+android_library {
+    name: "DocumentsUIManifestLib",
+    defaults: ["documentsui_defaults"],
+
+    manifest: "AndroidManifest.xml",
+
+    resource_dirs: [],
+    libs: ["DocumentsUI-lib"],
+
+    sdk_version: "system_current",
+    target_sdk_version: "33",
+    min_sdk_version: "29",
+}
+
+android_app {
+    name: "DocumentsUI",
+
+    defaults: ["documentsui_defaults"],
+
+    manifest: "AndroidManifest.xml",
+
+    static_libs: ["DocumentsUI-lib"],
+    resource_dirs: [],
+
+    licenses: [
+        "Android-Apache-2.0",
+        "packages_apps_DocumentsUI_res_drawable_pd_license",
+    ],
+
+    required: ["privapp_whitelist_com.android.documentsui"],
+
+    min_sdk_version: "29",
+    updatable: true,
+}

@@ -1,0 +1,32 @@
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:viewportWidth="224"
+    android:viewportHeight="224"
+    android:width="56dp"
+    android:height="56dp">
+    <path
+        android:pathData="M0 112C0 50.1441 50.1441 0 112 0C173.856 0 224 50.1441 224 112C224 173.856 173.856 224 112 224C50.1441 224 0 173.856 0 112Z"
+        android:fillColor="?attr/colorScStatusBackgroundInfo" />
+    <path
+        android:pathData="M112 42L56 62.5333V105.467C56 123.2 61.6 139.067 71.8666 154C82.1333 168.933 96.1333 178.267 112 182C127.867 178.267 141.867 168.933 152.133 154C162.4 139.067 168 123.2 168 105.467V63.4667L112 42Z"
+        android:fillColor="?attr/colorScStatusInfo" />
+    <path
+        android:pathData="M104.532 135.256L80.2656 110.056L89.599 100.722L104.532 114.722L134.399 85.7891L143.732 95.1224L104.532 135.256Z"
+        android:fillColor="?attr/colorScShieldAccent"/>
+
+</vector>

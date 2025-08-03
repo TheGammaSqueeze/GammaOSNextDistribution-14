@@ -1,0 +1,5 @@
+# Bug component: 322150
+bowgotsai@google.com
+
+per-file kernel_version* = file:kernel/configs:/OWNERS
+per-file data/kernel_version* = file:kernel/configs:/OWNERS

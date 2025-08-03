@@ -1,0 +1,59 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!-- Copyright (C) 2021 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resourceOveruseConfiguration version="1.0">
+  <componentType> SYSTEM </componentType>
+  <!-- List of safe to kill system packages. -->
+  <safeToKillPackages>
+    <package> shared:com.google.android.car.uid.kitchensink </package>
+  </safeToKillPackages>
+
+  <ioOveruseConfiguration>
+    <!-- Default thresholds in MiB for all system packages that don’t have package specific
+         thresholds or app category specific thresholds. -->
+    <componentLevelThresholds>
+      <state id="foreground_mode"> 3072 </state>
+      <state id="background_mode"> 2048 </state>
+      <state id="garage_mode"> 4096 </state>
+    </componentLevelThresholds>
+
+    <!-- Package specific thresholds. -->
+    <!-- Kitchensink app tests package warning/killing on overuse and requires less threshold so it
+         can test the implementation with less amount of writes. However, it shouldn't be killed
+         often when running other tests.-->
+    <packageSpecificThresholds>
+      <perStateThreshold id="shared:com.google.android.car.uid.kitchensink">
+        <state id="foreground_mode"> 512 </state>
+        <state id="background_mode"> 512 </state>
+        <state id="garage_mode"> 512 </state>
+      </perStateThreshold>
+    </packageSpecificThresholds>
+
+    <!-- List of system-wide disk I/O overuse alert thresholds. -->
+    <systemWideThresholds>
+      <!-- 1GiB written in 30 seconds -->
+      <alertThreshold>
+        <param id="duration_seconds"> 30 </param>
+        <param id="written_bytes_per_second"> 35791394 </param>
+      </alertThreshold>
+      <!-- 500MiB written in 10 seconds -->
+      <alertThreshold>
+        <param id="duration_seconds"> 10 </param>
+        <param id="written_bytes_per_second"> 52428800 </param>
+      </alertThreshold>
+    </systemWideThresholds>
+  </ioOveruseConfiguration>
+</resourceOveruseConfiguration>

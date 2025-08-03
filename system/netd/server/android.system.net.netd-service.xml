@@ -1,0 +1,7 @@
+<manifest version="1.0" type="framework">
+    <hal format="aidl">
+        <name>android.system.net.netd</name>
+        <version>1</version>
+        <fqname>INetd/default</fqname>
+    </hal>
+</manifest>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+<FrameLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/frameLayoutCBS">
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:id="@+id/frameLayout3"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".CBS">
+  <TextView
+      android:id="@+id/textView3"
+      android:layout_width="342dp"
+      android:layout_height="49dp"
+      android:text="@string/cbs_title"
+      tools:layout_editor_absoluteX="19dp"
+      tools:layout_editor_absoluteY="7dp" />
+  <Button
+      android:id="@+id/requestcbs"
+      android:layout_width="186dp"
+      android:layout_height="57dp"
+      android:layout_marginTop="164dp"
+      android:text="@string/request_network"
+      app:layout_constraintTop_toTopOf="parent"
+      tools:layout_editor_absoluteX="112dp" />
+  <Button
+      android:id="@+id/releasecbs"
+      android:layout_width="187dp"
+      android:layout_height="61dp"
+      android:layout_marginTop="124dp"
+      android:text="@string/release_network"
+      app:layout_constraintTop_toBottomOf="@+id/requestcbs"
+      tools:layout_editor_absoluteX="119dp" />
+  <Button
+      android:id="@+id/pingcbs"
+      android:layout_width="186dp"
+      android:layout_height="55dp"
+      android:text="@string/ping"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/releasecbs"
+      tools:layout_editor_absoluteX="120dp" />
+</androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>
+</RelativeLayout>

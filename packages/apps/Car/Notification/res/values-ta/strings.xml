@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    Copyright (C) 2018 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label" msgid="5911862216123243843">"கார் அறிவிப்பு நிர்வாகி"</string>
+    <string name="assist_action_play_label" msgid="6278705468288338172">"ப்ளே பண்ணு"</string>
+    <string name="assist_action_reply_label" msgid="6946087036560525072">"பதிலளி"</string>
+    <string name="action_mute_short" msgid="5239851786101022633">"ஒலியடக்கு"</string>
+    <string name="action_mute_long" msgid="6846675719189989477">"உரையாடலை ஒலியடக்கு"</string>
+    <string name="action_unmute_short" msgid="7157822835069715986">"ஒலி எழுப்பு"</string>
+    <string name="action_unmute_long" msgid="22482625837159466">"உரையாடல் அறிவிப்பிற்கு ஒலி எழுப்பு"</string>
+    <string name="action_canned_reply" msgid="4045960823021872834">"\"டிரைவிங்ல இருக்கேன்\"."</string>
+    <string name="canned_reply_message" msgid="7959257272917598063">"டிரைவிங்ல இருக்கேன்."</string>
+    <string name="toast_message_sent_success" msgid="1159956191974273064">"செய்தி அனுப்பப்பட்டது."</string>
+    <string name="notification_service_label" msgid="7512186049723777468">"காருக்கான அறிவிப்பைக் கேட்கும் சேவை"</string>
+    <string name="notifications" msgid="2865534625906329283">"அறிவிப்பு மையம்"</string>
+    <string name="clear_all" msgid="1845314281571237722">"அனைத்தையும் அழி"</string>
+    <string name="ellipsized_string" msgid="6993649229498857557">"…"</string>
+    <string name="show_more" msgid="7291378544926443344">"மேலும் காட்டு"</string>
+    <string name="notification_header" msgid="324550431063568049">"அறிவிப்புகள்"</string>
+    <string name="notification_recents" msgid="5855769440781958546">"சமீபத்தியவை"</string>
+    <string name="notification_older" msgid="8162161020296499690">"பழைய அறிவிப்புகள்"</string>
+    <string name="empty_notification_header" msgid="4928379791607839720">"அறிவிப்புகள் ஏதுமில்லை"</string>
+    <string name="collapse_group" msgid="3487426973871208501">"குறைவாகக் காட்டு"</string>
+    <string name="show_more_from_app" msgid="4270626118092846628">"<xliff:g id="APP">%2$s</xliff:g> ஆப்ஸில் மேலும் <xliff:g id="COUNT">%1$d</xliff:g> அறிவிப்புகள்"</string>
+    <string name="show_count_more" msgid="480555295700318609">"மேலும் <xliff:g id="COUNT">%d</xliff:g> காட்டு"</string>
+    <plurals name="message_unshown_count" formatted="false" msgid="2454776257150137504">
+      <item quantity="other">மேலும் <xliff:g id="COUNT_1">%d</xliff:g> மெசேஜ்கள்</item>
+      <item quantity="one">மேலும் <xliff:g id="COUNT_0">%d</xliff:g> மெசேஜ்</item>
+    </plurals>
+    <plurals name="restricted_numbered_message_content" formatted="false" msgid="232398073855919710">
+      <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> புதிய மெசேஜ்கள்</item>
+      <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> புதிய மெசேஜ்</item>
+    </plurals>
+    <string name="see_more_message" msgid="6343183827924395955">"மேலும் காட்டு"</string>
+    <string name="restricted_hun_message_content" msgid="631111937988857716">"புதிய மெசேஜ்"</string>
+    <string name="manage_text" msgid="4225197445283791757">"நிர்வகிக்கவும்"</string>
+    <string name="category_navigation" msgid="4406139232918521087">"வழிசெலுத்தல்"</string>
+    <string name="category_call" msgid="2249490790700877973">"அழைப்பு"</string>
+    <string name="category_message" msgid="451360226248504859">"மெசேஜ்"</string>
+    <string name="hun_suppression_channel_name" msgid="8298850157350352525">"வழி மீது விழி அம்சத்தைத் தடுத்தல்"</string>
+    <string name="hun_suppression_notification_title_park" msgid="2790860076784227523">"சமீபத்திய அறிவிப்புகளை உடனுக்குடன் தெரிந்துகொள்ளுங்கள்"</string>
+    <string name="hun_suppression_notification_title_drive" msgid="4403363470548899844">"வாகனம் ஓட்டுவதில் கவனம் செலுத்துங்கள்"</string>
+    <string name="hun_suppression_notification_description" msgid="5269238832987802104">"அறிவிப்பு மையத்தில் சில புதிய அறிவிப்புகள் சேமிக்கப்பட்டுள்ளன"</string>
+</resources>

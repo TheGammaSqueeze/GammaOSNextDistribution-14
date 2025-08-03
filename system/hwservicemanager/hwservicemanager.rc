@@ -1,0 +1,15 @@
+service hwservicemanager /system/system_ext/bin/hwservicemanager
+    user system
+    disabled
+    group system readproc
+    critical
+    onrestart setprop hwservicemanager.ready false
+    onrestart class_restart --only-enabled main
+    onrestart class_restart --only-enabled hal
+    onrestart class_restart --only-enabled early_hal
+    task_profiles ServiceCapacityLow HighPerformance
+    class animation
+    shutdown critical
+
+on property:hwservicemanager.disabled=true
+    stop hwservicemanager

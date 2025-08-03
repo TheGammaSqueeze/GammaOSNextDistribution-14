@@ -1,0 +1,25 @@
+<!--
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="60dp"
+        android:height="24dp"
+        android:viewportWidth="44"
+        android:viewportHeight="14">
+    <path
+        android:pathData="m 22.000008,13.059101 20.4472,-10.2235994 c 0.494,-0.247 0.6942,-0.8476 0.4472,-1.3416 -0.247,-0.49399998 -0.8476,-0.69419998 -1.3416,-0.4472 L 22.000008,10.823101 2.4472279,1.0467016 c -0.49398,-0.24699998 -1.09466,-0.0468 -1.34165,0.4472 -0.24698503,0.494 -0.04676,1.0946 0.44722,1.3416 z"
+        android:fillColor="@color/immersive_chevron_icon_color"
+        android:fillType="evenOdd"/>
+</vector>

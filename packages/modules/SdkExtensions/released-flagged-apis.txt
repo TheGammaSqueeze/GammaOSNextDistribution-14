@@ -1,0 +1,77 @@
+# This file contains a list of feature flags whose corresponding API should be
+# included in the next SDK extension. This allows APIs to be released in an SDK
+# extension without removing @FlaggeApi annotations from the source which means
+# those APIs will be hidden from the next QPR release.
+#
+# These flags are converted into command line options that are passed to
+# Metalava when generating API signature files and stubs for SDK snapshots for
+# previous dessert releases, e.g. R, S, Tiramisu, etc. and also for the next
+# SDK extension (and eventually Android SDK) release.
+#
+# Flags must only be added to this once they are suitable for release and only
+# immediately before the next SDK extension is to be created. Adding them here
+# before a normal train release will cause additional APIs to be included in
+# that train release.
+#
+# Flags must only be removed from this once the corresponding @FlaggedApi
+# annotations are removed from the source code which can only be done once those
+# features have been approved for general release.
+#
+# Once an SDK extension has been created it will not be possible to use any of
+# the flags in this file in any new @FlaggedApi annotations as otherwise that
+# would cause those APIs to be included in SDK snapshots used by the next train
+# release.
+#
+# The file should be structured in sections with flags in alphabetical order
+# within each section. Each section should be separated from the preceding one
+# by a comment indicating which SDK extension the section relates to.
+
+# Released in SDK Extension #12 - M-2024-05
+# Adservices
+com.android.adservices.flags.ad_id_cache_enabled
+com.android.adservices.flags.adext_data_service_apis_enabled
+com.android.adservices.flags.adservices_enablement_check_enabled
+com.android.adservices.flags.adservices_outcomereceiver_r_api_enabled
+com.android.adservices.flags.enable_adservices_api_enabled
+com.android.adservices.flags.fledge_ad_selection_filtering_enabled
+com.android.adservices.flags.fledge_auction_server_get_ad_selection_data_id_enabled
+com.android.adservices.flags.fledge_custom_audience_auction_server_request_flags_enabled
+com.android.adservices.flags.fledge_server_auction_multi_cloud_enabled
+com.android.adservices.flags.protected_signals_enabled
+com.android.adservices.flags.topics_encryption_enabled
+com.android.adservices.ondevicepersonalization.flags.on_device_personalization_apis_enabled
+protected_signals_enabled
+
+# HealthFitness
+com.android.healthconnect.flags.read_exercise_routes_all_enabled
+
+# Mediaprovider
+com.android.providers.media.flags.access_media_owner_package_name_permission
+com.android.providers.media.flags.pick_ordered_images
+com.android.providers.media.flags.picker_accent_color
+com.android.providers.media.flags.picker_default_tab
+com.android.providers.media.flags.picker_recent_selection
+
+# Tethering
+com.android.net.flags.net_capability_local_network
+com.android.net.flags.nsd_subtypes_support_enabled
+com.android.net.flags.request_restricted_wifi
+com.android.net.flags.support_transport_satellite
+com.android.net.thread.flags.thread_enabled
+
+# Released in SDK Extension #11 - M-2024-02
+# Adservices
+ad_id_cache_enabled
+adservices_enablement_check_enabled
+adservices_outcomereceiver_r_api_enabled
+enable_adext_data_service_apis
+enable_adservices_api_enabled
+topics_encryption_enabled
+
+# Tethering
+com.android.net.flags.basic_background_restrictions_enabled
+com.android.net.flags.support_is_uid_networking_blocked
+
+# Released in SDK Extension #10 - M-2023-11
+# Tethering
+com.android.net.flags.register_nsd_offload_engine_api

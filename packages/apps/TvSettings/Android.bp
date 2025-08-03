@@ -1,0 +1,200 @@
+// Copyright (C) 2014 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Classic TvSettings
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+filegroup {
+    name: "TvSettingsSrc",
+    srcs: [
+        "Settings/src/**/*.java",
+        "Settings/src/**/I*.aidl",
+    ],
+}
+
+android_library {
+    name: "TvSettingsStaticLibs",
+    manifest: "Settings/AndroidManifest-lib.xml",
+    static_libs: [
+        "androidx-constraintlayout_constraintlayout",
+        "androidx.recyclerview_recyclerview",
+        "androidx.preference_preference",
+        "androidx.appcompat_appcompat",
+        "androidx.legacy_legacy-preference-v14",
+        "androidx.leanback_leanback-preference",
+        "androidx.leanback_leanback",
+        "androidx.lifecycle_lifecycle-extensions",
+        "androidx.lifecycle_lifecycle-common-java8",
+        "androidx.annotation_annotation",
+        "statslog-tvsettings",
+        "tvsettings-logtags",
+        "TwoPanelSettingsLib",
+        "zxing-core-1.7",
+        "TvSettingsAPI",
+        "LineagePreferenceLib",
+    ],
+}
+
+android_library {
+    name: "TvSettingsLib",
+    manifest: "Settings/AndroidManifest.xml",
+    srcs: [
+        ":TvSettingsSrc",
+    ],
+    aidl: {
+        local_include_dirs: ["Settings/src"],
+    },
+    resource_dirs: [
+        "Settings/res",
+        "Settings/res-twopanel",
+    ],
+
+    static_libs: [
+        "TvSettingsStaticLibs",
+    ],
+    platform_apis: true,
+    // TODO(b/319716205): re-enable use_resource_processor
+    use_resource_processor: false,
+}
+
+android_app {
+    name: "TvSettings",
+    manifest: "Settings/AndroidManifest.xml",
+    srcs: [
+        ":TvSettingsSrc",
+    ],
+    aidl: {
+        local_include_dirs: ["Settings/src"],
+    },
+    resource_dirs: ["Settings/res"],
+    defaults: ["SettingsLibDefaults"],
+    platform_apis: true,
+    certificate: "platform",
+    system_ext_specific: true,
+    required: ["privapp_whitelist_com.android.tv.settings"],
+    optimize: {
+        proguard_flags_files: ["Settings/proguard.flags"],
+    },
+    privileged: true,
+    static_libs: [
+        "TvSettingsStaticLibs",
+    ],
+    // TODO(b/319716205): re-enable use_resource_processor
+    use_resource_processor: false,
+}
+
+android_app {
+    name: "TvSettingsDebug",
+    manifest: "Settings/AndroidManifest-debug.xml",
+    additional_manifests: [
+        "Settings/AndroidManifest.xml",
+    ],
+    srcs: [
+        ":TvSettingsSrc",
+    ],
+    aidl: {
+        local_include_dirs: ["Settings/src"],
+    },
+    resource_dirs: ["Settings/res"],
+    defaults: ["SettingsLibDefaults"],
+    platform_apis: true,
+    certificate: "platform",
+    system_ext_specific: true,
+    required: ["privapp_whitelist_com.android.tv.settings"],
+    optimize: {
+        proguard_flags_files: ["Settings/proguard.flags"],
+    },
+    privileged: true,
+    static_libs: [
+        "TvSettingsStaticLibs",
+    ],
+    // TODO(b/319716205): re-enable use_resource_processor
+    use_resource_processor: false,
+}
+
+// Two-panel TvSettings
+android_app {
+    name: "TvSettingsTwoPanel",
+    manifest: "Settings/AndroidManifest.xml",
+    srcs: [
+        ":TvSettingsSrc",
+    ],
+    aidl: {
+        local_include_dirs: ["Settings/src"],
+    },
+    // Resources in res-twopanel should be applied last so they take precedence
+    resource_dirs: [
+        "Settings/res",
+        "Settings/res-twopanel",
+    ],
+    overrides: ["TvSettings"],
+    defaults: ["SettingsLibDefaults"],
+    platform_apis: true,
+    certificate: "platform",
+    system_ext_specific: true,
+    required: ["privapp_whitelist_com.android.tv.settings"],
+    optimize: {
+        proguard_flags_files: ["Settings/proguard.flags"],
+    },
+    privileged: true,
+    static_libs: [
+        "TvSettingsStaticLibs",
+    ],
+    jacoco: {
+        include_filter: [
+            "com.android.tv.settings.*",
+            "com.android.settingslib.*",
+            "com.android.tv.twopanelsettingsoverlay.*",
+        ],
+    },
+    // TODO(b/319716205): re-enable use_resource_processor
+    use_resource_processor: false,
+}
+
+// Two-panel TvSettings 0 Debug
+android_app {
+    name: "TvSettingsTwoPanelDebug",
+    manifest: "Settings/AndroidManifest-debug.xml",
+    additional_manifests: [
+        "Settings/AndroidManifest.xml",
+    ],
+    srcs: [
+        ":TvSettingsSrc",
+    ],
+    aidl: {
+        local_include_dirs: ["Settings/src"],
+    },
+    // Resources in res-twopanel should be applied last so they take precedence
+    resource_dirs: [
+        "Settings/res",
+        "Settings/res-twopanel",
+    ],
+    overrides: ["TvSettings"],
+    defaults: ["SettingsLibDefaults"],
+    platform_apis: true,
+    certificate: "platform",
+    system_ext_specific: true,
+    required: ["privapp_whitelist_com.android.tv.settings"],
+    optimize: {
+        proguard_flags_files: ["Settings/proguard.flags"],
+    },
+    privileged: true,
+    static_libs: [
+        "TvSettingsStaticLibs",
+    ],
+    // TODO(b/319716205): re-enable use_resource_processor
+    use_resource_processor: false,
+}

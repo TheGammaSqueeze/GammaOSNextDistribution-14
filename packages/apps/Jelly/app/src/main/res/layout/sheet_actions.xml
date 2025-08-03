@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2017 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="180dp"
+    android:orientation="vertical"
+    tools:ignore="UseCompoundDrawables">
+
+    <LinearLayout
+        android:id="@+id/sheetNewTabLayout"
+        style="@style/Theme.Jelly.BottomSheetLayout">
+
+        <ImageView
+            style="@style/Theme.Jelly.BottomSheetIcon"
+            android:contentDescription="@string/menu_in_new_tab"
+            android:src="@drawable/ic_new_tab" />
+
+        <TextView
+            style="@style/Theme.Jelly.BottomSheetText"
+            android:text="@string/menu_in_new_tab" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/sheetShareLayout"
+        style="@style/Theme.Jelly.BottomSheetLayout">
+
+        <ImageView
+            style="@style/Theme.Jelly.BottomSheetIcon"
+            android:contentDescription="@string/menu_share"
+            android:src="@drawable/ic_share" />
+
+        <TextView
+            style="@style/Theme.Jelly.BottomSheetText"
+            android:text="@string/menu_share" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/sheetFavouriteLayout"
+        style="@style/Theme.Jelly.BottomSheetLayout">
+
+        <ImageView
+            style="@style/Theme.Jelly.BottomSheetIcon"
+            android:contentDescription="@string/menu_fav_add"
+            android:src="@drawable/ic_heart_plus" />
+
+        <TextView
+            style="@style/Theme.Jelly.BottomSheetText"
+            android:text="@string/menu_fav_add" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/sheetDownloadLayout"
+        style="@style/Theme.Jelly.BottomSheetLayout"
+        android:visibility="gone">
+
+        <ImageView
+            style="@style/Theme.Jelly.BottomSheetIcon"
+            android:contentDescription="@string/menu_download"
+            android:src="@drawable/ic_download" />
+
+        <TextView
+            style="@style/Theme.Jelly.BottomSheetText"
+            android:text="@string/menu_download" />
+    </LinearLayout>
+</LinearLayout>

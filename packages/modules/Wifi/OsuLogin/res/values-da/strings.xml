@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="8761601515208336125">"OsuLogin"</string>
+    <string name="action_bar_label" msgid="5057300678161244769">"Online registrering"</string>
+    <string name="sign_up_failed" msgid="7134357507175557124">"Registrering mislykkedes"</string>
+</resources>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2017-2021 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <string name="app_name">מקליט</string>
+    <string name="share">שיתוף</string>
+    <string name="stop">עצור</string>
+    <string name="play">נגן</string>
+    <string name="delete">מחק</string>
+    <string name="cancel">ביטול</string>
+    <string name="delete_title">מחיקת הקלטה</string>
+    <string name="sound_notification_title">מקליט שמע</string>
+    <string name="sound_notification_message">אורך השמע: %1$s</string>
+    <string name="sound_recording_title_working">מקליט</string>
+    <string name="sound_last_title">הקלטה אחרונה</string>
+    <string name="sound_channel_title">הקלטת שמע</string>
+    <string name="sound_channel_desc">התראה קבועה בעת הקלטת השמע והתראה בסיום ההקלטה</string>
+    <string name="dialog_permissions_title">הרשאות</string>
+    <string name="dialog_permissions_mic">המקליט זקוק לגישה למיקרופון על מנת להקליט שמע</string>
+    <string name="dialog_permissions_phone">המקליט זקוק לגישה למצב השיחה על מנת למנוע הקלטה בעת חיוג</string>
+    <string name="dialog_permissions_mic_phone">המקליט זקוק לגישה למיקרופון על מנת להקליט שמע, וגישה למצב השיחה על מנת למנוע הקלטה בעת החיוג</string>
+    <string name="dialog_permissions_ask">שאל שוב</string>
+    <string name="dialog_permissions_dismiss">דחה</string>
+    <string name="snack_permissions_no_permission">ההרשאות הנדרשות נדחו, הפעל אותם מההגדרות כדי להתחיל בהקלטה</string>
+    <string name="main_sound_action">הקלט קול</string>
+</resources>

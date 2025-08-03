@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2013-2015 The CyanogenMod Project
+     SPDX-FileCopyrightText: 2017-2024 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Οδηγός εγκατάστασης</string>
+    <string name="next">Επόμενο</string>
+    <string name="skip">Παράλειψη</string>
+    <string name="start">Έναρξη</string>
+    <string name="done">Ολοκληρώθηκε</string>
+    <string name="ok">ΟΚ</string>
+    <string name="loading">Μισό λεπτό\u2026</string>
+    <string name="setup_welcome_message">Καλώς ήλθατε στο <xliff:g id="name" example="LineageOS">%1$s</xliff:g></string>
+    <string name="setup_managed_profile_welcome_message">Ρύθμιση του προφίλ εργασίας σας</string>
+    <string name="emergency_call">Κλήση έκτακτης ανάγκης</string>
+    <string name="accessibility_settings">Ρυθμίσεις προσβασιμότητας</string>
+    <string name="setup_locale">Γλώσσα</string>
+    <string name="sim_locale_changed">Ανιχνεύθηκε %1$s SIM</string>
+    <string name="setup_sim_missing">Η κάρτα SIM λείπει</string>
+    <string name="sim_missing_summary" product="tablet">Δεν εντοπίστηκε κάρτα SIM στο tablet σας. Για να εισάγετε μια κάρτα SIM, διαβάστε τις οδηγίες που συνοδεύουν τη συσκευή σας.</string>
+    <string name="sim_missing_summary" product="default">Δεν εντοπίστηκε κάρτα SIM στο τηλέφωνό σας. Για να εισάγετε μια κάρτα SIM, διαβάστε τις οδηγίες που συνοδεύουν τη συσκευή σας.</string>
+    <string name="setup_datetime">Ημερομηνία &amp; ώρα</string>
+    <string name="date_time_summary">Ορίστε τη ζώνη ώρας σας και προσαρμόστε την τρέχουσα ημερομηνία και ώρα εάν χρειάζεται</string>
+    <string name="setup_current_date">Τρέχουσα ημερομηνία</string>
+    <string name="setup_current_time">Τρέχουσα ώρα</string>
+    <string name="intro_restore_title">Επαναφορά εφαρμογών και δεδομένων</string>
+    <string name="intro_restore_subtitle">Εάν έχετε ένα αντίγραφο ασφαλείας Seedvault από το <xliff:g id="name" example="LineageOS">%s</xliff:g> ή οποιοδήποτε άλλο λειτουργικό σύστημα, μπορείτε να το επαναφέρετε εδώ.</string>
+    <string name="intro_restore_button">Επαναφορά από αντίγραφο ασφαλείας</string>
+    <string name="setup_location">Υπηρεσίες τοποθεσίας</string>
+    <string name="location_access_summary"><b>Επιτρέπει σε εφαρμογές που έχουν ζητήσει την άδειά σας</b> να χρησιμοποιήσουν τις πληροφορίες τοποθεσίας σας. Αυτό μπορεί να περιλαμβάνει την τρέχουσα και τις προηγούμενες τοποθεσίες σας.</string>
+    <string name="location_agps_access_summary">Όταν η τοποθεσία είναι ενεργοποιημένη, <b>λήψη δεδομένων δορυφορικής βοήθειας από το διαδίκτυο</b>, τα οποία μπορούν να βελτιώσουν σημαντικά την απόδοση εκκίνησης GPS.</string>
+    <string name="update_recovery_title">Ενημέρωση Lineage Recovery</string>
+    <string name="update_recovery_description">Ενημέρωση της Lineage Recovery στην πρώτη εκκίνηση μετά από κάθε ενημέρωση.</string>
+    <string name="update_recovery_warning">Η Recovery θα ενημερωθεί μόλις ολοκληρώσετε τη ρύθμιση. Αν θέλετε να κρατήσετε την τρέχουσα recovery, απενεργοποιήστε αυτή την επιλογή.</string>
+    <string name="update_recovery_setting">Ενημέρωση Lineage Recovery παράλληλα με το λειτουργικό σύστημα</string>
+    <string name="update_recovery_full_description"><xliff:g id="recovery_update_description">%1$s</xliff:g>\n<xliff:g id="recovery_update_warning">%2$s</xliff:g></string>
+    <string name="setup_services">Χαρακτηριστικά LineageOS</string>
+    <string name="services_pp_explanation">Οι υπηρεσίες αυτές έχουν σκοπό να επεκτείνουν τις δυνατότητες της συσκευής σας. Τα δεδομένα θα χρησιμοποιηθούν σύμφωνα με την πολιτική απορρήτου του <xliff:g id="name" example="LineageOS">%1$s</xliff:g>.</string>
+    <string name="services_find_privacy_policy">Μπορείτε να διαβάσετε την πολιτική απορρήτου σε μια άλλη συσκευή επισκεπτόμενοι το <xliff:g id="uri" example="https://lineageos.org/legal">%1$s</xliff:g></string>
+    <string name="services_help_improve_cm">Βοηθήστε στη βελτίωση του <xliff:g id="name" example="LineageOS">%s</xliff:g></string>
+    <string name="services_metrics_label"><xliff:g id="name" example="Help improve LineageOS">%1$s</xliff:g> στέλνοντας αυτόματα διαγνωστικά δεδομένα και στατιστικά χρήσης στο <xliff:g id="name" example="LineageOS">%2$s</xliff:g>. Αυτές οι πληροφορίες δε μπορούν να χρησιμοποιηθούν για να σας αναγνωρίσουν και δίνουν ένα χέρι βοηθείας στις ομάδες που εργάζονται σε θέματα όπως η διάρκεια ζωής μπαταρίας, επιδόσεις εφαρμογών και νέα χαρακτηριστικά του <xliff:g id="name" example="LineageOS">%2$s</xliff:g>.</string>
+    <string name="services_os_nav_keys_label"><b>Κάντε χρήση των πλήκτρων πλοήγησης της οθόνης</b> αντί των φυσικών πλήκτρων.</string>
+    <string name="services_full_description"><xliff:g id="pp_explanation">%1$s</xliff:g>\n<xliff:g id="pp_find">%2$s</xliff:g></string>
+    <string name="setup_navigation">Πλοήγηση</string>
+    <string name="navigation_summary">Επιλογή προτιμώμενης μεθόδου πλοήγησης</string>
+    <string name="gesture_navigation">Πλοήγηση με χειρονομίες</string>
+    <string name="two_button_navigation">Πλοήγηση με δύο πλήκτρα</string>
+    <string name="navbar_navigation">Πλοήγηση με τρία πλήκτρα</string>
+    <string name="hide_gesture_hint">Απόκρυψη υποδείξεων πλοήγησης με χειρονομίες</string>
+    <string name="setup_theme">Θέμα</string>
+    <string name="theme_summary">Το Σκούρο θέμα χρησιμοποιεί μαύρο φόντο για να συμβάλλει στην αύξηση της διάρκειας της μπαταρίας σε ορισμένες οθόνες</string>
+    <string name="dark">Σκούρο</string>
+    <string name="light">Ανοιχτόχρωμο</string>
+</resources>

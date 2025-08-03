@@ -1,0 +1,2 @@
+per-file res/values/config_thread.xml = file:platform/packages/modules/Connectivity:main:/thread/OWNERS
+per-file res/values/overlayable.xml = file:platform/packages/modules/Connectivity:main:/thread/OWNERS

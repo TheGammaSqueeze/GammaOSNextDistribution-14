@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="safetyCenterResourcesAppLabel" msgid="4043334186295695930">"সুৰক্ষা কেন্দ্ৰৰ সম্পদ"</string>
+    <string name="lock_screen_sources_title" msgid="3317906280484627707">"ডিভাইচৰ লক"</string>
+    <string name="lock_screen_sources_summary" msgid="7220439741282516496"></string>
+    <string name="lock_screen_title" msgid="4069104894527169877">"স্ক্ৰীন লক"</string>
+    <string name="lock_screen_summary_disabled" msgid="354071230916616692">"এতিয়ালৈকে কোনো তথ্য নাই"</string>
+    <string name="lock_screen_search_terms" msgid="2678486357779794826">"ডিভাইচ লক, স্ক্ৰীন লক, লক স্ক্ৰীন, লকস্ক্ৰীন, পাছৱৰ্ড, পিন, আৰ্হি"</string>
+    <string name="biometrics_title" msgid="5859504610285212938">"বায়’মেট্ৰিক্স"</string>
+    <string name="biometrics_search_terms" msgid="6040319118762671981">"ফিংগাৰপ্ৰিণ্ট, আঙুলি, ফিংগাৰপ্ৰিণ্ট যোগ দিয়ক, মুখাৱয়বৰ দ্বাৰা আনলক, মুখাৱয়ব"</string>
+    <string name="privacy_sources_title" msgid="4061110826457365957">"গোপনীয়তা"</string>
+    <string name="privacy_sources_summary" msgid="4089719981155120864">"ডেশ্বব’ৰ্ড, অনুমতি আৰু নিয়ন্ত্ৰণসমূহ"</string>
+    <string name="permission_usage_title" msgid="3633779688945350407">"গোপনীয়তাৰ ডেশ্বব’ৰ্ড"</string>
+    <string name="permission_usage_summary" msgid="5323079206029964468">"কোনসমূহ এপে শেহতীয়াকৈ অনুমতি ব্যৱহাৰ কৰিছে দেখুৱাওক"</string>
+    <string name="permission_usage_search_terms" msgid="3852343592870257104">"গোপনীয়তা, গোপনীয়তাৰ ডেশ্বব’ৰ্ড"</string>
+    <string name="permission_manager_title" msgid="5277347862821255015">"অনুমতি পৰিচালক"</string>
+    <string name="permission_manager_summary" msgid="8099852107340970790">"আপোনাৰ ডেটালৈ এপৰ এক্সেছ নিয়ন্ত্ৰণ কৰক"</string>
+    <string name="permission_manager_search_terms" msgid="2895147613099694722">"অনুমতি, অনুমতিৰ পৰিচালক"</string>
+    <string name="privacy_controls_title" msgid="5322875777945432395">"গোপনীয়তাৰ নিয়ন্ত্ৰণসমূহ"</string>
+    <string name="privacy_controls_summary" msgid="2402066941190435424">"মাইক্ৰ’ফ’ন, কেমেৰা আৰু অধিকলৈ ডিভাইচৰ এক্সেছ নিয়ন্ত্ৰণ কৰক"</string>
+    <string name="privacy_controls_search_terms" msgid="3774472175934304165">"গোপনীয়তা, গোপনীয়তাৰ নিয়ন্ত্ৰণ"</string>
+    <string name="advanced_title" msgid="8745436380690561172">"অধিক ছেটিং"</string>
+    <string name="advanced_security_title" msgid="1126833338772188155">"সুৰক্ষা সম্পৰ্কীয় অধিক ছেটিং"</string>
+    <string name="advanced_security_summary" msgid="6172253327022425123">"এনক্ৰিপশ্বন, ক্ৰেডেনশ্বিয়েল আৰু বহুতো"</string>
+    <string name="advanced_security_search_terms" msgid="3350609555814362075"></string>
+    <string name="advanced_privacy_title" msgid="1117725225706176643">"গোপনীয়তাৰ অধিক ছেটিং"</string>
+    <string name="advanced_privacy_summary" msgid="2281203390575069543">"স্বয়ংক্ৰিয়ভাৱে পূৰ হোৱা সুবিধা, কাৰ্যকলাপৰ নিয়ন্ত্ৰণসমূহ আৰু বহুতো"</string>
+    <string name="advanced_privacy_search_terms" msgid="5044404599789175222"></string>
+</resources>

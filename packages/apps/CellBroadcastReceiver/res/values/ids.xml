@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--These IDs are defined here so that they could be overlayed by OEMs -->
+    <!--IDs used by CellBroadcastAlertDialog-->
+    <item type="id" name="parentPanel"/>
+    <item type="id" name="topPanel"/>
+    <item type="id" name="titleDividerTop"/>
+    <item type="id" name="title_template"/>
+    <item type="id" name="icon"/>
+    <item type="id" name="alertTitle"/>
+    <item type="id" name="titleDivider"/>
+    <item type="id" name="contentPanel"/>
+    <item type="id" name="scrollView"/>
+    <item type="id" name="message"/>
+    <item type="id" name="pictogramPanel"/>
+    <item type="id" name="pictogramImage"/>
+    <item type="id" name="buttonPanel"/>
+    <item type="id" name="dismissButton"/>
+
+</resources>

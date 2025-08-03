@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Bonyn Gweithgaredd</string>
+    <string name="message_not_supported">Does dim ap a all ymdrin â\'r weithred hon</string>
+    <string name="pip_not_supported">Ni chefnogi Llun o fewn Llun ar y ddyfais hon.</string>
+    <string name="manage_unknown_app_sources_not_supported">Ni chefnogir Rheolaeth Ffynonellau Apiau Anhysbys ar y ddyfais hon</string>
+    <string name="documentsui_not_supported">Ni chefnogir Rheolaeth Ffeiliau ar y ddyfais hon</string>
+    <string name="stub_name">Dim</string>
+</resources>

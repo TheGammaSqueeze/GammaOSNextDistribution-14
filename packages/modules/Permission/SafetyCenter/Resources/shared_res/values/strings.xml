@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- Title for the overall Safety Center status when the user has requested a rescan of their security and privacy signals [CHAR LIMIT=35] -->
+    <string name="scanning_title">Scanning</string>
+
+    <!-- Summary for the overall Safety Center status when we're loading the user security and privacy signals [CHAR LIMIT=60] -->
+    <string name="loading_summary">Checking device settings…</string>
+
+    <!-- Title for the overall Safety Center status when the user security and privacy signals are deemed to be safe [CHAR LIMIT=35] -->
+    <string name="overall_severity_level_ok_title">Looks good</string>
+
+    <!-- Summary for the overall Safety Center status when the user security and privacy signals are deemed to be safe [CHAR LIMIT=60] -->
+    <string name="overall_severity_level_ok_summary">No issues found</string>
+
+    <!-- Summary for the overall Safety Center status when the user security and privacy signals are deemed to be safe, but there are some tip(s) for the user [CHAR LIMIT=60] -->
+    <string name="overall_severity_level_tip_summary">{count, plural,
+        =1      {See recommendation}
+        other   {See recommendations}
+        }</string>
+
+    <!-- Summary for the overall Safety Center status when the user security and privacy signals are deemed to be safe, but some action(s) have been taken on behalf of the user [CHAR LIMIT=60] -->
+    <string name="overall_severity_level_action_taken_summary">{count, plural,
+        =1      {Action taken}
+        other   {Actions taken}
+        }</string>
+
+    <!-- Title for the overall Safety Center status when the user security and privacy signals are deemed to be safe, but the user has settings that may need their review [CHAR LIMIT=35] -->
+    <string name="overall_severity_level_ok_review_title">Review settings</string>
+
+    <!-- Summary for the overall Safety Center status when the user security and privacy signals are deemed to be safe, but the user has settings that may need their review [CHAR LIMIT=60] -->
+    <string name="overall_severity_level_ok_review_summary">Check settings list</string>
+
+    <!-- Title for the overall Safety Center status when the user security and privacy signals could potentially put them at risk [CHAR LIMIT=35] -->
+    <string name="overall_severity_level_device_recommendation_title">Device may be at risk</string>
+
+    <!-- Title for the overall Safety Center status when the user security and privacy signals are putting them at risk [CHAR LIMIT=35] -->
+    <string name="overall_severity_level_critical_device_warning_title">Device is at risk</string>
+
+    <!-- Title for the overall Safety Center status when the user's data could potentially be at risk [CHAR LIMIT=35] -->
+    <string name="overall_severity_level_data_recommendation_title">Your data may be at risk</string>
+
+    <!-- Title for the overall Safety Center status when the user's data is at risk [CHAR LIMIT=35] -->
+    <string name="overall_severity_level_critical_data_warning_title">Your data is at risk</string>
+
+    <!-- Title for the overall Safety Center status when the user's passwords could potentially be at risk (old or unused passwords) [CHAR LIMIT=35] -->
+    <string name="overall_severity_level_passwords_recommendation_title">Passwords compromised (old)</string>
+
+    <!-- Title for the overall Safety Center status when the user's passwords are at risk (new passwords) [CHAR LIMIT=35] -->
+    <string name="overall_severity_level_critical_passwords_warning_title">Passwords compromised (new)</string>
+
+    <!-- Title for the overall Safety Center status when the user's personal safety could potentially be at risk [CHAR LIMIT=35] -->
+    <string name="overall_severity_level_personal_recommendation_title">You may be at risk</string>
+
+    <!-- Title for the overall Safety Center status when the user's personal safety is at risk [CHAR LIMIT=35] -->
+    <string name="overall_severity_level_critical_personal_warning_title">You are at risk</string>
+
+    <!-- Title for the overall Safety Center status when the user security and privacy signals could potentially put their general safety at risk [CHAR LIMIT=35] -->
+    <string name="overall_severity_level_safety_recommendation_title">Potential risks found</string>
+
+    <!-- Title for the overall Safety Center status when the user security and privacy signals are putting their general safety at risk [CHAR LIMIT=35] -->
+    <string name="overall_severity_level_critical_safety_warning_title">Risks found</string>
+
+    <!-- Title for the overall Safety Center status when the user security and privacy signals could potentially put their account at risk [CHAR LIMIT=35] -->
+    <string name="overall_severity_level_account_recommendation_title">Account may be at risk</string>
+
+    <!-- Title for the overall Safety Center status when the user security and privacy signals are putting their account at risk [CHAR LIMIT=35] -->
+    <string name="overall_severity_level_critical_account_warning_title">Account at risk</string>
+
+    <!-- Summary for the overall Safety Center status when the user security and privacy signals contain alerts that could range from minor suggestions to warnings or critical issues. The number of alerts is given as a parameter [CHAR LIMIT=60] -->
+    <string name="overall_severity_n_alerts_summary">{count, plural,
+        =1      {See alert}
+        other   {See alerts}
+        }</string>
+
+    <!-- An error shown to the user when we failed to navigate to a specific page [CHAR LIMIT=50] -->
+    <string name="redirecting_error">Couldn\’t open page</string>
+
+    <!-- An error shown to the user when we failed to resolve an alert that they attempted to resolve directly from the Safety Center screen [CHAR LIMIT=50] -->
+    <string name="resolving_action_error">Couldn\’t resolve alert</string>
+
+    <!-- An error shown to the user when we failed to refresh the status of one or more Safety Center entries. The number of entries is used as a parameter to format the error [CHAR LIMIT=60] -->
+    <string name="refresh_error">{count, plural,
+        =1      {Couldn\’t check setting}
+        other   {Couldn\’t check settings}
+    }</string>
+
+    <!-- The summary for sources supporting work profile shown to the user in quiet mode. [CHAR LIMIT=NONE] -->
+    <string name="work_profile_paused">Work profile is paused</string>
+
+    <!-- The summary shown to the user when a group of related sources in Safety Center all have an unknown status. We expect the status of the sources to eventually update and the summary will change [CHAR LIMIT=NONE] -->
+    <string name="group_unknown_summary">No info yet</string>
+
+    <!-- The name of the group of notification channels where Security and Privacy notifications are posted. [CHAR LIMIT=35] -->
+    <string name="notification_channel_group_name">Security &amp; privacy</string>
+
+    <!-- The name of the notification channel where lower-severity Security and Privacy notifications are posted. These are typically informational notifications and not warnings. [CHAR LIMIT=35] -->
+    <string name="notification_channel_name_information">Recommendations</string>
+
+    <!-- The name of the notification channel where medium-severity Security and Privacy notifications are posted. These notifications are typically warnings. [CHAR LIMIT=35] -->
+    <string name="notification_channel_name_recommendation">Warnings</string>
+
+    <!-- The name of the notification channel where high-severity Security and Privacy notifications are posted. These notifications are typically critical warnings of the highest severity. [CHAR LIMIT=35] -->
+    <string name="notification_channel_name_critical_warning">Critical warnings</string>
+
+    <!-- Summary of the subpage footer used for Safety Center UI tests -->
+    <string name="test_single_source_group_id_footer" translatable="false">Summary text for the footer</string>
+</resources>
+

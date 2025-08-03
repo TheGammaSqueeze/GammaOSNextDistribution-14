@@ -1,0 +1,67 @@
+python_library_host {
+    name: "bluetooth_test",
+    pkg_path: "bluetooth_test",
+    srcs: ["bluetooth_base_test.py"],
+    libs: [
+        "mobly",
+        "utilities"
+    ],
+    data: [
+        // Package the snippet with the mobly test
+        ":AutomotiveSnippet",
+        ":PhoneSnippet",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+}
+
+python_test_host {
+    name: "BluetoothSMSBaseTest",
+    main: "bluetooth_sms_base_test.py",
+    srcs: ["bluetooth_sms_base_test.py"],
+    libs: [
+        "mobly",
+        "utilities",
+        "bluetooth_test"
+    ],
+    test_suites: [
+        "catbox",
+    ],
+    test_options: {
+        unit_test: false,
+    },
+    data: [
+        // Package the snippet with the mobly test
+        ":AutomotiveSnippet",
+        ":PhoneSnippet",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+}
+
+python_library_host {
+    name: "BluetoothSMSTestLibrary",
+    pkg_path: "bluetooth_sms_test",
+    srcs: ["bluetooth_sms_base_test.py"],
+    libs: [
+        "mobly",
+        "utilities",
+        "bluetooth_test"
+    ],
+    data: [
+        // Package the snippet with the mobly test
+        ":AutomotiveSnippet",
+        ":PhoneSnippet",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+}

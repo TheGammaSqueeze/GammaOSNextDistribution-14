@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2006 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label">Kalendaryo</string>
+    <string name="when_label">Kailan</string>
+    <string name="today">Ngayong araw</string>
+    <string name="tomorrow">Bukas</string>
+    <string name="today_at_time_fmt">"Ngayong <xliff:g id="TIME_INTERVAL">%s</xliff:g>"</string>
+    <string name="tomorrow_at_time_fmt">"Bukas ng <xliff:g id="TIME_INTERVAL">%s</xliff:g>"</string>
+    <string name="date_time_fmt">"<xliff:g id="DATE">%1$s</xliff:g>, <xliff:g id="TIME_INTERVAL">%2$s</xliff:g>"</string>
+    <string name="no_title_label">(Walang pamagat)</string>
+    <plurals name="Nminutes">
+        <item quantity="one">1 minuto</item>
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> (na) minuto</item>
+    </plurals>
+    <plurals name="Nmins">
+        <item quantity="one">1 min</item>
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> (na) min</item>
+    </plurals>
+    <plurals name="Nhours">
+        <item quantity="one">1 oras</item>
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> (na) oras</item>
+    </plurals>
+    <plurals name="Ndays">
+        <item quantity="one">1 araw</item>
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> (na) araw</item>
+    </plurals>
+    <string name="show_day_view">"Ipakita ang araw"</string>
+    <string name="agenda_view">"Agenda"</string>
+    <string name="day_view">"Araw"</string>
+    <string name="week_view">"Linggo"</string>
+    <string name="month_view">"Buwan"</string>
+    <string name="event_view">"Tingnan ang kaganapan"</string>
+    <string name="event_create">"Bagong event"</string>
+    <string name="event_edit">"I-edit ang kaganapan"</string>
+    <string name="event_delete">"Tanggalin ang kaganapan"</string>
+    <string name="goto_today">"Ngayong araw"</string>
+    <string name="menu_preferences">"Mga Setting"</string>
+    <string name="search">"Paghahanap"</string>
+    <string name="hide_controls">"Itago ang mga kontrol"</string>
+    <string name="show_controls">"Ipakita ang mga kontrol"</string>
+    <string name="select_synced_calendars_button">Mga kalendaryong isi-sync</string>
+    <string name="hint_what">"Pangalan ng kaganapan"</string>
+    <string name="hint_where">"Lokasyon"</string>
+    <string name="hint_description">"Paglalarawan"</string>
+    <string name="hint_attendees">"Mga Bisita"</string>
+    <string name="creating_event">"Nalikha ang kaganapan."</string>
+    <string name="saving_event">"Na-save ang kaganapan."</string>
+    <string name="empty_event">"Hindi nalikha ang walang lamang kaganapan."</string>
+    <string name="creating_event_with_guest">"Magpapadala ng mga imbitasyon."</string>
+    <string name="saving_event_with_guest">"Magpapadala ng mga update."</string>
+    <string name="rsvp_accepted">"Sumagot ng oo."</string>
+    <string name="rsvp_tentative">"Sumagot ng siguro."</string>
+    <string name="rsvp_declined">"Sumagot ng hindi."</string>
+    <string name="create_event_dialog_save">I-save</string>
+    <string name="alert_title">Mga notifcation sa kalendaryo</string>
+    <string name="event_info_title">Tingnan ang kaganapan</string>
+    <string name="event_info_title_invite">Imbitasyon sa meeting</string>
+    <string name="edit_event_all_day_label">Buong araw</string>
+    <string name="edit_event_calendar_label">Kalendaryo</string>
+    <string name="presence_label">Ipakita ako bilang</string>
+    <string name="privacy_label">Privacy</string>
+    <string name="reminders_label">Magdagdag ng paalala</string>
+    <string name="no_syncable_calendars">Walang mga kalendaryo</string>
+    <string name="view_event_calendar_label">Kalendaryo:</string>
+    <string name="view_event_organizer_label">Organizer:</string>
+    <string name="choose_event_color_label">Pumili ng kulay ng kaganapan</string>
+    <string name="event_color_picker_dialog_title">Kulay ng Kaganapan</string>
+    <string name="event_color_set_to_default">Itakda sa default na kulay ng kalendaryo</string>
+    <string name="calendar_color_picker_dialog_title">Kulay ng Kalendaryo</string>
+    <string name="calendar_square_color_picker_description">Tagapili ng kulay</string>
+    <string name="view_event_response_label">Dadalo?</string>
+    <string name="response_yes">Oo</string>
+    <string name="response_maybe">Siguro</string>
+    <string name="response_no">Hindi</string>
+    <string name="email_guests_label">I-email ang mga bisita</string>
+    <string name="email_organizer_label">Tagaayos ng email</string>
+    <string name="email_picker_label">Mag-email gamit ang</string>
+    <string name="event_not_found">"Hindi nahanap ang kaganapan."</string>
+    <string name="map_label">Mapa</string>
+    <string name="call_label">Tumawag</string>
+    <string name="quick_response_settings">Mabilisang tugon</string>
+    <string name="quick_response_settings_summary">Edit default tugon pag email sa mga bisita</string>
+    <string name="quick_response_settings_edit_title">Mabilisang tugon</string>
+    <string name="quick_response_dialog_title">Pumili ng mabilisang tugon</string>
+    <string name="quick_response_email_failed">Nabigong makahanap ng email program</string>
+    <string-array name="quick_response_defaults">
+        <item>Mahuhuli nang ilang minuto lang.</item>
+        <item>Darating na sa loob ng mga 10 minuto.</item>
+        <item>Magsimula na kayo nang wala ako.</item>
+        <item>Paumanhin, hindi ako makakapunta. Kakailanganin nating mag-reschedule.</item>
+    </string-array>
+    <string name="quick_response_custom_msg">Isulat ang iyong sariling…</string>
+    <string name="event_info_organizer">Taga-ayos:</string>
+    <string name="event_info_reminders_label">Mga Paalala</string>
+    <string name="loading">Naglo-load…</string>
+    <string name="show_older_events">Pindutin upang tingnan ang mga kaganapan pagkatapos ng <xliff:g id="OLDEST_SEARCH_RANGE">%1$s</xliff:g></string>
+    <string name="show_newer_events">Pindutin upang tingnan ang mga kaganapan pagkatapos ng <xliff:g id="NEWEST_SEARCH_RANGE">%1$s</xliff:g></string>
+    <string name="search_title">Maghanap sa mga kalendaryo ko</string>
+    <string name="edit_event_label">"Mga Detalye"</string>
+    <string name="edit_label">"I-edit"</string>
+    <string name="delete_label">"Tanggalin"</string>
+    <string name="save_label">Tapos na</string>
+    <string name="discard_label">Kanselahin</string>
+    <string name="dismiss_all_label">"Balewalain lahat"</string>
+    <string name="snooze_label">"I-snooze"</string>
+    <string name="does_not_repeat">Isang-beses na kaganapan</string>
+    <string name="endByDate">; hanggang <xliff:g id="DATE">%s</xliff:g></string>
+    <plurals name="endByCount">
+        <item quantity="one">; isang beses</item>
+        <item quantity="other">; <xliff:g id="NUMBER">%d</xliff:g> (na) beses</item>
+    </plurals>
+    <plurals name="daily">
+        <item quantity="one">Araw-araw</item>
+        <item quantity="other">Bawat <xliff:g id="NUMBER">%d</xliff:g> araw</item>
+    </plurals>
+    <string name="every_weekday">"Tuwing Lunes hanggang Biyernes"</string>
+    <plurals name="weekly">
+        <item quantity="one"><xliff:g id="DAYS_OF_WEEK">%2$s</xliff:g> linggu-linggo</item>
+        <item quantity="other"><xliff:g id="DAYS_OF_WEEK">%2$s</xliff:g> bawat <xliff:g id="NUMBER">%1$d</xliff:g> (na) linggo</item>
+    </plurals>
+    <string name="monthly">Buwan-buwan</string>
+    <string name="yearly_plain">Taun-taon</string>
+    <string name="custom" product="default">"Custom (hindi mako-customize sa telepono)"</string>
+    <string name="modify_event">Baguhin ang kaganapang ito lamang</string>
+    <string name="modify_all">Palitan ang lahat ng kaganapan sa serye</string>
+    <string name="modify_all_following">Baguhin ito at ang lahat ng kaganapan sa hinaharap</string>
+    <string name="new_event_dialog_label">"Bagong kaganapan"</string>
+    <string name="new_event_dialog_option">"Bagong kaganapan"</string>
+    <string name="delete_this_event_title">Tanggalin ang kaganapang ito?</string>
+    <string name="delete_recurring_event_title">Tanggalin ang <xliff:g id="EVENTTITLE">%s</xliff:g>?</string>
+    <string name="change_response_title">Baguhin ang tugon</string>
+    <string name="preferences_title">"Mga Setting"</string>
+    <string name="preferences_general_title">Setting ng pagtingin sa kalendaryo</string>
+    <string name="preferences_reminder_title">Mga notification at paalala</string>
+    <string name="preferences_hide_declined_title">Itago ang mga tinanggihang kaganapan</string>
+    <string name="preferences_week_start_day_title">Magsisimula ang linggo sa</string>
+    <string name="preferences_week_start_day_dialog">Magsisimula ang linggo sa</string>
+    <string name="preferences_clear_search_history_title">I-clear ang kasaysayan ng paghahanap</string>
+    <string name="preferences_clear_search_history_summary">Alisin ang lahat ng paghahanap na iyong naisagawa</string>
+    <string name="search_history_cleared">Na-clear ang kasaysayan ng paghahanap.</string>
+    <string name="preferences_alerts_title">Mga Notification</string>
+    <string name="preferences_alerts_vibrateWhen_title">I-vibrate</string>
+    <string name="preferences_alerts_ringtone_title">Tunog</string>
+    <string name="preferences_alerts_popup_title">Pop-up notification</string>
+    <string name="preferences_default_reminder_title">Default na oras ng paalala</string>
+    <string name="preferences_default_reminder_dialog">Default na oras ng paalala</string>
+    <string name="preferences_default_reminder_default">10</string>
+    <string name="preferences_use_home_tz_title">Gamit home tme zne</string>
+    <string name="preferences_use_home_tz_descrip">Ipakita calendar at event time sa home time zone sa biyahe</string>
+    <string name="preferences_home_tz_title">Home time zone</string>
+    <string name="preferences_show_week_num_title">Ipakita ang numero ng linggo</string>
+    <string name="preferences_build_version">Bumuo ng bersyon</string>
+    <plurals name="month_more_events">
+        <item quantity="one">"+1"</item>
+        <item quantity="other">+<xliff:g id="NUMBER">%d</xliff:g></item>
+    </plurals>
+    <string name="gadget_no_events">Walang mga paparating na kaganapan sa kalendaryo</string>
+    <string name="preferences_experimental_category">Pang-eksperimento</string>
+    <string name="preferences_reminders_responded_label">Laktawan ang Mga Paalala</string>
+    <string name="preferences_reminders_responded_dialog">Laktawan ang Mga Paalala</string>
+    <string name="copy_db">Ipadala ang database</string>
+    <string name="directory_searching_fmt">Naghahanap <xliff:g id="DOMAIN">%s</xliff:g>…</string>
+    <string name="accessibility_remove_attendee">Alisin ang dadalo</string>
+    <string name="accessibility_pick_start_date">Petsa ng pagsisimula</string>
+    <string name="accessibility_pick_start_time">Oras ng pagsisimula</string>
+    <string name="accessibility_pick_end_date">Petsa ng pagtatapos</string>
+    <string name="accessibility_pick_end_time">Oras ng pagtatapos</string>
+    <string name="accessibility_pick_time_zone">Time zone</string>
+    <string name="accessibility_pick_recurrence">Ulitin ang kaganapan</string>
+    <string name="accessibility_add_reminder">Magdagdag ng paalala</string>
+    <string name="accessibility_remove_reminder">Alisin ang paalala</string>
+    <string name="accessibility_add_attendee">Magdagdag ng dadalo</string>
+    <string name="accessibility_all_day">Kaganapang buong araw</string>
+    <string name="accessibility_reminder_time">Oras ng paalala</string>
+    <string name="accessibility_reminder_type">Uri ng paalala</string>
+    <string name="accessibility_reminder_showmeas">Ipakita ako bilang</string>
+    <string name="accessibility_reminder_privacy">Privacy</string>
+    <string name="day_view_new_event_hint">+ Bagong kaganapan</string>
+    <string name="template_announce_item_index">Kaganapan <xliff:g id="ITEM_INDEX">%1$s</xliff:g> ng <xliff:g id="ITEM_COUNT">%2$s</xliff:g>.</string>
+    <plurals name="Nevents">
+        <item quantity="one">1 kaganapan</item>
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> (na) kaganapan</item>
+    </plurals>
+    <plurals name="N_remaining_events">
+        <item quantity="one">+1 kaganapan</item>
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> (na) kaganapan</item>
+    </plurals>
+    <string name="acessibility_selected_marker_description">Piniling kaganapan</string>
+    <plurals name="recurrence_interval_daily">
+        <item quantity="one">Bawat <xliff:g id="COUNT">%d</xliff:g> araw</item>
+        <item quantity="other">Bawat <xliff:g id="COUNT">%d</xliff:g> (na) araw</item>
+    </plurals>
+    <plurals name="recurrence_interval_weekly">
+        <item quantity="one">Bawat <xliff:g id="COUNT">%d</xliff:g> linggo</item>
+        <item quantity="other">Bawat <xliff:g id="COUNT">%d</xliff:g> (na) linggo</item>
+    </plurals>
+    <plurals name="recurrence_interval_monthly">
+        <item quantity="one">Bawat <xliff:g id="COUNT">%d</xliff:g> buwan</item>
+        <item quantity="other">Bawat <xliff:g id="COUNT">%d</xliff:g> (na) buwan</item>
+    </plurals>
+    <plurals name="recurrence_interval_yearly">
+        <item quantity="one">Bawat <xliff:g id="COUNT">%d</xliff:g> taon</item>
+        <item quantity="other">Bawat <xliff:g id="COUNT">%d</xliff:g> (na) taon</item>
+    </plurals>
+    <string name="recurrence_month_pattern_by_day">pareho araw buwanan</string>
+    <string name="recurrence_end_continously">Habambuhay</string>
+    <string name="recurrence_end_date_label">hanggang tukoy na petsa</string>
+    <string name="recurrence_end_date">Hanggang <xliff:g id="DATE">%s</xliff:g></string>
+    <string name="recurrence_end_count_label">sa ilang kaganapan</string>
+    <plurals name="recurrence_end_count">
+        <item quantity="one">Para sa <xliff:g id="EVENT_COUNT">%d</xliff:g> (na) kaganapan</item>
+        <item quantity="other">Para sa <xliff:g id="EVENT_COUNT">%d</xliff:g> (na) kaganapan</item>
+    </plurals>
+    <string name="acessibility_recurrence_choose_end_date_description">baguhin ang petsa ng pagtatapos</string>
+    <string name="cancel">Kanselahin</string>
+</resources>

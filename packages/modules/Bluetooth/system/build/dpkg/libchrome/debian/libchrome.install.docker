@@ -1,0 +1,5 @@
+out/Release/lib/libbase*.so /usr/lib/x86_64-linux-gnu
+out/Release/libbase*.a /usr/lib/x86_64-linux-gnu
+out/Release/obj/libchrome/libchrome*.pc /usr/lib/x86_64-linux-gnu/pkgconfig
+usr/include /usr
+

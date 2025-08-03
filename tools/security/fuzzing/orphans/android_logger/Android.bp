@@ -1,0 +1,18 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_fuzz {
+    name: "android_logger_fuzzer",
+    srcs: ["android_logger_fuzzer.rs"],
+    rustlibs: [
+        "libarbitrary",
+        "libandroid_logger",
+        "liblog_rust",
+    ],
+    fuzz_config: {
+        cc: ["cukie@google.com"],
+        fuzz_on_haiku_device: true,
+        fuzz_on_haiku_host: true,
+    },
+}

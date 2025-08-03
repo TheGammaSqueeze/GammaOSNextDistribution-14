@@ -1,0 +1,22 @@
+package {
+    // http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "DeskClockTests",
+    libs: [
+        "android.test.runner",
+        "android.test.base",
+    ],
+    static_libs: [
+        "junit",
+        "androidx.test.core",
+        "androidx.test.runner",
+        "androidx.test.rules",
+    ],
+    // Include all test java files.
+    srcs: ["src/**/*.java"],
+    platform_apis: true,
+    instrumentation_for: "DeskClock",
+}

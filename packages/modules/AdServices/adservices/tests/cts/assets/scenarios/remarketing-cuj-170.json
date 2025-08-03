@@ -1,0 +1,88 @@
+{
+  "mocks": [
+    {
+      "request": {
+        "path": "bidding",
+        "header": {
+          "x_fledge_buyer_bidding_logic_version": "3"
+        }
+      },
+      "response": {
+        "body": "BiddingLogicV3WithDebugReportingWithRejectReason.js",
+        "header": {
+          "x_fledge_buyer_bidding_logic_version": "3"
+        }
+      }
+    },
+    {
+      "request": {
+        "path": "scoring"
+      },
+      "response": {
+        "body": "ScoringLogicWithRejectReason.js"
+      }
+    },
+    {
+      "request": {
+        "path": "scoring/trusted"
+      },
+      "response": {
+        "body": "ScoringSignals.json"
+      }
+    },
+    {
+      "request": {
+        "path": "bidding/trusted"
+      },
+      "response": {
+        "body": "BiddingSignals.json"
+      }
+    },
+    {
+      "request": {
+        "path": "buyer/reportWin?ca_name=shoes&wb=10.0&madeWb=true&hob=5.0&madeHob=true"
+      },
+      "response": {
+        "body": null
+      },
+      "verify_called": true
+    },
+    {
+      "request": {
+        "path": "buyer/reportLoss?ca_name=shirts&wb=10.0&madeWb=true&hob=0.0&madeHob=false&rejectReason=blocked-by-publisher"
+      },
+      "response": {
+        "body": null
+      },
+      "verify_called": true
+    },
+    {
+      "request": {
+        "path": "seller/reportWin"
+      },
+      "response": {
+        "body": null
+      }
+    },
+    {
+      "request": {
+        "path": "seller/reportLoss"
+      },
+      "response": {
+        "body": null
+      }
+    }
+  ],
+  "substitutions": {
+    "<daily-update-uri>": "{base_url}/bidding/daily",
+    "<ad-render-uri-1>": "{base_url}/render_ad/1",
+    "<ad-render-uri-2>": "{base_url}/render_ad/2",
+    "<buyer-trusted-bidding-uri>": "{base_url}/bidding/trusted",
+    "<buyer-reporting-uri>": "{base_url}/buyer/reportImpression",
+    "<seller-reporting-uri>": "{base_url}/seller/reportImpression",
+    "<buyer-win-debug-reporting-uri>": "{base_url}/buyer/reportWin",
+    "<buyer-loss-debug-reporting-uri>": "{base_url}/buyer/reportLoss",
+    "<seller-win-debug-reporting-uri>": "{base_url}/seller/reportWin",
+    "<seller-loss-debug-reporting-uri>": "{base_url}/seller/reportLoss"
+  }
+}

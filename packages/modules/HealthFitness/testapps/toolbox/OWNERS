@@ -1,0 +1,4 @@
+mridulagarwal@google.com
+magdi@google.com
+
+include platform/packages/modules/common:/MODULES_OWNERS  # see go/mainline-owners-policy

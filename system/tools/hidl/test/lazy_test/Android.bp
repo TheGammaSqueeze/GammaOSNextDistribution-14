@@ -1,0 +1,67 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_tools_hidl_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_tools_hidl_license"],
+}
+
+cc_test {
+    name: "hidl_lazy_test",
+    defaults: ["hidl-gen-defaults"],
+    srcs: ["hidl_lazy_test.cpp"],
+
+    shared_libs: [
+        "libbase",
+        "libcutils",
+        "libhidl-gen-utils",
+        "libhidlbase",
+        "liblog",
+        "libutils",
+    ],
+    static_libs: [
+        "android.hardware.tests.lazy@1.0",
+        "android.hardware.tests.lazy@1.1",
+        "android.hardware.tests.lazy_cb@1.0",
+    ],
+
+    test_suites: ["general-tests"],
+    require_root: true,
+}
+
+cc_binary {
+    name: "hidl_lazy_test_server",
+    system_ext_specific: true,
+
+    vintf_fragments: ["hidl_lazy_test_server.xml"],
+    init_rc: ["hidl_lazy_test_server.rc"],
+
+    srcs: ["hidl_lazy_test_server.cpp"],
+
+    shared_libs: [
+        "android.hardware.tests.lazy@1.0",
+        "android.hardware.tests.lazy@1.1",
+        "android.hardware.tests.lazy_cb@1.0",
+        "libbase",
+        "libhidlbase",
+        "libutils",
+    ],
+}
+
+cc_binary {
+    name: "hidl_lazy_cb_test_server",
+    system_ext_specific: true,
+
+    vintf_fragments: ["hidl_lazy_cb_test_server.xml"],
+    init_rc: ["hidl_lazy_cb_test_server.rc"],
+
+    srcs: ["hidl_lazy_cb_test_server.cpp"],
+
+    shared_libs: [
+        "android.hardware.tests.lazy_cb@1.0",
+        "libbase",
+        "libhidlbase",
+        "libutils",
+    ],
+}

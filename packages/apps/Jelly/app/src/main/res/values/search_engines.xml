@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2017 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+
+    <string-array name="pref_search_engine_entries" translatable="false">
+        <item>Baidu</item>
+        <item>Bing</item>
+        <item>Brave</item>
+        <item>DuckDuckGo</item>
+        <item>Google</item>
+        <item>Yahoo</item>
+        <item>Yandex</item>
+    </string-array>
+
+    <string-array name="pref_search_engine_entryvalues" translatable="false">
+        <item>https://www.baidu.com/s?wd={searchTerms}</item>
+        <item>https://www.bing.com/search?q={searchTerms}</item>
+        <item>https://search.brave.com/search?q={searchTerms}</item>
+        <item>https://duckduckgo.com/?q={searchTerms}</item>
+        <item>https://google.com/search?ie=UTF-8&amp;source=android-browser&amp;q={searchTerms}</item>
+        <item>https://search.yahoo.com/p={searchTerms}</item>
+        <item>https://yandex.com/?q={searchTerms}</item>
+    </string-array>
+</resources>

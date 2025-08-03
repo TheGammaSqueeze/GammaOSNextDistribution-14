@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
+    <!-- Text shown for consent toggle that asks if you want to send system logs[CHAR LIMIT=30] -->
+    <string name="feedback_system_logs_title_text">Include all device logs (system &amp; app)</string>
+    <!-- Informational text shown explaining what is included in System logs [CHAR LIMIT=NONE] -->
+    <string name="feedback_system_logs_legal_text">Sharing all system and app device logs may send Google details like usernames, location, device IDs, and network info. Google uses this info to fix technical issues and enhance services. Learn more at g.co/android/devicelogs.</string>
+    <!-- Text shown for consent toggle that asks if you want to send a bug report [CHAR LIMIT=30] -->
+    <string name="feedback_bugreport_title_text">Include bug report</string>
+    <!-- Informational text shown explaining what is included in a bug report [CHAR LIMIT=NONE] -->
+    <string name="feedback_bugreport_legal_display_text"> The bug report (from %1$s) includes data such as usernames, location, device IDs, and network info in order to help Google understand and fix the issue.</string>
+
+    <!-- Next button text. [CHAR LIMIT=NONE] -->
+    <string name="next">Next</string>
+    <!-- View System Logs button text [CHAR LIMIT=35] -->
+    <string name="feedback_view_system_logs_button_text">View system logs</string>
+    <!-- View Logs System Logs dialog title [CHAR LIMIT=35] -->
+    <string name="feedback_view_logs_dialog_title">System Logs</string>
+    <!-- View Logs System Logs dialog body [CHAR LIMIT=NONE] -->
+    <string name="feedback_view_logs_dialog_body">These logs contain information we\'ll need in order to be able to address your feedback.</string>
+    <!-- Message displayed on the dialog to instruct the user that they can press BACK key to go back. -->
+    <string name="annotated_back_indicator_string">Press BACK button to go back.</string>
+    <!-- Loading text.  -->
+    <string name="loading">Loading</string>
+</resources>

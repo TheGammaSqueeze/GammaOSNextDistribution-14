@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="notification_vpn_connected" msgid="3759650739592615548">"Le VPN est connecté"</string>
+    <string name="notification_vpn_disconnected" msgid="4645099900080931794">"Le VPN est déconnecté"</string>
+    <string name="notification_disclosure_vpn_text" msgid="5776051625744545968">"Via <xliff:g id="VPN_APP">%1$s</xliff:g>"</string>
+    <string name="notification_panel_title" msgid="4172378174173345988">"Notifications"</string>
+    <string name="notification_panel_no_notifications" msgid="7573560690974118175">"Aucune notification"</string>
+    <string name="mic_recording_announcement" msgid="9199688557748836482">"Le micro enregistre…"</string>
+    <string name="camera_recording_announcement" msgid="4749050102986152529">"La caméra enregistre…"</string>
+    <string name="mic_and_camera_recording_announcement" msgid="7601798644300414391">"La caméra et le micro enregistrent…"</string>
+    <string name="mic_stopped_recording_announcement" msgid="4157474758859360138">"Le micro a arrêté l\'enregistrement"</string>
+    <string name="camera_stopped_recording_announcement" msgid="3166793464393034890">"La caméra a arrêté l\'enregistrement"</string>
+    <string name="mic_camera_stopped_recording_announcement" msgid="9131214850816355782">"La caméra et le micro ont arrêté l\'enregistrement"</string>
+    <string name="screen_recording_announcement" msgid="4920957684592383719">"Enregistrement de l\'écran démarré"</string>
+    <string name="screen_stopped_recording_announcement" msgid="4206290782104851906">"Enregistrement de l\'écran arrêté"</string>
+    <string name="media_output_dialog_title" msgid="6307582009756803143">"Sortie audio"</string>
+    <string name="media_output_dialog_other_devices" msgid="3247897577557171573">"Autres appareils"</string>
+    <string name="media_output_dialog_pairing_new" msgid="5488290054300850034">"Associer un autre appareil"</string>
+</resources>

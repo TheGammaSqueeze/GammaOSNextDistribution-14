@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/contact_details_list_item_padding">
+    <RelativeLayout
+        android:id="@+id/address_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_toStartOf="@id/navigation_button_container"
+        android:background="?android:attr/selectableItemBackground">
+        <ImageView
+            android:id="@+id/icon"
+            android:layout_width="@dimen/primary_icon_size"
+            android:layout_height="@dimen/primary_icon_size"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="@dimen/contact_details_icon_margin"
+            android:src="@drawable/ic_place" />
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/icon"
+            android:layout_alignParentEnd="true"
+            style="@style/TextAppearance.ContactDetailsListTitle"/>
+
+        <TextView
+            android:id="@+id/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/title"
+            android:layout_toEndOf="@id/icon"
+            android:singleLine="true"
+            style="@style/TextAppearance.ContactDetailsListSubtitle" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/navigation_button_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:layout_alignTop="@id/address_button"
+        android:layout_alignBottom="@id/address_button"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="@dimen/contact_details_icon_margin">
+
+        <View
+            android:id="@+id/divider"
+            android:layout_width="@dimen/list_divider_width"
+            android:layout_height="@dimen/list_divider_height"
+            android:background="@color/divider_color"
+            android:layout_alignParentStart="true"/>
+
+        <ImageView
+            android:id="@+id/navigation_button"
+            android:layout_width="@dimen/contact_details_list_item_icon_width"
+            android:layout_height="@dimen/contact_details_list_item_icon_height"
+            android:src="@drawable/ic_direction"
+            android:scaleType="center"
+            android:tint="@color/contact_details_icon_tint"
+            android:background="?android:attr/selectableItemBackground"
+            android:layout_toEndOf="@id/divider"
+            android:layout_marginStart="@dimen/contact_details_icon_margin"/>
+    </RelativeLayout>
+</RelativeLayout>

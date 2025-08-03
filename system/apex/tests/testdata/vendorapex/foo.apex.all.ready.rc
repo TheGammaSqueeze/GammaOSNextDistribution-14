@@ -1,0 +1,2 @@
+on property:apex.all.ready=true
+    setprop vendor.test.apex.all.ready triggered

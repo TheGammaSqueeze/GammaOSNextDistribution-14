@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="2326164424236203271">"புளூடூத்"</string>
+    <string name="permlab_bluetoothShareManager" msgid="5297865456717871041">"பதிவிறக்க நிர்வாகியை அணுகவும்."</string>
+    <string name="permdesc_bluetoothShareManager" msgid="1588034776955941477">"BluetoothShare நிர்வாகியை அணுகுவதற்குப் ஆப்ஸை அனுமதித்து,  ஃபைல்களைப் பரிமாற்ற அதைப் பயன்படுத்துகிறது."</string>
+    <string name="permlab_bluetoothAcceptlist" msgid="5785922051395856524">"புளூடூத் சாதன அணுகல் ஏற்புப்பட்டியல்."</string>
+    <string name="permdesc_bluetoothAcceptlist" msgid="259308920158011885">"புளூடூத் சாதனத்தைத் தற்காலிகமாக ஏற்புப் பட்டியலில் சேர்க்க ஆப்ஸை அனுமதிக்கிறது, பயனரின் உறுதிப்படுத்தலின்றி ஃபைல்களை இந்தச் சாதனத்திற்கு அனுப்பலாம்."</string>
+    <string name="bt_share_picker_label" msgid="7464438494743777696">"புளூடூத்"</string>
+    <string name="unknown_device" msgid="2317679521750821654">"அறியப்படாத சாதனம்"</string>
+    <string name="unknownNumber" msgid="1245183329830158661">"அறியப்படாதது"</string>
+    <string name="not_provided" msgid="6938740494380012614">"வழங்கப்படவில்லை"</string>
+    <string name="airplane_error_title" msgid="2570111716678850860">"விமானப் பயன்முறை"</string>
+    <string name="airplane_error_msg" msgid="4853111123699559578">"விமானப் பயன்முறையில் புளூடூத் ஐப் பயன்படுத்த முடியாது."</string>
+    <string name="bt_enable_title" msgid="4484289159118416315"></string>
+    <string name="bt_enable_line1" msgid="8429910585843481489">"புளூடூத் சேவைகளைப் பயன்படுத்த, முதலில் புளூடூத்தை இயக்க வேண்டும்."</string>
+    <string name="bt_enable_line2" msgid="1466367120348920892">"இப்போது புளூடூத்தை இயக்கவா?"</string>
+    <string name="bt_enable_cancel" msgid="6770180540581977614">"ரத்துசெய்"</string>
+    <string name="bt_enable_ok" msgid="4224374055813566166">"இயக்கு"</string>
+    <string name="incoming_file_confirm_title" msgid="938251186275547290">"ஃபைல் பரிமாற்றம்"</string>
+    <string name="incoming_file_confirm_content" msgid="6573502088511901157">"உள்வரும் ஃபைலை ஏற்கவா?"</string>
+    <string name="incoming_file_confirm_cancel" msgid="9205906062663982692">"நிராகரி"</string>
+    <string name="incoming_file_confirm_ok" msgid="5046926299036238623">"ஏற்கிறேன்"</string>
+    <string name="incoming_file_confirm_timeout_ok" msgid="8612187577686515660">"சரி"</string>
+    <string name="incoming_file_confirm_timeout_content" msgid="3221412098281076974">"\"<xliff:g id="SENDER">%1$s</xliff:g>\" இடமிருந்து வரும் ஃபைலை ஏற்கும்போது நேரம் முடிந்தது"</string>
+    <string name="incoming_file_confirm_Notification_title" msgid="5381395500920804895">"உள்வரும் ஃபைல்"</string>
+    <string name="incoming_file_confirm_Notification_content" msgid="2669135531488877921">"<xliff:g id="FILE">%2$s</xliff:g> ஃபைலை அனுப்ப <xliff:g id="SENDER">%1$s</xliff:g> தயாராக உள்ளார்"</string>
+    <string name="notification_receiving" msgid="8445265771083510696">"புளூடூத் பகிர்வு: <xliff:g id="FILE">%1$s</xliff:g> ஐப் பெறுகிறது"</string>
+    <string name="notification_received" msgid="2330252358543000567">"புளூடூத் பகிர்வு: <xliff:g id="FILE">%1$s</xliff:g> பெறப்பட்டது"</string>
+    <string name="notification_received_fail" msgid="9059153354809379374">"புளூடூத் பகிர்வு: <xliff:g id="FILE">%1$s</xliff:g> ஐப் பெறவில்லை"</string>
+    <string name="notification_sending" msgid="8269912843286868700">"புளூடூத் பகிர்வு: <xliff:g id="FILE">%1$s</xliff:g> ஐ அனுப்புகிறது"</string>
+    <string name="notification_sent" msgid="2685202778935769332">"புளூடூத் பகிர்வு: <xliff:g id="FILE">%1$s</xliff:g> அனுப்பப்பட்டது"</string>
+    <string name="notification_sent_complete" msgid="6293391081175517098">"100% முடிந்தது"</string>
+    <string name="notification_sent_fail" msgid="7449832660578001579">"புளூடூத் பகிர்வு: <xliff:g id="FILE">%1$s</xliff:g> ஃபைல் அனுப்பப்படவில்லை"</string>
+    <string name="download_title" msgid="6449408649671518102">"ஃபைல் பரிமாற்றம்"</string>
+    <string name="download_line1" msgid="6449220145685308846">"அனுப்புநர்: \"<xliff:g id="SENDER">%1$s</xliff:g>\""</string>
+    <string name="download_line2" msgid="7634316500490825390">"ஃபைல்: <xliff:g id="FILE">%1$s</xliff:g>"</string>
+    <string name="download_line3" msgid="6722284930665532816">"ஃபைலின் அளவு: <xliff:g id="SIZE">%1$s</xliff:g>"</string>
+    <string name="download_line4" msgid="5234701398884321314"></string>
+    <string name="download_line5" msgid="4124272066218470715">"ஃபைலைப் பெறுகிறது…"</string>
+    <string name="download_cancel" msgid="1705762428762702342">"நிறுத்து"</string>
+    <string name="download_ok" msgid="2404442707314575833">"மறை"</string>
+    <string name="incoming_line1" msgid="6342300988329482408">"அனுப்புநர்"</string>
+    <string name="incoming_line2" msgid="2199520895444457585">"கோப்புப்பெயர்"</string>
+    <string name="incoming_line3" msgid="8630078246326525633">"அளவு"</string>
+    <string name="download_fail_line1" msgid="3149552664349685007">"ஃபைல் பெறப்படவில்லை"</string>
+    <string name="download_fail_line2" msgid="4289018531070750414">"ஃபைல்: <xliff:g id="FILE">%1$s</xliff:g>"</string>
+    <string name="download_fail_line3" msgid="2214989413171231684">"காரணம்: <xliff:g id="REASON">%1$s</xliff:g>"</string>
+    <string name="download_fail_ok" msgid="3272322648250767032">"சரி"</string>
+    <string name="download_succ_line5" msgid="1720346308221503270">"ஃபைல் பெறப்பட்டது"</string>
+    <string name="download_succ_ok" msgid="7488662808922799824">"திற"</string>
+    <string name="upload_line1" msgid="1912803923255989287">"பெறுநர்: \"<xliff:g id="RECIPIENT">%1$s</xliff:g>\""</string>
+    <string name="upload_line3" msgid="5964902647036741603">"ஃபைல் வகை: <xliff:g id="TYPE">%1$s</xliff:g> (<xliff:g id="SIZE">%2$s</xliff:g>)"</string>
+    <string name="upload_line5" msgid="3477751464103201364">"ஃபைலை அனுப்புகிறது…"</string>
+    <string name="upload_succ_line5" msgid="165979135931118211">"ஃபைல் அனுப்பப்பட்டது"</string>
+    <string name="upload_succ_ok" msgid="6797291708604959167">"சரி"</string>
+    <string name="upload_fail_line1" msgid="7044307783071776426">"\"<xliff:g id="RECIPIENT">%1$s</xliff:g>\" க்கு ஃபைல் அனுப்பப்படவில்லை."</string>
+    <string name="upload_fail_line1_2" msgid="6102642590057711459">"ஃபைல்: <xliff:g id="FILE">%1$s</xliff:g>"</string>
+    <string name="upload_fail_cancel" msgid="1632528037932779727">"மூடு"</string>
+    <string name="bt_error_btn_ok" msgid="2802751202009957372">"சரி"</string>
+    <string name="unknown_file" msgid="3719981572107052685">"அறியப்படாத ஃபைல்"</string>
+    <string name="unknown_file_desc" msgid="9185609398960437760">"இந்த வகையான ஃபைலைக் கையாள எந்தப் பயன்பாடும் இல்லை. \n"</string>
+    <string name="not_exist_file" msgid="5097565588949092486">"ஃபைல் இல்லை"</string>
+    <string name="not_exist_file_desc" msgid="250802392160941265">"ஃபைல் இல்லை. \n"</string>
+    <string name="enabling_progress_title" msgid="5262637688863903594">"காத்திருக்கவும்…"</string>
+    <string name="enabling_progress_content" msgid="685427201206684584">"புளூடூத்தை இயக்குகிறது…"</string>
+    <string name="bt_toast_1" msgid="8791691594887576215">"ஃபைல் பெறப்படும். அறிவிப்புகள் பலகத்தில் செயல்நிலையைப் பார்க்கவும்."</string>
+    <string name="bt_toast_2" msgid="2041575937953174042">"ஃபைல் பெறப்படவில்லை."</string>
+    <string name="bt_toast_3" msgid="3053157171297761920">"\"<xliff:g id="SENDER">%1$s</xliff:g>\" இடமிருந்து ஃபைல் பெறுவது நிறுத்தப்பட்டது"</string>
+    <string name="bt_toast_4" msgid="480365991944956695">"\"<xliff:g id="RECIPIENT">%1$s</xliff:g>\" க்கு ஃபைல் அனுப்பப்படுகிறது"</string>
+    <string name="bt_toast_5" msgid="4818264207982268297">"<xliff:g id="NUMBER">%1$s</xliff:g> ஃபைல்கள்  \"<xliff:g id="RECIPIENT">%2$s</xliff:g>\" க்கு அனுப்பப்படுகின்றன"</string>
+    <string name="bt_toast_6" msgid="8814166471030694787">"\"<xliff:g id="RECIPIENT">%1$s</xliff:g>\" க்கு ஃபைல் அனுப்புவது நிறுத்தப்பட்டது"</string>
+    <string name="bt_sm_2_1_nosdcard" msgid="288667514869424273">"ஃபைலைச் சேமிக்க USB சேமிப்பகத்தில் போதுமான இடம் இல்லை."</string>
+    <string name="bt_sm_2_1_default" msgid="5070195264206471656">"ஃபைலைச் சேமிக்க SD கார்டில் போதுமான இடம் இல்லை."</string>
+    <string name="bt_sm_2_2" msgid="6200119660562110560">"தேவைப்படும் இடம்: <xliff:g id="SIZE">%1$s</xliff:g>"</string>
+    <string name="ErrorTooManyRequests" msgid="5049670841391761475">"மிக அதிகமான கோரிக்கைகள் செயல்படுத்தப்படுகின்றன. பிறகு முயற்சிக்கவும்."</string>
+    <string name="status_pending" msgid="4781040740237733479">"ஃபைல் பரிமாற்றம் இன்னும் தொடங்கவில்லை."</string>
+    <string name="status_running" msgid="7419075903776657351">"ஃபைல் இடமாற்றம் நடைபெறுகிறது."</string>
+    <string name="status_success" msgid="7963589000098719541">"ஃபைல் பரிமாற்றம் வெற்றி."</string>
+    <string name="status_not_accept" msgid="1165798802740579658">"உள்ளடக்கம் ஆதரிக்கப்படவில்லை."</string>
+    <string name="status_forbidden" msgid="4017060451358837245">"இலக்குச் சாதனம் பரிமாற்றத்தைத் தடைசெய்தது."</string>
+    <string name="status_canceled" msgid="8441679418717978515">"பயனர் இடமாற்றத்தை ரத்துசெய்தார்."</string>
+    <string name="status_file_error" msgid="5379018888714679311">"சேமிப்பிடத்தில் சிக்கல்."</string>
+    <string name="status_no_sd_card_nosdcard" msgid="6445646484924125975">"USB சேமிப்பிடம் இல்லை."</string>
+    <string name="status_no_sd_card_default" msgid="8878262565692541241">"SD கார்டு இல்லை. அனுப்பப்பட்ட ஃபைல்களைச் சேமிக்க SD கார்டைச் செருகவும்."</string>
+    <string name="status_connection_error" msgid="8253709700568062220">"இணைப்பு தோல்வி."</string>
+    <string name="status_protocol_error" msgid="3231573735130475654">"கோரிக்கை சரியாக கையாளப்படவில்லை."</string>
+    <string name="status_unknown_error" msgid="314676481744304866">"தெரியாத பிழை."</string>
+    <string name="opp_notification_group" msgid="150067508422520653">"புளூடூத் பகிர்வு"</string>
+    <string name="download_success" msgid="3438268368708549686">"<xliff:g id="FILE_SIZE">%1$s</xliff:g> பெறப்பட்டது."</string>
+    <string name="upload_success" msgid="143787470859042049">"<xliff:g id="FILE_SIZE">%1$s</xliff:g> அனுப்புவது முடிந்தது."</string>
+    <string name="inbound_history_title" msgid="189623888169624862">"உள் இடமாற்றங்கள்"</string>
+    <string name="outbound_history_title" msgid="7614166584551065036">"வெளிச்செல்லும் பரிமாற்றங்கள்"</string>
+    <string name="no_transfers" msgid="740521199933899821">"பரிமாற்ற வரலாற்றில் எதுவுமில்லை."</string>
+    <string name="transfer_clear_dlg_msg" msgid="586117930961007311">"பட்டியலிலிருந்து அனைத்தும் அழிக்கப்படும்."</string>
+    <string name="outbound_noti_title" msgid="2045560896819618979">"புளூடூத் பகிர்வு: அனுப்பியவை"</string>
+    <string name="inbound_noti_title" msgid="3730993443609581977">"புளூடூத் பகிர்வு: பெற்ற ஃபைல்கள்"</string>
+    <string name="noti_caption_unsuccessful" msgid="6679288016450410835">"{count,plural, =1{# அனுப்பப்படவில்லை.}other{# அனுப்பப்படவில்லை.}}"</string>
+    <string name="noti_caption_success" msgid="7652777514009569713">"{count,plural, =1{# அனுப்பப்பட்டது, %1$s}other{# அனுப்பப்பட்டன, %1$s}}"</string>
+    <string name="transfer_menu_clear_all" msgid="3014459758656427076">"பட்டியலை அழி"</string>
+    <string name="transfer_menu_open" msgid="5193344638774400131">"திற"</string>
+    <string name="transfer_menu_clear" msgid="7213491281898188730">"பட்டியலிலிருந்து அழி"</string>
+    <string name="transfer_clear_dlg_title" msgid="128904516163257225">"அழி"</string>
+    <string name="bluetooth_a2dp_sink_queue_name" msgid="7521243473328258997">"பாடல் விவரம்"</string>
+    <string name="bluetooth_map_settings_save" msgid="8309113239113961550">"சேமி"</string>
+    <string name="bluetooth_map_settings_cancel" msgid="3374494364625947793">"ரத்துசெய்"</string>
+    <string name="bluetooth_map_settings_intro" msgid="4748160773998753325">"புளூடூத் வழியாகப் பகிர விரும்பும் கணக்குகளைத் தேர்ந்தெடுக்கவும். இணைக்கும் போது கணக்குகளுக்கான அணுகலை மீண்டும் ஏற்க வேண்டும்."</string>
+    <string name="bluetooth_map_settings_count" msgid="183013143617807702">"மீதமுள்ள ஸ்லாட்கள்:"</string>
+    <string name="bluetooth_map_settings_app_icon" msgid="3501432663809664982">"ஆப்ஸ் ஐகான்"</string>
+    <string name="bluetooth_map_settings_title" msgid="4226030082708590023">"புளூடூத் செய்தி பகிர்தல் அமைப்புகள்"</string>
+    <string name="bluetooth_map_settings_no_account_slots_left" msgid="755024228476065757">"கணக்கைத் தேர்வுசெய்ய முடியாது. ஸ்லாட்கள் எதுவுமில்லை"</string>
+    <string name="bluetooth_connected" msgid="5687474377090799447">"புளூடூத் ஆடியோ இணைக்கப்பட்டது"</string>
+    <string name="bluetooth_disconnected" msgid="6841396291728343534">"புளூடூத் ஆடியோ துண்டிக்கப்பட்டது"</string>
+    <string name="a2dp_sink_mbs_label" msgid="6035366346569127155">"புளூடூத் ஆடியோ"</string>
+    <string name="bluetooth_opp_file_limit_exceeded" msgid="6612109860149473930">"4ஜி.பை.க்கு மேலிருக்கும் ஃபைல்களை இடமாற்ற முடியாது"</string>
+    <string name="bluetooth_connect_action" msgid="2319449093046720209">"புளூடூத் உடன் இணை"</string>
+    <string name="bluetooth_enabled_apm_title" msgid="6914461147844949044">"விமானப் பயன்முறையில் புளூடூத்தை இயக்குதல்"</string>
+    <string name="bluetooth_enabled_apm_message" msgid="6168686193308136881">"நீங்கள் புளூடூத்தை இயக்கத்தில் வைத்திருந்தால், அடுத்த முறை நீங்கள் விமானப் பயன்முறையில் இருக்கும்போது உங்கள் சாதனம் அதை இயக்கத்திலேயே வைத்திருக்கும்"</string>
+    <string name="bluetooth_stays_on_title" msgid="39720820955212918">"புளூடூத் இயக்கத்திலேயே இருக்கும்"</string>
+    <string name="bluetooth_stays_on_message" msgid="3669663452593157737">"உங்கள் சாதனம் விமானப் பயன்முறையில் புளூடூத்தை இயக்கத்திலேயே வைத்திருக்கும். புளூடூத்தை இயக்கத்தில் வைத்திருக்க விரும்பவில்லை எனில் நீங்கள் அதை முடக்கலாம்."</string>
+    <string name="bluetooth_and_wifi_stays_on_title" msgid="5821932798860821244">"வைஃபையும் புளூடூத்தும் இயக்கத்திலேயே இருத்தல்"</string>
+    <string name="bluetooth_and_wifi_stays_on_message" msgid="7848565203843882558">"உங்கள் சாதனம் விமானப் பயன்முறையில் வைஃபையையும் புளூடூத்தையும் இயக்கத்திலேயே வைத்திருக்கும். வைஃபையையும் புளூடூத்தையும் இயக்கத்தில் வைத்திருக்க விரும்பவில்லை எனில் நீங்கள் அவற்றை முடக்கலாம்."</string>
+    <string name="bluetooth_enabled_auto_on_title" msgid="1799541656310353393">"புளூடூத் தானாகவே இயக்கப்பட்டுள்ளது"</string>
+    <string name="bluetooth_enabled_auto_on_message" msgid="1070556457440100730">"புளூடூத் அமைப்புகளில் தானாகவே மீண்டும் தொடங்கப்படுவதை நிலைமாற்றலாம்."</string>
+    <string name="bluetooth_disable_auto_on" msgid="1085026923461565937">"முடக்கு"</string>
+    <string name="bluetooth_notification_group" msgid="7251886707585872194">"புளூடூத் தானியங்கு நிலை மாற்றம்"</string>
+</resources>

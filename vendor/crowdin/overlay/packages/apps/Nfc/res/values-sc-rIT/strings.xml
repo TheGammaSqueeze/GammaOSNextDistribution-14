@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Servìtziu Nfc</string>
+    <string name="nfcUserLabel">Nfc</string>
+    <string name="accessibility_nfc_enabled">NFC ativa.</string>
+    <string name="beam_progress">Trasmissione in intrada...</string>
+    <string name="beam_outgoing">Cumpartzende...</string>
+    <string name="beam_complete">Trasmissione cumpletada</string>
+    <string name="beam_failed">Trasmissione non cumpletada</string>
+    <string name="beam_canceled">Trasmissione cantzellada</string>
+    <string name="cancel">Annulla</string>
+    <string name="beam_handover_not_supported">Su dispositivu de su retzidore non suportat sa tràmuda de archìvios mannos tràmite trasmissione.</string>
+    <string name="beam_try_again">Torra a assotziare is dispositivos</string>
+    <string name="beam_busy">Trasmissione immoes est ocupadu. Proa torra cando est cumpleta sa tràmuda de in antis.</string>
+    <string name="device">dispositivu</string>
+    <string name="connecting_peripheral">Connetende·si <xliff:g id="device_name">%1$s</xliff:g></string>
+    <string name="connected_peripheral">Connètidu <xliff:g id="device_name">%1$s</xliff:g></string>
+    <string name="connect_peripheral_failed">No at fatu a connètere <xliff:g id="device_name">%1$s</xliff:g></string>
+    <string name="disconnecting_peripheral">Disconnetende <xliff:g id="device_name">%1$s</xliff:g></string>
+    <string name="disconnected_peripheral">Disconnètidu <xliff:g id="device_name">%1$s</xliff:g></string>
+    <string name="pairing_peripheral">Assotziende <xliff:g id="device_name">%1$s</xliff:g></string>
+    <string name="pairing_peripheral_failed">No at fatu a assotziare <xliff:g id="device_name">%1$s</xliff:g></string>
+    <string name="failed_to_enable_bt">No at fatu a ativare su Bluetooth</string>
+    <string name="confirm_pairing">Ses seguru chi cheres assotziare su dispositivu Bluetooth <xliff:g id="device_name">%1$s</xliff:g>?</string>
+    <string name="pair_yes">Eja</string>
+    <string name="pair_no">Nono</string>
+    <string name="tap_again_to_pay">Toca torra pro pagare cun <xliff:g id="app">%1$s</xliff:g></string>
+    <string name="tap_again_to_complete">Toca torra pro pagare cun <xliff:g id="app">%1$s</xliff:g></string>
+    <string name="transaction_failure">Custa transatzione no at fatu a si cumpletare cun <xliff:g id="app">%1$s</xliff:g>.</string>
+    <string name="could_not_use_app">No at fatu a impreare <xliff:g id="app">%1$s</xliff:g>.</string>
+    <string name="pay_with">Paga cun</string>
+    <string name="complete_with">Cumpleta cun</string>
+    <string name="default_pay_app_removed">Su servìtziu preferidu tuo pro sa funtzione Toca e Paga est istadu bogadu. Nde boles seberare un\'àteru?\"</string>
+    <string name="ask_nfc_tap">Toca un\'àteru dispositivu pro cumpletare</string>
+    <string name="wifi_connect">Connete</string>
+    <string name="status_unable_to_connect">Non si podet collegare a sa rete</string>
+    <string name="status_wifi_connected">Connètidu</string>
+    <string name="title_connect_to_network">Collega·ti a sa rete</string>
+    <string name="prompt_connect_to_network">Ti boles collegare a sa rete <xliff:g id="network_ssid">%1$s</xliff:g>?</string>
+    <string name="beam_requires_nfc_enabled">Android Beam rechedet su NFC pro èssere ativadu. Ddu boles ativare?</string>
+    <string name="android_beam">Android Beam</string>
+</resources>

@@ -1,0 +1,39 @@
+
+.dex file statistics:
+  file_size                     : 28228
+  data_size                     : 21788
+  link_size                     : 0
+  class_defs_size               : 24
+  string_ids_size               : 459
+  type_ids_size                 : 116
+  proto_ids_size                : 107
+  field_ids_size                : 28
+  method_ids_size               : 217
+  method_handle_ids_size        : 2
+  map_list_size                 : 17
+
+
+.dex IR statistics:
+  strings                       : 458
+  types                         : 116
+  protos                        : 107
+  fields                        : 28
+  encoded_fields                : 23
+  methods                       : 217
+  encoded_methods               : 142
+  classes                       : 24
+  method_handles                : 2
+  type_lists                    : 64
+  code                          : 95
+  debug_info                    : 95
+  encoded_values                : 313
+  encoded_arrays                : 44
+  annotations                   : 49
+  annotation_elements           : 48
+  annotation_sets               : 43
+  annotation_set_ref_lists      : 0
+  annotations_directories       : 16
+  field_annotations             : 2
+  method_annotations            : 28
+  param_annotations             : 0
+

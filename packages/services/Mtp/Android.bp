@@ -1,0 +1,18 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_app {
+    name: "MtpService",
+
+    static_libs: [
+        "androidx.appcompat_appcompat",
+    ],
+    srcs: ["src/**/*.java"],
+    platform_apis: true,
+    certificate: "media",
+    privileged: true,
+    optimize: {
+        proguard_flags_files: ["proguard.flags"],
+    },
+}

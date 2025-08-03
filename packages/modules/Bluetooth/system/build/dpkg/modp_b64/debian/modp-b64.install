@@ -1,0 +1,3 @@
+modp_b64/modp_b64 /usr/include
+out/Release/libmodp_b64.a /usr/lib
+out/Release/obj/modp_b64/libmodp_b64.pc /usr/lib/pkgconfig

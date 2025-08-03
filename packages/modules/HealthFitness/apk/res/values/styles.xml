@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  Copyright (C) 2023 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<resources>
+
+    <!-- REGION TYPOGRAPHY -->
+    <!-- Preference summary large 400/16/24-->
+    <style name="TextAppearance.HealthConnect.SummaryLarge" parent="@style/TextAppearance.PreferenceSummary.SettingsLib">
+        <item name="android:textFontWeight">400</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:lineHeight">24sp</item>
+    </style>
+
+    <!-- Preference summary label 500/14/20/0.25-->
+    <style name="TextAppearance.HealthConnect.Label" parent="@style/TextAppearance.PreferenceSummary.SettingsLib">
+        <item name="android:textFontWeight">500</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineHeight">20sp</item>
+        <item name="android:letterSpacing">0.025</item>
+    </style>
+
+    <!-- Preference summary label 500/14/20-->
+    <style name="TextAppearance.HealthConnect.Label.Compact" parent="@style/TextAppearance.PreferenceSummary.SettingsLib">
+        <item name="android:textFontWeight">500</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineHeight">20sp</item>
+    </style>
+
+    <!-- Preference title 400/18/24-->
+    <style name="TextAppearance.HealthConnect.Headline6" parent="@style/TextAppearance.PreferenceTitle.SettingsLib">
+        <item name="android:textFontWeight">400</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:lineHeight">24sp</item>
+    </style>
+
+    <!-- Preference title headline 4 400/24/32-->
+    <style name="TextAppearance.HealthConnect.Headline4" parent="@style/TextAppearance.PreferenceTitle.SettingsLib">
+        <item name="android:textFontWeight">400</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:lineHeight">32sp</item>
+    </style>
+
+    <!-- Preference title headline 3 400/28/36-->
+    <style name="TextAppearance.HealthConnect.Headline3" parent="@style/TextAppearance.PreferenceTitle.SettingsLib">
+        <item name="android:textFontWeight">400</item>
+        <item name="android:textSize">28sp</item>
+        <item name="android:lineHeight">36sp</item>
+    </style>
+
+    <!-- Preference title headline 2 400/32/40-->
+    <style name="TextAppearance.HealthConnect.Headline2" parent="@style/TextAppearance.PreferenceTitle.SettingsLib">
+        <item name="android:textFontWeight">400</item>
+        <item name="android:textSize">32sp</item>
+        <item name="android:lineHeight">40sp</item>
+    </style>
+
+    <!-- Preference title label small 500/12/15.02-->
+    <style name="TextAppearance.HealthConnect.Label.Small" parent="@style/TextAppearance.PreferenceTitle.SettingsLib">
+        <item name="android:textFontWeight">500</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:lineHeight">15sp</item>
+    </style>
+
+    <!-- Preference title subheader 500/16/24/0.1-->
+    <style name="TextAppearance.HealthConnect.Subheader" parent="@style/TextAppearance.PreferenceTitle.SettingsLib">
+        <item name="android:textFontWeight">500</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:lineHeight">24sp</item>
+        <item name="android:letterSpacing">0.01</item>
+    </style>
+
+    <style name="TextAppearance.HealthConnect.Subheader2" parent="@style/TextAppearance.PreferenceTitle.SettingsLib">
+        <item name="android:textFontWeight">500</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineHeight">20sp</item>
+        <item name="android:letterSpacing">0.025</item>
+    </style>
+
+    <style name="TextAppearance.HealthConnect.Subheader3" parent="@style/TextAppearance.PreferenceTitle.SettingsLib">
+        <item name="android:textFontWeight">400</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineHeight">24sp</item>
+        <item name="android:letterSpacing">0.02</item>
+    </style>
+
+    <style name="TextAppearance.HealthConnect.RouteRequest" parent="@style/TextAppearance.PreferenceTitle.SettingsLib">
+        <item name="android:textFontWeight">500</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:lineHeight">15sp</item>
+    </style>
+
+    <!-- END REGION -->
+
+    <!-- REGION BUTTONS -->
+    <style name="Widget.HealthConnect.DialogButton.Full" parent="@style/Widget.AppCompat.Button">
+        <item name="android:background">@drawable/button_background_filled</item>
+        <item name="android:textColor">?android:attr/textColorPrimaryInverse</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingVertical">@dimen/spacing_small</item>
+        <item name="android:paddingHorizontal">@dimen/spacing_normal</item>
+        <item name="android:minHeight">0dp</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:stateListAnimator">@null</item>
+        <item name="textAllCaps">false</item>
+        <item name="android:textAppearance">?attr/textAppearanceLabel</item>
+    </style>
+
+    <style name="Widget.HealthConnect.DialogButton.Outline" parent="@style/Widget.AppCompat.Button">
+        <item name="android:background">@drawable/button_background_outlined</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+        <item name="android:stateListAnimator">@null</item>
+        <item name="android:layout_marginEnd">@dimen/spacing_small</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingVertical">@dimen/spacing_small</item>
+        <item name="android:paddingHorizontal">@dimen/spacing_normal</item>
+        <item name="android:minHeight">0dp</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="textAllCaps">false</item>
+        <item name="android:textAppearance">?attr/textAppearanceLabel</item>
+    </style>
+
+    <style name="Widget.HealthConnect.Button" parent="@style/Widget.AppCompat.Button">
+        <item name="android:background">@drawable/button_background_filled</item>
+        <item name="android:textColor">?android:attr/textColorPrimaryInverse</item>
+        <item name="android:textAppearance">?attr/textAppearanceLabel</item>
+        <item name="textAllCaps">false</item>
+        <item name="android:stateListAnimator">@null</item>
+    </style>
+
+    <style name="Widget.HealthConnect.Button.Borderless" parent="@style/Widget.AppCompat.Button.Borderless">
+        <item name="textAllCaps">false</item>
+        <item name="android:textAppearance">?attr/textAppearanceLabel</item>
+        <item name="android:textColor">?android:attr/colorAccent</item>
+        <item name="android:background">@drawable/borderless_button_ripple</item>
+    </style>
+
+    <style name="PermissionGrantButtonListMaterial3">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="PermissionGrantButtonTop"
+        parent="@android:style/Widget.DeviceDefault.Button.Borderless.Colored">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">56dp</item>
+        <item name="android:layout_marginTop">2dp</item>
+        <item name="android:layout_marginBottom">2dp</item>
+        <item name="android:background">@drawable/grant_permissions_buttons_top</item>
+        <item name="android:textColor">@android:color/system_neutral1_900</item>
+        <item name="android:textAppearance">?attr/textAppearanceLabel</item>
+    </style>
+
+    <style name="PermissionGrantButtonMid"
+        parent="@android:style/Widget.DeviceDefault.Button.Borderless.Colored">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">56dp</item>
+        <item name="android:layout_marginTop">2dp</item>
+        <item name="android:layout_marginBottom">2dp</item>
+        <item name="android:background">@drawable/grant_permissions_buttons_mid</item>
+        <item name="android:textColor">@android:color/system_neutral1_900</item>
+        <item name="android:textAppearance">?attr/textAppearanceLabel</item>
+    </style>
+
+    <style name="PermissionGrantButtonBottom"
+        parent="@android:style/Widget.DeviceDefault.Button.Borderless.Colored">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">56dp</item>
+        <item name="android:layout_marginTop">2dp</item>
+        <item name="android:layout_marginBottom">2dp</item>
+        <item name="android:textAppearance">?attr/textAppearanceLabel</item>
+        <item name="android:textColor">@android:color/system_neutral1_900</item>
+        <item name="android:background">@drawable/grant_permissions_buttons_bottom</item>
+    </style>
+
+    <!-- END REGION -->
+
+    <!-- REGION DIALOG -->
+    <style name="Theme.HealthConnect.Dialog.Alert" parent="@style/Theme.AlertDialog.SettingsLib">
+        <item name="textAllCaps">false</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.HealthConnect.DialogButton.Full
+        </item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.HealthConnect.DialogButton.Outline
+        </item>
+        <item name="buttonBarStyle">@style/Widget.HealthConnect.Dialog.ButtonBar</item>
+    </style>
+
+    <style name="Widget.HealthConnect.Dialog.ButtonBar" parent="@style/Widget.AppCompat.ButtonBar.AlertDialog">
+        <item name="android:paddingLeft">@dimen/spacing_large</item>
+        <item name="android:paddingRight">@dimen/spacing_large</item>
+        <item name="android:paddingBottom">@dimen/spacing_large</item>
+        <item name="android:clipToPadding">false</item>
+        <!-- TODO (b/274319654): Do not set minHeight manually -->
+        <item name="android:minHeight">@dimen/spacing_page_title</item>
+    </style>
+    <!-- END REGION -->
+
+    <style name="Widget.HealthConnect.CheckBox" parent="@style/Widget.AppCompat.CompoundButton.CheckBox">
+        <item name="android:textAppearance">?attr/textAppearanceSummary</item>
+        <item name="android:textColor">?android:textColorPrimary</item>
+        <item name="android:paddingStart">@dimen/spacing_normal</item>
+        <item name="android:minHeight">?android:attr/listPreferredItemHeight</item>
+        <item name="android:button">@drawable/checkbox_button</item>
+    </style>
+
+    <style name="Widget.HealthConnect.CalendarSpinner" parent="android:style/Widget.Material.Spinner">
+        <item name="android:background">@drawable/spinner_background</item>
+        <item name="android:popupBackground">@drawable/settingslib_spinner_dropdown_background
+        </item>
+        <item name="android:paddingStart">@dimen/spacing_normal</item>
+        <item name="android:paddingEnd">@dimen/spacing_xlarge</item>
+        <item name="android:textColor">@color/spinner_text_color</item>
+        <item name="android:textAppearance">?attr/textAppearanceLabel</item>
+    </style>
+
+    <style name="Widget.HealthConnect.RadioButton.Chip" parent="@style/Widget.AppCompat.CompoundButton.RadioButton">
+        <item name="android:background">@drawable/filter_chip_background</item>
+        <item name="android:minHeight">@dimen/spacing_xlarge</item>
+        <item name="android:paddingVertical">@dimen/spacing_xsmall</item>
+        <item name="android:scrollbars">none</item>
+        <item name="android:paddingStart">@dimen/spacing_small</item>
+        <item name="android:paddingEnd">@dimen/spacing_normal</item>
+        <item name="android:textAppearance">?attr/textAppearanceLabel</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:textColor">@color/filter_chip_selected_text_color</item>
+        <item name="android:layout_marginStart">@dimen/spacing_small</item>
+        <item name="android:foreground">@drawable/filter_chip_button_ripple</item>
+    </style>
+
+    <style name="Widget.HealthConnect.TabLayout" parent="@style/Widget.Material3.TabLayout">
+        <item name="android:background">@android:color/transparent</item>
+        <item name="tabMaxWidth">0dp</item>
+        <item name="tabGravity">fill</item>
+        <item name="tabMode">fixed</item>
+        <item name="tabIndicatorHeight">0dp</item>
+        <item name="tabSelectedTextColor">?android:attr/textColorPrimary</item>
+        <item name="tabTextColor">?android:attr/textColorSecondary</item>
+        <item name="tabBackground">@drawable/tab_background</item>
+        <item name="tabTextAppearance">?attr/textAppearanceSubheader</item>
+    </style>
+
+    <style name="PreferenceCategoryTitleTextStyle.HealthConnect">
+        <item name="android:textAppearance">?attr/preferenceCategoryTitleTextAppearance</item>
+        <item name="android:textColor">?attr/preferenceCategoryTitleTextColor</item>
+    </style>
+</resources>

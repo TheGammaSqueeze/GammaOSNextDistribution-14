@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (c) 2018 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<resources>
+    <!-- CarLauncher Activity values -->
+    <dimen name="launcher_card_corner_radius">32dp</dimen>
+    <!-- Vertical percentage of screen (not occupied by maps to devote to the contextual space
+      (Ex: date time temp) -->
+    <item name="contextual_screen_percentage" type="dimen" format="float">.6</item>
+
+    <!--Used for the space between the top, and bottom of the screen and the content -->
+    <dimen name="vertical_border_size">@*android:dimen/car_padding_1</dimen>
+    <!-- Used for the space between the start, and end of the screen and the content -->
+    <dimen name="horizontal_border_size">@*android:dimen/car_padding_1</dimen>
+    <!-- Margin surrounding fragments on the main activity -->
+    <dimen name="main_screen_widget_margin">16dp</dimen>
+
+    <!-- Card dimensions -->
+    <dimen name="card_width">388dp</dimen>
+
+    <!-- Card Header dimensions -->
+    <dimen name="card_content_margin">24dp</dimen>
+    <dimen name="card_icon_size">36dp</dimen>
+    <dimen name="card_name_margin_start">16dp</dimen>
+
+    <!-- Card Content dimensions -->
+    <dimen name="media_top_margin">24dp</dimen>
+    <dimen name="descriptive_text_only_top_margin">32dp</dimen>
+    <dimen name="descriptive_text_with_controls_top_margin">24dp</dimen>
+    <!-- Percent transparency of the scrim applied to the image used for the card's background as a float between 0 and 1, where 0 applies no darkening scrim-->
+    <dimen name="card_background_scrim_alpha" format="float">0.72</dimen>
+    <!--Blur radius for the RenderEffect for the card's background image as a float, where 0 is not blurred -->
+    <dimen name="card_background_image_blur_radius" format="float">25</dimen>
+
+    <!-- card_content_descriptive_text dimensions -->
+    <dimen name="card_content_image_size">76dp</dimen>
+    <dimen name="card_content_image_margin">16dp</dimen>
+    <dimen name="descriptive_text_margin_top">8dp</dimen>
+    <dimen name="secondary_text_margin_top">0dp</dimen>
+
+    <!-- card_content_text_block dimensions -->
+    <dimen name="text_block_top_margin">24dp</dimen>
+
+    <!-- card_content_button_trio dimensions -->
+    <dimen name="home_card_button_size">44dp</dimen>
+    <dimen name="button_outline_thickness">4dp</dimen>
+    <dimen name="button_tap_target_size">76dp</dimen>
+    <dimen name="button_tap_target_icon_padding">8dp</dimen>
+    <dimen name="button_trio_margin">24dp</dimen>
+
+    <!-- card_content_playback_controls dimensions -->
+    <dimen name="playback_controls_margin">24dp</dimen>
+
+    <!-- card_content_tap_for_more dimensions -->
+    <dimen name="tap_text_margin">24dp</dimen>
+
+    <dimen name="control_bar_padding">0dp</dimen>
+
+    <!-- Recent task -->
+    <dimen name="recent_task_icon_size">48dp</dimen>
+    <dimen name="recent_task_dismiss_button_size">@dimen/recent_task_icon_size</dimen>
+    <dimen name="recent_task_col_space">64dp</dimen>
+    <!-- The fraction that a recent task should move(from its original position) to
+         be considered as swiped -->
+    <item name="recent_task_swiped_threshold" type="dimen" format="float">0.3</item>
+    <!-- Pixel value by with a recent task should move(from its original position) to
+         start a swipe gesture. If the gesture has a smaller change, the gesture is forwarded to
+         other handlers. -->
+    <item name="recent_task_start_swipe_threshold" type="dimen" format="float">5</item>
+    <item name="disabled_recent_task_alpha" type="dimen" format="float">0.35</item>
+    <!--  task width can be calculated using the following formula:
+      available height of thumbnail * width of screen / height of screen between the insets
+      This will allow most task thumbnails to be displayed without cropping. -->
+    <dimen name="recent_task_width_first">1036dp</dimen>
+    <dimen name="recent_task_width">432dp</dimen>
+
+    <!-- Calm mode sizes -->
+    <dimen name="calm_mode_padding_vertical">40dp</dimen>
+    <dimen name="calm_mode_padding_horizontal">12dp</dimen>
+    <dimen name="calm_mode_icon_size_regular">32dp</dimen>
+    <dimen name="calm_mode_icon_size_small">16dp</dimen>
+    <dimen name="calm_mode_icon_margin">24dp</dimen>
+    <dimen name="calm_mode_text_size">24sp</dimen>
+    <dimen name="calm_mode_clock_translationY">40dp</dimen>
+    <dimen name="calm_mode_clock_media_title_margin">-16dp</dimen>
+</resources>

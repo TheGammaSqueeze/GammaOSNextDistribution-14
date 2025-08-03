@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2020 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
+    android:sharedUserId="android.uid.system"
+    package="com.android.car.settings.tests.unit">
+
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.BACKUP"/>
+    <!-- Request legacy Bluetooth permissions on older devices. -->
+    <uses-permission android:name="android.permission.BLUETOOTH"
+                     android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"
+                     android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission android:name="android.permission.BLUETOOTH_PRIVILEGED"/>
+    <uses-permission android:name="android.permission.CAR_VENDOR_EXTENSION"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CLEAR_APP_USER_DATA"/>
+    <uses-permission android:name="android.permission.CONTROL_DISPLAY_UNITS"/>
+    <uses-permission android:name="android.permission.DELETE_CACHE_FILES"/>
+    <uses-permission android:name="android.permission.DUMP"/>
+    <uses-permission android:name="android.permission.FORCE_STOP_PACKAGES"/>
+    <uses-permission android:name="android.permission.GET_ACCOUNTS_PRIVILEGED"/>
+    <uses-permission android:name="android.permission.GET_PACKAGE_SIZE"/>
+    <uses-permission android:name="android.permission.INJECT_EVENTS"/>
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS"/>
+    <uses-permission android:name="android.permission.MANAGE_ROLE_HOLDERS"/>
+    <uses-permission android:name="android.permission.MANAGE_USERS"/>
+    <uses-permission android:name="android.permission.MASTER_CLEAR" />
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"/>
+    <uses-permission android:name="android.permission.NETWORK_SETTINGS" />
+    <uses-permission android:name="android.permission.OVERRIDE_WIFI_CONFIG"/>
+    <uses-permission android:name="android.permission.READ_CONTACTS"/>
+    <uses-permission android:name="android.permission.READ_DISPLAY_UNITS"/>
+    <uses-permission android:name="android.permission.REBOOT"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES"/>
+    <uses-permission android:name="android.permission.SET_PREFERRED_APPLICATIONS"/>
+    <uses-permission android:name="android.permission.START_FOREGROUND"/>
+    <uses-permission android:name="android.permission.STATUS_BAR_SERVICE"/>
+    <uses-permission android:name="android.permission.SUGGEST_MANUAL_TIME_AND_ZONE"/>
+    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS"/>
+    <uses-permission android:name="android.permission.MANAGE_SENSOR_PRIVACY"/>
+    <uses-permission android:name="android.permission.OBSERVE_SENSOR_PRIVACY"/>
+
+    <application
+        android:name="com.android.car.settings.CarSettingsApplication"
+        android:debuggable="true"
+        android:testOnly="true">
+        <uses-library android:name="android.test.runner" />
+
+        <activity
+            android:name="com.android.car.settings.common.SubSettingsActivity"
+            android:theme="@style/CarSettingTheme"
+            android:windowSoftInputMode="adjustPan">
+            <meta-data android:name="com.android.car.settings.SINGLE_PANE" android:value="true"/>
+            <meta-data android:name="distractionOptimized" android:value="true"/>
+        </activity>
+
+        <provider
+            android:name="com.android.car.settings.testutils.TestContentProvider"
+            android:authorities="com.android.car.settings.testutils.TestContentProvider"
+            android:exported="true">
+        </provider>
+
+        <activity
+            android:name="com.android.car.settings.testutils.TestFinishActivity">
+            <meta-data android:name="distractionOptimized" android:value="true"/>
+        </activity>
+
+        <activity
+            android:name="com.android.car.settings.testutils.BaseCarSettingsTestActivity"
+            android:theme="@style/CarSettingTheme"
+            android:windowSoftInputMode="adjustPan">
+            <meta-data android:name="distractionOptimized" android:value="true"/>
+        </activity>
+
+        <activity
+            android:name="com.android.car.settings.testutils.SinglePaneTestActivity"
+            android:theme="@style/CarSettingTheme"
+            android:windowSoftInputMode="adjustPan">
+            <meta-data android:name="com.android.car.settings.SINGLE_PANE" android:value="true"/>
+            <meta-data android:name="distractionOptimized" android:value="true"/>
+        </activity>
+
+        <activity
+            android:name="com.android.car.settings.testutils.DualPaneTestActivity"
+            android:theme="@style/CarSettingTheme"
+            android:windowSoftInputMode="adjustPan">
+            <meta-data android:name="com.android.car.settings.SINGLE_PANE" android:value="false"/>
+            <meta-data android:name="distractionOptimized" android:value="true"/>
+        </activity>
+
+        <activity
+            android:name="com.android.car.settings.common.DualPaneBaseCarSettingsActivityTest$TestDualPaneHomepageActivity"
+            android:theme="@style/CarSettingTheme"
+            android:windowSoftInputMode="adjustPan">
+            <meta-data android:name="com.android.car.settings.SINGLE_PANE" android:value="false"/>
+            <meta-data android:name="distractionOptimized" android:value="true"/>
+        </activity>
+
+        <activity
+            android:name="com.android.car.settings.common.DualPaneBaseCarSettingsActivityTest$TestDualPaneFragmentActivity"
+            android:theme="@style/CarSettingTheme"
+            android:windowSoftInputMode="adjustPan">
+            <meta-data android:name="com.android.car.settings.SINGLE_PANE" android:value="false"/>
+            <meta-data android:name="distractionOptimized" android:value="true"/>
+        </activity>
+
+        <activity
+            android:name="com.android.car.settings.testutils.TestSettingsScreenLockActivity"
+            android:theme="@style/CarSettingTheme"
+            android:windowSoftInputMode="adjustPan">
+            <meta-data android:name="com.android.car.settings.SINGLE_PANE" android:value="true"/>
+            <meta-data android:name="distractionOptimized" android:value="true"/>
+        </activity>
+
+        <activity android:name="com.android.car.settings.notifications.NotificationAccessConfirmationActivity"
+            android:taskAffinity="com.android.car.settings.notifications.NotificationAccessConfirmationActivity"
+            android:theme="@android:style/Theme.DeviceDefault.Light.Dialog.Alert" />
+
+        <activity android:name="com.android.car.settings.notifications.NotificationAccessConfirmationActivityTest$TestActivity"
+            android:taskAffinity="com.android.car.settings.notifications.NotificationAccessConfirmationActivity"
+            android:theme="@android:style/Theme.DeviceDefault.Light.Dialog.Alert" />
+
+        <activity
+            android:name="com.android.car.settings.enterprise.ActionDisabledByAdminActivity"
+            android:theme="@style/ActionDialogTheme">
+        </activity>
+
+        <activity
+            android:name="com.android.car.settings.system.RegulatoryInfoDisplayActivity"
+            android:theme="@style/CarSettingTheme"
+            android:label="@string/regulatory_labels">
+        </activity>
+
+        <activity android:name="com.android.car.settings.admin.NewUserDisclaimerActivity"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+            android:launchMode="singleTask">
+        </activity>
+
+        <activity
+            android:name="com.android.car.settings.bluetooth.TestBluetoothRequestPermissionActivity"
+            android:theme="@style/ActionDialogTheme">
+        </activity>
+
+        <receiver
+            android:name="com.android.car.settings.enterprise.DefaultDeviceAdminReceiver">
+            <meta-data android:name="android.app.device_admin"
+                 android:resource="@xml/empty_device_admin"/>
+        </receiver>
+
+        <receiver
+            android:name="com.android.car.settings.enterprise.FancyDeviceAdminReceiver"
+            android:label="@string/fancy_device_admin_label"
+            android:icon="@drawable/test_icon"
+            android:description="@string/fancy_device_admin_description">
+            <meta-data android:name="android.app.device_admin"
+                 android:resource="@xml/fancy_device_admin"/>
+        </receiver>
+
+    </application>
+
+    <instrumentation android:name="androidx.test.runner.AndroidJUnitRunner"
+                     android:targetPackage="com.android.car.settings.tests.unit"
+                     android:label="Car Settings Unit Tests"/>
+</manifest>

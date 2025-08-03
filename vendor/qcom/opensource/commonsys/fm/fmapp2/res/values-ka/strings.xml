@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (c) 2009, 2011-2013 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2014-2015 The CyanogenMod Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *    * Neither the name of The Linux Foundation nor
+ *      the names of its contributors may be used to endorse or promote
+ *      products derived from this software without specific prior written
+ *      permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NON-INFRINGEMENT ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">FM-რადიო</string>
+    <string name="tx_app_name">FM-გადამცემი</string>
+    <string name="menu_scan_start">მოძიება</string>
+    <string name="menu_scan_stop">ძიების შეწყვეტა</string>
+    <string name="menu_record_start">ჩაწერა</string>
+    <string name="menu_record_stop">ჩაწერის შეწყვეტა</string>
+    <string name="menu_settings">პარამეტრები</string>
+    <string name="menu_sleep">უქმი რეჟიმი</string>
+    <string name="menu_sleep_cancel">უქმი რეჟიმიდან გამოსვლა</string>
+    <string name="menu_all_channels">ყველა არხი</string>
+    <string name="menu_display_tags">ჭდეების ჩვენება</string>
+    <string name="button_text_stop">შეწყვეტა</string>
+    <string name="msg_seeking">მოძიება FM-სადგურის\u2026</string>
+    <string name="msg_scanning">მოძიება ყველა FM-სადგურის\u2026</string>
+    <string name="msg_scanning_pty">იძებნება „<xliff:g id="pty_name">%1$s</xliff:g>“\u2026</string>
+    <string name="msg_search_title"><xliff:g id="frequency_string">%1$s</xliff:g> მჰც</string>
+    <string name="msg_searching_title">მზა პარამეტრების თვითშერჩევა</string>
+    <string name="msg_searching">იძებნება მძლავრი სადგურები მზა პარამეტრების სიის შესადგენად\u2026</string>
+    <string name="msg_noantenna">გთხოვთ, შეაერთოთ ყურსასმენები FM-რადიოს გამოსაყენებლად</string>
+    <string name="dialog_sleep_title">თვითგამორთვის დრო</string>
+    <string name="presetlist_select_name">აირჩიეთ „\'<xliff:g id="presetlist_name">%1$s</xliff:g>“</string>
+    <string name="presetlist_add_new">ახალი სიის დამატება</string>
+    <string name="dialog_presetlist_rename_title">შეიყვანეთ სახელი</string>
+    <string name="presetlist_autoselect_title">თვითშერჩევის დამოწმება</string>
+    <string name="preset_replace">ჩანაცვლება</string>
+    <string name="preset_tune">მომართვა</string>
+    <string name="preset_rename">გადარქმევა</string>
+    <string name="preset_delete">წაშლა</string>
+    <string name="preset_search">მოიძიოს „<xliff:g id="preset_pi">%1$s</xliff:g>“</string>
+    <string name="stat_notif_frequency">„<xliff:g id="frequency">%1$s</xliff:g>“ მჰც</string>
+    <string name="regional_band">სამხარეო დიაპაზონი</string>
+    <string name="regional_band_entry_north_america">ჩრდილოეთი ამერიკა</string>
+    <string name="regional_band_entry_europe">ევროპა</string>
+    <string name="regional_band_entry_japan">იაპონია</string>
+    <string name="regional_band_entry_japan_wide">იაპონია (ფართო)</string>
+    <string name="regional_band_entry_australia">ავსტრალია</string>
+    <string name="regional_band_entry_austria">ავსტრია</string>
+    <string name="regional_band_entry_belgium">ბელგია</string>
+    <string name="regional_band_entry_brazil">ბრაზილია</string>
+    <string name="regional_band_entry_china">ჩინეთი</string>
+    <string name="regional_band_entry_czech_republic">ჩეხეთი</string>
+    <string name="regional_band_entry_denmark">დანია</string>
+    <string name="regional_band_entry_finland">ფინეთი</string>
+    <string name="regional_band_entry_france">საფრანგეთი</string>
+    <string name="regional_band_entry_germany">გერმანია</string>
+    <string name="regional_band_entry_greece">საბერძნეთი</string>
+    <string name="regional_band_entry_hong_kong">ჰონგკონგი</string>
+    <string name="regional_band_entry_india">ინდოეთი</string>
+    <string name="regional_band_entry_indonesia">ინდონეზია</string>
+    <string name="regional_band_entry_ireland">ირლანდია</string>
+    <string name="regional_band_entry_italy">იტალია</string>
+    <string name="regional_band_entry_korea">კორეა</string>
+    <string name="regional_band_entry_mexico">მექსიკა</string>
+    <string name="regional_band_entry_netherlands">ნიდერლანდი</string>
+    <string name="regional_band_entry_new_zealand">ახალი ზელანდია</string>
+    <string name="regional_band_entry_norway">ნორვეგია</string>
+    <string name="regional_band_entry_poland">პოლონეთი</string>
+    <string name="regional_band_entry_portugal">პორტუგალია</string>
+    <string name="regional_band_entry_russia">რუსეთი</string>
+    <string name="regional_band_entry_singapore">სინგაპური</string>
+    <string name="regional_band_entry_slovakia">სლოვაკეთი</string>
+    <string name="regional_band_entry_spain">ესპანეთი</string>
+    <string name="regional_band_entry_switzerland">შვეიცარია</string>
+    <string name="regional_band_entry_sweden">შვედეთი</string>
+    <string name="regional_band_entry_taiwan">ტაივანი</string>
+    <string name="regional_band_entry_turkey">თურქეთი</string>
+    <string name="regional_band_entry_united_kingdom">გაერთიანებული სამეფო</string>
+    <string name="regional_band_entry_united_states">შეერთებული შტატები</string>
+    <string name="regional_band_entry_user_defined">მითითებული დიაპაზონი</string>
+    <string name="regional_band_summary_north_america">ჩრდილოეთ ამერიკა (87.5 მჰც-დან 108.0 მჰც-მდე 200 კჰც ბიჯით)</string>
+    <string name="regional_band_summary_europe">ევროპა (87.5 მჰც-დან 108.0 მჰც-მდე 100 კჰც ბიჯით)</string>
+    <string name="regional_band_summary_japan">იაპონია (76.0 მჰც-დან 90.0 მჰც-მდე 100 კჰც ბიჯით)</string>
+    <string name="regional_band_summary_japan_wide">იაპონია (ფართო) (90.0 მჰც-დან 108.0 მჰც-მდე 50 კჰც ბიჯით)</string>
+    <string name="regional_band_summary_australia">ავსტრალია (87.7 მჰც-დან 108.0 მჰც-მდე 100 კჰც ბიჯით)</string>
+    <string name="regional_band_summary_austria">ავსტრია (87.5 მჰც-დან 108.0 მჰც-მდე 50 კჰც ბიჯით)</string>
+    <string name="regional_band_summary_belgium">ბელგია (87.5 მჰც-დან 108.0 მჰც-მდე 100 კჰც ბიჯით)</string>
+    <string name="regional_band_summary_brazil">ბრაზილია (87.5 მჰც-დან 108.0 მჰც-მდე 200 კჰც ბიჯით)</string>
+    <string name="regional_band_summary_china">ჩინეთი (87.0 მჰც-დან 108.0 მჰც-მდე 100 კჰც ბიჯით)</string>
+    <string name="regional_band_summary_czech_republic">ჩეხეთი (87.5 მჰც-დან 108.0 მჰც-მდე 100 კჰც ბიჯით)</string>
+    <string name="regional_band_summary_denmark">დანია (87.5 მჰც-დან 108.0 მჰც-მდე 50 კჰც ბიჯით)</string>
+    <string name="regional_band_summary_finland">ფინეთი (87.5 მჰც-დან 108.0 მჰც-მდე 100 კჰც ბიჯით)</string>
+    <string name="regional_band_summary_france">საფრანგეთი (87.5 მჰც-დან 108.0 მჰც-მდე 100 კჰც ბიჯით)</string>
+    <string name="regional_band_summary_germany">გერმანია (87.5 მჰც-დან 108.0 მჰც-მდე 50 კჰც ბიჯით)</string>
+    <string name="regional_band_summary_greece">საბერძნეთი (87.5 მჰც-დან 108.0 მჰც-მდე 50 კჰც ბიჯით)</string>
+    <string name="regional_band_summary_hong_kong">ჰონგ-კონგი (87.5 მჰც-დან 108.0 მჰც-მდე 100 კჰც ბიჯით)</string>
+    <string name="regional_band_summary_india">ინდოეთი (87.5 მჰც-დან 108.0 მჰც-მდე 100 კჰც ბიჯით)</string>
+    <string name="regional_band_summary_indonesia">ინდონეზია (87.5 მჰც-დან 108.0 მჰც-მდე 100 კჰც ბიჯით)</string>
+    <string name="regional_band_summary_ireland">ირლანდია (87.5 მჰც-დან 108.0 მჰც-მდე 50 კჰც ბიჯით)</string>
+    <string name="regional_band_summary_italy">იტალია (87.5 მჰც-დან 108.0 მჰც-მდე 50 კჰც ბიჯით)</string>
+    <string name="regional_band_summary_korea">კორეა (87.5 მჰც-დან 108.0 მჰც-მდე 200 კჰც ბიჯით)</string>
+    <string name="regional_band_summary_mexico">მექსიკა (88.1 მჰც-დან 107.9 მჰც-მდე 200 კჰც ბიჯით)</string>
+    <string name="regional_band_summary_netherlands">ნიდერლანდი (87.5 მჰც-დან 108.0 მჰც-მდე 100 კჰც ნაბიჯით)</string>
+    <string name="regional_band_summary_new_zealand">ახალი ზელანდია (88.0 მჰც-დან 107.0 მჰც-მდე 100 კჰც ბიჯით)</string>
+    <string name="regional_band_summary_norway">ნორვეგია (87.5 მჰც-დან 108.0 მჰც-მდე 100 კჰც ბიჯით)</string>
+    <string name="regional_band_summary_poland">პოლონეთი (87.5 მჰც-დან 108.0 მჰც-მდე 100 კჰც ბიჯით)</string>
+    <string name="regional_band_summary_portugal">პორტუგალია (87.5 მჰც-დან 108.0 მჰც-მდე 50 კჰც ბიჯით)</string>
+    <string name="regional_band_summary_russia">რუსეთი (87.5 მჰც-დან 108.0 მჰც-მდე 100 კჰც ბიჯით)</string>
+    <string name="regional_band_summary_singapore">სინგაპური (88.0 მჰც-დან 108.0 მჰც-მდე 100 კჰც ბიჯით)</string>
+    <string name="regional_band_summary_slovakia">სლოვაკეთი (87.5 მჰც-დან 108.0 მჰც-მდე 100 კჰც ბიჯით)</string>
+    <string name="regional_band_summary_spain">ესპანეთი (87.5 მჰც-დან 108.0 მჰც-მდე 100 კჰც ბიჯით)</string>
+    <string name="regional_band_summary_switzerland">შვეიცარია (87.5 მჰც-დან 108.0 მჰც-მდე 100 კჰც ბიჯით)</string>
+    <string name="regional_band_summary_sweden">შვედეთი (87.5 მჰც-დან 108.0 მჰც-მდე 100 კჰც ბიჯით)</string>
+    <string name="regional_band_summary_taiwan">ტაივანი (87.5 მჰც-დან 108.0 მჰც-მდე 100 კჰც ბიჯით)</string>
+    <string name="regional_band_summary_turkey">თურქეთი (87.5 მჰც-დან 108.0 მჰც-მდე 100 კჰც ბიჯით)</string>
+    <string name="regional_band_summary_united_kingdom">გაერთიანებული სამეფო (87.5 მჰც-დან 108.0 მჰც-მდე 100 კჰც ბიჯით)</string>
+    <string name="regional_band_summary_united_states">შეერთებული შტატები (88.1 მჰც-დან 107.9 მჰც-მდე 200 კჰც ბიჯით)</string>
+    <string name="regional_band_summary_user_defined">მითითებული დიაპაზონი</string>
+    <string name="aud_output_mode">ხმის გამოტანის რეჟიმი</string>
+    <string name="audio_type_stereo">სტერეო</string>
+    <string name="audio_type_mono">მონო</string>
+    <string name="record_dur">ჩანაწერის ხანგრძლივობა</string>
+    <string name="auto_select_af">შემნაცვლებელი სიხშირე</string>
+    <string name="settings_revert_defaults_title">ნაგულისხმევზე დაბრუნება</string>
+    <string name="settings_revert_defaults_summary">ყველა პარამეტრის ჩამოყრა</string>
+    <string name="settings_revert_confirm_title">ჩამოყრის დასტური</string>
+    <string name="settings_revert_confirm_msg">შედეგად წაიშლება პროგრამის ყველა მონაცემი, მათ შორის მზა პარამეტრებიც. გსურთ, განაგრძოთ?</string>
+    <string name="no_storage">მიაერთეთ SD-ბარათი, ჩაწერის დაწყებამდე.</string>
+    <string name="preparing_sd">მზადდება SD-ბარათი\u2026</string>
+    <string name="access_sd_fail">SD-ბარათი მიუწვდომელია.</string>
+    <string name="spaceIsLow_content">თქვენი SD-ბარათის თავისუფალი სივრცე იწურება. შეცვალეთ ხარისხის პარამეტრი ან წაშალეთ ზოგიერთი ფაილი ადგილის გამოსათავისუფლებლად.</string>
+    <string name="FMRecording_reach_size_limit">ზომის ზღვარი მიღწეულია.</string>
+    <string name="menu_scan_for_preset">მზა პარამეტრების მონახვა</string>
+    <string name="fm_off">FM გამორთულია.</string>
+    <string name="fm_call">FM ვერ იმუშავებს ზარისას.</string>
+    <string name="alert_dialog_hint">შეიყვანეთ სახელი</string>
+    <string name="search_dialog_title">სადგურების მოძიება</string>
+    <string name="fm_command_timeout_title">ამოწურვის დრო</string>
+    <string name="fm_tune_timeout_msg">პასუხი არ მიღებულა FM-სადგურის გასამართად. ხარვეზის არსებობის შემთხვევაში, გთხოვთ გამორთოთ FM და ხელახლა ჩართოთ.</string>
+    <string name="fm_command_failed_title">FM-მოქმდება ვერ შესრულდა</string>
+    <string name="fm_cmd_failed_msg">FM-მოქმედება ვერ შესრულდა. ხარვეზის არსებობის შემთხვევაში, გთხოვთ გამორთოთ FM და ხელახლა ჩართოთ.</string>
+    <string name="fm_cmd_failed_msg_hdmi">FM-მოქმედება ვერ შესრულდა. FM და HDMI ერთდროულად მხარდაუჭერელია.</string>
+    <string name="fm_cmd_failed_call_on">FM-მოქმედება ვერ შესრულდა. FM-სიგნალი მიუღებელია ზარისას.</string>
+    <string name="audio_db_title_format"><xliff:g id="format">yyyy-MM-dd HH:mm:ss</xliff:g></string>
+    <string name="audio_db_artist_name">ჩემი FM-ჩანაწერები</string>
+    <string name="audio_db_album_name">FM-ჩანაწერები</string>
+    <string name="audio_db_playlist_name">FM-ჩანაწერები</string>
+    <string name="station_name">სადგური:</string>
+    <string name="station_exists">ეს სიხშირე უკვე არსებობს!</string>
+    <string name="station_list_delete_station">წაშლა: <xliff:g id="name">%s</xliff:g></string>
+    <string name="station_list_delete_station_prompt">ნამდვილად გსურთ, წაშალოთ „<xliff:g id="name">%s</xliff:g>“?</string>
+    <string name="station_name_empty">სადგურის სახელი ცარიელია, გთხოვთ, შეიყვანოთ ხელახლა.</string>
+    <string name="station_name_exist">„<xliff:g id="name">%s</xliff:g>“ უკვე გამოიყენება, გთხოვთ, შეიყვანოთ სხვა სახელი.</string>
+    <string name="rt_plus_tags">ჭდეები</string>
+    <string name="usr_def_band_min">უდაბლესი სიხშირე (მჰც)</string>
+    <string name="usr_def_band_max">უმაღლესი სიხშირე (მჰც)</string>
+    <string name="chanl_spacing">არხის ბიჯი</string>
+    <string name="set">დაყენება</string>
+    <string name="user_defind_band_msg">შეიყვანეთ სიხშირე შუალედით 76.0 და 108.0 მჰც სულ მცირე 1 არხისა და 100 კჰც დაშორებით უმცირესსა და უმაღლეს სიხშირეთა შორის.</string>
+    <string name="save_record_file">FM-ჩანაწერის შენახვის ადგილია „<xliff:g id="record_file">%1$s</xliff:g>“</string>
+    <string name="fm_search_no_results">თავსებადი სადგურები ვერ მოიძებნა</string>
+    <string name="typ_All_stations">ყველა სადგური</string>
+    <string name="typ_Culture">კულტურა</string>
+    <string name="typ_Current_affairs">მიმდინარე მოვლენები</string>
+    <string name="typ_Children">საბავშვო</string>
+    <string name="typ_Country">ქანთრი</string>
+    <string name="typ_Documentary">შემეცნებითი</string>
+    <string name="typ_Drama">ამაღელვებელი</string>
+    <string name="typ_Easy_listening">ადვილი მოსასმენი</string>
+    <string name="typ_Education">საგანმანათლებლო</string>
+    <string name="typ_Emergency">საგანგებო</string>
+    <string name="typ_Emergency_test">საგანგებო (შემოწმება)</string>
+    <string name="typ_Finance">ფულადი სახსრები</string>
+    <string name="typ_Folk">ხალხური</string>
+    <string name="typ_Information">ამბები</string>
+    <string name="typ_Jazz">ჯაზი</string>
+    <string name="typ_Light_classical">მსუბუქი კლასიკა</string>
+    <string name="typ_Leisure">გასართობი</string>
+    <string name="typ_News">ახალი ამბები</string>
+    <string name="typ_National">ეროვნული</string>
+    <string name="typ_Other">სხვა</string>
+    <string name="typ_Oldies">ძველებური</string>
+    <string name="typ_Phone_in">სასაუბრო</string>
+    <string name="typ_Pop">პოპულარული</string>
+    <string name="typ_Religion">რწმენა</string>
+    <string name="typ_Rock">როკ-მუსიკა</string>
+    <string name="typ_Science">მეცნიერება</string>
+    <string name="typ_Serious_classical">მკაცრად კლასიკური</string>
+    <string name="typ_Social_affairs">საზოგადოებრივი</string>
+    <string name="typ_Sport">სპორტი</string>
+    <string name="typ_Travel">მოგზაურობა</string>
+    <string name="typ_Varied">სხვადასხვა</string>
+    <string name="typ_Weather">ამინდი</string>
+    <string name="typ_Adult_hits">ზრდასრულთათვის</string>
+    <string name="typ_Classical">კლასიკური</string>
+    <string name="typ_Classic_Rock">კლასიკური როკი</string>
+    <string name="typ_College">სასწავლებლის</string>
+    <string name="typ_Foreign_language">უცხო ენა</string>
+    <string name="typ_Hiphop">ჰიპ-ჰოპი</string>
+    <string name="typ_Nostalgia">მგრძნობიარე</string>
+    <string name="typ_Personality">პირადი</string>
+    <string name="typ_Public">საჯარო</string>
+    <string name="typ_Religious_music">მრწამსი</string>
+    <string name="typ_Religious_talk">საუბრები მრწამსზე</string>
+    <string name="typ_Rhythm_and_Blues">რიტმ-ენდ-ბლუზი</string>
+    <string name="typ_Spanish_music">ესპანური</string>
+    <string name="typ_Spanish_talk">ესპანური საუბრები</string>
+    <string name="typ_Soft">მსუბუქი</string>
+    <string name="typ_Soft_Rock">მსუბუქი როკი</string>
+    <string name="typ_Soft_Rhythm_and_Blues">მსუბუქი რიტმ-ენდ-ბლუზი</string>
+    <string name="typ_Sports">სპორტული</string>
+    <string name="typ_Talk">ლაპარაკი</string>
+    <string name="typ_Top_40">რჩეული 40</string>
+</resources>

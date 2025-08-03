@@ -1,0 +1,62 @@
+// APCT build target for metrics tests
+
+package {
+    default_team: "trendy_team_fwk_core_networking",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_netd_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_netd_license"],
+}
+
+cc_benchmark {
+    name: "netd_benchmark",
+    defaults: [
+        "netd_aidl_interface_lateststable_cpp_static",
+        "netd_defaults",
+    ],
+    shared_libs: [
+        "libbase",
+        "libbinder_ndk",
+        "liblog",
+        "libnetd_client",
+        "libnetdutils",
+        "libutils",
+    ],
+    static_libs: [
+        "libnetd_test_dnsresponder_ndk",
+        "dnsresolver_aidl_interface-lateststable-ndk",
+        "netd_aidl_interface-lateststable-ndk",
+        "netd_event_listener_interface-lateststable-ndk",
+    ],
+    aidl: {
+        include_dirs: ["system/netd/server/binder"],
+    },
+    include_dirs: [
+        "system/netd/include",
+        "system/netd/client",
+        "system/netd/server",
+        "system/netd/server/binder",
+    ],
+    srcs: [
+        "main.cpp",
+        "connect_benchmark.cpp",
+        "dns_benchmark.cpp",
+    ],
+}
+
+cc_benchmark {
+    name: "bpf_benchmark",
+    defaults: ["netd_defaults"],
+    require_root: true,
+    header_libs: ["bpf_headers"],
+    shared_libs: [
+        "libbase",
+        "liblog",
+        "libnetdutils",
+    ],
+    srcs: [
+        "bpf_benchmark.cpp",
+    ],
+}

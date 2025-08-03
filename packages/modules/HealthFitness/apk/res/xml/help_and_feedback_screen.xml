@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (C) 2022 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+  <com.android.settingslib.widget.TopIntroPreference
+      android:key="cant_see_all_your_apps_top_intro"
+      android:title="@string/cant_see_all_your_apps_description"/>
+  <PreferenceCategory
+      android:key="things_to_try"
+      android:title="@string/things_to_try">
+    <com.android.healthconnect.controller.shared.preference.HealthPreference
+        android:key="check_for_updates"
+        android:icon="?attr/checkForUpdatesIcon"
+        android:title="@string/check_for_updates"
+        android:summary="@string/check_for_updates_description" />
+    <com.android.healthconnect.controller.shared.preference.HealthPreference
+        android:key="see_all_compatible_apps"
+        android:icon="?attr/seeAllCompatibleAppsIcon"
+        android:title="@string/see_all_compatible_apps"
+        android:summary="@string/see_all_compatible_apps_description" />
+    <com.android.healthconnect.controller.shared.preference.HealthPreference
+        android:key="send_feedback"
+        android:icon="?attr/sendFeedbackIcon"
+        android:title="@string/send_feedback"
+        android:summary="@string/send_feedback_description" />
+  </PreferenceCategory>
+</PreferenceScreen>

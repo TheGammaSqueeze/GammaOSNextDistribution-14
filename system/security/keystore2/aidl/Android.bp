@@ -1,0 +1,228 @@
+// Copyright 2020, The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_security_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_security_license"],
+}
+
+aidl_interface {
+    name: "android.security.attestationmanager",
+    srcs: ["android/security/attestationmanager/*.aidl"],
+    imports: ["android.hardware.security.keymint-V3"],
+    unstable: true,
+    backend: {
+        java: {
+            platform_apis: true,
+        },
+        rust: {
+            enabled: true,
+        },
+        ndk: {
+            enabled: true,
+            apps_enabled: false,
+        },
+    },
+}
+
+aidl_interface {
+    name: "android.security.authorization",
+    srcs: ["android/security/authorization/*.aidl"],
+    imports: [
+        "android.hardware.security.keymint-V3",
+        "android.hardware.security.secureclock-V1",
+    ],
+    unstable: true,
+    backend: {
+        java: {
+            platform_apis: true,
+        },
+        rust: {
+            enabled: true,
+        },
+        ndk: {
+            enabled: true,
+            apps_enabled: false,
+        },
+    },
+}
+
+aidl_interface {
+    name: "android.security.apc",
+    srcs: ["android/security/apc/*.aidl"],
+    unstable: true,
+    backend: {
+        java: {
+            enabled: true,
+        },
+        rust: {
+            enabled: true,
+        },
+        ndk: {
+            enabled: true,
+        },
+    },
+}
+
+aidl_interface {
+    name: "android.security.compat",
+    srcs: ["android/security/compat/*.aidl"],
+    imports: [
+        "android.hardware.security.keymint-V3",
+        "android.hardware.security.secureclock-V1",
+        "android.hardware.security.sharedsecret-V1",
+    ],
+    unstable: true,
+    backend: {
+        java: {
+            platform_apis: true,
+        },
+        rust: {
+            enabled: true,
+        },
+        ndk: {
+            enabled: true,
+            apps_enabled: false,
+        },
+    },
+}
+
+aidl_interface {
+    name: "android.security.maintenance",
+    srcs: ["android/security/maintenance/*.aidl"],
+    imports: [
+        "android.system.keystore2-V4",
+    ],
+    unstable: true,
+    backend: {
+        java: {
+            platform_apis: true,
+        },
+        rust: {
+            enabled: true,
+        },
+        ndk: {
+            enabled: true,
+            apps_enabled: false,
+        },
+    },
+}
+
+aidl_interface {
+    name: "android.security.legacykeystore",
+    srcs: ["android/security/legacykeystore/*.aidl"],
+    unstable: true,
+    backend: {
+        java: {
+            platform_apis: true,
+        },
+        rust: {
+            enabled: true,
+        },
+        ndk: {
+            enabled: true,
+            apps_enabled: false,
+        },
+    },
+}
+
+aidl_interface {
+    name: "android.security.metrics",
+    srcs: ["android/security/metrics/*.aidl"],
+    imports: [
+        "android.system.keystore2-V4",
+    ],
+    unstable: true,
+    backend: {
+        java: {
+            platform_apis: true,
+        },
+        rust: {
+            enabled: true,
+        },
+        ndk: {
+            enabled: true,
+            apps_enabled: false,
+        },
+    },
+}
+
+// java_defaults that includes the latest Keystore2 AIDL library.
+// Modules that depend on KeyMint directly can include this java_defaults to avoid
+// managing dependency versions explicitly.
+java_defaults {
+    name: "keystore2_use_latest_aidl_java_static",
+    static_libs: [
+        "android.system.keystore2-V4-java-source",
+    ],
+}
+
+java_defaults {
+    name: "keystore2_use_latest_aidl_java_shared",
+    libs: [
+        "android.system.keystore2-V4-java-source",
+    ],
+}
+
+java_defaults {
+    name: "keystore2_use_latest_aidl_java",
+    libs: [
+        "android.system.keystore2-V4-java",
+    ],
+}
+
+// cc_defaults that includes the latest Keystore2 AIDL library.
+// Modules that depend on KeyMint directly can include this cc_defaults to avoid
+// managing dependency versions explicitly.
+cc_defaults {
+    name: "keystore2_use_latest_aidl_ndk_static",
+    static_libs: [
+        "android.system.keystore2-V4-ndk",
+    ],
+}
+
+cc_defaults {
+    name: "keystore2_use_latest_aidl_ndk_shared",
+    shared_libs: [
+        "android.system.keystore2-V4-ndk",
+    ],
+}
+
+cc_defaults {
+    name: "keystore2_use_latest_aidl_cpp_shared",
+    shared_libs: [
+        "android.system.keystore2-V4-cpp",
+    ],
+}
+
+cc_defaults {
+    name: "keystore2_use_latest_aidl_cpp_static",
+    static_libs: [
+        "android.system.keystore2-V4-cpp",
+    ],
+}
+
+// A rust_defaults that includes the latest Keystore2 AIDL library.
+// Modules that depend on Keystore2 directly can include this rust_defaults to avoid
+// managing dependency versions explicitly.
+rust_defaults {
+    name: "keystore2_use_latest_aidl_rust",
+    rustlibs: [
+        "android.system.keystore2-V4-rust",
+    ],
+}

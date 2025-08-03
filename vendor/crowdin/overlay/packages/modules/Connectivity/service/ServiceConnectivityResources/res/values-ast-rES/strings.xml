@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="connectivityResourcesAppLabel">Recursos de conectividá del sistema</string>
+    <string name="wifi_available_sign_in">Anicia la sesión na rede Wi-Fi</string>
+    <string name="network_available_sign_in">Anicia la sesión na rede</string>
+    <string name="mobile_network_available_no_internet">Nun hai internet</string>
+    <string name="mobile_network_available_no_internet_detailed">Ye posible que quedares ensin datos de la operadora «<xliff:g id="network_carrier" example="Android Mobile">%1$s</xliff:g>». Toca pa ver les opciones.</string>
+    <string name="mobile_network_available_no_internet_detailed_unknown_carrier">Ye posible que quedares ensin datos. Toca pa ver les opciones.</string>
+    <string name="wifi_no_internet">«<xliff:g id="network_ssid" example="GoogleGuest">%1$s</xliff:g>» nun tien accesu a internet</string>
+    <string name="wifi_no_internet_detailed">Toca pa ver les opciones</string>
+    <string name="mobile_no_internet">La rede móvil nun tien accesu a internet</string>
+    <string name="other_networks_no_internet">La rede nun tien accesu a internet</string>
+    <string name="private_dns_broken_detailed">Nun se pue acceder al sirvidor DNS priváu</string>
+    <string name="network_partial_connectivity">«<xliff:g id="network_ssid" example="GoogleGuest">%1$s</xliff:g>» tien la conectividá llendada</string>
+    <string name="network_partial_connectivity_detailed">Toca pa conectate de toes toes</string>
+    <string name="network_switch_metered">Agora úsase «<xliff:g id="network_type">%1$s</xliff:g>»</string>
+    <string name="network_switch_metered_detail">El preséu usa la rede «<xliff:g id="new_network">%1$s</xliff:g>» cuando «<xliff:g id="previous_network">%2$s</xliff:g>» nun tien accesu a internet. Puen aplicase cargos.</string>
+    <string name="network_switch_metered_toast">Usábase «<xliff:g id="previous_network">%1$s</xliff:g>», agora úsase «<xliff:g id="new_network">%2$s</xliff:g>»</string>
+    <string-array name="network_switch_type_name">
+        <item>datos móviles</item>
+        <item>Wi-Fi</item>
+        <item>Bluetooth</item>
+        <item>Ethernet</item>
+        <item>VPN</item>
+    </string-array>
+    <string name="network_switch_type_name_unknown">un tipu de rede desconocíu</string>
+</resources>

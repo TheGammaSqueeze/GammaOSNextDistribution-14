@@ -1,0 +1,107 @@
+// Copyright (C) 2020 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// The below module creates a standalone zip that end-to-end tests can depend
+// on for running the suite. This is a workaround since we can't use csuite.zip
+// which is defined in an external Makefile that Soong can't depend on.
+//
+// Besides listing jars we know the launcher script depends on which is
+// brittle, this is a hack for several reasons. First, we're listing our
+// dependencies in the tools attribute when we should be using the 'srcs'
+// attribute. Second, we're accessing jars using a path relative to a known
+// artifact location instead of using the Soong 'location' feature.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_genrule_host {
+    name: "csuite_standalone_zip",
+    cmd: "ANDROID_CSUITE=$(genDir)/android-csuite && " +
+        "CSUITE_TOOLS=$${ANDROID_CSUITE}/tools && " +
+        "CSUITE_TESTCASES=$${ANDROID_CSUITE}/testcases && " +
+        "ANDROID_HOST_OUT=$$(dirname $(location :csuite-tradefed))/.. && " +
+        "rm -rf $${CSUITE_TOOLS} && mkdir -p $${CSUITE_TOOLS} && " +
+        "rm -rf $${CSUITE_TESTCASES} && mkdir -p $${CSUITE_TESTCASES} && " +
+        "cp $(location :csuite-tradefed) $${CSUITE_TOOLS} && " +
+        "cp $(location :test-utils-script) $${CSUITE_TOOLS} && " +
+        "cp $${ANDROID_HOST_OUT}/framework/csuite-tradefed.jar $${CSUITE_TOOLS} && " +
+        "cp $(location :tradefed) $${CSUITE_TOOLS} && " +
+        "cp $(location :compatibility-host-util) $${CSUITE_TOOLS} && " +
+        "cp $(location :csuite-app-launch) $${CSUITE_TESTCASES} && " +
+        // We skip copying the csuite-tradefed-tests jar since its location is
+        // not straight-forward to deduce and not really necessary.
+        "touch $${CSUITE_TOOLS}/csuite-tradefed-tests.jar && " +
+        "chmod a+x $${CSUITE_TOOLS}/csuite-tradefed && " +
+        "$(location soong_zip) -o $(out) -d -C $(genDir) -D $${ANDROID_CSUITE}",
+    out: ["csuite-standalone.zip"],
+    srcs: [
+        ":tradefed",
+        ":compatibility-host-util",
+        ":csuite-app-launch",
+    ],
+    tools: [
+        "soong_zip",
+        ":csuite-tradefed",
+        ":test-utils-script",
+    ],
+}
+
+python_library_host {
+    name: "csuite_test_utils",
+    srcs: [
+        "csuite_test_utils.py",
+    ],
+    java_data: [
+        "csuite_standalone_zip",
+    ],
+    libs: [
+        "csuite_test",
+    ],
+}
+
+python_test_host {
+    name: "csuite_cli_test",
+    srcs: [
+        "csuite_cli_test.py",
+    ],
+    test_config_template: "csuite_test_template.xml",
+    test_suites: [
+        "general-tests",
+    ],
+    libs: [
+        "csuite_test_utils",
+    ],
+}
+
+python_test_host {
+    name: "csuite_crash_detection_test",
+    srcs: [
+        "csuite_crash_detection_test.py",
+    ],
+    test_config_template: "csuite_test_template.xml",
+    test_suites: [
+        "general-tests",
+    ],
+    libs: [
+        "csuite_test_utils",
+    ],
+    data: [
+        ":csuite_crash_on_launch_test_app",
+        ":csuite_no_crash_test_app",
+    ],
+    test_options: {
+        unit_test: false,
+    },
+}

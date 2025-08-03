@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="system_tracing" msgid="4719188511746319848">"Pag-trace ng System"</string>
+    <string name="record_system_activity" msgid="4339462312915377825">"Itala ang aktibidad ng system at suriin ito sa ibang pagkakataon para mapahusay ang performance"</string>
+    <string name="record_trace" msgid="6416875085186661845">"Mag-record ng trace"</string>
+    <string name="record_trace_summary" msgid="6705357754827849292">"Nagka-capture ng pag-trace ng system gamit ang configuration na nakatakda sa \"Mga setting ng trace\""</string>
+    <string name="record_stack_samples" msgid="3498368637185702335">"I-record ang profile ng CPU"</string>
+    <string name="record_stack_samples_summary" msgid="7827953921526410478">"Puwede ring i-enable ang pag-sample ng callstack sa mga trace sa pamamagitan ng pagtingin sa kategoryang \"cpu\""</string>
+    <string name="record_heap_dump" msgid="1688550222066812696">"I-record ang heap dump"</string>
+    <string name="record_heap_dump_summary_enabled" msgid="5038675257021221777">"Nagka-capture ng heap dump ng mga prosesong pinili sa \"Mga proseso ng heap dump\""</string>
+    <string name="record_heap_dump_summary_disabled" msgid="4640319333930345311">"Pumili ng kahit isang proseso man lang sa \"Mga proseso ng heap dump\" para mangolekta ng mga heap dump"</string>
+    <string name="start_new_trace" msgid="8177130420802170353">"Magsimula ng bagong trace"</string>
+    <string name="winscope_tracing" msgid="5818984791154837458">"Kolektahin ang mga trace ng Winscope"</string>
+    <string name="winscope_tracing_summary" msgid="7040550156722395894">"Kasama ang detalyadong data ng UI telemetry (posibleng magdulot ng jank)"</string>
+    <string name="trace_debuggable_applications" msgid="7957069895298887899">"Mag-trace ng mga nade-debug na application"</string>
+    <string name="categories" msgid="2280163673538611008">"Mga Kategorya"</string>
+    <string name="restore_default_categories" msgid="5090536794637169521">"I-restore ang mga default na kategorya"</string>
+    <string name="default_categories_restored" msgid="6861683793680564181">"Na-restore ang mga default na kategorya"</string>
+    <string name="default_categories" msgid="2117679794687799407">"Default"</string>
+    <string name="num_categories_selected" msgid="5772630335027553995">"{count,plural, =1{# ang pinili}one{# ang pinili}other{# ang pinili}}"</string>
+    <string name="heap_dump_processes" msgid="2500105180344901939">"Mga proseso ng heap dump"</string>
+    <string name="heap_dump_processes_summary" msgid="4570434268024622765">"Dapat pumili ng kahit isang proseso man lang"</string>
+    <string name="clear_heap_dump_processes" msgid="295101454741555286">"I-clear ang mga proseso ng heap dump"</string>
+    <string name="clear_heap_dump_processes_toast" msgid="3658510557596150797">"Na-clear ang listahan ng proseso"</string>
+    <string name="continuous_heap_dump" msgid="390369382946204224">"Tuloy-tuloy na heap profile"</string>
+    <string name="continuous_heap_dump_summary" msgid="4581643248161659581">"Mag-capture ng heap dump isang beses kada natukoy na interval"</string>
+    <string name="continuous_heap_dump_interval" msgid="842533896492001433">"Interval ng heap dump"</string>
+    <string name="five_seconds" msgid="7018465440929299712">"5 segundo"</string>
+    <string name="ten_seconds" msgid="863416601384309033">"10 segundo"</string>
+    <string name="thirty_seconds" msgid="7945396361369598222">"30 segundo"</string>
+    <string name="one_minute" msgid="4182508213840684258">"1 minuto"</string>
+    <string name="applications" msgid="521776761270770549">"Mga Application"</string>
+    <string name="no_debuggable_apps" msgid="4386209254520471208">"Walang available na nade-debug na application"</string>
+    <string name="buffer_size" msgid="3944311026715111454">"Laki ng buffer ng Per-CPU"</string>
+    <string name="show_quick_settings_tile" msgid="4971147332635291585">"Ipakita ang tile ng Mga Mabilisang Setting"</string>
+    <string name="saving_trace" msgid="1468692734770800541">"Sine-save ang trace"</string>
+    <string name="trace_saved" msgid="5869970594780992309">"Na-save ang trace"</string>
+    <string name="saving_stack_samples" msgid="8174915522390525221">"Sine-save ang mga sample ng stack"</string>
+    <string name="stack_samples_saved" msgid="8863295751647724616">"Na-save ang mga sample ng stack"</string>
+    <string name="saving_heap_dump" msgid="6118616780825771824">"Sine-save ang heap dump"</string>
+    <string name="heap_dump_saved" msgid="6720583137473857098">"Na-save ang heap dump"</string>
+    <string name="tap_to_share" msgid="4440713575852187545">"I-tap para ibahagi ang iyong recording"</string>
+    <string name="attaching_to_report" msgid="2629202947947275886">"Nag-a-attach ng trace sa ulat ng bug"</string>
+    <string name="attached_to_report" msgid="5806905349184608870">"Nag-attach ng trace sa ulat ng bug"</string>
+    <string name="attached_to_report_summary" msgid="7665675771190391355">"I-tap para buksan ang BetterBug"</string>
+    <string name="stop_tracing" msgid="8916938308534164152">"Ihinto ang pag-trace"</string>
+    <string name="tracing_categories_unavailable" msgid="5609076391417077752">"Hindi available ang ilang kategorya ng pag-trace:"</string>
+    <string name="trace_is_being_recorded" msgid="5947378146009337469">"Nire-record ang trace"</string>
+    <string name="tap_to_stop_tracing" msgid="6533282719573871806">"I-tap upang ihinto ang pag-trace"</string>
+    <string name="stack_samples_are_being_recorded" msgid="8669254939248349583">"Nire-record ang mga sample ng stack"</string>
+    <string name="tap_to_stop_stack_sampling" msgid="5911317684139059415">"I-tap para ihinto ang pag-sample ng stack"</string>
+    <string name="heap_dump_is_being_recorded" msgid="3789315106110524969">"Nire-record ang heap dump"</string>
+    <string name="tap_to_stop_heap_dump" msgid="6475699275834526902">"I-tap para ihinto ang heap dump"</string>
+    <string name="clear_saved_files" msgid="9156079311231446825">"I-clear ang mga na-save na file"</string>
+    <string name="clear_saved_files_summary" msgid="109751867417553670">"Maki-clear ang mga recording pagkalipas ng isang buwan"</string>
+    <string name="clear_saved_files_question" msgid="8586686617760838834">"I-clear ang mga na-save na file?"</string>
+    <string name="all_recordings_will_be_deleted" msgid="7731693738485947891">"Made-delete ang lahat ng recording sa /data/local/traces"</string>
+    <string name="clear" msgid="5484761795406948056">"I-clear"</string>
+    <string name="system_traces_storage_title" msgid="8294090839883366871">"Mga trace ng system"</string>
+    <string name="keywords" msgid="736547007949049535">"systrace, trace, performance"</string>
+    <string name="share_file" msgid="1982029143280382271">"Ibahagi ang file?"</string>
+    <string name="system_trace_sensitive_data" msgid="3069389866696009549">"Ang mga file ng Pag-trace ng System ay maaaring may sensitibong data ng system at app (gaya ng paggamit ng app). Ibahagi lang ang mga trace ng system sa mga tao at app na pinakakatiwalaan mo."</string>
+    <string name="share" msgid="8443979083706282338">"Ibahagi"</string>
+    <string name="dont_show_again" msgid="6662492041164390600">"Huwag ipakitang muli"</string>
+    <string name="long_traces" msgid="5110949471775966329">"Mga long trace"</string>
+    <string name="long_traces_summary" msgid="419034282946761469">"Tuloy-tuloy na sine-save sa storage ng device"</string>
+    <string name="long_traces_summary_betterbug" msgid="445546400875135624">"Naka-save nang tuloy-tuloy sa storage ng device (hindi awtomatikong maa-attach sa mga ulat ng bug)"</string>
+    <string name="max_long_trace_size" msgid="1943788179787181241">"Maximum na laki ng long trace"</string>
+    <string name="max_long_trace_duration" msgid="8009837944364246785">"Maximum na tagal ng long trace"</string>
+    <string name="two_hundred_mb" msgid="4950018549725084512">"200 MB"</string>
+    <string name="one_gb" msgid="590396985168692037">"1 GB"</string>
+    <string name="five_gb" msgid="7883941043220621649">"5 GB"</string>
+    <string name="ten_gb" msgid="4150452462544299276">"10 GB"</string>
+    <string name="twenty_gb" msgid="5717308686812140465">"20 GB"</string>
+    <string name="ten_minutes" msgid="7039181194343961324">"10 minuto"</string>
+    <string name="thirty_minutes" msgid="2575810799813531395">"30 minuto"</string>
+    <string name="one_hour" msgid="5219232935307966891">"1 oras"</string>
+    <string name="eight_hours" msgid="3207620892104451552">"8 oras"</string>
+    <string name="twelve_hours" msgid="4647143276394563496">"12 oras"</string>
+    <string name="twentyfour_hours" msgid="2789663313550030791">"24 na oras"</string>
+    <string name="four_thousand_kb" msgid="5156346740862105703">"4096 KB"</string>
+    <string name="eight_thousand_kb" msgid="8815334985638334081">"8192 KB"</string>
+    <string name="sixteen_thousand_kb" msgid="7342517169232459259">"16384 KB"</string>
+    <string name="thirtytwo_thousand_kb" msgid="654328198799196150">"32768 KB"</string>
+    <string name="sixtyfive_thousand_kb" msgid="8168144138598305306">"65536 KB"</string>
+    <string name="stop_on_bugreport" msgid="4591832600597126422">"Ihinto ang pag-record para sa mga ulat ng bug"</string>
+    <string name="stop_on_bugreport_summary" msgid="1601834864982891381">"Wawakasan ang mga aktibong pag-record kapag nagsimula ng ulat ng bug"</string>
+    <string name="attach_to_bug_report" msgid="5388986830016247490">"I-attach ang mga recording sa mga ulat ng bug"</string>
+    <string name="attach_to_bug_report_summary" msgid="4213730623971240002">"Awtomatikong magpadala ng mga kasalukuyang isinasagawang recording sa BetterBug kapag nangolekta ng ulat ng bug"</string>
+    <string name="link_to_traces" msgid="1404687523304348490">"Tingnan ang mga naka-save na file"</string>
+    <string name="pref_category_trace_settings" msgid="6507535407023329628">"Mga setting ng pag-trace"</string>
+    <string name="pref_category_saved_files" msgid="1477491400970413291">"Mga naka-save na file"</string>
+    <string name="pref_category_misc" msgid="6217624054980014683">"Miscellaneous"</string>
+    <string name="pref_category_heap_dump_settings" msgid="2234681064312605310">"Mga setting ng heap dump"</string>
+</resources>

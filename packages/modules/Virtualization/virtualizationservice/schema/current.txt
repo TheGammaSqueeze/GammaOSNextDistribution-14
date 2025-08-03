@@ -1,0 +1,27 @@
+// Signature format: 2.0
+package android.system.virtualizationservice {
+
+  public class Device {
+    ctor public Device();
+    method public String getDtbo_label();
+    method public String getKind();
+    method public String getSysfs_path();
+    method public void setDtbo_label(String);
+    method public void setKind(String);
+    method public void setSysfs_path(String);
+  }
+
+  public class Devices {
+    ctor public Devices();
+    method public java.util.List<android.system.virtualizationservice.Device> getDevice();
+  }
+
+  public class XmlParser {
+    ctor public XmlParser();
+    method public static android.system.virtualizationservice.Devices read(java.io.InputStream) throws javax.xml.datatype.DatatypeConfigurationException, java.io.IOException, org.xmlpull.v1.XmlPullParserException;
+    method public static String readText(org.xmlpull.v1.XmlPullParser) throws java.io.IOException, org.xmlpull.v1.XmlPullParserException;
+    method public static void skip(org.xmlpull.v1.XmlPullParser) throws java.io.IOException, org.xmlpull.v1.XmlPullParserException;
+  }
+
+}
+

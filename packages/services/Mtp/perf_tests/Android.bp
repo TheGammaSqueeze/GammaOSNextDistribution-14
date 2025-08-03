@@ -1,0 +1,15 @@
+package {
+    default_team: "trendy_team_android_usb",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "MtpServicePerfTests",
+    srcs: ["src/**/*.java"],
+    static_libs: ["androidx.test.rules"],
+    platform_apis: true,
+    instrumentation_for: "MtpService",
+    certificate: "media",
+    test_suites: ["device-tests"],
+
+}

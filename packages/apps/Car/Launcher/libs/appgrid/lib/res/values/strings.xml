@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (C) 2018 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+ -->
+
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="reset_appgrid_title">Reset app grid to A-Z order</string>
+    <string name="reset_appgrid_dialogue_message">This function will remove all custom ordering.
+        Do you want to continue?
+    </string>
+    <string name="app_launcher_title_all_apps">All apps</string>
+    <string name="app_launcher_title_media_only">Media apps</string>
+    <!-- Manage applications, text for dialog when apps can not be stopped -->
+    <string name="app_launcher_stop_app_cant_stop_text">App can’t be stopped.</string>
+
+    <string name="driving_toast_text">
+        <xliff:g id="app_name" example="Settings">%1$s</xliff:g>
+        can\'t be used while driving.
+    </string>
+
+    <!-- Toolbar MenuItem text for hiding debug apps,
+        only visible on debug builds [CHAR_LIMIT=50] -->
+    <string name="hide_debug_apps">Hide debug apps</string>
+    <!-- Toolbar MenuItem text for showing debug apps,
+        only visible on debug builds [CHAR_LIMIT=50] -->
+    <string name="show_debug_apps">Show debug apps</string>
+
+
+    <!-- Intent action meant to invoke user TOS flow.
+         The intent URI has to be formatted according to Intent.URI_INTENT_SCHEME
+         URI, for example should contain the intent action and any extras if necessary:
+         "intent:#Intent;action=com.android.car.SHOW_USER_TOS_ACTIVITY;B.show_value_prop=true;end"
+    -->
+
+    <string name="user_tos_activity_intent">
+        intent:#Intent;action=com.android.car.SHOW_USER_TOS_ACTIVITY;B.show_value_prop=false;end
+    </string>
+
+
+    <!--
+        A list of package names to exclude from the app selector when filtering is active.
+        DO NOT TRANSLATE.
+    -->
+    <string-array name="hidden_apps" translatable="false">
+        <item>com.android.car.themeplayground</item>
+        <item>com.google.android.auto.welcome</item>
+        <item>com.google.android.embedded.projection</item>
+        <item>com.android.car.bugreport</item>
+        <item>com.android.car.trust</item>
+        <item>com.google.android.car.diagnosticrecorder</item>
+        <item>com.google.android.car.diskwriteapp</item>
+        <item>com.android.documentsui</item>
+        <item>com.google.android.car.flashapp</item>
+        <item>com.android.gallery3d</item>
+        <item>com.google.android.car.garagemode.testapp</item>
+        <item>com.google.android.gms.vehicle.testapp</item>
+        <item>com.google.android.car.kitchensink</item>
+        <item>com.android.support.car.lenspicker</item>
+        <item>com.google.android.apps.gmm</item>
+        <item>com.android.car.media</item>
+        <item>com.qualcomm.qti.sensors.qsensortest</item>
+        <item>com.qualcomm.qti.logkit</item>
+        <item>com.qualcomm.qti.roamingsettings</item>
+        <item>com.android.settings</item>
+        <item>com.google.android.car.uxr.sample</item>
+        <item>com.google.android.apps.geo.autograph.vms.client.visualizer.car</item>
+        <item>com.google.android.apps.geo.autograph.vms.client.systemstate</item>
+        <item>com.google.android.car.vms.subscriber</item>
+        <item>org.chromium.webview_shell</item>
+    </string-array>
+
+    <!-- TosBanner strings -->
+    <string name="banner_title_text">To use user tos disabled apps, agree to User tos</string>
+    <string name="banner_review_button_text">Review</string>
+    <string name="banner_dismiss_button_text">Not Now</string>
+</resources>

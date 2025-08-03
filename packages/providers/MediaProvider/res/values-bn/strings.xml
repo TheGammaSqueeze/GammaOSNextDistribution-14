@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2009 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="uid_label" msgid="8421971615411294156">"মিডিয়া"</string>
+    <string name="storage_description" msgid="4081716890357580107">"স্থানীয় স্টোরেজ"</string>
+    <string name="picker_app_label" msgid="1195424381053599122">"মিডিয়া বাছাইকারি"</string>
+    <string name="artist_label" msgid="8105600993099120273">"শিল্পী"</string>
+    <string name="unknown" msgid="2059049215682829375">"অজানা"</string>
+    <string name="root_images" msgid="5861633549189045666">"ছবি"</string>
+    <string name="root_videos" msgid="8792703517064649453">"ভিডিও"</string>
+    <string name="root_audio" msgid="3505830755201326018">"অডিও"</string>
+    <string name="root_documents" msgid="3829103301363849237">"ডকুমেন্ট"</string>
+    <string name="permission_required" msgid="1460820436132943754">"এই আইটেম মুছতে বা পরিবর্তন করার জন্য অনুমতি প্রয়োজন।"</string>
+    <string name="permission_required_action" msgid="706370952366113539">"চালিয়ে যান"</string>
+    <string name="grant_dialog_button_allow" msgid="1644287024501033471">"অনুমতি দিন"</string>
+    <string name="grant_dialog_button_deny" msgid="6190589471415815741">"খারিজ করুন"</string>
+    <string name="permission_more_thumb" msgid="1938863829470531577">"{count,plural, =1{+<xliff:g id="COUNT_0">^1</xliff:g>টি}one{+<xliff:g id="COUNT_1">^1</xliff:g>টি}other{+<xliff:g id="COUNT_1">^1</xliff:g>টি}}"</string>
+    <string name="permission_more_text" msgid="2471785045095597753">"{count,plural, =1{এছাড়াও <xliff:g id="COUNT_0">^1</xliff:g>টি অতিরিক্ত আইটেম}one{এছাড়াও <xliff:g id="COUNT_1">^1</xliff:g>টি অতিরিক্ত আইটেম}other{এছাড়াও <xliff:g id="COUNT_1">^1</xliff:g>টি অতিরিক্ত আইটেম}}"</string>
+    <string name="cache_clearing_dialog_title" msgid="8907893815183913664">"অস্থায়ী অ্যাপ ফাইলগুলি খালি করুন"</string>
+    <string name="cache_clearing_dialog_text" msgid="7057784635111940957">"<xliff:g id="APP_SEEKING_PERMISSION">%s</xliff:g> কিছু অস্থায়ী ফাইলকে মুছে দিতে চায়। এর ফলে, ব্যাটারি বা মোবাইল ডেটা বেশি খরচ হতে পারে।"</string>
+    <string name="cache_clearing_in_progress_title" msgid="6902220064511664209">"অস্থায়ী অ্যাপ ফাইল মুছে ফেলা হচ্ছে…"</string>
+    <string name="clear" msgid="5524638938415865915">"সরান"</string>
+    <string name="allow" msgid="8885707816848569619">"অনুমতি দিন"</string>
+    <string name="deny" msgid="6040983710442068936">"বাতিল করুন"</string>
+    <string name="picker_browse" msgid="5554477454636075934">"ব্রাউজ করুন…"</string>
+    <string name="picker_settings" msgid="6443463167344790260">"ক্লাউড মিডিয়া অ্যাপ"</string>
+    <string name="picker_settings_system_settings_menu_title" msgid="3055084757610063581">"ক্লাউড মিডিয়া অ্যাপ"</string>
+    <string name="picker_settings_title" msgid="5647700706470673258">"ক্লাউড মিডিয়া অ্যাপ"</string>
+    <string name="picker_settings_description" msgid="2916686824777214585">"অ্যাপ বা ওয়েবসাইট আপনাকে ফটো বা ভিডিও বেছে নিতে বললে, আপনার ক্লাউড মিডিয়া অ্যাক্সেস করুন"</string>
+    <string name="picker_settings_selection_message" msgid="245453573086488596">"এখান থেকে ক্লাউড মিডিয়া অ্যাক্সেস করুন"</string>
+    <string name="picker_settings_no_provider" msgid="2582311853680058223">"কোনওটিই নয়"</string>
+    <string name="picker_settings_toast_error" msgid="697274445512467469">"এই মুহূর্তে ক্লাউড মিডিয়া অ্যাপ বদল করা যায়নি।"</string>
+    <string name="picker_sync_notification_channel" msgid="1867105708912627993">"মিডিয়া বাছাইকারী"</string>
+    <string name="picker_sync_notification_title" msgid="1122713382122055246">"মিডিয়া বাছাইকারী"</string>
+    <string name="picker_sync_notification_text" msgid="8204423917712309382">"মিডিয়া সিঙ্ক করছে…"</string>
+    <string name="add" msgid="2894574044585549298">"যোগ করুন"</string>
+    <string name="deselect" msgid="4297825044827769490">"টিক চিহ্নটি সরিয়ে দিন"</string>
+    <string name="deselected" msgid="8488133193326208475">"টিকচিহ্ন সরিয়ে দিন"</string>
+    <string name="select" msgid="2704765470563027689">"বেছে নিন"</string>
+    <string name="selected" msgid="9151797369975828124">"টিকচিহ্ন দিন"</string>
+    <string name="select_up_to" msgid="6994294169508439957">"{count,plural, =1{সর্বাধিক <xliff:g id="COUNT_0">^1</xliff:g>টি আইটেম বেছে নিন}one{সর্বাধিক <xliff:g id="COUNT_1">^1</xliff:g>টি আইটেম বেছে নিন}other{সর্বাধিক <xliff:g id="COUNT_1">^1</xliff:g>টি আইটেম বেছে নিন}}"</string>
+    <string name="recent" msgid="6694613584743207874">"সাম্প্রতিক"</string>
+    <string name="picker_photos_empty_message" msgid="5980619500554575558">"কোনও ফটো বা ভিডিও নেই"</string>
+    <string name="picker_album_media_empty_message" msgid="7061850698189881671">"মানানসই কোনও ফটো বা ভিডিও নেই"</string>
+    <string name="picker_albums_empty_message" msgid="8341079772950966815">"কোনও অ্যালবাম নেই"</string>
+    <string name="picker_view_selected" msgid="2266031384396143883">"কোনগুলি বাছা হয়েছে দেখুন"</string>
+    <string name="picker_photos" msgid="7415035516411087392">"ফটো"</string>
+    <!-- no translation found for picker_videos (2886971435439047097) -->
+    <skip />
+    <string name="picker_albums" msgid="4822511902115299142">"অ্যালবাম"</string>
+    <string name="picker_preview" msgid="6257414886055861039">"প্রিভিউ"</string>
+    <string name="picker_work_profile" msgid="2083221066869141576">"অফিস প্রোফাইলে সুইচ করুন"</string>
+    <string name="picker_personal_profile" msgid="639484258397758406">"ব্যক্তিগত প্রোফাইলে সুইচ করুন"</string>
+    <string name="picker_personal_profile_label" msgid="6189198163209597344">"ব্যক্তিগত"</string>
+    <string name="picker_profile_admin_title" msgid="4172022376418293777">"আপনার অ্যাডমিন ব্লক করে দিয়েছে"</string>
+    <string name="picker_profile_admin_msg_from_personal" msgid="1941639895084555723">"ব্যক্তিগত অ্যাপ থেকে অফিসের ডেটা অ্যাক্সেস করার অনুমতি নেই"</string>
+    <string name="picker_profile_admin_msg_from_work" msgid="8048524337462790110">"অফিস অ্যাপ থেকে ব্যক্তিগত ডেটা অ্যাক্সেস করার অনুমতি নেই"</string>
+    <string name="picker_profile_admin_msg" msgid="4060112887923255178">"<xliff:g id="PROFILE2">%2$s</xliff:g> অ্যাপ থেকে <xliff:g id="PROFILE1">%1$s</xliff:g> ডেটা অ্যাক্সেস করার অনুমতি নেই"</string>
+    <string name="picker_profile_switch_message" msgid="1133817927412489487">"<xliff:g id="PROFILE">%s</xliff:g> প্রোফাইলে পাল্টান"</string>
+    <string name="picker_profile_work_paused_title" msgid="382212880704235925">"অফিসের অ্যাপ পজ করা আছে"</string>
+    <string name="picker_profile_paused_title" msgid="2079739512895529028">"<xliff:g id="PROFILE">%s</xliff:g> অ্যাপ পজ হয়ে গেছে"</string>
+    <string name="picker_profile_work_paused_msg" msgid="6321552322125246726">"অফিস প্রোফাইলের ফটো দেখতে, অফিসের অ্যাপ চালু করে আবার চেষ্টা করুন"</string>
+    <string name="picker_profile_paused_msg" msgid="1215076898583993782">"<xliff:g id="PROFILE1">%1$s</xliff:g> ফটো খুলতে আপনার <xliff:g id="PROFILE2">%2$s</xliff:g> অ্যাপ চালু করে আবার চেষ্টা করুন"</string>
+    <string name="picker_privacy_message" msgid="9132700451027116817">"এই অ্যাপ শুধুমাত্র আপনার বেছে নেওয়া ছবি অ্যাক্সেস করতে পারবে"</string>
+    <string name="picker_header_permissions" msgid="675872774407768495">"এই অ্যাপকে যেসব ফটো এবং ভিডিও অ্যাক্সেস করার জন্য অনুমতি দিতে চান তা বেছে নিন"</string>
+    <string name="picker_album_item_count" msgid="4420723302534177596">"{count,plural, =1{<xliff:g id="COUNT_0">^1</xliff:g>টি আইটেম}one{<xliff:g id="COUNT_1">^1</xliff:g>টি আইটেম}other{<xliff:g id="COUNT_1">^1</xliff:g>টি আইটেম}}"</string>
+    <string name="picker_add_button_multi_select" msgid="4005164092275518399">"(<xliff:g id="COUNT">^1</xliff:g>)টি যোগ করুন"</string>
+    <string name="picker_add_button_multi_select_permissions" msgid="5138751105800138838">"অনুমতি দিন (<xliff:g id="COUNT">^1</xliff:g>টি)"</string>
+    <string name="picker_add_button_allow_none_option" msgid="9183772732922241035">"কারও অনুমতি নেই"</string>
+    <string name="picker_category_camera" msgid="4857367052026843664">"ক্যামেরা"</string>
+    <string name="picker_category_downloads" msgid="793866660287361900">"ডাউনলোড করা আইটেম"</string>
+    <string name="picker_category_favorites" msgid="7008495397818966088">"পছন্দসই আইটেম"</string>
+    <string name="picker_category_screenshots" msgid="7216102327587644284">"স্ক্রিনশট"</string>
+    <!-- no translation found for picker_category_videos (1478458836380241356) -->
+    <skip />
+    <string name="picker_motion_photo_text" msgid="5016603812468180816">"মোশন ফটো"</string>
+    <string name="picker_item_content_desc" msgid="7680591530155286423">"<xliff:g id="ITEM_NAME">%1$s</xliff:g> <xliff:g id="TIME">%2$s</xliff:g>-এ তোলা হয়েছে"</string>
+    <string name="picker_video_item_content_desc" msgid="7828900089119214801">"<xliff:g id="TIME">%1$s</xliff:g>-এ যে ভিডিওটি নেওয়া হয়েছে তার সময়সীমা <xliff:g id="DURATION">%2$s</xliff:g>"</string>
+    <string name="picker_photo" msgid="1739342083494962153">"ফটো"</string>
+    <string name="picker_gif" msgid="8333318083107368726">"GIF"</string>
+    <string name="picker_motion_photo" msgid="4385182195289546308">"মোশন ফটো"</string>
+    <string name="picker_mute_video" msgid="2496585809229800096">"ভিডিও মিউট করুন"</string>
+    <string name="picker_unmute_video" msgid="6611741290641963568">"ভিডিও আনমিউট করুন"</string>
+    <string name="picker_play_video" msgid="7106025944628666250">"চালান"</string>
+    <string name="picker_pause_video" msgid="1092718225234326702">"পজ করুন"</string>
+    <string name="picker_error_snackbar" msgid="5970192792792369203">"ভিডিও প্লে করা যাবে না"</string>
+    <string name="picker_error_dialog_title" msgid="4540095603788920965">"ভিডিও প্লে করতে সমস্যা হয়েছে"</string>
+    <string name="picker_error_dialog_body" msgid="2515738446802971453">"ইন্টারনেট কানেকশন ঠিক আছে কিনা দেখে নিয়ে আবার চেষ্টা করুন"</string>
+    <string name="picker_error_dialog_positive_action" msgid="749544129082109232">"আবার চেষ্টা করুন"</string>
+    <string name="not_selected" msgid="2244008151669896758">"বেছে নেওয়া হয়নি"</string>
+    <string name="preloading_dialog_title" msgid="4974348221848532887">"আপনার বেছে নেওয়া মিডিয়া রেডি করা হচ্ছে"</string>
+    <string name="preloading_progress_message" msgid="4741327138031980582">"<xliff:g id="NUMBER_TOTAL">%2$d</xliff:g>টির মধ্যে <xliff:g id="NUMBER_PRELOADED">%1$d</xliff:g> নম্বর আইটেম রেডি আছে"</string>
+    <string name="preloading_cancel_button" msgid="824053521307342209">"বাতিল করুন"</string>
+    <string name="picker_banner_cloud_first_time_available_title" msgid="5912973744275711595">"ব্যাক-আপ নেওয়া ফটো এখন যোগ করা হয়েছে"</string>
+    <string name="picker_banner_cloud_first_time_available_desc" msgid="5570916598348187607">"আপনি <xliff:g id="APP_NAME">%1$s</xliff:g>-এর অ্যাকাউন্ট <xliff:g id="USER_ACCOUNT">%2$s</xliff:g> থেকে ফটো বেছে নিতে পারবেন"</string>
+    <string name="picker_banner_cloud_account_changed_title" msgid="4825058474378077327">"<xliff:g id="APP_NAME">%1$s</xliff:g>-এর অ্যাকাউন্ট আপডেট করা হয়েছে"</string>
+    <string name="picker_banner_cloud_account_changed_desc" msgid="3433218869899792497">"এখন <xliff:g id="USER_ACCOUNT">%1$s</xliff:g> থেকে ফটো এখানে যোগ করা হয়"</string>
+    <string name="picker_banner_cloud_choose_app_title" msgid="3165966147547974251">"ক্লাউড মিডিয়া অ্যাপ বেছে নিন"</string>
+    <string name="picker_banner_cloud_choose_app_desc" msgid="2359212653555524926">"ব্যাক-আপ নেওয়া ফটো এখানে যোগ করতে, সেটিংসে ক্লাউড মিডিয়া অ্যাপ বেছে নিন"</string>
+    <string name="picker_banner_cloud_choose_account_title" msgid="5010901185639577685">"<xliff:g id="APP_NAME">%1$s</xliff:g>-এর অ্যাকাউন্ট বেছে নিন"</string>
+    <string name="picker_banner_cloud_choose_account_desc" msgid="8868134443673142712">"<xliff:g id="APP_NAME">%1$s</xliff:g> থেকে এখানে ফটো যোগ করতে, অ্যাপে একটি অ্যাকাউন্ট বেছে নিন"</string>
+    <string name="picker_banner_cloud_dismiss_button" msgid="2935903078288463882">"বাতিল করুন"</string>
+    <string name="picker_banner_cloud_choose_app_button" msgid="934085679890435479">"অ্যাপ বেছে নিন"</string>
+    <string name="picker_banner_cloud_choose_account_button" msgid="7979484877116991631">"অ্যাকাউন্ট বেছে নিন"</string>
+    <string name="picker_banner_cloud_change_account_button" msgid="8361239765828471146">"অ্যাকাউন্ট পরিবর্তন করুন"</string>
+    <string name="picker_loading_photos_message" msgid="6449180084857178949">"আপনার সব ফটো লোড করা হচ্ছে"</string>
+    <string name="permission_write_audio" msgid="8819694245323580601">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g>-কে এই অডিও ফাইল পরিবর্তন করার অনুমতি দিতে চান?}one{<xliff:g id="APP_NAME_1">^1</xliff:g>-কে <xliff:g id="COUNT">^2</xliff:g>টি অডিও ফাইল পরিবর্তন করার অনুমতি দিতে চান?}other{<xliff:g id="APP_NAME_1">^1</xliff:g>-কে <xliff:g id="COUNT">^2</xliff:g>টি অডিও ফাইল পরিবর্তন করার অনুমতি দিতে চান?}}"</string>
+    <string name="permission_progress_write_audio" msgid="6029375427984180097">"{count,plural, =1{অডিও ফাইলে পরিবর্তন করা হচ্ছে…}one{<xliff:g id="COUNT">^1</xliff:g>টি অডিও ফাইলে পরিবর্তন করা হচ্ছে…}other{<xliff:g id="COUNT">^1</xliff:g>টি অডিও ফাইলে পরিবর্তন করা হচ্ছে…}}"</string>
+    <string name="permission_write_video" msgid="103902551603700525">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g>-কে এই ভিডিও পরিবর্তন করার অনুমতি দিতে চান?}one{<xliff:g id="APP_NAME_1">^1</xliff:g>-কে <xliff:g id="COUNT">^2</xliff:g>টি ভিডিও পরিবর্তন করার অনুমতি দিতে চান?}other{<xliff:g id="APP_NAME_1">^1</xliff:g>-কে <xliff:g id="COUNT">^2</xliff:g>টি ভিডিও পরিবর্তন করার অনুমতি দিতে চান?}}"</string>
+    <string name="permission_progress_write_video" msgid="7014908418349819148">"{count,plural, =1{ভিডিওতে পরিবর্তন করা হচ্ছে…}one{<xliff:g id="COUNT">^1</xliff:g>টি ভিডিওতে পরিবর্তন করা হচ্ছে…}other{<xliff:g id="COUNT">^1</xliff:g>টি ভিডিওতে পরিবর্তন করা হচ্ছে…}}"</string>
+    <string name="permission_write_image" msgid="3518991791620523786">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g>-কে এই ফটো পরিবর্তন করার অনুমতি দিতে চান?}one{<xliff:g id="APP_NAME_1">^1</xliff:g>-কে <xliff:g id="COUNT">^2</xliff:g>টি ফটো পরিবর্তন করার অনুমতি দিতে চান?}other{<xliff:g id="APP_NAME_1">^1</xliff:g>-কে <xliff:g id="COUNT">^2</xliff:g>টি ফটো পরিবর্তন করার অনুমতি দিতে চান?}}"</string>
+    <string name="permission_progress_write_image" msgid="3623580315590025262">"{count,plural, =1{ফটোতে পরিবর্তন করা হচ্ছে…}one{<xliff:g id="COUNT">^1</xliff:g>টি ফটোতে পরিবর্তন করা হচ্ছে…}other{<xliff:g id="COUNT">^1</xliff:g>টি ফটোতে পরিবর্তন করা হচ্ছে…}}"</string>
+    <string name="permission_write_generic" msgid="7431128739233656991">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g>-কে এই আইটেম পরিবর্তন করার অনুমতি দিতে চান?}one{<xliff:g id="APP_NAME_1">^1</xliff:g>-কে <xliff:g id="COUNT">^2</xliff:g>টি আইটেম পরিবর্তন করার অনুমতি দিতে চান?}other{<xliff:g id="APP_NAME_1">^1</xliff:g>-কে <xliff:g id="COUNT">^2</xliff:g>টি আইটেম পরিবর্তন করার অনুমতি দিতে চান?}}"</string>
+    <string name="permission_progress_write_generic" msgid="2806560971318391443">"{count,plural, =1{আইটেমে পরিবর্তন করা হচ্ছে…}one{<xliff:g id="COUNT">^1</xliff:g>টি আইটেমে পরিবর্তন করা হচ্ছে…}other{<xliff:g id="COUNT">^1</xliff:g>টি আইটেমে পরিবর্তন করা হচ্ছে…}}"</string>
+    <string name="permission_trash_audio" msgid="6554672354767742206">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g>-কে এই অডিও ফাইল ট্র্যাশ ফোল্ডারে সরিয়ে দেওয়ার অনুমতি দিতে চান?}one{<xliff:g id="APP_NAME_1">^1</xliff:g>-কে <xliff:g id="COUNT">^2</xliff:g>টি অডিও ফাইল ট্র্যাশ ফোল্ডারে সরিয়ে দেওয়ার অনুমতি দিতে চান?}other{<xliff:g id="APP_NAME_1">^1</xliff:g>-কে <xliff:g id="COUNT">^2</xliff:g>টি অডিও ফাইল ট্র্যাশ ফোল্ডারে সরিয়ে দেওয়ার অনুমতি দিতে চান?}}"</string>
+    <string name="permission_progress_trash_audio" msgid="3116279868733641329">"{count,plural, =1{অডিও ফাইল ট্র্যাশে সরানো হচ্ছে…}one{<xliff:g id="COUNT">^1</xliff:g>টি অডিও ফাইল ট্র্যাশে সরানো হচ্ছে…}other{<xliff:g id="COUNT">^1</xliff:g>টি অডিও ফাইল ট্র্যাশে সরানো হচ্ছে…}}"</string>
+    <string name="permission_trash_video" msgid="7555850843259959642">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g>-কে এই ভিডিও ট্র্যাশ ফোল্ডারে সরিয়ে দেওয়ার অনুমতি দিতে চান?}one{<xliff:g id="APP_NAME_1">^1</xliff:g>-কে <xliff:g id="COUNT">^2</xliff:g>টি ভিডিও ট্র্যাশ ফোল্ডারে সরিয়ে দেওয়ার অনুমতি দিতে চান?}other{<xliff:g id="APP_NAME_1">^1</xliff:g>-কে <xliff:g id="COUNT">^2</xliff:g>টি ভিডিও ট্র্যাশ ফোল্ডারে সরিয়ে দেওয়ার অনুমতি দিতে চান?}}"</string>
+    <string name="permission_progress_trash_video" msgid="4637821778329459681">"{count,plural, =1{ভিডিও ট্র্যাশে সরানো হচ্ছে…}one{<xliff:g id="COUNT">^1</xliff:g>টি ভিডিও ট্র্যাশে সরানো হচ্ছে…}other{<xliff:g id="COUNT">^1</xliff:g>টি ভিডিও ট্র্যাশে সরানো হচ্ছে…}}"</string>
+    <string name="permission_trash_image" msgid="3333128084684156675">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g>-কে এই ফটো ট্র্যাশ ফোল্ডারে সরিয়ে দেওয়ার অনুমতি দিতে চান?}one{<xliff:g id="APP_NAME_1">^1</xliff:g>-কে <xliff:g id="COUNT">^2</xliff:g>টি ফটো ট্র্যাশ ফোল্ডারে সরিয়ে দেওয়ার অনুমতি দিতে চান?}other{<xliff:g id="APP_NAME_1">^1</xliff:g>-কে <xliff:g id="COUNT">^2</xliff:g>টি ফটো ট্র্যাশ ফোল্ডারে সরিয়ে দেওয়ার অনুমতি দিতে চান?}}"</string>
+    <string name="permission_progress_trash_image" msgid="3063857679090024764">"{count,plural, =1{ফটো ট্র্যাশে সরানো হচ্ছে…}one{<xliff:g id="COUNT">^1</xliff:g>টি ফটো ট্র্যাশে সরানো হচ্ছে…}other{<xliff:g id="COUNT">^1</xliff:g>টি ফটো ট্র্যাশে সরানো হচ্ছে…}}"</string>
+    <string name="permission_trash_generic" msgid="5545420534785075362">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g>-কে এই আইটেম ট্র্যাশ ফোল্ডারে সরিয়ে দেওয়ার অনুমতি দিতে চান?}one{<xliff:g id="APP_NAME_1">^1</xliff:g>-কে <xliff:g id="COUNT">^2</xliff:g>টি আইটেম ট্র্যাশ ফোল্ডারে সরিয়ে দেওয়ার অনুমতি দিতে চান?}other{<xliff:g id="APP_NAME_1">^1</xliff:g>-কে <xliff:g id="COUNT">^2</xliff:g>টি আইটেম ট্র্যাশ ফোল্ডারে সরিয়ে দেওয়ার অনুমতি দিতে চান?}}"</string>
+    <string name="permission_progress_trash_generic" msgid="7815124979717814057">"{count,plural, =1{আইটেম ট্র্যাশে সরানো হচ্ছে…}one{<xliff:g id="COUNT">^1</xliff:g>টি আইটেম ট্র্যাশে সরানো হচ্ছে…}other{<xliff:g id="COUNT">^1</xliff:g>টি আইটেম ট্র্যাশে সরানো হচ্ছে…}}"</string>
+    <string name="permission_untrash_audio" msgid="8404597563284002472">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g>-কে এই অডিও ফাইল ট্র্যাশ ফোল্ডার থেকে সরানোর অনুমতি দিতে চান?}one{<xliff:g id="APP_NAME_1">^1</xliff:g>-কে <xliff:g id="COUNT">^2</xliff:g>টি অডিও ফাইল ট্র্যাশ ফোল্ডার থেকে সরানোর অনুমতি দিতে চান?}other{<xliff:g id="APP_NAME_1">^1</xliff:g>-কে <xliff:g id="COUNT">^2</xliff:g>টি অডিও ফাইল ট্র্যাশ ফোল্ডার থেকে সরানোর অনুমতি দিতে চান?}}"</string>
+    <string name="permission_progress_untrash_audio" msgid="2775372344946464508">"{count,plural, =1{অডিও ফাইলকে ট্র্যাশ থেকে বের করে আনা হচ্ছে…}one{<xliff:g id="COUNT">^1</xliff:g>টি অডিও ফাইলকে ট্র্যাশ থেকে বের করে আনা হচ্ছে…}other{<xliff:g id="COUNT">^1</xliff:g>টি অডিও ফাইলকে ট্র্যাশ থেকে বের করে আনা হচ্ছে…}}"</string>
+    <string name="permission_untrash_video" msgid="3178914827607608162">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g>-কে এই ভিডিও ট্র্যাশ ফোল্ডার থেকে সরানোর অনুমতি দিতে চান?}one{<xliff:g id="APP_NAME_1">^1</xliff:g>-কে <xliff:g id="COUNT">^2</xliff:g>টি ভিডিও ট্র্যাশ ফোল্ডার থেকে সরানোর অনুমতি দিতে চান?}other{<xliff:g id="APP_NAME_1">^1</xliff:g>-কে <xliff:g id="COUNT">^2</xliff:g>টি ভিডিও ট্র্যাশ ফোল্ডার থেকে সরানোর অনুমতি দিতে চান?}}"</string>
+    <string name="permission_progress_untrash_video" msgid="5500929409733841567">"{count,plural, =1{ভিডিওকে ট্র্যাশ থেকে বের করে আনা হচ্ছে…}one{<xliff:g id="COUNT">^1</xliff:g>টি ভিডিওকে ট্র্যাশ থেকে বের করে আনা হচ্ছে…}other{<xliff:g id="COUNT">^1</xliff:g>টি ভিডিওকে ট্র্যাশ থেকে বের করে আনা হচ্ছে…}}"</string>
+    <string name="permission_untrash_image" msgid="3397523279351032265">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g>-কে এই ফটো ট্র্যাশ ফোল্ডার থেকে সরানোর অনুমতি দিতে চান?}one{<xliff:g id="APP_NAME_1">^1</xliff:g>-কে <xliff:g id="COUNT">^2</xliff:g>টি ফটো ট্র্যাশ ফোল্ডার থেকে সরানোর অনুমতি দিতে চান?}other{<xliff:g id="APP_NAME_1">^1</xliff:g>-কে <xliff:g id="COUNT">^2</xliff:g>টি ফটো ট্র্যাশ ফোল্ডার থেকে সরানোর অনুমতি দিতে চান?}}"</string>
+    <string name="permission_progress_untrash_image" msgid="5295061520504846264">"{count,plural, =1{ফটোকে ট্র্যাশ থেকে বের করে আনা হচ্ছে…}one{<xliff:g id="COUNT">^1</xliff:g>টি ফটোকে ট্র্যাশ থেকে বের করে আনা হচ্ছে…}other{<xliff:g id="COUNT">^1</xliff:g>টি ফটোকে ট্র্যাশ থেকে বের করে আনা হচ্ছে…}}"</string>
+    <string name="permission_untrash_generic" msgid="2118366929431671046">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g>-কে এই আইটেম ট্র্যাশ ফোল্ডার থেকে সরানোর অনুমতি দিতে চান?}one{<xliff:g id="APP_NAME_1">^1</xliff:g>-কে <xliff:g id="COUNT">^2</xliff:g>টি আইটেম ট্র্যাশ ফোল্ডার থেকে সরানোর অনুমতি দিতে চান?}other{<xliff:g id="APP_NAME_1">^1</xliff:g>-কে <xliff:g id="COUNT">^2</xliff:g>টি আইটেম ট্র্যাশ ফোল্ডার থেকে সরানোর অনুমতি দিতে চান?}}"</string>
+    <string name="permission_progress_untrash_generic" msgid="1489511601966842579">"{count,plural, =1{আইটেমকে ট্র্যাশ থেকে বের করে আনা হচ্ছে…}one{<xliff:g id="COUNT">^1</xliff:g>টি আইটেমকে ট্র্যাশ থেকে বের করে আনা হচ্ছে…}other{<xliff:g id="COUNT">^1</xliff:g>টি আইটেমকে ট্র্যাশ থেকে বের করে আনা হচ্ছে…}}"</string>
+    <string name="permission_delete_audio" msgid="3326674742892796627">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g>-কে এই অডিও ফাইল মুছে দেওয়ার অনুমতি দিতে চান?}one{<xliff:g id="APP_NAME_1">^1</xliff:g>-কে <xliff:g id="COUNT">^2</xliff:g>টি অডিও ফাইল মুছে দেওয়ার অনুমতি দিতে চান?}other{<xliff:g id="APP_NAME_1">^1</xliff:g>-কে <xliff:g id="COUNT">^2</xliff:g>টি অডিও ফাইল মুছে দেওয়ার অনুমতি দিতে চান?}}"</string>
+    <string name="permission_progress_delete_audio" msgid="1734871539021696401">"{count,plural, =1{অডিও ফাইল মুছে ফেলা হচ্ছে…}one{<xliff:g id="COUNT">^1</xliff:g>টি অডিও ফাইল মুছে ফেলা হচ্ছে…}other{<xliff:g id="COUNT">^1</xliff:g>টি অডিও ফাইল মুছে ফেলা হচ্ছে…}}"</string>
+    <string name="permission_delete_video" msgid="604024971828349279">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g>-কে এই ভিডিও মুছে দেওয়ার অনুমতি দিতে চান?}one{<xliff:g id="APP_NAME_1">^1</xliff:g>-কে <xliff:g id="COUNT">^2</xliff:g>টি ভিডিও মুছে দেওয়ার অনুমতি দিতে চান?}other{<xliff:g id="APP_NAME_1">^1</xliff:g>-কে <xliff:g id="COUNT">^2</xliff:g>টি ভিডিও মুছে দেওয়ার অনুমতি দিতে চান?}}"</string>
+    <string name="permission_progress_delete_video" msgid="1846702435073793157">"{count,plural, =1{ভিডিও মুছে ফেলা হচ্ছে…}one{<xliff:g id="COUNT">^1</xliff:g>টি ভিডিও মুছে ফেলা হচ্ছে…}other{<xliff:g id="COUNT">^1</xliff:g>টি ভিডিও মুছে ফেলা হচ্ছে…}}"</string>
+    <string name="permission_delete_image" msgid="3109056012794330510">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g>-কে এই ফটো মুছে দেওয়ার অনুমতি দিতে চান?}one{<xliff:g id="APP_NAME_1">^1</xliff:g>-কে <xliff:g id="COUNT">^2</xliff:g>টি ফটো মুছে দেওয়ার অনুমতি দিতে চান?}other{<xliff:g id="APP_NAME_1">^1</xliff:g>-কে <xliff:g id="COUNT">^2</xliff:g>টি ফটো মুছে দেওয়ার অনুমতি দিতে চান?}}"</string>
+    <string name="permission_progress_delete_image" msgid="8580517204901148906">"{count,plural, =1{ফটো মুছে ফেলা হচ্ছে…}one{<xliff:g id="COUNT">^1</xliff:g>টি ফটো মুছে ফেলা হচ্ছে…}other{<xliff:g id="COUNT">^1</xliff:g>টি ফটো মুছে ফেলা হচ্ছে…}}"</string>
+    <string name="permission_delete_generic" msgid="7891939881065520271">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g>-কে এই আইটেম মুছে দেওয়ার অনুমতি দিতে চান?}one{<xliff:g id="APP_NAME_1">^1</xliff:g>-কে <xliff:g id="COUNT">^2</xliff:g>টি আইটেম মুছে দেওয়ার অনুমতি দিতে চান?}other{<xliff:g id="APP_NAME_1">^1</xliff:g>-কে <xliff:g id="COUNT">^2</xliff:g>টি আইটেম মুছে দেওয়ার অনুমতি দিতে চান?}}"</string>
+    <string name="permission_progress_delete_generic" msgid="6709118146245087898">"{count,plural, =1{আইটেম মুছে ফেলা হচ্ছে…}one{<xliff:g id="COUNT">^1</xliff:g>টি আইটেম মুছে ফেলা হচ্ছে…}other{<xliff:g id="COUNT">^1</xliff:g>টি আইটেম মুছে ফেলা হচ্ছে…}}"</string>
+    <string name="transcode_denied" msgid="6760546817138288976">"<xliff:g id="APP_NAME">%s</xliff:g> মিডিয়া ফাইল প্রসেস করতে পারবে না"</string>
+    <string name="transcode_processing_cancelled" msgid="5340383917746945590">"মিডিয়া ফাইল প্রসেস করা বাতিল হয়ে গেছে"</string>
+    <string name="transcode_processing_error" msgid="8921643164508407874">"মিডিয়া ফাইল প্রসেস করার সময়ে সমস্যা হচ্ছে"</string>
+    <string name="transcode_processing_success" msgid="447288876429730122">"মিডিয়া ফাইল প্রসেস করা হয়ে গেছে"</string>
+    <string name="transcode_processing_started" msgid="7789086308155361523">"মিডিয়া ফাইল প্রসেস করা শুরু হয়ে গেছে"</string>
+    <string name="transcode_processing" msgid="6753136468864077258">"মিডিয়া ফাইল প্রসেস করা হচ্ছে…"</string>
+    <string name="transcode_cancel" msgid="8555752601907598192">"বাতিল করুন"</string>
+    <string name="transcode_wait" msgid="8909773149560697501">"অপেক্ষা করুন"</string>
+    <string name="safety_protection_icon_label" msgid="6714354052747723623">"নিরাপত্তার সুরক্ষা"</string>
+    <string name="transcode_alert_channel" msgid="997332371757680478">"নেটিভ ট্রান্সকোড অ্যালার্ট"</string>
+    <string name="transcode_progress_channel" msgid="6905136787933058387">"নেটিভ ট্রান্সকোড প্রোগ্রেস"</string>
+    <string name="dialog_error_message" msgid="5120432204743681606">"পরে আবার চেষ্টা করুন। সমস্যার সমাধান হয়ে গেলে আপনার ফটো উপলভ্য হবে।"</string>
+    <string name="dialog_error_title" msgid="636349284077820636">"কিছু ফটো লোড করা যাচ্ছে না"</string>
+    <string name="dialog_button_text" msgid="351366485240852280">"বুঝেছি"</string>
+    <string name="permlab_accessMediaOwnerPackageName" msgid="3849443148060165651">"মিডিয়ার মালিকের প্যাকেজ নাম অ্যাক্সেস করা"</string>
+    <string name="permdesc_accessMediaOwnerPackageName" msgid="7381563109363105371">"কোনও অ্যাপকে সব অ্যাক্সেসযোগ্য মিডিয়া ফাইলের মালিকের প্যাকেজ নাম অ্যাক্সেস করতে দেয়।"</string>
+</resources>

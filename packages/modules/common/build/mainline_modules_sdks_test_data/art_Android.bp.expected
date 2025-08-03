@@ -1,0 +1,124 @@
+// This is auto-generated. DO NOT EDIT.
+
+// Soong config variable module type added by test_art.
+soong_config_module_type {
+    name: "art_prebuilt_java_import",
+    module_type: "java_import",
+    config_namespace: "art_module",
+    bool_variables: ["source_build"],
+    properties: ["prefer"],
+}
+
+// Soong config variable module type added by test_art.
+soong_config_module_type {
+    name: "art_prebuilt_prebuilt_bootclasspath_fragment",
+    module_type: "prebuilt_bootclasspath_fragment",
+    config_namespace: "art_module",
+    bool_variables: ["source_build"],
+    properties: ["prefer"],
+}
+
+// Soong config variable module type added by test_art.
+soong_config_module_type {
+    name: "art_prebuilt_prebuilt_platform_compat_config",
+    module_type: "prebuilt_platform_compat_config",
+    config_namespace: "art_module",
+    bool_variables: ["source_build"],
+    properties: ["prefer"],
+}
+
+package {
+    // A default list here prevents the license LSC from adding its own list which would
+    // be unnecessary as every module in the sdk already has its own licenses property.
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+art_prebuilt_prebuilt_bootclasspath_fragment {
+    name: "art-bootclasspath-fragment",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    prefer: true,
+    soong_config_variables: {
+        source_build: {
+            prefer: false,
+        },
+    },
+    visibility: [
+        "//art/build/apex",
+        "//art/build/boot",
+        "//art/build/sdk",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.art",
+    ],
+    licenses: ["art-module-sdk_art_license"],
+    image_name: "art",
+    contents: [
+        "core-oj",
+        "core-libart",
+        "okhttp",
+        "bouncycastle",
+        "apache-xml",
+    ],
+    api: {
+        stub_libs: ["art.module.public.api"],
+    },
+    core_platform_api: {
+        stub_libs: ["art.module.public.api.stubs.module_lib"],
+    },
+    hidden_api: {
+        max_target_o_low_priority: ["hiddenapi/hiddenapi-max-target-o-low-priority.txt"],
+        blocked: ["hiddenapi/hiddenapi-blocked.txt"],
+        unsupported_packages: ["hiddenapi/hiddenapi-unsupported-packages.txt"],
+        stub_flags: "hiddenapi/stub-flags.csv",
+        annotation_flags: "hiddenapi/annotation-flags.csv",
+        metadata: "hiddenapi/metadata.csv",
+        index: "hiddenapi/index.csv",
+        all_flags: "hiddenapi/all-flags.csv",
+    },
+}
+
+art_prebuilt_prebuilt_platform_compat_config {
+    name: "libcore-platform-compat-config",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    prefer: true,
+    soong_config_variables: {
+        source_build: {
+            prefer: false,
+        },
+    },
+    visibility: [
+        "//art/build/apex",
+        "//art/build/sdk",
+        "//libcore",
+        "//prebuilts:__subpackages__",
+    ],
+    licenses: ["art-module-sdk_libcore_license"],
+    metadata: "compat_configs/libcore-platform-compat-config/libcore-platform-compat-config_meta.xml",
+}
+
+art_prebuilt_java_import {
+    name: "core-oj",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "art_module" is true.
+    prefer: true,
+    soong_config_variables: {
+        source_build: {
+            prefer: false,
+        },
+    },
+    visibility: [
+        "//art/build/apex",
+        "//art/build/sdk",
+        "//external/wycheproof",
+        "//libcore",
+        "//libcore/benchmarks",
+        "//packages/modules/ArtPrebuilt",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+    licenses: ["art-module-sdk_libcore_license"],
+    jars: ["java/core-oj.jar"],
+}

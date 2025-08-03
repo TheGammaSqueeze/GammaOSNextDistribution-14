@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  Copyright (c) 2022, The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="5655878067457216814">"DeviceLockController"</string>
+    <string name="next_button" msgid="1856423430963548653">"Επόμενο"</string>
+    <string name="reset_button" msgid="4649354411129240809">"Επαναφορά"</string>
+    <string name="setup_more_button" msgid="4456370972302510109">"Περισσότερα"</string>
+    <string name="setup_info_title_text" msgid="299562193092219293">"Πώς μπορεί να διαχειριστεί αυτήν τη συσκευή η εφαρμογή <xliff:g id="CREDITOR_APP">%1$s</xliff:g>"</string>
+    <string name="setup_failed_title_text" msgid="9045111389981992536">"Δεν είναι δυνατή η εγκατάσταση της εφαρμογής <xliff:g id="CREDITOR_APP">%1$s</xliff:g>"</string>
+    <string name="setup_failed_reset_device_text" msgid="178419033440060908">"Γίνεται επαναφορά της συσκευής για νέα δοκιμή."</string>
+    <string name="setup_failed_reset_device_timer_text" msgid="5270970227714985986">"{count,plural, =1{Επαναφέρετε αυτήν τη συσκευή και, στη συνέχεια, δοκιμάστε να τη ρυθμίσετε ξανά. Θα γίνει αυτόματη επαναφορά σε 1 δευτερόλεπτο.}other{Επαναφέρετε αυτήν τη συσκευή και, στη συνέχεια, δοκιμάστε να τη ρυθμίσετε ξανά. Θα γίνει αυτόματη επαναφορά σε # δευτερόλεπτα.}}"</string>
+    <string name="setup_progress_title_text" msgid="2388779167610656852">"Εγκατάσταση εφαρμογής <xliff:g id="CREDITOR_APP">%1$s</xliff:g><xliff:g id="ELLIPSIS">…</xliff:g>"</string>
+    <string name="setup_finish_title_text" msgid="2810842695806992743">"Άνοιγμα εφαρμογής <xliff:g id="CREDITOR_APP">%1$s</xliff:g><xliff:g id="ELLIPSIS">…</xliff:g>"</string>
+    <string name="setup_error_title_text" msgid="1123742279081942535">"Δεν είναι δυνατό το άνοιγμα της εφαρμογής <xliff:g id="CREDITOR_APP">%1$s</xliff:g>"</string>
+    <string name="try_again" msgid="5964839819170927721">"Δοκιμάστε ξανά"</string>
+    <string name="reset_phone" msgid="1161657350311160627">"Επαναφορά τηλεφώνου"</string>
+    <string name="control_section_title" msgid="2213476068991045785">"Τι μπορεί να κάνει η εφαρμογή <xliff:g id="CREDITOR_APP">%1$s</xliff:g>;"</string>
+    <string name="control_lock_device_text" msgid="8253302484073757764">"Εφαρμογή περιορισμών σε αυτήν τη συσκευή αν δεν καταβάλετε κάποια πληρωμή"</string>
+    <string name="control_download_text" msgid="8514650561843088172">"Λήψη, εγκατάσταση και ενημέρωση της εφαρμογής <xliff:g id="CREDITOR_APP">%1$s</xliff:g>"</string>
+    <string name="control_disable_debug_text" msgid="8112443250013094442">"Απενεργοποίηση λειτουργιών εντοπισμού και διόρθωσης σφαλμάτων"</string>
+    <string name="locked_section_title" msgid="2748725389334076510">"Τι θα λειτουργεί αν αυτή η συσκευή κλειδωθεί;"</string>
+    <string name="locked_emergency_text" msgid="3509216445555779286">"Υπηρεσίες κλήσεων έκτακτης ανάγκης"</string>
+    <string name="locked_phone_usage_text" msgid="1913605870324552847">"Εισερχόμενες και ορισμένες εξερχόμενες κλήσεις"</string>
+    <string name="locked_settings_usage_text" msgid="8336476063187737700">"Ρυθμίσεις"</string>
+    <string name="locked_backup_and_restore_text" msgid="104616318625243429">"&lt;a href=https://support.google.com/android/answer/2819582&gt;Δημ. αντ. ασφ. και επαναφ.&lt;/a&gt; δεδομ."</string>
+    <string name="exposure_section_title" msgid="2329122144337528752">"Τι είναι ορατό στην εφαρμογή <xliff:g id="CREDITOR_APP">%1$s</xliff:g>;"</string>
+    <string name="exposure_install_text" msgid="2631074166447765453">"Πότε έγινε η εγκατάσταση ή απεγκατάσταση της εφαρμογής <xliff:g id="CREDITOR_APP">%1$s</xliff:g>."</string>
+    <string name="exposure_lock_unlock_text" msgid="6827412845847260579">"Τυχόν αιτήματα για κλείδωμα και ξεκλείδωμα από την εφαρμογή <xliff:g id="CREDITOR_APP">%1$s</xliff:g>"</string>
+    <string name="exposure_disable_dlc_text" msgid="2898692398106736423">"Εάν η εφαρμογή <xliff:g id="CREDITOR_APP">%1$s</xliff:g> δεν είναι διαθέσιμη"</string>
+    <string name="open_source_licenses" msgid="6464389386262455443">"Άδειες λογισμικού ανοικτού κώδικα"</string>
+    <string name="footer_notice_content_description" msgid="2160540400079419440">"Οι δυνατότητες διαχείρισης στην ενότητα χρηματοδοτούμενης συσκευής δεν ισχύουν για αυτήν τη συσκευή."</string>
+    <string name="device_provided_by_provider" msgid="290593329676291991">"Αυτή η συσκευή παρέχεται από <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>"</string>
+    <string name="download_kiosk_app" msgid="1845089944897502656">"Θα γίνει αυτόματα λήψη και εγκατάσταση της εφαρμογής kiosk"</string>
+    <string name="install_kiosk_app_secondary_user" msgid="49911908012320834">"Η εφαρμογή kiosk θα εγκατασταθεί για αυτόν τον χρήστη"</string>
+    <string name="restrict_device_if_missing_payment" msgid="8883980285859496904">"Αν δεν καταβάλετε μια πληρωμή, ο πάροχος <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> μπορεί να εφαρμόσει περιορισμούς στη συσκευή. Για λεπτομέρειες, ανατρέξτε στην ενότητα <xliff:g id="TERMS_AND_CONDITIONS_LINK_START">&lt;a href=%2$s&gt;</xliff:g>Όροι και Προϋποθέσεις<xliff:g id="TERMS_AND_CONDITIONS_LINK_END">&lt;/a&gt;</xliff:g>."</string>
+    <string name="restrict_device_if_dont_make_payment" msgid="1619095674945507015">"Ο πάροχος <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> μπορεί να εφαρμόσει περιορισμούς σε αυτήν τη συσκευή αν δεν καταβάλετε τις απαραίτητες πληρωμές. Για λεπτομέρειες, ανατρέξτε στην ενότητα <xliff:g id="TERMS_AND_CONDITIONS_LINK_START">&lt;a href=%2$s&gt;</xliff:g>Όροι και Προϋποθέσεις<xliff:g id="TERMS_AND_CONDITIONS_LINK_END">&lt;/a&gt;</xliff:g>."</string>
+    <string name="contact_provider_for_help" msgid="3872028089834808884">"Για βοήθεια, <xliff:g id="SUPPORT_LINK_START">&lt;a href=%2$s&gt;</xliff:g>επικοινωνήστε με την εταιρεία <xliff:g id="PROVIDER_NAME">%1$s</xliff:g><xliff:g id="SUPPORT_LINK_END">&lt;/a&gt;</xliff:g>."</string>
+    <string name="previous" msgid="5241891780917802570">"Προηγούμενο"</string>
+    <string name="next" msgid="8248291863254324326">"Επόμενο"</string>
+    <string name="start" msgid="2842214844667658537">"Έναρξη"</string>
+    <string name="ok" msgid="3568398726528719749">"ΟΚ"</string>
+    <string name="done" msgid="4507782734740410307">"Τέλος"</string>
+    <string name="do_it_in_one_hour" msgid="2727777340568739453">"Να γίνει σε 1 ώρα"</string>
+    <string name="header_icon_content_description" msgid="6069602031334473195">"Πληροφορίες"</string>
+    <string name="provision_info_item_icon_content_description" msgid="2306298178610632507">"Πληροφορίες παροχής"</string>
+    <string name="enroll_your_device_header" msgid="2226305405591945098">"Εγγραφή της συσκευής σας"</string>
+    <string name="enroll_your_device_financing_subheader" msgid="8810608106273097451">"Μπορείτε τώρα να εγγράψετε τη συσκευή σας στο οικονομικό πρόγραμμα του παρόχου <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>"</string>
+    <string name="enroll_your_device_subsidy_subheader" msgid="8598730780370624995">"Μπορείτε τώρα να εγγράψετε τη συσκευή σας στο επιδοτούμενο πρόγραμμα του <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>"</string>
+    <string name="subsidy_program_header" msgid="2321508488856303554">"Είστε σε επιδοτούμενο πρόγραμμα <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>"</string>
+    <string name="device_enrollment_header_text" msgid="5283341102404741658">"Εγγραφή συσκευής"</string>
+    <string name="device_financing_enrollment_body_text" msgid="5506086383249511498">"Η συσκευή σας θα εγγραφεί στο χρηματοοικονομικό πρόγραμμα του παρόχου <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> εντός 30 ημερών"</string>
+    <string name="device_subsidy_enrollment_body_text" msgid="3971584929178719388">"Η συσκευή σας θα εγγραφεί στο επιδοτούμενο πρόγραμμα του παρόχου <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> εντός 30 ημερών"</string>
+    <string name="device_enrollment_notification_body_text" msgid="8755080244956655854">"Η εγγραφή θα συνεχιστεί στις <xliff:g id="TIME">%1$s</xliff:g>. Μπορείτε να συνεχίσετε να χρησιμοποιείτε τη συσκευή σας."</string>
+    <string name="continue_using_device" msgid="5816570734692191190">"Μπορείτε να συνεχίσ. να χρησ. τη συσκευή"</string>
+    <string name="device_paid" msgid="6606280698381856804">"Έχετε πληρώσει για τη συσκευή σας"</string>
+    <string name="device_removed_from_subsidy_program" msgid="1243434945619071051">"Η συσκευή καταργήθηκε από το επιδοτούμενο πρόγραμμα του παρόχου <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>"</string>
+    <string name="device_removed_from_finance_program" msgid="825548999540107578">"Η συσκευή σας καταργήθηκε από το χρηματοοικονομικό πρόγραμμα του παρόχου <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>"</string>
+    <string name="restrictions_lifted" msgid="5785586265984319396">"Έχουν αρθεί όλοι οι περιορισμοί της συσκευής"</string>
+    <string name="uninstall_kiosk_app" msgid="3459557395024053988">"Μπορείτε να απεγκαταστήσετε την εφαρμογή kiosk από τη συσκευή σας"</string>
+    <string name="getting_device_ready" msgid="2829009584599871699">"Προετοιμασία της συσκευής σας…"</string>
+    <string name="this_may_take_a_few_minutes" msgid="2482876246874429351">"Η διαδικασία ίσως διαρκέσει μερικά λεπτά"</string>
+    <string name="installing_kiosk_app" msgid="324208168205545860">"Εγκατάσταση εφαρμογής <xliff:g id="CREDITOR_APP">%1$s</xliff:g>…"</string>
+    <string name="opening_kiosk_app" msgid="2021888641430165654">"Άνοιγμα εφαρμογής <xliff:g id="CREDITOR_APP">%1$s</xliff:g>…"</string>
+    <string name="settings_banner_title" msgid="527041021011279252">"Η συσκευή παρέχεται από τον πάροχο <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>"</string>
+    <string name="settings_banner_body" msgid="5814902066260202824">"Ο πάροχος <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> μπορεί να αλλάξει ρυθμίσεις σε αυτήν τη συσκευή"</string>
+    <string name="settings_banner_button" msgid="1831020849782670907">"Μάθετε περισσότερα"</string>
+    <string name="settings_screen_title" msgid="721470080648091035">"Πληροφορίες χρηματοδοτούμενης συσκευής"</string>
+    <string name="settings_intro_device_financing" msgid="2548476558131048133">"Ο πάροχος <xliff:g id="PROVIDER_NAME_0">%1$s</xliff:g> μπορεί να αλλάξει τις ρυθμίσεις και να εγκαταστήσει την εφαρμογή kiosk στη συσκευή.\n\nΑν δεν καταβάλετε μια πληρωμή, ο πάροχος <xliff:g id="PROVIDER_NAME_1">%1$s</xliff:g> μπορεί να εφαρμόσει περιορισμούς στη συσκευή.\n\nΓια να μάθετε περισσότερα, επικοινωνήστε με τον πάροχο <xliff:g id="PROVIDER_NAME_2">%1$s</xliff:g>."</string>
+    <string name="settings_intro_device_subsidy" msgid="4274945644204818702">"Ο πάροχος <xliff:g id="PROVIDER_NAME_0">%1$s</xliff:g> μπορεί να αλλάξει τις ρυθμίσεις και να εγκαταστήσει την εφαρμογή kiosk στη συσκευή.\n\nΟ πάροχος <xliff:g id="PROVIDER_NAME_1">%1$s</xliff:g> μπορεί επίσης να εφαρμόσει περιορισμούς σε αυτήν τη συσκευή, αν δεν καταβάλετε μια πληρωμή ή σταματήσετε να χρησιμοποιείτε τη SIM του παρόχου <xliff:g id="PROVIDER_NAME_2">%1$s</xliff:g>.\n\nΓια να μάθετε περισσότερα, επικοινωνήστε με τον πάροχο <xliff:g id="PROVIDER_NAME_3">%1$s</xliff:g>."</string>
+    <string name="settings_intro_preference_key" msgid="6610461073400554162">"settings_intro_preference_key"</string>
+    <string name="settings_restrictions_category" msgid="5746868117342406677">"Μέχρι να πληρώσετε για τη συσκευή, δεν μπορείτε:"</string>
+    <string name="settings_restrictions_category_preference_key" msgid="88318147152676512">"settings_restrictions_category_preference_key"</string>
+    <string name="settings_install_apps" msgid="3634279771448183713">"Εγκατάσταση εφαρμογών που δεν προέρχονται από το Play Store"</string>
+    <string name="settings_install_apps_preference_key" msgid="27542314345238427">"settings_install_apps_preference_key"</string>
+    <string name="settings_safe_mode" msgid="3035228015586375153">"Επανεκκίνηση της συσκευής σας σε ασφαλή λειτουργία"</string>
+    <string name="settings_safe_mode_preference_key" msgid="2106617747358027424">"settings_safe_mode_preference_key"</string>
+    <string name="settings_developer_options" msgid="880701002025216672">"Χρήση επιλογών για προγραμματιστές"</string>
+    <string name="settings_developer_options_preference_key" msgid="6807036808722582954">"settings_developer_options_preference_key"</string>
+    <string name="settings_credit_provider_capabilities_category" msgid="1274440595211820868">"Για προβλ. συσκευής, ο πάροχος <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> μπορεί:"</string>
+    <string name="settings_credit_provider_capabilities_category_preference_key" msgid="4571685720898641262">"settings_credit_provider_capabilities_category_preference_key"</string>
+    <string name="settings_IMEI" msgid="697965824361262506">"Πρόσβαση στον αριθμό IMEI"</string>
+    <string name="settings_IMEI_preference_key" msgid="608809590948249412">"settings_IMEI_preference_key"</string>
+    <string name="settings_factory_reset" msgid="418045189048067625">"Επαναφορά εργοστασιακών ρυθμίσεων συσκευής"</string>
+    <string name="settings_factory_reset_preference_key" msgid="2168528486393635382">"settings_factory_reset_preference_key"</string>
+    <string name="settings_locked_mode_category" msgid="6307525048618331737">"Εάν εφαρμοστούν περιορισμοί στη συσκευή σας, θα μπορείτε να τη χρησιμοποιήσετε μόνο για:"</string>
+    <string name="settings_locked_mode_category_preference_key" msgid="7202573929427220258">"settings_locked_mode_category_preference_key"</string>
+    <string name="settings_emergency_calls" msgid="2460996367176786040">"Κλήση αριθμών έκτακτης ανάγκης"</string>
+    <string name="settings_emergency_calls_preference_key" msgid="737598609727181316">"settings_emergency_calls_preference_key"</string>
+    <string name="settings_system_info" msgid="1352629332624774940">"Προβολή πληροφοριών συστήματος, όπως ημερομηνίας, ώρας, κατάστασης δικτύου και μπαταρίας"</string>
+    <string name="settings_system_info_preference_key" msgid="8607675914059202598">"settings_system_info_preference_key"</string>
+    <string name="settings_turn_on_off_device" msgid="5414836621603462439">"Ενεργοποίηση ή απενεργοποίηση της συσκευής σας"</string>
+    <string name="settings_turn_on_off_device_preference_key" msgid="5981163790552677734">"settings_turn_on_off_device_preference_key"</string>
+    <string name="settings_notifications" msgid="63348993899505034">"Προβολή ειδοποιήσεων και μηνύματα κειμένου"</string>
+    <string name="settings_notifications_preference_key" msgid="4527872342061056462">"settings_notifications_preference_key"</string>
+    <string name="settings_allowlisted_apps" msgid="5531810497056091097">"Εφαρμογές πρόσβασης που επιτρέπονται από τον πάροχο <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>"</string>
+    <string name="settings_allowlisted_apps_preference_key" msgid="8662705531235468080">"settings_allowlisted_apps_preference_key"</string>
+    <string name="settings_fully_paid_category" msgid="2459776591689824433">"Αφού πληρώσετε το πλήρες ποσό:"</string>
+    <string name="settings_fully_paid_category_preference_key" msgid="1759690898170600559">"settings_fully_paid_category_preference_key"</string>
+    <string name="settings_restrictions_removed" msgid="1398080654904863221">"Ο πάροχος <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> δεν μπορεί να εφαρμόσει περιορισμούς στη συσκευή ή να αλλάξει τις ρυθμίσεις της"</string>
+    <string name="settings_restrictions_removed_preference_key" msgid="7741933477145197391">"settings_restrictions_removed_preference_key"</string>
+    <string name="settings_uninstall_kiosk_app" msgid="2611134364295637875">"Μπορείτε να απεγκαταστήσετε την εφαρμογή <xliff:g id="KIOSK_APP">%1$s</xliff:g>"</string>
+    <string name="settings_uninstall_kiosk_app_preference_key" msgid="5578103644009268125">"settings_uninstall_kiosk_app_preference_key"</string>
+    <string name="settings_support_category" msgid="7210906871924935770">"Για λήψη βοήθειας:"</string>
+    <string name="settings_support_category_preference_key" msgid="1818953199283261021">"settings_support_category_preference_key"</string>
+    <string name="settings_contact_provider" msgid="2481819956474692039">"<xliff:g id="SUPPORT_LINK_START">&lt;a href=%2$s&gt;</xliff:g>Επικοινωνήστε με τον πάροχο <xliff:g id="PROVIDER_NAME">%1$s</xliff:g><xliff:g id="SUPPORT_LINK_END">&lt;/a&gt;</xliff:g>"</string>
+    <string name="settings_contact_provider_preference_key" msgid="2703619536229342624">"settings_contact_provider_preference_key"</string>
+    <string name="provision_notification_channel_name" msgid="6123500714047647805">"Παροχή"</string>
+    <string name="device_reset_in_days_notification_title" msgid="920859483535317727">"{count,plural, =1{Θα γίνει επαναφορά της συσκευής σε 1 ημέρα}other{Θα γίνει επαναφορά της συσκευής σε # ημέρες}}"</string>
+    <string name="device_reset_timer_notification_title" msgid="301978346002711614">"Θα γίνει επαναφορά της συσκευής σε <xliff:g id="TIMER">%s</xliff:g>"</string>
+    <string name="device_reset_notification_content" msgid="7642367488663440437">"Θα διαγραφούν όλα τα δεδομένα της συσκευής. Για βοήθεια με την εγγραφή της συσκευής, επικοινωνήστε με τον πάροχο <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>"</string>
+    <string name="provisioning_failed" msgid="5350252817004028300">"Η χρηματοοικονομική παροχή απέτυχε"</string>
+    <string name="click_to_contact_financier" msgid="9107827438262930445">"Κάντε κλικ εδώ για τρόπους επικοινωνίας με τον χρηματοοικονομικό σας σύμβουλο. <xliff:g id="SUPPORT_URL_START">&lt;a href=%1$s&gt;</xliff:g>Μάθετε περισσότερα<xliff:g id="SUPPORT_URL_END">&lt;/a&gt;</xliff:g>"</string>
+    <string name="exit" msgid="645084771882733921">"Έξοδος"</string>
+    <string name="retry" msgid="7497287909193345356">"Επανάληψη"</string>
+</resources>

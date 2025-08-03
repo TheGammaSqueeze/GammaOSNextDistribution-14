@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.android.apex.cts.shim">
+    <!-- APEX does not have classes.dex -->
+    <application android:hasCode="false"/>
+    <install-constraints>
+        <!-- PackageManager will allow installation if at least one of the fingerprint-prefixes
+             matches the build fingerprint of a device.
+             Since one of them is an empty string, the apex with these constraints can be installed
+             on all devices as long as the packagename is allowlisted by the system.
+         -->
+        <fingerprint-prefix android:value="does/not/exist"/>
+        <fingerprint-prefix android:value=""/>
+    </install-constraints>
+</manifest>

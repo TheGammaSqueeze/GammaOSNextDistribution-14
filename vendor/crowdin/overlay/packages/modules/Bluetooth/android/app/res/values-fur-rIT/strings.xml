@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Bluetooth</string>
+    <string name="permlab_bluetoothShareManager">Acès al gjestôr dai discjariaments.</string>
+    <string name="permdesc_bluetoothShareManager">Al permet ae aplicazions di acedi al
+        gjestôr BluetoothShare e doprâlu par trasferî files. </string>
+    <string name="permlab_bluetoothAcceptlist">Zonte dal acès dal dispositîf bluetooth ae liste consintude.</string>
+    <string name="permdesc_bluetoothAcceptlist">Al permet ae apliacazion di zontâ in mût temporani
+        un dispositîf Bluetooth ae liste consintude, permetint a chel dispositîf di mandâ
+        files a chest dispositîfs cence domandâ confermis al utent.</string>
+    <string name="bt_share_picker_label">Bluetooth</string>
+    <string name="unknown_device">Dispositîf no cognossût</string>
+    <string name="unknownNumber">No cognossût</string>
+    <string name="not_provided">No furnît</string>
+    <string name="airplane_error_title">Modalitât avion</string>
+    <string name="airplane_error_msg">No tu puedis doprâ il Bluetooth in modalitât avion.</string>
+    <string name="bt_enable_line1">Par doprâ i servizis dal Bluetooth, prime tu âs di ativâ il Bluetooth.</string>
+    <string name="bt_enable_line2">Ativâ cumò il Bluetooth?</string>
+    <string name="bt_enable_cancel">Anule</string>
+    <string name="bt_enable_ok">Ative</string>
+    <string name="incoming_file_confirm_title">Trasferiment files</string>
+    <string name="incoming_file_confirm_content">Acetâ il file in jentrade? </string>
+    <string name="incoming_file_confirm_cancel">Refude</string>
+    <string name="incoming_file_confirm_ok">Acete</string>
+    <string name="incoming_file_confirm_timeout_ok">Va ben</string>
+    <string name="incoming_file_confirm_timeout_content">Il timp al è scjadût intant che si stave par acetâ un file in jentrade di \u0022<xliff:g id="sender">%1$s</xliff:g>\u0022</string>
+    <string name="incoming_file_confirm_Notification_title">File in jentrade</string>
+    <string name="incoming_file_confirm_Notification_content">Il mitent <xliff:g id="sender">%1$s</xliff:g> al è pront par mandâ un file: <xliff:g id="file">%2$s</xliff:g></string>
+    <string name="notification_receiving">Condivision Bluetooth: daûr a ricevi <xliff:g id="file">%1$s</xliff:g></string>
+    <string name="notification_received">Condivision Bluetooth: ricevût <xliff:g id="file">%1$s</xliff:g></string>
+    <string name="notification_received_fail">Condivision Bluetooth: nol è stât ricevût il file <xliff:g id="file">%1$s</xliff:g></string>
+    <string name="notification_sending">Condivision Bluetooth: daûr a inviâ <xliff:g id="file">%1$s</xliff:g></string>
+    <string name="notification_sent">Condivision Bluetooth: inviât <xliff:g id="file">%1$s</xliff:g></string>
+    <string name="notification_sent_complete">100% completât</string>
+    <string name="notification_sent_fail">Condivision Bluetooth: nol è stât inviât il file <xliff:g id="file">%1$s</xliff:g></string>
+    <string name="download_title">Trasferiment files</string>
+    <string name="download_line1">Di: \u0022<xliff:g id="sender">%1$s</xliff:g>\u0022</string>
+    <string name="download_line2">File: <xliff:g id="file">%1$s</xliff:g></string>
+    <string name="download_line3">Dimension file: <xliff:g id="size">%1$s</xliff:g></string>
+    <string name="download_line5">Daûr a ricevi il file\u2026</string>
+    <string name="download_cancel">Ferme</string>
+    <string name="download_ok">Plate</string>
+    <string name="incoming_line1">Di</string>
+    <string name="incoming_line2">Non dal file</string>
+    <string name="incoming_line3">Dimension</string>
+    <string name="download_fail_line1">File no ricevût</string>
+    <string name="download_fail_line2">File: <xliff:g id="file">%1$s</xliff:g></string>
+    <string name="download_fail_line3">Motîf: <xliff:g id="reason">%1$s</xliff:g></string>
+    <string name="download_fail_ok">Va ben</string>
+    <string name="download_succ_line5">File ricevût</string>
+    <string name="download_succ_ok">Vierç</string>
+    <string name="upload_line1">A: \u0022<xliff:g id="recipient">%1$s</xliff:g>\u0022</string>
+    <string name="upload_line3">Gjenar di file: <xliff:g id="type">%1$s</xliff:g> (<xliff:g id="size">%2$s</xliff:g>)</string>
+    <string name="upload_line5">Daûr a inviâ il file\u2026</string>
+    <string name="upload_succ_line5">File inviât</string>
+    <string name="upload_succ_ok">Va ben</string>
+    <string name="upload_fail_line1">Il file nol è stât mandât a \u0022<xliff:g id="recipient">%1$s</xliff:g>\u0022.</string>
+    <string name="upload_fail_line1_2">File: <xliff:g id="file">%1$s</xliff:g></string>
+    <string name="upload_fail_cancel">Siere</string>
+    <string name="bt_error_btn_ok">Va ben</string>
+    <string name="unknown_file">File no cognossût</string>
+    <string name="unknown_file_desc">No je nissune aplicazion par gjestî chest gjenar di file. \n</string>
+    <string name="not_exist_file">Nissun file</string>
+    <string name="not_exist_file_desc">Il file nol esist. \n</string>
+    <string name="enabling_progress_title">Par plasê spiete\u2026</string>
+    <string name="enabling_progress_content">Daûr a ativâ il Bluetooth\u2026</string>
+    <string name="bt_toast_1">Il file al vignarà ricevût. Controle il stât di avanzament tal panel des notifichis.</string>
+    <string name="bt_toast_2">Nol è pussibil ricevi il file.</string>
+    <string name="bt_toast_3">Si à fermât di ricevi il file di \u0022<xliff:g id="sender">%1$s</xliff:g>\u0022</string>
+    <string name="bt_toast_4">Daûr a inviâ il file a \u0022<xliff:g id="recipient">%1$s</xliff:g>\u0022</string>
+    <string name="bt_toast_5">Daûr a inviâ <xliff:g id="number">%1$s</xliff:g> files a \u0022<xliff:g id="recipient">%2$s</xliff:g>\u0022</string>
+    <string name="bt_toast_6">Si à fermât di inviâ il file a \u0022<xliff:g id="recipient">%1$s</xliff:g>\u0022</string>
+    <string name="bt_sm_2_1_nosdcard">Nol è vonde spazi te memorie USB par salvâ il file.</string>
+    <string name="bt_sm_2_1_default">Nol è vonde spazi te schede SD par salvâ il file.</string>
+    <string name="bt_sm_2_2">Spazi necessari: <xliff:g id="size">%1$s</xliff:g></string>
+    <string name="ErrorTooManyRequests">Masse richiestis in elaborazion. Torne prove plui indenant.</string>
+    <string name="status_pending">Il trasferiment dal file nol è ancjemò scomençât.</string>
+    <string name="status_running">Il trasferiment dal file al è in cors.</string>
+    <string name="status_success">Il trasferiment dal file al è stât completât cun sucès.</string>
+    <string name="status_not_accept">Il contignût nol è supuartât.</string>
+    <string name="status_forbidden">Trasferiment improibît dal dispositîf di destinazion.</string>
+    <string name="status_canceled">Trasferiment anulât dal utent.</string>
+    <string name="status_file_error">Probleme di archiviazion.</string>
+    <string name="status_no_sd_card_nosdcard">Nissune memorie USB.</string>
+    <string name="status_no_sd_card_default">Nissune schede SD. Inserìs une schede SD par salvâ i files trasferîts.</string>
+    <string name="status_connection_error">Conession lade strucje.</string>
+    <string name="status_protocol_error">Nol è pussibil gjestî ben la richieste.</string>
+    <string name="status_unknown_error">Erôr no cognossût.</string>
+    <string name="opp_notification_group">Condivision vie Bluetooth</string>
+    <string name="download_success">Completade la ricezion di <xliff:g id="file_size">%1$s</xliff:g>.</string>
+    <string name="upload_success">Completade la spedizion di <xliff:g id="file_size">%1$s</xliff:g>.</string>
+    <string name="inbound_history_title">Trasferiments in jentrade</string>
+    <string name="outbound_history_title">Trasferiments in jessude</string>
+    <string name="no_transfers">La cronologjie dai trasferiments e je vueide.</string>
+    <string name="transfer_clear_dlg_msg">Ducj i elements a vignaran netâts de liste.</string>
+    <string name="outbound_noti_title">Condivision Bluetooth: files inviâts</string>
+    <string name="inbound_noti_title">Condivision Bluetooth: files ricevûts</string>
+    <string name="noti_caption_unsuccessful"> {count, plural,
+        one {}=1    {# cence sucès.}
+        other {# cence sucès.}
+    }</string>
+    <string name="noti_caption_success"> {count, plural,
+        one {}=1    {# cun sucès, %1$s}
+        other {# cun sucès, %1$s}
+    }</string>
+    <string name="transfer_menu_clear_all">Nete la liste</string>
+    <string name="transfer_menu_open">Vierç</string>
+    <string name="transfer_menu_clear">Nete de liste</string>
+    <string name="transfer_clear_dlg_title">Nete</string>
+    <string name="bluetooth_a2dp_sink_queue_name">Cumò in riproduzion</string>
+    <string name="bluetooth_map_settings_save">Salve</string>
+    <string name="bluetooth_map_settings_cancel">Anule</string>
+    <string name="bluetooth_map_settings_intro">Selezione i accounts che tu desideris condividi midiant il Bluetooth. Tu varâs istès di acetâ cualsisei acès ai accounts tal conetiti.</string>
+    <string name="bluetooth_map_settings_count">Spazis disponibii:</string>
+    <string name="bluetooth_map_settings_app_icon">Icone de aplicazion</string>
+    <string name="bluetooth_map_settings_title">Impostazions de condivision dai messaçs Bluetooth</string>
+    <string name="bluetooth_map_settings_no_account_slots_left">Impussibil selezionâ l\'account. 0 spazis disponibii</string>
+    <string name="bluetooth_connected">Audio Bluetooth colegât</string>
+    <string name="bluetooth_disconnected">Audio Bluetooth discolegât</string>
+    <string name="a2dp_sink_mbs_label">Audio Bluetooth</string>
+    <string name="bluetooth_opp_file_limit_exceeded">Nol è pussibil trasferî i files plui grancj di 4GB</string>
+    <string name="bluetooth_connect_action">Conet al Bluetooth</string>
+    <string name="bluetooth_enabled_apm_title">Bluetooth atîf in modalitât avion</string>
+    <string name="bluetooth_enabled_apm_message">Se tu tegnis impiât il Bluetooth, il dispositîf si impensarà di tignîlu impiât la prossime volte che tu sarâs in modalitât avion</string>
+    <string name="bluetooth_stays_on_title">Il Bluetooth al reste atîf</string>
+    <string name="bluetooth_stays_on_message">Il dispositîf si impensarà di tignî il Bluetooth atîf in modalitât avion. Distude il Bluetooth se no tu desideris che al resti atîf.</string>
+    <string name="bluetooth_and_wifi_stays_on_title">Il Wi-Fi e il Bluetooth a restin atîfs</string>
+    <string name="bluetooth_and_wifi_stays_on_message">Il dispositîf si impensarà di tignî Wi-Fi e Bluetooth atîfs in modalitât avion. Distude Wi-Fi e Bluetooth se no tu desideris che a restin atîfs.</string>
+    <string name="bluetooth_enabled_auto_on_title">Il bluetooth al è stât ativât in automatic</string>
+    <string name="bluetooth_enabled_auto_on_message">Al è pussibil comutâ i gnûfs inviaments automatics tes impostazions dal Bluetooth.</string>
+    <string name="bluetooth_disable_auto_on">Disative</string>
+    <string name="bluetooth_notification_group">Cambi di stât automatic dal bluetooth</string>
+</resources>

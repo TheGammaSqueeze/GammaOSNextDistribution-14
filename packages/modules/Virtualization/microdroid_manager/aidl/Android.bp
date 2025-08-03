@@ -1,0 +1,22 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+aidl_interface {
+    name: "android.system.virtualization.payload",
+    srcs: ["android/system/virtualization/payload/*.aidl"],
+    imports: ["android.system.virtualizationcommon"],
+    unstable: true,
+    backend: {
+        java: {
+            enabled: false,
+        },
+        rust: {
+            enabled: true,
+            apex_available: [
+                "com.android.virt",
+                "com.android.compos",
+            ],
+        },
+    },
+}

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    Copyright (C) 2021 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="brand_screen_header" msgid="4382251935798018352">"Aquest vehicle pertany a l\'organització"</string>
+    <string name="contact_device_provider" msgid="338577979231875837">"Per obtenir més informació, contacta amb el <xliff:g id="IT_ADMIN">%1$s</xliff:g>."</string>
+    <string name="organization_admin" msgid="6551608903069550652">"gestor de l\'organització"</string>
+    <string name="if_questions_contact_admin" msgid="4645510019575736238">"Si tens cap dubte, contacta amb el gestor de l\'organització"</string>
+    <string name="admin_has_ability_to_monitor_device" msgid="3132155961508293345">"El gestor de l\'organització pot supervisar i gestionar la configuració, l\'accés corporatiu, les aplicacions, els permisos i les dades associades a aquest vehicle, incloses l\'activitat de xarxa i la ubicació del vehicle.<xliff:g id="LINE_BREAK">
+
+</xliff:g>Contacta amb el gestor de l\'organització per obtenir més informació i consultar les polítiques de privadesa de l\'organització."</string>
+    <string name="contact_your_admin_for_more_info" msgid="1419852317652804536">"Contacta amb el gestor de l\'organització per obtenir més informació i consultar les polítiques de privadesa de l\'organització."</string>
+    <string name="managed_device_info" msgid="2134697391634083944">"Aquest vehicle està gestionat"</string>
+    <string name="contact_your_admin_for_help" msgid="1741496631607502730">"Contacta amb el gestor de l\'organització per obtenir ajuda"</string>
+    <string name="fully_managed_device_provisioning_accept_header" msgid="8767138982035307813">"Configura el vehicle gestionat"</string>
+    <string name="fully_managed_device_provisioning_step_1_header" msgid="8704166635032524345">"Accedeix a les aplicacions de la teva organització"</string>
+    <string name="fully_managed_device_provisioning_step_1_description" msgid="5960961281295355254">"S\'està configurant el sistema d\'informació i entreteniment..."</string>
+    <string name="fully_managed_device_provisioning_step_2_header" msgid="5888602026900289468">"Les dades del sistema d\'informació i entreteniment no són privades"</string>
+    <string name="fully_managed_device_provisioning_step_2_subheader_title" msgid="1421575203782743214">"La teva activitat i les teves dades"</string>
+    <string name="fully_managed_device_provisioning_step_2_subheader" msgid="4881961368653838979">"És possible que el gestor de l\'organització pugui veure la teva activitat i les teves dades en aquest vehicle."</string>
+    <string name="fully_managed_device_provisioning_permissions_secondary_subheader" msgid="8955791361423166123">"El gestor de l\'organització pot definir els permisos de les aplicacions d\'aquest vehicle, com ara els permisos d\'accés al micròfon i a la ubicació."</string>
+    <string name="fully_managed_device_with_permission_control_provisioning_summary" msgid="2503568673345133100">"Utilitza el sistema d\'informació i entreteniment d\'aquest vehicle per accedir fàcilment a les teves aplicacions de treball. Aquest vehicle no és privat, de manera que és possible que el gestor de l\'organització pugui veure la teva activitat i les teves dades. El gestor de l\'organització també pot definir els permisos de les aplicacions d\'aquest vehicle, com ara els permisos d\'accés al micròfon i a la ubicació."</string>
+    <string name="fully_managed_device_provisioning_summary" msgid="4323948058344613817">"Utilitza el sistema d\'informació i entreteniment d\'aquest vehicle per accedir fàcilment a les teves aplicacions de treball. Aquest vehicle no és privat, de manera que és possible que el gestor de l\'organització pugui veure les teves dades i la teva activitat."</string>
+    <string name="fully_managed_device_provisioning_progress_label" msgid="988594700479673633">"S\'està configurant el vehicle gestionat"</string>
+    <string name="fully_managed_device_provisioning_return_device_title" msgid="1578111657911434819">"Cancel·la la configuració i torna el vehicle"</string>
+    <string name="fully_managed_device_provisioning_return_device_subheader" msgid="5809488930429106172">"Restableix i torna aquest vehicle al gestor de l\'organització, o torna a la pantalla anterior per continuar amb la configuració."</string>
+    <string name="fully_managed_device_cancel_setup_button" msgid="4113790677940440998">"Cancel·la la configuració"</string>
+    <string name="fully_managed_device_reset_and_return_button" msgid="4951274590516561428">"Restableix i torna"</string>
+    <string name="fully_managed_device_provisioning_privacy_title" msgid="4789425994893472324">"Avís de privadesa"</string>
+    <string name="fully_managed_device_provisioning_privacy_body" msgid="5549745709511179391">"És possible que el gestor de l\'organització pugui veure les teves dades i la teva activitat en aquest vehicle."</string>
+</resources>

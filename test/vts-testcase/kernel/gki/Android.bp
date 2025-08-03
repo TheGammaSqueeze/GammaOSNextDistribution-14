@@ -1,0 +1,100 @@
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_test {
+    name: "vts_dlkm_partition_test",
+    require_root: true,
+    test_suites: [
+        "general-tests",
+        "vts",
+    ],
+
+    srcs: [
+        "vts_dlkm_partition_test.cpp",
+    ],
+    defaults: [
+        "libvintf_static_user_defaults",
+    ],
+    shared_libs: [
+        "libcrypto",
+    ],
+    static_libs: [
+        "libbase",
+        "libcrypto_utils",
+        "libcutils",
+        "libext4_utils",
+        "libfs_mgr_binder",
+        "liblp",
+        "libutils",
+        "libvintf",
+    ],
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+}
+
+cc_test {
+    name: "vts_generic_boot_image_test",
+    require_root: true,
+
+    // Even though 5.4-android11 also conforms with GKI release format,
+    // (often called "GKI 1.0"),
+    // skip the test on device launching with Android 11 (R) because:
+    // - We don't retroactively add requirements;
+    // - On those devices, VTS always flashes GKI before testing, making this
+    //   test meaningless.
+    // Therefore, the test is enforced on device launching with Android 12 (S)
+    // and above.
+    test_options: {
+        min_shipping_api_level: 31,
+    },
+
+    defaults: [
+        "libvintf_static_user_defaults",
+    ],
+    srcs: [
+        "cpio.cpp",
+        "generic_boot_image_test.cpp",
+        "lz4_legacy.cpp",
+        "ramdisk_utils.cpp",
+    ],
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+    test_suites: [
+        "general-tests",
+
+        // On 5.10+ kernel, the device should use the generic boot image as the
+        // shipping image. Hence, we can include this test in VTS.
+        "vts",
+    ],
+    static_libs: [
+        "libbase",
+        "libc++fs",
+        "libgmock",
+        "libkver",
+        "liblz4",
+        "libvintf",
+    ],
+    header_libs: [
+        "bootimg_headers",
+        "libstorage_literals_headers",
+    ],
+}

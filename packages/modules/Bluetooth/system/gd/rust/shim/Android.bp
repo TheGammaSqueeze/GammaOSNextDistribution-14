@@ -1,0 +1,116 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_bt_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_bt_license"],
+}
+
+rust_defaults {
+    name: "gd_rust_defaults",
+    target: {
+        darwin: {
+            enabled: false,
+        },
+    },
+    host_supported: true,
+}
+
+cc_defaults {
+    name: "gd_ffi_defaults",
+    target: {
+        darwin: {
+            enabled: false,
+        },
+    },
+}
+
+rust_defaults {
+    name: "libbt_shim_defaults",
+    defaults: ["gd_rust_defaults"],
+    crate_name: "bt_shim",
+    srcs: ["src/lib.rs"],
+    rustlibs: [
+        "libbt_common_only_init_flags",
+        "libcxx",
+    ],
+    proc_macros: [
+        "libpaste",
+    ],
+    apex_available: [
+        "com.android.btservices",
+    ],
+    min_sdk_version: "30",
+}
+
+rust_library_rlib {
+    name: "libbt_shim",
+    defaults: ["libbt_shim_defaults"],
+}
+
+rust_ffi_static {
+    name: "libbt_shim_ffi",
+    defaults: ["libbt_shim_defaults"],
+}
+
+cc_library_static {
+    name: "libbt_shim_bridge",
+    defaults: [
+        "gd_ffi_defaults",
+    ],
+    generated_headers: [
+        "cxx-bridge-header",
+        "libbt_init_flags_bridge_header",
+    ],
+    generated_sources: [
+        "libbt_init_flags_bridge_code",
+    ],
+    export_generated_headers: [
+        "cxx-bridge-header",
+        "libbt_init_flags_bridge_header",
+    ],
+    include_dirs: [
+        "packages/modules/Bluetooth/system/gd",
+    ],
+    cflags: [
+        "-Wno-unused-const-variable",
+    ],
+    host_supported: true,
+    apex_available: [
+        "com.android.btservices",
+    ],
+    min_sdk_version: "30",
+}
+
+cc_library_static {
+    name: "libbluetooth_rust_interop",
+    defaults: [
+        "gd_ffi_defaults",
+    ],
+    static_libs: [
+        "libbt_shim_bridge",
+        "libbt_shim_ffi",
+    ],
+    host_supported: true,
+    apex_available: [
+        "com.android.btservices",
+    ],
+    min_sdk_version: "30",
+}
+
+genrule {
+    name: "libbt_init_flags_bridge_header",
+    tools: ["cxxbridge"],
+    cmd: "$(location cxxbridge) $(in) --header > $(out)",
+    srcs: ["src/init_flags.rs"],
+    out: ["src/init_flags.rs.h"],
+}
+
+genrule {
+    name: "libbt_init_flags_bridge_code",
+    tools: ["cxxbridge"],
+    cmd: "$(location cxxbridge) $(in) >> $(out)",
+    srcs: ["src/init_flags.rs"],
+    out: ["init_flags.cc"],
+}

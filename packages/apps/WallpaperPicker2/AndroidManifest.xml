@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- The package name here must match the Studio namespace given in
+     WallpaperPickerGoogle gradle config for Studio builds to succeed.
+     `package_name` in Android.bp overrides this with the actual package name.
+ -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+     xmlns:tools="http://schemas.android.com/tools"
+     package="com.google.android.apps.wallpaper">
+
+  <!-- Custom permission to enforce that only this app can notify the running live wallpaper that
+             the rotating wallpaper image data changed. -->
+  <permission android:name="com.android.wallpaper.NOTIFY_ROTATING_WALLPAPER_CHANGED"
+       android:protectionLevel="signature"/>
+
+  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+  <uses-permission android:name="android.permission.CUSTOMIZE_SYSTEM_UI" />
+  <uses-permission android:name="android.permission.LAUNCH_MULTI_PANE_SETTINGS_DEEP_LINK" />
+  <uses-permission android:name="android.permission.INTERNET"/>
+  <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
+  <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+  <uses-permission android:name="android.permission.READ_WALLPAPER_INTERNAL" />
+  <uses-permission android:name="android.permission.SET_WALLPAPER"/>
+  <uses-permission android:name="android.permission.SET_WALLPAPER_COMPONENT" />
+  <uses-permission android:name="android.permission.BIND_WALLPAPER" />
+  <uses-permission android:name="android.permission.WAKE_LOCK"/>
+  <uses-permission android:name="com.android.wallpaper.NOTIFY_ROTATING_WALLPAPER_CHANGED"/>
+  <uses-permission android:name="android.permission.SET_WALLPAPER_DIM_AMOUNT" />
+
+  <queries>
+      <!-- Specific intents Wallpaper picker query for -->
+      <!-- Intent filter with action SET_WALLPAPER -->
+      <intent>
+          <action android:name="android.intent.action.SET_WALLPAPER" />
+      </intent>
+      <!-- Intent filter with action GET_CONTENT and data's mimeType as "image/*" -->
+      <intent>
+          <action android:name="android.intent.action.GET_CONTENT" />
+          <data android:mimeType="image/*" />
+      </intent>
+      <!-- Intent filter with action VIEW -->
+      <intent>
+          <action android:name="android.intent.action.VIEW" />
+      </intent>
+      <!-- Intent filter with action WallpaperService (live wallpaper interface) -->
+      <intent>
+          <action android:name="android.service.wallpaper.WallpaperService" />
+      </intent>
+      <!-- Intent filter with action used to discover partner -->
+      <intent>
+          <action android:name="com.android.launcher3.action.PARTNER_CUSTOMIZATION" />
+      </intent>
+      <!-- Intent filter used to query the launcher Activity for grid preview metadata -->
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.HOME" />
+        </intent>
+  </queries>
+
+  <application
+      tools:replace="android:icon,android:name,android:appComponentFactory"
+      android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+      android:allowBackup="true"
+      android:icon="@mipmap/product_logo_wallpapers_launcher_color_48"
+      android:label="@string/app_name"
+      android:name="com.android.wallpaper.picker.WallpapersApplication"
+      android:requiredForAllUsers="true"
+      android:restoreAnyVersion="true"
+      android:supportsRtl="true">
+
+    <meta-data android:name="com.android.wallpaper.asset.WallpaperGlideModule"
+         android:value="GlideModule"/>
+
+    <activity android:name="com.android.wallpaper.picker.CustomizationPickerActivity"
+        android:label="@string/app_name"
+        android:relinquishTaskIdentity="true"
+        android:resizeableActivity="false"
+        android:theme="@style/WallpaperTheme.NoBackground"
+        android:exported="true">
+    </activity>
+
+    <activity android:name="com.android.wallpaper.picker.PassThroughCustomizationPickerActivity"
+        android:label="@string/app_name"
+        android:resizeableActivity="false"
+        android:theme="@style/WallpaperTheme.NoBackground"
+        android:exported="true">
+    </activity>
+
+    <activity android:name="com.android.wallpaper.picker.TrampolinePickerActivity"
+        android:label="@string/app_name"
+        android:relinquishTaskIdentity="true"
+        android:resizeableActivity="false"
+        android:theme="@style/WallpaperTheme.NoBackground"
+        android:exported="true">
+        <intent-filter>
+            <action android:name="android.intent.action.SET_WALLPAPER"/>
+            <category android:name="android.intent.category.DEFAULT"/>
+        </intent-filter>
+    </activity>
+
+    <activity android:name="com.android.wallpaper.picker.DeepLinkActivity"
+        android:theme="@style/WallpaperTheme.NoBackground"
+        android:exported="true">
+        <intent-filter android:autoVerify="true">
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.DEFAULT" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data
+                android:host="g.co"
+                android:pathPrefix="/wallpaper"
+                android:scheme="https" />
+        </intent-filter>
+    </activity>
+
+    <activity-alias
+        android:name="com.android.wallpaper.picker.CategoryPickerActivity"
+        android:targetActivity="com.android.wallpaper.picker.TrampolinePickerActivity"
+        android:label="@string/app_name"
+        android:exported="true">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+      </intent-filter>
+    </activity-alias>
+
+    <activity android:name="com.android.wallpaper.picker.PreviewActivity"
+         android:resizeableActivity="false"
+         android:theme="@style/WallpaperTheme.Preview">
+    </activity>
+
+    <activity
+         android:name="com.android.wallpaper.picker.FullPreviewActivity"
+         android:taskAffinity="@string/full_screen_task_affinity"
+         android:resizeableActivity="false"
+         android:theme="@style/WallpaperTheme.Preview">
+    </activity>
+
+      <activity
+          android:name="com.android.wallpaper.picker.preview.ui.WallpaperPreviewActivity"
+          android:excludeFromRecents="true"
+          android:taskAffinity="@string/multi_crop_task_affinity"
+          android:resizeableActivity="false"
+          android:theme="@style/WallpaperTheme.Preview">
+      </activity>
+
+    <activity android:name="com.android.wallpaper.picker.StandalonePreviewActivity"
+         android:resizeableActivity="false"
+         android:relinquishTaskIdentity="true"
+         android:theme="@style/WallpaperTheme.Preview"
+         android:exported="true">
+      <intent-filter>
+        <action android:name="android.service.wallpaper.CROP_AND_SET_WALLPAPER"/>
+        <category android:name="android.intent.category.DEFAULT"/>
+        <data android:mimeType="image/*"/>
+      </intent-filter>
+    </activity>
+
+    <activity android:name="com.android.wallpaper.picker.ViewOnlyPreviewActivity"
+         android:resizeableActivity="false"
+         android:theme="@style/WallpaperTheme.Preview">
+    </activity>
+  </application>
+
+</manifest>

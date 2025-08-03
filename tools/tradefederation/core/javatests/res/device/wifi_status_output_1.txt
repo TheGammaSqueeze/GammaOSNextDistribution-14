@@ -1,0 +1,14 @@
+Wifi is enabled
+Wifi scanning is only available when wifi is enabled
+==== ClientModeManager instance: ConcreteClientModeManager{id=69960513 iface=wlan0 role=ROLE_CLIENT_PRIMARY} ====
+Wifi is connected to "GoogleGuest"
+WifiInfo: SSID: "GoogleGuest", BSSID: 48:2f:6b:ac:b2:31, MAC: 82:f2:40:f1:51:be, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: 6, RSSI: -60, Link speed: 573Mbps, Tx Link speed: 573Mbps, Max Supported Tx Link speed: 573Mbps, Rx Link speed: 344Mbps, Max Supported Rx Link speed: 573Mbps, Frequency: 5300MHz, Net ID: 0, Metered hint: false, score: 60, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1
+successfulTxPackets: 90968
+successfulTxPacketsPerSecond: 24.560942521673798
+retriedTxPackets: 1055
+retriedTxPacketsPerSecond: 1.0141434866861698
+lostTxPackets: 0
+lostTxPacketsPerSecond: 0.0
+successfulRxPackets: 414010
+successfulRxPacketsPerSecond: 158.9395787292973
+NetworkCapabilities: [ Transports: WIFI Capabilities: NOT_METERED&INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VPN&VALIDATED&NOT_ROAMING&FOREGROUND&NOT_CONGESTED&NOT_SUSPENDED&NOT_VCN_MANAGED LinkUpBandwidth>=12000Kbps LinkDnBandwidth>=45352Kbps TransportInfo: <SSID: <unknown ssid>, BSSID: 02:00:00:00:00:00, MAC: 02:00:00:00:00:00, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: 6, RSSI: -61, Link speed: 573Mbps, Tx Link speed: 573Mbps, Max Supported Tx Link speed: 573Mbps, Rx Link speed: 516Mbps, Max Supported Rx Link speed: 573Mbps, Frequency: 5300MHz, Net ID: -1, Metered hint: false, score: 60, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1> SignalStrength: -61 SSID: "GoogleGuest"]

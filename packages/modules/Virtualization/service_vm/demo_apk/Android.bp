@@ -1,0 +1,33 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_app {
+    name: "VmAttestationDemoApp",
+    installable: true,
+    jni_libs: ["libvm_attestation_payload"],
+    jni_uses_platform_apis: true,
+    use_embedded_native_libs: true,
+    sdk_version: "system_current",
+    compile_multilib: "first",
+    apex_available: ["com.android.virt"],
+}
+
+rust_defaults {
+    name: "vm_attestation_payload_defaults",
+    crate_name: "vm_attestation_payload",
+    defaults: ["avf_build_flags_rust"],
+    srcs: ["src/main.rs"],
+    prefer_rlib: true,
+    rustlibs: [
+        "libandroid_logger",
+        "libanyhow",
+        "liblog_rust",
+        "libvm_payload_bindgen",
+    ],
+}
+
+rust_ffi {
+    name: "libvm_attestation_payload",
+    defaults: ["vm_attestation_payload_defaults"],
+}

@@ -1,0 +1,24 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_test {
+    name: "libdice_policy.test",
+    defaults: [
+        "rdroidtest.defaults",
+    ],
+    edition: "2021",
+    lints: "android",
+    srcs: ["test.rs"],
+    test_suites: ["general-tests"],
+    rustlibs: [
+        "libdice_policy",
+        "libdice_policy_builder",
+        "librustutils",
+        "libscopeguard",
+        "libciborium",
+        "libcoset",
+        "liblog_rust",
+    ],
+    vendor_available: true,
+}

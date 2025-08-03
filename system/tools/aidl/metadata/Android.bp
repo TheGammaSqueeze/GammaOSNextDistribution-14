@@ -1,0 +1,61 @@
+// build time C++ available list of all AIDL interfaces in the tree
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_tools_aidl_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_tools_aidl_license"],
+}
+
+cc_test_library {
+    name: "libaidlmetadata",
+    host_supported: true,
+    srcs: [":aidl_metadata_in_cpp"],
+    export_include_dirs: ["include"],
+
+    cflags: ["-O0"],
+}
+
+cc_library_headers {
+    name: "libaidlmetadata_headers",
+    product_available: true,
+    recovery_available: true,
+    host_supported: true,
+    export_include_dirs: ["include"],
+}
+
+// private impl below
+
+cc_binary {
+    name: "aidl_metadata_parser",
+    host_supported: true,
+    srcs: ["parser.cpp"],
+    shared_libs: ["libjsoncpp"],
+    visibility: [":__subpackages__"],
+}
+
+cc_genrule {
+    name: "aidl_metadata_in_cpp",
+    host_supported: true,
+    cmd: "$(location aidl_metadata_parser) $(in) > $(genDir)/metadata.cpp",
+    srcs: [
+        ":aidl_metadata_json",
+    ],
+    tools: ["aidl_metadata_parser"],
+    visibility: [":__subpackages__"],
+    out: ["metadata.cpp"],
+}
+
+cc_test_host {
+    name: "libaidlmetadata_test",
+    static_libs: [
+        "libaidlmetadata",
+        "libgmock",
+    ],
+    srcs: ["test.cpp"],
+    test_options: {
+        unit_test: true,
+    },
+    test_suites: ["general-tests"],
+}

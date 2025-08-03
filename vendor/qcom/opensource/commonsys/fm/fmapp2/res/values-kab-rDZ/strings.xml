@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (c) 2009, 2011-2013 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2014-2015 The CyanogenMod Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *    * Neither the name of The Linux Foundation nor
+ *      the names of its contributors may be used to endorse or promote
+ *      products derived from this software without specific prior written
+ *      permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NON-INFRINGEMENT ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Ṛṛadyu FM</string>
+    <string name="tx_app_name">Amesgal FM</string>
+    <string name="menu_scan_start">Smiḍen</string>
+    <string name="menu_scan_stop">Seḥbes anadi</string>
+    <string name="menu_record_start">Kles</string>
+    <string name="menu_record_stop">Seḥbes asekles</string>
+    <string name="menu_settings">Iɣewwaṛen</string>
+    <string name="menu_sleep">Taguni </string>
+    <string name="menu_sleep_cancel">Sefsex taguni</string>
+    <string name="menu_all_channels">Akk tizririn</string>
+    <string name="menu_display_tags">Sken-d tibzimin</string>
+    <string name="button_text_stop">Seḥbes</string>
+    <string name="msg_seeking">Anadi n teɣsert FM\u2026</string>
+    <string name="msg_scanning">Anadi n teɣsar FM meṛṛa\u2026</string>
+    <string name="msg_scanning_pty">Anadi ɣef \'<xliff:g id="pty_name">%1$s</xliff:g>\'\u2026</string>
+    <string name="msg_searching_title">Aqeɛɛed uzwir i ufran awurman</string>
+    <string name="msg_searching">Anadi n teɣsar i yelhan akken ad tettusbedd tebdart n yifranen\u2026</string>
+    <string name="msg_noantenna">Ttxil senfel amsigdal i useqdec n ṛṛadyu FM</string>
+    <string name="dialog_sleep_title">Tanzagt n uxsay awurman</string>
+    <string name="presetlist_select_name">Fren \'<xliff:g id="presetlist_name">%1$s</xliff:g>\'</string>
+    <string name="presetlist_add_new">Rnu tabdart tamaynut</string>
+    <string name="dialog_presetlist_rename_title">Sekcem isem</string>
+    <string name="presetlist_autoselect_title">Sentem tafrant tawurmant</string>
+    <string name="preset_replace">Semselsi</string>
+    <string name="preset_tune">Gerrez</string>
+    <string name="preset_rename">Snifel isem</string>
+    <string name="preset_delete">Kkes</string>
+    <string name="preset_search">Nadi ɣef \'<xliff:g id="preset_pi">%1$s</xliff:g>\'</string>
+    <string name="stat_notif_frequency">\'<xliff:g id="frequency">%1$s</xliff:g>\' MHZ</string>
+    <string name="regional_band">Tarbaɛt n temnaḍt</string>
+    <string name="regional_band_entry_north_america">Tamrikt n ugafa</string>
+    <string name="regional_band_entry_europe">Turuft</string>
+    <string name="regional_band_entry_japan">Japun</string>
+    <string name="regional_band_entry_japan_wide">Japun (ahrawan)</string>
+    <string name="regional_band_entry_australia">Ustṛalya</string>
+    <string name="regional_band_entry_austria">Ustriya</string>
+    <string name="regional_band_entry_belgium">Biljik</string>
+    <string name="regional_band_entry_brazil">Brizil</string>
+    <string name="regional_band_entry_china">Ccinwa</string>
+    <string name="regional_band_entry_czech_republic">Tagduda Tačikit</string>
+    <string name="regional_band_entry_denmark">Danmark</string>
+    <string name="regional_band_entry_finland">Finland</string>
+    <string name="regional_band_entry_france">Fransa</string>
+    <string name="regional_band_entry_germany">Lalman</string>
+    <string name="regional_band_entry_greece">Legrig</string>
+    <string name="regional_band_entry_india">Lhend</string>
+    <string name="regional_band_entry_indonesia">Indunisya</string>
+    <string name="regional_band_entry_ireland">Irland</string>
+    <string name="regional_band_entry_italy">Ṭelyan</string>
+    <string name="regional_band_entry_korea">Kurya</string>
+    <string name="regional_band_entry_mexico">Miksik</string>
+    <string name="regional_band_entry_netherlands">Timura n Wadda</string>
+    <string name="regional_band_entry_new_zealand">Ziland Tamaynut</string>
+    <string name="regional_band_entry_norway">Nuṛwij</string>
+    <string name="regional_band_entry_poland">Pulunya</string>
+    <string name="regional_band_entry_portugal">Puṛtugal</string>
+    <string name="regional_band_entry_russia">Rruss</string>
+    <string name="regional_band_entry_singapore">Singapur</string>
+    <string name="regional_band_entry_slovakia">Sluvakya</string>
+    <string name="regional_band_entry_spain">Spenyul</string>
+    <string name="regional_band_entry_switzerland">Sswis</string>
+    <string name="regional_band_entry_sweden">Sswid</string>
+    <string name="regional_band_entry_turkey">Ṭṭerk</string>
+    <string name="regional_band_entry_united_kingdom">Tagelda Yeddukklen</string>
+    <string name="regional_band_entry_united_states">Iwanaken-Yeddukklen-N-Temrikt</string>
+    <string name="regional_band_entry_user_defined">Tarbaɛt yettusbadun sɣur useqdac</string>
+    <string name="regional_band_summary_north_america">Tamrikt n Ugafa (87.5M γer 108.0 MHz deg tṣeddarin n 200 KHz)</string>
+    <string name="regional_band_summary_europe">Tuṛuft (87.5 γer 108.0 MHz deg tṣeddarin n 100 KHz)</string>
+    <string name="regional_band_summary_japan">Japun (76.0 γer 90.0 MHz deg tṣeddarin n 100 KHz)</string>
+    <string name="regional_band_summary_japan_wide">Japun (ahrawan) (90.0 γer 108.0 MHz deg tṣeddarin n 50 KHz)</string>
+    <string name="regional_band_summary_australia">Ustṛalya (87.7 γer 108.0 MHz deg tṣeddarin n 100 KHz)</string>
+    <string name="regional_band_summary_austria">Tutrict (87.5 γer 108.0 MHz deg tṣeddarin n 50 KHz)</string>
+    <string name="regional_band_summary_belgium">Biljik (87.5 γer 108.0 MHz deg tṣeddarin n 100 KHz)</string>
+    <string name="regional_band_summary_brazil">Brizil (87.5 γer 108.0 MHz deg tṣeddarin n 200 KHz)</string>
+    <string name="regional_band_summary_china">Ccinwa (87.0 γer 108.0 MHz deg tṣeddarin n 100 KHz)</string>
+    <string name="regional_band_summary_czech_republic">Tagduda n čik (87.5 ɣer 108.0 MHz s tseddarin n 100 kHz)</string>
+    <string name="regional_band_summary_denmark">Danmaṛk (87.5 γer 108.0 MHz deg tṣeddarin n 50 KHz)</string>
+    <string name="regional_band_summary_finland">Finland (87.5 γer 108.0 MHz deg tṣeddarin n 100 KHz)</string>
+    <string name="regional_band_summary_france">Fransa (87.5 γer 108.0 MHz deg tṣeddarin n 100 KHz)</string>
+    <string name="regional_band_summary_germany">Lalman (87.5 γer 108.0 MHz deg tṣeddarin n 50 KHz)</string>
+    <string name="regional_band_summary_greece">Legrig (87.5 γer 108.0 MHz deg tṣeddarin n 50 KHz)</string>
+    <string name="regional_band_summary_hong_kong">Hong Kong (87.5 γer 108.0 MHz deg tṣeddarin n 100 KHz)</string>
+    <string name="regional_band_summary_india">Lhend (87.5 γer 108.0 MHz deg tṣeddarin n 100 KHz)</string>
+    <string name="regional_band_summary_indonesia">Indunisya (87.5 γer 108.0 MHz deg tṣeddarin n 100 KHz)</string>
+    <string name="regional_band_summary_ireland">Irland (87.5 γer 108.0 MHz deg tṣeddarin n 50 KHz)</string>
+    <string name="regional_band_summary_italy">Ṭelyan (87.5 γer 108.0 MHz deg tṣeddarin n 50 KHz)</string>
+    <string name="regional_band_summary_korea">Kurya (87.5 γer 108.0 MHz deg tṣeddarin n 200 KHz)</string>
+    <string name="regional_band_summary_mexico">Miksik (88.1 γer 107.9 MHz deg tṣeddarin n 200 KHz)</string>
+    <string name="regional_band_summary_netherlands">Timura n Wadda (87.5 γer 108.0 MHz deg tṣeddarin n 100 KHz)</string>
+    <string name="regional_band_summary_new_zealand">Ziland Tamaynut (88.0 γer 107.0 MHz deg tṣeddarin n 100 KHz)</string>
+    <string name="regional_band_summary_norway">Nuṛwij (87.5 γer 108.0 MHz deg tṣeddarin n 100 KHz)</string>
+    <string name="regional_band_summary_poland">Pulunya (87.5 γer 108.0 MHz deg tṣeddarin n 100 KHz)</string>
+    <string name="regional_band_summary_portugal">Puṛtugal (87.5 γer 108.0 MHz deg tṣeddarin n 50 KHz)</string>
+    <string name="regional_band_summary_russia">Rruss (87.5 γer 108.0 MHz deg tṣeddarin n 100 KHz)</string>
+    <string name="regional_band_summary_singapore">Singapur (88.0 γer 108.0 MHz deg tṣeddarin n 100 KHz)</string>
+    <string name="regional_band_summary_slovakia">Sluvakya (87.5 γer 108.0 MHz deg tṣeddarin n 100 KHz)</string>
+    <string name="regional_band_summary_spain">Spenyul (87.5 γer 108.0 MHz deg tṣeddarin n 100 KHz)</string>
+    <string name="regional_band_summary_switzerland">Sswis (87.5 γer 108.0 MHz deg tṣeddarin n 100 KHz)</string>
+    <string name="regional_band_summary_sweden">Sswid (87.5 γer 108.0 MHz deg tṣeddarin n 100 KHz)</string>
+    <string name="regional_band_summary_taiwan">Taiwan (87.5 γer 108.0 MHz deg tṣeddarin n 100 KHz)</string>
+    <string name="regional_band_summary_turkey">Ṭṭerk (87.5 γer 108.0 MHz deg tṣeddarin n 100 KHz)</string>
+    <string name="regional_band_summary_united_kingdom">Tagelda Yeddukklen (87.5 γer 108.0 MHz deg tṣeddarin n 100 KHz)</string>
+    <string name="regional_band_summary_united_states">Iwanaken-Yeddukklen-N-Temrikt (88.1 γer 107.9 MHz deg tṣeddarin n 200 KHz)</string>
+    <string name="regional_band_summary_user_defined">Tarbaɛt yettusbadun sɣur useqdac</string>
+    <string name="aud_output_mode">Askar n tufγa ameslaw</string>
+    <string name="record_dur">Teɣzi n usekles</string>
+    <string name="auto_select_af">Asnagar</string>
+    <string name="settings_revert_defaults_title">Uγal γer iγewwaṛen imezwar</string>
+    <string name="settings_revert_defaults_summary">Ales awennez iγewwaṛen meṛṛa</string>
+    <string name="settings_revert_confirm_title">Sentem awennez</string>
+    <string name="settings_revert_confirm_msg">Aya ad yesfeḍ akk iɣewwaṛen n usnas, ad yeglu ula s iɣewwaṛen yellan ttwaskelsen. Kemmel?</string>
+    <string name="no_storage">Sali takarḍa SD send bdu n usekles.</string>
+    <string name="preparing_sd">Aheggi n tkarḍa SD\u2026</string>
+    <string name="access_sd_fail">Ur izmir ara ad-ikcem ar tkarḍa SD.</string>
+    <string name="spaceIsLow_content">Tfuk tallunt n tkarḍa SD. Beddel iɣewwaṛen n tɣara neɣ kkes kra ifuyla-nniḍen iwakken ad tiwsiɛ tallunt.</string>
+    <string name="FMRecording_reach_size_limit">Talast n tiddi tewweḍ.</string>
+    <string name="menu_scan_for_preset">Nadi izwirfranen</string>
+    <string name="fm_off">FM yensa.</string>
+    <string name="fm_call">Ulac ṛadyu FM lawan n usiwel. </string>
+    <string name="alert_dialog_hint">Sekcem isem</string>
+    <string name="search_dialog_title">Anadi n tiɣsar</string>
+    <string name="fm_command_timeout_title">Amenḍar</string>
+    <string name="fm_tune_timeout_msg">Ulac tiririt id-yuɣalen  i uṣeggem n umaṭṭaf FM. Ma ur yefra ara wugur, sens ṛṛadyu FM sakin cɛel-itt tikelt-nniḍen.</string>
+    <string name="fm_command_failed_title">Tamhelt FM ur teddara akken iwata</string>
+    <string name="fm_cmd_failed_msg">Afsax n temhelt ṛṛady FM. Ma ur yefra ara wugur, sens ṛṛadyu FM sakin cɛel-itt tikelt-nniḍen.</string>
+    <string name="fm_cmd_failed_msg_hdmi">Tamhelt FM ur tedda ara. FM akked HDMI ur mtawan ara ad ddun ɣef tikelt.</string>
+    <string name="fm_cmd_failed_call_on">Tamhelt FM ur tedda ara. Timesliwt i FM ur yettwaqbal lawan n usiwel.</string>
+    <string name="audio_db_artist_name">Asekles-iw FM</string>
+    <string name="audio_db_album_name">Asekles FM</string>
+    <string name="audio_db_playlist_name">Asekles FM</string>
+    <string name="station_name">Taɣsert:</string>
+    <string name="station_exists">Asnagar agi yella yakan!</string>
+    <string name="station_list_delete_station">Kkes <xliff:g id="name">%s</xliff:g></string>
+    <string name="station_list_delete_station_prompt">Tḥeqqeḍ tebɣiḍ ad-tekkseḍ \'<xliff:g id="name">%s</xliff:g>\'?</string>
+    <string name="station_name_empty">Isem n tɣsert dilem, sekcem-it tikelt nniḍen.</string>
+    <string name="station_name_exist">\'<xliff:g id="name">%s</xliff:g>\' yettwaseqdec yakan, sekcem isem nniḍen.</string>
+    <string name="rt_plus_tags">Tiṛekkizin</string>
+    <string name="usr_def_band_min">Lmuja tameẓyant (MHz)</string>
+    <string name="usr_def_band_max">Lmuja tameqṛant (MHz)</string>
+    <string name="chanl_spacing">Litteɛ ger ibuda</string>
+    <string name="set">Initialiser</string>
+    <string name="user_defind_band_msg">Sekcem uṭun n lemwaji yellan ger 76.0 akked 108.0 MHz s tallunt n ubadu taddayt n 1 akked 100 kHz n litteɛ ger uṭun n lemwaji adday akked ufellay</string>
+    <string name="save_record_file">Ifuyla n usekles FM ttwaḥerzen deg \'<xliff:g id="record_file">%1$s</xliff:g>\'</string>
+    <string name="typ_All_stations">Tiɣsar meṛṛa</string>
+    <string name="typ_Culture">Idles</string>
+    <string name="typ_Children">Ahilen igerdan</string>
+    <string name="typ_Country">Aẓawan Country</string>
+    <string name="typ_Documentary">Afetraw</string>
+    <string name="typ_Drama">Tamuggit</string>
+    <string name="typ_Easy_listening">Aẓawan afessas i tmesliwt</string>
+    <string name="typ_Education">Aselmed</string>
+    <string name="typ_Emergency">Amerwas</string>
+    <string name="typ_Emergency_test">Aɛraḍ uɛjil</string>
+    <string name="typ_Finance">Tadrimt</string>
+    <string name="typ_Folk">Aẓawan Folk</string>
+    <string name="typ_Information">Talɣut</string>
+    <string name="typ_Jazz">Aẓawan Jazz</string>
+    <string name="typ_Light_classical">Aẓawan aklasiki</string>
+    <string name="typ_Leisure">Isedha</string>
+    <string name="typ_News">Timirin</string>
+    <string name="typ_National">Aẓawan aɣelnaw</string>
+    <string name="typ_Other">Iẓawanen nniḍen</string>
+    <string name="typ_Oldies">Iẓawanen n zik</string>
+    <string name="typ_Phone_in">Deg tiliγri</string>
+    <string name="typ_Pop">Aẓawan Pop</string>
+    <string name="typ_Religion">Asγan</string>
+    <string name="typ_Rock">Aẓawan Rock</string>
+    <string name="typ_Science">Tussniwin</string>
+    <string name="typ_Serious_classical">Aẓawan aɛlayan</string>
+    <string name="typ_Social_affairs">Lecɣal inmettiyen</string>
+    <string name="typ_Sport">Addal</string>
+    <string name="typ_Travel">Assikel</string>
+    <string name="typ_Weather">Tagnawit</string>
+    <string name="typ_Adult_hits">Tizlatin ifazen i imeqṛanen</string>
+    <string name="typ_Classical">Aklasiki</string>
+    <string name="typ_Classic_Rock">Rock aklasiki</string>
+    <string name="typ_College">Tasnawit</string>
+    <string name="typ_Foreign_language">Tutlayin tibeṛṛaniyin</string>
+    <string name="typ_Nostalgia">Tamdanit</string>
+    <string name="typ_Personality">Udem</string>
+    <string name="typ_Public">Azayez</string>
+    <string name="typ_Religious_music">Aẓawan n ddin</string>
+    <string name="typ_Religious_talk">Ameslay n ddin</string>
+    <string name="typ_Rhythm_and_Blues">Rhythm akked Blues</string>
+    <string name="typ_Spanish_music">Aẓawan aspenyuli</string>
+    <string name="typ_Spanish_talk">Ameslay s tespanit</string>
+    <string name="typ_Soft">Fessus</string>
+    <string name="typ_Soft_Rock">Rock Fessusen</string>
+    <string name="typ_Soft_Rhythm_and_Blues">Rhythm akked Blues ifessasen</string>
+    <string name="typ_Sports">Addalen</string>
+    <string name="typ_Talk">Ameslay</string>
+    <string name="typ_Top_40">40 imenza</string>
+</resources>

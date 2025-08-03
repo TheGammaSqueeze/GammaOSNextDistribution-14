@@ -1,0 +1,9 @@
+service cartelemetryd_service /system/bin/android.automotive.telemetryd@1.0
+    class core
+    user system
+    group system
+    disabled  # starts below on early-init
+
+on early-init
+    # Start the service only after initializing the properties.
+    start cartelemetryd_service

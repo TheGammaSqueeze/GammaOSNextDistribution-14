@@ -1,0 +1,78 @@
+versions {
+  version: 1
+  requirements {
+    module: MEDIA_PROVIDER
+    version {
+      version: 1
+    }
+  }
+}
+versions {
+  version: 2
+  requirements {
+    module: MEDIA_PROVIDER
+    version {
+      version: 1
+    }
+  }
+  requirements {
+    module: MEDIA
+    version {
+      version: 2
+    }
+  }
+  requirements {
+    module: IPSEC
+    version {
+      version: 2
+    }
+  }
+}
+versions {
+  version: 3
+  requirements {
+    module: MEDIA_PROVIDER
+    version {
+      version: 3
+    }
+  }
+  requirements {
+    module: MEDIA
+    version {
+      version: 2
+    }
+  }
+  requirements {
+    module: IPSEC
+    version {
+      version: 2
+    }
+  }
+}
+versions {
+  version: 4
+  requirements {
+    module: MEDIA_PROVIDER
+    version {
+      version: 3
+    }
+  }
+  requirements {
+    module: MEDIA
+    version {
+      version: 2
+    }
+  }
+  requirements {
+    module: IPSEC
+    version {
+      version: 4
+    }
+  }
+  requirements {
+    module: SDK_EXTENSIONS
+    version {
+      version: 4
+    }
+  }
+}

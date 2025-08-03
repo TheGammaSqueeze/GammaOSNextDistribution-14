@@ -1,0 +1,5 @@
+<resources>
+  <string name="app_name">AdIdApp</string>
+  <string name="app_description">Sample app for AdId</string>
+  <string name="ad_id">AdId</string>
+</resources>

@@ -1,0 +1,31 @@
+{
+  "command": "create",
+  "data": {
+    "devices": [
+      {
+        "adb_port": 6521,
+        "instance_name": "local-instance-1",
+        "ip": "0.0.0.0:6521",
+        "logs": [
+          {
+            "path": "/tmp/acloud_cvd_temp/local-instance-1/cuttlefish_runtime/instances/cvd-1/logs/launcher.log",
+            "type": "TEXT"
+          },
+          {
+            "path": "/tmp/acloud_cvd_temp/local-instance-1/cuttlefish_runtime/instances/cvd-1/logs/kernel.log",
+            "type": "KERNEL_LOG"
+          },
+          {
+            "path": "/tmp/acloud_cvd_temp/local-instance-1/cuttlefish_runtime/instances/cvd-1/logs/logcat",
+            "type": "LOGCAT"
+          }
+        ],
+        "webrtc_port": 8444
+      }
+    ]
+  },
+  "error_type": "",
+  "errors": [],
+  "status": "SUCCESS",
+  "duration": 75.8845522403717
+}

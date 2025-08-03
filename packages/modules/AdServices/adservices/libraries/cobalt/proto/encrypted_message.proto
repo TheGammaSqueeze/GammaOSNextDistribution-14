@@ -1,0 +1,90 @@
+// Copyright 2023 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+syntax = "proto3";
+
+package cobalt;
+
+option java_multiple_files = true;
+option java_package = "com.google.cobalt";
+
+////////////////////////////////////////////////////////////////////////////////
+// NOTE: This file is used by the Cobalt client and the Cobalt servers.
+// The source-of-truth of this file is located in Google's internsl code
+// repository, and the file is copied to Android where it is used by the Cobalt
+// client. Do not edit the copy of this file in this Android repo as those edits
+// will be overwritten when the file is next copied.
+////////////////////////////////////////////////////////////////////////////////
+
+// An EncryptedMessage carries the encrypted bytes of another proto message,
+// along with information about how it is encrypted.
+//
+// Observations collected via Cobalt are doubly encrypted. First each individual
+// message is encrypted to the Analyzer that will process it. Second each
+// Envelope containing many observations is encrypted to the Shuffler. We use
+// the EncryptedMessage proto to carry the ciphertext in both cases.
+//
+message EncryptedMessage {
+
+  // The different schemes used in Cobalt to encrypt a message.
+  enum EncryptionScheme {
+    // The message is not encrypted. |ciphertext| contains plaintext bytes of a
+    // serialized protocol buffer message. This scheme must only be used in
+    // tests.
+    NONE = 0;
+
+    // Hybrid Cipher using elliptic curve Diffie-Hellman, version 1.
+    HYBRID_ECDH_V1 = 1;
+
+    // Hybrid cipher compatible with Tink hybrid encryption/decryption
+    // primitives declared in
+    // third_party/tink/cc/hybrid/hybrid_key_templates.h
+    // Multiple hybrid encryption schemes are supported and indicated by the
+    // type of key used.
+    HYBRID_TINK = 2;
+  }
+  // Which scheme was used to encrypt this message?
+  EncryptionScheme scheme = 1;
+
+  // Which key was used to encrypt this message?
+  // This key is mutually exclusive with |scheme| being set.
+  uint32 key_index = 4;
+
+  // 32-byte fingerprint (SHA256) of the recipient’s public key.
+  // This is used to facilitate key rotation.
+  bytes public_key_fingerprint = 2;
+
+  //  The |contribution_id| field is a cryptographically-secure random number
+  //  generated and attached by the Cobalt client. The shuffler counts the
+  //  number of unique ids to determine the contribution count per report.
+  //
+  //  This field should only be set when the |ciphertext| contains a
+  //  cobalt.Observation that should be counted towards the shuffler threshold.
+  //  All other encrypted messages should not receive a |contribution_id|.
+  //
+  //  Once an observation is encrypted and assigned a |contribution_id| it
+  //  should never be given another id or stored unencrypted.
+  bytes contribution_id = 5;
+
+  // The |ciphertext| field contains the bytes of the encryption of the standard
+  // serialization of one of the following types of proto messages:
+  //
+  // - A cobalt.Envelope, as defined in Cobalt's envelope.proto.
+  //   EncryptedMessages containing Envelopes are the input to the Shuffler.
+  //
+  // - A cobalt.Observation, as defined in Cobalt's observation.proto.
+  //   An ObservationBatch (defined in observation_batch.proto) contains
+  //   EncryptedMessages of this type. ObservationBatches are output from the
+  //   Shuffler.
+  bytes ciphertext = 3;
+}

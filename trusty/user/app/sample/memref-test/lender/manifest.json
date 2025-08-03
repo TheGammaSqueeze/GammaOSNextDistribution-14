@@ -1,0 +1,14 @@
+{
+    "uuid": "44d201b7-2132-4756-82ba-1289f63f7c47",
+    "min_heap": 16384,
+    "min_stack": 8192,
+    "start_ports": [
+        {
+            "name": "LENDER_PORT",
+            "flags": {
+                "allow_ta_connect": true,
+                "allow_ns_connect": false
+            }
+        }
+    ]
+}

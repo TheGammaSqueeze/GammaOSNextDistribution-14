@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2016 The CyanogenMod Project
+     SPDX-FileCopyrightText: 2019-2022 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <!-- Contributors -->
+    <color name="contributors_cloud_selected_color">#ff5252</color>
+
+    <!-- Trust -->
+    <color name="trust_status_good">#36B37E</color>
+    <color name="trust_status_poor">#FFAB00</color>
+    <color name="trust_status_bad">#FF5630</color>
+</resources>

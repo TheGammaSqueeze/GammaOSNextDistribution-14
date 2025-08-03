@@ -1,0 +1,135 @@
+//
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+package {
+    default_team: "trendy_team_fwk_uwb",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_defaults {
+    name: "service-uwb-common-defaults",
+    defaults: ["uwb-module-sdk-version-defaults"],
+    errorprone: {
+        javacflags: ["-Xep:CheckReturnValue:ERROR"],
+    },
+}
+
+filegroup {
+    name: "service-uwb-srcs",
+    srcs: [
+        "java/**/*.java",
+        ":statslog-uwb-java-gen",
+        ":uwb_config",
+    ],
+}
+
+// pre-jarjar version of service-uwb that builds against pre-jarjar version of framework-uwb
+java_library {
+    name: "service-uwb-pre-jarjar",
+    installable: false,
+    defaults: ["service-uwb-common-defaults"],
+    srcs: [":service-uwb-srcs"],
+    required: ["libuwb_uci_jni_rust"],
+    sdk_version: "system_server_current",
+
+    libs: [
+        "androidx.annotation_annotation",
+        "framework-annotations-lib",
+        "framework-configinfrastructure",
+        "framework-uwb-pre-jarjar",
+        "ServiceUwbResources",
+        "framework-statsd.stubs.module_lib",
+        "framework-wifi.stubs.module_lib",
+        "framework-bluetooth.stubs.module_lib",
+        "framework-location.stubs.module_lib",
+    ],
+
+    static_libs: [
+        "android.hardware.uwb.fira_android-V3-java",
+        "com.uwb.support.aliro",
+        "com.uwb.support.ccc",
+        "com.uwb.support.fira",
+        "com.uwb.support.generic",
+        "com.uwb.support.multichip",
+        "com.uwb.support.profile",
+        "com.uwb.support.oemextension",
+        "com.uwb.support.dltdoa",
+        "com.uwb.support.radar",
+        "guava",
+        "modules-utils-shell-command-handler",
+        "modules-utils-handlerexecutor",
+        "modules-utils-preconditions",
+        "uwb-config-proto",
+        "modules-utils-statemachine",
+        "modules-utils-build",
+        "cbor-java",
+        "bouncycastle-uwb",
+        "uwb_flags_lib",
+    ],
+
+    apex_available: [
+        "com.android.uwb",
+    ],
+}
+
+// service-uwb static library
+// ============================================================
+java_library {
+    name: "service-uwb",
+    defaults: [
+        "service-uwb-common-defaults",
+        "standalone-system-server-module-optimize-defaults",
+    ],
+    installable: true,
+    static_libs: ["service-uwb-pre-jarjar"],
+
+    // Need to include `libs` so that Soong doesn't complain about missing classes after jarjaring
+    // The below libraries are not actually needed to build since no source is compiled
+    // but they are necessary so that R8 has the right references to optimize the code.
+    // Without these, there will be missing class warnings and code may be wrongly optimized.
+    // TODO(b/242088131): remove libraries that aren't used directly
+    libs: [
+        "framework-uwb.impl",
+        "framework-statsd.stubs.module_lib",
+        "framework-wifi.stubs.module_lib",
+        "framework-bluetooth.stubs.module_lib",
+        "framework-connectivity.stubs.module_lib",
+    ],
+
+    sdk_version: "system_server_current",
+
+    jarjar_rules: ":uwb-jarjar-rules",
+    optimize: {
+        proguard_flags_files: ["proguard.flags"],
+    },
+    visibility: [
+        "//packages/modules/Uwb/apex",
+        "//packages/modules/Uwb/service/tests/uwbtests/apex",
+    ],
+    apex_available: [
+        "com.android.uwb",
+    ],
+}
+
+// Statsd auto-generated code
+// ============================================================
+genrule {
+    name: "statslog-uwb-java-gen",
+    tools: ["stats-log-api-gen"],
+    cmd: "$(location stats-log-api-gen) --java $(out) --module uwb " +
+        " --javaPackage com.android.server.uwb.proto --javaClass UwbStatsLog" +
+        " --minApiLevel 33",
+    out: ["com/android/server/uwb/proto/UwbStatsLog.java"],
+}

@@ -1,0 +1,79 @@
+# Copyright (C) 2020 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+owner: Platform
+module: "android.sysprop.SuspendProperties"
+
+# Maximum time in milliseconds that system will wait between repeated suspend attempts
+prop {
+    api_name: "max_sleep_time_millis"
+    type: UInt
+    scope: Public
+    access: Readonly
+    prop_name: "suspend.max_sleep_time_millis"
+}
+
+# Base time in milliseconds that system will wait between repeated suspend attempts
+prop {
+    api_name: "base_sleep_time_millis"
+    type: UInt
+    scope: Public
+    access: Readonly
+    prop_name: "suspend.base_sleep_time_millis"
+}
+
+# Number of consecutive bad (short, failed) suspends above which time between attempts is scaled
+prop {
+    api_name: "backoff_threshold_count"
+    type: UInt
+    scope: Public
+    access: Readonly
+    prop_name: "suspend.backoff_threshold_count"
+}
+
+# Duration in milliseconds below which a given suspend is considered a short suspend
+prop {
+    api_name: "short_suspend_threshold_millis"
+    type: UInt
+    scope: Public
+    access: Readonly
+    prop_name: "suspend.short_suspend_threshold_millis"
+}
+
+# Factor for scaling the time between repeated suspend attempts
+prop {
+    api_name: "sleep_time_scale_factor"
+    type: Double
+    scope: Public
+    access: Readonly
+    prop_name: "suspend.sleep_time_scale_factor"
+}
+
+# If true, the wait time between repeated suspend attempts will be scaled on failed suspends
+prop {
+    api_name: "failed_suspend_backoff_enabled"
+    type: Boolean
+    scope: Public
+    access: Readonly
+    prop_name: "suspend.failed_suspend_backoff_enabled"
+}
+
+# If true, the wait time between repeated suspend attempts will be scaled on short suspends
+prop {
+    api_name: "short_suspend_backoff_enabled"
+    type: Boolean
+    scope: Public
+    access: Readonly
+    prop_name: "suspend.short_suspend_backoff_enabled"
+}

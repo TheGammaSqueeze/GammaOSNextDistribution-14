@@ -1,0 +1,11 @@
+// Baseline format: 1.0
+BroadcastBehavior: android.scheduling.RebootReadinessManager#ACTION_REBOOT_READY:
+    Field 'ACTION_REBOOT_READY' is missing @BroadcastBehavior
+
+
+RequiresPermission: android.scheduling.RebootReadinessManager#markRebootPending():
+    Method 'markRebootPending' documentation mentions permissions already declared by @RequiresPermission
+
+
+Todo: android.scheduling.RebootReadinessManager#markRebootPending():
+    Documentation mentions 'TODO'

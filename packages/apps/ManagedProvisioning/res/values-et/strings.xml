@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+/**
+ * Copyright (C) 2014 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label" msgid="1527793174155125990">"Tööseadistus"</string>
+    <string name="provisioning_error_title" msgid="6320515739861578118">"Vabandust!"</string>
+    <string name="setup_work_profile" msgid="1468934631731845267">"Tööprofiili seadistamine"</string>
+    <string name="company_controls_workspace" msgid="2808025277267917221">"Teie organisatsioon haldab seda profiili ja hoiab seda turvalisena. Kõike muud oma seadmes juhite teie."</string>
+    <string name="company_controls_device" msgid="8230957518758871390">"Seda seadet haldab ja hoiab turvalisena teie organisatsioon."</string>
+    <string name="the_following_is_your_mdm" msgid="6613658218262376404">"Järgmine rakendus nõuab juurdepääsu sellele profiilile:"</string>
+    <string name="the_following_is_your_mdm_for_device" msgid="6717973404364414816">"Teie seadet haldab järgmine rakendus:"</string>
+    <string name="next" msgid="1004321437324424398">"Järgmine"</string>
+    <string name="setting_up_workspace" msgid="7862472373642601041">"Tööprofiili seadistamine …"</string>
+    <string name="admin_has_ability_to_monitor_profile" msgid="1018585795537086728">"Teie IT-administraator saab jälgida ning hallata selle profiiliga seotud seadeid, ettevõtte juurdepääsu, rakendusi, lube, andmeid ja võrgutegevusi ning ka kõneajalugu ja kontaktide otsinguajalugu. Lisateabe saamiseks (sh organisatsiooni privaatsuseeskirjade kohta) võtke ühendust IT-administraatoriga."</string>
+    <string name="admin_has_ability_to_monitor_device" msgid="7786186939607332934">"Teie IT-administraator saab jälgida ja hallata seadmega <xliff:g id="DEVICE_NAME">%1$s</xliff:g> seotud seadeid, ettevõtte juurdepääsu, rakendusi, lube ja andmeid, sh võrgutegevusi ning ka seadme asukohta, kõneajalugu ja kontaktide otsinguajalugu.<xliff:g id="LINE_BREAK">
+
+</xliff:g>Lisateabe saamiseks, sh organisatsiooni privaatsuseeskirjadega tutvumiseks, võtke ühendust IT-administraatoriga."</string>
+    <string name="theft_protection_disabled_warning" msgid="3708092473574738478">"Vargusevastase kaitse funktsioonide kasutamiseks peab teie seadmes olema seadistatud parooliga kaitstud ekraanilukk."</string>
+    <string name="contact_your_admin_for_more_info" msgid="9209568156969966347">"Lisateabe saamiseks (sh organisatsiooni privaatsuseeskirjade kohta) võtke ühendust IT-administraatoriga."</string>
+    <string name="learn_more_link" msgid="3012495805919550043">"Lisateave"</string>
+    <string name="cancel_setup" msgid="2949928239276274745">"Tühista"</string>
+    <string name="ok_setup" msgid="4593707675416137504">"OK"</string>
+    <string name="user_consent_msg" msgid="8820951802130353584">"Olen nõus"</string>
+    <string name="url_error" msgid="5958494012986243186">"Seda linki ei saa kuvada."</string>
+    <string name="navigation_button_description" msgid="6106309408994461239">"Liigu üles"</string>
+    <string name="terms" msgid="8295436105384703903">"Tingimused"</string>
+    <string name="work_profile_info" msgid="5433388376309583996">"Tööprofiili teave"</string>
+    <string name="managed_device_info" msgid="1529447646526616811">"Hallatava seadme teave"</string>
+    <string name="default_managed_profile_name" msgid="5370257687074907055">"Tööprofiil"</string>
+    <string name="delete_profile_title" msgid="2841349358380849525">"Kas kustutada olemasolev profiil?"</string>
+    <string name="opening_paragraph_delete_profile" msgid="4913885310795775967">"Teil on juba tööprofiil. Seda hallatakse järgmise rakendusega:"</string>
+    <string name="read_more_delete_profile" msgid="7789171620401666343">"Enne jätkamist "<a href="#read_this_link">"lugege seda"</a>"."</string>
+    <string name="sure_you_want_to_delete_profile" msgid="6927697984573575564">"Jätkamisel kustutatakse kõik sellel profiilil olevad rakendused ja andmed."</string>
+    <string name="delete_profile" msgid="2299218578684663459">"Kustuta"</string>
+    <string name="cancel_delete_profile" msgid="5155447537894046036">"Tühista"</string>
+    <string name="encrypt_device_text_for_profile_owner_setup" msgid="6865483664167134470">"Tööprofiili seadistamiseks tuleb seade <xliff:g id="DEVICE_NAME">%1$s</xliff:g> esmalt krüpteerida. Selleks võib kuluda pisut aega."</string>
+    <string name="encrypt_device_text_for_device_owner_setup" msgid="230099563510460941">"Seadme <xliff:g id="DEVICE_NAME">%1$s</xliff:g> seadistamiseks tuleb see esmalt krüpteerida. Selleks võib kuluda pisut aega."</string>
+    <string name="encrypt_this_device_question" msgid="8719916619866892601">"Kas seade krüpteer.?"</string>
+    <string name="encrypt" msgid="1749320161747489212">"Krüpteeri"</string>
+    <string name="continue_provisioning_notify_title" msgid="5191449100153186648">"Krüpteerimine on lõpule viidud"</string>
+    <string name="continue_provisioning_notify_text" msgid="1066841819786425980">"Puudutage tööprofiili seadistamise jätkamiseks"</string>
+    <string name="managed_provisioning_error_text" msgid="7063621174570680890">"Tööprofiili ei õnnestunud seadistada. Võtke ühendust oma IT-osakonnaga või proovige hiljem uuesti."</string>
+    <string name="cant_add_work_profile" msgid="9217268909964154934">"Tööprofiili ei saa lisada"</string>
+    <string name="cant_replace_or_remove_work_profile" msgid="7861054306792698290">"Tööprofiili ei saa asendada ega eemaldada"</string>
+    <string name="work_profile_cant_be_added_contact_admin" msgid="4866281518235832928">"Tööprofiili ei saa seadmesse <xliff:g id="DEVICE_NAME">%1$s</xliff:g> lisada. Kui teil on küsimusi, võtke ühendust IT-administraatoriga."</string>
+    <string name="change_device_launcher" msgid="4523563368433637980">"Muutke seadme käivitusprogrammi"</string>
+    <string name="launcher_app_cant_be_used_by_work_profile" msgid="3524366082000739743">"Seda käivitusrakendust ei saa teie tööprofiiliga kasutada"</string>
+    <string name="cancel_provisioning" msgid="3408069559452653724">"Tühista"</string>
+    <string name="pick_launcher" msgid="4257084827403983845">"OK"</string>
+    <string name="user_setup_incomplete" msgid="6494920045526591079">"Kasutaja seadistus pole valmis"</string>
+    <string name="default_owned_device_username" msgid="3915120202811807955">"Tööseadme kasutaja"</string>
+    <string name="setup_work_device" msgid="6003988351437862369">"Tööseadme seadistamine …"</string>
+    <string name="device_doesnt_allow_encryption_contact_admin" msgid="410347019947997299">"Seade <xliff:g id="DEVICE_NAME">%1$s</xliff:g> ei luba krüpteerimist, mis on seadistamiseks vajalik. Abi saamiseks võtke ühendust IT-administraatoriga."</string>
+    <string name="stop_setup_reset_device_question" msgid="2323844935990001069">"Kas peatada seadistamine ja lähtestada <xliff:g id="DEVICE_NAME">%1$s</xliff:g>?"</string>
+    <string name="this_will_reset_take_back_first_screen" msgid="5881727570968119259">"See lähtestab seadme <xliff:g id="DEVICE_NAME">%1$s</xliff:g> ja teid viiakse tagasi esimesele ekraanikuvale"</string>
+    <string name="device_owner_cancel_message" msgid="2529288571742712065">"Kas peatada seadistamine ja kustutada seadme andmed?"</string>
+    <string name="device_owner_cancel_cancel" msgid="1052951540909389275">"Tühista"</string>
+    <string name="device_owner_error_ok" msgid="2002250763093787051">"Ok"</string>
+    <string name="reset" msgid="6467204151306265796">"Lähtesta"</string>
+    <string name="cant_set_up_profile" msgid="4341825293970158436">"Profiili ei saa seadistada"</string>
+    <string name="cant_set_up_device" msgid="4120090138983350714">"Seadet ei saa seadistada"</string>
+    <string name="something_went_wrong" msgid="3593223774041784329">"Midagi läks valesti"</string>
+    <string name="couldnt_set_up_device" msgid="5137950404283642302">"Seadet ei õnnestunud seadistada. Abi saamiseks võtke ühendust IT-administraatoriga."</string>
+    <string name="contact_your_admin_for_help" msgid="2009904021552323731">"Võtke abi saamiseks ühendust oma IT-administraatoriga"</string>
+    <string name="reset_device" msgid="265029891515486543">"Lähtestage seade <xliff:g id="DEVICE_NAME">%1$s</xliff:g> ja proovige see uuesti seadistada"</string>
+    <string name="device_already_set_up" msgid="2916285974248611835">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> on juba seadistatud"</string>
+    <string name="error_wifi" msgid="1850288843966836571">"WiFi-ga ei saanud ühendust luua"</string>
+    <string name="device_has_reset_protection_contact_admin" msgid="5922267426079555686">"Seadmes <xliff:g id="DEVICE_NAME">%1$s</xliff:g> on lähtestamiskaitse sisse lülitatud. Abi saamiseks võtke ühendust IT-administraatoriga."</string>
+    <string name="frp_clear_progress_title" msgid="8628074089458234965">"Kustutamine"</string>
+    <string name="frp_clear_progress_text" msgid="1740164332830598827">"Oodake ..."</string>
+    <string name="error_hash_mismatch" msgid="1145488923243178454">"Kontrollsumma vea tõttu ei saa administraatorirakendust kasutada. Abi saamiseks võtke ühendust IT-administraatoriga."</string>
+    <string name="error_download_failed" msgid="3274283629837019452">"Administraatorirakendust ei õnnestunud alla laadida"</string>
+    <string name="error_package_invalid" msgid="555402554502033988">"Administraatori rakendust ei saa kasutada. See ei sisalda kõiki komponente või on rikutud. Abi saamiseks võtke ühendust IT-administraatoriga."</string>
+    <string name="error_installation_failed" msgid="2282903750318407285">"Administraatorirakendust ei õnnestunud installida"</string>
+    <string name="profile_owner_cancel_message" msgid="6868736915633023477">"Kas peatada seadistamine?"</string>
+    <string name="profile_owner_cancel_cancel" msgid="4408725524311574891">"Ei"</string>
+    <string name="profile_owner_cancel_ok" msgid="5951679183850766029">"Jah"</string>
+    <string name="profile_owner_cancelling" msgid="5679573829145112822">"Tühistamine ..."</string>
+    <string name="work_profile_setup_later_title" msgid="9069148190226279892">"Kas peatada profiili seadistamine?"</string>
+    <string name="work_profile_setup_later_message" msgid="122069011117225292">"Saate oma tööprofiili seadistada hiljem organisatsioonis kasutatava seadmehalduse rakenduse kaudu"</string>
+    <string name="continue_button" msgid="7177918589510964446">"Jätka"</string>
+    <string name="work_profile_setup_stop" msgid="6772128629992514750">"Peata"</string>
+    <string name="dismiss" msgid="9009534756748565880">"Loobu"</string>
+    <string name="profile_owner_info" msgid="8975319972303812298">"Loote tööprofiili, mida haldab ja jälgib teie organisatsioon. Kehtivad tingimused."</string>
+    <string name="profile_owner_info_with_terms_headers" msgid="7373591910245655373">"Loote tööprofiili, mida haldab ja jälgib teie organisatsioon. Kehtivad teenuste <xliff:g id="TERMS_HEADERS">%1$s</xliff:g> tingimused."</string>
+    <string name="profile_owner_info_comp" msgid="9190421701126119142">"Teie töörakenduste jaoks luuakse profiil. Seda profiili ja ülejäänud seadet haldab ning jälgib teie organisatsioon. Kehtivad tingimused."</string>
+    <string name="profile_owner_info_with_terms_headers_comp" msgid="2012766614492554556">"Teie töörakenduste jaoks luuakse profiil. Seda profiili ja ülejäänud seadet haldab ning jälgib teie organisatsioon. Kehtivad teenuste <xliff:g id="TERMS_HEADERS">%1$s</xliff:g> tingimused."</string>
+    <string name="device_owner_info" msgid="3716661456037934467">"Seda seadet haldab, jälgib ja hoiab turvalisena <xliff:g id="YOUR_ORGANIZATION">%1$s</xliff:g>. Kehtivad tingimused. <xliff:g id="VIEW_TERMS">%2$s</xliff:g>"</string>
+    <string name="device_owner_info_with_terms_headers" msgid="1254243288669282977">"Seda seadet haldab, jälgib ja hoiab turvalisena <xliff:g id="YOUR_ORGANIZATION">%1$s</xliff:g>. Kehtivad teenuste <xliff:g id="TERMS_HEADERS">%2$s</xliff:g> tingimused. <xliff:g id="VIEW_TERMS">%3$s</xliff:g>"</string>
+    <string name="link_isnt_secure_and_cant_be_opened_until_device_setup_finished" msgid="1604497932637832657">"See link ei ole turvaline ja seda ei saa avada enne, kui seadme seadistamine on lõpetatud: <xliff:g id="LINK_RAW_TEST">%1$s</xliff:g>"</string>
+    <string name="contact_device_provider" msgid="2843488903902493030">"Lisateabe saamiseks võtke ühendust <xliff:g id="IT_ADMIN">%1$s</xliff:g>iga."</string>
+    <string name="if_questions_contact_admin" msgid="3509427015901582047">"Küsimuste korral võtke ühendust IT-administraatoriga"</string>
+    <string name="setup_isnt_finished_contact_admin" msgid="8849644190723875952">"Seadistamine pole lõpetatud. Abi saamiseks võtke ühendust IT-administraatoriga."</string>
+    <string name="for_help_contact_admin" msgid="5922538077702487859">"Abi saamiseks võtke ühendust IT-administraatoriga"</string>
+    <string name="organization_admin" msgid="5975914478148511290">"IT-administraator"</string>
+    <string name="your_org_app_used" msgid="5336414768293540831">"<xliff:g id="YOUR_ORGANIZATION">%1$s</xliff:g> haldab ja jälgib seda seadet järgmise rakenduse abil:"</string>
+    <string name="your_organization_beginning" msgid="5952561489910967255">"Teie organisatsioon"</string>
+    <string name="your_organization_middle" msgid="8288538158061644733">"teie organisatsioon"</string>
+    <string name="view_terms" msgid="7230493092383341605">"Tingimuste kuvamine"</string>
+    <string name="accept_and_continue" msgid="1632679734918410653">"Nõustu ja jätka"</string>
+    <string name="back" msgid="6455622465896147127">"Tagasi"</string>
+    <string name="set_up_your_device" msgid="1896651520959894681">"Seadme seadistamine"</string>
+    <string name="info_anim_title_0" msgid="3285414600215959704">"Muutke oma töötamisviisi"</string>
+    <string name="info_anim_title_1" msgid="2657512519467714760">"Eraldage töö ja isiklik elu"</string>
+    <string name="one_place_for_work_apps" msgid="2595597562302953960">"Üks koht töörakenduste jaoks"</string>
+    <string name="info_anim_title_2" msgid="4629781398620470204">"Kui olete lõpetanud, lülitage töö välja"</string>
+    <string name="provisioning" msgid="4512493827019163451">"Ettevalmistamine"</string>
+    <string name="copying_certs" msgid="5697938664953550881">"CA-sertifikaatide seadistamine"</string>
+    <string name="setup_profile" msgid="5573950582159698549">"Seadistage oma profiil"</string>
+    <string name="profile_benefits_description" msgid="758432985984252636">"Tööprofiili kasutades saate tööandmed isiklikest andmetest eraldada"</string>
+    <string name="comp_profile_benefits_description" msgid="379837075456998273">"Tööprofiili kasutades saate töörakendused hoida ühes kohas"</string>
+    <string name="setup_profile_encryption" msgid="5241291404536277038">"Profiili seadistamine. Krüpteerimine"</string>
+    <string name="setup_profile_progress" msgid="7742718527853325656">"Profiili seadistamine. Edenemise kuvamine"</string>
+    <string name="setup_device" msgid="1679201701102889156">"Seadme <xliff:g id="DEVICE_NAME">%1$s</xliff:g> seadistamine"</string>
+    <string name="setup_device_encryption" msgid="2628196093806001835">"Seadistage seade <xliff:g id="DEVICE_NAME">%1$s</xliff:g>. Krüpteerimine"</string>
+    <string name="setup_device_progress" msgid="8792474713196537598">"Seadistage seade <xliff:g id="DEVICE_NAME">%1$s</xliff:g>. Kuvatakse edenemine"</string>
+    <string name="learn_more_label" msgid="2723716758654655009">"Nupp Lisateave"</string>
+    <string name="mdm_icon_label" msgid="3399134595549660561">"Ikoon <xliff:g id="ICON_LABEL">%1$s</xliff:g>"</string>
+    <string name="section_heading" msgid="3924666803774291908">"Jaotise <xliff:g id="SECTION_HEADING">%1$s</xliff:g> pealkiri."</string>
+    <string name="section_content" msgid="8875502515704374394">"Jaotise <xliff:g id="SECTION_HEADING">%1$s</xliff:g> sisu: <xliff:g id="SECTION_CONTENT">%2$s</xliff:g>"</string>
+    <string name="expand" msgid="37188292156131304">"Laiendamine"</string>
+    <string name="collapse" msgid="7817530505064432580">"Ahendamine"</string>
+    <string name="access_list_of_links" msgid="7094123315959323372">"Juurdepääs linkide loendile"</string>
+    <string name="access_links" msgid="7991363727326168600">"Juurdepääs linkidele"</string>
+    <string name="access_terms" msgid="1982500872249763745">"Juurdep. terminitele"</string>
+    <string name="read_terms" msgid="1745011123626640728">"Lugege tingimusi"</string>
+    <string name="close_list" msgid="9053538299788717597">"Sule loend"</string>
+    <string name="cancel_setup_and_factory_reset_dialog_title" msgid="5416045931532004811">"Lõpetada seadistus ja läht. tehaseandmetele?"</string>
+    <string name="cancel_setup_and_factory_reset_dialog_msg" msgid="808442439937994485">"Seadistuse lõpetamisel lähtestatakse seade tehaseandmetele ja teid viiakse tagasi esimesele ekraanile."</string>
+    <string name="cancel_setup_and_factory_reset_dialog_cancel" msgid="2810966091829264727">"Tühista"</string>
+    <string name="cancel_setup_and_factory_reset_dialog_ok" msgid="7168008267496150529">"Lähtesta seade"</string>
+    <string name="join_two_items" msgid="6110273439759895837">"<xliff:g id="FIRST_ITEM">%1$s</xliff:g> ja <xliff:g id="SECOND_ITEM">%2$s</xliff:g>"</string>
+    <string name="join_many_items_last" msgid="7469666990442158802">"<xliff:g id="ALL_BUT_LAST_ITEM">%1$s</xliff:g> ja <xliff:g id="LAST_ITEM_0">%2$s</xliff:g>"</string>
+    <string name="join_many_items_first" msgid="8365482726853276608">"<xliff:g id="FIRST_ITEM">%1$s</xliff:g>, <xliff:g id="ALL_BUT_FIRST_AND_LAST_ITEM">%2$s</xliff:g>"</string>
+    <string name="join_many_items_middle" msgid="8569294838319639963">"<xliff:g id="ADDED_ITEM">%1$s</xliff:g>, <xliff:g id="REST_OF_ITEMS">%2$s</xliff:g>"</string>
+    <string name="take_a_few_minutes" msgid="6282806501305322838">"See võib võtta mõne minuti"</string>
+    <string name="work_profile_description" msgid="8524116010729569213">"Teie töörakendusi hoitakse sellel profiilil ja neid haldab teie organisatsioon"</string>
+    <string name="device_owner_description" msgid="168013145812679664">"Teie organisatsioon haldab seda seadet ja tagab selle turvalisuse"</string>
+    <string name="setup_provisioning_header" msgid="4282483198266806271">"Tööseadme seadistamise ettevalmistamine …"</string>
+    <string name="setup_provisioning_header_description" msgid="2567041263563823566">"Administraatorirakenduse seadistamine"</string>
+    <string name="brand_screen_header" msgid="8865808542690116648">"See seade kuulub teie organisatsioonile"</string>
+    <string name="brand_screen_subheader" msgid="7664792208784456436">"Selle telefoni haldamiseks ja jälgimiseks kasutatakse järgmist rakendust"</string>
+    <string name="account_management_disclaimer_header" msgid="8013083414694316564">"Teie kontot hallatakse"</string>
+    <string name="account_management_disclaimer_subheader" msgid="8991450067243733878">"Teie IT-administraator kasutab turvaeeskirjade jõustamiseks mobiilseadmete haldamist."</string>
+    <string name="downloading_administrator_header" msgid="8660294318893902915">"Tööks seadistamise ettevalmistamine…"</string>
+    <string name="work_profile_provisioning_accept_header_post_suw" msgid="1353127953275291089">"Seadistame teie tööprofiili"</string>
+    <string name="work_profile_provisioning_step_1_header" msgid="7914961694921466366">"Töörakendusi hoitakse teie tööprofiilil"</string>
+    <string name="work_profile_provisioning_step_2_header" msgid="6001172190404670248">"Tööpäeva lõpus peatage töörakendused"</string>
+    <string name="work_profile_provisioning_step_3_header" msgid="4316106639726774330">"IT-administraator näeb teie tööprofiilil olevaid andmeid"</string>
+    <string name="work_profile_provisioning_progress_label" msgid="2627905308998389193">"Tööprofiili seadistamine …"</string>
+    <string name="work_profile_provisioning_summary" msgid="3436190271657388747">"Töörakendusi hoitakse teie tööprofiilil. Tööpäeva lõpus võite töörakendused peatada. IT-administraator näeb ainult tööprofiilil olevaid andmeid."</string>
+    <string name="fully_managed_device_provisioning_accept_header" msgid="2944032660440403130">"Seadistame teie tööseadme"</string>
+    <string name="fully_managed_device_provisioning_step_1_header" msgid="6396274703116708592">"Hoidke töörakendused käeulatuses"</string>
+    <string name="fully_managed_device_provisioning_step_2_header" msgid="142633978260399682">"Seade <xliff:g id="DEVICE_NAME">%1$s</xliff:g> ei ole privaatne"</string>
+    <string name="fully_managed_device_provisioning_step_2_subheader" msgid="3981784440341141618">"Teie IT-administraator võib seadmes <xliff:g id="DEVICE_NAME">%1$s</xliff:g> teie andmeid ja tegevusi näha."</string>
+    <string name="fully_managed_device_provisioning_permissions_header" msgid="2852101532084770993">"Teie tegevused ja andmed"</string>
+    <string name="fully_managed_device_provisioning_permissions_secondary_header" msgid="4419374850927705136">"Rakenduste load"</string>
+    <string name="fully_managed_device_provisioning_permissions_secondary_subheader" msgid="1973320148595109400">"Teie IT-administraator võib seadistada seadme <xliff:g id="DEVICE_NAME">%1$s</xliff:g> rakenduste lubasid, näiteks mikrofoni, kaamera ja asukohale juurdepääsu lubasid."</string>
+    <string name="fully_managed_device_provisioning_progress_label" msgid="3925516135130021966">"Teie seadme seadistamine …"</string>
+    <string name="fully_managed_device_provisioning_summary" msgid="2532673962822596806">"Kasutage seadet <xliff:g id="DEVICE_NAME_0">%1$s</xliff:g>, et töörakendustele hõlpsasti juurde pääseda. Seade <xliff:g id="DEVICE_NAME_1">%1$s</xliff:g> ei ole privaatne, nii et IT-administraator võib teie andmeid ja tegevusi näha."</string>
+    <string name="fully_managed_device_with_permission_control_provisioning_summary" msgid="3487964472228264628">"Kasutage seadet <xliff:g id="DEVICE_NAME_0">%1$s</xliff:g>, et töörakendustele hõlpsasti juurde pääseda. Seade <xliff:g id="DEVICE_NAME_1">%1$s</xliff:g> ei ole privaatne, nii et IT-administraator võib teie tegevusi ja andmeid näha. Samuti võib teie IT-administraator seadistada selle seadme rakenduste lubasid, näiteks mikrofoni, kaamera ja asukohale juurdepääsu lubasid."</string>
+    <string name="fully_managed_device_provisioning_return_device_title" msgid="8500829014794276683">"Andke see oma IT-administraatorile tagasi"</string>
+    <string name="fully_managed_device_provisioning_return_device_subheader" msgid="6194410367910957686">"Naaske eelmisele ekraanikuvale või lähtestage seade ja andke see oma IT-administraatorile tagasi."</string>
+    <string name="fully_managed_device_cancel_setup_button" msgid="4910041382610777599">"Katkesta seadistamine"</string>
+    <string name="fully_managed_device_reset_and_return_button" msgid="6451125722998550681">"Lähtestan ja tagastan seadme"</string>
+    <string name="fully_managed_device_unsupported_DPC_in_headless_mode_header" msgid="7938653381656306039">"Seadet ei saa seadistada"</string>
+    <string name="fully_managed_device_unsupported_DPC_in_headless_mode_subheader" msgid="5158035482490079567">"Seadet ei saa registreerida täielikult hallatavasse režiimi. Lähtestage seade tehaseseadetele ja pöörduge IT-administraatori poole."</string>
+    <string name="fully_managed_device_reset_button" msgid="5957116315144904542">"Tehaseseadetele lähtestamine"</string>
+    <string name="cope_provisioning_step_1_header" msgid="1945759718804756423">"Töörakendusi hoitakse tööprofiilil ja neid haldab IT-haldur"</string>
+    <string name="cope_provisioning_step_2_header" msgid="2388399739294883042">"Isiklikke rakendusi hoitakse töörakendustest eraldi"</string>
+    <string name="cope_provisioning_step_3_header" msgid="7161795433847296201">"IT-haldur saab seda seadet juhtida ja rakendusi blokeerida"</string>
+    <string name="cope_provisioning_summary" msgid="4993405755138454918">"Töörakendusi hoitakse teie tööprofiilil ja neid haldab teie IT-administraator. Isiklikke rakendusi hoitakse töörakendustest eraldi. Teie IT-administraator saab seadet <xliff:g id="DEVICE_NAME">%1$s</xliff:g> juhtida ja teatud rakendused blokeerida."</string>
+    <string name="just_a_sec" msgid="6244676028626237220">"Üks hetk …"</string>
+    <string name="fully_managed_device_provisioning_privacy_title" msgid="4017627906103556021">"Privaatsuse meeldetuletus"</string>
+    <string name="fully_managed_device_provisioning_privacy_body" msgid="2107315052054483060">"Teie IT-administraator võib seadmes <xliff:g id="DEVICE_NAME">%1$s</xliff:g> teie andmeid ja tegevusi näha"</string>
+    <string name="financed_device_screen_header" msgid="5934940812896302344">"Seadme <xliff:g id="DEVICE_NAME">%1$s</xliff:g> tuge pakub <xliff:g id="CREDITOR_NAME">%2$s</xliff:g>"</string>
+    <string name="financed_make_payments_subheader_title" msgid="743966229235451097">"Tehke seadme <xliff:g id="DEVICE_NAME">%1$s</xliff:g> eest makseid"</string>
+    <string name="financed_make_payments_subheader_description" msgid="7391276584735956742">"<xliff:g id="CREDITOR_NAME_0">%1$s</xliff:g> saab installida krediidipakkuja <xliff:g id="CREDITOR_NAME_1">%2$s</xliff:g> rakenduse, et saaksite seadme <xliff:g id="DEVICE_NAME">%3$s</xliff:g> eest makseid teha."</string>
+    <string name="financed_restrict_device_subheader_title" msgid="4248650736543742083">"Seadet <xliff:g id="DEVICE_NAME">%1$s</xliff:g> saab piirata"</string>
+    <string name="financed_restrict_device_subheader_description" msgid="1539908048861880628">"Kui te nõutavaid makseid ei tee, saab <xliff:g id="CREDITOR_NAME">%1$s</xliff:g> piirata juurdepääsu seadmele <xliff:g id="DEVICE_NAME">%2$s</xliff:g>."</string>
+    <string name="error_role_holder_hash_mismatch" msgid="5098975629103567172">"Ei saa seadete <xliff:g id="DEVICE_NAME">%1$s</xliff:g> seadistada. Võtke ühendust oma IT-administraatoriga ja mainige viga „Sobimatu kontrollsumma“."</string>
+    <string name="error_role_holder_download_install_failed" msgid="8151968372180693228">"Proovige hiljem uuesti või pöörduge abi saamiseks IT-administraatori poole"</string>
+    <string name="error_role_holder_package_invalid" msgid="8159929740916126242">"Ei saa seadete <xliff:g id="DEVICE_NAME">%1$s</xliff:g> seadistada. Võtke ühendust oma IT-administraatoriga ja mainige viga „Puuduvad või rikutud komponendid“."</string>
+    <string name="setting_up" msgid="1478847967385506664">"Seadistamine …"</string>
+</resources>

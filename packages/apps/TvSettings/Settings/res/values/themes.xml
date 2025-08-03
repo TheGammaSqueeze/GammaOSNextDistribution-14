@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2016 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources>
+    <style name="Transparent">
+        <item name="alertDialogTheme">@style/Theme.AlertDialog</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:imageButtonStyle">@null</item>
+    </style>
+
+    <style name="Theme.AlertDialog.Base" parent="@style/Theme.AppCompat.DayNight.Dialog.Alert">
+        <item name="colorAccent">@*android:color/accent_device_default_light</item>
+        <item name="android:colorBackground">@color/dialog_background</item>
+    </style>
+
+    <style name="Theme.AlertDialog" parent="Theme.AlertDialog.Base">
+        <item name="android:windowSoftInputMode">adjustResize</item>
+        <item name="android:clipToPadding">true</item>
+        <item name="android:clipChildren">true</item>
+
+        <!-- Redefine the ActionBar style for contentInsetStart -->
+        <!-- <item name="android:actionBarStyle">@style/Widget.ActionBar</item> -->
+
+        <!-- copied from Theme.DeviceDefault.Dialog.Alert -->
+        <item name="dialogCornerRadius">@*android:dimen/config_dialogCornerRadius</item>
+        <item name="android:windowTitleStyle">@*android:style/DialogWindowTitle.DeviceDefault</item>
+        <item name="android:textAppearanceMedium">@style/TextAppearance.DialogMessage</item>
+        <item name="buttonBarButtonStyle">@*android:style/Widget.DeviceDefault.Button.ButtonBar.AlertDialog</item>
+    </style>
+
+    <style name="FallbackHome" parent="@android:style/Theme.Material.Wallpaper.NoTitleBar">
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+        <item name="android:windowAnimationStyle">@null</item>
+    </style>
+
+    <style name="SetupFlowGuidedStepTheme" parent="Theme.Leanback.GuidedStep">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowAnimationStyle">@style/SetupWindowAnimationStyle</item>
+        <item name="guidanceContainerStyle">@style/Setup.GuidanceContainerStyle</item>
+        <item name="guidanceDescriptionStyle">@style/Setup.GuidanceDescriptionStyle</item>
+        <item name="guidanceTitleStyle">@style/Setup.GuidanceTitleStyle</item>
+
+        <item name="guidedStepBackground">#ff000000</item>
+        <item name="guidedActionsBackground">@null</item>
+        <item name="guidedActionsElevation">0dip</item>
+        <item name="guidedActionsSelectorDrawable">@null</item>
+        <item name="guidedActionItemContainerStyle">@style/Setup.GuidedActionItemContainer</item>
+        <item name="guidedActionItemContentStyle">@style/Setup.GuidedActionItemContent</item>
+        <item name="guidedActionItemTitleStyle">@style/Setup.GuidedActionItemTitle</item>
+        <item name="guidedActionsListStyle">@style/Setup.GuidedActionsListStyle</item>
+        <item name="guidedActionContentWidthWeight">@string/setup_actions_width_weight</item>
+    </style>
+    <style name="GuidedStepFragmentThemeOnePanel" parent="Theme.Leanback.GuidedStep">
+        <item name="guidanceTitleStyle">@style/GuidanceTitleStyle</item>
+        <item name="guidanceDescriptionStyle">@style/GuidanceDescriptionStyle</item>
+        <item name="guidanceIconStyle">@style/GuidanceIconStyle</item>
+    </style>
+
+    <style name="GuidedStepFragmentThemeTwoPanel" parent="Theme.Leanback.GuidedStep">
+        <item name="guidedActionsElevation">@dimen/guided_actions_list_elevation</item>
+        <item name="guidedActionsBackground">@null</item>
+        <item name="guidedActionsSelectorDrawable">@null</item>
+        <item name="guidedActionsListStyle">@style/GuidedActionsListStyleTwoPanel</item>
+        <item name="guidedActionItemCheckmarkStyle">@style/GuidedActionItemCheckmarkStyle</item>
+        <item name="guidedActionItemChevronStyle">@style/GuidedActionItemChevronStyle</item>
+        <item name="guidedActionItemContainerStyle">@style/GuidedActionItemContainerStyleTwoPanel</item>
+        <item name="guidedActionItemContentStyle">@style/GuidedActionItemContentStyle</item>
+        <item name="guidedActionItemTitleStyle">@style/GuidedActionItemTitleStyleTwoPanel</item>
+        <item name="guidedActionItemDescriptionStyle">@style/GuidedActionItemDescriptionStyleTwoPanel</item>
+        <item name="guidanceTitleStyle">@style/GuidanceTitleStyle</item>
+        <item name="guidanceDescriptionStyle">@style/GuidanceDescriptionStyle</item>
+        <item name="guidedActionContentWidthWeight">@string/guided_action_width_weight_two_panel</item>
+        <item name="guidedStepBackground">@null</item>
+        <item name="guidanceContainerStyle">@style/GuidanceContainerStyleTwoPanel</item>
+        <item name="guidanceIconStyle">@style/GuidanceIconStyle</item>
+        <item name="guidedStepKeyline">@string/guidedstep_keyline_two_panel</item>
+    </style>
+
+    <style name="BluetoothActionGuidedStepTheme" parent="Theme.Leanback.GuidedStep">
+        <item name="guidanceTitleStyle">@style/BluetoothActionTitleStyle</item>
+    </style>
+
+    <style name="ActionDisabledDialogTheme" parent="TvSettingsActivityTheme">
+        <item name="android:alertDialogTheme">@android:style/Theme.DeviceDefault.Dialog.Alert</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
+</resources>

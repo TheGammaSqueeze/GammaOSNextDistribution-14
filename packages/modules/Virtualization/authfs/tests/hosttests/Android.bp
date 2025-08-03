@@ -1,0 +1,25 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_test_host {
+    name: "AuthFsHostTest",
+    srcs: ["java/src/com/android/fs/*.java"],
+    libs: [
+        "tradefed",
+    ],
+    static_libs: [
+        "MicrodroidHostTestHelper",
+        "AuthFsHostTestCommon",
+    ],
+    test_suites: ["general-tests"],
+    data_device_bins_first: [
+        "open_then_run",
+        "fsverity",
+    ],
+    per_testcase_directory: true,
+    data: [
+        ":authfs_test_files",
+        ":MicrodroidTestApp",
+    ],
+}

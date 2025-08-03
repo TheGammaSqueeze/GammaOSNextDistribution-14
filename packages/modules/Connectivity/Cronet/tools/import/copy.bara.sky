@@ -1,0 +1,127 @@
+# Copyright 2023 Google Inc. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+common_excludes = [
+    # Exclude all Android build files
+    "**/Android.bp",
+    "**/Android.mk",
+
+    # Exclude existing *OWNERS files
+    "**/*OWNERS",
+    "**/.git/**",
+    "**/.gitignore",
+]
+
+cronet_origin_files = glob(
+    include = [
+        "base/**",
+        "build/**",
+        "build/buildflag.h",
+        "chrome/VERSION",
+        "components/cronet/**",
+        "components/metrics/**",
+        "components/nacl/**",
+        "components/prefs/**",
+        "crypto/**",
+        "ipc/**",
+        "net/**",
+        # Note: Only used for tests.
+        "testing/**",
+        "url/**",
+        "LICENSE",
+    ],
+    exclude = common_excludes + [
+        # Per aosp/2367109
+        "build/android/CheckInstallApk-debug.apk",
+        "build/android/unused_resources/**",
+        "build/linux/**",
+
+        # Per aosp/2374766
+        "components/cronet/ios/**",
+        "components/cronet/native/**",
+
+        # Per aosp/2399270
+        "testing/buildbot/**",
+
+        # Exclude all third-party directories. Those are specified explicitly
+        # below, so no dependency can accidentally creep in.
+        "**/third_party/**",
+    ],
+) + glob(
+    # Explicitly include third-party dependencies.
+    # Note: some third-party dependencies include a third_party folder within
+    # them. So far, this has not become a problem.
+    include = [
+        "base/third_party/cityhash/**",
+        "base/third_party/cityhash_v103/**",
+        "base/third_party/double_conversion/**",
+        "base/third_party/dynamic_annotations/**",
+        "base/third_party/icu/**",
+        "base/third_party/nspr/**",
+        "base/third_party/superfasthash/**",
+        "base/third_party/valgrind/**",
+        # Those are temporarily needed until Chromium finish the migration
+        # of libc++[abi]
+        "buildtools/third_party/libc++/**",
+        "buildtools/third_party/libc++abi/**",
+        # Note: Only used for tests.
+        "net/third_party/nist-pkits/**",
+        "net/third_party/quiche/**",
+        "net/third_party/uri_template/**",
+        "third_party/abseil-cpp/**",
+        "third_party/android_ndk/sources/android/cpufeatures/**",
+        "third_party/ashmem/**",
+        "third_party/boringssl/**",
+        "third_party/brotli/**",
+        # Note: Only used for tests.
+        "third_party/ced/**",
+        "third_party/cpu_features/**",
+        # Note: Only used for tests.
+        "third_party/google_benchmark/**",
+        # Note: Only used for tests.
+        "third_party/googletest/**",
+        "third_party/icu/**",
+        "third_party/jni_zero/**",
+        "third_party/libc++/**",
+        "third_party/libc++abi/**",
+        "third_party/libevent/**",
+        # Note: Only used for tests.
+        "third_party/libxml/**",
+        # Note: Only used for tests.
+        "third_party/lss/**",
+        "third_party/metrics_proto/**",
+        "third_party/modp_b64/**",
+        "third_party/protobuf/**",
+        # Note: Only used for tests.
+        "third_party/quic_trace/**",
+        # Note: Cronet currently uses Android's zlib
+        # "third_party/zlib/**",
+        "url/third_party/mozilla/**",
+    ],
+    exclude = common_excludes,
+)
+
+core.workflow(
+    name = "import_cronet",
+    authoring = authoring.overwrite("Cronet Mainline Eng <cronet-mainline-eng+copybara@google.com>"),
+    # Origin folder is specified via source_ref argument, see import_cronet.sh
+    origin = folder.origin(),
+    origin_files = cronet_origin_files,
+    destination = git.destination(
+        # The destination URL is set by the invoking script.
+        url = "overwritten/by/script",
+        push = "upstream-import",
+    ),
+    mode = "SQUASH",
+)

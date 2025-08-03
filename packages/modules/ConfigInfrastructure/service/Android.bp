@@ -1,0 +1,71 @@
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_sdk_library {
+    name: "service-configinfrastructure",
+    srcs: ["java/**/*.java"],
+    defaults: [
+        "framework-system-server-module-defaults",
+        "framework-system-server-module-optimize-defaults",
+    ],
+    permitted_packages: [
+        "android.provider",
+        "com.android.server.deviceconfig",
+    ],
+    apex_available: [
+        "com.android.configinfrastructure",
+    ],
+    static_libs: [
+        "modules-utils-build",
+        "modules-utils-shell-command-handler",
+        "device_config_reboot_flags_java_lib",
+        "guava",
+        "libaconfig_java_proto_lite",
+    ],
+    libs: [
+        "framework-configinfrastructure.impl",
+        "framework-connectivity.stubs.module_lib",
+    ],
+    impl_only_libs: [
+        "DeviceConfigServiceResources",
+    ],
+    min_sdk_version: "34",
+    sdk_version: "system_server_current",
+    jarjar_rules: "jarjar-rules.txt",
+    impl_library_visibility: [
+        "//packages/modules/ConfigInfrastructure/service/javatests",
+    ],
+}
+
+aconfig_declarations {
+    name: "device_config_reboot_flags",
+    package: "com.android.server.deviceconfig",
+    container: "com.android.configinfrastructure",
+    srcs: [
+        "flags.aconfig",
+    ],
+}
+
+java_aconfig_library {
+    name: "device_config_reboot_flags_java_lib",
+    min_sdk_version: "34",
+    apex_available: [
+        "com.android.configinfrastructure",
+    ],
+    aconfig_declarations: "device_config_reboot_flags",
+}

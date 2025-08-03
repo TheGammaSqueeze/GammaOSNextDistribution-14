@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+ * Copyright (C) 2019 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+-->
+
+<!-- CellBroadcast has never changed versionCode since CellBroadcast was included R-OS.
+In case of changing the version code, should notify the backup and restore team.
+pixel-onboarding-eng@ and aob-platform-Op@. Please refer b/317302212 for details -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+        android:sharedUserId="android.uid.networkstack"
+        android:versionCode="300000000"
+        android:versionName="R-initial"
+        package="com.android.cellbroadcastservice">
+
+    <original-package android:name="com.android.cellbroadcastservice" />
+
+    <!-- gives the permission holder access to the CellBroadcastProvider -->
+    <permission android:name="com.android.cellbroadcastservice.FULL_ACCESS_CELL_BROADCAST_HISTORY"
+            android:protectionLevel="signature" />
+
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE" />
+    <uses-permission android:name="android.permission.READ_CELL_BROADCASTS" />
+    <uses-permission android:name="android.permission.MODIFY_PHONE_STATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="com.android.cellbroadcastservice.FULL_ACCESS_CELL_BROADCAST_HISTORY" />
+
+    <protected-broadcast android:name="android.telephony.action.AREA_INFO_UPDATED" />
+
+    <uses-sdk android:minSdkVersion="30" />
+
+    <!-- Need to set usesCleartextTraffic="true" as every APK in the process
+    must set it to avoid races. The flag is necessary for the NetworkStack
+    module. See b/161860610. -->
+    <application android:label="Cell Broadcast Service"
+        android:defaultToDeviceProtectedStorage="true"
+        android:directBootAware="true"
+        android:persistent="true"
+        android:forceQueryable="true"
+        android:process="com.android.networkstack.process"
+        android:usesCleartextTraffic="true">
+
+        <service android:name="DefaultCellBroadcastService"
+            android:process="com.android.networkstack.process"
+            android:exported="true"
+            android:permission="android.permission.BIND_CELL_BROADCAST_SERVICE">
+            <intent-filter>
+                <action android:name="android.telephony.CellBroadcastService" />
+            </intent-filter>
+        </service>
+        <provider android:name="CellBroadcastProvider"
+                android:authorities="cellbroadcasts"
+                android:exported="true"
+                android:singleUser="true"
+                android:readPermission="android.permission.READ_CELL_BROADCASTS"
+                android:multiprocess="false" />
+    </application>
+</manifest>

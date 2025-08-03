@@ -1,0 +1,7 @@
+rule android.util.LocalLog* com.android.cellbroadcastservice.LocalLog@1
+rule android.internal.util.IState* com.android.cellbroadcastservice.IState@1
+rule android.internal.util.Preconditions* com.android.cellbroadcastservice.Preconditions@1
+rule com.android.internal.util.Preconditions* com.android.cellbroadcastservice.internal.Preconditions@1
+rule android.internal.util.State* com.android.cellbroadcastservice.State@1
+rule android.internal.util.StateMachine* com.android.cellbroadcastservice.StateMachine@1
+rule com.android.modules.utils.** com.android.cellbroadcastservice.@1

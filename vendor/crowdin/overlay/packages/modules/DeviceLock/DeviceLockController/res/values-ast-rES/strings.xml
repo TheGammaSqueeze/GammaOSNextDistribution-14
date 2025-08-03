@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (c) 2022, The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">DeviceLockController</string>
+    <string name="next_button">Siguiente</string>
+    <string name="reset_button">Reafitar</string>
+    <string name="setup_more_button">Más</string>
+    <string name="setup_info_title_text">Cómo «<xliff:g id="creditor_app">%1$s</xliff:g>» pue xestionar esti preséu</string>
+    <string name="setup_failed_title_text">Nun se pue instalar l\'aplicación «<xliff:g id="creditor_app">%1$s</xliff:g>»</string>
+    <string name="setup_failed_reset_device_text">Reafitando\'l preséu pa volver tentalo.</string>
+    <string name="setup_failed_reset_device_timer_text">        {count, plural,
+            one {}=1    {Reafita esti preséu y tenta de volver configuralu. Va reafitase en 1 segundu.}
+            other {Reafita esti preséu y tenta de volver configuralu. Va reafitase en # segundos.}
+        }
+    </string>
+    <string name="setup_progress_title_text">Instalando l\'aplicación «<xliff:g id="creditor_app">%1$s</xliff:g>»<xliff:g id="ellipsis">\u2026</xliff:g></string>
+    <string name="setup_finish_title_text">Abriendo l\'aplicación «<xliff:g id="creditor_app">%1$s</xliff:g>»<xliff:g id="ellipsis">\u2026</xliff:g></string>
+    <string name="setup_error_title_text">Nun se pue abrir l\'aplicación «<xliff:g id="creditor_app">%1$s</xliff:g>»</string>
+    <string name="try_again">Retentar</string>
+    <string name="reset_phone">Reafitar el teléfonu</string>
+    <string name="control_section_title">Qué pue facer l\'aplicación «<xliff:g id="creditor_app">%1$s</xliff:g>»\u003F</string>
+    <string name="control_lock_device_text">Torgar esti preséu si nun pagues</string>
+    <string name="control_download_text">Baxar, instalar y anovar l\'aplicación «<xliff:g id="creditor_app">%1$s</xliff:g>»</string>
+    <string name="control_disable_debug_text">Desactivar les funciones de depuración</string>
+    <string name="locked_section_title">¿Qué funciona si\'l preséu ta bloquiáu?</string>
+    <string name="locked_emergency_text">Servicios de llamaes d\'emerxencia</string>
+    <string name="locked_phone_usage_text">Llamaes entrantes y dalgunes salientes</string>
+    <string name="locked_settings_usage_text">Configuración</string>
+    <string name="locked_backup_and_restore_text"><![CDATA[<a href="https://support.google.com/android/answer/2819582">Copia de seguranza y restauración</a>]]> de datos</string>
+    <string name="exposure_section_title">¿Qué pue ver «<xliff:g id="creditor_app">%1$s</xliff:g>»?</string>
+    <string name="exposure_install_text">Cuándo se des/instala l\'aplicación «<xliff:g id="creditor_app">%1$s</xliff:g>»</string>
+    <string name="exposure_lock_unlock_text">Cualesquier solicitú de des/bloquéu de: <xliff:g id="creditor_app">%1$s</xliff:g></string>
+    <string name="exposure_disable_dlc_text">Si l\'aplicación «<xliff:g id="creditor_app">%1$s</xliff:g>» nun ta disponible</string>
+    <string name="open_source_licenses">Llicencies de códigu abiertu</string>
+    <string name="footer_notice_content_description">Les funciones de xestión qu\'hai na seición del preséu financiáu de la configuración de seguranza nun s\'apliquen a esti preséu.</string>
+    <string name="device_provided_by_provider">«<xliff:g id="provider name">%1$s</xliff:g>» forne\'l preséu</string>
+    <string name="download_kiosk_app">L\'aplicación de quioscu va baxase ya instalase automáticamente</string>
+    <string name="install_kiosk_app_secondary_user">L\'aplicación de quioscu va instalase pa esti usuariu</string>
+    <string name="restrict_device_if_missing_payment">«<xliff:g id="provider name">%1$s</xliff:g>» pue torgar el preséu si falta un pagu. Pa consiguir más detalles, consulta los <xliff:g id="terms_and_conditions_link_start">&lt;a href=\"%2$s\"&gt;</xliff:g>términos y condiciones<xliff:g id="terms_and_conditions_link_end">&lt;/a&gt;</xliff:g>.</string>
+    <string name="restrict_device_if_dont_make_payment">«<xliff:g id="provider name">%1$s</xliff:g>» pue torgar esti preséu si nun pagues lo necesario. Pa consiguir más información, consulta los <xliff:g id="terms_and_conditions_link_start">&lt;a href=\"%2$s\"&gt;</xliff:g>términos y condiciones<xliff:g id="terms_and_conditions_link_end">&lt;/a&gt;</xliff:g>.</string>
+    <string name="contact_provider_for_help">Pa consiguir ayuda, <xliff:g id="support_link_start">&lt;a href=\"%2$s\"&gt;</xliff:g>ponte en contautu con «<xliff:g id="provider name">%1$s</xliff:g>»<xliff:g id="support_link_end">&lt;/a&gt;</xliff:g>.</string>
+    <string name="previous">Anterior</string>
+    <string name="next">Siguiente</string>
+    <string name="start">Aniciar</string>
+    <string name="ok">D\'acuerdu</string>
+    <string name="done">Fecho</string>
+    <string name="do_it_in_one_hour">Facelo nuna hora</string>
+    <string name="header_icon_content_description">Información</string>
+    <string name="provision_info_item_icon_content_description">Info. de fornimientu</string>
+    <string name="enroll_your_device_header">Inscribí\'l preséu</string>
+    <string name="enroll_your_device_financing_subheader">Yá pues inscribir el preséu nel programa de financiamientu de: <xliff:g id="provider name">%1$s</xliff:g></string>
+    <string name="enroll_your_device_subsidy_subheader">Yá pues inscribir el preséu nel programa de subsidios de: <xliff:g id="provider name">%1$s</xliff:g></string>
+    <string name="subsidy_program_header">Tas nel programa de subsidios de: <xliff:g id="provider name">%1$s</xliff:g></string>
+    <string name="device_enrollment_header_text">Inscripción del preséu</string>
+    <string name="device_financing_enrollment_body_text">El preséu va inscribise nel programa de financiamientu de «<xliff:g id="provider name">%1$s</xliff:g>» nun plazu de 30 díes</string>
+    <string name="device_subsidy_enrollment_body_text">El preséu va inscribise nel programa de subsidios de «<xliff:g id="provider name">%1$s</xliff:g>» nun plazu de 30 díes</string>
+    <string name="device_enrollment_notification_body_text">La inscripción va siguir a la hora: <xliff:g id="time">%1$s</xliff:g>. Pues siguir usando\'l preséu. </string>
+    <string name="continue_using_device">Pues siguir usando\'l preséu</string>
+    <string name="device_paid">Paguesti pol preséu</string>
+    <string name="device_removed_from_subsidy_program">El preséu quitóse del programa de subsidios de: <xliff:g id="provider name">%1$s</xliff:g></string>
+    <string name="device_removed_from_finance_program">El preséu quitóse del programa de financiamientu de: <xliff:g id="provider name">%1$s</xliff:g></string>
+    <string name="restrictions_lifted">Quítáronse toles torgues del preséu</string>
+    <string name="uninstall_kiosk_app">Pues desinstalar l\'aplicación de quioscu del preséu</string>
+    <string name="getting_device_ready">Poniendo\'l preséu a puntu…</string>
+    <string name="this_may_take_a_few_minutes">Esta aición pue tardar unos minutos</string>
+    <string name="installing_kiosk_app">Instalando l\'aplicación «<xliff:g id="creditor_app">%1$s</xliff:g>»…</string>
+    <string name="opening_kiosk_app">Abriendo l\'aplicación «<xliff:g id="creditor_app">%1$s</xliff:g>»…</string>
+    <string name="settings_banner_title">«<xliff:g id="provider name">%1$s</xliff:g>» forne\'l preséu</string>
+    <string name="settings_banner_body">«<xliff:g id="provider name">%1$s</xliff:g>» pue camudar la configuración d\'esti preséu</string>
+    <string name="settings_banner_button">Saber más</string>
+    <string name="settings_screen_title">Información del preséu financiáu</string>
+    <string name="settings_intro_device_financing">«<xliff:g id="provider name">%1$s</xliff:g>» pue camudar la configuración ya instalar l\'aplicación de quioscu nel preséu.\n\nSi falta un pagu, «<xliff:g id="provider name">%1$s</xliff:g>» pue torgar el preséu.\n\nPa saber más, ponte en contautu con «<xliff:g id="provider name">%1$s</xliff:g>».</string>
+    <string name="settings_intro_device_subsidy">«<xliff:g id="provider name">%1$s</xliff:g>» pue camudar la configuración ya instalar l\'aplicación de quioscu nel preséu.\n\nYe posible que\'l fornidor «<xliff:g id="provider name">%1$s</xliff:g>» torgue tamién el preséu si falta un pagu o dexes d\'usar la SIM del fornidor «<xliff:g id="provider name">%1$s</xliff:g>.\n\nPa saber más, ponte en contautu con «<xliff:g id="provider name">%1$s</xliff:g>».</string>
+    <string name="settings_restrictions_category">Hasta que nun pagues pol preséu, nun pues:</string>
+    <string name="settings_install_apps">Instalar aplicaciones que nun seyan de la Play Store</string>
+    <string name="settings_safe_mode">Reaniciar el preséu nel mou seguru</string>
+    <string name="settings_developer_options">Usar les opciones pa desendolcadores</string>
+    <string name="settings_credit_provider_capabilities_category">Si pasa dalgún problema col preséu, <xliff:g id="provider name">%1$s</xliff:g> pue:</string>
+    <string name="settings_IMEI">Acceder al númberu IMEI</string>
+    <string name="settings_factory_reset">Reafitar los valores del preséu</string>
+    <string name="settings_locked_mode_category">Si\'l preséu ta torgáu, namás pues usalu pa:</string>
+    <string name="settings_emergency_calls">Facer llamaes a númberos d\'emerxencia</string>
+    <string name="settings_system_info">Ver la información del sistema (data, hora, estáu de la rede y la batería)</string>
+    <string name="settings_turn_on_off_device">Encender o apagar el preséu</string>
+    <string name="settings_notifications">Ver avisos y mensaxes</string>
+    <string name="settings_allowlisted_apps">Acceder a les aplicaciones que\'l fornidor «<xliff:g id="provider name">%1$s</xliff:g>» permita</string>
+    <string name="settings_fully_paid_category">Namás que pagues l\'importe total:</string>
+    <string name="settings_restrictions_removed">«<xliff:g id="provider name">%1$s</xliff:g>» nun pue torgar el preséu nin camuda-y la configuración</string>
+    <string name="settings_uninstall_kiosk_app">Pues desinstalar l\'aplicación «<xliff:g id="kiosk_app">%1$s</xliff:g>»</string>
+    <string name="settings_support_category">Pa consiguir ayuda:</string>
+    <string name="settings_contact_provider"><xliff:g id="support_link_start">&lt;a href=\"%2$s\"&gt;</xliff:g>Ponte en contautu con «<xliff:g id="provider name">%1$s</xliff:g>»<xliff:g id="support_link_end">&lt;/a&gt;</xliff:g></string>
+    <string name="provision_notification_channel_name">Fornimientu</string>
+    <string name="device_reset_in_days_notification_title">        {count, plural,
+            one {}=1    {El preséu va reafitase en 1 día}
+            other {El preséu va reafitase en # díes}
+        }
+    </string>
+    <string name="device_reset_timer_notification_title">El preséu va reafitase en <xliff:g id="timer">%s</xliff:g></string>
+    <string name="device_reset_notification_content">Van desaniciase tolos datos del preséu. Pa consiguir ayuda tocante a la inscripción del preséu, ponte en contautu con «<xliff:g id="provider name">%1$s</xliff:g>»</string>
+    <string name="provisioning_failed">El fornimientu del financiamientu falló</string>
+    <string name="click_to_contact_financier">Calca equí pa consiguir formes de ponete en contautu col financieru. <xliff:g id="support_url_start">&lt;a href=\"%1$s\"&gt;</xliff:g>Saber más<xliff:g id="support_url_end">&lt;/a&gt;</xliff:g></string>
+    <string name="exit">Colar</string>
+    <string name="retry">Retentar</string>
+</resources>

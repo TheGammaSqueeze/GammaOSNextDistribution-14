@@ -1,0 +1,2 @@
+This project currently using the old approach for static RROs targeting the android package due to
+b/186753067. Please use the current approach for RROs for any other application/package.

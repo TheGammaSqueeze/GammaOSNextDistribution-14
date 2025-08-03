@@ -1,0 +1,13 @@
+task:
+  name: Build with AOSP
+  only_if: $CIRRUS_PR_LABELS =~ ".*aosp-build.*"
+  timeout_in: 70m
+  container:
+    image: ubuntu:23.04
+    cpu: 8
+    memory: 32G
+  build_script:
+    - ./.github/scripts/build_aosp.sh aosp_arm64 ap1a userdebug android-14.0.0_r29
+  always:
+    seedvault_artifacts:
+      path: Seedvault.apk

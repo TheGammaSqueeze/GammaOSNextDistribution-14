@@ -1,0 +1,89 @@
+model {
+  main {
+    operands {
+      operand {
+        type: TENSOR_BOOL8
+        dimensions {
+          dimension: 2
+          dimension: 2
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 16777472
+        }
+      }
+      operand {
+        type: TENSOR_INT32
+        dimensions {
+          dimension: 2
+          dimension: 2
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 2621812216
+        }
+      }
+      operand {
+        type: TENSOR_INT32
+        dimensions {
+          dimension: 2
+          dimension: 2
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 1142735274
+        }
+      }
+      operand {
+        type: TENSOR_INT32
+        dimensions {
+          dimension: 2
+          dimension: 2
+        }
+        lifetime: SUBGRAPH_OUTPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          random_seed: 956313717
+        }
+      }
+    }
+    operations {
+      operation {
+        type: SELECT
+        inputs {
+          index: 0
+          index: 1
+          index: 2
+        }
+        outputs {
+          index: 3
+        }
+      }
+    }
+    input_indexes {
+      index: 0
+      index: 1
+      index: 2
+    }
+    output_indexes {
+      index: 3
+    }
+  }
+  referenced {
+  }
+}

@@ -1,0 +1,51 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_library_host {
+    name: "AuthFsHostTestCommon",
+    srcs: ["src/java/**/*.java"],
+    libs: [
+        "compatibility-host-util",
+        "compatibility-tradefed",
+        "tradefed",
+    ],
+    static_libs: [
+        "MicrodroidHostTestHelper",
+    ],
+}
+
+rust_test {
+    name: "open_then_run",
+    crate_name: "open_then_run",
+    defaults: ["avf_build_flags_rust"],
+    srcs: ["src/open_then_run.rs"],
+    edition: "2021",
+    rustlibs: [
+        "libandroid_logger",
+        "libanyhow",
+        "libclap",
+        "libcommand_fds",
+        "liblibc",
+        "liblog_rust",
+    ],
+    test_suites: ["general-tests"],
+    test_harness: false,
+}
+
+rust_test {
+    name: "open_then_run.test",
+    crate_name: "open_then_run",
+    defaults: ["avf_build_flags_rust"],
+    srcs: ["src/open_then_run.rs"],
+    edition: "2021",
+    rustlibs: [
+        "libandroid_logger",
+        "libanyhow",
+        "libclap",
+        "libcommand_fds",
+        "liblibc",
+        "liblog_rust",
+    ],
+    test_suites: ["general-tests"],
+}

@@ -1,0 +1,54 @@
+{
+  "mocks": [
+    {
+      "request": {
+        "path": "bidding"
+      },
+      "response": {
+        "body": "BiddingLogicV2.js"
+      }
+    },
+    {
+      "request": {
+        "path": "scoring"
+      },
+      "response": {
+        "body": "ScoringLogic.js"
+      }
+    },
+    {
+      "request": {
+        "path": "scoring/trusted"
+      },
+      "response": {
+        "body": "ScoringSignals.json"
+      }
+    },
+    {
+      "request": {
+        "path": "bidding/trusted"
+      },
+      "response": {
+        "body": "BiddingSignals.json"
+      }
+    },
+    {
+      "request": {
+        "path": "update/ca"
+      },
+      "response": {
+        "body": "ScheduledCaUpdateResponse.json"
+      },
+      "verify_called": true
+    }
+  ],
+  "substitutions": {
+    "<bidding-logic-uri>": "{base_url}/bidding",
+    "<daily-update-uri>": "{base_url}/bidding/daily",
+    "<ad-render-uri-1>": "{base_url}/render_hats/1",
+    "<ad-render-uri-2>": "{base_url}/render_hats/2",
+    "<buyer-trusted-bidding-uri>": "{base_url}/bidding/trusted",
+    "<buyer-reporting-uri>": "{base_url}/buyer/reportImpression",
+    "<seller-reporting-uri>": "{base_url}/seller/reportImpression"
+  }
+}

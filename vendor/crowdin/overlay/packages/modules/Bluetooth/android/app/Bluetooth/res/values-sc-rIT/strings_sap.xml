@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="bluetooth_sap_notif_title">Atzessu a sa SIM cun Bluetooth </string>
+    <string name="bluetooth_sap_notif_ticker">Atzessu a sa SIM cun Bluetooth </string>
+    <string name="bluetooth_sap_notif_message">Boles pedire a su cliente de s\'iscollegare?</string>
+    <string name="bluetooth_sap_notif_disconnecting">Abetende chi su cliente s\'iscolleghet</string>
+    <string name="bluetooth_sap_notif_disconnect_button">Disconnete</string>
+</resources>

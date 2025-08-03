@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- Cellular Network Security -->
+    <string name="cellular_network_security_title" description="The title of the group of safety settings relating to cellular network security">Cellular network security</string>
+    <string name="cellular_network_security_summary" description="The summary of the group of safety settings relating to cellular network security, which describes the group contents">Network type, encryption, notification controls</string>
+
+  <!-- Device unlock -->
+  <string name="biometrics_title_for_private_profile" description="The default title of the setting for managing biometric options on the device for private space"><!-- Empty placeholder--></string>
+
+  <!-- More settings -->
+  <string name="private_space_title" description="The title of the entry for Private Space">Private Space</string>
+  <string name="private_space_summary" description="The summary of the entry for Private Space settings, which describes the page contents">Setup Private Space, and more</string>
+  <string name="private_space_search_terms" description="Search keywords of the entry for Private Space settings">Private Space</string>
+
+</resources>

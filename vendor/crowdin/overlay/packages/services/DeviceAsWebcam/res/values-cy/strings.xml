@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2023 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources>
+    <string name="app_label">Gwasanaeth Gwe-camera</string>
+    <string name="zoom_ratio_description">Cymhareb chwyddo</string>
+    <string name="zoom_ratio_button_current_description">Cymhareb Chwyddo Gyfredol</string>
+    <string name="zoom_seek_bar_description">Bar Canfod Chwyddo</string>
+    <string name="toggle_camera_button_description_back">Newid i\u2019r camera ôl</string>
+    <string name="toggle_camera_button_description_front">Newid i\u2019r camera blaen</string>
+    <string name="notif_channel_name">Gwasanaeth Blaendir</string>
+    <string name="notif_ticker">Gwe-camera</string>
+    <string name="notif_title">Gwe-camera</string>
+    <string name="notif_desc">Tapia i ragweld a ffurfweddu allbwn gwe-camera</string>
+    <string name="list_item_text_back_camera">Camera ôl</string>
+    <string name="list_item_text_front_camera">Camera blaen</string>
+    <string name="list_item_text_standard_camera">Camera safonol</string>
+    <string name="list_item_text_wide_angle_camera">Camera ongl lydan</string>
+    <string name="list_item_text_ultra_wide_camera">Camera ongl lydan iawn</string>
+    <string name="list_item_text_telephoto_camera">Camera teleffoto</string>
+    <string name="list_item_text_other_camera">Camera arall</string>
+    <string name="list_item_text_unknown_camera">Camera anhysbys</string>
+    <string name="camera_options_list_description">Dewisiadau camera ar gael</string>
+</resources>

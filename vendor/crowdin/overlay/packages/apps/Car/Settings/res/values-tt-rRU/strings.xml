@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright 2018 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="brightness">Яктылык дәрәҗәсе</string>
+    <string name="auto_brightness_title">Адаптив яктылык</string>
+    <string name="mobile_network_mobile_network_toggle_title">Мобиль челтәр</string>
+    <string name="roaming_alert_title">Мәгълүмат роумингын рөхсәт итәргәме?</string>
+    <string name="data_limit">Мәгълүмат чиге</string>
+    <string name="data_usage_limit_dialog_title">Мәгълүмат кулланылышын чикләү</string>
+    <string name="network_and_internet_join_other_network_title">Башка челтәргә тоташу</string>
+    <string name="network_and_internet_network_preferences_title">Челтәр көйләүләре</string>
+    <string name="wifi_settings">Wi\u2011Fi</string>
+    <string name="wifi_starting">Wi\u2011Fi\'ны кабызу\u2026</string>
+    <string name="wifi_stopping">Wi\u2011Fi\'ны сүндерү\u2026</string>
+    <string name="loading_wifi_list">Wi\u2011Fi исемлеген йөкләү</string>
+    <string name="wifi_disabled">Wi\u2011Fi сүндерелгән</string>
+    <string name="wifi_failed_forget_message">Челтәрне онытып булмады</string>
+    <string name="wifi_failed_connect_message">Челтәргә тоташып булмады</string>
+    <string name="wifi_setup_add_network">Челтәр өстәү</string>
+    <string name="wifi_disconnected">Тоташмаган</string>
+    <string name="wifi_show_password">Серсүзне күрсәтү</string>
+    <string name="wifi_no_network_name">Челтәр исемен кертегез</string>
+    <string name="wifi_ssid_hint">SSID кертегез</string>
+    <string name="wifi_signal_strength">Сигнал көче</string>
+    <string name="wifi_ip_address">IP адресы</string>
+    <string name="show_password">Серсүзне күрсәтү</string>
+    <string name="default_network_name_summary">Челтәр исемен кертегез</string>
+    <string name="default_password_summary">Серсүзне кертегез</string>
+    <string name="access_point_tag_key">access_point_tag_key</string>
+    <string name="wifi_mac_address">MAC адресы</string>
+    <string name="wifi_dns">DNS</string>
+    <string name="wifi_details_ipv6_address_header">IPv6 адреслары</string>
+    <string name="wifi_preferences_title">Wi\u2011Fi көйләүләре</string>
+    <string name="wifi_wakeup">Wi\u2011Fi үзе кабыну</string>
+    <string name="wifi_wakeup_summary">Яхшы сыйфаттагы сакланган челтәрләр, мәсәлән, өйдәге интернет, янында Wi\u2011Fi үзе кабына торган булачак</string>
+    <string name="wifi_wakeup_summary_no_location">Урнашу урыны сүндерелгән булганга күчереп булмый. <annotation id="link">Урнашу урынын</annotation> кабызыгыз.</string>
+    <string name="wifi_settings_scanning_required_title">Wi\u2011Fi сканлауны кабызыргамы?</string>
+    <string name="wifi_settings_scanning_required_enabled">Wi\u2011Fi\'ны сканлау кабызылган</string>
+    <string name="wifi_cellular_fallback_title">Мобиль челтәргә үзлегеннән күчү</string>
+    <string name="wifi_cellular_fallback_summary">Wi\u2011Fi\'да интернет булмаганда мобиль челтәрне куллану. Мәгълүматны файдаланганга түләү алынырга мөмкин.</string>
+    <string name="wifi_hotspot_name_summary_connecting"><xliff:g id="wifi_hotspot_name">%1$s</xliff:g> кабызу...</string>
+    <string name="wifi_hotspot_security_title">Куркынычсызлык</string>
+    <string name="wifi_hotspot_wpa3_sae">WPA3-Personal</string>
+    <string name="wifi_security_psk_sae">WPA2/WPA3-Personal</string>
+    <string name="wifi_hotspot_wpa2_personal">WPA2-Personal</string>
+    <string name="wifi_hotspot_security_none">Юк</string>
+    <string name="bluetooth_settings_title">Bluetooth</string>
+    <string name="bluetooth_toggle_title">Bluetooth\'ны куллану</string>
+    <string name="bluetooth_name">Машина исеме</string>
+    <string name="bluetooth_rename_vehicle">Бу машинаның исемен үзгәртү</string>
+    <string name="bluetooth_device_disconnected_toast">%1$s өзелде</string>
+    <string name="bluetooth_pin_values_hint_16_digits">16 сан булырга тиеш</string>
+    <string name="bluetooth_device_picker">Bluetooth җайланмасын сайлау</string>
+    <string name="bluetooth_bonded_bluetooth_toggle_content_description">Bluetooth</string>
+    <string name="language_picker_list_suggested_header">Тәкъдим ителгән</string>
+    <string name="language_picker_list_all_header">Барлык телләр</string>
+    <string name="text_to_speech_preferred_engine_settings">Сайланган движок</string>
+    <string name="text_to_speech_current_engine">Хәзерге движок</string>
+    <string name="ring_volume_title">Шалтырау тавышы көче</string>
+    <string name="notification_volume_title">Искәртү</string>
+    <string name="media_volume_summary">Музыка һәм видео өчен тавыш көчен кую</string>
+    <string name="ringtone_title">Рингтон</string>
+    <string name="notification_ringtone_title">Искәртүнең гадәти тавышы</string>
+    <string name="alarm_ringtone_title">Уяткычның гадәти тавышы</string>
+    <string name="sound_alert_sounds_summary">Рингтон, искәртүләр, уяткыч</string>
+    <string name="display_brightness">Яктылык</string>
+    <string name="units_list_entry"><xliff:g example="mph" id="unit_abbreviation">%1$s</xliff:g> - <xliff:g example="Miles per hour" id="unit_pronunciation">%2$s</xliff:g></string>
+    <string name="units_ratio"><xliff:g example="km" id="unit_numerator">%1$s</xliff:g>/<xliff:g example="h" id="unit_denominator">%2$s</xliff:g></string>
+    <string name="units_ratio_numerator"><xliff:g example="10" id="unit_numerator_quantity">%1$d</xliff:g><xliff:g example="kWh" id="unit_numerator_unit">%2$s</xliff:g></string>
+    <string name="units_ratio_denominator"><xliff:g example="100" id="unit_denominator_quantity">%1$d</xliff:g><xliff:g example="mi" id="unit_denominator_unit">%2$s</xliff:g></string>
+    <string name="apps_and_notifications_settings">Кушымталар &amp; искәртүләр</string>
+    <string name="all_applications">Барлык кушымталарны күрсәтү</string>
+    <string name="default_applications">Гадәти кушымталар</string>
+    <string name="storage_type_internal">Эчке саклагычта %s</string>
+    <string name="data_usage_usage_history_title">Кулланыш тарихы</string>
+    <string name="data_usage_all_apps_title">Барлык кушымталар</string>
+    <string name="app_data_usage_allow_data_summary">Бу кушымтага мобиль челтәрне кулланырга рөхсәт итү</string>
+    <string name="computing_size">Исәпләү\u2026</string>
+    <string name="assist_access_context_title">Экрандагы текстны куллану</string>
+    <string name="app_list_preference_none">Юк</string>
+    <string name="default_app_selected_app">Сайланган</string>
+    <string name="autofill_confirmation_message"><![CDATA[        <b>Бу кушымтага ышануыгызда инаныгыз</b>
+        <br/>
+        <br/>
+        <xliff:g id="app_name" example="Google Autofill">%1$s</xliff:g> нәрсә үзеннән-үзе
+        тутырыла ала икәнен билгеләү өчен, экраныгызда күрсәтелгәнне куллана ала.
+        ]]></string>
+    <string name="app_launch_domain_links_title">Сылтамаларны ачу</string>
+    <string name="domain_url_section_title">Урнаштырылган кушымталар</string>
+    <string name="domain_urls_summary_some"><xliff:g id="domain" example="mail.google.com">%s</xliff:g> һ.б. адресларны ачу</string>
+    <string name="auto_launch_enable_text">Сез кайбер гамәлләр өчен бу кушымтаны гадәттә ачылу өчен сайладыгыз.</string>
+    <string name="app_link_open_always">Бу кушымтада ачу</string>
+    <string name="app_link_open_ask">Һәрвакыт сорау</string>
+    <string name="app_link_open_never">Бу кушымтада ачмау</string>
+    <string name="apps_recently_opened">Соңгы ачылганнар</string>
+    <string name="apps_view_all_apps_title">Барлык %1$d кушымтаны карау</string>
+    <string name="show_system">Системаныкын карау</string>
+    <string name="hide_system">Системаныкын яшерү</string>
+    <string name="location_settings_recently_accessed_view_all_title">Барысын карау</string>
+    <string name="microphone_settings_recent_requests_view_all_title">Барысын карау</string>
+    <string name="microphone_settings_loading_app_permission_stats">Йөкләү\u2026</string>
+    <string name="system_update_settings_title">Система яңартулары</string>
+    <string name="continue_confirmation">Дәвам итү</string>
+    <string name="kernel_version">Төш версиясе</string>
+    <string name="build_number">Билд номеры</string>
+    <string name="device_status_summary" product="default">Телефон номеры, сигналы һ.б.</string>
+    <string name="about_summary">Android <xliff:g example="6.0" id="version">%1$s</xliff:g></string>
+    <string name="status_serial_number">Серия номеры</string>
+    <string name="settings_license_activity_title">Өченче як лицензияләре</string>
+    <string name="settings_license_activity_unavailable">Лицензияләрне йөкләгәндә хата чыкты.</string>
+    <string name="settings_license_activity_loading">Йөкләү\u2026</string>
+    <string name="show_dev_countdown">        {count, plural,
+            =1    {Сезгә программист булырга # адым калды.}
+            other {Сезгә программист булырга # адым калды.}
+        }
+    </string>
+    <string name="show_dev_on">Сез хәзер программист!</string>
+    <string name="show_dev_already">Кирәкми, сез инде программист.</string>
+    <string name="developer_options_settings">Программист көйләүләре</string>
+    <string name="reset_options_title">Көйләүләрне ташлату</string>
+    <string name="reset_options_summary">Челтәр, кушымталар һәм җайланманы ташлату</string>
+    <string name="reset_network_select">Челтәрне сайлау</string>
+    <string name="reset_network_button_text">Көйләүләрне ташлату</string>
+    <string name="reset_network_confirm_title">Ташлатыргамы?</string>
+    <string name="reset_network_confirm_desc">Челтәрнең барлык көйләүләрен ташлатыргамы? Бу гамәлне кире кайтарып булмаячак!</string>
+    <string name="reset_network_confirm_button_text">Көйләүләрне ташлату</string>
+    <string name="reset_network_complete_toast">Челтәр көйләүләре ташлатылды</string>
+    <string name="reset_app_pref_title">Кушымта көйләүләрен ташлату</string>
+    <string name="reset_app_pref_button_text">Кушымталарны ташлату</string>
+    <string name="confirm_grant_admin">Әйе, идарәче итеп кую</string>
+    <string name="create_user_permission_title">Яңа профильләр ясау</string>
+    <string name="outgoing_calls_permission_title">Шалтырата алу</string>
+    <string name="install_apps_permission_title">Яңа кушымталар урнаштыру</string>
+    <string name="uninstall_apps_permission_title">Кушымталарны бетерү</string>
+    <string name="user_add_user_menu">Профиль өстәү</string>
+    <string name="user_add_user_message_setup">Сез яңа профиль ясаганнан соң, ул кеше профилен үзе көйләргә тиеш.</string>
+    <string name="user_limit_reached_title">Профиль чиге җитте</string>
+    <string name="user_limit_reached_message">        {count, plural,
+            =1    {Бер генә профиль ясала ала.}
+            other {Сез # профиль ясый аласыз.}
+        }
+    </string>
+    <string name="add_user_error_title">Яңа профиль ясап булмый</string>
+    <string name="delete_user_dialog_title">Бу профильне бетерергәме?</string>
+    <string name="delete_user_dialog_message">"Бу профиль өчен барлык кушымталар һәм мәгълүмат бетереләчәк"</string>
+    <string name="delete_user_error_title">Профиль бетерелмәде. Сез җайланманы сүндереп кабызып, яңадан кабатлап карый аласыз.</string>
+    <string name="delete_last_user_system_setup_required_message">"Ташлатканнан соң сез яңа профиль көйли алачаксыз."</string>
+    <string name="choose_new_admin_title">Яңа идарәчене сайлау</string>
+    <string name="choose_new_admin_message">Кимендә бер идарәче булырга тиеш. Монысын бетерү өчен, башта аңа алмашны сайлагыз.</string>
+    <string name="choose_new_admin_label">Идарәче сайлау</string>
+    <string name="current_user_name">Сез (%1$s)</string>
+    <string name="edit_user_name_title">Профиль исемен үзгәртү</string>
+    <string name="name_input_blank_error">Кыр буш була алмый.</string>
+    <string name="name_input_invalid_error">Кертелгән профиль исеме яраксыз.</string>
+    <string name="profiles_list_title">Профильләр</string>
+    <string name="storage_music_audio">Музыка һәм аудио</string>
+    <string name="storage_other_apps">Башка кушымталар</string>
+    <string name="storage_detail_dialog_system">Система Android <xliff:g id="version" example="8.0">%s</xliff:g> эшләсен өчен кирәкле файлларны үз эченә ала</string>
+    <string name="storage_audio_files_title">Аудиофайллар</string>
+    <string name="memory_calculating_size">Исәпләү\u2026</string>
+    <string name="storage_application_size_label">Кушымта зурлыгы</string>
+    <string name="storage_data_size_label">Профиль мәгълүматы</string>
+    <string name="storage_clear_user_data_text">Урынны чистарту</string>
+    <string name="storage_clear_cache_btn_text">Кэшны чистарту</string>
+    <string name="storage_clear_data_dlg_title">Кушымта мәгълүматын бетерергәме?</string>
+    <string name="storage_unmount_success"><xliff:g id="name" example="SD card">%1$s</xliff:g> куркынычсыз чыгарылды</string>
+    <string name="storage_unmount_failure"><xliff:g id="name" example="SD card">%1$s</xliff:g> куркынычсыз чыгарыла алмады</string>
+    <string name="accounts_settings_title">Аккаунтлар</string>
+    <string name="user_add_account_menu">Аккаунт өстәү</string>
+    <string name="no_accounts_added">Аккаунтлар юк</string>
+    <string name="account_list_title"><xliff:g id="current_user_name">%1$s</xliff:g>
+        өчен аккаунтлар
+    </string>
+    <string name="security_lock_none">Юк</string>
+    <string name="security_lock_pin">PIN</string>
+    <string name="continue_button_text">Дәвам итү</string>
+    <string name="lockscreen_choose_your_pin">PIN кодын сайлау</string>
+    <string name="lockscreen_choose_your_password">Серсүз сайлау</string>
+    <string name="lockpattern_recording_incorrect_too_short">Кимендә 4 ноктаны тоташтырыгыз. Кабатлап карагыз.</string>
+    <string name="lockpattern_too_many_failed_confirmation_attempts">Хаталы омтылышлар артык күп. <xliff:g id="number">%d</xliff:g> секундтан тагын кабатлап карагыз.</string>
+    <string name="remove_screen_lock_title">Экран бикләүне бетерергәме?</string>
+    <string name="remove_screen_lock_message">Бу һәркемгә аккаунтыгызга керә алу мөмкинлеге бирәчәк</string>
+    <string name="security_profile_lock_title">Профильне бикләү</string>
+    <string name="security_unlock_profile_summary">Үзе биктән алынуны көйләү</string>
+    <string name="lock_settings_enter_pin">PIN кодыгызны кертегез</string>
+    <string name="lock_settings_enter_password">Серсүзегезне кертегез</string>
+    <string name="choose_lock_pin_message">Куркынычсызлык өчен PIN коды куегыз</string>
+    <string name="confirm_your_pin_header">PIN кодыгызны кабатлагыз</string>
+    <string name="choose_lock_pin_hints">PIN коды кимендә 4 цифрдан торырга тиеш</string>
+    <string name="lockpin_invalid_pin">PIN коды яраксыз: кимендә 4 цифр булырга тиеш.</string>
+    <string name="choose_lock_password_message">Куркынычсызлык өчен серсүз куегыз</string>
+    <string name="confirm_your_password_header">Серсүзегезне кабатлагыз</string>
+    <string name="choose_lock_password_hints">Кимендә 4 символ булырга тиеш</string>
+    <string name="lockpassword_pin_contains_non_digits">0-9 цифрлары гына булырга тиеш.</string>
+    <string name="lockpassword_pin_recently_used">Күптән түгелге PIN кодларын кулланырга ярамый</string>
+    <string name="lockpassword_pin_denylisted_by_admin">Охшаш PIN кодлары ИТ администраторы тарафыннан тыелган. Башка PIN кодын язып карагыз.</string>
+    <string name="lockpassword_illegal_character">Монда яраксыз символ кулланыла алмый.</string>
+    <string name="lockpassword_invalid_password">Серсүз яраксыз, кимендә 4 символ булырга тиеш.</string>
+    <string name="lockpassword_password_recently_used">Күптән түгелге серсүзләрне кулланырга ярамый</string>
+    <string name="lockpassword_password_denylisted_by_admin">Охшаш серсүзләр ИТ администраторы тарафыннан тыелган. Башка серсүзне язып карагыз.</string>
+    <string name="lockpassword_password_requires_alpha">Кимендә бер хәреф булырга тиеш</string>
+    <string name="lockpassword_password_requires_digit">Кимендә бер сан булырга тиеш</string>
+    <string name="lockpassword_password_requires_symbol">Кимендә бер тамга булырга тиеш</string>
+    <string name="lockpassword_password_requires_letters">        {count, plural,
+        =1    {Кимендә # хәреф булырга тиеш}
+        other {Кимендә # хәреф булырга тиеш}
+        }
+    </string>
+    <string name="lockpassword_password_requires_lowercase">        {count, plural,
+        =1    {Кимендә # юл хәрефе булырга тиеш}
+        other {Кимендә # юл хәрефе булырга тиеш}
+        }
+    </string>
+    <string name="lockpassword_password_requires_uppercase">        {count, plural,
+        =1    {Кимендә # баш хәреф булырга тиеш}
+        other {Кимендә # баш хәреф булырга тиеш}
+        }
+    </string>
+    <string name="lockpassword_password_requires_numeric">        {count, plural,
+        =1    {Кимендә # сан булырга тиеш}
+        other {Кимендә # сан булырга тиеш}
+        }
+    </string>
+    <string name="lockpassword_password_requires_symbols">        {count, plural,
+        =1    {Кимендә # махсус тамга булырга тиеш}
+        other {Кимендә # махсус тамга булырга тиеш}
+        }
+    </string>
+    <string name="lockpassword_password_requires_nonletter">        {count, plural,
+        =1    {Кимендә # хәреф булмаган тамга булырга тиеш}
+        other {Кимендә # хәреф булмаган тамга булырга тиеш}
+        }
+    </string>
+    <string name="lockpassword_password_requires_nonnumerical">        {count, plural,
+        =1    {Кимендә # сан булмаган тамга булырга тиеш}
+        other {Кимендә # сан булмаган тамга булырга тиеш}
+        }
+    </string>
+    <string name="lockpassword_password_too_short">        {count, plural,
+        =1    {Кимендә # тамга булырга тиеш}
+        other {Кимендә # тамга булырга тиеш}
+        }
+    </string>
+    <string name="lockpassword_pin_too_short">        {count, plural,
+        =1    {Кимендә # сан булырга тиеш}
+        other {Кимендә # сан булырга тиеш}
+        }
+    </string>
+    <string name="lockpassword_password_too_long">        {count, plural,
+        =1    {# символдан әзрәк булырга тиеш}
+        other {# символдан әзрәк булырга тиеш}
+        }
+    </string>
+    <string name="lockpassword_pin_too_long">        {count, plural,
+        =1    {# цифрдан әзрәк булырга тиеш}
+        other {# цифрдан әзрәк булырга тиеш}
+        }
+    </string>
+    <string name="lockpassword_pin_no_sequential_digits">Цифрларның арта, кими яисә кабатлана торган эзлеклелеге рөхсәт ителми</string>
+    <string name="setup_lock_settings_options_button_label">Бик экраны көйләүләре</string>
+    <string name="credentials_reset_summary">Барлык сертификатларны бетерү</string>
+    <string name="exit_retail_button_text">Демодан чыгу</string>
+    <string name="exit_retail_mode_dialog_title">Демо режимыннан чыгу</string>
+    <string name="exit_retail_mode_dialog_confirmation_button_text">Демодан чыгу</string>
+    <string name="restricted_while_driving">Йөрткәндә функцияне кулланып булмый</string>
+    <string name="add_user_restricted_while_driving">Йөрткәндә профиль өстәп булмый</string>
+    <string name="assistant_and_voice_use_text_from_screen_title">Экрандагы текстны куллану</string>
+    <string name="profiles_and_accounts_settings_title">Профильләр һәм аккаунтлар</string>
+    <string name="add_a_profile_button_text">Профиль өстәү</string>
+    <string name="delete_this_profile_text">Бу профильне бетерү</string>
+    <string name="add_profile_text">Профиль өстәү</string>
+    <string name="qc_bluetooth_off_devices_info">Җайланмаларыгызны күрү өчен Bluetooth\'ны кабызыгыз</string>
+    <string name="qc_bluetooth_on_no_devices_info">Җайланманы бәйләү өчен Bluetooth көйләүләрен ачыгыз</string>
+    <string name="device_admin_activated_apps">Кабызылган кушымталар</string>
+    <string name="device_admin_deactivated_apps">Сүндерелгән кушымталар</string>
+    <string name="deactivate_and_uninstall_device_admin">Сүндеру һәм бетерү</string>
+    <string name="number_of_device_admins_none">Кабызылган кушымталар юк</string>
+    <string name="enterprise_privacy_installed_packages">Машинагыздагы кушымталар исемлеге</string>
+    <string name="enterprise_privacy_apps_count_estimation_info">Кушымталарның якынча саны күрсәтелде. Бу санга Play Store\'дан башка җирдә урнаштырылган кушымталар кермәскә мөмкин.</string>
+    <plurals name="enterprise_privacy_number_packages_lower_bound">
+        <item quantity="other">Кимендә <xliff:g id="count">%d</xliff:g> кушымта</item>
+    </plurals>
+    <plurals name="default_email_app_title">
+        <item quantity="other" translatable="false">Почта кушымтасы</item>
+    </plurals>
+    <string name="decline_remote_bugreport_action">Кире кагу</string>
+    <string name="power_component_disabled">Бу көйләүне хәзер үк үзгәртеп булмый</string>
+    <string name="accessibility_settings_title">Махсус мөмкинлекләр</string>
+    <string name="accessibility_settings_captions_title">Субтитрлар</string>
+    <string name="captions_settings_title">Субтитр көйләүләре</string>
+    <string name="screen_reader_settings_title">Экраннан укучы</string>
+    <string name="show_captions_toggle_title">Субтитрларны күрсәтү</string>
+    <string name="captions_text_size_title">Текст зурлыгы</string>
+    <string name="captions_settings_style_header">Субтитр зурлыгы һәм стиле</string>
+    <string name="captions_settings_text_size_very_small">Бик кечкенә</string>
+    <string name="captions_settings_text_size_default">Гадәти</string>
+    <string name="captions_settings_text_size_very_large">Бик зур</string>
+    <string name="captions_text_style_title">Субтитр стиле</string>
+    <string name="captions_settings_text_style_by_app">Кушымта куйды</string>
+    <string name="captions_settings_text_style_white_on_black">Карада ак</string>
+    <string name="captions_settings_text_style_black_on_white">Акта кара</string>
+    <string name="captions_settings_text_style_yellow_on_black">Карада сары</string>
+    <string name="captions_settings_text_style_yellow_on_blue">Зәңгәрдә сары</string>
+    <string name="accessibility_settings_screen_reader_title">Экраннан укучы</string>
+    <string name="screen_reader_settings_on">Экрандагы әйберләрне әйтү</string>
+    <string name="screen_reader_options_title">Көйләүләр</string>
+    <string name="camera_settings_recent_requests_view_all_title">Барысын карау</string>
+    <string name="camera_settings_loading_app_permission_stats">Йөкләү\u2026</string>
+</resources>

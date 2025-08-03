@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@android:id/background"
+        android:width="@dimen/qc_toggle_background_size"
+        android:height="@dimen/qc_toggle_background_size"
+        android:start="@dimen/qc_toggle_background_padding"
+        android:top="@dimen/qc_toggle_background_padding">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/qc_toggle_unavailable_background_color" />
+            <stroke android:color="@color/qc_toggle_unavailable_color"
+                android:width="@dimen/qc_toggle_unavailable_outline_width" />
+            <corners android:radius="@dimen/qc_toggle_background_radius" />
+        </shape>
+    </item>
+    <item android:width="@dimen/qc_toggle_rotary_highlight_size"
+        android:height="@dimen/qc_toggle_rotary_highlight_size"
+        android:drawable="@drawable/qc_toggle_rotary_background"/>
+</layer-list>

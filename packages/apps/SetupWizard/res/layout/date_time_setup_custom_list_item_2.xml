@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2013 The CyanogenMod Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<!-- Based on simple_list_item_2.xml in framework -->
+<TwoLineListItem xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="?android:attr/listPreferredItemHeight"
+    android:mode="twoLine"
+    android:gravity="center_vertical">
+
+    <TextView
+        android:id="@android:id/text1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="16dip"
+        style="@style/SpinnerItem" />
+
+    <TextView
+        android:id="@android:id/text2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="10dip"
+        android:layout_below="@android:id/text1"
+        android:layout_alignStart="@android:id/text1"
+        android:fontFamily="sans-serif-medium"
+        style="@style/SpinnerItem" />
+</TwoLineListItem>

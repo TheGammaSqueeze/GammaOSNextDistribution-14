@@ -1,0 +1,36 @@
+androidx.fragment.app.FragmentActivity -> a.h.a.c:
+    int mNextCandidateRequestIndex -> l
+    androidx.lifecycle.LifecycleRegistry mFragmentLifecycleRegistry -> g
+    boolean mResumed -> i
+    boolean mStopped -> j
+    boolean mStartedActivityFromFragment -> k
+    androidx.fragment.app.FragmentController mFragments -> f
+    androidx.collection.SparseArrayCompat mPendingFragmentActivityResults -> m
+    boolean mCreated -> h
+    82:128:void <init>() -> <init>
+    536:552:void onStart() -> onStart
+    446:447:void onStateNotSaved() -> onStateNotSaved
+    559:566:void onStop() -> onStop
+    583:584:void supportInvalidateOptionsMenu() -> p
+    658:664:void startActivityForResult(android.content.Intent,int) -> startActivityForResult
+    671:677:void startActivityForResult(android.content.Intent,int,android.os.Bundle) -> startActivityForResult
+    685:692:void startIntentSenderForResult(android.content.IntentSender,int,android.content.Intent,int,int,int) -> startIntentSenderForResult
+    700:707:void startIntentSenderForResult(android.content.IntentSender,int,android.content.Intent,int,int,int,android.os.Bundle) -> startIntentSenderForResult
+com.example.android.displayingbitmaps.ui.ImageGridFragment -> b.a.a.b.c.b:
+    com.example.android.displayingbitmaps.ui.ImageGridFragment$ImageAdapter mAdapter -> Y
+    int mImageThumbSpacing -> X
+    int mImageThumbSize -> W
+    com.example.android.displayingbitmaps.util.ImageFetcher mImageFetcher -> Z
+    70:70:void <init>() -> <init>
+    74:91:void onCreate(android.os.Bundle) -> a0
+    196:197:void onCreateOptionsMenu(android.view.Menu,android.view.MenuInflater) -> d0
+    97:153:android.view.View onCreateView(android.view.LayoutInflater,android.view.ViewGroup,android.os.Bundle) -> e0
+    173:175:void onDestroy() -> f0
+    201:208:boolean onOptionsItemSelected(android.view.MenuItem) -> o0
+    180:192:void onItemClick(android.widget.AdapterView,android.view.View,int,long) -> onItemClick
+    165:169:void onPause() -> q0
+    58:58:com.example.android.displayingbitmaps.util.ImageFetcher access$000(com.example.android.displayingbitmaps.ui.ImageGridFragment) -> r1
+    58:58:com.example.android.displayingbitmaps.ui.ImageGridFragment$ImageAdapter access$100(com.example.android.displayingbitmaps.ui.ImageGridFragment) -> s1
+    58:58:int access$200(com.example.android.displayingbitmaps.ui.ImageGridFragment) -> t1
+    58:58:int access$300(com.example.android.displayingbitmaps.ui.ImageGridFragment) -> u1
+    158:161:void onResume() -> v0

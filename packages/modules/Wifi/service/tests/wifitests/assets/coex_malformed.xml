@@ -1,0 +1,13 @@
+<table>
+    <entry>
+        <rat>LTE</rat>
+        <band>40</band>
+        <powerCapDbm>-50</powerCapDbm>
+        <params>
+            <neighborThresholds>
+                <wifiVictimMhz>20</wifiVictimMhz>
+                <cellVictimMhz>20</cellVictimMhz>
+            </neighborThresholds>
+        </params>
+    <!-- Entry is not closed -->
+</table>

@@ -1,0 +1,108 @@
+package {
+    default_team: "trendy_team_android_kernel",
+    default_applicable_licenses: ["test_dittosuite_license"],
+}
+
+// See: http://go/android-license-faq
+license {
+    name: "test_dittosuite_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+cc_defaults {
+    name: "dittobench_defaults",
+    local_include_dirs: [
+        "test/include",
+        "include",
+    ],
+    generated_headers: ["dittosuite-proto"],
+    static_libs: [
+        "dittosuite-proto",
+        "libbase_ndk",
+        "libstorage",
+    ],
+    shared_libs: [
+        "libbinder",
+        "libcutils",
+        "liblog",
+        "libutils",
+        "libprotobuf-cpp-full",
+    ],
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+        "-Wsign-compare",
+    ],
+    tidy: true,
+    /*
+      Silencing the tidy check warnings caused by
+      schema/benchmark.pb.h.
+    */
+    tidy_checks: [
+        "-bugprone-unhandled-self-assignment",
+        "-cert-msc32-c",
+        "-cert-msc51-cpp",
+        "-cert-oop54-cpp",
+    ],
+}
+
+cc_library {
+    name: "libdittosuite",
+    srcs: [
+        "src/*.cpp",
+    ],
+    defaults: ["dittobench_defaults"],
+}
+
+cc_binary {
+    name: "dittobench",
+    srcs: ["dittobench.cpp"],
+    static_libs: ["libdittosuite"],
+    defaults: ["dittobench_defaults"],
+}
+
+cc_benchmark {
+    name: "dittobench_benchmark",
+    srcs: ["dittobench_benchmark.cpp"],
+    static_libs: [
+        "libtestUtil",
+        "libdittosuite",
+        "libc++fs",
+    ],
+    shared_libs: [
+        "libbase",
+        "libcutils",
+        "libutils",
+        "liblog",
+    ],
+    data: ["example/**/*.ditto"],
+    test_suites: ["device-tests"],
+    defaults: ["dittobench_defaults"],
+}
+
+cc_binary {
+    name: "dittotrace",
+    srcs: ["dittotrace.cpp"],
+    static_libs: ["libdittosuite"],
+    defaults: ["dittobench_defaults"],
+}
+
+cc_test {
+    name: "dittobench_test",
+    srcs: [
+        "test/*.cpp",
+    ],
+    static_libs: [
+        "libdittosuite",
+        "libgmock",
+    ],
+    defaults: ["dittobench_defaults"],
+    data: ["example/*"],
+}

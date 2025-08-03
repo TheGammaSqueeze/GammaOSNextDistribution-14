@@ -1,0 +1,15 @@
+// Baseline format: 1.0
+UnflaggedApi: android.provider.DeviceConfig#NAMESPACE_CORE_EXPERIMENTS_TEAM_INTERNAL:
+    New API must be flagged with @FlaggedApi: field android.provider.DeviceConfig.NAMESPACE_CORE_EXPERIMENTS_TEAM_INTERNAL
+UnflaggedApi: android.provider.DeviceConfig#NAMESPACE_NFC:
+    New API must be flagged with @FlaggedApi: field android.provider.DeviceConfig.NAMESPACE_NFC
+UnflaggedApi: android.provider.DeviceConfig#clearAllLocalOverrides():
+    New API must be flagged with @FlaggedApi: method android.provider.DeviceConfig.clearAllLocalOverrides()
+UnflaggedApi: android.provider.DeviceConfig#clearLocalOverride(String, String):
+    New API must be flagged with @FlaggedApi: method android.provider.DeviceConfig.clearLocalOverride(String,String)
+UnflaggedApi: android.provider.DeviceConfig#getAllProperties():
+    New API must be flagged with @FlaggedApi: method android.provider.DeviceConfig.getAllProperties()
+UnflaggedApi: android.provider.DeviceConfig#getUnderlyingValuesForOverriddenFlags():
+    New API must be flagged with @FlaggedApi: method android.provider.DeviceConfig.getUnderlyingValuesForOverriddenFlags()
+UnflaggedApi: android.provider.DeviceConfig#setLocalOverride(String, String, String):
+    New API must be flagged with @FlaggedApi: method android.provider.DeviceConfig.setLocalOverride(String,String,String)

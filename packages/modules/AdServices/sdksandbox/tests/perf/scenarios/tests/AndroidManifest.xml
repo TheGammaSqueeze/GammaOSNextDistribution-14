@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2022 Google Inc. All Rights Reserved. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="android.sdksandbox.test.scenario" >
+
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_LOGS" />
+
+    <uses-sdk android:minSdkVersion="33"/>
+
+    <application>
+        <uses-library android:name="android.test.runner"/>
+    </application>
+    <instrumentation
+        android:name="androidx.test.runner.AndroidJUnitRunner"
+        android:targetPackage="android.sdksandbox.test.scenario"
+        android:label="Sdk Sandbox Scenario-Based Tests" />
+</manifest>

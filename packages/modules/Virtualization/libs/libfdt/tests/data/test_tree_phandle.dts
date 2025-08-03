@@ -1,0 +1,39 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+    node_a {
+        phandle = <0x1>;
+        node_ab {
+            node_abc {
+                linux,phandle = <0x22>;
+            };
+        };
+    };
+
+    node_b {
+    };
+
+    node_c {
+    };
+
+    node_z {
+        node_za {
+        };
+
+        node_zb {
+
+        };
+
+        node_zz {
+            phandle = <0xFF>;
+
+            node_zzz {
+            };
+        };
+    };
+
+    __symbols__ {
+        symbol_a = "/node_a";
+    };
+};

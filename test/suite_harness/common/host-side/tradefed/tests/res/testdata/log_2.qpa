@@ -1,0 +1,31 @@
+#beginTestCaseResult dEQP-VK.info.build
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseResult Version="0.3.4" CasePath="dEQP-VK.info.build" CaseType="SelfValidate">
+ <Text>DE_OS: DE_OS_ANDROID
+DE_CPU: DE_CPU_ARM
+DE_PTR_SIZE: 4
+DE_ENDIANNESS: DE_LITTLE_ENDIAN
+DE_COMPILER: DE_COMPILER_CLANG
+DE_DEBUG: false
+</Text>
+ <Number Name="TestDuration" Description="Test case duration in microseconds" Tag="Time" Unit="us">52</Number>
+ <Result StatusCode="Pass">Not validated</Result>
+</TestCaseResult>
+
+#endTestCaseResult
+
+#beginTestCaseResult dEQP-VK.info.device
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseResult Version="0.3.4" CasePath="dEQP-VK.info.device" CaseType="SelfValidate">
+ <Text>Using --deqp-vk-device-id=1</Text>
+ <Text>apiVersion: 1.1.128
+driverVersion: 0x801ea000
+deviceName: Adreno (TM) 640
+vendorID: 0x00005143
+deviceID: 0x06040001
+</Text>
+ <Number Name="TestDuration" Description="Test case duration in microseconds" Tag="Time" Unit="us">24</Number>
+ <Result StatusCode="Pass">Not validated</Result>
+</TestCaseResult>
+
+#endTestCaseResult

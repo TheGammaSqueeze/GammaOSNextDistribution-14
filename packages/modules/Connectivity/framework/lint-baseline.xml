@@ -1,0 +1,378 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.4.0-alpha01" type="baseline" client="" dependencies="true" name="" variant="all" version="8.4.0-alpha01">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.net.IpSecManager.UdpEncapsulationSocket#getResourceId`"
+        errorLine1="        return new NattSocketKeepalive(mService, network, dup, socket.getResourceId(), source,"
+        errorLine2="                                                                      ~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/framework/src/android/net/ConnectivityManager.java"
+            line="2490"
+            column="71"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.provider.Settings#checkAndNoteWriteSettingsOperation`"
+        errorLine1="        return Settings.checkAndNoteWriteSettingsOperation(context, uid, callingPackage,"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/framework/src/android/net/ConnectivityManager.java"
+            line="2853"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.net.Proxy#setHttpProxyConfiguration`"
+        errorLine1="                Proxy.setHttpProxyConfiguration(getInstance().getDefaultProxy());"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/framework/src/android/net/ConnectivityManager.java"
+            line="5422"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `java.net.InetAddress#clearDnsCache`"
+        errorLine1="            InetAddress.clearDnsCache();"
+        errorLine2="                        ~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/framework/src/android/net/ConnectivityManager.java"
+            line="5428"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `libcore.net.event.NetworkEventDispatcher#dispatchNetworkConfigurationChange`"
+        errorLine1="            NetworkEventDispatcher.getInstance().dispatchNetworkConfigurationChange();"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/framework/src/android/net/ConnectivityManager.java"
+            line="5431"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `libcore.net.event.NetworkEventDispatcher#getInstance`"
+        errorLine1="            NetworkEventDispatcher.getInstance().dispatchNetworkConfigurationChange();"
+        errorLine2="                                   ~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/framework/src/android/net/ConnectivityManager.java"
+            line="5431"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.os.Build#isDebuggable`"
+        errorLine1="            if (!Build.isDebuggable()) {"
+        errorLine2="                       ~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/framework/src/android/net/ConnectivitySettingsManager.java"
+            line="1095"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 31 (current min is 30): `android.system.OsConstants#ENONET`"
+        errorLine1='                    new DnsException(ERROR_SYSTEM, new ErrnoException("resNetworkQuery", ENONET))));'
+        errorLine2="                                                                                         ~~~~~~">
+        <location
+            file="packages/modules/Connectivity/framework/src/android/net/DnsResolver.java"
+            line="367"
+            column="90"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `libcore.io.IoUtils#closeQuietly`"
+        errorLine1="            IoUtils.closeQuietly(socket);"
+        errorLine2="                    ~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/framework/src/android/net/util/DnsUtils.java"
+            line="181"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `libcore.io.IoUtils#closeQuietly`"
+        errorLine1="            IoUtils.closeQuietly(socket);"
+        errorLine2="                    ~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/framework/src/android/net/util/DnsUtils.java"
+            line="373"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `libcore.io.IoUtils#closeQuietly`"
+        errorLine1="                        IoUtils.closeQuietly(is);"
+        errorLine2="                                ~~~~~~~~~~~~">
+        <location
+            file="frameworks/base/core/java/com/android/internal/util/FileRotator.java"
+            line="171"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `libcore.io.IoUtils#closeQuietly`"
+        errorLine1="            IoUtils.closeQuietly(zos);"
+        errorLine2="                    ~~~~~~~~~~~~">
+        <location
+            file="frameworks/base/core/java/com/android/internal/util/FileRotator.java"
+            line="178"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `libcore.io.IoUtils#closeQuietly`"
+        errorLine1="            IoUtils.closeQuietly(bis);"
+        errorLine2="                    ~~~~~~~~~~~~">
+        <location
+            file="frameworks/base/core/java/com/android/internal/util/FileRotator.java"
+            line="401"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `libcore.io.IoUtils#closeQuietly`"
+        errorLine1="            IoUtils.closeQuietly(bos);"
+        errorLine2="                    ~~~~~~~~~~~~">
+        <location
+            file="frameworks/base/core/java/com/android/internal/util/FileRotator.java"
+            line="416"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `libcore.net.InetAddressUtils#isNumericAddress`"
+        errorLine1="        return InetAddressUtils.isNumericAddress(address);"
+        errorLine2="                                ~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/framework/src/android/net/InetAddresses.java"
+            line="46"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `libcore.net.InetAddressUtils#parseNumericAddress`"
+        errorLine1="        return InetAddressUtils.parseNumericAddress(address);"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/framework/src/android/net/InetAddresses.java"
+            line="63"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `java.net.InetAddress#getAllByNameOnNet`"
+        errorLine1="        return InetAddress.getAllByNameOnNet(host, getNetIdForResolv());"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/framework/src/android/net/Network.java"
+            line="145"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `java.net.InetAddress#getByNameOnNet`"
+        errorLine1="        return InetAddress.getByNameOnNet(host, getNetIdForResolv());"
+        errorLine2="                           ~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/framework/src/android/net/Network.java"
+            line="158"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `libcore.io.IoUtils#closeQuietly`"
+        errorLine1="                        if (failed) IoUtils.closeQuietly(socket);"
+        errorLine2="                                            ~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/framework/src/android/net/Network.java"
+            line="216"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `libcore.io.IoUtils#closeQuietly`"
+        errorLine1="                if (failed) IoUtils.closeQuietly(socket);"
+        errorLine2="                                    ~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/framework/src/android/net/Network.java"
+            line="241"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `libcore.io.IoUtils#closeQuietly`"
+        errorLine1="                if (failed) IoUtils.closeQuietly(socket);"
+        errorLine2="                                    ~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/framework/src/android/net/Network.java"
+            line="254"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `libcore.io.IoUtils#closeQuietly`"
+        errorLine1="                if (failed) IoUtils.closeQuietly(socket);"
+        errorLine2="                                    ~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/framework/src/android/net/Network.java"
+            line="272"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `libcore.net.http.HttpURLConnectionFactory#createInstance`"
+        errorLine1="        HttpURLConnectionFactory urlConnectionFactory = HttpURLConnectionFactory.createInstance();"
+        errorLine2="                                                                                 ~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/framework/src/android/net/Network.java"
+            line="302"
+            column="82"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `libcore.net.http.HttpURLConnectionFactory#setDns`"
+        errorLine1="        urlConnectionFactory.setDns(dnsLookup); // Let traffic go via dnsLookup"
+        errorLine2="                             ~~~~~~">
+        <location
+            file="packages/modules/Connectivity/framework/src/android/net/Network.java"
+            line="303"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `libcore.net.http.HttpURLConnectionFactory#setNewConnectionPool`"
+        errorLine1="        urlConnectionFactory.setNewConnectionPool(httpMaxConnections,"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/framework/src/android/net/Network.java"
+            line="305"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `libcore.net.http.HttpURLConnectionFactory#openConnection`"
+        errorLine1="        return urlConnectionFactory.openConnection(url, socketFactory, proxy);"
+        errorLine2="                                    ~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/framework/src/android/net/Network.java"
+            line="372"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 31 (current min is 30): `android.telephony.data.EpsBearerQosSessionAttributes`"
+        errorLine1="        if (attributes instanceof EpsBearerQosSessionAttributes) {"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/framework/src/android/net/NetworkAgent.java"
+            line="1462"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 31 (current min is 30): `android.telephony.data.EpsBearerQosSessionAttributes`"
+        errorLine1="                    (EpsBearerQosSessionAttributes)attributes));"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/framework/src/android/net/NetworkAgent.java"
+            line="1465"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 31 (current min is 30): `android.telephony.data.NrQosSessionAttributes`"
+        errorLine1="        } else if (attributes instanceof NrQosSessionAttributes) {"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/framework/src/android/net/NetworkAgent.java"
+            line="1466"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 31 (current min is 30): `android.telephony.data.NrQosSessionAttributes`"
+        errorLine1="                    (NrQosSessionAttributes)attributes));"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/framework/src/android/net/NetworkAgent.java"
+            line="1469"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `new android.net.EthernetNetworkSpecifier`"
+        errorLine1="                    return setNetworkSpecifier(new EthernetNetworkSpecifier(networkSpecifier));"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/framework/src/android/net/NetworkRequest.java"
+            line="553"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Cast from `EthernetNetworkSpecifier` to `NetworkSpecifier` requires API level 31 (current min is 30)"
+        errorLine1="                    return setNetworkSpecifier(new EthernetNetworkSpecifier(networkSpecifier));"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/framework/src/android/net/NetworkRequest.java"
+            line="553"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.os.UserHandle#getUid`"
+        errorLine1="        final int start = user.getUid(0 /* appId */);"
+        errorLine2="                               ~~~~~~">
+        <location
+            file="packages/modules/Connectivity/framework/src/android/net/UidRange.java"
+            line="49"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.os.UserHandle#getUid`"
+        errorLine1="        final int end = nextUser.getUid(0 /* appId */) - 1;"
+        errorLine2="                                 ~~~~~~">
+        <location
+            file="packages/modules/Connectivity/framework/src/android/net/UidRange.java"
+            line="50"
+            column="34"/>
+    </issue>
+
+</issues>

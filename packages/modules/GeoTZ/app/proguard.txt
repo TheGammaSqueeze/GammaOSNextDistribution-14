@@ -1,0 +1,2 @@
+# Loaded via reflection
+-keep class com.android.geotz.** {*;}

@@ -1,0 +1,5 @@
+service derive_classpath /apex/com.android.sdkext/bin/derive_classpath
+    user system
+    group system reserved_disk
+    oneshot
+    disabled

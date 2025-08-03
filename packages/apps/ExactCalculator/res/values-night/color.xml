@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2023 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+
+    <!-- Display background -->
+    <color name="history_background_color">@color/material_dynamic_neutral30</color>
+    <color name="display_background_color">@color/material_dynamic_neutral20</color>
+
+    <!-- Display text -->
+    <color name="display_formula_text_color">@color/material_dynamic_neutral90</color>
+    <color name="display_result_text_color">@color/material_dynamic_neutral70</color>
+    <color name="display_result_exponent_text_color">@color/material_dynamic_secondary60</color>
+
+</resources>

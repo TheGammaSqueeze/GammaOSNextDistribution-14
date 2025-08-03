@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License
+  -->
+<!-- todo(b/304320644): update drawable/car_ic_notification -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="30dp"
+    android:viewportWidth="24"
+    android:viewportHeight="30">
+    <path
+        android:pathData="M12,30C13.658,30 15,28.657 15,27H9C9,28.657 10.342,30 12,30ZM21,21V13.5C21,8.887 18.548,5.04 14.25,4.02V3C14.25,1.755 13.245,0.75 12,0.75C10.755,0.75 9.75,1.755 9.75,3V4.02C5.452,5.04 3,8.887 3,13.5V21L0,24V25.5H24V24L21,21Z"
+        android:fillColor="@color/car_nav_icon_fill_color" />
+</vector>

@@ -1,0 +1,3 @@
+# losetup requires root privilege.
+[target.x86_64-unknown-linux-gnu]
+runner = 'sudo -E'

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- CMAS dialog title for level 1 alert.  [CHAR LIMIT=50] -->
+    <!-- Required Spanish (es) translation for this message: Mensajes de Alerta nivel 1 -->
+    <string name="cmas_presidential_level_alert">Alert Messages Level 1</string>
+    <!-- CMAS dialog title for level 2 alert. [CHAR LIMIT=50] -->
+    <!-- Required Spanish (es) translation for this message: Mensajes de Alerta nivel 2 -->
+    <string name="cmas_extreme_alert">Alert Messages Level 2</string>
+    <!-- CMAS dialog title for level 3 alert. [CHAR LIMIT=50] -->
+    <!-- Required Spanish (es) translation for this message: Mensajes de Alerta nivel 3 -->
+    <string name="cmas_severe_alert">Alert Messages Level 3</string>
+    <!-- CMAS Dialog title for public safety message broadcasts. [CHAR LIMIT=50] -->
+    <!-- Required Spanish (es) translation for this message: Mensajes de información en español -->
+    <string name="public_safety_message">Information Messages in Spanish</string>
+    <!-- CMAS dialog title for child abduction emergency (Amber Alert). [CHAR LIMIT=50] -->
+    <!-- Required Spanish (es) translation for this message: Mensajes de Alerta Amber en español -->
+    <string name="cmas_amber_alert">Amber Alert Messages in Spanish</string>
+    <!-- CMAS dialog title for required monthly test. [CHAR LIMIT=50] -->
+    <!-- Required Spanish (es) translation for this message: Mensajes de Alerta de Prueba en español -->
+    <string name="cmas_required_monthly_test">Test Alert Messages in Spanish</string>
+    <!-- CMAS dialog title for CMAS Exercise. [CHAR LIMIT=50] -->
+    <!-- Required French (fr) translation for this message: Mensajes de Alerta de Ejercicio en español -->
+    <string name="cmas_exercise_alert">Exercise Alert Messages in Spanish</string>
+    <!-- CMAS dialog title for reserved channels. [CHAR LIMIT=50] -->
+    <!-- Required Spanish (es) translation for this message: Reservados para futuras implementaciones -->
+    <string name="emergency_alert">Reserved for future deployments</string>
+
+    <!-- Show checkbox for Presidential alerts in settings -->
+    <!-- Preference title for enable presidential threat alerts checkbox. [CHAR LIMIT=40] -->
+    <string name="enable_cmas_presidential_alerts_title">@string/cmas_presidential_level_alert</string>
+    <!-- Preference summary for enable presidential threat alerts checkbox. [CHAR LIMIT=100] -->
+    <string name="enable_cmas_presidential_alerts_summary"></string>
+    <!-- Preference title for enable CMAS extreme threat alerts checkbox. [CHAR LIMIT=50] -->
+    <string name="enable_cmas_extreme_threat_alerts_title">@string/cmas_extreme_alert</string>
+    <!-- Preference summary for enable CMAS extreme threat alerts checkbox. [CHAR LIMIT=100] -->
+    <string name="enable_cmas_extreme_threat_alerts_summary"></string>
+    <!-- Preference title for enable CMAS severe threat alerts checkbox. [CHAR LIMIT=50] -->
+    <string name="enable_cmas_severe_threat_alerts_title">@string/cmas_severe_alert</string>
+    <!-- Preference summary for enable CMAS severe threat alerts checkbox. [CHAR LIMIT=100] -->
+    <string name="enable_cmas_severe_threat_alerts_summary"></string>
+    <!-- Preference title for enable CMAS amber alerts checkbox. [CHAR LIMIT=50] -->
+    <string name="enable_cmas_amber_alerts_title">@string/cmas_amber_alert</string>
+    <!-- Preference summary for enable CMAS amber alerts checkbox. [CHAR LIMIT=100] -->
+    <string name="enable_cmas_amber_alerts_summary"></string>
+    <!-- Preference title for enable public safety messages checkbox. [CHAR LIMIT=100] -->
+    <string name="enable_public_safety_messages_title">@string/public_safety_message</string>
+    <!-- Preference summary for enable public safety messages checkbox. [CHAR LIMIT=100] -->
+    <string name="enable_public_safety_messages_summary"></string>
+    <!-- Preference title for enable emergency alerts messages checkbox. [CHAR LIMIT=100] -->
+    <string name="enable_emergency_alerts_message_title">@string/emergency_alert</string>
+    <!-- Preference summary for enable emergency alerts messages checkbox. [CHAR LIMIT=100] -->
+    <string name="enable_emergency_alerts_message_summary"></string>
+    <!-- Preference title for other test alerts checkbox. [CHAR LIMIT=50] -->
+    <string name="enable_cmas_test_alerts_title">@string/cmas_required_monthly_test</string>
+    <!-- Preference summary for other test alerts checkbox. [CHAR LIMIT=125] -->
+    <string name="enable_cmas_test_alerts_summary"></string>
+    <!-- Preference title for exercise test alerts checkbox. [CHAR LIMIT=50] -->
+    <string name="enable_exercise_test_alerts_title">@string/cmas_exercise_alert</string>
+    <!-- Preference summary for exercise test alerts checkbox. [CHAR LIMIT=125] -->
+    <string name="enable_exercise_test_alerts_summary"></string>
+</resources>

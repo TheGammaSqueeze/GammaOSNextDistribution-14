@@ -1,0 +1,48 @@
+[package]
+name = "adevice"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[profile.release]
+# strip = true
+
+[dependencies]
+adevice_proto = {path = "adevice_proto" }
+anyhow = { path = "../../../external/rust/crates/anyhow" }
+atty = { path = "../../../external/rust/crates/atty"}
+clap = { features = ["derive"]}
+googletest = {path = "../../../external/rust/crates/googletest" }
+hex = { path = "../../../external/rust/crates/hex" }
+itertools = { path = "../../../external/rust/crates/itertools"}
+lazy_static = { path = "../../../external/rust/crates/lazy_static"}
+protobuf = { path = "../../../external/rust/crates/protobuf" }
+rayon = { path = "../../../external/rust/crates/rayon"}
+regex = { path = "../../../external/rust/crates/regex"}
+serde_json = { path = "../../../external/rust/crates/serde_json"}
+tempfile = { path = "../../../external/rust/crates/tempfile" }
+tracing = { path = "../../../external/rust/crates/tracing"}
+tracing-subscriber = { path = "../../../external/rust/crates/tracing-subscriber"}
+walkdir = { path = "../../../external/rust/crates/walkdir"}
+
+# Since everything builds with `m` and Android.bp deps, we should be able to list all paths
+# as local, but these are still failing for me, so I pull in crates.io during development :(
+# Something is pulling log from crates.io in :( (version 4.19)
+# And ring fails to build when I use local crate.
+ring = "0.17.4"
+serde = { features = ["derive"], version = "1.0.189" }
+
+# Future work:
+# crc32fast = { path = "../../../external/rust/crates/crc332fast", version = "*" }
+# xattr = "1.0.1"
+
+[[bin]]
+name = "adevice"
+path = "src/main.rs"
+
+[[bin]]
+name = "adevice_fingerprint"
+path = "src/adevice_fingerprint.rs"
+
+

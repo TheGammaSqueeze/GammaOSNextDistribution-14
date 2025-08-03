@@ -1,0 +1,231 @@
+package {
+    // http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // the below license kinds from "system_media_license":
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_media_license"],
+}
+
+subdirs = ["tests"]
+
+cc_defaults {
+    name: "audio_utils_defaults",
+
+    local_include_dirs: ["include"],
+    export_include_dirs: ["include"],
+
+    cflags: [
+        "-Werror",
+        "-Wall",
+    ],
+}
+
+cc_library_headers {
+    name: "libaudioutils_headers",
+    host_supported: true,
+    vendor_available: true,
+    product_available: true,
+    export_include_dirs: ["include"],
+    // referenced from CTS/MTS test suite which must run on sdk 29, make sure it's compatible
+    // (revisit if/when we add features to this library that require newer sdk.
+    sdk_version: "29",
+}
+
+cc_library {
+    name: "libaudioutils",
+    vendor_available: true,
+    product_available: true,
+    vndk: {
+        enabled: true,
+    },
+    double_loadable: true,
+    host_supported: true,
+    defaults: ["audio_utils_defaults"],
+
+    srcs: [
+        "Balance.cpp",
+        "channels.cpp",
+        "ErrorLog.cpp",
+        "fifo.cpp",
+        "fifo_index.cpp",
+        "fifo_writer_T.cpp",
+        "format.c",
+        "limiter.c",
+        "MelAggregator.cpp",
+        "MelProcessor.cpp",
+        "Metadata.cpp",
+        "minifloat.c",
+        "mono_blend.cpp",
+        "mutex.cpp",
+        "power.cpp",
+        "PowerLog.cpp",
+        "primitives.c",
+        "roundup.c",
+        "sample.c",
+        "threads.cpp",
+        "hal_smoothness.c",
+    ],
+
+    header_libs: [
+        "libaudio_system_headers",
+        "libutils_headers",
+    ],
+
+    export_header_lib_headers: [
+        "libaudio_system_headers",
+        "libutils_headers",
+    ],
+
+    shared_libs: [
+        "libcutils",
+        "liblog",
+        "libutils",
+        "server_configurable_flags",
+    ],
+
+    whole_static_libs: [
+        // if libaudioutils is added as a static lib AND flags are used in the utils object,
+        // then add server_configurable_flags as a shared lib.
+        "com.android.media.audioserver-aconfig-cc",
+        "libaudioutils_fastmath",
+    ],
+
+    target: {
+        android: {
+            srcs: [
+                // "mono_blend.cpp",
+                "resampler.c",
+                "echo_reference.c",
+            ],
+            whole_static_libs: ["libaudioutils_fixedfft"],
+            shared_libs: [
+                "libspeexresampler",
+            ],
+        },
+        host: {
+            cflags: ["-D__unused=__attribute__((unused))"],
+        },
+    },
+    min_sdk_version: "29",
+    static: {
+        // library has C++ code that we don't allow across module boundaries
+        // a static link avoids that cross-module peril.
+        apex_available: [
+            "com.android.media",
+            "com.android.media.swcodec",
+        ],
+    },
+}
+
+cc_library_static {
+    name: "libaudioutils_fastmath",
+    vendor_available: true,
+    product_available: true,
+    vndk: {
+        enabled: true,
+    },
+    double_loadable: true,
+    host_supported: true,
+    defaults: ["audio_utils_defaults"],
+
+    srcs: [
+        "ChannelMix.cpp",
+    ],
+
+    header_libs: [
+        "libaudio_system_headers",
+        "libutils_headers",
+    ],
+    min_sdk_version: "29",
+    shared_libs: [
+        "libcutils",
+        "liblog",
+        "libutils",
+    ],
+    cflags: [
+        "-Werror",
+        "-ffast-math",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.media",
+        "com.android.media.swcodec",
+    ],
+}
+
+cc_library_static {
+    name: "libaudioutils_fixedfft",
+    vendor_available: true,
+    product_available: true,
+    defaults: ["audio_utils_defaults"],
+
+    arch: {
+        arm: {
+            instruction_set: "arm",
+        },
+    },
+
+    srcs: ["fixedfft.cpp"],
+    min_sdk_version: "29",
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.media",
+        "com.android.media.swcodec",
+    ],
+}
+
+cc_library_static {
+    name: "libsndfile",
+    defaults: ["audio_utils_defaults"],
+    host_supported: true,
+    srcs: [
+        "primitives.c",
+        "tinysndfile.c",
+    ],
+    cflags: [
+        "-UHAVE_STDERR",
+    ],
+}
+
+cc_library_static {
+    name: "libfifo",
+    defaults: ["audio_utils_defaults"],
+    srcs: [
+        "fifo.cpp",
+        "fifo_index.cpp",
+        "primitives.c",
+        "roundup.c",
+    ],
+    min_sdk_version: "29",
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.media",
+    ],
+    host_supported: true,
+    target: {
+        darwin: {
+            enabled: false,
+        },
+    },
+}
+
+cc_library {
+    name: "libaudiospdif",
+    host_supported: true,
+    defaults: ["audio_utils_defaults"],
+
+    srcs: [
+        "spdif/BitFieldParser.cpp",
+        "spdif/FrameScanner.cpp",
+        "spdif/AC3FrameScanner.cpp",
+        "spdif/DTSFrameScanner.cpp",
+        "spdif/SPDIFDecoder.cpp",
+        "spdif/SPDIFEncoder.cpp",
+        "spdif/SPDIFFrameScanner.cpp",
+    ],
+
+    shared_libs: [
+        "libcutils",
+        "liblog",
+    ],
+}

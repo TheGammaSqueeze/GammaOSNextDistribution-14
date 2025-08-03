@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2022 Google Inc. All Rights Reserved -->
+<configuration description="Configuration to recompile the boot classpath and system server with the compiler filter 'speed'" >
+    <target_preparer class="com.android.tradefed.targetprep.CompileBootImageWithSpeedTargetPreparer">
+        <!-- Disabled by default; can be enabled on a test-by-test basis. -->
+        <option name="disable" value="true" />
+    </target_preparer>
+</configuration>

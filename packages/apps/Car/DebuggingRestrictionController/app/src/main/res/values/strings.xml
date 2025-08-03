@@ -1,0 +1,39 @@
+<resources>
+  <string name="app_name">DebuggingRestrictionController</string>
+  <!-- Strings related to login -->
+  <string name="prompt_email">Email</string>
+  <string name="prompt_password">Password</string>
+  <string name="button_sign_in">Sign In</string>
+  <string name="button_sign_out">Sign Out</string>
+  <string name="button_next">Next</string>
+  <string name="signed_in">signed in</string>
+  <string name="not_signed_in">User not signed in</string>
+  <string name="token_authorized">Debugging restriction has been removed successfully</string>
+  <string name="token_unauthorized">Failed to remove debugging restriction</string>
+  <string name="button_agree">Agree</string>
+  <string name="button_disagree">Quit</string>
+  <string name="invalid_username">Not a valid username</string>
+  <string name="invalid_password">Password must be >5 characters</string>
+  <string name="dismiss">Dismiss</string>
+  <string name="agreement_text">
+    <![CDATA[
+    <h1>Terms and Conditions</h1>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer
+    ultricies mi nec elit pretium porta. Ut pellentesque mollis magna et molestie.
+    In elementum nulla vel augue tempor non ultrices mauris semper. Vestibulum
+    nulla augue, volutpat at bibendum id, interdum ut ante.
+    <p>Adipiscing a commodo ante nunc accumsan interdum mi ante adipiscing.
+    A nunc lobortis non nisl amet vis volutpat aclacus nascetur ac non. Lorem
+    curae eu ante amet sapien in tempus ac. Adipiscing id accumsan adipiscing ipsum.
+    <p>Blandit faucibus proin. Ac aliquam integer adipiscing enim non praesent
+    vis commodo nunc phasellus cubilia ac risus accumsan. Accumsan blandit.
+    Lobortis phasellus non lobortis dit varius mi varius accumsan lobortis.
+    Blandit ante aliquam lacinia lorem lobortis semper morbi col faucibus vitae
+    integer placerat accumsan orci eu mi odio tempus adipiscing curae consequat
+    feugiat etiam dolore.
+    <p>Adipiscing a commodo ante nunc accumsan interdum mi ante adipiscing.
+    A nunc lobortis non nisl amet vis volutpat aclacus nascetur ac non. Lorem
+    curae eu ante amet sapien in tempus ac. Adipiscing id accumsan adipiscing ipsum.
+    ]]>
+   </string>
+</resources>

@@ -1,0 +1,16 @@
+package: "com.android.bluetooth.flags"
+container: "com.android.btservices"
+
+flag {
+    name: "gdx_device_discovery"
+    namespace: "bluetooth"
+    description: "Use gdx device discovery module"
+    bug: "315049108"
+}
+
+flag {
+    name: "gdx_service_discovery"
+    namespace: "bluetooth"
+    description: "Use gdx service discovery module"
+    bug: "315049394"
+}

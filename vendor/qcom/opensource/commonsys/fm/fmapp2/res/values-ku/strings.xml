@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (c) 2009, 2011-2013 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2014-2015 The CyanogenMod Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *    * Neither the name of The Linux Foundation nor
+ *      the names of its contributors may be used to endorse or promote
+ *      products derived from this software without specific prior written
+ *      permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NON-INFRINGEMENT ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">ڕادیۆی FM</string>
+    <string name="tx_app_name">په‌خشکه‌ری FM</string>
+    <string name="menu_scan_start">گه‌ڕان</string>
+    <string name="menu_scan_stop">وه‌ستاندنی گه‌ڕان</string>
+    <string name="menu_record_start">تۆمار</string>
+    <string name="menu_record_stop">وه‌ستانی تۆمارکردن</string>
+    <string name="menu_sleep">نوستن</string>
+    <string name="menu_sleep_cancel">لابردنی باری نوستن</string>
+    <string name="menu_all_channels">هه‌موو که‌ناڵه‌کان</string>
+    <string name="menu_display_tags">پیشاندانی پێشنیاره‌کان</string>
+    <string name="msg_seeking">گەڕان FM وێستگە \u2026</string>
+    <string name="msg_scanning">گەڕان بۆ هەموو FM وێستگەکان\u2026</string>
+    <string name="msg_scanning_pty">گەڕان بۆ \'<xliff:g id="pty_name">%1$s</xliff:g>\'\u2026</string>
+    <string name="msg_search_title"><xliff:g id="frequency_string">%1$s</xliff:g> MHz</string>
+    <string name="msg_searching_title">گەڕانی-خۆکارانە پێشوو</string>
+    <string name="msg_searching">گەڕان بۆ بەهێزکردنی وێستگەکان بۆ دروستکردنی لیست\u2026</string>
+    <string name="msg_noantenna">تکایه‌ هێدفۆنێکی پێوه‌بکه‌ بۆ به‌کارهێنانی FM</string>
+    <string name="dialog_sleep_title">خۆکارانە کاتی کوژانەوەی کات خەو</string>
+    <string name="presetlist_select_name">ده‌ستنیشانکردنی  \'<xliff:g id="presetlist_name">%1$s</xliff:g>\'</string>
+    <string name="presetlist_add_new">زیادکردنی لیستێکی نوێ</string>
+    <string name="dialog_presetlist_rename_title">ناو بنوسە</string>
+    <string name="presetlist_autoselect_title">دڵنیاکردنەوەی دیاریکردنی-خۆکارانە</string>
+    <string name="preset_tune">بادان</string>
+    <string name="preset_search">گه‌ڕان بۆ  \'<xliff:g id="preset_pi">%1$s</xliff:g>\'</string>
+    <string name="stat_notif_frequency">\'<xliff:g id="frequency">%1$s</xliff:g>\'  مێگاهێرتز</string>
+    <string name="regional_band">ده‌سته‌ی هه‌رێمایه‌تی</string>
+    <string name="regional_band_entry_north_america">باکوری ئه‌مریکا</string>
+    <string name="regional_band_entry_europe">ئه‌وروپا</string>
+    <string name="regional_band_entry_japan">ژاپۆن</string>
+    <string name="regional_band_entry_japan_wide">ژاپۆن (پانی)</string>
+    <string name="regional_band_entry_australia">ئوسترالیا</string>
+    <string name="regional_band_entry_austria">ئوستریا</string>
+    <string name="regional_band_entry_belgium">به‌لجیکا</string>
+    <string name="regional_band_entry_brazil">به‌ڕازیل</string>
+    <string name="regional_band_entry_china">چین</string>
+    <string name="regional_band_entry_czech_republic">Czech Republic</string>
+    <string name="regional_band_entry_denmark">دانیمارک</string>
+    <string name="regional_band_entry_finland">فینله‌ندا</string>
+    <string name="regional_band_entry_france">فه‌ڕه‌نسا</string>
+    <string name="regional_band_entry_germany">ئه‌ڵمانیا</string>
+    <string name="regional_band_entry_greece">یۆنان</string>
+    <string name="regional_band_entry_hong_kong">هۆنگ کۆنگ</string>
+    <string name="regional_band_entry_india">هیندستان</string>
+    <string name="regional_band_entry_indonesia">Indonesia</string>
+    <string name="regional_band_entry_ireland">ئایرله‌ندا</string>
+    <string name="regional_band_entry_italy">ئیتاڵیا</string>
+    <string name="regional_band_entry_korea">کۆریا</string>
+    <string name="regional_band_entry_mexico">مه‌کسیک</string>
+    <string name="regional_band_entry_netherlands">هۆڵه‌ندا</string>
+    <string name="regional_band_entry_new_zealand">نیوزیله‌ندا</string>
+    <string name="regional_band_entry_norway">نه‌رویج</string>
+    <string name="regional_band_entry_poland">پۆڵه‌ندا</string>
+    <string name="regional_band_entry_portugal">پورتوگال</string>
+    <string name="regional_band_entry_russia">ڕوسیا</string>
+    <string name="regional_band_entry_singapore">سینگاپوور</string>
+    <string name="regional_band_entry_slovakia">سلۆڤاکیا</string>
+    <string name="regional_band_entry_spain">ئیسپانیا</string>
+    <string name="regional_band_entry_switzerland">سویزه‌رلاندا</string>
+    <string name="regional_band_entry_sweden">سوید</string>
+    <string name="regional_band_entry_taiwan">تایوان</string>
+    <string name="regional_band_entry_turkey">تورکیا</string>
+    <string name="regional_band_entry_united_kingdom">United Kingdom</string>
+    <string name="regional_band_entry_united_states">ئه‌مریکا</string>
+    <string name="regional_band_entry_user_defined">به‌کارهێنه‌ر پێناسه‌ی باندێکی کرد</string>
+    <string name="regional_band_summary_user_defined">به‌کارهێنه‌ر پێناسه‌ی ده‌سته‌یه‌کی کرد</string>
+    <string name="aud_output_mode">باری ده‌نگی ده‌ره‌وه‌</string>
+    <string name="audio_type_stereo">ستیریۆ</string>
+    <string name="audio_type_mono">مۆنۆ</string>
+    <string name="record_dur">ماوه‌ی تۆمارکردن</string>
+    <string name="settings_revert_defaults_title">گه‌ڕانه‌وه‌ بۆ باری سه‌ره‌تایی</string>
+    <string name="settings_revert_defaults_summary">گه‌ڕانه‌وه‌ی سه‌ره‌تایی بۆ هه‌موو ڕێکخستنه‌کان</string>
+    <string name="settings_revert_confirm_title">ڕازیبوون به‌ ڕێکخستنه‌وه‌</string>
+    <string name="settings_revert_confirm_msg">ئەمە هەموو ڕێکخستنەکانی بەرنامەکان پاکەکاتەوە، وە ئەوانەی پێشوش دەگرێتەوە. بەردەوام?</string>
+    <string name="spaceIsLow_content">بیرگەی ده‌ره‌کیت پڕبووه‌،جۆرایه‌تی ڕێکخستن بگۆڕه‌ یاخود چه‌ند په‌ڕگه‌یه‌ک بسڕه‌وه‌ بۆ زیادکردنی قه‌باره‌که‌ی.</string>
+    <string name="menu_scan_for_preset">گه‌ڕان به‌دوای ئاماده‌کراو</string>
+    <string name="fm_off">ئێف ئێم کوژایەوە.</string>
+    <string name="fm_call">ئێف ئێم ناتوانرێت بەکاربهێنرێت لەکاتی تەلەفۆنکردن.</string>
+    <string name="alert_dialog_hint">ناوێک بنووسه‌</string>
+    <string name="search_dialog_title">گه‌ڕان به‌دوای وێستگه‌</string>
+    <string name="fm_tune_timeout_msg">هیچ وه‌ڵامێک نه‌بوو بۆ وه‌رگرتنی ڕادیۆ و ویستگه‌ی FM ، ئه‌گه‌ر کێشه‌یه‌ک هه‌یه‌ ، دوباره‌ بیکوژێنه‌وه‌ و دایگیسێنه‌وه‌.</string>
+    <string name="fm_command_failed_title">هه‌ڵه‌ له‌ فرمانی FM</string>
+    <string name="fm_cmd_failed_msg">هه‌ڵه‌ له‌ فرمانی FM ، ئه‌گه‌ر به‌رده‌وامبوو ئه‌وه‌ بیکوژێنه‌وه‌ و دایگیرسێنه‌وه‌.</string>
+    <string name="fm_cmd_failed_msg_hdmi">هه‌ڵه‌ له‌ فرمانی FM ، ڕادیۆی FM و HDMI کارناکه‌ن .</string>
+    <string name="fm_cmd_failed_call_on">هه‌ڵه‌ له‌ فرمانی FM ، ڕادیۆی FM ڕێگه‌پیدراو نییه‌ له‌ کاتی په‌یوه‌ندی.</string>
+    <string name="station_name">وێستگه‌:</string>
+    <string name="station_exists">ئه‌م فریکوێنسه‌ پێشتر هه‌یه‌!</string>
+    <string name="station_list_delete_station">سڕینه‌وه‌ی  <xliff:g id="name">%s</xliff:g></string>
+    <string name="station_name_empty">ناوی وێستگه‌که‌ به‌تاڵه‌ ، تکایه‌ بینوسه‌ره‌وه‌.</string>
+    <string name="station_name_exist">\'<xliff:g id="name">%s</xliff:g>\' پێشتر لەکارە، تکایە ناوی جیاواز بنوسە.</string>
+    <string name="rt_plus_tags">پێشنیاره‌کان</string>
+    <string name="chanl_spacing">بۆشایی که‌ناڵ</string>
+    <string name="fm_search_no_results">هیچ وێستگەیەکی گونجاو نەدۆزرایەوە</string>
+</resources>

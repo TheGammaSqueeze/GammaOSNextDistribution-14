@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="portal_notification_detail">%s сайтын ачу өчен басыгыз</string>
+    <string name="mobile_data_status_notification_channel_name">Мобиль челтәр халәте</string>
+</resources>

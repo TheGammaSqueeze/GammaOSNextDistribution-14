@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="cmas_presidential_level_alert" msgid="2107659575955828996">"Alarm o zagrożeniu"</string>
+    <string name="cmas_extreme_alert" msgid="3655071721612807998">"Ekstremalne zagrożenie"</string>
+    <string name="cmas_severe_alert" msgid="8204679766209106041">"Poważne zagrożenie"</string>
+    <string name="public_safety_message" msgid="8870933058203924990">"Informacje o zagrożeniu"</string>
+    <string name="state_local_test_alert" msgid="4208083984152605275">"Alert testowy"</string>
+    <string name="cmas_operator_defined_alert" msgid="7554916428554204737">"Zastrzeżone dla UE"</string>
+    <string name="cmas_exercise_alert" msgid="9166953612111508567">"Alarm testowy"</string>
+    <string name="cmas_required_monthly_test" msgid="5030077310729851915">"Test komunikatów z sieci komórkowej"</string>
+    <string name="enable_cmas_extreme_threat_alerts_title" msgid="140477407513377226">"Ekstremalne zagrożenie"</string>
+    <string name="enable_cmas_severe_threat_alerts_title" msgid="2244702687286589592">"Poważne zagrożenie"</string>
+    <string name="enable_public_safety_messages_title" msgid="9081684819449444846">"Informacje o zagrożeniu"</string>
+    <string name="enable_state_local_test_alerts_title" msgid="2160210558920782153">"Alert testowy"</string>
+    <string name="enable_operator_defined_test_alerts_title" msgid="6867927342721101561">"Zastrzeżone dla UE"</string>
+    <string name="enable_exercise_test_alerts_title" msgid="8506871939061264885">"Alarm testowy"</string>
+    <string name="enable_cmas_test_alerts_title" msgid="7029435174451887312">"Test komunikatów z sieci komórkowej"</string>
+</resources>

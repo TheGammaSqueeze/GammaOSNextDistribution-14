@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- Fallback emergency number if Telephony fails to provide data. -->
+    <string name="fallback_emergency_number" translatable="false">112</string>
+
+    <!-- Milliseconds to count down, from starting emergency action view, to starting an emergency call -->
+    <integer name="emergency_action_count_down_millis">6000</integer>
+    <!-- Milliseconds to update the count down animation view text when counting down -->
+    <integer name="emergency_action_count_down_interval">100</integer>
+
+    <!-- Milliseconds it takes for a look to run one cycle in countdown animation view. -->
+    <integer name="count_down_view_loop_interval_millis">1000</integer>
+    <!-- Milliseconds of the delay between the head and tail of the looping trail in countdown animation view. -->
+    <integer name="count_down_view_loop_delay_millis">350</integer>
+
+    <!-- Ratio to calculate the loop stroke of the countdown animation view. -->
+    <item name="count_down_view_loop_stoke_width_to_bounds_ratio" format="float" type="dimen">0.024</item>
+    <!-- Ratio to calculate the loop head diameter of the countdown animation view. -->
+    <item name="count_down_view_loop_head_diameter_to_bounds_ratio" format="float" type="dimen">0.072</item>
+    <!-- Ratio to calculate the loop track diameter of the countdown animation view. -->
+    <item name="count_down_view_loop_track_diameter_to_bounds_ratio" format="float" type="dimen">0.92</item>
+
+    <!-- Ratio in relation to count down view diameter to calculate timer number text size. -->
+    <item name="count_down_view_text_size_to_diameter_ratio" format="float" type="dimen">0.375</item>
+    <!-- Ratio to calculate unit text size. -->
+    <item name="count_down_view_unit_text_to_time_text_size_ratio" format="float" type="dimen">0.375</item>
+    <!-- Ratio to calculate the margin between time and unit. -->
+    <item name="count_down_view_unit_text_left_margin_to_diameter_ratio" format="float" type="dimen">0.024</item>
+</resources>

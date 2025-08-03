@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2017 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <style name="AppTheme" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+        <item name="android:windowLightNavigationBar">?attr/isLightTheme</item>
+        <item name="android:windowLightStatusBar">?attr/isLightTheme</item>
+        <item name="alertDialogTheme">@style/Theme.Recorder.AlertDialog</item>
+        <item name="materialAlertDialogTheme">@style/Theme.Recorder.AlertDialog</item>
+        <item name="windowActionModeOverlay">true</item>
+    </style>
+
+    <style name="AppTheme.DialogActivity">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowAnimationStyle">@null</item>
+    </style>
+
+    <style name="AppTheme.RecordTitle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingTop">24dp</item>
+        <item name="android:paddingBottom">24dp</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+        <item name="android:textColor">?android:attr/colorAccent</item>
+        <item name="android:textSize">36sp</item>
+        <item name="android:maxLines">1</item>
+    </style>
+
+    <style name="AppTheme.ImageButton">
+        <item name="android:layout_width">40dp</item>
+        <item name="android:layout_height">40dp</item>
+        <item name="android:paddingStart">8dp</item>
+        <item name="android:paddingEnd">8dp</item>
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
+    </style>
+
+    <style name="AppTheme.PopupMenuOverlapAnchor">
+        <item name="android:overlapAnchor">true</item>
+        <item name="android:dropDownVerticalOffset">0dp</item>
+        <item name="android:dropDownHorizontalOffset">0dp</item>
+    </style>
+
+    <!-- Action menu item style -->
+    <style name="AppTheme.MenuItem">
+        <item name="android:iconTint">?attr/colorOnSurface</item>
+        <item name="iconTint">?attr/colorOnSurface</item>
+    </style>
+
+    <!-- Alert dialog theme. -->
+    <style name="Theme.Recorder.AlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="android:colorBackground">?attr/colorSurface</item>
+        <item name="dialogCornerRadius">16dp</item>
+    </style>
+</resources>

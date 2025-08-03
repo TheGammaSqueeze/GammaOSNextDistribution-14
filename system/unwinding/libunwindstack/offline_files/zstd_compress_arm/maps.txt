@@ -1,0 +1,6 @@
+bafc000-baff000 r--p 0 00:00 0   crasher
+baff000-bb03000 r-xp 2000 00:00 0   crasher
+f6e82000-f6eac000 r--p 0 00:00 0   libc.so
+f6eac000-f6f14000 r-xp 29000 00:00 0   libc.so
+f77a7000-f77c9000 r--p 0 00:00 0   linker
+f77c9000-f7886000 r-xp 21000 00:00 0   linker

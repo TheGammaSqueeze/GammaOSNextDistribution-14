@@ -1,0 +1,165 @@
+/*
+ * Copyright (C) 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_bt_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_bt_license"],
+}
+
+cc_defaults {
+    name: "libbt_audio_hal_interface_fuzz_defaults",
+    header_libs: [
+        "avrcp_headers",
+        "libbluetooth_headers",
+    ],
+    defaults: [
+        "latest_android_hardware_audio_common_ndk_static",
+        "latest_android_hardware_bluetooth_audio_ndk_static",
+        "latest_android_media_audio_common_types_ndk_static",
+    ],
+    shared_libs: [
+        "libPlatformProperties",
+        "libaaudio",
+        "libbinder_ndk",
+        "libcrypto",
+        "libfmq",
+        "libstatslog",
+        "libstatssocket",
+        "libz",
+        "server_configurable_flags",
+    ],
+    static_libs: [
+        "android.hardware.audio.common@5.0",
+        "android.hardware.bluetooth.a2dp@1.0",
+        "android.hardware.bluetooth.audio@2.0",
+        "android.hardware.bluetooth.audio@2.1",
+        "android.hardware.bluetooth@1.0",
+        "android.hardware.bluetooth@1.1",
+        "android.hardware.common-V2-ndk",
+        "android.hardware.common.fmq-V1-ndk",
+        "android.system.suspend-V1-ndk",
+        "android.system.suspend.control-V1-ndk",
+        "libFraunhoferAAC",
+        "libaudio-a2dp-hw-utils",
+        "libbase",
+        "libbluetooth-dumpsys",
+        "libbluetooth-gdx",
+        "libbluetooth-protos",
+        "libbluetooth-types",
+        "libbluetooth_core_rs",
+        "libbluetooth_crypto_toolbox",
+        "libbluetooth_gd",
+        "libbluetooth_log",
+        "libbluetooth_rust_interop",
+        "libbt-audio-hal-interface",
+        "libbt-bta",
+        "libbt-bta-core",
+        "libbt-btu-main-thread",
+        "libbt-common",
+        "libbt-hci",
+        "libbt-jni-thread",
+        "libbt-sbc-decoder",
+        "libbt-sbc-encoder",
+        "libbt-stack",
+        "libbt-stack-core",
+        "libbt_shim_bridge",
+        "libbtcore",
+        "libbtdevice",
+        "libbte",
+        "libbtif",
+        "libbtif-core",
+        "libcgrouprc",
+        "libcgrouprc_format",
+        "libchrome",
+        "libcutils",
+        "libevent",
+        "libg722codec",
+        "libhidlbase",
+        "libjsoncpp",
+        "liblc3",
+        "liblog",
+        "libopus",
+        "libosi",
+        "libprotobuf-cpp-lite",
+        "libstatslog_bt",
+        "libudrv-uipc",
+        "libutils",
+        "libvndksupport",
+    ],
+    include_dirs: [
+        "packages/modules/Bluetooth/system",
+        "packages/modules/Bluetooth/system/bta/include",
+        "packages/modules/Bluetooth/system/btif",
+        "packages/modules/Bluetooth/system/gd",
+        "packages/modules/Bluetooth/system/stack/include",
+    ],
+    fuzz_config: {
+        cc: ["android-bluetooth-security@google.com"],
+        componentid: 27441,
+        hotlists: [
+            "4593311",
+        ],
+        description: "The fuzzer targets the APIs of libbt-audio-hal-interface",
+        vector: "local_no_privileges_required",
+        service_privilege: "privileged",
+        users: "multi_user",
+        fuzzed_code_usage: "shipped",
+    },
+}
+
+cc_fuzz {
+    name: "libbt_audio_hal_a2dp_encoding_fuzzer",
+    defaults: [
+        "libbt_audio_hal_interface_fuzz_defaults",
+    ],
+    srcs: [
+        "libbt_audio_hal_a2dp_encoding_fuzzer.cpp",
+    ],
+}
+
+cc_fuzz {
+    name: "libbt_audio_hal_le_audio_software_fuzzer",
+    defaults: [
+        "libbt_audio_hal_interface_fuzz_defaults",
+    ],
+    srcs: [
+        "libbt_audio_hal_le_audio_software_fuzzer.cpp",
+    ],
+}
+
+cc_fuzz {
+    name: "libbt_audio_hal_hearing_aid_software_encoding_fuzzer",
+    defaults: [
+        "libbt_audio_hal_interface_fuzz_defaults",
+    ],
+    srcs: [
+        "libbt_audio_hal_hearing_aid_software_encoding_fuzzer.cpp",
+    ],
+}
+
+cc_fuzz {
+    name: "libbt_audio_hal_client_interface_fuzzer",
+    defaults: [
+        "libbt_audio_hal_interface_fuzz_defaults",
+    ],
+    srcs: [
+        "libbt_audio_hal_client_interface_fuzzer.cpp",
+    ],
+}

@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  Copyright (c) 2022, The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="5655878067457216814">"DeviceLockController"</string>
+    <string name="next_button" msgid="1856423430963548653">"آگے جائیں"</string>
+    <string name="reset_button" msgid="4649354411129240809">"ری سیٹ کریں"</string>
+    <string name="setup_more_button" msgid="4456370972302510109">"مزید"</string>
+    <string name="setup_info_title_text" msgid="299562193092219293">"‫<xliff:g id="CREDITOR_APP">%1$s</xliff:g> کس طرح اس آلہ کا نظم کر سکتی ہے"</string>
+    <string name="setup_failed_title_text" msgid="9045111389981992536">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> ایپ انسٹال نہیں کی جا سکتی"</string>
+    <string name="setup_failed_reset_device_text" msgid="178419033440060908">"دوبارہ کوشش کرنے کے لیے آلہ ری سیٹ ہو رہا ہے۔"</string>
+    <string name="setup_failed_reset_device_timer_text" msgid="5270970227714985986">"{count,plural, =1{اس آلہ کو ری سیٹ کریں پھر اسے دوبارہ سیٹ اپ کرنے کی کوشش کریں۔ یہ 1 سیکنڈ کے بعد خودکار طور پر ری سیٹ ہو جائے گا۔}other{اس آلہ کو ری سیٹ کریں پھر اسے دوبارہ سیٹ اپ کرنے کی کوشش کریں۔ یہ # سیکنڈ کے بعد خودکار طور پر ری سیٹ ہو جائے گا۔}}"</string>
+    <string name="setup_progress_title_text" msgid="2388779167610656852">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g>ایپ انسٹال کی جا رہی ہے<xliff:g id="ELLIPSIS">…</xliff:g>"</string>
+    <string name="setup_finish_title_text" msgid="2810842695806992743">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> ایپ کھولی جا رہی ہے<xliff:g id="ELLIPSIS">…</xliff:g>"</string>
+    <string name="setup_error_title_text" msgid="1123742279081942535">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> ایپ نہیں کھول سکتے"</string>
+    <string name="try_again" msgid="5964839819170927721">"دوبارہ کوشش کریں"</string>
+    <string name="reset_phone" msgid="1161657350311160627">"فون ری سیٹ کریں"</string>
+    <string name="control_section_title" msgid="2213476068991045785">"‫<xliff:g id="CREDITOR_APP">%1$s</xliff:g> ایپ کیا کر سکتی ہے؟"</string>
+    <string name="control_lock_device_text" msgid="8253302484073757764">"ادائیگی نہ کرنے کی صورت میں اس آلہ کو مقفل کریں"</string>
+    <string name="control_download_text" msgid="8514650561843088172">"‫<xliff:g id="CREDITOR_APP">%1$s</xliff:g> ایپ ڈاؤن لوڈ، انسٹال اور اپ ڈیٹ کریں"</string>
+    <string name="control_disable_debug_text" msgid="8112443250013094442">"ڈیبگنگ خصوصیات آف کریں"</string>
+    <string name="locked_section_title" msgid="2748725389334076510">"اس آلے کے مقفل ہونے پر کیا کام کرتا ہے؟"</string>
+    <string name="locked_emergency_text" msgid="3509216445555779286">"ایمرجنسی کالنگ کی سروسز"</string>
+    <string name="locked_phone_usage_text" msgid="1913605870324552847">"اِن کمنگ اور کچھ باآؤٹ گوئنگ کالز"</string>
+    <string name="locked_settings_usage_text" msgid="8336476063187737700">"ترتیبات"</string>
+    <string name="locked_backup_and_restore_text" msgid="104616318625243429">"&lt;a href=https://support.google.com/android/answer/2819582&gt;بیک اپ لینا اور بحال کرنا&lt;/a&gt; آپ کا ڈیٹا"</string>
+    <string name="exposure_section_title" msgid="2329122144337528752">"‫<xliff:g id="CREDITOR_APP">%1$s</xliff:g> کیلئے کیا دستیاب ہے؟"</string>
+    <string name="exposure_install_text" msgid="2631074166447765453">"جب <xliff:g id="CREDITOR_APP">%1$s</xliff:g> ایپ کو انسٹال اور اَن انسٹال کر دیا گيا"</string>
+    <string name="exposure_lock_unlock_text" msgid="6827412845847260579">"‫<xliff:g id="CREDITOR_APP">%1$s</xliff:g> سے مقفل یا غیر مقفل کرنے کی کوئی بھی درخواست"</string>
+    <string name="exposure_disable_dlc_text" msgid="2898692398106736423">"اگر <xliff:g id="CREDITOR_APP">%1$s</xliff:g> ایپ دستیاب نہیں ہے"</string>
+    <string name="open_source_licenses" msgid="6464389386262455443">"اوپن سورس لائسنسز"</string>
+    <string name="footer_notice_content_description" msgid="2160540400079419440">"سیکیورٹی کی ترتیبات کے مالی تعاون یافتہ آلے کے سیکشن میں موجود نظم و نسق کی صلاحیتیں اس آلے پر لاگو نہیں ہوتی ہیں۔"</string>
+    <string name="device_provided_by_provider" msgid="290593329676291991">"یہ آلہ <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> نے فراہم کیا ہے"</string>
+    <string name="download_kiosk_app" msgid="1845089944897502656">"‫Kiosk ایپ خودکار طور پر ڈاؤن لوڈ اور انسٹال ہو جائے گی"</string>
+    <string name="install_kiosk_app_secondary_user" msgid="49911908012320834">"Kiosk ایپ اس صارف کے لیے انسٹال کی جائے گی"</string>
+    <string name="restrict_device_if_missing_payment" msgid="8883980285859496904">"اگر آپ سے ادائیگی چھوٹ جاتی ہے تو <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> آلہ کو محدود کر سکتا ہے۔ تفصیلات کے لیے، <xliff:g id="TERMS_AND_CONDITIONS_LINK_START">&lt;a href=%2$s&gt;</xliff:g>شرائط و ضوابط<xliff:g id="TERMS_AND_CONDITIONS_LINK_END">&lt;/a&gt;</xliff:g> دیکھیں۔"</string>
+    <string name="restrict_device_if_dont_make_payment" msgid="1619095674945507015">"اگر آپ ضروری ادائیگیاں نہیں کرتے ہیں تو <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> اس آلہ کو محدود کر سکتا ہے۔ تفصیلات کے لیے، <xliff:g id="TERMS_AND_CONDITIONS_LINK_START">&lt;a href=%2$s&gt;</xliff:g>شرائط و ضوابط<xliff:g id="TERMS_AND_CONDITIONS_LINK_END">&lt;/a&gt;</xliff:g> دیکھیں۔"</string>
+    <string name="contact_provider_for_help" msgid="3872028089834808884">"مدد کیلئے، <xliff:g id="SUPPORT_LINK_START">&lt;a href=%2$s&gt;</xliff:g><xliff:g id="PROVIDER_NAME">%1$s</xliff:g> سے رابطہ کریں<xliff:g id="SUPPORT_LINK_END">&lt;/a&gt;</xliff:g>۔"</string>
+    <string name="previous" msgid="5241891780917802570">"پچھلا"</string>
+    <string name="next" msgid="8248291863254324326">"آگے جائیں"</string>
+    <string name="start" msgid="2842214844667658537">"شروع کریں"</string>
+    <string name="ok" msgid="3568398726528719749">"ٹھیک ہے"</string>
+    <string name="done" msgid="4507782734740410307">"ہو گیا"</string>
+    <string name="do_it_in_one_hour" msgid="2727777340568739453">"اسے 1 گھنٹے میں کریں"</string>
+    <string name="header_icon_content_description" msgid="6069602031334473195">"معلومات"</string>
+    <string name="provision_info_item_icon_content_description" msgid="2306298178610632507">"فراہمی کی معلومات"</string>
+    <string name="enroll_your_device_header" msgid="2226305405591945098">"اپنے آلہ کا اندراج کرائيں"</string>
+    <string name="enroll_your_device_financing_subheader" msgid="8810608106273097451">"اب آپ اپنے آلے کا اندراج <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> کے فائنانس پروگرام میں کر سکتے ہیں"</string>
+    <string name="enroll_your_device_subsidy_subheader" msgid="8598730780370624995">"اب آپ اپنے آلے کا اندراج <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> کے سبسڈی پروگرام میں کر سکتے ہیں"</string>
+    <string name="subsidy_program_header" msgid="2321508488856303554">"آپ <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> کے سبسڈی پروگرام پر ہیں"</string>
+    <string name="device_enrollment_header_text" msgid="5283341102404741658">"آلہ کا اندراج"</string>
+    <string name="device_financing_enrollment_body_text" msgid="5506086383249511498">"آپ کے آلہ کا اندراج 30 دن کے اندر <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> کے فنانس پروگرام میں ہو جائے گا۔"</string>
+    <string name="device_subsidy_enrollment_body_text" msgid="3971584929178719388">"آپ کے آلہ کا اندراج 30 دن کے اندر <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> کے سبسڈی پروگرام میں ہو جائے گا۔"</string>
+    <string name="device_enrollment_notification_body_text" msgid="8755080244956655854">"اندراج <xliff:g id="TIME">%1$s</xliff:g> بجے دوبارہ شروع ہوگا۔ آپ اپنے آلے کا استعمال جاری رکھ سکتے ہیں۔"</string>
+    <string name="continue_using_device" msgid="5816570734692191190">"آپ اپنے آلے کا استعمال جاری رکھ سکتے ہیں"</string>
+    <string name="device_paid" msgid="6606280698381856804">"آپ نے اپنے آلے کیلئے ادائیگی کی"</string>
+    <string name="device_removed_from_subsidy_program" msgid="1243434945619071051">"آلہ <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> کے سبسڈی پروگرام سے ہٹا دیا گیا"</string>
+    <string name="device_removed_from_finance_program" msgid="825548999540107578">"آپ کے آلے کو <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> کے فنانس پروگرام سے ہٹا دیا گیا ہے"</string>
+    <string name="restrictions_lifted" msgid="5785586265984319396">"آپ کے آلے پر سے تمام پابندیاں ہٹا دی گئی ہیں"</string>
+    <string name="uninstall_kiosk_app" msgid="3459557395024053988">"آپ اپنے آلے سے Kiosk ایپ اَن انسٹال کر سکتے ہیں"</string>
+    <string name="getting_device_ready" msgid="2829009584599871699">"آپ کا آلہ تیار ہو رہا ہے…"</string>
+    <string name="this_may_take_a_few_minutes" msgid="2482876246874429351">"اس میں کچھ منٹ لگ سکتے ہیں"</string>
+    <string name="installing_kiosk_app" msgid="324208168205545860">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> ایپ انسٹال کی جا رہی ہے…"</string>
+    <string name="opening_kiosk_app" msgid="2021888641430165654">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> ایپ کھولی جا رہی ہے…"</string>
+    <string name="settings_banner_title" msgid="527041021011279252">"<xliff:g id="PROVIDER_NAME">%1$s</xliff:g> کی طرف سے فراہم کردہ آلہ"</string>
+    <string name="settings_banner_body" msgid="5814902066260202824">"<xliff:g id="PROVIDER_NAME">%1$s</xliff:g> اس آلہ پر ترتیبات کو تبدیل کر سکتا ہے"</string>
+    <string name="settings_banner_button" msgid="1831020849782670907">"مزید جانیں"</string>
+    <string name="settings_screen_title" msgid="721470080648091035">"مالی تعاون یافتہ آلے کی معلومات"</string>
+    <string name="settings_intro_device_financing" msgid="2548476558131048133">"<xliff:g id="PROVIDER_NAME_0">%1$s</xliff:g> ترتیبات تبدیل کر سکتاہے اور آلے پر کیوسک ایپ انسٹال کر سکتا ہے۔\n\nاگر آپ ادائیگی نہیں کرتے ہیں تو <xliff:g id="PROVIDER_NAME_1">%1$s</xliff:g> آپ کے آلے پر پابندی لگا سکتا ہے۔\n\nمزید جاننے کے لیے <xliff:g id="PROVIDER_NAME_2">%1$s</xliff:g> سے رابطہ کریں۔"</string>
+    <string name="settings_intro_device_subsidy" msgid="4274945644204818702">"<xliff:g id="PROVIDER_NAME_0">%1$s</xliff:g> ترتیبات تبدیل کر سکتا ہے اور آلے پر کیوسک ایپ انسٹال کر سکتا ہے۔\n\nاگر آپ ادائیگی نہیں کرتے ہیں یا <xliff:g id="PROVIDER_NAME_2">%1$s</xliff:g> کا SIM استعمال کرنا بند کر دیتے ہیں تو <xliff:g id="PROVIDER_NAME_1">%1$s</xliff:g> آپ کے آلے پر پابندی بھی لگا سکتا ہے۔\n\nمزید جاننے کے لیے <xliff:g id="PROVIDER_NAME_3">%1$s</xliff:g> سے رابطہ کریں۔"</string>
+    <string name="settings_intro_preference_key" msgid="6610461073400554162">"settings_intro_preference_key"</string>
+    <string name="settings_restrictions_category" msgid="5746868117342406677">"جب تک آپ اپنے آلے کیلئے ادائیگی نہیں کر دیتے، آپ یہ نہیں کر سکتے:"</string>
+    <string name="settings_restrictions_category_preference_key" msgid="88318147152676512">"settings_restrictions_category_preference_key"</string>
+    <string name="settings_install_apps" msgid="3634279771448183713">"Play اسٹور کے باہر سے ایپس انسٹال کریں"</string>
+    <string name="settings_install_apps_preference_key" msgid="27542314345238427">"settings_install_apps_preference_key"</string>
+    <string name="settings_safe_mode" msgid="3035228015586375153">"اپنا آلہ حفاظتی وضع میں ریبوٹ نہیں کر سکتے ہیں"</string>
+    <string name="settings_safe_mode_preference_key" msgid="2106617747358027424">"settings_safe_mode_preference_key"</string>
+    <string name="settings_developer_options" msgid="880701002025216672">"ڈویلپر کے اختیارات کا استعمال کر سکتا ہے"</string>
+    <string name="settings_developer_options_preference_key" msgid="6807036808722582954">"settings_developer_options_preference_key"</string>
+    <string name="settings_credit_provider_capabilities_category" msgid="1274440595211820868">"اگر آپ کے آلے کے ساتھ کچھ غلط ہو جاتا ہے تو <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> کر سکتا ہے:"</string>
+    <string name="settings_credit_provider_capabilities_category_preference_key" msgid="4571685720898641262">"settings_credit_provider_capabilities_category_preference_key"</string>
+    <string name="settings_IMEI" msgid="697965824361262506">"اپنے IMEI نمبر تک رسائی حاصل کریں"</string>
+    <string name="settings_IMEI_preference_key" msgid="608809590948249412">"settings_IMEI_preference_key"</string>
+    <string name="settings_factory_reset" msgid="418045189048067625">"آپ کے آلہ کو فیکٹری ری سیٹ کر سکتا ہے"</string>
+    <string name="settings_factory_reset_preference_key" msgid="2168528486393635382">"settings_factory_reset_preference_key"</string>
+    <string name="settings_locked_mode_category" msgid="6307525048618331737">"اگر آپ کے آلہ پر پابندی ہے تو آپ اسے صرف درج ذیل کام کے لیے استعمال کر سکتے ہیں:"</string>
+    <string name="settings_locked_mode_category_preference_key" msgid="7202573929427220258">"settings_locked_mode_category_preference_key"</string>
+    <string name="settings_emergency_calls" msgid="2460996367176786040">"ایمرجنسی نمبرز پر کالز کر سکتا ہے"</string>
+    <string name="settings_emergency_calls_preference_key" msgid="737598609727181316">"settings_emergency_calls_preference_key"</string>
+    <string name="settings_system_info" msgid="1352629332624774940">"سسٹم کی معلومات دیکھیں جیسے تاریخ، وقت، نیٹ ورک کا اسٹیٹس اور بیٹری"</string>
+    <string name="settings_system_info_preference_key" msgid="8607675914059202598">"settings_system_info_preference_key"</string>
+    <string name="settings_turn_on_off_device" msgid="5414836621603462439">"اپنا آلہ آن یا آف کریں"</string>
+    <string name="settings_turn_on_off_device_preference_key" msgid="5981163790552677734">"settings_turn_on_off_device_preference_key"</string>
+    <string name="settings_notifications" msgid="63348993899505034">"اطلاعات اور ٹیکسٹ پیغامات دیکھنے کیلئے"</string>
+    <string name="settings_notifications_preference_key" msgid="4527872342061056462">"settings_notifications_preference_key"</string>
+    <string name="settings_allowlisted_apps" msgid="5531810497056091097">"<xliff:g id="PROVIDER_NAME">%1$s</xliff:g> کی طرف سے اجازت یافتہ ایپس تک رسائی حاصل کریں"</string>
+    <string name="settings_allowlisted_apps_preference_key" msgid="8662705531235468080">"settings_allowlisted_apps_preference_key"</string>
+    <string name="settings_fully_paid_category" msgid="2459776591689824433">"مکمل رقم ادا کرنے کے بعد:"</string>
+    <string name="settings_fully_paid_category_preference_key" msgid="1759690898170600559">"settings_fully_paid_category_preference_key"</string>
+    <string name="settings_restrictions_removed" msgid="1398080654904863221">"<xliff:g id="PROVIDER_NAME">%1$s</xliff:g> آپ کے آلے پر پابندی نہیں لگا سکتا یا آلہ کی ترتیبات کو تبدیل نہیں کر سکتا"</string>
+    <string name="settings_restrictions_removed_preference_key" msgid="7741933477145197391">"settings_restrictions_removed_preference_key"</string>
+    <string name="settings_uninstall_kiosk_app" msgid="2611134364295637875">"آپ <xliff:g id="KIOSK_APP">%1$s</xliff:g> ایپ اَن انسٹال نہیں کر سکتے ہیں"</string>
+    <string name="settings_uninstall_kiosk_app_preference_key" msgid="5578103644009268125">"settings_uninstall_kiosk_app_preference_key"</string>
+    <string name="settings_support_category" msgid="7210906871924935770">"مدد حاصل کرنے کے لیے:"</string>
+    <string name="settings_support_category_preference_key" msgid="1818953199283261021">"settings_support_category_preference_key"</string>
+    <string name="settings_contact_provider" msgid="2481819956474692039">"<xliff:g id="SUPPORT_LINK_START">&lt;a href=%2$s&gt;</xliff:g><xliff:g id="PROVIDER_NAME">%1$s</xliff:g> سے رابطہ کریں<xliff:g id="SUPPORT_LINK_END">&lt;/a&gt;</xliff:g>"</string>
+    <string name="settings_contact_provider_preference_key" msgid="2703619536229342624">"settings_contact_provider_preference_key"</string>
+    <string name="provision_notification_channel_name" msgid="6123500714047647805">"فراہمی"</string>
+    <string name="device_reset_in_days_notification_title" msgid="920859483535317727">"{count,plural, =1{آلہ 1 دن میں ری سیٹ ہو جائے گا}other{آلہ # دن میں ری سیٹ ہو جائے گا}}"</string>
+    <string name="device_reset_timer_notification_title" msgid="301978346002711614">"آلہ <xliff:g id="TIMER">%s</xliff:g> میں ری سیٹ ہو جائے گا"</string>
+    <string name="device_reset_notification_content" msgid="7642367488663440437">"آلہ کا تمام ڈیٹا حذف کر دیا جائے گا۔ اپنے آلے کے اندراج میں مدد کے لیے، <xliff:g id="PROVIDER_NAME">%1$s</xliff:g> سے رابطہ کریں"</string>
+    <string name="provisioning_failed" msgid="5350252817004028300">"فنانسنگ کی فراہمی ناکام ہو گئی ہے"</string>
+    <string name="click_to_contact_financier" msgid="9107827438262930445">"اپنے سرمایہ کار سے رابطہ کرنے کے طریقوں کیلئے براہ کرم یہاں کلک کریں۔ <xliff:g id="SUPPORT_URL_START">&lt;a href=%1$s&gt;</xliff:g>مزید جانیں<xliff:g id="SUPPORT_URL_END">&lt;/a&gt;</xliff:g>"</string>
+    <string name="exit" msgid="645084771882733921">"باہر نکلیں"</string>
+    <string name="retry" msgid="7497287909193345356">"پھر کوشش کریں"</string>
+</resources>

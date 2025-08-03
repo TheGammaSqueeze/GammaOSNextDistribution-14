@@ -1,0 +1,29 @@
+com.android.tools.metalava.model.testsuite.annotationitem.CommonAnnotationItemTest
+  annotation toSource() with compound expression values
+  annotation toSource() with constant literal values
+
+com.android.tools.metalava.model.testsuite.fielditem.CommonFieldItemTest
+  Test implicit nullability of constant field initialized from @NonNull method
+
+com.android.tools.metalava.model.testsuite.fielditem.SourceFieldItemTest
+  test default value of an enum constant field
+  test non final field with default value as constant expression
+
+com.android.tools.metalava.model.testsuite.methoditem.CommonParameterItemTest
+  Test publicName reports correct name when called on binary class - Object#equals
+  Test publicName reports correct name when called on binary class - ViewGroup#onLayout
+
+com.android.tools.metalava.model.testsuite.packageitem.CommonPackageItemTest
+  Test @hide in package html
+  Test nullability annotation in package info
+
+com.android.tools.metalava.model.testsuite.typeitem.CommonIsAssignableFromTest
+  Test assignability without unboxing[boxedInt to primitiveInt]
+  Test assignability without unboxing[number to boxedInt]
+  Test assignability without unboxing[number to primitiveInt]
+  Test assignability without unboxing[obj to string]
+
+com.android.tools.metalava.model.testsuite.typeitem.CommonTypeModifiersTest
+  Test interface types
+  Test leading annotation on array type
+  Test super class and interface types of interface

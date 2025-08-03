@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    Copyright (C) 2018 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_title" msgid="1056886619192068947">"កម្មវិធី​ចាប់ផ្ដើមសម្រាប់រថយន្ត"</string>
+    <string name="default_media_song_title" msgid="7837564242036091946"></string>
+    <string name="tap_for_more_info_text" msgid="4240146824238692769">"ចុចកាត ដើម្បីទទួលបានព័ត៌មានបន្ថែម"</string>
+    <string name="tap_to_launch_text" msgid="7150379866796152196">"ចុចកាត ដើម្បីចាប់ផ្ដើម"</string>
+    <string name="ongoing_call_duration_text_separator" msgid="2140398350095052096">" • "</string>
+    <string name="ongoing_call_text" msgid="7160701768924041827">"កំពុង​បន្ត​ការ​ហៅ"</string>
+    <string name="dialing_call_text" msgid="3286036311692512894">"កំពុងហៅ…"</string>
+    <string name="projected_launch_text" msgid="5034079820478748609">"បើកដំណើរការ Android Auto"</string>
+    <string name="projected_onclick_launch_error_toast_text" msgid="8853804785626030351">"មិនអាចបើកដំណើរការ Android Auto បានទេ។ រកមិនឃើញសកម្មភាពទេ។"</string>
+    <string name="projection_devices" msgid="2556503818120676439">"{count,plural, =1{ឧបករណ៍ #}other{ឧបករណ៍ #}}"</string>
+    <string name="weather_app_name" msgid="4356705068077942048">"អាកាសធាតុ"</string>
+    <string name="fake_weather_main_text" msgid="2545755284647327839">"--° ភាគច្រើន​បើកថ្ងៃ"</string>
+    <string name="fake_weather_footer_text" msgid="8640814250285014485">"ទិដ្ឋភាពភ្នំ • H: --° L: --°"</string>
+    <string name="times_separator" msgid="1962841895013564645">"/"</string>
+    <string name="recents_empty_state_text" msgid="8228569970506899117">"មិនមានធាតុថ្មីៗទេ"</string>
+    <string name="recents_clear_all_text" msgid="3594272268167720553">"សម្អាតទាំងអស់"</string>
+    <string name="failure_opening_recent_task_message" msgid="963567570097465902">"មិន​មាន​កម្មវិធី"</string>
+    <string name="calm_mode_title" msgid="4364804976931157567">"មុខងារស្ងាត់"</string>
+</resources>

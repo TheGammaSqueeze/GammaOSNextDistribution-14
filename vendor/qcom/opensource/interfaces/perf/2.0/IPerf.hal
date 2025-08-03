@@ -1,0 +1,29 @@
+/*
+ * Copyright (C) 2021 The LineageOS Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package vendor.qti.hardware.perf@2.0;
+
+interface IPerf {
+    perfLockAcquire(int32_t pl_handle, uint32_t duration, vec<int32_t> boostsList, vec<int32_t> reserved) generates (int32_t ret);
+    perfLockRelease(int32_t pl_handle, vec<int32_t> reserved);
+    perfHint(uint32_t hint, string userDataStr, int32_t userData1, int32_t userData2, vec<int32_t> reserved) generates (int32_t ret);
+    perfProfile(int32_t pl_handle, int32_t profile, int32_t reserved) generates (int32_t ret);
+    perfLockCmd(int32_t cmd, int32_t reserved);
+    perfGetProp(string propName, string defaultVal) generates (string ret);
+    perfSetProp(string propName, string value) generates (int32_t ret);
+    perfAsyncRequest(int32_t cmd, string userDataStr, vec<int32_t> params) generates (int32_t ret);
+    perfSyncRequest(int32_t cmd, string userDataStr, vec<int32_t> params) generates (string ret);
+};

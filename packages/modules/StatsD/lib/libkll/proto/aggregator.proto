@@ -1,0 +1,77 @@
+/*
+ * Copyright 2019-2021 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+// This file contains messages for representing the internal state and common
+// properties of aggregation algorithms, in a minimized and Lite Proto version
+// for Android.
+//
+// Messages defined in this file are often stored on disk, so reader libraries
+// should be able to parse all historic versions of the serialized data, and to
+// merge data with different serialization formats.
+
+syntax = "proto2";
+
+package zetasketch.android;
+
+option cc_enable_arenas = true;
+option optimize_for = LITE_RUNTIME;
+
+// Enumeration of all supported aggregation algorithms. Values should
+// start from 100.
+enum AggregatorType {
+    reserved 0, 100 to 112, 114 to 140;
+
+    // Computes approximate quantiles using the KLL algorithm.
+    KLL_QUANTILES = 113;
+}
+
+// Never instantiated, just for scoping an enum and associated options.
+message DefaultOpsType {
+    // Each value corresponds to a C++ type T.
+    enum Id {
+        UNKNOWN = 0;
+
+        // SerializeToString uses varint encoding of the 2s complement.
+        INT64 = 4;
+
+        reserved 1 to 3, 5 to 20;
+    }
+}
+
+// Serialized state of an aggregator.
+message AggregatorStateProto {
+    // The type (= algorithm + implementation) of the aggregator.
+    optional AggregatorType type = 1;
+
+    optional int64 num_values = 2;
+
+    // Version of the encoded internal state. On a per-aggregator basis, this
+    // field is set to indicate that the format of the aggregator encoding has
+    // changed such that the library has to decide how to decode.
+    optional int32 encoding_version = 3 [default = 1];
+
+    // Specifies the value type for the aggregation, e.g. INT64.
+    //
+    // For anything which is not a custom type, this will be a value of the
+    // DefaultOpsType.Id enum.
+    optional int32 value_type = 4;
+
+    // An AggregatorStateProto message object has exactly one extension field set,
+    // which holds the algorithm-specific state for the aggregator.
+
+    extensions 100 to 112, 114 to 140;
+
+    extensions 113 to 113;  // reserved for KLL_QUANTILES.
+}

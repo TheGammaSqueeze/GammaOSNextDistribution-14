@@ -1,0 +1,99 @@
+/**
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+soong_config_module_type {
+    name: "audio_cc_defaults",
+    module_type: "cc_defaults",
+    config_namespace: "audio_lib",
+    variables: ["audio_type"],
+    properties: ["defaults","static_libs","header_libs"],
+}
+
+soong_config_string_variable {
+    name: "audio_type",
+    values: ["oem_audio"],
+}
+
+audio_cc_defaults {
+    name: "libimsmedia_audio_cc_defaults",
+    soong_config_variables: {
+        audio_type: {
+            oem_audio: {
+                defaults: [
+                    "libimsmedia_oem_audio_codec_defaults",
+                ],
+                static_libs: [
+                    "libimsmedia_oem_audio_codec",
+                ],
+            },
+            conditions_default: {
+                static_libs: [
+                    "libimsmedia_aosp_audio_codec",
+                ],
+            },
+        },
+    },
+}
+
+cc_defaults {
+    name: "libimsmedia_defaults",
+    cflags: [
+        "-Wall",
+    ],
+    shared_libs: [
+        "libmediautils",
+    ],
+    sanitize: {
+        cfi: true,
+        scs: true,
+    },
+}
+
+cc_library_shared {
+    name: "libimsmedia",
+    system_ext_specific: true,
+    defaults: [
+        "libimsmedia_audio_cc_defaults",
+        "libimsmedia_defaults",
+    ],
+    srcs: [
+        "libimsmedia.cpp",
+    ],
+    static_libs: [
+        "libimsmedia_config",
+        "libimsmedia_core",
+        "libimsmedia_protocol",
+    ],
+    shared_libs: [
+        "framework-permission-aidl-cpp",
+        "libaaudio",
+        "libandroid",
+        "libandroid_runtime",
+        "libbinder",
+        "libcamera2ndk",
+        "libcutils",
+        "libjnigraphics",
+        "liblog",
+        "libmediandk",
+        "libnativewindow",
+        "libutils",
+        "libmediautils",
+    ],
+}

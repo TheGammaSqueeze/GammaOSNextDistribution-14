@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- The Safety Center resources package is an internal system package that provides
+         configuration values for the Safety Center. This is the name of the package to display in
+         the list of system apps. [CHAR LIMIT=40] -->
+    <string name="safetyCenterResourcesAppLabel">Safety Center Resources</string>
+
+    <!-- Lock Screen -->
+    <string name="lock_screen_sources_title" description="The title of the group of safety settings relating to screen lock and biometrics">Device lock</string>
+    <string name="lock_screen_sources_summary" description="The summary of the group of safety settings relating to screen lock and biometrics, which describes the group contents"></string>
+    <string name="lock_screen_title" description="The default title of the setting for managing the screen lock on the device">Screen lock</string>
+    <string name="lock_screen_summary_disabled" description="The default summary of the setting for managing screen lock on the device before the current state is known to safety center">No info yet</string>
+    <string name="lock_screen_search_terms" description="Search keywords of the setting for managing the screen lock on the device">Device lock, Screen lock, Lock screen, Lockscreen, Password, Pin, Pattern</string>
+    <string name="biometrics_title" description="The default title of the setting for managing biometric options on the device">Biometrics</string>
+    <string name="biometrics_search_terms" description="Search keywords of the setting for managing biometric options on the device">Fingerprint, Finger, Add fingerprint, Face unlock, Face</string>
+
+    <!-- Privacy -->
+    <string name="privacy_sources_title" description="The title of the group of safety settings relating to privacy">Privacy</string>
+    <string name="privacy_sources_summary" description="The summary of the group of safety settings relating to privacy, which describes the group contents">Dashboard, permissions, controls</string>
+    <string name="permission_usage_title" description="Permission usage title">Privacy dashboard</string>
+    <string name="permission_usage_summary" description="Permission usage summary, which describes what the permissions usage does">Show which apps recently used permissions</string>
+    <string name="permission_usage_search_terms" description="Permission usage search keywords">Privacy, Privacy dashboard</string>
+    <string name="permission_manager_title" description="Permission manager title">Permission manager</string>
+    <string name="permission_manager_summary" description="Permission manager summary, which describes what the permission manager does">Control app access to your data</string>
+    <string name="permission_manager_search_terms" description="Permission manager search keywords">Permissions, Permissions manager</string>
+    <string name="privacy_controls_title" description="Privacy controls title">Privacy controls</string>
+    <string name="privacy_controls_summary" description="Privacy controls summary, which describes what the privacy controls are">Control device access to microphone, camera, and more</string>
+    <string name="privacy_controls_search_terms" description="Privacy controls search keywords">Privacy, Privacy controls</string>
+
+    <!-- Advanced -->
+    <string name="advanced_title" description="The title of the group of advanced settings">More settings</string>
+    <string name="advanced_security_title" description="The title of the entry for advanced security settings">More security settings</string>
+    <string name="advanced_security_summary" description="The summary of the entry for advanced security settings, which describes the page contents">Encryption, credentials, and more</string>
+    <string name="advanced_security_search_terms" description="Search keywords of the entry for advanced security settings"></string>
+    <string name="advanced_privacy_title" description="The title of the entry for advanced privacy settings">More privacy settings</string>
+    <string name="advanced_privacy_summary" description="The summary of the entry for advanced privacy settings, which describes the page contents">Autofill, activity controls, and more</string>
+    <string name="advanced_privacy_search_terms" description="Search keywords of the entry for advanced privacy settings"></string>
+</resources>

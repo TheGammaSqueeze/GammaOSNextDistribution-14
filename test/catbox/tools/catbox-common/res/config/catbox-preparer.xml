@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2021 Google Inc.
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<configuration description="CATBOX Target Preparer Configuration">
+  <!-- Target Preparers - Clean the Device after Test Execution -->
+  <target_preparer class="com.android.tradefed.targetprep.DeviceCleaner">
+    <option name="disable" value="true" />
+    <option name="cleanup-action" value="FORMAT" />
+  </target_preparer>
+
+  <!-- Target Preparers - Clean the Device before Test Execution -->
+  <target_preparer class="com.android.tradefed.targetprep.DeviceWiper">
+    <option name="disable" value="true" />
+  </target_preparer>
+
+  <!-- Target Preparers - Setup the Device -->
+  <target_preparer class="com.android.tradefed.targetprep.DeviceSetup">
+    <option name="disable" value="true" />
+    <option name="screen-always-on" value="on" />
+    <option name="screen-adaptive-brightness" value="off" />
+    <option name="screen-saver" value="off" />
+    <option name="set-secure-setting" key="location_mode" value="1" />
+  </target_preparer>
+
+  <!-- Target Preparers - ADB Root -->
+  <target_preparer class="com.android.tradefed.targetprep.RootTargetPreparer" />
+
+  <!-- Target Preparers - Add System User and Disable By Default -->
+  <target_preparer class="com.android.tradefed.targetprep.RunOnSystemUserTargetPreparer">
+    <option name="disable" value="true" />
+  </target_preparer>
+
+  <!-- Target Preparers - Disable SELinux before Test Execution -->
+  <target_preparer class="com.android.tradefed.targetprep.DisableSELinuxTargetPreparer" />
+
+  <!-- Target Preparers - Install Apps -->
+  <target_preparer class="com.android.tradefed.targetprep.TestAppInstallSetup" >
+    <option name="cleanup-apks" value="true" />
+    <option name="install-arg" value="-d" />
+    <option name="install-arg" value="-r" />
+    <option name="install-arg" value="-g" />
+  </target_preparer>
+
+  <!-- Target Preparers - Install Apps from Suite Testcases directory -->
+  <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller" >
+    <option name="cleanup-apks" value="true" />
+    <option name="install-arg" value="-d" />
+    <option name="install-arg" value="-r" />
+    <option name="install-arg" value="-g" />
+  </target_preparer>
+
+  <!-- Target Preparers - To Push Files On The Device -->
+  <target_preparer class="com.android.tradefed.targetprep.PushFilePreparer" />
+
+  <!-- Target Preparers - To Push Files On The Device from Suite Testcases directory -->
+  <target_preparer class="com.android.compatibility.common.tradefed.targetprep.FilePusher" />
+
+  <!-- Target Preparers - Run Shell Commands -->
+  <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer">
+    <option name="run-command" value="am start -n com.google.android.car.setupwizard/.ExitActivity" />
+  </target_preparer>
+
+  <!-- Target Preparers - Set Properties -->
+  <target_preparer class="com.android.catbox.targetpreparer.SetDevicePropertyPreparer" />
+
+  <!-- Target Preparers - WiFi Preparer -->
+  <target_preparer class="com.android.tradefed.targetprep.WifiPreparer" >
+    <option name="skip" value="true" />
+  </target_preparer>
+
+  <!-- Template for Account Log In -->
+  <template-include name="account-preparer" default="empty" />
+</configuration>

@@ -1,0 +1,59 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_fuzz {
+  name: "libskia_image_processor_fuzzer",
+
+  defaults: [
+    "skia_deps",
+  ],
+
+  srcs: [
+    "libskia_image_processor_fuzzer.cpp",
+  ],
+
+  shared_libs: [
+      "libdng_sdk",
+      "libft2",
+      "libjpeg",
+      "liblog",
+      "libpiex",
+      "libpng",
+  ],
+  static_libs: [
+      "libskia",
+      "libarect",
+      "libsfntly",
+      "libwebp-decode",
+      "libwebp-encode",
+      "libwuffs_mirror_release_c",
+  ],
+
+  target: {
+    android: {
+      shared_libs: [
+          "libz",
+          "libexpat",
+          "libicu",
+          "libcutils",
+          "libEGL",
+          "libGLESv2",
+          "libheif",
+          "libvulkan",
+          "libnativewindow",
+      ],
+      export_shared_lib_headers: [
+          "libvulkan",
+      ],
+    },
+    host: {
+      static_libs: [
+        "libcutils",
+      ],
+    },
+  },
+
+  corpus: ["corpus/*"],
+  host_supported: true,
+}

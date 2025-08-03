@@ -1,0 +1,61 @@
+{
+  "mainline-presubmit": [
+    {
+      "name": "CtsNNAPITestCases[com.google.android.neuralnetworks.apex]"
+    }
+  ],
+  "presubmit": [
+    {
+      "name": "NeuralNetworksTest_utils"
+    },
+    {
+      "name": "CtsNNAPIJavaTestCases"
+    }
+  ],
+  "presubmit-large": [
+    {
+      "name": "NeuralNetworksTest_static",
+      "options": [
+        {
+          // Restrict NeuralNetworksTest_static to run only a single
+          // pass consisting of:
+          // * useCpuOnly = 0
+          // * computeMode = ComputeMode::ASYNC
+          //
+          // The value here is a bitmask indicating only "pass 2"
+          // should be run (4 = 2^2). The bit conversions can be
+          // found in packages/modules/NeuralNetworks/runtime/test/TestMain.cpp.
+          "native-test-flag": "4"
+        }
+      ]
+    },
+    // TODO(b/244359503): Re-enable once the conversion layer is fixed.
+    // {
+    //   "name": "NeuralNetworksTest_v2_static",
+    //   "options": [
+    //     {
+    //       // Restrict NeuralNetworksTest_v2_static to run only a single
+    //       // pass consisting of:
+    //       // * useCpuOnly = 0
+    //       // * computeMode = ComputeMode::ASYNC
+    //       //
+    //       // The value here is a bitmask indicating only "pass 2"
+    //       // should be run (4 = 2^2). The bit conversions can be
+    //       // found in packages/modules/NeuralNetworks/runtime/test/TestMain.cpp.
+    //       "native-test-flag": "4"
+    //     }
+    //   ]
+    // },
+    {
+      "name": "CtsNNAPITestCases"
+    }
+  ],
+  "imports": [
+    {
+      "path": "hardware/interfaces/neuralnetworks"
+    },
+    {
+      "path": "external/tensorflow/tensorflow/lite/delegates/nnapi"
+    }
+  ]
+}

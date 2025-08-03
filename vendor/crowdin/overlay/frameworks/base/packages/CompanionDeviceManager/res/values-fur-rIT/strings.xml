@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label">Gjestion dispositîfs associâts</string>
+    <string name="confirmation_title">Permeti ae aplicazion &lt;strong&gt;<xliff:g id="app_name" example="Android Wear">%1$s</xliff:g>&lt;/strong&gt; di acedi a &lt;strong&gt;<xliff:g id="device_name" example="ASUS ZenWatch 2">%2$s</xliff:g>&lt;/strong&gt;?</string>
+    <string name="profile_name_watch">orloi</string>
+    <string name="chooser_title_non_profile">Sielç un dispositîf che al vegni gjestît di &lt;strong&gt;<xliff:g id="app_name" example="Android Wear">%1$s</xliff:g>&lt;/strong&gt;</string>
+    <string name="chooser_title">Sielç un <xliff:g id="profile_name" example="watch">%1$s</xliff:g> di configurâ</string>
+    <string name="summary_watch">Cheste aplicazion e varà il permès par sincronizâ informazions, come il non di cualchidun che al clame, e acedi a chescj permès sul to <xliff:g id="device_name" example="phone">%1$s</xliff:g></string>
+    <string name="confirmation_title_glasses">Permeti a &lt;strong&gt;<xliff:g id="app_name" example="Android Wear">%1$s</xliff:g>&lt;/strong&gt; di gjestî &lt;strong&gt;<xliff:g id="device_name" example="Glasses">%2$s</xliff:g>&lt;/strong&gt;?</string>
+    <string name="profile_name_glasses">dispositîf</string>
+    <string name="summary_glasses">Cheste aplicazion e varà il permès par acedi a chescj permès sul to <xliff:g id="device_name" example="phone">%1$s</xliff:g></string>
+    <string name="title_app_streaming">Permet a &lt;strong&gt;<xliff:g id="app_name" example="Exo">%1$s</xliff:g>&lt;/strong&gt; di acedi a cheste informazion dal to telefon</string>
+    <string name="helper_title_app_streaming">Servizis inter-dispositîfs</string>
+    <string name="helper_summary_app_streaming"><xliff:g id="app_name" example="GMS">%1$s</xliff:g> e sta domandant il permès, par cont dal to <xliff:g id="display_name" example="Chromebook">%2$s</xliff:g>, par trasmeti aplicazions tra i tiei dispositîfs</string>
+    <string name="title_computer">Permet a &lt;strong&gt;<xliff:g id="app_name" example="GMS">%1$s</xliff:g>&lt;/strong&gt; di acedi a cheste informazion dal to telefon</string>
+    <string name="helper_title_computer">Servizis Google Play</string>
+    <string name="helper_summary_computer"><xliff:g id="app_name" example="GMS">%1$s</xliff:g> al sta domandant il permès, par cont dal to <xliff:g id="display_name" example="Chromebook">%2$s</xliff:g>, par acedi aes fotos, files multimediâi e notifichis dal to telefon</string>
+    <string name="title_nearby_device_streaming">Permeti a &lt;strong&gt;<xliff:g id="device_name" example="NearbyStreamer">%1$s</xliff:g>&lt;/strong&gt; di fâ cheste azion?</string>
+    <string name="helper_summary_nearby_device_streaming">La aplicazion <xliff:g id="app_name" example="NearbyStreamerApp">%1$s</xliff:g> e sta domandant un permès par cont dal to <xliff:g id="device_name" example="NearbyDevice">%2$s</xliff:g> par trasmeti aplicazions e altris funzionalitâts di sisteme ai dispositîfs tai contors</string>
+    <string name="profile_name_generic">dispositîf</string>
+    <string name="summary_generic">Cheste aplicazion e rivarà a sincronizâ informazions, come il non di cualchidun che al clame, tra il to telefon e il dispositîf sielt</string>
+    <string name="consent_yes">Permet</string>
+    <string name="consent_no">No sta permeti</string>
+    <string name="consent_cancel">Anule</string>
+    <string name="consent_back">Indaûr</string>
+    <string name="permission_expand">Slargjâ <xliff:g id="permission_type" example="Notification">%1$s</xliff:g></string>
+    <string name="permission_collapse">Strenzi <xliff:g id="permission_type" example="Notification">%1$s</xliff:g></string>
+    <string name="permission_sync_confirmation_title">Dâ aes aplicazions su &lt;strong&gt;<xliff:g id="companion_device_name" example="Galaxy Watch 5">%1$s</xliff:g>&lt;/strong&gt; i stes permès che a àn su &lt;strong&gt;<xliff:g id="primary_device_name" example="Pixel 6">%2$s</xliff:g>&lt;/strong&gt;?</string>
+    <string name="permission_sync_summary">Cheste operazion e podarès includi &lt;strong&gt;Microfon&lt;/strong&gt;, &lt;strong&gt;Fotocjamare&lt;/strong&gt;, &lt;strong&gt;acès ae Posizion&lt;/strong&gt; e altris permès sensibii su &lt;strong&gt;<xliff:g id="companion_device_name" example="My Watch">%1$s</xliff:g>&lt;/strong&gt;. &lt;br/&gt;&lt;br/&gt;Tu puedis cambiâ chescj  permès in cualsisei moment tes Impostazions su &lt;strong&gt;<xliff:g id="companion_device_name" example="My Watch">%1$s</xliff:g>&lt;/strong&gt;.</string>
+    <string name="vendor_header_button_description">Altris informazions</string>
+    <string name="permission_phone">Telefon</string>
+    <string name="permission_sms">SMS</string>
+    <string name="permission_contacts">Contats</string>
+    <string name="permission_calendar">Calendari</string>
+    <string name="permission_microphone">Microfon</string>
+    <string name="permission_call_logs">Regjistris clamadis</string>
+    <string name="permission_nearby_devices">Dispositîfs dongje</string>
+    <string name="permission_media_routing_control">Cambie jessude multimediâl</string>
+    <string name="permission_storage">Fotos e multimedia</string>
+    <string name="permission_notifications">Notifichis</string>
+    <string name="permission_app_streaming">Aplicazions</string>
+    <string name="permission_nearby_device_streaming">Trasmissions</string>
+    <string name="permission_phone_summary">Fâ e gjestî clamadis telefonichis</string>
+    <string name="permission_call_logs_summary">Lei e scrivi il regjistri des clamadis telefonichis</string>
+    <string name="permission_sms_summary">Manda e viodi messaçs SMS</string>
+    <string name="permission_contacts_summary">Acedi ai tiei contats</string>
+    <string name="permission_calendar_summary">Acedi al to calendari</string>
+    <string name="permission_microphone_summary">Regjistrâ audio</string>
+    <string name="permission_nearby_devices_summary">Cjatâ, conetisi e determinâ la posizion relative dai dispositîfs dongje</string>
+    <string name="permission_notification_listener_access_summary">Lei dutis lis notifichis, includudis lis informazions come contats, messaçs e fotos</string>
+    <string name="permission_notifications_summary">\u2022 Lei dutis lis notifichis, includudis lis informazions come i contats, i messaçs e lis fotos&lt;br/&gt;\u2022 Mandâ notifichis&lt;br/&gt;&lt;br/&gt;In cualsisei moment tu puedis gjestî la facoltât di cheste aplicazion di lei e mandâ notifichis in Impostazions &gt; Notifichis.</string>
+    <string name="permission_app_streaming_summary">Trasmet lis aplicazions dal to telefon</string>
+    <string name="permission_nearby_device_streaming_summary">Trasmeti aplicazions e altris funzions di sisteme dal to telefon</string>
+    <string name="permission_media_routing_control_summary">Acedi a une liste di dispositîfs disponibii e controlâ chel che al trasmet audio o video di altris aplicazions</string>
+    <string name="device_type" product="default">telefon</string>
+    <string name="device_type" product="tablet">tablet</string>
+</resources>

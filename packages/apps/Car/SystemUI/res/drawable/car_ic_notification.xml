@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2019 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License
+  -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="@dimen/system_bar_icon_drawing_size"
+        android:height="@dimen/system_bar_icon_drawing_size"
+        android:viewportWidth="40"
+        android:viewportHeight="40">
+    <path
+        android:pathData="M29.8183 28.1819V18.3637C29.8183 13.34 27.151 9.13459 22.4546 8.02186V6.90914C22.4546 5.55095 21.3583 4.45459 20.0001 4.45459C18.6419 4.45459 17.5455 5.55095 17.5455 6.90914V8.02186C12.8655 9.13459 10.1819 13.3237 10.1819 18.3637V28.1819H6.90918V31.4546H23.2728H23.8946H33.091V28.1819H29.8183ZM26.5452 28.1816H13.4543V18.3634C13.4543 14.3052 15.9252 10.9998 19.9997 10.9998C24.0743 10.9998 26.5452 14.3052 26.5452 18.3634V28.1816ZM23.2728 33.0909C23.2728 34.8909 21.8001 36.3636 20.0001 36.3636C18.2001 36.3636 16.7273 34.8909 16.7273 33.0909H23.2728Z"
+        android:fillType="evenOdd"
+        android:fillColor="@color/car_nav_icon_fill_color" />
+</vector>

@@ -1,0 +1,69 @@
+// This is auto-generated. DO NOT EDIT.
+
+package {
+    // A default list here prevents the license LSC from adding its own list which would
+    // be unnecessary as every module in the sdk already has its own licenses property.
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+prebuilt_bootclasspath_fragment {
+    name: "com.android.ipsec-bootclasspath-fragment",
+    prefer: false,
+    visibility: ["//visibility:public"],
+    apex_available: ["com.android.ipsec"],
+    licenses: ["ipsec-module-sdk_Android-Apache-2.0"],
+    contents: ["android.net.ipsec.ike"],
+    hidden_api: {
+        stub_flags: "hiddenapi/stub-flags.csv",
+        annotation_flags: "hiddenapi/annotation-flags.csv",
+        metadata: "hiddenapi/metadata.csv",
+        index: "hiddenapi/index.csv",
+        all_flags: "hiddenapi/all-flags.csv",
+    },
+}
+
+java_sdk_library_import {
+    name: "android.net.ipsec.ike",
+    prefer: false,
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "com.android.ipsec",
+        "test_com.android.ipsec",
+    ],
+    licenses: ["ipsec-module-sdk_Android-Apache-2.0"],
+    shared_library: true,
+    compile_dex: true,
+    permitted_packages: [
+        "com.android.internal.net",
+        "android.net.ipsec.ike",
+        "android.net.eap",
+    ],
+    public: {
+        jars: ["sdk_library/public/android.net.ipsec.ike-stubs.jar"],
+        stub_srcs: ["sdk_library/public/android.net.ipsec.ike.srcjar"],
+        current_api: "sdk_library/public/android.net.ipsec.ike.txt",
+        removed_api: "sdk_library/public/android.net.ipsec.ike-removed.txt",
+        sdk_version: "module_current",
+    },
+    system: {
+        jars: ["sdk_library/system/android.net.ipsec.ike-stubs.jar"],
+        stub_srcs: ["sdk_library/system/android.net.ipsec.ike.srcjar"],
+        current_api: "sdk_library/system/android.net.ipsec.ike.txt",
+        removed_api: "sdk_library/system/android.net.ipsec.ike-removed.txt",
+        sdk_version: "module_current",
+    },
+    module_lib: {
+        jars: ["sdk_library/module-lib/android.net.ipsec.ike-stubs.jar"],
+        stub_srcs: ["sdk_library/module-lib/android.net.ipsec.ike.srcjar"],
+        current_api: "sdk_library/module-lib/android.net.ipsec.ike.txt",
+        removed_api: "sdk_library/module-lib/android.net.ipsec.ike-removed.txt",
+        sdk_version: "module_current",
+    },
+}
+
+license {
+    name: "ipsec-module-sdk_Android-Apache-2.0",
+    visibility: ["//visibility:private"],
+    license_kinds: ["SPDX-license-identifier-Apache-2.0"],
+    license_text: ["licenses/build/soong/licenses/LICENSE"],
+}

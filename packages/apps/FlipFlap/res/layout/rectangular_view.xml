@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  Copyright (c) 2017 The LineageOS Project
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ Also add information on how to contact you by electronic and paper mail.
+
+-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_marginTop="@dimen/rectangular_window_top"
+    android:layout_marginLeft="@dimen/rectangular_window_left"
+    android:layout_width="@dimen/rectangular_window_width"
+    android:layout_height="@dimen/rectangular_window_height"
+    android:layout_gravity="left">
+
+    <org.lineageos.flipflap.RectangularBatteryView
+        android:id="@+id/rectangular_battery"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|top" />
+
+    <include layout="@layout/clock_panel"
+        android:id="@+id/clock_panel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal" />
+
+    <LinearLayout
+        android:id="@+id/date_next_alarm_panel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layoutDirection="ltr"
+        android:layout_below="@id/clock_panel"
+        android:gravity="center" >
+
+        <include layout="@layout/date_panel"
+            android:id="@+id/date_panel"
+            android:layout_below="@id/clock_panel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center" />
+
+        <include layout="@layout/next_alarm_panel"
+            android:id="@+id/next_alarm_panel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center" />
+    </LinearLayout>
+
+    <include layout="@layout/alarm_panel"
+        android:id="@+id/alarm_panel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="5dp"
+        android:layout_below="@id/date_next_alarm_panel"
+        android:visibility="gone"/>
+
+    <include layout="@layout/phone_panel"
+        android:id="@+id/phone_panel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_below="@id/date_next_alarm_panel"
+        android:visibility="gone"/>
+</RelativeLayout>

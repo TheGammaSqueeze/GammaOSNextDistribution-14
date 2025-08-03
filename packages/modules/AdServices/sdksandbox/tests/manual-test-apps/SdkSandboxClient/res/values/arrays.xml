@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+    <!-- Text for the options. -->
+    <array name="banner_view_type">
+        <item>Random colour</item>
+        <item>Inflated from layout</item>
+        <item>Video</item>
+        <item>Webview</item>
+        <item>Ad Refresh</item>
+        <item>EditText</item>
+    </array>
+    <array name="banner_on_click">
+        <item>Open Chrome</item>
+        <item>Open Package</item>
+    </array>
+    <array name="banner_placement">
+        <item>Bottom of screen</item>
+        <item>In Scroll View</item>
+    </array>
+    <array name="banner_ad_size">
+        <item>Small</item>
+        <item>Medium</item>
+        <item>Large</item>
+    </array>
+    <!-- Values for the options, matching the enum names. -->
+    <array name="banner_view_type_values">
+        <item>RANDOM_COLOUR</item>
+        <item>INFLATED</item>
+        <item>VIDEO</item>
+        <item>WEBVIEW</item>
+        <item>AD_REFRESH</item>
+        <item>EDITTEXT</item>
+    </array>
+    <array name="banner_on_click_values">
+        <item>OPEN_CHROME</item>
+        <item>OPEN_PACKAGE</item>
+    </array>
+    <array name="banner_placement_values">
+        <item>BOTTOM</item>
+        <item>SCROLL_VIEW</item>
+    </array>
+    <array name="banner_ad_size_values">
+        <item>SMALL</item>
+        <item>MEDIUM</item>
+        <item>LARGE</item>
+    </array>
+</resources>

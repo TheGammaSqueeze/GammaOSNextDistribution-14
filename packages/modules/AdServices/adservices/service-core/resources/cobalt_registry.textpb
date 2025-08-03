@@ -1,0 +1,2180 @@
+# Copyright 2023 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+################################################################################
+# NOTE: This file is used by the Cobalt client and the Cobalt servers.
+# The source-of-truth of this file is located in Google's internsl code
+# repository, and the file is copied to Android where it is used by the Cobalt
+# client. Do not edit the copy of this file in this Android repo as those edits
+# will be overwritten when the file is next copied.
+#
+# Additionally, code which translates AdServices concepts, e.g., topics, to
+# Cobalt event codes may need to be updated when the registry changes.
+# Dependencies include, but may not be limited to:
+# * adservices/service-core/java/com/android/adservices/service/topics/cobalt/TopicsCobaltLogger.java
+################################################################################
+customers {
+  customer_name: "privacy_sandbox"
+  customer_id: 200004
+  projects {
+    project_name: "adservices"
+    project_id: 2
+    metrics {
+      metric_name: "returned_topics"
+      customer_id: 200004
+      project_id: 2
+      id: 1
+      metric_type: OCCURRENCE
+      time_zone_policy: OTHER_TIME_ZONE
+      meta_data {
+        expiration_date: "2024/06/01"
+        max_release_stage: GA
+      }
+      reports {
+        report_name: "fleetwide_counts_true"
+        id: 1
+        report_type: FLEETWIDE_OCCURRENCE_COUNTS
+        privacy_level: NO_ADDED_PRIVACY
+        event_vector_buffer_max: 18
+        reporting_interval: DAYS_1
+        system_profile_selection: REPORT_ALL
+        max_release_stage: DEBUG
+        privacy_mechanism: DE_IDENTIFICATION
+      }
+      reports {
+        report_name: "fleetwide_counts_noisy"
+        id: 2
+        report_type: FLEETWIDE_OCCURRENCE_COUNTS
+        reporting_threshold: 1
+        privacy_level: LOW_PRIVACY
+        num_index_points: 10
+        min_value: 1
+        max_value: 100
+        event_vector_buffer_max: 18
+        poisson_mean: 0.1
+        reporting_interval: DAYS_1
+        system_profile_selection: REPORT_ALL
+        max_release_stage: DEBUG
+        privacy_mechanism: SHUFFLED_DIFFERENTIAL_PRIVACY
+        shuffled_dp {
+          epsilon: 1
+          delta: 0.9
+          reporting_threshold: 1
+          poisson_mean: 0.1
+        }
+      }
+      reports {
+        report_name: "fleetwide_counts_1m"
+        id: 3
+        report_type: FLEETWIDE_OCCURRENCE_COUNTS
+        reporting_threshold: 1000000
+        privacy_level: HIGH_PRIVACY
+        num_index_points: 49
+        min_value: 1
+        max_value: 100
+        event_vector_buffer_max: 18
+        poisson_mean: 0.00124512
+        reporting_interval: DAYS_1
+        system_profile_selection: REPORT_ALL
+        privacy_mechanism: SHUFFLED_DIFFERENTIAL_PRIVACY
+        shuffled_dp {
+          epsilon: 1
+          delta: 1e-10
+          reporting_threshold: 1000000
+          poisson_mean: 0.00124512
+        }
+      }
+      reports {
+        report_name: "fleetwide_counts_10m"
+        id: 4
+        report_type: FLEETWIDE_OCCURRENCE_COUNTS
+        reporting_threshold: 10000000
+        privacy_level: HIGH_PRIVACY
+        num_index_points: 49
+        min_value: 1
+        max_value: 100
+        event_vector_buffer_max: 18
+        poisson_mean: 0.000124512
+        reporting_interval: DAYS_1
+        system_profile_selection: REPORT_ALL
+        privacy_mechanism: SHUFFLED_DIFFERENTIAL_PRIVACY
+        shuffled_dp {
+          epsilon: 1
+          delta: 1e-10
+          reporting_threshold: 10000000
+          poisson_mean: 0.000124512
+        }
+      }
+      reports {
+        report_name: "fleetwide_counts_dogfood"
+        id: 5
+        report_type: FLEETWIDE_OCCURRENCE_COUNTS
+        reporting_threshold: 2
+        privacy_level: LOW_PRIVACY
+        num_index_points: 25
+        min_value: 1
+        max_value: 25
+        event_vector_buffer_max: 18
+        poisson_mean: 0.002
+        reporting_interval: DAYS_1
+        system_profile_selection: REPORT_ALL
+        max_release_stage: DOGFOOD
+        privacy_mechanism: SHUFFLED_DIFFERENTIAL_PRIVACY
+        shuffled_dp {
+          epsilon: 1
+          delta: 0.8187
+          reporting_threshold: 2
+          poisson_mean: 0.002
+        }
+      }
+      metric_dimensions {
+        dimension: "topic"
+        event_codes {
+          key: 0
+          value: "UNKNOWN"
+        }
+        event_codes {
+          key: 1
+          value: "t10001"
+        }
+        event_codes {
+          key: 2
+          value: "t10002"
+        }
+        event_codes {
+          key: 3
+          value: "t10003"
+        }
+        event_codes {
+          key: 4
+          value: "t10004"
+        }
+        event_codes {
+          key: 5
+          value: "t10005"
+        }
+        event_codes {
+          key: 6
+          value: "t10006"
+        }
+        event_codes {
+          key: 7
+          value: "t10007"
+        }
+        event_codes {
+          key: 8
+          value: "t10008"
+        }
+        event_codes {
+          key: 9
+          value: "t10009"
+        }
+        event_codes {
+          key: 10
+          value: "t10010"
+        }
+        event_codes {
+          key: 11
+          value: "t10011"
+        }
+        event_codes {
+          key: 12
+          value: "t10012"
+        }
+        event_codes {
+          key: 13
+          value: "t10013"
+        }
+        event_codes {
+          key: 14
+          value: "t10014"
+        }
+        event_codes {
+          key: 15
+          value: "t10015"
+        }
+        event_codes {
+          key: 16
+          value: "t10016"
+        }
+        event_codes {
+          key: 17
+          value: "t10017"
+        }
+        event_codes {
+          key: 18
+          value: "t10018"
+        }
+        event_codes {
+          key: 19
+          value: "t10019"
+        }
+        event_codes {
+          key: 20
+          value: "t10020"
+        }
+        event_codes {
+          key: 21
+          value: "t10021"
+        }
+        event_codes {
+          key: 22
+          value: "t10022"
+        }
+        event_codes {
+          key: 23
+          value: "t10023"
+        }
+        event_codes {
+          key: 24
+          value: "t10024"
+        }
+        event_codes {
+          key: 25
+          value: "t10025"
+        }
+        event_codes {
+          key: 26
+          value: "t10026"
+        }
+        event_codes {
+          key: 27
+          value: "t10027"
+        }
+        event_codes {
+          key: 28
+          value: "t10028"
+        }
+        event_codes {
+          key: 29
+          value: "t10029"
+        }
+        event_codes {
+          key: 30
+          value: "t10030"
+        }
+        event_codes {
+          key: 31
+          value: "t10031"
+        }
+        event_codes {
+          key: 32
+          value: "t10032"
+        }
+        event_codes {
+          key: 33
+          value: "t10033"
+        }
+        event_codes {
+          key: 34
+          value: "t10034"
+        }
+        event_codes {
+          key: 35
+          value: "t10035"
+        }
+        event_codes {
+          key: 36
+          value: "t10036"
+        }
+        event_codes {
+          key: 37
+          value: "t10037"
+        }
+        event_codes {
+          key: 38
+          value: "t10038"
+        }
+        event_codes {
+          key: 39
+          value: "t10039"
+        }
+        event_codes {
+          key: 40
+          value: "t10040"
+        }
+        event_codes {
+          key: 41
+          value: "t10041"
+        }
+        event_codes {
+          key: 42
+          value: "t10042"
+        }
+        event_codes {
+          key: 43
+          value: "t10043"
+        }
+        event_codes {
+          key: 44
+          value: "t10044"
+        }
+        event_codes {
+          key: 45
+          value: "t10045"
+        }
+        event_codes {
+          key: 46
+          value: "t10046"
+        }
+        event_codes {
+          key: 47
+          value: "t10047"
+        }
+        event_codes {
+          key: 48
+          value: "t10048"
+        }
+        event_codes {
+          key: 49
+          value: "t10049"
+        }
+        event_codes {
+          key: 50
+          value: "t10050"
+        }
+        event_codes {
+          key: 51
+          value: "t10051"
+        }
+        event_codes {
+          key: 52
+          value: "t10052"
+        }
+        event_codes {
+          key: 53
+          value: "t10053"
+        }
+        event_codes {
+          key: 54
+          value: "t10054"
+        }
+        event_codes {
+          key: 55
+          value: "t10055"
+        }
+        event_codes {
+          key: 56
+          value: "t10056"
+        }
+        event_codes {
+          key: 57
+          value: "t10057"
+        }
+        event_codes {
+          key: 58
+          value: "t10058"
+        }
+        event_codes {
+          key: 59
+          value: "t10059"
+        }
+        event_codes {
+          key: 60
+          value: "t10060"
+        }
+        event_codes {
+          key: 61
+          value: "t10061"
+        }
+        event_codes {
+          key: 62
+          value: "t10062"
+        }
+        event_codes {
+          key: 63
+          value: "t10063"
+        }
+        event_codes {
+          key: 64
+          value: "t10064"
+        }
+        event_codes {
+          key: 65
+          value: "t10065"
+        }
+        event_codes {
+          key: 66
+          value: "t10066"
+        }
+        event_codes {
+          key: 67
+          value: "t10067"
+        }
+        event_codes {
+          key: 68
+          value: "t10068"
+        }
+        event_codes {
+          key: 69
+          value: "t10069"
+        }
+        event_codes {
+          key: 70
+          value: "t10070"
+        }
+        event_codes {
+          key: 71
+          value: "t10071"
+        }
+        event_codes {
+          key: 72
+          value: "t10072"
+        }
+        event_codes {
+          key: 73
+          value: "t10073"
+        }
+        event_codes {
+          key: 74
+          value: "t10074"
+        }
+        event_codes {
+          key: 75
+          value: "t10075"
+        }
+        event_codes {
+          key: 76
+          value: "t10076"
+        }
+        event_codes {
+          key: 77
+          value: "t10077"
+        }
+        event_codes {
+          key: 78
+          value: "t10078"
+        }
+        event_codes {
+          key: 79
+          value: "t10079"
+        }
+        event_codes {
+          key: 80
+          value: "t10080"
+        }
+        event_codes {
+          key: 81
+          value: "t10081"
+        }
+        event_codes {
+          key: 82
+          value: "t10082"
+        }
+        event_codes {
+          key: 83
+          value: "t10083"
+        }
+        event_codes {
+          key: 84
+          value: "t10084"
+        }
+        event_codes {
+          key: 85
+          value: "t10085"
+        }
+        event_codes {
+          key: 86
+          value: "t10086"
+        }
+        event_codes {
+          key: 87
+          value: "t10087"
+        }
+        event_codes {
+          key: 88
+          value: "t10088"
+        }
+        event_codes {
+          key: 89
+          value: "t10089"
+        }
+        event_codes {
+          key: 90
+          value: "t10090"
+        }
+        event_codes {
+          key: 91
+          value: "t10091"
+        }
+        event_codes {
+          key: 92
+          value: "t10092"
+        }
+        event_codes {
+          key: 93
+          value: "t10093"
+        }
+        event_codes {
+          key: 94
+          value: "t10094"
+        }
+        event_codes {
+          key: 95
+          value: "t10095"
+        }
+        event_codes {
+          key: 96
+          value: "t10096"
+        }
+        event_codes {
+          key: 97
+          value: "t10097"
+        }
+        event_codes {
+          key: 98
+          value: "t10098"
+        }
+        event_codes {
+          key: 99
+          value: "t10099"
+        }
+        event_codes {
+          key: 100
+          value: "t10100"
+        }
+        event_codes {
+          key: 101
+          value: "t10101"
+        }
+        event_codes {
+          key: 102
+          value: "t10102"
+        }
+        event_codes {
+          key: 103
+          value: "t10103"
+        }
+        event_codes {
+          key: 104
+          value: "t10104"
+        }
+        event_codes {
+          key: 105
+          value: "t10105"
+        }
+        event_codes {
+          key: 106
+          value: "t10106"
+        }
+        event_codes {
+          key: 107
+          value: "t10107"
+        }
+        event_codes {
+          key: 108
+          value: "t10108"
+        }
+        event_codes {
+          key: 109
+          value: "t10109"
+        }
+        event_codes {
+          key: 110
+          value: "t10110"
+        }
+        event_codes {
+          key: 111
+          value: "t10111"
+        }
+        event_codes {
+          key: 112
+          value: "t10112"
+        }
+        event_codes {
+          key: 113
+          value: "t10113"
+        }
+        event_codes {
+          key: 114
+          value: "t10114"
+        }
+        event_codes {
+          key: 115
+          value: "t10115"
+        }
+        event_codes {
+          key: 116
+          value: "t10116"
+        }
+        event_codes {
+          key: 117
+          value: "t10117"
+        }
+        event_codes {
+          key: 118
+          value: "t10118"
+        }
+        event_codes {
+          key: 119
+          value: "t10119"
+        }
+        event_codes {
+          key: 120
+          value: "t10120"
+        }
+        event_codes {
+          key: 121
+          value: "t10121"
+        }
+        event_codes {
+          key: 122
+          value: "t10122"
+        }
+        event_codes {
+          key: 123
+          value: "t10123"
+        }
+        event_codes {
+          key: 124
+          value: "t10124"
+        }
+        event_codes {
+          key: 125
+          value: "t10125"
+        }
+        event_codes {
+          key: 126
+          value: "t10126"
+        }
+        event_codes {
+          key: 127
+          value: "t10127"
+        }
+        event_codes {
+          key: 128
+          value: "t10128"
+        }
+        event_codes {
+          key: 129
+          value: "t10129"
+        }
+        event_codes {
+          key: 130
+          value: "t10130"
+        }
+        event_codes {
+          key: 131
+          value: "t10131"
+        }
+        event_codes {
+          key: 132
+          value: "t10132"
+        }
+        event_codes {
+          key: 133
+          value: "t10133"
+        }
+        event_codes {
+          key: 134
+          value: "t10134"
+        }
+        event_codes {
+          key: 135
+          value: "t10135"
+        }
+        event_codes {
+          key: 136
+          value: "t10136"
+        }
+        event_codes {
+          key: 137
+          value: "t10137"
+        }
+        event_codes {
+          key: 138
+          value: "t10138"
+        }
+        event_codes {
+          key: 139
+          value: "t10139"
+        }
+        event_codes {
+          key: 140
+          value: "t10140"
+        }
+        event_codes {
+          key: 141
+          value: "t10141"
+        }
+        event_codes {
+          key: 142
+          value: "t10142"
+        }
+        event_codes {
+          key: 143
+          value: "t10143"
+        }
+        event_codes {
+          key: 144
+          value: "t10144"
+        }
+        event_codes {
+          key: 145
+          value: "t10145"
+        }
+        event_codes {
+          key: 146
+          value: "t10146"
+        }
+        event_codes {
+          key: 147
+          value: "t10147"
+        }
+        event_codes {
+          key: 148
+          value: "t10148"
+        }
+        event_codes {
+          key: 149
+          value: "t10149"
+        }
+        event_codes {
+          key: 150
+          value: "t10150"
+        }
+        event_codes {
+          key: 151
+          value: "t10151"
+        }
+        event_codes {
+          key: 152
+          value: "t10152"
+        }
+        event_codes {
+          key: 153
+          value: "t10153"
+        }
+        event_codes {
+          key: 154
+          value: "t10154"
+        }
+        event_codes {
+          key: 155
+          value: "t10155"
+        }
+        event_codes {
+          key: 156
+          value: "t10156"
+        }
+        event_codes {
+          key: 157
+          value: "t10157"
+        }
+        event_codes {
+          key: 158
+          value: "t10158"
+        }
+        event_codes {
+          key: 159
+          value: "t10159"
+        }
+        event_codes {
+          key: 160
+          value: "t10160"
+        }
+        event_codes {
+          key: 161
+          value: "t10161"
+        }
+        event_codes {
+          key: 162
+          value: "t10162"
+        }
+        event_codes {
+          key: 163
+          value: "t10163"
+        }
+        event_codes {
+          key: 164
+          value: "t10164"
+        }
+        event_codes {
+          key: 165
+          value: "t10165"
+        }
+        event_codes {
+          key: 166
+          value: "t10166"
+        }
+        event_codes {
+          key: 167
+          value: "t10167"
+        }
+        event_codes {
+          key: 168
+          value: "t10168"
+        }
+        event_codes {
+          key: 169
+          value: "t10169"
+        }
+        event_codes {
+          key: 170
+          value: "t10170"
+        }
+        event_codes {
+          key: 171
+          value: "t10171"
+        }
+        event_codes {
+          key: 172
+          value: "t10172"
+        }
+        event_codes {
+          key: 173
+          value: "t10173"
+        }
+        event_codes {
+          key: 174
+          value: "t10174"
+        }
+        event_codes {
+          key: 175
+          value: "t10175"
+        }
+        event_codes {
+          key: 176
+          value: "t10176"
+        }
+        event_codes {
+          key: 177
+          value: "t10177"
+        }
+        event_codes {
+          key: 178
+          value: "t10178"
+        }
+        event_codes {
+          key: 179
+          value: "t10179"
+        }
+        event_codes {
+          key: 180
+          value: "t10180"
+        }
+        event_codes {
+          key: 181
+          value: "t10181"
+        }
+        event_codes {
+          key: 182
+          value: "t10182"
+        }
+        event_codes {
+          key: 183
+          value: "t10183"
+        }
+        event_codes {
+          key: 184
+          value: "t10184"
+        }
+        event_codes {
+          key: 185
+          value: "t10185"
+        }
+        event_codes {
+          key: 186
+          value: "t10186"
+        }
+        event_codes {
+          key: 187
+          value: "t10187"
+        }
+        event_codes {
+          key: 188
+          value: "t10188"
+        }
+        event_codes {
+          key: 189
+          value: "t10189"
+        }
+        event_codes {
+          key: 190
+          value: "t10190"
+        }
+        event_codes {
+          key: 191
+          value: "t10191"
+        }
+        event_codes {
+          key: 192
+          value: "t10192"
+        }
+        event_codes {
+          key: 193
+          value: "t10193"
+        }
+        event_codes {
+          key: 194
+          value: "t10194"
+        }
+        event_codes {
+          key: 195
+          value: "t10195"
+        }
+        event_codes {
+          key: 196
+          value: "t10196"
+        }
+        event_codes {
+          key: 197
+          value: "t10197"
+        }
+        event_codes {
+          key: 198
+          value: "t10198"
+        }
+        event_codes {
+          key: 199
+          value: "t10199"
+        }
+        event_codes {
+          key: 200
+          value: "t10200"
+        }
+        event_codes {
+          key: 201
+          value: "t10201"
+        }
+        event_codes {
+          key: 202
+          value: "t10202"
+        }
+        event_codes {
+          key: 203
+          value: "t10203"
+        }
+        event_codes {
+          key: 204
+          value: "t10204"
+        }
+        event_codes {
+          key: 205
+          value: "t10205"
+        }
+        event_codes {
+          key: 206
+          value: "t10206"
+        }
+        event_codes {
+          key: 207
+          value: "t10207"
+        }
+        event_codes {
+          key: 208
+          value: "t10208"
+        }
+        event_codes {
+          key: 209
+          value: "t10209"
+        }
+        event_codes {
+          key: 210
+          value: "t10210"
+        }
+        event_codes {
+          key: 211
+          value: "t10211"
+        }
+        event_codes {
+          key: 212
+          value: "t10212"
+        }
+        event_codes {
+          key: 213
+          value: "t10213"
+        }
+        event_codes {
+          key: 214
+          value: "t10214"
+        }
+        event_codes {
+          key: 215
+          value: "t10215"
+        }
+        event_codes {
+          key: 216
+          value: "t10216"
+        }
+        event_codes {
+          key: 217
+          value: "t10217"
+        }
+        event_codes {
+          key: 218
+          value: "t10218"
+        }
+        event_codes {
+          key: 219
+          value: "t10219"
+        }
+        event_codes {
+          key: 220
+          value: "t10220"
+        }
+        event_codes {
+          key: 221
+          value: "t10221"
+        }
+        event_codes {
+          key: 222
+          value: "t10222"
+        }
+        event_codes {
+          key: 223
+          value: "t10223"
+        }
+        event_codes {
+          key: 224
+          value: "t10224"
+        }
+        event_codes {
+          key: 225
+          value: "t10225"
+        }
+        event_codes {
+          key: 226
+          value: "t10226"
+        }
+        event_codes {
+          key: 227
+          value: "t10227"
+        }
+        event_codes {
+          key: 228
+          value: "t10228"
+        }
+        event_codes {
+          key: 229
+          value: "t10229"
+        }
+        event_codes {
+          key: 230
+          value: "t10230"
+        }
+        event_codes {
+          key: 231
+          value: "t10231"
+        }
+        event_codes {
+          key: 232
+          value: "t10232"
+        }
+        event_codes {
+          key: 233
+          value: "t10233"
+        }
+        event_codes {
+          key: 234
+          value: "t10234"
+        }
+        event_codes {
+          key: 235
+          value: "t10235"
+        }
+        event_codes {
+          key: 236
+          value: "t10236"
+        }
+        event_codes {
+          key: 237
+          value: "t10237"
+        }
+        event_codes {
+          key: 238
+          value: "t10238"
+        }
+        event_codes {
+          key: 239
+          value: "t10239"
+        }
+        event_codes {
+          key: 240
+          value: "t10240"
+        }
+        event_codes {
+          key: 241
+          value: "t10241"
+        }
+        event_codes {
+          key: 242
+          value: "t10242"
+        }
+        event_codes {
+          key: 243
+          value: "t10243"
+        }
+        event_codes {
+          key: 244
+          value: "t10244"
+        }
+        event_codes {
+          key: 245
+          value: "t10245"
+        }
+        event_codes {
+          key: 246
+          value: "t10246"
+        }
+        event_codes {
+          key: 247
+          value: "t10247"
+        }
+        event_codes {
+          key: 248
+          value: "t10248"
+        }
+        event_codes {
+          key: 249
+          value: "t10249"
+        }
+        event_codes {
+          key: 250
+          value: "t10250"
+        }
+        event_codes {
+          key: 251
+          value: "t10251"
+        }
+        event_codes {
+          key: 252
+          value: "t10252"
+        }
+        event_codes {
+          key: 253
+          value: "t10253"
+        }
+        event_codes {
+          key: 254
+          value: "t10254"
+        }
+        event_codes {
+          key: 255
+          value: "t10255"
+        }
+        event_codes {
+          key: 256
+          value: "t10256"
+        }
+        event_codes {
+          key: 257
+          value: "t10257"
+        }
+        event_codes {
+          key: 258
+          value: "t10258"
+        }
+        event_codes {
+          key: 259
+          value: "t10259"
+        }
+        event_codes {
+          key: 260
+          value: "t10260"
+        }
+        event_codes {
+          key: 261
+          value: "t10261"
+        }
+        event_codes {
+          key: 262
+          value: "t10262"
+        }
+        event_codes {
+          key: 263
+          value: "t10263"
+        }
+        event_codes {
+          key: 264
+          value: "t10264"
+        }
+        event_codes {
+          key: 265
+          value: "t10265"
+        }
+        event_codes {
+          key: 266
+          value: "t10266"
+        }
+        event_codes {
+          key: 267
+          value: "t10267"
+        }
+        event_codes {
+          key: 268
+          value: "t10268"
+        }
+        event_codes {
+          key: 269
+          value: "t10269"
+        }
+        event_codes {
+          key: 270
+          value: "t10270"
+        }
+        event_codes {
+          key: 271
+          value: "t10271"
+        }
+        event_codes {
+          key: 272
+          value: "t10272"
+        }
+        event_codes {
+          key: 273
+          value: "t10273"
+        }
+        event_codes {
+          key: 274
+          value: "t10274"
+        }
+        event_codes {
+          key: 275
+          value: "t10275"
+        }
+        event_codes {
+          key: 276
+          value: "t10276"
+        }
+        event_codes {
+          key: 277
+          value: "t10277"
+        }
+        event_codes {
+          key: 278
+          value: "t10278"
+        }
+        event_codes {
+          key: 279
+          value: "t10279"
+        }
+        event_codes {
+          key: 280
+          value: "t10280"
+        }
+        event_codes {
+          key: 281
+          value: "t10281"
+        }
+        event_codes {
+          key: 282
+          value: "t10282"
+        }
+        event_codes {
+          key: 283
+          value: "t10283"
+        }
+        event_codes {
+          key: 284
+          value: "t10284"
+        }
+        event_codes {
+          key: 285
+          value: "t10285"
+        }
+        event_codes {
+          key: 286
+          value: "t10286"
+        }
+        event_codes {
+          key: 287
+          value: "t10287"
+        }
+        event_codes {
+          key: 288
+          value: "t10288"
+        }
+        event_codes {
+          key: 289
+          value: "t10289"
+        }
+        event_codes {
+          key: 290
+          value: "t10290"
+        }
+        event_codes {
+          key: 291
+          value: "t10291"
+        }
+        event_codes {
+          key: 292
+          value: "t10292"
+        }
+        event_codes {
+          key: 293
+          value: "t10293"
+        }
+        event_codes {
+          key: 294
+          value: "t10294"
+        }
+        event_codes {
+          key: 295
+          value: "t10295"
+        }
+        event_codes {
+          key: 296
+          value: "t10296"
+        }
+        event_codes {
+          key: 297
+          value: "t10297"
+        }
+        event_codes {
+          key: 298
+          value: "t10298"
+        }
+        event_codes {
+          key: 299
+          value: "t10299"
+        }
+        event_codes {
+          key: 300
+          value: "t10300"
+        }
+        event_codes {
+          key: 301
+          value: "t10301"
+        }
+        event_codes {
+          key: 302
+          value: "t10302"
+        }
+        event_codes {
+          key: 303
+          value: "t10303"
+        }
+        event_codes {
+          key: 304
+          value: "t10304"
+        }
+        event_codes {
+          key: 305
+          value: "t10305"
+        }
+        event_codes {
+          key: 306
+          value: "t10306"
+        }
+        event_codes {
+          key: 307
+          value: "t10307"
+        }
+        event_codes {
+          key: 308
+          value: "t10308"
+        }
+        event_codes {
+          key: 309
+          value: "t10309"
+        }
+        event_codes {
+          key: 310
+          value: "t10310"
+        }
+        event_codes {
+          key: 311
+          value: "t10311"
+        }
+        event_codes {
+          key: 312
+          value: "t10312"
+        }
+        event_codes {
+          key: 313
+          value: "t10313"
+        }
+        event_codes {
+          key: 314
+          value: "t10314"
+        }
+        event_codes {
+          key: 315
+          value: "t10315"
+        }
+        event_codes {
+          key: 316
+          value: "t10316"
+        }
+        event_codes {
+          key: 317
+          value: "t10317"
+        }
+        event_codes {
+          key: 318
+          value: "t10318"
+        }
+        event_codes {
+          key: 319
+          value: "t10319"
+        }
+        event_codes {
+          key: 320
+          value: "t10320"
+        }
+        event_codes {
+          key: 321
+          value: "t10321"
+        }
+        event_codes {
+          key: 322
+          value: "t10322"
+        }
+        event_codes {
+          key: 323
+          value: "t10323"
+        }
+        event_codes {
+          key: 324
+          value: "t10324"
+        }
+        event_codes {
+          key: 325
+          value: "t10325"
+        }
+        event_codes {
+          key: 326
+          value: "t10326"
+        }
+        event_codes {
+          key: 327
+          value: "t10327"
+        }
+        event_codes {
+          key: 328
+          value: "t10328"
+        }
+        event_codes {
+          key: 329
+          value: "t10329"
+        }
+        event_codes {
+          key: 330
+          value: "t10330"
+        }
+        event_codes {
+          key: 331
+          value: "t10331"
+        }
+        event_codes {
+          key: 332
+          value: "t10332"
+        }
+        event_codes {
+          key: 333
+          value: "t10333"
+        }
+        event_codes {
+          key: 334
+          value: "t10334"
+        }
+        event_codes {
+          key: 335
+          value: "t10335"
+        }
+        event_codes {
+          key: 336
+          value: "t10336"
+        }
+        event_codes {
+          key: 337
+          value: "t10337"
+        }
+        event_codes {
+          key: 338
+          value: "t10338"
+        }
+        event_codes {
+          key: 339
+          value: "t10339"
+        }
+        event_codes {
+          key: 340
+          value: "t10340"
+        }
+        event_codes {
+          key: 341
+          value: "t10341"
+        }
+        event_codes {
+          key: 342
+          value: "t10342"
+        }
+        event_codes {
+          key: 343
+          value: "t10343"
+        }
+        event_codes {
+          key: 344
+          value: "t10344"
+        }
+        event_codes {
+          key: 345
+          value: "t10345"
+        }
+        event_codes {
+          key: 346
+          value: "t10346"
+        }
+        event_codes {
+          key: 347
+          value: "t10347"
+        }
+        event_codes {
+          key: 348
+          value: "t10348"
+        }
+        event_codes {
+          key: 349
+          value: "t10349"
+        }
+        event_codes {
+          key: 350
+          value: "t10350"
+        }
+        event_codes {
+          key: 351
+          value: "t10351"
+        }
+        event_codes {
+          key: 352
+          value: "t10352"
+        }
+        event_codes {
+          key: 353
+          value: "t10353"
+        }
+        event_codes {
+          key: 354
+          value: "t10354"
+        }
+        event_codes {
+          key: 355
+          value: "t10355"
+        }
+        event_codes {
+          key: 356
+          value: "t10356"
+        }
+        event_codes {
+          key: 357
+          value: "t10357"
+        }
+        event_codes {
+          key: 358
+          value: "t10358"
+        }
+        event_codes {
+          key: 359
+          value: "t10359"
+        }
+        event_codes {
+          key: 360
+          value: "t10360"
+        }
+        event_codes {
+          key: 361
+          value: "t10361"
+        }
+        event_codes {
+          key: 362
+          value: "t10362"
+        }
+        event_codes {
+          key: 363
+          value: "t10363"
+        }
+        event_codes {
+          key: 364
+          value: "t10364"
+        }
+        event_codes {
+          key: 365
+          value: "t10365"
+        }
+        event_codes {
+          key: 366
+          value: "t10366"
+        }
+        event_codes {
+          key: 367
+          value: "t10367"
+        }
+        event_codes {
+          key: 368
+          value: "t10368"
+        }
+        event_codes {
+          key: 369
+          value: "t10369"
+        }
+        event_codes {
+          key: 370
+          value: "t10370"
+        }
+        event_codes {
+          key: 371
+          value: "t10371"
+        }
+        event_codes {
+          key: 372
+          value: "t10372"
+        }
+        event_codes {
+          key: 373
+          value: "t10373"
+        }
+        event_codes {
+          key: 374
+          value: "t10374"
+        }
+        event_codes {
+          key: 375
+          value: "t10375"
+        }
+        event_codes {
+          key: 376
+          value: "t10376"
+        }
+        event_codes {
+          key: 377
+          value: "t10377"
+        }
+        event_codes {
+          key: 378
+          value: "t10378"
+        }
+        event_codes {
+          key: 379
+          value: "t10379"
+        }
+        event_codes {
+          key: 380
+          value: "t10380"
+        }
+        event_codes {
+          key: 381
+          value: "t10381"
+        }
+        event_codes {
+          key: 382
+          value: "t10382"
+        }
+        event_codes {
+          key: 383
+          value: "t10383"
+        }
+        event_codes {
+          key: 384
+          value: "t10384"
+        }
+        event_codes {
+          key: 385
+          value: "t10385"
+        }
+        event_codes {
+          key: 386
+          value: "t10386"
+        }
+        event_codes {
+          key: 387
+          value: "t10387"
+        }
+        event_codes {
+          key: 388
+          value: "t10388"
+        }
+        event_codes {
+          key: 389
+          value: "t10389"
+        }
+        event_codes {
+          key: 390
+          value: "t10390"
+        }
+        event_codes {
+          key: 391
+          value: "t10391"
+        }
+        event_codes {
+          key: 392
+          value: "t10392"
+        }
+        event_codes {
+          key: 393
+          value: "t10393"
+        }
+        event_codes {
+          key: 394
+          value: "t10394"
+        }
+        event_codes {
+          key: 395
+          value: "t10395"
+        }
+        event_codes {
+          key: 396
+          value: "t10396"
+        }
+        event_codes {
+          key: 397
+          value: "t10397"
+        }
+        event_codes {
+          key: 398
+          value: "t10398"
+        }
+        event_codes {
+          key: 399
+          value: "t10399"
+        }
+        event_codes {
+          key: 400
+          value: "t10400"
+        }
+        event_codes {
+          key: 401
+          value: "t10401"
+        }
+        event_codes {
+          key: 402
+          value: "t10402"
+        }
+        event_codes {
+          key: 403
+          value: "t10403"
+        }
+        event_codes {
+          key: 404
+          value: "t10404"
+        }
+        event_codes {
+          key: 405
+          value: "t10405"
+        }
+        event_codes {
+          key: 406
+          value: "t10406"
+        }
+        event_codes {
+          key: 407
+          value: "t10407"
+        }
+        event_codes {
+          key: 408
+          value: "t10408"
+        }
+        event_codes {
+          key: 409
+          value: "t10409"
+        }
+        event_codes {
+          key: 410
+          value: "t10410"
+        }
+        event_codes {
+          key: 411
+          value: "t10411"
+        }
+        event_codes {
+          key: 412
+          value: "t10412"
+        }
+        event_codes {
+          key: 413
+          value: "t10413"
+        }
+        event_codes {
+          key: 414
+          value: "t10414"
+        }
+        event_codes {
+          key: 415
+          value: "t10415"
+        }
+        event_codes {
+          key: 416
+          value: "t10416"
+        }
+        event_codes {
+          key: 417
+          value: "t10417"
+        }
+        event_codes {
+          key: 418
+          value: "t10418"
+        }
+        event_codes {
+          key: 419
+          value: "t10419"
+        }
+        event_codes {
+          key: 420
+          value: "t10420"
+        }
+        event_codes {
+          key: 421
+          value: "t10421"
+        }
+        event_codes {
+          key: 422
+          value: "t10422"
+        }
+        event_codes {
+          key: 423
+          value: "t10423"
+        }
+        event_codes {
+          key: 424
+          value: "t10424"
+        }
+        event_codes {
+          key: 425
+          value: "t10425"
+        }
+        event_codes {
+          key: 426
+          value: "t10426"
+        }
+        event_codes {
+          key: 427
+          value: "t10427"
+        }
+        event_codes {
+          key: 428
+          value: "t10428"
+        }
+        event_codes {
+          key: 429
+          value: "t10429"
+        }
+        event_codes {
+          key: 430
+          value: "t10430"
+        }
+        event_codes {
+          key: 431
+          value: "t10431"
+        }
+        event_codes {
+          key: 432
+          value: "t10432"
+        }
+        event_codes {
+          key: 433
+          value: "t10433"
+        }
+        event_codes {
+          key: 434
+          value: "t10434"
+        }
+        event_codes {
+          key: 435
+          value: "t10435"
+        }
+        event_codes {
+          key: 436
+          value: "t10436"
+        }
+        event_codes {
+          key: 437
+          value: "t10437"
+        }
+        event_codes {
+          key: 438
+          value: "t10438"
+        }
+        event_codes {
+          key: 439
+          value: "t10439"
+        }
+        event_codes {
+          key: 440
+          value: "t10440"
+        }
+        event_codes {
+          key: 441
+          value: "t10441"
+        }
+        event_codes {
+          key: 442
+          value: "t10442"
+        }
+        event_codes {
+          key: 443
+          value: "t10443"
+        }
+        event_codes {
+          key: 444
+          value: "t10444"
+        }
+        event_codes {
+          key: 445
+          value: "t10445"
+        }
+        event_codes {
+          key: 446
+          value: "t10446"
+        }
+        max_event_code: 500
+      }
+      metric_semantics: USAGE_COUNTING
+      other_time_zone: "America/Los_Angeles"
+    }
+    metrics {
+      metric_name: "per_package_api_errors"
+      customer_id: 200004
+      project_id: 2
+      id: 2
+      metric_type: STRING
+      meta_data {
+        expiration_date: "2025/01/24"
+        max_release_stage: GA
+      }
+      reports {
+        report_name: "fleetwide_error_counts_1m"
+        id: 1
+        report_type: STRING_COUNTS
+        reporting_threshold: 1000000
+        privacy_level: NO_ADDED_PRIVACY
+        event_vector_buffer_max: 100
+        string_buffer_max: 50
+        reporting_interval: DAYS_1
+        system_profile_field: APP_VERSION
+        system_profile_selection: REPORT_ALL
+        privacy_mechanism: DE_IDENTIFICATION
+      }
+      reports {
+        report_name: "fleetwide_error_counts_dogfood"
+        id: 2
+        report_type: STRING_COUNTS
+        reporting_threshold: 1
+        privacy_level: NO_ADDED_PRIVACY
+        event_vector_buffer_max: 100
+        string_buffer_max: 50
+        reporting_interval: DAYS_1
+        system_profile_field: APP_VERSION
+        system_profile_selection: REPORT_ALL
+        max_release_stage: DEBUG
+        privacy_mechanism: DE_IDENTIFICATION
+      }
+      metric_dimensions {
+        dimension: "api"
+        event_codes {
+          key: 0
+          value: "UNKNOWN"
+        }
+        event_codes {
+          key: 1
+          value: "GET_TOPICS"
+        }
+        event_codes {
+          key: 2
+          value: "JOIN_CUSTOM_AUDIENCE"
+        }
+        event_codes {
+          key: 3
+          value: "LEAVE_CUSTOM_AUDIENCE"
+        }
+        event_codes {
+          key: 4
+          value: "SELECT_ADS"
+        }
+        event_codes {
+          key: 5
+          value: "REGISTER_SOURCE"
+        }
+        event_codes {
+          key: 6
+          value: "DELETE_REGISTRATIONS"
+        }
+        event_codes {
+          key: 7
+          value: "REPORT_IMPRESSION"
+        }
+        event_codes {
+          key: 8
+          value: "OVERRIDE_CUSTOM_AUDIENCE_REMOTE_INFO"
+        }
+        event_codes {
+          key: 9
+          value: "REMOVE_CUSTOM_AUDIENCE_REMOTE_INFO_OVERRIDE"
+        }
+        event_codes {
+          key: 10
+          value: "RESET_ALL_CUSTOM_AUDIENCE_OVERRIDES"
+        }
+        event_codes {
+          key: 11
+          value: "OVERRIDE_AD_SELECTION_CONFIG_REMOTE_INFO"
+        }
+        event_codes {
+          key: 12
+          value: "REMOVE_AD_SELECTION_CONFIG_REMOTE_INFO_OVERRIDE"
+        }
+        event_codes {
+          key: 13
+          value: "RESET_ALL_AD_SELECTION_CONFIG_REMOTE_OVERRIDES"
+        }
+        event_codes {
+          key: 14
+          value: "GET_ADID"
+        }
+        event_codes {
+          key: 15
+          value: "GET_APPSETID"
+        }
+        event_codes {
+          key: 16
+          value: "REGISTER_TRIGGER"
+        }
+        event_codes {
+          key: 17
+          value: "REGISTER_WEB_SOURCE"
+        }
+        event_codes {
+          key: 18
+          value: "REGISTER_WEB_TRIGGER"
+        }
+        event_codes {
+          key: 19
+          value: "GET_MEASUREMENT_API_STATUS"
+        }
+        event_codes {
+          key: 20
+          value: "GET_TOPICS_PREVIEW_API"
+        }
+        event_codes {
+          key: 21
+          value: "SELECT_ADS_FROM_OUTCOMES"
+        }
+        event_codes {
+          key: 22
+          value: "SET_APP_INSTALL_ADVERTISERS"
+        }
+        event_codes {
+          key: 23
+          value: "REPORT_INTERACTION"
+        }
+        event_codes {
+          key: 24
+          value: "UPDATE_AD_COUNTER_HISTOGRAM"
+        }
+        event_codes {
+          key: 25
+          value: "FETCH_AND_JOIN_CUSTOM_AUDIENCE"
+        }
+        event_codes {
+          key: 26
+          value: "REGISTER_SOURCES"
+        }
+        event_codes {
+          key: 27
+          value: "GET_AD_SERVICES_EXT_DATA"
+        }
+        event_codes {
+          key: 28
+          value: "PUT_AD_SERVICES_EXT_DATA"
+        }
+      }
+      metric_dimensions {
+        dimension: "error"
+        event_codes {
+          key: 0
+          value: "UNKNOWN"
+        }
+        event_codes {
+          key: 1
+          value: "INTERNAL_ERROR"
+        }
+        event_codes {
+          key: 2
+          value: "INVALID_ARGUMENT"
+        }
+        event_codes {
+          key: 3
+          value: "UNKNOWN_ERROR"
+        }
+        event_codes {
+          key: 4
+          value: "IO_ERROR"
+        }
+        event_codes {
+          key: 5
+          value: "RATE_LIMIT_REACHED"
+        }
+        event_codes {
+          key: 6
+          value: "KILLSWITCH_ENABLED"
+        }
+        event_codes {
+          key: 7
+          value: "USER_CONSENT_REVOKED"
+        }
+        event_codes {
+          key: 8
+          value: "ADSERVICES_DISABLED"
+        }
+        event_codes {
+          key: 9
+          value: "PERMISSION_NOT_REQUESTED"
+        }
+        event_codes {
+          key: 10
+          value: "CALLER_NOT_ALLOWED"
+        }
+        event_codes {
+          key: 11
+          value: "BACKGROUND_CALLER"
+        }
+        event_codes {
+          key: 12
+          value: "UNAUTHORIZED"
+        }
+        event_codes {
+          key: 13
+          value: "TIMEOUT"
+        }
+        event_codes {
+          key: 14
+          value: "JS_SANDBOX_UNAVAILABLE"
+        }
+        event_codes {
+          key: 15
+          value: "INVALID_OBJECT"
+        }
+        event_codes {
+          key: 16
+          value: "CALLER_NOT_ALLOWED_TO_CROSS_USER_BOUNDARIES"
+        }
+        event_codes {
+          key: 17
+          value: "SERVER_RATE_LIMIT_REACHED"
+        }
+        event_codes {
+          key: 18
+          value: "USER_CONSENT_NOTIFICATION_NOT_DISPLAYED_YET"
+        }
+        event_codes {
+          key: 19
+          value: "ENCRYPTION_FAILURE"
+        }
+      }
+      metric_semantics: USAGE_COUNTING
+    }
+  }
+}
+

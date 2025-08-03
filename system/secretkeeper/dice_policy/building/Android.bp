@@ -1,0 +1,25 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_defaults {
+    name: "libdice_policy_builder.defaults",
+    crate_name: "dice_policy_builder",
+    defaults: ["avf_build_flags_rust"],
+    srcs: ["src/lib.rs"],
+    edition: "2021",
+    lints: "android",
+    rustlibs: [
+        "libciborium",
+        "libdice_policy",
+        "libitertools",
+        "liblog_rust",
+    ],
+    proc_macros: ["libenumn"],
+    vendor_available: true,
+}
+
+rust_library {
+    name: "libdice_policy_builder",
+    defaults: ["libdice_policy_builder.defaults"],
+}

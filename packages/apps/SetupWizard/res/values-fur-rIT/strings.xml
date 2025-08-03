@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2013-2015 The CyanogenMod Project
+     SPDX-FileCopyrightText: 2017-2024 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Instalazion vuidade</string>
+    <string name="next">Indenant</string>
+    <string name="skip">Salte</string>
+    <string name="start">Scomence</string>
+    <string name="done">Fat</string>
+    <string name="ok">Va ben</string>
+    <string name="loading">Dome un secont\u2026</string>
+    <string name="setup_welcome_message">Benvignûts su <xliff:g id="name" example="LineageOS">%1$s</xliff:g></string>
+    <string name="setup_managed_profile_welcome_message">Configure il to profîl di lavôr</string>
+    <string name="emergency_call">Clamade di emergjence</string>
+    <string name="accessibility_settings">Impostazions di acès facilitât</string>
+    <string name="setup_locale">Lenghe</string>
+    <string name="sim_locale_changed">SIM %1$s rilevade</string>
+    <string name="setup_sim_missing">E mancje la schede SIM</string>
+    <string name="sim_missing_summary" product="tablet">No je stade rilevade nissune schede SIM tal to tablet. Per inserî une schede SIM, lei lis istruzions dadis cul to dispositîf.</string>
+    <string name="sim_missing_summary" product="default">No je stade rilevade nissune schede SIM tal to telefon. Per inserî une schede SIM, lei lis istruzions dadis cul to dispositîf.</string>
+    <string name="setup_datetime">Date e ore</string>
+    <string name="date_time_summary">Configure il fûs orari e se al covente juste la date e la ore</string>
+    <string name="setup_current_date">Date atuâl</string>
+    <string name="setup_current_time">Ore atuâl</string>
+    <string name="intro_restore_title">Ripristine aplicazions e dâts</string>
+    <string name="intro_restore_subtitle">Se tu âs un backup Seedvault di <xliff:g id="name" example="LineageOS">%s</xliff:g> o di un altri SO, tu puedis ripristinâlu achì.</string>
+    <string name="intro_restore_button">Ripristine dal backup</string>
+    <string name="setup_location">Servizis di localizazion</string>
+    <string name="location_access_summary"><b>Permet aes aplicazions che a àn domandât la tô autorizazion</b> di doprâ informazions su la tô posizion. Chest al pues includi la tô posizion atuâl e chês di prime.</string>
+    <string name="location_agps_access_summary">Cuant che la gjeolocalizazion e je ative, <b>discjame di internet i dâts di assistence satelitâr</b>, che a puedin miorâ une vore lis prestazions di inviament dal GPS.</string>
+    <string name="update_recovery_title">Inzorne Recovery di Lineage</string>
+    <string name="update_recovery_description">Al inzorne il Recovery di Lineage al prin inviament sucessîf di ogni inzornament.</string>
+    <string name="update_recovery_warning">Recovery al vignarà inzornât a pene che tu finissis la configurazion. Se tu desideris tignîlu intat, disative cheste funzionalitât.</string>
+    <string name="update_recovery_setting">Inzorne il Recovery di Lineage adun cul SO</string>
+    <string name="update_recovery_full_description"><xliff:g id="recovery_update_description">%1$s</xliff:g>\n<xliff:g id="recovery_update_warning">%2$s</xliff:g></string>
+    <string name="setup_services">Funzionalitâts di LineageOS</string>
+    <string name="services_pp_explanation">Chescj servizis a funzionin par slargjâ lis funzionalitâts dal to dispositîf. I dâts a vignaran doprâts in conformitât cu la informative su la riservatece di <xliff:g id="name" example="LineageOS">%1$s</xliff:g>.</string>
+    <string name="services_find_privacy_policy">Tu puedis lei la informative su la riservatece suntun altri dispositîf visitant <xliff:g id="uri" example="https://lineageos.org/legal">%1$s</xliff:g></string>
+    <string name="services_help_improve_cm">Jude a miorâ <xliff:g id="name" example="LineageOS">%s</xliff:g></string>
+    <string name="services_metrics_label"><xliff:g id="name" example="Help improve LineageOS">%1$s</xliff:g> inviant in automatic i dâts diagnostiche di consum ai svilupadôrs di <xliff:g id="name" example="LineageOS">%2$s</xliff:g>. Nol sarà pussibil doprâ chestis informazions par identificâti ma a dan une man ai grups che a lavorin su robis come la durade de batarie, lis prestazions des aplicazions e lis gnovis funzionalitâts di <xliff:g id="name" example="LineageOS">%3$s</xliff:g>.</string>
+    <string name="services_os_nav_keys_label"><b>Dopre i botons virtuâi sul schermi</b> invezit di chei fisics.</string>
+    <string name="services_full_description"><xliff:g id="pp_explanation">%1$s</xliff:g>\n<xliff:g id="pp_find">%2$s</xliff:g></string>
+    <string name="setup_navigation">Navigazion</string>
+    <string name="navigation_summary">Sielç il metodi di navigazion preferît</string>
+    <string name="gesture_navigation">Navigazion a mots</string>
+    <string name="two_button_navigation">Navigazion a 2 botons</string>
+    <string name="navbar_navigation">Navigazion a 3 botons</string>
+    <string name="hide_gesture_hint">Plate i sugjeriments pe navigazion a mots</string>
+    <string name="setup_theme">Teme</string>
+    <string name="theme_summary">Il teme scûr al dopre un fonts neri par aumentâ la durade de cjarie de batarie su cualchi schermi</string>
+    <string name="dark">Scûr</string>
+    <string name="light">Clâr</string>
+</resources>

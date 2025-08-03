@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2013-2015 The CyanogenMod Project
+     SPDX-FileCopyrightText: 2017-2024 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Opstel Ghoeroe</string>
+    <string name="next">Volgende</string>
+    <string name="skip">Slaan oor</string>
+    <string name="start">Begin</string>
+    <string name="done">Gedoen</string>
+    <string name="ok">OK</string>
+    <string name="loading">Net \'n sekonde\u2026</string>
+    <string name="emergency_call">Noodoproep</string>
+    <string name="setup_locale">Taal</string>
+    <string name="sim_locale_changed">%1$s SIM opgespoor</string>
+    <string name="setup_sim_missing">SIM-kaart ontbreek</string>
+    <string name="sim_missing_summary" product="tablet">\'n SIM-kaart is nie bespeur in jou tablet. Om \'n SIM-kaart by te voeg, lees die instruksies wat saam gekom het met jou tablet.</string>
+    <string name="sim_missing_summary" product="default">\'n SIM-kaart is nie bespeur in jou foon. Om \'n SIM-kaart by te voeg, lees die instruksies wat saam gekom het met jou foon.</string>
+    <string name="setup_datetime">Datum &amp; tyd</string>
+    <string name="date_time_summary">Stel jou tydsone en pas huidige datum en tyd toe, indien nodig</string>
+    <string name="setup_current_date">Huidige datum</string>
+    <string name="setup_current_time">Huidige tyd</string>
+    <string name="setup_location">Ligging dienste</string>
+    <string name="location_access_summary"><b>Laat programme toe wat jou toestemming gevra het</b> om jou ligging inligting te gebruik. Dit kan jou huidige ligging en plekke asook liggings en plekke uit die verlede insluit.</string>
+    <string name="setup_services">LineageOS kenmerke</string>
+    <string name="services_os_nav_keys_label"><b>Gebruik skerm navigasie sleutels</b> in plaas van hardeware sleutels.</string>
+</resources>

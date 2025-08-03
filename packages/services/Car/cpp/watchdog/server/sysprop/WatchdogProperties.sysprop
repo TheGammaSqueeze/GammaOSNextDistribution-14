@@ -1,0 +1,142 @@
+# Copyright (C) 2020 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the License);
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an AS IS BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+module: "android.automotive.watchdog.sysprop"
+owner: Platform
+
+# Interval in seconds between consecutive boot-time performance data collections.
+prop {
+    api_name: "systemEventCollectionInterval"
+    type: Integer
+    scope: Internal
+    access: Readonly
+    prop_name: "ro.carwatchdog.system_event_collection_interval"
+}
+
+# Duration in seconds of timeout when final signal not received during user-switch.
+prop {
+    api_name: "userSwitchTimeout"
+    type: Integer
+    scope: Internal
+    access: Readonly
+    prop_name: "ro.carwatchdog.user_switch_timeout"
+}
+
+# Duration in seconds of data collection after final signal received for system event.
+prop {
+    api_name: "postSystemEventDuration"
+    type: Integer
+    scope: Internal
+    access: Readonly
+    prop_name: "ro.carwatchdog.post_system_event_duration"
+}
+
+# Duration in seconds of data collection for a system wake up event.
+prop {
+    api_name: "wakeUpEventDuration"
+    type: Integer
+    scope: Internal
+    access: Readonly
+    prop_name: "ro.carwatchdog.wake_up_event_duration"
+}
+
+# Maximum number of periodically collected records to be cached in memory.
+prop {
+    api_name: "periodicCollectionBufferSize"
+    type: Integer
+    scope: Internal
+    access: Readonly
+    prop_name: "ro.carwatchdog.periodic_collection_buffer_size"
+}
+
+# Interval in seconds between consecutive periodic performance data collections.
+prop {
+    api_name: "periodicCollectionInterval"
+    type: Integer
+    scope: Internal
+    access: Readonly
+    prop_name: "ro.carwatchdog.periodic_collection_interval"
+}
+
+# Maximum number of periodically monitored records to be cached in memory.
+prop {
+    api_name: "periodicMonitorBufferSize"
+    type: Integer
+    scope: Internal
+    access: Readonly
+    prop_name: "ro.carwatchdog.periodic_monitor_buffer_size"
+}
+
+# Interval in seconds between consecutive periodic performance data monitoring.
+prop {
+    api_name: "periodicMonitorInterval"
+    type: Integer
+    scope: Internal
+    access: Readonly
+    prop_name: "ro.carwatchdog.periodic_monitor_interval"
+}
+
+# Top N per-UID statistics/category collected by the performance data collector.
+prop {
+    api_name: "topNStatsPerCategory"
+    type: Integer
+    scope: Internal
+    access: Readonly
+    prop_name: "ro.carwatchdog.top_n_stats_per_category"
+}
+
+# Top N per-process statistics/category collected by the performance data collector.
+prop {
+    api_name: "topNStatsPerSubcategory"
+    type: Integer
+    scope: Internal
+    access: Readonly
+    prop_name: "ro.carwatchdog.top_n_stats_per_subcategory"
+}
+
+# Max cache size of user-switch events.
+prop {
+    api_name: "maxUserSwitchEvents"
+    type: Integer
+    scope: Internal
+    access: Readonly
+    prop_name: "ro.carwatchdog.max_user_switch_events"
+}
+
+# Duration in seconds that a system event's data is cached.
+prop {
+    api_name: "systemEventDataCacheDuration"
+    type: Integer
+    scope: Internal
+    access: Readonly
+    prop_name: "ro.carwatchdog.system_event_data_cache_duration"
+}
+
+# Percentage of I/O overuse threshold.
+prop {
+    api_name: "ioOveruseWarnPercentage"
+    type: Integer
+    scope: Internal
+    access: Readonly
+    prop_name: "ro.carwatchdog.io_overuse_warn_percentage"
+}
+
+# Flag for sending resource usage stats from daemon to CarService.
+prop {
+    api_name: "syncResourceUsageStatsWithCarServiceEnabled"
+    type: Boolean
+    scope: Internal
+    access: Writeonce
+    prop_name: "carwatchdog.sync_resource_usage_stats_with_carservice.enabled"
+}

@@ -1,0 +1,51 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "5d645a28bc019f87eea9f538ae72ac26",
+    "entities": [
+      {
+        "tableName": "app_install",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`buyer` TEXT NOT NULL, `package_name` TEXT NOT NULL, PRIMARY KEY(`buyer`, `package_name`))",
+        "fields": [
+          {
+            "fieldPath": "mBuyer",
+            "columnName": "buyer",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mPackageName",
+            "columnName": "package_name",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "buyer",
+            "package_name"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_app_install_package_name",
+            "unique": false,
+            "columnNames": [
+              "package_name"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_app_install_package_name` ON `${TABLE_NAME}` (`package_name`)"
+          }
+        ],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5d645a28bc019f87eea9f538ae72ac26')"
+    ]
+  }
+}

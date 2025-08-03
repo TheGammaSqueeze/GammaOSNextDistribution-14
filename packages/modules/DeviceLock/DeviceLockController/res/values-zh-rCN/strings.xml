@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  Copyright (c) 2022, The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="5655878067457216814">"DeviceLockController"</string>
+    <string name="next_button" msgid="1856423430963548653">"下一页"</string>
+    <string name="reset_button" msgid="4649354411129240809">"重置"</string>
+    <string name="setup_more_button" msgid="4456370972302510109">"更多"</string>
+    <string name="setup_info_title_text" msgid="299562193092219293">"“<xliff:g id="CREDITOR_APP">%1$s</xliff:g>”可以如何管理此设备"</string>
+    <string name="setup_failed_title_text" msgid="9045111389981992536">"无法安装“<xliff:g id="CREDITOR_APP">%1$s</xliff:g>”应用"</string>
+    <string name="setup_failed_reset_device_text" msgid="178419033440060908">"请重置设备，然后重试。"</string>
+    <string name="setup_failed_reset_device_timer_text" msgid="5270970227714985986">"{count,plural, =1{请重置此设备，然后尝试重新进行设置。设备将在 1 秒后自动重置。}other{请重置此设备，然后尝试重新进行设置。设备将在 # 秒后自动重置。}}"</string>
+    <string name="setup_progress_title_text" msgid="2388779167610656852">"正在安装“<xliff:g id="CREDITOR_APP">%1$s</xliff:g>”应用<xliff:g id="ELLIPSIS">…</xliff:g>"</string>
+    <string name="setup_finish_title_text" msgid="2810842695806992743">"正在打开“<xliff:g id="CREDITOR_APP">%1$s</xliff:g>”应用<xliff:g id="ELLIPSIS">…</xliff:g>"</string>
+    <string name="setup_error_title_text" msgid="1123742279081942535">"无法打开“<xliff:g id="CREDITOR_APP">%1$s</xliff:g>”应用"</string>
+    <string name="try_again" msgid="5964839819170927721">"重试"</string>
+    <string name="reset_phone" msgid="1161657350311160627">"重置手机"</string>
+    <string name="control_section_title" msgid="2213476068991045785">"“<xliff:g id="CREDITOR_APP">%1$s</xliff:g>”有哪些功能？"</string>
+    <string name="control_lock_device_text" msgid="8253302484073757764">"如果您未付款，分期付款提供商可以限制您使用此设备"</string>
+    <string name="control_download_text" msgid="8514650561843088172">"下载、安装和更新“<xliff:g id="CREDITOR_APP">%1$s</xliff:g>”应用"</string>
+    <string name="control_disable_debug_text" msgid="8112443250013094442">"关闭调试功能"</string>
+    <string name="locked_section_title" msgid="2748725389334076510">"如果此设备被锁定，哪些功能可以运行？"</string>
+    <string name="locked_emergency_text" msgid="3509216445555779286">"紧急呼叫服务"</string>
+    <string name="locked_phone_usage_text" msgid="1913605870324552847">"来电和部分去电"</string>
+    <string name="locked_settings_usage_text" msgid="8336476063187737700">"设置"</string>
+    <string name="locked_backup_and_restore_text" msgid="104616318625243429">"&lt;a href=https://support.google.com/android/answer/2819582&gt;备份和恢复&lt;/a&gt;您的数据"</string>
+    <string name="exposure_section_title" msgid="2329122144337528752">"“<xliff:g id="CREDITOR_APP">%1$s</xliff:g>”可以查看哪些内容？"</string>
+    <string name="exposure_install_text" msgid="2631074166447765453">"“<xliff:g id="CREDITOR_APP">%1$s</xliff:g>”应用的安装或卸载时间"</string>
+    <string name="exposure_lock_unlock_text" msgid="6827412845847260579">"来自“<xliff:g id="CREDITOR_APP">%1$s</xliff:g>”的所有锁定或解锁请求"</string>
+    <string name="exposure_disable_dlc_text" msgid="2898692398106736423">"“<xliff:g id="CREDITOR_APP">%1$s</xliff:g>”应用是否不可用"</string>
+    <string name="open_source_licenses" msgid="6464389386262455443">"开源许可"</string>
+    <string name="footer_notice_content_description" msgid="2160540400079419440">"在安全设置中，分期付款设备部分中的管理功能不适用于此设备。"</string>
+    <string name="device_provided_by_provider" msgid="290593329676291991">"此设备由<xliff:g id="PROVIDER_NAME">%1$s</xliff:g>提供"</string>
+    <string name="download_kiosk_app" msgid="1845089944897502656">"系统会自动下载并安装自助服务终端应用"</string>
+    <string name="install_kiosk_app_secondary_user" msgid="49911908012320834">"系统将为此用户安装自助服务终端应用"</string>
+    <string name="restrict_device_if_missing_payment" msgid="8883980285859496904">"如果您未按时支付款项，<xliff:g id="PROVIDER_NAME">%1$s</xliff:g>可能会限制您使用此设备。如需了解详情，请查看<xliff:g id="TERMS_AND_CONDITIONS_LINK_START">&lt;a href=%2$s&gt;</xliff:g>条款及条件<xliff:g id="TERMS_AND_CONDITIONS_LINK_END">&lt;/a&gt;</xliff:g>。"</string>
+    <string name="restrict_device_if_dont_make_payment" msgid="1619095674945507015">"如果您未支付必要款项，<xliff:g id="PROVIDER_NAME">%1$s</xliff:g>可以限制您使用此设备。如需了解详情，请参阅<xliff:g id="TERMS_AND_CONDITIONS_LINK_START">&lt;a href=%2$s&gt;</xliff:g>条款及条件<xliff:g id="TERMS_AND_CONDITIONS_LINK_END">&lt;/a&gt;</xliff:g>。"</string>
+    <string name="contact_provider_for_help" msgid="3872028089834808884">"如需帮助，请<xliff:g id="SUPPORT_LINK_START">&lt;a href=%2$s&gt;</xliff:g>联系<xliff:g id="PROVIDER_NAME">%1$s</xliff:g><xliff:g id="SUPPORT_LINK_END">&lt;/a&gt;</xliff:g>。"</string>
+    <string name="previous" msgid="5241891780917802570">"上一步"</string>
+    <string name="next" msgid="8248291863254324326">"下一页"</string>
+    <string name="start" msgid="2842214844667658537">"立即开始"</string>
+    <string name="ok" msgid="3568398726528719749">"确定"</string>
+    <string name="done" msgid="4507782734740410307">"完成"</string>
+    <string name="do_it_in_one_hour" msgid="2727777340568739453">"1 小时后开始"</string>
+    <string name="header_icon_content_description" msgid="6069602031334473195">"信息"</string>
+    <string name="provision_info_item_icon_content_description" msgid="2306298178610632507">"配置信息"</string>
+    <string name="enroll_your_device_header" msgid="2226305405591945098">"注册您的设备"</string>
+    <string name="enroll_your_device_financing_subheader" msgid="8810608106273097451">"您的设备现在就能注册<xliff:g id="PROVIDER_NAME">%1$s</xliff:g>的补贴计划"</string>
+    <string name="enroll_your_device_subsidy_subheader" msgid="8598730780370624995">"您的设备现在就能注册<xliff:g id="PROVIDER_NAME">%1$s</xliff:g>的补贴计划"</string>
+    <string name="subsidy_program_header" msgid="2321508488856303554">"您已加入<xliff:g id="PROVIDER_NAME">%1$s</xliff:g>的补贴计划"</string>
+    <string name="device_enrollment_header_text" msgid="5283341102404741658">"设备注册"</string>
+    <string name="device_financing_enrollment_body_text" msgid="5506086383249511498">"您的设备可以在 30 天内注册<xliff:g id="PROVIDER_NAME">%1$s</xliff:g>的分期付款计划"</string>
+    <string name="device_subsidy_enrollment_body_text" msgid="3971584929178719388">"您的设备可以在 30 天内注册<xliff:g id="PROVIDER_NAME">%1$s</xliff:g>的补贴计划"</string>
+    <string name="device_enrollment_notification_body_text" msgid="8755080244956655854">"注册将于 <xliff:g id="TIME">%1$s</xliff:g>恢复。您可以继续使用自己的设备。"</string>
+    <string name="continue_using_device" msgid="5816570734692191190">"您可以继续使用自己的设备"</string>
+    <string name="device_paid" msgid="6606280698381856804">"您已支付设备款项"</string>
+    <string name="device_removed_from_subsidy_program" msgid="1243434945619071051">"设备已退出<xliff:g id="PROVIDER_NAME">%1$s</xliff:g>的补贴计划"</string>
+    <string name="device_removed_from_finance_program" msgid="825548999540107578">"您的设备已退出<xliff:g id="PROVIDER_NAME">%1$s</xliff:g>的分期付款计划"</string>
+    <string name="restrictions_lifted" msgid="5785586265984319396">"针对设备的所有限制均已解除"</string>
+    <string name="uninstall_kiosk_app" msgid="3459557395024053988">"您可以从设备上卸载自助服务终端应用"</string>
+    <string name="getting_device_ready" msgid="2829009584599871699">"正在准备您的设备…"</string>
+    <string name="this_may_take_a_few_minutes" msgid="2482876246874429351">"这可能需要几分钟的时间"</string>
+    <string name="installing_kiosk_app" msgid="324208168205545860">"正在安装“<xliff:g id="CREDITOR_APP">%1$s</xliff:g>”应用…"</string>
+    <string name="opening_kiosk_app" msgid="2021888641430165654">"正在打开“<xliff:g id="CREDITOR_APP">%1$s</xliff:g>”应用…"</string>
+    <string name="settings_banner_title" msgid="527041021011279252">"设备由<xliff:g id="PROVIDER_NAME">%1$s</xliff:g>提供"</string>
+    <string name="settings_banner_body" msgid="5814902066260202824">"<xliff:g id="PROVIDER_NAME">%1$s</xliff:g>可更改此设备的设置"</string>
+    <string name="settings_banner_button" msgid="1831020849782670907">"了解详情"</string>
+    <string name="settings_screen_title" msgid="721470080648091035">"分期付款设备信息"</string>
+    <string name="settings_intro_device_financing" msgid="2548476558131048133">"<xliff:g id="PROVIDER_NAME_0">%1$s</xliff:g>可更改此设备的设置并在此设备上安装自助服务终端应用。\n\n如果您未按时支付款项，<xliff:g id="PROVIDER_NAME_1">%1$s</xliff:g>可能会限制您使用此设备。\n\n如需了解详情，请与<xliff:g id="PROVIDER_NAME_2">%1$s</xliff:g>联系。"</string>
+    <string name="settings_intro_device_subsidy" msgid="4274945644204818702">"<xliff:g id="PROVIDER_NAME_0">%1$s</xliff:g>可更改此设备的设置并在此设备上安装自助服务终端应用。\n\n如果您未按时支付款项或停止使用<xliff:g id="PROVIDER_NAME_2">%1$s</xliff:g>的 SIM 卡，<xliff:g id="PROVIDER_NAME_1">%1$s</xliff:g>也可能会限制您使用此设备。\n\n如需了解详情，请与<xliff:g id="PROVIDER_NAME_3">%1$s</xliff:g>联系。"</string>
+    <string name="settings_intro_preference_key" msgid="6610461073400554162">"settings_intro_preference_key"</string>
+    <string name="settings_restrictions_category" msgid="5746868117342406677">"在支付设备款项之前，您无法执行以下操作："</string>
+    <string name="settings_restrictions_category_preference_key" msgid="88318147152676512">"settings_restrictions_category_preference_key"</string>
+    <string name="settings_install_apps" msgid="3634279771448183713">"通过 Play 商店之外的来源安装应用"</string>
+    <string name="settings_install_apps_preference_key" msgid="27542314345238427">"settings_install_apps_preference_key"</string>
+    <string name="settings_safe_mode" msgid="3035228015586375153">"重新启动设备并进入安全模式"</string>
+    <string name="settings_safe_mode_preference_key" msgid="2106617747358027424">"settings_safe_mode_preference_key"</string>
+    <string name="settings_developer_options" msgid="880701002025216672">"使用开发者选项"</string>
+    <string name="settings_developer_options_preference_key" msgid="6807036808722582954">"settings_developer_options_preference_key"</string>
+    <string name="settings_credit_provider_capabilities_category" msgid="1274440595211820868">"如果设备出现问题，<xliff:g id="PROVIDER_NAME">%1$s</xliff:g>可执行以下操作："</string>
+    <string name="settings_credit_provider_capabilities_category_preference_key" msgid="4571685720898641262">"settings_credit_provider_capabilities_category_preference_key"</string>
+    <string name="settings_IMEI" msgid="697965824361262506">"获取您的 IMEI 识别码"</string>
+    <string name="settings_IMEI_preference_key" msgid="608809590948249412">"settings_IMEI_preference_key"</string>
+    <string name="settings_factory_reset" msgid="418045189048067625">"将您的设备恢复出厂设置"</string>
+    <string name="settings_factory_reset_preference_key" msgid="2168528486393635382">"settings_factory_reset_preference_key"</string>
+    <string name="settings_locked_mode_category" msgid="6307525048618331737">"如果您的设备受到限制，您只能使用它执行以下操作："</string>
+    <string name="settings_locked_mode_category_preference_key" msgid="7202573929427220258">"settings_locked_mode_category_preference_key"</string>
+    <string name="settings_emergency_calls" msgid="2460996367176786040">"拨打紧急电话号码"</string>
+    <string name="settings_emergency_calls_preference_key" msgid="737598609727181316">"settings_emergency_calls_preference_key"</string>
+    <string name="settings_system_info" msgid="1352629332624774940">"查看系统信息，例如日期、时间、网络状态和电池状态"</string>
+    <string name="settings_system_info_preference_key" msgid="8607675914059202598">"settings_system_info_preference_key"</string>
+    <string name="settings_turn_on_off_device" msgid="5414836621603462439">"开启或关闭您的设备"</string>
+    <string name="settings_turn_on_off_device_preference_key" msgid="5981163790552677734">"settings_turn_on_off_device_preference_key"</string>
+    <string name="settings_notifications" msgid="63348993899505034">"查看通知和短信"</string>
+    <string name="settings_notifications_preference_key" msgid="4527872342061056462">"settings_notifications_preference_key"</string>
+    <string name="settings_allowlisted_apps" msgid="5531810497056091097">"访问已获<xliff:g id="PROVIDER_NAME">%1$s</xliff:g>准许的应用"</string>
+    <string name="settings_allowlisted_apps_preference_key" msgid="8662705531235468080">"settings_allowlisted_apps_preference_key"</string>
+    <string name="settings_fully_paid_category" msgid="2459776591689824433">"一旦您付清款项："</string>
+    <string name="settings_fully_paid_category_preference_key" msgid="1759690898170600559">"settings_fully_paid_category_preference_key"</string>
+    <string name="settings_restrictions_removed" msgid="1398080654904863221">"<xliff:g id="PROVIDER_NAME">%1$s</xliff:g>无法限制您的设备或更改设备设置"</string>
+    <string name="settings_restrictions_removed_preference_key" msgid="7741933477145197391">"settings_restrictions_removed_preference_key"</string>
+    <string name="settings_uninstall_kiosk_app" msgid="2611134364295637875">"您可以卸载“<xliff:g id="KIOSK_APP">%1$s</xliff:g>”应用"</string>
+    <string name="settings_uninstall_kiosk_app_preference_key" msgid="5578103644009268125">"settings_uninstall_kiosk_app_preference_key"</string>
+    <string name="settings_support_category" msgid="7210906871924935770">"获取帮助："</string>
+    <string name="settings_support_category_preference_key" msgid="1818953199283261021">"settings_support_category_preference_key"</string>
+    <string name="settings_contact_provider" msgid="2481819956474692039">"<xliff:g id="SUPPORT_LINK_START">&lt;a href=%2$s&gt;</xliff:g>联系<xliff:g id="PROVIDER_NAME">%1$s</xliff:g><xliff:g id="SUPPORT_LINK_END">&lt;/a&gt;</xliff:g>"</string>
+    <string name="settings_contact_provider_preference_key" msgid="2703619536229342624">"settings_contact_provider_preference_key"</string>
+    <string name="provision_notification_channel_name" msgid="6123500714047647805">"配置"</string>
+    <string name="device_reset_in_days_notification_title" msgid="920859483535317727">"{count,plural, =1{设备将在 1 天后重置}other{设备将在 # 天后重置}}"</string>
+    <string name="device_reset_timer_notification_title" msgid="301978346002711614">"设备将在 <xliff:g id="TIMER">%s</xliff:g>后重置"</string>
+    <string name="device_reset_notification_content" msgid="7642367488663440437">"系统将删除所有设备数据。如需注册设备方面的帮助，请与<xliff:g id="PROVIDER_NAME">%1$s</xliff:g>联系。"</string>
+    <string name="provisioning_failed" msgid="5350252817004028300">"分期付款设备配置失败"</string>
+    <string name="click_to_contact_financier" msgid="9107827438262930445">"请点击此处查看分期付款提供商的联系方式。<xliff:g id="SUPPORT_URL_START">&lt;a href=%1$s&gt;</xliff:g>了解详情<xliff:g id="SUPPORT_URL_END">&lt;/a&gt;</xliff:g>"</string>
+    <string name="exit" msgid="645084771882733921">"退出"</string>
+    <string name="retry" msgid="7497287909193345356">"重试"</string>
+</resources>

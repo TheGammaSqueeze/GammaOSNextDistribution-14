@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+**
+** Copyright 2007 The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string-array name="screen_timeout_entries">
+        <item>15 segundos</item>
+        <item>30 segundos</item>
+        <item>1 minutu</item>
+        <item>2 minutos</item>
+        <item>5 minutos</item>
+        <item>10 minutos</item>
+        <item>30 minutos</item>
+    </string-array>
+    <string-array name="lock_after_timeout_entries">
+        <item>Immediately</item>
+        <item>5 segundos</item>
+        <item>15 segundos</item>
+        <item>30 segundos</item>
+        <item>1 minutu</item>
+        <item>2 minutos</item>
+        <item>5 minutos</item>
+        <item>10 minutos</item>
+        <item>30 minutos</item>
+    </string-array>
+    <string-array name="wifi_status">
+        <item/>
+        <item>Buscando\u2026</item>
+        <item>Conectando\u2026</item>
+        <item>Autenticando\u2026</item>
+        <item>Obtaining IP address\u2026</item>
+        <item>Conectóse</item>
+        <item>Suspended</item>
+        <item>Desconectando\u2026</item>
+        <item>Disconnected</item>
+        <item>Unsuccessful</item>
+        <item>Blocked</item>
+        <item>Temporarily avoiding poor connection</item>
+    </string-array>
+    <string-array name="eap_ocsp_type" translatable="true">
+        <item>Nun verificar</item>
+        <item>Solicitar l\'estáu\'l certificáu</item>
+        <item>Riquir l\'estáu\'l certificáu</item>
+    </string-array>
+    <string-array name="bluetooth_leaudio_mode">
+        <item>Desactivóse</item>
+        <item>Monoemisión</item>
+        <item>Monoemisión y emisión</item>
+    </string-array>
+    <string-array name="bluetooth_audio_routing_titles">
+        <item>Usar la configuración predeterminada de l\'aplicación</item>
+        <item>Reproducir nel audífonu</item>
+        <item>Reproducir nel altavoz del teléfonu</item>
+    </string-array>
+    <string-array name="apn_auth_entries">
+        <item>None</item>
+        <item>PAP</item>
+        <item>CHAP</item>
+        <item>PAP o CHAP</item>
+    </string-array>
+    <string-array name="app_ops_summaries">
+        <item>llocalización aproximada</item>
+        <item>llocalización exauta</item>
+        <item>GPS</item>
+        <item>vibrate</item>
+        <item>read contacts</item>
+        <item>modify contacts</item>
+        <item>read call log</item>
+        <item>modify call log</item>
+        <item>read calendar</item>
+        <item>modify calendar</item>
+        <item>wi-fi scan</item>
+        <item>notification</item>
+        <item>cell scan</item>
+        <item>call phone</item>
+        <item>read SMS</item>
+        <item>write SMS</item>
+        <item>receive SMS</item>
+        <item>receive emergency SMS</item>
+        <item>receive MMS</item>
+        <item>receive WAP push</item>
+        <item>send SMS</item>
+        <item>read ICC SMS</item>
+        <item>write ICC SMS</item>
+        <item>modify settings</item>
+        <item>draw on top</item>
+        <item>access notifications</item>
+        <item>camera</item>
+        <item>record audio</item>
+        <item>play audio</item>
+        <item>read clipboard</item>
+        <item>modify clipboard</item>
+        <item>media buttons</item>
+        <item>audio focus</item>
+        <item>master volume</item>
+        <item>voice volume</item>
+        <item>ring volume</item>
+        <item>media volume</item>
+        <item>alarm volume</item>
+        <item>notification volume</item>
+        <item>bluetooth volume</item>
+        <item>keep awake</item>
+        <item>monitor location</item>
+        <item>monitor high power location</item>
+        <item>get usage stats</item>
+        <item>mute/unmute microphone</item>
+        <item>show toast</item>
+        <item>project media</item>
+        <item>activate VPN</item>
+        <item>write wallpaper</item>
+        <item>assist structure</item>
+        <item>assist screenshot</item>
+        <item>read phone state</item>
+        <item>add voicemail</item>
+        <item>use sip</item>
+        <item>process outgoing call</item>
+        <item>fingerprint</item>
+        <item>body sensors</item>
+        <item>read cell broadcasts</item>
+        <item>mock location</item>
+        <item>read storage</item>
+        <item>write storage</item>
+        <item>turn on screen</item>
+        <item>get accounts</item>
+        <item>run in background</item>
+        <item>accessibility volume</item>
+    </string-array>
+    <string-array name="app_ops_labels">
+        <item>Llocalización</item>
+        <item>Llocalización</item>
+        <item>Llocalización</item>
+        <item>Vibrate</item>
+        <item>Read contacts</item>
+        <item>Modify contacts</item>
+        <item>Read call log</item>
+        <item>Modify call log</item>
+        <item>Read calendar</item>
+        <item>Modify calendar</item>
+        <item>Llocalización</item>
+        <item>Post notification</item>
+        <item>Llocalización</item>
+        <item>Call phone</item>
+        <item>Read SMS/MMS</item>
+        <item>Write SMS/MMS</item>
+        <item>Receive SMS/MMS</item>
+        <item>Receive SMS/MMS</item>
+        <item>Receive SMS/MMS</item>
+        <item>Receive SMS/MMS</item>
+        <item>Send SMS/MMS</item>
+        <item>Read SMS/MMS</item>
+        <item>Write SMS/MMS</item>
+        <item>Modify settings</item>
+        <item>Draw on top</item>
+        <item>Access notifications</item>
+        <item>Cámara</item>
+        <item>Record audio</item>
+        <item>Play audio</item>
+        <item>Read clipboard</item>
+        <item>Modify clipboard</item>
+        <item>Media buttons</item>
+        <item>Audio focus</item>
+        <item>Master volume</item>
+        <item>Voice volume</item>
+        <item>Ring volume</item>
+        <item>Volume multimedia</item>
+        <item>Alarm volume</item>
+        <item>Notification volume</item>
+        <item>Bluetooth volume</item>
+        <item>Keep awake</item>
+        <item>Llocalización</item>
+        <item>Llocalización</item>
+        <item>Get usage stats</item>
+        <item>Mute/unmute microphone</item>
+        <item>Show toast</item>
+        <item>Project media</item>
+        <item>Activate VPN</item>
+        <item>Write wallpaper</item>
+        <item>Assist structure</item>
+        <item>Assist screenshot</item>
+        <item>Read phone state</item>
+        <item>Add voicemail</item>
+        <item>Use sip</item>
+        <item>Process outgoing call</item>
+        <item>Fingerprint</item>
+        <item>Body sensors</item>
+        <item>Read cell broadcasts</item>
+        <item>Mock location</item>
+        <item>Read storage</item>
+        <item>Write storage</item>
+        <item>Turn on screen</item>
+        <item>Get accounts</item>
+        <item>Run in background</item>
+        <item>Accessibility volume</item>
+    </string-array>
+    <string-array name="accessibility_button_location_selector_titles">
+        <item>Floating over other apps</item>
+        <item>Barra de navegación</item>
+    </string-array>
+    <string-array name="accessibility_button_gesture_selector_titles">
+        <item>Botón</item>
+        <item>Xestu</item>
+    </string-array>
+    <string-array name="vpn_states">
+        <item>Disconnected</item>
+        <item>Initializing\u2026</item>
+        <item>Conectando\u2026</item>
+        <item>Connected</item>
+        <item>Timeout</item>
+        <item>Unsuccessful</item>
+    </string-array>
+    <string-array name="color_picker">
+        <item>Cyan</item>
+        <item>Azul</item>
+        <item>Verde</item>
+        <item>Moráu</item>
+        <item>Rosa</item>
+        <item>Naranxa</item>
+    </string-array>
+    <string-array name="wifi_hidden_entries">
+        <item>Non</item>
+        <item>Sí</item>
+    </string-array>
+    <string-array name="preferred_network_mode_choices">
+        <item>GSM/WCDMA preferred</item>
+        <item>GSM only</item>
+        <item>WCDMA only</item>
+        <item>GSM/WCDMA auto</item>
+        <item>CDMA/EvDo auto</item>
+        <item>CDMA w/o EvDo</item>
+        <item>EvDo only</item>
+        <item>CDMA/EvDo/GSM/WCDMA</item>
+        <item>CDMA + LTE/EvDo</item>
+        <item>GSM/WCDMA/LTE</item>
+        <item>LTE/CDMA/EvDo/GSM/WCDMA</item>
+        <item>LTE</item>
+        <item>LTE/WCDMA</item>
+        <item>TDSCDMA only</item>
+        <item>TDSCDMA/WCDMA</item>
+        <item>LTE/TDSCDMA</item>
+        <item>TDSCDMA/GSM</item>
+        <item>LTE/TDSCDMA/GSM</item>
+        <item>TDSCDMA/GSM/WCDMA</item>
+        <item>LTE/TDSCDMA/WCDMA</item>
+        <item>LTE/TDSCDMA/GSM/WCDMA</item>
+        <item>TDSCDMA/CDMA/EVDO/GSM/WCDMA </item>
+        <item>LTE/TDSCDMA/CDMA/EVDO/GSM/WCDMA</item>
+        <item>Namás NR</item>
+        <item>NR/LTE</item>
+        <item>NR/LTE/CDMA/EvDo</item>
+        <item>NR/LTE/GSM/WCDMA</item>
+        <item>Global</item>
+        <item>NR/LTE/WCDMA</item>
+        <item>NR/LTE/TDSCDMA</item>
+        <item>NR/LTE/TDSCDMA/GSM</item>
+        <item>NR/LTE/TDSCDMA/WCDMA</item>
+        <item>NR/LTE/TDSCDMA/GSM/WCDMA</item>
+        <item>NR/LTE/TDSCDMA/CDMA/EvDo/GSM/WCDMA</item>
+    </string-array>
+    <string-array name="nfc_payment_favor">
+        <item>Siempre</item>
+        <item>Except when another payment app is open</item>
+    </string-array>
+    <string-array name="switch_to_dock_user_when_docked_timeout_entries">
+        <item>Enxamás</item>
+        <item>Dempués d\'un minutu</item>
+        <item>Dempués de 5 minutos</item>
+    </string-array>
+</resources>

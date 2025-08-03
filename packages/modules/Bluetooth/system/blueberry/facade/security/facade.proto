@@ -1,0 +1,197 @@
+syntax = "proto3";
+
+package blueberry.facade.security;
+
+import "google/protobuf/empty.proto";
+import "blueberry/facade/common.proto";
+import "blueberry/facade/l2cap/classic/facade.proto";
+import "blueberry/facade/hci/le_initiator_address_facade.proto";
+
+service SecurityModuleFacade {
+  rpc CreateBond(blueberry.facade.BluetoothAddressWithType) returns (google.protobuf.Empty) {}
+  rpc CreateBondOutOfBand(OobDataBondMessage) returns (google.protobuf.Empty) {}
+  rpc GetOutOfBandData(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc FetchGetOutOfBandDataEvents(google.protobuf.Empty) returns (stream OobDataBondMessage) {}
+  rpc CreateBondLe(blueberry.facade.BluetoothAddressWithType) returns (google.protobuf.Empty) {}
+  rpc CancelBond(blueberry.facade.BluetoothAddressWithType) returns (google.protobuf.Empty) {}
+  rpc RemoveBond(blueberry.facade.BluetoothAddressWithType) returns (google.protobuf.Empty) {}
+  rpc SetIoCapability(IoCapabilityMessage) returns (google.protobuf.Empty) {}
+  rpc SetAuthenticationRequirements(AuthenticationRequirementsMessage) returns (google.protobuf.Empty) {}
+  rpc SetLeIoCapability(LeIoCapabilityMessage) returns (google.protobuf.Empty) {}
+  rpc SetLeAuthRequirements(LeAuthRequirementsMessage) returns (google.protobuf.Empty) {}
+  rpc SetLeMaximumEncryptionKeySize(LeMaximumEncryptionKeySizeMessage) returns (google.protobuf.Empty) {}
+  rpc GetLeOutOfBandData(google.protobuf.Empty) returns (OobDataMessage) {}
+  rpc SetOutOfBandData(OobDataMessage) returns (google.protobuf.Empty) {}
+  rpc SetLeOobDataPresent(LeOobDataPresentMessage) returns (google.protobuf.Empty) {}
+  rpc SetLeInitiatorAddressPolicy(hci.PrivacyPolicy) returns (google.protobuf.Empty) {}
+  rpc SendUiCallback(UiCallbackMsg) returns (google.protobuf.Empty) {}
+  rpc FetchUiEvents(google.protobuf.Empty) returns (stream UiMsg) {}
+  rpc FetchBondEvents(google.protobuf.Empty) returns (stream BondMsg) {}
+  rpc FetchHelperEvents(google.protobuf.Empty) returns (stream SecurityHelperMsg) {}
+  rpc EnforceSecurityPolicy(SecurityPolicyMessage) returns (google.protobuf.Empty) {}
+  rpc FetchEnforceSecurityPolicyEvents(google.protobuf.Empty) returns (stream EnforceSecurityPolicyMsg) {}
+  rpc FetchDisconnectEvents(google.protobuf.Empty) returns (stream DisconnectMsg) {}
+  rpc FetchAdvertisingCallbackEvents(google.protobuf.Empty) returns (stream AdvertisingCallbackMsg) {}
+}
+
+message OobDataMessage {
+  blueberry.facade.BluetoothAddressWithType address = 1;
+  bytes confirmation_value = 2;
+  bytes random_value = 3;
+}
+
+message OobDataBondMessage {
+  blueberry.facade.BluetoothAddressWithType address = 1;
+  OobDataMessage p192_data = 2;
+  OobDataMessage p256_data = 3;
+}
+
+enum UiMsgType {
+  DISPLAY_YES_NO_WITH_VALUE = 0;
+  DISPLAY_YES_NO = 1;
+  DISPLAY_PASSKEY = 2;
+  DISPLAY_PASSKEY_ENTRY = 3;
+  DISPLAY_CANCEL = 4;
+  DISPLAY_PAIRING_PROMPT = 5;
+  DISPLAY_PIN_ENTRY = 6;
+}
+
+message UiMsg {
+  UiMsgType message_type = 1;
+  blueberry.facade.BluetoothAddressWithType peer = 2;
+  uint32 numeric_value = 3;
+  uint32 unique_id = 4;
+}
+
+enum UiCallbackType {
+  YES_NO = 0;
+  PASSKEY = 1;
+  PAIRING_PROMPT = 2;
+  PIN = 3;
+}
+
+message UiCallbackMsg {
+  UiCallbackType message_type = 1;
+  blueberry.facade.BluetoothAddressWithType address = 2;
+  bool boolean = 3;
+  uint32 numeric_value = 4;
+  uint32 unique_id = 5;
+  bytes pin = 6;
+}
+
+enum BondMsgType {
+  DEVICE_BONDED = 0;
+  DEVICE_UNBONDED = 1;
+  DEVICE_BOND_FAILED = 2;
+}
+
+message BondMsg {
+  BondMsgType message_type = 1;
+  blueberry.facade.BluetoothAddressWithType peer = 2;
+  uint32 reason = 3;
+}
+
+enum HelperMsgType { DEVICE_DISCONNECTED = 0; }
+
+message SecurityHelperMsg {
+  HelperMsgType message_type = 1;
+  blueberry.facade.BluetoothAddressWithType peer = 2;
+}
+
+enum IoCapabilities {
+  DISPLAY_ONLY = 0;
+  DISPLAY_YES_NO_IO_CAP = 1;
+  KEYBOARD_ONLY = 2;
+  NO_INPUT_NO_OUTPUT = 3;
+}
+
+message IoCapabilityMessage {
+  IoCapabilities capability = 1;
+}
+
+message LeIoCapabilityMessage {
+  enum LeIoCapabilities {
+    DISPLAY_ONLY = 0;
+    DISPLAY_YES_NO_IO_CAP = 1;
+    KEYBOARD_ONLY = 2;
+    NO_INPUT_NO_OUTPUT = 3;
+    KEYBOARD_DISPLAY = 4;
+  }
+  LeIoCapabilities capabilities = 1;
+}
+
+enum AuthenticationRequirements {
+  NO_BONDING = 0;
+  NO_BONDING_MITM_PROTECTION = 1;
+  DEDICATED_BONDING = 2;
+  DEDICATED_BONDING_MITM_PROTECTION = 3;
+  GENERAL_BONDING = 4;
+  GENERAL_BONDING_MITM_PROTECTION = 5;
+}
+
+message AuthenticationRequirementsMessage {
+  AuthenticationRequirements requirement = 1;
+}
+
+message LeAuthRequirementsMessage {
+  bool bond = 1;
+  bool mitm = 2;
+  bool secure_connections = 3;
+  bool keypress = 4;
+  bool ct2 = 5;
+  uint32 reserved_bits = 6;
+}
+
+message LeMaximumEncryptionKeySizeMessage {
+  uint32 maximum_encryption_key_size = 1;
+}
+
+message LeOobDataPresentMessage {
+  enum LeOobDataFlag {
+    NOT_PRESENT = 0;
+    PRESENT = 1;
+  }
+
+  LeOobDataFlag data_present = 1;
+}
+
+enum OobDataPresent {
+  NOT_PRESENT = 0;
+  P192_PRESENT = 1;
+  P256_PRESENT = 2;
+  P192_AND_256_PRESENT = 3;
+}
+
+message OobDataPresentMessage {
+  OobDataPresent data_present = 1;
+}
+
+message SecurityPolicyMessage {
+  blueberry.facade.BluetoothAddressWithType address = 1;
+  blueberry.facade.l2cap.classic.ClassicSecurityPolicy policy = 2;
+}
+
+message EnforceSecurityPolicyMsg {
+  bool result = 1;
+}
+
+message DisconnectMsg {
+  blueberry.facade.BluetoothAddressWithType address = 1;
+}
+
+enum AdvertisingCallbackMsgType {
+  ADVERTISING_SET_STARTED = 0;
+  OWN_ADDRESS_READ = 1;
+}
+
+enum AdvertisingSetStarted {
+  NOT_STARTED = 0;
+  STARTED = 1;
+}
+
+message AdvertisingCallbackMsg {
+  AdvertisingCallbackMsgType message_type = 1;
+  uint32 advertiser_id = 2;
+  AdvertisingSetStarted advertising_started = 3;
+  blueberry.facade.BluetoothAddress address = 4;
+}

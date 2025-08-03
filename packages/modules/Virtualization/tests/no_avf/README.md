@@ -1,0 +1,1 @@
+CTS tests for devices that don't support AVF.

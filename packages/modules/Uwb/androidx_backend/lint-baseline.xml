@@ -1,0 +1,477 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.4.0-alpha01" type="baseline" client="" dependencies="true" name="" variant="all" version="8.4.0-alpha01">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `convertUwbAddress`"
+        errorLine1="                        .setDeviceAddress(Conversions.convertUwbAddress(localAddress,"
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Uwb/androidx_backend/src/androidx/core/uwb/backend/impl/internal/ConfigurationManager.java"
+            line="521"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `getReverseBytes`"
+        errorLine1="                                    ? Conversions.getReverseBytes("
+        errorLine2="                                                  ~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Uwb/androidx_backend/src/androidx/core/uwb/backend/impl/internal/ConfigurationManager.java"
+            line="557"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `convertUwbAddressList`"
+        errorLine1="            builder.setDestAddressList(Conversions.convertUwbAddressList("
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Uwb/androidx_backend/src/androidx/core/uwb/backend/impl/internal/ConfigurationManager.java"
+            line="579"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `convertUwbAddressList`"
+        errorLine1="                                Conversions.convertUwbAddressList(peerAddresses,"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Uwb/androidx_backend/src/androidx/core/uwb/backend/impl/internal/ConfigurationManager.java"
+            line="614"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `convertUwbAddressList`"
+        errorLine1="                Conversions.convertUwbAddressList("
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Uwb/androidx_backend/src/androidx/core/uwb/backend/impl/internal/ConfigurationManager.java"
+            line="636"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 34 (current min is 31): `android.uwb.RangingMeasurement#getRangingMeasurementMetadata`"
+        errorLine1="                    measurement.getRangingMeasurementMetadata());"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Uwb/androidx_backend/src/androidx/core/uwb/backend/impl/internal/Conversions.java"
+            line="72"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.uwb.RangingReport#getMeasurements`"
+        errorLine1="        List&lt;RangingMeasurement&gt; measurements = rangingReport.getMeasurements();"
+        errorLine2="                                                              ~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Uwb/androidx_backend/src/androidx/core/uwb/backend/impl/internal/RangingDevice.java"
+            line="228"
+            column="63"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.uwb.RangingMeasurement#getRemoteDeviceAddress`"
+        errorLine1="            byte[] remoteAddressBytes = measurement.getRemoteDeviceAddress().toBytes();"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Uwb/androidx_backend/src/androidx/core/uwb/backend/impl/internal/RangingDevice.java"
+            line="230"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.uwb.UwbAddress#toBytes`"
+        errorLine1="            byte[] remoteAddressBytes = measurement.getRemoteDeviceAddress().toBytes();"
+        errorLine2="                                                                             ~~~~~~~">
+        <location
+            file="packages/modules/Uwb/androidx_backend/src/androidx/core/uwb/backend/impl/internal/RangingDevice.java"
+            line="230"
+            column="78"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `getReverseBytes`"
+        errorLine1="                remoteAddressBytes = Conversions.getReverseBytes(remoteAddressBytes);"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Uwb/androidx_backend/src/androidx/core/uwb/backend/impl/internal/RangingDevice.java"
+            line="232"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `isDlTdoaMeasurement`"
+        errorLine1="            if (!isKnownPeer(peerAddress) &amp;&amp; !Conversions.isDlTdoaMeasurement(measurement)) {"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Uwb/androidx_backend/src/androidx/core/uwb/backend/impl/internal/RangingDevice.java"
+            line="237"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.uwb.RangingMeasurement#getStatus`"
+        errorLine1="            if (measurement.getStatus() != RangingMeasurement.RANGING_STATUS_SUCCESS"
+        errorLine2="                            ~~~~~~~~~">
+        <location
+            file="packages/modules/Uwb/androidx_backend/src/androidx/core/uwb/backend/impl/internal/RangingDevice.java"
+            line="243"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `convertToPosition`"
+        errorLine1="            RangingPosition currentPosition = Conversions.convertToPosition(measurement);"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Uwb/androidx_backend/src/androidx/core/uwb/backend/impl/internal/RangingDevice.java"
+            line="248"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 31 (current min is 30): `android.uwb.RangingSession.Callback`"
+        errorLine1="        return new RangingSession.Callback() {"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Uwb/androidx_backend/src/androidx/core/uwb/backend/impl/internal/RangingDevice.java"
+            line="284"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `convertReason`"
+        errorLine1="                int suspendedReason = Conversions.convertReason(reason);"
+        errorLine2="                                                  ~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Uwb/androidx_backend/src/androidx/core/uwb/backend/impl/internal/RangingDevice.java"
+            line="297"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `convertReason`"
+        errorLine1="                int suspendedReason = Conversions.convertReason(reason);"
+        errorLine2="                                                  ~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Uwb/androidx_backend/src/androidx/core/uwb/backend/impl/internal/RangingDevice.java"
+            line="320"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.uwb.RangingSession#close`"
+        errorLine1="                    mRangingSession.close();"
+        errorLine2="                                    ~~~~~">
+        <location
+            file="packages/modules/Uwb/androidx_backend/src/androidx/core/uwb/backend/impl/internal/RangingDevice.java"
+            line="328"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `convertReason`"
+        errorLine1="                int suspendedReason = Conversions.convertReason(reason);"
+        errorLine2="                                                  ~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Uwb/androidx_backend/src/androidx/core/uwb/backend/impl/internal/RangingDevice.java"
+            line="349"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `android.uwb.UwbManager#openRangingSession`"
+        errorLine1="                                mUwbManager.openRangingSession("
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Uwb/androidx_backend/src/androidx/core/uwb/backend/impl/internal/RangingDevice.java"
+            line="470"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.uwb.UwbManager#openRangingSession`"
+        errorLine1="                                mUwbManager.openRangingSession("
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Uwb/androidx_backend/src/androidx/core/uwb/backend/impl/internal/RangingDevice.java"
+            line="476"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 34 (current min is 30): `android.uwb.RangingSession#updateRangingRoundsDtTag`"
+        errorLine1="                            () -&gt; mRangingSession.updateRangingRoundsDtTag("
+        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Uwb/androidx_backend/src/androidx/core/uwb/backend/impl/internal/RangingDevice.java"
+            line="503"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.uwb.RangingSession#start`"
+        errorLine1='                        () -&gt; mRangingSession.start(new PersistableBundle()), "Start ranging");'
+        errorLine2="                                              ~~~~~">
+        <location
+            file="packages/modules/Uwb/androidx_backend/src/androidx/core/uwb/backend/impl/internal/RangingDevice.java"
+            line="510"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.uwb.RangingSession#stop`"
+        errorLine1='                    () -&gt; requireNonNull(mRangingSession).stop(), "Stop Ranging");'
+        errorLine2="                                                          ~~~~">
+        <location
+            file="packages/modules/Uwb/androidx_backend/src/androidx/core/uwb/backend/impl/internal/RangingDevice.java"
+            line="532"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.uwb.RangingSession#close`"
+        errorLine1='                        () -&gt; requireNonNull(mRangingSession).close(), "Close Session");'
+        errorLine2="                                                              ~~~~~">
+        <location
+            file="packages/modules/Uwb/androidx_backend/src/androidx/core/uwb/backend/impl/internal/RangingDevice.java"
+            line="539"
+            column="63"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.uwb.RangingSession#reconfigure`"
+        errorLine1='                        () -&gt; mRangingSession.reconfigure(bundle), "Reconfigure Ranging");'
+        errorLine2="                                              ~~~~~~~~~~~">
+        <location
+            file="packages/modules/Uwb/androidx_backend/src/androidx/core/uwb/backend/impl/internal/RangingDevice.java"
+            line="563"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `android.uwb.RangingSession#addControlee`"
+        errorLine1='                        () -&gt; mRangingSession.addControlee(bundle), "Add controlee");'
+        errorLine2="                                              ~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Uwb/androidx_backend/src/androidx/core/uwb/backend/impl/internal/RangingDevice.java"
+            line="576"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `android.uwb.RangingSession#removeControlee`"
+        errorLine1='                        () -&gt; mRangingSession.removeControlee(bundle), "Remove controlee");'
+        errorLine2="                                              ~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Uwb/androidx_backend/src/androidx/core/uwb/backend/impl/internal/RangingDevice.java"
+            line="589"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `getComplexChannel`"
+        errorLine1="                controller.getComplexChannel();"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Uwb/androidx_backend/src/androidx/core/uwb/backend/impl/UwbControllerClient.java"
+            line="47"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `startRanging`"
+        errorLine1="                .startRanging(convertCallback(callback), Executors.newSingleThreadExecutor());"
+        errorLine2="                 ~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Uwb/androidx_backend/src/androidx/core/uwb/backend/impl/UwbControllerClient.java"
+            line="59"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `stopRanging`"
+        errorLine1="        int status = ((RangingController) mDevice).stopRanging();"
+        errorLine2="                                                   ~~~~~~~~~~~">
+        <location
+            file="packages/modules/Uwb/androidx_backend/src/androidx/core/uwb/backend/impl/UwbControllerClient.java"
+            line="67"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `addControlee`"
+        errorLine1="        int status = ((RangingController) mDevice).addControlee(uwbAddress);"
+        errorLine2="                                                   ~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Uwb/androidx_backend/src/androidx/core/uwb/backend/impl/UwbControllerClient.java"
+            line="77"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `addControleeWithSessionParams`"
+        errorLine1="                .addControleeWithSessionParams(controleeParameters);"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Uwb/androidx_backend/src/androidx/core/uwb/backend/impl/UwbControllerClient.java"
+            line="94"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `removeControlee`"
+        errorLine1="        int status = ((RangingController) mDevice).removeControlee(uwbAddress);"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Uwb/androidx_backend/src/androidx/core/uwb/backend/impl/UwbControllerClient.java"
+            line="104"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `convertAdapterStateReason`"
+        errorLine1="                    mLastStateChangeReason = Conversions.convertAdapterStateReason(reason);"
+        errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Uwb/androidx_backend/src/androidx/core/uwb/backend/impl/internal/UwbServiceImpl.java"
+            line="88"
+            column="58"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 31 (current min is 30): `android.uwb.UwbManager`"
+        errorLine1="            mUwbManager = context.getSystemService(UwbManager.class);"
+        errorLine2="                                                   ~~~~~~~~~~">
+        <location
+            file="packages/modules/Uwb/androidx_backend/src/androidx/core/uwb/backend/impl/internal/UwbServiceImpl.java"
+            line="101"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.uwb.UwbManager#registerAdapterStateCallback`"
+        errorLine1="            mUwbManager.registerAdapterStateCallback(mSerialExecutor, mAdapterStateCallback);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Uwb/androidx_backend/src/androidx/core/uwb/backend/impl/internal/UwbServiceImpl.java"
+            line="107"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 31 (current min is 30): `android.uwb.UwbManager`"
+        errorLine1="        UwbManager uwbManagerWithContext = context.getSystemService(UwbManager.class);"
+        errorLine2="                                                                    ~~~~~~~~~~">
+        <location
+            file="packages/modules/Uwb/androidx_backend/src/androidx/core/uwb/backend/impl/internal/UwbServiceImpl.java"
+            line="115"
+            column="69"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `RangingController`"
+        errorLine1="        return new RangingController("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Uwb/androidx_backend/src/androidx/core/uwb/backend/impl/internal/UwbServiceImpl.java"
+            line="116"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 31 (current min is 30): `android.uwb.UwbManager`"
+        errorLine1="        UwbManager uwbManagerWithContext = context.getSystemService(UwbManager.class);"
+        errorLine2="                                                                    ~~~~~~~~~~">
+        <location
+            file="packages/modules/Uwb/androidx_backend/src/androidx/core/uwb/backend/impl/internal/UwbServiceImpl.java"
+            line="123"
+            column="69"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `RangingControlee`"
+        errorLine1="        return new RangingControlee("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Uwb/androidx_backend/src/androidx/core/uwb/backend/impl/internal/UwbServiceImpl.java"
+            line="124"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `android.uwb.UwbManager#getChipInfos`"
+        errorLine1="        List&lt;PersistableBundle&gt; chipInfoBundles = mUwbManager.getChipInfos();"
+        errorLine2="                                                              ~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Uwb/androidx_backend/src/androidx/core/uwb/backend/impl/internal/UwbServiceImpl.java"
+            line="131"
+            column="63"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `android.uwb.UwbManager#getDefaultChipId`"
+        errorLine1="        return mUwbManager.getDefaultChipId();"
+        errorLine2="                           ~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Uwb/androidx_backend/src/androidx/core/uwb/backend/impl/internal/UwbServiceImpl.java"
+            line="141"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.uwb.UwbManager#unregisterAdapterStateCallback`"
+        errorLine1="            mUwbManager.unregisterAdapterStateCallback(mAdapterStateCallback);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Uwb/androidx_backend/src/androidx/core/uwb/backend/impl/internal/UwbServiceImpl.java"
+            line="151"
+            column="25"/>
+    </issue>
+
+</issues>

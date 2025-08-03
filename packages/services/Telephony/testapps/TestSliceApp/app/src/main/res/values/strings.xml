@@ -1,0 +1,20 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+  <string name="app_name">TestSliceApp</string>
+  <string name="hello_blank_fragment">Hello blank fragment</string>
+  <string name="request_network">Request Network</string>
+  <string name="release_network">Release Network</string>
+  <string name="ping">Ping</string>
+  <string name="result_prefix">Result: </string>
+  <string name="latency_title">Prioritize Latency</string>
+  <string name="bw_title">Prioritize Bandwidth</string>
+  <string name="cbs_title">CBS</string>
+  <string name="purchase">Purchase Network Premium</string>
+  <string name="network_available">Result: The requested network is available now!</string>
+  <string name="network_requested">Result: The network has been requested!</string>
+  <string name="network_released">Result: The network has been released!</string>
+  <string name="network_release_failed">Result: Failed to release the network!!!</string>
+  <string name="purchase_exception">Result: Exception when purchasing network premium!!!</string>
+  <string name="purchase_empty_result">Result: Got empty result when purchasing network premium!!!</string>
+  <string name="premium_not_available">Result: The network premium is not available for purchase!!!</string>
+  <string name="purchase_in_progress">Result: The network premium purchase is in progress ...</string>
+</resources>

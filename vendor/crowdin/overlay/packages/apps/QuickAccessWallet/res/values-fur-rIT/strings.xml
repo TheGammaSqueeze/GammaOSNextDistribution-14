@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="error_user_locked">Sbloche il telefon par cjariâ lis tôs informazions di paiament</string>
+    <string name="accessibility_menu">Menù</string>
+    <string name="error_generic">Al è vignût fûr un probleme tal otignî lis tôs cjartis, torne prove plui tart</string>
+    <string name="settings">Impostazions</string>
+</resources>

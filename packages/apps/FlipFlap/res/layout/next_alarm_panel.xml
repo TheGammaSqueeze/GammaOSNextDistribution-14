@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<org.lineageos.flipflap.NextAlarmPanel xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center" >
+
+    <ImageView android:id="@+id/alarm_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawablePadding="2dip"
+        android:layout_marginLeft="8dip"
+        android:gravity="center"
+        android:src="@drawable/ic_alarm_small"
+		android:tint="@color/clock_white" />
+
+    <TextView android:id="@+id/next_alarm_regular"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/clock_white"
+        style="@style/alarm_label_thin"
+        android:layout_marginLeft="4dip"
+        android:gravity="center" />
+</org.lineageos.flipflap.NextAlarmPanel>

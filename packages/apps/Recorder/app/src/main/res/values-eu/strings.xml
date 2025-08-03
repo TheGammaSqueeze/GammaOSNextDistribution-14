@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2017-2021 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <string name="app_name">Grabatzailea</string>
+    <string name="share">Partekatu</string>
+    <string name="stop">Gelditu</string>
+    <string name="play">Erreproduzitu</string>
+    <string name="delete">Ezabatu</string>
+    <string name="cancel">Utzi</string>
+    <string name="delete_title">Grabaketa ezabatzen</string>
+    <string name="sound_notification_title">Soinu grabagailua</string>
+    <string name="sound_notification_message">Audioaren iraupena: %1$s</string>
+    <string name="sound_recording_title_working">Grabatzen</string>
+    <string name="sound_last_title">Azken grabaketa</string>
+    <string name="sound_channel_title">Soinu grabazioa</string>
+    <string name="sound_channel_desc">Jakinarazpen iraunkorra soinua grabatzean eta jakinarazpena behin burututa</string>
+    <string name="dialog_permissions_title">Baimenak</string>
+    <string name="dialog_permissions_mic">Grabatzaileak mikrofonoa atzitzeko baimena behar du grabatu ahal izateko</string>
+    <string name="dialog_permissions_phone">Grabatzaileak telefonoaren egoera atzitzeko baimena behar aplikazio honek dei batean zehar grabatzea ekiditeko</string>
+    <string name="dialog_permissions_mic_phone">Grabatzaileak mikrofonoa atzitzeko baimena behar du audioa grabatzeko eta telefonoaren egoera atzitzeko baimena dei batean zehar grabatzea ekiditeko</string>
+    <string name="dialog_permissions_ask">Galdetu berriro</string>
+    <string name="dialog_permissions_dismiss">Baztertu</string>
+    <string name="snack_permissions_no_permission">Beharrezkoak diren baimenak ukatu dira, gaitu itzazu ezarpenen aplikaziotik grabatzen hasteko</string>
+    <string name="main_sound_action">Grabatu soinua</string>
+</resources>

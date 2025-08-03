@@ -1,0 +1,49 @@
+# Copyright (C) 2021 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+owner: Platform
+module: "android.sysprop.HypervisorProperties"
+
+# Provides a free-form description of the version of the hypervisor in use
+# that Android is running as a guest of, if any. Empty string on native
+# Android deployments, or if the information was not or could not be supplied.
+prop {
+    api_name: "hypervisor_version"
+    type: String
+    scope: Public
+    access: Readonly
+    prop_name: "ro.boot.hypervisor.version"
+}
+
+# Declares whether or not the hypervisor supports running traditional virtual
+# machines that can be created and managed via VirtualizationService.
+prop {
+    api_name: "hypervisor_vm_supported"
+    type: Boolean
+    scope: Public
+    access: Readonly
+    prop_name: "ro.boot.hypervisor.vm.supported"
+}
+
+# Declares whether or not the hypervisor supports running protected virtual
+# machines, where the host cannot inspect the virtual machine's internal state,
+# that can be created and managed via VirtualizationService. pKVM is an example
+# of a hypervisor that supports protected virtual machines.
+prop {
+    api_name: "hypervisor_protected_vm_supported"
+    type: Boolean
+    scope: Public
+    access: Readonly
+    prop_name: "ro.boot.hypervisor.protected_vm.supported"
+}

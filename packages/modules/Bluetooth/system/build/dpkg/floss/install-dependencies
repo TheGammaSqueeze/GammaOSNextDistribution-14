@@ -1,0 +1,73 @@
+#!/bin/bash
+
+DRY_RUN=""
+if [ $# -gt 0 ]; then
+    if [ "$1" == "--dry-run" ]; then
+        DRY_RUN="echo "
+    fi
+fi
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PARENT_DIR="$(echo ${SCRIPT_DIR} | rev | cut -d '/' -f 2- | rev )"
+
+TMP_DIR=$(mktemp -d)
+OUT_DIR="${TMP_DIR}/out"
+
+trap ctrl_c INT
+
+function ctrl_c() {
+    echo -n "Cleaning up..."
+    rm -rf "${TMP_DIR}"
+    echo "Done."
+    exit 1
+}
+
+# APT dependencies
+APT_REQUIRED="git curl wget flatbuffers-compiler flex g++-multilib gcc-multilib generate-ninja \
+gnupg gperf libc++-dev libdbus-1-dev libevent-dev libflatbuffers-dev libfmt-dev libflatbuffers1 \
+libgl1-mesa-dev libglib2.0-dev liblz4-tool libncurses5 libnss3-dev libprotobuf-dev libre2-9 \
+libssl-dev libtinyxml2-dev libx11-dev libxml2-utils ninja-build openssl protobuf-compiler unzip \
+x11proto-core-dev xsltproc zip zlib1g-dev libc++abi-dev cmake debmake ninja-build libgtest-dev \
+libgmock-dev libabsl-dev libre2-dev libdouble-conversion-dev bison clang llvm"
+
+${DRY_RUN} sudo apt install ${APT_REQUIRED}
+
+# Install rustup
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source $HOME/.cargo/env
+${DRY_RUN} rustup update
+
+${DRY_RUN} cargo install cxxbridge-cmd --version 1.0.42 || ctrl_c
+${DRY_RUN} cargo install cargo-proc-macro || ctrl_c
+
+echo "Building and installing modp-b64..."
+# dir name is different than package name :'(
+${DRY_RUN} pushd "${PARENT_DIR}/modp_b64/"
+${DRY_RUN} ./gen-src-pkg.sh "${OUT_DIR}" || crtl_c
+${DRY_RUN} sudo dpkg -i "${OUT_DIR}"/modp-b64*.deb || ctrl_c
+${DRY_RUN} popd
+
+echo "Building and installing libchrome..."
+${DRY_RUN} pushd "${PARENT_DIR}/libchrome/"
+${DRY_RUN} ./gen-src-pkg.sh "${OUT_DIR}" || crtl_c
+${DRY_RUN} sudo dpkg -i "${OUT_DIR}"/libchrome*.deb || ctrl_c
+${DRY_RUN} popd
+
+HAS_EXPORT="$(cat \$HOME/.bashrc|grep '.cargo/bin')"
+if [ "${HAS_EXPORT}" == "" ]; then
+    ${DRY_RUN} echo "export PATH=\$PATH:\$HOME/.cargo/bin" >> ~/.bashrc
+fi
+
+HAS_EXPORT="$(cat \$HOME/.bashrc|grep '$HOME/bin')"
+if [ "${HAS_EXPORT}" == "" ]; then
+    ${DRY_RUN} echo "export PATH=\$PATH:\$HOME/bin" >> ~/.bashrc
+fi
+
+# Put the GN binary in the bin...it isn't the right spot, but avoids adding a second directory
+# to the environmental PATH
+${DRY_RUN} mkdir -p ~/bin
+${DRY_RUN} wget -O ~/bin/gn http://commondatastorage.googleapis.com/chromeos-localmirror/distfiles/gn-3e43fac03281e2f5e5ae5f27c8e9a6bb45966ea9.bin
+${DRY_RUN} chmod +x ~/bin/gn
+
+rm -rf "${TMP_DIR}"
+echo "DONE"

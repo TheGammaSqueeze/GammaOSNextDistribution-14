@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2017-2021 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <string name="app_name">Snemalnik</string>
+    <string name="share">Souporaba</string>
+    <string name="share_selected">Deli izbrano</string>
+    <string name="stop">Ustavi</string>
+    <string name="play">Predvajaj</string>
+    <string name="pause">Premor</string>
+    <string name="resume">Nadaljuj</string>
+    <string name="delete">Izbriši</string>
+    <string name="delete_all">Izbriši vse</string>
+    <string name="delete_selected">Izbriši izbrano</string>
+    <string name="cancel">Prekliči</string>
+    <string name="rename">Preimenuj</string>
+    <string name="delete_title">Brisanje posnetka</string>
+    <string name="delete_recording_message">Ali ste prepričani, da želite izbrisati ta posnetek? Tega ni mogoče razveljaviti</string>
+    <string name="confirm">Potrdi</string>
+    <string name="discard">Zavrzi</string>
+    <string name="record_again">Snemaj ponovno</string>
+    <string name="confirm_result_title">Uporabi posnetek?</string>
+    <string name="confirm_result_message">Ali želite uporabiti zadnji posnetek?</string>
+    <string name="sound_notification_title">Snemalnik zvoka</string>
+    <string name="sound_notification_message">Dolžina zvoka: %1$s</string>
+    <string name="sound_recording_title_working">Snemanje</string>
+    <string name="sound_recording_title_paused">V premoru</string>
+    <string name="sound_last_title">Zadnji posnetek</string>
+    <string name="sound_channel_title">Snemanje zvoka</string>
+    <string name="sound_channel_desc">Trajno obvestilo med snemanjem zvoka in obvestilo, ko je končano</string>
+    <string name="settings_title">Nastavitve</string>
+    <string name="settings_location_message">Označite vaše posnetke z vašo trenutno lokacijo</string>
+    <string name="settings_quality_high">Snemaj v visoki kakovosti</string>
+    <string name="dialog_permissions_title">Dovoljenja</string>
+    <string name="dialog_permissions_mic">Snemalnik potrebuje dovoljenje za mikrofon za snemanje zvoka</string>
+    <string name="dialog_permissions_phone">Snemalnik potrebuje dostop do stanja telefona, da tej aplikaciji prepreči snemanje med klicem</string>
+    <string name="dialog_permissions_notifications">Snemalnik potrebuje dovoljenje za obvestila za prikaz kontrolnikov snemanja</string>
+    <string name="dialog_permissions_mic_phone">Snemalnik potrebuje dovoljenje za mikrofon za snemanje zvoka in dostop do stanja telefona, da tej aplikaciji prepreči snemanje med klicem</string>
+    <string name="dialog_permissions_mic_notifications">Snemalnik potrebuje dovoljenje za mikrofon za snemanje zvoka in dovoljenje za obvestila za prikaz kontrolnikov snemanja</string>
+    <string name="dialog_permissions_phone_notifications">Snemalnik potrebuje dostop do stanja telefona, da prepreči tej aplikaciji snemanje med klicem in dovoljenje za obvestila za prikaz kontrolnikov snemanja</string>
+    <string name="dialog_permissions_mic_phone_notifications">Snemalnik potrebuje dovoljenje za mikrofon za snemanje zvoka, dostop do stanja telefona, da prepreči tej aplikaciji snemanje med klicem in dovoljenje za obvestila za prikaz kontrolnikov snemanja</string>
+    <string name="dialog_permissions_location">Snemalnik potrebuje dovoljenje za lokacijo za samodejno označevanje vaših posnetkov za pomoč pri organiziranju</string>
+    <string name="dialog_permissions_ask">Ponovno vprašaj</string>
+    <string name="dialog_permissions_dismiss">Opusti</string>
+    <string name="snack_permissions_no_permission">Zahtevana dovoljenja so bila zavrnjena, omogočite jih v aplikaciji Nastavitve, da začnete snemati</string>
+    <string name="snack_permissions_no_permission_location">Dovoljenje za lokacijo je bilo zavrnjeno, omogočite ga iz aplikacije Nastavitve, da označite vaše posnetke</string>
+    <string name="main_sound_action">Snemanje zvoka</string>
+    <string name="list_title">Moji posnetki</string>
+    <string name="list_error_empty">Vsi vaši posnetki bodo prikazani tukaj</string>
+    <string name="list_edit_title">Uredi ime posnetka</string>
+    <string name="list_edit_confirm">Spremeni</string>
+    <string name="list_item_menu">Več dejanj</string>
+    <string name="delete_all_title">Izbriši vse</string>
+    <string name="delete_all_message">Ali ste prepričani, da želite izbrisati vse posnetke? Tega ni mogoče razveljaviti</string>
+    <string name="delete_selected_title">Izbriši izbrano</string>
+    <string name="delete_selected_message">Ali ste prepričani, da želite izbrisati izbrane posnetke? Tega ni mogoče razveljaviti</string>
+    <plurals name="recording_selection_count">
+        <item quantity="one">%d izbran</item>
+        <item quantity="two">%d izbrana</item>
+        <item quantity="few">%d izbrani</item>
+        <item quantity="other">%d izbranih</item>
+    </plurals>
+</resources>

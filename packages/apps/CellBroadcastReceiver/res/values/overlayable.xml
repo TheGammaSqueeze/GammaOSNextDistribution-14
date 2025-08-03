@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2019 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<!-- The collection of resources for theming the appearance of a device -->
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <overlayable name="CellBroadcastCustomization">
+
+        <!-- START VENDOR CUSTOMIZATION -->
+        <policy type="product|system|vendor">
+            <!-- START THEME / STYLE -->
+            <item type="style" name="CellBroadcastAlertTheme"/>
+            <item type="style" name="CellBroadcastOptOutTheme"/>
+            <item type="style" name="CellBroadcastListActivityTheme"/>
+            <item type="style" name="CellBroadcastSettingsTheme"/>
+
+            <!-- All attributes defined in app level need to exposed to overlay the AlerDialog and
+                 CellBroadcastAlertDialog layouts -->
+            <item type="attr" name="preferenceFragmentCompatStyle"/>
+            <item type="attr" name="switchPreferenceStyle"/>
+            <item type="attr" name="preferenceCategoryStyle"/>
+            <item type="attr" name="preferenceStyle"/>
+            <item type="attr" name="dialogPreferenceStyle"/>
+
+            <item type="attr" name="preferenceTheme"/>
+            <item type="attr" name="allowDividerAfterLastItem"/>
+            <item type="attr" name="allowDividerAbove"/>
+            <item type="attr" name="allowDividerBelow"/>
+            <item type="attr" name="singleLineTitle"/>
+
+            <item type="attr" name="alertDialogTheme"/>
+            <item type="attr" name="alertDialogStyle"/>
+            <item type="attr" name="listLayout"/>
+            <item type="attr" name="listItemLayout"/>
+            <item type="attr" name="multiChoiceItemLayout"/>
+            <item type="attr" name="singleChoiceItemLayout"/>
+
+            <item type="attr" name="windowActionBar"/>
+            <item type="attr" name="colorAccent"/>
+
+            <!-- Declare the IDs used in overlayable layouts like CellBroadcastAlertDialog -->
+            <item type="id" name="parentPanel"/>
+            <item type="id" name="topPanel"/>
+            <item type="id" name="titleDividerTop"/>
+            <item type="id" name="title_template"/>
+            <item type="id" name="icon"/>
+            <item type="id" name="alertTitle"/>
+            <item type="id" name="titleDivider"/>
+            <item type="id" name="contentPanel"/>
+            <item type="id" name="scrollView"/>
+            <item type="id" name="message"/>
+            <item type="id" name="pictogramPanel"/>
+            <item type="id" name="pictogramImage"/>
+            <item type="id" name="buttonPanel"/>
+            <item type="id" name="dismissButton"/>
+            <!-- END THEME / STYLE -->
+
+            <!-- START DIMEN -->
+            <item type="dimen" name="alert_dialog_title_height"/>
+            <item type="dimen" name="alert_dialog_button_bar_height"/>
+            <!-- Max height of alert dialog's text content -->
+            <item type="dimen" name="alert_dialog_maxheight_content_panel"/>
+            <!-- END DIMEN -->
+
+            <!-- START COLOR -->
+            <item type="color" name="notification_color"/>
+            <item type="color" name="cell_broadcast_color_primary"/>
+            <item type="color" name="cell_broadcast_color_primary_dark"/>
+            <!-- END COLOR -->
+
+            <!-- Customize launcher icon for cellbroadcast history -->
+            <item type="mipmap" name="ic_launcher_cell_broadcast" />
+
+            <!-- START CHANNEL related configurations which allows customization -->
+            <!-- Presidential alert is default on and cannot be turned off.
+            AOSP CBR app does not show presidential alert in settings, however OEM can choose to
+            display a greyout presidential alert settings by overriding below config -->
+            <item type="bool" name="show_presidential_alerts_settings" />
+            <item type="bool" name="show_message_history_in_launcher" />
+
+            <!-- Some JP carriers requires to enable 0xA807 in additional_cbs_channels_strings
+            but only for certain products. OEMs can customize below config by including 0xA807
+            or not per product configuration-->
+            <item type="array" name="additional_cbs_channels_strings" />
+
+            <!-- Allow OEM to customize link_method. By default, use smart
+            linkify except for countries which do not allow link copy. -->
+            <!-- Text links generating method. Could be one of the followings.
+             "none": Not adding any link to message texts.
+             "legacy_linkify": Use the legacy linkify to add links to message texts.
+             "smart_linkify": Use machine learning based smart linkify to add
+             links to message texts.
+             "smart_linkify_no_copy: Use machine learning based smart linkify but
+             hipe copy menu-->
+            <item type="string" name="link_method" />
+            <!-- END CHANNEL related configurations -->
+
+            <!-- Some countries like KR requires to display CB messages inside SMS inbox.
+            allow customization for sms sender name -->
+            <item type="string" name="sms_cb_sender_name_default" />
+            <!-- Value of sms sender display name to be shown in SMS inbox for presidential alerts -->
+            <item type="string" name="sms_cb_sender_name_presidential" />
+            <!-- Value of sms sender display name to be shown in SMS inbox for emergency alerts -->
+            <!-- mapping to emergency_alerts_channels_range_strings channel range -->
+            <item type="string" name="sms_cb_sender_name_emergency" />
+            <!-- Value of sms sender display name to be shown in SMS inbox for public safety alerts -->
+            <item type="string" name="sms_cb_sender_name_public_safety" />
+            <item type="bool" name="enable_write_alerts_to_sms_inbox" />
+            <item type="bool" name="always_mark_sms_read" />
+
+            <!-- Whether to disable the opt-out dialog for all channels -->
+            <item type="bool" name="disable_opt_out_dialog" />
+
+            <!-- Whether to retry message history data migration after db creation
+           Note, please only enable this flag when upgrade to R, enabling this
+           flag during OTA might cause history data inserted twice.-->
+            <item type="bool" name="retry_message_history_data_migration" />
+            <!-- Allow user to enable/disable audio speech alert (text-to-speech for received
+            messages)-->
+            <item type="bool" name="show_alert_speech_setting" />
+            <item type="bool" name="show_main_switch_settings" />
+
+            <!-- Whether to enable alert handling during active voice call. OEMs overriding this value
+            should note that some countries require that it be turned off by default (e.g. JP).-->
+            <item type="bool" name="enable_alert_handling_during_call" />
+
+            <!-- Default value which determines whether spoken alerts enabled -->
+            <item type="bool" name="enable_alert_speech_default" />
+
+            <!-- Default value of whether to display a notification with pop-up dialog in the foreground.
+            KR carriers mandate to always show notifications along with alert dialog. -->
+            <item type="bool" name="show_alert_dialog_with_notification" />
+
+            <!-- Whether to display a notification with the pop-up dialog in the foreground when the
+            device has active connections to companion devices. -->
+            <item type="bool" name="show_notification_if_connected_to_companion_devices" />
+
+            <!-- Whether enable LED flash when playing alert tones -->
+            <item type="bool" name="enable_led_flash" />
+
+            <!-- Whether to show the alert dialog at the bottom of the screen in order to avoid
+                 blocking other content -->
+            <item type="bool" name="alert_dialog_bottom" />
+
+            <!-- Temporarily enable string customization to address translation issues. All translation issues will be fixed in S by upstreaming -->
+            <!-- Dialog title for presidential level alert. [CHAR LIMIT=50] -->
+            <!-- The name of the Cell Broadcast Receiver app. [CHAR LIMIT=NONE] -->
+            <item type="string" name="app_label" />
+            <item type="string" name="sms_cb_settings" />
+            <item type="string" name="cell_broadcast_settings_not_available"/>
+            <item type="string" name="button_dismiss"/>
+            <item type="string" name="no_cell_broadcasts"/>
+            <item type="string" name="menu_preferences"/>
+            <item type="string" name="menu_delete_all"/>
+            <item type="string" name="message_options"/>
+            <item type="string" name="menu_view_details"/>
+            <item type="string" name="menu_delete"/>
+            <item type="string" name="view_details_title"/>
+            <item type="string" name="view_details_debugging_title"/>
+            <item type="string" name="confirm_delete_broadcast"/>
+            <item type="string" name="confirm_delete_all_broadcasts"/>
+            <item type="string" name="button_delete"/>
+            <item type="string" name="button_cancel"/>
+            <item type="string" name="etws_earthquake_warning"/>
+            <item type="string" name="etws_tsunami_warning"/>
+            <item type="string" name="etws_earthquake_and_tsunami_warning"/>
+            <item type="string" name="etws_test_message"/>
+            <item type="string" name="etws_other_emergency_type"/>
+            <item type="string" name="cmas_presidential_level_alert"/>
+            <item type="string" name="cmas_extreme_alert"/>
+            <item type="string" name="cmas_extreme_immediate_observed_alert"/>
+            <item type="string" name="cmas_extreme_immediate_likely_alert"/>
+            <item type="string" name="cmas_severe_alert"/>
+            <item type="string" name="cmas_amber_alert"/>
+            <item type="string" name="cmas_required_monthly_test"/>
+            <item type="string" name="cmas_exercise_alert"/>
+            <item type="string" name="cmas_operator_defined_alert"/>
+            <item type="string" name="pws_other_message_identifiers" />
+            <item type="string" name="cb_other_message_identifiers"/>
+            <item type="string" name="public_safety_message"/>
+            <item type="string" name="state_local_test_alert"/>
+            <item type="string" name="emergency_alert"/>
+            <item type="string" name="emergency_alerts_title"/>
+            <item type="string" name="notification_channel_broadcast_messages"/>
+            <item type="string" name="notification_channel_emergency_alerts"/>
+            <item type="string" name="notification_channel_broadcast_messages_in_voicecall"/>
+            <item type="string" name="enable_alerts_master_toggle_title"/>
+            <item type="string" name="enable_alerts_master_toggle_summary"/>
+            <item type="string" name="alert_reminder_interval_title"/>
+            <item type="string" name="alert_reminder_interval_summary"/>
+            <item type="string" name="alert_reminder_dialog_title"/>
+            <item type="string" name="emergency_alert_history_title"/>
+            <item type="string" name="alert_preferences_title"/>
+            <item type="string" name="enable_etws_test_alerts_title"/>
+            <item type="string" name="enable_etws_test_alerts_summary"/>
+            <item type="string" name="enable_cmas_extreme_threat_alerts_title"/>
+            <item type="string" name="enable_cmas_extreme_threat_alerts_summary"/>
+            <item type="string" name="enable_cmas_severe_threat_alerts_title"/>
+            <item type="string" name="enable_cmas_severe_threat_alerts_summary"/>
+            <item type="string" name="enable_cmas_amber_alerts_title"/>
+            <item type="string" name="enable_cmas_amber_alerts_summary"/>
+            <item type="string" name="enable_alert_message_title"/>
+            <item type="string" name="enable_alert_message_summary"/>
+            <item type="string" name="enable_public_safety_messages_title"/>
+            <item type="string" name="enable_public_safety_messages_summary"/>
+            <item type="string" name="enable_full_screen_public_safety_messages_title" />
+            <item type="string" name="enable_full_screen_public_safety_messages_summary" />
+            <item type="string" name="enable_state_local_test_alerts_title"/>
+            <item type="string" name="enable_state_local_test_alerts_summary"/>
+            <item type="string" name="enable_emergency_alerts_message_title"/>
+            <item type="string" name="enable_emergency_alerts_message_summary"/>
+            <item type="string" name="enable_cmas_test_alerts_title"/>
+            <item type="string" name="enable_cmas_test_alerts_summary"/>
+            <item type="string" name="enable_alert_vibrate_title"/>
+            <item type="string" name="enable_alert_vibrate_summary"/>
+            <item type="string" name="override_dnd_title"/>
+            <item type="string" name="override_dnd_summary"/>
+            <item type="string" name="enable_area_update_info_alerts_title"/>
+            <item type="string" name="enable_area_update_info_alerts_summary"/>
+
+            <item type="string" name="cmas_category_heading"/>
+            <item type="string" name="cmas_category_geo"/>
+            <item type="string" name="cmas_category_met"/>
+            <item type="string" name="cmas_category_safety"/>
+            <item type="string" name="cmas_category_security"/>
+            <item type="string" name="cmas_category_rescue"/>
+            <item type="string" name="cmas_category_fire"/>
+            <item type="string" name="cmas_category_health"/>
+            <item type="string" name="cmas_category_env"/>
+            <item type="string" name="cmas_category_transport"/>
+            <item type="string" name="cmas_category_infra"/>
+            <item type="string" name="cmas_category_cbrne"/>
+            <item type="string" name="cmas_category_other"/>
+            <item type="string" name="cmas_response_heading"/>
+            <item type="string" name="cmas_response_shelter"/>
+            <item type="string" name="cmas_response_evacuate"/>
+            <item type="string" name="cmas_response_prepare"/>
+            <item type="string" name="cmas_response_execute"/>
+            <item type="string" name="cmas_response_monitor"/>
+            <item type="string" name="cmas_response_avoid"/>
+            <item type="string" name="cmas_response_assess"/>
+            <item type="string" name="cmas_response_none"/>
+            <item type="string" name="cmas_severity_heading"/>
+            <item type="string" name="cmas_severity_extreme"/>
+            <item type="string" name="cmas_severity_severe"/>
+            <item type="string" name="cmas_urgency_heading"/>
+            <item type="string" name="cmas_urgency_immediate"/>
+            <item type="string" name="cmas_urgency_expected"/>
+            <item type="string" name="cmas_certainty_heading"/>
+            <item type="string" name="cmas_certainty_observed"/>
+            <item type="string" name="cmas_certainty_likely"/>
+            <item type="string" name="delivery_time_heading"/>
+            <item type="string" name="notification_multiple"/>
+            <item type="string" name="notification_multiple_title"/>
+            <item type="string" name="show_cmas_opt_out_summary"/>
+            <item type="string" name="show_cmas_opt_out_title"/>
+            <item type="string" name="cmas_opt_out_dialog_text"/>
+            <item type="string" name="cmas_opt_out_button_yes" />
+            <item type="string" name="cmas_opt_out_button_no" />
+            <item type="string" name="cb_list_activity_title" />
+            <item type="string" name="emergency_alert_settings_title_watches" />
+            <item type="string" name="enable_cmas_presidential_alerts_title" />
+            <item type="string" name="enable_cmas_presidential_alerts_summary" />
+            <item type="string" name="receive_cmas_in_second_language_title" />
+            <item type="string" name="receive_cmas_in_second_language_summary" />
+            <item type="string" name="alerts_header_summary" />
+            <item type="string" name="testing_mode_enabled" />
+            <item type="string" name="testing_mode_disabled" />
+            <item type="string" name="show_all_messages" />
+            <item type="string" name="show_regular_messages" />
+            <item type="string" name="message_identifier" />
+            <item type="string" name="message_serial_number" />
+            <item type="string" name="data_coding_scheme" />
+            <item type="string" name="message_content" />
+            <item type="string" name="location_check_time" />
+            <item type="string" name="message_displayed" />
+            <item type="string" name="message_coordinates" />
+            <item type="string" name="maximum_waiting_time" />
+            <item type="string" name="seconds" />
+            <item type="string" name="message_copied" />
+            <item type="string" name="enable_alert_speech_title" />
+            <item type="string" name="enable_alert_speech_summary" />
+            <item type="string" name="enable_exercise_test_alerts_title" />
+            <item type="string" name="enable_exercise_test_alerts_summary" />
+            <item type="string" name="enable_operator_defined_test_alerts_title" />
+            <item type="string" name="enable_operator_defined_test_alerts_summary" />
+
+            <!-- START GENERAL CONFIGS -->
+            <item type="string" name="config_headlineFontFamily" />
+            <!-- END GENERAL CONFIGS -->
+        </policy>
+        <!-- END VENDOR CUSTOMIZATION -->
+
+    </overlayable>
+
+</resources>

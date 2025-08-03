@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="emergencyDialerIconLabel">جىددىي نومۇر بۇرىغۇچ</string>
+    <string name="fdnListLabel">مۇقىم نومۇر بۇراش تىزىملىكى</string>
+    <string name="mmiStarted">MMI كودى قوزغىتىلدى</string>
+    <string name="ussdRunning">USSD كودى ئىجرا قىلىنىۋاتىدۇ\u2026</string>
+    <string name="mmiCancelled">MMI كودى بىكار قىلىندى</string>
+    <string name="no_vm_number">ئۈنخەت نومۇرى كەم</string>
+    <string name="no_vm_number_msg"> SIM كارتىغا ئۈنخەت نومۇرى يوق.</string>
+    <string name="add_vm_number_str">نومۇر قوش</string>
+    <string name="puk_unlocked">SIM كارتا قۇلۇپىڭىز ئېچىلدى. تېلېفون قۇلۇپىنى ئېچىۋاتىدۇ…</string>
+    <string name="label_ndp">SIM تورى PIN قۇلۇپىنى ئاچتى</string>
+    <string name="requesting_unlock">تور قۇلۇپىنى ئېچىشنى ئىلتىماس قىلىۋاتىدۇ\u2026</string>
+    <string name="unlock_failed">تور قۇلۇپىنى ئېچىش ئىلتىماسى مەغلۇپ بولدى.</string>
+    <string name="unlock_success">تور قۇلۇپىنى ئېچىش  مۇۋەپپەقىيەتلىك.</string>
+    <string name="labelGSMMore">GSM چاقىرىش تەڭشىكى</string>
+    <string name="labelCDMAMore">CDMA چاقىرىش تەڭشىكى</string>
+    <string name="apn_settings">زىيارەت نۇقتا ئىسمى</string>
+    <string name="settings_label">تور تەڭشىكى</string>
+    <string name="voicemail_abbreviated">VM:</string>
+    <string name="additional_gsm_call_settings">باشقا تەڭشەك</string>
+    <string name="sum_gsm_call_settings">باشقا GSM چاقىرىش ئۈچۈنلا ئىشلىتىلىدىغان تەڭشەك</string>
+    <string name="additional_cdma_call_settings">باشقا CDMA چاقىرىش  تەڭشىكى</string>
+    <string name="sum_cdma_call_settings">باشقا CDMA چاقىرىش ئۈچۈنلا ئىشلىتىلىدىغان تەڭشەك</string>
+    <string name="labelNwService">تور مۇلازىمەت تەڭشىكى</string>
+    <string name="labelCallerId">تېلېفون نومۇر</string>
+    <string name="sum_loading_settings">تەڭشەكلەرنى يۈكلەۋاتىدۇ</string>
+    <string name="sum_hide_caller_id">سىرتتىكى نومۇرنى چاقىرغاندا تېلېفون نومۇرنى يوشۇر</string>
+    <string name="sum_show_caller_id">سىرتتىكى نومۇرنى چاقىرغاندا تېلېفون نومۇرنى كۆرسەت</string>
+    <string name="sum_default_caller_id">سىرتتىكى نومۇرنى چاقىرغاندا تېلېفون سودىگىرىنىڭ كۆڭۈلدىكى تەڭشىكى بويىچە تېلېفون نومۇرنى كۆرسەت</string>
+    <string name="sum_cw_enabled">سۆزلىشىۋاتقاندا، باشقا تېلېفون كەلسە ماڭا ئۇقتۇر</string>
+    <string name="call_forwarding_settings">كەلگەن تېلېفوننى ئۇلاپ يەتكۈزۈش تەڭشەكلىرى</string>
+    <string name="labelCFU">ھەمىشە ئۇلاپ يەتكۈز</string>
+    <string name="messageCFU">ھەمىشە بۇ نومۇرنى ئىشلەت</string>
+    <string name="sum_cfu_enabled_indicator">ھەممە چاقىرىشنى ئۇلاپ يەتكۈز</string>
+    <string name="sum_cfu_enabled">ھەممە چاقىرىشنى <xliff:g id="PHONENUMBER">{0}</xliff:g> غا ئۇلاپ يەتكۈز</string>
+    <string name="sum_cfu_enabled_no_number">نومۇر ئىناۋەتسىز</string>
+    <string name="messageCFB">ئالدىراش ۋاقىتتا ئۇلايدىغان نومۇر</string>
+    <string name="sum_cfb_enabled"><xliff:g id="PHONENUMBER">{0}</xliff:g> غا ئۇلاپ يەتكۈزۈش</string>
+    <string name="disable_cfb_forbidden">مۇلازىمەت تەمىنلىگۈچىڭىز تېلېفون لېنىيىسى ئالدىراش ۋاقىتتا چاقىرىشنى ئۇلاپ يەتكۈزۈش ئىقتىدارىنى توختىتالمايدۇ.</string>
+    <string name="messageCFNRy">جاۋاب بولمىسا ئۇلاپ يەتكۈزىدىغان نومۇر</string>
+    <string name="disable_cfnry_forbidden">مۇلازىمەت تەمىنلىگۈچىڭىز تېلېفونىڭىز جاۋاب قايتۇرمىغاندا چاقىرىشنى ئۇلاپ يەتكۈزۈش ئىقتىدارىنى توختىتالمايدۇ.</string>
+    <string name="messageCFNRc">تېلېفون ئۇلانمىغاندا ئۇلاپ يەتكۈزىدىغان نومۇر</string>
+    <string name="disable_cfnrc_forbidden">مۇلازىمەت تەمىنلىگۈچىڭىز تېلېفونىڭىز ئۇلانمىغاندا چاقىرىشنى ئۇلاپ يەتكۈزۈش ئىقتىدارىنى توختىتالمايدۇ.</string>
+    <string name="error_updating_title">چاقىرىش تەڭشىكىدىن خاتالىق كۆرۈلدى</string>
+    <string name="reading_settings">تەڭشەك ئوقۇۋاتىدۇ…</string>
+    <string name="updating_settings">تەڭشەك يېڭىلاۋاتىدۇ…</string>
+    <string name="reverting_settings">تەڭشەكنى ئەسلىگە كەلتۈرۈۋاتىدۇ…</string>
+    <string name="response_error">كۈتۈلمىگەن تور ئىنكاسى.</string>
+    <string name="exception_error">تور ياكى SIM كارتا خاتا.</string>
+    <string name="fdn_check_failure">تېلېفون ئەپنىڭ مۇقىم نومۇر بۇراش تەڭشىكىنى قوزغاتتىڭىز. شۇڭلاشقا نومۇر بۇراش بىلەن مۇناسىۋەتلىك قىسمەن ئىقتىدارى ئىشلىمەيدۇ.</string>
+    <string name="radio_off_error">ئالدى بىلەن سىمسىز ئالاقىنى ئېچىپ ئاندىن بۇ تەڭشەكلەرنى كۆرۈڭ.</string>
+    <string-array name="clir_display_values">
+        <item>تور كۆڭۈلدىكى تەڭشىكى</item>
+        <item>نومۇرنى يوشۇر</item>
+        <item>نومۇرنى كۆرسەت</item>
+    </string-array>
+    <string name="vm_changed">ئۈنخەت نومۇرى ئۆزگەردى.</string>
+    <string name="vm_change_failed">ئۈنخەت نومۇرىنى ئۆزگەرتكىلى بولمايدۇ.\nئەگەر بۇ مەسىلە يەنە مەۋجۇد بولسا تېلېفون مۇلازىمەت سودىگىرى بىلەن ئالاقىلىشىڭ.</string>
+    <string name="fw_change_failed">ئۇلاپ يەتكۈزۈش نومۇرىنى ئۆزگەرتكىلى بولمايدۇ.\nئەگەر بۇ مەسىلە يەنە مەۋجۇد بولسا تېلېفون مۇلازىمەت سودىگىرى بىلەن ئالاقىلىشىڭ.</string>
+    <string name="fw_get_in_vm_failed">نۆۋەتتىكى ئۇلاپ يەتكۈزۈش نومۇر تەڭشىكىنى ئىزدەپ ساقلىيالمايدۇ.\nيەنىلا يېڭى تېلېفون مۇلازىمەت سودىگىرىگە ئالماشتۇرۇۋېرەمسىز؟</string>
+    <string name="no_change">ھېچقانداق ئۆزگىرىش بولمىدى.</string>
+    <string name="sum_voicemail_choose_provider">ئۈنخەت مۇلازىمىتىنى تاللاڭ</string>
+    <string name="vm_change_pin_old_pin">كونا PIN</string>
+    <string name="label_available">ئىشلىتىلىشچان تورلار</string>
+    <string name="empty_networks_list">تور تېپىلمىدى.</string>
+    <string name="register_on_network"><xliff:g id="NETWORK">%s</xliff:g> غا خەتلىتىۋاتىدۇ…</string>
+    <string name="not_allowed">SIM كارتىڭىز بۇ تورغا باغلىنىشقا يول قويمايدۇ.</string>
+    <string name="connect_later">نۆۋەتتە بۇ تورغا باغلىنالمايدۇ. سەل تۇرۇپ قايتا سىناڭ.</string>
+    <string name="registration_done">توردا خەتلەتتى.</string>
+    <string name="register_automatically">ئۆزلۈكىدىن خەتلەش…</string>
+    <string name="preferred_network_mode_title">ئالدىن بەلگىلەنگەن تور تىپى</string>
+    <string name="preferred_network_mode_summary">تور ئىجرا قىلىش ھالىتىنى ئۆزگەرت</string>
+    <string-array name="preferred_network_mode_choices">
+        <item>ئالدىن بەلگىلەنگەن GSM/WCDMA</item>
+        <item>GSM لا</item>
+        <item>WCDMA لا</item>
+        <item>GSM/WCDMA ئاپتوماتىك</item>
+        <item>CDMA/EvDo ئاپتوماتىك</item>
+        <item>EvDo ئىقتىدارى يوق، CDMA</item>
+        <item>EvDo لا</item>
+        <item>CDMA/EvDo/GSM/WCDMA</item>
+        <item>CDMA + LTE/EvDo</item>
+        <item>GSM/WCDMA/LTE</item>
+        <item>ئومۇمىيەت</item>
+        <item>LTE</item>
+        <item>LTE/WCDMA</item>
+        <item>TDSCDMA only</item>
+        <item>TDSCDMA/WCDMA</item>
+        <item>LTE/TDSCDMA</item>
+        <item>TDSCDMA/GSM</item>
+        <item>LTE/TDSCDMA/GSM</item>
+        <item>TDSCDMA/GSM/WCDMA</item>
+        <item>LTE/TDSCDMA/WCDMA</item>
+        <item>LTE/TDSCDMA/GSM/WCDMA</item>
+        <item>TDSCDMA/CDMA/EVDO/GSM/WCDMA </item>
+        <item>LTE/TDSCDMA/CDMA/EVDO/GSM/WCDMA</item>
+        <item>NR only</item>
+        <item>NR/LTE</item>
+        <item>NR/LTE/CDMA/EvDo</item>
+        <item>NR/LTE/GSM/WCDMA</item>
+        <item>NR/LTE/CDMA/EvDo/GSM/WCDMA</item>
+        <item>NR/LTE/WCDMA</item>
+        <item>NR/LTE/TDSCDMA</item>
+        <item>NR/LTE/TDSCDMA/GSM</item>
+        <item>NR/LTE/TDSCDMA/WCDMA</item>
+        <item>NR/LTE/TDSCDMA/GSM/WCDMA</item>
+        <item>NR/LTE/TDSCDMA/CDMA/EvDo/GSM/WCDMA</item>
+    </string-array>
+    <string name="preferred_network_mode_wcdma_perf_summary">ئالدىن بەلگىلەنگەن تور ھالىتى: WCDMA ئالدىن بەلگىلەنگەن</string>
+    <string name="preferred_network_mode_gsm_only_summary">ئالدىن بەلگىلەنگەن تور ھالىتى: GSM لا</string>
+    <string name="preferred_network_mode_wcdma_only_summary">ئالدىن بەلگىلەنگەن تور ھالىتى: WCDMA لا</string>
+    <string name="preferred_network_mode_gsm_wcdma_summary">ئالدىن بەلگىلەنگەن تور ھالىتى: GSM / WCDMA</string>
+    <string name="preferred_network_mode_cdma_summary">ئالدىن بەلگىلەنگەن تور ھالىتى: CDMA</string>
+    <string name="preferred_network_mode_cdma_evdo_summary">ئالدىن بەلگىلەنگەن تور ھالىتى: CDMA / EvDo</string>
+    <string name="preferred_network_mode_cdma_only_summary">ئالدىن بەلگىلەنگەن تور ھالىتى: CDMA لا</string>
+    <string name="preferred_network_mode_evdo_only_summary">ئالدىن بەلگىلەنگەن تور ھالىتى: EvDo لا</string>
+    <string name="preferred_network_mode_cdma_evdo_gsm_wcdma_summary">ئالدىن بەلگىلەنگەن تور ھالىتى: CDMA/EvDo/GSM/WCDMA</string>
+    <string name="preferred_network_mode_lte_summary">ئالدىن بەلگىلەنگەن تور ھالىتى: LTE</string>
+    <string name="preferred_network_mode_lte_gsm_wcdma_summary">ئالدىن بەلگىلەنگەن تور ھالىتى: GSM/WCDMA/LTE</string>
+    <string name="preferred_network_mode_lte_cdma_evdo_summary">ئالدىن بەلگىلەنگەن تور ھالىتى: CDMA+LTE/EVDO</string>
+    <string name="preferred_network_mode_global_summary">ئالدىن بەلگىلەنگەن تور ھالىتى: ئومۇمىيەت</string>
+    <string name="preferred_network_mode_lte_wcdma_summary">ئالدىن بەلگىلەنگەن تور ھالىتى: LTE/WCDMA</string>
+    <string name="data_enabled">سانلىق مەلۇمات قوزغىتىلدى</string>
+    <string name="gsm_umts_options">GSM/UMTS تاللانما</string>
+    <string name="cdma_options">CDMA تاللانما</string>
+    <string name="throttle_current_usage">نۆۋەتتىكى ۋاقىتتا ئىشلەتكەن سانلىق مەلۇمات</string>
+    <string name="throttle_time_frame">سانلىق مەلۇمات ئىشلىتىش مۆھلىتى</string>
+    <string name="throttle_rate">سانلىق مەلۇمات يوللاش نىسبىتى تاكتىكىسى</string>
+    <string name="throttle_status_subtext">ۋاقىت بۆلىكى يۇقىرى چېكى <xliff:g id="USED_2">%3$s</xliff:g>،<xliff:g id="USED_0">%1$s</xliff:g> نۆۋەتتىكى قىممىتى  (<xliff:g id="USED_1">%2$d</xliff:g>٪)\nكېيىنكى ۋاقىت بۆلىكى <xliff:g id="USED_3">%4$d</xliff:g> كۈندىن كېيىن (<xliff:g id="USED_4">%5$s</xliff:g>) باشلىنىدۇ</string>
+    <string name="throttle_data_usage_subtext">ۋاقىت بۆلىكى يۇقىرى چېكى <xliff:g id="USED_2">%3$s</xliff:g>، <xliff:g id="USED_0">%1$s</xliff:g> نۆۋەتتىكى قىممىتى  (<xliff:g id="USED_1">%2$d</xliff:g>٪ )</string>
+    <string name="throttle_data_rate_reduced_subtext"><xliff:g id="USED_0">%1$s</xliff:g> نىسبەت چېكىدىن ھالقىت كەتتى\nسانلىق مەلۇمات يوللاش نىسبىتى <xliff:g id="USED_1">%2$d</xliff:g> Kb/s غا تۆۋەنلىتىلدى.</string>
+    <string name="throttle_time_frame_subtext">بۇ مۇددەت <xliff:g id="USED_0">%1$d</xliff:g>٪ ئۆتتى\nكېيىنكى ۋاقىت بۆلىكى <xliff:g id="USED_1">%2$d</xliff:g> كۈندىن كېيىن (<xliff:g id="USED_2">%3$s</xliff:g>)باشلىنىدۇ</string>
+    <string name="throttle_rate_subtext">ئەگەر ئېقىم مىقدارى يۇقىرى چېكىدىن ئېشىپ كەتسە ئۇنداقتا سانلىق مەلۇمات يوللاش نىسبىتى <xliff:g id="USED">%1$d</xliff:g>Kb/s غا تۆۋەنلىتىلىدۇ.</string>
+    <string name="cell_broadcast_sms">ئىجتىمائى رايون تارقاتقان قىسقا ئۇچۇر</string>
+    <string name="cell_bc_sms_enable">ئىجتىمائى رايون تارقاتقان قىسقا ئۇچۇر قوزغىتىلدى</string>
+    <string name="cell_bc_sms_disable">ئىجتىمائى رايون تارقاتقان قىسقا ئۇچۇر چەكلەندى</string>
+    <string name="cb_sms_settings">ئىجتىمائى رايون تارقاتقان قىسقا ئۇچۇر تەڭشىكى</string>
+    <string name="enable_disable_emergency_broadcast">جىددىي تارقىتىش</string>
+    <string name="emergency_broadcast_enable">جىددىي تارقىتىش قوزغىتىلدى</string>
+    <string name="emergency_broadcast_disable">جىددىي تارقىتىش چەكلەندى</string>
+    <string name="enable_disable_administrative">باشقۇرۇش</string>
+    <string name="administrative_enable">باشقۇرۇش قوزغىتىلدى</string>
+    <string name="administrative_disable">باشقۇرۇش چەكلەندى</string>
+    <string name="enable_disable_maintenance">ئاسراش</string>
+    <string name="maintenance_enable">ئاسراش قوزغىتىلدى</string>
+    <string name="maintenance_disable">ئاسراش چەكلەندى</string>
+    <string name="general_news_settings">ئادەتتىكى خەۋەرلەر</string>
+    <string name="bf_news_settings">سودا ۋە ئىقتىساد خەۋەرلىرى</string>
+    <string name="sports_news_settings">تەنتەربىيە خەۋەرلىرى</string>
+    <string name="entertainment_news_settings">كۆڭۈل ئېچىش خەۋەرلىرى</string>
+    <string name="local_enable">يەرلىك خەۋەرلەر قوزغىتىلدى</string>
+    <string name="local_disable">يەرلىك خەۋەرلەر چەكلەندى</string>
+    <string name="enable_disable_regional">رايونلۇق</string>
+    <string name="regional_enable">رايونلۇق خەۋەرلەر قوزغىتىلدى</string>
+    <string name="regional_disable">رايونلۇق خەۋەرلەر چەكلەندى</string>
+    <string name="enable_disable_national">دۆلەت ئىچى</string>
+    <string name="national_enable">دۆلەت ئىچى خەۋەرلەر قوزغىتىلدى</string>
+    <string name="national_disable">دۆلەت ئىچى خەۋەرلەر چەكلەندى</string>
+    <string name="enable_disable_international">خەلقئارا</string>
+    <string name="international_enable">خەلقئارا خەۋەرلەر قوزغىتىلدى</string>
+    <string name="international_disable">خەلقئارا خەۋەرلەر چەكلەندى</string>
+    <string name="list_language_summary">خەۋەر تىلىنى تاللاڭ</string>
+    <string-array name="list_language_entries">
+        <item>ئىنگلىزچە</item>
+        <item>French</item>
+        <item>Spanish</item>
+        <item>ياپونچە</item>
+        <item>كورىيەچە</item>
+        <item>خەنزۇچە</item>
+        <item>ئىبرانىچە</item>
+    </string-array>
+    <string-array name="list_language_values">
+        <item>"1"</item>
+        <item>"2"</item>
+        <item>"3"</item>
+        <item>"4"</item>
+        <item>"5"</item>
+        <item>"6"</item>
+        <item>"7"</item>
+    </string-array>
+    <string name="list_language_dtitle">تىللار</string>
+    <string name="enable_disable_local_weather">يەرلىك ھاۋارايى</string>
+    <string name="local_weather_enable">يەرلىك ھاۋارايى قوزغىتىلدى</string>
+    <string name="local_weather_disable">يەرلىك ھاۋارايى چەكلەندى</string>
+    <string name="enable_disable_atr">دائىرە قاتناش مەلۇماتى</string>
+    <string name="atr_enable">دائىرە قاتناش مەلۇماتى قوزغىتىلدى</string>
+    <string name="atr_disable">دائىرە قاتناش مەلۇماتى چەكلەندى</string>
+    <string name="enable_disable_lafs">يەرلىك ئايرودۇرۇم نۆۋەتچى ئايرۇپىلان ۋاقىت جەدۋىلى</string>
+    <string name="lafs_enable">يەرلىك ئايرودۇرۇم نۆۋەتچى ئايرۇپىلان ۋاقىت جەدۋىلى قوزغىتىلدى</string>
+    <string name="lafs_disable">يەرلىك ئايرودۇرۇم نۆۋەتچى ئايرۇپىلان ۋاقىت جەدۋىلى چەكلەندى</string>
+    <string name="enable_disable_restaurants">تاماقخانا</string>
+    <string name="restaurants_enable">تاماقخانا قوزغىتىلدى</string>
+    <string name="restaurants_disable">تاماقخانا چەكلەندى</string>
+    <string name="enable_disable_lodgings">ئىجارە ئۆي ئۇچۇرى</string>
+    <string name="lodgings_enable">ئىجارە ئۆي ئۇچۇرى قوزغىتىلدى</string>
+    <string name="lodgings_disable">ئىجارە ئۆي ئۇچۇرى چەكلەندى</string>
+    <string name="enable_disable_retail_directory">پارچە سېتىش مۇندەرىجىسى</string>
+    <string name="retail_directory_enable">پارچە سېتىش مۇندەرىجىسى قوزغىتىلدى</string>
+    <string name="retail_directory_disable">پارچە سېتىش مۇندەرىجىسى چەكلەندى</string>
+    <string name="enable_disable_advertisements">ئېلان</string>
+    <string name="advertisements_enable">ئېلان قوزغىتىلدى</string>
+    <string name="advertisements_disable">ئېلان چەكلەندى</string>
+    <string name="enable_disable_stock_quotes">پاي-چېكى ئەھۋالى</string>
+    <string name="stock_quotes_enable">پاي-چېكى ئەھۋالى قوزغىتىلدى</string>
+    <string name="stock_quotes_disable">پاي-چېكى ئەھۋالى چەكلەندى</string>
+    <string name="enable_disable_eo">خىزمەت پۇرسىتى ئۇچۇرى</string>
+    <string name="eo_enable">خىزمەت پۇرسىتى ئۇچۇرى قوزغىتىلدى</string>
+    <string name="eo_disable">خىزمەت پۇرسىتى ئۇچۇرى چەكلەندى</string>
+    <string name="enable_disable_mhh">داۋالاش، ساقلىق ساقلاغ ۋە دوختۇرخانا ئۇچۇرى</string>
+    <string name="mhh_enable">داۋالاش، ساقلىق ساقلاغ ۋە دوختۇرخانا ئۇچۇرى قوزغىتىلدى</string>
+    <string name="mhh_disable">داۋالاش، ساقلىق ساقلاغ ۋە دوختۇرخانا ئۇچۇرى چەكلەندى</string>
+    <string name="enable_disable_technology_news">تېخنىكىلىق خەۋەرلەر</string>
+    <string name="technology_news_enable">تېخنىكىلىق خەۋەرلەر قوزغىتىلدى</string>
+    <string name="technology_news_disable">تېخنىكىلىق خەۋەرلەر چەكلەندى</string>
+    <string name="enable_disable_multi_category">كۆپ كاتېگورىيە</string>
+    <string name="multi_category_enable">كۆپ كاتېگورىيە قوزغىتىلدى</string>
+    <string name="multi_category_disable">كۆپ كاتېگورىيە چەكلەندى</string>
+    <string name="network_lte">LTE (تەۋسىيە)</string>
+    <string name="network_4G">4G (تەۋسىيە)</string>
+    <string name="network_global">ئومۇمىيەت</string>
+    <string name="cdma_system_select_title">سىستېما تاللاش</string>
+    <string name="cdma_system_select_summary">CDMA كەزمە ھالەتنى ئۆزگەرت</string>
+    <string-array name="cdma_system_select_choices">
+        <item>يەرلىك تورلا</item>
+        <item>Automatic</item>
+    </string-array>
+    <string name="cdma_subscription_title">CDMA مۇشتەرى</string>
+    <string name="cdma_subscription_summary">RUIM/SIM ۋە NV ئارىسىدا ئالماشتۇر</string>
+    <string name="cdma_subscription_dialogtitle">مۇشتەرى بول</string>
+    <string-array name="cdma_subscription_choices">
+        <item>RUIM/SIM</item>
+        <item>NV</item>
+    </string-array>
+    <string-array name="cdma_subscription_values">
+        <item>"0"</item>
+        <item>"1"</item>
+    </string-array>
+    <string name="cdma_activate_device">ئۈسكۈنە ئاكتىپلا</string>
+    <string name="cdma_lte_data_service">سانلىق مەلۇمات مۇلازىمەت تەڭشىكى</string>
+    <string name="carrier_settings_title">مۇلازىمەت تەمىنلىگۈچى تەڭشەكلىرى</string>
+    <string name="fdn">مۇقىم تېلېفون نومۇرلار</string>
+    <string name="fdn_activation">مۇقىم نومۇر بۇراشنى قوزغىتىش</string>
+    <string name="fdn_enabled">مۇقىم نومۇر بۇراش قوزغىتىلدى</string>
+    <string name="fdn_disabled">مۇقىم نومۇر بۇراش چەكلەندى</string>
+    <string name="enable_fdn">مۇقىم نومۇر بۇراشنى قوزغات</string>
+    <string name="disable_fdn">مۇقىم نومۇر بۇراشنى چەكلە</string>
+    <string name="change_pin2">PIN2 ئۆزگەرت</string>
+    <string name="sum_fdn">مۇقىم نومۇر بۇراشنى باشقۇرۇش</string>
+    <string name="sum_fdn_change_pin">مۇقىم نومۇر بۇراشنى زىيارەت قىلىدىغان PIN نى ئۆزگەرت</string>
+    <string name="sum_fdn_manage_list">تېلېفون نومۇر تىزىملىكى باشقۇرۇش</string>
+    <string name="voice_privacy">ئاۋاز شەخسىيىتى</string>
+    <string name="voice_privacy_summary">كۈچەيتىلگەن شەخسىيەت ھالىتىنى قوزغات</string>
+    <string name="tty_mode_option_title">TTY مودېلى</string>
+    <string name="tty_mode_option_summary">TTY مودېلى تەڭشىكى</string>
+    <string name="auto_retry_mode_title">ئۆزلۈكىدىن قايتا سىنا</string>
+    <string name="auto_retry_mode_summary">ئۆزلۈكىدىن قايتا سىناشنى قوزغات</string>
+    <string name="menu_delete">ئالاقەداش ئۆچۈر</string>
+    <string name="get_pin2">PIN2 كىرگۈزۈڭ</string>
+    <string name="number">نومۇر</string>
+    <string name="add_fdn_contact">مۇقىم نومۇر بۇراشنى قوش</string>
+    <string name="adding_fdn_contact">مۇقىم نومۇر بۇراشنى قوشۇۋاتىدۇ…</string>
+    <string name="fdn_contact_added">مۇقىم نومۇر بۇراش قوشۇلدى.</string>
+    <string name="edit_fdn_contact">مۇقىم نومۇر بۇراش تەھرىر</string>
+    <string name="updating_fdn_contact">مۇقىم نومۇر بۇراشنى قوشۇۋاتىدۇ…</string>
+    <string name="fdn_contact_updated">مۇقىم نومۇر بۇراش يېڭىلاندى.</string>
+    <string name="delete_fdn_contact">مۇقىم نومۇر بۇراش ئۆچۈر</string>
+    <string name="deleting_fdn_contact">مۇقىم نومۇر بۇراشنى ئۆچۈرۈۋاتىدۇ…</string>
+    <string name="fdn_contact_deleted">مۇقىم نومۇر بۇراش ئۆچۈرۈلدى.</string>
+    <string name="pin2_invalid">مۇقىم نومۇر بۇراش يېڭىلانمىدى چۈنكى سىز كىرگۈزگەن PIN خاتا.</string>
+    <string name="pin2_or_fdn_invalid">مۇقىم نومۇر بۇراش يېڭىلانمىدى چۈنكىPIN2 خاتا ياكى تېلېفون نومۇرى رەت قىلىندى.</string>
+    <string name="fdn_failed">FDN مەشغۇلاتى مەغلۇپ بولدى.</string>
+    <string name="simContacts_emptyLoading">SIM كارتىدىن ئوقۇۋاتىدۇ…</string>
+    <string name="simContacts_empty">SIM كارتىدا ئالاقەداشلار يوق.</string>
+    <string name="simContacts_title">ئەكىرىدىغان ئالاقەداشلارنى تاللاڭ</string>
+    <string name="enable_pin">SIM كارتا PIN قوزغات/چەكلە</string>
+    <string name="enter_pin_text">SIM كارتا PIN:</string>
+    <string name="oldPinLabel">كونا PIN</string>
+    <string name="badPin">سىز كىرگۈزگەن كونا PIN خاتا. قايتا سىناڭ.</string>
+    <string name="mismatchPin">سىز كىرگۈزگەن PIN ماس كەلمىدى. قايتا سىناڭ.</string>
+    <string name="enter_pin2_text">PIN2</string>
+    <string name="oldPin2Label">كونا PIN2</string>
+    <string name="newPin2Label">يېڭى PIN2</string>
+    <string name="confirmPin2Label">يېڭى PIN2 جەزملە</string>
+    <string name="puk2_blocked">PUK2 مەڭگۈلۈك توسۇلدى.</string>
+    <string name="incall_error_out_of_service">كۆچمە تورنى ئىشلەتكىلى بولمايدۇ.</string>
+    <string name="incall_error_out_of_service_wfc">تېلېفون كۆچمە تورىنى ئىشلەتكىلى بولمايدۇ. سىمسىز تورغا ئۇلاپ چاقىرىشنى داۋاملاشتۇرۇڭ.</string>
+    <string name="importAllSimEntries">ھەممىنى ئەكىر</string>
+    <string name="importingSimContacts">SIM كارتىدىكى ئالاقەداشلارنى ئەكىرىۋاتىدۇ</string>
+    <string name="importToFDNfromContacts">ئالاقەداشتىن ئەكىر</string>
+    <string name="hac_mode_title">ئاڭلاتقۇ</string>
+    <string name="hac_mode_summary">ئاڭلاتقۇ ماسلىشىشچانلىقنى ئاچ</string>
+    <string-array name="tty_mode_entries">
+        <item>TTY تاقاق</item>
+        <item>TTY لىق</item>
+        <item>TTY HCO</item>
+        <item>TTY VCO</item>
+    </string-array>
+    <string name="dtmf_tones_title">DTMF ئۈن</string>
+    <string name="dtmf_tones_summary">DTMF ئۈن ئۇزۇنلۇق تەڭشىكى</string>
+    <string name="ota_title_activate">تېلېفونىڭىزنى ئاكتىپلاڭ</string>
+    <string name="ota_touch_activate">ئالاھىدە نومۇرنى بۇرىسىڭىز ئاندىن تېلېفون مۇلازىمىتىڭىزنى ئاكتىپلىيالايسىز.\n\n«ئاكتىپلا»نى باسقاندىن كېيىن ئاۋازلىق ئەسكەرتىش بويىچە تېلېفونىڭىزنى ئاكتىپلاڭ.</string>
+    <string name="ota_hfa_activation_title">ئاكتىپلاۋاتىدۇ…</string>
+    <string name="ota_hfa_activation_dialog_message">تېلېفون كۆچمە سانلىق مەلۇمات مۇلازىمىتى ئارقىلىق ئاكتىپلاۋاتىدۇ.\n\nبۇنىڭغا 5 مىنۇتتىن ئارتۇق ۋاقىت كېتىدۇ.</string>
+    <string name="ota_skip_activation_dialog_title">ئاكتىپلاشتىن ئاتلامدۇ؟</string>
+    <string name="ota_skip_activation_dialog_message">ئەگەر ئاكتىپلاشتىن ئاتلاپ كەتسىڭىز، تېلېفون ئۇرالمايسىز ھەمدە كۆچمە سانلىق مەلۇمات تورى(ئەمما Wi-Fi تورىغا ئۇلىنالايسىز)غا باغلىنالمايسىز.</string>
+    <string name="ota_title_activate_success">تېلېفون ئاكتىپلاندى.</string>
+    <string name="ota_title_problem_with_activation">ئاكتىپلاشتا مەسىلىگە يولۇقتى</string>
+    <string name="ota_listen">ئاۋازلىق ئەسكەرتىشكە ئاساسەن مەشغۇلات قىلىپ، تېلېفون ئاكتىپلاش تاماملانغۇچە مەشغۇلات  قىلىڭ.</string>
+    <string name="ota_successful">تېلېفونىڭىز ئاكتىپلاندى. كۆپ بولغاندا 15 مىنۇتقىچە مۇلازىمەت ئىشلىتىشنى باشلىيالايسىز.</string>
+    <string name="ota_unsuccessful">تېلېفونىڭىز ئاكتىپلانمىدى.\nسىز تېلېفون سىگنالى ياخشى جاي(دەرىزە يېنى ياكى تاشقىرىدا)نى تېپىڭ.\n\nقايتا سىناڭ ياكى خېرىدار مۇلازىمەت مەركىزىنى چاقىرىپ تېخىمۇ كۆپ ھەل قىلىش ئۇسۇلىغا ئېرىشىڭ.</string>
+    <string name="ota_spc_failure">SPC كاشىلىسى بەك كۆپ</string>
+    <string name="ecm_exit_dialog">EcmExitDialog</string>
+    <string name="phone_entered_ecm_text">جىددىي چاقىرىش ھالىتىگە كىردى</string>
+    <string name="phone_in_ecm_notification_title">جىددىي چاقىرىش ھالىتى</string>
+    <string name="phone_in_ecm_call_notification_text">سانلىق مەلۇمات باغلىنىش چەكلەنگەن</string>
+    <string name="alert_dialog_in_ecm_call">جىددىي چاقىرىش ھالىتىدە تاللانغان مەشغۇلاتنى ئىجرا قىلالمايدۇ.</string>
+    <string name="progress_dialog_exiting_ecm">جىددىي چاقىرىش ھالىتىدىن چېكىنىۋاتىدۇ</string>
+    <string name="not_voice_capable">ئاۋازلىق چاقىرىشنى قوللىمايدۇ</string>
+</resources>

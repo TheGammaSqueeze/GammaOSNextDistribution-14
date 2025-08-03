@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (c) 2009, 2011-2013 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2014-2015 The CyanogenMod Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *    * Neither the name of The Linux Foundation nor
+ *      the names of its contributors may be used to endorse or promote
+ *      products derived from this software without specific prior written
+ *      permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NON-INFRINGEMENT ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Радио</string>
+    <string name="tx_app_name">Радио предавател</string>
+    <string name="menu_scan_start">Сканирай</string>
+    <string name="menu_scan_stop">Спри търсенето</string>
+    <string name="menu_record_start">Запиши</string>
+    <string name="menu_record_stop">Спри записването</string>
+    <string name="menu_settings">Настройки</string>
+    <string name="menu_sleep">Таймер</string>
+    <string name="menu_sleep_cancel">Отмени таймера</string>
+    <string name="menu_all_channels">Всички канали</string>
+    <string name="menu_display_tags">Показване на етикетите</string>
+    <string name="button_text_stop">Спри</string>
+    <string name="msg_seeking">Търсене на ръдиостанции\u2026</string>
+    <string name="msg_scanning">Сканиране за всички радиостанции\u2026</string>
+    <string name="msg_scanning_pty">Сканиране за \' <xliff:g id="pty_name"> %1$s\' </xliff:g>\'\u2026</string>
+    <string name="msg_search_title"><xliff:g id="frequency_string">%1$s</xliff:g> MHz</string>
+    <string name="msg_searching_title">Автоматично избиране на станции</string>
+    <string name="msg_searching">Търсене на станции със силен сигнал, за създаване на списък\u2026</string>
+    <string name="msg_noantenna">Моля включете слушалките, за да използвате радиото</string>
+    <string name="dialog_sleep_title">Време до самоизключване</string>
+    <string name="presetlist_select_name">Изберете \' <xliff:g id="presetlist_name"> %1$s\' </xliff:g></string>
+    <string name="presetlist_add_new">Добавяне на нов списък</string>
+    <string name="dialog_presetlist_rename_title">Въведете име</string>
+    <string name="presetlist_autoselect_title">Потвърдете автоматично избиране</string>
+    <string name="preset_replace">Замени</string>
+    <string name="preset_tune">Настрой</string>
+    <string name="preset_rename">Преименуване</string>
+    <string name="preset_delete">Изтрий</string>
+    <string name="preset_search">Търсене на \'<xliff:g id="preset_pi">%1$s</xliff:g>\'</string>
+    <string name="stat_notif_frequency">\'<xliff:g id="frequency">%1$s</xliff:g>\' MHz</string>
+    <string name="regional_band">Регионален обхват</string>
+    <string name="regional_band_entry_north_america">Северна Америка</string>
+    <string name="regional_band_entry_europe">Европа</string>
+    <string name="regional_band_entry_japan">Япония</string>
+    <string name="regional_band_entry_japan_wide">Япония (широк)</string>
+    <string name="regional_band_entry_australia">Австралия</string>
+    <string name="regional_band_entry_austria">Австрия</string>
+    <string name="regional_band_entry_belgium">Белгия</string>
+    <string name="regional_band_entry_brazil">Бразилия</string>
+    <string name="regional_band_entry_china">Китай</string>
+    <string name="regional_band_entry_czech_republic">Чешка република</string>
+    <string name="regional_band_entry_denmark">Дания</string>
+    <string name="regional_band_entry_finland">Финландия</string>
+    <string name="regional_band_entry_france">Франция</string>
+    <string name="regional_band_entry_germany">Германия</string>
+    <string name="regional_band_entry_greece">Гърция</string>
+    <string name="regional_band_entry_hong_kong">Хонг Конг</string>
+    <string name="regional_band_entry_india">Индия</string>
+    <string name="regional_band_entry_indonesia">Индонезия</string>
+    <string name="regional_band_entry_ireland">Ирландия</string>
+    <string name="regional_band_entry_italy">Италия</string>
+    <string name="regional_band_entry_korea">Корея</string>
+    <string name="regional_band_entry_mexico">Мексико</string>
+    <string name="regional_band_entry_netherlands">Холандия</string>
+    <string name="regional_band_entry_new_zealand">Нова Зеландия</string>
+    <string name="regional_band_entry_norway">Норвегия</string>
+    <string name="regional_band_entry_poland">Полша</string>
+    <string name="regional_band_entry_portugal">Португалия</string>
+    <string name="regional_band_entry_russia">Русия</string>
+    <string name="regional_band_entry_singapore">Сингапур</string>
+    <string name="regional_band_entry_slovakia">Словакия</string>
+    <string name="regional_band_entry_spain">Испания</string>
+    <string name="regional_band_entry_switzerland">Швейцария</string>
+    <string name="regional_band_entry_sweden">Швеция</string>
+    <string name="regional_band_entry_taiwan">Тайван</string>
+    <string name="regional_band_entry_turkey">Турция</string>
+    <string name="regional_band_entry_united_kingdom">Обединено кралство</string>
+    <string name="regional_band_entry_united_states">САЩ</string>
+    <string name="regional_band_entry_user_defined">Дефинирани от потребителя радио вълни</string>
+    <string name="regional_band_summary_north_america">Северна Америка (87.5 MHz до 108.0 MHz в 200 KHz стъпки)</string>
+    <string name="regional_band_summary_europe">Европа (87.5 до 108.0 MHz в стъпки от 100 kHz)</string>
+    <string name="regional_band_summary_japan">Япония (76.0 до 90.0 MHz в стъпки от 100 kHz)</string>
+    <string name="regional_band_summary_japan_wide">Япония (широк) (90.0 MHz до 108.0 MHz в 50 KHz стъпки)</string>
+    <string name="regional_band_summary_australia">Австралия (87.7 до 108.0 MHz в стъпки от 100 kHz)</string>
+    <string name="regional_band_summary_austria">Австрия (87.5 до 108.0 MHz в 50 kHz стъпки)</string>
+    <string name="regional_band_summary_belgium">Белгия (87.5 до 108.0 MHz в стъпки от 100 kHz)</string>
+    <string name="regional_band_summary_brazil">Бразилия (87.5 до 108.0 MHz в 200 kHz стъпки)</string>
+    <string name="regional_band_summary_china">Китай (87.0 до 108.0 MHz в стъпки от 100 kHz)</string>
+    <string name="regional_band_summary_czech_republic">Чешка Република (87.5 MHz до 108.0 MHz в 100 KHz стъпки)</string>
+    <string name="regional_band_summary_denmark">Дания (87.5 до 108.0 MHz в 50 kHz стъпки)</string>
+    <string name="regional_band_summary_finland">Финландия (87.5 до 108.0 MHz в стъпки от 100 kHz)</string>
+    <string name="regional_band_summary_france">Франция (87.5 до 108.0 MHz в стъпки от 100 kHz)</string>
+    <string name="regional_band_summary_germany">Германия (87.5 до 108.0 MHz в 50 kHz стъпки)</string>
+    <string name="regional_band_summary_greece">Гърция (87.5 до 108.0 MHz в 50 kHz стъпки)</string>
+    <string name="regional_band_summary_hong_kong">Хонг Конг (87.5 до 108.0 MHz в стъпки от 100 kHz)</string>
+    <string name="regional_band_summary_india">Индия (87.5 до 108.0 MHz в стъпки от 100 kHz)</string>
+    <string name="regional_band_summary_indonesia">Индонезия (87.5 до 108.0 MHz в стъпки от 100 kHz)</string>
+    <string name="regional_band_summary_ireland">Ирландия (87.5 до 108.0 MHz в 50 kHz стъпки)</string>
+    <string name="regional_band_summary_italy">Италия (87.5 до 108.0 MHz в 50 kHz стъпки)</string>
+    <string name="regional_band_summary_korea">Корея (87.5 до 108.0 MHz в 200 kHz стъпки)</string>
+    <string name="regional_band_summary_mexico">Мексико (88.1 до 107.9 MHz в 200 kHz стъпки)</string>
+    <string name="regional_band_summary_netherlands">Холандия (87.5 MHz до 108.0 MHz в 100 KHz стъпки)</string>
+    <string name="regional_band_summary_new_zealand">Нова Зеландия (88.0 MHz до 107.0 MHz в 100 KHz стъпки)</string>
+    <string name="regional_band_summary_norway">Норвегия (87.5 до 108.0 MHz в стъпки от 100 kHz)</string>
+    <string name="regional_band_summary_poland">Полша (87.5 до 108.0 MHz в стъпки от 100 kHz)</string>
+    <string name="regional_band_summary_portugal">Португалия (87.5 до 108.0 MHz в 50 kHz стъпки)</string>
+    <string name="regional_band_summary_russia">Русия (87.5 до 108.0 MHz в стъпки от 100 kHz)</string>
+    <string name="regional_band_summary_singapore">Сингапур (88.0 до 108.0 MHz в стъпки от 100 kHz)</string>
+    <string name="regional_band_summary_slovakia">Словакия (87.5 до 108.0 MHz в стъпки от 100 kHz)</string>
+    <string name="regional_band_summary_spain">Испания (87.5 до 108.0 MHz в стъпки от 100 kHz)</string>
+    <string name="regional_band_summary_switzerland">Швейцария (87.5 до 108.0 MHz в стъпки от 100 kHz)</string>
+    <string name="regional_band_summary_sweden">Швеция (87.5 до 108.0 MHz в стъпки от 100 kHz)</string>
+    <string name="regional_band_summary_taiwan">Тайван (87.5 до 108.0 MHz в стъпки от 100 kHz)</string>
+    <string name="regional_band_summary_turkey">Турция (87.5 до 108.0 MHz в стъпки от 100 kHz)</string>
+    <string name="regional_band_summary_united_kingdom">Обединеното кралство (87.5 до 108.0 MHz в стъпки от 100 kHz)</string>
+    <string name="regional_band_summary_united_states">Съединените щати (88.1 до 107.9 MHz в 200 kHz стъпки)</string>
+    <string name="regional_band_summary_user_defined">Дефинирани от потребителя честоти</string>
+    <string name="aud_output_mode">Режим аудио изход</string>
+    <string name="audio_type_stereo">Стерео</string>
+    <string name="audio_type_mono">Моно</string>
+    <string name="record_dur">Продължителност на запис</string>
+    <string name="auto_select_af">Алтернативна честота</string>
+    <string name="settings_revert_defaults_title">Върни към фабричните настройки</string>
+    <string name="settings_revert_defaults_summary">Нулиране на всички настройки</string>
+    <string name="settings_revert_confirm_title">Потвърдете нулиране</string>
+    <string name="settings_revert_confirm_msg">Това ще изчисти всички настройките на приложението, включително запазени предварителни настройки. Ще продължите ли?</string>
+    <string name="no_storage">Монтирайте карта памет преди да започнете записа.</string>
+    <string name="preparing_sd">Картата памет се подготвя</string>
+    <string name="access_sd_fail">Няма достъп до картата памет.</string>
+    <string name="spaceIsLow_content">Паметта на вашата карта памет е на изчерпване. Променете настройката за качество или изтрийте някои други файлове за да освободите място.</string>
+    <string name="FMRecording_reach_size_limit">Достигнат е максималният размер.</string>
+    <string name="menu_scan_for_preset">Сканирай запаметените станции</string>
+    <string name="fm_off">Радиото е изключено.</string>
+    <string name="fm_call">Радиото не може да се използва при повикване.</string>
+    <string name="alert_dialog_hint">Въведете име</string>
+    <string name="search_dialog_title">Сканиране на станции</string>
+    <string name="fm_command_timeout_title">Изчакване</string>
+    <string name="fm_tune_timeout_msg">Не получихме потвърждение за настройката на радиостанцията. Ако проблемът продължава, моля изключете радиото и го включите отново.</string>
+    <string name="fm_command_failed_title">Неуспешна операция</string>
+    <string name="fm_cmd_failed_msg">Неуспешна операция. Ако проблемът продължава, моля изключете радиото и го включете отново.</string>
+    <string name="fm_cmd_failed_msg_hdmi">FM радио грешка. Системата не разрешава едновременното позване на FM и HDMI.</string>
+    <string name="fm_cmd_failed_call_on">Използването на радио по време на телефонен разговор е невъзможно.</string>
+    <string name="audio_db_title_format"><xliff:g id="format">yyyy-MM-dd HH:mm:ss</xliff:g></string>
+    <string name="audio_db_artist_name">Моите радиозаписи</string>
+    <string name="audio_db_album_name">Радиозаписи</string>
+    <string name="audio_db_playlist_name">Радиозаписи</string>
+    <string name="station_name">Станция:</string>
+    <string name="station_exists">Тази честота вече съществува!</string>
+    <string name="station_list_delete_station">Изтриване: <xliff:g id="name">%s</xliff:g></string>
+    <string name="station_list_delete_station_prompt">Сигурен ли сте да изтриете \'<xliff:g id="name">%s</xliff:g>\'?</string>
+    <string name="station_name_empty">Името на станцията е празно, моля, въведете отново.</string>
+    <string name="station_name_exist">\'<xliff:g id="name">%s </xliff:g>\' е вече в употреба, моля въведете друго име.</string>
+    <string name="rt_plus_tags">Етикети</string>
+    <string name="usr_def_band_min">Най-ниска честота (MHz)</string>
+    <string name="usr_def_band_max">Най-високата честота (MHz)</string>
+    <string name="chanl_spacing">Канално отстояние</string>
+    <string name="set">Задай</string>
+    <string name="user_defind_band_msg">Въведете честота между 76.0 и 108.0 MHz с поне един канал и 100KHz разстояние между минималната и максималната честота</string>
+    <string name="save_record_file">Радио записът е съхранен в \'<xliff:g id="record_file">%1$s</xliff:g>\'</string>
+    <string name="fm_search_no_results">Не са намерени съвместими станции</string>
+    <string name="typ_All_stations">Всички станции</string>
+    <string name="typ_Culture">Култура</string>
+    <string name="typ_Current_affairs">Актуални събития</string>
+    <string name="typ_Children">Детски програми</string>
+    <string name="typ_Country">Кънтри музика</string>
+    <string name="typ_Documentary">Документални</string>
+    <string name="typ_Drama">Драма</string>
+    <string name="typ_Easy_listening">Мелодична музика</string>
+    <string name="typ_Education">Образование</string>
+    <string name="typ_Emergency">Извънредна ситуация</string>
+    <string name="typ_Emergency_test">Авариен тест</string>
+    <string name="typ_Finance">Финанси</string>
+    <string name="typ_Folk">Народна музика</string>
+    <string name="typ_Information">Информация</string>
+    <string name="typ_Jazz">Джаз музика</string>
+    <string name="typ_Light_classical">Лека Класическа</string>
+    <string name="typ_Leisure">Развлекателна Музика</string>
+    <string name="typ_News">Новини</string>
+    <string name="typ_National">Национална музика</string>
+    <string name="typ_Other">Друга музика</string>
+    <string name="typ_Oldies">Ретро музика</string>
+    <string name="typ_Phone_in">Обаждане</string>
+    <string name="typ_Pop">Поп музика</string>
+    <string name="typ_Religion">Религия</string>
+    <string name="typ_Rock">Рок музика</string>
+    <string name="typ_Science">Наука</string>
+    <string name="typ_Serious_classical">Сериозна класичесическа музика</string>
+    <string name="typ_Social_affairs">Социални въпроси</string>
+    <string name="typ_Sport">Спорт</string>
+    <string name="typ_Travel">Пътуване</string>
+    <string name="typ_Varied">Разнообразни</string>
+    <string name="typ_Weather">Прогноза на времето</string>
+    <string name="typ_Adult_hits">Стари хитове</string>
+    <string name="typ_Classical">Класическа</string>
+    <string name="typ_Classic_Rock">Класически рок</string>
+    <string name="typ_College">Колежански</string>
+    <string name="typ_Foreign_language">Чужд език</string>
+    <string name="typ_Hiphop">Хип-хоп</string>
+    <string name="typ_Nostalgia">Носталгични</string>
+    <string name="typ_Personality">Персонални</string>
+    <string name="typ_Public">Публични</string>
+    <string name="typ_Religious_music">Религиозна музика</string>
+    <string name="typ_Religious_talk">Религиозни разговори</string>
+    <string name="typ_Rhythm_and_Blues">Ритъм и блус</string>
+    <string name="typ_Spanish_music">Испанска музика</string>
+    <string name="typ_Spanish_talk">Испанска беседа</string>
+    <string name="typ_Soft">Нежна</string>
+    <string name="typ_Soft_Rock">Нежен рок</string>
+    <string name="typ_Soft_Rhythm_and_Blues">Нежен ритъм и блус</string>
+    <string name="typ_Sports">Спорт</string>
+    <string name="typ_Talk">Беседа</string>
+    <string name="typ_Top_40">Топ 40</string>
+</resources>

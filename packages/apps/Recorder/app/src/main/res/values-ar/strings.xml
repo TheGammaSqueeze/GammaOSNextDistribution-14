@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2017-2021 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <string name="app_name">المُسجل</string>
+    <string name="share">مشاركة</string>
+    <string name="share_selected">مشاركة المحدد</string>
+    <string name="stop">إيقاف</string>
+    <string name="play">تشغيل</string>
+    <string name="pause">إيقاف مؤقت</string>
+    <string name="resume">استئناف</string>
+    <string name="delete">حذف</string>
+    <string name="delete_all">حذف الكل</string>
+    <string name="delete_selected">حذف المحدد</string>
+    <string name="cancel">إلغاء</string>
+    <string name="rename">إعادة تسمية</string>
+    <string name="delete_title">حذف التسجيل</string>
+    <string name="delete_recording_message">أمتأكد من أنك تريد حذف هذا التسجيل؟ لا يمكن التراجع عن هذا</string>
+    <string name="confirm">تأكيد</string>
+    <string name="discard">تجاهل</string>
+    <string name="record_again">إعادة تسجيل الصوت</string>
+    <string name="confirm_result_title">استخدام التسجيل؟</string>
+    <string name="confirm_result_message">هل تريد استخدام آخر تسجيل؟</string>
+    <string name="sound_notification_title">مُسجل الصوت</string>
+    <string name="sound_notification_message">طول الصوت: %1$s</string>
+    <string name="sound_recording_title_working">يتم التسجيل</string>
+    <string name="sound_recording_title_paused">موقف مؤقتاً</string>
+    <string name="sound_last_title">التسجيل الأخير</string>
+    <string name="sound_channel_title">تسجيل الصوت</string>
+    <string name="sound_channel_desc">إشعار دائم عند تسجيل الصوت والإشعار بعد اكتماله</string>
+    <string name="settings_title">الإعدادات</string>
+    <string name="settings_location_message">ضع علامة على تسجيلاتك مع موقعك الحالي</string>
+    <string name="settings_quality_high">سجل بجودة عالية</string>
+    <string name="dialog_permissions_title">الأذونات</string>
+    <string name="dialog_permissions_mic">المُسجل يحتاج إلى إذن وصول للميكروفون لتسجيل الصوت</string>
+    <string name="dialog_permissions_phone">المُسجل يحتاج إلى الوصول إلى حالة الهاتف لمنع هذا التطبيق من التسجيل أثناء قيامك بالاتصال</string>
+    <string name="dialog_permissions_mic_phone">المُسجل يحتاج إلى إذن وصول للميكروفون لتسجيل الصوت والوصول إلى حالة الهاتف لمنع هذا التطبيق من التسجيل أثناء قيامك بالاتصال</string>
+    <string name="dialog_permissions_location">المسجل يحتاج إلى إذن الموقع لوسم التسجيلات الخاصة بك تلقائياً لمساعدتك على تنظيمها</string>
+    <string name="dialog_permissions_ask">السماح مرة أخرى</string>
+    <string name="dialog_permissions_dismiss">تجاهل</string>
+    <string name="snack_permissions_no_permission">تم رفض الأذونات المطلوبة، قم بتفعيلها من تطبيق الإعدادات لبدء التسجيل</string>
+    <string name="snack_permissions_no_permission_location">رفض إذن الموقع، قم بتمكينه من تطبيق الإعدادات لوسم تسجيلاتك</string>
+    <string name="main_sound_action">تسجيل الصوت</string>
+    <string name="list_title">تسجيلاتي</string>
+    <string name="list_error_empty">ستعرض جميع تسجيلاتك هنا</string>
+    <string name="list_edit_title">تعديل اسم التسجيل</string>
+    <string name="list_edit_confirm">تغيير</string>
+    <string name="list_item_menu">المزيد من الإجراءات</string>
+    <string name="delete_all_title">حذف الكل</string>
+    <string name="delete_all_message">أمتأكد من أنك تريد حذف جميع التسجيلات؟ لا يمكن التراجع عن هذا</string>
+    <string name="delete_selected_title">حذف المحدد</string>
+    <string name="delete_selected_message">أمتأكد من أنك تريد حذف التسجيلات المحددة؟ لا يمكن التراجع عن هذا</string>
+</resources>

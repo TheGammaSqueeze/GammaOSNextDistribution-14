@@ -1,0 +1,200 @@
+//  Copyright (C) 2023 The Android Open Source Project
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//       http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+//
+// Proto Messages define the interface between Nearby nanoapp and its hosts
+// (OEM services) for Nearby offload extension.
+//
+syntax = "proto2";
+
+package nearby_extension;
+
+option java_package = "com.google.location.lbs.contexthub";
+option java_outer_classname = "NearbyOffloadExtension";
+
+message ExtConfigRequest {
+  message FilterConfig {
+    // Vendor-specific configuration data for extended filter. Byte array opaque
+    // to Nearby nanoapp, which will be forwarded through
+    // chrexNearbySetExtendedFilterConfig().
+    // If both hardware and oem filters are empty, the scan requested by this
+    // host will stop. Otherwise, the scan will start with the scan filters.
+    // If the OEM service wishes to send more data than can fit in a single
+    // message, or update previous configuration, it can send additional
+    // messages.
+    optional bytes oem_filter = 1;
+    optional uint32 oem_filter_length = 2;
+
+    // List of Hardware filters (follows chreBleScanFilter defined in CHRE BLE
+    // API). Resource for hardware filters is constrained in CHRE, and hardware
+    // filtering is best effort, i.e. advertisements may still be forwarded for
+    // inspection if they do not match the configured hardware filters. It is
+    // expected that an OEM service will include at least one hardware filter in
+    // the first message. Subsequent messages that do not include this field
+    // will not impact previously configured filters. But if this field is
+    // populated in a subsequent message, its contents will replace any
+    // previously set filters. To remove all previously set hardware filters,
+    // reset extended filtering by closing the ContextHubClient connection.
+    repeated ChreBleGenericFilter hardware_filter = 3;
+
+    // Maximum time to batch BLE scan results before processing in the nanoapp,
+    // in milliseconds. For optimal power, specify the longest value that the
+    // use case permits. If not provided, either the last provided value will
+    // continue to be used, or if no previous value was given, defaults defined
+    // in the Nearby nanoapp will be used.
+    optional uint32 report_delay_ms = 4;
+
+    // BLE scan modes identify functional scan levels without specifying or
+    // guaranteeing particular scan parameters (e.g. duty cycle, interval, radio
+    // chain). The actual scan parameters may be platform dependent and may
+    // change without notice in real time based on contextual cues, etc.
+    optional ChreBleScanMode scan_mode = 5;
+
+    // BLE advertising report cache expires after this time period.
+    // The expired reports are descarded and not delivered to the OEM service.
+    optional uint32 cache_expire_ms = 6 [default = 5000];
+  }
+
+  message ServiceConfig {
+    // Vendor-specific configuration data for OEM service. Byte array opaque
+    // to Nearby nanoapp, which will be forwarded through
+    // chrexNearbySetServiceConfig().
+    // If OEM service cannot pass service config data through oem_filter in
+    // FilterConfig, or if OEM service want to pass it at another time, it can
+    // pass the service config data to the OEM library through ServiceConfig.
+    // ServiceConfig is only responsible for passing service config data to the
+    // OEM library, regardless of the LE scan start/stop behavior and
+    // hardware_filter.
+    // If the OEM service wishes to send more data than can fit in a single
+    // message, or update previous configuration, it can send additional
+    // messages.
+    optional bytes data = 1;
+    optional uint32 data_length = 2;
+  }
+
+  // Request ID specified by the client to pair Request/Response messages.
+  optional uint32 request_id = 1;
+
+  oneof config {
+    FilterConfig filter_config = 2;
+    ServiceConfig service_config = 3;
+  }
+}
+
+message ChreBleGenericFilter {
+  enum ChreBleAdType {
+    CHRE_BLE_AD_TYPE_SERVICE_DATA_NONE = 0;
+
+    // Service Data with 16-bit UUID
+    CHRE_BLE_AD_TYPE_SERVICE_DATA_WITH_UUID_16 = 0x16;
+
+    // Manufacturer Specific Data
+    CHRE_BLE_AD_TYPE_MANUFACTURER_DATA = 0xff;
+  }
+
+  optional ChreBleAdType type = 1;
+  // Length of data and data_mask below.
+  optional uint32 len = 2;
+
+  // data and dataMask must have the same length and are combined together
+  // to filter an advertisement.
+  optional bytes data = 3;
+  optional bytes data_mask = 4;
+}
+
+enum ChreBleScanMode {
+  CHRE_BLE_SCAN_MODE_UNSPECIFIED = 0;
+  //! A background scan level for always-running ambient applications.
+  //! A representative duty cycle may be between 3 - 10 % (tentative, and
+  //! with no guarantees).
+  CHRE_BLE_SCAN_MODE_BACKGROUND = 1;
+
+  //! A foreground scan level to be used for short periods.
+  //! A representative duty cycle may be between 10 - 20 % (tentative, and
+  //! with no guarantees).
+  CHRE_BLE_SCAN_MODE_FOREGROUND = 2;
+
+  //! A very high duty cycle scan level to be used for very short durations.
+  //! A representative duty cycle may be between 50 - 100 % (tentative, and
+  //! with no guarantees).
+  CHRE_BLE_SCAN_MODE_AGGRESSIVE = 3;
+}
+
+// Sent in response to ExtConfigRequest
+message ExtConfigResponse {
+  // Request ID of the corresponding Request message.
+  optional uint32 request_id = 1;
+  // Value from enum chrexNearbyResult that was returned from OEM library.
+  optional int32 result = 2;
+  // Vendor-defined status code provided from OEM library.
+  optional uint32 vendor_status = 3;
+}
+
+// Sent when one or more advertisements matched an extended filter
+message FilterResult {
+  enum ErrorCode {
+    UNSUPPORTED = 0;
+    SUCCESS = 1;
+  }
+
+  // Error code returned to OEM services.
+  optional ErrorCode error_code = 1;
+
+  // Each report contains multiple advertisements in a batch.
+  repeated ChreBleAdvertisingReport report = 2;
+}
+
+message ChreBleAdvertisingReport {
+  enum AddressType {
+    // Public device address.
+    PUBLIC = 0x00;
+
+    // Random device address.
+    RANDOM = 0x01;
+
+    // Public identity address (corresponds to resolved private address).
+    PUBLIC_IDENTITY = 0x02;
+
+    // Random (static) Identity Address (corresponds to resolved private
+    // address)
+    RANDOM_IDENTITY = 0x03;
+
+    // No address provided (anonymous advertisement).
+    NONE = 0xff;
+  }
+
+  // Timestamp the advertisement was received, in nanoseconds, relative to
+  // Android SystemClock.elapsedRealtimeNanos().
+  optional uint64 timestamp = 1;
+
+  // BLE event type and status. Refer to BT Core Spec v5.2, Vol 4, Part E,
+  // Section 7.7.65.13, LE Extended Advertising Report event, Event_Type for
+  // details on how to interpret this field.
+  optional uint32 event_type_and_data_status = 2;
+
+  // Advertising address type
+  optional AddressType address_type = 3;
+
+  // Advertising device address
+  optional bytes address = 4;
+
+  // Transmit (Tx) power in dBm. Typical values are [-127, 20].
+  optional int32 tx_power = 5;
+
+  // RSSI in dBm. Typical values are [-127, 20].
+  optional int32 rssi = 6;
+
+  // BLE advertisement data payload.
+  optional bytes data = 7;
+
+  optional int32 data_length = 8;
+}

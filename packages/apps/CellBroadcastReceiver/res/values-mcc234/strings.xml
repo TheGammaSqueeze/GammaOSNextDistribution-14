@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2019 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <!-- Preference title for enable CMAS extreme threat alerts checkbox. [CHAR LIMIT=50] -->
+  <string name="enable_cmas_extreme_threat_alerts_title">Extreme alerts</string>
+  <!-- Preference title for enable CMAS severe threat alerts checkbox. [CHAR LIMIT=50] -->
+  <string name="enable_cmas_severe_threat_alerts_title">Severe alerts</string>
+  <!-- Preference title for other test alerts checkbox. [CHAR LIMIT=50] -->
+  <string name="enable_cmas_test_alerts_title">Test alerts</string>
+  <!-- Preference title for exercise test alerts checkbox. [CHAR LIMIT=50] -->
+  <string name="enable_exercise_test_alerts_title">Exercise alerts</string>
+  <!-- CMAS dialog title for presidential level alert. [CHAR LIMIT=50] -->
+  <string name="cmas_presidential_level_alert">Government Alert</string>
+  <!-- CMAS dialog title for extreme alert. [CHAR LIMIT=50] -->
+  <string name="cmas_extreme_alert">Extreme Alert</string>
+  <!-- CMAS dialog title for extreme alert with extreme severity, immediate urgency, and observed certainty. [CHAR LIMIT=50] -->
+  <string name="cmas_extreme_immediate_observed_alert">@string/cmas_extreme_alert</string>
+  <!-- CMAS dialog title for extreme alert with extreme severity, immediate urgency,  and likely certainty. [CHAR LIMIT=50] -->
+  <string name="cmas_extreme_immediate_likely_alert">@string/cmas_extreme_alert</string>
+  <!-- CMAS dialog title for severe alert. [CHAR LIMIT=50] -->
+  <string name="cmas_severe_alert">Severe Alert</string>
+  <!-- CMAS dialog title for required monthly test. [CHAR LIMIT=50] -->
+  <string name="cmas_required_monthly_test">Test Alert</string>
+  <!-- CMAS dialog title for CMAS Exercise. [CHAR LIMIT=50] -->
+  <string name="cmas_exercise_alert">Exercise Alert</string>
+  <!-- The name of the Cell Broadcast Receiver app. [CHAR LIMIT=NONE] -->
+  <string name="app_label">Emergency alerts</string>
+  <!-- Label for settings screen. [CHAR LIMIT=NONE] -->
+  <string name="sms_cb_settings">Emergency alerts</string>
+  <!-- Preference summaries for allow alerts checkbox. [CHAR LIMIT=66] -->
+  <string name="enable_alerts_master_toggle_summary">Receive emergency alert notifications</string>
+  <!-- Preference summary for enable text-to-speech checkbox. [CHAR LIMIT=101] -->
+  <string name="enable_alert_speech_summary">Use text-to-speech to speak emergency alert messages</string>
+  <!-- Preference summary for other test alerts checkbox. [CHAR LIMIT=125] -->
+  <string name="enable_cmas_test_alerts_summary">Receive tests from the Emergency alert system</string>
+  <!-- CMAS opt-out dialog message. [CHAR LIMIT=160] -->
+  <string name="cmas_opt_out_dialog_text">You are currently receiving emergency alerts. Would you like to continue receiving emergency alerts?</string>
+  <!-- Label to open emergencyNotifications dialog [CHAR LIMIT=40] -->
+  <string name="emergency_alert_settings_title_watches">Emergency alerts</string>
+  <!-- Notification title and text when alerting user that their CB settings have changed -->
+  <string name="notification_cb_settings_changed_text">Tap to see emergency alert settings</string>
+</resources>

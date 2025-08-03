@@ -1,0 +1,3 @@
+# Keep all impl classes referenced via JNI.
+-keep class com.android.federatedcompute.services.training.jni.** { *; }
+-keep class com.android.federatedcompute.services.training.util.** { *; }

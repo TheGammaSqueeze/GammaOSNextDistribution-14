@@ -1,0 +1,13 @@
+{
+  "mocks": [
+    {
+      "request": {
+        "path": "signals"
+      },
+      "response": {
+        "body": "ProtectedSignalsBad.json"
+      },
+      "verify_called": true
+    }
+  ]
+}

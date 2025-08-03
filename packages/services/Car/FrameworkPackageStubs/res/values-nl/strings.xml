@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="6179574017413146651">"Activiteitsstub"</string>
+    <string name="message_not_supported" msgid="133939962837892495">"Geen enkele app kan deze actie verwerken"</string>
+    <string name="pip_not_supported" msgid="8681268258599412706">"Scherm-in-scherm wordt niet ondersteund op dit apparaat"</string>
+    <string name="manage_unknown_app_sources_not_supported" msgid="7368611099531260439">"Onbekende app-bronnen beheren wordt niet ondersteund op dit apparaat"</string>
+    <string name="documentsui_not_supported" msgid="2786636475647817501">"Bestandsbeheer wordt niet ondersteund op dit apparaat"</string>
+    <string name="stub_name" msgid="3987164490218189006">"Geen"</string>
+</resources>

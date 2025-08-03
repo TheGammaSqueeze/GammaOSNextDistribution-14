@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2023 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="energy_mode_low_title" msgid="5700567801191430606">"ទាប"</string>
+    <string name="energy_mode_low_subtitle" msgid="7660632849388740009">"សម្ងំ"</string>
+    <string name="energy_mode_low_info" msgid="3931173640626998821">"សម្ងំ — ការតភ្ជាប់​បណ្ដាញ​ត្រូវបានបិទ នៅពេលដែល​ទូរទស្សន៍​មិនស្ថិត​ក្នុងការប្រើប្រាស់"</string>
+  <string-array name="energy_mode_low_features">
+    <item msgid="4002284890471636101">"[Insert feature 1]"</item>
+    <item msgid="7072772341455731040">"[Insert feature 2]"</item>
+  </string-array>
+    <string name="energy_mode_low_eco_hint" msgid="2421460758847643655"></string>
+    <string name="energy_mode_moderate_title" msgid="8612259261851051150">"បានបង្កើន​ប្រសិទ្ធភាព"</string>
+    <string name="energy_mode_moderate_subtitle" msgid="5565533500130453270">"សម្ងំ​ភ្ជាប់"</string>
+    <string name="energy_mode_moderate_info" msgid="3188005033276283994">"សម្ងំ​ភ្ជាប់ — បើក​មុខងារ ដើម្បីដាស់​ទូរទស្សន៍​តាមរយៈ​បណ្ដាញ"</string>
+  <string-array name="energy_mode_moderate_features">
+    <item msgid="2654586107956150296">"[បញ្ចូលមុខងារទី 1]"</item>
+    <item msgid="8724721267222341891">"[បញ្ចូលមុខងារទី 2]"</item>
+  </string-array>
+    <string name="energy_mode_moderate_eco_hint" msgid="252189162446856286"></string>
+    <string name="energy_mode_high_title" msgid="7596672058005896920">"បានបង្កើន"</string>
+    <string name="energy_mode_high_subtitle" msgid="5994284096495805422">"ភ្ជាប់​ជានិច្ច"</string>
+    <string name="energy_mode_high_info" msgid="8805447042714350186">"ភ្ជាប់​ជានិច្ច — បើក​មុខងារ​បណ្ដាញ នៅពេលដែល​ទូរទស្សន៍​មិនស្ថិត​ក្នុងការប្រើប្រាស់"</string>
+  <string-array name="energy_mode_high_features">
+    <item msgid="3018897868803319747">"[បញ្ចូលមុខងារទី 1]"</item>
+    <item msgid="170760143032597722">"[បញ្ចូលមុខងារទី 2]"</item>
+  </string-array>
+    <!-- no translation found for energy_mode_high_eco_hint (3266580507783627848) -->
+    <skip />
+</resources>

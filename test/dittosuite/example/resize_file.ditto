@@ -1,0 +1,26 @@
+main: {
+  instruction_set: {
+    instructions: [
+      {
+        open_file: {
+          path_name: "newfile2.txt",
+          output_fd: "test_file"
+        }
+      },
+      {
+        resize_file: {
+          input_fd: "test_file",
+          size: 4096
+        }
+      },
+      {
+        close_file: {
+          input_fd: "test_file"
+        }
+      }
+    ]
+  }
+},
+global {
+  absolute_path: "";
+}

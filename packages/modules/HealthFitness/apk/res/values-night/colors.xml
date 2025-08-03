@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="filter_chip_outline_color">@color/settingslib_colorAccentPrimary</color>
+    <color name="filter_chip_selected_text_color">@color/filter_chip_text_color_night</color>
+    <color name="filter_chip_selected_icon_color">?android:attr/textColorPrimaryInverse</color>
+    <color name="spinner_text_color">@color/date_dropdown_text_color_night</color>
+</resources>

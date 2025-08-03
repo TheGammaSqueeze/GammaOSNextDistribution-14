@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<overlay>
+    <item target="animator/trans_left_in" value="@animator/trans_fade_in"/>
+    <item target="animator/trans_left_out" value="@animator/trans_fade_out"/>
+    <item target="animator/trans_right_in" value="@animator/trans_fade_in"/>
+    <item target="animator/trans_right_out" value="@animator/trans_fade_out"/>
+
+    <item target="attr/state_ux_restricted" value="@attr/state_ux_restricted"/>
+
+    <item target="bool/config_top_level_injection_background_always_use_default" value="true" />
+
+    <item target="color/icon_color_default" value="@color/top_level_icon_default"/>
+    <item target="color/qc_default_icon_color" value="@color/qc_default_icon_color"/>
+    <item target="color/top_level_injected_default_background" value="@android:color/transparent" />
+    <item target="color/top_level_icon_default" value="@color/top_level_icon_default"/>
+    <item target="color/top_level_accessibility_background" value="@color/top_level_icon_background"/>
+    <item target="color/top_level_applications_background" value="@color/top_level_icon_background"/>
+    <item target="color/top_level_assistant_and_voice_background" value="@color/top_level_icon_background"/>
+    <item target="color/top_level_bluetooth_background" value="@color/top_level_icon_background"/>
+    <item target="color/top_level_date_time_background" value="@color/top_level_icon_background"/>
+    <item target="color/top_level_display_background" value="@color/top_level_icon_background"/>
+    <item target="color/top_level_location_background" value="@color/top_level_icon_background"/>
+    <item target="color/top_level_network_and_internet_background" value="@color/top_level_icon_background"/>
+    <item target="color/top_level_notifications_background" value="@color/top_level_icon_background"/>
+    <item target="color/top_level_privacy_background" value="@color/top_level_icon_background"/>
+    <item target="color/top_level_profiles_and_accounts_background" value="@color/top_level_icon_background"/>
+    <item target="color/top_level_security_background" value="@color/top_level_icon_background"/>
+    <item target="color/top_level_sound_background" value="@color/top_level_icon_background"/>
+    <item target="color/top_level_system_background" value="@color/top_level_icon_background"/>
+
+    <item target="dimen/bluetooth_bonded_device_button_radius" value="@dimen/toggle_button_radius"/>
+    <item target="dimen/bluetooth_bonded_device_button_size" value="@dimen/toggle_button_size"/>
+    <item target="dimen/bluetooth_device_icon_size" value="@dimen/toggle_button_icon_size"/>
+    <item target="dimen/icon_size" value="@dimen/icon_size"/>
+    <item target="dimen/top_level_menu_width" value="@dimen/top_level_menu_width"/>
+
+    <item target="drawable/ic_bluetooth_button" value="@drawable/bluetooth_button"/>
+    <item target="drawable/ic_bluetooth_button_unavailable" value="@drawable/bluetooth_button_unavailable"/>
+    <item target="drawable/ic_bluetooth_media" value="@drawable/bluetooth_media_button"/>
+    <item target="drawable/ic_bluetooth_media_unavailable" value="@drawable/bluetooth_media_button_unavailable"/>
+    <item target="drawable/ic_bluetooth_phone" value="@drawable/bluetooth_phone_button"/>
+    <item target="drawable/ic_bluetooth_phone_unavailable" value="@drawable/bluetooth_phone_button_unavailable"/>
+    <item target="drawable/top_level_preference_background" value="@drawable/top_level_preference_background"/>
+    <item target="drawable/top_level_preference_highlight" value="@drawable/top_level_preference_highlight"/>
+
+    <item target="layout/top_level_preference" value="@layout/top_level_preference"/>
+
+    <item target="style/CarSettingsActivityDividerStyle" value="@style/CarSettingsActivityDividerStyle" />
+    <item target="style/CarSettingsFragmentContainerStyle" value="@style/CarSettingsFragmentContainerStyle" />
+    <item target="style/LockPattern" value="@style/LockPattern"/>
+</overlay>

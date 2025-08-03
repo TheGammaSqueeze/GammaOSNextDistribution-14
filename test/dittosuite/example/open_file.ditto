@@ -1,0 +1,9 @@
+main: {
+  open_file: {
+    path_name: "newfile2.txt",
+    output_fd: "open_file_output",
+    create: false
+  }
+},
+global {}
+

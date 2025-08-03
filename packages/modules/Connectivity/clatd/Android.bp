@@ -1,0 +1,119 @@
+package {
+    default_team: "trendy_team_fwk_core_networking",
+    default_applicable_licenses: ["external_android-clat_license"],
+}
+
+// Added automatically by a large-scale-change
+//
+// large-scale-change included anything that looked like it might be a license
+// text as a license_text. e.g. LICENSE, NOTICE, COPYING etc.
+//
+// Please consider removing redundant or irrelevant files from 'license_text:'.
+// See: http://go/android-license-faq
+license {
+    name: "external_android-clat_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "LICENSE",
+        "NOTICE",
+    ],
+}
+
+cc_defaults {
+    name: "clatd_defaults",
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wunused-parameter",
+
+        // Bug: http://b/33566695
+        "-Wno-address-of-packed-member",
+    ],
+}
+
+// Code used both by the daemon and by unit tests.
+filegroup {
+    name: "clatd_common",
+    srcs: [
+        "clatd.c",
+        "dump.c",
+        "icmp.c",
+        "ipv4.c",
+        "ipv6.c",
+        "logging.c",
+        "translate.c",
+    ],
+}
+
+// The clat daemon.
+cc_binary {
+    name: "clatd",
+    defaults: ["clatd_defaults"],
+    srcs: [
+        ":clatd_common",
+        "main.c",
+    ],
+    static_libs: [
+        "libip_checksum",
+    ],
+    shared_libs: [
+        "liblog",
+    ],
+    relative_install_path: "for-system",
+
+    // Static libc++ for smaller apex size while shipping clatd in the mainline module.
+    // See b/213123047
+    stl: "libc++_static",
+
+    // Only enable clang-tidy for the daemon, not the tests, because enabling it for the
+    // tests substantially increases build/compile cycle times and doesn't really provide a
+    // security benefit.
+    tidy: true,
+    tidy_checks: [
+        "-*",
+        "cert-*",
+        "clang-analyzer-security*",
+        // b/2043314, warnings on memcpy_s, memset_s, snprintf_s calls
+        // are blocking the migration from gnu99 to gnu11.
+        // Until those warnings are fixed, disable these checks.
+        "-clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling",
+        "android-*",
+    ],
+    tidy_checks_as_errors: [
+        "clang-analyzer-security*",
+        "cert-*",
+        "android-*",
+    ],
+
+    apex_available: [
+        "com.android.tethering",
+        "//apex_available:platform",
+    ],
+    min_sdk_version: "30",
+}
+
+// Unit tests.
+cc_test {
+    name: "clatd_test",
+    defaults: ["clatd_defaults"],
+    srcs: [
+        ":clatd_common",
+        "clatd_test.cpp",
+    ],
+    static_libs: [
+        "libbase",
+        "libip_checksum",
+        "libnetd_test_tun_interface",
+    ],
+    shared_libs: [
+        "libcutils",
+        "liblog",
+        "libnetutils",
+    ],
+    test_suites: ["device-tests"],
+    require_root: true,
+}

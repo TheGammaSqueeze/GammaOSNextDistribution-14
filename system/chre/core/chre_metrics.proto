@@ -1,0 +1,239 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!! DISCLAIMER !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// The messages definition here must be in sync with atoms definitions in
+// hardware/google/pixel/pixelstats/pixelatoms.proto
+
+// C++ namespace: android.chre.metrics
+package android.chre.metrics;
+
+option optimize_for = LITE_RUNTIME;
+
+option java_package = "android.chre";
+option java_outer_classname = "Metrics";
+
+/**
+ * Logs an event indicating that a nanoapp loading has failed at the HAL.
+ */
+message ChreHalNanoappLoadFailed {
+  // Vendor reverse domain name (expecting "com.google.pixel").
+  optional string reverse_domain_name = 1;
+
+  enum Type {
+    TYPE_UNKNOWN = 0;
+    // Corresponds to preloaded nanoapps on the device.
+    TYPE_PRELOADED = 1;
+    // Dynamic loading of a nanoapp (e.g. code download).
+    TYPE_DYNAMIC = 2;
+  }
+
+  enum Reason {
+    REASON_UNKNOWN = 0;
+    // A generic error code that does not match any of the others.
+    REASON_ERROR_GENERIC = 1;
+    // Failure at the connection between HAL<->CHRE.
+    REASON_CONNECTION_ERROR = 2;
+    // System ran out of memory.
+    REASON_OOM = 3;
+    // Nanoapp did not have the right signing for loading.
+    REASON_SIGNATURE_MISMATCH = 4;
+  }
+
+  // The 64-bit unique nanoapp identifier of the nanoapp that failed.
+  optional int64 nanoapp_id = 2;
+
+  // The type of the load event.
+  optional Type type = 3;
+
+  // The reason for the failure.
+  optional Reason reason = 4;
+}
+
+/**
+ * An enum describing a module within CHRE.
+ */
+enum ChreModuleType {
+  CHRE_MODULE_TYPE_UNKNOWN = 0;
+  CHRE_MODULE_TYPE_CHRE = 1;  // Core CHRE framework
+  CHRE_MODULE_TYPE_PAL = 2;   // PAL module (could be CHPP)
+  CHRE_MODULE_TYPE_NANOAPP = 3;
+}
+
+/**
+ * An enum describing the CHRE PAL type.
+ */
+enum ChrePalType {
+  CHRE_PAL_TYPE_UNKNOWN = 0;
+  CHRE_PAL_TYPE_SENSOR = 1;
+  CHRE_PAL_TYPE_WIFI = 2;
+  CHRE_PAL_TYPE_GNSS = 3;
+  CHRE_PAL_TYPE_WWAN = 4;
+  CHRE_PAL_TYPE_AUDIO = 5;
+  CHRE_PAL_TYPE_BLE = 6;
+}
+
+/**
+ * Logs an event indicating that a CHRE PAL open has failed.
+ */
+message ChrePalOpenFailed {
+  // Vendor reverse domain name (expecting "com.google.pixel").
+  optional string reverse_domain_name = 1;
+
+  enum Type {
+    TYPE_UNKNOWN = 0;
+    // Initial open when CHRE starts.
+    INITIAL_OPEN = 1;
+    // Any form of "reopen" event internally in the PAL.
+    REOPEN = 2;
+  }
+
+  // The PAL this failure event is for.
+  optional ChrePalType pal = 2;
+
+  // The type of failure observed.
+  optional Type type = 3;
+}
+
+/**
+ * The type of CHRE API request.
+ */
+enum ChreApiType {
+  CHRE_API_TYPE_UNKNOWN = 0;
+  CHRE_API_TYPE_WIFI_SCAN_MONITOR = 1;
+  CHRE_API_TYPE_WIFI_ACTIVE_SCAN = 2;
+  CHRE_API_TYPE_WIFI_RTT_RANGING = 3;
+}
+
+/**
+ * The type of CHRE API error.
+ */
+enum ChreError {
+  CHRE_ERROR_UNKNOWN = 0;
+
+  // No error occurred.
+  CHRE_ERROR_NONE = 1;
+
+  // An unspecified failure occurred.
+  CHRE_ERROR = 2;
+
+  // One or more supplied arguments are invalid.
+  CHRE_ERROR_INVALID_ARGUMENT = 3;
+
+  // Unable to satisfy request because the system is busy.
+  CHRE_ERROR_BUSY = 4;
+
+  // Unable to allocate memory.
+  CHRE_ERROR_NO_MEMORY = 5;
+
+  // The requested feature is not supported.
+  CHRE_ERROR_NOT_SUPPORTED = 6;
+
+  // A timeout occurred while processing the request.
+  CHRE_ERROR_TIMEOUT = 7;
+
+  // The relevant capability is disabled, for example due to a user
+  // configuration that takes precedence over this request.
+  CHRE_ERROR_FUNCTION_DISABLED = 8;
+}
+
+/**
+ * Distribution of CHRE API error codes.
+ */
+message ChreApiErrorCodeDistributionTaken {
+  // Vendor reverse domain name (expecting "com.google.pixel").
+  optional string reverse_domain_name = 1;
+
+  // The chreGetTime() value when this snapshot was taken, in milliseconds.
+  optional int32 snapshot_chre_get_time_ms = 2;
+
+  // The CHRE API type.
+  optional ChreApiType api_type = 3;
+
+  // Corresponds to the CHRE error code that occurred, as defined in the
+  // "enum chreError" field in chre_api/chre/common.h.
+  optional ChreError error_code = 4;
+  optional int32 num_errors = 5;
+}
+
+/**
+ * Snapshot of the dynamic memory allocated in CHRE.
+ */
+message ChreDynamicMemorySnapshotReported {
+  // Vendor reverse domain name (expecting "com.google.pixel").
+  optional string reverse_domain_name = 1;
+
+  // The chreGetTime() value when this snapshot was taken, in milliseconds.
+  optional int32 snapshot_chre_get_time_ms = 2;
+
+  // The type of the module.
+  optional ChreModuleType module_type = 3;
+
+  // The unique 64-bit ID for a nanoapp, only used if the module_type is
+  // NANOAPP. If module_type is PAL, then it represents the ChrePalType enum. If
+  // the module_type is CHRE, then a zero value should be used.
+  optional int64 pal_type_or_nanoapp_id = 4;
+
+  // The max allocation amount of this module in bytes.
+  optional int32 max_allocation_bytes = 5;
+
+  // The current allocation amount of this module in bytes.
+  optional int32 current_allocation_bytes = 6;
+}
+
+/**
+ * Snapshot of the event queue stats in CHRE.
+ */
+message ChreEventQueueSnapshotReported {
+  // Vendor reverse domain name (expecting "com.google.pixel").
+  optional string reverse_domain_name = 1;
+
+  // The chreGetTime() value when this snapshot was taken, in milliseconds.
+  optional int32 snapshot_chre_get_time_ms = 2;
+
+  // The maximum size the event queue got to (i.e. num pending events).
+  optional int32 max_event_queue_size = 3;
+
+  // The average size the event queue got to (i.e. num pending events).
+  optional int32 mean_event_queue_size = 4;
+
+  // The number of events that were dropped due to capacity limits.
+  optional int32 num_dropped_events = 5;
+
+  // The maximum amount of time it took for an event, from when it was received,
+  // to when it was delivered to all interested modules. This value represents
+  // the total delay within the CHRE subsystem.
+  optional int64 max_queue_delay_us = 6;
+
+  // The mean value of the delay in microseconds.
+  optional int64 mean_queue_delay_us = 7;
+}
+
+/**
+ * Indicates that a nanoapp has woken up the AP.
+ */
+message ChreApWakeUpOccurred {
+  // Vendor reverse domain name (expecting "com.google.pixel").
+  optional string reverse_domain_name = 1;
+
+  // The 64-bit unique nanoapp identifier that describes the entity that has
+  // caused an AP wake-up from CHRE. Whenever this event occurs, this means that
+  // the nanoapp sent a message to the AP causing a transition between
+  // suspend/wake-up.
+  optional int64 nanoapp_id = 2;
+}

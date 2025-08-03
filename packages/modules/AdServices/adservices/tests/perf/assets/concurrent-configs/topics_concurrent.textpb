@@ -1,0 +1,36 @@
+schedule: TIMESTAMPED
+scenarios [
+  {
+    at: "09:00:00"
+    journeys [
+      {
+        journey: "android.adservices.test.scenario.adservices.topics.GetTopicsApiCall"
+        methodName: "testTopicsManager"
+        extras {
+          key: "sdk_name"
+          value: "sdk3"
+        }
+      },
+      {
+        journey: "android.adservices.test.scenario.adservices.topics.GetTopicsApiCall"
+      }
+    ]
+    after_test: STAY_IN_APP
+  },
+  {
+    at: "09:02:00"
+    journeys [
+      {
+        journey: "android.adservices.test.scenario.adservices.topics.GetTopicsApiCall"
+        extras {
+          key: "sdk_name"
+          value: "sdk3"
+        }
+      },
+      {
+        journey: "android.adservices.test.scenario.adservices.topics.GetTopicsApiCall"
+      }
+    ]
+    after_test: STAY_IN_APP
+  }
+]

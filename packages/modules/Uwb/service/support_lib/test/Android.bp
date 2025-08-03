@@ -1,0 +1,24 @@
+package {
+    default_team: "trendy_team_fwk_uwb",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "UwbSupportLibTests",
+    srcs: ["*.java"],
+    static_libs: [
+        "androidx.test.ext.junit",
+        "androidx.test.rules",
+        "com.uwb.support.aliro",
+        "com.uwb.support.ccc",
+        "com.uwb.support.fira",
+        "com.uwb.support.radar",
+        "com.uwb.support.generic",
+        "com.uwb.support.multichip",
+        "com.uwb.support.oemextension",
+        "com.uwb.support.dltdoa",
+    ],
+    platform_apis: true,
+    certificate: "platform",
+    test_suites: ["device-tests"],
+}

@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="phoneIconLabel">Tiliɣri</string>
+    <string name="unknown">Arussin</string>
+    <string name="private_num">Uṭṭun uslig</string>
+    <string name="payphone">Tiliɣri anagdud</string>
+    <string name="cancel">Sefsex</string>
+    <string name="ok">IH</string>
+    <string name="audio_mode_speaker">Amsimγur usiwel</string>
+    <string name="send_button">Azen</string>
+    <string name="pause_prompt_yes">Ih</string>
+    <string name="pause_prompt_no">Ala</string>
+    <string name="add_vm_number_str">Rnu uṭṭun</string>
+    <string name="sim_ndp_unlock_text">Serreḥ</string>
+    <string name="sim_ndp_dismiss_text">Suref</string>
+    <string name="mobile_network_settings_not_available">Iɣewwaṛe n uẓeṭṭa Aziraz ur llin ara i useqdac-agi</string>
+    <string name="labelCDMAMore">Iɣewwaṛen n usiwel CDMA</string>
+    <string name="settings_label">Paramètres réseau</string>
+    <string name="phone_accounts_default_account_label">Ulac aẓeṭṭa</string>
+    <string name="phone_accounts_settings_header">Iɣewwaṛen</string>
+    <string name="voicemail">Izen aɣectan</string>
+    <string name="voicemail_notifications_preference_title">Ilɣa</string>
+    <string name="call_settings">Iɣewwaṛen usiwel</string>
+    <string name="additional_gsm_call_settings">Iɣewwaren imernan</string>
+    <string name="labelCW">Asiwel yettraǧun</string>
+    <string name="labelCF">Awelleh n usiwel</string>
+    <string name="sum_cfu_disabled">Insa</string>
+    <string name="sum_cfb_disabled">Insa</string>
+    <string name="sum_cfnry_disabled">Insa</string>
+    <string name="sum_cfnrc_disabled">Insa</string>
+    <string name="enable_cdma_cw">Rmed</string>
+    <string name="disable_cdma_cw">Sefsex</string>
+    <string name="updating_title">Iγewwaṛen n usiwel</string>
+    <string name="close_dialog">IH</string>
+    <string name="enable">Rmed</string>
+    <string name="disable">Sens</string>
+    <string name="change_num">Lqem</string>
+    <string-array name="clir_display_values">
+        <item>Network default</item>
+        <item>Ffer uṭṭun</item>
+        <item>Sken uṭṭun</item>
+    </string-array>
+    <string name="network_select_title">Aẓeṭṭa</string>
+    <string name="preferred_network_mode_title">Anaw n uẓeṭṭa anurif</string>
+    <string name="preferred_network_mode_dialogtitle">Anaw n uẓeṭṭa anurif</string>
+    <string name="choose_network_title">Fren aẓeṭṭa</string>
+    <string name="network_disconnected">Ur yeqqin ara</string>
+    <string name="network_connected">Yeqqen</string>
+    <string name="network_connecting">Tuqna...</string>
+    <string name="network_could_not_connect">Ur yizmir ara ad iqqen</string>
+    <string-array name="preferred_network_mode_choices">
+        <item>GSM/WCDMA anurif</item>
+        <item>GSM kan</item>
+        <item>WCDMA kan</item>
+        <item>GSM/WCDMA awurman</item>
+        <item>CDMA/EvDo awurman</item>
+        <item>CDMA w/o EvDo</item>
+        <item>EvDo kan</item>
+        <item>CDMA/EvDo/GSM/WCDMA</item>
+        <item>CDMA + LTE/EvDo</item>
+        <item>GSM/WCDMA/LTE</item>
+        <item>Amatu</item>
+        <item>LTE</item>
+        <item>LTE / WCDMA</item>
+        <item>TDSCDMA only</item>
+        <item>TDSCDMA/WCDMA</item>
+        <item>LTE/TDSCDMA</item>
+        <item>TDSCDMA/GSM</item>
+        <item>LTE/TDSCDMA/GSM</item>
+        <item>TDSCDMA/GSM/WCDMA</item>
+        <item>LTE/TDSCDMA/WCDMA</item>
+        <item>LTE/TDSCDMA/GSM/WCDMA</item>
+        <item>TDSCDMA/CDMA/EVDO/GSM/WCDMA </item>
+        <item>LTE/TDSCDMA/CDMA/EVDO/GSM/WCDMA</item>
+        <item>NR only</item>
+        <item>NR/LTE</item>
+        <item>NR/LTE/CDMA/EvDo</item>
+        <item>NR/LTE/GSM/WCDMA</item>
+        <item>NR/LTE/CDMA/EvDo/GSM/WCDMA</item>
+        <item>NR/LTE/WCDMA</item>
+        <item>NR/LTE/TDSCDMA</item>
+        <item>NR/LTE/TDSCDMA/GSM</item>
+        <item>NR/LTE/TDSCDMA/WCDMA</item>
+        <item>NR/LTE/TDSCDMA/GSM/WCDMA</item>
+        <item>NR/LTE/TDSCDMA/CDMA/EvDo/GSM/WCDMA</item>
+    </string-array>
+    <string name="call_category">Asiwel</string>
+    <string name="network_operator_category">Aẓeṭṭa</string>
+    <string name="roaming">Ambiwel</string>
+    <string name="advanced_options_title">Talqayt</string>
+    <string name="mobile_data_settings_title">Isefka izirazen</string>
+    <string name="throttle_help">Issin ugar</string>
+    <string name="enable_disable_administrative">Tadbelant</string>
+    <string name="enable_disable_maintenance">Taneṭṭuft</string>
+    <string name="enable_disable_local">Adigan</string>
+    <string name="list_language_title">Tutlayt</string>
+    <string-array name="list_language_entries">
+        <item>Tagnizit</item>
+        <item>Tafṛansist</item>
+        <item>Taspenyulit</item>
+        <item>Tajapunit</item>
+        <item>Takurit</item>
+        <item>Tacinwat</item>
+        <item>Taɛebrit</item>
+    </string-array>
+    <string-array name="list_language_values">
+        <item>"1"</item>
+        <item>"2"</item>
+        <item>"3"</item>
+        <item>"4"</item>
+        <item>"5"</item>
+        <item>"6"</item>
+        <item>"7"</item>
+    </string-array>
+    <string name="list_language_dtitle">Tutlayin</string>
+    <string name="enable_disable_restaurants">Taneččit</string>
+    <string name="enable_disable_advertisements">Adellel</string>
+    <string name="network_global">Amatu</string>
+    <string-array name="cdma_system_select_choices">
+        <item>Home only</item>
+        <item>Awurman</item>
+    </string-array>
+    <string-array name="cdma_subscription_values">
+        <item>"0"</item>
+        <item>"1"</item>
+    </string-array>
+    <string name="menu_add">Rnu anermis</string>
+    <string name="menu_edit">Ẓreg anermis</string>
+    <string name="name">Isem</string>
+    <string name="number">Uṭṭun</string>
+    <string name="save">Sekles</string>
+    <string name="invalidPin">Sekcem tangakt PIN n 4 ar 8 n iwzilen.</string>
+    <string name="doneButton">Immed</string>
+    <string name="card_title_dialing">Siwel</string>
+    <string name="card_title_incoming_call">Asiwel i ikcem-d</string>
+    <string name="card_title_call_ended">Asiwel yekfa</string>
+    <string name="notification_network_selection_title">Ulac ameẓlu</string>
+    <string name="emergency_information_owner_hint">Bab</string>
+    <string name="emergency_enable_radio_dialog_title">Isawalen uɛjilen</string>
+    <string name="police_type_description">Tamsulta</string>
+    <string name="fire_type_description">Times</string>
+    <string name="description_concat_format">%1$s, %2$s</string>
+    <string name="onscreenEndCallText">Fin</string>
+    <string name="onscreenMuteText">Sens asawad</string>
+    <string name="onscreenSwapCallsText">Abeddel</string>
+    <string name="onscreenAudioText">Imesli</string>
+    <string name="onscreenVideoCallText">Asiwel s tvidyut</string>
+    <string name="importSimEntry">Ssekcem</string>
+    <string-array name="dtmf_tone_entries">
+        <item>Amagnu</item>
+        <item>Aɣezfan</item>
+    </string-array>
+    <string name="network_error_message">Izen n tuccḍa</string>
+    <string name="ota_skip_activation_dialog_skip_label">Zgel</string>
+    <string name="ota_activate">Sermed</string>
+    <string name="ota_speaker">Amsimγur usiwel</string>
+    <string name="ota_call_end">Tuγalin</string>
+    <string name="ota_try_again">Ɛṛeḍ tikelt nniḍen</string>
+    <string name="ota_next">Γer zdat</string>
+    <string name="alert_dialog_yes">Ih</string>
+    <string name="alert_dialog_no">Ala</string>
+    <string name="alert_dialog_dismiss">Suref</string>
+    <string name="voicemail_provider">Ameẓlu</string>
+    <string name="voicemail_settings">Sbadu</string>
+    <string name="enable_video_calling_dialog_settings">Paramètres réseau</string>
+    <string name="enable_video_calling_dialog_close">Mdel</string>
+    <string name="accessibility_settings_activity_title">Tuffart</string>
+    <string name="status_hint_label_wifi_call">Asiwel s Wi-Fi</string>
+    <string name="voicemail_visual_voicemail_key">voicemail_visual_voicemail_key</string>
+    <string name="tty_mode_key">button_tty_mode_key</string>
+    <string name="wifi_calling_settings_key">button_wifi_calling_settings_key</string>
+    <string name="change_pin_continue_label">Kemmel</string>
+    <string name="change_pin_cancel_label">Sefsex</string>
+    <string name="change_pin_ok_label">Ih</string>
+    <string name="change_pin_confirm_pin_header">Sentem PIN inek·inem</string>
+    <string name="change_pin_confirm_pins_dont_match">PINs ur mṣadan ara</string>
+    <string name="clh_card_title_call_ended_txt">Asiwel yekfa</string>
+    <string name="clh_callFailed_call_rejected_txt">Asiwel yettwagi</string>
+    <string name="clh_callFailed_number_changed_txt">Uṭṭun yettwabeddel</string>
+    <string name="clh_callFailed_invalid_number_format_txt">Amasal n uṭṭun mačči d ameɣtu (uṭṭun ur yemmid)</string>
+    <string name="labelCallBarring">Agdal n tiɣri</string>
+    <string name="sum_call_barring_enabled">Irmed</string>
+    <string name="sum_call_barring_disabled">Insa</string>
+    <string name="call_barring_change_pwd">Snifel awal uffir</string>
+    <string name="call_barring_pwd_not_match">Awalen uffiren ur menṭaḍen ara</string>
+    <string name="call_barring_change_pwd_success">Awal uffir yettubeddel</string>
+    <string name="call_barring_old_pwd">Awal uffir aqbur</string>
+    <string name="call_barring_new_pwd">Awal uffir amaynut</string>
+    <string name="call_barring_confirm_pwd">Sentem awal uffir</string>
+    <string name="supp_service_over_ut_precautions_dialog_dismiss">Suref</string>
+    <string name="dsds_switch_string">Rmed DSDS</string>
+    <string name="dsds_dialog_confirm">Ales tanekra</string>
+    <string name="dsds_dialog_cancel">Sefsex</string>
+    <string name="radio_info_ims_reg_status_registered">Aklas</string>
+    <string name="radio_info_ims_feature_status_available">Yewjed</string>
+    <string name="radio_info_ims_feature_status_unavailable">Ulac-it</string>
+    <string name="radioInfo_roaming_in">Ambiwel</string>
+    <string name="radioInfo_phone_idle">Idle</string>
+    <string name="radioInfo_phone_offhook">Asiwel iteddu</string>
+    <string name="radioInfo_data_disconnected">Ur yeqqin ara</string>
+    <string name="radioInfo_data_connecting">Tuqqna ɣer</string>
+    <string name="radioInfo_data_connected">Yeqqen</string>
+    <string name="radioInfo_data_suspended">Yeḥbes</string>
+    <string name="radioInfo_unknown">Arussin</string>
+    <string name="radio_info_imei_label">IMEI:</string>
+    <string name="radio_info_imsi_label">IMSI:</string>
+    <string name="radio_info_smsc_update_label">Lqem</string>
+    <string name="radio_info_smsc_refresh_label">Sismeḍ</string>
+    <string name="band_mode_set">Sbadu</string>
+    <string name="band_mode_succeeded">Yedda</string>
+    <string name="phone_info_label" product="default">Talqut n tiliɣri</string>
+    <string name="send_from_work_profile_cancel">Sefsex</string>
+</resources>

@@ -1,0 +1,9 @@
+package: "com.android.server.telecom.flags"
+container: "system"
+
+flag {
+    name: "telecom_resolve_hidden_dependencies"
+    namespace: "telecom"
+    description: "Mainland cleanup for hidden dependencies"
+    bug: "323414215"
+}

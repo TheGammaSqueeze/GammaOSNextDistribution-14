@@ -1,0 +1,7 @@
+set auto-load python-scripts off
+python
+import sys
+sys.path.insert(0, '<path_to_gdb_json_printer>')
+from gdb_json_printer.printers import register_printers
+register_printers()
+end

@@ -1,0 +1,6 @@
+{
+    "uuid": "d42f06c5-9dc5-455b-9914-cf094116cfa8",
+    "app_name": "binder-test-service",
+    "min_heap": 65536,
+    "min_stack": 16384
+}

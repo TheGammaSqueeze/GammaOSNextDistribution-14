@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="1265450418387661962">"TestSliceApp"</string>
+    <string name="hello_blank_fragment" msgid="1245093642770491175">"Sveiki, tuščias fragmentas"</string>
+    <string name="request_network" msgid="8945235490804849914">"Pateikti tinklo užklausą"</string>
+    <string name="release_network" msgid="174252378593535238">"Išleisti tinklą"</string>
+    <string name="ping" msgid="7890607576220714932">"Ryšio patikra"</string>
+    <string name="result_prefix" msgid="3522796186427501399">"Rezultatas:"</string>
+    <string name="latency_title" msgid="963052613947017009">"Suteikti prioritetą delsai"</string>
+    <string name="bw_title" msgid="3902162973688221344">"Suteikti prioritetą pralaidumui"</string>
+    <string name="cbs_title" msgid="5234410535569935600">"CBS"</string>
+    <string name="purchase" msgid="7843181995697372128">"Įsigyti tinklą „Premium“"</string>
+    <string name="network_available" msgid="4780293262690730734">"Rezultatas: tinklas, dėl kurio pateikta užklausa, dabar pasiekiamas!"</string>
+    <string name="network_requested" msgid="5646123922691865991">"Rezultatas: pateikta tinklo užklausa!"</string>
+    <string name="network_released" msgid="2992280481133877025">"Rezultatas: tinklas išleistas!"</string>
+    <string name="network_release_failed" msgid="256471231420029151">"Rezultatas: nepavyko išleisti tinklo!"</string>
+    <string name="purchase_exception" msgid="8876841120055716671">"Rezultatas: išimtis įsigyjant tinklą „Premium“!"</string>
+    <string name="purchase_empty_result" msgid="7497824191649973928">"Rezultatas: gautas tuščias rezultatas įsigyjant tinklą „Premium“!"</string>
+    <string name="premium_not_available" msgid="7346368693802644748">"Rezultatas: tinklo „Premium“ negalima įsigyti!"</string>
+    <string name="purchase_in_progress" msgid="5450288183685032424">"Rezultatas: vykdomas tinklo „Premium“ įsigijimas..."</string>
+</resources>

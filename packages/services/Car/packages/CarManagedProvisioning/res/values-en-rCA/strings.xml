@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    Copyright (C) 2021 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="brand_screen_header" msgid="4382251935798018352">"This vehicle belongs to the organization"</string>
+    <string name="contact_device_provider" msgid="338577979231875837">"To learn more, contact the <xliff:g id="IT_ADMIN">%1$s</xliff:g>."</string>
+    <string name="organization_admin" msgid="6551608903069550652">"organization manager"</string>
+    <string name="if_questions_contact_admin" msgid="4645510019575736238">"If you have questions, contact the organization manager"</string>
+    <string name="admin_has_ability_to_monitor_device" msgid="3132155961508293345">"The organization manager has the ability to monitor and manage settings, corporate access, apps, permissions, and data associated with this vehicle, including network activity, as well as this vehicle\'s location.<xliff:g id="LINE_BREAK">
+
+</xliff:g>Contact the organization manager for more information, including the organization\'s privacy policies."</string>
+    <string name="contact_your_admin_for_more_info" msgid="1419852317652804536">"Contact the organization manager for more information, including the organization\'s privacy policies."</string>
+    <string name="managed_device_info" msgid="2134697391634083944">"This is a managed vehicle"</string>
+    <string name="contact_your_admin_for_help" msgid="1741496631607502730">"Contact the organization manager for help"</string>
+    <string name="fully_managed_device_provisioning_accept_header" msgid="8767138982035307813">"Set up the managed vehicle"</string>
+    <string name="fully_managed_device_provisioning_step_1_header" msgid="8704166635032524345">"Access your organization\'s apps"</string>
+    <string name="fully_managed_device_provisioning_step_1_description" msgid="5960961281295355254">"Setting up infotainment system..."</string>
+    <string name="fully_managed_device_provisioning_step_2_header" msgid="5888602026900289468">"Infotainment system data isn\'t private"</string>
+    <string name="fully_managed_device_provisioning_step_2_subheader_title" msgid="1421575203782743214">"Your activity and data"</string>
+    <string name="fully_managed_device_provisioning_step_2_subheader" msgid="4881961368653838979">"The organization manager may be able to see your activity and data on this vehicle."</string>
+    <string name="fully_managed_device_provisioning_permissions_secondary_subheader" msgid="8955791361423166123">"The organization manager can set permissions for apps on this vehicle, such as microphone and location permissions."</string>
+    <string name="fully_managed_device_with_permission_control_provisioning_summary" msgid="2503568673345133100">"Use this vehicle\'s infotainment system to easily access your work apps. This vehicle isn’t private, so the organization manager may be able to see your activity and data. The organization manager can also set permissions for apps on this vehicle, such as microphone and location permissions."</string>
+    <string name="fully_managed_device_provisioning_summary" msgid="4323948058344613817">"Use this vehicle\'s infotainment system to easily access your work apps. This vehicle isn\'t private, so the organization manager may be able to see your data and activity."</string>
+    <string name="fully_managed_device_provisioning_progress_label" msgid="988594700479673633">"Setting up managed vehicle"</string>
+    <string name="fully_managed_device_provisioning_return_device_title" msgid="1578111657911434819">"Cancel setup and return vehicle"</string>
+    <string name="fully_managed_device_provisioning_return_device_subheader" msgid="5809488930429106172">"Reset and return this vehicle to the organization manager, or go back to the previous screen to continue setup."</string>
+    <string name="fully_managed_device_cancel_setup_button" msgid="4113790677940440998">"Cancel setup"</string>
+    <string name="fully_managed_device_reset_and_return_button" msgid="4951274590516561428">"Reset &amp; return"</string>
+    <string name="fully_managed_device_provisioning_privacy_title" msgid="4789425994893472324">"Privacy notice"</string>
+    <string name="fully_managed_device_provisioning_privacy_body" msgid="5549745709511179391">"The organization manager may be able to see your data and activity on this vehicle."</string>
+</resources>

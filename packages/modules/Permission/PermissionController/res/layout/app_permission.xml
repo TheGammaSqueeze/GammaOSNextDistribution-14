@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (C) 2018 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:id="@+id/app_permission_root">
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/nested_scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clipChildren="false">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/AppPermission">
+
+            <include layout="@layout/header_large" />
+
+            <LinearLayout
+                style="@style/AppPermissionSelection">
+
+                <LinearLayout
+                    android:id="@+id/app_permission_rationale_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    style="@style/AppPermissionRationaleContainer">
+                    <TextView
+                        android:id="@+id/app_permission_rationale_message"
+                        android:text="@string/app_permission_rationale_message"
+                        style="@style/AppPermissionMessage" />
+
+                    <LinearLayout
+                        android:id="@+id/app_permission_rationale_content"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        style="@style/AppPermissionRationaleContent" >
+
+                        <ImageView
+                            android:id="@+id/app_permission_rationale_icon"
+                            android:importantForAccessibility="no"
+                            android:src="@drawable/ic_shield_exclamation_outline"
+                            style="@style/AppPermissionRationaleIcon" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            style="@style/AppPermissionRationaleTextContent">
+                            <TextView
+                                android:duplicateParentState="true"
+                                android:id="@+id/app_permission_rationale_title"
+                                android:text="@string/app_location_permission_rationale_title"
+                                style="@style/AppPermissionRationaleTitle" />
+                            <TextView
+                                android:duplicateParentState="true"
+                                android:id="@+id/app_permission_rationale_subtitle"
+                                android:text="@string/app_location_permission_rationale_subtitle"
+                                style="@style/AppPermissionRationaleSubtitle" />
+                        </LinearLayout>
+
+                    </LinearLayout>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/permission_message"
+                    style="@style/AppPermissionMessage" />
+
+                <RadioButton
+                    android:id="@+id/allow_radio_button"
+                    android:text="@string/app_permission_button_allow"
+                    style="@style/AppPermissionRadioButton" />
+
+                <RadioButton
+                    android:id="@+id/allow_always_radio_button"
+                    android:text="@string/app_permission_button_allow_always"
+                    style="@style/AppPermissionRadioButton" />
+
+                <RadioButton
+                    android:id="@+id/allow_foreground_only_radio_button"
+                    android:text="@string/app_permission_button_allow_foreground"
+                    style="@style/AppPermissionRadioButton" />
+
+                <RelativeLayout
+                    android:id="@+id/radio_select_layout"
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="16dp"
+                    android:layout_height="wrap_content">
+
+                    <RadioButton
+                        android:id="@+id/select_radio_button"
+                        android:text="@string/grant_dialog_button_allow_limited_access"
+                        android:layout_alignParentStart="true"
+                        style="@style/AppPermissionRadioButton"
+                        android:layout_marginTop="0dp" />
+
+                    <View
+                        android:id="@+id/edit_photos_divider"
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:layout_toStartOf="@id/edit_selected_button"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignBottom="@+id/select_radio_button"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:theme="@style/PreferenceDivider"/>
+
+                    <ImageButton
+                        android:id="@+id/edit_selected_button"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:contentDescription="@string/edit_photos_description"
+                        android:background="@null"
+                        android:src="@drawable/ic_edit"/>
+                </RelativeLayout>
+
+                <RadioButton
+                    android:id="@+id/ask_one_time_radio_button"
+                    android:text="@string/app_permission_button_ask"
+                    style="@style/AppPermissionRadioButton" />
+
+                <RadioButton
+                    android:id="@+id/ask_radio_button"
+                    android:text="@string/app_permission_button_ask"
+                    style="@style/AppPermissionRadioButton" />
+
+                <RadioButton
+                    android:id="@+id/deny_radio_button"
+                    android:text="@string/app_permission_button_deny"
+                    style="@style/AppPermissionRadioButton" />
+
+                <RadioButton
+                    android:id="@+id/deny_foreground_radio_button"
+                    android:text="@string/app_permission_button_deny"
+                    style="@style/AppPermissionRadioButton" />
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/location_accuracy"
+                    style="@style/AppPermissionLocationAccuracy">
+
+                    <LinearLayout
+                        android:duplicateParentState="true"
+                        style="@style/AppPermissionLocationAccuracyText">
+                        <TextView
+                            android:duplicateParentState="true"
+                            android:text="@string/app_permission_location_accuracy"
+                            style="@style/AppPermissionLocationAccuracyTitle" />
+                        <TextView
+                            android:duplicateParentState="true"
+                            android:text="@string/app_permission_location_accuracy_subtitle"
+                            style="@style/AppPermissionLocationAccuracySubtitle" />
+                    </LinearLayout>
+
+                    <Switch
+                        android:id="@+id/location_accuracy_switch"
+                        android:checked="true"
+                        android:duplicateParentState="true"
+                        style="@style/AppPermissionLocationAccuracySwitch" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/permission_details"
+                        style="@style/AppPermissionDetails"
+                        android:gravity="start"
+                        android:textAlignment="viewStart"/>
+
+                    <LinearLayout
+                        android:id="@+id/two_target_divider"
+                        style="@style/AppPermissionTwoTargetDivider">
+                        <View
+                            android:layout_width="1dp"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/list_divider_dark" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/widget_frame"
+                        style="@style/AppPermissionWidgetFrame" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/AppPermissionFooter">
+
+                <TextView
+                    android:id="@+id/footer_link_1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    style="@style/AppPermissionFooterLink" />
+
+                <TextView
+                    android:id="@+id/footer_link_2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    style="@style/AppPermissionFooterLink" />
+
+                <TextView
+                    android:id="@+id/footer_storage_special_app_access"
+                    android:clickable="false"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableLeft="@drawable/ic_info_outline"
+                    style="@style/AppPermissionFooterTextWithIcon" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/AppPermissionFooter">
+
+                <ImageView
+                    android:id="@+id/app_additional_info_icon"
+                    android:clickable="false"
+                    android:src="@drawable/ic_info_outline"
+                    android:layout_marginBottom="16dp"
+                    android:layout_marginStart="24dp"
+                    style="@style/ImageViewIcon" />
+
+                <TextView
+                    android:id="@+id/app_additional_info_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="24dp"
+                    android:paddingEnd="24dp"
+                    android:clickable="true"
+                    android:textSize="14sp"
+                    android:lineHeight="20sp"
+                    style="@style/AppPermissionFooter" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</LinearLayout>

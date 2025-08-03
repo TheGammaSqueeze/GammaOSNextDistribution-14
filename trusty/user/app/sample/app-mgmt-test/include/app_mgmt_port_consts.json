@@ -1,0 +1,45 @@
+{
+    "header": "app_mgmt_port_consts.h",
+    "constants":[
+        {
+            "name": "SHUTDOWN_PORT",
+            "value": "com.android.trusty.appmgmt.portstartsrv.shutdown",
+            "type": "port"
+        },
+        {
+            "name": "CTRL_PORT",
+            "value": "com.android.trusty.appmgmt.portstartsrv.ctrl",
+            "type": "port"
+        },
+        {
+            "name": "START_PORT",
+            "value": "com.android.trusty.appmgmt.portstartsrv",
+            "type": "port"
+        },
+        {
+            "name": "START_FAIL_PORT",
+            "value": "com.android.trusty.appmgmt.portstartfailsrv",
+            "type": "port"
+        },
+        {
+            "name": "RESTART_PORT",
+            "value": "com.android.trusty.appmgmt.restartsrv",
+            "type": "port"
+        },
+        {
+            "name": "NEVER_START_PORT",
+            "value": "com.android.trusty.appmgmt.neverstartsrv",
+            "type": "port"
+        },
+        {
+            "name": "BOOT_START_PORT",
+            "value": "com.android.trusty.appmgmt.bootstartsrv",
+            "type": "port"
+        },
+        {
+            "name": "PORT_WAITER_PORT",
+            "value": "com.android.trusty.appmgmt.portwaitersrv",
+            "type": "port"
+        }
+    ]
+}

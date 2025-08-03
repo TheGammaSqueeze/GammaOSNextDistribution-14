@@ -1,0 +1,385 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+
+    <!-- START PERMISSION RATIONALE DIALOG -->
+
+    <style name="PermissionRationaleScrollView">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:scrollbars">none</item>
+        <item name="android:scrollIndicators">bottom</item>
+        <item name="android:fillViewport">true</item>
+        <item name="android:clipChildren">false</item>
+    </style>
+
+    <style name="PermissionRationaleSingleton">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="PermissionRationaleDialog">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">?android:attr/windowBackground</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:showDividers">middle</item>
+    </style>
+
+    <style name="PermissionRationaleContent">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:paddingTop">24dp</item>
+        <item name="android:paddingBottom">8dp</item>
+        <item name="android:paddingStart">24dp</item>
+        <item name="android:paddingEnd">24dp</item>
+    </style>
+
+    <style name="PermissionRationaleTitleContainer">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="PermissionRationaleTitleIcon">
+        <item name="android:layout_width">32dp</item>
+        <item name="android:layout_height">32dp</item>
+        <item name="android:layout_marginBottom">16dp</item>
+        <item name="android:tint">?android:attr/textColorSecondary</item>
+        <item name="android:scaleType">centerInside</item>
+    </style>
+
+    <style name="PermissionRationaleTitleMessage"
+           parent="@android:style/TextAppearance.DeviceDefault">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:fontFamily">google-sans</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:lineHeight">32sp</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="PermissionRationaleSectionOuterContainer">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:layout_marginTop">16dp</item>
+    </style>
+
+    <style name="PermissionRationaleSectionIcon">
+        <item name="android:layout_width">20dp</item>
+        <item name="android:layout_height">20dp</item>
+        <item name="android:tint">?android:attr/textColorSecondary</item>
+        <item name="android:scaleType">centerInside</item>
+    </style>
+
+    <style name="PermissionRationaleSectionInnerContainer">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:layout_marginStart">16dp</item>
+    </style>
+
+    <style name="PermissionRationaleSectionTitle"
+           parent="@android:style/TextAppearance.DeviceDefault.Medium">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:fontFamily">google-sans-text-medium</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+        <item name="android:textColorLink">@color/permission_rationale_accent_primary_variant</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineHeight">20sp</item>
+        <item name="android:lineSpacingMultiplier">1.25</item>
+    </style>
+
+    <style name="PermissionRationaleSectionMessage"
+           parent="@android:style/TextAppearance.DeviceDefault">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">4dp</item>
+        <item name="android:fontFamily">google-sans-text</item>
+        <item name="android:textColor">?android:attr/textColorSecondary</item>
+        <item name="android:textColorLink">@color/permission_rationale_accent_primary_variant</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineHeight">20sp</item>
+        <item name="android:lineSpacingMultiplier">1.25</item>
+    </style>
+
+    <style name="PermissionRationaleSectionPurposeList"
+           parent="@style/PermissionRationaleSectionMessage">
+        <item name="android:layout_marginStart">@dimen/permission_rationale_purpose_list_bullet_indent</item>
+    </style>
+
+    <style name="PermissionRationaleButtonContainer">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">0</item>
+        <item name="android:paddingStart">24dp</item>
+        <item name="android:paddingEnd">24dp</item>
+        <item name="android:paddingTop">20dp</item>
+        <item name="android:paddingBottom">20dp</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:gravity">end</item>
+    </style>
+
+    <style name="PermissionRationaleBackButton"
+           parent="@style/Widget.Material3.Button.OutlinedButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center</item>
+        <item name="android:insetTop">6dp</item>
+        <item name="android:insetBottom">6dp</item>
+        <item name="android:minWidth">48dp</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingBottom">8dp</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+        <item name="android:fontFamily">google-sans-text-medium</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineHeight">20sp</item>
+        <item name="android:lineSpacingMultiplier">1.25</item>
+        <item name="strokeColor">@color/permission_rationale_accent_primary_variant</item>
+    </style>
+
+    <!-- END PERMISSION RATIONALE DIALOG -->
+
+    <!-- START APP DATA SHARING UPDATES PAGE -->
+
+    <style name="AppDataSharingDetailsContainer">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">24dp</item>
+        <item name="android:layout_marginEnd">24dp</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:clipToPadding">false</item>
+        <item name="android:textDirection">locale</item>
+        <item name="android:layoutDirection">locale</item>
+    </style>
+
+    <style name="AppDataSharingDetailsTextAppearance"
+        parent="@android:style/TextAppearance.DeviceDefault">
+        <item name="android:textColor">?android:attr/textColorSecondary</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineHeight">20sp</item>
+    </style>
+
+    <style name="AppDataSharingDetailsMessage">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:layout_marginBottom">12dp</item>
+        <item name="android:textAppearance">@style/AppDataSharingDetailsTextAppearance</item>
+    </style>
+
+    <style name="AppDataSharingNoUpdatesTextAppearance"
+        parent="@android:style/TextAppearance.DeviceDefault">
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:lineHeight">24sp</item>
+    </style>
+
+    <style name="AppDataSharingNoUpdatesMessage">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">28dp</item>
+        <item name="android:layout_marginBottom">24dp</item>
+        <item name="android:textAppearance">@style/AppDataSharingNoUpdatesTextAppearance</item>
+    </style>
+
+    <style name="AppDataSharingUpdatesFooterContainer">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">24dp</item>
+        <item name="android:layout_marginEnd">24dp</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:clipToPadding">false</item>
+        <item name="android:textDirection">locale</item>
+        <item name="android:layoutDirection">locale</item>
+    </style>
+
+    <style name="AppDataSharingUpdatesFooterIconFrame">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
+    <style name="AppDataSharingUpdatesFooterIcon">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="maxHeight">24dp</item>
+        <item name="maxWidth">24dp</item>
+    </style>
+
+    <style name="AppDataSharingUpdatesFooterTextAppearance"
+        parent="@android:style/TextAppearance.DeviceDefault">
+        <item name="android:textColor">?android:attr/textColorSecondary</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineHeight">20sp</item>
+    </style>
+
+    <style name="AppDataSharingUpdatesFooterMessage">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:textAppearance">@style/AppDataSharingUpdatesFooterTextAppearance</item>
+    </style>
+
+    <style name="AppDataSharingUpdatesFooterLink"
+        parent="@android:style/TextAppearance.DeviceDefault">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineHeight">20sp</item>
+        <item name="android:textColorLink">@color/permission_rationale_accent_primary_variant</item>
+    </style>
+
+    <style name="AppDataSharingUpdatePreference">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">?android:attr/listPreferredItemHeightSmall</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingTop">20dp</item>
+        <item name="android:paddingBottom">20dp</item>
+        <item name="android:paddingStart">24dp</item>
+        <item name="android:paddingEnd">24dp</item>
+        <item name="android:clipToPadding">false</item>
+        <item name="android:textDirection">locale</item>
+        <item name="android:layoutDirection">locale</item>
+    </style>
+
+    <style name="AppDataSharingUpdateAppIconFrame">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:paddingEnd">20dp</item>
+    </style>
+
+    <style name="AppDataSharingUpdateAppIcon">
+        <item name="android:id">@android:id/icon</item>
+        <item name="android:layout_width">32dp</item>
+        <item name="android:layout_height">32dp</item>
+        <item name="android:layout_gravity">center_vertical</item>
+    </style>
+
+    <style name="AppDataSharingUpdatePreferenceTitleAndSummaryContainer">
+        <item name="android:layout_width">0px</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+    </style>
+
+    <style name="AppDataSharingUpdatePreferenceTitle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceListItem</item>
+        <item name="android:ellipsize">marquee</item>
+    </style>
+
+    <style name="AppDataSharingUpdatePreferenceSummary">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_below">@android:id/title</item>
+        <item name="android:layout_alignStart">@android:id/title</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceListItemSecondary</item>
+        <item name="android:textColor">?android:attr/textColorSecondary</item>
+        <item name="android:maxLines">10</item>
+    </style>
+
+    <style name="AppDataSharingUpdateSettingsIconFrame">
+        <item name="android:layout_width">48dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:gravity">end|center_vertical</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:paddingStart">24dp</item>
+    </style>
+
+    <style name="AppDataSharingUpdateSettingsIcon">
+        <item name="android:layout_width">24dp</item>
+        <item name="android:layout_height">24dp</item>
+        <item name="android:layout_gravity">end|center_vertical</item>
+        <item name="android:contentDescription">@string/settings</item>
+        <item name="android:src">@drawable/ic_settings_gear</item>
+    </style>
+
+    <!-- END APP DATA SHARING UPDATES PAGE -->
+
+    <!-- START SAFETY CENTER SUBPAGE -->
+
+    <style name="SafetyCenterBrandChip">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingHorizontal">@dimen/sc_list_margin</item>
+    </style>
+
+    <style name="SafetyCenterBrandChipButton"
+            parent="android:Widget.DeviceDefault.Button.Borderless">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <!-- Widget.DeviceDefault.Button has a minHeight that's larger than our chip spec. -->
+        <item name="android:minHeight">0dp</item>
+        <item name="android:layout_gravity">center_vertical|start</item>
+        <item name="android:paddingVertical">@dimen/sc_brand_chip_padding</item>
+        <item name="android:paddingHorizontal">@dimen/sc_spacing_small</item>
+        <item name="android:drawableStart">@drawable/ic_safety_center_brand_chip</item>
+        <item name="android:drawablePadding">@dimen/sc_brand_chip_padding</item>
+        <item name="android:background">@drawable/safety_center_brand_chip_background</item>
+        <item name="android:textAppearance">@style/TextAppearance.SafetyCenter.BrandChip</item>
+    </style>
+
+    <style name="TextAppearance.SafetyCenter.BrandChip"
+        parent="TextAppearance.SafetyCenter.IssueSubtitle">
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+    </style>
+
+    <style name="SafetyCenterIllustration">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:importantForAccessibility">noHideDescendants</item>
+        <item name="android:layout_marginTop">@dimen/sc_spacing_large</item>
+        <item name="android:paddingHorizontal">@dimen/sc_spacing_large</item>
+    </style>
+
+    <style name="SafetyCenterIllustrationView">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:adjustViewBounds">true</item>
+    </style>
+
+    <!-- END SAFETY CENTER SUBPAGE -->
+
+    <!-- START ENHANCED CONFIRMATION DIALOG -->
+
+    <style name="TextAppearance.EnhancedConfirmationDialogHeadline"
+        parent="@android:style/TextAppearance.DeviceDefault.Headline">
+    </style>
+
+    <style name="TextAppearance.EnhancedConfirmationDialogMessage"
+        parent="@android:style/TextAppearance.DeviceDefault">
+    </style>
+
+    <!-- END ENHANCED CONFIRMATION DIALOG -->
+</resources>

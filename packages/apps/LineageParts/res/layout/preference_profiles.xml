@@ -1,0 +1,65 @@
+<!--
+     SPDX-FileCopyrightText: 2011 The Android Open Source Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:minHeight="?android:attr/listPreferredItemHeight">
+
+    <LinearLayout
+        android:id="@+id/profiles_pref"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center_vertical"
+        android:paddingStart="@*android:dimen/preference_item_padding_side">
+
+        <LinearLayout
+            android:id="@android:id/widget_frame"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="24dp"
+            android:layout_marginStart="10dip"
+            android:gravity="center_vertical"
+            android:orientation="vertical" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:clickable="false"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@android:id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:textAppearance="?android:attr/textAppearanceListItem"
+                android:singleLine="true" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/profiles_settings"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_gravity="center"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        android:contentDescription="@string/settings"
+        android:focusable="true"
+        android:paddingEnd="12dp"
+        android:paddingStart="12dip"
+        android:src="@drawable/ic_sysbar_quicksettings" />
+
+</LinearLayout>

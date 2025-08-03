@@ -1,0 +1,45 @@
+---
+Language: Java
+DisableFormat: true
+SortIncludes: false
+---
+Language: Cpp
+BasedOnStyle: Google
+AlignOperands: false
+AllowShortBlocksOnASingleLine: false
+AllowShortFunctionsOnASingleLine: Inline
+AlwaysBreakBeforeMultilineStrings: false
+CommentPragmas: NOLINT:.*
+ColumnLimit: 100
+AccessModifierOffset: -4
+IndentWidth: 4
+TabWidth: 4
+ContinuationIndentWidth: 8
+ConstructorInitializerIndentWidth: 6
+SpacesBeforeTrailingComments: 2
+DerivePointerAlignment: false
+PointerAlignment: Left
+UseTab: Never
+BreakInheritanceList: AfterColon
+BreakConstructorInitializers: AfterColon
+PenaltyBreakBeforeFirstCallParameter: 100000
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex:           '^<[[:alnum:]_]+\.h>'
+    Priority:        3
+  - Regex:           '^<sys/(auxv|cachectl|capability|cdefs|endian|epoll|errno|eventfd|fcntl|file|fsuid|ifunc|inotify|ioctl|ipc|klog|limits|mman|mount|msg|mtio|param|personality|poll|prctl|procfs|ptrace|queue|quota|random|reboot|reg|resource|select|sem|sendfile|shm|signalfd|signal|socket|statfs|stat|statvfs|swap|syscall|sysconf|sysinfo|syslog|sysmacros|_system_properties|system_properties|thread_properties|time|timerfd|times|timex|ttydefaults|types|ucontext|uio|un|unistd|user|utsname|vfs|vt|wait|xattr)\.h>'
+    Priority:        3
+  - Regex:           '^<[[:alnum:]_]+>'
+    Priority:        4
+  - Regex:           '^<.*/[[:alnum:]_]+\.h>$|^<[[:alnum:]_]+\.sysprop\.h>$'
+    Priority:        2
+  - Regex:           '^".*'
+    Priority:        1
+---
+Language: Proto
+BasedOnStyle: Google
+ColumnLimit: 100
+---
+Language: Json
+BasedOnStyle: llvm
+---

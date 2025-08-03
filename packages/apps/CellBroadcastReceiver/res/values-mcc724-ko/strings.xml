@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--   Copyright (C) 2023 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+  -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="cmas_extreme_alert" msgid="3751964445127743376">"안전 안내 문자"</string>
+    <string name="cmas_severe_alert" msgid="4773544726385840011">"위험 알림 문자"</string>
+    <string name="cmas_required_monthly_test" msgid="5274965928258227096">"훈련 알림 문자"</string>
+    <string name="cmas_exercise_alert" msgid="4971838389621550184">"기술 테스트 알림"</string>
+    <string name="enable_cmas_extreme_threat_alerts_title" msgid="3095141156358640879">"극심한 위협"</string>
+    <string name="enable_cmas_extreme_threat_alerts_summary" msgid="6931853411327178941">"생명 및 재산에 대한 긴급한 위협"</string>
+    <string name="enable_cmas_severe_threat_alerts_title" msgid="2603680055509729555">"심각한 위협"</string>
+    <string name="enable_cmas_severe_threat_alerts_summary" msgid="405751015446465202">"생명 및 재산에 대한 심각한 위협"</string>
+    <string name="enable_cmas_test_alerts_title" msgid="5550182663333808054">"주 및 지역 테스트"</string>
+    <string name="enable_cmas_test_alerts_summary" msgid="5713628754819156297">"주 및 지역 당국으로부터 테스트 메시지 받기"</string>
+    <string name="enable_exercise_test_alerts_title" msgid="1926178722994782168">"기술 테스트 알림"</string>
+    <string name="enable_exercise_test_alerts_summary" msgid="2009461083781266766">"테스트 메시지 받기"</string>
+</resources>

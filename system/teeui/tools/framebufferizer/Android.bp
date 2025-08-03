@@ -1,0 +1,19 @@
+// Copyright 2019 The Android Open Source Project
+//
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_binary_host {
+    name: "TeeuiFramebufferizer",
+    srcs: ["src/com/android/framebufferizer/**/*.java"],
+    manifest: "manifest-teeui-framebufferizer.mf",
+    static_libs: [
+        "json-prebuilt",
+        "gson",
+    ],
+    required: [
+        "libteeui_jni",
+    ]
+}

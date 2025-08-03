@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+         Copyright (C) 2021 The Android Open Source Project
+
+         Licensed under the Apache License, Version 2.0 (the "License");
+         you may not use this file except in compliance with the License.
+         You may obtain a copy of the License at
+
+                    http://www.apache.org/licenses/LICENSE-2.0
+
+         Unless required by applicable law or agreed to in writing, software
+         distributed under the License is distributed on an "AS IS" BASIS,
+         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+         See the License for the specific language governing permissions and
+         limitations under the License.
+-->
+<xsd:schema version="2.0"
+           elementFormDefault="qualified"
+           xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <xsd:element name="uwbChipConfig">
+        <xsd:annotation>
+            <xsd:documentation>
+                A collection of chipGroups.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+        <xsd:sequence>
+            <xsd:element name="defaultChipId" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        The id of the UWB chip that should be used by the framework if the framework
+                        doesn't specify which chip it wants to use.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="chipGroup" type="chipGroupInfo" maxOccurs="unbounded"/>
+        </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:complexType name="chipGroupInfo">
+        <xsd:annotation>
+            <xsd:documentation>
+                A collection of UWB chips that are connected to the AP via a common hardware
+                connection and a common shared library.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="sharedLib" type="xsd:string"/>
+            <xsd:element name="chip" type="chipInfo" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="chipInfo">
+        <xsd:annotation>
+            <xsd:documentation>
+                A single UWB chip defined by its id and position.
+
+                Even a single UWB chip must be part of a chipGroup.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="id" type="xsd:string"/>
+            <xsd:element name="position" type="coordinates" minOccurs="0"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="coordinates">
+        <xsd:annotation>
+            <xsd:documentation>
+                The physical 3D position of the UWB antenna, measured in meters from the origin of
+                coordinate system that the device uses.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="x" type="xsd:decimal"/>
+            <xsd:element name="y" type="xsd:decimal"/>
+            <xsd:element name="z" type="xsd:decimal"/>
+        </xsd:sequence>
+    </xsd:complexType>
+</xsd:schema>

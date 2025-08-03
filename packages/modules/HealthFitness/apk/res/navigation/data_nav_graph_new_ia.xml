@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  ~
+  -->
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/permissions_nav_graph"
+    app:startDestination="@id/allDataFragment">
+
+    <fragment
+        android:id="@+id/appDataFragment"
+        android:label="@string/app_data_title"
+        android:name="com.android.healthconnect.controller.data.appdata.AppDataFragment">
+        <argument
+            android:name="android.intent.extra.PACKAGE_NAME"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_appData_to_appEntries"
+            app:destination="@id/appEntriesFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/appEntriesFragment"
+        android:label="@string/app_data_title"
+        android:name="com.android.healthconnect.controller.data.entries.AppEntriesFragment">
+        <argument
+            android:name="android.intent.extra.PACKAGE_NAME"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_appEntriesFragment_to_dataEntryDetailsFragment"
+            app:destination="@id/dataEntryDetailsFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/allDataFragment"
+        android:label="@string/data_title"
+        android:name="com.android.healthconnect.controller.data.alldata.AllDataFragment">
+        <action
+            android:id="@+id/action_allData_to_entriesAndAccess"
+            app:destination="@id/entriesAndAccessFragment" />
+        <action
+            android:id="@+id/action_allDataFragment_to_unitFragment"
+            app:destination="@id/unitFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/entriesAndAccessFragment"
+        android:label="@string/data_title"
+        android:name="com.android.healthconnect.controller.data.entriesandaccess.EntriesAndAccessFragment">
+        <action
+            android:id="@+id/action_entriesAndAccessFragment_to_dataEntryDetailsFragment"
+            app:destination="@id/dataEntryDetailsFragment" />
+        <action
+            android:id="@+id/action_entriesAndAccessFragment_to_appAccess"
+            app:destination="@id/connectedAppFragment" />
+        <action
+            android:id="@+id/action_entriesAndAccessFragment_to_unitFragment"
+            app:destination="@id/unitFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/unitFragment"
+        android:name="com.android.healthconnect.controller.dataentries.units.UnitsFragment"
+        android:label="@string/units_title" />
+
+    <fragment
+        android:id="@+id/dataEntryDetailsFragment"
+        android:name="com.android.healthconnect.controller.entrydetails.DataEntryDetailsFragment"
+        android:label="@string/entry_details_title" >
+        <action
+            android:id="@+id/action_dataEntryDetailsFragment_to_unitFragment"
+            app:destination="@id/unitFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/connectedAppFragment"
+        android:label="@string/app_access_title"
+        android:name="com.android.healthconnect.controller.permissions.app.ConnectedAppFragment">
+        <argument
+            android:name="android.intent.extra.PACKAGE_NAME"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_connectedApp_to_appData"
+            app:destination="@id/appDataFragment" />
+    </fragment>
+
+    <activity
+        android:id="@+id/manageAppPermissions"
+        app:action="android.health.connect.action.MANAGE_HEALTH_PERMISSIONS">
+    </activity>
+</navigation>

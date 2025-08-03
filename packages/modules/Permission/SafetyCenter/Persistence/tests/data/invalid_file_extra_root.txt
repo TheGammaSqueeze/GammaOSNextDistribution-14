@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<issues version="0">
+    <issue key="key" first_seen_at_epoch_millis="1654041600000" dismissed_at_epoch_millis="1654214400000" />
+</issues>
+<issues version="99">
+    <issue key="key" first_seen_at_epoch_millis="0" />
+</issues>

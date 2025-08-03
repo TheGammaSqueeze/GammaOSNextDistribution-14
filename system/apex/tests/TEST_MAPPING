@@ -1,0 +1,55 @@
+{
+  "presubmit": [
+    {
+      "name": "apex_targetprep_tests"
+    },
+    {
+      "name": "timezone_data_e2e_tests"
+    },
+    {
+      "name": "apex_apkinapex_tests"
+    },
+    {
+      "name": "CtsApexSharedLibrariesTestCases"
+    }
+  ],
+  "presubmit-large": [
+    // TODO(b/190710217): uncomment this.
+    //{
+    //  "name": "apex_rollback_tests"
+    //},
+    {
+      "name": "sdkextensions_e2e_tests"
+    },
+    {
+      "name": "sharedlibs_host_tests"
+    }
+  ],
+  "postsubmit": [
+    // The following changes are in post-submit to restrict to physical
+    // devices (currently failing on cf). TODO: Fix and move to presubmit.
+    // b/138242400
+    {
+      "name": "media_e2e_tests",
+      "keywords": ["primary-device"]
+    },
+    {
+      "name": "media_swcodec_e2e_tests",
+      "keywords": ["primary-device"]
+    },
+    {
+      "name": "apex_compression_platform_tests"
+    },
+    {
+      "name": "VendorApexHostTestCases"
+    }
+  ],
+  "imports": [
+    {
+      "path": "cts/hostsidetests/stagedinstall"
+    },
+    {
+      "path": "frameworks/base/tests/StagedInstallTest"
+    }
+  ]
+}

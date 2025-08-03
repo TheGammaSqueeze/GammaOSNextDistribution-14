@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  SPDX-FileCopyrightText: 2020 The Calyx Institute
+  SPDX-License-Identifier: Apache-2.0
+  -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <application>
+        <!-- Remove permission requirements only for debug versions to make development easier -->
+        <activity
+            android:name="com.stevesoltys.seedvault.settings.SettingsActivity"
+            android:exported="true"
+            tools:remove="android:permission">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name="com.stevesoltys.seedvault.restore.RestoreActivity"
+            android:exported="true"
+            tools:remove="android:permission" />
+    </application>
+
+</manifest>

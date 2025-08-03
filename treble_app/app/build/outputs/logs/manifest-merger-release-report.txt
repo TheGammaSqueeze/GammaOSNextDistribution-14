@@ -1,0 +1,457 @@
+-- Merging decision tree log ---
+manifest
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:2:1-141:12
+INJECTED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:2:1-141:12
+INJECTED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:2:1-141:12
+INJECTED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:2:1-141:12
+MERGED from [androidx.preference:preference-ktx:1.2.0] /home/gamma/.gradle/caches/transforms-3/cea5f58ffa4b57c45b31add8fbeb7d42/transformed/preference-ktx-1.2.0/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.preference:preference:1.2.0] /home/gamma/.gradle/caches/transforms-3/e81a3519f6c70ad398ca3d0290954b50/transformed/preference-1.2.0/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.fragment:fragment-ktx:1.3.6] /home/gamma/.gradle/caches/transforms-3/2c8f016c659fe42d96b91d0eeb613898/transformed/fragment-ktx-1.3.6/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.activity:activity-ktx:1.2.2] /home/gamma/.gradle/caches/transforms-3/a4337298a15088703eb645d8b2dbb635/transformed/activity-ktx-1.2.2/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.core:core-ktx:1.1.0] /home/gamma/.gradle/caches/transforms-3/e988cb95429c4ee331f8d2dad8003a50/transformed/core-ktx-1.1.0/AndroidManifest.xml:2:1-9:12
+MERGED from [androidx.lifecycle:lifecycle-livedata-core-ktx:2.3.1] /home/gamma/.gradle/caches/transforms-3/b7d1192a05ff982e067e942eeb412a6e/transformed/lifecycle-livedata-core-ktx-2.3.1/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1] /home/gamma/.gradle/caches/transforms-3/70e010165873ab91010ad97719868bbe/transformed/lifecycle-viewmodel-ktx-2.3.1/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.savedstate:savedstate-ktx:1.1.0] /home/gamma/.gradle/caches/transforms-3/ad1a1b2de63c668dc18276ecd1ff9b92/transformed/savedstate-ktx-1.1.0/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.recyclerview:recyclerview:1.0.0] /home/gamma/.gradle/caches/transforms-3/d183ded027cc24ce61b84aeb0a8bc7ff/transformed/recyclerview-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.legacy:legacy-support-core-ui:1.0.0] /home/gamma/.gradle/caches/transforms-3/9f4ad6fcfb0ca242b51b8a2231bfc86b/transformed/legacy-support-core-ui-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.slidingpanelayout:slidingpanelayout:1.2.0] /home/gamma/.gradle/caches/transforms-3/ca38f58b45fc402f8656681f7fe4298c/transformed/slidingpanelayout-1.2.0/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.window:window:1.0.0] /home/gamma/.gradle/caches/transforms-3/57ca3fa706d0531e32e0a842a9463d39/transformed/window-1.0.0/AndroidManifest.xml:17:1-33:12
+MERGED from [androidx.lifecycle:lifecycle-runtime-ktx:2.3.1] /home/gamma/.gradle/caches/transforms-3/18ee29ea754d1c318e1fa342f3031486/transformed/lifecycle-runtime-ktx-2.3.1/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.appcompat:appcompat:1.1.0] /home/gamma/.gradle/caches/transforms-3/bba1b2bc066e026b9a9ad300f8aa4c44/transformed/appcompat-1.1.0/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.fragment:fragment:1.3.6] /home/gamma/.gradle/caches/transforms-3/93ac10b68cc6b2ecdb3339310a897f91/transformed/fragment-1.3.6/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.appcompat:appcompat-resources:1.1.0] /home/gamma/.gradle/caches/transforms-3/0e7d67df405f7f8726744743fe4dddb0/transformed/appcompat-resources-1.1.0/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.drawerlayout:drawerlayout:1.0.0] /home/gamma/.gradle/caches/transforms-3/749318f9dd3e6006a400c844e8406c50/transformed/drawerlayout-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.viewpager:viewpager:1.0.0] /home/gamma/.gradle/caches/transforms-3/032aa262003524a59cfb206aaf2be960/transformed/viewpager-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.coordinatorlayout:coordinatorlayout:1.0.0] /home/gamma/.gradle/caches/transforms-3/244ce3f6ca13a0e1ae4361da723636b4/transformed/coordinatorlayout-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.customview:customview:1.1.0] /home/gamma/.gradle/caches/transforms-3/86203c94a007ded7889b26f3ef017f3d/transformed/customview-1.1.0/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.transition:transition:1.4.1] /home/gamma/.gradle/caches/transforms-3/f488774c27b2117cb63fe7614c6b547d/transformed/transition-1.4.1/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.legacy:legacy-support-core-utils:1.0.0] /home/gamma/.gradle/caches/transforms-3/4a59aef806fb7c7447a1dadffb6842fc/transformed/legacy-support-core-utils-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.loader:loader:1.0.0] /home/gamma/.gradle/caches/transforms-3/ad34293432ff94dc6ad001a6ed366bcd/transformed/loader-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.activity:activity:1.2.4] /home/gamma/.gradle/caches/transforms-3/b5107cb7e9e7f6c456262179fbdc33cd/transformed/activity-1.2.4/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.vectordrawable:vectordrawable-animated:1.1.0] /home/gamma/.gradle/caches/transforms-3/cbbc4b372f1c21cdbfbf9f3be76a07c9/transformed/vectordrawable-animated-1.1.0/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.vectordrawable:vectordrawable:1.1.0] /home/gamma/.gradle/caches/transforms-3/375f37d29d3e45d7544f4bc7612dcb8b/transformed/vectordrawable-1.1.0/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.swiperefreshlayout:swiperefreshlayout:1.0.0] /home/gamma/.gradle/caches/transforms-3/09a19ca8940fbfc9f64a9012b486030a/transformed/swiperefreshlayout-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.asynclayoutinflater:asynclayoutinflater:1.0.0] /home/gamma/.gradle/caches/transforms-3/a8c6f0d5e28d3053dacf48c6f32db2c2/transformed/asynclayoutinflater-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.core:core:1.6.0] /home/gamma/.gradle/caches/transforms-3/f2b1602a0d70c866492e3e448cc616b4/transformed/core-1.6.0/AndroidManifest.xml:17:1-26:12
+MERGED from [androidx.cursoradapter:cursoradapter:1.0.0] /home/gamma/.gradle/caches/transforms-3/26ded2edba86a9f74f387e6bc33c7208/transformed/cursoradapter-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /home/gamma/.gradle/caches/transforms-3/b4e080daf9c24dca88ead6ef595a4d7e/transformed/versionedparcelable-1.1.1/AndroidManifest.xml:17:1-27:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-savedstate:2.3.1] /home/gamma/.gradle/caches/transforms-3/ab407fdd943cebd70b5940b12c21f25b/transformed/lifecycle-viewmodel-savedstate-2.3.1/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.3.1] /home/gamma/.gradle/caches/transforms-3/357a82b82995420d99be4502ba5a515a/transformed/lifecycle-viewmodel-2.3.1/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.savedstate:savedstate:1.1.0] /home/gamma/.gradle/caches/transforms-3/89ce7a934469e0a422fb4567608ff313/transformed/savedstate-1.1.0/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.interpolator:interpolator:1.0.0] /home/gamma/.gradle/caches/transforms-3/a451e6aa662452d7affc319487109940/transformed/interpolator-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-runtime:2.3.1] /home/gamma/.gradle/caches/transforms-3/49163dc8381639e07a413d8fec08999c/transformed/lifecycle-runtime-2.3.1/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.tracing:tracing:1.0.0] /home/gamma/.gradle/caches/transforms-3/efdd703d783765dd69a74b574073e1c3/transformed/tracing-1.0.0/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.lifecycle:lifecycle-livedata:2.0.0] /home/gamma/.gradle/caches/transforms-3/39a6670b1c3f2930306ef39d30599ea8/transformed/lifecycle-livedata-2.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.3.1] /home/gamma/.gradle/caches/transforms-3/22c28f8da55ee31459eaaab0abb18cfe/transformed/lifecycle-livedata-core-2.3.1/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.arch.core:core-runtime:2.1.0] /home/gamma/.gradle/caches/transforms-3/6d9cccdff1fb1b85f5a78fc9236e2a3f/transformed/core-runtime-2.1.0/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.documentfile:documentfile:1.0.0] /home/gamma/.gradle/caches/transforms-3/7035a2135f2972f98fa12a92c56bc089/transformed/documentfile-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.localbroadcastmanager:localbroadcastmanager:1.0.0] /home/gamma/.gradle/caches/transforms-3/2ff53fee4bc33a1da5cdbfe55cfab510/transformed/localbroadcastmanager-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.print:print:1.0.0] /home/gamma/.gradle/caches/transforms-3/a21766c7c1a00190a294c68fee7e28e6/transformed/print-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.annotation:annotation-experimental:1.1.0] /home/gamma/.gradle/caches/transforms-3/1bc64bcfdc1c17707db90ef6ba4833ca/transformed/annotation-experimental-1.1.0/AndroidManifest.xml:17:1-24:12
+INJECTED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:2:1-141:12
+INJECTED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:2:1-141:12
+INJECTED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:2:1-141:12
+	package
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:4:5-32
+		INJECTED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml
+		INJECTED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml
+	android:sharedUserId
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:6:5-46
+	android:versionName
+		INJECTED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:2:1-141:12
+		INJECTED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml
+	xmlns:tools
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:3:5-51
+	android:versionCode
+		INJECTED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:2:1-141:12
+		INJECTED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml
+	xmlns:android
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:2:11-69
+	android:persistent
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:5:5-30
+uses-permission#android.permission.INTERACT_ACROSS_USERS
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:9:5-80
+	android:name
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:9:22-77
+uses-permission#android.permission.DIAGNOSTIC
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:10:5-69
+	android:name
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:10:22-66
+uses-permission#android.permission.ACCESS_NETWORK_STATE
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:11:5-79
+	android:name
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:11:22-76
+uses-permission#android.permission.REQUEST_INSTALL_PACKAGES
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:12:5-83
+	android:name
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:12:22-80
+uses-permission#android.permission.INSTALL_PACKAGES
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:13:5-75
+	android:name
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:13:22-72
+uses-permission#android.permission.RECEIVE_BOOT_COMPLETED
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:14:5-81
+	android:name
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:14:22-78
+uses-permission#android.permission.VIBRATE
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:16:5-66
+	android:name
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:16:22-63
+application
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:18:5-139:19
+MERGED from [androidx.window:window:1.0.0] /home/gamma/.gradle/caches/transforms-3/57ca3fa706d0531e32e0a842a9463d39/transformed/window-1.0.0/AndroidManifest.xml:24:5-31:19
+MERGED from [androidx.window:window:1.0.0] /home/gamma/.gradle/caches/transforms-3/57ca3fa706d0531e32e0a842a9463d39/transformed/window-1.0.0/AndroidManifest.xml:24:5-31:19
+MERGED from [androidx.core:core:1.6.0] /home/gamma/.gradle/caches/transforms-3/f2b1602a0d70c866492e3e448cc616b4/transformed/core-1.6.0/AndroidManifest.xml:24:5-89
+MERGED from [androidx.core:core:1.6.0] /home/gamma/.gradle/caches/transforms-3/f2b1602a0d70c866492e3e448cc616b4/transformed/core-1.6.0/AndroidManifest.xml:24:5-89
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /home/gamma/.gradle/caches/transforms-3/b4e080daf9c24dca88ead6ef595a4d7e/transformed/versionedparcelable-1.1.1/AndroidManifest.xml:24:5-25:19
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /home/gamma/.gradle/caches/transforms-3/b4e080daf9c24dca88ead6ef595a4d7e/transformed/versionedparcelable-1.1.1/AndroidManifest.xml:24:5-25:19
+	android:appComponentFactory
+		ADDED from [androidx.core:core:1.6.0] /home/gamma/.gradle/caches/transforms-3/f2b1602a0d70c866492e3e448cc616b4/transformed/core-1.6.0/AndroidManifest.xml:24:18-86
+	android:supportsRtl
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:22:9-35
+	android:label
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:21:9-41
+	tools:ignore
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:23:9-48
+	android:icon
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:20:9-45
+	android:allowBackup
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:19:9-35
+uses-library#android.hidl.manager.V1_0
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:25:9-91
+	android:required
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:25:64-88
+	android:name
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:25:23-63
+uses-library#vendor.huawei.hardware.biometrics.fingerprint.V2_1
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:26:9-115
+	android:required
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:26:89-113
+	android:name
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:26:23-88
+uses-library#vendor.huawei.hardware.tp.V1_0
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:27:9-95
+	android:required
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:27:69-93
+	android:name
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:27:23-68
+uses-library#vendor.qti.hardware.radio.am.V1_0
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:28:9-98
+	android:required
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:28:72-96
+	android:name
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:28:23-71
+uses-library#vendor.qti.qcril.am.V1_0
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:29:9-89
+	android:required
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:29:63-87
+	android:name
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:29:23-62
+service#me.phh.treble.app.EntryService
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:31:9-49
+	android:name
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:31:18-46
+service#me.phh.treble.app.NubiaAutoFanControlService
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:32:9-63
+	android:name
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:32:18-60
+service#me.phh.treble.app.NubiaGameModeTilesService
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:34:9-48:19
+	android:enabled
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:40:13-36
+	android:label
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:38:13-38
+	android:exported
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:36:13-36
+	android:permission
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:39:13-77
+	android:icon
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:37:13-52
+	android:name
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:35:13-54
+meta-data#android.service.quicksettings.TOGGLEABLE_TILE
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:41:13-43:40
+	android:value
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:43:17-37
+	android:name
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:42:17-77
+intent-filter#action:name:android.service.quicksettings.action.QS_TILE
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:45:13-47:29
+action#android.service.quicksettings.action.QS_TILE
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:46:17-87
+	android:name
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:46:25-84
+service#me.phh.treble.app.NubiaFanControlTilesService
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:49:9-63:19
+	android:enabled
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:55:13-36
+	android:label
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:53:13-40
+	android:exported
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:51:13-36
+	android:permission
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:54:13-77
+	android:icon
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:52:13-54
+	android:name
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:50:13-56
+service#me.phh.treble.app.NubiaShoulderBtnTilesService
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:64:9-78:19
+	android:enabled
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:70:13-36
+	android:label
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:68:13-46
+	android:exported
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:66:13-36
+	android:permission
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:69:13-77
+	android:icon
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:67:13-52
+	android:name
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:65:13-57
+receiver#me.phh.treble.app.Starter
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:80:9-88:20
+	android:exported
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:81:13-36
+	android:name
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:80:19-42
+intent-filter#action:name:android.intent.action.BOOT_COMPLETED+action:name:android.intent.action.LOCKED_BOOT_COMPLETED+action:name:android.intent.action.MY_PACKAGE_REPLACED+action:name:me.phh.update
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:82:13-87:29
+action#android.intent.action.BOOT_COMPLETED
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:83:17-79
+	android:name
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:83:25-76
+action#android.intent.action.LOCKED_BOOT_COMPLETED
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:84:17-86
+	android:name
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:84:25-83
+action#me.phh.update
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:85:17-56
+	android:name
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:85:25-53
+action#android.intent.action.MY_PACKAGE_REPLACED
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:86:17-84
+	android:name
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:86:25-81
+activity-alias#me.phh.treble.app.TopLevelSettingsActivity
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:90:2-100:26
+	android:enabled
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:90:18-40
+	android:exported
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:90:41-64
+	android:targetActivity
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:90:106-148
+	android:name
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:90:65-105
+intent-filter#action:name:com.android.settings.action.IA_SETTINGS+category:name:android.intent.category.DEFAULT
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:91:13-94:29
+action#com.android.settings.action.IA_SETTINGS
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:92:17-81
+	android:name
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:92:25-79
+category#android.intent.category.DEFAULT
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:93:17-75
+	android:name
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:93:27-73
+meta-data#com.android.settings.category
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:95:13-128
+	android:value
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:95:69-126
+	android:name
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:95:24-68
+meta-data#com.android.settings.summary
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:96:13-120
+	android:resource
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:96:68-118
+	android:name
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:96:24-67
+meta-data#com.android.settings.title
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:97:13-119
+	android:resource
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:97:66-117
+	android:name
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:97:24-65
+meta-data#com.android.settings.icon
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:98:13-107
+	android:resource
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:98:65-105
+	android:name
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:98:24-64
+meta-data#com.android.settings.order
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:99:13-88
+	android:value
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:99:66-86
+	android:name
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:99:24-65
+activity#me.phh.treble.app.SettingsActivity
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:102:9-111:20
+	android:label
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:104:13-60
+	android:exported
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:106:13-36
+	android:theme
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:105:13-51
+	android:name
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:103:13-45
+intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.DEFAULT
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:107:13-110:29
+action#android.intent.action.MAIN
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:108:17-69
+	android:name
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:108:25-66
+activity#me.phh.treble.app.UpdaterActivity
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:113:9-123:20
+	android:label
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:115:13-59
+	android:launchMode
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:117:13-43
+	android:exported
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:118:13-36
+	android:theme
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:116:13-51
+	android:name
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:114:13-44
+intent-filter#action:name:android.settings.SYSTEM_UPDATE_SETTINGS+category:name:android.intent.category.DEFAULT
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:119:13-122:29
+	android:priority
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:119:28-48
+action#android.settings.SYSTEM_UPDATE_SETTINGS
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:120:17-82
+	android:name
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:120:25-79
+service#me.phh.treble.app.REPL
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:125:9-129:15
+	android:exported
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:127:13-36
+	android:permission
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:128:13-74
+	android:name
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:126:13-33
+activity#me.phh.treble.app.DesktopInput
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:131:9-135:20
+	android:launchMode
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:133:13-44
+	android:theme
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:134:13-65
+	android:name
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:132:13-41
+activity#me.phh.treble.app.DebugSensors
+ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:137:9-50
+	android:name
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml:137:19-47
+uses-sdk
+INJECTED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml
+INJECTED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml
+MERGED from [androidx.preference:preference-ktx:1.2.0] /home/gamma/.gradle/caches/transforms-3/cea5f58ffa4b57c45b31add8fbeb7d42/transformed/preference-ktx-1.2.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.preference:preference-ktx:1.2.0] /home/gamma/.gradle/caches/transforms-3/cea5f58ffa4b57c45b31add8fbeb7d42/transformed/preference-ktx-1.2.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.preference:preference:1.2.0] /home/gamma/.gradle/caches/transforms-3/e81a3519f6c70ad398ca3d0290954b50/transformed/preference-1.2.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.preference:preference:1.2.0] /home/gamma/.gradle/caches/transforms-3/e81a3519f6c70ad398ca3d0290954b50/transformed/preference-1.2.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.fragment:fragment-ktx:1.3.6] /home/gamma/.gradle/caches/transforms-3/2c8f016c659fe42d96b91d0eeb613898/transformed/fragment-ktx-1.3.6/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.fragment:fragment-ktx:1.3.6] /home/gamma/.gradle/caches/transforms-3/2c8f016c659fe42d96b91d0eeb613898/transformed/fragment-ktx-1.3.6/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.activity:activity-ktx:1.2.2] /home/gamma/.gradle/caches/transforms-3/a4337298a15088703eb645d8b2dbb635/transformed/activity-ktx-1.2.2/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.activity:activity-ktx:1.2.2] /home/gamma/.gradle/caches/transforms-3/a4337298a15088703eb645d8b2dbb635/transformed/activity-ktx-1.2.2/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.core:core-ktx:1.1.0] /home/gamma/.gradle/caches/transforms-3/e988cb95429c4ee331f8d2dad8003a50/transformed/core-ktx-1.1.0/AndroidManifest.xml:5:5-7:41
+MERGED from [androidx.core:core-ktx:1.1.0] /home/gamma/.gradle/caches/transforms-3/e988cb95429c4ee331f8d2dad8003a50/transformed/core-ktx-1.1.0/AndroidManifest.xml:5:5-7:41
+MERGED from [androidx.lifecycle:lifecycle-livedata-core-ktx:2.3.1] /home/gamma/.gradle/caches/transforms-3/b7d1192a05ff982e067e942eeb412a6e/transformed/lifecycle-livedata-core-ktx-2.3.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.lifecycle:lifecycle-livedata-core-ktx:2.3.1] /home/gamma/.gradle/caches/transforms-3/b7d1192a05ff982e067e942eeb412a6e/transformed/lifecycle-livedata-core-ktx-2.3.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1] /home/gamma/.gradle/caches/transforms-3/70e010165873ab91010ad97719868bbe/transformed/lifecycle-viewmodel-ktx-2.3.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1] /home/gamma/.gradle/caches/transforms-3/70e010165873ab91010ad97719868bbe/transformed/lifecycle-viewmodel-ktx-2.3.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.savedstate:savedstate-ktx:1.1.0] /home/gamma/.gradle/caches/transforms-3/ad1a1b2de63c668dc18276ecd1ff9b92/transformed/savedstate-ktx-1.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.savedstate:savedstate-ktx:1.1.0] /home/gamma/.gradle/caches/transforms-3/ad1a1b2de63c668dc18276ecd1ff9b92/transformed/savedstate-ktx-1.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.recyclerview:recyclerview:1.0.0] /home/gamma/.gradle/caches/transforms-3/d183ded027cc24ce61b84aeb0a8bc7ff/transformed/recyclerview-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.recyclerview:recyclerview:1.0.0] /home/gamma/.gradle/caches/transforms-3/d183ded027cc24ce61b84aeb0a8bc7ff/transformed/recyclerview-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.legacy:legacy-support-core-ui:1.0.0] /home/gamma/.gradle/caches/transforms-3/9f4ad6fcfb0ca242b51b8a2231bfc86b/transformed/legacy-support-core-ui-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.legacy:legacy-support-core-ui:1.0.0] /home/gamma/.gradle/caches/transforms-3/9f4ad6fcfb0ca242b51b8a2231bfc86b/transformed/legacy-support-core-ui-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.slidingpanelayout:slidingpanelayout:1.2.0] /home/gamma/.gradle/caches/transforms-3/ca38f58b45fc402f8656681f7fe4298c/transformed/slidingpanelayout-1.2.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.slidingpanelayout:slidingpanelayout:1.2.0] /home/gamma/.gradle/caches/transforms-3/ca38f58b45fc402f8656681f7fe4298c/transformed/slidingpanelayout-1.2.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.window:window:1.0.0] /home/gamma/.gradle/caches/transforms-3/57ca3fa706d0531e32e0a842a9463d39/transformed/window-1.0.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.window:window:1.0.0] /home/gamma/.gradle/caches/transforms-3/57ca3fa706d0531e32e0a842a9463d39/transformed/window-1.0.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.lifecycle:lifecycle-runtime-ktx:2.3.1] /home/gamma/.gradle/caches/transforms-3/18ee29ea754d1c318e1fa342f3031486/transformed/lifecycle-runtime-ktx-2.3.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.lifecycle:lifecycle-runtime-ktx:2.3.1] /home/gamma/.gradle/caches/transforms-3/18ee29ea754d1c318e1fa342f3031486/transformed/lifecycle-runtime-ktx-2.3.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.appcompat:appcompat:1.1.0] /home/gamma/.gradle/caches/transforms-3/bba1b2bc066e026b9a9ad300f8aa4c44/transformed/appcompat-1.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.appcompat:appcompat:1.1.0] /home/gamma/.gradle/caches/transforms-3/bba1b2bc066e026b9a9ad300f8aa4c44/transformed/appcompat-1.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.fragment:fragment:1.3.6] /home/gamma/.gradle/caches/transforms-3/93ac10b68cc6b2ecdb3339310a897f91/transformed/fragment-1.3.6/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.fragment:fragment:1.3.6] /home/gamma/.gradle/caches/transforms-3/93ac10b68cc6b2ecdb3339310a897f91/transformed/fragment-1.3.6/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.appcompat:appcompat-resources:1.1.0] /home/gamma/.gradle/caches/transforms-3/0e7d67df405f7f8726744743fe4dddb0/transformed/appcompat-resources-1.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.appcompat:appcompat-resources:1.1.0] /home/gamma/.gradle/caches/transforms-3/0e7d67df405f7f8726744743fe4dddb0/transformed/appcompat-resources-1.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.drawerlayout:drawerlayout:1.0.0] /home/gamma/.gradle/caches/transforms-3/749318f9dd3e6006a400c844e8406c50/transformed/drawerlayout-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.drawerlayout:drawerlayout:1.0.0] /home/gamma/.gradle/caches/transforms-3/749318f9dd3e6006a400c844e8406c50/transformed/drawerlayout-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.viewpager:viewpager:1.0.0] /home/gamma/.gradle/caches/transforms-3/032aa262003524a59cfb206aaf2be960/transformed/viewpager-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.viewpager:viewpager:1.0.0] /home/gamma/.gradle/caches/transforms-3/032aa262003524a59cfb206aaf2be960/transformed/viewpager-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.coordinatorlayout:coordinatorlayout:1.0.0] /home/gamma/.gradle/caches/transforms-3/244ce3f6ca13a0e1ae4361da723636b4/transformed/coordinatorlayout-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.coordinatorlayout:coordinatorlayout:1.0.0] /home/gamma/.gradle/caches/transforms-3/244ce3f6ca13a0e1ae4361da723636b4/transformed/coordinatorlayout-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.customview:customview:1.1.0] /home/gamma/.gradle/caches/transforms-3/86203c94a007ded7889b26f3ef017f3d/transformed/customview-1.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.customview:customview:1.1.0] /home/gamma/.gradle/caches/transforms-3/86203c94a007ded7889b26f3ef017f3d/transformed/customview-1.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.transition:transition:1.4.1] /home/gamma/.gradle/caches/transforms-3/f488774c27b2117cb63fe7614c6b547d/transformed/transition-1.4.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.transition:transition:1.4.1] /home/gamma/.gradle/caches/transforms-3/f488774c27b2117cb63fe7614c6b547d/transformed/transition-1.4.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.legacy:legacy-support-core-utils:1.0.0] /home/gamma/.gradle/caches/transforms-3/4a59aef806fb7c7447a1dadffb6842fc/transformed/legacy-support-core-utils-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.legacy:legacy-support-core-utils:1.0.0] /home/gamma/.gradle/caches/transforms-3/4a59aef806fb7c7447a1dadffb6842fc/transformed/legacy-support-core-utils-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.loader:loader:1.0.0] /home/gamma/.gradle/caches/transforms-3/ad34293432ff94dc6ad001a6ed366bcd/transformed/loader-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.loader:loader:1.0.0] /home/gamma/.gradle/caches/transforms-3/ad34293432ff94dc6ad001a6ed366bcd/transformed/loader-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.activity:activity:1.2.4] /home/gamma/.gradle/caches/transforms-3/b5107cb7e9e7f6c456262179fbdc33cd/transformed/activity-1.2.4/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.activity:activity:1.2.4] /home/gamma/.gradle/caches/transforms-3/b5107cb7e9e7f6c456262179fbdc33cd/transformed/activity-1.2.4/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.vectordrawable:vectordrawable-animated:1.1.0] /home/gamma/.gradle/caches/transforms-3/cbbc4b372f1c21cdbfbf9f3be76a07c9/transformed/vectordrawable-animated-1.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.vectordrawable:vectordrawable-animated:1.1.0] /home/gamma/.gradle/caches/transforms-3/cbbc4b372f1c21cdbfbf9f3be76a07c9/transformed/vectordrawable-animated-1.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.vectordrawable:vectordrawable:1.1.0] /home/gamma/.gradle/caches/transforms-3/375f37d29d3e45d7544f4bc7612dcb8b/transformed/vectordrawable-1.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.vectordrawable:vectordrawable:1.1.0] /home/gamma/.gradle/caches/transforms-3/375f37d29d3e45d7544f4bc7612dcb8b/transformed/vectordrawable-1.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.swiperefreshlayout:swiperefreshlayout:1.0.0] /home/gamma/.gradle/caches/transforms-3/09a19ca8940fbfc9f64a9012b486030a/transformed/swiperefreshlayout-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.swiperefreshlayout:swiperefreshlayout:1.0.0] /home/gamma/.gradle/caches/transforms-3/09a19ca8940fbfc9f64a9012b486030a/transformed/swiperefreshlayout-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.asynclayoutinflater:asynclayoutinflater:1.0.0] /home/gamma/.gradle/caches/transforms-3/a8c6f0d5e28d3053dacf48c6f32db2c2/transformed/asynclayoutinflater-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.asynclayoutinflater:asynclayoutinflater:1.0.0] /home/gamma/.gradle/caches/transforms-3/a8c6f0d5e28d3053dacf48c6f32db2c2/transformed/asynclayoutinflater-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.core:core:1.6.0] /home/gamma/.gradle/caches/transforms-3/f2b1602a0d70c866492e3e448cc616b4/transformed/core-1.6.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.core:core:1.6.0] /home/gamma/.gradle/caches/transforms-3/f2b1602a0d70c866492e3e448cc616b4/transformed/core-1.6.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.cursoradapter:cursoradapter:1.0.0] /home/gamma/.gradle/caches/transforms-3/26ded2edba86a9f74f387e6bc33c7208/transformed/cursoradapter-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.cursoradapter:cursoradapter:1.0.0] /home/gamma/.gradle/caches/transforms-3/26ded2edba86a9f74f387e6bc33c7208/transformed/cursoradapter-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /home/gamma/.gradle/caches/transforms-3/b4e080daf9c24dca88ead6ef595a4d7e/transformed/versionedparcelable-1.1.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /home/gamma/.gradle/caches/transforms-3/b4e080daf9c24dca88ead6ef595a4d7e/transformed/versionedparcelable-1.1.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-savedstate:2.3.1] /home/gamma/.gradle/caches/transforms-3/ab407fdd943cebd70b5940b12c21f25b/transformed/lifecycle-viewmodel-savedstate-2.3.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-savedstate:2.3.1] /home/gamma/.gradle/caches/transforms-3/ab407fdd943cebd70b5940b12c21f25b/transformed/lifecycle-viewmodel-savedstate-2.3.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.3.1] /home/gamma/.gradle/caches/transforms-3/357a82b82995420d99be4502ba5a515a/transformed/lifecycle-viewmodel-2.3.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.3.1] /home/gamma/.gradle/caches/transforms-3/357a82b82995420d99be4502ba5a515a/transformed/lifecycle-viewmodel-2.3.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.savedstate:savedstate:1.1.0] /home/gamma/.gradle/caches/transforms-3/89ce7a934469e0a422fb4567608ff313/transformed/savedstate-1.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.savedstate:savedstate:1.1.0] /home/gamma/.gradle/caches/transforms-3/89ce7a934469e0a422fb4567608ff313/transformed/savedstate-1.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.interpolator:interpolator:1.0.0] /home/gamma/.gradle/caches/transforms-3/a451e6aa662452d7affc319487109940/transformed/interpolator-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.interpolator:interpolator:1.0.0] /home/gamma/.gradle/caches/transforms-3/a451e6aa662452d7affc319487109940/transformed/interpolator-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-runtime:2.3.1] /home/gamma/.gradle/caches/transforms-3/49163dc8381639e07a413d8fec08999c/transformed/lifecycle-runtime-2.3.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.lifecycle:lifecycle-runtime:2.3.1] /home/gamma/.gradle/caches/transforms-3/49163dc8381639e07a413d8fec08999c/transformed/lifecycle-runtime-2.3.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.tracing:tracing:1.0.0] /home/gamma/.gradle/caches/transforms-3/efdd703d783765dd69a74b574073e1c3/transformed/tracing-1.0.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.tracing:tracing:1.0.0] /home/gamma/.gradle/caches/transforms-3/efdd703d783765dd69a74b574073e1c3/transformed/tracing-1.0.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.lifecycle:lifecycle-livedata:2.0.0] /home/gamma/.gradle/caches/transforms-3/39a6670b1c3f2930306ef39d30599ea8/transformed/lifecycle-livedata-2.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata:2.0.0] /home/gamma/.gradle/caches/transforms-3/39a6670b1c3f2930306ef39d30599ea8/transformed/lifecycle-livedata-2.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.3.1] /home/gamma/.gradle/caches/transforms-3/22c28f8da55ee31459eaaab0abb18cfe/transformed/lifecycle-livedata-core-2.3.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.3.1] /home/gamma/.gradle/caches/transforms-3/22c28f8da55ee31459eaaab0abb18cfe/transformed/lifecycle-livedata-core-2.3.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.arch.core:core-runtime:2.1.0] /home/gamma/.gradle/caches/transforms-3/6d9cccdff1fb1b85f5a78fc9236e2a3f/transformed/core-runtime-2.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.arch.core:core-runtime:2.1.0] /home/gamma/.gradle/caches/transforms-3/6d9cccdff1fb1b85f5a78fc9236e2a3f/transformed/core-runtime-2.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.documentfile:documentfile:1.0.0] /home/gamma/.gradle/caches/transforms-3/7035a2135f2972f98fa12a92c56bc089/transformed/documentfile-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.documentfile:documentfile:1.0.0] /home/gamma/.gradle/caches/transforms-3/7035a2135f2972f98fa12a92c56bc089/transformed/documentfile-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.localbroadcastmanager:localbroadcastmanager:1.0.0] /home/gamma/.gradle/caches/transforms-3/2ff53fee4bc33a1da5cdbfe55cfab510/transformed/localbroadcastmanager-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.localbroadcastmanager:localbroadcastmanager:1.0.0] /home/gamma/.gradle/caches/transforms-3/2ff53fee4bc33a1da5cdbfe55cfab510/transformed/localbroadcastmanager-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.print:print:1.0.0] /home/gamma/.gradle/caches/transforms-3/a21766c7c1a00190a294c68fee7e28e6/transformed/print-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.print:print:1.0.0] /home/gamma/.gradle/caches/transforms-3/a21766c7c1a00190a294c68fee7e28e6/transformed/print-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.annotation:annotation-experimental:1.1.0] /home/gamma/.gradle/caches/transforms-3/1bc64bcfdc1c17707db90ef6ba4833ca/transformed/annotation-experimental-1.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.annotation:annotation-experimental:1.1.0] /home/gamma/.gradle/caches/transforms-3/1bc64bcfdc1c17707db90ef6ba4833ca/transformed/annotation-experimental-1.1.0/AndroidManifest.xml:20:5-22:41
+INJECTED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml
+INJECTED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml
+	android:targetSdkVersion
+		INJECTED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml
+		INJECTED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml
+		ADDED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml
+		INJECTED from /work/GammaOSNextDistribution-A14/treble_app/app/src/main/AndroidManifest.xml
+uses-library#androidx.window.extensions
+ADDED from [androidx.window:window:1.0.0] /home/gamma/.gradle/caches/transforms-3/57ca3fa706d0531e32e0a842a9463d39/transformed/window-1.0.0/AndroidManifest.xml:25:9-27:40
+	android:required
+		ADDED from [androidx.window:window:1.0.0] /home/gamma/.gradle/caches/transforms-3/57ca3fa706d0531e32e0a842a9463d39/transformed/window-1.0.0/AndroidManifest.xml:27:13-37
+	android:name
+		ADDED from [androidx.window:window:1.0.0] /home/gamma/.gradle/caches/transforms-3/57ca3fa706d0531e32e0a842a9463d39/transformed/window-1.0.0/AndroidManifest.xml:26:13-54
+uses-library#androidx.window.sidecar
+ADDED from [androidx.window:window:1.0.0] /home/gamma/.gradle/caches/transforms-3/57ca3fa706d0531e32e0a842a9463d39/transformed/window-1.0.0/AndroidManifest.xml:28:9-30:40
+	android:required
+		ADDED from [androidx.window:window:1.0.0] /home/gamma/.gradle/caches/transforms-3/57ca3fa706d0531e32e0a842a9463d39/transformed/window-1.0.0/AndroidManifest.xml:30:13-37
+	android:name
+		ADDED from [androidx.window:window:1.0.0] /home/gamma/.gradle/caches/transforms-3/57ca3fa706d0531e32e0a842a9463d39/transformed/window-1.0.0/AndroidManifest.xml:29:13-51

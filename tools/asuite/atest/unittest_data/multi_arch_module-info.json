@@ -1,0 +1,3 @@
+{
+  "MyMultiArchTestModule_32": { "class": ["JAVA_LIBRARIES"],  "path": ["shared/path/to/be/used2"], "tags": ["optional"],  "installed": ["out/host/linux-x86/framework/tradefed-contrib.jar"], "module_name": "MyMultiArchTestModule" }
+}

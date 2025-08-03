@@ -1,0 +1,42 @@
+main: {
+  multithreading: {
+    fork: true,
+    threads: [
+      {
+        name: "Reader";
+        instruction: {
+          instruction_set: {
+            instructions: [
+              {
+                open_file: {
+                  path_name: "newfile2.txt",
+                  output_fd: "test_file"
+                }
+              },
+              {
+                resize_file: {
+                  input_fd: "test_file",
+                  size: 101001001
+                }
+              },
+              {
+                read_file: {
+                  input_fd: "test_file"
+                }
+              },
+              {
+                close_file: {
+                  input_fd: "test_file"
+                }
+              }
+            ]
+          }
+        },
+        spawn: 2
+      }
+    ]
+  },
+},
+global {
+  absolute_path: "/sdcard/DCIM/dittobench";
+}

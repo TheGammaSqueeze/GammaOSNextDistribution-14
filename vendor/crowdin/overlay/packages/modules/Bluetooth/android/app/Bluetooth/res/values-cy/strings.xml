@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="permlab_bluetoothShareManager">Mynediad at y rheolwr lawrlwytho</string>
+    <string name="permdesc_bluetoothShareManager">Mae\'n caniatáu yr ap i gael mynediad at reolwr BluetoothShare a\'i defnyddio i drosglwyddo ffeiliau.</string>
+    <string name="permlab_bluetoothAcceptlist">Ychwanegu dyfais Bluetooth at restr derbyn.</string>
+    <string name="permdesc_bluetoothAcceptlist">Mae\'n caniatáu yr ap i ychwanegu dyfais Bluetooth i restr derbyn dros dro er mwyn anfon ffeiliau i\'r ddyfais hon heb gadarnhad defnyddiwr.</string>
+    <string name="bt_share_picker_label">Bluetooth</string>
+    <string name="unknown_device">Dyfais anhysbys</string>
+    <string name="unknownNumber">Anhysybys</string>
+    <string name="airplane_error_title">Modd awyren</string>
+    <string name="airplane_error_msg">Nid yw\'n bosib defnyddio Bluetooth tra ym modd awyren.</string>
+    <string name="bt_enable_line1">I ddefnyddio gwasanaethau Bluetooth, rhaid yn gyntaf troi Bluetooth ymlaen.</string>
+    <string name="bt_enable_line2">Rhoi Bluetooth ar waith nawr?</string>
+    <string name="bt_enable_cancel">Diddymu</string>
+    <string name="bt_enable_ok">Troi ymlaen</string>
+    <string name="incoming_file_confirm_title">Trosglwyddo ffeil</string>
+    <string name="incoming_file_confirm_content">Derbyn ffeil i mewn? </string>
+    <string name="incoming_file_confirm_cancel">Gwrthod</string>
+    <string name="incoming_file_confirm_ok">Derbyn</string>
+    <string name="incoming_file_confirm_timeout_ok">Iawn</string>
+    <string name="incoming_file_confirm_timeout_content">Daeth yr amser i ben wrth dderbyn ffeil i mewn oddi wrth \u0022<xliff:g id="sender">%1$s</xliff:g>\u0022</string>
+    <string name="incoming_file_confirm_Notification_title">Ffeil yn dod mewn</string>
+    <string name="incoming_file_confirm_Notification_content">Mae <xliff:g id="sender">%1$s</xliff:g> yn barod i anfon ffeil: <xliff:g id="file">%2$s</xliff:g></string>
+    <string name="notification_receiving">Rhannu Bluetooth: Yn derbyn <xliff:g id="file">%1$s</xliff:g></string>
+    <string name="notification_received">Rhannu Bluetooth: Wedi derbyn <xliff:g id="file">%1$s</xliff:g></string>
+    <string name="notification_received_fail">Rhannu Bluetooth: Ffeil <xliff:g id="file">%1$s</xliff:g> heb ei derbyn</string>
+    <string name="notification_sending">Rhannu Bluetooth: Yn anfon <xliff:g id="file">%1$s</xliff:g></string>
+    <string name="notification_sent">Rhannu Bluetooth: Wedi anfon <xliff:g id="file">%1$s</xliff:g></string>
+    <string name="notification_sent_complete">100% yn gyflawn</string>
+    <string name="notification_sent_fail">Rhannu Bluetooth: Ffeil <xliff:g id="file">%1$s</xliff:g> heb ei anfon</string>
+    <string name="download_title">Trosglwyddo ffeil</string>
+    <string name="download_line1">Oddi wrth: \u0022<xliff:g id="sender">%1$s</xliff:g>\u0022</string>
+    <string name="download_line2">Ffeil: <xliff:g id="file">%1$s</xliff:g></string>
+    <string name="download_line3">Maint y ffeil: <xliff:g id="size">%1$s</xliff:g></string>
+    <string name="download_line5">Yn derbyn ffeil\u2026</string>
+    <string name="download_cancel">Stopio</string>
+    <string name="download_ok">Cuddio</string>
+    <string name="incoming_line1">Oddi wrth</string>
+    <string name="incoming_line2">Enw\'r ffeil</string>
+    <string name="incoming_line3">Maint</string>
+    <string name="download_fail_line1">Ni dderbyniwyd y ffeil</string>
+    <string name="download_fail_line2">Ffeil: <xliff:g id="file">%1$s</xliff:g></string>
+    <string name="download_fail_line3">Rheswm: <xliff:g id="reason">%1$s</xliff:g></string>
+    <string name="download_fail_ok">Iawn</string>
+    <string name="download_succ_line5">Derbyniwyd y ffeil</string>
+    <string name="download_succ_ok">Agor</string>
+    <string name="upload_line1">At: \u0022<xliff:g id="recipient">%1$s</xliff:g>\u0022</string>
+    <string name="upload_line3">Math ffeil: <xliff:g id="type">%1$s</xliff:g> (<xliff:g id="size">%2$s</xliff:g>)</string>
+    <string name="upload_line5">Yn anfon ffeil\u2026</string>
+    <string name="upload_succ_line5">Anfonwyd y ffeil</string>
+    <string name="upload_succ_ok">Iawn</string>
+    <string name="upload_fail_line1">Ni chafodd y ffeil ei anfon at \u0022<xliff:g id="recipient">%1$s</xliff:g>\u0022.</string>
+    <string name="upload_fail_line1_2">Ffeil: <xliff:g id="file">%1$s</xliff:g></string>
+    <string name="upload_fail_cancel">Cau</string>
+    <string name="bt_error_btn_ok">Iawn</string>
+    <string name="unknown_file">Ffeil anhysbys</string>
+    <string name="unknown_file_desc">Nid oes ap gyda\'r gallu i drin y math hwn o ffeil. \n</string>
+    <string name="not_exist_file">Dim ffeil</string>
+    <string name="not_exist_file_desc">Dyw\'r ffeil ddim yn bodoli. \n</string>
+    <string name="enabling_progress_title">Arhosa\u2026</string>
+    <string name="enabling_progress_content">Yn troi Bluetooth ymlaen\u2026</string>
+    <string name="bt_toast_1">Caiff y ffeil ei derbyn. Gwiria\'r cynnydd yn y panel Hysbysiadau.</string>
+    <string name="bt_toast_2">Ni ellir derbyn y ffeil.</string>
+    <string name="bt_toast_3">Stopiwyd derbyn y ffeil oddi wrth \u0022<xliff:g id="sender">%1$s</xliff:g>\u0022</string>
+    <string name="bt_toast_4">Yn anfon ffeil at \u0022<xliff:g id="recipient">%1$s</xliff:g>\u0022</string>
+    <string name="bt_toast_5">Yn anfon <xliff:g id="number">%1$s</xliff:g> ffeil at \u0022<xliff:g id="recipient">%2$s</xliff:g>\u0022</string>
+    <string name="bt_toast_6">Wedi stopio anfon ffeil at \u0022<xliff:g id="recipient">%1$s</xliff:g>\u0022</string>
+    <string name="bt_sm_2_1_nosdcard">Does dim digon o le yn y storfa USB i gadw\'r ffeil.</string>
+    <string name="bt_sm_2_1_default">Does dim digon o le ar y cerdyn SD i gadw\'r ffeil hon.</string>
+    <string name="bt_sm_2_2">Lle sydd ei angen: <xliff:g id="size">%1$s</xliff:g></string>
+    <string name="ErrorTooManyRequests">Mae gormod o geisiadau yn cael eu prosesu. Ceisia eto\'n hwyrach.</string>
+    <string name="status_pending">Heb ddechrau\'r trosglwyddo ffeil(iau) eto.</string>
+    <string name="status_running">Mae trosglwyddiad ffeil(iau) ar y gweill.</string>
+    <string name="status_success">Cwblhawyd y trosglwyddiad ffeil yn llwyddiannus.</string>
+    <string name="status_not_accept">Ni chefnogir y cynnwys.</string>
+    <string name="status_forbidden">Dyw\'r ddyfais targed ddim yn caniatáu\'r trosglwyddo.</string>
+    <string name="status_canceled">Diddymwyd y trosglwyddo gan ddefnyddiwr.</string>
+    <string name="status_file_error">Problem storfa.</string>
+    <string name="status_no_sd_card_nosdcard">Dim storfa USB.</string>
+    <string name="status_no_sd_card_default">Dim cerdyn SD. Gosoda gerdyn SD i gadw\'r ffeiliau a throsglwyddwyd.</string>
+    <string name="status_connection_error">Cysylltiad aflwyddiannus.</string>
+    <string name="status_protocol_error">Methwyd ag ymdrin â\'r cais yn gywir.</string>
+    <string name="status_unknown_error">Gwall anhysbys.</string>
+    <string name="btopp_live_folder">Bluetooth wedi\'i derbyn</string>
+    <string name="opp_notification_group">Rhannu Bluetooth</string>
+    <string name="download_success"> <xliff:g id="file_size">%1$s</xliff:g> wedi\'i dderbyn yn gyflawn.</string>
+    <string name="upload_success"> <xliff:g id="file_size">%1$s</xliff:g> wedi\'i anfon yn gyflawn.</string>
+    <string name="inbound_history_title">Trosglwyddiadau mewn</string>
+    <string name="outbound_history_title">Trosglwyddiadau allan</string>
+    <string name="no_transfers">Does dim hanes trosglwyddo.</string>
+    <string name="transfer_clear_dlg_msg">Caiff pob eitem ei dileu o\'r rhestr.</string>
+    <string name="outbound_noti_title">Rhannu Bluetooth: Ffeiliau a anfonwyd</string>
+    <string name="inbound_noti_title">Rhannu Bluetooth: Ffeiliau wedi\'u derbyn</string>
+    <plurals name="noti_caption_unsuccessful">
+        <item quantity="zero"><xliff:g id="unsuccessful_number">%1$d</xliff:g> yn aflwyddiannus.</item>
+        <item quantity="one"><xliff:g id="unsuccessful_number">%1$d</xliff:g> yn aflwyddiannus.</item>
+        <item quantity="two"><xliff:g id="unsuccessful_number">%1$d</xliff:g> yn aflwyddiannus.</item>
+        <item quantity="few"><xliff:g id="unsuccessful_number">%1$d</xliff:g> yn aflwyddiannus.</item>
+        <item quantity="many"><xliff:g id="unsuccessful_number">%1$d</xliff:g> yn aflwyddiannus.</item>
+        <item quantity="other"><xliff:g id="unsuccessful_number">%1$d</xliff:g> yn aflwyddiannus.</item>
+    </plurals>
+    <plurals name="noti_caption_success">
+        <item quantity="zero"><xliff:g id="successful_number">%1$d</xliff:g> yn llwyddiannus, %2$s</item>
+        <item quantity="one"><xliff:g id="successful_number">%1$d</xliff:g> yn llwyddiannus, %2$s</item>
+        <item quantity="two"><xliff:g id="successful_number">%1$d</xliff:g> yn llwyddiannus, %2$s</item>
+        <item quantity="few"><xliff:g id="successful_number">%1$d</xliff:g> yn llwyddiannus, %2$s</item>
+        <item quantity="many"><xliff:g id="successful_number">%1$d</xliff:g> yn llwyddiannus, %2$s</item>
+        <item quantity="other"><xliff:g id="successful_number">%1$d</xliff:g> yn llwyddiannus, %2$s</item>
+    </plurals>
+    <string name="transfer_menu_clear_all">Clirio\'r rhestr</string>
+    <string name="transfer_menu_open">Agor</string>
+    <string name="transfer_menu_clear">Clirio o\'r rhestr</string>
+    <string name="transfer_clear_dlg_title">Clirio</string>
+    <string name="bluetooth_a2dp_sink_queue_name">Yn Chwarae Nawr</string>
+    <string name="bluetooth_map_settings_save">Cadw</string>
+    <string name="bluetooth_map_settings_cancel">Diddymu</string>
+    <string name="bluetooth_map_settings_intro">Dewisa\'r cyfrifon wyt am eu rhannu trwy Bluetooth. Mi fydd dal yn rhaid caniatáu unrhyw fynediad at y cyfrifon wrth gysylltu.</string>
+    <string name="bluetooth_map_settings_count">Slotiau yn weddill:</string>
+    <string name="bluetooth_map_settings_app_icon">Eicon yr ap</string>
+    <string name="bluetooth_map_settings_title">Gosodiadau Rhannu Negeseuon Bluetooth</string>
+    <string name="bluetooth_map_settings_no_account_slots_left">Methu dewis cyfrif. 0 slotiau yn weddill.</string>
+    <string name="bluetooth_connected">Sain Bluetooth wedi\'i chysylltu</string>
+    <string name="bluetooth_disconnected">Sain Bluetooth wedi\'i datgysylltu</string>
+    <string name="a2dp_sink_mbs_label">Sain Bluetooth</string>
+    <string name="bluetooth_opp_file_limit_exceeded">Ni ellir trosglwyddo ffeiliau dros 4GB</string>
+    <string name="bluetooth_connect_action">Cysylltu â Bluetooth</string>
+</resources>

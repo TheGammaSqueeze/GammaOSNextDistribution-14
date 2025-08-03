@@ -1,0 +1,54 @@
+{
+  "mocks": [
+    {
+      "request": {
+        "path": "bidding",
+        "header": {
+          "x_fledge_buyer_bidding_logic_version": "3"
+        }
+      },
+      "response": {
+        "body": "BiddingLogicV3WithDebugReporting.js",
+        "header": {
+          "x_fledge_buyer_bidding_logic_version": "3"
+        }
+      }
+    },
+    {
+      "request": {
+        "path": "scoring"
+      },
+      "response": {
+        "body": "ScoringLogicWithDebugReporting.js"
+      }
+    },
+    {
+      "request": {
+        "path": "scoring/trusted"
+      },
+      "response": {
+        "body": "ScoringSignals.json"
+      }
+    },
+    {
+      "request": {
+        "path": "bidding/trusted"
+      },
+      "response": {
+        "body": "BiddingSignals.json"
+      }
+    }
+  ],
+  "substitutions": {
+    "<daily-update-uri>": "{base_url}/bidding/daily",
+    "<ad-render-uri-1>": "{base_url}/render_ad/1",
+    "<ad-render-uri-2>": "{base_url}/render_ad/2",
+    "<buyer-trusted-bidding-uri>": "{base_url}/bidding/trusted",
+    "<buyer-reporting-uri>": "{base_url}/buyer/reportImpression",
+    "<seller-reporting-uri>": "{base_url}/seller/reportImpression",
+    "<buyer-win-debug-reporting-uri>": "{base_url}/buyer/reportWin",
+    "<buyer-loss-debug-reporting-uri>": "{base_url}/buyer/reportLoss",
+    "<seller-win-debug-reporting-uri>": "{base_url}/seller/reportWin",
+    "<seller-loss-debug-reporting-uri>": "{base_url}/seller/reportLoss"
+  }
+}

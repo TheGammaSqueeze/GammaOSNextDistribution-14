@@ -1,0 +1,83 @@
+#
+# Copyright (c) 2019, Google, Inc. All rights reserved
+#
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files
+# (the "Software"), to deal in the Software without restriction,
+# including without limitation the rights to use, copy, modify, merge,
+# publish, distribute, sublicense, and/or sell copies of the Software,
+# and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+# CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+# TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+
+# Entries in this section disable sanitizers listed in enable.mk.
+[alignment|bool|builtin|bounds|enum|float-cast-overflow|float-divide-by-zero|implicit-unsigned-integer-truncation|implicit-signed-integer-truncation|implicit-integer-sign-change|integer-divide-by-zero|pointer-overflow|return|shift|signed-integer-overflow|unreachable|unsigned-integer-overflow|vla-bound]
+
+# dlmalloc is fragile enough that it isn't worth the risk to try to make it
+# UBSan clean
+src:*/dlmalloc.c
+
+# Fixing errors in boringssl is more likely to cause problems than fix them
+src:external/boringssl/*
+
+# ocb.c implements pseudo-bignum math, and so plays fast and loose with signs
+# We would either need to annotate many of the functions in here, or rewrite
+# it dangerously to avoid this exemption.
+src:*/system/keymaster/key_blob_utils/ocb.c
+
+# test-runner is missing important facilities for error reporting (e.g. printf)
+# and is not a actual product, just testing infrastructure.
+src:external/trusty/bootloader/*
+
+# If we are inside Musl's ldso or crt components, we're too early in process
+# start for a lot of information to be correct, and our error reporting
+# facilities won't work yet.
+src:external/trusty/musl/crt/*
+src:external/trusty/musl/ldso/*
+
+# Musl is fond of negating unsigned integers to round values up.
+# There are also a few not-quite-buggy unsigned overflows and signed constants
+# being coerced to unsigned values.
+[unsigned-integer-overflow|implicit-integer-sign-change]
+src:external/trusty/musl/src/*
+
+# Signature of memset is void* memset(void *s, int c, size_t n);
+# i.e. it has to convert its second argument to a 8-bit type, which can result
+# in a truncation.
+[implicit-signed-integer-truncation]
+src:external/trusty/musl/src/string/memset.c
+
+# Allow unsigned overflow in keymaster until keymaster's checks are reworked.
+# The cases we know can overflow *are* overflow checks.
+[unsigned-integer-overflow|pointer-overflow]
+src:*/system/keymaster/android_keymaster/authorization_set.cpp
+src:*/system/keymaster/android_keymaster/serializable.cpp
+
+# Exempt libfreetype from overflow sanitization.
+[unsigned-integer-overflow|implicit-integer-sign-change|pointer-overflow|cfi]
+src:*/external/freetype/*
+
+# Exempt libfdt from implicit integer sign changes
+[implicit-integer-sign-change]
+src:external/dtc/libfdt/*
+
+# Exempt some libbinder functions from CFI because they make indirect
+# calls from C++ into Rust and the latter does not support CFI.
+# TODO(b/181755948): Remove these lines when that changes.
+[cfi-icall]
+# This is the file path as seen by clang
+src:frameworks/native/libs/binder/trusty/binder_rpc_unstable/../../libbinder_rpc_unstable.cpp
+src:frameworks/native/libs/binder/ndk/ibinder.cpp
+src:frameworks/native/libs/binder/ndk/parcel.cpp
+src:frameworks/native/libs/binder/trusty/rust/binder_rpc_server/sys/cpp/RpcServerTrustyRust.cpp

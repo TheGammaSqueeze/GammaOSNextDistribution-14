@@ -1,0 +1,2 @@
+# Car power policy server
+/system/bin/carpowerpolicyd  u:object_r:carpowerpolicyd_exec:s0

@@ -1,0 +1,9 @@
+# Bug component: 1042770
+ayushjain@google.com
+rpius@google.com
+shreshtabm@google.com
+zning@google.com
+
+# For the rust codebase
+per-file *.rs = cante@google.com
+per-file *.bp = cante@google.com

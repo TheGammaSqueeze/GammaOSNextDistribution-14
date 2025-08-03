@@ -1,0 +1,125 @@
+// Copyright (C) 2020 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_defaults {
+    name: "carpowerpolicyserver_defaults",
+    cflags: [
+        "-Wall",
+        "-Wno-missing-field-initializers",
+        "-Werror",
+        "-Wno-unused-variable",
+        "-Wunused-parameter",
+    ],
+    shared_libs: [
+        "android.automotive.powerpolicy.delegate-V1-ndk",
+        "android.frameworks.automotive.powerpolicy-V3-ndk",
+        "android.frameworks.automotive.powerpolicy.internal-V1-ndk",
+        "android.hardware.automotive.vehicle@2.0",
+        "libbase",
+        "libbinder",
+        "libbinder_ndk",
+        "libhidlbase",
+        "liblog",
+        "libtinyxml2",
+        "libutils",
+        "server_configurable_flags",
+    ],
+    static_libs: [
+        "android.car.feature-aconfig-cpp",
+        "libc++fs",
+        "libsysfsmonitor",
+        "libvhalclient",
+    ],
+    defaults: ["vhalclient_defaults"],
+}
+
+cc_library {
+    name: "lib_carpowerpolicyserver",
+    srcs: [
+        "src/CarPowerPolicyServer.cpp",
+        "src/PolicyManager.cpp",
+        "src/PowerComponentHandler.cpp",
+        "src/SilentModeHandler.cpp",
+    ],
+    defaults: [
+        "carpowerpolicyserver_defaults",
+    ],
+    export_include_dirs: [
+        "src",
+    ],
+}
+
+filegroup {
+    name: "powerpolicyxmlfiles",
+    srcs: [
+        "tests/data/*.xml",
+    ],
+}
+
+cc_test {
+    name: "carpowerpolicyserver_test",
+    defaults: [
+        "carpowerpolicyserver_defaults",
+    ],
+    test_suites: ["general-tests"],
+    srcs: [
+        "tests/CarPowerPolicyServerTest.cpp",
+        "tests/PolicyManagerTest.cpp",
+        "tests/PowerComponentHandlerTest.cpp",
+        "tests/SilentModeHandlerTest.cpp",
+    ],
+    static_libs: [
+        "libgmock",
+        "libgtest",
+        "lib_carpowerpolicyserver",
+    ],
+    data: [":powerpolicyxmlfiles"],
+}
+
+cc_binary {
+    name: "carpowerpolicyd",
+    defaults: [
+        "carpowerpolicyserver_defaults",
+    ],
+    srcs: [
+        "src/main.cpp",
+    ],
+    static_libs: [
+        "lib_carpowerpolicyserver",
+    ],
+    init_rc: ["carpowerpolicyd.rc"],
+    vintf_fragments: ["carpowerpolicyd.xml"],
+}
+
+cc_fuzz {
+    name: "android.frameworks.automotive.powerpolicy.CarPowerPolicyServer.fuzzer",
+    defaults: [
+        "carpowerpolicyserver_defaults",
+        "service_fuzzer_defaults",
+    ],
+    static_libs: [
+        "liblog",
+        "lib_carpowerpolicyserver",
+    ],
+    srcs: ["src/fuzzer.cpp"],
+    fuzz_config: {
+        cc: [
+            "keithmok@google.com",
+        ],
+    },
+}

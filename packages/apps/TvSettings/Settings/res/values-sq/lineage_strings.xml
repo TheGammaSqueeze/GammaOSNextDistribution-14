@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017-2024 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="system_reboot_confirm_cm">Rinisni në:</string>
+    <string name="global_action_restart_system">Sistem</string>
+    <string name="global_action_restart_recovery">Rikuperim</string>
+    <string name="global_action_restart_bootloader">Bootloader</string>
+    <plurals name="show_dev_countdown_cm">
+        <item quantity="one">Tani jeni <xliff:g id="step_count">%1$d</xliff:g> një hap larg aktivizimit të cilësimeve të zhvillimit.</item>
+        <item quantity="other">Tani jeni <xliff:g id="step_count">%1$d</xliff:g> hapa larg nga aktivizimi i cilësimeve të zhvillimit.</item>
+    </plurals>
+    <string name="show_dev_on_cm">Ju i keni aktivizuar parametrat e zhvillimit!</string>
+    <string name="show_dev_already_cm">Nuk ka më nevojë të shtypni! Parametrat e zhvillimit janë tashmë të aktivizuara.</string>
+    <string name="system_buttons">Butonat</string>
+    <string name="power_button_long_press_action_title">Veprimi i shtypjes së gjatë të butonit të energjisë</string>
+    <string name="power_button_long_press_for_power_menu_action">Hyni në menunë e energjisë</string>
+    <string name="power_button_long_press_for_assistant_action">Hap asistentit </string>
+    <string name="inputs_volume_control_enabled">Kontrolli i volumit të CEC</string>
+    <string name="inputs_volume_control_enabled_desc">Kontrolloni volumin e TV/AVR në vend të volumit të brendshëm</string>
+    <string name="enable_adb_root">korrigjimi root</string>
+    <string name="enable_adb_root_summary">Lejoni ekzekutimin e korrigjimit të gabimeve të Android si root</string>
+    <string name="advanced_restart_title">Rindezje e përparuar</string>
+    <string name="advanced_restart_summary">Shfaq opsionet për rifillimin në rikuperim, ngarkuesin e ngarkimit ose kryerjen e një rinisjeje të butë</string>
+    <string name="adb_over_network">ADB mbi rrjet</string>
+    <string name="adb_over_network_summary">Aktivizo debugimin TCP/IP mbi ndërfaqet të rrjetit (Wi\u2011Fi, rrjetet USB). Ky parametër do të çaktivizohet gjatë rindezjes</string>
+    <string name="adb_over_network_warning">PARALAJMRIM: Kur është aktivizuar ADB mbi rrjetin, telefoni juaj është i hapur për ndërhyrje në të gjitha rrjetet e lidhura! \n\n Përdorni këtë veçori vetëm kur jeni të lidhur në rrjete të besuara. \n\n A dëshironi vërtet ta aktivizoni këtë funksion?</string>
+    <string name="trust_category_features">Statusi</string>
+    <string name="trust_feature_selinux">SELinux</string>
+    <string name="trust_feature_selinux_value_enforcing">Zbatuar</string>
+    <string name="trust_feature_selinux_value_disabled">E çaktivizuar</string>
+    <string name="trust_feature_selinux_explain">SELinux dikton se cilat proçese kanë të drejta në skedarët e telefonit tuaj.\nKjo pengon programet dhe shërbimet të kenë të drejta tek skedarë që nuk gjykohet të kenë: në këtë mënyrë proçeset e dëmshme kufizohen dhe siguria tuaj mbrohet.</string>
+    <string name="trust_feature_security_patches">korrigjimet të sigurisë së Android</string>
+    <string name="trust_feature_security_patches_value_base">Platforma: %1$s\nProdhuesi: %2$s</string>
+    <string name="trust_feature_security_patches_value_new">E përditësuar</string>
+    <string name="trust_feature_security_patches_value_medium">Disa muaj e pa përditësuar</string>
+    <string name="trust_feature_security_patches_value_old">E vjetërsuar</string>
+    <string name="trust_feature_security_patches_explain">Korrigjimet e sigurisë lëshohen çdo muaj nga Google në bashkëpunim me shitësit e SoC për të adresuar gabimet që mund të shfrytëzohen nga aplikacionet me qëllim të keq për të anashkaluar kufizimet e sigurisë dhe për të shkaktuar dëme të përhershme në pajisjen tuaj. Patch-et e disponueshme nga Google aplikohen çdo muaj në të gjitha pajisjet e mbështetura, por korrigjimet në kodin e pronarit mund të aplikohen vetëm nga prodhuesi i pajisjes suaj. Për ta mbajtur pajisjen tuaj të sigurt, sigurohuni që ndërtimi juaj i LineageOS të jetë gjithmonë i përditësuar dhe (nëse ka) sigurohuni që imazhi i shitësit tuaj të përditësohet në atë më të fundit të rekomanduar nga LineageOS.</string>
+    <string name="trust_feature_encryption">Enkriptimi</string>
+    <string name="trust_feature_encryption_value_enabled">Aktivizuar</string>
+    <string name="trust_feature_encryption_value_nolock">Nevojitet një kyçje e sigurtë e ekranit</string>
+    <string name="trust_feature_encryption_value_disabled">E çaktivizuar</string>
+    <string name="trust_feature_encryption_explain">Kriptimi i paisjes shmang hyrjen tek të dhënat e tua kur telefoni nuk ndizet në sistemin e Android. Kjo është veçanërisht e rëndësishme nëse të vidhet telefoni, pasi ndalon të tjerët të të lexojnë mesazhet, kontaktet dhe informacione të tjera private pa fjalëkalimin.\n\nPër të patur një kriptim më efektiv ju duhet të vendosni një fjalëkalim për kyçje të sigurtë të ekranit.</string>
+    <string name="trust_category_tools">Privacia</string>
+    <string name="trust_notification_alerts_title">Alarmet e siguris</string>
+    <string name="trust_restrict_usb_title">Kufizo USB</string>
+    <string name="trust_restrict_usb_summary">Kontrollo mbështetjen për lidhjet USB si kufjet, pajisjet ruajtëse, hyrjen (mice, keyboards, joysticks) dhe ADB</string>
+    <string name="trust_restrict_usb_always">Refuzoni lidhjet USB</string>
+    <string name="trust_restrict_usb_disabled">Lejo gjithmonë lidhjet USB</string>
+    <string name="trust_onboarding_description">Trust të ndihmon të kesh paisjen tende të sigurtë dhe mbron privatësinë tënde.\n\n Ikona e Trust do të shfaqet vetëm kur përmbajtja e faqes të verifikohet.</string>
+    <string name="trust_warnings_alerts_intro">Ju mund të zgjidhni se për cilat probleme sigurie të njoftoheni. Për sigurinë tuaj, sygjerohet të aktivizohen të gjitha</string>
+    <string name="trust_warnings_selinux">Statusi i SELinux</string>
+    <string name="trust_warnings_keys">Shënjimi i ndërtimit</string>
+    <string name="sleep_button_label">Fli</string>
+    <string name="system_sleep_confirm">Fli tani?</string>
+    <string name="shutdown_button_label">Fike</string>
+    <string name="system_shutdown_confirm">Fike tani?</string>
+    <string name="convertible_port_busy_title">Porta USB 1 është në përdorim</string>
+    <string name="convertible_port_busy_warning">Hiqni çdo pajisje ose aksesor nga priza dhe provoni përsëri</string>
+    <string name="mtp_enable_title">Qasja në dosjet SHIELD në PC duke përdorur USB</string>
+    <string name="mtp_enable_warning">Porta USB 1 është konfiguruar tani për SHIELD për t\'u lidhur me një kompjuter si një pajisje mediatike.\n\nKjo portë nuk do të zbulojë më media ruajtëse USB ose aksesorë USB dhe nuk mund të përdoret për karikimin e pajisjeve.</string>
+    <string name="mtp_retry_error">Dështoi. Ju lutemi riprovoni.</string>
+    <string name="mtp_summary">Në këtë modalitet, porta USB nuk është funksionale për përdorime të tjera</string>
+    <string name="mtp_title">Transferoni skedarët në një kompjuter duke përdorur USB</string>
+    <string name="mtp_unexpected_error">Gabim i papritur. Ju lutemi riprovoni më vonë.</string>
+    <string name="usb_debugging_enable_title">Korrigjimi i USB-së është aktivizuar</string>
+    <string name="usb_debugging_enable_warning">Porta USB 1 është konfiguruar tani për SHIELD për t\'u lidhur me një kompjuter si një pajisje mediatike.\n\nKjo portë nuk do të zbulojë më media ruajtëse USB ose aksesorë USB dhe nuk mund të përdoret për karikimin e pajisjeve.</string>
+</resources>

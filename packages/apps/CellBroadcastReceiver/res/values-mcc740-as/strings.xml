@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2021 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="cmas_presidential_level_alert" msgid="8832531644152117875">"স্থানীয় জৰুৰীকালীন সতৰ্কবাৰ্তা"</string>
+    <string name="button_dismiss" msgid="5975841666550833732">"বন্ধ কৰিবলৈ"</string>
+    <string name="cmas_required_monthly_test" msgid="2287926047457291638">"পৰীক্ষামূলক বাৰ্তা"</string>
+    <string name="cmas_exercise_alert" msgid="998005154407142100">"জৰুৰীকালীন সতৰ্কবাৰ্তা: ব্যায়াম / ড্ৰিলৰ বাৰ্তা"</string>
+    <string name="public_safety_message" msgid="6263179411117570932">"তথ্যসমৃদ্ধ বাৰ্তা"</string>
+    <!-- no translation found for enable_public_safety_messages_title (132836010129431792) -->
+    <skip />
+    <string name="enable_public_safety_messages_summary" msgid="5574351338788490055"></string>
+    <!-- no translation found for enable_cmas_test_alerts_title (646840583994486763) -->
+    <skip />
+    <string name="enable_cmas_test_alerts_summary" msgid="5860578113408534117"></string>
+    <!-- no translation found for enable_exercise_test_alerts_title (48882912795825583) -->
+    <skip />
+    <string name="enable_exercise_test_alerts_summary" msgid="4953174638150112137"></string>
+</resources>

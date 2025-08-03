@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2023 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="sms_cb_settings" msgid="2385801397334582049">"Upozorenja o hitnim slučajevima"</string>
+    <string name="enable_cmas_extreme_threat_alerts_title" msgid="7171885969406895532">"Ekstremno"</string>
+    <string name="enable_cmas_extreme_threat_alerts_summary" msgid="289758466218591800">"Ekstremni incident"</string>
+    <string name="enable_cmas_severe_threat_alerts_title" msgid="2574445861711004849">"Ozbiljno"</string>
+    <string name="enable_cmas_severe_threat_alerts_summary" msgid="7614150249934894203">"Ozbiljan incident"</string>
+    <string name="enable_cmas_test_alerts_title" msgid="2201656327607526283">"Test"</string>
+    <string name="enable_cmas_test_alerts_summary" msgid="9167491531803427454">"Probna upozorenja"</string>
+    <string name="enable_exercise_test_alerts_title" msgid="1899116047320259060">"Vežbanje"</string>
+    <string name="enable_exercise_test_alerts_summary" msgid="8874462134900526256">"Upozorenja za vežbanje"</string>
+    <string name="cmas_presidential_level_alert" msgid="1021328259636041398">"Javno upozorenje"</string>
+    <string name="cmas_extreme_alert" msgid="8549790257394972582">"Ekstremno"</string>
+    <string name="cmas_severe_alert" msgid="9168154995381314879">"Ozbiljno"</string>
+    <string name="cmas_required_monthly_test" msgid="3066529282314710473">"Test"</string>
+    <string name="cmas_exercise_alert" msgid="4686404814038501898">"Vežbanje"</string>
+</resources>

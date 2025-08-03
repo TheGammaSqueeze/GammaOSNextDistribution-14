@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<exceptions>
+  <exception
+    package="com.google.android.apps.restore"
+    sha256-cert-digest="56:BE:13:2B:78:06:56:FE:24:44:CD:34:32:6E:B5:D7:AA:C9:1D:20:96:AB:F0:FE:67:3A:99:27:06:22:EC:87">
+    <!-- External storage -->
+    <permission name="android.permission.READ_EXTERNAL_STORAGE" fixed="false"/>
+    <permission name="android.permission.WRITE_EXTERNAL_STORAGE" fixed="false"/>
+    <!-- Contacts -->
+    <permission name="android.permission.READ_CONTACTS" fixed="false"/>
+    <permission name="android.permission.WRITE_CONTACTS" fixed="false"/>
+    <!-- For D2D Restore -->
+    <permission name="android.permission.READ_CALL_LOG" fixed="false"/>
+    <permission name="android.permission.WRITE_CALL_LOG" fixed="false"/>
+    <permission name="android.permission.NEARBY_WIFI_DEVICES" fixed="false"/>
+    <permission name="android.permission.POST_NOTIFICATIONS" fixed="false"/>
+  </exception>
+
+  <exception
+    package="com.google.android.apps.assistant"
+    sha256-cert-digest="43:0B:20:EB:61:96:7E:9C:5B:BE:02:59:9B:07:35:16:80:7D:AE:72:D7:86:FE:92:7F:48:96:B7:C7:F2:96:1F">
+    <!-- Record audio -->
+    <permission name="android.permission.RECORD_AUDIO" fixed="false"/>
+  </exception>
+
+  <exception
+    package="com.google.android.apps.actionsservice"
+    sha256-cert-digest="43:0B:20:EB:61:96:7E:9C:5B:BE:02:59:9B:07:35:16:80:7D:AE:72:D7:86:FE:92:7F:48:96:B7:C7:F2:96:1F">
+    <!-- Record audio -->
+    <permission name="android.permission.RECORD_AUDIO" fixed="false"/>
+  </exception>
+
+  <exception
+    package="com.google.android.marvin.talkback"
+    sha256-cert-digest="7B:5A:D5:51:80:A4:8A:1F:30:F3:53:77:C0:F9:E5:F9:11:BF:94:2F:B4:CF:83:EB:A2:55:A0:EB:F5:80:BE:EF">
+    <!-- Read phone status -->
+    <permission name="android.permission.READ_PHONE_STATE" fixed="false"/>
+    <!-- Bluetooth permissions -->
+    <permission name="android.permission.BLUETOOTH_CONNECT" fixed="false"/>
+    <permission name="android.permission.BLUETOOTH_SCAN" fixed="false"/>
+    <permission name="android.permission.BLUETOOTH_ADVERTISE" fixed="false"/>
+  </exception>
+
+</exceptions>

@@ -1,0 +1,5 @@
+# Restrict addition to com/android/tradefed/targetprep
+# This is a mirror of the tradefederation/core package and can be used to bypass visibility
+# Please avoid using this package path
+jdesprez@google.com
+guangzhu@google.com

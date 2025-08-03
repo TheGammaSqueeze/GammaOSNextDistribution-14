@@ -1,0 +1,55 @@
+<!--
+ Copyright (C) 2023 Google Inc.
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<configuration description="Bluetooth Tests Using Mobly">
+  <!-- Plan -->
+  <!-- TODO(@vitalidim) rename test plan since it's not for bt discovery only -->
+  <option name="plan" value="catbox-functional-bluetooth-tests"/>
+
+  <include name="everything" />
+
+  <!-- Template for Result Reporters -->
+  <template-include name="reporters" default="empty" />
+
+  <!-- Test Tag -->
+  <option name="test-tag" value="catbox" />
+
+  <!-- Basic Reporters -->
+  <include name="basic-reporters" />
+
+  <!-- Template for Metadata Reporters -->
+  <template-include name="metadata-reporters" default="empty" />
+
+  <!-- Default ABI -->
+  <option name="compatibility:primary-abi-only" value="true" />
+
+  <!-- Template for Device Configuration -->
+  <template-include name="device-config" default="device-config/two-devices" />
+
+  <!--
+      CATBox Runs all modules if it is not specified.
+      So, we need to skip these modules in case of Mobly tests
+      which can be done by adding following option.
+   -->
+  <option name="compatibility:reverse-exclude-filters" value="true" />
+
+  <test class="com.android.tradefed.testtype.mobly.MoblyBinaryHostTest">
+    <!-- The mobly-par-file-name should match the module name , it is passed on runtime-->
+    <!-- Timeout limit in milliseconds for all test cases of the python binary -->
+    <option name="mobly-test-timeout" value="300000" />
+    <!-- Testbed config file -->
+    <option name="mobly-config-file-name" value="bt_discovery_config.yaml" />
+  </test>
+</configuration>

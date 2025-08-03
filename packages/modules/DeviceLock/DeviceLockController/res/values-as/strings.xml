@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  Copyright (c) 2022, The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="5655878067457216814">"DeviceLockController"</string>
+    <string name="next_button" msgid="1856423430963548653">"পৰৱৰ্তী"</string>
+    <string name="reset_button" msgid="4649354411129240809">"ৰিছেট কৰক"</string>
+    <string name="setup_more_button" msgid="4456370972302510109">"অধিক"</string>
+    <string name="setup_info_title_text" msgid="299562193092219293">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g>এ কেনেকৈ এই ডিভাইচটো পৰিচালনা কৰিব পাৰে"</string>
+    <string name="setup_failed_title_text" msgid="9045111389981992536">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> এপ্‌টো ইনষ্টল কৰিব নোৱাৰি"</string>
+    <string name="setup_failed_reset_device_text" msgid="178419033440060908">"পুনৰ চেষ্টা কৰিবলৈ ডিভাইচটো ৰিছেট কৰি থকা হৈছে।"</string>
+    <string name="setup_failed_reset_device_timer_text" msgid="5270970227714985986">"{count,plural, =1{এই ডিভাইচটো ৰিছেট কৰক, তাৰ পাছত এইটো ছেট আপ কৰিবলৈ পুনৰ চেষ্টা কৰক। এইটো ১ ছেকেণ্ডত স্বয়ংক্ৰিয়ভাৱে ৰিছেট হ’ব।}one{এই ডিভাইচটো ৰিছেট কৰক, তাৰ পাছত এইটো ছেট আপ কৰিবলৈ পুনৰ চেষ্টা কৰক। এইটো # ছেকেণ্ডত স্বয়ংক্ৰিয়ভাৱে ৰিছেট হ’ব।}other{এই ডিভাইচটো ৰিছেট কৰক, তাৰ পাছত এইটো ছেট আপ কৰিবলৈ পুনৰ চেষ্টা কৰক। এইটো # ছেকেণ্ডত স্বয়ংক্ৰিয়ভাৱে ৰিছেট হ’ব।}}"</string>
+    <string name="setup_progress_title_text" msgid="2388779167610656852">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> এপ্‌টো ইনষ্টল কৰি থকা হৈছে<xliff:g id="ELLIPSIS">…</xliff:g>"</string>
+    <string name="setup_finish_title_text" msgid="2810842695806992743">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> এপ্‌টো খুলি থকা হৈছে<xliff:g id="ELLIPSIS">…</xliff:g>"</string>
+    <string name="setup_error_title_text" msgid="1123742279081942535">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> এপ্‌টো খুলিব পৰা নোৱাৰি"</string>
+    <string name="try_again" msgid="5964839819170927721">"পুনৰ চেষ্টা কৰক"</string>
+    <string name="reset_phone" msgid="1161657350311160627">"ফ’নটো ৰিছেট কৰক"</string>
+    <string name="control_section_title" msgid="2213476068991045785">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g>এ কি কৰিব পাৰে?"</string>
+    <string name="control_lock_device_text" msgid="8253302484073757764">"আপুনি পৰিশোধ নকৰিলে এই ডিভাইচটো সীমাবদ্ধ কৰিব"</string>
+    <string name="control_download_text" msgid="8514650561843088172">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> এপ্‌টো ডাউনল’ড, ইনষ্টল আৰু আপডে’ট কৰা"</string>
+    <string name="control_disable_debug_text" msgid="8112443250013094442">"ডিবাগ কৰাৰ সুবিধা অফ কৰা"</string>
+    <string name="locked_section_title" msgid="2748725389334076510">"এই ডিভাইচটো লক হৈ থাকিলে কিহে কাম কৰে?"</string>
+    <string name="locked_emergency_text" msgid="3509216445555779286">"জৰুৰীকালীন কল কৰা সম্পৰ্কীয় সেৱাসমূহ"</string>
+    <string name="locked_phone_usage_text" msgid="1913605870324552847">"অন্তৰ্গামী আৰু কিছুমান বহিৰ্গামী কল"</string>
+    <string name="locked_settings_usage_text" msgid="8336476063187737700">"ছেটিং"</string>
+    <string name="locked_backup_and_restore_text" msgid="104616318625243429">"আপোনাৰ ডেটাৰ &lt;a href=https://support.google.com/android/answer/2819582&gt;বেকআপ লৈ থকা আৰু পুনঃস্থাপন কৰি থকা হৈছে&lt;/a&gt;"</string>
+    <string name="exposure_section_title" msgid="2329122144337528752">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g>এ কি চাব পাৰে?"</string>
+    <string name="exposure_install_text" msgid="2631074166447765453">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> এপ্‌টো কেতিয়া ইনষ্টল অথবা আনইনষ্টল কৰা হৈছে"</string>
+    <string name="exposure_lock_unlock_text" msgid="6827412845847260579">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g>ৰ পৰা অহা কোনো লক অথবা আনলক কৰাৰ অনুৰোধ"</string>
+    <string name="exposure_disable_dlc_text" msgid="2898692398106736423">"যদি <xliff:g id="CREDITOR_APP">%1$s</xliff:g> এপ্‌টো উপলব্ধ নহয়"</string>
+    <string name="open_source_licenses" msgid="6464389386262455443">"মুক্ত উৎসৰ অনুজ্ঞাপত্ৰ"</string>
+    <string name="footer_notice_content_description" msgid="2160540400079419440">"সুৰক্ষা সম্পৰ্কীয় ছেটিঙৰ বিত্তীয় সহায় পোৱা ডিভাইচৰ শাখাটোত থকা পৰিচালনাৰ সক্ষমতা এই ডিভাইচটোত প্ৰযোজ্য নহয়।"</string>
+    <string name="device_provided_by_provider" msgid="290593329676291991">"এই ডিভাইচটো <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>এ প্ৰদান কৰিছে"</string>
+    <string name="download_kiosk_app" msgid="1845089944897502656">"Kiosk এপ্‌টো স্বয়ংক্ৰিয়ভাৱে ডাউনল’ড কৰি ইনষ্টল কৰা হ’ব"</string>
+    <string name="install_kiosk_app_secondary_user" msgid="49911908012320834">"এই ব্যৱহাৰকাৰীগৰাকীৰ বাবে Kiosk এপ্‌টো ইনষ্টল কৰা হ’ব"</string>
+    <string name="restrict_device_if_missing_payment" msgid="8883980285859496904">"আপুনি পৰিশোধ নকৰিলে <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>এ এই ডিভাইচটো সীমাবদ্ধ কৰিব পাৰে। সবিশেষৰ বাবে, <xliff:g id="TERMS_AND_CONDITIONS_LINK_START">&lt;a href=%2$s&gt;</xliff:g>নিয়ম আৰু চৰ্তাৱলী<xliff:g id="TERMS_AND_CONDITIONS_LINK_END">&lt;/a&gt;</xliff:g> চাওক।"</string>
+    <string name="restrict_device_if_dont_make_payment" msgid="1619095674945507015">"যদি আপুনি আৱশ্যকীয় পৰিশোধসমূহ নকৰে <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>এ এই ডিভাইচটো সীমাবদ্ধ কৰিব পাৰে। সবিশেষৰ বাবে, <xliff:g id="TERMS_AND_CONDITIONS_LINK_START">&lt;a href=%2$s&gt;</xliff:g>নিয়ম আৰু চৰ্তাৱলী<xliff:g id="TERMS_AND_CONDITIONS_LINK_END">&lt;/a&gt;</xliff:g> চাওক।"</string>
+    <string name="contact_provider_for_help" msgid="3872028089834808884">"সহায়ৰ বাবে, <xliff:g id="SUPPORT_LINK_START">&lt;a href=%2$s&gt;</xliff:g><xliff:g id="PROVIDER_NAME">%1$s</xliff:g>ৰ সৈতে সহযোগ কৰক<xliff:g id="SUPPORT_LINK_END">&lt;/a&gt;</xliff:g>।"</string>
+    <string name="previous" msgid="5241891780917802570">"পূৰ্বৱৰ্তী"</string>
+    <string name="next" msgid="8248291863254324326">"পৰৱৰ্তী"</string>
+    <string name="start" msgid="2842214844667658537">"আৰম্ভ কৰক"</string>
+    <string name="ok" msgid="3568398726528719749">"ঠিক আছে"</string>
+    <string name="done" msgid="4507782734740410307">"কৰা হ’ল"</string>
+    <string name="do_it_in_one_hour" msgid="2727777340568739453">"এইটো ১ ঘণ্টাত কৰক"</string>
+    <string name="header_icon_content_description" msgid="6069602031334473195">"তথ্য"</string>
+    <string name="provision_info_item_icon_content_description" msgid="2306298178610632507">"প্ৰ’ভিজনৰ তথ্য"</string>
+    <string name="enroll_your_device_header" msgid="2226305405591945098">"আপোনাৰ ডিভাইচটো পঞ্জীয়ন কৰক"</string>
+    <string name="enroll_your_device_financing_subheader" msgid="8810608106273097451">"আপুনি এতিয়া নিজৰ ডিভাইচটো <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>ৰ বিত্তীয় সহায় প্ৰদান কৰা প্ৰ’গ্ৰামত পঞ্জীয়ন কৰিব পাৰে"</string>
+    <string name="enroll_your_device_subsidy_subheader" msgid="8598730780370624995">"আপুনি এতিয়া নিজৰ ডিভাইচটো <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>ৰ ৰাজসাহায্য প্ৰ’গ্ৰামত পঞ্জীয়ন কৰিব পাৰে"</string>
+    <string name="subsidy_program_header" msgid="2321508488856303554">"<xliff:g id="PROVIDER_NAME">%1$s</xliff:g>ৰ ৰাজসাহায্য প্ৰ’গ্ৰামত আছে"</string>
+    <string name="device_enrollment_header_text" msgid="5283341102404741658">"ডিভাইচৰ পঞ্জীয়ন"</string>
+    <string name="device_financing_enrollment_body_text" msgid="5506086383249511498">"আপোনাৰ ডিভাইচটো <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>ৰ বিত্তীয় প্ৰ’গ্ৰামত ৩০ দিনৰ ভিতৰত পঞ্জীয়ন কৰা হ’ব"</string>
+    <string name="device_subsidy_enrollment_body_text" msgid="3971584929178719388">"আপোনাৰ ডিভাইচটো <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>ৰ ৰাজসাহায্য প্ৰ’গ্ৰামত ৩০ দিনৰ ভিতৰত পঞ্জীয়ন কৰা হ’ব"</string>
+    <string name="device_enrollment_notification_body_text" msgid="8755080244956655854">"পঞ্জীয়ন <xliff:g id="TIME">%1$s</xliff:g>ত পুনৰ আৰম্ভ হ’ব। আপুনি নিজৰ ডিভাইচটো ব্যৱহাৰ কৰি থাকিব পাৰে।"</string>
+    <string name="continue_using_device" msgid="5816570734692191190">"আপুনি নিজৰ ডিভাইচটো ব্যৱহাৰ কৰি থাকিব পাৰে"</string>
+    <string name="device_paid" msgid="6606280698381856804">"আপুনি আপোনাৰ ডিভাইচটোৰ বাবে পৰিশোধ কৰিছে"</string>
+    <string name="device_removed_from_subsidy_program" msgid="1243434945619071051">"<xliff:g id="PROVIDER_NAME">%1$s</xliff:g>ৰ ৰাজসাহায্য প্ৰ’গ্ৰামৰ পৰা ডিভাইচটো আঁতৰোৱা হৈছে"</string>
+    <string name="device_removed_from_finance_program" msgid="825548999540107578">"<xliff:g id="PROVIDER_NAME">%1$s</xliff:g>ৰ বিত্তীয় প্ৰ’গ্ৰামৰ পৰা আপোনাৰ ডিভাইচটো আঁতৰোৱা হৈছে"</string>
+    <string name="restrictions_lifted" msgid="5785586265984319396">"এই ডিভাইচটোত প্ৰয়োগ কৰা আটাইবোৰ সীমাবদ্ধতা আঁতৰোৱা হৈছে"</string>
+    <string name="uninstall_kiosk_app" msgid="3459557395024053988">"আপুনি নিজৰ ডিভাইচৰ পৰা Kiosk এপ্‌টো আনইনষ্টল কৰিব পাৰে"</string>
+    <string name="getting_device_ready" msgid="2829009584599871699">"আপোনাৰ ডিভাইচটো সাজু কৰি থকা হৈছে…"</string>
+    <string name="this_may_take_a_few_minutes" msgid="2482876246874429351">"এই কামত কেইমিনিটমান সময় লাগিব পাৰে"</string>
+    <string name="installing_kiosk_app" msgid="324208168205545860">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> টা এপ্‌ ইনষ্টল কৰি থকা হৈছে…"</string>
+    <string name="opening_kiosk_app" msgid="2021888641430165654">"<xliff:g id="CREDITOR_APP">%1$s</xliff:g> এপ্‌টো খুলি থকা হৈছে…"</string>
+    <string name="settings_banner_title" msgid="527041021011279252">"<xliff:g id="PROVIDER_NAME">%1$s</xliff:g>এ প্ৰদান কৰা ডিভাইচ"</string>
+    <string name="settings_banner_body" msgid="5814902066260202824">"<xliff:g id="PROVIDER_NAME">%1$s</xliff:g>এ এই ডিভাইচটোত ছেটিং সলনি কৰিব পাৰে"</string>
+    <string name="settings_banner_button" msgid="1831020849782670907">"অধিক জানক"</string>
+    <string name="settings_screen_title" msgid="721470080648091035">"বিত্তীয় সহায় প্ৰাপ্ত ডিভাইচৰ তথ্য"</string>
+    <string name="settings_intro_device_financing" msgid="2548476558131048133">"<xliff:g id="PROVIDER_NAME_0">%1$s</xliff:g>এ ছেটিং সলনি কৰিব আৰু ডিভাইচটোত Kiosk এপ্‌টো ইনষ্টল কৰিব পাৰে।\n\nআপুনি যদি কোনোবাটো পৰিশোধ নকৰে, <xliff:g id="PROVIDER_NAME_1">%1$s</xliff:g>এ আপোনাৰ ডিভাইচটো প্ৰতিবন্ধিত কৰিব পাৰে।\n\nঅধিক জানিবলৈ, <xliff:g id="PROVIDER_NAME_2">%1$s</xliff:g>ৰ সৈতে যোগাযোগ কৰক।"</string>
+    <string name="settings_intro_device_subsidy" msgid="4274945644204818702">"<xliff:g id="PROVIDER_NAME_0">%1$s</xliff:g>এ ছেটিং সলনি কৰিব আৰু ডিভাইচটোত Kiosk এপ্‌টো ইনষ্টল কৰিব পাৰে।\n\nআপুনি যদি কোনোবাটো পৰিশোধ নকৰে অথবা <xliff:g id="PROVIDER_NAME_2">%1$s</xliff:g>ৰ ছিম ব্যৱহাৰ কৰা বন্ধ কৰে, <xliff:g id="PROVIDER_NAME_1">%1$s</xliff:g>এ এই ডিভাইচটো প্ৰতিবন্ধিতও কৰিব পাৰে।\n\nঅধিক জানিবলৈ, <xliff:g id="PROVIDER_NAME_3">%1$s</xliff:g>ৰ সৈতে যোগাযোগ কৰক।"</string>
+    <string name="settings_intro_preference_key" msgid="6610461073400554162">"settings_intro_preference_key"</string>
+    <string name="settings_restrictions_category" msgid="5746868117342406677">"আপুনি আপোনাৰ ডিভাইচটোৰ বাবে পৰিশোধ নকৰালৈকে, এই কামসমূহ কৰিব নোৱাৰে:"</string>
+    <string name="settings_restrictions_category_preference_key" msgid="88318147152676512">"settings_restrictions_category_preference_key"</string>
+    <string name="settings_install_apps" msgid="3634279771448183713">"Play Storeৰ বাহিৰৰ এপ্‌ ইনষ্টল কৰক"</string>
+    <string name="settings_install_apps_preference_key" msgid="27542314345238427">"settings_install_apps_preference_key"</string>
+    <string name="settings_safe_mode" msgid="3035228015586375153">"সুৰক্ষিত ম’ডত আপোনাৰ ডিভাইচটো ৰিবুট কৰা"</string>
+    <string name="settings_safe_mode_preference_key" msgid="2106617747358027424">"settings_safe_mode_preference_key"</string>
+    <string name="settings_developer_options" msgid="880701002025216672">"বিকাশকৰ্তাৰ বিকল্পসমূহ ব্যৱহাৰ কৰিব পাৰে"</string>
+    <string name="settings_developer_options_preference_key" msgid="6807036808722582954">"settings_developer_options_preference_key"</string>
+    <string name="settings_credit_provider_capabilities_category" msgid="1274440595211820868">"যদি কোনোবাই আপোনাৰ ডিভাইচটো অপব্যৱহাৰ কৰে, <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>এ:"</string>
+    <string name="settings_credit_provider_capabilities_category_preference_key" msgid="4571685720898641262">"settings_credit_provider_capabilities_category_preference_key"</string>
+    <string name="settings_IMEI" msgid="697965824361262506">"আপোনাৰ IMEI নম্বৰ এক্সেছ কৰিব পাৰে"</string>
+    <string name="settings_IMEI_preference_key" msgid="608809590948249412">"settings_IMEI_preference_key"</string>
+    <string name="settings_factory_reset" msgid="418045189048067625">"আপোনাৰ ডিভাইচটোৰ ফেক্টৰী ৰিছেট কৰিব পাৰে"</string>
+    <string name="settings_factory_reset_preference_key" msgid="2168528486393635382">"settings_factory_reset_preference_key"</string>
+    <string name="settings_locked_mode_category" msgid="6307525048618331737">"যদি আপোনাৰ ডিভাইচটো সীমাবদ্ধ কৰা হয়, আপুনি সেইটো ব্যৱহাৰ কৰি কেৱল এইবোৰ কাম কৰিব পাৰিব:"</string>
+    <string name="settings_locked_mode_category_preference_key" msgid="7202573929427220258">"settings_locked_mode_category_preference_key"</string>
+    <string name="settings_emergency_calls" msgid="2460996367176786040">"জৰুৰীকালীন নম্বৰলৈ কল কৰিব পাৰে"</string>
+    <string name="settings_emergency_calls_preference_key" msgid="737598609727181316">"settings_emergency_calls_preference_key"</string>
+    <string name="settings_system_info" msgid="1352629332624774940">"তাৰিখ, সময়, নেটৱৰ্কৰ স্থিতি আৰু বেটাৰীৰ দৰে ছিষ্টেমৰ তথ্য চাব পাৰে"</string>
+    <string name="settings_system_info_preference_key" msgid="8607675914059202598">"settings_system_info_preference_key"</string>
+    <string name="settings_turn_on_off_device" msgid="5414836621603462439">"আপোনাৰ ডিভাইচটো অন অথবা অফ কৰক"</string>
+    <string name="settings_turn_on_off_device_preference_key" msgid="5981163790552677734">"settings_turn_on_off_device_preference_key"</string>
+    <string name="settings_notifications" msgid="63348993899505034">"জাননী আৰু পাঠ বাৰ্তা চোৱা"</string>
+    <string name="settings_notifications_preference_key" msgid="4527872342061056462">"settings_notifications_preference_key"</string>
+    <string name="settings_allowlisted_apps" msgid="5531810497056091097">"<xliff:g id="PROVIDER_NAME">%1$s</xliff:g>এ অনুমতি দিয়া এপ্‌সমূহৰ এক্সেছ লাভ কৰক"</string>
+    <string name="settings_allowlisted_apps_preference_key" msgid="8662705531235468080">"settings_allowlisted_apps_preference_key"</string>
+    <string name="settings_fully_paid_category" msgid="2459776591689824433">"আপুনি এবাৰ সম্পূৰ্ণ পৰিমাণ পৰিশোধ কৰাৰ পাছত:"</string>
+    <string name="settings_fully_paid_category_preference_key" msgid="1759690898170600559">"settings_fully_paid_category_preference_key"</string>
+    <string name="settings_restrictions_removed" msgid="1398080654904863221">"<xliff:g id="PROVIDER_NAME">%1$s</xliff:g>এ আপোনাৰ ডিভাইচ সীমাবদ্ধ কৰিব অথবা ডিভাইচৰ ছেটিং সলনি কৰিব নোৱাৰিব"</string>
+    <string name="settings_restrictions_removed_preference_key" msgid="7741933477145197391">"settings_restrictions_removed_preference_key"</string>
+    <string name="settings_uninstall_kiosk_app" msgid="2611134364295637875">"আপুনি <xliff:g id="KIOSK_APP">%1$s</xliff:g> এপ্‌টো আনইনষ্টল কৰিব পাৰে"</string>
+    <string name="settings_uninstall_kiosk_app_preference_key" msgid="5578103644009268125">"settings_uninstall_kiosk_app_preference_key"</string>
+    <string name="settings_support_category" msgid="7210906871924935770">"সহায় পাবলৈ:"</string>
+    <string name="settings_support_category_preference_key" msgid="1818953199283261021">"settings_support_category_preference_key"</string>
+    <string name="settings_contact_provider" msgid="2481819956474692039">"<xliff:g id="SUPPORT_LINK_START">&lt;a href=%2$s&gt;</xliff:g><xliff:g id="PROVIDER_NAME">%1$s</xliff:g><xliff:g id="SUPPORT_LINK_END">&lt;/a&gt;</xliff:g>ৰ সৈতে যোগাযোগ কৰক"</string>
+    <string name="settings_contact_provider_preference_key" msgid="2703619536229342624">"settings_contact_provider_preference_key"</string>
+    <string name="provision_notification_channel_name" msgid="6123500714047647805">"প্ৰ’ভিজন"</string>
+    <string name="device_reset_in_days_notification_title" msgid="920859483535317727">"{count,plural, =1{১ দিনত ডিভাইচটো ৰিছেট হ’ব}one{# দিনত ডিভাইচটো ৰিছেট হ’ব}other{# দিনত ডিভাইচটো ৰিছেট হ’ব}}"</string>
+    <string name="device_reset_timer_notification_title" msgid="301978346002711614">"<xliff:g id="TIMER">%s</xliff:g>ত ডিভাইচটো ৰিছেট হ’ব"</string>
+    <string name="device_reset_notification_content" msgid="7642367488663440437">"ডিভাইচৰ আটাইবোৰ ডেটা মচা হ’ব। আপোনাৰ ডিভাইচ পঞ্জীয়ন কৰাত সহায় পাবলৈ, <xliff:g id="PROVIDER_NAME">%1$s</xliff:g>ৰ সৈতে যোগাযোগ কৰক"</string>
+    <string name="provisioning_failed" msgid="5350252817004028300">"বিত্তীয় সহায় প্ৰদান কৰাৰ প্ৰ’ভিজনিং বিফল হৈছে"</string>
+    <string name="click_to_contact_financier" msgid="9107827438262930445">"আপোনাৰ বিত্তৰ যোগান ধৰোঁতাৰ সৈতে যোগাযোগ কৰাৰ উপায়সমূহ জানিবলৈ অনুগ্ৰহ কৰি ইয়াত ক্লিক কৰক। <xliff:g id="SUPPORT_URL_START">&lt;a href=%1$s&gt;</xliff:g>অধিক জানক<xliff:g id="SUPPORT_URL_END">&lt;/a&gt;</xliff:g>"</string>
+    <string name="exit" msgid="645084771882733921">"বাহিৰ ওলাওক"</string>
+    <string name="retry" msgid="7497287909193345356">"পুনৰ চেষ্টা কৰক"</string>
+</resources>

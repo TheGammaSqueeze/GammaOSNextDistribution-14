@@ -1,0 +1,17 @@
+cc_binary {
+  name: "aconfigd",
+  srcs: [
+    "aconfigd.cpp",
+    "aconfigd.proto",
+    "aconfigd_main.cpp",
+    "aconfigd_util.cpp",
+  ],
+  static_libs: [
+    "libaconfig_storage_protos_cc",
+    "libprotobuf-cpp-lite",
+    "libbase",
+    "libcutils",
+    "liblog",
+  ],
+  init_rc: ["aconfigd.rc"],
+}

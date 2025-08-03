@@ -1,0 +1,11 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_library_shared {
+    name: "libiovsock_host_jni",
+    defaults: ["avf_build_flags_cc"],
+    srcs: ["io_vsock_host_jni.cpp"],
+    header_libs: ["jni_headers"],
+    shared_libs: ["libbase"],
+}

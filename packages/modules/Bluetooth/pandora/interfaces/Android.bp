@@ -1,0 +1,70 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_library {
+    name: "pandora_experimental-grpc-java",
+    visibility: [
+        "//packages/modules/Bluetooth/android/pandora/server",
+        "//packages/modules/Bluetooth/framework/tests/bumble",
+        "//packages/modules/Bluetooth/framework/tests/metrics:__subpackages__",
+    ],
+    srcs: [
+        ":pandora-protos",
+        ":pandora_experimental-protos",
+    ],
+    static_libs: [
+        "grpc-java-lite",
+        "guava",
+        "javax_annotation-api_1.3.2",
+        "libprotobuf-java-lite",
+        "opencensus-java-api",
+        "pandora_experimental-proto-java",
+    ],
+    proto: {
+        include_dirs: [
+            "external/pandora/bt-test-interfaces",
+            "external/protobuf/src",
+            "packages/modules/Bluetooth/pandora/interfaces",
+        ],
+        plugin: "grpc-java-plugin",
+        output_params: [
+            "lite",
+        ],
+    },
+}
+
+java_library {
+    name: "pandora_experimental-proto-java",
+    visibility: [
+        "//packages/modules/Bluetooth/android/pandora/server",
+        "//packages/modules/Bluetooth/framework/tests/bumble",
+        "//packages/modules/Bluetooth/framework/tests/metrics:__subpackages__",
+    ],
+    srcs: [
+        ":libprotobuf-internal-protos",
+        ":pandora-protos",
+        "pandora_experimental/*.proto",
+    ],
+    static_libs: [
+        "libprotobuf-java-lite",
+    ],
+    proto: {
+        // Disable canonical path as this breaks the identification of
+        // well known protobufs
+        canonical_path_from_root: false,
+        type: "lite",
+        include_dirs: [
+            "external/pandora/bt-test-interfaces",
+            "external/protobuf/src",
+            "packages/modules/Bluetooth/pandora/interfaces",
+        ],
+    },
+}
+
+filegroup {
+    name: "pandora_experimental-protos",
+    srcs: [
+        "pandora_experimental/*.proto",
+    ],
+}

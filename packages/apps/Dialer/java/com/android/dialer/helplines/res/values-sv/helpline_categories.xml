@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2019-2021 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources>
+    <string name="helpline_category_abuse">Missbruk</string>
+    <string name="helpline_category_acohol">Alkohol</string>
+    <string name="helpline_category_addiction">Beroende</string>
+    <string name="helpline_category_adolescents">Ungdomar</string>
+    <string name="helpline_category_adults">Vuxna</string>
+    <string name="helpline_category_aids">AIDS</string>
+    <string name="helpline_category_birth">Födsel</string>
+    <string name="helpline_category_bullying">Mobbning</string>
+    <string name="helpline_category_children">Barn</string>
+    <string name="helpline_category_crime">Brott</string>
+    <string name="helpline_category_crime_victims">Brottsoffer</string>
+    <string name="helpline_category_corruption">Korruption</string>
+    <string name="helpline_category_discrimination">Diskriminering</string>
+    <string name="helpline_category_domestic_violence">Våld i hemmet</string>
+    <string name="helpline_category_drugs">Droger</string>
+    <string name="helpline_category_emotional_support">Känslomässigt stöd</string>
+    <string name="helpline_category_family">Familj</string>
+    <string name="helpline_category_gambling">Spelmissbruk</string>
+    <string name="helpline_category_gender">Kön</string>
+    <string name="helpline_category_generic">Generellt</string>
+    <string name="helpline_category_hiv">HIV</string>
+    <string name="helpline_category_human_rights">Mänskliga rättigheter</string>
+    <string name="helpline_category_human_trafficking">Människohandel</string>
+    <string name="helpline_category_immigration">Invandring</string>
+    <string name="helpline_category_legal_aid">Rättshjälp</string>
+    <string name="helpline_category_lgbtq">LGBTQ+</string>
+    <string name="helpline_category_men">Män</string>
+    <string name="helpline_category_mental_health">Mental hälsa</string>
+    <string name="helpline_category_missing_children">Försvunna barn</string>
+    <string name="helpline_category_mothers">Mödrar</string>
+    <string name="helpline_category_muslim">Muslim</string>
+    <string name="helpline_category_parents">Föräldrar</string>
+    <string name="helpline_category_pregnancy">Graviditet</string>
+    <string name="helpline_category_psychological">Psykologisk</string>
+    <string name="helpline_category_religion">Religion</string>
+    <string name="helpline_category_senior">Seniorer</string>
+    <string name="helpline_category_sexual_abuse">Sexuellt utnyttjande</string>
+    <string name="helpline_category_sexual_assault">Sexuella övergrepp</string>
+    <string name="helpline_category_sexual_rights">Sexuella rättigheter</string>
+    <string name="helpline_category_sexuality">Sexualitet</string>
+    <string name="helpline_category_soldiers">Soldater</string>
+    <string name="helpline_category_suicide">Förebyggande av självmord</string>
+    <string name="helpline_category_trans">Transkön</string>
+    <string name="helpline_category_veterans">Veteraner</string>
+    <string name="helpline_category_violence">Våld</string>
+    <string name="helpline_category_war">Krig</string>
+    <string name="helpline_category_women">Kvinnor</string>
+    <string name="helpline_category_youth">Ungdom</string>
+</resources>

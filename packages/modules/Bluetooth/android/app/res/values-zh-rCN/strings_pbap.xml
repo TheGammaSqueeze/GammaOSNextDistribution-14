@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="pbap_session_key_dialog_title" msgid="5103201901254778256">"输入%1$s的会话密钥"</string>
+    <string name="pbap_session_key_dialog_header" msgid="5073165544713355581">"需要提供蓝牙会话密钥"</string>
+    <string name="pbap_acceptance_timeout_message" msgid="3071798915563151284">"接受与%1$s的连接时出现超时"</string>
+    <string name="pbap_authentication_timeout_message" msgid="2089914949828656737">"输入%1$s的会话密钥时出现超时"</string>
+    <string name="auth_notif_ticker" msgid="7344125635314034621">"OBEX身份验证请求"</string>
+    <string name="auth_notif_title" msgid="6639277119990416473">"会话密钥"</string>
+    <string name="auth_notif_message" msgid="7044369885874418693">"输入%1$s的会话密钥"</string>
+    <string name="defaultname" msgid="6200530814398805541">"Carkit"</string>
+    <string name="unknownName" msgid="6755061296103155293">"未知名称"</string>
+    <string name="localPhoneName" msgid="9119254982537191352">"我的名字"</string>
+    <string name="defaultnumber" msgid="5348816189286607406">"000000"</string>
+    <string name="pbap_notification_group" msgid="4215789331721465381">"通过蓝牙分享联系人"</string>
+    <string name="phonebook_advance_feature_support" msgid="8129553051734505128">"支持电话簿高级功能"</string>
+    <string name="repair_for_adv_phonebook_feature" msgid="3489797973131684927">"重新配对以使用高级电话簿功能"</string>
+</resources>

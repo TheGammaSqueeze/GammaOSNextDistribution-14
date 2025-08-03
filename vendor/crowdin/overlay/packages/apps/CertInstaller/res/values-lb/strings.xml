@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2009 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Zertifikatsinstallatioun</string>
+    <string name="pick_file_title">Zertifikat auswielen</string>
+    <string name="pkcs12_password_dialog_title">Zertifikat entpaken</string>
+    <string name="extracting_pkcs12">Gëtt entpaakt\u2026</string>
+    <string name="pkcs12_file_password_dialog_title">Entpaken aus %s</string>
+    <string name="credential_password">Passwuert aginn, fir d\'Zertifikater z\'entpaken.</string>
+    <string name="credential_info">Dëse Pak huet:</string>
+    <string name="p12_description">Zertifikater am PKCS12 Schlësselspäicher.</string>
+    <string name="one_userkey">ee Benotzerschlëssel</string>
+    <string name="one_usercrt">ee Benotzerzertifikat</string>
+    <string name="one_cacrt">een CA-Zertifikat</string>
+    <string name="n_cacrts">%d CA-Zertifikater</string>
+    <string name="password_error">Gëff dat korrekt Passwuert an.</string>
+    <string name="password_empty_error">Passwuert aginn.</string>
+    <string name="name_empty_error">Gëff en Numm an.</string>
+    <string name="name_char_error">Gëff en Numm an, dee just Buschtawen an Zuelen huet.</string>
+    <string name="unable_to_save_cert">Konnt den Zertifikat net späicheren. Den Umellungsinformatiounsspäicher ass net aktivéiert oder net korrekt initialiséiert.</string>
+    <string name="cert_not_saved">Den Zertifikat ass net installéiert.</string>
+    <string name="no_cert_to_saved">Keen Zertifikat fir installéiert ze ginn.</string>
+    <string name="invalid_cert">Den Zertifikat ass net gëlteg.</string>
+    <string name="cert_too_large_error">Konnt den Zertifikat net installéiere well en ze grouss ass.</string>
+    <string name="cert_missing_error">Konnt den Zertifikat net installéiere well en net fonnt gouf.</string>
+    <string name="cert_read_error">Konnt den Zertifikat net installéiere well en net konnt gelies ginn.</string>
+    <string name="only_primary_user_allowed">Just de Besëtzer vum Apparat kann Zertifikater installéieren.</string>
+    <string name="credential_usage_label">Benotzung vun den Zouganksdaten:</string>
+    <string-array name="credential_usage">
+        <item>VPN an Appen</item>
+        <item>WLAN</item>
+    </string-array>
+</resources>

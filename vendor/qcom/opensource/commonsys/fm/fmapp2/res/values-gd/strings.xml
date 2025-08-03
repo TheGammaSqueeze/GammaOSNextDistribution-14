@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (c) 2009, 2011-2013 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2014-2015 The CyanogenMod Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *    * Neither the name of The Linux Foundation nor
+ *      the names of its contributors may be used to endorse or promote
+ *      products derived from this software without specific prior written
+ *      permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NON-INFRINGEMENT ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Rèidio FM</string>
+    <string name="tx_app_name">Craoladair FM</string>
+    <string name="menu_scan_start">Sganaich</string>
+    <string name="menu_scan_stop">Sguir dhen lorg</string>
+    <string name="menu_record_start">Clàraich</string>
+    <string name="menu_record_stop">Sguir dhen chlàradh</string>
+    <string name="menu_settings">Roghainnean</string>
+    <string name="menu_sleep">Cadal</string>
+    <string name="menu_sleep_cancel">Sguir dhen chadal</string>
+    <string name="menu_all_channels">A h-uile seanail</string>
+    <string name="menu_display_tags">Seall na tagaichean</string>
+    <string name="button_text_stop">Cuir stad air</string>
+    <string name="msg_seeking">A’ lorg an stèisein FM\u2026</string>
+    <string name="msg_scanning">A’ lorg gach stèisean FM\u2026</string>
+    <string name="msg_scanning_pty">A’ sganadh airson “<xliff:g id="pty_name">%1$s</xliff:g>”\u2026</string>
+    <string name="msg_search_title"><xliff:g id="frequency_string">%1$s</xliff:g> MHz</string>
+    <string name="msg_searching_title">A’ fèin-taghadh nan ro-sheata</string>
+    <string name="msg_searching">A’ lorg stèiseanan le siognail làidir airson liosta ro-sheataichean a chruthachadh\u2026</string>
+    <string name="msg_noantenna">Cuir a-steach seata-cinn airson èisteachd ri rèidio FM</string>
+    <string name="dialog_sleep_title">Ùine cadail a’ chuir dheth fhèin-obrachail</string>
+    <string name="presetlist_select_name">Tagh “<xliff:g id="presetlist_name">%1$s</xliff:g>”</string>
+    <string name="presetlist_add_new">Cuir liosta ùr ris</string>
+    <string name="dialog_presetlist_rename_title">Cuir a-steach ainm</string>
+    <string name="presetlist_autoselect_title">Dearbh am fèin-taghadh</string>
+    <string name="preset_replace">Cuir ’na àite</string>
+    <string name="preset_tune">Lorg stèiseanan</string>
+    <string name="preset_rename">Thoir ainm ùr air</string>
+    <string name="preset_delete">Sguab às</string>
+    <string name="preset_search">Lorg “<xliff:g id="preset_pi">%1$s</xliff:g>”</string>
+    <string name="stat_notif_frequency">“<xliff:g id="frequency">%1$s</xliff:g>” MHz</string>
+    <string name="regional_band">Bann ionadail</string>
+    <string name="regional_band_entry_north_america">Aimeireaga a Tuath</string>
+    <string name="regional_band_entry_europe">An Roinn-Eòrpa</string>
+    <string name="regional_band_entry_japan">An t-Seapan</string>
+    <string name="regional_band_entry_japan_wide">An t-Seapan (leathann)</string>
+    <string name="regional_band_entry_australia">Astràilia</string>
+    <string name="regional_band_entry_austria">An Ostair</string>
+    <string name="regional_band_entry_belgium">A’ Bheilg</string>
+    <string name="regional_band_entry_brazil">A’ Bhraisil</string>
+    <string name="regional_band_entry_china">An t-Sìn</string>
+    <string name="regional_band_entry_czech_republic">Poblachd na Seice</string>
+    <string name="regional_band_entry_denmark">An Danmhairg</string>
+    <string name="regional_band_entry_finland">An Fhionnlann</string>
+    <string name="regional_band_entry_france">An Fhraing</string>
+    <string name="regional_band_entry_germany">A’ Ghearmailt</string>
+    <string name="regional_band_entry_greece">A’ Ghreug</string>
+    <string name="regional_band_entry_hong_kong">Hong Kong</string>
+    <string name="regional_band_entry_india">Na h-Innseachan</string>
+    <string name="regional_band_entry_indonesia">An Innd-Innse</string>
+    <string name="regional_band_entry_ireland">Èirinn</string>
+    <string name="regional_band_entry_italy">An Eadailt</string>
+    <string name="regional_band_entry_korea">Coirèa</string>
+    <string name="regional_band_entry_mexico">Meagsago</string>
+    <string name="regional_band_entry_netherlands">Na Tìrean Ìsle</string>
+    <string name="regional_band_entry_new_zealand">Sealainn Nuadh</string>
+    <string name="regional_band_entry_norway">Nirribhidh</string>
+    <string name="regional_band_entry_poland">A’ Phòlainn</string>
+    <string name="regional_band_entry_portugal">A’ Phortagail</string>
+    <string name="regional_band_entry_russia">An Ruis</string>
+    <string name="regional_band_entry_singapore">Singeapòr</string>
+    <string name="regional_band_entry_slovakia">An t-Slòbhac</string>
+    <string name="regional_band_entry_spain">An Spàinnt</string>
+    <string name="regional_band_entry_switzerland">An Eilbheis</string>
+    <string name="regional_band_entry_sweden">An t-Suain</string>
+    <string name="regional_band_entry_taiwan">Taidh-Bhàn</string>
+    <string name="regional_band_entry_turkey">An Tuirc</string>
+    <string name="regional_band_entry_united_kingdom">An Rìoghachd Aonaichte</string>
+    <string name="regional_band_entry_united_states">Na Stàitean Aonaichte</string>
+    <string name="regional_band_entry_user_defined">Bann air a shònrachadh leis a’ chleachdaiche</string>
+    <string name="regional_band_summary_north_america">Aimeireaga a Tuath (87.5 gu 108.0 MHz ann an ceuman 200 kHz)</string>
+    <string name="regional_band_summary_europe">An Roinn-Eòrpa (87.5 gu 108.0 MHz ann an ceuman 100 kHz)</string>
+    <string name="regional_band_summary_japan">An t-Seapan (76.0 gu 90.0 MHz ann an ceuman 100 kHz)</string>
+    <string name="regional_band_summary_japan_wide">An t-Seapan (leathann) (90.0 gu 108.0 MHz ann an ceuman 50 kHz)</string>
+    <string name="regional_band_summary_australia">Astràilia (87.7 gu 108.0MHz ann an ceuman 100 kHz)</string>
+    <string name="regional_band_summary_austria">An Ostair (87.5 gu 108.0 MHz ann an ceuman 50 kHz)</string>
+    <string name="regional_band_summary_belgium">A’ Bheilg (87.5 gu 108.0 MHz ann an ceuman 100 kHz)</string>
+    <string name="regional_band_summary_brazil">Braisil (87.5 gu 108.0 MHz ann an ceuman 200 kHz)</string>
+    <string name="regional_band_summary_china">An t-Sìn (87.0 gu 108.0 MHz ann an ceuman 100 kHz)</string>
+    <string name="regional_band_summary_czech_republic">Poblachd na Seice (87.5 gu 108.0 MHz ann an ceuman 100 kHz)</string>
+    <string name="regional_band_summary_denmark">An Danmhairg (87.5 gu 108.0 MHz ann an ceuman 50 kHz)</string>
+    <string name="regional_band_summary_finland">Fionnlann (87.5 gu 108.0 MHz ann an ceuman 100 kHz)</string>
+    <string name="regional_band_summary_france">An Fhraing (87.5 gu 108.0 MHz ann an ceuman 100 kHz)</string>
+    <string name="regional_band_summary_germany">A’ Ghearmailt (87.5 gu 108.0 MHz ann an ceuman 50 kHz)</string>
+    <string name="regional_band_summary_greece">A’ Ghreug (87.5 gu 108.0 MHz ann an ceuman 50 kHz)</string>
+    <string name="regional_band_summary_hong_kong">Hong Kong (87.5 gu 108.0MHz ann an ceuman 100KHz)</string>
+    <string name="regional_band_summary_india">Na h-Innseachan (87.5 gu 108.0 MHz ann an ceuman 100 kHz)</string>
+    <string name="regional_band_summary_indonesia">Na h-Innd-Innse (87.5 gu 108.0 MHz ann an ceuman 100 kHz)</string>
+    <string name="regional_band_summary_ireland">Èirinn (87.5 gu 108.0 MHz ann an ceuman 50 kHz)</string>
+    <string name="regional_band_summary_italy">An Eadailt (87.5 gu 108.0 MHz ann an ceuman 50 kHz)</string>
+    <string name="regional_band_summary_korea">Coirèa (87.5 gu 108.0 MHz ann an ceuman 200 kHz)</string>
+    <string name="regional_band_summary_mexico">Meagsago (88.1 gu 107.9 MHz ann an ceuman 200 kHz)</string>
+    <string name="regional_band_summary_netherlands">Na Tìrean Ìsle (87.5 gu 108.0 MHz ann an ceuman 100 kHz)</string>
+    <string name="regional_band_summary_new_zealand">Sealainn Nuadh (88.0 gu 107.0 MHz ann an ceuman 100 kHz)</string>
+    <string name="regional_band_summary_norway">Nirribhidh (87.5 gu 108.0 MHz ann an ceuman 100 kHz)</string>
+    <string name="regional_band_summary_poland">A’ Phòlainn (87.5 gu 108.0 MHz ann an ceuman 100 kHz)</string>
+    <string name="regional_band_summary_portugal">A’ Phortagail (87.5 gu 108.0 MHz ann an ceuman 50 kHz)</string>
+    <string name="regional_band_summary_russia">An Ruis (87.5 gu 108.0 MHz ann an ceuman 100 kHz)</string>
+    <string name="regional_band_summary_singapore">Singeapòr (88.0 gu 108.0 MHz ann an ceuman 100 kHz)</string>
+    <string name="regional_band_summary_slovakia">An t-Slòbhac (87.5 gu 108.0 MHz ann an ceuman 100 kHz)</string>
+    <string name="regional_band_summary_spain">An Spàinnt (87.5 gu 108.0 MHz ann an ceuman 100 kHz)</string>
+    <string name="regional_band_summary_switzerland">An Eilbheis (87.5 gu 108.0 MHz ann an ceuman 100 kHz)</string>
+    <string name="regional_band_summary_sweden">An t-Suain (87.5 gu 108.0 MHz ann an ceuman 100 kHz)</string>
+    <string name="regional_band_summary_taiwan">Taidh-Bhàn (87.5 gu 108.0 MHz ann an ceuman 100 kHz)</string>
+    <string name="regional_band_summary_turkey">An Tuirc (87.5 gu 108.0 MHz ann an ceuman 100 kHz)</string>
+    <string name="regional_band_summary_united_kingdom">An Rìoghachd Aonaichte (87.5 gu 108.0 MHz ann an ceuman 100 kHz)</string>
+    <string name="regional_band_summary_united_states">Na Stàitean Aonaichte (88.1 gu 107.9 MHz ann an ceuman 200 kHz)</string>
+    <string name="regional_band_summary_user_defined">Bann gnàthaichte a’ chleachdaiche</string>
+    <string name="aud_output_mode">Modh às-chur fuaime</string>
+    <string name="audio_type_stereo">Stereo</string>
+    <string name="audio_type_mono">Mono</string>
+    <string name="record_dur">Faid a’ chlàraidh</string>
+    <string name="auto_select_af">Tricead eile</string>
+    <string name="settings_revert_defaults_title">Till gu bun-roghainnean an fhactaraidh</string>
+    <string name="settings_revert_defaults_summary">Ath-shuidhich a h-uile roghainn</string>
+    <string name="settings_revert_confirm_title">Dearbh an t-ath-shuidheachadh</string>
+    <string name="settings_revert_confirm_msg">Falamhaichidh seo gach roghainn na h-aplacaid, a’ gabhail a-staigh ro-sheataichean a chaidh a shàbhaladh. A bheil thu airson leantainn air adhart?</string>
+    <string name="no_storage">Munntaich cairt SD mus tòisich thu air a’ chlàradh.</string>
+    <string name="preparing_sd">Ag ullachadh a’ chairt SD…</string>
+    <string name="access_sd_fail">Cha b’ urrainn dhuinn a’ chairt SD inntrigeadh.</string>
+    <string name="spaceIsLow_content">Tha an stòras gu bhith a’ ruith air a’ chairt SD agad. Atharraich roghainn na càileachd no sguab às faidhle no dhà eile a shaoradh àite.</string>
+    <string name="FMRecording_reach_size_limit">Ràinig thu crìoch a’ mheud.</string>
+    <string name="menu_scan_for_preset">Sganaich airson ro-sheataichean</string>
+    <string name="fm_off">Chaidh FM a chur dheth.</string>
+    <string name="fm_call">Chan urrainn dhut FM a chleachdadh rè gairme.</string>
+    <string name="alert_dialog_hint">Cuir ainm a-steach</string>
+    <string name="search_dialog_title">Sganaich airson stèiseanan</string>
+    <string name="fm_command_timeout_title">Crìoch-ùine</string>
+    <string name="fm_tune_timeout_msg">Cha d’ fhuair sinn freagairt airson stèisean FM a lorg. Ma mhaireas an duilgheadas, cuir FM dheth is air a-rithist.</string>
+    <string name="fm_command_failed_title">Dh’fhàillig le obrachadh FM</string>
+    <string name="fm_cmd_failed_msg">Dh’fhàillig le obrachadh FM. Ma mhaireas an duilgheadas, cuir FM dheth is air a-rithist.</string>
+    <string name="fm_cmd_failed_msg_hdmi">Dh’fhàillig le obrachadh FM. Cha chuir sinn taic ri FM ’s HDMI aig an aon àm.</string>
+    <string name="fm_cmd_failed_call_on">Dh’fhàillig le obrachadh FM. Chan eil fuaim FM ceadaichte rè gairme.</string>
+    <string name="audio_db_title_format"><xliff:g id="format">yyyy-MM-dd HH:mm:ss</xliff:g></string>
+    <string name="audio_db_artist_name">Na clàraidhean FM agam</string>
+    <string name="audio_db_album_name">Clàraidhean FM</string>
+    <string name="audio_db_playlist_name">Clàraidhean FM</string>
+    <string name="station_name">Stèisean:</string>
+    <string name="station_exists">Tha an tricead seo ann mu thràth!</string>
+    <string name="station_list_delete_station">Sguab às: <xliff:g id="name">%s</xliff:g></string>
+    <string name="station_list_delete_station_prompt">A bheil thu cinnteach gu bheil thu airson “<xliff:g id="name">%s</xliff:g>” a sguabadh às?</string>
+    <string name="station_name_empty">Tha ainm an stèisean bàn, an cuir thu a-steach e a-rithist?</string>
+    <string name="station_name_exist">Tha “<xliff:g id="name">%s</xliff:g>” ’ga chleachdadh mu thràth, cuir a-steach ainm eile.</string>
+    <string name="rt_plus_tags">Tagaichean</string>
+    <string name="usr_def_band_min">An tricead as ìsle (MHz)</string>
+    <string name="usr_def_band_max">An tricead as àirde (MHz)</string>
+    <string name="chanl_spacing">Beàrnan eadar seanailean</string>
+    <string name="set">Suidhich</string>
+    <string name="user_defind_band_msg">Cuir a-steach tricead eadar 76.0 ’s 108.0 MHz le beàrnadh sheanailean dhe 1 air a char as lugha agus 100 kHz a bheàrn eadar an tricead as lugha is as motha</string>
+    <string name="save_record_file">Chaidh faidhle clàradh FM a shàbhaladh gu “<xliff:g id="record_file">%1$s</xliff:g>”</string>
+    <string name="fm_search_no_results">Cha deach stèisean co-chòrdail a lorg</string>
+    <string name="typ_All_stations">A h‑uile stèisean</string>
+    <string name="typ_Culture">Cultar</string>
+    <string name="typ_Current_affairs">Cùisean làitheil</string>
+    <string name="typ_Children">Prògraman cloinne</string>
+    <string name="typ_Country">Tuath-cheòl</string>
+    <string name="typ_Documentary">Aithriseach</string>
+    <string name="typ_Drama">Dràma</string>
+    <string name="typ_Easy_listening">Ceòl aotrom</string>
+    <string name="typ_Education">Foghlam</string>
+    <string name="typ_Emergency">Èiginn</string>
+    <string name="typ_Emergency_test">Deuchainn-èiginn</string>
+    <string name="typ_Finance">Ionmhas</string>
+    <string name="typ_Folk">Ceòl-dùthcha</string>
+    <string name="typ_Information">Fiosrachadh</string>
+    <string name="typ_Jazz">Ceòl jazz</string>
+    <string name="typ_Light_classical">Ceòl clasaigeach aotrom</string>
+    <string name="typ_Leisure">Cur-seachad</string>
+    <string name="typ_News">Naidheachdan</string>
+    <string name="typ_National">Ceòl nàiseanta</string>
+    <string name="typ_Other">Ceòl eile</string>
+    <string name="typ_Oldies">Oldies</string>
+    <string name="typ_Phone_in">Fònadh a-steach</string>
+    <string name="typ_Pop">Ceòl pop</string>
+    <string name="typ_Religion">Creideamh</string>
+    <string name="typ_Rock">Ceòl ròc</string>
+    <string name="typ_Science">Saidheans</string>
+    <string name="typ_Serious_classical">Ceòl clasaigeach trom-chùiseach</string>
+    <string name="typ_Social_affairs">Cùisean sòisealta</string>
+    <string name="typ_Sport">Spòrs</string>
+    <string name="typ_Travel">Siubhal</string>
+    <string name="typ_Varied">Measgaichte</string>
+    <string name="typ_Weather">An aimsir</string>
+    <string name="typ_Adult_hits">Hits do dh’inbhich</string>
+    <string name="typ_Classical">Clasaigeach</string>
+    <string name="typ_Classic_Rock">Ròc clasaigeach</string>
+    <string name="typ_College">Colaiste</string>
+    <string name="typ_Foreign_language">Cànan cèin</string>
+    <string name="typ_Hiphop">Hip Hop</string>
+    <string name="typ_Nostalgia">An uair a bha siud</string>
+    <string name="typ_Personality">Pearsantachd</string>
+    <string name="typ_Public">Poblach</string>
+    <string name="typ_Religious_music">Ceòl cràbhach</string>
+    <string name="typ_Religious_talk">Deasbaireachd chràbhach</string>
+    <string name="typ_Rhythm_and_Blues">Rhythm ⁊ Blues</string>
+    <string name="typ_Spanish_music">Ceòl san Spàinntis</string>
+    <string name="typ_Spanish_talk">Deasbaireachd san Spàinntis</string>
+    <string name="typ_Soft">Bog</string>
+    <string name="typ_Soft_Rock">Ròc bog</string>
+    <string name="typ_Soft_Rhythm_and_Blues">Rhythm ⁊ Blues bog</string>
+    <string name="typ_Sports">Spòrs</string>
+    <string name="typ_Talk">Deasbaireachd</string>
+    <string name="typ_Top_40">Top 40</string>
+</resources>

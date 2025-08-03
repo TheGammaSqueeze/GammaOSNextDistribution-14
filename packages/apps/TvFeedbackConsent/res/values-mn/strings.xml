@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="feedback_system_logs_title_text" msgid="8162964763101361628">"Төхөөрөмжийн бүх логийг багтаах (систем, апп)"</string>
+    <string name="feedback_system_logs_legal_text" msgid="4770068793128503597">"Систем болон аппын төхөөрөмжийн бүх логийг хуваалцах нь хэрэглэгчийн нэр, байршил, төхөөрөмжийн ID ба сүлжээний мэдээлэл зэрэг дэлгэрэнгүйг Google-д илгээж магадгүй. Google энэ мэдээллийг техникийн асуудлыг засаж, үйлчилгээнүүдийг сайжруулахад ашигладаг. G.co/android/devicelogs дээрээс нэмэлт мэдээлэл авна уу."</string>
+    <string name="feedback_bugreport_title_text" msgid="8863884817986711122">"Алдааны мэдээг багтаах"</string>
+    <string name="feedback_bugreport_legal_display_text" msgid="4486929548753044585">"Google-д алдааг ойлгож, засахад нь туслахын тулд алдааны мэдээнд (%1$s-н) хэрэглэгчийн нэр, байршил, төхөөрөмжийн ID болон сүлжээний мэдээлэл зэрэг өгөгдөл багтдаг."</string>
+    <string name="next" msgid="3308587969183798652">"Дараах"</string>
+    <string name="feedback_view_system_logs_button_text" msgid="1889709679017124924">"Системийн логуудыг харах"</string>
+    <string name="feedback_view_logs_dialog_title" msgid="1937861449450135462">"Системийн логууд"</string>
+    <string name="feedback_view_logs_dialog_body" msgid="2496560711853644250">"Эдгээр лог нь бидэнд таны санал хүсэлтийг шийдвэрлэх боломжтой болоход шаардлагатай мэдээллийг агуулдаг."</string>
+    <string name="annotated_back_indicator_string" msgid="3197935392074998004">"Буцахын тулд БУЦАХ товчийг дарна уу."</string>
+    <string name="loading" msgid="1709842456101615353">"Ачаалж байна"</string>
+</resources>

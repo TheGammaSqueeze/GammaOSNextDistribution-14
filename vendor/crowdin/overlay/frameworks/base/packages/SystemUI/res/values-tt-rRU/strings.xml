@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/**
+ * Copyright (c) 2009, The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="battery_low_title">Батарея саклагычны кабызыргамы?</string>
+    <string name="invalid_charger_title">USB аша заряд җыеп булмый</string>
+    <string name="invalid_charger_text">Җайланмагыз белән барган коргычны кулланыгыз</string>
+    <string name="battery_saver_confirmation_title">Батарея саклагычны кабызыргамы?</string>
+    <string name="status_bar_settings_auto_rotation">Экран үзе борылу</string>
+    <string name="screenrecord_permission_dialog_title">Яздыра башларгамы?</string>
+    <string name="screenrecord_audio_label">Аудио яздыру</string>
+    <string name="screenrecord_ongoing_screen_only">Экранны яздыру</string>
+    <string name="screenrecord_ongoing_screen_and_audio">Экран һәм тавышны яздыру</string>
+    <string name="screenrecord_taps_label">Экранга басуларны күрсәтү</string>
+    <string name="screenrecord_save_title">Экран язмасы сакланды</string>
+    <string name="screenrecord_save_text">Карау өчен басыгыз</string>
+    <string name="screenrecord_start_error">Экран яздыруны башлау хатасы</string>
+    <string name="issuerecord_save_text">Карау өчен басыгыз</string>
+    <string name="accessibility_rotate_button">Экранны бору</string>
+    <string name="accessibility_lock_icon">Җайланма бикләнгән</string>
+    <string name="biometric_dialog_try_again">Кабатлау</string>
+    <string name="biometric_dialog_empty_space_description">Аутентификациядән баш тарту өчен басыгыз</string>
+    <string name="biometric_dialog_wrong_password">Хаталы серсүз</string>
+    <string name="keyguard_face_failed_use_fp">@string/fingerprint_dialog_use_fingerprint_instead</string>
+    <string name="accessibility_casting">@string/quick_settings_casting</string>
+    <string name="accessibility_desc_lock_screen">Бикләү экраны.</string>
+    <string name="accessibility_quick_settings_dnd_none_on">тулы тынлык</string>
+    <string name="accessibility_quick_settings_dnd_alarms_on">уяткычлар кына</string>
+    <string name="accessibility_quick_settings_bluetooth">Bluetooth.</string>
+    <string name="accessibility_quick_settings_bluetooth_on">Bluetooth кабызылган.</string>
+    <string name="notification_group_overflow_indicator">+ <xliff:g id="number" example="3">%s</xliff:g></string>
+    <string name="ethernet_label">Ethernet</string>
+    <string name="quick_settings_bluetooth_label">Bluetooth</string>
+    <string name="quick_settings_bluetooth_detail_empty_text">Тоташырдай бәйләнгән җайланмалар юк</string>
+    <string name="quick_settings_rotation_unlocked_label">Үзе борылу</string>
+    <string name="accessibility_quick_settings_rotation">Экран үзе борылу</string>
+    <string name="quick_settings_wifi_label">Wi-Fi</string>
+    <string name="quick_settings_networks_available">Тоташырдай челтәрләр бар</string>
+    <string name="quick_settings_networks_unavailable">Тоташырдай челтәрләр юк</string>
+    <string name="quick_settings_wifi_detail_empty_text">Тоташырдай Wi-Fi юк</string>
+    <string name="quick_settings_cast_title">Экранны яздыру</string>
+    <string name="quick_settings_cast_device_default_name">Исемсез җайланма</string>
+    <string name="quick_settings_nfc_label">NFC</string>
+    <string name="sensor_privacy_start_use_camera_dialog_title">Җайланма камерасын блоктан алыргамы?</string>
+    <string name="sensor_privacy_start_use_mic_camera_dialog_title">Җайланма камерасын һәм микрофонын блоктан алыргамы?</string>
+    <string name="media_seamless_other_device">Башка җайланма</string>
+    <string name="notification_tap_again">Ачу өчен тагын басыгыз</string>
+    <string name="tap_again">Тагын басыгыз</string>
+    <string name="keyguard_retry">Тагын кабатлап карау өчен өскә сыпырыгыз</string>
+    <string name="accessibility_multi_user_switch_switcher">Кулланучыны алыштыру</string>
+    <string name="clear_all_notifications_text">Барысын чистарту</string>
+    <string name="dnd_suppressing_shade_text">«Борчымау» режимы искәртүләрне туктатты</string>
+    <string name="quick_settings_disclosure_parental_controls">Җайланмагызны әти-әниегез идарә итә</string>
+    <string name="monitoring_subtitle_vpn">VPN</string>
+    <string name="legacy_vpn_name">VPN</string>
+    <string name="zen_mode_and_condition"><xliff:g id="zen_mode" example="Priority interruptions only">%1$s</xliff:g>. <xliff:g id="exit_condition" example="For one hour">%2$s</xliff:g></string>
+    <string name="accessibility_volume_settings">Тавыш көйләүләре</string>
+    <string name="screen_pinning_title">Кушымта беркетелде</string>
+    <string name="screen_pinning_start">Кушымта беркетелде</string>
+    <string name="stream_bluetooth_sco">Bluetooth</string>
+    <string name="status_bar_ethernet">Ethernet</string>
+    <string name="notification_menu_accessibility"><xliff:g id="app_name" example="YouTube">%1$s</xliff:g> <xliff:g id="menu_description" example="notification controls">%2$s</xliff:g></string>
+    <string name="keyboard_key_tab">Tab</string>
+    <string name="keyboard_key_enter">Enter</string>
+    <string name="group_system_access_all_apps_search">Кушымталар исемлеген ачу</string>
+    <string name="keyboard_shortcut_group_applications_sms">SMS</string>
+    <string name="mobile_data_text_format"><xliff:g name="roaming_status" example="Roaming">%1$s</xliff:g> \u2014 <xliff:g name="mobile_data_type" example="LTE">%2$s</xliff:g></string>
+    <string name="mobile_carrier_text_format"><xliff:g id="carrier_name" example="Test">%1$s</xliff:g>, <xliff:g id="mobile_data_type" example="LTE">%2$s</xliff:g></string>
+    <string name="ongoing_privacy_dialog_separator">,\u0020</string>
+    <string name="ongoing_privacy_dialog_attribution_label">(<xliff:g id="attribution_label" example="For Wallet">%s</xliff:g>)</string>
+    <string name="ongoing_privacy_dialog_attribution_proxy_label">(<xliff:g id="attribution_label" example="For Wallet">%1$s</xliff:g>  \u2022 <xliff:g id="proxy_label" example="Maps, and Assistant">%2$s</xliff:g>)</string>
+    <string name="controls_media_seekbar_description"><xliff:g id="elapsed_time" example="1:30">%1$s</xliff:g> / <xliff:g id="total_time" example="3:00">%2$s</xliff:g></string>
+    <string name="controls_media_smartspace_rec_item_no_artist_description"><xliff:g id="app_label" example="Spotify">%2$s</xliff:g> кушымтасында <xliff:g id="song_name" example="Daily mix">%1$s</xliff:g> уйнату</string>
+    <string name="controls_media_smartspace_rec_header">Сезнең өчен</string>
+    <string name="media_output_dialog_volume_percentage"><xliff:g id="percentage" example="10">%1$d</xliff:g>%%</string>
+    <string name="messages_count_overflow_indicator"><xliff:g id="number" example="7">%d</xliff:g>+</string>
+    <string name="new_notification_text_content_description"><xliff:g id="name" example="Anna">%1$s</xliff:g> хәбәр җибәрде: <xliff:g id="notification" example="Hey! How is your day going">%2$s</xliff:g></string>
+    <string name="preference_summary_default_combination"><xliff:g id="state" example="Connected">%1$s</xliff:g> / <xliff:g id="networkMode" example="LTE">%2$s</xliff:g></string>
+    <string name="turn_on_wifi">Wi\u2011Fi</string>
+    <string name="clipboard_text_hidden">Карау өчен басыгыз</string>
+    <string name="dream_overlay_weather_complication_desc">        <xliff:g id="weather_condition" example="Partly cloudy">%1$s</xliff:g>, <xliff:g id="temperature" example="7°C">%2$s</xliff:g>
+    </string>
+    <string name="dream_time_complication_12_hr_time_format">h:mm</string>
+    <string name="dream_time_complication_24_hr_time_format">kk:mm</string>
+    <string name="rotation_tile_with_posture_secondary_label_template">%1$s / %2$s</string>
+</resources>

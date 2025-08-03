@@ -1,0 +1,122 @@
+{
+  "phflags_override": {
+    "measurement_max_distinct_reporting_origins_in_source": "1"
+  },
+  "input": {
+    "registrations": [
+      {
+        "registration_request": {
+          "registrant": "com.example1",
+          "attribution_src_url": "https://adtech1.test",
+          "source_type": "navigation"
+        },
+        "responses": [
+          {
+            "url": "https://adtech1.test",
+            "response": {
+              "Attribution-Reporting-Register-Source": {
+                "source_event_id": "5047956763605864942",
+                "destination": "android-app://com.example2",
+                "filter_data": {},
+                "aggregation_keys": {},
+                "priority": "1",
+                "expiry": "604799",
+                "aggregatable_report_window": "2591999"
+              },
+              "Location": null,
+              "Attribution-Reporting-Redirect": null
+            }
+          }
+        ],
+        "timestamp": "1702129427661"
+      },
+      // Source should be rejected for exceeding the distinct reporting
+      // origin limit. Although the previous source has expired, it is
+      // still within the rate limit window.
+      {
+        "registration_request": {
+          "registrant": "com.example1",
+          "attribution_src_url": "https://adtech2.test",
+          "source_type": "event"
+        },
+        "responses": [
+          {
+            "url": "https://adtech2.test",
+            "response": {
+              "Attribution-Reporting-Register-Source": {
+                "source_event_id": "5047956694886388206",
+                "destination": "android-app://com.example2",
+                "filter_data": {
+                  "beach": [
+                    "australia.girl"
+                  ]
+                },
+                "aggregation_keys": {
+                  "nigeriaThailand": "0x7864BE5AABB52D30420C60D54F6F6CB6"
+                },
+                "priority": "1",
+                "aggregatable_report_window": "2591999"
+              },
+              "Location": null,
+              "Attribution-Reporting-Redirect": null
+            }
+          }
+        ],
+        "timestamp": "1704468358747"
+      },
+      {
+        "registration_request": {
+          "attribution_src_url": "https://adtech2.test",
+          "registrant": "com.example2"
+        },
+        "responses": [
+          {
+            "url": "https://adtech2.test",
+            "response": {
+              "Attribution-Reporting-Register-Trigger": {
+                "aggregatable_trigger_data": [
+                  {
+                    "source_keys": [
+                      "nigeriaThailand"
+                    ],
+                    "key_piece": "0x246780826F8CDB24F70AA82A12084612",
+                    "filters": {
+                      "source_type": [
+                        "navigation"
+                      ],
+                      "beach": [
+                        "battery.australia",
+                        "australia.girl"
+                      ]
+                    },
+                    "not_filters": {}
+                  },
+                  {
+                    "source_keys": [
+                      "nigeriaThailand"
+                    ],
+                    "key_piece": "0x38A50C333A0CC529E3C0D482B09F07D7",
+                    "filters": {},
+                    "not_filters": {}
+                  }
+                ],
+                "aggregatable_values": {
+                  "nigeriaThailand": 16941
+                },
+                "filters": {},
+                "not_filters": {}
+              },
+              "Location": null,
+              "Attribution-Reporting-Redirect": null
+            }
+          }
+        ],
+        "timestamp": "1704810433724"
+      }
+    ]
+  },
+  "output": {
+    "unparsable_registrations": [],
+    "reports": []
+  }
+}

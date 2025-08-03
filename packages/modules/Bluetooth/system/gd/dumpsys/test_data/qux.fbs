@@ -1,0 +1,13 @@
+namespace testing;
+
+attribute "privacy";
+
+table QuxTestSchema {
+    qux_int_private:int;
+    qux_int_opaque:int (privacy:"Opaque");
+    qux_int_anonymized:int (privacy:"Anonymized");
+    qux_int_any:int (privacy:"Any");
+    qux_string_name:string (privacy:"Any");
+}
+
+root_type QuxTestSchema;

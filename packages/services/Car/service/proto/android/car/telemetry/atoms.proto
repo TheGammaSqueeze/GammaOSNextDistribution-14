@@ -1,0 +1,249 @@
+/*
+ * Copyright (C) 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// Partial clone of frameworks/proto_logging/stats/atoms.proto. CarTelemetryService only uses
+// small number of atoms.
+
+syntax = "proto2";
+
+package android.car.telemetry;
+option java_package = "com.android.car.telemetry";
+option java_outer_classname = "AtomsProto";
+
+message Atom {
+  oneof pushed {
+    ActivityForegroundStateChanged activity_foreground_state_changed = 42;
+    AppStartMemoryStateCaptured app_start_memory_state_captured = 55;
+    AppCrashOccurred app_crash_occurred = 78;
+    ANROccurred anr_occurred = 79;
+    WTFOccurred wtf_occurred = 80;
+    ProcessStartTime process_start_time = 169;
+    CarPowerStateChanged car_power_state_changed = 203;
+  }
+
+  // Pulled events will start at field 10000.
+  oneof pulled {
+    ProcessMemoryState process_memory_state = 10013;
+    ProcessCpuTime process_cpu_time = 10035;
+    ProcessMemorySnapshot process_memory_snapshot = 10064;
+  }
+}
+
+message AppStartMemoryStateCaptured {
+  // The uid if available. -1 means not available.
+  optional int32 uid = 1;
+  optional string process_name = 2;
+  optional string activity_name = 3;
+  optional int64 page_fault = 4;
+  optional int64 page_major_fault = 5;
+  optional int64 rss_in_bytes = 6;
+  optional int64 cache_in_bytes = 7;
+  optional int64 swap_in_bytes = 8;
+}
+
+message ProcessMemoryState {
+  optional int32 uid = 1;
+  optional string process_name = 2;
+  optional int32 oom_adj_score = 3;
+  optional int64 page_fault = 4;
+  optional int64 page_major_fault = 5;
+  optional int64 rss_in_bytes = 6;
+  optional int64 cache_in_bytes = 7;
+  optional int64 swap_in_bytes = 8;
+}
+
+message ActivityForegroundStateChanged {
+  optional int32 uid = 1;
+  optional string pkg_name = 2;
+  optional string class_name = 3;
+  enum State {
+    BACKGROUND = 0;
+    FOREGROUND = 1;
+  }
+  optional State state = 4;
+}
+
+message ProcessCpuTime {
+  optional int32 uid = 1;
+  optional string process_name = 2;
+  optional int64 user_time_millis = 3;
+  optional int64 system_time_millis = 4;
+}
+
+// copied from frameworks/proto_logging/stats/atoms.proto
+message ProcessStartTime {
+  optional int32 uid = 1;
+  optional int32 pid = 2;
+
+  optional string process_name = 3;
+
+  enum StartType {
+    UNKNOWN = 0;
+    WARM = 1;
+    HOT = 2;
+    COLD = 3;
+  }
+
+  optional StartType type = 4;
+  optional int64 process_start_time_millis = 5;
+  optional int32 bind_application_delay_millis = 6;
+  optional int32 process_start_delay_millis = 7;
+
+  optional string hosting_type = 8 [deprecated = true];
+  optional string hosting_name = 9;
+  optional string broadcast_action_name = 10;
+
+  enum HostingTypeId {
+    HOSTING_TYPE_UNKNOWN = 0;
+    HOSTING_TYPE_ACTIVITY = 1;
+    HOSTING_TYPE_ADDED_APPLICATION = 2;
+    HOSTING_TYPE_BACKUP = 3;
+    HOSTING_TYPE_BROADCAST = 4;
+    HOSTING_TYPE_CONTENT_PROVIDER = 5;
+    HOSTING_TYPE_LINK_FAIL = 6;
+    HOSTING_TYPE_ON_HOLD = 7;
+    HOSTING_TYPE_NEXT_ACTIVITY = 8;
+    HOSTING_TYPE_NEXT_TOP_ACTIVITY = 9;
+    HOSTING_TYPE_RESTART = 10;
+    HOSTING_TYPE_SERVICE = 11;
+    HOSTING_TYPE_SYSTEM = 12;
+    HOSTING_TYPE_TOP_ACTIVITY = 13;
+    HOSTING_TYPE_EMPTY = 14;
+  }
+
+  optional HostingTypeId hosting_type_id = 11;
+
+  enum TriggerType {
+    TRIGGER_TYPE_UNKNOWN = 0;
+    TRIGGER_TYPE_ALARM = 1;
+    TRIGGER_TYPE_PUSH_MESSAGE = 2;
+    TRIGGER_TYPE_PUSH_MESSAGE_OVER_QUOTA = 3;
+    TRIGGER_TYPE_JOB = 4;
+  }
+
+  optional TriggerType trigger_type = 12;
+}
+
+// Copied from //frameworks/proto_logging/stats/enums/server/enums.proto
+enum ErrorSource {
+  ERROR_SOURCE_UNKNOWN = 0;
+  DATA_APP = 1;
+  SYSTEM_APP = 2;
+  SYSTEM_SERVER = 3;
+}
+
+message AppCrashOccurred {
+  optional int32 uid = 1;
+  optional string event_type = 2;
+  optional string process_name = 3;
+  optional int32 pid = 4;
+  optional string package_name = 5;
+  enum InstantApp {
+    UNAVAILABLE = 0;
+    FALSE = 1;
+    TRUE = 2;
+  }
+  optional InstantApp is_instant_app = 6;
+  enum ForegroundState {
+    UNKNOWN = 0;
+    BACKGROUND = 1;
+    FOREGROUND = 2;
+  }
+  optional ForegroundState foreground_state = 7;
+  optional ErrorSource error_source = 8;
+  optional bool is_incremental = 9;
+  optional float loading_progress = 10;
+  optional int64 millis_since_oldest_pending_read = 11;
+  optional int32 storage_health_code = 12;
+  optional int32 data_loader_status_code = 13;
+  optional bool read_logs_enabled = 14;
+  optional int64 millis_since_last_data_loader_bind = 15;
+  optional int64 data_loader_bind_delay_millis = 16;
+  optional int32 total_delayed_reads = 17;
+  optional int32 total_failed_reads = 18;
+  optional int32 last_read_error_uid = 19;
+  optional int64 last_read_error_millis_since = 20;
+  optional int32 last_read_error_code = 21;
+  optional int64 total_delayed_reads_duration_millis = 22;
+}
+
+message ANROccurred {
+  optional int32 uid = 1;
+  optional string process_name = 2;
+  optional string short_component_name = 3;
+  optional string reason = 4;
+  enum InstantApp {
+    UNAVAILABLE = 0;
+    FALSE = 1;
+    TRUE = 2;
+  }
+  optional InstantApp is_instant_app = 5;
+  enum ForegroundState {
+    UNKNOWN = 0;
+    BACKGROUND = 1;
+    FOREGROUND = 2;
+  }
+  optional ForegroundState foreground_state = 6;
+  optional ErrorSource error_source = 7;
+  optional string package_name = 8;
+  optional bool is_incremental = 9;
+  optional float loading_progress = 10;
+  optional int64 millis_since_oldest_pending_read = 11;
+  optional int32 storage_health_code = 12;
+  optional int32 data_loader_status_code = 13;
+  optional bool read_logs_enabled = 14;
+  optional int64 millis_since_last_data_loader_bind = 15;
+  optional int64 data_loader_bind_delay_millis = 16;
+  optional int32 total_delayed_reads = 17;
+  optional int32 total_failed_reads = 18;
+  optional int32 last_read_error_uid = 19;
+  optional int64 last_read_error_millis_since = 20;
+  optional int32 last_read_error_code = 21;
+  optional int64 total_delayed_reads_duration_millis = 22;
+}
+
+message WTFOccurred {
+  optional int32 uid = 1;
+  optional string tag = 2;
+  optional string process_name = 3;
+  optional int32 pid = 4;
+  optional ErrorSource error_source = 5;
+}
+
+message ProcessMemorySnapshot {
+  optional int32 uid = 1;
+  optional string process_name = 2;
+  optional int32 pid = 3;
+  optional int32 oom_score_adj = 4;
+  optional int32 rss_in_kilobytes = 5;
+  optional int32 anon_rss_in_kilobytes = 6;
+  optional int32 swap_in_kilobytes = 7;
+  optional int32 anon_rss_and_swap_in_kilobytes = 8;
+  optional int32 gpu_memory_kb = 9;
+  optional bool has_foreground_services = 10;
+}
+
+message CarPowerStateChanged {
+  enum State {
+    WAIT_FOR_VHAL = 0;
+    ON = 1;
+    SHUTDOWN_PREPARE = 2;
+    WAIT_FOR_FINISH = 3;
+    SUSPEND = 4;
+    SIMULATE_SLEEP = 5;
+  }
+  optional State state = 1;
+}

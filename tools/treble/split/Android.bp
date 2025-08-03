@@ -1,0 +1,65 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+python_defaults {
+    name: "treble_split_default",
+    pkg_path: "treble/split",
+    libs: [
+        "py-setuptools",
+    ],
+}
+
+python_binary_host {
+    name: "treble_manifest_split",
+    main: "manifest_split.py",
+    defaults: ["treble_split_default"],
+    srcs: [
+        "manifest_split.py",
+    ],
+    data: [
+        "default_config.xml",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+}
+
+python_library_host {
+    name: "treble_xml_diff",
+    defaults: ["treble_split_default"],
+    srcs: [
+        "xml_diff.py",
+    ],
+}
+
+python_binary_host {
+    name: "treble_manifest_diff",
+    main: "manifest_diff.py",
+    defaults: ["treble_split_default"],
+    srcs: [
+        "manifest_diff.py",
+    ],
+    libs: [
+        "treble_xml_diff",
+    ],
+}
+
+python_test_host {
+    name: "treble_manifest_split_test",
+    main: "test.py",
+    defaults: ["treble_split_default"],
+    srcs: [
+        "manifest_diff.py",
+        "manifest_diff_test.py",
+        "manifest_split.py",
+        "manifest_split_test.py",
+        "test.py",
+        "xml_diff.py",
+        "xml_diff_test.py",
+    ],
+    test_config: "test.xml",
+    test_suites: ["general-tests"],
+}

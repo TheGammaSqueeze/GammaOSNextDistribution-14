@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/**
+ * Copyright (C) 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+-->
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/provisioning_progress_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <FrameLayout
+        android:id="@+id/sud_items_icon_container"
+        android:layout_alignTop="@+id/sud_items_title"
+        android:layout_alignBottom="@+id/sud_items_title"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginEnd="@dimen/spacer_16">
+        <ImageView
+            android:id="@+id/sud_items_icon"
+            android:layout_gravity="center_vertical"
+            android:layout_width="@dimen/sud_items_icon_size"
+            android:layout_height="@dimen/sud_items_icon_size"
+            android:scaleType="centerInside" />
+    </FrameLayout>
+    <TextView
+        android:id="@+id/sud_items_title"
+        android:layout_toEndOf="@+id/sud_items_icon_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="start"
+        style="@style/Provisioning2Theme.Text.Primary.Medium"
+        android:textDirection="locale" />
+    <TextView
+        android:id="@+id/sud_items_summary"
+        android:layout_below="@+id/sud_items_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="start"
+        android:layout_marginStart="@dimen/sud_items_summary_margin_start"
+        android:layout_marginTop="@dimen/sud_items_summary_margin_top"
+        style="@style/Provisioning2Theme.Text.Primary.Small"
+        android:textDirection="locale" />
+</RelativeLayout>

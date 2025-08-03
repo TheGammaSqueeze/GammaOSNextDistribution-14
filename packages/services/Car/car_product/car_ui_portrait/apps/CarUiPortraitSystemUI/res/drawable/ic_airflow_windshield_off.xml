@@ -1,0 +1,53 @@
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="@dimen/hvac_panel_wide_icon_dimen"
+    android:height="@dimen/hvac_panel_icon_dimen"
+    android:viewportWidth="96"
+    android:viewportHeight="49">
+  <path
+      android:pathData="M34.0338,32.7879L24.8823,46.6596C24.5032,47.2343 24.9153,48 25.6038,48C27.1419,48 28.6223,47.4142 29.744,46.3617L39.1124,37.5709C40.9662,35.8313 43.413,34.8632 45.9551,34.8632H54.2319C56.5346,34.8632 58.6342,33.5453 59.6353,31.4715L66.7164,16.8024C67.3096,15.5736 66.4143,14.1474 65.0499,14.1474C64.0736,14.1474 63.155,14.6096 62.5732,15.3935L55.9967,24.2545C54.1102,26.7962 51.1319,28.2947 47.9666,28.2947H42.3809C39.0203,28.2947 35.8844,29.9828 34.0338,32.7879Z"
+      android:fillColor="@color/hvac_off_icon_fill_color"/>
+  <path
+      android:pathData="M61.9985,5.0526a5,5.0526 0,1 0,10 0a5,5.0526 0,1 0,-10 0z"
+      android:fillColor="@color/hvac_off_icon_fill_color"/>
+  <path
+      android:pathData="M41.5603,10.0488C37.5686,12.8863 45.4033,16.6289 41.5603,19.0972"
+      android:strokeWidth="2"
+      android:fillColor="@android:color/transparent"
+      android:strokeColor="@color/hvac_off_icon_fill_color"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M37.0374,10.0488C33.0456,12.8863 40.8804,16.6289 37.0374,19.0972"
+      android:strokeWidth="2"
+      android:fillColor="@android:color/transparent"
+      android:strokeColor="@color/hvac_off_icon_fill_color"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M32.5135,10.0488C28.5217,12.8863 36.3565,16.629 32.5135,19.0973"
+      android:strokeWidth="2"
+      android:fillColor="@android:color/transparent"
+      android:strokeColor="@color/hvac_off_icon_fill_color"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M28.8859,15.7037H27.804L25.0881,6.2391C24.7768,5.1544 25.3126,4.0062 26.3439,3.5479C30.1667,1.8493 33.7188,1 37,1C40.2812,1 43.8333,1.8493 47.6561,3.5479C48.6874,4.0061 49.2232,5.1544 48.9119,6.2391L46.196,15.7037H45.1141"
+      android:strokeLineJoin="round"
+      android:strokeWidth="2"
+      android:fillColor="@android:color/transparent"
+      android:strokeColor="@color/hvac_off_icon_fill_color"
+      android:strokeLineCap="round"/>
+</vector>

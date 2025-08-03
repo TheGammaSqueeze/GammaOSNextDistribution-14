@@ -1,0 +1,1439 @@
+//
+// Copyright (C) 2015 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+// AIDL interface between libupdate_engine and framework.jar
+package {
+    default_applicable_licenses: ["system_update_engine_license"],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "system_update_engine_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+filegroup {
+    name: "libupdate_engine_aidl",
+    srcs: [
+        "binder_bindings/android/os/IUpdateEngine.aidl",
+        "binder_bindings/android/os/IUpdateEngineCallback.aidl",
+    ],
+    path: "binder_bindings",
+}
+
+cc_defaults {
+    name: "ue_defaults",
+
+    cflags: [
+        "-DBASE_VER=576279",
+        "-DUSE_HWID_OVERRIDE=0",
+        "-D_FILE_OFFSET_BITS=64",
+        "-D_POSIX_C_SOURCE=199309L",
+        "-Wa,--noexecstack",
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+        "-Wformat=2",
+        "-Wno-psabi",
+        "-Wno-unused-parameter",
+        "-ffunction-sections",
+        "-fstack-protector-strong",
+        "-fvisibility=hidden",
+        "-g3",
+    ],
+    cppflags: [
+        "-Wnon-virtual-dtor",
+        "-fno-strict-aliasing",
+    ],
+    include_dirs: ["system"],
+    local_include_dirs: ["client_library/include"],
+    header_libs: ["libgtest_prod_headers"],
+    shared_libs: [
+        "libbrillo-stream",
+        "libbrillo",
+        "libchrome",
+    ],
+    ldflags: ["-Wl,--gc-sections"],
+
+    target: {
+        android: {
+            cflags: [
+                "-DUSE_FEC=1",
+            ],
+        },
+        host: {
+            cflags: [
+                "-DUSE_FEC=0",
+            ],
+        },
+        darwin: {
+            enabled: false,
+        },
+    },
+}
+
+// libcow_operation_convert (type: library)
+// ========================================================
+cc_library_static {
+    name: "libpayload_extent_utils",
+    defaults: [
+        "ue_defaults",
+    ],
+    host_supported: true,
+    recovery_available: true,
+    srcs: [
+        "payload_generator/extent_utils.cc",
+    ],
+    static_libs: [
+        "update_metadata-protos",
+    ],
+}
+
+cc_library {
+    name: "libcow_operation_convert",
+    host_supported: true,
+    recovery_available: true,
+    defaults: [
+        "ue_defaults",
+        "update_metadata-protos_exports",
+    ],
+    srcs: [
+        "common/cow_operation_convert.cc",
+    ],
+    static_libs: [
+        "libsnapshot_cow",
+        "update_metadata-protos",
+        "libpayload_extent_ranges",
+        "libpayload_extent_utils",
+        "libbrotli",
+        "libz",
+    ],
+}
+
+// update_metadata-protos (type: static_library)
+// ========================================================
+// Protobufs.
+cc_defaults {
+    name: "update_metadata-protos_exports",
+
+    shared_libs: ["libprotobuf-cpp-lite"],
+}
+
+cc_defaults {
+    name: "update_metadata-protos-defaults",
+    host_supported: true,
+    ramdisk_available: true,
+    recovery_available: true,
+
+    srcs: ["update_engine/update_metadata.proto"],
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+    proto: {
+        canonical_path_from_root: false,
+        export_proto_headers: true,
+    },
+}
+
+cc_library_static {
+    name: "update_metadata-protos",
+    defaults: ["update_metadata-protos-defaults"],
+    proto: {
+        type: "lite",
+    },
+}
+
+cc_library_static {
+    name: "update_metadata-protos-full",
+    defaults: ["update_metadata-protos-defaults"],
+}
+
+python_library_host {
+    name: "update_metadata-protos-python",
+    srcs: ["update_metadata.proto"],
+    proto: {
+        canonical_path_from_root: false,
+    },
+}
+
+// libpayload_consumer (type: static_library)
+// ========================================================
+// The payload application component and common dependencies.
+cc_defaults {
+    name: "libpayload_consumer_exports_defaults",
+    defaults: ["update_metadata-protos_exports",],
+
+    static_libs: [
+        "libxz",
+        "libbz",
+        "libbspatch",
+        "libbrotli",
+        "libc++fs",
+        "libfec_rs",
+        "libpuffpatch",
+        "libverity_tree",
+        "libsnapshot_cow",
+        "libbrotli",
+        "libz",
+        "libpayload_extent_ranges",
+        "libpayload_extent_utils",
+        "libcow_operation_convert",
+        "lz4diff-protos",
+        "liblz4patch",
+        "libzstd",
+    ],
+    shared_libs: [
+        "libbase",
+        "libcrypto",
+        "libfec",
+        "liblz4",
+        "libziparchive",
+        "libprocessgroup",
+        "libselinux",
+    ],
+    product_variables: {
+        debuggable: {
+            cflags: [
+                "-DRUN_BACKUPTOOL",
+            ],
+        },
+    },
+}
+
+cc_defaults {
+    name: "libpayload_consumer_exports",
+    defaults: [
+        "libpayload_consumer_exports_defaults"
+    ],
+    static_libs: ["update_metadata-protos",],
+}
+
+cc_defaults {
+    name: "libpayload_consumer_exports_proto-full",
+    defaults: [
+        "libpayload_consumer_exports_defaults"
+    ],
+    static_libs: ["update_metadata-protos-full",],
+}
+
+cc_defaults {
+    name: "libpayload_consumer_defaults",
+    host_supported: true,
+    recovery_available: true,
+
+    srcs: [
+        "aosp/platform_constants_android.cc",
+        "common/action_processor.cc",
+        "common/boot_control_stub.cc",
+        "common/clock.cc",
+        "common/constants.cc",
+        "common/cpu_limiter.cc",
+        "common/dynamic_partition_control_stub.cc",
+        "common/error_code_utils.cc",
+        "common/file_fetcher.cc",
+        "common/hash_calculator.cc",
+        "common/http_common.cc",
+        "common/http_fetcher.cc",
+        "common/hwid_override.cc",
+        "common/multi_range_http_fetcher.cc",
+        "common/prefs.cc",
+        "common/subprocess.cc",
+        "common/terminator.cc",
+        "common/utils.cc",
+        "payload_consumer/bzip_extent_writer.cc",
+        "payload_consumer/cached_file_descriptor.cc",
+        "payload_consumer/certificate_parser_android.cc",
+        "payload_consumer/cow_writer_file_descriptor.cc",
+        "payload_consumer/delta_performer.cc",
+        "payload_consumer/extent_reader.cc",
+        "payload_consumer/extent_writer.cc",
+        "payload_consumer/file_descriptor.cc",
+        "payload_consumer/file_descriptor_utils.cc",
+        "payload_consumer/file_writer.cc",
+        "payload_consumer/filesystem_verifier_action.cc",
+        "payload_consumer/install_operation_executor.cc",
+        "payload_consumer/install_plan.cc",
+        "payload_consumer/mount_history.cc",
+        "payload_consumer/payload_constants.cc",
+        "payload_consumer/payload_metadata.cc",
+        "payload_consumer/payload_verifier.cc",
+        "payload_consumer/partition_writer.cc",
+        "payload_consumer/partition_writer_factory_android.cc",
+        "payload_consumer/vabc_partition_writer.cc",
+        "payload_consumer/xor_extent_writer.cc",
+        "payload_consumer/block_extent_writer.cc",
+        "payload_consumer/snapshot_extent_writer.cc",
+        "payload_consumer/postinstall_runner_action.cc",
+        "payload_consumer/verified_source_fd.cc",
+        "payload_consumer/verity_writer_android.cc",
+        "payload_consumer/xz_extent_writer.cc",
+        "payload_consumer/fec_file_descriptor.cc",
+        "payload_consumer/partition_update_generator_android.cc",
+        "update_status_utils.cc",
+    ],
+}
+
+cc_library_static {
+    name: "libpayload_consumer",
+    defaults: [
+        "ue_defaults",
+        "libpayload_consumer_exports",
+        "libpayload_consumer_defaults",
+    ],
+}
+
+cc_library_static {
+    name: "libpayload_consumer_proto-full",
+    defaults: [
+        "ue_defaults",
+        "libpayload_consumer_exports_proto-full",
+        "libpayload_consumer_defaults",
+    ],
+}
+
+cc_library_static {
+    name: "libstatslog_ue",
+    generated_sources: ["statslog_ue.cpp"],
+    generated_headers: ["statslog_ue.h"],
+    export_generated_headers: ["statslog_ue.h"],
+    shared_libs: [
+        "libstatssocket",
+    ]
+}
+
+genrule {
+    name: "statslog_ue.h",
+    tools: ["stats-log-api-gen"],
+    cmd: "$(location stats-log-api-gen) --header $(genDir)/statslog_ue.h --module update_engine --namespace chromeos_update_engine,statsd",
+    out: [
+        "statslog_ue.h",
+    ],
+}
+
+genrule {
+    name: "statslog_ue.cpp",
+    tools: ["stats-log-api-gen"],
+    cmd: "$(location stats-log-api-gen) --cpp $(genDir)/statslog_ue.cpp --module update_engine --namespace chromeos_update_engine,statsd --importHeader statslog_ue.h",
+    out: [
+        "statslog_ue.cpp",
+    ],
+}
+
+// libupdate_engine_boot_control (type: static_library)
+// ========================================================
+// A BootControl class implementation using Android's HIDL boot_control HAL.
+cc_defaults {
+    name: "libupdate_engine_boot_control_exports_defaults",
+    defaults: ["update_metadata-protos_exports",],
+
+    static_libs: [
+        "libcutils",
+        "libfs_mgr_binder",
+        "libgsi",
+        "libsnapshot_static",
+        "libstatslog_ue",
+        "libz",
+    ],
+    shared_libs: [
+        "libbootloader_message",
+        "libhidlbase",
+        "liblp",
+        "libutils",
+        "android.hardware.boot@1.0",
+        "android.hardware.boot@1.1",
+        "android.hardware.boot@1.2",
+        "android.hardware.boot-V1-ndk",
+        "libboot_control_client",
+    ],
+    header_libs: [
+        "avb_headers",
+    ],
+    target: {
+        recovery: {
+            static_libs: [
+                "libfs_mgr",
+                "libsnapshot_nobinder",
+            ],
+            exclude_static_libs: [
+                "libfs_mgr_binder",
+                "libsnapshot_static",
+                "libstatslog_ue"
+            ],
+        },
+    },
+}
+
+cc_defaults {
+    name: "libupdate_engine_boot_control_exports",
+    defaults: [
+        "libupdate_engine_boot_control_exports_defaults",
+    ],
+    static_libs: [
+        "libpayload_consumer",
+        "update_metadata-protos",
+    ]
+}
+
+cc_defaults {
+    name: "libupdate_engine_boot_control_exports_proto-full",
+    defaults: [
+        "libupdate_engine_boot_control_exports_defaults",
+    ],
+    static_libs: [
+        "libpayload_consumer_proto-full",
+        "update_metadata-protos-full",
+    ]
+}
+
+cc_defaults {
+    name: "libupdate_engine_boot_control_defaults",
+    defaults: [
+        "ue_defaults",
+    ],
+    recovery_available: true,
+
+    srcs: [
+        "aosp/boot_control_android.cc",
+        "aosp/cleanup_previous_update_action.cc",
+        "aosp/dynamic_partition_control_android.cc",
+        "aosp/dynamic_partition_utils.cc",
+    ],
+}
+
+cc_library_static {
+    name: "libupdate_engine_boot_control",
+    defaults: [
+        "libupdate_engine_boot_control_defaults",
+        "libupdate_engine_boot_control_exports",
+        "libpayload_consumer_exports",
+    ],
+}
+
+cc_library_static {
+    name: "libupdate_engine_boot_control_proto-full",
+    defaults: [
+        "libupdate_engine_boot_control_defaults",
+        "libupdate_engine_boot_control_exports_proto-full",
+        "libpayload_consumer_exports_proto-full",
+    ],
+}
+
+// libupdate_engine_android (type: static_library)
+// ========================================================
+// The main daemon static_library used in Android (non-Brillo). This only has a
+// loop to apply payloads provided by the upper layer via a Binder interface.
+cc_defaults {
+    name: "libupdate_engine_android_exports_defaults",
+    defaults: [
+        "ue_defaults",
+    ],
+
+    static_libs: [
+        "libavb",
+        "libavb_user",
+        "libgkiprops",
+        "libstatslog_ue",
+        "libPlatformProperties",
+    ],
+    shared_libs: [
+        "apex_aidl_interface-cpp",
+        "libandroid_net",
+        "libbase",
+        "libbinder",
+        "libbinderwrapper",
+        "libbootloader_message",
+        "libbrillo-binder",
+        "libcurl",
+        "libcutils",
+        "libupdate_engine_stable-V2-cpp",
+        "liblog",
+        "libssl",
+        "libstatssocket",
+        "libutils",
+    ],
+    whole_static_libs: [
+        "libcom.android.sysprop.apex",
+    ],
+}
+
+cc_defaults {
+    name: "libupdate_engine_android_exports",
+    defaults: [
+        "libupdate_engine_android_exports_defaults",
+        "libupdate_engine_boot_control_exports",
+        "libpayload_consumer_exports",
+    ],
+    static_libs: [
+        "libpayload_consumer",
+        "libupdate_engine_boot_control",
+    ],
+}
+
+cc_defaults {
+    name: "libupdate_engine_android_exports_proto-full",
+    defaults: [
+        "libupdate_engine_android_exports_defaults",
+        "libupdate_engine_boot_control_exports_proto-full",
+        "libpayload_consumer_exports_proto-full",
+    ],
+    static_libs: [
+        "libpayload_consumer_proto-full",
+        "libupdate_engine_boot_control_proto-full",
+    ],
+}
+
+cc_defaults {
+    name: "libupdate_engine_android_defaults",
+    defaults: [
+        "ue_defaults",
+    ],
+
+    aidl: {
+        local_include_dirs: ["binder_bindings"],
+        export_aidl_headers: true,
+    },
+
+    srcs: [
+        ":libupdate_engine_aidl",
+        "common/system_state.cc",
+        "aosp/apex_handler_android.cc",
+        "aosp/binder_service_android.cc",
+        "aosp/binder_service_stable_android.cc",
+        "aosp/daemon_android.cc",
+        "aosp/daemon_state_android.cc",
+        "aosp/hardware_android.cc",
+        "aosp/logging_android.cc",
+        "aosp/network_selector_android.cc",
+        "aosp/update_attempter_android.cc",
+        "certificate_checker.cc",
+        "download_action.cc",
+        "libcurl_http_fetcher.cc",
+        "metrics_utils.cc",
+        "update_boot_flags_action.cc",
+    ],
+}
+
+cc_library_static {
+    name: "libupdate_engine_android",
+    defaults: [
+        "libupdate_engine_android_defaults",
+        "libupdate_engine_android_exports",
+    ]
+}
+
+cc_library_static {
+    name: "libupdate_engine_android_proto-full",
+    defaults: [
+        "libupdate_engine_android_defaults",
+        "libupdate_engine_android_exports_proto-full",
+    ]
+}
+
+// update_engine (type: executable)
+// ========================================================
+// update_engine daemon.
+cc_binary {
+    name: "update_engine",
+    defaults: [
+        "ue_defaults",
+        "libupdate_engine_android_exports",
+    ],
+
+    static_libs: [
+        "libupdate_engine_android",
+        "libgflags",
+    ],
+    required: [
+        "cacerts",
+        "otacerts",
+    ],
+
+    srcs: ["main.cc", "aosp/metrics_reporter_android.cc"],
+    init_rc: ["update_engine.rc"],
+}
+
+// update_engine_sideload (type: executable)
+// ========================================================
+// A binary executable equivalent to update_engine daemon that installs an update
+// from a local file directly instead of running in the background. Used in
+// recovery image.
+cc_binary {
+    name: "update_engine_sideload",
+    defaults: [
+        "ue_defaults",
+        "update_metadata-protos_exports",
+        "libupdate_engine_boot_control_exports",
+        "libpayload_consumer_exports",
+    ],
+    recovery: true,
+
+    cflags: ["-D_UE_SIDELOAD"],
+    header_libs: ["libgtest_prod_headers"],
+
+    srcs: [
+        "aosp/hardware_android.cc",
+        "aosp/logging_android.cc",
+        "aosp/sideload_main.cc",
+        "aosp/update_attempter_android.cc",
+        "common/metrics_reporter_stub.cc",
+        "common/network_selector_stub.cc",
+        "common/system_state.cc",
+        "download_action.cc",
+        "metrics_utils.cc",
+        "update_boot_flags_action.cc",
+        "update_status_utils.cc",
+    ],
+
+    // Use commonly used shared libraries. libprotobuf-cpp-lite.so is filtered out,
+    // as it doesn't look beneficial to be installed separately due to its size. Note
+    // that we explicitly request their recovery variants, so that the expected files
+    // will be used and installed.
+    shared_libs: [
+        "libbase",
+        "liblog",
+        "liblz4",
+        "libprotobuf-cpp-lite",
+    ],
+    static_libs: [
+        "libpayload_consumer",
+        "libupdate_engine_boot_control",
+        "update_metadata-protos",
+
+        // We add the static versions of the shared libraries that are not installed to
+        // recovery image due to size concerns. Need to include all the static library
+        // dependencies of these static libraries.
+        "libgkiprops",
+        "libevent",
+        "libmodpb64",
+        "libbrillo-stream",
+        "libbrillo",
+        "libchrome",
+    ],
+    target: {
+        recovery: {
+            exclude_shared_libs: [
+                "libbrillo-stream",
+                "libbrillo",
+                "libchrome",
+            ],
+        },
+    },
+
+    required: [
+        "otacerts.recovery",
+    ],
+}
+
+// update_engine_client (type: executable)
+// ========================================================
+// update_engine console client.
+cc_binary {
+    name: "update_engine_client",
+    defaults: ["ue_defaults"],
+
+    shared_libs: [
+        "libbinder",
+        "libbinderwrapper",
+        "libbrillo-binder",
+        "libutils",
+    ],
+
+    aidl: {
+        local_include_dirs: ["binder_bindings"],
+    },
+
+    srcs: [
+        ":libupdate_engine_aidl",
+        "aosp/update_engine_client_android.cc",
+        "common/error_code_utils.cc",
+        "update_status_utils.cc",
+    ],
+}
+
+// libpayload_generator (type: static_library)
+// ========================================================
+// server-side code. This is used for delta_generator and unittests but not
+// for any client code.
+cc_defaults {
+    name: "libpayload_generator_exports",
+    defaults: [
+        "libpayload_consumer_exports",
+        "update_metadata-protos_exports",
+        "erofs-utils_export_defaults",
+    ],
+
+    header_libs: [
+        "bootimg_headers",
+    ],
+    static_libs: [
+        "libavb",
+        "libbrotli",
+        "libbsdiff",
+        "libdivsufsort",
+        "libdivsufsort64",
+        "liblzma",
+        "libpayload_consumer",
+        "libpuffdiff",
+        "libzucchini",
+        "libverity_tree",
+        "update_metadata-protos",
+        "libpayload_extent_utils",
+        "libcow_size_estimator",
+        "liberofs",
+        "libselinux",
+        "lz4diff-protos",
+        "liblz4diff",
+        "libzstd",
+    ],
+    shared_libs: [
+        "libbase",
+        "libext2fs",
+        // LZ4 has to be a shared lib, as we want to override it with
+        // LD_LIBRARY_PRELOAD later
+        "liblz4",
+    ],
+}
+
+cc_library_static {
+    name: "libpayload_extent_ranges",
+    defaults: [
+        "ue_defaults",
+    ],
+    host_supported: true,
+    recovery_available: true,
+    srcs: [
+        "payload_generator/extent_ranges.cc",
+    ],
+    static_libs: [
+        "update_metadata-protos",
+    ],
+}
+
+cc_library_static {
+    name: "libcow_size_estimator",
+    defaults: [
+        "ue_defaults",
+        "update_metadata-protos_exports"
+    ],
+    host_supported: true,
+    recovery_available: true,
+    srcs: [
+        "payload_generator/cow_size_estimator.cc",
+    ],
+    static_libs: [
+        "update_metadata-protos",
+        "libbase",
+        "libsnapshot_cow",
+        "libcow_operation_convert",
+    ],
+}
+
+cc_defaults {
+    name: "liblz4diff_defaults",
+    static_libs: [
+        "lz4diff-protos",
+        "update_metadata-protos",
+        "libssl",
+        "libbsdiff",
+        "libpuffdiff",
+    ],
+    shared_libs: [
+        "liblz4",
+    ],
+}
+
+cc_library_static {
+    name: "liblz4diff",
+    host_supported: true,
+    defaults: ["ue_defaults", "liblz4diff_defaults"],
+    srcs: [
+        "lz4diff/lz4diff.cc",
+        "lz4diff/lz4diff_compress.cc",
+    ],
+}
+
+cc_library_static {
+    name: "liblz4patch",
+    host_supported: true,
+    recovery_available: true,
+    defaults: ["ue_defaults"],
+    static_libs: [
+        "lz4diff-protos",
+        "update_metadata-protos",
+        "libssl",
+        "libbspatch",
+        "libpuffpatch",
+    ],
+    shared_libs: [
+        "liblz4",
+    ],
+    srcs: [
+        "lz4diff/lz4patch.cc",
+        "lz4diff/lz4diff_compress.cc",
+    ],
+}
+
+cc_binary_host {
+    name: "lz4diff",
+    defaults: [
+        "ue_defaults",
+        "libpayload_generator_exports",
+    ],
+    static_libs: [
+        "libpayload_generator",
+        "liblz4diff",
+        "liblz4patch",
+    ],
+    srcs: [
+        "lz4diff/lz4diff_main.cc",
+    ],
+}
+
+cc_library_static {
+    name: "libpayload_generator",
+    defaults: [
+        "ue_defaults",
+        "libpayload_generator_exports",
+    ],
+    host_supported: true,
+
+    srcs: [
+        "common/system_state.cc",
+        "download_action.cc",
+        "payload_generator/ab_generator.cc",
+        "payload_generator/annotated_operation.cc",
+        "payload_generator/blob_file_writer.cc",
+        "payload_generator/block_mapping.cc",
+        "payload_generator/boot_img_filesystem.cc",
+        "payload_generator/bzip.cc",
+        "payload_generator/deflate_utils.cc",
+        "payload_generator/delta_diff_generator.cc",
+        "payload_generator/delta_diff_utils.cc",
+        "payload_generator/ext2_filesystem.cc",
+        "payload_generator/erofs_filesystem.cc",
+        "payload_generator/extent_ranges.cc",
+        "payload_generator/full_update_generator.cc",
+        "payload_generator/mapfile_filesystem.cc",
+        "payload_generator/merge_sequence_generator.cc",
+        "payload_generator/payload_file.cc",
+        "payload_generator/payload_generation_config_android.cc",
+        "payload_generator/payload_generation_config.cc",
+        "payload_generator/payload_properties.cc",
+        "payload_generator/payload_signer.cc",
+        "payload_generator/raw_filesystem.cc",
+        "payload_generator/squashfs_filesystem.cc",
+        "payload_generator/xz_android.cc",
+    ],
+}
+
+// delta_generator (type: executable)
+// ========================================================
+// server-side delta generator.
+cc_binary_host {
+    name: "delta_generator",
+    defaults: [
+        "ue_defaults",
+        "libpayload_generator_exports",
+        "libpayload_consumer_exports",
+    ],
+
+    static_libs: [
+        "libavb_host_sysdeps",
+        "libpayload_consumer",
+        "libpayload_generator",
+        "libgflags",
+    ],
+
+    srcs: ["payload_generator/generate_delta_main.cc"],
+}
+
+cc_test {
+    host_supported: true,
+    name: "ue_unittest_delta_generator",
+    defaults: [
+        "ue_defaults",
+        "libpayload_generator_exports",
+        "libpayload_consumer_exports",
+    ],
+
+    static_libs: [
+        "libpayload_consumer",
+        "libpayload_generator",
+        "libgflags",
+    ],
+
+    srcs: ["payload_generator/generate_delta_main.cc"],
+
+    gtest: false,
+    stem: "delta_generator",
+}
+
+// test_http_server (type: executable)
+// ========================================================
+// Test HTTP Server.
+cc_test {
+    name: "test_http_server",
+    defaults: ["ue_defaults"],
+    srcs: [
+        "common/http_common.cc",
+        "test_http_server.cc",
+    ],
+
+    gtest: false,
+}
+
+// test_subprocess (type: executable)
+// ========================================================
+// Test helper subprocess program.
+cc_test {
+    name: "test_subprocess",
+    defaults: ["ue_defaults"],
+    srcs: ["test_subprocess.cc"],
+
+    gtest: false,
+}
+
+// Public keys for unittests.
+// ========================================================
+genrule {
+    name: "ue_unittest_keys",
+    cmd: "openssl rsa -in $(location unittest_key.pem) -pubout -out $(location unittest_key.pub.pem) &&" +
+        "openssl rsa -in $(location unittest_key2.pem) -pubout -out $(location unittest_key2.pub.pem) &&" +
+        "openssl rsa -in $(location unittest_key_RSA4096.pem) -pubout -out $(location unittest_key_RSA4096.pub.pem) &&" +
+        "openssl pkey -in $(location unittest_key_EC.pem) -pubout -out $(location unittest_key_EC.pub.pem)",
+    srcs: [
+        "unittest_key.pem",
+        "unittest_key2.pem",
+        "unittest_key_RSA4096.pem",
+        "unittest_key_EC.pem",
+    ],
+    out: [
+        "unittest_key.pub.pem",
+        "unittest_key2.pub.pem",
+        "unittest_key_RSA4096.pub.pem",
+        "unittest_key_EC.pub.pem",
+    ],
+}
+
+// Sample images for unittests.
+// ========================================================
+// Extract sample image from the compressed sample_images.tar.bz2 file used by
+// the unittests.
+genrule {
+    name: "ue_unittest_disk_imgs",
+    cmd: "tar -jxf $(in) -C $(genDir)/gen disk_ext2_1k.img disk_ext2_4k.img disk_ext2_4k_empty.img disk_ext2_unittest.img",
+    srcs: ["sample_images/sample_images.tar.bz2"],
+    out: [
+        "gen/disk_ext2_1k.img",
+        "gen/disk_ext2_4k.img",
+        "gen/disk_ext2_4k_empty.img",
+        "gen/disk_ext2_unittest.img",
+    ],
+}
+
+genrule {
+    name: "ue_unittest_erofs_imgs",
+    cmd: "$(in) $(location mkfs.erofs) $(location gen/erofs_empty.img) && " +
+         "$(in) $(location mkfs.erofs) $(location gen/erofs.img) $(location delta_generator) && " +
+         "$(in) $(location mkfs.erofs) $(location gen/erofs_new.img) $(location delta_generator) lz4hc,7",
+    srcs: ["sample_images/generate_test_erofs_images.sh"],
+    out: [
+        "gen/erofs.img",
+        "gen/erofs_new.img",
+        "gen/erofs_empty.img",
+    ],
+    tools: [
+        "mkfs.erofs",
+        "delta_generator",
+    ],
+}
+
+filegroup {
+    name: "update_engine_host_unittest_timeout_srcs",
+    srcs: [
+        "common/action_processor_unittest.cc",
+        "common/file_fetcher_unittest.cc",
+        "payload_generator/delta_diff_utils_unittest.cc",
+    ],
+}
+
+filegroup {
+    name: "update_engine_host_unittest_srcs",
+    srcs: [
+        "common/action_pipe_unittest.cc",
+        "common/action_processor_unittest.cc",
+        "common/action_unittest.cc",
+        "common/cow_operation_convert_unittest.cc",
+        "common/cpu_limiter_unittest.cc",
+        "common/fake_prefs.cc",
+        "common/file_fetcher_unittest.cc",
+        "common/hash_calculator_unittest.cc",
+        "common/hwid_override_unittest.cc",
+        "common/metrics_reporter_stub.cc",
+        "common/mock_http_fetcher.cc",
+        "common/prefs_unittest.cc",
+        "common/terminator_unittest.cc",
+        "common/test_utils.cc",
+        "lz4diff/lz4diff_compress_unittest.cc",
+        "lz4diff/lz4diff_unittest.cc",
+        "payload_generator/ab_generator_unittest.cc",
+        "payload_generator/blob_file_writer_unittest.cc",
+        "payload_generator/block_mapping_unittest.cc",
+        "payload_generator/boot_img_filesystem_unittest.cc",
+        "payload_generator/deflate_utils_unittest.cc",
+        "payload_generator/delta_diff_utils_unittest.cc",
+        "payload_generator/erofs_filesystem_unittest.cc",
+        "payload_generator/ext2_filesystem_unittest.cc",
+        "payload_generator/extent_ranges_unittest.cc",
+        "payload_generator/extent_utils_unittest.cc",
+        "payload_generator/fake_filesystem.cc",
+        "payload_generator/full_update_generator_unittest.cc",
+        "payload_generator/mapfile_filesystem_unittest.cc",
+        "payload_generator/merge_sequence_generator_unittest.cc",
+        "payload_generator/payload_file_unittest.cc",
+        "payload_generator/payload_generation_config_android_unittest.cc",
+        "payload_generator/payload_generation_config_unittest.cc",
+        "payload_generator/payload_properties_unittest.cc",
+        "payload_generator/payload_signer_unittest.cc",
+        "payload_generator/squashfs_filesystem_unittest.cc",
+        "payload_generator/zip_unittest.cc",
+        "payload_consumer/verity_writer_android_unittest.cc",
+        "payload_consumer/xz_extent_writer_unittest.cc",
+        "testrunner.cc",
+    ],
+}
+
+cc_test_host {
+    name: "update_engine_host_unittests",
+    defaults: [
+        "ue_defaults",
+        "libpayload_generator_exports",
+    ],
+    strip: {
+        none: true,
+    },
+    cflags: [
+        "-g3",
+    ],
+    tidy_timeout_srcs: [":update_engine_host_unittest_timeout_srcs"],
+    srcs: [":update_engine_host_unittest_srcs"],
+    data: [
+        ":ue_unittest_delta_generator",
+        ":ue_unittest_disk_imgs",
+        ":ue_unittest_erofs_imgs",
+        ":ue_unittest_keys",
+        "otacerts.zip",
+        "unittest_key.pem",
+        "unittest_key2.pem",
+        "unittest_key_RSA4096.pem",
+        "unittest_key_EC.pem",
+        "update_engine.conf",
+        "testdata/cycle_nodes_product.bin",
+        "testdata/cycle_nodes_product_no_xor.bin",
+    ],
+    static_libs: [
+        "libgmock",
+        "libpayload_generator",
+    ],
+}
+
+// update_engine_unittests (type: executable)
+// ========================================================
+// Main unittest file.
+cc_test {
+    name: "update_engine_http_unittests",
+    defaults: [
+        "ue_defaults",
+        "liblz4diff_defaults",
+        "update_metadata-protos_exports",
+    ],
+    require_root: true,
+    static_libs: [
+        "libbase",
+        "libbrillo-test-helpers",
+        "libchrome_test_helpers",
+        "libcurl",
+        "libcutils",
+        "libdm",
+        "libgmock",
+        "libz",
+        "libzstd",
+    ],
+    shared_libs: [
+        "libssl",
+        "libcrypto",
+        "libziparchive",
+        "liblog",
+    ],
+
+    data: [
+        ":test_http_server",
+        ":test_subprocess",
+        ":ue_unittest_keys",
+        "otacerts.zip",
+        "unittest_key.pem",
+        "unittest_key2.pem",
+        "unittest_key_RSA4096.pem",
+        "unittest_key_EC.pem",
+    ],
+
+    // We cannot use the default generated AndroidTest.xml because of the use of helper modules
+    // (i.e. test_http_server, test_subprocess, ue_unittest_delta_generator).
+    // test_config: "test_config.xml",
+    test_suites: ["device-tests"],
+
+    srcs: [
+        "aosp/platform_constants_android.cc",
+        "certificate_checker.cc",
+        "common/action_processor.cc",
+        "common/boot_control_stub.cc",
+        "common/error_code_utils.cc",
+        "common/file_fetcher.cc",
+        "common/hash_calculator.cc",
+        "common/http_fetcher.cc",
+        "common/multi_range_http_fetcher.cc",
+        "common/http_common.cc",
+        "common/subprocess.cc",
+        "common/test_utils.cc",
+        "common/utils.cc",
+        "libcurl_http_fetcher.cc",
+        "payload_consumer/certificate_parser_android.cc",
+        "payload_consumer/payload_verifier.cc",
+        "payload_generator/payload_signer.cc",
+        "update_status_utils.cc",
+        "certificate_checker_unittest.cc",
+        "common/http_fetcher_unittest.cc",
+        "common/mock_http_fetcher.cc",
+        "common/subprocess_unittest.cc",
+        "libcurl_http_fetcher_unittest.cc",
+        "payload_consumer/certificate_parser_android_unittest.cc",
+        "update_status_utils_unittest.cc",
+    ],
+}
+
+// update_engine_unittests (type: executable)
+// ========================================================
+// Main unittest file.
+cc_test {
+    name: "update_engine_unittests",
+    defaults: [
+        "ue_defaults",
+        "libpayload_generator_exports",
+        "libupdate_engine_android_exports",
+    ],
+
+    static_libs: [
+        "libpayload_generator",
+        "libbrillo-test-helpers",
+        "libgmock",
+        "libchrome_test_helpers",
+        "libupdate_engine_android",
+        "libdm",
+    ],
+
+    header_libs: [
+        "libstorage_literals_headers",
+    ],
+
+    data: [
+        ":ue_unittest_delta_generator",
+        ":ue_unittest_disk_imgs",
+        ":ue_unittest_erofs_imgs",
+        ":ue_unittest_keys",
+        "otacerts.zip",
+        "unittest_key.pem",
+        "unittest_key2.pem",
+        "unittest_key_RSA4096.pem",
+        "unittest_key_EC.pem",
+        "update_engine.conf",
+        "testdata/cycle_nodes_product.bin",
+        "testdata/cycle_nodes_product_no_xor.bin",
+    ],
+
+    // We cannot use the default generated AndroidTest.xml because of the use of helper modules
+    // (i.e. test_http_server, test_subprocess, ue_unittest_delta_generator).
+    test_config: "test_config.xml",
+    test_suites: ["device-tests"],
+
+    tidy_timeout_srcs: [
+        ":update_engine_host_unittest_timeout_srcs",
+        "aosp/dynamic_partition_control_android_unittest.cc",
+        "common/http_fetcher_unittest.cc",
+        "payload_consumer/delta_performer_integration_test.cc",
+        "payload_consumer/delta_performer_unittest.cc",
+    ],
+    srcs: [
+        ":update_engine_host_unittest_srcs",
+        "aosp/apex_handler_android_unittest.cc",
+        "aosp/cleanup_previous_update_action_unittest.cc",
+        "aosp/dynamic_partition_control_android_unittest.cc",
+        "aosp/update_attempter_android_integration_test.cc",
+        "aosp/update_attempter_android_unittest.cc",
+        "common/utils_unittest.cc",
+        "download_action_android_unittest.cc",
+        "payload_consumer/block_extent_writer_unittest.cc",
+        "payload_consumer/bzip_extent_writer_unittest.cc",
+        "payload_consumer/cached_file_descriptor_unittest.cc",
+        "payload_consumer/cow_writer_file_descriptor_unittest.cc",
+        "payload_consumer/delta_performer_integration_test.cc",
+        "payload_consumer/delta_performer_unittest.cc",
+        "payload_consumer/extent_reader_unittest.cc",
+        "payload_consumer/extent_writer_unittest.cc",
+        "payload_consumer/extent_map_unittest.cc",
+        "payload_consumer/fake_file_descriptor.cc",
+        "payload_consumer/file_descriptor_utils_unittest.cc",
+        "payload_consumer/file_writer_unittest.cc",
+        "payload_consumer/filesystem_verifier_action_unittest.cc",
+        "payload_consumer/install_plan_unittest.cc",
+        "payload_consumer/install_operation_executor_unittest.cc",
+        "payload_consumer/partition_update_generator_android_unittest.cc",
+        "payload_consumer/partition_writer_unittest.cc",
+        "payload_consumer/postinstall_runner_action_unittest.cc",
+        "payload_consumer/snapshot_extent_writer_unittest.cc",
+        "payload_consumer/vabc_partition_writer_unittest.cc",
+        "payload_consumer/xor_extent_writer_unittest.cc",
+    ],
+}
+
+// Brillo update payload generation script
+// ========================================================
+sh_binary {
+    name: "brillo_update_payload",
+    device_supported: false,
+    host_supported: true,
+
+    src: "scripts/brillo_update_payload",
+    required: [
+        "delta_generator",
+        "shflags",
+        "simg2img",
+    ],
+
+    target: {
+        darwin: {
+            enabled: false,
+        },
+    },
+}
+
+// update_engine header library
+cc_library_headers {
+    name: "libupdate_engine_headers",
+
+    // This header library is available to core and product modules.
+    product_available: true,
+
+    export_include_dirs: ["."],
+    apex_available: [
+        "com.android.gki.*",
+        "//apex_available:platform",
+    ],
+    host_supported: true,
+    recovery_available: true,
+    ramdisk_available: true,
+    vendor_ramdisk_available: true,
+
+    target: {
+        darwin: {
+            enabled: false,
+        },
+    }
+}
+
+cc_binary_host {
+    name: "cow_converter",
+    defaults: [
+        "ue_defaults",
+        "libpayload_consumer_exports",
+    ],
+    srcs: [
+        "aosp/cow_converter.cc",
+    ],
+    static_libs: [
+        "liblog",
+        "libbrotli",
+        "libbase",
+        "libcow_operation_convert",
+        "libcow_size_estimator",
+        "libgflags",
+        "libpayload_consumer",
+        "libpayload_extent_ranges",
+        "libpayload_extent_utils",
+        "libsnapshot_cow",
+        "libz",
+        "update_metadata-protos",
+    ],
+}
+
+cc_library_static {
+    name: "lz4diff-protos",
+    host_supported: true,
+    ramdisk_available: true,
+    recovery_available: true,
+
+    srcs: ["lz4diff/lz4diff.proto"],
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+    proto: {
+        canonical_path_from_root: false,
+        export_proto_headers: true,
+    },
+}
+
+cc_binary_host {
+    name: "ota_extractor",
+    defaults: [
+        "ue_defaults",
+        "libpayload_consumer_exports",
+    ],
+    srcs: [
+        "aosp/ota_extractor.cc",
+    ],
+    static_libs: [
+        "liblog",
+        "libbrotli",
+        "libbase",
+        "libpayload_consumer",
+        "libpayload_extent_ranges",
+        "libpayload_extent_utils",
+        "libz",
+        "libgflags",
+        "update_metadata-protos",
+    ],
+}
+
+cc_binary_host {
+    name: "map_file_generator",
+    defaults: [
+        "ue_defaults",
+        "libpayload_generator_exports",
+    ],
+    srcs: [
+        "aosp/map_file_generator.cc",
+    ],
+    static_libs: [
+        "liblog",
+        "libbase",
+        "libpayload_generator",
+        "libpayload_extent_ranges",
+        "libpayload_extent_utils",
+        "libgflags",
+        "libsparse",
+        "update_metadata-protos",
+    ],
+    required: [
+        "unsquashfs",
+    ],
+}
+
+cc_fuzz {
+    name: "update_engine_service_fuzzer",
+    defaults: [
+        "ue_defaults",
+        "libupdate_engine_android_exports",
+        "service_fuzzer_defaults",
+        "fuzzer_disable_leaks",
+    ],
+    static_libs: [
+        "libupdate_engine_android",
+        "libgflags",
+    ],
+    srcs: [
+        "fuzzers/update_engine_service_fuzzer.cpp",
+        "aosp/metrics_reporter_android.cc",
+    ],
+    fuzz_config: {
+        triage_assignee: "waghpawan@google.com",
+        cc: [
+            "elsk@google.com",
+            "zhangkelvin@google.com",
+        ]
+    },
+}
+
+cc_binary_host {
+    name: "ota_extractor_static",
+    srcs: [
+        "aosp/ota_extractor.cc",
+    ],
+    static_libs: [
+        "liblog",
+        "libbrotli",
+        "libbase",
+        "libpayload_consumer",
+        "libpayload_extent_ranges",
+        "libpayload_extent_utils",
+        "libz",
+        "libgflags",
+        "update_metadata-protos",
+        // from ue_defaults shared_libs
+        "libbrillo",
+        "libchrome",
+        // from libpayload_consumer_exports static_libs
+        "libxz",
+        "libbz",
+        "libbspatch",
+        "libfec_rs",
+        "libpuffpatch",
+        "libverity_tree",
+        "lz4diff-protos",
+        "liblz4patch",
+        // from libpayload_consumer_exports shared_libs
+        "libcrypto",
+        "libfec",
+        "liblz4",
+        "libprotobuf-cpp-lite",
+    ],
+    static_executable: true,
+    stl: "libc++_static",
+
+    // from ue_defaults
+    cflags: [
+        "-DBASE_VER=576279",
+        "-DUSE_HWID_OVERRIDE=0",
+        "-D_FILE_OFFSET_BITS=64",
+        "-D_POSIX_C_SOURCE=199309L",
+        "-Wa,--noexecstack",
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+        "-Wformat=2",
+        "-Wno-psabi",
+        "-Wno-unused-parameter",
+        "-ffunction-sections",
+        "-fstack-protector-strong",
+        "-fvisibility=hidden",
+        "-g3",
+    ],
+    cppflags: [
+        "-Wnon-virtual-dtor",
+        "-fno-strict-aliasing",
+    ],
+    include_dirs: ["system"],
+    local_include_dirs: ["client_library/include"],
+    header_libs: ["libgtest_prod_headers"],
+    ldflags: ["-Wl,--gc-sections"],
+}

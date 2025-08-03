@@ -1,0 +1,9 @@
+// Baseline format: 1.0
+RequiresPermission: android.app.appsearch.GetSchemaResponse#getRequiredPermissionsForSchemaTypeVisibility():
+    Method 'getRequiredPermissionsForSchemaTypeVisibility' documentation mentions permissions without declaring @RequiresPermission
+RequiresPermission: android.app.appsearch.GetSchemaResponse.Builder#setRequiredPermissionsForSchemaTypeVisibility(String, java.util.Set<java.util.Set<java.lang.Integer>>):
+    Method 'setRequiredPermissionsForSchemaTypeVisibility' documentation mentions permissions without declaring @RequiresPermission
+RequiresPermission: android.app.appsearch.SetSchemaRequest#getRequiredPermissionsForSchemaTypeVisibility():
+    Method 'getRequiredPermissionsForSchemaTypeVisibility' documentation mentions permissions without declaring @RequiresPermission
+RequiresPermission: android.app.appsearch.SetSchemaRequest.Builder#addRequiredPermissionsForSchemaTypeVisibility(String, java.util.Set<java.lang.Integer>):
+    Method 'addRequiredPermissionsForSchemaTypeVisibility' documentation mentions permissions without declaring @RequiresPermission

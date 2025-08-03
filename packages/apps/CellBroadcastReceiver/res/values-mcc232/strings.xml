@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- CMAS dialog title for presidential level alert. [CHAR LIMIT=50] -->
+    <!-- Required Germany(de) translation for this message: Notfallalarm -->
+    <string name="cmas_presidential_level_alert">Emergency alarm</string>
+    <!-- CMAS dialog title for extreme alert. [CHAR LIMIT=50] -->
+    <!-- Required Germany(de) translation for this message: Extreme Gefahr -->
+    <string name="cmas_extreme_alert">Extreme threat</string>
+    <!-- CMAS dialog title for severe alert. [CHAR LIMIT=50] -->
+    <!-- Required Germany(de) translation for this message: Erhebliche Gefahr -->
+    <string name="cmas_severe_alert">Severe threat</string>
+    <!-- Dialog title for all public safety message broadcasts. [CHAR LIMIT=50] -->
+    <!-- Required Germany(de) translation for this message: Gefahreninformation -->
+    <string name="public_safety_message">Threat information</string>
+    <!-- CMAS dialog title for child abduction emergency (Amber Alert). [CHAR LIMIT=50] -->
+    <!-- Required Germany(de) translation for this message: Suche nach abgängiger Person -->
+    <string name="cmas_amber_alert">Search for missing person</string>
+    <!-- Dialog title for all state/local test alerts. [CHAR LIMIT=50] -->
+    <!-- Required Germany(de) translation for this message: Testwarnung -->
+    <string name="state_local_test_alert">Test alert</string>
+    <!-- CMAS dialog title for CMAS Exercise. [CHAR LIMIT=50] -->
+    <!-- Required Germany(de) translation for this message: Übungsalarm -->
+    <string name="cmas_exercise_alert">Test alarm</string>
+    <!-- CMAS dialog title for required monthly test. [CHAR LIMIT=50] -->
+    <!-- Required Germany(de) translation for this message: Cell Broadcast Test -->
+    <string name="cmas_required_monthly_test">Cell Broadcast Test</string>
+
+    <!-- Preference title for enable CMAS extreme threat alerts checkbox. [CHAR LIMIT=50] -->
+    <!-- Required Germany(de) translation for this message: Extreme Gefahr -->
+    <string name="enable_cmas_extreme_threat_alerts_title">Extreme threat</string>
+    <!-- Preference title for enable CMAS severe threat alerts checkbox. [CHAR LIMIT=50] -->
+    <!-- Required Germany(de) translation for this message: Erhebliche Gefahr -->
+    <string name="enable_cmas_severe_threat_alerts_title">Severe threat</string>
+    <!-- Preference title for enable CMAS amber alerts checkbox. [CHAR LIMIT=50] -->
+    <!-- Required Germany(de) translation for this message: Abgängige Personen -->
+    <string name="enable_cmas_amber_alerts_title">Missing persons</string>
+    <!-- Preference summary for enable CMAS amber alerts checkbox. [CHAR LIMIT=100] -->
+    <!-- Required Germany(de) translation for this message: Suche nach abgängigen Personen -->
+    <string name="enable_cmas_amber_alerts_summary">Search for missing persons</string>
+    <!-- Preference title for enable public safety messages checkbox. [CHAR LIMIT=100] -->
+    <!-- Required Germany(de) translation for this message: Gefahreninformation -->
+    <string name="enable_public_safety_messages_title">Threat information</string>
+    <!-- Preference title for enable state/local test alerts checkbox. [CHAR LIMIT=100] -->
+    <!-- Required Germany(de) translation for this message: Testwarnung -->
+    <string name="enable_state_local_test_alerts_title">Test alert</string>
+    <!-- Preference title for exercise test alerts checkbox. [CHAR LIMIT=50] -->
+    <!-- Required Germany(de) translation for this message: Übungsalarm -->
+    <string name="enable_exercise_test_alerts_title">Test alarm</string>
+    <!-- Preference title for other test alerts checkbox. [CHAR LIMIT=50] -->
+    <!-- Required Germany(de) translation for this message: Cell Broadcast Test -->
+    <string name="enable_cmas_test_alerts_title">Cell Broadcast Test</string>
+</resources>

@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (c) 2009, 2011-2013 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2014-2015 The CyanogenMod Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *    * Neither the name of The Linux Foundation nor
+ *      the names of its contributors may be used to endorse or promote
+ *      products derived from this software without specific prior written
+ *      permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NON-INFRINGEMENT ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">วิทยุ FM</string>
+    <string name="tx_app_name">ตัวถ่ายทอด FM</string>
+    <string name="menu_scan_start">สแกน</string>
+    <string name="menu_scan_stop">หยุดค้นหา</string>
+    <string name="menu_record_start">บันทึก</string>
+    <string name="menu_record_stop">หยุดบันทึก</string>
+    <string name="menu_settings">การตั้งค่า</string>
+    <string name="menu_sleep">พักหน้าจอ</string>
+    <string name="menu_sleep_cancel">ยกเลิกการพักหน้าจอ</string>
+    <string name="menu_all_channels">ทุกช่อง</string>
+    <string name="menu_display_tags">แสดงแท็ก</string>
+    <string name="button_text_stop">หยุด</string>
+    <string name="msg_seeking">กำลังค้นหาสถานีวิทยุ FM\u2026</string>
+    <string name="msg_scanning">กำลังค้นหาสถานีวิทยุ FM ทั้งหมด\u2026</string>
+    <string name="msg_scanning_pty">กำลังค้นหา \'<xliff:g id="pty_name">%1$s</xliff:g>\'\u2026</string>
+    <string name="msg_search_title"><xliff:g id="frequency_string">%1$s</xliff:g> MHz</string>
+    <string name="msg_searching_title">การเลือกสถานีอัตโนมัติ</string>
+    <string name="msg_searching">กำลังค้นหาสถานีที่ชัดเจนเพื่อสร้างรายชื่อสถานี\u2026</string>
+    <string name="msg_noantenna">กรุณาเสียบหูฟังเพื่อใช้วิทยุ FM</string>
+    <string name="dialog_sleep_title">เวลาปิดอัตโนมัติ</string>
+    <string name="presetlist_select_name">เลือก \'<xliff:g id="presetlist_name">%1$s</xliff:g>\'</string>
+    <string name="presetlist_add_new">เพิ่มรายการใหม่</string>
+    <string name="dialog_presetlist_rename_title">ใส่ชื่อ</string>
+    <string name="presetlist_autoselect_title">ยืนยันการเลือกอัตโนมัติ</string>
+    <string name="preset_replace">แทน​ที่</string>
+    <string name="preset_tune">ปรับ</string>
+    <string name="preset_rename">เปลี่ยนชื่อ</string>
+    <string name="preset_delete">ลบ</string>
+    <string name="preset_search">ค้นหา \'<xliff:g id="preset_pi">%1$s</xliff:g>\'</string>
+    <string name="stat_notif_frequency">\'<xliff:g id="frequency">%1$s</xliff:g>\' MHz</string>
+    <string name="regional_band">เขตสัญญาณตามภูมิภาค</string>
+    <string name="regional_band_entry_north_america">อเมริกาเหนือ</string>
+    <string name="regional_band_entry_europe">ยุโรป</string>
+    <string name="regional_band_entry_japan">ญี่ปุ่น</string>
+    <string name="regional_band_entry_japan_wide">ญี่ปุน (วงกว้าง)</string>
+    <string name="regional_band_entry_australia">ออสเตรเลีย</string>
+    <string name="regional_band_entry_austria">ออสเตรีย</string>
+    <string name="regional_band_entry_belgium">เบลเยี่ยม</string>
+    <string name="regional_band_entry_brazil">บราซิล</string>
+    <string name="regional_band_entry_china">จีน</string>
+    <string name="regional_band_entry_czech_republic">สาธารณรัฐเช็ก</string>
+    <string name="regional_band_entry_denmark">เดนมาร์ก</string>
+    <string name="regional_band_entry_finland">ฟินแลนด์</string>
+    <string name="regional_band_entry_france">ฝรั่งเศส</string>
+    <string name="regional_band_entry_germany">เยอรมันนี</string>
+    <string name="regional_band_entry_greece">กรีซ</string>
+    <string name="regional_band_entry_hong_kong">ฮ่องกง</string>
+    <string name="regional_band_entry_india">อินเดีย</string>
+    <string name="regional_band_entry_indonesia">อินโดนีเซีย</string>
+    <string name="regional_band_entry_ireland">ไอร์แลนด์</string>
+    <string name="regional_band_entry_italy">อิตาลี</string>
+    <string name="regional_band_entry_korea">เกาหลี</string>
+    <string name="regional_band_entry_mexico">เม็กซิโก</string>
+    <string name="regional_band_entry_netherlands">เนเธอร์แลนด์</string>
+    <string name="regional_band_entry_new_zealand">นิวซีแลนด์</string>
+    <string name="regional_band_entry_norway">นอร์เวย์</string>
+    <string name="regional_band_entry_poland">โปแลนด์</string>
+    <string name="regional_band_entry_portugal">โปรตุเกส</string>
+    <string name="regional_band_entry_russia">รัสเซีย</string>
+    <string name="regional_band_entry_singapore">สิงคโปร์</string>
+    <string name="regional_band_entry_slovakia">สโลวาเกีย</string>
+    <string name="regional_band_entry_spain">สเปน</string>
+    <string name="regional_band_entry_switzerland">สวิตเซอร์แลนด์</string>
+    <string name="regional_band_entry_sweden">สวีเดน</string>
+    <string name="regional_band_entry_taiwan">ไต้หวัน</string>
+    <string name="regional_band_entry_turkey">ตุรกี</string>
+    <string name="regional_band_entry_united_kingdom">สหราชอาณาจักร</string>
+    <string name="regional_band_entry_united_states">สหรัฐอเมริกา</string>
+    <string name="regional_band_entry_user_defined">ผู้ใช้กำหนดเอง</string>
+    <string name="regional_band_summary_north_america">อเมริกาเหนือ (87.5 ถึง 108.0 MHz ในระยะ 200 kHz)</string>
+    <string name="regional_band_summary_europe">ยุโรป (87.5 ถึง 108.0 MHz ในระยะ 100 kHz)</string>
+    <string name="regional_band_summary_japan">ญี่ปุ่น (76.0 ถึง 90.0 MHz ในระยะ 100 kHz)</string>
+    <string name="regional_band_summary_japan_wide">ญี่ปุ่น (วงกว้าง) (90.0 ถึง 108.0 MHz ในระยะ 50 kHz)</string>
+    <string name="regional_band_summary_australia">ออสเตรเลีย (87.7 ถึง 108.0 MHz ในระยะ 100 kHz)</string>
+    <string name="regional_band_summary_austria">ออสเตรีย (87.5 ถึง 108.0 MHz ในระยะ 50 kHz)</string>
+    <string name="regional_band_summary_belgium">เบลเยี่ยม (87.5 ถึง 108.0 MHz ในระยะ 100 kHz)</string>
+    <string name="regional_band_summary_brazil">บราซิล (87.5 ถึง 108.0 MHz ในระยะ 200 kHz)</string>
+    <string name="regional_band_summary_china">จีน (87.0 ถึง 108.0 MHz ในระยะ 100 kHz)</string>
+    <string name="regional_band_summary_czech_republic">สาธารณรัฐเช็ก (87.5 ถึง 108.0 MHz ในระยะ 100 kHz)</string>
+    <string name="regional_band_summary_denmark">เดนมาร์ก (87.5 ถึง 108.0 MHz ในระยะ 50 kHz)</string>
+    <string name="regional_band_summary_finland">ฟินแลนด์ (87.5 ถึง 108.0 MHz ในระยะ 100 kHz)</string>
+    <string name="regional_band_summary_france">ฝรั่งเศส (87.5 ถึง 108.0 MHz ในระยะ 100 kHz)</string>
+    <string name="regional_band_summary_germany">เยอรมนี (87.5 ถึง 108.0 MHz ในระยะ 50 kHz)</string>
+    <string name="regional_band_summary_greece">กรีซ (87.5 ถึง 108.0 MHz ในระยะ 50 kHz)</string>
+    <string name="regional_band_summary_hong_kong">ฮ่องกง (87.5 ถึง 108.0 MHz ในระยะ 100 kHz)</string>
+    <string name="regional_band_summary_india">อินเดีย (87.5 ถึง 108.0 MHz ในระยะ 100 kHz)</string>
+    <string name="regional_band_summary_indonesia">อินโดนีเซีย (87.5 ถึง 108.0 MHz ในระยะ 100 kHz)</string>
+    <string name="regional_band_summary_ireland">ไอร์แลนด์ (87.5 ถึง 108.0 MHz ในระยะ 50 kHz)</string>
+    <string name="regional_band_summary_italy">อิตาลี (87.5 ถึง 108.0 MHz ในระยะ 50 kHz)</string>
+    <string name="regional_band_summary_korea">เกาหลี (87.5 ถึง 108.0 MHz ในระยะ 200 kHz)</string>
+    <string name="regional_band_summary_mexico">เม็กซิโก (88.1 ถึง 107.9 MHz ในระยะ 200 kHz)</string>
+    <string name="regional_band_summary_netherlands">เนเธอร์แลนด์ (87.5 ถึง 108.0 MHz ในระยะ 100 kHz)</string>
+    <string name="regional_band_summary_new_zealand">นิวซีแลนด์ (88.0 ถึง 107.0 MHz ในระยะ 100 kHz)</string>
+    <string name="regional_band_summary_norway">นอร์เวย์ (87.5 ถึง 108.0 MHz ในระยะ 100 kHz)</string>
+    <string name="regional_band_summary_poland">โปแลนด์ (87.5 ถึง 108.0 MHz ในระยะ 100 kHz)</string>
+    <string name="regional_band_summary_portugal">โปรตุเกส (87.5 ถึง 108.0 MHz ในระยะ 50 kHz)</string>
+    <string name="regional_band_summary_russia">รัสเซีย (87.5 ถึง 108.0 MHz ในระยะ 100 kHz)</string>
+    <string name="regional_band_summary_singapore">สิงคโปร์ (88.0 ถึง 108.0 MHz ในระยะ 100 kHz)</string>
+    <string name="regional_band_summary_slovakia">สโลวาเกีย (87.5 ถึง 108.0 MHz ในระยะ 100 kHz)</string>
+    <string name="regional_band_summary_spain">สเปน (87.5 ถึง 108.0 MHz ในระยะ 100 kHz)</string>
+    <string name="regional_band_summary_switzerland">สวิตเซอร์แลนด์ (87.5 ถึง 108.0 MHz ในระยะ 100 kHz)</string>
+    <string name="regional_band_summary_sweden">สวีเดน (87.5 ถึง 108.0 MHz ในระยะ 100 kHz)</string>
+    <string name="regional_band_summary_taiwan">ไต้หวัน (87.5 ถึง 108.0 MHz ในระยะ 100 kHz)</string>
+    <string name="regional_band_summary_turkey">ตุรกี (87.5 ถึง 108.0 MHz ในระยะ 100 kHz)</string>
+    <string name="regional_band_summary_united_kingdom">สหราชอาณาจักร (87.5 ถึง 108.0 MHz ในระยะ 100 kHz)</string>
+    <string name="regional_band_summary_united_states">สหรัฐอเมริกา (88.1 ถึง 107.9 MHz ในระยะ 200 kHz)</string>
+    <string name="regional_band_summary_user_defined">ผู้ใช้กำหนดเอง</string>
+    <string name="aud_output_mode">รูปแบบเสียงออก</string>
+    <string name="audio_type_stereo">สเตอริโอ</string>
+    <string name="audio_type_mono">โมโน</string>
+    <string name="record_dur">ระยะเวลาการบันทึก</string>
+    <string name="auto_select_af">ความถี่อื่น</string>
+    <string name="settings_revert_defaults_title">กลับสู่ค่าเริ่มต้นจากโรงงาน</string>
+    <string name="settings_revert_defaults_summary">รีเซ็ตการตั้งค่าทั้งหมด</string>
+    <string name="settings_revert_confirm_title">ยืนยันการรีเซ็ต</string>
+    <string name="settings_revert_confirm_msg">การกระทำนี้จะล้างการตั้งค่าแอปทั้งหมด รวมถึงสถานีที่บันทึกไว้ด้วย ดำเนินการต่อหรือไม่</string>
+    <string name="no_storage">เชื่อมต่อ SD การ์ดก่อนเริ่มการบันทึก</string>
+    <string name="preparing_sd">กำลังเตรียม SD การ์ด…</string>
+    <string name="access_sd_fail">ไม่สามารถเข้าถึง SD การ์ด</string>
+    <string name="spaceIsLow_content">SD การ์ดของคุณกำลังจะเต็ม เปลี่ยนการตั้งค่าคุณภาพหรือลบไฟล์อื่น ๆ เพื่อให้มีพื้นที่ว่างเพิ่ม</string>
+    <string name="FMRecording_reach_size_limit">ถึงขีดจำกัดขนาดสูงสุด</string>
+    <string name="menu_scan_for_preset">ค้นหาเพื่อตั้งรายการล่วงหน้า</string>
+    <string name="fm_off">FM ถูกปิดอยู่</string>
+    <string name="fm_call">ไม่สามารถใช้ FM ได้ขณะกำลังใช้สาย</string>
+    <string name="alert_dialog_hint">ใส่ชื่อ</string>
+    <string name="search_dialog_title">ค้นหาสถานี</string>
+    <string name="fm_command_timeout_title">หมดเวลา</string>
+    <string name="fm_tune_timeout_msg">ไม่มีการตอบสนองจากการปรับคลื่นสถานีวิทยุ FM หากปัญหายังเกิดขึ้น กรุณาปิดวิทยุ FM แล้วเปิดใหม่อีกครั้ง</string>
+    <string name="fm_command_failed_title">การดำเนินการ FM ล้มเหลว</string>
+    <string name="fm_cmd_failed_msg">การดำเนินการ FM ล้มเหลว หากปัญหายังเกิดขึ้น ให้ลองปิดวิทยุ FM แล้วเปิดใหม่</string>
+    <string name="fm_cmd_failed_msg_hdmi">การดำเนินการ FM ล้มเหลว ไม่รองรับการใช้ FM และ HDMI ในเวลาเดียวกัน</string>
+    <string name="fm_cmd_failed_call_on">การดำเนินการ FM ล้มเหลว ไม่สามารถใช้ FM ขณะโทรออกได้</string>
+    <string name="audio_db_title_format"><xliff:g id="format">yyyy-MM-dd HH:mm:ss</xliff:g></string>
+    <string name="audio_db_artist_name">การบันทึก FM ของฉัน</string>
+    <string name="audio_db_album_name">การบันทึก FM</string>
+    <string name="audio_db_playlist_name">การบันทึก FM</string>
+    <string name="station_name">สถานี:</string>
+    <string name="station_exists">มีความถี่นี่อยู่แล้ว!</string>
+    <string name="station_list_delete_station">ลบ: <xliff:g id="name">%s</xliff:g></string>
+    <string name="station_list_delete_station_prompt">แน่ใจว่าต้องการลบ <xliff:g id="name">%s</xliff:g> หรือไม่</string>
+    <string name="station_name_empty">ชื่อสถานีเว้นว่าง กรุณากรอกใหม่</string>
+    <string name="rt_plus_tags">แท็ก</string>
+    <string name="usr_def_band_min">ความถี่ต่ำสุด (MHz)</string>
+    <string name="usr_def_band_max">ความถี่สูงสุด (MHz)</string>
+    <string name="chanl_spacing">ระยะช่องสถานี</string>
+    <string name="set">ตั้งค่า</string>
+    <string name="user_defind_band_msg">ป้อนความถี่จาก 76.0 ถึง 108.0 MHz โดยมีช่องว่างอย่างน้อย 1 ช่อง และ 100 kHz ระหว่างความถี่ต่ำสุดและสูงสุด</string>
+    <string name="save_record_file">บันทึกไฟล์ FM ไปยัง \"<xliff:g id="record_file">%1$s</xliff:g>\" แล้ว</string>
+    <string name="fm_search_no_results">ไม่มีสถานีที่เข้ากันได้</string>
+    <string name="typ_All_stations">สถานีทั้งหมด</string>
+    <string name="typ_Culture">วัฒนธรรม</string>
+    <string name="typ_Current_affairs">เหตุการณ์ปัจจุบัน</string>
+    <string name="typ_Children">สำหรับเด็ก</string>
+    <string name="typ_Country">ดนตรีคันทรี่</string>
+    <string name="typ_Documentary">สารคดี</string>
+    <string name="typ_Drama">ดราม่า</string>
+    <string name="typ_Easy_listening">แนวเพลงฟังง่าย</string>
+    <string name="typ_Education">การศึกษา</string>
+    <string name="typ_Emergency">ฉุกเฉิน</string>
+    <string name="typ_Emergency_test">ทดสอบฉุกเฉิน</string>
+    <string name="typ_Finance">การเงิน</string>
+    <string name="typ_Folk">ดนตรีโฟล์ค</string>
+    <string name="typ_Information">ข้อมูล</string>
+    <string name="typ_Jazz">แนวเพลงแจ๊ส</string>
+    <string name="typ_Light_classical">คลาสสิกเบา ๆ</string>
+    <string name="typ_Leisure">เพื่อการพักผ่อน</string>
+    <string name="typ_News">ข่าว</string>
+    <string name="typ_National">เพลงประจำชาติ</string>
+    <string name="typ_Other">เพลงแนวอื่น</string>
+    <string name="typ_Oldies">แนวเพลงเก่า</string>
+    <string name="typ_Phone_in">โทรเข้า</string>
+    <string name="typ_Pop">เพลงป๊อป</string>
+    <string name="typ_Religion">ศาสนา</string>
+    <string name="typ_Rock">เพลงร็อค</string>
+    <string name="typ_Science">วิทยาศาสตร์</string>
+    <string name="typ_Serious_classical">คลาสสิกนุ่มลึก</string>
+    <string name="typ_Social_affairs">กิจการทางสังคม</string>
+    <string name="typ_Sport">กีฬา</string>
+    <string name="typ_Travel">การเดินทาง</string>
+    <string name="typ_Varied">แบบต่าง ๆ</string>
+    <string name="typ_Weather">สภาพอากาศ</string>
+    <string name="typ_Adult_hits">เพลงฮิตผู้ใหญ่</string>
+    <string name="typ_Classical">คลาสสิก</string>
+    <string name="typ_Classic_Rock">คลาสสิกร็อค</string>
+    <string name="typ_College">วิทยาลัย</string>
+    <string name="typ_Foreign_language">ภาษาต่างประเทศ</string>
+    <string name="typ_Hiphop">ฮิปฮอป</string>
+    <string name="typ_Nostalgia">คิดถึงบ้าน</string>
+    <string name="typ_Personality">บุคลิกลักษณะ</string>
+    <string name="typ_Public">สาธารณะ</string>
+    <string name="typ_Religious_music">เพลงทางศาสนา</string>
+    <string name="typ_Religious_talk">สนทนาทางศาสนา</string>
+    <string name="typ_Rhythm_and_Blues">แนวริทึมแอนด์บลูส์</string>
+    <string name="typ_Spanish_music">แนวเพลงสเปน</string>
+    <string name="typ_Spanish_talk">การสนทนาภาษาสเปน</string>
+    <string name="typ_Soft">ซอฟต์</string>
+    <string name="typ_Soft_Rock">ซอฟต์ร็อค</string>
+    <string name="typ_Soft_Rhythm_and_Blues">แนวซอฟต์ริทึมแอนด์บลูส์</string>
+    <string name="typ_Sports">กีฬา</string>
+    <string name="typ_Talk">สนทนา</string>
+    <string name="typ_Top_40">40 อันดับสูงสุด</string>
+</resources>

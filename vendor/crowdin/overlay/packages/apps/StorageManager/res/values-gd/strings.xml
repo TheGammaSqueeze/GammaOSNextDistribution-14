@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2016 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Manaidsear an stòrais</string>
+    <string name="cancel">Sguir dheth</string>
+    <string name="storage_menu_free">Saor àite</string>
+    <string name="deletion_helper_title">Thoir nithean air falbh</string>
+    <string name="deletion_helper_app_summary"><xliff:g id="days" example="67">%1$d</xliff:g> là(ithean) air ais</string>
+    <string name="deletion_helper_app_summary_item_size"><xliff:g id="used" example="1.2GB">%1$s</xliff:g></string>
+    <string name="deletion_helper_app_summary_never_used">Gun chleachdadh fad bliadhna</string>
+    <string name="deletion_helper_app_summary_unknown_used">Gun chinnt cuin a chaidh a chleachdadh an turas mu dheireadh</string>
+    <string name="deletion_helper_free_button">Saor <xliff:g id="freeable" example="1.2GB">%1$s</xliff:g></string>
+    <string name="deletion_helper_photos_title">Lethbhreacan-glèidhidh de dhealbhan ⁊ videothan</string>
+    <string name="deletion_helper_photos_age_summary">Nas sine na 30 latha</string>
+    <string name="deletion_helper_photos_summary"><xliff:g id="used" example="1.2GB">%1$s</xliff:g></string>
+    <string name="deletion_helper_downloads_title">Luchdaidhean a-nuas</string>
+    <string name="deletion_helper_downloads_category_summary"><xliff:g id="used" example="1.2GB">%1$s</xliff:g></string>
+    <string name="deletion_helper_downloads_summary_empty"><xliff:g id="used" example="1.2GB">%1$s</xliff:g></string>
+    <string name="deletion_helper_clear_dialog_title">Saor àite</string>
+    <string name="deletion_helper_clear_dialog_message">Thèid <xliff:g id="clearable_bytes" example="1.2GB">%1$s</xliff:g> a shusbaint a thoirt air falbh on uidheam agad</string>
+    <string name="deletion_helper_clear_dialog_remove">Saor àite</string>
+    <string name="deletion_helper_upsell_title">An dèid an an stòras a stiùireadh gu fèin-obrachail?</string>
+    <string name="deletion_helper_upsell_summary">Tha <xliff:g id="used" example="1.2GB">%1$s</xliff:g> saor a-nis. An leig thu le manaidsear an stòrais àite a shaoradh gu fèin-obrachail agus e a’ toirt air falbh lethbhreacan-glèidhidh de shusbaint on uidheam agad?</string>
+    <string name="deletion_helper_upsell_cancel">Na dèan seo</string>
+    <string name="deletion_helper_upsell_activate">Cuir air</string>
+    <string name="deletion_helper_apps_group_title">Aplacaidean ’gan cleachdadh gu h-ainneamh</string>
+    <string name="deletion_helper_apps_group_summary"><xliff:g id="used" example="1.2GB">%1$s</xliff:g></string>
+    <string name="deletion_helper_automatic_title">Fèin-obrachail</string>
+    <string name="deletion_helper_manual_title">A làimh</string>
+    <string name="deletion_helper_preference_title">Saor àite an-dràsta</string>
+    <string name="automatic_storage_manager_service_label">Seirbheis stiùireadh fèin-obrachail an stòrais</string>
+    <string name="automatic_storage_manager_notification_title" product="default">Tha an t-àite a’ fàs gann air an fhòn agad</string>
+    <string name="automatic_storage_manager_notification_title" product="tablet">Tha an t-àite a’ fàs gann air an tablaid agad</string>
+    <string name="automatic_storage_manager_notification_summary">Leig le manaidsear an stòrais àite a shaoradh gu fèin-obrachail le toirt air falbh seann-dealbhan is videothan nuair a bhios am fòn agad gu bhith làn a-rithist.</string>
+    <string name="automatic_storage_manager_cancel_button">Na dèan seo</string>
+    <string name="automatic_storage_manager_activate_button">Cuir air</string>
+    <string name="deletion_helper_photos_loading_title">Lethbhreacan-glèidhidh de dhealbhan ⁊ videothan</string>
+    <string name="deletion_helper_photos_loading_summary">A’ lorg nithean…</string>
+    <string name="deletion_helper_no_threshold">Show all items</string>
+    <string name="deletion_helper_default_threshold">Falaich nithean o chionn goirid</string>
+    <string name="deletion_helper_clear_dialog_message_first_time">Thèid <xliff:g id="clearable_bytes" example="1.2GB">%1$s</xliff:g> a shusbaint a thoirt air falbh on uidheam agad</string>
+    <string name="automatic_storage_manager_activation_warning">Tha an stòras agad fo stiùireadh manaidsear an stòrais a-nis</string>
+    <string name="empty_state_title">Gun dad ri thoirt air falbh</string>
+    <string name="empty_state_review_items_link">Sgrùd nithean o chionn goirid</string>
+    <string name="empty_state_summary">Chan eil seann-fhaidhlichean ri an toirt air falbh ann. Airson àite a shaoradh, thoir air falbh dealbhan, videothan is aplacaidean o chionn goirid.</string>
+    <string name="app_requesting_space">Feumaidh <xliff:g id="app" example="Dialer">%1$s</xliff:g> <xliff:g id="clearable_bytes" example="1.2GB">%2$s</xliff:g> a dh’àite</string>
+</resources>

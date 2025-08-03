@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2006 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label">Agenda</string>
+    <string name="when_label">Wanneer</string>
+    <string name="today">Vandaag</string>
+    <string name="tomorrow">Morgen</string>
+    <string name="today_at_time_fmt">"Vandaag om <xliff:g id="TIME_INTERVAL">%s</xliff:g>"</string>
+    <string name="tomorrow_at_time_fmt">"Morgen om <xliff:g id="TIME_INTERVAL">%s</xliff:g>"</string>
+    <string name="date_time_fmt">"<xliff:g id="DATE">%1$s</xliff:g>, <xliff:g id="TIME_INTERVAL">%2$s</xliff:g>"</string>
+    <string name="no_title_label">(Geen titel)</string>
+    <string name="no_reminder_label">Geen</string>
+    <string name="no_snooze_label">Geen</string>
+    <plurals name="Nminutes">
+        <item quantity="one">1 minuut</item>
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> minuten</item>
+    </plurals>
+    <plurals name="Nmins">
+        <item quantity="one">1 min.</item>
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> min.</item>
+    </plurals>
+    <plurals name="Nhours">
+        <item quantity="one">1 uur</item>
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> uur</item>
+    </plurals>
+    <plurals name="Ndays">
+        <item quantity="one">1 dag</item>
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> dagen</item>
+    </plurals>
+    <plurals name="Nweeks">
+        <item quantity="one">1 week</item>
+        <item quantity="other"><xliff:g id="count">%d</xliff:g> weken</item>
+    </plurals>
+    <plurals name="weekN">
+        <item quantity="one">Week <xliff:g id="count">%d</xliff:g></item>
+        <item quantity="other">Week <xliff:g id="count">%d</xliff:g></item>
+    </plurals>
+    <string name="calendar_refresh">"Vernieuw"</string>
+    <string name="show_day_view">"Geef dag weer"</string>
+    <string name="agenda_view">"Agenda"</string>
+    <string name="day_view">"Dag"</string>
+    <string name="week_view">"Week"</string>
+    <string name="month_view">"Maand"</string>
+    <string name="event_view">"Afspraak weergeven"</string>
+    <string name="event_create">"Nieuwe afspraak"</string>
+    <string name="event_edit">"Bewerken"</string>
+    <string name="event_delete">"Afspraak verwijderen"</string>
+    <string name="share_label">Deel</string>
+    <string name="goto_today">"Vandaag"</string>
+    <string name="goto_date">Ga naar\u2026</string>
+    <string name="menu_preferences">"Instellingen"</string>
+    <string name="menu_info">info</string>
+    <string name="search">"Zoeken"</string>
+    <string name="hide_controls">"Bediening verbergen"</string>
+    <string name="show_controls">"Bediening weergeven"</string>
+    <string name="view_settings">"Bekijk instellingen"</string>
+    <string name="select_synced_calendars_button">Agenda\'s om te synchroniseren</string>
+    <string name="hint_what">"Afspraaknaam"</string>
+    <string name="hint_where">"Locatie"</string>
+    <string name="hint_description">"Beschrijving"</string>
+    <string name="hint_url">"URL"</string>
+    <string name="hint_attendees">"Gasten"</string>
+    <string name="creating_event">"Afspraak gemaakt."</string>
+    <string name="saving_event">"Afspraak opgeslagen."</string>
+    <string name="empty_event">"Lege afspraak niet gemaakt."</string>
+    <string name="creating_event_with_guest">"Uitnodigingen worden verzonden."</string>
+    <string name="saving_event_with_guest">"Updates worden verzonden."</string>
+    <string name="rsvp_accepted">"Gereageerd met ja."</string>
+    <string name="rsvp_tentative">"Gereageerd met misschien."</string>
+    <string name="rsvp_declined">"Gereageerd met nee."</string>
+    <string name="create_event_dialog_save">Opslaan</string>
+    <string name="alert_title">Agenda-herinneringen</string>
+    <string name="foreground_notification_title">Nieuwe herinneringen plannen…</string>
+    <string name="foreground_notification_channel_name">Achtergrondtaken</string>
+    <string name="foreground_notification_channel_description">Meldingen vereist voor interne synchronisatie. U kunt dit kanaal veilig verbergen.</string>
+    <string name="event_info_title">Afspraak weergeven</string>
+    <string name="event_info_title_invite">Uitnodiging voor vergadering</string>
+    <string name="edit_event_all_day_label">De hele dag</string>
+    <string name="edit_event_calendar_label">Agenda</string>
+    <string name="presence_label">Mij weergeven als</string>
+    <string name="privacy_label">Privacy</string>
+    <string name="reminders_label">Herinnering toevoegen</string>
+    <string name="no_syncable_calendars">Geen agenda\'s</string>
+    <string name="no_calendars_found">Voordat je een afspraak kunt toevoegen moet je minimaal één kalender aan je apparaat toevoegen</string>
+    <string name="add_calendar">Voeg kalender toe</string>
+    <string name="view_event_calendar_label">Agenda:</string>
+    <string name="view_event_organizer_label">Organisator:</string>
+    <string name="choose_event_color_label">Kleur voor afspraak kiezen</string>
+    <string name="event_color_picker_dialog_title">Kleur voor afspraak</string>
+    <string name="event_color_set_to_default">Instellen als standaardkleur voor agenda</string>
+    <string name="calendar_color_picker_dialog_title">Kleur voor agenda</string>
+    <string name="calendar_square_color_picker_description">Kleurenkiezer</string>
+    <string name="view_event_response_label">Aanwezig?</string>
+    <string name="response_yes">Ja</string>
+    <string name="response_maybe">Misschien</string>
+    <string name="response_no">Nee</string>
+    <string name="email_guests_label">Gasten e-mailen</string>
+    <string name="email_organizer_label">Organisator e-mailen</string>
+    <string name="email_picker_label">E-mail met</string>
+    <string name="event_not_found">"Afspraak niet gevonden."</string>
+    <string name="map_label">Kaart</string>
+    <string name="no_map">Er is geen kaarten-app geïnstalleerd</string>
+    <string name="call_label">Bellen</string>
+    <string name="quick_response_settings">Snelle reacties</string>
+    <string name="quick_response_settings_summary">Standaardreacties bewerken voor het e-mailen van gasten</string>
+    <string name="quick_response_settings_edit_title">Snelle reactie</string>
+    <string name="quick_response_dialog_title">Snelle reactie kiezen</string>
+    <string name="quick_response_email_failed">Het vinden van een e-mailprogramma is mislukt</string>
+    <string-array name="quick_response_defaults">
+        <item>Ik ben een paar minuten te laat.</item>
+        <item>Ik ben er over ongeveer 10 minuten.</item>
+        <item>Begin maar vast zonder mij.</item>
+        <item>Ik red het helaas niet. Laten we een nieuwe afspraak maken.</item>
+    </string-array>
+    <string name="quick_response_custom_msg">Eigen reactie opstellen…</string>
+    <string name="event_info_organizer">Organisator:</string>
+    <string name="event_info_reminders_label">Herinneringen</string>
+    <string name="agenda_today">VANDAAG, <xliff:g id="DATE">%1$s</xliff:g></string>
+    <string name="agenda_yesterday">GISTEREN, <xliff:g id="DATE">%1$s</xliff:g></string>
+    <string name="agenda_tomorrow">Morgen, <xliff:g id="DATE">%1$s</xliff:g></string>
+    <string name="loading">Laden...</string>
+    <string name="show_older_events">Raak aan om gebeurtenissen vóór <xliff:g id="OLDEST_SEARCH_RANGE">%1$s</xliff:g> weer te geven</string>
+    <string name="show_newer_events">Raak aan om gebeurtenissen na <xliff:g id="NEWEST_SEARCH_RANGE">%1$s</xliff:g> weer te geven</string>
+    <string name="search_title">Zoeken in mijn agenda\'s</string>
+    <string name="edit_event_label">"Details"</string>
+    <string name="edit_label">"Bewerken"</string>
+    <string name="delete_label">"Verwijderen"</string>
+    <string name="duplicate_label">Duplicaat</string>
+    <string name="save_label">Gereed</string>
+    <string name="discard_label">Annuleren</string>
+    <string name="dismiss_all_label">"Allemaal verwijderen"</string>
+    <string name="snooze_label">"Snooze"</string>
+    <string name="does_not_repeat">Eenmalige afspraak</string>
+    <string name="endByDate">; tot <xliff:g id="DATE">%s</xliff:g></string>
+    <plurals name="endByCount">
+        <item quantity="one">; één keer</item>
+        <item quantity="other">; <xliff:g id="NUMBER">%d</xliff:g> keer</item>
+    </plurals>
+    <plurals name="daily">
+        <item quantity="one">Dagelijks</item>
+        <item quantity="other">Elke <xliff:g id="NUMBER">%d</xliff:g> dagen</item>
+    </plurals>
+    <string name="every_weekday">"Elke werkdag (ma - vr)"</string>
+    <plurals name="weekly">
+        <item quantity="one">Wekelijks op <xliff:g id="DAYS_OF_WEEK">%2$s</xliff:g></item>
+        <item quantity="other">Elke <xliff:g id="NUMBER">%1$d</xliff:g> weken op <xliff:g id="DAYS_OF_WEEK">%2$s</xliff:g></item>
+    </plurals>
+    <string name="monthly">Maandelijks</string>
+    <string name="yearly_plain">Jaarlijks</string>
+    <string name="custom" product="default">"Aangepast (kan niet op de telefoon worden aangepast)"</string>
+    <string name="modify_event">Alleen deze afspraak wijzigen</string>
+    <string name="modify_all">Alle afspraken in de reeks wijzigen</string>
+    <string name="modify_all_following">Deze en alle toekomstige afspraken wijzigen</string>
+    <string name="new_event_dialog_label">"Nieuwe afspraak"</string>
+    <string name="new_event_dialog_option">"Nieuwe afspraak"</string>
+    <string name="delete_this_event_title">Deze afspraak verwijderen?</string>
+    <string name="delete_recurring_event_title"><xliff:g id="EVENTTITLE">%s</xliff:g> verwijderen?</string>
+    <string name="change_response_title">Reactie wijzigen</string>
+    <string name="preferences_title">"Instellingen"</string>
+    <string name="preferences_general_title">Instelling agendaweergave</string>
+    <string name="preferences_month_view_portrait">Lay-out van de maand bekijken (Portrait)</string>
+    <string name="preferences_month_view_landscape">Lay-out van de maandelijkse weergave (liggend)</string>
+    <string name="preferences_theme">Thema</string>
+    <string name="preferences_system_theme">Systeemstandaard</string>
+    <string name="preferences_light_theme">Licht</string>
+    <string name="preferences_dark_theme">Donker</string>
+    <string name="preferences_black_theme">Zwart</string>
+    <string name="preferences_color">Hoofdkleur</string>
+    <string name="preferences_color_pick">Hoofdkleur</string>
+    <string name="preferences_real_event_colors">Echte gebeurteniskleuren gebruiken</string>
+    <string name="preferences_pure_black_night_mode">Puur zwarte nachtmodus</string>
+    <string name="preferences_reminder_title">Meldingen en herinneringen</string>
+    <string name="preferences_hide_declined_title">Geweigerde afspraken verbergen</string>
+    <string name="default_start_title">Standaardweergave</string>
+    <string name="display_options">Weergave-opties</string>
+    <string name="display_time">Weergavetijd</string>
+    <string name="display_location">Locatie weergeven</string>
+    <string name="maximum_number_of_lines">Maximaal aantal regels in afspraak</string>
+    <string name="default_start_last">Eerder gebruikte weergave</string>
+    <string name="preferences_week_start_day_title">Week begint op</string>
+    <string name="preferences_week_start_day_dialog">Week begint op</string>
+    <string name="preferences_days_per_week_title">Dagen per week</string>
+    <string name="preferences_days_per_week_dialog">Dagen per week</string>
+    <string name="preferences_default_event_duration_title">Standaard afspraakduur</string>
+    <string name="preferences_clear_search_history_title">Zoekgeschiedenis wissen</string>
+    <string name="preferences_clear_search_history_summary">Alle uitgevoerde zoekopdrachten verwijderen</string>
+    <string name="search_history_cleared">Zoekgeschiedenis gewist.</string>
+    <string name="preferences_alerts_title">Meldingen</string>
+    <string name="preferences_alerts_vibrateWhen_title">Trillen</string>
+    <string name="preferences_alerts_ringtone_title">Geluid</string>
+    <string name="preferences_alerts_popup_title">Pop-upmelding</string>
+    <string name="preferences_default_reminder_title">Herinneringstijd</string>
+    <string name="preferences_default_reminder_dialog">Herinneringstijd</string>
+    <string name="preferences_default_reminder_default">10</string>
+    <string name="preferences_use_home_tz_title">Eigen tijdzone gebruiken</string>
+    <string name="preferences_use_home_tz_descrip">Op reis agenda\'s en afspraaktijden weergeven in tijdzone van thuis</string>
+    <string name="preferences_home_tz_title">Eigen tijdzone</string>
+    <string name="preferences_show_week_num_title">Weeknummer weergeven</string>
+    <string name="preferences_alerts_custom_snooze_delay_title">Sluimertijd vragen</string>
+    <string name="preferences_alerts_custom_snooze_delay_summary_on">Vraag sluimertijdverlenging voor gesluimerde herinneringen</string>
+    <string name="preferences_alerts_custom_snooze_delay_summary_off">Altijd de standaard sluimertijd gebruiken</string>
+    <string name="snooze_delay_dialog_title">Sluimertijd instellen</string>
+    <string name="preferences_default_snooze_delay_title">Standaard sluimertijd</string>
+    <string name="preferences_default_snooze_delay_dialog">Standaard sluimertijd</string>
+    <string name="app_copyright">\u00a9 2015-<xliff:g>%1$s</xliff:g> Het Etar Project. Porties \u00a9 2005-<xliff:g>%1$s</xliff:g> Het Android Open Source Project.</string>
+    <string name="authors">Auteurs</string>
+    <string name="changelog">Wijzigingen</string>
+    <string name="license">Licentie</string>
+    <string name="preferences_build_version">Build-versie</string>
+    <string name="preferences_issues">Meldt problemen</string>
+    <string name="source_code">Bron</string>
+    <plurals name="month_more_events">
+        <item quantity="one">"+1"</item>
+        <item quantity="other">+<xliff:g id="NUMBER">%d</xliff:g></item>
+    </plurals>
+    <string name="gadget_no_events">Geen lopende agenda-afspraken</string>
+    <string name="preferences_experimental_category">Experimenteel</string>
+    <string name="preferences_reminders_responded_label">Herinneringen overslaan</string>
+    <string name="preferences_reminders_responded_dialog">Herinneringen overslaan</string>
+    <string name="copy_db">Database verzenden</string>
+    <string name="directory_searching_fmt"><xliff:g id="DOMAIN">%s</xliff:g> zoeken…</string>
+    <string name="accessibility_remove_attendee">Deelnemer verwijderen</string>
+    <string name="accessibility_pick_start_date">Startdatum</string>
+    <string name="accessibility_pick_start_time">Begintijd</string>
+    <string name="accessibility_pick_end_date">Einddatum</string>
+    <string name="accessibility_pick_end_time">Eindtijd</string>
+    <string name="accessibility_pick_time_zone">Tijdzone</string>
+    <string name="accessibility_pick_recurrence">Afspraak herhalen</string>
+    <string name="accessibility_add_reminder">Herinnering toevoegen</string>
+    <string name="accessibility_remove_reminder">Herinnering verwijderen</string>
+    <string name="accessibility_add_attendee">Deelnemer toevoegen</string>
+    <string name="accessibility_all_day">Afspraak die de hele dag duurt</string>
+    <string name="accessibility_reminder_time">Herinneringstijd</string>
+    <string name="accessibility_reminder_type">Type herinnering</string>
+    <string name="accessibility_reminder_showmeas">Mij weergeven als</string>
+    <string name="accessibility_reminder_privacy">Privacy</string>
+    <string name="day_view_new_event_hint">+ Nieuwe afspraak</string>
+    <string name="template_announce_item_index">Afspraak <xliff:g id="ITEM_INDEX">%1$s</xliff:g> van <xliff:g id="ITEM_COUNT">%2$s</xliff:g>.</string>
+    <plurals name="Nevents">
+        <item quantity="one">1 afspraak</item>
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> afspraken</item>
+    </plurals>
+    <plurals name="N_remaining_events">
+        <item quantity="one">+1 afspraak</item>
+        <item quantity="other">+<xliff:g id="COUNT">%d</xliff:g> afspraken</item>
+    </plurals>
+    <string name="acessibility_selected_marker_description">Geselecteerde afspraak</string>
+    <plurals name="recurrence_interval_daily">
+        <item quantity="one">Elke <xliff:g id="COUNT">%d</xliff:g> dag</item>
+        <item quantity="other">Elke <xliff:g id="COUNT">%d</xliff:g> dagen</item>
+    </plurals>
+    <plurals name="recurrence_interval_weekly">
+        <item quantity="one">Elke <xliff:g id="COUNT">%d</xliff:g> week</item>
+        <item quantity="other">Elke <xliff:g id="COUNT">%d</xliff:g> weken</item>
+    </plurals>
+    <plurals name="recurrence_interval_monthly">
+        <item quantity="one">Elke <xliff:g id="COUNT">%d</xliff:g> maand</item>
+        <item quantity="other">Elke <xliff:g id="COUNT">%d</xliff:g> maanden</item>
+    </plurals>
+    <plurals name="recurrence_interval_yearly">
+        <item quantity="one">Elk <xliff:g id="COUNT">%d</xliff:g> jaar</item>
+        <item quantity="other">Elke <xliff:g id="COUNT">%d</xliff:g> jaar</item>
+    </plurals>
+    <string name="recurrence_month_pattern_by_day">elke maand op dezelfde dag</string>
+    <string name="recurrence_end_continously">Voor altijd</string>
+    <string name="recurrence_end_date_label">Tot een datum</string>
+    <string name="recurrence_end_date">Tot <xliff:g id="DATE">%s</xliff:g></string>
+    <string name="recurrence_end_count_label">Voor een aantal evenementen</string>
+    <plurals name="recurrence_end_count">
+        <item quantity="one">Voor <xliff:g id="EVENT_COUNT">%d</xliff:g> afspraak</item>
+        <item quantity="other">Voor <xliff:g id="EVENT_COUNT">%d</xliff:g> evenementen</item>
+    </plurals>
+    <string name="acessibility_recurrence_choose_end_date_description">einddatum wijzigen</string>
+    <string name="user_rejected_calendar_write_permission">Kalender vereist dat u lees- en schrijfrechten hebt om correct te werken. Probeer het opnieuw.</string>
+    <string name="calendar_permission_not_granted">Vereiste machtigingen werden geweigerd, schakel ze in bij Instellingen om afspraak aan te passen.</string>
+    <string name="visibility_default">Standaard</string>
+    <string name="visibility_confidential">Vertrouwelijk</string>
+    <string name="visibility_private">Privé</string>
+    <string name="visibility_public">Openbaar</string>
+    <string name="two_days">2 dagen</string>
+    <string name="three_days">3 dagen</string>
+    <string name="four_days">4 dagen</string>
+    <string name="five_days">5 dagen</string>
+    <string name="six_days">6 dagen</string>
+    <string name="seven_days">7 dagen</string>
+    <string name="zero_minutes">0 minuten</string>
+    <string name="fifteen_minutes">15 minuten</string>
+    <string name="thirty_minutes">30 minuten</string>
+    <string name="one_hour">1 uur</string>
+    <string name="one_and_a_half_hours">1,5 uur</string>
+    <string name="two_hours">2 uur</string>
+    <string name="error_generating_ics">Problemen ondervonden tijdens het delen van gebeurtenis</string>
+    <string name="cal_share_intent_title">Gebeurtenis verzenden naar:</string>
+    <string name="cal_export_event_sdcard_title">Exporteer naar SD Card</string>
+    <string name="cal_export_succ_msg">Afspraak met succes geëxporteerd: %1$s</string>
+    <string name="cal_import_menu_title">Importeer afspraak</string>
+    <string name="cal_nothing_to_import">Niets om te importeren</string>
+    <string name="cal_import_error_msg">Importeren naar agenda mislukt</string>
+    <string name="cal_import_error_time_zone_msg">Begrijp de gegeven tijdzone niet: %s</string>
+    <string name="cal_import_error_date_msg">Begrijp de gegeven datum niet: %s</string>
+    <string name="cal_pick_ics">Kies bestand om te importeren</string>
+    <string name="show_time_no">Geef tijd niet weer</string>
+    <string name="show_time_start">Alleen starttijd</string>
+    <string name="show_time_start_end">Start- en eindtijd</string>
+    <string name="show_time_start_end_below">Start- en eindtijd onder de afspraak</string>
+    <string name="preferences_calendar_no_display_name">Naamloze kalender</string>
+    <string name="preferences_calendar_account">%1$s account</string>
+    <string name="preferences_calendar_account_local">Offline kalender</string>
+    <string name="preferences_calendar_configure_account">Configureer kalender in %1$s</string>
+    <string name="preferences_calendar_number_of_events">%1$d afspraken</string>
+    <string name="preferences_calendar_delete">Verwijder kalender</string>
+    <string name="preferences_calendar_display_name">Verander naam</string>
+    <string name="preferences_calendar_info_category">Kalender informatie</string>
+    <string name="preferences_calendar_color">Kleur</string>
+    <string name="preferences_calendar_visible">Toon afspraken</string>
+    <string name="preferences_manage_notifications">Beheer meldingen</string>
+    <string name="preferences_calendar_synchronize">Synchroniseer deze kalender</string>
+    <string name="preferences_calendar_color_warning_title">Waarschuwing</string>
+    <string name="preferences_calendar_color_warning_message">Het wijzigen van de kleur kan ongedaan worden gemaakt wanneer de kalender opnieuw wordt gesynchroniseerd.\n\nIn DAVx5 \'Kalenderkleuren beheren\' kan worden uitgeschakeld om dit te voorkomen.</string>
+    <string name="preferences_calendar_color_warning_button">Ik begrijp het</string>
+    <string name="preferences_calendar_delete_message">Weet u zeker dat u deze kalender wilt verwijderen?</string>
+    <string name="preferences_calendar_delete_delete">Agenda verwijderen</string>
+    <string name="preferences_calendar_delete_cancel">Annuleer</string>
+    <string name="preferences_list_calendar_summary_sync_off">Niet gesynchroniseerd</string>
+    <string name="preferences_list_calendar_summary_invisible">Afspraken worden niet weergegeven</string>
+    <string name="preferences_list_general">Algemene instellingen</string>
+    <string name="preferences_list_add_remote">CalDAV agenda toevoegen</string>
+    <string name="preferences_list_add_remote_etesync">EteSync kalender toevoegen</string>
+    <string name="preferences_list_add_offline">Voeg off-line kalender toe</string>
+    <string name="preferences_list_add_offline_title">Voeg off-line kalender toe</string>
+    <string name="preferences_list_add_offline_error_empty">Voer een kalendernaam in!</string>
+    <string name="preferences_list_add_offline_message">Offline kalenders zijn NIET gesynchroniseerd met een cloud service en alleen beschikbaar op uw telefoon.</string>
+    <string name="preferences_list_add_offline_button">Voeg kalender toe</string>
+    <string name="preferences_list_add_offline_name">Naam</string>
+    <string name="preferences_list_add_offline_cancel">Annuleer</string>
+    <string name="preferences_menu_about">Over kalender</string>
+    <string name="offline_account_name">Offline kalender</string>
+    <string name="after_start_of_event">na het begin van een gebeurtenis</string>
+    <string name="preferences_do_not_check_battery_optimization">Accuoptimalisatie niet controleren</string>
+    <string name="preferences_do_not_check_battery_optimization_summary">Gebruik op eigen risico! Notificaties zullen niet langer werken, widgets worden niet anger bijgewerkt en achtergrond services zullen crashen. Maar u zult niet opnieuw gevraagd worden als u de achtergrondservice wilt activeren.</string>
+    <string name="calendars">Kalenders</string>
+    <string name="discard_event_changes">Wilt u de wijzigingen ongedaan maken?</string>
+    <string name="discard">Negeer</string>
+    <string name="cancel">Annuleren</string>
+</resources>

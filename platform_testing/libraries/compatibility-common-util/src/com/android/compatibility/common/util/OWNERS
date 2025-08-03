@@ -1,0 +1,6 @@
+per-file ReasonType.java = set noparent
+per-file ReasonType.java = ape-relpgm-cls@google.com
+per-file BackupUtils.java = set noparent
+per-file BackupUtils.java = file:platform/frameworks/base:/services/backup/OWNERS
+per-file LogcatInspector.java = set noparent
+per-file LogcatInspector.java = file:platform/frameworks/base:/services/backup/OWNERS

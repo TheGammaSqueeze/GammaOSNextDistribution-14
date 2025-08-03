@@ -1,0 +1,25 @@
+@RunWith(AndroidJUnit4.class)
+public final class SampleTest {
+
+    @Test
+    @TestAnnotation1
+    @Postsubmit(reason="new test")
+    public void annotation1_method1() {
+    }
+
+    @Test
+    @TestAnnotation1
+    public void annotation1_method2() {
+    }
+
+    @Test
+    @TestAnnotation2
+    @Postsubmit(reason="new test")
+    public void annotation2_method1() {
+    }
+
+    @Test
+    @TestAnnotation3
+    public void annotation3_method1() {
+    }
+}

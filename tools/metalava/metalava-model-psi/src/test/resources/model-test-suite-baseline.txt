@@ -1,0 +1,28 @@
+com.android.tools.metalava.model.testsuite.BootstrapSourceModelProviderTest
+  210 Test Method exception list[java,k1]
+  210 Test Method exception list[java,k2]
+
+com.android.tools.metalava.model.testsuite.annotationitem.CommonAnnotationItemTest
+  annotation with enum values[java,k1]
+  annotation with enum values[java,k2]
+
+com.android.tools.metalava.model.testsuite.propertyitem.CommonPropertyItemTest
+  Test property delegate to Kotlin object[kotlin,k2]
+
+com.android.tools.metalava.model.testsuite.typeitem.CommonTypeModifiersTest
+  Test inner parameterized types with annotations[java,k1]
+  Test inner parameterized types with annotations[java,k2]
+  Test nullability of outer classes[java,k1]
+  Test nullability of outer classes[java,k2]
+  Test nullability of varargs[kotlin,k1]
+  Test nullability of varargs[kotlin,k2]
+
+com.android.tools.metalava.model.testsuite.typeitem.CommonTypeParameterItemTest
+  Test type parameter with annotations[kotlin,k1]
+  Test type parameter with annotations[kotlin,k2]
+
+com.android.tools.metalava.model.testsuite.typeitem.CommonTypeStringTest
+  Type string[java,k1,null annotated parameterized inner type - annotated]
+  Type string[java,k1,null annotated parameterized inner type - kotlin nulls]
+  Type string[java,k2,null annotated parameterized inner type - annotated]
+  Type string[java,k2,null annotated parameterized inner type - kotlin nulls]

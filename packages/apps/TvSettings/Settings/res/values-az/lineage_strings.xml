@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017-2024 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="system_reboot_confirm_cm">Yenidən başlat:</string>
+    <string name="global_action_restart_system">Sistem</string>
+    <string name="global_action_restart_recovery">Geri qaytarma</string>
+    <string name="global_action_restart_bootloader">Bootloader</string>
+    <plurals name="show_dev_countdown_cm">
+        <item quantity="one">Tərtibatçı ayarlarını fəallaşdırmağa <xliff:g id="step_count">%1$d</xliff:g> addım qalıb</item>
+        <item quantity="other">Tərtibatçı ayarlarını fəallaşdırmağa <xliff:g id="step_count">%1$d</xliff:g> addım qalıb</item>
+    </plurals>
+    <string name="show_dev_on_cm">Tərtibatçı ayarlarını fəallaşdırdınız!</string>
+    <string name="show_dev_already_cm">Artıq tərtibatçı ayarlarını fəallaşdırmısınız.</string>
+    <string name="system_buttons">Düymәlәr</string>
+    <string name="power_button_long_press_action_title">Güc düyməsinə uzun basma hərəkəti</string>
+    <string name="power_button_long_press_for_power_menu_action">Güc menyusuna erişim</string>
+    <string name="power_button_long_press_for_assistant_action">Köməkçini aç</string>
+    <string name="inputs_volume_control_enabled">CEC Səs Kontrolu</string>
+    <string name="inputs_volume_control_enabled_desc">Daxili səsin əvəzinə TV/AVR səsini idarə et</string>
+    <string name="enable_adb_root">Rootlu sazlama</string>
+    <string name="enable_adb_root_summary">Android sazlamanın rootlu olaraq işləməsinə icazə ver</string>
+    <string name="advanced_restart_title">Qabaqcıl yenidən başlatma</string>
+    <string name="advanced_restart_summary">Geri qaytarma, bootloader və ya sistem üzrə yenidən başlatma seçimlərini göstər</string>
+    <string name="adb_over_network">Şəbəkə üzərindən ADB</string>
+    <string name="adb_over_network_summary">Şəbəkə interfeysləri (Wi\u2011Fi, USB şəbəkələri) üzərindən TCP/IP sazlamanı fəallaşdır. Bu ayar yenidən başladılanda sıfırlanır</string>
+    <string name="adb_over_network_warning">XƏBƏRDARLIQ: Şəbəkə üzərindən ADB fəal olduğu halda, telefonunuz bütün bağlantı qurulmuş şəbəkələrdə müdaxilələrə açıqdır!\n\nBu funksiya yalnız etibarlı şəbəkələrə bağlı olduğunuz zaman istifadə edin.\n\nHəqiqətən də bu özəliyi fəallaşdırmaq istəyirsiniz?</string>
+    <string name="trust_category_features">Status</string>
+    <string name="trust_feature_selinux">SELinux</string>
+    <string name="trust_feature_selinux_value_enforcing">Məcburi</string>
+    <string name="trust_feature_selinux_value_disabled">Sıradan çıxarıldı</string>
+    <string name="trust_feature_selinux_explain">SELinux, hansı əməliyyatların cihazınızda hansı fayllara/yollara müraciət edəcəyini müəyyənləşdirir.\nBu, tətbiqlərin və xidmətlərin aidiyyatı olmayan fayllara erişməsini əngəlləyir: bu yolla mümkün ola biləcək zərərli bir proses məhdudlaşdırılır və güvənliyiniz qorunur.</string>
+    <string name="trust_feature_security_patches">Android güvənlik yamaqları</string>
+    <string name="trust_feature_security_patches_value_base">Platform: %1$s\nİstehsalçı: %2$s</string>
+    <string name="trust_feature_security_patches_value_new">Güncəldir</string>
+    <string name="trust_feature_security_patches_value_medium">Bir neçə ay köhnəlib</string>
+    <string name="trust_feature_security_patches_value_old">Köhnəlib</string>
+    <string name="trust_feature_security_patches_explain">Güvənlik yamaqları Google tərəfindən, SoC satıcıları ilə əməkdaşlıq edilərək, güvənlik məhdudiyyətlərini ötürmək və cihazınıza zərər vurmaq məqsədilə zərərli tətbiqlər tərəfindən istismar edilə biləcək çatışmazlıqları aradan qaldırmaq üçün aylıq olaraq yayımlanır. Google tərəfindən hazırlanan yamaqlar hər ay bütün dəstəklənən cihazlara tətbiq olunur, ancaq xüsusi kodlu yamaqlar yalnız cihazınızın istehsalçısı tərəfindən tətbiq oluna bilər. Cihazınızı güvənli şəkildə saxlamaq üçün LineageOS quruluşunuzun həmişə güncəl olduğuna və (mümkündürsə) satıcı faylınızın LineageOS tərəfindən məsləhət görülən ən son versiyaya güncəlləndiyinə əmin olun.</string>
+    <string name="trust_feature_encryption">Şifrələmə</string>
+    <string name="trust_feature_encryption_value_enabled">Fəaldır</string>
+    <string name="trust_feature_encryption_value_nolock">Güvənli bir kilid ekranı lazımdır</string>
+    <string name="trust_feature_encryption_value_disabled">Sıradan çıxarıldı</string>
+    <string name="trust_feature_encryption_explain">Cihazınızın şifrələnməsi, telefonunuz Android-də başladılmadıqda verilərinizə erişməyinizi əngəlləyir. Bu xüsusilə telefonunuz oğurlandığı vaxt önəmlidir, beləcə mesajlarınızın, kontaktlarınızın və digər şəxsi məlumatlarınızın başqaları tərəfindən şifrəniz olmadan oxunmasının qarşısını alar.\nŞifrələməni daha effektiv etmək üçün təhlükəsiz bir kilid ekranı parolu ayarlamalısınız.</string>
+    <string name="trust_category_tools">Gizlilik</string>
+    <string name="trust_notification_alerts_title">Güvənlik xəbərdarlıqları</string>
+    <string name="trust_restrict_usb_title">USB-ni məhdudlaşdır</string>
+    <string name="trust_restrict_usb_summary">Qulaqlıq, anbar, giriş cihazları (maus, klaviatura, joystiklər) və ADB kimi USB bağlantıları üçün kontrol dəstəyi</string>
+    <string name="trust_restrict_usb_always">USB bağlantılarını rədd et</string>
+    <string name="trust_restrict_usb_disabled">USB bağlantılarına həmişə icazə ver</string>
+    <string name="trust_onboarding_description">Trust, cihazınızı güvəndə saxlamağa və gizliliyinizi qorumağa kömək edir.\n Trust ikonu, yalnız səhifənin məzmunu doğrulananda göstərilir.</string>
+    <string name="trust_warnings_alerts_intro">Xəbərdarlıq almaq istədiyiniz güvənlik məsələlərini seçə bilərsiniz. Güvənlik üçün bütün xəbərdarlıqları fəallaşdırmağınız məsləhətdir</string>
+    <string name="trust_warnings_selinux">SELinux statusu</string>
+    <string name="trust_warnings_keys">Quruluş imzası</string>
+    <string name="sleep_button_label">Yuxu</string>
+    <string name="system_sleep_confirm">İndi yuxu rejiminə keçilsin?</string>
+    <string name="shutdown_button_label">Söndür</string>
+    <string name="system_shutdown_confirm">İndi söndürülsün?</string>
+    <string name="convertible_port_busy_title">USB port 1 istifadədədir</string>
+    <string name="convertible_port_busy_warning">Bütün cihazları və ya aksesuarları cərəyan mənbəyindən ayırıb yenidən sınayın</string>
+    <string name="mtp_enable_title">USB istifadə edərək kompüterdəki SHIELD qovluqlarına erişmə</string>
+    <string name="mtp_enable_warning">USB port 1, artıq SHIELD-in bir kompüterə media cihazı olaraq bağlanması üçün konfiqurasiya edilib.\n\nBu port, artıq USB anbar vahidini və ya USB aksesuarlarını aşkarlamayacaq və doldurma cihazı üçün istifadə edilə bilməyəcək.</string>
+    <string name="mtp_retry_error">Uğursuz. Lütfən yenidən sınayın.</string>
+    <string name="mtp_summary">Bu rejimdə, USB portu digər istifadələr üçün işlək deyil</string>
+    <string name="mtp_title">USB istifadə edərək faylları bir kompüterə ötür</string>
+    <string name="mtp_unexpected_error">Gözlənilməz xəta. Lütfən daha sonra yenidən sınayın.</string>
+    <string name="usb_debugging_enable_title">USB sazlama fəaldır</string>
+    <string name="usb_debugging_enable_warning">USB port 1, artıq SHIELD-in bir kompüterə media cihazı olaraq bağlanması üçün konfiqurasiya edilib.\n\nBu port, artıq USB anbar vahidini və ya USB aksesuarlarını aşkarlamayacaq və doldurma cihazı üçün istifadə edilə bilməyəcək.</string>
+</resources>

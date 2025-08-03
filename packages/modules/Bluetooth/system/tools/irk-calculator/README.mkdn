@@ -1,0 +1,86 @@
+IRK Calculator
+==============
+author: optedoblivion@google.com
+
+This tool is used to verify an IRK + RPA pair and generate an RPA from an IRK.
+
+```
+irk-calculator 0.1.0
+
+USAGE:
+    irk-calculator --command <COMMAND> --irk <IRK> --address <ADDRESS>
+
+OPTIONS:
+    -a, --address <ADDRESS>
+    -c, --command <COMMAND>
+    -h, --help                 Print help information
+    -i, --irk <IRK>
+    -V, --version              Print version information
+```
+
+```
+Legend:
+
+IRK = Identity Resolving Key (see BT Spec for more)
+RPA = Resolvable Private Address (see BT spec for more)
+```
+
+Example Data:
+
+```
+IRK: 0102030405060708090a0b0c0d0e0f10
+RPA: 79:CB:92:70:BE:B3
+
+IRK: 0102030405060708090a0b0c0d0e0f10
+RPA: 58:9B:3E:A3:5B:24
+```
+
+Example Usage:
+
+```
+$ cargo build && RUST_BACKTRACE=1 ./target/debug/irk-calculator -c verify -a "79:CB:92:70:BE:B3" -i "0102030405060708090a0b0c0d0e0f10"
+ Verifying 0102030405060708090a0b0c0d0e0f10 and 79:CB:92:70:BE:B3
+ IRK Byte Array: [01, 02, 03, 04, 05, 06, 07, 08, 09, 0A, 0B, 0C, 0D, 0E, 0F, 10]
+ Address Byte Array: [79, CB, 92, 70, BE, B3]
+ prand: [79, CB, 92]
+ Given Hash: [70, BE, B3]
+ irk slice: [01, 02, 03, 04, 05, 06, 07, 08, 09, 0A, 0B, 0C, 0D, 0E, 0F, 10]
+ =====[ ah ]=====
+ K: [01, 02, 03, 04, 05, 06, 07, 08, 09, 0A, 0B, 0C, 0D, 0E, 0F, 10]
+ R: [79, CB, 92]
+ R': [00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 79, CB, 92]
+ =====[ e ]=====
+ key_reversed: [10, 0F, 0E, 0D, 0C, 0B, 0A, 09, 08, 07, 06, 05, 04, 03, 02, 01]
+ block: [00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 79, CB, 92]
+ e-block: [05, 5A, 53, 46, BB, 26, 28, 67, AC, 24, 73, 66, 41, 70, BE, B3]
+ =====[ /e ]=====
+ ED: [05, 5A, 53, 46, BB, 26, 28, 67, AC, 24, 73, 66, 41, 70, BE, B3]
+ ret: [70, BE, B3]
+ =====[ /ah ]=====
+ given hash: [70, BE, B3]
+ calcd hash: [70, BE, B3]
+ IRK + Address combination is valid: true
+
+$ cargo build && RUST_BACKTRACE=1 ./target/debug/irk-calculator -c verify -a "58:9B:3E:A3:5B:24" -i "0102030405060708090a0b0c0d0e0f10"
+ Verifying 0102030405060708090a0b0c0d0e0f10 and 58:9B:3E:A3:5B:24
+ IRK Byte Array: [01, 02, 03, 04, 05, 06, 07, 08, 09, 0A, 0B, 0C, 0D, 0E, 0F, 10]
+ Address Byte Array: [58, 9B, 3E, A3, 5B, 24]
+ prand: [58, 9B, 3E]
+ Given Hash: [A3, 5B, 24]
+ irk slice: [01, 02, 03, 04, 05, 06, 07, 08, 09, 0A, 0B, 0C, 0D, 0E, 0F, 10]
+ =====[ ah ]=====
+ K: [01, 02, 03, 04, 05, 06, 07, 08, 09, 0A, 0B, 0C, 0D, 0E, 0F, 10]
+ R: [58, 9B, 3E]
+ R': [00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 58, 9B, 3E]
+ =====[ e ]=====
+ key_reversed: [10, 0F, 0E, 0D, 0C, 0B, 0A, 09, 08, 07, 06, 05, 04, 03, 02, 01]
+ block: [00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 58, 9B, 3E]
+ e-block: [A9, EC, 77, CE, BB, BC, 24, A7, 45, 1E, 5E, 23, F7, A3, 5B, 24]
+ =====[ /e ]=====
+ ED: [A9, EC, 77, CE, BB, BC, 24, A7, 45, 1E, 5E, 23, F7, A3, 5B, 24]
+ ret: [A3, 5B, 24]
+ =====[ /ah ]=====
+ given hash: [A3, 5B, 24]
+ calcd hash: [A3, 5B, 24]
+ IRK + Address combination is valid: true
+```

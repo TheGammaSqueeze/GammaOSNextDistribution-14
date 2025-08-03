@@ -1,0 +1,23 @@
+# TODO(b/193504816): move this to compos APEX
+type compos, domain, coredomain, microdroid_payload;
+type compos_exec, exec_type, file_type, system_file_type;
+
+# Run derive_classpath in our domain
+allow compos derive_classpath_exec:file rx_file_perms;
+allow compos apex_mnt_dir:dir r_dir_perms;
+# Ignore harmless denials on /proc/self/fd
+dontaudit compos self:dir write;
+# See b/35323867#comment3
+dontaudit compos self:global_capability_class_set dac_override;
+
+# Allow settings system properties that ART expects.
+set_prop(compos, dalvik_config_prop_type)
+set_prop(compos, device_config_runtime_native_boot_prop)
+
+# Allow running odrefresh in its own domain
+domain_auto_trans(compos, odrefresh_exec, odrefresh)
+
+# Allow running compos_key_helper in its own domain
+domain_auto_trans(compos, compos_key_helper_exec, compos_key_helper)
+# And killing it on error
+allow compos compos_key_helper:process sigkill;

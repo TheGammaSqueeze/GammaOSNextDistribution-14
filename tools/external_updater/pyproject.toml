@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "external_updater"
+version = "0.1.0"
+description = "external_updater is a tool to automatically update libraries in external/."
+authors = ["The Android Open Source Project"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.8.0"
+pylint = "^3.0.3"
+pytest = "^8.0.0"
+
+[tool.pylint."MESSAGES CONTROL"]
+disable = [
+    "duplicate-code",
+    "fixme",
+    "missing-docstring",
+    "refactoring",
+]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

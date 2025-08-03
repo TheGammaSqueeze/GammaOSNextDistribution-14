@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2009 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="uid_label" msgid="8421971615411294156">"Медіа-файли"</string>
+    <string name="storage_description" msgid="4081716890357580107">"Локальна пам’ять"</string>
+    <string name="picker_app_label" msgid="1195424381053599122">"Інструмент вибору медіаносія"</string>
+    <string name="artist_label" msgid="8105600993099120273">"Виконавець"</string>
+    <string name="unknown" msgid="2059049215682829375">"Невідомо"</string>
+    <string name="root_images" msgid="5861633549189045666">"Зображення"</string>
+    <string name="root_videos" msgid="8792703517064649453">"Відео"</string>
+    <string name="root_audio" msgid="3505830755201326018">"Аудіо"</string>
+    <string name="root_documents" msgid="3829103301363849237">"Документи"</string>
+    <string name="permission_required" msgid="1460820436132943754">"Щоб змінити або видалити цей елемент, потрібен дозвіл."</string>
+    <string name="permission_required_action" msgid="706370952366113539">"Продовжити"</string>
+    <string name="grant_dialog_button_allow" msgid="1644287024501033471">"Надати"</string>
+    <string name="grant_dialog_button_deny" msgid="6190589471415815741">"Заборонити"</string>
+    <string name="permission_more_thumb" msgid="1938863829470531577">"{count,plural, =1{+<xliff:g id="COUNT_0">^1</xliff:g>}one{+<xliff:g id="COUNT_1">^1</xliff:g>}few{+<xliff:g id="COUNT_1">^1</xliff:g>}many{+<xliff:g id="COUNT_1">^1</xliff:g>}other{+<xliff:g id="COUNT_1">^1</xliff:g>}}"</string>
+    <string name="permission_more_text" msgid="2471785045095597753">"{count,plural, =1{І ще <xliff:g id="COUNT_0">^1</xliff:g> додатковий об’єкт}one{І ще <xliff:g id="COUNT_1">^1</xliff:g> додатковий об’єкт}few{І ще <xliff:g id="COUNT_1">^1</xliff:g> додаткові об’єкти}many{І ще <xliff:g id="COUNT_1">^1</xliff:g> додаткових об’єктів}other{І ще <xliff:g id="COUNT_1">^1</xliff:g> додаткового об’єкта}}"</string>
+    <string name="cache_clearing_dialog_title" msgid="8907893815183913664">"Видалити тимчасові файли додатків"</string>
+    <string name="cache_clearing_dialog_text" msgid="7057784635111940957">"Додаток <xliff:g id="APP_SEEKING_PERMISSION">%s</xliff:g> хоче видалити деякі тимчасові файли. Це може збільшити використання акумулятора або мобільного трафіку."</string>
+    <string name="cache_clearing_in_progress_title" msgid="6902220064511664209">"Видалення тимчасових файлів додатків…"</string>
+    <string name="clear" msgid="5524638938415865915">"Очистити"</string>
+    <string name="allow" msgid="8885707816848569619">"Дозволити"</string>
+    <string name="deny" msgid="6040983710442068936">"Заборонити"</string>
+    <string name="picker_browse" msgid="5554477454636075934">"Перегляд…"</string>
+    <string name="picker_settings" msgid="6443463167344790260">"Хмарний мультимедійний додаток"</string>
+    <string name="picker_settings_system_settings_menu_title" msgid="3055084757610063581">"Хмарний мультимедійний додаток"</string>
+    <string name="picker_settings_title" msgid="5647700706470673258">"Хмарний мультимедійний додаток"</string>
+    <string name="picker_settings_description" msgid="2916686824777214585">"Отримуйте доступ до медіаконтенту в хмарі, коли додаток або веб-сайт пропонує вибрати фотографії чи відео"</string>
+    <string name="picker_settings_selection_message" msgid="245453573086488596">"Постачальник медіаконтенту з хмари"</string>
+    <string name="picker_settings_no_provider" msgid="2582311853680058223">"Немає"</string>
+    <string name="picker_settings_toast_error" msgid="697274445512467469">"Не вдалося змінити хмарний мультимедійний додаток."</string>
+    <string name="picker_sync_notification_channel" msgid="1867105708912627993">"Інструмент вибору медіаносія"</string>
+    <string name="picker_sync_notification_title" msgid="1122713382122055246">"Інструмент вибору медіаносія"</string>
+    <string name="picker_sync_notification_text" msgid="8204423917712309382">"Синхронізація медіаносіїв…"</string>
+    <string name="add" msgid="2894574044585549298">"Додати"</string>
+    <string name="deselect" msgid="4297825044827769490">"Не вибирати"</string>
+    <string name="deselected" msgid="8488133193326208475">"Не вибрано"</string>
+    <string name="select" msgid="2704765470563027689">"Вибрати"</string>
+    <string name="selected" msgid="9151797369975828124">"Вибрано"</string>
+    <string name="select_up_to" msgid="6994294169508439957">"{count,plural, =1{Виберіть не більше ніж <xliff:g id="COUNT_0">^1</xliff:g> об’єкт}one{Виберіть не більше ніж <xliff:g id="COUNT_1">^1</xliff:g> об’єкт}few{Виберіть не більше ніж <xliff:g id="COUNT_1">^1</xliff:g> об’єкти}many{Виберіть не більше ніж <xliff:g id="COUNT_1">^1</xliff:g> об’єктів}other{Виберіть не більше ніж <xliff:g id="COUNT_1">^1</xliff:g> об’єкта}}"</string>
+    <string name="recent" msgid="6694613584743207874">"Нещодавні"</string>
+    <string name="picker_photos_empty_message" msgid="5980619500554575558">"Немає фото чи відео"</string>
+    <string name="picker_album_media_empty_message" msgid="7061850698189881671">"Немає підтримуваних фото чи відео"</string>
+    <string name="picker_albums_empty_message" msgid="8341079772950966815">"Немає альбомів"</string>
+    <string name="picker_view_selected" msgid="2266031384396143883">"Переглянути вибране"</string>
+    <string name="picker_photos" msgid="7415035516411087392">"Фото"</string>
+    <!-- no translation found for picker_videos (2886971435439047097) -->
+    <skip />
+    <string name="picker_albums" msgid="4822511902115299142">"Альбоми"</string>
+    <string name="picker_preview" msgid="6257414886055861039">"Попередній перегляд"</string>
+    <string name="picker_work_profile" msgid="2083221066869141576">"Перейти в робочий профіль"</string>
+    <string name="picker_personal_profile" msgid="639484258397758406">"Перейти в особистий профіль"</string>
+    <string name="picker_personal_profile_label" msgid="6189198163209597344">"Особистий"</string>
+    <string name="picker_profile_admin_title" msgid="4172022376418293777">"Заблоковано адміністратором"</string>
+    <string name="picker_profile_admin_msg_from_personal" msgid="1941639895084555723">"Доступ до робочих даних з особистого додатка заблокований"</string>
+    <string name="picker_profile_admin_msg_from_work" msgid="8048524337462790110">"Доступ до персональних даних із робочого додатка заблокований"</string>
+    <string name="picker_profile_admin_msg" msgid="4060112887923255178">"Доступ до <xliff:g id="PROFILE1">%1$s</xliff:g> даних із <xliff:g id="PROFILE2">%2$s</xliff:g> додатка заблоковано"</string>
+    <string name="picker_profile_switch_message" msgid="1133817927412489487">"Вибрати <xliff:g id="PROFILE">%s</xliff:g> профіль"</string>
+    <string name="picker_profile_work_paused_title" msgid="382212880704235925">"Робочі додатки призупинено"</string>
+    <string name="picker_profile_paused_title" msgid="2079739512895529028">"<xliff:g id="PROFILE">%s</xliff:g> додатки призупинено"</string>
+    <string name="picker_profile_work_paused_msg" msgid="6321552322125246726">"Щоб відкрити робочі фотографії, увімкніть робочі додатки й повторіть спробу"</string>
+    <string name="picker_profile_paused_msg" msgid="1215076898583993782">"Щоб відкрити <xliff:g id="PROFILE1">%1$s</xliff:g> фотографії, увімкніть <xliff:g id="PROFILE2">%2$s</xliff:g> додатки й повторіть спробу"</string>
+    <string name="picker_privacy_message" msgid="9132700451027116817">"Цей додаток має доступ лише до вибраних вами фотографій"</string>
+    <string name="picker_header_permissions" msgid="675872774407768495">"Виберіть фото й відео, до яких цей додаток матиме доступ"</string>
+    <string name="picker_album_item_count" msgid="4420723302534177596">"{count,plural, =1{<xliff:g id="COUNT_0">^1</xliff:g> об’єкт}one{<xliff:g id="COUNT_1">^1</xliff:g> об’єкт}few{<xliff:g id="COUNT_1">^1</xliff:g> об’єкти}many{<xliff:g id="COUNT_1">^1</xliff:g> об’єктів}other{<xliff:g id="COUNT_1">^1</xliff:g> об’єкта}}"</string>
+    <string name="picker_add_button_multi_select" msgid="4005164092275518399">"Додати (<xliff:g id="COUNT">^1</xliff:g>)"</string>
+    <string name="picker_add_button_multi_select_permissions" msgid="5138751105800138838">"Дозволити (<xliff:g id="COUNT">^1</xliff:g>)"</string>
+    <string name="picker_add_button_allow_none_option" msgid="9183772732922241035">"Не дозволяти жодної фотографії"</string>
+    <string name="picker_category_camera" msgid="4857367052026843664">"Камера"</string>
+    <string name="picker_category_downloads" msgid="793866660287361900">"Завантаження"</string>
+    <string name="picker_category_favorites" msgid="7008495397818966088">"Вибране"</string>
+    <string name="picker_category_screenshots" msgid="7216102327587644284">"Знімки екрана"</string>
+    <!-- no translation found for picker_category_videos (1478458836380241356) -->
+    <skip />
+    <string name="picker_motion_photo_text" msgid="5016603812468180816">"Фото з рухом"</string>
+    <string name="picker_item_content_desc" msgid="7680591530155286423">"<xliff:g id="ITEM_NAME">%1$s</xliff:g> (знято <xliff:g id="TIME">%2$s</xliff:g>)"</string>
+    <string name="picker_video_item_content_desc" msgid="7828900089119214801">"Дата зйомки: <xliff:g id="TIME">%1$s</xliff:g>, тривалість: <xliff:g id="DURATION">%2$s</xliff:g>"</string>
+    <string name="picker_photo" msgid="1739342083494962153">"Фотографія"</string>
+    <string name="picker_gif" msgid="8333318083107368726">"GIF"</string>
+    <string name="picker_motion_photo" msgid="4385182195289546308">"Фото з рухом"</string>
+    <string name="picker_mute_video" msgid="2496585809229800096">"Вимкнути звук у відео"</string>
+    <string name="picker_unmute_video" msgid="6611741290641963568">"Увімкнути звук у відео"</string>
+    <string name="picker_play_video" msgid="7106025944628666250">"Відтворити"</string>
+    <string name="picker_pause_video" msgid="1092718225234326702">"Призупинити"</string>
+    <string name="picker_error_snackbar" msgid="5970192792792369203">"Не вдається відтворити відео"</string>
+    <string name="picker_error_dialog_title" msgid="4540095603788920965">"Проблема з відтворенням відео"</string>
+    <string name="picker_error_dialog_body" msgid="2515738446802971453">"Перевірте інтернет-з’єднання й повторіть спробу"</string>
+    <string name="picker_error_dialog_positive_action" msgid="749544129082109232">"Повторити"</string>
+    <string name="not_selected" msgid="2244008151669896758">"не вибрано"</string>
+    <string name="preloading_dialog_title" msgid="4974348221848532887">"Підготовка вибраних медіафайлів"</string>
+    <string name="preloading_progress_message" msgid="4741327138031980582">"Готово: <xliff:g id="NUMBER_PRELOADED">%1$d</xliff:g> з <xliff:g id="NUMBER_TOTAL">%2$d</xliff:g>"</string>
+    <string name="preloading_cancel_button" msgid="824053521307342209">"Скасувати"</string>
+    <string name="picker_banner_cloud_first_time_available_title" msgid="5912973744275711595">"Резервні копії фотографій додано"</string>
+    <string name="picker_banner_cloud_first_time_available_desc" msgid="5570916598348187607">"Ви можете вибрати фотографії з облікового запису <xliff:g id="USER_ACCOUNT">%2$s</xliff:g> у додатку <xliff:g id="APP_NAME">%1$s</xliff:g>"</string>
+    <string name="picker_banner_cloud_account_changed_title" msgid="4825058474378077327">"Обліковий запис у додатку <xliff:g id="APP_NAME">%1$s</xliff:g> оновлено"</string>
+    <string name="picker_banner_cloud_account_changed_desc" msgid="3433218869899792497">"Тепер тут відображаються фотографії з облікового запису <xliff:g id="USER_ACCOUNT">%1$s</xliff:g>"</string>
+    <string name="picker_banner_cloud_choose_app_title" msgid="3165966147547974251">"Виберіть хмарний мультимедійний додаток"</string>
+    <string name="picker_banner_cloud_choose_app_desc" msgid="2359212653555524926">"Щоб додати сюди резервні копії фотографій, виберіть хмарний мультимедійний додаток у налаштуваннях"</string>
+    <string name="picker_banner_cloud_choose_account_title" msgid="5010901185639577685">"Виберіть обліковий запис у додатку <xliff:g id="APP_NAME">%1$s</xliff:g>"</string>
+    <string name="picker_banner_cloud_choose_account_desc" msgid="8868134443673142712">"Щоб додати сюди фотографії з додатка <xliff:g id="APP_NAME">%1$s</xliff:g>, виберіть обліковий запис у додатку"</string>
+    <string name="picker_banner_cloud_dismiss_button" msgid="2935903078288463882">"Закрити"</string>
+    <string name="picker_banner_cloud_choose_app_button" msgid="934085679890435479">"Вибрати додаток"</string>
+    <string name="picker_banner_cloud_choose_account_button" msgid="7979484877116991631">"Вибрати обліковий запис"</string>
+    <string name="picker_banner_cloud_change_account_button" msgid="8361239765828471146">"Змінити обліковий запис"</string>
+    <string name="picker_loading_photos_message" msgid="6449180084857178949">"Завантажуються всі ваші фото"</string>
+    <string name="permission_write_audio" msgid="8819694245323580601">"{count,plural, =1{Дозволити додатку <xliff:g id="APP_NAME_0">^1</xliff:g> змінити цей аудіофайл?}one{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> змінити <xliff:g id="COUNT">^2</xliff:g> аудіофайл?}few{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> змінити <xliff:g id="COUNT">^2</xliff:g> аудіофайли?}many{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> змінити <xliff:g id="COUNT">^2</xliff:g> аудіофайлів?}other{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> змінити <xliff:g id="COUNT">^2</xliff:g> аудіофайлу?}}"</string>
+    <string name="permission_progress_write_audio" msgid="6029375427984180097">"{count,plural, =1{Змінення аудіофайлу…}one{Змінення <xliff:g id="COUNT">^1</xliff:g> аудіофайлу…}few{Змінення <xliff:g id="COUNT">^1</xliff:g> аудіофайлів…}many{Змінення <xliff:g id="COUNT">^1</xliff:g> аудіофайлів…}other{Змінення <xliff:g id="COUNT">^1</xliff:g> аудіофайлу…}}"</string>
+    <string name="permission_write_video" msgid="103902551603700525">"{count,plural, =1{Дозволити додатку <xliff:g id="APP_NAME_0">^1</xliff:g> змінити це відео?}one{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> змінити <xliff:g id="COUNT">^2</xliff:g> відео?}few{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> змінити <xliff:g id="COUNT">^2</xliff:g> відео?}many{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> змінити <xliff:g id="COUNT">^2</xliff:g> відео?}other{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> змінити <xliff:g id="COUNT">^2</xliff:g> відео?}}"</string>
+    <string name="permission_progress_write_video" msgid="7014908418349819148">"{count,plural, =1{Змінення відео…}one{Змінення <xliff:g id="COUNT">^1</xliff:g> відео…}few{Змінення <xliff:g id="COUNT">^1</xliff:g> відео…}many{Змінення <xliff:g id="COUNT">^1</xliff:g> відео…}other{Змінення <xliff:g id="COUNT">^1</xliff:g> відео…}}"</string>
+    <string name="permission_write_image" msgid="3518991791620523786">"{count,plural, =1{Дозволити додатку <xliff:g id="APP_NAME_0">^1</xliff:g> змінити цю фотографію?}one{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> змінити <xliff:g id="COUNT">^2</xliff:g> фотографію?}few{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> змінити <xliff:g id="COUNT">^2</xliff:g> фотографії?}many{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> змінити <xliff:g id="COUNT">^2</xliff:g> фотографій?}other{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> змінити <xliff:g id="COUNT">^2</xliff:g> фотографії?}}"</string>
+    <string name="permission_progress_write_image" msgid="3623580315590025262">"{count,plural, =1{Змінення фотографії…}one{Змінення <xliff:g id="COUNT">^1</xliff:g> фотографії…}few{Змінення <xliff:g id="COUNT">^1</xliff:g> фотографій…}many{Змінення <xliff:g id="COUNT">^1</xliff:g> фотографій…}other{Змінення <xliff:g id="COUNT">^1</xliff:g> фотографії…}}"</string>
+    <string name="permission_write_generic" msgid="7431128739233656991">"{count,plural, =1{Дозволити додатку <xliff:g id="APP_NAME_0">^1</xliff:g> змінити цей об’єкт?}one{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> змінити <xliff:g id="COUNT">^2</xliff:g> об’єкт?}few{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> змінити <xliff:g id="COUNT">^2</xliff:g> об’єкти?}many{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> змінити <xliff:g id="COUNT">^2</xliff:g> об’єктів?}other{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> змінити <xliff:g id="COUNT">^2</xliff:g> об’єкта?}}"</string>
+    <string name="permission_progress_write_generic" msgid="2806560971318391443">"{count,plural, =1{Змінення об’єкта…}one{Змінення <xliff:g id="COUNT">^1</xliff:g> об’єкта…}few{Змінення <xliff:g id="COUNT">^1</xliff:g> об’єктів…}many{Змінення <xliff:g id="COUNT">^1</xliff:g> об’єктів…}other{Змінення <xliff:g id="COUNT">^1</xliff:g> об’єкта…}}"</string>
+    <string name="permission_trash_audio" msgid="6554672354767742206">"{count,plural, =1{Дозволити додатку <xliff:g id="APP_NAME_0">^1</xliff:g> перемістити цей аудіофайл у кошик?}one{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> перемістити <xliff:g id="COUNT">^2</xliff:g> аудіофайл у кошик?}few{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> перемістити <xliff:g id="COUNT">^2</xliff:g> аудіофайли в кошик?}many{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> перемістити <xliff:g id="COUNT">^2</xliff:g> аудіофайлів у кошик?}other{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> перемістити <xliff:g id="COUNT">^2</xliff:g> аудіофайлу в кошик?}}"</string>
+    <string name="permission_progress_trash_audio" msgid="3116279868733641329">"{count,plural, =1{Переміщення аудіофайлу в кошик…}one{Переміщення <xliff:g id="COUNT">^1</xliff:g> аудіофайлу в кошик…}few{Переміщення <xliff:g id="COUNT">^1</xliff:g> аудіофайлів у кошик…}many{Переміщення <xliff:g id="COUNT">^1</xliff:g> аудіофайлів у кошик…}other{Переміщення <xliff:g id="COUNT">^1</xliff:g> аудіофайлу в кошик…}}"</string>
+    <string name="permission_trash_video" msgid="7555850843259959642">"{count,plural, =1{Дозволити додатку <xliff:g id="APP_NAME_0">^1</xliff:g> перемістити це відео в кошик?}one{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> перемістити <xliff:g id="COUNT">^2</xliff:g> відео в кошик?}few{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> перемістити <xliff:g id="COUNT">^2</xliff:g> відео в кошик?}many{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> перемістити <xliff:g id="COUNT">^2</xliff:g> відео в кошик?}other{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> перемістити <xliff:g id="COUNT">^2</xliff:g> відео в кошик?}}"</string>
+    <string name="permission_progress_trash_video" msgid="4637821778329459681">"{count,plural, =1{Переміщення відео в кошик…}one{Переміщення <xliff:g id="COUNT">^1</xliff:g> відео в кошик…}few{Переміщення <xliff:g id="COUNT">^1</xliff:g> відео в кошик…}many{Переміщення <xliff:g id="COUNT">^1</xliff:g> відео в кошик…}other{Переміщення <xliff:g id="COUNT">^1</xliff:g> відео в кошик…}}"</string>
+    <string name="permission_trash_image" msgid="3333128084684156675">"{count,plural, =1{Дозволити додатку <xliff:g id="APP_NAME_0">^1</xliff:g> перемістити цю фотографію в кошик?}one{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> перемістити <xliff:g id="COUNT">^2</xliff:g> фотографію в кошик?}few{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> перемістити <xliff:g id="COUNT">^2</xliff:g> фотографії в кошик?}many{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> перемістити <xliff:g id="COUNT">^2</xliff:g> фотографій у кошик?}other{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> перемістити <xliff:g id="COUNT">^2</xliff:g> фотографії в кошик?}}"</string>
+    <string name="permission_progress_trash_image" msgid="3063857679090024764">"{count,plural, =1{Переміщення фотографії в кошик…}one{Переміщення <xliff:g id="COUNT">^1</xliff:g> фотографії в кошик…}few{Переміщення <xliff:g id="COUNT">^1</xliff:g> фотографій у кошик…}many{Переміщення <xliff:g id="COUNT">^1</xliff:g> фотографій у кошик…}other{Переміщення <xliff:g id="COUNT">^1</xliff:g> фотографії в кошик…}}"</string>
+    <string name="permission_trash_generic" msgid="5545420534785075362">"{count,plural, =1{Дозволити додатку <xliff:g id="APP_NAME_0">^1</xliff:g> перемістити цей об’єкт у кошик?}one{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> перемістити <xliff:g id="COUNT">^2</xliff:g> об’єкт у кошик?}few{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> перемістити <xliff:g id="COUNT">^2</xliff:g> об’єкти в кошик?}many{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> перемістити <xliff:g id="COUNT">^2</xliff:g> об’єктів у кошик?}other{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> перемістити <xliff:g id="COUNT">^2</xliff:g> об’єкта в кошик?}}"</string>
+    <string name="permission_progress_trash_generic" msgid="7815124979717814057">"{count,plural, =1{Переміщення об’єкта в кошик…}one{Переміщення <xliff:g id="COUNT">^1</xliff:g> об’єкта в кошик…}few{Переміщення <xliff:g id="COUNT">^1</xliff:g> об’єктів у кошик…}many{Переміщення <xliff:g id="COUNT">^1</xliff:g> об’єктів у кошик…}other{Переміщення <xliff:g id="COUNT">^1</xliff:g> об’єкта в кошик…}}"</string>
+    <string name="permission_untrash_audio" msgid="8404597563284002472">"{count,plural, =1{Дозволити додатку <xliff:g id="APP_NAME_0">^1</xliff:g> відновити цей аудіофайл із кошика?}one{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> відновити <xliff:g id="COUNT">^2</xliff:g> аудіофайл із кошика?}few{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> відновити <xliff:g id="COUNT">^2</xliff:g> аудіофайли з кошика?}many{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> відновити <xliff:g id="COUNT">^2</xliff:g> аудіофайлів із кошика?}other{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> відновити <xliff:g id="COUNT">^2</xliff:g> аудіофайлу з кошика?}}"</string>
+    <string name="permission_progress_untrash_audio" msgid="2775372344946464508">"{count,plural, =1{Відновлення аудіофайлу з кошика…}one{Відновлення <xliff:g id="COUNT">^1</xliff:g> аудіофайлу з кошика…}few{Відновлення <xliff:g id="COUNT">^1</xliff:g> аудіофайлів із кошика…}many{Відновлення <xliff:g id="COUNT">^1</xliff:g> аудіофайлів із кошика…}other{Відновлення <xliff:g id="COUNT">^1</xliff:g> аудіофайлу з кошика…}}"</string>
+    <string name="permission_untrash_video" msgid="3178914827607608162">"{count,plural, =1{Дозволити додатку <xliff:g id="APP_NAME_0">^1</xliff:g> відновити це відео з кошика?}one{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> відновити <xliff:g id="COUNT">^2</xliff:g> відео з кошика?}few{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> відновити <xliff:g id="COUNT">^2</xliff:g> відео з кошика?}many{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> відновити <xliff:g id="COUNT">^2</xliff:g> відео з кошика?}other{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> відновити <xliff:g id="COUNT">^2</xliff:g> відео з кошика?}}"</string>
+    <string name="permission_progress_untrash_video" msgid="5500929409733841567">"{count,plural, =1{Відновлення відео з кошика…}one{Відновлення <xliff:g id="COUNT">^1</xliff:g> відео з кошика…}few{Відновлення <xliff:g id="COUNT">^1</xliff:g> відео з кошика…}many{Відновлення <xliff:g id="COUNT">^1</xliff:g> відео з кошика…}other{Відновлення <xliff:g id="COUNT">^1</xliff:g> відео з кошика…}}"</string>
+    <string name="permission_untrash_image" msgid="3397523279351032265">"{count,plural, =1{Дозволити додатку <xliff:g id="APP_NAME_0">^1</xliff:g> відновити цю фотографію з кошика?}one{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> відновити <xliff:g id="COUNT">^2</xliff:g> фотографію з кошика?}few{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> відновити <xliff:g id="COUNT">^2</xliff:g> фотографії з кошика?}many{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> відновити <xliff:g id="COUNT">^2</xliff:g> фотографій із кошика?}other{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> відновити <xliff:g id="COUNT">^2</xliff:g> фотографії з кошика?}}"</string>
+    <string name="permission_progress_untrash_image" msgid="5295061520504846264">"{count,plural, =1{Відновлення фотографії з кошика…}one{Відновлення <xliff:g id="COUNT">^1</xliff:g> фотографії з кошика…}few{Відновлення <xliff:g id="COUNT">^1</xliff:g> фотографій із кошика…}many{Відновлення <xliff:g id="COUNT">^1</xliff:g> фотографій із кошика…}other{Відновлення <xliff:g id="COUNT">^1</xliff:g> фотографії з кошика…}}"</string>
+    <string name="permission_untrash_generic" msgid="2118366929431671046">"{count,plural, =1{Дозволити додатку <xliff:g id="APP_NAME_0">^1</xliff:g> відновити цей об’єкт із кошика?}one{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> відновити <xliff:g id="COUNT">^2</xliff:g> об’єкт із кошика?}few{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> відновити <xliff:g id="COUNT">^2</xliff:g> об’єкти з кошика?}many{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> відновити <xliff:g id="COUNT">^2</xliff:g> об’єктів із кошика?}other{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> відновити <xliff:g id="COUNT">^2</xliff:g> об’єкта з кошика?}}"</string>
+    <string name="permission_progress_untrash_generic" msgid="1489511601966842579">"{count,plural, =1{Відновлення об’єкта з кошика…}one{Відновлення <xliff:g id="COUNT">^1</xliff:g> об’єкта з кошика…}few{Відновлення <xliff:g id="COUNT">^1</xliff:g> об’єктів із кошика…}many{Відновлення <xliff:g id="COUNT">^1</xliff:g> об’єктів із кошика…}other{Відновлення <xliff:g id="COUNT">^1</xliff:g> об’єкта з кошика…}}"</string>
+    <string name="permission_delete_audio" msgid="3326674742892796627">"{count,plural, =1{Дозволити додатку <xliff:g id="APP_NAME_0">^1</xliff:g> видалити цей аудіофайл?}one{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> видалити <xliff:g id="COUNT">^2</xliff:g> аудіофайл?}few{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> видалити <xliff:g id="COUNT">^2</xliff:g> аудіофайли?}many{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> видалити <xliff:g id="COUNT">^2</xliff:g> аудіофайлів?}other{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> видалити <xliff:g id="COUNT">^2</xliff:g> аудіофайлу?}}"</string>
+    <string name="permission_progress_delete_audio" msgid="1734871539021696401">"{count,plural, =1{Видалення аудіофайлу…}one{Видалення <xliff:g id="COUNT">^1</xliff:g> аудіофайлу…}few{Видалення <xliff:g id="COUNT">^1</xliff:g> аудіофайлів…}many{Видалення <xliff:g id="COUNT">^1</xliff:g> аудіофайлів…}other{Видалення <xliff:g id="COUNT">^1</xliff:g> аудіофайлу…}}"</string>
+    <string name="permission_delete_video" msgid="604024971828349279">"{count,plural, =1{Дозволити додатку <xliff:g id="APP_NAME_0">^1</xliff:g> видалити це відео?}one{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> видалити <xliff:g id="COUNT">^2</xliff:g> відео?}few{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> видалити <xliff:g id="COUNT">^2</xliff:g> відео?}many{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> видалити <xliff:g id="COUNT">^2</xliff:g> відео?}other{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> видалити <xliff:g id="COUNT">^2</xliff:g> відео?}}"</string>
+    <string name="permission_progress_delete_video" msgid="1846702435073793157">"{count,plural, =1{Видалення відео…}one{Видалення <xliff:g id="COUNT">^1</xliff:g> відео…}few{Видалення <xliff:g id="COUNT">^1</xliff:g> відео…}many{Видалення <xliff:g id="COUNT">^1</xliff:g> відео…}other{Видалення <xliff:g id="COUNT">^1</xliff:g> відео…}}"</string>
+    <string name="permission_delete_image" msgid="3109056012794330510">"{count,plural, =1{Дозволити додатку <xliff:g id="APP_NAME_0">^1</xliff:g> видалити цю фотографію?}one{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> видалити <xliff:g id="COUNT">^2</xliff:g> фотографію?}few{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> видалити <xliff:g id="COUNT">^2</xliff:g> фотографії?}many{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> видалити <xliff:g id="COUNT">^2</xliff:g> фотографій?}other{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> видалити <xliff:g id="COUNT">^2</xliff:g> фотографії?}}"</string>
+    <string name="permission_progress_delete_image" msgid="8580517204901148906">"{count,plural, =1{Видалення фотографії…}one{Видалення <xliff:g id="COUNT">^1</xliff:g> фотографії…}few{Видалення <xliff:g id="COUNT">^1</xliff:g> фотографій…}many{Видалення <xliff:g id="COUNT">^1</xliff:g> фотографій…}other{Видалення <xliff:g id="COUNT">^1</xliff:g> фотографії…}}"</string>
+    <string name="permission_delete_generic" msgid="7891939881065520271">"{count,plural, =1{Дозволити додатку <xliff:g id="APP_NAME_0">^1</xliff:g> видалити цей об’єкт?}one{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> видалити <xliff:g id="COUNT">^2</xliff:g> об’єкт?}few{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> видалити <xliff:g id="COUNT">^2</xliff:g> об’єкти?}many{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> видалити <xliff:g id="COUNT">^2</xliff:g> об’єктів?}other{Дозволити додатку <xliff:g id="APP_NAME_1">^1</xliff:g> видалити <xliff:g id="COUNT">^2</xliff:g> об’єкта?}}"</string>
+    <string name="permission_progress_delete_generic" msgid="6709118146245087898">"{count,plural, =1{Видалення об’єкта…}one{Видалення <xliff:g id="COUNT">^1</xliff:g> об’єкта…}few{Видалення <xliff:g id="COUNT">^1</xliff:g> об’єктів…}many{Видалення <xliff:g id="COUNT">^1</xliff:g> об’єктів…}other{Видалення <xliff:g id="COUNT">^1</xliff:g> об’єкта…}}"</string>
+    <string name="transcode_denied" msgid="6760546817138288976">"Додаток <xliff:g id="APP_NAME">%s</xliff:g> не може обробляти медіафайли"</string>
+    <string name="transcode_processing_cancelled" msgid="5340383917746945590">"Обробку медіафайлів скасовано"</string>
+    <string name="transcode_processing_error" msgid="8921643164508407874">"Не вдалось обробити медіафайли"</string>
+    <string name="transcode_processing_success" msgid="447288876429730122">"Обробку медіафайлів завершено"</string>
+    <string name="transcode_processing_started" msgid="7789086308155361523">"Почалась обробка медіафайлів"</string>
+    <string name="transcode_processing" msgid="6753136468864077258">"Обробка медіафайлів…"</string>
+    <string name="transcode_cancel" msgid="8555752601907598192">"Скасувати"</string>
+    <string name="transcode_wait" msgid="8909773149560697501">"Зачекати"</string>
+    <string name="safety_protection_icon_label" msgid="6714354052747723623">"Захист"</string>
+    <string name="transcode_alert_channel" msgid="997332371757680478">"Cповіщення про перекодування нативного коду"</string>
+    <string name="transcode_progress_channel" msgid="6905136787933058387">"Перебіг перекодування нативного коду"</string>
+    <string name="dialog_error_message" msgid="5120432204743681606">"Повторіть спробу пізніше. Ваші фотографії будуть доступні після вирішення проблеми."</string>
+    <string name="dialog_error_title" msgid="636349284077820636">"Не вдається завантажити деякі фотографії"</string>
+    <string name="dialog_button_text" msgid="351366485240852280">"OK"</string>
+    <string name="permlab_accessMediaOwnerPackageName" msgid="3849443148060165651">"Доступ до назв пакетів власників"</string>
+    <string name="permdesc_accessMediaOwnerPackageName" msgid="7381563109363105371">"Дозволяє додатку отримувати доступ до назв пакетів власників усіх доступних медіафайлів."</string>
+</resources>

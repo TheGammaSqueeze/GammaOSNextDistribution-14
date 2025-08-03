@@ -1,0 +1,68 @@
+// This introduces the module type library_linking_strategy_cc_defaults
+// To use in other Android.bp files, add the following lines:
+//    soong_config_module_type_import {
+//        from: "system/apex/Android.bp",
+//        module_types: ["library_linking_strategy_cc_defaults"],
+//    }
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+soong_config_string_variable {
+    name: "library_linking_strategy",
+    values: [
+        "prefer_static",
+    ],
+}
+
+soong_config_module_type {
+    name: "library_linking_strategy_cc_defaults",
+    module_type: "cc_defaults",
+    config_namespace: "ANDROID",
+    variables: ["library_linking_strategy"],
+    properties: [
+        "min_sdk_version",
+        "shared_libs",
+        "static_libs",
+        "stl",
+    ],
+}
+
+soong_config_module_type {
+    name: "library_linking_strategy_apex_defaults",
+    module_type: "apex_defaults",
+    config_namespace: "ANDROID",
+    variables: ["library_linking_strategy"],
+    properties: [
+        "manifest",
+        "min_sdk_version",
+    ],
+}
+
+library_linking_strategy_cc_defaults {
+    name: "library_linking_strategy_sample_defaults",
+    soong_config_variables: {
+        library_linking_strategy: {
+            prefer_static: {
+                static_libs: [
+                    "libbase",
+                    "liblog",
+                ],
+                stl: "c++_static",
+            },
+            conditions_default: {
+                shared_libs: [
+                    "libbase",
+                    "liblog",
+                ],
+            },
+        },
+    },
+}
+
+cc_binary {
+    name: "library_linking_strategy_sample_binary",
+    srcs: ["library_linking_strategy.cc"],
+    defaults: ["library_linking_strategy_sample_defaults"],
+}

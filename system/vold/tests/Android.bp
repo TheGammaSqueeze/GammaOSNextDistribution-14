@@ -1,0 +1,44 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_test {
+    name: "vold_tests",
+    defaults: [
+        "vold_default_flags",
+        "vold_default_libs",
+    ],
+
+    srcs: [
+        "Utils_test.cpp",
+        "VoldNativeServiceValidation_test.cpp",
+    ],
+    static_libs: ["libvold"],
+    shared_libs: ["libbinder"]
+}
+
+cc_fuzz {
+    name: "vold_native_service_fuzzer",
+    defaults: [
+        "vold_default_flags",
+        "vold_default_libs",
+        "keystore2_use_latest_aidl_ndk_shared",
+        "service_fuzzer_defaults",
+        "fuzzer_disable_leaks"
+    ],
+    static_libs: [
+        "libvold",
+        "android.security.maintenance-ndk",
+        "libkeymint_support",
+    ],
+    header_libs: ["libvold_headers"],
+    srcs: [
+        "VoldFuzzer.cpp",
+    ],
+    corpus: ["vold_native_service_fuzzer_corpus/*"],
+    fuzz_config: {
+        cc: [
+            "maco@google.com",
+        ],
+    }
+}

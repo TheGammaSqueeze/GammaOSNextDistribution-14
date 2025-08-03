@@ -1,0 +1,314 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package com.android.car.audio;
+
+option java_multiple_files = true;
+
+message CarAudioDumpProto {
+  message CarAudioConfiguration {
+    optional bool use_dynamic_routing = 1;
+    optional bool use_core_audio_volume = 2;
+    optional bool use_core_audio_routing = 3;
+    optional bool patch_api_enabled = 4;
+    optional bool persist_master_mute_state = 5;
+    optional bool use_hal_ducking_signals = 6;
+    optional int32 key_event_timeout_ms = 7;
+    optional string car_audio_configuration_path = 8;
+    optional bool use_car_volume_group_muting = 9;
+    optional bool use_car_volume_group_events = 10;
+    optional bool use_fade_manager_configuration = 11;
+    optional bool use_min_max_activation_volume = 12;
+    optional bool use_isolated_focus_for_dynamic_devices = 13;
+  }
+
+  message CarAudioState {
+    optional bool master_muted = 1;
+    optional bool audio_enabled = 2;
+  }
+
+  optional CarAudioConfiguration configuration = 1;
+  optional CarAudioState current_state = 2;
+
+  message CarAudioAttributesProto {
+    optional int32 usage = 1;
+    optional int32 content_type = 2;
+  }
+  message CarAudioContextInfoProto {
+    optional string name = 1;
+    optional int32 id = 2;
+    repeated CarAudioAttributesProto attributes = 3;
+  }
+  message CarVolumeProto {
+    message CarAudioContextPriority {
+      repeated CarAudioContextInfoProto contexts = 1;
+      optional int32 priority = 2;
+    }
+    optional int32 audio_volume_adjustment_contexts_version = 1;
+    optional int32 volume_key_event_timeout_ms = 2;
+    repeated CarAudioContextPriority audio_context_priorities = 3;
+  }
+
+  optional CarVolumeProto car_volume = 3;
+
+  message CarAudioContextProto {
+    repeated CarAudioContextInfoProto car_audio_context_infos = 1;
+  }
+
+  optional CarAudioContextProto car_audio_context = 4;
+
+  message CarVolumeGain {
+    optional int32 min_gain_index = 1;
+    optional int32 max_gain_index = 2;
+    optional int32 default_gain_index = 3;
+    optional int32 current_gain_index = 4;
+    optional int32 min_activation_gain_index = 5;
+    optional int32 max_activation_gain_index = 6;
+  }
+  message CarAudioDeviceInfoProto {
+    optional string address = 1;
+    optional bool can_be_routed_with_dynamic_policy_mix_rule = 2;
+    optional int32 sample_rate = 3;
+    optional int32 encoding_format = 4;
+    optional int32 channel_count = 5;
+    optional CarVolumeGain volume_gain = 6;
+    optional bool is_active = 7;
+  }
+
+  message CarVolumeGroupProto {
+    message GainInfo {
+      optional bool blocked = 1;
+      optional bool blocked_gain_index = 2;
+      optional bool limited = 3;
+      optional bool limited_gain_index = 4;
+      optional bool attenuated = 5;
+      optional bool attenuated_gain_index = 6;
+      optional bool hal_muted = 7;
+      optional bool is_active = 8;
+    }
+    message ContextToAddress {
+      optional string context = 1;
+      optional string address = 2;
+    }
+    optional int32 id = 1;
+    optional string name = 2;
+    optional int32 zone_id = 3;
+    optional int32 config_id = 4;
+    optional bool muted = 5;
+    optional int32 user_id = 6;
+    optional bool persist_volume_group_mute_enabled = 7;
+    optional CarVolumeGain volume_gain = 8;
+    repeated ContextToAddress context_to_address_mappings = 9;
+    repeated CarAudioDeviceInfoProto car_audio_device_infos = 10;
+    repeated string reported_reasons = 11;
+    optional GainInfo gain_infos = 12;
+  }
+
+  message CarAudioZoneConfigProto {
+    optional string name = 1;
+    optional int32 id = 2;
+    optional int32 zone_id = 3;
+    optional bool default = 4;
+    repeated CarVolumeGroupProto volume_groups = 5;
+    optional bool is_active = 6;
+    optional bool is_selected = 7;
+    optional bool is_fade_manager_config_enabled = 8;
+    optional CarAudioFadeConfigurationProto default_car_audio_fade_configuration = 9;
+    repeated AttrToCarAudioFadeConfiguration attr_to_car_audio_fade_configuration = 10;
+    message AttrToCarAudioFadeConfiguration {
+      optional CarAudioAttributesProto attributes = 1;
+      optional CarAudioFadeConfigurationProto car_audio_fade_configuration = 2;
+    }
+  }
+
+  message CarAudioZoneProto {
+    optional string name = 1;
+    optional int32 id = 2;
+    optional bool primary_zone = 3;
+    optional int32 current_zone_config_id = 4;
+    repeated string input_audio_device_addresses = 5;
+    repeated CarAudioZoneConfigProto zone_configs = 6;
+  }
+
+  repeated CarAudioZoneProto car_audio_zones = 5;
+
+  message UserIdToAudioZone {
+    optional int32 user_id = 1;
+    optional int32 audio_zone_id = 2;
+  }
+
+  repeated UserIdToAudioZone user_id_to_audio_zone_mappings = 6;
+
+  message AudioZoneToOccupantZone {
+    optional int32 audio_zone_id = 1;
+    optional int32 occupant_zone_id = 2;
+  }
+  repeated AudioZoneToOccupantZone audio_zone_to_occupant_zone_mappings = 7;
+
+  message UidToAudioZone {
+    optional int32 uid = 1;
+    optional int32 audio_zone_id = 2;
+  }
+
+  repeated UidToAudioZone uid_to_audio_zone_mappings = 8;
+
+  message CarAudioZoneFocusProto {
+    message CarAudioFocusProto {
+      message FocusInteractionProto {
+        optional bool reject_navigation_on_call = 1;
+      }
+      message FocusEntryProto {
+        optional string client_id = 1;
+        optional CarAudioAttributesProto attributes = 2;
+        optional bool receives_duck_events = 3;
+        optional bool wants_pause_instead_of_ducking = 4;
+        optional bool is_ducked = 5;
+        optional bool is_unblocked = 6;
+        repeated FocusEntryProto blockers = 7;
+      }
+      optional int32 zone_id = 1;
+      optional bool focus_restricted = 2;
+      optional bool external_focus_enabled = 3;
+      optional FocusInteractionProto focus_interaction = 4;
+      repeated FocusEntryProto focus_holders = 5;
+      repeated FocusEntryProto focus_losers = 6;
+      optional string delayed_focus = 7;
+    }
+    optional bool hasFocusCallback = 1;
+    repeated CarAudioFocusProto car_audio_focuses = 2;
+  }
+
+  optional CarAudioZoneFocusProto focus_handler = 9;
+
+  message HalAudioFocusProto {
+    message HalFocusRequestsByZoneAndAttributes {
+      optional int32 zone_id = 1;
+      repeated string hal_focus_requests_by_attributes = 2;
+    }
+    repeated HalFocusRequestsByZoneAndAttributes hal_focus_requests_by_zone_and_attributes = 1;
+  }
+  optional HalAudioFocusProto hal_audio_focus = 10;
+
+  message CarDuckingProto {
+    repeated string tags = 1;
+    message CarDuckingInfoProto {
+      message PlaybackTrackMetaData {
+        optional string usage = 1;
+        optional int32 content_type = 2;
+        repeated string tags = 3;
+      }
+      optional int32 zone_id = 1;
+      repeated string addresses_to_duck = 2;
+      repeated string addresses_to_unduck = 3;
+      repeated PlaybackTrackMetaData playback_meta_data_holding_focus = 4;
+    }
+    repeated CarDuckingInfoProto current_ducking_infos = 2;
+  }
+  optional CarDuckingProto car_ducking = 11;
+
+  message CarVolumeGroupMutingProto {
+    message CarMutingInfo {
+      optional int32 zone_id = 1;
+      repeated string device_addresses_to_mute = 2;
+      repeated string device_addresses_to_unmute = 3;
+    }
+    optional bool is_muting_restricted = 1;
+    repeated CarMutingInfo last_muting_information = 2;
+  }
+  optional CarVolumeGroupMutingProto car_volume_group_muting = 12;
+
+  message CarAudioPlaybackCallbackProto {
+    message ZoneAudioPlaybackCallbackProto {
+      message AudioDeviceAddressToConfig {
+        optional string address = 1;
+        optional string config = 2;
+      }
+      message AudioAttributesToStartTime {
+        optional CarAudioAttributesProto audio_attributes = 1;
+        optional int64 start_time = 2;
+      }
+      optional int32 zone_id = 1;
+      repeated AudioDeviceAddressToConfig last_active_configs = 2;
+      repeated AudioAttributesToStartTime audio_attributes_to_start_times = 3;
+    }
+    repeated ZoneAudioPlaybackCallbackProto zone_audio_playback_callbacks = 1;
+  }
+  optional CarAudioPlaybackCallbackProto car_audio_playback_callback = 13;
+
+  message CarAudioMirrorRequestHandlerProto {
+    message RequestIdToZones {
+      optional int64 request_id = 1;
+      repeated int32 zone_ids = 2;
+    }
+    message RequestIdToMirrorDevice {
+      optional CarAudioDeviceInfoProto mirror_device = 1;
+      optional int64 request_id = 2;
+    }
+    optional bool is_mirror_audio_enabled = 1;
+    repeated CarAudioDeviceInfoProto mirror_device_infos = 2;
+    optional int32 register_count = 3;
+    repeated RequestIdToZones mirroring_configurations = 4;
+    repeated RequestIdToMirrorDevice mirror_device_mappings = 5;
+  }
+  optional CarAudioMirrorRequestHandlerProto car_audio_mirror_request_handler = 14;
+
+  message MediaRequestHandlerProto {
+    message MediaRequestIdToCallback {
+      optional int64 request_id = 1;
+      optional string callback = 2;
+    }
+    message MediaRequestIdToApprover {
+      optional int64 request_id = 1;
+      optional string approver = 2;
+    }
+    optional int32 media_request_callback_count = 1;
+    repeated string media_request_callbacks = 2;
+    repeated string assigned_occupants = 3;
+    repeated MediaRequestIdToCallback request_id_to_callback_mappings = 4;
+    repeated MediaRequestIdToApprover request_id_to_approver_mappings = 5;
+  }
+  optional MediaRequestHandlerProto media_request_handler = 15;
+  repeated CarAudioFadeConfigurationProto available_car_fade_configurations = 16;
+
+  message CarAudioFadeConfigurationProto {
+    message FadeManagerConfigurationProto {
+      message VolumeShaperConfiguration {
+        optional int32 duration = 1;
+      }
+      message UsagesToVolumeShaperConfiguration {
+        optional int32 usage = 1;
+        optional VolumeShaperConfiguration fade_out_vol_shaper_config = 2;
+        optional VolumeShaperConfiguration fade_in_vol_shaper_config = 3;
+      }
+      message AttributeToVolumeShaperConfiguration {
+        optional CarAudioAttributesProto attributes = 1;
+        optional VolumeShaperConfiguration fade_out_vol_shaper_config = 2;
+        optional VolumeShaperConfiguration fade_in_vol_shaper_config = 3;
+      }
+      optional int32 state = 1;
+      repeated int32 fadeable_usages = 2;
+      repeated int32 unfadeable_content_types = 3;
+      repeated int32 unfadeable_uids = 4;
+      repeated CarAudioAttributesProto unfadeable_attributes = 5;
+      repeated UsagesToVolumeShaperConfiguration usages_to_volume_shaper_config = 6;
+      repeated AttributeToVolumeShaperConfiguration attr_to_volume_shaper_config = 7;
+    }
+    optional string name = 1;
+    optional FadeManagerConfigurationProto fade_manager_configuration = 2;
+  }
+}

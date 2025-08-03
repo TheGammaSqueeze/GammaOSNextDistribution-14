@@ -1,0 +1,32 @@
+{
+  "presubmit-large": [
+    {
+      "name": "CtsHostsideNetworkTests",
+      "options": [
+        {
+          "exclude-annotation": "androidx.test.filters.FlakyTest"
+        },
+        {
+          "exclude-annotation": "android.platform.test.annotations.FlakyTest"
+        },
+        {
+          "exclude-annotation": "android.platform.test.annotations.RequiresDevice"
+        },
+        {
+          "exclude-annotation": "com.android.testutils.SkipPresubmit"
+        }
+      ]
+    }
+  ],
+  "postsubmit": [
+    {
+      // Postsubmit on virtual devices to monitor flakiness of @SkipPresubmit methods
+      "name": "CtsHostsideNetworkTests",
+      "options": [
+        {
+          "exclude-annotation": "androidx.test.filters.RequiresDevice"
+        }
+      ]
+    }
+  ]
+}

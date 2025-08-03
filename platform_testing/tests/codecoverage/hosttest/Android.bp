@@ -1,0 +1,19 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_test_host {
+    name: "CoverageSmokeTest",
+
+    srcs: ["src/**/*.java"],
+    test_suites: ["general-tests"],
+
+    libs: [
+        "tradefed",
+        "junit",
+    ],
+
+    data: [
+        ":CoverageInstrumentationSampleTest",
+    ],
+}

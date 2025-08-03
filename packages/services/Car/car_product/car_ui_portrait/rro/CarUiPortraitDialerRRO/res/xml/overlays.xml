@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<overlay>
+    <item target="array/tabs_config" value="@array/tabs_config"/>
+    <item target="array/tabs_title" value="@array/tabs_title"/>
+
+    <item target="drawable/dialer_ripple_background" value="@drawable/dialer_ripple_background"/>
+    <item target="drawable/ic_answer_icon" value="@drawable/ic_answer_icon"/>
+    <item target="drawable/ic_arrow_right" value="@drawable/ic_arrow_right"/>
+    <item target="drawable/ic_backspace" value="@drawable/ic_backspace"/>
+    <item target="drawable/ic_bluetooth" value="@drawable/ic_bluetooth"/>
+    <item target="drawable/ic_decline_icon" value="@drawable/ic_decline_icon"/>
+    <item target="drawable/ic_direction" value="@drawable/ic_direction"/>
+    <item target="drawable/ic_phone" value="@drawable/ic_phone"/>
+    <item target="drawable/ic_place" value="@drawable/ic_place"/>
+    <item target="drawable/restricted_dialing_mode_label_background" value="@drawable/restricted_dialing_mode_label_background"/>
+
+    <item target="id/address_button" value="@id/address_button" />
+    <item target="id/background_image" value="@id/background_image" />
+    <item target="id/call_action_id" value="@id/call_action_id" />
+    <item target="id/call_button" value="@id/call_button" />
+    <item target="id/call_state" value="@id/call_state" />
+    <item target="id/connect_bluetooth_button" value="@id/connect_bluetooth_button" />
+    <item target="id/contact_details_favorite_button" value="@id/contact_details_favorite_button" />
+    <item target="id/contact_details_sms_button" value="@id/contact_details_sms_button" />
+    <item target="id/contact_list_button" value="@id/contact_list_button" />
+    <item target="id/contact_name" value="@id/contact_name" />
+    <item target="id/contact_picture" value="@id/contact_picture" />
+    <item target="id/contact_result" value="@id/contact_result" />
+    <item target="id/delete_button" value="@id/delete_button" />
+    <item target="id/dialpad_contact_avatar" value="@id/dialpad_contact_avatar" />
+    <item target="id/dialpad_contact_initials" value="@id/dialpad_contact_initials" />
+    <item target="id/dialpad_focus_area" value="@id/dialpad_focus_area" />
+    <item target="id/dialpad_fragment" value="@id/dialpad_fragment" />
+    <item target="id/display_name" value="@id/display_name" />
+    <item target="id/divider" value="@id/divider" />
+    <item target="id/divider1" value="@id/divider1" />
+    <item target="id/divider2" value="@id/divider2" />
+    <item target="id/emergency_call_button" value="@id/emergency_call_button" />
+    <item target="id/error_icon" value="@id/error_icon" />
+    <item target="id/error_string" value="@id/error_string" />
+    <item target="id/icon" value="@id/icon" />
+    <item target="id/incall_dialpad_fragment" value="@id/incall_dialpad_fragment" />
+    <item target="id/label" value="@id/label" />
+    <item target="id/list_view" value="@id/list_view" />
+    <item target="id/navigation_button" value="@id/navigation_button" />
+    <item target="id/no_hfp_error_container" value="@id/no_hfp_error_container" />
+    <item target="id/onhold_user_profile" value="@id/onhold_user_profile" />
+    <item target="id/phone_number" value="@id/phone_number" />
+    <item target="id/restricted_dialing_mode_label" value="@id/restricted_dialing_mode_label" />
+    <item target="id/show_contact_detail_id" value="@id/show_contact_detail_id" />
+    <item target="id/text" value="@id/text" />
+    <item target="id/title" value="@id/title" />
+    <item target="id/user_profile_avatar" value="@id/user_profile_avatar" />
+    <item target="id/user_profile_call_state" value="@id/user_profile_call_state" />
+    <item target="id/user_profile_container" value="@id/user_profile_container" />
+    <item target="id/user_profile_phone_number" value="@id/user_profile_phone_number" />
+    <item target="id/user_profile_title" value="@id/user_profile_title" />
+
+    <item target="string/answer_call" value="@string/answer_call" />
+    <item target="string/decline_call" value="@string/decline_call" />
+    <item target="string/search_title" value="@string/search_title" />
+
+    <item target="color/contact_details_icon_tint" value="@color/contact_details_icon_tint" />
+    <item target="color/divider_color" value="@color/divider_color" />
+    <item target="color/hero_button_background_color" value="@color/hero_button_background_color" />
+
+    <item target="bool/config_always_show_incall_dialpad" value="@bool/config_always_show_incall_dialpad" />
+    <item target="bool/config_show_search_as_toolbar_tab" value="@bool/config_show_search_as_toolbar_tab" />
+    <item target="bool/config_show_search_in_menu_items" value="@bool/config_show_search_in_menu_items" />
+    <item target="bool/config_show_settings_as_toolbar_tab" value="@bool/config_show_settings_as_toolbar_tab" />
+    <item target="bool/config_show_settings_in_menu_items" value="@bool/config_show_settings_in_menu_items" />
+    <item target="bool/config_show_toolbar_with_contact_details" value="@bool/config_show_toolbar_with_contact_details" />
+    <item target="bool/config_add_favorite_button_span_size_one" value="@bool/config_add_favorite_button_span_size_one" />
+
+    <item target="integer/config_dialed_number_gravity" value="@integer/config_dialed_number_gravity" />
+    <item target="integer/favorite_fragment_grid_column" value="@integer/favorite_fragment_grid_column" />
+
+    <item target="dimen/avatar_icon_size" value="@dimen/avatar_icon_size" />
+    <item target="dimen/call_history_item_height" value="@dimen/call_history_item_height" />
+    <item target="dimen/contact_avatar_corner_radius_percent" value="@dimen/contact_avatar_corner_radius_percent" />
+    <item target="dimen/contact_list_item_height" value="@dimen/contact_list_item_height" />
+    <item target="dimen/favorite_item_padding" value="@dimen/favorite_item_padding" />
+    <item target="dimen/favorites_avatar_margin_bottom" value="@dimen/favorites_avatar_margin_bottom" />
+    <item target="dimen/large_avatar_icon_size" value="@dimen/large_avatar_icon_size" />
+    <item target="dimen/list_item_height" value="@dimen/list_item_height" />
+    <item target="dimen/vertical_divider_inset" value="@dimen/vertical_divider_inset" />
+
+    <item target="layout/add_favorite_list_item" value="@layout/add_favorite_list_item"/>
+    <item target="layout/contact_details_address" value="@layout/contact_details_address"/>
+    <item target="layout/contact_details_number" value="@layout/contact_details_number"/>
+    <item target="layout/contact_user_profile" value="@layout/contact_user_profile"/>
+    <item target="layout/dialpad_fragment_with_type_down" value="@layout/dialpad_fragment_with_type_down"/>
+    <item target="layout/dialpad_user_profile" value="@layout/dialpad_user_profile"/>
+    <item target="layout/incall_dialpad_fragment" value="@layout/incall_dialpad_fragment"/>
+    <item target="layout/no_hfp" value="@layout/no_hfp"/>
+    <item target="layout/ongoing_call_fragment" value="@layout/ongoing_call_fragment"/>
+    <item target="layout/restricted_dialing_mode_label" value="@layout/restricted_dialing_mode_label"/>
+    <item target="layout/type_down_list_item" value="@layout/type_down_list_item"/>
+    <item target="layout/user_profile_large" value="@layout/user_profile_large"/>
+
+    <item target="style/AddFavoriteText" value="@style/AddFavoriteText"/>
+    <item target="style/KeypadButtonStyle" value="@style/KeypadButtonStyle"/>
+    <item target="style/KeypadLetter" value="@style/KeypadLetter"/>
+    <item target="style/KeypadNumber" value="@style/KeypadNumber"/>
+    <item target="style/TextAppearance.CallLogCallCountMissedCall" value="@style/TextAppearance.CallLogCallCountMissedCall"/>
+    <item target="style/TextAppearance.CallLogSubtitle" value="@style/TextAppearance.CallLogSubtitle"/>
+    <item target="style/TextAppearance.CallLogTimestampMissedCall" value="@style/TextAppearance.CallLogTimestampMissedCall"/>
+    <item target="style/TextAppearance.CallLogTitleDefault" value="@style/TextAppearance.CallLogTitleDefault"/>
+    <item target="style/TextAppearance.CallLogTitleMissedCall" value="@style/TextAppearance.CallLogTitleMissedCall"/>
+    <item target="style/TextAppearance.ContactDetailsTitle" value="@style/TextAppearance.ContactDetailsTitle"/>
+    <item target="style/TextAppearance.ContactDetailsListTitle" value="@style/TextAppearance.ContactDetailsListTitle"/>
+    <item target="style/TextAppearance.ContactDetailsListSubtitle" value="@style/TextAppearance.ContactDetailsListSubtitle"/>
+    <item target="style/TextAppearance.ContactResultTitle" value="@style/TextAppearance.ContactResultTitle"/>
+    <item target="style/TextAppearance.DialpadDisplayName" value="@style/TextAppearance.DialpadDisplayName"/>
+    <item target="style/TextAppearance.DialNumber" value="@style/TextAppearance.DialNumber"/>
+    <item target="style/TextAppearance.TypeDownListSpan" value="@style/TextAppearance.TypeDownListSpan"/>
+    <item target="style/SubheaderText" value="@style/SubheaderText"/>
+</overlay>

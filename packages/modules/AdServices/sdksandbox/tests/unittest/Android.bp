@@ -1,0 +1,118 @@
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_team: "trendy_team_rubidium_sdk_runtime",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_defaults {
+    name: "SdkSandboxUnitTestsDefault",
+    min_sdk_version: "Tiramisu",
+    target_sdk_version: "Tiramisu",
+    test_suites: [
+        "mts-adservices",
+        "general-tests",
+    ],
+    static_libs: [
+        "androidx.test.runner",
+        "compatibility-device-util-axt-minus-dexmaker",
+        "mockito-target-extended-minus-junit4",
+        "truth",
+        "flag-junit",
+        "platform-test-annotations",
+        "adservices-test-utility",
+        "SdkSandboxTestUtils",
+        "SdkSandbox-java-lib",
+    ],
+    jni_libs: [
+        // Required for ExtendedMockito
+        "libdexmakerjvmtiagent",
+        "libstaticjvmtiagent",
+    ],
+    libs: [
+        "android.test.base",
+        "android.test.mock",
+        "android.test.runner",
+        "framework-sdksandbox.impl",
+        "framework-configinfrastructure",
+    ],
+    // Test coverage system runs on different devices. Need to
+    // compile for all architecture.
+    compile_multilib: "both",
+}
+
+android_test {
+    name: "SdkSandboxUnitTests",
+    srcs: [
+        "src/com/android/sdksandbox/*.java",
+        ":sdksandbox_aidl",
+        ":framework-sdksandbox-aidl-sources",
+    ],
+    defaults: ["SdkSandboxUnitTestsDefault"],
+    manifest: "SdkSandboxManifest.xml",
+    test_config: "SdkSandboxTest.xml",
+    data: [
+        ":TestProviderApp",
+    ],
+    static_libs: [
+        "androidx.core_core",
+        "androidx.test.rules",
+        "androidx.test.ext.truth",
+        "androidx.test.ext.junit",
+    ],
+}
+
+android_test {
+    name: "SdkSandboxManagerServiceUnitTests",
+    srcs: [
+        "src/com/android/server/sdksandbox/**/*.java",
+        ":framework-sdksandbox-aidl-sources",
+    ],
+    defaults: ["SdkSandboxUnitTestsDefault"],
+    manifest: "SdkSandboxManagerServiceManifest.xml",
+    test_config: "SdkSandboxManagerServiceTest.xml",
+    static_libs: [
+        "service-sdksandbox.impl",
+        "services.core",
+        "modules-utils-build",
+        "sdk_sandbox_flags_lib",
+    ],
+    data: [
+        ":SampleCodeProviderApp",
+        ":SampleApp",
+        ":CodeProviderWithResources",
+        ":CtsSdkProviderAppWithoutSdkProviderClassNameProperty",
+    ],
+    java_resources: [
+        "verification/corrupt_allowlist.binarypb",
+    ],
+}
+
+android_test {
+    name: "SdkSandboxFrameworkUnitTests",
+    srcs: [
+        "src/android/app/sdksandbox/**/*.java",
+        ":framework-sdksandbox-sources",
+    ],
+    defaults: [
+        "SdkSandboxUnitTestsDefault",
+        "framework-sdksandbox-jarjar-defaults",
+    ],
+    manifest: "SdkSandboxFrameworkManifest.xml",
+    test_config: "SdkSandboxFrameworkTest.xml",
+    data: [
+        ":CodeProviderWithResources",
+    ],
+}

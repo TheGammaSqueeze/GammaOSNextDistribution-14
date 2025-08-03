@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2016 The Android Open Source Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <dimen name="drag_handle_margin">16dp</dimen>
+
+    <!-- Dimens for display formula. -->
+    <dimen name="formula_padding_top">32dip</dimen>
+    <dimen name="formula_padding_bottom">22dip</dimen>
+    <dimen name="formula_padding_start">44dip</dimen>
+    <dimen name="formula_padding_end">44dip</dimen>
+    <dimen name="formula_min_textsize">48dip</dimen>
+    <dimen name="formula_max_textsize">128dip</dimen>
+    <dimen name="formula_step_textsize">8dip</dimen>
+
+    <!-- Dimens for display result. -->
+    <dimen name="result_padding_top">22dip</dimen>
+    <dimen name="result_padding_bottom">64dip</dimen>
+    <dimen name="result_padding_start">44dip</dimen>
+    <dimen name="result_padding_end">44dip</dimen>
+    <dimen name="result_textsize">72dip</dimen>
+
+    <!-- Pads -->
+    <dimen name="pads_horizontal_edge_padding">16dp</dimen>
+    <dimen name="pads_vertical_edge_padding">16dp</dimen>
+    <dimen name="pads_intra_padding">8dp</dimen>
+
+    <!-- Buttons -->
+    <dimen name="button_horizontal_margin">6dp</dimen>
+    <dimen name="button_small_horizontal_margin">4dp</dimen>
+    <dimen name="button_textsize">46sp</dimen>
+    <dimen name="button_iconsize">42dp</dimen>
+    <dimen name="button_small_textsize">32sp</dimen>
+    <dimen name="button_smallcaps_textsize">28sp</dimen>
+</resources>

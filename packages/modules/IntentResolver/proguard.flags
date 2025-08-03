@@ -1,0 +1,2 @@
+# Class referenced from xml drawable
+-keep class com.android.intentresolver.SimpleIconFactory$FixedScaleDrawable

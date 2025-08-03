@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2017-2024 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <string name="app_name">Prehliadač</string>
+    <string name="menu_new_tab">Nová karta</string>
+    <string name="menu_incognito">Inkognito karta</string>
+    <string name="menu_fav_add">Pridať k obľúbeným</string>
+    <string name="menu_share">Zdieľať</string>
+    <string name="menu_favorites">Záložky</string>
+    <string name="menu_history">História</string>
+    <string name="menu_shortcut">Pridať odkaz</string>
+    <string name="menu_settings">Nastavenia</string>
+    <string name="menu_download">Stiahnuť</string>
+    <string name="menu_in_new_tab">Otvoriť na novej karte</string>
+    <string name="menu_search">Nájsť na stránke</string>
+    <string name="menu_print">Vytlačiť</string>
+    <string name="share_title">Odoslať</string>
+    <string name="dismiss">Odmietnuť</string>
+    <string name="download_title">Stiahnuť súbor</string>
+    <string name="download_message">Chcete sttiahnuť %1$s?</string>
+    <string name="download_positive">Stiahnuť</string>
+    <string name="settings_title">Nastavenia</string>
+    <string name="pref_search_engine">Vyhľadávač</string>
+    <string name="pref_start_page">Domovská stránka</string>
+    <string name="pref_start_page_dialog_title">Nastaviť domovskú stránku</string>
+    <string name="pref_start_page_dialog_message">Napíšte URL adresu domovskej stránky</string>
+    <string name="pref_start_page_dialog_reset">Resetovať</string>
+    <string name="pref_privacy_security">Súkromie a zabezpečenie</string>
+    <string name="pref_looklock_title">LookLock</string>
+    <string name="pref_looklock_summary">Zabrániť iným aplikáciám čítať obsah z prehliadača</string>
+    <string name="pref_js_title">JavaScript</string>
+    <string name="pref_js_summary">Povoliť JavaScript</string>
+    <string name="pref_location_title">Poloha</string>
+    <string name="pref_location_summary">Povoliť webovým stránkam prístup k vašej polohe</string>
+    <string name="pref_cookie_title">Súbory cookie</string>
+    <string name="pref_cookie_summary">Povoliť webovým lokalitám ukladať a načítavať súbory cookie</string>
+    <string name="pref_screenshot_snap_title">Rozšírené zdieľanie</string>
+    <string name="pref_screenshot_snap_summary">Zdieľanie náhľadu zdieľanej webovej stránky</string>
+    <string name="pref_cookie_clear">Vymazať súbory cookie</string>
+    <string name="pref_cookie_clear_done">Vymazať všetky súbory cookie</string>
+    <string name="pref_do_not_track_title">Funkcia Nesledovať</string>
+    <string name="pref_do_not_track_summary">Odošle webovým stránkam požiadavku, aby vás nesledovali</string>
+    <string name="pref_suggestions_provider">Poskytovateľ návrhov</string>
+    <string name="pref_reach_mode_title">Režim dosahu</string>
+    <string name="pref_reach_mode_summary">Zmena umiestnenia prvkov rozhrania pre jednoduchšie ovládanie jednou rukou</string>
+    <string name="history_title">História</string>
+    <string name="history_empty">Nič tu nie je, prechádzaním internetu uvidíte svoju históriu</string>
+    <string name="history_date_format">EEEE, dd. MMMM yyyy, HH:mm</string>
+    <string name="history_delete_title">Vymazať históriu</string>
+    <string name="history_delete_message">Rozhodli ste sa odstrániť celú históriu, túto akciu nebude možné vrátiť späť. Chcete pokračovať?</string>
+    <string name="history_delete_positive">Vymazať</string>
+    <string name="history_deleting_message">Mazanie histórie\u2026</string>
+    <string name="history_snackbar_item_deleted">Položka bola vymazaná</string>
+    <string name="history_snackbar_item_deleted_message">Späť</string>
+    <string name="favorite_title">Obľúbené</string>
+    <string name="favorite_added">Pridané k obľúbeným</string>
+    <string name="favorite_empty">Nie je tu nič, pridajte obľúbený odkaz, aby ste si ho tu mohli prezrieť</string>
+    <string name="favorite_edit_dialog_title">Upraviť obľúbené</string>
+    <string name="favorite_edit_title">Názov</string>
+    <string name="favorite_edit_url">URL adresa</string>
+    <string name="favorite_edit_positive">Editovať</string>
+    <string name="favorite_edit_delete">Vymazať</string>
+    <string name="favorite_edit_error">Vložte platnú adresu url</string>
+    <string name="error_no_activity_found">K tomuto odkazu nie je priradená žiadna aplikácia</string>
+    <string name="auth_dialog_title">Vyžaduje sa overenie</string>
+    <string name="auth_dialog_username">Meno používateľa:</string>
+    <string name="auth_dialog_password">Heslo:</string>
+    <string name="auth_dialog_detail">%1$s vyžaduje užívateľské meno a heslo.</string>
+    <string name="auth_dialog_login">Prihlásiť sa</string>
+    <string name="shortcut_new_incognito_tab">Nová karta v režime inkognito</string>
+    <string name="suggestions_provider_none">Žiadny</string>
+    <string name="search_bar_hint">Vyhľadať</string>
+    <string name="ssl_cert_dialog_title">Podrobnosti certifikátu SSL</string>
+    <string name="ssl_cert_dialog_domain">Doména</string>
+    <string name="ssl_cert_dialog_issued_to">Vydané pre</string>
+    <string name="ssl_cert_dialog_issued_by">Vydal</string>
+    <string name="ssl_cert_dialog_validity">Doba platnosti</string>
+    <string name="ssl_cert_dialog_common_name">Bežný názov (CN)</string>
+    <string name="ssl_cert_dialog_organization">Organizácia (O)</string>
+    <string name="ssl_cert_dialog_organizational_unit">Organizačná jednotka (OSN)</string>
+    <string name="ssl_cert_dialog_issued_on">Vydané</string>
+    <string name="ssl_cert_dialog_expires_on">Platnosť končí</string>
+    <string name="ssl_cert_dialog_dismiss">Zamietnuť</string>
+</resources>

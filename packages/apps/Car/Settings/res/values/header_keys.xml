@@ -1,0 +1,67 @@
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!--
+    Mapping of activities to top level header keys. Namespaced with "hk" (Header Key) to avoid
+    conflicts.
+-->
+<resources>
+    <string name="hk_HomepageActivity">@string/pk_bluetooth_settings_entry</string>
+    <string name="hk_DisplaySettingsActivity">@string/pk_display_settings_entry</string>
+    <string name="hk_SoundSettingsActivity">@string/pk_sound_settings_entry</string>
+    <string name="hk_RingtonePickerActivity">@string/pk_sound_settings_entry</string>
+    <string name="hk_NetworkAndInternetActivity">@string/pk_network_and_internet_entry</string>
+    <string name="hk_BluetoothSettingsActivity">@string/pk_bluetooth_settings_entry</string>
+    <string name="hk_UnitsSettingsActivity">@string/pk_units_settings_entry</string>
+    <string name="hk_LocationSettingsActivity">@string/pk_location_settings_entry</string>
+    <string name="hk_AppsActivity">@string/pk_apps_settings_entry</string>
+    <string name="hk_NotificationsActivity">@string/pk_notifications_settings_entry</string>
+    <string name="hk_DatetimeSettingsActivity">@string/pk_date_time_settings_entry</string>
+    <string name="hk_ProfileDetailsActivity">@string/pk_profiles_and_accounts_settings_entry</string>
+    <string name="hk_PrivacySettingsActivity">@string/pk_privacy_settings_entry</string>
+    <string name="hk_VehicleDataActivity">@string/pk_privacy_settings_entry</string>
+    <string name="hk_StorageSettingsActivity">@string/pk_storage_settings_entry</string>
+    <string name="hk_SecuritySettingsActivity">@string/pk_security_settings_entry</string>
+    <string name="hk_AssistantAndVoiceSettingsActivity">@string/pk_assistant_and_voice_settings_entry</string>
+    <string name="hk_SystemSettingsActivity">@string/pk_system_settings_entry</string>
+    <string name="hk_WifiSettingsActivity">@string/pk_network_and_internet_entry</string>
+    <string name="hk_WifiTetherActivity">@string/pk_network_and_internet_entry</string>
+    <string name="hk_MobileNetworkActivity">@string/pk_network_and_internet_entry</string>
+    <string name="hk_MobileNetworkListActivity">@string/pk_network_and_internet_entry</string>
+    <string name="hk_ApplicationsSettingsActivity">@string/pk_apps_settings_entry</string>
+    <string name="hk_SpecialAccessSettingsActivity">@string/pk_apps_settings_entry</string>
+    <string name="hk_LanguagesAndInputActivity">@string/pk_system_settings_entry</string>
+    <string name="hk_AboutSettingsActivity">@string/pk_system_settings_entry</string>
+    <string name="hk_LegalInformationActivity">@string/pk_system_settings_entry</string>
+    <string name="hk_ResetOptionsActivity">@string/pk_system_settings_entry</string>
+    <string name="hk_AddWifiActivity">@string/pk_network_and_internet_entry</string>
+    <string name="hk_WifiPreferencesActivity">@string/pk_network_and_internet_entry</string>
+    <string name="hk_ApplicationsDetailsActivity">@string/pk_apps_settings_entry</string>
+    <string name="hk_ModifySystemSettingsActivity">@string/pk_apps_settings_entry</string>
+    <string name="hk_NotificationAccessActivity">@string/pk_apps_settings_entry</string>
+    <string name="hk_PremiumSmsAccessActivity">@string/pk_apps_settings_entry</string>
+    <string name="hk_UsageAccessActivity">@string/pk_apps_settings_entry</string>
+    <string name="hk_WifiControlActivity">@string/pk_apps_settings_entry</string>
+    <string name="hk_ChooseAccountActivity">@string/pk_profiles_and_accounts_settings_entry</string>
+    <string name="hk_LanguagePickerActivity">@string/pk_system_settings_entry</string>
+    <string name="hk_DefaultAutofillPickerActivity">@string/pk_system_settings_entry</string>
+    <string name="hk_KeyboardActivity">@string/pk_system_settings_entry</string>
+    <string name="hk_TextToSpeechOutputActivity">@string/pk_system_settings_entry</string>
+    <string name="hk_BluetoothDevicePickerActivity">@string/pk_bluetooth_settings_entry</string>
+    <string name="hk_DataWarningAndLimitActivity">pk_network_and_internet_entry</string>
+    <string name="hk_AccessibilitySettingsActivity">@string/pk_accessibility_settings_entry</string>
+    <string name="hk_CaptionsSettingsActivity">@string/pk_accessibility_settings_entry</string>
+</resources>

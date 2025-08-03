@@ -1,0 +1,20 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+bootstrap_go_package {
+    name: "soong-csuite",
+    pkgPath: "android/soong/csuite",
+    deps: [
+        "blueprint",
+        "soong-android",
+        "soong-java",
+    ],
+    srcs: [
+        "csuite_test.go",
+    ],
+    testSrcs: [
+        "csuite_test_test.go",
+    ],
+    pluginFor: ["soong_build"],
+}

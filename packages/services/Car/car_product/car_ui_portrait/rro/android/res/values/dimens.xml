@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources>
+    <!-- Height of the status bar -->
+    <dimen name="status_bar_height">92dp</dimen>
+    <!-- Height of the bottom navigation / climate bar. -->
+    <dimen name="navigation_bar_height">160dp</dimen>
+    <dimen name="navigation_bar_height_landscape">160dp</dimen>
+    <!-- Focus -->
+    <dimen name="car_focus_ring_width">4dp</dimen>
+    <dimen name="car_focus_ring_pressed_width">4dp</dimen>
+
+    <!-- ****** Alert dialog dimens ***** -->
+
+    <!-- Dialog corner radius -->
+    <dimen name="alert_dialog_corner_radius">32dp</dimen>
+    <!-- Dialog button corner radius -->
+    <dimen name="alert_dialog_button_corner_radius">24dp</dimen>
+    <!-- Dialog header size -->
+    <dimen name="car_card_header_height">88dp</dimen>
+    <!-- Dialog image size -->
+    <dimen name="car_alert_dialog_title_image_size">@dimen/car_card_header_height</dimen>
+    <!-- Dialog button layout height -->
+    <dimen name="button_layout_height">88dp</dimen>
+    <!-- Default dialog button margin -->
+    <dimen name="car_alert_dialog_button_margin">16dp</dimen>
+
+    <!-- ****** Toast dimens ***** -->
+
+    <!-- Toast corner radius -->
+    <dimen name="toast_corner_radius">48dp</dimen>
+    <!-- Toast margin -->
+    <dimen name="car_portrait_ui_toast_margin">24dp</dimen>
+    <!-- Toast elevation -->
+    <dimen name="toast_elevation">0dp</dimen>
+    <!-- Toast max width -->
+    <dimen name="toast_width">1050dp</dimen>
+    <dimen name="toast_y_offset">268dp</dimen>
+    <dimen name="car_portrait_ui_toast_bottom_margin">32dp</dimen>
+
+    <!-- ****** Buttons dimens ***** -->
+
+    <dimen name="car_button_focus_ring_width">@dimen/car_focus_ring_width</dimen>
+    <dimen name="car_button_height">88dp</dimen>
+    <dimen name="car_button_height_small">64dp</dimen>
+    <dimen name="car_button_min_width">158dp</dimen>
+    <dimen name="car_button_horizontal_padding">48dp</dimen>
+    <dimen name="car_button_vertical_padding">24dp</dimen>
+    <dimen name="car_borderless_button_horizontal_padding">0dp</dimen>
+    <dimen name="car_button_radius">44dp</dimen>
+    <dimen name="car_button_small_radius">32dp</dimen>
+    <dimen name="car_pill_button_size">88dp</dimen>
+    <dimen name="car_touch_target_size">76dp</dimen>
+    <dimen name="car_action1_size">32sp</dimen>
+
+    <!-- ****** Checkbox dimens ***** -->
+    <dimen name="car_checkbox_size">44dp</dimen>
+    <dimen name="car_checkbox_focus_ring_width">@dimen/car_focus_ring_width</dimen>
+
+    <!-- ****** Switch dimens ***** -->
+    <dimen name="car_switch_thumb_size">40dp</dimen>
+    <dimen name="car_switch_track_height">48dp</dimen>
+    <dimen name="car_switch_track_rounded_corner_radius">24dp</dimen>
+    <dimen name="car_switch_thumb_margin_size">4dp</dimen>
+    <dimen name="car_switch_track_margin_horizontal">6dp</dimen>
+    <dimen name="car_switch_track_padding_horizontal">10dp</dimen>
+    <dimen name="car_switch_track_margin_size">10dp</dimen>
+    <dimen name="car_switch_focus_ring_width">@dimen/car_focus_ring_width</dimen>
+    <dimen name="car_switch_focus_ring_pressed_width">@dimen/car_focus_ring_pressed_width</dimen>
+
+    <!-- ****** Seekbar dimens ***** -->
+    <dimen name="car_seekbar_background_height">4dp</dimen>
+    <dimen name="car_seekbar_background_corner_radius">2dp</dimen>
+    <dimen name="car_seekbar_height">4dp</dimen>
+    <dimen name="car_seekbar_rounded_corner_radius">2dp</dimen>
+    <dimen name="car_seekbar_thumb_size">16dp</dimen>
+    <dimen name="car_seekbar_horizontal_padding">8dp</dimen>
+
+    <!-- Make the dots in lock pattern thicker in Car -->
+    <dimen name="lock_pattern_dot_size">32dp</dimen>
+</resources>

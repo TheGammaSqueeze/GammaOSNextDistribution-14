@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2021 Google Inc. All Rights Reserved -->
+<!-- AOSP log saver for Atest. -->
+<configuration description="AOSP log saver for Atest" >
+    <log_saver class="com.android.tradefed.result.ATestFileSystemLogSaver">
+        <option name="compress-files" value="false" />
+    </log_saver>
+</configuration>

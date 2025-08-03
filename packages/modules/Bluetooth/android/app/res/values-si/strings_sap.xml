@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="bluetooth_sap_notif_title" msgid="7854456947435963346">"බ්ලූටූත් SIM ප්‍රවේශය"</string>
+    <string name="bluetooth_sap_notif_ticker" msgid="7295825445933648498">"බ්ලූටූත් SIM ප්‍රවේශය"</string>
+    <string name="bluetooth_sap_notif_message" msgid="1004269289836361678">"විසන්ධි කිරීමට සේවාලාභියාගෙන් ඉල්ලා සිටින්නද?"</string>
+    <string name="bluetooth_sap_notif_disconnecting" msgid="6041257463440623400">"සේවාලාභියා විසන්ධි කරන තෙක් රැඳී සිටිමින්"</string>
+    <string name="bluetooth_sap_notif_disconnect_button" msgid="3059012556387692616">"විසන්ධි කරන්න"</string>
+    <string name="bluetooth_sap_notif_force_disconnect_button" msgid="2239425242376623998">"බලෙන් විසන්ධි කිරීම"</string>
+</resources>

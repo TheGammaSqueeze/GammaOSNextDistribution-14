@@ -1,0 +1,49 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_netd_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_netd_license"],
+}
+
+cc_binary {
+    name: "netutils-wrapper-1.0",
+    defaults: ["netd_defaults"],
+    srcs: [
+        "NetUtilsWrapper-1.0.cpp",
+        "main.cpp",
+    ],
+    shared_libs: [
+        "libbase",
+        "liblog",
+    ],
+    symlinks: [
+        "iptables-wrapper-1.0",
+        "ip6tables-wrapper-1.0",
+        "ndc-wrapper-1.0",
+        "tc-wrapper-1.0",
+        "ip-wrapper-1.0",
+    ],
+    cflags: [
+        "-Werror",
+        "-Wall",
+        "-Wextra",
+    ],
+    sanitize: {
+        cfi: true,
+    },
+}
+
+cc_test {
+    name: "netutils_wrapper_test",
+    defaults: ["netd_defaults"],
+    srcs: [
+        "NetUtilsWrapper-1.0.cpp",
+        "NetUtilsWrapperTest-1.0.cpp",
+    ],
+    shared_libs: [
+        "libbase",
+        "liblog",
+    ],
+}

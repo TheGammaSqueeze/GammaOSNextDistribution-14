@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2013 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="userCallActivityLabel" product="default">Fòn</string>
+    <string name="unknown">Neo-aithnichte</string>
+    <string name="notification_missedCallTitle">Gairm a dh’fhalbh ort</string>
+    <string name="notification_missedWorkCallTitle">Gairm na h-obrach a dh’fhalbh ort</string>
+    <string name="notification_missedCallsTitle">Gairmean a dh’fhalbh ort</string>
+    <string name="notification_missedCallsMsg">Dh’fhalbh gairmean ort (<xliff:g id="num_missed_calls">%s</xliff:g>)</string>
+    <string name="notification_missedCallTicker">Dh’fhalbh gairm o <xliff:g id="missed_call_from">%s</xliff:g> ort</string>
+    <string name="notification_missedCall_call_back">Fònaig air ais</string>
+    <string name="notification_missedCall_message">Cuir teachdaireachd</string>
+    <string name="notification_disconnectedCall_title">Chaidh crìoch a chur air a’ ghairm</string>
+    <string name="notification_disconnectedCall_body">Chaidh crìoch a chur air a’ ghairm gu <xliff:g id="caller">%s</xliff:g> on a chaidh gairm-èiginn a chur.</string>
+    <string name="notification_disconnectedCall_generic_body">        Chaidh crìoch a chur air a’ ghairm agad on a chaidh gairm-èiginn a chur.
+    </string>
+    <string name="notification_audioProcessing_title">Gairm sa chùlaibh</string>
+    <string name="notification_incallservice_not_responding_title">        Chan eil <xliff:g id="in_call_service_app_name">%s</xliff:g> a’ freagairt tuilleadh
+    </string>
+    <string name="notification_incallservice_not_responding_body">        Chleachd a’ ghairm agad aplacaid an fhòn a thàining am broinn an uidheim agad
+    </string>
+    <string name="accessibility_call_muted">Chaidh a’ ghairm a mhùchadh.</string>
+    <string name="accessibility_speakerphone_enabled">Tha glaodhaire an fhòn an comas.</string>
+    <string name="respond_via_sms_canned_response_1">Chan urrainn dhomh bruidhinn riut an-dràsta. Dè tha dol?</string>
+    <string name="respond_via_sms_canned_response_2">Cuiridh mi fòn thugad an ceartair.</string>
+    <string name="respond_via_sms_canned_response_3">Cuiridh mi fòn thugad an ceann tamaill.</string>
+    <string name="respond_via_sms_canned_response_4">Chan urrainn dhomh bruidhinn riut an-dràsta. An cuir thu fòn thugam an ceann tamaill?</string>
+    <string name="respond_via_sms_setting_title">Grad-fhreagairtean</string>
+    <string name="respond_via_sms_setting_title_2">Deasaich na grad-fhreagairtean</string>
+    <string name="respond_via_sms_edittext_dialog_title">Grad-fhreagairt</string>
+    <string name="respond_via_sms_confirmation_format">Chaidh an teachdaireachd a chur gu <xliff:g id="phone_number">%s</xliff:g>.</string>
+    <string name="respond_via_sms_failure_format">Cha deach an teachdaireachd a chur gu <xliff:g id="phone_number">%s</xliff:g>.</string>
+    <string name="enable_account_preference_title">Cunntasan ghairmean</string>
+    <string name="outgoing_call_not_allowed_user_restriction">Chan eil ach gairmean èiginn ceadaichte.</string>
+    <string name="outgoing_call_not_allowed_no_permission">Chan urrainn dhan aplacaid seo gairm a-mach a chur gun chead air an fhòn.</string>
+    <string name="outgoing_call_error_no_phone_number_supplied">Airson gairm a chur, cuir a-steach àireamh dhligheach.</string>
+    <string name="duplicate_video_call_not_allowed">Cha ghabh a’ ghairm a chur ris aig an àm seo.</string>
+    <string name="no_vm_number">Tha àireamh a’ phuist-ghutha a dhìth</string>
+    <string name="no_vm_number_msg">Chan eil àireamh puist-ghutha air a’ chairt SIM.</string>
+    <string name="add_vm_number_str">Cuir àireamh ris</string>
+    <string name="change_default_dialer_dialog_title">An dèan thu aplacaid bhunaiteach an fhòn dhe <xliff:g id="new_app">%s</xliff:g>?</string>
+    <string name="change_default_dialer_dialog_affirmative">Suidhich mar a’ bhun-roghainn</string>
+    <string name="change_default_dialer_dialog_negative">Sguir dheth</string>
+    <string name="change_default_dialer_warning_message">’S urrainn dha <xliff:g id="new_app">%s</xliff:g> gairmean a chur is gach nì mun dèidhinn a stiùireadh. Cha bu chòir dhut aplacaid a shuidheachadh mar tè bhunaiteach an fhòn ach ma bhios earbsa agad innte.</string>
+    <string name="change_default_call_screening_dialog_title">An dèan thu aplacaid bhunaiteach an sgrìnidh ghairmean dhe <xliff:g id="new_app">%s</xliff:g>?</string>
+    <string name="change_default_call_screening_warning_message_for_disable_old_app">Chan urrainn dha <xliff:g id="old_app">%s</xliff:g> gairmean a sgrìneadh tuilleadh an uairsin.</string>
+    <string name="change_default_call_screening_warning_message">Chì <xliff:g id="new_app">%s</xliff:g> fiosrachadh mu ghairmearan nach eil am measg an luchd-aithne agad agus ’s urrainn dha na gairmean sin a bhacadh. Cha bu chòir dhut aplacaid a shuidheachadh mar tè bhunaiteach an sgrìnidh ghairmean ach ma bhios earbsa agad innte.</string>
+    <string name="change_default_call_screening_dialog_affirmative">Suidhich mar a’ bhun-roghainn</string>
+    <string name="change_default_call_screening_dialog_negative">Sguir dheth</string>
+    <string name="blocked_numbers">Àireamhan bacte</string>
+    <string name="blocked_numbers_msg">Chan fhaigh thu gairm no teachdaireachd on a h-àireamhan bacte.</string>
+    <string name="block_number">Cuir àireamh ris</string>
+    <string name="unblock_dialog_body">An dì-bhac thu <xliff:g id="number_to_block">%1$s</xliff:g>?</string>
+    <string name="unblock_button">Dì-bhac</string>
+    <string name="add_blocked_dialog_body">Bac gairmean is teacsaichean o</string>
+    <string name="add_blocked_number_hint">Àireamh fòn</string>
+    <string name="block_button">Bac</string>
+    <string name="non_primary_user">Cha sheall no stiùir ach seilbheadair an uidheim na h-àireamhan bacte.</string>
+    <string name="delete_icon_description">Dì-bhac</string>
+    <string name="blocked_numbers_butter_bar_title">Tha am bacadh dheth rè seal</string>
+    <string name="blocked_numbers_butter_bar_body">Nuair a chuireas tu gairm no teacsa gu àireamh-èiginn, thèid am bacadh a chur dheth a dhèanamh cinnteach gun ruig na seirbheisean-èiginn thu.</string>
+    <string name="blocked_numbers_butter_bar_button">Cuir an comas a-rithist an-dràsta</string>
+    <string name="blocked_numbers_number_blocked_message">Chaidh <xliff:g id="blocked_number">%1$s</xliff:g> a bhacadh</string>
+    <string name="blocked_numbers_number_unblocked_message">Chaidh <xliff:g id="unblocked_number">%1$s</xliff:g> a dhì-bhacadh</string>
+    <string name="blocked_numbers_block_emergency_number_message">Cha ghabh àireamh-èiginn a bhacadh.</string>
+    <string name="blocked_numbers_number_already_blocked_message">Chaidh <xliff:g id="blocked_number">%1$s</xliff:g> a bhacadh cheana.</string>
+    <string name="test_account_0_label">Q Mobile</string>
+    <string name="test_account_1_label">Market Wireless</string>
+    <string name="test_account_2_label">Sonoma Circles Talk Plus</string>
+    <string name="test_account_3_label">Bay Voice Chat Pro</string>
+    <string name="test_account_0_short_description">Account with Q Mobile</string>
+    <string name="test_account_1_short_description">Account with Market Wireless</string>
+    <string name="test_account_2_short_description">Talk to everyone in your Circles!</string>
+    <string name="test_account_3_short_description">Chat with Chat Network users</string>
+    <string name="handle_restricted">RESTRICTED</string>
+    <string name="toast_personal_call_msg">A’ cleachdadh an daithealair pearsanta airson na gairm</string>
+    <string name="notification_incoming_call">Gairm <xliff:g id="call_via">%1$s</xliff:g> o <xliff:g id="call_from">%2$s</xliff:g></string>
+    <string name="notification_incoming_video_call">Gairm video <xliff:g id="call_via">%1$s</xliff:g> o <xliff:g id="call_from">%2$s</xliff:g></string>
+    <string name="answering_ends_other_call">Ma fhreagras tu, thèid crìoch a chur air a’ ghairm <xliff:g id="call_via">%1$s</xliff:g> agad</string>
+    <string name="answering_ends_other_calls">Ma fhreagras tu, thèid crìoch a chur air na gairmean <xliff:g id="call_via">%1$s</xliff:g> agad</string>
+    <string name="answering_ends_other_video_call">Ma fhreagras tu, thèid crìoch a chur air a’ ghairm video <xliff:g id="call_via">%1$s</xliff:g> agad</string>
+    <string name="answering_ends_other_managed_call">Ma fhreagras tu, thèid crìoch a chur air gairm a tha a’ dol air adhart</string>
+    <string name="answering_ends_other_managed_calls">Ma fhreagras tu, thèid crìoch a chur air gairmean a tha a’ dol air adhart</string>
+    <string name="answering_ends_other_managed_video_call">Ma fhreagras tu, thèid crìoch a chur air gairm video a tha a’ dol air adhart</string>
+    <string name="answer_incoming_call">Freagair</string>
+    <string name="decline_incoming_call">Diùlt</string>
+    <string name="cant_call_due_to_no_supported_service">Chan urrainn dhuinn a’ ghairm a chur o nach eil cunntas gairmeir ann a chuireas taic ris an t-seòrsa seo de ghairm.</string>
+    <string name="cant_call_due_to_ongoing_call">Cha ghabh a’ ghairm a chur air sàilleibh na gairme <xliff:g id="other_call">%1$s</xliff:g> agad.</string>
+    <string name="cant_call_due_to_ongoing_calls">Cha ghabh a’ ghairm a chur air sàilleibh nan gairmean <xliff:g id="other_call">%1$s</xliff:g> agad.</string>
+    <string name="cant_call_due_to_ongoing_unknown_call">Cha ghabh a’ ghairm a chur air sàilleibh gairme am broinn aplacaid eile.</string>
+    <string name="notification_channel_incoming_call">Gairmean a-steach</string>
+    <string name="notification_channel_missed_call">Gairmean a dh’fhalbh ort</string>
+    <string name="notification_channel_call_blocking">Bacadh ghairmean</string>
+    <string name="notification_channel_background_calls">Gairmean sa chùlaibh</string>
+    <string name="notification_channel_disconnected_calls">Gairmean a chaidh crìoch a chur orra</string>
+    <string name="notification_channel_in_call_service_crash">Aplacaidean fòn a thuislich</string>
+    <string name="alert_outgoing_call">Ma chuireas tu a’ ghairm seo, thèid crìoch a chur air a’ ghairm <xliff:g id="other_app">%1$s</xliff:g> agad.</string>
+    <string name="alert_redirect_outgoing_call_or_not">Tagh mar a thèid a’ ghairm seo a chur</string>
+    <string name="alert_place_outgoing_call_with_redirection">Sìn a’ ghairm air adhart le <xliff:g id="other_app">%1$s</xliff:g></string>
+    <string name="alert_place_unredirect_outgoing_call">Dèan gairm leis an àireamh fòn agam</string>
+    <string name="alert_redirect_outgoing_call_timeout">Chan urrainn dha <xliff:g id="other_app">%1$s</xliff:g> a’ ghairm seo a chur. Feuch aplacaid sìnidh air adhart eile no cuir fios dhan luchd-leasachaidh airson taic.</string>
+    <string name="phone_settings_call_blocking_txt">Bacadh ghairmean</string>
+    <string name="phone_settings_number_not_in_contact_txt">Àireamhan nach eil ’nan luchd-aithne</string>
+    <string name="phone_settings_number_not_in_contact_summary_txt">Bac àireamhan nach deach a chlàradh san luchd-aithne agad</string>
+    <string name="phone_settings_private_num_txt">Prìobhaideach</string>
+    <string name="phone_settings_private_num_summary_txt">Bac luchd-gairm nach nochd an àireamh</string>
+    <string name="phone_settings_payphone_txt">Bothan-fòn</string>
+    <string name="phone_settings_payphone_summary_txt">Bac gairmean o bhothain-fhòn</string>
+    <string name="phone_settings_unknown_txt">Neo-aithnichte</string>
+    <string name="phone_settings_unknown_summary_txt">Bac gairmean o luchd-ghairm gun aithneachadh</string>
+    <string name="phone_strings_call_blocking_turned_off_notification_title_txt">Bacadh ghairmean</string>
+    <string name="phone_strings_call_blocking_turned_off_notification_text_txt">Chaidh bacadh ghairmean a chur à comas</string>
+    <string name="phone_strings_emergency_call_made_dialog_title_txt">Chaidh gairm-èiginn a dhèanamh</string>
+    <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt">Chaidh bacadh ghairmean a chur à comas ach am faigh an luchd-cobharach grèim ort.</string>
+    <string name="developer_title">Clàr-taice luchd-leasachaidh telecom</string>
+    <string name="toast_emergency_can_not_pull_call">Chan urrainn dhut gairm a thogail fhad ’s a bhios tu ann an gairm-èiginn.</string>
+    <string name="cancel">Sguir dheth</string>
+    <string name="callendpoint_name_unknown">Neo-aithnichte</string>
+</resources>

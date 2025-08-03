@@ -1,0 +1,19 @@
+{
+    "typeCheckingMode": "strict",
+    "useLibraryCodeForTypes": true,
+    "verboseOutput": false,
+    "reportMissingTypeStubs": false,
+    "reportUnknownLambdaType": false,
+    "reportImportCycles": false,
+    "reportPrivateUsage": false,
+    "extraPaths": [
+        "../../../pandora/server",
+        "../../../../../../external/pandora/avatar",
+        "../../../../../../external/python/bumble",
+        "../../../../../../external/python/mobly",
+        "../../../../../../external/python/pyee",
+        "../../../../../../external/python/portpicker/src",
+        "../../../../../../out/soong/.intermediates/external/pandora/bt-test-interfaces/python/pandora-python-gen-src/gen/",
+        "../../../../../../out/soong/.intermediates/packages/modules/Bluetooth/pandora/interfaces/python/pandora_experimental-python-gen-src/gen/"
+    ]
+}

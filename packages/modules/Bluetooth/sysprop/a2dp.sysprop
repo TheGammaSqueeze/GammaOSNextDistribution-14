@@ -1,0 +1,11 @@
+module: "android.sysprop.bluetooth.A2dp"
+owner: Platform
+
+prop {
+    api_name: "src_sink_coexist"
+    type: Boolean
+    scope: Internal
+    access: Readonly
+    prop_name: "bluetooth.a2dp.src_sink_coexist.enabled"
+}
+

@@ -1,0 +1,102 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+genrule {
+    name: "statslog-Iwlan-java-gen",
+    tools: ["stats-log-api-gen"],
+    cmd: "$(location stats-log-api-gen) --java $(out) --module iwlan --javaPackage com.google.android.iwlan" +
+        " --javaClass IwlanStatsLog",
+    out: ["com/google/android/iwlan/IwlanStatsLog.java"],
+}
+
+android_app {
+    name: "Iwlan",
+    manifest: "AndroidManifest.xml",
+    srcs: [
+        "src/**/*.java",
+        "src/**/I*.aidl",
+        ":statslog-Iwlan-java-gen",
+    ],
+    resource_dirs: [
+        "res",
+    ],
+    static_libs: [
+        "android-support-annotations",
+        "net-utils-dnspacket-common",
+        "iwlan_telephony_flags_lib",
+    ],
+
+    libs: [
+        "android.net.ipsec.ike.stubs.system",
+        "androidx.annotation_annotation",
+        "auto_value_annotations",
+        "framework-annotations-lib",
+        "framework-connectivity",
+        "framework-wifi",
+        "modules-utils-handlerexecutor",
+    ],
+
+    plugins: ["auto_value_plugin"],
+
+    required: ["privapp-permlist_com.google.android.iwlan.xml"],
+
+    owner: "google",
+    system_ext_specific: true,
+    platform_apis: true,
+    privileged: true,
+    certificate: "platform",
+}
+
+prebuilt_etc {
+    name: "privapp-permlist_com.google.android.iwlan.xml",
+    sub_dir: "permissions",
+    src: "com.google.android.iwlan.xml",
+    filename_from_src: true,
+    system_ext_specific: true,
+}
+
+android_test {
+    name: "IwlanTests",
+
+    manifest: "test/AndroidManifest.xml",
+
+    srcs: [
+        "src/**/*.java",
+        "test/**/*.java",
+        ":statslog-Iwlan-java-gen",
+    ],
+
+    platform_apis: true,
+
+    certificate: "platform",
+
+    test_suites: ["device-tests"],
+
+    compile_multilib: "both",
+
+    libs: [
+        "android.net.ipsec.ike.stubs.system",
+        "auto_value_annotations",
+    ],
+
+    plugins: ["auto_value_plugin"],
+
+    static_libs: [
+        "android-support-annotations",
+        "androidx.test.rules",
+        "frameworks-base-testutils",
+        "mockito-target-inline-minus-junit4",
+        "mockito-target-extended-minus-junit4",
+        "net-utils-dnspacket-common",
+        "iwlan_telephony_flags_lib",
+        "platform-test-annotations",
+        "flag-junit",
+    ],
+
+    jni_libs: [
+        "libdexmakerjvmtiagent",
+        "libstaticjvmtiagent",
+        "libmultiplejvmtiagentsinterferenceagent",
+    ],
+}

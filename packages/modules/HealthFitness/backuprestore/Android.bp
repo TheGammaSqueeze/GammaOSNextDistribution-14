@@ -1,0 +1,68 @@
+//
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_app_certificate {
+    name: "com.android.health.connect.backuprestore.certificate",
+    certificate: "com.android.health.connect.backuprestore",
+}
+
+filegroup {
+    name: "healthConnectBackupRestore-sources",
+    srcs: [
+        "src/**/*.java",
+    ],
+}
+
+android_library {
+    name: "HealthConnectBackupRestoreLibrary",
+    srcs: [":healthConnectBackupRestore-sources"],
+    sdk_version: "module_current",
+    min_sdk_version: "34",
+    libs: [
+        "framework-annotations-lib",
+        "framework-healthfitness.impl",
+    ],
+    apex_available: ["com.android.healthfitness"],
+    errorprone: {
+        extra_check_modules: [
+           "//external/nullaway:nullaway_plugin"
+        ],
+        javacflags: [
+            "-Xep:NullAway:ERROR",
+            "-XepOpt:NullAway:AnnotatedPackages=com.android.health.connect.backuprestore",
+            "-XepOpt:NullAway:KnownInitializers=android.app.backup.BackupAgent.onCreate",
+        ],
+    },
+}
+
+android_app {
+    name: "HealthConnectBackupRestore",
+    defaults: ["platform_app_defaults"],
+    sdk_version: "module_current",
+    min_sdk_version: "34",
+    updatable: true,
+    certificate: ":com.android.health.connect.backuprestore.certificate",
+    additional_manifests: [
+      "PermissionsManifest.xml"
+    ],
+
+    static_libs: ["HealthConnectBackupRestoreLibrary",],
+
+    apex_available: ["com.android.healthfitness"],
+}

@@ -1,0 +1,16 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+// Helper app to verify that we can create a VM using others app payload, and share VMs between apps
+android_test_helper_app {
+    name: "MicrodroidVmShareApp",
+    srcs: ["src/java/**/*.java"],
+    // Defaults are defined in ../testapk/Android.bp
+    defaults: ["MicrodroidTestAppsDefaults"],
+    jni_libs: [
+        // Defined in ../testapk/Android.bp
+        "MicrodroidPayloadInOtherAppNativeLib",
+    ],
+    min_sdk_version: "34",
+}

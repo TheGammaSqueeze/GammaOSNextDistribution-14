@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+* Copyright (C) 2008 The Android Open Source Project
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Launcher3</string>
+    <string name="work_folder_name">Trabayu</string>
+    <string name="activity_not_found">L\'aplicación nun ta instalada</string>
+    <string name="activity_not_available">L\'aplicación nun ta disponible</string>
+    <string name="safemode_shortcut_error">L\'aplicación baxada ta desactivada nel mou seguru</string>
+    <string name="safemode_widget_error">Los widgets tán desactivaos nel mou seguru</string>
+    <string name="shortcut_not_available">L\'atayu nun ta disponible</string>
+    <string name="home_screen">Aniciu</string>
+    <string name="recent_task_option_split_screen">Dixebrar la pantalla</string>
+    <string name="split_app_info_accessibility">Información de l\'aplicación «%1$s»</string>
+    <string name="save_app_pair">Guardar la pareya d\'aplicaciones</string>
+    <string name="app_pair_default_title"><xliff:g id="app1" example="Chrome">%1$s</xliff:g> | <xliff:g id="app2" example="YouTube">%2$s</xliff:g></string>
+    <string name="app_pair_unlaunchable_at_screen_size">Esta pareya d\'aplicaciones nun ye compatible con esti preséu</string>
+    <string name="app_pair_needs_unfold">Despliega\'l preséu pa usar esta pareya d\'aplicaciones</string>
+    <string name="long_press_widget_to_add">Ten primíu un widget pa movelu.</string>
+    <string name="long_accessible_way_to_add">Toca dos vegaes un widget y tenlu primíu pa movelu o usar aiciones personalizaes.</string>
+    <string name="widget_accessible_dims_format">%1$d de llargor por %2$d d\'altor</string>
+    <string name="widget_preview_context_description">Widget de: <xliff:g id="widget_name" example="Calendar month view">%1$s</xliff:g></string>
+    <string name="add_item_request_drag_hint">Ten primíu\'l widget pa movelu pela pantalla d\'aniciu</string>
+    <string name="add_to_home_screen">Amestar a la pantalla d\'aniciu</string>
+    <string name="added_to_home_screen_accessibility_text">Amestóse\'l widget «<xliff:g id="widget_name" example="Calendar month view">%1$s</xliff:g>» a la pantalla d\'aniciu</string>
+    <string name="suggested_widgets_header_title">Suxerencies</string>
+    <string name="productivity_widget_recommendation_category_label">Esenciales del día a día</string>
+    <string name="news_widget_recommendation_category_label">Noticies pa ti</string>
+    <string name="social_and_entertainment_widget_recommendation_category_label">Zona de descansu</string>
+    <string name="fitness_widget_recommendation_category_label">Cumpli los tos oxetivos fitness</string>
+    <string name="weather_widget_recommendation_category_label">Conoz qué tiempu va facer</string>
+    <string name="others_widget_recommendation_category_label">Pue prestate tamién</string>
+    <string name="widget_picker_right_pane_accessibility_title">Los widgets de l\'aplicación «<xliff:g id="selected_header" example="Calendar">%1$s</xliff:g>» tán a la derecha, la busca y les opciones a la esquierda</string>
+    <string name="widgets_count">        {count, plural, =1{# widget} other{# widgets}}
+    </string>
+    <string name="shortcuts_count">        {count, plural, =1{# atayu} other{# atayos}}
+    </string>
+    <string name="widget_button_text">Widgets</string>
+    <string name="widgets_full_sheet_search_bar_hint">Buscar</string>
+    <string name="widgets_full_sheet_cancel_button_description">Borrar el testu de la caxa de busca</string>
+    <string name="no_widgets_available">Nun hai widgets nin atayos disponibles</string>
+    <string name="no_search_results">Nun s\'atoparon atayos nin widgets</string>
+    <string name="widgets_full_sheet_personal_tab">Perfil personal</string>
+    <string name="widgets_full_sheet_work_tab">Perfil llaboral</string>
+    <string name="widget_category_conversations">Conversaciones</string>
+    <string name="widget_category_note_taking">Toma de notes</string>
+    <string name="widget_education_header">Información útil al algame</string>
+    <string name="widget_education_content">Pa consiguir información ensin abrir les aplicaciones, pues amestar widgets a la pantalla d\'aniciu</string>
+    <string name="reconfigurable_widget_education_tip">Toca pa camudar la configuración del widget</string>
+    <string name="widget_education_close_button">Entendílo</string>
+    <string name="widget_reconfigure_button_content_description">Camudar la configuración del widget</string>
+    <string name="all_apps_search_bar_hint">Buscar aplicaciones</string>
+    <string name="all_apps_loading_message">Cargando les aplicaciones…</string>
+    <string name="all_apps_no_search_results">Nun s\'atoparon aplicaciones que concasaren con «<xliff:g id="query" example="Android">%1$s</xliff:g>»</string>
+    <string name="label_application">Aplicación</string>
+    <string name="all_apps_label">Toles aplicaciones</string>
+    <string name="notifications_header">Avisos</string>
+    <string name="long_press_shortcut_to_add">Ten primíu un atayu pa movelu.</string>
+    <string name="long_accessible_way_to_add_shortcut">Toca dos vegaes un atayu y tenlu primíu pa movelu o usar aiciones personalizaes.</string>
+    <string name="out_of_space">Nun hai sitiu nesta pantalla d\'aniciu</string>
+    <string name="hotseat_out_of_space">Nun queda espaciu na bandexa de Favoritos</string>
+    <string name="all_apps_button_label">Llista d\'aplicaciones</string>
+    <string name="all_apps_search_results">Resultaos de la busca</string>
+    <string name="all_apps_button_personal_label">Llista d\'aplicaciones personales</string>
+    <string name="all_apps_button_work_label">Llista d\'aplicaciones llaborales</string>
+    <string name="remove_drop_target_label">Quitar</string>
+    <string name="uninstall_drop_target_label">Desinstalar</string>
+    <string name="app_info_drop_target_label">Información de l\'aplicación</string>
+    <string name="install_private_system_shortcut_label">Instalar no privao</string>
+    <string name="install_drop_target_label">Instalar</string>
+    <string name="dismiss_prediction_label">Nun suxerir l\'aplicación</string>
+    <string name="pin_prediction">Fixar la predicción</string>
+    <string name="permlab_install_shortcut">instalación d\'atayos</string>
+    <string name="permdesc_install_shortcut">Permite qu\'una aplicación amieste
+        atayos ensin la intervención del usuariu.</string>
+    <string name="permlab_read_settings">llectura de la configuración y los atayos de la pantalla d\'aniciu</string>
+    <string name="permdesc_read_settings">Permite a l\'aplicación que llea la configuración
+        y los atayos de la pantalla d\'aniciu.</string>
+    <string name="permlab_write_settings">escritura de la configuración de los atayos de la pantalla d\'aniciu</string>
+    <string name="permdesc_write_settings">Permite a l\'aplicación que camude la configuración
+        y los atayos de la pantalla d\'aniciu.</string>
+    <string name="gadget_error_text">Nun se pue cargar el widget</string>
+    <string name="gadget_setup_text">Configuración del widget</string>
+    <string name="gadget_complete_setup_text">Toca pa finar la configuración</string>
+    <string name="uninstall_system_app_text">Esta aplicación ye del sistema y nun se pue desinstalar.</string>
+    <string name="folder_hint_text">Editar el nome</string>
+    <string name="disabled_app_label">Desactivóse «<xliff:g id="app_name" example="Messenger">%1$s</xliff:g>»</string>
+    <string name="dotted_app_label">        {count, plural,
+            one {}=1      {«{app_name}» tien # avisu}
+            other   {«{app_name}» tien # avisos}
+        }
+    </string>
+    <string name="default_scroll_format">Páxina %1$d de %2$d</string>
+    <string name="workspace_scroll_format">Pantalla d\'aniciu %1$d de %2$d</string>
+    <string name="workspace_new_page">Páxina nueva de la pantalla d\'aniciu</string>
+    <string name="folder_opened">Abrióse la carpeta, <xliff:g id="width" example="5">%1$d</xliff:g> por <xliff:g id="height" example="3">%2$d</xliff:g></string>
+    <string name="folder_tap_to_close">Toca pa zarrar la carpeta</string>
+    <string name="folder_tap_to_rename">Toca pa guardar el nome nuevu</string>
+    <string name="folder_closed">Zarróse la carpeta</string>
+    <string name="folder_renamed">Renomóse la carpeta a «<xliff:g id="name" example="Games">%1$s</xliff:g>»</string>
+    <string name="folder_name_format_exact">Carpeta: <xliff:g id="name" example="Games">%1$s</xliff:g>, <xliff:g id="size" example="2">%2$d</xliff:g> elementos</string>
+    <string name="folder_name_format_overflow">Carpeta: <xliff:g id="name" example="Games">%1$s</xliff:g>, <xliff:g id="size" example="2">%2$d</xliff:g> ó más elementos</string>
+    <string name="app_pair_name_format">Pareya d\'aplicaciones: «<xliff:g id="app1" example="Chrome">%1$s</xliff:g>» y «<xliff:g id="app2" example="YouTube">%2$s</xliff:g>»</string>
+    <string name="styles_wallpaper_button_text">Fondu de pantalla y estilu</string>
+    <string name="edit_home_screen">Editar la pantalla d\'aniciu</string>
+    <string name="settings_button_text">Configuración d\'Aniciu</string>
+    <string name="msg_disabled_by_admin">L\'alministrador desactivó la función</string>
+    <string name="allow_rotation_title">Permitir el voltéu de la pantalla d\'aniciu</string>
+    <string name="allow_rotation_desc">Cuando se voltia\'l preséu</string>
+    <string name="notification_dots_title">Puntos d\'avisu</string>
+    <string name="notification_dots_desc_on">Sí</string>
+    <string name="notification_dots_desc_off">Non</string>
+    <string name="title_missing_notification_access">L\'accesu a los avisos ye necesariu</string>
+    <string name="msg_missing_notification_access">P\'amosar los puntos d\'avisu, activa los avisos de l\'aplicación «<xliff:g id="name" example="My App">%1$s</xliff:g>»</string>
+    <string name="title_change_settings">Camudar la configuración</string>
+    <string name="notification_dots_service_title">Amosar los puntos d\'avisos</string>
+    <string name="developer_options_title">Opciones pa desendolcadores</string>
+    <string name="auto_add_shortcuts_label">Amestar los iconos d\'aplicaciones a la pantalla d\'aniciu</string>
+    <string name="auto_add_shortcuts_description">Pa les aplicaciones nueves</string>
+    <string name="package_state_unknown">Desconozse</string>
+    <string name="abandoned_clean_this">Quitar</string>
+    <string name="abandoned_search">Buscar</string>
+    <string name="abandoned_promises_title">Esta aplicación nun ta instalada</string>
+    <string name="abandoned_promise_explanation">L\'aplicación d\'esti iconu nun ta instalada.
+        Pues quitalu o buscar l\'aplicación ya instalala manualmente.
+    </string>
+    <string name="app_installing_title">Instalando «<xliff:g id="name" example="Messenger">%1$s</xliff:g>», completóse\'l <xliff:g id="progress" example="30%">%2$s</xliff:g></string>
+    <string name="app_downloading_title">Baxando «<xliff:g id="name" example="Messenger">%1$s</xliff:g>», completóse\'l <xliff:g id="progress" example="30%">%2$s</xliff:g></string>
+    <string name="app_waiting_download_title">Esperando pa instalar «<xliff:g id="name" example="Messenger">%1$s</xliff:g>»</string>
+    <string name="app_archived_title">L\'aplicación «<xliff:g id="name" example="Messenger">%1$s</xliff:g>» ta archivada. Toca pa baxala.</string>
+    <string name="dialog_update_title">Ríquese anovar l\'aplicación</string>
+    <string name="dialog_update_message">Nun s\'anovó l\'aplicación d\'esti iconu. Pues anovala manualmente pa volver activar esti atayu o quitar l\'iconu.</string>
+    <string name="dialog_update">Anovar</string>
+    <string name="dialog_remove">Quitar</string>
+    <string name="widgets_list">Llista de widgets</string>
+    <string name="widgets_list_closed">Zarróse la llista de widgets</string>
+    <string name="action_add_to_workspace">Amestar a la pantalla d\'aniciu</string>
+    <string name="action_move_here">Mover l\'elementu equí</string>
+    <string name="item_added_to_workspace">Amestóse l\'elementu a la pantalla d\'aniciu</string>
+    <string name="item_removed">Quitóse l\'elementu</string>
+    <string name="undo">Desfacer</string>
+    <string name="action_move">Mover l\'elementu</string>
+    <string name="move_to_empty_cell_description">Mover a la filera <xliff:g id="number" example="1">%1$s</xliff:g>, columna <xliff:g id="number" example="1">%2$s</xliff:g> en <xliff:g id="string" example="Home screen 2 of 4">%3$s</xliff:g></string>
+    <string name="move_to_position">Mover a la posición <xliff:g id="number" example="1">%1$s</xliff:g></string>
+    <string name="move_to_hotseat_position">Mover a la posición <xliff:g id="number" example="1">%1$s</xliff:g> de los favoritos</string>
+    <string name="item_moved">Movióse l\'elementu</string>
+    <string name="add_to_folder">Amestar a la carpeta «<xliff:g id="name" example="Games">%1$s</xliff:g>»</string>
+    <string name="add_to_folder_with_app">Amestar a la carpeta con «<xliff:g id="name" example="Messenger">%1$s</xliff:g>»</string>
+    <string name="added_to_folder">Amestóse l\'elementu a la carpeta</string>
+    <string name="create_folder_with">Crear una carpeta con: <xliff:g id="name" example="Game">%1$s</xliff:g></string>
+    <string name="folder_created">Creóse la carpeta</string>
+    <string name="action_move_to_workspace">Mover a la pantalla s\'aniciu</string>
+    <string name="action_resize">Redimensionar</string>
+    <string name="action_increase_width">Aumentar el llargor</string>
+    <string name="action_increase_height">Aumentar l\'altor</string>
+    <string name="action_decrease_width">Amenorgar el llargor</string>
+    <string name="action_decrease_height">Amenorgar l\'altor</string>
+    <string name="widget_resized">Redimensionóse\'l widget a <xliff:g id="number" example="2">%1$s</xliff:g> de llargor y <xliff:g id="number" example="1">%2$s</xliff:g> d\'altor</string>
+    <string name="action_deep_shortcut">Atayos</string>
+    <string name="action_dismiss_notification">Escartar</string>
+    <string name="accessibility_close">Zarrar</string>
+    <string name="all_apps_personal_tab">Perfil personal</string>
+    <string name="all_apps_work_tab">Perfil llaboral</string>
+    <string name="work_profile_toggle_label">Perfil llaboral</string>
+    <string name="work_profile_edu_work_apps">Les aplicaciones llaborales tienen una insinia y l\'alministrador de TI pue veles</string>
+    <string name="work_profile_edu_accept">Entendílo</string>
+    <string name="work_apps_paused_title">Les aplicaciones llaborales tán en posa</string>
+    <string name="work_apps_paused_info_body">Nun vas recibir nengún avisu de les aplicaciones llaborales</string>
+    <string name="work_apps_paused_body">Les aplicaciones llaborales nun puen unviate avisos, consumir batería nin acceder a la llocalización</string>
+    <string name="work_apps_paused_telephony_unavailable_body">Nun vas recibir nenguna llamada telefónica, mensaxes de testu nin avisos de les aplicaciones llaborales</string>
+    <string name="work_apps_paused_edu_banner">Les aplicaciones llaborales tienen una insignia y l\'alministrador de TI pue veles</string>
+    <string name="work_apps_paused_edu_accept">Entendílo</string>
+    <string name="work_apps_pause_btn_text">Posar les aplicaciones llaborales</string>
+    <string name="work_apps_enable_btn_text">Volver activar</string>
+    <string name="developer_options_filter_hint">Peñera</string>
+    <string name="remote_action_failed">L\'aición «<xliff:g id="what" example="Pause">%1$s</xliff:g>» falló</string>
+    <string name="private_space_label">Espaciu priváu</string>
+    <string name="private_space_secondary_label">Caltién les aplicaciones privaes bloquiaes y escondíes</string>
+    <string name="ps_container_title">Espaciu priváu</string>
+    <string name="ps_container_settings">Configuración del espaciu priváu</string>
+    <string name="ps_container_lock_unlock_button">Des/bloquiar l\'espaciu priváu</string>
+    <string name="ps_container_lock_title">Bloquéu</string>
+    <string name="ps_container_transition">Cambiar al espaciu priváu</string>
+    <string name="ps_add_button_label">Instalar aplicaciones</string>
+    <string name="ps_add_button_content_description">Instalar aplicaciones nel espaciu priváu</string>
+    <string name="bubble_bar_overflow_description">Menú flotante</string>
+</resources>

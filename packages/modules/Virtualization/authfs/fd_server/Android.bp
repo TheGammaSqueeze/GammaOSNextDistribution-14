@@ -1,0 +1,45 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_binary {
+    name: "fd_server",
+    defaults: ["avf_build_flags_rust"],
+    srcs: ["src/main.rs"],
+    rustlibs: [
+        "authfs_aidl_interface-rust",
+        "libandroid_logger",
+        "libanyhow",
+        "libauthfs_fsverity_metadata",
+        "libbinder_rs",
+        "libclap",
+        "libfsverity_rs",
+        "liblibc",
+        "liblog_rust",
+        "libnix",
+        "librpcbinder_rs",
+    ],
+    prefer_rlib: true,
+    apex_available: ["com.android.virt"],
+}
+
+rust_test {
+    name: "fd_server.test",
+    defaults: ["avf_build_flags_rust"],
+    srcs: ["src/main.rs"],
+    rustlibs: [
+        "authfs_aidl_interface-rust",
+        "libandroid_logger",
+        "libanyhow",
+        "libauthfs_fsverity_metadata",
+        "libbinder_rs",
+        "libclap",
+        "libfsverity_rs",
+        "liblibc",
+        "liblog_rust",
+        "libnix",
+        "librpcbinder_rs",
+    ],
+    prefer_rlib: true,
+    test_suites: ["general-tests"],
+}

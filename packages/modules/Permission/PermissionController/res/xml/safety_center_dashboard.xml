@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.android.permissioncontroller.safetycenter.ui.SafetyStatusPreference
+        android:key="safety_status"
+        android:order="-3"
+        app:selectable="false" />
+
+    <com.android.permissioncontroller.safetycenter.ui.ComparablePreferenceCategory
+        android:key="issues_group"
+        android:layout="@layout/preference_category_no_label"
+        app:selectable="false" />
+
+    <!-- TODO: b/291574390 - Move this to the issue drawer or status card view instead of having a
+     separate preference just for this margin/padding -->
+    <com.android.permissioncontroller.safetycenter.ui.EntriesTopPaddingPreference
+        android:key="entries_top_padding" />
+
+    <com.android.permissioncontroller.safetycenter.ui.ComparablePreferenceCategory
+        android:key="entries_group"
+        android:title="@string/safety_center_entries_category_title"
+        app:selectable="false" />
+
+    <com.android.permissioncontroller.safetycenter.ui.ComparablePreferenceCategory
+        android:key="static_entries_group"
+        android:layout="@layout/preference_category_no_label"
+        app:selectable="false" />
+
+    <com.android.permissioncontroller.safetycenter.ui.SpacerPreference
+        android:key="spacer"
+        app:selectable="false" />
+
+</PreferenceScreen>

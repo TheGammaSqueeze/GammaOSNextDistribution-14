@@ -1,0 +1,81 @@
+// Copyright 2021, The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_defaults {
+    name: "libdiced_sample_inputs_defaults",
+    crate_name: "diced_sample_inputs",
+    defaults: ["avf_build_flags_rust"],
+    srcs: ["src/lib.rs"],
+}
+
+rust_library {
+    name: "libdiced_sample_inputs",
+    defaults: ["libdiced_sample_inputs_defaults"],
+    features: [
+        "std",
+    ],
+    rustlibs: [
+        "libciborium",
+        "libcoset",
+        "libdiced_open_dice",
+        "liblog_rust",
+    ],
+}
+
+rust_library_rlib {
+    name: "libdiced_sample_inputs_nostd",
+    defaults: ["libdiced_sample_inputs_defaults"],
+    rustlibs: [
+        "libciborium_nostd",
+        "libcoset_nostd",
+        "libdiced_open_dice_nostd",
+        "liblog_rust_nostd",
+    ],
+    visibility: [
+        "//packages/modules/Virtualization:__subpackages__",
+    ],
+}
+
+rust_defaults {
+    name: "libdiced_sample_inputs_test_defaults",
+    crate_name: "diced_sample_inputs_test",
+    srcs: ["tests/*.rs"],
+    test_suites: ["general-tests"],
+    rustlibs: [
+        "libanyhow",
+        "libhwtrust",
+    ],
+}
+
+rust_test {
+    name: "libdiced_sample_inputs.integration_test",
+    defaults: ["libdiced_sample_inputs_test_defaults"],
+    rustlibs: [
+        "libdiced_open_dice",
+        "libdiced_sample_inputs",
+    ],
+}
+
+rust_test {
+    name: "libdiced_sample_inputs_nostd.integration_test",
+    defaults: ["libdiced_sample_inputs_test_defaults"],
+    rustlibs: [
+        "libdiced_open_dice_nostd",
+        "libdiced_sample_inputs_nostd",
+    ],
+}

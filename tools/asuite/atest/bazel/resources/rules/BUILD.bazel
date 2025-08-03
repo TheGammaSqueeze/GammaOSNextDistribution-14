@@ -1,0 +1,40 @@
+load("//bazel/rules:common_settings.bzl", "string_flag")
+load("//bazel/rules:common_settings.bzl", "string_list_flag")
+load("//bazel/rules/device:single_local_device.bzl", "local_device")
+
+package(default_visibility = ["//visibility:public"])
+
+string_flag(
+    name = "platform_flavor",
+    build_setting_default = "",
+)
+
+local_device(
+    name = "local_device",
+    out = "single_local_device.sh",
+)
+
+label_flag(
+    name = "target_device",
+    build_setting_default = ":local_device",
+)
+
+string_list_flag(
+    name = "extra_tradefed_result_reporters",
+    build_setting_default = [],
+)
+
+config_setting(
+    name = "device",
+    flag_values = {":platform_flavor": "device"},
+)
+
+config_setting(
+    name = "host",
+    flag_values = {":platform_flavor": "host"},
+)
+
+exports_files([
+    "tradefed_test.sh.template",
+    "device_test.sh.template",
+])

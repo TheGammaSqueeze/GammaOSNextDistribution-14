@@ -1,0 +1,29 @@
+# authfs_service is a binder service running on microdroid. It serves the
+# client's request and manages the mount/unmount of individual authfs instances
+# (a FUSE based filesystem). The service then can pass file descriptor on authfs
+# to the client for remote file access.
+
+type authfs_service, domain, coredomain;
+type authfs_service_exec, exec_type, file_type, system_file_type;
+
+# Allow domain transition from init.
+init_daemon_domain(authfs_service)
+
+# Allow domain transition into authfs.
+domain_auto_trans(authfs_service, authfs_exec, authfs)
+
+# Allow mounting the FUSE filesystem.
+allow authfs_service self:global_capability_class_set sys_admin;
+
+# Allow creating/deleting mount directories.
+allow authfs_service authfs_data_file:dir create_dir_perms;
+
+# Allow opening a file from the FUSE mount.
+# Note: authfs_service doesn't really need to read and write the file, but the
+# check seems to happen on open anyway.
+allow authfs_service authfs_fuse:dir search;
+allow authfs_service authfs_fuse:file { open read write };
+
+# Allow killing the authfs process and unmount.
+allow authfs_service authfs:process sigkill;
+allow authfs_service authfs_fuse:filesystem unmount;

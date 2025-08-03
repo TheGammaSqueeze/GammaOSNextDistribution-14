@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (c) 2009, 2011-2013 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2014-2015 The CyanogenMod Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *    * Neither the name of The Linux Foundation nor
+ *      the names of its contributors may be used to endorse or promote
+ *      products derived from this software without specific prior written
+ *      permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NON-INFRINGEMENT ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">FM ৰেডিঅ’</string>
+    <string name="tx_app_name">FM ট্ৰান্সমিটাৰ</string>
+    <string name="menu_scan_start">স্কেন</string>
+    <string name="menu_scan_stop">অনুসন্ধান ৰোধ কৰক</string>
+    <string name="menu_record_start">ৰেকৰ্ড</string>
+    <string name="menu_record_stop">ৰেকৰ্ডিং আৰম্ভ কৰক</string>
+    <string name="menu_settings">ছেটিংছ</string>
+    <string name="menu_sleep">টোপনি</string>
+    <string name="menu_sleep_cancel">সুপ্ত বাতিল কৰক</string>
+    <string name="menu_all_channels">সকলো চেনেল</string>
+    <string name="menu_display_tags">টেগসমূহ প্ৰদৰ্শন কৰক</string>
+    <string name="button_text_stop">ষ্টপ</string>
+    <string name="msg_seeking">FM ষ্টেচন অনুসন্ধান কৰা আছে\u2026</string>
+    <string name="msg_scanning">সকলো FM ষ্টেচন বিচাৰি আছে\u2026</string>
+    <string name="msg_scanning_pty">\'<xliff:g id="pty_name">%1$s</xliff:g>\'\u2026 ৰ বাবে স্কেনিং কৰি আছে</string>
+    <string name="msg_search_title"><xliff:g id="frequency_string">%1$s</xliff:g> MHz</string>
+    <string name="msg_searching_title">স্বয়ং-চয়ন প্ৰিছেট</string>
+    <string name="msg_searching">প্ৰিছেট সূচী সৃষ্টি কৰিবলৈ শক্তিশালী ষ্টেচন বিচাৰি আছে\u2026</string>
+    <string name="msg_noantenna">FM ৰেডিঅ\' ব্যৱহাৰ কৰিবলৈ অনুগ্ৰহ কৰি এটা হেডছেট প্লাগ ইন কৰক</string>
+    <string name="dialog_sleep_title">সুপ্ত সময় স্বয়ং-অফ</string>
+    <string name="presetlist_select_name">\'<xliff:g id="presetlist_name">%1$s</xliff:g>\' চয়ন কৰক</string>
+    <string name="presetlist_add_new">নতুন সূচী যোগ কৰক</string>
+    <string name="dialog_presetlist_rename_title">নাম প্ৰৱেশ কৰক</string>
+    <string name="presetlist_autoselect_title">স্বয়ং-চয়ন নিশ্চিত কৰক</string>
+    <string name="preset_replace">ৰিপ্লেচ</string>
+    <string name="preset_tune">টিউন কৰক</string>
+    <string name="preset_rename">পুনঃনামাকৰণ</string>
+    <string name="preset_delete">মচি দিয়া</string>
+    <string name="preset_search">\'<xliff:g id="preset_pi">%1$s</xliff:g>\' বিচাৰক</string>
+    <string name="stat_notif_frequency">\'<xliff:g id="frequency">%1$s</xliff:g>\' MHz</string>
+    <string name="regional_band">আঞ্চলিক বেণ্ড</string>
+    <string name="regional_band_entry_north_america">উত্তৰ আমেৰিকা</string>
+    <string name="regional_band_entry_europe">ইউৰোপ</string>
+    <string name="regional_band_entry_japan">জাপান</string>
+    <string name="regional_band_entry_japan_wide">জাপান (বিস্তৃত)</string>
+    <string name="regional_band_entry_australia">অষ্ট্ৰেলিয়া</string>
+    <string name="regional_band_entry_austria">অষ্ট্ৰিয়া</string>
+    <string name="regional_band_entry_belgium">বেলজিয়াম</string>
+    <string name="regional_band_entry_brazil">ব্ৰাজিল</string>
+    <string name="regional_band_entry_china">চীন</string>
+    <string name="regional_band_entry_czech_republic">ছেক প্ৰজাতন্ত্ৰ</string>
+    <string name="regional_band_entry_denmark">ডেনমাৰ্ক</string>
+    <string name="regional_band_entry_finland">ফিনলেণ্ড</string>
+    <string name="regional_band_entry_france">ফ্ৰান্স</string>
+    <string name="regional_band_entry_germany">জাৰ্মানী</string>
+    <string name="regional_band_entry_greece">গ্ৰীচ</string>
+    <string name="regional_band_entry_hong_kong">হংকং</string>
+    <string name="regional_band_entry_india">ভাৰত</string>
+    <string name="regional_band_entry_indonesia">ইণ্ডোনেচিয়া</string>
+    <string name="regional_band_entry_ireland">আয়াৰলেণ্ড</string>
+    <string name="regional_band_entry_italy">ইটালী</string>
+    <string name="regional_band_entry_korea">কোৰিয়া</string>
+    <string name="regional_band_entry_mexico">মেক্সিক\'</string>
+    <string name="regional_band_entry_netherlands">নেদাৰলেণ্ডচ</string>
+    <string name="regional_band_entry_new_zealand">নিউজিলেণ্ড</string>
+    <string name="regional_band_entry_norway">ন\'ৰৱে</string>
+    <string name="regional_band_entry_poland">পোলেণ্ড</string>
+    <string name="regional_band_entry_portugal">পর্তুগাল</string>
+    <string name="regional_band_entry_russia">ৰাছিয়া</string>
+    <string name="regional_band_entry_singapore">ছিঙ্গাপুৰ</string>
+    <string name="regional_band_entry_slovakia">শ্লোভেকিয়া</string>
+    <string name="regional_band_entry_spain">স্পেন</string>
+    <string name="regional_band_entry_switzerland">চুইজাৰলেণ্ড</string>
+    <string name="regional_band_entry_sweden">চুইডেন</string>
+    <string name="regional_band_entry_taiwan">টাইৱান</string>
+    <string name="regional_band_entry_turkey">তুৰ্কী</string>
+    <string name="regional_band_entry_united_kingdom">ইউনাইটেড কিংডম</string>
+    <string name="regional_band_entry_united_states">যুক্তৰাষ্ট্ৰ</string>
+    <string name="regional_band_entry_user_defined">ব্যৱহাৰকৰ্তাৰ দ্বাৰা নিৰ্ধাৰিত বেণ্ড</string>
+    <string name="regional_band_summary_user_defined">ব্যৱহাৰকৰ্তাৰ দ্বাৰা নিৰ্ধাৰিত বেণ্ড</string>
+    <string name="aud_output_mode">অডিঅ\' আউটপুট মোড</string>
+    <string name="audio_type_stereo">ষ্টিৰিঅ\'</string>
+    <string name="audio_type_mono">ম’ন’</string>
+    <string name="record_dur">ৰেকৰ্ড অৱধি</string>
+    <string name="auto_select_af">বৈকল্পিক ফ্ৰিকুৱেঞ্চি</string>
+    <string name="settings_revert_defaults_title">ফেক্টৰী ডিফ\'ল্টলৈ ঘূৰাই নিয়ক</string>
+    <string name="settings_revert_defaults_summary">সকলো ছেটিংচ ৰিছেট কৰক</string>
+    <string name="settings_revert_confirm_title">ৰিছেট নিশ্চিত কৰক</string>
+    <string name="settings_revert_confirm_msg">ই সংৰক্ষণ কৰা প্ৰিছেটসহ সকলো এপ্লিকেচন ছেটিং পৰিষ্কাৰ কৰিব। অব্যাহত ৰাখিবনে?</string>
+    <string name="no_storage">ৰেকৰ্ডিং আৰম্ভ কৰা আগতে SD কাৰ্ড মাউণ্ট কৰক।</string>
+    <string name="preparing_sd">SD কাৰ্ড প্ৰস্তুত কৰি তোলা হৈছে\u2026</string>
+    <string name="access_sd_fail">SD কাৰ্ড আহৰণ কৰিব নোৱাৰে।</string>
+    <string name="spaceIsLow_content">আপোনাৰ SD কাৰ্ডৰ স্থান কমি গৈছে। স্থান মুকলি কৰিবলৈ গুণমান ছেটিং পৰিৱৰ্তন কৰক বা আন কিছুমান ফাইল বিলোপ কৰক।</string>
+    <string name="menu_scan_for_preset">প্ৰিছেটৰ বাবে স্কেন কৰক</string>
+    <string name="fm_off">FM অফ কৰা হৈছে।</string>
+    <string name="fm_call">কল কৰি থাকোতে FM ব্যৱহাৰ কৰিব নোৱাৰি।</string>
+    <string name="alert_dialog_hint">এটা নাম প্ৰৱেশ কৰক</string>
+    <string name="search_dialog_title">ষ্টেচন স্কেন কৰক</string>
+    <string name="fm_command_timeout_title">টাইম আউট</string>
+    <string name="fm_tune_timeout_msg">FM ষ্টেচন টিউনলৈ কোনো সঁহাৰি পোৱা নাই। যদি সমস্যাটো চলি থাকে, অনুগ্ৰহ কৰি FM অফ কৰক আৰু পুনৰ অন কৰক।</string>
+    <string name="fm_command_failed_title">FM অপাৰেচন ব্যৰ্থ হৈছে</string>
+    <string name="fm_cmd_failed_msg">FM অপাৰেচন ব্যৰ্থ হৈছে। যদি সমস্যাটো চলি থাকে, অনুগ্ৰহ কৰি FM অফ কৰক আৰু পুনৰ অন কৰক।</string>
+    <string name="fm_cmd_failed_msg_hdmi">FM অপাৰেচন ব্যৰ্থ হৈছে। FM আৰু HDMI একেলগে সমৰ্থন নকৰে।</string>
+    <string name="fm_cmd_failed_call_on">FM অপাৰেচন ব্যৰ্থ হৈছে। কল চলি থকা সময়ত FM অডিঅ\'ৰ অনুমতি দিয়া নহয়।</string>
+    <string name="station_name">ষ্টেচন:</string>
+    <string name="station_exists">এই ফ্ৰিকোৱেন্সী ইতিমধ্যে বিদ্যমান!</string>
+    <string name="station_list_delete_station">বিলোপ: <xliff:g id="name">%s</xliff:g></string>
+    <string name="station_list_delete_station_prompt">আপুনি \'<xliff:g id="name">%s</xliff:g>\' বিলোপ কৰিব বিচাৰে বুলি নিশ্চিতনে?</string>
+    <string name="station_name_empty">ষ্টেচনৰ নাম খালি আছে, অনুগ্ৰহ কৰি পুনৰ প্ৰবিষ্ট কৰক।</string>
+    <string name="station_name_exist">\'<xliff:g id="name">%s</xliff:g>\' টো ইতিমধ্যে ব্যৱহাৰ হৈ আছে, অনুগ্ৰহ কৰি আন এটা নাম প্ৰৱেশ কৰক।</string>
+    <string name="rt_plus_tags">টেগসমূহ</string>
+    <string name="usr_def_band_min">সৰ্বনিম্ন ফ্ৰিকোৱেন্সী (MHz)</string>
+    <string name="usr_def_band_max">সৰ্বাধিক ফ্ৰিকোৱেন্সী (MHz)</string>
+    <string name="chanl_spacing">চেনেল স্পেচিং</string>
+    <string name="set">ছেট</string>
+    <string name="fm_search_no_results">কোনো সুসংগত ষ্টেচন পোৱা নগ\'ল</string>
+    <string name="typ_All_stations">সকলো ষ্টেচন</string>
+    <string name="typ_Culture">সংস্কৃতি</string>
+    <string name="typ_Current_affairs">চলিত ঘটনাপ্ৰৱাহ</string>
+    <string name="typ_Children">শিশুসকলৰ প্ৰ\'গ্ৰাম্চ</string>
+    <string name="typ_Country">দেশীয় সংগীত</string>
+    <string name="typ_Documentary">তথ্যচিত্ৰ</string>
+    <string name="typ_Drama">নাটক</string>
+    <string name="typ_Easy_listening">সহজে শুনিব পৰা সংগীত</string>
+    <string name="typ_Education">শিক্ষা</string>
+    <string name="typ_Emergency">জৰুৰীকালীন</string>
+    <string name="typ_Emergency_test">জৰুৰীঅৱস্থা পৰীক্ষা</string>
+    <string name="typ_Finance">বিত্ত</string>
+    <string name="typ_Folk">লোকসংগীত</string>
+    <string name="typ_Information">তথ্য</string>
+    <string name="typ_Jazz">জাজ সংগীত</string>
+    <string name="typ_Light_classical">লঘূ শাস্ত্ৰীয়</string>
+    <string name="typ_Leisure">অৱসৰ</string>
+    <string name="typ_News">সংবাদ</string>
+    <string name="typ_National">ৰাষ্ট্ৰীয় সংগীত</string>
+    <string name="typ_Other">আন সংগীত</string>
+    <string name="typ_Oldies">পুৰণি সংগীত</string>
+    <string name="typ_Phone_in">ফোন ইন</string>
+    <string name="typ_Pop">পপ সংগীত</string>
+    <string name="typ_Religion">ধৰ্ম</string>
+    <string name="typ_Rock">ৰক সংগীত</string>
+    <string name="typ_Science">বিজ্ঞান</string>
+    <string name="typ_Serious_classical">গুৰু শাস্ত্ৰীয়</string>
+    <string name="typ_Social_affairs">সামাজিক পৰিক্ৰমা</string>
+    <string name="typ_Sport">খেল</string>
+    <string name="typ_Travel">ভ্ৰমণ</string>
+    <string name="typ_Varied">বিভিন্ন</string>
+    <string name="typ_Weather">বতৰ</string>
+    <string name="typ_Adult_hits">প্ৰাপ্তবয়স্কৰ হিটবোৰ</string>
+    <string name="typ_Classical">ধ্ৰুপদী</string>
+    <string name="typ_Classic_Rock">ক্লাছিক ৰক</string>
+    <string name="typ_College">কলেজ</string>
+    <string name="typ_Foreign_language">বিদেশী ভাষা</string>
+    <string name="typ_Hiphop">হিপ হপ</string>
+    <string name="typ_Nostalgia">নষ্টালজিয়া</string>
+    <string name="typ_Personality">ব্যক্তিত্ব</string>
+    <string name="typ_Public">ৰাইজ</string>
+    <string name="typ_Religious_music">ধৰ্মীয় সংগীত</string>
+    <string name="typ_Religious_talk">ধৰ্মীয় আলোচনা</string>
+    <string name="typ_Rhythm_and_Blues">ৰিডম আৰু ব্লু</string>
+    <string name="typ_Spanish_music">স্পেনিশ্ব সংগীত</string>
+    <string name="typ_Spanish_talk">স্পেনিশ্ব আলোচনা</string>
+    <string name="typ_Soft">চফ্ট</string>
+    <string name="typ_Soft_Rock">চফ্ট ৰক</string>
+    <string name="typ_Soft_Rhythm_and_Blues">চফ্ট ৰিডম আৰু ব্লু</string>
+    <string name="typ_Sports">খেল</string>
+    <string name="typ_Talk">আলোচনা</string>
+    <string name="typ_Top_40">শীৰ্ষ 40</string>
+</resources>

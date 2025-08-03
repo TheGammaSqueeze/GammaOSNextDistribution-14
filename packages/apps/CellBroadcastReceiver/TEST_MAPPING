@@ -1,0 +1,28 @@
+{
+  "presubmit": [
+    {
+      "name": "CellBroadcastReceiverUnitTests",
+      "options": [
+        {
+          "exclude-annotation": "androidx.test.filters.FlakyTest"
+        }
+      ],
+      "keywords": ["internal"]
+    },
+    {
+      "name": "GoogleCellBroadcastReceiverUnitTests",
+      "options": [
+        {
+          "exclude-annotation": "androidx.test.filters.FlakyTest"
+        }
+      ],
+      "keywords": ["internal"]
+    }
+  ],
+
+  "postsubmit": [
+    {
+      "name": "CellBroadcastReceiverComplianceTests"
+    }
+  ]
+}

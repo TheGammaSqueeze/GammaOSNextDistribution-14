@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="notification_vpn_connected">La VPN e je conetude</string>
+    <string name="notification_vpn_disconnected">La VPN e je disconetude</string>
+    <string name="notification_disclosure_vpn_text">Vie <xliff:g id="vpn_app" example="Foo VPN App">%1$s</xliff:g></string>
+    <string name="notification_panel_title">Notifichis</string>
+    <string name="notification_panel_no_notifications">Nissune notifiche</string>
+    <string name="mic_recording_announcement">Il microfon al sta regjistrant</string>
+    <string name="camera_recording_announcement">La fotocjamare e sta regjistrant</string>
+    <string name="mic_and_camera_recording_announcement">Fotocjamare e microfon a stan regjistrant</string>
+    <string name="mic_stopped_recording_announcement">Il microfon al à fermât di regjistrâ</string>
+    <string name="camera_stopped_recording_announcement">La fotocjamare e à fermât di regjistrâ</string>
+    <string name="mic_camera_stopped_recording_announcement">Fotocjamare e microfon a àn fermât di regjistrâ</string>
+    <string name="screen_recording_announcement">Regjistrazion schermi scomençade</string>
+    <string name="screen_stopped_recording_announcement">Regjistrazion schermi interote</string>
+    <string name="media_output_dialog_title">Jessude audio</string>
+    <string name="media_output_dialog_other_devices">Altris dispositîfs</string>
+    <string name="media_output_dialog_pairing_new">Conet un altri dispositîf</string>
+</resources>

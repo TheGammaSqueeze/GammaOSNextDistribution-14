@@ -1,0 +1,37 @@
+main: {
+  multithreading: {
+    fork: true,
+    threads: [
+      {
+        name: "Memory"
+        instruction: {
+          mem_alloc: {
+            size: 5000000000
+          }
+        }
+      },
+      {
+        name: "Util"
+        instruction: {
+          cpu_work: {
+            utilization: 0.3,
+          }
+          repeat: 300,
+          period_us: 100000
+        },
+        spawn: 2
+      },
+      {
+        name: "MemGrow"
+        instruction: {
+          mem_alloc: {
+            size: 5000000
+          }
+          repeat: 300,
+          period_us: 100000
+        }
+      }
+    ]
+  }
+}
+global: {}

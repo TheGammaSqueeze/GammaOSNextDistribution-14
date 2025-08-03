@@ -1,0 +1,20 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_binary {
+    name: "measure_sandbox",
+    srcs: [
+        "measure_sandbox.cpp",
+    ],
+    include_dirs: [
+        "system/core/libcutils/include/private/",
+    ],
+    static_libs: [
+        "libselinux",
+    ],
+    shared_libs: [
+        "libseccomp_policy",
+    ],
+    host_supported: false,
+}

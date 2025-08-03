@@ -1,0 +1,62 @@
+package {
+    default_team: "trendy_team_camera_framework",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+aconfig_declarations {
+    name: "device_as_webcam_flags",
+    package: "com.android.deviceaswebcam.flags",
+    container: "system",
+    srcs: ["device_as_webcam.aconfig"],
+}
+
+java_aconfig_library {
+    name: "device_as_webcam_flags_java_lib",
+    aconfig_declarations: "device_as_webcam_flags",
+}
+
+android_app {
+    name: "DeviceAsWebcam",
+
+    static_libs: [
+        "androidx-constraintlayout_constraintlayout",
+        "androidx.appcompat_appcompat",
+        "androidx.cardview_cardview",
+        "androidx.recyclerview_recyclerview",
+        "androidx.window_window",
+        "device_as_webcam_flags_java_lib",
+    ],
+
+    srcs: [
+        "src/**/*.java",
+        "src/**/*.kt",
+    ],
+    platform_apis: true,
+    certificate: "platform",
+    privileged: true,
+    optimize: {
+        proguard_flags_files: ["proguard.flags"],
+    },
+    jni_libs: [
+        "libjni_deviceAsWebcam",
+    ],
+    resource_dirs: [
+        "res",
+    ],
+}
+
+genrule {
+    name: "camera-webcam-test",
+    srcs: [
+        "tests/*",
+    ],
+    exclude_srcs: [
+        ".gitignore",
+        "Android.bp",
+        "OWNERS",
+    ],
+    tools: ["soong_zip"],
+    out: ["camera-webcam-test.zip"],
+    cmd: "echo $(locations tests/*) >$(genDir)/list && " +
+        "$(location soong_zip) -o $(out) -P android-cts-verifier/CameraWebcamTest -l $(genDir)/list",
+}

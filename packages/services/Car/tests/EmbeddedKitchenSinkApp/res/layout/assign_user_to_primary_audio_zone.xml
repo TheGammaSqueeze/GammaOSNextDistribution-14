@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2023 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<LinearLayout
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android" >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        android:layout_weight="1"
+        android:id="@+id/audio_select_device_address_layout">
+        <Space
+            android:layout_width="3dp"
+            android:layout_height="match_parent" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/select_user_title" />
+        <Space
+            android:layout_width="3dp"
+            android:layout_height="match_parent" />
+        <Spinner
+            android:id="@+id/user_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <Space
+            android:layout_width="3dp"
+            android:layout_height="match_parent" />
+        <Button
+            android:id="@+id/user_assign_to_main_zone_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/assign_user" />
+        <Space
+            android:layout_width="3dp"
+            android:layout_height="match_parent" />
+        <Button
+            android:id="@+id/user_reset_from_main_zone_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/reset_user" />
+        <Space
+            android:layout_width="3dp"
+            android:layout_height="match_parent" />
+        <TextView
+            android:id="@+id/user_assign_focus_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/user_focus_unknown" />
+        <Space
+            android:layout_width="3dp"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+    <RadioGroup
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:id="@+id/assign_audio_radio_group" >
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:id="@+id/assign_audio_ask_user_button"
+            android:text="@string/assign_audio_ask_user"/>
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:id="@+id/assign_audio_reject_audio_button"
+            android:text="@string/assign_audio_reject_audio"/>
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:id="@+id/assign_audio_accept_audio_button"
+            android:text="@string/assign_audio_accept_audio"/>
+    </RadioGroup>
+</LinearLayout>

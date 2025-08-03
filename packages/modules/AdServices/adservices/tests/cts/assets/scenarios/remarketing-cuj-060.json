@@ -1,0 +1,67 @@
+{
+  "mocks": [
+    {
+      "request": {
+        "path": "bidding"
+      },
+      "response": {
+        "body": "BiddingLogicV2With6SecDelay.js"
+      },
+      "verify_called": true
+    },
+    {
+      "request": {
+        "path": "scoring"
+      },
+      "response": {
+        "body": "ScoringLogic.js"
+      },
+      "verify_called": true
+    },
+    {
+      "request": {
+        "path": "scoring/trusted"
+      },
+      "response": {
+        "body": "ScoringSignals.json"
+      }
+    },
+    {
+      "request": {
+        "path": "bidding/trusted"
+      },
+      "response": {
+        "body": "BiddingSignals.json"
+      }
+    },
+    {
+      "request": {
+        "path": "buyer/reportImpression"
+      },
+      "response": {
+        "body": null
+      },
+      "verify_not_called": true
+    },
+    {
+      "request": {
+        "path": "seller/reportImpression"
+      },
+      "response": {
+        "body": null
+      },
+      "verify_not_called": true
+    }
+  ],
+  "substitutions": {
+    "<daily-update-uri>": "{base_url}/bidding/daily",
+    "<ad-render-uri-1>": "{base_url}/render_ad/1",
+    "<ad-render-uri-2>": "{base_url}/render_ad/2",
+    "https://js.example.com/render/ad1": "{base_url}/render_ad/1",
+    "https://js.example.com/render/ad2": "{base_url}/render_ad/2",
+    "<buyer-trusted-bidding-uri>": "{base_url}/bidding/trusted",
+    "https://js.example.com/bidding/trusted": "{base_url}/bidding/trusted",
+    "<buyer-reporting-uri>": "{base_url}/buyer/reportImpression",
+    "<seller-reporting-uri>": "{base_url}/buyer/reportImpression"
+  }
+}

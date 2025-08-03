@@ -1,0 +1,88 @@
+// Copyright 2023 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto2";
+
+package rootcanal.configuration;
+option optimize_for = CODE_SIZE;
+
+enum ControllerPreset {
+  // Version 5.3, all features enabled, all quirks disabled.
+  DEFAULT = 0;
+  // Official PTS dongle, Laird BL654.
+  LAIRD_BL654 = 1;
+  // Official PTS dongle, CSR rck.
+  CSR_RCK_PTS_DONGLE = 2;
+}
+
+message ControllerFeatures {
+  optional bool le_extended_advertising = 1;
+  optional bool le_periodic_advertising = 2;
+  optional bool ll_privacy = 3;
+  optional bool le_2m_phy = 4;
+  optional bool le_coded_phy = 5;
+  // Enable the support for both LL Connected Isochronous Stream Central
+  // and LL Connected Isochronous Stream Peripheral.
+  optional bool le_connected_isochronous_stream = 6;
+}
+
+message ControllerQuirks {
+  // Randomly send ACL payloads before the Connection Complete event
+  // is sent to the Host stack.
+  optional bool send_acl_data_before_connection_complete = 1;
+  // Configure a default value for the LE random address.
+  optional bool has_default_random_address = 2;
+  // Send an Hardware Error event if any command is called before HCI Reset.
+  optional bool hardware_error_before_reset = 3;
+}
+
+message VendorFeatures {
+  // Enable the support for the CSR vendor command.
+  optional bool csr = 1;
+  // Enable the support for Android vendor commands.
+  // Note: not all required vendor commands are necessarily implemented
+  // in RootCanal, unimplemented commands will return a Command Status or
+  // Command Complete HCI event with the status Unsupported Opcode.
+  optional bool android = 2;
+}
+
+message Controller {
+  // Configure the controller preset. Presets come with a pre-selection
+  // of features and quirks, but these can be overridden with the next fields.
+  optional ControllerPreset preset = 1;
+  // Configure support for controller features.
+  optional ControllerFeatures features = 2;
+  // Enable controller quirks.
+  // Quirks are behaviors observed in real controllers that are not valid
+  // according to the specification.
+  optional ControllerQuirks quirks = 3;
+  // Enable strict mode (defaults to enabled).
+  // Activate assertion checks in RootCanal for missing RootCanal features
+  // or Host stack misbehavior.
+  optional bool strict = 4;
+  // Configure support for vendor features.
+  optional VendorFeatures vendor = 5;
+}
+
+message TcpServer {
+  // Configure the TCP port on which the controller with this defined
+  // configuration will be served.
+  required int32 tcp_port = 1;
+  // Controller configuration for this port.
+  optional Controller configuration = 2;
+}
+
+message Configuration {
+  repeated TcpServer tcp_server = 1;
+}

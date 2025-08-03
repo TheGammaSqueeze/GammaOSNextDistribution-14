@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2023 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- CMAS dialog title for extreme alert. [CHAR LIMIT=50] -->
+    <!-- Required Portuguese (pt) translation for this message: Alerta extremo -->
+    <!-- Required spanish (es) translation for this message: Alerta extrema -->
+    <string name="cmas_extreme_alert">Extreme Alert</string>
+    <!-- CMAS dialog title for severe alert. [CHAR LIMIT=50] -->
+    <!-- Required Portuguese (pt) translation for this message: Alerta severo -->
+    <!-- Required spanish (es) translation for this message: Alerta severa -->
+    <string name="cmas_severe_alert">Severe Alert</string>
+    <!-- CMAS dialog title for required monthly test. [CHAR LIMIT=50] -->
+    <!-- Required Portuguese (pt) translation for this message: Alerta de teste -->
+    <!-- Required spanish (es) translation for this message: Alerta de prueba -->
+    <string name="cmas_required_monthly_test">Exercise Alert</string>
+    <!-- CMAS dialog title for CMAS Exercise. [CHAR LIMIT=50] -->
+    <!-- Required Portuguese (pt) translation for this message: Alerta de teste técnico -->
+    <!-- Required spanish (es) translation for this message: Alerta de prueba técnica -->
+    <string name="cmas_exercise_alert">Technical test alerts</string>
+
+    <!-- Preference title for enable CMAS extreme threat alerts checkbox. [CHAR LIMIT=50] -->
+    <!-- Required Portuguese (pt) translation for this message: Alerta Extremo -->
+    <!-- Required spanish (es) translation for this message: Alerta Extrema -->
+    <string name="enable_cmas_extreme_threat_alerts_title">Extreme Threats</string>
+    <!-- Preference summary for enable CMAS severe threat alerts checkbox. [CHAR LIMIT=100] -->
+    <!-- Required Portuguese (pt) translation for this message: Ameaças extremas à vida ou à propriedade -->
+    <!-- Required spanish (es) translation for this message: Amenazas extremas a la vida y la propiedad -->
+    <string name="enable_cmas_extreme_threat_alerts_summary">Extreme threats to life and property</string>
+
+    <!-- Preference title for enable CMAS severe threat alerts checkbox. [CHAR LIMIT=50] -->
+    <!-- Required Portuguese (pt) translation for this message: Alerta Severo -->
+    <!-- Required spanish (es) translation for this message: Alerta Severa -->
+    <string name="enable_cmas_severe_threat_alerts_title">Severe Threats</string>
+    <!-- Preference summary for enable CMAS severe threat alerts checkbox. [CHAR LIMIT=100] -->
+    <!-- Required Portuguese (pt) translation for this message: Medidas de proteção necessárias -->
+    <!-- Required spanish (es) translation for this message: Medidas de protección necesarias -->
+    <string name="enable_cmas_severe_threat_alerts_summary">Severe threats to life and property</string>
+    <!-- Preference title for other test alerts checkbox. [CHAR LIMIT=50] -->
+    <!-- Required Portuguese (pt) translation for this message: Alerta de teste -->
+    <!-- Required spanish (es) translation for this message: Alerta de prueba -->
+    <string name="enable_cmas_test_alerts_title">State and Local tests</string>
+    <!-- Preference summary for other test alerts checkbox. [CHAR LIMIT=125] -->
+    <!-- Required Portuguese (pt) translation for this message: Recebimento de alertas de testes das autoridades competentes -->
+    <!-- Required spanish (es) translation for this message: Recepción de mensajes de prueba de las autoridades competentes -->
+    <string name="enable_cmas_test_alerts_summary">Receive test messages from state and local authorities</string>
+    <!-- Preference title for exercise test alerts checkbox. [CHAR LIMIT=50] -->
+    <!-- Required Portuguese (pt) translation for this message: Alerta de Teste técnico -->
+    <!-- Required spanish (es) translation for this message: Alerta de prueba técnica -->
+    <string name="enable_exercise_test_alerts_title">Technical test alerts</string>
+    <!-- Preference summary for exercise test alerts checkbox. [CHAR LIMIT=125] -->
+    <!-- Required Portuguese (pt) translation for this message: Recebimento de alertas de testes técnicos -->
+    <!-- Required spanish (es) translation for this message: Recepción de alertas de pruebas técnicas -->
+    <string name="enable_exercise_test_alerts_summary">Receive test messages</string>
+</resources>

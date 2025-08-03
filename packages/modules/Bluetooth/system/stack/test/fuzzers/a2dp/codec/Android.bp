@@ -1,0 +1,48 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_bt_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_bt_license"],
+}
+
+cc_defaults {
+    name: "libbt-stack_fuzz_codec_defaults",
+    defaults: ["libbt-stack_fuzz_defaults"],
+    include_dirs: [
+        "packages/modules/Bluetooth/system/bta/include/", // For tBT_A2DP_OFFLOAD
+        "packages/modules/Bluetooth/system/bta/sys/", // For tBT_A2DP_OFFLOAD
+        "packages/modules/Bluetooth/system/gd",
+    ],
+}
+
+cc_fuzz {
+    name: "a2dp_codec_fuzz",
+    static_libs: ["libchrome"],
+    defaults: ["libbt-stack_fuzz_codec_defaults"],
+    srcs: [
+        "fuzz_a2dp_codec.cc",
+    ],
+    cflags: ["-Wno-unused-parameter"],
+}
+
+cc_fuzz {
+    name: "a2dp_codec_info_fuzz",
+    static_libs: ["libchrome"],
+    defaults: ["libbt-stack_fuzz_codec_defaults"],
+    srcs: [
+        "fuzz_a2dp_codec_info.cc",
+    ],
+    cflags: ["-Wno-unused-parameter"],
+}
+
+cc_fuzz {
+    name: "a2dp_codec_cfg_fuzz",
+    static_libs: ["libchrome"],
+    defaults: ["libbt-stack_fuzz_codec_defaults"],
+    srcs: [
+        "fuzz_a2dp_codec_config.cc",
+    ],
+    cflags: ["-Wno-unused-parameter"],
+}

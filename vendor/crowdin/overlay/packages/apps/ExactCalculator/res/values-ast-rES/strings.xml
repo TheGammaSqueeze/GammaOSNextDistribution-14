@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2015 The Android Open Source Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <string name="app_name">Calculadora</string>
+    <string name="dec_point">,</string>
+    <string name="mode_deg">deg</string>
+    <string name="mode_rad">rad</string>
+    <string name="cleared">borróse</string>
+    <string name="desc_const_e">númberu d\'Euler</string>
+    <string name="desc_const_pi">pi</string>
+    <string name="desc_dec_point">puntu</string>
+    <string name="desc_paren">paréntesis</string>
+    <string name="desc_lparen">paréntesis d\'apertura</string>
+    <string name="desc_rparen">paréntesis de zarru</string>
+    <string name="desc_fun_cos">cosenu</string>
+    <string name="desc_fun_ln">logaritmu natural</string>
+    <string name="desc_fun_log">logaritmu</string>
+    <string name="desc_fun_sin">senu</string>
+    <string name="desc_fun_tan">tanxente</string>
+    <string name="desc_fun_arccos">arcocosenu</string>
+    <string name="desc_fun_arcsin">arcosenu</string>
+    <string name="desc_fun_arctan">arcotanxente</string>
+    <string name="desc_fun_10pow">diez eleváu a</string>
+    <string name="desc_fun_exp">función esponencial</string>
+    <string name="desc_op_sqr">al cuadráu</string>
+    <string name="desc_op_add">más</string>
+    <string name="desc_op_div">dividir</string>
+    <string name="desc_op_fact">factorial</string>
+    <string name="desc_op_mul">multiplicar</string>
+    <string name="desc_op_pct">porcentaxe</string>
+    <string name="desc_op_pow">potencia</string>
+    <string name="desc_op_sqrt">raíz cuadrada</string>
+    <string name="desc_op_sub">menos</string>
+    <string name="desc_mode_deg">mou de graos</string>
+    <string name="desc_mode_rad">mou de radianes</string>
+    <string name="desc_switch_deg">cambiar a graos</string>
+    <string name="desc_switch_rad">cambiar a radianes</string>
+    <string name="desc_eq">igual a</string>
+    <string name="desc_clr">borrar</string>
+    <string name="desc_del">desaniciar</string>
+    <string name="desc_inv_off">amosar les funciones inverses</string>
+    <string name="desc_inv_on">esconder les funciones inverses</string>
+    <string name="desc_formula">Nun hai nenguna formula</string>
+    <string name="desc_result">Nun hai nengún resultáu</string>
+    <string name="error_nan">Nun ye un númberu</string>
+    <string name="error_syntax">Espresión incorreuta</string>
+    <string name="error_aborted">Anulóse</string>
+    <string name="error_overflow">¿Infinitu?</string>
+    <string name="error_zero_divide">Nun se pue dividir por 0</string>
+    <string name="text_copied_toast">Copióse\'l testu</string>
+    <string name="cancelled">Anulóse\'l cálculu.</string>
+    <string name="timeout">Ye posible que\'l valor seya infinitu o nun tea definíu</string>
+    <string name="ok_remove_timeout">Usar tiempos d\'espera más llargos</string>
+    <string name="dismiss">Escartar</string>
+    <string name="exact">(exautu)</string>
+    <string name="approximate">(±1 nel últimu díxitu)</string>
+    <string name="menu_leading">Responder con díxitos iniciales</string>
+    <string name="menu_fraction">Responder como fraición</string>
+    <string name="menu_licenses">Llicencies de códigu abiertu</string>
+    <string name="menu_history">Historial</string>
+    <string name="menu_clear_history">Borrar</string>
+    <string name="title_history">Historial</string>
+    <string name="desc_navigate_up">Desplazase p\'arriba</string>
+    <string name="dialog_timeout">Escosó\'l tiempu d\'espera</string>
+    <string name="dialog_clear">¿Quies borrar l\'historial y la memoria?</string>
+    <string name="title_current_expression">Espresión actual</string>
+    <string name="no_history">Nun hai nengún elementu nel historial</string>
+</resources>

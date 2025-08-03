@@ -1,0 +1,51 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_defaults {
+    name: "vm.defaults",
+    crate_name: "vm",
+    defaults: ["avf_build_flags_rust"],
+    srcs: ["src/main.rs"],
+    edition: "2021",
+    prefer_rlib: true,
+    rustlibs: [
+        "android.system.virtualizationservice-rust",
+        "libanyhow",
+        "libavf_features",
+        "libbinder_rs",
+        "libclap",
+        "libenv_logger",
+        "libglob",
+        "libhypervisor_props",
+        "liblibc",
+        "liblog_rust",
+        "libmicrodroid_payload_config",
+        "librand",
+        "libserde_json",
+        "libserde",
+        "libvmconfig",
+        "libvmclient",
+        "libzip",
+    ],
+}
+
+rust_binary {
+    name: "vm",
+    defaults: ["vm.defaults"],
+    apex_available: [
+        "com.android.virt",
+    ],
+}
+
+rust_test {
+    name: "vm.test",
+    defaults: ["vm.defaults"],
+    test_suites: ["general-tests"],
+    compile_multilib: "first",
+}
+
+sh_binary_host {
+    name: "vm_shell",
+    src: "vm_shell.sh",
+}

@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (C) 2017 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.android.car.carlauncher">
+
+    <!-- System permission to access the CarProjectionManager for projection status-->
+    <uses-permission android:name="android.car.permission.ACCESS_CAR_PROJECTION_STATUS"/>
+    <!-- Permission to assign Activity to TDA -->
+    <uses-permission android:name="android.car.permission.CONTROL_CAR_APP_LAUNCH"/>
+    <!-- System permission to host maps activity -->
+    <uses-permission android:name="android.permission.ACTIVITY_EMBEDDING"/>
+    <!-- Needed to change component enabled state when user opens disabled apps. -->
+    <uses-permission android:name="android.permission.CHANGE_COMPONENT_ENABLED_STATE"/>
+    <!-- Permission to open recent tasks and to allow drag surface control to be transferred from DragEvent. -->
+    <uses-permission android:name="android.permission.START_TASKS_FROM_RECENTS"/>
+    <!-- Permission for the InCallController to bind the InCallService -->
+    <uses-permission android:name="android.permission.CONTROL_INCALL_EXPERIENCE"/>
+    <!-- System permission to send events to hosted maps activity -->
+    <uses-permission android:name="android.permission.INJECT_EVENTS"/>
+    <!-- System permission to use internal system windows -->
+    <uses-permission android:name="android.permission.INTERNAL_SYSTEM_WINDOW"/>
+    <!-- System permission to register TaskOrganizer -->
+    <uses-permission android:name="android.permission.MANAGE_ACTIVITY_TASKS"/>
+    <!-- System permission to bring hosted maps activity to front on main display -->
+    <uses-permission android:name="android.permission.REORDER_TASKS"/>
+    <!-- System permission to remove a task -->
+    <uses-permission android:name="android.permission.REMOVE_TASKS"/>
+    <!-- System permission to call AM.getRunningAppProcesses().
+         TODO: change this to REAL_GET_TASKS. -->
+    <uses-permission android:name="android.permission.GET_TASKS"/>
+    <!-- System permission to query users on device -->
+    <uses-permission android:name="android.permission.MANAGE_USERS"/>
+    <!-- System permission to control media playback of the active session -->
+    <uses-permission android:name="android.permission.MEDIA_CONTENT_CONTROL"/>
+    <!-- System permission to get app usage data -->
+    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"/>
+    <!-- System permission to query all installed packages -->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"/>
+    <!-- Permission to read contacts data. Needed to display contact name on dialer card -->
+    <uses-permission android:name="android.permission.READ_CONTACTS"/>
+    <!-- Permission for read-only access to phone state, namely the status of any ongoing calls -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <!-- Allows input events to be monitored by CarDisplayAreaTouchHandler. -->
+    <uses-permission android:name="android.permission.MONITOR_INPUT"/>
+    <!-- Needed to use TYPE_APPLICATION_OVERLAY window type to display title bar. -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <!-- Permission to start a voice interaction service. -->
+    <uses-permission android:name="android.permission.ACCESS_VOICE_INTERACTION_SERVICE"/>
+    <!-- Permission to use InteractionJankMonitor. -->
+    <uses-permission android:name="android.permission.READ_DEVICE_CONFIG"/>
+    <!-- Permission to send notifications -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.FORCE_STOP_PACKAGES"/>
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL"/>
+    <!-- Permission to create RemoteCarTaskView -->
+    <uses-permission android:name="android.car.permission.MANAGE_CAR_SYSTEM_UI"/>
+    <!-- Permission to read outside temperature sensor -->
+    <uses-permission android:name="android.car.permission.CAR_EXTERIOR_ENVIRONMENT"/>
+    <!-- Permission to read hvac properties -->
+    <uses-permission android:name="android.car.permission.CONTROL_CAR_CLIMATE"/>
+    <!-- Permission to read navigation state -->
+    <uses-permission android:name="android.car.permission.CAR_MONITOR_CLUSTER_NAVIGATION_STATE"/>
+
+    <!-- To connect to media browser services in other apps, media browser clients
+    that target Android 11 need to add the following in their manifest -->
+    <queries>
+        <intent>
+            <action android:name="android.media.browse.MediaBrowserService"/>
+        </intent>
+    </queries>
+
+    <application
+        android:icon="@drawable/ic_launcher_home"
+        android:label="@string/app_title"
+        android:theme="@style/Theme.Launcher"
+        android:supportsRtl="true">
+        <activity
+            android:name=".CarLauncher"
+            android:configChanges="uiMode|mcc|mnc"
+            android:launchMode="singleTask"
+            android:clearTaskOnLaunch="true"
+            android:stateNotNeeded="true"
+            android:resumeWhilePausing="true"
+            android:exported="true"
+            android:windowSoftInputMode="adjustPan">
+            <meta-data android:name="distractionOptimized" android:value="true"/>
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.HOME"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.LAUNCHER_APP"/>
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".ControlBarActivity"
+            android:launchMode="singleInstance"
+            android:clearTaskOnLaunch="true"
+            android:stateNotNeeded="true"
+            android:resumeWhilePausing="true"
+            android:exported="true"
+            android:windowSoftInputMode="adjustPan"
+            android:excludeFromRecents="true">
+            <meta-data android:name="distractionOptimized" android:value="true"/>
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <service
+            android:name=".recents.CarQuickStepService"
+            android:permission="android.permission.STATUS_BAR_SERVICE"
+            android:directBootAware="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.QUICKSTEP_SERVICE"/>
+            </intent-filter>
+        </service>
+        <activity
+            android:name=".recents.CarRecentsActivity"
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance"
+            android:stateNotNeeded="true"
+            android:exported="true"
+            android:taskAffinity=""
+            android:resumeWhilePausing="true">
+            <meta-data android:name="distractionOptimized" android:value="true"/>
+            <intent-filter>
+                <action android:name="com.android.car.carlauncher.recents.OPEN_RECENT_TASK_ACTION"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <activity android:name="com.android.car.carlauncher.calmmode.CalmModeActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:launchMode="singleInstance"
+            android:theme="@style/Theme.CalmMode">
+            <intent-filter>
+                <action android:name="com.android.settings.action.EXTRA_SETTINGS"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <meta-data android:name="distractionOptimized" android:value="true"/>
+            <meta-data
+                android:name="com.android.settings.title"
+                android:resource="@string/calm_mode_title"/>
+            <meta-data
+                android:name="com.android.settings.category"
+                android:value="com.android.settings.category.ia.display"/>
+        </activity>
+
+        <provider android:name=".calmmode.CalmModeQCProvider"
+                  android:authorities="com.android.car.carlauncher.calmmode"
+                  android:grantUriPermissions="true"
+                  android:exported="true">
+        </provider>
+
+        <!-- The service needs to be directBootAware so that it can reflect the correct call state
+          when the system boots up. -->
+        <service android:name=".homescreen.audio.telecom.InCallServiceImpl"
+                 android:directBootAware="true"
+                 android:permission="android.permission.BIND_INCALL_SERVICE"
+                 android:exported="true">
+            <!-- The home app does not display the in-call UI. This is handled by the
+            Dialer application.-->
+            <meta-data android:name="android.telecom.IN_CALL_SERVICE_UI" android:value="false"/>
+            <meta-data android:name="android.telecom.IN_CALL_SERVICE_CAR_MODE_UI"
+                       android:value="false"/>
+            <meta-data android:name="android.telecom.INCLUDE_SELF_MANAGED_CALLS"
+                       android:value="true"/>
+            <intent-filter>
+                <action android:name="android.telecom.InCallService"/>
+            </intent-filter>
+        </service>
+    </application>
+</manifest>

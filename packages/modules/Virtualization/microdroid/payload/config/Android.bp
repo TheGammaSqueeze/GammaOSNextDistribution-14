@@ -1,0 +1,20 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_library {
+    name: "libmicrodroid_payload_config",
+    host_supported: true,
+    crate_name: "microdroid_payload_config",
+    defaults: ["avf_build_flags_rust"],
+    srcs: ["src/lib.rs"],
+    prefer_rlib: true,
+    edition: "2021",
+    rustlibs: [
+        "libserde_json",
+        "libserde",
+    ],
+    apex_available: [
+        "com.android.virt",
+    ],
+}

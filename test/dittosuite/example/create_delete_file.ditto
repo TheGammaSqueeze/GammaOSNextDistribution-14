@@ -1,0 +1,19 @@
+main: {
+  instruction_set: {
+    instructions: [
+      {
+        open_file: {
+          path_name: "newfile2.txt"
+        }
+      },
+      {
+        delete_file: {
+          path_name: "newfile2.txt"
+        }
+      }
+    ]
+  }
+},
+global {
+  absolute_path: "/data/local/tmp/";
+}

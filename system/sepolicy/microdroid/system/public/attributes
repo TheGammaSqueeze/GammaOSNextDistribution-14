@@ -1,0 +1,155 @@
+######################################
+# Attribute declarations
+#
+
+# All types used for devices.
+# On change, update CHECK_FC_ASSERT_ATTRS
+# in tools/checkfc.c
+attribute dev_type;
+
+# All types used for processes.
+attribute domain;
+
+# All types used for filesystems.
+# On change, update CHECK_FC_ASSERT_ATTRS
+# definition in tools/checkfc.c.
+attribute fs_type;
+
+# All types used for context= mounts.
+attribute contextmount_type;
+
+# All types used for files that can exist on a labeled fs.
+# Do not use for pseudo file types.
+# On change, update CHECK_FC_ASSERT_ATTRS
+# definition in tools/checkfc.c.
+attribute file_type;
+
+# All types used for domain entry points.
+attribute exec_type;
+
+# All types used for /data files.
+attribute data_file_type;
+expandattribute data_file_type false;
+# All types in /data, not in /data/vendor
+attribute core_data_file_type;
+expandattribute core_data_file_type false;
+
+# All types in /system
+attribute system_file_type;
+
+# All types in /vendor
+attribute vendor_file_type;
+
+# All types used for procfs files.
+attribute proc_type;
+expandattribute proc_type false;
+
+# Types in /proc/net, excluding qtaguid types.
+# TODO(b/9496886) Lock down access to /proc/net.
+# This attribute is used to audit access to proc_net. it is temporary and will
+# be removed.
+attribute proc_net_type;
+expandattribute proc_net_type true;
+
+# All types used for sysfs files.
+attribute sysfs_type;
+
+# All types use for debugfs files.
+attribute debugfs_type;
+
+# All types used for tracefs files.
+attribute tracefs_type;
+
+# Attribute used for all sdcards
+attribute sdcard_type;
+
+# All types used for nodes/hosts.
+attribute node_type;
+
+# All types used for network interfaces.
+attribute netif_type;
+
+# All types used for network ports.
+attribute port_type;
+
+# All types used for property service
+# On change, update CHECK_PC_ASSERT_ATTRS
+# definition in tools/checkfc.c.
+attribute property_type;
+
+# Properties used for representing ownership. All properties should have one
+# of: system_property_type, product_property_type, or vendor_property_type.
+
+# All properties defined by /system.
+attribute system_property_type;
+expandattribute system_property_type false;
+
+# All /system-defined properties used only in /system.
+attribute system_internal_property_type;
+expandattribute system_internal_property_type false;
+
+# All /system-defined properties which can't be written outside /system.
+attribute system_restricted_property_type;
+expandattribute system_restricted_property_type false;
+
+# All /system-defined properties with no restrictions.
+attribute system_public_property_type;
+expandattribute system_public_property_type false;
+
+# All properties defined by /product.
+# Currently there are no enforcements between /system and /product, so for now
+# /product attributes are just replaced to /system attributes.
+define(`product_property_type',   `system_property_type')
+define(`product_internal_property_type',   `system_internal_property_type')
+define(`product_restricted_property_type', `system_restricted_property_type')
+define(`product_public_property_type',     `system_public_property_type')
+
+# All properties defined by /vendor.
+attribute vendor_property_type;
+expandattribute vendor_property_type false;
+
+# All /vendor-defined properties used only in /vendor.
+attribute vendor_internal_property_type;
+expandattribute vendor_internal_property_type false;
+
+# All /vendor-defined properties which can't be written outside /vendor.
+attribute vendor_restricted_property_type;
+expandattribute vendor_restricted_property_type false;
+
+# All /vendor-defined properties with no restrictions.
+attribute vendor_public_property_type;
+expandattribute vendor_public_property_type false;
+
+# All domains used for apps with bluetooth access.
+attribute bluetoothdomain;
+
+# All domains used for binder service domains.
+attribute binderservicedomain;
+
+# All core domains (as opposed to vendor/device-specific domains)
+attribute coredomain;
+
+# All socket devices owned by core domain components
+attribute coredomain_socket;
+expandattribute coredomain_socket false;
+
+# All HAL servers
+attribute halserverdomain;
+# All HAL clients
+attribute halclientdomain;
+expandattribute halclientdomain true;
+
+# All types used for DMA-BUF heaps
+attribute dmabuf_heap_device_type;
+expandattribute dmabuf_heap_device_type false;
+
+attribute fusefs_type;
+
+# All types run from microdroid_manager as a payload
+attribute microdroid_payload;
+
+# Domains that are blocked from producing a crash dump
+attribute no_crash_dump_domain;
+
+# All types of ART properties.
+attribute dalvik_config_prop_type;

@@ -1,0 +1,69 @@
+model {
+  main {
+    operands {
+      operand {
+        type: TENSOR_BOOL8
+        dimensions {
+          dimension: 4
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 16777472
+        }
+      }
+      operand {
+        type: TENSOR_BOOL8
+        dimensions {
+          dimension: 4
+        }
+        lifetime: SUBGRAPH_INPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 16842752
+        }
+      }
+      operand {
+        type: TENSOR_BOOL8
+        dimensions {
+          dimension: 4
+        }
+        lifetime: SUBGRAPH_OUTPUT
+        channel_quant {
+          scales {
+          }
+        }
+        data {
+          scalar: 16777217
+        }
+      }
+    }
+    operations {
+      operation {
+        type: EQUAL
+        inputs {
+          index: 0
+          index: 1
+        }
+        outputs {
+          index: 2
+        }
+      }
+    }
+    input_indexes {
+      index: 0
+      index: 1
+    }
+    output_indexes {
+      index: 2
+    }
+  }
+  referenced {
+  }
+}

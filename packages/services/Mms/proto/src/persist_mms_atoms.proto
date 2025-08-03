@@ -1,0 +1,70 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package com.android.mms;
+option java_package = "com.android.mms";
+option java_outer_classname = "PersistMmsAtomsProto";
+option java_multiple_files = true;
+
+message PersistMmsAtoms {
+  /* Last Android build fingerprint. This usually changes after system OTA. */
+  optional string build_fingerprint = 1;
+
+  /* Incoming MMS statistics and information. */
+  repeated IncomingMms incoming_mms = 2;
+
+  /* Timestamp of last incoming_mms pull. */
+  optional int64 incoming_mms_pull_timestamp_millis = 3;
+
+  /* Outgoing MMS statistics and information. */
+  repeated OutgoingMms outgoing_mms = 4;
+
+  /* Timestamp of last outgoing_mms pull. */
+  optional int64 outgoing_mms_pull_timestamp_millis = 5;
+}
+
+message IncomingMms {
+  optional int32 rat = 1;
+  optional int32 result = 2;
+  optional int32 roaming = 3;
+  optional int32 sim_slot_index = 4;
+  optional bool is_multi_sim = 5;
+  optional bool is_esim = 6;
+  optional int32 carrier_id = 7;
+  optional int64 avg_interval_millis = 8;
+  optional int64 mms_count = 9;
+  optional int32 retry_id = 10;
+  optional bool handled_by_carrier_app = 11;
+  optional bool is_managed_profile = 12;
+}
+
+message OutgoingMms {
+  optional int32 rat = 1;
+  optional int32 result = 2;
+  optional int32 roaming = 3;
+  optional int32 sim_slot_index = 4;
+  optional bool is_multi_sim = 5;
+  optional bool is_esim = 6;
+  optional int32 carrier_id = 7;
+  optional int64 avg_interval_millis = 8;
+  optional int64 mms_count = 9;
+  optional bool is_from_default_app = 10;
+  optional int32 retry_id = 11;
+  optional bool handled_by_carrier_app = 12;
+  optional bool is_managed_profile = 13;
+}

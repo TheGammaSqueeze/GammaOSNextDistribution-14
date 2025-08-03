@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="type_incoming">Gələn zəng</string>
+  <string name="type_incoming_pulled">Gələn zəng başqa cihaza yönləndirildi</string>
+  <string name="type_outgoing">Gedən zəng</string>
+  <string name="type_outgoing_pulled">Gedən zəng başqa cihaza yönləndirildi</string>
+  <string name="type_missed">Buraxılmış zəng</string>
+  <string name="type_incoming_video">Gələn video zəng</string>
+  <string name="type_incoming_video_pulled">Gələn video zəng başqa cihaza yönləndirildi</string>
+  <string name="type_outgoing_video">Gedən video zəng</string>
+  <string name="type_outgoing_video_pulled">Gedən video zəng başqa cihaza yönləndirildi</string>
+  <string name="type_missed_video">Buraxılmış video zəng</string>
+  <string name="type_voicemail">Səsli e-məktub</string>
+  <string name="type_rejected">Rədd edilmiş zəng</string>
+  <string name="type_blocked">Blok edilmiş zəng</string>
+  <string name="call_details_minutes_abbreviation">dəq</string>
+  <string name="call_details_seconds_abbreviation">san</string>
+  <string name="a11y_call_duration_format">%1$d %2$s %3$d %4$s</string>
+  <string name="a11y_call_duration_short_format">%1$d %2$s</string>
+  <string name="call_duration_format_pattern">%1$s\'%2$s\' %3$s\'%4$s\'</string>
+  <string name="call_duration_short_format_pattern">%1$s\'%2$s\'</string>
+  <plurals name="a11y_seconds">
+    <item quantity="one">saniyə</item>
+    <item quantity="other">saniyə</item>
+  </plurals>
+  <plurals name="a11y_minutes">
+    <item quantity="one">dəqiqə</item>
+    <item quantity="other">dəqiqə</item>
+  </plurals>
+  <string name="type_answered_elsewhere">Zəngə başqa cihazda cavab verildi</string>
+  <string name="description_phone_account">^1 hesabında</string>
+  <string name="description_via_number">%1$s vasitəsilə</string>
+  <string name="description_via_number_phone_account">%2$s vasitəsilə %1$s hesabında</string>
+  <string name="voicemail_string">Səsli e-məktub</string>
+  <string name="just_now">İndicə</string>
+  <string name="new_call_log_carrier_video">Operator video</string>
+  <string name="new_call_log_unknown">Naməlum</string>
+  <string name="new_call_log_secondary_blocked">Blok edilib</string>
+  <string name="new_call_log_secondary_spam">Spam</string>
+</resources>

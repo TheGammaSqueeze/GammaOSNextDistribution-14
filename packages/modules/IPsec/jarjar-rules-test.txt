@@ -1,0 +1,9 @@
+rule android.net.eap.** android.net.eap.test.@1
+rule android.net.ipsec.** android.net.ipsec.test.@1
+rule com.android.internal.net.**.** com.android.internal.net.@1.test.@2
+rule android.annotation.StringDef com.android.internal.net.ipsec.test.annotation.StringDef
+rule android.telephony.Annotation* com.android.internal.net.eap.test.telephony.Annotation@1
+rule com.android.server.vcn.util.PersistableBundleUtils* com.android.internal.net.vcn.test.util.PersistableBundleUtils@1
+rule com.android.internal.util.** com.android.internal.net.ipsec.test.ike.utils.@1
+rule com.android.modules.utils.** com.android.internal.net.utils.test.@1
+rule org.bouncycastle.** com.android.internal.net.org.bouncycastle.test.@1

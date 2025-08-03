@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  Copyright (c) 2017 The LineageOS Project
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ Also add information on how to contact you by electronic and paper mail.
+
+-->
+<resources>
+    <string name="app_name">FlipFlap</string>
+    <string name="notification_title">تم الكشف عن غطاء ذكي</string>
+    <string name="alarm_label">المنبه</string>
+    <string name="abbrev_wday_month_day_no_year">EEE, MMMM d</string>
+    <string name="answer_call">رد</string>
+    <string name="ignore_call">تجاهل</string>
+    <string name="end_call">إنهاء المكالمة</string>
+    <string name="settings_name">الغطاء الذكي</string>
+    <string name="settings_summary">التحكم في سلوك الجهاز الملحق</string>
+    <string name="category_behaviour">السلوك</string>
+    <string name="pass_to_security_view_title">انتقل مباشرة إلى إدخال كلمة المرور</string>
+    <string name="pass_to_security_view_summary">فتح الغطاء يظهر شاشة التأمين مباشرة</string>
+    <string name="use_high_touch_sensitivity_title">حساسية عالية للمس</string>
+    <string name="use_high_touch_sensitivity_summary">قم بزيادة حساسية اللمس أثناء غلق الغطاء</string>
+    <string name="category_design">التصميم</string>
+    <string name="switch_charging_status_title">إظهار حالة الشحن</string>
+    <string name="switch_charging_status_summary">تغيير اللون تبعًا لشحن البطارية الحالي</string>
+    <string name="category_timeouts">إنتهاء المهلات</string>
+    <string name="timeout_plugged_title">أثناء الشحن</string>
+    <string name="timeout_unplugged_title">مفصول</string>
+    <string name="timeout_summary">عرض تطبيق الغلاف لـ %s بعد إغلاق الغطاء</string>
+    <string name="timeout_summary_never">بعد غلق الغطاء، سيبقى تطبيق الغطاء مفعل دائماً</string>
+    <string name="timeout_summary_immediately">سيتم إغلاق الشاشة عند إغلاق الغطاء</string>
+    <string name="timeout_entry_immediately">حالاً</string>
+    <string name="timeout_entry_5s">5 ثوان</string>
+    <string name="timeout_entry_10s">10 ثوان</string>
+    <string name="timeout_entry_30s">30 ثانية</string>
+    <string name="timeout_entry_1min">دقيقة واحدة</string>
+    <string name="timeout_entry_5min">5 دقائق</string>
+    <string name="timeout_entry_never">مطلقاً</string>
+</resources>

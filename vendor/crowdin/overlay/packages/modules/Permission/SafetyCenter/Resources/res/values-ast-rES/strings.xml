@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="safetyCenterResourcesAppLabel">Recursos del centru de seguranza</string>
+    <string name="lock_screen_sources_title" description="The title of the group of safety settings relating to screen lock and biometrics">Bloquéu del preséu</string>
+    <string name="lock_screen_title" description="The default title of the setting for managing the screen lock on the device">Bloquéu de pantalla</string>
+    <string name="biometrics_title" description="The default title of the setting for managing biometric options on the device">Biometría</string>
+    <string name="privacy_sources_title" description="The title of the group of safety settings relating to privacy">Privacidá</string>
+    <string name="permission_usage_title" description="Permission usage title">Panel de privacidá</string>
+    <string name="permission_manager_title" description="Permission manager title">Xestor de permisos</string>
+    <string name="advanced_title" description="The title of the group of advanced settings">Más opciones</string>
+    <string name="advanced_privacy_title" description="The title of the entry for advanced privacy settings">Más opciones de privacidá</string>
+</resources>

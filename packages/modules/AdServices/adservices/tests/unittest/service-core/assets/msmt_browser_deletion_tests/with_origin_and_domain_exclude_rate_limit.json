@@ -1,0 +1,1120 @@
+{
+  "name": "With origin and domain - Exclude rate limit",
+  "description": "(S1, S4, S5, S6), (T1, T4, T5, Trigger6), (E1, E2(due to S1), E4, E6, E7, E8), (a1, a2(due to S1), a4, a6, a7, a8) are marked to be deleted (status changed to 2) due to origin/domain match; S2,T2, E5, a5 are not deleted due to being out of time range. No AttrRateLimit deleted.",
+  "input": {
+    "sources": [
+      {
+        "id": "S1",
+        "eventId": 1,
+        "sourceType": "navigation",
+        "publisher": "https://deleteCandidate1.site.test",
+        "enrollmentId": "enrollment-id",
+        "eventTime": 1648665733601,
+        "expiryTime": 1648665733611,
+        "eventReportWindow": 1648665733611,
+        "priority": 100,
+        "status": 0,
+        "registrant": "android-app://com.registrant.deleteCandidate"
+      },
+      {
+        "id": "S2",
+        "eventId": 2,
+        "sourceType": "navigation",
+        "publisher": "https://deleteCandidate1.site.test",
+        "enrollmentId": "enrollment-id",
+        "eventTime": 1648665733605,
+        "expiryTime": 1648665733615,
+        "eventReportWindow": 1648665733615,
+        "priority": 100,
+        "status": 0,
+        "registrant": "android-app://com.registrant.deleteCandidate"
+      },
+      {
+        "id": "S3",
+        "eventId": 3,
+        "sourceType": "navigation",
+        "publisher": "https://siteNotMatch.site3.test",
+        "enrollmentId": "enrollment-id",
+        "eventTime": 1648665733601,
+        "expiryTime": 1648665733611,
+        "eventReportWindow": 1648665733611,
+        "priority": 100,
+        "status": 0,
+        "registrant": "android-app://com.registrant.deleteCandidate"
+      },
+      {
+        "id": "S4",
+        "eventId": 1,
+        "sourceType": "navigation",
+        "publisher": "https://deleteCandidate2.site.test",
+        "enrollmentId": "enrollment-id",
+        "eventTime": 1648665733601,
+        "expiryTime": 1648665733611,
+        "eventReportWindow": 1648665733611,
+        "priority": 100,
+        "status": 0,
+        "registrant": "android-app://com.registrant.deleteCandidate"
+      },
+      {
+        "id": "S5",
+        "eventId": 1,
+        "sourceType": "navigation",
+        "publisher": "https://abc.deletesite1.test",
+        "enrollmentId": "enrollment-id",
+        "eventTime": 1648665733601,
+        "expiryTime": 1648665733611,
+        "eventReportWindow": 1648665733611,
+        "priority": 100,
+        "status": 0,
+        "registrant": "android-app://com.registrant.deleteCandidate"
+      },
+      {
+        "id": "S6",
+        "eventId": 1,
+        "sourceType": "navigation",
+        "publisher": "https://abc.deletesite2.test",
+        "enrollmentId": "enrollment-id",
+        "eventTime": 1648665733601,
+        "expiryTime": 1648665733611,
+        "eventReportWindow": 1648665733611,
+        "priority": 100,
+        "status": 0,
+        "registrant": "android-app://com.registrant.deleteCandidate"
+      },
+      {
+        "id": "S7",
+        "eventId": 1,
+        "sourceType": "navigation",
+        "publisher": "https://somedeletesite2.test",
+        "enrollmentId": "enrollment-id",
+        "eventTime": 1648665733601,
+        "expiryTime": 1648665733611,
+        "eventReportWindow": 1648665733611,
+        "priority": 100,
+        "status": 0,
+        "registrant": "android-app://com.registrant.deleteCandidate"
+      }
+    ],
+    "source_destinations": [
+      {
+        "sourceId": "S1",
+        "destination": "android-app://com.app2",
+        "destinationType": 0
+      },
+      {
+        "sourceId": "S2",
+        "destination": "android-app://com.app2",
+        "destinationType": 0
+      },
+      {
+        "sourceId": "S3",
+        "destination": "android-app://com.app2",
+        "destinationType": 0
+      },
+      {
+        "sourceId": "S4",
+        "destination": "android-app://com.app2",
+        "destinationType": 0
+      },
+      {
+        "sourceId": "S5",
+        "destination": "android-app://com.app2",
+        "destinationType": 0
+      },
+      {
+        "sourceId": "S6",
+        "destination": "android-app://com.app2",
+        "destinationType": 0
+      },
+      {
+        "sourceId": "S7",
+        "destination": "android-app://com.app2",
+        "destinationType": 0
+      }
+    ],
+    "triggers": [
+      {
+        "id": "T1",
+        "attributionDestination": "https://deleteCandidate1.site.test",
+        "enrollmentId": "enrollment-id",
+        "priority": 101,
+        "status": 0,
+        "triggerData": 2,
+        "eventTriggers": [
+          {
+            "trigger_data": 2,
+            "priority": 101,
+            "filters": {
+              "key_1": ["value_1"]
+            }
+          }
+        ],
+        "triggerTime": 1648665733601,
+        "registrant": "android-app://com.registrant.deleteCandidate",
+        "aggregatableSourceRegistrationTimeConfig": "INCLUDE"
+      },
+      {
+        "id": "T2",
+        "attributionDestination": "https://deleteCandidate1.site.test",
+        "enrollmentId": "enrollment-id",
+        "priority": 101,
+        "status": 0,
+        "triggerData": 2,
+        "eventTriggers": [
+          {
+            "trigger_data": 2,
+            "priority": 101,
+            "filters": {
+              "key_1": ["value_1"]
+            }
+          }
+        ],
+        "triggerTime": 1648665733605,
+        "registrant": "android-app://com.registrant.deleteCandidate",
+        "aggregatableSourceRegistrationTimeConfig": "INCLUDE"
+      },
+      {
+        "id": "T3",
+        "attributionDestination": "https://doNotDelete.site.test",
+        "enrollmentId": "enrollment-id",
+        "priority": 101,
+        "status": 0,
+        "triggerData": 2,
+        "eventTriggers": [
+          {
+            "trigger_data": 2,
+            "priority": 101,
+            "filters": {
+              "key_1": ["value_1"]
+            }
+          }
+        ],
+        "triggerTime": 1648665733601,
+        "registrant": "android-app://com.registrant.deleteCandidate",
+        "aggregatableSourceRegistrationTimeConfig": "INCLUDE"
+      },
+      {
+        "id": "T4",
+        "attributionDestination": "https://deleteCandidate2.site.test",
+        "enrollmentId": "enrollment-id",
+        "priority": 101,
+        "status": 0,
+        "triggerData": 2,
+        "eventTriggers": [
+          {
+            "trigger_data": 2,
+            "priority": 101,
+            "filters": {
+              "key_1": ["value_1"]
+            }
+          }
+        ],
+        "triggerTime": 1648665733601,
+        "registrant": "android-app://com.registrant.deleteCandidate",
+        "aggregatableSourceRegistrationTimeConfig": "INCLUDE"
+      },
+      {
+        "id": "T5",
+        "attributionDestination": "https://deletesite1.test",
+        "enrollmentId": "enrollment-id",
+        "priority": 101,
+        "status": 0,
+        "triggerData": 2,
+        "eventTriggers": [
+          {
+            "trigger_data": 2,
+            "priority": 101,
+            "filters": {
+              "key_1": ["value_1"]
+            }
+          }
+        ],
+        "triggerTime": 1648665733601,
+        "registrant": "android-app://com.registrant.deleteCandidate",
+        "aggregatableSourceRegistrationTimeConfig": "INCLUDE"
+      },
+      {
+        "id": "Trigger6",
+        "attributionDestination": "https://deletesite2.test",
+        "enrollmentId": "enrollment-id",
+        "priority": 101,
+        "status": 0,
+        "triggerData": 2,
+        "eventTriggers": [
+          {
+            "trigger_data": 2,
+            "priority": 101,
+            "filters": {
+              "key_1": ["value_1"]
+            }
+          }
+        ],
+        "triggerTime": 1648665733601,
+        "registrant": "android-app://com.registrant.deleteCandidate",
+        "aggregatableSourceRegistrationTimeConfig": "INCLUDE"
+      }
+    ],
+    "event_reports": [
+      {
+        "id": "E1",
+        "sourceEventId": 2,
+        "attributionDestination": "https://abc.deletesite1.test",
+        "enrollmentId": "enrollment-id",
+        "triggerData": 2,
+        "triggerTime": 1648665733601,
+        "status": 0,
+        "reportTime": -1,
+        "triggerPriority": 101,
+        "sourceType": "navigation",
+        "sourceId" : "S1",
+        "triggerId" : "T1"
+      },
+      {
+        "id": "E2",
+        "sourceEventId": 1,
+        "attributionDestination": "android-app://com.site.notInRangeButDeleteDueTosourceEventId1",
+        "enrollmentId": "enrollment-id",
+        "triggerData": 2,
+        "triggerTime": 1648665733605,
+        "status": 0,
+        "reportTime": -1,
+        "triggerPriority": 101,
+        "sourceType": "navigation",
+        "sourceId" : "S1",
+        "triggerId" : "T2"
+      },
+      {
+        "id": "E3",
+        "sourceEventId": 2,
+        "attributionDestination": "https://doNotDelete.site.test",
+        "enrollmentId": "enrollment-id",
+        "triggerData": 2,
+        "triggerTime": 1648665733601,
+        "status": 0,
+        "reportTime": -1,
+        "triggerPriority": 101,
+        "sourceType": "navigation",
+        "sourceId" : "S2",
+        "triggerId" : "T2"
+      },
+      {
+        "id": "E4",
+        "sourceEventId": 2,
+        "attributionDestination": "https://deleteCandidate1.site.test",
+        "enrollmentId": "enrollment-id",
+        "triggerData": 2,
+        "triggerTime": 1648665733601,
+        "status": 0,
+        "reportTime": -1,
+        "triggerPriority": 101,
+        "sourceType": "navigation",
+        "sourceId" : "S2",
+        "triggerId" : "T4"
+      },
+      {
+        "id": "E5",
+        "sourceEventId": 2,
+        "attributionDestination": "https://deleteCandidate1.site.test",
+        "enrollmentId": "enrollment-id",
+        "triggerData": 2,
+        "triggerTime": 1648665733605,
+        "status": 0,
+        "reportTime": -1,
+        "triggerPriority": 101,
+        "sourceType": "navigation",
+        "sourceId" : "S3",
+        "triggerId" : "T3"
+      },
+      {
+        "id": "E6",
+        "sourceEventId": 2,
+        "attributionDestination": "https://deleteCandidate2.site.test",
+        "enrollmentId": "enrollment-id",
+        "triggerData": 2,
+        "triggerTime": 1648665733601,
+        "status": 0,
+        "reportTime": -1,
+        "triggerPriority": 101,
+        "sourceType": "navigation",
+        "sourceId" : "S3",
+        "triggerId" : "T5"
+      },
+      {
+        "id": "E7",
+        "sourceEventId": 2,
+        "attributionDestination": "https://qwe.deletesite1.test",
+        "enrollmentId": "enrollment-id",
+        "triggerData": 2,
+        "triggerTime": 1648665733601,
+        "status": 0,
+        "reportTime": -1,
+        "triggerPriority": 101,
+        "sourceType": "navigation",
+        "sourceId" : "S5",
+        "triggerId" : "T5"
+      },
+      {
+        "id": "E8",
+        "sourceEventId": 2,
+        "attributionDestination": "https://qwe.deletesite2.test",
+        "enrollmentId": "enrollment-id",
+        "triggerData": 2,
+        "triggerTime": 1648665733601,
+        "status": 0,
+        "reportTime": -1,
+        "triggerPriority": 101,
+        "sourceType": "navigation",
+        "sourceId" : "S6",
+        "triggerId" : "Trigger6"
+      }
+    ],
+    "aggregate_reports": [
+      {
+        "id": "a1",
+        "publisher": "https://deleteCandidate1.site.test",
+        "attributionDestination": "https://abc.deletesite1.test",
+        "sourceRegistrationTime": 1,
+        "scheduledReportTime": 2,
+        "enrollmentId": "enrollment-id",
+        "status": 0,
+        "debugCleartextPayload": "",
+        "sourceId" : "S1",
+        "triggerId" : "T1",
+        "aggregation_coordinator_origin": "https://test.test"
+      },
+      {
+        "id": "a2",
+        "publisher": "https://deleteCandidate1.site.test",
+        "attributionDestination": "android-app://com.site.notInRangeButDeleteDueTosourceEventId1",
+        "sourceRegistrationTime": 1,
+        "scheduledReportTime": 2,
+        "enrollmentId": "enrollment-id",
+        "status": 0,
+        "debugCleartextPayload": "",
+        "sourceId" : "S1",
+        "triggerId" : "T2",
+        "aggregation_coordinator_origin": "https://test.test"
+      },
+      {
+        "id": "a3",
+        "publisher": "https://deleteCandidate1.site.test",
+        "attributionDestination": "https://doNotDelete.site.test",
+        "sourceRegistrationTime": 1,
+        "scheduledReportTime": 2,
+        "enrollmentId": "enrollment-id",
+        "status": 0,
+        "debugCleartextPayload": "",
+        "sourceId" : "S2",
+        "triggerId" : "T2",
+        "aggregation_coordinator_origin": "https://test.test"
+      },
+      {
+        "id": "a4",
+        "publisher": "https://deleteCandidate1.site.test",
+        "attributionDestination": "https://deleteCandidate1.site.test",
+        "sourceRegistrationTime": 1,
+        "scheduledReportTime": 2,
+        "enrollmentId": "enrollment-id",
+        "status": 0,
+        "debugCleartextPayload": "",
+        "sourceId" : "S2",
+        "triggerId" : "T4",
+        "aggregation_coordinator_origin": "https://test.test"
+      },
+      {
+        "id": "a5",
+        "publisher": "https://deleteCandidate1.site.test",
+        "attributionDestination": "https://deleteCandidate1.site.test",
+        "sourceRegistrationTime": 1,
+        "scheduledReportTime": 2,
+        "enrollmentId": "enrollment-id",
+        "status": 0,
+        "debugCleartextPayload": "",
+        "sourceId" : "S3",
+        "triggerId" : "T3",
+        "aggregation_coordinator_origin": "https://test.test"
+      },
+      {
+        "id": "a6",
+        "publisher": "https://deleteCandidate1.site.test",
+        "attributionDestination": "https://deleteCandidate2.site.test",
+        "sourceRegistrationTime": 1,
+        "scheduledReportTime": 2,
+        "enrollmentId": "enrollment-id",
+        "status": 0,
+        "debugCleartextPayload": "",
+        "sourceId" : "S3",
+        "triggerId" : "T5",
+        "aggregation_coordinator_origin": "https://test.test"
+      },
+      {
+        "id": "a7",
+        "publisher": "https://deleteCandidate1.site.test",
+        "attributionDestination": "https://qwe.deletesite1.test",
+        "sourceRegistrationTime": 1,
+        "scheduledReportTime": 2,
+        "enrollmentId": "enrollment-id",
+        "status": 0,
+        "debugCleartextPayload": "",
+        "sourceId" : "S5",
+        "triggerId" : "T5",
+        "aggregation_coordinator_origin": "https://test.test"
+      },
+      {
+        "id": "a8",
+        "publisher": "https://deleteCandidate1.site.test",
+        "attributionDestination": "https://qwe.deletesite2.test",
+        "sourceRegistrationTime": 1,
+        "scheduledReportTime": 2,
+        "enrollmentId": "enrollment-id",
+        "status": 0,
+        "debugCleartextPayload": "",
+        "sourceId" : "S6",
+        "triggerId" : "Trigger6",
+        "aggregation_coordinator_origin": "https://test.test"
+      }
+    ],
+    "attributions": [
+      {
+        "id": "A1",
+        "sourceSite": "https://site.test",
+        "sourceOrigin": "https://deleteCandidate1.site.test",
+        "destinationSite": "https://site2.test",
+        "destinationOrigin": "https://site2.test",
+        "enrollmentId": "enrollment-id",
+        "triggerTime": 1648665733601,
+        "triggerId": "ignored1648665733601",
+        "registrant": "android-app://com.registrant.deleteCandidate",
+        "sourceId" : "S1",
+        "triggerId" : "T1"
+      },
+      {
+        "id": "A2",
+        "sourceSite": "https://site.test",
+        "sourceOrigin": "https://deleteCandidate1.site.test",
+        "destinationSite": "https://site2.test",
+        "destinationOrigin": "https://site2.test",
+        "enrollmentId": "enrollment-id",
+        "triggerTime": 1648665733605,
+        "triggerId": "ignored1648665733605",
+        "registrant": "android-app://com.registrant.deleteCandidate",
+        "sourceId" : "S2",
+        "triggerId" : "T2"
+      },
+      {
+        "id": "A3",
+        "sourceSite": "https://site3.test",
+        "sourceOrigin": "https://site3.test",
+        "destinationSite": "https://site2.test",
+        "destinationOrigin": "https://site2.test",
+        "enrollmentId": "enrollment-id",
+        "triggerTime": 1648665733601,
+        "triggerId": "ignored1648665733601",
+        "registrant": "android-app://com.registrant.deleteCandidate",
+        "sourceId" : "S3",
+        "triggerId" : "T3"
+      },
+      {
+        "id": "A4",
+        "sourceSite": "https://site.test",
+        "sourceOrigin": "https://deleteCandidate2.site.test",
+        "destinationSite": "https://site2.test",
+        "destinationOrigin": "https://site2.test",
+        "enrollmentId": "enrollment-id",
+        "triggerTime": 1648665733601,
+        "triggerId": "ignored1648665733601",
+        "registrant": "android-app://com.registrant.deleteCandidate",
+        "sourceId" : "S4",
+        "triggerId" : "T1"
+      },
+      {
+        "id": "A5",
+        "sourceSite": "https://site.test",
+        "sourceOrigin": "https://site.test",
+        "destinationSite": "https://deletesite2.test",
+        "destinationOrigin": "https://abc.deletesite2.test",
+        "enrollmentId": "enrollment-id",
+        "triggerTime": 1648665733601,
+        "triggerId": "ignored1648665733601",
+        "registrant": "android-app://com.registrant.deleteCandidate",
+        "sourceId" : "S5",
+        "triggerId" : "Trigger6"
+      },
+      {
+        "id": "A6",
+        "sourceSite": "https://deletesite1.test",
+        "sourceOrigin": "https://abc.deletesite1.test",
+        "destinationSite": "https://site2.test",
+        "destinationOrigin": "https://site2.test",
+        "enrollmentId": "enrollment-id",
+        "triggerTime": 1648665733601,
+        "triggerId": "ignored1648665733601",
+        "registrant": "android-app://com.registrant.deleteCandidate",
+        "sourceId" : "S6",
+        "triggerId" : "Trigger6"
+      }
+    ]
+  },
+  "output": {
+    "sources": [
+      {
+        "id": "S1",
+        "eventId": 1,
+        "sourceType": "navigation",
+        "publisher": "https://deleteCandidate1.site.test",
+        "enrollmentId": "enrollment-id",
+        "eventTime": 1648665733601,
+        "expiryTime": 1648665733611,
+        "eventReportWindow": 1648665733611,
+        "priority": 100,
+        "status": 2,
+        "registrant": "android-app://com.registrant.deleteCandidate"
+      },
+      {
+        "id": "S2",
+        "eventId": 2,
+        "sourceType": "navigation",
+        "publisher": "https://deleteCandidate1.site.test",
+        "enrollmentId": "enrollment-id",
+        "eventTime": 1648665733605,
+        "expiryTime": 1648665733615,
+        "eventReportWindow": 1648665733615,
+        "priority": 100,
+        "status": 0,
+        "registrant": "android-app://com.registrant.deleteCandidate"
+      },
+      {
+        "id": "S3",
+        "eventId": 3,
+        "sourceType": "navigation",
+        "publisher": "https://siteNotMatch.site3.test",
+        "enrollmentId": "enrollment-id",
+        "eventTime": 1648665733601,
+        "expiryTime": 1648665733611,
+        "eventReportWindow": 1648665733611,
+        "priority": 100,
+        "status": 0,
+        "registrant": "android-app://com.registrant.deleteCandidate"
+      },
+      {
+        "id": "S4",
+        "eventId": 1,
+        "sourceType": "navigation",
+        "publisher": "https://deleteCandidate2.site.test",
+        "enrollmentId": "enrollment-id",
+        "eventTime": 1648665733601,
+        "expiryTime": 1648665733611,
+        "eventReportWindow": 1648665733611,
+        "priority": 100,
+        "status": 2,
+        "registrant": "android-app://com.registrant.deleteCandidate"
+      },
+      {
+        "id": "S5",
+        "eventId": 1,
+        "sourceType": "navigation",
+        "publisher": "https://abc.deletesite1.test",
+        "enrollmentId": "enrollment-id",
+        "eventTime": 1648665733601,
+        "expiryTime": 1648665733611,
+        "eventReportWindow": 1648665733611,
+        "priority": 100,
+        "status": 2,
+        "registrant": "android-app://com.registrant.deleteCandidate"
+      },
+      {
+        "id": "S6",
+        "eventId": 1,
+        "sourceType": "navigation",
+        "publisher": "https://abc.deletesite2.test",
+        "enrollmentId": "enrollment-id",
+        "eventTime": 1648665733601,
+        "expiryTime": 1648665733611,
+        "eventReportWindow": 1648665733611,
+        "priority": 100,
+        "status": 2,
+        "registrant": "android-app://com.registrant.deleteCandidate"
+      },
+      {
+        "id": "S7",
+        "eventId": 1,
+        "sourceType": "navigation",
+        "publisher": "https://somedeletesite2.test",
+        "enrollmentId": "enrollment-id",
+        "eventTime": 1648665733601,
+        "expiryTime": 1648665733611,
+        "eventReportWindow": 1648665733611,
+        "priority": 100,
+        "status": 0,
+        "registrant": "android-app://com.registrant.deleteCandidate"
+      }
+    ],
+    "source_destinations": [
+      {
+        "sourceId": "S1",
+        "destination": "android-app://com.app2",
+        "destinationType": 0
+      },
+      {
+        "sourceId": "S2",
+        "destination": "android-app://com.app2",
+        "destinationType": 0
+      },
+      {
+        "sourceId": "S3",
+        "destination": "android-app://com.app2",
+        "destinationType": 0
+      },
+      {
+        "sourceId": "S4",
+        "destination": "android-app://com.app2",
+        "destinationType": 0
+      },
+      {
+        "sourceId": "S5",
+        "destination": "android-app://com.app2",
+        "destinationType": 0
+      },
+      {
+        "sourceId": "S6",
+        "destination": "android-app://com.app2",
+        "destinationType": 0
+      },
+      {
+        "sourceId": "S7",
+        "destination": "android-app://com.app2",
+        "destinationType": 0
+      }
+    ],
+    "triggers": [
+      {
+        "id": "T1",
+        "attributionDestination": "https://deleteCandidate1.site.test",
+        "enrollmentId": "enrollment-id",
+        "priority": 101,
+        "status": 3,
+        "triggerData": 2,
+        "eventTriggers": [
+          {
+            "trigger_data": 2,
+            "priority": 101,
+            "filters": {
+              "key_1": ["value_1"]
+            }
+          }
+        ],
+        "triggerTime": 1648665733601,
+        "registrant": "android-app://com.registrant.deleteCandidate",
+        "aggregatableSourceRegistrationTimeConfig": "INCLUDE"
+      },
+      {
+        "id": "T2",
+        "attributionDestination": "https://deleteCandidate1.site.test",
+        "enrollmentId": "enrollment-id",
+        "priority": 101,
+        "status": 0,
+        "triggerData": 2,
+        "eventTriggers": [
+          {
+            "trigger_data": 2,
+            "priority": 101,
+            "filters": {
+              "key_1": ["value_1"]
+            }
+          }
+        ],
+        "triggerTime": 1648665733605,
+        "registrant": "android-app://com.registrant.deleteCandidate",
+        "aggregatableSourceRegistrationTimeConfig": "INCLUDE"
+      },
+      {
+        "id": "T3",
+        "attributionDestination": "https://doNotDelete.site.test",
+        "enrollmentId": "enrollment-id",
+        "priority": 101,
+        "status": 0,
+        "triggerData": 2,
+        "eventTriggers": [
+          {
+            "trigger_data": 2,
+            "priority": 101,
+            "filters": {
+              "key_1": ["value_1"]
+            }
+          }
+        ],
+        "triggerTime": 1648665733601,
+        "registrant": "android-app://com.registrant.deleteCandidate",
+        "aggregatableSourceRegistrationTimeConfig": "INCLUDE"
+      },
+      {
+        "id": "T4",
+        "attributionDestination": "https://deleteCandidate2.site.test",
+        "enrollmentId": "enrollment-id",
+        "priority": 101,
+        "status": 3,
+        "triggerData": 2,
+        "eventTriggers": [
+          {
+            "trigger_data": 2,
+            "priority": 101,
+            "filters": {
+              "key_1": ["value_1"]
+            }
+          }
+        ],
+        "triggerTime": 1648665733601,
+        "registrant": "android-app://com.registrant.deleteCandidate",
+        "aggregatableSourceRegistrationTimeConfig": "INCLUDE"
+      },
+      {
+        "id": "T5",
+        "attributionDestination": "https://deletesite1.test",
+        "enrollmentId": "enrollment-id",
+        "priority": 101,
+        "status": 3,
+        "triggerData": 2,
+        "eventTriggers": [
+          {
+            "trigger_data": 2,
+            "priority": 101,
+            "filters": {
+              "key_1": ["value_1"]
+            }
+          }
+        ],
+        "triggerTime": 1648665733601,
+        "registrant": "android-app://com.registrant.deleteCandidate",
+        "aggregatableSourceRegistrationTimeConfig": "INCLUDE"
+      },
+      {
+        "id": "Trigger6",
+        "attributionDestination": "https://deletesite2.test",
+        "enrollmentId": "enrollment-id",
+        "priority": 101,
+        "status": 3,
+        "triggerData": 2,
+        "eventTriggers": [
+          {
+            "trigger_data": 2,
+            "priority": 101,
+            "filters": {
+              "key_1": ["value_1"]
+            }
+          }
+        ],
+        "triggerTime": 1648665733601,
+        "registrant": "android-app://com.registrant.deleteCandidate",
+        "aggregatableSourceRegistrationTimeConfig": "INCLUDE"
+      }
+    ],
+    "event_reports": [
+      {
+        "id": "E1",
+        "sourceEventId": 2,
+        "attributionDestination": "https://abc.deletesite1.test",
+        "enrollmentId": "enrollment-id",
+        "triggerData": 2,
+        "triggerTime": 1648665733601,
+        "status": 2,
+        "reportTime": -1,
+        "triggerPriority": 101,
+        "sourceType": "navigation",
+        "sourceId" : "S1",
+        "triggerId" : "T1"
+      },
+      {
+        "id": "E2",
+        "sourceEventId": 1,
+        "attributionDestination": "android-app://com.site.notInRangeButDeleteDueTosourceEventId1",
+        "enrollmentId": "enrollment-id",
+        "triggerData": 2,
+        "triggerTime": 1648665733605,
+        "status": 2,
+        "reportTime": -1,
+        "triggerPriority": 101,
+        "sourceType": "navigation",
+        "sourceId" : "S1",
+        "triggerId" : "T2"
+      },
+      {
+        "id": "E3",
+        "sourceEventId": 2,
+        "attributionDestination": "https://doNotDelete.site.test",
+        "enrollmentId": "enrollment-id",
+        "triggerData": 2,
+        "triggerTime": 1648665733601,
+        "status": 0,
+        "reportTime": -1,
+        "triggerPriority": 101,
+        "sourceType": "navigation",
+        "sourceId" : "S2",
+        "triggerId" : "T2"
+      },
+      {
+        "id": "E4",
+        "sourceEventId": 2,
+        "attributionDestination": "https://deleteCandidate1.site.test",
+        "enrollmentId": "enrollment-id",
+        "triggerData": 2,
+        "triggerTime": 1648665733601,
+        "status": 2,
+        "reportTime": -1,
+        "triggerPriority": 101,
+        "sourceType": "navigation",
+        "sourceId" : "S2",
+        "triggerId" : "T4"
+      },
+      {
+        "id": "E5",
+        "sourceEventId": 2,
+        "attributionDestination": "https://deleteCandidate1.site.test",
+        "enrollmentId": "enrollment-id",
+        "triggerData": 2,
+        "triggerTime": 1648665733605,
+        "status": 0,
+        "reportTime": -1,
+        "triggerPriority": 101,
+        "sourceType": "navigation",
+        "sourceId" : "S3",
+        "triggerId" : "T3"
+      },
+      {
+        "id": "E6",
+        "sourceEventId": 2,
+        "attributionDestination": "https://deleteCandidate2.site.test",
+        "enrollmentId": "enrollment-id",
+        "triggerData": 2,
+        "triggerTime": 1648665733601,
+        "status": 2,
+        "reportTime": -1,
+        "triggerPriority": 101,
+        "sourceType": "navigation",
+        "sourceId" : "S3",
+        "triggerId" : "T5"
+      },
+      {
+        "id": "E7",
+        "sourceEventId": 2,
+        "attributionDestination": "https://qwe.deletesite1.test",
+        "enrollmentId": "enrollment-id",
+        "triggerData": 2,
+        "triggerTime": 1648665733601,
+        "status": 2,
+        "reportTime": -1,
+        "triggerPriority": 101,
+        "sourceType": "navigation",
+        "sourceId" : "S5",
+        "triggerId" : "T5"
+      },
+      {
+        "id": "E8",
+        "sourceEventId": 2,
+        "attributionDestination": "https://qwe.deletesite2.test",
+        "enrollmentId": "enrollment-id",
+        "triggerData": 2,
+        "triggerTime": 1648665733601,
+        "status": 2,
+        "reportTime": -1,
+        "triggerPriority": 101,
+        "sourceType": "navigation",
+        "sourceId" : "S6",
+        "triggerId" : "Trigger6"
+      }
+    ],
+    "aggregate_reports": [
+      {
+        "id": "a1",
+        "publisher": "https://deleteCandidate1.site.test",
+        "attributionDestination": "https://abc.deletesite1.test",
+        "sourceRegistrationTime": 1,
+        "scheduledReportTime": 2,
+        "enrollmentId": "enrollment-id",
+        "status": 2,
+        "debugCleartextPayload": "",
+        "sourceId" : "S1",
+        "triggerId" : "T1",
+        "aggregation_coordinator_origin": "https://test.test"
+      },
+      {
+        "id": "a2",
+        "publisher": "https://deleteCandidate1.site.test",
+        "attributionDestination": "android-app://com.site.notInRangeButDeleteDueTosourceEventId1",
+        "sourceRegistrationTime": 1,
+        "scheduledReportTime": 2,
+        "enrollmentId": "enrollment-id",
+        "status": 2,
+        "debugCleartextPayload": "",
+        "sourceId" : "S1",
+        "triggerId" : "T2",
+        "aggregation_coordinator_origin": "https://test.test"
+      },
+      {
+        "id": "a3",
+        "publisher": "https://deleteCandidate1.site.test",
+        "attributionDestination": "https://doNotDelete.site.test",
+        "sourceRegistrationTime": 1,
+        "scheduledReportTime": 2,
+        "enrollmentId": "enrollment-id",
+        "status": 0,
+        "debugCleartextPayload": "",
+        "sourceId" : "S2",
+        "triggerId" : "T2",
+        "aggregation_coordinator_origin": "https://test.test"
+      },
+      {
+        "id": "a4",
+        "publisher": "https://deleteCandidate1.site.test",
+        "attributionDestination": "https://deleteCandidate1.site.test",
+        "sourceRegistrationTime": 1,
+        "scheduledReportTime": 2,
+        "enrollmentId": "enrollment-id",
+        "status": 2,
+        "debugCleartextPayload": "",
+        "sourceId" : "S2",
+        "triggerId" : "T4",
+        "aggregation_coordinator_origin": "https://test.test"
+      },
+      {
+        "id": "a5",
+        "publisher": "https://deleteCandidate1.site.test",
+        "attributionDestination": "https://deleteCandidate1.site.test",
+        "sourceRegistrationTime": 1,
+        "scheduledReportTime": 2,
+        "enrollmentId": "enrollment-id",
+        "status": 0,
+        "debugCleartextPayload": "",
+        "sourceId" : "S3",
+        "triggerId" : "T3",
+        "aggregation_coordinator_origin": "https://test.test"
+      },
+      {
+        "id": "a6",
+        "publisher": "https://deleteCandidate1.site.test",
+        "attributionDestination": "https://deleteCandidate2.site.test",
+        "sourceRegistrationTime": 1,
+        "scheduledReportTime": 2,
+        "enrollmentId": "enrollment-id",
+        "status": 2,
+        "debugCleartextPayload": "",
+        "sourceId" : "S3",
+        "triggerId" : "T5",
+        "aggregation_coordinator_origin": "https://test.test"
+      },
+      {
+        "id": "a7",
+        "publisher": "https://deleteCandidate1.site.test",
+        "attributionDestination": "https://qwe.deletesite1.test",
+        "sourceRegistrationTime": 1,
+        "scheduledReportTime": 2,
+        "enrollmentId": "enrollment-id",
+        "status": 2,
+        "debugCleartextPayload": "",
+        "sourceId" : "S5",
+        "triggerId" : "T5",
+        "aggregation_coordinator_origin": "https://test.test"
+      },
+      {
+        "id": "a8",
+        "publisher": "https://deleteCandidate1.site.test",
+        "attributionDestination": "https://qwe.deletesite2.test",
+        "sourceRegistrationTime": 1,
+        "scheduledReportTime": 2,
+        "enrollmentId": "enrollment-id",
+        "status": 2,
+        "debugCleartextPayload": "",
+        "sourceId" : "S6",
+        "triggerId" : "Trigger6",
+        "aggregation_coordinator_origin": "https://test.test"
+      }
+    ],
+    "attributions": [
+      {
+        "id": "A1",
+        "sourceSite": "https://site.test",
+        "sourceOrigin": "https://deleteCandidate1.site.test",
+        "destinationSite": "https://site2.test",
+        "destinationOrigin": "https://site2.test",
+        "enrollmentId": "enrollment-id",
+        "triggerTime": 1648665733601,
+        "triggerId": "ignored1648665733601",
+        "registrant": "android-app://com.registrant.deleteCandidate",
+        "sourceId" : "S1",
+        "triggerId" : "T1"
+      },
+      {
+        "id": "A2",
+        "sourceSite": "https://site.test",
+        "sourceOrigin": "https://deleteCandidate1.site.test",
+        "destinationSite": "https://site2.test",
+        "destinationOrigin": "https://site2.test",
+        "enrollmentId": "enrollment-id",
+        "triggerTime": 1648665733605,
+        "triggerId": "ignored1648665733605",
+        "registrant": "android-app://com.registrant.deleteCandidate",
+        "sourceId" : "S2",
+        "triggerId" : "T2"
+      },
+      {
+        "id": "A3",
+        "sourceSite": "https://site3.test",
+        "sourceOrigin": "https://site3.test",
+        "destinationSite": "https://site2.test",
+        "destinationOrigin": "https://site2.test",
+        "enrollmentId": "enrollment-id",
+        "triggerTime": 1648665733601,
+        "triggerId": "ignored1648665733601",
+        "registrant": "android-app://com.registrant.deleteCandidate",
+        "sourceId" : "S3",
+        "triggerId" : "T3"
+      },
+      {
+        "id": "A4",
+        "sourceSite": "https://site.test",
+        "sourceOrigin": "https://deleteCandidate2.site.test",
+        "destinationSite": "https://site2.test",
+        "destinationOrigin": "https://site2.test",
+        "enrollmentId": "enrollment-id",
+        "triggerTime": 1648665733601,
+        "triggerId": "ignored1648665733601",
+        "registrant": "android-app://com.registrant.deleteCandidate",
+        "sourceId" : "S4",
+        "triggerId" : "T1"
+      },
+      {
+        "id": "A5",
+        "sourceSite": "https://site.test",
+        "sourceOrigin": "https://site.test",
+        "destinationSite": "https://deletesite2.test",
+        "destinationOrigin": "https://abc.deletesite2.test",
+        "enrollmentId": "enrollment-id",
+        "triggerTime": 1648665733601,
+        "triggerId": "ignored1648665733601",
+        "registrant": "android-app://com.registrant.deleteCandidate",
+        "sourceId" : "S5",
+        "triggerId" : "Trigger6"
+      },
+      {
+        "id": "A6",
+        "sourceSite": "https://deletesite1.test",
+        "sourceOrigin": "https://abc.deletesite1.test",
+        "destinationSite": "https://site2.test",
+        "destinationOrigin": "https://site2.test",
+        "enrollmentId": "enrollment-id",
+        "triggerTime": 1648665733601,
+        "triggerId": "ignored1648665733601",
+        "registrant": "android-app://com.registrant.deleteCandidate",
+        "sourceId" : "S6",
+        "triggerId" : "Trigger6"
+      }
+    ]
+  },
+  "param": {
+    "registrant": "com.registrant.deleteCandidate",
+    "start": 1648665733600,
+    "end": 1648665733602,
+    "origins": ["https://deleteCandidate1.site.test", "https://deleteCandidate2.site.test"],
+    "domains": ["https://deletesite1.test", "https://deletesite2.test"],
+    "deletionMode": 1
+  }
+}

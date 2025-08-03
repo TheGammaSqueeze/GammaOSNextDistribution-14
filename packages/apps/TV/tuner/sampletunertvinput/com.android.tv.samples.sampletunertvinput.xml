@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<permissions>
+    <privapp-permissions package="com.android.tv.samples.sampletunertvinput">
+        <permission name="android.permission.ACCESS_TV_DESCRAMBLER"/>
+        <permission name="android.permission.ACCESS_TV_TUNER"/>
+        <permission name="android.permission.TUNER_RESOURCE_ACCESS"/>
+    </privapp-permissions>
+</permissions>

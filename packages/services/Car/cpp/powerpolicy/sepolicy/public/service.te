@@ -1,0 +1,2 @@
+# Car power policy server
+type carpowerpolicyd_service, service_manager_type;

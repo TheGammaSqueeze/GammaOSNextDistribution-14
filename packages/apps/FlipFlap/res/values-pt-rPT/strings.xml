@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  Copyright (c) 2017 The LineageOS Project
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ Also add information on how to contact you by electronic and paper mail.
+
+-->
+<resources>
+    <string name="app_name">FlipFlap</string>
+    <string name="notification_title">Capa inteligente detetada</string>
+    <string name="alarm_label">ALARME</string>
+    <string name="abbrev_wday_month_day_no_year">EEE, d MMMM</string>
+    <string name="answer_call">ATENDER</string>
+    <string name="ignore_call">IGNORAR</string>
+    <string name="end_call">TERMINAR CHAMADA</string>
+    <string name="settings_name">Capa inteligente</string>
+    <string name="settings_enable">Ativar controlo de capa inteligente</string>
+    <string name="settings_summary">Controle o comportamento do acessório</string>
+    <string name="category_behaviour">Comportamento</string>
+    <string name="pass_to_security_view_title">Ir diretamente para a introdução da palavra-passe</string>
+    <string name="pass_to_security_view_summary">Mostrar diretamente o ecrã de bloqueio ao abrir a capa</string>
+    <string name="use_high_touch_sensitivity_title">Toque de alta sensibilidade</string>
+    <string name="use_high_touch_sensitivity_summary">Aumente a sensibilidade do toque enquanto a capa estiver fechada</string>
+    <string name="category_design">Design</string>
+    <string name="switch_charging_status_title">Visualizar o estado de carregamento</string>
+    <string name="switch_charging_status_summary">Mudar de cor dependendo da carga atual da bateria</string>
+    <string name="category_timeouts">Tempo para suspensão</string>
+    <string name="timeout_plugged_title">Enquanto estiver a carregar</string>
+    <string name="timeout_unplugged_title">Desligado</string>
+    <string name="timeout_summary">Mostrar a aplicação de capa durante %s depois de fechar a tampa</string>
+    <string name="timeout_summary_never">Depois de fechar a tampa, a aplicação de capa irá ficar sempre ligada</string>
+    <string name="timeout_summary_immediately">O ecrã será desligado ao fechar a tampa</string>
+    <string name="timeout_entry_immediately">Imediatamente</string>
+    <string name="timeout_entry_5s">5 segundos</string>
+    <string name="timeout_entry_10s">10 segundos</string>
+    <string name="timeout_entry_30s">30 segundos</string>
+    <string name="timeout_entry_1min">1 minuto</string>
+    <string name="timeout_entry_5min">5 minutos</string>
+    <string name="timeout_entry_never">Nunca</string>
+</resources>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2022 Google Inc. All Rights Reserved. -->
+<configuration description="A suite to run the Bazel tests contained in the Atest-generated workspace archive." >
+  <option name="null-device" value="true" />
+  <test class="com.android.tradefed.testtype.bazel.BazelTest" />
+  <logger class="com.android.tradefed.log.FileLogger" />
+  <template-include name="reporters" default="empty" />
+</configuration>

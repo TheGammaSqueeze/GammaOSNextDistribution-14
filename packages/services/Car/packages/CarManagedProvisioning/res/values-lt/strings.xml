@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    Copyright (C) 2021 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="brand_screen_header" msgid="4382251935798018352">"Ši transporto priemonė priklauso organizacijai"</string>
+    <string name="contact_device_provider" msgid="338577979231875837">"Jei norite sužinoti daugiau, susisiekite su <xliff:g id="IT_ADMIN">%1$s</xliff:g>."</string>
+    <string name="organization_admin" msgid="6551608903069550652">"organizacijos valdytojas"</string>
+    <string name="if_questions_contact_admin" msgid="4645510019575736238">"Jei turite klausimų, susisiekite su organizacijos valdytoju"</string>
+    <string name="admin_has_ability_to_monitor_device" msgid="3132155961508293345">"Organizacijos valdytojas gali stebėti ir tvarkyti nustatymus, įmonės prieigą, programas, leidimus ir su šia transporto priemone susijusius duomenis, įskaitant tinklo veiklą bei šios transporto priemonės vietovę.<xliff:g id="LINE_BREAK">
+
+</xliff:g>Daugiau informacijos, įskaitant organizacijos privatumo politiką, galite gauti susisiekę su organizacijos valdytoju."</string>
+    <string name="contact_your_admin_for_more_info" msgid="1419852317652804536">"Daugiau informacijos, įskaitant organizacijos privatumo politiką, galite gauti susisiekę su organizacijos valdytoju."</string>
+    <string name="managed_device_info" msgid="2134697391634083944">"Tai yra valdoma transporto priemonė"</string>
+    <string name="contact_your_admin_for_help" msgid="1741496631607502730">"Dėl pagalbos susisiekite su organizacijos valdytoju"</string>
+    <string name="fully_managed_device_provisioning_accept_header" msgid="8767138982035307813">"Valdomos transporto priemonės sąranka"</string>
+    <string name="fully_managed_device_provisioning_step_1_header" msgid="8704166635032524345">"Prieiga prie organizacijos programų"</string>
+    <string name="fully_managed_device_provisioning_step_1_description" msgid="5960961281295355254">"Nustatoma informacinė pramoginė sistema..."</string>
+    <string name="fully_managed_device_provisioning_step_2_header" msgid="5888602026900289468">"Informacinės pramoginės sistemos duomenys nėra privatūs"</string>
+    <string name="fully_managed_device_provisioning_step_2_subheader_title" msgid="1421575203782743214">"Jūsų veikla ir duomenys"</string>
+    <string name="fully_managed_device_provisioning_step_2_subheader" msgid="4881961368653838979">"Organizacijos valdytojas gali peržiūrėti jūsų veiklą ir duomenis šioje transporto priemonėje."</string>
+    <string name="fully_managed_device_provisioning_permissions_secondary_subheader" msgid="8955791361423166123">"Organizacijos valdytojas gali nustatyti programų leidimus šioje transporto priemonėje, pvz., leidimus pasiekti mikrofoną ir vietovės duomenis."</string>
+    <string name="fully_managed_device_with_permission_control_provisioning_summary" msgid="2503568673345133100">"Naudodami šios transporto priemonės informacinę pramoginę sistemą lengvai pasieksite darbo programas. Ši transporto priemonė nėra privati, todėl organizacijos valdytojas gali peržiūrėti jūsų veiklą ir duomenis. Organizacijos valdytojas taip pat gali nustatyti programų leidimus šioje transporto priemonėje, pvz., leidimus pasiekti mikrofoną ir vietovės duomenis."</string>
+    <string name="fully_managed_device_provisioning_summary" msgid="4323948058344613817">"Naudodami šios transporto priemonės informacinę pramoginę sistemą lengvai pasieksite darbo programas. Ši transporto priemonė nėra privati, todėl organizacijos valdytojas gali peržiūrėti jūsų duomenis ir veiklą."</string>
+    <string name="fully_managed_device_provisioning_progress_label" msgid="988594700479673633">"Nustatoma valdoma transporto priemonė"</string>
+    <string name="fully_managed_device_provisioning_return_device_title" msgid="1578111657911434819">"Sąrankos atšaukimas ir transporto priemonės grąžinimas"</string>
+    <string name="fully_managed_device_provisioning_return_device_subheader" msgid="5809488930429106172">"Iš naujo nustatykite ir grąžinkite šią transporto priemonę organizacijos valdytojui arba grįžkite į ankstesnį ekraną ir tęskite sąranką."</string>
+    <string name="fully_managed_device_cancel_setup_button" msgid="4113790677940440998">"Atšaukti sąranką"</string>
+    <string name="fully_managed_device_reset_and_return_button" msgid="4951274590516561428">"Nustatyti iš naujo ir grąžinti"</string>
+    <string name="fully_managed_device_provisioning_privacy_title" msgid="4789425994893472324">"Privatumo pranešimas"</string>
+    <string name="fully_managed_device_provisioning_privacy_body" msgid="5549745709511179391">"Organizacijos valdytojas gali peržiūrėti jūsų duomenis ir veiklą šioje transporto priemonėje."</string>
+</resources>

@@ -1,0 +1,76 @@
+#!/bin/bash
+
+set -e
+set -u
+
+if [ -v ANDROID_DIR ]; then
+    if [ ! -d "${ANDROID_DIR}" ]; then
+        echo ANDROID_DIR, "${ANDROID_DIR}", must be a directory
+        exit 1
+    fi
+    if [ ! -v ANDROID_PRODUCT ]; then
+        ANDROID_PRODUCT="trusty"
+    fi
+    ANDROID_BUILD_DIR="${ANDROID_DIR}/out/target/product/${ANDROID_PRODUCT}"
+fi
+
+if [ ! -v EXTRA_CMDLINE ]; then
+    EXTRA_CMDLINE=""
+fi
+
+QEMU_MACHINE="-machine virt,secure=on,virtualization=on"
+QEMU_FINAL_ARGS=()
+QEMU_ARGS=(
+    -nographic
+    -cpu cortex-a57
+    -smp 4
+    -m 1024
+    -bios bl1.bin
+    -d unimp
+    -semihosting-config enable,target=native
+    -no-acpi
+    )
+QEMU_SERIAL_ARGS=(
+    -serial mon:stdio
+    )
+for ARG in "$@"; do
+    if [ "${ARG}" = "-S" ]; then
+        QEMU_FINAL_ARGS+=("${ARG}")
+    else
+        QEMU_ARGS+=("${ARG}")
+    fi
+    if [ "${ARG}" = "-serial" ]; then
+        QEMU_SERIAL_ARGS=()
+    fi
+done
+QEMU_ARGS+=(${QEMU_SERIAL_ARGS[@]+${QEMU_SERIAL_ARGS[@]}})
+
+if [ -v KERNEL_DIR ]
+then
+    DTC="${KERNEL_DIR}/scripts/dtc/dtc"
+    QEMU_ARGS+=(
+        -kernel ${KERNEL_DIR}/arch/arm64/boot/Image
+        -append "earlyprintk console=ttyAMA0,38400 keep_bootcon root=/dev/vda ro init=/init androidboot.hardware=qemu_trusty ${EXTRA_CMDLINE}"
+        )
+    if [ -v ANDROID_BUILD_DIR ]; then
+        QEMU_ARGS+=(
+            -drive file=${ANDROID_BUILD_DIR}/userdata.img,index=2,if=none,id=hdc,format=raw
+            -device virtio-blk-device,drive=hdc
+            -drive file=${ANDROID_BUILD_DIR}/vendor.img,index=1,if=none,id=hdb,format=raw
+            -device virtio-blk-device,drive=hdb
+            -drive file=${ANDROID_BUILD_DIR}/system.img,index=0,if=none,id=hda,format=raw
+            -device virtio-blk-device,drive=hda
+            )
+    else
+        echo Set ANDROID_DIR to run a non-secure android build
+    fi
+    ${QEMU} ${QEMU_MACHINE},dumpdtb=qemu-gen.dtb "${QEMU_ARGS[@]}"
+    ${DTC} -q -O dts qemu-gen.dtb >qemu-gen.dts
+    cat qemu-gen.dts firmware.android.dts | ${DTC} -q -O dtb >qemu-comb.dtb
+    QEMU_ARGS+=(
+        -dtb qemu-comb.dtb
+        )
+else
+    echo Set KERNEL_DIR to run a non-secure kernel
+fi
+${QEMU} ${QEMU_MACHINE} "${QEMU_ARGS[@]}" ${QEMU_FINAL_ARGS[@]+"${QEMU_FINAL_ARGS[@]}"}

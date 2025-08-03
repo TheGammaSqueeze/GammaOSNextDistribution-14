@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="rtt_promotion_title">ඇමතුමක් ඇතුළත තථ්‍ය කාල පෙළ පණිවිඩකරණය</string>
+  <string name="rtt_promotion_details">බිහිරි, ශ්‍රවණ දුර්වලතා, කථන ආබාධයක් හෝ හඬට වඩා වැඩි දෙයක් අවශ්‍ය අමතන්නන්ට RTT සහාය දක්වයි. RTT පණිවිඩකරණ පිටපත් ඔබේ උපාංගයේ ඇමතුම් ඉතිහාසය තුළ ගබඩා කෙරේ. %1$s</string>
+</resources>

@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (c) 2009, 2011-2013 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2014-2015 The CyanogenMod Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *    * Neither the name of The Linux Foundation nor
+ *      the names of its contributors may be used to endorse or promote
+ *      products derived from this software without specific prior written
+ *      permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NON-INFRINGEMENT ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">FM 라디오</string>
+    <string name="tx_app_name">FM 송신기</string>
+    <string name="menu_scan_start">탐색</string>
+    <string name="menu_scan_stop">스캔 중지</string>
+    <string name="menu_record_start">녹음</string>
+    <string name="menu_record_stop">녹음 중단</string>
+    <string name="menu_settings">설정</string>
+    <string name="menu_sleep">잠자기</string>
+    <string name="menu_sleep_cancel">잠자기 취소</string>
+    <string name="menu_all_channels">모든 채널</string>
+    <string name="menu_display_tags">태그 보기</string>
+    <string name="button_text_stop">중지</string>
+    <string name="msg_seeking">FM 방송국 탐색 중\u2026</string>
+    <string name="msg_scanning">모든 FM 방송국 탐색 중\u2026</string>
+    <string name="msg_scanning_pty">\'<xliff:g id="pty_name">%1$s</xliff:g>\' 탐색 중\u2026</string>
+    <string name="msg_search_title"><xliff:g id="frequency_string">%1$s</xliff:g> MHz</string>
+    <string name="msg_searching_title">프리셋 자동 선택</string>
+    <string name="msg_searching">프리셋 목록을 만들기 위해 신호가 강한 방송국 탐색 중\u2026</string>
+    <string name="msg_noantenna">FM 라디오를 사용하려면 유선 헤드셋이나 이어폰을 연결하여 주십시오</string>
+    <string name="dialog_sleep_title">자동 종료 타이머</string>
+    <string name="presetlist_select_name">\'<xliff:g id="presetlist_name">%1$s</xliff:g>\' 선택</string>
+    <string name="presetlist_add_new">새 목록 추가</string>
+    <string name="dialog_presetlist_rename_title">이름 입력</string>
+    <string name="presetlist_autoselect_title">자동 선택 확인</string>
+    <string name="preset_replace">바꾸기</string>
+    <string name="preset_tune">조정</string>
+    <string name="preset_rename">이름 바꾸기</string>
+    <string name="preset_delete">삭제</string>
+    <string name="preset_search">\'<xliff:g id="preset_pi">%1$s</xliff:g>\' 검색</string>
+    <string name="stat_notif_frequency">\'<xliff:g id="frequency">%1$s</xliff:g>\' MHz</string>
+    <string name="regional_band">지역 밴드</string>
+    <string name="regional_band_entry_north_america">북미 지역</string>
+    <string name="regional_band_entry_europe">유럽</string>
+    <string name="regional_band_entry_japan">일본</string>
+    <string name="regional_band_entry_japan_wide">일본 (와이드)</string>
+    <string name="regional_band_entry_australia">호주</string>
+    <string name="regional_band_entry_austria">오스트리아</string>
+    <string name="regional_band_entry_belgium">벨기에</string>
+    <string name="regional_band_entry_brazil">브라질</string>
+    <string name="regional_band_entry_china">중국</string>
+    <string name="regional_band_entry_czech_republic">체코 공화국</string>
+    <string name="regional_band_entry_denmark">덴마크</string>
+    <string name="regional_band_entry_finland">핀란드</string>
+    <string name="regional_band_entry_france">프랑스</string>
+    <string name="regional_band_entry_germany">독일</string>
+    <string name="regional_band_entry_greece">그리스</string>
+    <string name="regional_band_entry_hong_kong">홍콩</string>
+    <string name="regional_band_entry_india">인도</string>
+    <string name="regional_band_entry_indonesia">인도네시아</string>
+    <string name="regional_band_entry_ireland">아일랜드</string>
+    <string name="regional_band_entry_italy">이탈리아</string>
+    <string name="regional_band_entry_korea">대한민국</string>
+    <string name="regional_band_entry_mexico">멕시코</string>
+    <string name="regional_band_entry_netherlands">네덜란드</string>
+    <string name="regional_band_entry_new_zealand">뉴질랜드</string>
+    <string name="regional_band_entry_norway">노르웨이</string>
+    <string name="regional_band_entry_poland">폴란드</string>
+    <string name="regional_band_entry_portugal">포르투갈</string>
+    <string name="regional_band_entry_russia">러시아</string>
+    <string name="regional_band_entry_singapore">싱가포르</string>
+    <string name="regional_band_entry_slovakia">슬로바키아</string>
+    <string name="regional_band_entry_spain">스페인</string>
+    <string name="regional_band_entry_switzerland">스위스</string>
+    <string name="regional_band_entry_sweden">스웨덴</string>
+    <string name="regional_band_entry_taiwan">대만</string>
+    <string name="regional_band_entry_turkey">터키</string>
+    <string name="regional_band_entry_united_kingdom">영국</string>
+    <string name="regional_band_entry_united_states">미국</string>
+    <string name="regional_band_entry_user_defined">사용자 정의 밴드</string>
+    <string name="regional_band_summary_north_america">북미 (87.5 MHz ~ 108.0 MHz, 200 kHz 단위)</string>
+    <string name="regional_band_summary_europe">유럽 (87.5 MHz ~ 108.0 MHz, 100 kHz 단위)</string>
+    <string name="regional_band_summary_japan">일본 (76.0 MHz ~ 90.0 MHz, 100 kHz 단위)</string>
+    <string name="regional_band_summary_japan_wide">일본 (와이드) (90.0 MHz ~ 108.0 MHz, 50 kHz 단위)</string>
+    <string name="regional_band_summary_australia">호주 (87.7 MHz ~ 108.0 MHz, 100 kHz 단위)</string>
+    <string name="regional_band_summary_austria">오스트리아 (87.5 MHz ~ 108.0 MHz, 50 kHz 단위)</string>
+    <string name="regional_band_summary_belgium">벨기에 (87.5 MHz ~ 108.0 MHz, 100 kHz 단위)</string>
+    <string name="regional_band_summary_brazil">브라질 (87.5 MHz ~ 108.0 MHz, 200 kHz 단위)</string>
+    <string name="regional_band_summary_china">중국 (87.0 MHz ~ 108.0 MHz, 100 kHz 단위)</string>
+    <string name="regional_band_summary_czech_republic">체코 (87.5 MHz ~ 108.0 MHz, 100 kHz 단위)</string>
+    <string name="regional_band_summary_denmark">덴마크 (87.5 MHz ~ 108.0 MHz, 50 kHz 단위)</string>
+    <string name="regional_band_summary_finland">핀란드 (87.5 MHz ~ 108.0 MHz, 100 kHz 단위)</string>
+    <string name="regional_band_summary_france">프랑스 (87.5 MHz ~ 108.0 MHz, 100 kHz 단위)</string>
+    <string name="regional_band_summary_germany">독일 (87.5 MHz ~ 108.0 MHz, 50 kHz 단위)</string>
+    <string name="regional_band_summary_greece">그리스 (87.5 MHz ~ 108.0 MHz, 50 kHz 단위)</string>
+    <string name="regional_band_summary_hong_kong">홍콩 (87.5 MHz ~ 108.0 MHz, 100 kHz 단위)</string>
+    <string name="regional_band_summary_india">인도 (87.5 MHz ~ 108.0 MHz, 100 kHz 단위)</string>
+    <string name="regional_band_summary_indonesia">인도네시아 (87.5 MHz ~ 108.0 MHz, 100 kHz 단위)</string>
+    <string name="regional_band_summary_ireland">아일랜드 (87.5 MHz ~ 108.0 MHz, 50 kHz 단위)</string>
+    <string name="regional_band_summary_italy">이탈리아 (87.5 MHz ~ 108.0 MHz, 50 kHz 단위)</string>
+    <string name="regional_band_summary_korea">대한민국 (87.5 MHz ~ 108.0 MHz, 200 kHz 단위)</string>
+    <string name="regional_band_summary_mexico">멕시코 (88.1 MHz ~ 107.9 MHz, 200 kHz 단위)</string>
+    <string name="regional_band_summary_netherlands">네덜란드 (87.5 MHz ~ 108.0 MHz, 100 kHz 단위)</string>
+    <string name="regional_band_summary_new_zealand">뉴질랜드 (88.0 MHz ~ 107.0 MHz, 100 kHz 단위)</string>
+    <string name="regional_band_summary_norway">노르웨이 (87.5 MHz ~ 108.0 MHz, 100 kHz 단위)</string>
+    <string name="regional_band_summary_poland">폴란드 (87.5 MHz ~ 108.0 MHz, 100 kHz 단위)</string>
+    <string name="regional_band_summary_portugal">포르투갈 (87.5 MHz ~ 108.0 MHz, 50 kHz 단위)</string>
+    <string name="regional_band_summary_russia">러시아 (87.5 MHz ~ 108.0 MHz, 100 kHz 단위)</string>
+    <string name="regional_band_summary_singapore">싱가포르 (88.0 MHz ~ 108.0 MHz, 100 kHz 단위)</string>
+    <string name="regional_band_summary_slovakia">슬로바키아 (87.5 MHz ~ 108.0 MHz, 100 kHz 단위)</string>
+    <string name="regional_band_summary_spain">스페인 (87.5 MHz ~ 108.0 MHz, 100 kHz 단위)</string>
+    <string name="regional_band_summary_switzerland">스위스 (87.5 MHz ~ 108.0 MHz, 100 kHz 단위)</string>
+    <string name="regional_band_summary_sweden">스웨덴 (87.5 MHz ~ 108.0 MHz, 100 kHz 단위)</string>
+    <string name="regional_band_summary_taiwan">대만 (87.5 MHz ~ 108.0 MHz, 100 kHz 단위)</string>
+    <string name="regional_band_summary_turkey">터키 (87.5 MHz ~ 108.0 MHz, 100 kHz 단위)</string>
+    <string name="regional_band_summary_united_kingdom">영국 (87.5 MHz ~ 108.0 MHz, 100 kHz 단위)</string>
+    <string name="regional_band_summary_united_states">미국 (88.1 MHz ~ 107.9 MHz, 200 kHz 단위)</string>
+    <string name="regional_band_summary_user_defined">사용자 정의 밴드</string>
+    <string name="aud_output_mode">소리 출력 모드</string>
+    <string name="audio_type_stereo">스테레오</string>
+    <string name="audio_type_mono">모노</string>
+    <string name="record_dur">녹음 길이</string>
+    <string name="auto_select_af">다른 주파수</string>
+    <string name="settings_revert_defaults_title">초기 설정으로 복원</string>
+    <string name="settings_revert_defaults_summary">모든 설정 초기화</string>
+    <string name="settings_revert_confirm_title">초기화 확인</string>
+    <string name="settings_revert_confirm_msg">저장된 프리셋을 포함한 모든 앱 설정이 삭제됩니다. 계속하시겠습니까?</string>
+    <string name="no_storage">녹음하기 전에 SD 카드를 마운트해주십시오.</string>
+    <string name="preparing_sd">SD 카드 준비 중\u2026</string>
+    <string name="access_sd_fail">SD 카드에 액세스할 수 없습니다.</string>
+    <string name="spaceIsLow_content">SD 카드에 여유 공간이 부족합니다. 음질 설정을 변경하거나 여유 공간 확보를 위해 다른 파일을 삭제해 주십시오.</string>
+    <string name="FMRecording_reach_size_limit">파일 크기 제한에 도달하였습니다.</string>
+    <string name="menu_scan_for_preset">프리셋 검색</string>
+    <string name="fm_off">FM이 꺼져 있습니다.</string>
+    <string name="fm_call">통화 중에는 FM을 사용할 수 없습니다.</string>
+    <string name="alert_dialog_hint">이름 입력</string>
+    <string name="search_dialog_title">방송국 탐색</string>
+    <string name="fm_command_timeout_title">시간 제한</string>
+    <string name="fm_tune_timeout_msg">FM 방송국의 반응이 없습니다. 문제가 지속되면, FM을 껐다 다시 켜 주십시오.</string>
+    <string name="fm_command_failed_title">FM 실행 실패</string>
+    <string name="fm_cmd_failed_msg">FM 실행이 실패했습니다. 문제가 지속되면 FM을 껐다 다시 켜 보십시오.</string>
+    <string name="fm_cmd_failed_msg_hdmi">FM 실행이 실패했습니다. FM과 HDMI는 동시에 사용할 수 없습니다.</string>
+    <string name="fm_cmd_failed_call_on">FM 실행이 실패했습니다. 통화 중에는 FM 오디오를 사용할 수 없습니다.</string>
+    <string name="audio_db_title_format"><xliff:g id="format">yyyy-MM-dd HH:mm:ss</xliff:g></string>
+    <string name="audio_db_artist_name">내 FM 녹음</string>
+    <string name="audio_db_album_name">FM 녹음</string>
+    <string name="audio_db_playlist_name">FM 녹음</string>
+    <string name="station_name">방송국:</string>
+    <string name="station_exists">이 주파수는 이미 존재합니다!</string>
+    <string name="station_list_delete_station">삭제: <xliff:g id="name">%s</xliff:g></string>
+    <string name="station_list_delete_station_prompt">\'<xliff:g id="name">%s</xliff:g>\'을(를) 삭제하시겠습니까?</string>
+    <string name="station_name_empty">방송국 이름이 비어있습니다. 다시 입력해주세요.</string>
+    <string name="station_name_exist">\'<xliff:g id="name">%s</xliff:g>\'은(는) 이미 사용 중입니다. 다른 이름을 입력하십시오.</string>
+    <string name="rt_plus_tags">태그</string>
+    <string name="usr_def_band_min">가장 낮은 주파수 (MHz)</string>
+    <string name="usr_def_band_max">가장 높은 주파수 (MHz)</string>
+    <string name="chanl_spacing">채널 간격</string>
+    <string name="set">설정</string>
+    <string name="user_defind_band_msg">76.0에서 108.0 MHz 사이에서 최소 1개의 채널 간격을 두고 최대-최소 주파수 사이에 100 kHz 간격을 가진 주파수를 입력하세요.</string>
+    <string name="save_record_file">FM 녹음이 \'<xliff:g id="record_file">%1$s</xliff:g>\'에 저장되었습니다</string>
+    <string name="fm_search_no_results">호환되는 방송국 없음</string>
+    <string name="typ_All_stations">모든 방송국</string>
+    <string name="typ_Culture">문화</string>
+    <string name="typ_Current_affairs">시사</string>
+    <string name="typ_Children">아동용 프로그램</string>
+    <string name="typ_Country">컨트리 음악</string>
+    <string name="typ_Documentary">다큐멘터리</string>
+    <string name="typ_Drama">드라마</string>
+    <string name="typ_Easy_listening">편안한 음악</string>
+    <string name="typ_Education">교육</string>
+    <string name="typ_Emergency">비상</string>
+    <string name="typ_Emergency_test">긴급 시험</string>
+    <string name="typ_Finance">금융</string>
+    <string name="typ_Folk">민속 음악</string>
+    <string name="typ_Information">정보</string>
+    <string name="typ_Jazz">재즈 음악</string>
+    <string name="typ_Light_classical">가벼운 클래식</string>
+    <string name="typ_Leisure">레저</string>
+    <string name="typ_News">뉴스</string>
+    <string name="typ_National">민족 음악</string>
+    <string name="typ_Other">기타 음악</string>
+    <string name="typ_Oldies">고전 음악</string>
+    <string name="typ_Phone_in">전화</string>
+    <string name="typ_Pop">팝 음악</string>
+    <string name="typ_Religion">종교</string>
+    <string name="typ_Rock">락 음악</string>
+    <string name="typ_Science">과학</string>
+    <string name="typ_Serious_classical">고전 클래식</string>
+    <string name="typ_Social_affairs">사회</string>
+    <string name="typ_Sport">스포츠</string>
+    <string name="typ_Travel">여행</string>
+    <string name="typ_Varied">여러가지</string>
+    <string name="typ_Weather">날씨</string>
+    <string name="typ_Adult_hits">성인 인기</string>
+    <string name="typ_Classical">클래식</string>
+    <string name="typ_Classic_Rock">클래식 락</string>
+    <string name="typ_College">대학</string>
+    <string name="typ_Foreign_language">외국어</string>
+    <string name="typ_Hiphop">힙합</string>
+    <string name="typ_Nostalgia">향수</string>
+    <string name="typ_Personality">성격</string>
+    <string name="typ_Public">공공</string>
+    <string name="typ_Religious_music">종교 음악</string>
+    <string name="typ_Religious_talk">종교 대화</string>
+    <string name="typ_Rhythm_and_Blues">리듬 앤 블루스</string>
+    <string name="typ_Spanish_music">스페인 음악</string>
+    <string name="typ_Spanish_talk">스페인어 대화</string>
+    <string name="typ_Soft">소프트</string>
+    <string name="typ_Soft_Rock">소프트 락</string>
+    <string name="typ_Soft_Rhythm_and_Blues">소프트 리듬 앤 블루스</string>
+    <string name="typ_Sports">스포츠</string>
+    <string name="typ_Talk">토크</string>
+    <string name="typ_Top_40">상위 40</string>
+</resources>

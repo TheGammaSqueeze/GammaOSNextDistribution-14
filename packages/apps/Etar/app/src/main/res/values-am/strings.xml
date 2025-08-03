@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2006 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label">የቀን መቁጠሪያ</string>
+    <string name="when_label">መቼ</string>
+    <string name="today">ዛሬ</string>
+    <string name="tomorrow">ነገ</string>
+    <string name="today_at_time_fmt">"ዛሬ <xliff:g id="TIME_INTERVAL">%s</xliff:g> ላይ"</string>
+    <string name="tomorrow_at_time_fmt">"ነገ <xliff:g id="TIME_INTERVAL">%s</xliff:g> ላይ"</string>
+    <string name="date_time_fmt">"<xliff:g id="DATE">%1$s</xliff:g>፣ <xliff:g id="TIME_INTERVAL">%2$s</xliff:g>"</string>
+    <string name="no_title_label">(አርእስት አልባ)</string>
+    <plurals name="Nminutes">
+        <item quantity="one">1</item>
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> ደቂቃዎች</item>
+    </plurals>
+    <plurals name="Nmins">
+        <item quantity="one">1</item>
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> ደቂቃዎች</item>
+    </plurals>
+    <plurals name="Nhours">
+        <item quantity="one">1</item>
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> ሰዓቶች</item>
+    </plurals>
+    <plurals name="Ndays">
+        <item quantity="one">1</item>
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> ቀን</item>
+    </plurals>
+    <string name="show_day_view">"ቀን አሳይ"</string>
+    <string name="agenda_view">"አጀንዳ"</string>
+    <string name="day_view">"ቀን"</string>
+    <string name="week_view">"ሳምንት"</string>
+    <string name="month_view">"ወር"</string>
+    <string name="event_view">"ዝግጅቶች ኣሳይ"</string>
+    <string name="event_create">"አዲስ ክስተት"</string>
+    <string name="event_edit">"ዝግጅት አርትዕ"</string>
+    <string name="event_delete">"ክስተት ሰርዝ"</string>
+    <string name="goto_today">"ዛሬ"</string>
+    <string name="menu_preferences">"ቅንብሮች"</string>
+    <string name="search">"ፍለጋ"</string>
+    <string name="hide_controls">"መቆጣጠሪያዎች ደብቅ"</string>
+    <string name="show_controls">"ቁጥጥሮችን አሳይ"</string>
+    <string name="select_synced_calendars_button">የቀን መቁጠሪያ ለአስምር</string>
+    <string name="hint_what">"የዝግጅት ስም"</string>
+    <string name="hint_where">"ስፍራ"</string>
+    <string name="hint_description">"መግለጫ"</string>
+    <string name="hint_attendees">"እንግዶች"</string>
+    <string name="creating_event">"ክስተት ተፈጥሯል"</string>
+    <string name="saving_event">"ክስተት ተቀምጧል"</string>
+    <string name="empty_event">"ምንም ክስተት አልተፈጠረም።"</string>
+    <string name="creating_event_with_guest">"ግብዣዎች ይላካሉ።"</string>
+    <string name="saving_event_with_guest">"ዝማኔዎች ይላካሉ።"</string>
+    <string name="rsvp_accepted">"አዎ ብለው ምላሽ ሰጥተዋል።"</string>
+    <string name="rsvp_tentative">"ምናልባት ብለው ምላሽ ሰጥተዋል።"</string>
+    <string name="rsvp_declined">"አይ ብለው ምላሽ ሰጥተዋል።"</string>
+    <string name="create_event_dialog_save">አስቀምጥ</string>
+    <string name="alert_title">የቀን መቁጠሪያማሳወቂያዎች</string>
+    <string name="event_info_title">ዝግጅቶች አሳይ</string>
+    <string name="event_info_title_invite">የስብሰባ ግብዣ</string>
+    <string name="edit_event_all_day_label">ሙሉ ቀን</string>
+    <string name="edit_event_calendar_label">የቀን መቁጠሪያ</string>
+    <string name="presence_label">እንደ አሳየኝ</string>
+    <string name="privacy_label">ግላዊነት</string>
+    <string name="reminders_label">አስታዋሽ አክል</string>
+    <string name="no_syncable_calendars">ምንም ቀንመቁጠሪያ ዎች የለዎትም</string>
+    <string name="view_event_calendar_label">የቀን አቆጣጠር:</string>
+    <string name="view_event_organizer_label">አዘጋጅ፡</string>
+    <string name="choose_event_color_label">የክስተት ቀለም ምረጥ</string>
+    <string name="event_color_picker_dialog_title">የክስተት ቀለም</string>
+    <string name="event_color_set_to_default">ወደ ነባሪ የቀን መቁጠሪያ ቀለም አዋቅር</string>
+    <string name="calendar_color_picker_dialog_title">የቀን መቁጠሪያ ቀለም</string>
+    <string name="calendar_square_color_picker_description">ቀለም መምረጫ</string>
+    <string name="view_event_response_label">ይካፈላሉ?</string>
+    <string name="response_yes">አዎ</string>
+    <string name="response_maybe">ምናልባት</string>
+    <string name="response_no">አይ</string>
+    <string name="email_guests_label">ለእንግዶች ኢሜይል ላክ</string>
+    <string name="email_organizer_label">የኢሜይል አደራጅ</string>
+    <string name="email_picker_label">በነዚህ ኢሜይል ላክ</string>
+    <string name="event_not_found">"ክስተት አልተገኘም።"</string>
+    <string name="map_label">ካርታ</string>
+    <string name="call_label">ደውል</string>
+    <string name="quick_response_settings">ፈጣን ምላሾች</string>
+    <string name="quick_response_settings_summary">ለእንግዶች ኢሜይል ሲላክ ነባሪ ምላሾችን አርትዕ</string>
+    <string name="quick_response_settings_edit_title">ፈጣን ምላሽ</string>
+    <string name="quick_response_dialog_title">ፈጣን ምላሽ ምረጥ</string>
+    <string name="quick_response_email_failed">የኢሜይል ፕሮግራም ማግኘት አልተቻለም</string>
+    <string-array name="quick_response_defaults">
+        <item>ደርሻለሁ አንድ ሁለት ደቂቃ ጠብቀኝ።</item>
+        <item>በ10 ደቂቃ ውስጥ እደርሳለሁ።</item>
+        <item>እኔን አትጠብቁኝ፣ ጀምሩ።</item>
+        <item>ይቅርታ ልደርስ አልችልም። ለሌላ ጊዜ ቀጠሮ ማስያዝ ይኖርብናል።</item>
+    </string-array>
+    <string name="quick_response_custom_msg">የእራስዎን ይጻፉ…</string>
+    <string name="event_info_organizer">አዘጋጅ፡</string>
+    <string name="event_info_reminders_label">አስታዋሾች</string>
+    <string name="loading">በማስገባት ላይ...</string>
+    <string name="show_older_events">ከ<xliff:g id="OLDEST_SEARCH_RANGE">%1$s</xliff:g> በኋላ ክስተቶችን ለማየት ንካ</string>
+    <string name="show_newer_events">ከ<xliff:g id="NEWEST_SEARCH_RANGE">%1$s</xliff:g> በኋላ ክስተቶችን ለማየት ንካ</string>
+    <string name="search_title">የእኔን ቀን መቁጠሪያዎች ፈልግ</string>
+    <string name="edit_event_label">"ዝርዝሮች"</string>
+    <string name="edit_label">"አርትዕ"</string>
+    <string name="delete_label">"ሰርዝ"</string>
+    <string name="save_label">ተከናውኗል</string>
+    <string name="discard_label">ይቅር</string>
+    <string name="dismiss_all_label">"አሰናብት"</string>
+    <string name="snooze_label">"አሸልብ"</string>
+    <string name="does_not_repeat">የአንድ ጊዜ ክስተት</string>
+    <string name="endByDate">፤ እስከ <xliff:g id="DATE">%s</xliff:g> ድረስ</string>
+    <plurals name="endByCount">
+        <item quantity="one">፤ ለአንድ ጊዜ</item>
+        <item quantity="other">፤ ለ<xliff:g id="NUMBER">%d</xliff:g> ጊዜያት</item>
+    </plurals>
+    <plurals name="daily">
+        <item quantity="one">ዕለታዊ</item>
+        <item quantity="other">በየ<xliff:g id="NUMBER">%d</xliff:g> ቀኖች</item>
+    </plurals>
+    <string name="every_weekday">"በአዘቦት ቀን(ሰኞ-አርብ)"</string>
+    <plurals name="weekly">
+        <item quantity="one">በየሳምንቱ <xliff:g id="DAYS_OF_WEEK">%2$s</xliff:g> ላይ</item>
+        <item quantity="other">በየ<xliff:g id="NUMBER">%1$d</xliff:g> ሳምንቱ <xliff:g id="DAYS_OF_WEEK">%2$s</xliff:g> ላይ</item>
+    </plurals>
+    <string name="monthly">ወርሃዊ</string>
+    <string name="yearly_plain">በየአመቱ</string>
+    <string name="custom" product="default">"ብጁ....(ስልክ ላይ ማበጀት አይቻልም)"</string>
+    <string name="modify_event">ይህንን ክስተት ብቻ ለውጥ</string>
+    <string name="modify_all">በተከታታይ ውስጥ ያሉ ክስተቶችን ለውጥ።</string>
+    <string name="modify_all_following">ይህን እና ሁሉንም የወደፊት ክስተቶች ለውጥ።</string>
+    <string name="new_event_dialog_label">"አዲስ ክስተት"</string>
+    <string name="new_event_dialog_option">"አዲስ ክስተት"</string>
+    <string name="delete_this_event_title">ይህን ክስተት ሰርዝ?</string>
+    <string name="delete_recurring_event_title"><xliff:g id="EVENTTITLE">%s</xliff:g> ይሰረዝ?</string>
+    <string name="change_response_title">ምላሽ ለውጥ</string>
+    <string name="preferences_title">"ቅንብሮች"</string>
+    <string name="preferences_general_title">የቀን መቁጠሪያ ማያ ቅንብር</string>
+    <string name="preferences_reminder_title">ማሳወቂያዎች እና አስታዋሾች</string>
+    <string name="preferences_hide_declined_title">ውድቅ ክስተቶችን ደብቅ</string>
+    <string name="preferences_week_start_day_title">ሳምንት በ ይጀምራል</string>
+    <string name="preferences_week_start_day_dialog">ሳምንት በ ይጀምራል</string>
+    <string name="preferences_clear_search_history_title">የፍለጋ ታሪክ አጽዳ</string>
+    <string name="preferences_clear_search_history_summary">ያከናወንካቸውን ፍለጋዎች ሁሉ አስወግድ</string>
+    <string name="search_history_cleared">የፍለጋ ታሪክ ጠርቷል።</string>
+    <string name="preferences_alerts_title">ማሳወቂያዎች</string>
+    <string name="preferences_alerts_vibrateWhen_title">ንዘር</string>
+    <string name="preferences_alerts_ringtone_title">ድምፅ</string>
+    <string name="preferences_alerts_popup_title">ብቅ ባይ ማሳወቂያ</string>
+    <string name="preferences_default_reminder_title">ነባሪ አስታዋሽ ሰዓት</string>
+    <string name="preferences_default_reminder_dialog">ነባሪ አስታዋሽ ሰዓት</string>
+    <string name="preferences_default_reminder_default">10</string>
+    <string name="preferences_use_home_tz_title">የሀገር ሰዓት ሰቅ ተጠቀም</string>
+    <string name="preferences_use_home_tz_descrip">ሲጓዙ የቀን መቁጠሪያዎችን እና የክስተት ሰዓቶችን በሀገርዎ ሰዓት ሰቅ ውስጥ ያሳዩ</string>
+    <string name="preferences_home_tz_title">የሀገር ሰዓት ሰቅ</string>
+    <string name="preferences_show_week_num_title">የሣምንት ቁጥር አሳይ</string>
+    <string name="preferences_build_version">የግንባታ ሥሪት</string>
+    <plurals name="month_more_events">
+        <item quantity="one">"+1"</item>
+        <item quantity="other">+<xliff:g id="NUMBER">%d</xliff:g></item>
+    </plurals>
+    <string name="gadget_no_events">በቅርብ ጊዜ የሚሆኑ ምንም ክስተቶች የሉም</string>
+    <string name="preferences_experimental_category">የሙከራ</string>
+    <string name="preferences_reminders_responded_label">አስታዋሾችን ዝለል</string>
+    <string name="preferences_reminders_responded_dialog">አስታዋሾችን ዝለል</string>
+    <string name="copy_db">የውሂብ ጎታ ላክ</string>
+    <string name="directory_searching_fmt">በመፈለግ ላይ<xliff:g id="DOMAIN">%s</xliff:g>...</string>
+    <string name="accessibility_remove_attendee">ተካፋይ አስወግድ</string>
+    <string name="accessibility_pick_start_date">የመጀመሪያ ቀን</string>
+    <string name="accessibility_pick_start_time">የመጀመሪያ ጊዜ</string>
+    <string name="accessibility_pick_end_date">የመጨረሻ ቀን</string>
+    <string name="accessibility_pick_end_time">መጨረሻ ሰዓት</string>
+    <string name="accessibility_pick_time_zone">የሰዓት ሰቅ</string>
+    <string name="accessibility_pick_recurrence">ክስተት ድገም</string>
+    <string name="accessibility_add_reminder">አስታዋሽ አክል</string>
+    <string name="accessibility_remove_reminder">አስታዋሽ አስወግድ</string>
+    <string name="accessibility_add_attendee">ተሳታፊ አክል</string>
+    <string name="accessibility_all_day">የሙሉ ቀን ክስተት</string>
+    <string name="accessibility_reminder_time">የአስታዋሽ አይነት</string>
+    <string name="accessibility_reminder_type">የአስታዋሽ ጊዜ</string>
+    <string name="accessibility_reminder_showmeas">አሳየኝ እንደ</string>
+    <string name="accessibility_reminder_privacy">ግላዊነት</string>
+    <string name="day_view_new_event_hint">+ አዲስ ክስተት</string>
+    <string name="template_announce_item_index">ክስተት <xliff:g id="ITEM_INDEX">%1$s</xliff:g>ከ<xliff:g id="ITEM_COUNT">%2$s</xliff:g></string>
+    <plurals name="Nevents">
+        <item quantity="one">1 ክስተት</item>
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> ክስተቶች</item>
+    </plurals>
+    <plurals name="N_remaining_events">
+        <item quantity="one">+1 ክስተት</item>
+        <item quantity="other">+<xliff:g id="COUNT">%d</xliff:g> ክስተቶች</item>
+    </plurals>
+    <string name="acessibility_selected_marker_description">የተመረጠ ክስተት</string>
+    <plurals name="recurrence_interval_daily">
+        <item quantity="one">በየ<xliff:g id="COUNT">%d</xliff:g> ቀን</item>
+        <item quantity="other">በየ<xliff:g id="COUNT">%d</xliff:g> ቀን</item>
+    </plurals>
+    <plurals name="recurrence_interval_weekly">
+        <item quantity="one">በየ<xliff:g id="COUNT">%d</xliff:g> ሳምንት</item>
+        <item quantity="other">በየ<xliff:g id="COUNT">%d</xliff:g> ሳምንት</item>
+    </plurals>
+    <plurals name="recurrence_interval_monthly">
+        <item quantity="one">በየ<xliff:g id="COUNT">%d</xliff:g> ወር</item>
+        <item quantity="other">በየ<xliff:g id="COUNT">%d</xliff:g> ወር</item>
+    </plurals>
+    <plurals name="recurrence_interval_yearly">
+        <item quantity="one">በየ<xliff:g id="COUNT">%d</xliff:g> ዓመት</item>
+        <item quantity="other">በየ<xliff:g id="COUNT">%d</xliff:g> ዓመት</item>
+    </plurals>
+    <string name="recurrence_month_pattern_by_day">በየወሩ በተመሳሳዩ ቀን ላይ</string>
+    <string name="recurrence_end_continously">ለዘለዓለም</string>
+    <string name="recurrence_end_date_label">እስከ አንድ ቀን ድረስ</string>
+    <string name="recurrence_end_date">እስከ <xliff:g id="DATE">%s</xliff:g> ድረስ</string>
+    <string name="recurrence_end_count_label">ለተወሰነ የክስተቶች ብዛት</string>
+    <plurals name="recurrence_end_count">
+        <item quantity="one">ለ<xliff:g id="EVENT_COUNT">%d</xliff:g> ክስተት</item>
+        <item quantity="other">ለ<xliff:g id="EVENT_COUNT">%d</xliff:g> ክስተቶች</item>
+    </plurals>
+    <string name="acessibility_recurrence_choose_end_date_description">የመጨረሻውን ቀን ቀይር</string>
+    <string name="cancel">ይቅር</string>
+</resources>

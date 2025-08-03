@@ -1,0 +1,379 @@
+// MAP API module
+
+package {
+    default_applicable_licenses: ["packages_apps_Bluetooth_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+// See: http://go/android-license-faq
+license {
+    name: "packages_apps_Bluetooth_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+    ],
+    // large-scale-change unable to identify any license_text files
+}
+
+java_library {
+    name: "bluetooth.mapsapi",
+
+    srcs: ["lib/mapapi/**/*.java"],
+    apex_available: [
+        "com.android.btservices",
+    ],
+    min_sdk_version: "Tiramisu",
+    sdk_version: "module_current",
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
+}
+
+java_library {
+    name: "mmslib",
+
+    srcs: [":framework-mms-shared-srcs"],
+    libs: ["unsupportedappusage"],
+    apex_available: [
+        "com.android.btservices",
+    ],
+    min_sdk_version: "Tiramisu",
+    sdk_version: "module_current",
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
+}
+
+// Bluetooth JNI
+
+cc_library_shared {
+    name: "libbluetooth_jni",
+    defaults: [
+        "fluoride_defaults",
+        "latest_android_hardware_audio_common_ndk_static",
+        "latest_android_hardware_bluetooth_audio_ndk_static",
+        "latest_android_media_audio_common_types_ndk_static",
+    ],
+    srcs: ["jni/**/*.cpp"],
+    version_script: "libbluetooth_jni.map",
+    header_libs: [
+        "jni_headers",
+        "libbluetooth_headers",
+    ],
+    include_dirs: [
+        "packages/modules/Bluetooth/system",
+        "packages/modules/Bluetooth/system/gd",
+        "packages/modules/Bluetooth/system/types",
+    ],
+    // libbluetooth_jni is the jni lib included in the btservices apex.
+    // As this library is inside an APEX the shared_libs that does not
+    // expose stubs are copied inside it. As a result using those as
+    // shared libraries is less interesting as they are not shared, so we link
+    // them statically to allow the linker to perform more optimisation.
+    //
+    // The only exception to this is libcrypto because the shared version
+    // is required to maintain FIPS compliance.
+    stl: "libc++_static",
+    static_libs: [
+        "android.hardware.audio.common@5.0",
+        "android.hardware.bluetooth.audio@2.0",
+        "android.hardware.bluetooth.audio@2.1",
+        "android.hardware.bluetooth@1.0",
+        "android.hardware.bluetooth@1.1",
+        "android.hardware.common-V2-ndk",
+        "android.hardware.common.fmq-V1-ndk",
+        "android.system.suspend-V1-ndk",
+        "android.system.suspend.control-V1-ndk",
+        "avrcp-target-service",
+        "lib-bt-packets-avrcp",
+        "lib-bt-packets-base",
+        "libFraunhoferAAC",
+        "libaudio-a2dp-hw-utils",
+        "libbase",
+        "libbluetooth",
+        "libbluetooth-dumpsys",
+        "libbluetooth-gdx",
+        "libbluetooth-types",
+        "libbluetooth_core_rs",
+        "libbluetooth_core_rs_bridge",
+        "libbluetooth_crypto_toolbox",
+        "libbluetooth_gd",
+        "libbluetooth_log",
+        "libbt-audio-asrc",
+        "libbt-audio-hal-interface",
+        "libbt-bta",
+        "libbt-bta-core",
+        "libbt-btu-main-thread",
+        "libbt-common",
+        "libbt-hci",
+        "libbt-jni-thread",
+        "libbt-sbc-decoder",
+        "libbt-sbc-encoder",
+        "libbt-stack",
+        "libbt-stack-core",
+        "libbt_shim_bridge",
+        "libbtcore",
+        "libbtdevice",
+        "libbte",
+        "libbtif",
+        "libbtif-core",
+        "libc++fs",
+        "libchrome",
+        "libcutils",
+        "libevent",
+        "libflatbuffers-cpp",
+        "libfmq",
+        "libg722codec",
+        "libhidlbase",
+        "liblc3",
+        "libmodpb64",
+        "libopus",
+        "libosi",
+        "libprotobuf-cpp-lite",
+        "libstatslog_bt",
+        "libudrv-uipc",
+        "libutils",
+        "server_configurable_flags",
+    ],
+    shared_libs: [
+        "libaaudio",
+        "libbinder_ndk",
+        "libcrypto",
+        "liblog",
+        "libnativehelper",
+        "libstatssocket",
+        "libvndksupport",
+    ],
+    sanitize: {
+        scs: true,
+    },
+    apex_available: [
+        "com.android.btservices",
+    ],
+    min_sdk_version: "Tiramisu",
+}
+
+cc_library {
+    name: "libbluetooth-core",
+    defaults: ["fluoride_defaults"],
+    header_libs: [
+        "jni_headers",
+        "libbluetooth_headers",
+    ],
+    include_dirs: [
+        "packages/modules/Bluetooth/system/types",
+    ],
+    static_libs: [
+        "lib-bt-packets",
+        "lib-bt-packets-base",
+        "libbt-bta-core",
+        "libbt-common",
+        "libbt-hci",
+        "libbt-stack-core",
+        "libbtcore",
+        "libbtdevice",
+        "libbte",
+        "libbtif-core",
+        "libosi",
+
+        "libbluetooth-types",
+        "libc++fs",
+    ],
+    cflags: [
+        /* we export all classes, so change default visibility, instead of having EXPORT_SYMBOL on each class*/
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+        "-Wno-unused-parameter",
+        "-fvisibility=default",
+    ],
+    sanitize: {
+        scs: true,
+    },
+    apex_available: [
+        "com.android.btservices",
+    ],
+    host_supported: true,
+    min_sdk_version: "Tiramisu",
+}
+
+// Bluetooth APK
+
+android_app {
+    name: "Bluetooth",
+    defaults: ["bluetooth-module-sdk-version-defaults"],
+
+    srcs: [
+        ":statslog-bluetooth-java-gen",
+        ":statslog-bt-restricted-java-gen",
+        ":system-messages-proto-src",
+        "proto/keystore.proto",
+        "src/**/*.java",
+    ],
+    proto: {
+        type: "lite",
+    },
+    aaptflags: [
+        "--custom-package",
+        "com.android.bluetooth",
+    ],
+    certificate: "bluetooth",
+
+    jarjar_rules: ":bluetooth-jarjar-rules",
+    privapp_allowlist: ":privapp_allowlist_com.android.bluetooth.xml",
+
+    jni_uses_platform_apis: true,
+    libs: [
+        "app-compat-annotations",
+        "bluetooth_flags_java_lib",
+        "error_prone_annotations",
+        "framework-annotations-lib",
+        "framework-bluetooth-pre-jarjar",
+        "framework-configinfrastructure",
+        "framework-connectivity.stubs.module_lib",
+        "framework-location.stubs.module_lib",
+        "framework-mediaprovider",
+        "framework-statsd.stubs.module_lib",
+        "framework-tethering.stubs.module_lib",
+        "unsupportedappusage",
+
+        // Need to link the class at runtime
+        "framework-bluetooth",
+    ],
+    static_libs: [
+        "BluetoothApiShims",
+        "android.hardware.radio-V1.0-java",
+        "android.hardware.radio.sap-V1-java",
+        "androidx.annotation_annotation",
+        "androidx.core_core",
+        "androidx.lifecycle_lifecycle-livedata",
+        "androidx.media_media",
+        "androidx.room_room-runtime",
+        "bluetooth-proto-enums-java-gen",
+        "bluetooth-protos-lite",
+        "bluetooth.change-ids",
+        "bluetooth.mapsapi",
+        "com.android.obex",
+        "com.android.vcard",
+        "guava",
+        "libprotobuf-java-lite",
+        "mmslib",
+        "modules-utils-backgroundthread",
+        "modules-utils-bytesmatcher",
+        "modules-utils-statemachine",
+        "net-utils-services-common",
+        "networkstack-client",
+        "sap-api-java-static",
+    ],
+
+    plugins: [
+        "androidx.room_room-compiler-plugin",
+    ],
+
+    // Export schemas to the test directory so that we have an history
+    // to be able to test migrations
+    // The following path is absolute because a relative path doesn't work
+    // TODO(b/147596836): Refactor this
+    javacflags: ["-Aroom.schemaLocation=packages/modules/Bluetooth/android/app/tests/unit/src/com/android/bluetooth/btservice/storage/schemas"],
+
+    lint: {
+        error_checks: [
+            "ExtraText",
+            "MissingClass",
+            "NewApi",
+            "ObsoleteSdkInt",
+            "Recycle",
+            "RtlHardcoded",
+            "UseSparseArrays",
+            "UseValueOf",
+        ],
+        baseline_filename: "lint-baseline.xml",
+    },
+
+    optimize: {
+        enabled: true,
+        shrink: true,
+        optimize: false,
+        // TODO(b/289285719): Revisit after resolving mocking issues in testing.
+        proguard_compatibility: true,
+        proguard_flags_files: ["proguard.flags"],
+    },
+    apex_available: [
+        "com.android.btservices",
+    ],
+    errorprone: {
+        javacflags: [
+            // "-Xep:AndroidFrameworkRequiresPermission:ERROR",
+            "-Xep:AlmostJavadoc:ERROR",
+        ],
+    },
+    min_sdk_version: "Tiramisu",
+    sdk_version: "module_current",
+}
+
+java_library {
+    name: "bluetooth.change-ids",
+    srcs: [
+        "src/com/android/bluetooth/ChangeIds.java",
+    ],
+    libs: [
+        "app-compat-annotations",
+    ],
+    apex_available: [
+        "com.android.btservices",
+    ],
+    min_sdk_version: "Tiramisu",
+    sdk_version: "module_current",
+}
+
+platform_compat_config {
+    name: "bluetoothapk-platform-compat-config",
+    src: ":bluetooth.change-ids",
+}
+
+java_library {
+    name: "bluetooth-proto-enums-java-gen",
+    installable: false,
+    proto: {
+        type: "stream",
+    },
+    srcs: [
+        ":srcs_bluetooth_protos",
+    ],
+    apex_available: [
+        "com.android.btservices",
+    ],
+    min_sdk_version: "Tiramisu",
+    sdk_version: "module_current",
+}
+
+genrule {
+    name: "statslog-bluetooth-java-gen",
+    tools: ["stats-log-api-gen"],
+    cmd: "$(location stats-log-api-gen) --java $(out) --module bluetooth" +
+        " --javaPackage com.android.bluetooth --javaClass BluetoothStatsLog" +
+        " --minApiLevel 33",
+    out: ["com/android/bluetooth/BluetoothStatsLog.java"],
+}
+
+genrule {
+    name: "statslog-bt-restricted-java-gen",
+    tools: ["stats-log-api-gen"],
+    cmd: "$(location stats-log-api-gen) --java $(out) --module bt_restricted" +
+        " --javaPackage com.android.bluetooth --javaClass BtRestrictedStatsLog" +
+        " --minApiLevel 34",
+    out: ["com/android/bluetooth/BtRestrictedStatsLog.java"],
+}

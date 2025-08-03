@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License
+  -->
+<resources>
+    <dimen name="car_padding_1">8dp</dimen>
+    <dimen name="car_padding_2">16dp</dimen>
+    <dimen name="car_padding_3">24dp</dimen>
+
+    <dimen name="car_quick_controls_entry_points_icon_space">12dp</dimen>
+
+    <dimen name="car_left_system_bar_width">280dp</dimen>
+    <dimen name="car_keyline_1">24dp</dimen>
+    <dimen name="system_bar_button_group_padding">64dp</dimen>
+    <dimen name="system_bar_icon_drawing_size">44dp</dimen>
+    <dimen name="system_bar_pill_radius">38dp</dimen>
+
+    <dimen name="hvac_container_padding">16dp</dimen>
+    <dimen name="hvac_temperature_bar_margin">32dp</dimen>
+    <dimen name="hvac_temperature_text_size">56sp</dimen>
+    <dimen name="hvac_temperature_text_padding">8dp</dimen>
+    <dimen name="hvac_temperature_button_size">76dp</dimen>
+    <!--These values represent MIN and MAX for hvac-->
+    <item name="hvac_min_value_celsius" format="float" type="dimen">16</item>
+    <item name="hvac_max_value_celsius" format="float" type="dimen">28</item>
+
+
+    <dimen name="car_quick_controls_entry_points_icon_width">36dp</dimen>
+    <dimen name="car_quick_controls_entry_points_button_margin_top">10dp</dimen>
+    <dimen name="car_quick_controls_entry_points_button_margin_bottom">6dp</dimen>
+    <dimen name="car_quick_controls_entry_points_button_margin_start">12dp</dimen>
+    <dimen name="car_quick_controls_entry_points_button_margin_end">12dp</dimen>
+    <dimen name="car_quick_controls_entry_points_clock_text_size">28sp</dimen>
+    <dimen name="car_body1_size">32sp</dimen>
+    <dimen name="system_bar_user_icon_drawing_size">36dp</dimen>
+    <dimen name="user_icon_background_size">128dp</dimen>
+    <dimen name="system_bar_button_size">76dp</dimen>
+    <dimen name="system_bar_button_padding">16dp</dimen>
+</resources>

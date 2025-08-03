@@ -1,0 +1,16 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_app {
+    name: "Tag",
+    static_libs: [
+        "androidx.legacy_legacy-support-v4",
+        "guava",
+        "com.android.vcard",
+    ],
+    // Only compile source java files in this apk.
+    srcs: ["src/**/*.java"],
+    privileged: true,
+    sdk_version: "current",
+}

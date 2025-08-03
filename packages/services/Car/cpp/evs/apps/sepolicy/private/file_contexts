@@ -1,0 +1,9 @@
+###################################
+# Binaries associated with evs_app and
+# the directory which contains the configuration for the evs_app
+#
+/system/bin/evs_app                                             u:object_r:evs_app_exec:s0
+/system/bin/evs_app_support_lib                                 u:object_r:evs_app_exec:s0
+/system/etc/automotive/evs(/.*)?                                u:object_r:evs_app_files:s0
+
+###################################

@@ -1,0 +1,7 @@
+main: {
+  read_directory: {
+    directory_name: "test",
+    output: "file_list"
+  }
+},
+global {}

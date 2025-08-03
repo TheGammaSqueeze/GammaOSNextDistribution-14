@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+  <item
+      android:id="@+id/amrMode0MenuItem"
+      android:title="@string/amr_mode_0"
+      android:titleCondensed="1">
+  </item>
+
+  <item
+      android:id="@+id/amrMode1MenuItem"
+      android:title="@string/amr_mode_1"
+      android:titleCondensed="2">
+  </item>
+
+  <item
+      android:id="@+id/amrMode2MenuItem"
+      android:title="@string/amr_mode_2"
+      android:titleCondensed="4">
+  </item>
+
+  <item
+      android:id="@+id/amrMode3MenuItem"
+      android:title="@string/amr_mode_3"
+      android:titleCondensed="8">
+  </item>
+
+  <item
+      android:id="@+id/amrMode4MenuItem"
+      android:title="@string/amr_mode_4"
+      android:titleCondensed="16">
+  </item>
+
+  <item
+      android:id="@+id/amrMode5MenuItem"
+      android:title="@string/amr_mode_5"
+      android:titleCondensed="32">
+  </item>
+
+  <item
+      android:id="@+id/amrMode6MenuItem"
+      android:title="@string/amr_mode_6"
+      android:titleCondensed="64">
+  </item>
+
+  <item
+      android:id="@+id/amrMode7MenuItem"
+      android:title="@string/amr_mode_7"
+      android:titleCondensed="128">
+  </item>
+
+  <item
+      android:id="@+id/amrMode8MenuItem"
+      android:title="@string/amr_mode_8"
+      android:titleCondensed="256">
+  </item>
+
+</menu>

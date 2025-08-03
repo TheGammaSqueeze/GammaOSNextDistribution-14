@@ -1,0 +1,14 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_test {
+    name: "CtsBionicRootTestCases",
+
+    defaults: ["cts_bionic_defaults"],
+
+    test_suites: [
+        "cts_root",
+    ],
+}
+

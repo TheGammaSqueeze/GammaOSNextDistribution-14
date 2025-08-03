@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2013-2015 The CyanogenMod Project
+     SPDX-FileCopyrightText: 2017-2024 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">सेटअप विज़ार्ड</string>
+    <string name="next">अगला</string>
+    <string name="skip">छोड़ें</string>
+    <string name="start">शुरू करें</string>
+    <string name="ok">ठीक है</string>
+    <string name="loading">एक सेकंड\u2026</string>
+    <string name="emergency_call">आपातकालीन कॉल</string>
+    <string name="setup_sim_missing">सिम कार्ड नहीं है</string>
+    <string name="sim_missing_summary" product="tablet">आपके टैब्लेट के लिए सिम कार्ड पहचाना नहीं जा सका है। सिम कार्ड डालने के लिए अपने उपकरण के साथ आए निर्देशों को देखें।</string>
+    <string name="sim_missing_summary" product="default">आपके फ़ोन के लिए सिम कार्ड पहचाना नहीं जा सका है। सिम कार्ड डालने के लिए अपने उपकरण के साथ आए निर्देशों को देखें।</string>
+    <string name="setup_datetime">तिथि और समय</string>
+    <string name="date_time_summary">अपना समय क्षेत्र सेटअप करें और यदि आवश्यक हो तो वर्तमान तिथि और समय को समायोजित करें</string>
+    <string name="setup_current_date">वर्तमान तिथि</string>
+    <string name="setup_current_time">वर्तमान समय</string>
+    <string name="setup_location">स्थान सेवाएँ</string>
+    <string name="location_access_summary"><b>जिन ऐपों ने आपसे अनुमति ले ली है</b> उन्हें आपके स्थान संबंधी जानकारी का उपयोग करने दें। इस जानकारी में आपका वर्तमान स्थान और पहले के स्थान शामिल हो सकते हैं।</string>
+    <string name="services_os_nav_keys_label">हार्डवेयर कुंजियों की जगह <b>स्क्रीन पर मौजूद नेविगेशन कुंजियों का उपयोग करें।</b></string>
+</resources>

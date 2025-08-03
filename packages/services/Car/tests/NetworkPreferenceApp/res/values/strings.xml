@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2018 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="app_name" translatable="false">Network Preference App</string>
+
+  <string name="manager" translatable="false">Manager</string>
+  <string name="quit_app" translatable="false">Quit App</string>
+
+  <!-- Network Preferences Manager Fragment elements -->
+  <string name="oem_paid_apps_text" translatable="false">OEM_PAID packages (comma separated)</string>
+  <string name="oem_paid_no_fallback_apps_text" translatable="false">OEM_PAID_NO_FALLBACK packages (comma separated)</string>
+  <string name="oem_paid_only_apps_text" translatable="false">OEM_PAID_ONLY packages (comma separated)</string>
+  <string name="oem_private_only_apps_text" translatable="false">OEM_PRIVATE_ONLY packages (comma separated)</string>
+  <string name="button_apply_configuration" translatable="false">Apply Configuration</string>
+  <string name="button_reset_network_preference" translatable="false">Reset Network Preference</string>
+  <string name="label_is_pans_overridden" translatable="false">Is PANS overridden?</string>
+  <string name="label_apply_latest_policy_on_boot" translatable="false">Apply current PANS policy on boot?</string>
+  <string name="label_apply_wifi_policy_on_boot" translatable="false">Apply current Wifi policy on boot?</string>
+
+  <!-- Metrics table string -->
+  <string name="label_metric_oem_paid" translatable="false">OEM Paid</string>
+  <string name="label_metric_oem_private" translatable="false">OEM Private</string>
+  <string name="label_metric_total_oem_managed" translatable="false">Total OEM Managed</string>
+
+  <!-- Wifi PANS SSID control labels -->
+  <string name="oem_paid_wifi_ssids_text" translatable="false">Wifi SSIDs with OEM_PAID capability (ssid1[:password],ssid2[:password2],...))</string>
+  <string name="oem_private_wifi_ssids_text" translatable="false">Wifi SSIDs with OEM_PRIVATE capability (ssid1[:password],ssid2[:password2],...))</string>
+  <string name="button_apply_wifi_configuration" translatable="false">Apply WiFi suggestions</string>
+  <string name="button_reset_wifi_configuration" translatable="false">Reset WiFi suggestions</string>
+  <string name="label_switch_connect_to_oem_paid_wifi" translatable="false">Connect to OEM_PAID wifi</string>
+  <string name="label_switch_connect_to_oem_private_wifi" translatable="false">Connect to OEM_PRIVATE wifi</string>
+
+  <string name="no" translatable="false">No</string>
+  <string name="on" translatable="false">On</string>
+  <string name="off" translatable="false">Off</string>
+</resources>

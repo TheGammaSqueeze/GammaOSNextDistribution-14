@@ -1,0 +1,16 @@
+r0: f779eb54
+r1: 0
+r2: ffffffff
+r3: 0
+r4: 0
+r5: 0
+r6: f779eb50
+r7: f0
+r8: f779ec90
+r9: 1
+r10: f789762c
+r11: ffffffff
+ip: f779eaf0
+sp: f779eae0
+lr: f77dd1e7
+pc: f7868324

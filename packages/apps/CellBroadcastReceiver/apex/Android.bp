@@ -1,0 +1,37 @@
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+apex_defaults {
+    name: "com.android.cellbroadcast-defaults",
+    defaults: ["r-launched-apex-module"],
+
+    manifest: "apex_manifest.json",
+
+    // optional. if unspecified, a default one is auto-generated
+    androidManifest: "AndroidManifest.xml",
+
+    key: "com.android.cellbroadcast.key",
+    certificate: ":com.android.cellbroadcast.certificate",
+    // Indicates that pre-installed version of this apex can be compressed.
+    // Whether it actually will be compressed is controlled on per-device basis.
+    compressible: true,
+}
+
+apex_key {
+    name: "com.android.cellbroadcast.key",
+    public_key: "com.android.cellbroadcast.avbpubkey",
+    private_key: "com.android.cellbroadcast.pem",
+}
+
+android_app_certificate {
+    name: "com.android.cellbroadcast.certificate",
+    certificate: "com.android.cellbroadcast",
+}
+
+apex {
+    name: "com.android.cellbroadcast",
+    defaults:["com.android.cellbroadcast-defaults"],
+    apps: ["CellBroadcastApp", "CellBroadcastServiceModule"],
+}

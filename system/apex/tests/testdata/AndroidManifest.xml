@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.android.apex.test">
+    <!-- APEX does not have classes.dex -->
+    <application android:hasCode="false">
+        <apex-system-service
+            android:name="com.android.apex.test.ApexSystemService"
+            android:path="/apex/com.android.apex.test/javalib/fake.jar"
+            android:minSdkVersion="30"/>
+
+        <!-- Always inactive system service, since maxSdkVersion is low -->
+        <apex-system-service
+            android:name="com.android.apex.test.OldApexSystemService"
+            android:path="/apex/com.android.apex.test/javalib/fake.jar"
+            android:minSdkVersion="1"
+            android:maxSdkVersion="1"
+        />
+
+        <!-- Always inactive system service, since minSdkVersion is high -->
+        <apex-system-service
+            android:name="com.android.apex.test.NewApexSystemService"
+            android:path="/apex/com.android.apex.test/javalib/fake.jar"
+            android:minSdkVersion="999999"
+        />
+    </application>
+</manifest>

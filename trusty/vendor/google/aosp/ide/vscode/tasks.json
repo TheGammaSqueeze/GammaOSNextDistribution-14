@@ -1,0 +1,35 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Run with Prebuilt",
+            "type": "shell",
+            "isBackground": true,
+            "command": "./build-root/build-qemu-generic-arm64-test-debug/run",
+            "args": [
+                "--debug"
+            ],
+            "problemMatcher": [
+                {
+                    "source": "trusty",
+                    "pattern": [
+                        {
+                            "file": 2,
+                            "line": 4,
+                            "message": 1,
+                            "regexp": "^.*(Assertion failed: .*) \\((.*): (.*): (\\d+)\\)$"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "label": "Send SIGINT to qemu.py",
+            "type": "shell",
+            "command": "./trusty/vendor/google/aosp/ide/vscode/kill_qemu_from_vscode.py",
+            "args": [
+                "./build-root/build-qemu-generic-arm64-test-debug/run"
+            ]
+        }
+    ]
+}

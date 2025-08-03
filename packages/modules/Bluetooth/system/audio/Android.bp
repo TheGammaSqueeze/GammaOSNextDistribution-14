@@ -1,0 +1,61 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_bt_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_bt_license"],
+}
+
+cc_library_static {
+    name: "libbt-audio-asrc",
+    defaults: [],
+    srcs: [
+        "asrc/asrc_resampler.cc",
+        "asrc/asrc_tables.cc",
+    ],
+    shared_libs: [
+        "libchrome",
+    ],
+    static_libs: [
+        "libflatbuffers-cpp",
+    ],
+    host_supported: true,
+    min_sdk_version: "33",
+    apex_available: [
+        "com.android.btservices",
+    ],
+}
+
+cc_library_host_shared {
+    name: "libasrc_resampler_test",
+    defaults: ["bluetooth_cflags"],
+    srcs: [
+        "asrc/asrc_resampler_test.cc",
+        "asrc/asrc_tables.cc",
+    ],
+    static_libs: [
+        "libchrome",
+        "libflatbuffers-cpp",
+    ],
+    stl: "libc++_static",
+    include_dirs: [
+        "packages/modules/Bluetooth/system",
+    ],
+    generated_headers: [
+        "BluetoothGeneratedDumpsysDataSchema_h",
+    ],
+}
+
+python_test_host {
+    name: "asrc_resampler_test",
+    main: "asrc/asrc_resampler_test.py",
+    srcs: ["asrc/asrc_resampler_test.py"],
+    libs: ["mobly"],
+    data: [":libasrc_resampler_test"],
+    test_config: "asrc/asrc_resampler_test.config",
+    test_suites: ["general-tests"],
+    test_options: {
+        unit_test: false,
+    },
+}

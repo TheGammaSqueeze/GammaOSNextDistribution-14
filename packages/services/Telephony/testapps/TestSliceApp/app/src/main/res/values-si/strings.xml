@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="1265450418387661962">"TestSliceApp"</string>
+    <string name="hello_blank_fragment" msgid="1245093642770491175">"ආයුබෝවන් හිස් කොටස"</string>
+    <string name="request_network" msgid="8945235490804849914">"ජාලය ඉල්ලන්න"</string>
+    <string name="release_network" msgid="174252378593535238">"ජාලය මුදා හරින්න"</string>
+    <string name="ping" msgid="7890607576220714932">"පිං"</string>
+    <string name="result_prefix" msgid="3522796186427501399">"ප්‍රතිඵලය:"</string>
+    <string name="latency_title" msgid="963052613947017009">"පමාවට ප්‍රමුඛත්වය දෙන්න"</string>
+    <string name="bw_title" msgid="3902162973688221344">"කලාප පළලට ප්‍රමුඛත්වය දෙන්න"</string>
+    <string name="cbs_title" msgid="5234410535569935600">"CBS"</string>
+    <string name="purchase" msgid="7843181995697372128">"ජාල ප්‍රිමියම් මිල දී ගන්න"</string>
+    <string name="network_available" msgid="4780293262690730734">"ප්‍රතිඵලය: ඉල්ලූ ජාලය දැන් තිබේ!"</string>
+    <string name="network_requested" msgid="5646123922691865991">"ප්‍රතිඵලය: ජාලය ඉල්ලා ඇත!"</string>
+    <string name="network_released" msgid="2992280481133877025">"ප්‍රතිඵලය: ජාලය මුදා හැර ඇත!"</string>
+    <string name="network_release_failed" msgid="256471231420029151">"ප්‍රතිඵලය: ජාලය මුදා හැරීමට අසමත් විය!!!"</string>
+    <string name="purchase_exception" msgid="8876841120055716671">"ප්‍රතිඵලය: ජාල ප්‍රිමියම් මිල දී ගැනීමේ දී ව්‍යතිරේකයක්!!!"</string>
+    <string name="purchase_empty_result" msgid="7497824191649973928">"ප්‍රතිඵලය: ජාල ප්‍රිමියම් මිල දී ගැනීමේ දී හිස් ප්‍රතිඵලයක් ලැබිණි!!!"</string>
+    <string name="premium_not_available" msgid="7346368693802644748">"ප්‍රතිඵලය: ජාල ප්‍රිමියම් මිල දී ගැනීමට නොමැත!!!"</string>
+    <string name="purchase_in_progress" msgid="5450288183685032424">"ප්‍රතිඵලය: ජාල ප්‍රිමියම් මිල දී ගැනීම සිදු වෙමින් පවතී ..."</string>
+</resources>

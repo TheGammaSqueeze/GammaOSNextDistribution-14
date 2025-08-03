@@ -1,0 +1,15 @@
+<safety-center-config>
+    <safety-sources-config>
+        <safety-sources-group
+            id="Overlay"
+            title="@com.android.safetycenter.config.tests:string/reference_not_overlayable"
+            summary="@com.android.safetycenter.config.tests:string/reference_overlayable">
+            <static-safety-source
+                id="Overlay"
+                title="@com.android.safetycenter.config.tests:string/reference"
+                summary="@com.android.safetycenter.config.tests:string/reference_overlay"
+                intentAction="intent"
+                profile="primary_profile_only"/>
+        </safety-sources-group>
+    </safety-sources-config>
+</safety-center-config>

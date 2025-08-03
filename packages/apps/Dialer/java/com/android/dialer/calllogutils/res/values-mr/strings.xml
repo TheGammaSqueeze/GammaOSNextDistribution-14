@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="type_incoming">येणारा कॉल</string>
+  <string name="type_incoming_pulled">येणारा कॉल दुसर्‍या डिव्हाइसवर स्थानां‍तरित केला</string>
+  <string name="type_outgoing">केला जाणारा कॉल</string>
+  <string name="type_outgoing_pulled">केला जाणारा कॉल दुसर्‍या डिव्हाइसवर स्थानांतरित केला</string>
+  <string name="type_missed">सुटलेला कॉल</string>
+  <string name="type_incoming_video">येणारा व्हिडिओ कॉल</string>
+  <string name="type_incoming_video_pulled">येणारा व्हिडिओ कॉल दुसर्‍या डिव्हाइसवर स्थानांतरित केला</string>
+  <string name="type_outgoing_video">केला जाणारा व्हिडिओ कॉल</string>
+  <string name="type_outgoing_video_pulled">केला जाणारा व्हिडिओ कॉल दुसर्‍या डिव्हाइसवर स्थानांतरित केला</string>
+  <string name="type_missed_video">सुटलेला व्हिडिओ कॉल</string>
+  <string name="type_voicemail">व्हॉइसमेल</string>
+  <string name="type_rejected">नाकारलेला कॉल</string>
+  <string name="type_blocked">अवरोधित केलेला कॉल</string>
+  <string name="call_details_minutes_abbreviation">मि</string>
+  <string name="call_details_seconds_abbreviation">से</string>
+  <string name="a11y_call_duration_format">%1$d %2$s %3$d %4$s</string>
+  <string name="a11y_call_duration_short_format">%1$d %2$s</string>
+  <string name="call_duration_format_pattern">%1$s \'%2$s\' %3$s \'%4$s\'</string>
+  <string name="call_duration_short_format_pattern">%1$s \'%2$s\'</string>
+  <plurals name="a11y_seconds">
+    <item quantity="one">सेकंद</item>
+    <item quantity="other">सेकंद</item>
+  </plurals>
+  <plurals name="a11y_minutes">
+    <item quantity="one">मिनिट</item>
+    <item quantity="other">मिनिटे</item>
+  </plurals>
+  <string name="type_answered_elsewhere">कॉलला दुसर्‍या डिव्हाइसवर उत्तर दिले</string>
+  <string name="description_phone_account">^1 वर</string>
+  <string name="description_via_number">%1$s द्वारे</string>
+  <string name="description_via_number_phone_account">%1$s वर, %2$s द्वारे</string>
+  <string name="voicemail_string">व्हॉइसमेल</string>
+  <string name="just_now">आत्ताच</string>
+  <string name="new_call_log_carrier_video">वाहक व्हिडिओ</string>
+  <string name="new_call_log_unknown">अज्ञात</string>
+  <string name="new_call_log_secondary_blocked">ब्लॉक केला</string>
+  <string name="new_call_log_secondary_spam">स्पॅम</string>
+</resources>

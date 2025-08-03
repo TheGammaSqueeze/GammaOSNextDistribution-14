@@ -1,0 +1,124 @@
+// This is auto-generated. DO NOT EDIT.
+
+package {
+    // A default list here prevents the license LSC from adding its own list which would
+    // be unnecessary as every module in the sdk already has its own licenses property.
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+prebuilt_bootclasspath_fragment {
+    name: "com.android.wifi-bootclasspath-fragment",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "wifi_module" is true.
+    use_source_config_var: {
+        config_namespace: "wifi_module",
+        var_name: "source_build",
+    },
+    visibility: ["//visibility:public"],
+    apex_available: ["com.android.wifi"],
+    licenses: ["wifi-module-sdk_Android-Apache-2.0"],
+    contents: ["framework-wifi"],
+    fragments: [
+        {
+            apex: "com.android.art",
+            module: "art-bootclasspath-fragment",
+        },
+    ],
+    hidden_api: {
+        unsupported: ["hiddenapi/hiddenapi-unsupported.txt"],
+        max_target_r_low_priority: ["hiddenapi/hiddenapi-max-target-r-low-priority.txt"],
+        max_target_o_low_priority: ["hiddenapi/hiddenapi-max-target-o-low-priority.txt"],
+        annotation_flags: "hiddenapi/annotation-flags.csv",
+        metadata: "hiddenapi/metadata.csv",
+        index: "hiddenapi/index.csv",
+        signature_patterns: "hiddenapi/signature-patterns.csv",
+        filtered_stub_flags: "hiddenapi/filtered-stub-flags.csv",
+        filtered_flags: "hiddenapi/filtered-flags.csv",
+    },
+}
+
+java_sdk_library_import {
+    name: "framework-wifi",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "wifi_module" is true.
+    use_source_config_var: {
+        config_namespace: "wifi_module",
+        var_name: "source_build",
+    },
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "com.android.wifi",
+        "test_com.android.wifi",
+    ],
+    licenses: ["wifi-module-sdk_Android-Apache-2.0"],
+    shared_library: false,
+    permitted_packages: [
+        "android.hardware.wifi",
+        "android.net.wifi",
+        "com.android.wifi.x",
+    ],
+    public: {
+        jars: ["sdk_library/public/framework-wifi-stubs.jar"],
+        stub_srcs: ["sdk_library/public/framework-wifi_stub_sources"],
+        current_api: "sdk_library/public/framework-wifi.txt",
+        removed_api: "sdk_library/public/framework-wifi-removed.txt",
+        annotations: "sdk_library/public/framework-wifi_annotations.zip",
+        sdk_version: "module_current",
+    },
+    system: {
+        jars: ["sdk_library/system/framework-wifi-stubs.jar"],
+        stub_srcs: ["sdk_library/system/framework-wifi_stub_sources"],
+        current_api: "sdk_library/system/framework-wifi.txt",
+        removed_api: "sdk_library/system/framework-wifi-removed.txt",
+        annotations: "sdk_library/system/framework-wifi_annotations.zip",
+        sdk_version: "module_current",
+    },
+    module_lib: {
+        jars: ["sdk_library/module-lib/framework-wifi-stubs.jar"],
+        stub_srcs: ["sdk_library/module-lib/framework-wifi_stub_sources"],
+        current_api: "sdk_library/module-lib/framework-wifi.txt",
+        removed_api: "sdk_library/module-lib/framework-wifi-removed.txt",
+        annotations: "sdk_library/module-lib/framework-wifi_annotations.zip",
+        sdk_version: "module_current",
+    },
+}
+
+java_import {
+    name: "service-wifi",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "wifi_module" is true.
+    use_source_config_var: {
+        config_namespace: "wifi_module",
+        var_name: "source_build",
+    },
+    visibility: [
+        "//frameworks/opt/net/wifi/service/apex",
+        "//frameworks/opt/net/wifi/tests/wifitests/apex",
+        "//packages/modules/Wifi/apex",
+        "//packages/modules/Wifi/service",
+        "//packages/modules/Wifi/service/tests/wifitests/apex",
+    ],
+    apex_available: [
+        "com.android.wifi",
+        "test_com.android.wifi",
+    ],
+    licenses: ["wifi-module-sdk_Android-Apache-2.0"],
+    jars: ["java_systemserver_libs/snapshot/jars/are/invalid/service-wifi.jar"],
+}
+
+license {
+    name: "wifi-module-sdk_Android-Apache-2.0",
+    visibility: ["//visibility:private"],
+    license_kinds: ["SPDX-license-identifier-Apache-2.0"],
+    license_text: ["licenses/build/soong/licenses/LICENSE"],
+}
+
+prebuilt_systemserverclasspath_fragment {
+    name: "com.android.wifi-systemserverclasspath-fragment",
+    // Do not prefer prebuilt if the Soong config variable "source_build" in namespace "wifi_module" is true.
+    use_source_config_var: {
+        config_namespace: "wifi_module",
+        var_name: "source_build",
+    },
+    visibility: ["//visibility:public"],
+    apex_available: ["com.android.wifi"],
+    licenses: ["wifi-module-sdk_Android-Apache-2.0"],
+    standalone_contents: ["service-wifi"],
+}

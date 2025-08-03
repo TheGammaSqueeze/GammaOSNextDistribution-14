@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="security_privacy_brand_name" msgid="7303621734258440812">"လုံခြုံရေးနှင့် ကိုယ်ရေးဒေတာ"</string>
+    <string name="privacy_subpage_controls_header" msgid="4152396976713749322">"သတ်မှတ်ချက်များ"</string>
+    <string name="health_connect_title" msgid="2132233890867430855">"Health Connect"</string>
+    <string name="health_connect_summary" msgid="815473513776882296">"ကျန်းမာရေးဒေတာအတွက် အက်ပ်သုံးခွင့်ကို စီမံနိုင်သည်"</string>
+    <string name="location_settings" msgid="8863940440881290182">"တည်နေရာသုံးခွင့်"</string>
+    <string name="mic_toggle_description" msgid="1504101620086616040">"အက်ပ်နှင့် ဝန်ဆောင်မှုများအတွက်။ ဤဆက်တင်ကို ပိတ်ထားသော်လည်း အရေးပေါ် နံပါတ်ကို သင်ခေါ်ဆိုချိန်တွင် မိုက်ခရိုဖုန်းဒေတာ မျှဝေနိုင်သေးသည်"</string>
+</resources>

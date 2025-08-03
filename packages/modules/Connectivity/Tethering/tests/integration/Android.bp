@@ -1,0 +1,100 @@
+//
+// Copyright (C) 2020 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+package {
+    default_team: "trendy_team_fwk_core_networking",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_defaults {
+    name: "TetheringIntegrationTestsDefaults",
+    defaults: ["framework-connectivity-test-defaults"],
+    srcs: [
+        "base/**/*.java",
+    ],
+    min_sdk_version: "30",
+    static_libs: [
+        "DhcpPacketLib",
+        "androidx.test.rules",
+        "cts-net-utils",
+        "mockito-target-minus-junit4",
+        "net-tests-utils",
+        "net-utils-device-common",
+        "net-utils-device-common-bpf",
+        "testables",
+        "connectivity-net-module-utils-bpf",
+    ],
+    libs: [
+        "android.test.runner",
+        "android.test.base",
+        "android.test.mock",
+    ],
+}
+
+android_library {
+    name: "TetheringIntegrationTestsBaseLib",
+    target_sdk_version: "current",
+    defaults: ["TetheringIntegrationTestsDefaults"],
+    visibility: [
+        "//packages/modules/Connectivity/Tethering/tests/mts",
+        "//packages/modules/Connectivity/tests/cts/net",
+    ],
+}
+
+// Library including tethering integration tests targeting the latest stable SDK.
+// Use with NetworkStackJarJarRules.
+android_library {
+    name: "TetheringIntegrationTestsLatestSdkLib",
+    target_sdk_version: "33",
+    defaults: ["TetheringIntegrationTestsDefaults"],
+    srcs: [
+        "src/**/*.java",
+    ],
+    visibility: [
+        "//packages/modules/Connectivity/tests/cts/tethering",
+        "//packages/modules/Connectivity/tests:__subpackages__",
+        "//packages/modules/Connectivity/Tethering/tests:__subpackages__",
+    ],
+}
+
+// Library including tethering integration tests targeting current development SDK.
+// Use with NetworkStackJarJarRules.
+android_library {
+    name: "TetheringIntegrationTestsLib",
+    target_sdk_version: "current",
+    defaults: ["TetheringIntegrationTestsDefaults"],
+    srcs: [
+        "src/**/*.java",
+    ],
+    visibility: [
+        "//packages/modules/Connectivity/tests/cts/tethering",
+        "//packages/modules/Connectivity/Tethering/tests/mts",
+    ],
+}
+
+// TODO: remove because TetheringIntegrationTests has been covered by ConnectivityCoverageTests.
+android_test {
+    name: "TetheringIntegrationTests",
+    platform_apis: true,
+    defaults: ["TetheringIntegrationTestsDefaults"],
+    test_suites: [
+        "device-tests",
+    ],
+    srcs: [
+        "src/**/*.java",
+    ],
+    compile_multilib: "both",
+    jarjar_rules: ":NetworkStackJarJarRules",
+}

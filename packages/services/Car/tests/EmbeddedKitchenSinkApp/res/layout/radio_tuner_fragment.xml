@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2023 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:baselineAligned="false"
+    android:weightSum="2"
+    xmlns:android="http://schemas.android.com/apk/res/android" >
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1" >
+        <LinearLayout android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+            <LinearLayout android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" >
+                <Button
+                    android:id="@+id/button_radio_close"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/radio_close" />
+                <Space
+                    android:layout_width="3dp"
+                    android:layout_height="match_parent" />
+                <Button
+                    android:id="@+id/button_radio_cancel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/radio_cancel" />
+                <Space
+                    android:layout_width="3dp"
+                    android:layout_height="match_parent" />
+                <TextView
+                    android:id="@+id/text_fm_hd_state"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/radio_fm_hd_state"
+                    android:visibility="gone" />
+                <Switch
+                    android:id="@+id/toggle_fm_hd_state"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:visibility="gone" />
+                <Space
+                    android:layout_width="3dp"
+                    android:layout_height="match_parent" />
+                <TextView
+                    android:id="@+id/text_am_hd_state"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/radio_am_hd_state"
+                    android:visibility="gone" />
+                <Switch
+                    android:id="@+id/toggle_am_hd_state"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:visibility="gone" />
+            </LinearLayout>
+            <TextView
+                android:id="@+id/text_tuning_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/empty" />
+            <LinearLayout android:id="@+id/layout_tune"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:visibility="gone" >
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/radio_tune"/>
+                <Space
+                    android:layout_width="3dp"
+                    android:layout_height="match_parent" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/radio_input_frequency"/>
+                <EditText
+                    android:id="@+id/input_am_fm_frequency"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:maxLength="5"
+                    android:inputType="numberDecimal"
+                    android:hint="@string/empty"
+                    android:autofillHints="@string/empty"
+                    android:text="@string/empty"/>
+                <Space
+                    android:layout_width="3dp"
+                    android:layout_height="match_parent" />
+                <RadioGroup
+                    android:id="@+id/button_fm_am_selection"
+                    android:checkedButton="@+id/button_radio_fm"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal" >
+                    <RadioButton
+                        android:id="@+id/button_radio_fm"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/radio_fm" />
+                    <RadioButton
+                        android:id="@+id/button_radio_am"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/radio_am" />
+                </RadioGroup>
+                <Space
+                    android:layout_width="3dp"
+                    android:layout_height="match_parent" />
+                <Button
+                    android:id="@+id/button_radio_tune"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/radio_tune" />
+            </LinearLayout>
+            <LinearLayout android:id="@+id/layout_step"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:visibility="gone" >
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/radio_step"/>
+                <Space
+                    android:layout_width="3dp"
+                    android:layout_height="match_parent" />
+                <Button
+                    android:id="@+id/button_radio_step_down"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/radio_step_down" />
+                <Space
+                    android:layout_width="3dp"
+                    android:layout_height="match_parent" />
+                <Button
+                    android:id="@+id/button_radio_step_up"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/radio_step_up" />
+            </LinearLayout>
+            <LinearLayout android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" >
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/radio_seek"/>
+                <Space
+                    android:layout_width="3dp"
+                    android:layout_height="match_parent" />
+                <Button
+                    android:id="@+id/button_radio_seek_down"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/radio_seek_down" />
+                <Space
+                    android:layout_width="3dp"
+                    android:layout_height="match_parent" />
+                <Button
+                    android:id="@+id/button_radio_seek_up"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/radio_seek_up" />
+                <Space
+                    android:layout_width="3dp"
+                    android:layout_height="match_parent" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/radio_skip_subchannels"/>
+                <CheckBox android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/selection_seek_skip_subchannels"/>
+            </LinearLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/radio_current_program_info"/>
+            <LinearLayout android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2" >
+                <TextView
+                    android:id="@+id/radio_current_station_info"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/empty"
+                    android:layout_weight="1" />
+                <Space
+                    android:layout_width="3dp"
+                    android:layout_height="match_parent" />
+                <TextView
+                    android:id="@+id/radio_current_channel_info"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/empty"
+                    android:layout_weight="1" />
+            </LinearLayout>
+            <LinearLayout android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2" >
+                <TextView
+                    android:id="@+id/radio_current_song_info"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/empty"
+                    android:layout_weight="1" />
+                <Space
+                    android:layout_width="3dp"
+                    android:layout_height="match_parent" />
+                <TextView
+                    android:id="@+id/radio_current_artist_info"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/empty"
+                    android:layout_weight="1" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+    <LinearLayout android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_weight="1" >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/radio_program_list"/>
+        <LinearLayout android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="4" >
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="@string/radio_program_station_title"
+                android:layout_weight="3">
+            </TextView>
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="@string/empty"
+                android:layout_weight="1">
+            </TextView>
+        </LinearLayout>
+        <ListView
+            android:id="@+id/radio_program_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+        </ListView>
+    </LinearLayout>
+</LinearLayout>

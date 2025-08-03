@@ -1,0 +1,26 @@
+module: "android.sysprop.bluetooth.Ble"
+owner: Platform
+
+prop {
+    api_name: "vnd_included"
+    type: Boolean
+    scope: Internal
+    access: Readonly
+    prop_name: "bluetooth.ble.vnd.included"
+}
+
+prop {
+    api_name: "random_address_rotation_interval_min"
+    type: Integer
+    scope: Internal
+    access: Readonly
+    prop_name: "bluetooth.ble.random_address_rotation_interval_min"
+}
+
+prop {
+    api_name: "random_address_rotation_interval_max"
+    type: Integer
+    scope: Internal
+    access: Readonly
+    prop_name: "bluetooth.ble.random_address_rotation_interval_max"
+}

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2013-2015 The CyanogenMod Project
+     SPDX-FileCopyrightText: 2017-2024 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Assistent voor instellen</string>
+    <string name="next">Volgende</string>
+    <string name="skip">Overslaan</string>
+    <string name="start">Start</string>
+    <string name="done">Gereed</string>
+    <string name="ok">OK</string>
+    <string name="loading">Even geduld\u2026</string>
+    <string name="setup_welcome_message">Welkom bij <xliff:g id="name" example="LineageOS">%1$s</xliff:g></string>
+    <string name="setup_managed_profile_welcome_message">Stel uw werkprofiel in</string>
+    <string name="emergency_call">Noodoproep</string>
+    <string name="accessibility_settings">Toegankelijkheidsinstellingen</string>
+    <string name="setup_locale">Taal</string>
+    <string name="sim_locale_changed">%1$s simkaart gedetecteerd</string>
+    <string name="setup_sim_missing">Simkaart ontbreekt</string>
+    <string name="sim_missing_summary" product="tablet">Geen simkaart gedetecteerd in uw tablet. Om een simkaart te plaatsen, lees de instructie die bij uw tablet is geleverd.</string>
+    <string name="sim_missing_summary" product="default">Geen simkaart gedetecteerd in uw telefoon. Om een simkaart te plaatsen, lees de instructie die bij uw telefoon is geleverd.</string>
+    <string name="setup_datetime">Datum &amp; tijd</string>
+    <string name="date_time_summary">Selecteer uw tijdzone en pas indien nodig de huidige datum en tijd aan.</string>
+    <string name="setup_current_date">Huidige datum</string>
+    <string name="setup_current_time">Huidige tijd</string>
+    <string name="intro_restore_title">Herstel apps en gegevens</string>
+    <string name="intro_restore_subtitle">Als u een Seedvault backup heeft van <xliff:g id="name" example="LineageOS">%s</xliff:g> of een ander besturingssysteem, kunt u deze hier herstellen.</string>
+    <string name="intro_restore_button">Backup terugzetten</string>
+    <string name="setup_location">Locatieservices</string>
+    <string name="location_access_summary"><b>Apps toestaan die uw toestemming hebben gevraagd</b> om informatie over uw locatie te gebruiken. Dit kan uw huidige locatie en voorgaande locaties omvatten.</string>
+    <string name="location_agps_access_summary">Wanneer locatie is ingeschakeld, <b>download satellietondersteuningsgegevens van internet</b>, wat de opstartprestatie van GPS aanzienlijk kan verbeteren.</string>
+    <string name="update_recovery_title">Lineage Recovery bijwerken</string>
+    <string name="update_recovery_description">Lineage Recovery updaten bij de eerste start na elke update</string>
+    <string name="update_recovery_warning">Recovery zal worden bijgewerkt zodra u de installatie hebt voltooid. Als u dit intact wilt houden, schakelt u deze functie uit.</string>
+    <string name="update_recovery_setting">Update Lineage Recovery naast het besturingssysteem</string>
+    <string name="update_recovery_full_description"><xliff:g id="recovery_update_description">%1$s</xliff:g>\n<xliff:g id="recovery_update_warning">%2$s</xliff:g></string>
+    <string name="setup_services">Functies van LineageOS</string>
+    <string name="services_pp_explanation">Deze diensten worden gebruikt om de mogelijkheden van uw apparaat uit te breiden. Gegevens zullen worden gebruikt conform het privacybeleid van <xliff:g id="name" example="LineageOS">%1$s</xliff:g></string>
+    <string name="services_find_privacy_policy">U kunt het privacybeleid op een ander apparaat lezen door <xliff:g id="uri" example="https://lineageos.org/legal">%1$s</xliff:g> te bezoeken</string>
+    <string name="services_help_improve_cm">Help mee met het verbeteren van <xliff:g id="name" example="LineageOS">%s</xliff:g></string>
+    <string name="services_metrics_label"><xliff:g id="name" example="Help improve LineageOS">%1$s</xliff:g> door automatisch diagnose- en verbruiksgegevens te verzenden naar  <xliff:g id="name" example="LineageOS">%2$s</xliff:g>. Deze informatie kan niet gebruikt worden om u te identificeren en helpt de teams om te werken aan zaken zoals levensduur van de accu, app-prestaties en nieuwe <xliff:g id="name" example="LineageOS">%3$s</xliff:g> features.</string>
+    <string name="services_os_nav_keys_label"><b>On-screen navigatieknoppen</b> gebruiken in plaats van de hardwareknoppen.</string>
+    <string name="services_full_description"><xliff:g id="pp_explanation">%1$s</xliff:g>\n<xliff:g id="pp_find">%2$s</xliff:g></string>
+    <string name="setup_navigation">Navigatie</string>
+    <string name="navigation_summary">Kies de voorkeurs navigatie methode</string>
+    <string name="gesture_navigation">Navigatie met gebaren</string>
+    <string name="two_button_navigation">Navigatie met twee knoppen</string>
+    <string name="navbar_navigation">Navigatie met drie knoppen</string>
+    <string name="hide_gesture_hint">Verberg gebaren navigatiehint</string>
+    <string name="setup_theme">Thema</string>
+    <string name="theme_summary">Donker thema gebruikt een zwarte achtergrond om de batterij op sommige schermen langer mee te laten gaan</string>
+    <string name="dark">Donker</string>
+    <string name="light">Licht</string>
+</resources>

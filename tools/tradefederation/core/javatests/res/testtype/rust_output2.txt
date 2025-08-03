@@ -1,0 +1,43 @@
+running 23 tests
+test default_tokenstream_is_empty ... ok <0.000s>
+test fail ... ok <0.000s>
+test ident_empty ... ok <0.000s>
+test ident_invalid ... ok <0.000s>
+test ident_number ... ok <0.000s>
+test idents ... FAILED <0.000s>
+test lifetime_empty ... ok <0.000s>
+test lifetime_invalid ... ok <0.000s>
+test lifetime_number ... ok <0.000s>
+test literal_character ... ok <0.000s>
+test literal_float ... ok <0.000s>
+test literal_string ... FAILED <0.000s>
+test no_panic ... ok <0.000s>
+test op_before_comment ... ok <0.000s>
+test raw_ident_empty ... ok <0.000s>
+test literal_suffix ... ok <0.000s>
+test raw_ident_invalid ... ok <0.000s>
+test raw_ident_number ... ok <0.000s>
+test raw_identifier ... ok <0.000s>
+test test_debug_ident ... ok <0.000s>
+test tricky_doc_comment ... ok <0.000s>
+test test_debug_tokenstream ... ok <0.000s>
+test roundtrip ... ok <0.000s>
+
+failures:
+
+---- idents stdout ----
+thread 'idents' panicked at 'assertion failed: `(left == right)`
+  left: `"_"`,
+ right: `"_abc"`', external/rust/crates/proc-macro2/tests/test.rs:13:5
+
+---- literal_string stdout ----
+thread 'literal_string' panicked at 'assertion failed: `(left == right)`
+  left: `"\"didn\'t\""`,
+ right: `"fake"`', external/rust/crates/proc-macro2/tests/test.rs:86:5
+
+
+failures:
+    idents
+    literal_string
+
+test result: FAILED. 21 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out

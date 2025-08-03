@@ -1,0 +1,284 @@
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Privapp permission allowlist files
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+prebuilt_etc {
+    name: "allowed_privapp_com.google.android.car.garagemode.testapp",
+    sub_dir: "permissions",
+    src: "com.google.android.car.garagemode.testapp.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
+    name: "allowed_privapp_com.google.android.car.uxr.sample",
+    sub_dir: "permissions",
+    src: "com.google.android.car.uxr.sample.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
+    name: "allowed_privapp_com.google.android.car.defaultstoragemonitoringcompanionapp",
+    sub_dir: "permissions",
+    src: "com.google.android.car.defaultstoragemonitoringcompanionapp.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
+    name: "allowed_privapp_com.android.carsystemui",
+    system_ext_specific: true,
+    sub_dir: "permissions",
+    src: "com.android.carsystemui.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
+    name: "allowed_privapp_android.car.cluster.loggingrenderer",
+    sub_dir: "permissions",
+    src: "android.car.cluster.loggingrenderer.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
+    name: "allowed_privapp_android.car.cluster.sample",
+    sub_dir: "permissions",
+    src: "android.car.cluster.sample.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
+    name: "allowed_privapp_android.car.cluster",
+    sub_dir: "permissions",
+    src: "android.car.cluster.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
+    name: "allowed_privapp_android.car.usb.handler",
+    sub_dir: "permissions",
+    src: "android.car.usb.handler.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
+    name: "allowed_privapp_com.android.car.carlauncher",
+    sub_dir: "permissions",
+    src: "com.android.car.carlauncher.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
+    name: "allowed_privapp_com.android.car.dialer",
+    sub_dir: "permissions",
+    src: "com.android.car.dialer.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
+    name: "allowed_privapp_com.android.car.hvac",
+    sub_dir: "permissions",
+    src: "com.android.car.hvac.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
+    name: "allowed_privapp_com.android.car.media",
+    sub_dir: "permissions",
+    src: "com.android.car.media.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
+    name: "allowed_privapp_com.android.car.notification",
+    sub_dir: "permissions",
+    src: "com.android.car.notification.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
+    name: "allowed_privapp_com.android.car.radio",
+    sub_dir: "permissions",
+    src: "com.android.car.radio.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
+    name: "allowed_privapp_com.android.car.settings",
+    sub_dir: "permissions",
+    src: "com.android.car.settings.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
+    name: "allowed_privapp_com.android.car.themeplayground",
+    sub_dir: "permissions",
+    src: "com.android.car.themeplayground.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
+    name: "allowed_privapp_com.android.car",
+    sub_dir: "permissions",
+    src: "com.android.car.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
+    name: "allowed_privapp_com.android.car.bugreport",
+    sub_dir: "permissions",
+    src: "com.android.car.bugreport.xml",
+    filename_from_src: true,
+    system_ext_specific: true,
+}
+
+prebuilt_etc {
+    name: "allowed_privapp_com.android.car.cartelemetryapp",
+    sub_dir: "permissions",
+    src: "com.android.car.cartelemetryapp.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
+    name: "allowed_privapp_com.google.android.car.adaslocation",
+    sub_dir: "permissions",
+    src: "com.google.android.car.adaslocation.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
+    name: "allowed_privapp_com.android.test.car.one.hotworddetectionservice",
+    sub_dir: "permissions",
+    src: "com.android.car.test.one.hotworddetectionservice.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
+    name: "allowed_privapp_com.android.car.oemcarservice.testapp",
+    sub_dir: "permissions",
+    src: "com.android.car.oemcarservice.testapp.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
+    name: "allowed_privapp_com.google.android.car.kitchensink",
+    sub_dir: "permissions",
+    src: "com.google.android.car.kitchensink.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
+    name: "allowed_privapp_com.android.car.developeroptions",
+    sub_dir: "permissions",
+    src: "com.android.car.developeroptions.xml",
+    filename_from_src: true,
+    system_ext_specific: true,
+}
+
+prebuilt_etc {
+    name: "allowed_privapp_com.android.car.rotary",
+    sub_dir: "permissions",
+    src: "com.android.car.rotary.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
+    name: "allowed_privapp_com.android.car.provision",
+    system_ext_specific: true,
+    sub_dir: "permissions",
+    src: "com.android.car.provision.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
+    name: "privapp_allowlist_com.google.android.car.networking.preferenceupdater",
+    sub_dir: "permissions",
+    src: "com.google.android.car.networking.preferenceupdater.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
+    name: "privapp_allowlist_com.google.android.car.networking.railway",
+    sub_dir: "permissions",
+    src: "com.google.android.car.networking.railway.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
+    name: "allowed_privapp_com.android.carshell",
+    sub_dir: "permissions",
+    src: "com.android.car.shell.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
+    name: "allowed_privapp_com.android.car.activityresolver",
+    sub_dir: "permissions",
+    src: "com.android.car.activityresolver.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
+    name: "allowed_privapp_com.android.car.cluster.home",
+    sub_dir: "permissions",
+    src: "com.android.car.cluster.home.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
+    name: "allowed_privapp_com.android.car.messenger",
+    sub_dir: "permissions",
+    src: "com.android.car.messenger.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
+    name: "allowed_privapp_com.android.car.multidisplay",
+    sub_dir: "permissions",
+    src: "com.android.car.multidisplay.xml",
+    filename_from_src: true,
+    system_ext_specific: true,
+}
+
+prebuilt_etc {
+    name: "allowed_privapp_com.android.car.multidisplay.controlcenter",
+    sub_dir: "permissions",
+    src: "com.android.car.multidisplay.controlcenter.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
+    name: "allowed_privapp_com.android.car.multidisplay.passenger",
+    sub_dir: "permissions",
+    src: "com.android.car.multidisplay.passenger.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
+    name: "allowed_privapp_com.google.android.car.multidisplaytest",
+    sub_dir: "permissions",
+    src: "com.google.android.car.multidisplaytest.xml",
+    filename_from_src: true,
+    system_ext_specific: true,
+}
+
+prebuilt_etc {
+    name: "allowed_privapp_com.android.car.appgrid.test",
+    sub_dir: "permissions",
+    src: "com.android.car.appgrid.test.xml",
+    filename_from_src: true,
+}

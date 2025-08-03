@@ -1,0 +1,94 @@
+package: "com.android.appsearch.flags"
+container: "com.android.appsearch"
+
+#
+# all the flags we are adding in V have to be is_fixed_read_only true.
+#
+
+flag {
+    name: "enable_safe_parcelable_2"
+    namespace: "appsearch"
+    description: "Use SafeParcelable to serialize data through binder"
+    bug: "275629842"
+    is_fixed_read_only: true
+}
+
+flag {
+    name: "enable_grouping_type_per_schema"
+    namespace: "appsearch"
+    description: "Enable result grouping by schema type"
+    bug: "258715421"
+    is_fixed_read_only: true
+}
+
+flag {
+    name: "enable_generic_document_copy_constructor"
+    namespace: "appsearch"
+    description: "Enable GenericDocument to take another GenericDocument to copy construct."
+    bug: "171882200"
+    is_fixed_read_only: true
+}
+
+flag {
+    name: "enable_list_filter_has_property_function"
+    namespace: "appsearch"
+    description: "Enable the hasProperty function in list filter query expressions."
+    bug: "309826655"
+    is_fixed_read_only: true
+}
+
+flag {
+    name: "enable_put_documents_request_add_taken_actions"
+    namespace: "appsearch"
+    description: "Enable addTakenActions API in PutDocumentsRequest."
+    bug: "314026345"
+    is_fixed_read_only: true
+}
+
+flag {
+    name: "enable_set_publicly_visible_schema"
+    namespace: "appsearch"
+    description: "Enable setPubliclyVisibleSchema API in SetSchemaRequest."
+    bug: "325262525"
+    is_fixed_read_only: true
+}
+
+flag {
+    name: "enable_generic_document_builder_hidden_methods"
+    namespace: "appsearch"
+    description: "Enable GenericDocument.Builder to use previously hidden methods."
+    bug: "318408639"
+    is_fixed_read_only: true
+}
+
+flag {
+    name: "enable_search_spec_filter_properties"
+    namespace: "appsearch"
+    description: "Enable addFilterProperties API in SearchSpec and SearchSuggestionSpec."
+    bug: "296088047"
+    is_fixed_read_only: true
+}
+
+flag {
+    name: "enable_search_spec_set_search_source_log_tag"
+    namespace: "appsearch"
+    description: "Enable the setSearchSourceLogTag API in SearchSpec."
+    bug: "315370764"
+    is_fixed_read_only: true
+}
+
+flag {
+    name: "enable_enterprise_global_search_session"
+    namespace: "appsearch"
+    description: "Enable personal profile to search over allowed enterprise profile data in AppSearch through enterprise global search session."
+    bug: "237388235"
+    is_fixed_read_only: true
+}
+
+flag {
+    name: "enable_set_schema_visible_to_configs"
+    namespace: "appsearch"
+    description: "Enable the addSchemaTypeVisibleToConfig API in the setSchemaRequest."
+    bug: "300162279"
+    is_fixed_read_only: true
+}

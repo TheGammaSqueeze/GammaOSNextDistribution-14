@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+**
+** Copyright 2008, The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="english_ime_input_options">Opciones d\'entrada</string>
+    <string name="use_contacts_for_spellchecking_option_title">Buscar nomes de contautos</string>
+    <string name="use_contacts_for_spellchecking_option_summary">El correutor ortográficu usa les entraes de la llista contautos</string>
+    <string name="vibrate_on_keypress">Vibrar al primir tecles</string>
+    <string name="sound_on_keypress">Sonar al primir tecles</string>
+    <string name="popup_on_keypress">Aumentar al primir tecles</string>
+    <string name="settings_screen_preferences">Preferencies</string>
+    <string name="settings_screen_accounts">Cuentes y privacidá</string>
+    <string name="settings_screen_appearance">Aspeutu y distribuciones</string>
+    <string name="settings_screen_gesture">Escritura xestual</string>
+    <string name="settings_screen_correction">Correición de testos</string>
+    <string name="settings_screen_advanced">Opciones avanzaes</string>
+    <string name="settings_screen_theme">Estilu</string>
+    <string name="enable_split_keyboard">Activar el tecláu dixebráu</string>
+    <string name="cloud_sync_summary">La sincronización ta activada</string>
+    <string name="sync_now_title">Sincronizar agora</string>
+    <string name="clear_sync_data_title">Desaniciar los datos de la nube</string>
+    <string name="clear_sync_data_summary">Desanicia los datos que sincronicesti en Google</string>
+    <string name="clear_sync_data_confirmation">Van desaniciase tolos datos que sincronicesti na nube. ¿Siguir?</string>
+    <string name="clear_sync_data_ok">Desaniciar</string>
+    <string name="cloud_sync_cancel">Encaboxar</string>
+    <string name="add_account_to_enable_sync">        Amiesta una cuenta de Google nesti preséu p\'activar esta función
+    </string>
+    <string name="cloud_sync_summary_disabled_work_profile">        La sincronización nun ta disponible pa preseos con cuentes de Google Apps for Business
+    </string>
+    <string name="include_other_imes_in_language_switch_list">Cambiar a otru métodu d\'entrada</string>
+    <string name="include_other_imes_in_language_switch_list_summary">La tecla de cambéu de llingua val pa otros métodos d\'entrada</string>
+    <string name="show_language_switch_key">Tecla de cambéu de llingua</string>
+    <string name="show_language_switch_key_summary">Apaez cuando heba múltiples idiomes d\'introducción activaos</string>
+    <string name="key_preview_popup_dismiss_delay">Retrasu al aumentar tecles</string>
+    <string name="key_preview_popup_dismiss_no_delay">Ensin retrasu</string>
+    <string name="abbreviation_unit_milliseconds"><xliff:g id="MILLISECONDS">%s</xliff:g> ms</string>
+    <string name="use_contacts_dict">Suxerir nomes de contautos</string>
+    <string name="use_contacts_dict_summary">Usa los nomes de los contautos pa les suxerencies y correiciones</string>
+    <string name="use_personalized_dicts">Suxerencies personalizaes</string>
+    <string name="enable_metrics_logging">"Ameyorar «<xliff:g id="APPLICATION_NAME" example="Android Keyboard">%s</xliff:g>»"</string>
+    <string name="use_double_space_period">Espaciu doble inxerta puntu</string>
+    <string name="use_double_space_period_summary">Tocar dos vegaes la barra d\'espaciu inxerta un puntu siguíu d\'un espaciu</string>
+    <string name="auto_cap">Mayúscules automátiques</string>
+    <string name="auto_cap_summary">Fai que la lletra de la primer pallabra de cada frase seya mayúscula</string>
+    <string name="edit_personal_dictionary">Diccionariu personal</string>
+    <string name="configure_dictionaries_title">Diccionarios complementarios</string>
+    <string name="main_dictionary">Diccionariu principal</string>
+    <string name="prefs_show_suggestions">Amosar suxerencies de correición</string>
+    <string name="prefs_show_suggestions_summary">Amuesa les pallabres suxeríes mentanto escribes</string>
+    <string name="prefs_block_potentially_offensive_title">Bloquiar pallabres ofensives</string>
+    <string name="prefs_block_potentially_offensive_summary">Nun suxer pallabres ofensives</string>
+    <string name="auto_correction">Autocorreición</string>
+    <string name="auto_correction_summary">La tecla d\'espaciu o les de puntuación corrixen los fallos</string>
+    <string name="auto_correction_threshold_mode_off">Non</string>
+    <string name="auto_correction_threshold_mode_modest">Moderada</string>
+    <string name="auto_correction_threshold_mode_aggressive">Agresiva</string>
+    <string name="auto_correction_threshold_mode_very_aggressive">Mui agresiva</string>
+    <string name="bigram_prediction_summary">Usa la pallabra anterior pa facer suxerencies</string>
+    <string name="gesture_input">Activar la escritura xestual</string>
+    <string name="gesture_input_summary">Introduz pallabres al eslizar el deu peles tecles</string>
+    <string name="gesture_preview_trail">Amosar el percorríu del xestu</string>
+    <string name="gesture_floating_preview_text">Vista previa dinámica flotante</string>
+    <string name="gesture_floating_preview_text_summary">Visualiza la pallabra suxerida mentanto faes xestos</string>
+    <string name="gesture_space_aware">Xestu de fras</string>
+    <string name="gesture_space_aware_summary">Esliza\'l deu a la barra d\'espaciu pa inxertar espacios nos xestos</string>
+    <string name="voice_input">Tecla d\'entrada de voz</string>
+    <string name="voice_input_disabled_summary">Nun s\'activó nengún métodu d\'entrada. Comprueba la configuración de Llingües y entrada.</string>
+    <string name="language_selection_title">Llingües</string>
+    <string name="help_and_feedback">Ayuda y opiniones</string>
+    <string name="select_language">Llingües</string>
+    <string name="hint_add_to_dictionary">Volvi tocar pa guardar</string>
+    <string name="hint_add_to_dictionary_without_word">Toca equí pa guardar</string>
+    <string name="keyboard_layout">Tema de tecláu</string>
+    <string name="switch_accounts">Cambiar de cuenta</string>
+    <string name="no_accounts_selected">Nun se seleicionó nenguna cuenta</string>
+    <string name="account_selected">Tas usando <xliff:g id="EMAIL_ADDRESS" example="someone@example.com">%1$s</xliff:g></string>
+    <string name="account_select_ok">D\'acuerdu</string>
+    <string name="account_select_cancel">Encaboxar</string>
+    <string name="account_select_sign_out">Zarrar la sesión</string>
+    <string name="account_select_title">Seleiciona la cuenta que quies usar</string>
+    <string name="subtype_en_GB">Inglés (Reinu Xuníu)</string>
+    <string name="subtype_en_US">Inglés (Estaos Xuníos)</string>
+    <string name="subtype_es_US">Español (Estaos Xuníos)</string>
+    <string name="subtype_hi_ZZ">Hinglish</string>
+    <string name="subtype_sr_ZZ">Serbiu (llatín)</string>
+    <string name="subtype_with_layout_en_GB">Inglés (Reinu Xuníu) (<xliff:g id="KEYBOARD_LAYOUT" example="QWERTY">%s</xliff:g>)</string>
+    <string name="subtype_with_layout_en_US">Inglés (Estaos Xuníos) (<xliff:g id="KEYBOARD_LAYOUT" example="QWERTY">%s</xliff:g>)</string>
+    <string name="subtype_with_layout_es_US">Español (Estaos Xuníos) (<xliff:g id="KEYBOARD_LAYOUT" example="QWERTY">%s</xliff:g>)</string>
+    <string name="subtype_with_layout_hi_ZZ">Hinglish (<xliff:g id="KEYBOARD_LAYOUT" example="QWERTY">%s</xliff:g>)</string>
+    <string name="subtype_with_layout_sr_ZZ">Serbiu (<xliff:g id="KEYBOARD_LAYOUT" example="QWERTY">%s</xliff:g>)</string>
+    <string name="subtype_generic_traditional"><xliff:g id="LANGUAGE_NAME" example="Nepali">%s</xliff:g> (tradicional)</string>
+    <string name="subtype_generic_compact"><xliff:g id="LANGUAGE_NAME" example="Hindi">%s</xliff:g> (compautu)</string>
+    <string name="subtype_no_language_qwerty">Alfabetu llatín (QWERTY)</string>
+    <string name="subtype_no_language_qwertz">Alfabetu llatín (QWERTZ)</string>
+    <string name="subtype_no_language_azerty">Alfabetu llatín (AZERTY)</string>
+    <string name="subtype_no_language_dvorak">Alfabetu llatín (Dvorak)</string>
+    <string name="subtype_no_language_colemak">Alfabetu llatín (Colemak)</string>
+    <string name="subtype_no_language_pcqwerty">Alfabetu llatín (PC)</string>
+    <string name="subtype_emoji">Emoji</string>
+    <string name="keyboard_theme">Estilu del tecláu</string>
+    <string name="add">Amestar</string>
+    <string name="remove">Quitar</string>
+    <string name="save">Guardar</string>
+    <string name="subtype_locale">Llingua</string>
+    <string name="keyboard_layout_set">Distribución</string>
+    <string name="enable">Activar</string>
+    <string name="not_now">Agora non</string>
+    <string name="custom_input_style_already_exists">"Yá esiste'l mesmu estilu d'entrada: <xliff:g id="INPUT_STYLE_NAME" example="English (Dvorak)">%s</xliff:g>"</string>
+    <string name="prefs_keypress_vibration_duration_settings">Duración de la vibración al primir tecles</string>
+    <string name="prefs_keypress_sound_volume_settings">Volume del soníu al primir tecles</string>
+    <string name="prefs_enable_emoji_alt_physical_key">Emojis pal tecláu físicu</string>
+    <string name="prefs_enable_emoji_alt_physical_key_summary">La tecla Alt física amuesa la paleta d\'emojis</string>
+    <string name="button_default">Reafitar</string>
+    <string name="setup_welcome_title">"Afáyate en <xliff:g id="APPLICATION_NAME" example="Android Keyboard">%s</xliff:g>"</string>
+    <string name="setup_welcome_additional_description">con escritura xestual</string>
+    <string name="setup_start_action">Comenzar</string>
+    <string name="setup_next_action">Pasu siguiente</string>
+    <string name="setup_steps_title">"Configuración de: <xliff:g id="APPLICATION_NAME" example="Android Keyboard">%s</xliff:g>"</string>
+    <string name="setup_step1_instruction">"Marca «<xliff:g id="APPLICATION_NAME" example="Android Keyboard">%s</xliff:g>» na configuración de Llingües y entrada. Esta aición va autorizar la so execución nel preséu."</string>
+    <string name="setup_step1_finished_instruction">"«<xliff:g id="APPLICATION_NAME" example="Android Keyboard">%s</xliff:g>» yá s'activó na configuración de Llingües y entrada, polo qu'esti pasu yá ta fechu. ¡Al siguiente!"</string>
+    <string name="setup_step1_action">Activar en Configuración</string>
+    <string name="setup_step3_title">"¡Norabona, yá acabesti!"</string>
+    <string name="setup_finish_action">Fecho</string>
+    <string name="show_setup_wizard_icon">Amosar l\'iconu de l\'aplicación</string>
+    <string name="show_setup_wizard_icon_summary">Amuesa l\'iconu de l\'aplicación nel aniciador d\'aplicaciones</string>
+    <string name="app_name">Fornidor de diccionarios</string>
+    <string name="dictionary_provider_name">Fornidor de diccionarios</string>
+    <string name="dictionary_service_name">Serviciu de diccionarios</string>
+    <string name="dictionary_settings_title">Diccionarios complementarios</string>
+    <string name="dictionary_install_over_metered_network_prompt">Tien un diccionariu disponible</string>
+    <string name="dictionary_settings_summary">Configuración pa los diccionarios</string>
+    <string name="user_dictionaries">Diccionarios d\'usuariu</string>
+    <string name="default_user_dict_pref_name">Diccionariu d\'usuariu</string>
+    <string name="dictionary_downloading">En descarga</string>
+    <string name="dictionary_installed">Instalóse</string>
+    <string name="check_for_updates_now">Anovar</string>
+    <string name="message_loading">Cargando…</string>
+    <string name="main_dict_description">Diccionariu principal</string>
+    <string name="cancel">Encaboxar</string>
+    <string name="go_to_settings">Configuración</string>
+    <string name="install_dict">Instalar</string>
+    <string name="cancel_download_dict">Encaboxar</string>
+    <string name="delete_dict">Desaniciar</string>
+    <string name="should_download_over_metered_prompt">La llingua seleicionada nel móvil tien un diccionariu disponible.&lt;br/&gt;
+Aconseyámoste que &lt;b&gt;baxes&lt;/b&gt; el diccionariu de la llingua <xliff:g id="LANGUAGE_NAME" example="English">%1$s</xliff:g> p\'ameyorar la esperiencia d\'escritura.&lt;br/&gt;
+La descarga pue tardar un minutu o dos per 3G. Ye posible que s\'apliquen cargos si nun tienes un &lt;b&gt;plan de datos infinitos&lt;/b&gt;&lt;br/&gt;
+Si nun sabes qué plan de datos tienes, aconseyámoste qu\'atopes una conexón Wi-Fi p\'aniciar la descarga automáticamente.&lt;br/&gt;
+&lt;br/&gt;
+Conseyu: pues baxar y quitar diccionarios diendo a &lt;b&gt;Llingües y entrada&lt;/b&gt; nel menú de &lt;/b&gt;Configuración&lt;/b&gt; del móvil.</string>
+    <string name="do_not_download_over_metered">Baxar per Wi-Fi</string>
+    <string name="dict_available_notification_title">Hai un diccionariu disponible pa: <xliff:g id="LANGUAGE_NAME" example="English">%1$s</xliff:g></string>
+    <string name="dict_available_notification_description">Primi pa revisar y baxar</string>
+    <string name="version_text">Versión <xliff:g id="VERSION_NUMBER" example="1.0.1864.643521">%1$s</xliff:g></string>
+    <string name="user_dict_settings_add_menu_title">Amestar</string>
+    <string name="user_dict_settings_add_screen_title">Fras</string>
+    <string name="user_dict_settings_add_dialog_more_options">Más opciones</string>
+    <string name="user_dict_settings_add_dialog_less_options">Menos opciones</string>
+    <string name="user_dict_settings_add_dialog_confirm">D\'acuerdu</string>
+    <string name="user_dict_settings_add_word_option_name">Pallabra:</string>
+    <string name="user_dict_settings_add_shortcut_option_name">Atayu:</string>
+    <string name="user_dict_settings_add_locale_option_name">Llingua:</string>
+    <string name="user_dict_settings_add_shortcut_hint">Atayu opcional</string>
+    <string name="user_dict_settings_context_menu_edit_title">Editar</string>
+    <string name="user_dict_settings_context_menu_delete_title">Desaniciar</string>
+    <string name="user_dict_settings_empty_text">Nun tienes nenguna pallabra nel diccionariu d\'usuariu. P\'amestar una, toca\'l botón Amestar (+).</string>
+    <string name="user_dict_settings_all_languages">Pa toles llingües</string>
+    <string name="user_dict_settings_more_languages">Más llingües…</string>
+    <string name="user_dict_settings_delete">Desaniciar</string>
+</resources>

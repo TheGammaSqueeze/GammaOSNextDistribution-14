@@ -1,0 +1,1 @@
+per-file *.xml,OWNERS = file:platform/frameworks/base:/data/etc/OWNERS

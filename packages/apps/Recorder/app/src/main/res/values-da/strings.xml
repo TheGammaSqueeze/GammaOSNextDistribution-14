@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2017-2021 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <string name="app_name">Optager</string>
+    <string name="share">Del</string>
+    <string name="share_selected">Del valgte</string>
+    <string name="stop">Stop</string>
+    <string name="play">Afspil</string>
+    <string name="pause">Pause</string>
+    <string name="resume">Genoptag</string>
+    <string name="delete">Slet</string>
+    <string name="delete_all">Slet alle</string>
+    <string name="delete_selected">Slet valgte</string>
+    <string name="cancel">Afbryd</string>
+    <string name="rename">Omdøb</string>
+    <string name="delete_title">Sletter optagelse</string>
+    <string name="delete_recording_message">Er du sikker på, at du ønsker at slette denne optagelse? Dette kan ikke fortrydes.</string>
+    <string name="confirm">Bekræft</string>
+    <string name="discard">Kassér</string>
+    <string name="record_again">Optag igen</string>
+    <string name="confirm_result_title">Brug optagelse?</string>
+    <string name="confirm_result_message">Vil du bruge den sidste optagelse?</string>
+    <string name="sound_notification_title">Lydoptager</string>
+    <string name="sound_notification_message">Lydlængde: %1$s</string>
+    <string name="sound_recording_title_working">Optager</string>
+    <string name="sound_recording_title_paused">Pauset</string>
+    <string name="sound_last_title">Sidste optagelse</string>
+    <string name="sound_channel_title">Lydoptagelse</string>
+    <string name="sound_channel_desc">Vedvarende notifikation ved optagelse af lyd og notifikation efter den er fuldført</string>
+    <string name="settings_title">Indstillinger</string>
+    <string name="settings_location_message">Markér dine optagelser, med din nuværende position</string>
+    <string name="settings_quality_high">Optag i høj kvalitet</string>
+    <string name="dialog_permissions_title">Tilladelser</string>
+    <string name="dialog_permissions_mic">Optager behøver mikrofon-tilladelse, for at optage lyd</string>
+    <string name="dialog_permissions_phone">Optager behøver telefonstatus-adgang, for at forhindre denne app i at optage, imens du ringer</string>
+    <string name="dialog_permissions_notifications">Lydoptager har brug for notifikationstilladelse for at vise optagelseskontroller</string>
+    <string name="dialog_permissions_mic_phone">Optager behøver mikrofon-tilladelse, for at optage lyd og telefonstatus-adgang, for at forhindre denne app i at optage, imens du ringer</string>
+    <string name="dialog_permissions_mic_notifications">Optager har brug for mikrofon-tilladelse, for at optage lyd og notifikation-tilladelse for at vise optagelseskontroller</string>
+    <string name="dialog_permissions_phone_notifications">Lydoptager behøver telefonstaus-tilladelse for at forhindre denne app i at optage mens du ringer og notifikationstilladelse til at vise optagelseskontroller</string>
+    <string name="dialog_permissions_mic_phone_notifications">Lydoptager behøver mikrofon-tilladelse for at optage lyd, telefonstatus-adgang for at forhindre denne app i at optage mens du ringer og notifikationstilladelse til at vise optagelseskontroller</string>
+    <string name="dialog_permissions_location">Optager har brug for placeringstilladelse for automatisk at tagge dine optagelser med lokation, for at hjælpe dig med at organisere dem</string>
+    <string name="dialog_permissions_ask">Spørg igen</string>
+    <string name="dialog_permissions_dismiss">Afvis</string>
+    <string name="snack_permissions_no_permission">Påkrævede tilladelser blev afslået, aktivér dem fra Indstillinger-app, for at begynde optagelse</string>
+    <string name="snack_permissions_no_permission_location">Placeringstilladelse blev benægtet, aktivér det fra Indstillinger for at tagge dine optagelser</string>
+    <string name="main_sound_action">Optag lyd</string>
+    <string name="list_title">Mine optagelser</string>
+    <string name="list_error_empty">Alle dine optagelser vil blive vist her</string>
+    <string name="list_edit_title">Rediger optagelses navn</string>
+    <string name="list_edit_confirm">Skift</string>
+    <string name="list_item_menu">Flere handlinger</string>
+    <string name="delete_all_title">Slet alle</string>
+    <string name="delete_all_message">Er du sikker på, at du ønsker at slette alle optagelser? Dette kan ikke fortrydes.</string>
+    <string name="delete_selected_title">Slet valgte</string>
+    <string name="delete_selected_message">Er du sikker på, at du ønsker at slette valgte optagelser? Dette kan ikke fortrydes.</string>
+</resources>

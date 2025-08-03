@@ -1,0 +1,12 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="run STS on device without root" type="ShConfigurationType">
+    <option name="SCRIPT_TEXT" value="./sts-tradefed run commandAndExit sts-sdk-nonroot --log-level debug --log-level-display debug -m hostsidetest" />
+    <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
+    <option name="INDEPENDENT_SCRIPT_WORKING_DIRECTORY" value="true" />
+    <option name="SCRIPT_WORKING_DIRECTORY" value="$PROJECT_DIR$/build/android-sts/tools" />
+    <option name="EXECUTE_IN_TERMINAL" value="false" />
+    <option name="EXECUTE_SCRIPT_FILE" value="false" />
+    <envs />
+    <method v="2" />
+  </configuration>
+</component>

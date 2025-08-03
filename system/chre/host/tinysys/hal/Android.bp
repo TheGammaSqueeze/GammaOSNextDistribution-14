@@ -1,0 +1,86 @@
+//
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_team: "trendy_team_context_hub",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_chre_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_chre_license"],
+}
+
+cc_binary {
+    name: "android.hardware.contexthub-service.tinysys",
+    cpp_std: "c++20",
+    defaults: ["hidl_defaults"],
+    vendor: true,
+    relative_install_path: "hw",
+    srcs: [
+        "service.cc",
+        "tinysys_chre_connection.cc",
+        "tinysys_context_hub.cc",
+        ":st_hal_lpma_handler",
+        ":contexthub_hal_core",
+    ],
+    include_dirs: [
+        "system/chre/util/include/",
+        "system/chre/host/common/include/",
+        "system/chre/host/hal_generic/aidl/",
+        "system/chre/host/hal_generic/common/",
+        "system/chre/platform/shared/include/",
+    ],
+    init_rc: ["android.hardware.contexthub-service.tinysys.rc"],
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-DCHRE_MESSAGE_TO_HOST_MAX_SIZE=4000",
+        "-DCHRE_IS_HOST_BUILD",
+        "-DCHRE_HOST_DEFAULT_FRAGMENT_SIZE=2048",
+        "-DCHRE_ST_LPMA_HANDLER_AIDL",
+    ],
+    shared_libs: [
+        "android.frameworks.stats-V2-ndk",
+        "android.media.soundtrigger.types-V1-ndk",
+        "android.hardware.contexthub-V3-ndk",
+        "android.hardware.soundtrigger3-V1-ndk",
+        "chre_atoms_log",
+        "chre_metrics_reporter",
+        "chremetrics-cpp",
+        "libcutils",
+        "liblog",
+        "libutils",
+        "libbase",
+        "libbinder_ndk",
+        "libpower",
+        "libprotobuf-cpp-lite",
+        "libjsoncpp",
+        "server_configurable_flags",
+    ],
+    header_libs: [
+        "chre_api",
+        "pw_span_headers",
+        "pw_polyfill_headers",
+    ],
+    static_libs: [
+        "chre_client",
+        "chre_flags_c_lib",
+        "event_logger",
+        "pw_varint",
+        "pw_detokenizer",
+    ],
+    vintf_fragments: ["android.hardware.contexthub-service.tinysys.xml"],
+}

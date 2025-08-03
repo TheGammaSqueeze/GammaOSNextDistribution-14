@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2011 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:android="http://schemas.android.com/apk/res/android" xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="button_dismiss">AB</string>
+    <string name="menu_delete_all">Cantzella trasmissiones</string>
+    <string name="message_options">Optziones pro sos messàgios</string>
+    <string name="menu_view_details">Ammustra detàllios</string>
+    <string name="menu_delete">Cantzella trasmissione</string>
+    <string name="view_details_title">Detàllios allarme</string>
+    <string name="confirm_delete_broadcast">Boles cantzellare custa trasmissione?</string>
+    <string name="confirm_delete_all_broadcasts">Boles cantzellare totu is messàgios retzidos?</string>
+    <string name="button_delete">Cantzella</string>
+    <string name="button_cancel">Annulla</string>
+    <string name="etws_earthquake_warning">Alerta terremotu</string>
+    <string name="etws_tsunami_warning">Alerta tsunami</string>
+    <string name="etws_earthquake_and_tsunami_warning">Alerta terremotu e tsunami</string>
+    <string name="etws_test_message">Messàgios de proa ETWS</string>
+    <string name="etws_other_emergency_type">Alerta de emergèntzia</string>
+    <string name="cmas_presidential_level_alert">Avisu presidentziales</string>
+    <string name="cmas_extreme_alert">Alerta de emergèntzia: estrema</string>
+    <string name="cmas_extreme_immediate_observed_alert">Alerta de emergèntzia: estrema</string>
+    <string name="cmas_extreme_immediate_likely_alert">Alerta de emergèntzia: estrema</string>
+    <string name="cmas_severe_alert">Alerta emergèntzia: grave</string>
+    <string name="cmas_amber_alert">Secuestru de pitzinnos (alerta Amber)</string>
+    <string name="cmas_exercise_alert">Alerta de emergèntzia (esertzìtzios)</string>
+    <string name="cmas_operator_defined_alert">Avisu de emergèntzia (operadore)</string>
+    <string name="emergency_alert">Avisu de emergèntzia</string>
+    <string name="alert_reminder_interval_title">Promemòria avisu</string>
+    <string name="enable_alert_speech_title">Pronùntzia messàgiu de avisu</string>
+    <string name="cmas_category_heading">Categoria de alerta:</string>
+    <string name="cmas_category_geo">Geofìsica</string>
+    <string name="cmas_category_met">Meteorològicu</string>
+    <string name="cmas_category_safety">Seguresa</string>
+    <string name="cmas_category_security">Seguresa</string>
+    <string name="cmas_category_rescue">Agiudu</string>
+    <string name="cmas_category_fire">Fogu</string>
+    <string name="cmas_category_health">Salude</string>
+    <string name="cmas_category_env">Ambientale</string>
+    <string name="cmas_category_transport">Trasportu</string>
+    <string name="cmas_category_infra">Infrastrutura</string>
+    <string name="cmas_category_cbrne">Chìmicu/Biològicu/Nucleare/Esplosivu</string>
+    <string name="cmas_category_other">Àteru</string>
+    <string name="cmas_response_heading">Genia de risposta:</string>
+    <string name="cmas_response_shelter">Acòstiu</string>
+    <string name="cmas_response_evacuate">Isbòida</string>
+    <string name="cmas_response_prepare">Apronta</string>
+    <string name="cmas_response_execute">Esecuta</string>
+    <string name="cmas_response_monitor">Controlla</string>
+    <string name="cmas_response_avoid">Èvita</string>
+    <string name="cmas_response_assess">Valutare</string>
+    <string name="cmas_response_none">Perunu</string>
+    <string name="cmas_severity_heading">Gravidade:</string>
+    <string name="cmas_severity_extreme">Istremu</string>
+    <string name="cmas_severity_severe">Grave</string>
+    <string name="cmas_urgency_heading">Apretu:</string>
+    <string name="cmas_urgency_immediate">Immediadu</string>
+    <string name="cmas_urgency_expected">Isetada</string>
+    <string name="cmas_certainty_heading">Tzertesa:</string>
+    <string name="cmas_certainty_observed">Analizadu</string>
+    <string name="cmas_certainty_likely">Probàbile</string>
+    <string name="delivery_time_heading">Retzidu:</string>
+    <string name="notification_multiple"><xliff:g id="count">%s</xliff:g> avisos non lèghidos.</string>
+    <string name="notification_multiple_title">Avisos noos</string>
+    <string name="show_cmas_opt_out_title">Mustra cuadru de diàlogu pro disativare</string>
+    <string name="cmas_opt_out_button_yes">Eja</string>
+    <string name="cmas_opt_out_button_no">Nono</string>
+    <string name="action_delete">Cantzella</string>
+    <string-array name="alert_reminder_interval_entries">
+        <item>Una borta</item>
+        <item>Ogni 2 minutos</item>
+        <item>Every 5 minutes</item>
+        <item>Ogni 15 minutos</item>
+        <item>Never</item>
+    </string-array>
+</resources>

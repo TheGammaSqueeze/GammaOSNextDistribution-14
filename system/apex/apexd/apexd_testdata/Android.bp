@@ -1,0 +1,603 @@
+// Copyright (C) 2018 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// These apex definitions will generate the prebuilt test data. The modules
+// are disabled so as not to pollute the build.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+apex_key {
+    name: "com.android.apex.test_package.key",
+    public_key: "com.android.apex.test_package.avbpubkey",
+    private_key: "com.android.apex.test_package.pem",
+    installable: false,
+}
+
+apex_key {
+    name: "com.android.apex.compressed.key",
+    public_key: "com.android.apex.compressed.avbpubkey",
+    private_key: "com.android.apex.compressed.pem",
+    installable: false,
+}
+
+apex {
+    name: "apex.apexd_test",
+    manifest: "manifest.json",
+    file_contexts: ":apex.test-file_contexts",
+    prebuilts: ["sample_prebuilt_file"],
+    key: "com.android.apex.test_package.key",
+    installable: false,
+    min_sdk_version: "29",  // test requires hashtree to be present.
+}
+
+apex {
+    name: "com.android.apex.compressed.v1",
+    manifest: "manifest_compressed.json",
+    file_contexts: ":apex.test-file_contexts",
+    prebuilts: ["sample_prebuilt_file"],
+    key: "com.android.apex.compressed.key",
+    installable: false,
+    test_only_force_compression: true,
+    updatable: false,
+}
+
+apex {
+    name: "com.android.apex.compressed.v1_different_digest",
+    manifest: "manifest_compressed.json",
+    file_contexts: ":apex.test-file_contexts",
+    prebuilts: ["hash_of_dev_null"],
+    key: "com.android.apex.compressed.key",
+    installable: false,
+    test_only_force_compression: true,
+    updatable: false,
+}
+
+genrule {
+  // Generates an apex which has a different public key outside the filesystem image
+  name: "gen_key_mismatch_with_image_apex",
+  out: ["apex.apexd_test_wrong_public_key.apex"],
+  srcs: [":apex.apexd_test"],
+  tools: ["soong_zip", "zipalign"],
+  cmd: "unzip -q $(in) -d $(genDir) && " + // unzip input
+       "echo 'different-key' >> $(genDir)/apex_pubkey && " + // modify the public key
+       "$(location soong_zip) -d -C $(genDir) -D $(genDir) " +
+       "-s apex_manifest.pb -s apex_payload.img -s apex_pubkey " +
+       "-o $(genDir)/unaligned.apex && " +
+       "$(location zipalign) -f 4096 $(genDir)/unaligned.apex " +
+       "$(genDir)/apex.apexd_test_wrong_public_key.apex",
+}
+
+genrule {
+  // Generates a compressed apex which doesn't have an original_apex file in it
+  name: "gen_capex_without_apex",
+  out: ["com.android.apex.compressed.v1_without_apex.capex"],
+  srcs: [":com.android.apex.compressed.v1"],
+  tools: ["soong_zip"],
+  cmd: "unzip -q $(in) -d $(genDir) && rm $(genDir)/original_apex && " +
+       "$(location soong_zip) -d -C $(genDir) -D $(genDir) -L 9 " +
+       "-o $(genDir)/com.android.apex.compressed.v1_without_apex.capex"
+}
+
+genrule {
+  // Generates a compressed apex which has different version of original_apex in it
+  name: "gen_capex_with_v2_apex",
+  out: ["com.android.apex.compressed.v1_with_v2_apex.capex"],
+  srcs: [":com.android.apex.compressed.v2"],
+  tools: ["soong_zip", "conv_apex_manifest"],
+  cmd: "unzip -q $(in) -d $(genDir) && " +
+       "$(location conv_apex_manifest) setprop version 1 $(genDir)/apex_manifest.pb && " +
+       "$(location soong_zip) -d -C $(genDir) -D $(genDir) -L 9 " +
+       "-o $(genDir)/com.android.apex.compressed.v1_with_v2_apex.capex"
+}
+
+genrule {
+  // Generates a compressed apex which can be opened but not decompressed
+  name: "gen_capex_not_decompressible",
+  out: ["com.android.apex.compressed.v1_not_decompressible.capex"],
+  srcs: [":com.android.apex.compressed.v1"],
+  tools: ["soong_zip", "conv_apex_manifest"],
+  cmd: "unzip -q $(in) -d $(genDir) && echo '' > $(genDir)/original_apex && " +
+       "$(location soong_zip) -d -C $(genDir) -D $(genDir) -L 9 " +
+       "-o $(genDir)/com.android.apex.compressed.v1_not_decompressible.capex"
+}
+
+genrule {
+  // Generates a capex which has same module name as com.android.apex.compressed, but
+  // is contains a different public key.
+  name: "gen_key_mismatch_capex",
+  out: ["com.android.apex.compressed_different_key.capex"],
+  srcs: [":apex.apexd_test_no_inst_key"],
+  tools: ["soong_zip", "zipalign", "conv_apex_manifest", "apex_compression_tool", "avbtool"],
+  cmd: "mkdir $(genDir)/tempdir && unzip -q $(in) -d $(genDir)/tempdir && " +
+       "$(location conv_apex_manifest) setprop name com.android.apex.compressed $(genDir)/tempdir/apex_manifest.pb && " +
+       "$(location soong_zip) -d -C $(genDir)/tempdir -D $(genDir)/tempdir " +
+       "-s apex_manifest.pb -s apex_payload.img -s apex_pubkey " +
+       "-o $(genDir)/unaligned.apex && " +
+       "$(location zipalign) -f 4096 $(genDir)/unaligned.apex " +
+       "$(genDir)/com.android.apex.compressed_different_key.apex && " +
+       "HOST_OUT_BIN=$$(dirname $(location apex_compression_tool)) && " +
+       "$(location apex_compression_tool) compress " +
+       "--apex_compression_tool_path=\"$$HOST_OUT_BIN\" " +
+       "--input=$(genDir)/com.android.apex.compressed_different_key.apex " +
+       "--output=$(genDir)/com.android.apex.compressed_different_key.capex"
+}
+
+genrule {
+  // Generates a capex which has a different public key than original_apex
+  name: "gen_key_mismatch_with_original_capex",
+  out: ["com.android.apex.compressed_key_mismatch_with_original.capex"],
+  srcs: [":com.android.apex.compressed.v1"],
+  tools: ["soong_zip"],
+  cmd: "unzip -q $(in) -d $(genDir) && " + // unzip input
+       "echo 'different-key' >> $(genDir)/apex_pubkey && " + // modify the public key
+       "$(location soong_zip) -d -C $(genDir) -D $(genDir) -L 9 " +// repack the compressed APEX
+       "-o $(genDir)/com.android.apex.compressed_key_mismatch_with_original.capex",
+}
+
+genrule {
+  // Generates an apex which has a different manifest outside the filesystem
+  // image.
+  name: "gen_manifest_mismatch_compressed_apex_v2",
+  out: ["com.android.apex.compressed.v2_manifest_mismatch.apex"],
+  srcs: [":com.android.apex.compressed.v2_original"],
+  tools: ["soong_zip", "zipalign", "conv_apex_manifest"],
+  cmd: "unzip -q $(in) -d $(genDir) && " +
+       "$(location conv_apex_manifest) setprop version 137 $(genDir)/apex_manifest.pb && " +
+       "$(location soong_zip) -d -C $(genDir) -D $(genDir) " +
+       "-s apex_manifest.pb -s apex_payload.img -s apex_pubkey " +
+       "-o $(genDir)/unaligned.apex && " +
+       "$(location zipalign) -f 4096 $(genDir)/unaligned.apex " +
+       "$(genDir)/com.android.apex.compressed.v2_manifest_mismatch.apex"
+}
+
+apex {
+    name: "com.android.apex.compressed.v1_original",
+    manifest: "manifest_compressed.json",
+    file_contexts: ":apex.test-file_contexts",
+    prebuilts: ["sample_prebuilt_file"],
+    key: "com.android.apex.compressed.key",
+    installable: false,
+    compressible: false,
+    updatable: false,
+}
+
+apex {
+    name: "com.android.apex.compressed.v1_different_digest_original",
+    manifest: "manifest_compressed.json",
+    file_contexts: ":apex.test-file_contexts",
+    prebuilts: ["hash_of_dev_null"],
+    key: "com.android.apex.compressed.key",
+    installable: false,
+    compressible: false,
+    updatable: false,
+}
+
+apex {
+    name: "com.android.apex.compressed.v2",
+    manifest: "manifest_compressed_v2.json",
+    file_contexts: ":apex.test-file_contexts",
+    prebuilts: ["sample_prebuilt_file"],
+    key: "com.android.apex.compressed.key",
+    installable: false,
+    test_only_force_compression: true,
+    updatable: false,
+}
+
+apex {
+    name: "com.android.apex.compressed.v2_original",
+    manifest: "manifest_compressed_v2.json",
+    file_contexts: ":apex.test-file_contexts",
+    prebuilts: ["sample_prebuilt_file"],
+    key: "com.android.apex.compressed.key",
+    installable: false,
+    compressible: false,
+    updatable: false,
+}
+
+apex {
+    name: "apex.apexd_test_f2fs",
+    manifest: "manifest.json",
+    file_contexts: ":apex.test-file_contexts",
+    prebuilts: ["sample_prebuilt_file"],
+    key: "com.android.apex.test_package.key",
+    installable: false,
+    min_sdk_version: "current",
+    payload_fs_type: "f2fs",
+    updatable: false,
+}
+
+apex {
+    name: "apex.apexd_test_erofs",
+    manifest: "manifest.json",
+    file_contexts: ":apex.test-file_contexts",
+    prebuilts: ["sample_prebuilt_file"],
+    key: "com.android.apex.test_package.key",
+    installable: false,
+    min_sdk_version: "current",
+    payload_fs_type: "erofs",
+    updatable: false,
+}
+
+apex {
+    name: "apex.apexd_test_no_hashtree",
+    manifest: "manifest.json",
+    file_contexts: ":apex.test-file_contexts",
+    prebuilts: ["sample_prebuilt_file"],
+    key: "com.android.apex.test_package.key",
+    installable: false,
+    generate_hashtree: false,
+    updatable: false,
+}
+
+// This APEX has same name and version as apex.apexd_test_no_hashtree, but has
+// different content. It's used to test that staging a same version of already
+// active APEX without hashtree doesn't impact already active one.
+apex {
+    name: "apex.apexd_test_no_hashtree_2",
+    manifest: "manifest.json",
+    file_contexts: ":apex.test-file_contexts",
+    prebuilts: [
+      "another_prebuilt_file",
+      "sample_prebuilt_file",
+    ],
+    key: "com.android.apex.test_package.key",
+    installable: false,
+    generate_hashtree: false,
+    updatable: false,
+}
+
+apex {
+    name: "apex.apexd_test_v2",
+    manifest: "manifest_v2.json",
+    file_contexts: ":apex.test-file_contexts",
+    prebuilts: ["sample_prebuilt_file"],
+    key: "com.android.apex.test_package.key",
+    installable: false,
+    updatable: false,
+}
+
+apex {
+    name: "apex.apexd_test_v2_legacy",
+    manifest: "manifest_v2.json",
+    file_contexts: ":apex.test-file_contexts",
+    prebuilts: ["sample_prebuilt_file"],
+    key: "com.android.apex.test_package.key",
+    installable: false,
+    min_sdk_version: "29", // add apex_manifest.json as well
+}
+
+genrule {
+  name: "apex.apexd_test_v2_no_pb",
+  srcs: [":apex.apexd_test_v2_legacy"],
+  out: ["apex.apexd_test_v2_no_pb.apex"],
+  tools: ["zip2zip"],
+  cmd: "$(location zip2zip) -i $(in) -x apex_manifest.pb -o $(out)", // remove apex_manifest.pb
+}
+
+apex {
+    name: "apex.apexd_test_v3",
+    manifest: "manifest_v3.json",
+    file_contexts: ":apex.test-file_contexts",
+    prebuilts: ["sample_prebuilt_file"],
+    key: "com.android.apex.test_package.key",
+    installable: false,
+    updatable: false,
+}
+
+apex_key {
+    name: "com.android.apex.test_package.no_inst_key.key",
+    public_key: "com.android.apex.test_package.no_inst_key.avbpubkey",
+    private_key: "com.android.apex.test_package.no_inst_key.pem",
+    installable: true, // set to true to prevent bundling into the APEX
+}
+
+apex {
+    name: "apex.apexd_test_no_inst_key",
+    manifest: "manifest_no_inst_key.json",
+    file_contexts: ":apex.test-file_contexts",
+    prebuilts: ["sample_prebuilt_file"],
+    key: "com.android.apex.test_package.no_inst_key.key",
+    installable: false,
+    updatable: false,
+}
+
+apex {
+    name: "apex.apexd_test_f2fs_no_inst_key",
+    manifest: "manifest_no_inst_key.json",
+    file_contexts: ":apex.test-file_contexts",
+    prebuilts: ["sample_prebuilt_file"],
+    key: "com.android.apex.test_package.no_inst_key.key",
+    installable: false,
+    payload_fs_type: "f2fs",
+    updatable: false,
+}
+
+apex {
+    name: "apex.apexd_test_erofs_no_inst_key",
+    manifest: "manifest_no_inst_key.json",
+    file_contexts: ":apex.test-file_contexts",
+    prebuilts: ["sample_prebuilt_file"],
+    key: "com.android.apex.test_package.no_inst_key.key",
+    installable: false,
+    payload_fs_type: "erofs",
+    updatable: false,
+}
+
+apex_key {
+    name: "com.android.apex.test_package_2.key",
+    public_key: "com.android.apex.test_package_2.avbpubkey",
+    private_key: "com.android.apex.test_package_2.pem",
+    installable: false,
+}
+
+apex {
+    name: "apex.apexd_test_different_app",
+    manifest: "manifest_different_app.json",
+    file_contexts: ":apex.test-file_contexts",
+    prebuilts: ["sample_prebuilt_file"],
+    key: "com.android.apex.test_package_2.key",
+    installable: false,
+    updatable: false,
+}
+
+apex {
+    name: "apex.apexd_test_nocode",
+    manifest: "manifest_nocode.json",
+    file_contexts: ":apex.test-file_contexts",
+    prebuilts: ["sample_prebuilt_file"],
+    key: "com.android.apex.test_package.key",
+    installable: false,
+    updatable: false,
+}
+
+prebuilt_etc {
+  name: "another_prebuilt_file",
+  src: "another_prebuilt_file",
+}
+
+prebuilt_apex {
+  name: "apex.corrupted_b146895998",
+  src: "corrupted_b146895998.apex",
+  filename: "corrupted_b146895998.apex",
+  installable: false,
+}
+
+// APEX for banned name test cannot be generated at build time.
+// This file can be generated manually by creating new apex target
+// with manifest name 'sharedlibs', and modify aapt2 to skip validating
+// package name from aapt::util::IsAndroidPackageName().
+prebuilt_apex {
+    name: "apex.banned_name",
+    src: "sharedlibs.apex",
+    filename: "sharedlibs.apex",
+    installable: false,
+}
+
+// A compressed apex that also provides shared libs.
+// Should be declined by ApexFile::Open.
+apex {
+    name: "com.android.apex.compressed_sharedlibs",
+    manifest: "manifest_compressed_sharedlibs.json",
+    file_contexts: ":apex.test-file_contexts",
+    prebuilts: ["sample_prebuilt_file"],
+    key: "com.android.apex.compressed.key",
+    installable: false,
+    test_only_force_compression: true,
+    updatable: false,
+}
+
+apex {
+    name: "test.rebootless_apex_v1",
+    manifest: "manifest_rebootless.json",
+    file_contexts: ":apex.test-file_contexts",
+    key: "com.android.apex.test_package.key",
+    installable: false,
+    updatable: false,
+    // TODO(ioffe): we should have a separate field to hashtree presence.
+    min_sdk_version: "29",  // test requires hashtree to be present.
+}
+
+apex {
+    name: "test.rebootless_apex_v2",
+    manifest: "manifest_rebootless_v2.json",
+    file_contexts: ":apex.test-file_contexts",
+    key: "com.android.apex.test_package.key",
+    installable: false,
+    updatable: false,
+    // TODO(ioffe): we should have a separate field to hashtree presence.
+    min_sdk_version: "29",  // test requires hashtree to be present.
+}
+
+apex {
+    name: "test.rebootless_apex_service_v1",
+    manifest: "manifest_rebootless.json",
+    init_rc: ["test_apex_service.rc"],
+    file_contexts: ":apex.test-file_contexts",
+    key: "com.android.apex.test_package.key",
+    installable: false,
+    updatable: false,
+}
+
+apex {
+    name: "test.rebootless_apex_service_v2",
+    manifest: "manifest_rebootless_v2.json",
+    init_rc: ["test_apex_service.rc"],
+    file_contexts: ":apex.test-file_contexts",
+    key: "com.android.apex.test_package.key",
+    installable: false,
+    updatable: false,
+}
+
+apex {
+    name: "test.rebootless_apex_v2_no_hashtree",
+    manifest: "manifest_rebootless_v2.json",
+    file_contexts: ":apex.test-file_contexts",
+    key: "com.android.apex.test_package.key",
+    installable: false,
+    updatable: false,
+    generate_hashtree: false,
+}
+
+apex {
+    name: "test.rebootless_apex_provides_sharedlibs",
+    manifest: "manifest_rebootless_provides_sharedlibs.json",
+    file_contexts: ":apex.test-file_contexts",
+    key: "com.android.apex.test_package.key",
+    installable: false,
+    updatable: false,
+}
+
+apex {
+    name: "test.rebootless_apex_provides_native_libs",
+    manifest: "manifest_rebootless_provides_native_libs.json",
+    file_contexts: ":apex.test-file_contexts",
+    key: "com.android.apex.test_package.key",
+    installable: false,
+    updatable: false,
+}
+
+apex {
+    name: "test.rebootless_apex_requires_shared_apex_libs",
+    manifest: "manifest_rebootless_requires_shared_apex_libs.json",
+    file_contexts: ":apex.test-file_contexts",
+    key: "com.android.apex.test_package.key",
+    installable: false,
+    updatable: false,
+}
+
+apex {
+    name: "test.rebootless_apex_jni_libs",
+    manifest: "manifest_rebootless_jni_libs.json",
+    file_contexts: ":apex.test-file_contexts",
+    key: "com.android.apex.test_package.key",
+    installable: false,
+    updatable: false,
+}
+
+apex {
+    name: "test.rebootless_apex_add_native_lib",
+    manifest: "manifest_rebootless_add_native_lib.json",
+    file_contexts: ":apex.test-file_contexts",
+    key: "com.android.apex.test_package.key",
+    installable: false,
+    updatable: false,
+}
+
+apex {
+    name: "test.rebootless_apex_remove_native_lib",
+    manifest: "manifest_rebootless_remove_native_lib.json",
+    file_contexts: ":apex.test-file_contexts",
+    key: "com.android.apex.test_package.key",
+    installable: false,
+    updatable: false,
+}
+
+apex {
+    name: "test.rebootless_apex_app_in_apex",
+    manifest: "manifest_rebootless_v2.json",
+    file_contexts: ":apex.test-file_contexts",
+    key: "com.android.apex.test_package.key",
+    installable: false,
+    updatable: false,
+    apps: ["AppInRebootlessApex"],
+    // TODO(ioffe): we should have a separate field to hashtree presence.
+    min_sdk_version: "29",  // test requires hashtree to be present.
+}
+
+apex {
+    name: "test.rebootless_apex_priv_app_in_apex",
+    manifest: "manifest_rebootless_v2.json",
+    file_contexts: ":apex.test-file_contexts",
+    key: "com.android.apex.test_package.key",
+    installable: false,
+    updatable: false,
+    apps: ["PrivAppInRebootlessApex"],
+    // TODO(ioffe): we should have a separate field to hashtree presence.
+    min_sdk_version: "29",  // test requires hashtree to be present.
+}
+
+android_app {
+    name: "AppInRebootlessApex",
+    sdk_version: "29",
+    manifest: "AppInRebootlessApex_AndroidManifest.xml",
+    apex_available: [
+      "test.rebootless_apex_app_in_apex",
+    ],
+}
+
+android_app {
+    name: "PrivAppInRebootlessApex",
+    sdk_version: "29",
+    privileged: true,
+    manifest: "AppInRebootlessApex_AndroidManifest.xml",
+    apex_available: [
+      "test.rebootless_apex_priv_app_in_apex",
+    ],
+}
+
+apex_test {
+    name: "apex.apexd_test_classpath",
+    bootclasspath_fragments: ["apex.apexd_test_bootclasspath-fragment"],
+    systemserverclasspath_fragments: ["apex.apexd_test_systemserverclasspath-fragment"],
+    manifest: "manifest.json",
+    prebuilts: ["sample_prebuilt_file"],
+    key: "com.android.apex.test_package.key",
+    file_contexts: ":apex.test-file_contexts",
+    installable: false, // Should never be installed on the systemimage
+    updatable: false,
+}
+
+bootclasspath_fragment_test {
+    name: "apex.apexd_test_bootclasspath-fragment",
+    contents: ["test_framework-apexd"],
+}
+
+systemserverclasspath_fragment {
+    name: "apex.apexd_test_systemserverclasspath-fragment",
+    contents: ["test_service-apexd"],
+}
+
+java_sdk_library {
+    name: "test_framework-apexd",
+    defaults: ["framework-module-defaults"],
+    srcs: ["src/com/android/apex/test/Test.java"],
+    permitted_packages: ["com.android.apex.test"],
+    min_sdk_version: "30",
+
+    // Test only SDK, don't check against released APIs.
+    unsafe_ignore_missing_latest_api: true,
+    // Output the api files to a special directory that won't trigger an API
+    // review as it is a test only API.
+    api_dir: "apis_for_tests",
+    // Testing only.
+    no_dist: true,
+}
+
+java_sdk_library {
+    name: "test_service-apexd",
+    defaults: ["framework-system-server-module-defaults"],
+    srcs: ["src/com/android/apex/test/Test.java"],
+    permitted_packages: ["com.android.apex.test"],
+    min_sdk_version: "30",
+
+    // Test only SDK, don't check against released APIs.
+    unsafe_ignore_missing_latest_api: true,
+    // Output the api files to a special directory that won't trigger an API
+    // review as it is a test only API.
+    api_dir: "apis_for_tests",
+    // Testing only.
+    no_dist: true,
+}

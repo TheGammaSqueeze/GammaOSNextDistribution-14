@@ -1,0 +1,16 @@
+package: "com.android.systemui.car"
+container: "system"
+
+flag {
+    name: "example_flag"
+    namespace: "car_sys_exp"
+    description: "An Example Flag"
+    bug: "304307370"
+}
+
+flag {
+    name: "config_aware_systemui"
+    namespace: "car_sys_exp"
+    description: "Flag to make car system ui react to runtime resource overlay change at the runtime."
+    bug: "304293383"
+}

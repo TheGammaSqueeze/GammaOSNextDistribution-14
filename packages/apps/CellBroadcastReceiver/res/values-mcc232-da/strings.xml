@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="cmas_presidential_level_alert" msgid="28280561773493762">"Nødalarm"</string>
+    <string name="cmas_extreme_alert" msgid="9122792746957924456">"Ekstrem fare"</string>
+    <string name="cmas_severe_alert" msgid="628940584325136759">"Alvorlig fare"</string>
+    <string name="public_safety_message" msgid="8084690288011309280">"Oplysninger om fare"</string>
+    <string name="cmas_amber_alert" msgid="404589837946037736">"Eftersøgning efter forsvunden person"</string>
+    <string name="state_local_test_alert" msgid="3774161961273584245">"Testunderretning"</string>
+    <string name="cmas_exercise_alert" msgid="4845005677469935113">"Testalarm"</string>
+    <string name="cmas_required_monthly_test" msgid="8386390153236774475">"Test af Cell Broadcast"</string>
+    <string name="enable_cmas_extreme_threat_alerts_title" msgid="2361635321508611596">"Ekstrem fare"</string>
+    <string name="enable_cmas_severe_threat_alerts_title" msgid="1718166777595485623">"Alvorlig fare"</string>
+    <string name="enable_cmas_amber_alerts_title" msgid="3125202178531035580">"Forsvundne personer"</string>
+    <string name="enable_cmas_amber_alerts_summary" msgid="5252326889751639729">"Eftersøgning efter forsvundne personer"</string>
+    <string name="enable_public_safety_messages_title" msgid="3974955568145658404">"Oplysninger om fare"</string>
+    <string name="enable_state_local_test_alerts_title" msgid="1795129352473584681">"Testunderretning"</string>
+    <string name="enable_exercise_test_alerts_title" msgid="569839026995925829">"Testalarm"</string>
+    <string name="enable_cmas_test_alerts_title" msgid="3897522692038895778">"Test af Cell Broadcast"</string>
+</resources>

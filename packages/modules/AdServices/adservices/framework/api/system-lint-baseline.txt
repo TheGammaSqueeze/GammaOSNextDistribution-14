@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+UnflaggedApi: android.adservices.common.AdServicesCommonManager#enableAdServices(android.adservices.common.AdServicesStates, java.util.concurrent.Executor, android.adservices.common.AdServicesOutcomeReceiver<java.lang.Boolean,java.lang.Exception>):
+    New API must be flagged with @FlaggedApi: method android.adservices.common.AdServicesCommonManager.enableAdServices(android.adservices.common.AdServicesStates,java.util.concurrent.Executor,android.adservices.common.AdServicesOutcomeReceiver<java.lang.Boolean,java.lang.Exception>)
+UnflaggedApi: android.adservices.common.AdServicesCommonManager#isAdServicesEnabled(java.util.concurrent.Executor, android.adservices.common.AdServicesOutcomeReceiver<java.lang.Boolean,java.lang.Exception>):
+    New API must be flagged with @FlaggedApi: method android.adservices.common.AdServicesCommonManager.isAdServicesEnabled(java.util.concurrent.Executor,android.adservices.common.AdServicesOutcomeReceiver<java.lang.Boolean,java.lang.Exception>)

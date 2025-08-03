@@ -1,0 +1,39 @@
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_app {
+    name: "TestRcsApp",
+
+    srcs: [
+        "src/**/*.java",
+    ],
+
+    static_libs: [
+        "androidx-constraintlayout_constraintlayout",
+        "aosp_test_rcs_client_base",
+        "androidx.appcompat_appcompat",
+        "libphonenumber-platform",
+    ],
+
+    libs: ["org.apache.http.legacy"],
+
+    certificate: "platform",
+    privileged: true,
+    product_specific: true,
+
+    sdk_version: "system_current",
+    min_sdk_version: "30",
+    required: ["privapp-permissions-com.google.android.sample.rcsclient.xml"],
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
+}
+
+prebuilt_etc {
+    name: "privapp-permissions-com.google.android.sample.rcsclient.xml",
+    src: "etc/permissions/privapp-permissions-com.google.android.sample.rcsclient.xml",
+    sub_dir: "permissions",
+    product_specific: true,
+}

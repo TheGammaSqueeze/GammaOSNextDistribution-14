@@ -1,0 +1,6 @@
+# Bug component: 1219472
+
+psych@google.com
+shikhamalhotra@google.com
+
+include platform/packages/modules/common:/MODULES_OWNERS  # see go/mainline-owners-policy

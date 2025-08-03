@@ -1,0 +1,19 @@
+include "EventFields.fbs";
+
+namespace com.android.ondevicepersonalization.services.fbs;
+
+table QueryData {
+    query_fields:[QueryFields];
+}
+
+table QueryFields {
+    owner:Owner;
+    rows:[KeyValueList];
+}
+
+table Owner {
+    package_name:string;
+    cert_digest:string;
+}
+
+root_type QueryData;

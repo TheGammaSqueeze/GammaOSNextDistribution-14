@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="connectivityResourcesAppLabel" msgid="2476261877900882974">"مصادر إمكانية اتصال الخادم"</string>
+    <string name="wifi_available_sign_in" msgid="8041178343789805553">"‏تسجيل الدخول إلى شبكة Wi-Fi"</string>
+    <string name="network_available_sign_in" msgid="2622520134876355561">"تسجيل الدخول إلى الشبكة"</string>
+    <!-- no translation found for network_available_sign_in_detailed (8439369644697866359) -->
+    <skip />
+    <string name="mobile_network_available_no_internet" msgid="1000871587359324217">"لا يتوفّر اتصال بالإنترنت"</string>
+    <string name="mobile_network_available_no_internet_detailed" msgid="5438738723127062816">"قد تكون البيانات التي يوفِّرها \"<xliff:g id="NETWORK_CARRIER">%1$s</xliff:g>\" نفدت. انقر لعرض الخيارات."</string>
+    <string name="mobile_network_available_no_internet_detailed_unknown_carrier" msgid="5375681117265354337">"قد تكون البيانات نفدت. انقر لعرض الخيارات."</string>
+    <string name="wifi_no_internet" msgid="1326348603404555475">"لا يتوفّر في <xliff:g id="NETWORK_SSID">%1$s</xliff:g> إمكانية الاتصال بالإنترنت."</string>
+    <string name="wifi_no_internet_detailed" msgid="1746921096565304090">"انقر للحصول على الخيارات."</string>
+    <string name="mobile_no_internet" msgid="4087718456753201450">"شبكة الجوّال هذه غير متصلة بالإنترنت"</string>
+    <string name="other_networks_no_internet" msgid="5693932964749676542">"الشبكة غير متصلة بالإنترنت"</string>
+    <string name="private_dns_broken_detailed" msgid="2677123850463207823">"لا يمكن الوصول إلى خادم أسماء نظام نطاقات خاص"</string>
+    <string name="network_partial_connectivity" msgid="5549503845834993258">"إمكانية اتصال <xliff:g id="NETWORK_SSID">%1$s</xliff:g> محدودة."</string>
+    <string name="network_partial_connectivity_detailed" msgid="4732435946300249845">"يمكنك النقر للاتصال على أي حال."</string>
+    <string name="network_switch_metered" msgid="5016937523571166319">"تم التبديل إلى <xliff:g id="NETWORK_TYPE">%1$s</xliff:g>"</string>
+    <string name="network_switch_metered_detail" msgid="1257300152739542096">"يستخدم الجهاز <xliff:g id="NEW_NETWORK">%1$s</xliff:g> عندما لا يتوفر اتصال بالإنترنت في شبكة <xliff:g id="PREVIOUS_NETWORK">%2$s</xliff:g>، ويمكن أن يتم فرض رسوم مقابل ذلك."</string>
+    <string name="network_switch_metered_toast" msgid="70691146054130335">"تم التبديل من <xliff:g id="PREVIOUS_NETWORK">%1$s</xliff:g> إلى <xliff:g id="NEW_NETWORK">%2$s</xliff:g>"</string>
+  <string-array name="network_switch_type_name">
+    <item msgid="3004933964374161223">"بيانات الجوّال"</item>
+    <item msgid="5624324321165953608">"Wi-Fi"</item>
+    <item msgid="5667906231066981731">"بلوتوث"</item>
+    <item msgid="346574747471703768">"إيثرنت"</item>
+    <item msgid="5734728378097476003">"‏شبكة افتراضية خاصة (VPN)"</item>
+  </string-array>
+    <string name="network_switch_type_name_unknown" msgid="5116448402191972082">"نوع شبكة غير معروف"</string>
+</resources>

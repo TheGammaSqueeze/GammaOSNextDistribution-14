@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2016 The CyanogenMod Project
+     SPDX-FileCopyrightText: 2017 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:key="touchscreen_gesture_settings"
+    android:title="@string/touchscreen_gesture_settings_title">
+
+    <lineageos.preference.LineageSystemSettingSwitchPreference
+        android:key="touchscreen_gesture_haptic_feedback"
+        android:title="@string/touchscreen_gestures_haptic_feedback_title"
+        android:summary="@string/touchscreen_gestures_haptic_feedback_summary"
+        android:defaultValue="true" />
+
+</PreferenceScreen>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2013-2014 The CyanogenMod Project
+     Copyright (C) 2018 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="call_stats_detail_title">جزئیات آمار مخاطبان</string>
+    <string name="call_stats_incoming">تماس دریافتی از: <xliff:g id="value">%s</xliff:g></string>
+    <string name="call_stats_outgoing">تماس با: <xliff:g id="value">%s</xliff:g></string>
+    <string name="call_stats_missed">تماس از دست رفته: <xliff:g id="value">%s</xliff:g></string>
+    <string name="call_stats_blocked">تماس مسدود شده: <xliff:g id="value">%s</xliff:g></string>
+    <string name="call_stats_percent"><xliff:g id="percent">%d</xliff:g>%%</string>
+    <string name="call_stats_header_total">مجموع میزان تماس: <xliff:g id="call_count">%1$s</xliff:g>, <xliff:g id="duration">%2$s</xliff:g></string>
+    <string name="call_stats_header_total_callsonly">مجموع میزان تماس: <xliff:g id="call_count">%s</xliff:g></string>
+    <string name="call_stats_filter_from">تاریخ شروع</string>
+    <string name="call_stats_filter_to">تاریخ اتمام</string>
+    <string name="call_stats_filter_picker_title">محدوده فیلتر</string>
+    <string name="date_quick_selection">انتخاب سریع</string>
+    <string name="date_qs_currentmonth">ماه فعلی</string>
+    <string name="date_qs_currentquarter">سه ماهه فعلی</string>
+    <string name="date_qs_currentyear">سال فعلی</string>
+    <string name="date_qs_lastweek">هفته گذشته</string>
+    <string name="date_qs_lastmonth">ماه گذشته</string>
+    <string name="date_qs_lastquarter">سه ماهه گذشته</string>
+    <string name="date_qs_lastyear">سال گذشته</string>
+    <string name="call_stats_date_filter">تنظیم محدوده زمانی</string>
+    <string name="call_stats_reset_filter">تنظیم مجدد محدوده زمانی</string>
+    <string name="call_stats_sort_by_duration">مرتب‌سازی براساس مدت تماس</string>
+    <string name="call_stats_sort_by_count">مرتب‌سازی براساس تعداد تماس</string>
+    <string name="call_stats_title_for_number">این شماره</string>
+    <string name="call_stats_title_of_total">از مجموع</string>
+    <string name="call_stats_title_durations">مدت زمان تماس</string>
+    <string name="call_stats_title_count">تعداد تماس</string>
+    <string name="call_stats_title_average_duration">متوسط مدت زمان تماس</string>
+    <string name="recent_calls_no_items_in_range">لیست تماس شما در محدوده زمانی مشخص شده دارای هیچ تماسی نیست.</string>
+</resources>

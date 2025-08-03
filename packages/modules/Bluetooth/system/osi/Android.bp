@@ -1,0 +1,171 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_bt_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    //   SPDX-license-identifier-MIT
+    default_applicable_licenses: ["system_bt_license"],
+}
+
+cc_defaults {
+    name: "fluoride_osi_defaults",
+    defaults: ["fluoride_defaults"],
+    include_dirs: [
+        "packages/modules/Bluetooth/system",
+        "packages/modules/Bluetooth/system/gd",
+        "packages/modules/Bluetooth/system/stack/include",
+    ],
+}
+
+filegroup {
+    name: "OsiCompatSources",
+    srcs: [
+        "src/compat.cc",
+    ],
+}
+
+// libosi static library for target
+cc_library_static {
+    name: "libosi",
+    visibility: [
+        "//packages/apps/Test/connectivity/sl4n",
+        "//packages/modules/Bluetooth:__subpackages__",
+    ],
+    export_include_dirs: [
+        "include",
+    ],
+    local_include_dirs: [
+        "include_internal",
+    ],
+    defaults: [
+        "fluoride_defaults",
+        "fluoride_osi_defaults",
+    ],
+    whole_static_libs: [
+        "bluetooth_flags_c_lib",
+    ],
+    // TODO(mcchou): Remove socket_utils sources after platform specific
+    // dependencies are abstracted.
+    srcs: [
+        ":OsiCompatSources",
+        "src/alarm.cc",
+        "src/allocator.cc",
+        "src/config.cc",
+        "src/fixed_queue.cc",
+        "src/future.cc",
+        "src/hash_map_utils.cc",
+        "src/list.cc",
+        "src/mutex.cc",
+        "src/osi.cc",
+        "src/properties.cc",
+        "src/reactor.cc",
+        "src/ringbuffer.cc",
+        "src/socket.cc",
+        "src/socket_utils/socket_local_client.cc",
+        "src/socket_utils/socket_local_server.cc",
+        "src/stack_power_telemetry.cc",
+        "src/thread.cc",
+        "src/thread_scheduler.cc",
+        "src/wakelock.cc",
+
+        // internal source that should not be used outside of libosi
+        "src/internal/semaphore.cc",
+    ],
+    host_supported: true,
+    // TODO(armansito): Setting _GNU_SOURCE isn't very platform-independent but
+    // should be compatible for a Linux host OS. We should figure out what to do for
+    // a non-Linux host OS.
+    target: {
+        host_linux: {
+            cflags: [
+                "-D_GNU_SOURCE",
+            ],
+        },
+    },
+    cflags: [
+        "-DLIB_OSI_INTERNAL",
+    ],
+    min_sdk_version: "Tiramisu",
+    apex_available: [
+        "com.android.btservices",
+    ],
+    header_libs: ["libbluetooth_headers"],
+    static_libs: [
+        "libbluetooth_log",
+        "libbt-platform-protos-lite",
+        "libbt_shim_bridge",
+    ],
+}
+
+// libosi unit tests for target and host
+cc_test {
+    name: "net_test_osi",
+    test_suites: ["general-tests"],
+    defaults: [
+        "fluoride_osi_defaults",
+        "mts_defaults",
+    ],
+    host_supported: true,
+    srcs: [
+        "test/alarm_test.cc",
+        "test/allocator_test.cc",
+        "test/config_test.cc",
+        "test/fixed_queue_test.cc",
+        "test/future_test.cc",
+        "test/hash_map_utils_test.cc",
+        "test/list_test.cc",
+        "test/properties_test.cc",
+        "test/rand_test.cc",
+        "test/reactor_test.cc",
+        "test/ringbuffer_test.cc",
+        "test/stack_power_telemetry_test.cc",
+        "test/thread_test.cc",
+        "test/wakelock_test.cc", // test internal sources only used inside the libosi
+
+        "test/internal/semaphore_test.cc",
+    ],
+    shared_libs: [
+        "libbase",
+        "libcrypto",
+        "libcutils",
+        "liblog",
+        "server_configurable_flags",
+    ],
+    local_include_dirs: [
+        "include_internal",
+        "test",
+    ],
+    static_libs: [
+        "libbluetooth-types",
+        "libbluetooth_crypto_toolbox",
+        "libbluetooth_gd",
+        "libbluetooth_log",
+        "libbt-common",
+        "libbt_shim_bridge",
+        "libbt_shim_ffi",
+        "libc++fs",
+        "libchrome",
+        "libevent",
+        "libgmock",
+        "libosi",
+        "libprotobuf-cpp-lite",
+        "libstatslog_bt",
+    ],
+    target: {
+        android: {
+            shared_libs: [
+                "libstatssocket",
+            ],
+        },
+    },
+    cflags: [
+        "-DLIB_OSI_INTERNAL",
+        "-Wno-unused-parameter",
+    ],
+    sanitize: {
+        address: true,
+        cfi: false,
+    },
+    header_libs: ["libbluetooth_headers"],
+}

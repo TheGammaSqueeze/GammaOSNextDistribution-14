@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="system_tracing" msgid="4719188511746319848">"Trasovanie systému"</string>
+    <string name="record_system_activity" msgid="4339462312915377825">"Vytváranie záznamov systémovej aktivity a ich neskoršia analýza s cieľom zvýšenia výkonu"</string>
+    <string name="record_trace" msgid="6416875085186661845">"Zaznamenať stopu"</string>
+    <string name="record_trace_summary" msgid="6705357754827849292">"Zachytí stopu systému pomocou konfigurácie nastavenej v sekcii Nastavenia stopy"</string>
+    <string name="record_stack_samples" msgid="3498368637185702335">"Nahrávať profilovač procesora"</string>
+    <string name="record_stack_samples_summary" msgid="7827953921526410478">"Vzorkovanie zásobníka volaní je možné zapnúť aj v stopách začiarknutím kategórie Procesor"</string>
+    <string name="record_heap_dump" msgid="1688550222066812696">"Zaznamenávať výpis haldy"</string>
+    <string name="record_heap_dump_summary_enabled" msgid="5038675257021221777">"Budú sa zaznamenávať procesy výpisu haldy vybrané v sekcii Procesy výpisu haldy"</string>
+    <string name="record_heap_dump_summary_disabled" msgid="4640319333930345311">"Ak chcete zhromažďovať výpisy haldy, vyberte aspoň jeden proces v sekcii Procesy výpisu haldy"</string>
+    <string name="start_new_trace" msgid="8177130420802170353">"Spustiť nové trasovanie"</string>
+    <string name="winscope_tracing" msgid="5818984791154837458">"Zhromažďovať stopy Winscope"</string>
+    <string name="winscope_tracing_summary" msgid="7040550156722395894">"Zahŕňa podrobné údaje o telemetrii používateľského rozhrania (môže spôsobiť spomalené vykresľovanie)"</string>
+    <string name="trace_debuggable_applications" msgid="7957069895298887899">"Sledovať aplikácie na ladenie"</string>
+    <string name="categories" msgid="2280163673538611008">"Kategórie"</string>
+    <string name="restore_default_categories" msgid="5090536794637169521">"Obnoviť predvolené kategórie"</string>
+    <string name="default_categories_restored" msgid="6861683793680564181">"Boli obnovené predvolené kategórie"</string>
+    <string name="default_categories" msgid="2117679794687799407">"Predvolené"</string>
+    <string name="num_categories_selected" msgid="5772630335027553995">"{count,plural, =1{# vybraná kategória}few{# vybrané kategórie}many{# selected}other{# vybraných kategórií}}"</string>
+    <string name="heap_dump_processes" msgid="2500105180344901939">"Procesy výpisu haldy"</string>
+    <string name="heap_dump_processes_summary" msgid="4570434268024622765">"Musí byť vybraný aspoň jeden proces"</string>
+    <string name="clear_heap_dump_processes" msgid="295101454741555286">"Vymazať procesy výpisu haldy"</string>
+    <string name="clear_heap_dump_processes_toast" msgid="3658510557596150797">"Zoznam procesov bol vymazaný"</string>
+    <string name="continuous_heap_dump" msgid="390369382946204224">"Nepretržité zaznamenávanie profilu haldy"</string>
+    <string name="continuous_heap_dump_summary" msgid="4581643248161659581">"Výpis haldy sa zaznamená raz za stanovený interval"</string>
+    <string name="continuous_heap_dump_interval" msgid="842533896492001433">"Interval výpisu haldy"</string>
+    <string name="five_seconds" msgid="7018465440929299712">"5 sekúnd"</string>
+    <string name="ten_seconds" msgid="863416601384309033">"10 sekúnd"</string>
+    <string name="thirty_seconds" msgid="7945396361369598222">"30 sekúnd"</string>
+    <string name="one_minute" msgid="4182508213840684258">"1 minúta"</string>
+    <string name="applications" msgid="521776761270770549">"Aplikácie"</string>
+    <string name="no_debuggable_apps" msgid="4386209254520471208">"Nie sú k dispozícii žiadne aplikácie na ladenie"</string>
+    <string name="buffer_size" msgid="3944311026715111454">"Veľkosť vyrovnávacej pamäte jednotlivých procesorov"</string>
+    <string name="show_quick_settings_tile" msgid="4971147332635291585">"Zobraziť dlaždicu rýchlych nastavení"</string>
+    <string name="saving_trace" msgid="1468692734770800541">"Stopa sa ukladá"</string>
+    <string name="trace_saved" msgid="5869970594780992309">"Stopa bola uložená"</string>
+    <string name="saving_stack_samples" msgid="8174915522390525221">"Vzorky zásobníka sa ukladajú"</string>
+    <string name="stack_samples_saved" msgid="8863295751647724616">"Vzorky zásobníka boli uložené"</string>
+    <string name="saving_heap_dump" msgid="6118616780825771824">"Výpis haldy sa ukladá"</string>
+    <string name="heap_dump_saved" msgid="6720583137473857098">"Výpis haldy bol uložený"</string>
+    <string name="tap_to_share" msgid="4440713575852187545">"Nahrávku zdieľajte klepnutím"</string>
+    <string name="attaching_to_report" msgid="2629202947947275886">"K hláseniu chyby sa prikladá stopa"</string>
+    <string name="attached_to_report" msgid="5806905349184608870">"K hláseniu chyby bola priložená stopa"</string>
+    <string name="attached_to_report_summary" msgid="7665675771190391355">"Klepnutím otvorte BetterBug"</string>
+    <string name="stop_tracing" msgid="8916938308534164152">"Zastaviť trasovanie"</string>
+    <string name="tracing_categories_unavailable" msgid="5609076391417077752">"Niektoré kategórie trasovania nie sú k dispozícii:"</string>
+    <string name="trace_is_being_recorded" msgid="5947378146009337469">"Stopa sa zaznamenáva"</string>
+    <string name="tap_to_stop_tracing" msgid="6533282719573871806">"Klepnutím zastavíte trasovanie"</string>
+    <string name="stack_samples_are_being_recorded" msgid="8669254939248349583">"Vzorky zásobníka sa nahrávajú"</string>
+    <string name="tap_to_stop_stack_sampling" msgid="5911317684139059415">"Vzorkovanie zásobníka ukončite klepnutím"</string>
+    <string name="heap_dump_is_being_recorded" msgid="3789315106110524969">"Výpis haldy sa zaznamenáva"</string>
+    <string name="tap_to_stop_heap_dump" msgid="6475699275834526902">"Klepnutím zastavíte zaznamenávanie výpisu haldy"</string>
+    <string name="clear_saved_files" msgid="9156079311231446825">"Vymazať uložené súbory"</string>
+    <string name="clear_saved_files_summary" msgid="109751867417553670">"Nahrávky sa po mesiaci vymazávajú"</string>
+    <string name="clear_saved_files_question" msgid="8586686617760838834">"Chcete uložené súbory vymazať?"</string>
+    <string name="all_recordings_will_be_deleted" msgid="7731693738485947891">"Všetky nahrávky v umiestnení /data/local/traces budú odstránené"</string>
+    <string name="clear" msgid="5484761795406948056">"Vymazať"</string>
+    <string name="system_traces_storage_title" msgid="8294090839883366871">"Stopy v systéme"</string>
+    <string name="keywords" msgid="736547007949049535">"systémové trasovanie, trasovanie, výkonnosť"</string>
+    <string name="share_file" msgid="1982029143280382271">"Chcete zdieľať súbor?"</string>
+    <string name="system_trace_sensitive_data" msgid="3069389866696009549">"Záznamy migrácie systému môžu obsahovať citlivé údaje o systéme a aplikáciách (napríklad využívanie aplikácií). Záznamy migrácie systému zdieľajte len s dôveryhodnými osobami a aplikáciami."</string>
+    <string name="share" msgid="8443979083706282338">"Zdieľať"</string>
+    <string name="dont_show_again" msgid="6662492041164390600">"Nabudúce nezobrazovať"</string>
+    <string name="long_traces" msgid="5110949471775966329">"Dlhé stopy"</string>
+    <string name="long_traces_summary" msgid="419034282946761469">"Neustále sa ukladá do úložiska zariadenia"</string>
+    <string name="long_traces_summary_betterbug" msgid="445546400875135624">"Neustále sa ukladá do ukladacieho priestoru v zariadení (bez automatického prikladania k hláseniam chýb)"</string>
+    <string name="max_long_trace_size" msgid="1943788179787181241">"Maximálna veľkosť dlhej stopy"</string>
+    <string name="max_long_trace_duration" msgid="8009837944364246785">"Maximálne trvanie dlhej stopy"</string>
+    <string name="two_hundred_mb" msgid="4950018549725084512">"200 MB"</string>
+    <string name="one_gb" msgid="590396985168692037">"1 GB"</string>
+    <string name="five_gb" msgid="7883941043220621649">"5 GB"</string>
+    <string name="ten_gb" msgid="4150452462544299276">"10 GB"</string>
+    <string name="twenty_gb" msgid="5717308686812140465">"20 GB"</string>
+    <string name="ten_minutes" msgid="7039181194343961324">"10 minút"</string>
+    <string name="thirty_minutes" msgid="2575810799813531395">"30 minút"</string>
+    <string name="one_hour" msgid="5219232935307966891">"1 hodina"</string>
+    <string name="eight_hours" msgid="3207620892104451552">"8 hodín"</string>
+    <string name="twelve_hours" msgid="4647143276394563496">"12 hodín"</string>
+    <string name="twentyfour_hours" msgid="2789663313550030791">"24 hodín"</string>
+    <string name="four_thousand_kb" msgid="5156346740862105703">"4 096 kB"</string>
+    <string name="eight_thousand_kb" msgid="8815334985638334081">"8 192 kB"</string>
+    <string name="sixteen_thousand_kb" msgid="7342517169232459259">"16 384 kB"</string>
+    <string name="thirtytwo_thousand_kb" msgid="654328198799196150">"32 768 kB"</string>
+    <string name="sixtyfive_thousand_kb" msgid="8168144138598305306">"65 536 kB"</string>
+    <string name="stop_on_bugreport" msgid="4591832600597126422">"Zastaviť nahrávanie hlásení chýb"</string>
+    <string name="stop_on_bugreport_summary" msgid="1601834864982891381">"Aktívne nahrávania sa ukončia po spustení hlásení chyby"</string>
+    <string name="attach_to_bug_report" msgid="5388986830016247490">"Prikladať nahrávky k hláseniam chýb"</string>
+    <string name="attach_to_bug_report_summary" msgid="4213730623971240002">"Pri zhromažďovaní hlásení chýb automaticky odosielať prebiehajúce nahrávky do služby BetterBug"</string>
+    <string name="link_to_traces" msgid="1404687523304348490">"Zobraziť uložené súbory"</string>
+    <string name="pref_category_trace_settings" msgid="6507535407023329628">"Nastavenia stopy"</string>
+    <string name="pref_category_saved_files" msgid="1477491400970413291">"Uložené súbory"</string>
+    <string name="pref_category_misc" msgid="6217624054980014683">"Rôzne"</string>
+    <string name="pref_category_heap_dump_settings" msgid="2234681064312605310">"Nastavenia výpisu haldy"</string>
+</resources>

@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/root_layout"
+                android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginHorizontal="20dp">
+        <ScrollView
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+        >
+            <LinearLayout
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:orientation="vertical">
+                <TextView
+                    android:id="@+id/feature_flags_title"
+                    android:layout_gravity="start"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:layout_marginVertical="15dp"
+                    android:textSize="20sp"
+                    android:text="@string/feature_flags"
+                />
+
+                <TextView
+                    android:id="@+id/feature_flags_status"
+                    android:layout_gravity="start"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:layout_marginVertical="15dp"
+                />
+
+                <TextView
+                    android:id="@+id/sdks_title"
+                    android:layout_gravity="start"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:layout_marginVertical="15dp"
+                    android:textSize="20sp"
+                    android:text="@string/sdks"
+                />
+
+                <Button
+                    android:id="@+id/load_sdks_button"
+                    android:layout_gravity="start"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:textAllCaps="false" />
+
+                <TextView
+                    android:id="@+id/ads_title"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:textSize="20sp"
+                    android:layout_marginVertical="15dp"
+                    android:text="@string/ads"
+                />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <Button
+                        android:id="@+id/new_banner_ad_button"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:text="@string/new_banner_ad"
+                        android:textAllCaps="false" />
+                    <android.widget.ImageButton
+                        android:id="@+id/banner_ad_options_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:src="@drawable/ic_settings"
+                    />
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/new_fullscreen_ad_button"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:text="@string/new_fullscreen_ad"
+                    android:textAllCaps="false" />
+
+                <Button
+                    android:id="@+id/new_app_webview_button"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:text="@string/new_app_webview"
+                    android:textAllCaps="false" />
+
+                <Button
+                    android:id="@+id/new_app_video_button"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:text="@string/new_app_video"
+                    android:textAllCaps="false" />
+
+                <TextView
+                    android:id="@+id/extra_title"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:textSize="20sp"
+                    android:layout_marginVertical="15dp"
+                    android:text="@string/extra"
+                />
+
+                <Button
+                    android:id="@+id/release_all_scvh_button"
+                    android:layout_gravity="start"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:text="@string/release_all_scvh"
+                    android:textAllCaps="false" />
+
+                <Button
+                    android:id="@+id/add_death_callback_button"
+                    android:layout_gravity="start"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:text="@string/add_death_callback"
+                    android:textAllCaps="false" />
+
+                <Button
+                    android:id="@+id/remove_death_callback_button"
+                    android:layout_gravity="start"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:text="@string/remove_death_callback"
+                    android:textAllCaps="false" />
+
+                <Button
+                    android:id="@+id/get_filedescriptor_button"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:text="@string/get_filedescriptor"
+                    android:textAllCaps="false" />
+
+                <Button
+                    android:id="@+id/send_filedescriptor_button"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:text="@string/send_filedescriptor"
+                    android:textAllCaps="false" />
+
+                <Button
+                    android:id="@+id/create_file_button"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:text="@string/create_file"
+                    android:textAllCaps="false" />
+
+                <Button
+                    android:id="@+id/enable_sdk_sdk_button"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:text="@string/enable_sdk_sdk"
+                    android:textAllCaps="false" />
+
+                <Button
+                    android:id="@+id/sync_keys_button"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:text="@string/sync_keys"
+                    android:textAllCaps="false" />
+
+                <Button
+                    android:id="@+id/dump_sandbox_button"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:text="@string/dump_sandbox"
+                    android:textAllCaps="false" />
+
+                <Button
+                    android:id="@+id/reset_preferences_button"
+                    android:layout_marginTop="10dp"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:text="@string/reset_preferences"
+                    android:textAllCaps="false" />
+
+                <TextView
+                    android:id="@+id/ad_space_title"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:textSize="20sp"
+                    android:layout_marginVertical="15dp"
+                    android:text="@string/ad_space"
+                />
+                <LinearLayout
+                    android:id="@+id/ad_space_linear_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="400dp"
+                    android:orientation="vertical" >
+                    <SurfaceView
+                        android:id="@+id/in_scroll_banner_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="80dp"
+                    />
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+        <SurfaceView
+            android:id="@+id/bottom_banner_view"
+            android:layout_marginVertical="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_alignParentBottom="true"
+        />
+    </RelativeLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

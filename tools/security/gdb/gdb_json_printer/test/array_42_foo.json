@@ -1,0 +1,132 @@
+{
+    "type": "array",
+    "element_type": "Foo",
+    "values": [
+        {
+            "type": "struct",
+            "ctype": "Foo",
+            "address": "0x7fffffffd730",
+            "fields": [
+                {
+                    "field": "a",
+                    "value": {
+                        "type": "int",
+                        "ctype": "uint8_t",
+                        "address": "0x7fffffffd730",
+                        "value": "1"
+                    }
+                },
+                {
+                    "field": "bar",
+                    "value": {
+                        "type": "pointer",
+                        "ctype": "Bar *",
+                        "address": "0x7fffffffd738",
+                        "reference": {
+                            "type": "struct",
+                            "ctype": "Bar",
+                            "address": "0x7fffffffd72a",
+                            "fields": [
+                                {
+                                    "field": "b",
+                                    "value": {
+                                        "type": "int",
+                                        "ctype": "uint16_t",
+                                        "address": "0x7fffffffd72a",
+                                        "value": "2"
+                                    }
+                                }
+                            ],
+                            "base_classes": []
+                        }
+                    }
+                }
+            ],
+            "base_classes": []
+        },
+        {
+            "type": "struct",
+            "ctype": "Foo",
+            "address": "0x7fffffffd740",
+            "fields": [
+                {
+                    "field": "a",
+                    "value": {
+                        "type": "int",
+                        "ctype": "uint8_t",
+                        "address": "0x7fffffffd740",
+                        "value": "1"
+                    }
+                },
+                {
+                    "field": "bar",
+                    "value": {
+                        "type": "pointer",
+                        "ctype": "Bar *",
+                        "address": "0x7fffffffd748",
+                        "reference": {
+                            "type": "struct",
+                            "ctype": "Bar",
+                            "address": "0x7fffffffd72c",
+                            "fields": [
+                                {
+                                    "field": "b",
+                                    "value": {
+                                        "type": "int",
+                                        "ctype": "uint16_t",
+                                        "address": "0x7fffffffd72c",
+                                        "value": "2"
+                                    }
+                                }
+                            ],
+                            "base_classes": []
+                        }
+                    }
+                }
+            ],
+            "base_classes": []
+        },
+        {
+            "type": "struct",
+            "ctype": "Foo",
+            "address": "0x7fffffffd750",
+            "fields": [
+                {
+                    "field": "a",
+                    "value": {
+                        "type": "int",
+                        "ctype": "uint8_t",
+                        "address": "0x7fffffffd750",
+                        "value": "1"
+                    }
+                },
+                {
+                    "field": "bar",
+                    "value": {
+                        "type": "pointer",
+                        "ctype": "Bar *",
+                        "address": "0x7fffffffd758",
+                        "reference": {
+                            "type": "struct",
+                            "ctype": "Bar",
+                            "address": "0x7fffffffd72e",
+                            "fields": [
+                                {
+                                    "field": "b",
+                                    "value": {
+                                        "type": "int",
+                                        "ctype": "uint16_t",
+                                        "address": "0x7fffffffd72e",
+                                        "value": "2"
+                                    }
+                                }
+                            ],
+                            "base_classes": []
+                        }
+                    }
+                }
+            ],
+            "base_classes": []
+        }
+    ]
+}

@@ -1,0 +1,103 @@
+/*
+ * Copyright (C) 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package com.android.car.rotary;
+
+option java_package = "com.android.car.rotary";
+option java_outer_classname = "RotaryProtos";
+
+message RotaryService {
+  optional int32 rotation_acceleration_2x_ms = 1;
+  optional int32 rotation_acceleration_3x_ms = 2;
+  optional string focused_node = 3;
+  optional string edit_node = 4;
+  optional string focus_area = 5;
+  optional string last_touched_node = 6;
+  optional int32 ignore_view_clicked_ms = 7;
+  optional string ignore_view_clicked_node = 8;
+  optional int64 last_view_clicked_time = 9;
+  optional string rotary_input_method = 10;
+  optional string default_touch_input_method = 11;
+  optional string touch_input_method = 12;
+  optional FocusRealDirection hun_nudge_direction = 13;
+  optional FocusRealDirection hun_escape_nudge_direction = 14;
+  repeated int32 off_screen_nudge_global_actions = 15;
+  repeated int32 off_screen_nudge_key_codes = 16;
+  repeated string off_screen_nudge_intents = 17;
+  optional int32 after_scroll_timeout_ms = 18;
+  optional AfterScrollAction after_scroll_action = 19;
+  optional int64 after_scroll_action_until = 20;
+  optional bool in_rotary_mode = 21;
+  optional bool in_direct_manipulation_mode = 22;
+  optional int64 last_rotate_event_time = 23;
+  optional int64 long_press_ms = 24;
+  optional bool long_press_triggered = 25;
+  optional ComponentName foreground_activity = 26;
+  optional int64 after_focus_timeout_ms = 27;
+  optional string pending_focused_node = 28;
+  optional int64 pending_focused_expiration_time = 29;
+  optional Navigator navigator = 30;
+  optional WindowCache window_cache = 31;
+}
+
+message Navigator {
+  optional int32 hun_left = 1;
+  optional int32 hun_right = 2;
+  optional FocusRealDirection hun_nudge_direction = 3;
+  optional Rect app_window_bounds = 4;
+  optional SurfaceViewHelper surface_view_helper = 5;
+}
+
+message SurfaceViewHelper {
+  optional string host_app = 1;
+  repeated string clientApps = 2;
+}
+
+message WindowCache {
+  repeated int32 window_ids = 1;
+  map<int32, int32> window_types = 2;
+  map<int32, string> focused_nodes = 3;
+}
+
+message ComponentName {
+  optional string package_name = 1;
+  optional string class_name = 2;
+}
+
+message Rect {
+  optional int32 left = 1;
+  optional int32 top = 2;
+  optional int32 right = 3;
+  optional int32 bottom = 4;
+}
+enum AfterScrollAction {
+  AFTER_SCROLL_UNSPECIFIED = 0;
+  AFTER_SCROLL_DO_NOTHING = 1;
+  AFTER_SCROLL_FOCUS_PREVIOUS = 2;
+  AFTER_SCROLL_FOCUS_NEXT = 3;
+  AFTER_SCROLL_FOCUS_FIRST = 4;
+  AFTER_SCROLL_FOCUS_LAST = 5;
+}
+
+enum FocusRealDirection {
+  FOCUS_DIRECTION_UNSPECIFIED = 0;
+  FOCUS_LEFT = 1;
+  FOCUS_UP = 2;
+  FOCUS_RIGHT = 3;
+  FOCUS_DOWN = 4;
+}

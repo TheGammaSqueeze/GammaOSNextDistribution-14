@@ -1,0 +1,23 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "ComposBenchmarkApp",
+    test_suites: [
+        "general-tests",
+    ],
+    srcs: ["src/java/**/*.java"],
+    static_libs: [
+        "androidx.test.runner",
+        "androidx.test.ext.junit",
+        "MicrodroidDeviceTestHelper",
+        "MicrodroidTestHelper",
+        "truth",
+    ],
+    sdk_version: "test_current",
+    use_embedded_native_libs: true,
+    compile_multilib: "64",
+
+    host_required: ["MicrodroidTestPreparer"],
+}

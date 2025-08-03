@@ -1,0 +1,69 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_defaults {
+    name: "BluetoothInstrumentationTestsDefaults",
+    defaults: ["framework-bluetooth-tests-defaults"],
+
+    min_sdk_version: "Tiramisu",
+    target_sdk_version: "current",
+    libs: [
+        "android.test.base",
+        "android.test.mock",
+        "android.test.runner",
+        "javax.obex",
+        "libprotobuf-java-micro",
+        "telephony-common",
+    ],
+
+    static_libs: [
+        "PlatformProperties",
+        "TestParameterInjector",
+        "androidx.media_media",
+        "androidx.room_room-migration",
+        "androidx.room_room-runtime",
+        "androidx.room_room-testing",
+        "androidx.test.espresso.intents",
+        "androidx.test.ext.truth",
+        "androidx.test.rules",
+        "androidx.test.uiautomator_uiautomator",
+        "flag-junit",
+        "framework-bluetooth-pre-jarjar",
+        "frameworks-base-testutils",
+        "gson",
+        "mockito-target",
+        "platform-test-annotations",
+        "truth",
+    ],
+
+    asset_dirs: ["src/com/android/bluetooth/btservice/storage/schemas"],
+
+    // Include all test java files.
+    srcs: ["src/**/*.java"],
+    jacoco: {
+        include_filter: ["android.bluetooth.*"],
+        exclude_filter: [],
+    },
+    platform_apis: true,
+
+    test_suites: [
+        "automotive-tests",
+        "general-tests",
+        "mts-bluetooth",
+    ],
+
+    instrumentation_for: "Bluetooth",
+}
+
+android_test {
+    name: "BluetoothInstrumentationTests",
+    defaults: ["BluetoothInstrumentationTestsDefaults"],
+}
+
+android_test {
+    name: "GoogleBluetoothInstrumentationTests",
+    defaults: ["BluetoothInstrumentationTestsDefaults"],
+    test_config: "GoogleAndroidTest.xml",
+    instrumentation_target_package: "com.google.android.bluetooth",
+}

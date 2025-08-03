@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2007 The Android Open Source Project
+     Copyright (C) 2023 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  android:id="@+id/call_log_list_item"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:orientation="vertical">
+
+  <!-- Day group heading. Used to show a "today", "yesterday", "last week" or "other" heading
+       above a group of call log entries. -->
+  <TextView
+    android:id="@+id/call_log_day_group_label"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="start"
+    android:layout_marginStart="@dimen/call_log_start_margin"
+    android:layout_marginEnd="@dimen/call_log_outer_margin"
+    android:paddingTop="@dimen/call_log_day_group_padding_top"
+    android:paddingBottom="@dimen/call_log_day_group_padding_bottom"
+    style="@style/Dialer.TextAppearance.OVERLINE.Ellipsize"/>
+
+  <androidx.cardview.widget.CardView
+    android:id="@+id/call_log_row"
+    style="@style/CallLogCardStyle">
+
+    <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="vertical">
+
+      <!-- Primary area containing the contact badge and caller information -->
+      <LinearLayout
+        android:id="@+id/primary_action_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="@dimen/call_log_start_margin"
+        android:paddingEnd="@dimen/call_log_outer_margin"
+        android:paddingTop="@dimen/call_log_vertical_padding"
+        android:paddingBottom="@dimen/call_log_vertical_padding"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:focusable="true"
+        android:nextFocusRight="@+id/call_back_action"
+        android:nextFocusLeft="@+id/quick_contact_photo">
+
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top"
+            >
+
+          <com.android.dialer.app.calllog.DialerQuickContactBadge
+              android:id="@+id/quick_contact_photo"
+              android:layout_width="@dimen/contact_photo_size"
+              android:layout_height="@dimen/contact_photo_size"
+              android:paddingTop="2dp"
+              android:nextFocusRight="@id/primary_action_view"
+              android:focusable="true"
+              android:forceDarkAllowed="false" />
+
+          <ImageView
+              android:id="@+id/quick_contact_checkbox"
+              android:scaleType="fitCenter"
+              android:layout_width="@dimen/contact_photo_size"
+              android:layout_height="@dimen/contact_photo_size"
+              android:visibility="gone"
+              android:src="@drawable/ic_check_mark_48dp" />
+
+        </FrameLayout>
+
+
+        <LinearLayout
+          android:layout_width="0dp"
+          android:layout_height="wrap_content"
+          android:layout_weight="1"
+          android:orientation="vertical"
+          android:gravity="center_vertical"
+          android:layout_marginStart="@dimen/call_log_list_item_info_margin_start">
+
+          <com.android.dialer.widget.BidiTextView
+            android:id="@+id/name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/call_log_name_margin_bottom"
+            android:layout_marginEnd="@dimen/call_log_icon_margin"
+            style="@style/Dialer.TextAppearance.Primary.Ellipsize"/>
+
+          <LinearLayout
+            android:id="@+id/call_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <com.android.dialer.calllogutils.CallTypeIconsView
+              android:id="@+id/call_type_icons"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_marginEnd="@dimen/call_log_icon_margin"
+              android:layout_gravity="center_vertical"/>
+
+            <ImageView
+              android:id="@+id/work_profile_icon"
+              android:src="@drawable/ic_work_profile"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_marginEnd="@dimen/call_log_icon_margin"
+              android:scaleType="center"
+              android:visibility="gone"/>
+
+            <TextView
+              android:id="@+id/call_location_and_date"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_marginEnd="@dimen/call_log_icon_margin"
+              android:layout_gravity="center_vertical"
+              style="Dialer.TextAppearance.Secondary.Ellipsize"/>
+
+          </LinearLayout>
+
+          <TextView
+            android:id="@+id/call_account_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/call_log_call_account_margin_bottom"
+            android:layout_marginEnd="@dimen/call_log_icon_margin"
+            android:visibility="gone"
+            style="Dialer.TextAppearance.Secondary2.Ellipsize"/>
+
+        </LinearLayout>
+
+        <ImageView
+          android:id="@+id/primary_action_button"
+          android:layout_width="@dimen/call_log_list_item_primary_action_dimen"
+          android:layout_height="@dimen/call_log_list_item_primary_action_dimen"
+          android:layout_gravity="center_vertical"
+          android:background="?android:attr/selectableItemBackgroundBorderless"
+          android:scaleType="center"
+          android:visibility="gone"
+          app:tint="?colorIcon" />
+
+      </LinearLayout>
+
+      <!-- Viewstub with additional expandable actions for a call log entry -->
+      <ViewStub
+        android:id="@+id/call_log_entry_actions_stub"
+        android:inflatedId="@+id/call_log_entry_actions"
+        android:layout="@layout/call_log_list_item_actions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"/>
+
+    </LinearLayout>
+
+  </androidx.cardview.widget.CardView>
+
+</LinearLayout>

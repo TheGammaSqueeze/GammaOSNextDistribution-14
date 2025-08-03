@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2022 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+  <group>
+    <clip-path
+        android:pathData="M0,0h108v108h-108z"/>
+    <path
+        android:pathData="M72.248,53.924L56.06,37.736C55.381,37.057 54.446,36.672 53.475,36.672H40.33C38.313,36.672 36.663,38.322 36.663,40.339V53.484C36.663,54.456 37.048,55.39 37.745,56.069L53.933,72.257C55.363,73.687 57.691,73.687 59.121,72.257L72.266,59.112C73.696,57.682 73.696,55.372 72.248,53.924ZM44.913,47.672C46.432,47.672 47.663,46.441 47.663,44.922C47.663,43.403 46.432,42.172 44.913,42.172C43.394,42.172 42.163,43.403 42.163,44.922C42.163,46.441 43.394,47.672 44.913,47.672ZM63.787,62.713C59.947,58.873 53.72,58.873 49.88,62.713L47.287,60.12C52.559,54.848 61.107,54.848 66.38,60.12L63.787,62.713ZM59.204,67.296C57.895,65.987 55.772,65.987 54.463,67.296L51.87,64.704C54.611,61.963 59.055,61.963 61.796,64.704L59.204,67.296Z"
+        android:fillColor="#167C80"
+        android:fillType="evenOdd"/>
+    <path
+        android:pathData="M28.54,28.54m-72,0a72,72 0,1 1,144 0a72,72 0,1 1,-144 0"
+        android:fillAlpha="0.6">
+      <aapt:attr name="android:fillColor">
+        <gradient
+            android:gradientRadius="72"
+            android:centerX="28.54"
+            android:centerY="28.54"
+            android:type="radial">
+          <item android:offset="0" android:color="#19FFFFFF"/>
+          <item android:offset="1" android:color="#00FFFFFF"/>
+        </gradient>
+      </aapt:attr>
+    </path>
+  </group>
+</vector>

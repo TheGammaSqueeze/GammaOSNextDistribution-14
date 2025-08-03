@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+**
+** Copyright 2015 The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="wifi_fail_to_scan">Non faghet a chircare retes</string>
+    <string name="wifi_security_short_wep">WEP</string>
+    <string name="wifi_security_short_wpa">WPA</string>
+    <string name="wifi_security_short_wpa2">WPA2</string>
+    <string name="wifi_security_short_wpa_wpa2">WPA/WPA2</string>
+    <string name="wifi_security_short_eap">802.1x</string>
+    <string name="wifi_security_none">Perunu</string>
+    <string name="wifi_remembered">Sarvadu</string>
+    <string name="wifi_disconnected">Disconnètidu</string>
+    <string name="wifi_disabled_generic">Disativadu</string>
+    <string name="wifi_disabled_network_failure">Errore in sa cunfiguratzione de s\'IP</string>
+    <string name="wifi_disabled_password_failure">Problema de autenticatzione</string>
+    <string name="wifi_not_in_range">No esecutàbile</string>
+    <string name="saved_network">Sarvadu dae <xliff:g id="name">%1$s</xliff:g></string>
+    <string name="private_dns_broken">Impossìbile atzèdere a su serbidore privadu DNS</string>
+    <string name="speed_label_slow">Lenta</string>
+    <string name="speed_label_fast">Lestra</string>
+    <string name="wifi_passpoint_expired">Iscadidu</string>
+    <string name="bluetooth_disconnected">Disconnètidu</string>
+    <string name="bluetooth_disconnecting">Iscolleghende·si\u2026</string>
+    <string name="bluetooth_connecting">Connetende·si\u2026</string>
+    <string name="bluetooth_pairing">Assotziende·si\u2026</string>
+    <string name="tv_bluetooth_battery_level">Bateria: <xliff:g id="battery_level_as_percentage">%1$s</xliff:g></string>
+    <string name="bluetooth_battery_level_untethered_left">Manca: <xliff:g id="battery_level_as_percentage" example="25%">%1$s</xliff:g></string>
+    <string name="bluetooth_battery_level_untethered_right">Dereta: <xliff:g id="battery_level_as_percentage" example="25%">%1$s</xliff:g></string>
+    <string name="bluetooth_saved_device">Sarvadu</string>
+    <string name="bluetooth_profile_a2dp">Àudio de is media</string>
+    <string name="bluetooth_profile_opp">Tràmuda de archìvios</string>
+    <string name="bluetooth_profile_hid">Dispositivu de intrada</string>
+    <string name="bluetooth_profile_pan">Atzessu a internet</string>
+    <string name="bluetooth_profile_pbap">Permite atzessu a is cuntatos e a sa cronologia de mutidas</string>
+    <string name="bluetooth_profile_pbap_summary">S\'informatzione at a èssere impreada pro is annùntzios de mutida e àteru</string>
+    <string name="bluetooth_profile_pan_nap">Cumpartzidura de connessione a internet</string>
+    <string name="bluetooth_profile_sap">Atzessu a sa SIM</string>
+    <string name="bluetooth_profile_hearing_aid">Auriculares</string>
+    <string name="bluetooth_profile_le_audio">Àudio LE</string>
+    <string name="bluetooth_hearing_aid_profile_summary_connected">Connètidu a is auriculares</string>
+    <string name="bluetooth_a2dp_profile_summary_connected">Connètidu a s\'àudio de is media</string>
+    <string name="bluetooth_headset_profile_summary_connected">Connètidu a s\'àudio de su telèfonu</string>
+    <string name="bluetooth_opp_profile_summary_connected">Collegadu a su serbidore de tràmuda de archìvios</string>
+    <string name="bluetooth_map_profile_summary_connected">Collegadu a una mapa</string>
+    <string name="bluetooth_sap_profile_summary_connected">Collegadu a SAP</string>
+    <string name="bluetooth_opp_profile_summary_not_connected">Non s\'est collegadu a su serbidore de tràmuda de archìvios</string>
+    <string name="bluetooth_hid_profile_summary_connected">Collegadu a su dispositivu de intrada</string>
+    <string name="bluetooth_map_profile_summary_use_for">Imprea pro sa mapa</string>
+    <string name="bluetooth_sap_profile_summary_use_for">Imprea pro s\'atzessu a sa SIM</string>
+    <string name="bluetooth_a2dp_profile_summary_use_for">Imprea pro s\'àudio de is media</string>
+    <string name="bluetooth_headset_profile_summary_use_for">Imprea pro s\'àudio de su telèfonu</string>
+    <string name="bluetooth_opp_profile_summary_use_for">Imprea pro sa tràmuda de archìvios</string>
+    <string name="bluetooth_hid_profile_summary_use_for">Imprea pro s\'intrada</string>
+    <string name="bluetooth_hearing_aid_profile_summary_use_for">Imprea pro is auriculares</string>
+    <string name="bluetooth_pairing_accept">Assòtzia</string>
+    <string name="bluetooth_pairing_accept_all_caps">ASSÒTZIA</string>
+    <string name="bluetooth_pairing_decline">Annulla</string>
+    <string name="bluetooth_pairing_will_share_phonebook">Cando collegadu, s\'assòtziu donat s\'atzessu a is cuntatos e a sa cronologia de mutidas tuas.</string>
+    <string name="bluetooth_pairing_error_message">No at fatu a s\'assotziare cun <xliff:g id="device_name">%1$s</xliff:g>.</string>
+    <string name="bluetooth_pairing_pin_error_message">No at fatu a s\'assotziare cun <xliff:g id="device_name">%1$s</xliff:g> ca su PIN o sa crae de intrada est isballiada.</string>
+    <string name="bluetooth_pairing_device_down_error_message">No at fatu a comunicare cun <xliff:g id="device_name">%1$s</xliff:g>.</string>
+    <string name="bluetooth_pairing_rejected_error_message">Assòtziu refudadu dae <xliff:g id="device_name">%1$s</xliff:g>.</string>
+    <string name="accessibility_wifi_off">Wifi disativadu.</string>
+    <string name="accessibility_no_wifi">Wifi iscollegadu.</string>
+    <string name="accessibility_wifi_one_bar">Wifi a un\'istanca.</string>
+    <string name="accessibility_wifi_two_bars">Wifi a duas istancas.</string>
+    <string name="accessibility_wifi_three_bars">Wifi a tres istancas.</string>
+    <string name="accessibility_wifi_signal_full">Segnale Wifi a su màssimu.</string>
+    <string name="accessibility_wifi_other_device">Connètidu a su dispositivu tuo.</string>
+    <string name="process_kernel_label">Android OS</string>
+    <string name="data_usage_uninstalled_apps">Aplicatziones bogadas</string>
+    <string name="data_usage_uninstalled_apps_users">Aplicatziones e utèntzias bogadas</string>
+    <string name="tether_settings_title_usb">Ancoràgiu web USB</string>
+    <string name="tether_settings_title_wifi">Puntu de atzessu portàtile</string>
+    <string name="tether_settings_title_bluetooth">Ancoràgiu web Bluetooth.</string>
+    <string name="tether_settings_title_usb_bluetooth">Ancoràgiu web</string>
+    <string name="tether_settings_title_all">Ancoràgiu web e puntu de atzessu portàtile</string>
+    <string name="managed_user_title">Totu is aplicatziones de traballu</string>
+    <string name="unknown">Disconnotu</string>
+    <string name="running_process_item_user_label">Utente: <xliff:g id="user_name">%1$s</xliff:g></string>
+    <string name="launch_defaults_some">Unas cantas cunfiguratziones predefinidas</string>
+    <string name="launch_defaults_none">Nissuna cunfiguratzione predefinida</string>
+    <string name="tts_settings">Cunfiguratzione de sa sìntesi de boghe</string>
+    <string name="tts_settings_title">Sìntesi de boghe in essida</string>
+    <string name="tts_default_rate_title">Lestresa de sa boghe</string>
+    <string name="tts_default_rate_summary">Lestresa de sa boghe de su testu</string>
+    <string name="tts_default_pitch_title">Tonu</string>
+    <string name="tts_default_pitch_summary">Interessat su tonu de sa boghe sintetizada</string>
+    <string name="tts_default_lang_title">Limba</string>
+    <string name="tts_lang_use_system">Imprea sa limba de sistema</string>
+    <string name="tts_lang_not_selected">Limba non seletzionada</string>
+    <string name="tts_default_lang_summary">Cunfigurat sa boghe de sa limba ispetzìfica pro su testu faeddadu</string>
+    <string name="tts_play_example_title">Ascurta un\'esèmpiu</string>
+    <string name="tts_play_example_summary">Reprodue una mustra curtza de sìntesi de boghe</string>
+    <string name="tts_install_data_title">Installa datos de boghe</string>
+    <string name="tts_install_data_summary">Installa is datos de boghes rechestos pro sa sìntesi de boghe</string>
+    <string name="tts_engine_security_warning">Podet èssere chi custu motore de sìntesi de boghe potzat regòllere
+        totu is testos faeddados, inclùdidos is datos personales comente craes e nùmeros
+        de sa carta de crèditu. Benet dae su motore <xliff:g id="tts_plugin_engine_name">%s</xliff:g>.
+        Boles ativare s\'impreu de custu motore de sìntesi de boghe?</string>
+    <string name="tts_engine_network_required">Custa limba rechedet una connessione de rete ativa pro s\'essida de sa sìntesi de boghe.</string>
+    <string name="tts_default_sample_string">Custu est un\'esèmpiu de sìntesi de boghe</string>
+    <string name="tts_status_title">Istadu de limba predefinidu</string>
+    <string name="tts_status_ok"><xliff:g id="locale" example="English (United States)">%1$s</xliff:g> est de su totu cumpatìbile</string>
+    <string name="tts_status_requires_network"><xliff:g id="locale" example="English (United States)">%1$s</xliff:g> rechedet connessione a sa rete</string>
+    <string name="tts_status_not_supported"><xliff:g id="locale" example="English (United States)">%1$s</xliff:g> no est cumpatìbile</string>
+    <string name="tts_engine_settings_title">Cunfiguratziones pro <xliff:g id="tts_engine_name">%s</xliff:g></string>
+    <string name="tts_engine_settings_button">Avia sa cunfiguratzione de su motore</string>
+    <string-array name="tts_rate_entries">
+        <item>60%</item>
+        <item>80%</item>
+        <item>100%</item>
+        <item>150%</item>
+        <item>200%</item>
+        <item>250%</item>
+        <item>300%</item>
+        <item>350%</item>
+        <item>400%</item>
+    </string-array>
+    <string name="category_private">Privadu</string>
+    <string name="category_clone">Clone</string>
+    <string name="enable_adb_wireless">Curretzione de sa lìnia sena filos</string>
+    <string name="enable_adb_wireless_summary">Modalidade curretzione de errores cando su Wi\u2011Fi est connètidu</string>
+    <string name="adb_wireless_error">Errore</string>
+    <string name="adb_wireless_settings">Curretzione de sa lìnia sena filos</string>
+    <string name="adb_wireless_list_empty_off">Pro bìdere e impreare is dispositivos disponìbiles, ativa sa curretzione de lìnia sena filos</string>
+    <string name="adb_pair_method_qrcode_title">Alloba su dispositivu cun su còdighe QR</string>
+    <string name="adb_pair_method_qrcode_summary">Alloba dispositivos noos cun s\'iscansione de su còdighe QR</string>
+    <string name="adb_pair_method_code_title">Alloba su dispositivu cun su còdighe de allobada</string>
+    <string name="adb_pair_method_code_summary">Alloba dispositivos noos cun su còdighe de ses tzifras</string>
+    <string name="adb_paired_devices_title">Dispositivos assotziados</string>
+    <string name="adb_wireless_device_connected_summary">Connètidu in custu momentu</string>
+    <string name="adb_wireless_device_details_title">Detàllios de su dispositivu</string>
+    <string name="adb_device_forget">Iscaresse·ti</string>
+    <string name="adb_device_fingerprint_title_format">Imprenta de pòddighe de su dispositivu: <xliff:g id="fingerprint_param" example="a1:b2:c3:d4:e5:f6">%1$s</xliff:g></string>
+    <string name="adb_wireless_connection_failed_title">Errore de connessione</string>
+    <string name="adb_wireless_connection_failed_message">Assegura·ti chi <xliff:g id="device_name" example="Bob\'s Macbook">%1$s</xliff:g> siat connètidu a sa rete curreta</string>
+    <string name="adb_pairing_device_dialog_title">Assòtzia a su dispositivu</string>
+    <string name="adb_pairing_device_dialog_pairing_code_label">Còdighe de assòtziu Wi\u2011Fi</string>
+    <string name="adb_pairing_device_dialog_failed_title">Errore in s\'assòtziu</string>
+    <string name="adb_pairing_device_dialog_failed_msg">Assegura·ti chi su dispositivu siat connètidu a sa pròpiu rete.</string>
+    <string name="adb_wireless_qrcode_summary">Assòtzia su dispositivu a su Wi\u2011Fi cun s\'iscansione de unu còdighe QR</string>
+    <string name="adb_wireless_verifying_qrcode_text">Assòtziu de su dispositivu in cursu\u2026</string>
+    <string name="adb_qrcode_pairing_device_failed_msg">Errore in s\'assòtziu de su dispositivu. Su còdighe QR non fiat curretu, o su dispositivu no est connètidu a sa pròpiu rete.</string>
+    <string name="adb_wireless_qrcode_pairing_title">Iscansiona su còdighe QR</string>
+    <string name="adb_wireless_qrcode_pairing_description">Assòtzia su dispositivu a su Wi\u2011Fi cun s\'iscansione de unu còdighe QR</string>
+    <string name="adb_wireless_no_network_msg">Connete a sa rete Wi\u2011Fi </string>
+    <string name="keywords_adb_wireless">adb, debug, dev</string>
+    <string name="bluetooth_enable_gabeldorsche">Abilita Gabeldorsche</string>
+    <string name="bluetooth_select_map_version_string">Versione Bluetooth MAP</string>
+    <string name="bluetooth_select_map_version_dialog_title">Sèbera sa versione Bluetooth MAP</string>
+    <string name="bluetooth_select_a2dp_codec_type_help_info">Si s\'optzione est disativada bolet nàrrere chi no est cumpatìbile cun su telèfonu
+        o auriculares</string>
+    <string name="bluetooth_enable_gabeldorsche_summary">Ativat su grupu de funtziones de Bluetooth Gabeldorsche.</string>
+    <string name="select_application">Sèbera un\'aplicatzione</string>
+    <string name="no_application">Nudda</string>
+    <string name="wait_for_debugger">Abeta su curretore</string>
+    <string name="debug_input_category">Intrada</string>
+    <string name="debug_drawing_category">Disinnos</string>
+    <string name="media_category">Cuntenutu multimediale</string>
+    <string name="debug_monitoring_category">Controllu</string>
+    <string name="strict_mode">Modalidade rigurosa ativada</string>
+    <string name="pointer_location">Positzione de su cursore</string>
+    <string name="show_key_presses">Ammustra sa pressione de is teclas</string>
+    <string name="show_key_presses_summary">Ammustra una retroatzione visuale pro is teclas fìsicas prèmidas </string>
+    <string name="show_screen_updates">Mustra atualizatziones a pìgiu</string>
+    <string name="debug_layout">Mustra is lìnias de s\'istrutura</string>
+    <string name="debug_layout_summary">Mustra is oros, is lìmites de su vìdeu, etz.</string>
+    <string name="force_rtl_layout_all_locales">Fortza sa dispositzione dereta-manca</string>
+    <string name="force_rtl_layout_all_locales_summary">Fortza sa dispositzione dae dereta a manca (RTL) pro totu is locales</string>
+    <string name="transparent_navigation_bar">Barra de navigatzione trasparente</string>
+    <string name="transparent_navigation_bar_summary">Faghe trasparente su colore de s\'isfundu de sa barra de navigatzione in manera predefinida</string>
+    <string name="force_msaa">Fortza MSAA 4x</string>
+    <string name="force_msaa_summary">Ativa MSAA 4x in is aplicatziones de OpenGL ES 2.0</string>
+    <string name="show_non_rect_clip">Currige is operatziones de segada non retangulares</string>
+    <string name="enable_verbose_vendor_logging">Ativat sa registratzione detalliada de chie bendit</string>
+    <string name="window_animation_scale_title">Iscala de animatzione de ventanas</string>
+    <string name="transition_animation_scale_title">Iscala de animatzione de transitziones</string>
+    <string name="animator_duration_scale_title">Iscala de durada de s\'animadore</string>
+    <string name="overlay_display_devices_title">Reprodue ischermos segundàrios</string>
+    <string name="widevine_settings_title">Cunfiguratzione Widevine</string>
+    <string name="force_l3_fallback_title">Fortza s\'alternativa L3</string>
+    <string name="force_l3_fallback_summary">Seletziona pro fortzare s\'alternativa L3</string>
+    <string name="daltonizer_mode_disabled">Disativadu</string>
+    <string name="power_charging_on_hold_settings_home_page"><xliff:g id="level">%1$s</xliff:g> - Sa càrriga est in pàusa pro amparare sa bateria</string>
+    <string name="power_incompatible_charging_settings_home_page"><xliff:g id="level">%1$s</xliff:g> - Verifica s\'atzessòriu de càrriga</string>
+    <string name="power_charging_future_paused"><xliff:g id="level">%1$s</xliff:g> - Carrighende</string>
+    <string name="battery_info_status_unknown">Disconnotu</string>
+    <string name="battery_info_status_not_charging">Connètidu, ma no in càrriga</string>
+    <string name="battery_info_status_charging_on_hold">Sa càrriga est in pàusa</string>
+    <string name="disabled">Disativadu</string>
+    <string name="wifi_tether_connected_summary">        {count, plural,
+            one {}=1    {1 dispositivu collegadu}
+            other {# dispositivos collegados}
+        }
+    </string>
+    <string name="cancel">Annulla</string>
+    <string name="media_transfer_this_device_name_tv">@string/tv_media_transfer_default</string>
+    <string name="media_transfer_dock_speaker_device_name">Altoparlantes in sa base</string>
+    <string name="media_transfer_external_device_name">Dispositivu esternu</string>
+    <string name="media_transfer_default_device_name">Dispositivu connètidu</string>
+    <string name="media_output_status_unknown_error">Impossìbile riproduire in custu dispositivu</string>
+    <string name="media_output_status_require_premium">Atualiza su contu pro cambiare</string>
+    <string name="media_output_status_not_support_downloads">Impossìbile riproduire is iscarrigamentos inoghe</string>
+    <string name="media_output_status_try_after_ad">Torra·nce a proare a pustis de sa publitzidade</string>
+    <string name="media_output_status_device_in_low_power_mode">Ischida su dispositivu pro riproduire inoghe</string>
+    <string name="media_output_status_unauthorized">Sa riprodutzione no est aprovada pro custu dispositivu</string>
+    <string name="media_output_status_track_unsupported">Impossìbile riproduire custu elementu multimediale inoghe</string>
+    <string name="tv_media_transfer_connected">Connètidu</string>
+    <string name="tv_media_transfer_arc_fallback_title">ARC HDMI</string>
+    <string name="tv_media_transfer_earc_fallback_title">eARC HDMI</string>
+    <string name="tv_media_transfer_arc_subtitle">Connètidu cun ARC</string>
+    <string name="tv_media_transfer_earc_subtitle">Connètidu cun eARC</string>
+    <string name="tv_media_transfer_default">Essida predeterminada de sa TV</string>
+    <string name="tv_media_transfer_hdmi">Essida HDMI</string>
+    <string name="tv_media_transfer_internal_speakers">Altoparlantes internos</string>
+    <string name="user_add_profile_item_summary">Podes limitare s\'atzessu a is aplicatziones e a su cuntenutu dae su contu tuo</string>
+    <string name="user_add_user_item_title">Utente</string>
+    <string name="user_add_profile_item_title">Profilu limitadu</string>
+    <string name="user_grant_admin_title">Boles torrare custu utente in amministradore?</string>
+    <string name="user_grant_admin_message">Is amministradores tenent privilègios ispetziales diferentes de is àteros utentes. Un\'amministradore podet gestire totu is utentes, atualizare o ripristinare custu dispositivu, modificare sa cunfiguratzione, bìdere totu is aplicatziones installadas e donare o bogare privilègios de amministratzione a àtere.</string>
+    <string name="user_grant_admin_button">Torra in amministradore</string>
+    <string name="user_setup_dialog_message">Assegura·ti chi sa persone siat disponìbile a pigare su dispositivu e a cunfigurare s\'ispàtziu suo</string>
+    <string name="user_setup_button_setup_now">Cunfigura immoe</string>
+    <string name="user_add_user_type_title">Agiunghe</string>
+    <string name="user_new_user_name">Utèntzia noa</string>
+    <string name="user_new_profile_name">Profilu nou</string>
+    <string name="user_info_settings_title">Informatziones de s\'utente</string>
+    <string name="profile_info_settings_title">Informatziones de su profilu</string>
+    <string name="user_need_lock_message">Antis de creare unu profilu limitadu, tenes bisòngiu de cunfigurare unu blocu de ischermu pro amparare is aplicatziones e is datos personales tuos.</string>
+    <string name="user_switch_to_user">Càmbia a <xliff:g id="user_name" example="John Doe">%s</xliff:g></string>
+    <string name="edit_user_info_message">Sa fotografia e su nòmine tuos ant a èssere visìbiles pro chie si siat impreet custu dispositivu.</string>
+    <string name="guest_new_guest">Agiunghe persone invitada</string>
+    <string name="guest_exit_guest">Boga·nche persone invitada</string>
+    <string name="grant_admin">Eja, torra in amministradore</string>
+    <string name="not_grant_admin">No, non torres in amministradore</string>
+    <string name="cached_apps_freezer_device_default">Predefinidos de su dispositivu</string>
+    <string name="cached_apps_freezer_disabled">Disativadu</string>
+    <string name="cached_apps_freezer_enabled">Abilitadu</string>
+    <string name="cached_apps_freezer_reboot_dialog_text">Su dispositivu depet èssere torradu a aviare pro aplicare custu càmbiu. Torra a aviare immoe o annulla</string>
+    <string name="media_transfer_wired_usb_device_name">Cùfias cun filu</string>
+    <string name="accessibility_phone_four_bars">Signale a cuatru istancas.</string>
+    <string name="font_scale_percentage"> <xliff:g id="percentage">%1$d</xliff:g> %%</string>
+    <string name="not_specified">No ispetzificadu</string>
+    <string name="neuter">Nèutru</string>
+    <string name="feminine">Feminile</string>
+    <string name="masculine">Maschile</string>
+</resources>

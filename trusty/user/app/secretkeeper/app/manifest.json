@@ -1,0 +1,9 @@
+{
+    "app_name": "secretkeeper_app",
+    "uuid": "4582bf12-1f7d-4830-9be5-36e6bd91c2c6",
+    "mgmt_flags": {
+            "non_critical_app": true
+    },
+    "min_heap": 114688,
+    "min_stack": 65536
+}

@@ -1,0 +1,34 @@
+From 6875449497baf026fb8228668930a715ffcc7082 Mon Sep 17 00:00:00 2001
+From: Sonny Sasaka <sonnysasaka@chromium.org>
+Date: Fri, 19 Mar 2021 16:56:59 -0700
+Subject: [PATCH] rebase_path for write_args
+
+---
+ BUILD.gn | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/libchrome/BUILD.gn b/libchrome/BUILD.gn
+index a846d8f52..66ac10a55 100644
+--- a/libchrome/BUILD.gn
++++ b/libchrome/BUILD.gn
+@@ -556,7 +556,7 @@ action("base") {
+ 
+   script = "//common-mk/write_args.py"
+   outputs = [ "${root_out_dir}/lib/lib${target_name}.so" ]
+-  args = [ "--output" ] + outputs + [ "--" ] + [
++  args = [ "--output" ] + rebase_path(outputs) + [ "--" ] + [
+            "GROUP",
+            "(",
+            "AS_NEEDED",
+@@ -618,7 +618,7 @@ action("base-test") {
+ 
+   script = "//common-mk/write_args.py"
+   outputs = [ "${root_out_dir}/lib${target_name}.a" ]
+-  args = [ "--output" ] + outputs + [ "--" ] + [
++  args = [ "--output" ] + rebase_path(outputs) + [ "--" ] + [
+            "GROUP",
+            "(",
+            "AS_NEEDED",
+-- 
+2.20.1
+

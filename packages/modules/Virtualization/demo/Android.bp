@@ -1,0 +1,21 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_app {
+    name: "MicrodroidDemoApp",
+    srcs: ["java/**/*.java"],
+    resource_dirs: ["res"],
+    static_libs: [
+        "androidx-constraintlayout_constraintlayout",
+        "androidx.appcompat_appcompat",
+        "com.android.microdroid.testservice-java",
+        "com.google.android.material_material",
+    ],
+    sdk_version: "system_current",
+    jni_libs: ["MicrodroidTestNativeLib"],
+    jni_uses_platform_apis: true,
+    use_embedded_native_libs: true,
+    v4_signature: true,
+    min_sdk_version: "33",
+}

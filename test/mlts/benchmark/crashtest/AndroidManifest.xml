@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.android.nn.crashtest"
+    android:versionCode="2"
+    android:versionName="2">
+
+  <application
+      android:allowBackup="true"
+      android:icon="@mipmap/ic_launcher"
+      android:label="@string/app_name"
+      android:roundIcon="@mipmap/ic_launcher_round"
+      android:supportsRtl="true"
+      android:debuggable="true"
+      android:theme="@style/AppTheme">
+    <activity android:name="com.android.nn.crashtest.MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+
+        <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+    </activity>
+
+    <service android:name="com.android.nn.crashtest.core.OutOfProcessCrashTestService"
+        android:process=":CrashTest" />
+    <service android:name="com.android.nn.crashtest.core.InProcessCrashTestService"
+        android:process=".CrashTest" />
+    <!--provider entry is a workaround for b/195309961-->
+    <provider
+            xmlns:tools="http://schemas.android.com/tools"
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="com.google.android.storagemanager.androidx-startup"
+            tools:replace="android:authorities" />
+  </application>
+
+  <uses-sdk android:minSdkVersion="27" />
+
+</manifest>

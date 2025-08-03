@@ -1,0 +1,45 @@
+{
+  "description": "One source and one trigger that match with source event id as null and no event trigger data provided. No event report generated.",
+  "input": {
+    "sources": [{
+      "registration_request": {
+        "attribution_src_url": "https://www.ad-tech1.test",
+        "source_type": "navigation",
+        "registrant": "example.1s1.test"
+      },
+      "responses": [{
+        "url": "https://www.ad-tech1.test",
+        "response": {
+          "Attribution-Reporting-Register-Source": {
+            "source_event_id": null,
+            "destination": "android-app://example.2d1.test",
+            "priority": "100",
+            "expiry": "172801"
+          },
+          "Location": null,
+          "Attribution-Reporting-Redirect": null
+        }
+      }],
+      "timestamp": "800000000001"
+    }],
+    "triggers": [{
+      "registration_request": {
+        "attribution_src_url": "https://www.ad-tech1.test",
+        "registrant": "example.2d1.test"
+      },
+      "responses": [{
+        "url": "https://www.ad-tech1.test",
+        "response": {
+          "Attribution-Reporting-Register-Trigger": {},
+          "Location": null,
+          "Attribution-Reporting-Redirect": null
+        }
+      }],
+      "timestamp": "800000600001"
+    }]
+  },
+  "output": {
+    "event_level_results": [],
+    "aggregatable_results": []
+  }
+}

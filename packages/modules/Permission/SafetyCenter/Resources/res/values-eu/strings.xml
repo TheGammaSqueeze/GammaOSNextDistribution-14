@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="safetyCenterResourcesAppLabel" msgid="4043334186295695930">"Segurtasun-zentroko baliabideak"</string>
+    <string name="lock_screen_sources_title" msgid="3317906280484627707">"Gailua blokeatzeko eginbideak"</string>
+    <string name="lock_screen_sources_summary" msgid="7220439741282516496"></string>
+    <string name="lock_screen_title" msgid="4069104894527169877">"Pantailaren blokeoa"</string>
+    <string name="lock_screen_summary_disabled" msgid="354071230916616692">"Ez dago informaziorik oraindik"</string>
+    <string name="lock_screen_search_terms" msgid="2678486357779794826">"Gailua blokeatzeko eginbidea, Pantailaren blokeoa, Pantaila blokeatua, Pasahitza, PINa, Eredua"</string>
+    <string name="biometrics_title" msgid="5859504610285212938">"Sistema biometrikoak"</string>
+    <string name="biometrics_search_terms" msgid="6040319118762671981">"Hatz-marka, Hatza, Gehitu hatz-marka, Aurpegi bidez desblokeatzeko eginbidea, Aurpegia"</string>
+    <string name="privacy_sources_title" msgid="4061110826457365957">"Pribatutasuna"</string>
+    <string name="privacy_sources_summary" msgid="4089719981155120864">"Panela, baimenak, kontrolatzeko aukerak"</string>
+    <string name="permission_usage_title" msgid="3633779688945350407">"Pribatutasun-panela"</string>
+    <string name="permission_usage_summary" msgid="5323079206029964468">"Erakutsi zein aplikaziok erabili dituzten baimenak azkenaldian"</string>
+    <string name="permission_usage_search_terms" msgid="3852343592870257104">"Pribatutasuna, Pribatutasun-panela"</string>
+    <string name="permission_manager_title" msgid="5277347862821255015">"Baimenen kudeatzailea"</string>
+    <string name="permission_manager_summary" msgid="8099852107340970790">"Kontrolatu aplikazioek datuak atzitzeko duten baimena"</string>
+    <string name="permission_manager_search_terms" msgid="2895147613099694722">"Baimenak, Baimenen kudeatzailea"</string>
+    <string name="privacy_controls_title" msgid="5322875777945432395">"Pribatutasun-ezarpenak"</string>
+    <string name="privacy_controls_summary" msgid="2402066941190435424">"Kontrolatu gailuak mikrofonoa, kamera eta abar atzitzeko dituen baimenak"</string>
+    <string name="privacy_controls_search_terms" msgid="3774472175934304165">"Pribatutasuna, Pribatutasun-ezarpenak"</string>
+    <string name="advanced_title" msgid="8745436380690561172">"Ezarpen gehiago"</string>
+    <string name="advanced_security_title" msgid="1126833338772188155">"Segurtasun-ezarpen gehiago"</string>
+    <string name="advanced_security_summary" msgid="6172253327022425123">"Enkriptatzea, kredentzialak eta abar"</string>
+    <string name="advanced_security_search_terms" msgid="3350609555814362075"></string>
+    <string name="advanced_privacy_title" msgid="1117725225706176643">"Pribatutasun-ezarpen gehiago"</string>
+    <string name="advanced_privacy_summary" msgid="2281203390575069543">"Betetze automatikoa, jarduerak kontrolatzeko aukerak eta abar"</string>
+    <string name="advanced_privacy_search_terms" msgid="5044404599789175222"></string>
+</resources>

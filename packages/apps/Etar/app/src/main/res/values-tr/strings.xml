@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2006 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label">Takvim</string>
+    <string name="when_label">Zaman:</string>
+    <string name="today">Bugün</string>
+    <string name="tomorrow">Yarın</string>
+    <string name="today_at_time_fmt">"Bugün şu saatler arasında: <xliff:g id="TIME_INTERVAL">%s</xliff:g>"</string>
+    <string name="tomorrow_at_time_fmt">"Yarın şu saatler arasında: <xliff:g id="TIME_INTERVAL">%s</xliff:g>"</string>
+    <string name="date_time_fmt">"<xliff:g id="DATE">%1$s</xliff:g>, <xliff:g id="TIME_INTERVAL">%2$s</xliff:g>"</string>
+    <string name="no_title_label">(Başlıksız)</string>
+    <string name="no_reminder_label">Hiçbiri</string>
+    <string name="no_snooze_label">Hiçbiri</string>
+    <plurals name="Nminutes">
+        <item quantity="one">1 dakika</item>
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> dakika</item>
+    </plurals>
+    <plurals name="Nmins">
+        <item quantity="one">1 dak</item>
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> dak</item>
+    </plurals>
+    <plurals name="Nhours">
+        <item quantity="one">1 saat</item>
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> saat</item>
+    </plurals>
+    <plurals name="Ndays">
+        <item quantity="one">1 gün</item>
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> gün</item>
+    </plurals>
+    <plurals name="Nweeks">
+        <item quantity="one">1 hafta</item>
+        <item quantity="other"><xliff:g id="count">%d</xliff:g> hafta</item>
+    </plurals>
+    <plurals name="weekN">
+        <item quantity="one"><xliff:g id="count">%d</xliff:g>. Hafta</item>
+        <item quantity="other"><xliff:g id="count">%d</xliff:g>. Hafta</item>
+    </plurals>
+    <string name="calendar_refresh">"Yenile"</string>
+    <string name="show_day_view">"Günü göster"</string>
+    <string name="agenda_view">"Ajanda"</string>
+    <string name="day_view">"Gün"</string>
+    <string name="week_view">"Hafta"</string>
+    <string name="month_view">"Ay"</string>
+    <string name="event_view">"Etkinliği görüntüle"</string>
+    <string name="event_create">"Yeni etkinlik"</string>
+    <string name="event_edit">"Etkinliği düzenle"</string>
+    <string name="event_delete">"Etkinliği sil"</string>
+    <string name="share_label">Paylaş</string>
+    <string name="goto_today">"Bugün"</string>
+    <string name="goto_date">Git\u2026</string>
+    <string name="menu_preferences">"Ayarlar"</string>
+    <string name="menu_info">Bilgi</string>
+    <string name="search">"Ara"</string>
+    <string name="hide_controls">"Denetimleri gizle"</string>
+    <string name="show_controls">"Denetimleri göster"</string>
+    <string name="view_settings">"Görünüm ayarları"</string>
+    <string name="select_synced_calendars_button">Senkronize edilecek takvimler</string>
+    <string name="hint_what">"Etkinlik adı"</string>
+    <string name="hint_where">"Konum"</string>
+    <string name="hint_description">"Açıklama"</string>
+    <string name="hint_url">"URL"</string>
+    <string name="hint_attendees">"Konuklar"</string>
+    <string name="creating_event">"Etkinlik oluşturuldu."</string>
+    <string name="saving_event">"Etkinlik kaydedildi."</string>
+    <string name="empty_event">"Boş etkinlik oluşturulamadı."</string>
+    <string name="creating_event_with_guest">"Davetiyeler gönderilecek."</string>
+    <string name="saving_event_with_guest">"Güncellemeler gönderilecek."</string>
+    <string name="rsvp_accepted">"Evet yanıtı verildi."</string>
+    <string name="rsvp_tentative">"Belki yanıtı verildi."</string>
+    <string name="rsvp_declined">"Hayır yanıtı verildi."</string>
+    <string name="create_event_dialog_save">Kaydet</string>
+    <string name="alert_title">Takvim bildirimleri</string>
+    <string name="foreground_notification_title">Yeni hatırlatıcılar planlanıyor…</string>
+    <string name="foreground_notification_channel_name">Arkaplan işlemleri</string>
+    <string name="foreground_notification_channel_description">Dahili senkronizasyon için gerekli bildirimler. Bu kanalı güvenle gizleyebilirsiniz.</string>
+    <string name="event_info_title">Etkinliği görüntüle</string>
+    <string name="event_info_title_invite">Toplantı davetiyesi</string>
+    <string name="edit_event_all_day_label">Tüm gün</string>
+    <string name="edit_event_calendar_label">Takvim</string>
+    <string name="presence_label">Durumumu şu şekilde göster:</string>
+    <string name="privacy_label">Gizlilik</string>
+    <string name="reminders_label">Hatırlatıcı ekle</string>
+    <string name="no_syncable_calendars">Takvim yok</string>
+    <string name="no_calendars_found">Etkinlik ekleyebilmeniz için cihazınıza en az bir takvim eklemeniz gerekir</string>
+    <string name="add_calendar">Takvim ekle</string>
+    <string name="view_event_calendar_label">Takvim:</string>
+    <string name="view_event_organizer_label">Düzenleyici:</string>
+    <string name="choose_event_color_label">Etkinlik rengi seçin</string>
+    <string name="event_color_picker_dialog_title">Etkinlik Rengi</string>
+    <string name="event_color_set_to_default">Varsayılan takvim rengine ayarla</string>
+    <string name="calendar_color_picker_dialog_title">Takvim Rengi</string>
+    <string name="calendar_square_color_picker_description">Renk seçici</string>
+    <string name="view_event_response_label">Katılıyor musunuz?</string>
+    <string name="response_yes">Evet</string>
+    <string name="response_maybe">Belki</string>
+    <string name="response_no">Hayır</string>
+    <string name="email_guests_label">Davetlilere e-posta gönder</string>
+    <string name="email_organizer_label">E-posta düzenleyici</string>
+    <string name="email_picker_label">E-posta gönder</string>
+    <string name="event_not_found">"Etkinlik bulunamadı."</string>
+    <string name="map_label">Harita</string>
+    <string name="no_map">Harita uygulaması yüklü değil</string>
+    <string name="call_label">Çağrı</string>
+    <string name="quick_response_settings">Hızlı yanıtlar</string>
+    <string name="quick_response_settings_summary">Konuklara gönderilecek e-posta varsayılan yanıtlarını düzenle</string>
+    <string name="quick_response_settings_edit_title">Hızlı yanıt</string>
+    <string name="quick_response_dialog_title">Hızlı yanıt seçin</string>
+    <string name="quick_response_email_failed">Bir e-posta programı bulunamadı</string>
+    <string-array name="quick_response_defaults">
+        <item>Birkaç dakika geç kalıyorum.</item>
+        <item>Yaklaşık 10 dakika içinde oradayım.</item>
+        <item>Bensiz başlayın.</item>
+        <item>Maalesef katılamıyorum. Başka bir zaman ayarlamamız gerek.</item>
+    </string-array>
+    <string name="quick_response_custom_msg">Kendi yanıtınızı oluşturun…</string>
+    <string name="event_info_organizer">Düzenleyici:</string>
+    <string name="event_info_reminders_label">Hatırlatıcılar</string>
+    <string name="agenda_today">Bugün, <xliff:g id="date">%1$s</xliff:g></string>
+    <string name="agenda_yesterday">Dün, <xliff:g id="date">%1$s</xliff:g></string>
+    <string name="agenda_tomorrow">Yarın, <xliff:g id="date">%1$s</xliff:g></string>
+    <string name="loading">Yükleniyor…</string>
+    <string name="show_older_events"><xliff:g id="OLDEST_SEARCH_RANGE">%1$s</xliff:g> öncesindeki etkinlikleri görüntülemek için dokunun</string>
+    <string name="show_newer_events"><xliff:g id="NEWEST_SEARCH_RANGE">%1$s</xliff:g> sonrasındaki etkinlikleri görüntülemek için dokunun</string>
+    <string name="search_title">Takvimlerimde arama</string>
+    <string name="edit_event_label">"Ayrıntılar"</string>
+    <string name="edit_label">"Düzenle"</string>
+    <string name="delete_label">"Sil"</string>
+    <string name="duplicate_label">Çoğalt</string>
+    <string name="save_label">Bitti</string>
+    <string name="discard_label">İptal</string>
+    <string name="dismiss_all_label">"Tümünü kapat"</string>
+    <string name="snooze_label">"Ertele"</string>
+    <string name="does_not_repeat">Bir kerelik etkinlik</string>
+    <string name="endByDate">; <xliff:g id="DATE">%s</xliff:g> tarihine kadar</string>
+    <plurals name="endByCount">
+        <item quantity="one">; bir kerelik</item>
+        <item quantity="other">; <xliff:g id="NUMBER">%d</xliff:g> kerelik</item>
+    </plurals>
+    <plurals name="daily">
+        <item quantity="one">Günlük</item>
+        <item quantity="other">Her <xliff:g id="NUMBER">%d</xliff:g> günde bir</item>
+    </plurals>
+    <string name="every_weekday">"Hafta içi her gün (Pzt-Cu)"</string>
+    <plurals name="weekly">
+        <item quantity="one">Haftalık olarak her <xliff:g id="DAYS_OF_WEEK">%2$s</xliff:g></item>
+        <item quantity="other"><xliff:g id="NUMBER">%1$d</xliff:g> haftada bir her <xliff:g id="DAYS_OF_WEEK">%2$s</xliff:g></item>
+    </plurals>
+    <string name="monthly">Aylık</string>
+    <string name="yearly_plain">Yılda bir</string>
+    <string name="custom" product="default">"Özel (telefonda özelleştirilemez)"</string>
+    <string name="modify_event">Yalnızca bu etkinliği değiştir</string>
+    <string name="modify_all">Serideki tüm etkinlikleri değiştir</string>
+    <string name="modify_all_following">Bunu ve gelecekteki tüm etkinlikleri değiştir</string>
+    <string name="new_event_dialog_label">"Yeni etkinlik"</string>
+    <string name="new_event_dialog_option">"Yeni etkinlik"</string>
+    <string name="delete_this_event_title">Bu etkinlik silinsin mi?</string>
+    <string name="delete_recurring_event_title"><xliff:g id="EVENTTITLE">%s</xliff:g> silinsin mi?</string>
+    <string name="change_response_title">Yanıtı değiştir</string>
+    <string name="preferences_title">"Ayarlar"</string>
+    <string name="preferences_general_title">Takvim görünümü ayarı</string>
+    <string name="preferences_month_view_portrait">Ay görünümü düzeni (Dikey)</string>
+    <string name="preferences_month_view_landscape">Ay görünümü düzeni (Yatay)</string>
+    <string name="preferences_theme">Tema</string>
+    <string name="preferences_system_theme">Sistem varsayılanı</string>
+    <string name="preferences_light_theme">Açık</string>
+    <string name="preferences_dark_theme">Koyu</string>
+    <string name="preferences_black_theme">Siyah</string>
+    <string name="preferences_color">Ana renk</string>
+    <string name="preferences_color_pick">Ana renk</string>
+    <string name="preferences_real_event_colors">Gerçek etkinlik renklerini kullanın</string>
+    <string name="preferences_pure_black_night_mode">Saf siyah gece modu</string>
+    <string name="preferences_reminder_title">Bildirimler ve hatırlatıcılar</string>
+    <string name="preferences_hide_declined_title">Reddedilmiş etkin. gizle</string>
+    <string name="default_start_title">Varsayılan görünüm</string>
+    <string name="display_options">Görüntüleme seçenekleri</string>
+    <string name="display_time">Görüntüleme süresi</string>
+    <string name="display_location">Görüntüleme konumu</string>
+    <string name="maximum_number_of_lines">Bir etkinlikteki satırların azami sayısı</string>
+    <string name="default_start_last">Önceden kullanılan görünüm</string>
+    <string name="preferences_week_start_day_title">Haftanın ilk günü</string>
+    <string name="preferences_week_start_day_dialog">Haftanın ilk günü</string>
+    <string name="preferences_days_per_week_title">Hafta başına gün</string>
+    <string name="preferences_days_per_week_dialog">Hafta başına gün</string>
+    <string name="preferences_default_event_duration_title">Varsayılan etkinlik süresi</string>
+    <string name="preferences_clear_search_history_title">Arama geçmişini temizle</string>
+    <string name="preferences_clear_search_history_summary">Gerçekleştirdiğiniz tüm aramaları silin</string>
+    <string name="search_history_cleared">Arama geçmişi temizlendi.</string>
+    <string name="preferences_alerts_title">Bildirimler</string>
+    <string name="preferences_alerts_vibrateWhen_title">Titreşim</string>
+    <string name="preferences_alerts_ringtone_title">Ses</string>
+    <string name="preferences_alerts_popup_title">Pop-up bildirim</string>
+    <string name="preferences_default_reminder_title">Varsayılan hatırlatıcı süresi</string>
+    <string name="preferences_default_reminder_dialog">Varsayılan hatırlatıcı süresi</string>
+    <string name="preferences_default_reminder_default">10</string>
+    <string name="preferences_use_home_tz_title">Ev saat dilimini kullan</string>
+    <string name="preferences_use_home_tz_descrip">Seyahat ederken takvimleri ve etkinlik saatlerini ev saat diliminde görüntüler</string>
+    <string name="preferences_home_tz_title">Ev saat dilimi</string>
+    <string name="preferences_show_week_num_title">Hafta sayısını göster</string>
+    <string name="preferences_alerts_custom_snooze_delay_title">Hatırlatma erteleme gecikmesi için sor</string>
+    <string name="preferences_alerts_custom_snooze_delay_summary_on">Hatırlatöaları ertelediğinde erteleme gecikmesi için sor</string>
+    <string name="preferences_alerts_custom_snooze_delay_summary_off">Her zaman varsayılan erteleme gecikmesini kullan</string>
+    <string name="snooze_delay_dialog_title">Erteleme gecikmesini ayarla</string>
+    <string name="preferences_default_snooze_delay_title">Varsayılan erteleme gecikme süresi</string>
+    <string name="preferences_default_snooze_delay_dialog">Varsayılan erteleme gecikmesi</string>
+    <string name="app_copyright">\u00a9 2015-<xliff:g>%1$s</xliff:g> Etar Projesi. Bölümler \u00a9 2005-<xliff:g>%1$s</xliff:g> Android Açık Kaynak Projesi.</string>
+    <string name="authors">Yazarlar</string>
+    <string name="changelog">Değişiklikler</string>
+    <string name="license">Lisans</string>
+    <string name="preferences_build_version">Derleme sürümü</string>
+    <string name="preferences_issues">Sorunları raporla</string>
+    <string name="source_code">Kaynak</string>
+    <plurals name="month_more_events">
+        <item quantity="one">"+1"</item>
+        <item quantity="other">+<xliff:g id="NUMBER">%d</xliff:g></item>
+    </plurals>
+    <string name="gadget_no_events">Yakın takvim etkinliği yok</string>
+    <string name="preferences_experimental_category">Deneysel</string>
+    <string name="preferences_reminders_responded_label">Hatırlatıcıları Atla</string>
+    <string name="preferences_reminders_responded_dialog">Hatırlatıcıları Atla</string>
+    <string name="copy_db">Veritabanını gönder</string>
+    <string name="directory_searching_fmt"><xliff:g id="DOMAIN">%s</xliff:g> aranıyor…</string>
+    <string name="accessibility_remove_attendee">Katılımcıyı kaldır</string>
+    <string name="accessibility_pick_start_date">Başlangıç tarihi</string>
+    <string name="accessibility_pick_start_time">Başlangıç zamanı</string>
+    <string name="accessibility_pick_end_date">Bitiş tarihi</string>
+    <string name="accessibility_pick_end_time">Bitiş zamanı</string>
+    <string name="accessibility_pick_time_zone">Saat dilimi</string>
+    <string name="accessibility_pick_recurrence">Etkinliği tekrarla</string>
+    <string name="accessibility_add_reminder">Hatırlatıcı ekle</string>
+    <string name="accessibility_remove_reminder">Hatırlatıcıyı kaldır</string>
+    <string name="accessibility_add_attendee">Katılımcı ekle</string>
+    <string name="accessibility_all_day">Tüm gün etkinliği</string>
+    <string name="accessibility_reminder_time">Hatırlatıcı süresi</string>
+    <string name="accessibility_reminder_type">Hatırlatıcı türü</string>
+    <string name="accessibility_reminder_showmeas">Durumumu şu şekilde göster:</string>
+    <string name="accessibility_reminder_privacy">Gizlilik</string>
+    <string name="day_view_new_event_hint">+ Yeni etkinlik</string>
+    <string name="template_announce_item_index">Etkinlik: <xliff:g id="ITEM_INDEX">%1$s</xliff:g> / <xliff:g id="ITEM_COUNT">%2$s</xliff:g>.</string>
+    <plurals name="Nevents">
+        <item quantity="one">1 etkinlik</item>
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> etkinlik</item>
+    </plurals>
+    <plurals name="N_remaining_events">
+        <item quantity="one">+1 etkinlik</item>
+        <item quantity="other">+<xliff:g id="COUNT">%d</xliff:g> etkinlik</item>
+    </plurals>
+    <string name="acessibility_selected_marker_description">Seçili etkinlik</string>
+    <plurals name="recurrence_interval_daily">
+        <item quantity="one">Her <xliff:g id="COUNT">%d</xliff:g> günde bir</item>
+        <item quantity="other">Her <xliff:g id="COUNT">%d</xliff:g> günde bir</item>
+    </plurals>
+    <plurals name="recurrence_interval_weekly">
+        <item quantity="one">Her <xliff:g id="COUNT">%d</xliff:g> haftada bir</item>
+        <item quantity="other">Her <xliff:g id="COUNT">%d</xliff:g> haftada bir</item>
+    </plurals>
+    <plurals name="recurrence_interval_monthly">
+        <item quantity="one">Her <xliff:g id="COUNT">%d</xliff:g> ayda bir</item>
+        <item quantity="other">Her <xliff:g id="COUNT">%d</xliff:g> ayda bir</item>
+    </plurals>
+    <plurals name="recurrence_interval_yearly">
+        <item quantity="one">Her <xliff:g id="COUNT">%d</xliff:g> yılda bir</item>
+        <item quantity="other">Her <xliff:g id="COUNT">%d</xliff:g> yılda bir</item>
+    </plurals>
+    <string name="recurrence_month_pattern_by_day">her ayın aynı gününde</string>
+    <string name="recurrence_end_continously">Sonsuza kadar</string>
+    <string name="recurrence_end_date_label">Belirli bir tarihe kadar</string>
+    <string name="recurrence_end_date"><xliff:g id="DATE">%s</xliff:g> tarihine kadar</string>
+    <string name="recurrence_end_count_label">Belirli sayıda etkinlik</string>
+    <plurals name="recurrence_end_count">
+        <item quantity="one"><xliff:g id="EVENT_COUNT">%d</xliff:g> etkinlik için</item>
+        <item quantity="other"><xliff:g id="EVENT_COUNT">%d</xliff:g> etkinlik için</item>
+    </plurals>
+    <string name="acessibility_recurrence_choose_end_date_description">bitiş tarihini değiştir</string>
+    <string name="user_rejected_calendar_write_permission">Takvim, düzgün çalışması için takvimi okuma ve yazma izinleri gerektirir. Lütfen tekrar deneyin.</string>
+    <string name="calendar_permission_not_granted">Gerekli izinler reddedildi, etkinlikleri düzenlemek için Ayarlar uygulamasından etkinleştirin</string>
+    <string name="visibility_default">Varsayılan</string>
+    <string name="visibility_confidential">Gizli</string>
+    <string name="visibility_private">Özel</string>
+    <string name="visibility_public">Genel</string>
+    <string name="two_days">2 gün</string>
+    <string name="three_days">3 gün</string>
+    <string name="four_days">4 gün</string>
+    <string name="five_days">5 gün</string>
+    <string name="six_days">6 gün</string>
+    <string name="seven_days">7 gün</string>
+    <string name="zero_minutes">0 dakika</string>
+    <string name="fifteen_minutes">15 dakika</string>
+    <string name="thirty_minutes">30 dakika</string>
+    <string name="one_hour">1 saat</string>
+    <string name="one_and_a_half_hours">1,5 saat</string>
+    <string name="two_hours">2 saat</string>
+    <string name="error_generating_ics">Etkinlik paylaşılırken karşılaşılan sorunlar</string>
+    <string name="cal_share_intent_title">Etkinliği gönder:</string>
+    <string name="cal_export_event_sdcard_title">SD karta kaydet</string>
+    <string name="cal_export_succ_msg">Etkinlik başarıyla dışa aktarıldı: %1s</string>
+    <string name="cal_import_menu_title">Etkinlik al</string>
+    <string name="cal_nothing_to_import">Alınacak bir şey yok</string>
+    <string name="cal_import_error_msg">Takvime alma başarısız</string>
+    <string name="cal_import_error_time_zone_msg">Verilen saat dilimi anlaşılamıyor: %s</string>
+    <string name="cal_import_error_date_msg">Verilen tarih anlaşılamıyor: %s</string>
+    <string name="cal_pick_ics">Alınacak dosyayı seçin</string>
+    <string name="show_time_no">Zamanı gösterme</string>
+    <string name="show_time_start">Sadece başlangıç zamanı</string>
+    <string name="show_time_start_end">Başlangıç ve bitiş zamanı</string>
+    <string name="show_time_start_end_below">Etkinliğin altındaki başlangıç ve bitiş saati</string>
+    <string name="preferences_calendar_no_display_name">İsimsiz takvim</string>
+    <string name="preferences_calendar_account">%1$s hesabı</string>
+    <string name="preferences_calendar_account_local">Çevrim dışı takvim</string>
+    <string name="preferences_calendar_configure_account">%1$s  içinde takvimi yapılandır</string>
+    <string name="preferences_calendar_number_of_events">%1$d etkinlik</string>
+    <string name="preferences_calendar_delete">Takvimi sil</string>
+    <string name="preferences_calendar_display_name">İsim değiştir</string>
+    <string name="preferences_calendar_info_category">Takvim bilgileri</string>
+    <string name="preferences_calendar_color">Renk</string>
+    <string name="preferences_calendar_visible">Etkinlikleri görüntüle</string>
+    <string name="preferences_manage_notifications">Bildirimleri yönet</string>
+    <string name="preferences_calendar_synchronize">Bu takvimi senkronize et</string>
+    <string name="preferences_calendar_color_warning_title">Uyarı</string>
+    <string name="preferences_calendar_color_warning_message">Takvim tekrar senkronize edildiğinde rengin değiştirilmesi geri alınabilir.\n\nBunu önlemek için DAVx⁵\'de \'Takvim renklerini yönet\' devre dışı bırakılabilir.</string>
+    <string name="preferences_calendar_color_warning_button">Anladım</string>
+    <string name="preferences_calendar_delete_message">Bu takvimi gerçekten silmek istiyor musunuz?</string>
+    <string name="preferences_calendar_delete_delete">Takvimi sil</string>
+    <string name="preferences_calendar_delete_cancel">İptal et</string>
+    <string name="preferences_list_calendar_summary_sync_off">Senkronize değil</string>
+    <string name="preferences_list_calendar_summary_invisible">Etkinlikler görüntülenmiyor</string>
+    <string name="preferences_list_general">Genel ayarlar</string>
+    <string name="preferences_list_add_remote">CalDAV takvimi ekle</string>
+    <string name="preferences_list_add_remote_etesync">EteSync takvimi ekle</string>
+    <string name="preferences_list_add_offline">Çevrim dışı takvim ekle</string>
+    <string name="preferences_list_add_offline_title">Çevrim dışı takvim ekle</string>
+    <string name="preferences_list_add_offline_error_empty">Bir takvim adı girin!</string>
+    <string name="preferences_list_add_offline_message">Çevrim dışı takvimler bir bulut hizmetiyle senkronize DEĞİLDİR ve yalnızca telefonunuzda kullanılabilir.</string>
+    <string name="preferences_list_add_offline_button">Takvim ekle</string>
+    <string name="preferences_list_add_offline_name">İsim</string>
+    <string name="preferences_list_add_offline_cancel">İptal</string>
+    <string name="preferences_menu_about">Takvim hakkında</string>
+    <string name="offline_account_name">Çevrim dışı Takvim</string>
+    <string name="after_start_of_event">etkinlik başladıktan sonra</string>
+    <string name="preferences_do_not_check_battery_optimization">Pil optimizasyonunu kontrol etme</string>
+    <string name="preferences_do_not_check_battery_optimization_summary">Kendi sorumluluğunuzda kullanın! Bildirimler artık çalışmayacak, widget güncellenmeyecek ve arka plan hizmetleri çökecektir. Ancak arka plan hizmetini etkinleştirmek isteyip istemediğiniz tekrar sorulmayacak.</string>
+    <string name="calendars">Takvimler</string>
+    <string name="discard_event_changes">Değişiklikleri silmek istiyor musunuz?</string>
+    <string name="discard">Silinsin</string>
+    <string name="cancel">İptal</string>
+</resources>

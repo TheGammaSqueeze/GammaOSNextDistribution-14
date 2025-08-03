@@ -1,0 +1,450 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+option java_multiple_files = true;
+
+package com.android.metrics;
+
+import "frameworks/proto_logging/stats/enums/stats/connectivity/connectivity_service.proto";
+
+/**
+ * Logs NSD(Network service discovery) client session
+ *
+ * Log from:
+ *     packages/modules/Connectivity/service-t/src/com/android/server/NsdService
+ */
+message NetworkNsdReported {
+  // Indicate if the device is using the legacy or the new implementation
+  optional bool is_legacy = 1;
+
+  // It is a random number to represent different clients. Each client is an app on the device.
+  optional int32 client_id = 2;
+
+  // It is a increment_number to represent different transactions.
+  // Each transaction is a request from an app client.
+  optional int32 transaction_id = 3;
+
+  // Indicate the service in resolution is a known service in the discovered services cache
+  optional bool is_known_service = 4;
+
+  // Record each NSD session type
+  optional .android.stats.connectivity.NsdEventType type = 5;
+
+  // The process duration of the event in milli-second
+  optional int64 event_duration_millisec = 6;
+
+  // Record each mdns query result
+  optional .android.stats.connectivity.MdnsQueryResult query_result = 7;
+
+  // Count of services in cache at the end of discovery
+  optional int32 found_service_count = 8;
+
+  // Count of found callback when discovery is stopped
+  optional int32 found_callback_count = 9;
+
+  // Count of lost callback when discovery is stopped
+  optional int32 lost_callback_count = 10;
+
+  // Record query service count before unregistered service
+  optional int32 replied_requests_count = 11;
+
+  // Record sent query count before stopped discovery
+  optional int32 sent_query_count = 12;
+
+  // Record sent packet count before unregistered service
+  optional int32 sent_packet_count = 13;
+
+  // Record number of conflict during probing
+  optional int32 conflict_during_probing_count = 14;
+
+  // Record number of conflict after probing
+  optional int32 conflict_after_probing_count = 15;
+
+  // The random number between 0 ~ 999 for sampling
+  optional int32 random_number = 16;
+}
+
+/**
+ * Logs the number of network count on each list of transports
+ *
+ * Logs from:
+ *   packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java
+ */
+message NetworkCountPerTransports {
+    // the number of network count on each list of transports
+    repeated NetworkCountForTransports network_count_for_transports = 1;
+}
+
+/**
+ * Logs the number of network count and transport type
+ *
+ * Logs from:
+ *   packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java
+ */
+message NetworkCountForTransports {
+    // Transport types of the network
+    optional int32 transport_types = 1;
+
+    // Number of networks for one list of transport types
+    optional int32 network_count = 2;
+}
+
+/**
+ * Logs a list of networks
+ *
+ * Logs from:
+ *   packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java
+ */
+message NetworkList {
+    repeated NetworkDescription network_description = 1;
+}
+
+/**
+ * Logs connection duration in seconds and list of transports
+ *
+ * Logs from:
+ *   packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java
+ */
+message ConnectionDurationForTransports {
+    // Transport types of the network
+    optional int32 transport_types = 1;
+
+    // Time duration that the device stays connected to the network
+    optional int32 duration_sec = 2;
+}
+
+/**
+ * Logs connection duration on each list of transports, in seconds
+ *
+ * Logs from:
+ *   packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java
+ */
+message ConnectionDurationPerTransports {
+    repeated ConnectionDurationForTransports connection_duration_for_transports = 1;
+}
+
+/**
+ * Logs network request count & request type
+ *
+ * Logs from:
+ *   packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java
+ */
+message RequestCountForType {
+    // The type of network request
+    optional .android.stats.connectivity.RequestType request_type = 1;
+
+    // Number of network requests
+    optional int32 request_count = 2;
+}
+
+/**
+ * Logs network request count
+ *
+ * Logs from:
+ *   packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java
+ */
+message NetworkRequestCount {
+    // Network request count for request type
+    repeated RequestCountForType request_count_for_type = 1;
+}
+
+/**
+ * Logs information about a network
+ *
+ * Logs from:
+ *   packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java
+ */
+message NetworkDescription {
+    // The transport types of the network. A network may include multiple transport types.
+    // Each transfer type is represented by a different bit, defined in
+    // packages/modules/Connectivity/framework/src/android/net/NetworkCapabilities.java
+    optional int32 transport_types = 1;
+
+    // Indicates the network is metered, non-metered or temporarily-unmetered
+    optional .android.stats.connectivity.MeteredState metered_state = 2;
+
+    // Indicates the network is validated, non-validated, partial or portal
+    optional .android.stats.connectivity.ValidatedState validated_state = 3;
+
+    // Record the bitmask of all the policies applied to this score of network.
+    // Each policy is represented by a different bit, defined in
+    // packages/modules/Connectivity/service/src/com/android/server/connectivity/FullScore.java
+    optional int64 score_policies = 4;
+
+    // The capabilities of the network. A network may include multiple network capabilities.
+    // Each capability is represented by a different bit, defined in
+    // packages/modules/Connectivity/framework/src/android/net/NetworkCapabilities.java
+    optional int64 capabilities = 5;
+
+    // Bitfield representing the network's enterprise capability identifier, defined in
+    // packages/modules/Connectivity/framework/src/android/net/NetworkCapabilities.java
+    optional int32 enterprise_id = 6;
+}
+
+/**
+ * Pulls a list of NumberOfRematchesPerReason.
+ *
+ * Pulled from:
+ *   packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java
+ */
+message NumberOfRematchesPerReason {
+    // Number of network rematches for each rematch reason
+    repeated NumberOfRematchesForReason number_of_rematches_per_reason= 1;
+}
+
+/**
+ * Logs number of network rematches for rematch reason
+ *
+ * Logs from:
+ *   packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java
+ */
+message NumberOfRematchesForReason {
+    // The reason of network rematch
+    optional .android.stats.connectivity.RematchReason rematch_reason = 1;
+
+    // Number of network rematches
+    optional int32 rematch_count = 2;
+};
+
+/**
+ * Pulls information for connectivity stats.
+ *
+ * Pulled from:
+ *   packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java
+ */
+message ConnectivityStateSample {
+    // Number of networks per list of transports
+    optional NetworkCountPerTransports network_count_per_transports = 1;
+
+    // This is a list of networks with their transports and the duration
+    optional ConnectionDurationPerTransports connection_duration_per_transports = 2;
+
+    // Number of requests per category
+    optional NetworkRequestCount network_request_count  = 3;
+
+    // Full list of network details (slice by transport / meteredness / internet+validated)
+    optional NetworkList networks = 4;
+}
+
+
+/**
+ * Pulls information for network selection rematch info.
+ *
+ * Pulled from:
+ *   packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java
+ */
+message NetworkSelectionRematchReasonsInfo {
+    // Number of rematch per rematch reason
+    optional NumberOfRematchesPerReason number_of_rematches_per_reason = 1;
+}
+
+/**
+ * Logs rematch information for the default network
+ *
+ * Logs from:
+ *   packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java
+ */
+message DefaultNetworkRematchInfo {
+    // The session id comes from each reboot, this is used to correlate the statistics of the
+    // networkselect on the same boot
+    optional int64 session_id = 1;
+
+    // The information of old device default network
+    optional NetworkDescription old_network = 2;
+
+    // The information of new device default network
+    optional NetworkDescription new_network = 3;
+
+    // The reason of network rematch
+    optional .android.stats.connectivity.RematchReason rematch_reason = 4;
+
+    // The time duration the device kept the old network as the default in seconds
+    optional int32 time_duration_on_old_network_sec = 5;
+}
+
+/**
+ * Logs network selection performance
+ *
+ * Logs from:
+ *   packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java
+ */
+message NetworkSelectionPerformance {
+    // Number of network requests
+    optional int32 number_of_network_requests = 1;
+
+    // List of networks right now
+    // (slice by transport / meteredness / internet+validated)
+    optional NetworkList networks = 2;
+
+    // The latency of selection computed in milli-second
+    optional int32 selection_computed_latency_milli = 3;
+
+    // The latency of selection applied in milli-second
+    optional int32 selection_applied_latency_milli = 4;
+
+    // The latency of selection issued in milli-second
+    optional int32 selection_issued_latency_milli = 5;
+}
+
+message NetworkSliceRequestCountSample {
+    // Bitfield representing the network's capability(e.g. NET_CAPABILITY_PRIORITIZE_LATENCY),
+    // defined in packages/modules/Connectivity/framework/src/android/net/NetworkCapabilities.java
+    optional int64 slice_id = 1;
+
+    // Bitfield representing the network's enterprise capability identifier
+    // (e.g. NET_ENTERPRISE_ID_1), defined in
+    // packages/modules/Connectivity/framework/src/android/net/NetworkCapabilities.java
+    optional int32 enterprise_id = 2;
+
+    // number of request for this slice
+    optional int32 request_count = 3;
+
+    // number of apps with outstanding request(s) for this slice
+    optional int32 distinct_app_count = 4;
+}
+
+message NetworkSliceSessionEnded {
+    // Bitfield representing the network's capability(e.g. NET_CAPABILITY_PRIORITIZE_LATENCY),
+    // defined in packages/modules/Connectivity/framework/src/android/net/NetworkCapabilities.java
+    optional int64 slice_id = 1;
+
+    // Bitfield representing the network's enterprise capability identifier
+    // (e.g. NET_ENTERPRISE_ID_1), defined in
+    // packages/modules/Connectivity/framework/src/android/net/NetworkCapabilities.java
+    optional int32 enterprise_id = 2;
+
+    // Number of bytes received at the device on this slice id
+    optional int64 rx_bytes = 3;
+
+    // Number of bytes transmitted by the device on this slice id
+    optional int64 tx_bytes = 4;
+
+    // Number of apps that have used this slice
+    optional int32 number_of_apps = 5;
+
+    // How long(in seconds) this slice has been connected
+    optional int32 slice_connection_duration_sec = 6;
+}
+
+message NetworkSliceDailyDataUsageReported {
+    // Bitfield representing the network's capability(e.g. NET_CAPABILITY_PRIORITIZE_LATENCY),
+    // defined in packages/modules/Connectivity/framework/src/android/net/NetworkCapabilities.java
+    optional int64 slice_id = 1;
+
+    // Bitfield representing the network's enterprise capability identifier
+    // (e.g. NET_ENTERPRISE_ID_1), defined in
+    // packages/modules/Connectivity/framework/src/android/net/NetworkCapabilities.java
+    optional int32 enterprise_id = 2;
+
+    // Number of bytes received at the device on this slice id
+    optional int64 rx_bytes = 3;
+
+    // Number of bytes transmitted by the device on this slice id
+    optional int64 tx_bytes = 4;
+
+    // Number of apps that have used this slice
+    optional int32 number_of_apps = 5;
+
+    // How long(in seconds) this slice has been connected
+    optional int32 slice_connection_duration_sec = 6;
+}
+
+/**
+ *  Logs DailykeepaliveInfoReported
+ *
+ * Logs from: packages/modules/Connectivity/service/src/com/android/
+ *            server/connectivity/AutomaticOnOffKeepaliveTracker.
+ */
+message DailykeepaliveInfoReported{
+    // Daily duration per number of concurrent keepalive
+    optional DurationPerNumOfKeepalive duration_per_num_of_keepalive = 1;
+
+    // Daily keepalive registered/active duration on each list of keepalive session, in
+    // milli-seconds
+    optional KeepaliveLifetimePerCarrier keepalive_lifetime_per_carrier = 2;
+
+    // Daily number of keepalive requests
+    optional int32 keepalive_requests = 3;
+
+    // Daily number of automatic keepalive requests
+    optional int32 automatic_keepalive_requests = 4;
+
+    // Daily number of distinct apps that requested keepalives
+    optional int32 distinct_user_count = 5;
+
+    // Daily distinct apps uid list that requested keepalives
+    repeated int32 uid = 6;
+}
+
+/**
+ * Daily duration per number of concurrent keepalive
+ *
+ * Logs from: packages/modules/Connectivity/service/src/com/android/
+ *            server/connectivity/AutomaticOnOffKeepaliveTracker.
+ */
+message DurationPerNumOfKeepalive {
+    repeated DurationForNumOfKeepalive duration_for_num_of_keepalive = 1;
+}
+
+message DurationForNumOfKeepalive {
+    // The number of concurrent keepalives is in the device
+    optional int32 num_of_keepalive = 1;
+
+    // How many milliseconds the device has keepalive registration number is num_of_keepalive
+    optional int32 keepalive_registered_durations_msec = 2;
+
+    // How many milliseconds the device has keepalive active(not paused) number is num_of_keepalive
+    optional int32 keepalive_active_durations_msec = 3;
+}
+
+/**
+ * Daily keepalive registered/active duration on each list of Keepalive session, in milli-seconds
+ *
+ * Logs from: packages/modules/Connectivity/service/src/com/android/
+ *            server/connectivity/AutomaticOnOffKeepaliveTracker.
+ */
+message KeepaliveLifetimePerCarrier {
+    // The number of network count on each list of carriers
+    repeated KeepaliveLifetimeForCarrier keepalive_lifetime_for_carrier = 1;
+}
+
+/**
+ * Logs the keepalive registered/active duration in milli-seconds and carrier
+ * info(carrier id, transport, keepalive interval).
+ *
+ * Logs from: packages/modules/Connectivity/service/src/com/android/
+ *            server/connectivity/AutomaticOnOffKeepaliveTracker.
+ */
+message KeepaliveLifetimeForCarrier {
+    // The carrier ID for each keepalive, or TelephonyManager.UNKNOWN_CARRIER_ID(-1) if not cell
+    optional int32 carrier_id = 1;
+
+    // The transport types of the underlying network for each keepalive. A network may include
+    // multiple transport types. Each transfer type is represented by a different bit, defined in
+    // packages/modules/Connectivity/framework/src/android/net/NetworkCapabilities.java
+    optional int32 transport_types = 2;
+
+    // The keepalive interval for each keepalive
+    optional int32 intervals_msec = 3;
+
+    // The lifetime of the keepalive registered today
+    optional int32 lifetime_msec = 4;
+
+    // The duration for which the keepalive was active (not suspended)
+    optional int32 active_lifetime_msec = 5;
+}
+

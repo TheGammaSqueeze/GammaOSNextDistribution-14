@@ -1,0 +1,28 @@
+# Copyright (C) 2020 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+[hwaddress]
+src:trusty/user/base/lib/hwasan/hwasan.c
+
+# TODO(b/148877030): There is a race condition between HWASan initalization and
+# app main() startup routines. Disable libc sanitization for now. It's possible
+# to heuristically enable HWASan for parts of libc.
+src:external/trusty/*
+
+# TODO: dlmalloc is super fragile. Leave it out for now.
+src:*/dlmalloc.c
+
+# TODO: HWASan suppresses stack slot reuse for storage-unittest, which blows the
+# stack for this test.
+src:trusty/user/app/storage/test/storage-unittest/*

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    Copyright (C) 2021 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="brand_screen_header" msgid="4382251935798018352">"ဤယာဉ်ကို အဖွဲ့အစည်းက ပိုင်ဆိုင်သည်"</string>
+    <string name="contact_device_provider" msgid="338577979231875837">"ပိုမိုလေ့လာရန် <xliff:g id="IT_ADMIN">%1$s</xliff:g> ကို ဆက်သွယ်ပါ။"</string>
+    <string name="organization_admin" msgid="6551608903069550652">"အဖွဲ့အစည်းမန်နေဂျာ"</string>
+    <string name="if_questions_contact_admin" msgid="4645510019575736238">"မေးစရာများရှိပါက အဖွဲ့အစည်းမန်နေဂျာကို ဆက်သွယ်ပါ"</string>
+    <string name="admin_has_ability_to_monitor_device" msgid="3132155961508293345">"အဖွဲ့အစည်းမန်နေဂျာသည် ဤယာဉ်၏တည်နေရာအပြင် ကွန်ရက်လုပ်ဆောင်ချက်များ အပါအဝင် ဆက်တင်များ၊ အဖွဲ့အစည်းဆိုင်ရာ သုံးခွင့်၊ အက်ပ်များ၊ ခွင့်ပြုချက်များ၊ ဤယာဉ်နှင့်ဆက်စပ်သော ဒေတာများကို စောင့်ကြည့်စီမံနိုင်သည်။<xliff:g id="LINE_BREAK">
+
+</xliff:g>အဖွဲ့အစည်း၏ ကိုယ်ရေးအချက်အလက်လုံခြုံမှုဆိုင်ရာ မူဝါဒများအပါအဝင် နောက်ထပ်အချက်အလက်များအတွက် အဖွဲ့အစည်းမန်နေဂျာကို ဆက်သွယ်ပါ။"</string>
+    <string name="contact_your_admin_for_more_info" msgid="1419852317652804536">"အဖွဲ့အစည်း၏ ကိုယ်ရေးအချက်အလက်လုံခြုံမှုဆိုင်ရာ မူဝါဒများအပါအဝင် နောက်ထပ်အချက်အလက်များအတွက် အဖွဲ့အစည်းမန်နေဂျာကို ဆက်သွယ်ပါ။"</string>
+    <string name="managed_device_info" msgid="2134697391634083944">"၎င်းသည် စီမံခန့်ခွဲထားသောယာဉ် ဖြစ်သည်"</string>
+    <string name="contact_your_admin_for_help" msgid="1741496631607502730">"အကူအညီအတွက် အဖွဲ့အစည်းမန်နေဂျာကို ဆက်သွယ်ပါ"</string>
+    <string name="fully_managed_device_provisioning_accept_header" msgid="8767138982035307813">"စီမံခန့်ခွဲထားသော ယာဉ်ကို စနစ်ထည့်သွင်းခြင်း"</string>
+    <string name="fully_managed_device_provisioning_step_1_header" msgid="8704166635032524345">"သင့်အဖွဲ့အစည်း၏ အက်ပ်များကို သုံးနိုင်ပါသည်"</string>
+    <string name="fully_managed_device_provisioning_step_1_description" msgid="5960961281295355254">"သတင်းနှင့်ဖျော်ဖြေရေး စနစ် ထည့်သွင်းနေသည်..."</string>
+    <string name="fully_managed_device_provisioning_step_2_header" msgid="5888602026900289468">"သတင်းနှင့်ဖျော်ဖြေရေး စနစ် ဒေတာသည် သီးသန့်မဟုတ်ပါ"</string>
+    <string name="fully_managed_device_provisioning_step_2_subheader_title" msgid="1421575203782743214">"သင့်လုပ်ဆောင်ချက်နှင့် ဒေတာ"</string>
+    <string name="fully_managed_device_provisioning_step_2_subheader" msgid="4881961368653838979">"အဖွဲ့အစည်းမန်နေဂျာသည် ဤယာဉ်ပေါ်ရှိ သင့်လုပ်ဆောင်ချက်နှင့် ဒေတာကို မြင်နိုင်သည်။"</string>
+    <string name="fully_managed_device_provisioning_permissions_secondary_subheader" msgid="8955791361423166123">"အဖွဲ့အစည်းမန်နေဂျာသည် မိုက်ခရိုဖုန်းနှင့် တည်နေရာခွင့်ပြုချက်များကဲ့သို့ ဤယာဉ်ရှိ အက်ပ်များအတွက် ခွင့်ပြုချက်များကို သတ်မှတ်နိုင်သည်။"</string>
+    <string name="fully_managed_device_with_permission_control_provisioning_summary" msgid="2503568673345133100">"သင့်အလုပ်သုံးအက်ပ်များကို အလွယ်တကူဝင်သုံးရန် ဤယာဉ်၏ သတင်းနှင့်ဖျော်ဖြေရေး စနစ်ကို အသုံးပြုပါ။ ဤယာဉ်သည် သီးသန့်မဟုတ်သည့်အတွက် အဖွဲ့အစည်းမန်နေဂျာသည် သင့်လုပ်ဆောင်ချက်နှင့် ဒေတာကို မြင်နိုင်သည်။ အဖွဲ့အစည်းမန်နေဂျာသည် မိုက်ခရိုဖုန်းနှင့် တည်နေရာခွင့်ပြုချက်များကဲ့သို့ ဤယာဉ်ရှိ အက်ပ်များအတွက် ခွင့်ပြုချက်များကိုလည်း သတ်မှတ်နိုင်သည်။"</string>
+    <string name="fully_managed_device_provisioning_summary" msgid="4323948058344613817">"သင့်အလုပ်သုံးအက်ပ်များကို အလွယ်တကူဝင်သုံးရန် ဤယာဉ်၏ သတင်းနှင့်ဖျော်ဖြေရေး စနစ်ကို အသုံးပြုပါ။ ဤယာဉ်သည် သီးသန့်မဟုတ်သည့်အတွက် အဖွဲ့အစည်းမန်နေဂျာသည် သင့်ဒေတာနှင့် လုပ်ဆောင်ချက်ကို မြင်နိုင်သည်။"</string>
+    <string name="fully_managed_device_provisioning_progress_label" msgid="988594700479673633">"စီမံခန့်ခွဲထားသော ယာဉ်ကို စနစ်ထည့်သွင်းနေသည်"</string>
+    <string name="fully_managed_device_provisioning_return_device_title" msgid="1578111657911434819">"စနစ်ထည့်သွင်းမှု ရပ်ပြီး ယာဉ်ကို ပြန်ပေးပါ"</string>
+    <string name="fully_managed_device_provisioning_return_device_subheader" msgid="5809488930429106172">"ဤယာဉ်ကို ပြင်ဆင်သတ်မှတ်ပြီး အဖွဲ့အစည်းမန်နေဂျာထံ ပြန်ပေးပါ (သို့) စနစ်ဆက်လက်ထည့်သွင်းရန် ယခင် ဖန်သားပြင်သို့ ပြန်သွားပါ။"</string>
+    <string name="fully_managed_device_cancel_setup_button" msgid="4113790677940440998">"စနစ်ထည့်သွင်းမှု ပယ်ဖျက်ရန်"</string>
+    <string name="fully_managed_device_reset_and_return_button" msgid="4951274590516561428">"ပြင်ဆင်သတ်မှတ်ပြီး ပြန်ပေးရန်"</string>
+    <string name="fully_managed_device_provisioning_privacy_title" msgid="4789425994893472324">"ကိုယ်ရေးအချက်အလက်လုံခြုံမှု အသိပေးချက်"</string>
+    <string name="fully_managed_device_provisioning_privacy_body" msgid="5549745709511179391">"အဖွဲ့အစည်းမန်နေဂျာသည် ဤယာဉ်ပေါ်ရှိ သင့်ဒေတာနှင့် လုပ်ဆောင်ချက်ကို မြင်နိုင်သည်။"</string>
+</resources>

@@ -1,0 +1,20 @@
+# Trusty Style
+# This is a Google-derived style with 4-space indent and a few quirks for
+# systems code.
+BasedOnStyle: Chromium
+# 4-space indent, no tabs.
+IndentWidth: 4
+UseTab: Never
+TabWidth: 4
+# Double indent arguments when none of them are on the first line.
+ContinuationIndentWidth: 8
+ConstructorInitializerIndentWidth: 8
+# Don't indent public/private/protected.
+# It's a little more common to do a half indent, but folks didn't like that.
+AccessModifierOffset: -4
+# Don't indent case labels.
+IndentCaseLabels: false
+# Don't break strings to make it easier to grep for error messages.
+# Note: this can result in lines that exceed the column limit.
+BreakStringLiterals: false
+

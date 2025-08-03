@@ -1,0 +1,9 @@
+For files in [arm/arm64/common/x86/x86_64]/proprietary:
+    These are closed source/propietary/prebuilt files.
+    I do not own them, these are just here to make
+    your life easier when compiling the package.
+    Contacts their authors for information about licensing.
+
+For any other file:
+    GNU License v2, unless otherwise noted
+    (https://www.gnu.org/licenses/gpl-2.0.html for more information)

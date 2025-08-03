@@ -1,0 +1,27 @@
+# Exclude some test prefixes, otherwise the classes reference below can't find
+# them after jarjared.
+android\.compat\..+
+androidx\.test\..+
+com\.android\.frameworks\.tests\..+
+com\.android\.testutils\..+
+com\.android\.dx\.mockito\..+
+com\.android\.internal\.compat\..+
+com\.android\.internal\.org\.bouncycastle\..+
+kotlin\.test\..+
+kotlin\.reflect\..+
+org\.junit\..+
+org\.mockito\..+
+
+# Auto-jarjar-gen can't handle kotlin object expression, exclude the tests which use
+# object expressions.
+#
+# For example: Illegal class access:
+# 'android.net.connectivity.com.android.net.module.util.TrackRecordTest' attempting to access
+# 'com.android.networkstack.tethering.util.TRTInterpreter' (declaration of
+# 'android.net.connectivity.com.android.net.module.util.TrackRecordTest' ...
+#
+# In coverage test, TRTInterpreter don't be jarjar'ed to
+# android.net.connectivity* by frameworks-net-tests-jarjar-rules instead it is
+# jarjar'ed by follow up TetheringTestsJarJarRules.
+# TODO(b/269259216): remove this after fixing Auto-jarjar-gen.
+com\.android\.net\.module\.util\.TrackRecord.*

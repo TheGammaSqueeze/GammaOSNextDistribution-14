@@ -1,0 +1,818 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.4.0-alpha01" type="baseline" client="" dependencies="true" name="" variant="all" version="8.4.0-alpha01">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `getUidRule`"
+        errorLine1="        return BpfNetMapsReader.getUidRule(sUidOwnerMap, childChain, uid);"
+        errorLine2="                                ~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/BpfNetMaps.java"
+            line="643"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `BpfBitmap`"
+        errorLine1="                return new BpfBitmap(BLOCKED_PORTS_MAP_PATH);"
+        errorLine2="                       ~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/connectivity/ConnectivityNativeService.java"
+            line="61"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `set`"
+        errorLine1="            mBpfBlockedPortsMap.set(port);"
+        errorLine2="                                ~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/connectivity/ConnectivityNativeService.java"
+            line="96"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `unset`"
+        errorLine1="            mBpfBlockedPortsMap.unset(port);"
+        errorLine2="                                ~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/connectivity/ConnectivityNativeService.java"
+            line="107"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `clear`"
+        errorLine1="            mBpfBlockedPortsMap.clear();"
+        errorLine2="                                ~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/connectivity/ConnectivityNativeService.java"
+            line="118"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `get`"
+        errorLine1="                if (mBpfBlockedPortsMap.get(i)) portMap.add(i);"
+        errorLine2="                                        ~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/connectivity/ConnectivityNativeService.java"
+            line="131"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.os.BatteryStatsManager#reportNetworkInterfaceForTransports`"
+        errorLine1="            batteryStats.reportNetworkInterfaceForTransports(iface, transportTypes);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java"
+            line="1447"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.app.PendingIntent#intentFilterEquals`"
+        errorLine1="            return a.intentFilterEquals(b);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java"
+            line="1458"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `getProgramId`"
+        errorLine1="            return BpfUtils.getProgramId(attachType);"
+        errorLine2="                            ~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java"
+            line="1572"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 31 (current min is 30): `android.net.NetworkPolicyManager`"
+        errorLine1="        mPolicyManager = mContext.getSystemService(NetworkPolicyManager.class);"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java"
+            line="1740"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.net.NetworkPolicyManager#registerNetworkPolicyCallback`"
+        errorLine1="        mPolicyManager.registerNetworkPolicyCallback(null, mPolicyCallback);"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java"
+            line="1753"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Cast to `UidFrozenStateChangedCallback` requires API level 34 (current min is 30)"
+        errorLine1="                    new UidFrozenStateChangedCallback() {"
+        errorLine2="                    ^">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java"
+            line="1888"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 34 (current min is 30): `android.app.ActivityManager.UidFrozenStateChangedCallback`"
+        errorLine1="                    new UidFrozenStateChangedCallback() {"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java"
+            line="1888"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 34 (current min is 30): `android.app.ActivityManager#registerUidFrozenStateChangedCallback`"
+        errorLine1="            activityManager.registerUidFrozenStateChangedCallback("
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java"
+            line="1907"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.net.NetworkPolicyManager#isUidNetworkingBlocked`"
+        errorLine1="            return mPolicyManager.isUidNetworkingBlocked(uid, metered);"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java"
+            line="2162"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.net.NetworkPolicyManager#getRestrictBackgroundStatus`"
+        errorLine1="            return mPolicyManager.getRestrictBackgroundStatus(callerUid);"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java"
+            line="2947"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.net.NetworkStateSnapshot#getNetwork`"
+        errorLine1="            final NetworkAgentInfo nai = getNetworkAgentInfoForNetwork(snapshot.getNetwork());"
+        errorLine2="                                                                                ~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java"
+            line="2963"
+            column="81"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.net.NetworkStateSnapshot#getLinkProperties`"
+        errorLine1="                        snapshot.getLinkProperties(), snapshot.getNetworkCapabilities(),"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java"
+            line="2966"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.net.NetworkStateSnapshot#getNetworkCapabilities`"
+        errorLine1="                        snapshot.getLinkProperties(), snapshot.getNetworkCapabilities(),"
+        errorLine2="                                                               ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java"
+            line="2966"
+            column="64"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.net.NetworkStateSnapshot#getNetwork`"
+        errorLine1="                        snapshot.getNetwork(), snapshot.getSubscriberId()));"
+        errorLine2="                                 ~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java"
+            line="2967"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.net.NetworkStateSnapshot#getSubscriberId`"
+        errorLine1="                        snapshot.getNetwork(), snapshot.getSubscriberId()));"
+        errorLine2="                                                        ~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java"
+            line="2967"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 31 (current min is 30): `android.net.NetworkPolicyManager.NetworkPolicyCallback`"
+        errorLine1="    private final NetworkPolicyCallback mPolicyCallback = new NetworkPolicyCallback() {"
+        errorLine2="                                                              ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java"
+            line="3210"
+            column="63"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `dump`"
+        errorLine1="            mBpfNetMaps.dump(pw, fd, verbose);"
+        errorLine2="                        ~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java"
+            line="4155"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.os.Build#isDebuggable`"
+        errorLine1="        if (!Build.isDebuggable()) {"
+        errorLine2="                   ~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java"
+            line="5721"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 31 (current min is 30): `android.net.NetworkPolicyManager`"
+        errorLine1="                 mContext.getSystemService(NetworkPolicyManager.class);"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java"
+            line="6174"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.net.NetworkPolicyManager#getMultipathPreference`"
+        errorLine1="            networkPreference = netPolicyManager.getMultipathPreference(network);"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java"
+            line="6179"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `new android.net.UnderlyingNetworkInfo`"
+        errorLine1="        return new UnderlyingNetworkInfo(nai.networkCapabilities.getOwnerUid(),"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java"
+            line="6819"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.net.NetworkPolicyManager#isUidRestrictedOnMeteredNetworks`"
+        errorLine1="            if (mPolicyManager.isUidRestrictedOnMeteredNetworks(uid)) {"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java"
+            line="7822"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.os.Build#isDebuggable`"
+        errorLine1="            if (Build.isDebuggable()) {"
+        errorLine2="                      ~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java"
+            line="9943"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.app.usage.NetworkStatsManager#notifyNetworkStatus`"
+        errorLine1="            mStatsManager.notifyNetworkStatus(getDefaultNetworks(),"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java"
+            line="10909"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `libcore.io.IoUtils#closeQuietly`"
+        errorLine1="                IoUtils.closeQuietly(pfd);"
+        errorLine2="                        ~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java"
+            line="10962"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `libcore.io.IoUtils#closeQuietly`"
+        errorLine1="                IoUtils.closeQuietly(pfd);"
+        errorLine2="                        ~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java"
+            line="10979"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 31 (current min is 30): `android.net.NetworkWatchlistManager`"
+        errorLine1="        NetworkWatchlistManager nwm = mContext.getSystemService(NetworkWatchlistManager.class);"
+        errorLine2="                                                                ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java"
+            line="11035"
+            column="65"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.net.NetworkWatchlistManager#getWatchlistConfigHash`"
+        errorLine1="        return nwm.getWatchlistConfigHash();"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java"
+            line="11041"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `getProgramId`"
+        errorLine1="                        final int ret = BpfUtils.getProgramId(type);"
+        errorLine2="                                                 ~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java"
+            line="11180"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.os.BatteryStatsManager#reportMobileRadioPowerState`"
+        errorLine1="                    bs.reportMobileRadioPowerState(isActive, uid);"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java"
+            line="12254"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.os.BatteryStatsManager#reportWifiRadioPowerState`"
+        errorLine1="                    bs.reportWifiRadioPowerState(isActive, uid);"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java"
+            line="12257"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `addNiceApp`"
+        errorLine1="                mBpfNetMaps.addNiceApp(uid);"
+        errorLine2="                            ~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java"
+            line="13079"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `removeNiceApp`"
+        errorLine1="                mBpfNetMaps.removeNiceApp(uid);"
+        errorLine2="                            ~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java"
+            line="13081"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `addNaughtyApp`"
+        errorLine1="                mBpfNetMaps.addNaughtyApp(uid);"
+        errorLine2="                            ~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java"
+            line="13094"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `removeNaughtyApp`"
+        errorLine1="                mBpfNetMaps.removeNaughtyApp(uid);"
+        errorLine2="                            ~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java"
+            line="13096"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.os.UserHandle#getUid`"
+        errorLine1="            final int uid = uh.getUid(appId);"
+        errorLine2="                               ~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java"
+            line="13112"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `setUidRule`"
+        errorLine1="            mBpfNetMaps.setUidRule(chain, uid, firewallRule);"
+        errorLine2="                        ~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java"
+            line="13130"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `setChildChain`"
+        errorLine1="            mBpfNetMaps.setChildChain(chain, enable);"
+        errorLine2="                        ~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java"
+            line="13195"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `isChainEnabled`"
+        errorLine1="        return mBpfNetMaps.isChainEnabled(chain);"
+        errorLine2="                           ~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java"
+            line="13213"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `replaceUidChain`"
+        errorLine1="        mBpfNetMaps.replaceUidChain(chain, uids);"
+        errorLine2="                    ~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java"
+            line="13220"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `BpfMap`"
+        errorLine1="        mBpfDscpIpv4Policies = new BpfMap&lt;Struct.S32, DscpPolicyValue&gt;(IPV4_POLICY_MAP_PATH,"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/connectivity/DscpPolicyTracker.java"
+            line="88"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `BpfMap`"
+        errorLine1="        mBpfDscpIpv6Policies = new BpfMap&lt;Struct.S32, DscpPolicyValue&gt;(IPV6_POLICY_MAP_PATH,"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/connectivity/DscpPolicyTracker.java"
+            line="90"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `insertOrReplaceEntry`"
+        errorLine1="                mBpfDscpIpv4Policies.insertOrReplaceEntry("
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/connectivity/DscpPolicyTracker.java"
+            line="183"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `insertOrReplaceEntry`"
+        errorLine1="                mBpfDscpIpv6Policies.insertOrReplaceEntry("
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/connectivity/DscpPolicyTracker.java"
+            line="194"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `replaceEntry`"
+        errorLine1="            mBpfDscpIpv4Policies.replaceEntry(new Struct.S32(index), DscpPolicyValue.NONE);"
+        errorLine2="                                 ~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/connectivity/DscpPolicyTracker.java"
+            line="261"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `replaceEntry`"
+        errorLine1="            mBpfDscpIpv6Policies.replaceEntry(new Struct.S32(index), DscpPolicyValue.NONE);"
+        errorLine2="                                 ~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/connectivity/DscpPolicyTracker.java"
+            line="262"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `java.net.InetAddress#parseNumericAddress`"
+        errorLine1='            InetAddress.parseNumericAddress("::").getAddress();'
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/connectivity/DscpPolicyValue.java"
+            line="99"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `new android.net.NetworkStateSnapshot`"
+        errorLine1="            return new NetworkStateSnapshot(network, new NetworkCapabilities(networkCapabilities),"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/connectivity/NetworkAgentInfo.java"
+            line="1353"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `libcore.io.IoUtils#closeQuietly`"
+        errorLine1="            IoUtils.closeQuietly(mFileDescriptor);"
+        errorLine2="                    ~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/connectivity/NetworkDiagnostics.java"
+            line="570"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 31 (current min is 30): `android.os.Build.VERSION#DEVICE_INITIAL_SDK_INT`"
+        errorLine1="            return Build.VERSION.DEVICE_INITIAL_SDK_INT;"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/connectivity/PermissionMonitor.java"
+            line="212"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.os.SystemConfigManager#getSystemPermissionUids`"
+        errorLine1="        for (final int uid : mSystemConfigManager.getSystemPermissionUids(INTERNET)) {"
+        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/connectivity/PermissionMonitor.java"
+            line="396"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.os.SystemConfigManager#getSystemPermissionUids`"
+        errorLine1="        for (final int uid : mSystemConfigManager.getSystemPermissionUids(UPDATE_DEVICE_STATS)) {"
+        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/connectivity/PermissionMonitor.java"
+            line="404"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.content.pm.ApplicationInfo#isOem`"
+        errorLine1="        return appInfo.isVendor() || appInfo.isOem() || appInfo.isProduct();"
+        errorLine2="                                             ~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/connectivity/PermissionMonitor.java"
+            line="481"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.content.pm.ApplicationInfo#isProduct`"
+        errorLine1="        return appInfo.isVendor() || appInfo.isOem() || appInfo.isProduct();"
+        errorLine2="                                                                ~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/connectivity/PermissionMonitor.java"
+            line="481"
+            column="65"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.content.pm.ApplicationInfo#isVendor`"
+        errorLine1="        return appInfo.isVendor() || appInfo.isOem() || appInfo.isProduct();"
+        errorLine2="                       ~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/connectivity/PermissionMonitor.java"
+            line="481"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.os.UserHandle#getUid`"
+        errorLine1="                    final int uid = handle.getUid(appId);"
+        errorLine2="                                           ~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/connectivity/PermissionMonitor.java"
+            line="1070"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `updateUidLockdownRule`"
+        errorLine1="            mBpfNetMaps.updateUidLockdownRule(uid, add);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/connectivity/PermissionMonitor.java"
+            line="1123"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 31 (current min is 30): `android.net.PacProxyManager.PacProxyInstalledListener`"
+        errorLine1="    private class PacProxyInstalledListener implements PacProxyManager.PacProxyInstalledListener {"
+        errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/connectivity/ProxyTracker.java"
+            line="92"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 31 (current min is 30): `android.net.PacProxyManager`"
+        errorLine1="        mPacProxyManager = context.getSystemService(PacProxyManager.class);"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/connectivity/ProxyTracker.java"
+            line="111"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.net.PacProxyManager#addPacProxyInstalledListener`"
+        errorLine1="            mPacProxyManager.addPacProxyInstalledListener("
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/connectivity/ProxyTracker.java"
+            line="115"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.net.PacProxyManager#setCurrentProxyScriptUrl`"
+        errorLine1="                        () -&gt; mPacProxyManager.setCurrentProxyScriptUrl(proxyProperties));"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/connectivity/ProxyTracker.java"
+            line="213"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.net.PacProxyManager#setCurrentProxyScriptUrl`"
+        errorLine1="            mPacProxyManager.setCurrentProxyScriptUrl(proxyInfo);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/connectivity/ProxyTracker.java"
+            line="259"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.system.Os#getsockoptInt`"
+        errorLine1="            tcpDetails.seq = Os.getsockoptInt(fd, IPPROTO_TCP, TCP_QUEUE_SEQ);"
+        errorLine2="                                ~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/connectivity/TcpKeepaliveController.java"
+            line="269"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.system.Os#getsockoptInt`"
+        errorLine1="            tcpDetails.ack = Os.getsockoptInt(fd, IPPROTO_TCP, TCP_QUEUE_SEQ);"
+        errorLine2="                                ~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/connectivity/TcpKeepaliveController.java"
+            line="272"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.system.Os#getsockoptInt`"
+        errorLine1="                tcpDetails.tos = Os.getsockoptInt(fd, IPPROTO_IP, IP_TOS);"
+        errorLine2="                                    ~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/connectivity/TcpKeepaliveController.java"
+            line="292"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.system.Os#getsockoptInt`"
+        errorLine1="                tcpDetails.ttl = Os.getsockoptInt(fd, IPPROTO_IP, IP_TTL);"
+        errorLine2="                                    ~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/connectivity/TcpKeepaliveController.java"
+            line="294"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.system.Os#ioctlInt`"
+        errorLine1="        final int result = Os.ioctlInt(fd, SIOCINQ);"
+        errorLine2="                              ~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/connectivity/TcpKeepaliveController.java"
+            line="401"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.system.Os#ioctlInt`"
+        errorLine1="        final int result = Os.ioctlInt(fd, SIOCOUTQ);"
+        errorLine2="                              ~~~~~~~~">
+        <location
+            file="packages/modules/Connectivity/service/src/com/android/server/connectivity/TcpKeepaliveController.java"
+            line="411"
+            column="31"/>
+    </issue>
+
+</issues>

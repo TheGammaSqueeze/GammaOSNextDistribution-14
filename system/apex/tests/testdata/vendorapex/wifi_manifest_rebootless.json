@@ -1,0 +1,5 @@
+{
+  "name": "com.android.hardware.wifi",
+  "supportsRebootlessUpdate": true,
+  "version": 1
+}

@@ -1,0 +1,17 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_library {
+    name: "libfsverity_rs",
+    crate_name: "fsverity",
+    srcs: ["lib.rs"],
+    edition: "2021",
+    rustlibs: [
+        "libnix",
+    ],
+    apex_available: [
+        "com.android.compos",
+        "com.android.virt",
+    ],
+}

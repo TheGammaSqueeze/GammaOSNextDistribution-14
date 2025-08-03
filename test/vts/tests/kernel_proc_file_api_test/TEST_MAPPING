@@ -1,0 +1,10 @@
+{
+  "kernel-presubmit": [
+    {
+      "name": "vts_kernel_proc_file_api_test"
+    },
+    {
+      "name": "vts_kernel_proc_sysrq_trigger_test"
+    }
+  ]
+}

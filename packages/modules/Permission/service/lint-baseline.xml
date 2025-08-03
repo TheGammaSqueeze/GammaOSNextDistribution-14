@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.4.0-alpha01" type="baseline" client="" dependencies="true" name="" variant="all" version="8.4.0-alpha01">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 34 (current min is 33): `getDeduplicationGroup`"
+        errorLine1="        String deduplicationGroup = issueInfo.getSafetySource().getDeduplicationGroup();"
+        errorLine2="                                                                ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Permission/service/java/com/android/safetycenter/data/SafetyCenterIssueDeduplicator.java"
+            line="316"
+            column="65"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 34 (current min is 33): `getDeduplicationId`"
+        errorLine1="        String deduplicationId = issueInfo.getSafetySourceIssue().getDeduplicationId();"
+        errorLine2="                                                                  ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Permission/service/java/com/android/safetycenter/data/SafetyCenterIssueDeduplicator.java"
+            line="317"
+            column="67"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 34 (current min is 33): `android.content.pm.PackageManager#getPackageUidAsUser`"
+        errorLine1="                        packageManager.getPackageUidAsUser("
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/modules/Permission/service/java/com/android/safetycenter/SafetyCenterService.java"
+            line="732"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.os.UserHandle#getUid`"
+        errorLine1="        return UserHandle.of(userId).getUid(appId);"
+        errorLine2="                                     ~~~~~~">
+        <location
+            file="packages/modules/Permission/service/java/com/android/permission/compat/UserHandleCompat.java"
+            line="57"
+            column="38"/>
+    </issue>
+
+</issues>

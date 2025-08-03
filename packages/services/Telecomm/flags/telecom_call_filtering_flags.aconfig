@@ -1,0 +1,9 @@
+package: "com.android.server.telecom.flags"
+container: "system"
+
+flag {
+  name: "skip_filter_phone_account_perform_dnd_filter"
+  namespace: "telecom"
+  description: "Gates whether to still perform Dnd filter when phone account has skip_filter call extra."
+  bug: "222333869"
+}

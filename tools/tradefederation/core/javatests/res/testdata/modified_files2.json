@@ -1,0 +1,15 @@
+{
+  "added": [],
+  "changed": [
+    "product/etc/build.prop",
+    "ramdisk/system/etc/ramdisk/build.prop",
+    "recovery/root/prop.default",
+    "system/build.prop",
+    "system_dlkm/etc/build.prop",
+    "system_ext/etc/build.prop",
+    "vendor/build.prop",
+    "system/bin/adb"
+  ],
+  "removed": []
+}
+

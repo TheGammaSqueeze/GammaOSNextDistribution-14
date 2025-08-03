@@ -1,0 +1,30 @@
+// Signature format: 2.0
+package android.os {
+
+  @FlaggedApi("android.os.profiling.telemetry_apis") public final class ProfilingManager {
+    method public void registerForAllProfilingResults(@NonNull java.util.concurrent.Executor, @NonNull java.util.function.Consumer<android.os.ProfilingResult>);
+    method public void requestProfiling(@NonNull byte[], @Nullable String, @Nullable android.os.CancellationSignal, @Nullable java.util.concurrent.Executor, @Nullable java.util.function.Consumer<android.os.ProfilingResult>);
+    method public void unregisterForAllProfilingResults(@Nullable java.util.function.Consumer<android.os.ProfilingResult>);
+  }
+
+  @FlaggedApi("android.os.profiling.telemetry_apis") public final class ProfilingResult implements android.os.Parcelable {
+    method public int describeContents();
+    method public int getErrorCode();
+    method @Nullable public String getErrorMessage();
+    method @Nullable public String getResultFilePath();
+    method @Nullable public String getTag();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.os.ProfilingResult> CREATOR;
+    field public static final int ERROR_FAILED_EXECUTING = 4; // 0x4
+    field public static final int ERROR_FAILED_INVALID_REQUEST = 7; // 0x7
+    field public static final int ERROR_FAILED_NO_DISK_SPACE = 6; // 0x6
+    field public static final int ERROR_FAILED_POST_PROCESSING = 5; // 0x5
+    field public static final int ERROR_FAILED_PROFILING_IN_PROGRESS = 3; // 0x3
+    field public static final int ERROR_FAILED_RATE_LIMIT_PROCESS = 2; // 0x2
+    field public static final int ERROR_FAILED_RATE_LIMIT_SYSTEM = 1; // 0x1
+    field public static final int ERROR_NONE = 0; // 0x0
+    field public static final int ERROR_UNKNOWN = 8; // 0x8
+  }
+
+}
+

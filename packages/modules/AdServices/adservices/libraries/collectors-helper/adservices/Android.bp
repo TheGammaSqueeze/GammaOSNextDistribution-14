@@ -1,0 +1,22 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_library {
+    name: "adservices-collectors-helper",
+    defaults: ["tradefed_errorprone_defaults"],
+
+    srcs: [
+        "src/**/*.java",
+    ],
+    libs: [
+        "framework-annotations-lib",
+    ],
+    static_libs: [
+        "androidx.test.runner",
+        "collector-helper-utilities",
+        "collector-device-lib-platform",
+    ],
+
+    sdk_version: "test_current",
+}

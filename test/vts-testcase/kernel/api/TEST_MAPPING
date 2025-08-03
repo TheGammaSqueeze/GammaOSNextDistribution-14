@@ -1,0 +1,16 @@
+{
+  "kernel-presubmit": [
+    {
+      "name": "bpf_module_test"
+    },
+    {
+      "name": "drop_caches_test"
+    },
+    {
+      "name": "KernelApiSysfsTest"
+    },
+    {
+      "name": "vts_kernel_tun_test"
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  Copyright (c) 2017 The LineageOS Project
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ Also add information on how to contact you by electronic and paper mail.
+
+-->
+<resources>
+    <string name="app_name">FlipFlap</string>
+    <string name="notification_title">Älykäs suojakuori tunnistettu</string>
+    <string name="alarm_label">HÄLYTYS</string>
+    <string name="abbrev_wday_month_day_no_year">EEE, MMMM d</string>
+    <string name="answer_call">VASTAA</string>
+    <string name="ignore_call">OHITA</string>
+    <string name="end_call">LOPETA PUHELU</string>
+    <string name="settings_name">Smart cover</string>
+    <string name="settings_summary">Ohjaa lisälaitteiden käyttäytymistä</string>
+    <string name="category_behaviour">Käyttäytyminen</string>
+    <string name="pass_to_security_view_title">Näytä salasanakenttä suoraan</string>
+    <string name="pass_to_security_view_summary">Kannen avaaminen näyttää lukitusnäytön</string>
+    <string name="use_high_touch_sensitivity_title">Korkea kosketusherkkyys</string>
+    <string name="use_high_touch_sensitivity_summary">Lisää kosketusherkkyyttä kun kansi on kiinni</string>
+    <string name="category_design">Ulkoasu</string>
+    <string name="switch_charging_status_title">Näytä latauksen tila</string>
+    <string name="switch_charging_status_summary">Vaihda väriä akun varauksen mukaan</string>
+    <string name="category_timeouts">Aikakatkaisu</string>
+    <string name="timeout_plugged_title">Ladattaessa</string>
+    <string name="timeout_unplugged_title">Ei kytketty</string>
+    <string name="timeout_summary">Näytä suojakuorisovellus %s kannen sulkemisen jälkeen</string>
+    <string name="timeout_summary_never">Kannen sulkemisen jälkeen, suojakuorisovellus pysyy aina päällä</string>
+    <string name="timeout_summary_immediately">Näyttö sammuu kun suljet kannen</string>
+    <string name="timeout_entry_immediately">Välittömästi</string>
+    <string name="timeout_entry_5s">5 sekuntia</string>
+    <string name="timeout_entry_10s">10 sekuntia</string>
+    <string name="timeout_entry_30s">30 sekuntia</string>
+    <string name="timeout_entry_1min">1 minuutti</string>
+    <string name="timeout_entry_5min">5 minuuttia</string>
+    <string name="timeout_entry_never">Ei koskaan</string>
+</resources>

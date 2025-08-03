@@ -1,0 +1,38 @@
+package {
+    default_applicable_licenses: ["system_bpf_license"],
+}
+
+// Added automatically by a large-scale-change
+// http://go/android-license-faq
+license {
+    name: "system_bpf_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+cc_defaults {
+    name: "bpf_defaults",
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wnullable-to-nonnull-conversion",
+        "-Wthread-safety",
+        "-Wunused-parameter",
+    ],
+    tidy: true,
+    tidy_checks: [
+        "android-*",
+        "cert-*",
+        "-cert-err34-c",
+        "clang-analyzer-security*",
+        // Many calls to snprintf/sscanf/memset/memcpy in libbpf.c have the following warning.
+        "-clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling",
+        // Disabling due to many unavoidable warnings from POSIX API usage.
+        "-google-runtime-int",
+    ],
+}

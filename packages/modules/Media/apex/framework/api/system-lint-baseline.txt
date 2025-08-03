@@ -1,0 +1,9 @@
+// Baseline format: 1.0
+RequiresPermission: android.media.MediaSession2Service#onUpdateNotification(android.media.MediaSession2):
+    Method 'onUpdateNotification' documentation mentions permissions without declaring @RequiresPermission
+RequiresPermission: android.media.MediaTranscodingManager.TranscodingSession#addClientUid(int):
+    Method 'addClientUid' documentation mentions permissions without declaring @RequiresPermission
+
+
+Todo: android.media.ApplicationMediaCapabilities.Builder:
+    Documentation mentions 'TODO'

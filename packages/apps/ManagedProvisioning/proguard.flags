@@ -1,0 +1,59 @@
+# Ensure exception attributes are kept to allow mocking of methods with
+# checked exceptions.
+-keepattributes Exception
+
+# It is not an error that these classes are referenced in
+# AndriodManifest.xml, but not present in Android master. They are
+# present in the Android for Chrome OS branch, and kept here to
+# minimize merge conflicts in AndroidManifest.xml.
+-dontwarn com.android.managedprovisioning.provisioning.SilentDeviceOwnerProvisioningService
+-dontwarn com.android.managedprovisioning.provisioning.SilentDeviceOwnerProvisioningReceiver
+-keep public class com.android.managedprovisioning.ScreenManager {
+    public protected *;
+}
+-keep public class com.android.managedprovisioning.ManagedProvisioningBaseApplication {
+    public protected *;
+}
+-keep public class com.android.managedprovisioning.common.HomogenousBiMap {
+    public *;
+}
+-keep public class com.android.managedprovisioning.common.ViewModelEvent {
+    public *;
+}
+-keep class com.android.managedprovisioning.common.RetryLaunchViewModel {
+    public *;
+    *;
+}
+
+-keep public class com.android.managedprovisioning.common.RetryLaunchViewModel$CanLaunchActivityChecker {
+    public *;
+}
+
+-keep public class com.android.managedprovisioning.common.RetryLaunchViewModel$Config {
+    public *;
+}
+
+-keep public class com.android.managedprovisioning.common.RoleHolderUpdaterProvider {
+    public *;
+}
+
+-keep public class com.android.managedprovisioning.common.DeviceManagementRoleHolderUpdaterHelper {
+    public *;
+}
+
+-keep public class com.android.managedprovisioning.common.DeviceManagementRoleHolderHelper {
+    public *;
+}
+
+-keep public class com.android.managedprovisioning.common.DefaultPackageInstallChecker {
+    public *;
+}
+
+-keep public class com.android.managedprovisioning.common.ManagedProvisioningSharedPreferences {
+    public *;
+}
+
+-keep public class com.android.managedprovisioning.common.SharedPreferences {
+    public *;
+    *;
+}

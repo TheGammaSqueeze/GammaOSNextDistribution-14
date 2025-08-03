@@ -1,0 +1,3 @@
+# Rename all framework classes into an internal package.
+# These tests test hidden framework APIs, which may not be accessible to the test package.
+rule android.app.appsearch.** com.android.server.appsearch.internal.@1

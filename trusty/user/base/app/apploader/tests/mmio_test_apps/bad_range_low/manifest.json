@@ -1,0 +1,12 @@
+{
+    "uuid": "bf18f7ff-5664-4ecc-ba5b-ed0e5f708dfe",
+    "min_heap": 4096,
+    "min_stack": 4096,
+    "mem_map": [
+        {
+            "id": 1,
+            "addr": "0x10000000",
+            "size": "0x2000"
+        }
+    ]
+}

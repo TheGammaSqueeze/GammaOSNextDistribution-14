@@ -1,0 +1,86 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_tools_aidl_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_tools_aidl_license"],
+}
+
+cc_test {
+    name: "aidl_lazy_test",
+    srcs: ["main.cpp"],
+    test_suites: ["general-tests"],
+    require_root: true,
+
+    shared_libs: [
+        "libbase",
+        "liblog",
+        "libutils",
+        "libbinder",
+    ],
+
+    static_libs: [
+        "lazy_test_service_aidl-cpp",
+        "lazy_cb_test_service_aidl-cpp",
+    ],
+}
+
+cc_binary {
+    name: "aidl_lazy_test_server",
+    srcs: [
+        "server.cpp",
+        "LazyTestService.cpp",
+    ],
+    init_rc: ["aidl_lazy_test_server.rc"],
+    system_ext_specific: true,
+
+    shared_libs: [
+        "libbase",
+        "libbinder",
+        "liblog",
+        "libutils",
+    ],
+
+    static_libs: [
+        "lazy_test_service_aidl-cpp",
+    ],
+}
+
+aidl_interface {
+    name: "lazy_test_service_aidl",
+    unstable: true,
+    flags: ["-Werror"],
+    srcs: [
+        "ILazyTestService.aidl",
+    ],
+}
+
+cc_binary {
+    name: "aidl_lazy_cb_test_server",
+    srcs: [
+        "ServerCb.cpp",
+        "LazyTestServiceCb.cpp",
+    ],
+    init_rc: ["aidl_lazy_cb_test_server.rc"],
+    system_ext_specific: true,
+
+    shared_libs: [
+        "libbinder",
+        "liblog",
+        "libutils",
+    ],
+
+    static_libs: [
+        "lazy_cb_test_service_aidl-cpp",
+    ],
+}
+
+aidl_interface {
+    name: "lazy_cb_test_service_aidl",
+    unstable: true,
+    flags: ["-Werror"],
+    srcs: [
+        "ILazyTestServiceCb.aidl",
+    ],
+}

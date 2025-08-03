@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2014 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources>
+    <integer name="setup_fade_in_duration">250</integer>
+    <integer name="setup_fade_out_duration">250</integer>
+    <integer name="action_title_max_lines">3</integer>
+    <integer name="dialog_animation_duration">150</integer>
+
+    <string name="additional_system_update" translatable="false" />
+    <string name="additional_system_update_menu" translatable="false" />
+
+    <!-- Display additional System Update menu if true -->
+    <bool name="config_additional_system_update_setting_enable">false</bool>
+    <!-- Whether to show a preference item for the manual in About phone -->
+    <bool name="config_show_manual">false</bool>
+    <!-- Whether to show a preference item for regulatory information in About phone -->
+    <bool name="config_show_regulatory_info">false</bool>
+    <!-- Whether to show a preference item for allowing turning screen off during media playback -->
+    <bool name="config_show_standby_timeout">false</bool>
+
+    <!-- Determines whether the entire "Quick Settings" section is available or not. -->
+    <bool name="config_quick_settings_enabled">true</bool>
+
+    <!-- Determines whether the "Take bug report" option is shown in quick settings. -->
+    <bool name="config_quick_settings_show_take_bugreport">false</bool>
+
+    <!-- Flavor of TvSettings. -->
+    <string name="config_tvSettingsFlavor" translatable="false">Classic</string>
+
+    <!-- Determines whether "Quick connect" menu item is visible (if supported by hardware) -->
+    <bool name="config_easyconnect_enabled">true</bool>
+
+    <!-- Allow overlay to specify known/official device names using the return value of
+        BluetoothDevice # getName() so that it is hidden from the generic bluetooth accessories
+        section and is only visible in OEM-implemented Slice. -->
+    <string-array name="known_bluetooth_device_labels" translatable="false">
+    </string-array>
+
+    <!-- known_bluetooth_device_labels used to be named as known_remote_labels, for backward
+        compatibility, we will keep supporting this option. -->
+    <string-array name="known_remote_labels" translatable="false">
+    </string-array>
+
+    <!-- Whether to show the bluetooth toggle. Please be very careful with this config as setting it
+        to true would surface a toggle in Remotes & Accessories settings that allows the user to
+        turn off Bluetooth. Without an IR remote or some other form of connection, the user may not
+        be able to turn it back on and have to perform FDR. -->
+    <bool name="show_bluetooth_toggle">false</bool>
+
+    <!--  mDelayManualPairing  -->
+    <integer name="config_delay_manual_pairing">5000</integer>
+
+    <!-- The list of supported HDR formats. This list is overlaid by OEMs to specify
+         the HDR formats supported by their device. -->
+    <integer-array name="config_deviceSupportedHdrFormats">
+        <item>@integer/dolby_vision</item>
+        <item>@integer/hdr10</item>
+        <item>@integer/hlg</item>
+        <item>@integer/hdr10plus</item>
+    </integer-array>
+
+    <!-- The integer value for HDR format Dolby Vision. This should match
+            android.view.Display.HdrCapabilities.HDR_TYPE_DOLBY_VISION -->
+    <integer name="dolby_vision">1</integer>
+    <!-- The integer value for HDR format HDR 10. This should match
+            android.view.Display.HdrCapabilities.HDR_TYPE_HDR10 -->
+    <integer name="hdr10">2</integer>
+    <!-- The integer value for HDR format HLG. This should match
+            android.view.Display.HdrCapabilities.HDR_TYPE_HLG -->
+    <integer name="hlg">3</integer>
+    <!-- The integer value for HDR format HDR10+. This should match
+            android.view.Display.HdrCapabilities.HDR_TYPE_HDR10_PLUS -->
+    <integer name="hdr10plus">4</integer>
+
+    <!-- Determines whether the device should optimise wifi scanning. -->
+    <bool name="wifi_scan_optimisation_enabled">false</bool>
+
+    <!-- Determines whether app specific system sounds are played in TvSettings -->
+    <bool name="config_enableSystemSounds">false</bool>
+
+    <!-- List containing the component names of pre-installed screen reader services. -->
+    <string-array name="config_preinstalled_screen_reader_services" translatable="false">
+        <item>@string/accessibility_screen_reader_flattened_component_name</item>
+    </string-array>
+
+    <!-- List containing the component names of pre-installed display services. -->
+    <string-array name="config_preinstalled_display_services" translatable="false">
+        <!--
+        <item>com.example.package.first/com.example.class.FirstService</item>
+        <item>com.example.package.second/com.example.class.SecondService</item>
+        -->
+    </string-array>
+
+    <!-- List containing the component names of pre-installed interaction control services. -->
+    <string-array name="config_preinstalled_interaction_control_services" translatable="false">
+        <item>com.google.android.marvin.talkback/com.android.switchaccess.SwitchAccessService</item>
+    </string-array>
+
+    <!-- List containing the component names of pre-installed audio & onscreen text services. -->
+    <string-array name="config_preinstalled_audio_and_onscreen_text_services" translatable="false">
+        <!--
+        <item>com.example.package.first/com.example.class.FirstService</item>
+        <item>com.example.package.second/com.example.class.SecondService</item>
+        -->
+    </string-array>
+
+    <!-- List containing the component names of pre-installed experimental services. -->
+    <string-array name="config_preinstalled_experimental_services" translatable="false">
+        <!--
+        <item>com.example.package.first/com.example.class.FirstService</item>
+        <item>com.example.package.second/com.example.class.SecondService</item>
+        -->
+    </string-array>
+
+    <!-- List containing the component names of pre-installed additional services. -->
+    <string-array name="config_preinstalled_additional_services" translatable="false">
+        <!--
+        <item>com.example.package.first/com.example.class.FirstService</item>
+        <item>com.example.package.second/com.example.class.SecondService</item>
+        -->
+    </string-array>
+
+    <!-- Energy modes -->
+    <bool name="config_energy_mode_low_enabled">true</bool>
+    <string-array name="config_energy_mode_low_exemptPackages" translatable="false">
+    </string-array>
+    <string-array name="config_energy_mode_low_additionalExemptPackages" translatable="false" />
+    <integer name="config_energy_mode_low_allowedReasons">1</integer>
+    <integer name="config_energy_mode_low_additionalAllowedReasons">0</integer>
+    <string-array name="config_energy_mode_low_allowedFeatures" translatable="false">
+    </string-array>
+    <string-array name="config_energy_mode_low_additionalAllowedFeatures" translatable="false" />
+
+    <bool name="config_energy_mode_moderate_enabled">true</bool>
+    <string-array name="config_energy_mode_moderate_exemptPackages" translatable="false" />
+    <string-array name="config_energy_mode_moderate_additionalExemptPackages" translatable="false" />
+    <integer name="config_energy_mode_moderate_allowedReasons">7</integer>
+    <integer name="config_energy_mode_moderate_additionalAllowedReasons">0</integer>
+    <string-array name="config_energy_mode_moderate_allowedFeatures" translatable="false" />
+    <string-array name="config_energy_mode_moderate_additionalAllowedFeatures" translatable="false" />
+
+    <bool name="config_energy_mode_high_enabled">true</bool>
+    <string-array name="config_energy_mode_high_exemptPackages" translatable="false" />
+    <string-array name="config_energy_mode_high_additionalExemptPackages" translatable="false" />
+    <integer name="config_energy_mode_high_allowedReasons">7</integer>
+    <integer name="config_energy_mode_high_additionalAllowedReasons">0</integer>
+    <string-array name="config_energy_mode_high_allowedFeatures" translatable="false" />
+    <string-array name="config_energy_mode_high_additionalAllowedFeatures" translatable="false" />
+
+    <bool name="config_energy_mode_unrestricted_enabled">false</bool>
+
+    <!--
+        Whether the ATV integrates the Find My Remote functionality with the on-device button.
+        If it does, the integration should respect the value of
+        Settings.Global.fmr_on_physical_button_enabled setting.
+        Note that this variable only controls the default implementation, which is used if
+        strings/connected_devices_slice_uri is empty.
+    -->
+    <bool name="config_find_my_remote_integration_enabled">false</bool>
+</resources>

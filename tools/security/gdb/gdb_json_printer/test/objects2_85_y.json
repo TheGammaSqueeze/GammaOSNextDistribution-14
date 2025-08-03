@@ -1,0 +1,68 @@
+{
+    "type": "pointer",
+    "ctype": "Foo *",
+    "address": "0x7fffffffd760",
+    "reference": {
+        "type": "struct",
+        "ctype": "Foo2",
+        "address": "0x55555556aed0",
+        "fields": [
+            {
+                "field": "c",
+                "value": {
+                    "type": "int",
+                    "ctype": "uint32_t",
+                    "address": "0x55555556aedc",
+                    "value": "3"
+                }
+            },
+            {
+                "field": "cc",
+                "value": {
+                    "type": "int",
+                    "ctype": "uint32_t",
+                    "address": "0x55555556aee0",
+                    "value": "4"
+                }
+            }
+        ],
+        "base_classes": [
+            {
+                "base_class": "Foo",
+                "value": {
+                    "type": "struct",
+                    "ctype": "Foo",
+                    "address": "0x55555556aed0",
+                    "fields": [
+                        {
+                            "field": "_vptr.Foo",
+                            "value": {
+                                "type": "pointer",
+                                "ctype": "int (**)(void)",
+                                "address": "0x55555556aed0",
+                                "reference": {
+                                    "type": "pointer",
+                                    "ctype": "int (*)(void)",
+                                    "address": "0x555555557c70",
+                                    "reference": {
+                                        "type": "extract failed"
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "field": "a",
+                            "value": {
+                                "type": "int",
+                                "ctype": "uint8_t",
+                                "address": "0x55555556aed8",
+                                "value": "1"
+                            }
+                        }
+                    ],
+                    "base_classes": []
+                }
+            }
+        ]
+    }
+}

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="rtt_promotion_title">ការផ្ញើ​សារ​ជា​អក្សរ​​ក្នុង​ពេល​ជាក់ស្ដែង​នៅ​ក្នុង​ការហៅ​ទូរសព្ទ</string>
+  <string name="rtt_promotion_details">RTT ជួយ​អ្នក​ហៅ​ទូរសព្ទ​ដែល​​ថ្លង់ ពិបាក​ក្នុង​ការស្ដាប់ មិន​អាច​និយាយ​បាន
+    ឬ​មាន​តម្រូវការ​ក្រៅ​ពី​​សំឡេង។ ប្រតិចារឹក​ការផ្ញើ​សារ RTT ​បាន​រក្សាទុក​នៅ​លើ​ឧបករណ៍​របស់​អ្នក​
+    នៅ​ក្នុង​ប្រវត្តិ​ហៅ​ទូរសព្ទ។ %1$s</string>
+</resources>

@@ -1,0 +1,15 @@
+namespace bluetooth.common;
+
+attribute "privacy";
+
+table InitFlagsData {
+    title:string (privacy:"Any");
+    values:[InitFlagValue] (privacy:"Any");
+}
+
+table InitFlagValue {
+    flag:string (privacy:"Any");
+    value:string (privacy:"Any");
+}
+
+root_type InitFlagsData;

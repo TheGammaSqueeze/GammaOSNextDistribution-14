@@ -1,0 +1,7 @@
+/dts-v1/;
+/plugin/;
+
+/include/ "test_crosvm_dt_base.dtsi"
+
+/ {
+};

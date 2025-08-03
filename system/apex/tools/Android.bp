@@ -1,0 +1,212 @@
+// Copyright (C) 2019 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+python_binary_host {
+    name: "deapexer",
+    srcs: [
+        "deapexer.py",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+    libs: [
+        "apex_manifest",
+    ],
+    required: [
+        "blkid_static",
+        "debugfs_static",
+        "fsck.erofs",
+    ],
+}
+
+python_binary_host {
+    name: "apex_elf_checker",
+    srcs: [
+        "apex_elf_checker.py",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+    required: [
+        "blkid_static",
+        "debugfs_static",
+        "fsck.erofs",
+    ],
+}
+
+python_binary_host {
+    name: "apex_compression_tool",
+    srcs: [
+        "apex_compression_tool.py",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+    libs: [
+        "apex_manifest_proto",
+    ],
+    required: [
+        "avbtool",
+        "conv_apex_manifest",
+    ],
+}
+
+python_test_host {
+    name: "apex_compression_test",
+    main: "apex_compression_test.py",
+    srcs: [
+        "apex_compression_test.py",
+    ],
+    data: [
+        ":avbtool",
+        ":com.android.example.apex",
+        ":conv_apex_manifest",
+        ":apex_compression_tool",
+        ":deapexer",
+        ":soong_zip",
+    ],
+    libs: [
+        "apex_manifest_proto",
+    ],
+    test_suites: ["general-tests"],
+    test_options: {
+        unit_test: true,
+    },
+}
+
+cc_binary_host {
+    name: "host_apex_verifier",
+    srcs: ["host_apex_verifier.cc"],
+    defaults: [
+        "init_host_defaults",
+        "libapex-deps",
+    ],
+    shared_libs: [
+        "libhidl-gen-utils",
+        "libprocessgroup",
+    ],
+    static_libs: [
+        "libapex",
+        "libinit_host",
+    ],
+}
+
+sh_test_host {
+    name: "host-apex-verifier",
+    src: "host-apex-verifier.sh",
+    test_suites: ["device-tests"],
+    test_config: "host-apex-verifier.xml",
+    test_options: {
+        unit_test: false,
+    },
+    data_bins: [
+        "deapexer",
+        "debugfs_static",
+        "host_apex_verifier",
+    ],
+    data_libs: [
+        "libbase",
+        "libc++",
+        "libcgrouprc",
+        "libcrypto",
+        "libcutils",
+        "liblog",
+        "libprocessgroup",
+        "libprotobuf-cpp-full",
+        "libz",
+        "libziparchive",
+    ],
+}
+
+python_library_host {
+    name: "apexer_wrapper_utils",
+    srcs: ["apexer_wrapper_utils.py"]
+}
+
+python_binary_host {
+    name: "apexer_with_DCLA_preprocessing",
+    srcs: [
+        "apexer_with_DCLA_preprocessing.py",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+    libs: [
+        "apexer_wrapper_utils",
+    ],
+}
+
+python_test_host {
+    name: "apexer_with_DCLA_preprocessing_test",
+    main: "apexer_with_DCLA_preprocessing_test.py",
+    srcs: [
+        "apexer_with_DCLA_preprocessing_test.py",
+    ],
+    data: [
+        ":apexer_test_host_tools",
+        ":apexer_with_DCLA_preprocessing",
+        ":com.android.example.apex",
+        "testdata/com.android.example.apex.pem",
+    ],
+    test_suites: ["general-tests"],
+    test_options: {
+        unit_test: true,
+    },
+}
+
+python_binary_host {
+    name: "apexer_with_trim_preprocessing",
+    srcs: [
+        "apexer_with_trim_preprocessing.py",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+    libs: [
+        "apex_manifest_proto",
+        "apexer_wrapper_utils",
+    ],
+}
+
+python_binary_host {
+    name: "apexd_host",
+    srcs: ["apexd_host.py"],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+    libs: [
+        "apex_manifest",
+    ],
+    required: [
+        "deapexer",
+        "debugfs_static",
+        "fsck.erofs",
+    ],
+}

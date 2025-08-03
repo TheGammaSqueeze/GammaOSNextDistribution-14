@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2017-2021 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <string name="app_name">Opptaker</string>
+    <string name="share">Del</string>
+    <string name="stop">Stopp</string>
+    <string name="play">Spill av</string>
+    <string name="delete">Slett</string>
+    <string name="cancel">Avbryt</string>
+    <string name="delete_title">Sletter opptaket</string>
+    <string name="sound_notification_title">Lydopptaker</string>
+    <string name="sound_notification_message">Lydlengde: %1$s</string>
+    <string name="sound_recording_title_working">Tar opp</string>
+    <string name="sound_last_title">Siste opptak</string>
+    <string name="dialog_permissions_title">Tillatelser</string>
+    <string name="dialog_permissions_mic">Opptaker trenger mikrofon tilgang for å spille inn lyd</string>
+    <string name="dialog_permissions_phone">Opptaker trenger telefontilgang for å passe på at du ikke tar opp anropene dine</string>
+    <string name="dialog_permissions_mic_phone">Opptaker trenger mikrofontilgang for å spille inn lyd og telefontilgang for å passe på at du ikke tar opp anropene dine</string>
+    <string name="dialog_permissions_ask">Spør igjen</string>
+    <string name="dialog_permissions_dismiss">Avvis</string>
+    <string name="snack_permissions_no_permission">Nødvendige tillatelser ble nektet, aktiver dem fra telefonens innstillinger for å starte å ta opp lyd</string>
+    <string name="main_sound_action">Ta opp lyd</string>
+</resources>

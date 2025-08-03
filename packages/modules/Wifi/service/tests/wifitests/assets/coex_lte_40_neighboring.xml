@@ -1,0 +1,17 @@
+<table>
+    <entry>
+        <rat>LTE</rat>
+        <band>40</band>
+        <powerCapDbm>-50</powerCapDbm>
+        <params>
+            <neighborThresholds>
+                <wifiVictimMhz>20</wifiVictimMhz>
+                <cellVictimMhz>20</cellVictimMhz>
+            </neighborThresholds>
+            <defaultChannels>
+                <default2g>6</default2g>
+                <default5g>36</default5g>
+            </defaultChannels>
+        </params>
+    </entry>
+</table>

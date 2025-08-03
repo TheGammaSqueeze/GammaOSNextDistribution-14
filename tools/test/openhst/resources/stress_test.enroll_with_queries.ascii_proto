@@ -1,0 +1,39 @@
+description: "Simple script that plays Voice Match Phrases to enroll"
+
+# First phrase: Ok Google, what’s the weather tomorrow?
+step {
+  audio_file : "okg-us-female-whats-the-weather-tomorrow.wav"
+  audio_file_sample_rate : 24000
+  delay_after : 10
+}
+
+# Second phrase: Ok Google, remind me to water my plants every Monday.
+step {
+  audio_file : "okg-us-female-remind-me-to-water-my-plants-every-monday.wav"
+  audio_file_sample_rate : 24000
+  delay_after : 10
+}
+
+# Third phrase: Hey Google, make a call.
+step {
+  audio_file : "heyg-us-female-make-a-call.wav"
+  audio_file_sample_rate : 24000
+  delay_after : 10
+}
+
+# Fourth phrase: Hey Google, set a timer for 5 minutes.
+step {
+  audio_file : "heyg-us-female-set-a-timer-for-5-minutes.wav"
+  audio_file_sample_rate : 24000
+  delay_after : 10
+}
+
+expected_result {
+    aohd_hotword_detected : 0
+    assistant_started  : 0
+    dsp_false_accept  : 0
+    logcat_iteration  : 1
+    software_hotword  : 0
+    speaker_id_rejected  : 0
+    vis_software_hotword  : 0
+}

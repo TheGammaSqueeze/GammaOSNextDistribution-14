@@ -1,0 +1,130 @@
+syntax = "proto3";
+
+package blueberry.facade.l2cap.classic;
+
+import "google/protobuf/empty.proto";
+import "blueberry/facade/common.proto";
+
+service L2capClassicModuleFacade {
+  rpc FetchConnectionComplete(google.protobuf.Empty) returns (stream ConnectionCompleteEvent) {
+    // Testing Android Bluetooth stack only. Optional for other stack.
+  }
+  rpc FetchConnectionClose(google.protobuf.Empty) returns (stream ConnectionCloseEvent) {
+    // Testing Android Bluetooth stack only. Optional for other stack.
+  }
+  rpc OpenChannel(OpenChannelRequest) returns (google.protobuf.Empty) {}
+  rpc CloseChannel(CloseChannelRequest) returns (google.protobuf.Empty) {}
+  rpc FetchL2capData(google.protobuf.Empty) returns (stream L2capPacket) {}
+  rpc SetDynamicChannel(SetEnableDynamicChannelRequest) returns (google.protobuf.Empty) {}
+  rpc SendDynamicChannelPacket(DynamicChannelPacket) returns (google.protobuf.Empty) {}
+  rpc SetTrafficPaused(SetTrafficPausedRequest) returns (google.protobuf.Empty) {}
+  rpc GetChannelQueueDepth(google.protobuf.Empty) returns (GetChannelQueueDepthResponse) {
+    // Get the buffer size of channel queue end for L2CAP user (how many packets we can buffer
+    // before L2CAP user dequeues.
+  }
+  rpc InitiateConnectionForSecurity(blueberry.facade.BluetoothAddress) returns (google.protobuf.Empty) {}
+  rpc FetchSecurityConnectionEvents(google.protobuf.Empty) returns (stream LinkSecurityInterfaceCallbackEvent) {}
+  rpc SecurityLinkEnsureAuthenticated(blueberry.facade.BluetoothAddress) returns (google.protobuf.Empty) {}
+  rpc SecurityLinkHold(blueberry.facade.BluetoothAddress) returns (google.protobuf.Empty) {}
+  rpc SecurityLinkDisconnect(blueberry.facade.BluetoothAddress) returns (google.protobuf.Empty) {}
+  rpc SecurityLinkRelease(blueberry.facade.BluetoothAddress) returns (google.protobuf.Empty) {}
+}
+
+enum LinkSecurityInterfaceCallbackEventType {
+  ON_CONNECTED = 0;
+  ON_DISCONNECTED = 1;
+  ON_AUTHENTICATION_COMPLETE = 2;
+  ON_ENCRYPTION_CHANGE = 3;
+  ON_READ_REMOTE_VERSION_INFO = 4;
+  ON_READ_REMOTE_EXTENDED_FEATURES = 5;
+}
+
+message LinkSecurityInterfaceCallbackEvent {
+  blueberry.facade.BluetoothAddress address = 1;
+  LinkSecurityInterfaceCallbackEventType event_type = 2;
+}
+
+message RegisterChannelRequest {
+  uint32 channel = 1;
+}
+
+message ConnectionCompleteEvent {
+  blueberry.facade.BluetoothAddress remote = 1;
+}
+
+message ConnectionCloseEvent {
+  blueberry.facade.BluetoothAddress remote = 1;
+  uint32 reason = 2;
+}
+
+enum RetransmissionFlowControlMode {
+  BASIC = 0;
+  ERTM = 1;
+  ERTM_OPTIONAL = 2;
+}
+
+message OpenChannelRequest {
+  blueberry.facade.BluetoothAddress remote = 1;
+  uint32 psm = 2;
+  RetransmissionFlowControlMode mode = 3;
+}
+
+message CloseChannelRequest {
+  uint32 psm = 1;
+}
+
+enum ChannelSignalEventType {
+  OPEN = 0;
+  CLOSE = 1;
+  CONFIGURE = 2;
+}
+
+message ChannelSignalEvent {
+  uint32 cid = 1;
+  ChannelSignalEventType type = 2;
+}
+
+enum SendL2capPacketResultType {
+  OK = 0;
+  BAD_CID = 1;
+}
+
+message SendL2capPacketResult {
+  SendL2capPacketResultType result_type = 1;
+}
+
+message L2capPacket {
+  oneof channel_type {
+    uint32 psm = 1;
+    uint32 fixed_cid = 2;
+  }
+  bytes payload = 3;
+}
+
+message SetEnableDynamicChannelRequest {
+  uint32 psm = 1;
+  bool enable = 2;
+  RetransmissionFlowControlMode retransmission_mode = 3;
+}
+
+message DynamicChannelPacket {
+  blueberry.facade.BluetoothAddress remote = 1;
+  uint32 psm = 2;
+  bytes payload = 3;
+}
+
+message SetTrafficPausedRequest {
+  bool paused = 1;
+  uint32 psm = 2;
+}
+
+message GetChannelQueueDepthResponse {
+  uint32 size = 1;
+}
+
+enum ClassicSecurityPolicy {
+  ENCRYPTED_TRANSPORT = 0;
+  AUTHENTICATED_ENCRYPTED_TRANSPORT = 1;
+  BEST = 2;
+  _SDP_ONLY_NO_SECURITY_WHATSOEVER_PLAINTEXT_TRANSPORT_OK = 3;
+}

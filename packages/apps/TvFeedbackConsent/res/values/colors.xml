@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+
+  <color name="feedback_consent_action_focused">@color/google_screen_black
+  </color>
+  <color name="feedback_consent_action_unfocused">#F8F9FA</color>
+
+  <color name="feedback_consent_switch_thumb_on">#FF4284f4</color>
+  <color name="feedback_consent_switch_thumb_off">#FFF1F1F1</color>
+  <color name="feedback_consent_switch_track_on">#FF4284f4</color>
+  <color name="feedback_consent_switch_track_off">#FF5F6368</color>
+
+  <color name="google_transparent">#00000000</color>
+  <color name="google_white_10">#1Affffff</color>
+  <color name="google_screen_black">#0E0E0F</color>
+  <color name="google_screen_black_40">#660E0E0F</color>
+  <color name="google_screen_white">#E8EAED</color>
+
+</resources>

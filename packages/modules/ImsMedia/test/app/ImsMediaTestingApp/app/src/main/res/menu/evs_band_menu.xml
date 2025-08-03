@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+  <item
+      android:id="@+id/evsBandNoneMenuItem"
+      android:title="@string/evs_band_none"
+      android:titleCondensed="0">
+  </item>
+
+  <item
+      android:id="@+id/evsBandNarrowMenuItem"
+      android:title="@string/evs_narrow_band"
+      android:titleCondensed="1">
+  </item>
+
+  <item
+      android:id="@+id/evsBandWideMenuItem"
+      android:title="@string/evs_wide_band"
+      android:titleCondensed="2">
+  </item>
+
+  <item
+      android:id="@+id/evsBandSuperWideMenuItem"
+      android:title="@string/evs_super_wide_band"
+      android:titleCondensed="4">
+  </item>
+
+  <item
+      android:id="@+id/evsBandFullMenuItem"
+      android:title="@string/evs_full_band"
+      android:titleCondensed="8">
+  </item>
+
+</menu>

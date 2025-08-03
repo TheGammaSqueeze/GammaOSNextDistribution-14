@@ -1,0 +1,12 @@
+namespace testing;
+
+attribute "privacy";
+
+table BarTestSchema {
+    bar_x:int;
+    bar_y:int;
+    another_field:string (privacy:"Any");
+}
+
+root_type BarTestSchema;
+

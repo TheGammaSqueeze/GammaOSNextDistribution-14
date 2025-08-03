@@ -1,0 +1,8 @@
+###############################################################################
+# ERROR: AIDL API change detected                                             #
+###############################################################################
+Above AIDL file(s) has changed. Run `m %s-update-api` to reflect the changes
+to the current version so that it is reviewed by
+android-aidl-api-council@google.com
+And then you need to change dependency on %s-V(n)-* to %s-V(n+1)-* to use
+new APIs.

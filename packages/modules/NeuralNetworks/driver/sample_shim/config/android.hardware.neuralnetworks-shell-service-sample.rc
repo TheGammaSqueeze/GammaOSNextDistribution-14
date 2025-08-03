@@ -1,0 +1,7 @@
+service neuralnetworks_hal_service_shell_sample /vendor/bin/hw/android.hardware.neuralnetworks-shell-service-sample
+    interface aidl android.hardware.neuralnetworks.IDevice/nnapi-sample_sl_updatable
+    disabled
+    oneshot
+    class hal
+    user system
+    group system

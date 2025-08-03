@@ -1,0 +1,35 @@
+main: {
+  multithreading: {
+    threads: [
+      {
+        instruction: {
+          instruction_set: {
+            instructions: [
+              {
+                open_file: {
+                  path_name: "newfile2.txt",
+                  output_fd: "test_file"
+                }
+              },
+              {
+                read_file: {
+                  input_fd: "test_file"
+                }
+              },
+              {
+                close_file: {
+                  input_fd: "test_file"
+                }
+              }
+            ]
+          }
+        },
+        spawn: 4
+      }
+    ]
+  },
+  repeat: 2
+},
+global {
+  absolute_path: "";
+}

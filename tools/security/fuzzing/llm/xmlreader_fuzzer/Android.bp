@@ -1,0 +1,38 @@
+// Copyright 2024 The Android Open Source Project
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_fuzz {
+    name: "xmlread_memory_fuzzer",
+    shared_libs: [
+        "libxml2",
+    ],
+    srcs: [
+        "XmlRead_Memory_Fuzzer.cpp",
+    ],
+    fuzz_config: {
+        cc: ["hamzeh@google.com"],
+        componentid: 330367,
+    },
+    host_supported: true,
+    corpus: ["testdata/*"],
+    dictionary: "xml_fuzzer.dict",
+}
+
+cc_fuzz {
+    name: "xmlread_fd_fuzzer",
+    shared_libs: [
+        "libxml2",
+    ],
+    srcs: [
+        "XmlRead_Fd_Fuzzer.cpp",
+    ],
+    fuzz_config: {
+        cc: ["hamzeh@google.com"],
+        componentid: 330367,
+    },
+    host_supported: true,
+    corpus: ["testdata/*"],
+    dictionary: "xml_fuzzer.dict",
+}

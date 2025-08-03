@@ -1,0 +1,80 @@
+// Bluetooth types
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_bt_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_bt_license"],
+}
+
+cc_library_headers {
+    name: "libbluetooth-types-header",
+    visibility: ["//visibility:public"],
+    export_include_dirs: ["./"],
+    vendor_available: true,
+    host_supported: true,
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.btservices",
+        "com.android.media",
+        "com.android.media.swcodec",
+    ],
+    // As part of updatable mainline modules(media, swcodec), it should support at least 29(Q)
+    min_sdk_version: "29",
+    target: {
+        windows: {
+            enabled: true,
+        },
+    },
+}
+
+cc_library_static {
+    name: "libbluetooth-types",
+    vendor_available: true,
+    defaults: ["fluoride_defaults"],
+    cflags: [
+        /* we export all classes, so change default visibility, instead of having EXPORT_SYMBOL on each class*/
+        "-fvisibility=default",
+    ],
+    visibility: ["//visibility:public"],
+    host_supported: true,
+    srcs: [
+        "bluetooth/uuid.cc",
+        "raw_address.cc",
+    ],
+    static_libs: ["libchrome"],
+    header_libs: ["libbluetooth-types-header"],
+    export_header_lib_headers: ["libbluetooth-types-header"],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.btservices",
+    ],
+    min_sdk_version: "29",
+}
+
+cc_test {
+    name: "net_test_types",
+    static_libs: [
+        "libbluetooth-types",
+        "libchrome",
+        "libosi", // strlcpy
+    ],
+    test_suites: ["general-tests"],
+    defaults: [
+        "fluoride_defaults",
+        "mts_defaults",
+    ],
+    include_dirs: [
+        "packages/modules/Bluetooth/system",
+        "packages/modules/Bluetooth/system/include",
+    ],
+    host_supported: true,
+    srcs: [
+        "test/ble_address_with_type_unittest.cc",
+        "test/bluetooth/uuid_unittest.cc",
+        "test/bt_name_test.cc",
+        "test/raw_address_unittest.cc",
+    ],
+    shared_libs: ["liblog"],
+}

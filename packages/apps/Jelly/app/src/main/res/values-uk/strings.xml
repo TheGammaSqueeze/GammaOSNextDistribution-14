@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2017-2024 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <string name="app_name">Браузер</string>
+    <string name="menu_new_tab">Нова вкладка</string>
+    <string name="menu_incognito">Анонімна вкладка</string>
+    <string name="menu_fav_add">Додати до улюблених</string>
+    <string name="menu_share">Поділитися</string>
+    <string name="menu_favorites">Обране</string>
+    <string name="menu_history">Історія</string>
+    <string name="menu_shortcut">Додати ярлик</string>
+    <string name="menu_settings">Налаштування</string>
+    <string name="menu_download">Завантажити</string>
+    <string name="menu_in_new_tab">Відкрити у новій вкладці</string>
+    <string name="menu_search">Знайти на сторінці</string>
+    <string name="menu_print">Друк</string>
+    <string name="share_title">Надіслати до</string>
+    <string name="dismiss">Відхилити</string>
+    <string name="download_title">Завантажити файл</string>
+    <string name="download_message">Завантажити файл «%1$s»?</string>
+    <string name="download_positive">Завантажити</string>
+    <string name="settings_title">Налаштування</string>
+    <string name="pref_search_engine">Пошукова система</string>
+    <string name="pref_start_page">Домашня сторінка</string>
+    <string name="pref_start_page_dialog_title">Оберіть домашню сторінку</string>
+    <string name="pref_start_page_dialog_message">Написати URL-адресу домашньої сторінки</string>
+    <string name="pref_start_page_dialog_reset">Скинути</string>
+    <string name="pref_privacy_security">Конфіденційність та безпека</string>
+    <string name="pref_looklock_title">LookLock</string>
+    <string name="pref_looklock_summary">Заборонити іншими програмам читання вмісту веб-переглядача</string>
+    <string name="pref_js_title">Javascript</string>
+    <string name="pref_js_summary">Увімкнути JavaScript</string>
+    <string name="pref_location_title">Місцезнаходження</string>
+    <string name="pref_location_summary">Дозволити веб-сайтам запитувати доступ до місцезнаходження</string>
+    <string name="pref_cookie_title">Cookies</string>
+    <string name="pref_cookie_summary">Дозволити веб-сайтам зберігати і завантажувати файли cookie</string>
+    <string name="pref_screenshot_snap_title">Просунуте поширення</string>
+    <string name="pref_screenshot_snap_summary">Поширити передогляд поширеної веб-сторінки</string>
+    <string name="pref_cookie_clear">Очистити cookies</string>
+    <string name="pref_cookie_clear_done">Очищено всі cookie</string>
+    <string name="pref_do_not_track_title">Не відстежувати</string>
+    <string name="pref_do_not_track_summary">Надсилати \"Не відстежувати\" до веб-сторінок, які ви відвідуєте</string>
+    <string name="pref_suggestions_provider">Постачальник пропозицій</string>
+    <string name="history_title">Історія</string>
+    <string name="history_empty">Тут нічого нема. Аби побачити тут історію переглядів, почніть користуватися</string>
+    <string name="history_date_format">EEEE dd MMMM yyyy, HH:mm</string>
+    <string name="history_delete_title">Очистити історію</string>
+    <string name="history_delete_message">Ви збираєтеся видалити всю історію. Цю дію скасувати не можна. Бажаєте продовжити?</string>
+    <string name="history_delete_positive">Очистити</string>
+    <string name="history_deleting_message">Очищення історії\u2026</string>
+    <string name="history_snackbar_item_deleted_message">Скасувати</string>
+    <string name="favorite_title">Улюблене</string>
+    <string name="favorite_added">Додано в улюблені</string>
+    <string name="favorite_empty">Тут нічого нема. Додайте улюблені посилання, щоб побачити тут</string>
+    <string name="favorite_edit_dialog_title">Редагувати улюблене</string>
+    <string name="favorite_edit_title">Назва</string>
+    <string name="favorite_edit_url">URL</string>
+    <string name="favorite_edit_positive">Змінити</string>
+    <string name="favorite_edit_delete">Вилучити</string>
+    <string name="favorite_edit_error">Вставити припустиму URL-адресу</string>
+    <string name="error_no_activity_found">Немає застосунку, що може працювати з цим посиланням</string>
+    <string name="auth_dialog_title">Потрібна аутентифікація</string>
+    <string name="auth_dialog_username">Ім\'я користувача:</string>
+    <string name="auth_dialog_password">Пароль:</string>
+    <string name="auth_dialog_detail">%1$s вимагае ім\'я користувача та пароль.</string>
+    <string name="auth_dialog_login">Увійти</string>
+    <string name="shortcut_new_incognito_tab">Нова вкладка \"інкоґніто\"</string>
+    <string name="suggestions_provider_none">Жоден</string>
+    <string name="search_bar_hint">Шукати</string>
+    <string name="ssl_cert_dialog_title">Деталі SSL сертифіката</string>
+    <string name="ssl_cert_dialog_domain">Домен</string>
+    <string name="ssl_cert_dialog_issued_to">Видано для</string>
+    <string name="ssl_cert_dialog_issued_by">Ким видано</string>
+    <string name="ssl_cert_dialog_validity">Термін дії</string>
+    <string name="ssl_cert_dialog_common_name">Загальна назва (CN)</string>
+    <string name="ssl_cert_dialog_organization">Організація (O)</string>
+    <string name="ssl_cert_dialog_organizational_unit">Організаційний підрозділ (UN)</string>
+    <string name="ssl_cert_dialog_issued_on">Дата видачі</string>
+    <string name="ssl_cert_dialog_expires_on">Діє до</string>
+    <string name="ssl_cert_dialog_dismiss">Відхилити</string>
+</resources>

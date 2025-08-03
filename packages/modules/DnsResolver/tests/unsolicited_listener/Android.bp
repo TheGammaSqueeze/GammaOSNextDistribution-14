@@ -1,0 +1,24 @@
+package {
+    default_team: "trendy_team_fwk_core_networking",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "packages_modules_DnsResolver_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["packages_modules_DnsResolver_license"],
+}
+
+cc_test_library {
+    name: "resolv_unsolicited_listener",
+    defaults: ["resolv_test_defaults"],
+    srcs: [
+        "unsolicited_event_listener.cpp",
+    ],
+    shared_libs: [
+        "libbinder_ndk",
+    ],
+    static_libs: [
+        "dnsresolver_aidl_interface-lateststable-ndk",
+        "netd_event_listener_interface-lateststable-ndk",
+    ],
+}

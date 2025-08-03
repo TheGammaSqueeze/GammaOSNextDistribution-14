@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2013 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="telecommAppLabel" product="default">Llamaes telefóniques</string>
+    <string name="userCallActivityLabel" product="default">Teléfonu</string>
+    <string name="unknown">Númberu desconocíu</string>
+    <string name="notification_missedCallTitle">Llamada perdida</string>
+    <string name="notification_missedWorkCallTitle">Llamada llaboral perdida</string>
+    <string name="notification_missedCallsTitle">Llamaes perdíes</string>
+    <string name="notification_missedCallsMsg"><xliff:g id="num_missed_calls">%s</xliff:g> llamaes perdíes</string>
+    <string name="notification_missedCallTicker">Llamada perdida de: <xliff:g id="missed_call_from">%s</xliff:g></string>
+    <string name="notification_missedCall_call_back">Devolver llamada</string>
+    <string name="notification_missedCall_message">Unviar un mensaxe</string>
+    <string name="notification_disconnectedCall_title">Llamada desconectada</string>
+    <string name="notification_disconnectedCall_body">Desconectóse la llamada a «<xliff:g id="caller">%s</xliff:g>» porque se ta faciendo una llamada d\'emerxencia.</string>
+    <string name="notification_disconnectedCall_generic_body">        Desconectóse la llamada porque se ta faciendo una llamada d\'emerxencia.
+    </string>
+    <string name="notification_audioProcessing_title">Llamada en segundu planu</string>
+    <string name="notification_audioProcessing_body">        «<xliff:g id="audio_processing_app_name">%s</xliff:g>» ta procesando una llamada en segundu planu.
+        Ye posible qu\'esta aplicación acceda al audiu y lu reproduza demientres la llamada..
+    </string>
+    <string name="notification_incallservice_not_responding_title">        «<xliff:g id="in_call_service_app_name">%s</xliff:g>» dexó de responder
+    </string>
+    <string name="notification_incallservice_not_responding_body">        La llamada usó l\'aplicación de teléfonu que vieno col preséu
+    </string>
+    <string name="accessibility_call_muted">Llamada col audiu desactiváu.</string>
+    <string name="accessibility_speakerphone_enabled">Altavoz activáu.</string>
+    <string name="respond_via_sms_canned_response_1">Nun puedo falar. ¿Qué pasó?</string>
+    <string name="respond_via_sms_canned_response_2">Llámote de siguío.</string>
+    <string name="respond_via_sms_canned_response_3">Llámote dempués.</string>
+    <string name="respond_via_sms_canned_response_4">Nun puedo falar. ¿Llámesme dempués?</string>
+    <string name="respond_via_sms_setting_title">Rempuestes rápides</string>
+    <string name="respond_via_sms_setting_title_2">Edición de rempuestes rápides</string>
+    <string name="respond_via_sms_edittext_dialog_title">Rempuesta rápida</string>
+    <string name="respond_via_sms_confirmation_format">Mensaxe unviáu al <xliff:g id="phone_number">%s</xliff:g>.</string>
+    <string name="respond_via_sms_failure_format">Hebo un fallu al unviar el mensaxe al <xliff:g id="phone_number">%s</xliff:g></string>
+    <string name="enable_account_preference_title">Cuentes pa llamaes</string>
+    <string name="outgoing_call_not_allowed_user_restriction">Namás se permiten les llamaes d\'emerxencia.</string>
+    <string name="outgoing_call_not_allowed_no_permission">Esta aplicación nun pue facer llamaes salientes ensin el permisu «Teléfonu».</string>
+    <string name="outgoing_call_error_no_phone_number_supplied">Pa facer una llamada, introduz un númberu válidu.</string>
+    <string name="duplicate_video_call_not_allowed">Nesti momentu nun se pue amestar la llamada.</string>
+    <string name="no_vm_number">Falta\'l númberu del buzón de voz</string>
+    <string name="no_vm_number_msg">Nun s\'atroxó nengún númberu de buzón de voz na tarxeta SIM.</string>
+    <string name="add_vm_number_str">Amestar un númberu</string>
+    <string name="change_default_dialer_dialog_title">¿Quies predeterminar l\'aplicación de teléfonu «<xliff:g id="new_app">%s</xliff:g>»?</string>
+    <string name="change_default_dialer_dialog_affirmative">Predeterminar</string>
+    <string name="change_default_dialer_dialog_negative">Encaboxar</string>
+    <string name="change_default_dialer_warning_message">«<xliff:g id="new_app">%s</xliff:g>» va ser a facer llamaes y controlar tolos aspeutos de so. Namás habríes predeterminar les aplicaciones de teléfonu nes que t\'enfotes.</string>
+    <string name="change_default_call_screening_dialog_title">¿Quies predeterminar l\'aplic. de peñera de llamaes «<xliff:g id="new_app">%s</xliff:g>»?</string>
+    <string name="change_default_call_screening_warning_message_for_disable_old_app">«<xliff:g id="old_app">%s</xliff:g>» yá nun va ser a peñerar les llamaes.</string>
+    <string name="change_default_call_screening_warning_message">«<xliff:g id="new_app">%s</xliff:g>» va ser a ver la información de los llamadores que nun tán nos contautos y a bloquiar les sos llamaes. Namás habríes predeterminar les aplicaciones de peñera de llamaes nes que t\'enfotes.</string>
+    <string name="change_default_call_screening_dialog_affirmative">Predeterminar</string>
+    <string name="change_default_call_screening_dialog_negative">Encaboxar</string>
+    <string name="blocked_numbers">Númberos bloquiaos</string>
+    <string name="blocked_numbers_msg">Nun vas recibir llamaes nin mensaxes de los númberos bloquiaos.</string>
+    <string name="block_number">Amestar un númberu</string>
+    <string name="unblock_dialog_body">¿Quies desbloquiar al <xliff:g id="number_to_block">%1$s</xliff:g>?</string>
+    <string name="unblock_button">Desbloquiar</string>
+    <string name="add_blocked_dialog_body">Bloquéu de llamaes y mensaxes del</string>
+    <string name="add_blocked_number_hint">Númberu telefónicu</string>
+    <string name="block_button">Bloquiar</string>
+    <string name="non_primary_user">Namás el propietariu del preséu pue ver y xestionar los númberos bloquiaos.</string>
+    <string name="delete_icon_description">Desbloquiar</string>
+    <string name="blocked_numbers_butter_bar_title">El bloquéu desactivóse temporalmente</string>
+    <string name="blocked_numbers_butter_bar_body">Dempués de llamar o unviar un mensaxe a un númberu d\'emerxencia, desactívase\'l bloquéu pa garantizar que los servicios d\'emerxencia puedan ponese en contautu contigo.</string>
+    <string name="blocked_numbers_butter_bar_button">Volver activar agora</string>
+    <string name="blocked_numbers_number_blocked_message">Bloquióse\'l <xliff:g id="blocked_number">%1$s</xliff:g></string>
+    <string name="blocked_numbers_number_unblocked_message">Desbloquióse\'l <xliff:g id="blocked_number">%1$s</xliff:g></string>
+    <string name="blocked_numbers_block_emergency_number_message">Nun ye posible bloquiar el númberu d\'emerxencia.</string>
+    <string name="blocked_numbers_number_already_blocked_message">El <xliff:g id="blocked_number">%1$s</xliff:g> yá ta bloquiáu.</string>
+    <string name="toast_personal_call_msg">Usando\'l marcador personal pa llamar</string>
+    <string name="notification_incoming_call"><xliff:g id="call_from">%2$s</xliff:g> llámate dende «<xliff:g id="call_via">%1$s</xliff:g>»</string>
+    <string name="notification_incoming_video_call"><xliff:g id="call_from">%2$s</xliff:g> faite una videollamada dende «<xliff:g id="call_via">%1$s</xliff:g>»</string>
+    <string name="answering_ends_other_call">Si contestes, va finar la llamada de: <xliff:g id="call_via">%1$s</xliff:g></string>
+    <string name="answering_ends_other_calls">Si contestes, van finar les llamaes de: <xliff:g id="call_via">%1$s</xliff:g></string>
+    <string name="answering_ends_other_video_call">Si contestes, va finar la videollamada de: <xliff:g id="call_via">%1$s</xliff:g></string>
+    <string name="answering_ends_other_managed_call">Si contestes, va finar la llamada en cursu</string>
+    <string name="answering_ends_other_managed_calls">Si contestes, van finar les llamaes en cursu</string>
+    <string name="answering_ends_other_managed_video_call">Si contestes, va finar la videollamada en cursu</string>
+    <string name="answer_incoming_call">Contestar</string>
+    <string name="decline_incoming_call">Refugar</string>
+    <string name="cant_call_due_to_no_supported_service">Nun se pue facer la llamada porque nun hai nenguna cuenta que seya compatible coles llamaes d\'esti tipu.</string>
+    <string name="cant_call_due_to_ongoing_call">Nun se pue facer la llamada por haber una llamada en cursu en «<xliff:g id="other_call">%1$s</xliff:g>».</string>
+    <string name="cant_call_due_to_ongoing_calls">Nun se pue facer la llamada por haber llamaes en cursu en «<xliff:g id="other_call">%1$s</xliff:g>».</string>
+    <string name="cant_call_due_to_ongoing_unknown_call">Nun se pue facer la llamada por haber una llamada en cursu n\'otra aplicación.</string>
+    <string name="notification_channel_incoming_call">Llamaes entrantes</string>
+    <string name="notification_channel_missed_call">Llamaes perdíes</string>
+    <string name="notification_channel_call_blocking">Bloquéu de llamaes</string>
+    <string name="notification_channel_background_calls">Llamaes en segundu planu</string>
+    <string name="notification_channel_disconnected_calls">Llamaes desconectaes</string>
+    <string name="notification_channel_in_call_service_crash">Aplicaciones de teléfonu que cascaron</string>
+    <string name="notification_channel_call_streaming">Emisión de llamaes</string>
+    <string name="alert_outgoing_call">Si faes esta llamada, va finar la de l\'aplicación «<xliff:g id="other_app">%1$s</xliff:g>»</string>
+    <string name="alert_redirect_outgoing_call_or_not">Escueyi cómo facer esta llamada</string>
+    <string name="alert_place_outgoing_call_with_redirection">Esviar la llamada con «<xliff:g id="other_app">%1$s</xliff:g>»</string>
+    <string name="alert_place_unredirect_outgoing_call">Llamar col mio númberu de teléfonu</string>
+    <string name="alert_redirect_outgoing_call_timeout">«<xliff:g id="other_app">%1$s</xliff:g>» nun pue facer la llamada. Prueba con otra aplicación d\'esvíu de llamaes o ponte en contautu col desendolcador pa consiguir ayuda.</string>
+    <string name="phone_settings_call_blocking_txt">Bloquéu de llamaes</string>
+    <string name="phone_settings_number_not_in_contact_txt">Númberos que nun tán en Contautos</string>
+    <string name="phone_settings_number_not_in_contact_summary_txt">Bloquia los númberos que nun tean na llista de Contautos</string>
+    <string name="phone_settings_private_num_txt">Númberos ocultos</string>
+    <string name="phone_settings_private_num_summary_txt">Bloquia a llamadores que tengan el númberu ocultu</string>
+    <string name="phone_settings_payphone_txt">Teléfonos públicos</string>
+    <string name="phone_settings_payphone_summary_txt">Bloquia les llamaes de los teléfonos públicos</string>
+    <string name="phone_settings_unknown_txt">Númberos desconocíos</string>
+    <string name="phone_settings_unknown_summary_txt">Bloquia les llamaes de llamadores non identificaos</string>
+    <string name="phone_settings_unavailable_txt">Númberos non disponibles</string>
+    <string name="phone_settings_unavailable_summary_txt">Bloquia les llamaes nes que\'l númberu de los remitentes nun ta disponible</string>
+    <string name="phone_strings_call_blocking_turned_off_notification_title_txt">Bloquéu de llamaes</string>
+    <string name="phone_strings_call_blocking_turned_off_notification_text_txt">Desactivóse\'l bloquéu de llamaes</string>
+    <string name="phone_strings_emergency_call_made_dialog_title_txt">Fízose una llamada d\'emerxencia</string>
+    <string name="phone_strings_emergency_call_made_dialog_call_blocking_text_txt">Desactivóse\'l bloquéu de llamaes pa permitir que los servicios d\'emerxencia se pongan en contautu contigo.</string>
+    <string name="developer_title">Menú pa desendolcadores de telecomunicaciones</string>
+    <string name="toast_emergency_can_not_pull_call">Nun se puen contestar les llamaes demientres una llamada d\'emerxencia.</string>
+    <string name="cancel">Encaboxar</string>
+    <string name="back">Atrás</string>
+    <string name="callendpoint_name_earpiece">Auricular</string>
+    <string name="callendpoint_name_bluetooth">Bluetooth</string>
+    <string name="callendpoint_name_wiredheadset">Cascos con cable</string>
+    <string name="callendpoint_name_speaker">Altavoz</string>
+    <string name="callendpoint_name_streaming">Fontes esternes</string>
+    <string name="callendpoint_name_unknown">Númberu desconocíu</string>
+    <string name="call_streaming_notification_body">Emitiendo l\'audiu a otru preséu</string>
+    <string name="call_streaming_notification_action_hang_up">Colgar</string>
+    <string name="call_streaming_notification_action_switch_here">Cambiar a esti preséu</string>
+</resources>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="rtt_promotion_title">அழைப்பில் இருக்கும் போதே நிகழ்நேர உரைச் செய்தியை அனுப்பலாம்</string>
+  <string name="rtt_promotion_details">காது கேட்காதவர்கள், கேட்பதில் பிரச்சனை உள்ளவர்கள், பேச
+    முடியாதவர்கள் அல்லது குரலுடன் கூடுதல் சேவை தேவைப்படும் அழைப்பாளர்களுக்கு RTT உதவுகிறது. RTT செய்தி டிரான்ஸ்கிரிப்ட்டுகள், உங்கள் சாதன
+    அழைப்பு வரலாற்றில் சேமிக்கப்படும். %1$s</string>
+</resources>

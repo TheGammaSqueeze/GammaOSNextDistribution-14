@@ -1,0 +1,19 @@
+/dts-v1/;
+/plugin/;
+
+/include/ "test_crosvm_dt_base.dtsi"
+
+/ {
+    bus0 {
+        #address-cells = <0x2>;
+        #size-cells = <0x2>;
+
+        backlight@90000000 {
+            compatible = "android,backlight";
+            reg = <0x0 0x9 0x0 0xFF>;
+            interrupts = <0x0 0xF 0x4>;
+            google,eh,ignore-gctrl-reset;
+            status = "okay";
+        };
+    };
+};

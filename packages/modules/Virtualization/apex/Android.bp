@@ -1,0 +1,387 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+microdroid_filesystem_images = [
+    "microdroid_super",
+    "microdroid_vbmeta",
+]
+
+soong_config_module_type {
+    name: "virt_apex",
+    module_type: "apex",
+    config_namespace: "ANDROID",
+    bool_variables: [
+        "avf_enabled",
+    ],
+    properties: [
+        "defaults",
+        "prebuilts",
+    ],
+}
+
+virt_apex {
+    name: "com.android.virt",
+    soong_config_variables: {
+        avf_enabled: {
+            defaults: ["com.android.virt_avf_enabled"],
+            conditions_default: {
+                defaults: ["com.android.virt_avf_disabled"],
+            },
+        },
+    },
+}
+
+soong_config_module_type {
+    name: "avf_flag_aware_apex_defaults",
+    module_type: "apex_defaults",
+    config_namespace: "ANDROID",
+    bool_variables: [
+        "release_avf_enable_device_assignment",
+        "release_avf_enable_llpvm_changes",
+        "release_avf_enable_remote_attestation",
+        "release_avf_enable_vendor_modules",
+        "release_avf_enable_virt_cpufreq",
+    ],
+    properties: [
+        "androidManifest",
+        "arch",
+        "canned_fs_config",
+        "prebuilts",
+        "systemserverclasspath_fragments",
+        "vintf_fragments",
+    ],
+}
+
+avf_flag_aware_apex_defaults {
+    name: "com.android.virt_common",
+    // TODO(jiyong): make it updatable
+    updatable: false,
+    future_updatable: false,
+    platform_apis: true,
+
+    manifest: "manifest.json",
+
+    key: "com.android.virt.key",
+    certificate: ":com.android.virt.certificate",
+
+    apps: [
+        "android.system.virtualmachine.res",
+    ],
+
+    file_contexts: ":com.android.virt-file_contexts",
+
+    bootclasspath_fragments: [
+        "com.android.virt-bootclasspath-fragment",
+    ],
+    jni_libs: [
+        "libvirtualizationservice_jni",
+        "libvirtualmachine_jni",
+    ],
+    // TODO(b/295593640) Unfortunately these are added to the apex even though they are unused.
+    // Once the build system is fixed, remove this.
+    unwanted_transitive_deps: [
+        "libsso",
+        "libutils",
+    ],
+    soong_config_variables: {
+        release_avf_enable_llpvm_changes: {
+            systemserverclasspath_fragments: [
+                "com.android.virt-systemserver-fragment",
+            ],
+        },
+        release_avf_enable_virt_cpufreq: {
+            canned_fs_config: "canned_fs_config_sys_nice",
+            conditions_default: {
+                canned_fs_config: "canned_fs_config",
+            },
+        },
+    },
+}
+
+avf_flag_aware_apex_defaults {
+    name: "com.android.virt_avf_enabled",
+
+    defaults: ["com.android.virt_common"],
+
+    custom_sign_tool: "sign_virt_apex",
+
+    // crosvm and virtualizationservice are only enabled for 64-bit targets on device
+    arch: {
+        arm64: {
+            binaries: [
+                "crosvm",
+                "virtmgr",
+                "virtualizationservice",
+            ],
+            filesystems: microdroid_filesystem_images,
+            prebuilts: [
+                "rialto_bin",
+            ],
+        },
+        x86_64: {
+            binaries: [
+                "crosvm",
+                "virtmgr",
+                "virtualizationservice",
+            ],
+            filesystems: microdroid_filesystem_images,
+        },
+    },
+    binaries: [
+        "fd_server",
+        "vm",
+    ],
+    prebuilts: [
+        "features_com.android.virt.xml",
+        "microdroid_initrd_debuggable",
+        "microdroid_initrd_normal",
+        "microdroid.json",
+        "microdroid_kernel",
+        "com.android.virt.init.rc",
+    ],
+    host_required: [
+        "vm_shell",
+    ],
+    apps: [
+        "EmptyPayloadApp",
+    ],
+    soong_config_variables: {
+        release_avf_enable_device_assignment: {
+            prebuilts: [
+                "com.android.virt.vfio_handler.rc",
+            ],
+            arch: {
+                arm64: {
+                    binaries: ["vfio_handler"],
+                },
+                x86_64: {
+                    binaries: ["vfio_handler"],
+                },
+            },
+        },
+        release_avf_enable_llpvm_changes: {
+            androidManifest: "AndroidManifest.xml",
+        },
+        release_avf_enable_vendor_modules: {
+            prebuilts: [
+                "microdroid_gki-android14-6.1_initrd_debuggable",
+                "microdroid_gki-android14-6.1_initrd_normal",
+                "microdroid_gki-android14-6.1_kernel",
+                "microdroid_gki-android14-6.1.json",
+            ],
+        },
+        release_avf_enable_remote_attestation: {
+            vintf_fragments: [
+                "virtualizationservice.xml",
+            ],
+        },
+    },
+}
+
+apex_defaults {
+    name: "com.android.virt_avf_disabled",
+
+    defaults: ["com.android.virt_common"],
+}
+
+apex_key {
+    name: "com.android.virt.key",
+    public_key: "com.android.virt.avbpubkey",
+    private_key: "com.android.virt.pem",
+}
+
+android_app_certificate {
+    name: "com.android.virt.certificate",
+    certificate: "com.android.virt",
+}
+
+soong_config_module_type {
+    name: "avf_flag_aware_genrule",
+    module_type: "genrule",
+    config_namespace: "ANDROID",
+    bool_variables: [
+        "release_avf_enable_llpvm_changes",
+        "release_avf_enable_remote_attestation",
+    ],
+    properties: ["srcs"],
+}
+
+avf_flag_aware_genrule {
+    name: "virtualizationservice_rc_combined",
+    srcs: ["virtualizationservice.rc.base"],
+    soong_config_variables: {
+        release_avf_enable_llpvm_changes: {
+            srcs: ["virtualizationservice.rc.llpvm"],
+        },
+        release_avf_enable_remote_attestation: {
+            srcs: ["virtualizationservice.rc.ra"],
+        },
+    },
+    out: ["virtualizationservice.rc"],
+    cmd: "cat $(in) > $(out)",
+}
+
+prebuilt_etc {
+    name: "com.android.virt.init.rc",
+    src: ":virtualizationservice_rc_combined",
+    filename: "virtualizationservice.rc",
+    installable: false,
+}
+
+prebuilt_etc {
+    name: "com.android.virt.vfio_handler.rc",
+    src: "vfio_handler.rc",
+    filename: "vfio_handler.rc",
+    installable: false,
+}
+
+// Virt apex needs a custom signer for its payload
+python_binary_host {
+    name: "sign_virt_apex",
+    srcs: [
+        "sign_virt_apex.py",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+    required: [
+        // sign_virt_apex should be runnable from outside the source tree,
+        // therefore, any required tool should be listed in build/make/core/Makefile as well.
+        "img2simg",
+        "initrd_bootconfig",
+        "lpmake",
+        "lpunpack",
+        "lz4",
+        "simg2img",
+    ],
+}
+
+sh_test_host {
+    name: "sign_virt_apex_test",
+    src: "sign_virt_apex_test.sh",
+    test_config: "sign_virt_apex_test.xml",
+    data_bins: [
+        // deapexer
+        "deapexer",
+        "debugfs_static",
+        "fsck.erofs",
+
+        // sign_virt_apex
+        "avbtool",
+        "img2simg",
+        "initrd_bootconfig",
+        "lpmake",
+        "lpunpack",
+        "lz4",
+        "sign_virt_apex",
+        "simg2img",
+    ],
+    data_libs: [
+        "libbase",
+        "libc++",
+        "libcrypto_utils",
+        "libcrypto",
+        "libext4_utils",
+        "liblog",
+        "liblp",
+        "libsparse",
+        "libz",
+    ],
+    data: [
+        ":com.android.virt",
+        ":test.com.android.virt.pem",
+    ],
+    test_suites: ["general-tests"],
+}
+
+filegroup {
+    name: "test.com.android.virt.pem",
+    srcs: ["test.com.android.virt.pem"],
+}
+
+filegroup {
+    name: "test2.com.android.virt.pem",
+    srcs: ["test2.com.android.virt.pem"],
+}
+
+// custom tool to replace bytes in a file
+python_binary_host {
+    name: "replace_bytes",
+    srcs: [
+        "replace_bytes.py",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+}
+
+// Encapsulate the contributions made by the com.android.virt to the bootclasspath.
+bootclasspath_fragment {
+    name: "com.android.virt-bootclasspath-fragment",
+    contents: ["framework-virtualization"],
+    apex_available: ["com.android.virt"],
+
+    // The bootclasspath_fragments that provide APIs on which this depends.
+    fragments: [
+        {
+            apex: "com.android.art",
+            module: "art-bootclasspath-fragment",
+        },
+    ],
+
+    // Additional stubs libraries that this fragment's contents use which are
+    // not provided by another bootclasspath_fragment.
+    additional_stubs: [
+        "android-non-updatable",
+    ],
+
+    hidden_api: {
+
+        // This module does not contain any split packages.
+        split_packages: [],
+
+        // The following packages and all their subpackages currently only
+        // contain classes from this bootclasspath_fragment. Listing a package
+        // here won't prevent other bootclasspath modules from adding classes in
+        // any of those packages but it will prevent them from adding those
+        // classes into an API surface, e.g. public, system, etc.. Doing so will
+        // result in a build failure due to inconsistent flags.
+        package_prefixes: [
+            "android.system.virtualmachine",
+            "android.system.virtualizationservice",
+            // android.sysprop.*, renamed by jarjar
+            "com.android.system.virtualmachine.sysprop",
+        ],
+    },
+}
+
+soong_config_module_type {
+    name: "avf_flag_aware_systemserverclasspath_fragment",
+    module_type: "systemserverclasspath_fragment",
+    config_namespace: "ANDROID",
+    bool_variables: [
+        "release_avf_enable_llpvm_changes",
+    ],
+    properties: [
+        "enabled",
+    ],
+}
+
+avf_flag_aware_systemserverclasspath_fragment {
+    name: "com.android.virt-systemserver-fragment",
+    contents: [
+        "service-virtualization",
+    ],
+    apex_available: ["com.android.virt"],
+    enabled: false,
+    soong_config_variables: {
+        release_avf_enable_llpvm_changes: {
+            enabled: true,
+        },
+    },
+}

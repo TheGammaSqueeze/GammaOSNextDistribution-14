@@ -1,0 +1,46 @@
+description: "Switches between the homescreen and screen off, launching a "
+             "voice search when the DSP should be enabled. The search is "
+             "also just of OK Google."
+
+step {
+  audio_file : "okg-us-female.wav"
+  audio_file_sample_rate : 24000
+  delay_after : 3
+}
+step {
+  command: "shell 'dumpsys window | grep mCurrentFocus'"
+  delay_after: 3
+}
+step {
+  command: "shell input keyevent 3"
+  delay_after: 1
+}
+step {
+  command: "shell input keyevent 26"
+  delay_after: 1
+}
+step {
+  command: "shell dumpsys battery unplug"
+  delay_after: 1
+}
+step {
+  command: "shell dumpsys deviceidle force-idle"
+  delay_after: 10
+}
+
+expected_result {
+    aohd_hotword_detected : 1
+    assistant_started  : 1
+    dsp_false_accept  : 0
+    logcat_iteration  : 1
+    speaker_id_rejected  : 0
+    vis_software_hotword  : 1
+}
+
+event {
+  name: "device_crashed"
+  condition: "iterations_since_aohd_hotword_detected >= 30"
+             "or iterations_since_assistant_started >= 30"
+  action: "BUGREPORT"
+  action: "REMOVE_DEVICE"
+}

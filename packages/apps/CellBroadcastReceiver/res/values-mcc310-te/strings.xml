@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2019 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label" msgid="6018514276739876277">"వైర్‌లెస్ ఎమర్జెన్సీ అలర్ట్‌లు"</string>
+    <string name="sms_cb_settings" msgid="1556918270840502446">"వైర్‌లెస్ ఎమర్జెన్సీ అలర్ట్‌లు"</string>
+    <string name="emergency_alert_settings_title_watches" msgid="5702555089013313773">"వైర్‌లెస్ ఎమర్జెన్సీ అలర్ట్‌లు"</string>
+    <string name="receive_cmas_in_second_language_title" msgid="7539080017840218665">"స్పానిష్"</string>
+    <string name="receive_cmas_in_second_language_summary" msgid="4482209573334686904">"వీలున్నప్పుడు, స్పానిష్ భాషలో ఉన్న అత్యవసర అలర్ట్‌లను స్వీకరించండి"</string>
+    <string name="confirm_delete_broadcast" msgid="6808374217554967811">"ఈ అలర్ట్‌ను తొలగించాలా?"</string>
+    <string name="confirm_delete_all_broadcasts" msgid="4748571670736214158">"అందుకున్న అన్ని అలర్ట్‌లను తొలగించాలా?"</string>
+    <string name="menu_delete" msgid="2691868773984777519">"అలర్ట్‌ను తొలగించండి"</string>
+    <string name="menu_delete_all" msgid="8991615021908376216">"అలర్ట్‌లను తొలగించండి"</string>
+    <!-- no translation found for enable_cmas_test_alerts_title (3722503121618497385) -->
+    <skip />
+    <string name="enable_cmas_test_alerts_summary" msgid="6138676147687910935">"భద్రతా అలర్ట్ సిస్టమ్ నుండి అవసరమైన నెలవారీ పరీక్షలను స్వీకరించండి"</string>
+    <string name="cmas_presidential_level_alert" msgid="5810314558991898384">"జాతీయ అలర్ట్"</string>
+    <string name="show_cmas_opt_out_summary" msgid="5612381687166765604">"మొదటి అలర్ట్‌ను (జాతీయ అలర్ట్ మినహా) ప్రదర్శించిన తర్వాత నిలిపివేత డైలాగ్‌ను చూపించండి."</string>
+    <string name="enable_cmas_presidential_alerts_title" msgid="3871388542233245120">"జాతీయ అలర్ట్‌లు"</string>
+    <string name="enable_cmas_presidential_alerts_summary" msgid="1292969668875568075">"జాతీయ హెచ్చరిక మెసేజ్‌లు. ఆఫ్ చేయలేరు."</string>
+</resources>

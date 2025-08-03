@@ -1,0 +1,10 @@
+import("//common-mk/proto_library.gni")
+
+proto_library("libbt-protos-lite") {
+  sources = [
+    "bluetooth/metrics/bluetooth.proto",
+  ]
+
+  proto_in_dir = "./bluetooth/metrics"
+  proto_out_dir = "include/bluetooth/metrics"
+}

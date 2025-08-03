@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+* Copyright (C) 2008 The Android Open Source Project
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="configure_wallpaper">Iɣewwaren...</string>
+    <string name="delete_live_wallpaper">Mḥu</string>
+    <string name="preview">Timeẓriwt</string>
+    <string name="wallpaper_instructions">Sbadu agalis</string>
+    <string name="set_live_wallpaper">Sbadu agalis</string>
+    <string name="which_wallpaper_option_home_screen">Agdil agejdan</string>
+    <string name="which_wallpaper_option_home_screen_and_lock_screen">Agdil agejdan d ugdil n usekker</string>
+    <string name="explore_further">Snirem</string>
+    <string name="tab_info">Talɣut</string>
+    <string name="tab_customize">Sagen</string>
+    <string name="collapse_attribution_panel">Fneẓ agalis n telɣut n tugna n ugilal</string>
+    <string name="expand_attribution_panel">Snefli agalis n telɣut n tugna n ugilal</string>
+</resources>

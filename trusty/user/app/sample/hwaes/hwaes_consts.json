@@ -1,0 +1,25 @@
+{
+    "header": "hwaes_consts.h",
+    "constants":[
+        {
+            "name": "APPLOADER_APP_UUID",
+            "value": "081ba88f-f1ee-452e-b5e8-a7e9ef173a97",
+            "type": "uuid"
+        },
+        {
+            "name": "HWAES_BENCH_APP_UUID",
+            "value": "9b424d86-9b1e-4755-942c-dca639de4289",
+            "type": "uuid"
+        },
+        {
+            "name": "HWAES_UNITTEST_APP_UUID",
+            "value": "ab8a6820-1cc2-44d5-bee0-22b51befa835",
+            "type": "uuid"
+        },
+        {
+            "name": "INTERNAL_APP_UUID",
+            "value": "78195014-7cb9-4b73-b54d-f9dfaa2af857",
+            "type": "uuid"
+        }
+    ]
+}

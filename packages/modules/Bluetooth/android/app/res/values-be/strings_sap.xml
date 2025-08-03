@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="bluetooth_sap_notif_title" msgid="7854456947435963346">"Доступ да SIM па Bluetooth"</string>
+    <string name="bluetooth_sap_notif_ticker" msgid="7295825445933648498">"Доступ да SIM па Bluetooth"</string>
+    <string name="bluetooth_sap_notif_message" msgid="1004269289836361678">"Запытаць адлучэнне кліента?"</string>
+    <string name="bluetooth_sap_notif_disconnecting" msgid="6041257463440623400">"Чаканне адлучэння кліента"</string>
+    <string name="bluetooth_sap_notif_disconnect_button" msgid="3059012556387692616">"Адключыць"</string>
+    <string name="bluetooth_sap_notif_force_disconnect_button" msgid="2239425242376623998">"Прымусовае адлучэнне"</string>
+</resources>

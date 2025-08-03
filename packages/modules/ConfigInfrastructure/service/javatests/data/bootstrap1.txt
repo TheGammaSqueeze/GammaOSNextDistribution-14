@@ -1,0 +1,3 @@
+a.a.a:b.b.b=enabled
+a.a.a:b.b=disabled
+b.b.b:c.c=enabled

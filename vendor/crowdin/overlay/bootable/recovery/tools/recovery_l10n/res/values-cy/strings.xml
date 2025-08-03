@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="recovery_installing">Yn gosod diweddariad system</string>
+  <string name="recovery_erasing">Yn dileu</string>
+  <string name="recovery_no_command">Dim gorchymyn</string>
+  <string name="recovery_error">Gwall!</string>
+  <string name="recovery_installing_security">Yn gosod diweddariad diogelwch</string>
+  <string name="recovery_wipe_data_menu_header">Methu llwytho system Android. Gall fod dy ddata yn lwgr. Os bydd y neges hon yn parhau i ymddangos, mae\u2019n bosib bydd angen ailosod ffatri a dileu\u20159r holl ddata defnyddwyr ar y ddyfais.</string>
+  <string name="recovery_try_again">Ceisia eto</string>
+  <string name="recovery_factory_data_reset">Ailosod data fel dyfais o\u2019\'r ffatri</string>
+  <string name="recovery_wipe_data_confirmation">Clirio\u2019r holl ddata defnyddwyr?\n\n
+NI ELLIR DAD-WNEUD HYN!</string>
+  <string name="recovery_cancel_wipe_data">Diddymu</string>
+</resources>

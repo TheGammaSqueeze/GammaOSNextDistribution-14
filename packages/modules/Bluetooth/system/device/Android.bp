@@ -1,0 +1,116 @@
+// Bluetooth device static library for target
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_bt_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_bt_license"],
+}
+
+cc_library_static {
+    name: "libbtdevice",
+    defaults: ["fluoride_defaults"],
+    host_supported: true,
+    local_include_dirs: [
+        "include",
+    ],
+    include_dirs: [
+        "packages/modules/Bluetooth/system",
+        "packages/modules/Bluetooth/system/gd",
+        "packages/modules/Bluetooth/system/stack/include",
+    ],
+    srcs: [
+        "src/controller.cc",
+        "src/device_iot_config.cc",
+        "src/device_iot_config_int.cc",
+        "src/esco_parameters.cc",
+        "src/interop.cc",
+    ],
+    apex_available: [
+        "com.android.btservices",
+    ],
+    generated_headers: [
+        "BluetoothGeneratedDumpsysDataSchema_h",
+    ],
+    min_sdk_version: "Tiramisu",
+    header_libs: ["libbluetooth_headers"],
+    static_libs: [
+        "bluetooth_flags_c_lib",
+        "libbluetooth_hci_pdl",
+        "libbluetooth_log",
+        "libbt_shim_bridge",
+        "libflatbuffers-cpp",
+        "server_configurable_flags",
+    ],
+}
+
+// Bluetooth device unit tests for target
+cc_test {
+    name: "net_test_device",
+    test_suites: ["general-tests"],
+    defaults: [
+        "fluoride_defaults",
+        "mts_defaults",
+    ],
+    host_supported: true,
+    include_dirs: ["packages/modules/Bluetooth/system"],
+    srcs: [
+        "test/interop_test.cc",
+    ],
+    shared_libs: [
+        "libbase",
+        "liblog",
+    ],
+    static_libs: [
+        "libbluetooth-types",
+        "libbluetooth_gd",
+        "libbluetooth_log",
+        "libbt_shim_bridge",
+        "libbt_shim_ffi",
+        "libbtcore",
+        "libbtdevice",
+        "libchrome",
+        "libosi",
+    ],
+    header_libs: ["libbluetooth_headers"],
+}
+
+// Bluetooth device unit tests for target
+cc_test {
+    name: "net_test_device_iot_config",
+    test_suites: ["general-tests"],
+    defaults: [
+        "fluoride_defaults",
+        "mts_defaults",
+    ],
+    include_dirs: [
+        "packages/modules/Bluetooth/system",
+        "packages/modules/Bluetooth/system/device/src",
+        "packages/modules/Bluetooth/system/gd",
+        "packages/modules/Bluetooth/system/stack/include",
+    ],
+    srcs: [
+        ":TestCommonMockFunctions",
+        ":TestMockOsi",
+        "test/device_iot_config_test.cc",
+    ],
+    shared_libs: [
+        "libbase",
+        "libdl",
+        "liblog",
+    ],
+    static_libs: [
+        "libbluetooth-types",
+        "libbluetooth_log",
+        "libbt-platform-protos-lite",
+        "libbt_shim_bridge",
+        "libbt_shim_ffi",
+        "libbtcore",
+        "libbtdevice",
+        "libchrome",
+        "libgmock",
+    ],
+    header_libs: ["libbluetooth_headers"],
+    cflags: ["-Wno-unused-parameter"],
+}

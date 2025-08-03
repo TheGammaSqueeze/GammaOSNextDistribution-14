@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2009 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Instaladôr di certificâts</string>
+    <string name="pick_file_title">Sielç un certificât</string>
+    <string name="pkcs12_password_dialog_title">Tire fûr il certificât</string>
+    <string name="extracting_pkcs12">Daûr a tirâ fûr\u2026</string>
+    <string name="pkcs12_file_password_dialog_title">Tire fûr di %s</string>
+    <string name="name_credential_dialog_title">Da un non a chest certificât</string>
+    <string name="certificate_name">Non dal certificât</string>
+    <string name="credential_password">Scrîf la password par tirâ fûr i certificâts.</string>
+    <string name="credential_info">Il pachet al conten:</string>
+    <string name="p12_description">Certificâts tal archivi des clâfs PKCS12.</string>
+    <string name="one_userkey">une clâf di utent</string>
+    <string name="userkey_type">Algoritmi: </string>
+    <string name="one_usercrt">un certificât di utent</string>
+    <string name="one_cacrt">un certificât de CA</string>
+    <string name="n_cacrts">%d certificâts de CA</string>
+    <string name="password_error">Scrîf la password juste.</string>
+    <string name="password_empty_error">Scrîf la password.</string>
+    <string name="name_empty_error">Scrîf un non.</string>
+    <string name="name_char_error">Scrîf un non che al contegni dome letaris e numars.</string>
+    <string name="unable_to_save_cert">Nol è stât pussibil salvâ il certificât. La memorie di archiviazion des credenziâls no je abilitade o no je inizializade ben.</string>
+    <string name="cert_not_saved">Il certificât nol è instalât.</string>
+    <string name="no_cert_to_saved">Nissun certificât di instalâ.</string>
+    <string name="invalid_cert">Il certificât nol è valit.</string>
+    <string name="action_missing_private_key">Clâf privade necessarie par instalâ un certificât</string>
+    <string name="action_missing_user_cert">Certificât necessari par instalâ une clâf privade</string>
+    <string name="select_certificate_usage_title">Sielç un gjenar di certificât</string>
+    <string name="redirect_ca_certificate_title">Instale i certificâts CA in Impostazions</string>
+    <string name="redirect_ca_certificate_with_app_info_message">Chest certificât di
+        <xliff:g id="requesting_app" example="Some App">%1$s</xliff:g> al scugne jessi instalât tes
+        Impostazions. Instale dome i certificâts CA des organizazions che tu ti fidis.</string>
+    <string name="redirect_ca_certificate_close_button">Siere</string>
+    <string name="invalid_certificate_title">Impussibil doprâ chest file</string>
+    <string name="invalid_certificate_close_button">Siere</string>
+    <string name="invalid_certificate_message">Nol è pussibil doprâ chest file come <xliff:g id="certificate_usage">%1$s</xliff:g></string>
+    <string name="certificate">Certificât</string>
+    <string name="ca_certificate">Certificât CA</string>
+    <string name="user_certificate">Certificât utent par VPN e aplicazion</string>
+    <string name="wifi_certificate">Certificât Wi\u2011Fi</string>
+    <string name="ca_cert_is_added">Certificât CA instalât</string>
+    <string name="user_cert_is_added">Certificât utent instalât</string>
+    <string name="wifi_cert_is_added">Certificât Wi\u2011Fi instalât</string>
+    <string name="cert_too_large_error">Nol è stât pussibil instalâ parcè che la dimension dal certificât e je masse grande.</string>
+    <string name="cert_missing_error">Nol è stât pussibil instalâ parcè che nol è stât pussibil localizâ il file dal certificât.</string>
+    <string name="cert_read_error">Nol è stât pussibil instalâ parcè che nol è stât pussibil lei il file dal certificât.</string>
+    <string name="cert_temp_error">Faliment temporani. Torne prove plui indevant.</string>
+    <string name="only_primary_user_allowed">Dome il proprietari di chest dispositîf al pues instalâ certificâts.</string>
+    <string name="credential_usage_label">Utilizazion de credenziâl:</string>
+    <string-array name="credential_usage">
+        <item>VPN e aplicazions</item>
+        <item>Wi-Fi</item>
+    </string-array>
+    <string name="certificate_capabilities_warning">Note: l\'emitent di chest certificât al podarès ispezionâ dut il trafic viers e dal dispositîf.</string>
+    <string name="wifi_title">Profîl Wi-Fi</string>
+    <string name="wifi_detail_title">Detais par %s</string>
+    <string name="wifi_detail_label">Detais</string>
+    <string name="wifi_install_label">Instale</string>
+    <string name="wifi_installing_label">Daûr a instalâ</string>
+    <string name="wifi_cancel_label">Anule</string>
+    <string name="wifi_dismiss_label">Scarte</string>
+    <string name="wifi_no_config">Nissune</string>
+    <string name="wifi_config_text">Non: %1$s\nFQDN: %2$s\nConsorzi dal roaming: %3$s\nReam: %4$s\nMetodi di autenticazion: EAP-%5$s\n</string>
+    <string name="wifi_ttls_config_text">Non utent: %s\n</string>
+    <string name="wifi_tls_config_text">Certificât client:\n%1$s\nClâf: %2$s\n</string>
+    <string name="wifi_sim_config_text">SIM: %s\n</string>
+    <string name="wifi_trust_config_text">Certificât di fidance:\n%s\n</string>
+    <string name="install_done_title">Credenziâls instaladis</string>
+    <string name="install_done">Lis credenziâls di <xliff:g id="name">%1$s</xliff:g> a son stadis zontadis aes rêts Wi-Fi salvadis.</string>
+    <string name="done_label">FAT</string>
+    <string name="wifi_installer_detail">Instale credenziâls Wi-Fi par conetiti aes rêts disponibilis midiant <xliff:g id="name">%1$s</xliff:g>.</string>
+    <string name="wifi_installer_download_error">Il file discjamât al à problemis e nol è pussibil instalâlu. Controle di vê discjariât il file de juste sorzint.</string>
+    <string name="wifi_installer_fail">Impussibil instalâ lis credenziâls Wi-Fi. Prove a tornâ a discjariâ il file.</string>
+    <string name="wifi_installer_fail_no_wifi_title">Instalazion anulade</string>
+    <string name="wifi_installer_fail_title">Impussibil instalâ</string>
+    <string name="wifi_installer_fail_no_wifi">Ative il Wi-Fi e torne prove.</string>
+</resources>

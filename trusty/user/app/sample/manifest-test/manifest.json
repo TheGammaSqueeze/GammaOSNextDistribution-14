@@ -1,0 +1,24 @@
+{
+    "uuid": "ef55baea-e0b0-477c-9494-d59edd047f46",
+    "app_name": "manifest-test",
+    "min_heap": 4096,
+    "min_stack": 4096,
+    "mem_map": [
+        {
+            "id": 1,
+            "addr": "0x70000000",
+            "size": "0x1000"
+        },
+        {
+            "id": 2,
+            "addr": "0x70010000",
+            "size": "0x100"
+        },
+        {
+            "id": 3,
+            "addr": "0x70020000",
+            "size": "0x4"
+        }
+    ],
+    "pinned_cpu": 0
+}

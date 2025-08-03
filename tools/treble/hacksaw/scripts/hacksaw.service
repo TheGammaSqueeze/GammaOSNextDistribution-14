@@ -1,0 +1,11 @@
+[Unit]
+Description=Hacksaw service
+ConditionPathExists=/usr/local/bin/hacksawd
+
+[Service]
+# Runs as root by default
+Type=simple
+ExecStart=/usr/local/bin/hacksawd
+
+[Install]
+RequiredBy=hacksaw.socket

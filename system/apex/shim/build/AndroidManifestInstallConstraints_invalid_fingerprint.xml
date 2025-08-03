@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.android.apex.cts.shim">
+    <!-- APEX does not have classes.dex -->
+    <application android:hasCode="false"/>
+    <install-constraints>
+        <fingerprint-prefix android:value="does/not/exist"/>
+    </install-constraints>
+</manifest>

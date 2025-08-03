@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2015 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="car_permission_label">Gwybodaeth y car</string>
+    <string name="car_permission_desc">cael at wybodaeth y car</string>
+    <string name="car_permission_label_camera">cael at gamera\u2019r car</string>
+    <string name="car_permission_desc_camera">Cael at gamera(u) y car.</string>
+    <string name="car_permission_label_energy">cael at wybodaeth ynni\u2019r car</string>
+    <string name="car_permission_desc_energy">Cael at wybodaeth ynni\u2019r car.</string>
+    <string name="car_permission_label_adjust_range_remaining">addasu cyrhaeddiad gweddill y car</string>
+    <string name="car_permission_desc_adjust_range_remaining">Addasu pellter cyrhaeddiad gweddill y car.</string>
+    <string name="car_permission_label_hvac">cael at hvac y car</string>
+    <string name="car_permission_desc_hvac">Cael at hvac y car.</string>
+    <string name="car_permission_label_mileage">cael at wybodaeth milltiredd y car</string>
+    <string name="car_permission_desc_mileage">Cael at wybodaeth milltiredd y car.</string>
+    <string name="car_permission_label_speed">darllen cyflymder y car</string>
+    <string name="car_permission_desc_speed">Cael at gyflymder y car.</string>
+    <string name="car_permission_label_vehicle_dynamics_state">cael at statws dynameg y car</string>
+    <string name="car_permission_desc_vehicle_dynamics_state">Cael at statws dynameg y car.</string>
+    <string name="car_permission_label_vendor_extension">cael at sianel gwerthwr y car</string>
+    <string name="car_permission_desc_vendor_extension">Cael mynediad at sianel gwerthwr y car i gyfnewid gwybodaeth ynghylch y car.</string>
+    <string name="car_permission_label_radio">rheoli radio\u2019r car</string>
+    <string name="car_permission_desc_radio">Cael at radio\u2019r car.</string>
+    <string name="car_permission_label_projection">taflunio rhyngwyneb o\u2019r ffôn i ddangosydd y car</string>
+    <string name="car_permission_desc_projection">Mae\u2019n caniatáu i ap daflunio rhyngwyneb o ffôn i ddangosydd y car.</string>
+    <string name="car_permission_label_access_projection_status">cael at statws taflunio</string>
+    <string name="car_permission_desc_access_projection_status">Mae\u2019n caniatáu i ap gael statws apiau eraill sy\u2019n taflunio i ddangosydd y car.</string>
+    <string name="car_permission_label_audio_volume">rheoli uchder sain y car</string>
+    <string name="car_permission_label_audio_settings">rheoli gosodiadau sain y car</string>
+    <string name="car_permission_label_mock_vehicle_hal">efelychu HAL y cerbyd</string>
+    <string name="car_permission_label_receive_ducking">darllen digwyddiadau dowcio sain</string>
+    <string name="car_permission_desc_receive_ducking">Mae\u2019n caniatáu i ap gael gwybod pan fo\u2019i lefel sain yn cael ei gostwng o achos sain arall yn chwarae yn y car.</string>
+    <string name="car_permission_desc_mock_vehicle_hal">Efelychu HAL y car er mwyn profi\u2019n fewnol.</string>
+    <string name="car_permission_desc_audio_volume">Rheoli uchder sain y car.</string>
+    <string name="car_permission_desc_audio_settings">Rheoli gosodiadau sain y car.</string>
+    <string name="car_permission_label_control_app_blocking">Rhwystro apiau</string>
+    <string name="car_permission_desc_control_app_blocking">Rheoli rhwystro apiau tra\'n gyrru.</string>
+    <string name="car_permission_car_navigation_manager">Rheolwr Llywio</string>
+    <string name="car_permission_desc_car_navigation_manager">Adrodd data llywio i glwstwr offerynnau</string>
+    <string name="car_permission_car_display_in_cluster">Dargyfeirio rendro i glwstwr offerynnau</string>
+    <string name="car_permission_desc_car_display_in_cluster">Caniatáu i ap ddatgan gweithgareddau i\u2019w dangos yn y clwstwr offerynnau</string>
+    <string name="car_permission_car_cluster_control">Rheolaeth clwstwr offerynnau</string>
+    <string name="car_permission_desc_car_cluster_control">Lansio apiau yn y clwstwr offerynnau</string>
+    <string name="car_permission_label_car_ux_restrictions_configuration">Ffurfweddiad Cyfyngiadau UX</string>
+    <string name="car_permission_desc_car_ux_restrictions_configuration">Ffurfweddu Cyfyngiadau UX</string>
+    <string name="car_permission_label_car_handle_usb_aoap_device">Cyfathrebu gyda dyfais USB ym modd AOAP</string>
+    <string name="car_permission_desc_car_handle_usb_aoap_device">Mae\u2019n caniatáu i ap gyfathrebu gyda dyfais ym modd AOAP</string>
+    <string name="car_permission_label_read_car_occupant_awareness_state">Mynediad i Ddarllen System Ymwybyddiaeth o Bobl yn y Cerbyd</string>
+    <string name="car_permission_desc_read_car_occupant_awareness_state">Mae\'n caniatáu darllen statws a chanfod data i\'r System Ymwybyddiaeth o Bobl yn y Cerbyd</string>
+    <string name="car_permission_label_control_car_occupant_awareness_system">Rheoli graff y System Ymwybyddiaeth o Bobl yn y Cerbyd</string>
+    <string name="car_permission_desc_control_car_occupant_awareness_system">Mae\'n caniatáu rheoli dechrau a stopio graff y System Ymwybyddiaeth o Bobl yn y Cerbyd</string>
+    <string name="car_permission_label_diag_read">darllen data diagnostig</string>
+    <string name="car_permission_desc_diag_read">Darllen data diagnostig o\'r car.</string>
+    <string name="car_permission_label_diag_clear">clirio data diagnostig</string>
+    <string name="car_permission_desc_diag_clear">Clirio data diagnostig o\'r car.</string>
+    <string name="car_permission_label_vms_publisher">Cyhoeddwr VMS</string>
+    <string name="car_permission_desc_vms_publisher">Cyhoeddi negeseuon VMS</string>
+    <string name="car_permission_label_vms_subscriber">Tanysgrifiwr VMS</string>
+    <string name="car_permission_desc_vms_subscriber">Tanysgrifio i negeseuon VMS</string>
+    <string name="car_permission_label_storage_monitoring">Monitro storfa cof bach</string>
+    <string name="car_permission_desc_storage_monitoring">Monitro defnydd storfa cof bach</string>
+    <string name="car_permission_label_driving_state">gwrando ar statws gyrru</string>
+    <string name="car_permission_desc_driving_state">Gwrando ar newidiadau yn y statws Gyrru</string>
+    <string name="car_permission_label_car_engine_detailed">cael at fanylion injan y car</string>
+    <string name="car_permission_desc_car_engine_detailed">Cael at wybodaeth manwl injan y car.</string>
+    <string name="car_permission_label_car_energy_ports">cael at ddrws tanwydd a phorth gwefru\u2019r car</string>
+    <string name="car_permission_desc_car_energy_ports">Cael at ddrws tanwydd a phorth gwefru\u2019r car.</string>
+    <string name="car_permission_label_control_car_energy_ports">rheoli drws tanwydd a phorth gwefru\u2019r car</string>
+    <string name="car_permission_desc_control_car_energy_ports">Rheoli drws tanwydd a phorth gwefru\u2019r car.</string>
+    <string name="car_permission_label_car_identification">darllen adnabyddiaeth y car</string>
+    <string name="car_permission_desc_car_identification">Cael at adnabyddiaeth y car.</string>
+    <string name="car_permission_label_control_car_doors">rheoli drysau\u2019r car</string>
+    <string name="car_permission_desc_control_car_doors">Rheoli drysau\u2019r car.</string>
+    <string name="car_permission_label_control_car_windows">rheoli ffenestri\u2019r car</string>
+    <string name="car_permission_desc_control_car_windows">Rheoli ffenestri\u2019r car.</string>
+    <string name="car_permission_label_control_car_mirrors">rheoli drychau\u2019r car</string>
+    <string name="car_permission_desc_control_car_mirrors">Rheoli drychau\u2019r car.</string>
+    <string name="car_permission_label_control_car_seats">rheoli seddi\u2019r car</string>
+    <string name="car_permission_desc_control_car_seats">Rheoli seddi\u2019r car.</string>
+    <string name="car_permission_label_car_info">cael at wybodaeth sylfaenol y car</string>
+    <string name="car_permission_desc_car_info">Cael at wybodaeth sylfaenol y car.</string>
+    <string name="car_permission_label_vendor_permission_info">cael at wybodaeth caniatâd gwerthwr y car</string>
+    <string name="car_permission_desc_vendor_permission_info">Cael at wybodaeth caniatâd gwerthwr y car.</string>
+    <string name="car_permission_label_car_exterior_lights">darllen statws goleuadau allanol y car</string>
+    <string name="car_permission_desc_car_exterior_lights">Cael at statws goleuadau allanol y car.</string>
+    <string name="car_permission_label_control_car_exterior_lights">darllen goleuadau allanol y car</string>
+    <string name="car_permission_desc_control_car_exterior_lights">Rheoli goleuadau allanol y car.</string>
+    <string name="car_permission_label_car_interior_lights">darllen goleuadau tu fewn i\u2019r car</string>
+    <string name="car_permission_desc_car_interior_lights">Cael at statws goleuadau tu fewn i\'r car.</string>
+    <string name="car_permission_label_control_car_interior_lights">rheoli goleuadau tu fewn i\u2019r car</string>
+    <string name="car_permission_desc_control_car_interior_lights">Rheoli goleuadau tu fewn i\u2019r car.</string>
+    <string name="car_permission_label_car_exterior_environment">darllen tymheredd tu allan i\u2019r car</string>
+    <string name="car_permission_desc_car_exterior_environment">Cael at dymheredd tu allan i\'r car.</string>
+    <string name="car_permission_label_car_tires">cael at wybodaeth teiars y car</string>
+    <string name="car_permission_desc_car_tires">Cael at wybodaeth teiars y car.</string>
+    <string name="car_permission_label_car_steering">darllen gwybodaeth ongl llywio\u2019r car</string>
+    <string name="car_permission_desc_car_steering">Darllen gwybodaeth ongl llywio\u2019r car.</string>
+    <string name="car_permission_label_read_car_display_units">darllen unedau arddangos y car</string>
+    <string name="car_permission_desc_read_car_display_units">Darllen unedau arddangos.</string>
+    <string name="car_permission_label_control_car_display_units">rheoli unedau arddangos y car</string>
+    <string name="car_permission_desc_control_car_display_units">Rheoli unedau arddangos.</string>
+    <string name="car_permission_label_car_powertrain">darllen gwybodaeth powertrain y car</string>
+    <string name="car_permission_desc_car_powertrain">Cael at wybodaeth powertrain y car.</string>
+    <string name="car_permission_label_car_power">darllen statws pŵer y car</string>
+    <string name="car_permission_desc_car_power">Cael at statws pŵer y car.</string>
+    <string name="car_permission_label_enroll_trust">Ymrestru Dyfais yr Ymddiriedir ynddi</string>
+    <string name="car_permission_desc_enroll_trust">Caniatáu Ymrestru Dyfais yr Ymddiriedir ynddi</string>
+    <string name="car_permission_label_car_test_service">rheoli modd profi\u2019r car</string>
+    <string name="car_permission_desc_car_test_service">Rheoli modd profi\u2019r car.</string>
+    <string name="car_permission_label_control_car_features">galluogi neu analluogi nodweddion y car</string>
+    <string name="car_permission_desc_control_car_features">Galluogi neu analluogi nodweddion y car.</string>
+    <string name="car_permission_label_use_car_watchdog">defnyddio gwarchotgi\u2019r car</string>
+    <string name="car_permission_desc_use_car_watchdog">Defnyddio gwarchotgi\u2019r car.</string>
+    <string name="car_can_bus_failure">Methodd y bws CAN</string>
+    <string name="car_can_bus_failure_desc">Dyw\'r bws CAN ddim yn ymateb. Rho gynnig ar ddatgysylltu ac ailgysylltu blwch uned rheoli ac ailgychwyn y car</string>
+    <string name="trust_device_default_name">Fy Nyfais</string>
+    <string name="default_guest_name">Gwestai</string>
+</resources>

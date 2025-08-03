@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017-2024 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="system_reboot_confirm_cm">重启到：</string>
+    <string name="global_action_restart_system">系统</string>
+    <string name="global_action_restart_recovery">恢复模式</string>
+    <string name="global_action_restart_bootloader">引导程序</string>
+    <plurals name="show_dev_countdown_cm">
+        <item quantity="other">还需 <xliff:g id="step_count">%1$d</xliff:g> 步操作即可启用开发者选项。</item>
+    </plurals>
+    <string name="show_dev_on_cm">您已经启用了开发者选项！</string>
+    <string name="show_dev_already_cm">您已启用开发者选项，无需进行此操作。</string>
+    <string name="system_buttons">按钮</string>
+    <string name="power_button_long_press_action_title">长按电源按钮时动作</string>
+    <string name="power_button_long_press_for_power_menu_action">访问电源菜单</string>
+    <string name="power_button_long_press_for_assistant_action">打开助理</string>
+    <string name="inputs_volume_control_enabled">CEC 音量控制</string>
+    <string name="inputs_volume_control_enabled_desc">控制 TV/AVR 音量而不是内部音量</string>
+    <string name="enable_adb_root">以 Root 身份调试</string>
+    <string name="enable_adb_root_summary">允许以 root 身份运行 Android 调试</string>
+    <string name="advanced_restart_title">高级重启</string>
+    <string name="advanced_restart_summary">显示重启到恢复、引导或软重启的选项</string>
+    <string name="adb_over_network">网络 ADB 调试</string>
+    <string name="adb_over_network_summary">启用通过网络接口（Wi\u2011Fi、USB 网络）的 TCP/IP 调试。该设置重启后失效</string>
+    <string name="adb_over_network_warning">警告：当网络 ADB 调试启用时，您的设备将在所有已连接的网络上接收指令！\n\n请只在您信任的网络中启用此功能。\n\n您真的要开启这个功能吗？</string>
+    <string name="trust_category_features">状态</string>
+    <string name="trust_feature_selinux">SELinux</string>
+    <string name="trust_feature_selinux_value_enforcing">强制</string>
+    <string name="trust_feature_selinux_value_disabled">禁用</string>
+    <string name="trust_feature_selinux_explain">SELinux 规定了哪些进程可以访问您的设备上的哪些文件。\n这个机制可以防止应用和服务访问它们不该访问的文件，因此恶意进程的访问也会受到限制，从而保护了你的安全。</string>
+    <string name="trust_feature_security_patches">Android 安全补丁</string>
+    <string name="trust_feature_security_patches_value_base">平台：%1$s\n厂商：%2$s</string>
+    <string name="trust_feature_security_patches_value_new">已是最新</string>
+    <string name="trust_feature_security_patches_value_medium">数月未更新</string>
+    <string name="trust_feature_security_patches_value_old">已过时</string>
+    <string name="trust_feature_security_patches_explain">安全补丁由 Google 和 SoC 厂商每月发布，用以修复可能会被恶意应用利用、绕过安全限制对你的设备造成暂时或永久损坏的缺陷。\n平台补丁每个月都会统一更新，但厂商补丁只能每次从 OEM 取得。\n要保证您的设备安全，请使用最新版本的 LineageOS。</string>
+    <string name="trust_feature_encryption">加密</string>
+    <string name="trust_feature_encryption_value_enabled">已启用</string>
+    <string name="trust_feature_encryption_value_nolock">需要设置安全的屏幕锁定</string>
+    <string name="trust_feature_encryption_value_disabled">已禁用</string>
+    <string name="trust_feature_encryption_explain">设备加密可以防止别人在关机状态或恢复模式访问您的数据。当您的设备被盗时，这个重要特性可以防止别人在没有密码的情况下读取您的短信、通讯录和其它私人信息。\n要使加密更加有效，您需要设置一个安全的屏幕锁定。</string>
+    <string name="trust_category_tools">隐私</string>
+    <string name="trust_notification_alerts_title">安全警报</string>
+    <string name="trust_restrict_usb_title">限制 USB</string>
+    <string name="trust_restrict_usb_summary">控制对 USB 连接的支持，例如耳机、 存储设备、 输入(鼠标、 键盘、 游戏杆) 和 ADB 的连接</string>
+    <string name="trust_restrict_usb_always">拒绝 USB 连接</string>
+    <string name="trust_restrict_usb_disabled">总是允许 USB 连接</string>
+    <string name="trust_onboarding_description">安全中心能保障您的设备安全并保护您的隐私。\n您可以通过显示的安全图标检查内容的安全性。</string>
+    <string name="trust_warnings_alerts_intro">您可以选择要警告的安全问题。但为了您的安全起见，建议启用所有警报。</string>
+    <string name="trust_warnings_selinux">SELinux 状态</string>
+    <string name="trust_warnings_keys">编译签名</string>
+    <string name="sleep_button_label">睡眠</string>
+    <string name="system_sleep_confirm">立即睡眠？</string>
+    <string name="shutdown_button_label">关机</string>
+    <string name="system_shutdown_confirm">立刻关机？</string>
+    <string name="convertible_port_busy_title">USB 端口 1 正在使用</string>
+    <string name="convertible_port_busy_warning">拔下任何设备或配件，然后重试</string>
+    <string name="mtp_enable_title">使用 USB 访问 PC 上的 SHIELD 文件夹</string>
+    <string name="mtp_enable_warning">USB 端口 1 现已配置为 SHIELD ，并已连接到 PC 作为媒体设备。\n\n此端口将不再检测到 USB 存储设备或 USB 配件，无法用于给设备充电。</string>
+    <string name="mtp_retry_error">失败，请重试。</string>
+    <string name="mtp_summary">在此模式下，USB 端口无法用于其他用途</string>
+    <string name="mtp_title">使用 USB 传输文件到计算机</string>
+    <string name="mtp_unexpected_error">意外错误，请稍后再试。</string>
+    <string name="usb_debugging_enable_title">USB 调试已启用</string>
+    <string name="usb_debugging_enable_warning">USB 端口 1 现已配置为 SHIELD ，并已连接到 PC 作为媒体设备。\n\n此端口将不再检测到 USB 存储设备或 USB 配件，无法用于给设备充电。</string>
+</resources>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2016 The CyanogenMod Project
+     SPDX-FileCopyrightText: 2021 The Calyx Institute
+     SPDX-FileCopyrightText: 2021-2024 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<WizardScript xmlns:wizard="http://schemas.android.com/apk/res/com.google.android.setupwizard"
+    wizard:firstAction="welcome">
+
+    <WizardAction
+        wizard:uri="intent:#Intent;action=org.lineageos.setupwizard.LINEAGE_WELCOME;end"
+        id="welcome">
+        <result wizard:name="skip" wizard:resultCode="1" />
+        <result wizard:action="restore" />
+    </WizardAction>
+
+    <WizardAction
+        wizard:uri="intent:#Intent;action=org.lineageos.setupwizard.LINEAGE_RESTORE_BACKUP;end"
+        id="restore">
+        <result wizard:action="location_settings" />
+    </WizardAction>
+
+    <WizardAction
+        wizard:uri="intent:#Intent;action=org.lineageos.setupwizard.LINEAGE_LOCATION_SETTINGS;end"
+        id="location_settings">
+        <result wizard:action="finish" />
+    </WizardAction>
+
+    <WizardAction
+        wizard:uri="intent:#Intent;action=org.lineageos.setupwizard.LINEAGE_SETUP_COMPLETE;end"
+        id="finish" />
+
+</WizardScript>

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.android.ondevicepersonalization.servicetests" >
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.INTERNAL_SYSTEM_WINDOW"/>
+
+    <!-- Required for reading and writing device configs -->
+
+    <!-- Used for persisting scheduled jobs -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <!--  Permission to call OdpExampleStore  -->
+    <uses-permission android:name="android.permission.BIND_EXAMPLE_STORE_SERVICE" />
+
+    <application android:name="com.android.ondevicepersonalization.services.OnDevicePersonalizationApplication"
+            android:label="OnDevicePersonalizationManagingServicesTests"
+            android:debuggable="true">
+        <uses-library android:name="android.test.runner"/>
+        <property android:name="android.ondevicepersonalization.ON_DEVICE_PERSONALIZATION_CONFIG"
+                  android:resource="@xml/OdpSettings"></property>
+        <service android:name="com.android.ondevicepersonalization.services.OnDevicePersonalizationManagingServiceImpl" android:exported="true" >
+            <intent-filter>
+                <action android:name="android.OnDevicePersonalizationService" />
+            </intent-filter>
+        </service>
+        <service android:name="com.android.ondevicepersonalization.services.OnDevicePersonalizationConfigServiceImpl" android:exported="true" >
+            <intent-filter>
+                <action android:name="android.OnDevicePersonalizationConfigService" />
+            </intent-filter>
+        </service>
+        <service android:name="com.android.ondevicepersonalization.services.OnDevicePersonalizationDebugServiceImpl" android:exported="true" >
+            <intent-filter>
+                <action android:name="android.OnDevicePersonalizationService" />
+            </intent-filter>
+        </service>
+        <service android:name="com.android.ondevicepersonalization.libraries.plugin.internal.PluginExecutorService"
+                 android:isolatedProcess="true"
+                 android:process=":plugin_disable_art_image_"
+                 android:exported="false" >
+        </service>
+        <service android:name="com.android.ondevicepersonalization.services.download.OnDevicePersonalizationDownloadProcessingJobService"
+                 android:exported="false"
+                 android:permission="android.permission.BIND_JOB_SERVICE">
+        </service>
+        <service android:name="com.android.ondevicepersonalization.services.maintenance.OnDevicePersonalizationMaintenanceJobService"
+                 android:exported="false"
+                 android:permission="android.permission.BIND_JOB_SERVICE">
+        </service>
+        <service android:name="com.android.ondevicepersonalization.services.download.mdd.MddJobService"
+                 android:exported="false"
+                 android:permission="android.permission.BIND_JOB_SERVICE">
+        </service>
+        <service android:name="com.android.ondevicepersonalization.services.data.user.UserDataCollectionJobService"
+                 android:exported="false"
+                 android:permission="android.permission.BIND_JOB_SERVICE">
+        </service>
+        <service
+            android:name="com.android.ondevicepersonalization.services.federatedcompute.OdpExampleStoreService"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.BIND_EXAMPLE_STORE_SERVICE">
+            <intent-filter>
+                <action android:name="android.federatedcompute.EXAMPLE_STORE" />
+            </intent-filter>
+        </service>
+        <service android:name="com.android.ondevicepersonalization.services.federatedcompute.OdpResultHandlingService"
+                 android:enabled="true" android:exported="true" >
+            <intent-filter>
+                <action android:name="android.federatedcompute.COMPUTATION_RESULT" />
+            </intent-filter>
+        </service>
+        <service
+            android:name="com.android.ondevicepersonalization.services.inference.IsolatedModelService"
+            android:isolatedProcess="true"
+            android:allowSharedIsolatedProcess="true"
+            android:exported="false">
+        </service>
+        <service
+            android:name="com.test.TestPersonalizationService"
+            android:isolatedProcess="true"
+            android:allowSharedIsolatedProcess="true"/>
+
+        <!-- On BOOT_COMPLETED receiver for registering jobs -->
+        <!-- TODO(b/250001593) Enable any required broadcast receivers during runtime/onCreate. -->
+        <receiver android:name="com.android.ondevicepersonalization.services.OnDevicePersonalizationBroadcastReceiver"
+                  android:enabled="false"
+                  android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+    </application>
+    <instrumentation android:name="androidx.test.runner.AndroidJUnitRunner"
+                     android:targetPackage="com.android.ondevicepersonalization.servicetests"
+                     android:label="Tests of OnDevicePersonalizationManagingService"/>
+</manifest>

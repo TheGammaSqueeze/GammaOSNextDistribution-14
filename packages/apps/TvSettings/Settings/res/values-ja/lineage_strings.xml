@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017-2024 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="system_reboot_confirm_cm">再起動先:</string>
+    <string name="global_action_restart_system">システム</string>
+    <string name="global_action_restart_recovery">リカバリー</string>
+    <string name="global_action_restart_bootloader">ブートローダー</string>
+    <plurals name="show_dev_countdown_cm">
+        <item quantity="other">開発者向けオプションが有効になるまであと<xliff:g id="step_count">%1$d</xliff:g>ステップです。</item>
+    </plurals>
+    <string name="show_dev_on_cm">開発者向けオプションが有効になりました!</string>
+    <string name="show_dev_already_cm">必要ありません、開発者向けオプションはすでに有効になっています。</string>
+    <string name="system_buttons">ボタン</string>
+    <string name="power_button_long_press_action_title">電源ボタンの長押しの動作</string>
+    <string name="power_button_long_press_for_power_menu_action">電源メニューにアクセス</string>
+    <string name="power_button_long_press_for_assistant_action">アシスタントを開く</string>
+    <string name="inputs_volume_control_enabled">CEC 音量制御</string>
+    <string name="inputs_volume_control_enabled_desc">内部音量の代わりに TV/AVR 音量を制御</string>
+    <string name="enable_adb_root">root 権限でのデバッグ</string>
+    <string name="enable_adb_root_summary">root 権限での Android デバッグを許可します</string>
+    <string name="advanced_restart_title">高度な再起動</string>
+    <string name="advanced_restart_summary">リカバリー・ブートローダーへの再起動やソフトリスタートのオプションを表示します</string>
+    <string name="adb_over_network">ネットワーク経由の ADB</string>
+    <string name="adb_over_network_summary">ネットワークインターフェース（Wi\u2011Fi、USB ネットワーク）経由での TCP/IP デバッグを有効にします。この設定は再起動時にリセットされます</string>
+    <string name="adb_over_network_warning">警告: ネットワーク経由の ADB が有効になっているとき、デバイスは接続しているすべてのネットワーク上で侵入に対して無防備になります。\n\n信頼できるネットワーク接続しているときにのみ、この機能を使用してください。\n\nこの機能を本当に有効にしますか？</string>
+    <string name="trust_category_features">状態</string>
+    <string name="trust_feature_selinux">SELinux</string>
+    <string name="trust_feature_selinux_value_enforcing">Enforcing</string>
+    <string name="trust_feature_selinux_value_disabled">Disabled</string>
+    <string name="trust_feature_selinux_explain">SELinux は何のプロセスがあなたのデバイス上のどのファイルやパスにアクセスできるかを決定します。\nこれにより、ファイルを扱うことを想定されていないアプリとサービスがアクセスすることを防ぎます。このようにして潜在的な悪意のあるプロセスはアクセスが制限され、セキュリティが保護されます。</string>
+    <string name="trust_feature_security_patches">Android セキュリティパッチ</string>
+    <string name="trust_feature_security_patches_value_base">プラットフォーム: %1$s\nベンダー: %2$s</string>
+    <string name="trust_feature_security_patches_value_new">最新です</string>
+    <string name="trust_feature_security_patches_value_medium">数カ月間の月例パッチが未適用</string>
+    <string name="trust_feature_security_patches_value_old">最新ではありません</string>
+    <string name="trust_feature_security_patches_explain">セキュリティパッチは、悪意のあるアプリが悪用してセキュリティ制限を回避し、端末に永続的な損害を与える可能性のある欠陥に対処するために Google が毎月 SoC ベンダーと協力してリリースしています。 Google が提供するパッチは、サポートされているすべての端末で毎月適用されますが、独自のコードへのパッチは端末の製造元のみが適用できます。機器を安全に保つためには、ビルドが常に最新であること、および（該当する場合）ベンダーイメージが推奨されている最新のものに更新されていることを確認してください。</string>
+    <string name="trust_feature_encryption">暗号化</string>
+    <string name="trust_feature_encryption_value_enabled">有効</string>
+    <string name="trust_feature_encryption_value_nolock">安全なロック画面が必要です</string>
+    <string name="trust_feature_encryption_value_disabled">無効</string>
+    <string name="trust_feature_encryption_explain">デバイスを暗号化すると、端末が Android を起動していない時のデータアクセスを防ぎます。これは電話が盗まれた特に重要で、パスワードなしでメッセージ、連絡先、その他の個人情報を人に読まれるのを防ぎます。\n暗号化をより効果的にするには、保護されたロック画面のパスワードを設定する必要があります。</string>
+    <string name="trust_category_tools">プライバシー</string>
+    <string name="trust_notification_alerts_title">セキュリティ警告</string>
+    <string name="trust_restrict_usb_title">USB の制限</string>
+    <string name="trust_restrict_usb_summary">イヤホン、ストレージデバイス、入力 (マウス、キーボード、ジョイスティック)、ADB などの USB 接続への対応を制御します</string>
+    <string name="trust_restrict_usb_always">USB 接続を拒否</string>
+    <string name="trust_restrict_usb_disabled">常に USB 接続を許可する</string>
+    <string name="trust_onboarding_description">Trust は端末を安全に保ち、プライバシーを保護するのに役立ちます。\nTrust アイコンはページの内容が確認された場合にのみ表示されます。</string>
+    <string name="trust_warnings_alerts_intro">警告を表示させたいセキュリティ上の問題を選択できます。安全のため、すべての警告を有効にすることをおすすめします。</string>
+    <string name="trust_warnings_selinux">SELinux のステータス</string>
+    <string name="trust_warnings_keys">ビルド署名</string>
+    <string name="sleep_button_label">スリープ</string>
+    <string name="system_sleep_confirm">今すぐスリープしますか？</string>
+    <string name="shutdown_button_label">シャットダウン</string>
+    <string name="system_shutdown_confirm">今すぐシャットダウンしますか？</string>
+    <string name="convertible_port_busy_title">USB ポート1は使用中です</string>
+    <string name="convertible_port_busy_warning">すべてのデバイスまたはアクセサリを取り外して、もう一度やり直してください</string>
+    <string name="mtp_enable_title">USB を使用して PC 上で SHIELD フォルダにアクセス</string>
+    <string name="mtp_enable_warning">USB ポート1は、メディアデバイスとして PC に接続するように設定されました。\n\nこのポートは USB ストレージメディアや USB アクセサリを検出せず、デバイスの充電には使用できません。</string>
+    <string name="mtp_retry_error">失敗しました。もう一度やり直してください。</string>
+    <string name="mtp_summary">このモードでは USB ポートは他の用途では使用できません</string>
+    <string name="mtp_title">USB を使用してコンピュータにファイルを転送する</string>
+    <string name="mtp_unexpected_error">予期しないエラーです。後でやり直してください。</string>
+    <string name="usb_debugging_enable_title">USB デバッグが有効です</string>
+    <string name="usb_debugging_enable_warning">USB ポート1は、メディアデバイスとして PC に接続するように設定されました。\n\nこのポートは USB ストレージメディアや USB アクセサリを検出せず、デバイスの充電には使用できません。</string>
+</resources>

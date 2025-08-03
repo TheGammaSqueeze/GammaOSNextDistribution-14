@@ -1,0 +1,5 @@
+command script import -c lldb_support.py
+initialize_kernel_lldb_module
+breakpoint set -n trusty_thread_start -C trusty_thread_start_hook
+gdb-remote 1234
+breakpoint set -n relocate_kernel -C relocate_kernel_hook

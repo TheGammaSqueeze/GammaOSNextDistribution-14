@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="rtt_promotion_title">通話音声をリアルタイムでテキスト化（RTT）</string>
+  <string name="rtt_promotion_details">RTT は、聴覚障害や言語障害があるなど、
+    音声だけではコミュニケーションを取ることが困難なユーザーをサポートする機能です。RTT の音声文字変換結果は、ご利用の端末の
+    通話履歴に保存されます。%1$s</string>
+</resources>

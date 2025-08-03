@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
+    package="com.android.telephony.testimsmediahal"
+    android:sharedUserId="android.uid.phone"
+    coreApp="true"
+    android:singleUser="true">
+
+  <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+  <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+  <uses-permission android:name="android.permission.INTERNET" />
+  <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+
+  <application
+    android:persistent="true"
+    android:directBootAware="true">
+
+    <receiver android:name=".MediaBroadcastReceiver"
+        android:exported="true">
+        <intent-filter>
+            <action android:name="android.intent.action.BOOT_COMPLETED"/>
+        </intent-filter>
+    </receiver>
+
+    <service android:name=".ImsMediaHALtestService"
+        android:enabled="true"
+        android:exported="true"
+        android:singleUser="true"/>
+
+  </application>
+
+</manifest>
+

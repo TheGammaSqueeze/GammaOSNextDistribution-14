@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2021 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources>
+    <!--
+        Two array below are Network Preferences, that are set per application.
+        If you want to add application to this list, which already installed
+        on your connected device, please use next command:
+
+        $> adb shell 'pm list packages -f' | sed -e 's/.*=//' | sort
+
+        and find you package name. Then insert it into the list below.
+
+        As of current implementation at 02/04/2021, default policy below
+        is being set every time on boot. To set different policy per network
+        you have to implement personal on boot background service.
+        Alternatively, you can define new policy through this
+        (NetworkPreferenceApp) application and then enable automatic on boot
+        applier.
+    -->
+    <!--
+        Preference: OEM_NETWORK_PREFERENCE_OEM_PAID
+
+        If an unmetered network is available, use it
+        Otherwise, use network with the OEM_PAID capability if available
+        Otherwise, use the general default network
+    -->
+    <string-array name="config_network_preference_oem_paid_apps" translatable="false">
+        <!-- <item>full.package.name</item> -->
+        <item>com.android.car.settings</item>
+        <item>com.android.vending</item>
+        <item>com.google.android.apps.automotive.inputmethod</item>
+        <item>com.google.android.apps.maps</item>
+        <item>com.google.android.car.setupwizard</item>
+        <item>com.google.android.carassistant</item>
+        <item>com.google.android.configupdater</item>
+        <item>com.google.android.ext.services</item>
+        <item>com.google.android.ext.shared</item>
+        <item>com.google.android.feedback</item>
+        <item>com.google.android.gms</item>
+        <item>com.google.android.googlequicksearchbox</item>
+        <item>com.google.android.gsf</item>
+        <item>com.google.android.marvin.talkback</item>
+        <item>com.google.android.onetimeinitializer</item>
+        <item>com.google.android.packageinstaller</item>
+        <item>com.google.android.partnersetup</item>
+        <item>com.google.android.permissioncontroller</item>
+        <item>com.google.android.trichromelibrary</item>
+        <item>com.google.android.tts</item>
+        <item>com.google.android.webview</item>
+    </string-array>
+    <!--
+        Preference: OEM_NETWORK_PREFERENCE_OEM_PAID_NO_FALLBACK
+
+        If an unmetered network is available, use it
+        Otherwise, use network with the OEM_PAID capability if available
+        Otherwise, the app doesn't get a network
+    -->
+    <string-array name="config_network_preference_oem_paid_no_fallback_apps" translatable="false">
+        <!-- <item>full.package.name</item> -->
+    </string-array>
+    <!--
+        Preference: OEM_NETWORK_PREFERENCE_OEM_PAID_ONLY
+
+        Prefer only NET_CAPABILITY_OEM_PAID networks.
+    -->
+    <string-array name="config_network_preference_oem_paid_only" translatable="false">
+        <!-- <item>full.package.name</item> -->
+    </string-array>
+    <!--
+        Preference: OEM_NETWORK_PREFERENCE_OEM_PRIVATE_ONLY
+
+        Prefer only NET_CAPABILITY_OEM_PRIVATE networks.
+    -->
+    <string-array name="config_network_preference_oem_private_only" translatable="false">
+        <!-- <item>full.package.name</item> -->
+        <item>com.google.android.car.netdbug</item>
+    </string-array>
+</resources>

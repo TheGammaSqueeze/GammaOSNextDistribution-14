@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2014 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string-array name="sleep_timeout_entries">
+        <item>5 munud</item>
+        <item>15 munud</item>
+        <item>30 munud</item>
+        <item>1 awr</item>
+        <item>2 awr</item>
+    </string-array>
+    <string-array name="device_energy_saver_sleep_timeout_entries">
+        <item>15 munud</item>
+        <item>20 munud</item>
+        <item>30 munud</item>
+        <item>1 awr</item>
+        <item>4 awr</item>
+        <item>8 awr</item>
+        <item>12 awr</item>
+        <item>24 awr</item>
+        <item>Byth</item>
+    </string-array>
+    <string-array name="device_energy_saver_attentive_timeout_entries">
+        <item>4 awr</item>
+        <item>6 awr</item>
+        <item>8 awr</item>
+        <item>Byth</item>
+    </string-array>
+    <string-array name="captioning_typeface_selector_titles">
+        <item>Rhagosodiad</item>
+        <item>Sans-serif</item>
+        <item>Sans-serif cyddwys</item>
+        <item>Sans-serif monofwlch</item>
+        <item>Serif</item>
+        <item>Serif monofwlch</item>
+        <item>Achlysurol</item>
+        <item>Rhedol</item>
+        <item>Priflythrennau bychain</item>
+    </string-array>
+    <string-array name="captioning_font_size_selector_titles">
+        <item>Bach iawn</item>
+        <item>Bach</item>
+        <item>Arferol</item>
+        <item>Mawr</item>
+        <item>Mawr iawn</item>
+    </string-array>
+    <string-array name="captioning_edge_type_selector_titles">
+        <item>Dim</item>
+        <item>Amlinell</item>
+        <item>Gyda chysgod</item>
+        <item>Wedi\'i godi</item>
+        <item>Wedi\'i disgyn</item>
+    </string-array>
+    <string-array name="captioning_opacity_selector_titles">
+        <item>25%</item>
+        <item>50%</item>
+        <item>75%</item>
+        <item>100%</item>
+    </string-array>
+    <string-array name="font_scale_entries">
+        <item>Bach</item>
+        <item>Rhagosodiad</item>
+        <item>Mawr</item>
+        <item>Mwyaf</item>
+    </string-array>
+    <string-array name="wifi_peap_phase2_entries">
+        <item>Dim</item>
+        <item>MSCHAPV2</item>
+        <item>GTC</item>
+    </string-array>
+    <string-array name="wifi_phase2_entries">
+        <item>Dim</item>
+        <item>PAP</item>
+        <item>MSCHAP</item>
+        <item>MSCHAPV2</item>
+        <item>GTC</item>
+    </string-array>
+</resources>

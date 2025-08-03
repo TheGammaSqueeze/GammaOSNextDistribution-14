@@ -1,0 +1,22 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+    fragment@avf {
+        target-path = "/";
+
+        __overlay__ {
+            avf {
+                guest {
+                    common {
+                        ramdump = <0>;
+                    };
+                    microdroid {
+                        adb = <1>; // adb is required to check VM's bootargs.
+                    };
+                };
+            };
+        };
+    };
+};
+

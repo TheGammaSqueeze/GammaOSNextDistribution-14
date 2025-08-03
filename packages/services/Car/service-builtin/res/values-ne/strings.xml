@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2015 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="car_permission_label_bind_projection_service" msgid="6976251734714662552">"प्रोजेक्सन सेवामा सम्बद्ध हुने"</string>
+    <string name="car_permission_desc_bind_projection_service" msgid="4610418233070289810">"धारकलाई प्रोजेक्सन सेवाको उच्च स्तरको इन्टरफेसमा सम्बद्ध हुने अनुमति दिन्छ। साधारण अनुप्रयोगहरूको लागि कहिल्यै पनि आवश्यक पर्दैन।"</string>
+    <string name="car_permission_label_bind_vms_client" msgid="1298928874094319701">"VMS क्लाइन्ट सेवा"</string>
+    <string name="car_permission_desc_bind_vms_client" msgid="7758142590449847602">"VMS क्लाइन्टहरूमा सम्बद्ध हुनुहोस्"</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="6723392540805279625">"उपकरणको क्लस्टर रेन्डर गर्ने प्रक्रिया"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="2583711303360788080">"उपकरणको क्लस्टरको डेटा प्राप्त गर्नुहोस्‌"</string>
+    <string name="car_permission_label_bind_input_service" msgid="6647238478703096557">"कारको इनपुट सेवा"</string>
+    <string name="car_permission_desc_bind_input_service" msgid="8460218104132496613">"इनपुट गरिएका कार्यक्रमहरू व्यवस्थापन गर्ने"</string>
+    <string name="activity_blocked_text" msgid="5991043857905412794">"तपाईं सवारी साधन चलाइरहेका बेला यो सुविधा प्रयोग गर्न सक्नुहुन्न"</string>
+    <string name="exit_button_message" msgid="5375678491245394542">"एपका सुरक्षित सुविधाहरूको प्रयोग गरी फेरि सुरु गर्न <xliff:g id="EXIT_BUTTON">%s</xliff:g> चयन गर्नुहोस्‌।"</string>
+    <string name="exit_button" msgid="3491899413031549265">"पछाडि"</string>
+    <string name="exit_button_close_application" msgid="5153716684207539041">"एप बन्द गर्नुहोस्"</string>
+    <string name="exit_button_go_back" msgid="6921595432375141935">"पछाडि"</string>
+    <string name="importance_default" msgid="8017186728206153704">"डिफल्ट महत्त्व"</string>
+    <string name="importance_high" msgid="3393374688015554727">"उच्च महत्त्वको सूचना"</string>
+    <string name="android_system_label" msgid="9209428539477894959">"Android सिस्टम"</string>
+    <string name="factory_reset_notification_title" msgid="6177770995437355965">"फ्याक्ट्री रिसेट गरिनु पर्छ"</string>
+    <string name="factory_reset_notification_text" msgid="6051393302193696102">"इन्फोटेनमेन्ट प्रणालीमा भएका सबै डेटा मेटाइने छ। सो प्रणाली रिसेट गरेपछि तपाईं नयाँ प्रोफाइल बनाउन सक्नुहुन्छ।"</string>
+    <string name="factory_reset_notification_button" msgid="6926734587145351076">"थप"</string>
+    <string name="factory_reset_warning" msgid="8463356329619149262">"तपाईंको यन्त्र मेटिनेछ"</string>
+    <string name="factory_reset_message" msgid="1972536809866779972">"एड्मिन एप प्रयोग गर्न मिल्दैन। त्यसैले तपाईंको डिभाइसको डेटा अब मेटाइने छ।\n\nतपाईंसँग कुनै प्रश्न छ भने आफ्नो सङ्गठनका एड्मिनसँग सम्पर्क गर्नुहोस्।"</string>
+    <string name="resource_overuse_notification_title" msgid="1622015333965744463">"<xliff:g id="ID_1">^1</xliff:g> ले तपाईंको सिस्टमको पर्फर्मेन्समा असर गरिरहेको छ"</string>
+    <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"यो एपलाई ब्याकग्राउन्डमा चल्नबाट रोकिएको छ। तपाईं यो एप ब्याकग्राउन्डमा चलाइरहन चाहनुहुन्छ भने यसलाई प्राथमिकता दिनुहोस्।"</string>
+    <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"बन्द गर्नुहोस्"</string>
+    <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"एपलाई प्राथमिकता दिनुहोस्"</string>
+</resources>

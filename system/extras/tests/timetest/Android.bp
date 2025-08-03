@@ -1,0 +1,37 @@
+// Copyright 2006 The Android Open Source Project
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_extras_tests_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_extras_tests_license"],
+}
+
+cc_test {
+    name: "time-unit-tests",
+    cflags: [
+        "-fstack-protector-all",
+        "-g",
+        "-Wextra",
+        "-fno-builtin",
+    ],
+    srcs: [
+        "rtc_test.cpp",
+    ],
+    shared_libs: [
+        "libbase",
+    ],
+}
+
+cc_test {
+    name: "timetest",
+    srcs: ["timetest.c"],
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+    static_executable: true,
+    static_libs: ["libc"],
+}

@@ -1,0 +1,524 @@
+#! /bin/bash
+
+YELLOW="\033[1;33m"
+NOCOLOR="\033[0m"
+BLUE="\033[1;34m"
+RED="\033[1;91m"
+
+function happy_hedgehog {
+    echo -e "\t${BLUE}"
+    echo -e "\t       ___------__"
+    echo -e "\t |\__-- /\       _-"
+    echo -e "\t |/_   __      -"
+    echo -e "\t // \ /  \    /__"
+    echo -e "\t | 0 |  0 |__     --_        Gotta go fast!"
+    echo -e "\t \\____-- __ \   ___-"
+    echo -e "\t ( @    __/  / /_"
+    echo -e "\t    -_____---   --_"
+    echo -e "\t     //  \ \\   ___-"
+    echo -e "\t   //|\__/  \\  \\"
+    echo -e "\t   \_-\_____/  \-\\"
+    echo -e "\t        // \\--\|"
+    echo -e "\t   ${RED}____${BLUE}//  ||${RED}_"
+    echo -e "\t${RED}  /_____\ /___\\"
+    echo -e "${NOCOLOR}"
+}
+
+function sad_hedgehog {
+    echo -e "\t${BLUE}"
+    echo -e "\t       ___------__"
+    echo -e "\t |\__-- /\       _-"
+    echo -e "\t |/_    __      -"
+    echo -e "\t // \  /  \    /__"
+    echo -e "\t | 0 |  0 |__     --_        Gotta go sllloowwww!"
+    echo -e "\t \\____-- __ \   ___-"
+    echo -e "\t ( @    __   / /_"
+    echo -e "\t    -_____---   --_"
+    echo -e "\t     //  \ \\   ___-"
+    echo -e "\t   //|\__/  \\  \\"
+    echo -e "\t   \_-\_____/  \-\\"
+    echo -e "\t        // \\--\|"
+    echo -e "\t  ${RED} ____${BLUE}//  ||${RED}_"
+    echo -e "\t${RED}  /_____\ /___\\"
+    echo -e "{$NOCOLOR}"
+}
+
+PYTHON_BIN="python3.11"
+
+function check_environment {
+    if [[ -z "${ANDROID_BUILD_TOP}" ]] || [[ -z "${ANDROID_HOST_OUT}" ]] ; then
+      echo -e "${RED}ANDROID_BUILD_TOP${NOCOLOR} or ${RED}ANDROID_HOST_OUT${NOCOLOR} is not set for host run"
+      echo -e "Navigate to android root and run:"
+      echo -e "${YELLOW}"
+      echo -e ". build/envsetup.sh"
+      echo -e "lunch <fish>"
+      echo -e "${NOCOLOR}"
+      echo
+      exit 1
+    fi
+    if ! [ -x "$(command -v ${PYTHON_BIN})" ] ; then
+      echo -e "${RED}You must have ${PYTHON_BIN} installed${NOCOLOR}"
+      exit 1
+    fi
+    ${PYTHON_BIN} -m venv -h > /dev/null
+    if [[ $? -ne 0 ]] ; then
+        echo -e "${RED}venv not available for ${PYTHON_BIN}${NOCOLOR}"
+        exit 1
+    fi
+}
+
+ASHMEM_OUT="/dev/shm/out"
+ASHMEM_DIST="${ASHMEM_OUT}/dist"
+ASHMEM_VENV="${ASHMEM_DIST}/bluetooth_venv"
+ASHMEM_GOTTA_GO_FAST="/dev/shm/gottagofast"
+ASHMEM_HOST_LOGS="${ASHMEM_GOTTA_GO_FAST}/logs"
+ASHMEM_OUT_TARGET="${ASHMEM_GOTTA_GO_FAST}/target"
+ASHMEM_SOONG="${ASHMEM_GOTTA_GO_FAST}/out/soong"
+CERT_HOST_LOGS="/tmp/logs/HostOnlyCert"
+CERT_DEVICE_LOGS="TODO: Add this"
+CERT_TEST_VENV=${ANDROID_BUILD_TOP}/out/dist/bluetooth_venv
+OUT_TARGET="${ANDROID_BUILD_TOP}/out/target"
+TEST_CONFIG="${ANDROID_BUILD_TOP}/packages/modules/Bluetooth/system/blueberry/tests/gd/host_config.yaml"
+TEST_FILTER="--presubmit"
+TEST_RUNNER="blueberry/tests/gd/gd_test_runner.py"
+CPP_BUILD_TARGET="bluetooth_stack_with_facade root-canal bluetooth_packets_python3 gd_hci_packets_python3_gen gd_smp_packets_python3_gen"
+RUST_BUILD_TARGET="bluetooth_with_facades root-canal bluetooth_packets_python3 bt_topshim_facade gd_hci_packets_python3_gen gd_smp_packets_python3_gen"
+BUILD_TARGET=$CPP_BUILD_TARGET
+
+CLEAN_VENV=false
+GOTTA_GO_FAST=false
+NUM_REPETITIONS="1"
+SKIP_SOONG_BUILD=false
+USE_ASHMEM_VENV=true
+VERBOSE_MODE=false
+DEVICE_TEST=false
+
+## Verify devices connected and valid
+DUT_SERIAL="DUT Not Set"
+DUT_ADB="DUT Not Set"
+DUT_NAME="DUT Not Set"
+
+# Used for position arguments needed for later
+POSITIONAL=()
+function parse_options {
+    while [[ $# -gt 0 ]]
+    do
+    key="$1"
+    case $key in
+        # This will delete the existing venv before running the test
+        # If you updated external libraries such as ACTS, you need to add this flag
+        --clean)
+        CLEAN_VENV=true
+        shift # past argument
+        ;;
+        --help)
+        echo
+        echo -e "${YELLOW}Help menu${NOCOLOR}"
+        echo -e "==================================="
+        echo -e "${BLUE}  --clean${NOCOLOR}"
+        echo -e "    Clean the virtul environment; use if ACTS has been updated."
+        echo -e "${BLUE}  --disable-ashmem-venv${NOCOLOR}"
+        echo -e "    Places the virtual environment on disk rather than in ashmem which is default."
+        echo -e "${BLUE}  --gotta-go-fast${NOCOLOR}"
+        echo -e "    Makes use of ashmem as best as possible for targeted speed increases."
+        echo -e "${BLUE}  --device${NOCOLOR}"
+        echo -e "    Run the test on the 2 real devices."
+        echo -e "${BLUE}  --sl4a${NOCOLOR}"
+        echo -e "    Run GD Sl4A combination tests using the default gd_sl4a config."
+        echo -e "    Please install the correct SL4A build to DUT manually before running tests."
+        echo -e "${BLUE}  --sl4a_sl4a${NOCOLOR}"
+        echo -e "    Run SL$A combination tests using the default sl4a_sl4a config."
+        echo -e "    Please install the correct SL4A build to DUT and cert manually before running tests."
+        echo -e "${BLUE}  --topshim${NOCOLOR}"
+        echo -e "    Run Topshim combination tests using the default topshim config."
+        echo -e "${BLUE}  --rust${NOCOLOR}"
+        echo -e "    Run the test using the rust implementation on the 2 real devices."
+        echo -e "${BLUE}  --rhost${NOCOLOR}"
+        echo -e "    Run the test using the rust implementation on the host."
+        echo -e "${BLUE}  --repeat=<N>${NOCOLOR}"
+        echo -e "    Repeat the test sequence N (int) number of times."
+        echo -e "${BLUE}  --skip-soong-build${NOCOLOR}"
+        echo -e "    Skips building soong targets. Use when you are just modifying simple python files."
+        echo -e "${BLUE}  --test_config=<configfile>${NOCOLOR}"
+        echo -e "    Override default test configuration."
+        echo -e "${BLUE}  --verbose${NOCOLOR}"
+        echo -e "    Displays device logs and test logs to output."
+        echo
+        echo -e "Usage: $0 [--clean|--repeat=<N>|--test_config=<config>] [TestGroupName[.IndividualTestName]]"
+        echo -e "        ${YELLOW}e.g."
+        echo -e "         $0 --clean SecurityTest"
+        echo -e "         $0 --verbose SecurityTest:test_dut_initiated_display_only_display_only ${NOCOLOR}"
+        echo
+        shift
+        exit 0
+        ;;
+        # This will cause the bluetooth_venv to NOT be created in ashmem
+        # Using ashmem increases --clean build times by 40% (~21 seconds on my machine)
+        --disable-ashmem-venv)
+        USE_ASHMEM_VENV=false
+        shift # past argument
+        ;;
+        --gotta-go-fast)
+        GOTTA_GO_FAST=true
+        shift # past argument
+        ;;
+        --device)
+        DEVICE_TEST=true
+        TEST_CONFIG="${ANDROID_BUILD_TOP}/packages/modules/Bluetooth/system/blueberry/tests/gd/devices_config.yaml"
+        shift # past argument
+        ;;
+        # Repeat running the specified test cases by N times in one single setup
+        --repeat=*)
+        NUM_REPETITIONS="${key#*=}"
+        shift # past argument
+        ;;
+        --skip-soong-build)
+        SKIP_SOONG_BUILD=true
+        shift
+        ;;
+        --test_config=*)
+        TEST_CONFIG="${key#*=}"
+        shift # past argument
+        ;;
+        --rust)
+        BUILD_TARGET=$RUST_BUILD_TARGET
+        export RUST_BACKTRACE=1
+        TEST_CONFIG="${ANDROID_BUILD_TOP}/packages/modules/Bluetooth/system/blueberry/tests/gd/rust_devices_config.yaml"
+        DEVICE_TEST=true
+        shift # past argument
+        ;;
+        --rhost)
+        export RUST_BACKTRACE=1
+        BUILD_TARGET=$RUST_BUILD_TARGET
+        TEST_CONFIG="${ANDROID_BUILD_TOP}/packages/modules/Bluetooth/system/blueberry/tests/gd/rust_host_config.yaml"
+        shift # past argument
+        ;;
+        --sl4a)
+        TEST_CONFIG="${ANDROID_BUILD_TOP}/packages/modules/Bluetooth/system/blueberry/tests/gd_sl4a/gd_sl4a_device_config.yaml"
+        TEST_RUNNER="blueberry/tests/gd_sl4a/gd_sl4a_test_runner.py"
+        DEVICE_TEST=true
+        shift # past argument
+        ;;
+        --sl4a_sl4a)
+        TEST_CONFIG="${ANDROID_BUILD_TOP}/packages/modules/Bluetooth/system/blueberry/tests/sl4a_sl4a/sl4a_sl4a_device_config.yaml"
+        TEST_RUNNER="blueberry/tests/sl4a_sl4a/sl4a_sl4a_test_runner.py"
+        DEVICE_TEST=true
+        shift # past argument
+        ;;
+        --topshim)
+        TEST_CONFIG="${ANDROID_BUILD_TOP}/packages/modules/Bluetooth/system/blueberry/tests/topshim/topshim_host_config.yaml"
+        TEST_RUNNER="blueberry/tests/topshim/topshim_test_runner.py"
+        shift
+        ;;
+        # This will log everything to both log file and stdout
+        --verbose)
+        VERBOSE_MODE=true
+        shift # past argument
+        ;;
+        --*) # unknown argument
+        echo "$0: unrecognized argument '$1'"
+        echo "Try '$0  --help' for more information"
+        exit 1
+        shift
+        ;;
+        *)    # unknown option
+        POSITIONAL+=("$1") # save it in an array for later
+        shift # past argument
+        ;;
+    esac
+    done
+    set -- "${POSITIONAL[@]}" # restore positional parameters
+
+    # Set the test filter
+    if [[ -n "$1" ]] ; then
+      TEST_FILTER="--tests $1"
+    fi
+
+    INSTALL_ARGS="--reuse-libraries"
+    if [ "$CLEAN_VENV" == true ] ; then
+      echo -e "${YELLOW}Cleaning up existing virtualenv${NOCOLOR}"
+      rm -rf $CERT_TEST_VENV/*
+      rm -rf $CERT_TEST_VENV
+      mkdir -p ${CERT_TEST_VENV}
+      INSTALL_ARGS=""
+    else
+      echo -e "${YELLOW}Try to reuse existing virtualenv at ${CERT_TEST_VENV}${NOCOLOR}"
+    fi
+
+}
+
+function select_devices {
+  if [ "$DEVICE_TEST" == true ] ; then
+    RR="$(cat ${TEST_CONFIG}|grep \'CERT\\\|DUT\')"
+    if [ "$RR" != "" ]; then
+      DUT_SERIAL="$(menu-adb DUT)"
+      DUT_ADB="adb -s ${DUT_SERIAL}"
+      DUT_NAME="$(adb devices -l | grep -v "List of device" | grep ${DUT_SERIAL} | awk '{ print $6 }' | cut -d ':' -f 2)"
+      CERT_SERIAL="$(menu-adb CERT)"
+      CERT_ADB="adb -s ${CERT_SERIAL}"
+      CERT_NAME="$(adb devices -l | grep -v "List of device" | grep ${CERT_SERIAL} | awk '{ print $6 }' | cut -d ':' -f 2)"
+
+      if [ "${CERT_SERIAL}" == "${DUT_SERIAL}" ]; then
+          echo
+          echo -e "${RED}ERROR: CERT and DUT cannot be the same device, or you only have one device connected!${NOCOLOR}"
+          echo
+          exit 1
+      fi
+
+      ## Set android devices in config
+      sed -i "s/'DUT'/'${DUT_SERIAL}'/g" ${TEST_CONFIG}
+      sed -i "s/'CERT'/'${CERT_SERIAL}'/g" ${TEST_CONFIG}
+    fi
+  fi
+}
+
+function soong_build {
+    if [ "$CLEAN_VENV" == true ] ; then
+        $ANDROID_BUILD_TOP/build/soong/soong_ui.bash --build-mode --"modules-in-a-dir" --dir="${ANDROID_BUILD_TOP}/packages/modules/Bluetooth/system" dist $BUILD_TARGET -j $(nproc)
+        if [[ $? -ne 0 ]] ; then
+            echo -e "${RED}Failed to build ${BUILD_TARGET}${NOCOLOR}"
+            exit 1
+        fi
+    else
+        $ANDROID_BUILD_TOP/build/soong/soong_ui.bash --build-mode --"all-modules" --dir="${ANDROID_BUILD_TOP}/packages/modules/Bluetooth/system" dist $BUILD_TARGET -j $(nproc)
+        if [[ $? -ne 0 ]] ; then
+            echo -e "${RED}Failed to build ${BUILD_TARGET}${NOCOLOR}"
+            exit 1
+        fi
+    fi
+}
+
+function setup_venv {
+    # Make venv in memory, decreases --clean build times by 40%
+    # Caveat is you lose the venv if the computer reboots
+    if [ "${USE_ASHMEM_VENV}" == true ] ; then
+        echo -e "${BLUE}Using ashmem virtual environment.${NOCOLOR}"
+        if [[ ! -L ${CERT_TEST_VENV} ]] ; then
+            echo -e "${BLUE}"
+            echo -ne "Creating ashmem dist folder..."
+            mkdir -p "${ASHMEM_VENV}"
+            # Ensure the directory doesn't exist
+            rm -rf "${CERT_TEST_VENV}"
+            echo -e "Done"
+            echo -ne "Sym linking ${ASHMEM_VENV} to ${CERT_TEST_VENV}..."
+            ln -s "${ASHMEM_VENV}" "${CERT_TEST_VENV}"
+            echo -e "Done"
+            echo -e "${NOCOLOR}"
+        fi
+    else
+        echo -e "${RED}Not using ashmem virtual environment.${NOCOLOR}"
+        if [[ -L ${CERT_TEST_VENV} ]] ; then
+            echo -e "${RED}"
+            echo -en "Removing sym link from ${ASHMEM_VENV} to ${CERT_TEST_VENV}..."
+            rm -rf ""${ASHMEM_VENV} "${CERT_TEST_VENV}"
+            echo -e "Done"
+            echo -en "Cleaning up memory..."
+            rm -rf "${ASHMEM_VENV}"
+            echo -e "Done"
+            echo -e "${NOCOLOR}"
+        fi
+    fi
+    ${PYTHON_BIN} -m venv --clear "${CERT_TEST_VENV}"
+    if [[ $? -ne 0 ]] ; then
+        echo -e "${RED}Error setting up virtualenv${NOCOLOR}"
+        exit 1
+    fi
+
+    unzip -o -q "${ANDROID_BUILD_TOP}/out/dist/bluetooth_cert_tests.zip" -d "${CERT_TEST_VENV}/sources"
+    if [[ $? -ne 0 ]] ; then
+        echo -e "${RED}Error unzipping bluetooth_cert_tests.zip${NOCOLOR}"
+        exit 1
+    fi
+
+    venv_common
+}
+
+function incremental_venv {
+#LINT.IfChange
+    HOST_BIN="${ANDROID_BUILD_TOP}/out/host/linux-x86/bin"
+    HOST_LIB="${ANDROID_BUILD_TOP}/out/host/linux-x86/lib64"
+    DEST_DIR="${ANDROID_BUILD_TOP}/out/dist/bluetooth_venv/sources"
+    DEST_LIB_DIR="${DEST_DIR}/lib64"
+    cp {$HOST_BIN,$DEST_DIR}/bluetooth_stack_with_facade
+    cp {$HOST_BIN,$DEST_DIR}/bluetooth_with_facades
+    cp {$HOST_BIN,$DEST_DIR}/bt_topshim_facade
+    cp {$HOST_BIN,$DEST_DIR}/root-canal
+
+    cp {$HOST_LIB,$DEST_DIR}/bluetooth_packets_python3.so
+
+    cp {$HOST_LIB,$DEST_LIB_DIR}/libbase.so
+    cp {$HOST_LIB,$DEST_LIB_DIR}/libbluetooth_gd.so
+    cp {$HOST_LIB,$DEST_LIB_DIR}/libc++.so
+    cp {$HOST_LIB,$DEST_LIB_DIR}/libchrome.so
+    cp {$HOST_LIB,$DEST_LIB_DIR}/libcrypto-host.so
+    cp {$HOST_LIB,$DEST_LIB_DIR}/libevent-host.so
+    cp {$HOST_LIB,$DEST_LIB_DIR}/libgrpc++.so
+    cp {$HOST_LIB,$DEST_LIB_DIR}/libgrpc_wrap.so
+    cp {$HOST_LIB,$DEST_LIB_DIR}/liblog.so
+    cp {$HOST_LIB,$DEST_LIB_DIR}/libssl-host.so
+    cp {$HOST_LIB,$DEST_LIB_DIR}/libz-host.so
+    cp {$HOST_LIB,$DEST_LIB_DIR}/libprotobuf-cpp-full.so
+    cp {$HOST_LIB,$DEST_LIB_DIR}/libunwindstack.so
+    cp {$HOST_LIB,$DEST_LIB_DIR}/liblzma.so
+
+    i="${ANDROID_BUILD_TOP}/packages/modules/Bluetooth/system/setup.py"
+    cp {${ANDROID_BUILD_TOP}/packages/modules/Bluetooth/system,$DEST_DIR}${i#${ANDROID_BUILD_TOP}/packages/modules/Bluetooth/system}
+    for i in `find ${ANDROID_BUILD_TOP}/packages/modules/Bluetooth/system/blueberry -name "*.py" -type f`; do
+        cp {${ANDROID_BUILD_TOP}/packages/modules/Bluetooth/system,$DEST_DIR}${i#${ANDROID_BUILD_TOP}/packages/modules/Bluetooth/system}
+    done
+#LINT.ThenChange(../../Android.mk)
+
+    venv_common
+}
+
+function venv_common {
+    $(echo "${CERT_TEST_VENV}/bin/python" "${CERT_TEST_VENV}/sources/setup.py" --quiet build --force "${INSTALL_ARGS}")
+    if [[ $? -ne 0 ]] ; then
+        echo -e "${RED}Error building GD Python libraries${NOCOLOR}"
+        echo -e "${YELLOW}NOTE:${NOCOLOR} To build external libraries the first time, please add --clean option."
+        exit 1
+    fi
+
+    $(echo "${CERT_TEST_VENV}/bin/python" "${CERT_TEST_VENV}/sources/setup.py" --quiet install --skip-build --force "${INSTALL_ARGS}")
+    if [[ $? -ne 0 ]] ; then
+        echo -e "${RED}Error installing GD Python libraries${NOCOLOR}"
+        exit 1
+    fi
+
+"${CERT_TEST_VENV}/bin/python" -c "
+import bluetooth_packets_python3 as bp3
+bp3.BaseStruct
+"
+if [[ $? -ne 0 ]] ; then
+  echo -e "${RED}Setup failed as bluetooth_packets_python3 cannot be imported${NOCOLOR}"
+  exit 1
+fi
+
+if [ "${VERBOSE_MODE}" == true ] ; then
+  TEMP_CONFIG=/tmp/temp_mobly_config.yaml
+  cat "${TEST_CONFIG}" | "${CERT_TEST_VENV}/bin/python" -c "
+import sys
+import yaml
+config = yaml.load(sys.stdin)
+config['verbose_mode'] = True
+print(yaml.dump(config))
+  " > "${TEMP_CONFIG}"
+  TEST_CONFIG="${TEMP_CONFIG}"
+  if [[ $? -ne 0 ]] ; then
+    echo -e "${RED}Setup failed as verbose mode is chosen but cannot be enabled${NOCOLOR}"
+    exit 1
+  fi
+fi
+}
+
+function gotta_go_fast {
+    if [ "${GOTTA_GO_FAST}" == true ] ; then
+        # Call here to explicitly note the flag is in use
+        happy_hedgehog
+        if [[ ! -L "${CERT_HOST_LOGS}" ]] ; then
+            rm -rf "${CERT_HOST_LOGS}"
+            mkdir -p "${ASHMEM_HOST_LOGS}"
+            ln -s "${ASHMEM_HOST_LOGS}" "${CERT_HOST_LOGS}"
+        fi
+
+        if [[ ! -L "${OUT_TARGET}" ]] ; then
+            rm -rf "${OUT_TARGET}"
+            mkdir -p "${ASHMEM_OUT_TARGET}"
+            ln -s  "${ASHMEM_OUT_TARGET}" "${OUT_TARGET}"
+        fi
+    else
+        if [[ -L "${CERT_HOST_LOGS}" ]] ; then
+            # Call here so we don't spam anyone not using the flag
+            sad_hedgehog
+            rm -rf "${CERT_HOST_LOGS}"
+            rm -rf "${ASHMEM_HOST_LOGS}"
+        fi
+
+        if [[ -L "${OUT_TARGET}" ]] ; then
+            rm -rf "${OUT_TARGET}"
+            rm -rf "${ASHMEM_OUT_TARGET}"
+        fi
+    fi
+}
+
+function run_tests {
+    for n in $(seq "${NUM_REPETITIONS}"); do
+      $(echo "${CERT_TEST_VENV}/bin/python" "${CERT_TEST_VENV}/sources/${TEST_RUNNER}" \
+          "-c ${TEST_CONFIG}" "${TEST_FILTER}")
+    done
+
+    if [ "${CLEAN_VENV}" != true ] ; then
+      echo -e "${YELLOW}NOTE:${NOCOLOR} Completed tests using existing external libraries in virtualenv."
+      echo -e "${YELLOW}NOTE:${NOCOLOR} To update external libraries, please add --clean option."
+    fi
+}
+
+function menu-adb() {
+    TMP=$(adb devices -l | grep -v "List of device" | awk '{ print $1 }')
+    # TODO(optedoblivion): If the device doesn't have a name (offline), it misnames them
+    NTMP=$(adb devices -l | grep -v "List of device" | awk '{ print $6 }' | cut -d ':' -f 2)
+    SERIALS=($TMP)
+    DEVICES=($NTMP)
+    LEN=${#SERIALS[@]}
+    result=0
+    if [ $LEN -lt 1 ]; then
+        echo -e "${YELLOW}No devices connected!${NOCOLOR}"
+        return 1
+    fi
+
+    if [ "$LEN" == "" ]; then
+        LEN=0
+    fi
+
+    answer=0
+
+    DEVICE_NAME="$1 device"
+
+    if [ $LEN -gt 1 ]; then
+        echo "+-------------------------------------------------+" 1>&2
+        echo "| Choose a ${DEVICE_NAME}:                         " 1>&2
+        echo "+-------------------------------------------------+" 1>&2
+        echo "|                                                 |" 1>&2
+        let fixed_len=$LEN-1
+        for i in `seq 0 $fixed_len`;
+        do
+            serial=${SERIALS[i]}
+            device=${DEVICES[i]}
+            echo "| $i) $serial $device" 1>&2
+            ## TODO[MSB]: Find character count, fill with space and ending box wall
+        done
+        echo "|                                                 |" 1>&2
+        echo "+-------------------------------------------------+" 1>&2
+        echo 1>&2
+        echo -n "Index number: " 1>&2
+        read answer
+    fi
+
+    if [ $answer -ge $LEN ]; then
+        echo
+        echo "Please choose a correct index!" 1>&2
+        echo
+        return 1
+    fi
+
+    SERIAL=${SERIALS[$answer]}
+    echo $SERIAL
+}
+
+function main {
+    check_environment
+    parse_options $@
+    select_devices
+    if [[ "${SKIP_SOONG_BUILD}" != true ]] ; then
+        soong_build
+    fi
+    if [ "$CLEAN_VENV" == true ] ; then
+        setup_venv
+    else
+        incremental_venv
+    fi
+    gotta_go_fast
+    run_tests
+}
+
+main $@

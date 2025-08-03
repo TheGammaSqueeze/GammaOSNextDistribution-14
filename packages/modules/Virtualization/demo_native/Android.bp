@@ -1,0 +1,19 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_binary {
+    name: "vm_demo_native",
+    defaults: ["avf_build_flags_cc"],
+    srcs: ["main.cpp"],
+    static_libs: [
+        "libbase",
+        "android.system.virtualizationservice-ndk",
+        "com.android.microdroid.testservice-ndk",
+    ],
+    shared_libs: [
+        "libbinder_ndk",
+        "libbinder_rpc_unstable",
+        "liblog",
+    ],
+}

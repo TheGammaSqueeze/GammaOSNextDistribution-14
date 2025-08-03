@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2015 The Android Open Source Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <string name="desc_dec_point">taneqqiṭ</string>
+    <string name="desc_op_pct">afmiḍi</string>
+    <string name="desc_op_sqrt">aẓar uzmir 2</string>
+    <string name="desc_del">Kkes</string>
+    <string name="error_aborted">Ittwasefsex</string>
+    <string name="dismiss">Suref</string>
+    <string name="menu_licenses">Turagin n uɣbalu yeldin</string>
+    <string name="menu_history">Amazray</string>
+    <string name="menu_clear_history">Sfeḍ</string>
+    <string name="title_history">Amazray</string>
+    <string name="desc_navigate_up">Aller vers le haut</string>
+    <string name="dialog_timeout">Amenḍar</string>
+</resources>

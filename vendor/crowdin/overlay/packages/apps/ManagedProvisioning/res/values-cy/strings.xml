@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/**
+ * Copyright (C) 2014 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="app_label">Gosod Gwaith</string>
+  <string name="provisioning_error_title">Wps!</string>
+  <string name="setup_work_profile">Gosod proffil gwaith</string>
+  <string name="company_controls_workspace">Mae dy sefydliad yn rheoli\'r proffil hwn a\'i gadw\'n ddiogel. Rwyt ti\'n rheoli popeth arall ar dy ddyfais.</string>
+  <string name="company_controls_device">Bydd dy sefydliad yn rheoli\'r ddyfais hon a cyn ei chadw\'n ddiogel.</string>
+  <string name="the_following_is_your_mdm">Bydd ar yr ap hwn angen mynediad at y proffil hwn:</string>
+  <string name="the_following_is_your_mdm_for_device">Bydd yr ap canlynol yn rheoli dy ddyfais:</string>
+  <string name="next">Nesaf</string>
+  <string name="setting_up_workspace">Yn gosod y proffil gwaith\u2026</string>
+  <string name="admin_has_ability_to_monitor_profile">Gall dy weinyddwr TG fonitro a rheoli gosodiadau, mynediad corfforaethol, apiau, caniatâd, data, a gweithgaredd rhwydwaith yn gysylltiedig â\u2019r proffil hwn, yn ogystal â dy hanes galwadau a hanes chwilio cysylltiadau. Cysyllta â dy weinyddwr TG am ragor o wybodaeth ac i ddysgu mwy am bolisïau preifatrwydd dy sefydliad.</string>
+  <string name="admin_has_ability_to_monitor_device">Mae gan dy weinyddwr IT y gallu i fonitro a rheoli gosodiadau, mynediad corfforaethol, apiau, caniatâd a data sy\u2019n gysylltiedig â\u2019r <xliff:g id="device_name" example="Pixel">%1$s</xliff:g> hwn, gan gynnwys dy weithgaredd rhwydwaith, yn ogystal â lleoliad dy ddyfais, hanes galwadau, a hanes chwilio cysylltiadau.<xliff:g id="line_break">\n\n</xliff:g>Cysyllta â dy weinyddwr TG am ragor o wybodaeth, gan gynnwys polisïau preifatrwydd dy sefydliad.</string>
+  <string name="theft_protection_disabled_warning">Er mwyn defnyddio nodweddion amddiffyn rhag lladrad, rhaid yn gyntaf gosod sgrin cloi gyda chyfrinair i ddiogelu dy ddyfais.</string>
+  <string name="contact_your_admin_for_more_info">Cysyllta â dy weinyddwr TG am ragor o wybodaeth, gan gynnwys polisïau preifatrwydd y sefydliad.</string>
+  <string name="learn_more_link">Dysgu mwy </string>
+  <string name="cancel_setup">Diddymu</string>
+  <string name="ok_setup">Iawn</string>
+  <string name="user_consent_msg">Rwy\'n rhoi caniatâd</string>
+  <string name="url_error">Ni ellir dangos y ddolen hon.</string>
+  <string name="navigation_button_description">Llywio i fyny</string>
+  <string name="terms">Telerau</string>
+  <string name="work_profile_info">Gwybodaeth proffil gwaith</string>
+  <string name="managed_device_info">Gwybodaeth dyfais a reolir</string>
+  <string name="default_managed_profile_name">Proffil gwaith</string>
+  <string name="delete_profile_title">Dileu\'r proffil cyfredol?</string>
+  <string name="opening_paragraph_delete_profile">Mae gennyt eisoes proffil gwaith. Fe\'i rheolir gyda\'r ap canlynol:</string>
+  <string name="read_more_delete_profile">Cyn parhau, <a href="#read_this_link">darllena hwn</a>.</string>
+  <string name="sure_you_want_to_delete_profile">Os wyt ti\'n cytuno, caiff holl apiau a data\'r proffil hwn eu dileu.</string>
+  <string name="delete_profile">Dileu</string>
+  <string name="cancel_delete_profile">Diddymu</string>
+  <string name="encrypt_device_text_for_profile_owner_setup">I osod dy broffil gwaith, mae angen fod dy <xliff:g id="device_name" example="Pixel">%1$s</xliff:g> wedi\'i amgryptio. Gall hyn gymryd ychydig o amser.</string>
+  <string name="encrypt_device_text_for_device_owner_setup">I osod y <xliff:g id="device_name" example="Pixel">%1$s</xliff:g> hwn, mae angen ei amgryptio yn gyntaf. Gall hyn gymryd ychydig o amser.</string>
+  <string name="encrypt_this_device_question">Amgryptio\'r ddyfais hon?</string>
+  <string name="encrypt">Amgryptio</string>
+  <string name="continue_provisioning_notify_title">Amgryptio wedi\'i gwblhau</string>
+  <string name="continue_provisioning_notify_text">Tapia i barhau i osod dy broffil gwaith.</string>
+  <string name="managed_provisioning_error_text">Methwyd â gosod dy broffil gwaith. Cysyllta â dy adran TGCh neu roi cynnig arall arni\'n hwyrach.</string>
+  <string name="cant_add_work_profile">Methu ag ychwanegu proffil gwaith</string>
+  <string name="cant_replace_or_remove_work_profile">Methu â newid neu dynnu\'r proffil gwaith</string>
+  <string name="work_profile_cant_be_added_contact_admin">Ni ellir ychwanegu proffil gwaith i\'r <xliff:g id="device_name" example="Pixel">%1$s</xliff:g> hwn. Os oes gennyt gwestiynau, cysyllta â dy weinyddwr TG.</string>
+  <string name="change_device_launcher">Newid lansiwr y ddyfais</string>
+  <string name="launcher_app_cant_be_used_by_work_profile">Ni ellir defnyddio\'r ap lansio hwn gan dy broffil gwaith</string>
+  <string name="cancel_provisioning">Diddymu</string>
+  <string name="pick_launcher">Iawn</string>
+  <string name="user_setup_incomplete">Gosod Defnyddiwr Heb ei Gwblhau</string>
+  <string name="default_owned_device_username">Defnyddiwr y ddyfais gwaith</string>
+  <string name="setup_work_device">Yn gosod dyfais gwaith\u2026</string>
+  <string name="device_doesnt_allow_encryption_contact_admin">Dyw\'r <xliff:g id="device_name" example="Pixel">%1$s</xliff:g> hwn ddim yn caniatáu amgryptio, sydd ei angen ar gyfer gosod. Am gymorth, cysyllta â dy weinyddwr TG.</string>
+  <string name="stop_setup_reset_device_question">Stopio gosod ac ailosod <xliff:g id="device_name" example="Pixel">%1$s</xliff:g>?</string>
+  <string name="this_will_reset_take_back_first_screen">Bydd hyn yn ailosod dy <xliff:g id="device_name" example="Pixel">%1$s</xliff:g> ac yn mynd â thi nôl i\'r sgrin gyntaf.</string>
+  <string name="device_owner_cancel_message">Stopio gosod a dileu holl ddata\'r ddyfais?</string>
+  <string name="device_owner_cancel_cancel">Diddymu</string>
+  <string name="device_owner_error_ok">Iawn</string>
+  <string name="reset">Ailosod</string>
+  <string name="cant_set_up_profile">Methu â gosod proffil</string>
+  <string name="cant_set_up_device">Methu â gosod y ddyfais</string>
+  <string name="something_went_wrong">Aeth rhywbeth o\'i le</string>
+  <string name="couldnt_set_up_device">Methwyd â gosod y ddyfais. Cysyllta â dy weinyddwr TG am gymorth.</string>
+  <string name="contact_your_admin_for_help">Cysyllta â dy weinyddwr TG am gymorth</string>
+  <string name="reset_device">Ailosoda\'r <xliff:g id="device_name" example="Pixel">%1$s</xliff:g> hwn a cheisio ei osod eto</string>
+  <string name="device_already_set_up"><xliff:g id="device_name" example="Pixel">%1$s</xliff:g> eisoes wedi ei osod</string>
+  <string name="error_wifi">Methwyd â chysylltu â\'r Wi-Fi</string>
+  <string name="device_has_reset_protection_contact_admin">Mae dy <xliff:g id="device_name" example="Pixel">%1$s</xliff:g> wedi troi gwarchod rhag ailosod ymlaen. Am gymorth, cysyllta â dy weinyddwr TG.</string>
+  <string name="frp_clear_progress_title">Yn dileu</string>
+  <string name="frp_clear_progress_text">Arhosa...</string>
+  <string name="error_hash_mismatch">Methwyd â defnyddio\'r ap gweinyddu oherwydd gwall prawfswm. Cysyllta â dy weinyddwr TG am gymorth.</string>
+  <string name="error_download_failed">Methwyd â lawrlwytho\'r ap gweinyddu</string>
+  <string name="error_package_invalid">Methu â defnyddio\'r ap gweinyddu. Mae rhai cydrannau ar goll neu\'n llygredig. Cysyllta â dy weinyddwr TG am gymorth.</string>
+  <string name="error_installation_failed">Methwyd â gosod yr ap gweinyddu</string>
+  <string name="profile_owner_cancel_message">Stopio gosod?</string>
+  <string name="profile_owner_cancel_cancel">Na</string>
+  <string name="profile_owner_cancel_ok">Ie</string>
+  <string name="profile_owner_cancelling">Yn diddymu\u2026</string>
+  <string name="work_profile_setup_later_title">Stopio gosod y proffil?</string>
+  <string name="work_profile_setup_later_message">Gellir gosod dy broffil gwaith yn hwyrach yn ap rheolaeth dyfais dy sefydliad</string>
+  <string name="continue_button">Parhau</string>
+  <string name="work_profile_setup_stop">Stopio</string>
+  <string name="dismiss">Diystyru</string>
+  <string name="profile_owner_info">Rwyt ar fin creu proffil gwaith caiff ei reoli a\'i fonitro gan dy sefydliad. Bydd telerau yn berthnasol.</string>
+  <string name="profile_owner_info_with_terms_headers">Rwyt ar fin creu proffil gwaith caiff ei reoli a\'i fonitro gan dy sefydliad. Bydd telerau <xliff:g id="terms_headers" example="EMM Partner A, Company B and Google">%1$s</xliff:g> yn berthnasol.</string>
+  <string name="profile_owner_info_comp">Caiff proffil ei greu ar gyfer dy apiau gwaith. Bydd y proffil hwn a gweddill dy ddyfais yn cael ei reoli a\'i monitro gan dy sefydliad. Bydd telerau yn berthnasol.</string>
+  <string name="profile_owner_info_with_terms_headers_comp">Caiff proffil ei greu ar gyfer dy apiau gwaith. Bydd y proffil hwn a gweddill dy ddyfais yn cael ei reoli a\'i monitro gan dy sefydliad. Bydd telerau <xliff:g id="terms_headers" example="EMM Partner A, Company B and Google">%1$s</xliff:g> yn berthnasol.</string>
+  <string name="device_owner_info">Caiff y ddyfais hon ei reoli, ei monitro a\'i chadw\'n ddiogel gan <xliff:g id="your organization" example="your organization">%1$s</xliff:g>. Bydd rhaid cadw at delerau. <xliff:g id="view_terms" example="View Terms">%2$s</xliff:g></string>
+  <string name="device_owner_info_with_terms_headers">Caiff y ddyfais hon ei rheoli, ei monitro, a\'i chadw\'n ddiogel gan <xliff:g id="your organization" example="your organization">%1$s</xliff:g>. Bydd telerau <xliff:g id="terms_headers" example="EMM Partner A, Company B and Google">%2$s</xliff:g> yn berthnasol. <xliff:g id="view_terms" example="View Terms">%3$s</xliff:g></string>
+  <string name="link_isnt_secure_and_cant_be_opened_until_device_setup_finished">Nid yw\'r ddolen hon yn ddiogel a ni ellir ei hagor nes bod gosodiad y ddyfais wedi\'i gwblhau: <xliff:g id="link_raw_test" example="http://insecure-http-link.com/?p1=v1&amp;p2=v2">%1$s</xliff:g></string>
+  <string name="contact_device_provider">I wybod mwy, cysyllta â dy <xliff:g id="it_admin" example="it_admin">%1$s</xliff:g>.</string>
+  <string name="if_questions_contact_admin">Os oes gennyt gwestiynau, cysyllta â dy weinyddwr TG</string>
+  <string name="setup_isnt_finished_contact_admin">Dyw gosod heb ei gwblhau. Cysyllta â dy weinyddwr TG am gymorth.</string>
+  <string name="for_help_contact_admin">Cysyllta â dy weinyddwr TG am gymorth</string>
+  <string name="organization_admin">Gweinyddwr TG</string>
+  <string name="your_org_app_used">Bydd <xliff:g id="Your organization" example="Your organization">%1$s</xliff:g> yn rheoli a monitro\'r ddyfais hon gan ddefnyddio\'r ap hwn:</string>
+  <string name="your_organization_beginning">Dy sefydliad</string>
+  <string name="your_organization_middle">dy sefydliad</string>
+  <string name="view_terms">Gweld telerau</string>
+  <string name="accept_and_continue">Derbyn a pharhau</string>
+  <string name="back">Nôl</string>
+  <string name="set_up_your_device">Gosod dy ddyfais</string>
+  <string name="info_anim_title_0">Newidia\'r ffordd wyt ti\'n gweithio</string>
+  <string name="info_anim_title_1">Cadwa gwaith a dy fywyd personol ar wahân</string>
+  <string name="one_place_for_work_apps">Un lle ar gyfer dy apiau gwaith</string>
+  <string name="info_anim_title_2">Tro gwaith i ffwrdd ar ddiwedd y dydd</string>
+  <string name="provisioning">Darpariaethu</string>
+  <string name="copying_certs">Yn gosod tystysgrifau CA</string>
+  <string name="setup_profile">Gosod dy broffil</string>
+  <string name="profile_benefits_description">Gan ddefnyddio proffil gwaith gellir cadw data gwaith a data personol ar wahân</string>
+  <string name="comp_profile_benefits_description">Gan ddefnyddio proffil gwaith gellir cadw dy apiau gwaith mewn un man</string>
+  <string name="setup_profile_encryption">Gosod dy broffil. Amgryptiad</string>
+  <string name="setup_profile_progress">Gosod dy broffil. Yn dangos cynnydd</string>
+  <string name="setup_device">Gosod dy <xliff:g id="device_name" example="Pixel">%1$s</xliff:g></string>
+  <string name="setup_device_encryption">Gosod dy <xliff:g id="device_name" example="Pixel">%1$s</xliff:g>. Amgryptio</string>
+  <string name="setup_device_progress">Gosod dy <xliff:g id="device_name" example="Pixel">%1$s</xliff:g>. Yn dangos cynnydd</string>
+  <string name="learn_more_label">Botwm dysgu mwy</string>
+  <string name="mdm_icon_label">Eicon <xliff:g id="icon_label" example="Test App">%1$s</xliff:g></string>
+  <string name="section_heading">Pennawd adran <xliff:g id="section_heading" example="Early Renaissance">%1$s</xliff:g>.</string>
+  <string name="section_content"><xliff:g id="section_heading" example="Early Renaissance">%1$s</xliff:g> cynnwys adran: <xliff:g id="section_content" example="Once upon a time [...]">%2$s</xliff:g></string>
+  <string name="expand">Ehangu</string>
+  <string name="collapse">Lleihau</string>
+  <string name="access_list_of_links">Agor rhestr dolenni</string>
+  <string name="access_links">Agor dolenni</string>
+  <string name="access_terms">Agor telerau</string>
+  <string name="read_terms">Darllen telerau</string>
+  <string name="close_list">Cau\'r rhestr</string>
+  <string name="cancel_setup_and_factory_reset_dialog_title">Stopio gosod ac ailosod fel yr oedd o\'r ffatri?</string>
+  <string name="cancel_setup_and_factory_reset_dialog_msg">Bydd gorffen y gosod yn ailosod dy ddyfais nôl i fel yr oedd yn gadael y ffatri ac yn dy gymryd nôl i\'r sgrin gyntaf.</string>
+  <string name="cancel_setup_and_factory_reset_dialog_cancel">Diddymu</string>
+  <string name="cancel_setup_and_factory_reset_dialog_ok">Ailosod y ddyfais</string>
+  <string name="join_two_items"><xliff:g id="first_item">%1$s</xliff:g> a <xliff:g id="second_item">%2$s</xliff:g></string>
+  <string name="join_many_items_last"><xliff:g id="all_but_last_item">%1$s</xliff:g>, a <xliff:g id="last_item">%2$s</xliff:g></string>
+  <string name="join_many_items_first"><xliff:g id="first_item">%1$s</xliff:g>, <xliff:g id="all_but_first_and_last_item">%2$s</xliff:g></string>
+  <string name="join_many_items_middle"><xliff:g id="added_item">%1$s</xliff:g>, <xliff:g id="rest_of_items">%2$s</xliff:g></string>
+  <string name="take_a_few_minutes">Gall hyn gymryd ychydig funudau</string>
+  <string name="work_profile_description">Caiff dy apiau gwaith eu cadw yn y proffil hwn a\'u rheoli gan dy sefydliad</string>
+  <string name="device_owner_description">Caiff y ddyfais hon ei chadw\'n ddiogel a\'i rheoli gan dy sefydliad</string>
+  <string name="setup_provisioning_header">Yn paratoi i osod dyfais gwaith\u2026</string>
+  <string name="setup_provisioning_header_description">Yn gosod ap gweinyddwr</string>
+  <string name="brand_screen_header">Mae\'r ddyfais hon yn perthyn i dy sefydliad</string>
+  <string name="brand_screen_subheader">Defnyddir yr ap canlynol i reoli a monitro\'r ffôn hwn</string>
+  <string name="account_management_disclaimer_header">Mae dy gyfrif yn cael ei reoli</string>
+  <string name="account_management_disclaimer_subheader">Mae dy weinyddwr TG yn defnyddio rheolaeth symudol i orfodi polisïau diogelwch.</string>
+  <string name="downloading_administrator_header">Yn paratoi i osod gwaith\u2026</string>
+  <string name="work_profile_provisioning_accept_header_post_suw">Gadewch i ni osod dy broffil gwaith</string>
+  <string name="work_profile_provisioning_step_1_header">Cedwir apiau gwaith yn dy broffil gwaith</string>
+  <string name="work_profile_provisioning_step_2_header">Oedi apiau gwaith pan rwyt wedi gorffen am y dydd</string>
+  <string name="work_profile_provisioning_step_3_header">Mae data yn dy broffil gwaith yn weladwy i dy weinyddwyr TG</string>
+  <string name="work_profile_provisioning_progress_label">Yn gosod dy broffil gwaith\u2026</string>
+  <string name="work_profile_provisioning_summary">Cedwir apiau gwaith yn dy broffil gwaith. Gallet roi dy apiau gwaith ar saib pan fyddi di wedi gorffen am y dydd. Mae\'r data yn dy broffil gwaith yn weladwy i dy weinyddwyr TG.</string>
+  <string name="fully_managed_device_provisioning_accept_header">Gadewch i ni osod dy ddyfais gwaith</string>
+  <string name="fully_managed_device_provisioning_step_1_header">Cadwa dy apiau gwaith wrth flaen dy fysedd</string>
+  <string name="fully_managed_device_provisioning_step_2_header">Dyw\'r <xliff:g id="device_name" example="Pixel">%1$s</xliff:g> hwn ddim yn breifat</string>
+  <string name="fully_managed_device_provisioning_step_2_subheader">Mae\'n bosib bydd dy weinyddwr TG yn gallu gweld dy ddata a gweithgaredd ar y <xliff:g id="device_name" example="Pixel">%1$s</xliff:g></string>
+  <string name="fully_managed_device_provisioning_permissions_header">Dy weithgaredd a data</string>
+  <string name="fully_managed_device_provisioning_permissions_secondary_header">Caniatâd apiau</string>
+  <string name="fully_managed_device_provisioning_permissions_secondary_subheader">Gall dy weinyddwr TG osod y caniatâd sydd gan apiau ar y <xliff:g id="device_name" example="Pixel">%1$s</xliff:g>, megis mynediad at feicroffon, camera, a lleoliad.</string>
+  <string name="fully_managed_device_provisioning_progress_label">Yn gosod dy ddyfais\u2026</string>
+  <string name="fully_managed_device_provisioning_summary">Defnyddia\'r <xliff:g id="device_name" example="Pixel">%1$s</xliff:g> i gael mynediad yn hawdd at dy apiau gwaith. Dyw\'r <xliff:g id="device_name" example="Pixel">%1$s</xliff:g> ddim yn breifat, felly mae\'n bosib y bydd dy weinyddwr TG yn gallu gweld dy ddata a gweithgaredd.</string>
+  <string name="fully_managed_device_with_permission_control_provisioning_summary">Defnyddia\'r <xliff:g id="device_name" example="Pixel">%1$s</xliff:g> i gael mynediad hwylus at dy apiau gwaith. Dyw\'r <xliff:g id="device_name" example="Pixel">%1$s</xliff:g> ddim yn breifat, felly mae\'n bosib bydd dy weinyddwr TG yn gallu gweld dy ddata a gweithgaredd. Gall dy weinyddwr TG hefyd osod y caniatâd sydd gan apiau ar y ddyfais hon, megis mynediad at feicroffon, camera, a lleoliad.</string>
+  <string name="fully_managed_device_provisioning_return_device_title">Dychwelyd y ddyfais hon i dy weinyddwr TG</string>
+  <string name="fully_managed_device_provisioning_return_device_subheader">Mynd yn ôl i\'r sgrin flaenorol, neu ailosod y ddyfais hon a\'i dychwelyd i dy weinyddwr TG.</string>
+  <string name="fully_managed_device_cancel_setup_button">Diddymu gosod</string>
+  <string name="fully_managed_device_reset_and_return_button">Ailosod a dychwelyd y ddyfais</string>
+  <string name="fully_managed_device_unsupported_DPC_in_headless_mode_header">Methu gosod y ddyfais</string>
+  <string name="fully_managed_device_unsupported_DPC_in_headless_mode_subheader">Ni ellir cofrestru\'r ddyfais hon i fodd wedi\'i rheoli\'n llwyr. Ail-osoda dy ddyfais yn ôl i fel yr oedd yn gadael y ffatri neu gysylltu â dy weinyddwr TG.</string>
+  <string name="fully_managed_device_reset_button">Ailosodiad ffatri</string>
+  <string name="cope_provisioning_step_1_header">Cedwir apiau gwaith yn dy broffil gwaith a\'u rheoli gan dy weinyddwyr TG</string>
+  <string name="cope_provisioning_step_2_header">Cedwir apiau personol ar wahân ac wedi\'u cuddio oddi wrth apiau gwaith.</string>
+  <string name="cope_provisioning_step_3_header">Gall dy weinyddwyr TG reoli\'r ddyfais hon a rhwystro rhai apiau</string>
+  <string name="cope_provisioning_summary">Cedwir apiau gwaith yn dy broffil gwaith a\'u rheoli gan dy weinyddwyr TG. Cedwir apiau personol ar wahân ac wedi\'u cuddio oddi wrth apiau gwaith. Gall dy weinyddwyr TG reoli\'r <xliff:g id="device_name" example="Pixel">%1$s</xliff:g> a rhwystro rhai apiau.</string>
+  <string name="just_a_sec">Un eiliad\u2026</string>
+  <string name="fully_managed_device_provisioning_privacy_title">Atgoffeb preifatrwydd</string>
+  <string name="fully_managed_device_provisioning_privacy_body">Mae\'n bosib bydd dy weinyddwr TG yn gallu gweld dy ddata a gweithgaredd ar y <xliff:g id="device_name" example="Pixel">%1$s</xliff:g></string>
+  <string name="financed_device_screen_header">Darperir y <xliff:g id="device_name" example="Pixel">%1$s</xliff:g> gan <xliff:g id="creditor_name" example="creditor_name">%2$s</xliff:g></string>
+  <string name="financed_make_payments_subheader_title">Gwneud taliadau am y <xliff:g id="device_name" example="Pixel">%1$s</xliff:g></string>
+  <string name="financed_make_payments_subheader_description">Gall &lt;xliff:g id="creditor_name" example="creditor_name"&gt;%1$s&lt;/xliff:g&gt; gosod yr ap &lt;xliff:g id="creditor_name" example="creditor_name"&gt; fel y gellir gwneud taliadau am y &lt;xliff:g id="device_name" example="Pixel"&gt;%3$s&lt;/xliff:g&gt;.</string>
+  <string name="financed_restrict_device_subheader_title">Gellir cyfyngu ar y <xliff:g id="device_name" example="Pixel">%1$s</xliff:g></string>
+  <string name="financed_restrict_device_subheader_description">Gall <xliff:g id="creditor_name" example="creditor_name">%1$s</xliff:g> cyfyngu mynediad at y <xliff:g id="device_name" example="Pixel">%2$s</xliff:g> os nad wyt yn gwneud taliadau.</string>
+  <string name="error_role_holder_hash_mismatch">Methu gosod <xliff:g id="device_name" example="Pixel">%1$s</xliff:g>. Cysyllta â dy ddarparwr TG a chyfeirio at \"invalid checksum\".</string>
+  <string name="error_role_holder_download_install_failed">Rho gynnig arall arn\u2019n hwyrach neu gofyn i dy weinyddwr TG am gymorth.</string>
+  <string name="error_role_holder_package_invalid">Methu gosod <xliff:g id="device_name" example="Pixel">%1$s</xliff:g>. Cysyllta â dy ddarparwr TG a chyfeirio at \"missing or corrupted components\".</string>
+  <string name="setting_up">Yn gosod\u2026</string>
+</resources>

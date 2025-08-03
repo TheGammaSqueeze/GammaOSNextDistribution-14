@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="feedback_system_logs_title_text" msgid="8162964763101361628">"រួមបញ្ចូលកំណត់ហេតុឧបករណ៍ទាំងអស់ (ប្រព័ន្ធ និងកម្មវិធី)"</string>
+    <string name="feedback_system_logs_legal_text" msgid="4770068793128503597">"ការចែករំលែកកំណត់​ហេតុឧបករណ៍នៃកម្មវិធី និងប្រព័ន្ធទាំងអស់អាចផ្ញើឱ្យ Google នូវព័ត៌មានលម្អិតដូចជា ឈ្មោះអ្នកប្រើប្រាស់ ទីតាំង លេខសម្គាល់​ឧបករណ៍ និងព័ត៌មានបណ្ដាញ។ Google ប្រើព័ត៌មាននេះដើម្បីដោះស្រាយបញ្ហាបច្ចេកទេស និងធ្វើឱ្យសេវាកម្មប្រសើរឡើង។ ស្វែងយល់បន្ថែមតាមរយៈ g.co/android/devicelogs។"</string>
+    <string name="feedback_bugreport_title_text" msgid="8863884817986711122">"រួមបញ្ចូល​របាយការណ៍អំពីបញ្ហា"</string>
+    <string name="feedback_bugreport_legal_display_text" msgid="4486929548753044585">"របាយការណ៍អំពីបញ្ហា (ពី %1$s) រួមបញ្ចូលទិន្នន័យដូចជា ឈ្មោះអ្នកប្រើប្រាស់ ទីតាំង លេខសម្គាល់​ឧបករណ៍ និងព័ត៌មានបណ្ដាញ ដើម្បីជួយឱ្យ Google យល់ដឹង និងដោះស្រាយបញ្ហាបាន។"</string>
+    <string name="next" msgid="3308587969183798652">"បន្ទាប់"</string>
+    <string name="feedback_view_system_logs_button_text" msgid="1889709679017124924">"មើល​កំណត់ហេតុប្រព័ន្ធ"</string>
+    <string name="feedback_view_logs_dialog_title" msgid="1937861449450135462">"កំណត់ហេតុប្រព័ន្ធ"</string>
+    <string name="feedback_view_logs_dialog_body" msgid="2496560711853644250">"កំណត់ហេតុទាំងនេះ​មានព័ត៌មាន​ដែលយើងនឹងត្រូវការ ដើម្បីអាចដោះស្រាយតាមមតិកែលម្អ​របស់អ្នក។"</string>
+    <string name="annotated_back_indicator_string" msgid="3197935392074998004">"ចុចប៊ូតុងថយក្រោយ ដើម្បីត្រឡប់ក្រោយ។"</string>
+    <string name="loading" msgid="1709842456101615353">"កំពុងផ្ទុក"</string>
+</resources>

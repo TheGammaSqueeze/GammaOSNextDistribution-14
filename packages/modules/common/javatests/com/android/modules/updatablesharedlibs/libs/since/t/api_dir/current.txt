@@ -1,0 +1,10 @@
+// Signature format: 2.0
+package com.android.modules.updatablesharedlibs.libs.since.t {
+
+  public class Api {
+    ctor public Api();
+    method public String methodSinceT();
+  }
+
+}
+

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright 2019 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:settings="http://schemas.android.com/apk/res-auto"
+    android:title="@string/apps_settings_title"
+    android:key="@string/psk_apps">
+    <Preference
+        android:fragment="com.android.car.settings.applications.ApplicationsSettingsFragment"
+        android:key="@string/pk_applications_settings_screen_entry"
+        android:title="@string/all_applications"
+        settings:controller="com.android.car.settings.applications.AllAppsPreferenceController"/>
+    <com.android.car.settings.common.LogicalPreferenceGroup
+        android:key="@string/pk_recent_apps_group"
+        settings:controller="com.android.car.settings.applications.RecentAppsGroupPreferenceController">
+        <PreferenceCategory
+            android:key="@string/pk_recent_apps_list"
+            android:title="@string/apps_recently_opened"
+            settings:controller="com.android.car.settings.applications.RecentAppsListPreferenceController"
+            settings:searchable="false"/>
+        <Preference
+            android:fragment="com.android.car.settings.applications.ApplicationsSettingsFragment"
+            android:key="@string/pk_recent_apps_view_all"
+            android:icon="@drawable/ic_apps"
+            settings:controller="com.android.car.settings.applications.RecentAppsViewAllPreferenceController"/>
+        <com.android.car.settings.common.DividerPreference/>
+    </com.android.car.settings.common.LogicalPreferenceGroup>
+    <com.android.car.settings.common.LogicalPreferenceGroup
+        android:key="@string/pk_personal_extra_settings"
+        settings:controller="com.android.car.settings.common.ExtraSettingsPreferenceController">
+        <intent>
+            <extra android:name="com.android.settings.category"
+                   android:value="com.android.settings.category.ia.apps"/>
+        </intent>
+    </com.android.car.settings.common.LogicalPreferenceGroup>
+    <Preference
+        android:key="@string/pk_app_permissions_entry"
+        android:title="@string/apps_permission_manager_title"
+        android:summary="@string/app_permissions_summary"
+        settings:controller="com.android.car.settings.common.DefaultRestrictionsPreferenceController">
+        <intent android:action="android.intent.action.MANAGE_PERMISSIONS"/>
+    </Preference>
+    <Preference
+        android:key="@string/pk_default_applications_settings_entry"
+        android:title="@string/default_applications"
+        android:summary="@string/apps_default_apps_summary"
+        settings:controller="com.android.car.settings.common.DefaultRestrictionsPreferenceController">
+        <intent android:action="android.settings.MANAGE_DEFAULT_APPS_SETTINGS"/>
+    </Preference>
+    <Preference
+        android:key="@string/pk_hibernated_apps"
+        android:title="@string/unused_apps"
+        settings:controller=
+            "com.android.car.settings.applications.HibernatedAppsPreferenceController">
+        <intent android:action="android.intent.action.MANAGE_UNUSED_APPS"/>
+    </Preference>
+    <Preference
+        android:fragment="com.android.car.settings.applications.performance.PerformanceImpactingAppSettingsFragment"
+        android:key="@string/pk_performance_impacting_apps_entry"
+        android:title="@string/performance_impacting_apps"
+        settings:controller="com.android.car.settings.applications.PerfImpactingAppsEntryPreferenceController"/>
+    <Preference
+        android:fragment="com.android.car.settings.applications.specialaccess.SpecialAccessSettingsFragment"
+        android:key="@string/pk_special_access_entry"
+        android:title="@string/special_access"
+        android:summary="@string/apps_special_app_access_summary"
+        settings:controller="com.android.car.settings.common.DefaultRestrictionsPreferenceController"/>
+</PreferenceScreen>

@@ -1,0 +1,4 @@
+product/etc/sysconfig/wellbeing.xml
+
+product/priv-app/GoogleRestore/GoogleRestore.apk;PRESIGNED
+product/priv-app/Wellbeing/Wellbeing.apk;PRESIGNED

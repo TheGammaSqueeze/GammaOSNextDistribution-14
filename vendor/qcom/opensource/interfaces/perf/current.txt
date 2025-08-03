@@ -1,0 +1,6 @@
+3b62e5f205de632f6c1d6b46d01a2945b5a855ec4a98247515ce8d14b51a4fa3 vendor.qti.hardware.perf@1.0::IPerf
+517008020b188864935535fa5c9ab30c686d01a4e7559659658d61b78fcd7cd1 vendor.qti.hardware.perf@2.0::IPerf
+429bbf6c78faecc882e6d39ea05329be9519b3ae547448ec3cc5c2393b918740 vendor.qti.hardware.perf@2.1::IPerf
+d5308ed1c730c17c0ae57de676255eb68f48846b5e976fccc1b046755e015a2e vendor.qti.hardware.perf@2.1::IPerfCallback
+dd76694de5ef346703b450dc96e6c96e274caacb52fba60ad52cb69352467040 vendor.qti.hardware.perf@2.2::IPerf
+ca3830177c6813da7219ffa8fd4bf2ffc161f9d10bcbb08b334a93838974f852 vendor.qti.hardware.perf@2.3::IPerf

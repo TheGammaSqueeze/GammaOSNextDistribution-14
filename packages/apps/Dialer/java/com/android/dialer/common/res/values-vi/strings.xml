@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="content_description_overflow">Tùy chọn khác</string>
+  <string name="snackbar_undo">HOÀN TÁC</string>
+  <string name="ok_got_it">Ok, đã hiểu</string>
+</resources>

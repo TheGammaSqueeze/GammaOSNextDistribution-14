@@ -1,0 +1,16 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+xsd_config {
+    name: "xsdc_attr_enumtype_tests",
+    srcs: ["attr_enumtype.xsd"],
+    package_name: "attr.enumtype",
+}
+
+xsd_config {
+    name: "xsdc_attr_enumtype_tinyxml_tests",
+    srcs: ["attr_enumtype.xsd"],
+    package_name: "attr.enumtype",
+    tinyxml: true,
+}

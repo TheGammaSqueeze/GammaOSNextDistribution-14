@@ -1,0 +1,10 @@
+// Signature format: 2.0
+package android.os {
+
+  @FlaggedApi("android.os.profiling.telemetry_apis") public class ProfilingFrameworkInitializer {
+    method public static void registerServiceWrappers();
+    method public static void setProfilingServiceManager(@NonNull android.os.ProfilingServiceManager);
+  }
+
+}
+

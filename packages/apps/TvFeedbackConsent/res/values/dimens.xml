@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+    <!-- Text sizes -->
+    <dimen name="feedback_consent_title_text_size">14sp</dimen>
+    <dimen name="feedback_consent_title_line_height">20sp</dimen>
+    <dimen name="feedback_consent_legal_text_size">12sp</dimen>
+    <dimen name="feedback_consent_legal_text_line_height">14sp</dimen>
+
+    <!-- Action Button -->
+    <dimen name="feedback_consent_action_button_height">55dp</dimen>
+    <dimen name="feedback_consent_action_button_corner">8dp</dimen>
+    <dimen name="feedback_consent_action_button_drawable_padding">8dp</dimen>
+    <dimen name="feedback_consent_action_button_base_elevation">0dp</dimen>
+    <!-- Keep slight elevation to avoid a jump when elevation reaches 0. -->
+    <dimen name="feedback_consent_action_button_focused_elevation">4dp</dimen>
+
+    <!-- General -->
+    <dimen name="feedback_consent_padding_horizontal">20dp</dimen>
+    <dimen name="feedback_consent_line_spacing_extra">2sp</dimen>
+
+    <!-- Standard text sizes -->
+    <dimen name="text_size_h2">20sp</dimen>
+    <dimen name="text_size_h4">14sp</dimen>
+
+</resources>

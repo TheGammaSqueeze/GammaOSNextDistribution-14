@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (C) 2018 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<resources>
+    <style name="CardViewStyle">
+        <item name="cardCornerRadius">@dimen/launcher_card_corner_radius</item>
+        <item name="cardElevation">0dp</item>
+    </style>
+
+    <style name="ContextualSpace" parent="CardViewStyle">
+        <item name="cardBackgroundColor">?android:attr/colorPrimary</item>
+    </style>
+
+    <style name="TitleText">
+        <item name="android:textAppearance">?android:attr/textAppearanceLarge</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textAlignment">viewStart</item>
+    </style>
+
+    <style name="RecentTasksListFocusArea">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">0dp</item>
+    </style>
+
+    <style name="RecentTasksList">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:paddingTop">37dp</item>
+        <item name="android:paddingBottom">51dp</item>
+        <item name="android:scrollbars">none</item>
+        <item name="android:clipToPadding">false</item>
+    </style>
+
+    <style name="ClearAllRecentTasksButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingVertical">20dp</item>
+        <item name="android:paddingHorizontal">48dp</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:letterSpacing">0.03</item>
+        <item name="android:textColor">@color/clear_all_recents_text_color</item>
+        <item name="android:background">@drawable/recent_clear_all_button_background</item>
+    </style>
+
+    <style name="RecentTaskIcon">
+        <item name="android:layout_width">@dimen/recent_task_icon_size</item>
+        <item name="android:layout_height">@dimen/recent_task_icon_size</item>
+        <item name="android:layout_marginTop">14dp</item>
+        <item name="android:layout_marginBottom">14dp</item>
+    </style>
+
+    <style name="RecentTaskThumbnail">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">0dp</item>
+        <item name="android:clipToOutline">true</item>
+        <item name="android:scaleType">centerCrop</item>
+        <item name="android:adjustViewBounds">false</item>
+        <item name="shapeAppearanceOverlay">@style/RecentTaskThumbnail.RoundedBorder</item>
+    </style>
+
+    <style name="HiddenRecentTaskThumbnail" parent="RecentTaskThumbnail">
+    </style>
+
+    <style name="RecentTaskDismissButton">
+        <item name="android:layout_width">@dimen/recent_task_dismiss_button_size</item>
+        <item name="android:layout_height">@dimen/recent_task_dismiss_button_size</item>
+        <item name="android:scaleType">fitCenter</item>
+        <item name="android:background">@drawable/recent_dismiss_button_background</item>
+    </style>
+
+    <style name="RecentTaskThumbnail.RoundedBorder">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">8dp</item>
+    </style>
+
+    <style name="CalmModeText" parent="TextAppearance.Car.Body.Small">
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <style name="CalmModeIcon">
+        <item name="android:scaleType">fitCenter</item>
+        <item name="android:tint">@android:color/white</item>
+    </style>
+
+    <style name="CalmModeBackgroundImage">
+        <item name="android:src">@android:color/black</item>
+        <item name="android:scaleType">centerCrop</item>
+    </style>
+
+    <style name="CalmModeText.Date">
+        <item name="android:textColor">@color/car_outline</item>
+        <item name="android:format12Hour">EE, MMM dd</item>
+        <item name="android:format24Hour">EE, MMM dd</item>
+    </style>
+
+    <style name="CalmModeText.MediaTitle">
+        <item name="android:textColor">@color/car_outline</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxWidth">1024dp</item>
+        <item name="android:maxLines">2</item>
+        <item name="android:textAlignment">center</item>
+    </style>
+
+    <style name="CalmModeText.Temperature">
+        <item name="android:textColor">@color/car_outline</item>
+    </style>
+
+    <style name="CalmModeClock" parent="TextAppearance.Car.Display">
+        <item name="android:fontFamily">roboto-flex</item>
+        <item name="android:fontVariationSettings">"'wght' 300, 'wdth' 100, 'xtra' 468, 'xopq' 96, 'yopq' 79, 'ytuc' 712, 'ytas' 750, 'ytde' -203, 'ytfi' 738, 'opsz' 144"</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textSize">300sp</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:format12Hour">hh:mm</item>
+        <item name="android:format24Hour">HH:mm</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:lineSpacingMultiplier">1</item>
+        <item name="android:lineSpacingExtra">0pt</item>
+
+    </style>
+
+</resources>

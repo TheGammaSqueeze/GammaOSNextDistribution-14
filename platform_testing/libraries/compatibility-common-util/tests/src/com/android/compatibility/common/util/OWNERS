@@ -1,0 +1,2 @@
+per-file BackupUtilsTest.java = set noparent
+per-file BackupUtilsTest.java = file:platform/frameworks/base:/services/backup/OWNERS

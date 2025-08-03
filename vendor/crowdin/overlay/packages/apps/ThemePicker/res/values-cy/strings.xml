@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2018 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Papur wal ac arddull</string>
+    <string name="theme_title">Arddull</string>
+    <string name="clock_title">Cloc Dy Hun</string>
+    <string name="clock_description">Dewis cloc dy hun</string>
+    <string name="clock_picker_entry_content_description">Newid cloc dy hun</string>
+    <string name="select_clock_action_description">Dewisiad wyneb cloc: <xliff:g name="clock_face_description">%1$s</xliff:g></string>
+    <string name="clock_settings_title">Lliw a maint cloc</string>
+    <string name="clock_color_and_size_title">Lliw a maint cloc</string>
+    <string name="clock_color_and_size_description"><xliff:g name="color">%1$s</xliff:g>, <xliff:g name="size">%2$s</xliff:g></string>
+    <string name="clock_color">Lliw</string>
+    <string name="clock_color_red">Coch</string>
+    <string name="clock_color_orange">Oren</string>
+    <string name="clock_color_yellow">Melyn</string>
+    <string name="clock_color_green">Gwyrdd</string>
+    <string name="clock_color_blue">Glas</string>
+    <string name="clock_color_indigo">Indigo</string>
+    <string name="clock_color_violet">Fioled</string>
+    <string name="clock_color_gray">Llwyd</string>
+    <string name="clock_color_teal">Glaswyrdd</string>
+    <string name="clock_size">Maint</string>
+    <string name="clock_size_dynamic">Deinamig</string>
+    <string name="clock_size_dynamic_description">Mae maint cloc yn newid yn ôl cynnwys y sgrin cloi</string>
+    <string name="clock_size_large">Mawr</string>
+    <string name="clock_size_small">Bach</string>
+    <string name="clock_size_small_description">Bydd cloc bach yn ymddangos yng nghornel dy sgrin</string>
+    <string name="grid_title">Grid apiau</string>
+    <string name="apply_theme_btn">Gosod</string>
+    <string name="edit_custom_theme_lbl">Tapia i\'w olygu</string>
+    <string name="keep_my_wallpaper">Cadw\'r papur wal cyfredol</string>
+    <string name="theme_preview_card_content_description">Rhagolwg arddull</string>
+    <string name="grid_preview_card_content_description">Rhagolwg grid</string>
+    <string name="font_preview_content_description">Rhagolwg ffont</string>
+    <string name="icon_preview_content_description">Rhagolwg eicon</string>
+    <string name="color_preview_content_description">Rhagolwg lliw</string>
+    <string name="shape_preview_content_description">Rhagolwg siap</string>
+    <string name="option_applied_description"><xliff:g name="style_name">%1$s</xliff:g>, ar waith ar hyn o bryd</string>
+    <string name="option_applied_previewed_description"><xliff:g name="style_name">%1$s</xliff:g>, rhagolwg ac ar waith ar hyn o bryd</string>
+    <string name="option_previewed_description"><xliff:g name="style_name">%1$s</xliff:g>, rhagolwg ar hyn o bryd</string>
+    <string name="option_change_applied_previewed_description"><xliff:g name="style_name">%1$s</xliff:g>, newid wedi\'i ddewis a\'i ragweld</string>
+    <string name="theme_description">Ffont: <xliff:g name="font_name">%1$s</xliff:g>, eiconau: <xliff:g name="icon_name">%2$s</xliff:g>, siâp: <xliff:g name="shape_name">%3$s</xliff:g>, lliw: <xliff:g name="color_name">%4$s</xliff:g> </string>
+    <string name="default_theme_title">Rhagosodiad</string>
+    <string name="preview_name_font">Ffont</string>
+    <string name="preview_name_icon">Eicon</string>
+    <string name="preview_name_color">Lliw</string>
+    <string name="preview_name_shape">Siâp</string>
+    <string name="preview_name_wallpaper">Papur wal</string>
+    <string name="font_card_title">ABC • abc • 123</string>
+    <string name="font_card_body">Ychwanega dy hoff ffontiau i bob sgrin</string>
+    <string name="grid_options_title">Dewisa faint grid</string>
+    <string name="grid_title_pattern"><xliff:g name="num_cols" example="1">%1$d</xliff:g>x<xliff:g name="num_rows" example="1">%2$d</xliff:g></string>
+    <string name="apply_grid_btn_note">Bydd newid maint y grid yn ail-lwytho\u2019r gofod gwaith ac fe all gymryd ychydig eiliadau.</string>
+    <string name="toast_of_changing_grid">Yn ail-lwytho\u2019r gofod gwaith gyda grid %1$s</string>
+    <string name="toast_of_failure_to_change_grid">Methwyd ail-lwytho gofod gwaith gyda grid %1$s</string>
+    <string name="applied_theme_msg">Gosodwyd yr arddull yn iawn</string>
+    <string name="applied_clock_msg">Gosodwyd y cloc yn iawn</string>
+    <string name="applied_grid_msg">Gosodwyd y grid yn iawn</string>
+    <string name="apply_theme_error_msg">Roedd problem wrth roi\'r arddull ar waith</string>
+    <string name="custom_theme_next">Nesaf</string>
+    <string name="custom_theme_previous">Blaenorol</string>
+    <string name="custom_theme">Addasedig</string>
+    <string name="custom_theme_title">Personol <xliff:g name="custom_num" example="1">%1$d</xliff:g></string>
+    <string name="custom_theme_fragment_title">Arddull Personol</string>
+    <string name="custom_theme_delete">Dileu</string>
+    <string name="font_component_title">Dewis ffont</string>
+    <string name="icon_component_title">Dewis eiconau</string>
+    <string name="color_component_title">Dewis lliw</string>
+    <string name="shape_component_title">Dewis siâp</string>
+    <string name="name_component_title">Enwi dy arddull</string>
+    <string name="icon_component_label">Eiconau <xliff:g name="component_number" example="1">%1$d</xliff:g></string>
+    <string name="delete_custom_theme_confirmation">Dileu\'r arddull personol?</string>
+    <string name="delete_custom_theme_button">Dileu</string>
+    <string name="cancel">Diddymu</string>
+    <string name="set_theme_wallpaper_dialog_message">Gosod fel papur wal</string>
+    <string name="use_style_instead_title">Defnyddio <xliff:g name="style_name">%1$s</xliff:g> yn lle?</string>
+    <string name="use_style_instead_body">Mae\'r elfennau rwyt wedi\'u dewis yr un fath â\'r arddull <xliff:g name="style_name">%1$s</xliff:g>. Wyt ti am ddefnyddio\'r arddull <xliff:g name="style_name">%1$s</xliff:g> yn lle?</string>
+    <string name="use_style_button">Defnyddio <xliff:g name="style_name">%1$s</xliff:g></string>
+    <string name="no_thanks">Dim diolch</string>
+    <string name="clock_preview_content_description">Rhagolwg cloc <xliff:g name="clock_name">%1$s</xliff:g></string>
+    <string name="something_went_wrong">Drapia! Aeth rhywbeth o\'i le.</string>
+    <string name="theme_preview_icons_section_title">Lliw / Eiconau</string>
+    <string name="style_info_description">Rhagolwg ffontiau, eiconau, siapiau apiau, a lliw</string>
+    <string name="accessibility_custom_font_title">Ffont addasu</string>
+    <string name="accessibility_custom_icon_title">Eicon addasu</string>
+    <string name="accessibility_custom_color_title">Lliw addasu</string>
+    <string name="accessibility_custom_shape_title">Siâp addasu</string>
+    <string name="accessibility_custom_name_title">Enw arddull addasu</string>
+    <string name="accessibility_clock_slider_description">Arddwysedd lliw</string>
+    <string name="mode_title" msgid="1000319159005403986">Thema dywyll</string>
+    <string name="mode_disabled_msg" msgid="1926077857799715086">Wedi\u2019i analluogi dros dro oherwydd Arbedwr Batri</string>
+    <string name="mode_changed">Thema wedi\'i newid</string>
+    <string name="themed_icon_title" msgid="4305612684940220645">Eiconau themâu</string>
+    <string name="beta_title">Beta</string>
+    <string name="gird_picker_entry_content_description" msgid="7538418512525897691">Newid grid apiau</string>
+    <string name="wallpaper_color_tab">Lliwiau papur wal</string>
+    <string name="wallpaper_color_subheader">Mae eiconau, testun a rhagor yn cydweddu â lliwiau yn dy bapur wal</string>
+    <string name="wallpaper_color_title">Lliw papur wal</string>
+    <string name="preset_color_tab">Lliwiau sylfaenol</string>
+    <string name="preset_color_tab_2">Lliwiau eraill</string>
+    <string name="preset_color_subheader">Dewisa unrhyw liw ar gyfer dy eiconau, cloc, a rhagor</string>
+    <string name="color_changed">Wedi newid y lliw</string>
+    <string name="adaptive_color_title">Deinamig</string>
+    <string name="color_picker_title">Lliwiau system</string>
+    <string name="keyguard_slot_name_bottom_start">Llwybr byr chwith</string>
+    <string name="keyguard_slot_name_bottom_end">Llwybr byr dde</string>
+    <string name="keyguard_affordance_none">Dim</string>
+    <string name="keyguard_affordance_enablement_dialog_headline">Methu ychwanegu llwybr byr</string>
+    <string name="keyguard_affordance_enablement_dialog_action_template">Agor <xliff:g id="appName" example="Wallet">%1$s</xliff:g></string>
+    <string name="keyguard_affordance_enablement_dialog_message">I ychwanegu\u2019r ap <xliff:g id="appName" example="Wallet">%1$s</xliff:g> fel llwybr byr, sicrha</string>
+    <string name="keyguard_affordance_enablement_dialog_dismiss_button">Iawn</string>
+    <string name="keyguard_quick_affordance_title">Llwybrau Byr</string>
+    <string name="keyguard_quick_affordance_section_title">Llwybrau Byr</string>
+    <string name="keyguard_quick_affordance_two_selected_template"><xliff:g id="first">%1$s</xliff:g>, <xliff:g id="second">%2$s</xliff:g></string>
+    <string name="keyguard_quick_affordance_none_selected">Dim</string>
+    <string name="show_notifications_on_lock_screen">Dangos hysbysiadau ar y sgrin cloi</string>
+    <string name="more_settings_section_title">Rhagor o ddewisiadau sgrin cloi</string>
+    <string name="more_settings_section_description">Preifatrwydd, Yn Chwarae Nawr, a rhagor</string>
+    <string name="more_colors">Rhagor o Liwiau</string>
+    <string name="content_description_dynamic_color_option">Prif thema ddynamig</string>
+    <string name="content_description_neutral_color_option">Prif thema niwtral</string>
+    <string name="content_description_vibrant_color_option">Prif thema llachar</string>
+    <string name="content_description_expressive_color_option">Prif thema fynegiannol</string>
+    <string name="content_description_default_color_option">Dewisiad lliw rhagosodedig</string>
+    <string name="content_description_color_option">Dewisiad lliw <xliff:g name="color_number" example="1">%1$d</xliff:g></string>
+    <string name="scroll_forward_and_select">Llithra i\u2019r chwith i ddewis wyneb cloc gwahanol</string>
+    <string name="scroll_backward_and_select">Llithra i\u2019r dde i ddewis wyneb cloc gwahanol</string>
+    <string name="custom_clocks_label">Clociau dy Hun</string>
+</resources>

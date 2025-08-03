@@ -1,0 +1,83 @@
+syntax = "proto2";
+
+package ecc;
+
+option java_package = "com.android.phone.ecc";
+option java_outer_classname = "ProtobufEccData";
+
+// EccInfo represents an Emergency Call Code (i.e. an emergency phone
+// number such as 911, 112, ...)
+message EccInfo {
+    enum Type {
+        TYPE_UNSPECIFIED = 0;
+        POLICE = 1;
+        AMBULANCE = 2;
+        FIRE = 3;
+        MARINE_GUARD = 4;
+        MOUNTAIN_RESCUE = 5;
+        MIEC = 6;
+        AIEC = 7;
+    }
+
+    enum Routing {
+        UNKNOWN = 0;
+        EMERGENCY = 1;
+        NORMAL= 2;
+    }
+
+    // Required: Every EccInfo shall contain a phone number.
+    optional string phone_number = 1;
+
+    // Extra rules: Every Ecc should have at least 1 valid type.
+    repeated Type types = 2 [packed=true];
+
+
+    //Optional: By default, routing is assumed to be 'UNKNOWN'
+    optional Routing routing = 3 [default = UNKNOWN];
+
+    //Optional: This field is evaluated only if routing is set to NORMAL
+    //If the field is empty, NORMAL routing is used for all MNCs
+    //Else normal routing is used only for list of MNCs specified
+    repeated string normal_routing_mncs = 4;
+
+}
+
+// CountryInfo represents available ECCs of a country/region, recognized
+// with ISO country code.
+message CountryInfo {
+    // Required: Every CountryInfo shall contain a ISO country code.
+    optional string iso_code = 1;
+
+    // Extra rules: There should be at least one EccInfo in this list.
+    repeated EccInfo eccs = 2;
+
+    // Required: Every CountryInfo shall contain a fallback number, shall
+    // be either 112 or 911.
+    //
+    // If an emergency number in EccInfo is declined by ril.ecclist, this
+    // fallback number may take the place.
+    //
+    // Per http://www.etsi.org/deliver/etsi_ts/122100_122199/122101/09.01.00_60/ts_122101v090100p.pdf,
+    // 112 and 911 shall always be available.
+    optional string ecc_fallback = 3;
+
+    // Required: Every CountryInfo shall specify whether emergency numbers sourced from modem config
+    // should be ignored.
+    //
+    // If this value is set to true, we have a pretty good authority of emergency numbers in the
+    // android emergency number db for this country.
+    optional bool ignore_modem_config = 4 [default = false];
+}
+
+message AllInfo {
+    // The revision value in ecc/input/eccdata.json should be increased
+    // before releasing a new content.
+    //
+    // This field is not used to compare data revision for online updating.
+    // It's reserved for identifying ecc info problems.
+    optional int32 revision = 1;
+
+    // Extra rules: There should be at least one CountryInfo in this list.
+    repeated CountryInfo countries = 2;
+}
+

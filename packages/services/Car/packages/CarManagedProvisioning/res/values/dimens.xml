@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (C) 2021 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<resources>
+    <!-- Header font size -->
+    <dimen name="header_font_size">32dp</dimen>
+    <!-- Header icon size -->
+    <dimen name="header_icon_size">48dp</dimen>
+    <!-- Header description font size -->
+    <dimen name="header_description_font_size">24dp</dimen>
+    <!-- Header offset when there is no description -->
+    <dimen name="header_description_offset">-240dp</dimen>
+    <!-- Header title margin -->
+    <dimen name="header_margin">24dp</dimen>
+
+    <dimen name="primary_button_max_width">500dp</dimen>
+
+    <dimen name="landscape_vertical_divider_width">1dp</dimen>
+    <dimen name="landscape_page_margin_top">48dp</dimen>
+    <dimen name="landscape_page_margin_bottom">64dp</dimen>
+
+    <!--  Additional space for content that is left aligned  -->
+    <dimen name="landscape_page_padding_top">48dp</dimen>
+    <dimen name="landscape_page_padding_left">80dp</dimen>
+    <dimen name="landscape_page_padding_right">300dp</dimen>
+
+    <!--  Additional space for content that is center aligned  -->
+    <dimen name="landscape_page_narrow_padding_horizontal">300dp</dimen>
+
+    <!-- Provisioning screens -->
+    <dimen name="sud_items_icon_size">48dp</dimen>
+    <dimen name="sud_items_summary_margin_horizontal">24dp</dimen>
+    <dimen name="sud_items_summary_margin_top">16dp</dimen>
+    <dimen name="sud_items_margin_top">0dp</dimen>
+    <dimen name="sud_items_margin_inbetween">32dp</dimen>
+    <dimen name="terms_disclaimer_header_vertical_margin">32dp</dimen>
+    <dimen name="terms_disclaimer_content_margin_top">32dp</dimen>
+    <dimen name="terms_disclaimer_content_margin_bottom">48dp</dimen>
+    <dimen name="item_header_text_size">30dp</dimen>
+    <dimen name="item_body_text_size">24dp</dimen>
+    <dimen name="item_extra_spacing">5dp</dimen>
+</resources>

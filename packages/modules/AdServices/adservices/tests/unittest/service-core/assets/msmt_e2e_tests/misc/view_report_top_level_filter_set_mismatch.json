@@ -1,0 +1,73 @@
+{
+  "description": "One source with filter data. Trigger also has filters. Trigger's top level filters do not match with source's, so no report is generated.",
+  "input": {
+    "sources": [{
+      "registration_request": {
+        "attribution_src_url": "https://www.ad-tech1.test",
+        "source_type": "event",
+        "registrant": "example.1s1.test"
+      },
+      "responses": [{
+        "url": "https://www.ad-tech1.test",
+        "response": {
+          "Attribution-Reporting-Register-Source": {
+            "source_event_id": "1",
+            "destination": "android-app://example.2d1.test",
+            "priority": "100",
+            "filter_data": {
+              "key_1": [
+                "value_11",
+                "value_12"
+              ],
+              "key_2": [
+                "value_21",
+                "value_22"
+              ]
+            }
+          },
+          "Location": null,
+          "Attribution-Reporting-Redirect": null
+        }
+      }],
+      "timestamp": "800000000001"
+    }],
+    "triggers": [
+      {
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech1.test",
+          "registrant": "example.2d1.test"
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "response": {
+            "Attribution-Reporting-Register-Trigger": {
+              "event_trigger_data": [
+                {
+                  "trigger_data": "1",
+                  "priority": "101"
+                }
+              ],
+              "filters": [{
+                "key_1": [
+                  "value_11_x",
+                  "value_12_x"
+                ]}, {
+                "key_2": [
+                  "value_21_x",
+                  "value_22_x"
+                ]
+              }]
+            },
+            "Location": null,
+            "Attribution-Reporting-Redirect": null
+          }
+        }],
+        "timestamp": "800604200001"
+      }
+    ]
+  },
+  "output": {
+    "event_level_results": [],
+    "aggregatable_results": []
+  }
+}

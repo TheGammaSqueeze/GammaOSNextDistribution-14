@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package chre.rpc;
+
+service RpcWorldService {
+  // Increment a number.
+  rpc Increment(NumberMessage) returns (NumberMessage) {}
+
+  // Request a stream of ticks.
+  rpc Timer(TimerRequest) returns (stream TimerResponse) {}
+
+  // Add multiple numbers.
+  rpc Add(stream NumberMessage) returns (NumberMessage) {}
+}
+
+// Request and response for the Increment & Add services wrapping a number.
+message NumberMessage {
+  uint32 number = 1;
+}
+
+message TimerRequest {
+  // Number of ticks that the server should stream.
+  uint32 num_ticks = 1;
+}
+
+message TimerResponse {
+  // Tick number, starting at 1 and incremented on each tick.
+  uint32 tick_number = 1;
+}

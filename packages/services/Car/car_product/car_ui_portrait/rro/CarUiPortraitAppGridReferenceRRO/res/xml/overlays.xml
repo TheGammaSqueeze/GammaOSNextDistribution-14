@@ -1,0 +1,69 @@
+<!--
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<overlay>
+
+    <item target="color/icon_tint" value="@color/icon_tint" />
+    <item target="color/page_indicator_bar_color" value="@color/page_indicator_bar_color"/>
+
+    <item target="id/tos_banner" value="@id/tos_banner" />
+
+    <item target="id/app_item" value="@id/app_item" />
+    <item target="id/app_icon" value="@id/app_icon" />
+    <item target="id/app_name" value="@id/app_name" />
+
+    <item target="id/focus_area" value="@id/focus_area" />
+    <item target="id/apps_grid" value="@id/apps_grid" />
+    <item target="id/apps_grid_background" value="@id/apps_grid_background" />
+    <item target="id/apps_grid_background_container" value="@id/apps_grid_background_container" />
+    <item target="id/page_indicator" value="@id/page_indicator" />
+    <item target="id/page_indicator_container" value="@id/page_indicator_container" />
+
+    <item target="layout/app_item" value="@layout/app_item" />
+    <item target="layout/app_grid_activity" value="@layout/app_grid_activity" />
+
+    <item target="dimen/recent_apps_row_height" value="@dimen/recent_apps_row_height" />
+    <item target="dimen/app_icon_size" value="@dimen/app_icon_size" />
+    <item target="dimen/app_icon_scaled_size" value="@dimen/app_icon_scaled_size" />
+    <item target="dimen/app_name_margin_horizontal" value="@dimen/app_name_margin_horizontal" />
+    <item target="dimen/app_item_highlight_corner_radius"
+        value="@dimen/app_item_highlight_corner_radius" />
+    <item target="dimen/app_item_highlight_edge_width"
+        value="@dimen/app_item_highlight_edge_width" />
+    <item target="dimen/app_grid_width" value="@dimen/app_grid_width" />
+    <item target="dimen/app_grid_height" value="@dimen/app_grid_height" />
+    <item target="dimen/app_grid_row_margin" value="@dimen/app_grid_row_margin_vertical" />
+    <item target="dimen/app_grid_touch_target_size" value="@dimen/app_grid_touch_target_size" />
+    <item target="dimen/app_touch_target_padding" value="@dimen/app_touch_target_padding" />
+    <item target="dimen/app_touch_target_margin" value="@dimen/app_touch_target_margin" />
+    <item target="dimen/app_icon_description_margin" value="@dimen/app_icon_description_margin" />
+    <item target="dimen/page_indicator_edge_corner_radius"
+          value="@dimen/page_indicator_edge_corner_radius" />
+    <item target="dimen/page_indicator_height"
+          value="@dimen/page_indicator_height" />
+
+    <item target="bool/car_app_show_recent_apps" value="@bool/car_app_show_recent_apps" />
+    <item target="bool/car_app_show_toolbar" value="@bool/car_app_show_toolbar" />
+    <item target="bool/use_defined_app_grid_dimensions"
+          value="@bool/use_defined_app_grid_dimensions" />
+    <item target="bool/use_vertical_app_grid" value="@bool/use_vertical_app_grid" />
+    <item target="integer/car_app_selector_column_number"
+          value="@integer/car_app_selector_column_number" />
+    <item target="integer/car_app_selector_row_number"
+          value="@integer/car_app_selector_row_number" />
+
+    <item target="style/AppDisplayNameStyle" value="@style/AppDisplayNameStyle" />
+
+</overlay>

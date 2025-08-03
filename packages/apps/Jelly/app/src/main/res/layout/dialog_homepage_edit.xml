@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2017 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingStart="?dialogPreferredPadding"
+    android:paddingEnd="?dialogPreferredPadding">
+
+    <EditText
+        android:id="@+id/homepageUrlEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/pref_start_page"
+        android:importantForAutofill="no"
+        android:inputType="textUri"
+        android:maxLines="1" />
+
+</LinearLayout>

@@ -1,0 +1,26 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_defaults {
+    name: "libavf_features.defaults",
+    crate_name: "avf_features",
+    defaults: ["avf_build_flags_rust"],
+    srcs: ["src/lib.rs"],
+    edition: "2021",
+    prefer_rlib: true,
+    rustlibs: [
+        "android.system.virtualizationservice-rust",
+        "libanyhow",
+        "liblog_rust",
+    ],
+}
+
+rust_library {
+    name: "libavf_features",
+    defaults: ["libavf_features.defaults"],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.virt",
+    ],
+}

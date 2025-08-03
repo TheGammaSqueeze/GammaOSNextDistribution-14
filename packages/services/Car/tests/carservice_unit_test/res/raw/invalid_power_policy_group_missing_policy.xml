@@ -1,0 +1,48 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!--
+  - Copyright (C) 2021 The Android Open Source Project
+  -
+  - Licensed under the Apache License, Version 2.0 (the "License");
+  - you may not use this file except in compliance with the License.
+  - You may obtain a copy of the License at
+  -
+  -      http://www.apache.org/licenses/LICENSE-2.0
+  -
+  - Unless required by applicable law or agreed to in writing, software
+  - distributed under the License is distributed on an "AS IS" BASIS,
+  - WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  - See the License for the specific language governing permissions and
+  - limitations under the License.
+  -->
+
+<powerPolicy version="1.0">
+
+    <policyGroups>
+        <policyGroup id="mixed_policy_group">
+            <defaultPolicy state="WaitForVHAL" id="expected_to_be_registered"/>
+            <defaultPolicy state="On" id="incorrect_policy_id"/>
+            <noDefaultPolicy state="DeepSleepEntry"/>
+            <noDefaultPolicy state="ShutdownStart"/>
+        </policyGroup>
+    </policyGroups>
+
+    <policies>
+        <policy id="expected_to_be_registered">
+            <otherComponents behavior="off"/>
+            <component id="POWER_COMPONENT_DISPLAY">off</component>
+            <component id="POWER_COMPONENT_UNKNOWN">on</component>
+            <component id="POWER_COMPONENT_WIFI">off</component>
+            <component id="POWER_COMPONENT_VISUAL_INTERACTION">off</component>
+            <component id="POWER_COMPONENT_TRUSTED_DEVICE_DETECTION">off</component>
+        </policy>
+    </policies>
+
+    <systemPolicyOverrides>
+        <policy id="system_power_policy_no_user_interaction">
+            <component id="POWER_COMPONENT_BLUETOOTH">on</component>
+            <component id="POWER_COMPONENT_NFC">on</component>
+            <component id="POWER_COMPONENT_TRUSTED_DEVICE_DETECTION">off</component>
+        </policy>
+    </systemPolicyOverrides>
+
+</powerPolicy>

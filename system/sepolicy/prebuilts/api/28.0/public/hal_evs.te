@@ -1,0 +1,4 @@
+hwbinder_use(hal_evs_client)
+hwbinder_use(hal_evs_server)
+binder_call(hal_evs_client, hal_evs_server)
+binder_call(hal_evs_server, hal_evs_client)

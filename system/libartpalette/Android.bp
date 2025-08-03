@@ -1,0 +1,141 @@
+//
+// Copyright (C) 2019 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+// libartpalette-system is the implementation of the platform
+// abstraction layer for ART. It is intended to be dynamically loaded by
+// ART which now ships as an APEX and not part of the system.
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_library {
+    name: "libartpalette-system",
+    cpp_std: "experimental",
+    compile_multilib: "both",
+    header_libs: [
+        "libartpalette-headers",
+        "jni_headers",
+    ],
+    host_supported: true,
+    target: {
+        android: {
+            srcs: [
+                "palette_android.cc",
+                "palette_android_partner.cc",
+            ],
+            header_libs: ["libbase_headers"],
+            shared_libs: [
+                "libbase",
+                "libcutils",
+                "liblog",
+                "libprocessgroup",
+                "libtombstoned_client",
+                "libselinux",
+            ],
+            static_libs: ["libc++fs"],
+        },
+        host: {
+            header_libs: ["libbase_headers"],
+            srcs: ["palette_fake.cc"],
+            shared_libs: ["libbase"],
+        },
+        darwin: {
+            enabled: false,
+        },
+        windows: {
+            enabled: false,
+        },
+    },
+    static: {
+        enabled: false,
+    },
+    version_script: "libartpalette.map.txt",
+    stubs: {
+        versions: [
+            "1",
+            "2",
+            "3",
+        ],
+        symbol_file: "libartpalette.map.txt",
+    },
+    visibility: [
+        // Limit visibility to ART. Many functions wrap native libraries without
+        // stable APIs, and if those change drastically it may become hard to
+        // keep the wrappers functional. Hence, while they can never be removed
+        // completely, we can always update the ART module to use other APIs and
+        // then turn them into stubs that only return PALETTE_STATUS_NOT_SUPPORTED.
+        // That makes this library unsuitable for other modules.
+        "//art:__subpackages__",
+        "//libcore:__subpackages__",
+        "//libnativehelper:__subpackages__",
+
+        // Exception: composd calls PaletteCreateOdrefreshStagingDirectory, but
+        // that function doesn't depend on any unstable internal APIs (only libc
+        // and libselinux).
+        "//packages/modules/Virtualization/compos/composd/native",
+
+        // Microdroid needs this library to be able to run odrefresh and dex2oat
+        // in the pVM, but it doesn't make any calls to it itself.
+        "//packages/modules/Virtualization/microdroid",
+    ],
+}
+
+// Definition of the extended SDK offered by the platform for mainline modules.
+// TODO: this is in the palette directory as it's only being used by ART.
+// It used to be in prebuilts/sdk/mainline, but this doesn't work for ART
+// unbundled which also includes the prebuilts/sdk git repository. We need to find
+// a better location for this SDK, see b/162706448.
+sdk {
+    name: "platform-mainline-sdk",
+    host_supported: true,
+    native_shared_libs: [
+        "libartpalette-system",
+    ],
+    native_static_libs: [
+        "libcap",
+    ],
+    target: {
+        darwin: {
+            enabled: false,
+        },
+        android: {
+            native_shared_libs: [
+                "heapprofd_client_api",
+                "libbinder_ndk",
+                "liblog",
+            ],
+            native_static_libs: [
+                "libperfetto_client_experimental",
+                "perfetto_trace_protos",
+            ],
+        },
+        not_windows: {
+            native_libs: [
+                "liblog",
+            ],
+        }
+    },
+}
+
+module_exports {
+    name: "platform-mainline-test-exports",
+    host_supported: false,
+    native_shared_libs: [
+        // Required by the implementation of libartpalette-system,
+        // which ART uses in replacement of stubs in its testing environment.
+        "libtombstoned_client",
+    ],
+}

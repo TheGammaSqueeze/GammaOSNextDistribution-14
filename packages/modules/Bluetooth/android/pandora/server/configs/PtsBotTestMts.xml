@@ -1,0 +1,79 @@
+<!-- Copyright (C) 2024 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<configuration description="Runs PTS-bot tests in MTS">
+    <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
+        <option name="test-file-name" value="PandoraServer.apk" />
+        <option name="install-arg" value="-r" />
+        <option name="install-arg" value="-g" />
+    </target_preparer>
+
+    <target_preparer class="com.android.tradefed.targetprep.RootTargetPreparer">
+      <option name="force-root" value="true"/>
+    </target_preparer>
+
+    <target_preparer class="com.android.tradefed.targetprep.RunHostCommandTargetPreparer">
+        <option name="host-background-command" value="adb -s $SERIAL shell am instrument --no-hidden-api-checks -w com.android.pandora/.Main" />
+    </target_preparer>
+
+    <target_preparer class="com.android.tradefed.targetprep.PythonVirtualenvPreparer">
+        <!-- TODO(b/267785204): Import python dependencies -->
+        <option name="dep-module" value="grpcio" />
+        <option name="dep-module" value="protobuf==3.20.1" />
+        <option name="dep-module" value="scipy" />
+    </target_preparer>
+
+    <test class="com.android.tradefed.testtype.pandora.PtsBotTest" >
+        <!-- Creates a randomized temp dir for pts-bot binaries and avoid
+             conflicts when running multiple pts-bot on the same machine -->
+        <option name="create-bin-temp-dir" value="true"/>
+        <!-- mmi2grpc is contained inside pts-bot-mts folder -->
+        <option name="mmi2grpc" value="pts-bot-mts" />
+        <option name="tests-config-file" value="pts_bot_tests_config.json" />
+        <option name="max-flaky-tests" value="3" />
+        <option name="max-retries-per-test" value="3" />
+        <option name="physical" value="false" />
+        <option name="profile" value="A2DP/SNK" />
+        <option name="profile" value="A2DP/SRC" />
+        <option name="profile" value="AVCTP" />
+        <option name="profile" value="AVDTP/SNK" />
+        <option name="profile" value="AVDTP/SRC" />
+        <option name="profile" value="AVRCP" />
+        <option name="profile" value="BNEP" />
+        <option name="profile" value="GAP" />
+        <option name="profile" value="GATT" />
+        <option name="profile" value="HFP/AG" />
+        <option name="profile" value="HFP/HF" />
+        <option name="profile" value="HID/HOS" />
+        <option name="profile" value="HOGP" />
+        <option name="profile" value="L2CAP/CMC" />
+        <option name="profile" value="L2CAP/COS" />
+        <option name="profile" value="L2CAP/EXF" />
+        <option name="profile" value="L2CAP/LE" />
+        <option name="profile" value="MAP" />
+        <option name="profile" value="OPP" />
+        <!-- TODO(b/272303629): Reenable -->
+        <!--option name="profile" value="PAN" /-->
+        <option name="profile" value="PBAP/PSE" />
+        <option name="profile" value="RFCOMM" />
+        <option name="profile" value="SDP" />
+        <option name="profile" value="SM" />
+    </test>
+
+    <object type="module_controller"
+            class="com.android.tradefed.testtype.suite.module.MainlineTestModuleController">
+        <option name="mainline-module-package-name" value="com.android.btservices" />
+        <option name="mainline-module-package-name" value="com.google.android.btservices" />
+    </object>
+</configuration>

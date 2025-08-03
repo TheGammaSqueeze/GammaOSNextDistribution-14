@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2016 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Rheolydd Storfa</string>
+    <string name="cancel">Diddymu</string>
+    <string name="storage_menu_free">Rhyddhau lle</string>
+    <string name="deletion_helper_title">Tynnu eitemau</string>
+    <string name="deletion_helper_app_summary"><xliff:g id="days" example="67">%1$d</xliff:g> diwrnod yn ôl</string>
+    <string name="deletion_helper_app_summary_item_size"><xliff:g id="used" example="1.2GB">%1$s</xliff:g></string>
+    <string name="deletion_helper_app_summary_never_used">Heb ei ddefnyddio yn y flwyddyn ddiwethaf</string>
+    <string name="deletion_helper_app_summary_unknown_used">Dim yn siŵr pa bryd y\'i defnyddiwyd diwethaf</string>
+    <string name="deletion_helper_free_button">Rhyddhau <xliff:g id="freeable" example="1.2GB">%1$s</xliff:g></string>
+    <string name="deletion_helper_photos_title">Lluniau a fideos wedi\'u cadw wrth gefn</string>
+    <string name="deletion_helper_photos_age_summary">Dros 30 diwrnod o oed</string>
+    <string name="deletion_helper_photos_summary"><xliff:g id="used" example="1.2GB">%1$s</xliff:g></string>
+    <string name="deletion_helper_downloads_title">Wedi eu lawrlwytho</string>
+    <string name="deletion_helper_downloads_category_summary"><xliff:g id="used" example="1.2GB">%1$s</xliff:g></string>
+    <string name="deletion_helper_downloads_summary_empty"><xliff:g id="used" example="1.2GB">%1$s</xliff:g></string>
+    <string name="deletion_helper_clear_dialog_title">Rhyddhau lle</string>
+    <string name="deletion_helper_clear_dialog_message">Caiff <xliff:g id="clearable_bytes" example="1.2GB">%1$s</xliff:g> o gynnwys ei dynnu oddi ar dy ddyfais</string>
+    <string name="deletion_helper_clear_dialog_remove">Rhyddhau lle</string>
+    <string name="deletion_helper_upsell_title">Rheoli storfa yn awtomatig?</string>
+    <string name="deletion_helper_upsell_summary"><xliff:g id="used" example="1.2GB">%1$s</xliff:g> nawr ar gael. Wyt ti am adael i\'r rheolydd storfa rhyddhau lle yn awtomatig gan dynnu cynnwys wedi ei gadw wrth gefn oddi ar dy ddyfais?</string>
+    <string name="deletion_helper_upsell_cancel">Dim diolch</string>
+    <string name="deletion_helper_upsell_activate">Troi ymlaen</string>
+    <string name="deletion_helper_apps_group_title">Apiau na\'i ddefnyddir yn aml</string>
+    <string name="deletion_helper_apps_group_summary"><xliff:g id="used" example="1.2GB">%1$s</xliff:g></string>
+    <string name="deletion_helper_automatic_title">Awtomatig</string>
+    <string name="deletion_helper_manual_title">Â llaw</string>
+    <string name="deletion_helper_preference_title">Rhyddhau lle nawr</string>
+    <string name="automatic_storage_manager_service_label">Gwasanaeth Rheolaeth Storfa Awtomatig</string>
+    <string name="automatic_storage_manager_notification_title" product="default">Does dim llawer o le yn weddill ar dy ffôn</string>
+    <string name="automatic_storage_manager_notification_title" product="tablet">Does dim llawer o le yn weddill ar dy lechen</string>
+    <string name="automatic_storage_manager_notification_summary">Gadael i\'r Rheolydd Storfa rhyddhau lle ar yn awtomatig gan ddileu hen luniau a fideos pan mae dy ffôn yn agos i lenwi eto.</string>
+    <string name="automatic_storage_manager_cancel_button">Dim diolch</string>
+    <string name="automatic_storage_manager_activate_button">Troi ymlaen</string>
+    <string name="deletion_helper_photos_loading_title">Lluniau a fideos wedi\'u cadw wrth gefn</string>
+    <string name="deletion_helper_photos_loading_summary">Yn dod o hyd i eitemau…</string>
+    <string name="deletion_helper_no_threshold">Dangos pob eitem</string>
+    <string name="deletion_helper_default_threshold">Cuddio eitemau diweddar</string>
+    <string name="deletion_helper_clear_dialog_message_first_time">Caiff <xliff:g id="clearable_bytes" example="1.2GB">%1$s</xliff:g> o gynnwys ei dynnu oddi ar dy ddyfais</string>
+    <string name="automatic_storage_manager_activation_warning">Mae dy storfa bellach yn cael ei reoli gan y rheolydd storfa</string>
+    <string name="empty_state_title">Dim byd i\'w dileu</string>
+    <string name="empty_state_review_items_link">Adolygu eitemau diweddar</string>
+    <string name="empty_state_summary">Does dim ffeiliau hŷn i\'w dileu. I greu lle, bydd yn rhaid dileu lluniau, fideos ac apiau diweddar.</string>
+    <string name="app_requesting_space">Mae ar <xliff:g id="app" example="Dialer">%1$s</xliff:g> angen <xliff:g id="clearable_bytes" example="1.2GB">%2$s</xliff:g> o le</string>
+</resources>

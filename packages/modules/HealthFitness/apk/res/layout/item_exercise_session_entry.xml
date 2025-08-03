@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (C) 2023 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:minHeight="?android:attr/listPreferredItemHeightSmall"
+    android:background="?android:attr/selectableItemBackground"
+    android:paddingStart="?android:attr/listPreferredItemPaddingStart"
+    android:clipToPadding="false">
+
+    <LinearLayout
+        android:id="@+id/item_data_entry_container"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/button_and_map_container"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="26dp"
+        android:orientation="vertical"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintHorizontal_bias="0.0"
+        android:layout_marginEnd="@dimen/spacing_large">
+
+        <TextView
+            android:id="@+id/item_data_entry_header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?attr/textAppearanceSummary"
+            android:textColor="?android:attr/textColorSecondary"
+            android:hyphenationFrequency="normalFast"
+            android:lineBreakWordStyle="phrase"
+            android:layout_marginBottom="4dp"
+            android:maxLines="2"/>
+
+        <TextView
+            android:id="@+id/item_data_entry_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="2"
+            android:hyphenationFrequency="normalFast"
+            android:lineBreakWordStyle="phrase"
+            android:textAppearance="?attr/textAppearanceItem"
+            android:ellipsize="marquee"/>
+
+        <TextView
+            android:id="@+id/item_data_entry_notes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceListItemSecondary"
+            android:textColor="?android:attr/textColorSecondary"
+            android:hyphenationFrequency="normalFast"
+            android:lineBreakWordStyle="phrase"
+            android:visibility="gone"
+            android:maxLines="10"/>
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:id="@+id/button_and_map_container"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/item_data_entry_container">
+
+        <com.android.healthconnect.controller.shared.RoundView
+            android:id="@+id/map_round_view"
+            android:layout_width="@dimen/round_map_size"
+            android:layout_height="@dimen/round_map_size"
+            android:layout_marginEnd="@dimen/spacing_large"
+            android:layout_gravity="center_vertical"
+            android:gravity="center"
+            android:visibility="gone">
+
+            <com.android.healthconnect.controller.shared.map.MapView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/map_view"/>
+        </com.android.healthconnect.controller.shared.RoundView>
+
+        <LinearLayout
+            android:id="@+id/item_data_entry_divider"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/round_map_size"
+            android:layout_gravity="center_vertical"
+            android:gravity="center"
+            android:paddingTop="@dimen/spacing_small"
+            android:paddingBottom="@dimen/spacing_small"
+            android:orientation="horizontal">
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="?android:attr/listDivider" />
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/item_data_entry_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/selectableItemBackground"
+            android:minWidth="@dimen/two_target_min_width"
+            android:minHeight="@dimen/two_target_min_width"
+            android:src="?attr/deleteIcon"/>
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

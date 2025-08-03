@@ -1,0 +1,19 @@
+# Bug component: 27441
+
+# Project owners
+girardier@google.com #{LAST_RESORT_SUGGESTION}
+muhammadfalam@google.com #{LAST_RESORT_SUGGESTION}
+sattiraju@google.com #{LAST_RESORT_SUGGESTION}
+siyuanh@google.com #{LAST_RESORT_SUGGESTION}
+sungsoo@google.com #{LAST_RESORT_SUGGESTION}
+
+# Per-file ownership
+
+# Build files / test_config / presubmit / preupload
+per-file PREUPLOAD.cfg,TEST_MAPPING,*.bp,*.xml=file:/OWNERS_build
+
+# ChromeOS team owns Linux build files
+# - build.py is used for Linux build
+# - *.gn is for GN build rules
+# - Cargo.toml is for Rust build rules
+per-file build.py,*.gn,Cargo.toml=file:/OWNERS_chromeos

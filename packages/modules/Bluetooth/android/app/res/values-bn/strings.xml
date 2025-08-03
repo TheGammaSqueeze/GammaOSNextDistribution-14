@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="2326164424236203271">"ব্লুটুথ"</string>
+    <string name="permlab_bluetoothShareManager" msgid="5297865456717871041">"ডাউনলোড ম্যানেজার অ্যাক্সেস করুন।"</string>
+    <string name="permdesc_bluetoothShareManager" msgid="1588034776955941477">"অ্যাপ্লিকেশানটিকে BluetoothShare ম্যানেজার অ্যাক্সেস করতে ও ফাইলগুলি স্থানান্তর করতে এটি ব্যবহার করার অনুমতি দেয়।"</string>
+    <string name="permlab_bluetoothAcceptlist" msgid="5785922051395856524">"অ্যাক্সেপ্ট করা হয়েছে এমন তালিকাভুক্ত ব্লুটুথ ডিভাইসের অ্যাক্সেস।"</string>
+    <string name="permdesc_bluetoothAcceptlist" msgid="259308920158011885">"অ্যাপটিকে অস্থায়ীভাবে কোনও ব্লুটুথ ডিভাইসকে অ্যাক্সেপ্ট করা হয়েছে এমন তালিকায় অন্তর্ভুক্ত করার অনুমতি দেয়, যার ফলে ব্যবহারকারীর নিশ্চিতকরণ ছাড়াই ওই ডিভাইস থেকে এই ডিভাইসে ফাইল পাঠানো যায়।"</string>
+    <string name="bt_share_picker_label" msgid="7464438494743777696">"ব্লুটুথ"</string>
+    <string name="unknown_device" msgid="2317679521750821654">"অজানা ডিভাইস"</string>
+    <string name="unknownNumber" msgid="1245183329830158661">"অজানা"</string>
+    <string name="not_provided" msgid="6938740494380012614">"প্রদান করা হয়নি"</string>
+    <string name="airplane_error_title" msgid="2570111716678850860">"বিমান মোড"</string>
+    <string name="airplane_error_msg" msgid="4853111123699559578">"আপনি বিমান মোডে ব্লুটুথ ব্যবহার করতে পারবেন না।"</string>
+    <string name="bt_enable_title" msgid="4484289159118416315"></string>
+    <string name="bt_enable_line1" msgid="8429910585843481489">"ব্লুটুথ পরিষেবাগুলি ব্যবহার করার জন্য আপনাকে অবশ্যই প্রথমে ব্লুটুথ চালু করতে হবে।"</string>
+    <string name="bt_enable_line2" msgid="1466367120348920892">"এখন ব্লুটুথ চালু করবেন?"</string>
+    <string name="bt_enable_cancel" msgid="6770180540581977614">"বাতিল করুন"</string>
+    <string name="bt_enable_ok" msgid="4224374055813566166">"চালু করুন"</string>
+    <string name="incoming_file_confirm_title" msgid="938251186275547290">"ফাইল ট্রান্সফার"</string>
+    <string name="incoming_file_confirm_content" msgid="6573502088511901157">"আগত ফাইল স্বীকার করবেন?"</string>
+    <string name="incoming_file_confirm_cancel" msgid="9205906062663982692">"অস্বীকার করুন"</string>
+    <string name="incoming_file_confirm_ok" msgid="5046926299036238623">"স্বীকার করুন"</string>
+    <string name="incoming_file_confirm_timeout_ok" msgid="8612187577686515660">"ঠিক আছে"</string>
+    <string name="incoming_file_confirm_timeout_content" msgid="3221412098281076974">"\"<xliff:g id="SENDER">%1$s</xliff:g>\" এর থেকে ইনকামিং ফাইল গ্রহণ করার সময় অতিবাহিত হয়ে গেছে।"</string>
+    <string name="incoming_file_confirm_Notification_title" msgid="5381395500920804895">"আগত ফাইল"</string>
+    <string name="incoming_file_confirm_Notification_content" msgid="2669135531488877921">"<xliff:g id="SENDER">%1$s</xliff:g> এবার ফাইল পাঠাতে পারবে: <xliff:g id="FILE">%2$s</xliff:g>"</string>
+    <string name="notification_receiving" msgid="8445265771083510696">"ব্লুটুথ share: <xliff:g id="FILE">%1$s</xliff:g> প্রাপ্ত করা হচ্ছে"</string>
+    <string name="notification_received" msgid="2330252358543000567">"ব্লুটুথ share: <xliff:g id="FILE">%1$s</xliff:g> প্রাপ্ত করা হয়েছে"</string>
+    <string name="notification_received_fail" msgid="9059153354809379374">"ব্লুটুথ share: <xliff:g id="FILE">%1$s</xliff:g> ফাইল প্রাপ্ত করা হয়নি"</string>
+    <string name="notification_sending" msgid="8269912843286868700">"ব্লুটুথ শেয়ার: <xliff:g id="FILE">%1$s</xliff:g> পাঠানো হচ্ছে"</string>
+    <string name="notification_sent" msgid="2685202778935769332">"ব্লুটুথ শেয়ার: <xliff:g id="FILE">%1$s</xliff:g> পাঠানো হয়েছে"</string>
+    <string name="notification_sent_complete" msgid="6293391081175517098">"১০০% সম্পূর্ণ"</string>
+    <string name="notification_sent_fail" msgid="7449832660578001579">"ব্লুটুথ share: <xliff:g id="FILE">%1$s</xliff:g> ফাইল পাঠানো হয়নি"</string>
+    <string name="download_title" msgid="6449408649671518102">"ফাইল ট্রান্সফার"</string>
+    <string name="download_line1" msgid="6449220145685308846">"প্রেরক: \"<xliff:g id="SENDER">%1$s</xliff:g>\""</string>
+    <string name="download_line2" msgid="7634316500490825390">"ফাইল: <xliff:g id="FILE">%1$s</xliff:g>"</string>
+    <string name="download_line3" msgid="6722284930665532816">"ফাইল আকার: <xliff:g id="SIZE">%1$s</xliff:g>"</string>
+    <string name="download_line4" msgid="5234701398884321314"></string>
+    <string name="download_line5" msgid="4124272066218470715">"ফাইল প্রাপ্ত হচ্ছে…"</string>
+    <string name="download_cancel" msgid="1705762428762702342">"থামান"</string>
+    <string name="download_ok" msgid="2404442707314575833">"লুকান"</string>
+    <string name="incoming_line1" msgid="6342300988329482408">"প্রেরক"</string>
+    <string name="incoming_line2" msgid="2199520895444457585">"ফাইলের নাম"</string>
+    <string name="incoming_line3" msgid="8630078246326525633">"আকার"</string>
+    <string name="download_fail_line1" msgid="3149552664349685007">"ফাইল প্রাপ্ত করা যায়নি"</string>
+    <string name="download_fail_line2" msgid="4289018531070750414">"ফাইল: <xliff:g id="FILE">%1$s</xliff:g>"</string>
+    <string name="download_fail_line3" msgid="2214989413171231684">"কারণ: <xliff:g id="REASON">%1$s</xliff:g>"</string>
+    <string name="download_fail_ok" msgid="3272322648250767032">"ঠিক আছে"</string>
+    <string name="download_succ_line5" msgid="1720346308221503270">"ফাইল প্রাপ্ত করা হয়েছে"</string>
+    <string name="download_succ_ok" msgid="7488662808922799824">"খুলুন"</string>
+    <string name="upload_line1" msgid="1912803923255989287">"প্রাপক: \"<xliff:g id="RECIPIENT">%1$s</xliff:g>\""</string>
+    <string name="upload_line3" msgid="5964902647036741603">"ফাইল প্রকার: <xliff:g id="TYPE">%1$s</xliff:g> (<xliff:g id="SIZE">%2$s</xliff:g>)"</string>
+    <string name="upload_line5" msgid="3477751464103201364">"ফাইল পাঠানো হচ্ছে..."</string>
+    <string name="upload_succ_line5" msgid="165979135931118211">"ফাইল পাঠানো হয়েছে"</string>
+    <string name="upload_succ_ok" msgid="6797291708604959167">"ঠিক আছে"</string>
+    <string name="upload_fail_line1" msgid="7044307783071776426">"\"<xliff:g id="RECIPIENT">%1$s</xliff:g>\" কে ফাইলটি পাঠানো হয়নি।"</string>
+    <string name="upload_fail_line1_2" msgid="6102642590057711459">"ফাইল: <xliff:g id="FILE">%1$s</xliff:g>"</string>
+    <string name="upload_fail_cancel" msgid="1632528037932779727">"বন্ধ করুন"</string>
+    <string name="bt_error_btn_ok" msgid="2802751202009957372">"ঠিক আছে"</string>
+    <string name="unknown_file" msgid="3719981572107052685">"অজানা ফাইল"</string>
+    <string name="unknown_file_desc" msgid="9185609398960437760">"এই ধরণের ফাইল পরিচালনা করার জন্য কোনো অ্যাপ্লিকেশন নেই। \n"</string>
+    <string name="not_exist_file" msgid="5097565588949092486">"কোনো ফাইল নেই"</string>
+    <string name="not_exist_file_desc" msgid="250802392160941265">"ফাইলটির অস্তিত্ব নেই। \n"</string>
+    <string name="enabling_progress_title" msgid="5262637688863903594">"দয়া করে অপেক্ষা করুন..."</string>
+    <string name="enabling_progress_content" msgid="685427201206684584">"ব্লুটুথ চালু করা হচ্ছে..."</string>
+    <string name="bt_toast_1" msgid="8791691594887576215">"ফাইল প্রাপ্ত করা হবে। বিজ্ঞপ্তি প্যানেলে প্রগতি চেক করুন।"</string>
+    <string name="bt_toast_2" msgid="2041575937953174042">"ফাইল প্রাপ্ত করা যাবে না।"</string>
+    <string name="bt_toast_3" msgid="3053157171297761920">"\"<xliff:g id="SENDER">%1$s</xliff:g>\" এর থেকে ফাইল পাওয়া বন্ধ করা হয়েছে"</string>
+    <string name="bt_toast_4" msgid="480365991944956695">"\"<xliff:g id="RECIPIENT">%1$s</xliff:g>\" কে ফাইল পাঠানো হচ্ছে"</string>
+    <string name="bt_toast_5" msgid="4818264207982268297">"\"<xliff:g id="RECIPIENT">%2$s</xliff:g>\" কে <xliff:g id="NUMBER">%1$s</xliff:g>টি ফাইল পাঠানো হচ্ছে"</string>
+    <string name="bt_toast_6" msgid="8814166471030694787">"\"<xliff:g id="RECIPIENT">%1$s</xliff:g>\" কে ফাইল পাঠানো বন্ধ করা হয়েছে"</string>
+    <string name="bt_sm_2_1_nosdcard" msgid="288667514869424273">"ফাইল সেভ করার মতো USB স্টোরেজে পর্যাপ্ত স্পেস নেই।"</string>
+    <string name="bt_sm_2_1_default" msgid="5070195264206471656">"ফাইল সেভ করার মতো এসডি কার্ডে পর্যাপ্ত স্পেস নেই।"</string>
+    <string name="bt_sm_2_2" msgid="6200119660562110560">"জায়গা প্রয়োজন: <xliff:g id="SIZE">%1$s</xliff:g>"</string>
+    <string name="ErrorTooManyRequests" msgid="5049670841391761475">"অনেকগুলি অনুরোধ প্রক্রিয়া করা হচ্ছে৷ পরে আবার চেষ্টা করুন৷"</string>
+    <string name="status_pending" msgid="4781040740237733479">"ফাইল ট্রান্সফার করা এখনও শুরু হয়নি।"</string>
+    <string name="status_running" msgid="7419075903776657351">"ফাইল ট্রান্সফার করা চলছে।"</string>
+    <string name="status_success" msgid="7963589000098719541">"ফাইল ট্রান্সফার সফলভাবে সম্পন্ন হয়েছে।"</string>
+    <string name="status_not_accept" msgid="1165798802740579658">"কন্টেন্ট সমর্থিত নয়।"</string>
+    <string name="status_forbidden" msgid="4017060451358837245">"টার্গেট ডিভাইস দ্বারা ট্রান্সফার নিষিদ্ধ করা হয়েছে।"</string>
+    <string name="status_canceled" msgid="8441679418717978515">"ব্যবহারকারী দ্বারা ট্রান্সফার বাতিল করা হয়েছে।"</string>
+    <string name="status_file_error" msgid="5379018888714679311">"স্টোরেজ সমস্যা।"</string>
+    <string name="status_no_sd_card_nosdcard" msgid="6445646484924125975">"কোনও ইউএসবি স্টোরেজ নেই।"</string>
+    <string name="status_no_sd_card_default" msgid="8878262565692541241">"কোনও এসডি কার্ড নেই। ট্রান্সফার করা ফাইলগুলি সেভ করতে এসডি কার্ড যোগ করুন।"</string>
+    <string name="status_connection_error" msgid="8253709700568062220">"সংযোগ অসফল।"</string>
+    <string name="status_protocol_error" msgid="3231573735130475654">"অনুরোধ সঠিকভাবে পরিচালনা করা যাবে না।"</string>
+    <string name="status_unknown_error" msgid="314676481744304866">"অজানা ত্রুটি৷"</string>
+    <string name="opp_notification_group" msgid="150067508422520653">"ব্লুটুথ শেয়ার"</string>
+    <string name="download_success" msgid="3438268368708549686">"<xliff:g id="FILE_SIZE">%1$s</xliff:g> প্রাপ্ত করা সম্পূর্ণ।"</string>
+    <string name="upload_success" msgid="143787470859042049">"<xliff:g id="FILE_SIZE">%1$s</xliff:g> পাঠানো সম্পূর্ণ।"</string>
+    <string name="inbound_history_title" msgid="189623888169624862">"অন্তরমূখী স্থানান্তরগুলি"</string>
+    <string name="outbound_history_title" msgid="7614166584551065036">"বহির্গামী স্থানান্তরগুলি"</string>
+    <string name="no_transfers" msgid="740521199933899821">"ট্রান্সফার করার ইতিহাস খালি।"</string>
+    <string name="transfer_clear_dlg_msg" msgid="586117930961007311">"তালিকা থেকে সমস্ত আইটেম সাফ করা হবে।"</string>
+    <string name="outbound_noti_title" msgid="2045560896819618979">"ব্লুটুথ শেয়ার: পাঠানো ফাইল"</string>
+    <string name="inbound_noti_title" msgid="3730993443609581977">"ব্লুটুথ শেয়ার: গ্রহন করা ফাইল"</string>
+    <string name="noti_caption_unsuccessful" msgid="6679288016450410835">"{count,plural, =1{#টি ফাইল পাঠানো যায়নি।}one{#টি ফাইল পাঠানো যায়নি।}other{#টি ফাইল পাঠানো যায়নি।}}"</string>
+    <string name="noti_caption_success" msgid="7652777514009569713">"{count,plural, =1{#টি ফাইল পাঠানো হয়েছে, %1$s}one{#টি ফাইল পাঠানো হয়েছে, %1$s}other{#টি ফাইল পাঠানো হয়েছে, %1$s}}"</string>
+    <string name="transfer_menu_clear_all" msgid="3014459758656427076">"তালিকা সাফ করুন"</string>
+    <string name="transfer_menu_open" msgid="5193344638774400131">"খুলুন"</string>
+    <string name="transfer_menu_clear" msgid="7213491281898188730">"তালিকা থেকে সাফ করুন"</string>
+    <string name="transfer_clear_dlg_title" msgid="128904516163257225">"সাফ করুন"</string>
+    <string name="bluetooth_a2dp_sink_queue_name" msgid="7521243473328258997">"এখন চলছে"</string>
+    <string name="bluetooth_map_settings_save" msgid="8309113239113961550">"সেভ করুন"</string>
+    <string name="bluetooth_map_settings_cancel" msgid="3374494364625947793">"বাতিল করুন"</string>
+    <string name="bluetooth_map_settings_intro" msgid="4748160773998753325">"আপনি ব্লুটুথ এর মাধ্যমে যে অ্যাকাউন্টগুলি শেয়ার করতে চান সেগুলি বেছে নিন। সংযোগের সময়ে আপনাকে এখনো অ্যাকাউন্টের যে কোনো অ্যাক্সেস গ্রহণ করতে হবে।"</string>
+    <string name="bluetooth_map_settings_count" msgid="183013143617807702">"যে স্লটগুলি বাকি আছে:"</string>
+    <string name="bluetooth_map_settings_app_icon" msgid="3501432663809664982">"অ্যাপ্লিকেশান আইকন"</string>
+    <string name="bluetooth_map_settings_title" msgid="4226030082708590023">"ব্লুটুথ মারফত মেসেজ শেয়ার করার সেটিংস"</string>
+    <string name="bluetooth_map_settings_no_account_slots_left" msgid="755024228476065757">"অ্যাকাউন্ট নির্বাচন করা যাচ্ছে না। ০টি স্লট বাকি আছে"</string>
+    <string name="bluetooth_connected" msgid="5687474377090799447">"ব্লুটুথ অডিও সংযুক্ত হয়েছে"</string>
+    <string name="bluetooth_disconnected" msgid="6841396291728343534">"ব্লুটুথ অডিওর সংযোগ বিচ্ছিন্ন হয়েছে"</string>
+    <string name="a2dp_sink_mbs_label" msgid="6035366346569127155">"ব্লুটুথ অডিও"</string>
+    <string name="bluetooth_opp_file_limit_exceeded" msgid="6612109860149473930">"৪GB থেকে বড় ফটো ট্রান্সফার করা যাবে না"</string>
+    <string name="bluetooth_connect_action" msgid="2319449093046720209">"ব্লুটুথের সাথে কানেক্ট করুন"</string>
+    <string name="bluetooth_enabled_apm_title" msgid="6914461147844949044">"\'বিমান মোড\'-এ থাকাকালীন ব্লুটুথ চালু থাকে"</string>
+    <string name="bluetooth_enabled_apm_message" msgid="6168686193308136881">"আপনি ব্লুটুথ চালু রাখলে, আপনি এরপর \'বিমান মোডে\' থাকলেও আপনার ডিভাইস এটি চালু রাখবে"</string>
+    <string name="bluetooth_stays_on_title" msgid="39720820955212918">"ব্লুটুথ চালু থাকে"</string>
+    <string name="bluetooth_stays_on_message" msgid="3669663452593157737">"\'বিমান মোড\'-এ থাকাকালীন আপনার ডিভাইস ব্লুটুথ চালু রাখে। আপনি ব্লুটুথ চালু না রাখতে চাইলে এটি বন্ধ করুন।"</string>
+    <string name="bluetooth_and_wifi_stays_on_title" msgid="5821932798860821244">"ওয়াই-ফাই ও ব্লুটুথ চালু থাকে"</string>
+    <string name="bluetooth_and_wifi_stays_on_message" msgid="7848565203843882558">"\'বিমান মোড\'-এ থাকাকালীন আপনার ডিভাইস, ওয়াই-ফাই ও ব্লুটুথ চালু রাখে। আপনি যদি ওয়াই-ফাই এবং ব্লুটুথ চালু রাখতে না চান, সেগুলি বন্ধ করে দিন।"</string>
+    <string name="bluetooth_enabled_auto_on_title" msgid="1799541656310353393">"ব্লুটুথ অটোমেটিক চালু হয়ে গেছে"</string>
+    <string name="bluetooth_enabled_auto_on_message" msgid="1070556457440100730">"ব্লুটুথ সেটিংসে অটোমেটিক রিস্টার্ট করার সুবিধা টগল করা যাবে।"</string>
+    <string name="bluetooth_disable_auto_on" msgid="1085026923461565937">"বন্ধ করুন"</string>
+    <string name="bluetooth_notification_group" msgid="7251886707585872194">"ব্লুটুথ অটোমেটিক চালু হওয়ার সেটিং পরিবর্তন করেছে"</string>
+</resources>

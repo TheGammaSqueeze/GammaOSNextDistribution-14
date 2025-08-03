@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2020 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+                  xmlns:custom="http://schemas.android.com/apk/res-auto"
+                  android:title="@string/device_pref_category_title">
+    <Preference
+        android:fragment="com.android.tv.settings.about.AboutFragment"
+        android:icon="@drawable/ic_info_outline"
+        android:key="about_device"
+        android:title="@string/about_preference"/>
+    <Preference
+        android:fragment="com.android.tv.settings.device.eco.PowerAndEnergyFragment"
+        android:icon="@drawable/ic_settings_power_and_energy"
+        android:key="power_and_energy"
+        android:title="@string/power_and_energy"/>
+    <Preference
+        android:fragment="com.android.tv.settings.system.DateTimeFragment"
+        android:icon="@drawable/ic_access_time"
+        android:key="date_time"
+        android:title="@string/system_date_time"/>
+    <Preference
+        android:fragment="com.android.tv.settings.system.locale.LanguagePickerFragment"
+        android:icon="@drawable/ic_language"
+        android:key="language"
+        android:title="@string/system_language"/>
+    <Preference
+        android:fragment="com.android.tv.settings.inputmethod.KeyboardFragment"
+        android:icon="@drawable/ic_keyboard"
+        android:key="keyboard"
+        android:title="@string/system_keyboard"/>
+    <Preference
+        android:fragment="com.android.tv.settings.device.StorageSummaryFragmentX"
+        android:icon="@drawable/ic_storage"
+        android:key="storage"
+        android:title="@string/device_storage"/>
+    <Preference
+        android:icon="@drawable/ic_home"
+        android:key="home"
+        android:title="@string/system_home">
+        <intent android:action="com.google.android.tvlauncher.SETTINGS"/>
+    </Preference>
+    <com.android.tv.twopanelsettings.slices.SlicePreference
+        android:fragment="com.android.tv.twopanelsettings.slices.SliceFragment"
+        android:icon="@drawable/ic_settings_system_daydream"
+        android:key="ambient_settings"
+        android:title="@string/device_daydream"
+        custom:isPreferenceVisible="false"
+        custom:uri="@string/ambient_slice_uri"/>
+    <Preference
+        android:fragment="com.android.tv.settings.system.development.DevelopmentFragment"
+        android:icon="@drawable/ic_developer_mode"
+        android:key="developer"
+        android:title="@string/system_developer_options"/>
+    <com.android.tv.twopanelsettings.slices.SlicePreference
+        android:fragment="com.android.tv.twopanelsettings.slices.SliceFragment"
+        android:icon="@drawable/ic_cast"
+        android:key="cast_settings"
+        android:title="@string/cast_settings_title"
+        custom:uri="@string/cast_settings_slice_uri"/>
+    <com.android.tv.twopanelsettings.slices.SlicePreference
+        android:fragment="com.android.tv.twopanelsettings.slices.SliceFragment"
+        android:icon="@drawable/ic_assistant_broadcast"
+        android:key="assistant_broadcast"
+        custom:isPreferenceVisible="false"
+        android:title="@string/assistant_broadcast_title"
+        custom:uri="@string/assistant_broadcast_slice_uri"/>
+    <com.android.tv.twopanelsettings.slices.SlicePreference
+        android:icon="@drawable/ic_internal_settings"
+        android:key="overlay_internal"
+        android:title="@string/overlay_internal_slice_title"
+        android:fragment="com.android.tv.twopanelsettings.slices.SliceFragment"
+        custom:isPreferenceVisible="false"
+        custom:uri="@string/overlay_internal_slice_uri"/>
+    <com.android.tv.twopanelsettings.slices.SlicePreference
+        android:icon="@drawable/ic_devices_other"
+        android:key="fastpair_slice"
+        android:title="@string/device_fastpair"
+        android:fragment="com.android.tv.twopanelsettings.slices.SliceFragment"
+        custom:isPreferenceVisible="false"
+        custom:uri="@string/fastpair_slice_uri"/>
+    <com.android.tv.settings.widget.SwitchWithSoundPreference
+        android:key="sound_effects_switch"
+        android:icon="@drawable/ic_system_sound"
+        android:persistent="true"
+        android:title="@string/device_sound_effects"/>
+    <com.android.tv.settings.LongClickPreference
+        android:fragment="com.android.tv.settings.about.RebootConfirmFragment"
+        android:icon="@drawable/ic_restart_alt"
+        android:key="reboot"
+        android:title="@string/restart_button_label"/>
+</PreferenceScreen>

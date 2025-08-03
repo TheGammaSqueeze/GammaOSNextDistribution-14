@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+-->
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:paddingStart="@dimen/spacing_8dp"
+    android:paddingEnd="@dimen/spacing_8dp"
+    android:paddingBottom="@dimen/set_wallpaper_dialog_bottom_padding">
+
+    <TextView
+        android:id="@+id/title"
+        style="@style/TextAppearance.SetWallpaperDialog.Title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/set_wallpaper_button_text"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <FrameLayout
+        android:id="@+id/preview_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+        <include layout="@layout/set_wallpaper_dialog_foldable_preview"
+            android:id="@+id/foldable_previews"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/abc_dialog_title_divider_material"
+            android:paddingBottom="@dimen/abc_dialog_title_divider_material"
+            android:visibility="gone">
+        </include>
+        <include layout="@layout/set_wallpaper_dialog_handheld_preview"
+            android:id="@+id/handheld_previews"
+            android:layout_width="@dimen/set_wallpaper_dialog_handheld_width"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/abc_dialog_title_divider_material"
+            android:paddingBottom="@dimen/abc_dialog_title_divider_material"
+            android:visibility="gone">
+        </include>
+    </FrameLayout>
+
+    <Button
+        android:id="@+id/button_set"
+        style="@style/SetWallpaperDialog.Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/set_wallpaper_dialog_set_button"
+        android:layout_marginVertical="@dimen/set_wallpaper_dialog_button_margin_vertical"
+        app:layout_constraintTop_toBottomOf="@id/preview_container"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <Button
+        android:id="@+id/button_cancel"
+        style="@style/SetWallpaperDialog.Button.OutlinedButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/cancel"
+        android:layout_marginEnd="@dimen/spacing_8dp"
+        android:layout_marginVertical="@dimen/set_wallpaper_dialog_button_margin_vertical"
+        app:layout_constraintTop_toBottomOf="@id/preview_container"
+        app:layout_constraintEnd_toStartOf="@+id/button_set"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="cmas_presidential_level_alert" msgid="28280561773493762">"Alarma de emerxencia"</string>
+    <string name="cmas_extreme_alert" msgid="9122792746957924456">"Ameaza extrema"</string>
+    <string name="cmas_severe_alert" msgid="628940584325136759">"Ameaza grave"</string>
+    <string name="public_safety_message" msgid="8084690288011309280">"Información sobre ameazas"</string>
+    <string name="cmas_amber_alert" msgid="404589837946037736">"Busca dunha persoa desaparecida"</string>
+    <string name="state_local_test_alert" msgid="3774161961273584245">"Alerta de proba"</string>
+    <string name="cmas_exercise_alert" msgid="4845005677469935113">"Alarma de proba"</string>
+    <string name="cmas_required_monthly_test" msgid="8386390153236774475">"Proba de difusión móbil"</string>
+    <string name="enable_cmas_extreme_threat_alerts_title" msgid="2361635321508611596">"Ameaza extrema"</string>
+    <string name="enable_cmas_severe_threat_alerts_title" msgid="1718166777595485623">"Ameaza grave"</string>
+    <string name="enable_cmas_amber_alerts_title" msgid="3125202178531035580">"Persoas desaparecidas"</string>
+    <string name="enable_cmas_amber_alerts_summary" msgid="5252326889751639729">"Busca de persoas desaparecidas"</string>
+    <string name="enable_public_safety_messages_title" msgid="3974955568145658404">"Información sobre ameazas"</string>
+    <string name="enable_state_local_test_alerts_title" msgid="1795129352473584681">"Alerta de proba"</string>
+    <string name="enable_exercise_test_alerts_title" msgid="569839026995925829">"Alarma de proba"</string>
+    <string name="enable_cmas_test_alerts_title" msgid="3897522692038895778">"Proba de difusión móbil"</string>
+</resources>

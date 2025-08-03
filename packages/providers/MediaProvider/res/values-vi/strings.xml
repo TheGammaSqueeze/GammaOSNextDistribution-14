@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2009 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="uid_label" msgid="8421971615411294156">"Nội dung nghe nhìn"</string>
+    <string name="storage_description" msgid="4081716890357580107">"Bộ nhớ cục bộ"</string>
+    <string name="picker_app_label" msgid="1195424381053599122">"Công cụ chọn nội dung đa phương tiện"</string>
+    <string name="artist_label" msgid="8105600993099120273">"Nghệ sĩ"</string>
+    <string name="unknown" msgid="2059049215682829375">"Không xác định"</string>
+    <string name="root_images" msgid="5861633549189045666">"Hình ảnh"</string>
+    <string name="root_videos" msgid="8792703517064649453">"Video"</string>
+    <string name="root_audio" msgid="3505830755201326018">"Âm thanh"</string>
+    <string name="root_documents" msgid="3829103301363849237">"Tài liệu"</string>
+    <string name="permission_required" msgid="1460820436132943754">"Cần có quyền để sửa đổi hoặc xóa mục này."</string>
+    <string name="permission_required_action" msgid="706370952366113539">"Tiếp tục"</string>
+    <string name="grant_dialog_button_allow" msgid="1644287024501033471">"Cho phép"</string>
+    <string name="grant_dialog_button_deny" msgid="6190589471415815741">"Từ chối"</string>
+    <string name="permission_more_thumb" msgid="1938863829470531577">"{count,plural, =1{+<xliff:g id="COUNT_0">^1</xliff:g>}other{+<xliff:g id="COUNT_1">^1</xliff:g>}}"</string>
+    <string name="permission_more_text" msgid="2471785045095597753">"{count,plural, =1{Và <xliff:g id="COUNT_0">^1</xliff:g> mục khác}other{Và <xliff:g id="COUNT_1">^1</xliff:g> mục khác}}"</string>
+    <string name="cache_clearing_dialog_title" msgid="8907893815183913664">"Xóa tệp ứng dụng tạm thời"</string>
+    <string name="cache_clearing_dialog_text" msgid="7057784635111940957">"<xliff:g id="APP_SEEKING_PERMISSION">%s</xliff:g> muốn xóa một số tệp tạm thời. Điều này có thể làm tăng mức sử dụng pin hoặc dữ liệu di động."</string>
+    <string name="cache_clearing_in_progress_title" msgid="6902220064511664209">"Đang xóa tệp ứng dụng tạm thời…"</string>
+    <string name="clear" msgid="5524638938415865915">"Xóa"</string>
+    <string name="allow" msgid="8885707816848569619">"Cho phép"</string>
+    <string name="deny" msgid="6040983710442068936">"Từ chối"</string>
+    <string name="picker_browse" msgid="5554477454636075934">"Duyệt qua…"</string>
+    <string name="picker_settings" msgid="6443463167344790260">"Ứng dụng nghe nhìn trên đám mây"</string>
+    <string name="picker_settings_system_settings_menu_title" msgid="3055084757610063581">"Ứng dụng nghe nhìn trên đám mây"</string>
+    <string name="picker_settings_title" msgid="5647700706470673258">"Ứng dụng nghe nhìn trên đám mây"</string>
+    <string name="picker_settings_description" msgid="2916686824777214585">"Truy cập vào nội dung nghe nhìn của bạn trên đám mây khi có ứng dụng hay trang web yêu cầu bạn chọn ảnh hoặc video"</string>
+    <string name="picker_settings_selection_message" msgid="245453573086488596">"Truy cập nội dung nghe nhìn trên đám mây qua"</string>
+    <string name="picker_settings_no_provider" msgid="2582311853680058223">"Không có"</string>
+    <string name="picker_settings_toast_error" msgid="697274445512467469">"Hiện không thay đổi được ứng dụng đa phương tiện đám mây."</string>
+    <string name="picker_sync_notification_channel" msgid="1867105708912627993">"Công cụ chọn nội dung đa phương tiện"</string>
+    <string name="picker_sync_notification_title" msgid="1122713382122055246">"Công cụ chọn nội dung đa phương tiện"</string>
+    <string name="picker_sync_notification_text" msgid="8204423917712309382">"Đang đồng bộ hoá nội dung đa phương tiện…"</string>
+    <string name="add" msgid="2894574044585549298">"Thêm"</string>
+    <string name="deselect" msgid="4297825044827769490">"Bỏ chọn"</string>
+    <string name="deselected" msgid="8488133193326208475">"Đã bỏ chọn"</string>
+    <string name="select" msgid="2704765470563027689">"Chọn"</string>
+    <string name="selected" msgid="9151797369975828124">"Đã chọn"</string>
+    <string name="select_up_to" msgid="6994294169508439957">"{count,plural, =1{Chọn tối đa <xliff:g id="COUNT_0">^1</xliff:g> mục}other{Chọn tối đa <xliff:g id="COUNT_1">^1</xliff:g> mục}}"</string>
+    <string name="recent" msgid="6694613584743207874">"Gần đây"</string>
+    <string name="picker_photos_empty_message" msgid="5980619500554575558">"Không có ảnh hoặc video nào"</string>
+    <string name="picker_album_media_empty_message" msgid="7061850698189881671">"Không có ảnh hoặc video nào được hỗ trợ"</string>
+    <string name="picker_albums_empty_message" msgid="8341079772950966815">"Không có album nào"</string>
+    <string name="picker_view_selected" msgid="2266031384396143883">"Xem các mục được chọn"</string>
+    <string name="picker_photos" msgid="7415035516411087392">"Ảnh"</string>
+    <!-- no translation found for picker_videos (2886971435439047097) -->
+    <skip />
+    <string name="picker_albums" msgid="4822511902115299142">"Album"</string>
+    <string name="picker_preview" msgid="6257414886055861039">"Xem trước"</string>
+    <string name="picker_work_profile" msgid="2083221066869141576">"Chuyển sang hồ sơ công việc"</string>
+    <string name="picker_personal_profile" msgid="639484258397758406">"Chuyển sang hồ sơ cá nhân"</string>
+    <string name="picker_personal_profile_label" msgid="6189198163209597344">"Cá nhân"</string>
+    <string name="picker_profile_admin_title" msgid="4172022376418293777">"Quản trị viên của bạn đã chặn thao tác này"</string>
+    <string name="picker_profile_admin_msg_from_personal" msgid="1941639895084555723">"Bạn không được phép truy cập dữ liệu công việc từ một ứng dụng cá nhân"</string>
+    <string name="picker_profile_admin_msg_from_work" msgid="8048524337462790110">"Bạn không được phép truy cập dữ liệu cá nhân từ một ứng dụng công việc"</string>
+    <string name="picker_profile_admin_msg" msgid="4060112887923255178">"Không được phép truy cập dữ liệu <xliff:g id="PROFILE1">%1$s</xliff:g> từ một ứng dụng <xliff:g id="PROFILE2">%2$s</xliff:g>"</string>
+    <string name="picker_profile_switch_message" msgid="1133817927412489487">"Chuyển sang <xliff:g id="PROFILE">%s</xliff:g>"</string>
+    <string name="picker_profile_work_paused_title" msgid="382212880704235925">"Ứng dụng công việc đã tạm dừng"</string>
+    <string name="picker_profile_paused_title" msgid="2079739512895529028">"Các ứng dụng <xliff:g id="PROFILE">%s</xliff:g> đang tạm dừng"</string>
+    <string name="picker_profile_work_paused_msg" msgid="6321552322125246726">"Để mở ảnh trong hồ sơ công việc, hãy bật ứng dụng công việc rồi thử lại"</string>
+    <string name="picker_profile_paused_msg" msgid="1215076898583993782">"Để mở ảnh <xliff:g id="PROFILE1">%1$s</xliff:g>, hãy bật ứng dụng <xliff:g id="PROFILE2">%2$s</xliff:g> của bạn rồi thử lại"</string>
+    <string name="picker_privacy_message" msgid="9132700451027116817">"Ứng dụng này chỉ có thể truy cập vào những bức ảnh bạn chọn"</string>
+    <string name="picker_header_permissions" msgid="675872774407768495">"Chọn ảnh và video mà bạn cho phép ứng dụng này truy cập"</string>
+    <string name="picker_album_item_count" msgid="4420723302534177596">"{count,plural, =1{<xliff:g id="COUNT_0">^1</xliff:g> mục}other{<xliff:g id="COUNT_1">^1</xliff:g> mục}}"</string>
+    <string name="picker_add_button_multi_select" msgid="4005164092275518399">"Thêm (<xliff:g id="COUNT">^1</xliff:g>)"</string>
+    <string name="picker_add_button_multi_select_permissions" msgid="5138751105800138838">"Cho phép (<xliff:g id="COUNT">^1</xliff:g>)"</string>
+    <string name="picker_add_button_allow_none_option" msgid="9183772732922241035">"Không cho phép"</string>
+    <string name="picker_category_camera" msgid="4857367052026843664">"Máy ảnh"</string>
+    <string name="picker_category_downloads" msgid="793866660287361900">"Tệp đã tải xuống"</string>
+    <string name="picker_category_favorites" msgid="7008495397818966088">"Mục yêu thích"</string>
+    <string name="picker_category_screenshots" msgid="7216102327587644284">"Ảnh chụp màn hình"</string>
+    <!-- no translation found for picker_category_videos (1478458836380241356) -->
+    <skip />
+    <string name="picker_motion_photo_text" msgid="5016603812468180816">"Ảnh chuyển động"</string>
+    <string name="picker_item_content_desc" msgid="7680591530155286423">"<xliff:g id="ITEM_NAME">%1$s</xliff:g> được chụp vào <xliff:g id="TIME">%2$s</xliff:g>"</string>
+    <string name="picker_video_item_content_desc" msgid="7828900089119214801">"Video được quay lúc <xliff:g id="TIME">%1$s</xliff:g> với thời lượng <xliff:g id="DURATION">%2$s</xliff:g>"</string>
+    <string name="picker_photo" msgid="1739342083494962153">"Ảnh"</string>
+    <string name="picker_gif" msgid="8333318083107368726">"GIF"</string>
+    <string name="picker_motion_photo" msgid="4385182195289546308">"Ảnh chuyển động"</string>
+    <string name="picker_mute_video" msgid="2496585809229800096">"Tắt tiếng video"</string>
+    <string name="picker_unmute_video" msgid="6611741290641963568">"Bật tiếng video"</string>
+    <string name="picker_play_video" msgid="7106025944628666250">"Phát"</string>
+    <string name="picker_pause_video" msgid="1092718225234326702">"Tạm dừng"</string>
+    <string name="picker_error_snackbar" msgid="5970192792792369203">"Không thể phát video"</string>
+    <string name="picker_error_dialog_title" msgid="4540095603788920965">"Sự cố khi phát video"</string>
+    <string name="picker_error_dialog_body" msgid="2515738446802971453">"Hãy kiểm tra kết nối Internet rồi thử lại"</string>
+    <string name="picker_error_dialog_positive_action" msgid="749544129082109232">"Thử lại"</string>
+    <string name="not_selected" msgid="2244008151669896758">"chưa được chọn"</string>
+    <string name="preloading_dialog_title" msgid="4974348221848532887">"Đang chuẩn bị nội dung đa phương tiện mà bạn chọn"</string>
+    <string name="preloading_progress_message" msgid="4741327138031980582">"<xliff:g id="NUMBER_PRELOADED">%1$d</xliff:g>/<xliff:g id="NUMBER_TOTAL">%2$d</xliff:g> mục đã sẵn sàng"</string>
+    <string name="preloading_cancel_button" msgid="824053521307342209">"Huỷ"</string>
+    <string name="picker_banner_cloud_first_time_available_title" msgid="5912973744275711595">"Ảnh được sao lưu giờ đã có mặt"</string>
+    <string name="picker_banner_cloud_first_time_available_desc" msgid="5570916598348187607">"Bạn có thể chọn ảnh của <xliff:g id="USER_ACCOUNT">%2$s</xliff:g> trên <xliff:g id="APP_NAME">%1$s</xliff:g>"</string>
+    <string name="picker_banner_cloud_account_changed_title" msgid="4825058474378077327">"Đã cập nhật tài khoản <xliff:g id="APP_NAME">%1$s</xliff:g>"</string>
+    <string name="picker_banner_cloud_account_changed_desc" msgid="3433218869899792497">"Ảnh của <xliff:g id="USER_ACCOUNT">%1$s</xliff:g> giờ sẽ xuất hiện tại đây"</string>
+    <string name="picker_banner_cloud_choose_app_title" msgid="3165966147547974251">"Chọn ứng dụng đa phương tiện trên đám mây"</string>
+    <string name="picker_banner_cloud_choose_app_desc" msgid="2359212653555524926">"Để ảnh đã sao lưu xuất hiện tại đây, hãy chọn một ứng dụng đa phương tiện trên đám mây trong phần Cài đặt"</string>
+    <string name="picker_banner_cloud_choose_account_title" msgid="5010901185639577685">"Chọn tài khoản <xliff:g id="APP_NAME">%1$s</xliff:g>"</string>
+    <string name="picker_banner_cloud_choose_account_desc" msgid="8868134443673142712">"Để ảnh trên <xliff:g id="APP_NAME">%1$s</xliff:g> xuất hiện tại đây, hãy chọn một tài khoản trong ứng dụng"</string>
+    <string name="picker_banner_cloud_dismiss_button" msgid="2935903078288463882">"Đóng"</string>
+    <string name="picker_banner_cloud_choose_app_button" msgid="934085679890435479">"Chọn ứng dụng"</string>
+    <string name="picker_banner_cloud_choose_account_button" msgid="7979484877116991631">"Chọn tài khoản"</string>
+    <string name="picker_banner_cloud_change_account_button" msgid="8361239765828471146">"Thay đổi tài khoản"</string>
+    <string name="picker_loading_photos_message" msgid="6449180084857178949">"Tải tất cả các ảnh"</string>
+    <string name="permission_write_audio" msgid="8819694245323580601">"{count,plural, =1{Cho phép <xliff:g id="APP_NAME_0">^1</xliff:g> sửa đổi tệp âm thanh này?}other{Cho phép <xliff:g id="APP_NAME_1">^1</xliff:g> sửa đổi <xliff:g id="COUNT">^2</xliff:g> tệp âm thanh?}}"</string>
+    <string name="permission_progress_write_audio" msgid="6029375427984180097">"{count,plural, =1{Đang sửa đổi tệp âm thanh…}other{Đang sửa đổi <xliff:g id="COUNT">^1</xliff:g> tệp âm thanh…}}"</string>
+    <string name="permission_write_video" msgid="103902551603700525">"{count,plural, =1{Cho phép <xliff:g id="APP_NAME_0">^1</xliff:g> sửa đổi video này?}other{Cho phép <xliff:g id="APP_NAME_1">^1</xliff:g> sửa đổi <xliff:g id="COUNT">^2</xliff:g> video?}}"</string>
+    <string name="permission_progress_write_video" msgid="7014908418349819148">"{count,plural, =1{Đang sửa đổi video…}other{Đang sửa đổi <xliff:g id="COUNT">^1</xliff:g> video…}}"</string>
+    <string name="permission_write_image" msgid="3518991791620523786">"{count,plural, =1{Cho phép <xliff:g id="APP_NAME_0">^1</xliff:g> sửa đổi ảnh này?}other{Cho phép <xliff:g id="APP_NAME_1">^1</xliff:g> sửa đổi <xliff:g id="COUNT">^2</xliff:g> ảnh?}}"</string>
+    <string name="permission_progress_write_image" msgid="3623580315590025262">"{count,plural, =1{Đang sửa đổi ảnh…}other{Đang sửa đổi <xliff:g id="COUNT">^1</xliff:g> ảnh…}}"</string>
+    <string name="permission_write_generic" msgid="7431128739233656991">"{count,plural, =1{Cho phép <xliff:g id="APP_NAME_0">^1</xliff:g> sửa đổi mục này?}other{Cho phép <xliff:g id="APP_NAME_1">^1</xliff:g> sửa đổi <xliff:g id="COUNT">^2</xliff:g> mục?}}"</string>
+    <string name="permission_progress_write_generic" msgid="2806560971318391443">"{count,plural, =1{Đang sửa đổi mục…}other{Đang sửa đổi <xliff:g id="COUNT">^1</xliff:g> mục…}}"</string>
+    <string name="permission_trash_audio" msgid="6554672354767742206">"{count,plural, =1{Cho phép <xliff:g id="APP_NAME_0">^1</xliff:g> chuyển tệp âm thanh này vào thùng rác?}other{Cho phép <xliff:g id="APP_NAME_1">^1</xliff:g> chuyển <xliff:g id="COUNT">^2</xliff:g> tệp âm thanh vào thùng rác?}}"</string>
+    <string name="permission_progress_trash_audio" msgid="3116279868733641329">"{count,plural, =1{Đang chuyển tệp âm thanh vào thùng rác…}other{Đang chuyển <xliff:g id="COUNT">^1</xliff:g> tệp âm thanh vào thùng rác…}}"</string>
+    <string name="permission_trash_video" msgid="7555850843259959642">"{count,plural, =1{Cho phép <xliff:g id="APP_NAME_0">^1</xliff:g> chuyển video này vào thùng rác?}other{Cho phép <xliff:g id="APP_NAME_1">^1</xliff:g> chuyển <xliff:g id="COUNT">^2</xliff:g> video vào thùng rác?}}"</string>
+    <string name="permission_progress_trash_video" msgid="4637821778329459681">"{count,plural, =1{Đang chuyển video vào thùng rác…}other{Đang chuyển <xliff:g id="COUNT">^1</xliff:g> video vào thùng rác…}}"</string>
+    <string name="permission_trash_image" msgid="3333128084684156675">"{count,plural, =1{Cho phép <xliff:g id="APP_NAME_0">^1</xliff:g> chuyển ảnh này vào thùng rác?}other{Cho phép <xliff:g id="APP_NAME_1">^1</xliff:g> chuyển <xliff:g id="COUNT">^2</xliff:g> ảnh vào thùng rác?}}"</string>
+    <string name="permission_progress_trash_image" msgid="3063857679090024764">"{count,plural, =1{Đang chuyển ảnh vào thùng rác…}other{Đang chuyển <xliff:g id="COUNT">^1</xliff:g> ảnh vào thùng rác…}}"</string>
+    <string name="permission_trash_generic" msgid="5545420534785075362">"{count,plural, =1{Cho phép <xliff:g id="APP_NAME_0">^1</xliff:g> chuyển mục này vào thùng rác?}other{Cho phép <xliff:g id="APP_NAME_1">^1</xliff:g> chuyển <xliff:g id="COUNT">^2</xliff:g> mục vào thùng rác?}}"</string>
+    <string name="permission_progress_trash_generic" msgid="7815124979717814057">"{count,plural, =1{Đang chuyển mục vào thùng rác…}other{Đang chuyển <xliff:g id="COUNT">^1</xliff:g> mục vào thùng rác…}}"</string>
+    <string name="permission_untrash_audio" msgid="8404597563284002472">"{count,plural, =1{Cho phép <xliff:g id="APP_NAME_0">^1</xliff:g> chuyển tệp âm thanh này ra khỏi thùng rác?}other{Cho phép <xliff:g id="APP_NAME_1">^1</xliff:g> chuyển <xliff:g id="COUNT">^2</xliff:g> tệp âm thanh ra khỏi thùng rác?}}"</string>
+    <string name="permission_progress_untrash_audio" msgid="2775372344946464508">"{count,plural, =1{Đang chuyển tệp âm thanh ra khỏi thùng rác…}other{Đang chuyển <xliff:g id="COUNT">^1</xliff:g> tệp âm thanh ra khỏi thùng rác…}}"</string>
+    <string name="permission_untrash_video" msgid="3178914827607608162">"{count,plural, =1{Cho phép <xliff:g id="APP_NAME_0">^1</xliff:g> chuyển video này ra khỏi thùng rác?}other{Cho phép <xliff:g id="APP_NAME_1">^1</xliff:g> chuyển <xliff:g id="COUNT">^2</xliff:g> video ra khỏi thùng rác?}}"</string>
+    <string name="permission_progress_untrash_video" msgid="5500929409733841567">"{count,plural, =1{Đang chuyển video ra khỏi thùng rác…}other{Đang chuyển <xliff:g id="COUNT">^1</xliff:g> video ra khỏi thùng rác…}}"</string>
+    <string name="permission_untrash_image" msgid="3397523279351032265">"{count,plural, =1{Cho phép <xliff:g id="APP_NAME_0">^1</xliff:g> chuyển ảnh này ra khỏi thùng rác?}other{Cho phép <xliff:g id="APP_NAME_1">^1</xliff:g> chuyển <xliff:g id="COUNT">^2</xliff:g> ảnh ra khỏi thùng rác?}}"</string>
+    <string name="permission_progress_untrash_image" msgid="5295061520504846264">"{count,plural, =1{Đang chuyển ảnh ra khỏi thùng rác…}other{Đang chuyển <xliff:g id="COUNT">^1</xliff:g> ảnh ra khỏi thùng rác…}}"</string>
+    <string name="permission_untrash_generic" msgid="2118366929431671046">"{count,plural, =1{Cho phép <xliff:g id="APP_NAME_0">^1</xliff:g> chuyển mục này ra khỏi thùng rác?}other{Cho phép <xliff:g id="APP_NAME_1">^1</xliff:g> chuyển <xliff:g id="COUNT">^2</xliff:g> mục ra khỏi thùng rác?}}"</string>
+    <string name="permission_progress_untrash_generic" msgid="1489511601966842579">"{count,plural, =1{Đang chuyển mục ra khỏi thùng rác…}other{Đang chuyển <xliff:g id="COUNT">^1</xliff:g> mục ra khỏi thùng rác…}}"</string>
+    <string name="permission_delete_audio" msgid="3326674742892796627">"{count,plural, =1{Cho phép <xliff:g id="APP_NAME_0">^1</xliff:g> xoá tệp âm thanh này?}other{Cho phép <xliff:g id="APP_NAME_1">^1</xliff:g> xoá <xliff:g id="COUNT">^2</xliff:g> tệp âm thanh?}}"</string>
+    <string name="permission_progress_delete_audio" msgid="1734871539021696401">"{count,plural, =1{Đang xoá tệp âm thanh…}other{Đang xoá <xliff:g id="COUNT">^1</xliff:g> tệp âm thanh…}}"</string>
+    <string name="permission_delete_video" msgid="604024971828349279">"{count,plural, =1{Cho phép <xliff:g id="APP_NAME_0">^1</xliff:g> xoá video này?}other{Cho phép <xliff:g id="APP_NAME_1">^1</xliff:g> xoá <xliff:g id="COUNT">^2</xliff:g> video?}}"</string>
+    <string name="permission_progress_delete_video" msgid="1846702435073793157">"{count,plural, =1{Đang xoá video…}other{Đang xoá <xliff:g id="COUNT">^1</xliff:g> video…}}"</string>
+    <string name="permission_delete_image" msgid="3109056012794330510">"{count,plural, =1{Cho phép <xliff:g id="APP_NAME_0">^1</xliff:g> xoá ảnh này?}other{Cho phép <xliff:g id="APP_NAME_1">^1</xliff:g> xoá <xliff:g id="COUNT">^2</xliff:g> ảnh?}}"</string>
+    <string name="permission_progress_delete_image" msgid="8580517204901148906">"{count,plural, =1{Đang xoá ảnh…}other{Đang xoá <xliff:g id="COUNT">^1</xliff:g> ảnh…}}"</string>
+    <string name="permission_delete_generic" msgid="7891939881065520271">"{count,plural, =1{Cho phép <xliff:g id="APP_NAME_0">^1</xliff:g> xoá mục này?}other{Cho phép <xliff:g id="APP_NAME_1">^1</xliff:g> xoá <xliff:g id="COUNT">^2</xliff:g> mục?}}"</string>
+    <string name="permission_progress_delete_generic" msgid="6709118146245087898">"{count,plural, =1{Đang xoá mục…}other{Đang xoá <xliff:g id="COUNT">^1</xliff:g> mục…}}"</string>
+    <string name="transcode_denied" msgid="6760546817138288976">"<xliff:g id="APP_NAME">%s</xliff:g> không thể xử lý các tệp nội dung nghe nhìn"</string>
+    <string name="transcode_processing_cancelled" msgid="5340383917746945590">"Đã hủy quá trình xử lý nội dung nghe nhìn"</string>
+    <string name="transcode_processing_error" msgid="8921643164508407874">"Lỗi khi xử lý nội dung nghe nhìn"</string>
+    <string name="transcode_processing_success" msgid="447288876429730122">"Đã xử lý thành công nội dung nghe nhìn"</string>
+    <string name="transcode_processing_started" msgid="7789086308155361523">"Đã bắt đầu xử lý nội dung nghe nhìn"</string>
+    <string name="transcode_processing" msgid="6753136468864077258">"Đang xử lý nội dung nghe nhìn..."</string>
+    <string name="transcode_cancel" msgid="8555752601907598192">"Hủy"</string>
+    <string name="transcode_wait" msgid="8909773149560697501">"Đợi"</string>
+    <string name="safety_protection_icon_label" msgid="6714354052747723623">"Bảo vệ an toàn"</string>
+    <string name="transcode_alert_channel" msgid="997332371757680478">"Cảnh báo chuyển mã gốc"</string>
+    <string name="transcode_progress_channel" msgid="6905136787933058387">"Tiến trình chuyển mã gốc"</string>
+    <string name="dialog_error_message" msgid="5120432204743681606">"Hãy thử lại sau. Ảnh của bạn sẽ xuất hiện sau khi vấn đề được giải quyết."</string>
+    <string name="dialog_error_title" msgid="636349284077820636">"Không tải được một số ảnh"</string>
+    <string name="dialog_button_text" msgid="351366485240852280">"Tôi hiểu"</string>
+    <string name="permlab_accessMediaOwnerPackageName" msgid="3849443148060165651">"Truy cập tên gói chủ sở hữu của tất cả tệp đa phương tiện"</string>
+    <string name="permdesc_accessMediaOwnerPackageName" msgid="7381563109363105371">"Cho phép ứng dụng truy cập tên gói chủ sở hữu của tất cả tệp đa phương tiện có thể truy cập."</string>
+</resources>

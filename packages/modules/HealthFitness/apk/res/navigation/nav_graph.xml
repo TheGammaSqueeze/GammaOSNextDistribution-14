@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  Copyright (C) 2022 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/home_nav_graph"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/recentAccessFragment"
+        android:name="com.android.healthconnect.controller.recentaccess.RecentAccessFragment"
+        android:label="@string/recent_access_header">
+        <action
+            android:id="@+id/action_recentAccessFragment_to_connectedAppFragment"
+            app:destination="@id/connectedAppFragment" />
+        <action
+            android:id="@+id/action_recentAccessFragment_to_connectedAppsFragment"
+            app:destination="@+id/connectedAppsFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.android.healthconnect.controller.home.HomeFragment"
+        android:label="@string/app_label">
+        <action
+            android:id="@+id/action_homeFragment_to_connectedAppFragment"
+            app:destination="@id/connectedAppFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_healthDataCategoriesFragment"
+            app:destination="@id/data_activity" />
+        <action
+            android:id="@+id/action_homeFragment_to_recentAccessFragment"
+            app:destination="@id/recentAccessFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_connectedAppsFragment"
+            app:destination="@id/connectedAppsFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_migrationActivity"
+            app:destination="@id/migrationActivity" />
+        <action
+            android:id="@+id/action_homeFragment_to_manageDataFragment"
+            app:destination="@+id/manageDataFragment"/>
+        <action
+            android:id="@+id/action_homeFragment_to_systemUpdateActivity"
+            app:destination="@id/systemUpdateActivity"/>
+    </fragment>
+
+    <activity
+        android:id="@+id/migrationActivity"
+        android:name="com.android.healthconnect.controller.migration.MigrationActivity"/>
+
+    <activity
+        android:id="@+id/data_activity"
+        app:action="android.health.connect.action.MANAGE_HEALTH_DATA" />
+
+    <activity
+        android:id="@+id/exportFrequencyActivity"
+        android:name="com.android.healthconnect.controller.export.ExportFrequencyActivity"/>
+
+    <fragment
+        android:id="@+id/exportSettingsFragment"
+        android:name="com.android.healthconnect.controller.export.ExportSettingsFragment"
+        android:label="@string/export_settings_screen_title">
+        <action
+            android:id="@+id/action_exportSettingsFragment_to_exportFrequencyActivity"
+            app:destination="@id/exportFrequencyActivity" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/connectedAppsFragment"
+        android:name="com.android.healthconnect.controller.permissions.connectedapps.ConnectedAppsFragment"
+        android:label="@string/connected_apps_title">
+        <action
+            android:id="@+id/action_connectedApps_to_helpAndFeedback"
+            app:destination="@id/helpAndFeedbackFragment" />
+        <action
+            android:id="@+id/action_connectedApps_to_connectedApp"
+            app:destination="@id/connectedAppFragment" />
+        <action
+            android:id="@+id/action_connectedApps_to_searchApps"
+            app:destination="@id/searchConnectedApps" />
+        <action
+            android:id="@+id/action_connected_apps_to_updated_apps"
+            app:destination="@id/update_apps_activity" />
+
+        <action
+            android:id="@+id/action_connected_apps_to_play_store"
+            app:destination="@id/playstore_activity" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/connectedAppFragment"
+        android:label="@string/app_access_title"
+        android:name="com.android.healthconnect.controller.permissions.app.ConnectedAppFragment">
+        <argument
+            android:name="android.intent.extra.PACKAGE_NAME"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_connectedApp_to_appData"
+            app:destination="@id/appDataFragment" />
+        <action
+            android:id="@+id/action_connectedAppFragment_to_additionalAccessFragment"
+            app:destination="@id/additionalAccessFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/appDataFragment"
+        android:label="@string/app_data_title"
+        android:name="com.android.healthconnect.controller.data.appdata.AppDataFragment">
+        <argument
+            android:name="android.intent.extra.PACKAGE_NAME"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_appData_to_appEntries"
+            app:destination="@id/appEntriesFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/appEntriesFragment"
+        android:label="App entries"
+        android:name="com.android.healthconnect.controller.data.entries.AppEntriesFragment">
+        <argument
+            android:name="android.intent.extra.PACKAGE_NAME"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_appEntriesFragment_to_dataEntryDetailsFragment"
+            app:destination="@id/dataEntryDetailsFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/dataEntryDetailsFragment" android:name="com.android.healthconnect.controller.entrydetails.DataEntryDetailsFragment"
+        android:label="@string/entry_details_title" >
+    </fragment>
+
+    <fragment
+        android:id="@+id/searchConnectedApps"
+        android:name="com.android.healthconnect.controller.permissions.connectedapps.searchapps.SearchAppsFragment">
+        <action
+            android:id="@+id/action_searchApps_to_connectedApp"
+            app:destination="@id/connectedAppFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/helpAndFeedbackFragment"
+        android:name="com.android.healthconnect.controller.permissions.shared.HelpAndFeedbackFragment"
+        android:label="@string/help_and_feedback">
+        <action
+            android:id="@+id/action_cant_see_all_apps_to_play_store"
+            app:destination="@id/playstore_activity" />
+        <action
+            android:id="@+id/action_cant_see_all_apps_to_updated_apps"
+            app:destination="@id/update_apps_activity" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/manageDataFragment"
+        android:name="com.android.healthconnect.controller.managedata.ManageDataFragment"
+        android:label="@string/manage_data_section">
+        <action
+            android:id="@+id/action_manageData_to_autoDelete"
+            app:destination="@+id/autoDeleteFragment"/>
+        <action
+            android:id="@+id/action_manageData_to_dataSources"
+            app:destination="@+id/dataSourcesFragment"/>
+        <action
+            android:id="@+id/action_manageData_to_setUnits"
+            app:destination="@+id/setUnitsFragment"/>
+        <action
+            android:id="@+id/action_manageData_to_saveData"
+            app:destination="@+id/exportSettingsFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/dataSourcesFragment"
+        android:name="com.android.healthconnect.controller.datasources.DataSourcesFragment"
+        android:label="@string/data_sources_and_priority_title">
+        <action
+            android:id="@+id/action_dataSourcesFragment_to_addAnAppFragment"
+            app:destination="@id/addAnAppFragment"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/addAnAppFragment"
+        android:name="com.android.healthconnect.controller.datasources.AddAnAppFragment"
+        android:label="@string/data_sources_add_app">
+        <action
+            android:id="@+id/action_addAnAppFragment_to_dataSourcesFragment"
+            app:popUpTo="@id/dataSourcesFragment"
+            app:popUpToInclusive="true"
+            app:destination="@id/dataSourcesFragment"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/autoDeleteFragment"
+        android:name="com.android.healthconnect.controller.autodelete.AutoDeleteFragment"
+        android:label="@string/auto_delete_title"/>
+
+    <fragment
+        android:id="@+id/setUnitsFragment"
+        android:name="com.android.healthconnect.controller.dataentries.units.UnitsFragment"
+        android:label="@string/units_title"/>
+
+    <fragment
+        android:id="@+id/additionalAccessFragment"
+        android:name="com.android.healthconnect.controller.permissions.additionalaccess.AdditionalAccessFragment"
+        android:label="@string/additional_access_label" >
+        <argument
+            android:name="android.intent.extra.PACKAGE_NAME"
+            app:argType="string" />
+    </fragment>
+
+    <activity
+        android:id="@+id/playstore_activity"
+        android:label="@string/playstore_app_title"
+        app:action="android.intent.action.VIEW"
+        app:data="@string/playstore_collection_url"
+        app:targetPackage="@string/playstore_package_name" />
+
+    <activity
+        android:id="@+id/update_apps_activity"
+        app:action="android.intent.action.VIEW"
+        android:label="@string/playstore_app_title"
+        app:data="@string/playstore_manage_apps_url"
+        app:targetPackage="@string/playstore_package_name" />
+
+    <activity
+        android:id="@+id/systemUpdateActivity"
+        app:action="android.settings.SYSTEM_UPDATE_SETTINGS"
+        android:label="systemUpdateActivity"/>
+
+</navigation>

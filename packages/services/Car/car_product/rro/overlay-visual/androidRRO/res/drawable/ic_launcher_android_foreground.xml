@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright 2023 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:aapt="http://schemas.android.com/aapt"
+        android:width="108dp"
+        android:height="108dp"
+        android:viewportWidth="108"
+        android:viewportHeight="108">
+    <group>
+        <clip-path
+            android:pathData="M0,0h108v108h-108z"/>
+        <path
+            android:pathData="M37.17,59.17L34,45L73.2,37.39L127.15,91.34L91.34,127.14L33.54,69.35L37.17,59.17Z">
+            <aapt:attr name="android:fillColor">
+                <gradient
+                    android:startX="56.74"
+                    android:startY="61.74"
+                    android:endX="74.62"
+                    android:endY="79.11"
+                    android:type="linear">
+                    <item android:offset="0" android:color="#0C001493"/>
+                    <item android:offset="1" android:color="#02000000"/>
+                </gradient>
+            </aapt:attr>
+        </path>
+        <path
+            android:pathData="M72.73,55.56C72.73,56.5 73.13,57.42 73.86,58.08L77.28,61.14C77.87,61.66 78.02,62.54 77.61,63.24L73.9,69.59C73.49,70.3 72.65,70.6 71.89,70.36L67.5,68.96C66.57,68.67 65.56,68.78 64.74,69.26L61.99,70.82C61.17,71.29 60.56,72.09 60.36,73.04L59.38,77.5C59.22,78.27 58.53,78.84 57.71,78.84H50.29C49.47,78.84 48.78,78.26 48.62,77.5L47.64,73.04C47.44,72.09 46.83,71.29 46.01,70.82L43.26,69.26C42.44,68.79 41.43,68.67 40.5,68.96L36.1,70.36C35.35,70.6 34.51,70.3 34.1,69.59L30.39,63.24C29.98,62.54 30.13,61.66 30.72,61.14L34.14,58.08C34.87,57.43 35.27,56.51 35.27,55.56V52.44C35.27,51.49 34.87,50.57 34.14,49.92L30.72,46.86C30.13,46.34 29.98,45.46 30.39,44.76L34.1,38.41C34.51,37.7 35.35,37.4 36.1,37.64L40.5,39.03C41.43,39.33 42.44,39.22 43.26,38.74L46.01,37.18C46.83,36.71 47.44,35.91 47.64,34.96L48.62,30.5C48.78,29.73 49.47,29.16 50.29,29.16H57.71C58.53,29.16 59.22,29.73 59.38,30.49L60.36,34.95C60.56,35.9 61.17,36.7 61.99,37.18L64.74,38.74C65.56,39.21 66.57,39.33 67.5,39.03L71.89,37.64C72.65,37.4 73.49,37.7 73.9,38.4L77.61,44.76C78.02,45.46 77.87,46.33 77.28,46.86L73.86,49.92C73.13,50.57 72.73,51.49 72.73,52.43V55.56ZM65.53,54C65.53,60.37 60.37,65.53 54,65.53C47.63,65.53 42.47,60.37 42.47,54C42.47,47.63 47.63,42.47 54,42.47C60.37,42.47 65.53,47.63 65.53,54ZM60.88,54C60.88,57.8 57.8,60.88 54,60.88C50.2,60.88 47.13,57.8 47.13,54C47.13,50.2 50.2,47.13 54,47.13C57.8,47.13 60.88,50.2 60.88,54Z"
+            android:fillColor="#ffffff"
+            android:fillType="evenOdd"/>
+    </group>
+</vector>

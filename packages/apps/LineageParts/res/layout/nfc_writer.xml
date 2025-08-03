@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2012 The CyanogenMod Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:gravity="center">
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_centerInParent="true">
+
+        <TextView
+            style="?android:attr/textAppearanceMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="30dip"
+            android:layout_marginEnd="30dip"
+            android:layout_marginBottom="30dip"
+            android:layout_gravity="center"
+            android:text="@string/profile_nfc_text" />
+
+        <ImageView
+            android:id="@+id/nfc_writer_image"
+            android:layout_width="84dp"
+            android:layout_height="84dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_local_offer_48px" />
+
+        <TextView android:id="@+id/touch_tag"
+            style="?android:attr/textAppearanceLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dip"
+            android:layout_gravity="center"
+            android:text="@string/profile_write_touch_tag" />
+
+    </LinearLayout>
+</RelativeLayout>

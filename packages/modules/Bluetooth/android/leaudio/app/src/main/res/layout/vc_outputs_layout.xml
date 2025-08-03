@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/vc_outputs_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:orientation="vertical"
+    tools:showIn="@layout/vc_layout">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/vc_output_foldable_icon"
+            style="@style/Widget.AppCompat.CompoundButton.RadioButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="5dp"
+            android:layout_marginRight="10dp"
+            android:layout_weight="0"
+            android:tint="#E91E63"
+            app:srcCompat="@drawable/ic_arrow_drop_up_black_24dp" />
+
+        <TextView
+            android:id="@+id/textView9"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:text="Output:" />
+
+        <Spinner
+            android:id="@+id/num_outputs_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="5dp"
+            android:layout_weight="0" />
+
+        <ImageButton
+            android:id="@+id/outputGetGainButton"
+            style="@style/Widget.AppCompat.CompoundButton.RadioButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_weight="0"
+            android:maxWidth="0dp"
+            android:maxHeight="0dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            app:srcCompat="@drawable/ic_download_black_24dp" />
+
+        <TextView
+            android:id="@+id/textView19"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="5dp"
+            android:layout_weight="0"
+            android:text="Offset:" />
+
+        <SeekBar
+            android:id="@+id/outputGainSeekBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="5dp"
+            android:layout_weight="5"
+            android:max="255"
+            android:min="-255" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ext_output_foldable"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:animateLayoutChanges="true"
+        android:orientation="vertical"
+        android:visibility="visible">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:gravity="bottom"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/outputGetLocationButton"
+                style="@style/Widget.AppCompat.CompoundButton.RadioButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_weight="0"
+                android:maxWidth="0dp"
+                android:maxHeight="0dp"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                app:srcCompat="@drawable/ic_download_black_24dp" />
+
+            <ImageButton
+                android:id="@+id/outputSetLocationButton"
+                style="@style/Widget.AppCompat.CompoundButton.RadioButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="5dp"
+                android:layout_weight="0"
+                app:srcCompat="@drawable/ic_upload_black_24dp" />
+
+            <TextView
+                android:id="@+id/textView15"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="5dp"
+                android:layout_weight="0"
+                android:text="Location:" />
+
+            <TextView
+                android:id="@+id/outputLocationText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="5dp"
+                android:layout_weight="1"
+                android:text="_location_" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:gravity="bottom"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/outputGetDescriptionButton"
+                style="@style/Widget.AppCompat.CompoundButton.RadioButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_weight="0"
+                android:maxWidth="0dp"
+                android:maxHeight="0dp"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                app:srcCompat="@drawable/ic_download_black_24dp" />
+
+            <ImageButton
+                android:id="@+id/outputSetDescriptionButton"
+                style="@style/Widget.AppCompat.CompoundButton.RadioButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="5dp"
+                android:layout_weight="0"
+                app:srcCompat="@drawable/ic_upload_black_24dp" />
+
+            <TextView
+                android:id="@+id/textView115"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="5dp"
+                android:layout_weight="0"
+                android:text="Description:" />
+
+            <TextView
+                android:id="@+id/outputDescriptionText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="5dp"
+                android:layout_weight="1"
+                android:text="_description_" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

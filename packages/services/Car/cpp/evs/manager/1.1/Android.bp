@@ -1,0 +1,176 @@
+// Copyright (C) 2019 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+//
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_defaults {
+    name: "android.automotive.evs.manager_defaults",
+
+    shared_libs: [
+        "android.hardware.automotive.evs@1.0",
+        "android.hardware.automotive.evs@1.1",
+        "libbase",
+        "libcamera_metadata",
+        "libcutils",
+        "libhardware",
+        "libhidlbase",
+        "libpng",
+        "libprocessgroup",
+        "libstatslog_evs",
+        "libui",
+        "libutils",
+    ],
+
+    static_libs: ["libc++fs"],
+
+    cflags: [
+        "-DLOG_TAG=\"EvsManagerV1_1\"",
+        "-DGL_GLEXT_PROTOTYPES",
+        "-DEGL_EGLEXT_PROTOTYPES",
+        "-D_LIBCPP_ENABLE_THREAD_SAFETY_ANNOTATIONS",
+        "-Wall",
+        "-Werror",
+        "-Wunused",
+        "-Wunreachable-code",
+        "-Wthread-safety",
+    ],
+
+    export_include_dirs: [
+        "./",
+        "stats/",
+    ],
+
+    product_variables: {
+        debuggable: {
+            cflags: [
+                "-DEVS_DEBUG",
+            ],
+        },
+    },
+}
+
+filegroup {
+    name: "android.automotive.evs.manager_sources",
+
+    srcs: [
+        "Enumerator.cpp",
+        "EnumeratorProxy.cpp",
+        "HalCamera.cpp",
+        "HalDisplay.cpp",
+        "VirtualCamera.cpp",
+        "emul/EvsEmulatedCamera.cpp",
+        "emul/VideoCapture.cpp",
+        "stats/CameraUsageStats.cpp",
+        "stats/LooperWrapper.cpp",
+        "stats/StatsCollector.cpp",
+    ],
+}
+
+cc_library_static {
+    name: "libevsmanager_static",
+    defaults: ["android.automotive.evs.manager_defaults"],
+    srcs: [":android.automotive.evs.manager_sources"],
+    export_include_dirs: ["."],
+}
+
+cc_binary {
+    name: "android.automotive.evs.manager@1.1",
+    defaults: ["android.automotive.evs.manager_defaults"],
+    srcs: [
+        ":android.automotive.evs.manager_sources",
+        "service.cpp",
+    ],
+    init_rc: ["android.automotive.evs.manager@1.1.rc"],
+    vintf_fragments: ["manifest_android.automotive.evs.manager@1.1.xml"],
+}
+
+cc_library {
+    name: "libstatslog_evs",
+    generated_sources: ["statslog_evs.cpp"],
+    generated_headers: ["statslog_evs.h"],
+    export_generated_headers: ["statslog_evs.h"],
+    min_sdk_version: "30",
+    shared_libs: [
+        "libbinder",
+        "libstatsbootstrap",
+        "libutils",
+        "android.os.statsbootstrap_aidl-cpp",
+    ],
+}
+
+genrule {
+    name: "statslog_evs.h",
+    tools: ["stats-log-api-gen"],
+    cmd: "$(location stats-log-api-gen) --header $(genDir)/statslog_evs.h --module evs" +
+        " --namespace android,automotive,evs,stats --bootstrap",
+    out: [
+        "statslog_evs.h",
+    ],
+}
+
+genrule {
+    name: "statslog_evs.cpp",
+    tools: ["stats-log-api-gen"],
+    cmd: "$(location stats-log-api-gen) --cpp $(genDir)/statslog_evs.cpp --module evs" +
+        " --namespace android,automotive,evs,stats --importHeader statslog_evs.h" +
+        " --bootstrap",
+    out: [
+        "statslog_evs.cpp",
+    ],
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Tests
+// TODO(b/206829268):  This target should allow for host supported testing, but
+// currently has platform specific dependencies.
+////////////////////////////////////////////////////////////////////////////////
+cc_test {
+    name: "EvsEnumeratorTest",
+    srcs: ["test/unit/EvsEnumeratorTest.cpp"],
+    static_libs: [
+        "libevsmanager_static",
+        "libgmock",
+    ],
+    defaults: ["android.automotive.evs.manager_defaults"],
+
+    // TODO(b/206829268):  See above.
+    // host_supported: true,
+}
+
+cc_test {
+    name: "EnumeratorProxyTest",
+    srcs: ["test/unit/EnumeratorProxyTest.cpp"],
+    static_libs: [
+        "libevsmanager_static",
+        "libgmock",
+    ],
+    defaults: ["android.automotive.evs.manager_defaults"],
+}
+
+cc_test {
+    name: "StatsCollectorTest",
+    srcs: ["test/unit/StatsCollectorTest.cpp"],
+    static_libs: [
+        "libevsmanager_static",
+        "libgmock",
+    ],
+    defaults: ["android.automotive.evs.manager_defaults"],
+
+    // TODO(b/206829268):  See above.
+    // host_supported: true,
+}

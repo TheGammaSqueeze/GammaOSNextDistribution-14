@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2006 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="applicationLabel">Contautos</string>
+    <string name="contactsList">Contautos</string>
+    <string name="shortcut_add_contact">Amestar un contautu</string>
+    <string name="shortcutContact">Contautu</string>
+    <string name="shortcutDialContact">Marcación direuta</string>
+    <string name="shortcutMessageContact">Mensaxe direutu</string>
+    <string name="shortcutActivityTitle">Seleición d\'un contautu</string>
+    <string name="contactPickerActivityTitle">Escueyi un contautu</string>
+    <string name="groupMemberPickerActivityTitle">Seleición</string>
+    <string name="header_entry_contact_list_adapter_header_title">Crear un contautu</string>
+    <string name="menu_addStar">Amestar a Favoritos</string>
+    <string name="menu_removeStar">Quitar de Favoritos</string>
+    <string name="menu_editContact">Editar</string>
+    <string name="menu_deleteContact">Desaniciar</string>
+    <string name="menu_change_photo">Camudar la semeya</string>
+    <string name="menu_create_contact_shortcut">Crear un atayu</string>
+    <string name="menu_splitAggregate">Desenllaciar</string>
+    <string name="menu_editGroup">Quitar los contautos</string>
+    <string name="menu_renameGroup">Renomar la etiqueta</string>
+    <string name="menu_deleteGroup">Desaniciar la etiqueta</string>
+    <string name="splitConfirmation_positive_button">Desenllaciar</string>
+    <string name="splitConfirmationWithPendingChanges_positive_button">Guardar y desenllaciar</string>
+    <string name="joinConfirmation_positive_button">Guardar y enllaciar</string>
+    <string name="menu_save">Guardar</string>
+    <string name="separatorJoinAggregateSuggestions">Contautos suxeríos</string>
+    <string name="separatorJoinAggregateAll">Tolos contautos</string>
+    <string name="contactsJoinedNamedMessage">Enllacióse «<xliff:g id="name">%s</xliff:g>»</string>
+    <string name="contactsJoinedMessage">Enllaciáronse los contautos</string>
+    <string name="contacts_deleted_one_named_toast">Desanicióse «<xliff:g id="name">%1$s</xliff:g>»</string>
+    <string name="contacts_deleted_two_named_toast">Desanicióse a «<xliff:g id="name">%1$s</xliff:g>» y «<xliff:g id="name">%2$s</xliff:g>»</string>
+    <string name="contacts_deleted_many_named_toast">Desanicióse a «<xliff:g id="name">%1$s</xliff:g>», «<xliff:g id="name">%2$s</xliff:g>», «<xliff:g id="name">%3$s</xliff:g>»\u2026</string>
+    <string name="contacts_deleted_toast"> {count, plural,
+        one {}=1    {Desanicióse\'l contautu}
+        other {Desaniciáronse los contautos}
+    }</string>
+    <string name="contacts_count"> {count, plural,
+        one {}=1    {# contautu}
+        other {# contautos}
+    }</string>
+    <string name="contacts_count_with_account"> {count, plural,
+        one {}=1    {# contautu · {account}}
+        other {# contautos · {account}}
+    }</string>
+    <string name="readOnlyContactWarning">Esti contautu ye de namás llectura. Nun se pue desaniciar, mas pues escondelu.</string>
+    <string name="readOnlyContactWarning_positive_button">Esconder el contautu</string>
+    <string name="single_delete_confirmation">¿Quies desaniciar esti contautu?</string>
+    <string name="batch_delete_confirmation">¿Quies desaniciar los contautos seleicionaos?</string>
+    <string name="deleteConfirmation">¿Quies desaniciar esti contautu?</string>
+    <string name="deleteConfirmation_positive_button">Desaniciar</string>
+    <string name="invalidContactMessage">El contautu nun esiste.</string>
+    <string name="photoPickerNotFoundText">Nun hai nenguna semeya disponible nel preséu.</string>
+    <string name="removePhoto">Desaniciar la semeya</string>
+    <string name="noContacts">La llista de contautos ta balera</string>
+    <string name="emptyGroup">Nun hai nengún contautu con esta etiqueta</string>
+    <string name="emptyAccount">Nun hai nengún contautu nesta cuenta</string>
+    <string name="emptyMainList">La llista de contautos ta balera</string>
+    <string name="contactSavedNamedToast">Guardóse «<xliff:g id="display_name">%s</xliff:g>»</string>
+    <string name="contactSavedToast">Guardóse\'l contautu</string>
+    <string name="contactUnlinkedToast">Desenllaciáronse los contautos</string>
+    <string name="contactSavedErrorToast">Nun se pudieron guardar los cambeos del contautu</string>
+    <string name="contactUnlinkErrorToast">Nun se pudo desenllaciar el contautu</string>
+    <string name="contactJoinErrorToast">Nun se pudo enllaciar el contautu</string>
+    <string name="groupDeletedToast">Desanicióse la etiqueta</string>
+    <string name="groupCreatedToast">Creóse la etiqueta</string>
+    <string name="groupCreateFailedToast">Nun se pue crear la etiqueta</string>
+    <string name="groupUpdatedToast">Anovóse la etiqueta</string>
+    <string name="groupMembersRemovedToast">Quitóse de la etiqueta</string>
+    <string name="quickcontact_transparent_view_description">Calca pa volver a la pantalla anterior</string>
+    <string name="missing_app">Nun s\'atopó nenguna aplicación pa remanar esta aición.</string>
+    <string name="title_share_via"> {count, plural,
+        one {}=1    {Compartir el contautu per}
+        other {Compartir los contautos per}
+    }</string>
+    <string name="search_results_searching">Buscando\u2026</string>
+    <string name="event_edit_field_hint_text">Data</string>
+    <string name="group_edit_field_hint_text">Etiqueta</string>
+    <string name="editor_uneditable_section_title">Nun se pue anovar esta información</string>
+    <string name="cancel_button_content_description">Encaboxar</string>
+    <string name="back_arrow_content_description">Atrás</string>
+    <string name="action_menu_back_from_edit_select">zarrar</string>
+    <string name="activity_title_settings">Configuración</string>
+    <string name="menu_settings" msgid="377929915873428211">Configuración</string>
+    <string name="menu_help">Ayuda y opiniones</string>
+    <string name="non_phone_add_to_contacts">Amestar a los contautos</string>
+    <string name="non_phone_close">Zarrar</string>
+    <string name="date_year_toggle">Incluyir añu</string>
+    <string name="contacts_unavailable_import_contacts">Importar</string>
+    <string name="create_group_item_label">Crear…</string>
+    <string name="set_default">Predeterminar</string>
+    <string name="toast_text_copied">Copióse\'l testu</string>
+    <string name="cancel_confirmation_dialog_message">¿Quies escartar los cambeos?</string>
+    <string name="cancel_confirmation_dialog_cancel_editing_button">Escartar</string>
+    <string name="contact_editor_add_linked_contact">Amestar</string>
+    <string name="contact_editor_unlink_contacts">Desenllaciar</string>
+    <string name="expanding_entry_card_view_see_more">Ver más</string>
+    <string name="expanding_entry_card_view_see_less">Ver menos</string>
+    <string name="toast_making_personal_copy">Creando una copia personal…</string>
+    <string name="header_organization_entry">Organización</string>
+    <string name="header_nickname_entry">Nomatu</string>
+    <string name="header_note_entry">Nota</string>
+    <string name="header_website_entry">Sitiu web</string>
+    <string name="header_event_entry">Eventu</string>
+    <string name="header_relation_entry">Rellación</string>
+    <string name="header_name_entry">Nome</string>
+    <string name="suggestion_card_this_contact_title">Esti contautu</string>
+    <string name="menu_assistant">Suxerencies</string>
+    <string name="navigation_drawer_open">Abrir el caxón de navegación</string>
+    <string name="navigation_drawer_close">Zarrar el caxón de navegación</string>
+    <string name="menu_title_groups">Etiquetes</string>
+    <string name="menu_title_filters">Cuentes</string>
+    <string name="hamburger_feature_highlight_header">Suxerencies</string>
+    <string name="local_search_label">Tolos contautos</string>
+    <string name="list_filter_phones_work">Contautos del perfil llaboral</string>
+    <string name="account_phone">Preséu</string>
+    <string name="account_sim">SIM</string>
+    <string name="nameLabelsGroup">Nome</string>
+    <string name="nicknameLabelsGroup">Nomatu</string>
+    <string name="name_prefix">Prefixu del nome</string>
+    <string name="name_suffix">Sufixu del nome</string>
+    <string name="name_phonetic">Nome fonéticu</string>
+    <string name="organizationLabelsGroup">Organización</string>
+    <string name="relationLabelsGroup">Rellación</string>
+    <string name="eventLabelsGroup">Data especial</string>
+    <string name="ghostData_department">Departamentu</string>
+    <string name="websiteLabelsGroup">Sitiu web</string>
+    <string name="groupsLabel">Etiquetes</string>
+    <string name="postal_street">Cai</string>
+    <string name="postal_city">Ciudá</string>
+    <string name="postal_region">Estáu</string>
+    <string name="postal_postcode">Códigu postal</string>
+    <string name="postal_country">País</string>
+    <string name="list_filter_all_accounts">Tolos contautos</string>
+    <string name="display_all_contacts">Tolos contautos</string>
+    <string name="display_more_groups">Más grupos\u2026</string>
+    <string name="import_from_sim">Tarxeta SIM</string>
+    <string name="import_from_sim_secondary_contact_count_fmt"> {count, plural,
+        one {}=1    {# contautu}
+        other {# contautos}
+    }</string>
+    <string name="import_from_sim_secondary_template"> {count, plural,
+        one {}=1    {# contautu • <xliff:g id="phone_number">^1</xliff:g>}
+        other {# contautos • <xliff:g id="phone_number">^1</xliff:g>}
+    }</string>
+    <string name="fail_reason_error_occurred_during_export">Prodúxose un error demientres la esportación: <xliff:g id="exact_reason">%s</xliff:g>.</string>
+    <string name="fail_reason_io_error">Error d\'E/S</string>
+    <string name="fail_reason_not_supported">El formatu nun ye compatible.</string>
+    <string name="progress_notifier_message">Importando <xliff:g id="current_number">%1$s</xliff:g>/<xliff:g id="total_number">%2$s</xliff:g>: <xliff:g id="name" example="Joe Due">%3$s</xliff:g></string>
+    <string name="display_options_phonetic_name_fields">Nome fonéticu</string>
+    <string name="settings_accounts">Cuentes</string>
+    <string name="share_error">Nun se pue compartir esti contautu.</string>
+    <string name="no_contact_to_share">Nun hai nengún contautu pa compartir</string>
+    <string name="contact_status_update_attribution_with_date"><xliff:g id="date" example="3 hours ago">%1$s</xliff:g> per «<xliff:g id="source" example="Google Talk">%2$s</xliff:g>»</string>
+    <string name="send_and_call_button">UNVIAR Y LLAMAR</string>
+    <string name="about_build_version">Versión de la compilación</string>
+    <string name="about_open_source_licenses">Llicencies de códigu abiertu</string>
+    <string name="about_privacy_policy">Política de privacidá</string>
+    <string name="about_terms_of_service">Términos del serviciu</string>
+    <string name="activity_title_licenses">Llicencies de códigu abiertu</string>
+    <string name="description_delete_contact">Desaniciar</string>
+    <string name="dynamic_shortcut_disabled_message">Desactivóse esti atayu</string>
+    <string name="dynamic_shortcut_contact_removed_message">El contautu desanicióse</string>
+    <string name="sim_import_button_text">Importar</string>
+    <string name="sim_import_empty_message">Nun hai nengún contautu na tarxeta SIM</string>
+    <string name="sim_import_contact_exists_toast">El contautu yá esiste na llista</string>
+    <string name="sim_import_success_toast_fmt"> {count, plural,
+        one {}=1    {Importóse # contautu de la SIM}
+        other {Importáronse # contautos de la SIM}
+    }</string>
+    <string name="turn_auto_sync_on_dialog_title">¿Quies activar la sincronización automática?</string>
+    <string name="turn_auto_sync_on_dialog_confirm_btn">Activar</string>
+    <string name="show_more_content_description">Amosar más</string>
+    <string name="importing_sim_failed_message">Nun se pudieron importar los contautos de la tarxeta SIM</string>
+    <string name="contacts_default_notification_channel">Avisos</string>
+    <string name="yes_button">Sí</string>
+    <string name="no_button">Non</string>
+    <string name="sdn_contacts_directory_search_label">Númberos de serviciu de la operadora</string>
+</resources>

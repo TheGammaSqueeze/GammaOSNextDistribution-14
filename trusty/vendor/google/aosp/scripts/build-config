@@ -1,0 +1,92 @@
+# Copyright (C) 2018 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This file lists projects with optional hosttests and unittests to run for
+# those projects in the following format:
+# [
+#     # Add projects to, or remove projects from, list of projects to build.
+#     # Does not affect builds where the project list is passed on the command
+#     # line.
+#     build(
+#         # List of projects that this build entry applies to. Required.
+#         projects=[
+#             "<project>",
+#             ...
+#         ]
+#         # If enabled is set to True or ommitted, add projects to list of
+#         # projects to build. If enabled is set to False, remove projects from
+#         # list of projects to build.
+#         enabled=<True|False>
+#     ),
+#     ...
+#     # Specify tests to run for specific projects.
+#     testmap(
+#         # List of projects that this testmap entry applies to. Required.
+#         projects=[
+#             "<project>",
+#             ...
+#         ]
+#         # List of host-tests to run. Optional
+#         tests=[
+#             # Run a program on the host
+#             hosttest("some_host_binary"),
+#             # Use test-runner to activate a Trusty IPC port
+#             boottest("port.under.test"),
+#             # Use Android to activate a Trusty IPC port
+#             androidport("port.under.test"),
+#             # Run a shell command inside Android
+#             androidtest(name="test_name", command="command to run"),
+#             ...
+#         ],
+#     ),
+#     ...
+#     # Include another configuration file. If optional is True, and the file
+#     # does not exist, the include statement is ignored.
+#     include(<file>, optional=<True|False>),
+# ]
+
+[
+    build(
+        projects=[
+            "generic-arm32-debug",
+            "generic-arm32",
+            "generic-arm32-test-debug",
+            "generic-arm32-test",
+            "generic-arm64-debug",
+            "generic-arm64",
+            "generic-arm64-test-debug",
+            "generic-arm64-test",
+            "generic-x86_64",
+            "vexpress-a15-trusty",
+            "imx7d",
+            "pico7d",
+            "qemu-generic-arm32-gicv3-test-debug",
+            "qemu-generic-arm32-test-debug",
+            "qemu-generic-arm64-fuzz-test-debug",
+            "qemu-generic-arm64-gicv3-test-debug",
+            "qemu-generic-arm64-test-debug",
+            "qemu-generic-arm64l32-test-debug",
+            "qemu-generic-arm64u32-test-debug",
+            "qemu-generic-arm64-test-debug-release",
+            "qemu-generic-arm32-test-debug-release",
+            "sdb7d",
+        ],
+    ),
+    devsigningkeys([
+        "trusty/device/arm/generic-arm64/project/keys/apploader_sign_test_private_key_0.der",
+        "trusty/device/arm/generic-arm64/project/keys/apploader_sign_test_public_key_0.der"
+    ]),
+    include("./test-map"),
+    include("../../proprietary/scripts/build-config", optional=True),
+]

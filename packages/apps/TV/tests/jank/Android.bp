@@ -1,0 +1,22 @@
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "TVJankTests",
+    // Include all test java files.
+    srcs: ["src/**/*.java"],
+    static_libs: [
+        "androidx.test.runner",
+        "androidx.test.uiautomator_uiautomator",
+        "tv-test-common",
+        "ub-janktesthelper",
+    ],
+    libs: ["android.test.base.stubs"],
+    instrumentation_for: "LiveTv",
+    sdk_version: "system_current",
+    optimize: {
+        enabled: false,
+    },
+}

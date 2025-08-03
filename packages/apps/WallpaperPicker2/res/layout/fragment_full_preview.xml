@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2023 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.android.wallpaper.picker.TouchForwardingLayout
+        android:id="@+id/touch_forwarding_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/transparent"
+        android:contentDescription="@string/preview_screen_description"/>
+
+    <include layout="@layout/full_wallpaper_preview_card"/>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/transparent"
+        android:fitsSystemWindows="true">
+        <include
+            android:id="@+id/toolbar_container"
+            layout="@layout/section_header_content"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <Button
+            android:id="@+id/crop_wallpaper_button"
+            android:layout_width="@dimen/wallpaper_control_button_size"
+            android:layout_height="@dimen/wallpaper_control_button_size"
+            android:background="@drawable/check_circle_full_preview"
+            android:elevation="@dimen/wallpaper_preview_buttons_elevation"
+            android:layout_marginEnd="@dimen/set_wallpaper_button_margin_end"
+            android:contentDescription="@string/show_preview_controls_action"
+            android:textColor="@color/system_on_primary"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/toolbar_container"
+            app:layout_constraintBottom_toBottomOf="@id/toolbar_container"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <ViewStub
+        android:id="@+id/tooltip_stub"
+        android:inflatedId="@+id/tooltip"
+        android:layout="@layout/tooltip_full_preview"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"/>
+
+</FrameLayout>

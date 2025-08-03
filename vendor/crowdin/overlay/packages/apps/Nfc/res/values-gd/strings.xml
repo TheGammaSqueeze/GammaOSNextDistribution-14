@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Seirbheis NFC</string>
+    <string name="nfcUserLabel">NFC</string>
+    <string name="accessibility_nfc_enabled">Tha NFC an comas.</string>
+    <string name="tap_to_beam">Thoir gnogag gus a bhìmigeadh</string>
+    <string name="beam_progress">Tha bìm a’ tighinn a-steach…</string>
+    <string name="beam_outgoing">’Ga bhìmigeadh…</string>
+    <string name="beam_complete">Chaidh a bhìmigeadh</string>
+    <string name="beam_failed">Cha deach am bìmigeadh a choileanadh</string>
+    <string name="beam_canceled">Chaidh sgur dhen bhìmigeadh</string>
+    <string name="cancel">Sguir dheth</string>
+    <string name="beam_tap_to_view">Thoir gnogag gus a shealltainn</string>
+    <string name="beam_handover_not_supported">Cha chuir uidheam an fhaighteir taic ri bìmigeadh fhaidhlichean mòra.</string>
+    <string name="beam_try_again">Cuir na h-uidheaman ri chèile a-rithist</string>
+    <string name="beam_busy">Tha am bìmigeadh trang. Feuch ris a-rithist nuair a bhios an tar-chur roimhe deiseil.</string>
+    <string name="device">uidheam</string>
+    <string name="connecting_peripheral">’Ga cheangal ri <xliff:g id="device_name">%1$s</xliff:g></string>
+    <string name="connected_peripheral">Chaidh a cheangal ri <xliff:g id="device_name">%1$s</xliff:g></string>
+    <string name="connect_peripheral_failed">Cha b’ urrainn dhuinn ceangal a dhèanamh ri <xliff:g id="device_name">%1$s</xliff:g></string>
+    <string name="disconnecting_peripheral">A’ briseadh a’ cheangail ri <xliff:g id="device_name">%1$s</xliff:g></string>
+    <string name="disconnected_peripheral">Chaidh an ceangal ri <xliff:g id="device_name">%1$s</xliff:g> a bhriseadh</string>
+    <string name="pairing_peripheral">A’ paidhreachadh <xliff:g id="device_name">%1$s</xliff:g></string>
+    <string name="pairing_peripheral_failed">Cha b’ urrainn dhuinn <xliff:g id="device_name">%1$s</xliff:g> a phaidhreachadh</string>
+    <string name="failed_to_enable_bt">Cha b’ urrainn dhuinn Bluetooth a chur an comas</string>
+    <string name="confirm_pairing">A bheil thu cinnteach gu bheil thu airson uidheam Bluetooth<xliff:g id="device_name">%1$s</xliff:g> a phaidhreachadh?</string>
+    <string name="pair_yes">Tha</string>
+    <string name="pair_no">Chan eil</string>
+    <string name="tap_again_to_pay">Thoir gnogag a-rithist airson pàigheadh le <xliff:g id="app">%1$s</xliff:g></string>
+    <string name="tap_again_to_complete">Thoir gnogag air a-rithist gus a choileanadh le <xliff:g id="app">%1$s</xliff:g></string>
+    <string name="transaction_failure">Cha b’ urrainn dhuinn an tar-chur seo a choileanadh le <xliff:g id="app">%1$s</xliff:g>.</string>
+    <string name="could_not_use_app">Cha b’ urrainn dhuinn <xliff:g id="app">%1$s</xliff:g> a chleachdadh.</string>
+    <string name="pay_with">Pàigh le</string>
+    <string name="complete_with">Coilean le</string>
+    <string name="default_pay_app_removed">Chaidh an t-seirbheis as fheàrr leat airson gnogag ⁊ pàigheadh a thoirt air falbh. An tagh thu tè eile?\"</string>
+    <string name="ask_nfc_tap">Thoir gnogag ri uidheam eile gus a choileanadh</string>
+    <string name="wifi_connect">Ceangail</string>
+    <string name="status_unable_to_connect">Chan urrainn dhuinn ceangal ris an lìonra</string>
+    <string name="status_wifi_connected">Ceangailte</string>
+    <string name="title_connect_to_network">Ceangail ris an lìonra</string>
+    <string name="prompt_connect_to_network">An ceangail thu ri lìonra <xliff:g id="network_ssid">%1$s</xliff:g>?</string>
+    <string name="beam_requires_nfc_enabled">Chan obraich Android Beam mus cuir thu NFC an comas. A bheil thu airson a chur an comas?</string>
+    <string name="android_beam">Android Beam</string>
+    <string name="beam_requires_external_storage_permission">Chan eil cead dhan stòras air an taobh a-muigh aig an aplacaid. Tha feum air seo mus cuir thu Beam dhen fhaidhle seo dha</string>
+    <string name="title_confirm_url_open">Am fosgail thu an ceangal?</string>
+    <string name="summary_confirm_url_open">Fuair am fòn agad ceangal o NFC:</string>
+    <string name="summary_confirm_url_open_tablet">Fuair an tablaid agad ceangal o NFC:</string>
+    <string name="action_confirm_url_open">Fosgail ceangal</string>
+    <string name="tag_read_error">Mearachd leughaidh NFC. Feuch ris a-rithist.</string>
+    <string name="tag_dispatch_failed">Chan eil aplacaid ann a chuireas taic ris an taga NFC seo</string>
+    <string name="nfc_blocking_alert_title">Dh’fhaoidte gu bheil NFC ’ga bhacadh</string>
+    <string name="nfc_blocking_alert_message">Thoir gnogag airson fiosrachaidh air mar a chàraicheas tu seo.</string>
+</resources>

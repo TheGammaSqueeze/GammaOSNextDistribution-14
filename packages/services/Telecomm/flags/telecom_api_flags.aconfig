@@ -1,0 +1,59 @@
+package: "com.android.server.telecom.flags"
+container: "system"
+
+flag {
+  name: "voip_app_actions_support"
+  namespace: "telecom"
+  description: "When set, Telecom support for additional VOIP application actions is active."
+  bug: "296934278"
+}
+
+flag {
+  name: "call_details_id_changes"
+  namespace: "telecom"
+  description: "When set, call details/extras id updates to Telecom APIs for Android V are active."
+  bug: "301713560"
+}
+
+flag{
+  name: "add_call_uri_for_missed_calls"
+  namespace: "telecom"
+  description: "The key is used for dialer apps to mark missed calls as read when it gets the notification on reboot."
+  bug: "292597423"
+}
+
+flag{
+  name: "set_mute_state"
+  namespace: "telecom"
+  description: "transactional calls need the ability to mute the call audio input"
+  bug: "310669304"
+}
+
+flag{
+  name: "get_registered_phone_accounts"
+  namespace: "telecom"
+  description: "When set, self-managed clients can get their own phone accounts"
+  bug: "317132586"
+}
+
+flag{
+  name: "transactional_video_state"
+  namespace: "telecom"
+  description: "when set, clients using transactional implementations will be able to set & get the video state"
+  bug: "311265260"
+}
+
+flag{
+  name: "business_call_composer"
+  namespace: "telecom"
+  description: "Enables enriched calling features (e.g. Business name will show for a call)"
+  bug: "311688497"
+  is_exported: true
+}
+
+flag{
+  name: "get_last_known_cell_identity"
+  namespace: "telecom"
+  description: "Formalizes the getLastKnownCellIdentity API that Telecom reliees on as a system api"
+  bug: "327454165"
+}

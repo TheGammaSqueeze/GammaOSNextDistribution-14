@@ -1,0 +1,132 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+syntax = "proto3";
+
+package tradefed.invocation.server;
+
+option java_package = "com.proto.tradefed.invocation";
+option java_outer_classname = "TradefedInvocationService";
+
+option java_multiple_files = true;
+option java_generic_services = true;
+
+// The Tradefed invocation service provides TF test lifecycle management.
+service TestInvocationManagement {
+  // Submit a new test command request.
+  rpc SubmitTestCommand(NewTestCommandRequest) returns (NewTestCommandResponse) {}
+  // Query the invocation detail info of a specific test command.
+  rpc GetInvocationDetail(InvocationDetailRequest) returns (InvocationDetailResponse) {}
+  // Request an invocation to be stopped, non-blocking.
+  rpc StopInvocation(StopInvocationRequest) returns (StopInvocationResponse) {}
+  // Request the Tradefed process to exit after a delay that specified by the client, non-blocking.
+  rpc ShutdownTradefed(ShutdownTradefedRequest) returns (ShutdownTradefedResponse) {}
+}
+
+// A new TF test request.
+message NewTestCommandRequest {
+  // The test command arguments.
+  repeated string args = 1;
+  // If the devices were pre-reserved, you can select them by reservation ids
+  repeated string reservation_id = 2;
+}
+
+// Response for submitted test.
+message NewTestCommandResponse {
+  // Invocation id of the requested test, unset if the test request command could not be
+  // parsed or was not added successfully.
+  string invocation_id = 1;
+  // If set, an error occurred and is described by ErrorInfo.
+  CommandErrorInfo command_error_info = 2;
+}
+
+// Request the invocation to stop
+message StopInvocationRequest {
+  // Invocation id of the test to request stop
+  string invocation_id = 1;
+  // Specify a reason to be associated with the stop request
+  string reason = 2;
+}
+
+message StopInvocationResponse {
+  // Type of invocation status
+  enum Status {
+    UNSPECIFIED = 0;
+    SUCCESS = 1;
+    ERROR = 2;
+  }
+  // The type of status.
+  Status status = 1;
+  // If set, an error occurred and is described by ErrorInfo.
+  CommandErrorInfo command_error_info = 2;
+}
+
+// Request the Tradefed Java Process to exit after a delay
+message ShutdownTradefedRequest {
+  // The delay of Tradefed process exit in ms
+  int32 shutdown_delay = 1;
+}
+
+message ShutdownTradefedResponse {
+  // Type of Shutdown Tradefed Request status
+  enum Status {
+    RECEIVED = 0;
+  }
+  // The type of status.
+  Status status = 1;
+}
+
+// The current status of the test command.
+message InvocationStatus {
+  // Type of invocation status
+  enum Status {
+    // Invocation is not invoked.
+    PENDING = 0;
+    // Invocation is running.
+    RUNNING = 1;
+    // Invocation is done, test record ready to retrieve.
+    DONE = 2;
+    // Invocation id is unknown.
+    UNKNOWN = 3;
+  }
+  // The type of status.
+  Status status = 1;
+  // Reason for the status of the invocation
+  string status_reason = 2;
+}
+
+// Query invocation detail request.
+message InvocationDetailRequest {
+  // Test invocation id.
+  string invocation_id = 1;
+}
+
+// Query invocation detail response.
+message InvocationDetailResponse {
+  // The status of queried invocation.
+  InvocationStatus invocation_status = 1;
+  // Test record proto path if available.
+  string test_record_path = 2;
+}
+
+// Describe an error and its identifiers for response
+message CommandErrorInfo {
+  // The error message associated with response
+  string error_message = 1;
+  // The error identifier for the error
+  string error_name = 2;
+  // The error code associated with the identifier
+  int64 error_code = 3;
+}

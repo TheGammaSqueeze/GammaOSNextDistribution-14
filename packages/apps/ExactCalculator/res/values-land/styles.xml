@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2016 The Android Open Source Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <style name="PadLayoutStyle">
+        <item name="android:paddingTop">@dimen/pads_vertical_edge_padding</item>
+        <item name="android:paddingBottom">@dimen/pads_vertical_edge_padding</item>
+        <item name="android:paddingStart">@dimen/pads_intra_padding</item>
+        <item name="android:paddingEnd">@dimen/pads_horizontal_edge_padding</item>
+    </style>
+
+    <style name="PadLayoutStyle.Advanced">
+        <item name="android:paddingTop">@dimen/pads_vertical_edge_padding</item>
+        <item name="android:paddingBottom">@dimen/pads_vertical_edge_padding</item>
+        <item name="android:paddingStart">@dimen/pads_horizontal_edge_padding</item>
+        <item name="android:paddingEnd">@dimen/pads_intra_padding</item>
+    </style>
+
+</resources>

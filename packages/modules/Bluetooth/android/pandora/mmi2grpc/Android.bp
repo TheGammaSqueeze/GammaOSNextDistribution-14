@@ -1,0 +1,27 @@
+package {
+    default_applicable_licenses: [
+        "packages_modules_Bluetooth_android_pandora_mmi2grpc_license",
+    ],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "packages_modules_Bluetooth_android_pandora_mmi2grpc_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+filegroup {
+    name: "mmi2grpc",
+    srcs: [
+        ":pandora-python-src",
+        ":pandora_experimental-python-src",
+        "mmi2grpc/*.py",
+    ],
+}

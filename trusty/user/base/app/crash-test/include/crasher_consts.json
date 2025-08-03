@@ -1,0 +1,10 @@
+{
+    "header": "crasher_consts.h",
+    "constants":[
+        {
+            "name": "CRASHER_PORT",
+            "value": "com.android.trusty.crashtest.crasher",
+            "type": "port"
+        }
+    ]
+}

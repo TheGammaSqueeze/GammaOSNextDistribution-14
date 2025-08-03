@@ -1,0 +1,55 @@
+
+java_library {
+    name: "qti-telephony-utils",
+    provides_uses_lib: "qti-telephony-utils",
+    installable: true,
+    sdk_version: "system_current",
+
+    srcs: ["src/org/**/*.java"],
+    system_ext_specific: true,
+    libs: [
+        "androidx.annotation_annotation"
+    ],
+
+}
+
+java_library {
+    name: "qti-telephony-utils-prd",
+    provides_uses_lib: "qti-telephony-utils-prd",
+    installable: true,
+    sdk_version: "system_current",
+
+    srcs: ["src/org/**/*.java"],
+    product_specific: true,
+    libs: [
+        "androidx.annotation_annotation"
+    ]
+
+}
+
+// ==========================================================================
+
+prebuilt_etc {
+
+    name: "qti_telephony_utils.xml",
+
+    // This will install the file in /system_ext/etc/permissions
+    //
+
+    src: "qti_telephony_utils.xml",
+    sub_dir: "permissions",
+    system_ext_specific: true,
+
+}
+
+prebuilt_etc {
+
+    name: "qti_telephony_utils_prd.xml",
+
+    // This will install the file in /product/etc/permissions
+
+    src: "qti_telephony_utils_prd.xml",
+    sub_dir: "permissions",
+    product_specific: true,
+
+}

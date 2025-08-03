@@ -1,0 +1,9 @@
+A collection of common utils and scripts used for Mobly tests in the Android platform.
+
+Directory structure:
+  `tools/`: A library for test helper utilities, e.g. apk_utils for installing APKs.
+    Imported as `mobly.tools`.
+  `scripts/`: Standalone scripts, including the local Mobly test runner.
+
+This project should NOT be used for libraries specific to your test/suite. Please add
+them directly to your own project instead.

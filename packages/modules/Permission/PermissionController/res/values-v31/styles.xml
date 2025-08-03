@@ -1,0 +1,124 @@
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+
+    <!-- START PERMISSION GRANT DIALOG -->
+
+    <style name="PermissionGrantDialogMaterial3">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">?android:attr/windowBackground</item>
+        <item name="android:orientation">vertical</item>
+    </style>
+
+    <style name="PermissionGrantTitleIconMaterial3">
+        <item name="android:layout_width">32dp</item>
+        <item name="android:layout_height">32dp</item>
+        <item name="android:layout_marginBottom">12dp</item>
+        <item name="android:tint">@android:color/system_accent1_600</item>
+        <item name="android:scaleType">fitCenter</item>
+    </style>
+
+    <style name="PermissionGrantButtonListMaterial3">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:paddingBottom">22dp</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="PermissionGrantButtonTop"
+           parent="@android:style/Widget.DeviceDefault.Button.Borderless.Colored">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">56dp</item>
+        <item name="android:layout_marginLeft">24dp</item>
+        <item name="android:layout_marginRight">24dp</item>
+        <item name="android:layout_marginTop">2dp</item>
+        <item name="android:layout_marginBottom">2dp</item>
+        <item name="android:fontFamily">google-sans-medium</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@android:color/system_neutral1_900</item>
+        <item name="android:background">@drawable/grant_permissions_buttons_top</item>
+    </style>
+
+    <style name="PermissionGrantButtonMiddle"
+           parent="@android:style/Widget.DeviceDefault.Button.Borderless.Colored">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">56dp</item>
+        <item name="android:layout_marginLeft">24dp</item>
+        <item name="android:layout_marginRight">24dp</item>
+        <item name="android:layout_marginTop">2dp</item>
+        <item name="android:layout_marginBottom">2dp</item>
+        <item name="android:fontFamily">google-sans-medium</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@android:color/system_neutral1_900</item>
+        <item name="android:background">@drawable/grant_permissions_buttons_middle</item>
+    </style>
+
+    <style name="PermissionGrantButtonBottom"
+           parent="@android:style/Widget.DeviceDefault.Button.Borderless.Colored">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">56dp</item>
+        <item name="android:layout_marginLeft">24dp</item>
+        <item name="android:layout_marginRight">24dp</item>
+        <item name="android:layout_marginTop">2dp</item>
+        <item name="android:layout_marginBottom">2dp</item>
+        <item name="android:fontFamily">google-sans-medium</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@android:color/system_neutral1_900</item>
+        <item name="android:background">@drawable/grant_permissions_buttons_bottom</item>
+    </style>
+
+    <!-- for use in overlays -->
+    <style name="PermissionGrantButtonAllowMaterial3"
+           parent="@style/PermissionGrantButtonTop"></style>
+    <style name="PermissionGrantButtonAllowForegroundMaterial3"
+           parent="@style/PermissionGrantButtonTop"></style>
+    <style name="PermissionGrantButtonAllowOneTimeMaterial3"
+           parent="@style/PermissionGrantButtonMiddle"></style>
+    <style name="PermissionGrantButtonAllowSelectedMaterial3"
+           parent="@style/PermissionGrantButtonTop"></style>
+    <style name="PermissionGrantButtonAllowAllMaterial3"
+        parent="@style/PermissionGrantButtonMiddle"></style>
+    <style name="PermissionGrantButtonDenyMaterial3"
+           parent="@style/PermissionGrantButtonBottom"></style>
+    <style name="PermissionGrantButtonNoUpgradeMaterial3"
+           parent="@style/PermissionGrantButtonBottom"></style>
+    <style name="PermissionGrantButtonDontAllowMoreMaterial3"
+           parent="@style/PermissionGrantButtonBottom"></style>
+
+    <!-- END PERMISSION GRANT DIALOG -->
+
+    <style name="AppPermissionRadioButton"
+           parent="@android:style/Widget.DeviceDefault.CompoundButton.RadioButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="android:paddingStart">?android:attr/listPreferredItemPaddingStart</item>
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingBottom">8dp</item>
+        <item name="android:textDirection">locale</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceListItem</item>
+    </style>
+    <style name="AppPermissionLocationAccuracyTitle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+        <item name="android:textDirection">locale</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceListItem</item>
+    </style>
+</resources>

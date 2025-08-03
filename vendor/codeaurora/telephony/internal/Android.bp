@@ -1,0 +1,22 @@
+
+
+java_library {
+    name: "telephony-ext",
+    installable: true,
+
+    aidl: {
+        local_include_dirs: ["src/org"],
+    },
+    srcs: [
+        "src/org/**/*.java",
+        "src/org/**/I*.aidl",
+        "src/org/**/*.logtags",
+    ],
+
+    platform_apis: true,
+    //LOCAL_SDK_VERSION := system_current
+
+}
+
+// Include subdirectory makefiles
+// ============================================================

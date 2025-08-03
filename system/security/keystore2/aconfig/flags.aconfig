@@ -1,0 +1,26 @@
+package: "android.security.keystore2"
+container: "system"
+
+flag {
+  name: "wal_db_journalmode_v3"
+  namespace: "hardware_backed_security"
+  description: "This flag controls changing journalmode to wal"
+  bug: "191777960"
+  is_fixed_read_only: true
+}
+
+flag {
+  name: "disable_legacy_keystore_put_v2"
+  namespace: "hardware_backed_security"
+  description: "This flag disables legacy keystore put and makes it so that command returns an error"
+  bug: "307460850"
+  is_fixed_read_only: true
+}
+
+flag {
+  name: "import_previously_emulated_keys"
+  namespace: "hardware_backed_security"
+  description: "Include support for importing keys that were previously software-emulated into KeyMint"
+  bug: "283077822"
+  is_fixed_read_only: true
+}

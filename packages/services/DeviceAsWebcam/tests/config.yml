@@ -1,0 +1,7 @@
+TestBeds:
+  # A test bed where adb will find Android devices.
+  - Name: WebcamTestBed
+    Controllers:
+        AndroidDevice:
+        - serial: <device_id>  # quotes are needed if serial id is entirely numeric
+          label: dut

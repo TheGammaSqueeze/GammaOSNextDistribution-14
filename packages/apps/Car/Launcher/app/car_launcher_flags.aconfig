@@ -1,0 +1,9 @@
+package: "com.android.car.carlauncher"
+container: "system"
+
+flag {
+  name: "calm_mode"
+  namespace: "car_sys_exp"
+  description: "This flag controls Calm mode"
+  bug: "295396130"
+}

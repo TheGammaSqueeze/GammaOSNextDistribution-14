@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2023 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="energy_mode_low_title" msgid="5700567801191430606">"අඩු"</string>
+    <string name="energy_mode_low_subtitle" msgid="7660632849388740009">"පොරොත්තු"</string>
+    <string name="energy_mode_low_info" msgid="3931173640626998821">"පොරොත්තු — රූපවාහිනිය භාවිතයේ නොමැති විට ජාල සම්බන්ධතාවය ක්‍රියා විරහිත වේ"</string>
+  <string-array name="energy_mode_low_features">
+    <item msgid="4002284890471636101">"[විශේෂාංගය 1 ඇතුළත් කරන්න]"</item>
+    <item msgid="7072772341455731040">"[විශේෂාංගය 2 ඇතුළත් කරන්න]"</item>
+  </string-array>
+    <string name="energy_mode_low_eco_hint" msgid="2421460758847643655"></string>
+    <string name="energy_mode_moderate_title" msgid="8612259261851051150">"ප්‍රශස්ත කළ"</string>
+    <string name="energy_mode_moderate_subtitle" msgid="5565533500130453270">"ජාලගත පොරොත්තු"</string>
+    <string name="energy_mode_moderate_info" msgid="3188005033276283994">"ජාලගත පොරොත්තු — ජාලය හරහා රූපවාහිනිය අවදි කිරීමට විශේෂාංග සබල කරයි"</string>
+  <string-array name="energy_mode_moderate_features">
+    <item msgid="2654586107956150296">"[විශේෂාංගය 1 ඇතුළත් කරන්න]"</item>
+    <item msgid="8724721267222341891">"[විශේෂාංගය 2 ඇතුළත් කරන්න]"</item>
+  </string-array>
+    <string name="energy_mode_moderate_eco_hint" msgid="252189162446856286"></string>
+    <string name="energy_mode_high_title" msgid="7596672058005896920">"වැඩි කළ"</string>
+    <string name="energy_mode_high_subtitle" msgid="5994284096495805422">"සැම විට සම්බන්ධයි"</string>
+    <string name="energy_mode_high_info" msgid="8805447042714350186">"සැම විට සම්බන්ධයි — රූපවාහිනිය භාවිතයේ නොමැති විට ජාල විශේෂාංග සබල කරයි"</string>
+  <string-array name="energy_mode_high_features">
+    <item msgid="3018897868803319747">"[විශේෂාංගය 1 ඇතුළත් කරන්න]"</item>
+    <item msgid="170760143032597722">"[විශේෂාංගය 2 ඇතුළත් කරන්න]"</item>
+  </string-array>
+    <!-- no translation found for energy_mode_high_eco_hint (3266580507783627848) -->
+    <skip />
+</resources>

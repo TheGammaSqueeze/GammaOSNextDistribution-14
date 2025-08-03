@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2016 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Serviciu d\'imprentación predetermináu</string>
+    <string name="printer_busy">Ocupada</string>
+    <string name="printer_out_of_paper">Ensin papel</string>
+    <string name="printer_out_of_ink">Ensin tinta</string>
+    <string name="printer_out_of_toner">Ensin tóner</string>
+    <string name="printer_low_on_ink">Poca tinta</string>
+    <string name="printer_low_on_toner">Pocu tóner</string>
+    <string name="printer_door_open">Puerta abierta</string>
+    <string name="printer_jammed">Atascóse</string>
+    <string name="printer_offline">Ensin conexón</string>
+    <string name="printer_bad_certificate">Certificáu incorreutu</string>
+    <string name="printer_not_encrypted">Ensin cifrar</string>
+    <string name="printer_check">Comprobar la imprentadora</string>
+    <string name="waiting_to_send">Esperando pa unviar</string>
+    <string name="unreadable_input">Nun se pudo lleer el documentu</string>
+    <string name="title_activity_add_printer">Amestar una imprentadora</string>
+    <string name="add_printer_by_ip">Amestar una imprentadora pente direición IP</string>
+    <string name="hostname_or_ip">Agospiador o direición IP</string>
+    <string name="add">Amestar</string>
+    <string name="add_named">Amestar
+        «<xliff:g example="Epson XP-610" id="printer">%1$s</xliff:g>»
+    </string>
+    <string name="no_printer_found">Nun s\'atopó nenguna imprentadora nesta direición</string>
+    <string name="printer_not_supported">La imprentadora nun ye compatible</string>
+    <string name="wifi_direct">Wi-Fi Direct</string>
+    <string name="find_wifi_direct">Atopar imprentadores con Wi-Fi Direct</string>
+    <string name="wifi_direct_printing">Imprentación con Wi-Fi Direct</string>
+    <string name="wifi_direct_printers">Imprentadores con Wi-Fi Direct</string>
+    <string name="searching">Buscando\u2026</string>
+    <string name="connect_hint_text">Ye posible que tengas d\'aprobar esta conexón nel panel
+        frontal de la imprentadora
+    </string>
+    <string name="connecting_to">Conectando a
+        «<xliff:g example="Epson XP-610" id="printer">%1$s</xliff:g>»
+    </string>
+    <string name="failed_printer_connection">Nun se pudo conectar a la imprentadora</string>
+    <string name="failed_connection">Nun se pudo conectar a
+        «<xliff:g example="Epson XP-610" id="printer">%1$s</xliff:g>»
+    </string>
+    <string name="saved_printers">Imprentadores guardaes</string>
+    <string name="forget">Escaecer</string>
+    <string name="connects_via_wifi_direct">Conéctase per Wi-Fi Direct</string>
+    <string name="connects_via_network">Conéctase pela rede actual a la
+        direición IP <xliff:g example="192.168.0.101" id="ip_address">%1$s</xliff:g>
+    </string>
+    <string name="recommendation_summary">El serviciu d\'imprentación predetermináu apurre opciones básiques. Ye posible qu\'esta imprentadora tenga más opciones disponibles dende otru serviciu d\'imprentación.</string>
+    <string name="recommendations_heading">Servicios aconseyaos</string>
+    <string name="recommendation_install_summary">Seleiciona un elementu pa instalalu</string>
+    <string name="recommendation_enable_summary">Seleiciona un elementu p\'activalu</string>
+    <string name="recommendation_manage">Xestionar los servicios</string>
+    <string name="security">Seguranza</string>
+    <string name="certificate_update_request">Esta imprentadora fornió un certificáu de seguranza nuevu
+        o otru preséu suplanta la so identidá. ¿Quies aceptar
+        el certificáu nuevu?</string>
+    <string name="not_encrypted_request">Esta imprentadora yá nun acepta trabayos cifraos. ¿Quies siguir cola imprentación?</string>
+    <string name="accept">Aceptar</string>
+    <string name="reject">Refugar</string>
+    <string name="connections">Conexones</string>
+    <string name="wifi_direct_problem">El serviciu d\'imprentación predetermináu nun pue atopar nenguna imprentadora con Wi-Fi Direct</string>
+    <string name="disable_wifi_direct">Desact. Wi-Fi Direct</string>
+    <string name="wifi_direct_permission_rationale">El serviciu d\'imprentación predetermináu precisa\'l permisu «Preseos próximos» p\'atopar imprentadores próximes.</string>
+    <string name="fix">Revisar los permisos</string>
+    <string name="print">Imprentar</string>
+</resources>

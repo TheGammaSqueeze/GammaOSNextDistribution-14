@@ -1,0 +1,829 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.4.0-alpha01" type="baseline" client="" dependencies="true" name="" variant="all" version="8.4.0-alpha01">
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 31 (current min is 30): `android.telephony.ims.stub.DelegateConnectionMessageCallback`"
+        errorLine1="            new DelegateConnectionMessageCallback() {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/DelegateActivity.java"
+            line="87"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 31 (current min is 30): `android.telephony.ims.stub.DelegateConnectionStateCallback`"
+        errorLine1="            new DelegateConnectionStateCallback() {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/DelegateActivity.java"
+            line="117"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.FeatureTagState#getFeatureTag`"
+        errorLine1='                        stringBuilder.append(featureTagState.getFeatureTag()).append(" ").append('
+        errorLine2="                                                             ~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/DelegateActivity.java"
+            line="148"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.FeatureTagState#getState`"
+        errorLine1="                                featureTagState.getState());"
+        errorLine2="                                                ~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/DelegateActivity.java"
+            line="149"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.DelegateRegistrationState#getRegisteredFeatureTags`"
+        errorLine1="                    Set&lt;String&gt; registeredFt = registrationState.getRegisteredFeatureTags();"
+        errorLine2="                                                                 ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/DelegateActivity.java"
+            line="151"
+            column="66"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.ImsManager#getSipDelegateManager`"
+        errorLine1="            mSipDelegateManager = imsManager.getSipDelegateManager(mDefaultSmsSubId);"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/DelegateActivity.java"
+            line="220"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.SipDelegateManager#createSipDelegate`"
+        errorLine1="                    mSipDelegateManager.createSipDelegate(new DelegateRequest(featureTags),"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/DelegateActivity.java"
+            line="231"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `new android.telephony.ims.DelegateRequest`"
+        errorLine1="                    mSipDelegateManager.createSipDelegate(new DelegateRequest(featureTags),"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/DelegateActivity.java"
+            line="231"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.SipDelegateManager#destroySipDelegate`"
+        errorLine1="                mSipDelegateManager.destroySipDelegate(mSipDelegateConnection,"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/DelegateActivity.java"
+            line="247"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.SipDelegateManager#destroySipDelegate`"
+        errorLine1="            mSipDelegateManager.destroySipDelegate(mSipDelegateConnection,"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/DelegateActivity.java"
+            line="322"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.SipDelegateConfiguration#getVersion`"
+        errorLine1='                + "mVersion=" + config.getVersion()'
+        errorLine2="                                       ~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/DelegateActivity.java"
+            line="332"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.SipDelegateConfiguration#getTransportType`"
+        errorLine1='                + ", \n\tmTransportType=" + config.getTransportType()'
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/DelegateActivity.java"
+            line="333"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.SipDelegateConfiguration#getLocalAddress`"
+        errorLine1='                + ", \n\tmLocalIpAddr=" + config.getLocalAddress()'
+        errorLine2="                                                 ~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/DelegateActivity.java"
+            line="334"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.SipDelegateConfiguration#getSipServerAddress`"
+        errorLine1='                + ", \n\tmSipServerAddr=" + config.getSipServerAddress()'
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/DelegateActivity.java"
+            line="335"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.SipDelegateConfiguration#isSipCompactFormEnabled`"
+        errorLine1='                + ", \n\tmIsSipCompactFormEnabled=" + config.isSipCompactFormEnabled()'
+        errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/DelegateActivity.java"
+            line="336"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.SipDelegateConfiguration#isSipKeepaliveEnabled`"
+        errorLine1='                + ", \n\tmIsSipKeepaliveEnabled=" + config.isSipKeepaliveEnabled()'
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/DelegateActivity.java"
+            line="337"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.SipDelegateConfiguration#getMaxUdpPayloadSizeBytes`"
+        errorLine1='                + ", \n\tmMaxUdpPayloadSize=" + config.getMaxUdpPayloadSizeBytes()'
+        errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/DelegateActivity.java"
+            line="338"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.SipDelegateConfiguration#getPublicUserIdentifier`"
+        errorLine1='                + ", \n\tmPublicUserIdentifier=" + config.getPublicUserIdentifier()'
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/DelegateActivity.java"
+            line="339"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.SipDelegateConfiguration#getPrivateUserIdentifier`"
+        errorLine1='                + ", \n\tmPrivateUserIdentifier=" + config.getPrivateUserIdentifier()'
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/DelegateActivity.java"
+            line="340"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.SipDelegateConfiguration#getHomeDomain`"
+        errorLine1='                + ", \n\tmHomeDomain=" + config.getHomeDomain()'
+        errorLine2="                                                ~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/DelegateActivity.java"
+            line="341"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.SipDelegateConfiguration#getImei`"
+        errorLine1='                + ", \n\tmImei=" + config.getImei()'
+        errorLine2="                                          ~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/DelegateActivity.java"
+            line="342"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.SipDelegateConfiguration#getPublicGruuUri`"
+        errorLine1='                + ", \n\tmGruu=" + config.getPublicGruuUri()'
+        errorLine2="                                          ~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/DelegateActivity.java"
+            line="343"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.SipDelegateConfiguration#getSipAuthenticationHeader`"
+        errorLine1='                + ", \n\tmSipAuthHeader=" + config.getSipAuthenticationHeader()'
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/DelegateActivity.java"
+            line="344"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.SipDelegateConfiguration#getSipAuthenticationNonce`"
+        errorLine1='                + ", \n\tmSipAuthNonce=" + config.getSipAuthenticationNonce()'
+        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/DelegateActivity.java"
+            line="345"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.SipDelegateConfiguration#getSipServiceRouteHeader`"
+        errorLine1='                + ", \n\tmServiceRouteHeader=" + config.getSipServiceRouteHeader()'
+        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/DelegateActivity.java"
+            line="346"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.SipDelegateConfiguration#getSipPathHeader`"
+        errorLine1='                + ", \n\tmPathHeader=" + config.getSipPathHeader()'
+        errorLine2="                                                ~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/DelegateActivity.java"
+            line="347"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.SipDelegateConfiguration#getSipUserAgentHeader`"
+        errorLine1='                + ", \n\tmUserAgentHeader=" + config.getSipUserAgentHeader()'
+        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/DelegateActivity.java"
+            line="348"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.SipDelegateConfiguration#getSipContactUserParameter`"
+        errorLine1='                + ", \n\tmContactUserParam=" + config.getSipContactUserParameter()'
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/DelegateActivity.java"
+            line="349"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.SipDelegateConfiguration#getSipPaniHeader`"
+        errorLine1='                + ", \n\tmPaniHeader=" + config.getSipPaniHeader()'
+        errorLine2="                                                ~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/DelegateActivity.java"
+            line="350"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.SipDelegateConfiguration#getSipPlaniHeader`"
+        errorLine1='                + ", \n\tmPlaniHeader=" + config.getSipPlaniHeader()'
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/DelegateActivity.java"
+            line="351"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.SipDelegateConfiguration#getSipCniHeader`"
+        errorLine1='                + ", \n\tmCniHeader=" + config.getSipCniHeader()'
+        errorLine2="                                               ~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/DelegateActivity.java"
+            line="352"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.SipDelegateConfiguration#getSipAssociatedUriHeader`"
+        errorLine1='                + ", \n\tmAssociatedUriHeader=" + config.getSipAssociatedUriHeader()'
+        errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/DelegateActivity.java"
+            line="353"
+            column="58"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.SipDelegateConfiguration#getIpSecConfiguration`"
+        errorLine1='                + ", \n\tmIpSecConfiguration=" + config.getIpSecConfiguration()'
+        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/DelegateActivity.java"
+            line="354"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.SipDelegateConfiguration#getNatSocketAddress`"
+        errorLine1="                + &quot;, \n\tmNatConfiguration=&quot; + config.getNatSocketAddress() + '}';"
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/DelegateActivity.java"
+            line="355"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 31 (current min is 30): `android.telephony.ims.ProvisioningManager.RcsProvisioningCallback`"
+        errorLine1="            new RcsProvisioningCallback() {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/FileUploadActivity.java"
+            line="89"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.ProvisioningManager#setRcsClientConfiguration`"
+        errorLine1="                mProvisioningManager.setRcsClientConfiguration(getDefaultClientConfiguration());"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/FileUploadActivity.java"
+            line="220"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.ProvisioningManager#registerRcsProvisioningCallback`"
+        errorLine1="                mProvisioningManager.registerRcsProvisioningCallback(getMainExecutor(), mCallback);"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/FileUploadActivity.java"
+            line="221"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `new android.telephony.ims.RcsClientConfiguration`"
+        errorLine1="        return new RcsClientConfiguration("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/FileUploadActivity.java"
+            line="231"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.ProvisioningManager#unregisterRcsProvisioningCallback`"
+        errorLine1="            mProvisioningManager.unregisterRcsProvisioningCallback(mCallback);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/FileUploadActivity.java"
+            line="348"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `new android.telephony.gba.UaSecurityProtocolIdentifier.Builder`"
+        errorLine1="                    new UaSecurityProtocolIdentifier.Builder();"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/GbaActivity.java"
+            line="120"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.gba.UaSecurityProtocolIdentifier.Builder#setOrg`"
+        errorLine1="                builder.setOrg(mOrganization)"
+        errorLine2="                        ~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/GbaActivity.java"
+            line="122"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.gba.UaSecurityProtocolIdentifier.Builder#setProtocol`"
+        errorLine1="                        .setProtocol(mProtocol)"
+        errorLine2="                         ~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/GbaActivity.java"
+            line="123"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.gba.UaSecurityProtocolIdentifier.Builder#setTlsCipherSuite`"
+        errorLine1="                        .setTlsCipherSuite(Integer.parseInt(mTlsCs.getText().toString()));"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/GbaActivity.java"
+            line="124"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.gba.UaSecurityProtocolIdentifier.Builder#build`"
+        errorLine1="            UaSecurityProtocolIdentifier spId = builder.build();"
+        errorLine2="                                                        ~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/GbaActivity.java"
+            line="129"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.TelephonyManager#bootstrapAuthenticationRequest`"
+        errorLine1="            telephonyManager.bootstrapAuthenticationRequest(mUiccType,"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/GbaActivity.java"
+            line="130"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Cast to `BootstrapAuthenticationCallback` requires API level 31 (current min is 30)"
+        errorLine1="                    new BootstrapAuthenticationCallback() {"
+        errorLine2="                    ^">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/GbaActivity.java"
+            line="135"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 31 (current min is 30): `android.telephony.TelephonyManager.BootstrapAuthenticationCallback`"
+        errorLine1="                    new BootstrapAuthenticationCallback() {"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/GbaActivity.java"
+            line="135"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 31 (current min is 30): `android.telephony.ims.ProvisioningManager.RcsProvisioningCallback`"
+        errorLine1="            new RcsProvisioningCallback() {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/ProvisioningActivity.java"
+            line="80"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `new android.telephony.ims.RcsClientConfiguration`"
+        errorLine1="        return new RcsClientConfiguration("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/ProvisioningActivity.java"
+            line="106"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.ProvisioningManager#unregisterRcsProvisioningCallback`"
+        errorLine1="            mProvisioningManager.unregisterRcsProvisioningCallback(mCallback);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/ProvisioningActivity.java"
+            line="152"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.ProvisioningManager#isRcsVolteSingleRegistrationCapable`"
+        errorLine1="            mProvisioningManager.isRcsVolteSingleRegistrationCapable();"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/ProvisioningActivity.java"
+            line="166"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.ProvisioningManager#setRcsClientConfiguration`"
+        errorLine1="                    mProvisioningManager.setRcsClientConfiguration(getDefaultClientConfiguration());"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/ProvisioningActivity.java"
+            line="180"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.ProvisioningManager#registerRcsProvisioningCallback`"
+        errorLine1="                    mProvisioningManager.registerRcsProvisioningCallback(mExecutorService,"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/ProvisioningActivity.java"
+            line="181"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.ProvisioningManager#unregisterRcsProvisioningCallback`"
+        errorLine1="                mProvisioningManager.unregisterRcsProvisioningCallback(mCallback);"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/ProvisioningActivity.java"
+            line="195"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.ProvisioningManager#isRcsVolteSingleRegistrationCapable`"
+        errorLine1="                    boolean capable = mProvisioningManager.isRcsVolteSingleRegistrationCapable();"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/ProvisioningActivity.java"
+            line="204"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.RcsUceAdapter#requestCapabilities`"
+        errorLine1="                mImsRcsManager.getUceAdapter().requestCapabilities(contactList, getMainExecutor(),"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/UceActivity.java"
+            line="95"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Cast to `CapabilitiesCallback` requires API level 31 (current min is 30)"
+        errorLine1="                        new RcsUceAdapter.CapabilitiesCallback() {"
+        errorLine2="                        ^">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/UceActivity.java"
+            line="96"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 31 (current min is 30): `android.telephony.ims.RcsUceAdapter.CapabilitiesCallback`"
+        errorLine1="                        new RcsUceAdapter.CapabilitiesCallback() {"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/UceActivity.java"
+            line="96"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.RcsUceAdapter#requestAvailability`"
+        errorLine1="                mImsRcsManager.getUceAdapter().requestAvailability(contactList.get(0),"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/UceActivity.java"
+            line="135"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Cast to `CapabilitiesCallback` requires API level 31 (current min is 30)"
+        errorLine1="                        getMainExecutor(), new RcsUceAdapter.CapabilitiesCallback() {"
+        errorLine2="                                           ^">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/UceActivity.java"
+            line="136"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 31 (current min is 30): `android.telephony.ims.RcsUceAdapter.CapabilitiesCallback`"
+        errorLine1="                        getMainExecutor(), new RcsUceAdapter.CapabilitiesCallback() {"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/UceActivity.java"
+            line="136"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.RcsContactUceCapability#getContactUri`"
+        errorLine1="        b.append(c.getContactUri());"
+        errorLine2="                   ~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/UceActivity.java"
+            line="211"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.RcsContactUceCapability#getRequestResult`"
+        errorLine1="        b.append(c.getRequestResult());"
+        errorLine2="                   ~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/UceActivity.java"
+            line="213"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.RcsContactUceCapability#getSourceType`"
+        errorLine1="        b.append(c.getSourceType());"
+        errorLine2="                   ~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/UceActivity.java"
+            line="215"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.RcsContactUceCapability#getCapabilityMechanism`"
+        errorLine1="        if (c.getCapabilityMechanism() == RcsContactUceCapability.CAPABILITY_MECHANISM_PRESENCE) {"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/UceActivity.java"
+            line="216"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.RcsContactUceCapability#getCapabilityTuples`"
+        errorLine1="            for (RcsContactPresenceTuple t : c.getCapabilityTuples()) {"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/UceActivity.java"
+            line="218"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.RcsContactPresenceTuple#getContactUri`"
+        errorLine1="                b.append(t.getContactUri());"
+        errorLine2="                           ~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/UceActivity.java"
+            line="220"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.RcsContactPresenceTuple#getServiceId`"
+        errorLine1="                b.append(t.getServiceId());"
+        errorLine2="                           ~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/UceActivity.java"
+            line="222"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.RcsContactPresenceTuple#getServiceVersion`"
+        errorLine1="                b.append(t.getServiceVersion());"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/UceActivity.java"
+            line="224"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.RcsContactPresenceTuple#getServiceCapabilities`"
+        errorLine1="                if (t.getServiceCapabilities() != null) {"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/UceActivity.java"
+            line="225"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.RcsContactPresenceTuple#getServiceCapabilities`"
+        errorLine1="                            t.getServiceCapabilities();"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/UceActivity.java"
+            line="227"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.RcsContactPresenceTuple.ServiceCapabilities#isAudioCapable`"
+        errorLine1="                    b.append(servCaps.isAudioCapable());"
+        errorLine2="                                      ~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/UceActivity.java"
+            line="229"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.RcsContactPresenceTuple.ServiceCapabilities#isVideoCapable`"
+        errorLine1="                    b.append(servCaps.isVideoCapable());"
+        errorLine2="                                      ~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/UceActivity.java"
+            line="231"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.RcsContactPresenceTuple.ServiceCapabilities#getSupportedDuplexModes`"
+        errorLine1="                    b.append(servCaps.getSupportedDuplexModes());"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/UceActivity.java"
+            line="233"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.telephony.ims.RcsContactPresenceTuple.ServiceCapabilities#getUnsupportedDuplexModes`"
+        errorLine1="                    b.append(servCaps.getUnsupportedDuplexModes());"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Telephony/testapps/TestRcsApp/TestApp/src/com/google/android/sample/rcsclient/UceActivity.java"
+            line="235"
+            column="39"/>
+    </issue>
+
+</issues>

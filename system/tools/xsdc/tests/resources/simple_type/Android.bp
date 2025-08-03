@@ -1,0 +1,65 @@
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+xsd_config {
+    name: "xsdc_simple_type_tests",
+    srcs: ["simple_type.xsd"],
+    package_name: "simple.type",
+    gen_writer: true,
+    boolean_getter: true,
+    root_elements: ["simple-types", "percent"],
+}
+
+xsd_config {
+    name: "xsdc_simple_type_tinyxml_tests",
+    srcs: ["simple_type.xsd"],
+    package_name: "simple.type",
+    gen_writer: true,
+    boolean_getter: true,
+    tinyxml: true,
+    root_elements: ["simple-types", "percent"],
+}
+
+xsd_config {
+    name: "xsdc_simple_type_tests_enums",
+    srcs: ["simple_type.xsd"],
+    package_name: "simple.type",
+    enums_only: true,
+    gen_writer: true,
+    boolean_getter: true,
+    root_elements: ["simple-types", "percent"],
+}
+
+xsd_config {
+    name: "xsdc_simple_type_tinyxml_tests_enums",
+    srcs: ["simple_type.xsd"],
+    package_name: "simple.type",
+    enums_only: true,
+    gen_writer: true,
+    boolean_getter: true,
+    tinyxml: true,
+    root_elements: ["simple-types", "percent"],
+}
+
+xsd_config {
+    name: "xsdc_simple_type_tests_parser",
+    srcs: ["simple_type.xsd"],
+    package_name: "simple.type",
+    parser_only: true,
+    gen_writer: true,
+    boolean_getter: true,
+    root_elements: ["simple-types", "percent"],
+}
+
+xsd_config {
+    name: "xsdc_simple_type_tinyxml_tests_parser",
+    srcs: ["simple_type.xsd"],
+    package_name: "simple.type",
+    parser_only: true,
+    gen_writer: true,
+    boolean_getter: true,
+    tinyxml: true,
+    root_elements: ["simple-types", "percent"],
+}

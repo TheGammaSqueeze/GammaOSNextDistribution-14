@@ -1,0 +1,5 @@
+# Bug component: 31808
+set noparent
+file:platform/packages/modules/Connectivity:main:/OWNERS_core_networking
+
+per-file **IpSec* = file:platform/frameworks/base:main:/services/core/java/com/android/server/vcn/OWNERS

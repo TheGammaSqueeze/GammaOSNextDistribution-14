@@ -1,0 +1,77 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_bt_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_bt_license"],
+}
+
+// HCI static library for target
+cc_library_static {
+    name: "libbt-hci",
+    defaults: ["fluoride_defaults"],
+    srcs: [
+        "src/buffer_allocator.cc",
+        "src/packet_fragmenter.cc",
+    ],
+    local_include_dirs: [
+        "include",
+    ],
+    include_dirs: [
+        "packages/modules/Bluetooth/system",
+        "packages/modules/Bluetooth/system/bta/include",
+        "packages/modules/Bluetooth/system/btif/include",
+        "packages/modules/Bluetooth/system/gd",
+        "packages/modules/Bluetooth/system/stack/include",
+        "system/libhwbinder/include",
+    ],
+    apex_available: [
+        "com.android.btservices",
+    ],
+    host_supported: true,
+    min_sdk_version: "Tiramisu",
+    header_libs: ["libbluetooth_headers"],
+    static_libs: [
+        "libbluetooth_log",
+        "libbt_shim_bridge",
+    ],
+}
+
+// HCI unit tests for target
+cc_test {
+    name: "net_test_hci",
+    test_suites: ["general-tests"],
+    defaults: [
+        "fluoride_defaults",
+        "mts_defaults",
+    ],
+    local_include_dirs: [
+        "include",
+    ],
+    include_dirs: [
+        "packages/modules/Bluetooth/system",
+        "packages/modules/Bluetooth/system/gd",
+        "packages/modules/Bluetooth/system/include",
+        "packages/modules/Bluetooth/system/osi/test",
+    ],
+    srcs: [
+        "test/packet_fragmenter_test.cc",
+    ],
+    shared_libs: [
+        "libbase",
+        "liblog",
+    ],
+    static_libs: [
+        "libbluetooth-types",
+        "libbluetooth_log",
+        "libbt-hci",
+        "libchrome",
+        "libosi",
+    ],
+    sanitize: {
+        address: true,
+        cfi: true,
+        misc_undefined: ["bounds"],
+    },
+}

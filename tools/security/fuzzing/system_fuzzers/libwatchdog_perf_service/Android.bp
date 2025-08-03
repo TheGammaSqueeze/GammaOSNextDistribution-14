@@ -1,0 +1,28 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_fuzz {
+    name : "libwatchdog_perf_service_fuzzer",
+    srcs: [
+        "libwatchdog_perf_service_fuzzer.cpp",
+    ],
+    defaults: [
+        "carwatchdogd_defaults",
+        "libwatchdog_perf_service_defaults",
+    ],
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+        "-Wno-unused-parameter"
+    ],
+    static_libs: [
+        "libgtest",
+        "libwatchdog_perf_service",
+    ],
+    shared_libs: [
+        "android.hardware.automotive.vehicle@2.0",
+        "libbase",
+    ],
+}

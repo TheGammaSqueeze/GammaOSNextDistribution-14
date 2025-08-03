@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFC107"
+    android:scrollbars="horizontal|vertical"
+    android:textAlignment="textStart"
+    tools:context=".MainActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/runStopButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Run" />
+
+            <CheckBox
+                android:id="@+id/debugMode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Debug mode" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="App output:" />
+
+        <ScrollView
+            android:id="@+id/scrollPayloadOutput"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/payloadOutput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#9089e0"
+                android:fontFamily="monospace"
+                android:textColor="#000000" />
+        </ScrollView>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="Console output:" />
+
+        <ScrollView
+            android:id="@+id/scrollConsoleOutput"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="2">
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/consoleOutput"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="#FFEB3B"
+                    android:fontFamily="monospace"
+                    android:textSize="10sp"
+                    android:textColor="#000000" />
+            </HorizontalScrollView>
+        </ScrollView>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="Log output:" />
+
+        <ScrollView
+            android:id="@+id/scrollLogOutput"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="2">
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/logOutput"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="#FFEB3B"
+                    android:fontFamily="monospace"
+                    android:textSize="10sp"
+                    android:textColor="#000000" />
+            </HorizontalScrollView>
+        </ScrollView>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

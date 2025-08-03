@@ -1,0 +1,10 @@
+# Match the tethering jarjar rules for utils backed by
+# libcom_android_networkstack_tethering_util_jni, so that this JNI library can be used as-is in the
+# test. The alternative would be to build a test-specific JNI library
+# (libcom_android_connectivity_tests_coverage_jni ?) that registers classes following whatever
+# jarjar rules the test is using, but this is a bit less realistic (using a different JNI library),
+# and complicates the test build. It would be necessary if TetheringUtils had a different package
+# name in test code though, as the JNI library name is deducted from the TetheringUtils package.
+rule com.android.net.module.util.BpfMap* com.android.networkstack.tethering.util.BpfMap@1
+rule com.android.net.module.util.BpfUtils* com.android.networkstack.tethering.util.BpfUtils@1
+rule com.android.net.module.util.TcUtils* com.android.networkstack.tethering.util.TcUtils@1

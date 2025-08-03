@@ -1,0 +1,142 @@
+package {
+    default_team: "trendy_team_android_hardware_backed_security",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_security_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_security_license"],
+}
+
+cc_defaults {
+    name: "identity_defaults",
+    cflags: [
+        "-Wall",
+        // "-Werror",
+        "-Wextra",
+        "-Wunused",
+        "-Wno-deprecated-declarations",
+    ],
+    sanitize: {
+        misc_undefined: ["integer"],
+    },
+
+}
+
+cc_defaults {
+    name: "credstore_defaults",
+    defaults: [
+        "identity_defaults",
+        "identity_use_latest_hal_aidl_cpp_static",
+        "keymint_use_latest_hal_aidl_ndk_shared",
+        "keymint_use_latest_hal_aidl_cpp_static",
+        "android.hardware.identity-support-lib-deps",
+    ],
+    srcs: [
+        "Credential.cpp",
+        "CredentialData.cpp",
+        "CredentialStore.cpp",
+        "CredentialStoreFactory.cpp",
+        "Session.cpp",
+        "Util.cpp",
+        "WritableCredential.cpp",
+    ],
+    shared_libs: [
+        "android.hardware.keymaster@4.0",
+        "android.security.authorization-ndk",
+        "libbase",
+        "libbinder",
+        "libbinder_ndk",
+        "libcrypto",
+        "libhidlbase",
+        "liblog",
+        "libutils",
+        "libutilscallstack",
+        "libkeystore-attestation-application-id",
+    ],
+    static_libs: [
+        "android.hardware.keymaster-V3-cpp",
+        "android.hardware.identity-support-lib",
+        "android.hardware.security.rkp-V3-cpp",
+        "android.security.rkp_aidl-cpp",
+        "libcppbor_external",
+        "libcredstore_aidl",
+        "libkeymaster4support",
+        "librkp_support",
+    ],
+}
+
+cc_binary {
+    name: "credstore",
+    defaults: [
+        "credstore_defaults",
+    ],
+    srcs: [
+        "main.cpp",
+    ],
+    init_rc: ["credstore.rc"],
+}
+
+filegroup {
+    name: "credstore_aidl",
+    srcs: [
+        "binder/android/security/identity/ICredential.aidl",
+        "binder/android/security/identity/IWritableCredential.aidl",
+        "binder/android/security/identity/ICredentialStore.aidl",
+        "binder/android/security/identity/AccessControlProfileParcel.aidl",
+        "binder/android/security/identity/EntryNamespaceParcel.aidl",
+        "binder/android/security/identity/EntryParcel.aidl",
+        "binder/android/security/identity/RequestNamespaceParcel.aidl",
+        "binder/android/security/identity/RequestEntryParcel.aidl",
+        "binder/android/security/identity/ResultNamespaceParcel.aidl",
+        "binder/android/security/identity/ResultEntryParcel.aidl",
+        "binder/android/security/identity/GetEntriesResultParcel.aidl",
+        "binder/android/security/identity/AuthKeyParcel.aidl",
+        "binder/android/security/identity/SecurityHardwareInfoParcel.aidl",
+        "binder/android/security/identity/ICredentialStoreFactory.aidl",
+        "binder/android/security/identity/ISession.aidl",
+    ],
+    path: "binder",
+}
+
+cc_library_static {
+    name: "libcredstore_aidl",
+    srcs: [
+        ":credstore_aidl",
+    ],
+    aidl: {
+        export_aidl_headers: true,
+        include_dirs: [
+            "system/security/identity/binder",
+        ],
+    },
+    shared_libs: [
+        "libbinder",
+        "libutils",
+    ],
+    static_libs: [
+        "libkeymaster4support",
+    ],
+    export_shared_lib_headers: [
+        "libbinder",
+    ],
+}
+
+cc_fuzz {
+    name: "credstore_service_fuzzer",
+    defaults: [
+        "credstore_defaults",
+        "service_fuzzer_defaults",
+        "fuzzer_disable_leaks",
+    ],
+    srcs: [
+        "fuzzers/credstore_service_fuzzer.cpp",
+    ],
+    fuzz_config: {
+        triage_assignee: "waghpawan@google.com",
+        cc: [
+            "trong@google.com",
+            "zeuthen@google.com",
+        ],
+    },
+}

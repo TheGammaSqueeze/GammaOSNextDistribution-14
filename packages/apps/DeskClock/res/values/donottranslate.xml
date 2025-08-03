@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources>
+    <!-- String matching the lock screen format for displaying 12-hour times. -->
+    <string name="lock_screen_12_hour_format">h&#xEE01;mm</string>
+    <!-- String matching the lock screen format for displaying 24-hour times. -->
+    <string name="lock_screen_24_hour_format">kk&#xEE01;mm</string>
+    <!-- Format for displaying the day of week with a preceding slash divider. -->
+    <string name="abbrev_wday">&#160;/ EEE</string>
+    <!-- String matching the lock screen format for displaying the date. -->
+    <string name="abbrev_wday_month_day_no_year">EEEMMMd</string>
+    <!-- Format for describing the date, for accessibility. -->
+    <string name="full_wday_month_day_no_year">EEEEMMMMd</string>
+    <!-- Default clock style. -->
+    <string name="default_clock_style">digital</string>
+    <!-- Default screensaver clock color. -->
+    <string name="default_clock_color">FFFFFF</string>
+    <!-- Default screensaver night mode. -->
+    <bool name="default_clock_night_mode">true</bool>
+    <!-- Default screensaver bold text. -->
+    <bool name="default_clock_bold_text">false</bool>
+    <!-- Default screensaver show AM/PM. -->
+    <bool name="default_clock_show_ampm">true</bool>
+    <!-- Default screensaver night mode follows do no disturbe. -->
+    <bool name="default_clock_night_mode_dnd">false</bool>
+    <!-- Default screensaver night mode brightness. -->
+    <string name="default_clock_night_mode_brightness">40</string>
+    <!-- ⏰ (A custom font replaces the A glyph with a clock icon) -->
+    <string name="clock_emoji">A</string>
+    <!-- String for the date in the DigitalAppWidget preview -->
+    <string name="abbrev_wday_month_day_no_year_preview">EEE MMM d</string>
+</resources>

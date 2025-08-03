@@ -1,0 +1,212 @@
+//
+// Copyright (C) 2018 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_library {
+    name: "CarSystemUI-core",
+
+    srcs: [
+        "src/**/*.java",
+        "src/**/*.kt",
+        "src/**/I*.aidl",
+    ],
+
+    resource_dirs: [
+        "res-keyguard",
+        "res",
+    ],
+
+    static_libs: [
+        "SystemUI-core",
+        "CarNotificationLib",
+        "SystemUIPluginLib",
+        "SystemUISharedLib",
+        "SettingsLib",
+        "car-admin-ui-lib",
+        "car-helper-lib",
+        "car-ui-lib-no-overlayable",
+        "car-qc-lib",
+        "car-resource-common",
+        "com_android_systemui_car_flags_lib",
+        "androidx.legacy_legacy-support-v4",
+        "androidx.recyclerview_recyclerview",
+        "androidx.preference_preference",
+        "androidx.appcompat_appcompat",
+        "androidx.mediarouter_mediarouter",
+        "androidx.palette_palette",
+        "androidx.legacy_legacy-preference-v14",
+        "androidx.leanback_leanback",
+        "androidx.slice_slice-core",
+        "androidx.slice_slice-view",
+        "androidx.slice_slice-builders",
+        "androidx.arch.core_core-runtime",
+        "androidx.lifecycle_lifecycle-extensions",
+        "SystemUI-tags",
+        "SystemUI-proto",
+        "dagger2",
+        "//external/kotlinc:kotlin-annotations",
+        "animationlib",
+        "CarDockLib",
+        "androidx.test.rules",
+    ],
+
+    libs: [
+        "android.car",
+    ],
+
+    aaptflags: [
+        "--no-resource-deduping",
+    ],
+
+    javacflags: ["-Adagger.fastInit=enabled"],
+
+    manifest: "AndroidManifest.xml",
+
+    plugins: ["dagger2-compiler"],
+    // TODO(b/319708040): re-enable use_resource_processor
+    use_resource_processor: false,
+
+}
+
+android_library {
+    name: "CarSystemUI-tests",
+    manifest: "tests/AndroidManifest.xml",
+    resource_dirs: [
+        "tests/res",
+        "res-keyguard",
+        "res",
+    ],
+    srcs: [
+        "tests/src/**/*.java",
+        "src/**/*.java",
+        "src/**/*.kt",
+        "src/**/I*.aidl",
+    ],
+    static_libs: [
+        "SystemUI-tests",
+        "CarNotificationLib",
+        "SystemUIPluginLib",
+        "SystemUISharedLib",
+        "SettingsLib",
+        "android.car.test.utils",
+        "androidx.legacy_legacy-support-v4",
+        "androidx.recyclerview_recyclerview",
+        "androidx.preference_preference",
+        "androidx.appcompat_appcompat",
+        "androidx.mediarouter_mediarouter",
+        "androidx.palette_palette",
+        "androidx.legacy_legacy-preference-v14",
+        "androidx.leanback_leanback",
+        "androidx.slice_slice-core",
+        "androidx.slice_slice-view",
+        "androidx.slice_slice-builders",
+        "androidx.arch.core_core-runtime",
+        "androidx.lifecycle_lifecycle-extensions",
+        "car-admin-ui-lib",
+        "car-helper-lib",
+        "car-ui-lib-no-overlayable",
+        "car-qc-lib",
+        "car-resource-common",
+        "com_android_systemui_car_flags_lib",
+        "SystemUI-tags",
+        "SystemUI-proto",
+        "metrics-helper-lib",
+        "androidx.test.rules",
+        "hamcrest-library",
+        "mockito-target-extended-minus-junit4",
+        "testables",
+        "truth",
+        "testng",
+        "dagger2",
+        "//external/kotlinc:kotlin-annotations",
+        "CarDockLib",
+    ],
+    libs: [
+        "android.test.runner",
+        "android.test.base",
+        "android.car",
+    ],
+
+    aaptflags: [
+        "--extra-packages",
+        "com.android.systemui",
+    ],
+
+    plugins: ["dagger2-compiler"],
+
+    lint: {
+        test: true,
+    },
+
+    // TODO(b/218518451) re-enable errorprone.
+    errorprone: {
+        enabled: false,
+    },
+    // TODO(b/319708040): re-enable use_resource_processor
+    use_resource_processor: false,
+}
+
+android_app {
+    name: "CarSystemUI",
+
+    static_libs: [
+        "CarSystemUI-core",
+    ],
+
+    export_package_resources: true,
+
+    libs: [
+        "android.car",
+    ],
+
+    resource_dirs: [],
+
+    overrides: [
+        "SystemUI",
+    ],
+
+    platform_apis: true,
+    system_ext_specific: true,
+    certificate: "platform",
+    privileged: true,
+
+    optimize: {
+        proguard_flags_files: [
+            "proguard.flags",
+        ],
+    },
+    // TODO(b/301283770): Compiling CarSystemUI should not require -J-Xmx8192M
+    javacflags: [
+        "-J-Xmx8192M",
+    ],
+    dxflags: ["--multi-dex"],
+
+    aaptflags: [
+        "--extra-packages",
+        "com.android.keyguard",
+    ],
+
+    kotlincflags: ["-Xjvm-default=all"],
+
+    plugins: ["dagger2-compiler"],
+
+    required: [
+        "privapp_whitelist_com.android.systemui",
+        "allowed_privapp_com.android.carsystemui",
+    ],
+}

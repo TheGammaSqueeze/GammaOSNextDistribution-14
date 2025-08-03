@@ -1,0 +1,188 @@
+#!/bin/bash
+
+DRY_RUN=""
+if [ $# -gt 0 ]; then
+    if [ "$1" == "--dry-run" ]; then
+        DRY_RUN="echo "
+    fi
+fi
+
+REQUIRED="git cargo"
+
+for name in $(echo ${REQUIRED});
+do
+    type -P "$name" &>/dev/null || { echo "Install '$name'" >&2; exit 1;}
+done
+
+FIRST_DIR="$(pwd)"
+
+# Vars
+URL_GN="http://commondatastorage.googleapis.com/chromeos-localmirror/distfiles/gn-3e43fac03281e2f5e5ae5f27c8e9a6bb45966ea9.bin"
+URL_PLATFORM2_GIT="https://chromium.googlesource.com/chromiumos/platform2"
+URL_RUST_CRATES_GIT="https://chromium.googlesource.com/chromiumos/third_party/rust_crates"
+URL_PROTO_LOGGING_GIT="https://android.googlesource.com/platform/frameworks/proto_logging"
+CHROMIUM_BRANCH="release-R92-13982.B"
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PARENT_DIR="$(readlink -f ${SCRIPT_DIR}/../)"
+TMP_DIR=$(mktemp -d)
+
+trap ctrl_c INT
+
+function ctrl_c() {
+    rm -rf "${TMP_DIR}"
+    exit 1
+}
+
+echo Generating source package in "${TMP_DIR}"
+OUT_DIR="${TMP_DIR}/out"
+BIN_DIR="${TMP_DIR}/bin"
+
+${DRY_RUN} mkdir -p "${OUT_DIR}"
+${DRY_RUN} mkdir -p "${BIN_DIR}"
+
+pushd "${BIN_DIR}"
+wget -O gn "${URL_GN}"
+popd
+export PATH="${PATH}:${BIN_DIR}"
+
+# Check dependencies
+# libchrome requires modp_b64
+APT_REQUIRED="modp-b64 libchrome flatbuffers-compiler flex g++-multilib gcc-multilib generate-ninja gnupg gperf libc++-dev libdbus-1-dev libevent-dev libevent-dev libflatbuffers-dev libflatbuffers1 libfmt-dev libgl1-mesa-dev libglib2.0-dev liblz4-tool libncurses5 libnss3-dev libprotobuf-dev libre2-9 libssl-dev libtinyxml2-dev libx11-dev libxml2-utils ninja-build openssl protobuf-compiler unzip x11proto-core-dev xsltproc zip zlib1g-dev"
+
+# SPEED UP TEST, REMOVE ME
+APT_REQUIRED="modp-b64 libchrome flatbuffers-compiler"
+
+APT_MISSING=()
+for name in $(echo ${APT_REQUIRED});
+do
+    R="$(apt -qq list "${name}" 2>/dev/null | grep "installed")"
+    if [ "${R}" == "" ]; then
+        echo "Need to install '${name}'" >&2;
+        if [ "${name}" == "modp-b64" ]; then
+            echo "${name} source is available to build in this repository"
+            echo Run the following to build and install:
+            echo "  pushd ${PARENT_DIR}/${name}/"
+            echo "  ./gen-src-pkg.sh ${OUT_DIR}"
+            echo "  sudo dpkg -i ${OUT_DIR}"/${name}*.deb || ctrl_c
+            echo "  popd"
+            ${DRY_RUN} rm -rf ${TMP_DIR}
+            exit 1
+        elif [ "${name}" == "libchrome" ]; then
+            echo "${name} source is available to build in this repository"
+            echo Run the following to build and install:
+            echo   pushd "${PARENT_DIR}/${name}/"
+            echo   ./gen-src-pkg.sh "${OUT_DIR}"
+            echo   sudo dpkg -i "${OUT_DIR}"/${name}*.deb || ctrl_c
+            echo   popd
+            ${DRY_RUN} rm -rf ${TMP_DIR}
+            exit 1
+        else
+            APT_MISSING+=("${name}")
+        fi
+    fi
+done
+
+APT_MISSING_LEN="${#APT_MISSING[@]}"
+
+if [ $APT_MISSING_LEN -gt 0 ]; then
+    echo "Missing Packages:"
+    echo "    ${APT_MISSING[*]}"
+    echo
+    echo Run the following to build and install:
+    echo "  sudo apt install" "${APT_MISSING[*]}" || ctrl_c
+    ${DRY_RUN} rm -rf ${TMP_DIR}
+    exit 1
+fi
+
+# Check cargo for cxxbridge-cmd
+HAS_CXX="$(cargo install --list | grep cxxbridge-cmd)"
+if [ "$HAS_CXX" == "" ]; then
+    echo "Missing cxxbridge-cmd cargo package"
+    echo Run the following to build and install:
+    echo   cargo install cxxbridge-cmd || ctrl_c
+    ${DRY_RUN} rm -rf ${TMP_DIR}
+    exit 1
+fi
+
+HAS_CXX="$(cargo install --list | grep cargo-proc-macro)"
+if [ "$HAS_CXX" == "" ]; then
+    echo "Missing cargo-proc-macro cargo package"
+    echo Run the following to build and install:
+    echo   cargo install cargo-proc-macro || ctrl_c
+    ${DRY_RUN} rm -rf ${TMP_DIR}
+    exit 1
+fi
+
+# Git
+GIT_DIR="${OUT_DIR}/repos"
+GIT_DIR_PLATFORM2="${GIT_DIR}/platform2"
+GIT_DIR_PLATFORM2_COMMON_MK="${GIT_DIR_PLATFORM2}/common-mk"
+GIT_DIR_PLATFORM2_GN="${GIT_DIR_PLATFORM2}/.gn"
+GIT_DIR_RUST_CRATES="${GIT_DIR}/rust_crates"
+GIT_DIR_PROTO_LOGGING="${GIT_DIR}/proto_logging"
+GIT_DIR_BT="$(readlink -f $PARENT_DIR/../../../)"
+
+# Staging
+STAGING_DIR="${OUT_DIR}/staging"
+STAGING_DIR_PLATFORM2="${STAGING_DIR}/platform2"
+STAGING_DIR_COMMON_MK="${STAGING_DIR}/common-mk"
+STAGING_DIR_GN="${STAGING_DIR}/.gn"
+STAGING_DIR_BT="${STAGING_DIR}/bt"
+# No it isn't a typo, use 'rust'
+STAGING_DIR_RUST_CRATES="${STAGING_DIR}/rust"
+STAGING_DIR_PROTO_LOGGING="${STAGING_DIR}/proto_logging"
+
+OUTPUT_DIR="${OUT_DIR}/output"
+EXTERNAL_DIR="${STAGING_DIR}/external"
+EXTERNAL_DIR_RUST="${EXTERNAL_DIR}/rust"
+EXTERNAL_DIR_PROTO_LOGGING="${EXTERNAL_DIR}/proto_logging"
+
+${DRY_RUN} mkdir -p "${GIT_DIR}"
+${DRY_RUN} mkdir -p "${STAGING_DIR}"
+${DRY_RUN} mkdir -p "${OUTPUT_DIR}"
+${DRY_RUN} mkdir -p "${EXTERNAL_DIR}"
+
+${DRY_RUN} git clone -b "${CHROMIUM_BRANCH}" "${URL_PLATFORM2_GIT}" "${GIT_DIR_PLATFORM2}"
+
+${DRY_RUN} git clone "${URL_RUST_CRATES_GIT}" "${GIT_DIR_RUST_CRATES}"
+${DRY_RUN} git clone "${URL_PROTO_LOGGING_GIT}" "${GIT_DIR_PROTO_LOGGING}"
+
+${DRY_RUN} ln -s "${GIT_DIR_PLATFORM2_COMMON_MK}" "${STAGING_DIR_COMMON_MK}" || ctrl_c
+${DRY_RUN} ln -s "${GIT_DIR_PLATFORM2_GN}" "${STAGING_DIR_GN}" || ctrl_c
+${DRY_RUN} ln -s "${GIT_DIR_BT}" "${STAGING_DIR_BT}" || ctrl_c
+${DRY_RUN} ln -s "${GIT_DIR_RUST_CRATES}" "${EXTERNAL_DIR_RUST}" || ctrl_c
+${DRY_RUN} ln -s "${GIT_DIR_PROTO_LOGGING}" "${EXTERNAL_DIR_PROTO_LOGGING}" || ctrl_c
+
+${DRY_RUN} "${GIT_DIR_BT}"/build.py --bootstrap-dir "$(readlink -f "${OUT_DIR}")" --libdir /usr/lib || ctrl_c
+
+PKG_DIR="${SCRIPT_DIR}/package"
+PKG_USR_DIR="${PKG_DIR}/usr"
+
+OUT_PKG_DIR="${OUT_DIR}/package"
+OUT_PKG_USR_DIR="${OUT_PKG_DIR}/usr"
+
+BIN_OUTPUT="${OUTPUT_DIR}/debug"
+
+BTCLIENT_BIN="${BIN_OUTPUT}/btclient"
+BTMANAGERD_BIN="${BIN_OUTPUT}/btmanagerd"
+BTADAPTERD_BIN="${BIN_OUTPUT}/btadapterd"
+
+${DRY_RUN} cp -r "${PKG_DIR}" "${OUT_DIR}/"
+
+${DRY_RUN} mkdir -p "${OUT_PKG_USR_DIR}/bin"
+${DRY_RUN} cp "${BTCLIENT_BIN}" "${OUT_PKG_USR_DIR}/bin/"
+
+${DRY_RUN} mkdir -p "${OUT_PKG_USR_DIR}/libexec/bluetooth"
+${DRY_RUN} cp "${BTMANAGERD_BIN}" "${OUT_PKG_USR_DIR}/libexec/bluetooth/"
+${DRY_RUN} cp "${BTADAPTERD_BIN}" "${OUT_PKG_USR_DIR}/libexec/bluetooth/"
+
+# Directory with control file needs the right permissions
+${DRY_RUN} chmod -R 0755 "${TMP_DIR}"
+${DRY_RUN} dpkg-deb --build "${OUT_PKG_DIR}" "${FIRST_DIR}/floss.deb"
+
+${DRY_RUN} rm -rf ${TMP_DIR}
+
+echo
+echo "Now run:"
+echo "    sudo dpkg -i "${FIRST_DIR}"/floss.deb"

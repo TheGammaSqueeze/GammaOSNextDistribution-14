@@ -1,0 +1,75 @@
+# Copyright (C) 2020 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+service carwatchdogd /system/bin/carwatchdogd
+    class core
+    user system
+    group system readproc
+    capabilities SYS_NICE
+    disabled
+
+on early-init && property:ro.build.type=userdebug
+    # Below intervals are in seconds
+    setprop ro.carwatchdog.system_event_collection_interval 1
+    setprop ro.carwatchdog.periodic_collection_interval 60
+    setprop ro.carwatchdog.periodic_monitor_interval 5
+
+    # Below durations are in seconds
+    setprop ro.carwatchdog.post_system_event_duration 30
+    setprop ro.carwatchdog.user_switch_timeout 30
+    setprop ro.carwatchdog.wake_up_event_duration 30
+
+on early-init && property:ro.build.type=eng
+    # Below intervals are in seconds
+    setprop ro.carwatchdog.system_event_collection_interval 1
+    setprop ro.carwatchdog.periodic_collection_interval 60
+    setprop ro.carwatchdog.periodic_monitor_interval 5
+
+    # Below durations are in seconds
+    setprop ro.carwatchdog.post_system_event_duration 30
+    setprop ro.carwatchdog.user_switch_timeout 30
+    setprop ro.carwatchdog.wake_up_event_duration 30
+
+on early-init && property:ro.build.type=user
+    # Below intervals are in seconds
+    setprop ro.carwatchdog.system_event_collection_interval 20
+    setprop ro.carwatchdog.periodic_collection_interval 120
+    setprop ro.carwatchdog.periodic_monitor_interval 5
+
+    # Below durations are in seconds
+    setprop ro.carwatchdog.post_system_event_duration 30
+    setprop ro.carwatchdog.user_switch_timeout 30
+    setprop ro.carwatchdog.wake_up_event_duration 30
+
+on init
+    # Number of top stats per category
+    setprop ro.carwatchdog.top_n_stats_per_category 10
+
+    # Number of top stats per sub-category
+    setprop ro.carwatchdog.top_n_stats_per_subcategory 5
+
+    # Cache size for the user switch events
+    setprop ro.carwatchdog.max_user_switch_events 5
+
+    # Duration in seconds that a system event's data is cached
+    setprop ro.carwatchdog.system_event_data_cache_duration 3600
+
+    # Cache size for the periodically collected records
+    setprop ro.carwatchdog.periodic_collection_buffer_size 180
+
+    # Cache size for the periodically monitored records
+    setprop ro.carwatchdog.periodic_monitor_buffer_size 360
+
+    # Start the service only after initializing the properties.
+    start carwatchdogd

@@ -1,0 +1,126 @@
+/*
+ * Copyright (C) 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package {
+    default_team: "trendy_team_android_hardware_backed_security",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_security_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_security_license"],
+}
+
+cc_fuzz {
+    name: "keystoreGetWifiHidl_fuzzer",
+    vendor: true,
+    srcs: [
+        "keystoreGetWifiHidl_fuzzer.cpp",
+    ],
+    static_libs: [
+        "libkeystore-wifi-hidl",
+    ],
+    shared_libs: [
+        "android.system.wifi.keystore@1.0",
+        "libhidlbase",
+        "liblog",
+        "libutils",
+    ],
+    fuzz_config: {
+        cc: [
+            "android-hardware-security@google.com",
+        ],
+        componentid: 1084732,
+        hotlists: [
+            "4593311",
+        ],
+        description: "The fuzzer targets the APIs of libkeystore-wifi-hidl",
+        vector: "local_no_privileges_required",
+        service_privilege: "privileged",
+        users: "multi_user",
+        fuzzed_code_usage: "shipped",
+    },
+}
+
+cc_defaults {
+    name: "keystoreAttestation_defaults",
+    static_libs: [
+        "libkeystore-attestation-application-id",
+        "liblog",
+        "libbase",
+        "libhidlbase",
+    ],
+    shared_libs: [
+        "android.security.aaid_aidl-cpp",
+        "libbinder",
+        "libcrypto",
+        "libutils",
+    ],
+    fuzz_config: {
+        cc: [
+            "android-hardware-security@google.com",
+        ],
+        componentid: 1084732,
+        hotlists: [
+            "4593311",
+        ],
+        description: "The fuzzer targets the APIs of libkeystore-attestation-application-id",
+        vector: "local_no_privileges_required",
+        service_privilege: "privileged",
+        users: "multi_user",
+        fuzzed_code_usage: "shipped",
+    },
+}
+
+cc_fuzz {
+    name: "keystoreSignature_fuzzer",
+    srcs: [
+        "keystoreSignature_fuzzer.cpp",
+    ],
+    defaults: [
+        "keystoreAttestation_defaults",
+    ],
+}
+
+cc_fuzz {
+    name: "keystorePackageInfo_fuzzer",
+    srcs: [
+        "keystorePackageInfo_fuzzer.cpp",
+    ],
+    defaults: [
+        "keystoreAttestation_defaults",
+    ],
+}
+
+cc_fuzz {
+    name: "keystoreApplicationId_fuzzer",
+    srcs: [
+        "keystoreApplicationId_fuzzer.cpp",
+    ],
+    defaults: [
+        "keystoreAttestation_defaults",
+    ],
+}
+
+cc_fuzz {
+    name: "keystoreAttestationId_fuzzer",
+    srcs: [
+        "keystoreAttestationId_fuzzer.cpp",
+    ],
+    defaults: [
+        "keystoreAttestation_defaults",
+    ],
+}

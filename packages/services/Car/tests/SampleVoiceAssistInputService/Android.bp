@@ -1,0 +1,91 @@
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+filegroup {
+    name: "SampleVoiceAssistInputService-srcs",
+    srcs: [
+        "src/**/*.java",
+    ],
+}
+
+android_app {
+    name: "SampleVoiceAssistInputService",
+    srcs: [":SampleVoiceAssistInputService-srcs"],
+    sdk_version: "system_current",
+
+    // This app should be platform signed because it requires
+    // android.car.permission.CAR_MONITOR_INPUT permission, which is of type "signature".
+    certificate: "platform",
+
+    optimize: {
+        enabled: false,
+    },
+    libs: [
+        "android.car-system-stubs",
+        "androidx.annotation_annotation",
+    ],
+    static_libs: [
+        "androidx.annotation_annotation",
+    ],
+    enforce_uses_libs: false,
+    dex_preopt: {
+        enabled: false,
+    },
+}
+
+android_test {
+    name: "SampleVoiceAssistInputServiceTest",
+    srcs: [
+        "tests/src/**/*.java",
+        ":SampleVoiceAssistInputService-srcs",
+    ],
+    manifest: "tests/AndroidManifest.xml",
+    platform_apis: true,
+    static_libs: [
+        "mockito-target-extended",
+        "androidx.test.core",
+        "androidx.test.ext.junit",
+        "androidx.test.rules",
+        "truth",
+    ],
+    libs: [
+        "android.car-system-stubs",
+        "android.test.mock",
+        "android.test.base",
+        "android.test.runner",
+    ],
+
+    // Required by mockito-target-extended (lib used to mock final classes).
+    jni_libs: [
+        // For mockito extended
+        "libdexmakerjvmtiagent",
+    ],
+
+    optimize: {
+        enabled: false,
+    },
+    aaptflags: [
+        "--extra-packages com.android.car.voiceassistinput.sample",
+    ],
+    test_suites: [
+        "automotive-tests",
+        "automotive-general-tests",
+    ],
+    // TODO(b/319708040): re-enable use_resource_processor
+    use_resource_processor: false,
+}

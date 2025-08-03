@@ -1,0 +1,475 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2018 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License
+  -->
+<resources>
+    <!-- Text size for car -->
+    <dimen name="car_title_size">32sp</dimen>
+    <dimen name="car_title2_size">32sp</dimen>
+    <dimen name="car_headline1_size">45sp</dimen>
+    <dimen name="car_headline2_size">32sp</dimen>
+    <dimen name="car_headline3_size">24sp</dimen>
+    <dimen name="car_headline4_size">20sp</dimen>
+    <dimen name="car_body1_size">32sp</dimen>
+    <dimen name="car_body2_size">28sp</dimen>
+    <dimen name="car_body3_size">26sp</dimen>
+    <dimen name="car_body4_size">24sp</dimen>
+    <!-- car_body5_size is deprecated -->
+    <dimen name="car_body5_size">18sp</dimen>
+    <dimen name="car_label1_size">26sp</dimen>
+    <dimen name="car_label2_size">64sp</dimen>
+    <dimen name="car_action1_size">26sp</dimen>
+    <dimen name="car_action2_size">26sp</dimen>
+    <!-- Paddings -->
+    <dimen name="car_padding_0">4dp</dimen>
+    <dimen name="car_padding_1">8dp</dimen>
+    <dimen name="car_padding_2">16dp</dimen>
+    <dimen name="car_padding_3">24dp</dimen>
+    <dimen name="car_padding_4">32dp</dimen>
+    <dimen name="car_padding_5">64dp</dimen>
+    <dimen name="car_padding_6">96dp</dimen>
+
+    <!--
+       Note: status bar height and navigation bar heights are defined
+       in frameworks/base/core package and thus will have no effect if
+       set here. See car_product overlay for car specific defaults-->
+
+    <!-- Overrides the space between each status icon in the system bar -->
+    <dimen name="status_bar_system_icon_spacing">16dp</dimen>
+    <!-- Overrides the size of the network signal icon -->
+    <dimen name="signal_icon_size">32dp</dimen>
+    <!-- Overrides the size of the roaming icon next to the signal icon -->
+    <dimen name="signal_icon_size_roaming">17dp</dimen>
+    <!-- Padding of user icon and text -->
+    <dimen name="system_bar_user_icon_padding">8dp</dimen>
+    <!-- User icon size -->
+    <dimen name="system_bar_user_icon_width">23dp</dimen>
+    <dimen name="system_bar_user_icon_height">22dp</dimen>
+    <!-- Padding on either side of the group of all system bar buttons -->
+    <dimen name="system_bar_button_group_padding">64dp</dimen>
+    <dimen name="system_bar_icon_drawing_size">44dp</dimen>
+    <dimen name="system_bar_button_size">76dp</dimen>
+    <!-- Margin between the system bar buttons -->
+    <dimen name="system_bar_button_margin">32dp</dimen>
+    <!-- Padding between the system bar button and the icon within it -->
+    <dimen name="system_bar_button_padding">16dp</dimen>
+    <!-- Radius for system bar pill buttons -->
+    <dimen name="system_bar_pill_radius">100dp</dimen>
+    <!-- Radius for system bar pill buttons when selected -->
+    <dimen name="system_bar_pill_selected_radius">16dp</dimen>
+
+    <!-- The amount by which to scale up the status bar icons. -->
+    <item name="status_bar_icon_scale_factor" format="float" type="dimen">1.75</item>
+
+    <dimen name="car_primary_icon_size">@*android:dimen/car_primary_icon_size</dimen>
+
+    <dimen name="hvac_container_padding">16dp</dimen>
+    <dimen name="hvac_panel_background_radius">48dp</dimen>
+    <dimen name="hvac_temperature_bar_margin">32dp</dimen>
+    <dimen name="hvac_temperature_text_size">44sp</dimen>
+    <dimen name="hvac_temperature_text_padding">10dp</dimen>
+    <dimen name="hvac_temperature_button_size">52dp</dimen>
+    <dimen name="hvac_temperature_icon_size">36dp</dimen>
+    <dimen name="hvac_temperature_button_padding">12dp</dimen>
+    <!--These values represent MIN and MAX for hvac-->
+    <item name="hvac_min_value_celsius" format="float" type="dimen">16</item>
+    <item name="hvac_max_value_celsius" format="float" type="dimen">28</item>
+    <item name="hvac_min_value_fahrenheit" format="float" type="dimen">60</item>
+
+    <!-- Largest size an avatar might need to be drawn in the user picker, status bar, or
+         quick settings header -->
+    <dimen name="max_avatar_size">128dp</dimen>
+
+    <!-- Standard image button size for volume dialog buttons -->
+    <dimen name="volume_button_size">84dp</dimen>
+    <!-- The maximum width allowed for the volume dialog. For auto, we allow this to span a good
+         deal of the screen. This value accounts for the side margins. -->
+    <dimen name="volume_dialog_panel_width">1920dp</dimen>
+    <dimen name="volume_dialog_side_margin">@dimen/side_margin</dimen>
+
+    <dimen name="volume_dialog_elevation">6dp</dimen>
+
+    <dimen name="volume_dialog_row_margin_end">@*android:dimen/car_keyline_3</dimen>
+
+    <dimen name="volume_dialog_row_padding_end">0dp</dimen>
+
+    <dimen name="line_item_height">128dp</dimen>
+    <dimen name="volume_icon_size">96dp</dimen>
+    <dimen name="side_margin">148dp</dimen>
+    <dimen name="car_keyline_1">24dp</dimen>
+    <dimen name="car_keyline_2">96dp</dimen>
+    <dimen name="car_keyline_3">128dp</dimen>
+
+    <dimen name="device_management_dialog_subtitle_padding">20dp</dimen>
+
+    <!-- Height of icons in Privacy chip dialog. Both App Op icon and application icon -->
+    <dimen name="privacy_chip_dialog_icon_height">48dp</dimen>
+    <!-- Icon size for Privacy chip -->
+    <dimen name="privacy_chip_icon_size">30dp</dimen>
+    <!-- Background width for Privacy chip -->
+    <dimen name="privacy_chip_width">56dp</dimen>
+    <!-- Margin between icons of Privacy chip -->
+    <dimen name="privacy_chip_icon_margin">2dp</dimen>
+    <!-- Diameter of indicator circle in privacy chip animation -->
+    <dimen name="privacy_chip_indicator_circle_diameter">16dp</dimen>
+    <!-- Width of privacy chip qc panel -->
+    <dimen name="car_sensor_qc_panel_width">800dp</dimen>
+    <!-- Privacy chip horizontal padding -->
+    <dimen name="privacy_chip_horizontal_padding">@dimen/car_padding_3</dimen>
+    <!-- Privacy chip vertical padding -->
+    <dimen name="privacy_chip_vertical_padding">10dp</dimen>
+    <!-- Outside stroke width for Privacy chip -->
+    <dimen name="privacy_chip_indicator_outside_stroke_width">4dp</dimen>
+
+    <!-- Car volume dimens. -->
+    <dimen name="car_volume_item_icon_size">@dimen/car_primary_icon_size</dimen>
+    <dimen name="car_volume_item_height">@*android:dimen/car_single_line_list_item_height</dimen>
+    <dimen name="car_volume_item_padding_start">@*android:dimen/car_keyline_1</dimen>
+    <dimen name="car_volume_item_padding_end">@*android:dimen/car_keyline_1</dimen>
+    <dimen name="car_volume_item_seekbar_margin_vertical">@*android:dimen/car_padding_1</dimen>
+    <dimen name="car_volume_item_seekbar_margin_start">@*android:dimen/car_keyline_3</dimen>
+    <dimen name="car_volume_item_seekbar_margin_end">@*android:dimen/car_padding_4</dimen>
+    <dimen name="car_volume_item_seekbar_padding_vertical">@*android:dimen/car_seekbar_padding</dimen>
+    <dimen name="car_volume_item_divider_height">60dp</dimen>
+    <dimen name="car_volume_item_divider_width">1dp</dimen>
+    <dimen name="car_volume_item_divider_margin_end">@*android:dimen/car_padding_4</dimen>
+    <dimen name="car_volume_item_corner_radius">@*android:dimen/car_radius_3</dimen>
+
+    <!-- Car notification shade-->
+    <dimen name="notification_shade_handle_bar_frame_padding">10dp</dimen>
+    <dimen name="notification_shade_handle_bar_width">64dp</dimen>
+    <dimen name="notification_shade_handle_bar_height">10dp</dimen>
+    <dimen name="notification_shade_handle_bar_radius">20dp</dimen>
+    <dimen name="notification_shade_list_padding_bottom">0dp</dimen>
+
+    <!-- The alpha for the scrim behind the notification shade. This value is 1 so that the
+     scrim has no transparency. -->
+    <item name="scrim_behind_alpha" format="float" type="dimen">1.0</item>
+
+    <!-- The width of panel holding the notification card. -->
+    <dimen name="notification_panel_width">522dp</dimen>
+
+    <!-- Height of a small notification in the status bar-->
+    <dimen name="notification_min_height">192dp</dimen>
+
+    <!-- Height of a small notification in the status bar which was used before android N -->
+    <dimen name="notification_min_height_legacy">192dp</dimen>
+
+    <!-- Height of a large notification in the status bar -->
+    <dimen name="notification_max_height">400dp</dimen>
+
+    <!-- Height of a heads up notification in the status bar for legacy custom views -->
+    <dimen name="notification_max_heads_up_height_legacy">400dp</dimen>
+
+    <!-- Height of a heads up notification in the status bar -->
+    <dimen name="notification_max_heads_up_height">400dp</dimen>
+
+    <!-- Height of the status bar header bar -->
+    <dimen name="status_bar_header_height">54dp</dimen>
+
+    <!-- The height of the divider between the individual notifications. -->
+    <dimen name="notification_divider_height">16dp</dimen>
+
+    <!-- The height of the divider between the individual notifications when the notification
+         wants it to be increased. This value is the same as notification_divider_height so that
+         the spacing between all notifications will always be the same. -->
+    <dimen name="notification_divider_height_increased">@dimen/notification_divider_height</dimen>
+
+    <!-- The alpha of the dividing line between child notifications of a notification group. -->
+    <item name="notification_divider_alpha" format="float" type="dimen">1.0</item>
+
+    <!-- The width of each individual notification card. -->
+    <dimen name="notification_child_width">522dp</dimen>
+
+    <!-- The top margin of the notification panel. -->
+    <dimen name="notification_panel_margin_top">32dp</dimen>
+
+    <!-- The bottom padding of the panel that holds the list of notifications. -->
+    <dimen name="notification_panel_padding_bottom">@dimen/notification_divider_height</dimen>
+
+    <!-- The corner radius of the shadow behind the notification. -->
+    <dimen name="notification_shadow_radius">16dp</dimen>
+
+    <!-- The amount of space below the notification list. This value is 0 so the list scrolls
+         all the way to the bottom. -->
+    <dimen name="notification_panel_margin_bottom">0dp</dimen>
+
+    <!-- The height of the divider between the individual notifications in a notification group. -->
+    <dimen name="notification_children_container_divider_height">1dp</dimen>
+
+    <!-- The height of the header for a container containing child notifications. -->
+    <dimen name="notification_children_container_header_height">76dp</dimen>
+
+    <!-- The top margin for the notification children container in its non-expanded form. This
+         value is smaller than notification_children_container_header_height to bring the first
+         child closer so there is less wasted space. -->
+    <dimen name="notification_children_container_margin_top">68dp</dimen>
+
+    <!-- dimensions for the car user switcher -->
+    <dimen name="car_user_switcher_name_text_size">@*android:dimen/car_body1_size</dimen>
+    <dimen name="car_user_switcher_image_avatar_size">@*android:dimen/car_large_avatar_size</dimen>
+    <dimen name="car_user_switcher_vertical_spacing_between_users">@*android:dimen/car_padding_5</dimen>
+    <dimen name="car_user_switcher_vertical_spacing_between_name_and_avatar">@*android:dimen/car_padding_4</dimen>
+    <dimen name="car_user_switcher_margin_top">@*android:dimen/car_padding_4</dimen>
+    <dimen name="car_user_switcher_margin_bottom">@*android:dimen/car_padding_4</dimen>
+    <dimen name="car_user_switcher_managed_badge_size">@*android:dimen/car_large_avatar_badge_size</dimen>
+    <dimen name="car_user_switcher_managed_badge_margin">1dp</dimen>
+
+    <dimen name="car_system_bar_button_width">64dp</dimen>
+    <dimen name="car_system_bar_button_icon_height">44dp</dimen>
+    <dimen name="car_system_bar_user_name_button_height">56dp</dimen>
+    <dimen name="car_system_bar_user_name_max_width">176dp</dimen>
+    <dimen name="car_left_system_bar_width">96dp</dimen>
+    <dimen name="car_right_system_bar_width">96dp</dimen>
+    <!-- In order to change the height of the bottom nav bar, overlay system_bar_height in
+         frameworks/base/core/res/res instead. -->
+    <dimen name="car_bottom_system_bar_height">@*android:dimen/navigation_bar_height</dimen>
+    <!-- In order to change the height of the top nav bar, overlay status_bar_height in
+         frameworks/base/core/res/res instead. -->
+    <dimen name="car_top_system_bar_height">@*android:dimen/status_bar_height</dimen>
+
+    <dimen name="car_top_system_bar_left_padding">0dp</dimen>
+    <dimen name="car_top_system_bar_right_padding">0dp</dimen>
+    <dimen name="car_top_system_bar_top_padding">0dp</dimen>
+    <dimen name="car_top_system_bar_bottom_padding">0dp</dimen>
+    <dimen name="car_bottom_system_bar_left_padding">0dp</dimen>
+    <dimen name="car_bottom_system_bar_right_padding">0dp</dimen>
+    <dimen name="car_bottom_system_bar_top_padding">0dp</dimen>
+    <dimen name="car_bottom_system_bar_bottom_padding">0dp</dimen>
+    <dimen name="car_left_system_bar_left_padding">0dp</dimen>
+    <dimen name="car_left_system_bar_right_padding">0dp</dimen>
+    <dimen name="car_left_system_bar_top_padding">0dp</dimen>
+    <dimen name="car_left_system_bar_bottom_padding">0dp</dimen>
+    <dimen name="car_right_system_bar_left_padding">0dp</dimen>
+    <dimen name="car_right_system_bar_right_padding">0dp</dimen>
+    <dimen name="car_right_system_bar_top_padding">0dp</dimen>
+    <dimen name="car_right_system_bar_bottom_padding">0dp</dimen>
+
+    <dimen name="car_nav_buttons_margin">@*android:dimen/car_padding_3</dimen>
+
+    <dimen name="car_user_switcher_container_height">420dp</dimen>
+    <!-- This must be the negative of car_user_switcher_container_height for the animation. -->
+    <dimen name="car_user_switcher_container_anim_height">-420dp</dimen>
+
+    <!-- dimensions for car user switching dialog -->
+    <dimen name="car_fullscreen_user_pod_image_avatar_width">96dp</dimen>
+    <dimen name="car_fullscreen_user_pod_image_avatar_height">96dp</dimen>
+    <dimen name="car_user_switching_dialog_loading_text_margin_top">@*android:dimen/car_padding_4</dimen>
+    <dimen name="car_user_switching_dialog_loading_text_font_size">@*android:dimen/car_body1_size</dimen>
+
+    <!-- dimensions for Quick Controls entry points   -->
+
+    <dimen name="car_quick_controls_entry_points_button_width">56dp</dimen>
+    <dimen name="car_quick_controls_entry_points_button_margin_top">10dp</dimen>
+    <dimen name="car_quick_controls_entry_points_button_margin_bottom">10dp</dimen>
+    <dimen name="car_quick_controls_entry_points_button_margin_start">12dp</dimen>
+    <dimen name="car_quick_controls_entry_points_button_margin_end">12dp</dimen>
+    <dimen name="car_quick_controls_entry_points_icon_width">30dp</dimen>
+    <dimen name="car_quick_controls_entry_points_icon_space">12dp</dimen>
+
+    <dimen name="car_quick_controls_icon_drawable_width">24dp</dimen>
+    <dimen name="car_quick_controls_icon_drawable_height">24dp</dimen>
+
+    <dimen name="car_read_only_status_icon_width">24dp</dimen>
+    <dimen name="car_read_only_status_icon_height">24dp</dimen>
+
+    <dimen name="car_status_icon_panel_default_width">800dp</dimen>
+    <dimen name="car_status_icon_panel_border_radius">32dp</dimen>
+    <dimen name="car_status_icon_panel_padding_top">22dp</dimen>
+    <dimen name="car_status_icon_panel_padding_bottom">32dp</dimen>
+    <dimen name="car_status_icon_panel_margin_top">0dp</dimen>
+    <dimen name="car_status_icon_panel_dim" format="float">0.5</dimen>
+
+    <dimen name="car_profile_quick_controls_panel_width">550dp</dimen>
+
+    <dimen name="car_quick_controls_footer_button_margin_top">22dp</dimen>
+    <dimen name="car_quick_controls_footer_button_margin_bottom">0dp</dimen>
+    <dimen name="car_quick_controls_footer_button_horizontal_margin">33dp</dimen>
+    <dimen name="car_quick_controls_footer_button_min_height">88dp</dimen>
+
+    <dimen name="car_nav_bar_button_selected_corner_radius">24dp</dimen>
+
+    <!-- dimensions for HVAC   -->
+
+    <dimen name="hvac_panel_full_expanded_height">500dp</dimen>
+
+    <dimen name="hvac_center_panel_width">760dp</dimen>
+
+    <dimen name="hvac_panel_handle_bar_frame_padding">10dp</dimen>
+    <dimen name="hvac_panel_handle_bar_width">64dp</dimen>
+    <dimen name="hvac_panel_handle_bar_height">10dp</dimen>
+    <dimen name="hvac_panel_handle_bar_radius">20dp</dimen>
+    <dimen name="hvac_panel_button_dimen">96dp</dimen>
+
+    <dimen name="temperature_side_margin">32dp</dimen>
+
+    <dimen name="temperature_control_arrow_height">48dp</dimen>
+
+    <dimen name="temperature_bar_text_size">32sp</dimen>
+    <dimen name="temperature_bar_floating_text_size">32sp</dimen>
+    <dimen name="temperature_bar_off_text_size">22sp</dimen>
+
+    <dimen name="hvac_panel_row_animation_height_shift">0dp</dimen>
+
+    <dimen name="temperature_bar_collapsed_width">96dp</dimen>
+    <dimen name="temperature_bar_expanded_width">96dp</dimen>
+    <dimen name="temperature_bar_collapsed_height">96dp</dimen>
+    <dimen name="temperature_bar_expanded_height">356dp</dimen>
+    <dimen name="temperature_bar_icon_margin">20dp</dimen>
+    <dimen name="temperature_bar_close_icon_dimen">96dp</dimen>
+
+    <dimen name="temperature_bar_bg_radius">54dp</dimen>
+    <dimen name="temperature_bar_floating_text_bottom_margin">50dp</dimen>
+    <dimen name="temperature_bar_off_text_bottom_margin">56dp</dimen>
+
+    <dimen name="temperature_off_text_bg_width">72dp</dimen>
+    <dimen name="temperature_off_text_bg_height">24dp</dimen>
+
+    <dimen name="hvac_panel_row_margin">40dp</dimen>
+    <dimen name="hvac_panel_fan_direction_margin">32dp</dimen>
+
+    <dimen name="hvac_panel_margin">16dp</dimen>
+    <dimen name="hvac_panel_top_padding">50dp</dimen>
+    <dimen name="hvac_panel_bottom_padding">40dp</dimen>
+    <dimen name="hvac_panel_button_height">96dp</dimen>
+    <dimen name="hvac_panel_button_width">96dp</dimen>
+
+    <dimen name="hvac_panel_button_radius">54dp</dimen>
+    <dimen name="hvac_panel_group_height">244dp</dimen>
+    <dimen name="hvac_panel_center_group_width">536dp</dimen>
+    <dimen name="hvac_panel_center_group_margin">16dp</dimen>
+
+    <dimen name="hvac_fan_speed_bar_height">72dp</dimen>
+    <dimen name="hvac_fan_speed_bar_vertical_inset">8dp</dimen>
+    <dimen name="hvac_fan_speed_bar_width">680dp</dimen>
+    <dimen name="hvac_fan_speed_bar_corner_radius">28dp</dimen>
+    <dimen name="hvac_fan_speed_bar_end_button_margin">12dp</dimen>
+    <dimen name="hvac_fan_speed_bar_segment_margin">4dp</dimen>
+
+    <dimen name="hvac_fan_speed_bar_margin">16dp</dimen>
+    <dimen name="hvac_fan_speed_bar_text_size">18sp</dimen>
+
+    <dimen name="hvac_fan_speed_dot_size">16dp</dimen>
+    <dimen name="hvac_fan_speed_dot_expanded_size">150dp</dimen>
+    <dimen name="hvac_fan_speed_top_margin">15dp</dimen>
+
+    <dimen name="hvac_floating_text_left_margin">31dp</dimen>
+    <dimen name="hvac_text_left_margin">26dp</dimen>
+    <dimen name="hvac_close_button_bottom_margin">0dp</dimen>
+
+    <dimen name="hvac_turned_on_alpha">1</dimen>
+    <dimen name="hvac_turned_off_alpha">0.4</dimen>
+
+    <dimen name="hvac_icon_drawable_width">108dp</dimen>
+    <dimen name="hvac_icon_drawable_height">108dp</dimen>
+
+    <dimen name="hvac_power_icon_drawable_width">48dp</dimen>
+    <dimen name="hvac_power_icon_drawable_height">48dp</dimen>
+
+    <dimen name="hvac_button_margin_top">20dp</dimen>
+    <dimen name="hvac_button_margin_bottom">20dp</dimen>
+    <dimen name="hvac_button_margin_start">20dp</dimen>
+    <dimen name="hvac_button_margin_end">20dp</dimen>
+
+    <dimen name="hvac_fan_speed_bar_margin_top">12dp</dimen>
+    <dimen name="hvac_fan_speed_bar_margin_bottom">12dp</dimen>
+
+    <dimen name="hvac_fan_speed_text_margin_top">12dp</dimen>
+    <dimen name="hvac_fan_speed_text_margin_bottom">12dp</dimen>
+
+    <dimen name="hvac_temperature_control_button_width">48dp</dimen>
+    <dimen name="hvac_temperature_control_button_height">48dp</dimen>
+
+    <!-- Text size in ActivityBlockingActivity. -->
+    <dimen name="blocking_text_size">@*android:dimen/car_body1_size</dimen>
+    <dimen name="blocking_text_width">706dp</dimen>
+
+    <dimen name="common_margin">32dp</dimen>
+
+    <dimen name="ic_ux_restricted_size">48dp</dimen>
+
+    <!-- Dimensions for the Buttons in ActivityBlockingActivity -->
+    <dimen name="activity_blocking_action_button_height">76dp</dimen>
+    <dimen name="activity_blocking_action_button_top_margin">48dp</dimen>
+    <dimen name="activity_blocking_action_button_corner_radius">38dp</dimen>
+    <dimen name="activity_blocking_action_button_max_width">268dp</dimen>
+    <dimen name="activity_blocking_action_button_min_width">@*android:dimen/car_button_min_width</dimen>
+    <dimen name="activity_blocking_action_button_text_size">@*android:dimen/car_body3_size</dimen>
+    <dimen name="activity_blocking_action_button_padding_horizontal">@*android:dimen/car_padding_4</dimen>
+
+    <!-- Dimensions for the immersive privacy chip -->
+    <dimen name="fullscreen_indicator_padding_vertical">10dp</dimen>
+    <dimen name="fullscreen_indicator_padding_horizontal">12dp</dimen>
+    <dimen name="fullscreen_indicator_height">56dp</dimen>
+    <dimen name="fullscreen_indicator_width">80dp</dimen>
+    <dimen name="fullscreen_indicator_container_width">172dp</dimen>
+    <dimen name="fullscreen_indicator_dot_size">16dp</dimen>
+    <dimen name="fullscreen_indicator_animation_margin_vertical_start">78dp</dimen>
+    <dimen name="fullscreen_indicator_animation_margin_horizontal_start">54dp</dimen>
+    <dimen name="fullscreen_indicator_animation_margin_vertical_end">0dp</dimen>
+    <dimen name="fullscreen_indicator_animation_margin_horizontal_end">0dp</dimen>
+
+    <!-- Dimensions for Display Input Lock -->
+    <dimen name="display_input_lock_text_padding">32dp</dimen>
+    <dimen name="display_input_lock_text_bottom_margin">24dp</dimen>
+    <dimen name="display_input_lock_text_size">24sp</dimen>
+    <dimen name="display_input_lock_text_width">642dp</dimen>
+    <dimen name="display_input_lock_background_radius">8dp</dimen>
+
+    <!-- Dimensions for user picker -->
+    <dimen name="user_picker_button_size">76dp</dimen>
+    <dimen name="user_picker_pill_button_width">80dp</dimen>
+    <dimen name="user_picker_pill_button_height">56dp</dimen>
+    <dimen name="user_picker_pill_radius">30dp</dimen>
+    <dimen name="user_picker_pill_header_margin">20dp</dimen>
+    <dimen name="user_picker_pill_padding_horizontal">22dp</dimen>
+    <dimen name="user_picker_pill_padding_vertical">10dp</dimen>
+    <dimen name="user_picker_header_margin">10dp</dimen>
+    <dimen name="user_picker_header_left_margin">18dp</dimen>
+    <dimen name="user_picker_button_padding_size">16dp</dimen>
+    <dimen name="user_picker_logout_button_margin_right_size">@*android:dimen/car_padding_3</dimen>
+    <dimen name="user_picker_snack_bar_text_size">24sp</dimen>
+    <dimen name="user_picker_user_avatar_size">96dp</dimen>
+    <dimen name="user_picker_user_avatar_border_size">122dp</dimen>
+    <dimen name="user_picker_user_name_text_size">@*android:dimen/car_body1_size</dimen>
+    <dimen name="user_picker_login_state_text_size">@*android:dimen/car_body3_size</dimen>
+    <dimen name="user_picker_clock_elevation_size">5dp</dimen>
+    <dimen name="user_picker_alert_dialog_common_padding_size">24dp</dimen>
+    <dimen name="user_picker_vertical_space_between_users">52dp</dimen>
+    <dimen name="user_picker_horizontal_space_between_users">84dp</dimen>
+
+    <!-- Dimensions for user icons -->
+    <dimen name="user_icon_background_size">128dp</dimen>
+    <dimen name="user_icon_text_size">90sp</dimen>
+
+    <!-- Dimensions for quick controls panel -->
+    <dimen name="car_quick_controls_panel_default_width">750dp</dimen>
+    <dimen name="car_quick_controls_panel_margin">8dp</dimen>
+    <dimen name="car_quick_controls_panel_footer_button_view_height">60dp</dimen>
+    <dimen name="car_quick_controls_panel_footer_button_view_padding">10dp</dimen>
+
+    <dimen name="confirm_logout_dialog_dim" format="float">0.8</dimen>
+
+    <!-- Dimensions for Pin pad -->
+    <dimen name="confirm_lock_message_vertical_spacing">@*android:dimen/car_padding_2</dimen>
+    <dimen name="pin_password_entry_padding_horizontal">@*android:dimen/car_padding_2</dimen>
+    <dimen name="pin_pad_key_width">96dp</dimen>
+    <dimen name="pin_pad_key_height">96dp</dimen>
+    <dimen name="pin_pad_key_margin">10dp</dimen>
+    <dimen name="pin_pad_icon_size">@*android:dimen/car_primary_icon_size</dimen>
+    <dimen name="pin_pad_key_radius">100dp</dimen>
+
+    <dimen name="dock_container_margin">@*android:dimen/car_padding_4</dimen>
+</resources>

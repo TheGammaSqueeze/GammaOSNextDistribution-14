@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="6179574017413146651">"Модул на активността"</string>
+    <string name="message_not_supported" msgid="133939962837892495">"Действ. не може да се обраб. от никое прил."</string>
+    <string name="pip_not_supported" msgid="8681268258599412706">"Функцията „Картина в картината“ не се поддържа на това устройство"</string>
+    <string name="manage_unknown_app_sources_not_supported" msgid="7368611099531260439">"Управлението на неизвестни източници на приложения не се поддържа на това устройство"</string>
+    <string name="documentsui_not_supported" msgid="2786636475647817501">"Управлението на файлове не се поддържа на това устройство"</string>
+    <string name="stub_name" msgid="3987164490218189006">"Без"</string>
+</resources>

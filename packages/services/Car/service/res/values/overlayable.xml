@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2022 The Android Open Source Project
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+          http://www.apache.org/licenses/LICENSE-2.0
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<!-- These values can be used to control CarService stack behavior/features on individual devices.
+     These can be overridden by OEM's by using an RRO overlay app.
+     See CarServiceOverlay*.apk for sample overlay apps.
+     For Static RROs: Based on the target, define priority in this range
+     Android                  1 - 999
+     SOC vendor            1000 - 1999
+     Supplier              2000 - 4999
+     Car OEM               5000 - 7999
+     For Dynamic RROs: Use ro.android.car.carservice.overlay.packages system property to define
+     dynamic RROs. Currently it is recommended to use only one dynamic RRO for CarService
+     resource overlay.
+     -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <overlayable name="CarServiceCustomization">
+        <!-- START VENDOR CUSTOMIZATION -->
+        <policy type="product|system|vendor|odm|oem">
+          <!-- Params from config.xml that can be overlaid -->
+          <item type="bool" name="audioUseDynamicRouting"/>
+          <item type="bool" name="audioUseCoreVolume"/>
+          <item type="bool" name="audioUseCoreRouting"/>
+          <item type="bool" name="audioUseCarVolumeGroupMuting"/>
+          <item type="bool" name="audioUseHalDuckingSignals"/>
+          <item type="integer" name="audioVolumeAdjustmentContextsVersion"/>
+          <item type="bool" name="audioPersistMasterMuteState"/>
+          <item type="integer" name="audioVolumeKeyEventTimeoutMs"/>
+          <item type="bool" name="audioUseCarVolumeGroupEvent"/>
+          <item type="bool" name="audioUseFadeManagerConfiguration"/>
+          <item type="bool" name="audioUseMinMaxActivationVolume"/>
+          <item type="bool" name="audioUseIsolatedAudioFocusForDynamicDevices"/>
+          <item type="bool" name="displayOffMuteLockAllAudio"/>
+          <item type="bool" name="useDefaultBluetoothConnectionPolicy"/>
+          <item type="bool" name="useDefaultBluetoothPowerPolicy"/>
+          <item type="string" name="instrumentClusterRendererService" translatable="false"/>
+          <item type="string" name="config_clusterHomeActivity" translatable="false"/>
+          <item type="integer" name="config_clusterHomeServiceMode"/>
+          <item type="string" name="rotaryService" translatable="false"/>
+          <item type="bool" name="enableActivityBlockingForSafety"/>
+          <item type="string" name="activityBlockingActivity" translatable="false"/>
+          <item type="string" name="continuousBlankActivity" translatable="false"/>
+          <item type="string" name="activityAllowlist" translatable="false"/>
+          <item type="string" name="systemActivityAllowlist" translatable="false"/>
+          <item type="string" name="activityDenylist" translatable="false"/>
+          <item type="array" name="allowedAppInstallSources" translatable="false"/>
+          <item type="string" name="defaultHomeActivity" translatable="false"/>
+          <item type="integer" name="vmsHalClientMetricsProperty"/>
+          <item type="array" name="vmsPublisherSystemClients" translatable="false"/>
+          <item type="array" name="vmsPublisherUserClients" translatable="false"/>
+          <item type="integer" name="millisecondsBeforeRebindToVmsPublisher"/>
+          <item type="integer" name="acceptableHoursPerOnePercentFlashWear"/>
+          <item type="integer" name="uptimeHoursIntervalBetweenUptimeDataWrite"/>
+          <item type="string" name="activityHandlerForFlashWearChanges" translatable="false"/>
+          <item type="integer" name="ioStatsRefreshRateSeconds"/>
+          <item type="integer" name="ioStatsNumSamplesToStore"/>
+          <item type="integer" name="acceptableWrittenKBytesPerSample"/>
+          <item type="integer" name="acceptableFsyncCallsPerSample"/>
+          <item type="integer" name="maxExcessiveIoSamplesInWindow"/>
+          <item type="integer" name="watchdogUserPackageSettingsResetDays" />
+          <item type="integer" name="recurringResourceOverusePeriodInDays"/>
+          <item type="integer" name="recurringResourceOveruseTimes"/>
+          <item type="integer" name="uidIoUsageSummaryTopCount"/>
+          <item type="integer" name="ioUsageSummaryMinSystemTotalWrittenBytes"/>
+          <item type="string" name="intentReceiverForUnacceptableIoMetrics" translatable="false"/>
+          <item type="string" name="eMmcLifetimeFilePath" translatable="false"/>
+          <item type="string" name="eMmcEolFilePath" translatable="false"/>
+          <item type="integer" name="fastPairModelId"/>
+          <item type="string" name="fastPairAntiSpoofKey" translatable="false"/>
+          <item type="bool" name="fastPairAutomaticAcceptance"/>
+          <item type="integer" name="maxGarageModeRunningDurationInSecs"/>
+          <item type="array" name="config_earlyStartupServices" translatable="false"/>
+          <item type="string" name="config_projectionConsentActivity" translatable="false"/>
+          <item type="integer" name="config_projectionActivityDisplayId"/>
+          <item type="array" name="config_projectionActivityLaunchBounds"/>
+          <item type="integer" name="config_projectionUiMode"/>
+          <item type="bool" name="config_projectionAccessPointTethering"/>
+          <item type="bool" name="config_stableLocalOnlyHotspotConfig"/>
+          <item type="string" name="serviceMediaConnection" translatable="false"/>
+          <item type="string" name="config_car_bugreport_application" translatable="false"/>
+          <item type="array" name="config_occupant_zones" translatable="false"/>
+          <item type="array" name="config_occupant_display_mapping" translatable="false"/>
+          <item type="string" name="config_userNoticeUiService" translatable="false"/>
+          <item type="string" name="config_userPickerActivity" translatable="false"/>
+          <item type="integer" name="config_mediaSourceChangedAutoplay"/>
+          <item type="integer" name="config_mediaBootAutoplay"/>
+          <item type="bool" name="config_mediaSourceIndependentPlayback"/>
+          <item type="array" name="config_allowed_optional_car_features" translatable="false"/>
+          <item type="bool" name="enablePassengerSupport"/>
+          <item type="string" name="config_customCountryDetector" translatable="false"/>
+          <item type="bool" name="enableLongPressBluetoothVoiceRecognition"/>
+          <item type="bool" name="config_switchGuestUserBeforeGoingSleep"/>
+          <item type="bool" name="enableProfileUserAssignmentForMultiDisplay"/>
+          <item type="string" name="config_defaultMediaSource" translatable="false"/>
+          <item type="bool" name="config_callButtonEndsOngoingCall"/>
+          <item type="integer" name="config_maxSuspendWaitDuration"/>
+          <item type="integer" name="config_preShutdownPrepareTimeout"/>
+          <item type="integer" name="config_shutdownEnterTimeout"/>
+          <item type="integer" name="config_postShutdownEnterTimeout"/>
+          <item type="bool" name="config_enablePassengerDisplayPowerSaving"/>
+          <item type="integer" name="config_noUserScreenOffTimeout"/>
+          <item type="string" name="config_evsRearviewCameraId" translatable="false"/>
+          <item type="string" name="config_evsCameraActivity" translatable="false"/>
+          <item type="array" name="config_carEvsService" translatable="false" />
+          <item type="bool" name="config_wifiAdjustmentForSuspend"/>
+          <item type="bool" name="config_enableCarLocationServiceGnssControlsForPowerManagement"/>
+          <item type="bool" name="config_preventTemplatedAppsFromShowingDialog"/>
+          <item type="string" name="config_template_activity_class_name" translatable="false"/>
+          <item type="bool" name="config_enableExternalCarTimeToExternalTimeSuggestion"/>
+          <item type="string" name="config_oemCarService" translatable="false"/>
+          <item type="integer" name="config_oemCarService_connection_timeout_ms"/>
+          <item type="integer" name="config_oemCarService_serviceReady_timeout_ms"/>
+          <item type="integer" name="config_oemCarService_regularCall_timeout_ms"/>
+          <item type="integer" name="config_oemCarService_crashCall_timeout_ms"/>
+          <item type="integer" name="config_oemCarService_thread_pool_size"/>
+          <item type="integer" name="config_allowedSystemUptimeForRemoteAccess"/>
+          <item type="bool" name="config_assignPassengerActivityToForegroundCpuGroup"/>
+          <item type="integer" name="config_notifyApStateChange_max_retry"/>
+          <item type="integer" name="config_notifyApStateChange_retry_sleep_ms"/>
+          <item type="fraction" name="config_clusterHomeVisibility_minAlpha"/>
+          <item type="fraction" name="config_clusterHomeVisibility_minRendered"/>
+          <item type="integer" name="config_clusterHomeVisibility_stabilityMs"/>
+          <item type="bool" name="config_enablePersistTetheringCapabilities" />
+          <!-- Params from config.xml that can be overlaid -->
+
+          <!-- XML files that can be overlaid -->
+          <item type="xml" name="car_ux_restrictions_map"/>
+          <item type="xml" name="remote_access_serverless_client_map"/>
+          <!-- XML files that can be overlaid -->
+        </policy>
+        <!-- END VENDOR CUSTOMIZATION -->
+    </overlayable>
+</resources>

@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package pandora;
+
+option java_outer_classname = "HidProto";
+
+service HID {
+  // Send a SET_REPORT command, acting as a HID host, to a connected HID device
+  rpc SendHostReport(SendHostReportRequest) returns (SendHostReportResponse);
+}
+
+// Enum values match those in BluetoothHidHost.java
+enum HidReportType {
+  HID_REPORT_TYPE_UNSPECIFIED = 0;
+  HID_REPORT_TYPE_INPUT = 1;
+  HID_REPORT_TYPE_OUTPUT = 2;
+  HID_REPORT_TYPE_FEATURE = 3;
+}
+
+message SendHostReportRequest {
+  bytes address = 1;
+  HidReportType report_type = 2;
+  string report = 3;
+}
+
+message SendHostReportResponse {
+
+}

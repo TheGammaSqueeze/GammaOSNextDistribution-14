@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (C) 2023 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:filterTouchesWhenObscured="true"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingHorizontal="@dimen/spacing_large"
+        android:paddingBottom="@dimen/spacing_large"
+        android:paddingTop="@dimen/spacing_normal">
+
+        <LinearLayout
+            android:id="@+id/more_info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="center_vertical"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="@dimen/spacing_normal"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="@dimen/spacing_normal"
+            android:background="@drawable/filter_chip_background">
+
+            <ImageView
+                android:layout_width="@dimen/route_request_icon_size"
+                android:layout_height="@dimen/route_request_icon_size"
+                android:background="?attr/privacyPolicyIcon"
+                android:importantForAccessibility="no"/>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_gravity="center_vertical"
+                android:layout_marginHorizontal="12dp"
+                android:textAppearance="?attr/textAppearanceRouteRequest"
+                android:text="@string/request_route_disclaimer_notice" />
+
+            <ImageView
+                android:layout_width="@dimen/route_request_icon_size"
+                android:layout_height="@dimen/route_request_icon_size"
+                android:background="?attr/seeAllIcon"
+                android:importantForAccessibility="no"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:orientation="horizontal"
+            android:layout_gravity="center_vertical"
+            android:gravity="center_vertical"
+            android:layout_marginTop="@dimen/spacing_normal"
+            android:layout_marginBottom="@dimen/spacing_normal"
+            android:layout_weight="1">
+
+            <com.android.healthconnect.controller.shared.RoundView
+                android:layout_width="@dimen/round_map_size"
+                android:layout_height="@dimen/round_map_size"
+                android:layout_marginEnd="@dimen/spacing_normal">
+
+                <com.android.healthconnect.controller.shared.map.MapView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/map_view"/>
+            </com.android.healthconnect.controller.shared.RoundView>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:gravity="center_vertical"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/session_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/spacing_small"
+                    android:textAppearance="?attr/textAppearanceHeadline6"/>
+
+                <TextView
+                    android:id="@+id/date_app"
+                    android:textAppearance="?attr/textAppearanceSummary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:paddingTop="@dimen/spacing_small"
+            style="@style/PermissionGrantButtonListMaterial3">
+
+            <Button
+                android:id="@+id/route_allow_button"
+                android:text="@string/request_route_allow"
+                style="@style/PermissionGrantButtonTop" />
+
+            <Button
+                android:id="@+id/route_allow_all_button"
+                android:text="@string/request_route_allow_all"
+                style="@style/PermissionGrantButtonMid" />
+
+            <Button
+                android:id="@+id/route_dont_allow_button"
+                android:text="@string/request_route_dont_allow"
+                style="@style/PermissionGrantButtonBottom" />
+        </LinearLayout>
+    </LinearLayout>
+
+</ScrollView>

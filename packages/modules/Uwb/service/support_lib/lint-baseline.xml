@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.4.0-alpha01" type="baseline" client="" dependencies="true" name="" variant="all" version="8.4.0-alpha01">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.uwb.UwbAddress#size`"
+        errorLine1="        if (mAddressList[0].size() == UwbAddress.EXTENDED_ADDRESS_BYTE_LENGTH) {"
+        errorLine2="                            ~~~~">
+        <location
+            file="packages/modules/Uwb/service/support_lib/src/com/google/uwb/support/fira/FiraControleeParams.java"
+            line="125"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.uwb.UwbAddress#size`"
+        errorLine1="                checkArgument(uwbAddress.size() == UwbAddress.SHORT_ADDRESS_BYTE_LENGTH);"
+        errorLine2="                                         ~~~~">
+        <location
+            file="packages/modules/Uwb/service/support_lib/src/com/google/uwb/support/fira/FiraControleeParams.java"
+            line="202"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.uwb.UwbAddress#size`"
+        errorLine1="            checkArgument(mDeviceAddress != null &amp;&amp; mDeviceAddress.size() == addressByteLength);"
+        errorLine2="                                                                   ~~~~">
+        <location
+            file="packages/modules/Uwb/service/support_lib/src/com/google/uwb/support/fira/FiraOpenSessionParams.java"
+            line="2065"
+            column="68"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.uwb.UwbAddress#size`"
+        errorLine1="                            &amp;&amp; destAddress.size() == addressByteLength);"
+        errorLine2="                                           ~~~~">
+        <location
+            file="packages/modules/Uwb/service/support_lib/src/com/google/uwb/support/fira/FiraOpenSessionParams.java"
+            line="2070"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.uwb.UwbAddress#fromBytes`"
+        errorLine1="        return UwbAddress.fromBytes(Arrays.copyOf(buffer.array(), length));"
+        errorLine2="                          ~~~~~~~~~">
+        <location
+            file="packages/modules/Uwb/service/support_lib/src/com/google/uwb/support/fira/FiraParams.java"
+            line="1124"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.uwb.UwbAddress#toBytes`"
+        errorLine1="        ByteBuffer buffer = ByteBuffer.wrap(Arrays.copyOf(address.toBytes(), Long.BYTES));"
+        errorLine2="                                                                  ~~~~~~~">
+        <location
+            file="packages/modules/Uwb/service/support_lib/src/com/google/uwb/support/fira/FiraParams.java"
+            line="1128"
+            column="67"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.uwb.UwbAddress#size`"
+        errorLine1="            if (mAddressList[0].size() == UwbAddress.EXTENDED_ADDRESS_BYTE_LENGTH) {"
+        errorLine2="                                ~~~~">
+        <location
+            file="packages/modules/Uwb/service/support_lib/src/com/google/uwb/support/fira/FiraRangingReconfigureParams.java"
+            line="216"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 30): `android.uwb.UwbAddress#size`"
+        errorLine1="                checkArgument(uwbAddress.size() == UwbAddress.SHORT_ADDRESS_BYTE_LENGTH);"
+        errorLine2="                                         ~~~~">
+        <location
+            file="packages/modules/Uwb/service/support_lib/src/com/google/uwb/support/fira/FiraRangingReconfigureParams.java"
+            line="450"
+            column="42"/>
+    </issue>
+
+</issues>

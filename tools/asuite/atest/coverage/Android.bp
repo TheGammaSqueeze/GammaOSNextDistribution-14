@@ -1,0 +1,15 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_binary_host {
+    name: "jacoco_to_lcov_converter",
+    main_class: "com/android/jacocolcov/JacocoToLcovConverter",
+    srcs: ["com/android/jacocolcov/JacocoToLcovConverter.java"],
+    static_libs: [
+        "commons-cli-1.2",
+	"error_prone_annotations",
+        "guava",
+        "jacocoagent",
+    ],
+}

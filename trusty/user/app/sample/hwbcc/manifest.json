@@ -1,0 +1,14 @@
+{
+    "uuid": "f758d162-3481-4bb4-ab54-5ed41652f44e",
+    "min_heap": 4096,
+    "min_stack": 16384,
+    "start_ports": [
+        {
+            "name": "com.android.trusty.hwbcc",
+            "flags": {
+                "allow_ta_connect": true,
+                "allow_ns_connect": true
+            }
+        }
+    ]
+}

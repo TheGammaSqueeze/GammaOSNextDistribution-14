@@ -1,0 +1,46 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_defaults {
+    name: "libdm_rust.defaults",
+    crate_name: "dm",
+    defaults: ["avf_build_flags_rust"],
+    srcs: ["src/lib.rs"],
+    edition: "2021",
+    prefer_rlib: true,
+    rustlibs: [
+        "libanyhow",
+        "libbitflags",
+        "liblibc",
+        "libhex",
+        "libnix",
+        "libuuid",
+        "libzerocopy",
+    ],
+    multilib: {
+        lib32: {
+            enabled: false,
+        },
+    },
+}
+
+rust_library {
+    name: "libdm_rust",
+    defaults: ["libdm_rust.defaults"],
+}
+
+rust_test {
+    name: "libdm_rust.test",
+    defaults: [
+        "libdm_rust.defaults",
+        "rdroidtest.defaults",
+    ],
+    test_suites: ["general-tests"],
+    rustlibs: [
+        "librustutils",
+        "libscopeguard",
+        "libtempfile",
+    ],
+    data: ["testdata/*"],
+}

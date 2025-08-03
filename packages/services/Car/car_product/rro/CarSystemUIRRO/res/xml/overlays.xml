@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<overlay>
+    <item target="style/Theme.SystemUI.Dialog" value="@android:Theme.DeviceDefault.Dialog"/>
+    <item target="id/auth_credential_input" value="@id/auth_credential_input" />
+    <item target="id/cancel_button" value="@id/cancel_button" />
+    <item target="id/emergencyCallButton" value="@id/emergencyCallButton" />
+    <item target="id/error" value="@id/error" />
+    <item target="id/lockPassword" value="@id/lockPassword" />
+    <item target="id/lockPattern" value="@id/lockPattern" />
+    <item target="id/pin_pad" value="@id/pin_pad" />
+    <item target="id/description" value="@id/description" />
+    <item target="id/subtitle" value="@id/subtitle" />
+    <item target="id/title" value="@id/title" />
+    <item target="layout/auth_credential_password_view"
+        value="@layout/auth_credential_password_view" />
+    <item target="layout/auth_credential_pattern_view"
+        value="@layout/auth_credential_pattern_view" />
+    <item target="layout/auth_credential_pin_view"
+        value="@layout/auth_credential_pin_view" />
+    <item target="layout-land/auth_credential_password_view"
+        value="@layout-land/auth_credential_password_view" />
+    <item target="layout-land/auth_credential_pattern_view"
+        value="@layout-land/auth_credential_pattern_view" />
+    <item target="layout-land/auth_credential_pin_view"
+        value="@layout-land/auth_credential_pin_view" />
+</overlay>

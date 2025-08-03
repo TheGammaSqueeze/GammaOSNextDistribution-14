@@ -1,0 +1,78 @@
+{
+  "description": "Three reporting windows configured for VTC - 1h (w1), 1d (w2) and expiry (w3). Source(app) has web trigger attributed in W3.",
+  "phflags_override": {
+    "measurement_event_reports_vtc_early_reporting_windows": "3600,86400"
+  },
+  "input": {
+    "sources": [
+      {
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech1.test",
+          "source_type": "event",
+          "registrant": "example.1s1.test"
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "response": {
+            "Attribution-Reporting-Register-Source": {
+              "source_event_id": "1",
+              "destination": "android-app://example.1d1.test",
+              "web_destination": "https://example.1d1.test",
+              "priority": "100",
+              "expiry": "864000"
+            },
+            "Location": null,
+            "Attribution-Reporting-Redirect": null
+          }
+        }],
+        "timestamp": "0"
+      }
+    ],
+    "web_triggers" : [
+      {
+        "registration_request": {
+          "destination_origin": "https://example.1d1.test",
+          "registrant": "example.app.test",
+          "trigger_params": [{
+            "attribution_src_url": "https://www.ad-tech1.test"
+          }]
+        },
+        "responses": [
+          {
+            "url": "https://www.ad-tech1.test",
+            "response": {
+              "Attribution-Reporting-Register-Trigger": {
+                "event_trigger_data": [
+                  {
+                    "trigger_data": "2",
+                    "priority": "101"
+                  }
+                ]
+              },
+              "Location": null,
+              "Attribution-Reporting-Redirect": null
+            }
+          }
+        ],
+        "timestamp": "432000000"
+      }
+    ]
+  },
+  "output": {
+    "event_level_results": [
+      {
+        "report_time": "867600000",
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/report-event-attribution",
+        "payload": {
+          "attribution_destination": "https://1d1.test",
+          "scheduled_report_time": "867600",
+          "source_event_id": "1",
+          "trigger_data": "0",
+          "source_type": "event",
+          "randomized_trigger_rate": 0.0000108
+        }
+      }
+    ],
+    "aggregatable_results": []
+  }
+}

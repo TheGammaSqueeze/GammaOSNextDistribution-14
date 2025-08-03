@@ -1,0 +1,19 @@
+// Baseline format: 1.0
+BroadcastBehavior: android.net.ConnectivityManager#ACTION_BACKGROUND_DATA_SETTING_CHANGED:
+    Field 'ACTION_BACKGROUND_DATA_SETTING_CHANGED' is missing @BroadcastBehavior
+
+
+RequiresPermission: android.net.ConnectivityManager#requestNetwork(android.net.NetworkRequest, android.app.PendingIntent):
+    Method 'requestNetwork' documentation mentions permissions without declaring @RequiresPermission
+RequiresPermission: android.net.ConnectivityManager#requestNetwork(android.net.NetworkRequest, android.net.ConnectivityManager.NetworkCallback):
+    Method 'requestNetwork' documentation mentions permissions without declaring @RequiresPermission
+RequiresPermission: android.net.NetworkCapabilities#getOwnerUid():
+    Method 'getOwnerUid' documentation mentions permissions without declaring @RequiresPermission
+RequiresPermission: android.net.http.BidirectionalStream.Builder#setTrafficStatsUid(int):
+    Method 'setTrafficStatsUid' documentation mentions permissions without declaring @RequiresPermission
+RequiresPermission: android.net.http.UrlRequest.Builder#setTrafficStatsUid(int):
+    Method 'setTrafficStatsUid' documentation mentions permissions without declaring @RequiresPermission
+
+
+VisiblySynchronized: android.net.NetworkInfo#toString():
+    Internal locks must not be exposed (synchronizing on this or class is still

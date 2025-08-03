@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  Copyright (c) 2017 The LineageOS Project
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ Also add information on how to contact you by electronic and paper mail.
+
+-->
+<resources>
+    <string name="app_name">FlipFlap</string>
+    <string name="notification_title">Tapa inteligente detectada</string>
+    <string name="alarm_label">ALARMA</string>
+    <string name="abbrev_wday_month_day_no_year">EEE, d MMMM</string>
+    <string name="answer_call">RESPONDER</string>
+    <string name="ignore_call">IGNORAR</string>
+    <string name="end_call">TERMINAR LLAMADA</string>
+    <string name="settings_name">Tapa inteligente</string>
+    <string name="settings_enable">Activar el control inteligente de la tapa</string>
+    <string name="settings_summary">Controla el comportamiento de tus accesorios</string>
+    <string name="category_behaviour">Comportamiento</string>
+    <string name="pass_to_security_view_title">Introducir directamente la contraseña</string>
+    <string name="pass_to_security_view_summary">Al abrir la tapa se muestra la pantalla de bloqueo</string>
+    <string name="use_high_touch_sensitivity_title">Alta sensibilidad táctil</string>
+    <string name="use_high_touch_sensitivity_summary">Aumenta la sensibilidad táctil con la tapa cerrada</string>
+    <string name="category_design">Diseño</string>
+    <string name="switch_charging_status_title">Mostrar los estados de carga</string>
+    <string name="switch_charging_status_summary">Cambiar el color dependiendo de la carga de la batería</string>
+    <string name="category_timeouts">Tiempos de espera</string>
+    <string name="timeout_plugged_title">Mientras se carga</string>
+    <string name="timeout_unplugged_title">Desconectado</string>
+    <string name="timeout_summary">Mostrar la aplicación de portada durante %s después de cerrar la tapa</string>
+    <string name="timeout_summary_never">Después de cerrar la tapa, la aplicación de portada siempre estará activa</string>
+    <string name="timeout_summary_immediately">La pantalla se apagará al cerrar la tapa</string>
+    <string name="timeout_entry_immediately">Inmediatamente</string>
+    <string name="timeout_entry_5s">5 segundos</string>
+    <string name="timeout_entry_10s">10 segundos</string>
+    <string name="timeout_entry_30s">30 segundos</string>
+    <string name="timeout_entry_1min">1 minuto</string>
+    <string name="timeout_entry_5min">5 minutos</string>
+    <string name="timeout_entry_never">Nunca</string>
+</resources>

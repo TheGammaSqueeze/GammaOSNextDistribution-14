@@ -1,0 +1,8 @@
+Run the following commands to run this attestation test on device. From the root of the tree:
+> . build/envsetup.sh
+> lunch <<your_device_target>>
+> m AttestationTestTool
+> python tools/security/remote_provisioning/attestation_testing/attestation_test_host.py
+
+Any failures found during execution will be printed to the terminal in the format of:
+> AttestationFail: <<Description of failure>>

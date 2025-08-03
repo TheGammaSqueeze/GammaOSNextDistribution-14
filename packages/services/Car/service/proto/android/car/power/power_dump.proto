@@ -1,0 +1,124 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package com.android.car.power;
+
+option java_multiple_files = true;
+
+message CarPowerDumpProto {
+  message CpmsStateProto {
+    optional bool can_postpone = 1;
+    optional int32 car_power_manager_state = 2;
+    optional int32 shutdown_type = 3;
+    optional int32 state = 4;
+    optional string state_name = 5;
+  }
+  optional CpmsStateProto current_state = 1;
+  optional int64 shutdown_start_time = 2;
+  optional int64 last_sleep_entry_time = 3;
+  optional int32 next_wakeup_sec = 4;
+  optional bool shutdown_on_next_suspend = 5;
+  optional string action_on_finish = 6;
+  optional int32 shutdown_polling_interval_ms = 7;
+  optional int32 shutdown_prepare_time_ms = 8;
+  optional bool reboot_after_garage_mode = 9;
+  optional bool switch_guest_user_before_sleep = 10;
+  optional string current_power_policy_id = 11;
+  optional string pending_power_policy_id = 12;
+  optional string current_power_policy_group_id = 13;
+  optional bool is_power_policy_locked = 14;
+  optional int64 max_suspend_wait_duration_ms = 15;
+  optional int32 max_suspend_wait_duration_config = 16;
+  optional string wifi_state_file = 17;
+  optional string tethering_state_file = 18;
+  optional bool wifi_adjustment_for_suspend = 19;
+  optional int32 power_policy_listeners = 20;
+  optional string factory_reset_callback = 21;
+  optional bool is_listener_waiting_cancelled = 22;
+  optional bool kernel_supports_deep_sleep = 23;
+  optional bool kernel_supports_hibernation = 24;
+  optional int32 last_shutdown_state = 25;
+  optional bool wake_from_simulated_sleep = 26;
+  optional bool in_simulated_deep_sleep_mode = 27;
+  optional int32 resume_delay_from_simulated_suspend_sec = 28;
+  optional bool free_memory_before_suspend = 29;
+
+  message PolicyReaderProto {
+    message ComponentNameToValue {
+      optional string component_name = 1;
+      optional int32 component_value = 2;
+    }
+    message PowerPolicy {
+      optional string policy_id = 1;
+      repeated string enabled_components = 2;
+      repeated string disabled_components = 3;
+    }
+    message IdToPolicyGroup {
+      message PolicyGroup {
+        message StateToDefaultPolicy {
+          optional string state = 1;
+          optional string default_policy_id = 2;
+        }
+        repeated StateToDefaultPolicy default_policy_mappings = 1;
+      }
+      optional string policy_group_id = 1;
+      optional PolicyGroup policy_group = 2;
+    }
+    repeated ComponentNameToValue custom_component_mappings = 6;
+    repeated PowerPolicy registered_power_policies = 7;
+    repeated IdToPolicyGroup power_policy_group_mappings = 8;
+    repeated PowerPolicy preemptive_power_policies = 9;
+  }
+
+  message PowerComponentHandlerProto {
+    message PowerComponentToState {
+      optional string power_component = 1;
+      optional bool state = 2;
+    }
+    repeated PowerComponentToState power_component_state_mappings = 1;
+    repeated string components_off_by_policy = 2;
+    optional string last_modified_components = 3;
+  }
+
+  message SilentModeHandlerProto {
+    optional string hw_state_monitoring_file_name = 1;
+    optional string kernel_silent_mode_file_name = 2;
+    optional bool is_monitoring_hw_state_signal = 3;
+    optional bool silent_mode_by_hw_state = 4;
+    optional bool forced_silent_mode = 5;
+  }
+
+  message ScreenOffHandlerProto {
+    message DisplayPowerInfoProto {
+      optional int32 display_id = 1;
+      optional int32 user_id = 2;
+      optional int32 mode = 3;
+      optional bool is_driver_display = 4;
+      optional int64 last_user_activity_time = 5;
+    }
+    optional bool is_auto_power_saving = 11;
+    optional bool boot_completed = 12;
+    optional int32 no_user_screen_off_timeout_ms = 13;
+    repeated DisplayPowerInfoProto display_power_infos = 14;
+  }
+
+  optional PolicyReaderProto policy_reader = 30;
+  optional PowerComponentHandlerProto power_component_handler = 31;
+  optional SilentModeHandlerProto silent_mode_handler = 32;
+  optional ScreenOffHandlerProto screen_off_handler = 33;
+}

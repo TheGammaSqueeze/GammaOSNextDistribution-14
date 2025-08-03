@@ -1,0 +1,11 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+filegroup {
+    name: "framework-bluetooth-updatable-exported-aidl-sources",
+    srcs: ["**/*.aidl"],
+    visibility: [
+        "//packages/modules/Bluetooth/android/app/aidl",
+    ],
+}

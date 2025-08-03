@@ -1,0 +1,5 @@
+package vendor.qti.hardware.capabilityconfigstore@1.0;
+
+interface ICapabilityConfigStore {
+    getConfig(string area, string key) generates (CommandResult result);
+};

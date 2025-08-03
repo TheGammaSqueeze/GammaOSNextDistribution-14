@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (c) 2018 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="hvac_min_text" msgid="866677328637088715">"Min."</string>
+    <string name="hvac_max_text" msgid="7627950157128770380">"Maks."</string>
+    <string name="fan_speed_max" msgid="956683571700419211">"MAKS."</string>
+    <string name="fan_speed_off" msgid="3860115181014880798">"IZSLĒGTS"</string>
+    <string name="hvac_temperature_off" msgid="8370977023494579242">"IZSLĒGTA"</string>
+    <string name="voice_recognition_toast" msgid="7579725862117020349">"Balss atpazīšanu tagad nodrošina pievienotā Bluetooth ierīce"</string>
+    <string name="car_add_user" msgid="6182764665687382136">"Pievienot profilu"</string>
+    <string name="end_session" msgid="2765206020435441421">"Beigt sesiju"</string>
+    <string name="car_new_user" msgid="6766334721724989964">"Jauns profils"</string>
+    <string name="user_add_profile_title" msgid="828371911076521952">"Vai pievienot jaunu profilu?"</string>
+    <string name="user_add_user_message_setup" msgid="1639791240776969175">"Kad būsiet pievienojis jaunu profilu, konta īpašnieks varēs to pielāgot."</string>
+    <string name="user_add_user_message_update" msgid="4507063398890966360">"Jebkurā profilā var instalēt lietotnes atjauninājumu, kas pēc tam būs pieejams visos profilos."</string>
+    <string name="profile_limit_reached_title" msgid="7891779218496729653">"Sasniegts profilu ierobežojums"</string>
+    <string name="profile_limit_reached_message" msgid="1534369584753840606">"{count,plural, =1{Var izveidot tikai vienu profilu.}zero{Varat pievienot ne vairāk kā # profilus.}one{Varat pievienot ne vairāk kā # profilu.}other{Varat pievienot ne vairāk kā # profilus.}}"</string>
+    <string name="car_loading_profile" msgid="458961191993686065">"Notiek ielāde…"</string>
+    <string name="car_loading_profile_developer_message" msgid="737810794567935702">"Notiek lietotāja profila ielāde (<xliff:g id="FROM_USER">%1$d</xliff:g>–<xliff:g id="TO_USER">%2$d</xliff:g>)…"</string>
+    <string name="privacy_chip_off_content" msgid="8406415098507955316">"<xliff:g id="SENSOR">%1$s</xliff:g> ir izslēgtā stāvoklī."</string>
+    <string name="privacy_chip_use_sensor" msgid="7688230720803089653">"Izmantot šādu sensoru: <xliff:g id="SENSOR">%1$s</xliff:g>"</string>
+    <string name="privacy_chip_use_sensor_subtext" msgid="5655148288310815742">"Lietotnēm, kurām ir atļauja"</string>
+    <string name="privacy_chip_settings" msgid="8028897999244574288">"Konfidencialitātes iestatījumi"</string>
+    <string name="privacy_chip_app_using_sensor_suffix" msgid="7921315376271490004">"<xliff:g id="APP">%1$s</xliff:g> pašlaik izmanto šādu sensoru: <xliff:g id="SENSOR">%2$s</xliff:g>"</string>
+    <string name="mic_privacy_chip_apps_using_mic_suffix" msgid="6656026041668305817">"Lietotnes <xliff:g id="APP_LIST">%s</xliff:g> izmanto mikrofonu"</string>
+    <string name="privacy_chip_app_recently_used_sensor_suffix" msgid="4632772067170022529">"<xliff:g id="APP">%1$s</xliff:g> nesen izmantoja šādu sensoru: <xliff:g id="SENSOR">%2$s</xliff:g>"</string>
+    <string name="privacy_chip_apps_recently_used_sensor_suffix" msgid="2715537466314464047">"<xliff:g id="APP_0">%1$s</xliff:g> un citas lietotnes (vēl <xliff:g id="ADDITIONAL_APP_COUNT">%2$d</xliff:g>) nesen izmantoja šādu sensoru: <xliff:g id="SENSOR">%3$s</xliff:g>"</string>
+    <string name="mic_privacy_chip_on_toast" msgid="7003896860896586181">"Mikrofons tika ieslēgts."</string>
+    <string name="mic_privacy_chip_off_toast" msgid="8718743873640788032">"Mikrofons tika izslēgts."</string>
+    <string name="mic_privacy_chip_dialog_ok" msgid="2298690833121720237">"Labi"</string>
+    <string name="sensor_privacy_start_use_mic_dialog_title" msgid="8774244900043105266">"Vai ieslēgt transportlīdzekļa mikrofonu?"</string>
+    <string name="sensor_privacy_start_use_mic_dialog_content" msgid="8382980879434990801">"Lai turpinātu, ieslēdziet informatīvi izklaidējošās sistēmas mikrofonu. Tādējādi mikrofons tiks ieslēgts visām lietotnēm, kurām ir atļauja."</string>
+    <string name="camera_privacy_chip_app_using_camera_suffix" msgid="2591363552459967509">"<xliff:g id="APP">%s</xliff:g> pašlaik izmanto kameru"</string>
+    <string name="camera_privacy_chip_apps_using_camera_suffix" msgid="8033118959615498419">"Šīs lietotnes izmanto kameru: <xliff:g id="APP_LIST">%s</xliff:g>"</string>
+    <string name="camera_privacy_chip_app_recently_used_camera_suffix" msgid="4534950658276502559">"<xliff:g id="APP">%s</xliff:g> nesen izmantoja kameru"</string>
+    <string name="camera_privacy_chip_apps_recently_used_camera_suffix" msgid="3094973410349692954">"<xliff:g id="APP_0">%1$s</xliff:g> un citas lietotnes (vēl <xliff:g id="ADDITIONAL_APP_COUNT">%2$d</xliff:g>) nesen izmantoja kameru"</string>
+    <string name="camera_privacy_chip_on_toast" msgid="7901274903678512207">"Kamera ir ieslēgta"</string>
+    <string name="camera_privacy_chip_off_toast" msgid="7135472255099347229">"Kamera ir izslēgta"</string>
+    <string name="camera_privacy_chip_dialog_ok" msgid="7285467760928137765">"Labi"</string>
+    <string name="sensor_privacy_start_use_camera_dialog_title" msgid="4787836783010823885">"Vai ieslēgt transportlīdzekļa kameru?"</string>
+    <string name="sensor_privacy_start_use_camera_dialog_content" msgid="7749639131326657668">"Lai turpinātu, ieslēdziet informatīvi izklaidējošās sistēmas kameru. Tādējādi kamera tiks ieslēgta visām lietotnēm, kurām ir atļauja."</string>
+    <string name="system_bar_home_label" msgid="8413273833405495948">"Sākuma ekrāns"</string>
+    <string name="system_bar_phone_label" msgid="5664288201806823777">"Tālrunis"</string>
+    <string name="system_bar_applications_label" msgid="7081862804211786227">"Lietojumprogrammas"</string>
+    <string name="system_bar_climate_control_label" msgid="4091187805919276017">"Klimata kontrole"</string>
+    <string name="system_bar_notifications_label" msgid="6039158514903928210">"Paziņojumi"</string>
+    <string name="system_bar_maps_label" msgid="7883864993280235380">"Maps"</string>
+    <string name="system_bar_media_label" msgid="6156112139796274847">"Multivide"</string>
+    <string name="system_bar_control_center_label" msgid="5269256399167811590">"Vadības centrs"</string>
+    <string name="system_bar_assistant_label" msgid="7312821609046711200">"Asistents"</string>
+    <string name="system_bar_mic_privacy_chip" msgid="2494035034004728597">"Mikrofona konfidencialitātes žetons"</string>
+    <string name="system_bar_user_avatar" msgid="4122817348016746322">"Lietotāja iemiesojums"</string>
+    <string name="system_bar_user_name_text" msgid="5859605302481171746">"Lietotājvārda teksts"</string>
+    <string name="hvac_decrease_button_label" msgid="5628481079099995286">"Pazemināt temperatūru"</string>
+    <string name="hvac_increase_button_label" msgid="2855688290787396792">"Paaugstināt temperatūru"</string>
+    <string name="status_icon_bluetooth_disconnected" msgid="6773447522499007010">"Bluetooth iestatījums: savienojums pārtraukts"</string>
+    <string name="status_icon_bluetooth_connected" msgid="4548446117525711779">"Bluetooth iestatījums: izveidots savienojums"</string>
+    <string name="status_icon_bluetooth_off" msgid="5435041393564635821">"Bluetooth iestatījums: Bluetooth izslēgts"</string>
+    <string name="status_icon_signal_mobile" msgid="7264721079060179783">"Signāla iestatījums: tiek izmantoti mobilie dati"</string>
+    <string name="status_icon_signal_wifi" msgid="1257569337648058522">"Signāla iestatījums: ieslēgts Wi-Fi"</string>
+    <string name="status_icon_signal_hotspot" msgid="1023039120452006880">"Signāla iestatījums: ieslēgts tīklājs"</string>
+    <string name="status_icon_display_status" msgid="2970020923181359144">"Displeja iestatījumi"</string>
+    <string name="status_icon_drive_mode" msgid="3938622431486261076">"Braukšanas režīms"</string>
+    <string name="activity_blocked_text" msgid="5353157279548801554">"Jūs nevarat izmantot šo funkciju braukšanas laikā."</string>
+    <string name="exit_button_close_application" msgid="112227710467017144">"Aizvērt lietotni"</string>
+    <string name="exit_button_go_back" msgid="7988866855775300902">"Atpakaļ"</string>
+    <string name="drive_mode_modes_comfort" msgid="628724737960743004">"Komforta režīms"</string>
+    <string name="drive_mode_modes_eco" msgid="7694931508925737653">"Ekoloģiskais režīms"</string>
+    <string name="drive_mode_modes_sport" msgid="7664603138389270601">"Sports"</string>
+    <string name="qc_drive_mode_active_subtitle" msgid="3667965966971747414">"Aktīvs"</string>
+    <string name="qc_footer_settings" msgid="5471523941092316743">"Iestatījumi"</string>
+    <string name="qc_footer_bluetooth_settings" msgid="2870204430643762847">"Bluetooth iestatījumi"</string>
+    <string name="qc_footer_network_internet_settings" msgid="2480582764252681575">"Tīkla un interneta iestatījumi"</string>
+    <string name="qc_footer_display_settings" msgid="2950539240110437704">"Displeja iestatījumi"</string>
+    <string name="qc_footer_network_sound_settings" msgid="5117011034908775097">"Skaņas iestatījumi"</string>
+    <string name="qc_footer_profiles_accounts_settings" msgid="4456419248123950232">"Profilu un kontu iestatījumi"</string>
+    <string name="lockpattern_does_not_support_rotary" msgid="4605787900312103476">"Tiek atbalstīta skārienievade, bet ne rotācija."</string>
+    <string name="display_input_lock_text" msgid="1671197665816822205">"Jūsu ekrāns ir bloķēts"</string>
+    <string name="display_input_lock_started_text" msgid="2434054522800802134">"Jūsu ekrāns ir bloķēts"</string>
+    <string name="display_input_lock_stopped_text" msgid="5944577827512246808">"Jūsu ekrāns tagad ir atbloķēts"</string>
+    <string name="user_logout_title" msgid="5534754139319586681">"Vai tiešām vēlaties atteikties?"</string>
+    <string name="user_logout_message" msgid="7804089876692575056">"Tādējādi tiks aizvērtas visas atvērtās lietojumprogrammas."</string>
+    <string name="user_logout" msgid="2934184154258330491">"Atteikties"</string>
+    <string name="car_guest" msgid="768913000117469596">"Viesis"</string>
+    <string name="user_switching_message" msgid="5346172662613832946">"Notiek profila pārslēgšana…"</string>
+    <string name="user_adding_message" msgid="4700853604381151415">"Notiek jauna profila pievienošana…"</string>
+    <string name="max_user_limit_reached_title" msgid="7319012467112549458"></string>
+    <string name="max_user_limit_reached_message" msgid="1445188223628919167">"Varat pievienot ne vairāk kā <xliff:g id="USER_LIMIT">%d</xliff:g> profilus."</string>
+    <string name="confirm_add_user_title" msgid="75853419607883551">"Vai pievienot jaunu profilu?"</string>
+    <string name="already_logged_in_message" msgid="3657131706472825219">"Lai turpinātu, lietotājam <xliff:g id="USER_NAME">%1$s</xliff:g> ir jāizrakstās no šī lietotāja ekrāna: <xliff:g id="SEAT_LOCATION">%2$s</xliff:g>."</string>
+    <string name="header_bar_text_in_logged_out_state" msgid="3903097856063608991">"Atlasiet profilu, lai sāktu"</string>
+    <string name="logged_in_text" msgid="742324514947999718">"Esat pierakstījies"</string>
+    <string name="prefix_logged_in_info_for_other_seat" msgid="7438545665671460955">"Esat pierakstījies šī lietotāja ekrānā: <xliff:g id="SEAT_LOCATION">%s</xliff:g>"</string>
+    <string name="create_user_failed_message" msgid="4539847475822170735">"Nevar pievienot jaunu profilu. Vēlāk mēģiniet vēlreiz."</string>
+    <string name="guest_creation_failed_message" msgid="8198126434029601949">"Nevar izveidot viesa profilu. Vēlāk mēģiniet vēlreiz."</string>
+    <string name="stopping_user_text" msgid="4946464635279894684">"Notiek izrakstīšanās…"</string>
+    <string name="wait_for_until_stopped_message" msgid="4964287657737020726">"Notiek lietotāja <xliff:g id="USER_NAME">%s</xliff:g> izrakstīšana. Vēlāk mēģiniet vēlreiz."</string>
+    <string name="seat_driver" msgid="4502591979520445677">"vadītāja sēdeklī"</string>
+    <string name="seat_front" msgid="836133281052793377">"priekšējā sēdeklī"</string>
+    <string name="seat_rear" msgid="403133444964528577">"aizmugurējā sēdeklī"</string>
+    <string name="seat_left_side" msgid="7460757956924015769">"sēdeklī pa kreisi"</string>
+    <string name="seat_center_side" msgid="6661501442901282386">"vidējā sēdeklī"</string>
+    <string name="seat_right_side" msgid="6735434879559763096">"sēdeklī pa labi"</string>
+    <string name="keyguard_enter_your_pin" msgid="141736439348916894"></string>
+    <string name="keyguard_enter_your_pattern" msgid="4004401928097798697"></string>
+    <string name="keyguard_enter_your_password" msgid="1345546935461513721"></string>
+    <string name="car_keyguard_enter_your_pin" msgid="6306637610891409860">"Ievadiet PIN"</string>
+    <string name="car_keyguard_enter_your_pattern" msgid="7314854851472119334">"Ievadiet kombināciju"</string>
+    <string name="car_keyguard_enter_your_password" msgid="2084173625085820354">"Ievadiet paroli"</string>
+    <string name="backspace_key" msgid="5570862528655375412">"Atkāpšanās taustiņš"</string>
+    <string name="enter_key" msgid="747962923921283095">"Ievadīšanas taustiņš"</string>
+    <string name="user_tos_activity_intent" msgid="6076292178025090081">"intent:#Intent;action=com.android.car.SHOW_USER_TOS_ACTIVITY;B.show_value_prop=false;end"</string>
+    <string name="back_btn" msgid="7774349944465667391">"Atpakaļ"</string>
+    <string name="fullscreen" msgid="7648956467442135844">"Pilnekrāna režīms"</string>
+</resources>

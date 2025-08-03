@@ -1,0 +1,247 @@
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+genrule {
+    name: "statslog-adservices-java-gen",
+    tools: ["stats-log-api-gen"],
+    cmd: "$(location stats-log-api-gen) --java $(out) --module adservices" +
+        " --javaPackage com.android.adservices.service.stats --javaClass AdServicesStatsLog",
+    out: ["com/android/adservices/service/stats/AdServicesStatsLog.java"],
+}
+
+// Converts the text proto Cobalt registry into a binary proto.
+genrule {
+    name: "cobalt-registry-binarypb-gen",
+    srcs: [
+        "resources/cobalt_registry.textpb",
+        ":adservices-cobalt-proto",
+    ],
+    out: ["cobalt_registry.binarypb"],
+    tools: ["aprotoc"],
+    cmd: "$(location aprotoc) --encode=cobalt.CobaltRegistry " +
+        "--proto_path=packages/modules/AdServices/adservices/libraries/cobalt/proto " +
+        "packages/modules/AdServices/adservices/libraries/cobalt/proto/cobalt_registry.proto " +
+        "< $(location resources/cobalt_registry.textpb) > $(out)",
+}
+
+// Outputs a class confirming the Cobalt registry asset is validated, conditioned on
+// the asset binary proto and text proto being the same.
+genrule {
+    name: "cobalt-registry-validated-java",
+    srcs: [
+        ":checked_in_cobalt_registry_binarypb",
+        ":cobalt-registry-binarypb-gen",
+        "resources/CobaltRegistryValidated.java",
+    ],
+    // Compare the generated binary proto to the asset binary proto and fail if they
+    // are different. Additionally, print a message with instructions on how to update
+    // the asset binary proto.
+    cmd: "cp $(location resources/CobaltRegistryValidated.java) $(out) && " +
+        "cmp -s $(location :cobalt-registry-binarypb-gen) $(location :checked_in_cobalt_registry_binarypb) " +
+        "|| (echo -e '\\n\\n################################################################\\n#\\n" +
+        "#  ERROR: Binary registry is out of date.  To update it, run:\\n#\\n" +
+        "#  cp $(location :cobalt-registry-binarypb-gen) " +
+        "packages/modules/AdServices/adservices/apk/assets/cobalt/cobalt_registry.binarypb\\n#\\n" +
+        "################################################################\\n\\n' >&2 && false)",
+    out: ["com/android/adservices/cobalt/CobaltRegistryValidated.java"],
+}
+
+filegroup {
+    name: "adservices-service-core-sources",
+    srcs: [
+        "java/**/*.java",
+    ],
+    path: "java",
+    visibility: [
+        "//packages/modules/AdServices/adservices/tests:__subpackages__",
+        "//package/modules/ExtServices/extservices:__subpackages__",
+    ],
+}
+
+filegroup {
+    name: "adservices-service-core-jni-sources",
+    srcs: [
+        "jni/java/**/*.java",
+    ],
+    path: "jni",
+    visibility: [
+        "//packages/modules/AdServices/adservices:__subpackages__",
+    ],
+}
+
+filegroup {
+    name: "adservices-service-core-flags-constants-sources",
+    srcs: [
+        "java/com/android/adservices/cobalt/CobaltConstants.java",
+        "java/com/android/adservices/service/FlagsConstants.java",
+    ],
+    path: "java",
+    visibility: [
+        "//packages/modules/AdServices/adservices/tests/test-util",
+    ],
+}
+
+// TODO(b/306522832): move to Shared/ and change packages (to something like
+// c.a.ads.flags), although we'd need to be consider whether to make sure it's
+// used only by adservices itself, not ODP (or SdkSandbox)
+filegroup {
+    name: "adservices-service-common-flags-sources",
+    srcs: [
+        "java/com/android/adservices/service/CommonFlags.java",
+        "java/com/android/adservices/service/CommonFlagsConstants.java",
+        "java/com/android/adservices/service/CommonPhFlags.java",
+    ],
+    path: "java",
+    visibility: [
+        "//packages/modules/AdServices/adservices/service",
+    ],
+}
+
+filegroup {
+    name: "adservices-service-core-phflags-sources",
+    srcs: [
+        ":adservices-service-core-flags-constants-sources",
+        ":adservices-service-common-flags-sources",
+        "java/com/android/adservices/service/Flags.java",
+        "java/com/android/adservices/service/FlagsFactory.java",
+        "java/com/android/adservices/service/PhFlags.java",
+    ],
+    path: "java",
+    visibility: [
+        "//packages/modules/AdServices/adservices/tests/test-util",
+    ],
+}
+
+android_library {
+    name: "adservices-service-core",
+    sdk_version: "module_current",
+    min_sdk_version: "30",
+    srcs: [
+        ":adservices-service-core-sources",
+        ":adservices-service-core-jni-sources",
+        ":cobalt-registry-validated-java",
+        ":statslog-adservices-java-gen",
+    ],
+    manifest: "AndroidManifest.xml",
+    plugins: [
+        "androidx.appsearch_appsearch-compiler-plugin",
+        "androidx.room_room-compiler-plugin",
+        "auto_oneof_plugin",
+        "auto_value_plugin",
+        "auto_annotation_plugin",
+    ],
+    javacflags: [
+        "-Aroom.schemaLocation=packages/modules/AdServices/adservices/service-core/schemas",
+    ],
+    libs: [
+        "androidx.room_room-runtime",
+        "framework-annotations-lib", // For @SystemApi, etc
+        "framework-adservices.impl",
+        "framework-configinfrastructure",
+        "framework-sdksandbox.impl",
+        "framework-statsd.stubs.module_lib", // For WW logging
+        "jsr305",
+        "auto_value_annotations",
+    ],
+    static_libs: [
+        "androidx.concurrent_concurrent-futures",
+        "androidx.annotation_annotation",
+        "androidx.appsearch_appsearch",
+        "androidx.appsearch_appsearch-platform-storage",
+        "cbor-java",
+        "mobile_data_downloader_lib",
+        "modules-utils-preconditions",
+        "tflite_support_classifiers_java",
+        "mobile_data_downloader_lib",
+        "androidx.webkit_webkit",
+        "androidx.javascriptengine_javascriptengine",
+        "adservices-cobalt",
+        "adservices-proto-lite",
+        "adservices-grpclib-lite",
+        "adservices-shared-common",
+        "adservices-shared-error-logging",
+        "adservices-shared-spe",
+        "adservices-shared-storage",
+        "adservices-shared-util",
+        "modules-utils-build",
+    ],
+    jarjar_rules: "jarjar-rules.txt",
+    apex_available: [
+        "com.android.adservices",
+        "com.android.extservices",
+    ],
+    lint: {
+        extra_check_modules: ["BackCompatLintChecker"],
+        baseline_filename: "lint-baseline.xml",
+
+    },
+}
+
+cc_library_shared {
+    name: "libhpke_jni",
+    min_sdk_version: "30",
+    sdk_version: "current",
+    stl: "libc++_static",
+    cflags: [
+        "-Werror",
+        "-Wno-unused-parameter",
+        "-Wno-unused-but-set-variable",
+    ],
+    srcs: [
+        "jni/cpp/hpke_jni.cpp",
+        "jni/cpp/ohttp_jni.cpp",
+        "jni/cpp/act_jni.cpp",
+    ],
+    include_dirs: ["packages/modules/AdServices/adservices/service-core/jni/include"],
+    header_libs: ["jni_headers"],
+    shared_libs: [
+        "liblog",
+    ],
+    static_libs: [
+        "libact",
+        "libcrypto_static",
+    ],
+    version_script: "jni/version-script.lds",
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.adservices",
+        "com.android.extservices",
+    ],
+    visibility: [
+        "//packages/modules/AdServices:__subpackages__",
+        "//packages/modules/ExtServices:__subpackages__",
+    ],
+}
+
+// Schemas needs to be bundled via this android_library since service-core unit tests for schema
+// migration will need this.
+android_library {
+    name: "adservices-service-core-schema",
+    sdk_version: "module_current",
+    min_sdk_version: "30",
+    asset_dirs: [
+        "schemas",
+    ],
+    // Must use EmptyManifest.xml since this will be used by the service-core tests. If we use the
+    // normal "AndroidManifest.xml", we may introduce potential error like redeclare permissions.
+    // See b/228270294 for the error about duplicated permissions.
+    manifest: "EmptyManifest.xml",
+    lint: {
+        baseline_filename: "lint-baseline2.xml",
+    },
+}

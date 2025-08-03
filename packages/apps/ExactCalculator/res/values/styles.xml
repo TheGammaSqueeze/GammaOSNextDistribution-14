@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2014 The Android Open Source Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <style name="DisplayTextStyle" parent="Widget.MaterialComponents.TextView">
+        <item name="android:cursorVisible">false</item>
+        <item name="fontFamily">sans-serif</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:gravity">bottom|end</item>
+        <item name="android:textAlignment">viewEnd</item>
+        <item name="android:fontFeatureSettings">tnum, cv03, cv04</item>
+    </style>
+
+    <style name="DisplayTextStyle.Formula">
+        <item name="android:paddingTop">@dimen/formula_padding_top</item>
+        <item name="android:paddingBottom">@dimen/formula_padding_bottom</item>
+        <item name="android:paddingStart">@dimen/formula_padding_start</item>
+        <item name="android:paddingEnd">@dimen/formula_padding_end</item>
+        <item name="android:gravity">bottom</item>
+        <item name="minTextSize">@dimen/formula_min_textsize</item>
+        <item name="maxTextSize">@dimen/formula_max_textsize</item>
+        <item name="stepTextSize">@dimen/formula_step_textsize</item>
+        <item name="android:fontFeatureSettings">tnum, cv03, cv04</item>
+    </style>
+
+    <style name="DisplayTextStyle.Result">
+        <item name="android:paddingTop">@dimen/result_padding_top</item>
+        <item name="android:paddingBottom">@dimen/result_padding_bottom</item>
+        <item name="android:paddingStart">@dimen/result_padding_start</item>
+        <item name="android:paddingEnd">@dimen/result_padding_end</item>
+        <item name="android:gravity">bottom</item>
+        <item name="android:textSize">@dimen/result_textsize</item>
+        <item name="android:fontFeatureSettings">tnum, cv03, cv04</item>
+    </style>
+
+    <style name="HistoryItemTextStyle" parent="DisplayTextStyle">
+        <item name="android:layout_gravity">bottom|end</item>
+        <item name="android:paddingTop">@dimen/history_item_text_padding_top</item>
+        <item name="android:paddingBottom">@dimen/history_item_text_padding_bottom</item>
+        <!-- Note: result_padding_start == formula_padding_start. -->
+        <item name="android:paddingStart">@dimen/result_padding_start</item>
+        <item name="android:paddingEnd">@dimen/result_padding_end</item>
+        <item name="android:textSize">@dimen/result_textsize</item>
+    </style>
+
+    <style name="PadButtonStyle" parent="Widget.Material3.Button">
+        <item name="android:layout_width">0dip</item>
+        <item name="android:layout_height">0dip</item>
+        <item name="android:gravity">center</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:padding">0dp</item>
+        <item name="android:textSize">@dimen/button_textsize</item>
+        <item name="android:onClick">onButtonClick</item>
+        <item name="android:fontFeatureSettings">tnum, cv03, cv04</item>
+        <item name="android:layout_marginHorizontal">@dimen/button_horizontal_margin</item>
+    </style>
+
+    <style name="PadButtonStyle.Caps">
+        <item name="textAllCaps">true</item>
+    </style>
+
+    <style name="PadButtonStyle.Image">
+        <item name="iconGravity">textStart</item>
+        <item name="iconPadding">0dp</item>
+        <item name="iconSize">@dimen/button_iconsize</item>
+    </style>
+
+    <style name="PadButtonStyle.SmallCaps">
+        <item name="textAllCaps">true</item>
+        <item name="android:textSize">@dimen/button_smallcaps_textsize</item>
+        <item name="android:layout_marginHorizontal">@dimen/button_small_horizontal_margin</item>
+    </style>
+
+    <style name="PadButtonStyle.SmallText">
+        <item name="android:textSize">@dimen/button_small_textsize</item>
+        <item name="android:layout_marginHorizontal">@dimen/button_small_horizontal_margin</item>
+    </style>
+
+    <style name="PadLayoutStyle">
+        <item name="android:paddingTop">@dimen/pads_intra_padding</item>
+        <item name="android:paddingBottom">@dimen/pads_vertical_edge_padding</item>
+        <item name="android:paddingStart">@dimen/pads_horizontal_edge_padding</item>
+        <item name="android:paddingEnd">@dimen/pads_horizontal_edge_padding</item>
+    </style>
+
+    <style name="PadLayoutStyle.Advanced">
+        <item name="android:paddingTop">@dimen/pads_vertical_edge_padding</item>
+        <item name="android:paddingBottom">@dimen/pads_intra_padding</item>
+        <item name="android:paddingStart">@dimen/pads_horizontal_edge_padding</item>
+        <item name="android:paddingEnd">@dimen/pads_horizontal_edge_padding</item>
+    </style>
+
+</resources>

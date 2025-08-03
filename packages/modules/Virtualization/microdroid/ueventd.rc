@@ -1,0 +1,34 @@
+uevent_socket_rcvbuf_size 16M
+
+subsystem dma_heap
+   devname uevent_devpath
+   dirname /dev/dma_heap
+
+/dev/null                 0666   root       root
+/dev/zero                 0666   root       root
+/dev/full                 0666   root       root
+/dev/ptmx                 0666   root       root
+/dev/tty                  0666   root       root
+/dev/random               0666   root       root
+/dev/urandom              0666   root       root
+/dev/ashmem*              0666   root       root
+/dev/binder               0666   root       root
+/dev/hwbinder             0666   root       root
+/dev/vndbinder            0666   root       root
+
+/dev/pmsg0                         0222   root       log
+/dev/dma_heap/system               0444   system     system
+/dev/dma_heap/system-uncached      0444   system     system
+/dev/dma_heap/system-secure        0444   system     system
+
+# these should not be world writable
+/dev/rtc0                 0640   system     system
+/dev/tty0                 0660   root       system
+
+# Virtual console for logcat
+/dev/hvc2                 0666   system     system
+
+/dev/open-dice0           0660   root       root
+
+# Aside from kernel threads, only prng_seeder needs access to HW RNG
+/dev/hw_random            0400   prng_seeder prng_seeder

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="role_dialer_request_description" msgid="6188305064871543419">"আপনাকে বিজ্ঞপ্তি পাঠানোর জন্য এই অ্যাপকে অনুমতি দেওয়া হবে এবং ক্যামেরা, পরিচিতি, মাইক্রোফোন, ফোন ও এসএমএস অ্যাক্সেস করতে পারবে"</string>
+    <string name="role_sms_request_description" msgid="1506966389698625395">"এই অ্যাপকে বিজ্ঞপ্তি পাঠানোর জন্য এবং আপনার ক্যামেরা, পরিচিতি, ফাইল, মাইক্রোফোন, ফোন ও এসএমএস অ্যাক্সেসের অনুমতি দেওয়া হবে"</string>
+    <string name="permission_description_summary_storage" msgid="1917071243213043858">"এই অনুমতি পাওয়া সমস্ত অ্যাপ এই ডিভাইসের সব ফাইল অ্যাক্সেস করতে পারবে"</string>
+    <string name="work_policy_title" msgid="832967780713677409">"অফিসের নীতি সংক্রান্ত তথ্য"</string>
+    <string name="work_policy_summary" msgid="3886113358084963931">"আপনার আইটি অ্যাডমিন সেটিংস ম্যানেজ করে"</string>
+    <string name="safety_center_entry_group_expand_action" msgid="5358289574941779652">"বড় করে তালিকা দেখান"</string>
+    <string name="safety_center_entry_group_collapse_action" msgid="1525710152244405656">"তালিকা আড়াল করুন ও সেটিংস লুকান"</string>
+    <string name="safety_center_entry_group_content_description" msgid="7048420958214443333">"তালিকা। <xliff:g id="ENTRY_TITLE">%1$s</xliff:g>। <xliff:g id="ENTRY_SUMMARY">%2$s</xliff:g>"</string>
+    <string name="safety_center_entry_group_with_actions_needed_content_description" msgid="2708884606775932657">"তালিকা। <xliff:g id="ENTRY_TITLE">%1$s</xliff:g>। ব্যবস্থা নিতে হবে। <xliff:g id="ENTRY_SUMMARY">%2$s</xliff:g>"</string>
+    <string name="safety_center_entry_group_item_content_description" msgid="7348298582877249787">"আইটেম তালিকাভুক্ত করুন। <xliff:g id="ENTRY_ITEM_TITLE">%1$s</xliff:g>। <xliff:g id="ENTRY_ITEM_SUMMARY">%2$s</xliff:g>"</string>
+    <string name="safety_center_entry_content_description" msgid="3639565652938224321">"<xliff:g id="ENTRY_ITEM_TITLE">%1$s</xliff:g>. <xliff:g id="ENTRY_ITEM_SUMMARY">%2$s</xliff:g>"</string>
+    <string name="safety_center_more_issues_card_title" msgid="7425844746197493312">"আরও সতর্কতা"</string>
+    <string name="safety_center_dismissed_issues_card_title" msgid="2340129842725145733">"বাতিল করা সতর্কতা"</string>
+    <string name="safety_center_more_issues_card_expand_action" msgid="7109451851052272946">"{count,plural, =1{বড় করুন ও আরও একটি সতর্কতা দেখুন}one{বড় করুন ও আরও #টি সতর্কতা দেখুন}other{বড় করুন ও আরও #টি সতর্কতা দেখুন}}"</string>
+    <string name="safety_center_issue_card_prefix_content_description" msgid="1447445289637043544">"সতর্কতা। <xliff:g id="ISSUE_CARD_TITLE">%1$s</xliff:g>"</string>
+    <string name="safety_center_resolved_issue_fallback" msgid="8548932070610766651">"অ্যাকশন সম্পূর্ণ হয়েছে"</string>
+    <string name="safety_center_qs_status_summary" msgid="5193925895830451177">"আপনার ডিভাইসকে আরও সুরক্ষিত করতে পারে এমন সেটিংস দেখুন"</string>
+    <string name="safety_center_qs_page_landing" msgid="1717368301679228128">"সুরক্ষা ও গোপনীয়তা সংক্রান্ত দ্রুত সেটিংস"</string>
+    <string name="safety_center_qs_close_button" msgid="1352313308176244599">"বন্ধ করুন"</string>
+    <string name="safety_center_qs_expand_action" msgid="2193190557696484169">"বড় করুন ও বিকল্প দেখান"</string>
+    <string name="safety_center_qs_collapse_action" msgid="5809657430125309183">"আড়াল করুন"</string>
+    <string name="safety_center_qs_privacy_control" msgid="1160682635058529673">"পাল্টান। <xliff:g id="PRIVACY_CONTROL_TITLE">%1$s</xliff:g>। <xliff:g id="PRIVACY_CONTROL_STATUS">%2$s</xliff:g>"</string>
+    <string name="safety_center_qs_toggle_action" msgid="5920465736488119255">"টগল করুন"</string>
+    <string name="safety_center_qs_open_action" msgid="2760200829912423728">"খুলুন"</string>
+    <string name="safety_center_review_settings_button" msgid="938981137942443930">"সেটিংস পর্যালোচনা করুন"</string>
+    <string name="safety_center_gear_label" msgid="5175877094379694098">"সেটিংস"</string>
+    <string name="safety_center_info_label" msgid="8993181584061825412">"তথ্য"</string>
+</resources>

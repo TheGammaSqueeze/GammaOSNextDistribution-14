@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2015 The Android Open Source Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <string name="app_name">Carculadora</string>
+    <string name="dec_point">.</string>
+    <string name="mode_deg">º</string>
+    <string name="mode_rad">rad</string>
+    <string name="cleared">isbòida</string>
+    <string name="desc_const_e">nùmeru d\'Euler</string>
+    <string name="desc_const_pi">pi</string>
+    <string name="desc_dec_point">puntu</string>
+    <string name="desc_lparen">parèntesi a manca</string>
+    <string name="desc_rparen">parèntesi a dereta</string>
+    <string name="desc_fun_cos">cosenu</string>
+    <string name="desc_fun_ln">logaritmu naturale</string>
+    <string name="desc_fun_log">logaritmu</string>
+    <string name="desc_fun_sin">senu</string>
+    <string name="desc_fun_tan">tangente</string>
+    <string name="desc_fun_arccos">cosenu a s\'imbesse</string>
+    <string name="desc_fun_arcsin">senu a s\'imbesse</string>
+    <string name="desc_fun_arctan">tangente a s\'imbesse</string>
+    <string name="desc_fun_10pow">deghe a sa potèntzia de</string>
+    <string name="desc_fun_exp">funtzione esponentziale</string>
+    <string name="desc_op_sqr">cuadradu</string>
+    <string name="desc_op_add">prus</string>
+    <string name="desc_op_div">divisione</string>
+    <string name="desc_op_fact">fatoriale</string>
+    <string name="desc_op_mul">multiplicare</string>
+    <string name="desc_op_pct">pro chentu</string>
+    <string name="desc_op_pow">potèntzia</string>
+    <string name="desc_op_sqrt">raighina cuadrada</string>
+    <string name="desc_op_sub">mancu</string>
+    <string name="desc_mode_deg">modalidade de gradu</string>
+    <string name="desc_mode_rad">modalidade radiantes</string>
+    <string name="desc_switch_deg">passa a grados</string>
+    <string name="desc_switch_rad">passa a radiantes</string>
+    <string name="desc_eq">uguale a </string>
+    <string name="desc_clr">isbòida</string>
+    <string name="desc_del">cantzella</string>
+    <string name="desc_inv_off">mustra funtziones a s\'imbesse</string>
+    <string name="desc_inv_on">cua funtziones a s\'imbesse</string>
+    <string name="error_nan">No est unu nùmeru</string>
+    <string name="error_syntax">Espressione non curreta</string>
+    <string name="error_aborted">Firmadu</string>
+    <string name="error_overflow">Infinitu?</string>
+    <string name="error_zero_divide">Non faghet a dividire pro 0</string>
+    <string name="text_copied_toast">Testu copiadu</string>
+    <string name="ok_remove_timeout">Imprea tempos de isetu prus longos</string>
+    <string name="dismiss">Iscarta</string>
+    <string name="exact">(giustu)</string>
+    <string name="approximate">(±1 in s\'ùrtima tzifra)</string>
+    <string name="menu_leading">Risponde cun sas tzifras initziales</string>
+    <string name="menu_fraction">Risponde comente fratzione</string>
+    <string name="menu_licenses">Lissèntzias de còdighe abertu</string>
+</resources>

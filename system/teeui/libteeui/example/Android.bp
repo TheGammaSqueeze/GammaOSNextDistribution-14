@@ -1,0 +1,24 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_library_static {
+    name: "libteeui_example_layout",
+    defaults: ["keystore_defaults"],
+    srcs: [
+        "examples.cpp",
+        "example_utils.cpp",
+        "fonts.S",
+        "phys_button_example.cpp",
+        "touch_button_example.cpp",
+    ],
+    static_libs: [
+        "libft2.nodep",
+        "libteeui",
+        "libteeui_localization",
+    ],
+    host_supported: true,
+    cflags: [
+        "-ffunction-sections",
+    ],
+}

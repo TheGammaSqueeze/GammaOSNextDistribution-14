@@ -1,0 +1,56 @@
+main: {
+  multithreading: {
+    fork: false;
+    threads: [
+      {
+        name: "Deadline"
+        sched_attr: {
+          deadline: {
+            policy: DEADLINE,
+            runtime:  30000000,
+            deadline: 40000000,
+            period:   40000000,
+          }
+        }
+        instruction: {
+          cpu_work: {
+            utilization: 0.1
+          }
+          repeat: 100,
+          period_us: 40000
+        },
+      },
+      {
+        name: "RtHighPrio"
+        sched_attr: {
+          rt: {
+            policy: FIFO, priority: 99
+          }
+        }
+        instruction: {
+          cpu_work: {
+            utilization: 0.2
+          }
+          repeat: 100,
+          period_us: 60000
+        },
+      },
+      {
+        name: "RtLowPrio"
+        sched_attr: {
+          rt: {
+            policy: FIFO, priority: 1
+          }
+        }
+        instruction: {
+          cpu_work: {
+            utilization: 0.5
+          }
+          repeat: 100,
+          period_us: 50000
+        },
+      }
+    ]
+  }
+}
+global: {}

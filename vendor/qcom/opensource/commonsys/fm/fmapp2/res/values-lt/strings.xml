@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (c) 2009, 2011-2013 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2014-2015 The CyanogenMod Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *    * Neither the name of The Linux Foundation nor
+ *      the names of its contributors may be used to endorse or promote
+ *      products derived from this software without specific prior written
+ *      permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NON-INFRINGEMENT ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">FM radijas</string>
+    <string name="tx_app_name">FM siųstuvas</string>
+    <string name="menu_scan_start">Nuskaityti</string>
+    <string name="menu_scan_stop">Sustabdyti paiešką</string>
+    <string name="menu_record_start">Įrašyti</string>
+    <string name="menu_record_stop">Sustabdyti įrašymą</string>
+    <string name="menu_settings">Nustatymai</string>
+    <string name="menu_sleep">Miegoti</string>
+    <string name="menu_sleep_cancel">Atšaukti miegą</string>
+    <string name="menu_all_channels">Visi kanalai</string>
+    <string name="menu_display_tags">Rodyti žymes</string>
+    <string name="button_text_stop">Sustabdyti</string>
+    <string name="msg_seeking">Ieškoma radijo stočių\u2026</string>
+    <string name="msg_scanning">Ieškoma visų radijo stočių\u2026</string>
+    <string name="msg_scanning_pty">Ieškoma „<xliff:g id="pty_name">%1$s</xliff:g>“\u2026</string>
+    <string name="msg_search_title"><xliff:g id="frequency_string">%1$s</xliff:g> MHz</string>
+    <string name="msg_searching_title">Automatiškai parenkami išankstiniai nustatymai</string>
+    <string name="msg_searching">Ieškoma stabilių stočių, kad sukurti išankstinį sąrašą\u2026</string>
+    <string name="msg_noantenna">Prašome prijungti ausines, kad naudotumėtes FM radiją</string>
+    <string name="dialog_sleep_title">Automatinio išjungimo miego laikas</string>
+    <string name="presetlist_select_name">Pasirinkite „<xliff:g id="presetlist_name">%1$s</xliff:g>“</string>
+    <string name="presetlist_add_new">Pridėti naują sąrašą</string>
+    <string name="dialog_presetlist_rename_title">Įveskite pavadinimą</string>
+    <string name="presetlist_autoselect_title">Patvirtinkite automatinį pasirinkimą</string>
+    <string name="preset_replace">Pakeisti</string>
+    <string name="preset_tune">Koreguoti</string>
+    <string name="preset_rename">Pervadinti</string>
+    <string name="preset_delete">Ištrinti</string>
+    <string name="preset_search">Ieškoti „<xliff:g id="preset_pi">%1$s</xliff:g>“</string>
+    <string name="stat_notif_frequency">„<xliff:g id="frequency">%1$s</xliff:g>“ MHz</string>
+    <string name="regional_band">Regionai</string>
+    <string name="regional_band_entry_north_america">Šiaurės Amerika</string>
+    <string name="regional_band_entry_europe">Europa</string>
+    <string name="regional_band_entry_japan">Japonija</string>
+    <string name="regional_band_entry_japan_wide">Japonija (visos)</string>
+    <string name="regional_band_entry_australia">Australija</string>
+    <string name="regional_band_entry_austria">Austrija</string>
+    <string name="regional_band_entry_belgium">Belgija</string>
+    <string name="regional_band_entry_brazil">Brazilija</string>
+    <string name="regional_band_entry_china">Kinija</string>
+    <string name="regional_band_entry_czech_republic">Čekijos Respublika</string>
+    <string name="regional_band_entry_denmark">Danija</string>
+    <string name="regional_band_entry_finland">Suomija</string>
+    <string name="regional_band_entry_france">Prancūzija</string>
+    <string name="regional_band_entry_germany">Vokietija</string>
+    <string name="regional_band_entry_greece">Graikija</string>
+    <string name="regional_band_entry_hong_kong">Hong Kongas</string>
+    <string name="regional_band_entry_india">Indija</string>
+    <string name="regional_band_entry_indonesia">Indonezija</string>
+    <string name="regional_band_entry_ireland">Airija</string>
+    <string name="regional_band_entry_italy">Italija</string>
+    <string name="regional_band_entry_korea">Korėja</string>
+    <string name="regional_band_entry_mexico">Meksika</string>
+    <string name="regional_band_entry_netherlands">Nyderlandai</string>
+    <string name="regional_band_entry_new_zealand">Naujoji Zelandija</string>
+    <string name="regional_band_entry_norway">Norvegija</string>
+    <string name="regional_band_entry_poland">Lenkija</string>
+    <string name="regional_band_entry_portugal">Portugalija</string>
+    <string name="regional_band_entry_russia">Rusija</string>
+    <string name="regional_band_entry_singapore">Singapūras</string>
+    <string name="regional_band_entry_slovakia">Slovakija</string>
+    <string name="regional_band_entry_spain">Ispanija</string>
+    <string name="regional_band_entry_switzerland">Šveicarija</string>
+    <string name="regional_band_entry_sweden">Švedija</string>
+    <string name="regional_band_entry_taiwan">Taivanas</string>
+    <string name="regional_band_entry_turkey">Turkija</string>
+    <string name="regional_band_entry_united_kingdom">Jungtinė Karalystė</string>
+    <string name="regional_band_entry_united_states">Jungtinės Amerikos Valstijos</string>
+    <string name="regional_band_entry_user_defined">Vartotojo apibrėžta grupė</string>
+    <string name="regional_band_summary_user_defined">Vartotojo apibrėžtas diapazonas</string>
+    <string name="aud_output_mode">Garso išvesties režimas</string>
+    <string name="audio_type_stereo">Stereo</string>
+    <string name="audio_type_mono">Mono</string>
+    <string name="record_dur">Įrašo trukmė</string>
+    <string name="auto_select_af">Alternatyvus dažnis</string>
+    <string name="settings_revert_defaults_title">Atkurti gamyklinius nustatymus</string>
+    <string name="settings_revert_defaults_summary">Nustatyti iš naujo visus nustatymus</string>
+    <string name="settings_revert_confirm_title">Patvirtinkite atstatymą</string>
+    <string name="settings_revert_confirm_msg">Tai išvalis visus programos nustatymus, įskaitant išsaugotus išankstinius nustatymus. Tęsti?</string>
+    <string name="no_storage">Prijunkite SD kortelę prieš pradedant įrašymą.</string>
+    <string name="preparing_sd">Ruošiama SD kortelė\u2026</string>
+    <string name="access_sd_fail">Nepavyko pasiekti SD kortelės.</string>
+    <string name="spaceIsLow_content">Jūsų SD kortelėje liko mažai laisvos vietos. Pakeiskite kokybės nustatymus arba ištrinkite kai kuriuos atvaizdus ar kitus failus.</string>
+    <string name="menu_scan_for_preset">Nuskaityti išankstinius sąrašus</string>
+    <string name="fm_off">FM yra išjungtas.</string>
+    <string name="fm_call">FM negali būti naudojamas skambinant.</string>
+    <string name="alert_dialog_hint">Įveskite pavadinimą</string>
+    <string name="search_dialog_title">Nuskaityti stotis</string>
+    <string name="fm_command_timeout_title">Skirtasis laikas</string>
+    <string name="fm_tune_timeout_msg">Nėra jokio atsakymo iš FM stoties. Jei problema kartojasi prašome išjungti ir vėl įjungti FM.</string>
+    <string name="fm_command_failed_title">FM operacija nepavyko</string>
+    <string name="fm_cmd_failed_msg">FM operacija nepavyko. Jei problema kartojasi, prašome išjungti ir vėl įjungti FM.</string>
+    <string name="fm_cmd_failed_msg_hdmi">FM operacija nepavyko. FM ir HDMI  vienu metu nepalaikomas.</string>
+    <string name="fm_cmd_failed_call_on">FM operacija nepavyko. FM neleidžiama skambučio metu.</string>
+    <string name="station_name">Stotis:</string>
+    <string name="station_exists">Šis dažnis jau yra!</string>
+    <string name="station_list_delete_station">Ištrinti: <xliff:g id="name">%s</xliff:g></string>
+    <string name="station_list_delete_station_prompt">Ar tikrai norite ištrinti „<xliff:g id="name">%s</xliff:g>“?</string>
+    <string name="station_name_empty">Stoties pavadinimas yra tuščias, prašome įvesti dar kartą.</string>
+    <string name="station_name_exist">„<xliff:g id="name">%s</xliff:g>“ jau naudojamas, prašome įvesti kitą pavadinimą.</string>
+    <string name="rt_plus_tags">Žymos</string>
+    <string name="usr_def_band_min">Žemiausias dažnis (MHz)</string>
+    <string name="usr_def_band_max">Aukščiausias dažnis (MHz)</string>
+    <string name="chanl_spacing">Kanalų atskyrimai</string>
+    <string name="set">Nustatyti</string>
+    <string name="fm_search_no_results">Nerasta suderinamų stočių</string>
+    <string name="typ_All_stations">Visos stotys</string>
+    <string name="typ_Culture">Kultūra</string>
+    <string name="typ_Current_affairs">Aktualijos</string>
+    <string name="typ_Children">Vaikų programos</string>
+    <string name="typ_Country">Kantri muzika</string>
+    <string name="typ_Documentary">Dokumentika</string>
+    <string name="typ_Drama">Dramos</string>
+    <string name="typ_Easy_listening">Lengva muzika</string>
+    <string name="typ_Education">Švietimas</string>
+    <string name="typ_Emergency">Avarinis</string>
+    <string name="typ_Emergency_test">Avarinis testas</string>
+    <string name="typ_Finance">Finansai</string>
+    <string name="typ_Folk">Liaudies muzika</string>
+    <string name="typ_Information">Informacija</string>
+    <string name="typ_Jazz">Džiazo muzika</string>
+    <string name="typ_Light_classical">Lengva klasika</string>
+    <string name="typ_Leisure">Laisvalaikis</string>
+    <string name="typ_News">Naujienos</string>
+    <string name="typ_National">Nacionalinė muzika</string>
+    <string name="typ_Other">Kita muzika</string>
+    <string name="typ_Oldies">Senovinė muzika</string>
+    <string name="typ_Phone_in">Tiesioginis</string>
+    <string name="typ_Pop">Pop muzika</string>
+    <string name="typ_Religion">Religija</string>
+    <string name="typ_Rock">Roko muzika</string>
+    <string name="typ_Science">Mokslas</string>
+    <string name="typ_Serious_classical">Rimta klasika</string>
+    <string name="typ_Social_affairs">Socialiniai reikalai</string>
+    <string name="typ_Sport">Sportas</string>
+    <string name="typ_Travel">Kelionės</string>
+    <string name="typ_Varied">Įvairi</string>
+    <string name="typ_Weather">Orai</string>
+    <string name="typ_Adult_hits">Suaugusiųjų hitai</string>
+    <string name="typ_Classical">Klasikinis</string>
+    <string name="typ_Classic_Rock">Klasikinis rokas</string>
+    <string name="typ_College">Kolegijos</string>
+    <string name="typ_Foreign_language">Užsienio kalba</string>
+    <string name="typ_Hiphop">Hiphopas</string>
+    <string name="typ_Nostalgia">Nostalgija</string>
+    <string name="typ_Personality">Asmenybė</string>
+    <string name="typ_Public">Viešas</string>
+    <string name="typ_Religious_music">Religinė muzika</string>
+    <string name="typ_Religious_talk">Religiniai pokalbiai</string>
+    <string name="typ_Rhythm_and_Blues">Ritmas ir bliuzas</string>
+    <string name="typ_Spanish_music">Ispaniška muzika</string>
+    <string name="typ_Spanish_talk">Ispaniški pokalbiai</string>
+    <string name="typ_Soft">Švelni</string>
+    <string name="typ_Soft_Rock">Lengvasis rokas</string>
+    <string name="typ_Soft_Rhythm_and_Blues">Lengvi ritmai ir bliuzas</string>
+    <string name="typ_Sports">Sportas</string>
+    <string name="typ_Talk">Pokalbiai</string>
+    <string name="typ_Top_40">Top 40</string>
+</resources>

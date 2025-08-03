@@ -1,0 +1,898 @@
+// Copyright 2023 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+syntax = "proto3";
+
+package cobalt;
+
+import "window_size.proto";
+
+option java_multiple_files = true;
+option java_package = "com.google.cobalt";
+
+////////////////////////////////////////////////////////////////////////////////
+// NOTE: This file is used by the Cobalt client and the Cobalt servers.
+// The source-of-truth of this file is located in Cobalt's open source code
+// repository, and the file is copied to Android where it is used by the Cobalt
+// client. Do not edit the copy of this file in this Android repo as those edits
+// will be overwritten when the file is next copied.
+////////////////////////////////////////////////////////////////////////////////
+
+// A Report analyzes Events that were logged to Cobalt and emits an aggregated
+// output that may then be queried or visualized by an analyst user of Cobalt.
+//
+// A Report is associated with a Metric and this means that the Report analyzes
+// the Events that were logged to that Metric. The first step occurs on a
+// device where Cobalt analyzes the logged Events in order to form Observations.
+//
+// An Observation is built for a particular Report. The type of observation,
+// including which of several privacy-oriented Encodings is used or not, depends
+// on the Report type.
+//
+// The Observations are sent to the Cobalt Shuffler which shuffles them in order
+// to break linkability between Observations and linkability with the
+// originating device. Next the shuffled Observations are sent to the Analyzer
+// which aggregates Observations from all devices in order to generate a report.
+//
+// There are multiple types of Metrics and multiple types of Reports. Each
+// Report type is compatible with only some of the Metric types.
+//
+// A ReportDefinition defines a Cobalt Report to be generated.
+// An instance of ReportDefinition is always associated with an instance of
+// MetricDefinition called the owning MetricDefinition.
+// Next ID: 33
+message ReportDefinition {
+  reserved 4, 5, 6, 7, 8, 9, 11, 14, 15, 16, 12, 101, 102, 31, 21;
+  reserved "aggregation_type", "aggregation_window", "candidate_lis", "dp_release_config",
+      "expected_population_size", "expected_string_set_size", "export_location_override",
+      "local_privacy_noise_level", "output_location", "percentiles", "threshold", "window_size",
+      "use_poisson_mechanism_for_privacy", "prob_bit_flip", "candidate_file";
+
+  // Unique name for this Report within its owning MetricDefinition.
+  // The name must obey the syntax of a C variable name and must have length
+  // at most 64. The integer |id| field is the stable identifier for a report
+  // so this name may be changed. However doing this may affect the
+  // names and locations of some artifacts produced by Cobalt's report
+  // generation pipeline.
+  string report_name = 1;
+
+  // The unique integer ID for this report within its owning metric.
+  // The user must manually set this |id| field. This is the stable identifier
+  // for a report and should not be changed once data collection begins.
+  uint32 id = 2;
+
+  // A Report has one of the following types.
+  // Next standard report type ID: 22
+  enum ReportType {
+    reserved 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 19, 9999;
+    reserved "CUSTOM_RAW_DUMP", "EVENT_COMPONENT_OCCURRENCE_COUNT", "HIGH_FREQUENCY_STRING_COUNTS",
+        "INT_RANGE_HISTOGRAM", "NUMERIC_AGGREGATION", "NUMERIC_PERF_RAW_DUMP",
+        "PER_DEVICE_HISTOGRAM", "PER_DEVICE_NUMERIC_STATS", "SIMPLE_OCCURRENCE_COUNT",
+        "STRING_COUNTS_WITH_THRESHOLD", "STRING_HISTOGRAMS", "UNIQUE_N_DAY_ACTIVES";
+
+    REPORT_TYPE_UNSET = 0;
+
+    // For each system_profile SP and each event_vector EV, produces the total
+    // count of all occurrences on all devices in the fleet with system profile
+    // SP of the event associated with EV over the course of the report day.
+    // For example, a report of this type might give the total number of times
+    // a medium, red widget was used across the fleet yesterday.
+    //
+    // Input metric types: OCCURRENCE
+    //
+    // Local aggregation: COUNT
+    // Local aggregation period: 1 hour
+    // Global aggregation: OCCURRENCE_COUNTS
+    // System Profile Selection Policy: REPORT_ALL
+    //
+    // Output report row type: OccurrenceCountReportRow
+    // (See report_row.proto)
+    //
+    // ReportDefinition fields particular to this type:
+    //    none
+    FLEETWIDE_OCCURRENCE_COUNTS = 11;
+
+    // For each system_profile SP and each event_vector EV, produces the count
+    // of the number of unique devices with system profile SP for which EV
+    // “is accepted” during the aggregation period, which must be DAYS_1,
+    // DAYS_7, DAYS_28 or DAYS_30.
+    //
+    // There are different versions of what “is accepted” means depending on
+    // which local aggregation procedure is specified:
+    //
+    // AT_LEAST_ONCE. In this case EV is accepted if EV was logged at least once
+    // during the aggregation period. For example, a report of this type might
+    // give the total number of devices with system profile SP on which a
+    // medium, red widget was used at least once in the seven-day period
+    // ending yesterday.
+    //
+    // SELECT_FIRST, SELECT_MOST_COMMON. In this case EV is accepted if the
+    // category selection procedure selected EV. For example, a report of this
+    // type using SELECT_MOST_COMMON might give the total number of devices
+    // with system profile SP on which most of the widgets used during the
+    // seven-day period ending yesterday were medium-red.
+    //
+    // NOTE: Using a local aggregation procedure of AT_LEAST_ONCE or
+    // SELECT_FIRST, in combination with setting expedited_sending, results in
+    // the count being sent by the device when the event occurs (instead of at
+    // the end of the day). This can be desirable for having data for the
+    // current day appear faster in the reports output by Cobalt.
+    //
+    // Input metric types: OCCURRENCE
+    //
+    // Local aggregation: AT_LEAST_ONCE, SELECT_FIRST, or SELECT_MOST_COMMON
+    // Local aggregation period: DAYS_1, DAYS_7, DAYS_28 or DAYS_30.
+    // Global aggregation: OCCURRENCE_COUNTS
+    //
+    // Output report row type: OccurrenceCountReportRow
+    // (See report_row.proto)
+    //
+    // ReportDefinition fields particular to this type:
+    //   - local_aggregation_procedure
+    //   - local_aggregation_period
+    //   - expedited_sending
+    //   - system_profile_selection (SELECT_FIRST and SELECT LAST will maintain
+    //     uniqueness, REPORT_ALL may be useful in some cases)
+    UNIQUE_DEVICE_COUNTS = 12;
+
+    // For each system_profile SP and each event_vector EV, produces an
+    // int-range histogram such that in each int range bucket it gives the
+    // number of unique devices with system_profile SP for which an integer
+    // value, aggregated locally on device over the aggregation period,
+    // associated with EV, falls into the bucket.
+    //
+    // There are two versions of this depending on the metric type:
+    //
+    // With metrics of type OCCURRENCE the integer values are occurrence counts.
+    // For example, for the integer bucket 10-100, a report of this type might
+    // give the number of devices with system profile SP on which a medium,
+    // red widget was used between 10 and 100 times in the seven-day period
+    // ending yesterday.
+    //
+    // With metrics of type INTEGER the integer values are computed statistics.
+    // For example, for the integer bucket 10-100, a report of this type that
+    // specifies the MINIMUM local aggregation procedure might give the number
+    // of devices with system profile SP on which the minimum temperature of a
+    // medium red widget over the seven-day period ending yesterday was between
+    // 10 and 100 degrees.
+    //
+    // Input metric types: OCCURRENCE or INTEGER
+    //
+    // Local aggregation: COUNT_AS_INTEGER (used with OCCURRENCE metrics) or
+    //                    NUMERIC_STAT (used with INTEGER metrics)
+    // Local aggregation period: DAYS_1, DAYS_7, DAYS_28 or DAYS_30.
+    // Global aggregation: INTEGER_HISTOGRAMS
+    //
+    // Output report row type: IntegerHistogramReportRow
+    // (See report_row.proto)
+    //
+    // ReportDefinition fields particular to this type:
+    //   - local_aggregation_procedure (only when the metric type is INTEGER)
+    //   - local_aggregation_period
+    //   - int_buckets (this is used only on the server for reports without
+    //     added privacy, but is used on the client for reports with added
+    //     privacy)
+    //   - system_profile_selection (SELECT_FIRST and SELECT LAST will maintain
+    //     uniqueness, REPORT_ALL may be useful in some cases)
+    UNIQUE_DEVICE_HISTOGRAMS = 13;
+
+    // For each system_profile SP and each event_vector EV, produces an
+    // int-range histogram such that in each int range bucket it gives the
+    // number of values, associated with EV, from devices
+    // with system_profile SP, that fall into the bucket, where each device
+    // computes one such value per hour.
+    //
+    // Computationally this report type is identical to
+    // UNQIQUE_DEVICE_HISTOGRAMS except that the local aggregation period
+    // used is one hour and so the counts in each buckets are not interpreted
+    // as a number of unique devices.
+    //
+    // There are two versions of this depending on the metric type:
+    //
+    // With metrics of type OCCURRENCE the integer values are occurrence counts.
+    // For example, for the integer bucket 10-100, a report of this type might
+    // give the number of times that the hourly count of medium red widgets
+    // used was between 10 and 100 over devices with system profile SP,
+    // yesterday.
+    //
+    // With metrics of type INTEGER the integer values are computed statistics.
+    // For example, for the integer bucket 10-100, a report of this that
+    // specifies the MINIMUM local aggregation procedure might give the number
+    // of times that the minimum temperature over an hour of all medium red
+    // widgets used was between 10 and 100 degrees over all devices with
+    // system profile SP, yesterday.
+    //
+    // Input metric types: OCCURRENCE or INTEGER
+    //
+    // Local aggregation: COUNT_AS_INTEGER (used with OCCURRENCE metrics) or
+    //                    NUMERIC_STAT (used with INTEGER metrics)
+    // Local aggregation period: one hour
+    // Global aggregation: INTEGER_HISTOGRAMS
+    //
+    // Output report row type: IntegerHistogramReportRow
+    // (See report_row.proto)
+    //
+    // ReportDefinition fields particular to this type:
+    //   - local_aggregation_procedure (only when the metric type is INTEGER)
+    //   - int_buckets (this is used only on the server for reports without
+    //     added privacy, but is used on the client for reports with added
+    //     privacy)
+    //   - system_profile_selection (SELECT_FIRST and SELECT LAST will maintain
+    //     uniqueness, REPORT_ALL may be useful in some cases)
+    HOURLY_VALUE_HISTOGRAMS = 14;
+
+    // For each system_profile SP and each event_vector EV, produces an
+    // int-range histogram such that in each int range bucket it gives the
+    // number of integer measurements, associated with EV, logged on devices
+    // with system_profile SP, that fall into the bucket. Here we are counting
+    // each value logged by the instrumented code individually and so the rate
+    // at which values are being recorded is arbitrary and varies from device
+    // to device. For example, for the integer bucket 10-100, a report of this
+    // type might give the number of times that a medium red widget's
+    // temperature was measured as being between 10 and 100 degrees over all
+    // devices with system profile SP, yesterday. The rate at which these
+    // widget temperature measurements are taken is arbitrary and may vary
+    // from device to device.
+    //
+    // Input metric types: INTEGER or INTEGER_HISTOGRAM
+    //
+    // Local aggregation: INTEGER_HISTOGRAM
+    // Local aggregation period: one hour
+    // Global aggregation: INTEGER_HISTOGRAMS
+    // System Profile Selection Policy: REPORT_ALL
+    //
+    // Output report row type: IntegerHistogramReportRow
+    // (See report_row.proto)
+    //
+    // ReportDefinition fields particular to this type:
+    //   - int_buckets (Only with metric_type = INTEGER)
+    FLEETWIDE_HISTOGRAMS = 15;
+
+    // For each system_profile SP and each event_vector EV, produces the sum
+    // and count of many integer measurements associated with EV, logged on
+    // devices with system_profile SP. Here we are counting each value logged
+    // by the instrumented code individually and so the rate at which values are
+    // being recorded is arbitrary and varies from device to device. This allows
+    // us to  produce a fleetwide mean. For example, a report of this type might
+    // give the mean of all temperature measurements of medium-red widgets
+    // yesterday, across all devices with system profile SP, regardless of how
+    // many temperature measurements were taken on each device individually.
+    //
+    // Input metric types: INTEGER
+    //
+    // Local aggregation: SUM_AND_COUNT
+    // Local aggregation period: one hour
+    // Global aggregation: SUM_AND_COUNTS
+    // System Profile Selection Policy: REPORT_ALL
+    //
+    // Output report row type: SumAndCountReportRow
+    // (See report_row.proto)
+    //
+    // ReportDefinition fields particular to this type:
+    //   none
+    FLEETWIDE_MEANS = 16;
+
+    // For each system_profile SP and each event_vector EV, produces several
+    // numeric statistics (e.g. 95%-ile) over a set of integers associated
+    // with EV, collected from all devices with system_profile SP. Each unique
+    // device contributes a single value and so the distribution of the values
+    // may be thought of as a distribution of unique devices.
+    //
+    // There are different versions of this depending on the metric type:
+    //
+    // With metrics of type OCCURRENCE the integer values are occurrence counts
+    // over the course of the aggregation period. For example a report of this
+    // type might give the 95%-ile of the counts of medium-red widgets used by
+    // each device over the 7-day period ending yesterday.
+    //
+    // With metrics of type INTEGER the integer values are computed statistics.
+    // For example, a report of this type that specifies the MINIMUM local
+    // aggregation procedure might give the 95%-ile of the minimum temperature
+    // over the 7-day period ending yesterday of all medium-red widgets over
+    // all devices with system profile SP.
+    //
+    // Input metric types: OCCURRENCE or INTEGER
+    //
+    // Local aggregation: COUNT_AS_INTEGER (used with OCCURRENCE metrics) or
+    //                    NUMERIC_STAT (used with INTEGER metrics)
+    // Local aggregation period: DAYS_1, DAYS_7, DAYS_28 or DAYS_30.
+    // Global aggregation: NUMERIC_STATS
+    // System Profile Selection Policy: REPORT_ALL
+    //
+    // Output report row type: NumericStatsReportRow
+    // (See report_row.proto)
+    //
+    // ReportDefinition fields particular to this type:
+    //   - local_aggregation_procedure (only when the metric type is INTEGER)
+    //   - local_aggregation_period
+    UNIQUE_DEVICE_NUMERIC_STATS = 17;
+
+    // For each system_profile SP and each event_vector EV, produces several
+    // numeric statistics (e.g. 95%-ile) over a set of integers associated
+    // with EV, collected from all devices with system_profile SP. Each unique
+    // device contributes a value every hour and so the distribution of the
+    // values may NOT be thought of as a distribution of unique devices.
+    //
+    // Computationally this report type is identical to
+    // UNIQUE_DEVICE_NUMERIC_STATS except that the local aggregation period
+    // used is one hour.
+    //
+    // There are different versions of this depending on the metric type:
+    //
+    // With metrics of type OCCURRENCE the integer values are occurrence counts
+    // over the course of the hour. For example a report of this
+    // type might give the 95%-ile of the counts of medium-red widgets used in
+    // any one hour period on any device with System profile SP, yesterday.
+    //
+    // With metrics of type INTEGER the integer values are computed statistics.
+    // For example, a report of this type that specifies the MINIMUM local
+    // aggregation procedure might give the 95%-ile of the minimum temperature
+    // over any one-hour period of medium-red widgets use on any device
+    // with system profile SP, yesterday.
+    //
+    // Input metric types: OCCURRENCE or INTEGER
+    //
+    // Local aggregation: COUNT_AS_INTEGER (used with OCCURRENCE metrics) or
+    //                    NUMERIC_STAT (used with INTEGER metrics)
+    // Local aggregation period: 1 hour
+    // Global aggregation: NUMERIC_STATS
+    // System Profile Selection Policy: REPORT_ALL
+    //
+    // Output report row type: NumericStatsReportRow
+    // (See report_row.proto)
+    //
+    // ReportDefinition fields particular to this type:
+    //   - local_aggregation_procedure (only when the metric type is INTEGER)
+    HOURLY_VALUE_NUMERIC_STATS = 18;
+
+    // For each system_profile SP and each event_vector EV, produces the total
+    // count of all occurrences of a string value on all devices in the fleet
+    // with system profile SP of the event associated with EV over the course
+    // of the report day.
+    //
+    // Input metric types: STRING
+    //
+    // Local aggregation: STRING_HISTOGRAM
+    // Local aggregation period: 1 hour
+    // Global aggregation: STRING_HISTOGRAMS
+    // System Profile Selection Policy: REPORT_ALL
+    //
+    // Output report row type: StringCountReportRow
+    // (See report_row.proto)
+    //
+    // ReportDefinition fields particular to this type:
+    //   - string_buffer_max
+    STRING_COUNTS = 20;
+
+    // For each system_profile SP, each event_vector EV, and each string value
+    // produces the count of the number of unique devices with system profile
+    // SP on which the string value was logged in connection with the EV during
+    // the aggregation period, which must be DAYS_1, DAYS_7, DAYS_28 or DAYS_30.
+    //
+    // This is similar to the AT_LEAST_ONCE local aggregation procedure for
+    // UNIQUE_DEVICE_COUNTS. For example, a report of this type might
+    // give the total number of devices with system profile SP on which a
+    // medium, red widget was used in conjunction with the component name
+    // "widget-consumer" at least once in the seven-day period ending
+    // yesterday.
+    //
+    // Input metric types: STRING
+    //
+    // Local aggregation period: DAYS_1, DAYS_7, DAYS_28 or DAYS_30.
+    // Global aggregation: STRING_HISTOGRAMS
+    //
+    // Output report row type: StringCountReportRow
+    // (See report_row.proto)
+    //
+    // ReportDefinition fields particular to this type:
+    //   - local_aggregation_period
+    //   - string_buffer_max
+    //   - system_profile_selection (SELECT_FIRST and SELECT LAST will maintain
+    //     uniqueness, REPORT_ALL may be useful in some cases)
+    UNIQUE_DEVICE_STRING_COUNTS = 21;
+  }
+  ReportType report_type = 3;
+
+  ////////////////  Fields for reports with privacy enabled  /////////////////
+
+  // The level of differential privacy applied to the report. Each level
+  // corresponds to an epsilon value in the shuffled model. The mapping
+  // from enum values to epsilon values is hard-coded in makePrivacyConstants()
+  // in the file //src/bin/config_parser/src/privacy/privacy_encoding_params.go
+  enum PrivacyLevel {
+    PRIVACY_LEVEL_UNKNOWN = 0;
+
+    // epsilon = infinity
+    NO_ADDED_PRIVACY = 1;
+
+    LOW_PRIVACY = 2;
+
+    MEDIUM_PRIVACY = 3;
+
+    HIGH_PRIVACY = 4;
+  }
+
+  // This field is used to specify the privacy level for a Cobalt report.
+  // All Cobalt report types support differential privacy and are required
+  // to set this field (use NO_ADDED_PRIVACY to disable differential privacy).
+  PrivacyLevel privacy_level = 20;
+
+  // The mean number of observations added per index point when performing the
+  // Poisson mechanism encoding for Cobalt reports. Should be set if and only if
+  // `privacy_level` is not NO_ADDED_PRIVACY.
+  //
+  // In the future, the value of this field will be computed by the registry
+  // parser as a function of other privacy-related fields and an estimate of the
+  // user population size. For now, it should be set manually in the Cobalt
+  // registry in consultation with the Cobalt team.
+  //
+  // TODO(b/295053509): update this comment once the field is populated by
+  // the registry parser.
+  double poisson_mean = 30;
+
+  // When reporting numerical values with privacy, the values are mapped to
+  // indices from 0 to num_index_points-1 with a randomized rounding method.
+  //
+  // In the future, the value of this field will be computed by the registry
+  // parser as a function of other privacy-related fields and an estimate of the
+  // user population size. For now, it should be set manually in the Cobalt
+  // registry in consultation with the Cobalt team.
+  //
+  // TODO(b/278932979): update this comment once the field is populated by
+  // the registry parser.
+  uint32 num_index_points = 22;
+
+  // When reporting strings with privacy, the strings are counted using a linear
+  // sketch.
+  //
+  // In the future, the value of this field will be computed by the registry
+  // parser as a function of other privacy-related fields and an estimate of the
+  // user population size. For now, it should be set manually in the Cobalt
+  // registry in consultation with the Cobalt team.
+  //
+  // TODO(b/278932979): update this comment once the field is populated by
+  // the registry parser.
+  StringSketchParameters string_sketch_params = 27;
+
+  // These fields specify the range of values that can be reported by a device
+  // in the specified local_aggregation_period. If the true value to be reported
+  // falls outside specified range, the value is clipped.
+  //
+  // For FLEETWIDE_OCCURRENCE_COUNTS, UNIQUE_DEVICE_NUMERIC_STATS and
+  // HOURLY_VALUE_NUMERIC_STATS, the range applies to the total numerical value
+  // computed for the device over the aggregation period specified in the
+  // report.
+  //
+  // For FLEETWIDE_MEANS, the range applies to the per-device sum of the value
+  // to be averaged over one hour. (For FLEETWIDE_MEANS, the `max_count` field
+  // is also required in order to bound the `count` value.)
+  //
+  // If a privacy_level other than NO_ADDED_PRIVACY is specified, this field is
+  // required for reports of type:
+  // * FLEETWIDE_OCCURRENCE_COUNTS
+  // * UNIQUE_DEVICE_NUMERIC_STATS
+  // * HOURLY_VALUE_NUMERIC_STATS
+  // * FLEETWIDE_MEANS
+  int64 min_value = 23;
+  int64 max_value = 24;
+
+  // This field specifies the maximum count to be reported by a device in the
+  // specified local_aggregation_period. If the true count is greater than
+  // max_count, then the count will be reported as max_count.
+  //
+  // For FLEETWIDE_HISTOGRAMS, the bound applies to the count for each
+  // individual histogram bucket over the aggregation period of one hour. For
+  // STRING_COUNTS, it applies to the count for each string over one hour.
+  //
+  // For FLEETWIDE_MEANS, the bound applies to the per-device count of the
+  // values to be averaged over one hour.
+  //
+  // If a privacy_level other than NO_ADDED_PRIVACY is specified, this field is
+  // required for reports of type:
+  // * FLEETWIDE_HISTOGRAMS
+  // * FLEETWIDE_MEANS
+  // * STRING_COUNTS
+  uint64 max_count = 25;
+
+  ////////////////  Fields specific to some report types /////////////////
+
+  // A specification of integer-range buckets for a histogram.
+  //
+  // This field is for reports of type UNIQUE_DEVICE_HISTOGRAMS,
+  // HOURLY_VALUE_HISTOGRAMS, and FLEETWIDE_HISTOGRAMS -- but for
+  // FLEETWIDE_HISTOGRAMS only with metrics of type INTEGER, not with metrics of
+  // type INTEGER_HISTOGRAM, because in that case the MetricDefinition already
+  // contains an instance of IntegerBuckets.
+  IntegerBuckets int_buckets = 10;
+
+  // The interval with which clients will generate and upload observations.
+  enum ReportingInterval {
+    REPORTING_INTERVAL_UNSET = 0;
+    HOURS_1 = 1;
+    DAYS_1 = 2;
+  }
+
+  // This field is optional for FLEETWIDE_OCCURRENCE_COUNTS reports, and is only
+  // supported by some client platforms. If not set, the reporting interval
+  // defaults to 1 hour for FLEETWIDE_OCCURRENCE_COUNTS reports.
+  ReportingInterval reporting_interval = 32;
+
+  // This field can be used with all Report types. When set, the generated
+  // report will exclude an Observation if there are not at least
+  // |reporting_threshold| number of distinct devices reporting Observations
+  // with the same ObservationMetadata.
+  uint32 reporting_threshold = 13;
+
+  // The on-device function computed on the metric during the aggregation
+  // window.
+  enum LocalAggregationProcedure {
+    LOCAL_AGGREGATION_PROCEDURE_UNSET = 0;
+
+    // Numerical statistic aggregation procedures to be used with reports
+    // of type UNIQUE_DEVICE_HISTOGRAMS, HOURLY_VALUE_HISTOGRAMS,
+    // UNIQUE_DEVICE_NUMERIC_STATS and HOURLY_VALUE_NUMERIC_STATS.
+    // TODO(fxbug.dev/87151): Rename these to remove the '_PROCEDURE' suffix.
+    SUM_PROCEDURE = 1;
+    MIN_PROCEDURE = 2;
+    MAX_PROCEDURE = 3;
+    MEAN = 4;
+    MEDIAN = 5;
+    // The value of N is set in the field
+    // |local_aggregation_procedure_percentile_n|.
+    PERCENTILE_N = 6;
+
+    // Logical aggregation procedures to be used with reports of type
+    // UNIQUE_DEVICE_COUNTS
+    AT_LEAST_ONCE = 7;
+    SELECT_FIRST = 8;
+    SELECT_MOST_COMMON = 9;
+  }
+
+  // This field is required for reports of type
+  // UNIQUE_DEVICE_HISTOGRAMS, HOURLY_VALUE_HISTOGRAMS,
+  // UNIQUE_DEVICE_NUMERIC_STATS, HOURLY_VALUE_NUMERIC_STATS
+  // and UNIQUE_DEVICE_COUNTS. Different report types support
+  // different values of this field. See the comments on the
+  // enum values in LocalAggregationProcedure.
+  LocalAggregationProcedure local_aggregation_procedure = 17;
+
+  // This field is required when
+  // local_aggregation_procedure = LOCAL_AGGREGATION_PROCEDURE_PERCENTILE_N.
+  // In this case it gives the value of N to use. Otherwise this field is
+  // ignored.
+  uint32 local_aggregation_procedure_percentile_n = 18;
+
+  // Time window over which the metric is aggregated. The local aggregation
+  // period is specified for UNIQUE_DEVICE_* report types.
+  WindowSize local_aggregation_period = 19;
+
+  // The maximum number of distinct event vectors for which an instance of the Cobalt
+  // client should produce an observation, for a given local aggregation period. Event
+  // vectors are prioritized in order of first arrival during the aggregation period.
+  //
+  // For example, if a report has an event_vector_buffer_max of 10, and 12 distinct event
+  // vectors are logged for this metric over an aggregation period, then Cobalt will send
+  // observations of the first 10 event vectors for that aggregation period and drop the
+  // last 2.
+  //
+  // If this field is unset, the registry parser assigns to it the total number of event
+  // vectors for the report's parent metric (i.e., the product over all metric dimensions
+  // of the number of event codes per dimension).
+  //
+  // The report's project will be charged against a resource budget for this value
+  // so project owners are encouraged to set this as small as possible.  For example,
+  // the report's parent metric may include a dimension with thousands of event codes,
+  // but it is expected that any one device will log only a few distinct event vectors
+  // per day. In that case we may set event_vector_buffer_max to a relatively small number,
+  // say 20. For reports which use differential privacy, setting event_vector_buffer_max
+  // to a smaller number will improve the signal for event vectors which are included in
+  // observations.
+  uint64 event_vector_buffer_max = 26;
+
+  // The maximum number of distinct strings that Cobalt must keep in its in-memory buffer
+  // on any single device. During local aggregation for reports of type STRING_COUNTS and
+  // UNIQUE_DEVICE_STRING_COUNTS, Cobalt will keep track of this many distinct strings per
+  // aggregation period. The report's project will be charged against a resource budget for this
+  // value so project owners are encouraged to set this as small as possible. A STRING metric
+  // includes a file of candidate strings that may contain many thousands of strings. But it is
+  // expected that any one device will log only a few of these strings per day. We may set
+  // string_buffer_max to a relatively small number, say 20.
+  //
+  // This is a required field for reports of type STRING_COUNTS and UNIQUE_DEVICE_STRING_COUNTS.
+  uint32 string_buffer_max = 28;
+
+  // For reports of type UNIQUE_DEVICE_COUNTS, send observations as soon as the
+  // event occurs, instead of waiting for the end of the day.
+  //
+  // This can only be enabled when using a local aggregation procedure of
+  // AT_LEAST_ONCE or SELECT_FIRST, and when the privacy level is
+  // NO_ADDED_PRIVACY. When used with a system_profile_selection of REPORT_ALL
+  // or SELECT_FIRST, enabling this is recommended as Cobalt will send the count
+  // for the current day when the event occurs instead of at the end of the day.
+  // For a system_profile_selection of SELECT_LAST, this may also be desirable,
+  // though it may result in a slight change in the current day's system profile
+  // that is used, as Cobalt won't wait until the end of the day to determine
+  // the final system profile, but will instead send the count immediately with
+  // the system profile that is currently active on the device.
+  bool expedited_sending = 29;
+
+  ///////////////////  Fields used by all report types ///////////////////
+  // Next id: 109
+
+  // The list of SystemProfileFields to include in each row of the report.
+  // Optional.
+  repeated SystemProfileField system_profile_field = 100;
+
+  // The list of Experiments to include in each row of the report.
+  //
+  // Each report row lists the intersection of the experiment ids active on the device and
+  // experiment ids specified in this field.
+  //
+  // The specified experiment ids must be found in one of the project's experiments_namespaces.
+  repeated int64 experiment_id = 104;
+
+  // This field is required for reports of type UNIQUE_DEVICE_COUNTS,
+  // UNIQUE_DEVICE_HISTOGRAMS, UNIQUE_DEVICE_STRING_COUNTS, and
+  // HOURLY_VALUE_HISTOGRAMS. The value for these reports must be SELECT_LAST,
+  // SELECT_FIRST, or occasionally REPORT_ALL.
+  //
+  // If the system profile value changed during the aggregation window specified
+  // for this report, system_profile_selection specifies which system profile to
+  // report for each device.
+  SystemProfileSelectionPolicy system_profile_selection = 103;
+
+  // Maximum ReleaseStage for which this Report is allowed to be collected.
+  ReleaseStage max_release_stage = 105;
+
+  // Report can be collected even if the user/device has not consented.
+  // This field can only be set to true on reports that use privacy mechanisms
+  // that include differential privacy (i.e. not DE_IDENTIFICATION). The use of
+  // this field is for collecting anonymized data that is allowed even when
+  // the consent is not given. These use cases need to be specially approved
+  // by privacy reviewers.
+  bool exempt_from_consent = 108;
+
+  // New Privacy API
+
+  // This enum identifies what privacy protection is applied to the report.
+  enum PrivacyMechanism {
+    PRIVACY_MECHANISM_UNSPECIFIED = 0;
+    // If you specify this value the data will be de-identified without
+    // additional privacy protections.
+    DE_IDENTIFICATION = 1;
+    // If you specify this value the data will be protected with Shuffled
+    // Differential Privacy guarantees (e.g., the noise wll be added on the
+    // devices)
+    SHUFFLED_DIFFERENTIAL_PRIVACY = 2;
+  }
+
+  // This field identifies what privacy protection is applied to the report.
+  // It will eventually be required once migration from privacy_level
+  // is complete.
+  PrivacyMechanism privacy_mechanism = 106;
+
+  // The object for grouping all parameters needed for SHUFFLED DP mode.
+  message ShuffledDifferentialPrivacyConfig {
+    // This field represents an upper bound on the amount of information which
+    // can be learned about a device from a report including that device.
+    // Lower values correspond to higher privacy.
+    // Epsilon must be > 0.
+    double epsilon = 1;
+    // This field represents the risk of the epsilon guarantee not holding. This
+    // is usually set as 1 over the expected number of participating devices.
+    // Delta must be > 0 and < 1.
+    double delta = 2;
+    // The generated report will exclude an Observation if there are not at
+    // least |reporting_threshold| number of distinct devices reporting
+    // Observations with the same ObservationMetadata.
+    uint32 reporting_threshold = 3;
+
+    // The mean number of observations added per index point when performing the
+    // Poisson mechanism encoding for Cobalt reports. Required.
+    //
+    // In the future, the value of this field will be computed by the registry
+    // parser as a function of other fields in this
+    // ShuffledDifferentialPrivacyConfig. For now, it should be set manually in
+    // the Cobalt registry in consultation with the Cobalt team.
+    //
+    // TODO(b/295053509): update this comment once the field is auto populated by
+    // the registry parser.
+    double poisson_mean = 4;
+  }
+
+  // If privacy_mechanism is SHUFFLED_DIFFERENTIAL_PRIVACY then privacy_config
+  // must contain valid ShuffledDifferentialPrivacyConfig otherwise empty.
+  oneof privacy_config {
+    ShuffledDifferentialPrivacyConfig shuffled_dp = 107;
+  }
+}
+
+// A specification for SystemProfile selection policy.
+enum SystemProfileSelectionPolicy {
+  // Use the default value. For reports of type FLEETWIDE_OCCURRENCE_COUNTS,
+  // FLEETWIDE_HISTOGRAMS, FLEETWIDE_MEANS, UNIQUE_DEVICE_NUMERIC_STATS,
+  // HOURLY_VALUE_NUMERIC_STATS, and STRING_COUNTS this will resolve to
+  // 'REPORT_ALL' and should not be changed. For all other report types,
+  // SELECT_DEFAULT must not be used.
+  SELECT_DEFAULT = 0;
+
+  // Always report the last SystemProfile seen in the aggregation window. This
+  // will be the last SystemProfile seen *at the time of an event* in the
+  // aggregation window.
+  SELECT_LAST = 1;
+
+  // Always report the first SystemProfile seen in the aggregation window. This
+  // will be the first SystemProfile seen *at the time of an event* in the
+  // aggregation window.
+  SELECT_FIRST = 2;
+
+  // Report all system profiles in the aggregation window. For most report
+  // types, this is the most sensible value to use. For reports that depend on
+  // some concept of uniqueness (such as UNIQUE_DEVICE_COUNTS,
+  // UNIQUE_DEVICE_HISTOGRAMS, UNIQUE_DEVICE_STRING_COUNTS, and
+  // HOURLY_VALUE_HISTOGRAMS) this may not be the best choice, since it will no
+  // longer be the case that a single device will only upload one observation
+  // per time period (It will upload one observation per time period *per unique
+  // system_profile*).
+  REPORT_ALL = 3;
+}
+
+// A specification of a field from SystemProfile. These are used in a
+// ReportDefinition to specify which fields should be included in the generated
+// Observations and reports.
+//
+// For a description of the meaning of each field, see the fields in the
+// SystemProfile in: cobalt/proto/common.proto
+enum SystemProfileField {
+  OS = 0;
+  ARCH = 1;
+  BOARD_NAME = 2;
+  PRODUCT_NAME = 3;
+  SYSTEM_VERSION = 4;
+  APP_VERSION = 10;
+  CHANNEL = 5;
+  BUILD_TYPE = 7;
+  EXPERIMENT_IDS = 9;
+  reserved 6, 8;
+  reserved "REALM", "EXPERIMENT_TOKENS";
+}
+
+// Stages in the release cycle of a component. Each Cobalt customer determines
+// its current ReleaseStage when initializing the CobaltService. Each Metric
+// and Report can declare the maximum ReleaseStage for which it is allowed to
+// be collected. For example a DEBUG Metric will not be collected from a device
+// running a FISHFOOD release.
+enum ReleaseStage {
+  RELEASE_STAGE_NOT_SET = 0;
+
+  // A test build. Also called "eng". Only use this value when the device is
+  // running test builds as all metrics/reports will be collected.
+  DEBUG = 10;
+  // Small, internal prototype. Used for testing a new feature internally,
+  // usually within the team or a small group.
+  FISHFOOD = 20;
+  // An internal release for testing with internal users.
+  DOGFOOD = 40;
+  // An open beta, for testing with internal and external users.
+  OPEN_BETA = 60;
+
+  // Generally-available. The final stage of a release. Also called
+  // "production". If unsure of which release stage the device is running, it
+  // is safest to fallback to this value (which is the default if no value is
+  // set), to avoid inadvertently collecting metric/report data.
+  GA = 99;
+}
+
+// ExponentialIntegerBuckets is used to define a partition of the integers into
+// a finite number of exponentially increasing buckets.
+//
+// Let n = num_buckets. Then there are n+2 buckets indexed 0,...,n+1.
+//
+// The bucket boundaries are:
+// a[0] = floor
+// a[1] = floor + initial_step
+// a[2] = floor + initial_step * step_multiplier
+// a[3] = floor + initial_step * step_multiplier ^ 2
+// a[4] = floor + initial_step * step_multiplier ^ 3
+// and in general, for i = 1, 2, 3 ... n
+// a[i] = floor + initial_step * step_multiplier ^ (i-1)
+//
+// Then, the buckets are defined as follows:
+// Bucket 0 is the underflow bucket: (-infinity, floor)
+// Bucket i for 0 < i < n+1: [a[i-1], a[i])
+// Bucket n+1 is the overflow bucket: [a[n], +infinity)
+//
+// Examples:
+// floor = 0
+// num_buckets = 3
+// initial_step = 10
+// step_multiplier = 10
+// Then, the buckets are:
+// (-infinity, 0), [0, 10), [10, 100), [100, 1000), [1000, +infinity)
+//
+// floor = 0
+// num_buckets = 3
+// initial_step = 2
+// step_multiplier = 2
+// Then, the buckets are:
+// (-infinity, 0), [0, 2), [2, 4), [4, 8), [8, +infinity)
+//
+// floor = 10
+// num_buckets = 3
+// initial_step = 2
+// step_multiplier = 2
+// Then, the buckets are:
+// (-infinity, 10), [10, 12), [12, 14), [14, 18), [18, +infinity)
+//
+// floor = 0
+// num_buckets = 3
+// initial_step = 100
+// step_multiplier = 10
+// Then, the buckets are:
+// (-infinity, 0), [0, 100), [100, 1000), [1000, 10000), [10000, +infinity)
+//
+message ExponentialIntegerBuckets {
+  int64 floor = 1;
+
+  // num_buckets must be at least 1.
+  uint32 num_buckets = 2;
+
+  // Must be at least one.
+  uint32 initial_step = 3;
+
+  // Must be at least one.
+  uint32 step_multiplier = 4;
+}
+
+// LinearIntegerBuckets is used to define a partition of the integers into a
+// finite number of buckets of equal size.
+//
+// Let n = num_buckets. Then there are n+2 buckets indexed 0,...,n+1.
+// Bucket 0 is the underflow bucket: (-infinity, floor)
+// Bucket n+1 is the overflow bucket: [lower + step_size * n, +infinity)
+//
+// For i = 1 to n, the bucket i is defined as
+// [floor + step_size * (i-1), floor + step_size * i)
+//
+// Example: floor = 0, num_buckets = 3, step_size = 10.
+// (-infinity, 0), [0, 10), [10, 20), [20, 30), [30, +inifinity)
+message LinearIntegerBuckets {
+  int64 floor = 1;
+
+  // Must be at least one.
+  uint32 num_buckets = 2;
+
+  // Must be at least one.
+  uint32 step_size = 3;
+}
+
+message IntegerBuckets {
+  oneof buckets {
+    ExponentialIntegerBuckets exponential = 1;
+    LinearIntegerBuckets linear = 2;
+  }
+
+  // If set to true, empty buckets will not be added to the report data such
+  // that all histograms contain a row for every bucket. Buckets with a zero
+  // count may still occur if data is logged that contains a zero count. This
+  // field can not be set on reports with added privacy.
+  bool sparse_output = 3;
+}
+
+message StringSketchParameters {
+  // Number of hashes in Count-Min Sketch.
+  int32 num_hashes = 1;
+
+  // Number of cells per hash in Count-Min Sketch.
+  int32 num_cells_per_hash = 2;
+}

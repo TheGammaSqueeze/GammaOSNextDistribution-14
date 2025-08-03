@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.4.0-alpha01" type="baseline" client="" dependencies="true" name="" variant="all" version="8.4.0-alpha01">
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 24 (current min is 23): `android.media.tv.TvContract.RecordedPrograms#CONTENT_URI`"
+        errorLine1="                        context, TvContract.RecordedPrograms.CONTENT_URI)) {"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/apps/TV/src/com/android/tv/util/AsyncDbTask.java"
+            line="137"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 24 (current min is 23): `android.media.tv.TvContract.RecordedPrograms#CONTENT_URI`"
+        errorLine1="                        context, TvContract.RecordedPrograms.CONTENT_URI)) {"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/apps/TV/src/com/android/tv/util/AsyncDbTask.java"
+            line="143"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `android.content.Context#registerReceiver`"
+        errorLine1="        mContext.registerReceiver(mReceiver, new IntentFilter(AudioManager.ACTION_HDMI_AUDIO_PLUG),"
+        errorLine2="                 ~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/apps/TV/src/com/android/tv/receiver/AudioCapabilitiesReceiver.java"
+            line="70"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `updateAndStartServiceIfNeeded`"
+        errorLine1="            scheduler.updateAndStartServiceIfNeeded();"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/apps/TV/src/com/android/tv/receiver/BootCompletedReceiver.java"
+            line="95"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `android.media.tv.TvInputInfo#canRecord`"
+        errorLine1="                if (info.canRecord()) {"
+        errorLine2="                         ~~~~~~~~~">
+        <location
+            file="packages/apps/TV/src/com/android/tv/menu/ChannelsRowAdapter.java"
+            line="255"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `android.media.session.MediaController.TransportControls#prepare`"
+        errorLine1="        getActivity().getMediaController().getTransportControls().prepare();"
+        errorLine2="                                                                  ~~~~~~~">
+        <location
+            file="packages/apps/TV/src/com/android/tv/dvr/ui/playback/DvrPlaybackOverlayFragment.java"
+            line="448"
+            column="67"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `android.media.tv.TvView#timeShiftPlay`"
+        errorLine1="            mTvView.timeShiftPlay(mInputId, mRecordedProgramUri);"
+        errorLine2="                    ~~~~~~~~~~~~~">
+        <location
+            file="packages/apps/TV/src/com/android/tv/dvr/DvrTvView.java"
+            line="77"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `android.media.tv.TvInputInfo#canRecord`"
+        errorLine1="            tunerCount = mInput.canRecord() ? mInput.getTunerCount() : 0;"
+        errorLine2="                                ~~~~~~~~~">
+        <location
+            file="packages/apps/TV/src/com/android/tv/dvr/recorder/InputTaskScheduler.java"
+            line="310"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `android.media.tv.TvInputInfo#getTunerCount`"
+        errorLine1="            tunerCount = mInput.canRecord() ? mInput.getTunerCount() : 0;"
+        errorLine2="                                                     ~~~~~~~~~~~~~">
+        <location
+            file="packages/apps/TV/src/com/android/tv/dvr/recorder/InputTaskScheduler.java"
+            line="310"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `android.content.ContextWrapper#registerReceiver`"
+        errorLine1="        registerReceiver(mBroadcastReceiver, SYSTEM_INTENT_FILTER, Context.RECEIVER_EXPORTED);"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/apps/TV/src/com/android/tv/MainActivity.java"
+            line="874"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Method reference requires API level 24 (current min is 23): `MainActivity.super::enterPictureInPictureMode`"
+        errorLine1="            mHandler.post(MainActivity.super::enterPictureInPictureMode);"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/apps/TV/src/com/android/tv/MainActivity.java"
+            line="2462"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `android.media.tv.TvInputInfo#getTunerCount`"
+        errorLine1="                                input.getTunerCount(),"
+        errorLine2="                                      ~~~~~~~~~~~~~">
+        <location
+            file="packages/apps/TV/src/com/android/tv/ui/TunableTvView.java"
+            line="1227"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `createScheduler`"
+        errorLine1="                mRecordingScheduler = RecordingScheduler.createScheduler(this);"
+        errorLine2="                                                         ~~~~~~~~~~~~~~~">
+        <location
+            file="packages/apps/TV/src/com/android/tv/TvApplication.java"
+            line="216"
+            column="58"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `android.media.tv.TvInputManager.TvInputCallback#onTvInputInfoUpdated`"
+        errorLine1="                        callback.onTvInputInfoUpdated(inputInfo);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/apps/TV/src/com/android/tv/util/TvInputManagerHelper.java"
+            line="284"
+            column="34"/>
+    </issue>
+
+</issues>

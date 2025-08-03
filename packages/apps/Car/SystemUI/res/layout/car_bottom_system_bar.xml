@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2020 The Android Open Source Project.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<com.android.systemui.car.systembar.CarSystemBarView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:systemui="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/nav_bar_background"
+    android:gravity="center"
+    android:orientation="horizontal">
+
+    <RelativeLayout
+        android:id="@+id/nav_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layoutDirection="ltr">
+
+        <com.android.systemui.car.hvac.TemperatureControlView
+            android:id="@+id/driver_hvac"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            systemui:hvacAreaId="49">
+            <include layout="@layout/adjustable_temperature_view"/>
+        </com.android.systemui.car.hvac.TemperatureControlView>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:layoutDirection="ltr"
+            android:paddingEnd="@dimen/system_bar_button_group_padding"
+            android:paddingStart="@dimen/system_bar_button_group_padding">
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"/>
+
+            <com.android.systemui.car.systembar.CarSystemBarButton
+                android:id="@+id/home"
+                android:contentDescription="@string/system_bar_home_label"
+                style="@style/SystemBarButton"
+                systemui:componentNames="com.android.car.carlauncher/.CarLauncher"
+                systemui:highlightWhenSelected="true"
+                systemui:icon="@drawable/car_ic_home"
+                systemui:intent="intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.HOME;launchFlags=0x14000000;end"/>
+
+            <com.android.systemui.car.systembar.CarSystemBarButton
+                android:id="@+id/passenger_home"
+                android:contentDescription="@string/system_bar_home_label"
+                android:visibility="gone"
+                style="@style/SystemBarButton"
+                systemui:highlightWhenSelected="true"
+                systemui:icon="@drawable/car_ic_home"
+                systemui:intent="intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.HOME;launchFlags=0x14000000;end"/>
+
+            <com.android.systemui.car.systembar.CarSystemBarButton
+                android:id="@+id/phone_nav"
+                android:contentDescription="@string/system_bar_phone_label"
+                style="@style/SystemBarButton"
+                systemui:highlightWhenSelected="true"
+                systemui:icon="@drawable/car_ic_phone"
+                systemui:intent="intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=com.android.car.dialer;launchFlags=0x10000000;end"
+                systemui:packages="com.android.car.dialer"
+                systemui:clearBackStack="true"/>
+
+            <com.android.systemui.car.systembar.AppGridButton
+                android:id="@+id/grid_nav"
+                android:contentDescription="@string/system_bar_applications_label"
+                style="@style/SystemBarButton"
+                systemui:componentNames="@string/config_appGridComponentName"
+                systemui:highlightWhenSelected="true"
+                systemui:icon="@drawable/car_ic_apps"
+                systemui:intent="@string/system_bar_app_drawer_intent"
+                systemui:clearBackStack="true"/>
+
+            <com.android.systemui.car.systembar.CarSystemBarButton
+                android:id="@+id/hvac"
+                android:contentDescription="@string/system_bar_climate_control_label"
+                style="@style/SystemBarButton"
+                systemui:highlightWhenSelected="true"
+                systemui:icon="@drawable/car_ic_hvac"
+                systemui:broadcast="true"/>
+
+            <com.android.systemui.car.systembar.CarSystemBarButton
+                android:id="@+id/control_center_nav"
+                android:contentDescription="@string/system_bar_control_center_label"
+                style="@style/SystemBarButton"
+                android:visibility="gone"
+                systemui:highlightWhenSelected="true"
+                systemui:icon="@drawable/car_ic_control_center"
+                systemui:intent="intent:#Intent;action=android.intent.action.MAIN;package=com.android.car.multidisplay.controlcenter;component=com.android.car.multidisplay.controlcenter/.ControlCenterActivity;B.BOTTOM_BAR_LAUNCH=true;end"
+                systemui:componentNames="com.android.car.multidisplay.controlcenter/.ControlCenterActivity"/>
+
+            <com.android.systemui.car.systembar.CarSystemBarButton
+                android:id="@+id/notifications"
+                android:contentDescription="@string/system_bar_notifications_label"
+                style="@style/SystemBarButton"
+                systemui:highlightWhenSelected="true"
+                systemui:icon="@drawable/car_ic_notification"
+                systemui:longIntent="intent:#Intent;action=com.android.car.bugreport.action.START_AUDIO_FIRST;component=com.android.car.bugreport/.BugReportActivity;end"/>
+
+            <com.android.systemui.car.systembar.AssistantButton
+                android:id="@+id/assistant"
+                android:contentDescription="@string/system_bar_assistant_label"
+                style="@style/SystemBarButton"
+                systemui:highlightWhenSelected="true"
+                systemui:icon="@drawable/ic_mic_light"/>
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"/>
+        </LinearLayout>
+
+        <com.android.systemui.car.hvac.TemperatureControlView
+            android:id="@+id/passenger_hvac"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentEnd="true"
+            android:gravity="center_vertical"
+            systemui:hvacAreaId="68">
+            <include layout="@layout/adjustable_temperature_view"/>
+        </com.android.systemui.car.hvac.TemperatureControlView>
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/lock_screen_nav_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:layoutDirection="ltr"
+        android:paddingEnd="@dimen/car_keyline_1"
+        android:paddingStart="@dimen/car_keyline_1"
+        android:visibility="gone"/>
+
+    <LinearLayout
+        android:id="@+id/occlusion_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:layoutDirection="ltr"
+        android:paddingEnd="@dimen/car_keyline_1"
+        android:paddingStart="@dimen/car_keyline_1"
+        android:visibility="gone">
+        <com.android.systemui.car.systembar.CarSystemBarButton
+            android:id="@+id/home"
+            android:contentDescription="@string/system_bar_home_label"
+            style="@style/SystemBarButton"
+            systemui:componentNames="com.android.car.carlauncher/.CarLauncher"
+            systemui:highlightWhenSelected="true"
+            systemui:icon="@drawable/car_ic_home"
+            systemui:intent="intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.HOME;launchFlags=0x14000000;end"/>
+    </LinearLayout>
+</com.android.systemui.car.systembar.CarSystemBarView>

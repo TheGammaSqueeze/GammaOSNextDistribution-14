@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string-array name="reminder_methods_labels">
+        <item>Paziņojums</item>
+        <item>E-pasts</item>
+        <item>Īsziņa</item>
+        <item>Signāls</item>
+    </string-array>
+    <string-array name="preferences_week_start_day_labels">
+        <item>Lokalizācijas noklusējums</item>
+        <item>Sestdiena</item>
+        <item>Svētdiena</item>
+        <item>Pirmdiena</item>
+    </string-array>
+    <string-array name="availability">
+        <item>Aizņemts</item>
+        <item>Pieejams</item>
+        <item>Pagaidu</item>
+    </string-array>
+    <string-array name="response_labels1">
+        <item>Nav atbildes</item>
+        <item>Jā</item>
+        <item>Varbūt</item>
+        <item>Nē</item>
+    </string-array>
+    <string-array name="delete_repeating_labels">
+        <item>Tikai šo pasākumu</item>
+        <item>Šis un nākamie pasākumi</item>
+        <item>Visus pasākumus</item>
+    </string-array>
+    <string-array name="change_response_labels">
+        <item>Tikai šis pasākums</item>
+        <item>Visus virknes pasākumus</item>
+    </string-array>
+    <string-array name="buttons_list">
+        <item>Diena</item>
+        <item>Nedēļa</item>
+        <item>Mēnesis</item>
+        <item>Darba kārtība</item>
+    </string-array>
+    <string-array name="preferences_skip_reminders_labels">
+        <item>Tikai tad, ja tiek noraidīti</item>
+        <item>Ja tiek noraidīti vai ignorēti</item>
+    </string-array>
+    <string-array name="recurrence_freq">
+        <item>ATKĀRTOT KATRU DIENU</item>
+        <item>ATKĀRTOT KATRU NED.</item>
+        <item>ATKĀRTOT KATRU MĒN.</item>
+        <item>ATKĀRTOT KATRU GADU</item>
+    </string-array>
+    <string-array name="repeat_by_nth_sun">
+        <item>katra mēneša pirmajā svētdienā</item>
+        <item>katra mēneša otrajā svētdienā</item>
+        <item>katra mēneša trešajā svētdienā</item>
+        <item>katra mēn. ceturtajā svētdienā</item>
+        <item>katra mēneša pēdējā svētdienā</item>
+    </string-array>
+    <string-array name="repeat_by_nth_mon">
+        <item>katra mēneša pirmajā pirmdienā</item>
+        <item>katra mēneša otrajā pirmdienā</item>
+        <item>katra mēneša trešajā pirmdienā</item>
+        <item>katra mēn. ceturtajā pirmdienā</item>
+        <item>katra mēneša pēdējā pirmdienā</item>
+    </string-array>
+    <string-array name="repeat_by_nth_tues">
+        <item>katra mēneša pirmajā otrdienā</item>
+        <item>katra mēneša otrajā otrdienā</item>
+        <item>katra mēneša trešajā otrdienā</item>
+        <item>katra mēn. ceturtajā otrdienā</item>
+        <item>katra mēneša pēdējā otrdienā</item>
+    </string-array>
+    <string-array name="repeat_by_nth_wed">
+        <item>katra mēneša pirmajā trešdienā</item>
+        <item>katra mēneša otrajā trešdienā</item>
+        <item>katra mēneša trešajā trešdienā</item>
+        <item>katra mēn. ceturtajā trešdienā</item>
+        <item>katra mēneša pēdējā trešdienā</item>
+    </string-array>
+    <string-array name="repeat_by_nth_thurs">
+        <item>katra mēn. pirmajā ceturtdienā</item>
+        <item>katra mēn. otrajā ceturtdienā</item>
+        <item>katra mēn. trešajā ceturtdienā</item>
+        <item>katra mēn. ceturt. ceturtdienā</item>
+        <item>katra mēn. pēdējā ceturtdienā</item>
+    </string-array>
+    <string-array name="repeat_by_nth_fri">
+        <item>katra mēn. pirmajā piektdienā</item>
+        <item>katra mēneša otrajā piektdienā</item>
+        <item>katra mēn. trešajā piektdienā</item>
+        <item>katra mēn. ceturt. piektdienā</item>
+        <item>katra mēneša pēdējā piektdienā</item>
+    </string-array>
+    <string-array name="repeat_by_nth_sat">
+        <item>katra mēneša pirmajā sestdienā</item>
+        <item>katra mēneša otrajā sestdienā</item>
+        <item>katra mēneša trešajā sestdienā</item>
+        <item>katra mēn. ceturtajā sestdienā</item>
+        <item>katra mēneša pēdējā sestdienā</item>
+    </string-array>
+</resources>

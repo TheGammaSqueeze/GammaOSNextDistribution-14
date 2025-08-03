@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label">Rheolwr Cymar Ddyfais</string>
+    <string name="confirmation_title">Caniatau\u2019r ap &lt;strong&gt;<xliff:g id="app_name" example="Android Wear">%1$s</xliff:g>&lt;/strong&gt; i gael mynediad at &lt;strong&gt;<xliff:g id="device_name" example="ASUS ZenWatch 2">%2$s</xliff:g>&lt;/strong&gt;?</string>
+    <string name="profile_name_watch">oriawr</string>
+    <string name="chooser_title_non_profile">Dewisa ddyfais i gael ei rheoli gan &lt;strong&gt;<xliff:g id="app_name" example="Android Wear">%1$s</xliff:g>&lt;/strong&gt;</string>
+    <string name="chooser_title">Dewisa <xliff:g id="profile_name" example="watch">%1$s</xliff:g> i\u2019w gosod</string>
+    <string name="summary_watch">Bydd yr ap hwn yn cael cydweddu gwybodaeth, fel enw rhywun sy\u2019n galw, a chael mynediad at y caniatâd hynny ar dy <xliff:g id="device_name" example="phone">%1$s</xliff:g></string>
+    <string name="confirmation_title_glasses">Caniatáu &lt;strong&gt;<xliff:g id="app_name" example="Android Wear">%1$s</xliff:g>&lt;/strong&gt; i reoli &lt;strong&gt;<xliff:g id="device_name" example="Glasses">%2$s</xliff:g>&lt;/strong&gt;?</string>
+    <string name="profile_name_glasses">dyfais</string>
+    <string name="summary_glasses">Bydd yr ap hwn yn cael mynediad at y caniatâd hwn ar dy <xliff:g id="device_name" example="phone">%1$s</xliff:g></string>
+    <string name="title_app_streaming">Caniatáu &lt;strong&gt;<xliff:g id="app_name" example="Exo">%1$s</xliff:g>&lt;/strong&gt; i gael mynediad at y wybodaeth hon o dy ffôn</string>
+    <string name="helper_title_app_streaming">Gwasanaethau traws dyfeisiau</string>
+    <string name="helper_summary_app_streaming">Mae <xliff:g id="app_name" example="GMS">%1$s</xliff:g> yn gofyn am ganiatâd ar ran dy <xliff:g id="display_name" example="Chromebook">%2$s</xliff:g> i ffrydio apiau rhwng dy ddyfeisiau</string>
+    <string name="title_computer">Caniatáu &lt;strong&gt;<xliff:g id="app_name" example="GMS">%1$s</xliff:g>&lt;/strong&gt; i gael mynediad at y wybodaeth hon o dy ddyfais</string>
+    <string name="helper_title_computer">Gwasanaethau Google Play</string>
+    <string name="helper_summary_computer">Mae <xliff:g id="app_name" example="GMS">%1$s</xliff:g> yn gofyn am ganiatâd ar ran dy <xliff:g id="display_name" example="Chromebook">%2$s</xliff:g> i gael mynediad at luniau, cyfryngau a hysbysiadau dy ffôn</string>
+    <string name="title_nearby_device_streaming">Caniatáu &lt;strong&gt;<xliff:g id="device_name" example="NearbyStreamer">%1$s</xliff:g>&lt;/strong&gt; i wneud y weithred hon?</string>
+    <string name="helper_summary_nearby_device_streaming">Mae <xliff:g id="app_name" example="NearbyStreamerApp">%1$s</xliff:g> yn gofyn am ganiatâd ar ran dy <xliff:g id="device_name" example="NearbyDevice">%2$s</xliff:g> i ffrydio apiau a nodweddion system eraill i ddyfeisiau cyfagos</string>
+    <string name="profile_name_generic">dyfais</string>
+    <string name="summary_generic">Bydd yr ap hwn yn cael cydweddu gwybodaeth, fel enw rhywun sy\u2019n galw, rhwng dy ffôn di a\u2019r ddyfais a ddewiswyd</string>
+    <string name="consent_yes">Caniatáu</string>
+    <string name="consent_no">Peidio â chaniatáu</string>
+    <string name="consent_cancel">Diddymu</string>
+    <string name="consent_back">Nôl</string>
+    <string name="permission_expand">Ehangu <xliff:g id="permission_type" example="Notification">%1$s</xliff:g></string>
+    <string name="permission_collapse">Cwympo <xliff:g id="permission_type" example="Notification">%1$s</xliff:g></string>
+    <string name="permission_sync_confirmation_title">Rhoi i apiau ar &lt;strong&gt;<xliff:g id="companion_device_name" example="Galaxy Watch 5">%1$s</xliff:g>&lt;/strong&gt; yr un caniatâd ag ar &lt;strong&gt;<xliff:g id="primary_device_name" example="Pixel 6">%2$s</xliff:g>&lt;/strong&gt;?</string>
+    <string name="permission_sync_summary">Gallu hyn gynnwys &lt;strong&gt;mynediad at Feicroffon&lt;/strong&gt;, &lt;strong&gt;Camera&lt;/strong&gt;, a &lt;strong&gt;Lleoliad&lt;/strong&gt;, a chaniatâd sensitif arall ar &lt;strong&gt;<xliff:g id="companion_device_name" example="My Watch">%1$s</xliff:g>&lt;/strong&gt;. &lt;br/&gt;&lt;br/&gt;Gellir newid y caniatâd hwn unrhyw bryd yn y Gosodiadau ar &lt;strong&gt;<xliff:g id="companion_device_name" example="My Watch">%1$s</xliff:g>&lt;/strong&gt;.</string>
+    <string name="vendor_header_button_description">Rhagor o wybodaeth</string>
+    <string name="permission_phone">Ffôn</string>
+    <string name="permission_sms">SMS</string>
+    <string name="permission_contacts">Cysylltiadau</string>
+    <string name="permission_calendar">Calendr</string>
+    <string name="permission_microphone">Meicroffon</string>
+    <string name="permission_call_logs">Cofnodion galwadau</string>
+    <string name="permission_nearby_devices">Dyfeisiau gerllaw</string>
+    <string name="permission_media_routing_control">Newid allbwn cyfryngau</string>
+    <string name="permission_storage">Lluniau a chyfryngau</string>
+    <string name="permission_notifications">Hysbysiadau</string>
+    <string name="permission_app_streaming">Apiau</string>
+    <string name="permission_nearby_device_streaming">Ffrydio</string>
+    <string name="permission_phone_summary">Gwneud a rheoli galwadau ffôn</string>
+    <string name="permission_call_logs_summary">Darllen ac ysgrifennu cofnod galwadau ffôn</string>
+    <string name="permission_sms_summary">Gweld ac anfon negeseuon SMS</string>
+    <string name="permission_contacts_summary">Cael mynediad at dy gysylltiadau</string>
+    <string name="permission_calendar_summary">Cael mynediad at dy galendr</string>
+    <string name="permission_microphone_summary">Recordio sain</string>
+    <string name="permission_nearby_devices_summary">Canfod, cysylltu â, a chael lleoliad cymharol dyfeisiau gerllaw</string>
+    <string name="permission_notification_listener_access_summary">Darllen pob hysbysiad, gan gynnwys gwybodaeth fel cysylltiadau, negeseuon, a lluniau</string>
+    <string name="permission_notifications_summary">\u2022 Darllen pob hysbysiad, gan gynnwys gwybodaeth fel cysylltiadau, negeseuon, a lluniau&lt;br/&gt;\u2022Anfon hysbysiadau&lt;br/&gt;&lt;br/&gt;Gellir rheoli gallu\u2019r ap hwn i ddarllen ac anfon hysbysiadau unrhyw bryd yn Gosodiadau &gt; Hysbysiadau.</string>
+    <string name="permission_app_streaming_summary">Ffrydio apiau dy ffôn</string>
+    <string name="permission_nearby_device_streaming_summary">Ffrydio apiau a nodweddion system eraill o dy ffôn</string>
+    <string name="permission_media_routing_control_summary">Cael mynediad at restr o ddyfeisiau ar gael a rheoli pa un sy\u2019n ffrydio neu fwrw sain neu fideo o apiau eraill</string>
+    <string name="device_type" product="default">ffôn</string>
+    <string name="device_type" product="tablet">llechen</string>
+</resources>

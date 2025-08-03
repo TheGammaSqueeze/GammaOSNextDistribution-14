@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.4.0-alpha01" type="baseline" client="" dependencies="true" name="" variant="all" version="8.4.0-alpha01">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 23): `android.os.StrictMode.VmPolicy.Builder#detectContentUriWithoutPermission`"
+        errorLine1="                            .detectContentUriWithoutPermission()"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/apps/TV/common/src/com/android/tv/common/BaseApplication.java"
+            line="84"
+            column="30"/>
+    </issue>
+
+</issues>

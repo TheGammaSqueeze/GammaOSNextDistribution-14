@@ -1,0 +1,18 @@
+package {
+    default_team: "trendy_team_virtualization",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+aidl_interface {
+    name: "com.android.virt.vm_attestation.testservice",
+    srcs: ["com/android/virt/vm_attestation/testservice/**/*.aidl"],
+    unstable: true,
+    backend: {
+        java: {
+            gen_rpc: true,
+        },
+        rust: {
+            enabled: true,
+        },
+    },
+}

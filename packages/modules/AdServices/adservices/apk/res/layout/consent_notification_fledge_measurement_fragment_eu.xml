@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <ScrollView
+        android:id="@+id/consent_notification_fledge_measurement_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:scrollbars="vertical"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/nav_buttons"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:animateLayoutChanges="true"
+            android:orientation="vertical">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="72dp"
+                android:layout_marginStart="0dp"
+                android:src="@drawable/ic_android_icon"
+                tools:ignore="ContentDescription" />
+            <TextView
+                android:text="@string/notificationUI_fledge_measurement_title"
+                style="@style/MainStyle.H1" />
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:src="@drawable/ic_main_view_ga_image"
+                android:contentDescription="@string/ic_main_view_ga_image_description"/>
+            <TextView
+                android:text="@string/notificationUI_fledge_measurement_introduction_text1"
+                style="@style/MainStyle.Body1" />
+            <TextView
+                android:text="@string/notificationUI_fledge_measurement_introduction_text2"
+                style="@style/MainStyle.Body1BulletSubtext"
+                android:layout_marginTop="16dp" />
+            <TextView
+                android:text="@string/notificationUI_fledge_measurement_introduction_text3"
+                style="@style/MainStyle.Body1BulletSubtext"
+                android:layout_marginTop="16dp" />
+            <TextView
+                android:id="@+id/how_it_works_fledge_measurement_expander"
+                android:drawableEnd="@drawable/ic_expand"
+                android:layout_marginTop="16dp"
+                android:text="@string/notificationUI_fledge_measurement_control_ga_text_eu"
+                style="@style/MainStyle.Body1" />
+            <LinearLayout
+                android:id="@+id/how_it_works_fledge_measurement_expanded_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone" >
+                <TextView
+                    style="@style/MainStyle.Body1Bold"
+                    android:text="@string/notificationUI_how_it_works_fledge_measurement_expanded_text0" />
+                <TextView
+                    style="@style/MainStyle.Body1BoldBullet"
+                    android:text="@string/notificationUI_how_it_works_fledge_measurement_expanded_text1" />
+                <TextView
+                    android:text="@string/notificationUI_how_it_works_fledge_measurement_expanded_text2"
+                    style="@style/MainStyle.Body1BulletSubtext" />
+                <TextView
+                    style="@style/MainStyle.Body1BoldBullet"
+                    android:text="@string/notificationUI_how_it_works_fledge_measurement_expanded_text3" />
+                <TextView
+                    android:text="@string/notificationUI_how_it_works_fledge_measurement_expanded_text4"
+                    style="@style/MainStyle.Body1BulletSubtext" />
+                <TextView
+                    style="@style/MainStyle.Body1BoldBullet"
+                    android:text="@string/notificationUI_how_it_works_fledge_measurement_expanded_text5" />
+                <TextView
+                    android:text="@string/notificationUI_how_it_works_fledge_measurement_expanded_text6"
+                    style="@style/MainStyle.Body1BulletSubtext" />
+                <TextView
+                    android:layout_marginTop="16dp"
+                    android:text="@string/notificationUI_how_it_works_fledge_measurement_expanded_text7"
+                    style="@style/MainStyle.Body1BulletSubtext" />
+                <TextView
+                    android:text="@string/notificationUI_how_it_works_fledge_measurement_expanded_text8"
+                    style="@style/MainStyle.Body1Bold" />
+                <TextView
+                    android:layout_marginTop="0dp"
+                    android:text="@string/notificationUI_how_it_works_fledge_measurement_expanded_text9"
+                    style="@style/MainStyle.Body1" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="16dp"
+                android:text="@string/notificationUI_you_can_change_in_privacy_settings"
+                style="@style/MainStyle.Body1" />
+        </LinearLayout>
+    </ScrollView>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/nav_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" >
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/divider_color"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+        <LinearLayout
+            style="@style/NotificationButtonContainer"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+            <Button
+                android:id="@+id/leftControlButtonConfirmation"
+                style="@style/MainStyle.PrimaryButtonNegative"
+                android:text="@string/notificationUI_confirmation_left_control_button_text"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+            <Button
+                android:id="@+id/rightControlButtonConfirmation"
+                style="@style/MainStyle.PrimaryButton"
+                android:text="@string/notificationUI_confirmation_right_control_button_text"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

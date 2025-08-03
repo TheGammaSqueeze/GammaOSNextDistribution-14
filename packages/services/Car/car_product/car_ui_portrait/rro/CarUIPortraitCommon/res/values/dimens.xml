@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources>
+    <dimen name="car_portrait_ui_selectable_item_radius">24dp</dimen>
+    <dimen name="car_portrait_ui_button_radius">44dp</dimen>
+    <dimen name="car_portrait_ui_window_rounded_corner_radius">48dp</dimen>
+
+    <dimen name="car_portrait_ui_toast_margin">48dp</dimen>
+    <dimen name="car_portrait_ui_toast_icon_margin">24dp</dimen>
+    <dimen name="car_portrait_ui_toast_icon_size">48dp</dimen>
+    <dimen name="car_portrait_ui_toast_bottom_margin">32dp</dimen>
+
+    <dimen name="car_portrait_ui_tab_width">320dp</dimen>
+    <dimen name="car_portrait_ui_tab_height">96dp</dimen>
+    <dimen name="car_portrait_ui_tab_margin_horizontal">16dp</dimen>
+
+    <dimen name="car_alert_dialog_padding">24dp</dimen>
+    <dimen name="car_alert_dialog_icon_size">64dp</dimen>
+    <dimen name="car_alert_dialog_button_spacing">16dp</dimen>
+
+    <dimen name="car_panel_border_width">3dp</dimen>
+</resources>

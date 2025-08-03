@@ -1,0 +1,44 @@
+package {
+    // http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // the below license kinds from "system_media_license":
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_media_license"],
+}
+
+cc_defaults {
+    name: "libaudioroute_defaults",
+    vendor_available: true,
+    host_supported: true,
+    srcs: ["audio_route.c"],
+    export_include_dirs: ["include"],
+    shared_libs: [
+        "liblog",
+        "libcutils",
+        "libutils",
+        "libexpat",
+    ],
+    cflags: [
+        "-Werror",
+        "-Wall",
+    ],
+}
+
+cc_library_shared {
+    name: "libaudioroute",
+    defaults: ["libaudioroute_defaults"],
+    vndk: {
+        enabled: true,
+    },
+    shared_libs: [
+        "libtinyalsa",
+    ],
+}
+
+cc_library_shared {
+    name: "libaudioroutev2",
+    defaults: ["libaudioroute_defaults"],
+    shared_libs: [
+        "libtinyalsav2",
+    ],
+}

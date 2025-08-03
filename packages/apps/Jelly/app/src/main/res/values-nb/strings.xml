@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2017-2024 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <string name="app_name">Nettleser</string>
+    <string name="menu_new_tab">Ny fane</string>
+    <string name="menu_incognito">Inkognito-fane</string>
+    <string name="menu_fav_add">Legg til som favoritt</string>
+    <string name="menu_share">Del</string>
+    <string name="menu_favorites">Favoritter</string>
+    <string name="menu_history">Historikk</string>
+    <string name="menu_shortcut">Legg til snarvei</string>
+    <string name="menu_settings">Innstillinger</string>
+    <string name="menu_download">Last ned</string>
+    <string name="menu_in_new_tab">Åpne i ny fane</string>
+    <string name="menu_search">Finn på side</string>
+    <string name="share_title">Send til</string>
+    <string name="dismiss">Avvis</string>
+    <string name="download_title">Last ned fil</string>
+    <string name="download_message">Vil du laste ned %1$s?</string>
+    <string name="download_positive">Last ned</string>
+    <string name="settings_title">Innstillinger</string>
+    <string name="pref_search_engine">Søkemotor</string>
+    <string name="pref_start_page">Hjemmeside</string>
+    <string name="pref_start_page_dialog_title">Velg hjemmeside</string>
+    <string name="pref_start_page_dialog_message">Angi hjemmeside-adressen</string>
+    <string name="pref_start_page_dialog_reset">Tilbakestill</string>
+    <string name="pref_privacy_security">Personvern og sikkerhet</string>
+    <string name="pref_looklock_title">LookLock</string>
+    <string name="pref_looklock_summary">Forhindre andre apper i å lese nettleserens innhold</string>
+    <string name="pref_js_title">JavaScript</string>
+    <string name="pref_js_summary">Aktiver JavaScript</string>
+    <string name="pref_location_title">Plassering</string>
+    <string name="pref_location_summary">Tillat nettsider å forespørre din plassering</string>
+    <string name="pref_cookie_title">Informasjonskapsler</string>
+    <string name="pref_cookie_summary">Tillat nettsider å lagre og laste informasjonskapsler</string>
+    <string name="pref_screenshot_snap_title">Avansert deling</string>
+    <string name="pref_screenshot_snap_summary">Del forhåndsvisning av den delte nettsiden</string>
+    <string name="pref_cookie_clear">Tøm informasjonskapsler</string>
+    <string name="pref_cookie_clear_done">Tømte alle informasjonskapsler</string>
+    <string name="pref_do_not_track_title">Ikke-Spor-Meg</string>
+    <string name="pref_do_not_track_summary">Send en Ikke-Spor-Meg -forespørsel til alle nettsider du besøker</string>
+    <string name="history_title">Historikk</string>
+    <string name="history_empty">Ingenting her, surf på nettet for å se historikken din her</string>
+    <string name="history_date_format">EEEE dd MMMM yyyy, HH:mm</string>
+    <string name="history_delete_title">Tøm historikk</string>
+    <string name="history_delete_message">Du er i ferd med å slette all din historikk, denne handlingen kan ikke angres. Ønsker du å fortsette?</string>
+    <string name="history_delete_positive">Tøm</string>
+    <string name="history_deleting_message">Tømmer historikk\u2026</string>
+    <string name="favorite_title">Favoritter</string>
+    <string name="favorite_added">Lagt til i favoritter</string>
+    <string name="favorite_empty">Ingenting her, legg til en favorittlenke for å se den her</string>
+    <string name="favorite_edit_dialog_title">Rediger favoritt</string>
+    <string name="favorite_edit_title">Tittel</string>
+    <string name="favorite_edit_url">Nettadresse</string>
+    <string name="favorite_edit_positive">Rediger</string>
+    <string name="favorite_edit_delete">Slett</string>
+    <string name="favorite_edit_error">Angi en gyldig nettadresse</string>
+    <string name="error_no_activity_found">Ingen app kan tolke denne lenken</string>
+    <string name="auth_dialog_title">Autentisering kreves</string>
+    <string name="auth_dialog_username">Brukernavn:</string>
+    <string name="auth_dialog_password">Passord:</string>
+    <string name="auth_dialog_detail">%1$s krever et brukernavn og passord.</string>
+    <string name="auth_dialog_login">Logg inn</string>
+    <string name="shortcut_new_incognito_tab">Ny inkognitofane</string>
+    <string name="suggestions_provider_none">Ingen</string>
+    <string name="search_bar_hint">Søk</string>
+    <string name="ssl_cert_dialog_title">SSL-sertifikatsdetaljer</string>
+    <string name="ssl_cert_dialog_domain">Domene</string>
+    <string name="ssl_cert_dialog_issued_to">Utstedt til</string>
+    <string name="ssl_cert_dialog_issued_by">Utstedt av</string>
+    <string name="ssl_cert_dialog_validity">Gyldighetsperiode</string>
+    <string name="ssl_cert_dialog_common_name">Ordinært navn (CN)</string>
+    <string name="ssl_cert_dialog_organization">Organisasjon (O)</string>
+    <string name="ssl_cert_dialog_organizational_unit">Organisasjonsenhet (UN)</string>
+    <string name="ssl_cert_dialog_issued_on">Utstedt den</string>
+    <string name="ssl_cert_dialog_expires_on">Utløper den</string>
+    <string name="ssl_cert_dialog_dismiss">Avvis</string>
+</resources>

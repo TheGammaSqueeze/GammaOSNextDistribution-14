@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2012-2016 The CyanogenMod Project
+     Copyright (C) 2017-2025 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="flip_action_title">Ação ao virar o dispositivo</string>
+    <string name="shake_action_title">Ação ao agitar o dispositivo</string>
+    <string-array name="action_setting_entries">
+        <item>Soneca</item>
+        <item>Ignorar</item>
+        <item>Não fazer nada</item>
+    </string-array>
+    <string name="firing_alarms_timers_channel">Disparo de alarmes e temporizadores</string>
+    <string name="alarm_missed_channel">Alarmes perdidos</string>
+    <string name="alarm_snooze_channel">Alarmes adiados</string>
+    <string name="alarm_upcoming_channel">Alarmes próximos</string>
+    <string name="stopwatch_channel">Cronômetro</string>
+    <string name="timer_channel">Temporizador</string>
+    <string name="add_label">Adicionar etiqueta</string>
+    <string name="dialog_permissions_title">Permissões</string>
+    <string name="dialog_permissions_ask">Perguntar novamente</string>
+    <string name="dialog_permissions_dismiss">Ignorar</string>
+    <string name="dialog_permissions_settings">Configurações</string>
+    <string name="dialog_permissions_power_off_alarm">Sem esta permissão, seu dispositivo não conseguirá ser iniciado automaticamente para disparar alarmes</string>
+    <string name="dialog_permissions_no_permission">As permissões necessárias foram negadas. Ative-as nas Configurações</string>
+    <string name="dialog_permissions_post_notifications">Este app necessita de acesso às notificações. Sem isso ele não poderá ser executado!</string>
+    <string name="selected">Selecionado</string>
+    <string name="more_options">Mais opções</string>
+    <string name="widget_choice_title">Escolha seu estilo</string>
+    <string name="widget_name_transparent">Sem fundo</string>
+    <string name="widget_name_solid">Com fundo</string>
+    <string name="clock_brightness_percentage">%s%%</string>
+    <string name="night_mode_enabled_title">Ativado</string>
+    <string name="night_mode_dnd_title">Seguir o estado do Não Perturbe</string>
+    <string name="night_mode_dnd_summary">Modo noturno segue o estado do Não Perturbe</string>
+    <string name="show_ampm_title">Mostrar indicador AM/PM</string>
+    <string name="bold_text_title">Texto do relógio em negrito</string>
+    <string name="night_mode_brightness_text_title">Brilho</string>
+    <string name="clock_color_title">Cor</string>
+    <string-array name="clock_color_entries">
+        <item>Branco</item>
+        <item>Vermelho</item>
+        <item>Verde</item>
+        <item>Azul</item>
+    </string-array>
+    <string name="screensaver_settings_title">Protetor de tela</string>
+    <string name="screensaver_preview">Pré-visualização</string>
+    <string name="screensaver_preview_summary">Inicia o protetor de tela imediatamente</string>
+    <string name="screensaver_change_settings">Configurações</string>
+    <string name="screensaver_change_settings_summary">Abre as configurações do protetor de tela do Relógio</string>
+    <string name="screensaver_daydream_settings">Selecionar/ativar protetor de tela</string>
+    <string name="screensaver_daydream_settings_summary">Abre as configurações principais do protetor de tela</string>
+</resources>

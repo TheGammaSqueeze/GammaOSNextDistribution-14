@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+     Copyright (C) 2020 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<!-- Updates layout's color and background in {@code BottomActionBar} -->
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clipChildren="false">
+
+    <!--  Bottom Sheet  -->
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/action_tabs">
+        <!-- Bottom sheet view should be a child view of CoordinatorLayout -->
+        <FrameLayout
+            android:id="@+id/action_bottom_sheet"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/bottom_sheet_margin"
+            android:theme="@style/WallpaperPicker.BottomPaneStyle"
+            android:clickable="true"
+            app:behavior_peekHeight="0dp"
+            app:layout_behavior="com.android.wallpaper.widget.BottomActionBar$QueueStateBottomSheetBehavior" />
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+    <!--  Bottom Tabs  -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/action_tabs"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/bottom_actions_height"
+        android:layout_alignParentBottom="true"
+        android:clipToPadding="false"
+        android:layoutDirection="locale"
+        android:paddingBottom="@dimen/bottom_actions_bottom_padding"
+        android:paddingHorizontal="@dimen/bottom_actions_horizontal_padding"
+        android:paddingTop="@dimen/bottom_actions_top_padding"
+        android:theme="@style/BottomActionItemStyle">
+
+        <ImageView
+            android:id="@+id/action_back"
+            android:layout_width="@dimen/bottom_action_button_width"
+            android:layout_height="@dimen/bottom_action_button_height"
+            android:contentDescription="@string/bottom_action_bar_back"
+            android:src="@drawable/ic_close_gm2_24px"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/action_rotation"
+            app:layout_constraintHorizontal_chainStyle="spread_inside"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/action_rotation"
+            android:layout_width="@dimen/bottom_action_button_width"
+            android:layout_height="@dimen/bottom_action_button_height"
+            android:src="@drawable/ic_slideshow_24dp"
+            android:contentDescription="@string/bottom_action_bar_slideshow_wallpaper"
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/action_delete"
+            app:layout_constraintStart_toEndOf="@id/action_back" />
+
+        <ImageView
+            android:id="@+id/action_delete"
+            android:layout_width="@dimen/bottom_action_button_width"
+            android:layout_height="@dimen/bottom_action_button_height"
+            android:contentDescription="@string/delete_live_wallpaper"
+            android:src="@drawable/ic_delete_24px"
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/action_information"
+            app:layout_constraintStart_toEndOf="@id/action_rotation" />
+
+        <ImageView
+            android:id="@+id/action_information"
+            android:layout_width="@dimen/bottom_action_button_width"
+            android:layout_height="@dimen/bottom_action_button_height"
+            android:src="@drawable/ic_info_gm2_24px"
+            android:contentDescription="@string/tab_info"
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/action_edit"
+            app:layout_constraintStart_toEndOf="@id/action_delete" />
+
+        <ImageView
+            android:id="@+id/action_edit"
+            android:layout_width="@dimen/bottom_action_button_width"
+            android:layout_height="@dimen/bottom_action_button_height"
+            android:src="@drawable/ic_pan_zoom_24dp"
+            android:contentDescription="@string/bottom_action_bar_edit"
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/action_customize"
+            app:layout_constraintStart_toEndOf="@id/action_information" />
+
+        <ImageView
+            android:id="@+id/action_customize"
+            android:layout_width="@dimen/bottom_action_button_width"
+            android:layout_height="@dimen/bottom_action_button_height"
+            android:src="@drawable/ic_tune_black_24dp"
+            android:contentDescription="@string/tab_customize"
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/action_effects"
+            app:layout_constraintStart_toEndOf="@id/action_edit" />
+
+        <ImageView
+            android:id="@+id/action_effects"
+            android:layout_width="@dimen/bottom_action_button_width"
+            android:layout_height="@dimen/bottom_action_button_height"
+            android:src="@drawable/ic_effect_black_24dp"
+            android:contentDescription="@string/tab_effects"
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/action_download"
+            app:layout_constraintStart_toEndOf="@id/action_customize" />
+
+        <ImageView
+            android:id="@+id/action_download"
+            android:layout_width="@dimen/bottom_action_button_width"
+            android:layout_height="@dimen/bottom_action_button_height"
+            android:src="@drawable/ic_file_download_gm2_24px"
+            android:contentDescription="@string/bottom_action_bar_download"
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/action_progress"
+            app:layout_constraintStart_toEndOf="@id/action_effects" />
+
+        <ProgressBar
+            android:id="@+id/action_progress"
+            android:layout_width="@dimen/bottom_action_button_width"
+            android:layout_height="@dimen/bottom_action_button_height"
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/action_apply"
+            app:layout_constraintStart_toEndOf="@id/action_download" />
+
+        <ImageView
+            android:id="@+id/action_apply"
+            android:layout_width="@dimen/bottom_action_button_width"
+            android:layout_height="@dimen/bottom_action_button_height"
+            android:src="@drawable/ic_done_gm2_24px"
+            android:contentDescription="@string/bottom_action_bar_apply"
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/action_apply_text_button"
+            app:layout_constraintStart_toEndOf="@id/action_progress"/>
+
+        <Button
+            android:id="@+id/action_apply_text_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@drawable/bottom_apply_button_background"
+            android:minHeight="@dimen/bottom_action_button_height"
+            android:minWidth="@dimen/bottom_action_button_wide_width"
+            android:padding="0dp"
+            android:text="@string/bottom_action_bar_apply"
+            android:textColor="?android:textColorPrimaryInverse"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/action_apply"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</RelativeLayout>

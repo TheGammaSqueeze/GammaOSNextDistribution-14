@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2006 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label">Ημερολόγιο</string>
+    <string name="when_label">Πότε</string>
+    <string name="today">Σήμερα</string>
+    <string name="tomorrow">Αύριο</string>
+    <string name="today_at_time_fmt">"Σήμερα στις <xliff:g id="TIME_INTERVAL">%s</xliff:g>"</string>
+    <string name="tomorrow_at_time_fmt">"Αύριο στις <xliff:g id="TIME_INTERVAL">%s</xliff:g>"</string>
+    <string name="date_time_fmt">"<xliff:g id="DATE">%1$s</xliff:g>, <xliff:g id="TIME_INTERVAL">%2$s</xliff:g>"</string>
+    <string name="no_title_label">(Χωρίς τίτλο)</string>
+    <string name="no_reminder_label">Καμία</string>
+    <string name="no_snooze_label">Καμία</string>
+    <plurals name="Nminutes">
+        <item quantity="one">1 λεπτό</item>
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> λεπτά</item>
+    </plurals>
+    <plurals name="Nmins">
+        <item quantity="one">1 λεπτό</item>
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> λεπτά</item>
+    </plurals>
+    <plurals name="Nhours">
+        <item quantity="one">1 ώρα</item>
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> ώρες</item>
+    </plurals>
+    <plurals name="Ndays">
+        <item quantity="one">1 ημέρα</item>
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> ημέρες</item>
+    </plurals>
+    <plurals name="Nweeks">
+        <item quantity="one">1 εβδομάδα</item>
+        <item quantity="other"><xliff:g id="count">%d</xliff:g> εβδομάδες</item>
+    </plurals>
+    <plurals name="weekN">
+        <item quantity="one">Εβδομάδα <xliff:g id="COUNT">%d</xliff:g></item>
+        <item quantity="other">Εβδομάδα <xliff:g id="COUNT">%d</xliff:g></item>
+    </plurals>
+    <string name="calendar_refresh">"Ανανέωση"</string>
+    <string name="show_day_view">"Εμφάνιση ημέρας"</string>
+    <string name="agenda_view">"Ατζέντα"</string>
+    <string name="day_view">"Ημέρα"</string>
+    <string name="week_view">"Εβδομάδα"</string>
+    <string name="month_view">"Μήνας"</string>
+    <string name="event_view">"Προβολή συμβάντος"</string>
+    <string name="event_create">"Νέο συμβάν"</string>
+    <string name="event_edit">"Επεξεργασία συμβάντος"</string>
+    <string name="event_delete">"Διαγραφή συμβάντος"</string>
+    <string name="share_label">Κοινή χρήση</string>
+    <string name="goto_today">"Σήμερα"</string>
+    <string name="goto_date">Μεταβείτε σε\u2026</string>
+    <string name="menu_preferences">"Ρυθμίσεις"</string>
+    <string name="menu_info">Πληροφορίες</string>
+    <string name="search">"Αναζήτηση"</string>
+    <string name="hide_controls">"Απόκρ. στοιχ. ελέγχ."</string>
+    <string name="show_controls">"Εμφ. στοιχ. ελέγχου"</string>
+    <string name="view_settings">"Ρυθμίσεις προβολής"</string>
+    <string name="select_synced_calendars_button">Ημερολόγια για συγχρονισμό</string>
+    <string name="hint_what">"Όνομα συμβάντος"</string>
+    <string name="hint_where">"Τοποθεσία"</string>
+    <string name="hint_description">"Περιγραφή"</string>
+    <string name="hint_url">"URL"</string>
+    <string name="hint_attendees">"Επισκέπτες"</string>
+    <string name="creating_event">"Το συμβάν δημιουργήθηκε."</string>
+    <string name="saving_event">"Το συμβάν αποθηκεύτηκε."</string>
+    <string name="empty_event">"Δεν δημιουργήθηκε κενό συμβάν."</string>
+    <string name="creating_event_with_guest">"Θα σταλούν προσκλήσεις."</string>
+    <string name="saving_event_with_guest">"Θα σταλούν ενημερώσεις."</string>
+    <string name="rsvp_accepted">"Απάντησε ναι."</string>
+    <string name="rsvp_tentative">"Απάντησε ίσως."</string>
+    <string name="rsvp_declined">"Απάντησε όχι."</string>
+    <string name="create_event_dialog_save">Aποθήκευση</string>
+    <string name="alert_title">Ειδοποιήσεις ημερολογίου</string>
+    <string name="foreground_notification_title">Ρύθμιση νέων υπενθυμίσεων…</string>
+    <string name="foreground_notification_channel_name">Εργασίες παρασκηνίου</string>
+    <string name="foreground_notification_channel_description">Απαιτούμενες ειδοποιήσεις για εσωτερικό συγχρονισμό. Μπορείτε να αποκρύψετε με ασφάλεια αυτό το κανάλι.</string>
+    <string name="event_info_title">Προβολή συμβάντος</string>
+    <string name="event_info_title_invite">Πρόσκληση συνάντησης</string>
+    <string name="edit_event_all_day_label">Ολοήμερο</string>
+    <string name="edit_event_calendar_label">Ημερολόγιο</string>
+    <string name="presence_label">Να εμφανίζομαι ως</string>
+    <string name="privacy_label">Απόρρητο</string>
+    <string name="reminders_label">Προσθήκη υπενθύμισης</string>
+    <string name="no_syncable_calendars">Δεν υπάρχουν ημερολόγια</string>
+    <string name="no_calendars_found">Για να μπορέσετε να προσθέσετε ένα συμβάν, πρέπει να προσθέσετε τουλάχιστον ένα ημερολόγιο στη συσκευή σας</string>
+    <string name="add_calendar">Προσθήκη ημερολογίου</string>
+    <string name="view_event_calendar_label">Ημερολόγιο:</string>
+    <string name="view_event_organizer_label">Διοργανωτής:</string>
+    <string name="choose_event_color_label">Επιλέξτε το χρώμα συμβάντος</string>
+    <string name="event_color_picker_dialog_title">Χρώμα συμβάντος</string>
+    <string name="event_color_set_to_default">Ορισμός ως προεπιλεγμένου χρώματος ημερολογίου</string>
+    <string name="calendar_color_picker_dialog_title">Χρώμα ημερολογίου</string>
+    <string name="calendar_square_color_picker_description">Επιλογέας χρώματος</string>
+    <string name="view_event_response_label">Θα παραβρεθείτε;</string>
+    <string name="response_yes">Ναι</string>
+    <string name="response_maybe">Ίσως</string>
+    <string name="response_no">Όχι</string>
+    <string name="email_guests_label">Αποστολή μηνύματος ηλεκτρονικού ταχυδρομείου σε προσκεκλημένους</string>
+    <string name="email_organizer_label">Αποστολή μηνύματος ηλεκτρονικού ταχυδρομείου στον οργανωτή</string>
+    <string name="email_picker_label">Αποστολή μηνύματος ηλεκτρονικού ταχυδρομείου με</string>
+    <string name="event_not_found">"Το συμβάν δεν βρέθηκε."</string>
+    <string name="map_label">Χάρτης</string>
+    <string name="no_map">Δεν υπάρχει καμιά εγκατεστημένη εφαρμογή χαρτών</string>
+    <string name="call_label">Κλήση</string>
+    <string name="quick_response_settings">Γρήγορες απαντήσεις</string>
+    <string name="quick_response_settings_summary">Επεξ.προεπ.απ.κατά την αποστ.μην.ηλ.ταχ.στους καλεσμ.</string>
+    <string name="quick_response_settings_edit_title">Γρήγορη απάντηση</string>
+    <string name="quick_response_dialog_title">Επιλογή γρήγορης απάντησης</string>
+    <string name="quick_response_email_failed">Αποτυχία εύρεσης προγράμματος ηλεκτρονικού ταχυδρομείου</string>
+    <string-array name="quick_response_defaults">
+        <item>Άφιξη με μια μικρή καθυστέρηση.</item>
+        <item>Θα είμαι εκεί σε 10 λεπτά.</item>
+        <item>Προχωρήστε και συνεχίστε χωρίς εμένα.</item>
+        <item>Λυπάμαι, δεν θα καταφέρω να παρευρεθώ. Θα πρέπει να επαναπρογραμματίσουμε τη συνάντηση.</item>
+    </string-array>
+    <string name="quick_response_custom_msg">Συντάξτε τη δική σας…</string>
+    <string name="event_info_organizer">Διοργανωτής:</string>
+    <string name="event_info_reminders_label">Υπενθυμίσεις</string>
+    <string name="agenda_today">Σήμερα, <xliff:g id="DATE">%1$s</xliff:g></string>
+    <string name="agenda_yesterday">Χθες, <xliff:g id="DATE">%1$s</xliff:g></string>
+    <string name="agenda_tomorrow">Αύριο, <xliff:g id="DATE">%1$s</xliff:g></string>
+    <string name="loading">Φόρτωση...</string>
+    <string name="show_older_events">Αγγίξτε για την προβολή συμβάντων πριν από <xliff:g id="OLDEST_SEARCH_RANGE">%1$s</xliff:g></string>
+    <string name="show_newer_events">Αγγίξτε για την προβολή συμβάντων μετά από <xliff:g id="NEWEST_SEARCH_RANGE">%1$s</xliff:g></string>
+    <string name="search_title">Αναζήτηση στα ημερολόγιά μου</string>
+    <string name="edit_event_label">"Λεπτομέρειες"</string>
+    <string name="edit_label">"Επεξ/σία"</string>
+    <string name="delete_label">"Διαγραφή"</string>
+    <string name="duplicate_label">Δημιουργία διπλότυπου</string>
+    <string name="save_label">Ολοκληρώθηκε</string>
+    <string name="discard_label">Ακύρωση</string>
+    <string name="dismiss_all_label">"Παράβλεψη όλων"</string>
+    <string name="snooze_label">"Αναβολή"</string>
+    <string name="does_not_repeat">Συμβάν που δεν επαναλαμβάνεται</string>
+    <string name="endByDate">; έως τις <xliff:g id="DATE">%s</xliff:g></string>
+    <plurals name="endByCount">
+        <item quantity="one">; για μία φορά</item>
+        <item quantity="other">; για <xliff:g id="NUMBER">%d</xliff:g> φορές</item>
+    </plurals>
+    <plurals name="daily">
+        <item quantity="one">Ημερησίως</item>
+        <item quantity="other">Κάθε <xliff:g id="NUMBER">%d</xliff:g> ημέρες</item>
+    </plurals>
+    <string name="every_weekday">"Καθημερινά (Δευ-Παρ)"</string>
+    <plurals name="weekly">
+        <item quantity="one">Κάθε εβδομάδα, μέρα <xliff:g id="DAYS_OF_WEEK">%2$s</xliff:g></item>
+        <item quantity="other">Κάθε εβδομάδες <xliff:g id="NUMBER">%1$d</xliff:g>, μέρες <xliff:g id="DAYS_OF_WEEK">%2$s</xliff:g></item>
+    </plurals>
+    <string name="monthly">Μηνιαία</string>
+    <string name="yearly_plain">Ετήσια</string>
+    <string name="custom" product="default">"Προσαρμοσμένο (δεν είναι δυνατή η προσαρμογή στο τηλέφωνο)"</string>
+    <string name="modify_event">Αλλαγή μόνο αυτού του συμβάντος</string>
+    <string name="modify_all">Αλλαγή όλων των συμβάντων στη σειρά.</string>
+    <string name="modify_all_following">Αλλαγή αυτού και όλων των μελλοντικών συμβάντων</string>
+    <string name="new_event_dialog_label">"Νέο συμβάν"</string>
+    <string name="new_event_dialog_option">"Νέο συμβάν"</string>
+    <string name="delete_this_event_title">Διαγραφή αυτού του συμβάντος;</string>
+    <string name="delete_recurring_event_title">Διαγραφή <xliff:g id="EVENTTITLE">%s</xliff:g>;</string>
+    <string name="change_response_title">Αλλαγή απάντησης</string>
+    <string name="preferences_title">"Ρυθμίσεις"</string>
+    <string name="preferences_general_title">Ρυθμίσεις προβολής ημερολογίου</string>
+    <string name="preferences_month_view_portrait">Διάταξη προβολής μήνα (Πορτραίτο)</string>
+    <string name="preferences_month_view_landscape">Διάταξη προβολής μήνα (Τοπίο)</string>
+    <string name="preferences_theme">Θέμα</string>
+    <string name="preferences_system_theme">Προεπιλογή συστήματος</string>
+    <string name="preferences_light_theme">Φωτεινό</string>
+    <string name="preferences_dark_theme">Σκοτεινό</string>
+    <string name="preferences_black_theme">Μαύρο</string>
+    <string name="preferences_color">Βασικό χρώμα</string>
+    <string name="preferences_color_pick">Βασικό χρώμα</string>
+    <string name="preferences_real_event_colors">Χρήση πραγματικών χρωμάτων συμβάντων</string>
+    <string name="preferences_pure_black_night_mode">Απόλυτο μαύρο στη νυχτ. λειτουργία</string>
+    <string name="preferences_reminder_title">Ειδοποιήσεις και υπενθυμίσεις</string>
+    <string name="preferences_hide_declined_title">Απόκρυψη συμβάντων που έχουν απορριφθεί</string>
+    <string name="default_start_title">Προεπιλεγμένη προβολή</string>
+    <string name="display_options">Επιλογές προβολής</string>
+    <string name="display_time">Εμφάνιση ώρας</string>
+    <string name="display_location">Εμφάνιση τοποθεσίας</string>
+    <string name="maximum_number_of_lines">Μέγιστος αριθμός γραμμών στο συμβάν</string>
+    <string name="default_start_last">Τελευταία χρησιμοποιημένη προβολή</string>
+    <string name="preferences_week_start_day_title">Έναρξη εβδομάδας:</string>
+    <string name="preferences_week_start_day_dialog">Έναρξη εβδομάδας:</string>
+    <string name="preferences_days_per_week_title">Ημέρες ανά εβδομάδα</string>
+    <string name="preferences_days_per_week_dialog">Ημέρες ανά εβδομάδα</string>
+    <string name="preferences_default_event_duration_title">Προεπιλεγμένη διάρκεια συμβάντος</string>
+    <string name="preferences_clear_search_history_title">Εκκαθάριση ιστορικού αναζήτησης</string>
+    <string name="preferences_clear_search_history_summary">Κατάργηση όλων των αναζητήσεων που εκτελέσατε</string>
+    <string name="search_history_cleared">Έγινε εκκαθάριση ιστορικού αναζήτησης.</string>
+    <string name="preferences_alerts_title">Ειδοποιήσεις</string>
+    <string name="preferences_alerts_vibrateWhen_title">Δόνηση</string>
+    <string name="preferences_alerts_ringtone_title">Ήχος</string>
+    <string name="preferences_alerts_popup_title">Αναδυόμενη ειδοποίηση</string>
+    <string name="preferences_default_reminder_title">Προεπιλεγμένος χρόνος υπενθύμισης</string>
+    <string name="preferences_default_reminder_dialog">Προεπιλεγμένος χρόνος υπενθύμισης</string>
+    <string name="preferences_default_reminder_default">10</string>
+    <string name="preferences_use_home_tz_title">Χρ. βασικής ζώνης</string>
+    <string name="preferences_use_home_tz_descrip">Προβ.ημερ. και ωρών εκδηλ. στη βασ.ζώνη ώρας όταν ταξιδεύετε</string>
+    <string name="preferences_home_tz_title">Βασική ζώνη ώρας</string>
+    <string name="preferences_show_week_num_title">Εμφάνιση αριθμού εβδομάδας</string>
+    <string name="preferences_alerts_custom_snooze_delay_title">Καθυστέρηση αναβολής υπενθύμισης</string>
+    <string name="preferences_alerts_custom_snooze_delay_summary_on">Ερώτηση για την καθυστέρηση αναβολής όποτε αναβάλλετε υπενθυμίσεις</string>
+    <string name="preferences_alerts_custom_snooze_delay_summary_off">Να χρησιμοποιείται πάντα η προεπιλεγμένη καθυστέρηση αναβολής</string>
+    <string name="snooze_delay_dialog_title">Ορισμός καθυστέρησης αναβολής</string>
+    <string name="preferences_default_snooze_delay_title">Προεπιλεγμένος χρόνος καθυστέρησης αναβολής</string>
+    <string name="preferences_default_snooze_delay_dialog">Προεπιλεγμένη καθυστέρηση αναβολής</string>
+    <string name="app_copyright">\u00a9 2015-<xliff:g>%1$s</xliff:g> The Etar Project. Portions \u00a9 2005-<xliff:g>%1$s</xliff:g> The Android Open Source Project.</string>
+    <string name="authors">Δημιουργοί</string>
+    <string name="changelog">Αρχείο αλλαγών</string>
+    <string name="license">Άδεια χρήσης</string>
+    <string name="preferences_build_version">Έκδοση Build</string>
+    <string name="preferences_issues">Αναφορά προβλημάτων</string>
+    <string name="source_code">Πηγαίος κώδικας</string>
+    <plurals name="month_more_events">
+        <item quantity="one">"+1"</item>
+        <item quantity="other">+<xliff:g id="NUMBER">%d</xliff:g></item>
+    </plurals>
+    <string name="gadget_no_events">Δεν υπάρχουν επερχόμενα συμβάντα ημερολογίου</string>
+    <string name="preferences_experimental_category">Σε πειραματικό στάδιο</string>
+    <string name="preferences_reminders_responded_label">Παράβλεψη υπενθυμίσεων</string>
+    <string name="preferences_reminders_responded_dialog">Παράβλεψη υπενθυμίσεων</string>
+    <string name="copy_db">Αποστολή βάσης δεδομένων</string>
+    <string name="directory_searching_fmt">Αναζήτηση <xliff:g id="DOMAIN">%s</xliff:g>…</string>
+    <string name="accessibility_remove_attendee">Κατάργηση συμμετέχοντα</string>
+    <string name="accessibility_pick_start_date">Ημερομηνία έναρξης</string>
+    <string name="accessibility_pick_start_time">Ώρα έναρξης</string>
+    <string name="accessibility_pick_end_date">Ημερομηνία λήξης</string>
+    <string name="accessibility_pick_end_time">Ώρα λήξης</string>
+    <string name="accessibility_pick_time_zone">Ζώνη ώρας</string>
+    <string name="accessibility_pick_recurrence">Επαναλαμβανόμενο συμβάν</string>
+    <string name="accessibility_add_reminder">Προσθήκη υπενθύμισης</string>
+    <string name="accessibility_remove_reminder">Κατάργηση υπενθύμισης</string>
+    <string name="accessibility_add_attendee">Προσθήκη συμμετέχοντος</string>
+    <string name="accessibility_all_day">Ολοήμερο συμβάν</string>
+    <string name="accessibility_reminder_time">Ώρα υπενθύμισης</string>
+    <string name="accessibility_reminder_type">Τύπος υπενθύμισης</string>
+    <string name="accessibility_reminder_showmeas">Να εμφανίζομαι ως</string>
+    <string name="accessibility_reminder_privacy">Απόρρητο</string>
+    <string name="day_view_new_event_hint">+ Νέο συμβάν</string>
+    <string name="template_announce_item_index">Συμβάντα <xliff:g id="ITEM_INDEX">%1$s</xliff:g> από <xliff:g id="ITEM_COUNT">%2$s</xliff:g>.</string>
+    <plurals name="Nevents">
+        <item quantity="one">1 συμβάν</item>
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> συμβάντα</item>
+    </plurals>
+    <plurals name="N_remaining_events">
+        <item quantity="one">+1 συμβάν</item>
+        <item quantity="other">+<xliff:g id="COUNT">%d</xliff:g> συμβάντα</item>
+    </plurals>
+    <string name="acessibility_selected_marker_description">Επιλεγμένο συμβάν</string>
+    <plurals name="recurrence_interval_daily">
+        <item quantity="one">Κάθε <xliff:g id="COUNT">%d</xliff:g> ημέρα</item>
+        <item quantity="other">Κάθε <xliff:g id="COUNT">%d</xliff:g> ημέρες</item>
+    </plurals>
+    <plurals name="recurrence_interval_weekly">
+        <item quantity="one">Κάθε <xliff:g id="COUNT">%d</xliff:g> εβδομάδα</item>
+        <item quantity="other">Κάθε <xliff:g id="COUNT">%d</xliff:g> εβδομάδες</item>
+    </plurals>
+    <plurals name="recurrence_interval_monthly">
+        <item quantity="one">Κάθε <xliff:g id="COUNT">%d</xliff:g> μήνα</item>
+        <item quantity="other">Κάθε <xliff:g id="COUNT">%d</xliff:g> μήνες</item>
+    </plurals>
+    <plurals name="recurrence_interval_yearly">
+        <item quantity="one">Κάθε <xliff:g id="COUNT">%d</xliff:g> έτος</item>
+        <item quantity="other">Κάθε <xliff:g id="COUNT">%d</xliff:g> έτη</item>
+    </plurals>
+    <string name="recurrence_month_pattern_by_day">ίδια ημέρα κάθε μήνα</string>
+    <string name="recurrence_end_continously">Για πάντα</string>
+    <string name="recurrence_end_date_label">Μέχρι μια ορισμένη ημ/νία</string>
+    <string name="recurrence_end_date">Έως τις <xliff:g id="DATE">%s</xliff:g></string>
+    <string name="recurrence_end_count_label">Για έναν αριθμό συμβάντων</string>
+    <plurals name="recurrence_end_count">
+        <item quantity="one">Για <xliff:g id="EVENT_COUNT">%d</xliff:g> συμβάν</item>
+        <item quantity="other">Για <xliff:g id="EVENT_COUNT">%d</xliff:g> συμβάντα</item>
+    </plurals>
+    <string name="acessibility_recurrence_choose_end_date_description">αλλαγή ημερομηνίας λήξης</string>
+    <string name="user_rejected_calendar_write_permission">Το ημερολόγιο απαιτεί δικαιώματα ανάγνωσης και εγγραφής ημερολογίου για να λειτουργήσει σωστά. Παρακαλώ προσπαθήστε ξανά.</string>
+    <string name="calendar_permission_not_granted">Τα απαραίτητα δικαιώματα απορρίφθηκαν, ενεργοποιήστε τα από τις Ρυθμίσεις για να επεξεργαστείτε συμβάντα</string>
+    <string name="visibility_default">Προεπιλογή</string>
+    <string name="visibility_confidential">Εμπιστευτικό</string>
+    <string name="visibility_private">Απόρρητο</string>
+    <string name="visibility_public">Δημόσιο</string>
+    <string name="two_days">2 ημέρες</string>
+    <string name="three_days">3 ημέρες</string>
+    <string name="four_days">4 ημέρες</string>
+    <string name="five_days">5 ημέρες</string>
+    <string name="six_days">6 ημέρες</string>
+    <string name="seven_days">7 ημέρες</string>
+    <string name="zero_minutes">0 λεπτά</string>
+    <string name="fifteen_minutes">15 λεπτά</string>
+    <string name="thirty_minutes">30 λεπτά</string>
+    <string name="one_hour">1 ώρα</string>
+    <string name="one_and_a_half_hours">1,5 ώρα</string>
+    <string name="two_hours">2 ώρες</string>
+    <string name="error_generating_ics">Αντιμετωπίστηκε πρόβλημα κατά την κοινή χρήση του συμβάντος</string>
+    <string name="cal_share_intent_title">Αποστολή συμβάντος προς:</string>
+    <string name="cal_export_event_sdcard_title">Εξαγωγή στην κάρτα SD</string>
+    <string name="cal_export_succ_msg">Επιτυχής εξαγωγή του συμβάντος: %1$s</string>
+    <string name="cal_import_menu_title">Εισαγωγή συμβάντος</string>
+    <string name="cal_nothing_to_import">Τίποτα για εισαγωγή</string>
+    <string name="cal_import_error_msg">Αποτυχία εισαγωγής στο ημερολόγιο</string>
+    <string name="cal_import_error_time_zone_msg">Δεν είναι δυνατή η κατανόηση της δεδομένης ζώνης ώρας: %s</string>
+    <string name="cal_import_error_date_msg">Δεν είναι δυνατή η κατανόηση της δεδομένης ημερομηνίας: %s</string>
+    <string name="cal_pick_ics">Επιλέξτε αρχείο για εισαγωγή</string>
+    <string name="show_time_no">Να μην εμφανίζεται η ώρα</string>
+    <string name="show_time_start">Μόνο ώρα έναρξης</string>
+    <string name="show_time_start_end">Ώρα έναρξης και λήξης</string>
+    <string name="show_time_start_end_below">Ώρα έναρξης και λήξης κάτω από το συμβάν</string>
+    <string name="preferences_calendar_no_display_name">Ανώνυμο ημερολόγιο</string>
+    <string name="preferences_calendar_account">Λογαριασμός %1$s</string>
+    <string name="preferences_calendar_account_local">Ημερολόγιο χωρίς σύνδεση</string>
+    <string name="preferences_calendar_configure_account">Ρύθμιση ημερολογίου στο λογαριασμό %1$s</string>
+    <string name="preferences_calendar_number_of_events">%1$d συμβάντα</string>
+    <string name="preferences_calendar_delete">Διαγραφή ημερολογίου</string>
+    <string name="preferences_calendar_display_name">Αλλαγή ονόματος</string>
+    <string name="preferences_calendar_info_category">Πληροφορίες ημερολογίου</string>
+    <string name="preferences_calendar_color">Χρώμα</string>
+    <string name="preferences_calendar_visible">Προβολή συμβάντων</string>
+    <string name="preferences_manage_notifications">Διαχείριση ειδοποιήσεων</string>
+    <string name="preferences_calendar_synchronize">Συγχρονισμός αυτού του ημερολογίου</string>
+    <string name="preferences_calendar_color_warning_title">Προσοχή</string>
+    <string name="preferences_calendar_color_warning_message">Η αλλαγή του χρώματος μπορεί να αντιστραφεί όταν συγχρονιστεί ξανά το ημερολόγιο.\n\nΜπορείτε να απενεργοποιήσετε τη \"Διαχείριση χρωμάτων ημερολογίου\" στο DAVx⁵ για να αποφευχθεί αυτό.</string>
+    <string name="preferences_calendar_color_warning_button">Καταλαβαίνω</string>
+    <string name="preferences_calendar_delete_message">Θέλετε σίγουρα να διαγράψετε το ημερολόγιο;</string>
+    <string name="preferences_calendar_delete_delete">Διαγραφή ημερολογίου</string>
+    <string name="preferences_calendar_delete_cancel">Άκυρο</string>
+    <string name="preferences_list_calendar_summary_sync_off">Μη συγχρονισμένο</string>
+    <string name="preferences_list_calendar_summary_invisible">Τα συμβάντα δεν εμφανίζονται</string>
+    <string name="preferences_list_general">Γενικές ρυθμίσεις</string>
+    <string name="preferences_list_add_remote">Προσθήκη ημερολογίου CalDAV</string>
+    <string name="preferences_list_add_remote_etesync">Προσθήκη ημερολογίου EteSync</string>
+    <string name="preferences_list_add_offline">Προσθήκη ημερολογίου χωρίς σύνδεση</string>
+    <string name="preferences_list_add_offline_title">Προσθήκη ημερολογίου χωρίς σύνδεση</string>
+    <string name="preferences_list_add_offline_error_empty">Εισάγετε ένα όνομα ημερολογίου!</string>
+    <string name="preferences_list_add_offline_message">Τα ημερολόγια εκτός σύνδεσης ΔΕΝ συγχρονίζονται με μια υπηρεσία cloud και διατίθενται μόνο στο τηλέφωνό σας.</string>
+    <string name="preferences_list_add_offline_button">Προσθήκη ημερολογίου</string>
+    <string name="preferences_list_add_offline_name">Όνομα</string>
+    <string name="preferences_list_add_offline_cancel">Άκυρο</string>
+    <string name="preferences_menu_about">Σχετικά με το Ημερολόγιο</string>
+    <string name="offline_account_name">Ημερολόγιο χωρίς σύνδεση</string>
+    <string name="after_start_of_event">μετά την έναρξη του συμβάντος</string>
+    <string name="preferences_do_not_check_battery_optimization">Να μη γίνεται έλεγχος για βελτιστοποίηση της μπαταρίας</string>
+    <string name="preferences_do_not_check_battery_optimization_summary">Χρησιμοποιήστε το με δική σας ευθύνη! Οι ειδοποιήσεις δε θα λειτουργούν πλέον, το widget δε θα ενημερώνεται πλέον και οι υπηρεσίες παρασκηνίου θα κολλήσουν. Αλλά δε θα ερωτηθείτε ξανά αν θέλετε να ενεργοποιήσετε την υπηρεσία παρασκηνίου.</string>
+    <string name="calendars">Ημερολόγια</string>
+    <string name="discard_event_changes">Θέλετε να απορρίψετε τις αλλαγές;</string>
+    <string name="discard">Απόρριψη</string>
+    <string name="cancel">Ακύρωση</string>
+</resources>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="bluetooth_sap_notif_title" msgid="7854456947435963346">"ব্লুটুথৰ ছিম এক্সেছ"</string>
+    <string name="bluetooth_sap_notif_ticker" msgid="7295825445933648498">"ব্লুটুথৰ ছিম এক্সেছ"</string>
+    <string name="bluetooth_sap_notif_message" msgid="1004269289836361678">"সংযোগ বিচ্ছিন্ন কৰিবলৈ ক্লায়েণ্টক অনুৰোধ কৰিবনে?"</string>
+    <string name="bluetooth_sap_notif_disconnecting" msgid="6041257463440623400">"সংযোগ বিচ্ছিন্ন কৰিবলৈ ক্লায়েণ্টৰ অপেক্ষা কৰি থকা হৈছে"</string>
+    <string name="bluetooth_sap_notif_disconnect_button" msgid="3059012556387692616">"বিচ্ছিন্ন কৰক"</string>
+    <string name="bluetooth_sap_notif_force_disconnect_button" msgid="2239425242376623998">"বলেৰে সংযোগ বিচ্ছিন্ন কৰক"</string>
+</resources>

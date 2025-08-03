@@ -1,0 +1,15 @@
+<!--
+This file is just a copy of hardware/interfaces/wifi/1.6/default/android.hardware.wifi@1.0-service.xml.
+Attempts to install a valid vendor apex that includes this file for a vintf fragment should pass.
+-->
+<manifest version="1.0" type="device">
+    <hal format="hidl">
+        <name>android.hardware.wifi</name>
+        <transport>hwbinder</transport>
+        <version>1.6</version>
+        <interface>
+            <name>IWifi</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+</manifest>

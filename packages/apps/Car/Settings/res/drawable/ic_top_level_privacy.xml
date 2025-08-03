@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <com.android.car.settings.common.TopLevelIconShapeDrawable
+            android:width="@dimen/icon_size"
+            android:height="@dimen/icon_size"
+            android:tint="@color/top_level_privacy_background"/>
+    </item>
+    <item
+        android:start="@dimen/top_level_foreground_icon_inset"
+        android:top="@dimen/top_level_foreground_icon_inset"
+        android:end="@dimen/top_level_foreground_icon_inset"
+        android:bottom="@dimen/top_level_foreground_icon_inset">
+        <vector
+            android:width="@dimen/icon_size"
+            android:height="@dimen/icon_size"
+            android:viewportHeight="36.0"
+            android:viewportWidth="36.0">
+            <path
+                android:fillColor="@color/top_level_privacy_icon"
+                android:fillType="evenOdd"
+                android:pathData="M18 2L4 8V17C4 25.325 9.97333 33.11 18 35C26.0267 33.11 32 25.325 32 17V8L18 2ZM28.8889 18.485V9.95L18 5.285L7.11111 9.95V18.5C7.81818 24.5 12.3434 29.9546 18 31.895C23.7867 30.17 28.0644 24.665 28.8889 18.485ZM18 9.22727C15.9686 9.22727 14.3232 10.8139 14.3232 12.7727C14.3232 14.7316 15.9686 16.3182 18 16.3182C20.0314 16.3182 21.6768 14.7316 21.6768 12.7727C21.6768 10.8139 20.0314 9.22727 18 9.22727ZM18 17.2045C15.5458 17.2045 10.6465 18.3923 10.6465 20.75V23.4091H25.3535V20.75C25.3535 18.3923 20.4542 17.2045 18 17.2045Z"/>
+        </vector>
+    </item>
+</layer-list>

@@ -1,0 +1,101 @@
+#
+#  Copyright 2021 Google, Inc.
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at:
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#
+#
+source_set("BluetoothStackManagerSources") {
+  sources = [
+    "entry.cc",
+    "stack.cc",
+  ]
+
+  include_dirs = [
+    "//bt/system",
+    "//bt/system/btif/include",
+    "//bt/system/gd",
+    "//bt/system/gd/rust/shim",
+    "//bt/system/stack/include",
+    "//bt/system/types",
+  ]
+
+  deps = [
+    "//bt/system/gd:BluetoothGeneratedDumpsysDataSchema_h",
+    "//bt/system/gd/common:BluetoothCommonSources",
+    "//bt/system/gd/dumpsys/bundler:BluetoothGeneratedBundlerSchema_h_bfbs",
+    "//bt/system/gd/hci:BluetoothHciSources",
+    "//bt/system/gd/os:BluetoothOsSources_linux_generic",
+    "//bt/system/gd/packet:BluetoothPacketSources",
+    "//bt/system/gd/rust/shim:libbluetooth_rust_interop",
+    "//bt/system/gd/rust/topshim:libbluetooth_topshim",
+    "//bt/system/osi",
+    "//bt/system/pdl:BluetoothGeneratedPackets_h",
+    "//bt/system/stack",
+    "//bt/system/types",
+  ]
+
+  configs += [
+    "//bt/system:target_defaults",
+    "//bt/system/log:log_defaults",
+  ]
+}
+source_set("LibBluetoothShimSources") {
+  sources = [
+    "acl.cc",
+    "acl_api.cc",
+    "acl_legacy_interface.cc",
+    "btm.cc",
+    "btm_api.cc",
+    "config.cc",
+    "controller.cc",
+    "distance_measurement_manager.cc",
+    "dumpsys.cc",
+    "hci_layer.cc",
+    "l2c_api.cc",
+    "le_advertising_manager.cc",
+    "le_scanning_manager.cc",
+    "metric_id_api.cc",
+    "metrics_api.cc",
+    "shim.cc",
+    "utils.cc",
+  ]
+
+  include_dirs = [
+    "//bt/system",
+    "//bt/system/btif/include",
+    "//bt/system/gd",
+    "//bt/system/gd/rust/shim",
+    "//bt/system/stack/include",
+    "//bt/system/types",
+  ]
+
+  deps = [
+    "//bt/system/gd:BluetoothGeneratedDumpsysDataSchema_h",
+    "//bt/system/gd/common:BluetoothCommonSources",
+    "//bt/system/gd/dumpsys/bundler:BluetoothGeneratedBundlerSchema_h_bfbs",
+    "//bt/system/gd/hci:BluetoothHciSources",
+    "//bt/system/gd/os:BluetoothOsSources_linux_generic",
+    "//bt/system/gd/packet:BluetoothPacketSources",
+    "//bt/system/gd/rust/shim:libbluetooth_rust_interop",
+    "//bt/system/gd/rust/topshim:libbluetooth_topshim",
+    "//bt/system/osi",
+    "//bt/system/pdl:BluetoothGeneratedPackets_h",
+    "//bt/system/stack",
+    "//bt/system/types",
+  ]
+
+  configs += [
+    "//bt/system:target_defaults",
+    "//bt/system/log:log_defaults",
+  ]
+}

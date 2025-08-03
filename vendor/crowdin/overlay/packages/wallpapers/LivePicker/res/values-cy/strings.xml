@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+* Copyright (C) 2008 The Android Open Source Project
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="application_name">Dewisydd Papur Wal Byw</string>
+    <string name="live_wallpaper_picker_title">Dewis papur wal byw</string>
+    <string name="live_wallpaper_picker_label">Papurau Wal Byw</string>
+    <string name="live_wallpaper_preview_title">Rhagolwg papur wal byw</string>
+    <string name="configure_wallpaper">Gosodiadau…</string>
+    <string name="delete_live_wallpaper">Dileu</string>
+    <string name="preview">Rhagolwg</string>
+    <string name="wallpaper_instructions">Gosod papur wal</string>
+    <string name="live_wallpaper_empty">Dim papurau wal byw</string>
+    <string name="set_live_wallpaper">Gosod papur wal</string>
+    <string name="wallpaper_title_and_author"><xliff:g id="title" example="Galaxy">%1$s</xliff:g> gan <xliff:g id="author" example="Google">%2$s</xliff:g></string>
+    <string name="live_wallpaper_loading">Yn llwytho papur wal byw…</string>
+    <string name="which_wallpaper_option_home_screen">Sgrin gartref</string>
+    <string name="which_wallpaper_option_home_screen_and_lock_screen">Sgrin gartref a sgrin cloi</string>
+    <string name="explore_further">Archwilio</string>
+    <string name="tab_info">Gwybodaeth</string>
+    <string name="tab_customize">Addasu</string>
+    <string name="delete_wallpaper_confirmation">Dileu\u2019r papur wal hwn o dy ffôn?</string>
+    <string name="collapse_attribution_panel">Cwympo panel gwybodaeth papur wal</string>
+    <string name="expand_attribution_panel">Ehangu panel gwybodaeth papur wal</string>
+</resources>

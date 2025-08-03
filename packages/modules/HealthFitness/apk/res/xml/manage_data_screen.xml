@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <com.android.healthconnect.controller.shared.preference.HealthPreference
+        android:key="auto_delete"
+        android:title="@string/auto_delete_title"/>
+    <com.android.healthconnect.controller.shared.preference.HealthPreference
+        android:key="data_sources_and_priority"
+        android:title="@string/data_sources_and_priority_title"/>
+    <com.android.healthconnect.controller.shared.preference.HealthPreference
+        android:key="set_units"
+        android:title="@string/set_units_title"/>
+</PreferenceScreen>

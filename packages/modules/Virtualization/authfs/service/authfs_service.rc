@@ -1,0 +1,6 @@
+service authfs_service /system/bin/authfs_service
+    disabled
+    socket authfs_service stream 0666 root system
+    # SYS_ADMIN capability allows to mount FUSE filesystem
+    capabilities SYS_ADMIN
+    user root

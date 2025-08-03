@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label">Download-Manager</string>
+    <string name="storage_description">Downloads</string>
+    <string name="permlab_downloadManager">Zougrëff op den Download-Manager</string>
+    <string name="permdesc_downloadManager">Erlaabt der App den Zougrëff op den Download-Manager fir Fichieren erofzelueden. Dës Funktioun ka vu béisaartegen Applikatiounen dozou benotzt ginn, d\'Erofluetvirgäng z\'ënnerbriechen an op privat Daten zouzegräifen.</string>
+    <string name="permlab_downloadManagerAdvanced">Erweidert Downloadmanager-Funktiounen</string>
+    <string name="permdesc_downloadManagerAdvanced">Erlaabt der App den Zougrëff op déi erweidert Funktioune vum Download-Manager. Béisaarteg Applikatioune kënnen dozou benotzt ginn, d\'Erofluetvirgäng z\'ënnerbriechen an op privat Daten zouzegräifen.</string>
+    <string name="permlab_downloadCompletedIntent">Download-Notifikatioune schécken</string>
+    <string name="permdesc_downloadCompletedIntent">Erlaabt der App, Notifikatiounen iwwer ofgeschloss Downloads ze schécken. Béisaarteg Appe kënnen dat benotze fir aner Appen déi Fichieren eroflueden auszetricksen.</string>
+    <string name="permlab_downloadCacheNonPurgeable">Plaz am Download-Tëschespäicher reservéieren</string>
+    <string name="permdesc_downloadCacheNonPurgeable">Erlaabt der App, Fichieren an en Tëschespäicher erofzelueden, deen net automatesch geläscht ka ginn, wann den Download-Manager méi Plaz brauch.</string>
+    <string name="permlab_downloadWithoutNotification">Fichieren ouni Notifikatioun eroflueden</string>
+    <string name="permdesc_downloadWithoutNotification">Erlaabt der App, Fichieren duerch den Download-Manger erofzelueden ouni datt dem Benotzer eng Notifikatioun ugewise gëtt.</string>
+    <string name="permlab_accessAllDownloads">Op all d\'System-Downloads zougräifen</string>
+    <string name="permdesc_accessAllDownloads">Erlaabt der App, all déi erofgeluede Fichieren unzekucken an z\'änneren, egal vu wéi enger App am System se gestart goufen.</string>
+    <string name="download_unknown_title">&lt;Ouni Titel&gt;</string>
+    <string name="notification_download_complete">Download ofgeschloss.</string>
+    <string name="notification_download_failed">Eroflueden net erfollegräich.</string>
+    <string name="notification_need_wifi_for_size">Downloadgréisst erfuerdert WLAN-Connectioun.</string>
+    <string name="notification_paused_in_background">Am Hannergrond pauséiert.</string>
+    <string name="wifi_required_title">Download ze grouss fir d\'Provider-Netzwierk</string>
+    <string name="wifi_recommended_title">An d\'Waardeschläif fir spéider setzen?</string>
+    <string name="button_queue_for_wifi">Waardeschläif</string>
+    <string name="button_cancel_download">Ofbriechen</string>
+    <string name="button_start_now">Elo starten</string>
+    <plurals name="notif_summary_active">
+        <item quantity="one">1 Fichier gëtt erofgelueden</item>
+        <item quantity="other"><xliff:g id="number">%d</xliff:g> Fichiere ginn erofgelueden</item>
+    </plurals>
+    <plurals name="notif_summary_waiting">
+        <item quantity="one">1 Fichier waart</item>
+        <item quantity="other"><xliff:g id="number">%d</xliff:g> Fichiere waarden</item>
+    </plurals>
+    <string name="download_remaining"><xliff:g id="duration" example="3 minutes">%s</xliff:g> iwwreg</string>
+    <string name="download_no_application_title">Fichier kann net opgemaach ginn</string>
+    <string name="root_downloads">Downloads</string>
+    <string name="download_queued">An der Waardeschläif</string>
+    <string name="download_running">Am Gaang</string>
+    <string name="download_error">Net erfollegräich</string>
+    <string name="download_running_percent">Am Gaang, <xliff:g id="percentage" example="50%">%s</xliff:g></string>
+</resources>

@@ -1,0 +1,68 @@
+#
+#  Copyright 2015 Google, Inc.
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at:
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#
+
+static_library("hci") {
+  sources = [
+    "src/buffer_allocator.cc",
+    "src/packet_fragmenter.cc",
+  ]
+
+  include_dirs = [
+    "include",
+    "//bt/system/",
+    "//bt/system/bta/include",
+    "//bt/system/stack/include",
+  ]
+
+  deps = [
+    "//bt/system/common",
+  ]
+
+  configs += [
+    "//bt/system:target_defaults",
+  ]
+}
+
+if (use.test) {
+  executable("net_test_hci") {
+    sources = [
+      "test/packet_fragmenter_test.cc",
+    ]
+
+    include_dirs = [
+      "//bt/system/",
+      "//bt/system/osi/test",
+      "//bt/system/stack/include",
+    ]
+
+    deps = [
+      "//bt/system/hci",
+      "//bt/system/osi",
+      "//bt/system/btcore",
+    ]
+
+    configs += [
+      "//bt/system:target_defaults",
+      "//bt/system:external_gtest_main",
+    ]
+
+    libs = [
+      "pthread",
+      "rt",
+      "dl",
+    ]
+  }
+}

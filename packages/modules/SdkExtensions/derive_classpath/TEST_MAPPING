@@ -1,0 +1,10 @@
+{
+  "presubmit": [
+    {
+      "name": "derive_classpath_test"
+    },
+    {
+      "name": "CtsClasspathsTestCases"
+    }
+  ]
+}

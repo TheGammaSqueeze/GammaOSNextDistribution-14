@@ -1,0 +1,252 @@
+{
+  "description": "An app registered source with shared filter keys, only keys in the shared_filter_data_keys will be shared with derived sources.",
+  "phflags_override": {
+    "measurement_enable_xna" : "true",
+    "web_context_client_allow_list" : "*",
+    "measurement_enable_shared_filter_data_keys_xna": "true"
+  },
+  "input": {
+    "sources": [
+      {
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech1.test",
+          "source_type": "navigation",
+          "registrant": "example.1s1.test"
+        },
+        "responses": [
+          {
+            "url": "https://www.ad-tech1.test",
+            "response": {
+              "Attribution-Reporting-Register-Source": {
+                "source_event_id": "1",
+                "destination": "android-app://example.2d1.test",
+                "priority": "100",
+                "expiry": "172801",
+                "filter_data": {
+                  "conversion_subdomain": [
+                    "electronics.megastore"
+                  ],
+                  "product": [
+                    "1234",
+                    "234"
+                  ],
+                  "ctid": [
+                    "id"
+                  ],
+                  "ignored_key": [
+                    "value1"
+                  ]
+                },
+                "aggregation_keys": {
+                  "campaignCounts": "0x159",
+                  "geoValue": "0x5"
+                },
+                "shared_filter_data_keys": [
+                  "conversion_subdomain",
+                  "product",
+                  "ctid"
+                ],
+                "debug_key": "111"
+              },
+              "Location": null,
+              "Attribution-Reporting-Redirect": null
+            }
+          }
+        ],
+        "timestamp": "800000000001"
+      },
+      {
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech2.test",
+          "source_type": "navigation",
+          "registrant": "example.1s2.test"
+        },
+        "responses": [
+          {
+            "url": "https://www.ad-tech2.test",
+            "has_ad_id_permission": true,
+            "response": {
+              "Attribution-Reporting-Register-Source": {
+                "source_event_id": "1",
+                "destination": "android-app://example.2d1.test",
+                "priority": "50",
+                "expiry": "172801",
+                "filter_data": {
+                  "conversion_subdomain": [
+                    "electronics.megastore"
+                  ],
+                  "product": [
+                    "1234",
+                    "234"
+                  ],
+                  "ctid": [
+                    "id"
+                  ],
+                  "ignored_key": [
+                    "value1"
+                  ]
+                },
+                "aggregation_keys": {
+                  "campaignCounts": "0x159",
+                  "geoValue": "0x5"
+                },
+                "shared_aggregation_keys": [
+                  "campaignCounts",
+                  "geoValue"
+                ],
+                "shared_filter_data_keys": [
+                  "conversion_subdomain",
+                  "product",
+                  "ctid"
+                ],
+                "debug_key": "999",
+                "shared_debug_key": "112"
+              },
+              "Location": null,
+              "Attribution-Reporting-Redirect": null
+            }
+          }
+        ],
+        "timestamp": "800000000001"
+      }
+    ],
+    "triggers": [
+      {
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech1.test",
+          "registrant": "example.2d1.test"
+        },
+        "responses": [
+          {
+            "url": "https://www.ad-tech1.test",
+            "has_ad_id_permission": true,
+            "response": {
+              "Attribution-Reporting-Register-Trigger": {
+                "event_trigger_data": [
+                  {
+                    "trigger_data": "2",
+                    "priority": "101"
+                  }
+                ],
+                "aggregatable_trigger_data": [
+                  {
+                    "key_piece": "0x400",
+                    "source_keys": [
+                      "campaignCounts"
+                    ],
+                    "filters": {
+                      "product": [
+                        "1234"
+                      ],
+                      "ctid": [
+                        "id"
+                      ],
+                      "ignored_key": [
+                        "value2"
+                      ]
+                    },
+                    "not_filters": {
+                      "product": [
+                        "100"
+                      ]
+                    }
+                  },
+                  {
+                    "key_piece": "0xA80",
+                    "source_keys": [
+                      "geoValue",
+                      "notMatch"
+                    ]
+                  },
+                  {
+                    "key_piece": "0x300",
+                    "source_keys": [
+                      "geoValue"
+                    ]
+                  },
+                  {
+                    "key_piece": "0x200",
+                    "source_keys": [
+                      "campaignCounts",
+                      "geoValue"
+                    ],
+                    "filters": {
+                      "product": [
+                        "0"
+                      ]
+                    }
+                  }
+                ],
+                "aggregatable_values": {
+                  "campaignCounts": 32768,
+                  "geoValue": 1664
+                },
+                "attribution_config": [
+                  {
+                    "source_network": "enrollment-id-ad-tech2.test",
+                    "source_priority_range": {
+                      "start": 1,
+                      "end": 1000
+                    },
+                    "source_filters": {
+                      "source_type": [
+                        "navigation"
+                      ]
+                    },
+                    "priority": "200",
+                    "expiry": "172801"
+                  }
+                ],
+                "debug_key": "211"
+              },
+              "Location": null,
+              "Attribution-Reporting-Redirect": null
+            }
+          }
+        ],
+        "timestamp": "800000600001"
+      }
+    ]
+  },
+  "output": {
+    "event_level_results": [],
+    "aggregatable_results": [
+      {
+        "report_time": "800004200001",
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/report-aggregate-attribution",
+        "payload": {
+          "attribution_destination": "android-app://example.2d1.test",
+          "source_site": "android-app://example.1s2.test",
+          "histograms": [
+            {
+              "key": "0x559",
+              "value": 32768
+            },
+            {
+              "key": "0xb85",
+              "value": 1664
+            }
+          ],
+          "source_debug_key": "112",
+          "trigger_debug_key": "211",
+          "source_registration_time": "799977600"
+        }
+      }
+    ],
+    "debug_aggregatable_results": [{
+      "report_time": "800000600001",
+      "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/debug/report-aggregate-attribution",
+      "payload": {
+        "attribution_destination": "android-app://example.2d1.test",
+        "source_site": "android-app://example.1s2.test",
+        "histograms": [
+          {"key": "0x559", "value": 32768},
+          {"key": "0xb85", "value": 1664}
+        ],
+        "source_debug_key": "112",
+        "trigger_debug_key": "211",
+        "source_registration_time": "799977600"
+      }
+    }]
+  }
+}

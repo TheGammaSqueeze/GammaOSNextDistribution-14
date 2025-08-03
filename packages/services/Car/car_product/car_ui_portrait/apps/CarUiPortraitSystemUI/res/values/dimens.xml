@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+    <dimen name="statusbar_sensor_text_width">88dp</dimen>
+
+    <dimen name="car_quick_controls_footer_button_vertical_margin">10dp</dimen>
+    <dimen name="car_quick_controls_footer_button_horizontal_margin">24dp</dimen>
+    <dimen name="car_quick_controls_footer_button_min_height">56dp</dimen>
+    <dimen name="car_quick_controls_footer_button_radius">@dimen/car_portrait_ui_button_radius</dimen>
+    <dimen name="car_quick_controls_entry_points_start_margin">24dp</dimen>
+    <dimen name="car_profile_switcher_padding_top">16dp</dimen>
+    <dimen name="car_profile_quick_controls_panel_width">700dp</dimen>
+
+    <dimen name="clock_elevation">5dp</dimen>
+
+    <dimen name="hvac_container_padding">32dp</dimen>
+    <dimen name="hvac_panel_handle_bar_container_height">16dp</dimen>
+    <dimen name="hvac_panel_handle_bar_container_width">728dp</dimen>
+    <dimen name="hvac_panel_handle_bar_height">6dp</dimen>
+    <dimen name="hvac_panel_handle_bar_margin_top">17dp</dimen>
+    <dimen name="hvac_panel_handle_bar_width">120dp</dimen>
+    <dimen name="hvac_panel_bg_radius">@dimen/car_portrait_ui_window_rounded_corner_radius</dimen>
+    <dimen name="hvac_panel_stroke_width">2dp</dimen>
+    <dimen name="hvac_panel_off_button_radius">24dp</dimen>
+    <dimen name="hvac_panel_on_button_radius">24dp</dimen>
+    <dimen name="hvac_panel_seek_bar_radius">44dp</dimen>
+    <dimen name="hvac_panel_full_expanded_height">392dp</dimen>
+    <dimen name="hvac_panel_title_margin">36dp</dimen>
+    <dimen name="hvac_panel_buttons_guideline">@dimen/hvac_panel_handle_bar_container_height</dimen>
+    <dimen name="hvac_panel_icon_dimen">48dp</dimen>
+    <dimen name="hvac_panel_tall_icon_dimen">108dp</dimen>
+    <dimen name="hvac_panel_wide_icon_dimen">96dp</dimen>
+    <dimen name="hvac_panel_button_dimen">88dp</dimen>
+    <dimen name="hvac_panel_long_button_dimen">208dp</dimen>
+    <dimen name="hvac_panel_airflow_button_width_1">210dp</dimen>
+    <dimen name="hvac_panel_airflow_button_width_2">332dp</dimen>
+    <dimen name="hvac_panel_slider_width">696dp</dimen>
+    <dimen name="hvac_panel_button_external_margin">24dp</dimen>
+    <dimen name="hvac_panel_button_external_top_margin">16dp</dimen>
+    <dimen name="hvac_panel_button_external_bottom_margin">32dp</dimen>
+    <dimen name="hvac_panel_button_internal_margin">32dp</dimen>
+    <dimen name="hvac_temperature_text_size">56sp</dimen>
+    <dimen name="hvac_temperature_text_padding">12dp</dimen>
+    <dimen name="hvac_temperature_button_size">64dp</dimen>
+
+    <item name="hvac_heat_or_cool_off_alpha" format="float" type="dimen">0.3</item>
+
+    <dimen name="system_bar_icon_drawing_size">56dp</dimen>
+    <dimen name="system_bar_button_size">88dp</dimen>
+    <!-- Margin between the system bar buttons -->
+    <dimen name="system_bar_button_margin">16dp</dimen>
+    <!-- Padding between the system bar button and the icon within it -->
+    <dimen name="system_bar_button_padding">16dp</dimen>
+    <dimen name="system_bar_button_corner_radius">44dp</dimen>
+    <dimen name="system_bar_button_corner_radius_selected">24dp</dimen>
+    <dimen name="status_bar_system_icon_spacing">32dp</dimen>
+    <dimen name="system_bar_background_pill_size">64dp</dimen>
+    <dimen name="system_bar_minimize_icon_height">17dp</dimen>
+    <dimen name="system_bar_minimize_icon_width">28dp</dimen>
+
+
+    <dimen name="user_avatar_background_radius">13dp</dimen>
+
+    <dimen name="privacy_chip_horizontal_padding">0dp</dimen>
+    <dimen name="privacy_chip_width">@dimen/top_system_bar_icon_size</dimen>
+    <!-- TODO(b/264936974): combine top_system_bar_qc_icon_drawing_size and top_system_bar_icon_drawing_size-->
+    <dimen name="top_system_bar_qc_icon_drawing_size">30dp</dimen>
+    <dimen name="top_system_bar_icon_drawing_size">42dp</dimen>
+    <dimen name="top_system_bar_icon_size">64dp</dimen>
+    <dimen name="top_system_bar_icon_horizontal_margin">20dp</dimen>
+    <dimen name="top_system_bar_icon_selected_corner">13dp</dimen>
+
+    <dimen name="car_status_icon_panel_border_radius">@dimen/car_portrait_ui_window_rounded_corner_radius</dimen>
+    <dimen name="car_status_icon_panel_padding_bottom">18dp</dimen>
+
+    <dimen name="dialog_button_bar_top_padding">0dp</dimen>
+
+    <dimen name="pin_view_container_maxHeight">380dp</dimen>
+    <dimen name="pattern_view_container_maxHeight">800dp</dimen>
+
+    <!-- ****** Alert dialog dimens ***** -->
+
+    <!-- Dialog corner radius -->
+    <dimen name="alert_dialog_corner_radius">32dp</dimen>
+    <!-- Dialog button corner radius -->
+    <dimen name="alert_dialog_button_corner_radius">24dp</dimen>
+    <!-- Dialog header size -->
+    <dimen name="car_card_header_height">88dp</dimen>
+    <!-- Dialog image size -->
+    <dimen name="car_alert_dialog_title_image_size">@dimen/car_card_header_height</dimen>
+    <!-- Dialog button layout height -->
+    <dimen name="button_layout_height">88dp</dimen>
+    <!-- Default dialog button margin -->
+    <dimen name="car_alert_dialog_button_margin">16dp</dimen>
+
+    <!-- ****** Biometrics dimens ***** -->
+    <dimen name="biometric_dialog_elevation">1dp</dimen>
+    <dimen name="biometric_car_auth_pattern_view_size">420dp</dimen>
+    <dimen name="confirm_lock_message_vertical_spacing">80dp</dimen>
+    <dimen name="biometric_horizontal_margin">348dp</dimen>
+    <dimen name="credential_input_width">528dp</dimen>
+    <dimen name="credential_input_vertical_padding">160dp</dimen>
+    <dimen name="pin_pad_key_radius">44dp</dimen>
+    <dimen name="pin_pad_key_width">160dp</dimen>
+    <dimen name="pin_pad_key_height">108dp</dimen>
+    <dimen name="pin_pad_key_margin">10dp</dimen>
+    <dimen name="lock_pattern_dot_size">32dp</dimen>
+</resources>

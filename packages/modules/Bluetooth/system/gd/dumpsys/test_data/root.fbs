@@ -1,0 +1,27 @@
+include "foo.fbs";
+include "bar.fbs";
+include "baz.fbs";
+include "qux.fbs";
+
+namespace testing;
+
+attribute "privacy";
+
+table DumpsysTestDataRoot {
+    string_private:string;
+    string_opaque:string (privacy:"Opaque");
+    string_anonymized:string (privacy:"Anonymized");
+    string_any:string (privacy:"Any");
+
+    int_private:int32 (privacy:"Private");
+    int_opaque:int32 (privacy:"Opaque");
+    int_anonymized:int32 (privacy:"Anonymized");
+    int_any:int32 (privacy:"Any");
+
+    foo_module_data:FooTestSchema (privacy:"Any");
+    bar_module_data:BarTestSchema (privacy:"Any");
+    baz_module_data:BazTestSchema (privacy:"Any");
+    qux_module_data:QuxTestSchema (privacy:"Any");
+}
+
+root_type DumpsysTestDataRoot;

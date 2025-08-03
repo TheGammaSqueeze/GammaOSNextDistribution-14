@@ -1,0 +1,3 @@
+TEST_EXECUTABLE="$1"
+shift
+"${TEST_EXECUTABLE}" "$@"

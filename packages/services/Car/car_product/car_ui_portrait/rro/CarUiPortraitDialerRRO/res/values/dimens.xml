@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources>
+    <dimen name="avatar_icon_size">88dp</dimen>
+    <dimen name="list_item_height">136dp</dimen>
+    <dimen name="list_item_padding">24dp</dimen>
+    <dimen name="list_item_content_icon_width">88dp</dimen>
+    <dimen name="list_item_content_icon_height">88dp</dimen>
+    <dimen name="list_item_avatar_size">88dp</dimen>
+    <dimen name="list_item_icon_margin">24dp</dimen>
+    <dimen name="list_divider_height">88dp</dimen>
+    <dimen name="list_divider_width">0dp</dimen>
+    <dimen name="primary_icon_size">@dimen/car_ui_primary_icon_size</dimen>
+    <dimen name="vertical_divider_inset">24dp</dimen>
+    <!-- Add Favorite dimensions -->
+    <dimen name="add_fav_button_height">88dp</dimen>
+    <dimen name="add_fav_button_width">412dp</dimen>
+    <!-- Call list dimensions -->
+    <dimen name="call_history_item_height">136dp</dimen>
+    <!-- Contact details dimensions -->
+    <dimen name="contact_details_icon_margin">@dimen/list_item_padding</dimen>
+    <dimen name="contact_details_list_item_padding">@dimen/list_item_padding</dimen>
+    <dimen name="contact_details_title_width">400dp</dimen>
+    <dimen name="contact_details_list_item_height">132dp</dimen>
+    <dimen name="contact_details_list_item_icon_width">@dimen/list_item_content_icon_width</dimen>
+    <dimen name="contact_details_list_item_icon_height">@dimen/list_item_content_icon_height</dimen>
+    <!-- Contact list dimensions -->
+    <dimen name="contact_list_item_height">@dimen/list_item_height</dimen>
+    <dimen name="contact_user_profile_padding">24dp</dimen>
+    <dimen name="contact_user_icon_margin">24dp</dimen>
+    <dimen name="favorites_avatar_margin_bottom">8dp</dimen>
+    <dimen name="favorite_item_padding">0dp</dimen>
+    <dimen name="in_call_dialpad_focus_area_margin">44dp</dimen>
+    <dimen name="in_call_state_margin">4dp</dimen>
+    <dimen name="in_call_title_margin">88dp</dimen>
+    <dimen name="large_avatar_icon_size">180dp</dimen>
+    <!-- Dialpad dimensions -->
+    <dimen name="dialpad_keypad_fragment_margin_start">172dp</dimen>
+    <dimen name="dialpad_fragment_list_view_height">266dp</dimen>
+    <dimen name="dialpad_fragment_list_view_width">552dp</dimen>
+    <dimen name="dialpad_fragment_list_view_margin_bottom">10dp</dimen>
+    <dimen name="dialpad_fragment_restricted_dialing_mode_label_margin_top">10dp</dimen>
+    <dimen name="dialpad_fragment_user_profile_margin_top">10dp</dimen>
+    <dimen name="dialpad_contact_avatar_size">64dp</dimen>
+    <dimen name="dialer_keypad_button_corner_radius">44dp</dimen>
+    <dimen name="dialer_keypad_button_width">160dp</dimen>
+    <dimen name="dialer_keypad_button_height">88dp</dimen>
+    <dimen name="dialer_keypad_button_margin">12dp</dimen>
+    <dimen name="dialer_keypad_button_size">96dp</dimen>
+    <dimen name="dialer_call_button_min_width">344dp</dimen>
+    <dimen name="type_down_list_item_avatar_size">@dimen/list_item_avatar_size</dimen>
+    <dimen name="type_down_list_item_height">@dimen/list_item_height</dimen>
+    <dimen name="type_down_list_item_padding">@dimen/list_item_padding</dimen>
+    <dimen name="type_down_list_item_margin">@dimen/list_item_padding</dimen>
+
+    <dimen name="contact_avatar_corner_radius_percent" format="float">0.5</dimen>
+</resources>

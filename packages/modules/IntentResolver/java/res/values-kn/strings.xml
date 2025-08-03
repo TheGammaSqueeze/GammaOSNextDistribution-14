@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2021 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="whichApplication" msgid="2309561338625872614">"ಇದನ್ನು ಬಳಸಿಕೊಂಡು ಕ್ರಿಯೆಯನ್ನು ಪೂರ್ಣಗೊಳಿಸಿ"</string>
+    <string name="whichApplicationNamed" msgid="8514249643796783492">"<xliff:g id="APP">%1$s</xliff:g> ಬಳಸಿಕೊಂಡು ಕ್ರಿಯೆ ಪೂರ್ಣಗೊಳಿಸಿ"</string>
+    <string name="whichApplicationLabel" msgid="4312929689807826793">"ಕ್ರಿಯೆಯನ್ನು ಪೂರ್ಣಗೊಳಿಸಿ"</string>
+    <string name="whichViewApplication" msgid="7660051361612888119">"ಇದರ ಮೂಲಕ ತೆರೆಯಿರಿ"</string>
+    <string name="whichViewApplicationNamed" msgid="8231810543224200555">"<xliff:g id="APP">%1$s</xliff:g> ಜೊತೆ ತೆರೆಯಿರಿ"</string>
+    <string name="whichViewApplicationLabel" msgid="9123647023323311663">"ತೆರೆಯಿರಿ"</string>
+    <string name="whichOpenHostLinksWith" msgid="6664206254809230738">"ಇವುಗಳ ಮೂಲಕ <xliff:g id="HOST">%1$s</xliff:g> ಲಿಂಕ್‌ಗಳನ್ನು ತೆರೆಯಿರಿ"</string>
+    <string name="whichOpenLinksWith" msgid="3468042265545684416">"ಇವುಗಳ ಮೂಲಕ ಲಿಂಕ್‌ಗಳನ್ನು ತೆರೆಯಿರಿ"</string>
+    <string name="whichOpenLinksWithApp" msgid="8832514962474825330">"<xliff:g id="APPLICATION">%1$s</xliff:g> ಮೂಲಕ ಲಿಂಕ್‌ಗಳನ್ನು ತೆರೆಯಿರಿ"</string>
+    <string name="whichOpenHostLinksWithApp" msgid="6626134603937682461">"<xliff:g id="APPLICATION">%2$s</xliff:g> ಮೂಲಕ <xliff:g id="HOST">%1$s</xliff:g> ಲಿಂಕ್‌ಗಳನ್ನು ತೆರೆಯಿರಿ"</string>
+    <string name="whichGiveAccessToApplicationLabel" msgid="5120142857844152131">"ಆ್ಯಕ್ಸೆಸ್ ನೀಡಿ"</string>
+    <string name="whichEditApplication" msgid="5097563012157950614">"ಇವರ ಜೊತೆಗೆ ಎಡಿಟ್ ಮಾಡಿ"</string>
+    <string name="whichEditApplicationNamed" msgid="3150137489226219100">"<xliff:g id="APP">%1$s</xliff:g> ಮೂಲಕ ಎಡಿಟ್ ಮಾಡಿ"</string>
+    <string name="whichEditApplicationLabel" msgid="5992662938338600364">"ಎಡಿಟ್"</string>
+    <string name="whichSendApplication" msgid="59510564281035884">"ಹಂಚಿಕೊಳ್ಳಿ"</string>
+    <string name="whichSendApplicationNamed" msgid="495577664218765855">"<xliff:g id="APP">%1$s</xliff:g> ಜೊತೆ ಹಂಚಿಕೊಳ್ಳಿ"</string>
+    <string name="whichSendApplicationLabel" msgid="2391198069286568035">"ಹಂಚಿಕೊಳ್ಳಿ"</string>
+    <string name="whichSendToApplication" msgid="2724450540348806267">"ಇದನ್ನು ಬಳಸಿಕೊಂಡು ಕಳುಹಿಸಿ"</string>
+    <string name="whichSendToApplicationNamed" msgid="1996548940365954543">"<xliff:g id="APP">%1$s</xliff:g> ಬಳಸಿ ಕಳುಹಿಸಿ"</string>
+    <string name="whichSendToApplicationLabel" msgid="6909037198280591110">"ಕಳುಹಿಸು"</string>
+    <string name="whichHomeApplication" msgid="8797832422254564739">"Home ಆ್ಯಪ್ ಆಯ್ಕೆಮಾಡಿ"</string>
+    <string name="whichHomeApplicationNamed" msgid="3943122502791761387">"<xliff:g id="APP">%1$s</xliff:g> ಅನ್ನು ಹೋಮ್ ಆಗಿ ಬಳಸಿ"</string>
+    <string name="whichHomeApplicationLabel" msgid="2066319585322981524">"ಚಿತ್ರ ಕ್ಯಾಪ್ಚರ್ ಮಾಡಿ"</string>
+    <string name="whichImageCaptureApplication" msgid="7830965894804399333">"ಇದರ ಜೊತೆಗೆ ಚಿತ್ರ ಕ್ಯಾಪ್ಚರ್ ಮಾಡಿ"</string>
+    <string name="whichImageCaptureApplicationNamed" msgid="5927801386307049780">"<xliff:g id="APP">%1$s</xliff:g> ಮೂಲಕ ಚಿತ್ರ ಕ್ಯಾಪ್ಚರ್ ಮಾಡಿ"</string>
+    <string name="whichImageCaptureApplicationLabel" msgid="987153638235357094">"ಚಿತ್ರ ಕ್ಯಾಪ್ಚರ್ ಮಾಡಿ"</string>
+    <string name="use_a_different_app" msgid="2062380818535918975">"ಬೇರೊಂದು ಆ್ಯಪ್ ಬಳಸಿ"</string>
+    <string name="chooseActivity" msgid="6659724877523973446">"ಕ್ರಿಯೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ"</string>
+    <string name="noApplications" msgid="1139487441772284671">"ಯಾವುದೇ ಅಪ್ಲಿಕೇಶನ್‌ಗಳು ಈ ಕ್ರಿಯೆಗಾಗಿ ಬದ್ಧತೆ ತೋರಿಸುವುದಿಲ್ಲ."</string>
+    <string name="forward_intent_to_owner" msgid="6454987608971162379">"ನಿಮ್ಮ ಕೆಲಸದ ಪ್ರೊಫೈಲ್‌ನ ಹೊರಗೆ ನೀವು ಈ ಅಪ್ಲಿಕೇಶನ್‌ ಅನ್ನು ಬಳಸುತ್ತಿರುವಿರಿ"</string>
+    <string name="forward_intent_to_work" msgid="2906094223089139419">"ನಿಮ್ಮ ಕೆಲಸದ ಪ್ರೊಫೈಲ್‌ನಲ್ಲಿ ನೀವು ಈ ಅಪ್ಲಿಕೇಶನ್‌ ಅನ್ನು ಬಳಸುತ್ತಿರುವಿರಿ"</string>
+    <string name="activity_resolver_use_always" msgid="8674194687637555245">"ಯಾವಾಗಲೂ"</string>
+    <string name="activity_resolver_use_once" msgid="594173435998892989">"ಒಮ್ಮೆ ಮಾತ್ರ"</string>
+    <string name="activity_resolver_work_profiles_support" msgid="8228711455685203580">"<xliff:g id="APP">%1$s</xliff:g> ಉದ್ಯೋಗದ ಪ್ರೊಫೈಲ್ ಅನ್ನು ಬೆಂಬಲಿಸುವುದಿಲ್ಲ"</string>
+    <string name="pin_specific_target" msgid="5057063421361441406">"<xliff:g id="LABEL">%1$s</xliff:g> ಪಿನ್ ಮಾಡಿ"</string>
+    <string name="unpin_specific_target" msgid="3115158908159857777">"<xliff:g id="LABEL">%1$s</xliff:g> ಅನ್ನು ಅನ್‌ಪಿನ್ ಮಾಡಿ"</string>
+    <string name="screenshot_edit" msgid="3857183660047569146">"ಎಡಿಟ್"</string>
+    <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ # ಫೈಲ್‌}one{+ # ಫೈಲ್‌ಗಳು}other{+ # ಫೈಲ್‌ಗಳು}}"</string>
+    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{+ # ಇನ್ನಷ್ಟು ಫೈಲ್}one{+ # ಇನ್ನಷ್ಟು ಫೈಲ್‌ಗಳು}other{+ # ಇನ್ನಷ್ಟು ಫೈಲ್‌ಗಳು}}"</string>
+    <string name="sharing_text" msgid="8137537443603304062">"ಪಠ್ಯ ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತಿದೆ"</string>
+    <string name="sharing_link" msgid="2307694372813942916">"ಲಿಂಕ್ ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತಿದೆ"</string>
+    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{ಚಿತ್ರವನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತಿದೆ}one{# ಚಿತ್ರಗಳನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತಿದೆ}other{# ಚಿತ್ರಗಳನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತಿದೆ}}"</string>
+    <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{ವೀಡಿಯೊವನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತಿದೆ}one{# ವೀಡಿಯೊಗಳನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತಿದೆ}other{# ವೀಡಿಯೊಗಳನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತಿದೆ}}"</string>
+    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{# ಫೈಲ್ ಅನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತಿದೆ}one{# ಫೈಲ್‌ಗಳನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತಿದೆ}other{# ಫೈಲ್‌ಗಳನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತಿದೆ}}"</string>
+    <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{ಪಠ್ಯದೊಂದಿಗೆ ಚಿತ್ರವನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತಿದೆ}one{ಪಠ್ಯದೊಂದಿಗೆ # ಚಿತ್ರಗಳನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತಿದೆ}other{ಪಠ್ಯದೊಂದಿಗೆ # ಚಿತ್ರಗಳನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತಿದೆ}}"</string>
+    <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{ಲಿಂಕ್‌ನೊಂದಿಗೆ ಚಿತ್ರವನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತಿದೆ}one{ಲಿಂಕ್‌ನೊಂದಿಗೆ # ಚಿತ್ರಗಳನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತಿದೆ}other{ಲಿಂಕ್‌ನೊಂದಿಗೆ # ಚಿತ್ರಗಳನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತಿದೆ}}"</string>
+    <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{ಪಠ್ಯದೊಂದಿಗೆ ವೀಡಿಯೊವನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತಿದೆ}one{ಪಠ್ಯದೊಂದಿಗೆ # ವೀಡಿಯೊಗಳನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತಿದೆ}other{ಪಠ್ಯದೊಂದಿಗೆ # ವೀಡಿಯೊಗಳನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತಿದೆ}}"</string>
+    <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{ಲಿಂಕ್‌ನೊಂದಿಗೆ ವೀಡಿಯೊವನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತಿದೆ}one{ಲಿಂಕ್‌ನೊಂದಿಗೆ # ವೀಡಿಯೊಗಳನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತಿದೆ}other{ಲಿಂಕ್‌ನೊಂದಿಗೆ # ವೀಡಿಯೊಗಳನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತಿದೆ}}"</string>
+    <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{ಪಠ್ಯದೊಂದಿಗೆ ಫೈಲ್ ಅನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತಿದೆ}one{ಪಠ್ಯದೊಂದಿಗೆ # ಫೈಲ್‌ಗಳನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತಿದೆ}other{ಪಠ್ಯದೊಂದಿಗೆ # ಫೈಲ್‌ಗಳನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತಿದೆ}}"</string>
+    <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{ಲಿಂಕ್‌ನೊಂದಿಗೆ ಫೈಲ್ ಅನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತಿದೆ}one{ಲಿಂಕ್‌ನೊಂದಿಗೆ # ಫೈಲ್‌ಗಳನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತಿದೆ}other{ಲಿಂಕ್‌ನೊಂದಿಗೆ # ಫೈಲ್‌ಗಳನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತಿದೆ}}"</string>
+    <string name="sharing_album" msgid="191743129899503345">"ಆಲ್ಬಮ್ ಅನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತಿದೆ"</string>
+    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{ಚಿತ್ರ ಮಾತ್ರ}one{ಚಿತ್ರಗಳು ಮಾತ್ರ}other{ಚಿತ್ರಗಳು ಮಾತ್ರ}}"</string>
+    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{ವೀಡಿಯೊ ಮಾತ್ರ}one{ವೀಡಿಯೊಗಳು ಮಾತ್ರ}other{ವೀಡಿಯೊಗಳು ಮಾತ್ರ}}"</string>
+    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{ಫೈಲ್ ಮಾತ್ರ}one{ಫೈಲ್‌ಗಳು ಮಾತ್ರ}other{ಫೈಲ್‌ಗಳು ಮಾತ್ರ}}"</string>
+    <string name="image_preview_a11y_description" msgid="297102643932491797">"ಚಿತ್ರ ಪೂರ್ವವೀಕ್ಷಣೆಯ ಥಂಬ್‌ನೇಲ್"</string>
+    <string name="video_preview_a11y_description" msgid="683440858811095990">"ವೀಡಿಯೊ ಪೂರ್ವವೀಕ್ಷಣೆಯ ಥಂಬ್‌ನೇಲ್"</string>
+    <string name="file_preview_a11y_description" msgid="7397224827802410602">"ಫೈಲ್ ಪೂರ್ವವೀಕ್ಷಣೆಯ ಥಂಬ್‌ನೇಲ್"</string>
+    <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"ಹಂಚಿಕೊಳ್ಳಲು ಶಿಫಾರಸು ಮಾಡಲಾದವರು ಯಾರೂ ಇಲ್ಲ"</string>
+    <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"ಈ ಆ್ಯಪ್‌ಗೆ ರೆಕಾರ್ಡ್ ಅನುಮತಿಯನ್ನು ನೀಡಲಾಗಿಲ್ಲ, ಆದರೆ ಈ USB ಸಾಧನದ ಮೂಲಕ ಆಡಿಯೊವನ್ನು ಸೆರೆಹಿಡಿಯಬಲ್ಲದು."</string>
+    <string name="resolver_personal_tab" msgid="1381052735324320565">"ವೈಯಕ್ತಿಕ"</string>
+    <string name="resolver_work_tab" msgid="3588325717455216412">"ಕೆಲಸ"</string>
+    <string name="resolver_private_tab" msgid="3707548826254095157">"ಖಾಸಗಿ"</string>
+    <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"ವೈಯಕ್ತಿಕ ವೀಕ್ಷಣೆ"</string>
+    <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"ಕೆಲಸದ ವೀಕ್ಷಣೆ"</string>
+    <string name="resolver_private_tab_accessibility" msgid="2513122834337197252">"ಖಾಸಗಿ ವೀಕ್ಷಣೆ"</string>
+    <string name="resolver_cross_profile_blocked" msgid="3515194063758605377">"ನಿಮ್ಮ IT ನಿರ್ವಾಹಕರಿಂದ ನಿರ್ಬಂಧಿಸಲಾಗಿದೆ"</string>
+    <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"ಕೆಲಸಕ್ಕೆ ಸಂಬಂಧಿಸಿದ ಆ್ಯಪ್‌ಗಳ ಈ ವಿಷಯವನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುವುದಿಲ್ಲ"</string>
+    <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"ಕೆಲಸಕ್ಕೆ ಸಂಬಂಧಿಸಿದ ಆ್ಯಪ್‌ಗಳ ಈ ವಿಷಯವನ್ನು ತೆರೆಯಲಾಗುವುದಿಲ್ಲ"</string>
+    <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"ವೈಯಕ್ತಿಕ ಆ್ಯಪ್‌ಗಳ ಮೂಲಕ ಈ ವಿಷಯವನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುವುದಿಲ್ಲ"</string>
+    <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"ವೈಯಕ್ತಿಕ ಆ್ಯಪ್‌ಗಳ ಮೂಲಕ ಈ ವಿಷಯವನ್ನು ತೆರೆಯಲಾಗುವುದಿಲ್ಲ"</string>
+    <string name="resolver_turn_on_work_apps" msgid="7115260573975624516">"ಕೆಲಸಕ್ಕೆ ಸಂಬಂಧಿಸಿದ ಆ್ಯಪ್‌ಗಳನ್ನು ವಿರಾಮಗೊಳಿಸಲಾಗಿದೆ"</string>
+    <string name="resolver_switch_on_work" msgid="8678893259344318807">"ವಿರಾಮವನ್ನು ರದ್ದುಗೊಳಿಸಿ"</string>
+    <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"ಯಾವುದೇ ಕೆಲಸಕ್ಕೆ ಸಂಬಂಧಿಸಿದ ಆ್ಯಪ್‌ಗಳಿಲ್ಲ"</string>
+    <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"ಯಾವುದೇ ವೈಯಕ್ತಿಕ ಆ್ಯಪ್‌ಗಳಿಲ್ಲ"</string>
+    <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"ನಿಮ್ಮ ವೈಯಕ್ತಿಕ ಪ್ರೊಫೈಲ್‌ನಲ್ಲಿ <xliff:g id="APP">%s</xliff:g> ಅನ್ನು ತೆರೆಯಬೇಕೆ?"</string>
+    <string name="miniresolver_open_in_work" msgid="4271638122142624693">"ನಿಮ್ಮ ಉದ್ಯೋಗದ ಪ್ರೊಫೈಲ್‌ನಲ್ಲಿ <xliff:g id="APP">%s</xliff:g> ಅನ್ನು ತೆರೆಯಬೇಕೆ?"</string>
+    <string name="miniresolver_use_personal_browser" msgid="1428911732509069292">"ವೈಯಕ್ತಿಕ ಬ್ರೌಸರ್ ಬಳಸಿ"</string>
+    <string name="miniresolver_use_work_browser" msgid="7892699758493230342">"ಉದ್ಯೋಗ ಬ್ರೌಸರ್ ಬಳಸಿ"</string>
+    <string name="exclude_text" msgid="5508128757025928034">"ಪಠ್ಯವನ್ನು ಹೊರತುಪಡಿಸಿ"</string>
+    <string name="include_text" msgid="642280283268536140">"ಪಠ್ಯವನ್ನು ಸೇರಿಸಿ"</string>
+    <string name="exclude_link" msgid="1332778255031992228">"ಲಿಂಕ್ ಹೊರತುಪಡಿಸಿ"</string>
+    <string name="include_link" msgid="827855767220339802">"ಲಿಂಕ್ ಸೇರಿಸಿ"</string>
+    <string name="pinned" msgid="7623664001331394139">"ಪಿನ್‌ ಮಾಡಲಾಗಿದೆ"</string>
+</resources>

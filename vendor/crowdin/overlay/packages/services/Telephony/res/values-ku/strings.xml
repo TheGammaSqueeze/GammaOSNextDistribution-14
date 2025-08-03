@@ -1,0 +1,478 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="emergencyDialerIconLabel">تەلەفۆنی خێرا</string>
+    <string name="phoneIconLabel">تەلەفۆن</string>
+    <string name="fdnListLabel">لیستی FDN</string>
+    <string name="unknown">نەناسراو</string>
+    <string name="private_num">ژمارەی تایبەت</string>
+    <string name="onHold">له‌سه‌ر خه‌ت به‌</string>
+    <string name="mmiStarted">کۆدی MMI دەست پێکراوە</string>
+    <string name="ussdRunning">کۆدی USSD لە کارادایە\u2026</string>
+    <string name="mmiCancelled">کۆدی MMI هەڵوەشێندرایەوە</string>
+    <string name="cancel">لابردن</string>
+    <string name="manageConferenceLabel">به‌ڕێوه‌بردنی په‌یوه‌ندییه‌ کۆنگره‌ییه‌کان</string>
+    <string name="ok">باشه‌</string>
+    <string name="audio_mode_speaker">بڵندگۆ</string>
+    <string name="audio_mode_earpiece">ده‌سکی په‌یوه‌ندی گوێ</string>
+    <string name="audio_mode_wired_headset">بیستۆکی وایەردار</string>
+    <string name="audio_mode_bluetooth">بلوتوس</string>
+    <string name="wait_prompt_str">ئه‌م ئاوازانه‌ ده‌نێریت؟\n</string>
+    <string name="pause_prompt_str">ناردنی ئاوازه‌کانی\n</string>
+    <string name="send_button">ناردن</string>
+    <string name="pause_prompt_yes">بەڵێ</string>
+    <string name="pause_prompt_no">نەخێر</string>
+    <string name="wild_prompt_str">جێگرتنه‌وه‌ی کاره‌کته‌ری ده‌ری وه‌ک</string>
+    <string name="no_vm_number">لەدەستدانی ژمارەی دەنگەنامە</string>
+    <string name="no_vm_number_msg">هیچ ژمارەیەکی دەنگەنامە  هەڵنەگیراوە لەسەر سیمکارد.</string>
+    <string name="add_vm_number_str">زیادکردنئ ژمارە</string>
+    <string name="puk_unlocked">سیمکارتەکەت کەوتەوە سەر کار. مۆبایلەیەت دەکرێتەوە\u2026</string>
+    <string name="label_ndp">PINی کردنەوەی تۆڕی سیمکارت</string>
+    <string name="sim_ndp_unlock_text">کردنەوە</string>
+    <string name="sim_ndp_dismiss_text">لابردن</string>
+    <string name="requesting_unlock">داوا بۆ کردنەوەی تۆڕ\u2026</string>
+    <string name="unlock_failed">داواکردن بۆ کردنەوەی تۆڕ سەرکەوتوو نەبوو.</string>
+    <string name="unlock_success">کردنەوەی تۆڕ سەرکەوتوو بوو.</string>
+    <string name="mobile_network_settings_not_available">ڕێکخستنەکانی تۆڕی مۆبایل بۆ ئەم بەکارهێنەرە بەردەست نییە</string>
+    <string name="labelGSMMore">ڕێکخستنەکانی پەیوەندی GSM</string>
+    <string name="labelCDMAMore">ڕێکخستنەکانی پەیوەندی CDMA</string>
+    <string name="apn_settings">ناوی خاڵەکانی دەستپێگەیشتن</string>
+    <string name="settings_label">ڕێکخستنەکانی تۆڕ</string>
+    <string name="phone_accounts_make_calls_with">گرتنی پەیوەندییەکان لەڕێگەی</string>
+    <string name="phone_accounts_make_sip_calls_with">گرتنی پەیوەندییە ئینتەرنێتییەکان لەڕێگەی</string>
+    <string name="phone_accounts_ask_every_time">لەپێشدا بپرسە</string>
+    <string name="phone_accounts_choose_accounts">هەژمارەکان هەڵبژێرە</string>
+    <string name="phone_accounts_selection_header">هەژمارەکانی مۆبایل</string>
+    <string name="phone_accounts_add_sip_account">زیاکردنی هەژماری SIP</string>
+    <string name="phone_accounts_configure_account_settings">ڕێکخستنەکانی هەژمار شێوە پێبە</string>
+    <string name="wifi_calling">پەیوەندیگرتنی Wi-Fi</string>
+    <string name="connection_service_default_label">ڕاژەی گرێدانی تووکار</string>
+    <string name="voicemail">دەنگەپۆست</string>
+    <string name="voicemail_abbreviated">دەنگەنامە:</string>
+    <string name="cell_broadcast_settings">بڵاوکردنەوەکانی فریاگوزاری</string>
+    <string name="call_settings">ڕێکخستنی تەلەفۆنکردنن</string>
+    <string name="additional_gsm_call_settings">ڕێکخستنەکانی زیادە</string>
+    <string name="sum_gsm_call_settings">ڕێکخستنەکانی زیادەی پەیوەندی GSM</string>
+    <string name="additional_cdma_call_settings">طێکخسنتەکانی زیادەی پەیوەندی CDMA</string>
+    <string name="sum_cdma_call_settings">ڕێکخستنەکانی زیادەی تەنها پەیوەندی CDMA</string>
+    <string name="labelNwService">رێکخستنەکانی خزمەتگوزاری تۆڕ</string>
+    <string name="labelCallerId">پێناسەی تەلەفۆنکەر</string>
+    <string name="sum_loading_settings">ئامادەکردنی رێکخستنەکان\u2026</string>
+    <string name="sum_hide_caller_id">ژمارە شاردراوەیە لە ناو پەیوەندییە ڕۆیشتووەکان</string>
+    <string name="sum_show_caller_id">ژمارە پیشاندرا لە ناو پەیوەندییە ڕۆیشتووەکان</string>
+    <string name="sum_default_caller_id">ڕێکخستنەکانی بنەڕەتی کۆمپانیایی سیمکارت بەکار بهێنە بۆ پیشاندانی ژمارەکەم لە ناو پەیوەندییە ڕۆیشتووەکان</string>
+    <string name="labelCW">چاوەڕوانیی پەیوەندی</string>
+    <string name="sum_cw_enabled">لە کاتی پەیوەندی، لە پەیوەندییە هاتووەکان ئاگادارم بکەوە</string>
+    <string name="sum_cw_disabled">لە کاتی پەیوەندی، لە پەیوەندییە هاتووەکان ئاگادارم بکەوە</string>
+    <string name="call_forwarding_settings">ڕێکخستنەکانی ئاراستەکردنی پەیوەندی</string>
+    <string name="labelCF">ئاراستەکردنی پەیوەندی</string>
+    <string name="labelCFU">هەردەم ئاراستەی بکە</string>
+    <string name="messageCFU">هەردەم ئەم ژمارەیە بە کار بهێنە</string>
+    <string name="sum_cfu_enabled_indicator">هەموو پەیوەندییەکان ئاراستە بکە</string>
+    <string name="sum_cfu_enabled">هەموو پەیوەندییەکان ئاراستە بکە بۆ <xliff:g id="phonenumber" example="555-1212">{0}</xliff:g></string>
+    <string name="sum_cfu_enabled_no_number">تۆڕ بەر دەست نییە</string>
+    <string name="sum_cfu_disabled">کوژانه‌وه‌</string>
+    <string name="labelCFB">کاتێک سەرقاڵ بێت</string>
+    <string name="messageCFB">ژمارەی(ئاراستەکردن) کاتی سەرقاڵی</string>
+    <string name="sum_cfb_enabled">ئاراستەکردن بۆ <xliff:g id="phonenumber" example="555-1212">{0}</xliff:g></string>
+    <string name="sum_cfb_disabled">کوژانه‌وه‌</string>
+    <string name="disable_cfb_forbidden">ئۆپەراتۆری سیمکارتەکەت پشتگیری ئاراستەکردنی پەیوەندی لا کاتی سەرقاڵیدا ناکات.</string>
+    <string name="labelCFNRy">کاتێک وەڵامنەدراوە بێت</string>
+    <string name="messageCFNRy">ژمارەی(ئاراستەکردن) کاتێک وەڵام نەدرایەوە</string>
+    <string name="sum_cfnry_enabled">ئاراستەکردن بۆ <xliff:g id="phonenumber" example="555-1212">{0}</xliff:g></string>
+    <string name="sum_cfnry_disabled">کوژانه‌وه‌</string>
+    <string name="disable_cfnry_forbidden">ئۆپەراتۆری سیمکارتەکەت پشتگیری ناچالاککردنی ئاراستەکردنی پەیوەندییەکانت ناکات کاتێک مۆبایلەکەت وەڵام نادرێتەوە.</string>
+    <string name="labelCFNRc">کاتێک دەستنەکەوتنی بێت</string>
+    <string name="messageCFNRc">ژمارەی(ئاراستەکردن) لە کاتی بەر دەست نەبوون</string>
+    <string name="sum_cfnrc_enabled">ئاراستەکردن بۆ <xliff:g id="phonenumber" example="555-1212">{0}</xliff:g></string>
+    <string name="sum_cfnrc_disabled">کوژانه‌وه‌</string>
+    <string name="disable_cfnrc_forbidden">ئۆپەراتۆری سیمکارتەکەت ناچالاککردنی ئاراستەکردنی پەیوەندییەکانت پشتگیری ناکات مۆبایلەکەت لە دەرەوەی بازنەدایە.</string>
+    <string name="disable_cdma_cw">لابردن</string>
+    <string name="updating_title">ڕێکخستنی تەلەفۆنکردنن</string>
+    <string name="error_updating_title">هەڵەی ڕێکخستنەکانی پەیوەندی کردن</string>
+    <string name="reading_settings">ئامادەکردنی رێکخستنەکان\u2026</string>
+    <string name="updating_settings">نوێکردنەوەی ڕێکخستنەکان\u2026</string>
+    <string name="reverting_settings">گەڕاندنەوەی ڕێکخستنەکان\u2026</string>
+    <string name="response_error">وەڵامێکی چاوەڕوان نەکراو لە لایەن تۆڕ.</string>
+    <string name="exception_error">هەڵەی تۆڕ یان سیمکارت.</string>
+    <string name="fdn_check_failure">ڕێکخستنەکانی ژمارەکانی جێگیر کراوی پەیوەندی ناو نەرمەواڵای مۆبایلەکەت کراوەیە. کەواتە، چەند تایبەتمەندییەکی بەستراو بە پەیوەندی کار ناکەن.</string>
+    <string name="radio_off_error">رادیۆکەت بکەرەوە پێش بینینی ئەم ڕێکخستنانە.</string>
+    <string name="close_dialog">باشه‌</string>
+    <string name="change_num">بەڕۆژکردن</string>
+    <string-array name="clir_display_values">
+        <item>تۆڕی بنەڕەت</item>
+        <item>شاردنەوەی ژمارە</item>
+        <item>پیشاندانی ژمارە</item>
+    </string-array>
+    <string name="vm_changed">ژمارەی دەنگنامە گۆڕدرا.</string>
+    <string name="vm_change_failed">نەتواندرا ژمارەی دەنگنامە بگۆڕدرێ.\nپەیوەندی بە ئۆپەراتۆری سیمکارتەوە بکە لە کاتی بەردەوامبوونی ئەم کێشەیە.</string>
+    <string name="fw_change_failed">نەتواندرا ژمارەی ئاراستەکردن بگۆڕدرێ.\nپەیوەندی بە ئۆپەراتۆری سیمکارتەوە بکە لە کاتی بەردەوامبوونی ئەم کێشەیە.</string>
+    <string name="fw_get_in_vm_failed">نەتواندرا ڕێکخستنەکانی ئاراستەکردنی ژمارە بگەڕێنێتەوە و پاشەکەوەت بکات.\nهەر جۆرێک بێ بیگۆڕە بۆ دابینکەرێکی نوێ؟</string>
+    <string name="no_change">هیچ گۆڕانکارییەک پاشەکەوت نەکرا.</string>
+    <string name="sum_voicemail_choose_provider">خزمەتگوزاری دەنگەنامە هەڵبژێرە</string>
+    <string name="voicemail_default">هاوبەشگەی سیمکارتەکەت</string>
+    <string name="vm_change_pin_old_pin">PINی کۆن</string>
+    <string name="vm_change_pin_new_pin">PINی نوێ</string>
+    <string name="label_available">تۆڕەکانی بەر دەست</string>
+    <string name="load_networks_progress">گەڕان\u2026</string>
+    <string name="empty_networks_list">هیچ تۆڕیک نەدۆزرایەوە.</string>
+    <string name="register_on_network">تۆمارکران لە <xliff:g id="network">%s</xliff:g>\u2026</string>
+    <string name="not_allowed">سیمکارتەکەت ڕێگە بە گرێدان بۆ ئەو تۆڕە نادات.</string>
+    <string name="connect_later">ئێستا ناتوانێت ببەسترێتەوە بە ئەو تۆڕە. دوایی هەوڵ بدەوە.</string>
+    <string name="registration_done">لە سەر تۆڕ تۆمارکرا.</string>
+    <string name="register_automatically">تۆمارکردنی خۆکار\u2026</string>
+    <string name="preferred_network_mode_title">جۆری تۆڕی پەسەندکراو</string>
+    <string name="preferred_network_mode_summary">شێوازی بەکارگێڕی تۆڕەکە هەڵبژێرە</string>
+    <string name="preferred_network_mode_dialogtitle">جۆری تۆڕی پەسەندکراو</string>
+    <string-array name="preferred_network_mode_choices">
+        <item>GSM/WCDMA بە باش زانراوە</item>
+        <item>ته‌نیا GSM</item>
+        <item>تەنیا WCDMA</item>
+        <item>GSM/WCDMA خۆکار</item>
+        <item>CDMA/EvDo خۆکار</item>
+        <item>CDMA w/o EvDo</item>
+        <item>تەنیا EvDo</item>
+        <item>CDMA/EvDo/GSM/WCDMA</item>
+        <item>CDMA + LTE/EvDo</item>
+        <item>GSM/WCDMA/LTE</item>
+        <item>جیهانی</item>
+        <item>LTE</item>
+        <item>LTE / WCDMA</item>
+        <item>TDSCDMA only</item>
+        <item>TDSCDMA/WCDMA</item>
+        <item>LTE/TDSCDMA</item>
+        <item>TDSCDMA/GSM</item>
+        <item>LTE/TDSCDMA/GSM</item>
+        <item>TDSCDMA/GSM/WCDMA</item>
+        <item>LTE/TDSCDMA/WCDMA</item>
+        <item>LTE/TDSCDMA/GSM/WCDMA</item>
+        <item>TDSCDMA/CDMA/EVDO/GSM/WCDMA </item>
+        <item>LTE/TDSCDMA/CDMA/EVDO/GSM/WCDMA</item>
+        <item>NR only</item>
+        <item>NR/LTE</item>
+        <item>NR/LTE/CDMA/EvDo</item>
+        <item>NR/LTE/GSM/WCDMA</item>
+        <item>NR/LTE/CDMA/EvDo/GSM/WCDMA</item>
+        <item>NR/LTE/WCDMA</item>
+        <item>NR/LTE/TDSCDMA</item>
+        <item>NR/LTE/TDSCDMA/GSM</item>
+        <item>NR/LTE/TDSCDMA/WCDMA</item>
+        <item>NR/LTE/TDSCDMA/GSM/WCDMA</item>
+        <item>NR/LTE/TDSCDMA/CDMA/EvDo/GSM/WCDMA</item>
+    </string-array>
+    <string name="preferred_network_mode_wcdma_perf_summary">جۆری تۆڕی پەسەندکراو: WCDMA پەسەندکرا</string>
+    <string name="preferred_network_mode_gsm_only_summary">جۆری تۆڕی پەسەندکراو: تەنها GSM</string>
+    <string name="preferred_network_mode_wcdma_only_summary">جۆری تۆڕی پەسەندکراو: تەنها WCDMA</string>
+    <string name="preferred_network_mode_gsm_wcdma_summary">جۆری تۆڕی پەسەندکراو: GSM / WCDMA</string>
+    <string name="preferred_network_mode_cdma_summary">جۆری تۆڕی پەسەندکراو: CDMA</string>
+    <string name="preferred_network_mode_cdma_evdo_summary">جۆری تۆڕی پەسەندکراو: CDMA / EvDo</string>
+    <string name="preferred_network_mode_cdma_only_summary">جۆری تۆڕی پەسەندکراو: تەنها CDMA</string>
+    <string name="preferred_network_mode_evdo_only_summary">جۆری تۆڕی پەسەندکراو: تەنها EvDo</string>
+    <string name="preferred_network_mode_cdma_evdo_gsm_wcdma_summary">جۆری تۆڕی پەسەندکراو: CDMA/EvDo/GSM/WCDMA</string>
+    <string name="preferred_network_mode_lte_summary">جۆری تۆڕی پەسەندکراو: LTE </string>
+    <string name="preferred_network_mode_lte_gsm_wcdma_summary">جۆری تۆڕی پەسەندکراو: GSM/WCDMA/LTE</string>
+    <string name="preferred_network_mode_lte_cdma_evdo_summary">جۆری تۆڕی پەسەندکراو: CDMA+LTE/EVDO</string>
+    <string name="preferred_network_mode_global_summary">شێوازی تۆڕی بەباشزانراو: جیهانی</string>
+    <string name="preferred_network_mode_lte_wcdma_summary">جۆری تۆڕی پەسەندکراو: LTE / WCDMA</string>
+    <string name="enhanced_4g_lte_mode_title">شێوازی نوێکراوەی 4G LTE</string>
+    <string name="enhanced_4g_lte_mode_summary">بەکارهێنانی ڕاژەکانی LTE بۆ باشترکردنی دەنگ و دیکەی ڕاگەیاندنەکان (پێشنیارکراوە)</string>
+    <string name="data_enabled">چالاککردنی ئینته‌رنێتی مۆبایل</string>
+    <string name="data_enable_summary">ڕێگەدان بۆ بەکارهێنانی دراوە</string>
+    <string name="roaming_enable">بەستنەوە بۆ ڕاژەکانی دراوە لە کاتی ڕۆمینگدا</string>
+    <string name="roaming_disable">بەستنەوە بۆ ڕاژەکانی دراوە لە کاتی ڕۆمینگدا</string>
+    <string name="wifi_calling_settings_title">پەیوەندیگرتنی Wi-Fi</string>
+    <string name="gsm_umts_options">بژاردەکانی GSM/UMTS</string>
+    <string name="cdma_options">بژاردەکانی CDMA</string>
+    <string name="throttle_data_usage">بەکارهێنانی دراوە</string>
+    <string name="throttle_current_usage">لە ماوەی ئێستادا دراوە بەکارهێندرا</string>
+    <string name="throttle_time_frame">ماوەی بەکارهێنانی دراوە</string>
+    <string name="throttle_rate">ڕامیاری ڕێژەی دراوە</string>
+    <string name="throttle_help">زیاتر بزانە</string>
+    <string name="throttle_status_subtext"><xliff:g id="used">%1$s</xliff:g> (<xliff:g id="used">%2$d</xliff:g>\u066A) لە <xliff:g id="used">%3$s</xliff:g> درێژترین ماوە\nماوەی داواتر دەست پێ ئەکات لە  <xliff:g id="used">%4$d</xliff:g> ڕۆژدا (<xliff:g id="used">%5$s</xliff:g>)</string>
+    <string name="throttle_data_usage_subtext"><xliff:g id="used">%1$s</xliff:g> (<xliff:g id="used">%2$d</xliff:g>\u066A) لە <xliff:g id="used">%3$s</xliff:g> زۆرترین ماوە</string>
+    <string name="throttle_data_rate_reduced_subtext"><xliff:g id="used">%1$s</xliff:g> ئاستی زۆر بە دەست هێنرا\nڕێژەی دراوە کەم کرایەوە بۆ <xliff:g id="used">%2$d</xliff:g> Kb/s</string>
+    <string name="throttle_time_frame_subtext"><xliff:g id="used">%1$d</xliff:g>\u066A لە خولێک بەدەرچووە\nماوەی دواتر دەستپێئەکات لە <xliff:g id="used">%2$d</xliff:g> days (<xliff:g id="used">%3$s</xliff:g>)</string>
+    <string name="throttle_rate_subtext">ڕێژەی دراوە کەم ئەکرێتەوە بۆ <xliff:g id="used">%1$d</xliff:g> Kb/s ئەگەر سنووری بەکارهێنانی دراوە تێپەڕببێت</string>
+    <string name="cell_broadcast_sms">خانەی بڵاوکردنەوەی نامە</string>
+    <string name="enable_disable_cell_bc_sms">خانەی بڵاوکردنەوەی نامە</string>
+    <string name="cell_bc_sms_enable">خانەی بڵاوکردنەوەی نامە چالاککرا</string>
+    <string name="cell_bc_sms_disable">خانەی بڵاوکردنەوەی نامە ناچالاککرا</string>
+    <string name="cb_sms_settings">ڕێکخستنەکانی خانەی بڵاوکردنەوەی نامە</string>
+    <string name="enable_disable_emergency_broadcast">بڵاوکردنەوەی فریاکەوتن</string>
+    <string name="emergency_broadcast_enable">بڵاوکردنەوەی فریاکەوتن چالاککرا</string>
+    <string name="emergency_broadcast_disable">بڵاوکردنەوەی فریاکەوتن ناچالاککرا</string>
+    <string name="enable_disable_administrative">سەرپەرشتیاری</string>
+    <string name="administrative_enable">سەرپەرشتیاری چالاککرا</string>
+    <string name="administrative_disable">سەرپەرشتیاری ناچالاککرا</string>
+    <string name="enable_disable_maintenance">چاودێری</string>
+    <string name="maintenance_enable">چاودێری چالاککرا</string>
+    <string name="maintenance_disable">چاودێری ناچالاککرا</string>
+    <string name="general_news_settings">هەواڵی گشتی</string>
+    <string name="bf_news_settings">هەواڵی ئابوری و دارایی</string>
+    <string name="sports_news_settings">هەواڵی وەرزشی</string>
+    <string name="entertainment_news_settings">هەواڵی ڕابواردن</string>
+    <string name="enable_disable_local">ناوچه‌</string>
+    <string name="local_enable">هەواڵی ناوچەیی چالاککرا</string>
+    <string name="local_disable">هەواڵی ناوچەیی ناچالاککرا</string>
+    <string name="enable_disable_regional">هەرێمی</string>
+    <string name="regional_enable">هەواڵەکانی هەرێمی چالاککرا</string>
+    <string name="regional_disable">هەواڵەکانی هەرێمی ناچالاککرا</string>
+    <string name="enable_disable_national">نەتەوەیی</string>
+    <string name="national_enable">هەواڵەکانی نەتەوەیی چالاککرا</string>
+    <string name="national_disable">هەواڵەکانی نەتەوەیی ناچالاککرا</string>
+    <string name="enable_disable_international">جیهانی</string>
+    <string name="international_enable">هەواڵەکانی جیهانی چالاککرا</string>
+    <string name="international_disable">هەواڵەکانی جیهانی ناچالاککرا</string>
+    <string name="list_language_title">زمان</string>
+    <string name="list_language_summary">زمانی هەواڵەکان هەڵبژێرە</string>
+    <string-array name="list_language_entries">
+        <item>ئينگليزى</item>
+        <item>فه‌ڕه‌نسی</item>
+        <item>ئیسپانی</item>
+        <item>ژاپۆنی</item>
+        <item>کۆری</item>
+        <item>چینی</item>
+        <item>یەهودی</item>
+    </string-array>
+    <string-array name="list_language_values">
+        <item>"1"</item>
+        <item>"2"</item>
+        <item>"3"</item>
+        <item>"4"</item>
+        <item>"5"</item>
+        <item>"6"</item>
+        <item>"7"</item>
+    </string-array>
+    <string name="list_language_dtitle">زمانەکان</string>
+    <string name="enable_disable_local_weather">کەش و هەوای ناوخۆیی</string>
+    <string name="local_weather_enable">کەش و هەوای ناوچەیی چالاککرا</string>
+    <string name="local_weather_disable">کەش و هەوای ناوچەیی ناچالاککرا</string>
+    <string name="enable_disable_atr">ڕاپۆرتەکانی هاتوچووی ناوچە</string>
+    <string name="atr_enable">ڕاپۆرتەکانی هاتوچووی ناوچە چالاککرا</string>
+    <string name="atr_disable">ڕاپۆرتەکانی هاتوچووی ناوچە ناچالاککرا</string>
+    <string name="enable_disable_lafs">خشتەی فڕینی فڕۆکاخانەی ناوچە</string>
+    <string name="lafs_enable">خشتەی فڕینی فڕۆکاخانەی ناوچە چالاککرا</string>
+    <string name="lafs_disable">خشتەی فڕینی فڕۆکاخانەی ناوچە ناچالاککرا</string>
+    <string name="enable_disable_restaurants">خواردنگەکان</string>
+    <string name="restaurants_enable">خواردنگەکان چالاککران</string>
+    <string name="restaurants_disable">خواردنگەکان ناچالاککران</string>
+    <string name="enable_disable_lodgings">شوێنەکانی نیشتەجێبوون</string>
+    <string name="lodgings_enable">شوێنەکانی نیشتەجێبوون چالاککران</string>
+    <string name="lodgings_disable">شوێنەکانی نیشتەجێبوون ناچالاککران</string>
+    <string name="enable_disable_retail_directory">پێڕستی وردەفرۆشی</string>
+    <string name="retail_directory_enable">پێڕستی وردەفرۆشی چالاککرا</string>
+    <string name="retail_directory_disable">پێڕستی وردەفرۆشی ناچالاککرا</string>
+    <string name="enable_disable_advertisements">بڵاوکردنەوەکان</string>
+    <string name="advertisements_enable">بڵاوکردنەوەکان چالاککران</string>
+    <string name="advertisements_disable">بڵاوکردنەوەکان ناچالاککران</string>
+    <string name="enable_disable_stock_quotes">نرخەکانی سەرمایە و دراو</string>
+    <string name="stock_quotes_enable">نرخەکانی سەرمایە و دراو چالاککران</string>
+    <string name="stock_quotes_disable">نرخەکانی سەرمایە و دراو ناچالاککران</string>
+    <string name="enable_disable_eo">هەلەکانی دامەزراندن</string>
+    <string name="eo_enable">هەلەکانی دامەزراندن چالاککران</string>
+    <string name="eo_disable">هەلەکانی دامەزراندن ناچالاککران</string>
+    <string name="enable_disable_mhh">پزیشکی، تەندرووستی و نەخۆشخانە</string>
+    <string name="mhh_enable">پزیشکی، تەندرووستی و نەخۆشخانە چالاککرا</string>
+    <string name="mhh_disable">پزیشکی، تەندرووستی و نەخۆشخانە ناچالاککرا</string>
+    <string name="enable_disable_technology_news">هەواڵەکانی تەکنەلۆژیا</string>
+    <string name="technology_news_enable">هەواڵەکانی تەکنەلۆژیا چلاککران</string>
+    <string name="technology_news_disable">هەواڵەکانی تەکنەلۆژیا ناچالاککران</string>
+    <string name="enable_disable_multi_category">چەند جۆری</string>
+    <string name="multi_category_enable">چەند جۆری چالاککرا</string>
+    <string name="multi_category_disable">چەند جۆری ناچالاککرا</string>
+    <string name="network_lte">LTE (بە باش زانراو)</string>
+    <string name="network_4G">4G (بە باش زانراو)</string>
+    <string name="network_global">جیهانی</string>
+    <string name="cdma_system_select_title">دەست نیشانکردنی سیستەم</string>
+    <string name="cdma_system_select_summary">گۆڕینی شێوازی ڕومینگی CDMA</string>
+    <string name="cdma_system_select_dialogtitle">دیاریکردنی سیستەم</string>
+    <string-array name="cdma_system_select_choices">
+        <item>تەنیا ماڵەوە</item>
+        <item>خۆکارانه‌</item>
+    </string-array>
+    <string name="cdma_subscription_title">بەشداریکردن لە CDMA</string>
+    <string name="cdma_subscription_summary">نێوان RUIM/SIM یان NV بیگۆڕە</string>
+    <string name="cdma_subscription_dialogtitle">بەشداریکردن</string>
+    <string-array name="cdma_subscription_choices">
+        <item>RUIM/SIM</item>
+        <item>NV</item>
+    </string-array>
+    <string-array name="cdma_subscription_values">
+        <item>"0"</item>
+        <item>"1"</item>
+    </string-array>
+    <string name="cdma_activate_device">چالاکسازی ئامێر</string>
+    <string name="cdma_lte_data_service">دامەزراندنی خزمەتگوزاری دراوە</string>
+    <string name="carrier_settings_title">ڕێکخستنەکانی بەکارگێڕی سیمکارت</string>
+    <string name="fdn">ژمارەکانی جێگیرکراوی پەیوەندی</string>
+    <string name="manage_fdn_list">لیستی FDN</string>
+    <string name="fdn_activation">چالاککردنی ژمارەی جێگیرکراوی پەیوەندی</string>
+    <string name="fdn_enabled">ژمارەی جێگیرکراوی پەیوەندی چالاککرا</string>
+    <string name="fdn_disabled">ژمارەی جێگیرکراوی پەیوەندی ناچالاککرا</string>
+    <string name="enable_fdn">چالاککردنی ژمارەی جێگیرکراوی پەیوەندیکردن</string>
+    <string name="disable_fdn">ناچالاککردنی ژمارەی جێگیرکراوی پەیوەندیکردن</string>
+    <string name="change_pin2">گۆڕینی PIN2</string>
+    <string name="enable_fdn_ok">ناچالاککردنی ژمارەی جێگیرکراوی پەیوەندیکردن</string>
+    <string name="disable_fdn_ok">چالاککردنی ژمارەی جێگیرکراوی پەیوەندیکردن</string>
+    <string name="sum_fdn">بەڕێوەبردنی ژمارەکانی جێگیرکراوی پەیوەندیکردن</string>
+    <string name="sum_fdn_change_pin">گۆڕیی PIN بۆ دەستپێگەیشتنی ژمارەی جێگیرکراوی پەیوەندیکردن</string>
+    <string name="sum_fdn_manage_list">بەڕێوەبردنی لیستەی ژمارە تەلەفۆنەکان</string>
+    <string name="voice_privacy">نهێنیکردنی دەنگ</string>
+    <string name="voice_privacy_summary">چالاککردنی شێوازی نهێنی کردن</string>
+    <string name="tty_mode_option_title">شێوازی TTY</string>
+    <string name="tty_mode_option_summary">شێوازی TTY دابنێ</string>
+    <string name="auto_retry_mode_title">خۆکارانە هەوڵدانەوە</string>
+    <string name="auto_retry_mode_summary">چالاککردنی شێوازی خۆکارانە هەوڵدانەوە</string>
+    <string name="menu_add">زیاکردنی ناو</string>
+    <string name="menu_edit">دەستکاریکردنی ناو</string>
+    <string name="menu_delete">سڕینەوەی پەیوەندی</string>
+    <string name="get_pin2">PIN2 بنووسە</string>
+    <string name="name">ناو</string>
+    <string name="number">ژمارە</string>
+    <string name="save">پاشەکەوتکردن</string>
+    <string name="add_fdn_contact">زێدەکردنی ژمارەی جێگیرکراوی پەیوەندی کردن</string>
+    <string name="adding_fdn_contact">زێدەکردنی ژمارەی جێگیرکراوی پەیوەندی کردن\u2026</string>
+    <string name="fdn_contact_added">ژمارەی جێگیرکراوی پەیوەندی کردن زێدەکرا.</string>
+    <string name="edit_fdn_contact">دەستکاری کردنی ژمارەی جێگیرکراوی پەیوەندی کردن</string>
+    <string name="updating_fdn_contact">نوێکردنەوەی ژمارەی جێگیرکراوی پەیوەندیکردن\u2026</string>
+    <string name="fdn_contact_updated">ژمارەی جێگیرکراوی پەیوەندیکردن نوێکرایەوە.</string>
+    <string name="delete_fdn_contact">سڕینه‌وه‌ی ژماره‌ لێدانه‌ چاره‌سه‌رکراوه‌کان</string>
+    <string name="deleting_fdn_contact">سڕینەوەی ژمارەی جێگیرکراوی پەیوەندیکردن\u2026</string>
+    <string name="fdn_contact_deleted">ژمارەی جێگیرکراوی پەیوەندیکردن سڕدرایەوە.</string>
+    <string name="pin2_invalid">ژمارەی جێگیرکراوی پەیوەندیکردن نوێ نەکرایەوە بە هۆی نووسینی PINی هەڵە.</string>
+    <string name="pin2_or_fdn_invalid">ژمارەی جێگیرکراوی پەیوەندیکردن نوێ نەکرایەوە. PIN2 هەڵەیە، یان ژمارە تەلەفۆنەکەت داخراوە.</string>
+    <string name="fdn_failed">خستنەگڕی ژمارەی جێگیرکراوی پەیوەندیکردن سەرکەوتوو نەبوو.</string>
+    <string name="simContacts_emptyLoading">خوێندنەوە لە سیمکارتەوە\u2026</string>
+    <string name="simContacts_empty">هێچ ناوێک لە ناو سیمکارتەکەتدا نییە.</string>
+    <string name="simContacts_title">ناوەکان بۆ هاوردن دیاری بکە</string>
+    <string name="enable_pin">چالاککردنی/ناچالاککردنی PINی سیمکارت</string>
+    <string name="change_pin">گۆڕینی PINی سیمکارت</string>
+    <string name="enter_pin_text">PINی سیمکارت:</string>
+    <string name="oldPinLabel">PINی کۆن</string>
+    <string name="newPinLabel">PINی نوێ</string>
+    <string name="confirmPinLabel">پشتڕاستکردنەوەی PINی نوێ</string>
+    <string name="badPin">PINە کۆنەکەی کە تۆ نووسیوتە هەڵەیە. دووبارە هەوڵ بدەوە.</string>
+    <string name="mismatchPin">ئەو PINانەی کە تۆ نووسیوتن لە یەک ناچن. دووبارە هەوڵ بدەوە.</string>
+    <string name="invalidPin">PINێک بنووسە کە 4 بۆ 8 ژمارە بێت.</string>
+    <string name="enter_pin2_text">PIN2</string>
+    <string name="oldPin2Label">PIN2ی کۆنە</string>
+    <string name="newPin2Label">PIN2ی نوێ</string>
+    <string name="confirmPin2Label">PIN2ی نوێ دووپاتکەرەوە</string>
+    <string name="puk2_blocked">PUK2 بەیەکجاری داخرا.</string>
+    <string name="doneButton">کراو</string>
+    <string name="voicemail_settings_number_label">ژماره‌ی ده‌نگه‌پۆست</string>
+    <string name="card_title_dialing">ژماره‌گرتن</string>
+    <string name="card_title_conf_call">په‌یوه‌ندیی کۆنگره‌یی</string>
+    <string name="card_title_incoming_call">په‌یوه‌ندیی داهاتوو</string>
+    <string name="card_title_call_ended">په‌یوه‌ندی کۆتایی هات</string>
+    <string name="card_title_on_hold">ڕاگیراوە</string>
+    <string name="card_title_hanging_up">لە داخستندایە</string>
+    <string name="card_title_in_call">له‌ په‌یوه‌ندیدایە</string>
+    <string name="notification_voicemail_title">دەنگەپۆستی نوێ</string>
+    <string name="notification_voicemail_title_count">دەنگەپۆستی نوێ (<xliff:g id="count">%d</xliff:g>)</string>
+    <string name="notification_voicemail_text_format"><xliff:g id="voicemail_number">%s</xliff:g> بگرە</string>
+    <string name="notification_voicemail_no_vm_number">ژماره‌ی ده‌نگه‌پۆست نه‌زانراوه‌</string>
+    <string name="notification_network_selection_title">ڕاژە نییە</string>
+    <string name="incall_error_emergency_only">تۆمارنه‌کراوە له‌سه‌ر تۆڕ.</string>
+    <string name="emergency_enable_radio_dialog_title">پەیوەندیی فریاگوزاری</string>
+    <string name="emergency_enable_radio_dialog_message">هەڵکردنی ڕادیۆ\u2026</string>
+    <string name="dialerKeyboardHintText">بۆ لێدانی ژمارە تەختەکلیل بەکار بهێنە</string>
+    <string name="onscreenHoldText">ڕاگرتن</string>
+    <string name="onscreenEndCallText">کۆتایی پێ هێنان</string>
+    <string name="onscreenShowDialpadText">ژمارەگر</string>
+    <string name="onscreenMuteText">کپکردن</string>
+    <string name="onscreenAddCallText">زیاکردنی په‌یوه‌ندی</string>
+    <string name="onscreenMergeCallsText">تێکه‌ڵکردنی په‌یوه‌ندییەکان</string>
+    <string name="onscreenSwapCallsText">ئاڵوگۆڕکردن</string>
+    <string name="onscreenManageCallsText">به‌ڕێوه‌بردنی په‌یوه‌ندییه‌کان</string>
+    <string name="onscreenManageConferenceText">به‌ڕێوه‌بردنی کۆنگره‌</string>
+    <string name="onscreenAudioText">دەنگ</string>
+    <string name="onscreenVideoCallText">په‌یوه‌ندیی ڤیدیۆیی</string>
+    <string name="importSimEntry">هاوردن</string>
+    <string name="importAllSimEntries">هێنانی هەمووی</string>
+    <string name="importingSimContacts">تێخستنی ناوەکانی سیمکارت</string>
+    <string name="importToFDNfromContacts">تێکردن لە ناوەکانەوە</string>
+    <string name="hac_mode_title">یارمەتیدەری بیستن</string>
+    <string name="hac_mode_summary">هەڵکردنی گونجانی یارمەتیدەرەکانی بیستن</string>
+    <string-array name="tty_mode_entries">
+        <item>TTY کوژاوەیە</item>
+        <item>TTY پڕە</item>
+        <item>TTY HCO</item>
+        <item>TTY VCO</item>
+    </string-array>
+    <string name="dtmf_tones_title">زەنگەکانی DTMF</string>
+    <string name="dtmf_tones_summary">ماوەی زەنگەکانی DTMF دیاری بکە</string>
+    <string-array name="dtmf_tone_entries">
+        <item>ئاسایی</item>
+        <item>درێژ</item>
+    </string-array>
+    <string name="ota_title_activate">مۆبایلەکەت چالاک بکە</string>
+    <string name="ota_touch_activate">پەیوەندییەکی تایبەت پێویستە بۆ چالاککردنی خزمەتگوزاری تەلەفۆن.
+    \n\nدوای لێدانی \u201Cچالاکسازی\u201D, ئەو فێرکارییانە کە بۆ چالاککردنی تەلەفۆنەکەت نووسراون ڕەچاو بکە.</string>
+    <string name="ota_hfa_activation_title">چالاکسازی...</string>
+    <string name="ota_hfa_activation_dialog_message">تەلەفۆنەکەت خزمەتگوزاری دراوەی مۆبایل چالاک ئەکات.\n\nئەتوانێت 5 خۆلەک بخایەنێت.</string>
+    <string name="ota_skip_activation_dialog_title">لابردنی چالاکسازی\؟</string>
+    <string name="ota_skip_activation_dialog_message">ئەگەر گوێ بە چالاکسازی نەدەیت، ناتوانی پەیوەندی بکەیت و خۆت ببەستیتەوە بە تۆڕەکانی دراوەی مۆبایل (هەرچەندە کە ئەتوانیت خۆت ببەستیتەوە بە تۆڕەکانی Wi-Fi). تاکو ئەو کات کە تەلەفۆنەکەت چالاک ئەکەی، هەر جارێک کە تەلەفۆنەکەت هەڵ ئەکەیت پرسیاری چالاککردنت لێ ئەکرێ.</string>
+    <string name="ota_skip_activation_dialog_skip_label">چاوپۆشی</string>
+    <string name="ota_activate">چالاککردن</string>
+    <string name="ota_title_activate_success">تەلەفۆن چالاککراوە.</string>
+    <string name="ota_title_problem_with_activation">لە چالاکسازیدا هەڵەیەک هەیە</string>
+    <string name="ota_listen">فێرکارییە دەنگەکان ڕەچاو بکە تاکو ئەو کات کە گوێبیستی سەرکەوتووبوونی چالاکسازی ئەبیت.</string>
+    <string name="ota_speaker">بەرزەبێژ</string>
+    <string name="ota_successful">تئێستا تەلەفۆنەکەت چالاکە. لەوانەیە 15 خۆلەک بخایەنێت بۆ دەسپێکردنی خزمەتگوزاری.</string>
+    <string name="ota_unsuccessful">تەلەفۆنەکەت چالاک نەکرا.
+    \nلەوانەیە پێویستت بە دۆزینەوەی شوێنێک بە هێمای باشتر ببێت (لە تەنیشت پەنجەرەیەک، یان دەرەوە).
+    \n\nدووبارە هەوڵ بدەوە یان پەیوەندی بە خزمەتگوزاری کڕیارەکانەوە بکە بۆ بەربژاردەی زیاتر.</string>
+    <string name="ota_spc_failure">تایبەتمەندی زیادە سەری نەگرت</string>
+    <string name="ota_call_end">گەڕانەوە</string>
+    <string name="ota_try_again">هەوڵبدەوە</string>
+    <string name="ota_next">دواتر</string>
+    <string name="ecm_exit_dialog">EcmExitDialog</string>
+    <string name="phone_entered_ecm_text">چووەناوەوە بۆ دۆخی پەیوەندی چالاککردنی فریاکەوتن</string>
+    <string name="phone_in_ecm_notification_title">دۆخی پەیوەندی چالاککردنی فریاکەوتن</string>
+    <string name="phone_in_ecm_call_notification_text">بەستنەوەی دراوە ناچالاککرا</string>
+    <string name="alert_dialog_in_ecm_call">ئەم فرمانە هەڵبژێردراوە بەر دەست نییە لا کاتی پەیوەندی فریاکەوتن.</string>
+    <string name="progress_dialog_exiting_ecm">دەرچوون لە دۆخی پەیوەندی کردنەوەی فریاکەوتن</string>
+    <string name="alert_dialog_yes">بەڵێ</string>
+    <string name="alert_dialog_no">نا</string>
+    <string name="alert_dialog_dismiss">گوێ نەدان</string>
+    <string name="voicemail_provider">ڕاژە</string>
+    <string name="voicemail_settings">جێگیرکردن</string>
+    <string name="voicemail_number_not_set">&lt;دانه‌نراوه‌&gt;</string>
+    <string name="other_settings">ڕێکخستنەکانی دیکەی پەیوەندیکردن</string>
+    <string name="calling_via_template">په‌یوه‌ندیکردن له‌ ڕێگه‌ی <xliff:g id="provider_name">%s</xliff:g></string>
+    <string name="contactPhoto">وێنەی ناوەکە</string>
+    <string name="goPrivate">بۆ تاکەکەسی</string>
+    <string name="selectContact">ناوەکە دیاری بکە</string>
+    <string name="not_voice_capable">پەیوەندی دەنگی پشتگیری ناکرێت</string>
+    <string name="description_dial_button">لێدان</string>
+    <string name="preference_category_ringtone">لەرینەوەی &amp; زەنگ</string>
+    <string name="pstn_connection_service_label">سیمکارتە تووکارەکان</string>
+    <string name="enable_video_calling_title">هەڵکردنی پەیوەندیی ڤیدیۆیی</string>
+    <string name="enable_video_calling_dialog_settings">ڕێکخستنەکانی تۆڕ</string>
+    <string name="enable_video_calling_dialog_close">داخستن</string>
+    <string name="sim_label_emergency_calls">پەیوەندیی فریاگوزاری</string>
+    <string name="sim_description_emergency_calls">تەنیا پەیوەندییەکانی فریاگوزاری</string>
+    <string name="sim_description_default">سیمکارت, قڵیش: <xliff:g id="slot_id">%s</xliff:g></string>
+    <string name="change_pin_cancel_label">لابردن</string>
+    <string name="clh_card_title_call_ended_txt">په‌یوه‌ندی کۆتایی هات</string>
+    <string name="sum_call_barring_disabled">کوژانه‌وه‌</string>
+    <string name="supp_service_over_ut_precautions_dialog_dismiss">لابردن</string>
+    <string name="dsds_dialog_cancel">لابردن</string>
+    <string name="radioInfo_unknown">نەناسراو</string>
+    <string name="radio_info_smsc_update_label">بەڕۆژکردن</string>
+    <string name="send_from_work_profile_cancel">لابردن</string>
+</resources>

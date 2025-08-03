@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="action_use_network">Seqdec aẓeṭṭa-a akken yella</string>
+    <string name="action_do_not_use_network">Ur seqdac ara aẓeṭṭa-a</string>
+    <string name="action_bar_label">Qqen ar uẓeṭṭa</string>
+    <string name="action_bar_title">Kcem ɣer %1$s</string>
+    <string name="ssl_error_example">Amedya, asebter n tuqqna ahat mačči n tuddsa i tettwaliḍ.</string>
+    <string name="error_continue_via_browser">Kemmel s iminig akken yebɣu yella</string>
+    <string name="ssl_error_invalid">Aselkin agi mačči d ameɣtu.</string>
+    <string name="ssl_error_unknown">Tuccḍa tarussint g uselkin.</string>
+    <string name="ssl_security_warning_title">Alɣu n teɣellist</string>
+    <string name="ssl_error_view_certificate">Voir le certificat</string>
+    <string name="ok">Γas</string>
+    <string name="page_info_address">Tansa:</string>
+    <string name="downloading_paramfile">Asider n %1$s</string>
+    <string name="download_completed">Asider yemmed</string>
+    <string name="channel_name_downloads">Isidar</string>
+</resources>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="feedback_system_logs_title_text">Incluyir tolos rexistros</string>
+    <string name="feedback_system_logs_legal_text">Ye posible qu\'al compartir tolos rexistros rellacionaos col sistema y coles aplicaciones s\'unvien a Google detalles como nomes d\'usuariu, llocalizaciones, IDs del preséu ya información de redes. Google usa esta información pa iguar problemes téunicos y ameyorar servicios. Conoz más en g.co/android/devicelogs.</string>
+    <string name="feedback_bugreport_title_text">Incluyir un informe de fallos</string>
+    <string name="feedback_bugreport_legal_display_text">L\'informe de fallos (de: %1$s) inclúi datos como nomes d\'usuariu, llocalizaciones, IDs del preséu ya información de redes p\'ayudar a Google a entender ya iguar el problema.</string>
+    <string name="next">Siguiente</string>
+    <string name="feedback_view_system_logs_button_text">Ver los rexistros del sistema</string>
+    <string name="feedback_view_logs_dialog_title">Rexistros del sistema</string>
+    <string name="feedback_view_logs_dialog_body">Estos rexistros contienen información que vamos precisar pa ser a atender la to opinión.</string>
+    <string name="annotated_back_indicator_string">Primi\'l botón «ATRÁS» pa volver.</string>
+    <string name="loading">Cargando</string>
+</resources>

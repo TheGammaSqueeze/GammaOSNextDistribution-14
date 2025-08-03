@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2010 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label">Llwythi</string>
+    <string name="download_title_sorted_by_date">Llwythi - Yn nhrefn dyddiad</string>
+    <string name="download_title_sorted_by_size">Llwythi - Yn nhrefn maint</string>
+    <string name="no_downloads">Dim llwythi.</string>
+    <string name="missing_title">&lt;Anhysbys&gt;</string>
+    <string name="button_sort_by_size">Trefnu yn ôl maint</string>
+    <string name="button_sort_by_date">Trefnu yn ôl dyddiad</string>
+    <string name="download_queued">Mewn ciw</string>
+    <string name="download_running">Ar y gweill</string>
+    <string name="download_success">Yn gyflawn</string>
+    <string name="download_error">Aflwyddiannus</string>
+    <string name="dialog_title_not_available">Methwyd â lawrlwytho</string>
+    <string name="dialog_failed_body">Wyt ti am geisio lawrlwytho\'r ffeil yn hwyrach neu ei dileu o\'r ciw?</string>
+    <string name="dialog_title_queued_body">Ffeil yn y ciw</string>
+    <string name="dialog_queued_body">Mae\'r ffeil hon wedi ei chiwio i\'w lawrlwytho yn y dyfodol ac nid yw ar gael eto.</string>
+    <string name="dialog_file_missing_body">Methu â lawrlwytho; Dyw\'r cyfrwng allanol ddim ar gael.</string>
+    <string name="dialog_insufficient_space_on_external">Methu â chwblhau lawrlwytho. Does dim digon o le ar y storfa allanol.</string>
+    <string name="dialog_insufficient_space_on_cache">Methu â lawrlwytho\'r cyfan; Nid oes digon o le ar y storfa fewnol.</string>
+    <string name="dialog_cannot_resume">Wedi ymyrraeth, nid yw\'n bosib parhau a\'r lawrlwytho.</string>
+    <string name="dialog_file_already_exists">Methu â lawrlwytho; Mae\'r ffeil yn bodoli eisoes.    </string>
+    <string name="dialog_media_not_found">Methu â lawrlwytho; Dyw\'r cyfrwng allanol ddim ar gael.    </string>
+    <string name="download_no_application_title">Methu ag agor y ffeil</string>
+    <string name="remove_download">Tynnu</string>
+    <string name="delete_download">Dileu</string>
+    <string name="keep_queued_download">Cadw</string>
+    <string name="cancel_running_download">Diddymu</string>
+    <string name="retry_download">Ailgeisio</string>
+    <string name="start_now_download">Dechrau nawr</string>
+    <string name="deselect_all">Dewis dim</string>
+    <string name="select_all">Dewis y cwbl</string>
+    <string name="selected_count">Dewiswyd <xliff:g id="number" example="3">%1$d</xliff:g> allan o <xliff:g id="total" example="15">%2$d</xliff:g></string>
+    <string name="download_share_dialog">Rhannu drwy</string>
+</resources>

@@ -1,0 +1,7 @@
+# Example local flag change. Uncomment to enable
+#flag_value {
+#    package: "android.embedded.chre.flags"
+#    name: "post_release_24q1"
+#    state: ENABLED
+#    permission: READ_ONLY
+#}

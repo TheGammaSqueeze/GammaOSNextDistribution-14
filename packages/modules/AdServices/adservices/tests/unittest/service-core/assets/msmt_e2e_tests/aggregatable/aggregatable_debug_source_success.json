@@ -1,0 +1,341 @@
+{
+  "description": "Success debug aggregatable report sent when permitted and debug keys set, debug source-success report sent",
+  "input": {
+    "sources": [
+      {
+        // Will generate debug source-success report since 'ad_id_permission' and 'debug_reporting' are true.
+        "timestamp": "1643235573000",
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech1.test",
+          "source_type": "navigation",
+          "registrant": "example.1s1.test"
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "has_ad_id_permission": true,
+          "response": {
+            "Attribution-Reporting-Register-Source": {
+              "source_event_id": "123",
+              "destination": "android-app://example.2d1.test",
+              "aggregation_keys": {
+                "a": "0x1"
+              },
+              "debug_reporting": true,
+              "debug_key": "111"
+            }
+          }
+        }]
+      },
+      {
+        // Will not generate debug source-success report as no adid permission.
+        "timestamp": "1643235573001",
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech2.test",
+          "source_type": "navigation",
+          "registrant": "example.1s1.test"
+        },
+        "responses": [{
+          "url": "https://www.ad-tech2.test",
+          "has_ad_id_permission": false,
+          "response": {
+            "Attribution-Reporting-Register-Source": {
+              "source_event_id": "456",
+              "destination": "android-app://example.2d1.test",
+              "aggregation_keys": {
+                "a": "0x2"
+              },
+              "debug_reporting": true
+            }
+          }
+        }]
+      },
+      {
+        // Will not generate debug source-success report as debug reporting is false.
+        "timestamp": "1643235573002",
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech1.test",
+          "source_type": "navigation",
+          "registrant": "example.1s1.test"
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "has_ad_id_permission": false,
+          "response": {
+            "Attribution-Reporting-Register-Source": {
+              "source_event_id": "789",
+              "destination": "android-app://example.2d2.test",
+              "aggregation_keys": {
+                "a": "0x3"
+              },
+              "debug_reporting": false,
+              "debug_key": "222"
+            }
+          }
+        }]
+      }
+    ],
+    "triggers": [
+      {
+        "timestamp": "1643235574000",
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech1.test",
+          "registrant": "example.2d1.test",
+          "destination_origin": "android-app://example.2d1.test"
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "has_ad_id_permission": true,
+          "response": {
+            "Attribution-Reporting-Register-Trigger": {
+              "aggregatable_trigger_data": [
+                {
+                  "source_keys": ["a"],
+                  "key_piece": "0x10"
+                }
+              ],
+              "aggregatable_values": {
+                "a": 111
+              },
+              "debug_key": "333"
+            }
+          }
+        }]
+      },
+      {
+        "timestamp": "1643235575000",
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech1.test",
+          "registrant": "example.2d1.test",
+          "destination_origin": "android-app://example.2d1.test"
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "has_ad_id_permission": true,
+          "response": {
+            "Attribution-Reporting-Register-Trigger": {
+              "aggregatable_trigger_data": [
+                {
+                  "source_keys": ["a"],
+                  "key_piece": "0x10"
+                }
+              ],
+              "aggregatable_values": {
+                "a": 222
+              }
+            }
+          }
+        }]
+      },
+      {
+        "timestamp": "1643235576000",
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech1.test",
+          "registrant": "example.2d1.test",
+          "destination_origin": "android-app://example.2d1.test"
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "has_ad_id_permission": true,
+          "response": {
+            "Attribution-Reporting-Register-Trigger": {
+              "aggregatable_trigger_data": [
+                {
+                  "source_keys": ["a"],
+                  "key_piece": "0x10"
+                }
+              ],
+              "aggregatable_values": {
+                "a": 333
+              },
+              "debug_key": "444"
+            }
+          }
+        }]
+      },
+      {
+        "timestamp": "1643235577000",
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech2.test",
+          "registrant": "example.2d1.test",
+          "destination_origin": "android-app://example.2d1.test"
+        },
+        "responses": [{
+          "url": "https://www.ad-tech2.test",
+          "has_ad_id_permission": true,
+          "response": {
+            "Attribution-Reporting-Register-Trigger": {
+              "aggregatable_trigger_data": [
+                {
+                  "source_keys": ["a"],
+                  "key_piece": "0x10"
+                }
+              ],
+              "aggregatable_values": {
+                "a": 444
+              },
+              "debug_key": "555"
+            }
+          }
+        }]
+      },
+      {
+        "timestamp": "1643235578000",
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech1.test",
+          "registrant": "example.2d2.test",
+          "destination_origin": "android-app://example.2d2.test"
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "has_ad_id_permission": true,
+          "response": {
+            "Attribution-Reporting-Register-Trigger": {
+              "aggregatable_trigger_data": [
+                {
+                  "source_keys": ["a"],
+                  "key_piece": "0x10"
+                }
+              ],
+              "aggregatable_values": {
+                "a": 555
+              },
+              "debug_key": "666"
+            }
+          }
+        }]
+      }
+    ]
+  },
+  "output": {
+    "aggregatable_results": [
+      {
+        "payload": {
+          "attribution_destination": "android-app://example.2d1.test",
+          "histograms": [
+            {
+              "key": "0x11",
+              "value": 111
+            }
+          ],
+          "source_debug_key": "111",
+          "trigger_debug_key": "333",
+          "source_registration_time": "1643155200"
+        },
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/report-aggregate-attribution",
+        "report_time": "1643239174000"
+      },
+      {
+        "payload": {
+          "attribution_destination": "android-app://example.2d1.test",
+          "histograms": [
+            {
+              "key": "0x11",
+              "value": 222
+            }
+          ],
+          "source_debug_key": "111",
+          "source_registration_time": "1643155200"
+        },
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/report-aggregate-attribution",
+        "report_time": "1643239175000"
+      },
+      {
+        "payload": {
+          "attribution_destination": "android-app://example.2d1.test",
+          "histograms": [
+            {
+              "key": "0x11",
+              "value": 333
+            }
+          ],
+          "source_debug_key": "111",
+          "trigger_debug_key": "444",
+          "source_registration_time": "1643155200"
+        },
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/report-aggregate-attribution",
+        "report_time": "1643239176000"
+      },
+      {
+        "payload": {
+          "attribution_destination": "android-app://example.2d1.test",
+          "histograms": [
+            {
+              "key": "0x12",
+              "value": 444
+            }
+          ],
+          "trigger_debug_key": "555",
+          "source_registration_time": "1643155200"
+        },
+        "report_url": "https://www.ad-tech2.test/.well-known/attribution-reporting/report-aggregate-attribution",
+        "report_time": "1643239177000"
+      },
+      {
+        "payload": {
+          "attribution_destination": "android-app://example.2d2.test",
+          "histograms": [
+            {
+              "key": "0x13",
+              "value": 555
+            }
+          ],
+          "trigger_debug_key": "666",
+          "source_registration_time": "1643155200"
+        },
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/report-aggregate-attribution",
+        "report_time": "1643239178000"
+      }
+    ],
+    "debug_aggregatable_results": [
+      {
+        "payload": {
+          "attribution_destination": "android-app://example.2d1.test",
+          "histograms": [
+            {
+              "key": "0x11",
+              "value": 111
+            }
+          ],
+          "source_debug_key": "111",
+          "trigger_debug_key": "333",
+          "source_registration_time": "1643155200"
+        },
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/debug/report-aggregate-attribution",
+        "report_time": "1643235574000"
+      },
+      {
+        "payload": {
+          "attribution_destination": "android-app://example.2d1.test",
+          "histograms": [
+            {
+              "key": "0x11",
+              "value": 333
+            }
+          ],
+          "source_debug_key": "111",
+          "trigger_debug_key": "444",
+          "source_registration_time": "1643155200"
+        },
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/debug/report-aggregate-attribution",
+        "report_time": "1643235576000"
+      }
+    ],
+    "verbose_debug_reports": [
+      {
+        "report_time": "1643235573000",
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/debug/verbose",
+        "payload": [
+          {
+            "type": "source-success",
+            "body": {
+              "source_event_id": "123",
+              "attribution_destination": "android-app://example.2d1.test",
+              "source_site": "android-app://example.1s1.test",
+              "source_debug_key": "111"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

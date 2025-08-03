@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="pbap_session_key_dialog_title" msgid="5103201901254778256">"Įveskite %1$s sesijos raktą"</string>
+    <string name="pbap_session_key_dialog_header" msgid="5073165544713355581">"Reikalingas „Bluetooth“ sesijos raktas"</string>
+    <string name="pbap_acceptance_timeout_message" msgid="3071798915563151284">"Baigėsi skirtasis ryšio su %1$s priėmimo laikas"</string>
+    <string name="pbap_authentication_timeout_message" msgid="2089914949828656737">"Baigėsi įvesties sesijos rakto su %1$s laikas"</string>
+    <string name="auth_notif_ticker" msgid="7344125635314034621">"„Obex“ tapatybės nustatymo užklausa"</string>
+    <string name="auth_notif_title" msgid="6639277119990416473">"Sesijos raktas"</string>
+    <string name="auth_notif_message" msgid="7044369885874418693">"Įveskite %1$s sesijos raktą"</string>
+    <string name="defaultname" msgid="6200530814398805541">"Automobilinė įranga"</string>
+    <string name="unknownName" msgid="6755061296103155293">"Nežinomas pavadinimas"</string>
+    <string name="localPhoneName" msgid="9119254982537191352">"Mano vardas"</string>
+    <string name="defaultnumber" msgid="5348816189286607406">"000000"</string>
+    <string name="pbap_notification_group" msgid="4215789331721465381">"„Bluetooth“ kontaktų bendrinimas"</string>
+    <string name="phonebook_advance_feature_support" msgid="8129553051734505128">"Palaikomos išplėstinės telefonų knygos funkcijos"</string>
+    <string name="repair_for_adv_phonebook_feature" msgid="3489797973131684927">"Išplėstinės telefonų knygos funkcijos pakartotinis susiejimas"</string>
+</resources>

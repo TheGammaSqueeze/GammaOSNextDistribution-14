@@ -1,0 +1,222 @@
+buffers: {
+    size_kb: 63488
+    fill_policy: DISCARD
+}
+buffers: {
+    size_kb: 2048
+    fill_policy: DISCARD
+}
+# Max duration: 1 min
+duration_ms: 60000
+
+data_sources: {
+    config {
+        name: "linux.ftrace"
+
+        # See: https://perfetto.dev/docs/data-sources/atrace#traceconfig
+        ftrace_config {
+            ftrace_events: "ftrace/print"
+
+            # Trace all ContentProvider commands and SQLite queries.
+            # See: https://source.corp.google.com/android-internal/frameworks/base/core/java/android/os/Trace.java?q=TRACE_TAG_DATABASE
+            # See: https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/java/android/database/sqlite/SQLiteConnection.java
+            # Uncomment to enable.
+            # Note: on a userdebug build it will add a trace for every SQLite command for every
+            # application, which makes traces very-very "noisy".
+            # atrace_categories: "database"
+
+            # Trace Binder IPC transactions.
+            # Uncomment to enable.
+            # Note: on a userdebug build it will add a trace for every Binder transaction for every
+            # application, which makes traces very-very "noisy".
+            # atrace_categories: "binder_driver"
+
+            # ActivityManager, WindowManager, Graphics, View System.
+            # Uncomment to enable.
+            # Note: on a userdebug build it will traces from corresponding category for every
+            # application, which makes traces very-very "noisy".
+            # atrace_categories: "wm"
+            # atrace_categories: "am"
+            atrace_categories: "gfx"
+            atrace_categories: "view"
+
+            # Trace DocumentUI "custom" events.
+            atrace_apps: "com.android.documentsui"
+            atrace_apps: "com.google.android.documentsui"
+
+            # Trace other Providers.
+
+            # authorities="com.android.documentsui.archives" - DocsUI
+            atrace_apps: "com.android.documentsui"
+            atrace_apps: "com.google.android.documentsui"
+
+            # authorities="com.android.externalstorage.documents" - ExternalStorageProvider
+            atrace_apps: "com.android.externalstorage"
+
+            # authorities="com.android.mtp.documents" - Mtp
+            atrace_apps: "com.android.mtp"
+
+            # authorities="com.android.pixellogger.documents" - PixelLogger
+            atrace_apps: "com.android.pixellogger"
+
+            # authorities="com.android.providers.downloads" - DownloadSProvider
+            atrace_apps: "com.android.providers.downloads.documents"
+
+            # authorities="com.android.providers.media.documents" - MediaProvider
+            atrace_apps: "com.android.providers.media.module"
+            atrace_apps: "com.google.android.providers.media.module"
+
+            # authorities="com.android.shell.documents" - Shell (BugreportStorageProvider)
+            # atrace_apps: "android.uid.shell"
+
+            # authorities="com.google.android.apps.docs.storage" - Google Docs
+            atrace_apps: "com.google.android.apps.docs"
+
+            # Google Photos.
+            # atrace_apps: "com.google.android.apps.photos"
+
+            # Trace all apps' events.
+            # Uncomment to enable.
+            # atrace_apps: "*"
+        }
+    }
+}
+
+# This is for getting Thread-to-Process associations and full process names.
+data_sources: {
+    config {
+        name: "linux.process_stats"
+    }
+}
+
+# "Expected Timeline" and "Actual Timeline" jor each process
+# See https://perfetto.dev/docs/data-sources/frametimeline#traceconfig
+data_sources {
+    config {
+        name: "android.surfaceflinger.frametimeline"
+    }
+}
+
+# Memory Profiling
+# See https://perfetto.dev/docs/data-sources/memory-counters
+
+# Android Logcat
+data_sources: {
+    config {
+        name: "android.log"
+        android_log_config {
+            min_prio: PRIO_VERBOSE # Default: PRIO_DEBUG
+
+            log_ids: LID_EVENTS
+            log_ids: LID_CRASH
+            log_ids: LID_KERNEL
+            log_ids: LID_DEFAULT
+            log_ids: LID_RADIO
+            log_ids: LID_SECURITY
+            log_ids: LID_STATS
+            log_ids: LID_SYSTEM
+
+            # If filter_tags non-empty ignores all log messages whose tag doesn't match one of the
+            # specified values.
+            # filter_tags: "AbstractActionHandler"
+            # filter_tags: "ActionModeController"
+            # filter_tags: "Archive"
+            # filter_tags: "ArchiveFileTestRule"
+            # filter_tags: "ArchiveHandle"
+            # filter_tags: "ArchivesProvider"
+            # filter_tags: "CancelFromNotificationUiTest"
+            # filter_tags: "ClipStorage"
+            # filter_tags: "CommandInterceptor"
+            # filter_tags: "CompressJob"
+            # filter_tags: "ConfirmFragment"
+            # filter_tags: "ContentLock"
+            # filter_tags: "CopyJob"
+            # filter_tags: "DebugHelper"
+            # filter_tags: "DeleteJob"
+            # filter_tags: "DirectoryFragment"
+            # filter_tags: "DirectoryLoader"
+            # filter_tags: "DirectoryResult"
+            # filter_tags: "DocumentAccess"
+            # filter_tags: "DocumentClipper"
+            # filter_tags: "DocumentInfo"
+            # filter_tags: "DocumentStack"
+            # filter_tags: "Documents"
+            # filter_tags: "DocumentsApplication"
+            # filter_tags: "DocumentsSwipeRefreshLayout"
+            # filter_tags: "DragStartListener"
+            # filter_tags: "DrawerController"
+            # filter_tags: "EjectRootTask"
+            # filter_tags: "FileCopyUiTest"
+            # filter_tags: "FileDeleteUiTest"
+            # filter_tags: "FileOperationService"
+            # filter_tags: "FileOperations"
+            # filter_tags: "FilesActivity"
+            # filter_tags: "FilesAppPerfTest"
+            # filter_tags: "FocusManager"
+            # filter_tags: "GetRootDocumentTask"
+            # filter_tags: "HeaderItem"
+            # filter_tags: "HeaderMessage"
+            # filter_tags: "IconHelper"
+            # filter_tags: "ItemDragListener"
+            # filter_tags: "Job"
+            # filter_tags: "JumboUrisSupplier"
+            # filter_tags: "LastAccessedProvider"
+            # filter_tags: "LastAccessedStorage"
+            # filter_tags: "LauncherActivity"
+            # filter_tags: "ListDocumentHolder"
+            # filter_tags: "LoadDocStackTask"
+            # filter_tags: "LoadRootTask"
+            # filter_tags: "Loader"
+            # filter_tags: "ManagerActionHandler"
+            # filter_tags: "MenuManager"
+            # filter_tags: "MetadataLoader"
+            # filter_tags: "Metrics"
+            # filter_tags: "Model"
+            # filter_tags: "ModelBackedDocuments"
+            # filter_tags: "MoveJob"
+            # filter_tags: "MultiRootDocsLoader"
+            # filter_tags: "NavigationViewManager"
+            # filter_tags: "OperationDialogFragment"
+            # filter_tags: "PermissionsTest"
+            # filter_tags: "PickActivity"
+            # filter_tags: "PickCountRecordProvider"
+            # filter_tags: "PickCountRecordStorage"
+            # filter_tags: "PickFragment"
+            # filter_tags: "PickerActionHandler"
+            # filter_tags: "PreBootReceiver"
+            # filter_tags: "ProfileTabsController"
+            # filter_tags: "ProvidersCache"
+            # filter_tags: "QuickViewIntentBuilder"
+            # filter_tags: "ReadableArchive"
+            # filter_tags: "RefreshTask"
+            # filter_tags: "ResolvedResourcesJob"
+            # filter_tags: "RootCursorWrapper"
+            # filter_tags: "RootInfo"
+            # filter_tags: "RootItem"
+            # filter_tags: "RootUiTest"
+            # filter_tags: "RootsDragHost"
+            # filter_tags: "RootsFragment"
+            # filter_tags: "RootsListBot"
+            # filter_tags: "SaveFragment"
+            # filter_tags: "ScaleHelper"
+            # filter_tags: "ScopedAccessMetrics"
+            # filter_tags: "SearchFragment"
+            # filter_tags: "SearchHistoryManager"
+            # filter_tags: "SearchManager"
+            # filter_tags: "SectioningDocumentsAdapterWrapper"
+            # filter_tags: "SelectionMetadata"
+            # filter_tags: "SharedInputHandler"
+            # filter_tags: "SortModel"
+            # filter_tags: "SpacerItem"
+            # filter_tags: "State"
+            # filter_tags: "StubProvider"
+            # filter_tags: "TestContextResolver"
+            # filter_tags: "TestNotificationService"
+            # filter_tags: "ThemeOverlayManager"
+            # filter_tags: "ThumbnailLoader"
+            # filter_tags: "UserIdManager"
+            # filter_tags: "WriteableArchive"
+            # filter_tags: "dirlist.DragHost"
+        }
+    }
+}

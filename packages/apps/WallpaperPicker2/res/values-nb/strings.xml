@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+     Copyright (C) 2017 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="wallpaper_app_name" msgid="1719889291772891695">"Bakgrunner"</string>
+    <!-- no translation found for app_name (8773648973927541493) -->
+    <skip />
+    <string name="select_wallpaper_label" msgid="6989581259339646085">"Bakgrunnskategorier"</string>
+    <string name="set_wallpaper_button_text" msgid="5445978864530156290">"Bruk som bakgrunn"</string>
+    <string name="set_wallpaper_progress_message" msgid="7986528287618716715">"Angir bakgrunn …"</string>
+    <string name="try_again" msgid="8278874823700921234">"Prøv på nytt"</string>
+    <string name="set_wallpaper_error_message" msgid="6819986999041085130">"Kunne ikke angi bakgrunn."</string>
+    <string name="load_wallpaper_error_message" msgid="7913278480467707374">"Kan ikke laste inn bakgrunnen. Bildet er enten skadet eller utilgjengelig."</string>
+    <string name="static_wallpaper_presentation_mode_message" msgid="417940227049360906">"Nåværende bakgrunn"</string>
+    <string name="rotating_wallpaper_presentation_mode_message" msgid="3361676041605733288">"Daglig bakgrunn"</string>
+    <string name="wallpaper_destination_both" msgid="1124197176741944063">"Startskjermen og låseskjermen"</string>
+    <string name="choose_a_wallpaper_section_title" msgid="1009823506890453891">"Velg en bakgrunn"</string>
+    <string name="creative_wallpaper_title" msgid="3581650238648981372">"Opprett bakgrunn"</string>
+    <string name="home_screen_message" msgid="106444102822522813">"Startskjerm"</string>
+    <string name="lock_screen_message" msgid="1534506081955058013">"Låseskjerm"</string>
+    <string name="home_and_lock_short_label" msgid="2937922943541927983">"Startskjermen og låseskjermen"</string>
+    <string name="set_wallpaper_dialog_message" msgid="2110475703996853076">"Angi bakgrunn på"</string>
+    <string name="set_wallpaper_home_screen_destination" msgid="7315594722013109354">"Startskjerm"</string>
+    <string name="set_wallpaper_lock_screen_destination" msgid="6224685559375417945">"Låseskjerm"</string>
+    <string name="set_wallpaper_both_destination" msgid="2536004558738350775">"Startskjermen og låseskjermen"</string>
+    <string name="no_backup_image_wallpaper_label" msgid="6316627676107284851">"Bakgrunn med skiftende bilder"</string>
+    <string name="permission_needed_explanation" msgid="139166837541426823">"For å vise gjeldende bakgrunn her må <xliff:g id="APP_NAME">%1$s</xliff:g> ha tilgang til lagring på enheten din."</string>
+    <string name="permission_needed_explanation_go_to_settings" msgid="3923551582092599609">"For å vise bakgrunnen din her må du gi Bakgrunner tilgang til enhetens lagringsplass.\n\nFor å endre denne innstillingen, gå til Tillatelser-områder i appinformasjonen for Bakgrunner."</string>
+    <string name="permission_needed_allow_access_button_label" msgid="1943133660612924306">"Gi tilgang"</string>
+    <string name="no_backup_image_wallpaper_description" msgid="8303268619408738057">"Tjeneste for animerte bakgrunner med skiftende bilder"</string>
+    <string name="daily_refresh_tile_title" msgid="3270456074558525091">"Daglig bakgrunn"</string>
+    <string name="daily_refresh_tile_subtitle" msgid="3976682014885446443">"Trykk for å slå på funksjonen"</string>
+    <string name="start_rotation_dialog_body_live_wallpaper_needed" msgid="5132580257563846082">"Bakgrunnen endres automatisk hver dag. For å fullføre konfigureringen, trykk på &lt;strong&gt;Angi bakgrunn&lt;/strong&gt; på den neste skjermen."</string>
+    <string name="start_rotation_dialog_wifi_only_option_message" msgid="3126269859713666225">"Last ned nye bakgrunner bare via Wifi"</string>
+    <string name="start_rotation_dialog_continue" msgid="276678987852274872">"Fortsett"</string>
+    <string name="start_rotation_progress_message" msgid="7872623873682262083">"Laster ned den første bakgrunnen …"</string>
+    <string name="start_rotation_error_message" msgid="3053799836719618972">"Kunne ikke laste ned den første bakgrunnen. Sjekk nettverksinnstillingene, og prøv igjen."</string>
+    <string name="start_rotation_dialog_body" msgid="7903554799046364916">"Bakgrunnen endres automatisk hver dag"</string>
+    <string name="settings_button_label" msgid="8724734130079207955">"Innstillinger"</string>
+    <string name="explore" msgid="7468719504199497281">"Utforsk"</string>
+    <string name="next_wallpaper" msgid="3911873152952596232">"Neste bakgrunn"</string>
+    <string name="wallpaper_disabled_message" msgid="7309484130562148185">"Valg av bakgrunn er slått av på denne enheten"</string>
+    <string name="wallpaper_disabled_by_administrator_message" msgid="1551430406714747884">"Enhetsadministratoren har slått av valg av bakgrunn"</string>
+    <string name="wallpaper_set_successfully_message" msgid="2958998799111688578">"Bakgrunnen ble angitt"</string>
+    <string name="wallpapers_unavailable_offline_message" msgid="8136405438621689532">"Du må ha internettilkobling for å se bakgrunner. Koble til og prøv igjen."</string>
+    <string name="currently_set_home_wallpaper_thumbnail" msgid="4022381436821898917">"Miniatyrbilde for den nåværende bakgrunnen på startskjermen"</string>
+    <string name="currently_set_lock_wallpaper_thumbnail" msgid="2094209303934569997">"Miniatyrbilde for den nåværende bakgrunnen på låseskjermen"</string>
+    <string name="currently_set_wallpaper_thumbnail" msgid="8651887838745545107">"Miniatyrbilde for den nåværende bakgrunnen"</string>
+    <string name="wallpaper_thumbnail" msgid="569931475923605974">"Miniatyrbilde for bakgrunnen"</string>
+    <string name="explore_home_screen" msgid="8756346794535765482">"Utforsk bakgrunnen på startskjermen"</string>
+    <string name="explore_lock_screen" msgid="268938342103703665">"Utforsk bakgrunnen på låseskjermen"</string>
+    <string name="refresh_daily_wallpaper_home_content_description" msgid="2770445044556164259">"Oppdater den daglige bakgrunnen på startskjermen"</string>
+    <string name="refresh_daily_wallpaper_content_description" msgid="4362142658237147583">"Oppdater daglig bakgrunn"</string>
+    <string name="preview_screen_description" msgid="3386387053327775919">"Skjerm for forhåndsvisning av bakgrunn"</string>
+    <string name="refreshing_daily_wallpaper_dialog_message" msgid="1975910873362855761">"Oppdaterer daglig bakgrunn …"</string>
+    <string name="refresh_daily_wallpaper_failed_message" msgid="4749879993812557166">"Kunne ikke oppdatere den daglige bakgrunnen. Sjekk nettverkstilkoblingen din, og prøv igjen."</string>
+    <string name="on_device_wallpapers_category_title" msgid="805819102071369004">"Bakgrunner på enheten"</string>
+    <string name="on_device_wallpapers_category_title_desktop" msgid="316919420410065369">"På enheten"</string>
+    <string name="on_device_wallpaper_title" msgid="5262564748034629524">"Android-bakgrunn"</string>
+    <string name="live_wallpapers_category_title" msgid="1814374812192366349">"Animerte bakgrunner"</string>
+    <string name="my_photos_category_title" msgid="4294567122144565273">"Mine bilder"</string>
+    <string name="my_photos_generic_wallpaper_title" msgid="7002867526154631172">"Mitt bilde"</string>
+    <string name="fallback_wallpaper_title" msgid="6154655421012506001">"Bakgrunn"</string>
+    <string name="app_not_found" msgid="4431461707854088231">"Appen er ikke installert."</string>
+    <string name="center_wallpaper_position" msgid="4166894762352288883">"Midtstilt"</string>
+    <string name="center_crop_wallpaper_position" msgid="1681980019815343348">"Midtstilt beskjæring"</string>
+    <string name="stretch_wallpaper_position" msgid="5002680983147456935">"Strekk"</string>
+    <string name="preview" msgid="1774602101743861071">"Forhåndsvisning"</string>
+    <string name="tab_info" msgid="818614080690111416">"Informasjon"</string>
+    <string name="tab_customize" msgid="2533745409174959960">"Tilpass"</string>
+    <string name="tab_effects" msgid="3213606157589233901">"Effekter"</string>
+    <string name="tab_share" msgid="6676269624804601227">"Del"</string>
+    <string name="my_photos" msgid="8613021349284084982">"Mine bilder"</string>
+    <string name="configure_wallpaper" msgid="849882179182976621">"Innstillinger"</string>
+    <string name="delete_live_wallpaper" msgid="589212696102662329">"Slett"</string>
+    <string name="edit_live_wallpaper" msgid="3132060073690558045">"Rediger"</string>
+    <string name="delete_wallpaper_confirmation" msgid="1905114562243802354">"Vil du slette denne bakgrunnen fra enheten?"</string>
+    <string name="bottom_action_bar_back" msgid="2620581414970740784">"Gå opp"</string>
+    <string name="bottom_action_bar_edit" msgid="1214742990893082138">"Endre"</string>
+    <string name="bottom_action_bar_download" msgid="3983122338076389421">"Last ned"</string>
+    <string name="bottom_action_bar_slideshow_wallpaper" msgid="509770525179533154">"Bakgrunn med lysbildevisning"</string>
+    <string name="bottom_action_bar_apply" msgid="2983308349819178932">"Bruk"</string>
+    <string name="accessibility_preview_pager" msgid="1839869637405028575">"Side <xliff:g id="ID_1">%1$d</xliff:g> av <xliff:g id="ID_2">%2$d</xliff:g>"</string>
+    <string name="next_page_content_description" msgid="6268461446679584152">"Neste"</string>
+    <string name="previous_page_content_description" msgid="1138597031571078429">"Forrige"</string>
+    <string name="wallpaper_title" msgid="6754214682228331092">"Bakgrunn"</string>
+    <string name="wallpaper_preview_card_content_description" msgid="6049261033541034584">"Forhåndsvisning av bakgrunn"</string>
+    <string name="lock_wallpaper_preview_card_content_description" msgid="5236839857695985498">"Forhåndsvisning av bakgrunn for låseskjermen"</string>
+    <string name="home_wallpaper_preview_card_content_description" msgid="4059418716070821630">"Forhåndsvisning av bakgrunn for startskjermen"</string>
+    <string name="collection_not_exist_msg" msgid="3504852962885064842">"Samlingen eksisterer ikke"</string>
+    <string name="wallpaper_exit_split_screen" msgid="1928870664619591636">"Gå ut av modus for delt skjerm, og prøv igjen"</string>
+    <string name="set_wallpaper_dialog_set_button" msgid="5760149969510325088">"Velg"</string>
+    <string name="cancel" msgid="4970902691067201584">"Avbryt"</string>
+    <string name="hide_ui_preview_text" msgid="6766076482511252295">"Skjul UI-forhåndsvisning"</string>
+    <string name="hint_hide_ui_preview" msgid="4527603797714586070">"UI skjult i forhåndsvisn. Dobbelttrykk for å vise"</string>
+    <string name="show_ui_preview_text" msgid="5993063062417070806">"Vis UI-forhåndsvisning"</string>
+    <string name="hide_preview_controls_content_description" msgid="894958599274977655">"Kontrollene for forhåndsvisning vises. Dobbelttrykk for å skjule"</string>
+    <string name="hide_preview_controls_action" msgid="3419260118386783295">"Skjul kontrollene for forhåndsvisning"</string>
+    <string name="show_preview_controls_content_description" msgid="908147864005440602">"Kontrollene for forhåndsvisning er skjult. Dobbelttrykk for å vise"</string>
+    <string name="show_preview_controls_action" msgid="7700775001986890400">"Vis kontrollene for forhåndsvisning"</string>
+    <string name="hide_wallpaper_info_action" msgid="6572492484253895374">"Skjul bakgrunnsinformasjon"</string>
+    <string name="hint_show_ui_preview" msgid="2744155435325318349">"UI skjult i forhåndsvsn. Dobbelttrykk for å skjule"</string>
+    <string name="wallpaper_picker_entry_title" msgid="5185793991582084891">"Endre bakgrunn"</string>
+    <string name="lockscreen_wallpaper_preview_card_content_description" msgid="2244890820627302245">"Forhåndsvisning av låseskjermbakgrunn"</string>
+    <string name="apply_btn" msgid="5764555565943538528">"Bruk"</string>
+    <string name="accessibility_customize_hidden" msgid="6320568529768181691">"Tilpasning er skjult"</string>
+    <string name="accessibility_customize_shown" msgid="590964727831547651">"Tilpasning vises"</string>
+    <string name="accessibility_info_hidden" msgid="2288603712350168107">"Informasjon er skjult"</string>
+    <string name="accessibility_info_shown" msgid="6626025722456105632">"Informasjon vises"</string>
+    <string name="settings_snackbar_description" msgid="890168814524778486">"Slå på filer og medier i innstillingene."</string>
+    <string name="settings_snackbar_enable" msgid="5992112808061426068">"Slå på"</string>
+    <string name="open_my_photos" msgid="4107196465713868381">"Åpne Mine bilder"</string>
+    <string name="lock_screen_tab" msgid="6672930765010407652">"Låseskjerm"</string>
+    <string name="home_screen_tab" msgid="1080445697837877526">"Startskjerm"</string>
+    <string name="reset" msgid="4945445169532850631">"Tilbakestill"</string>
+    <string name="reset_confirmation_dialog_title" msgid="3391905685838213712">"Vil du tilbakestille endringene?"</string>
+    <string name="reset_confirmation_dialog_message" msgid="888669268626289603">"Endringene lagres ikke"</string>
+    <string name="more_wallpapers" msgid="8116268433411881705">"Flere bakgrunner"</string>
+    <string name="recents_wallpaper_label" msgid="8653165542635660222">"%1$s, %2$d"</string>
+    <string name="default_wallpaper_title" msgid="2541071182656978180">"Bakgrunn"</string>
+    <string name="small_preview_tooltip" msgid="1920430079013352071">"Trykk for å redigere bildet"</string>
+    <string name="full_preview_tooltip" msgid="4648994028015322759">"Juster posisjonen, skalaen og vinkelen til bildene dine"</string>
+</resources>

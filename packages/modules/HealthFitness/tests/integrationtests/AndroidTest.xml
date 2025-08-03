@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<configuration description="Config for Health Connect Permission test cases">
+    <option name="test-suite-tag" value="apct"/>
+    <option name="config-descriptor:metadata" key="component" value="framework"/>
+    <option name="config-descriptor:metadata" key="parameter" value="not_instant_app"/>
+    <option name="config-descriptor:metadata" key="parameter" value="not_multi_abi"/>
+    <!--  HealthFitnessManager APIs should work the same in any user. -->
+    <!--  While running with atest use 'user-type secondary_user'-->
+    <option name="config-descriptor:metadata" key="parameter" value="secondary_user"/>
+    <option name="config-descriptor:metadata" key="parameter" value="no_foldable_states"/>
+    <option name="not-shardable" value="true"/>
+    <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
+        <option name="cleanup-apks" value="true"/>
+        <option name="test-file-name" value="HealthFitnessIntegrationTests.apk"/>
+        <option name="test-file-name" value="HealthFitnessPermsTestApp.apk"/>
+        <option name="test-file-name" value="HCPermsTestAppNoUsageIntent.apk"/>
+        <option name="test-file-name" value="HCSharedUserPermsTestApp.apk"/>
+    </target_preparer>
+    <test class="com.android.tradefed.testtype.AndroidJUnitTest">
+        <option name="package" value="android.healthconnect.integrationtests"/>
+        <option name="hidden-api-checks" value="false"/>
+    </test>
+
+    <option
+        name="config-descriptor:metadata"
+        key="mainline-param"
+        value="com.google.android.healthfitness.apex"/>
+
+    <object type="module_controller"
+            class="com.android.tradefed.testtype.suite.module.MainlineTestModuleController">
+        <option name="mainline-module-package-name" value="com.google.android.healthfitness"/>
+    </object>
+</configuration>

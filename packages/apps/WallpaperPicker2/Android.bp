@@ -1,0 +1,157 @@
+//
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+//
+// Build rule for WallpaperPicker2 dependencies lib.
+//
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_library {
+    name: "WallpaperPicker2Lib",
+    platform_apis: true,
+
+    static_libs: [
+        "androidx.activity_activity-ktx",
+        "androidx.appcompat_appcompat",
+        "androidx.cardview_cardview",
+        "androidx-constraintlayout_constraintlayout",
+        "androidx.exifinterface_exifinterface",
+        "androidx.lifecycle_lifecycle-livedata-ktx",
+        "androidx.lifecycle_lifecycle-runtime-ktx",
+        "androidx.recyclerview_recyclerview",
+        "androidx.slice_slice-view",
+        "androidx.transition_transition-ktx-nodeps",
+        "androidx.viewpager2_viewpager2",
+        "androidx.navigation_navigation-ui-ktx",
+        "androidx.navigation_navigation-fragment-ktx",
+        "com.google.android.material_material",
+        "com_android_wallpaper_flags_lib",
+        "glide-prebuilt",
+        "glide-gifdecoder-prebuilt",
+        "glide-disklrucache-prebuilt",
+        "kotlinx-coroutines-android",
+        "kotlinx-coroutines-core",
+        "libbackup",
+        "SettingsLibCollapsingToolbarBaseActivity",
+	"SettingsLibSettingsTheme",
+        "subsampling-scale-image-view",
+        "SystemUISharedLib",
+        "SystemUICustomizationLib",
+        "volley",
+        "SettingsLibActivityEmbedding",
+        "monet",
+        "hilt_android",
+    ],
+
+    resource_dirs: ["res"],
+
+    srcs: [
+        "src/**/*.java",
+        "src/**/*.kt",
+    ],
+
+    optimize: {
+        enabled: false,
+    },
+
+    kotlincflags: ["-Xjvm-default=all"],
+
+    manifest: "AndroidManifest-empty.xml",
+
+    visibility: [
+        ":__subpackages__",
+        "//packages/apps/ThemePicker:__subpackages__",
+        "//vendor:__subpackages__",
+    ],
+}
+
+// Production-only files that should be excluded in tests.
+filegroup {
+    name: "WallpaperPicker2_src_prod",
+    visibility: [":__subpackages__"],
+    srcs: ["src_override/com/android/wallpaper/picker/WallpapersApplication.java"],
+}
+
+java_library {
+    name: "WallpaperPicker2OverridesLib",
+    srcs: [
+        "src_override/**/*.java",
+        "src_override/**/*.kt",
+    ],
+    exclude_srcs: [
+        ":WallpaperPicker2_src_prod",
+    ],
+    libs: [
+        "WallpaperPicker2Lib",
+        "hilt_android",
+    ],
+}
+
+java_library {
+    name: "WallpaperPicker2ApplicationLib",
+    srcs: [":WallpaperPicker2_src_prod"],
+    libs: [
+        "WallpaperPicker2Lib",
+        "WallpaperPicker2OverridesLib",
+        "hilt_android",
+    ],
+}
+
+filegroup {
+    name: "WallpaperPicker2_Manifest",
+    srcs: [
+        "AndroidManifest.xml",
+    ],
+}
+
+java_defaults {
+    name: "WallpaperPicker2_defaults",
+
+    certificate: "",
+
+    optimize: {
+        enabled: false,
+    },
+
+    kotlincflags: ["-Xjvm-default=all"],
+    privileged: true,
+    system_ext_specific: true,
+
+    use_embedded_native_libs: true,
+
+    static_libs: [
+        "WallpaperPicker2Lib",
+        "WallpaperPicker2OverridesLib",
+        "hilt_android",
+    ],
+}
+
+//
+// Build app code.
+//
+android_app {
+    name: "WallpaperPicker2",
+    package_name: "com.android.wallpaper",
+
+    defaults: ["WallpaperPicker2_defaults"],
+    manifest: ":WallpaperPicker2_Manifest",
+
+    platform_apis: true,
+    overrides: ["WallpaperPicker"],
+    static_libs: ["WallpaperPicker2ApplicationLib"],
+}

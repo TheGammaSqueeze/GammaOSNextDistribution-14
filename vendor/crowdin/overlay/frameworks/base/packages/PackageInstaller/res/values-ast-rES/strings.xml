@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Instalador de paquetes</string>
+    <string name="install">Instalar</string>
+    <string name="update">Anovar</string>
+    <string name="done">Fecho</string>
+    <string name="cancel">Encaboxar</string>
+    <string name="installing">Instalando\u2026</string>
+    <string name="installing_app">Instalando «<xliff:g id="package_label">%1$s</xliff:g>»\u2026</string>
+    <string name="install_done">Instalóse l\'aplicación.</string>
+    <string name="install_confirm_question">¿Quies instalar esta aplicación?</string>
+    <string name="install_confirm_question_update">¿Quies anovar esta aplicación?</string>
+    <string name="install_confirm_question_update_owner_reminder" product="tablet">&lt;p&gt;¿Quies anovar esta aplicación de &lt;b&gt;<xliff:g id="new_update_owner">%1$s</xliff:g>&lt;/b&gt;\?&lt;/p&gt;&lt;p&gt;Esta aplicación suel recibir anovamientos de &lt;b&gt;<xliff:g id="existing_update_owner">%2$s</xliff:g>&lt;/b&gt;. Si l\'anueves dende otra fonte, ye posible que nel futuru recibas los anovamientos dende cualesquier fonte de la tableta. Ye posible que camuden les funciones de l\'aplicación.&lt;/p&gt;</string>
+    <string name="install_confirm_question_update_owner_reminder" product="tv">&lt;p&gt;¿Quies anovar esta aplicación de &lt;b&gt;<xliff:g id="new_update_owner">%1$s</xliff:g>&lt;/b&gt;\?&lt;/p&gt;&lt;p&gt;Esta aplicación suel recibir anovamientos de &lt;b&gt;<xliff:g id="existing_update_owner">%2$s</xliff:g>&lt;/b&gt;. Si l\'anueves dende otra fonte, ye posible que nel futuru recibas los anovamientos dende cualesquier fonte de la TV. Ye posible que camuden les funciones de l\'aplicación.&lt;/p&gt;</string>
+    <string name="install_confirm_question_update_owner_reminder" product="default">&lt;p&gt;¿Quies anovar esta aplicación de &lt;b&gt;<xliff:g id="new_update_owner">%1$s</xliff:g>&lt;/b&gt;\?&lt;/p&gt;&lt;p&gt;Esta aplicación suel recibir anovamientos de &lt;b&gt;<xliff:g id="existing_update_owner">%2$s</xliff:g>&lt;/b&gt;. Si l\'anueves dende otra fonte, ye posible que nel futuru recibas los anovamientos dende cualesquier fonte del teléfonu. Ye posible que camuden les funciones de l\'aplicación.&lt;/p&gt;</string>
+    <string name="install_failed">L\'aplicación nun s\'instaló.</string>
+    <string name="install_failed_blocked">Bloquióse la instalación del paquete.</string>
+    <string name="install_failed_conflict">L\'aplicación nun s\'instaló darréu que\'l paquete tien conflictos con unu esistente.</string>
+    <string name="install_failed_incompatible" product="tablet">L\'aplicación nun s\'instaló darréu
+        que nun ye compatible cola tableta.</string>
+    <string name="install_failed_incompatible" product="tv">Esta aplicación
+        nun ye compatible cola TV.</string>
+    <string name="install_failed_incompatible" product="default">L\'aplicación nun s\'instaló darréu
+        que nun ye compatible col teléfonu.</string>
+    <string name="install_failed_invalid_apk">L\'aplicación nun s\'instaló darréu que\'l paquete nun paez ser válidu.</string>
+    <string name="install_failed_msg" product="tablet">«<xliff:g id="app_name">%1$s</xliff:g>» nun se pudo instalar na tableta.</string>
+    <string name="install_failed_msg" product="tv">«<xliff:g id="app_name">%1$s</xliff:g>» nun se pudo instalar na TV.</string>
+    <string name="install_failed_msg" product="default">«<xliff:g id="app_name">%1$s</xliff:g>» nun se pudo instalar nel teléfonu.</string>
+    <string name="launch">Abrir</string>
+    <string name="unknown_apps_admin_dlg_text">L\'alministrador nun permite la instalación
+        d\'aplicaciones d\'oríxenes desconocíos</string>
+    <string name="unknown_apps_user_restriction_dlg_text">Esti usuariu nun pue instalar aplicaciones
+        desconocíes</string>
+    <string name="install_apps_user_restriction_dlg_text">Esti usuariu nun tien permisu pa instalar aplicaciones</string>
+    <string name="ok">D\'acuerdu</string>
+    <string name="archive">Archivar</string>
+    <string name="update_anyway">Anovar de toes toes</string>
+    <string name="manage_applications">Xestionar aplics.</string>
+    <string name="out_of_space_dlg_title">Ensin espaciu</string>
+    <string name="out_of_space_dlg_text">«<xliff:g id="app_name">%1$s</xliff:g>» nun se pudo instalar. Llibera espaciu y volvi tentalo.</string>
+    <string name="app_not_found_dlg_title">Nun s\'atopó l\'aplicación</string>
+    <string name="app_not_found_dlg_text"> Nun s\'atopó l\'aplicación na llista d\'aplicaciones instalaes.</string>
+    <string name="user_is_not_allowed_dlg_title">Ensin permisu</string>
+    <string name="user_is_not_allowed_dlg_text">L\'usuariu actual nun tien permisu pa facer esta desinstalación.</string>
+    <string name="generic_error_dlg_title">Error</string>
+    <string name="generic_error_dlg_text">Nun se pudo desinstalar l\'aplicación.</string>
+    <string name="uninstall_application_title">Desinstalación d\'aplicación</string>
+    <string name="uninstall_update_title">Desinstalación d\'anovamientu</string>
+    <string name="uninstall_activity_text">«<xliff:g id="activity_name">%1$s</xliff:g>» ye parte de la aplicación siguiente:</string>
+    <string name="uninstall_application_text">¿Quies desinstalar esta aplicación?</string>
+    <string name="archive_application_text">Van guardase los datos personales</string>
+    <string name="archive_application_text_all_users">¿Quies archivar esta aplicación pa tolos usuarios? Van guardase los datos personales</string>
+    <string name="archive_application_text_current_user_work_profile">¿Quies archivar esta aplicación nel perfil llaboral? Van guardase los datos personales</string>
+    <string name="archive_application_text_user">¿Quies archivar esta aplicación pa «<xliff:g id="username">%1$s</xliff:g>»? Van guardase los datos personales</string>
+    <string name="archive_application_text_current_user_private_profile">¿Quies archivar esta aplicación del espaciu priváu? Van guardase los datos personales</string>
+    <string name="uninstall_application_text_all_users">¿Quies desinstalar esta aplicación pa <b>tolos</b>
+        usuarios? L\'aplicación y los sos datos van desaniciase pa <b>tolos</b> usuarios del preséu.</string>
+    <string name="uninstall_application_text_user">¿Quies desinstalar esta aplicación pal usuariu «<xliff:g id="username">%1$s</xliff:g>»?</string>
+    <string name="uninstall_application_text_current_user_work_profile">¿Quies desinstalar esta aplicación del perfil llaboral?</string>
+    <string name="uninstall_update_text">¿Quies sustituyir la versión d\'esta aplicación pola de fábrica? Van desaniciase tolos datos.</string>
+    <string name="uninstall_update_text_multiuser">¿Quies sustituyir la versión d\'esta aplicación pola de fábrica? Van desaniciase tolos datos. Esto afeuta a tolos usuarios del preséu, incluyíos los que tengan perfiles llaborales.</string>
+    <string name="uninstall_keep_data">Caltener <xliff:g id="size" example="1.5MB">%1$s</xliff:g> de datos de l\'aplicación.</string>
+    <string name="uninstall_application_text_current_user_clone_profile">¿Quies desaniciar esta aplicación?</string>
+    <string name="uninstall_application_text_with_clone_instance">¿Quies desinstalar esta aplicación? Tamién va desaniciase\'l clon de: <xliff:g id="package_label">%1$s</xliff:g>.</string>
+    <string name="uninstall_application_text_current_user_private_profile">¿Quies desinstalar esta aplicación del espaciu priváu?</string>
+    <string name="uninstalling_notification_channel">Desinstalaciones n\'execución</string>
+    <string name="uninstall_failure_notification_channel">Desinstalaciones fallíes</string>
+    <string name="uninstalling">Desinstalando\u2026</string>
+    <string name="uninstalling_app">Desinstalando «<xliff:g id="package_label">%1$s</xliff:g>»\u2026</string>
+    <string name="uninstall_done">La desinstalación finó.</string>
+    <string name="uninstall_done_app">Desinstalóse «<xliff:g id="package_label">%1$s</xliff:g>»</string>
+    <string name="uninstall_done_clone_app">Desanicióse\'l clon de: <xliff:g id="package_label">%1$s</xliff:g></string>
+    <string name="uninstall_failed">La desinstalación nun se fizo correutemente.</string>
+    <string name="uninstall_failed_app">La desinstalación de l\'aplicación «<xliff:g id="package_label">%1$s</xliff:g>» nun se fizo correutamente.</string>
+    <string name="uninstalling_cloned_app">Desaniciando\'l clon de: <xliff:g id="package_label">%1$s</xliff:g>\u2026</string>
+    <string name="uninstall_failed_device_policy_manager">Nun se pue desinstalar l\'aplicación
+        activa del alministrador del preséu</string>
+    <string name="uninstall_failed_device_policy_manager_of_user">Nun se pue desinstalar l\'aplicación
+        activa del alministrador del preséu pa «<xliff:g id="username">%1$s</xliff:g>»</string>
+    <string name="uninstall_all_blocked_profile_owner">Esta aplicación ye necesaria pa dalgunos
+        usuarios o perfiles y desinstalóse pa
+        otros</string>
+    <string name="uninstall_blocked_profile_owner">Esta aplicación ye necesaria pa dalgunos
+        usuarios o perfiles y nun se pue
+        desinstalar.</string>
+    <string name="uninstall_blocked_device_owner">Esta aplicación ye necesaria pal
+        alministrador del preséu y nun se pue desinstalar.</string>
+    <string name="manage_device_administrators">Xestionar les aplic. del alministrador del preséu</string>
+    <string name="manage_users">Xestionar los usuarios</string>
+    <string name="uninstall_failed_msg">«<xliff:g id="app_name">%1$s</xliff:g>» nun se pue desinstalar.</string>
+    <string name="Parse_error_dlg_text">Hebo un problema al analizar el paquete.</string>
+    <string name="message_staging">Tresnando l\'aplicación…</string>
+    <string name="app_name_unknown">Nome desconocíu</string>
+    <string name="untrusted_external_source_warning" product="tablet">Por seguranza, la tableta nun permite instalar aplicaciones desconocíes d\'esta fonte. Pues camudar esti comportamientu en Configuración.</string>
+    <string name="untrusted_external_source_warning" product="tv">Por seguranza, la TV nun permite instalar aplicaciones desconocíes d\'esta fonte. Pues camudar esti comportamientu en Configuración.</string>
+    <string name="untrusted_external_source_warning" product="watch">Pa la to seguranza, el reló nun tien permisu pa instalar aplicaciones desconocíes dende esta fonte. Pues camudar esti comportamientu en Configuración</string>
+    <string name="untrusted_external_source_warning" product="default">Por seguranza, el teléfonu nun permite instalar aplicaciones desconocíes d\'esta fonte. Pues camudar esti comportamientu en Configuración.</string>
+    <string name="anonymous_source_warning" product="default">        Los datos personales y los del teléfonu son más
+        vulnerables a los ataques d\'aplicaciones desconocíes.
+        Al instalar esta aplicación, aceptes que yes responsable
+        de cualesquier dañu que se produza al preséu o de la
+        perda de datos que resulte del usu de l\'aplicación.
+    </string>
+    <string name="anonymous_source_warning" product="tablet">        Los datos personales y los de la tableta son más
+        vulnerables a los ataques d\'aplicaciones desconocíes.
+        Al instalar esta aplicación, aceptes que yes responsable
+        de cualesquier dañu que se produza al preséu o de la
+        perda de datos que resulte del usu de l\'aplicación.
+    </string>
+    <string name="anonymous_source_warning" product="tv">        Los datos personales y los de la TV son más
+        vulnerables a los ataques d\'aplicaciones desconocíes.
+        Al instalar esta aplicación, aceptes que yes responsable
+        de cualesquier dañu que se produza al preséu o de la
+        perda de datos que resulte del usu de l\'aplicación.
+    </string>
+    <string name="cloned_app_label">Clon de: <xliff:g id="package_label">%1$s</xliff:g></string>
+    <string name="archiving_app_label">¿Quies archivar «<xliff:g id="package_label">%1$s</xliff:g>»?</string>
+    <string name="anonymous_source_continue">Siguir</string>
+    <string name="external_sources_settings">Configuración</string>
+    <string name="wear_app_channel">Des/instalación d\'aplicaciones de Wear</string>
+    <string name="app_installed_notification_channel_description">Avisu d\'aplicación instalada</string>
+    <string name="notification_installation_success_message">Instalóse correutamente</string>
+    <string name="notification_installation_success_status">«<xliff:g id="appname" example="Package Installer">%1$s</xliff:g>» instalóse correutamente</string>
+    <string name="unarchive_application_title">¿Quies restaurar «<xliff:g id="appname" example="Bird Game">%1$s</xliff:g>» de «<xliff:g id="installername" example="App Store">%2$s</xliff:g>»?</string>
+    <string name="unarchive_body_text">Esta aplicación va comenzar a baxar en segundu planu</string>
+    <string name="restore">Restaurar</string>
+    <string name="unarchive_error_offline_title">Nun tienes conexón a internet</string>
+    <string name="unarchive_error_offline_body">        Pa restaurar esta aplicación, comprueba la conexón a internet y volvi tentalo
+    </string>
+    <string name="unarchive_error_generic_title">Prodúxose un error</string>
+    <string name="unarchive_error_generic_body">        Hebo un problema al tentar de restaurar esta aplicación
+    </string>
+    <string name="unarchive_error_storage_title">Nun hai abondu almacenamientu</string>
+    <string name="unarchive_error_storage_body">        Pa restaurar esta aplicación, pues lliberar espaciu nesti preséu.
+        Espaciu riquíu: <xliff:g id="bytes" example="100 MB">%1$s</xliff:g>
+    </string>
+    <string name="unarchive_action_required_title">Aición riquida</string>
+    <string name="unarchive_action_required_body">        Sigui los pasos siguientes pa restaurar esta aplicación
+    </string>
+    <string name="unarchive_error_installer_disabled_title">        «<xliff:g id="installername" example="App Store">%1$s</xliff:g>» ta desactiváu
+    </string>
+    <string name="unarchive_error_installer_disabled_body">        Pa restaurar esta aplicación, activa
+        «<xliff:g id="installername" example="App Store">%1$s</xliff:g>» en Configuración
+    </string>
+    <string name="unarchive_error_installer_uninstalled_title">        «<xliff:g id="installername" example="App Store">%1$s</xliff:g>» ta desinstaláu
+    </string>
+    <string name="unarchive_error_installer_uninstalled_body">        Pa restaurar esta aplicación, tienes d\'instalar
+        <xliff:g id="installername" example="App Store">%1$s</xliff:g>
+    </string>
+    <string name="unarchive_action_required_continue">Siguir</string>
+    <string name="unarchive_clear_storage_button">Borrar l\'almacenamientu</string>
+    <string name="unarchive_settings_button">Configuración</string>
+    <string name="close">Zarrar</string>
+</resources>

@@ -1,0 +1,58 @@
+// Copyright (C) 2014 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+next_app_data = [":CtsHostsideNetworkTestsAppNext"]
+
+// The above line is put in place to prevent any future automerger merge conflict between aosp,
+// downstream branches. The CtsHostsideNetworkTestsAppNext target will not exist in
+// some downstream branches, but it should exist in aosp and some downstream branches.
+
+package {
+    default_team: "trendy_team_fwk_core_networking",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_test_host {
+    name: "CtsHostsideNetworkTests",
+    defaults: ["cts_defaults"],
+    // Only compile source java files in this apk.
+    srcs: [
+        "src/**/*.java",
+        ":ArgumentConstants",
+    ],
+    libs: [
+        "net-tests-utils-host-device-common",
+        "cts-tradefed",
+        "tradefed",
+    ],
+    static_libs: [
+        "modules-utils-build-testing",
+    ],
+    // Tag this module as a cts test artifact
+    test_suites: [
+        "cts",
+        "general-tests",
+        "mcts-tethering",
+        "mts-tethering",
+        "sts",
+    ],
+    data: [
+        ":CtsHostsideNetworkTestsApp",
+        ":CtsHostsideNetworkTestsApp2",
+        ":CtsHostsideNetworkCapTestsAppWithoutProperty",
+        ":CtsHostsideNetworkCapTestsAppWithProperty",
+        ":CtsHostsideNetworkCapTestsAppSdk33",
+    ] + next_app_data,
+    per_testcase_directory: true,
+}

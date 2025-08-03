@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="1265450418387661962">"TestSliceApp"</string>
+    <string name="hello_blank_fragment" msgid="1245093642770491175">"హలో ఖాళీ విడిభాగము"</string>
+    <string name="request_network" msgid="8945235490804849914">"రిక్వెస్ట్ నెట్‌వర్క్"</string>
+    <string name="release_network" msgid="174252378593535238">"నెట్‌వర్క్‌ను రిలీజ్ చేయండి"</string>
+    <string name="ping" msgid="7890607576220714932">"పింగ్"</string>
+    <string name="result_prefix" msgid="3522796186427501399">"ఫలితం:"</string>
+    <string name="latency_title" msgid="963052613947017009">"ప్రతిస్పందన సమయానికి ప్రాధాన్యత ఇవ్వండి"</string>
+    <string name="bw_title" msgid="3902162973688221344">"బ్యాండ్‌విడ్త్‌కు ప్రాధాన్యత ఇవ్వండి"</string>
+    <string name="cbs_title" msgid="5234410535569935600">"CBS"</string>
+    <string name="purchase" msgid="7843181995697372128">"ప్రీమియం నెట్‌వర్క్‌ను కొనుగోలు చేయండి"</string>
+    <string name="network_available" msgid="4780293262690730734">"ఫలితం: రిక్వెస్ట్ చేసిన నెట్‌వర్క్ ఇప్పుడు అందుబాటులో ఉంది!"</string>
+    <string name="network_requested" msgid="5646123922691865991">"ఫలితం: నెట్‌వర్క్ రిక్వెస్ట్ చేయబడింది!"</string>
+    <string name="network_released" msgid="2992280481133877025">"ఫలితం: నెట్‌వర్క్ రిలీజ్ చేయబడింది!"</string>
+    <string name="network_release_failed" msgid="256471231420029151">"ఫలితం: నెట్‌వర్క్‌ను రిలీజ్ చేయడంలో విఫలమైంది!!!"</string>
+    <string name="purchase_exception" msgid="8876841120055716671">"ఫలితం: ప్రీమియం నెట్‌వర్క్‌ను కొనుగోలు చేసేటప్పుడు అరుదైన ఘటన సంభవించింది!!!"</string>
+    <string name="purchase_empty_result" msgid="7497824191649973928">"ఫలితం: ప్రీమియం నెట్‌వర్క్‌ను కొనుగోలు చేసినప్పుడు ఖాళీ ఫలితం వచ్చింది!!!"</string>
+    <string name="premium_not_available" msgid="7346368693802644748">"ఫలితం: కొనుగోలు కోసం ప్రీమియం నెట్‌వర్క్ అందుబాటులో లేదు!!!"</string>
+    <string name="purchase_in_progress" msgid="5450288183685032424">"ఫలితం: ప్రీమియం నెట్‌వర్క్ కొనుగోలు ప్రోగ్రెస్‌లో ఉంది ..."</string>
+</resources>

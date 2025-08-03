@@ -1,0 +1,43 @@
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+aidl_interface {
+    name: "android.automotive.powerpolicy.delegate",
+    owner: "google",
+    vendor_available: false,
+    srcs: [
+        "android/automotive/powerpolicy/internal/ICarPowerPolicyDelegate.aidl",
+        "android/automotive/powerpolicy/internal/ICarPowerPolicyDelegateCallback.aidl",
+        "android/automotive/powerpolicy/internal/PowerPolicyFailureReason.aidl",
+        "android/automotive/powerpolicy/internal/PowerPolicyInitData.aidl",
+    ],
+    backend: {
+        java: {
+            sdk_version: "module_current",
+            min_sdk_version: "35",
+            apex_available: [
+                "//apex_available:platform",
+                "com.android.car.framework",
+            ],
+            enabled: true,
+        },
+    },
+    imports: [
+        "android.frameworks.automotive.powerpolicy-V3",
+    ],
+}

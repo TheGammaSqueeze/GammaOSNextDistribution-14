@@ -1,0 +1,37 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "DocumentsUIAppPerfTests",
+
+    manifest: "AndroidManifest.xml",
+
+    srcs: [
+        "src/**/*.java",
+    ],
+
+    libs: [
+        "android.test.base",
+        "android.test.runner",
+    ],
+
+    static_libs: [
+        "androidx.legacy_legacy-support-v4",
+        "collector-device-lib",
+        "mockito-target",
+        "androidx.test.uiautomator_uiautomator",
+    ],
+
+    platform_apis: true,
+
+    data: [":perfetto_artifacts"],
+
+    instrumentation_for: "DocumentsUI",
+
+    certificate: "platform",
+
+    test_suites: ["device-tests"],
+
+    //sdk_version: "current",
+}

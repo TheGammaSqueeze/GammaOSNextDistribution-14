@@ -1,0 +1,112 @@
+buildscript {
+    repositories {
+        google()
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.1.2'
+    }
+}
+
+apply plugin: 'com.android.application'
+
+android {
+    compileSdk 34
+
+    namespace 'com.android.inputmethod.latin'
+
+    // Required if using classes in android.test.runner
+    useLibrary 'android.test.runner'
+
+    // Required if using classes in android.test.base
+    useLibrary 'android.test.base'
+
+    // Required if using classes in android.test.mock
+    useLibrary 'android.test.mock'
+
+    defaultConfig {
+        minSdkVersion 31
+        targetSdkVersion 34
+        versionName "1.0"
+
+        applicationId 'com.android.inputmethod.latin'
+        testApplicationId 'com.android.inputmethod.latin.tests'
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables.useSupportLibrary = false
+
+        signingConfig signingConfigs.debug
+    }
+
+    signingConfigs {
+        debug {
+            storeFile file("java/shared.keystore")
+        }
+    }
+
+    buildTypes {
+        debug {
+            minifyEnabled false
+        }
+        release {
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.flags'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    flavorDimensions "default"
+
+    sourceSets {
+        main {
+            res.srcDirs = ['java/res']
+            java.srcDirs = ['common/src', 'java/src']
+            manifest.srcFile 'java/AndroidManifest.xml'
+        }
+
+        androidTest {
+            res.srcDirs = ['tests/res']
+            java.srcDirs = ['tests/src']
+            manifest.srcFile "tests/AndroidManifest.xml"
+        }
+    }
+
+
+    externalNativeBuild {
+        ndkBuild {
+            path 'native/jni/AndroidNdk.mk'
+        }
+    }
+    androidResources {
+        noCompress 'dict'
+    }
+    lint {
+        checkReleaseBuilds false
+    }
+}
+
+repositories {
+    maven { url "../../../prebuilts/fullsdk-darwin/extras/android/m2repository" }
+    maven { url "../../../prebuilts/fullsdk-linux/extras/android/m2repository" }
+    mavenCentral()
+    google()
+    jcenter()
+}
+
+dependencies {
+    implementation 'com.google.code.findbugs:jsr305:3.0.2'
+    implementation 'androidx.viewpager2:viewpager2:1.0.0'
+    implementation 'com.google.android.material:material:1.9.0'
+    implementation 'androidx.preference:preference:1.2.1'
+
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation "org.mockito:mockito-core:1.9.5"
+    androidTestImplementation 'com.google.dexmaker:dexmaker:1.2'
+    androidTestImplementation 'com.google.dexmaker:dexmaker-mockito:1.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test:rules:1.1.1'
+    androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
+    androidTestImplementation 'androidx.annotation:annotation:1.0.0'
+}

@@ -1,0 +1,12 @@
+{
+  "feature_flag_atn_test_all_on": [
+    {
+      "name": "FeatureFlagTest"
+    }
+  ],
+  "feature_flag_atn_test_all_off": [
+    {
+      "name": "FeatureFlagTest"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2019 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<configuration description="Runs coverage tests for NetworkStack">
+    <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
+        <option name="test-file-name" value="NetworkStackCoverageTests.apk" />
+    </target_preparer>
+
+    <option name="test-tag" value="NetworkStackCoverageTests" />
+    <test class="com.android.tradefed.testtype.AndroidJUnitTest" >
+        <option name="package" value="com.android.server.networkstack.coverage" />
+        <option name="runner" value="androidx.test.runner.AndroidJUnitRunner" />
+        <!-- By default, include and exclude filters go into /data/local/tmp/ajur/, which these
+             tests cannot access because they run in the network_stack selinux context. Move
+             them to the tests' data directory instead.
+
+             This avoids confusing module errors in presubmit when a test fails, the test infra
+             attempts to retry it, but the retry run results in the test process crashing with a
+             permission denial trying to read the exclude file. -->
+        <option name="test-filter-dir" value="/data/data/{PACKAGE}/cache" />
+        <option name="hidden-api-checks" value="false"/>
+        <option name="device-listeners" value="com.android.modules.utils.testing.NativeCoverageHackInstrumentationListener" />
+    </test>
+</configuration>

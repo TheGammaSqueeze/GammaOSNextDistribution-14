@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2021 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="activity_resolver_use_always">Siempre</string>
+    <string name="activity_resolver_use_once">Namás una vegada</string>
+    <string name="resolver_cant_share_with_work_apps_explanation">Esti conteníu nun se pue compartir coles aplicaciones llaborales</string>
+    <string name="resolver_cant_access_work_apps_explanation">Esti conteníu nun se pue abrir coles aplicaciones llaborales</string>
+    <string name="resolver_cant_share_with_personal_apps_explanation">Esti conteníu nun se pue compartir coles aplicaciones personales</string>
+    <string name="resolver_cant_access_personal_apps_explanation">Esti conteníu nun se pue abrir coles aplicaciones personales</string>
+    <string name="resolver_turn_on_work_apps">Les aplicaciones llaborales tán en posa</string>
+    <string name="resolver_switch_on_work">Volver activar</string>
+    <string name="miniresolver_open_in_personal">¿Quies abrir «<xliff:g id="app" example="YouTube">%s</xliff:g>» nel perfil personal?</string>
+    <string name="miniresolver_open_in_work">¿Quies abrir «<xliff:g id="app" example="YouTube">%s</xliff:g>» nel perfil llaboral?</string>
+</resources>

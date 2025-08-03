@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+           xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
+    <!-- Preference summary the "about cell broadcast messages" info required for some carriers.
+       Required Korean (ko) translation for this message:
+      "자연재해 발생시 휴대전화에서 대피 안내와 같은 경고 알림을 받아볼 수 있습니다. \n이 서비스는 돌발 공공사건 경보 발행 기구(예: 지진국 등) , 네트워크 공급자, 기기 제조업체와의 공조로 제공됩니다. \n기기에 문제가 있거나 네트워크 상태가 좋지 않을 경우 알림을 받지 못할 수 있습니다."
+    -->
+    <!-- Preference summary the "about cell broadcast messages" info required for some carriers.
+       Required Chinese (zh-rCN) translation for this message:
+       "发生自然灾害时设备上可以收到类似疏散警告的通知，此通知服务由突发公共事件预警信息发布机构（如地震局等部门）、网络运营商和设备制造商合作提供。\n设备发生故障或网络环境较差时，可能无法接收通知信息。"
+    -->
+    <string name="alerts_header_summary">In the event of a natural disaster, the device can receive a notification similar to an evacuation warning. \nThis service is provided by the disaster warning message release organization (such as the Earthquake Administration), network operators and device manufacturers. \nNotification information may not be received in the event of device malfunction or poor network environment.</string>
+</resources>

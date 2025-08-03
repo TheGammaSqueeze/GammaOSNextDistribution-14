@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<carrier_config>
+    <int name="qns.sos_transport_type_int" value="2" />
+    <string-array name="qns.ims_cellular_allowed_rat_string_array" num="1">
+        <item value="LTE" />
+    </string-array>
+    <boolean name="qns.roam_transport_type_selection_without_signal_strength_bool" value="true" />
+    <int name="qns.mms_rat_preference_int" value="3"/>
+    <int name="qns.mms_transport_type_int" value="2"/>
+    <string name="qns_wlan_rtt_backhaul_check_on_icmp_ping_string">www.google.com,5,200,32,100,600000,1800000</string>
+</carrier_config>

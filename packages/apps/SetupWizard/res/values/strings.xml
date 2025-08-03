@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2013-2015 The CyanogenMod Project
+     SPDX-FileCopyrightText: 2017-2024 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Setup Wizard</string>
+    <string name="os_name" translatable="false">LineageOS</string>
+
+    <string name="lineage_wizard_script_uri" translatable="false">android.resource://org.lineageos.setupwizard/raw/lineage_wizard_script</string>
+    <string name="lineage_wizard_script_user_uri" translatable="false">android.resource://org.lineageos.setupwizard/raw/lineage_wizard_script_user</string>
+    <string name="lineage_wizard_script_managed_profile_uri" translatable="false">android.resource://org.lineageos.setupwizard/raw/lineage_wizard_script_managed_profile</string>
+
+    <string name="activity_label_empty" />
+
+    <string name="next">Next</string>
+    <string name="skip">Skip</string>
+    <string name="start">Start</string>
+    <string name="done">Done</string>
+    <string name="ok">OK</string>
+    <string name="loading">Just a sec\u2026</string>
+
+    <!-- Welcome page -->
+    <string name="setup_welcome_message">Welcome to <xliff:g id="name" example="LineageOS">%1$s</xliff:g></string>
+    <string name="setup_managed_profile_welcome_message">Set up your work profile</string>
+    <string name="emergency_call">Emergency call</string>
+    <string name="accessibility_settings">Accessibility settings</string>
+
+    <!-- Locale page -->
+    <string name="setup_locale">Language</string>
+    <string name="sim_locale_changed">%1$s SIM detected</string>
+
+    <!-- Missing SIM page -->
+    <string name="setup_sim_missing">SIM card missing</string>
+    <string name="sim_missing_summary" product="tablet">A SIM card has not been detected in your tablet. To insert a SIM card, read the instructions that came with your device.</string>
+    <string name="sim_missing_summary" product="default">A SIM card has not been detected in your phone. To insert a SIM card, read the instructions that came with your device.</string>
+
+    <!-- Date & time page -->
+    <string name="setup_datetime">Date &amp; time</string>
+    <string name="date_time_summary">Set your time zone and adjust current date and time if needed</string>
+    <string name="setup_current_date">Current date</string>
+    <string name="setup_current_time">Current time</string>
+
+    <!-- Restore backup page -->
+    <string name="intro_restore_title">Restore apps and data</string>
+    <string name="intro_restore_subtitle">If you have a Seedvault backup from <xliff:g id="name" example="LineageOS">%s</xliff:g> or any other OS, you can restore it here.</string>
+    <string name="intro_restore_button">Restore from backup</string>
+
+    <!-- Location page -->
+    <string name="setup_location">Location services</string>
+    <string name="location_access_summary"><b>Allow apps that have asked your permission</b> to use your location information. This may include your current location and past locations.</string>
+    <string name="location_agps_access_summary">When location is on, <b>download satellite assistance data from the internet</b>, which can greatly improve the GPS startup performance.</string>
+
+    <!-- Recovery update page -->
+    <string name="update_recovery_title">Update Lineage Recovery</string>
+    <string name="update_recovery_description">Updates Lineage Recovery on first boot subsequent to every update.</string>
+    <string name="update_recovery_warning">Recovery will be updated as soon as you finish the setup. If you wish to keep it intact, disable this feature.</string>
+    <string name="update_recovery_setting">Update Lineage Recovery alongside the OS</string>
+    <string name="update_recovery_full_description"><xliff:g id="recovery_update_description">%1$s</xliff:g>\n<xliff:g id="recovery_update_warning">%2$s</xliff:g></string>
+
+    <!-- LineageOS features page -->
+    <string name="setup_services">LineageOS features</string>
+    <string name="services_pp_explanation">These services work for you to extend the capabilities of your device. Data will be used in accordance with <xliff:g id="name" example="LineageOS">%1$s</xliff:g>\'s privacy policy.</string>
+    <string name="services_find_privacy_policy">You can read the privacy policy on another device by visiting <xliff:g id="uri" example="https://lineageos.org/legal">%1$s</xliff:g></string>
+    <string name="services_privacy_policy_uri" translatable="false">https://lineageos.org/legal</string>
+    <string name="services_help_improve_cm">Help improve <xliff:g id="name" example="LineageOS">%s</xliff:g></string>
+    <string name="services_metrics_label"><xliff:g id="name" example="Help improve LineageOS">%1$s</xliff:g> by automatically sending diagnostic and usage data to <xliff:g id="name" example="LineageOS">%2$s</xliff:g>. This information can’t be used to identify you and lends a hand to teams working on things like battery life, app performance, and new <xliff:g id="name" example="LineageOS">%3$s</xliff:g> features.</string>
+    <string name="services_os_nav_keys_label"><b>Use on screen navigation keys</b> instead of hardware keys.</string>
+    <string name="services_full_description"><xliff:g id="pp_explanation">%1$s</xliff:g>\n<xliff:g id="pp_find">%2$s</xliff:g></string>
+
+    <!-- Navigation page -->
+    <string name="setup_navigation">Navigation</string>
+    <string name="navigation_summary">Choose preferred navigation method</string>
+    <string name="gesture_navigation">Gesture navigation</string>
+    <string name="two_button_navigation">2-button navigation</string>
+    <string name="navbar_navigation">3-button navigation</string>
+    <string name="hide_gesture_hint">Hide gestural navigation hint</string>
+
+    <!-- Theme page -->
+    <string name="setup_theme">Theme</string>
+    <string name="theme_summary">Dark theme uses a black background to help keep battery alive longer on some screens</string>
+    <string name="dark">Dark</string>
+    <string name="light">Light</string>
+</resources>

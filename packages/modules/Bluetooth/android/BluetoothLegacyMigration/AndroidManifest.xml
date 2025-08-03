@@ -1,0 +1,20 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.android.bluetooth"
+    android:sharedUserId="android.uid.bluetooth">
+
+    <!-- This "legacy" instance is retained on the device to preserve the
+        database contents before Bluetooth was migrated into a Mainline module.
+        This ensures that we can migrate information to new folder app -->
+<application
+    android:icon="@mipmap/bt_share"
+    android:allowBackup="false"
+    android:label="Bluetooth Legacy">
+        <provider
+            android:name="com.google.android.bluetooth.BluetoothLegacyMigration"
+            android:authorities="bluetooth_legacy.provider"
+            android:directBootAware="true"
+            android:exported="false"
+            android:permission="android.permission.BLUETOOTH_PRIVILEGED"
+            />
+    </application>
+</manifest>

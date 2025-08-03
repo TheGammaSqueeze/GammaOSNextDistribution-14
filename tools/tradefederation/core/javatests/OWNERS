@@ -1,0 +1,5 @@
+# tests ownership is wider for Tradefed Unit tests
+
+per-file *.java, *.xml = *
+
+per-file com/android/tradefed/targetprep/*User* = file:/MULTIUSER_OWNERS

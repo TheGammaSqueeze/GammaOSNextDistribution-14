@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.android.customization.picker.iconshape.IconShapeSectionView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:background="?selectableItemBackground"
+    android:clickable="true"
+    android:paddingVertical="@dimen/option_section_vertical_padding"
+    android:paddingHorizontal="@dimen/section_horizontal_padding"
+    android:orientation="horizontal">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/preview_name_shape"
+            style="@style/SectionTitleTextStyle" />
+
+        <TextView
+            android:id="@+id/icon_section_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/SectionSubtitleTextStyle"/>
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/icon_option_tile"
+        android:layout_width="@dimen/option_tile_width"
+        android:layout_height="@dimen/option_tile_width"
+        android:layout_gravity="center_horizontal"
+        android:paddingHorizontal="@dimen/option_tile_padding_horizontal"
+        android:paddingVertical="@dimen/option_tile_padding_vertical"
+        android:background="@drawable/picker_section_icon_background">
+        <ImageView
+            android:id="@+id/icon_section_tile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"/>
+    </FrameLayout>
+
+</com.android.customization.picker.iconshape.IconShapeSectionView>

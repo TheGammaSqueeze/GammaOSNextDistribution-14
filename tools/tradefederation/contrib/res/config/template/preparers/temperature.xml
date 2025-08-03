@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2021 Google Inc. All Rights Reserved -->
+<configuration description="Configuration to wait for device to cool down." >
+    <target_preparer class="com.android.tradefed.targetprep.TemperatureThrottlingWaiter">
+        <!-- Disabled by default; can be enabled on a test-by-test basis. -->
+        <option name="disable" value="true" />
+    </target_preparer>
+</configuration>

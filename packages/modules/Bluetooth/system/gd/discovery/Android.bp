@@ -1,0 +1,18 @@
+filegroup {
+    name: "BluetoothDiscoverySources",
+    srcs: [
+        "device/bt_property.cc",
+        "device/data_parser.cc",
+        "device/eir_data.cc",
+    ],
+}
+
+filegroup {
+    name: "BluetoothDiscoveryTestSources",
+    srcs: [
+        "device/bt_property_unittest.cc",
+        "device/data_parser_unittest.cc",
+        "device/eir_data_unittest.cc",
+        "device/eir_test_data_packets.cc",
+    ],
+}

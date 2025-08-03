@@ -1,0 +1,23 @@
+package: "com.android.server.telecom.flags"
+container: "system"
+
+flag {
+  name: "use_improved_listener_order"
+  namespace: "telecom"
+  description: "Make InCallController the first listener to trigger"
+  bug: "24244713"
+}
+
+flag {
+  name: "fix_audio_flicker_for_outgoing_calls"
+  namespace: "telecom"
+  description: "This fix ensures the MO calls won't switch from Active to Quite b/c setDialing was not called"
+  bug: "309540769"
+}
+
+flag {
+  name: "enable_call_sequencing"
+  namespace: "telecom"
+  description: "Enables simultaneous call sequencing for SIM PhoneAccounts"
+  bug: "297446980"
+}

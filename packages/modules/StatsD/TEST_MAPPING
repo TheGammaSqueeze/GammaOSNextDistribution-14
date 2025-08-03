@@ -1,0 +1,68 @@
+{
+  "mainline-presubmit" : [
+    {
+      "name" : "FrameworkStatsdTest[com.google.android.os.statsd.apex]"
+    }
+  ],
+  "presubmit" : [
+    {
+      "name" : "FrameworkStatsdTest"
+    },
+    {
+      "name" : "FrameworkStatsdHostTest"
+    },
+    {
+      "name" : "LibStatsPullTests"
+    },
+    {
+      "name" : "StatsdTestUtilsTest"
+    },
+    {
+      "name" : "libkll_test"
+    },
+    {
+      "name" : "libstatspull_test"
+    },
+    {
+      "name" : "libstatssocket_test"
+    },
+    {
+      "name" : "statsd_test"
+    }
+  ],
+  "hwasan-presubmit" : [
+    {
+      "name" : "FrameworkStatsdTest"
+    },
+    {
+      "name" : "FrameworkStatsdHostTest"
+    },
+    {
+      "name" : "StatsdTestUtilsTest"
+    },
+    {
+      "name" : "LibStatsPullTests"
+    },
+    {
+      "name" : "libkll_test"
+    },
+    {
+      "name" : "libstatspull_test"
+    },
+    {
+      "name" : "libstatssocket_test"
+    },
+    {
+      "name" : "statsd_test"
+    }
+  ],
+
+  "postsubmit" : [
+    {
+      "name" : "CtsStatsdHostTestCases"
+    },
+    {
+      "name" : "GtsStatsdHostTestCases"
+    }
+  ]
+}

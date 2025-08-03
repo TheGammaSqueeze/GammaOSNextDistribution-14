@@ -1,0 +1,933 @@
+versions {
+  version: 1
+  requirements {
+    module: ART
+    version {
+      version: 1
+    }
+  }
+  requirements {
+    module: CONSCRYPT
+    version {
+      version: 1
+    }
+  }
+  requirements {
+    module: IPSEC
+    version {
+      version: 1
+    }
+  }
+  requirements {
+    module: MEDIA
+    version {
+      version: 1
+    }
+  }
+  requirements {
+    module: MEDIA_PROVIDER
+    version {
+      version: 1
+    }
+  }
+  requirements {
+    module: PERMISSIONS
+    version {
+      version: 1
+    }
+  }
+  requirements {
+    module: SCHEDULING
+    version {
+      version: 1
+    }
+  }
+  requirements {
+    module: SDK_EXTENSIONS
+    version {
+      version: 1
+    }
+  }
+  requirements {
+    module: STATSD
+    version {
+      version: 1
+    }
+  }
+  requirements {
+    module: TETHERING
+    version {
+      version: 1
+    }
+  }
+}
+versions {
+  version: 2
+  requirements {
+    module: ART
+    version {
+      version: 1
+    }
+  }
+  requirements {
+    module: CONSCRYPT
+    version {
+      version: 1
+    }
+  }
+  requirements {
+    module: IPSEC
+    version {
+      version: 1
+    }
+  }
+  requirements {
+    module: MEDIA
+    version {
+      version: 1
+    }
+  }
+  requirements {
+    module: MEDIA_PROVIDER
+    version {
+      version: 2
+    }
+  }
+  requirements {
+    module: PERMISSIONS
+    version {
+      version: 1
+    }
+  }
+  requirements {
+    module: SCHEDULING
+    version {
+      version: 1
+    }
+  }
+  requirements {
+    module: SDK_EXTENSIONS
+    version {
+      version: 2
+    }
+  }
+  requirements {
+    module: STATSD
+    version {
+      version: 1
+    }
+  }
+  requirements {
+    module: TETHERING
+    version {
+      version: 1
+    }
+  }
+}
+versions {
+  version: 3
+  requirements {
+    module: ART
+    version {
+      version: 3
+    }
+  }
+  requirements {
+    module: CONSCRYPT
+    version {
+      version: 3
+    }
+  }
+  requirements {
+    module: IPSEC
+    version {
+      version: 3
+    }
+  }
+  requirements {
+    module: MEDIA
+    version {
+      version: 3
+    }
+  }
+  requirements {
+    module: MEDIA_PROVIDER
+    version {
+      version: 3
+    }
+  }
+  requirements {
+    module: PERMISSIONS
+    version {
+      version: 3
+    }
+  }
+  requirements {
+    module: SCHEDULING
+    version {
+      version: 3
+    }
+  }
+  requirements {
+    module: SDK_EXTENSIONS
+    version {
+      version: 3
+    }
+  }
+  requirements {
+    module: STATSD
+    version {
+      version: 3
+    }
+  }
+  requirements {
+    module: TETHERING
+    version {
+      version: 3
+    }
+  }
+  requirements {
+    module: AD_SERVICES
+    version {
+      version: 3
+    }
+  }
+  requirements {
+    module: APPSEARCH
+    version {
+      version: 3
+    }
+  }
+  requirements {
+    module: ON_DEVICE_PERSONALIZATION
+    version {
+      version: 3
+    }
+  }
+}
+versions {
+  version: 4
+  requirements {
+    module: ART
+    version {
+      version: 3
+    }
+  }
+  requirements {
+    module: CONSCRYPT
+    version {
+      version: 3
+    }
+  }
+  requirements {
+    module: IPSEC
+    version {
+      version: 3
+    }
+  }
+  requirements {
+    module: MEDIA
+    version {
+      version: 3
+    }
+  }
+  requirements {
+    module: MEDIA_PROVIDER
+    version {
+      version: 3
+    }
+  }
+  requirements {
+    module: PERMISSIONS
+    version {
+      version: 3
+    }
+  }
+  requirements {
+    module: SCHEDULING
+    version {
+      version: 3
+    }
+  }
+  requirements {
+    module: SDK_EXTENSIONS
+    version {
+      version: 4
+    }
+  }
+  requirements {
+    module: STATSD
+    version {
+      version: 3
+    }
+  }
+  requirements {
+    module: TETHERING
+    version {
+      version: 3
+    }
+  }
+  requirements {
+    module: AD_SERVICES
+    version {
+      version: 4
+    }
+  }
+  requirements {
+    module: APPSEARCH
+    version {
+      version: 3
+    }
+  }
+  requirements {
+    module: ON_DEVICE_PERSONALIZATION
+    version {
+      version: 3
+    }
+  }
+}
+versions {
+  version: 5
+  requirements {
+    module: ART
+    version {
+      version: 3
+    }
+  }
+  requirements {
+    module: CONSCRYPT
+    version {
+      version: 3
+    }
+  }
+  requirements {
+    module: IPSEC
+    version {
+      version: 3
+    }
+  }
+  requirements {
+    module: MEDIA
+    version {
+      version: 3
+    }
+  }
+  requirements {
+    module: MEDIA_PROVIDER
+    version {
+      version: 5
+    }
+  }
+  requirements {
+    module: PERMISSIONS
+    version {
+      version: 3
+    }
+  }
+  requirements {
+    module: SCHEDULING
+    version {
+      version: 3
+    }
+  }
+  requirements {
+    module: SDK_EXTENSIONS
+    version {
+      version: 4
+    }
+  }
+  requirements {
+    module: STATSD
+    version {
+      version: 3
+    }
+  }
+  requirements {
+    module: TETHERING
+    version {
+      version: 3
+    }
+  }
+  requirements {
+    module: AD_SERVICES
+    version {
+      version: 5
+    }
+  }
+  requirements {
+    module: APPSEARCH
+    version {
+      version: 3
+    }
+  }
+  requirements {
+    module: ON_DEVICE_PERSONALIZATION
+    version {
+      version: 3
+    }
+  }
+}
+versions {
+  version: 6
+  requirements {
+    module: ART
+    version {
+      version: 3
+    }
+  }
+  requirements {
+    module: CONSCRYPT
+    version {
+      version: 3
+    }
+  }
+  requirements {
+    module: IPSEC
+    version {
+      version: 3
+    }
+  }
+  requirements {
+    module: MEDIA
+    version {
+      version: 3
+    }
+  }
+  requirements {
+    module: MEDIA_PROVIDER
+    version {
+      version: 5
+    }
+  }
+  requirements {
+    module: PERMISSIONS
+    version {
+      version: 3
+    }
+  }
+  requirements {
+    module: SCHEDULING
+    version {
+      version: 3
+    }
+  }
+  requirements {
+    module: SDK_EXTENSIONS
+    version {
+      version: 4
+    }
+  }
+  requirements {
+    module: STATSD
+    version {
+      version: 3
+    }
+  }
+  requirements {
+    module: TETHERING
+    version {
+      version: 3
+    }
+  }
+  requirements {
+    module: AD_SERVICES
+    version {
+      version: 6
+    }
+  }
+  requirements {
+    module: APPSEARCH
+    version {
+      version: 3
+    }
+  }
+  requirements {
+    module: ON_DEVICE_PERSONALIZATION
+    version {
+      version: 3
+    }
+  }
+}
+versions {
+  version: 7
+  requirements {
+    module: ART
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: CONSCRYPT
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: IPSEC
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: MEDIA
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: MEDIA_PROVIDER
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: PERMISSIONS
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: SCHEDULING
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: SDK_EXTENSIONS
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: STATSD
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: TETHERING
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: AD_SERVICES
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: APPSEARCH
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: ON_DEVICE_PERSONALIZATION
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: CONFIG_INFRASTRUCTURE
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: HEALTH_FITNESS
+    version {
+      version: 7
+    }
+  }
+}
+versions {
+  version: 8
+  requirements {
+    module: ART
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: CONSCRYPT
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: IPSEC
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: MEDIA
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: MEDIA_PROVIDER
+    version {
+      version: 8
+    }
+  }
+  requirements {
+    module: PERMISSIONS
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: SCHEDULING
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: SDK_EXTENSIONS
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: STATSD
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: TETHERING
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: AD_SERVICES
+    version {
+      version: 8
+    }
+  }
+  requirements {
+    module: APPSEARCH
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: ON_DEVICE_PERSONALIZATION
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: CONFIG_INFRASTRUCTURE
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: HEALTH_FITNESS
+    version {
+      version: 7
+    }
+  }
+}
+versions {
+  version: 9
+  requirements {
+    module: ART
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: CONSCRYPT
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: IPSEC
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: MEDIA
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: MEDIA_PROVIDER
+    version {
+      version: 8
+    }
+  }
+  requirements {
+    module: PERMISSIONS
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: SCHEDULING
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: SDK_EXTENSIONS
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: STATSD
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: TETHERING
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: AD_SERVICES
+    version {
+      version: 9
+    }
+  }
+  requirements {
+    module: APPSEARCH
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: ON_DEVICE_PERSONALIZATION
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: CONFIG_INFRASTRUCTURE
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: HEALTH_FITNESS
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: EXT_SERVICES
+    version {
+      version: 9
+    }
+  }
+}
+versions {
+  version: 10
+  requirements {
+    module: ART
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: CONSCRYPT
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: IPSEC
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: MEDIA
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: MEDIA_PROVIDER
+    version {
+      version: 8
+    }
+  }
+  requirements {
+    module: PERMISSIONS
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: SCHEDULING
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: SDK_EXTENSIONS
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: STATSD
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: TETHERING
+    version {
+      version: 10
+    }
+  }
+  requirements {
+    module: AD_SERVICES
+    version {
+      version: 10
+    }
+  }
+  requirements {
+    module: APPSEARCH
+    version {
+      version: 10
+    }
+  }
+  requirements {
+    module: ON_DEVICE_PERSONALIZATION
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: CONFIG_INFRASTRUCTURE
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: HEALTH_FITNESS
+    version {
+      version: 10
+    }
+  }
+  requirements {
+    module: EXT_SERVICES
+    version {
+      version: 10
+    }
+  }
+}
+versions {
+  version: 11
+  requirements {
+    module: ART
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: CONSCRYPT
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: IPSEC
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: MEDIA
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: MEDIA_PROVIDER
+    version {
+      version: 8
+    }
+  }
+  requirements {
+    module: PERMISSIONS
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: SCHEDULING
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: SDK_EXTENSIONS
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: STATSD
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: TETHERING
+    version {
+      version: 11
+    }
+  }
+  requirements {
+    module: AD_SERVICES
+    version {
+      version: 11
+    }
+  }
+  requirements {
+    module: APPSEARCH
+    version {
+      version: 10
+    }
+  }
+  requirements {
+    module: ON_DEVICE_PERSONALIZATION
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: CONFIG_INFRASTRUCTURE
+    version {
+      version: 7
+    }
+  }
+  requirements {
+    module: HEALTH_FITNESS
+    version {
+      version: 10
+    }
+  }
+  requirements {
+    module: EXT_SERVICES
+    version {
+      version: 11
+    }
+  }
+}

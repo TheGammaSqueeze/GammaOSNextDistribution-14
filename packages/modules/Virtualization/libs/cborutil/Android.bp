@@ -1,0 +1,44 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_defaults {
+    name: "libcbor_util_defaults",
+    crate_name: "cbor_util",
+    srcs: ["src/lib.rs"],
+    defaults: ["avf_build_flags_rust"],
+    prefer_rlib: true,
+    apex_available: [
+        "com.android.virt",
+    ],
+}
+
+rust_library_rlib {
+    name: "libcbor_util_nostd",
+    defaults: ["libcbor_util_defaults"],
+    no_stdlibs: true,
+    stdlibs: [
+        "libcompiler_builtins.rust_sysroot",
+        "libcore.rust_sysroot",
+    ],
+    rustlibs: [
+        "libciborium_nostd",
+        "libcoset_nostd",
+        "liblog_rust_nostd",
+        "libserde_nostd",
+    ],
+}
+
+rust_library {
+    name: "libcbor_util",
+    defaults: ["libcbor_util_defaults"],
+    features: [
+        "std",
+    ],
+    rustlibs: [
+        "libciborium",
+        "libcoset",
+        "liblog_rust",
+        "libserde",
+    ],
+}

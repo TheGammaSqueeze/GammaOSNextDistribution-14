@@ -1,0 +1,128 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_bt_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_bt_license"],
+}
+
+rust_library {
+    name: "libbluetooth_rs",
+    defaults: ["gd_rust_defaults"],
+    crate_name: "bluetooth_rs",
+    srcs: ["src/lib.rs"],
+    edition: "2018",
+    rustlibs: [
+        "libbt_common",
+        "libbt_facade_helpers",
+        "libbt_facade_proto",
+        "libbt_packets",
+        "libbt_packets",
+        "libbytes",
+        "libcxx",
+        "libfutures",
+        "libgddi",
+        "libgrpcio",
+        "liblazy_static",
+        "liblog_rust",
+        "libnum_traits",
+        "libpdl_runtime",
+        "libprotobuf",
+        "libthiserror",
+        "libtokio",
+        "libtokio_stream",
+    ],
+    proc_macros: [
+        "libnum_derive",
+    ],
+    min_sdk_version: "30",
+    target: {
+        android: {
+            whole_static_libs: ["libbt_hidl_hal_cxx"],
+            shared_libs: [
+                "android.hardware.bluetooth@1.0",
+                "android.hardware.bluetooth@1.1",
+                "libhidlbase",
+                "libutils",
+            ],
+        },
+    },
+}
+
+rust_test_host {
+    name: "libbluetooth_rs_test",
+    defaults: [
+        "gd_rust_defaults",
+        "mts_defaults",
+    ],
+    srcs: ["src/lib.rs"],
+    test_suites: ["general-tests"],
+    edition: "2018",
+    rustlibs: [
+        "libbluetooth_rs",
+        "libbt_common",
+        "libbt_facade_helpers",
+        "libbt_facade_proto",
+        "libbt_packets",
+        "libbytes",
+        "libcxx",
+        "libfutures",
+        "libgddi",
+        "libgrpcio",
+        "liblazy_static",
+        "liblog_rust",
+        "libnum_traits",
+        "libpdl_runtime",
+        "libprotobuf",
+        "libthiserror",
+        "libtokio",
+        "libtokio_stream",
+    ],
+    proc_macros: [
+        "libnum_derive",
+    ],
+}
+
+genrule {
+    name: "libbt_hidl_hal_bridge_header",
+    tools: ["cxxbridge"],
+    cmd: "$(location cxxbridge) $(in) --header > $(out)",
+    srcs: ["src/hal/hidl_hal.rs"],
+    out: ["src/hal/hidl_hal.rs.h"],
+}
+
+genrule {
+    name: "libbt_hidl_hal_bridge_code",
+    tools: ["cxxbridge"],
+    cmd: "$(location cxxbridge) $(in) >> $(out)",
+    srcs: ["src/hal/hidl_hal.rs"],
+    out: ["hidl_hal_generated.cc"],
+}
+
+cc_library_static {
+    name: "libbt_hidl_hal_cxx",
+    defaults: [
+        "bluetooth_cflags",
+        "gd_ffi_defaults",
+        "rust_static_cc_lib_defaults",
+    ],
+    srcs: ["src/hal/ffi/hidl.cc"],
+    local_include_dirs: ["src/hal/ffi"],
+    include_dirs: [
+        "packages/modules/Bluetooth/system",
+        "packages/modules/Bluetooth/system/gd",
+    ],
+    generated_headers: [
+        "cxx-bridge-header",
+        "libbt_hidl_hal_bridge_header",
+    ],
+    generated_sources: ["libbt_hidl_hal_bridge_code"],
+    shared_libs: [
+        "android.hardware.bluetooth@1.0",
+        "android.hardware.bluetooth@1.1",
+        "libhidlbase",
+        "libutils",
+    ],
+    min_sdk_version: "30",
+}

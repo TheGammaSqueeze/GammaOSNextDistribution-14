@@ -1,0 +1,16 @@
+Debian 10
+
+build-dpkg:
+    - Builds a binary debian package
+
+package:
+    - Debian package
+
+`./build-dpkg` will verify, download, build, and install everything needed to build the floss dpkg.
+
+How to use:
+
+Run `sudo install-dependencies` first then run `build-dpkg`
+
+TODO:
+ - Figure out versioning for DEBIAN/control

@@ -1,0 +1,11 @@
+#####################################
+# carpowerpolicy_callback_domain(domain)
+# Allow a base set of permissions required for a domain to be a
+# callback of a carpowerpolicyd.
+#
+# For example, make some_domain a car power policy callback:
+#   carpowerpolicy_callback_domain(some_domain)
+#
+define(`carpowerpolicy_callback_domain', `
+typeattribute $1 carpowerpolicycallback_domain;
+')

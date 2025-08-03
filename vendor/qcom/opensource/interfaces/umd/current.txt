@@ -1,0 +1,7 @@
+#Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
+#SPDX-License-Identifier: BSD-3-Clause-Clear
+
+#HAL released in Android Q
+0ea54fffbc009eb09ad8eb56832f97192fcc49551672b7d4e1c60f5baf5f496b vendor.qti.hardware.umd@1.0::types
+28265d6a58d414bc244d0b0e93b88660b2f9bf12da48361a2f54d54120fb2e96 vendor.qti.hardware.umd@1.0::IUMDAdaptor
+ad5906c3bcf8b4ced9f51e804ba345f2c0831217ac45188f11057507e7dbd692 vendor.qti.hardware.umd@1.0::IUMDAdaptorCallback

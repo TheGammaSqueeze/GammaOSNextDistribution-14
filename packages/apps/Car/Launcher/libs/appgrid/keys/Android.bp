@@ -1,0 +1,8 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_app_certificate {
+    name: "com-android-car-launcher-test",
+    certificate: "com_android_car_launcher_test"
+}

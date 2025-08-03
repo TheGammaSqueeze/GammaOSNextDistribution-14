@@ -1,0 +1,59 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_test_host {
+    name: "MicrodroidHostTestCases",
+    srcs: ["java/**/*.java"],
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    libs: [
+        "androidx.annotation_annotation",
+        "tradefed",
+    ],
+    static_libs: [
+        "MicrodroidHostTestHelper",
+        "compatibility-host-util",
+        "cts-host-utils",
+        "cts-statsd-atom-host-test-utils",
+        "microdroid_payload_metadata",
+    ],
+    per_testcase_directory: true,
+    data: [
+        ":MicrodroidTestApp",
+        ":microdroid_general_sepolicy.conf",
+        ":test.com.android.virt.pem",
+        ":test2.com.android.virt.pem",
+    ],
+    data_native_bins: [
+        "sepolicy-analyze",
+        // For re-sign test
+        "avbtool",
+        "img2simg",
+        "initrd_bootconfig",
+        "lpmake",
+        "lpunpack",
+        "lz4",
+        "sign_virt_apex",
+        "simg2img",
+        "dtdiff",
+        "dtc", // for dtdiff
+    ],
+    // java_test_host doesn't have data_native_libs but jni_libs can be used to put
+    // native modules under ./lib directory.
+    // This works because host tools have rpath (../lib and ./lib).
+    jni_libs: [
+        "libbase",
+        "libc++",
+        "libcrypto_utils",
+        "libcrypto",
+        "libext4_utils",
+        "liblog",
+        "liblp",
+        "libsparse",
+        "libz",
+        "libfdt", // for dtc
+    ],
+}

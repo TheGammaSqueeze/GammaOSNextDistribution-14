@@ -1,0 +1,6 @@
+public com_android_art libnativehelper.so
+jni com_android_conscrypt libjavacrypto.so
+public com_android_i18n libicui18n.so:libicuuc.so
+public com_android_neuralnetworks libneuralnetworks.so
+jni com_android_os_statsd libstats_jni.so
+public com_vendor_service3 libvendorpublic.so

@@ -1,0 +1,28 @@
+{
+  "presubmit": [
+    {
+      "name": "netdutils_test"
+    }
+  ],
+  "imports": [
+    {
+      "path": "frameworks/base/core/java/android/net"
+    },
+    // Below tests already run the library tests as part of their coverage tests
+    {
+      "path": "packages/modules/NetworkStack"
+    },
+    {
+      "path": "packages/modules/CaptivePortalLogin"
+    },
+    {
+      "path": "frameworks/base/packages/Tethering"
+    },
+    {
+      "path": "packages/modules/Wifi/framework"
+    },
+    {
+      "path": "vendor/xts/gts-tests/hostsidetests/networkstack"
+    }
+  ]
+}

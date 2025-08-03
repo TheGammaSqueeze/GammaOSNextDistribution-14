@@ -1,0 +1,10 @@
+package: "com.android.server.telecom.flags"
+container: "system"
+
+flag {
+  name: "use_actual_address_to_enter_connecting_state"
+  namespace: "telecom"
+  description: "Fix bugs that may add bluetooth device with null address."
+  bug: "306113816"
+}
+

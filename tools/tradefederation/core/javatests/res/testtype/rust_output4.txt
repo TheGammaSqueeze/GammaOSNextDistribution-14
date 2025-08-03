@@ -1,0 +1,1 @@
+CANNOT LINK EXECUTABLE "/data/local/tmp/keystore2_test/x86_64/keystore2_test": library "libkeystore2_crypto.so" not found: needed by main executable

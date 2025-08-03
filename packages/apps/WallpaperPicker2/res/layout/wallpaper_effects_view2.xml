@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2024 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<com.android.wallpaper.widget.floatingsheetcontent.WallpaperEffectsView2
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="@dimen/wallpaper_info_pane_padding"
+    android:theme="@style/WallpaperPicker.BottomPaneStyle">
+
+    <TextView
+        android:id="@+id/wallpaper_effects_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="viewStart"
+        android:textAppearance="@style/TitleTextAppearance"
+        android:textColor="?android:textColorPrimary" />
+
+    <TextView
+        android:id="@+id/wallpaper_effects_subtitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/wallpaper_info_pane_subtitle1_top_margin"
+        android:textColor="?android:textColorSecondary"
+        android:textSize="14sp" />
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/wallpaper_info_pane_interaction_top_margin">
+
+        <LinearLayout
+            android:id="@+id/wallpaper_effect_linear_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/wallpaper_effect_toggle_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textAlignment="viewStart"
+                android:textColor="?android:textColorSecondary" />
+
+            <Switch
+                android:id="@+id/wallpaper_effect_switch"
+                style="@style/Switch.SettingsLib"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:clickable="false"
+                android:focusable="false" />
+        </LinearLayout>
+
+        <RelativeLayout
+            android:id="@+id/button_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true">
+
+            <Button
+                android:id="@+id/download_model_button"
+                android:layout_width="@dimen/wallpaper_effect_download_button_width"
+                android:layout_height="@dimen/wallpaper_effect_download_button_height"
+                android:background="@drawable/effect_download_button_background"
+                android:visibility="visible" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:elevation="2dp">
+
+                <ImageView
+                    android:layout_width="@dimen/wallpaper_effect_download_image_size"
+                    android:layout_height="@dimen/wallpaper_effect_download_image_size"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/ic_effects_download_24px" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:paddingStart="@dimen/wallpaper_effect_download_text_padding_start"
+                    android:text="@string/bottom_action_bar_download"
+                    android:textAppearance="@style/SeparatedTabsTextAppearance"
+                    android:textColor="@color/text_color_on_accent" />
+            </LinearLayout>
+        </RelativeLayout>
+
+        <ProgressBar
+            android:id="@+id/action_progress"
+            android:layout_width="@dimen/wallpaper_effect_downloading_progress_size"
+            android:layout_height="@dimen/wallpaper_effect_downloading_progress_size"
+            android:indeterminateTint="?android:attr/textColorPrimary"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="5dp"
+            android:visibility="visible" />
+
+        <RelativeLayout
+            android:id="@+id/buttons_container"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/wallpaper_effect_failed_container_height"
+            android:visibility="invisible">
+
+            <Button
+                android:id="@+id/open_my_photo_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="@string/open_my_photos"
+                android:textColor="@color/color_accent_primary_variant"
+                android:textSize="@dimen/wallpaper_effect_failed_button_size"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/continue_button"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="@drawable/effect_continue_button_background"
+                android:gravity="center"
+                android:paddingHorizontal="@dimen/wallpaper_picker_entry_horizontal_padding"
+                android:text="@string/start_rotation_dialog_continue"
+                android:textColor="@color/text_color_primary"
+                android:textSize="@dimen/wallpaper_effect_failed_button_size"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/try_again_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:textColor="@color/color_accent_primary_variant"
+                android:textSize="@dimen/wallpaper_effect_failed_button_size"
+                android:visibility="gone" />
+        </RelativeLayout>
+    </RelativeLayout>
+</com.android.wallpaper.widget.floatingsheetcontent.WallpaperEffectsView2>

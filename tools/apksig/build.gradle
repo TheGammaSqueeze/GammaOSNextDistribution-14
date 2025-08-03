@@ -1,0 +1,37 @@
+// Generic Gradle project
+
+apply plugin: 'application'
+
+sourceCompatibility = '1.8'
+
+repositories {
+    jcenter()
+}
+
+application {
+    mainClassName 'com.android.apksigner.ApkSignerTool'
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs 'src/main/java', 'src/apksigner/java'
+        }
+        resources {
+            srcDirs 'src/apksigner/java'
+        }
+    }
+}
+
+tasks.register('createTestGoldens', JavaExec) {
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'com.android.apksig.ApkSignerTest'
+    args = ["src/test/resources/com/android/apksig"]
+}
+
+dependencies {
+    implementation 'org.conscrypt:conscrypt-openjdk-uber:2.5.2'
+    testImplementation 'junit:junit:4.13'
+    testImplementation 'org.bouncycastle:bcprov-jdk15on:1.68'
+    testImplementation 'org.conscrypt:conscrypt-openjdk-uber:2.5.1'
+}

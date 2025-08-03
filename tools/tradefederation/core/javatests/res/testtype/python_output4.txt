@@ -1,0 +1,383 @@
+test_smoke (__main__.AbbTest) ... ok
+test_install_argument_escaping (__main__.ArgumentEscapingTest)
+Make sure that install argument escaping works. ... ok
+test_shell_escaping (__main__.ArgumentEscapingTest)
+Make sure that argument escaping is somewhat sane. ... ok
+test_packet_size_regression (__main__.DeviceOfflineTest)
+Test for http://b/37783561 ... ok
+test_zero_packet (__main__.DeviceOfflineTest)
+Test for http://b/113070258 ... ok
+test_multiple_pull (__main__.FileOperationsTestBrotli)
+Pull a randomly generated directory of files from the device. ... ok
+test_multiple_push (__main__.FileOperationsTestBrotli)
+Push multiple files to the device in one adb push command. ... ok
+test_pull (__main__.FileOperationsTestBrotli)
+Pull a randomly generated file from specified device. ... ok
+test_pull_dir (__main__.FileOperationsTestBrotli)
+Pull a randomly generated directory of files from the device. ... ok
+test_pull_dir_nonexistent (__main__.FileOperationsTestBrotli)
+Pull a directory of files from the device to a nonexistent path. ... ok
+test_pull_dir_symlink (__main__.FileOperationsTestBrotli)
+Pull a directory into a symlink to a directory. ... ok
+test_pull_dir_symlink_collision (__main__.FileOperationsTestBrotli)
+Pull a directory into a colliding symlink to directory. ... ok
+test_pull_empty (__main__.FileOperationsTestBrotli)
+Pull a directory containing an empty directory from the device. ... ok
+test_pull_error_reporting (__main__.FileOperationsTestBrotli) ... ok
+test_push (__main__.FileOperationsTestBrotli)
+Push a randomly generated file to specified device. ... ok
+test_push_dir (__main__.FileOperationsTestBrotli)
+Push a randomly generated directory of files to the device. ... ok
+test_push_directory_creation (__main__.FileOperationsTestBrotli) ... ok
+test_push_dry_run_existent_file (__main__.FileOperationsTestBrotli)
+Push with dry run. ... ok
+test_push_dry_run_nonexistent_file (__main__.FileOperationsTestBrotli)
+Push with dry run. ... ok
+test_push_error_reporting (__main__.FileOperationsTestBrotli) ... ok
+test_push_symlink (__main__.FileOperationsTestBrotli)
+Push a symlink. ... ok
+test_push_sync (__main__.FileOperationsTestBrotli)
+Sync a host directory to a specific path. ... ok
+test_push_sync_multiple (__main__.FileOperationsTestBrotli)
+Sync multiple host directories to a specific path. ... ok
+test_sync (__main__.FileOperationsTestBrotli)
+Sync a host directory to the data partition. ... ok
+test_unicode_paths (__main__.FileOperationsTestBrotli)
+Ensure that we can support non-ASCII paths, even on Windows. ... ok
+test_multiple_pull (__main__.FileOperationsTestLZ4)
+Pull a randomly generated directory of files from the device. ... ok
+test_multiple_push (__main__.FileOperationsTestLZ4)
+Push multiple files to the device in one adb push command. ... ok
+test_pull (__main__.FileOperationsTestLZ4)
+Pull a randomly generated file from specified device. ... ok
+test_pull_dir (__main__.FileOperationsTestLZ4)
+Pull a randomly generated directory of files from the device. ... ok
+test_pull_dir_nonexistent (__main__.FileOperationsTestLZ4)
+Pull a directory of files from the device to a nonexistent path. ... ok
+test_pull_dir_symlink (__main__.FileOperationsTestLZ4)
+Pull a directory into a symlink to a directory. ... ok
+test_pull_dir_symlink_collision (__main__.FileOperationsTestLZ4)
+Pull a directory into a colliding symlink to directory. ... ok
+test_pull_empty (__main__.FileOperationsTestLZ4)
+Pull a directory containing an empty directory from the device. ... ok
+test_pull_error_reporting (__main__.FileOperationsTestLZ4) ... ok
+test_push (__main__.FileOperationsTestLZ4)
+Push a randomly generated file to specified device. ... ok
+test_push_dir (__main__.FileOperationsTestLZ4)
+Push a randomly generated directory of files to the device. ... ok
+test_push_directory_creation (__main__.FileOperationsTestLZ4) ... ok
+test_push_dry_run_existent_file (__main__.FileOperationsTestLZ4)
+Push with dry run. ... ok
+test_push_dry_run_nonexistent_file (__main__.FileOperationsTestLZ4)
+Push with dry run. ... ok
+test_push_error_reporting (__main__.FileOperationsTestLZ4) ... ok
+test_push_symlink (__main__.FileOperationsTestLZ4)
+Push a symlink. ... ok
+test_push_sync (__main__.FileOperationsTestLZ4)
+Sync a host directory to a specific path. ... ok
+test_push_sync_multiple (__main__.FileOperationsTestLZ4)
+Sync multiple host directories to a specific path. ... ok
+test_sync (__main__.FileOperationsTestLZ4)
+Sync a host directory to the data partition. ... ok
+test_unicode_paths (__main__.FileOperationsTestLZ4)
+Ensure that we can support non-ASCII paths, even on Windows. ... ok
+test_multiple_pull (__main__.FileOperationsTestUncompressed)
+Pull a randomly generated directory of files from the device. ... ok
+test_multiple_push (__main__.FileOperationsTestUncompressed)
+Push multiple files to the device in one adb push command. ... ok
+test_pull (__main__.FileOperationsTestUncompressed)
+Pull a randomly generated file from specified device. ... ok
+test_pull_dir (__main__.FileOperationsTestUncompressed)
+Pull a randomly generated directory of files from the device. ... ok
+test_pull_dir_nonexistent (__main__.FileOperationsTestUncompressed)
+Pull a directory of files from the device to a nonexistent path. ... ok
+test_pull_dir_symlink (__main__.FileOperationsTestUncompressed)
+Pull a directory into a symlink to a directory. ... ok
+test_pull_dir_symlink_collision (__main__.FileOperationsTestUncompressed)
+Pull a directory into a colliding symlink to directory. ... ok
+test_pull_empty (__main__.FileOperationsTestUncompressed)
+Pull a directory containing an empty directory from the device. ... ok
+test_pull_error_reporting (__main__.FileOperationsTestUncompressed) ... ok
+test_push (__main__.FileOperationsTestUncompressed)
+Push a randomly generated file to specified device. ... ok
+test_push_dir (__main__.FileOperationsTestUncompressed)
+Push a randomly generated directory of files to the device. ... ok
+test_push_directory_creation (__main__.FileOperationsTestUncompressed) ... ok
+test_push_dry_run_existent_file (__main__.FileOperationsTestUncompressed)
+Push with dry run. ... ok
+test_push_dry_run_nonexistent_file (__main__.FileOperationsTestUncompressed)
+Push with dry run. ... ok
+test_push_error_reporting (__main__.FileOperationsTestUncompressed) ... ok
+test_push_symlink (__main__.FileOperationsTestUncompressed)
+Push a symlink. ... ok
+test_push_sync (__main__.FileOperationsTestUncompressed)
+Sync a host directory to a specific path. ... ok
+test_push_sync_multiple (__main__.FileOperationsTestUncompressed)
+Sync multiple host directories to a specific path. ... ok
+test_sync (__main__.FileOperationsTestUncompressed)
+Sync a host directory to the data partition. ... ok
+test_unicode_paths (__main__.FileOperationsTestUncompressed)
+Ensure that we can support non-ASCII paths, even on Windows. ... ok
+test_multiple_pull (__main__.FileOperationsTestZstd)
+Pull a randomly generated directory of files from the device. ... ok
+test_multiple_push (__main__.FileOperationsTestZstd)
+Push multiple files to the device in one adb push command. ... ok
+test_pull (__main__.FileOperationsTestZstd)
+Pull a randomly generated file from specified device. ... ok
+test_pull_dir (__main__.FileOperationsTestZstd)
+Pull a randomly generated directory of files from the device. ... ok
+test_pull_dir_nonexistent (__main__.FileOperationsTestZstd)
+Pull a directory of files from the device to a nonexistent path. ... ok
+test_pull_dir_symlink (__main__.FileOperationsTestZstd)
+Pull a directory into a symlink to a directory. ... ok
+test_pull_dir_symlink_collision (__main__.FileOperationsTestZstd)
+Pull a directory into a colliding symlink to directory. ... ok
+test_pull_empty (__main__.FileOperationsTestZstd)
+Pull a directory containing an empty directory from the device. ... ok
+test_pull_error_reporting (__main__.FileOperationsTestZstd) ... ok
+test_push (__main__.FileOperationsTestZstd)
+Push a randomly generated file to specified device. ... ok
+test_push_dir (__main__.FileOperationsTestZstd)
+Push a randomly generated directory of files to the device. ... ok
+test_push_directory_creation (__main__.FileOperationsTestZstd) ... ok
+test_push_dry_run_existent_file (__main__.FileOperationsTestZstd)
+Push with dry run. ... ok
+test_push_dry_run_nonexistent_file (__main__.FileOperationsTestZstd)
+Push with dry run. ... ok
+test_push_error_reporting (__main__.FileOperationsTestZstd) ... ok
+test_push_symlink (__main__.FileOperationsTestZstd)
+Push a symlink. ... ok
+test_push_sync (__main__.FileOperationsTestZstd)
+Sync a host directory to a specific path. ... ok
+test_push_sync_multiple (__main__.FileOperationsTestZstd)
+Sync multiple host directories to a specific path. ... ok
+test_sync (__main__.FileOperationsTestZstd)
+Sync a host directory to the data partition. ... ok
+test_unicode_paths (__main__.FileOperationsTestZstd)
+Ensure that we can support non-ASCII paths, even on Windows. ... ok
+test_forward (__main__.ForwardReverseTest) ... ok
+test_forward_no_rebind (__main__.ForwardReverseTest) ... ok
+test_forward_old_protocol (__main__.ForwardReverseTest) ... ok
+test_forward_reverse_echo (__main__.ForwardReverseTest)
+Send data through adb forward and read it back via adb reverse ... ok
+test_forward_tcp_port_0 (__main__.ForwardReverseTest) ... ok
+test_reverse (__main__.ForwardReverseTest) ... ok
+test_reverse_no_rebind (__main__.ForwardReverseTest) ... ok
+test_reverse_tcp_port_0 (__main__.ForwardReverseTest) ... ok
+test_framebuffer (__main__.FramebufferTest) ... error: closed
+ERROR
+test_root_unroot (__main__.RootUnrootTest)
+Make sure that adb root and adb unroot work, using id(1). ... skipped 'b/172372960: temporarily disabled due to flakiness'
+test_can_distinguish_tricky_results (__main__.ShellTest) ... FAIL
+test_cat (__main__.ShellTest)
+Check that we can at least cat a file. ... ERROR
+test_exit_stress (__main__.ShellTest)
+Hammer `adb shell exit 42` with multiple threads. ... adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+adb: device offline
+FAIL
+test_line_endings (__main__.ShellTest)
+Ensure that line ending translation is not happening in the pty. ... ERROR
+test_non_interactive_sigint (__main__.ShellTest)
+Tests that SIGINT in a non-interactive shell kills the process. ... ERROR
+test_non_interactive_stdin (__main__.ShellTest)
+Tests that non-interactive shells send stdin. ... FAIL
+test_output_not_stripped (__main__.ShellTest) ... ERROR
+test_pty_logic (__main__.ShellTest)
+Tests that a PTY is allocated when it should be. ... FAIL
+test_shell_command_length (__main__.ShellTest) ... ok
+test_shell_nocheck_failure (__main__.ShellTest) ... ok
+test_shell_nocheck_output_not_stripped (__main__.ShellTest) ... ok
+test_shell_protocol (__main__.ShellTest)
+Tests the shell protocol on the device. ... ok
+test_sighup (__main__.ShellTest)
+Ensure that SIGHUP gets sent upon non-interactive ctrl-c ... ok
+test_throws_on_failure (__main__.ShellTest) ... ok
+test_socket_flush (__main__.SocketTest)
+Test that we handle socket closure properly. ... ok
+test_get_prop (__main__.SystemPropertiesTest) ... ok
+test_set_prop (__main__.SystemPropertiesTest) ... ok
+test_tcpip_failure_raises (__main__.TcpIpTest)
+adb tcpip requires a port. ... ok
+test_unicode_output (__main__.WindowsConsoleTest)
+Test Unicode command line parameters and Unicode console window output. ... skipped 'requires Windows'
+
+======================================================================
+ERROR: test_framebuffer (__main__.FramebufferTest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+File "/tmp/Soong.python_sk3qnboh/test_device.py", line 53, in wrapper
+func(self, *args)
+File "/tmp/Soong.python_sk3qnboh/test_device.py", line 1580, in test_framebuffer
+output = subprocess.check_output(self.device.adb_cmd + ["raw", "framebuffer:"])
+File "/usr/lib/python3.9/subprocess.py", line 424, in check_output
+return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+File "/usr/lib/python3.9/subprocess.py", line 528, in run
+raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['adb', '-s', '0.0.0.0:6520', 'raw', 'framebuffer:']' returned non-zero exit status 1.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+File "/tmp/Soong.python_sk3qnboh/adb/device.py", line 205, in _subprocess_check_output
+return subprocess.check_output(*_get_subprocess_args(args), **kwargs)
+File "/usr/lib/python3.9/subprocess.py", line 424, in check_output
+return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+File "/usr/lib/python3.9/subprocess.py", line 528, in run
+raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['adb', '-s', '0.0.0.0:6520', 'unroot']' returned non-zero exit status 1.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+File "/tmp/Soong.python_sk3qnboh/test_device.py", line 56, in wrapper
+self.device.unroot()
+File "/tmp/Soong.python_sk3qnboh/adb/device.py", line 472, in unroot
+return self._simple_call(['unroot'])
+File "/tmp/Soong.python_sk3qnboh/adb/device.py", line 330, in _simple_call
+return _subprocess_check_output(
+File "/tmp/Soong.python_sk3qnboh/adb/device.py", line 208, in _subprocess_check_output
+raise subprocess.CalledProcessError(e.returncode, args[0],
+subprocess.CalledProcessError: Command '['adb', '-s', '0.0.0.0:6520', 'unroot']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_cat (__main__.ShellTest)
+Check that we can at least cat a file.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+File "/tmp/Soong.python_sk3qnboh/test_device.py", line 303, in test_cat
+out = self.device.shell(['cat', '/proc/uptime'])[0].strip()
+File "/tmp/Soong.python_sk3qnboh/adb/device.py", line 348, in shell
+raise ShellError(cmd, stdout, stderr, exit_code)
+adb.device.ShellError: `['cat', '/proc/uptime']` exited with code 1
+
+======================================================================
+ERROR: test_line_endings (__main__.ShellTest)
+Ensure that line ending translation is not happening in the pty.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+File "/tmp/Soong.python_sk3qnboh/test_device.py", line 348, in test_line_endings
+output = self.device.shell(['uname'])[0]
+File "/tmp/Soong.python_sk3qnboh/adb/device.py", line 348, in shell
+raise ShellError(cmd, stdout, stderr, exit_code)
+adb.device.ShellError: `['uname']` exited with code 1
+
+======================================================================
+ERROR: test_non_interactive_sigint (__main__.ShellTest)
+Tests that SIGINT in a non-interactive shell kills the process.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+File "/tmp/Soong.python_sk3qnboh/test_device.py", line 464, in test_non_interactive_sigint
+self.device.shell(proc_query)
+File "/tmp/Soong.python_sk3qnboh/adb/device.py", line 348, in shell
+raise ShellError(cmd, stdout, stderr, exit_code)
+adb.device.ShellError: `['ps', 'adb:', 'device', 'offline', '|', 'grep', 'adb:', 'device', 'offline']` exited with code 1
+
+======================================================================
+ERROR: test_output_not_stripped (__main__.ShellTest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+File "/tmp/Soong.python_sk3qnboh/test_device.py", line 315, in test_output_not_stripped
+out = self.device.shell(['echo', 'foo'])[0]
+File "/tmp/Soong.python_sk3qnboh/adb/device.py", line 348, in shell
+raise ShellError(cmd, stdout, stderr, exit_code)
+adb.device.ShellError: `['echo', 'foo']` exited with code 1
+
+======================================================================
+FAIL: test_can_distinguish_tricky_results (__main__.ShellTest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+File "/tmp/Soong.python_sk3qnboh/test_device.py", line 340, in test_can_distinguish_tricky_results
+self.assertEqual(rc, 0)
+AssertionError: 1 != 0
+
+======================================================================
+FAIL: test_exit_stress (__main__.ShellTest)
+Hammer `adb shell exit 42` with multiple threads.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+File "/tmp/Soong.python_sk3qnboh/test_device.py", line 547, in test_exit_stress
+self.assertTrue(success)
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_non_interactive_stdin (__main__.ShellTest)
+Tests that non-interactive shells send stdin.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+File "/tmp/Soong.python_sk3qnboh/test_device.py", line 492, in test_non_interactive_stdin
+self.assertEqual(input.splitlines(), stdout.splitlines())
+AssertionError: Lists differ: [b'foo'] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+b'foo'
+
+- [b'foo']
++ []
+
+======================================================================
+FAIL: test_pty_logic (__main__.ShellTest)
+Tests that a PTY is allocated when it should be.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+File "/tmp/Soong.python_sk3qnboh/test_device.py", line 395, in test_pty_logic
+self.assertEqual((True, True), check_pty(['-t', '-t']))
+AssertionError: Tuples differ: (True, True) != (False, False)
+
+First differing element 0:
+True
+False
+
+- (True, True)
++ (False, False)
+
+----------------------------------------------------------------------
+Ran 114 tests in 0.510s 
+

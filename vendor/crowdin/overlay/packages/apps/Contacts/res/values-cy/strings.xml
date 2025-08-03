@@ -1,0 +1,556 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2006 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="applicationLabel">Cysylltiadau</string>
+    <string name="contactsList">Cysylltiadau</string>
+    <string name="shortcut_add_contact">Ychwanegu cyswllt</string>
+    <string name="shortcutContact">Cyswllt</string>
+    <string name="shortcutDialContact">Deialu uniongyrchol</string>
+    <string name="shortcutMessageContact">Neges uniongyrchol</string>
+    <string name="shortcutActivityTitle">Dewis cyswllt</string>
+    <string name="contactInsertOrEditActivityTitle">Ychwanegu at gyswllt</string>
+    <string name="contactPickerActivityTitle">Dewis cyswllt</string>
+    <string name="groupMemberPickerActivityTitle">Dewis</string>
+    <string name="header_entry_contact_list_adapter_header_title">Creu cyswllt newydd</string>
+    <string name="searchHint">Chwilio cysylltiadau</string>
+    <string name="menu_addStar">Ychwanegu at ffefrynnau</string>
+    <string name="menu_removeStar">Tynnu o\'r ffefrynnau</string>
+    <string name="description_action_menu_remove_star">Wedi\'i dynnu o\'r ffefrynnau</string>
+    <string name="description_action_menu_add_star">Ychwanegwyd at y ffefrynnau</string>
+    <string name="menu_editContact">Golygu</string>
+    <string name="menu_deleteContact">Dileu</string>
+    <string name="menu_change_photo">Newid y llun</string>
+    <string name="menu_create_contact_shortcut">Creu llwybr byr</string>
+    <string name="menu_splitAggregate">Datgyfuno</string>
+    <string name="menu_editGroup">Tynnu cysylltiadau</string>
+    <string name="menu_renameGroup">Ailenwi\'r label</string>
+    <string name="menu_deleteGroup">Dileu\'r label</string>
+    <string name="menu_addToGroup">Ychwanegu cyswllt</string>
+    <string name="menu_selectForGroup">Dewis cysylltiadau</string>
+    <string name="menu_addContactsToGroup">Ychwanegu cysylltiadau</string>
+    <string name="menu_removeFromGroup">Tynnu o\'r label</string>
+    <string name="menu_new_group_action_bar">Creu label</string>
+    <string name="splitConfirmation">Datgyfuno\'r cyswllt hwn i wahanol gysylltiadau?</string>
+    <string name="splitConfirmation_positive_button">Datgyfuno</string>
+    <string name="splitConfirmationWithPendingChanges">Wyt ti am gadw\'r newidiadau hyd yma a gwahanu\'r cyswllt i wahanol gysylltiadau?</string>
+    <string name="splitConfirmationWithPendingChanges_positive_button">Cadw a Datgyfuno</string>
+    <string name="joinConfirmation">Wyt ti am gadw\'r newidiadau hyd yma a chyfuno gyda\'r cyswllt a dewiswyd?</string>
+    <string name="joinConfirmation_positive_button">Cadw a Chyfuno</string>
+    <string name="contacts_linking_progress_bar">Yn cyfuno</string>
+    <string name="contacts_unlinking_progress_bar">Yn datgyfuno</string>
+    <string name="menu_joinAggregate">Cyfuno</string>
+    <string name="menu_linkedContacts">Dangos cysylltiadau wedi\'u cyfuno</string>
+    <string name="menu_save">Cadw</string>
+    <string name="titleJoinContactDataWith">Cyfuno cysylltiadau</string>
+    <string name="blurbJoinContactDataWith">Dewisa gyswllt i\'w gyfyno gyda <xliff:g id="name">%s</xliff:g>:</string>
+    <string name="separatorJoinAggregateSuggestions">Cysylltiadau a awgrymir</string>
+    <string name="separatorJoinAggregateAll">Pob cyswllt</string>
+    <string name="contactsJoinedNamedMessage"><xliff:g id="name">%s</xliff:g> wedi\'u cyfuno</string>
+    <string name="contactsJoinedMessage">Cysylltiadau wedi eu cyfuno</string>
+    <string name="contacts_deleted_one_named_toast"><xliff:g id="name">%1$s</xliff:g> wedi\'i ddileu</string>
+    <string name="contacts_deleted_two_named_toast"><xliff:g id="name">%1$s</xliff:g> a <xliff:g id="name">%2$s</xliff:g> wedi\'u dileu</string>
+    <string name="contacts_deleted_many_named_toast"><xliff:g id="name">%1$s</xliff:g>, <xliff:g id="name">%2$s</xliff:g>, <xliff:g id="name">%3$s</xliff:g>\u2026 wedi\'u dileu</string>
+    <string name="contacts_deleted_toast">{count, plural,
+       =1 {Cyswllt wedi\u2019i ddileu}
+        other {Cysylltiadau wedi eu dileu}
+    }</string>
+    <string name="contacts_count">{count, plural,
+      zero {# cysylltiadau}
+       =1 {# cyswllt}
+        two {# gyswllt}
+        few {# chyswllt}
+        many {# chyswllt}
+        other {# cyswllt}
+    }</string>
+    <string name="contacts_count_with_account">{count, plural,
+        zero {# cysylltiadau · {account}}
+       =1 {# cyswllt · {account}}
+        two {# gyswllt · {account}}
+        few {# chyswllt · {account}}
+        many {# chyswllt · {account}}
+        other {# cyswllt · {account}}
+    }</string>
+    <string name="title_from_google">O Google</string>
+    <string name="title_from_other_accounts">O <xliff:g id="account">%s</xliff:g></string>
+    <string name="menu_set_ring_tone">Gosod tôn caniad</string>
+    <string name="menu_redirect_calls_to_vm">Dargyfeirio i leisbost</string>
+    <string name="menu_unredirect_calls_to_vm">Stopio dargyfeirio i leisbost</string>
+    <string name="readOnlyContactWarning">Cyswllt darllen yn unig yw hwn. Nid yw\'n bosib ei ddileu, ond mae yn bosib ei guddio.</string>
+    <string name="readOnlyContactWarning_positive_button">Cuddio Cyswllt</string>
+    <string name="readOnlyContactDeleteConfirmation">Caiff cyfrifon darllen-yn-unig y cyswllt hwn eu cuddio, nid eu dileu.</string>
+    <string name="single_delete_confirmation">Dileu\'r cyswllt hwn?</string>
+    <string name="batch_delete_confirmation">Dileu\'r cysylltiadau dan sylw?</string>
+    <string name="batch_delete_read_only_contact_confirmation">Nid yw\'n bosib dileu cysylltiadau o dy gyfrifon darllen-yn-unig, ond mae yn bosib eu cuddio nhw.</string>
+    <string name="batch_delete_multiple_accounts_confirmation">Mae gan y cysylltiadau i\'w dileu manylion o wahanol gyfrifon. Caiff manylion o gyfrifon darllen-yn-unig eu cuddio, ond nid eu dileu.</string>
+    <string name="multipleContactDeleteConfirmation">Bydd dileu\'r cyswllt hwn yn dileu manylion o sawl cyfrif.</string>
+    <string name="deleteConfirmation">Dileu\'r cyswllt hwn?</string>
+    <string name="deleteConfirmation_positive_button">Dileu</string>
+    <string name="invalidContactMessage">Dyw\'r cyswllt ddim yn bodoli.</string>
+    <string name="createContactShortcutSuccessful_NoName">Wedi ychwanegu\'r cyswllt i\'r sgrin gartref.</string>
+    <string name="createContactShortcutSuccessful">Mae <xliff:g id="name">%s</xliff:g> wedi\'i ychwanegu i\'r sgrin gartref.</string>
+    <string name="photoPickerNotFoundText">Does dim lluniau ar gael ar y ddyfais.</string>
+    <string name="attach_photo_dialog_title">Llun y cyswllt</string>
+    <string name="customLabelPickerTitle">Enw label personol</string>
+    <string name="removePhoto">Tynnu\'r llun</string>
+    <string name="noContacts">Mae dy restr cysylltiadau yn wag</string>
+    <string name="emptyGroup">Dim cysylltiadau gyda\'r label hon</string>
+    <string name="emptyAccount">Dim cysylltiadau yn y cyfrif hwn</string>
+    <string name="emptyMainList">Mae dy restr cysylltiadau yn wag</string>
+    <string name="contactSavedNamedToast"><xliff:g id="display_name">%s</xliff:g> wedi\'i gadw</string>
+    <string name="contactSavedToast">Cadwyd y cyswllt</string>
+    <string name="contactUnlinkedToast">Cysylltiadau wedi eu datgyfuno</string>
+    <string name="contactSavedErrorToast">Methwyd â chadw\'r newidiadau i\'r cyswllt.</string>
+    <string name="contactUnlinkErrorToast">Methwyd â datgyfuno\'r cyswllt.</string>
+    <string name="contactJoinErrorToast">Methwyd â chyfuno\'r cyswllt.</string>
+    <string name="contactGenericErrorToast">Bu gwall wrth gadw\'r cyswllt.</string>
+    <string name="contactPhotoSavedErrorToast">Methwyd â chadw\'r newidiadau i lun y cyswllt.</string>
+    <string name="groupLoadErrorToast">Methwyd â llwytho\'r label.</string>
+    <string name="groupDeletedToast">Dilëwyd y label</string>
+    <string name="groupCreatedToast">Cafodd y label ei greu</string>
+    <string name="groupCreateFailedToast">Methu â chreu label</string>
+    <string name="groupUpdatedToast">Diweddarwyd y label</string>
+    <string name="groupMembersRemovedToast">Tynnwyd o\'r label</string>
+    <string name="groupMembersAddedToast">Ychwanegwyd i\'r label</string>
+    <string name="groupSavedErrorToast">Methwyd â chadw\'r newidiadau i\'r label.</string>
+    <string name="groupExistsErrorMessage">Mae\'r label yn bodoli eisoes.</string>
+    <string name="groupSomeContactsNoEmailsToast">Does gan rhai cysylltiadau dim cyfeiriad e-bost.</string>
+    <string name="groupSomeContactsNoPhonesToast">Does gan rhai cysylltiadau dim rhifau ffôn.</string>
+    <string name="menu_sendEmailOption">Anfon ebost</string>
+    <string name="menu_sendMessageOption">Anfon neges</string>
+    <string name="pickerSelectContactsActivityTitle">Dewis Cysylltiadau</string>
+    <string name="send_to_selection">Anfon</string>
+    <string name="listFoundAllContactsZero">Dim cysylltiadau</string>
+    <string name="add_contact_dlg_message_fmt">Ychwanegu \"<xliff:g id="email">%s </xliff:g>\" fel cyswllt?</string>
+    <string name="search_settings_description">Enwau dy gysylltiadau</string>
+    <string name="quickcontact_transparent_view_description">Clicia i ddychwelyd i\'r sgrin flaenorol</string>
+    <string name="quickcontact_add_phone_number">Ychwanegu rhif ffôn</string>
+    <string name="quickcontact_add_email">Ychwanegu ebost</string>
+    <string name="missing_app">Ni chanfuwyd ap i ymdrin â\'r weithred hon.</string>
+    <string name="menu_share">Rhannu</string>
+    <string name="menu_add_contact">Ychwanegu at gysylltiadau</string>
+    <string name="menu_add_contacts">Ychwanegu</string>
+    <string name="title_share_via">{count, plural,
+       =1 {Rhannu cyswllt trwy}
+        other {Rhannu cysylltiadau trwy}
+    }</string>
+    <string name="dialog_new_group_account">Dewis gyfrif</string>
+    <string name="group_name_dialog_insert_title">Creu label</string>
+    <string name="group_name_dialog_update_title">Ailenwi\'r label</string>
+    <string name="group_name_dialog_hint">Enw label</string>
+    <string name="label_name_dialog_hint">Enw label</string>
+    <string name="audio_chat">Sgwrs llais</string>
+    <string name="video_chat">Sgwrs fideo</string>
+    <string name="account_type_format">Cyswllt <xliff:g id="source" example="Gmail">%1$s</xliff:g></string>
+    <string name="google_account_type_format">Cyfrif <xliff:g id="source" example="Google">%1$s</xliff:g></string>
+    <string name="take_photo">Tynnu llun</string>
+    <string name="take_new_photo">Tynnu llun newydd</string>
+    <string name="pick_photo">Dewis llun</string>
+    <string name="pick_new_photo">Dewis llun newydd</string>
+    <string name="search_results_searching">Yn chwilio\u2026</string>
+    <string name="event_edit_field_hint_text">Dyddiad</string>
+    <string name="group_edit_field_hint_text">Label</string>
+    <string name="editor_uneditable_section_title">Methu diweddaru\'r wybodaeth hon</string>
+    <string name="cancel_button_content_description">Diddymu</string>
+    <string name="back_arrow_content_description">Nôl</string>
+    <string name="action_menu_back_from_edit_select">cau</string>
+    <string name="aggregation_suggestion_edit_dialog_message">Newid i olygu\'r cyswllt a ddewiswyd? Caiff y wybodaeth hyd yma ei chopïo drosodd.</string>
+    <string name="contact_directory_description">Cyfeiriadur <xliff:g id="type" example="Corporate Directory">%1$s</xliff:g></string>
+    <string name="activity_title_settings">Gosodiadau</string>
+    <string name="menu_settings" msgid="377929915873428211">Gosodiadau</string>
+    <string name="menu_help">Cymorth ac adborth</string>
+    <string name="organization_entry_two_field">        <xliff:g id="first" example="Google">%1$s</xliff:g>
+         •
+         <xliff:g id="second" example="Developer">%2$s</xliff:g>
+    </string>
+    <string name="organization_entry_all_field">        <xliff:g id="company" example="Google">%1$s</xliff:g>
+         •
+         <xliff:g id="department" example="People">%2$s</xliff:g>
+         •
+         <xliff:g id="title" example="Developer">%3$s</xliff:g>
+    </string>
+    <string name="non_phone_caption">Rhif ffôn</string>
+    <string name="non_phone_add_to_contacts">Ychwanegu at gysylltiadau</string>
+    <string name="non_phone_close">Cau</string>
+    <string name="date_year_toggle">Cynnwys y flwyddyn</string>
+    <string name="contacts_unavailable_add_account">Ychwanegu cyfrif</string>
+    <string name="contacts_unavailable_import_contacts">Mewnforio</string>
+    <string name="create_group_item_label">Creu…</string>
+    <string name="delete_group_dialog_message">Dileu\'r label
+      \"<xliff:g id="group_label" example="Friends">%1$s</xliff:g>\"?
+      (Caiff y cysylltiadau eu hunain ddim eu dileu.)
+    </string>
+    <string name="toast_join_with_empty_contact">Rho enw gyswllt cyn ei gyfuno gyda chyswllt arall.
+    </string>
+    <string name="copy_text">Copïo i\'r clipfwrdd</string>
+    <string name="set_default">Gosod fel rhagosodiad</string>
+    <string name="clear_default">Clirio rhagosodiad</string>
+    <string name="toast_text_copied">Testun wedi\'i gopïo</string>
+    <string name="cancel_confirmation_dialog_message">Gwaredu â\'r newidiadau?</string>
+    <string name="cancel_confirmation_dialog_cancel_editing_button">Gwaredu</string>
+    <string name="cancel_confirmation_dialog_keep_editing_button">Diddymu</string>
+    <string name="leave_customize_confirmation_dialog_message">Gwaredu â\'r newidiadau?</string>
+    <string name="enter_contact_name">Chwilio cysylltiadau</string>
+    <string name="title_edit_group">Tynnu cysylltiadau</string>
+    <string name="local_profile_title">Fy mhroffil lleol</string>
+    <string name="external_profile_title">Fy mhroffil <xliff:g id="external_source">%1$s</xliff:g></string>
+    <string name="contact_editor_prompt_zero_accounts">Cymera funud i ychwanegu cyfrif bydd yn cadw copi wrth gefn o dy gysylltiadau i Google.</string>
+    <string name="contact_editor_prompt_one_account">Caiff cysylltiadau newydd eu cadw i <xliff:g id="account_name">%1$s</xliff:g>.</string>
+    <string name="contact_editor_prompt_multiple_accounts">Dewisa gyfrif rhagosodedig ar gyfer cysylltiadau newydd:</string>
+    <string name="contact_editor_title_new_contact">Creu cyswllt newydd</string>
+    <string name="contact_editor_title_existing_contact">Golygu\'r cyswllt</string>
+    <string name="contact_editor_title_read_only_contact">Gweld yn unig</string>
+    <string name="contact_editor_pick_raw_contact_to_edit_dialog_title">Dewis cyswllt i\'w olygu</string>
+    <string name="contact_editor_pick_linked_contact_dialog_title">Cysylltiadau wedi eu cyfuno</string>
+    <string name="contact_editor_add_linked_contact">Ychwanegu</string>
+    <string name="contact_editor_unlink_contacts">Datgyfuno</string>
+    <string name="add_account">Ychwanegu cyfrif</string>
+    <string name="add_new_account">Ychwanegu cyfrif newydd</string>
+    <string name="menu_export_database">Allforio ffeiliau cronfa ddata</string>
+    <string name="action_menu_add_new_contact_button">Creu cyswllt newydd</string>
+    <string name="expanding_entry_card_view_see_more">Gweld mwy</string>
+    <string name="expanding_entry_card_view_see_less">Gweld llai</string>
+    <string name="about_card_title">Ynghylch</string>
+    <string name="toast_making_personal_copy">Yn creu copi personol…</string>
+    <string name="date_time_set">Gosod</string>
+    <string name="header_im_entry">IM</string>
+    <string name="header_organization_entry">Sefydliad</string>
+    <string name="header_nickname_entry">Llysenw</string>
+    <string name="header_note_entry">Nodyn</string>
+    <string name="header_website_entry">Gwefan</string>
+    <string name="header_event_entry">Digwyddiad</string>
+    <string name="header_relation_entry">Perthynas</string>
+    <string name="header_name_entry">Enw</string>
+    <string name="header_email_entry">Ebost</string>
+    <string name="header_phone_entry">Ffôn</string>
+    <string name="content_description_directions">cyfarwyddiadau i leoliad</string>
+    <string name="editor_more_fields">Rhagor o feysydd</string>
+    <string name="editor_change_photo_content_description">Newid llun cyswllt</string>
+    <string name="editor_add_photo_content_description">Ychwanegu llun cyswllt</string>
+    <string name="editor_contact_photo_content_description">Llun y cyswllt</string>
+    <string name="editor_failed_to_load">Methwyd ag agor y golygydd.</string>
+    <string name="editor_account_selector_title">Yn cadw i</string>
+    <string name="editor_account_selector_read_only_title">Nid yw\'n bosib golygu gwybodaeth gyswllt o <xliff:g id="account">%s</xliff:g></string>
+    <string name="quickcontact_suggestion_link_button">CYFUNO CYSYLLTIADAU</string>
+    <string name="quickcontact_suggestion_cancel_button">DIDDYMU</string>
+    <string name="suggestion_card_this_contact_title">Y cyswllt hwn</string>
+    <string name="suggestion_card_duplicates_title">Dyblygiadau posib</string>
+    <string name="suggestion_card_help_message">Mae\'n bosib mai\'r un person yw\'r cysylltiadau hyn. Mae\'n bosib eu cyfuno fel un cyswllt.</string>
+    <string name="editor_delete_view_description">Dileu <xliff:g id="data_type">%1$s</xliff:g><xliff:g id="data_kind">%2$s</xliff:g></string>
+    <string name="editor_delete_view_description_short">Dileu <xliff:g id="data_kind">%s</xliff:g></string>
+    <string name="menu_assistant">Awgrymiadau</string>
+    <string name="menu_assistant_new_badge">Newydd</string>
+    <string name="navigation_drawer_open">Agor y drôr llywio</string>
+    <string name="navigation_drawer_close">Cau\'r drôr llywio</string>
+    <string name="navigation_drawer_label">Label <xliff:g id="label_name">%s</xliff:g></string>
+    <string name="menu_title_groups">Labeli</string>
+    <string name="menu_title_filters">Cyfrifon</string>
+    <string name="hamburger_feature_highlight_header">Awgrymiadau</string>
+    <string name="hamburger_feature_highlight_body">Cadwa dy gysylltiadau yn drefnus ac yn handi</string>
+    <string name="undo">Dadwneud</string>
+    <string name="call_custom">Galw
+        <xliff:g id="custom_label" example="business">%s</xliff:g>
+    </string>
+    <string name="call_home">Galw cartref</string>
+    <string name="call_mobile">Galw symudol</string>
+    <string name="call_work">Galw gwaith</string>
+    <string name="call_fax_work">Galw ffacs gwaith</string>
+    <string name="call_fax_home">Galw ffacs cartref</string>
+    <string name="call_pager">Galw peiriant galw</string>
+    <string name="call_other">Galw</string>
+    <string name="call_callback">Galw rhif galw nôl</string>
+    <string name="call_car">Galw car</string>
+    <string name="call_company_main">Galw prif rif gwaith</string>
+    <string name="call_isdn">Galw ISDN</string>
+    <string name="call_main">Galw prif rif</string>
+    <string name="call_other_fax">Galw ffacs</string>
+    <string name="call_radio">Galw radio</string>
+    <string name="call_telex">Galw telex</string>
+    <string name="call_tty_tdd">Galw TTY/TDD</string>
+    <string name="call_work_mobile">Galw symudol gwaith</string>
+    <string name="call_work_pager">Galw peiriant galw gwaith</string>
+    <string name="call_assistant">Galw
+        <xliff:g id="custom_label" example="assistant">%s</xliff:g>
+    </string>
+    <string name="call_mms">Galw MMS</string>
+    <string name="call_by_shortcut"><xliff:g id="contact_name">%s</xliff:g> (Galw)</string>
+    <string name="sms_custom">Neges destun at <xliff:g id="custom_label" example="business">%s</xliff:g>    </string>
+    <string name="sms_home">Neges destun at rif cartref</string>
+    <string name="sms_mobile">Neges destun at rif symudol</string>
+    <string name="sms_work">Tecstio at rif gwaith</string>
+    <string name="sms_fax_work">Neges destun at rif ffacs gwaith</string>
+    <string name="sms_fax_home">Neges destun at rif ffacs cartref</string>
+    <string name="sms_pager">Neges destun at beiriant galw</string>
+    <string name="sms_other">Neges destun</string>
+    <string name="sms_callback">Neges destun at rif galw nôl</string>
+    <string name="sms_car">Neges destun at car</string>
+    <string name="sms_company_main">Neges destun at brif rif gwaith</string>
+    <string name="sms_isdn">Neges destun at rif ISDN</string>
+    <string name="sms_main">Neges destun at brif rif</string>
+    <string name="sms_other_fax">Neges destun at beiriant ffacs</string>
+    <string name="sms_radio">Neges destun at rif ffôn radio</string>
+    <string name="sms_telex">Neges destun at rif telex</string>
+    <string name="sms_tty_tdd">Neges destun at rif TTY/TDD</string>
+    <string name="sms_work_mobile">Neges destun at rif symudol gwaith</string>
+    <string name="sms_work_pager">Neges destun at beiriant galw gwaith</string>
+    <string name="sms_assistant">Neges destun at <xliff:g id="assistant">%s</xliff:g>
+    </string>
+    <string name="sms_mms">Neges destun at rif MMS</string>
+    <string name="sms_by_shortcut"><xliff:g id="contact_name">%s</xliff:g> (Neges)</string>
+    <string name="description_video_call">Gwneud galwad fideo</string>
+    <string name="clearFrequentsConfirmation_title">Clirio\'r cysylltiadau y cysylltir â nhw\'n aml?</string>
+    <string name="clearFrequentsConfirmation">Mi fydd hyn yn clirio\'r rhestr o gysylltiadau rwyt mewn cyswllt gyda nhw amlach o\'r rhestr yn yr apiau Cysylltiadau a Ffôn. Mi fydd hefyd yn gorfodi apiau e-bost i ail-ddysgu dy ddulliau cyfeirio atynt.    </string>
+    <string name="clearFrequentsProgress_title">Yn clirio\'r cysylltiadau y cysylltir â nhw amlach\u2026</string>
+    <string name="status_available">Ar gael</string>
+    <string name="status_away">I ffwrdd</string>
+    <string name="status_busy">Yn brysur</string>
+    <string name="local_invisible_directory">Arall</string>
+    <string name="directory_search_label">Cyfeiriadur</string>
+    <string name="directory_search_label_work">Cyfeiriadur gwaith</string>
+    <string name="local_search_label">Pob cyswllt</string>
+    <string name="description_quick_contact_for">Cyswllt cyflym ar gyfer <xliff:g id="name">%1$s</xliff:g></string>
+    <string name="missing_name">(Dim enw)</string>
+    <string name="favoritesFrequentContacted">Cysylltir yn aml</string>
+    <string name="list_filter_phones">Pob cyswllt gyda rhif ffôn</string>
+    <string name="list_filter_phones_work">Cysylltiadau proffil gwaith</string>
+    <string name="view_updates_from_group">Gweld diweddariadau</string>
+    <string name="account_phone">Dyfais</string>
+    <string name="account_sim">SIM</string>
+    <string name="nameLabelsGroup">Enw</string>
+    <string name="nicknameLabelsGroup">Llysenw</string>
+    <string name="name_given">Enw cyntaf</string>
+    <string name="name_family">Cyfenw</string>
+    <string name="name_prefix">Rhagddodiaid enw</string>
+    <string name="name_middle">Enw canol</string>
+    <string name="name_suffix">Ôl-ddodiad enw</string>
+    <string name="name_phonetic">Enw\'n ffonetig</string>
+    <string name="name_phonetic_given">Enw cyntaf yn ffonetig</string>
+    <string name="name_phonetic_middle">Enw canol yn ffonetig</string>
+    <string name="name_phonetic_family">Cyfenw yn ffonetig</string>
+    <string name="phoneLabelsGroup">Ffôn</string>
+    <string name="emailLabelsGroup">Ebost</string>
+    <string name="postalLabelsGroup">Cyfeiriad</string>
+    <string name="imLabelsGroup">IM</string>
+    <string name="organizationLabelsGroup">Sefydliad</string>
+    <string name="relationLabelsGroup">Perthynas</string>
+    <string name="eventLabelsGroup">Dyddiad arbennig</string>
+    <string name="sms">Neges destun</string>
+    <string name="postal_address">Cyfeiriad</string>
+    <string name="ghostData_company">Cwmni</string>
+    <string name="ghostData_department">Adran</string>
+    <string name="ghostData_title">Teitl</string>
+    <string name="label_notes">Nodiadau</string>
+    <string name="label_custom_field">Addasedig</string>
+    <string name="label_sip_address">SIP</string>
+    <string name="websiteLabelsGroup">Gwefan</string>
+    <string name="groupsLabel">Labeli</string>
+    <string name="email_home">Ebostio cartref</string>
+    <string name="email_mobile">Ebostio symudol</string>
+    <string name="email_work">Ebostio gwaith</string>
+    <string name="email_other">Ebostio</string>
+    <string name="email_custom">Ebostio <xliff:g id="custom_label" example="business">%s</xliff:g></string>
+    <string name="email">Ebost</string>
+    <string name="postal_street">Stryd/Ffordd/Heol</string>
+    <string name="postal_city">Tref/Dinas</string>
+    <string name="postal_region">Sir/Talaith</string>
+    <string name="postal_postcode">Cod post</string>
+    <string name="postal_country">Gwlad</string>
+    <string name="map_home">Gweld cyfeiriad cartref</string>
+    <string name="map_work">Gweld cyfeiriad gwaith</string>
+    <string name="map_other">Gweld cyfeiriad</string>
+    <string name="map_custom">Gweld cyfeiriad <xliff:g id="custom_label" example="vacation">%s</xliff:g></string>
+    <string name="chat_aim">Sgwrsio gydag AIM</string>
+    <string name="chat_msn">Sgwrsio gyda Windows Live</string>
+    <string name="chat_yahoo">Sgwrsio gyda Yahoo</string>
+    <string name="chat_skype">Sgwrsio gyda Skype</string>
+    <string name="chat_qq">Sgwrsio gyda QQ</string>
+    <string name="chat_gtalk">Sgwrsio gyda Google Talk</string>
+    <string name="chat_icq">Sgwrsio gydag ICQ</string>
+    <string name="chat_jabber">Sgwrsio gyda Jabber</string>
+    <string name="chat">Sgwrsio</string>
+    <string name="description_minus_button">dileu</string>
+    <string name="expand_name_fields_description">Dangos rhagor o feysydd enw</string>
+    <string name="collapse_name_fields_description">Lleihau meysydd enw</string>
+    <string name="expand_phonetic_name_fields_description">Dangos rhagor o feysydd enw ffonetig</string>
+    <string name="collapse_phonetic_name_fields_description">Cuddio meysydd enw ffonetig</string>
+    <string name="expand_fields_description">Ehangu</string>
+    <string name="collapse_fields_description">Lleihau</string>
+    <string name="announce_expanded_fields">Ehangwyd</string>
+    <string name="announce_collapsed_fields">Lleihawyd</string>
+    <string name="list_filter_all_accounts">Pob cyswllt</string>
+    <string name="list_filter_all_starred">Serennog</string>
+    <string name="list_filter_customize">Addasu</string>
+    <string name="list_filter_single">Cyswllt</string>
+    <string name="display_ungrouped">Pob cyswllt arall</string>
+    <string name="display_all_contacts">Pob cyswllt</string>
+    <string name="menu_sync_remove">Tynnu\'r grŵp cysoni</string>
+    <string name="dialog_sync_add">Ychwanegu grŵp cysoni</string>
+    <string name="display_more_groups">Rhagor o grwpiau\u2026</string>
+    <string name="display_warn_remove_ungrouped">Bydd tynnu <xliff:g id="group" example="Starred">%s</xliff:g> o\'r cysoni hefyd yn tynnu o\'r cysoni unrhyw gysylltiadau sydd heb eu grwpio.</string>
+    <string name="savingDisplayGroups">Yn cadw dewisiadau dangos\u2026</string>
+    <string name="listCustomView">Golwg addasedig</string>
+    <string name="dialog_new_contact_account">Cadw\'r cysylltiadau a fewnforiwyd i:</string>
+    <string name="import_from_sim">Cerdyn SIM</string>
+    <string name="import_from_sim_summary_fmt">SIM <xliff:g id="sim_name">%1$s</xliff:g></string>
+    <string name="import_from_sim_secondary_contact_count_fmt"> {count, plural,
+        zero {}
+        one {# cyswllt}
+        two {# gyswllt}
+        few {# chyswllt}
+        many {# chyswllt}=1    {# contact}
+        other {# cyswllt}
+    }</string>
+    <string name="import_from_sim_secondary_template">{count, plural,
+        zero {# cysylltiadau · <xliff:g id="phone_number">^1</xliff:g>}
+       =1 {# cyswllt · <xliff:g id="phone_number">^1</xliff:g>}
+        two {# gyswllt · <xliff:g id="phone_number">^1</xliff:g>}
+        few {# chyswllt · <xliff:g id="phone_number">^1</xliff:g>}
+        many {# chyswllt · <xliff:g id="phone_number">^1</xliff:g>}
+        other {# cyswllt · <xliff:g id="phone_number">^1</xliff:g>}
+    }</string>
+    <string name="import_from_vcf_file">ffeil .vcf</string>
+    <string name="nothing_to_import_message">Dim byd i\'w fewnforio</string>
+    <string name="import_from_vcf_file_confirmation_message">Mewnforio cysylltiadau o vCard?</string>
+    <string name="cancel_import_confirmation_message">Diddymu mewnforio <xliff:g id="filename" example="import.vcf">%s</xliff:g>?</string>
+    <string name="cancel_export_confirmation_message">Diddymu allforio <xliff:g id="filename" example="import.vcf">%s</xliff:g>?</string>
+    <string name="cancel_vcard_import_or_export_failed">Methwyd â diddymu mewnforio/allforio vCard</string>
+    <string name="fail_reason_unknown">Gwall anhysbys.</string>
+    <string name="fail_reason_could_not_open_file">Methwyd ag agor \"<xliff:g id="file_name">%1$s</xliff:g>\": <xliff:g id="exact_reason">%2$s</xliff:g>.</string>
+    <string name="fail_reason_could_not_initialize_exporter">Methwyd â dechrau\'r allforiwr: \"<xliff:g id="exact_reason">%s</xliff:g>\".</string>
+    <string name="fail_reason_no_exportable_contact">Does dim cyswllt y gellir ei allforio.</string>
+    <string name="missing_required_permission">Rwyt wedi analluogi caniatâd sydd ei angen.</string>
+    <string name="fail_reason_error_occurred_during_export">Bu gwall wrth allforio: \"<xliff:g id="exact_reason">%s</xliff:g>\".</string>
+    <string name="fail_reason_io_error">Gwall I/O</string>
+    <string name="fail_reason_low_memory_during_import">Dim digon o gof. Gall fod y ffeil yn rhy fawr.</string>
+    <string name="fail_reason_not_supported">Ni chefnogir y fformat hwn.</string>
+    <string name="exporting_vcard_finished_title">Cwblhawyd allforio <xliff:g id="filename" example="export.vcf">%s</xliff:g>.</string>
+    <string name="exporting_vcard_finished_title_fallback">Wedi cwblhau allforio cysylltiadau.</string>
+    <string name="exporting_vcard_finished_toast">Wedi gorffen allforio cysylltiadau. Clicia\'r hysbysiad i rannu\'r cysylltiadau.</string>
+    <string name="touch_to_share_contacts">Tapia i rannu cysylltiadau.</string>
+    <string name="exporting_vcard_canceled_title">Diddymwyd allforio <xliff:g id="filename" example="import.vcf">%s</xliff:g>.</string>
+    <string name="exporting_contact_list_title">Yn allforio data cyswllt</string>
+    <string name="exporting_contact_list_message">Mae data cysylltiadau yn cael ei allforio.</string>
+    <string name="composer_failed_to_get_database_infomation">Methwyd â chael gwybodaeth y gronfa ddata.</string>
+    <string name="composer_has_no_exportable_contact">Does dim cysylltiadau y gellir eu hallforio.</string>
+    <string name="composer_not_initialized">Methodd y cyfansoddwr vCard â dechrau\'n gywir.</string>
+    <string name="exporting_contact_failed_title">Methwyd ag allforio</string>
+    <string name="exporting_contact_failed_message">Ni chafodd data\'r cyswllt ei allforio.\nRheswm: \"<xliff:g id="fail_reason">%s</xliff:g>\"</string>
+    <string name="importing_vcard_description">Yn mewnforio <xliff:g id="name" example="Joe Due">%s</xliff:g></string>
+    <string name="reading_vcard_failed_title">Methwyd â darllen data vCard</string>
+    <string name="importing_vcard_finished_title">Wedi cwblhau mewnforio vCard <xliff:g id="filename" example="import.vcf">%s</xliff:g></string>
+    <string name="importing_vcard_canceled_title">Diddymwyd mewnforio <xliff:g id="filename" example="import.vcf">%s</xliff:g></string>
+    <string name="vcard_import_will_start_message">Caiff <xliff:g id="filename" example="import.vcf">%s</xliff:g> ei mewnforio\'n fuan.</string>
+    <string name="vcard_import_will_start_message_with_default_name">Caiff y ffeil ei mewnforio\'n fuan.</string>
+    <string name="vcard_import_request_rejected_message">Cafodd y cais i mewnforio vCard ei wrthod. Rho gynnig arall arni\'n hwyrach.</string>
+    <string name="contacts_export_will_start_message">Caiff cysylltiadau eu hallforio\'n fuan.</string>
+    <string name="vcard_export_request_rejected_message">Cafodd y cais i allforio vCard ei wrthod. Rho gynnig arall arni\'n hwyrach.</string>
+    <string name="vcard_unknown_filename">cyswllt</string>
+    <string name="caching_vcard_message">Yn cadw\u2019r ffeil(iau) vCard i\u2019r cof dros dro. Bydd y mewnforio ei hun yn dechrau\u2019n fuan.</string>
+    <string name="vcard_import_failed">Methwyd â mewnforio vCard.</string>
+    <string name="nfc_vcard_file_name">Wedi derbyn y cyswllt trwy NFC</string>
+    <string name="caching_vcard_title">Cofio dros dro</string>
+    <string name="progress_notifier_message">Yn mewnforio <xliff:g id="current_number">%1$s</xliff:g>/<xliff:g id="total_number">%2$s</xliff:g>: <xliff:g id="name" example="Joe Due">%3$s</xliff:g></string>
+    <string name="export_to_vcf_file">Allforio i ffeil .vcf</string>
+    <string name="display_options_sort_list_by">Trefnu yn ôl</string>
+    <string name="display_options_phonetic_name_fields">Enw\'n ffonetig</string>
+    <string name="editor_options_always_show_phonetic_names">Dangos bob tro</string>
+    <string name="editor_options_hide_phonetic_names_if_empty">Cuddio os yn wag</string>
+    <string name="display_options_sort_by_given_name">Enw cyntaf</string>
+    <string name="display_options_sort_by_family_name">Cyfenw</string>
+    <string name="display_options_view_names_as">Dangos enwau</string>
+    <string name="display_options_view_given_name_first">Enwau cyntaf yn gyntaf</string>
+    <string name="display_options_view_family_name_first">Cyfenw yn gyntaf</string>
+    <string name="settings_accounts">Cyfrifon</string>
+    <string name="default_editor_account">Cyfrif rhagosod ar gyfer cysylltiadau newydd</string>
+    <string name="settings_my_info_title">Fy wybodaeth</string>
+    <string name="set_up_profile">Gosod dy broffil</string>
+    <string name="setting_about">Ynghylch Cysylltiadau</string>
+    <string name="share_favorite_contacts">Rhannu hoff cysylltiadau</string>
+    <string name="share_contacts">Rhannu pob cyswllt</string>
+    <string name="share_contacts_failure">Methwyd â rhannu cysylltiadau.</string>
+    <string name="dialog_export">Allforio cysylltiadau</string>
+    <string name="dialog_import">Mewnforio ffurflen cysylltiadau</string>
+    <string name="share_error">Ni ellir rhannu\'r cyswllt hwn.</string>
+    <string name="no_contact_to_share">Does dim cysylltiadau i\'w rhannu.</string>
+    <string name="menu_contacts_filter">Cysylltiadau i\'w dangos</string>
+    <string name="activity_title_contacts_filter">Cysylltiadau i\'w dangos</string>
+    <string name="custom_list_filter">Addasu\'r golwg</string>
+    <string name="menu_custom_filter_save">Cadw</string>
+    <string name="hint_findContacts">Chwilio cysylltiadau</string>
+    <string name="contactsFavoritesLabel">Ffefrynnau</string>
+    <string name="menu_import">Mewnforio</string>
+    <string name="menu_export">Allforio</string>
+    <string name="menu_blocked_numbers">Rhifau wedi eu rhwystro</string>
+    <string name="contact_status_update_attribution">gyda <xliff:g id="source" example="Google Talk">%1$s</xliff:g></string>
+    <string name="contact_status_update_attribution_with_date"><xliff:g id="date" example="3 hours ago">%1$s</xliff:g> gyda <xliff:g id="source" example="Google Talk">%2$s</xliff:g></string>
+    <string name="letter_tile_letter_font_family">sans-serif-medium</string>
+    <string name="action_menu_back_from_search">stopio chwilio</string>
+    <string name="description_clear_search">Clirio\'r chwiliad</string>
+    <string name="search_font_family">sans-serif</string>
+    <string name="select_account_dialog_title">Cyfrif</string>
+    <string name="set_default_account">Defnyddio hwn bob tro ar gyfer galwadau</string>
+    <string name="call_with_a_note">Galw gyda nodyn</string>
+    <string name="call_subject_hint">Rho nodyn i\'w anfon gyda\'r galwad…</string>
+    <string name="send_and_call_button">ANFON A GALW</string>
+    <string name="call_subject_limit"><xliff:g id="count" example="4">%1$s</xliff:g> / <xliff:g id="limit" example="64">%2$s</xliff:g></string>
+    <string name="call_subject_type_and_number"><xliff:g id="type" example="Mobile">%1$s</xliff:g> • <xliff:g id="number" example="(650) 555-1212">%2$s</xliff:g></string>
+    <string name="about_build_version">Fersiwn adeiledd</string>
+    <string name="about_open_source_licenses">Trwyddedau cod agored</string>
+    <string name="about_open_source_licenses_summary">Manylion trwyddedau ar gyfer meddalwedd cod agored</string>
+    <string name="about_privacy_policy">Polisi preifatrwydd</string>
+    <string name="about_terms_of_service">Telerau gwasanaeth</string>
+    <string name="activity_title_licenses">Trwyddedau cod agored</string>
+    <string name="url_open_error_toast">Methwyd ag agor yr Url.</string>
+    <string name="account_filter_view_checked"><xliff:g id="account_info">%s</xliff:g> wedi\'i wirio</string>
+    <string name="account_filter_view_not_checked"><xliff:g id="account_info">%s</xliff:g> heb ei wirio</string>
+    <string name="description_search_video_call">Gwneud galwad fideo</string>
+    <string name="description_delete_contact">Dileu</string>
+    <string name="description_no_name_header">Elipsis</string>
+    <string name="dynamic_shortcut_disabled_message">Analluogwyd y llwybr byr hwn</string>
+    <string name="dynamic_shortcut_contact_removed_message">Cafodd y cyswllt ei dynnu</string>
+    <string name="sim_import_button_text">Mewnforio</string>
+    <string name="sim_import_title_none_selected">Dewis cysylltiadau</string>
+    <string name="sim_import_empty_message">Does dim cysylltiadau ar dy gerdyn SIM</string>
+    <string name="sim_import_contact_exists_toast">Mae\'r cyswllt eisoes yn bodoli yn dy restr</string>
+    <string name="sim_import_success_toast_fmt"> {count, plural,
+        zero {# cysylltiadau wedi\2019u mewnforio}
+        =1    {# cyswllt wedi\2019i fewnforio}
+        two {# gyswllt wedi\2019u mewnforio}
+        few {# chyswllt wedi\2019u mewnforio}
+        many {# chyswllt wedi\2019u mewnforio}
+        other {# cyswllt wedi\2019u mewnforio}
+        }
+    </string>
+    <string name="sim_import_failed_toast">Methwyd â mewnforio cysylltiadau SIM</string>
+    <string name="sim_import_title">Mewnforio o SIM</string>
+    <string name="sim_import_cancel_content_description">Diddymu</string>
+    <string name="auto_sync_off">Mae awto-cysoni i ffwrdd. Tapia i\'w droi ymlaen.</string>
+    <string name="dismiss_sync_alert">Diystyru</string>
+    <string name="account_sync_off">Mae cysoni cyfrif i ffwrdd. Tapia i\'w droi ymlaen.</string>
+    <string name="turn_auto_sync_on_dialog_title">Troi awto-cysoni ymlaen?</string>
+    <string name="turn_auto_sync_on_dialog_body">Caiff newidiadau rwyt yn eu gwneud i unrhyw ap a chyfrif, nid jyst Cysylltiadau Google, eu cysoni rhwng y we a dy ddyfeisiau.</string>
+    <string name="turn_auto_sync_on_dialog_confirm_btn">Troi ymlaen</string>
+    <string name="connection_error_message">Dim cysylltiad</string>
+    <string name="single_sim_display_label">SIM</string>
+    <string name="show_more_content_description">Dangos mwy</string>
+    <string name="importing_sim_finished_title">Wedi cwblhau mewnforio\'r cerdyn SIM</string>
+    <string name="importing_sim_failed_title">Methwyd â mewnforio</string>
+    <string name="importing_sim_failed_message">Methwyd â mewnforio cysylltiadau o\'r cerdyn SIM</string>
+    <string name="importing_sim_in_progress_title">Yn mewnforio\'r SIM</string>
+    <string name="contacts_default_notification_channel">Hysbysiadau</string>
+    <string name="yes_button">Iawn</string>
+    <string name="no_button">Na</string>
+    <string name="sdn_contacts_directory_search_label">Rhifau darparwr gwasanaeth</string>
+</resources>

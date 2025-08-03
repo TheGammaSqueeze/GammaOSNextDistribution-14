@@ -1,0 +1,72 @@
+// Copyright 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package netsim.config;
+
+import "rootcanal/configuration.proto";
+
+message SlirpOptions {
+  bool disabled = 1;
+  // default is ipv4 = true, proto3 does not allow custom default values
+  // so this is set in code.
+  optional bool ipv4 = 2;
+  bool restricted = 3;
+  string vnet = 4;
+  string vhost = 5;
+  string vmask = 6;
+  // default is ipv6 = true, proto3 does not allow custom default values
+  // so this is set in code.
+  optional bool ipv6 = 7;
+  string vprefix6 = 8;
+  uint32 vprefixLen = 9;
+  string vhost6 = 10;
+  string vhostname = 11;
+  string tftpath = 12;
+  string bootfile = 13;
+  string dhcpstart = 14;
+  string dns = 15;
+  string dns6 = 16;
+};
+
+message HostapdOptions {
+  optional bool disabled = 1;
+  string ssid = 2;
+  string passwd = 3;
+}
+
+message WiFi {
+  SlirpOptions slirp_options = 1;
+  HostapdOptions hostapd_options = 2;
+}
+
+message Bluetooth {
+  optional rootcanal.configuration.Controller properties = 1;
+  // default is False
+  optional bool disable_address_reuse = 2;
+  // default is False
+  optional bool test_beacons = 3;
+}
+
+message Capture {
+  optional bool enabled = 1;
+}
+
+message Config {
+  // Major sections
+  Bluetooth bluetooth = 1;
+  WiFi wifi = 2;
+  Capture capture = 3;
+}

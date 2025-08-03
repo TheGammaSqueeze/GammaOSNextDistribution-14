@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ~ Copyright (C) 2022 Google Inc.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+    <string-array name="config_backgroundActivities" translatable="false">
+        <item>com.google.android.apps.maps/com.google.android.maps.MapsActivity</item>
+        <item>com.android.car.portraitlauncher/com.android.car.portraitlauncher.homeactivities.BackgroundPanelBaseActivity</item>
+    </string-array>
+
+    <string name="config_notificationActivity" translatable="false">
+        com.android.car.notification/com.android.car.notification.CarNotificationCenterActivity
+    </string>
+
+    <string-array name="config_ignoreOpeningForegroundDA" translatable="false">
+        <item>android.car.usb.handler/android.car.usb.handler.UsbHostManagementActivity</item>
+        <item>com.android.car.portraitlauncher/.homeactivities.CarUiPortraitHomeScreen</item>
+        <item>com.android.car.settings/.FallbackHome</item>
+        <item>com.android.mtp/com.android.mtp.ReceiverActivity</item>
+        <item>com.android.sdksetup/.DefaultActivity</item>
+        <item>com.google.android.apps.maps/com.google.android.apps.gmm.car.embedded.auxiliarymap.EmbeddedClusterActivity</item>
+        <item>com.google.android.car.setupwizard/.CarSetupWizardActivity</item>
+        <item>com.google.android.car.setupwizard/.CarSetupWizardMiniFlowActivity</item>
+        <item>com.google.android.car.setupwizard/.deferred.DeferredCarSetupWizardActivity</item>
+        <item>com.google.android.car.setupwizard/.libs.uicommon.PlaceholderActivity</item>
+        <item>com.google.android.car.setupwizard/.libs.uicommon.TrampolineActivity</item>
+        <item>com.google.android.car.setupwizard/.welcome.WelcomeActivity</item>
+    </string-array>
+
+    <!-- A list of package names that provide the cards to display on the home screen -->
+    <string-array name="config_homeCardModuleClasses" translatable="false">
+        <item>com.android.car.carlauncher.homescreen.audio.AudioCardModule</item>
+    </string-array>
+
+    <!--
+     A list of all the apps that are meant to stay in full-screen.
+    -->
+    <string-array name="config_fullScreenActivities" translatable="false">
+        <!-- CTS test activities that pass when fullscreen -->
+        <item>android.assist.cts/android.assist.cts.TestStartActivity</item>
+        <item>android.widget.cts/android.widget.cts.ListViewCtsActivity</item>
+        <item>android.widget.cts/android.widget.cts.TextViewCtsActivity</item>
+        <item>android.widget.cts/android.widget.cts.RelativeLayoutCtsActivity</item>
+        <item>android.widget.cts/android.widget.cts.NumberPickerCtsActivity</item>
+        <item>android.widget.cts/android.widget.cts.AdapterViewCtsActivity</item>
+        <item>android.widget.cts/android.widget.cts.EditTextCtsActivity</item>
+        <item>android.sdksandbox.webkit.cts/android.app.sdksandbox.testutils.testscenario.SdkSandboxCtsActivity</item>
+        <item>android.server.wm.app/android.server.wm.app.MaxAspectRatioActivity</item>
+        <item>android.server.wm.app/android.server.wm.app.MaxAspectRatioResizableActivity</item>
+        <item>android.server.wm.app/android.server.wm.app.MaxAspectRatioUnsetActivity</item>
+        <item>android.server.wm.app/android.server.wm.app.MetaDataMaxAspectRatioActivity</item>
+        <item>android.server.wm.app/android.server.wm.app.MinAspectRatioActivity</item>
+        <item>android.server.wm.app/android.server.wm.app.MinAspectRatioLandscapeActivity</item>
+        <item>android.server.wm.app/android.server.wm.app.MinAspectRatioPortraitActivity</item>
+        <item>android.server.wm.app/android.server.wm.app.MinAspectRatioUnsetActivity</item>
+        <item>android.view.surfacecontrol.cts/android.view.cts.surfacevalidator.CapturedActivity</item>
+        <item>android.view.surfacecontrol.cts/.TrustedPresentationCallbackTest$TestActivity</item>
+        <item>android.view.surfacecontrol.cts/android.view.cts.surfacevalidator.CapturedActivityWithResource</item>
+        <item>android.uirendering.cts/android.uirendering.cts.testinfrastructure.DrawActivity</item>
+        <item>android.display.cts/android.display.cts.DisplayManagerTest$TestActivity</item>
+        <!-- TODO(b/297060765): Remove AssistantActivity & AnimationTestActivity once find a proper
+                solution on AssistantStackTests test. The tests expects AssistantActivity to be
+                hidden when AnimationTestActivity shows. Without this assignment, the two activities
+                 will be in different tasks, which will cause the test to fail.-->
+        <item>android.server.wm.app/android.server.wm.app.AssistantActivity</item>
+        <item>android.server.wm.app/android.server.wm.app.AnimationTestActivity</item>
+        <!-- Add activity to full screen since focus is lost when all the windows are removed. -->
+        <item>android.server.wm.cts/android.server.wm.window.LayoutTests$TestActivity</item>
+        <!-- Add activity to full screen due to some issue with focus. -->
+        <item>android.server.wm.cts/android.server.wm.window.WindowUntrustedTouchTest$TestActivity</item>
+        <!-- Add activity to full screen due to slow animations  -->
+        <item>android.server.wm.cts/android.server.wm.display.DisplayHashManagerTest$TestActivity</item>
+        <!-- TODO(b/308859591): Remove activities from full screen config once proper solution
+            found. -->
+        <!-- START: Add activities to full screen since the panel open animation interferes with the
+            screenshot which is taken in the test. This is likely due to the core transitions being
+            completed right away but surface animations taking time to complete. -->
+        <item>android.server.wm.cts/android.server.wm.activity.ActivityTransitionTests$LauncherActivity</item>
+        <item>android.server.wm.cts/android.server.wm.activity.ActivityTransitionTests$EdgeExtensionActivity</item>
+        <item>android.server.wm.cts/android.server.wm.activity.ActivityTransitionTests$CustomWindowAnimationActivity</item>
+        <item>android.server.wm.cts/android.server.wm.activity.ActivityTransitionTests$TransitionActivity</item>
+        <!-- END -->
+    </string-array>
+
+    <!-- Calm mode overrides -->
+    <string name="config_calmMode_componentName">com.android.car.portraitlauncher/com.android.car.portraitlauncher.calmmode.CalmModeActivity</string>
+
+</resources>

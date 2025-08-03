@@ -1,0 +1,34 @@
+#! /bin/bash
+
+if [[ -z "${ANDROID_BUILD_TOP}" ]]; then
+  echo "ANDROID_BUILD_TOP is not set"
+fi
+
+if [[ -z "${ANDROID_HOST_OUT}" ]]; then
+  echo "ANDROID_HOST_OUT is not set for host run"
+fi
+
+HOST=false
+POSITIONAL=()
+while [[ $# -gt 0 ]]
+do
+key="$1"
+case $key in
+    --host)
+    HOST=true
+    shift # past argument
+    ;;
+    *)    # unknown option
+    POSITIONAL+=("$1") # save it in an array for later
+    shift # past argument
+    ;;
+esac
+done
+set -- "${POSITIONAL[@]}" # restore positional parameters
+
+TEST_NAME=bluetooth_gd_${1}_fuzz_test
+
+if [ "$HOST" == true ] ; then
+  HOST_ARCH=$($ANDROID_BUILD_TOP/build/soong/soong_ui.bash --dumpvar-mode HOST_ARCH)
+  SANITIZE_HOST=address $ANDROID_BUILD_TOP/build/soong/soong_ui.bash --build-mode --"all-modules" --dir="$(pwd)" $TEST_NAME && ${ANDROID_HOST_OUT}/fuzz/$HOST_ARCH/$TEST_NAME/$TEST_NAME $2
+fi

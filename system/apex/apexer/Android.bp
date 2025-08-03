@@ -1,0 +1,189 @@
+// Copyright (C) 2018 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+apexer_tools = [
+      "apexer",
+      "aapt2",
+      "avbtool",
+      "conv_apex_manifest",
+      "e2fsdroid",
+      "mke2fs",
+      "resize2fs",
+      "sefcontext_compile",
+      "zipalign",
+      "make_f2fs",
+      "sload_f2fs",
+      "make_erofs",
+      // TODO(b/124476339) apex doesn't follow 'required' dependencies so we need to include this
+      // manually for 'avbtool'.
+      "fec",
+]
+
+// TODO(b/157110982): cannot specify "required" dependency on go binary
+apexer_go_tools = [
+      "merge_zips",
+      "soong_zip",
+]
+
+python_library_host {
+    name: "apex_manifest",
+    srcs: [
+        "apex_manifest.py",
+    ],
+    libs: [
+        "apex_manifest_proto",
+    ],
+}
+
+// This is a hack to move mke2fs_conf into the current folder for bazel builds.
+// Normally bazel would keep it under a system/extras/ext4_utils/ folder.
+genrule {
+    name: "mke2fs_conf_for_apexer",
+    srcs: [":mke2fs_conf"],
+    out: ["mke2fs.conf"],
+    cmd: "cp $(in) $(out)"
+}
+
+python_binary_host {
+    name: "apexer",
+    srcs: [
+        "apexer.py",
+    ],
+    // TODO(b/157625953) mke2fs.conf can't embedded directly.
+    data: [
+        ":mke2fs_conf_for_apexer",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+    libs: [
+        "apex_manifest",
+        "apex_build_info_proto",
+        "manifest_utils",
+    ],
+    required: apexer_tools,
+}
+
+python_binary_host {
+    name: "conv_apex_manifest",
+    srcs: [
+        "conv_apex_manifest.py",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+    libs: [
+        "apex_manifest_proto",
+    ],
+}
+
+// TODO(b/148659029): this test can't run in TEST_MAPPING.
+python_test_host {
+    name: "apexer_test",
+    main: "apexer_test.py",
+    srcs: [
+        "apexer_test.py",
+    ],
+    data: [
+        ":com.android.example.apex",
+        ":com.android.example-legacy.apex",
+        ":com.android.example-logging_parent.apex",
+        ":com.android.example-overridden_package_name.apex",
+        ":apexer_test_host_tools",
+        "testdata/com.android.example.apex.avbpubkey",
+        "testdata/com.android.example.apex.pem",
+        "testdata/com.android.example.apex.pk8",
+        "testdata/com.android.example.apex.x509.pem",
+        "testdata/manifest.json",
+    ],
+    test_suites: ["general-tests"],
+    libs: [
+        "apex_manifest",
+    ],
+}
+
+apexer_deps_minus_go_tools = apexer_tools + [
+    "deapexer",
+    "debugfs_static",
+    "blkid",
+    "fsck.erofs",
+]
+
+apexer_deps_tools = apexer_deps_minus_go_tools + apexer_go_tools
+
+genrule_defaults {
+    name: "apexer_test_host_tools_list",
+    tools: apexer_deps_tools + [
+        "signapk",
+    ],
+    srcs: [
+        ":current_android_jar",
+    ],
+}
+
+genrule {
+    name: "apexer_test_host_tools",
+    srcs: [
+        ":current_android_jar",
+    ],
+    out: ["apexer_test_host_tools.zip"],
+    tools: apexer_deps_tools + [
+        // To force signapk.jar generated in out/host
+        "signapk",
+        "bundletool",
+    ],
+    cmd: "HOST_OUT_BIN=$$(dirname $(location apexer)) && " +
+        "HOST_SOONG_OUT=$$(dirname $$HOST_OUT_BIN) && " +
+        "SIGNAPK_JAR=$$(find $${HOST_SOONG_OUT}/framework -name \"signapk*\") && " +
+        "BUNDLETOOL_JAR=$$(find $${HOST_SOONG_OUT}/framework -name \"bundletool*.jar\") && " +
+        "LIBCPLUSPLUS=$$(find $${HOST_SOONG_OUT}/lib64 -name \"libc++.*\") && " +
+        "LIBCONSCRYPT_OPENJDK_JNI=$$(find $${HOST_SOONG_OUT}/lib64 -name \"libconscrypt_openjdk_jni.*\") && " +
+        "BASE=$(genDir)/binary_files && " +
+        "BIN=$$BASE/bin && " +
+        "LIB=$$BASE/lib64 && " +
+        "mkdir -p $$BIN && " +
+        "mkdir -p $$LIB && " +
+        "cp $(in) $$BIN && " +
+        "cp $(location apexer) $$BIN && " +
+        "cp $(location conv_apex_manifest) $$BIN && " +
+        "cp $(location deapexer) $$BIN && " +
+        "cp $(location avbtool) $$BIN && " +
+        "cp $(location aapt2) $$BIN && " +
+        "cp $(location e2fsdroid) $$BIN && " +
+        "cp $(location make_erofs) $$BIN && " +
+        "cp $(location merge_zips) $$BIN && " +
+        "cp $(location mke2fs) $$BIN && " +
+        "cp $(location resize2fs) $$BIN && " +
+        "cp $(location sefcontext_compile) $$BIN && " +
+        "cp $(location soong_zip) $$BIN && " +
+        "cp $(location fec) $$BIN && " +
+        "cp $(location zipalign) $$BIN && " +
+        "cp $(location debugfs_static) $$BIN && " +
+        "cp $(location blkid) $$BIN && " +
+        "cp $(location fsck.erofs) $$BIN && " +
+        "cp $$SIGNAPK_JAR $$BIN && " +
+        "cp $$BUNDLETOOL_JAR $$BIN && " +
+        "cp $$LIBCPLUSPLUS $$LIB && " +
+        "cp $$LIBCONSCRYPT_OPENJDK_JNI $$LIB && " +
+        "$(location soong_zip) -C $$BASE -D $$BASE -o $(out) && " +
+        "rm -rf $$BASE",
+}

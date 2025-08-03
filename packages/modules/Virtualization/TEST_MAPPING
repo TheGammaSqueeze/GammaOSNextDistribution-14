@@ -1,0 +1,145 @@
+// When adding or removing tests here, don't forget to amend _all_modules list in
+// wireless/android/busytown/ath_config/configs/prod/avf/tests.gcl
+{
+  "avf-presubmit": [
+    {
+      "name": "MicrodroidHostTestCases"
+    },
+    {
+      "name": "ComposHostTestCases"
+    },
+    {
+      "name": "MicrodroidTestApp"
+    },
+    {
+      "name": "MicrodroidTestAppNoPerm"
+    },
+    {
+      "name": "VmAttestationTestApp"
+    },
+    {
+      "name": "CustomPvmfwHostTestCases"
+    },
+    {
+      "name": "art_standalone_dexpreopt_tests"
+    },
+    {
+      "name": "composd_cmd.test"
+    },
+    {
+      "name": "compos_key_tests"
+    },
+    {
+      "name": "compos_verify.test"
+    },
+    {
+      "name": "initrd_bootconfig.test"
+    },
+    {
+      "name": "libdice_policy.test"
+    },
+    {
+      "name": "libapkzip.test"
+    },
+    {
+      "name": "libsecretkeeper_comm.test"
+    }
+  ],
+  "avf-postsubmit": [
+    {
+      "name": "odsign_e2e_tests_full"
+    },
+    {
+      "name": "MicrodroidBenchmarkApp"
+    },
+    {
+      "name": "ComposBenchmarkApp"
+    },
+    {
+      "name": "AVFHostTestCases"
+    },
+    {
+      // TODO(b/325610326): Add this target to presubmit once there is enough
+      // SLO data for it.
+      "name": "AvfRkpdAppIntegrationTests"
+    }
+  ],
+  "postsubmit": [
+    {
+      "name": "CtsMicrodroidDisabledTestCases"
+    }
+  ],
+  "imports": [
+    {
+      "path": "packages/modules/Virtualization/apkdmverity"
+    },
+    {
+      "path": "packages/modules/Virtualization/encryptedstore"
+    },
+    {
+      "path": "packages/modules/Virtualization/virtualizationmanager"
+    },
+    {
+      "path": "packages/modules/Virtualization/libs/apexutil"
+    },
+    {
+      "path": "packages/modules/Virtualization/libs/apkverify"
+    },
+    {
+      "path": "packages/modules/Virtualization/libs/avb"
+    },
+    {
+      "path": "packages/modules/Virtualization/libs/bssl"
+    },
+    {
+      "path": "packages/modules/Virtualization/libs/capabilities"
+    },
+    {
+      "path": "packages/modules/Virtualization/libs/devicemapper"
+    },
+    {
+      "path": "packages/modules/Virtualization/libs/dice"
+    },
+    {
+      "path": "packages/modules/Virtualization/libs/libfdt"
+    },
+    {
+      "path": "packages/modules/Virtualization/libs/vbmeta"
+    },
+    {
+      "path": "packages/modules/Virtualization/authfs"
+    },
+    {
+      "path": "packages/modules/Virtualization/microdroid_manager"
+    },
+    {
+      "path": "packages/modules/Virtualization/pvmfw"
+    },
+    {
+      "path": "packages/modules/Virtualization/rialto"
+    },
+    {
+      "path": "packages/modules/Virtualization/service_vm/client_vm_csr"
+    },
+    {
+      "path": "packages/modules/Virtualization/service_vm/comm"
+    },
+    {
+      "path": "packages/modules/Virtualization/service_vm/requests"
+    },
+    {
+      "path": "packages/modules/Virtualization/virtualizationservice"
+    },
+    {
+      "path": "packages/modules/Virtualization/vm"
+    },
+    {
+      "path": "packages/modules/Virtualization/vmbase"
+    },
+    {
+      "path": "packages/modules/Virtualization/zipfuse"
+    }
+  ]
+}
+// When adding or removing tests here, don't forget to amend _all_modules list in
+// wireless/android/busytown/ath_config/configs/prod/avf/tests.gcl

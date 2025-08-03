@@ -1,0 +1,36 @@
+props {
+  module: "android.sysprop.SuspendProperties"
+  prop {
+    api_name: "backoff_threshold_count"
+    type: UInt
+    prop_name: "suspend.backoff_threshold_count"
+  }
+  prop {
+    api_name: "base_sleep_time_millis"
+    type: UInt
+    prop_name: "suspend.base_sleep_time_millis"
+  }
+  prop {
+    api_name: "failed_suspend_backoff_enabled"
+    prop_name: "suspend.failed_suspend_backoff_enabled"
+  }
+  prop {
+    api_name: "max_sleep_time_millis"
+    type: UInt
+    prop_name: "suspend.max_sleep_time_millis"
+  }
+  prop {
+    api_name: "short_suspend_backoff_enabled"
+    prop_name: "suspend.short_suspend_backoff_enabled"
+  }
+  prop {
+    api_name: "short_suspend_threshold_millis"
+    type: UInt
+    prop_name: "suspend.short_suspend_threshold_millis"
+  }
+  prop {
+    api_name: "sleep_time_scale_factor"
+    type: Double
+    prop_name: "suspend.sleep_time_scale_factor"
+  }
+}

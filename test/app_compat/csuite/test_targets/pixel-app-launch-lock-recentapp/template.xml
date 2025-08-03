@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<configuration description="Launches an app and lock/unlock the device, then Launches an app by tapping recent app key">
+    <target_preparer class="com.android.compatibility.targetprep.CheckGmsPreparer"/>
+    <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
+        <option name="cleanup-apks" value="true" />
+        <option name="aapt-version" value="AAPT2" />
+        <option name="test-file-name" value="app://{package}"/>
+        <option name="test-file-name" value="PixelAppCompTests.apk" />
+    </target_preparer>
+    <metrics_collector class="com.android.tradefed.device.metric.FilePullerLogCollector">
+    	<!-- repeatable: The key of the DIRECTORY to pull -->
+      	<option name = "directory-keys" value = "/sdcard/logData" />
+    </metrics_collector>
+    <test class="com.android.tradefed.testtype.AndroidJUnitTest" >
+        <option name="runner" value="androidx.test.runner.AndroidJUnitRunner" />
+        <option name="package" value="com.android.pixel.tests" />
+        <option name="include-filter" value="com.android.pixel.tests.AppLaunchLockTest" />
+        <option name="include-filter" value="com.android.pixel.tests.AppLaunchRecentAppTest" />
+        <option name="instrumentation-arg" key="package" value="{package}" />
+        <option name="isolated-storage" value="false" />
+    </test>
+</configuration>

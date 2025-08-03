@@ -1,0 +1,85 @@
+syntax = "proto3";
+
+package blueberry.facade.l2cap.le;
+
+import "google/protobuf/empty.proto";
+import "blueberry/facade/common.proto";
+
+service L2capLeModuleFacade {
+  rpc FetchL2capData(google.protobuf.Empty) returns (stream L2capPacket) {}
+  // Initiate a credit based connection request and block until response is received for up to some timeout (2s)
+  rpc OpenDynamicChannel(OpenDynamicChannelRequest) returns (OpenDynamicChannelResponse) {}
+  rpc CloseDynamicChannel(CloseDynamicChannelRequest) returns (google.protobuf.Empty) {}
+  rpc SetDynamicChannel(SetEnableDynamicChannelRequest) returns (google.protobuf.Empty) {}
+  rpc SendDynamicChannelPacket(DynamicChannelPacket) returns (google.protobuf.Empty) {}
+  rpc SetFixedChannel(SetEnableFixedChannelRequest) returns (google.protobuf.Empty) {}
+  rpc SendFixedChannelPacket(FixedChannelPacket) returns (google.protobuf.Empty) {}
+  rpc SendConnectionParameterUpdate(ConnectionParameter) returns (google.protobuf.Empty) {}
+}
+
+message L2capPacket {
+  oneof channel_type {
+    uint32 psm = 1;
+    uint32 fixed_cid = 2;
+  }
+  bytes payload = 3;
+}
+
+message DynamicChannelOpenEvent {
+  uint32 psm = 1;
+  uint32 connection_response_result = 2;
+}
+
+message OpenDynamicChannelRequest {
+  blueberry.facade.BluetoothAddressWithType remote = 1;
+  uint32 psm = 2;
+}
+
+message OpenDynamicChannelResponse {
+  uint32 status = 1;
+}
+
+message CloseDynamicChannelRequest {
+  blueberry.facade.BluetoothAddressWithType remote = 1;
+  uint32 psm = 2;
+}
+
+enum SecurityLevel {
+  NO_SECURITY = 0;
+  UNAUTHENTICATED_PAIRING_WITH_ENCRYPTION = 1;
+  AUTHENTICATED_PAIRING_WITH_ENCRYPTION = 2;
+  AUTHENTICATED_PAIRING_WITH_128_BIT_KEY = 3;
+  AUTHORIZATION = 4;
+}
+
+message SetEnableDynamicChannelRequest {
+  uint32 psm = 1;
+  bool enable = 2;
+  SecurityLevel security_level = 3;
+}
+
+message DynamicChannelPacket {
+  blueberry.facade.BluetoothAddressWithType remote = 1;
+  uint32 psm = 2;
+  bytes payload = 3;
+}
+
+message SetEnableFixedChannelRequest {
+  uint32 cid = 1;
+  bool enable = 2;
+}
+
+message FixedChannelPacket {
+  blueberry.facade.BluetoothAddressWithType remote = 1;
+  uint32 cid = 2;
+  bytes payload = 3;
+}
+
+message ConnectionParameter {
+  uint32 conn_interval_min = 2;
+  uint32 conn_interval_max = 3;
+  uint32 conn_latency = 4;
+  uint32 supervision_timeout = 5;
+  uint32 min_ce_length = 6;
+  uint32 max_ce_length = 7;
+}

@@ -1,0 +1,89 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_library {
+    name: "server_configurable_flags",
+    srcs: ["server_configurable_flags.cc"],
+    host_supported: true,
+    vendor_available: true,
+    double_loadable: true,
+    product_available: true,
+    vndk: {
+        enabled: true,
+    },
+    shared_libs: [
+        "libbase",
+        "libcutils",
+    ],
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+    export_include_dirs: ["include"],
+    apex_available: [
+        "//apex_available:platform",
+        "//apex_available:anyapex",
+    ],
+    min_sdk_version: "29",
+    afdo: true,
+}
+
+// Tests
+// ------------------------------------------------------------------------------
+cc_test {
+    name: "server_configurable_flags_test",
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+    ],
+    srcs: [
+        "server_configurable_flags_test.cc",
+    ],
+    shared_libs: [
+        "server_configurable_flags",
+        "libbase",
+    ],
+    local_include_dirs: ["."],
+    test_suites: ["device-tests"],
+}
+
+cc_library_static {
+    name: "libflags_rust_cpp_bridge",
+    srcs: ["rust_get_flags.cpp"],
+    generated_headers: ["cxx-bridge-header"],
+    generated_sources: ["libflags_rust_generated_cpp_bridge"],
+    apex_available: [
+        "//apex_available:platform",
+        "//apex_available:anyapex",
+    ],
+    host_supported: true,
+    min_sdk_version: "33",
+}
+
+genrule {
+    name: "libflags_rust_generated_cpp_bridge",
+    tools: ["cxxbridge"],
+    cmd: "$(location cxxbridge) $(in) >> $(out)",
+    srcs: ["lib.rs"],
+    out: ["rust_libflags_cxx_generated.cc"],
+}
+
+rust_library {
+    name: "libflags_rust",
+    crate_name: "flags_rust",
+    srcs: ["lib.rs"],
+    rustlibs: ["libcxx"],
+    static_libs: ["libflags_rust_cpp_bridge"],
+    shared_libs: [
+        "libc++",
+        "server_configurable_flags",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "//apex_available:anyapex",
+    ],
+    host_supported: true,
+    min_sdk_version: "33",
+}

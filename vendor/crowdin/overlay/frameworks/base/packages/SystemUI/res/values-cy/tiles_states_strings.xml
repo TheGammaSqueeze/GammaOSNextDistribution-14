@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<!-- This resources set the default subtitle for tiles. This way, each tile can be translated
+     separately.
+     The indices in the array correspond to the state values in QSTile:
+      * STATE_UNAVAILABLE
+      * STATE_INACTIVE
+      * STATE_ACTIVE
+     This subtitle is shown when the tile is in that particular state but does not set its own
+     subtitle, so some of these may never appear on screen. They should still be translated as if
+     they could appear.
+-->
+<resources>
+    <string-array name="tile_states_internet">
+        <item>Ddim ar gael</item>
+        <item>I ffwrdd</item>
+        <item>Ymlaen</item>
+    </string-array>
+    <string-array name="tile_states_wifi">
+        <item>Ddim ar gael</item>
+        <item>I ffwrdd</item>
+        <item>Ymlaen</item>
+    </string-array>
+    <string-array name="tile_states_cell">
+        <item>Ddim ar gael</item>
+        <item>I ffwrdd</item>
+        <item>Ymlaen</item>
+    </string-array>
+    <string-array name="tile_states_battery">
+        <item>Ddim ar gael</item>
+        <item>I ffwrdd</item>
+        <item>Ymlaen</item>
+    </string-array>
+    <string-array name="tile_states_dnd">
+        <item>Ddim ar gael</item>
+        <item>I ffwrdd</item>
+        <item>Ymlaen</item>
+    </string-array>
+    <string-array name="tile_states_flashlight">
+        <item>Ddim ar gael</item>
+        <item>I ffwrdd</item>
+        <item>Ymlaen</item>
+    </string-array>
+    <string-array name="tile_states_rotation">
+        <item>Ddim ar gael</item>
+        <item>I ffwrdd</item>
+        <item>Ymlaen</item>
+    </string-array>
+    <string-array name="tile_states_bt">
+        <item>Ddim ar gael</item>
+        <item>I ffwrdd</item>
+        <item>Ymlaen</item>
+    </string-array>
+    <string-array name="tile_states_airplane">
+        <item>Ddim ar gael</item>
+        <item>I ffwrdd</item>
+        <item>Ymlaen</item>
+    </string-array>
+    <string-array name="tile_states_location">
+        <item>Ddim ar gael</item>
+        <item>I ffwrdd</item>
+        <item>Ymlaen</item>
+    </string-array>
+    <string-array name="tile_states_hotspot">
+        <item>Ddim ar gael</item>
+        <item>I ffwrdd</item>
+        <item>Ymlaen</item>
+    </string-array>
+    <string-array name="tile_states_color_correction">
+        <item>Ddim ar gael</item>
+        <item>I ffwrdd</item>
+        <item>Ymlaen</item>
+    </string-array>
+    <string-array name="tile_states_inversion">
+        <item>Ddim ar gael</item>
+        <item>I ffwrdd</item>
+        <item>Ymlaen</item>
+    </string-array>
+    <string-array name="tile_states_saver">
+        <item>Ddim ar gael</item>
+        <item>I ffwrdd</item>
+        <item>Ymlaen</item>
+    </string-array>
+    <string-array name="tile_states_dark">
+        <item>Ddim ar gael</item>
+        <item>I ffwrdd</item>
+        <item>Ymlaen</item>
+    </string-array>
+    <string-array name="tile_states_work">
+        <item>Ddim ar gael</item>
+        <item>I ffwrdd</item>
+        <item>Ymlaen</item>
+    </string-array>
+    <string-array name="tile_states_cast">
+        <item>Ddim ar gael</item>
+        <item>I ffwrdd</item>
+        <item>Ymlaen</item>
+    </string-array>
+    <string-array name="tile_states_night">
+        <item>Ddim ar gael</item>
+        <item>I ffwrdd</item>
+        <item>Ymlaen</item>
+    </string-array>
+    <string-array name="tile_states_screenrecord">
+        <item>Ddim ar gael</item>
+        <item>I ffwrdd</item>
+        <item>Ymlaen</item>
+    </string-array>
+    <string-array name="tile_states_record_issue">
+        <item>Ddim ar gael</item>
+        <item>I ffwrdd</item>
+        <item>Ymlaen</item>
+    </string-array>
+    <string-array name="tile_states_reverse">
+        <item>Ddim ar gael</item>
+        <item>I ffwrdd</item>
+        <item>Ymlaen</item>
+    </string-array>
+    <string-array name="tile_states_reduce_brightness">
+        <item>Ddim ar gael</item>
+        <item>I ffwrdd</item>
+        <item>Ymlaen</item>
+    </string-array>
+    <string-array name="tile_states_cameratoggle">
+        <item>Ddim ar gael</item>
+        <item>I ffwrdd</item>
+        <item>Ymlaen</item>
+    </string-array>
+    <string-array name="tile_states_mictoggle">
+        <item>Ddim ar gael</item>
+        <item>I ffwrdd</item>
+        <item>Ymlaen</item>
+    </string-array>
+    <string-array name="tile_states_controls">
+        <item>Ddim ar gael</item>
+        <item>I ffwrdd</item>
+        <item>Ymlaen</item>
+    </string-array>
+    <string-array name="tile_states_wallet">
+        <item>Ddim ar gael</item>
+        <item>I ffwrdd</item>
+        <item>Ymlaen</item>
+    </string-array>
+    <string-array name="tile_states_qr_code_scanner">
+        <item>Ddim ar gael</item>
+        <item>I ffwrdd</item>
+        <item>Ymlaen</item>
+    </string-array>
+    <string-array name="tile_states_alarm">
+        <item>Ddim ar gael</item>
+        <item>I ffwrdd</item>
+        <item>Ymlaen</item>
+    </string-array>
+    <string-array name="tile_states_onehanded">
+        <item>Ddim ar gael</item>
+        <item>I ffwrdd</item>
+        <item>Ymlaen</item>
+    </string-array>
+    <string-array name="tile_states_dream">
+        <item>Ddim ar gael</item>
+        <item>I ffwrdd</item>
+        <item>Ymlaen</item>
+    </string-array>
+    <string-array name="tile_states_font_scaling">
+        <item>Ddim ar gael</item>
+        <item>I ffwrdd</item>
+        <item>Ymlaen</item>
+    </string-array>
+</resources>

@@ -1,0 +1,120 @@
+{
+  "description": "Three reporting windows configured for VTC - 1h (w1), 1d (w2) and expiry (w3). Source has 2 app triggers due to install attribution in w1 and w2.",
+  "phflags_override": {
+    "measurement_vtc_configurable_max_event_reports_count": "2",
+    "measurement_event_reports_vtc_early_reporting_windows": "3600,86400",
+    "measurement_flex_api_max_information_gain_dual_destination_event": "9",
+    "measurement_flex_api_max_information_gain_dual_destination_navigation": "14"
+  },
+  "input": {
+    "sources": [
+      {
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech1.test",
+          "source_type": "event",
+          "registrant": "example.1s1.test"
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "response": {
+            "Attribution-Reporting-Register-Source": {
+              "source_event_id": "1",
+              "destination": "android-app://example.1d1.test",
+              "web_destination": "https://example.1d1.test",
+              "priority": "100",
+              "expiry": "864000",
+              "install_attribution_window": "172800",
+              "post_install_exclusivity_window": "864000"
+            },
+            "Location": null,
+            "Attribution-Reporting-Redirect": null
+          }
+        }],
+        "timestamp": "0"
+      }
+    ],
+    "triggers": [
+      {
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech1.test",
+          "registrant": "example.1d1.test"
+        },
+        "responses": [
+          {
+            "url": "https://www.ad-tech1.test",
+            "response": {
+              "Attribution-Reporting-Register-Trigger": {
+                "event_trigger_data": [
+                  {
+                    "trigger_data": "2",
+                    "priority": "101"
+                  }
+                ]
+              },
+              "Location": null,
+              "Attribution-Reporting-Redirect": null
+            }
+          }
+        ],
+        "timestamp": "1800000"
+      },
+      {
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech1.test",
+          "registrant": "example.1d1.test"
+        },
+        "responses": [
+          {
+            "url": "https://www.ad-tech1.test",
+            "response": {
+              "Attribution-Reporting-Register-Trigger": {
+                "event_trigger_data": [
+                  {
+                    "trigger_data": "2",
+                    "priority": "101"
+                  }
+                ]
+              },
+              "Location": null,
+              "Attribution-Reporting-Redirect": null
+            }
+          }
+        ],
+        "timestamp": "432000000"
+      }
+    ],
+    "installs": [{
+      "uri": "android-app://example.1d1.test",
+      "timestamp": "900000"
+    }]
+  },
+  "output": {
+    "event_level_results": [
+      {
+        "report_time": "7200000",
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/report-event-attribution",
+        "payload": {
+          "attribution_destination": "android-app://example.1d1.test",
+          "scheduled_report_time": "7200",
+          "source_event_id": "1",
+          "trigger_data": "0",
+          "source_type": "event",
+          "randomized_trigger_rate": 0.0000757
+        }
+      },
+      {
+        "report_time": "867600000",
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/report-event-attribution",
+        "payload": {
+          "attribution_destination": "android-app://example.1d1.test",
+          "scheduled_report_time": "867600",
+          "source_event_id": "1",
+          "trigger_data": "0",
+          "source_type": "event",
+          "randomized_trigger_rate": 0.0000757
+        }
+      }
+    ],
+    "aggregatable_results": []
+  }
+}

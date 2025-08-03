@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="scanning_title" msgid="5424849039854311398">"검사 중"</string>
+    <string name="loading_summary" msgid="3740846439782713910">"기기 설정을 확인하는 중…"</string>
+    <string name="overall_severity_level_ok_title" msgid="2041250138727564565">"양호"</string>
+    <string name="overall_severity_level_ok_summary" msgid="383626536912856690">"발견된 문제 없음"</string>
+    <string name="overall_severity_level_tip_summary" msgid="1935765582243024999">"{count,plural, =1{권장사항 보기}other{권장사항 보기}}"</string>
+    <string name="overall_severity_level_action_taken_summary" msgid="8064091657855656545">"{count,plural, =1{조치를 취함}other{조치를 취함}}"</string>
+    <string name="overall_severity_level_ok_review_title" msgid="1494321117696765360">"설정 검토"</string>
+    <string name="overall_severity_level_ok_review_summary" msgid="7743619617413076275">"설정 목록 확인"</string>
+    <string name="overall_severity_level_device_recommendation_title" msgid="5250040236433061827">"기기에 잠재적 위험 발생"</string>
+    <string name="overall_severity_level_critical_device_warning_title" msgid="5901771721834272596">"기기에 위험 발생"</string>
+    <string name="overall_severity_level_data_recommendation_title" msgid="1424269714861655302">"데이터에 보안 위험이 있을 수 있음"</string>
+    <string name="overall_severity_level_critical_data_warning_title" msgid="1012704126634698604">"데이터에 보안 위험이 있음"</string>
+    <string name="overall_severity_level_passwords_recommendation_title" msgid="8625105570296877719">"기존 비밀번호 손상됨"</string>
+    <string name="overall_severity_level_critical_passwords_warning_title" msgid="7859047988648851217">"신규 비밀번호 손상됨"</string>
+    <string name="overall_severity_level_personal_recommendation_title" msgid="5493814377982623779">"위험에 노출되었을 수 있음"</string>
+    <string name="overall_severity_level_critical_personal_warning_title" msgid="5070434468955164734">"위험에 노출됨"</string>
+    <string name="overall_severity_level_safety_recommendation_title" msgid="4291797434760242793">"잠재적 위험 발견됨"</string>
+    <string name="overall_severity_level_critical_safety_warning_title" msgid="6666640109779586868">"위험 발견됨"</string>
+    <string name="overall_severity_level_account_recommendation_title" msgid="2267542168734275090">"계정이 잠재적 위험에 노출됨"</string>
+    <string name="overall_severity_level_critical_account_warning_title" msgid="1913235490583842004">"계정이 위험에 노출됨"</string>
+    <string name="overall_severity_n_alerts_summary" msgid="3262010942295408403">"{count,plural, =1{알림 보기}other{알림 보기}}"</string>
+    <string name="redirecting_error" msgid="8146983632878233202">"페이지를 열 수 없습니다."</string>
+    <string name="resolving_action_error" msgid="371968886143262375">"알림을 해결할 수 없습니다."</string>
+    <string name="refresh_error" msgid="656062128422446177">"{count,plural, =1{설정을 확인할 수 없습니다.}other{설정을 확인할 수 없습니다.}}"</string>
+    <string name="work_profile_paused" msgid="7037400224040869079">"직장 프로필이 일시중지됨"</string>
+    <string name="group_unknown_summary" msgid="6951386960814105641">"아직 정보 없음"</string>
+    <string name="notification_channel_group_name" msgid="7155072032524876859">"보안 및 개인 정보 보호"</string>
+    <string name="notification_channel_name_information" msgid="2966444432152990166">"권장사항"</string>
+    <string name="notification_channel_name_recommendation" msgid="7847408286580217922">"경고"</string>
+    <string name="notification_channel_name_critical_warning" msgid="5994320322108351769">"심각한 경고"</string>
+</resources>

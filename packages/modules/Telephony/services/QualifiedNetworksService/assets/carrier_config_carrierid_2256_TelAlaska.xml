@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<carrier_config>
+    <int name="qns.ims_transport_type_int" value="2"/>
+    <boolean name="qns.support_vops_notavailable_priority_iwlan_bool" value="false"/>
+    <boolean name="qns.allow_video_over_iwlan_with_cellular_limited_case_bool" value="true"/>
+    <int name="qns.sos_transport_type_int" value="2"/>
+    <int name="qns.cbs_transport_type_int" value="2"/>
+    <boolean name="qns.allow_ims_over_iwlan_cellular_limited_case_bool" value="true"/>
+    <int name="qns.ims_network_enable_hysteresis_timer_int" value="1"/>
+    <int-array name="qns.ims_wwan_hysteresis_timer_ms_int_array" num="3">
+        <item value="120000"/>
+        <item value="0"/>
+        <item value="0"/>
+    </int-array>
+    <int-array name="qns.ims_wlan_hysteresis_timer_ms_int_array" num="3">
+        <item value="120000"/>
+        <item value="0"/>
+        <item value="0"/>
+    </int-array>
+    <int-array name="qns.in_call_rovein_allowed_and_fallback_reason_int_array" num="2">
+        <item value="3"/>
+        <item value="1"/>
+    </int-array>
+    <int-array name="qns.waiting_time_for_preferred_transport_when_power_on_int_array" num="2">
+        <item value="45000"/>
+        <item value="0"/>
+    </int-array>
+    <int-array name="qns.idle_eutran_rsrp_int_array" num="3">
+        <item value="-100"/>
+        <item value="-112"/>
+        <item value="-115"/>
+    </int-array>
+    <int-array name="qns.idle_eutran_rsrq_int_array" num="3">
+        <item value="-11"/>
+        <item value="-15"/>
+        <item value="-18"/>
+    </int-array>
+    <int-array name="qns.voice_eutran_rsrp_int_array" num="3">
+        <item value="-100"/>
+        <item value="-112"/>
+        <item value="-115"/>
+    </int-array>
+    <int-array name="qns.voice_eutran_rsrq_int_array" num="3">
+        <item value="-11"/>
+        <item value="-15"/>
+        <item value="-18"/>
+    </int-array>
+    <int-array name="qns.video_eutran_rsrp_int_array" num="3">
+        <item value="65535"/>
+        <item value="65535"/>
+        <item value="-115"/>
+    </int-array>
+    <int-array name="qns.idle_ngran_ssrsrp_int_array" num="3">
+        <item value="-100"/>
+        <item value="-112"/>
+        <item value="-115"/>
+    </int-array>
+    <int-array name="qns.idle_ngran_ssrsrq_int_array" num="3">
+        <item value="-11"/>
+        <item value="-15"/>
+        <item value="-18"/>
+    </int-array>
+    <int-array name="qns.voice_ngran_ssrsrp_int_array" num="3">
+        <item value="-100"/>
+        <item value="-112"/>
+        <item value="-115"/>
+    </int-array>
+    <int-array name="qns.voice_ngran_ssrsrq_int_array" num="3">
+        <item value="-11"/>
+        <item value="-15"/>
+        <item value="-18"/>
+    </int-array>
+    <int-array name="qns.video_ngran_ssrsrp_int_array" num="3">
+        <item value="65535"/>
+        <item value="65535"/>
+        <item value="-115"/>
+    </int-array>
+    <int-array name="qns.idle_wifi_rssi_int_array" num="2">
+        <item value="-65"/>
+        <item value="-80"/>
+    </int-array>
+    <int-array name="qns.voice_wifi_rssi_int_array" num="2">
+        <item value="-65"/>
+        <item value="-80"/>
+    </int-array>
+    <int-array name="qns.video_wifi_rssi_int_array" num="2">
+        <item value="-65"/>
+        <item value="-75"/>
+    </int-array>
+    <boolean name="qns.roam_transport_type_selection_without_signal_strength_bool" value="true"/>
+    <boolean name="qns.prefer_current_transport_type_in_voice_call_bool" value="false"/>
+    <string-array name="qns.rove_in_threshold_gap_with_guard_timer_string_array" num="1">
+        <item value="eutran:rsrp:-2"/>
+    </string-array>
+    <string-array name="qns.condition_rove_out_idle_cell_pref_roam_guarding_none_string_array"
+                  num="1">
+        <item value="Condition:EUTRAN_BAD"/>
+    </string-array>
+    <string-array name="qns.condition_rove_out_idle_cell_pref_roam_guarding_cell_string_array"
+                  num="1">
+        <item value="Condition:IWLAN_GOOD,EUTRAN_BAD"/>
+    </string-array>
+</carrier_config>

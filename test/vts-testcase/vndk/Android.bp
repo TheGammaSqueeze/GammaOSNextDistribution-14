@@ -1,0 +1,109 @@
+// Copyright 2020 Google Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+python_library {
+    name: "vts_vndk_utils",
+    host_supported: true,
+    pkg_path: "vts/testcases/vndk",
+    srcs: [
+        "utils.py",
+        "golden/vndk_data.py",
+    ],
+    data: [
+        ":vndk_lib_lists",
+        ":vndk_lib_extra_lists"
+    ],
+}
+
+python_defaults {
+    name: "vts_vndk_default",
+    libs: [
+        "vndk_utils",
+        "vts_vndk_utils",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        }
+    }
+}
+
+// TODO(b/243602514): Python data should not be put in testcases dir.
+python_library_host {
+    name: "vts_vndk_abi_dump_lib",
+    data: [
+        ":vts_vndk_abi_dump_zip",
+    ],
+}
+
+python_test_host {
+    name: "vts_vndk_abi_test",
+    defaults: ["vts_vndk_default"],
+    main: "abi/vts_vndk_abi_test.py",
+    srcs: [
+        "abi/vts_vndk_abi_test.py",
+    ],
+    libs: [
+        "vts_vndk_abi_dump_lib",
+    ],
+    test_suites: [
+        "vts",
+    ],
+    test_config: "abi/vts_vndk_abi_test.xml",
+    test_options: {
+        unit_test: false,
+    },
+}
+
+python_test {
+    name: "vts_vndk_dependency_test",
+    // vts_vndk_dependency_test.xml refers to the file name. It needs to be
+    // different from the directory name so that the test runner can find a
+    // unique path.
+    stem: "vts_vndk_dependency_test_bin",
+    defaults: ["vts_vndk_default"],
+    main: "dependency/vts_vndk_dependency_test.py",
+    srcs: [
+        "dependency/vts_vndk_dependency_test.py",
+    ],
+    test_suites: [
+        "general-tests",
+        "vts",
+    ],
+    test_config: "dependency/vts_vndk_dependency_test.xml",
+    test_options: {
+        unit_test: false,
+    },
+}
+
+python_test_host {
+    name: "vts_vndk_files_test",
+    defaults: ["vts_vndk_default"],
+    main: "files/vts_vndk_files_test.py",
+    srcs: [
+        "files/vts_vndk_files_test.py",
+    ],
+    test_suites: [
+        "general-tests",
+        "vts",
+    ],
+    test_config: "files/vts_vndk_files_test.xml",
+    test_options: {
+        unit_test: false,
+    },
+}

@@ -1,0 +1,16 @@
+{
+  "presubmit": [
+    {
+      "name": "CtsBluetoothTestCases",
+      "options": [
+        {
+          // TODO(b/303306195): Exclude a flaky test the other team is already working on from our check
+          "exclude-filter": "android.bluetooth.cts.LeL2capSocketTest#openInsecureLeL2capServerSocketRepeatedly"
+        }
+      ]
+    },
+    {
+      "name": "net_test_bluetooth"
+    }
+  ]
+}

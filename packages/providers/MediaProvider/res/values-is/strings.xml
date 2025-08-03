@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2009 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="uid_label" msgid="8421971615411294156">"Margmiðlun"</string>
+    <string name="storage_description" msgid="4081716890357580107">"Staðbundin vistun"</string>
+    <string name="picker_app_label" msgid="1195424381053599122">"Efnisval"</string>
+    <string name="artist_label" msgid="8105600993099120273">"Flytjandi"</string>
+    <string name="unknown" msgid="2059049215682829375">"Óþekkt"</string>
+    <string name="root_images" msgid="5861633549189045666">"Myndir"</string>
+    <string name="root_videos" msgid="8792703517064649453">"Myndskeið"</string>
+    <string name="root_audio" msgid="3505830755201326018">"Hljóð"</string>
+    <string name="root_documents" msgid="3829103301363849237">"Skjöl"</string>
+    <string name="permission_required" msgid="1460820436132943754">"Heimild er nauðsynleg til að breyta eða eyða þessu atriði."</string>
+    <string name="permission_required_action" msgid="706370952366113539">"Áfram"</string>
+    <string name="grant_dialog_button_allow" msgid="1644287024501033471">"Leyfa"</string>
+    <string name="grant_dialog_button_deny" msgid="6190589471415815741">"Hafna"</string>
+    <string name="permission_more_thumb" msgid="1938863829470531577">"{count,plural, =1{+<xliff:g id="COUNT_0">^1</xliff:g>}one{+<xliff:g id="COUNT_1">^1</xliff:g>}other{+<xliff:g id="COUNT_1">^1</xliff:g>}}"</string>
+    <string name="permission_more_text" msgid="2471785045095597753">"{count,plural, =1{<xliff:g id="COUNT_0">^1</xliff:g> atriði í viðbót}one{<xliff:g id="COUNT_1">^1</xliff:g> atriði í viðbót}other{<xliff:g id="COUNT_1">^1</xliff:g> atriði í viðbót}}"</string>
+    <string name="cache_clearing_dialog_title" msgid="8907893815183913664">"Hreinsa tímabundnar forritaskrár"</string>
+    <string name="cache_clearing_dialog_text" msgid="7057784635111940957">"<xliff:g id="APP_SEEKING_PERMISSION">%s</xliff:g> vill fá að hreinsa sumar tímabundnar skrár. Þetta getur haft í för með sér aukna rafhlöðunotkun eða notkun farsímagagna."</string>
+    <string name="cache_clearing_in_progress_title" msgid="6902220064511664209">"Verið er að eyða tímabundnum forritaskrám…"</string>
+    <string name="clear" msgid="5524638938415865915">"Hreinsa"</string>
+    <string name="allow" msgid="8885707816848569619">"Leyfa"</string>
+    <string name="deny" msgid="6040983710442068936">"Hafna"</string>
+    <string name="picker_browse" msgid="5554477454636075934">"Skoða…"</string>
+    <string name="picker_settings" msgid="6443463167344790260">"Efnisforrit í skýi"</string>
+    <string name="picker_settings_system_settings_menu_title" msgid="3055084757610063581">"Efnisforrit í skýi"</string>
+    <string name="picker_settings_title" msgid="5647700706470673258">"Efnisforrit í skýi"</string>
+    <string name="picker_settings_description" msgid="2916686824777214585">"Opnaðu efnið þitt í skýinu þegar forrit eða vefsvæði biður þig um að velja myndir eða myndskeið"</string>
+    <string name="picker_settings_selection_message" msgid="245453573086488596">"Opna skýjaefni frá"</string>
+    <string name="picker_settings_no_provider" msgid="2582311853680058223">"Ekkert"</string>
+    <string name="picker_settings_toast_error" msgid="697274445512467469">"Ekki tókst að breyta efnisforriti í skýi."</string>
+    <string name="picker_sync_notification_channel" msgid="1867105708912627993">"Efnisval"</string>
+    <string name="picker_sync_notification_title" msgid="1122713382122055246">"Efnisval"</string>
+    <string name="picker_sync_notification_text" msgid="8204423917712309382">"Samstillir efni…"</string>
+    <string name="add" msgid="2894574044585549298">"Bæta við"</string>
+    <string name="deselect" msgid="4297825044827769490">"Afvelja"</string>
+    <string name="deselected" msgid="8488133193326208475">"Afvalið"</string>
+    <string name="select" msgid="2704765470563027689">"Velja"</string>
+    <string name="selected" msgid="9151797369975828124">"Valið"</string>
+    <string name="select_up_to" msgid="6994294169508439957">"{count,plural, =1{Veldu allt að <xliff:g id="COUNT_0">^1</xliff:g> atriði}one{Veldu allt að <xliff:g id="COUNT_1">^1</xliff:g> atriði}other{Veldu allt að <xliff:g id="COUNT_1">^1</xliff:g> atriði}}"</string>
+    <string name="recent" msgid="6694613584743207874">"Nýlegt"</string>
+    <string name="picker_photos_empty_message" msgid="5980619500554575558">"Engar myndir eða myndskeið"</string>
+    <string name="picker_album_media_empty_message" msgid="7061850698189881671">"Engar studdar myndir eða myndskeið"</string>
+    <string name="picker_albums_empty_message" msgid="8341079772950966815">"Engin albúm"</string>
+    <string name="picker_view_selected" msgid="2266031384396143883">"Skoða valið"</string>
+    <string name="picker_photos" msgid="7415035516411087392">"Myndir"</string>
+    <!-- no translation found for picker_videos (2886971435439047097) -->
+    <skip />
+    <string name="picker_albums" msgid="4822511902115299142">"Albúm"</string>
+    <string name="picker_preview" msgid="6257414886055861039">"Forskoða"</string>
+    <string name="picker_work_profile" msgid="2083221066869141576">"Skipta yfir í vinnusnið"</string>
+    <string name="picker_personal_profile" msgid="639484258397758406">"Skipta yfir í einkasnið"</string>
+    <string name="picker_personal_profile_label" msgid="6189198163209597344">"Einkasnið"</string>
+    <string name="picker_profile_admin_title" msgid="4172022376418293777">"Útilokað af kerfisstjóra"</string>
+    <string name="picker_profile_admin_msg_from_personal" msgid="1941639895084555723">"Óheimilt er að opna vinnugögn í forriti til einkanota"</string>
+    <string name="picker_profile_admin_msg_from_work" msgid="8048524337462790110">"Óheimilt er að opna einkagögn í vinnuforriti"</string>
+    <string name="picker_profile_admin_msg" msgid="4060112887923255178">"Óheimilt er að opna <xliff:g id="PROFILE1">%1$s</xliff:g>-gögn úr <xliff:g id="PROFILE2">%2$s</xliff:g>-forriti"</string>
+    <string name="picker_profile_switch_message" msgid="1133817927412489487">"Skipta yfir í <xliff:g id="PROFILE">%s</xliff:g>"</string>
+    <string name="picker_profile_work_paused_title" msgid="382212880704235925">"Hlé gert á vinnuforritum"</string>
+    <string name="picker_profile_paused_title" msgid="2079739512895529028">"Hlé var gert á <xliff:g id="PROFILE">%s</xliff:g>-forritum"</string>
+    <string name="picker_profile_work_paused_msg" msgid="6321552322125246726">"Kveiktu á vinnuforritunum og reyndu síðan að opna vinnumyndirnar aftur"</string>
+    <string name="picker_profile_paused_msg" msgid="1215076898583993782">"Til að opna <xliff:g id="PROFILE1">%1$s</xliff:g>-myndir skaltu kveikja á <xliff:g id="PROFILE2">%2$s</xliff:g>-forritum og reyna aftur"</string>
+    <string name="picker_privacy_message" msgid="9132700451027116817">"Þetta forrit hefur aðeins aðgang að myndunum sem þú velur"</string>
+    <string name="picker_header_permissions" msgid="675872774407768495">"Veldu myndir og myndskeið sem þetta forrit má fá aðgang að"</string>
+    <string name="picker_album_item_count" msgid="4420723302534177596">"{count,plural, =1{<xliff:g id="COUNT_0">^1</xliff:g> atriði}one{<xliff:g id="COUNT_1">^1</xliff:g> atriði}other{<xliff:g id="COUNT_1">^1</xliff:g> atriði}}"</string>
+    <string name="picker_add_button_multi_select" msgid="4005164092275518399">"Bæta við (<xliff:g id="COUNT">^1</xliff:g>)"</string>
+    <string name="picker_add_button_multi_select_permissions" msgid="5138751105800138838">"Leyfa (<xliff:g id="COUNT">^1</xliff:g>)"</string>
+    <string name="picker_add_button_allow_none_option" msgid="9183772732922241035">"Ekki leyfa neitt"</string>
+    <string name="picker_category_camera" msgid="4857367052026843664">"Myndavél"</string>
+    <string name="picker_category_downloads" msgid="793866660287361900">"Niðurhal"</string>
+    <string name="picker_category_favorites" msgid="7008495397818966088">"Uppáhald"</string>
+    <string name="picker_category_screenshots" msgid="7216102327587644284">"Skjámyndir"</string>
+    <!-- no translation found for picker_category_videos (1478458836380241356) -->
+    <skip />
+    <string name="picker_motion_photo_text" msgid="5016603812468180816">"Lifandi mynd"</string>
+    <string name="picker_item_content_desc" msgid="7680591530155286423">"<xliff:g id="ITEM_NAME">%1$s</xliff:g> frá <xliff:g id="TIME">%2$s</xliff:g>"</string>
+    <string name="picker_video_item_content_desc" msgid="7828900089119214801">"Myndskeið tekið upp <xliff:g id="TIME">%1$s</xliff:g> sem er <xliff:g id="DURATION">%2$s</xliff:g> að lengd"</string>
+    <string name="picker_photo" msgid="1739342083494962153">"Mynd"</string>
+    <string name="picker_gif" msgid="8333318083107368726">"GIF"</string>
+    <string name="picker_motion_photo" msgid="4385182195289546308">"Lifandi mynd"</string>
+    <string name="picker_mute_video" msgid="2496585809229800096">"Þagga myndskeið"</string>
+    <string name="picker_unmute_video" msgid="6611741290641963568">"Hætta að þagga myndskeið"</string>
+    <string name="picker_play_video" msgid="7106025944628666250">"Spila"</string>
+    <string name="picker_pause_video" msgid="1092718225234326702">"Gera hlé"</string>
+    <string name="picker_error_snackbar" msgid="5970192792792369203">"Ekki tekst að spila myndskeið"</string>
+    <string name="picker_error_dialog_title" msgid="4540095603788920965">"Vandamál við spilun myndskeiðs"</string>
+    <string name="picker_error_dialog_body" msgid="2515738446802971453">"Athugaðu nettenginguna og reyndu aftur"</string>
+    <string name="picker_error_dialog_positive_action" msgid="749544129082109232">"Reyna aftur"</string>
+    <string name="not_selected" msgid="2244008151669896758">"ekki valið"</string>
+    <string name="preloading_dialog_title" msgid="4974348221848532887">"Undirbýr valið efni"</string>
+    <string name="preloading_progress_message" msgid="4741327138031980582">"<xliff:g id="NUMBER_PRELOADED">%1$d</xliff:g> af <xliff:g id="NUMBER_TOTAL">%2$d</xliff:g> til reiðu"</string>
+    <string name="preloading_cancel_button" msgid="824053521307342209">"Hætta við"</string>
+    <string name="picker_banner_cloud_first_time_available_title" msgid="5912973744275711595">"Afritaðar myndir eru nú hafðar með"</string>
+    <string name="picker_banner_cloud_first_time_available_desc" msgid="5570916598348187607">"Þú getur valið myndir af reikningnum <xliff:g id="USER_ACCOUNT">%2$s</xliff:g> í: <xliff:g id="APP_NAME">%1$s</xliff:g>"</string>
+    <string name="picker_banner_cloud_account_changed_title" msgid="4825058474378077327">"<xliff:g id="APP_NAME">%1$s</xliff:g>: reikningur uppfærður"</string>
+    <string name="picker_banner_cloud_account_changed_desc" msgid="3433218869899792497">"Myndir frá <xliff:g id="USER_ACCOUNT">%1$s</xliff:g> eru nú hafðar með hér"</string>
+    <string name="picker_banner_cloud_choose_app_title" msgid="3165966147547974251">"Veldu skýjaforrit fyrir efni"</string>
+    <string name="picker_banner_cloud_choose_app_desc" msgid="2359212653555524926">"Til að hafa afritaðar myndir með hérna skaltu velja skýjaforrit fyrir efni í stillingunum"</string>
+    <string name="picker_banner_cloud_choose_account_title" msgid="5010901185639577685">"Veldu reikning: <xliff:g id="APP_NAME">%1$s</xliff:g>"</string>
+    <string name="picker_banner_cloud_choose_account_desc" msgid="8868134443673142712">"Til að hafa myndir frá <xliff:g id="APP_NAME">%1$s</xliff:g> með hérna skaltu velja reikning í forritinu"</string>
+    <string name="picker_banner_cloud_dismiss_button" msgid="2935903078288463882">"Hunsa"</string>
+    <string name="picker_banner_cloud_choose_app_button" msgid="934085679890435479">"Velja forrit"</string>
+    <string name="picker_banner_cloud_choose_account_button" msgid="7979484877116991631">"Veldu reikning"</string>
+    <string name="picker_banner_cloud_change_account_button" msgid="8361239765828471146">"Skipta um reikning"</string>
+    <string name="picker_loading_photos_message" msgid="6449180084857178949">"Sækir allar myndirnar þínar"</string>
+    <string name="permission_write_audio" msgid="8819694245323580601">"{count,plural, =1{Leyfa <xliff:g id="APP_NAME_0">^1</xliff:g> að breyta þessari hljóðskrá?}one{Leyfa <xliff:g id="APP_NAME_1">^1</xliff:g> að breyta <xliff:g id="COUNT">^2</xliff:g> hljóðskrá?}other{Leyfa <xliff:g id="APP_NAME_1">^1</xliff:g> að breyta <xliff:g id="COUNT">^2</xliff:g> hljóðskrám?}}"</string>
+    <string name="permission_progress_write_audio" msgid="6029375427984180097">"{count,plural, =1{Breytir hljóðskrá…}one{Breytir <xliff:g id="COUNT">^1</xliff:g> hljóðskrá…}other{Breytir <xliff:g id="COUNT">^1</xliff:g> hljóðskrám…}}"</string>
+    <string name="permission_write_video" msgid="103902551603700525">"{count,plural, =1{Leyfa <xliff:g id="APP_NAME_0">^1</xliff:g> að breyta þessu myndskeiði?}one{Leyfa <xliff:g id="APP_NAME_1">^1</xliff:g> að breyta <xliff:g id="COUNT">^2</xliff:g> myndskeiði?}other{Leyfa <xliff:g id="APP_NAME_1">^1</xliff:g> að breyta <xliff:g id="COUNT">^2</xliff:g> myndskeiðum?}}"</string>
+    <string name="permission_progress_write_video" msgid="7014908418349819148">"{count,plural, =1{Breytir myndskeiði…}one{Breytir <xliff:g id="COUNT">^1</xliff:g> myndskeiði…}other{Breytir <xliff:g id="COUNT">^1</xliff:g> myndskeiðum…}}"</string>
+    <string name="permission_write_image" msgid="3518991791620523786">"{count,plural, =1{Leyfa <xliff:g id="APP_NAME_0">^1</xliff:g> að breyta þessari mynd?}one{Leyfa <xliff:g id="APP_NAME_1">^1</xliff:g> að breyta <xliff:g id="COUNT">^2</xliff:g> mynd?}other{Leyfa <xliff:g id="APP_NAME_1">^1</xliff:g> að breyta <xliff:g id="COUNT">^2</xliff:g> myndum?}}"</string>
+    <string name="permission_progress_write_image" msgid="3623580315590025262">"{count,plural, =1{Breytir mynd…}one{Breytir <xliff:g id="COUNT">^1</xliff:g> mynd…}other{Breytir <xliff:g id="COUNT">^1</xliff:g> myndum…}}"</string>
+    <string name="permission_write_generic" msgid="7431128739233656991">"{count,plural, =1{Leyfa <xliff:g id="APP_NAME_0">^1</xliff:g> að breyta þessu atriði?}one{Leyfa <xliff:g id="APP_NAME_1">^1</xliff:g> að breyta <xliff:g id="COUNT">^2</xliff:g> atriði?}other{Leyfa <xliff:g id="APP_NAME_1">^1</xliff:g> að breyta <xliff:g id="COUNT">^2</xliff:g> atriðum?}}"</string>
+    <string name="permission_progress_write_generic" msgid="2806560971318391443">"{count,plural, =1{Breytir atriði…}one{Breytir <xliff:g id="COUNT">^1</xliff:g> atriði…}other{Breytir <xliff:g id="COUNT">^1</xliff:g> atriðum…}}"</string>
+    <string name="permission_trash_audio" msgid="6554672354767742206">"{count,plural, =1{Leyfa <xliff:g id="APP_NAME_0">^1</xliff:g> að færa þessa hljóðskrá í ruslið?}one{Leyfa <xliff:g id="APP_NAME_1">^1</xliff:g> að færa <xliff:g id="COUNT">^2</xliff:g> hljóðskrá í ruslið?}other{Leyfa <xliff:g id="APP_NAME_1">^1</xliff:g> að færa <xliff:g id="COUNT">^2</xliff:g> hljóðskrár í ruslið?}}"</string>
+    <string name="permission_progress_trash_audio" msgid="3116279868733641329">"{count,plural, =1{Færir hljóðskrá í ruslið…}one{Færir <xliff:g id="COUNT">^1</xliff:g> hljóðskrá í ruslið…}other{Færir <xliff:g id="COUNT">^1</xliff:g> hljóðskrár í ruslið…}}"</string>
+    <string name="permission_trash_video" msgid="7555850843259959642">"{count,plural, =1{Leyfa <xliff:g id="APP_NAME_0">^1</xliff:g> að færa þetta myndskeið í ruslið?}one{Leyfa <xliff:g id="APP_NAME_1">^1</xliff:g> að færa <xliff:g id="COUNT">^2</xliff:g> myndskeið í ruslið?}other{Leyfa <xliff:g id="APP_NAME_1">^1</xliff:g> að færa <xliff:g id="COUNT">^2</xliff:g> myndskeið í ruslið?}}"</string>
+    <string name="permission_progress_trash_video" msgid="4637821778329459681">"{count,plural, =1{Færir myndskeið í ruslið…}one{Færir <xliff:g id="COUNT">^1</xliff:g> myndskeið í ruslið…}other{Færir <xliff:g id="COUNT">^1</xliff:g> myndskeið í ruslið…}}"</string>
+    <string name="permission_trash_image" msgid="3333128084684156675">"{count,plural, =1{Leyfa <xliff:g id="APP_NAME_0">^1</xliff:g> að færa þessa mynd í ruslið?}one{Leyfa <xliff:g id="APP_NAME_1">^1</xliff:g> að færa <xliff:g id="COUNT">^2</xliff:g> mynd í ruslið?}other{Leyfa <xliff:g id="APP_NAME_1">^1</xliff:g> að færa <xliff:g id="COUNT">^2</xliff:g> myndir í ruslið?}}"</string>
+    <string name="permission_progress_trash_image" msgid="3063857679090024764">"{count,plural, =1{Færir mynd í ruslið…}one{Færir <xliff:g id="COUNT">^1</xliff:g> mynd í ruslið…}other{Færir <xliff:g id="COUNT">^1</xliff:g> myndir í ruslið…}}"</string>
+    <string name="permission_trash_generic" msgid="5545420534785075362">"{count,plural, =1{Leyfa <xliff:g id="APP_NAME_0">^1</xliff:g> að færa þetta atriði í ruslið?}one{Leyfa <xliff:g id="APP_NAME_1">^1</xliff:g> að færa <xliff:g id="COUNT">^2</xliff:g> atriði í ruslið?}other{Leyfa <xliff:g id="APP_NAME_1">^1</xliff:g> að færa <xliff:g id="COUNT">^2</xliff:g> atriði í ruslið?}}"</string>
+    <string name="permission_progress_trash_generic" msgid="7815124979717814057">"{count,plural, =1{Færir atriði í ruslið…}one{Færir <xliff:g id="COUNT">^1</xliff:g> atriði í ruslið…}other{Færir <xliff:g id="COUNT">^1</xliff:g> atriði í ruslið…}}"</string>
+    <string name="permission_untrash_audio" msgid="8404597563284002472">"{count,plural, =1{Leyfa <xliff:g id="APP_NAME_0">^1</xliff:g> að færa þessa hljóðskrá úr ruslinu?}one{Leyfa <xliff:g id="APP_NAME_1">^1</xliff:g> að færa <xliff:g id="COUNT">^2</xliff:g> hljóðskrá úr ruslinu?}other{Leyfa <xliff:g id="APP_NAME_1">^1</xliff:g> að færa <xliff:g id="COUNT">^2</xliff:g> hljóðskrár úr ruslinu?}}"</string>
+    <string name="permission_progress_untrash_audio" msgid="2775372344946464508">"{count,plural, =1{Færir hljóðskrá úr ruslinu…}one{Færir <xliff:g id="COUNT">^1</xliff:g> hljóðskrá úr ruslinu…}other{Færir <xliff:g id="COUNT">^1</xliff:g> hljóðskrár úr ruslinu…}}"</string>
+    <string name="permission_untrash_video" msgid="3178914827607608162">"{count,plural, =1{Leyfa <xliff:g id="APP_NAME_0">^1</xliff:g> að færa þetta myndskeið úr ruslinu?}one{Leyfa <xliff:g id="APP_NAME_1">^1</xliff:g> að færa <xliff:g id="COUNT">^2</xliff:g> myndskeið úr ruslinu?}other{Leyfa <xliff:g id="APP_NAME_1">^1</xliff:g> að færa <xliff:g id="COUNT">^2</xliff:g> myndskeið úr ruslinu?}}"</string>
+    <string name="permission_progress_untrash_video" msgid="5500929409733841567">"{count,plural, =1{Færir myndskeið úr ruslinu…}one{Færir <xliff:g id="COUNT">^1</xliff:g> myndskeið úr ruslinu…}other{Færir <xliff:g id="COUNT">^1</xliff:g> myndskeið úr ruslinu…}}"</string>
+    <string name="permission_untrash_image" msgid="3397523279351032265">"{count,plural, =1{Leyfa <xliff:g id="APP_NAME_0">^1</xliff:g> að færa þessa mynd úr ruslinu?}one{Leyfa <xliff:g id="APP_NAME_1">^1</xliff:g> að færa <xliff:g id="COUNT">^2</xliff:g> mynd úr ruslinu?}other{Leyfa <xliff:g id="APP_NAME_1">^1</xliff:g> að færa <xliff:g id="COUNT">^2</xliff:g> myndir úr ruslinu?}}"</string>
+    <string name="permission_progress_untrash_image" msgid="5295061520504846264">"{count,plural, =1{Færir mynd úr ruslinu…}one{Færir <xliff:g id="COUNT">^1</xliff:g> mynd úr ruslinu…}other{Færir <xliff:g id="COUNT">^1</xliff:g> myndir úr ruslinu…}}"</string>
+    <string name="permission_untrash_generic" msgid="2118366929431671046">"{count,plural, =1{Leyfa <xliff:g id="APP_NAME_0">^1</xliff:g> að færa þetta atriði úr ruslinu?}one{Leyfa <xliff:g id="APP_NAME_1">^1</xliff:g> að færa <xliff:g id="COUNT">^2</xliff:g> atriði úr ruslinu?}other{Leyfa <xliff:g id="APP_NAME_1">^1</xliff:g> að færa <xliff:g id="COUNT">^2</xliff:g> atriði úr ruslinu?}}"</string>
+    <string name="permission_progress_untrash_generic" msgid="1489511601966842579">"{count,plural, =1{Færir atriði úr ruslinu…}one{Færir <xliff:g id="COUNT">^1</xliff:g> atriði úr ruslinu…}other{Færir <xliff:g id="COUNT">^1</xliff:g> atriði úr ruslinu…}}"</string>
+    <string name="permission_delete_audio" msgid="3326674742892796627">"{count,plural, =1{Leyfa <xliff:g id="APP_NAME_0">^1</xliff:g> að eyða þessari hljóðskrá?}one{Leyfa <xliff:g id="APP_NAME_1">^1</xliff:g> að eyða <xliff:g id="COUNT">^2</xliff:g> hljóðskrá?}other{Leyfa <xliff:g id="APP_NAME_1">^1</xliff:g> að eyða <xliff:g id="COUNT">^2</xliff:g> hljóðskrám?}}"</string>
+    <string name="permission_progress_delete_audio" msgid="1734871539021696401">"{count,plural, =1{Eyðir hljóðskrá…}one{Eyðir <xliff:g id="COUNT">^1</xliff:g> hljóðskrá…}other{Eyðir <xliff:g id="COUNT">^1</xliff:g> hljóðskrám…}}"</string>
+    <string name="permission_delete_video" msgid="604024971828349279">"{count,plural, =1{Leyfa <xliff:g id="APP_NAME_0">^1</xliff:g> að eyða þessu myndskeiði?}one{Leyfa <xliff:g id="APP_NAME_1">^1</xliff:g> að eyða <xliff:g id="COUNT">^2</xliff:g> myndskeiði?}other{Leyfa <xliff:g id="APP_NAME_1">^1</xliff:g> að eyða <xliff:g id="COUNT">^2</xliff:g> myndskeiðum?}}"</string>
+    <string name="permission_progress_delete_video" msgid="1846702435073793157">"{count,plural, =1{Eyðir myndskeiði…}one{Eyðir <xliff:g id="COUNT">^1</xliff:g> myndskeiði…}other{Eyðir <xliff:g id="COUNT">^1</xliff:g> myndskeiðum…}}"</string>
+    <string name="permission_delete_image" msgid="3109056012794330510">"{count,plural, =1{Leyfa <xliff:g id="APP_NAME_0">^1</xliff:g> að eyða þessari mynd?}one{Leyfa <xliff:g id="APP_NAME_1">^1</xliff:g> að eyða <xliff:g id="COUNT">^2</xliff:g> mynd?}other{Leyfa <xliff:g id="APP_NAME_1">^1</xliff:g> að eyða <xliff:g id="COUNT">^2</xliff:g> myndum?}}"</string>
+    <string name="permission_progress_delete_image" msgid="8580517204901148906">"{count,plural, =1{Eyðir mynd…}one{Eyðir <xliff:g id="COUNT">^1</xliff:g> mynd…}other{Eyðir <xliff:g id="COUNT">^1</xliff:g> myndum…}}"</string>
+    <string name="permission_delete_generic" msgid="7891939881065520271">"{count,plural, =1{Leyfa <xliff:g id="APP_NAME_0">^1</xliff:g> að eyða þessu atriði?}one{Leyfa <xliff:g id="APP_NAME_1">^1</xliff:g> að eyða <xliff:g id="COUNT">^2</xliff:g> atriði?}other{Leyfa <xliff:g id="APP_NAME_1">^1</xliff:g> að eyða <xliff:g id="COUNT">^2</xliff:g> atriðum?}}"</string>
+    <string name="permission_progress_delete_generic" msgid="6709118146245087898">"{count,plural, =1{Eyðir atriði…}one{Eyðir <xliff:g id="COUNT">^1</xliff:g> atriði…}other{Eyðir <xliff:g id="COUNT">^1</xliff:g> atriðum…}}"</string>
+    <string name="transcode_denied" msgid="6760546817138288976">"<xliff:g id="APP_NAME">%s</xliff:g> getur ekki unnið úr efnisskrám"</string>
+    <string name="transcode_processing_cancelled" msgid="5340383917746945590">"Hætt við úrvinnslu efnis"</string>
+    <string name="transcode_processing_error" msgid="8921643164508407874">"Villa við úrvinnslu efnis"</string>
+    <string name="transcode_processing_success" msgid="447288876429730122">"Úrvinnsla efnis tókst"</string>
+    <string name="transcode_processing_started" msgid="7789086308155361523">"Úrvinnsla efnis hafin"</string>
+    <string name="transcode_processing" msgid="6753136468864077258">"Vinnur úr efni…"</string>
+    <string name="transcode_cancel" msgid="8555752601907598192">"Hætta við"</string>
+    <string name="transcode_wait" msgid="8909773149560697501">"Bíða"</string>
+    <string name="safety_protection_icon_label" msgid="6714354052747723623">"Öryggisbúnaður"</string>
+    <string name="transcode_alert_channel" msgid="997332371757680478">"Viðvaranir fyrir sérforritaðar umkóðanir"</string>
+    <string name="transcode_progress_channel" msgid="6905136787933058387">"Sérforritað umkóðunarferli"</string>
+    <string name="dialog_error_message" msgid="5120432204743681606">"Reyndu aftur síðar. Myndirnar þínar verða tiltækar um leið og vandamálið er leyst."</string>
+    <string name="dialog_error_title" msgid="636349284077820636">"Ekki tekst að hlaða sumum myndum"</string>
+    <string name="dialog_button_text" msgid="351366485240852280">"Ég skil"</string>
+    <string name="permlab_accessMediaOwnerPackageName" msgid="3849443148060165651">"Aðgangur að pakkaheitum eiganda efnis"</string>
+    <string name="permdesc_accessMediaOwnerPackageName" msgid="7381563109363105371">"Veitir forritinu aðgang að pakkaheitum eiganda fyrir allar tiltækar efnisskrár."</string>
+</resources>

@@ -1,0 +1,40 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_binary {
+    name: "microdroid_kexec",
+    defaults: ["avf_build_flags_cc"],
+    stem: "kexec_load",
+    srcs: ["kexec.c"],
+    installable: false,
+    static_executable: true, // required because this runs before linkerconfig
+    compile_multilib: "64",
+}
+
+cc_binary {
+    name: "microdroid_crashdump",
+    defaults: ["avf_build_flags_cc"],
+    stem: "crashdump",
+    srcs: ["crashdump.c"],
+    static_executable: true,
+    installable: false,
+    compile_multilib: "64",
+    sanitize: {
+        hwaddress: false, // HWASAN setup fails when run as init process
+    },
+}
+
+android_filesystem {
+    name: "microdroid_crashdump_initrd",
+    multilib: {
+        lib64: {
+            deps: ["microdroid_crashdump"],
+        },
+    },
+    dirs: [
+        "dev",
+        "proc",
+    ],
+    type: "cpio",
+}

@@ -1,0 +1,7 @@
+{
+  "presubmit": [
+    {
+      "name": "librkp_support_test"
+    }
+  ]
+}

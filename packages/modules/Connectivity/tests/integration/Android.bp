@@ -1,0 +1,97 @@
+//
+// Copyright (C) 2019 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    default_team: "trendy_team_fwk_core_networking",
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "FrameworksNetIntegrationTests",
+    defaults: [
+        "framework-connectivity-internal-test-defaults",
+        "NetworkStackApiShimSettingsForCurrentBranch",
+    ],
+    platform_apis: true,
+    certificate: "platform",
+    srcs: [
+        "src/**/*.kt",
+        "src/**/*.aidl",
+    ],
+    libs: [
+        "android.test.mock",
+        "ServiceConnectivityResources",
+    ],
+    static_libs: [
+        // It does not matter if NetworkStackApiStableLib or NetworkStackApiCurrentLib is used here,
+        // since the shims for the branch are already included via
+        // NetworkStackApiShimSettingsForCurrentBranch, and will be used in priority as they are
+        // first in the classpath.
+        // If the wrong shims are used for some reason, tests that use newer APIs fail.
+        // TODO: have NetworkStackApiStableLib link dynamically against the shims to remove this
+        // order-dependent setup.
+        "NetworkStackApiStableLib",
+        "androidx.test.ext.junit",
+        "compatibility-device-util-axt",
+        "frameworks-net-integration-testutils",
+        "kotlin-reflect",
+        "mockito-target-extended-minus-junit4",
+        "net-tests-utils",
+        "service-connectivity-pre-jarjar",
+        "service-connectivity-tiramisu-pre-jarjar",
+        "services.net",
+        "testables",
+    ],
+    test_suites: ["device-tests"],
+    use_embedded_native_libs: true,
+    jni_libs: [
+        // For mockito extended
+        "libdexmakerjvmtiagent",
+        "libstaticjvmtiagent",
+        // android_library does not include JNI libs: include NetworkStack dependencies here
+        "libnativehelper_compat_libc++",
+        "libnetworkstackutilsjni",
+        "libandroid_net_connectivity_com_android_net_module_util_jni",
+        "libservice-connectivity",
+    ],
+    jarjar_rules: ":connectivity-jarjar-rules",
+}
+
+// Utilities for testing framework code both in integration and unit tests.
+java_library {
+    name: "frameworks-net-integration-testutils",
+    defaults: ["framework-connectivity-test-defaults"],
+    srcs: [
+        "util/**/*.java",
+        "util/**/*.kt",
+    ],
+    static_libs: [
+        "androidx.annotation_annotation",
+        "androidx.test.rules",
+        "junit",
+        "net-tests-utils",
+    ],
+    libs: [
+        "service-connectivity-pre-jarjar",
+        "services.core",
+        "services.net",
+    ],
+    visibility: [
+        "//packages/modules/Connectivity/tests/integration",
+        "//packages/modules/Connectivity/tests/unit",
+    ],
+}

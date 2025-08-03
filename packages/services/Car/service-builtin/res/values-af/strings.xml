@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2015 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="car_permission_label_bind_projection_service" msgid="6976251734714662552">"bind aan \'n projeksiediens"</string>
+    <string name="car_permission_desc_bind_projection_service" msgid="4610418233070289810">"Dit laat die houer toe om aan die topvlak-koppelvlak van \'n projeksiediens te bind. Dit behoort nooit vir normale programme nodig te wees nie."</string>
+    <string name="car_permission_label_bind_vms_client" msgid="1298928874094319701">"VMS-kliëntediens"</string>
+    <string name="car_permission_desc_bind_vms_client" msgid="7758142590449847602">"Bind aan VMS-kliënte"</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="6723392540805279625">"Instrumentgroeplewering"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="2583711303360788080">"Ontvang instrumentgroepdata"</string>
+    <string name="car_permission_label_bind_input_service" msgid="6647238478703096557">"Motorinvoerdiens"</string>
+    <string name="car_permission_desc_bind_input_service" msgid="8460218104132496613">"Hanteer invoergebeurtenisse"</string>
+    <string name="activity_blocked_text" msgid="5991043857905412794">"Jy kan nie hierdie kenmerk gebruik terwyl jy bestuur nie"</string>
+    <string name="exit_button_message" msgid="5375678491245394542">"Kies <xliff:g id="EXIT_BUTTON">%s</xliff:g> om oor te begin met veilige programkenmerke."</string>
+    <string name="exit_button" msgid="3491899413031549265">"Terug"</string>
+    <string name="exit_button_close_application" msgid="5153716684207539041">"Maak program toe"</string>
+    <string name="exit_button_go_back" msgid="6921595432375141935">"Terug"</string>
+    <string name="importance_default" msgid="8017186728206153704">"Verstekbelang"</string>
+    <string name="importance_high" msgid="3393374688015554727">"Groot belang"</string>
+    <string name="android_system_label" msgid="9209428539477894959">"Android-stelsel"</string>
+    <string name="factory_reset_notification_title" msgid="6177770995437355965">"Fabriekterugstelling word vereis"</string>
+    <string name="factory_reset_notification_text" msgid="6051393302193696102">"Alle data in die inligtingvermaakstelsel sal uitgevee word. Jy kan ná die terugstelling \'n nuwe profiel opstel."</string>
+    <string name="factory_reset_notification_button" msgid="6926734587145351076">"Meer"</string>
+    <string name="factory_reset_warning" msgid="8463356329619149262">"Jou toestel sal uitgevee word"</string>
+    <string name="factory_reset_message" msgid="1972536809866779972">"Die administrasieprogram kan nie gebruik word nie. Jou toestel sal nou uitgevee word.\n\nKontak jou organisasie se admin as jy vrae het."</string>
+    <string name="resource_overuse_notification_title" msgid="1622015333965744463">"<xliff:g id="ID_1">^1</xliff:g> beïnvloed tans jou stelselprestasie"</string>
+    <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"Hierdie program is verhinder om op die agtergrond te werk. Priotiseer program om aan te hou om dit op agtergrond te gebruik."</string>
+    <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"Maak toe"</string>
+    <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"Prioritiseer program"</string>
+</resources>

@@ -1,0 +1,93 @@
+{
+  "description": "W2W different registrant test: given source and trigger both have debug_permission (ar_debug permission) enabled, join key match. Expected source-success and trigger-event-no-matching-configurations debug report",
+  "phflags_override": {
+    "measurement_debug_join_key_enrollment_allowlist" : "enrollment-id-ad-tech1.test"
+  },
+  "input": {
+    "web_sources": [
+      {
+        "registration_request": {
+          "source_origin": "android-app://example.1s1.test",
+          "source_type": "navigation",
+          "web_destination": "https://example.2d1.test",
+          "registrant": "example.1s1.test",
+          "source_params": [{
+            "attribution_src_url": "https://www.ad-tech1.test"
+          }]
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "debug_permission" : true,
+          "response": {
+            "Attribution-Reporting-Register-Source": {
+              "source_event_id": "1",
+              "web_destination": "https://example.2d1.test",
+              "priority": "100",
+              "expiry": "172801",
+              "debug_key": "347982378",
+              "debug_join_key": "sample-debug-join-key",
+              "filter_data": {
+                "product": ["1234", "234"]
+              }
+            },
+            "Location": null,
+            "Attribution-Reporting-Redirect": null
+          }
+        }],
+        "timestamp": "800000000001"
+      }],
+    "web_triggers": [
+      {
+        "registration_request": {
+          "destination_origin": "https://example.2d1.test",
+          "registrant": "example.2d1.test",
+          "trigger_params": [{
+            "attribution_src_url": "https://www.ad-tech1.test"
+          }]
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "debug_permission" : true,
+          "response": {
+            "Attribution-Reporting-Register-Trigger": {
+              "event_trigger_data": [
+                {
+                  "trigger_data": "2",
+                  "filters": {
+                    "product": ["5678"]
+                  },
+                  "priority": "101"
+                }
+              ],
+              "debug_reporting": true,
+              "debug_key": "8971346783",
+              "debug_join_key": "sample-debug-join-key"
+            },
+            "Location": null,
+            "Attribution-Reporting-Redirect": null
+          }
+        }],
+        "timestamp": "800000600001"
+      }]
+  },
+  "output": {
+    "verbose_debug_reports": [
+      {
+        "report_time": "800000600001",
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/debug/verbose",
+        "payload": [
+          {
+            "type": "trigger-event-no-matching-configurations",
+            "body": {
+              "attribution_destination": "https://2d1.test",
+              "trigger_debug_key": "8971346783",
+              "source_debug_key": "347982378",
+              "source_event_id": "1",
+              "source_site":"android-app://1s1.test"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

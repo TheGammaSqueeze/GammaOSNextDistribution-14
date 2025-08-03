@@ -1,0 +1,13 @@
+[tool.black]
+include = '\.pyi?$'
+line-length = 119
+target-version = ["py38", "py39", "py310", "py311"]
+skip-string-normalization = true
+
+[tool.isort]
+src_paths = ["."]
+profile = "black"
+line_length = 119
+no_sections = true
+lines_between_types = 1
+combine_as_imports = true

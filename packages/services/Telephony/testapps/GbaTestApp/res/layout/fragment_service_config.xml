@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    tools:context=".ui.main.ServiceConfigFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/layout_buttons"
+        android:orientation="vertical">
+
+        <CheckBox
+            android:id="@+id/checkBoxResult"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/response_success" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/response_key" />
+
+        <EditText
+            android:id="@+id/editKey"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="textPersonName" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:editable="false"
+            android:text="@string/response_btid" />
+
+        <EditText
+            android:id="@+id/editBTid"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="textPersonName" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/response_fail_reason" />
+
+        <EditText
+            android:id="@+id/editFailReason"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="numberSigned" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layout_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="bottom"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/service_config_clear"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/button_name_clear" />
+
+        <Button
+            android:id="@+id/service_config_done"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/button_name_done" />
+    </LinearLayout>
+
+</FrameLayout>

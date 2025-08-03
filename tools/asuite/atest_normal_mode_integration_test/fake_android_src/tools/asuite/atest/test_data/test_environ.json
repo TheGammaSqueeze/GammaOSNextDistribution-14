@@ -1,0 +1,70 @@
+{
+"AnimatorTest": [
+],
+"QuickAccessWalletRoboTests": [
+],
+"CtsAnimationTestCases:AnimatorTest": [
+],
+"CtsSampleDeviceTestCases:SampleDeviceTest#testSharedPreferences": [
+],
+"CtsSampleDeviceTestCases:android.sample.cts": [
+],
+"CtsSampleDeviceTestCases:android.sample.cts.SampleDeviceReportLogTest": [
+],
+"CtsAnimationTestCases CtsSampleDeviceTestCases": [
+],
+"CtsWindowManagerDeviceTestCases:android.server.wm.DisplayCutoutTests#testDisplayCutout_default": [
+],
+"HelloWorldTests": [
+],
+"android.animation.cts": [
+],
+"cts/tests/framework/base/windowmanager/src/android/server/wm/DisplayCutoutTests.java#testDisplayCutout_default": [
+],
+"hello_world_test": [
+"GCE_METADATA_TIMEOUT=3",
+"ANDROID_JAVA_HOME"
+],
+"native-benchmark": [
+],
+"packages/apps/QuickAccessWallet/tests/robolectric/src/com/android/systemui/plugin/globalactions/wallet/WalletPluginServiceTest.java": [
+],
+"platform_testing/tests/example/native": [
+],
+"platform_testing/tests/example/native/Android.bp": [
+],
+"tools/tradefederation/core/res/config/native-benchmark.xml": [
+],
+"PacketFragmenterTest": [
+],
+"PacketFragmenterTest#test_no_fragment_necessary,test_ble_fragment_necessary": [
+],
+"VtsHalCameraProviderV2_4TargetTest:PerInstance/CameraHidlTest#startStopPreview/0_internal_0": [
+],
+"MixedManagedProfileOwnerTest#testPasswordSufficientInitially": [
+],
+"android.sample.cts.SampleDeviceReportLogTest": [
+],
+"android.sample.cts.SampleDeviceTest#testSharedPreferences": [
+],
+"com.android.server.wm.ScreenDecorWindowTests": [
+],
+"com.android.server.wm.ScreenDecorWindowTests#testMultipleDecors": [
+],
+"android.os.cts.CompanionDeviceManagerTest": [
+],
+"android.os.cts.CompanionDeviceManagerTest#testIsDeviceAssociatedWithCompanionApproveWifiConnectionsPermission": [
+],
+"cts/tests/tests/os/src/android/os/cts/CompanionDeviceManagerTest.kt#testIsDeviceAssociated": [
+],
+"RpcWire": [
+],
+"RpcWire#CurrentVersion,ReleaseBranchHasFrozenRpcWireProtocol,IfNotExperimentalCodeHasNoExperimentalFeatures": [
+],
+"VtsHalCameraProviderV2_4TargetTest:PerInstance/CameraHidlTest#configureInjectionStreamsAvailableOutputs/0_internal_0": [
+],
+"PerInstance/CameraHidlTest#configureInjectionStreamsAvailableOutputs/0_internal_0": [
+],
+"CtsWifiAwareTestCases": [
+]
+}

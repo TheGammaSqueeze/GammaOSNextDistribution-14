@@ -1,0 +1,6 @@
+{
+  "name": "com.android.vndk.vR",
+  "version": 1,
+  "provideNativeLibs": [],
+  "requireNativeLibs": []
+}

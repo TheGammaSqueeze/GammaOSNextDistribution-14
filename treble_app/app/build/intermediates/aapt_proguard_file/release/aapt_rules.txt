@@ -1,0 +1,94 @@
+-keep class androidx.core.app.CoreComponentFactory { <init>(); }
+-keep class me.phh.treble.app.DebugSensors { <init>(); }
+-keep class me.phh.treble.app.DesktopInput { <init>(); }
+-keep class me.phh.treble.app.EntryService { <init>(); }
+-keep class me.phh.treble.app.NubiaAutoFanControlService { <init>(); }
+-keep class me.phh.treble.app.NubiaFanControlTilesService { <init>(); }
+-keep class me.phh.treble.app.NubiaGameModeTilesService { <init>(); }
+-keep class me.phh.treble.app.NubiaShoulderBtnTilesService { <init>(); }
+-keep class me.phh.treble.app.REPL { <init>(); }
+-keep class me.phh.treble.app.SettingsActivity { <init>(); }
+-keep class me.phh.treble.app.Starter { <init>(); }
+-keep class me.phh.treble.app.UpdaterActivity { <init>(); }
+-keep class android.widget.Space { <init>(android.content.Context, android.util.AttributeSet); }
+
+-keep class androidx.appcompat.app.AlertController$RecycleListView { <init>(android.content.Context, android.util.AttributeSet); }
+
+-keep class androidx.appcompat.view.menu.ActionMenuItemView { <init>(android.content.Context, android.util.AttributeSet); }
+
+-keep class androidx.appcompat.view.menu.ExpandedMenuView { <init>(android.content.Context, android.util.AttributeSet); }
+
+-keep class androidx.appcompat.view.menu.ListMenuItemView { <init>(android.content.Context, android.util.AttributeSet); }
+
+-keep class androidx.appcompat.widget.ActionBarContainer { <init>(android.content.Context, android.util.AttributeSet); }
+
+-keep class androidx.appcompat.widget.ActionBarContextView { <init>(android.content.Context, android.util.AttributeSet); }
+
+-keep class androidx.appcompat.widget.ActionBarOverlayLayout { <init>(android.content.Context, android.util.AttributeSet); }
+
+-keep class androidx.appcompat.widget.ActionMenuView { <init>(android.content.Context, android.util.AttributeSet); }
+
+-keep class androidx.appcompat.widget.ActivityChooserView$InnerLayout { <init>(android.content.Context, android.util.AttributeSet); }
+
+-keep class androidx.appcompat.widget.AlertDialogLayout { <init>(android.content.Context, android.util.AttributeSet); }
+
+-keep class androidx.appcompat.widget.ButtonBarLayout { <init>(android.content.Context, android.util.AttributeSet); }
+
+-keep class androidx.appcompat.widget.ContentFrameLayout { <init>(android.content.Context, android.util.AttributeSet); }
+
+-keep class androidx.appcompat.widget.DialogTitle { <init>(android.content.Context, android.util.AttributeSet); }
+
+-keep class androidx.appcompat.widget.FitWindowsFrameLayout { <init>(android.content.Context, android.util.AttributeSet); }
+
+-keep class androidx.appcompat.widget.FitWindowsLinearLayout { <init>(android.content.Context, android.util.AttributeSet); }
+
+-keep class androidx.appcompat.widget.SearchView$SearchAutoComplete { <init>(android.content.Context, android.util.AttributeSet); }
+
+-keep class androidx.appcompat.widget.SwitchCompat { <init>(android.content.Context, android.util.AttributeSet); }
+
+-keep class androidx.appcompat.widget.Toolbar { <init>(android.content.Context, android.util.AttributeSet); }
+
+-keep class androidx.appcompat.widget.ViewStubCompat { <init>(android.content.Context, android.util.AttributeSet); }
+
+-keep class androidx.core.widget.NestedScrollView { <init>(android.content.Context, android.util.AttributeSet); }
+
+-keep class androidx.preference.UnPressableLinearLayout { <init>(android.content.Context, android.util.AttributeSet); }
+
+-keep class androidx.preference.internal.PreferenceImageView { <init>(android.content.Context, android.util.AttributeSet); }
+
+-keep class androidx.recyclerview.widget.RecyclerView { <init>(android.content.Context, android.util.AttributeSet); }
+
+-keep class me.phh.treble.app.AsusSettingsFragment { <init>(); }
+
+-keep class me.phh.treble.app.AudioEffectsFragment { <init>(); }
+
+-keep class me.phh.treble.app.CustomSettingsFragment { <init>(); }
+
+-keep class me.phh.treble.app.DozeSettingsFragment { <init>(); }
+
+-keep class me.phh.treble.app.HuaweiSettingsFragment { <init>(); }
+
+-keep class me.phh.treble.app.ImsSettingsFragment { <init>(); }
+
+-keep class me.phh.treble.app.LenovoSettingsFragment { <init>(); }
+
+-keep class me.phh.treble.app.MiscSettingsFragment { <init>(); }
+
+-keep class me.phh.treble.app.MyDeviceSettingsFragment { <init>(); }
+
+-keep class me.phh.treble.app.NubiaSettingsFragment { <init>(); }
+
+-keep class me.phh.treble.app.OnePlusSettingsFragment { <init>(); }
+
+-keep class me.phh.treble.app.OppoSettingsFragment { <init>(); }
+
+-keep class me.phh.treble.app.QualcommSettingsFragment { <init>(); }
+
+-keep class me.phh.treble.app.SamsungSettingsFragment { <init>(); }
+
+-keep class me.phh.treble.app.TranssionSettingsFragment { <init>(); }
+
+-keep class me.phh.treble.app.VsmartSettingsFragment { <init>(); }
+
+-keep class me.phh.treble.app.XiaomiSettingsFragment { <init>(); }
+

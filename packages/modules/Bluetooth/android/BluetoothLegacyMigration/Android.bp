@@ -1,0 +1,14 @@
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_app {
+    name: "BluetoothLegacyMigration",
+
+    srcs: [ "BluetoothLegacyMigration.kt" ],
+
+    // Must match Bluetooth.apk certificate because of sharedUserId
+    certificate: "bluetooth",
+    platform_apis: true,
+}

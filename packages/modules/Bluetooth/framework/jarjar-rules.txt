@@ -1,0 +1,12 @@
+## used by service-bluetooth ##
+rule androidx.annotation.** com.android.bluetooth.x.@0
+rule com.android.modules.utils.** com.android.bluetooth.x.@0
+
+# Use our statically linked PlatformProperties library
+rule android.sysprop.** com.android.bluetooth.x.@0
+
+## used by /system/framework/framework.jar ##
+rule android.hardware.radio.V1_0.** com.android.bluetooth.x.@0
+rule com.google.android.mms.** com.android.bluetooth.x.@0
+rule com.android.internal.util.** com.android.bluetooth.x.@0
+rule com.android.modules.expresslog.** com.android.bluetooth.x.@0

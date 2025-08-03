@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2021 Google Inc. All Rights Reserved -->
+<!-- Runs shell commands. If any command fails then the preparer will also fail. -->
+<configuration description="Common template to run the command. If any command fails then the preparer will also fail." >
+    <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer" >
+        <option name="throw-if-cmd-fail" value="true" />
+    </target_preparer>
+</configuration>

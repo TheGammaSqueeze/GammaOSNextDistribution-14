@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2012 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License
+  -->
+<resources xmlns:tools="http://schemas.android.com/tools" xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="callHistoryIconLabel" tools:ignore="UnusedResources">Шалтырату тарихы</string>
+  <string name="action_copy_number_text">Номерны күчереп алу</string>
+  <string name="action_edit_number_before_call">Шалтырату алдыннан номерны үзгәртү</string>
+  <string name="call_log_delete_all">Шалтырату тарихын чистарту</string>
+  <string name="clearCallLogConfirmation_title">Шалтырату тарихын чистартыргамы?</string>
+  <string name="clearCallLogConfirmation">Бу тарихыгыздан барлык шалтыратуларны бетерәчәк</string>
+  <string name="clearCallLogProgress_title">Шалтырату тарихын чистарту\u2026</string>
+  <string name="notification_missedCallTitle">Алынмаган шалтырату</string>
+  <string name="notification_missedWorkCallTitle">Алынмаган эш шалтыратуы</string>
+  <string name="notification_missedCallsTitle">Алынмаган шалтыратулар</string>
+  <string name="notification_missedCall_call_back">Кире шалтырату</string>
+  <string name="post_call_notification_message"><xliff:g id="name">%1$s</xliff:g>: <xliff:g id="message">%2$s</xliff:g></string>
+  <string name="notification_voicemail_callers_list"><xliff:g id="newer_callers">%1$s</xliff:g>,
+        <xliff:g id="older_caller">%2$s</xliff:g>
+    </string>
+  <string name="call_log_item_count_and_date">(<xliff:g id="count">%1$d</xliff:g>)
+        <xliff:g id="date">%2$s</xliff:g>
+    </string>
+  <string name="action_menu_call_history_description">Шалтырату тарихы</string>
+  <plurals name="delete_voicemails_confirmation_dialog_title">
+    <item quantity="other"><b>Бу тавышлы хатларны бетерергәме?</b></item>
+  </plurals>
+  <string name="voicemailCallLogToday">@string/call_log_header_today</string>
+  <string name="voicemailDurationFormat"><xliff:g example="10" id="minutes">%1$02d</xliff:g>:<xliff:g example="20" id="seconds">%2$02d</xliff:g></string>
+  <string name="voicemailCallLogDateTimeFormatWithDuration"><xliff:g example="Jul 25, 2014 at 2:49PM" id="dateAndTime">%1$s</xliff:g> \u2022 <xliff:g example="01:22" id="duration">%2$s</xliff:g></string>
+  <string name="call_log_activity_title" tools:ignore="UnusedResources">Шалтырату тарихы</string>
+  <string name="call_log_missed_title">Алынмаганнар</string>
+  <string name="search_shortcut_make_video_call">Видеошалтырату</string>
+  <string name="call_log_action_send_message">Хат җибәрү</string>
+  <string name="call_log_action_share_voicemail">Җибәрү…</string>
+  <string name="description_read_voicemail"><xliff:g example="John Smith" id="nameOrNumber">^1</xliff:g> тавышлы хаты, <xliff:g example="Mobile" id="typeOrLocation">^2</xliff:g>, <xliff:g example="2 min ago" id="timeOfCall">^3</xliff:g>, <xliff:g example="on SIM 1" id="phoneAccount">^4</xliff:g>.</string>
+  <string name="voicemail_speaker_on">Динамикны кабызу.</string>
+  <string name="voicemail_speaker_off">Динамикны cүндерү.</string>
+  <string name="voicemail_play_start_pause">Уйнатуны башлау яки паузага кую.</string>
+  <string name="sounds_and_vibration_title">Тавышлар һәм дерелдәү</string>
+  <string name="vibrate_on_ring_title">\"Шалтыратканда да дерелдәү</string>
+  <string name="respond_via_sms_setting_title">Тиз җаваплар</string>
+  <string name="manage_blocked_numbers_label">Блокланган номерлар</string>
+  <string name="call_log_action_block_number">Номерны блоклау</string>
+  <string name="call_log_action_remove_spam">Спам түгел</string>
+  <string name="call_log_action_unblock_number">Номерны блоктан алу</string>
+</resources>

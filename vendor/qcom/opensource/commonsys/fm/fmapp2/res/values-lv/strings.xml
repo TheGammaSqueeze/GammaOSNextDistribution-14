@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (c) 2009, 2011-2013 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2014-2015 The CyanogenMod Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *    * Neither the name of The Linux Foundation nor
+ *      the names of its contributors may be used to endorse or promote
+ *      products derived from this software without specific prior written
+ *      permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NON-INFRINGEMENT ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">FM radio</string>
+    <string name="tx_app_name">FM raidītājs</string>
+    <string name="menu_scan_start">Skenēt</string>
+    <string name="menu_scan_stop">Apturēt meklēšanu</string>
+    <string name="menu_record_start">Ierakstīt</string>
+    <string name="menu_record_stop">Apturēt ierakstīšanu</string>
+    <string name="menu_settings">Iestatījumi</string>
+    <string name="menu_sleep">Iemidzināt</string>
+    <string name="menu_sleep_cancel">Atcelt iemigšanu</string>
+    <string name="menu_all_channels">Visi kanāli</string>
+    <string name="menu_display_tags">Rādīt atzīmes</string>
+    <string name="button_text_stop">Apturēt</string>
+    <string name="msg_seeking">Meklē FM staciju\u2026</string>
+    <string name="msg_scanning">Meklēšana visām FM stacijām\u2026</string>
+    <string name="msg_noantenna">Lūdzu, pievienojiet austiņas, lai izmantotu FM radio</string>
+    <string name="dialog_sleep_title">Auto-izslēgšanas laiks</string>
+    <string name="presetlist_add_new">Pievienot jaunu sarakstu</string>
+    <string name="dialog_presetlist_rename_title">Ievadiet nosaukumu</string>
+    <string name="presetlist_autoselect_title">Apstipriniet automātisko atlasi</string>
+    <string name="preset_replace">Aizstāt</string>
+    <string name="preset_tune">Noskaņot</string>
+    <string name="preset_rename">Pārsaukt</string>
+    <string name="preset_delete">Dzēst</string>
+    <string name="preset_search">Meklēt \'<xliff:g id="preset_pi">%1$s</xliff:g>\'</string>
+    <string name="stat_notif_frequency">\'<xliff:g id="frequency">%1$s</xliff:g>\' MHz</string>
+    <string name="regional_band">Reģionālā josla</string>
+    <string name="regional_band_entry_north_america">Ziemeļamerika</string>
+    <string name="regional_band_entry_europe">Eiropa</string>
+    <string name="regional_band_entry_japan">Japāna</string>
+    <string name="regional_band_entry_japan_wide">Japāna (wide)</string>
+    <string name="regional_band_entry_australia">Austrālija</string>
+    <string name="regional_band_entry_austria">Austrija</string>
+    <string name="regional_band_entry_belgium">Beļģija</string>
+    <string name="regional_band_entry_brazil">Brazīlija</string>
+    <string name="regional_band_entry_china">Ķīna</string>
+    <string name="regional_band_entry_czech_republic">Czech Republic</string>
+    <string name="regional_band_entry_denmark">Dānija</string>
+    <string name="regional_band_entry_finland">Somija</string>
+    <string name="regional_band_entry_france">Francija</string>
+    <string name="regional_band_entry_germany">Vācija</string>
+    <string name="regional_band_entry_greece">Grieķija</string>
+    <string name="regional_band_entry_hong_kong">Hong Kong</string>
+    <string name="regional_band_entry_india">Indija</string>
+    <string name="regional_band_entry_indonesia">Indonesia</string>
+    <string name="regional_band_entry_ireland">Īrija</string>
+    <string name="regional_band_entry_italy">Itālija</string>
+    <string name="regional_band_entry_korea">Koreja</string>
+    <string name="regional_band_entry_mexico">Meksika</string>
+    <string name="regional_band_entry_netherlands">Nīderlande</string>
+    <string name="regional_band_entry_new_zealand">Jaunzēlande</string>
+    <string name="regional_band_entry_norway">Norvēģija</string>
+    <string name="regional_band_entry_poland">Polija</string>
+    <string name="regional_band_entry_portugal">Portugāle</string>
+    <string name="regional_band_entry_russia">Krievija</string>
+    <string name="regional_band_entry_singapore">Singapūra</string>
+    <string name="regional_band_entry_slovakia">Slovākija</string>
+    <string name="regional_band_entry_spain">Spānija</string>
+    <string name="regional_band_entry_switzerland">Šveice</string>
+    <string name="regional_band_entry_sweden">Zviedrija</string>
+    <string name="regional_band_entry_taiwan">Taivāna</string>
+    <string name="regional_band_entry_turkey">Turcija</string>
+    <string name="regional_band_entry_united_kingdom">United Kingdom</string>
+    <string name="regional_band_entry_united_states">Amerikas Savienotās Valstis</string>
+    <string name="regional_band_entry_user_defined">Lietotāja definētā grupa</string>
+    <string name="regional_band_summary_user_defined">Lietotāja definētā josla</string>
+    <string name="aud_output_mode">Audio izvades režīms</string>
+    <string name="audio_type_stereo">Stereo</string>
+    <string name="audio_type_mono">Mono</string>
+    <string name="record_dur">Ieraksta ilgums</string>
+    <string name="auto_select_af">Alternatīvā frekvence</string>
+    <string name="settings_revert_defaults_title">Noklusēto iestatījumu atjaunošana</string>
+    <string name="settings_revert_defaults_summary">Atstata visus iestatījumus</string>
+    <string name="settings_revert_confirm_title">Atiestatījumu apstiprināšana</string>
+    <string name="settings_revert_confirm_msg">Tiks notīrīti lietotnes iestatījumi, ieskaitot saglabātos priekšiestatījumus. Vai turpināt?</string>
+    <string name="no_storage">Pirms sākt ierakstīšanu, uzmontējiet SD karti.</string>
+    <string name="spaceIsLow_content">SD kartes krātuvē trūkst vietas. Nomainiet kvalitātes iestatījumus vai izdzēsiet failus, lai atbrīvotu vietu.</string>
+    <string name="menu_scan_for_preset">Skenēt pirmstatījumus</string>
+    <string name="alert_dialog_hint">Ievadiet nosaukumu</string>
+    <string name="search_dialog_title">Skenēt stacijas</string>
+    <string name="fm_command_timeout_title">Noildze</string>
+    <string name="fm_tune_timeout_msg">Skaņojot FM staciju, netika saņemta atbilde. Ja kļūda nepazūd, izslēdziet un atkal ieslēdziet FM.</string>
+    <string name="fm_command_failed_title">FM darbība neizdevās</string>
+    <string name="fm_cmd_failed_msg">FM darbība neizdevās. Ja kļūda nepazūd, lūdzu, izslēdziet un atkal ieslēdziet FM.</string>
+    <string name="fm_cmd_failed_msg_hdmi">FM darbība neizdevās. FM un HDMI nav vienlaicīgi atbalstīti.</string>
+    <string name="fm_cmd_failed_call_on">FM darbība neizdevās. Zvana laikā FM audio nav atļauts.</string>
+    <string name="station_exists">Šī frekvence jau pastāv!</string>
+    <string name="station_list_delete_station">Dzēst: <xliff:g id="name">%s</xliff:g></string>
+    <string name="station_list_delete_station_prompt">Vai tiešām vēlaties dzēst \'<xliff:g id="name">%s</xliff:g>\'?</string>
+    <string name="station_name_empty">Stacijas nosaukums ir tukšs, lūdzu, ievadiet vēlreiz.</string>
+    <string name="rt_plus_tags">Tagi</string>
+    <string name="usr_def_band_min">Zemākā frekvence (MHz)</string>
+    <string name="usr_def_band_max">Augstākā frekvence (MHz)</string>
+    <string name="chanl_spacing">Kanālu attālums</string>
+</resources>

@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2009 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="uid_label" msgid="8421971615411294156">"မီဒီယာ"</string>
+    <string name="storage_description" msgid="4081716890357580107">"စက်တွင်း သိုလှောင်ခန်း"</string>
+    <string name="picker_app_label" msgid="1195424381053599122">"မီဒီယာရွေးရန်"</string>
+    <string name="artist_label" msgid="8105600993099120273">"အနုပညာရှင်"</string>
+    <string name="unknown" msgid="2059049215682829375">"အမျိုးအမည်မသိ"</string>
+    <string name="root_images" msgid="5861633549189045666">"ပုံများ"</string>
+    <string name="root_videos" msgid="8792703517064649453">"ဗီဒီယိုများ"</string>
+    <string name="root_audio" msgid="3505830755201326018">"အသံ"</string>
+    <string name="root_documents" msgid="3829103301363849237">"မှတ်တမ်းများ"</string>
+    <string name="permission_required" msgid="1460820436132943754">"ဤအရာကို ပြုပြင်ရန် (သို့) ဖျက်ရန် ခွင့်ပြုချက် လိုအပ်သည်။"</string>
+    <string name="permission_required_action" msgid="706370952366113539">"ရှေ့ဆက်ရန်"</string>
+    <string name="grant_dialog_button_allow" msgid="1644287024501033471">"ခွင့်ပြုရန်"</string>
+    <string name="grant_dialog_button_deny" msgid="6190589471415815741">"ငြင်းပယ်ရန်"</string>
+    <string name="permission_more_thumb" msgid="1938863829470531577">"{count,plural, =1{+<xliff:g id="COUNT_0">^1</xliff:g>}other{+<xliff:g id="COUNT_1">^1</xliff:g>}}"</string>
+    <string name="permission_more_text" msgid="2471785045095597753">"{count,plural, =1{နောက်ထပ်ဖိုင် <xliff:g id="COUNT_0">^1</xliff:g> ခု အပါအဝင်}other{နောက်ထပ်ဖိုင် <xliff:g id="COUNT_1">^1</xliff:g> ခု အပါအဝင်}}"</string>
+    <string name="cache_clearing_dialog_title" msgid="8907893815183913664">"ယာယီအက်ပ်ဖိုင်များ ရှင်းရန်"</string>
+    <string name="cache_clearing_dialog_text" msgid="7057784635111940957">"<xliff:g id="APP_SEEKING_PERMISSION">%s</xliff:g> သည် ယာယီဖိုင်များမှ အချို့ကို ရှင်းထုတ်လိုသည်။ ထို့ကြောင့် ဘက်ထရီ သို့မဟုတ် ဆယ်လူလာဒေတာ အသုံးပြုမှု မြင့်တက်လာနိုင်သည်။"</string>
+    <string name="cache_clearing_in_progress_title" msgid="6902220064511664209">"ယာယီအက်ပ်ဖိုင်များ ရှင်းထုတ်နေသည်…"</string>
+    <string name="clear" msgid="5524638938415865915">"ရှင်းရန်"</string>
+    <string name="allow" msgid="8885707816848569619">"ခွင့်ပြုရန်"</string>
+    <string name="deny" msgid="6040983710442068936">"ပယ်ရန်"</string>
+    <string name="picker_browse" msgid="5554477454636075934">"ဖွင့်ကြည့်ရန်…"</string>
+    <string name="picker_settings" msgid="6443463167344790260">"Cloud မီဒီယာအက်ပ်"</string>
+    <string name="picker_settings_system_settings_menu_title" msgid="3055084757610063581">"Cloud မီဒီယာအက်ပ်"</string>
+    <string name="picker_settings_title" msgid="5647700706470673258">"Cloud မီဒီယာအက်ပ်"</string>
+    <string name="picker_settings_description" msgid="2916686824777214585">"အက်ပ် (သို့) ဝဘ်ဆိုက်က သင့်အား ဓာတ်ပုံ (သို့) ဗီဒီယိုများ ရွေးခိုင်းသောအခါ သင်၏ cloud မီဒီယာကို ဝင်သည်"</string>
+    <string name="picker_settings_selection_message" msgid="245453573086488596">"Cloud မီဒီယာကို ဤနေရာမှ ဝင်သုံးရန်"</string>
+    <string name="picker_settings_no_provider" msgid="2582311853680058223">"မရှိ"</string>
+    <string name="picker_settings_toast_error" msgid="697274445512467469">"လောလောဆယ် cloud မီဒီယာ အက်ပ်ကို ပြောင်း၍မရပါ။"</string>
+    <string name="picker_sync_notification_channel" msgid="1867105708912627993">"မီဒီယာရွေးခြင်း"</string>
+    <string name="picker_sync_notification_title" msgid="1122713382122055246">"မီဒီယာရွေးခြင်း"</string>
+    <string name="picker_sync_notification_text" msgid="8204423917712309382">"မီဒီယာကို စင့်ခ်လုပ်နေသည်…"</string>
+    <string name="add" msgid="2894574044585549298">"ထည့်ရန်"</string>
+    <string name="deselect" msgid="4297825044827769490">"မရွေးပါနှင့်"</string>
+    <string name="deselected" msgid="8488133193326208475">"ရွေးချယ်မထားပါ"</string>
+    <string name="select" msgid="2704765470563027689">"ရွေးရန်"</string>
+    <string name="selected" msgid="9151797369975828124">"ရွေးချယ်ထားသည်"</string>
+    <string name="select_up_to" msgid="6994294169508439957">"{count,plural, =1{ဖိုင် <xliff:g id="COUNT_0">^1</xliff:g> ခုအထိ ရွေးနိုင်သည်}other{ဖိုင် <xliff:g id="COUNT_1">^1</xliff:g> ခုအထိ ရွေးနိုင်သည်}}"</string>
+    <string name="recent" msgid="6694613584743207874">"မကြာသေးမီက"</string>
+    <string name="picker_photos_empty_message" msgid="5980619500554575558">"ဓာတ်ပုံ (သို့) ဗီဒီယိုများ မရှိပါ"</string>
+    <string name="picker_album_media_empty_message" msgid="7061850698189881671">"ပံ့ပိုးထားသော ဓာတ်ပုံ (သို့) ဗီဒီယို မရှိပါ"</string>
+    <string name="picker_albums_empty_message" msgid="8341079772950966815">"အယ်လ်ဘမ်များ မရှိပါ"</string>
+    <string name="picker_view_selected" msgid="2266031384396143883">"ပြသမှုကို ရွေးချယ်ထားသည်"</string>
+    <string name="picker_photos" msgid="7415035516411087392">"ဓာတ်ပုံများ"</string>
+    <!-- no translation found for picker_videos (2886971435439047097) -->
+    <skip />
+    <string name="picker_albums" msgid="4822511902115299142">"အယ်လ်ဘမ်များ"</string>
+    <string name="picker_preview" msgid="6257414886055861039">"အစမ်းကြည့်ရှုခြင်း"</string>
+    <string name="picker_work_profile" msgid="2083221066869141576">"အလုပ်သို့ ပြောင်းပါ"</string>
+    <string name="picker_personal_profile" msgid="639484258397758406">"ပုဂ္ဂိုလ်ရေးသီးသန့်အဖြစ် ပြောင်းပါ"</string>
+    <string name="picker_personal_profile_label" msgid="6189198163209597344">"ကိုယ်ပိုင်"</string>
+    <string name="picker_profile_admin_title" msgid="4172022376418293777">"သင့်စီမံခန့်ခွဲသူက ပိတ်ထားသည်"</string>
+    <string name="picker_profile_admin_msg_from_personal" msgid="1941639895084555723">"ကိုယ်ရေးသုံးအက်ပ်ဖြင့် အလုပ်ဒေတာများ သုံးခွင့်မရှိပါ"</string>
+    <string name="picker_profile_admin_msg_from_work" msgid="8048524337462790110">"အလုပ်သုံးအက်ပ်ဖြင့် ကိုယ်ပိုင်ဒေတာများ သုံးခွင့်မရှိပါ"</string>
+    <string name="picker_profile_admin_msg" msgid="4060112887923255178">"<xliff:g id="PROFILE1">%1$s</xliff:g> ဒေတာကို <xliff:g id="PROFILE2">%2$s</xliff:g> အက်ပ်မှ သုံးခြင်းအား ခွင့်မပြုပါ"</string>
+    <string name="picker_profile_switch_message" msgid="1133817927412489487">"<xliff:g id="PROFILE">%s</xliff:g> သို့ ပြောင်းရန်"</string>
+    <string name="picker_profile_work_paused_title" msgid="382212880704235925">"အလုပ်သုံးအက်ပ်များကို ခေတ္တရပ်ထားသည်"</string>
+    <string name="picker_profile_paused_title" msgid="2079739512895529028">"<xliff:g id="PROFILE">%s</xliff:g> အက်ပ်များကို ခဏရပ်ထားသည်"</string>
+    <string name="picker_profile_work_paused_msg" msgid="6321552322125246726">"အလုပ်ဓာတ်ပုံများဖွင့်ရန် သင့်အလုပ်သုံးအက်ပ်များကိုဖွင့်ပြီး ထပ်စမ်းကြည့်ပါ"</string>
+    <string name="picker_profile_paused_msg" msgid="1215076898583993782">"<xliff:g id="PROFILE1">%1$s</xliff:g> ဓာတ်ပုံများ ဖွင့်ရန် သင့် <xliff:g id="PROFILE2">%2$s</xliff:g> အက်ပ်များကို ဖွင့်ပြီး ထပ်စမ်းကြည့်ပါ"</string>
+    <string name="picker_privacy_message" msgid="9132700451027116817">"ဤအက်ပ်သည် သင်ရွေးချယ်သောဓာတ်ပုံများကိုသာ ကြည့်နိုင်သည်"</string>
+    <string name="picker_header_permissions" msgid="675872774407768495">"ဤအက်ပ်အတွက် သုံးခွင့်ပြုသော ဓာတ်ပုံနှင့် ဗီဒီယိုများ ရွေးရန်"</string>
+    <string name="picker_album_item_count" msgid="4420723302534177596">"{count,plural, =1{ဖိုင် <xliff:g id="COUNT_0">^1</xliff:g> ခု}other{ဖိုင် <xliff:g id="COUNT_1">^1</xliff:g> ခု}}"</string>
+    <string name="picker_add_button_multi_select" msgid="4005164092275518399">"(<xliff:g id="COUNT">^1</xliff:g>) ခု ထည့်ရန်"</string>
+    <string name="picker_add_button_multi_select_permissions" msgid="5138751105800138838">"(<xliff:g id="COUNT">^1</xliff:g>) ခု ခွင့်ပြုရန်"</string>
+    <string name="picker_add_button_allow_none_option" msgid="9183772732922241035">"သုည ခွင့်ပြုရန်"</string>
+    <string name="picker_category_camera" msgid="4857367052026843664">"ကင်မရာ"</string>
+    <string name="picker_category_downloads" msgid="793866660287361900">"ဒေါင်းလုဒ်များ"</string>
+    <string name="picker_category_favorites" msgid="7008495397818966088">"စိတ်ကြိုက်များ"</string>
+    <string name="picker_category_screenshots" msgid="7216102327587644284">"ဖန်သားပြင်ဓာတ်ပုံများ"</string>
+    <!-- no translation found for picker_category_videos (1478458836380241356) -->
+    <skip />
+    <string name="picker_motion_photo_text" msgid="5016603812468180816">"တဒင်္ဂ ဗီဒီယို"</string>
+    <string name="picker_item_content_desc" msgid="7680591530155286423">"<xliff:g id="TIME">%2$s</xliff:g> တွင် ရိုက်ကူးခဲ့သော <xliff:g id="ITEM_NAME">%1$s</xliff:g>"</string>
+    <string name="picker_video_item_content_desc" msgid="7828900089119214801">"ဗီဒီယိုကို <xliff:g id="TIME">%1$s</xliff:g> တွင် <xliff:g id="DURATION">%2$s</xliff:g> ကြာ ရိုက်ကူးထားသည်"</string>
+    <string name="picker_photo" msgid="1739342083494962153">"ဓာတ်ပုံ"</string>
+    <string name="picker_gif" msgid="8333318083107368726">"GIF"</string>
+    <string name="picker_motion_photo" msgid="4385182195289546308">"တဒင်္ဂ ဗီဒီယို"</string>
+    <string name="picker_mute_video" msgid="2496585809229800096">"ဗီဒီယိုအသံပိတ်ရန်"</string>
+    <string name="picker_unmute_video" msgid="6611741290641963568">"ဗီဒီယိုအသံပြန်ဖွင့်ရန်"</string>
+    <string name="picker_play_video" msgid="7106025944628666250">"ဖွင့်ရန်"</string>
+    <string name="picker_pause_video" msgid="1092718225234326702">"ခဏရပ်ရန်"</string>
+    <string name="picker_error_snackbar" msgid="5970192792792369203">"ဗီဒီယို ဖွင့်၍မရပါ"</string>
+    <string name="picker_error_dialog_title" msgid="4540095603788920965">"ဗီဒီယိုဖွင့်ရာတွင် ပြဿနာရှိသည်"</string>
+    <string name="picker_error_dialog_body" msgid="2515738446802971453">"သင်၏ အင်တာနက် ချိတ်ဆက်မှုကို စစ်ဆေးပြီး ထပ်စမ်းကြည့်ပါ"</string>
+    <string name="picker_error_dialog_positive_action" msgid="749544129082109232">"ထပ်စမ်းကြည့်ရန်"</string>
+    <string name="not_selected" msgid="2244008151669896758">"ရွေးချယ်မထားပါ"</string>
+    <string name="preloading_dialog_title" msgid="4974348221848532887">"သင်ရွေးထားသော မီဒီယာကို ပြင်ဆင်နေသည်"</string>
+    <string name="preloading_progress_message" msgid="4741327138031980582">"<xliff:g id="NUMBER_TOTAL">%2$d</xliff:g> အနက် <xliff:g id="NUMBER_PRELOADED">%1$d</xliff:g> အသင့်ဖြစ်ပြီ"</string>
+    <string name="preloading_cancel_button" msgid="824053521307342209">"မလုပ်တော့"</string>
+    <string name="picker_banner_cloud_first_time_available_title" msgid="5912973744275711595">"အရန်သိမ်းထားသော ဓာတ်ပုံများ ယခုထည့်သွင်းထားပြီ"</string>
+    <string name="picker_banner_cloud_first_time_available_desc" msgid="5570916598348187607">"<xliff:g id="APP_NAME">%1$s</xliff:g> အကောင့် <xliff:g id="USER_ACCOUNT">%2$s</xliff:g> မှ ဓာတ်ပုံများ ရွေးနိုင်သည်"</string>
+    <string name="picker_banner_cloud_account_changed_title" msgid="4825058474378077327">"<xliff:g id="APP_NAME">%1$s</xliff:g> အကောင့် အပ်ဒိတ်လုပ်လိုက်သည်"</string>
+    <string name="picker_banner_cloud_account_changed_desc" msgid="3433218869899792497">"<xliff:g id="USER_ACCOUNT">%1$s</xliff:g> မှ ဓာတ်ပုံများကို ဤနေရာတွင် ယခုထည့်သွင်းထားပါပြီ"</string>
+    <string name="picker_banner_cloud_choose_app_title" msgid="3165966147547974251">"cloud မီဒီယာအက်ပ် ရွေးရန်"</string>
+    <string name="picker_banner_cloud_choose_app_desc" msgid="2359212653555524926">"အရန်သိမ်းထားသော ဓာတ်ပုံများ ဤနေရာတွင်ထည့်သွင်းရန် ဆက်တင်များ၌ cloud မီဒီယာအက်ပ် ရွေးပါ"</string>
+    <string name="picker_banner_cloud_choose_account_title" msgid="5010901185639577685">"<xliff:g id="APP_NAME">%1$s</xliff:g> အကောင့်ရွေးရန်"</string>
+    <string name="picker_banner_cloud_choose_account_desc" msgid="8868134443673142712">"<xliff:g id="APP_NAME">%1$s</xliff:g> မှ ဓာတ်ပုံများကို ဤနေရာတွင်ထည့်သွင်းရန် အက်ပ်၌ အကောင့်ရွေးပါ"</string>
+    <string name="picker_banner_cloud_dismiss_button" msgid="2935903078288463882">"ပယ်ရန်"</string>
+    <string name="picker_banner_cloud_choose_app_button" msgid="934085679890435479">"အက်ပ်ရွေးရန်"</string>
+    <string name="picker_banner_cloud_choose_account_button" msgid="7979484877116991631">"အကောင့်ရွေးရန်"</string>
+    <string name="picker_banner_cloud_change_account_button" msgid="8361239765828471146">"အကောင့်ပြောင်းရန်"</string>
+    <string name="picker_loading_photos_message" msgid="6449180084857178949">"သင့်ဓာတ်ပုံအားလုံးကို ရယူနေသည်"</string>
+    <string name="permission_write_audio" msgid="8819694245323580601">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> ကို ဤအသံဖိုင် ပြင်ဆင်ခွင့်ပြုမလား။}other{<xliff:g id="APP_NAME_1">^1</xliff:g> ကို အသံဖိုင် <xliff:g id="COUNT">^2</xliff:g> ဖိုင် ပြင်ဆင်ခွင့်ပြုမလား။}}"</string>
+    <string name="permission_progress_write_audio" msgid="6029375427984180097">"{count,plural, =1{အသံဖိုင်ကို ပြင်ဆင်နေသည်…}other{အသံဖိုင် <xliff:g id="COUNT">^1</xliff:g> ခုကို ပြင်ဆင်နေသည်…}}"</string>
+    <string name="permission_write_video" msgid="103902551603700525">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> ကို ဤဗီဒီယို ပြင်ဆင်ခွင့်ပြုမလား။}other{<xliff:g id="APP_NAME_1">^1</xliff:g> ကို ဗီဒီယို <xliff:g id="COUNT">^2</xliff:g> ခု ပြင်ဆင်ခွင့်ပြုမလား။}}"</string>
+    <string name="permission_progress_write_video" msgid="7014908418349819148">"{count,plural, =1{ဗီဒီယိုကို ပြင်ဆင်နေသည်…}other{ဗီဒီယို <xliff:g id="COUNT">^1</xliff:g> ခုကို ပြင်ဆင်နေသည်…}}"</string>
+    <string name="permission_write_image" msgid="3518991791620523786">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> ကို ဤဓာတ်ပုံ ပြင်ဆင်ခွင့်ပြုမလား။}other{<xliff:g id="APP_NAME_1">^1</xliff:g> ကို ဓာတ်ပုံ <xliff:g id="COUNT">^2</xliff:g> ပုံ ပြင်ဆင်ခွင့်ပြုမလား။}}"</string>
+    <string name="permission_progress_write_image" msgid="3623580315590025262">"{count,plural, =1{ဓာတ်ပုံကို ပြင်ဆင်နေသည်…}other{ဓာတ်ပုံ <xliff:g id="COUNT">^1</xliff:g> ပုံကို ပြင်ဆင်နေသည်…}}"</string>
+    <string name="permission_write_generic" msgid="7431128739233656991">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> ကို ဤဖိုင် ပြင်ဆင်ခွင့်ပြုမလား။}other{<xliff:g id="APP_NAME_1">^1</xliff:g> ကို ဤဖိုင် <xliff:g id="COUNT">^2</xliff:g> ခု ပြင်ဆင်ခွင့်ပြုမလား။}}"</string>
+    <string name="permission_progress_write_generic" msgid="2806560971318391443">"{count,plural, =1{ဖိုင်ကို ပြင်ဆင်နေသည်…}other{ဖိုင် <xliff:g id="COUNT">^1</xliff:g> ခုကို ပြင်ဆင်နေသည်…}}"</string>
+    <string name="permission_trash_audio" msgid="6554672354767742206">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> အား ဤအသံဖိုင်ကို အမှိုက်ပုံးသို့ ရွှေ့ခွင့်ပြုမလား။}other{<xliff:g id="APP_NAME_1">^1</xliff:g> အား အသံဖိုင် <xliff:g id="COUNT">^2</xliff:g> ဖိုင်ကို အမှိုက်ပုံးသို့ ရွှေ့ခွင့်ပြုမလား။}}"</string>
+    <string name="permission_progress_trash_audio" msgid="3116279868733641329">"{count,plural, =1{အသံဖိုင်ကို အမှိုက်ပုံးထဲသို့ ရွှေ့နေသည်…}other{အသံဖိုင် <xliff:g id="COUNT">^1</xliff:g> ခုကို အမှိုက်ပုံးထဲသို့ ရွှေ့နေသည်…}}"</string>
+    <string name="permission_trash_video" msgid="7555850843259959642">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> အား ဤဗီဒီယိုကို အမှိုက်ပုံးသို့ ရွှေ့ခွင့်ပြုမလား။}other{<xliff:g id="APP_NAME_1">^1</xliff:g> အား ဗီဒီယို <xliff:g id="COUNT">^2</xliff:g> ခုကို အမှိုက်ပုံးသို့ ရွှေ့ခွင့်ပြုမလား။}}"</string>
+    <string name="permission_progress_trash_video" msgid="4637821778329459681">"{count,plural, =1{ဗီဒီယိုကို အမှိုက်ပုံးထဲသို့ ရွှေ့နေသည်…}other{ဗီဒီယို <xliff:g id="COUNT">^1</xliff:g> ခုကို အမှိုက်ပုံးထဲသို့ ရွှေ့နေသည်…}}"</string>
+    <string name="permission_trash_image" msgid="3333128084684156675">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> အား ဤဓာတ်ပုံကို အမှိုက်ပုံးသို့ ရွှေ့ခွင့်ပြုမလား။}other{<xliff:g id="APP_NAME_1">^1</xliff:g> အား ဓာတ်ပုံ <xliff:g id="COUNT">^2</xliff:g> ပုံကို အမှိုက်ပုံးသို့ ရွှေ့ခွင့်ပြုမလား။}}"</string>
+    <string name="permission_progress_trash_image" msgid="3063857679090024764">"{count,plural, =1{ဓာတ်ပုံကို အမှိုက်ပုံးထဲသို့ ရွှေ့နေသည်…}other{ဓာတ်ပုံ <xliff:g id="COUNT">^1</xliff:g> ပုံကို အမှိုက်ပုံးထဲသို့ ရွှေ့နေသည်…}}"</string>
+    <string name="permission_trash_generic" msgid="5545420534785075362">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> အား ဤဖိုင်ကို အမှိုက်ပုံးသို့ ရွှေ့ခွင့်ပြုမလား။}other{<xliff:g id="APP_NAME_1">^1</xliff:g> အား ဤဖိုင် <xliff:g id="COUNT">^2</xliff:g> ခုကို အမှိုက်ပုံးသို့ ရွှေ့ခွင့်ပြုမလား။}}"</string>
+    <string name="permission_progress_trash_generic" msgid="7815124979717814057">"{count,plural, =1{ဖိုင်ကို အမှိုက်ပုံးထဲသို့ ရွှေ့နေသည်…}other{ဖိုင် <xliff:g id="COUNT">^1</xliff:g> ခုကို အမှိုက်ပုံးထဲသို့ ရွှေ့နေသည်…}}"</string>
+    <string name="permission_untrash_audio" msgid="8404597563284002472">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> အား ဤအသံဖိုင်ကို အမှိုက်ပုံးထဲမှ ရွှေ့ခွင့်ပြုမလား။}other{<xliff:g id="APP_NAME_1">^1</xliff:g> အား အသံဖိုင် <xliff:g id="COUNT">^2</xliff:g> ဖိုင်ကို အမှိုက်ပုံးထဲမှ ရွှေ့ခွင့်ပြုမလား။}}"</string>
+    <string name="permission_progress_untrash_audio" msgid="2775372344946464508">"{count,plural, =1{အသံဖိုင်ကို အမှိုက်ပုံးထဲမှ ရွှေ့နေသည်…}other{အသံဖိုင်ကို <xliff:g id="COUNT">^1</xliff:g> ခုကို အမှိုက်ပုံးထဲမှ ရွှေ့နေသည်…}}"</string>
+    <string name="permission_untrash_video" msgid="3178914827607608162">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> အား ဤဗီဒီယိုကို အမှိုက်ပုံးထဲမှ ရွှေ့ခွင့်ပြုမလား။}other{<xliff:g id="APP_NAME_1">^1</xliff:g> အား ဗီဒီယို <xliff:g id="COUNT">^2</xliff:g> ခုကို အမှိုက်ပုံးထဲမှ ရွှေ့ခွင့်ပြုမလား။}}"</string>
+    <string name="permission_progress_untrash_video" msgid="5500929409733841567">"{count,plural, =1{ဗီဒီယိုကို အမှိုက်ပုံးထဲမှ ရွှေ့နေသည်…}other{ဗီဒီယို <xliff:g id="COUNT">^1</xliff:g> ခုကို အမှိုက်ပုံးထဲမှ ရွှေ့နေသည်…}}"</string>
+    <string name="permission_untrash_image" msgid="3397523279351032265">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> အား ဤဓာတ်ပုံကို အမှိုက်ပုံးထဲမှ ရွှေ့ခွင့်ပြုမလား။}other{<xliff:g id="APP_NAME_1">^1</xliff:g> အား ဓာတ်ပုံ <xliff:g id="COUNT">^2</xliff:g> ပုံကို အမှိုက်ပုံးထဲမှ ရွှေ့ခွင့်ပြုမလား။}}"</string>
+    <string name="permission_progress_untrash_image" msgid="5295061520504846264">"{count,plural, =1{ဓာတ်ပုံကို အမှိုက်ပုံးထဲမှ ရွှေ့နေသည်…}other{ဓာတ်ပုံ <xliff:g id="COUNT">^1</xliff:g> ပုံကို အမှိုက်ပုံးထဲမှ ရွှေ့နေသည်…}}"</string>
+    <string name="permission_untrash_generic" msgid="2118366929431671046">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> အား ဤဖိုင်ကို အမှိုက်ပုံးထဲမှ ရွှေ့ခွင့်ပြုမလား။}other{<xliff:g id="APP_NAME_1">^1</xliff:g> အား ဤဖိုင် <xliff:g id="COUNT">^2</xliff:g> ခုကို အမှိုက်ပုံးထဲမှ ရွှေ့ခွင့်ပြုမလား။}}"</string>
+    <string name="permission_progress_untrash_generic" msgid="1489511601966842579">"{count,plural, =1{ဖိုင်ကို အမှိုက်ပုံးထဲမှ ရွှေ့နေသည်…}other{ဖိုင် <xliff:g id="COUNT">^1</xliff:g> ခုကို အမှိုက်ပုံးထဲမှ ရွှေ့နေသည်…}}"</string>
+    <string name="permission_delete_audio" msgid="3326674742892796627">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> ကို ဤအသံဖိုင် ဖျက်ခွင့်ပြုမလား။}other{<xliff:g id="APP_NAME_1">^1</xliff:g> ကို အသံဖိုင် <xliff:g id="COUNT">^2</xliff:g> ဖိုင် ဖျက်ခွင့်ပြုမလား။}}"</string>
+    <string name="permission_progress_delete_audio" msgid="1734871539021696401">"{count,plural, =1{အသံဖိုင်ကို ဖျက်နေသည်…}other{အသံဖိုင် <xliff:g id="COUNT">^1</xliff:g> ခုကို ဖျက်နေသည်…}}"</string>
+    <string name="permission_delete_video" msgid="604024971828349279">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> ကို ဤဗီဒီယို ဖျက်ခွင့်ပြုမလား။}other{<xliff:g id="APP_NAME_1">^1</xliff:g> ကို ဗီဒီယို <xliff:g id="COUNT">^2</xliff:g> ခု ဖျက်ခွင့်ပြုမလား။}}"</string>
+    <string name="permission_progress_delete_video" msgid="1846702435073793157">"{count,plural, =1{ဗီဒီယိုကို ဖျက်နေသည်…}other{ဗီဒီယို <xliff:g id="COUNT">^1</xliff:g> ခုကို ဖျက်နေသည်…}}"</string>
+    <string name="permission_delete_image" msgid="3109056012794330510">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> ကို ဤဓာတ်ပုံ ဖျက်ခွင့်ပြုမလား။}other{<xliff:g id="APP_NAME_1">^1</xliff:g> ကို ဓာတ်ပုံ <xliff:g id="COUNT">^2</xliff:g> ပုံ ဖျက်ခွင့်ပြုမလား။}}"</string>
+    <string name="permission_progress_delete_image" msgid="8580517204901148906">"{count,plural, =1{ဓာတ်ပုံကို ဖျက်နေသည်…}other{ဓာတ်ပုံ <xliff:g id="COUNT">^1</xliff:g> ပုံကို ဖျက်နေသည်…}}"</string>
+    <string name="permission_delete_generic" msgid="7891939881065520271">"{count,plural, =1{<xliff:g id="APP_NAME_0">^1</xliff:g> ကို ဤဖိုင် ဖျက်ခွင့်ပြုမလား။}other{<xliff:g id="APP_NAME_1">^1</xliff:g> ကို ဤဖိုင် <xliff:g id="COUNT">^2</xliff:g> ခု ဖျက်ခွင့်ပြုမလား။}}"</string>
+    <string name="permission_progress_delete_generic" msgid="6709118146245087898">"{count,plural, =1{ဖိုင်ကို ဖျက်နေသည်…}other{ဖိုင် <xliff:g id="COUNT">^1</xliff:g> ခုကို ဖျက်နေသည်…}}"</string>
+    <string name="transcode_denied" msgid="6760546817138288976">"<xliff:g id="APP_NAME">%s</xliff:g> က မီဒီယာဖိုင်များကို မလုပ်ဆောင်နိုင်ပါ"</string>
+    <string name="transcode_processing_cancelled" msgid="5340383917746945590">"မီဒီယာ လုပ်ဆောင်ခြင်းကို ရပ်လိုက်သည်"</string>
+    <string name="transcode_processing_error" msgid="8921643164508407874">"မီဒီယာ လုပ်ဆောင်ခြင်း အမှားရှိသည်"</string>
+    <string name="transcode_processing_success" msgid="447288876429730122">"မီဒီယာ လုပ်ဆောင်ခြင်း အောင်မြင်ပါသည်"</string>
+    <string name="transcode_processing_started" msgid="7789086308155361523">"မီဒီယာ လုပ်ဆောင်ခြင်း စတင်လိုက်သည်"</string>
+    <string name="transcode_processing" msgid="6753136468864077258">"မီဒီယာကို လုပ်ဆောင်နေသည်…"</string>
+    <string name="transcode_cancel" msgid="8555752601907598192">"မလုပ်တော့"</string>
+    <string name="transcode_wait" msgid="8909773149560697501">"စောင့်ရန်"</string>
+    <string name="safety_protection_icon_label" msgid="6714354052747723623">"လုံခြုံရေး ကာကွယ်မှု"</string>
+    <string name="transcode_alert_channel" msgid="997332371757680478">"မူရင်းမီဒီယာကုဒ်ပြောင်းသည့် သတိပေးချက်များ"</string>
+    <string name="transcode_progress_channel" msgid="6905136787933058387">"မူရင်းမီဒီယာကုဒ်ပြောင်းသည့် အခြေအနေ"</string>
+    <string name="dialog_error_message" msgid="5120432204743681606">"နောက်မှထပ်စမ်းပါ။ ပြဿနာကို ဖြေရှင်းပြီးသည့်အခါ သင့်ဓာတ်ပုံများကို ရနိုင်မည်။"</string>
+    <string name="dialog_error_title" msgid="636349284077820636">"ဓာတ်ပုံအချို့ကို ဖွင့်၍ မရပါ"</string>
+    <string name="dialog_button_text" msgid="351366485240852280">"နားလည်ပြီ"</string>
+    <string name="permlab_accessMediaOwnerPackageName" msgid="3849443148060165651">"မီဒီယာပိုင်ရှင် ပက်ကေ့ဂျ်အမည်ကို သုံးခွင့်ပြုခြင်း"</string>
+    <string name="permdesc_accessMediaOwnerPackageName" msgid="7381563109363105371">"သုံးနိုင်သော မီဒီယာဖိုင်အားလုံး၏ ပိုင်ရှင်ပက်ကေ့ဂျ်အမည်များကို အက်ပ်အား သုံးခွင့်ပြုသည်။"</string>
+</resources>

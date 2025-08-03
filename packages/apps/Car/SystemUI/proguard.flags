@@ -1,0 +1,15 @@
+-include ../../../../frameworks/base/packages/SystemUI/proguard_common.flags
+
+-keep class com.android.systemui.CarSystemUIInitializer
+-keep class com.android.systemui.car.biometrics.PinPadView { *; }
+-keep class com.android.car.notification.headsup.animationhelper.**
+
+-keep class com.android.systemui.DaggerCarGlobalRootComponent { *; }
+-keep class com.android.systemui.DaggerCarGlobalRootComponent$CarSysUIComponentImpl { *; }
+
+-keep class com.android.systemui.car.privacy.CameraQcPanel { *; }
+-keep class com.android.systemui.car.privacy.MicQcPanel { *; }
+-keep class com.android.systemui.car.privacy.SensorQcPanel { *; }
+-keep class com.android.systemui.car.qc.ProfileSwitcher { *; }
+-keep class com.android.systemui.car.qc.DriveModeQcPanel { *; }
+

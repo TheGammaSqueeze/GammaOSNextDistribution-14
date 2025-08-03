@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!--
+  ~ A lot of content in this file is identical to grant_permissions.xml
+  ~ Be sure to update both files when making changes.
+  -->
+
+<!-- In (hopefully very rare) case dialog is too high: allow scrolling -->
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    style="@style/PermissionGrantScrollView">
+
+    <LinearLayout
+        android:id="@+id/grant_singleton"
+        android:importantForAccessibility="no"
+        android:focusable="false"
+        style="@style/PermissionGrantSingleton">
+
+        <!-- The dialog -->
+        <LinearLayout
+            android:id="@+id/grant_dialog"
+            android:theme="@style/Theme.PermissionGrantDialog"
+            android:importantForAccessibility="no"
+            style="@style/PermissionGrantDialogMaterial3">
+
+            <LinearLayout
+                android:id="@+id/content_container"
+                style="@style/PermissionGrantContent">
+
+                <LinearLayout
+                    style="@style/PermissionGrantDescription">
+
+                    <ImageView
+                        android:id="@+id/permission_icon"
+                        style="@style/PermissionGrantTitleIconMaterial3" />
+
+                    <TextView
+                        android:id="@+id/permission_message"
+                        android:accessibilityHeading="true"
+                        style="@style/PermissionGrantTitleMessage" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/detail_message"
+                    style="@style/PermissionGrantDetailMessage" />
+
+            </LinearLayout>
+
+            <!-- permission rationale  -->
+            <LinearLayout
+                android:id="@+id/permission_rationale_container"
+                style="@style/PermissionGrantPermissionRationaleContent">
+
+                <ImageView
+                    android:id="@+id/permission_rationale_icon"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_shield_exclamation_outline"
+                    style="@style/PermissionGrantPermissionRationaleIcon" />
+
+                <TextView
+                    android:id="@+id/permission_rationale_message"
+                    style="@style/PermissionGrantPermissionRationaleMessage" />
+
+                <ImageView
+                    android:id="@+id/permission_rationale_more_info_icon"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_more_info_arrow"
+                    style="@style/PermissionGrantPermissionRationaleMoreInfoIcon" />
+
+            </LinearLayout>
+
+            <!-- location (precise/approximate) animations -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/permission_location_accuracy">
+
+                <RadioGroup
+                    android:id="@+id/permission_location_accuracy_radio_group"
+                    style="@style/PermissionLocationAccuracyRadioGroupMaterial3">
+
+                    <RadioButton
+                        android:id="@+id/permission_location_accuracy_radio_fine"
+                        android:text="@string/permgrouprequest_finelocation_imagetext"
+                        style="@style/PermissionLocationAccuracyRadioFine"/>
+
+                    <RadioButton
+                        android:id="@+id/permission_location_accuracy_radio_coarse"
+                        android:text="@string/permgrouprequest_coarselocation_imagetext"
+                        style="@style/PermissionLocationAccuracyRadioCoarse" />
+                </RadioGroup>
+
+                <ImageView
+                    android:id="@+id/permission_location_accuracy_fine_only"
+                    android:contentDescription="@string/precise_image_description"
+                    style="@style/PermissionLocationAccuracyFineImageViewMaterial3" />
+
+                <ImageView
+                    android:id="@+id/permission_location_accuracy_coarse_only"
+                    android:contentDescription="@string/approximate_image_description"
+                    style="@style/PermissionLocationAccuracyCoarseImageViewMaterial3" />
+
+            </LinearLayout>
+
+            <!-- Buttons on bottom of dialog -->
+            <LinearLayout
+                style="@style/PermissionGrantButtonListMaterial3">
+
+                <Space
+                    style="@style/PermissionGrantButtonBarSpace"/>
+
+                <com.android.permissioncontroller.permission.ui.widget.SecureButton
+                    android:id="@+id/permission_allow_button"
+                    android:text="@string/grant_dialog_button_allow"
+                    style="@style/PermissionGrantButtonAllowMaterial3" />
+
+                <com.android.permissioncontroller.permission.ui.widget.SecureButton
+                    android:id="@+id/permission_allow_foreground_only_button"
+                    android:text="@string/grant_dialog_button_allow_foreground"
+                    style="@style/PermissionGrantButtonAllowForegroundMaterial3" />
+
+                <com.android.permissioncontroller.permission.ui.widget.SecureButton
+                    android:id="@+id/permission_allow_one_time_button"
+                    android:text="@string/grant_dialog_button_allow_one_time"
+                    style="@style/PermissionGrantButtonAllowOneTimeMaterial3" />
+
+                <com.android.permissioncontroller.permission.ui.widget.SecureButton
+                    android:id="@+id/permission_allow_selected_button"
+                    android:text="@string/grant_dialog_button_allow_limited_access"
+                    style="@style/PermissionGrantButtonAllowSelectedMaterial3" />
+
+                <com.android.permissioncontroller.permission.ui.widget.SecureButton
+                    android:id="@+id/permission_allow_all_button"
+                    android:text="@string/grant_dialog_button_allow_all"
+                    style="@style/PermissionGrantButtonAllowAllMaterial3" />
+
+                <com.android.permissioncontroller.permission.ui.widget.SecureButton
+                    android:id="@+id/permission_deny_button"
+                    android:text="@string/grant_dialog_button_deny"
+                    style="@style/PermissionGrantButtonDenyMaterial3" />
+
+                <com.android.permissioncontroller.permission.ui.widget.SecureButton
+                    android:id="@+id/permission_deny_and_dont_ask_again_button"
+                    android:text="@string/grant_dialog_button_deny"
+                    style="@style/PermissionGrantButtonDenyMaterial3" />
+
+                <com.android.permissioncontroller.permission.ui.widget.SecureButton
+                    android:id="@+id/permission_no_upgrade_button"
+                    android:text="@string/grant_dialog_button_no_upgrade"
+                    style="@style/PermissionGrantButtonNoUpgradeMaterial3" />
+
+                <com.android.permissioncontroller.permission.ui.widget.SecureButton
+                    android:id="@+id/permission_no_upgrade_and_dont_ask_again_button"
+                    android:text="@string/grant_dialog_button_no_upgrade"
+                    style="@style/PermissionGrantButtonNoUpgradeMaterial3" />
+
+                <com.android.permissioncontroller.permission.ui.widget.SecureButton
+                    android:id="@+id/permission_no_upgrade_one_time_button"
+                    android:text="@string/grant_dialog_button_no_upgrade_one_time"
+                    style="@style/PermissionGrantButtonNoUpgradeMaterial3" />
+
+                <com.android.permissioncontroller.permission.ui.widget.SecureButton
+                    android:id="@+id/permission_no_upgrade_one_time_and_dont_ask_again_button"
+                    android:text="@string/grant_dialog_button_no_upgrade_one_time"
+                    style="@style/PermissionGrantButtonNoUpgradeMaterial3" />
+
+                <com.android.permissioncontroller.permission.ui.widget.SecureButton
+                    android:id="@+id/permission_dont_allow_more_selected_button"
+                    android:text="@string/grant_dialog_button_dont_select_more"
+                    style="@style/PermissionGrantButtonDontAllowMoreMaterial3" />
+
+            </LinearLayout>
+
+            <com.android.permissioncontroller.permission.ui.v33.widget.SafetyProtectionSectionView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="0dp"
+                android:layout_marginBottom="20dp"
+                android:layout_gravity="center" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

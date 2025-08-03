@@ -1,0 +1,31 @@
+//
+// SPDX-FileCopyrightText: 2020 The Calyx Institute
+// SPDX-License-Identifier: Apache-2.0
+//
+
+android_app {
+    name: "LocalContactsBackup",
+    srcs: [
+        "src/main/java/**/*.java",
+    ],
+    resource_dirs: [
+        "src/main/res",
+    ],
+    manifest: "src/main/AndroidManifest.xml",
+    static_libs: [
+        "com.android.vcard",
+    ],
+    required: [
+        "default-permissions_org.calyxos.backup.contacts",
+    ],
+    product_specific: true,
+    sdk_version: "current",
+}
+
+prebuilt_etc {
+    name: "default-permissions_org.calyxos.backup.contacts",
+    product_specific: true,
+    sub_dir: "default-permissions",
+    src: "default-permissions_org.calyxos.backup.contacts.xml",
+    filename_from_src: true,
+}

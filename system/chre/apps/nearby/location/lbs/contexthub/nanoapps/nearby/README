@@ -1,0 +1,20 @@
+Nearby Offload supports applications to discover and interact with local
+devices. Nearby Offload provides always-on discovery with low-latency and
+minimal power consumption.
+
+Currently, Nearby Offload supports the applications below.
+
+* Fast Pair. Scan pheripherials in the background and helps Fast Pair to pop up
+  the discovery notification as soon as a user turns on the screen.
+
+* Nearby Presence. Always-on scan for Nearby Presence BLE advertisements.
+  Applications can use this feature through Nearby Presence AOSP system API.
+
+* Nearby Offload Extension. Nearby Offload can also be extended by OEMs to
+  define their customized BLE discovery by plugging their implementation into
+  the offload extension library.
+
+Nearby Offload NanoApp is released to production by Google to support all the
+applications above (Fast Pair, Presence, as well as Offload Extension).
+
+

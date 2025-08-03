@@ -1,0 +1,9 @@
+<application>
+  <component name="Trusted.Paths">
+    <option name="TRUSTED_PROJECT_PATHS">
+      <map>
+        <entry key="__PROJECT_DIR_PLACEHOLDER__" value="true" />
+      </map>
+    </option>
+  </component>
+</application>

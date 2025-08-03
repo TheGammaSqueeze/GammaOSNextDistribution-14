@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="safetyCenterResourcesAppLabel" msgid="4043334186295695930">"လုံခြုံရေးစင်တာ ရင်းမြစ်များ"</string>
+    <string name="lock_screen_sources_title" msgid="3317906280484627707">"စက်ပစ္စည်းလော့ခ်ချခြင်း"</string>
+    <string name="lock_screen_sources_summary" msgid="7220439741282516496"></string>
+    <string name="lock_screen_title" msgid="4069104894527169877">"ဖန်သားပြင်လော့ခ်"</string>
+    <string name="lock_screen_summary_disabled" msgid="354071230916616692">"အချက်အလက် မရှိသေးပါ"</string>
+    <string name="lock_screen_search_terms" msgid="2678486357779794826">"စက်လော့ခ်ချခြင်း၊ ဖန်သားပြင်လော့ခ်၊ လော့ခ် မျက်နှာပြင်၊ လော့ခ်မျက်နှာပြင်၊ စကားဝှက်၊ ပင်၊ ပုံစံ"</string>
+    <string name="biometrics_title" msgid="5859504610285212938">"ဇီဝမက်ထရစ် အချက်အလက်များ"</string>
+    <string name="biometrics_search_terms" msgid="6040319118762671981">"လက်ဗွေ၊ လက်ချောင်း၊ လက်ဗွေထည့်ခြင်း၊ မျက်နှာပြ လော့ခ်ဖွင့်ခြင်း၊ မျက်နှာ"</string>
+    <string name="privacy_sources_title" msgid="4061110826457365957">"ကိုယ်ရေးအချက်အလက်လုံခြုံမှု"</string>
+    <string name="privacy_sources_summary" msgid="4089719981155120864">"ဒက်ရှ်ဘုတ်၊ ခွင့်ပြုချက်များ၊ သတ်မှတ်ချက်များ"</string>
+    <string name="permission_usage_title" msgid="3633779688945350407">"ကိုယ်ရေးအချက်အလက်လုံခြုံမှု ဒက်ရှ်ဘုတ်"</string>
+    <string name="permission_usage_summary" msgid="5323079206029964468">"ခွင့်ပြုချက်များ မကြာသေးမီကသုံးထားသည့် အက်ပ်များကို ပြသည်"</string>
+    <string name="permission_usage_search_terms" msgid="3852343592870257104">"ကိုယ်ရေးအချက်အလက်လုံခြုံမှု၊ ကိုယ်ရေးအချက်အလက် လုံခြုံမှု ဒက်ရှ်ဘုတ်"</string>
+    <string name="permission_manager_title" msgid="5277347862821255015">"ခွင့်ပြုချက် မန်နေဂျာ"</string>
+    <string name="permission_manager_summary" msgid="8099852107340970790">"အက်ပ်၏ သင့်ဒေတာအသုံးပြုခွင့်ကို ထိန်းချုပ်သည်"</string>
+    <string name="permission_manager_search_terms" msgid="2895147613099694722">"ခွင့်ပြုချက်များ၊ ခွင့်ပြုချက်မန်နေဂျာ"</string>
+    <string name="privacy_controls_title" msgid="5322875777945432395">"ကန့်သတ်ရန် ဆက်တင်များ"</string>
+    <string name="privacy_controls_summary" msgid="2402066941190435424">"မိုက်ခရိုဖုန်း၊ ကင်မရာ စသည်တို့ကို စက်ပစ္စည်းက ဝင်သုံးခွင့်အား ထိန်းချုပ်သည်"</string>
+    <string name="privacy_controls_search_terms" msgid="3774472175934304165">"ကိုယ်ရေးအချက်အလက်လုံခြုံမှု၊ ကန့်သတ်ရန် ဆက်တင်များ"</string>
+    <string name="advanced_title" msgid="8745436380690561172">"နောက်ထပ်ဆက်တင်များ"</string>
+    <string name="advanced_security_title" msgid="1126833338772188155">"နောက်ထပ် လုံခြုံရေးဆက်တင်များ"</string>
+    <string name="advanced_security_summary" msgid="6172253327022425123">"အသွင်ဝှက်ခြင်း၊ အထောက်အထားများ စသည်"</string>
+    <string name="advanced_security_search_terms" msgid="3350609555814362075"></string>
+    <string name="advanced_privacy_title" msgid="1117725225706176643">"နောက်ထပ် ကိုယ်ရေးအချက်အလက်လုံခြုံမှု ဆက်တင်များ"</string>
+    <string name="advanced_privacy_summary" msgid="2281203390575069543">"အော်တိုဖြည့်၊ လုပ်ဆောင်ချက် ထိန်းချုပ်မှုများ စသည်"</string>
+    <string name="advanced_privacy_search_terms" msgid="5044404599789175222"></string>
+</resources>

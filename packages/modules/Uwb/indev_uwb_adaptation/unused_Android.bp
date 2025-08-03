@@ -1,0 +1,97 @@
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+//  package {
+//      default_applicable_licenses: ["Android-Apache-2.0"],
+//  }
+//  
+//  rust_defaults {
+//      name: "libuwb_adaptation_jni_defaults",
+//      crate_name: "uwb_adaptation_jni",
+//      lints: "android",
+//      clippy_lints: "android",
+//      min_sdk_version: "Tiramisu",
+//      srcs: ["jni/src/lib.rs"],
+//      rustlibs: [
+//          "libjni",
+//          "liblog_rust",
+//          "liblogger",
+//          "libnum_traits",
+//          "libthiserror",
+//          "libtokio",
+//          "libuci_hal_android",
+//          "libuwb_core",
+//          "libuwb_uci_packets",
+//      ],
+//      prefer_rlib: true,
+//      host_supported: true,
+//  }
+//  
+//  rust_ffi_shared {
+//      name: "libuwb_adaptation_jni",
+//      defaults: ["libuwb_adaptation_jni_defaults"],
+//      // workaround for hwasan issue until aosp/2201940 is merged
+//      sanitize: {
+//          never: true,
+//      },
+//  }
+//  
+//  rust_test {
+//      name: "libuwb_adaptation_jni_tests",
+//      defaults: ["libuwb_adaptation_jni_defaults"],
+//      target: {
+//          android: {
+//              test_suites: [
+//                  "general-tests",
+//              ],
+//              test_config_template: "jni/uwb_rust_test_config_template.xml",
+//          },
+//          host: {
+//              test_suites: [
+//                  "general-tests",
+//              ],
+//              data_libs: [
+//                  "libandroid_runtime_lazy",
+//                  "libbase",
+//                  "libbinder_ndk",
+//                  "libbinder",
+//                  "libcutils",
+//                  "liblog",
+//                  "libutils",
+//              ],
+//          },
+//      },
+//      auto_gen_config: true,
+//  }
+//  
+//  java_defaults {
+//      name: "libuwb_adaptation_service_defaults",
+//      defaults: ["uwb-module-sdk-version-defaults"],
+//      srcs: ["java/**/*.java"]
+//  }
+//  
+//  java_library {
+//      name: "libuwb_adaptation_service",
+//      required: ["libuwb_adaptation_jni"],
+//      libs: ["service-uwb"],
+//      static_libs: [
+//          "com.uwb.support.base",
+//          "com.uwb.support.ccc",
+//          "com.uwb.support.fira",
+//          "com.uwb.support.generic",
+//          "com.uwb.support.multichip",
+//          "com.uwb.support.profile",
+//      ],
+//      defaults: ["libuwb_adaptation_service_defaults"],
+//  }

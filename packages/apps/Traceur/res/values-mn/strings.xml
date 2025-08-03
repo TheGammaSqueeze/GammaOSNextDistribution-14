@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="system_tracing" msgid="4719188511746319848">"Системийн шинжлэл"</string>
+    <string name="record_system_activity" msgid="4339462312915377825">"Системийн үйл ажиллагааг бүртгэж гүйцэтгэлээ сайжруулахын тулд үүнийг дараа шинжилнэ үү"</string>
+    <string name="record_trace" msgid="6416875085186661845">"Мөрийг бичих"</string>
+    <string name="record_trace_summary" msgid="6705357754827849292">"\"Ул мөрийн тохиргоо\"-нд тохируулсан тохируулгыг ашиглан системийн ул мөрийг олж авдаг"</string>
+    <string name="record_stack_samples" msgid="3498368637185702335">"Төв процессорын нэгжийн профайлыг бичих"</string>
+    <string name="record_stack_samples_summary" msgid="7827953921526410478">"Callstack-н түүвэрлэлтийг мөн \"төв процессорын нэгж\"-ийн ангиллыг шалгаснаар ул мөрд идэвхжүүлэх боломжтой"</string>
+    <string name="record_heap_dump" msgid="1688550222066812696">"Санах ойн агшин зургийг бүртгэх"</string>
+    <string name="record_heap_dump_summary_enabled" msgid="5038675257021221777">"\"Санах ойн агшин зургийн явцууд\" хэсэгт сонгосон явцуудын санах ойн агшин зургийг авна"</string>
+    <string name="record_heap_dump_summary_disabled" msgid="4640319333930345311">"Санах ойн агшин зургуудыг цуглуулахын тулд \"Санах ойн агшин зургийн явцууд\"-аас дор хаяж нэг явц сонгоно уу"</string>
+    <string name="start_new_trace" msgid="8177130420802170353">"Шинэ ул мөр эхлүүлэх"</string>
+    <string name="winscope_tracing" msgid="5818984791154837458">"Winscope-н ул мөрүүдийг цуглуулах"</string>
+    <string name="winscope_tracing_summary" msgid="7040550156722395894">"UI-н телеметрийн нарийвчилсан өгөгдөл багтана (чанар муудахад хүргэх боломжтой)"</string>
+    <string name="trace_debuggable_applications" msgid="7957069895298887899">"Дебаг хийх боломжтой аппуудын ул мөрийг дагах"</string>
+    <string name="categories" msgid="2280163673538611008">"Ангилал"</string>
+    <string name="restore_default_categories" msgid="5090536794637169521">"Өгөгдмөл ангиллыг сэргээх"</string>
+    <string name="default_categories_restored" msgid="6861683793680564181">"Өгөгдмөл ангиллыг сэргээсэн"</string>
+    <string name="default_categories" msgid="2117679794687799407">"Өгөгдмөл"</string>
+    <string name="num_categories_selected" msgid="5772630335027553995">"{count,plural, =1{#-г сонгосон}other{#-г сонгосон}}"</string>
+    <string name="heap_dump_processes" msgid="2500105180344901939">"Санах ойн агшин зургийн явцууд"</string>
+    <string name="heap_dump_processes_summary" msgid="4570434268024622765">"Дор хаяж нэг явцыг сонгосон байх ёстой"</string>
+    <string name="clear_heap_dump_processes" msgid="295101454741555286">"Санах ойн агшин зургийн явцуудыг арилгах"</string>
+    <string name="clear_heap_dump_processes_toast" msgid="3658510557596150797">"Явцын жагсаалтыг арилгасан"</string>
+    <string name="continuous_heap_dump" msgid="390369382946204224">"Тасралтгүй heap профайл"</string>
+    <string name="continuous_heap_dump_summary" msgid="4581643248161659581">"Заасан интервал бүрд нэг удаа санах ойн агшин зураг авах"</string>
+    <string name="continuous_heap_dump_interval" msgid="842533896492001433">"Санах ойн агшин зургийн интервал"</string>
+    <string name="five_seconds" msgid="7018465440929299712">"5 секунд"</string>
+    <string name="ten_seconds" msgid="863416601384309033">"10 секунд"</string>
+    <string name="thirty_seconds" msgid="7945396361369598222">"30 секунд"</string>
+    <string name="one_minute" msgid="4182508213840684258">"1 минут"</string>
+    <string name="applications" msgid="521776761270770549">"Аппууд"</string>
+    <string name="no_debuggable_apps" msgid="4386209254520471208">"Дебаг хийх боломжтой аппууд алга"</string>
+    <string name="buffer_size" msgid="3944311026715111454">"CPU тутмын буферын хэмжээ"</string>
+    <string name="show_quick_settings_tile" msgid="4971147332635291585">"Шуурхай тохиргооны хэсгийг харуулах"</string>
+    <string name="saving_trace" msgid="1468692734770800541">"Мөрийг хадгалж байна"</string>
+    <string name="trace_saved" msgid="5869970594780992309">"Мөрийг хадгалсан"</string>
+    <string name="saving_stack_samples" msgid="8174915522390525221">"Стекийн түүвэрлэлтийг хадгалж байна"</string>
+    <string name="stack_samples_saved" msgid="8863295751647724616">"Стекийн түүвэрлэлтийг хадгалсан"</string>
+    <string name="saving_heap_dump" msgid="6118616780825771824">"Санах ойн агшин зургийг хадгалж байна"</string>
+    <string name="heap_dump_saved" msgid="6720583137473857098">"Санах ойн агшин зургийг хадгалсан"</string>
+    <string name="tap_to_share" msgid="4440713575852187545">"Бичлэгээ хуваалцахын тулд товшино уу"</string>
+    <string name="attaching_to_report" msgid="2629202947947275886">"Алдааны мэдээнд ул мөр хавсаргаж байна"</string>
+    <string name="attached_to_report" msgid="5806905349184608870">"Алдааны мэдээнд ул мөр хавсаргасан"</string>
+    <string name="attached_to_report_summary" msgid="7665675771190391355">"BetterBug-г нээхийн тулд товшино уу"</string>
+    <string name="stop_tracing" msgid="8916938308534164152">"Мөрдөхийг зогсоох"</string>
+    <string name="tracing_categories_unavailable" msgid="5609076391417077752">"Зарим мөрийн ангилал боломжгүй байна:"</string>
+    <string name="trace_is_being_recorded" msgid="5947378146009337469">"Ул мөрийг бүртгэж байна"</string>
+    <string name="tap_to_stop_tracing" msgid="6533282719573871806">"Мөрдөхийг зогсоох бол товшино уу"</string>
+    <string name="stack_samples_are_being_recorded" msgid="8669254939248349583">"Стекийн түүвэрлэлтийг бичиж байна"</string>
+    <string name="tap_to_stop_stack_sampling" msgid="5911317684139059415">"Стекийн түүвэрлэлтийг зогсоохын тулд товшино уу"</string>
+    <string name="heap_dump_is_being_recorded" msgid="3789315106110524969">"Санах ойн агшин зургийг бүртгэж байна"</string>
+    <string name="tap_to_stop_heap_dump" msgid="6475699275834526902">"Санах ойн агшин зургийг зогсоохын тулд товшино уу"</string>
+    <string name="clear_saved_files" msgid="9156079311231446825">"Хадгалсан файлуудыг арилгах"</string>
+    <string name="clear_saved_files_summary" msgid="109751867417553670">"Бичлэгүүдийг нэг сарын дараа арилгадаг"</string>
+    <string name="clear_saved_files_question" msgid="8586686617760838834">"Хадгалсан файлуудыг арилгах уу?"</string>
+    <string name="all_recordings_will_be_deleted" msgid="7731693738485947891">"Бүх бичлэгийг /өгөгдөл/дотоод/ул мөрөөс устгана"</string>
+    <string name="clear" msgid="5484761795406948056">"Устгах"</string>
+    <string name="system_traces_storage_title" msgid="8294090839883366871">"Системийн ул мөр"</string>
+    <string name="keywords" msgid="736547007949049535">"systrace, ул мөр, гүйцэтгэл"</string>
+    <string name="share_file" msgid="1982029143280382271">"Файл хуваалцах уу?"</string>
+    <string name="system_trace_sensitive_data" msgid="3069389866696009549">"Системийн мөрдлөгийн файлд систем болон аппын мэдрэг өгөгдлийг (апп ашиглалт зэрэг) агуулж болзошгүй. Та системийн ул мөрийг зөвхөн итгэдэг хүмүүс болон аппуудтайгаа хуваалцана уу."</string>
+    <string name="share" msgid="8443979083706282338">"Хуваалцах"</string>
+    <string name="dont_show_again" msgid="6662492041164390600">"Дахиж бүү харуул"</string>
+    <string name="long_traces" msgid="5110949471775966329">"Урт ул мөр"</string>
+    <string name="long_traces_summary" msgid="419034282946761469">"Төхөөрөмжийн хадгалах санд тасралтгүй хадгалсан"</string>
+    <string name="long_traces_summary_betterbug" msgid="445546400875135624">"Төхөөрөмжийн хадгалах санд тогтмол хадгалсан (алдааны мэдээнд автоматаар хавсаргахгүй)"</string>
+    <string name="max_long_trace_size" msgid="1943788179787181241">"Хамгийн урт ул мөрийн хэмжээ"</string>
+    <string name="max_long_trace_duration" msgid="8009837944364246785">"Хамгийн урт ул мөрийн үргэлжлэх хугацаа"</string>
+    <string name="two_hundred_mb" msgid="4950018549725084512">"200 МБ"</string>
+    <string name="one_gb" msgid="590396985168692037">"1 ГБ"</string>
+    <string name="five_gb" msgid="7883941043220621649">"5 ГБ"</string>
+    <string name="ten_gb" msgid="4150452462544299276">"10 ГБ"</string>
+    <string name="twenty_gb" msgid="5717308686812140465">"20 ГБ"</string>
+    <string name="ten_minutes" msgid="7039181194343961324">"10 минут"</string>
+    <string name="thirty_minutes" msgid="2575810799813531395">"30 минут"</string>
+    <string name="one_hour" msgid="5219232935307966891">"1 цаг"</string>
+    <string name="eight_hours" msgid="3207620892104451552">"8 цаг"</string>
+    <string name="twelve_hours" msgid="4647143276394563496">"12 цаг"</string>
+    <string name="twentyfour_hours" msgid="2789663313550030791">"24 цаг"</string>
+    <string name="four_thousand_kb" msgid="5156346740862105703">"4096 КБ"</string>
+    <string name="eight_thousand_kb" msgid="8815334985638334081">"8192 КБ"</string>
+    <string name="sixteen_thousand_kb" msgid="7342517169232459259">"16384 КБ"</string>
+    <string name="thirtytwo_thousand_kb" msgid="654328198799196150">"32768 КБ"</string>
+    <string name="sixtyfive_thousand_kb" msgid="8168144138598305306">"65536 КБ"</string>
+    <string name="stop_on_bugreport" msgid="4591832600597126422">"Алдааны мэдээнүүдэд зориулж бичихийг зогсоох"</string>
+    <string name="stop_on_bugreport_summary" msgid="1601834864982891381">"Алдааны мэдээг эхлүүлсэн үед идэвхтэй бичлэгүүдийг зогсооно"</string>
+    <string name="attach_to_bug_report" msgid="5388986830016247490">"Алдааны мэдээнд бичлэгүүд хавсаргах"</string>
+    <string name="attach_to_bug_report_summary" msgid="4213730623971240002">"Алдааны мэдээг цуглуулсан үед хийгдэж буй бичлэгүүдийг BetterBug руу автоматаар илгээх"</string>
+    <string name="link_to_traces" msgid="1404687523304348490">"Хадгалсан файлуудыг харах"</string>
+    <string name="pref_category_trace_settings" msgid="6507535407023329628">"Ул мөрийн тохиргоо"</string>
+    <string name="pref_category_saved_files" msgid="1477491400970413291">"Хадгалсан файлууд"</string>
+    <string name="pref_category_misc" msgid="6217624054980014683">"Бусад"</string>
+    <string name="pref_category_heap_dump_settings" msgid="2234681064312605310">"Санах ойн агшин зургийн тохиргоо"</string>
+</resources>

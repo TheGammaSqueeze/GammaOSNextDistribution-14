@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    Copyright (C) 2018 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+  -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="reset_appgrid_title" msgid="6491348358859198288">"အက်ပ်ဇယားကို A-Z အစီအစဉ်သို့ ပြင်ဆင်သတ်မှတ်ရန်"</string>
+    <string name="reset_appgrid_dialogue_message" msgid="2278301828239327586">"ဤလုပ်ဆောင်ချက်သည် စိတ်ကြိုက်စီစဉ်မှုအားလုံးကို ဖယ်ရှားမည်။ ရှေ့ဆက်လိုပါသလား။"</string>
+    <string name="app_launcher_title_all_apps" msgid="3522783138519460233">"အက်ပ်အားလုံး"</string>
+    <string name="app_launcher_title_media_only" msgid="7194631822174015710">"မီဒီယာ အက်ပ်များ"</string>
+    <string name="app_launcher_stop_app_cant_stop_text" msgid="6513703446595313338">"အက်ပ်ကို ရပ်၍မရပါ။"</string>
+    <string name="driving_toast_text" msgid="397905281933065053">"ကားမောင်းနေစဉ် <xliff:g id="APP_NAME">%1$s</xliff:g> ကို သုံး၍မရပါ။"</string>
+    <string name="hide_debug_apps" msgid="7140064693464751647">"အမှားရှာပြင်သည့်အက်ပ်များ ဖျောက်ထားရန်"</string>
+    <string name="show_debug_apps" msgid="2748157232151197494">"အမှားရှာပြင်သည့်အက်ပ်များ ပြပါ"</string>
+    <string name="user_tos_activity_intent" msgid="5323981034042569291">"intent:#Intent;action=com.android.car.SHOW_USER_TOS_ACTIVITY;B.show_value_prop=false;end"</string>
+    <string name="banner_title_text" msgid="8827498256184464356">"အသုံးပြုသူဆိုင်ရာ ဝန်ဆောင်မှုစည်းမျဉ်းများပိတ်ထားသည့် အက်ပ်များ သုံးရန် ‘အသုံးပြုသူဆိုင်ရာ TOS’ ကို လက်ခံပါ"</string>
+    <string name="banner_review_button_text" msgid="369410598918950148">"စိစစ်ရန်"</string>
+    <string name="banner_dismiss_button_text" msgid="5389352614429069562">"ယခုမလုပ်ပါ"</string>
+</resources>

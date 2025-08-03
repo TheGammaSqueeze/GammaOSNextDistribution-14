@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="scanning_title" msgid="5424849039854311398">"Skanowanie"</string>
+    <string name="loading_summary" msgid="3740846439782713910">"Sprawdzam ustawienia urządzenia…"</string>
+    <string name="overall_severity_level_ok_title" msgid="2041250138727564565">"OK"</string>
+    <string name="overall_severity_level_ok_summary" msgid="383626536912856690">"Nie znaleziono problemów"</string>
+    <string name="overall_severity_level_tip_summary" msgid="1935765582243024999">"{count,plural, =1{Zobacz rekomendację}few{Zobacz rekomendacje}many{Zobacz rekomendacje}other{Zobacz rekomendacje}}"</string>
+    <string name="overall_severity_level_action_taken_summary" msgid="8064091657855656545">"{count,plural, =1{Podjęliśmy działanie}few{Podjęliśmy działania}many{Podjęliśmy działania}other{Podjęliśmy działania}}"</string>
+    <string name="overall_severity_level_ok_review_title" msgid="1494321117696765360">"Sprawdź ustawienia"</string>
+    <string name="overall_severity_level_ok_review_summary" msgid="7743619617413076275">"Sprawdź listę ustawień"</string>
+    <string name="overall_severity_level_device_recommendation_title" msgid="5250040236433061827">"Urządzenie może być zagrożone"</string>
+    <string name="overall_severity_level_critical_device_warning_title" msgid="5901771721834272596">"Urządzenie jest zagrożone"</string>
+    <string name="overall_severity_level_data_recommendation_title" msgid="1424269714861655302">"Dane mogą być zagrożone"</string>
+    <string name="overall_severity_level_critical_data_warning_title" msgid="1012704126634698604">"Dane są zagrożone"</string>
+    <string name="overall_severity_level_passwords_recommendation_title" msgid="8625105570296877719">"Przejęte hasła (stare)"</string>
+    <string name="overall_severity_level_critical_passwords_warning_title" msgid="7859047988648851217">"Przejęte hasła (nowe)"</string>
+    <string name="overall_severity_level_personal_recommendation_title" msgid="5493814377982623779">"Twoje bezpieczeństwo może być zagrożone"</string>
+    <string name="overall_severity_level_critical_personal_warning_title" msgid="5070434468955164734">"Twoje bezpieczeństwo jest zagrożone"</string>
+    <string name="overall_severity_level_safety_recommendation_title" msgid="4291797434760242793">"Wykryte potencjalne zagrożenia"</string>
+    <string name="overall_severity_level_critical_safety_warning_title" msgid="6666640109779586868">"Wykryte zagrożenia"</string>
+    <string name="overall_severity_level_account_recommendation_title" msgid="2267542168734275090">"Konto może być zagrożone"</string>
+    <string name="overall_severity_level_critical_account_warning_title" msgid="1913235490583842004">"Konto jest zagrożone"</string>
+    <string name="overall_severity_n_alerts_summary" msgid="3262010942295408403">"{count,plural, =1{Zobacz alert}few{Zobacz alerty}many{Zobacz alerty}other{Zobacz alerty}}"</string>
+    <string name="redirecting_error" msgid="8146983632878233202">"Nie udało się otworzyć strony"</string>
+    <string name="resolving_action_error" msgid="371968886143262375">"Nie udało się rozwiązać problemu z alertu"</string>
+    <string name="refresh_error" msgid="656062128422446177">"{count,plural, =1{Nie udało się sprawdzić ustawienia}few{Nie udało się sprawdzić ustawień}many{Nie udało się sprawdzić ustawień}other{Nie udało się sprawdzić ustawień}}"</string>
+    <string name="work_profile_paused" msgid="7037400224040869079">"Wstrzymano profil służbowy"</string>
+    <string name="group_unknown_summary" msgid="6951386960814105641">"Nie ma jeszcze informacji"</string>
+    <string name="notification_channel_group_name" msgid="7155072032524876859">"Bezpieczeństwo i prywatność"</string>
+    <string name="notification_channel_name_information" msgid="2966444432152990166">"Rekomendacje"</string>
+    <string name="notification_channel_name_recommendation" msgid="7847408286580217922">"Ostrzeżenia"</string>
+    <string name="notification_channel_name_critical_warning" msgid="5994320322108351769">"Ostrzeżenia o znaczeniu krytycznym"</string>
+</resources>

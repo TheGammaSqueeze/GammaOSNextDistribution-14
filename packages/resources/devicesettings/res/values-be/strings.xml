@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2013-2016 The CyanogenMod Project
+                   2017-2022 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="device_settings_app_name">Дадатковыя налады</string>
+    <string name="screen_gestures_panel_title">Жэсты</string>
+    <string name="touchscreen_gesture_extras">Дадаткі</string>
+    <string name="touchscreen_gesture_haptic_feedback">Вібраводгук</string>
+    <string name="touchscreen_gesture_settings_summary">Выкананне розных сэнсарных жэстаў на экране для хуткіх дзеянняў</string>
+    <string name="gesture_display_title">Жэсты пры выключаным экране</string>
+    <string name="touchscreen_c_gesture_title">Камера</string>
+    <string name="touchscreen_e_gesture_title">Электронная пошта</string>
+    <string name="touchscreen_m_gesture_title">Паведамленні</string>
+    <string name="touchscreen_v_gesture_title">Набіральнік нумара</string>
+    <string name="touchscreen_w_gesture_title">Браўзер</string>
+    <string name="touchscreen_z_gesture_title">Ліхтарык</string>
+    <string name="touchscreen_flashlight_gesture_title">Ліхтарык</string>
+    <string name="touchscreen_flashlight_gesture_summary">Намалюйце круг, каб уключыць або выключыць ліхтарык</string>
+    <string name="touchscreen_swipe_down_title">Правесці ўніз</string>
+    <string name="touchscreen_swipe_left_title">Правесці ўлева</string>
+    <string name="user_aware_display_title">Інтэлектуальнае адкл. дысплея</string>
+    <string name="user_aware_display_summary">Трымаць экран уключаным, пакуль карыстальнік знаходзіцца перад ім</string>
+    <string name="ambient_display_summary_off">Не ўключаць экран пры атрыманні апавяшчэнняў</string>
+    <string name="tilt_sensor_title">Датчык нахілу</string>
+    <string name="proximity_sensor_title">Датчык набліжэння</string>
+    <string name="hand_wave_gesture_flat_title">Выяўленне арыентацыі</string>
+    <string name="pick_up_gesture_title">Падняць</string>
+    <string name="pocket_gesture_title">Кішэнь</string>
+    <string name="actions_title">Дзеянні</string>
+    <string name="camera_gesture_title">Падвойнае кручэнне</string>
+    <string name="chop_chop_gesture_title">Устрэсванне</string>
+    <string name="hand_wave_silencer_title">Узмах для адключэння гуку</string>
+    <string name="hand_wave_silencer_summary">Правядзіце рукой над экранам, каб прыглушыць гук уваходнага выкліку</string>
+    <string name="flip_to_mute_summary">Перавярніце тэлефон экранам уніз, каб адключыць гукі апавяшчэнняў і выклікаў</string>
+    <string name="lift_to_silence_title">Падняць і прыглушыць</string>
+    <string name="action_none">Адключыць</string>
+    <string name="feedback_intensity_title">Магутнасць вібраводгуку</string>
+    <string name="feedback_intensity_none">Адключана</string>
+    <string name="dialog_ok">ОК</string>
+    <string name="disabled">Адключана</string>
+    <string name="button_panel_title">Дадатковыя кнопкі</string>
+    <string name="button_swap_title">Памяняць кнопкі месцамі</string>
+    <string name="fingerprint_title">Адбітак пальца</string>
+    <string name="high_touch_sensitivity_title">Высокая адчувальнасць дотыку</string>
+    <string name="high_touch_sensitivity_summary">Павялічыць адчувальнасць экрана для магчымасці працы ў пальчатках</string>
+    <string name="quick_charge_title">Хуткая зарадка</string>
+</resources>

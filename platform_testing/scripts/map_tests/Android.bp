@@ -1,0 +1,9 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+// Script to run to easily populate TEST_MAPPING from build information.
+python_binary_host {
+    name: "map_tests",
+    srcs: ["map_tests.py"],
+}

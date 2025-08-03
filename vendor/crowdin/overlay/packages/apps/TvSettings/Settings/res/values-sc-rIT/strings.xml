@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2014 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="copyright_title">Deretos de autore</string>
+    <string name="does_not_exist">S\'aplicatzione no esistit.</string>
+    <string name="invalid_location">Sa positzione de s\'installatzione no est bàlida.</string>
+    <string name="system_package">Is atualizatziones de sistema non faghet a ddas installare in mèdios esternos.</string>
+    <string name="move_error_device_admin">S\'amministradore de su dispositivu non faghet a dd\'installare in mèdios esternos.</string>
+    <string name="system_play_sample">Reprodue una proa</string>
+    <string name="usage_access_description">S\'atzessu a s\'impreu cunsentit a un\'aplicatzione de monitorare cales aplicatziones es\u2019t impreende e cantu a s\'ispissu, si non chi s\'operadore telefònicu tuo, is impostatzione de sa limba e àteros detàllios.</string>
+    <string name="play_recorded_audio_title">Reprodue s\'àudio registradu</string>
+</resources>

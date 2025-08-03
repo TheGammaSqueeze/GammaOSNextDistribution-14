@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  Copyright (c) 2022, The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<resources>
+    <!-- Allowed device identifiers bitmap -->
+    <integer name="device_id_type_bitmap">0</integer>
+    <!-- Packages allow-listed in locked mode -->
+    <array name="lock_task_allowlist"/>
+
+    <!-- Port number of the check in server -->
+    <integer name="check_in_server_port_number">8843</integer>
+    <!-- Host name of the check in server -->
+    <string name="check_in_server_host_name">localhost</string>
+    <!-- Name of the metadata for API key authentication -->
+    <string name="check_in_service_api_key_name" />
+    <!-- Value of the metadata for API key authentication -->
+    <string name="check_in_service_api_key_value" />
+    <!-- The implementation class of the check in client -->
+    <string name="device_check_in_client_class_name">
+        com.android.devicelockcontroller.provision.grpc.impl.DeviceCheckInClientImpl
+    </string>
+
+    <!-- Port number of the finalize server -->
+    <integer name="finalize_server_port_number">8843</integer>
+    <!-- Host name of the check in server -->
+    <string name="finalize_server_host_name">localhost</string>
+    <!-- Name of the metadata for API key authentication -->
+    <string name="finalize_service_api_key_name" />
+    <!-- Value of the metadata for API key authentication -->
+    <string name="finalize_service_api_key_value" />
+    <!-- The implementation class of the finalize client -->
+    <string name="device_finalize_client_class_name">
+        com.android.devicelockcontroller.provision.grpc.impl.DeviceFinalizeClientImpl
+    </string>
+</resources>

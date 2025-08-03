@@ -1,0 +1,55 @@
+# Copyright (C) 2019 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This file lists userspace tests
+
+[
+    include("frameworks/native/libs/binder/trusty/build-config-usertests"),
+    include("trusty/user/app/cast-auth/build-config-usertests"),
+    include("trusty/user/app/keymaster/build-config-usertests"),
+    include("trusty/user/app/keymint/build-config-usertests"),
+    include("trusty/user/app/sample/build-config-usertests"),
+    include("trusty/user/app/secretkeeper/build-config-usertests"),
+    include("trusty/user/app/storage/build-config-usertests"),
+
+    # userspace tests that don't use storage
+    porttest("com.android.ipc-unittest.ctrl"),
+    porttest("com.android.libctest"),
+    porttest("com.android.libcxxtest"),
+    porttest("com.android.trusty.apploader.test"),
+    porttest("com.android.trusty.confirmationui.test"),
+    porttest("com.android.trusty.crashtest"),
+    # porttest("com.android.trusty.device_tree.test"),
+    porttest("com.android.trusty.dlmalloctest"),
+    porttest("com.android.trusty.hwaes.test"),
+    porttest("com.android.trusty.hwbcc.test"),
+    porttest("com.android.trusty.rust.tipc.test"),
+    porttest("com.android.trusty.rust.hwkey.test"),
+    porttest("com.android.trusty.rust.hwbcc.test"),
+    porttest("com.android.trusty.rust.hwwsk.test"),
+    porttest("com.android.trusty.rust.storage.test"),
+    compositetest(
+        name="com.android.trusty.secure_fb.test-then-reboot",
+        sequence=[
+            porttest("com.android.trusty.secure_fb.test").needs(android=True),
+            # b/258539281: secure_fb.test generates a warning that taints the
+            # kernel so reboot the emulator before checking if the Linux kernel
+            # is tainted. Once we've resolved the tainting issue, we can remove
+            # this composite test and the reboot to speed up testing.
+            reboot(),
+        ]
+    ),
+    porttest("com.android.trusty.smc.test"),
+    porttest("com.android.uirq-unittest"),
+]

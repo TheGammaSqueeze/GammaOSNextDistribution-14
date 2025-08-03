@@ -1,0 +1,86 @@
+<!--
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<configuration>
+    <include name="catbox-performance-base" />
+
+    <target_preparer class="com.android.tradefed.targetprep.PushFilePreparer" />
+    <!-- Needed to set perfetto trace property before fastboot commands -->
+    <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer" />
+    <target_preparer class="com.android.tradefed.targetprep.FastbootCommandPreparer" />
+    <!-- Needed multiple run command target preparer for running commands before/after install. -->
+    <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer" />
+    <target_preparer class="com.android.tradefed.targetprep.TestAppInstallSetup" />
+    <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer" />
+    <target_preparer class="com.android.tradefed.targetprep.InstrumentationPreparer" >
+        <option name="disable" value="true" />
+    </target_preparer>
+
+    <test class="com.android.tradefed.testtype.HostTest" >
+        <option name="class" value="android.boottime.BootTimeTest" />
+        <option name="set-option" value="boot-delay:20000" />
+        <option name="set-option"
+                value="successive-boot-prepare-cmd:am start -n com.google.android.car.setupwizard/.ExitActivity"/>
+        <option name="set-option"
+                value="successive-boot-prepare-cmd:setprop persist.aae.suw.disable_short_notice true"/>
+        <option name="set-option"
+                value="successive-boot-prepare-cmd:cmd car_service enable-feature car_evs_service"/>
+    </test>
+
+    <metrics_collector class="com.android.tradefed.device.metric.AtraceCollector"/>
+    <metrics_collector class="com.android.tradefed.device.metric.PerfettoPullerMetricCollector">
+        <option name="collect-on-run-ended-only" value="false" />
+    </metrics_collector>
+
+    <metric_post_processor class="com.android.tradefed.postprocessor.PerfettoGenericPostProcessor" />
+    <metric_post_processor class="com.android.tradefed.postprocessor.MetricFilePostProcessor">
+        <option name="aggregate-similar-tests" value="true" />
+    </metric_post_processor>
+    <metric_post_processor class="android.boottime.postprocessor.LogcatPostProcessor">
+        <option name="file-regex" value=".*Successive_reboots_logcat.*"/>
+        <!-- For custom boot time metrics -->
+        <option name="boot-time-pattern" key="boot_to_ble_on"
+                value="BluetoothAdapterService: updateAdapterState\(\) \- Broadcasting state BLE_ON"/>
+        <option name="boot-time-pattern" key="boot_to_carlauncher_fully_drawn"
+                value="Fully drawn com.android.car.carlauncher/.CarLauncher"/>
+        <option name="boot-time-pattern" key="boot_to_first_user_unlocked"
+                value="CarServiceHelper: Time to unlock 1st user"/>
+        <option name="boot-time-pattern" key="boot_to_maps_displayed"
+                value="Displayed com.google.android.apps.maps"/>
+        <option name="boot-time-pattern" key="boot_to_settings_fallbackhome_displayed"
+                value="Displayed com.android.car.settings/.FallbackHome"/>
+        <option name="boot-time-pattern" key="boot_to_user0_unlocked"
+                value="SystemServerTiming: SystemUserUnlock took to complete"/>
+        <option name="boot-time-pattern" key="boot_to_user10_unlocked"
+                value="SystemServerTiming: User10Unlock took to complete"/>
+        <option name="boot-time-pattern" key="boot_to_gmscore_started_experimental"
+                value="ActivityManager: Start proc \d+:com.google.android.gms/u0"/>
+        <option name="boot-time-pattern" key="boot_to_car_evs_service_started"
+                value="CAR.InitTiming: CarEvsService took to complete"/>s
+    </metric_post_processor>
+    <metric_post_processor class="android.boottime.postprocessor.DmesgPostProcessor">
+        <option name="file-regex" value=".*Successive_reboots_dmesg.*"/>
+    </metric_post_processor>
+
+    <!-- Artificially disabling tests in CompatibilityTestSuite -->
+    <!-- See com.android.tradefed.testtype.suite.CompatibilityTestSuite:loadTests() -->
+    <option name="compatibility:reverse-exclude-filters" value="true" />
+
+    <option name="report-log-name" value="CatboxPerformanceTests" />
+    <option name="report-test-name-mapping" key="BootTimeTest.BootTimeTest#SuccessiveBootTest" value="boot_time_test" />
+    <option name="report-all-metrics" value="false" />
+    <option name="report-metric-key-mapping" key="dmesg_action_sys.boot_completed_first_timestamp-median" value="successive_boot_time" />
+</configuration>

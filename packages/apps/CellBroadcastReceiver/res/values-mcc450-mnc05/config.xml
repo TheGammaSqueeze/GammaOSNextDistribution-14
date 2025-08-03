@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2020 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources>
+  <!-- 4370, 4383, 40960(0xA000 test-mode) -->
+  <!-- Emergency alert tone duration set to 1 minute for Korean users -->
+  <string-array name="cmas_presidential_alerts_channels_range_strings" translatable="false">
+    <item>0x1112:rat=gsm, emergency=true, override_dnd=true, always_on=true</item>
+    <item>0x111F:rat=gsm, emergency=true, override_dnd=true, always_on=true</item>
+    <item>0xA000:rat=gsm, emergency=true, override_dnd=true, testing_mode=true</item>
+  </string-array>
+  <!-- 4371, 4384, 40961(0xA001 test mode) -->
+  <string-array name="emergency_alerts_channels_range_strings" translatable="false">
+    <item>0x1113:rat=gsm, emergency=true, override_dnd=true</item>
+    <item>0x1120:rat=gsm, emergency=true, override_dnd=true</item>
+    <item>0xA001:rat=gsm, emergency=true, override_dnd=true, testing_mode=true</item>
+  </string-array>
+  <!-- 4372, 4385, 4373~4379 Class 1 reserved channels for Korea, 0xA002 ~0xA009 for test mode -->
+  <string-array name="public_safety_messages_channels_range_strings" translatable="false">
+    <item>0x1114:rat=gsm, emergency=true, type=info, screen_on_duration=0, dismiss_on_outside_touch=true</item>
+    <item>0x1115-0x111B:rat=gsm, emergency=true, type=info, screen_on_duration=0, dismiss_on_outside_touch=true</item>
+    <item>0x1121:rat=gsm, emergency=true, type=info, screen_on_duration=0, dismiss_on_outside_touch=true</item>
+    <item>0xA002-0xA009:rat=gsm, emergency=true, type=info, testing_mode=true, screen_on_duration=0, dismiss_on_outside_touch=true</item>
+  </string-array>
+
+  <!-- 40970~45055 biz purpose channels -->
+  <string-array name="additional_cbs_channels_strings" translatable="false">
+    <item>0xA00A-0xAFFF:rat=gsm, emergency=false, scope=carrier, exclude_from_sms_inbox=true, display=false</item>
+  </string-array>
+</resources>

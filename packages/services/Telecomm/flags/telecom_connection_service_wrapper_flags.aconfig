@@ -1,0 +1,9 @@
+package: "com.android.server.telecom.flags"
+container: "system"
+
+flag {
+  name: "updated_rcs_call_count_tracking"
+  namespace: "telecom"
+  description: "Ensure that the associatedCallCount of CS and RCS is accurately being tracked."
+  bug: "286154316"
+}

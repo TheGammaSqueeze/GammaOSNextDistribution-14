@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (c) 2009, 2011-2013 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2014-2015 The CyanogenMod Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *    * Neither the name of The Linux Foundation nor
+ *      the names of its contributors may be used to endorse or promote
+ *      products derived from this software without specific prior written
+ *      permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NON-INFRINGEMENT ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="menu_stats">FM RF stats</string>
+
+    <string name="test_menu">Select Test</string>
+
+    <string name="test_prompt">Choose a test</string>
+    <string name="test_run">Run Test</string>
+    <string name="set_rmmsi_delta">Configure RMSSI Delta</string>
+    <string name="set_sigth">Configure Signal Th</string>
+    <string name="type_rd"></string>
+    <string name="enter_rssi">Enter RMSSI Delta</string>
+    <string name="enter_sigth">Enter Signal Th</string>
+    <string name="enter_SinrSmplsCnt">Enter SINR Samples Count</string>
+    <string name="set_SinrSmplsCnt">Configure SINR Samples</string>
+    <string name="enter_SinrTh">Enter SINR Threshold</string>
+    <string name="set_SinrTh">Configure SINR Threshold</string>
+    <string name="enter_IntfLowTh">Enter Intf Det Low Threshold</string>
+    <string name="set_IntfLowTh">Config Intf Det Low Threshold</string>
+    <string name="enter_IntfHighTh">Enter Intf Det High Threshold</string>
+    <string name="set_IntfHighTh">Config Intf Det High Threshold</string>
+
+    <string name="enter_SinrFirstStage">Enter Sinr First Stage</string>
+    <string name="set_SinrFirstStage">Config Sinr First Stage</string>
+    <string name="enter_RmssiFirstStage">Enter Rmssi First Stage</string>
+    <string name="set_RmssiFirstStage">Config Rmssi First Stage</string>
+    <string name="enter_CF0Th12">Enter CF0 Threshold</string>
+    <string name="set_CF0Th12">Config CF0 Threshold</string>
+    <string name="search_algo_mpx">MPX_DCC Algo</string>
+    <string name="search_algo_sinrint">SINR_INTF Algo</string>
+    <string name="enter_AfJmpRmssiTh">Enter Af Jump Rmssi Threshold</string>
+    <string name="set_AfJmpRmssiTh">Config Af Jump Rmssi Threshold</string>
+    <string name="enter_GdChRmssiTh">Enter Good Channel Rmssi Threshold</string>
+    <string name="set_GdChRmssiTh">Config Good Channel Rmssi Threshold</string>
+    <string name="enter_AfJmpRmssiSmplsCnt">Enter Af Jump Rmssi Samples count</string>
+    <string name="set_AfJmpRmssiSmplsCnt">Config Af Jump Rmssi Samples count</string>
+    <string name="enter_RxRePeatCount">Enter RxRePeat count</string>
+    <string name="set_RxRePeatCount">Config RxRePeat count</string>
+    <string name="enter_BlendSinrHi">Enter Sig Blend SinrHi value</string>
+    <string name="set_BlendSinrHi">Configure Sig Blend SinrHi value</string>
+    <string name="enter_BlendRmssiHi">Enter Sig Blend RmssiHi value</string>
+    <string name="set_BlendRmssiHi">Configure Sig Blend RmssiHi value</string>
+    <string name="enter_RssiTh">Enter RSSI Threshold</string>
+    <string name="set_RssiTh">Config RSSI Threshold</string>
+    <string name="enter_AfJumpRssiTh">Enter AF jump RSSI Threshold</string>
+    <string name="set_AfJumpRssiTh">Config AF jump RSSI Threshold</string>
+    <string name="set_RdsFifoCnt">Config RDS FIFO count</string>
+
+    <string name="band_method_prompt">Select Method</string>
+    <string name="enter_start_delay_time">Start Delay Time</string>
+    <string name="enter_dwell_time">Dwell Time</string>
+    <string name="band_sweep_setting">Sweep Setting</string>
+    <string name="band_sweep_setting_set">Set</string>
+    <string name="band_sweep_setting_cancel">Cancel</string>
+    <string name="band_sweep_choose">Choose Band Sweep Method</string>
+</resources>

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2021 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.android.car.cluster.home">
+
+    <!-- for ActivityManager.getCurrentUser() -->
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS"/>
+    <!-- for IActivityManager.registerTaskStackListener() -->
+    <uses-permission android:name="android.permission.MANAGE_ACTIVITY_TASKS"/>
+    <!-- for PackageManager.queryIntentActivitiesAsUser() -->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+    <!-- for ClusterHomeManager -->
+    <uses-permission android:name="android.car.permission.CAR_INSTRUMENT_CLUSTER_CONTROL"/>
+    <!-- for CarInputManager.requestInputEventCapture() -->
+    <uses-permission android:name="android.car.permission.CAR_MONITOR_INPUT"/>
+
+    <!--
+        android:directBootAware to start the application regardless of user-unlocking.
+    -->
+    <application android:name=".ClusterHomeApplication"
+            android:label="ClusterHomeSample"
+            android:persistent="true"
+            android:directBootAware="true">
+        <!-- android:showForAllUsers to keep the Activity regardless of user-switching -->
+        <activity android:name=".ClusterHomeActivity"
+                android:exported="true"
+                android:showForAllUsers="true"
+                android:excludeFromRecents="true"
+                android:screenOrientation="nosensor"
+                android:launchMode="singleTask"
+                android:configChanges="uiMode|mcc|mnc"
+                android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen">
+            <meta-data android:name="distractionOptimized" android:value="true"/>
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <activity android:name=".ClusterHomeActivityLightMode"
+                  android:exported="true"
+                  android:showForAllUsers="true"
+                  android:excludeFromRecents="true"
+                  android:screenOrientation="nosensor"
+                  android:launchMode="singleTask"
+                  android:configChanges="uiMode|mcc|mnc"
+                  android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen">
+            <meta-data android:name="distractionOptimized" android:value="true"/>
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <activity android:name=".FakeFreeNavigationActivity"
+                android:exported="true"
+                android:showForAllUsers="true"
+                android:excludeFromRecents="true"
+                android:screenOrientation="nosensor"
+                android:launchMode="singleTask"
+                android:configChanges="uiMode|mcc|mnc"
+                android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen">
+            <meta-data android:name="distractionOptimized" android:value="true"/>
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <activity android:name=".ClusterPhoneActivity"
+                android:exported="true"
+                android:showForAllUsers="true"
+                android:excludeFromRecents="true"
+                android:screenOrientation="nosensor"
+                android:launchMode="singleTask"
+                android:configChanges="uiMode|mcc|mnc"
+                android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen">
+            <meta-data android:name="distractionOptimized" android:value="true"/>
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <activity android:name=".ClusterMusicActivity"
+                android:exported="true"
+                android:showForAllUsers="true"
+                android:excludeFromRecents="true"
+                android:screenOrientation="nosensor"
+                android:launchMode="singleTask"
+                android:configChanges="uiMode|mcc|mnc"
+                android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen">
+            <meta-data android:name="distractionOptimized" android:value="true"/>
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

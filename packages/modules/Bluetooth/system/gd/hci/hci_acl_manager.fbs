@@ -1,0 +1,13 @@
+namespace bluetooth.hci;
+
+attribute "privacy";
+
+table AclManagerData {
+    title:string (privacy:"Any");
+    le_filter_accept_list_count:int (privacy:"Any");
+    le_filter_accept_list:[string] (privacy:"Any");
+    le_connectability_state:string (privacy:"Any");
+    le_create_connection_timeout_alarms_count:int (privacy:"Any");
+}
+
+root_type AclManagerData;

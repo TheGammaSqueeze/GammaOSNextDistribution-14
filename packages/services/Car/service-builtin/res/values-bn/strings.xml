@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2015 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="car_permission_label_bind_projection_service" msgid="6976251734714662552">"প্রোজেকশন পরিষেবার সাথে যুক্ত হওয়া"</string>
+    <string name="car_permission_desc_bind_projection_service" msgid="4610418233070289810">"হোল্ডারকে একটি প্রোজেকশন পরিষেবার উচ্চ মানের ইন্টারফেসে যুক্ত হতে অনুমতি দেয়। সধারণ অ্যাপের ক্ষেত্রে কখনই প্রয়োজন হয় না।"</string>
+    <string name="car_permission_label_bind_vms_client" msgid="1298928874094319701">"VMS ক্লায়েন্ট পরিষেবা"</string>
+    <string name="car_permission_desc_bind_vms_client" msgid="7758142590449847602">"VMS ক্লায়েন্টের সাথে যুক্ত হন"</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="6723392540805279625">"ইনস্ট্রুমেন্ট ক্লাস্টার রেন্ডার করা"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="2583711303360788080">"ইনস্ট্রুমেন্ট ক্লাস্টার ডেটা পান"</string>
+    <string name="car_permission_label_bind_input_service" msgid="6647238478703096557">"গাড়ির ইনপুট সার্ভিস"</string>
+    <string name="car_permission_desc_bind_input_service" msgid="8460218104132496613">"ইনপুট ইভেন্ট হ্যান্ডেল করা"</string>
+    <string name="activity_blocked_text" msgid="5991043857905412794">"ড্রাইভ করার সময় আপনি এই ফিচারটি ব্যবহার করতে পারবেন না"</string>
+    <string name="exit_button_message" msgid="5375678491245394542">"অ্যাপের সুরক্ষিত ফিচারগুলি নিয়ে আবার শুরু করতে, <xliff:g id="EXIT_BUTTON">%s</xliff:g> বেছে নিন।"</string>
+    <string name="exit_button" msgid="3491899413031549265">"আবার চালু করুন"</string>
+    <string name="exit_button_close_application" msgid="5153716684207539041">"অ্যাপ বন্ধ করুন"</string>
+    <string name="exit_button_go_back" msgid="6921595432375141935">"ফিরুন"</string>
+    <string name="importance_default" msgid="8017186728206153704">"ডিফল্ট গুরুত্ব"</string>
+    <string name="importance_high" msgid="3393374688015554727">"খুব গুরুত্বপূর্ণ"</string>
+    <string name="android_system_label" msgid="9209428539477894959">"Android সিস্টেম"</string>
+    <string name="factory_reset_notification_title" msgid="6177770995437355965">"ফ্যাক্টরি রিসেট করতে হবে"</string>
+    <string name="factory_reset_notification_text" msgid="6051393302193696102">"ইনফোটেইনমেন্ট সিস্টেমের সব ডেটা মুছে যাবে। রিসেট করার পরে আপনি নতুন প্রোফাইল সেট আপ করতে পারবেন।"</string>
+    <string name="factory_reset_notification_button" msgid="6926734587145351076">"আরও"</string>
+    <string name="factory_reset_warning" msgid="8463356329619149262">"আপনার ডিভাইসটি মুছে ফেলা হবে"</string>
+    <string name="factory_reset_message" msgid="1972536809866779972">"অ্যাডমিন অ্যাপ ব্যবহার করা যাবে না। আপনার ডিভাইসে থাকা সবকিছু এখন মুছে ফেলা হবে।\n\nকোনও প্রশ্ন থাকলে আপনার প্রতিষ্ঠানের অ্যাডমিনের সাথে যোগাযোগ করুন।"</string>
+    <string name="resource_overuse_notification_title" msgid="1622015333965744463">"<xliff:g id="ID_1">^1</xliff:g> আপনার সিস্টেমের পারফর্ম্যান্সে প্রভাব ফেলছে"</string>
+    <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"ব্যাকগ্রাউন্ডে চলা থেকে এই অ্যাপকে আটকানো হয়েছে। ব্যাকগ্রাউন্ডে চালু থাকার জন্য অ্যাপকে অগ্রাধিকার দিন।"</string>
+    <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"বন্ধ করুন"</string>
+    <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"অ্যাপকে অগ্রাধিকার দিন"</string>
+</resources>

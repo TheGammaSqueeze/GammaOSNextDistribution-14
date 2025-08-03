@@ -1,0 +1,51 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Copyright (C) 2022 The Android Open Source Project
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.-->
+<!--
+THIS FILE WAS AUTO GENERATED, DO NOT EDIT MANUALLY.
+REGENERATE USING packages/apps/Car/libs/tools/rro/generate-overlayable.py
+-->
+<resources>
+  <overlayable name="CarRadio">
+    <policy type="system|product|signature">
+      <item type="bool" name="show_menu_item_selector"/>
+      <item type="color" name="accent_color"/>
+      <item type="color" name="band_selector_flat_text_color"/>
+      <item type="color" name="band_selector_flat_text_color_selected"/>
+      <item type="color" name="browse_fragment_list_color"/>
+      <item type="color" name="browse_item_text_color"/>
+      <item type="color" name="control_button_color"/>
+      <item type="color" name="control_button_disabled_color"/>
+      <item type="color" name="control_button_ripple_color"/>
+      <item type="color" name="manual_tuner_button_background_color"/>
+      <item type="color" name="manual_tuner_button_ripple_background_color"/>
+      <item type="color" name="manual_tuner_button_ripple_fill_color"/>
+      <item type="color" name="manual_tuner_button_text_color"/>
+      <item type="color" name="manual_tuner_digit_color"/>
+      <item type="color" name="manual_tuner_done_disabled_color"/>
+      <item type="color" name="pause_button_fill_color"/>
+      <item type="color" name="play_arrow_fill_color"/>
+      <item type="color" name="play_arrow_off_fill_color"/>
+      <item type="color" name="playback_button_ripple_background_color"/>
+      <item type="color" name="playback_button_ripple_fill_color"/>
+      <item type="color" name="playback_card_background_color"/>
+      <item type="color" name="playback_controls_play_button_color"/>
+      <item type="color" name="radio_am_fill_color"/>
+      <item type="color" name="radio_card_color"/>
+      <item type="color" name="radio_fm_fill_color"/>
+      <item type="dimen" name="playback_card_height"/>
+      <item type="dimen" name="playback_card_margin_bottom"/>
+      <item type="dimen" name="playback_card_margin_horizontal"/>
+      <item type="dimen" name="radio_activity_playback_width"/>
+      <item type="style" name="RadioPlaybackCard"/>
+    </policy>
+  </overlayable>
+</resources>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2021 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<configuration description="Config for apkdmverity tests">
+  <!--
+    Creating and configuring the loop devices and the device-mapper devices require root privilege.
+  -->
+  <target_preparer class="com.android.tradefed.targetprep.RootTargetPreparer"/>
+
+  <!--
+    We need to disable selinux because kernel (which is implementing the loop device) doesn't have
+    the privilege to read files on /data. Otherwise, we hit the following errors:
+
+    avc: denied { read } for comm="loop32"
+    path="/data/local/tmp/.tmp.ptPChH/test.apk.idsig" dev="dm-8" ino=2939
+    scontext=u:r:kernel:s0 tcontext=u:object_r:shell_data_file:s0
+    tclass=file
+  -->
+  <target_preparer class="com.android.tradefed.targetprep.DisableSELinuxTargetPreparer"/>
+
+  <target_preparer class="com.android.tradefed.targetprep.PushFilePreparer">
+    <option name="push-file" key="apkdmverity.test" value="/data/local/tmp/apkdmverity.test" />
+  </target_preparer>
+
+  <test class="com.android.tradefed.testtype.rust.RustBinaryTest" >
+    <option name="test-device-path" value="/data/local/tmp" />
+    <option name="module-name" value="apkdmverity.test" />
+  </test>
+</configuration>

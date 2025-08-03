@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (C) 2018 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label">Car notification manager</string>
+
+    <!-- The assistant action label to read aloud a message notification and optionally prompt user to respond [CHAR_LIMIT=20]-->
+    <string name="assist_action_play_label">Play</string>
+
+    <!-- The assistant action label to prompt user to respond [CHAR_LIMIT=20]-->
+    <string name="assist_action_reply_label">Reply</string>
+
+    <!-- The Action label displayed to mute a message notification [CHAR_LIMIT=20]-->
+    <string name="action_mute_short">Mute</string>
+
+    <!-- The Action label displayed to mute a message notification with more context [CHAR_LIMIT=35]-->
+    <string name="action_mute_long">Mute conversation</string>
+
+    <!-- The Action label displayed to unmute a message notification [CHAR_LIMIT=23]-->
+    <string name="action_unmute_short">Unmute</string>
+
+    <!-- The Action label displayed to unmute a message notification with more context [CHAR_LIMIT=35]-->
+    <string name="action_unmute_long">Unmute conversation</string>
+
+    <!-- The Action label displayed to reply with a canned response to a SMS message [CHAR_LIMIT=35]-->
+    <string name="action_canned_reply">\"I\'m driving right now.\"</string>
+
+    <!-- The canned reply SMS message, meant to be sent as a response to an incoming SMS. [CHAR_LIMIT=NONE] -->
+    <string name="canned_reply_message">I\'m driving right now.</string>
+
+    <!-- The toast that is shown when a canned reply message is sent successfully [CHAR_LIMIT=50]-->
+    <string name="toast_message_sent_success">Message sent successfully.</string>
+
+    <!-- The label for the NotificationListenerService [CHAR_LIMIT=NONE] -->
+    <string name="notification_service_label">Car Notification Listener Service</string>
+
+    <!-- The title displayed in notification center activity [CHAR_LIMIT=50] -->
+    <string name="notifications">Notification center</string>
+
+    <!-- The button text for clearing all notifications in notification center [CHAR_LIMIT=15] -->
+    <string name="clear_all">Clear all</string>
+
+    <!-- The string displayed at the end of a shortened text, e.g. "..." [CHAR_LIMIT=10] -->
+    <string name="ellipsized_string">&#8230;</string>
+
+    <!-- The separator for notification header text fields. -->
+    <string name="header_text_separator" translatable="false">&#160;&#8226;&#160;</string>
+
+    <!-- The label for the button that expands a grouped notification [CHAR_LIMIT=20] -->
+    <string name="show_more">Show more</string>
+
+    <!-- Notification header text displayed on top of the notification center shade [CHAR_LIMIT=25] -->
+    <string name="notification_header">Notifications</string>
+
+    <!-- Notification header text displayed on top of recent notifications [CHAR_LIMIT=20] -->
+    <string name="notification_recents">Recents</string>
+
+    <!-- Notification header text displayed on top of older notifications [CHAR_LIMIT=50] -->
+    <string name="notification_older">Older notifications</string>
+
+    <!-- Notification header text displayed on top of the notification center shade when there are no notification to display [CHAR_LIMIT=25] -->
+    <string name="empty_notification_header">No notifications</string>
+
+    <!-- The label for the button that collapses a grouped notification [CHAR_LIMIT=20] -->
+    <string name="collapse_group">Show less</string>
+
+    <!-- The label for the button that redirects to application that has more notifications to show. [CHAR_LIMIT=30] -->
+    <string name="show_more_from_app"><xliff:g id="count">%1$d</xliff:g>&#160;more&#160;from&#160;<xliff:g id="app">%2$s</xliff:g></string>
+
+    <!-- The label for the button that expands a grouped notification with an unread count [CHAR_LIMIT=25] -->
+    <string name="show_count_more">Show&#160;<xliff:g id="count">%d</xliff:g>&#160;more</string>
+
+    <!-- Text indicating the number of the unshown messages in a messaging style notification [CHAR_LIMIT=15] -->
+    <plurals name="message_unshown_count">
+        <item quantity="one"><xliff:g id="count">%d</xliff:g>&#160;more&#160;message</item>
+        <item quantity="other"><xliff:g id="count">%d</xliff:g>&#160;more&#160;messages</item>
+    </plurals>
+
+    <!-- Text indicating the number of new messages inside a messaging style notification during driving restriction [CHAR_LIMIT=30] -->
+    <plurals name="restricted_numbered_message_content">
+        <item quantity="one"><xliff:g id="count">%d</xliff:g>&#160;new&#160;message</item>
+        <item quantity="other"><xliff:g id="count">%d</xliff:g>&#160;new&#160;messages</item>
+    </plurals>
+
+    <!-- Text indicating that a long text message notification can be expanded to show more text from the message [CHAR_LIMIT=20] -->
+    <string name="see_more_message">See more</string>
+
+    <!-- Text indicating that a new message has been received inside a HUN with a messaging style notification during driving restriction [CHAR_LIMIT=30] -->
+    <string name="restricted_hun_message_content">New message</string>
+
+    <!-- The button text for managing notifications in settings [CHAR_LIMIT=20] -->
+    <string name="manage_text">Manage</string>
+
+    <!-- Notification Categories [DO NOT TRANSLATE] -->
+    <string name="category_car_emergency">car_emergency</string>
+    <string name="category_navigation">navigation</string>
+    <string name="category_call">call</string>
+    <string name="category_message">msg</string>
+
+    <!-- Package Names [DO NOT TRANSLATE] -->
+    <string name="pkg_car_dialer">com.android.car.dialer</string>
+
+    <!-- Text indicating the channel for sending notifications on HUN suppression [CHAR_LIMIT=50] -->
+    <string name="hun_suppression_channel_name">Heads Up suppression</string>
+    <!-- Text indicating the title for notification sent to indicate HUN suppression in park state [CHAR_LIMIT=58] -->
+    <string name="hun_suppression_notification_title_park">Keep up with the latest</string>
+    <!-- Text indicating the title for notification sent to indicate HUN suppression in drive state [CHAR_LIMIT=40] -->
+    <string name="hun_suppression_notification_title_drive">Focus on driving</string>
+    <!-- Text indicating the description for notification sent to indicate HUN suppression [CHAR_LIMIT=148] -->
+    <string name="hun_suppression_notification_description">Some new notifications are saved in the Notification Center</string>
+</resources>

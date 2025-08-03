@@ -1,0 +1,20 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_app {
+    name: "ClusterHomeSample",
+
+    // Only compile source java files in this apk.
+    srcs: ["src/**/*.java"],
+
+    libs: [
+        "android.car",
+    ],
+
+    required: ["allowed_privapp_com.android.car.cluster.home"],
+
+    platform_apis: true,
+    certificate: "platform",
+    privileged: true,
+}

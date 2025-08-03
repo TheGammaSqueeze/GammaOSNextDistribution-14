@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:layout_width="fill_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+    <TextView
+        android:id="@+id/main_location_enabled"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="100dp"
+        android:textStyle="bold"
+        android:text="main location enabled: "/>
+    <TextView
+        android:id="@+id/main_location_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/main_location_enabled"
+        android:layout_marginTop="100dp"
+        android:textStyle="bold"/>
+    <TextView
+        android:id="@+id/adas_location_enabled"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/main_location_enabled"
+        android:textStyle="bold"
+        android:text="adas location enabled: "/>
+    <TextView
+        android:id="@+id/adas_location_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/main_location_status"
+        android:layout_toRightOf="@id/adas_location_enabled"
+        android:textStyle="bold"/>
+    <TextView
+        android:id="@+id/current_location"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/current_location"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="350dp"
+        android:layout_marginTop= "200dp"
+        android:textStyle="bold"/>
+    <TextView
+        android:id="@+id/current_location_result"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/current_location"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="350dp"
+        android:textStyle="bold"/>
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/observe_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/current_location_result"
+        android:layout_alignParentLeft="true"
+        app:useCompatPadding="true"
+        android:layout_marginLeft="350dp"/>
+    <TextView
+        android:id="@+id/last_location"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/last_location"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="350dp"
+        android:layout_marginTop= "200dp"
+        android:textStyle="bold"/>
+    <TextView
+        android:id="@+id/last_location_result"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/last_location"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="350dp"
+        android:textStyle="bold"/>
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/query_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/last_location_result"
+        android:layout_alignParentRight="true"
+        app:useCompatPadding="true"
+        android:layout_marginRight="350dp"/>
+</RelativeLayout>

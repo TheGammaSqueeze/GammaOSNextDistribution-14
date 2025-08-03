@@ -1,0 +1,68 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 2,
+    "identityHash": "4d9d365c6c901ca8a91490ed484cc0b8",
+    "entities": [
+      {
+        "tableName": "http_cache",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`cache_url` TEXT NOT NULL, `response_body` TEXT, `response_headers` TEXT, `creation_timestamp` INTEGER, `max_age` INTEGER NOT NULL, PRIMARY KEY(`cache_url`))",
+        "fields": [
+          {
+            "fieldPath": "url",
+            "columnName": "cache_url",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "responseBody",
+            "columnName": "response_body",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "responseHeaders",
+            "columnName": "response_headers",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "creationTimestamp",
+            "columnName": "creation_timestamp",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "maxAgeSeconds",
+            "columnName": "max_age",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "cache_url"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_http_cache_cache_url",
+            "unique": false,
+            "columnNames": [
+              "cache_url"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_http_cache_cache_url` ON `${TABLE_NAME}` (`cache_url`)"
+          }
+        ],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4d9d365c6c901ca8a91490ed484cc0b8')"
+    ]
+  }
+}

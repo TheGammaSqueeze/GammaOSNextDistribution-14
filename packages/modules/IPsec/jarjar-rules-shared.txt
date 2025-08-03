@@ -1,0 +1,6 @@
+rule android.annotation.StringDef com.android.internal.net.ipsec.annotation.StringDef
+rule android.telephony.Annotation* com.android.internal.net.eap.telephony.Annotation@1
+rule com.android.server.vcn.util.PersistableBundleUtils* com.android.internal.net.vcn.util.PersistableBundleUtils@1
+rule com.android.internal.util.** com.android.internal.net.ipsec.ike.utils.@1
+rule com.android.modules.utils.** com.android.internal.net.utils.@1
+rule org.bouncycastle.** com.android.internal.net.org.bouncycastle.@1

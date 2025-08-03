@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2017 Google Inc. All Rights Reserved. -->
+<configuration description="Android APCT test suite config.">
+    <include name="suite/base-suite" />
+    <option name="run-suite-tag" value="apct" />
+</configuration>

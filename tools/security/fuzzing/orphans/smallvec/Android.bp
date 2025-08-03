@@ -1,0 +1,18 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_fuzz {
+    name: "smallvec_fuzzer",
+    srcs: ["smallvec_fuzzer.rs"],
+    proc_macros: ["libnum_derive"],
+    rustlibs: [
+        "libarbitrary",
+        "libnum_traits",
+        "libsmallvec",
+    ],
+    fuzz_config: {
+        fuzz_on_haiku_device: true,
+        fuzz_on_haiku_host: true,
+    },
+}

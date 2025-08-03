@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="safetyCenterResourcesAppLabel" msgid="4043334186295695930">"സുരക്ഷാകേന്ദ്ര വിഭവങ്ങൾ"</string>
+    <string name="lock_screen_sources_title" msgid="3317906280484627707">"ഉപകരണ ലോക്ക്"</string>
+    <string name="lock_screen_sources_summary" msgid="7220439741282516496"></string>
+    <string name="lock_screen_title" msgid="4069104894527169877">"സ്ക്രീൻ ലോക്ക്"</string>
+    <string name="lock_screen_summary_disabled" msgid="354071230916616692">"ഇതുവരെ വിവരങ്ങളൊന്നുമില്ല"</string>
+    <string name="lock_screen_search_terms" msgid="2678486357779794826">"ഉപകരണ ലോക്ക്, സ്ക്രീൻ ലോക്ക്, ലോക്ക് സ്‌ക്രീൻ, പാസ്‍വേഡ്, പിൻ, പാറ്റേൺ"</string>
+    <string name="biometrics_title" msgid="5859504610285212938">"ബയോമെട്രിക്‌സ്"</string>
+    <string name="biometrics_search_terms" msgid="6040319118762671981">"ഫിംഗർപ്രിന്റ്, വിരൽ, ഫിംഗർപ്രിന്റ് ചേർക്കുക, ഫെയ്‌സ് അൺലോക്ക്, മുഖം"</string>
+    <string name="privacy_sources_title" msgid="4061110826457365957">"സ്വകാര്യത"</string>
+    <string name="privacy_sources_summary" msgid="4089719981155120864">"ഡാഷ്ബോർഡുകൾ, അനുമതികൾ, നിയന്ത്രണങ്ങൾ"</string>
+    <string name="permission_usage_title" msgid="3633779688945350407">"സ്വകാര്യതാ ഡാഷ്ബോർഡ്"</string>
+    <string name="permission_usage_summary" msgid="5323079206029964468">"അടുത്തിടെ അനുമതികൾ ഉപയോഗിച്ച ആപ്പുകൾ ഏതൊക്കെയെന്ന് കാണിക്കുക"</string>
+    <string name="permission_usage_search_terms" msgid="3852343592870257104">"സ്വകാര്യത, സ്വകാര്യതാ ഡാഷ്ബോർഡ്"</string>
+    <string name="permission_manager_title" msgid="5277347862821255015">"അനുമതി മാനേജർ"</string>
+    <string name="permission_manager_summary" msgid="8099852107340970790">"നിങ്ങളുടെ ഡാറ്റയിലേക്കുള്ള ആപ്പ് ആക്‌സസ് നിയന്ത്രിക്കുക"</string>
+    <string name="permission_manager_search_terms" msgid="2895147613099694722">"അനുമതികൾ, അനുമതികളുടെ മാനേജർ"</string>
+    <string name="privacy_controls_title" msgid="5322875777945432395">"സ്വകാര്യതാ നിയന്ത്രണങ്ങൾ"</string>
+    <string name="privacy_controls_summary" msgid="2402066941190435424">"മൈക്രോഫോൺ, ക്യാമറ എന്നിവയിലേക്കും മറ്റമുള്ള ഉപകരണ ആക്‌സസ് നിയന്ത്രിക്കുക"</string>
+    <string name="privacy_controls_search_terms" msgid="3774472175934304165">"സ്വകാര്യത, സ്വകാര്യതാ നിയന്ത്രണങ്ങൾ"</string>
+    <string name="advanced_title" msgid="8745436380690561172">"കൂടുതൽ ക്രമീകരണം"</string>
+    <string name="advanced_security_title" msgid="1126833338772188155">"കൂടുതൽ സുരക്ഷാ ക്രമീകരണം"</string>
+    <string name="advanced_security_summary" msgid="6172253327022425123">"എൻക്രിപ്ഷൻ, ക്രെഡൻഷ്യലുകൾ എന്നിവയും മറ്റും"</string>
+    <string name="advanced_security_search_terms" msgid="3350609555814362075"></string>
+    <string name="advanced_privacy_title" msgid="1117725225706176643">"കൂടുതൽ സ്വകാര്യതാ ക്രമീകരണം"</string>
+    <string name="advanced_privacy_summary" msgid="2281203390575069543">"സ്വയമേവ പൂരിപ്പിക്കൽ, ആക്റ്റിവിറ്റി നിയന്ത്രണങ്ങൾ എന്നിവയും മറ്റും"</string>
+    <string name="advanced_privacy_search_terms" msgid="5044404599789175222"></string>
+</resources>

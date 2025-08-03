@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2022-2024 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <!-- Generic gesture actions, w/ default, w/ two-way -->
+    <string-array name="gesture_actions_entries" translatable="false">
+        <item>@string/gesture_action_shutter</item>
+        <item>@string/gesture_action_focus</item>
+        <item>@string/gesture_action_mic_mute</item>
+        <item>@string/gesture_action_zoom</item>
+        <item>@string/gesture_action_default</item>
+        <item>@string/gesture_action_nothing</item>
+    </string-array>
+
+    <string-array name="gesture_actions_values" translatable="false">
+        <item>shutter</item>
+        <item>focus</item>
+        <item>mic_mute</item>
+        <item>zoom</item>
+        <item>default</item>
+        <item>nothing</item>
+    </string-array>
+
+    <!-- Generic gesture actions, w/ default, w/o two-way -->
+    <string-array name="gesture_actions_no_two_way_entries" translatable="false">
+        <item>@string/gesture_action_shutter</item>
+        <item>@string/gesture_action_focus</item>
+        <item>@string/gesture_action_mic_mute</item>
+        <item>@string/gesture_action_default</item>
+        <item>@string/gesture_action_nothing</item>
+    </string-array>
+
+    <string-array name="gesture_actions_no_two_way_values" translatable="false">
+        <item>shutter</item>
+        <item>focus</item>
+        <item>mic_mute</item>
+        <item>default</item>
+        <item>nothing</item>
+    </string-array>
+
+    <!-- Generic gesture actions, w/o default, w/ two-way -->
+    <string-array name="gesture_actions_no_default_entries" translatable="false">
+        <item>@string/gesture_action_shutter</item>
+        <item>@string/gesture_action_focus</item>
+        <item>@string/gesture_action_mic_mute</item>
+        <item>@string/gesture_action_zoom</item>
+        <item>@string/gesture_action_nothing</item>
+    </string-array>
+
+    <string-array name="gesture_actions_no_default_values" translatable="false">
+        <item>shutter</item>
+        <item>focus</item>
+        <item>mic_mute</item>
+        <item>zoom</item>
+        <item>nothing</item>
+    </string-array>
+
+    <!-- Generic gesture actions, w/o default, w/o two-way -->
+    <string-array name="gesture_actions_no_default_no_two_way_entries" translatable="false">
+        <item>@string/gesture_action_shutter</item>
+        <item>@string/gesture_action_focus</item>
+        <item>@string/gesture_action_mic_mute</item>
+        <item>@string/gesture_action_nothing</item>
+    </string-array>
+
+    <string-array name="gesture_actions_no_default_no_two_way_values" translatable="false">
+        <item>shutter</item>
+        <item>focus</item>
+        <item>mic_mute</item>
+        <item>nothing</item>
+    </string-array>
+
+    <!-- Photo capture mode Preference -->
+    <string-array name="photo_capture_mode_entries" translatable="false">
+        <item>@string/photo_capture_mode_maximize_quality</item>
+        <item>@string/photo_capture_mode_minimize_latency</item>
+    </string-array>
+
+    <string-array name="photo_capture_mode_values" translatable="false">
+        <item>maximize_quality</item>
+        <item>minimize_latency</item>
+    </string-array>
+
+    <!-- Edge mode preference -->
+    <string-array name="edge_mode_entries" translatable="false">
+        <item>@string/edge_mode_default</item>
+        <item>@string/edge_mode_off</item>
+        <item>@string/edge_mode_fast</item>
+        <item>@string/edge_mode_high_quality</item>
+    </string-array>
+
+    <string-array name="edge_mode_values" translatable="false">
+        <item>default</item>
+        <item>off</item>
+        <item>fast</item>
+        <item>high_quality</item>
+    </string-array>
+
+    <!-- Noise reduction mode preference -->
+    <string-array name="noise_reduction_mode_entries" translatable="false">
+        <item>@string/noise_reduction_mode_default</item>
+        <item>@string/noise_reduction_mode_off</item>
+        <item>@string/noise_reduction_mode_fast</item>
+        <item>@string/noise_reduction_mode_high_quality</item>
+        <item>@string/noise_reduction_mode_minimal</item>
+    </string-array>
+
+    <string-array name="noise_reduction_mode_values" translatable="false">
+        <item>default</item>
+        <item>off</item>
+        <item>fast</item>
+        <item>high_quality</item>
+        <item>minimal</item>
+    </string-array>
+
+    <!-- Shading mode preference -->
+    <string-array name="shading_mode_entries" translatable="false">
+        <item>@string/shading_mode_default</item>
+        <item>@string/shading_mode_off</item>
+        <item>@string/shading_mode_fast</item>
+        <item>@string/shading_mode_high_quality</item>
+    </string-array>
+
+    <string-array name="shading_mode_values" translatable="false">
+        <item>default</item>
+        <item>off</item>
+        <item>fast</item>
+        <item>high_quality</item>
+    </string-array>
+
+    <!-- Color correction aberration mode preference -->
+    <string-array name="color_correction_aberration_mode_entries" translatable="false">
+        <item>@string/color_correction_aberration_mode_default</item>
+        <item>@string/color_correction_aberration_mode_off</item>
+        <item>@string/color_correction_aberration_mode_fast</item>
+        <item>@string/color_correction_aberration_mode_high_quality</item>
+    </string-array>
+
+    <string-array name="color_correction_aberration_mode_values" translatable="false">
+        <item>default</item>
+        <item>off</item>
+        <item>fast</item>
+        <item>high_quality</item>
+    </string-array>
+
+    <!-- Distortion correction mode preference -->
+    <string-array name="distortion_correction_mode_entries" translatable="false">
+        <item>@string/distortion_correction_mode_default</item>
+        <item>@string/distortion_correction_mode_off</item>
+        <item>@string/distortion_correction_mode_fast</item>
+        <item>@string/distortion_correction_mode_high_quality</item>
+    </string-array>
+
+    <string-array name="distortion_correction_mode_values" translatable="false">
+        <item>default</item>
+        <item>off</item>
+        <item>fast</item>
+        <item>high_quality</item>
+    </string-array>
+
+    <!-- Hot pixel mode preference -->
+    <string-array name="hot_pixel_mode_entries" translatable="false">
+        <item>@string/hot_pixel_mode_default</item>
+        <item>@string/hot_pixel_mode_off</item>
+        <item>@string/hot_pixel_mode_fast</item>
+        <item>@string/hot_pixel_mode_high_quality</item>
+    </string-array>
+
+    <string-array name="hot_pixel_mode_values" translatable="false">
+        <item>default</item>
+        <item>off</item>
+        <item>fast</item>
+        <item>high_quality</item>
+    </string-array>
+
+    <!-- Video mirror mode preference -->
+    <string-array name="video_mirror_mode_entries" translatable="false">
+        <item>@string/video_mirror_mode_off</item>
+        <item>@string/video_mirror_mode_on</item>
+        <item>@string/video_mirror_mode_on_ffc_only</item>
+    </string-array>
+
+    <string-array name="video_mirror_mode_values" translatable="false">
+        <item>off</item>
+        <item>on</item>
+        <item>on_ffc_only</item>
+    </string-array>
+</resources>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <bool name="dynamic_color_enabled">true</bool>
+    <bool name="enable_partner_experiment">true</bool>
+    <bool name="enable_quick_enhanced_biometrics_flow">true</bool>
+    <bool name="extended_partner_config_enabled">true</bool>
+    <bool name="full_dynamic_color_enabled">true</bool>
+</resources>

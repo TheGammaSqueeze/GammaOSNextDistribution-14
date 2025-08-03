@@ -1,0 +1,15 @@
+<safety-center-config>
+    <safety-sources-config>
+        <safety-sources-group
+            id="id"
+            title="@com.android.safetycenter.config.tests:string/reference"
+            summary="@com.android.safetycenter.config.tests:string/reference">
+            <dynamic-safety-source
+                id="id"
+                packageName="package"
+                titleForPrivateProfile="@com.android.safetycenter.config.tests:string/reference"
+                profile="primary_profile_only"
+                initialDisplayState="hidden"/>
+        </safety-sources-group>
+    </safety-sources-config>
+</safety-center-config>

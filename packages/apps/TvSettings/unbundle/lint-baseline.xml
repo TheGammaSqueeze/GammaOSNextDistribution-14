@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.4.0-alpha01" type="baseline" client="" dependencies="true" name="" variant="all" version="8.4.0-alpha01">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 34 (current min is 31): `android.os.UserManager#isAdminUser`"
+        errorLine1="        return mUserManager.isAdminUser();"
+        errorLine2="                            ~~~~~~~~~~~">
+        <location
+            file="packages/apps/TvSettings/unbundle/java/com/android/tv/settings/unbundle/sdklib/UserManagerCompat.java"
+            line="90"
+            column="29"/>
+    </issue>
+
+</issues>

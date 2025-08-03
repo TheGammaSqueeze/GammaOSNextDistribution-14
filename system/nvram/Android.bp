@@ -1,0 +1,10 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+subdirs = [
+    "client",
+    "core",
+    "hal",
+    "messages",
+]

@@ -1,0 +1,132 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+genrule {
+    name: "pandora_experimental-python-gen-src",
+    tools: [
+        "aprotoc",
+        "protoc-gen-pandora-python",
+    ],
+    cmd: "$(location aprotoc)" +
+        "    -Ipackages/modules/Bluetooth/pandora/interfaces" +
+        "    -Iexternal/pandora/bt-test-interfaces" +
+        "    -Iexternal/protobuf/src" +
+        "    --plugin=protoc-gen-grpc=$(location protoc-gen-pandora-python)" +
+        "    --python_out=$(genDir)" +
+        "    --grpc_out=$(genDir)" +
+        "    $(locations :pandora-protos) $(locations :pandora_experimental-protos) &&" +
+        "touch $(genDir)/pandora_experimental/py.typed &&" +
+        "touch $(genDir)/pandora_experimental/__init__.py",
+    srcs: [
+        ":libprotobuf-internal-protos",
+        ":pandora-protos",
+        ":pandora_experimental-protos",
+    ],
+    out: [
+        "pandora_experimental/__init__.py",
+        "pandora_experimental/_utils.py",
+        "pandora_experimental/asha_grpc.py",
+        "pandora_experimental/asha_grpc_aio.py",
+        "pandora_experimental/asha_pb2.py",
+        "pandora_experimental/asha_pb2.pyi",
+        "pandora_experimental/avrcp_grpc.py",
+        "pandora_experimental/avrcp_grpc_aio.py",
+        "pandora_experimental/avrcp_pb2.py",
+        "pandora_experimental/avrcp_pb2.pyi",
+        "pandora_experimental/dck_grpc.py",
+        "pandora_experimental/dck_grpc_aio.py",
+        "pandora_experimental/dck_pb2.py",
+        "pandora_experimental/dck_pb2.pyi",
+        "pandora_experimental/gatt_grpc.py",
+        "pandora_experimental/gatt_grpc_aio.py",
+        "pandora_experimental/gatt_pb2.py",
+        "pandora_experimental/gatt_pb2.pyi",
+        "pandora_experimental/hfp_grpc.py",
+        "pandora_experimental/hfp_grpc_aio.py",
+        "pandora_experimental/hfp_pb2.py",
+        "pandora_experimental/hfp_pb2.pyi",
+        "pandora_experimental/hid_grpc.py",
+        "pandora_experimental/hid_grpc_aio.py",
+        "pandora_experimental/hid_pb2.py",
+        "pandora_experimental/hid_pb2.pyi",
+        "pandora_experimental/l2cap_grpc.py",
+        "pandora_experimental/l2cap_grpc_aio.py",
+        "pandora_experimental/l2cap_pb2.py",
+        "pandora_experimental/l2cap_pb2.pyi",
+        "pandora_experimental/le_audio_grpc.py",
+        "pandora_experimental/le_audio_grpc_aio.py",
+        "pandora_experimental/le_audio_pb2.py",
+        "pandora_experimental/le_audio_pb2.pyi",
+        "pandora_experimental/map_grpc.py",
+        "pandora_experimental/map_grpc_aio.py",
+        "pandora_experimental/map_pb2.py",
+        "pandora_experimental/map_pb2.pyi",
+        "pandora_experimental/mediaplayer_grpc.py",
+        "pandora_experimental/mediaplayer_grpc_aio.py",
+        "pandora_experimental/mediaplayer_pb2.py",
+        "pandora_experimental/mediaplayer_pb2.pyi",
+        "pandora_experimental/opp_grpc.py",
+        "pandora_experimental/opp_grpc_aio.py",
+        "pandora_experimental/opp_pb2.py",
+        "pandora_experimental/opp_pb2.pyi",
+        "pandora_experimental/os_grpc.py",
+        "pandora_experimental/os_grpc_aio.py",
+        "pandora_experimental/os_pb2.py",
+        "pandora_experimental/os_pb2.pyi",
+        "pandora_experimental/pan_grpc.py",
+        "pandora_experimental/pan_grpc_aio.py",
+        "pandora_experimental/pan_pb2.py",
+        "pandora_experimental/pan_pb2.pyi",
+        "pandora_experimental/pbap_grpc.py",
+        "pandora_experimental/pbap_grpc_aio.py",
+        "pandora_experimental/pbap_pb2.py",
+        "pandora_experimental/pbap_pb2.pyi",
+        "pandora_experimental/py.typed",
+        "pandora_experimental/rfcomm_grpc.py",
+        "pandora_experimental/rfcomm_grpc_aio.py",
+        "pandora_experimental/rfcomm_pb2.py",
+        "pandora_experimental/rfcomm_pb2.pyi",
+    ],
+}
+
+filegroup {
+    name: "pandora_experimental-python-src",
+    srcs: [
+        ":pandora_experimental-python-gen-src",
+    ],
+    exclude_srcs: [
+        ":pandora_experimental-python-stubs",
+    ],
+}
+
+filegroup {
+    name: "pandora_experimental-python-stubs",
+    srcs: [
+        ":pandora_experimental-python-gen-src{pandora_experimental/asha_pb2.pyi}",
+        ":pandora_experimental-python-gen-src{pandora_experimental/avrcp_pb2.pyi}",
+        ":pandora_experimental-python-gen-src{pandora_experimental/dck_pb2.pyi}",
+        ":pandora_experimental-python-gen-src{pandora_experimental/gatt_pb2.pyi}",
+        ":pandora_experimental-python-gen-src{pandora_experimental/hfp_pb2.pyi}",
+        ":pandora_experimental-python-gen-src{pandora_experimental/hid_pb2.pyi}",
+        ":pandora_experimental-python-gen-src{pandora_experimental/l2cap_pb2.pyi}",
+        ":pandora_experimental-python-gen-src{pandora_experimental/le_audio_pb2.pyi}",
+        ":pandora_experimental-python-gen-src{pandora_experimental/map_pb2.pyi}",
+        ":pandora_experimental-python-gen-src{pandora_experimental/mediaplayer_pb2.pyi}",
+        ":pandora_experimental-python-gen-src{pandora_experimental/opp_pb2.pyi}",
+        ":pandora_experimental-python-gen-src{pandora_experimental/os_pb2.pyi}",
+        ":pandora_experimental-python-gen-src{pandora_experimental/pan_pb2.pyi}",
+        ":pandora_experimental-python-gen-src{pandora_experimental/pbap_pb2.pyi}",
+        ":pandora_experimental-python-gen-src{pandora_experimental/py.typed}",
+        ":pandora_experimental-python-gen-src{pandora_experimental/rfcomm_pb2.pyi}",
+    ],
+}
+
+python_library_host {
+    name: "pandora_experimental-python",
+    srcs: [":pandora_experimental-python-src"],
+    libs: ["pandora-python"],
+    data: [
+        ":pandora_experimental-python-stubs",
+    ],
+}

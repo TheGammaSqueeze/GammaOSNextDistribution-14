@@ -1,0 +1,249 @@
+/*
+ * Copyright (C) 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.car.telemetry;
+
+option java_package = "android.car.telemetry";
+option java_outer_classname = "TelemetryProto";
+
+// A metrics configuration.
+//
+// The metrics configuration describes a metric that is collected from a device.
+// It includes a declarative part that configures the metric and the data publisher
+// and a data handler to process the data and create a statistic.
+// The latter is written in Lua language.
+message MetricsConfig {
+  // Required.
+  // The name of the configuration. Must be unique within a device.
+  //
+  // Changing the name of the config should be done carefully, by first removing the config
+  // with the old name, and creating a new config with a new name.
+  // The name is used to for persisting the configs and other internal state, not removing the
+  // configs with old name will result dangling data in the system.
+  //
+  // Only alphanumeric and _ characters are allowed. Minimum length is 3 chars.
+  optional string name = 1;
+
+  // Required.
+  // Version number of the configuration. Must be more than 0.
+  optional int32 version = 2;
+
+  // Required.
+  // A script that is executed at the device side. Must contain all the handler
+  // functions defined in the listeners below.
+  // The script functions must be `pure` functions.
+  optional string script = 3;
+
+  // Required.
+  repeated Subscriber subscribers = 4;
+}
+
+// Parameters for Vehicle Properties publisher.
+// See https://source.android.com/devices/automotive/vhal/properties
+message VehiclePropertyPublisher {
+  // Required.
+  // See packages/services/Car/car-lib/src/android/car/VehiclePropertyIds.java
+  optional int32 vehicle_property_id = 1;
+
+  // See
+  // packages/services/Car/car-lib/src/android/car/hardware/property/CarPropertyManager.java
+  // look for constants SENSOR_RATE_*;
+  optional float read_rate = 2;
+}
+
+// Parameters for cartelemetryd publisher.
+// See packages/services/Car/cpp/telemetry for CarData proto and docs.
+message CarTelemetrydPublisher {
+  // Required.
+  // CarData id to subscribe to.
+  // See packages/services/Car/cpp/telemetry/proto/CarData.proto for all the
+  // messages and IDs.
+  optional int32 id = 1;
+}
+
+// Publisher for various system metrics and stats.
+// It pushes metrics to the subscribers periodically or when garage mode starts.
+message StatsPublisher {
+  enum SystemMetric {
+    UNDEFINED = 0;  // default value, not used
+    // Collects all the app start events with the initial used RSS/CACHE/SWAP memory.
+    APP_START_MEMORY_STATE_CAPTURED = 1;
+    // Collects memory state of processes in 5-minute buckets (1 memory measurement per bucket).
+    // Consider using PROCESS_MEMORY_SNAPSHOT instead for smaller data size.
+    PROCESS_MEMORY_STATE = 2;
+    // Collects activity foreground/background transition events.
+    ACTIVITY_FOREGROUND_STATE_CHANGED = 3;
+    // Collects process CPU usage time.
+    PROCESS_CPU_TIME = 4;
+    // Collects app crash events.
+    APP_CRASH_OCCURRED = 5;
+    // Collects App Not Responding events.
+    ANR_OCCURRED = 6;
+    // Collects "wtf"-level log events.
+    WTF_OCCURRED = 7;
+    // Collects memory snapshot of processes in 5-minute buckets (1 memory measurement per bucket).
+    // It differs from PROCESS_MEMORY_STATE in that the snapshot can be used for leaked memory
+    // detection by tracking anon RSS + swap usage.
+    PROCESS_MEMORY_SNAPSHOT = 8;
+    // Logs number of milliseconds it takes to start a process.
+    // The definition of app process start time is from the app launch time to
+    // the time that Zygote finished forking the app process and loaded the
+    // application package's java classes.
+    PROCESS_START_TIME = 9;
+  }
+
+  // Required.
+  // System metric for the publisher.
+  optional SystemMetric system_metric = 1;
+}
+
+// Publisher for connectivity stats.
+// It pulls connectivity metrics when driving session changes.
+message ConnectivityPublisher {
+  // Transports are from android.net.NetworkCapabilities.
+  enum Transport {
+    TRANSPORT_UNDEFINED = 0;  // default value, not used
+    TRANSPORT_CELLULAR = 1;
+    TRANSPORT_WIFI = 2;
+    TRANSPORT_BLUETOOTH = 3;
+    TRANSPORT_ETHERNET = 4;
+  }
+
+  enum OemType {
+    OEM_UNDEFINED = 0;  // default value, not used
+    OEM_NONE = 1;       // non-OEM networks only
+    OEM_MANAGED = 2;    // OEM managed networks only
+  }
+
+  // Required. Network transport.
+  optional Transport transport = 1;
+
+  // Required. OEM network type.
+  optional OemType oem_type = 2;
+}
+
+// Publisher for device-wide memory statistics as well as process memory statistics.
+// It pulls data every N seconds, where N is the read_interval_sec.
+// Only one declaration of MemoryPublisher is allowed across all MetricsConfigs.
+// Performance on a device with 8GB RAM:
+// Collecting device meminfo takes 1-3ms.
+// Collecting process meminfo takes 70ms and up, depending on how many package names are specified.
+// For reference, collecting process memory on 1 process takes ~70ms, and for 10 processes it takes
+// ~200ms.
+message MemoryPublisher {
+  // Required.
+  // The number of seconds in between each memory snapshot.
+  // The smallest acceptable read interval is 1, which means one snapshot per second.
+  // If only device meminfo is collected, i.e., leaving the package_names field as empty, then
+  // one snapshot per second is lightweight enough to be supported.
+  // However, collecting additional process meminfo is an expensive operation and has adverse
+  // system health impact. Client should consider increasing read_interval_sec to reduce the
+  // data collection frequency if package_names field is non-empty.
+  optional int32 read_interval_sec = 1;
+
+  // Optional.
+  // The maximum number of memory snapshots to collect before terminating the MetricsConfig.
+  // If unspecified, data will be collected until Lua script marks the MetricsConfig as finished
+  // or MetricsConfig is removed.
+  optional int32 max_snapshots = 2;
+
+  // Required.
+  // The maximum number of pending script execution tasks that the MemoryPublisher can produce
+  // before the publisher is throttled (rate-limited).
+  optional int32 max_pending_tasks = 3;
+
+  // Optional.
+  // The package names to get process memory statistics on. If specified, it will be published
+  // along with device memory.
+  // Important: Specifying package_names will increase the cost of data collection in
+  // MemoryPublisher. So it should be done carefully and only when necessary. Some remedies
+  // include increasing the read_interval_sec to reduce data collection frequency, and to use a
+  // small number for max_pending_tasks to throttle the publisher. Client should remove the
+  // MetricsConfig once enough process memory data has been collected. It is not intended to be
+  // used as continuous monitoring on process memory because it is an expensive call.
+  repeated string package_names = 4;
+}
+
+// Specifies data publisher and its parameters.
+message Publisher {
+  oneof publisher {
+    VehiclePropertyPublisher vehicle_property = 1;
+    CarTelemetrydPublisher cartelemetryd = 2;
+    StatsPublisher stats = 3;
+    ConnectivityPublisher connectivity = 4;
+    MemoryPublisher memory = 5;
+  }
+}
+
+// Specifies publisher with its parameters and the handler function that's invoked
+// when data is received. The format of the data depends on the Publisher.
+message Subscriber {
+  // Optional.
+  // Name of the function that handles the published data. Must be defined
+  // in the script.
+  // Leaving the field unset signals that the data from the specified publisher
+  // should bypass ScriptExecutor and be uploaded directly in its original form.
+  optional string handler = 1;
+
+  // Required.
+  // Publisher definition.
+  optional Publisher publisher = 2;
+
+  // Required.
+  // Priority of the subscriber, which affects the order of when it receives data.
+  // Ranges from 0 to 100. 0 being highest priority and 100 being lowest.
+  optional int32 priority = 3;
+}
+
+// A message that encapsulates an error that's produced when collecting metrics.
+// Any changes here should also be reflected on
+// p/s/C/service/src/com/android/car/telemetry/scriptexecutorinterface/IScriptExecutorListener.aidl
+// p/s/C/packages/ScriptExecutor/src/ScriptExecutorListener.h
+message TelemetryError {
+  enum ErrorType {
+    // Not used.
+    UNSPECIFIED = 0;
+
+    // Used when an error occurs in the ScriptExecutor code.
+    SCRIPT_EXECUTOR_ERROR = 1;
+
+    // Used when an error occurs while executing the Lua script (such as errors returned by
+    // lua_pcall)
+    LUA_RUNTIME_ERROR = 2;
+
+    // Used to log errors by a script itself, for instance, when a script received inputs outside
+    // of expected range.
+    LUA_SCRIPT_ERROR = 3;
+
+    // Used to log errors that occur due publisher failures.
+    PUBLISHER_FAILED = 4;
+  }
+
+  // Required.
+  // A type that indicates the category of the error.
+  optional ErrorType error_type = 1;
+
+  // Required.
+  // Human readable message explaining the error or how to fix it.
+  optional string message = 2;
+
+  // Optional.
+  // If there is an exception, there will be stack trace. However this information is not always
+  // available.
+  optional string stack_trace = 3;
+}

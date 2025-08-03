@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (c) 2009, 2011-2013 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2014-2015 The CyanogenMod Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *    * Neither the name of The Linux Foundation nor
+ *      the names of its contributors may be used to endorse or promote
+ *      products derived from this software without specific prior written
+ *      permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NON-INFRINGEMENT ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">FM rádio</string>
+    <string name="tx_app_name">FM vysílač</string>
+    <string name="menu_scan_start">Prohledat</string>
+    <string name="menu_scan_stop">Ukončit hledání</string>
+    <string name="menu_record_start">Nahrát</string>
+    <string name="menu_record_stop">Zastavit nahrávání</string>
+    <string name="menu_settings">Nastavení</string>
+    <string name="menu_sleep">Uspat</string>
+    <string name="menu_sleep_cancel">Zrušit spánek</string>
+    <string name="menu_all_channels">Všechny kanály</string>
+    <string name="menu_display_tags">Zobrazit značky</string>
+    <string name="button_text_stop">Stop</string>
+    <string name="msg_seeking">Vyhledávání FM stanic\u2026</string>
+    <string name="msg_scanning">Vyhledávání všech FM stanic\u2026</string>
+    <string name="msg_scanning_pty">Vyhledávání „<xliff:g id="pty_name">%1$s</xliff:g>“\u2026</string>
+    <string name="msg_search_title"><xliff:g id="frequency_string">%1$s</xliff:g> MHz</string>
+    <string name="msg_searching_title">Automatické přednastavení</string>
+    <string name="msg_searching">Vyhledávání silných stanic pro vytvoření seznamu přednastavení\u2026</string>
+    <string name="msg_noantenna">Pro poslech FM rádia připojte prosím sluchátka</string>
+    <string name="dialog_sleep_title">Doba automatického uspání</string>
+    <string name="presetlist_select_name">Zvolte \'<xliff:g id="presetlist_name">%1$s</xliff:g>\'</string>
+    <string name="presetlist_add_new">Přidat nový seznam</string>
+    <string name="dialog_presetlist_rename_title">Zadejte název</string>
+    <string name="presetlist_autoselect_title">Potvrďte automatický výběr</string>
+    <string name="preset_replace">Nahradit</string>
+    <string name="preset_tune">Ladit</string>
+    <string name="preset_rename">Přejmenovat</string>
+    <string name="preset_delete">Smazat</string>
+    <string name="preset_search">Vyhledávat \u201a<xliff:g id="preset_pi">%1$s</xliff:g>\u2018</string>
+    <string name="stat_notif_frequency">\u201a<xliff:g id="frequency">%1$s</xliff:g>\u2018 MHz</string>
+    <string name="regional_band">Pásmo</string>
+    <string name="regional_band_entry_north_america">Severní Amerika</string>
+    <string name="regional_band_entry_europe">Evropa</string>
+    <string name="regional_band_entry_japan">Japonsko</string>
+    <string name="regional_band_entry_japan_wide">Japonsko (široký)</string>
+    <string name="regional_band_entry_australia">Austrálie</string>
+    <string name="regional_band_entry_austria">Rakousko</string>
+    <string name="regional_band_entry_belgium">Belgie</string>
+    <string name="regional_band_entry_brazil">Brazílie</string>
+    <string name="regional_band_entry_china">Čína</string>
+    <string name="regional_band_entry_czech_republic">Česká republika</string>
+    <string name="regional_band_entry_denmark">Dánsko</string>
+    <string name="regional_band_entry_finland">Finsko</string>
+    <string name="regional_band_entry_france">Francie</string>
+    <string name="regional_band_entry_germany">Německo</string>
+    <string name="regional_band_entry_greece">Řecko</string>
+    <string name="regional_band_entry_hong_kong">Hong Kong</string>
+    <string name="regional_band_entry_india">Indie</string>
+    <string name="regional_band_entry_indonesia">Indonésie</string>
+    <string name="regional_band_entry_ireland">Irsko</string>
+    <string name="regional_band_entry_italy">Ilálie</string>
+    <string name="regional_band_entry_korea">Korea</string>
+    <string name="regional_band_entry_mexico">Mexiko</string>
+    <string name="regional_band_entry_netherlands">Nizozemí</string>
+    <string name="regional_band_entry_new_zealand">Nový Zéland</string>
+    <string name="regional_band_entry_norway">Norsko</string>
+    <string name="regional_band_entry_poland">Polsko</string>
+    <string name="regional_band_entry_portugal">Portugalsko</string>
+    <string name="regional_band_entry_russia">Rusko</string>
+    <string name="regional_band_entry_singapore">Singapur</string>
+    <string name="regional_band_entry_slovakia">Slovensko</string>
+    <string name="regional_band_entry_spain">Španělsko</string>
+    <string name="regional_band_entry_switzerland">Švýcarsko</string>
+    <string name="regional_band_entry_sweden">Švédsko</string>
+    <string name="regional_band_entry_taiwan">Tchaj-wan</string>
+    <string name="regional_band_entry_turkey">Turecko</string>
+    <string name="regional_band_entry_united_kingdom">Spojené království</string>
+    <string name="regional_band_entry_united_states">Spojené státy</string>
+    <string name="regional_band_entry_user_defined">Uživatelem definované pásmo</string>
+    <string name="regional_band_summary_north_america">Severní Amerika (87,5 až 108,0 MHz v 200 kHz krocích)</string>
+    <string name="regional_band_summary_europe">Evropa (87,5 až 108,0 MHz ve 100 kHz krocích)</string>
+    <string name="regional_band_summary_japan">Japonsko (76,0 až 90,0 MHz ve 100 kHz krocích)</string>
+    <string name="regional_band_summary_japan_wide">Japonsko (široký) (90,0 až 108,0 MHz v 50 kHz krocích)</string>
+    <string name="regional_band_summary_australia">Austrálie (87,7 až 108,0 MHz ve 100 kHz krocích)</string>
+    <string name="regional_band_summary_austria">Rakousko (87,5 až 108,0 MHz v 50 kHz krocích)</string>
+    <string name="regional_band_summary_belgium">Belgie (87,5 až 108,0 MHz ve 100 kHz krocích)</string>
+    <string name="regional_band_summary_brazil">Brazílie (87,5 až 108,0 MHz v 200 kHz krocích)</string>
+    <string name="regional_band_summary_china">Čína (87,0 až 108,0 MHz ve 100 kHz krocích)</string>
+    <string name="regional_band_summary_czech_republic">Česká republika (87,5 až 108,0 MHz ve 100 kHz krocích)</string>
+    <string name="regional_band_summary_denmark">Dánsko (87,5 až 108,0 MHz v 50 kHz krocích)</string>
+    <string name="regional_band_summary_finland">Finsko (87,5 až 108,0 MHz ve 100 kHz krocích)</string>
+    <string name="regional_band_summary_france">Francie (87,5 až 108,0 MHz ve 100 kHz krocích)</string>
+    <string name="regional_band_summary_germany">Německo (87,5 až 108,0 MHz v 50 kHz krocích)</string>
+    <string name="regional_band_summary_greece">Řecko (87,5 až 108,0 MHz v 50 kHz krocích)</string>
+    <string name="regional_band_summary_hong_kong">Hong Kong (87,5 až 108,0 MHz ve 100 kHz krocích)</string>
+    <string name="regional_band_summary_india">Indie (87,5 až 108,0 MHz ve 100 kHz krocích)</string>
+    <string name="regional_band_summary_indonesia">Indonésie (87,5 až 108,0 MHz ve 100 kHz krocích)</string>
+    <string name="regional_band_summary_ireland">Irsko (87,5 až 108,0 MHz v 50 kHz krocích)</string>
+    <string name="regional_band_summary_italy">Itálie (87,5 až 108,0 MHz v 50 kHz krocích)</string>
+    <string name="regional_band_summary_korea">Korea (87,5 až 108,0 MHz v 200 kHz krocích)</string>
+    <string name="regional_band_summary_mexico">Mexiko (88,1 až 107,9 MHz v 200 kHz krocích)</string>
+    <string name="regional_band_summary_netherlands">Nizozemsko (87,5 až 108,0 MHz ve 100 kHz krocích)</string>
+    <string name="regional_band_summary_new_zealand">Nový Zéland (88,0 až 107,0 MHz ve 100 kHz krocích)</string>
+    <string name="regional_band_summary_norway">Norsko (87,5 až 108,0 MHz ve 100 kHz krocích)</string>
+    <string name="regional_band_summary_poland">Polsko (87,5 až 108,0 MHz ve 100 kHz krocích)</string>
+    <string name="regional_band_summary_portugal">Portugalsko (87,5 až 108,0 MHz v 50 kHz krocích)</string>
+    <string name="regional_band_summary_russia">Rusko (87,5 až 108,0 MHz ve 100 kHz krocích)</string>
+    <string name="regional_band_summary_singapore">Singapur (88,0 až 108,0 MHz ve 100 kHz krocích)</string>
+    <string name="regional_band_summary_slovakia">Slovensko (87,5 až 108,0 MHz ve 100 kHz krocích)</string>
+    <string name="regional_band_summary_spain">Španělsko (87,5 až 108,0 MHz ve 100 kHz krocích)</string>
+    <string name="regional_band_summary_switzerland">Švýcarsko (87,5 až 108,0 MHz ve 100 kHz krocích)</string>
+    <string name="regional_band_summary_sweden">Švédsko (87,5 až 108,0 MHz ve 100 kHz krocích)</string>
+    <string name="regional_band_summary_taiwan">Tchaj-wan (87,5 až 108,0 MHz ve 100 kHz krocích)</string>
+    <string name="regional_band_summary_turkey">Turecko (87,5 až 108,0 MHz ve 100 kHz krocích)</string>
+    <string name="regional_band_summary_united_kingdom">Velká Británie (87,5 až 108,0 MHz ve 100 kHz krocích)</string>
+    <string name="regional_band_summary_united_states">Spojené státy (88,1 až 107,9 MHz v 200 kHz krocích)</string>
+    <string name="regional_band_summary_user_defined">Uživatelem definované pásmo</string>
+    <string name="aud_output_mode">Režim zvukového výstupu</string>
+    <string name="audio_type_stereo">Stereo</string>
+    <string name="audio_type_mono">Mono</string>
+    <string name="record_dur">Doba trvání záznamu</string>
+    <string name="auto_select_af">Alternativní frekvence</string>
+    <string name="settings_revert_defaults_title">Obnovit výchozí nastavení</string>
+    <string name="settings_revert_defaults_summary">Obnovit všechna nastavení</string>
+    <string name="settings_revert_confirm_title">Potvrďte obnovení</string>
+    <string name="settings_revert_confirm_msg">Toto smaže všechna nastavení v aplikaci včetně přednastavení. Přejete si pokračovat?</string>
+    <string name="no_storage">Připojte SD kartu před začátkem nahrávání.</string>
+    <string name="preparing_sd">Příprava karty SD…</string>
+    <string name="access_sd_fail">Nelze získat přístup ke kartě SD.</string>
+    <string name="spaceIsLow_content">Na SD kartě dochází místo. Změňte nastavení kvality nebo smažte některé soubory.</string>
+    <string name="FMRecording_reach_size_limit">Bylo dosaženo limitu velikosti.</string>
+    <string name="menu_scan_for_preset">Vyhledat předvolby</string>
+    <string name="fm_off">FM je vypnuto.</string>
+    <string name="fm_call">FM nelze použít při volání.</string>
+    <string name="alert_dialog_hint">Zadejte název</string>
+    <string name="search_dialog_title">Vyhledat stanice</string>
+    <string name="fm_command_timeout_title">Časový limit</string>
+    <string name="fm_tune_timeout_msg">Není možné naladit FM stanici. Pokud problém přetrvává, prosím vypněte a opět zapněte FM rádio.</string>
+    <string name="fm_command_failed_title">Operace FM rádia selhala</string>
+    <string name="fm_cmd_failed_msg">Operace FM rádia selhala. Pokud problém přetrvává, vypněte a opět zapněte prosím FM rádio.</string>
+    <string name="fm_cmd_failed_msg_hdmi">Operace FM rádia selhala. Nelze společně provozovat FM rádio a zároveň HDMI připojení.</string>
+    <string name="fm_cmd_failed_call_on">Operace FM rádia selhala. Nelze současně mít zapnuté FM rádio a volat.</string>
+    <string name="audio_db_title_format"><xliff:g id="format">dd. MM. yyyy HH:mm:ss</xliff:g></string>
+    <string name="audio_db_artist_name">Mé nahrávky FM</string>
+    <string name="audio_db_album_name">Nahrávky FM</string>
+    <string name="audio_db_playlist_name">Nahrávky FM</string>
+    <string name="station_name">Stanice:</string>
+    <string name="station_exists">Tato frekvence již existuje!</string>
+    <string name="station_list_delete_station">Smazat: <xliff:g id="name">%s</xliff:g></string>
+    <string name="station_list_delete_station_prompt">Opravdu chcete smazat „<xliff:g id="name">%s</xliff:g>“?</string>
+    <string name="station_name_empty">Název stanice je prázdný, zadejte znovu.</string>
+    <string name="station_name_exist">Stanice „<xliff:g id="name">%s</xliff:g>“ už existuje, prosím zadejte jiný název.</string>
+    <string name="rt_plus_tags">Štítky</string>
+    <string name="usr_def_band_min">Nejnižší frekvence (MHz)</string>
+    <string name="usr_def_band_max">Nejvyšší frekvence (MHz)</string>
+    <string name="chanl_spacing">Odstup kanálů</string>
+    <string name="set">Nastavit</string>
+    <string name="user_defind_band_msg">Zadejte frekvenci od 76,0 do 108,0 MHz s minimální mezerou 1 kanál a 100kHz mezerou mezi minimální a maximální frekvencí</string>
+    <string name="save_record_file">Záznam FM uložen do souboru „<xliff:g id="record_file">%1$s</xliff:g>“</string>
+    <string name="fm_search_no_results">Nebyly nalezeny žádné použitelné stanice</string>
+    <string name="typ_All_stations">Všechny stanice</string>
+    <string name="typ_Culture">Kultura</string>
+    <string name="typ_Current_affairs">Publicistika</string>
+    <string name="typ_Children">Program pro děti</string>
+    <string name="typ_Country">Country</string>
+    <string name="typ_Documentary">Dokumentární</string>
+    <string name="typ_Drama">Drama</string>
+    <string name="typ_Easy_listening">Poslechová hudba</string>
+    <string name="typ_Education">Vzdělávání</string>
+    <string name="typ_Emergency">Pohotovost</string>
+    <string name="typ_Emergency_test">Pohotovost - test</string>
+    <string name="typ_Finance">Finance</string>
+    <string name="typ_Folk">Folková hudba</string>
+    <string name="typ_Information">Informace</string>
+    <string name="typ_Jazz">Jazzová hudba</string>
+    <string name="typ_Light_classical">Lehká klasika</string>
+    <string name="typ_Leisure">Volný čas</string>
+    <string name="typ_News">Zpravodajství</string>
+    <string name="typ_National">Národní hudba</string>
+    <string name="typ_Other">Ostatní hudba</string>
+    <string name="typ_Oldies">Oldies</string>
+    <string name="typ_Phone_in">Stažené</string>
+    <string name="typ_Pop">Pop-music</string>
+    <string name="typ_Religion">Náboženství</string>
+    <string name="typ_Rock">Rocková hudba</string>
+    <string name="typ_Science">Věda</string>
+    <string name="typ_Serious_classical">Seriózní klasika</string>
+    <string name="typ_Social_affairs">Sociální věci</string>
+    <string name="typ_Sport">Sport</string>
+    <string name="typ_Travel">Cestování</string>
+    <string name="typ_Varied">Různé</string>
+    <string name="typ_Weather">Počasí</string>
+    <string name="typ_Adult_hits">Hity pro dospělé</string>
+    <string name="typ_Classical">Klasická hudba</string>
+    <string name="typ_Classic_Rock">Klasický Rock</string>
+    <string name="typ_College">Školní</string>
+    <string name="typ_Foreign_language">Cizí jazyk</string>
+    <string name="typ_Hiphop">Hip Hop</string>
+    <string name="typ_Nostalgia">Nostalgie</string>
+    <string name="typ_Personality">Osobnosti</string>
+    <string name="typ_Public">Veřejné</string>
+    <string name="typ_Religious_music">Náboženská hudba</string>
+    <string name="typ_Religious_talk">Náboženské mluvené slovo</string>
+    <string name="typ_Rhythm_and_Blues">Rhythm and Blues</string>
+    <string name="typ_Spanish_music">Španělská hudba</string>
+    <string name="typ_Spanish_talk">Španělština</string>
+    <string name="typ_Soft">Soft</string>
+    <string name="typ_Soft_Rock">Soft Rock</string>
+    <string name="typ_Soft_Rhythm_and_Blues">Soft Rhythm and Blues</string>
+    <string name="typ_Sports">Sporty</string>
+    <string name="typ_Talk">Mluvené slovo</string>
+    <string name="typ_Top_40">Top 40</string>
+</resources>

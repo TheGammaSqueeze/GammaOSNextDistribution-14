@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2009 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="uid_label" msgid="8421971615411294156">"Medija"</string>
+    <string name="storage_description" msgid="4081716890357580107">"Vietinė saugykla"</string>
+    <string name="picker_app_label" msgid="1195424381053599122">"Medijos pasirinkimo priemonė"</string>
+    <string name="artist_label" msgid="8105600993099120273">"Atlikėjas"</string>
+    <string name="unknown" msgid="2059049215682829375">"Nežinoma"</string>
+    <string name="root_images" msgid="5861633549189045666">"Vaizdai"</string>
+    <string name="root_videos" msgid="8792703517064649453">"Vaizdo įrašai"</string>
+    <string name="root_audio" msgid="3505830755201326018">"Garsas"</string>
+    <string name="root_documents" msgid="3829103301363849237">"Dokumentai"</string>
+    <string name="permission_required" msgid="1460820436132943754">"Norint keisti ar ištrinti šį elementą reikalingas leidimas."</string>
+    <string name="permission_required_action" msgid="706370952366113539">"Tęsti"</string>
+    <string name="grant_dialog_button_allow" msgid="1644287024501033471">"Leisti"</string>
+    <string name="grant_dialog_button_deny" msgid="6190589471415815741">"Atmesti"</string>
+    <string name="permission_more_thumb" msgid="1938863829470531577">"{count,plural, =1{Dar <xliff:g id="COUNT_0">^1</xliff:g>}one{Dar <xliff:g id="COUNT_1">^1</xliff:g>}few{Dar <xliff:g id="COUNT_1">^1</xliff:g>}many{Dar <xliff:g id="COUNT_1">^1</xliff:g>}other{Dar <xliff:g id="COUNT_1">^1</xliff:g>}}"</string>
+    <string name="permission_more_text" msgid="2471785045095597753">"{count,plural, =1{Dar <xliff:g id="COUNT_0">^1</xliff:g> papildomas elementas}one{Dar <xliff:g id="COUNT_1">^1</xliff:g> papildomas elementas}few{Dar <xliff:g id="COUNT_1">^1</xliff:g> papildomi elementai}many{Dar <xliff:g id="COUNT_1">^1</xliff:g> papildomo elemento}other{Dar <xliff:g id="COUNT_1">^1</xliff:g> papildomų elementų}}"</string>
+    <string name="cache_clearing_dialog_title" msgid="8907893815183913664">"Laikinų programų failų išvalymas"</string>
+    <string name="cache_clearing_dialog_text" msgid="7057784635111940957">"Programa „<xliff:g id="APP_SEEKING_PERMISSION">%s</xliff:g>“ nori išvalyti kai kuriuos laikinus failus. Dėl to gali būti suvartojama daugiau akumuliatoriaus energijos ar mobiliojo ryšio duomenų."</string>
+    <string name="cache_clearing_in_progress_title" msgid="6902220064511664209">"Išvalomi laikini programos failai…"</string>
+    <string name="clear" msgid="5524638938415865915">"Išvalyti"</string>
+    <string name="allow" msgid="8885707816848569619">"Leisti"</string>
+    <string name="deny" msgid="6040983710442068936">"Atmesti"</string>
+    <string name="picker_browse" msgid="5554477454636075934">"Naršyti…"</string>
+    <string name="picker_settings" msgid="6443463167344790260">"Medijos debesyje programa"</string>
+    <string name="picker_settings_system_settings_menu_title" msgid="3055084757610063581">"Medijos debesyje programa"</string>
+    <string name="picker_settings_title" msgid="5647700706470673258">"Medijos debesyje programa"</string>
+    <string name="picker_settings_description" msgid="2916686824777214585">"Pasiekite debesies mediją, kai programa ar svetainė paprašys pasirinkti nuotraukas ar vaizdo įrašus"</string>
+    <string name="picker_settings_selection_message" msgid="245453573086488596">"Pasiekti mediją debesyje iš"</string>
+    <string name="picker_settings_no_provider" msgid="2582311853680058223">"Nėra"</string>
+    <string name="picker_settings_toast_error" msgid="697274445512467469">"Šiuo metu nepavyko pakeisti debesies medijos programos."</string>
+    <string name="picker_sync_notification_channel" msgid="1867105708912627993">"Medijos pasirinkimo priemonė"</string>
+    <string name="picker_sync_notification_title" msgid="1122713382122055246">"Medijos pasirinkimo priemonė"</string>
+    <string name="picker_sync_notification_text" msgid="8204423917712309382">"Sinchronizuojama medija…"</string>
+    <string name="add" msgid="2894574044585549298">"Pridėti"</string>
+    <string name="deselect" msgid="4297825044827769490">"Panaikinti pasirinkimą"</string>
+    <string name="deselected" msgid="8488133193326208475">"Pasirinkimas panaikintas"</string>
+    <string name="select" msgid="2704765470563027689">"Pasirinkti"</string>
+    <string name="selected" msgid="9151797369975828124">"Pasirinkta"</string>
+    <string name="select_up_to" msgid="6994294169508439957">"{count,plural, =1{Pasirinkite iki <xliff:g id="COUNT_0">^1</xliff:g> elemento}one{Pasirinkite iki <xliff:g id="COUNT_1">^1</xliff:g> elemento}few{Pasirinkite iki <xliff:g id="COUNT_1">^1</xliff:g> elementų}many{Pasirinkite iki <xliff:g id="COUNT_1">^1</xliff:g> elemento}other{Pasirinkite iki <xliff:g id="COUNT_1">^1</xliff:g> elementų}}"</string>
+    <string name="recent" msgid="6694613584743207874">"Naujausios"</string>
+    <string name="picker_photos_empty_message" msgid="5980619500554575558">"Nėra jokių nuotraukų ar vaizdo įrašų"</string>
+    <string name="picker_album_media_empty_message" msgid="7061850698189881671">"Nėra palaikomų nuotraukų ar vaizdo įrašų"</string>
+    <string name="picker_albums_empty_message" msgid="8341079772950966815">"Nėra jokių albumų"</string>
+    <string name="picker_view_selected" msgid="2266031384396143883">"Žiūrėti pasirinktus"</string>
+    <string name="picker_photos" msgid="7415035516411087392">"Nuotraukos"</string>
+    <!-- no translation found for picker_videos (2886971435439047097) -->
+    <skip />
+    <string name="picker_albums" msgid="4822511902115299142">"Albumai"</string>
+    <string name="picker_preview" msgid="6257414886055861039">"Peržiūra"</string>
+    <string name="picker_work_profile" msgid="2083221066869141576">"Perjungti į darbo profilį"</string>
+    <string name="picker_personal_profile" msgid="639484258397758406">"Perjungti į asmeninį profilį"</string>
+    <string name="picker_personal_profile_label" msgid="6189198163209597344">"Asmeninis"</string>
+    <string name="picker_profile_admin_title" msgid="4172022376418293777">"Užblokavo jūsų administratorius"</string>
+    <string name="picker_profile_admin_msg_from_personal" msgid="1941639895084555723">"Neleidžiama pasiekti darbo duomenų iš asmeninės programos"</string>
+    <string name="picker_profile_admin_msg_from_work" msgid="8048524337462790110">"Neleidžiama pasiekti asmens duomenų iš darbo programos"</string>
+    <string name="picker_profile_admin_msg" msgid="4060112887923255178">"Negalima pasiekti <xliff:g id="PROFILE1">%1$s</xliff:g> duomenų iš <xliff:g id="PROFILE2">%2$s</xliff:g> programos"</string>
+    <string name="picker_profile_switch_message" msgid="1133817927412489487">"Perjungti į <xliff:g id="PROFILE">%s</xliff:g>"</string>
+    <string name="picker_profile_work_paused_title" msgid="382212880704235925">"Darbo programos pristabdytos"</string>
+    <string name="picker_profile_paused_title" msgid="2079739512895529028">"<xliff:g id="PROFILE">%s</xliff:g> programos pristabdytos"</string>
+    <string name="picker_profile_work_paused_msg" msgid="6321552322125246726">"Norėdami atidaryti darbo nuotraukas, įjunkite darbo programas ir bandykite dar kartą"</string>
+    <string name="picker_profile_paused_msg" msgid="1215076898583993782">"Jei norite atidaryti <xliff:g id="PROFILE1">%1$s</xliff:g> nuotraukas, įjunkite <xliff:g id="PROFILE2">%2$s</xliff:g> programas ir bandykite dar kartą"</string>
+    <string name="picker_privacy_message" msgid="9132700451027116817">"Ši programa gali pasiekti tik jūsų pasirinktas nuotraukas"</string>
+    <string name="picker_header_permissions" msgid="675872774407768495">"Pasirinkite nuotraukas ir vaizdo įrašus, kuriuos leisite pasiekti šiai programai"</string>
+    <string name="picker_album_item_count" msgid="4420723302534177596">"{count,plural, =1{<xliff:g id="COUNT_0">^1</xliff:g> elementas}one{<xliff:g id="COUNT_1">^1</xliff:g> elementas}few{<xliff:g id="COUNT_1">^1</xliff:g> elementai}many{<xliff:g id="COUNT_1">^1</xliff:g> elemento}other{<xliff:g id="COUNT_1">^1</xliff:g> elementų}}"</string>
+    <string name="picker_add_button_multi_select" msgid="4005164092275518399">"Pridėti (<xliff:g id="COUNT">^1</xliff:g>)"</string>
+    <string name="picker_add_button_multi_select_permissions" msgid="5138751105800138838">"Leisti (<xliff:g id="COUNT">^1</xliff:g>)"</string>
+    <string name="picker_add_button_allow_none_option" msgid="9183772732922241035">"Niekas neleidžiama"</string>
+    <string name="picker_category_camera" msgid="4857367052026843664">"Vaizdo kamera"</string>
+    <string name="picker_category_downloads" msgid="793866660287361900">"Atsisiuntimai"</string>
+    <string name="picker_category_favorites" msgid="7008495397818966088">"Mėgstamiausi"</string>
+    <string name="picker_category_screenshots" msgid="7216102327587644284">"Ekrano kopijos"</string>
+    <!-- no translation found for picker_category_videos (1478458836380241356) -->
+    <skip />
+    <string name="picker_motion_photo_text" msgid="5016603812468180816">"Judančioji nuotrauka"</string>
+    <string name="picker_item_content_desc" msgid="7680591530155286423">"<xliff:g id="ITEM_NAME">%1$s</xliff:g> užfiksuota <xliff:g id="TIME">%2$s</xliff:g>"</string>
+    <string name="picker_video_item_content_desc" msgid="7828900089119214801">"Vaizdo įrašas sukurtas <xliff:g id="TIME">%1$s</xliff:g>, trukmė: <xliff:g id="DURATION">%2$s</xliff:g>"</string>
+    <string name="picker_photo" msgid="1739342083494962153">"Nuotrauka"</string>
+    <string name="picker_gif" msgid="8333318083107368726">"GIF"</string>
+    <string name="picker_motion_photo" msgid="4385182195289546308">"Judančioji nuotrauka"</string>
+    <string name="picker_mute_video" msgid="2496585809229800096">"Nutildyti vaizdo įrašą"</string>
+    <string name="picker_unmute_video" msgid="6611741290641963568">"Įjungti vaizdo įrašo garsą"</string>
+    <string name="picker_play_video" msgid="7106025944628666250">"Paleisti"</string>
+    <string name="picker_pause_video" msgid="1092718225234326702">"Pristabdyti"</string>
+    <string name="picker_error_snackbar" msgid="5970192792792369203">"Negalima paleisti vaizdo įrašo"</string>
+    <string name="picker_error_dialog_title" msgid="4540095603788920965">"Paleidžiant vaizdo įrašą kilo problema"</string>
+    <string name="picker_error_dialog_body" msgid="2515738446802971453">"Patikrinkite interneto ryšį ir bandykite dar kartą"</string>
+    <string name="picker_error_dialog_positive_action" msgid="749544129082109232">"Bandyti dar kartą"</string>
+    <string name="not_selected" msgid="2244008151669896758">"nepasirinkta"</string>
+    <string name="preloading_dialog_title" msgid="4974348221848532887">"Ruošiami pasirinkti medijos failai"</string>
+    <string name="preloading_progress_message" msgid="4741327138031980582">"Paruošta: <xliff:g id="NUMBER_PRELOADED">%1$d</xliff:g> iš <xliff:g id="NUMBER_TOTAL">%2$d</xliff:g>"</string>
+    <string name="preloading_cancel_button" msgid="824053521307342209">"Atšaukti"</string>
+    <string name="picker_banner_cloud_first_time_available_title" msgid="5912973744275711595">"Dabar įtraukiamos atsarginės nuotraukų kopijos"</string>
+    <string name="picker_banner_cloud_first_time_available_desc" msgid="5570916598348187607">"Galite pasirinkti nuotraukas iš „<xliff:g id="APP_NAME">%1$s</xliff:g>“ paskyros <xliff:g id="USER_ACCOUNT">%2$s</xliff:g>"</string>
+    <string name="picker_banner_cloud_account_changed_title" msgid="4825058474378077327">"„<xliff:g id="APP_NAME">%1$s</xliff:g>“ paskyra atnaujinta"</string>
+    <string name="picker_banner_cloud_account_changed_desc" msgid="3433218869899792497">"Dabar čia įtraukiamos nuotraukos iš <xliff:g id="USER_ACCOUNT">%1$s</xliff:g>"</string>
+    <string name="picker_banner_cloud_choose_app_title" msgid="3165966147547974251">"Debesies medijos programos pasirinkimas"</string>
+    <string name="picker_banner_cloud_choose_app_desc" msgid="2359212653555524926">"Jei norite čia įtraukti atsarginių nuotraukų kopijų, pasirinkite debesies medijos programą skiltyje „Nustatymai“"</string>
+    <string name="picker_banner_cloud_choose_account_title" msgid="5010901185639577685">"„<xliff:g id="APP_NAME">%1$s</xliff:g>“ paskyros pasirinkimas"</string>
+    <string name="picker_banner_cloud_choose_account_desc" msgid="8868134443673142712">"Jei norite čia įtraukti nuotraukas iš „<xliff:g id="APP_NAME">%1$s</xliff:g>“, pasirinkite paskyrą programoje"</string>
+    <string name="picker_banner_cloud_dismiss_button" msgid="2935903078288463882">"Atsisakyti"</string>
+    <string name="picker_banner_cloud_choose_app_button" msgid="934085679890435479">"Pasirinkti programą"</string>
+    <string name="picker_banner_cloud_choose_account_button" msgid="7979484877116991631">"Pasirinkti paskyrą"</string>
+    <string name="picker_banner_cloud_change_account_button" msgid="8361239765828471146">"Pakeisti paskyrą"</string>
+    <string name="picker_loading_photos_message" msgid="6449180084857178949">"Gaunamos visos nuotraukos"</string>
+    <string name="permission_write_audio" msgid="8819694245323580601">"{count,plural, =1{Leisti programai „<xliff:g id="APP_NAME_0">^1</xliff:g>“ keisti šį garso failą?}one{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ keisti <xliff:g id="COUNT">^2</xliff:g> garso failą?}few{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ keisti <xliff:g id="COUNT">^2</xliff:g> garso failus?}many{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ keisti <xliff:g id="COUNT">^2</xliff:g> garso failo?}other{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ keisti <xliff:g id="COUNT">^2</xliff:g> garso failų?}}"</string>
+    <string name="permission_progress_write_audio" msgid="6029375427984180097">"{count,plural, =1{Keičiamas garso failas…}one{Keičiamas <xliff:g id="COUNT">^1</xliff:g> garso failas…}few{Keičiami <xliff:g id="COUNT">^1</xliff:g> garso failai…}many{Keičiama <xliff:g id="COUNT">^1</xliff:g> garso failo…}other{Keičiama <xliff:g id="COUNT">^1</xliff:g> garso failų…}}"</string>
+    <string name="permission_write_video" msgid="103902551603700525">"{count,plural, =1{Leisti programai „<xliff:g id="APP_NAME_0">^1</xliff:g>“ keisti šį vaizdo įrašą?}one{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ keisti <xliff:g id="COUNT">^2</xliff:g> vaizdo įrašą?}few{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ keisti <xliff:g id="COUNT">^2</xliff:g> vaizdo įrašus?}many{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ keisti <xliff:g id="COUNT">^2</xliff:g> vaizdo įrašo?}other{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ keisti <xliff:g id="COUNT">^2</xliff:g> vaizdo įrašų?}}"</string>
+    <string name="permission_progress_write_video" msgid="7014908418349819148">"{count,plural, =1{Keičiamas vaizdo įrašas…}one{Keičiamas <xliff:g id="COUNT">^1</xliff:g> vaizdo įrašas…}few{Keičiami <xliff:g id="COUNT">^1</xliff:g> vaizdo įrašai…}many{Keičiama <xliff:g id="COUNT">^1</xliff:g> vaizdo įrašo…}other{Keičiama <xliff:g id="COUNT">^1</xliff:g> vaizdo įrašų…}}"</string>
+    <string name="permission_write_image" msgid="3518991791620523786">"{count,plural, =1{Leisti programai „<xliff:g id="APP_NAME_0">^1</xliff:g>“ keisti šią nuotrauką?}one{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ keisti <xliff:g id="COUNT">^2</xliff:g> nuotrauką?}few{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ keisti <xliff:g id="COUNT">^2</xliff:g> nuotraukas?}many{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ keisti <xliff:g id="COUNT">^2</xliff:g> nuotraukos?}other{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ keisti <xliff:g id="COUNT">^2</xliff:g> nuotraukų?}}"</string>
+    <string name="permission_progress_write_image" msgid="3623580315590025262">"{count,plural, =1{Keičiama nuotrauka…}one{Keičiama <xliff:g id="COUNT">^1</xliff:g> nuotrauka…}few{Keičiamos <xliff:g id="COUNT">^1</xliff:g> nuotraukos…}many{Keičiama <xliff:g id="COUNT">^1</xliff:g> nuotraukos…}other{Keičiama <xliff:g id="COUNT">^1</xliff:g> nuotraukų…}}"</string>
+    <string name="permission_write_generic" msgid="7431128739233656991">"{count,plural, =1{Leisti programai „<xliff:g id="APP_NAME_0">^1</xliff:g>“ keisti šį elementą?}one{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ keisti <xliff:g id="COUNT">^2</xliff:g> elementą?}few{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ keisti <xliff:g id="COUNT">^2</xliff:g> elementus?}many{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ keisti <xliff:g id="COUNT">^2</xliff:g> elemento?}other{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ keisti <xliff:g id="COUNT">^2</xliff:g> elementų?}}"</string>
+    <string name="permission_progress_write_generic" msgid="2806560971318391443">"{count,plural, =1{Keičiamas elementas…}one{Keičiamas <xliff:g id="COUNT">^1</xliff:g> elementas…}few{Keičiami <xliff:g id="COUNT">^1</xliff:g> elementai…}many{Keičiama <xliff:g id="COUNT">^1</xliff:g> elemento…}other{Keičiama <xliff:g id="COUNT">^1</xliff:g> elementų…}}"</string>
+    <string name="permission_trash_audio" msgid="6554672354767742206">"{count,plural, =1{Leisti programai „<xliff:g id="APP_NAME_0">^1</xliff:g>“ perkelti šį garso failą į šiukšliadėžę?}one{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ perkelti <xliff:g id="COUNT">^2</xliff:g> garso failą į šiukšliadėžę?}few{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ perkelti <xliff:g id="COUNT">^2</xliff:g> garso failus į šiukšliadėžę?}many{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ perkelti <xliff:g id="COUNT">^2</xliff:g> garso failo į šiukšliadėžę?}other{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ perkelti <xliff:g id="COUNT">^2</xliff:g> garso failų į šiukšliadėžę?}}"</string>
+    <string name="permission_progress_trash_audio" msgid="3116279868733641329">"{count,plural, =1{Perkeliamas garso failas į šiukšliadėžę…}one{Perkeliamas <xliff:g id="COUNT">^1</xliff:g> garso failas į šiukšliadėžę…}few{Perkeliami <xliff:g id="COUNT">^1</xliff:g> garso failai į šiukšliadėžę…}many{Perkeliama <xliff:g id="COUNT">^1</xliff:g> garso failo į šiukšliadėžę…}other{Perkeliama <xliff:g id="COUNT">^1</xliff:g> garso failų į šiukšliadėžę…}}"</string>
+    <string name="permission_trash_video" msgid="7555850843259959642">"{count,plural, =1{Leisti programai „<xliff:g id="APP_NAME_0">^1</xliff:g>“ perkelti šį vaizdo įrašą į šiukšliadėžę?}one{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ perkelti <xliff:g id="COUNT">^2</xliff:g> vaizdo įrašą į šiukšliadėžę?}few{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ perkelti <xliff:g id="COUNT">^2</xliff:g> vaizdo įrašus į šiukšliadėžę?}many{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ perkelti <xliff:g id="COUNT">^2</xliff:g> vaizdo įrašo į šiukšliadėžę?}other{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ perkelti <xliff:g id="COUNT">^2</xliff:g> vaizdo įrašų į šiukšliadėžę?}}"</string>
+    <string name="permission_progress_trash_video" msgid="4637821778329459681">"{count,plural, =1{Perkeliamas vaizdo įrašas į šiukšliadėžę…}one{Perkeliamas <xliff:g id="COUNT">^1</xliff:g> vaizdo įrašas į šiukšliadėžę…}few{Perkeliami <xliff:g id="COUNT">^1</xliff:g> vaizdo įrašai į šiukšliadėžę…}many{Perkeliama <xliff:g id="COUNT">^1</xliff:g> vaizdo įrašo į šiukšliadėžę…}other{Perkeliama <xliff:g id="COUNT">^1</xliff:g> vaizdo įrašų į šiukšliadėžę…}}"</string>
+    <string name="permission_trash_image" msgid="3333128084684156675">"{count,plural, =1{Leisti programai „<xliff:g id="APP_NAME_0">^1</xliff:g>“ perkelti šią nuotrauką į šiukšliadėžę?}one{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ perkelti <xliff:g id="COUNT">^2</xliff:g> nuotrauką į šiukšliadėžę?}few{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ perkelti <xliff:g id="COUNT">^2</xliff:g> nuotraukas į šiukšliadėžę?}many{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ perkelti <xliff:g id="COUNT">^2</xliff:g> nuotraukos į šiukšliadėžę?}other{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ perkelti <xliff:g id="COUNT">^2</xliff:g> nuotraukų į šiukšliadėžę?}}"</string>
+    <string name="permission_progress_trash_image" msgid="3063857679090024764">"{count,plural, =1{Perkeliama nuotrauka į šiukšliadėžę…}one{Perkeliama <xliff:g id="COUNT">^1</xliff:g> nuotrauka į šiukšliadėžę…}few{Perkeliamos <xliff:g id="COUNT">^1</xliff:g> nuotraukos į šiukšliadėžę…}many{Perkeliama <xliff:g id="COUNT">^1</xliff:g> nuotraukos į šiukšliadėžę…}other{Perkeliama <xliff:g id="COUNT">^1</xliff:g> nuotraukų į šiukšliadėžę…}}"</string>
+    <string name="permission_trash_generic" msgid="5545420534785075362">"{count,plural, =1{Leisti programai „<xliff:g id="APP_NAME_0">^1</xliff:g>“ perkelti šį elementą į šiukšliadėžę?}one{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ perkelti <xliff:g id="COUNT">^2</xliff:g> elementą į šiukšliadėžę?}few{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ perkelti <xliff:g id="COUNT">^2</xliff:g> elementus į šiukšliadėžę?}many{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ perkelti <xliff:g id="COUNT">^2</xliff:g> elemento į šiukšliadėžę?}other{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ perkelti <xliff:g id="COUNT">^2</xliff:g> elementų į šiukšliadėžę?}}"</string>
+    <string name="permission_progress_trash_generic" msgid="7815124979717814057">"{count,plural, =1{Perkeliama elementas į šiukšliadėžę…}one{Perkeliamas <xliff:g id="COUNT">^1</xliff:g> elementas į šiukšliadėžę…}few{Perkeliami <xliff:g id="COUNT">^1</xliff:g> elementai į šiukšliadėžę…}many{Perkeliama <xliff:g id="COUNT">^1</xliff:g> elemento į šiukšliadėžę…}other{Perkeliama <xliff:g id="COUNT">^1</xliff:g> elementų į šiukšliadėžę…}}"</string>
+    <string name="permission_untrash_audio" msgid="8404597563284002472">"{count,plural, =1{Leisti programai „<xliff:g id="APP_NAME_0">^1</xliff:g>“ perkelti šį garso failą iš šiukšliadėžės?}one{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ perkelti <xliff:g id="COUNT">^2</xliff:g> garso failą iš šiukšliadėžės?}few{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ perkelti <xliff:g id="COUNT">^2</xliff:g> garso failus iš šiukšliadėžės?}many{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ perkelti <xliff:g id="COUNT">^2</xliff:g> garso failo iš šiukšliadėžės?}other{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ perkelti <xliff:g id="COUNT">^2</xliff:g> garso failų iš šiukšliadėžės?}}"</string>
+    <string name="permission_progress_untrash_audio" msgid="2775372344946464508">"{count,plural, =1{Perkeliamas garso failas iš šiukšliadėžės…}one{Perkeliamas <xliff:g id="COUNT">^1</xliff:g> garso failas iš šiukšliadėžės…}few{Perkeliami <xliff:g id="COUNT">^1</xliff:g> garso failai iš šiukšliadėžės…}many{Perkeliama <xliff:g id="COUNT">^1</xliff:g> garso failo iš šiukšliadėžės…}other{Perkeliama <xliff:g id="COUNT">^1</xliff:g> garso failų iš šiukšliadėžės…}}"</string>
+    <string name="permission_untrash_video" msgid="3178914827607608162">"{count,plural, =1{Leisti programai „<xliff:g id="APP_NAME_0">^1</xliff:g>“ perkelti šį vaizdo įrašą iš šiukšliadėžės?}one{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ perkelti <xliff:g id="COUNT">^2</xliff:g> vaizdo įrašą iš šiukšliadėžės?}few{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ perkelti <xliff:g id="COUNT">^2</xliff:g> vaizdo įrašus iš šiukšliadėžės?}many{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ perkelti <xliff:g id="COUNT">^2</xliff:g> vaizdo įrašo iš šiukšliadėžės?}other{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ perkelti <xliff:g id="COUNT">^2</xliff:g> vaizdo įrašų iš šiukšliadėžės?}}"</string>
+    <string name="permission_progress_untrash_video" msgid="5500929409733841567">"{count,plural, =1{Perkeliamas vaizdo įrašas iš šiukšliadėžės…}one{Perkeliamas <xliff:g id="COUNT">^1</xliff:g> vaizdo įrašas iš šiukšliadėžės…}few{Perkeliami <xliff:g id="COUNT">^1</xliff:g> vaizdo įrašai iš šiukšliadėžės…}many{Perkeliama <xliff:g id="COUNT">^1</xliff:g> vaizdo įrašo iš šiukšliadėžės…}other{Perkeliama <xliff:g id="COUNT">^1</xliff:g> vaizdo įrašų iš šiukšliadėžės…}}"</string>
+    <string name="permission_untrash_image" msgid="3397523279351032265">"{count,plural, =1{Leisti programai „<xliff:g id="APP_NAME_0">^1</xliff:g>“ perkelti šią nuotrauką iš šiukšliadėžės?}one{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ perkelti <xliff:g id="COUNT">^2</xliff:g> nuotrauką iš šiukšliadėžės?}few{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ perkelti <xliff:g id="COUNT">^2</xliff:g> nuotraukas iš šiukšliadėžės?}many{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ perkelti <xliff:g id="COUNT">^2</xliff:g> nuotraukos iš šiukšliadėžės?}other{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ perkelti <xliff:g id="COUNT">^2</xliff:g> nuotraukų iš šiukšliadėžės?}}"</string>
+    <string name="permission_progress_untrash_image" msgid="5295061520504846264">"{count,plural, =1{Perkeliama nuotrauka iš šiukšliadėžės…}one{Perkeliama <xliff:g id="COUNT">^1</xliff:g> nuotrauka iš šiukšliadėžės…}few{Perkeliamos <xliff:g id="COUNT">^1</xliff:g> nuotraukos iš šiukšliadėžės…}many{Perkeliama <xliff:g id="COUNT">^1</xliff:g> nuotraukos iš šiukšliadėžės…}other{Perkeliama <xliff:g id="COUNT">^1</xliff:g> nuotraukų iš šiukšliadėžės…}}"</string>
+    <string name="permission_untrash_generic" msgid="2118366929431671046">"{count,plural, =1{Leisti programai „<xliff:g id="APP_NAME_0">^1</xliff:g>“ perkelti šį elementą iš šiukšliadėžės?}one{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ perkelti <xliff:g id="COUNT">^2</xliff:g> elementą iš šiukšliadėžės?}few{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ perkelti <xliff:g id="COUNT">^2</xliff:g> elementus iš šiukšliadėžės?}many{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ perkelti <xliff:g id="COUNT">^2</xliff:g> elemento iš šiukšliadėžės?}other{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ perkelti <xliff:g id="COUNT">^2</xliff:g> elementų iš šiukšliadėžės?}}"</string>
+    <string name="permission_progress_untrash_generic" msgid="1489511601966842579">"{count,plural, =1{Perkeliamas elementas iš šiukšliadėžės…}one{Perkeliamas <xliff:g id="COUNT">^1</xliff:g> elementas iš šiukšliadėžės…}few{Perkeliami <xliff:g id="COUNT">^1</xliff:g> elementai iš šiukšliadėžės…}many{Perkeliama <xliff:g id="COUNT">^1</xliff:g> elemento iš šiukšliadėžės…}other{Perkeliama <xliff:g id="COUNT">^1</xliff:g> elementų iš šiukšliadėžės…}}"</string>
+    <string name="permission_delete_audio" msgid="3326674742892796627">"{count,plural, =1{Leisti „<xliff:g id="APP_NAME_0">^1</xliff:g>“ ištrinti šį garso failą?}one{Leisti „<xliff:g id="APP_NAME_1">^1</xliff:g>“ ištrinti <xliff:g id="COUNT">^2</xliff:g> garso failą?}few{Leisti „<xliff:g id="APP_NAME_1">^1</xliff:g>“ ištrinti <xliff:g id="COUNT">^2</xliff:g> garso failus?}many{Leisti „<xliff:g id="APP_NAME_1">^1</xliff:g>“ ištrinti <xliff:g id="COUNT">^2</xliff:g> garso failo?}other{Leisti „<xliff:g id="APP_NAME_1">^1</xliff:g>“ ištrinti <xliff:g id="COUNT">^2</xliff:g> garso failų?}}"</string>
+    <string name="permission_progress_delete_audio" msgid="1734871539021696401">"{count,plural, =1{Ištrinamas garso failas…}one{Ištrinamas <xliff:g id="COUNT">^1</xliff:g> garso failas…}few{Ištrinami <xliff:g id="COUNT">^1</xliff:g> garso failai…}many{Ištrinama <xliff:g id="COUNT">^1</xliff:g> garso failo…}other{Ištrinama <xliff:g id="COUNT">^1</xliff:g> garso failų…}}"</string>
+    <string name="permission_delete_video" msgid="604024971828349279">"{count,plural, =1{Leisti programai „<xliff:g id="APP_NAME_0">^1</xliff:g>“ ištrinti šį vaizdo įrašą?}one{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ ištrinti <xliff:g id="COUNT">^2</xliff:g> vaizdo įrašą?}few{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ ištrinti <xliff:g id="COUNT">^2</xliff:g> vaizdo įrašus?}many{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ ištrinti <xliff:g id="COUNT">^2</xliff:g> vaizdo įrašo?}other{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ ištrinti <xliff:g id="COUNT">^2</xliff:g> vaizdo įrašų?}}"</string>
+    <string name="permission_progress_delete_video" msgid="1846702435073793157">"{count,plural, =1{Ištrinamas vaizdo įrašas…}one{Ištrinamas <xliff:g id="COUNT">^1</xliff:g> vaizdo įrašas…}few{Ištrinami <xliff:g id="COUNT">^1</xliff:g> vaizdo įrašai…}many{Ištrinama <xliff:g id="COUNT">^1</xliff:g> vaizdo įrašo…}other{Ištrinama <xliff:g id="COUNT">^1</xliff:g> vaizdo įrašų…}}"</string>
+    <string name="permission_delete_image" msgid="3109056012794330510">"{count,plural, =1{Leisti programai „<xliff:g id="APP_NAME_0">^1</xliff:g>“ ištrinti šią nuotrauką?}one{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ ištrinti <xliff:g id="COUNT">^2</xliff:g> nuotrauką?}few{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ ištrinti <xliff:g id="COUNT">^2</xliff:g> nuotraukas?}many{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ ištrinti <xliff:g id="COUNT">^2</xliff:g> nuotraukos?}other{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ ištrinti <xliff:g id="COUNT">^2</xliff:g> nuotraukų?}}"</string>
+    <string name="permission_progress_delete_image" msgid="8580517204901148906">"{count,plural, =1{Ištrinama nuotrauka…}one{Ištrinama <xliff:g id="COUNT">^1</xliff:g> nuotrauka…}few{Ištrinamos <xliff:g id="COUNT">^1</xliff:g> nuotraukos…}many{Ištrinama <xliff:g id="COUNT">^1</xliff:g> nuotraukos…}other{Ištrinama <xliff:g id="COUNT">^1</xliff:g> nuotraukų…}}"</string>
+    <string name="permission_delete_generic" msgid="7891939881065520271">"{count,plural, =1{Leisti programai „<xliff:g id="APP_NAME_0">^1</xliff:g>“ ištrinti šį elementą?}one{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ ištrinti <xliff:g id="COUNT">^2</xliff:g> elementą?}few{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ ištrinti <xliff:g id="COUNT">^2</xliff:g> elementus?}many{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ ištrinti <xliff:g id="COUNT">^2</xliff:g> elemento?}other{Leisti programai „<xliff:g id="APP_NAME_1">^1</xliff:g>“ ištrinti <xliff:g id="COUNT">^2</xliff:g> elementų?}}"</string>
+    <string name="permission_progress_delete_generic" msgid="6709118146245087898">"{count,plural, =1{Ištrinamas elementas…}one{Ištrinamas <xliff:g id="COUNT">^1</xliff:g> elementas…}few{Ištrinami <xliff:g id="COUNT">^1</xliff:g> elementai…}many{Ištrinama <xliff:g id="COUNT">^1</xliff:g> elemento…}other{Ištrinama <xliff:g id="COUNT">^1</xliff:g> elementų…}}"</string>
+    <string name="transcode_denied" msgid="6760546817138288976">"Programa „<xliff:g id="APP_NAME">%s</xliff:g>“ negali apdoroti medijos failų"</string>
+    <string name="transcode_processing_cancelled" msgid="5340383917746945590">"Medija apdorojimas atšauktas"</string>
+    <string name="transcode_processing_error" msgid="8921643164508407874">"Medija apdorojimo klaida"</string>
+    <string name="transcode_processing_success" msgid="447288876429730122">"Medija apdorojimas sėkmingas"</string>
+    <string name="transcode_processing_started" msgid="7789086308155361523">"Pradedama apdoroti mediją"</string>
+    <string name="transcode_processing" msgid="6753136468864077258">"Medija apdorojama…"</string>
+    <string name="transcode_cancel" msgid="8555752601907598192">"Atšaukti"</string>
+    <string name="transcode_wait" msgid="8909773149560697501">"Palaukti"</string>
+    <string name="safety_protection_icon_label" msgid="6714354052747723623">"Apsauga"</string>
+    <string name="transcode_alert_channel" msgid="997332371757680478">"Native Transcode Alerts"</string>
+    <string name="transcode_progress_channel" msgid="6905136787933058387">"Native Transcode Progress"</string>
+    <string name="dialog_error_message" msgid="5120432204743681606">"Vėliau bandykite dar kartą. Nuotraukos bus pasiekiamos išsprendus problemą."</string>
+    <string name="dialog_error_title" msgid="636349284077820636">"Nepavyko įkelti kai kurių nuotraukų"</string>
+    <string name="dialog_button_text" msgid="351366485240852280">"Supratau"</string>
+    <string name="permlab_accessMediaOwnerPackageName" msgid="3849443148060165651">"Pasiekti medijos savininko paketo pavadinimą"</string>
+    <string name="permdesc_accessMediaOwnerPackageName" msgid="7381563109363105371">"Leidžiama programai pasiekti visų pasiekiamų medijos failų savininko paketų pavadinimus."</string>
+</resources>

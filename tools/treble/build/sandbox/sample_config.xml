@@ -1,0 +1,35 @@
+<?xml version = "1.0" encoding = "UTF-8" ?>
+<!--
+Defines sample build configuration file.
+-->
+<config>
+  <target name="aosp_cf_x86_64_phone_default" android_target="aosp_cf_x86_64_phone"
+      allow_readwrite_all="true">
+    <!-- Target elements can define elements and attributes that are inherited
+         by build_config child elements. -->
+    <goal name="droid"/>
+    <build_config>
+      <!-- build_config name will inherit the name aosp_cf_x86_64_phone_default
+           and append dist to the flag list. -->
+      <flag name="dist"/>
+    </build_config>
+    <build_config name="aosp_cf_x86_64_phone_no_dist" tags="skip">
+    </build_config>
+    <build_config name="aosp_cf_x86_64_phone_ro" allow_readwrite_all="false">
+      <!-- This build_config will override allow_readwrite_all attribute. -->
+    </build_config>
+    <build_config name="aosp_cf_x86_tv" android_target="aosp_cf_x86_tv">
+      <!-- This build will use aosp_cf_x86_tv as the lunch target. -->
+    </build_config>
+  </target>
+  <target name="aosp_car_arm64">
+    <!-- If android_target isn't provided target will use name as default
+         android_target. -->
+    <goal name="droid"/>
+    <flag name="dist"/>
+    <build_config>
+      <!-- build_config will inherit the name and android_target: 
+           aosp_car_arm64. -->
+    </build_config>
+  </target>
+</config>

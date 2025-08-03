@@ -1,0 +1,24 @@
+versions {
+  version: 12
+  requirements {
+    module: SDK_EXTENSIONS
+    version {
+      version: 45
+    }
+  }
+}
+versions {
+  version: 45
+  requirements {
+    module: SDK_EXTENSIONS
+    version {
+      version: 45
+    }
+  }
+  requirements {
+    module: MEDIA
+    version {
+      version: 45
+    }
+  }
+}

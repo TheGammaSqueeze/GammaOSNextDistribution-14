@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- persist APNs for these PLMNs on db upgrade to version 14 -->
+    <string-array name="persist_apns_for_plmn">
+        <item>20404</item>
+        <item>310004</item>
+        <item>310120</item>
+        <item>311480</item>
+    </string-array>
+
+    <!-- Specify a service to bind to that returns an implementation of the
+         IApnSourceService interface.
+         (e.g. com.foo/.Bar for the package com.foo and class com.foo.Bar)
+         If this value is empty or unparsable, we will apply APNs from the APN
+         conf xml file.  -->
+    <string name="apn_source_service" translatable="false"></string>
+
+    <!-- Countries, in iso country code format, where WFC entitlement or
+         other user action is required before user can turn on WFC setting,
+         hence WFC setting should not be restored automatically. -->
+    <string-array name="wfc_restore_blocked_countries" translatable="false">
+        <item>us</item>
+        <item>ca</item>
+    </string-array>
+</resources>

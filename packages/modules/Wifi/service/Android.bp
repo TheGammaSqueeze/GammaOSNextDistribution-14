@@ -1,0 +1,182 @@
+//
+// Copyright (C) 2018 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+package {
+    default_team: "trendy_team_fwk_wifi_hal",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_defaults {
+    name: "wifi-service-common",
+    defaults: ["wifi-module-sdk-version-defaults"],
+    errorprone: {
+        javacflags: ["-Xep:CheckReturnValue:ERROR"],
+    },
+}
+
+filegroup {
+    name: "wifi-service-srcs",
+    srcs: [
+        "java/**/*.java",
+        "java/**/*.logtags",
+        ":framework-wifi-service-shared-srcs",
+        ":net-utils-wifi-service-common-srcs",
+        ":statslog-wifi-java-gen",
+        ":coex-table-parser",
+    ],
+}
+
+// pre-jarjar version of wifi-service that builds against pre-jarjar version of framework-wifi
+java_library {
+    name: "wifi-service-pre-jarjar",
+    installable: false,
+    defaults: ["wifi-service-common"],
+    srcs: [":wifi-service-srcs"],
+
+    sdk_version: "system_server_current",
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
+    libs: [
+        "androidx.annotation_annotation",
+        "error_prone_annotations",
+        "jsr305",
+        "framework-annotations-lib",
+        // load the resources from the resources APK.
+        "ServiceWifiResources",
+        // need pre-jarjar symbols so that wifi-service can reference the original class names at
+        // compile time
+        "framework-wifi-pre-jarjar",
+        "framework-bluetooth",
+        "framework-configinfrastructure",
+        "framework-connectivity.stubs.module_lib",
+        "framework-connectivity-t.stubs.module_lib",
+        "framework-location.stubs.module_lib",
+        "framework-statsd.stubs.module_lib",
+        "framework-tethering.stubs.module_lib",
+        "unsupportedappusage",
+        "app-compat-annotations",
+        "auto_value_annotations",
+    ],
+
+    plugins: [
+        "auto_value_plugin",
+    ],
+
+    static_libs: [
+        // Types-only package shared across the HALs
+        "android.hardware.wifi.common-V1-java",
+        // AIDL vendor hal implementation
+        "android.hardware.wifi-V2-java",
+        // HIDL vendor hal implementation
+        "android.hardware.wifi-V1.0-java",
+        "android.hardware.wifi-V1.1-java",
+        "android.hardware.wifi-V1.2-java",
+        "android.hardware.wifi-V1.3-java",
+        "android.hardware.wifi-V1.4-java",
+        "android.hardware.wifi-V1.5-java",
+        "android.hardware.wifi-V1.6-java",
+        // AIDL hostapd implementation
+        "android.hardware.wifi.hostapd-V2-java",
+        // HIDL hostapd implementation
+        "android.hardware.wifi.hostapd-V1.0-java",
+        "android.hardware.wifi.hostapd-V1.1-java",
+        "android.hardware.wifi.hostapd-V1.2-java",
+        "android.hardware.wifi.hostapd-V1.3-java",
+        // AIDL supplicant implementation
+        "android.hardware.wifi.supplicant-V3-java",
+        // HIDL supplicant implementation
+        "android.hardware.wifi.supplicant-V1.0-java",
+        "android.hardware.wifi.supplicant-V1.1-java",
+        "android.hardware.wifi.supplicant-V1.2-java",
+        "android.hardware.wifi.supplicant-V1.3-java",
+        "android.hardware.wifi.supplicant-V1.4-java",
+        "android.hidl.manager-V1.2-java",
+        "bouncycastle-unbundled",
+        "ksoap2",
+        // Note: libprotobuf-java-lite uses a few core platform APIs which
+        // does show up as @hide API usage. But, this can be safely ignored
+        // since the library uses reflection to ensure that the OS does provide
+        // the necessary core platform APIs.
+        "libprotobuf-java-lite",
+        "libnanohttpd",
+        "modules-utils-backgroundthread",
+        "modules-utils-fastxmlserializer",
+        "modules-utils-locallog",
+        "netd-client",
+        "networkstack-client",
+        "net-utils-services-common",
+        "service-entitlement",
+        "wifi-lite-protos",
+        "wifi-nano-protos",
+        "android.net.wifi.flags-aconfig-java",
+    ],
+    apex_available: ["com.android.wifi"],
+}
+
+// wifi-service static library
+// ============================================================
+java_library {
+    name: "service-wifi",
+    defaults: [
+        "wifi-service-common",
+        "standalone-system-server-module-optimize-defaults",
+    ],
+    installable: true,
+    static_libs: ["wifi-service-pre-jarjar"],
+
+    // need to include `libs` so that Soong doesn't complain about missing classes after jarjaring
+    libs: [
+        "framework-wifi.impl",
+        "auto_value_annotations",
+    ],
+
+    plugins: [
+        "auto_value_plugin",
+    ],
+
+    sdk_version: "system_server_current",
+
+    jarjar_rules: ":wifi-jarjar-rules",
+
+    visibility: [
+        "//frameworks/opt/net/wifi/service/apex",
+        "//frameworks/opt/net/wifi/tests/wifitests/apex",
+        "//packages/modules/Wifi/apex",
+        "//packages/modules/Wifi/service/tests/wifitests/apex",
+    ],
+    apex_available: [
+        "com.android.wifi",
+        "test_com.android.wifi",
+    ],
+}
+
+// Statsd auto-generated code
+// ============================================================
+genrule {
+    name: "statslog-wifi-java-gen",
+    tools: ["stats-log-api-gen"],
+    cmd: "$(location stats-log-api-gen) --java $(out) --module wifi " +
+        " --javaPackage com.android.server.wifi.proto --javaClass WifiStatsLog" +
+        " --minApiLevel 30",
+    out: ["com/android/server/wifi/proto/WifiStatsLog.java"],
+}
+
+// Prebuilt for the wifi.rc file.
+prebuilt_etc {
+    name: "wifi.rc",
+    src: "wifi.rc",
+    sub_dir: "init",
+}

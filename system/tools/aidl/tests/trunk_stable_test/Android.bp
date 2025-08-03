@@ -1,0 +1,97 @@
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_tools_aidl_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_tools_aidl_license"],
+}
+
+aidl_interface {
+    name: "android.aidl.test.trunk",
+    srcs: ["android/aidl/test/trunk/*.aidl"],
+    flags: ["-Werror"],
+    gen_trace: true,
+    backend: {
+        cpp: {
+            gen_log: true,
+        },
+        ndk: {
+            gen_log: true,
+        },
+        java: {
+            platform_apis: true,
+        },
+        rust: {
+            enabled: true,
+        },
+    },
+    versions_with_info: [
+        {
+            version: "1",
+            imports: [],
+        },
+    ],
+    frozen: false,
+    // Some tests rely on the last version not being frozen.
+    // Owner is set so the interface isn't frozen with the rest.
+    owner: "aosp",
+
+}
+
+// Test using the same client and server source code including different
+// versions of the generated AIDL library.
+// This is an example of a possible solution to dealing with different
+// configurations of the build without needing to modify the source code.
+// This is the version of the test that uses the V1 library with the
+// V2 code behind #ifdefs.
+cc_test {
+    name: "aidl_ndk_V1_trunk_stable_unittest",
+    srcs: ["trunk_ndk_unittest.cpp"],
+    shared_libs: [
+        "libbinder_ndk",
+        "libbase",
+        "libcutils",
+        "liblog",
+    ],
+    cflags: [
+        "-DAIDL_TEST_TRUNK_VER=1",
+    ],
+    static_libs: [
+        "android.aidl.test.trunk-V1-ndk",
+    ],
+    require_root: true,
+}
+
+// This is the version of the test that uses the latest V2 library.
+cc_test {
+    name: "aidl_ndk_V2_trunk_stable_unittest",
+    srcs: ["trunk_ndk_unittest.cpp"],
+    shared_libs: [
+        "libcutils",
+        "liblog",
+        "libbinder_ndk",
+        "libbase",
+    ],
+    cflags: [
+        "-DAIDL_TEST_TRUNK_VER=2",
+    ],
+    static_libs: [
+        "android.aidl.test.trunk-V2-ndk",
+    ],
+    require_root: true,
+}

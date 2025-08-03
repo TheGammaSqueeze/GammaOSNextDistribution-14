@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="settings_backup_last_backup_never">Nie</string>
+    <string name="settings_backup_location_internal">Interner Speicher</string>
+    <string name="settings_backup_location_none">Keiner</string>
+    <string name="settings_backup_location">Sicherungsort</string>
+    <string name="settings_backup">Meine Apps sichern</string>
+    <string name="restore_backup_button">Sicherung wiederherstellen</string>
+    <string name="backup">Sicherung</string>
+    <string name="notification_restore_error_title">Daten von %1$s konnten nicht wiederhergestellt werden</string>
+    <string name="notification_restore_error_channel_title">Fehler bei automatischer Wiederherstellung vom Laufwerk</string>
+    <string name="notification_error_action">Beheben</string>
+    <string name="notification_error_text">Eine Gerätesicherung konnte nicht durchgeführt werden.</string>
+    <string name="notification_error_title">Sicherungsfehler</string>
+    <string name="notification_error_channel_title">Fehlermeldung</string>
+    <string name="notification_failed_title">Sicherung fehlgeschlagen</string>
+    <string name="notification_success_title">Sicherung fertiggestellt</string>
+    <string name="notification_title">Sicherung läuft</string>
+    <string name="notification_channel_title">Sicherungsbenachrichtigung</string>
+    <string name="recovery_code_error_checksum_word">Dein Code ist ungültig. Bitte prüfe alle Wörter sowie deren Position und versuche es erneut!</string>
+    <string name="recovery_code_error_invalid_word">Falsches Wort.</string>
+    <string name="recovery_code_error_empty_word">Du hast vergessen, dieses Wort einzugeben.</string>
+    <string name="recovery_code_input_hint_12">Wort 12</string>
+    <string name="recovery_code_input_hint_11">Wort 11</string>
+    <string name="recovery_code_input_hint_10">Wort 10</string>
+    <string name="recovery_code_input_hint_9">Wort 9</string>
+    <string name="recovery_code_input_hint_8">Wort 8</string>
+    <string name="recovery_code_input_hint_7">Wort 7</string>
+    <string name="recovery_code_input_hint_6">Wort 6</string>
+    <string name="recovery_code_input_hint_5">Wort 5</string>
+    <string name="recovery_code_input_hint_4">Wort 4</string>
+    <string name="recovery_code_input_hint_3">Wort 3</string>
+    <string name="recovery_code_input_hint_2">Wort 2</string>
+    <string name="recovery_code_input_hint_1">Wort 1</string>
+    <string name="recovery_code_done_button">Überprüfen</string>
+    <string name="recovery_code_input_intro">Gib deinen aus 12 Wörtern bestehenden Wiederherstellungscode ein, den du beim Konfigurieren der Sicherungen aufgeschrieben hast.</string>
+    <string name="recovery_code_confirm_intro">Gib deinen aus 12 Wörtern bestehenden Wiederherstellungscode ein, um sicher zu gehen, dass er funktionieren wird, wenn du ihn brauchst.</string>
+    <string name="storage_available_bytes"><xliff:g example="1 GB" id="size">%1$s</xliff:g> frei</string>
+    <string name="settings_backup_apk_dialog_message">Bei deaktivierter App-Sicherung werden die App-Daten weiterhin gesichert. Sie werden jedoch nicht automatisch wiederhergestellt.
+\n
+\nDu musst alle deine Apps manuell installieren, während die \"Automatische Sicherungen\" eingeschaltet ist.</string>
+    <string name="settings_backup_apk_summary">Die Apps selbst sichern. Andernfalls würden nur die App-Daten gesichert werden.</string>
+    <string name="storage_check_fragment_restore_title">Suche nach Sicherungen…</string>
+    <string name="storage_check_fragment_backup_title">Bereite Speicherort vor…</string>
+    <string name="storage_fragment_backup_title">Wähle aus, wo die Sicherungen gespeichert werden sollen</string>
+    <string name="recovery_code_confirm_button">Wiederherstellungscode bestätigen</string>
+    <string name="recovery_code_write_it_down">Schreibe ihn jetzt auf!</string>
+    <string name="recovery_code_12_word_intro">Du benötigst deinen aus 12 Wörtern bestehenden Wiederherstellungscode zum Wiederherstellen der gesicherten Daten.</string>
+    <string name="recovery_code_title">Wiederherstellungscode</string>
+    <string name="storage_check_fragment_error_button">Zurück</string>
+    <string name="storage_check_fragment_permission_error">Es fehlen Schreib-Berechtigungen am Speicherort.</string>
+    <string name="storage_check_fragment_backup_error">Ein Fehler trat beim Zugriff auf den Speicherort auf.</string>
+    <string name="storage_fake_nextcloud_summary_installed">Tippen, um ein Konto einzurichten</string>
+    <string name="storage_fake_nextcloud_summary">Tippen zum Installieren</string>
+    <string name="storage_fake_drive_summary">muss angeschlossen sein</string>
+    <string name="storage_fake_drive_title">USB-Speichergerät</string>
+    <string name="storage_fragment_warning">Personen mit Zugriff auf deinen Speicherort können herausfinden, welche Apps du nutzt, allerdings nicht auf deine App-Daten zugreifen.</string>
+    <string name="storage_fragment_restore_title">Wo befinden sich deine Sicherungen\?</string>
+    <string name="settings_backup_now">Jetzt sichern</string>
+    <string name="settings_backup_exclude_apps">Apps ausschließen</string>
+    <string name="settings_backup_status_summary">Letzte Sicherung: %1$s</string>
+    <string name="settings_backup_apk_dialog_disable">App-Sicherungen deaktivieren</string>
+    <string name="settings_backup_apk_dialog_cancel">Abbrechen</string>
+    <string name="settings_backup_apk_dialog_title">App-Sicherung wirklich deaktivieren\?</string>
+    <string name="settings_info">Alle Backups auf deinem Gerät sind verschlüsselt. Zum Wiederherstellen benötigst du dein aus 12 Wörtern bestehenden Wiederherstellungscode.</string>
+    <string name="settings_backup_apk_title">App-Sicherung</string>
+    <string name="settings_category_app_data_backup">App-Daten-Sicherung</string>
+    <string name="settings_auto_restore_summary_usb">Achtung: Dein %1$s muss für diese Aktion verbunden sein.</string>
+    <string name="settings_auto_restore_summary">Bei der erneuten Installation einer App die gesicherten Daten und Einstellungen wiederherstellen.</string>
+    <string name="settings_auto_restore_title">Automatische Wiederherstellung</string>
+    <string name="about_summary">Eine Sicherungsanwendung, welche die interne Sicherungs-API von Android verwendet. Es ist Freie Software, veröffentlicht unter der Apache 2 Lizenz.
+\n
+\nWie jede Software kann auch Seedvault Fehler oder Schwachstellen enthalten.</string>
+    <string name="about_title">Über</string>
+    <string name="storage_internal_warning_use_anyway">Trotzdem verwenden</string>
+    <string name="storage_internal_warning_choose_other">Anderen wählen</string>
+    <string name="storage_internal_warning_message">Du hast den internen Speicher für deine Sicherung ausgewählt. Dieser ist nicht verfügbar, wenn dein Telefon verloren geht oder kaputt ist.</string>
+    <string name="storage_internal_warning_title">Warnung</string>
+    <string name="restore_finished_button">Beenden</string>
+    <string name="restore_finished_error">Beim Wiederherstellen der Sicherung ist ein Fehler aufgetreten.</string>
+    <string name="restore_finished_success">Wiederherstellung abgeschlossen</string>
+    <string name="restore_magic_package">System-Paketmanager</string>
+    <string name="notification_restore_error_text">Schließe dein %1$s an, bevor du die App installierst, um die Daten aus der Sicherung wiederherzustellen.</string>
+    <string name="restore_app_quota_exceeded">Sicherungskontingent wurde überschritten</string>
+    <string name="restore_app_not_installed">App ist nicht installiert</string>
+    <string name="restore_app_not_allowed">App erlaubte keine Sicherung</string>
+    <string name="backup_app_no_data">App meldet keine Daten zur Sicherung</string>
+    <string name="restore_app_was_stopped">Wurde nicht gesichert, da es in letzter Zeit nicht verwendet wurde</string>
+    <string name="restore_app_not_yet_backed_up">Wurde noch nicht gesichert</string>
+    <string name="restore_restoring">Sicherung wird wiederhergestellt</string>
+    <string name="restore_installing_packages">Apps neu installieren</string>
+    <string name="restore_set_empty_result">Am angegebenen Speicherort wurden keine geeigneten Sicherungen gefunden.
+\n
+\nDies ist höchstwahrscheinlich auf einen falschen Wiederherstellungscode oder einen Speicherfehler zurückzuführen.</string>
+    <string name="restore_next">Weiter</string>
+    <string name="restore_title">Wiederherstellung einer Sicherung</string>
+    <string name="restore_set_error">Beim Laden der Sicherungen ist ein Fehler aufgetreten.</string>
+    <string name="restore_invalid_location_message">Wir konnten keine Sicherungen an diesem Speicherort finden.
+\n
+\nWähle einen anderen Speicherort aus, der einen %s Ordner enthält.</string>
+    <string name="restore_invalid_location_title">Keine Sicherungen gefunden</string>
+    <string name="restore_skip">Nicht wiederherstellen</string>
+    <string name="restore_restore_set_times">Letzte Sicherung %1$s · Erste %2$s.</string>
+    <string name="restore_choose_restore_set">Wähle eine Sicherung aus, um sie wiederherzustellen</string>
+    <string name="notification_restore_error_action">App deinstallieren</string>
+    <string name="notification_success_text">%1$d von %2$d Apps gesichert (%3$s). Tippe, um mehr zu erfahren.</string>
+    <string name="notification_backup_already_running">Sicherung wird bereits durchgeführt</string>
+    <string name="storage_fake_nextcloud_summary_unavailable">Konto nicht verfügbar. Richte ein Konto ein (oder deaktivieren Passcode).</string>
+    <string name="current_destination_string">Sicherungsstatus und Einstellungen</string>
+    <string name="data_management_label">Seedvault Sicherung</string>
+    <string name="about_version">Version: %s</string>
+    <string name="restore_restoring_error_message">Du kannst diese Apps manuell neu installieren und die automatische Wiederherstellung wird versuchen, deine Daten wiederherzustellen (wenn aktiviert).</string>
+    <string name="restore_restoring_error_title">Einige Apps können nicht wiederhergestellt werden</string>
+    <string name="restore_installing_tap_to_install">Tippen zum Installieren</string>
+    <string name="restore_installing_error_message">Daten können nur wiederhergestellt werden, wenn eine App installiert ist.
+\n
+\nTippe auf fehlgeschlagene Apps, um zu versuchen, sie manuell zu installieren, bevor du fortfährst.</string>
+    <string name="restore_installing_error_title">Einige Apps sind nicht installiert</string>
+    <string name="backup_section_not_allowed">Apps, die keine Datensicherung zulassen</string>
+    <string name="backup_app_quota_exceeded">Sicherungskontingent überschritten</string>
+    <string name="backup_app_was_stopped">Nicht gesichert, da es in letzter Zeit nicht verwendet wurde</string>
+    <string name="backup_app_not_yet_backed_up">Warten auf die Sicherung…</string>
+    <string name="backup_section_user">Installierte Apps</string>
+    <string name="backup_contacts">Lokale Kontakte</string>
+    <string name="backup_call_log">Anrufhistorie</string>
+    <string name="backup_settings">Geräteeinstellungen</string>
+    <string name="backup_sms">SMS-Textnachrichten</string>
+    <string name="backup_section_system">System-Apps</string>
+    <string name="settings_backup_status_title">Sicherungsstatus</string>
+    <string name="recovery_code_recreated">Neuer Wiederherstellungscode wurde erfolgreich erstellt</string>
+    <string name="recovery_code_verification_new_dialog_message">Durch das Generieren eines neuen Codes kannst du nicht mehr auf deine vorhandenen Sicherungen zugreifen. Wir werden versuchen, sie nach Möglichkeit zu löschen.
+\n
+\nBist du sicher, dass du das machen willst\?</string>
+    <string name="recovery_code_verification_new_dialog_title">Warte eine Sekunde…</string>
+    <string name="recovery_code_verification_generate_new">Neuen Code generieren</string>
+    <string name="recovery_code_verification_try_again">Erneut versuchen</string>
+    <string name="recovery_code_verification_error_message">Du hast einen ungültigen Wiederherstellungscode eingegeben. Bitte versuche es erneut!
+\n
+\nWenn du deinen Code verloren hast, tippe unten auf \'Neuen Code generieren\'.</string>
+    <string name="recovery_code_verification_error_title">Falscher Wiederherstellungscode</string>
+    <string name="recovery_code_verification_ok_message">Dein Code ist korrekt und wird für die Wiederherstellung der Sicherung funktionieren.</string>
+    <string name="recovery_code_verification_ok_title">Wiederherstellungscode überprüft</string>
+    <string name="settings_backup_recovery_code_summary">Vorhandenen Code überprüfen oder einen neuen Code erzeugen</string>
+    <string name="settings_backup_recovery_code">Wiederherstellungscode</string>
+    <string name="restore_storage_got_it">Verstanden</string>
+    <string name="restore_storage_in_progress_info">Deine Dateien werden im Hintergrund wiederhergestellt. Du kannst dein Telefon benutzen, während dieser Vorgang läuft.
+\n
+\nBei einigen Apps (z. B. Signal oder WhatsApp) müssen die Dateien möglicherweise vollständig wiederhergestellt werden, um eine Sicherung zu importieren. Vermeide es, diese Apps zu starten, bevor die Wiederherstellung der Dateien abgeschlossen ist.</string>
+    <string name="restore_storage_in_progress_title">Dateien werden wiederhergestellt…</string>
+    <string name="restore_storage_choose_snapshot">Wähle eine Speichersicherung zum Wiederherstellen aus (experimentell)</string>
+    <string name="restore_storage_skip">Wiederherstellen von Dateien überspringen</string>
+    <string name="restore_skip_apps">Wiederherstellen von Apps überspringen</string>
+    <string name="recovery_code_auth_description">Eingabe deiner Geräteanmeldedaten zum Fortfahren</string>
+    <string name="recovery_code_auth_title">Deine Bildschirmsperre erneut eingeben</string>
+    <string name="storage_check_fragment_patience">Das kann einige Zeit dauern…</string>
+    <string name="storage_fake_nextcloud_summary_unavailable_market">Nicht installiert</string>
+    <string name="storage_fragment_warning_delete">Vorhandene Sicherungen an diesem Speicherort werden gelöscht.</string>
+    <string name="settings_expert_quota_summary">Beschränke die Größe von App-Sicherungen nicht.
+\n
+\nAchtung: Dadurch kann dein Speicherplatz schnell voll werden. Für die meisten Apps nicht erforderlich.</string>
+    <string name="settings_expert_quota_title">Unbegrenztes App-Kontingent</string>
+    <string name="settings_expert_title">Experteneinstellungen</string>
+    <string name="settings_backup_storage_dialog_ok">Trotzdem aktivieren</string>
+    <string name="settings_backup_storage_dialog_message">Das Sichern von Dateien ist noch experimentell und funktioniert möglicherweise nicht. Verlasse dich bei wichtigen Daten nicht darauf.</string>
+    <string name="settings_backup_storage_dialog_title">Beta-Funktion</string>
+    <string name="settings_backup_files_summary">Keine</string>
+    <string name="settings_backup_files_title">Enthaltene Dateien und Ordner</string>
+    <string name="settings_backup_storage_title">Meine Dateien sichern</string>
+    <string name="settings_category_storage">Speichersicherung (Beta)</string>
+    <string name="settings_category_apps">App-Sicherung</string>
+    <string name="storage_fake_davx5_summary_installed">Tippe, um eine WebDAV-Verbindung einzurichten</string>
+    <string name="error_no_store">Fehler: Kein App-Store installiert</string>
+    <string name="settings_backup_storage_battery_optimization">Warnung: Keine automatischen Backups, da die Akkuoptimierung aktiv ist.</string>
+    <string name="settings_backup_new_code_dialog_title">Neuer Wiederherstellungscode erforderlich</string>
+    <string name="settings_backup_new_code_dialog_message">Um App-Sicherungen weiterhin verwenden zu können, musst du einen neuen Wiederherstellungscode generieren.
+\n
+\nWir entschuldigen uns für die Unannehmlichkeiten.</string>
+    <string name="settings_backup_new_code_code_dialog_ok">Neuer Code</string>
+    <string name="notification_error_no_main_key_title">Sicherungen deaktiviert</string>
+    <string name="notification_error_no_main_key_text">Generiere einen neuen Wiederherstellungscode, um das Upgrade abzuschließen und weiterhin Sicherungen zu verwenden.</string>
+    <string name="storage_fake_davx5_summary_unavailable">WebDAV-Verbindung nicht verfügbar. Richte eine ein.</string>
+    <string name="notification_backup_disabled">Sicherung nicht aktiviert</string>
+    <string name="backup_app_success">Daten gesichert</string>
+    <string name="backup_app_warning">Warnhinweis zur Sicherung</string>
+    <string name="restore_app_status_failed">Wiederherstellung fehlgeschlagen</string>
+    <string name="restore_app_status_warning">Warnhinweis zur Wiederherstellung</string>
+    <string name="backup_app_in_progress">Sichern der Daten</string>
+    <string name="restore_app_status_installing">Neuinstallation</string>
+    <string name="restore_app_status_installed">Neu installiert</string>
+    <string name="restore_app_status_install_error">Kann nicht installiert werden</string>
+    <string name="restore_app_status_restored">Daten wiederhergestellt</string>
+    <string name="settings_expert_logcat_summary">Entwickler können Fehler mit Hilfe dieser Protokolle diagnostizieren.
+\n
+\nAchtung: Die Protokolldatei kann personenbezogene identifizierbare Informationen enthalten. Vor der Weitergabe überprüfen und nach der Weitergabe löschen!</string>
+    <string name="settings_expert_logcat_title">Anwendungsprotokoll speichern</string>
+    <string name="settings_expert_logcat_error">Fehler: Konnte das Anwendungsprotokoll nicht speichern</string>
+    <string name="settings_backup_dialog_title">App-Sicherung wirklich deaktivieren\?</string>
+    <string name="settings_backup_dialog_message">Wenn du die Sicherung wieder aktivierst, kann der Sicherungsvorgang länger dauern als gewöhnlich, und es wird zusätzlicher Speicherplatz benötigt.</string>
+    <string name="settings_backup_dialog_disable">Trotzdem deaktivieren</string>
+    <string name="storage_not_recommended"><xliff:g example="Skynet">%1$s</xliff:g> (Nicht empfohlen)</string>
+    <string name="about_contributing_organizations_content"><a href="https://www.calyxinstitute.org">Calyx Institute</a> zur Verwendung in <a href="https://calyxos.org">CalyxOS</a>
+\n<a href="https://nlnet.nl/project/Seedvault/">NGI0 PET Fund by NLnet</a></string>
+    <string name="about_contributor_headline">Mitwirkende</string>
+    <string name="about_contributor_content">Eine <a href="https://github.com/seedvault-app/seedvault/graphs/contributors">Liste der Mitwirkenden</a> findest du auf GitHub.</string>
+    <string name="about_contributing_organizations_title">Mitwirkende Organisationen</string>
+    <string name="storage_user_selected_location_title">Benutzerdefinierter Speicherort</string>
+    <string name="notification_success_channel_title">Erfolgsbenachrichtigung</string>
+    <string name="settings_expert_d2d_title">Gerät-zu-Gerät-Sicherungen</string>
+    <string name="settings_expert_d2d_summary">Dies erzwingt Sicherungen für die meisten Apps, auch wenn diese dies nicht zulassen. Dies ist experimentell, die Verwendung erfolgt auf eigene Gefahr.</string>
+    <string name="storage_webdav_option_title">WebDAV-Cloud (Beta)</string>
+    <string name="storage_webdav_option_summary">Integrierter direkter WebDAV-Zugang</string>
+    <string name="storage_webdav_config_url">WebDAV-URL</string>
+    <string name="notification_apk_not_backed_up">Liste der Apps, die wir nicht sichern können, wird gespeichert.</string>
+    <string name="settings_backup_scheduling_title">Planung der Datensicherung</string>
+    <string name="settings_scheduling_frequency_3_days">Alle 3 Tage</string>
+    <string name="settings_backup_status_next_backup">Nächste Datensicherung: %1$s</string>
+    <string name="settings_backup_status_next_backup_estimate">Nächste Datensicherung (Schätzung): %1$s</string>
+    <string name="settings_backup_status_next_backup_past">sobald die Bedingungen erfüllt sind</string>
+    <string name="settings_backup_status_next_backup_usb">Die Datensicherung erfolgt automatisch, wenn Sie Ihr USB-Laufwerk anschließen</string>
+    <string name="settings_scheduling_frequency_title">Häufigkeit der Datensicherung</string>
+    <string name="settings_scheduling_frequency_12_hours">Alle 12 Stunden</string>
+    <string name="settings_scheduling_frequency_daily">Täglich</string>
+    <string name="settings_scheduling_category_conditions_title">Bedingungen</string>
+    <string name="settings_scheduling_frequency_weekly">Wöchentlich</string>
+    <string name="settings_scheduling_metered_title">Datensicherung bei Nutzung mobiler Daten</string>
+    <string name="settings_scheduling_charging_title">Datensicherung nur beim Aufladen</string>
+    <string name="notification_space_error_title">Unzureichender Speicherplatz für die Datensicherung</string>
+    <string name="restore_restore_set_size">Größe: <xliff:g example="1 GB" id="size">%1$s</xliff:g></string>
+    <string name="storage_webdav_config_url_helper">Achten Sie darauf, dass Sie hier die vollständige URL eingeben. Für Nextcloud z. B. hat sie die Form https://yourserver.com/remote.php/webdav</string>
+    <string name="storage_webdav_config_user">Benutzername</string>
+    <string name="storage_webdav_config_pass">Passwort</string>
+    <string name="storage_webdav_config_button">WebDAV-Cloud verwenden</string>
+    <string name="storage_webdav_config_malformed_url">Ungültige WebDAV-URL</string>
+    <string name="storage_webdav_name">WebDAV %s</string>
+    <string name="notification_apk_text">APK von %s wird gesichert</string>
+</resources>

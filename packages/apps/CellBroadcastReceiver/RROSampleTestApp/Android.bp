@@ -1,0 +1,9 @@
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+runtime_resource_overlay {
+    name: "CellBroadcastReceiverRROSample",
+    product_specific: true,
+}

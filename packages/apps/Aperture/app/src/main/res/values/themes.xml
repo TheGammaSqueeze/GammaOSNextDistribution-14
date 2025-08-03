@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2022-2024 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Theme.Aperture" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">?attr/isLightTheme</item>
+        <item name="dialogCornerRadius">28dp</item>
+    </style>
+
+    <!-- Main activity theme. -->
+    <style name="Theme.Aperture.Camera" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowBackground">@android:color/black</item>
+        <item name="android:windowLayoutInDisplayCutoutMode" tools:targetApi="O_MR1">
+            shortEdges
+        </item>
+        <item name="android:windowLightStatusBar">?attr/isLightTheme</item>
+    </style>
+
+    <!-- Secondary bar icons base theme -->
+    <style name="Theme.Aperture.Camera.SecondaryBarButton">
+        <item name="tint">@color/secondary_bar_button_icon</item>
+        <item name="backgroundTint">?attr/colorOnPrimary</item>
+        <item name="drawableTint">@color/secondary_bar_button_icon</item>
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
+        <item name="android:textColor">@color/secondary_bar_button_icon</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <!-- Secondary top bar icons theme -->
+    <style name="Theme.Aperture.Camera.SecondaryTopBarButton" parent="Theme.Aperture.Camera.SecondaryBarButton">
+        <item name="android:layout_width">96dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:hyphenationFrequency">normal</item>
+        <item name="android:maxLines">3</item>
+        <item name="android:paddingHorizontal">0dp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:typeface">monospace</item>
+    </style>
+
+    <!-- Secondary bottom bar icons theme -->
+    <style name="Theme.Aperture.Camera.SecondaryBottomBarButton" parent="Theme.Aperture.Camera.SecondaryBarButton">
+        <item name="android:layout_width">48dp</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:padding">4dp</item>
+    </style>
+
+    <!-- Info chip -->
+    <style name="Theme.Aperture.Camera.InfoChip" />
+
+    <style name="Theme.Aperture.Camera.InfoChip.ImageView">
+        <item name="android:layout_width">16dp</item>
+        <item name="android:layout_height">16dp</item>
+        <item name="android:visibility">gone</item>
+    </style>
+</resources>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="20dp"
+    android:orientation="vertical">
+
+  <TextView
+      android:id="@+id/performance_testing_explanation"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="@string/performance_testing_explanation"
+      android:textSize="16sp" />
+
+  <CheckBox
+      android:id="@+id/checkbox_insert_without_spanning"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="@string/span_insert_over_time"
+      />
+
+  <EditText
+      android:id="@+id/batch_size"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:digits="0123456789"
+      android:hint="@string/number_of_records_per_batch"
+      android:imeOptions="actionDone"
+      android:inputType="number" />
+
+  <EditText
+      android:id="@+id/number_of_batches"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:digits="0123456789"
+      android:hint="@string/number_of_batches"
+      android:imeOptions="actionDone"
+      android:inputType="number" />
+
+  <EditText
+      android:id="@+id/number_of_minutes"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:digits="0123456789"
+      android:hint="@string/time_span"
+      android:imeOptions="actionDone"
+      android:visibility="gone"
+      android:inputType="number" />
+
+</LinearLayout>

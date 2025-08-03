@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2006 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label">カレンダー</string>
+    <string name="when_label">日時</string>
+    <string name="today">今日</string>
+    <string name="tomorrow">明日</string>
+    <string name="today_at_time_fmt">"今日の<xliff:g id="TIME_INTERVAL">%s</xliff:g>"</string>
+    <string name="tomorrow_at_time_fmt">"明日の<xliff:g id="TIME_INTERVAL">%s</xliff:g>"</string>
+    <string name="date_time_fmt">"<xliff:g id="DATE">%1$s</xliff:g>の<xliff:g id="TIME_INTERVAL">%2$s</xliff:g>"</string>
+    <string name="no_title_label">（タイトルなし）</string>
+    <string name="no_reminder_label">なし</string>
+    <string name="no_snooze_label">なし</string>
+    <plurals name="Nminutes">
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g>分</item>
+    </plurals>
+    <plurals name="Nmins">
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g>分</item>
+    </plurals>
+    <plurals name="Nhours">
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g>時間</item>
+    </plurals>
+    <plurals name="Ndays">
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g>日</item>
+    </plurals>
+    <plurals name="Nweeks">
+        <item quantity="other"><xliff:g id="COUNT">%d</xliff:g>週間</item>
+    </plurals>
+    <plurals name="weekN">
+        <item quantity="other">第<xliff:g id="COUNT">%d</xliff:g>週</item>
+    </plurals>
+    <string name="calendar_refresh">"更新"</string>
+    <string name="show_day_view">"日付を表示"</string>
+    <string name="agenda_view">"予定リスト"</string>
+    <string name="day_view">"日"</string>
+    <string name="week_view">"週"</string>
+    <string name="month_view">"月"</string>
+    <string name="event_view">"予定を表示"</string>
+    <string name="event_create">"予定を作成"</string>
+    <string name="event_edit">"予定を編集"</string>
+    <string name="event_delete">"予定を削除"</string>
+    <string name="share_label">共有</string>
+    <string name="goto_today">"今日"</string>
+    <string name="goto_date">\u2026へ移動</string>
+    <string name="menu_preferences">"設定"</string>
+    <string name="menu_info">情報</string>
+    <string name="search">"検索"</string>
+    <string name="hide_controls">"コントロールを非表示"</string>
+    <string name="show_controls">"コントロールを表示"</string>
+    <string name="view_settings">"表示設定"</string>
+    <string name="select_synced_calendars_button">同期するカレンダー</string>
+    <string name="hint_what">"タイトル"</string>
+    <string name="hint_where">"場所"</string>
+    <string name="hint_description">"説明"</string>
+    <string name="hint_url">"URL"</string>
+    <string name="hint_attendees">"ゲスト"</string>
+    <string name="creating_event">"予定を作成しました。"</string>
+    <string name="saving_event">"予定を保存しました。"</string>
+    <string name="empty_event">"予定は空のため保存できません。"</string>
+    <string name="creating_event_with_guest">"招待を送信します。"</string>
+    <string name="saving_event_with_guest">"アップデートを送信します。"</string>
+    <string name="rsvp_accepted">"「はい」と返信しました。"</string>
+    <string name="rsvp_tentative">"「未定」と返信しました。"</string>
+    <string name="rsvp_declined">"「いいえ」と返信しました。"</string>
+    <string name="create_event_dialog_save">保存</string>
+    <string name="alert_title">カレンダーの通知</string>
+    <string name="foreground_notification_title">新しいリマインダーをスケジュール中…</string>
+    <string name="foreground_notification_channel_name">バックグラウンドタスク</string>
+    <string name="foreground_notification_channel_description">内部同期には通知が必要です。このチャンネルは安全に非表示にできます。</string>
+    <string name="event_info_title">予定を表示</string>
+    <string name="event_info_title_invite">会議への招待状</string>
+    <string name="edit_event_all_day_label">終日</string>
+    <string name="edit_event_calendar_label">カレンダー</string>
+    <string name="presence_label">外部向け表示</string>
+    <string name="privacy_label">公開設定</string>
+    <string name="reminders_label">通知を追加</string>
+    <string name="no_syncable_calendars">カレンダーがありません</string>
+    <string name="no_calendars_found">イベントを追加する前に、少なくとも1つのカレンダーをデバイスに追加する必要があります</string>
+    <string name="add_calendar">カレンダーを追加</string>
+    <string name="view_event_calendar_label">カレンダー:</string>
+    <string name="view_event_organizer_label">主催者:</string>
+    <string name="choose_event_color_label">予定の色を選択</string>
+    <string name="event_color_picker_dialog_title">予定の色</string>
+    <string name="event_color_set_to_default">既定のカレンダーの色に設定</string>
+    <string name="calendar_color_picker_dialog_title">カレンダーの色</string>
+    <string name="calendar_square_color_picker_description">カラーピッカー</string>
+    <string name="view_event_response_label">参加しますか？</string>
+    <string name="response_yes">はい</string>
+    <string name="response_maybe">未定</string>
+    <string name="response_no">いいえ</string>
+    <string name="email_guests_label">ゲストにメールを送信</string>
+    <string name="email_organizer_label">主催者にメールを送信</string>
+    <string name="email_picker_label">メールに次を含める:</string>
+    <string name="event_not_found">"予定が見つかりません。"</string>
+    <string name="map_label">地図</string>
+    <string name="no_map">マップアプリがインストールされていません</string>
+    <string name="call_label">発信</string>
+    <string name="quick_response_settings">クイック返信</string>
+    <string name="quick_response_settings_summary">ゲストへメールを送るときの既定の返事を編集</string>
+    <string name="quick_response_settings_edit_title">クイック返信</string>
+    <string name="quick_response_dialog_title">クイック返信の選択</string>
+    <string name="quick_response_email_failed">メールプログラムが見つかりません</string>
+    <string-array name="quick_response_defaults">
+        <item>数分遅れています。</item>
+        <item>10分ほどで着きます。</item>
+        <item>先に始めていてください。</item>
+        <item>申し訳ありませんが、行けません。日程を変更する必要があります。</item>
+    </string-array>
+    <string name="quick_response_custom_msg">カスタム返信を作成…</string>
+    <string name="event_info_organizer">主催:</string>
+    <string name="event_info_reminders_label">通知</string>
+    <string name="agenda_today">今日: <xliff:g id="DATE">%1$s</xliff:g></string>
+    <string name="agenda_yesterday">昨日: <xliff:g id="DATE">%1$s</xliff:g></string>
+    <string name="agenda_tomorrow">明日: <xliff:g id="DATE">%1$s</xliff:g></string>
+    <string name="loading">読み込み中...</string>
+    <string name="show_older_events">タップして<xliff:g id="OLDEST_SEARCH_RANGE">%1$s</xliff:g>より前の予定を表示</string>
+    <string name="show_newer_events">タップして<xliff:g id="NEWEST_SEARCH_RANGE">%1$s</xliff:g>より後の予定を表示</string>
+    <string name="search_title">マイカレンダーを検索</string>
+    <string name="edit_event_label">"詳細"</string>
+    <string name="edit_label">"編集"</string>
+    <string name="delete_label">"削除"</string>
+    <string name="duplicate_label">複製</string>
+    <string name="save_label">完了</string>
+    <string name="discard_label">キャンセル</string>
+    <string name="dismiss_all_label">"通知を消去"</string>
+    <string name="snooze_label">"スヌーズ"</string>
+    <string name="does_not_repeat">繰り返しなし</string>
+    <string name="endByDate">（<xliff:g id="DATE">%s</xliff:g>まで）</string>
+    <plurals name="endByCount">
+        <item quantity="other">（<xliff:g id="NUMBER">%d</xliff:g>回）</item>
+    </plurals>
+    <plurals name="daily">
+        <item quantity="other"><xliff:g id="NUMBER">%d</xliff:g>日ごと</item>
+    </plurals>
+    <string name="every_weekday">"平日（月～金）"</string>
+    <plurals name="weekly">
+        <item quantity="other"><xliff:g id="NUMBER">%1$d</xliff:g>週間ごとの<xliff:g id="DAYS_OF_WEEK">%2$s</xliff:g></item>
+    </plurals>
+    <string name="monthly">月次</string>
+    <string name="yearly_plain">毎年</string>
+    <string name="custom" product="default">"カスタム（端末ではカスタマイズ不可）"</string>
+    <string name="modify_event">この予定のみを変更する</string>
+    <string name="modify_all">一連の定期的な予定すべてを変更する</string>
+    <string name="modify_all_following">これ以降の予定すべてを変更する</string>
+    <string name="new_event_dialog_label">"新しい予定"</string>
+    <string name="new_event_dialog_option">"新しい予定"</string>
+    <string name="delete_this_event_title">この予定を削除しますか？</string>
+    <string name="delete_recurring_event_title"><xliff:g id="EVENTTITLE">%s</xliff:g>を削除しますか？</string>
+    <string name="change_response_title">出欠状況を変更</string>
+    <string name="preferences_title">"設定"</string>
+    <string name="preferences_general_title">カレンダーの表示設定</string>
+    <string name="preferences_month_view_portrait">月表示のレイアウト (縦方向)</string>
+    <string name="preferences_month_view_landscape">月表示のレイアウト (横方向)</string>
+    <string name="preferences_theme">テーマ</string>
+    <string name="preferences_system_theme">システムの既定値</string>
+    <string name="preferences_light_theme">ライト</string>
+    <string name="preferences_dark_theme">ダーク</string>
+    <string name="preferences_black_theme">ブラック</string>
+    <string name="preferences_color">プライマリーカラー</string>
+    <string name="preferences_color_pick">プライマリーカラー</string>
+    <string name="preferences_real_event_colors">実際のイベントカラーを使用する</string>
+    <string name="preferences_pure_black_night_mode">ピュアブラックナイトモード</string>
+    <string name="preferences_reminder_title">通知とリマインダ</string>
+    <string name="preferences_hide_declined_title">辞退した予定を非表示</string>
+    <string name="default_start_title">デフォルトのビュー</string>
+    <string name="display_options">オプションを表示</string>
+    <string name="display_time">時刻を表示</string>
+    <string name="display_location">場所を表示</string>
+    <string name="maximum_number_of_lines">予定内の行の最大数</string>
+    <string name="default_start_last">前回終了時のビュー</string>
+    <string name="preferences_week_start_day_title">週の開始日</string>
+    <string name="preferences_week_start_day_dialog">週の開始日</string>
+    <string name="preferences_days_per_week_title">週ごとの日</string>
+    <string name="preferences_days_per_week_dialog">週ごとの日</string>
+    <string name="preferences_default_event_duration_title">デフォルトの予定の継続時間</string>
+    <string name="preferences_clear_search_history_title">検索履歴を消去</string>
+    <string name="preferences_clear_search_history_summary">実行したすべての検索を削除する</string>
+    <string name="search_history_cleared">検索履歴を消去しました。</string>
+    <string name="preferences_alerts_title">通知</string>
+    <string name="preferences_alerts_vibrateWhen_title">バイブレーション</string>
+    <string name="preferences_alerts_ringtone_title">音声</string>
+    <string name="preferences_alerts_popup_title">ポップアップ通知</string>
+    <string name="preferences_default_reminder_title">既定の通知時間</string>
+    <string name="preferences_default_reminder_dialog">リマインダ通知</string>
+    <string name="preferences_default_reminder_default">10</string>
+    <string name="preferences_use_home_tz_title">自宅タイムゾーン</string>
+    <string name="preferences_use_home_tz_descrip">旅行中も自宅のタイムゾーンでカレンダーと予定時間を表示する</string>
+    <string name="preferences_home_tz_title">自宅タイムゾーン</string>
+    <string name="preferences_show_week_num_title">第何週かを表示</string>
+    <string name="preferences_alerts_custom_snooze_delay_title">通知のスヌーズの遅延を使用</string>
+    <string name="preferences_alerts_custom_snooze_delay_summary_on">通知をスヌーズする時はスヌーズの遅延を使用する</string>
+    <string name="preferences_alerts_custom_snooze_delay_summary_off">デフォルトのスヌーズの遅延を常に使用する</string>
+    <string name="snooze_delay_dialog_title">スヌーズの遅延を設定</string>
+    <string name="preferences_default_snooze_delay_title">デフォルトのスヌーズの遅延時間</string>
+    <string name="preferences_default_snooze_delay_dialog">デフォルトのスヌーズの遅延</string>
+    <string name="app_copyright">\u00a9 2015-<xliff:g>%1$s</xliff:g> The Etar Project. Portions \u00a9 2005-<xliff:g>%1$s</xliff:g> The Android Open Source Project.</string>
+    <string name="authors">製作者</string>
+    <string name="changelog">更新履歴</string>
+    <string name="license">ライセンス</string>
+    <string name="preferences_build_version">ビルドバージョン</string>
+    <string name="preferences_issues">問題を報告する</string>
+    <string name="source_code">ソース</string>
+    <plurals name="month_more_events">
+        <item quantity="other">+<xliff:g id="NUMBER">%d</xliff:g></item>
+    </plurals>
+    <string name="gadget_no_events">近日中の予定はありません</string>
+    <string name="preferences_experimental_category">試験運用版</string>
+    <string name="preferences_reminders_responded_label">通知をスキップ</string>
+    <string name="preferences_reminders_responded_dialog">通知をスキップ</string>
+    <string name="copy_db">データベースを送信</string>
+    <string name="directory_searching_fmt"><xliff:g id="DOMAIN">%s</xliff:g>を検索中...</string>
+    <string name="accessibility_remove_attendee">参加者を削除</string>
+    <string name="accessibility_pick_start_date">開始日</string>
+    <string name="accessibility_pick_start_time">開始時間</string>
+    <string name="accessibility_pick_end_date">終了日</string>
+    <string name="accessibility_pick_end_time">終了時間</string>
+    <string name="accessibility_pick_time_zone">タイムゾーン</string>
+    <string name="accessibility_pick_recurrence">定期的な予定を作成する</string>
+    <string name="accessibility_add_reminder">通知を追加</string>
+    <string name="accessibility_remove_reminder">通知を削除</string>
+    <string name="accessibility_add_attendee">参加者を追加</string>
+    <string name="accessibility_all_day">終日</string>
+    <string name="accessibility_reminder_time">通知の時間</string>
+    <string name="accessibility_reminder_type">通知のタイプ</string>
+    <string name="accessibility_reminder_showmeas">外部向け表示</string>
+    <string name="accessibility_reminder_privacy">公開設定</string>
+    <string name="day_view_new_event_hint">新しい予定を追加</string>
+    <string name="template_announce_item_index"><xliff:g id="ITEM_COUNT">%2$s</xliff:g>件中<xliff:g id="ITEM_INDEX">%1$s</xliff:g>件目の予定</string>
+    <plurals name="Nevents">
+        <item quantity="other">予定<xliff:g id="COUNT">%d</xliff:g>件</item>
+    </plurals>
+    <plurals name="N_remaining_events">
+        <item quantity="other">他<xliff:g id="COUNT">%d</xliff:g>件の予定</item>
+    </plurals>
+    <string name="acessibility_selected_marker_description">選択した予定</string>
+    <plurals name="recurrence_interval_daily">
+        <item quantity="other">繰り返す間隔: <xliff:g id="COUNT">%d</xliff:g>日</item>
+    </plurals>
+    <plurals name="recurrence_interval_weekly">
+        <item quantity="other">繰り返す間隔: <xliff:g id="COUNT">%d</xliff:g>週間</item>
+    </plurals>
+    <plurals name="recurrence_interval_monthly">
+        <item quantity="other">繰り返す間隔: <xliff:g id="COUNT">%d</xliff:g>か月</item>
+    </plurals>
+    <plurals name="recurrence_interval_yearly">
+        <item quantity="other">繰り返す間隔: <xliff:g id="COUNT">%d</xliff:g>年</item>
+    </plurals>
+    <string name="recurrence_month_pattern_by_day">毎月同じ日</string>
+    <string name="recurrence_end_continously">終了日なし</string>
+    <string name="recurrence_end_date_label">終了日:</string>
+    <string name="recurrence_end_date"><xliff:g id="DATE">%s</xliff:g>まで</string>
+    <string name="recurrence_end_count_label">回数</string>
+    <plurals name="recurrence_end_count">
+        <item quantity="other"><xliff:g id="EVENT_COUNT">%d</xliff:g>回繰り返す</item>
+    </plurals>
+    <string name="acessibility_recurrence_choose_end_date_description">終了日を変更します</string>
+    <string name="user_rejected_calendar_write_permission">カレンダーの正常な動作のためにはカレンダーの読み書きの権限が必要です。もう一度やり直してください。</string>
+    <string name="calendar_permission_not_granted">必要な権限が拒否されました。予定を編集するには設定アプリから権限を有効にしてください。</string>
+    <string name="visibility_default">デフォルト</string>
+    <string name="visibility_confidential">非公開</string>
+    <string name="visibility_private">プライベート</string>
+    <string name="visibility_public">公開</string>
+    <string name="two_days">2日</string>
+    <string name="three_days">3日</string>
+    <string name="four_days">4日</string>
+    <string name="five_days">5日</string>
+    <string name="six_days">6日</string>
+    <string name="seven_days">7日</string>
+    <string name="zero_minutes">0分</string>
+    <string name="fifteen_minutes">15分</string>
+    <string name="thirty_minutes">30分</string>
+    <string name="one_hour">1時間</string>
+    <string name="one_and_a_half_hours">1.5時間</string>
+    <string name="two_hours">2時間</string>
+    <string name="error_generating_ics">予定の共有中に問題が発生しました</string>
+    <string name="cal_share_intent_title">予定の送信先:</string>
+    <string name="cal_export_event_sdcard_title">SD カードにエクスポート</string>
+    <string name="cal_export_succ_msg">予定のエクスポートが完了しました: %1$s</string>
+    <string name="cal_import_menu_title">予定のインポート</string>
+    <string name="cal_nothing_to_import">インポートする予定がありません</string>
+    <string name="cal_import_error_msg">カレンダーにインポートできませんでした</string>
+    <string name="cal_import_error_time_zone_msg">与えられたタイムゾーンを理解できません: %s</string>
+    <string name="cal_import_error_date_msg">与えられた日付を理解することができません: %s</string>
+    <string name="cal_pick_ics">インポートするファイルを選択</string>
+    <string name="show_time_no">時刻を表示しない</string>
+    <string name="show_time_start">開始時刻のみ</string>
+    <string name="show_time_start_end">最初最後の時刻</string>
+    <string name="show_time_start_end_below">予定の開始時間と終了時間</string>
+    <string name="preferences_calendar_no_display_name">名前のないカレンダー</string>
+    <string name="preferences_calendar_account">%1$s個のアカウント</string>
+    <string name="preferences_calendar_account_local">オフラインカレンダー</string>
+    <string name="preferences_calendar_configure_account">%1$s のカレンダーを編集</string>
+    <string name="preferences_calendar_number_of_events">%1$d個の予定</string>
+    <string name="preferences_calendar_delete">カレンダーの削除</string>
+    <string name="preferences_calendar_display_name">名前の変更</string>
+    <string name="preferences_calendar_info_category">カレンダー情報</string>
+    <string name="preferences_calendar_color">色</string>
+    <string name="preferences_calendar_visible">予定の表示</string>
+    <string name="preferences_manage_notifications">通知を管理</string>
+    <string name="preferences_calendar_synchronize">このカレンダーを同期する</string>
+    <string name="preferences_calendar_color_warning_title">警告</string>
+    <string name="preferences_calendar_color_warning_message">カレンダーが再度同期されると色が元に戻ることがあります。\n\nDAVx⁵では、これを防ぐために「カレンダーの色を管理」を無効にすることができます。</string>
+    <string name="preferences_calendar_color_warning_button">OK</string>
+    <string name="preferences_calendar_delete_message">本当にこのカレンダーを削除しますか?</string>
+    <string name="preferences_calendar_delete_delete">カレンダーの削除</string>
+    <string name="preferences_calendar_delete_cancel">キャンセル</string>
+    <string name="preferences_list_calendar_summary_sync_off">同期されていません</string>
+    <string name="preferences_list_calendar_summary_invisible">予定は非表示になっています</string>
+    <string name="preferences_list_general">全般設定</string>
+    <string name="preferences_list_add_remote">CalDAV カレンダーを追加</string>
+    <string name="preferences_list_add_remote_etesync">EteSync カレンダーを追加</string>
+    <string name="preferences_list_add_offline">オフラインカレンダーの追加</string>
+    <string name="preferences_list_add_offline_title">オフラインカレンダーの追加</string>
+    <string name="preferences_list_add_offline_error_empty">カレンダー名を追加してください!</string>
+    <string name="preferences_list_add_offline_message">オフライン カレンダーはクラウドサービスに同期されておらず、お使いの携帯電話でのみ利用可能です。</string>
+    <string name="preferences_list_add_offline_button">カレンダーの追加</string>
+    <string name="preferences_list_add_offline_name">名前</string>
+    <string name="preferences_list_add_offline_cancel">キャンセル</string>
+    <string name="preferences_menu_about">カレンダーについて</string>
+    <string name="offline_account_name">オフラインカレンダー</string>
+    <string name="after_start_of_event">イベント開始後</string>
+    <string name="preferences_do_not_check_battery_optimization">電池の最適化をチェックしない</string>
+    <string name="preferences_do_not_check_battery_optimization_summary">自己責任で使用してください！通知は機能しなくなり、ウィジェットはもはや更新されず、バックグラウンドサービスは強制停止されます。 ただし、バックグラウンドサービスを有効にするかどうかは再び尋ねられません。</string>
+    <string name="calendars">カレンダー</string>
+    <string name="discard_event_changes">変更を破棄しますか?</string>
+    <string name="discard">破棄</string>
+    <string name="cancel">キャンセル</string>
+</resources>

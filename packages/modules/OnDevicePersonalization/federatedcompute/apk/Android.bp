@@ -1,0 +1,80 @@
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_visibility: [":__subpackages__"],
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+genrule {
+    name: "statslog-federatedcompute-java-gen",
+    tools: ["stats-log-api-gen"],
+    cmd: "$(location stats-log-api-gen) --java $(out) --module ondevicepersonalization" +
+         " --javaPackage com.android.federatedcompute.services.stats" +
+         " --javaClass FederatedComputeStatsLog",
+    out: ["com/android/federatedcompute/services/stats/FederatedComputeStatsLog.java"],
+    visibility: [
+      "//packages/modules/OnDevicePersonalization:__subpackages__"
+    ],
+}
+
+filegroup {
+    name: "fcp-apk-jarjar",
+    srcs: ["jarjar_rules.txt"]
+}
+
+android_app_certificate {
+    name: "com.android.federatedcompute.certificate",
+    certificate: "com.android.federatedcompute",
+}
+
+android_app {
+    name: "FederatedCompute",
+    srcs: [
+        ":federatedcompute-sources",
+        ":federatedcompute-fbs",
+        ":statslog-federatedcompute-java-gen",
+        ":fcp_native_wrapper",
+    ],
+    libs: [
+        "auto_value_annotations",
+        "framework-ondevicepersonalization.impl",
+        "framework-annotations-lib",
+        "framework-configinfrastructure", // For PH flags
+        "framework-statsd.stubs.module_lib", // For WW logging
+    ],
+    plugins: ["auto_value_plugin"],
+    static_libs: [
+        "flatbuffers-java",
+        "androidx.concurrent_concurrent-futures",
+        "federated-compute-java-proto-lite",
+        "guava",
+        "libprotobuf-java-lite",
+        "modules-utils-preconditions",
+        // Used for client error logging and background job logging.
+        "adservices-shared-spe",
+    ],
+    sdk_version: "module_current",
+    min_sdk_version: "Tiramisu",
+    jarjar_rules: ":fcp-apk-jarjar",
+    updatable: true,
+    certificate: ":com.android.federatedcompute.certificate",
+    apex_available: ["com.android.ondevicepersonalization"],
+    defaults: [
+        "federatedcompute-java-defaults",
+    ],
+    optimize: {
+        proguard_flags_files: ["proguard.flags"],
+    },
+}

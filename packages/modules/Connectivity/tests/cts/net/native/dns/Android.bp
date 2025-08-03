@@ -1,0 +1,56 @@
+package {
+    default_team: "trendy_team_fwk_core_networking",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_defaults {
+    name: "dns_async_defaults",
+
+    cflags: [
+        "-fstack-protector-all",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Wnullable-to-nonnull-conversion",
+        "-Wsign-compare",
+        "-Wthread-safety",
+        "-Wunused-parameter",
+    ],
+    srcs: [
+        "NativeDnsAsyncTest.cpp",
+    ],
+    shared_libs: [
+        "libandroid",
+        "liblog",
+        "libutils",
+    ],
+    static_libs: [
+        "libbase",
+        "libnetdutils",
+    ],
+    // To be compatible with R devices, the min_sdk_version must be 30.
+    min_sdk_version: "30",
+    host_required: ["net-tests-utils-host-common"],
+}
+
+cc_test {
+    name: "CtsNativeNetDnsTestCases",
+    defaults: ["dns_async_defaults"],
+    multilib: {
+        lib32: {
+            suffix: "32",
+        },
+        lib64: {
+            suffix: "64",
+        },
+    },
+    test_suites: [
+        "cts",
+        "general-tests",
+        "mts-dnsresolver",
+        "mts-networking",
+        "mcts-dnsresolver",
+        "mcts-networking",
+    ],
+}

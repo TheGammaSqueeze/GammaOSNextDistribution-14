@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="@dimen/system_bar_user_icon_width"
+        android:height="@dimen/system_bar_user_icon_height"
+        android:viewportWidth="23"
+        android:viewportHeight="22">
+    <path
+        android:pathData="M11.5 11C10.0333 11 8.78889 10.5 7.76667 9.5C6.76667 8.47778 6.26667 7.23333 6.26667 5.76667C6.26667 4.3 6.76667 3.06667 7.76667 2.06667C8.78889 1.04444 10.0333 0.533333 11.5 0.533333C12.9667 0.533333 14.2 1.04444 15.2 2.06667C16.2222 3.06667 16.7333 4.3 16.7333 5.76667C16.7333 7.23333 16.2222 8.47778 15.2 9.5C14.2 10.5 12.9667 11 11.5 11ZM0.833333 21.6667V18.1333C0.833333 17.3556 1.03333 16.6556 1.43333 16.0333C1.83333 15.4111 2.35556 14.9333 3 14.6C4.42222 13.9111 5.83333 13.4 7.23333 13.0667C8.63333 12.7333 10.0556 12.5667 11.5 12.5667C12.9444 12.5667 14.3667 12.7444 15.7667 13.1C17.1667 13.4333 18.5667 13.9333 19.9667 14.6C20.6333 14.9333 21.1667 15.4111 21.5667 16.0333C21.9667 16.6556 22.1667 17.3556 22.1667 18.1333V21.6667H0.833333ZM3.26667 19.2333H19.7333V18.1333C19.7333 17.8444 19.6556 17.5889 19.5 17.3667C19.3444 17.1222 19.1444 16.9333 18.9 16.8C17.6333 16.1778 16.3889 15.7222 15.1667 15.4333C13.9667 15.1444 12.7444 15 11.5 15C10.2556 15 9.02222 15.1444 7.8 15.4333C6.57778 15.7222 5.33333 16.1778 4.06667 16.8C3.84444 16.9333 3.65556 17.1222 3.5 17.3667C3.34444 17.5889 3.26667 17.8444 3.26667 18.1333V19.2333ZM11.5 8.53333C12.2778 8.53333 12.9333 8.26667 13.4667 7.73333C14 7.2 14.2667 6.54444 14.2667 5.76667C14.2667 4.98889 14 4.33333 13.4667 3.8C12.9333 3.26667 12.2778 3 11.5 3C10.7222 3 10.0667 3.26667 9.53333 3.8C9 4.33333 8.73333 4.98889 8.73333 5.76667C8.73333 6.54444 9 7.2 9.53333 7.73333C10.0667 8.26667 10.7222 8.53333 11.5 8.53333Z"
+        android:fillColor="@color/system_bar_icon_color"/>
+</vector>

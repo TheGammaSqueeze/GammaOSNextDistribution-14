@@ -1,0 +1,72 @@
+// Copyright 2021, The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_security_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_security_license"],
+}
+
+rust_defaults {
+    name: "liblegacykeystore-rust_defaults",
+    crate_name: "legacykeystore",
+    srcs: [
+        "lib.rs",
+    ],
+    rustlibs: [
+        "android.security.legacykeystore-rust",
+        "libanyhow",
+        "libbinder_rs",
+        "libkeystore2_flags_rust",
+        "libkeystore2_flags_rust",
+        "liblog_rust",
+        "librusqlite",
+        "librustutils",
+        "libthiserror",
+    ],
+}
+
+rust_library {
+    name: "liblegacykeystore-rust",
+    defaults: ["liblegacykeystore-rust_defaults"],
+    rustlibs: [
+        "libkeystore2",
+        "libkeystore2_flags_rust",
+        "librusqlite",
+    ],
+}
+
+rust_test {
+    name: "legacykeystore_test",
+    crate_name: "legacykeystore",
+    srcs: ["lib.rs"],
+    test_suites: ["general-tests"],
+    auto_gen_config: true,
+    rustlibs: [
+        "android.security.legacykeystore-rust",
+        "libanyhow",
+        "libbinder_rs",
+        "libkeystore2",
+        "libkeystore2_flags_rust",
+        "libkeystore2_flags_rust",
+        "libkeystore2_test_utils",
+        "liblog_rust",
+        "librusqlite",
+        "librustutils",
+        "libthiserror",
+    ],
+}

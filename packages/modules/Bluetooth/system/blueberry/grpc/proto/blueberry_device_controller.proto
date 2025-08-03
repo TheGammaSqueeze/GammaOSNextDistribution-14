@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package wearables.qa.blueberry.grpc;
+
+option java_multiple_files = true;
+
+message DiscoverableMode {
+  bool mode = 1;  // True to set discoverable on, False to set discoverable off.
+}
+
+message DiscoverableResult {
+  bool result = 1;   // True if successful, False if unsuccessful.
+  string error = 2;  // Error message if unsuccessful.
+}
+
+message TargetMacAddress {
+  string mac_address = 1;  // Mac Address of target device.
+}
+
+message PairAndConnectBluetoothResult {
+  double pairing_time_sec =
+      1;  // The time it takes in seconds to pair the devices.
+  double connection_time_sec =
+      2;             // The time it takes in seconds to connect the devices.
+  string error = 3;  // Error message if unsuccessful.
+}
+
+service BlueberryDeviceController {
+  // Returns the result from a request to set device to discoverable.
+  rpc SetDiscoverableMode(DiscoverableMode) returns (DiscoverableResult) {}
+
+  // Returns the result from a request to connect to a target device.
+  rpc PairAndConnectBluetooth(TargetMacAddress)
+      returns (PairAndConnectBluetoothResult) {}
+}

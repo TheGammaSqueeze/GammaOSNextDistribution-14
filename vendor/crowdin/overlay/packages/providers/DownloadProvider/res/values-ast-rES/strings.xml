@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label">Xestor de descargues</string>
+    <string name="storage_description">Descargues</string>
+    <string name="permlab_downloadManager">accesu al xestor de descargues</string>
+    <string name="permdesc_downloadManager">Permite que l\'aplicación
+        acceda al xestor de descargues y lu use pa baxar ficheros.
+        Les aplicaciones malicioses puen usar esti permisu pa
+        torgar descargues y acceder a información privada.</string>
+    <string name="permlab_downloadManagerAdvanced">funciones avanzaes
+        del xestor de descargues</string>
+    <string name="permdesc_downloadManagerAdvanced">Permite que l\'aplicación
+        acceda a les funciones avanzaes del xestor de descargues.
+        Les aplicaciones malicioses puen usar esti permisu pa
+        torgar descargues y acceder a información privada.</string>
+    <string name="permlab_downloadCompletedIntent">unviu d\'avisos
+        de descarga</string>
+    <string name="permdesc_downloadCompletedIntent">Permite que l\'aplicación
+        unvie avisos tocante a les descargues completaes. Les aplicaciones
+        malicioses puen usar esti permisu pa confundir a otres aplicaciones
+        que baxen ficheros.</string>
+    <string name="permlab_downloadCacheNonPurgeable">espaciu acutáu na
+    caché de descargues</string>
+    <string name="permdesc_downloadCacheNonPurgeable">Permite que l\'aplicación
+    baxe ficheros a la caché de descargues, que nun se puen desaniciar
+    automáticamente cuando\'l xestor de descargues precise más espaciu.</string>
+    <string name="permlab_downloadWithoutNotification">descarga de ficheros ensin
+        avisar</string>
+    <string name="permdesc_downloadWithoutNotification">Permite que l\'aplicación
+    baxe ficheros pente\'l xestor de descargues ensin amosar nengún avisu
+    al usuariu.</string>
+    <string name="permlab_accessAllDownloads">accesu a toles descargues
+    del sistema</string>
+    <string name="permdesc_accessAllDownloads">Permite que l\'aplicación vea
+    y modifique toles descargues aniciaes por cualesquier aplicación del sistema.</string>
+    <string name="download_unknown_title">&lt;Ensin títulu&gt;</string>
+    <string name="notification_download_complete">Completóse la descarga.</string>
+    <string name="notification_download_failed">La descarga falló</string>
+    <string name="notification_need_wifi_for_size">La descarga rique Wi-Fi.</string>
+    <string name="notification_paused_in_background">Posóse en segundu planu.</string>
+    <string name="wifi_required_title">La descarga ye mui grande pa la rede la operadora</string>
+    <string name="wifi_required_body">Tienes d\'usar una rede Wi-Fi pa completar
+        esta descarga de &lt;xliff:g id="size" example="12.3KB"&gt;%1$s&lt;/xliff:g&gt;.\n\nToca
+        «&lt;xliff:g id="queue_text" example="Queue"&gt;» p\'aniciala la próxima vegada que
+        te conectes a una Wi-Fi.</string>
+    <string name="wifi_recommended_title">¿Quies poner l\'elementu na cola pa baxalu dempués?</string>
+    <string name="wifi_recommended_body">Ye posible qu\'al aniciar agora esta descarga de
+        <xliff:g id="size" example="12.3KB">%1$s</xliff:g> consumas muncha batería
+        y/o uses escesivamente la conexón de datos móvil, que pue xenerar cargos según
+        el plan que contratares na operadora.\n\n
+        Toca «<xliff:g id="queue_text" example="Queue">%2$s</xliff:g>» p\'aniciar esta
+        descarga la próxima vegada que te conectes a una rede Wi-Fi.</string>
+    <string name="button_queue_for_wifi">Meter na cola</string>
+    <string name="button_cancel_download">Encaboxar</string>
+    <string name="button_start_now">Aniciar agora</string>
+    <plurals name="notif_summary_active">
+        <item quantity="one">1 ficheru en descarga</item>
+        <item quantity="other"><xliff:g id="number">%d</xliff:g> ficheros en descarga</item>
+    </plurals>
+    <plurals name="notif_summary_waiting">
+        <item quantity="one">1 ficheru n\'espera</item>
+        <item quantity="other"><xliff:g id="number">%d</xliff:g> ficheros n\'espera</item>
+    </plurals>
+    <string name="download_remaining">Tiempu que queda: <xliff:g id="duration" example="3 minutes">%s</xliff:g></string>
+    <string name="download_no_application_title">Nun se pue abrir el ficheru</string>
+    <string name="root_downloads">Descargues</string>
+    <string name="download_queued">Na cola</string>
+    <string name="download_running">En cursu</string>
+    <string name="download_error">Falló</string>
+    <string name="download_running_percent">En cursu, <xliff:g id="percentage" example="50%">%s</xliff:g></string>
+</resources>

@@ -1,0 +1,180 @@
+// Copyright 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package netsim.frontend;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "netsim/model.proto";
+
+/**
+ * The frontend service for the network simulator.
+ *
+ * The network simulator interconnects virtual radio controllers on emulated
+ * android and accessory devices to allows control of the topology, device
+ * positions, and RF characteristics.
+ *
+ * Clients of the frontend service include a Command Line Interface (cli), Mobly
+ * scripts, and a web UI.
+ *
+ */
+service FrontendService {
+  // Get the version of the netsim service.
+  rpc GetVersion(google.protobuf.Empty) returns (VersionResponse);
+
+  // Create a builtin device
+  rpc CreateDevice(CreateDeviceRequest) returns (CreateDeviceResponse);
+
+  // Delete a builtin chip. Implicitly deletes devices which contain no chips.
+  rpc DeleteChip(DeleteChipRequest) returns (google.protobuf.Empty);
+
+  // Patch a device
+  rpc PatchDevice(PatchDeviceRequest) returns (google.protobuf.Empty);
+
+  // Reset all devices.
+  rpc Reset(google.protobuf.Empty) returns (google.protobuf.Empty);
+
+  // Get a list of devices
+  rpc ListDevice(google.protobuf.Empty) returns (ListDeviceResponse);
+
+  // Get a list of devices when a device event is published.
+  // Waits for device event up to 15 seconds and returns Error response if no
+  // event is received
+  rpc SubscribeDevice(SubscribeDeviceRequest) returns (SubscribeDeviceResponse);
+
+  // Patch a Capture source to turn capture on/off.
+  // When turned on the old capture contents are replaced.
+  rpc PatchCapture(PatchCaptureRequest) returns (google.protobuf.Empty);
+
+  // List all Captures currently connected on netsim.
+  rpc ListCapture(google.protobuf.Empty) returns (ListCaptureResponse);
+
+  // Retrieve the contents of the packet capture as streaming bytes
+  rpc GetCapture(GetCaptureRequest) returns (stream GetCaptureResponse);
+}
+
+// Response of GetVersion.
+//
+// Returns the version of the netsim service
+message VersionResponse {
+  // Version of netsim service
+  string version = 1;
+}
+
+// Request of CreateDevice.
+//
+// CreateDevice is only used for built-in devices.
+message CreateDeviceRequest {
+  // DeviceCreate proto for creation. Check DeviceCreate in model.proto for more
+  // detail.
+  netsim.model.DeviceCreate device = 1;
+}
+
+// Response of CreateDevice.
+//
+// Returns the device created in netsim
+message CreateDeviceResponse {
+  // Device proto
+  netsim.model.Device device = 1;
+}
+
+// Request of DeleteDevice.
+//
+// DeleteDevice is only used for built-in device.
+message DeleteChipRequest {
+  // Device Identifier
+  uint32 id = 2;
+}
+
+// Request of PatchDevice.
+//
+// You may patch the device position, orientation, and the radio states.
+// For built-in devices, you may patch the specific configurations.
+message PatchDeviceRequest {
+  // Device proto. You must include either the id or name field to have
+  // a successful patch.
+  netsim.model.Device device = 2;
+}
+
+// Response for ListDevice request.
+//
+// Returns the emulators and accessory devices that are connected to
+// the network simulator.
+message ListDeviceResponse {
+  // List of Device protos
+  repeated netsim.model.Device devices = 1;
+  // Last modified timestamp for device resource.
+  // The timestamp will be updated if devices state has changed (except for
+  // packet counts)
+  google.protobuf.Timestamp last_modified = 2;
+}
+
+// Request for SubscribeDevice.
+message SubscribeDeviceRequest {
+  // The SubscribeDevice will immediately return if the
+  // provided last_modified timestamp is prior to the current last_modified
+  // timestamp in device resource.
+  optional google.protobuf.Timestamp last_modified = 1;
+}
+
+// Response for SubscribeDevice request.
+message SubscribeDeviceResponse {
+  // Will return ListDeviceResponse or an EmptyResponse
+  oneof response {
+    // Response for ListDevice
+    ListDeviceResponse list_device_response = 1;
+    // Empty Response
+    google.protobuf.Empty empty_response = 2;
+  }
+}
+
+// Request of PatchCapture.
+message PatchCaptureRequest {
+  // Capture Identifier
+  uint32 id = 1;
+
+  // Body of PatchCapture that will be channeled into
+  // body for HandleCaptureCxx
+  message PatchCapture {
+    // Capture state
+    netsim.model.State state = 1;
+  }
+  // PatchCapture proto
+  PatchCapture patch = 2;
+}
+
+// Response of ListCapture
+//
+// Returns all capture information of devices connected to netsim.
+message ListCaptureResponse {
+  // List of Capture protos
+  repeated netsim.model.Capture captures = 1;
+}
+
+// Request of GetCapture
+message GetCaptureRequest {
+  // Capture Identifier
+  uint32 id = 1;
+}
+
+// Response of GetCapture
+//
+// Returns a max of 1024 bytes of capture file.
+// GetCapture will be returning a stream of GetCaptureResponse
+message GetCaptureResponse {
+  // Max of 1024 bytes of capture file
+  bytes capture_stream = 1;
+}

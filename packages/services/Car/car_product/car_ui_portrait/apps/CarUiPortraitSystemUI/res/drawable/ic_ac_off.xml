@@ -1,0 +1,28 @@
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="@dimen/hvac_panel_icon_dimen"
+    android:height="@dimen/hvac_panel_icon_dimen"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+  <path
+      android:pathData="M42.0001,22H35.6601L40.7401,16.92C41.5201,16.14 41.5201,14.88 40.7401,14.1C39.9601,13.32 38.6801,13.32 37.9001,14.1L30.0001,22H26.0001V18L33.9001,10.1C34.6801,9.32 34.6801,8.04 33.9001,7.26C33.1201,6.48 31.8601,6.48 31.0801,7.26L26.0001,12.34V6C26.0001,4.9 25.1001,4 24.0001,4C22.9001,4 22.0001,4.9 22.0001,6V12.34L16.9201,7.26C16.1401,6.48 14.8801,6.48 14.1001,7.26C13.3201,8.04 13.3201,9.32 14.1001,10.1L22.0001,18V20.34L27.6601,26H30.0001L37.9001,33.9C38.6801,34.68 39.9601,34.68 40.7401,33.9C41.5201,33.12 41.5201,31.86 40.7401,31.08L35.6601,26H42.0001C43.1001,26 44.0001,25.1 44.0001,24C44.0001,22.9 43.1001,22 42.0001,22Z"
+      android:fillColor="@color/hvac_off_icon_fill_color"/>
+  <path
+      android:pathData="M1.5801,11.24L12.3401,22H6.0001C4.9001,22 4.0001,22.9 4.0001,24C4.0001,25.1 4.9001,26 6.0001,26H12.3401L7.2601,31.08C6.4801,31.86 6.4801,33.12 7.2601,33.9C8.0401,34.68 9.3201,34.68 10.1001,33.9L17.1801,26.82L21.1801,30.82L14.1001,37.9C13.3201,38.68 13.3201,39.96 14.1001,40.74C14.8801,41.52 16.1401,41.52 16.9201,40.74L22.0001,35.66V42C22.0001,43.1 22.9001,44 24.0001,44C25.1001,44 26.0001,43.1 26.0001,42V35.66L38.3401,48L41.1601,45.18L4.4001,8.4L1.5801,11.24Z"
+      android:fillColor="@color/hvac_off_icon_fill_color"/>
+</vector>

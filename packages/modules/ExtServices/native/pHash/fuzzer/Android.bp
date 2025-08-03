@@ -1,0 +1,37 @@
+package {
+    default_team: "trendy_team_android_rubidium",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "packages_modules_ExtServices_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["packages_modules_ExtServices_license"],
+}
+
+cc_fuzz {
+    name: "libPHashFuzzer",
+    srcs: [
+        "fuzzed_phash_fingerprinter.cpp",
+    ],
+    static_libs: [
+        "libextservices",
+        "libfft2d",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.extservices",
+    ],
+    fuzz_config: {
+        cc: [
+            "chaviw@google.com",
+            "wanggang@google.com",
+        ],
+
+        // The ID for
+        // Android > Android OS & Apps > Framework (java + native) > SmartOS > ExtServices
+        componentid: 959583,
+    },
+    corpus: [
+        "corpus/*.raw",
+    ],
+}

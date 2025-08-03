@@ -1,0 +1,102 @@
+// Copyright 2022 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+option java_outer_classname = "AshaProto";
+
+package pandora.asha;
+
+import "google/protobuf/empty.proto";
+import "pandora/host.proto";
+
+// Service to trigger Audio Streaming for Hearing Aid (ASHA) procedures.
+// ASHA uses connection-oriented L2CAP channels (CoC) and GATT.
+service Asha {
+  // Register ASHA Service.
+  rpc Register(RegisterRequest) returns (google.protobuf.Empty);
+  // Capture Audio.
+  rpc CaptureAudio(CaptureAudioRequest) returns (stream CaptureAudioResponse);
+  // Start a suspended stream.
+  rpc Start(StartRequest) returns (StartResponse);
+  // Playback audio
+  rpc PlaybackAudio(stream PlaybackAudioRequest) returns (PlaybackAudioResponse);
+  // Stop a started stream.
+  rpc Stop(StopRequest) returns (StopResponse);
+  // Wait for ASHA device to be connected.
+  rpc WaitPeripheral(WaitPeripheralRequest) returns (WaitPeripheralResponse);
+}
+
+// Request of the `Register` method.
+message RegisterRequest {
+  uint32 capability = 1; // left or right device, monaural or binaural device.
+  repeated uint32 hisyncid = 2; // id identifying two hearing aids as one pair.
+}
+
+// Request of the `CaptureAudio` method.
+message CaptureAudioRequest {
+  // Low Energy connection.
+  Connection connection = 1;
+}
+
+// Response of the `CaptureAudio` method.
+message CaptureAudioResponse {
+  // Audio data received on peripheral side.
+  // `data` is decoded by G722 decoder.
+  bytes data = 1;
+}
+
+// Request of the `Start` method.
+message StartRequest {
+  // Low Energy connection.
+  Connection connection = 1;
+}
+
+// Response of the `Start` method.
+message StartResponse {}
+
+// Request of the `PlaybackAudio` method.
+message PlaybackAudioRequest {
+  // Low Energy connection.
+  Connection connection = 1;
+  // Audio data to playback.
+  // `data` should be interleaved stereo frames with 16-bit signed little-endian
+  // linear PCM samples at 44100Hz sample rate
+  bytes data = 2;
+}
+
+// Response of the `PlaybackAudio` method.
+message PlaybackAudioResponse {}
+
+// Request of the `Stop` method.
+message StopRequest {
+  // Low Energy connection.
+  Connection connection = 1;
+}
+
+// Response of the `Stop` method.
+message StopResponse {}
+
+// Request for the `WaitPeripheral` method.
+message WaitPeripheralRequest {
+  // The connection that is awaiting the stream.
+  Connection connection = 1;
+}
+
+// Response for the `WaitPeripheral` method.
+message WaitPeripheralResponse {
+  // Result of the `WaitPeripheral` call:
+  // - If successful: the connection to the ASHA device.
+  Connection connection = 1;
+}

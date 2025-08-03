@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources>
+    <color name="icActive">#FFFFFFFF</color>
+    <color name="icFocused">#DDFFFFFF</color>
+    <color name="icPressed">#AAFFFFFF</color>
+
+    <color name="ripple">@android:color/system_accent1_700</color>
+    <color name="bg">@android:color/system_neutral2_900</color>
+    <color name="button">@android:color/system_accent1_500</color>
+
+    <color name="selector_dialog_bg">@android:color/system_neutral1_900</color>
+    <color name="selector_dialog_list_header">@android:color/system_neutral1_900</color>
+    <color name="selector_dialog_list_item">@android:color/system_neutral1_900</color>
+    <color name="selector_dialog_list_radio_button">@android:color/system_neutral1_900</color>
+    <color name="selector_dialog_list_ripple">@android:color/system_accent1_700</color>
+    <color name="list_item_camera_item_primary_color">#FFDDDDDD</color>
+
+    <color name="high_quality_button_bg">#BF000000</color>
+    <color name="high_quality_on">@android:color/system_accent1_200</color>
+    <color name="high_quality_off">@android:color/system_accent2_400</color>
+    <color name="high_quality_warning">@android:color/system_error_light</color>
+    <color name="high_quality_ack_button">@android:color/system_accent1_500</color>
+
+    <color name="zoom_knob_background_color">@android:color/system_accent1_500</color>
+    <color name="zoom_seek_bar_background_color">#DB222222</color>
+    <color name="zoom_seek_bar_stroke_color">#80FFFFFF</color>
+    <color name="zoom_toggle_button_background_color">@android:color/system_accent1_500</color>
+    <color name="zoom_ui_toggle_bar_text_color">#FFFFFF</color>
+
+    <color name="focus_indicator_background_color">#40FFFFFF</color>
+</resources>

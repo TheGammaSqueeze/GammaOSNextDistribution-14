@@ -1,0 +1,82 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_library_static {
+    name: "PandoraServerLib",
+
+    srcs: ["src/**/*.kt"],
+
+    sdk_version: "core_platform",
+
+    libs: [
+        // order matters: classes in framework-bluetooth are resolved before framework, meaning
+        // @hide APIs in framework-bluetooth are resolved before @SystemApi stubs in framework
+        // Access to hidden apis in Bluetooth:
+        "framework-bluetooth.impl",
+
+        "framework",
+    ],
+
+    static_libs: [
+        "androidx.media_media",
+        "androidx.test.core",
+        "androidx.test.runner",
+        "androidx.test.uiautomator_uiautomator",
+        "grpc-java-lite",
+        "grpc-java-netty-shaded-test",
+        "guava",
+        "kotlin-test",
+        "kotlinx_coroutines",
+        "opencensus-java-api",
+        "opencensus-java-contrib-grpc-metrics",
+        "pandora_experimental-grpc-java",
+        "pandora_experimental-proto-java",
+    ],
+}
+
+android_test_helper_app {
+    name: "PandoraServer",
+
+    static_libs: [
+        "PandoraServerLib",
+    ],
+
+    dex_preopt: {
+        enabled: false,
+    },
+    optimize: {
+        enabled: false,
+    },
+
+    test_suites: [
+        "general-tests",
+    ],
+    min_sdk_version: "Tiramisu",
+}
+
+android_test {
+    name: "pts-bot",
+    test_config: "configs/PtsBotTest.xml",
+    data: [
+        ":PandoraServer",
+        ":mmi2grpc",
+        "configs/pts_bot_tests_config.json",
+        "configs/pts_bot_tests_config_auto.json",
+    ],
+    test_suites: ["general-tests"],
+    min_sdk_version: "Tiramisu",
+}
+
+android_test {
+    name: "pts-bot-mts",
+    test_config: "configs/PtsBotTestMts.xml",
+    data: [
+        ":PandoraServer",
+        ":mmi2grpc",
+        "configs/pts_bot_tests_config.json",
+        "configs/pts_bot_tests_config_auto.json",
+    ],
+    test_suites: ["mts-bluetooth"],
+    min_sdk_version: "Tiramisu",
+}

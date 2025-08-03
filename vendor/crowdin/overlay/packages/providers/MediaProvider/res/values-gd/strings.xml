@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2009 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="uid_label">Meadhanan</string>
+    <string name="storage_description">Stòras ionadail</string>
+    <string name="artist_label">Neach-ciùil</string>
+    <string name="unknown">Chan eil fhios</string>
+    <string name="root_images">Dealbhan</string>
+    <string name="root_videos">Videothan</string>
+    <string name="root_audio">Fuaimean</string>
+    <string name="root_documents">Sgrìobhainnean</string>
+    <string name="permission_required">The feum air cead gus an nì seo atharrachadh no a sguabadh às.</string>
+    <string name="permission_required_action">Lean air adhart</string>
+    <string name="grant_dialog_button_allow">Ceadaich</string>
+    <string name="grant_dialog_button_deny">Diùlt</string>
+    <string name="cache_clearing_dialog_title">Falamhaich faidhlichean sealach nan aplacaidean</string>
+    <string name="cache_clearing_dialog_text">Tha <xliff:g id="app_seeking_permission" example="File manager">%s</xliff:g> airson faidhlichean sealach fhalamhachadh. Dh’fhaoidte gun caith sin barrachd dhen bhataraidh no dàta mobile.</string>
+    <string name="cache_clearing_in_progress_title">A’ falamhachadh faidhlichean sealach nan aplacaidean\u2026</string>
+    <string name="clear">Falamhaich</string>
+    <string name="allow">Ceadaich</string>
+    <string name="deny">Diùlt</string>
+</resources>

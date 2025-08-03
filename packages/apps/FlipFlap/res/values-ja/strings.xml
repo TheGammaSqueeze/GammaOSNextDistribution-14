@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  Copyright (c) 2017 The LineageOS Project
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ Also add information on how to contact you by electronic and paper mail.
+
+-->
+<resources>
+    <string name="app_name">FlipFlap</string>
+    <string name="notification_title">スマートカバーを検出しました</string>
+    <string name="alarm_label">アラーム</string>
+    <string name="abbrev_wday_month_day_no_year">MMMM d (EEE)</string>
+    <string name="answer_call">応答</string>
+    <string name="ignore_call">無視</string>
+    <string name="end_call">通話終了</string>
+    <string name="settings_name">スマートカバー</string>
+    <string name="settings_enable">スマートカバーコントロールを有効にする</string>
+    <string name="settings_summary">アクセサリーの動作を設定します</string>
+    <string name="category_behaviour">動作</string>
+    <string name="pass_to_security_view_title">パスワード入力画面に直接移動</string>
+    <string name="pass_to_security_view_summary">ケースを開くとすぐロック画面を表示します</string>
+    <string name="use_high_touch_sensitivity_title">高感度タッチ</string>
+    <string name="use_high_touch_sensitivity_summary">カバーが閉じている間のタッチ感度を高くします</string>
+    <string name="category_design">デザイン</string>
+    <string name="switch_charging_status_title">充電状態の表示</string>
+    <string name="switch_charging_status_summary">現在のバッテリー残量に応じて色を変更します</string>
+    <string name="category_timeouts">タイムアウト</string>
+    <string name="timeout_plugged_title">充電中</string>
+    <string name="timeout_unplugged_title">接続されていません</string>
+    <string name="timeout_summary">カバーを閉じた後、カバーアプリを%s間表示します</string>
+    <string name="timeout_summary_never">カバーを閉じた後、カバーアプリを常に表示します</string>
+    <string name="timeout_summary_immediately">カバーを閉じたとき画面を消灯します</string>
+    <string name="timeout_entry_immediately">すぐに</string>
+    <string name="timeout_entry_5s">5秒</string>
+    <string name="timeout_entry_10s">10秒</string>
+    <string name="timeout_entry_30s">30秒</string>
+    <string name="timeout_entry_1min">1分</string>
+    <string name="timeout_entry_5min">5分</string>
+    <string name="timeout_entry_never">使用しない</string>
+</resources>

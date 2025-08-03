@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright 2019 Google Inc. All Rights Reserved.
+ -->
+<configuration description="Config for Adservices integration test scenarios">
+    <option name="test-tag" value="AdServicesScenarioTests" />
+
+    <target_preparer class="com.android.tradefed.targetprep.DeviceSetup">
+        <!-- N.B. DeviceSetup will root the device. -->
+        <option name="set-test-harness" value="true" />
+        <option name="set-property" key="fw.show_multiuserui" value="1" />
+        <option name="run-command"
+                value="pm grant android.platform.test.scenario android.permission.WRITE_SECURE_SETTINGS" />
+        <option name="run-command" value="am force-stop com.google.android.apps.nexuslauncher" />
+
+        <!-- Prevent the predeferred "wifi required" setupwizard notification which makes
+             notification tests flaky by taking up space at the top of the shade.
+             10 = USER_SETUP_PERSONALIZATION_COMPLETE -->
+        <option name="set-secure-setting" key="user_setup_personalization_state" value="10" />
+        <!-- Force-stop the setupwizard in case its already running and showing the notification -->
+        <option name="run-command" value="am force-stop com.google.android.setupwizard" />
+        <option name="run-command" value="settings put system pointer_location 1" />
+        <option name="run-command" value="settings put system show_touches 1" />
+    </target_preparer>
+
+    <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
+        <option name="cleanup-apks" value="true"/>
+        <option name="test-file-name" value="AdServicesScenarioTests.apk"/>
+    </target_preparer>
+
+    <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer">
+        <option name="run-command" value="am wait-for-broadcast-idle" />
+    </target_preparer>
+
+    <metrics_collector class="com.android.tradefed.device.metric.FilePullerLogCollector">
+        <option name="directory-keys" value="/data/user/0/android.platform.test.scenario/files" />
+        <option name="collect-on-run-ended-only" value="true" />
+    </metrics_collector>
+
+    <test class="com.android.tradefed.testtype.AndroidJUnitTest">
+        <option name="package" value="android.platform.test.scenario"/>
+        <option name="runner" value="androidx.test.runner.AndroidJUnitRunner" />
+        <option name="exclude-filter" value="android.platform.test.HawkeyeUnitTest" />
+    </test>
+</configuration>

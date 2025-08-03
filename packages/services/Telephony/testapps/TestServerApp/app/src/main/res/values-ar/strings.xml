@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="2894617184221823208">"TestServerApp"</string>
+    <string name="action_settings" msgid="1335152369747372374">"الإعدادات"</string>
+    <string name="server_running" msgid="2780193626090379172">"الخادم قيد التشغيل…"</string>
+    <string name="stop_server" msgid="6192029827529013598">"إيقاف الخادم"</string>
+    <string name="server_down" msgid="1030249207496490556">"الخادم معطّل"</string>
+    <string name="start_server" msgid="3878573341408591975">"بدء الخادم"</string>
+  <string-array name="entitlement_status">
+    <item msgid="5560300387618996934">"غير مفعَّلة"</item>
+    <item msgid="3193389681837907872">"مفعّلة"</item>
+    <item msgid="3124590179479393815">"غير متوافق"</item>
+    <item msgid="1606753456265236910">"جارٍ توفير المتطلبات اللازمة"</item>
+    <item msgid="3930807209231347454">"متاحة"</item>
+  </string-array>
+  <string-array name="provision_status">
+    <item msgid="3486273747926710021">"لم يتم توفير المتطلبات اللازمة"</item>
+    <item msgid="7598231293776486217">"توفير المتطلبات اللازمة"</item>
+    <item msgid="3720547957514534185">"غير مطلوب"</item>
+    <item msgid="1264673582354896949">"قيد التقدم"</item>
+  </string-array>
+</resources>

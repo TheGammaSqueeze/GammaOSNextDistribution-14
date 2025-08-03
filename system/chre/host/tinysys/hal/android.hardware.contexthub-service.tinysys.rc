@@ -1,0 +1,9 @@
+on post-fs-data
+    mkdir /data/vendor/chre 0770 context_hub context_hub
+
+service vendor.contexthub-default /vendor/bin/hw/android.hardware.contexthub-service.tinysys
+    class hal late_start
+    user context_hub
+    group wakelock context_hub system readproc
+    capabilities BLOCK_SUSPEND
+    shutdown critical

@@ -1,0 +1,21 @@
+/dts-v1/;
+/plugin/;
+
+/include/ "test_crosvm_dt_base.dtsi"
+
+/ {
+    rng@90000000 {
+        compatible = "android,rng";
+        reg = <0x0 0x9 0x0 0xFF>;
+        interrupts = <0x0 0xF 0x4>;
+        google,eh,ignore-gctrl-reset;
+        status = "okay";
+        iommus = <&pviommu_0 0xFF0>;
+    };
+
+    pviommu_0: pviommu0 {
+        compatible = "pkvm,pviommu";
+        id = <0x4>;
+        #iommu-cells = <1>;
+    };
+};

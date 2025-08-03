@@ -1,0 +1,61 @@
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Aconfig declarations and libraries for the Android Automotive OS
+java_defaults {
+    name: "car-framework-aconfig-libraries",
+    // Add java_aconfig_libraries to here to add them to the AAOS
+    srcs: [
+        ":android.car.feature-aconfig-java{.generated_srcjars}",
+    ],
+    libs: [
+        // Add aconfig-annotations-lib as a dependency for the optimization
+        "aconfig-annotations-lib",
+        // TODO(b/303773055): Remove the annotation after access issue is resolved.
+        "unsupportedappusage",
+        "framework-configinfrastructure",
+    ],
+}
+
+// Default flags for java_aconfig_libraries that go into car-lib and car modules
+// fake_device_config is linked to avoid a build error
+java_defaults {
+    name: "car-framework-aconfig-java-defaults",
+    sdk_version: "core_platform",
+    libs: ["fake_device_config"],
+}
+
+aconfig_declarations {
+    name: "android.car.feature-aconfig",
+    package: "android.car.feature",
+    srcs: ["flags.aconfig"],
+}
+
+java_aconfig_library {
+    name: "android.car.feature-aconfig-java",
+    aconfig_declarations: "android.car.feature-aconfig",
+    defaults: ["car-framework-aconfig-java-defaults"],
+}
+
+java_aconfig_library {
+    name: "android.car.feature-aconfig-java-host",
+    aconfig_declarations: "android.car.feature-aconfig",
+    defaults: ["car-framework-aconfig-java-defaults"],
+    host_supported: true,
+}
+
+cc_aconfig_library {
+    name: "android.car.feature-aconfig-cpp",
+    aconfig_declarations: "android.car.feature-aconfig",
+}

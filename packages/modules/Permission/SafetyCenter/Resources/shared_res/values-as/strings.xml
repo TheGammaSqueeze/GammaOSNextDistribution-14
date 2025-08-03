@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="scanning_title" msgid="5424849039854311398">"স্কেন কৰি থকা হৈছে"</string>
+    <string name="loading_summary" msgid="3740846439782713910">"ডিভাইচৰ ছেটিং পৰীক্ষা কৰি থকা হৈছে…"</string>
+    <string name="overall_severity_level_ok_title" msgid="2041250138727564565">"ঠিকেই লাগিছে"</string>
+    <string name="overall_severity_level_ok_summary" msgid="383626536912856690">"কোনো সমস্যা পোৱা নগ’ল"</string>
+    <string name="overall_severity_level_tip_summary" msgid="1935765582243024999">"{count,plural, =1{চুপাৰিছ চাওক}one{চুপাৰিছসমূহ চাওক}other{চুপাৰিছসমূহ চাওক}}"</string>
+    <string name="overall_severity_level_action_taken_summary" msgid="8064091657855656545">"{count,plural, =1{কাৰ্যব্যৱস্থা লোৱা হৈছে}one{কাৰ্যব্যৱস্থা লোৱা হৈছে}other{কাৰ্যব্যৱস্থা লোৱা হৈছে}}"</string>
+    <string name="overall_severity_level_ok_review_title" msgid="1494321117696765360">"ছেটিং পৰ্যালোচনা কৰক"</string>
+    <string name="overall_severity_level_ok_review_summary" msgid="7743619617413076275">"ছেটিঙৰ সূচী পৰীক্ষা কৰক"</string>
+    <string name="overall_severity_level_device_recommendation_title" msgid="5250040236433061827">"ডিভাইচটোৰ বিপদাশংকা থাকিব পাৰে"</string>
+    <string name="overall_severity_level_critical_device_warning_title" msgid="5901771721834272596">"ডিভাইচটো অসুৰক্ষিত অৱস্থাত আছে"</string>
+    <string name="overall_severity_level_data_recommendation_title" msgid="1424269714861655302">"আপোনাৰ ডেটাখিনিৰ বিপদাশংকা থাকিব পাৰে"</string>
+    <string name="overall_severity_level_critical_data_warning_title" msgid="1012704126634698604">"আপোনাৰ ডেটাখিনিৰ বিপদাশংকা আছে"</string>
+    <string name="overall_severity_level_passwords_recommendation_title" msgid="8625105570296877719">"পাছৱৰ্ড হেক কৰা হৈছে (পুৰণি)"</string>
+    <string name="overall_severity_level_critical_passwords_warning_title" msgid="7859047988648851217">"পাছৱৰ্ড হেক কৰা হৈছে (নতুন)"</string>
+    <string name="overall_severity_level_personal_recommendation_title" msgid="5493814377982623779">"একাউণ্টত বিপদাশংকা থাকিব পাৰে"</string>
+    <string name="overall_severity_level_critical_personal_warning_title" msgid="5070434468955164734">"আপোনাৰ একাউণ্টত বিপদাশংকা আছে"</string>
+    <string name="overall_severity_level_safety_recommendation_title" msgid="4291797434760242793">"সম্ভাব্য বিপদাশংকা পোৱা গৈছে"</string>
+    <string name="overall_severity_level_critical_safety_warning_title" msgid="6666640109779586868">"বিপদাশংকা পোৱা গৈছে"</string>
+    <string name="overall_severity_level_account_recommendation_title" msgid="2267542168734275090">"একাউণ্টটোত বিপদাশংকা থাকিব পাৰে"</string>
+    <string name="overall_severity_level_critical_account_warning_title" msgid="1913235490583842004">"একাউণ্টটোত বিপদাশংকা আছে"</string>
+    <string name="overall_severity_n_alerts_summary" msgid="3262010942295408403">"{count,plural, =1{সতৰ্কবাৰ্তা চাওক}one{সতৰ্কবাৰ্তাসমূহ চাওক}other{সতৰ্কবাৰ্তাসমূহ চাওক}}"</string>
+    <string name="redirecting_error" msgid="8146983632878233202">"পৃষ্ঠাখন খুলিব পৰা নগ’ল"</string>
+    <string name="resolving_action_error" msgid="371968886143262375">"সতৰ্কবাৰ্তা সমাধান কৰিব পৰা নগ’ল"</string>
+    <string name="refresh_error" msgid="656062128422446177">"{count,plural, =1{ছেটিং পৰীক্ষা কৰিব পৰা নগ’ল}one{ছেটিং পৰীক্ষা কৰিব পৰা নগ’ল}other{ছেটিং পৰীক্ষা কৰিব পৰা নগ’ল}}"</string>
+    <string name="work_profile_paused" msgid="7037400224040869079">"কৰ্মস্থানৰ প্ৰ’ফাইলটো পজ কৰা আছে"</string>
+    <string name="group_unknown_summary" msgid="6951386960814105641">"এতিয়ালৈকে কোনো তথ্য নাই"</string>
+    <string name="notification_channel_group_name" msgid="7155072032524876859">"সুৰক্ষা আৰু গোপনীয়তা"</string>
+    <string name="notification_channel_name_information" msgid="2966444432152990166">"চুপাৰিছ"</string>
+    <string name="notification_channel_name_recommendation" msgid="7847408286580217922">"সকীয়নি"</string>
+    <string name="notification_channel_name_critical_warning" msgid="5994320322108351769">"গুৰুত্বপূৰ্ণ সকীয়নি"</string>
+</resources>

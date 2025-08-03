@@ -1,0 +1,43 @@
+{
+  "auto-postsubmit": [
+    {
+      "name": "CarServiceTest",
+      "options" : [
+        {
+          "include-filter": "com.android.car.pm.CarPackageManagerServiceTest"
+        },
+        {
+          "include-filter": "com.android.car.CarPackageManagerTest"
+        }
+      ]
+    },
+    {
+      "name": "CarServiceUnitTest",
+      "options" : [
+        {
+          "include-filter": "com.android.car.pm.CarPackageManagerServiceUnitTest"
+        },
+        {
+          "include-filter": "com.android.car.pm.VendorServiceControllerTest"
+        },
+        {
+          "include-filter": "com.android.car.pm.VendorServiceInfoTest"
+        },
+        {
+          "include-filter": "com.android.car.pm.CarSafetyAccessibilityServiceImplTest"
+        },
+        {
+          "include-filter": "com.android.car.pm.WindowDumpParserTest"
+        }
+      ]
+    },
+    {
+      "name": "AndroidCarApiTest",
+      "options": [
+        {
+          "include-filter": "android.car.apitest.CarPackageManagerTest"
+        }
+      ]
+    }
+  ]
+}

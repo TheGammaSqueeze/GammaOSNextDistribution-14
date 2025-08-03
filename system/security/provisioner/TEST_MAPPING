@@ -1,0 +1,7 @@
+{
+  "presubmit": [
+    {
+      "name": "librkp_factory_extraction_test"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_library_shared {
+    name: "libapkmanifest_native",
+    defaults: ["avf_build_flags_cc"],
+    srcs: ["native/*.cpp"],
+    shared_libs: [
+        "libandroidfw",
+        "libbase",
+        "liblog",
+        "libutils",
+    ],
+}
+
+rust_bindgen {
+    name: "libapkmanifest_bindgen",
+    defaults: ["avf_build_flags_rust"],
+    edition: "2021",
+    wrapper_src: "native/apkmanifest.hpp",
+    crate_name: "apkmanifest_bindgen",
+    source_stem: "bindings",
+    bindgen_flags: [
+        "--default-enum-style rust",
+    ],
+}
+
+rust_library {
+    name: "libapkmanifest",
+    crate_name: "apkmanifest",
+    defaults: ["avf_build_flags_rust"],
+    edition: "2021",
+    srcs: ["src/apkmanifest.rs"],
+    rustlibs: [
+        "libanyhow",
+        "libapkzip",
+        "libapkmanifest_bindgen",
+        "libscopeguard",
+    ],
+    shared_libs: ["libapkmanifest_native"],
+    multilib: {
+        lib32: {
+            enabled: false,
+        },
+    },
+}

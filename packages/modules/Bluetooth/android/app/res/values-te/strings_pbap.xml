@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="pbap_session_key_dialog_title" msgid="5103201901254778256">"%1$s కోసం సెషన్ కీని టైప్ చేయండి"</string>
+    <string name="pbap_session_key_dialog_header" msgid="5073165544713355581">"బ్లూటూత్ సెషన్ కీ అవసరం"</string>
+    <string name="pbap_acceptance_timeout_message" msgid="3071798915563151284">"%1$sతో కనెక్షన్‌ను అంగీకరిస్తున్నప్పుడు గడువు సమయం ముగిసింది"</string>
+    <string name="pbap_authentication_timeout_message" msgid="2089914949828656737">"%1$sతో సెషన్ కీని ఇన్‌పుట్ చేస్తున్నప్పుడు గడువు సమయం ముగిసింది"</string>
+    <string name="auth_notif_ticker" msgid="7344125635314034621">"Obex ప్రామాణీకరణ రిక్వెస్ట్‌"</string>
+    <string name="auth_notif_title" msgid="6639277119990416473">"సెషన్ కీ"</string>
+    <string name="auth_notif_message" msgid="7044369885874418693">"%1$s కోసం సెషన్ కీని టైప్ చేయండి"</string>
+    <string name="defaultname" msgid="6200530814398805541">"కార్‌కిట్"</string>
+    <string name="unknownName" msgid="6755061296103155293">"తెలియని పేరు"</string>
+    <string name="localPhoneName" msgid="9119254982537191352">"నా పేరు"</string>
+    <string name="defaultnumber" msgid="5348816189286607406">"000000"</string>
+    <string name="pbap_notification_group" msgid="4215789331721465381">"బ్లూటూత్ కాంటాక్ట్ షేర్"</string>
+    <string name="phonebook_advance_feature_support" msgid="8129553051734505128">"ఫోన్‌బుక్‌కు సంబంధించిన అధునాతన ఫీచర్ సపోర్ట్ చేయబడుతుంది"</string>
+    <string name="repair_for_adv_phonebook_feature" msgid="3489797973131684927">"అధునాతన ఫోన్‌బుక్ ఫీచర్‌ను ఉపయోగించడానికి, మళ్లీ పెయిర్ చేయండి"</string>
+</resources>

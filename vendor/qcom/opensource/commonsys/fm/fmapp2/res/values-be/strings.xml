@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (c) 2009, 2011-2013 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2014-2015 The CyanogenMod Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *    * Neither the name of The Linux Foundation nor
+ *      the names of its contributors may be used to endorse or promote
+ *      products derived from this software without specific prior written
+ *      permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NON-INFRINGEMENT ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">FM-радыё</string>
+    <string name="tx_app_name">FM-перадатчык</string>
+    <string name="menu_scan_stop">Спыніць пошук</string>
+    <string name="menu_record_start">Запіс</string>
+    <string name="menu_record_stop">Спыніць запіс</string>
+    <string name="menu_sleep">Рэжым сну</string>
+    <string name="menu_sleep_cancel">Скасаваць рэжым сну</string>
+    <string name="menu_all_channels">Усе каналы</string>
+    <string name="msg_search_title"><xliff:g id="frequency_string">%1$s</xliff:g> МГц</string>
+    <string name="msg_searching_title">Аўтапошук станцый</string>
+    <string name="dialog_sleep_title">Час аўтавыключэння</string>
+    <string name="presetlist_add_new">Дадаць новы спіс</string>
+    <string name="dialog_presetlist_rename_title">Увядзіце назву</string>
+    <string name="presetlist_autoselect_title">Пацвердзіць аўтаматычны выбар</string>
+    <string name="preset_rename">Перайменаваць</string>
+    <string name="preset_delete">Выдалiць</string>
+    <string name="preset_search">Пошук \'<xliff:g id="preset_pi">%1$s</xliff:g>\'</string>
+    <string name="stat_notif_frequency">\'<xliff:g id="frequency">%1$s</xliff:g>\' МГц</string>
+    <string name="regional_band">Рэгіянальны дыяпазон</string>
+    <string name="regional_band_entry_north_america">Паўночная Амерыка</string>
+    <string name="regional_band_entry_europe">Еўропа</string>
+    <string name="regional_band_entry_japan">Японія</string>
+    <string name="regional_band_entry_japan_wide">Японія (шырокі дыяпазон)</string>
+    <string name="regional_band_entry_australia">Аўстралія</string>
+    <string name="regional_band_entry_austria">Аўстрыя</string>
+    <string name="regional_band_entry_belgium">Бельгія</string>
+    <string name="regional_band_entry_brazil">Бразілія</string>
+    <string name="regional_band_entry_china">Кітай</string>
+    <string name="regional_band_entry_czech_republic">Рэспубліка Чэхія</string>
+    <string name="regional_band_entry_denmark">Данія</string>
+    <string name="regional_band_entry_finland">Фінляндыя</string>
+    <string name="regional_band_entry_france">Францыя</string>
+    <string name="regional_band_entry_germany">Германія</string>
+    <string name="regional_band_entry_greece">Грэцыя</string>
+    <string name="regional_band_entry_hong_kong">Ганконг</string>
+    <string name="regional_band_entry_india">Індыя</string>
+    <string name="regional_band_entry_indonesia">Інданезія</string>
+    <string name="regional_band_entry_ireland">Ірландыя</string>
+    <string name="regional_band_entry_italy">Італія</string>
+    <string name="regional_band_entry_korea">Карэя</string>
+    <string name="regional_band_entry_netherlands">Нідэрланды</string>
+    <string name="regional_band_entry_new_zealand">Новая Зеландыя</string>
+    <string name="regional_band_entry_norway">Нарвегія</string>
+    <string name="regional_band_entry_poland">Польшча</string>
+    <string name="regional_band_entry_portugal">Партугалія</string>
+    <string name="regional_band_entry_russia">Расія</string>
+    <string name="regional_band_entry_singapore">Сінгапур</string>
+    <string name="regional_band_entry_slovakia">Славакія</string>
+    <string name="regional_band_entry_spain">Іспанія</string>
+    <string name="regional_band_entry_sweden">Швецыя</string>
+    <string name="regional_band_entry_taiwan">Тайвань</string>
+    <string name="regional_band_entry_turkey">Турцыя</string>
+    <string name="regional_band_entry_united_kingdom">Вялікабрытанія</string>
+    <string name="regional_band_entry_united_states">ЗША</string>
+    <string name="regional_band_entry_user_defined">Вызначаны карыстальнікам дыяпазон</string>
+    <string name="regional_band_summary_north_america">Паўночная Амерыка (ад 87,5 МГц да 108,0 МГц з крокам у 200 кГц)</string>
+    <string name="regional_band_summary_europe">Еўропа (ад 87,5 МГц да 108,0 МГц з крокам у 100 кГц)</string>
+    <string name="regional_band_summary_japan">Японія (ад 76,0 МГц да 90,0 МГц з крокам у 100 кГц)</string>
+    <string name="regional_band_summary_japan_wide">Японія (шырокі дыяпазон) (ад 90,0 МГц да 108,0 МГц з крокам у 50 кГц)</string>
+    <string name="regional_band_summary_australia">Аўстралія (ад 87,7 МГц да 108,0 МГц з крокам у 100 кГц)</string>
+    <string name="regional_band_summary_austria">Аўстрыя (ад 87,5 МГц да 108,0 МГц з крокам у 50 кГц)</string>
+    <string name="regional_band_summary_belgium">Бельгія (ад 87,5 МГц да 108,0 МГц з крокам у 100 кГц)</string>
+    <string name="regional_band_summary_brazil">Бразілія (ад 87,5 МГц да 108,0 МГц з крокам у 200 кГц)</string>
+    <string name="regional_band_summary_china">Кітай (ад 87,0 МГц да 108,0 МГц з крокам у 100 кГц)</string>
+    <string name="regional_band_summary_czech_republic">Рэспубліка Чэхія (ад 87,5 МГц да 108,0 МГц з крокам у 100 кГц)</string>
+    <string name="regional_band_summary_denmark">Данія (ад 87,5 МГц да 108,0 МГц з крокам у 50 кГц)</string>
+    <string name="regional_band_summary_finland">Фінляндыя (ад 87,5 МГц да 108,0 МГц з крокам у 100 кГц)</string>
+    <string name="regional_band_summary_france">Францыя (ад 87,5 МГц да 108,0 МГц з крокам у 100 кГц)</string>
+    <string name="regional_band_summary_germany">Германія (ад 87,5 МГц да 108,0 МГц з крокам у 50 кГц)</string>
+    <string name="regional_band_summary_greece">Грэцыя (ад 87,5 МГц да 108,0 МГц з крокам у 50 кГц)</string>
+    <string name="regional_band_summary_hong_kong">Ганконг (ад 87,5 МГц да 108,0 МГц з крокам у 100 кГц)</string>
+    <string name="regional_band_summary_india">Індыя (ад 87,5 МГц да 108,0 МГц з крокам у 100 кГц)</string>
+    <string name="regional_band_summary_indonesia">Інданезія (ад 87,5 МГц да 108,0 МГц з крокам у 100 кГц)</string>
+    <string name="regional_band_summary_ireland">Ірландыя (ад 87,5 МГц да 108,0 МГц з крокам у 50 кГц)</string>
+    <string name="regional_band_summary_italy">Італія (ад 87,5 МГц да 108,0 МГц з крокам у 50 кГц)</string>
+    <string name="regional_band_summary_korea">Рэспубліка Карэя (ад 87,5 МГц да 108,0 МГц з крокам у 200 кГц)</string>
+    <string name="regional_band_summary_mexico">Мексіка (ад 88,1 МГц да 107,9 МГц з крокам у 200 кГц)</string>
+    <string name="regional_band_summary_netherlands">Нідэрланды (ад 87,5 МГц да 108,0 МГц з крокам у 100 кГц)</string>
+    <string name="regional_band_summary_new_zealand">Новая Зеландыя (ад 88,0 МГц да 107,0 МГц з крокам у 100 кГц)</string>
+    <string name="regional_band_summary_norway">Нарвегія (ад 87,5 МГц да 108,0 МГц з крокам у 100 кГц)</string>
+    <string name="regional_band_summary_poland">Польшча (ад 87,5 МГц да 108,0 МГц з крокам у 100 кГц)</string>
+    <string name="regional_band_summary_portugal">Партугалія (ад 87,5 МГц да 108,0 МГц з крокам у 50 кГц)</string>
+    <string name="regional_band_summary_russia">Расія (ад 87,5 МГц да 108,0 МГц з крокам у 100 кГц)</string>
+    <string name="regional_band_summary_singapore">Сінгапур (ад 88,0 МГц да 108,0 МГц з крокам у 100 кГц)</string>
+    <string name="regional_band_summary_slovakia">Славакія (ад 87,5 МГц да 108,0 МГц з крокам у 100 кГц)</string>
+    <string name="regional_band_summary_spain">Іспанія (ад 87,5 МГц да 108,0 МГц з крокам у 100 кГц)</string>
+    <string name="regional_band_summary_switzerland">Швейцарыя (ад 87,5 МГц да 108,0 МГц з крокам у 100 кГц)</string>
+    <string name="regional_band_summary_sweden">Швецыя (ад 87,5 МГц да 108,0 МГц з крокам у 100 кГц)</string>
+    <string name="regional_band_summary_taiwan">Тайвань (ад 87,5 МГц да 108,0 МГц з крокам у 100 кГц)</string>
+    <string name="regional_band_summary_turkey">Турцыя (ад 87,5 МГц да 108,0 МГц з крокам у 100 кГц)</string>
+    <string name="regional_band_summary_united_kingdom">Вялікабрытанія (ад 87,5 МГц да 108,0 МГц з крокам у 100 кГц)</string>
+    <string name="regional_band_summary_united_states">ЗША (ад 88,1 МГц да 107,9 МГц з крокам у 200 кГц)</string>
+    <string name="regional_band_summary_user_defined">Вызначаны карыстальнікам дыяпазон</string>
+    <string name="aud_output_mode">Рэжым вываду аўдыя</string>
+    <string name="audio_type_stereo">Стэрэа</string>
+    <string name="record_dur">Працягласць запісу</string>
+    <string name="auto_select_af">Альтэрнатыўная частата</string>
+    <string name="settings_revert_defaults_summary">Скінуць усе налады</string>
+    <string name="alert_dialog_hint">Увядзіце назву</string>
+    <string name="audio_db_title_format"><xliff:g id="format">yyyy-MM-dd HH:mm:ss</xliff:g></string>
+    <string name="station_name">Станцыя:</string>
+    <string name="station_list_delete_station">Выдаліць: <xliff:g id="name">%s</xliff:g></string>
+    <string name="station_list_delete_station_prompt">Вы сапраўды хочаце выдаліць \'<xliff:g id="name">%s</xliff:g>\'?</string>
+    <string name="chanl_spacing">Крок каналаў</string>
+    <string name="set">Задаць</string>
+    <string name="save_record_file">Файл запісу радыё захаваны ў \'<xliff:g id="record_file">%1$s</xliff:g>\'</string>
+    <string name="typ_All_stations">Усе станцыі</string>
+    <string name="typ_Culture">Культура</string>
+    <string name="typ_Current_affairs">Бягучыя справы</string>
+    <string name="typ_Children">Дзіцячыя праграмы</string>
+    <string name="typ_Country">Музыка кантры</string>
+    <string name="typ_Drama">Драма</string>
+    <string name="typ_Education">Адукацыя</string>
+    <string name="typ_Emergency">Экстранны</string>
+    <string name="typ_Emergency_test">Экстранны тэст</string>
+    <string name="typ_Finance">Фінансы</string>
+    <string name="typ_Folk">Народная музыка</string>
+    <string name="typ_Jazz">Джазавая музыка</string>
+    <string name="typ_Light_classical">Лёгкая класічная</string>
+    <string name="typ_Leisure">Вольны час</string>
+    <string name="typ_News">Навіны</string>
+    <string name="typ_National">Нацыянальная музыка</string>
+    <string name="typ_Other">Іншая музыка</string>
+    <string name="typ_Phone_in">Тэлефон у</string>
+    <string name="typ_Religion">Рэлігія</string>
+    <string name="typ_Science">Навука</string>
+    <string name="typ_Serious_classical">Сур\'ёзная класіка</string>
+    <string name="typ_Social_affairs">Сацыяльныя пытанні</string>
+    <string name="typ_Sport">Спорт</string>
+    <string name="typ_Travel">Падарожжа</string>
+    <string name="typ_Classical">Класіка</string>
+    <string name="typ_Classic_Rock">Класічны рок</string>
+    <string name="typ_College">Каледж</string>
+    <string name="typ_Foreign_language">Замежная мова</string>
+    <string name="typ_Hiphop">Хіп-хоп</string>
+    <string name="typ_Nostalgia">Настальгія</string>
+    <string name="typ_Religious_music">Рэлігійная музыка</string>
+    <string name="typ_Religious_talk">Рэлігійныя размовы</string>
+    <string name="typ_Rhythm_and_Blues">Рытм і блюз</string>
+    <string name="typ_Soft_Rock">Лёгкі рок</string>
+    <string name="typ_Soft_Rhythm_and_Blues">Лёгкі рытм і блюз</string>
+    <string name="typ_Sports">Спорт</string>
+    <string name="typ_Talk">Размовы</string>
+</resources>

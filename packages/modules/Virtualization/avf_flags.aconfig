@@ -1,0 +1,10 @@
+package: "com.android.system.virtualmachine.flags"
+
+flag {
+  name: "avf_v_test_apis"
+  namespace: "virtualization"
+  description: "Only purpose of this flag is to be used in @FlaggedApi in our V test apis"
+  bug: "325441024"
+  is_fixed_read_only: true
+}
+

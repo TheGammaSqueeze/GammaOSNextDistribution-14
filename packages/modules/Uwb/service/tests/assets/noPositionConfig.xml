@@ -1,0 +1,8 @@
+<uwbChipConfig>
+    <defaultChipId>chipIdString</defaultChipId>
+    <chipGroup>
+        <chip>
+            <id>chipIdString</id>
+        </chip>
+    </chipGroup>
+</uwbChipConfig>

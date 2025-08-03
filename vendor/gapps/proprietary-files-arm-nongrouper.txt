@@ -1,0 +1,5 @@
+product/app/SpeechServicesByGoogle/SpeechServicesByGoogle.apk;PRESIGNED
+product/app/talkback/talkback.apk;PRESIGNED
+product/priv-app/Velvet/Velvet.apk;PRESIGNED
+
+system_ext/priv-app/SetupWizard/SetupWizard.apk;OVERRIDES=Provision;PRESIGNED

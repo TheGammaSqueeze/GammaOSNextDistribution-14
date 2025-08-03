@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  Copyright (C) 2022 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/settings_nav_graph"
+    app:startDestination="@id/settingsManagePermissionFragment">
+
+    <action
+        android:id="@+id/action_deeplink_to_settingsManageAppPermissionsFragment"
+        app:destination="@+id/settingsManageAppPermissionsFragment"
+        app:popUpTo="@+id/settingsManagePermissionFragment"
+        app:popUpToInclusive="true" />
+
+    <fragment
+        android:id="@+id/settingsManagePermissionFragment"
+        android:name="com.android.healthconnect.controller.permissions.connectedapps.SettingsManagePermissionFragment"
+        android:label="@string/app_label">
+        <action
+            android:id="@+id/action_settingsManagePermission_to_settingsManageAppPermissions"
+            app:destination="@id/settingsManageAppPermissionsFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/settingsManageAppPermissionsFragment"
+        android:name="com.android.healthconnect.controller.permissions.app.SettingsManageAppPermissionsFragment"
+        android:label="@string/app_label">
+        <argument
+            android:name="android.intent.extra.PACKAGE_NAME"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_manageAppFragment_to_additionalAccessFragment"
+            app:destination="@id/additionalAccessFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/additionalAccessFragment"
+        android:name="com.android.healthconnect.controller.permissions.additionalaccess.AdditionalAccessFragment"
+        android:label="@string/additional_access_label" >
+        <argument
+            android:name="android.intent.extra.PACKAGE_NAME"
+            app:argType="string" />
+    </fragment>
+</navigation>

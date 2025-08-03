@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2021 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<configuration description="Excluded tests from vts-validation">
+
+    <!-- Exclude selected test modules -->
+    <option name="compatibility:exclude-filter" value="ApkVerityTest" />
+    <option name="compatibility:exclude-filter" value="CtsIkeTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsInstantAppTests" />
+    <option name="compatibility:exclude-filter" value="CtsPackageWatchdogTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsResourcesLoaderTests" />
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerJetpackTestCases" />
+    <option name="compatibility:exclude-filter" value="KernelDynamicPartitionsTest" />
+    <option name="compatibility:exclude-filter" value="VtsHalBluetoothV1_0TargetTest" />
+    <option name="compatibility:exclude-filter" value="vts_compatibilityMatrix_validate_test" />
+    <option name="compatibility:exclude-filter" value="vts_core_liblp_test" />
+    <option name="compatibility:exclude-filter" value="vts_defaultPermissions_validate_test" />
+    <option name="compatibility:exclude-filter" value="vts_gsi_boot_test" />
+    <option name="compatibility:exclude-filter" value="vts_ibase_test" />
+    <option name="compatibility:exclude-filter" value="vts_kernel_checkpoint_test" />
+    <option name="compatibility:exclude-filter" value="vts_kernel_encryption_test" />
+    <option name="compatibility:exclude-filter" value="vts_kernel_loopconfig_test" />
+    <option name="compatibility:exclude-filter" value="vts_kernel_net_tests" />
+    <option name="compatibility:exclude-filter" value="vts_kernel_toolchain" />
+    <option name="compatibility:exclude-filter" value="vts_kernel_tun_test" />
+    <option name="compatibility:exclude-filter" value="vts_libdm_test" />
+    <option name="compatibility:exclude-filter" value="vts_libsnapshot_test" />
+    <option name="compatibility:exclude-filter" value="vts_linux_kselftest_arm_32" />
+    <option name="compatibility:exclude-filter" value="vts_permission_validate_test" />
+    <option name="compatibility:exclude-filter" value="vts_ltp_test_arm_64" />
+    <option name="compatibility:exclude-filter" value="vts_ltp_test" />
+    <option name="compatibility:exclude-filter" value="vts_security_avb_test AvbTest#SystemHashtree" />
+    <option name="compatibility:exclude-filter" value="vts_security_avb_test AvbTest#SystemDescriptor" />
+    <option name="compatibility:exclude-filter" value="vts_test_binary_bow_module" />
+    <option name="compatibility:exclude-filter" value="vts_treble_platform_version_test" />
+    <option name="compatibility:exclude-filter" value="vts_treble_sys_prop_test" />
+    <option name="compatibility:exclude-filter" value="vts_treble_vintf_framework_test" />
+    <option name="compatibility:exclude-filter" value="vts_treble_vintf_vendor_test "/>
+    <option name="compatibility:exclude-filter" value="vts_vndk_abi_test" />
+    <option name="compatibility:exclude-filter" value="vts_vndk_dependency_test" />
+    <option name="compatibility:exclude-filter" value="vts_vndk_files_test" />
+
+</configuration>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  Copyright (c) 2017 The LineageOS Project
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ Also add information on how to contact you by electronic and paper mail.
+
+-->
+<resources>
+    <string name="app_name">FlipFlap</string>
+    <string name="notification_title">Обнаружена смарт-обложка</string>
+    <string name="alarm_label">БУДИЛЬНИК</string>
+    <string name="abbrev_wday_month_day_no_year">EEE, d MMMM</string>
+    <string name="answer_call">ОТВЕТИТЬ</string>
+    <string name="ignore_call">ОТКЛОНИТЬ</string>
+    <string name="end_call">ЗАВЕРШИТЬ</string>
+    <string name="settings_name">Умный чехол</string>
+    <string name="settings_enable">Включить интеллектуальное управление обложкой</string>
+    <string name="settings_summary">Настройка работы аксессуара</string>
+    <string name="category_behaviour">Поведение</string>
+    <string name="pass_to_security_view_title">Сразу предлагать ввод пароля</string>
+    <string name="pass_to_security_view_summary">Открытие чехла показывает экран блокировки</string>
+    <string name="use_high_touch_sensitivity_title">Высокая чувствительность касания</string>
+    <string name="use_high_touch_sensitivity_summary">Повышение чувствительности нажатия, пока крышка закрыта</string>
+    <string name="category_design">Дизайн</string>
+    <string name="switch_charging_status_title">Показывать состояние зарядки</string>
+    <string name="switch_charging_status_summary">Менять цвет в зависимости от уровня заряда батареи</string>
+    <string name="category_timeouts">Задержка</string>
+    <string name="timeout_plugged_title">Во время зарядки</string>
+    <string name="timeout_unplugged_title">При работе от батареи</string>
+    <string name="timeout_summary">Показывать приложение чехла %s после закрытия</string>
+    <string name="timeout_summary_never">После закрытия чехла приложение будет отображаться всегда</string>
+    <string name="timeout_summary_immediately">Экран будет выключен после закрытия чехла</string>
+    <string name="timeout_entry_immediately">Немедленно</string>
+    <string name="timeout_entry_5s">5 секунд</string>
+    <string name="timeout_entry_10s">10 секунд</string>
+    <string name="timeout_entry_30s">30 секунд</string>
+    <string name="timeout_entry_1min">1 минута</string>
+    <string name="timeout_entry_5min">5 минут</string>
+    <string name="timeout_entry_never">Не включать</string>
+</resources>

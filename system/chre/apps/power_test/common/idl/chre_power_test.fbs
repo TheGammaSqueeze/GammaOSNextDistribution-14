@@ -1,0 +1,186 @@
+// Copyright (C) 2019 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+namespace chre.power_test;
+
+/// Indicates which of the following messages is being sent to / from the
+/// nanoapp. Use uint as the base type to match the message type in
+/// chreMessageFromHostData.
+enum MessageType : uint {
+  UNSPECIFIED = 0,
+  /// Should be used with TimerMessage
+  TIMER_TEST,
+  /// Should be used with WifiScanMessage
+  WIFI_SCAN_TEST,
+  /// Should be used with GnssLocationMessage
+  GNSS_LOCATION_TEST,
+  /// Should be used with CellQueryMessage
+  CELL_QUERY_TEST,
+  /// Should be used with AudioRequestMessage
+  AUDIO_REQUEST_TEST,
+  /// Should be used with SensorRequestMessage
+  SENSOR_REQUEST_TEST,
+  /// Should be used with BreakItMessage
+  BREAK_IT_TEST,
+  /// Should be used with NanoappResponseMessage
+  NANOAPP_RESPONSE,
+  /// Should be used with GnssMeasurementMessage
+  GNSS_MEASUREMENT_TEST,
+  /// Should be used with WifiNanSubMessage
+  WIFI_NAN_SUB,
+  /// Should be used with WifiNanSubCancelMessage
+  WIFI_NAN_SUB_CANCEL,
+  /// Should be used with WifiNanSubResponseMessage
+  WIFI_NAN_SUB_RESP,
+}
+
+/// Represents a message to ask the nanoapp to create a timer that wakes up at
+/// the given interval
+table TimerMessage {
+  enable:bool;
+  wakeup_interval_ns:ulong;
+}
+
+/// All the various WiFi scan types that can be interacted with inside the
+/// nanoapp. The values used here map directly to values from the CHRE API.
+enum WifiScanType : ubyte {
+  ACTIVE = 0,
+  ACTIVE_PLUS_PASSIVE_DFS = 1,
+  PASSIVE = 2,
+  NO_PREFERENCE = 3,
+}
+
+/// All the various WiFi radio chain preferences that can be interacted with
+/// inside the nanoapp. The values used here map directly to values from the
+/// CHRE API.
+enum WifiRadioChain : ubyte {
+  DEFAULT = 0,
+  LOW_LATENCY = 1,
+  LOW_POWER = 2,
+  HIGH_ACCURACY = 3,
+}
+
+/// All the various WiFi channel sets that can be interacted with inside the
+/// nanoapp. The values used here map directly to values from the CHRE API.
+enum WifiChannelSet : ubyte {
+  NON_DFS = 0,
+  ALL = 1,
+}
+
+/// Represents a message to ask the nanoapp to start or stop WiFi scanning and
+/// the scan interval to use if scanning is being started
+table WifiScanMessage {
+  enable:bool;
+  scan_interval_ns:ulong;
+  scan_type:WifiScanType;
+  radio_chain:WifiRadioChain;
+  channel_set:WifiChannelSet;
+}
+
+/// Represents a message to ask the nanoapp to start or stop Gnss location
+/// sampling at the requested interval
+table GnssLocationMessage {
+  enable:bool;
+  scan_interval_millis:uint;
+  min_time_to_next_fix_millis:uint;
+}
+
+/// Represents a message to ask the nanoapp to start or stop querying the cell
+/// modem for the latest cell scan results on the given interval
+table CellQueryMessage {
+  enable:bool;
+  query_interval_ns:ulong;
+}
+
+/// Represents a message to ask the nanoapp to start / stop requesting Audio
+/// data buffered at given interval. Note: If there is more than one audio
+/// source, the nanoapp will only request audio from the first source.
+table AudioRequestMessage {
+  enable:bool;
+  /// The buffer duration is also used as the interval for how often
+  /// the buffer should be delivered to the nanoapp.
+  buffer_duration_ns:ulong;
+}
+
+/// All the various sensors that can be interacted with inside the nanoapp.
+/// The values used here map directly to values from the CHRE API
+enum SensorType : ubyte {
+  UNKNOWN = 0,
+  ACCELEROMETER = 1,
+  INSTANT_MOTION_DETECT = 2,
+  STATIONARY_DETECT = 3,
+  GYROSCOPE = 6,
+  UNCALIBRATED_GYROSCOPE = 7,
+  GEOMAGNETIC_FIELD = 8,
+  UNCALIBRATED_GEOMAGNETIC_FIELD = 9,
+  PRESSURE = 10,
+  LIGHT = 12,
+  PROXIMITY = 13,
+  STEP_DETECT = 23,
+  STEP_COUNTER = 24,
+  UNCALIBRATED_ACCELEROMETER = 55,
+  ACCELEROMETER_TEMPERATURE = 56,
+  GYROSCOPE_TEMPERATURE = 57,
+  GEOMAGNETIC_FIELD_TEMPERATURE = 58,
+}
+
+/// Represents a message to ask the nanoapp to start / stop sampling / batching
+/// a given sensor
+table SensorRequestMessage {
+  enable:bool;
+  sensor:SensorType;
+  sampling_interval_ns:ulong;
+  latency_ns:ulong;
+}
+
+/// Represents a message to enable / disable break-it mode inside the nanoapp.
+/// Break-it mode enables WiFi / GNSS / Cell to be queried every second and
+/// enables all sensors at their fastest sampling rate.
+table BreakItMessage {
+  enable:bool;
+}
+
+/// Indicates whether the nanoapp successfully performed the requested action.
+/// Any failures will be printed to the logs.
+table NanoappResponseMessage {
+  success:bool;
+}
+
+/// Represents a message to ask the nanoapp to start or stop Gnss measurement
+/// sampling at the requested interval
+table GnssMeasurementMessage {
+  enable:bool;
+  min_interval_millis:uint;
+}
+
+/// Represents a message to ask the nanoapp to start a NAN subscription session.
+/// See chreWifiNanSubscribeConfig for how to fill in this message.
+table WifiNanSubMessage {
+  sub_type:ubyte;
+  service_name:[ubyte];
+  service_specific_info:[ubyte];
+  match_filter:[ubyte];
+}
+
+/// Represents a messages to ask the nanoapp to cancel an ongoing subscription
+table WifiNanSubCancelMessage {
+  subscription_id:uint;
+}
+
+/// Represents a message from the nanoapp indicating whether a subscription
+/// request succeeded
+table WifiNanSubResponseMessage {
+  success:bool;
+  subscription_id:uint;
+}

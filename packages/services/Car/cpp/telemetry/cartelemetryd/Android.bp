@@ -1,0 +1,97 @@
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_defaults {
+    name: "cartelemetryd_defaults",
+    cpp_std: "gnu++17",
+    cflags: [
+        "-Werror",
+        "-Wall",
+        "-Wno-unused-parameter",
+    ],
+    shared_libs: [
+        "android.automotive.telemetry.internal-V2-ndk",
+        "android.frameworks.automotive.telemetry-V2-ndk",
+        "libbase",
+        "libbinder_ndk",
+        "liblog",
+        "libutils",
+    ],
+    header_libs: [
+        "libgtest_prod_headers", // for FRIEND_TEST
+    ],
+    product_variables: {
+        debuggable: {
+            cflags: [
+                "-DCARTELEMETRYD_DEBUG=true",
+            ],
+        },
+    },
+}
+
+cc_library {
+    name: "android.automotive.telemetryd@1.0-impl",
+    defaults: [
+        "cartelemetryd_defaults",
+    ],
+    srcs: [
+        "src/CarTelemetryImpl.cpp",
+        "src/CarTelemetryInternalImpl.cpp",
+        "src/LooperWrapper.cpp",
+        "src/RingBuffer.cpp",
+        "src/TelemetryServer.cpp",
+    ],
+    // Allow dependents to use the header files.
+    export_include_dirs: [
+        "src",
+    ],
+}
+
+cc_test {
+    name: "cartelemetryd_impl_test",
+    defaults: [
+        "cartelemetryd_defaults",
+    ],
+    test_suites: ["general-tests"],
+    srcs: [
+        "tests/TelemetryServerTest.cpp",
+    ],
+    // Statically link only in tests, for portability reason.
+    static_libs: [
+        "android.automotive.telemetryd@1.0-impl",
+        "android.automotive.telemetry.internal-V2-ndk",
+        "android.frameworks.automotive.telemetry-V2-ndk",
+        "libgmock",
+        "libgtest",
+    ],
+}
+
+cc_binary {
+    name: "android.automotive.telemetryd@1.0",
+    defaults: [
+        "cartelemetryd_defaults",
+    ],
+    srcs: [
+        "src/main.cpp",
+    ],
+    init_rc: ["android.automotive.telemetryd@1.0.rc"],
+    vintf_fragments: ["android.automotive.telemetryd@1.0.xml"],
+    shared_libs: [
+        "android.automotive.telemetryd@1.0-impl",
+    ],
+}

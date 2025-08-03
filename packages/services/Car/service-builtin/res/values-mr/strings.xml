@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2015 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="car_permission_label_bind_projection_service" msgid="6976251734714662552">"प्रोजेक्शन सेवेशी प्रतिबद्ध व्हा"</string>
+    <string name="car_permission_desc_bind_projection_service" msgid="4610418233070289810">"धारकाला प्रोजेक्शन सेवेच्‍या उच्च पातळीच्या इंटरफेसशी प्रतिबद्ध होण्याची अनुमती देते. साधारण अ‍ॅप्‍ससाठी कधीही आवश्‍यक नाही."</string>
+    <string name="car_permission_label_bind_vms_client" msgid="1298928874094319701">"VMS क्लायंट सेवा"</string>
+    <string name="car_permission_desc_bind_vms_client" msgid="7758142590449847602">"VMS क्लायंटशी प्रतिबद्ध व्हा"</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="6723392540805279625">"इंस्ट्रुमेंट क्लस्टर रेंडरिंग"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="2583711303360788080">"इंस्ट्रुमेंट क्लस्टर डेटा मिळवा"</string>
+    <string name="car_permission_label_bind_input_service" msgid="6647238478703096557">"कार इनपुट सेवा"</string>
+    <string name="car_permission_desc_bind_input_service" msgid="8460218104132496613">"इनपुट इव्हेंट हाताळा"</string>
+    <string name="activity_blocked_text" msgid="5991043857905412794">"तुम्ही गाडी चालवत असताना हे वैशिष्ट्य वापरू शकत नाही"</string>
+    <string name="exit_button_message" msgid="5375678491245394542">"सुरक्षित अ‍ॅप वैशिष्ट्यांसोबत पुन्हा सुरुवात करण्यासाठी, <xliff:g id="EXIT_BUTTON">%s</xliff:g> निवडा."</string>
+    <string name="exit_button" msgid="3491899413031549265">"मागे जा"</string>
+    <string name="exit_button_close_application" msgid="5153716684207539041">"अ‍ॅप बंद करा"</string>
+    <string name="exit_button_go_back" msgid="6921595432375141935">"मागे जा"</string>
+    <string name="importance_default" msgid="8017186728206153704">"डीफॉल्ट महत्त्वाची"</string>
+    <string name="importance_high" msgid="3393374688015554727">"सर्वाधिक महत्त्वाचे"</string>
+    <string name="android_system_label" msgid="9209428539477894959">"Android सिस्‍टीम"</string>
+    <string name="factory_reset_notification_title" msgid="6177770995437355965">"फॅक्टरी रीसेट आवश्यक"</string>
+    <string name="factory_reset_notification_text" msgid="6051393302193696102">"इंफोटेनमेंट सिस्टममधील सर्व डेटा मिटवला जाईल. रीसेट झाल्यानंतर, तुम्ही नवीन प्रोफाइल सेट करू शकता."</string>
+    <string name="factory_reset_notification_button" msgid="6926734587145351076">"आणखी"</string>
+    <string name="factory_reset_warning" msgid="8463356329619149262">"तुमचे डिव्हाइस मिटविले जाईल"</string>
+    <string name="factory_reset_message" msgid="1972536809866779972">"ॲडमिन अ‍ॅप वापरता येणार नाही. तुमचे डिव्हाइस आता मिटवले जाईल.\n\nतुम्हाला प्रश्न असल्यास, तुमच्या संस्थेच्या ॲडमिनशी संपर्क साधा."</string>
+    <string name="resource_overuse_notification_title" msgid="1622015333965744463">"तुमच्या सिस्टीमच्या परफॉर्मन्सवर <xliff:g id="ID_1">^1</xliff:g> मुळे परिणाम होत आहे"</string>
+    <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"या अ‍ॅपला बॅकग्राउंडमध्ये रन होण्यापासून प्रतिबंधित केले आहे. बॅकग्राउंडचा वापर सुरू ठेवण्यासाठी अ‍ॅपला प्राधान्य द्या."</string>
+    <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"बंद करा"</string>
+    <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"ॲपला प्राधान्य द्या"</string>
+</resources>

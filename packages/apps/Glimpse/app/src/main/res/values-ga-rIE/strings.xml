@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2023-2024 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Gailearaí</string>
+    <string name="app_permissions_toast">Ceadanna nár bhronn an t-úsáideoir.</string>
+    <string name="reels_title">Rílanna</string>
+    <string name="albums_title">Albaim</string>
+    <string name="categories_title">Catagóirí</string>
+    <string name="library_title">Leabharlann</string>
+    <string name="album_favorites">Ceanáin</string>
+    <string name="album_trash">Bruscar</string>
+    <string name="album_reels">Rílanna</string>
+    <string name="album_photos">Grianghraif</string>
+    <string name="album_videos">Físeáin</string>
+    <plurals name="album_thumbnail_items">
+        <item quantity="one">%d mír</item>
+        <item quantity="two">%d míreanna</item>
+        <item quantity="few">%d míreanna</item>
+        <item quantity="many">%d míreanna</item>
+        <item quantity="other">%d míreanna</item>
+    </plurals>
+    <plurals name="delete_file_forever_confirm_message">
+        <item quantity="one">An bhfuil tú cinnte gur mian leat an comhad seo a scriosadh go buan?</item>
+        <item quantity="two">An bhfuil tú cinnte gur mian leat %d comhaid a scriosadh go buan?</item>
+        <item quantity="few">An bhfuil tú cinnte gur mian leat %d comhaid a scriosadh go buan?</item>
+        <item quantity="many">An bhfuil tú cinnte gur mian leat %d comhaid a scriosadh go buan?</item>
+        <item quantity="other">An bhfuil tú cinnte gur mian leat %d comhaid a scriosadh go buan?</item>
+    </plurals>
+    <plurals name="delete_file_forever_successful">
+        <item quantity="one">Scriosadh an comhad go buan</item>
+        <item quantity="two">Scriosadh %d comhaid go buan</item>
+        <item quantity="few">Scriosadh %d comhaid go buan</item>
+        <item quantity="many">Scriosadh %d comhaid go buan</item>
+        <item quantity="other">Scriosadh %d comhaid go buan</item>
+    </plurals>
+    <plurals name="delete_file_forever_unsuccessful">
+        <item quantity="one">Níorbh fhéidir an comhad a scriosadh go buan</item>
+        <item quantity="two">Níorbh fhéidir %d comhaid a scriosadh go buan</item>
+        <item quantity="few">Níorbh fhéidir %d comhaid a scriosadh go buan</item>
+        <item quantity="many">Níorbh fhéidir %d comhaid a scriosadh go buan</item>
+        <item quantity="other">Níorbh fhéidir %d comhaid a scriosadh go buan</item>
+    </plurals>
+    <plurals name="move_file_to_trash_confirm_message">
+        <item quantity="one">An bhfuil tú cinnte gur mhaith leat comhad amháin a bhogadh sa bhruscar?</item>
+        <item quantity="two">An bhfuil tú cinnte gur mhaith leat %d comhaid a bhogadh go dtí an bruscar?</item>
+        <item quantity="few">An bhfuil tú cinnte gur mhaith leat %d comhaid a bhogadh go dtí an bruscar?</item>
+        <item quantity="many">An bhfuil tú cinnte gur mhaith leat %d comhaid a bhogadh go dtí an bruscar?</item>
+        <item quantity="other">An bhfuil tú cinnte gur mhaith leat %d comhaid a bhogadh go dtí an bruscar?</item>
+    </plurals>
+    <plurals name="move_file_to_trash_successful">
+        <item quantity="one">Bogadh an comhad go dtí an bruscar</item>
+        <item quantity="two">Bogadh %d comhad go dtí an bruscar</item>
+        <item quantity="few">Bogadh %d comhad go dtí an bruscar</item>
+        <item quantity="many">Bogadh %d comhad go dtí an bruscar</item>
+        <item quantity="other">Bogadh %d comhad go dtí an bruscar</item>
+    </plurals>
+    <plurals name="move_file_to_trash_unsuccessful">
+        <item quantity="one">Níorbh fhéidir an comhad a bhogadh go dtí an bruscar</item>
+        <item quantity="two">Níorbh fhéidir %d comhaid a chur sa bhruscar</item>
+        <item quantity="few">Níorbh fhéidir %d comhaid a chur sa bhruscar</item>
+        <item quantity="many">Níorbh fhéidir %d comhaid a chur sa bhruscar</item>
+        <item quantity="other">Níorbh fhéidir %d comhaid a chur sa bhruscar</item>
+    </plurals>
+    <plurals name="restore_file_from_trash_confirm_message">
+        <item quantity="one">An bhfuil tú cinnte gur mhaith leat comhad amháin a chur ar ais ón mbruscar?</item>
+        <item quantity="two">An bhfuil tú cinnte gur mian leat %d comhaid a chur ar ais ón mbruscar?</item>
+        <item quantity="few">An bhfuil tú cinnte gur mian leat %d comhaid a chur ar ais ón mbruscar?</item>
+        <item quantity="many">An bhfuil tú cinnte gur mian leat %d comhaid a chur ar ais ón mbruscar?</item>
+        <item quantity="other">An bhfuil tú cinnte gur mian leat %d comhaid a chur ar ais ón mbruscar?</item>
+    </plurals>
+    <plurals name="restore_file_from_trash_successful">
+        <item quantity="one">Athchóiríodh an comhad ón mbruscar</item>
+        <item quantity="two">%d comhaid athchóirithe ón mbruscar</item>
+        <item quantity="few">%d comhaid athchóirithe ón mbruscar</item>
+        <item quantity="many">%d comhaid athchóirithe ón mbruscar</item>
+        <item quantity="other">%d comhaid athchóirithe ón mbruscar</item>
+    </plurals>
+    <plurals name="restore_file_from_trash_unsuccessful">
+        <item quantity="one">Níorbh fhéidir an comhad a aischur ón mbruscar</item>
+        <item quantity="two">Níorbh fhéidir %d comhaid a chur ar ais ón mbruscar</item>
+        <item quantity="few">Níorbh fhéidir %d comhaid a chur ar ais ón mbruscar</item>
+        <item quantity="many">Níorbh fhéidir %d comhaid a chur ar ais ón mbruscar</item>
+        <item quantity="other">Níorbh fhéidir %d comhaid a chur ar ais ón mbruscar</item>
+    </plurals>
+    <string name="manage_media_permission_title">Bainistigh cead meán</string>
+    <string name="manage_media_permission_message">Chun do chuid íomhánna agus físeáin a bhainistiú níos fearr, lig don aip do chomhaid meán a bhainistiú</string>
+    <string name="media_info_unknown">Anaithnid</string>
+    <string name="media_info_add_description_hint">Cuir cur síos leis</string>
+    <string name="media_info_write_description_failed">Theip ar an gcur síos meán a athrú</string>
+    <string name="media_info_location_loading_placeholder">Á lódáil…</string>
+    <string name="media_info_location_open_with">Féach ar an suíomh le</string>
+    <string name="intent_action_not_supported">Ní thacaítear leis an ngníomh</string>
+    <string name="intent_media_not_found">Meáin gan aimsiú</string>
+    <string name="intent_media_type_not_found">Níor aimsíodh cineál meán</string>
+    <string name="intent_media_type_not_supported">Ní thacaítear le cineál meán</string>
+    <string name="intent_no_system_wallpaper_cropper_available">Níl aon cropper córais ar fáil</string>
+    <string name="intent_wallpaper_cannot_be_changed">Ní féidir páipéar balla a athrú</string>
+    <string name="file_action_add_to_favorites">Cuir le ceanáin</string>
+    <string name="file_action_delete_forever">Scrios go deo</string>
+    <string name="file_action_edit">Cuir in eagar</string>
+    <string name="file_action_empty_trash">Bruscar folamh</string>
+    <string name="file_action_information">Eolas</string>
+    <string name="file_action_move_to_trash">Bog go bruscar</string>
+    <string name="file_action_remove_from_favorites">Bain ó cheanáin</string>
+    <string name="file_action_restore_from_trash">Athchóirigh ón mbruscar</string>
+    <string name="file_action_share">Comhroinn</string>
+    <string name="file_action_use_as">Úsáid mar</string>
+    <string name="file_action_undo_action">Cealaigh</string>
+    <string name="no_media">Gan aon mheáin</string>
+    <plurals name="thumbnail_selection_count">
+        <item quantity="one">%d roghnaithe</item>
+        <item quantity="two">%d roghnaithe</item>
+        <item quantity="few">%d roghnaithe</item>
+        <item quantity="many">%d roghnaithe</item>
+        <item quantity="other">%d roghnaithe</item>
+    </plurals>
+    <string name="pick_a_photo">Pioc grianghraf</string>
+    <string name="pick_a_video">Roghnaigh físeán</string>
+    <string name="pick_a_media">Roghnaigh meáin</string>
+    <string name="picker_done">Déanta</string>
+    <string name="set_wallpaper_label">Cúlbhrat</string>
+    <string name="set_wallpaper">Socraigh cúlbhrat</string>
+    <string name="set_wallpaper_dialog_title">Socraigh cúlbhrat ar</string>
+    <string name="set_wallpaper_home_screen">Scáileán baile</string>
+    <string name="set_wallpaper_lock_screen">Scáileán glas</string>
+    <string name="set_wallpaper_both">Scáileán baile agus scáileán glas</string>
+</resources>

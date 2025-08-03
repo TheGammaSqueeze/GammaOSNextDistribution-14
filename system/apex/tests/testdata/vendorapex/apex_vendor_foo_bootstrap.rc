@@ -1,0 +1,3 @@
+service apex_vendor_foo /apex/com.android.apex.vendor.foo/bin/apex_vendor_foo
+    class early_hal
+    user root

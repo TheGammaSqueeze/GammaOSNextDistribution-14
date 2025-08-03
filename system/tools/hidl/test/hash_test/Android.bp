@@ -1,0 +1,58 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_tools_hidl_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_tools_hidl_license"],
+}
+
+genrule {
+    name: "hidl_hash_test_gen",
+    tools: [
+        "hidl-gen",
+    ],
+    cmd: "set +o pipefail; $(location hidl-gen) -L check " +
+        "    -r android.hidl:system/libhidl/transport" +
+        "    -r test.hash:system/tools/hidl/test/hash_test/correct_hash" +
+        "    test.hash.hash@1.0" +
+        " && " +
+        "!($(location hidl-gen) -F -L check " +
+        "    -r android.hidl:system/libhidl/transport" +
+        "    -r test.hash:system/tools/hidl/test/hash_test/missing_hash" +
+        "    test.hash.hash@1.0 2> /dev/null)" +
+        " && " +
+        "!($(location hidl-gen) -L check " +
+        "    -r android.hidl:system/libhidl/transport" +
+        "    -r test.hash:system/tools/hidl/test/hash_test/incorrect_hash" +
+        "    test.hash.hash@1.0 2> /dev/null)" +
+        " && " +
+        "$(location hidl-gen) -L hash " +
+        "    -r android.hidl:system/libhidl/transport" +
+        "    -r test.hash:system/tools/hidl/test/hash_test/incorrect_hash" +
+        "    test.hash.hash@1.0 > /dev/null" +
+        " && " +
+        "echo 'int main(){return 0;}' > $(genDir)/TODO_b_37575883.cpp",
+    out: ["TODO_b_37575883.cpp"],
+
+    srcs: [
+        "correct_hash/current.txt",
+        "correct_hash/hash/1.0/IHash.hal",
+        "incorrect_hash/current.txt",
+        "incorrect_hash/hash/1.0/IHash.hal",
+        "missing_hash/hash/1.0/IUnhashed.hal",
+        ":android.hidl",
+        ":android.hidl.base@1.0_hal",
+        ":checked_in_hidl_current",
+    ],
+}
+
+cc_test_host {
+    name: "hidl_hash_test",
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+    generated_sources: ["hidl_hash_test_gen"],
+    gtest: false,
+}

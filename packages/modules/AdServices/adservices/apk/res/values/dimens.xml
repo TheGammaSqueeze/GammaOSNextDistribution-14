@@ -1,0 +1,4 @@
+<resources>
+  <dimen name="disabled_button_alpha" format="float">0.3</dimen>
+  <dimen name="enabled_button_alpha" format="float">1.0</dimen>
+</resources>

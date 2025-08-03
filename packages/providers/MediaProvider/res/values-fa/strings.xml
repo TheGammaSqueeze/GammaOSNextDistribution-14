@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2009 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="uid_label" msgid="8421971615411294156">"رسانه"</string>
+    <string name="storage_description" msgid="4081716890357580107">"فضای ذخیره‌سازی محلی"</string>
+    <string name="picker_app_label" msgid="1195424381053599122">"انتخابگر رسانه"</string>
+    <string name="artist_label" msgid="8105600993099120273">"هنرمند"</string>
+    <string name="unknown" msgid="2059049215682829375">"نامشخص"</string>
+    <string name="root_images" msgid="5861633549189045666">"تصویر"</string>
+    <string name="root_videos" msgid="8792703517064649453">"ویدیوها"</string>
+    <string name="root_audio" msgid="3505830755201326018">"صوت"</string>
+    <string name="root_documents" msgid="3829103301363849237">"اسناد"</string>
+    <string name="permission_required" msgid="1460820436132943754">"برای اصلاح یا حذف این مورد مجوز لازم است."</string>
+    <string name="permission_required_action" msgid="706370952366113539">"ادامه"</string>
+    <string name="grant_dialog_button_allow" msgid="1644287024501033471">"اجازه دادن"</string>
+    <string name="grant_dialog_button_deny" msgid="6190589471415815741">"مجاز نبودن"</string>
+    <string name="permission_more_thumb" msgid="1938863829470531577">"{count,plural, =1{+<xliff:g id="COUNT_0">^1</xliff:g>}one{‎+<xliff:g id="COUNT_1">^1</xliff:g>‎}other{‎+<xliff:g id="COUNT_1">^1</xliff:g>‎}}"</string>
+    <string name="permission_more_text" msgid="2471785045095597753">"{count,plural, =1{به‌علاوه <xliff:g id="COUNT_0">^1</xliff:g> مورد دیگر}one{به‌علاوه <xliff:g id="COUNT_1">^1</xliff:g> مورد دیگر}other{به‌علاوه <xliff:g id="COUNT_1">^1</xliff:g> مورد دیگر}}"</string>
+    <string name="cache_clearing_dialog_title" msgid="8907893815183913664">"پاک کردن فایل‌های موقت برنامه"</string>
+    <string name="cache_clearing_dialog_text" msgid="7057784635111940957">"<xliff:g id="APP_SEEKING_PERMISSION">%s</xliff:g> می‌خواهد برخی از فایل‌های موقت را پاک کند. این کار ممکن است استفاده از باتری یا داده شبکه تلفن همراه را افزایش دهد."</string>
+    <string name="cache_clearing_in_progress_title" msgid="6902220064511664209">"درحال پاک کردن فایل‌های موقتی برنامه…"</string>
+    <string name="clear" msgid="5524638938415865915">"پاک کردن"</string>
+    <string name="allow" msgid="8885707816848569619">"اجازه دادن"</string>
+    <string name="deny" msgid="6040983710442068936">"مجاز نبودن"</string>
+    <string name="picker_browse" msgid="5554477454636075934">"مرور کردن…"</string>
+    <string name="picker_settings" msgid="6443463167344790260">"برنامه رسانه ابری"</string>
+    <string name="picker_settings_system_settings_menu_title" msgid="3055084757610063581">"برنامه رسانه ابری"</string>
+    <string name="picker_settings_title" msgid="5647700706470673258">"برنامه رسانه ابری"</string>
+    <string name="picker_settings_description" msgid="2916686824777214585">"وقتی برنامه یا وب‌سایتی از شما می‌خواهد عکس یا ویدیو انتخاب کنید، به رسانه‌های ابری‌تان دسترسی پیدا کنید"</string>
+    <string name="picker_settings_selection_message" msgid="245453573086488596">"دسترسی به رسانه ابری از"</string>
+    <string name="picker_settings_no_provider" msgid="2582311853680058223">"هیچ‌کدام"</string>
+    <string name="picker_settings_toast_error" msgid="697274445512467469">"اکنون نمی‌توانید برنامه رسانه ابری را تغییر دهید."</string>
+    <string name="picker_sync_notification_channel" msgid="1867105708912627993">"انتخابگر رسانه"</string>
+    <string name="picker_sync_notification_title" msgid="1122713382122055246">"انتخابگر رسانه"</string>
+    <string name="picker_sync_notification_text" msgid="8204423917712309382">"درحال همگام‌سازی رسانه…"</string>
+    <string name="add" msgid="2894574044585549298">"افزودن"</string>
+    <string name="deselect" msgid="4297825044827769490">"لغو انتخاب"</string>
+    <string name="deselected" msgid="8488133193326208475">"لغو انتخاب‌شده"</string>
+    <string name="select" msgid="2704765470563027689">"انتخاب"</string>
+    <string name="selected" msgid="9151797369975828124">"انتخاب‌شده"</string>
+    <string name="select_up_to" msgid="6994294169508439957">"{count,plural, =1{حداکثر <xliff:g id="COUNT_0">^1</xliff:g> مورد را انتخاب کنید}one{حداکثر <xliff:g id="COUNT_1">^1</xliff:g> مورد را انتخاب کنید}other{حداکثر <xliff:g id="COUNT_1">^1</xliff:g> مورد را انتخاب کنید}}"</string>
+    <string name="recent" msgid="6694613584743207874">"اخیر"</string>
+    <string name="picker_photos_empty_message" msgid="5980619500554575558">"عکس یا ویدیویی موجود نیست"</string>
+    <string name="picker_album_media_empty_message" msgid="7061850698189881671">"عکس یا ویدیو پشتیبانی‌شده‌ای وجود ندارد"</string>
+    <string name="picker_albums_empty_message" msgid="8341079772950966815">"آلبومی موجود نیست"</string>
+    <string name="picker_view_selected" msgid="2266031384396143883">"مشاهده موارد انتخاب‌شده"</string>
+    <string name="picker_photos" msgid="7415035516411087392">"عکس‌ها"</string>
+    <!-- no translation found for picker_videos (2886971435439047097) -->
+    <skip />
+    <string name="picker_albums" msgid="4822511902115299142">"آلبوم‌ها"</string>
+    <string name="picker_preview" msgid="6257414886055861039">"پیش‌نما"</string>
+    <string name="picker_work_profile" msgid="2083221066869141576">"رفتن به نمایه کاری"</string>
+    <string name="picker_personal_profile" msgid="639484258397758406">"رفتن به نمایه شخصی"</string>
+    <string name="picker_personal_profile_label" msgid="6189198163209597344">"شخصی"</string>
+    <string name="picker_profile_admin_title" msgid="4172022376418293777">"سرپرست آن را مسدود کرده است"</string>
+    <string name="picker_profile_admin_msg_from_personal" msgid="1941639895084555723">"دسترسی به داده‌های کاری ازطریق برنامه شخصی مجاز نیست"</string>
+    <string name="picker_profile_admin_msg_from_work" msgid="8048524337462790110">"دسترسی به داده‌های شخصی ازطریق برنامه کاری مجاز نیست"</string>
+    <string name="picker_profile_admin_msg" msgid="4060112887923255178">"دسترسی به داده‌های <xliff:g id="PROFILE1">%1$s</xliff:g> ازطریق برنامه <xliff:g id="PROFILE2">%2$s</xliff:g> مجاز نیست"</string>
+    <string name="picker_profile_switch_message" msgid="1133817927412489487">"استفاده از <xliff:g id="PROFILE">%s</xliff:g>"</string>
+    <string name="picker_profile_work_paused_title" msgid="382212880704235925">"برنامه‌های کاری موقتاً متوقف شده‌اند."</string>
+    <string name="picker_profile_paused_title" msgid="2079739512895529028">"برنامه‌های <xliff:g id="PROFILE">%s</xliff:g> موقتاً متوقف شده است"</string>
+    <string name="picker_profile_work_paused_msg" msgid="6321552322125246726">"برای باز کردن عکس‌های کاری، برنامه‌های کاری را روشن کنید و سپس دوباره امتحان کنید"</string>
+    <string name="picker_profile_paused_msg" msgid="1215076898583993782">"برای باز کردن عکس‌های <xliff:g id="PROFILE1">%1$s</xliff:g>، برنامه‌های <xliff:g id="PROFILE2">%2$s</xliff:g> را روشن کنید و دوباره امتحان کنید"</string>
+    <string name="picker_privacy_message" msgid="9132700451027116817">"این برنامه فقط می‌تواند به عکس‌های انتخابی شما دسترسی پیدا کند"</string>
+    <string name="picker_header_permissions" msgid="675872774407768495">"عکس‌ها و ویدیوهایی را که اجازه می‌دهید این برنامه به آن‌ها دسترسی داشته باشد انتخاب کنید"</string>
+    <string name="picker_album_item_count" msgid="4420723302534177596">"{count,plural, =1{<xliff:g id="COUNT_0">^1</xliff:g> مورد}one{<xliff:g id="COUNT_1">^1</xliff:g> مورد}other{<xliff:g id="COUNT_1">^1</xliff:g> مورد}}"</string>
+    <string name="picker_add_button_multi_select" msgid="4005164092275518399">"افزودن (<xliff:g id="COUNT">^1</xliff:g>)"</string>
+    <string name="picker_add_button_multi_select_permissions" msgid="5138751105800138838">"اجازه دادن (<xliff:g id="COUNT">^1</xliff:g>)"</string>
+    <string name="picker_add_button_allow_none_option" msgid="9183772732922241035">"مجاز کردن عدم بارگذاری"</string>
+    <string name="picker_category_camera" msgid="4857367052026843664">"دوربین"</string>
+    <string name="picker_category_downloads" msgid="793866660287361900">"بارگیری‌ها"</string>
+    <string name="picker_category_favorites" msgid="7008495397818966088">"موارد دلخواه"</string>
+    <string name="picker_category_screenshots" msgid="7216102327587644284">"نماگرفت‌ها"</string>
+    <!-- no translation found for picker_category_videos (1478458836380241356) -->
+    <skip />
+    <string name="picker_motion_photo_text" msgid="5016603812468180816">"عکس حرکتی"</string>
+    <string name="picker_item_content_desc" msgid="7680591530155286423">"<xliff:g id="ITEM_NAME">%1$s</xliff:g> در <xliff:g id="TIME">%2$s</xliff:g> گرفته شده است"</string>
+    <string name="picker_video_item_content_desc" msgid="7828900089119214801">"ویدیو در <xliff:g id="TIME">%1$s</xliff:g> با مدت‌زمان <xliff:g id="DURATION">%2$s</xliff:g> گرفته شده است"</string>
+    <string name="picker_photo" msgid="1739342083494962153">"عکس"</string>
+    <string name="picker_gif" msgid="8333318083107368726">"GIF"</string>
+    <string name="picker_motion_photo" msgid="4385182195289546308">"عکس حرکتی"</string>
+    <string name="picker_mute_video" msgid="2496585809229800096">"بی‌صدا کردن ویدیو"</string>
+    <string name="picker_unmute_video" msgid="6611741290641963568">"صدادار کردن ویدیو"</string>
+    <string name="picker_play_video" msgid="7106025944628666250">"پخش"</string>
+    <string name="picker_pause_video" msgid="1092718225234326702">"مکث"</string>
+    <string name="picker_error_snackbar" msgid="5970192792792369203">"ویدیو را نمی‌توان پخش کرد"</string>
+    <string name="picker_error_dialog_title" msgid="4540095603788920965">"پخش ویدیو با مشکل روبه‌رو شد"</string>
+    <string name="picker_error_dialog_body" msgid="2515738446802971453">"اتصال اینترنت را بررسی کنید و دوباره امتحان کنید"</string>
+    <string name="picker_error_dialog_positive_action" msgid="749544129082109232">"امتحان مجدد"</string>
+    <string name="not_selected" msgid="2244008151669896758">"انتخاب نشده است"</string>
+    <string name="preloading_dialog_title" msgid="4974348221848532887">"درحال آماده‌سازی رسانه انتخاب‌شده"</string>
+    <string name="preloading_progress_message" msgid="4741327138031980582">"<xliff:g id="NUMBER_PRELOADED">%1$d</xliff:g> مورد از <xliff:g id="NUMBER_TOTAL">%2$d</xliff:g> مورد آماده است"</string>
+    <string name="preloading_cancel_button" msgid="824053521307342209">"لغو کردن"</string>
+    <string name="picker_banner_cloud_first_time_available_title" msgid="5912973744275711595">"عکس‌های پشتیبان‌گیری‌شده اکنون اضافه شده‌اند"</string>
+    <string name="picker_banner_cloud_first_time_available_desc" msgid="5570916598348187607">"می‌توانید عکس‌های حساب <xliff:g id="APP_NAME">%1$s</xliff:g>‏ (<xliff:g id="USER_ACCOUNT">%2$s</xliff:g>) را انتخاب کنید"</string>
+    <string name="picker_banner_cloud_account_changed_title" msgid="4825058474378077327">"حساب <xliff:g id="APP_NAME">%1$s</xliff:g> به‌روز شد"</string>
+    <string name="picker_banner_cloud_account_changed_desc" msgid="3433218869899792497">"عکس‌های <xliff:g id="USER_ACCOUNT">%1$s</xliff:g> اکنون در اینجا اضافه می‌شود"</string>
+    <string name="picker_banner_cloud_choose_app_title" msgid="3165966147547974251">"برنامه رسانه ابری انتخاب کنید"</string>
+    <string name="picker_banner_cloud_choose_app_desc" msgid="2359212653555524926">"برای افزودن عکس‌های پشتیبان‌گیری‌شده در اینجا، یکی از برنامه‌های رسانه ابری را در «تنظیمات» انتخاب کنید"</string>
+    <string name="picker_banner_cloud_choose_account_title" msgid="5010901185639577685">"حساب <xliff:g id="APP_NAME">%1$s</xliff:g> را انتخاب کنید"</string>
+    <string name="picker_banner_cloud_choose_account_desc" msgid="8868134443673142712">"برای افزودن عکس‌های <xliff:g id="APP_NAME">%1$s</xliff:g> در اینجا، یکی از حساب‌ها را در برنامه انتخاب کنید"</string>
+    <string name="picker_banner_cloud_dismiss_button" msgid="2935903078288463882">"بستن"</string>
+    <string name="picker_banner_cloud_choose_app_button" msgid="934085679890435479">"انتخاب برنامه"</string>
+    <string name="picker_banner_cloud_choose_account_button" msgid="7979484877116991631">"انتخاب حساب"</string>
+    <string name="picker_banner_cloud_change_account_button" msgid="8361239765828471146">"تغییر حساب"</string>
+    <string name="picker_loading_photos_message" msgid="6449180084857178949">"درحال دریافت همه عکس‌های شما"</string>
+    <string name="permission_write_audio" msgid="8819694245323580601">"{count,plural, =1{به <xliff:g id="APP_NAME_0">^1</xliff:g> اجازه می‌دهید این فایل صوتی را تغییر دهد؟}one{به <xliff:g id="APP_NAME_1">^1</xliff:g> اجازه می‌دهید <xliff:g id="COUNT">^2</xliff:g> فایل صوتی را تغییر دهد؟}other{به <xliff:g id="APP_NAME_1">^1</xliff:g> اجازه می‌دهید <xliff:g id="COUNT">^2</xliff:g> فایل صوتی را تغییر دهد؟}}"</string>
+    <string name="permission_progress_write_audio" msgid="6029375427984180097">"{count,plural, =1{درحال اصلاح فایل صوتی…}one{درحال اصلاح <xliff:g id="COUNT">^1</xliff:g> فایل صوتی…}other{درحال اصلاح <xliff:g id="COUNT">^1</xliff:g> فایل صوتی…}}"</string>
+    <string name="permission_write_video" msgid="103902551603700525">"{count,plural, =1{به <xliff:g id="APP_NAME_0">^1</xliff:g> اجازه می‌دهید این ویدیو را تغییر دهد؟}one{به <xliff:g id="APP_NAME_1">^1</xliff:g> اجازه می‌دهید <xliff:g id="COUNT">^2</xliff:g> ویدیو را تغییر دهد؟}other{به <xliff:g id="APP_NAME_1">^1</xliff:g> اجازه می‌دهید <xliff:g id="COUNT">^2</xliff:g> ویدیو را تغییر دهد؟}}"</string>
+    <string name="permission_progress_write_video" msgid="7014908418349819148">"{count,plural, =1{درحال اصلاح ویدیو…}one{درحال اصلاح <xliff:g id="COUNT">^1</xliff:g> ویدیو…}other{درحال اصلاح <xliff:g id="COUNT">^1</xliff:g> ویدیو…}}"</string>
+    <string name="permission_write_image" msgid="3518991791620523786">"{count,plural, =1{به <xliff:g id="APP_NAME_0">^1</xliff:g> اجازه می‌دهید این عکس را تغییر دهد؟}one{به <xliff:g id="APP_NAME_1">^1</xliff:g> اجازه می‌دهید <xliff:g id="COUNT">^2</xliff:g> عکس را تغییر دهد؟}other{به <xliff:g id="APP_NAME_1">^1</xliff:g> اجازه می‌دهید <xliff:g id="COUNT">^2</xliff:g> عکس را تغییر دهد؟}}"</string>
+    <string name="permission_progress_write_image" msgid="3623580315590025262">"{count,plural, =1{درحال اصلاح عکس…}one{درحال اصلاح <xliff:g id="COUNT">^1</xliff:g> عکس…}other{درحال اصلاح <xliff:g id="COUNT">^1</xliff:g> عکس…}}"</string>
+    <string name="permission_write_generic" msgid="7431128739233656991">"{count,plural, =1{به <xliff:g id="APP_NAME_0">^1</xliff:g> اجازه می‌دهید این مورد را تغییر دهد؟}one{به <xliff:g id="APP_NAME_1">^1</xliff:g> اجازه می‌دهید <xliff:g id="COUNT">^2</xliff:g> مورد را تغییر دهد؟}other{به <xliff:g id="APP_NAME_1">^1</xliff:g> اجازه می‌دهید <xliff:g id="COUNT">^2</xliff:g> مورد را تغییر دهد؟}}"</string>
+    <string name="permission_progress_write_generic" msgid="2806560971318391443">"{count,plural, =1{درحال اصلاح مورد…}one{درحال اصلاح <xliff:g id="COUNT">^1</xliff:g> مورد…}other{درحال اصلاح <xliff:g id="COUNT">^1</xliff:g> مورد…}}"</string>
+    <string name="permission_trash_audio" msgid="6554672354767742206">"{count,plural, =1{به <xliff:g id="APP_NAME_0">^1</xliff:g> اجازه می‌دهید این فایل صوتی را به حذف‌شده‌ها منتقل کند؟}one{به <xliff:g id="APP_NAME_1">^1</xliff:g> اجازه می‌دهید <xliff:g id="COUNT">^2</xliff:g> فایل صوتی را به حذف‌شده‌ها منتقل کند؟}other{به <xliff:g id="APP_NAME_1">^1</xliff:g> اجازه می‌دهید <xliff:g id="COUNT">^2</xliff:g> فایل صوتی را به حذف‌شده‌ها منتقل کند؟}}"</string>
+    <string name="permission_progress_trash_audio" msgid="3116279868733641329">"{count,plural, =1{درحال انتقال فایل صوتی به حذف‌شده‌ها…}one{درحال انتقال <xliff:g id="COUNT">^1</xliff:g> فایل صوتی به حذف‌شده‌ها…}other{درحال انتقال <xliff:g id="COUNT">^1</xliff:g> فایل صوتی به حذف‌شده‌ها…}}"</string>
+    <string name="permission_trash_video" msgid="7555850843259959642">"{count,plural, =1{به <xliff:g id="APP_NAME_0">^1</xliff:g> اجازه می‌دهید این ویدیو را به حذف‌شده‌ها منتقل کند؟}one{به <xliff:g id="APP_NAME_1">^1</xliff:g> اجازه می‌دهید <xliff:g id="COUNT">^2</xliff:g> ویدیو را به حذف‌شده‌ها منتقل کند؟}other{به <xliff:g id="APP_NAME_1">^1</xliff:g> اجازه می‌دهید <xliff:g id="COUNT">^2</xliff:g> ویدیو را به حذف‌شده‌ها منتقل کند؟}}"</string>
+    <string name="permission_progress_trash_video" msgid="4637821778329459681">"{count,plural, =1{درحال انتقال ویدیو به حذف‌شده‌ها…}one{درحال انتقال <xliff:g id="COUNT">^1</xliff:g> ویدیو به حذف‌شده‌ها…}other{درحال انتقال <xliff:g id="COUNT">^1</xliff:g> ویدیو به حذف‌شده‌ها…}}"</string>
+    <string name="permission_trash_image" msgid="3333128084684156675">"{count,plural, =1{به <xliff:g id="APP_NAME_0">^1</xliff:g> اجازه می‌دهید این عکس را به حذف‌شده‌ها منتقل کند؟}one{به <xliff:g id="APP_NAME_1">^1</xliff:g> اجازه می‌دهید <xliff:g id="COUNT">^2</xliff:g> عکس را به حذف‌شده‌ها منتقل کند؟}other{به <xliff:g id="APP_NAME_1">^1</xliff:g> اجازه می‌دهید <xliff:g id="COUNT">^2</xliff:g> عکس را به حذف‌شده‌ها منتقل کند؟}}"</string>
+    <string name="permission_progress_trash_image" msgid="3063857679090024764">"{count,plural, =1{درحال انتقال عکس به حذف‌شده‌ها…}one{درحال انتقال <xliff:g id="COUNT">^1</xliff:g> عکس به حذف‌شده‌ها…}other{درحال انتقال <xliff:g id="COUNT">^1</xliff:g> عکس به حذف‌شده‌ها…}}"</string>
+    <string name="permission_trash_generic" msgid="5545420534785075362">"{count,plural, =1{به <xliff:g id="APP_NAME_0">^1</xliff:g> اجازه می‌دهید این مورد را به حذف‌شده‌ها منتقل کند؟}one{به <xliff:g id="APP_NAME_1">^1</xliff:g> اجازه می‌دهید <xliff:g id="COUNT">^2</xliff:g> مورد را به حذف‌شده‌ها منتقل کند؟}other{به <xliff:g id="APP_NAME_1">^1</xliff:g> اجازه می‌دهید <xliff:g id="COUNT">^2</xliff:g> مورد را به حذف‌شده‌ها منتقل کند؟}}"</string>
+    <string name="permission_progress_trash_generic" msgid="7815124979717814057">"{count,plural, =1{درحال انتقال مورد به حذف‌شده‌ها…}one{درحال انتقال <xliff:g id="COUNT">^1</xliff:g> مورد به حذف‌شده‌ها…}other{درحال انتقال <xliff:g id="COUNT">^1</xliff:g> مورد به حذف‌شده‌ها…}}"</string>
+    <string name="permission_untrash_audio" msgid="8404597563284002472">"{count,plural, =1{به <xliff:g id="APP_NAME_0">^1</xliff:g> اجازه می‌دهید این فایل صوتی را از حذف‌شده‌ها خارج کند؟}one{به <xliff:g id="APP_NAME_1">^1</xliff:g> اجازه می‌دهید <xliff:g id="COUNT">^2</xliff:g> فایل صوتی را از حذف‌شده‌ها خارج کند؟}other{به <xliff:g id="APP_NAME_1">^1</xliff:g> اجازه می‌دهید <xliff:g id="COUNT">^2</xliff:g> فایل صوتی را از حذف‌شده‌ها خارج کند؟}}"</string>
+    <string name="permission_progress_untrash_audio" msgid="2775372344946464508">"{count,plural, =1{درحال خارج کردن فایل صوتی از حذف‌شده‌ها…}one{درحال خارج کردن <xliff:g id="COUNT">^1</xliff:g> فایل صوتی از حذف‌شده‌ها…}other{درحال خارج کردن <xliff:g id="COUNT">^1</xliff:g> فایل صوتی از حذف‌شده‌ها…}}"</string>
+    <string name="permission_untrash_video" msgid="3178914827607608162">"{count,plural, =1{به <xliff:g id="APP_NAME_0">^1</xliff:g> اجازه می‌دهید این ویدیو را از حذف‌شده‌ها خارج کند؟}one{به <xliff:g id="APP_NAME_1">^1</xliff:g> اجازه می‌دهید <xliff:g id="COUNT">^2</xliff:g> ویدیو را از حذف‌شده‌ها خارج کند؟}other{به <xliff:g id="APP_NAME_1">^1</xliff:g> اجازه می‌دهید <xliff:g id="COUNT">^2</xliff:g> ویدیو را از حذف‌شده‌ها خارج کند؟}}"</string>
+    <string name="permission_progress_untrash_video" msgid="5500929409733841567">"{count,plural, =1{درحال خارج کردن ویدیو از حذف‌شده‌ها…}one{درحال خارج کردن <xliff:g id="COUNT">^1</xliff:g> ویدیو از حذف‌شده‌ها…}other{درحال خارج کردن <xliff:g id="COUNT">^1</xliff:g> ویدیو از حذف‌شده‌ها…}}"</string>
+    <string name="permission_untrash_image" msgid="3397523279351032265">"{count,plural, =1{به <xliff:g id="APP_NAME_0">^1</xliff:g> اجازه می‌دهید این عکس را از حذف‌شده‌ها خارج کند؟}one{به <xliff:g id="APP_NAME_1">^1</xliff:g> اجازه می‌دهید <xliff:g id="COUNT">^2</xliff:g> عکس را از حذف‌شده‌ها خارج کند؟}other{به <xliff:g id="APP_NAME_1">^1</xliff:g> اجازه می‌دهید <xliff:g id="COUNT">^2</xliff:g> عکس را از حذف‌شده‌ها خارج کند؟}}"</string>
+    <string name="permission_progress_untrash_image" msgid="5295061520504846264">"{count,plural, =1{درحال خارج کردن عکس از حذف‌شده‌ها…}one{درحال خارج کردن <xliff:g id="COUNT">^1</xliff:g> عکس از حذف‌شده‌ها…}other{درحال خارج کردن <xliff:g id="COUNT">^1</xliff:g> عکس از حذف‌شده‌ها…}}"</string>
+    <string name="permission_untrash_generic" msgid="2118366929431671046">"{count,plural, =1{به <xliff:g id="APP_NAME_0">^1</xliff:g> اجازه می‌دهید این مورد را از حذف‌شده‌ها خارج کند؟}one{به <xliff:g id="APP_NAME_1">^1</xliff:g> اجازه می‌دهید <xliff:g id="COUNT">^2</xliff:g> مورد را از حذف‌شده‌ها خارج کند؟}other{به <xliff:g id="APP_NAME_1">^1</xliff:g> اجازه می‌دهید <xliff:g id="COUNT">^2</xliff:g> مورد را از حذف‌شده‌ها خارج کند؟}}"</string>
+    <string name="permission_progress_untrash_generic" msgid="1489511601966842579">"{count,plural, =1{درحال خارج کردن مورد از حذف‌شده‌ها…}one{درحال خارج کردن <xliff:g id="COUNT">^1</xliff:g> مورد از حذف‌شده‌ها…}other{درحال خارج کردن <xliff:g id="COUNT">^1</xliff:g> مورد از حذف‌شده‌ها…}}"</string>
+    <string name="permission_delete_audio" msgid="3326674742892796627">"{count,plural, =1{به <xliff:g id="APP_NAME_0">^1</xliff:g> اجازه می‌دهید این فایل صوتی را حذف کند؟}one{به <xliff:g id="APP_NAME_1">^1</xliff:g> اجازه می‌دهید <xliff:g id="COUNT">^2</xliff:g> فایل صوتی را حذف کند؟}other{به <xliff:g id="APP_NAME_1">^1</xliff:g> اجازه می‌دهید <xliff:g id="COUNT">^2</xliff:g> فایل صوتی را حذف کند؟}}"</string>
+    <string name="permission_progress_delete_audio" msgid="1734871539021696401">"{count,plural, =1{درحال حذف فایل صوتی…}one{درحال حذف <xliff:g id="COUNT">^1</xliff:g> فایل صوتی…}other{درحال حذف <xliff:g id="COUNT">^1</xliff:g> فایل صوتی…}}"</string>
+    <string name="permission_delete_video" msgid="604024971828349279">"{count,plural, =1{به <xliff:g id="APP_NAME_0">^1</xliff:g> اجازه می‌دهید این ویدیو را حذف کند؟}one{به <xliff:g id="APP_NAME_1">^1</xliff:g> اجازه می‌دهید <xliff:g id="COUNT">^2</xliff:g> ویدیو را حذف کند؟}other{به <xliff:g id="APP_NAME_1">^1</xliff:g> اجازه می‌دهید <xliff:g id="COUNT">^2</xliff:g> ویدیو را حذف کند؟}}"</string>
+    <string name="permission_progress_delete_video" msgid="1846702435073793157">"{count,plural, =1{درحال حذف ویدیو…}one{درحال حذف <xliff:g id="COUNT">^1</xliff:g> ویدیو…}other{درحال حذف <xliff:g id="COUNT">^1</xliff:g> ویدیو…}}"</string>
+    <string name="permission_delete_image" msgid="3109056012794330510">"{count,plural, =1{به <xliff:g id="APP_NAME_0">^1</xliff:g> اجازه می‌دهید این عکس را حذف کند؟}one{به <xliff:g id="APP_NAME_1">^1</xliff:g> اجازه می‌دهید <xliff:g id="COUNT">^2</xliff:g> عکس را حذف کند؟}other{به <xliff:g id="APP_NAME_1">^1</xliff:g> اجازه می‌دهید <xliff:g id="COUNT">^2</xliff:g> عکس را حذف کند؟}}"</string>
+    <string name="permission_progress_delete_image" msgid="8580517204901148906">"{count,plural, =1{درحال حذف عکس…}one{درحال حذف <xliff:g id="COUNT">^1</xliff:g> عکس…}other{درحال حذف <xliff:g id="COUNT">^1</xliff:g> عکس…}}"</string>
+    <string name="permission_delete_generic" msgid="7891939881065520271">"{count,plural, =1{به <xliff:g id="APP_NAME_0">^1</xliff:g> اجازه می‌دهید این مورد را حذف کند؟}one{به <xliff:g id="APP_NAME_1">^1</xliff:g> اجازه می‌دهید <xliff:g id="COUNT">^2</xliff:g> مورد را حذف کند؟}other{به <xliff:g id="APP_NAME_1">^1</xliff:g> اجازه می‌دهید <xliff:g id="COUNT">^2</xliff:g> مورد را حذف کند؟}}"</string>
+    <string name="permission_progress_delete_generic" msgid="6709118146245087898">"{count,plural, =1{درحال حذف مورد…}one{درحال حذف <xliff:g id="COUNT">^1</xliff:g> مورد…}other{درحال حذف <xliff:g id="COUNT">^1</xliff:g> مورد…}}"</string>
+    <string name="transcode_denied" msgid="6760546817138288976">"‫<xliff:g id="APP_NAME">%s</xliff:g> نمی‌تواند فایل‌های رسانه‌ای را پردازش کند"</string>
+    <string name="transcode_processing_cancelled" msgid="5340383917746945590">"پردازش رسانه لغو شد"</string>
+    <string name="transcode_processing_error" msgid="8921643164508407874">"خطای پردازش رسانه"</string>
+    <string name="transcode_processing_success" msgid="447288876429730122">"پردازش رسانه باموفقیت انجام شد"</string>
+    <string name="transcode_processing_started" msgid="7789086308155361523">"پردازش رسانه شروع شد"</string>
+    <string name="transcode_processing" msgid="6753136468864077258">"درحال پردازش رسانه…"</string>
+    <string name="transcode_cancel" msgid="8555752601907598192">"لغو"</string>
+    <string name="transcode_wait" msgid="8909773149560697501">"انتظار"</string>
+    <string name="safety_protection_icon_label" msgid="6714354052747723623">"محافظت امنیتی"</string>
+    <string name="transcode_alert_channel" msgid="997332371757680478">"هشدارهای تراتبدیل محلی"</string>
+    <string name="transcode_progress_channel" msgid="6905136787933058387">"پیشرفت تراتبدیل محلی"</string>
+    <string name="dialog_error_message" msgid="5120432204743681606">"بعداً دوباره امتحان کنید. عکس‌هایتان پس‌از رفع مشکل دردسترس خواهد بود."</string>
+    <string name="dialog_error_title" msgid="636349284077820636">"برخی‌از عکس‌ها را نمی‌توان بار کرد"</string>
+    <string name="dialog_button_text" msgid="351366485240852280">"متوجه‌ام"</string>
+    <string name="permlab_accessMediaOwnerPackageName" msgid="3849443148060165651">"دسترسی به نام بسته مالک رسانه"</string>
+    <string name="permdesc_accessMediaOwnerPackageName" msgid="7381563109363105371">"به برنامه اجازه می‌دهد به نام بسته‌های مالک همه فایل‌های رسانه موجود دسترسی داشته باشد."</string>
+</resources>

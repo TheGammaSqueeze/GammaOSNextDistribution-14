@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2017-2024 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="update_failed_notification">Agiornamentu fallidu</string>
+    <string name="new_updates_found_title">Agiornamentos noos</string>
+    <string name="pause_button">Pàusa</string>
+    <string name="resume_button">Sighi</string>
+    <string name="installing_update_finished">Agiornamentu installadu</string>
+    <string name="dialog_scratch_mounted_message"><![CDATA[        Esecuta is cumandos imbenientes e torra a atualizare:\n
+        • adb root\n
+        • adb enable-verity\n
+        • adb reboot
+        ]]></string>
+    <string name="dialog_scratch_mounted_title">Impossìbile installare s\'atualizatzione cun su OverlayFS montadu</string>
+    <string name="reboot">Torra a allùghere</string>
+    <string name="menu_preferences">Preferèntzias</string>
+    <string name="menu_delete_update">Iscantzella</string>
+    <string name="action_download">Iscàrriga</string>
+    <string name="action_pause">Pàusa</string>
+    <string name="action_resume">Sighi</string>
+    <string name="action_install">Installa</string>
+    <string name="action_info">Informatziones</string>
+    <string name="action_delete">Iscantzella</string>
+    <string name="action_cancel">Annulla</string>
+    <string name="update_over_metered_network_title">Atentzione</string>
+    <string name="new_updates_channel_title">Agiornamentos noos</string>
+    <string name="update_failed_channel_title">Agiornamentu fallidu</string>
+</resources>

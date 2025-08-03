@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ Copyright 2019 The Android Open Source Project
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="ime_name">Tastiere <xliff:g id="app_name">Leanback</xliff:g></string>
+    <string name="ime_service_name">Tastiere <xliff:g id="app_name">Leanback</xliff:g></string>
+    <string name="word_separators">\u0020.,;:!?\n()[]*&amp;@{}/&lt;&gt;_+=|"</string>
+    <string name="label_go_key">Va</string>
+    <string name="label_next_key">Suc.</string>
+    <string name="label_send_key">Invie</string>
+    <string name="label_search_key">Cîr</string>
+    <string name="label_done_key">Fat</string>
+    <string name="settings_title">Opzions de tastiere</string>
+    <string name="title_movement_sensitivity">Sensibilitât di moviment</string>
+    <string name="btn_on">On</string>
+    <string name="btn_off">Off</string>
+    <string name="keyboardview_keycode_space">Spazi</string>
+    <string name="keyboardview_keycode_delete">Cancele</string>
+    <string name="keyboardview_keycode_mode_change">Cambi di modalitât</string>
+    <string name="keyboardview_keycode_shift">Maiuscul</string>
+    <string name="keyboardview_keycode_caps">Bloc maiusculis</string>
+    <string name="keyboardview_keycode_left">Çampe</string>
+    <string name="keyboardview_keycode_right">Diestre</string>
+    <string name="keyboard_headset_required_to_hear_password">Tache lis scufis par sintî pronunziâ i tascj fracâts pe password.</string>
+    <string name="keyboard_password_character_no_headset">Pont.</string>
+</resources>

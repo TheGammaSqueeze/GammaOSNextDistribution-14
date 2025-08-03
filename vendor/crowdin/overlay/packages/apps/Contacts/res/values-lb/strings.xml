@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2006 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="applicationLabel">Kontakter</string>
+    <string name="contactsList">Kontakter</string>
+    <string name="shortcutContact">Kontakt</string>
+    <string name="shortcutDialContact">Direkten Telefon</string>
+    <string name="shortcutMessageContact">Direkte Message</string>
+    <string name="contactInsertOrEditActivityTitle">Bei d\'Kontakter dobäisetzen</string>
+    <string name="contactPickerActivityTitle">E Kontakt auswielen</string>
+    <string name="header_entry_contact_list_adapter_header_title">Neie Kontakt erstellen</string>
+    <string name="searchHint">Kontakter duerchsichen</string>
+    <string name="menu_addStar">Bei d\'Favoritte setzen</string>
+    <string name="menu_removeStar">Aus de Favoritte läschen</string>
+    <string name="description_action_menu_remove_star">Aus de Favoritte geläscht</string>
+    <string name="description_action_menu_add_star">Bei d\'Favoritten dobäigesat</string>
+    <string name="menu_editContact">Änneren</string>
+    <string name="menu_deleteContact">Läschen</string>
+    <string name="splitConfirmationWithPendingChanges_positive_button">Späicheren an trennen</string>
+    <string name="joinConfirmation_positive_button">Späicheren a fusionéieren</string>
+    <string name="menu_joinAggregate">Fusionéieren</string>
+    <string name="titleJoinContactDataWith">Kontakter fusionéieren</string>
+    <string name="blurbJoinContactDataWith">Wiel de Kontakt aus, deen s du mam <xliff:g id="name">%s</xliff:g> fusionéiere wëlls:</string>
+    <string name="separatorJoinAggregateSuggestions">Proposéiert Kontakter</string>
+    <string name="separatorJoinAggregateAll">All d\'Kontakter</string>
+    <string name="contactsJoinedMessage">Kontakter fusionéiert</string>
+    <string name="menu_set_ring_tone">Schelltoun setzen</string>
+    <string name="single_delete_confirmation">Kontakt läschen?</string>
+    <string name="batch_delete_confirmation">Ausgewielt Kontakter läschen?</string>
+    <string name="deleteConfirmation_positive_button">Läschen</string>
+    <string name="invalidContactMessage">De Kontakt existéiert net.</string>
+    <string name="attach_photo_dialog_title">Kontaktfoto</string>
+    <string name="customLabelPickerTitle">Eege Bezeechnung</string>
+    <string name="removePhoto">Foto ewechhuelen</string>
+    <string name="contactUnlinkedToast">Kontakter getrennt</string>
+    <string name="menu_sendMessageOption">Message schécken</string>
+    <string name="listFoundAllContactsZero">Keng Kontakter</string>
+    <string name="add_contact_dlg_message_fmt">\"<xliff:g id="email">%s</xliff:g>\" bei d\'Kontakter dobäisetzen?</string>
+    <string name="search_settings_description">Nimm vun denge Kontakter</string>
+    <string name="quickcontact_transparent_view_description">Drécke fir op de virege Schierm zréckzegoen</string>
+    <string name="quickcontact_add_phone_number">Telefonsnummer dobäisetzen</string>
+    <string name="quickcontact_add_email">E-Mail dobäisetzen</string>
+    <string name="missing_app">Fir dës Aktioun gouf keng App fonnt.</string>
+    <string name="menu_share">Deelen</string>
+    <string name="menu_add_contact">Bei d\'Kontakter dobäisetzen</string>
+    <string name="audio_chat">Stëmmchat</string>
+    <string name="video_chat">Videochat</string>
+    <string name="account_type_format"><xliff:g id="source" example="Gmail">%1$s</xliff:g>-Kontakt</string>
+    <string name="take_photo">Foto maachen</string>
+    <string name="take_new_photo">Nei Foto maachen</string>
+    <string name="pick_photo">Foto auswielen</string>
+    <string name="pick_new_photo">Nei Foto auswielen</string>
+    <string name="search_results_searching">Gëtt gesicht\u2026</string>
+    <string name="event_edit_field_hint_text">Datum</string>
+    <string name="aggregation_suggestion_edit_dialog_message">De Kontakt beaarbechten? Déi Informatiounen déi s du bis elo uginn hues gi kopéiert.</string>
+    <string name="contact_directory_description"><xliff:g id="type" example="Corporate Directory">%1$s</xliff:g>-Verzeechnes </string>
+    <string name="activity_title_settings">Astellungen</string>
+    <string name="menu_settings" msgid="377929915873428211">Astellungen</string>
+    <string name="non_phone_caption">Telefonsnummer</string>
+    <string name="non_phone_add_to_contacts">Bei d\'Kontakter dobäisetzen</string>
+    <string name="non_phone_close">Zoumaachen</string>
+    <string name="contacts_unavailable_add_account">Kont dobäisetzen</string>
+    <string name="copy_text">An d\'Tëschenoflag kopéieren</string>
+    <string name="set_default">Als Standard setzen</string>
+    <string name="clear_default">Als Standard läschen</string>
+    <string name="toast_text_copied">Text kopéiert</string>
+    <string name="cancel_confirmation_dialog_cancel_editing_button">Verwerfen</string>
+    <string name="enter_contact_name">Kontakter duerchsichen</string>
+    <string name="local_profile_title">Mäi lokale Profil</string>
+    <string name="external_profile_title"><xliff:g id="external_source">%1$s</xliff:g>-Profil</string>
+    <string name="contact_editor_title_new_contact">Neie Kontakt erstellen</string>
+    <string name="contact_editor_title_existing_contact">Kontakt änneren</string>
+    <string name="contact_editor_pick_linked_contact_dialog_title">Fusionéiert Kontakter</string>
+    <string name="add_account">Kont dobäisetzen</string>
+    <string name="add_new_account">Neie Kont dobäisetzen</string>
+    <string name="menu_export_database">Datebankfichieren exportéieren</string>
+    <string name="action_menu_add_new_contact_button">Neie Kontakt erstellen</string>
+    <string name="expanding_entry_card_view_see_more">Méi gesinn</string>
+    <string name="expanding_entry_card_view_see_less">Manner gesinn</string>
+    <string name="about_card_title">Iwwer</string>
+    <string name="date_time_set">Setzen</string>
+    <string name="header_im_entry">IM</string>
+    <string name="header_organization_entry">Organisatioun</string>
+    <string name="header_nickname_entry">Spëtznumm</string>
+    <string name="header_note_entry">Note</string>
+    <string name="header_website_entry">Websäit</string>
+    <string name="header_event_entry">Rendezvous</string>
+    <string name="header_relation_entry">Relatioun</string>
+    <string name="header_name_entry">Numm</string>
+    <string name="header_email_entry">E-Mail</string>
+    <string name="header_phone_entry">Telefon</string>
+    <string name="content_description_directions">Weebeschreiwung</string>
+    <string name="editor_contact_photo_content_description">Kontaktfoto</string>
+    <string name="quickcontact_suggestion_cancel_button">OFBRIECHEN</string>
+    <string name="suggestion_card_this_contact_title">Dëse Kontakt</string>
+    <string name="local_search_label">All d\'Kontakter</string>
+    <string name="nameLabelsGroup">Numm</string>
+    <string name="nicknameLabelsGroup">Spëtznumm</string>
+    <string name="phoneLabelsGroup">Telefon</string>
+    <string name="emailLabelsGroup">E-Mail</string>
+    <string name="imLabelsGroup">IM</string>
+    <string name="organizationLabelsGroup">Organisatioun</string>
+    <string name="label_custom_field">Personaliséiert</string>
+    <string name="websiteLabelsGroup">Websäit</string>
+    <string name="email_other">E-Mail</string>
+    <string name="email">E-Mail</string>
+    <string name="list_filter_all_accounts">All d\'Kontakter</string>
+    <string name="list_filter_all_starred">Markéiert</string>
+    <string name="list_filter_single">Kontakt</string>
+    <string name="display_all_contacts">All d\'Kontakter</string>
+    <string name="hint_findContacts">Kontakter duerchsichen</string>
+    <string name="contactsFavoritesLabel">Favoritten</string>
+    <string name="select_account_dialog_title">Kont</string>
+    <string name="description_delete_contact">Läschen</string>
+</resources>

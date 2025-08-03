@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017-2024 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="global_action_restart_system">Sistem</string>
+    <string name="global_action_restart_recovery">Recovery</string>
+    <string name="global_action_restart_bootloader">Bootloader</string>
+    <plurals name="show_dev_countdown_cm">
+        <item quantity="other"><xliff:g id="step_count">%1$d</xliff:g> langkah lagi untuk mengaktifkan opsi pengembang.</item>
+    </plurals>
+    <string name="show_dev_on_cm">Anda telah mengaktifkan opsi pengembang!</string>
+    <string name="show_dev_already_cm">Tidak perlu, Anda telah mengaktifkan mengaktifkan opsi pengembang.</string>
+    <string name="system_buttons">Tombol</string>
+    <string name="power_button_long_press_for_assistant_action">Buka Asisten</string>
+    <string name="advanced_restart_title">Mulai ulang lanjutan</string>
+    <string name="adb_over_network">ADB melalui jaringan</string>
+    <string name="trust_category_features">Status</string>
+    <string name="trust_feature_selinux">SELinux</string>
+    <string name="trust_feature_selinux_value_enforcing">Wajib</string>
+    <string name="trust_feature_selinux_value_disabled">Dinonaktifkan</string>
+    <string name="trust_feature_security_patches">Patch keamanan android</string>
+    <string name="trust_feature_security_patches_value_base">Platform: %1$s\nVendor: %2$s</string>
+    <string name="trust_feature_security_patches_value_new">Terbaru</string>
+    <string name="trust_feature_security_patches_value_medium">Kedaluwarsa selama beberapa bulan</string>
+    <string name="trust_feature_security_patches_value_old">Kedaluwarsa</string>
+    <string name="trust_feature_security_patches_explain">Patch keamanan diterbitkan oleh Google yang bekerja sama dengan vendor SoC setiap bulannya untuk mengatasi celah, yang mana dapat dieksploitasi oleh aplikasi berbahaya untuk melewati pembatasan keamanan dan mengakibatkan kerusakan secara permanen pada perangkat Anda. Patch yang disediakan oleh Google diberikan setiap bulan pada semua perangkat yang didukung, tetapi patch untuk kode dengan hak milik hanya dapat diberikan oleh pabrikan perangkat Anda. Untuk menjaga perangkat Anda tetap aman, pastikan bentukan LineageOS Anda selalu mutakhir, dan (jika memungkinkan) pastikan vendor image Anda diperbarui ke salah satu yang disarankan oleh LineageOS.</string>
+    <string name="trust_feature_encryption">Enkripsi</string>
+    <string name="trust_feature_encryption_value_enabled">Diaktifkan</string>
+    <string name="trust_feature_encryption_value_nolock">Memerlukan kunci layar aman</string>
+    <string name="trust_feature_encryption_value_disabled">Dinonaktifkan</string>
+    <string name="trust_feature_encryption_explain">Mengenkripsi perangkat Anda dapat mencegah akses ke data Anda saat perangkat belum masuk ke sistem Android. Hal ini sangat penting jika perangkat Anda hilang atau dicuri, sebagaimana, dapat mencegah orang lain membaca pesan, kontak, dan informasi pribadi lainnya tanpa sandi Anda.\nUntuk membuat enkripsi lebih efektif Anda perlu mengatur sandi layar kunci aman.</string>
+    <string name="trust_category_tools">Privasi</string>
+    <string name="trust_notification_alerts_title">Peringatan keamanan</string>
+    <string name="trust_restrict_usb_title">Batasi USB</string>
+    <string name="trust_restrict_usb_summary">Dukungan kontrol untuk koneksi USB seperti earphone, perangkat penyimpanan, input (mouse, keyboard, joystick) dan ADB</string>
+    <string name="trust_restrict_usb_always">Tolak koneksi USB</string>
+    <string name="trust_restrict_usb_disabled">Selalu izinkan koneksi USB</string>
+    <string name="trust_warnings_selinux">Status SELinux</string>
+    <string name="trust_warnings_keys">Tanda tangan bentukan</string>
+    <string name="shutdown_button_label">Matikan</string>
+    <string name="system_shutdown_confirm">Matikan sekarang?</string>
+    <string name="convertible_port_busy_title">USB port 1 sedang digunakan</string>
+</resources>

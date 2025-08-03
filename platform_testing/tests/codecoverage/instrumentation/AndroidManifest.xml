@@ -1,0 +1,10 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="android.platform.test.coverage" >
+
+    <application/>
+
+    <instrumentation android:name="androidx.test.runner.AndroidJUnitRunner"
+                     android:targetPackage="android.platform.test.coverage"
+                     android:label="Coverage smoke test"/>
+
+</manifest>

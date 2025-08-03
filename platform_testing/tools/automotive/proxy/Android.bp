@@ -1,0 +1,52 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_library_shared {
+    name: "libProxyConfig",
+    srcs: [
+        "libProxyConfig.cpp",
+    ],
+    shared_libs: [
+        "libjsoncpp",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "//apex_available:anyapex",
+    ],
+    export_include_dirs: ["include"],
+    export_shared_lib_headers: ["libjsoncpp"],
+    host_supported: true,
+    vendor_available: true,
+}
+
+cc_binary {
+    name: "automotive_vsock_proxy",
+    srcs: ["proxy.cpp"],
+    shared_libs: [
+        "libProxyConfig",
+    ],
+    target: {
+        host: {
+            static_libs: [
+                "libcuttlefish_host_config",
+            ],
+        },
+    },
+    defaults: ["cuttlefish_base"],
+    host_supported: true,
+    vendor: true,
+}
+
+// For CF CVD Host Package
+filegroup {
+    name: "automotive_proxy_config_file_group",
+    srcs: ["proxy_config.json"],
+}
+
+prebuilt_etc_host {
+    name: "automotive_proxy_config",
+    filename: "proxy_config.json",
+    sub_dir: "automotive",
+    src: ":automotive_proxy_config_file_group",
+}

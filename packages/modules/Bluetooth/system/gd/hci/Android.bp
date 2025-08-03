@@ -1,0 +1,95 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_bt_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_bt_license"],
+}
+
+filegroup {
+    name: "BluetoothHciSources",
+    srcs: [
+        "acl_manager.cc",
+        "acl_manager/acl_connection.cc",
+        "acl_manager/acl_fragmenter.cc",
+        "acl_manager/acl_scheduler.cc",
+        "acl_manager/classic_acl_connection.cc",
+        "acl_manager/le_acl_connection.cc",
+        "acl_manager/round_robin_scheduler.cc",
+        "controller.cc",
+        "distance_measurement_manager.cc",
+        "hci_layer.cc",
+        "hci_metrics_logging.cc",
+        "le_address_manager.cc",
+        "le_advertising_manager.cc",
+        "le_scanning_manager.cc",
+        "le_scanning_reassembler.cc",
+        "link_key.cc",
+        "msft.cc",
+        "remote_name_request.cc",
+        "uuid.cc",
+        "vendor_specific_event_manager.cc",
+    ],
+}
+
+filegroup {
+    name: "BluetoothHciUnitTestSources",
+    srcs: [
+        ":BluetoothHalFake",
+        "acl_builder_test.cc",
+        "acl_manager/acl_scheduler_test.cc",
+        "acl_manager/classic_acl_connection_test.cc",
+        "acl_manager/classic_impl_test.cc",
+        "acl_manager/le_acl_connection_test.cc",
+        "acl_manager/le_impl_test.cc",
+        "acl_manager/round_robin_scheduler_test.cc",
+        "acl_manager_test.cc",
+        "acl_manager_unittest.cc",
+        "address_unittest.cc",
+        "address_with_type_test.cc",
+        "class_of_device_unittest.cc",
+        "controller_test.cc",
+        "controller_unittest.cc",
+        "hci_layer_fake.cc",
+        "hci_layer_test.cc",
+        "hci_layer_unittest.cc",
+        "hci_packets_test.cc",
+        "le_address_manager_test.cc",
+        "le_advertising_manager_test.cc",
+        "le_periodic_sync_manager_test.cc",
+        "le_scanning_manager_test.cc",
+        "le_scanning_reassembler_test.cc",
+        "remote_name_request_test.cc",
+        "uuid_unittest.cc",
+    ],
+}
+
+filegroup {
+    name: "BluetoothFacade_hci_layer",
+    srcs: [
+        "facade/acl_manager_facade.cc",
+        "facade/controller_facade.cc",
+        "facade/facade.cc",
+        "facade/le_acl_manager_facade.cc",
+        "facade/le_advertising_manager_facade.cc",
+        "facade/le_initiator_address_facade.cc",
+        "facade/le_scanning_manager_facade.cc",
+    ],
+}
+
+filegroup {
+    name: "BluetoothHciFuzzTestSources",
+    srcs: [
+        "hci_packets_fuzz_test.cc",
+    ],
+}
+
+filegroup {
+    name: "BluetoothHciFuzzHelperSources",
+    srcs: [
+        "fuzz/fuzz_hci_layer.cc",
+        "fuzz/hci_layer_fuzz_client.cc",
+        "fuzz/status_vs_complete_commands.cc",
+    ],
+}

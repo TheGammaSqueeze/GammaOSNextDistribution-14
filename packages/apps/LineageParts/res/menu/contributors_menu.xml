@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2015 The CyanogenMod Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/contributors_search"
+        android:title="@string/search"
+        android:icon="@*android:drawable/ic_search_api_material"
+        android:showAsAction="collapseActionView|ifRoom"
+        android:actionViewClass="android.widget.SearchView" />
+    <item
+        android:id="@+id/contributor_info"
+        android:title="@string/contributor_info_menu"
+        android:showAsAction="never" />
+    <item
+        android:id="@+id/contributions_info"
+        android:title="@string/contributions_info_menu"
+        android:showAsAction="never" />
+</menu>

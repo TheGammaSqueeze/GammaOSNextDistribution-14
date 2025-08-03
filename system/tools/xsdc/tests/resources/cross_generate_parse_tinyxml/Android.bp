@@ -1,0 +1,12 @@
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+xsd_config {
+    name: "xsdc_cross_generate_parse_tinyxml_tests",
+    srcs: ["cross_generate_parse.xsd"],
+    package_name: "cross.tinyxml",
+    gen_writer: true,
+    tinyxml: true,
+}

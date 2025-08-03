@@ -1,0 +1,102 @@
+package: "com.android.adservices.flags"
+container: "com.android.adservices"
+
+# NOTE: add new flags using alphabetical order to minimize merge conflicts
+
+flag {
+    name: "ad_id_cache_enabled"
+    namespace: "adservices"
+    # TODO(b/320156647): Add bug number and description
+    bug: "320156647"
+    description: "Enter a description per b/320156647"
+}
+
+flag {
+    name: "adext_data_service_apis_enabled"
+    namespace: "adservices"
+    bug: "303511619"
+    # TODO(b/320156647): Add proper description below
+    description: "Add AIDL and system APIs for AdServicesExtDataService"
+}
+
+flag {
+    name: "adservices_enablement_check_enabled"
+    namespace: "adservices"
+    # TODO(b/320156647): Add bug number and description
+    bug: "320156647"
+    description: "Enter a description per b/320156647"
+}
+
+flag {
+    name: "adservices_outcomereceiver_r_api_enabled"
+    namespace: "adservices"
+    # TODO(b/320156647): Add bug number and description
+    bug: "320156647"
+    description: "Enter a description per b/320156647"
+}
+
+flag {
+    name: "enable_adservices_api_enabled"
+    namespace: "adservices"
+    # TODO(b/320156647): Add bug number and description
+    bug: "320156647"
+    description: "Enter a description per b/320156647"
+}
+
+flag {
+    name: "fledge_ad_selection_filtering_enabled"
+    namespace: "adservices"
+    bug: "267712947"
+    description: "Enabled negative filtering feature with signed contextual ads"
+}
+
+flag {
+    name: "fledge_auction_server_get_ad_selection_data_id_enabled"
+    namespace: "adservices"
+    bug: "323397060"
+    description: "Enables the getAdSelectionDataId feature of the getAdSelectionData API"
+}
+
+flag {
+    name: "fledge_custom_audience_auction_server_request_flags_enabled"
+    namespace: "adservices"
+    bug: "320786372"
+    description: "Enables server auction request flags feature for custom audiences."
+}
+
+flag {
+    name: "fledge_schedule_custom_audience_update_enabled"
+    namespace: "adservices"
+    bug: "323297322"
+    description: "Enables Schedule Custom Audience Update API"
+}
+
+flag {
+    name: "fledge_server_auction_multi_cloud_enabled"
+    namespace: "adservices"
+    bug: "323888604"
+    description: "Enable multi cloud support for unified flow APIs "
+}
+
+flag {
+    name: "get_adservices_common_states_api_enabled"
+    namespace: "adservices"
+    bug: "322635374"
+    description: "Enables Get Adservices common states API."
+}
+
+flag {
+    name: "protected_signals_enabled"
+    namespace: "adservices"
+    bug: "299946888"
+    description: "Enables Protected Signals API"
+}
+
+flag {
+    name: "topics_encryption_enabled"
+    namespace: "adservices"
+    bug: "303727027"
+    description: "Enables encrypted Topics feature for Topics API."
+}
+
+# NOTE: add new flags using alphabetical order to minimize merge conflicts

@@ -1,0 +1,202 @@
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+runtime_resource_overlay {
+    name: "GoogleCarUiPortraitBase",
+    manifest: "AndroidManifest.xml",
+    resource_dirs: ["res"],
+    static_libs: [
+        "car-portrait-ui-common",
+    ],
+}
+
+override_runtime_resource_overlay {
+    name: "generated_caruiportrait_customization-com-android-car-ui-paintbooth",
+    base: "GoogleCarUiPortraitBase",
+    package_name: "com.android.car.ui.paintbooth.googlecaruiportrait.rro",
+    target_package_name: "com.android.car.ui.paintbooth",
+    category: "caruiportrait.paintbooth",
+}
+
+override_runtime_resource_overlay {
+    name: "generated_caruiportrait_customization-com-android-car-rotaryplayground",
+    base: "GoogleCarUiPortraitBase",
+    package_name: "com.android.car.rotaryplayground.googlecaruiportrait.rro",
+    target_package_name: "com.android.car.rotaryplayground",
+    category: "caruiportrait.rotaryplayground",
+}
+
+override_runtime_resource_overlay {
+    name: "generated_caruiportrait_customization-com-android-car-themeplayground",
+    base: "GoogleCarUiPortraitBase",
+    package_name: "com.android.car.themeplayground.googlecaruiportrait.rro",
+    target_package_name: "com.android.car.themeplayground",
+    category: "caruiportrait.themeplayground",
+}
+
+override_runtime_resource_overlay {
+    name: "generated_caruiportrait_customization-com-android-car-carlauncher",
+    base: "GoogleCarUiPortraitBase",
+    package_name: "com.android.car.carlauncher.googlecaruiportrait.rro",
+    target_package_name: "com.android.car.carlauncher",
+    category: "caruiportrait.carlauncher",
+}
+
+override_runtime_resource_overlay {
+    name: "generated_caruiportrait_customization-com-android-car-home",
+    base: "GoogleCarUiPortraitBase",
+    package_name: "com.android.car.home.googlecaruiportrait.rro",
+    target_package_name: "com.android.car.home",
+    category: "caruiportrait.home",
+}
+
+override_runtime_resource_overlay {
+    name: "generated_caruiportrait_customization-com-android-car-media",
+    base: "GoogleCarUiPortraitBase",
+    package_name: "com.android.car.media.googlecaruiportrait.rro",
+    target_package_name: "com.android.car.media",
+    category: "caruiportrait.media",
+}
+
+override_runtime_resource_overlay {
+    name: "generated_caruiportrait_customization-com-android-car-messenger",
+    base: "GoogleCarUiPortraitBase",
+    package_name: "com.android.car.messenger.googlecaruiportrait.rro",
+    target_package_name: "com.android.car.messenger",
+    category: "caruiportrait.messenger",
+}
+
+override_runtime_resource_overlay {
+    name: "generated_caruiportrait_customization-com-android-car-radio",
+    base: "GoogleCarUiPortraitBase",
+    package_name: "com.android.car.radio.googlecaruiportrait.rro",
+    target_package_name: "com.android.car.radio",
+    category: "caruiportrait.radio",
+}
+
+override_runtime_resource_overlay {
+    name: "generated_caruiportrait_customization-com-android-car-calendar",
+    base: "GoogleCarUiPortraitBase",
+    package_name: "com.android.car.calendar.googlecaruiportrait.rro",
+    target_package_name: "com.android.car.calendar",
+    category: "caruiportrait.calendar",
+}
+
+override_runtime_resource_overlay {
+    name: "generated_caruiportrait_customization-com-android-car-systemupdater",
+    base: "GoogleCarUiPortraitBase",
+    package_name: "com.android.car.systemupdater.googlecaruiportrait.rro",
+    target_package_name: "com.android.car.systemupdater",
+    category: "caruiportrait.systemupdater",
+}
+
+override_runtime_resource_overlay {
+    name: "generated_caruiportrait_customization-com-android-car-dialer",
+    base: "GoogleCarUiPortraitBase",
+    package_name: "com.android.car.dialer.googlecaruiportrait.rro",
+    target_package_name: "com.android.car.dialer",
+    category: "caruiportrait.dialer",
+}
+
+override_runtime_resource_overlay {
+    name: "generated_caruiportrait_customization-com-android-car-linkviewer",
+    base: "GoogleCarUiPortraitBase",
+    package_name: "com.android.car.linkviewer.googlecaruiportrait.rro",
+    target_package_name: "com.android.car.linkviewer",
+    category: "caruiportrait.linkviewer",
+}
+
+override_runtime_resource_overlay {
+    name: "generated_caruiportrait_customization-com-android-car-settings",
+    base: "GoogleCarUiPortraitBase",
+    package_name: "com.android.car.settings.googlecaruiportrait.rro",
+    target_package_name: "com.android.car.settings",
+    category: "caruiportrait.settings",
+}
+
+override_runtime_resource_overlay {
+    name: "generated_caruiportrait_customization-com-android-car-voicecontrol",
+    base: "GoogleCarUiPortraitBase",
+    package_name: "com.android.car.voicecontrol.googlecaruiportrait.rro",
+    target_package_name: "com.android.car.voicecontrol",
+    category: "caruiportrait.voicecontrol",
+}
+
+override_runtime_resource_overlay {
+    name: "generated_caruiportrait_customization-com-android-car-faceenroll",
+    base: "GoogleCarUiPortraitBase",
+    package_name: "com.android.car.faceenroll.googlecaruiportrait.rro",
+    target_package_name: "com.android.car.faceenroll",
+    category: "caruiportrait.faceenroll",
+}
+
+override_runtime_resource_overlay {
+    name: "generated_caruiportrait_customization-com-android-car-developeroptions",
+    base: "GoogleCarUiPortraitBase",
+    package_name: "com.android.car.developeroptions.googlecaruiportrait.rro",
+    target_package_name: "com.android.car.developeroptions",
+    category: "caruiportrait.developeroptions",
+}
+
+override_runtime_resource_overlay {
+    name: "generated_caruiportrait_customization-com-android-managedprovisioning",
+    base: "GoogleCarUiPortraitBase",
+    package_name: "com.android.managedprovisioning.googlecaruiportrait.rro",
+    target_package_name: "com.android.managedprovisioning",
+    category: "caruiportrait.managedprovisioning",
+}
+
+override_runtime_resource_overlay {
+    name: "generated_caruiportrait_customization-com-android-settings-intelligence",
+    base: "GoogleCarUiPortraitBase",
+    package_name: "com.android.settings.intelligence.googlecaruiportrait.rro",
+    target_package_name: "com.android.settings.intelligence",
+    category: "caruiportrait.intelligence",
+}
+
+override_runtime_resource_overlay {
+    name: "generated_caruiportrait_customization-com-android-htmlviewer",
+    base: "GoogleCarUiPortraitBase",
+    package_name: "com.android.htmlviewer.googlecaruiportrait.rro",
+    target_package_name: "com.android.htmlviewer",
+    category: "caruiportrait.htmlviewer",
+}
+
+override_runtime_resource_overlay {
+    name: "generated_caruiportrait_customization-com-android-permissioncontroller",
+    base: "GoogleCarUiPortraitBase",
+    package_name: "com.android.permissioncontroller.googlecaruiportrait.rro",
+    target_package_name: "com.android.permissioncontroller",
+    category: "caruiportrait.permissioncontroller",
+}
+
+override_runtime_resource_overlay {
+    name: "generated_caruiportrait_customization-com-google-android-car-portraitlauncher",
+    base: "GoogleCarUiPortraitBase",
+    package_name: "com.android.car.portraitlauncher.googlecaruiportrait.rro",
+    target_package_name: "com.android.car.portraitlauncher",
+    category: "caruiportrait.portraitlauncher",
+}
+
+override_runtime_resource_overlay {
+    name: "generated_caruiportrait_customization-com-chassis-car-ui-plugin",
+    base: "GoogleCarUiPortraitBase",
+    package_name: "com.chassis.car.ui.plugin.googlecaruiportrait.rro",
+    target_package_name: "com.chassis.car.ui.plugin",
+    category: "caruiportrait.caruiplugin",
+}

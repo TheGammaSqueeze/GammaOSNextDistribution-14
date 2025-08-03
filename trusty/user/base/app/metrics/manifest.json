@@ -1,0 +1,5 @@
+{
+    "uuid": "METRICS_UUID",
+    "min_heap": 8192,
+    "min_stack": 8192
+}

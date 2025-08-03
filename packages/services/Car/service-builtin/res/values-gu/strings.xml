@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2015 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="car_permission_label_bind_projection_service" msgid="6976251734714662552">"પ્રોજેક્શન સેવા સાથે જોડાઓ"</string>
+    <string name="car_permission_desc_bind_projection_service" msgid="4610418233070289810">"ધારકને કોઈ પ્રોજેક્શન સેવાના ઉચ્ચ લેવલના ઇન્ટરફેસથી પ્રતિબદ્ધ થવાની મંજૂરી આપે છે. સામાન્ય ઍપ માટે ક્યારેય જરૂરી હોવું જોઈએ નહીં."</string>
+    <string name="car_permission_label_bind_vms_client" msgid="1298928874094319701">"VMS ક્લાયન્ટ સેવા"</string>
+    <string name="car_permission_desc_bind_vms_client" msgid="7758142590449847602">"VMS ક્લાયન્ટથી પ્રતિબદ્ધ થાઓ"</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="6723392540805279625">"ઇન્સ્ટ્રુમેન્ટ ક્લસ્ટર રેન્ડર કરી રહ્યું છે"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="2583711303360788080">"ઇન્સ્ટ્રુમેન્ટ ક્લસ્ટરનો ડેટા પ્રાપ્ત કરો"</string>
+    <string name="car_permission_label_bind_input_service" msgid="6647238478703096557">"કારની ઇનપુટ સેવા"</string>
+    <string name="car_permission_desc_bind_input_service" msgid="8460218104132496613">"ઇનપુટ ઇવેન્ટ્સને હૅન્ડલ કરો"</string>
+    <string name="activity_blocked_text" msgid="5991043857905412794">"ડ્રાઇવ કરતી વખતે તમે આ સુવિધાનો ઉપયોગ કરી શકતા નથી"</string>
+    <string name="exit_button_message" msgid="5375678491245394542">"સુરક્ષિત ઍપ્લિકેશન સુવિધાઓ સાથે ફરી શરૂ કરવા, <xliff:g id="EXIT_BUTTON">%s</xliff:g> પસંદ કરો."</string>
+    <string name="exit_button" msgid="3491899413031549265">"પાછળ"</string>
+    <string name="exit_button_close_application" msgid="5153716684207539041">"ઍપ બંધ કરો"</string>
+    <string name="exit_button_go_back" msgid="6921595432375141935">"પાછળ"</string>
+    <string name="importance_default" msgid="8017186728206153704">"ડિફૉલ્ટ મહત્ત્વ"</string>
+    <string name="importance_high" msgid="3393374688015554727">"ખૂબ જ મહત્ત્વની"</string>
+    <string name="android_system_label" msgid="9209428539477894959">"Android સિસ્ટમ"</string>
+    <string name="factory_reset_notification_title" msgid="6177770995437355965">"ફેક્ટરી રીસેટ આવશ્યક છે"</string>
+    <string name="factory_reset_notification_text" msgid="6051393302193696102">"ઇન્ફોટેનમેન્ટ સિસ્ટમનો બધો ડેટા કાઢી નાખવામાં આવશે. રીસેટ કર્યા પછી તમે નવી પ્રોફાઇલ સેટઅપ કરી શકો છો."</string>
+    <string name="factory_reset_notification_button" msgid="6926734587145351076">"વધુ"</string>
+    <string name="factory_reset_warning" msgid="8463356329619149262">"તમારું ઉપકરણ કાઢી નાખવામાં આવશે"</string>
+    <string name="factory_reset_message" msgid="1972536809866779972">"વ્યવસ્થાપક ઍપનો ઉપયોગ કરી શકાશે નહીં. તમારું ડિવાઇસ હવે કાઢી નાખવામાં આવશે.\n\nજો તમને પ્રશ્નો હોય, તો તમારી સંસ્થાના ઍડમિનનો સંપર્ક કરો."</string>
+    <string name="resource_overuse_notification_title" msgid="1622015333965744463">"<xliff:g id="ID_1">^1</xliff:g> તમારી સિસ્ટમની કાર્યક્ષમતાને અસર કરી રહી છે"</string>
+    <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"આ ઍપને બૅકગ્રાઉન્ડમાં ચાલતા અટકાવવામાં આવી છે. બૅકગ્રાઉન્ડમાં ઍપનો ઉપયોગ ચાલુ રાખવા માટે તેને પ્રાધાન્યતા આપો."</string>
+    <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"બંધ કરો"</string>
+    <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"ઍપને પ્રાધાન્યતા આપો"</string>
+</resources>

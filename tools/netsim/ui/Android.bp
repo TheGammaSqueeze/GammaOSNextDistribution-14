@@ -1,0 +1,173 @@
+//
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+    default_visibility: [
+        "//tools/netsim:__subpackages__",
+        "//device/google/cuttlefish/build:__subpackages__",
+    ],
+}
+
+// netsim web UI's index.html
+prebuilt_root_host {
+    name: "netsim_ui_index.html",
+    src: "dist/index.html",
+    sub_dir: "bin/netsim-ui",
+    filename_from_src: true,
+}
+
+// netsim web UI's JavaScript files
+prebuilt_root_host {
+    name: "netsim_ui_js_cube-sprite.js",
+    src: "dist/js/cube-sprite.js",
+    sub_dir: "bin/netsim-ui/js",
+    filename_from_src: true,
+}
+
+prebuilt_root_host {
+    name: "netsim_ui_js_customize-map-button.js",
+    src: "dist/js/customize-map-button.js",
+    sub_dir: "bin/netsim-ui/js",
+    filename_from_src: true,
+}
+
+prebuilt_root_host {
+    name: "netsim_ui_js_device-dragzone.js",
+    src: "dist/js/device-dragzone.js",
+    sub_dir: "bin/netsim-ui/js",
+    filename_from_src: true,
+}
+
+prebuilt_root_host {
+    name: "netsim_ui_js_device-dropzone.js",
+    src: "dist/js/device-dropzone.js",
+    sub_dir: "bin/netsim-ui/js",
+    filename_from_src: true,
+}
+
+prebuilt_root_host {
+    name: "netsim_ui_js_device-info.js",
+    src: "dist/js/device-info.js",
+    sub_dir: "bin/netsim-ui/js",
+    filename_from_src: true,
+}
+
+prebuilt_root_host {
+    name: "netsim_ui_js_device-list.js",
+    src: "dist/js/device-list.js",
+    sub_dir: "bin/netsim-ui/js",
+    filename_from_src: true,
+}
+
+prebuilt_root_host {
+    name: "netsim_ui_js_device-map.js",
+    src: "dist/js/device-map.js",
+    sub_dir: "bin/netsim-ui/js",
+    filename_from_src: true,
+}
+
+prebuilt_root_host {
+    name: "netsim_ui_js_device-observer.js",
+    src: "dist/js/device-observer.js",
+    sub_dir: "bin/netsim-ui/js",
+    filename_from_src: true,
+}
+
+prebuilt_root_host {
+    name: "netsim_ui_js_license-info.js",
+    src: "dist/js/license-info.js",
+    sub_dir: "bin/netsim-ui/js",
+    filename_from_src: true,
+}
+
+prebuilt_root_host {
+    name: "netsim_ui_js_navigation-bar.js",
+    src: "dist/js/navigation-bar.js",
+    sub_dir: "bin/netsim-ui/js",
+    filename_from_src: true,
+}
+
+prebuilt_root_host {
+    name: "netsim_ui_js_netsim-app.js",
+    src: "dist/js/netsim-app.js",
+    sub_dir: "bin/netsim-ui/js",
+    filename_from_src: true,
+}
+
+prebuilt_root_host {
+    name: "netsim_ui_js_packet-info.js",
+    src: "dist/js/packet-info.js",
+    sub_dir: "bin/netsim-ui/js",
+    filename_from_src: true,
+}
+
+prebuilt_root_host {
+    name: "netsim_ui_js_pyramid-sprite.js",
+    src: "dist/js/pyramid-sprite.js",
+    sub_dir: "bin/netsim-ui/js",
+    filename_from_src: true,
+}
+
+prebuilt_root_host {
+    name: "netsim_ui_js_model.js",
+    src: "dist/js/netsim/model.js",
+    sub_dir: "bin/netsim-ui/js/netsim",
+    filename_from_src: true,
+}
+
+// Node Modules
+prebuilt_root_host {
+    name: "netsim_ui_tslib",
+    src: "dist/node_modules/tslib/tslib.es6.js",
+    sub_dir: "bin/netsim-ui/node_modules/tslib",
+    filename_from_src: true,
+}
+
+// Assets (png, svg)
+prebuilt_root_host {
+    name: "netsim_ui_assets_grid-background.svg",
+    src: "dist/assets/grid-background.svg",
+    sub_dir: "bin/netsim-ui/assets",
+    filename_from_src: true,
+}
+
+prebuilt_root_host {
+    name: "netsim_ui_assets_hexagonal-background.png",
+    src: "dist/assets/hexagonal-background.png",
+    sub_dir: "bin/netsim-ui/assets",
+    filename_from_src: true,
+}
+
+prebuilt_root_host {
+    name: "netsim_ui_assets_netsim-logo-b.svg",
+    src: "dist/assets/netsim-logo-b.svg",
+    sub_dir: "bin/netsim-ui/assets",
+    filename_from_src: true,
+}
+
+prebuilt_root_host {
+    name: "netsim_ui_assets_netsim-logo.svg",
+    src: "dist/assets/netsim-logo.svg",
+    sub_dir: "bin/netsim-ui/assets",
+    filename_from_src: true,
+}
+
+prebuilt_root_host {
+    name: "netsim_ui_assets_polar-background.svg",
+    src: "dist/assets/polar-background.svg",
+    sub_dir: "bin/netsim-ui/assets",
+    filename_from_src: true,
+}

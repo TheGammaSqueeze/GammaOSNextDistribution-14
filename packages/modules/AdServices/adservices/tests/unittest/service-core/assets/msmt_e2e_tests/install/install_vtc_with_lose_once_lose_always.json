@@ -1,0 +1,276 @@
+{
+  "description": "Ad tech receives event reports for the First Open and PostInstall1, attributed to View1. Ad tech will not receive event report for the Verified Install conversion (ad tech does not register that conversion with Rb). PostInstall2 is not attributable because the cooldown period is still in effect, and View1 has already gotten 2 VTCs attributed. PostInstall3 falls outside of the cooldown period and therefore can be attributed to View5 - View5 can no longer get any future attributions (2 VTCs are only supported in the cooldown case; outside of cooldown period, each view can only receive 1 attributed conversion).",
+  "input": {
+    "sources": [
+      {
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech1.test",
+          "source_type": "navigation",
+          "registrant": "example.1s1.test"
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "response": {
+            "Attribution-Reporting-Register-Source": {
+              "source_event_id": "1",
+              "destination": "android-app://example.2d1.test",
+              "priority": "0",
+              "install_attribution_window": "172800",
+              "post_install_exclusivity_window": "864000",
+              "expiry": "1296000"
+            },
+            "Location": null,
+            "Attribution-Reporting-Redirect": null
+          }
+        }],
+        "timestamp": "800000000001"
+      },
+      {
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech1.test",
+          "source_type": "event",
+          "registrant": "example.1s1.test"
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "response": {
+            "Attribution-Reporting-Register-Source": {
+              "source_event_id": "2",
+              "destination": "android-app://example.2d1.test",
+              "priority": "1",
+              "install_attribution_window": "172800",
+              "post_install_exclusivity_window": "864000",
+              "expiry": "1296000"
+            },
+            "Location": null,
+            "Attribution-Reporting-Redirect": null
+          }
+        }],
+        "timestamp": "800086400001"
+      },
+      {
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech1.test",
+          "source_type": "event",
+          "registrant": "example.1s1.test"
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "response": {
+            "Attribution-Reporting-Register-Source": {
+              "source_event_id": "3",
+              "destination": "android-app://example.2d1.test",
+              "priority": "2",
+              "install_attribution_window": "172800",
+              "post_install_exclusivity_window": "864000",
+              "expiry": "1296000"
+            },
+            "Location": null,
+            "Attribution-Reporting-Redirect": null
+          }
+        }],
+        "timestamp": "800259200001"
+      },
+      {
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech1.test",
+          "source_type": "event",
+          "registrant": "example.1s1.test"
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "response": {
+            "Attribution-Reporting-Register-Source": {
+              "source_event_id": "4",
+              "destination": "android-app://example.2d1.test",
+              "priority": "2",
+              "install_attribution_window": "172800",
+              "post_install_exclusivity_window": "864000",
+              "expiry": "1296000"
+            },
+            "Location": null,
+            "Attribution-Reporting-Redirect": null
+          }
+        }],
+        "timestamp": "800432000001"
+      },
+      {
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech1.test",
+          "source_type": "event",
+          "registrant": "example.1s1.test"
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "response": {
+            "Attribution-Reporting-Register-Source": {
+              "source_event_id": "5",
+              "destination": "android-app://example.2d1.test",
+              "priority": "2",
+              "install_attribution_window": "172800",
+              "post_install_exclusivity_window": "864000",
+              "expiry": "1296000"
+            },
+            "Location": null,
+            "Attribution-Reporting-Redirect": null
+          }
+        }],
+        "timestamp": "800777600001"
+      },
+      {
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech1.test",
+          "source_type": "event",
+          "registrant": "example.1s1.test"
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+          "response": {
+            "Attribution-Reporting-Register-Source": {
+              "source_event_id": "6",
+              "destination": "android-app://example.2d1.test",
+              "priority": "2",
+              "install_attribution_window": "172800",
+              "post_install_exclusivity_window": "864000",
+              "expiry": "1296000"
+            },
+            "Location": null,
+            "Attribution-Reporting-Redirect": null
+          }
+        }],
+        "timestamp": "800950400001"
+      }
+    ],
+    "triggers": [
+      {
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech1.test",
+          "registrant": "example.2d1.test"
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+            "response": {
+              "Attribution-Reporting-Register-Trigger": {
+                "event_trigger_data": [
+                  {
+                    "trigger_data": "1"
+                  }
+                ]
+              },
+              "Location": null,
+              "Attribution-Reporting-Redirect": null
+            }
+        }],
+        "timestamp": "800345600001"
+      },
+      {
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech1.test",
+          "registrant": "example.2d1.test"
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+            "response": {
+              "Attribution-Reporting-Register-Trigger": {
+                "event_trigger_data": [
+                  {
+                    "trigger_data": "1"
+                  }
+                ]
+              },
+              "Location": null,
+              "Attribution-Reporting-Redirect": null
+            }
+        }],
+        "timestamp": "800518400001"
+      },
+      {
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech1.test",
+          "registrant": "example.2d1.test"
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+            "response": {
+              "Attribution-Reporting-Register-Trigger": {
+                "event_trigger_data": [
+                  {
+                    "trigger_data": "0"
+                  }
+                ]
+              },
+              "Location": null,
+              "Attribution-Reporting-Redirect": null
+            }
+        }],
+        "timestamp": "800864000001"
+      },
+      {
+        "registration_request": {
+          "attribution_src_url": "https://www.ad-tech1.test",
+          "registrant": "example.2d1.test"
+        },
+        "responses": [{
+          "url": "https://www.ad-tech1.test",
+            "response": {
+              "Attribution-Reporting-Register-Trigger": {
+                "event_trigger_data": [
+                  {
+                    "trigger_data": "1"
+                  }
+                ]
+              },
+              "Location": null,
+              "Attribution-Reporting-Redirect": null
+            }
+        }],
+        "timestamp": "801036800001"
+      }
+    ],
+    "installs": [{
+      "uri": "android-app://example.2d1.test",
+      "timestamp": "800172800001"
+    }]
+  },
+  "output": {
+    "event_level_results": [
+      {
+        "report_time": "801386000001",
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/report-event-attribution",
+        "payload": {
+          "attribution_destination": "android-app://example.2d1.test",
+          "scheduled_report_time": "801386000",
+          "source_event_id": "2",
+          "trigger_data": "1",
+          "source_type": "event",
+          "randomized_trigger_rate": 0.0000125
+        }
+      },
+      {
+        "report_time": "801386000001",
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/report-event-attribution",
+        "payload": {
+          "attribution_destination": "android-app://example.2d1.test",
+          "scheduled_report_time": "801386000",
+          "source_event_id": "2",
+          "trigger_data": "1",
+          "source_type": "event",
+          "randomized_trigger_rate": 0.0000125
+        }
+      },
+      {
+        "report_time": "802250000001",
+        "report_url": "https://www.ad-tech1.test/.well-known/attribution-reporting/report-event-attribution",
+        "payload": {
+          "attribution_destination": "android-app://example.2d1.test",
+          "scheduled_report_time": "802250000",
+          "source_event_id": "6",
+          "trigger_data": "1",
+          "source_type": "event",
+          "randomized_trigger_rate": 0.0000125
+        }
+      }
+    ],
+    "aggregatable_results": []
+  }
+}

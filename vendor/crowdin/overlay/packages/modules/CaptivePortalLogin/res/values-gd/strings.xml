@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="action_use_network">Cleachd an lìonra seo mar a tha e</string>
+    <string name="action_do_not_use_network">Na cleachd an lìonra seo</string>
+    <string name="action_bar_label">Clàraich a-steach dhan lìonra</string>
+    <string name="action_bar_title">Clàraich a-steach gu %1$s</string>
+    <string name="ssl_error_warning">Tha duilgheadasan tèarainteachd aig an lìonra dhan a bheil thu airson dol a-steach.</string>
+    <string name="ssl_error_example">Mar eisimpleir, dh’fhaoidte nach ann leis a’ bhuidheann a chì thu ’s a tha duilleag a’ chlàraidh a-steach.</string>
+    <string name="no_bypass_error_vpnwarning">A bharrachd air sin, chan fhaigh sinn seachad air a’ mhearachd seo on a tha an t-uidheam a’ ruith VPN an-dràsta.</string>
+    <string name="error_continue_via_browser">Lean air co-dhiù le brabhsair</string>
+    <string name="ssl_error_untrusted">Chan eil an teisteanas seo o ùghdarras earbsach.</string>
+    <string name="ssl_error_mismatch">Chan eil ainm na làraich co-ionnann ris an ainm air an teisteanas.</string>
+    <string name="ssl_error_expired">Dh’fhalbh an ùine air an teisteanas seo.</string>
+    <string name="ssl_error_not_yet_valid">Chan eil an teisteanas seo dligheach fhathast.</string>
+    <string name="ssl_error_date_invalid">Tha ceann-là mì-dhligheach aig an teisteanas seo.</string>
+    <string name="ssl_error_invalid">Tha an teisteanas seo mì-dhligheach.</string>
+    <string name="ssl_error_unknown">Mearachd teisteanais nach aithne dhuinn.</string>
+    <string name="ssl_security_warning_title">Rabhadh tèarainteachd</string>
+    <string name="ssl_error_view_certificate">Seall an teisteanas</string>
+    <string name="custom_scheme_warning">Tha an lìonra a tha thu a’ feuchainn ri fosgladh ag iarraidh gun dèid aplacaid eile fhosgladh.</string>
+    <string name="custom_scheme_example">Mar eisimpleir, dh’fhaoidte gum bi an duilleag clàraidh a-steach feumach air aplacaid shònraichte a chùm dearbhaidh</string>
+    <string name="ok">Ceart ma-thà</string>
+    <string name="page_info_address">Seòladh:</string>
+    <string name="page_info">Fiosrachadh na duilleige</string>
+    <string name="downloading_paramfile">A’ luchdadh a-nuas %1$s</string>
+    <string name="download_completed">Tha an luchdadh a-nuas deiseil</string>
+    <string name="error_downloading_paramfile">Cha b’ urrainn dhuinn %1$s a luchdadh a-nuas</string>
+    <string name="channel_name_downloads">Luchdaidhean a-nuas</string>
+    <string name="channel_description_downloads">Brathan a sheallas luchdaidhean a-nuas coileanta no air an sgur dhiubh</string>
+    <string name="channel_name_download_progress">Adhartas an luchdaidh a-nuas</string>
+    <string name="channel_description_download_progress">Brathan a sheallas adhartas nam faidhlichean ’gan luchdadh a-nuas</string>
+</resources>

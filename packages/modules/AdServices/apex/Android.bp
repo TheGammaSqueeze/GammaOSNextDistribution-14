@@ -1,0 +1,126 @@
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+apex_key {
+    name: "com.android.adservices.key",
+    public_key: "com.android.adservices.avbpubkey",
+    private_key: "com.android.adservices.pem",
+}
+
+android_app_certificate {
+    name: "com.android.adservices.certificate",
+    certificate: "com.android.adservices",
+}
+
+apex {
+    name: "com.android.adservices",
+    manifest: "manifest.json",
+    apps: [
+        "AdServicesApk",
+        "SdkSandbox",
+    ],
+    file_contexts: ":com.android.adservices-file_contexts",
+    key: "com.android.adservices.key",
+    bootclasspath_fragments: ["com.android.adservices-bootclasspath-fragment"],
+    systemserverclasspath_fragments: ["com.android.adservices-systemserverclasspath-fragment"],
+    prebuilts: ["current_sdkinfo"],
+    certificate: ":com.android.adservices.certificate",
+    defaults: ["t-launched-apex-module"],
+    jni_libs: [
+        "libtflite_support_classifiers_native",
+        "libhpke_jni",
+    ],
+}
+
+sdk {
+    name: "adservices-module-sdk",
+    apexes: [
+        // Adds exportable dependencies of the APEX to the sdk,
+        // e.g. *classpath_fragments.
+        "com.android.adservices",
+    ],
+}
+
+systemserverclasspath_fragment {
+    name: "com.android.adservices-systemserverclasspath-fragment",
+    contents: [
+        "service-adservices",
+        "service-sdksandbox",
+    ],
+    apex_available: ["com.android.adservices"],
+}
+
+// Encapsulate the contributions made by com.android.adservices to the bootclasspath.
+bootclasspath_fragment {
+    name: "com.android.adservices-bootclasspath-fragment",
+    contents: [
+        "framework-adservices",
+        "framework-sdksandbox",
+    ],
+    apex_available: ["com.android.adservices"],
+
+    // The bootclasspath_fragments that provide APIs on which this depends.
+    fragments: [
+        {
+            apex: "com.android.art",
+            module: "art-bootclasspath-fragment",
+        },
+    ],
+
+    // Additional stubs libraries that this fragment's contents use which are
+    // not provided by another bootclasspath_fragment.
+    additional_stubs: [
+        "android-non-updatable",
+    ],
+
+    hidden_api: {
+        // The following packages contain classes from other modules on the
+        // bootclasspath. That means that the hidden API flags for this module
+        // has to explicitly list every single class this module provides in
+        // that package to differentiate them from the classes provided by other
+        // modules. That can include private classes that are not part of the
+        // API.
+        split_packages: [
+            "android.adservices",
+        ],
+
+        // The following packages and all their subpackages currently only
+        // contain classes from this bootclasspath_fragment. Listing a package
+        // here won't prevent other bootclasspath modules from adding classes in
+        // any of those packages but it will prevent them from adding those
+        // classes into an API surface, e.g. public, system, etc.. Doing so will
+        // result in a build failure due to inconsistent flags.
+        package_prefixes: [
+            "android.adservices.adid",
+            "android.adservices.adselection",
+            "android.adservices.appsetid",
+            "android.adservices.cobalt",
+            "android.adservices.common",
+            "android.adservices.customaudience",
+            "android.adservices.exceptions",
+            "android.adservices.extdata",
+            "android.adservices.measurement",
+            "android.adservices.shell",
+            "android.adservices.signals",
+            "android.adservices.topics",
+            "android.app.adservices",
+            "android.app.sdksandbox",
+            "com.android.adservices",
+        ],
+    },
+}

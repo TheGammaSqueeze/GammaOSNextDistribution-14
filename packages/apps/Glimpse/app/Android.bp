@@ -1,0 +1,83 @@
+//
+// SPDX-FileCopyrightText: 2023-2024 The LineageOS Project
+// SPDX-License-Identifier: Apache-2.0
+//
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_app {
+    name: "Glimpse",
+
+    defaults: ["aapt_version_code_defaults"],
+
+    srcs: ["src/main/java/**/*.kt"],
+    resource_dirs: ["src/main/res"],
+    manifest: "src/main/AndroidManifest.xml",
+
+    sdk_version: "34",
+    product_specific: true,
+
+    use_embedded_native_libs: true,
+
+    overrides: [
+        "Gallery",
+        "Gallery3D",
+        "GalleryNew3D",
+    ],
+
+    required: [
+        "GlimpseFrameworksBaseOverlay",
+        "initial-package-stopped-states-org.lineageos.glimpse",
+        "preinstalled-packages-org.lineageos.glimpse",
+    ],
+
+    static_libs: [
+        // DO NOT EDIT THIS SECTION MANUALLY
+        "androidx.appcompat_appcompat",
+        "androidx-constraintlayout_constraintlayout",
+        "androidx.core_core-ktx",
+        "androidx.exifinterface_exifinterface",
+        "Glimpse_androidx.media3_media3-exoplayer",
+        "Glimpse_androidx.media3_media3-exoplayer-dash",
+        "Glimpse_androidx.media3_media3-exoplayer-hls",
+        "Glimpse_androidx.media3_media3-exoplayer-rtsp",
+        "Glimpse_androidx.media3_media3-exoplayer-smoothstreaming",
+        "Glimpse_androidx.media3_media3-ui",
+        "androidx.navigation_navigation-fragment-ktx",
+        "androidx.navigation_navigation-ui-ktx",
+        "androidx.preference_preference",
+        "androidx.recyclerview_recyclerview",
+        "androidx.recyclerview_recyclerview-selection",
+        "Glimpse_com.google.android.material_material",
+        "Glimpse_io.coil-kt_coil",
+        "Glimpse_io.coil-kt_coil-gif",
+        "Glimpse_io.coil-kt_coil-video",
+        "Glimpse_io.github.panpf.zoomimage_zoomimage-core-android",
+        "Glimpse_io.github.panpf.zoomimage_zoomimage-view-coil",
+        "kotlin-stdlib-jdk8",
+    ],
+
+    optimize: {
+        optimize: true,
+        proguard_flags_files: ["proguard-rules.pro"],
+        shrink_resources: true,
+    },
+}
+
+prebuilt_etc {
+    name: "initial-package-stopped-states-org.lineageos.glimpse",
+    product_specific: true,
+    sub_dir: "sysconfig",
+    src: "initial-package-stopped-states-org.lineageos.glimpse.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
+    name: "preinstalled-packages-org.lineageos.glimpse",
+    product_specific: true,
+    sub_dir: "sysconfig",
+    src: "preinstalled-packages-org.lineageos.glimpse.xml",
+    filename_from_src: true,
+}

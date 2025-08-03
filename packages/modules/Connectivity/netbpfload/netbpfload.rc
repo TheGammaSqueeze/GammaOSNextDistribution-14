@@ -1,0 +1,86 @@
+# zygote-start is what officially starts netd (see //system/core/rootdir/init.rc)
+# However, on some hardware it's started from post-fs-data as well, which is just
+# a tad earlier.  There's no benefit to that though, since on 4.9+ P+ devices netd
+# will just block until bpfloader finishes and sets the bpf.progs_loaded property.
+#
+# It is important that we start bpfloader after:
+#   - /sys/fs/bpf is already mounted,
+#   - apex (incl. rollback) is initialized (so that in the future we can load bpf
+#     programs shipped as part of apex mainline modules)
+#   - logd is ready for us to log stuff
+#
+# At the same time we want to be as early as possible to reduce races and thus
+# failures (before memory is fragmented, and cpu is busy running tons of other
+# stuff) and we absolutely want to be before netd and the system boot slot is
+# considered to have booted successfully.
+#
+on load_bpf_programs
+    exec_start bpfloader
+
+service bpfloader /system/bin/netbpfload
+    # netbpfload will do network bpf loading, then execute /system/bin/bpfloader
+    capabilities CHOWN SYS_ADMIN NET_ADMIN
+    # The following group memberships are a workaround for lack of DAC_OVERRIDE
+    # and allow us to open (among other things) files that we created and are
+    # no longer root owned (due to CHOWN) but still have group read access to
+    # one of the following groups.  This is not perfect, but a more correct
+    # solution requires significantly more effort to implement.
+    group root graphics network_stack net_admin net_bw_acct net_bw_stats net_raw system
+    user root
+    #
+    # Set RLIMIT_MEMLOCK to 1GiB for bpfloader
+    #
+    # Actually only 8MiB would be needed if bpfloader ran as its own uid.
+    #
+    # However, while the rlimit is per-thread, the accounting is system wide.
+    # So, for example, if the graphics stack has already allocated 10MiB of
+    # memlock data before bpfloader even gets a chance to run, it would fail
+    # if its memlock rlimit is only 8MiB - since there would be none left for it.
+    #
+    # bpfloader succeeding is critical to system health, since a failure will
+    # cause netd crashloop and thus system server crashloop... and the only
+    # recovery is a full kernel reboot.
+    #
+    # We've had issues where devices would sometimes (rarely) boot into
+    # a crashloop because bpfloader would occasionally lose a boot time
+    # race against the graphics stack's boot time locked memory allocation.
+    #
+    # Thus bpfloader's memlock has to be 8MB higher then the locked memory
+    # consumption of the root uid anywhere else in the system...
+    # But we don't know what that is for all possible devices...
+    #
+    # Ideally, we'd simply grant bpfloader the IPC_LOCK capability and it
+    # would simply ignore it's memlock rlimit... but it turns that this
+    # capability is not even checked by the kernel's bpf system call.
+    #
+    # As such we simply use 1GiB as a reasonable approximation of infinity.
+    #
+    rlimit memlock 1073741824 1073741824
+    oneshot
+    #
+    # How to debug bootloops caused by 'bpfloader-failed'.
+    #
+    # 1. On some lower RAM devices (like wembley) you may need to first enable developer mode
+    #    (from the Settings app UI), and change the developer option "Logger buffer sizes"
+    #    from the default (wembley: 64kB) to the maximum (1M) per log buffer.
+    #    Otherwise buffer will overflow before you manage to dump it and you'll get useless logs.
+    #
+    # 2. comment out 'reboot_on_failure reboot,bpfloader-failed' below
+    # 3. rebuild/reflash/reboot
+    # 4. as the device is booting up capture bpfloader logs via:
+    #    adb logcat -s 'bpfloader:*' 'LibBpfLoader:*' 'NetBpfLoad:*' 'NetBpfLoader:*'
+    #
+    # something like:
+    #   $ adb reboot; sleep 1; adb wait-for-device; adb root; sleep 1; adb wait-for-device; adb logcat -s 'bpfloader:*' 'LibBpfLoader:*' 'NetBpfLoad:*' 'NetBpfLoader:*'
+    # will take care of capturing logs as early as possible
+    #
+    # 5. look through the logs from the kernel's bpf verifier that bpfloader dumps out,
+    #    it usually makes sense to search back from the end and find the particular
+    #    bpf verifier failure that caused bpfloader to terminate early with an error code.
+    #    This will probably be something along the lines of 'too many jumps' or
+    #    'cannot prove return value is 0 or 1' or 'unsupported / unknown operation / helper',
+    #    'invalid bpf_context access', etc.
+    #
+    reboot_on_failure reboot,bpfloader-failed
+    # we're not really updatable, but want to be able to load bpf programs shipped in apexes
+    updatable

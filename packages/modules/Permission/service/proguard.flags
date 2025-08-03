@@ -1,0 +1,4 @@
+# Keep classes that implements RoleBehavior, which are used by reflection.
+-keep class * implements com.android.role.controller.model.RoleBehavior {
+    *;
+}

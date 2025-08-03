@@ -1,0 +1,158 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_ffi_static {
+    name: "librialto",
+    crate_name: "rialto",
+    srcs: ["src/main.rs"],
+    defaults: ["vmbase_ffi_defaults"],
+    rustlibs: [
+        "libaarch64_paging",
+        "libbssl_avf_nostd",
+        "libbssl_sys_nostd",
+        "libciborium_io_nostd",
+        "libciborium_nostd",
+        "libcstr",
+        "libdiced_open_dice_nostd",
+        "libhyp",
+        "libfdtpci",
+        "liblibfdt",
+        "liblog_rust_nostd",
+        "libservice_vm_comm_nostd",
+        "libservice_vm_fake_chain_nostd",
+        "libservice_vm_requests_nostd",
+        "libtinyvec_nostd",
+        "libvirtio_drivers",
+        "libvmbase",
+    ],
+}
+
+cc_binary {
+    name: "rialto_elf",
+    stem: "rialto",
+    defaults: ["vmbase_elf_defaults"],
+    srcs: [
+        "idmap.S",
+    ],
+    static_libs: [
+        "librialto",
+    ],
+    linker_scripts: [
+        "image.ld",
+        ":vmbase_sections",
+    ],
+}
+
+raw_binary {
+    name: "rialto_unsigned",
+    src: ":rialto_elf",
+    enabled: false,
+    target: {
+        android_arm64: {
+            enabled: true,
+        },
+    },
+}
+
+// python -c "import hashlib; print(hashlib.sha256(b'rialto_salt').hexdigest())"
+rialto_salt = "ea9d8c3ae1785396884d0c16c7652921874e2b8703f336ff23760f2049ee9e29"
+
+filegroup {
+    name: "rialto_sign_key",
+    srcs: [":avb_testkey_rsa4096"],
+}
+
+// Both SERVICE_VM_VERSION and SERVICE_VM_VERSION_STRING should represent the
+// same version number for the service VM.
+SERVICE_VM_VERSION = 1
+SERVICE_VM_VERSION_STRING = "1"
+
+genrule {
+    name: "service_vm_version_rs",
+    out: ["lib.rs"],
+    cmd: "(" +
+        "    echo '#![no_std]';" +
+        "    echo '#![allow(missing_docs)]';" +
+        "    echo 'pub const VERSION: u64 = " + SERVICE_VM_VERSION_STRING + ";'" +
+        ") > $(out)",
+}
+
+rust_library_rlib {
+    name: "libservice_vm_version",
+    crate_name: "service_vm_version",
+    defaults: ["vmbase_rlib_defaults"],
+    srcs: [":service_vm_version_rs"],
+}
+
+avb_add_hash_footer {
+    name: "rialto_signed",
+    src: ":empty_file",
+    filename: "rialto",
+    partition_name: "boot",
+    private_key: ":rialto_sign_key",
+    salt: rialto_salt,
+    rollback_index: SERVICE_VM_VERSION,
+    props: [
+        {
+            name: "com.android.virt.cap",
+            value: "remote_attest",
+        },
+    ],
+    enabled: false,
+    arch: {
+        arm64: {
+            src: ":rialto_unsigned",
+            enabled: true,
+        },
+    },
+}
+
+prebuilt_etc {
+    // rialto_bin is a prebuilt target wrapping the signed bare-metal service VM.
+    name: "rialto_bin",
+    filename: "rialto.bin",
+    target: {
+        android_arm64: {
+            src: ":rialto_signed",
+        },
+    },
+    src: ":empty_file",
+    installable: false,
+}
+
+rust_test {
+    name: "rialto_test",
+    crate_name: "rialto_test",
+    defaults: ["avf_build_flags_rust"],
+    srcs: ["tests/test.rs"],
+    prefer_rlib: true,
+    edition: "2021",
+    rustlibs: [
+        "android.system.virtualizationservice-rust",
+        "libandroid_logger",
+        "libanyhow",
+        "libbssl_avf_nostd",
+        "libclient_vm_csr",
+        "libcoset",
+        "liblibc",
+        "liblog_rust",
+        "libhwtrust",
+        "libservice_vm_comm",
+        "libservice_vm_fake_chain",
+        "libservice_vm_manager",
+        "libvmclient",
+        "libx509_cert_nostd",
+    ],
+    data: [
+        ":rialto_unsigned",
+        ":test_rkp_cert_chain",
+    ],
+    test_suites: ["general-tests"],
+    enabled: false,
+    target: {
+        android_arm64: {
+            enabled: true,
+        },
+    },
+}

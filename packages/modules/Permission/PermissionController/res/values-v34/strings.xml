@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- String representing the security and privacy brand name [CHAR LIMIT=NONE] -->
+    <string name="security_privacy_brand_name">Security &amp; privacy</string>
+    <!-- Header for the controls category on the privacy subpage of Safety Center [CHAR LIMIT=NONE] -->
+    <string name="privacy_subpage_controls_header">Controls</string>
+
+    <!-- Title shown for Health Connect [CHAR LIMIT=50] -->
+    <string name="health_connect_title" description="Health connect title">Health&#160;Connect</string>
+    <string name="health_connect_summary" description="Health connect summary, which describes what user can do when they click Health Connect">Manage app access to health data</string>
+
+    <!-- Title for the link to location settings [CHAR LIMIT=30] -->
+    <string name="location_settings">Location access</string>
+
+    <!-- Describes what is affected by the mic toggle. Unlike the similar tc/9163104307990677157, there should NOT be a full stop at the end of this sentence.  [CHAR LIMIT=NONE] -->
+    <string name="mic_toggle_description">For apps and services. If this setting is off, microphone data may still be shared when you call an emergency number</string>
+    <!-- Subtitle for the link to location settings [CHAR LIMIT=NONE] -->
+</resources>

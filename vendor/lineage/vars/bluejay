@@ -1,0 +1,27 @@
+# Pixel 6a
+
+# Usage: ${device_repos[@]}
+device_repos=(
+  device/google/bluejay
+)
+
+# Updated semi-manually via pixel/update-any-var.sh
+
+readonly build_id="AP2A.240905.003.F1"
+
+# Updated automatically via pixel/update-device-vars.sh
+
+readonly prev_aosp_tag="android-14.0.0_r61"
+readonly aosp_tag="android-14.0.0_r73"
+
+readonly build_number="12235381"
+
+readonly image_url="https://dl.google.com/dl/android/aosp/bluejay-ap2a.240905.003.f1-factory-ccb9246b.zip"
+readonly image_sha256="ccb9246b90b5e89e46ff6af7196a9e11eec453104012fa1290efed6e7a8d2fbe"
+
+readonly flash_url="https://flash.android.com/build/12235381?target=bluejay-user&signed"
+
+readonly ota_url="https://dl.google.com/dl/android/aosp/bluejay-ota-ap2a.240905.003.f1-bc5a699a.zip"
+readonly ota_sha256="bc5a699a4d37ae146c56b499ce9a7742c1d72bc9e1977859c71378321c3407d3"
+
+readonly security_patch="2024-09-05"

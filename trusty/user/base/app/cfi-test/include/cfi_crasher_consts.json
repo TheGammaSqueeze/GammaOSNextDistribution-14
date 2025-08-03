@@ -1,0 +1,10 @@
+{
+    "header": "cfi_crasher_consts.h",
+    "constants":[
+        {
+            "name": "CFI_CRASHER_PORT",
+            "value": "com.android.trusty.cfitest.crasher",
+            "type": "port"
+        }
+    ]
+}

@@ -1,0 +1,204 @@
+// Bluetooth Audio library for target
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_bt_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_bt_license"],
+}
+
+cc_library_static {
+    name: "libbt-audio-hal-interface",
+    defaults: ["fluoride_defaults"],
+    include_dirs: [
+        "packages/modules/Bluetooth/system",
+        "packages/modules/Bluetooth/system/bta/include",
+        "packages/modules/Bluetooth/system/bta/sys",
+        "packages/modules/Bluetooth/system/gd",
+        "packages/modules/Bluetooth/system/stack/include",
+    ],
+    shared_libs: [
+        "android.hardware.bluetooth.audio@2.0",
+        "android.hardware.bluetooth.audio@2.1",
+        "libhidlbase",
+        "libutils",
+    ],
+    static_libs: [
+        "libbluetooth_log",
+        "libbt-common",
+        "libbt_shim_bridge",
+        "libosi",
+    ],
+    target: {
+        android: {
+            shared_libs: [
+                "android.hardware.bluetooth.audio-V4-ndk",
+                "libbinder_ndk",
+                "libfmq",
+            ],
+            srcs: [
+                "a2dp_encoding.cc",
+                "aidl/a2dp_encoding_aidl.cc",
+                "aidl/a2dp_provider_info.cc",
+                "aidl/bluetooth_audio_port_impl.cc",
+                "aidl/client_interface_aidl.cc",
+                "aidl/codec_status_aidl.cc",
+                "aidl/hearing_aid_software_encoding_aidl.cc",
+                "aidl/hfp_client_interface_aidl.cc",
+                "aidl/le_audio_software_aidl.cc",
+                "aidl/provider_info.cc",
+                "hal_version_manager.cc",
+                "hearing_aid_software_encoding.cc",
+                "hfp_client_interface.cc",
+                "hidl/a2dp_encoding_hidl.cc",
+                "hidl/client_interface_hidl.cc",
+                "hidl/codec_status_hidl.cc",
+                "hidl/hearing_aid_software_encoding_hidl.cc",
+                "hidl/le_audio_software_hidl.cc",
+                "le_audio_software.cc",
+            ],
+        },
+        host: {
+            srcs: [
+                "a2dp_encoding_host.cc",
+                "hal_version_manager_host.cc",
+                "hearing_aid_software_encoding_host.cc",
+                "hfp_client_interface_host.cc",
+                "le_audio_software_host.cc",
+            ],
+        },
+    },
+    host_supported: true,
+    cflags: [
+        "-Wno-unused-parameter",
+        "-Wthread-safety",
+    ],
+    apex_available: [
+        "com.android.btservices",
+    ],
+    min_sdk_version: "Tiramisu",
+    header_libs: ["libbluetooth_headers"],
+}
+
+// Bluetooth Audio client interface library unit tests for target and host
+cc_test {
+    name: "bluetooth-test-audio-hal-interface",
+    defaults: [
+        "fluoride_defaults",
+        "latest_android_hardware_audio_common_ndk_static",
+        "latest_android_hardware_bluetooth_audio_ndk_static",
+        "latest_android_media_audio_common_types_ndk_static",
+    ],
+    include_dirs: [
+        "packages/modules/Bluetooth/system",
+        "packages/modules/Bluetooth/system/gd",
+        "packages/modules/Bluetooth/system/stack/include",
+    ],
+    srcs: [
+        "hidl/client_interface_hidl_unittest.cc",
+    ],
+    shared_libs: [
+        "libbase",
+        "libbinder_ndk",
+        "libcutils",
+        "libfmq",
+        "libhidlbase",
+        "liblog",
+        "libutils",
+    ],
+    static_libs: [
+        "android.hardware.audio.common@5.0",
+        "android.hardware.bluetooth.audio@2.0",
+        "android.hardware.bluetooth.audio@2.1",
+        "android.hardware.common-V2-ndk",
+        "android.hardware.common.fmq-V1-ndk",
+        "libbluetooth_log",
+        "libbt-audio-hal-interface",
+        "libbt-common",
+        "libbt_shim_bridge",
+        "libchrome",
+    ],
+    header_libs: ["libbluetooth_headers"],
+}
+
+// Bluetooth Audio Provider Info unit tests for target and host
+cc_test {
+    name: "bluetooth-test-audio-hal-a2dp-provider-info",
+    test_suites: ["general-tests"],
+    defaults: [
+        "fluoride_defaults",
+        "latest_android_hardware_audio_common_ndk_static",
+        "latest_android_hardware_bluetooth_audio_ndk_static",
+        "latest_android_media_audio_common_types_ndk_static",
+        "mts_defaults",
+    ],
+    cflags: [
+        "-DUNIT_TESTS",
+        "-Wno-unused-parameter",
+    ],
+    host_supported: true,
+    test_options: {
+        unit_test: true,
+    },
+    include_dirs: [
+        "packages/modules/Bluetooth/system",
+        "packages/modules/Bluetooth/system/gd",
+        "packages/modules/Bluetooth/system/stack/include",
+    ],
+    target: {
+        host: {
+            srcs: [
+                ":BluetoothHostTestingLogCapture",
+            ],
+        },
+        android: {
+            srcs: [
+                ":BluetoothAndroidTestingLogCapture",
+            ],
+        },
+    },
+    sanitize: {
+        cfi: true,
+        scs: true,
+        address: true,
+        all_undefined: true,
+        integer_overflow: true,
+        diag: {
+            undefined: true,
+        },
+    },
+    srcs: [
+        ":TestCommonMockFunctions",
+        ":TestMockAudioHalInterface",
+        "aidl/a2dp_provider_info.cc",
+        "aidl/a2dp_provider_info_unittest.cc",
+    ],
+    shared_libs: [
+        "libbinder_ndk",
+        "libcutils",
+        "libhidlbase",
+        "liblog",
+        "libutils",
+        "server_configurable_flags",
+    ],
+    static_libs: [
+        "android.hardware.bluetooth.audio@2.0",
+        "android.hardware.bluetooth.audio@2.1",
+        "android.hardware.bluetooth@1.0",
+        "android.hardware.bluetooth@1.1",
+        "android.hardware.common-V2-ndk",
+        "android.hardware.common.fmq-V1-ndk",
+        "bluetooth_flags_c_lib",
+        "libbase",
+        "libbluetooth_log",
+        "libbt-common",
+        "libbt_shim_bridge",
+        "libchrome",
+        "libflagtest",
+        "libfmq",
+        "libgmock",
+        "libosi",
+    ],
+    header_libs: ["libbluetooth_headers"],
+}

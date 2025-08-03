@@ -1,0 +1,216 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_bt_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_bt_license"],
+}
+
+filegroup {
+    name: "BluetoothDumpsysSources",
+    srcs: [
+        "filter.cc",
+        "internal/filter_internal.cc",
+        "reflection_schema.cc",
+    ],
+}
+
+filegroup {
+    name: "BluetoothDumpsysTestSources",
+    srcs: [
+        "filter_test.cc",
+        "internal/filter_internal_test.cc",
+        "reflection_schema_test.cc",
+    ],
+}
+
+genrule {
+    name: "BluetoothGeneratedDumpsysTestData_h",
+    visibility: ["//visibility:public"],
+    tools: [
+        "flatc",
+    ],
+    cmd: "$(location flatc) -I packages/modules/Bluetooth/system/gd -b --schema -o $(genDir) --cpp $(in) ",
+    srcs: [
+        "test_data/bar.fbs",
+        "test_data/baz.fbs",
+        "test_data/foo.fbs",
+        "test_data/qux.fbs",
+        "test_data/root.fbs",
+    ],
+    out: [
+        "bar_generated.h",
+        "baz_generated.h",
+        "foo_generated.h",
+        "qux_generated.h",
+        "root_generated.h",
+    ],
+}
+
+genrule {
+    name: "BluetoothGeneratedDumpsysTestData_bfbs",
+    visibility: ["//visibility:private"],
+    tools: [
+        "flatc",
+    ],
+    cmd: "$(location flatc) -I packages/modules/Bluetooth/system/gd -b --schema -o $(genDir) --cpp $(in) ",
+    srcs: [
+        "test_data/bar.fbs",
+        "test_data/baz.fbs",
+        "test_data/foo.fbs",
+        "test_data/qux.fbs",
+        "test_data/root.fbs",
+    ],
+    out: [
+        "bar.bfbs",
+        "baz.bfbs",
+        "foo.bfbs",
+        "qux.bfbs",
+        "root.bfbs",
+    ],
+}
+
+genrule {
+    name: "BluetoothGeneratedDumpsysTestSchema_cc",
+    visibility: ["//visibility:private"],
+    tools: [
+        "bluetooth_flatbuffer_bundler",
+    ],
+    cmd: "$(location bluetooth_flatbuffer_bundler) -w -m bluetooth.DumpsysData -f dumpsys_module_schema_data -n testing -g $(genDir) $(locations :BluetoothGeneratedDumpsysBinarySchema_bfbs)",
+    srcs: [
+        ":BluetoothGeneratedDumpsysBinarySchema_bfbs",
+    ],
+    out: [
+        "dumpsys_module_schema_data.cc",
+    ],
+}
+
+genrule {
+    name: "BluetoothGeneratedDumpsysBundledSchema_cc",
+    visibility: ["//visibility:private"],
+    tools: [
+        "bluetooth_flatbuffer_bundler",
+    ],
+    cmd: "$(location bluetooth_flatbuffer_bundler) -w -m bluetooth.DumpsysData -f generated_dumpsys_bundled_schema -n bluetooth::dumpsys -g $(genDir) $(locations :BluetoothGeneratedDumpsysBinarySchema_bfbs)",
+    srcs: [
+        ":BluetoothGeneratedDumpsysBinarySchema_bfbs",
+    ],
+    out: [
+        "generated_dumpsys_bundled_schema.cc",
+    ],
+}
+
+genrule {
+    name: "BluetoothGeneratedDumpsysBundledTestSchema_cc",
+    visibility: ["//visibility:private"],
+    tools: [
+        "bluetooth_flatbuffer_bundler",
+    ],
+    cmd: "$(location bluetooth_flatbuffer_bundler) -w -m testing.DumpsysTestDataRoot  -f generated_dumpsys_bundled_test_schema -n testing -g $(genDir) $(locations :BluetoothGeneratedDumpsysTestData_bfbs)",
+    srcs: [
+        ":BluetoothGeneratedDumpsysTestData_bfbs",
+    ],
+    out: [
+        "generated_dumpsys_bundled_test_schema.cc",
+    ],
+}
+
+genrule {
+    name: "BluetoothFlatbufferTestData_h",
+    tools: [
+        "flatc",
+    ],
+    cmd: "$(location flatc) -I packages/modules/Bluetooth/system/gd -b --schema -o $(genDir) --cpp $(in) ",
+    srcs: [
+        "bluetooth_flatbuffer_test.fbs",
+    ],
+    out: [
+        "bluetooth_flatbuffer_test.bfbs",
+        "bluetooth_flatbuffer_test_generated.h",
+    ],
+}
+
+genrule {
+    name: "BluetoothGeneratedDumpsysInternalTestData_h",
+    tools: [
+        "flatc",
+    ],
+    cmd: "$(location flatc) --cpp -o $(genDir)/dumpsys/internal/test_data $(in)",
+    srcs: [
+        "internal/test_data/float.fbs",
+        "internal/test_data/integer.fbs",
+        "internal/test_data/string.fbs",
+        "internal/test_data/struct.fbs",
+    ],
+    out: [
+        "dumpsys/internal/test_data/float_generated.h",
+        "dumpsys/internal/test_data/integer_generated.h",
+        "dumpsys/internal/test_data/string_generated.h",
+        "dumpsys/internal/test_data/struct_generated.h",
+    ],
+}
+
+cc_library {
+    name: "libbluetooth-dumpsys",
+    host_supported: true,
+    defaults: [
+        "gd_clang_tidy",
+        "gd_defaults",
+    ],
+    generated_sources: [
+        "BluetoothGeneratedDumpsysBundledSchema_cc",
+    ],
+    apex_available: [
+        "com.android.btservices",
+    ],
+    min_sdk_version: "30",
+}
+
+cc_library {
+    name: "libbluetooth-dumpsys-test",
+    host_supported: true,
+    defaults: [
+        "gd_clang_tidy",
+        "gd_defaults",
+    ],
+    generated_sources: [
+        "BluetoothGeneratedDumpsysBundledTestSchema_cc",
+    ],
+}
+
+cc_library {
+    name: "libbluetooth-dumpsys-unittest",
+    host_supported: true,
+    defaults: [
+        "gd_clang_tidy",
+        "gd_defaults",
+    ],
+    generated_headers: [
+        "BluetoothGeneratedDumpsysTestSchema_cc",
+    ],
+}
+
+cc_test {
+    name: "bluetooth_flatbuffer_tests",
+    test_suites: ["general-tests"],
+    defaults: [
+        "bluetooth_cflags",
+        "mts_defaults",
+    ],
+    host_supported: true,
+    test_options: {
+        unit_test: true,
+    },
+    static_libs: [
+        "libflatbuffers-cpp",
+        "libgmock",
+    ],
+    srcs: [
+        "bluetooth_flatbuffer_test.cc",
+    ],
+    generated_headers: [
+        "BluetoothFlatbufferTestData_h",
+    ],
+    min_sdk_version: "30",
+}

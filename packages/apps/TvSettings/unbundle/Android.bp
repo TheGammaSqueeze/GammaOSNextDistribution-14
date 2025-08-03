@@ -1,0 +1,22 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_library {
+
+    name: "TvSettingsSdkLib",
+    srcs: [
+        "java/**/*.java",
+    ],
+
+    static_libs: [
+    ],
+
+    errorprone: {
+        enabled: false,
+    },
+    min_sdk_version: "31",
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
+}

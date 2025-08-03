@@ -1,0 +1,96 @@
+//
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+aconfig_declarations {
+    name: "flag_checker_tests",
+    package: "android.test.myflags",
+    container: "system",
+    srcs: ["android.test.myflags.aconfig"],
+}
+
+cc_aconfig_library {
+    name: "flags_checker_tests_cc",
+    aconfig_declarations: "flag_checker_tests",
+}
+
+cc_defaults {
+    name: "libflagtest_defaults",
+    export_include_dirs: ["include"],
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+}
+
+cc_defaults {
+    name: "libflagtest_host_defaults",
+    target: {
+        linux_bionic: {
+            enabled: true,
+        },
+        windows: {
+            enabled: true,
+        },
+    },
+}
+
+cc_library_static {
+    name: "libflagtest",
+    defaults: [
+        "libflagtest_defaults",
+        "libflagtest_host_defaults",
+    ],
+    vendor_available: true,
+    product_available: true,
+    host_supported: true,
+    native_bridge_supported: true,
+    srcs: ["flag_checker.cpp"],
+    static_libs: ["libgtest"],
+    shared_libs: ["libbase"],
+}
+
+cc_test {
+    name: "libflagtest_test",
+    compile_multilib: "both",
+    multilib: {
+        lib32: {
+            suffix: "32",
+        },
+        lib64: {
+            suffix: "64",
+        },
+    },
+    require_root: true,
+    srcs: ["flag_checker_test.cpp"],
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+    static_libs: [
+        "libflagtest",
+        "libgtest",
+        "flags_checker_tests_cc",
+    ],
+    shared_libs: [
+        "libbase",
+        "server_configurable_flags",
+    ],
+    test_suites: ["device-tests"],
+}

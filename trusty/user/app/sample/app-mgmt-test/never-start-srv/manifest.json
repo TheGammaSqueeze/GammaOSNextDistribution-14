@@ -1,0 +1,9 @@
+{
+    "uuid": "c5f297ed-f197-47ae-a9fc-f5b29f59dcb8",
+    "min_heap": 4096,
+    "min_stack": 4096,
+    "mgmt_flags": {
+            "restart_on_exit": true,
+            "deferred_start": true
+    }
+}

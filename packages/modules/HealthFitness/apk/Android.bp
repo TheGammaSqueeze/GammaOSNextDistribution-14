@@ -1,0 +1,187 @@
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+filegroup {
+    name: "healthConnectController-sources",
+    srcs: [
+        "src/**/*.java",
+        "src/**/*.kt",
+    ],
+    exclude_srcs: [
+        ":healthconnectController-permissions-apis",
+        ":healthconnectController-migration-apis",
+        "src/**/HealthConnectApplication.kt"
+    ]
+}
+
+filegroup {
+    name: "healthconnectController-permissions-apis",
+    srcs: [
+        "src/com/android/healthconnect/controller/permissions/api/**/*.kt"
+    ]
+}
+
+filegroup {
+    name: "healthconnectController-migration-apis",
+    srcs: [
+        "src/com/android/healthconnect/controller/migration/api/**/*.kt"
+    ]
+}
+
+java_library {
+    name: "HealthConnectPermissionsApis",
+    srcs: [":healthconnectController-permissions-apis"],
+    sdk_version: "module_current",
+    min_sdk_version: "34",
+    libs: [
+        "kotlin-annotations",
+        "framework-healthfitness.impl" // permissions ui needs access to healthfitness hidden apis.
+    ],
+    static_libs: [
+        "kotlin-stdlib",
+        "hilt_android",
+        "guava",
+    ],
+    kotlincflags: ["-Xjvm-default=all"],
+    apex_available: ["com.android.healthfitness"],
+}
+
+java_library {
+    name: "HealthConnectMigrationApis",
+    srcs: [":healthconnectController-migration-apis"],
+    sdk_version: "module_current",
+    min_sdk_version: "34",
+    libs: [
+        "kotlin-annotations",
+        "framework-healthfitness.impl" // migration ui needs access to healthfitness hidden apis.
+    ],
+    static_libs: [
+        "kotlin-stdlib",
+        "hilt_android",
+        "kotlinx-coroutines-android",
+        "guava",
+    ],
+    kotlincflags: ["-Xjvm-default=all"],
+    apex_available: ["com.android.healthfitness"],
+}
+
+// To generate HealthFitnessUiStatsLog for logging.
+// DO NOT CHANGE
+genrule {
+    name: "statslog-healthfitness-ui-java-gen",
+    tools: ["stats-log-api-gen"],
+    cmd: "$(location stats-log-api-gen) --java $(out) --module healthfitness" +
+         " --javaPackage com.android.healthconnect.controller" +
+         " --javaClass HealthFitnessUiStatsLog --minApiLevel 34",
+    out: ["com/android/healthconnect/controller/HealthFitnessUiStatsLog.java"],
+}
+
+// To disable NewApi checks on the generated HealthFitnessUiStatsLog.
+// DO NOT CHANGE
+java_library {
+    name: "healthfitness-ui-statsd",
+    sdk_version: "module_current",
+    min_sdk_version: "34",
+    srcs: [
+        ":statslog-healthfitness-ui-java-gen",
+    ],
+    libs: [
+        // needed for restricted atoms
+        "androidx.annotation_annotation",
+        // To add StatsLog as a dependency of the generated file.
+        "framework-statsd.stubs.module_lib",
+    ],
+        apex_available: [
+            "com.android.healthfitness",
+        ],
+}
+
+
+android_app_certificate {
+    name: "com.android.healthconnect.controller.certificate",
+    certificate: "com.android.healthconnect.controller",
+}
+
+android_library {
+    name: "HealthConnectLibrary",
+    srcs: [":healthConnectController-sources"],
+    sdk_version: "system_current",
+    min_sdk_version: "34",
+    libs: [
+        "kotlin-annotations",
+        "framework-healthfitness",
+        "framework-configinfrastructure"
+    ],
+    static_libs: [
+        "com.google.android.material_material",
+        "HealthConnectPermissionsApis",
+        "HealthConnectMigrationApis",
+        "SettingsLibSettingsTheme",
+        "kotlin-stdlib",
+        "kotlinx-coroutines-android",
+        "androidx.navigation_navigation-common-ktx",
+        "androidx.navigation_navigation-fragment-ktx",
+        "androidx.navigation_navigation-runtime-ktx",
+        "androidx.navigation_navigation-ui-ktx",
+        "androidx.annotation_annotation",
+        "androidx.lifecycle_lifecycle-extensions",
+        "androidx.core_core-ktx",
+        "SettingsLibCollapsingToolbarBaseActivity",
+        "SettingsLibFooterPreference",
+        "SettingsLibHelpUtils",
+        "SettingsLibTopIntroPreference",
+        "SettingsLibMainSwitchPreference",
+        "SettingsLibAppPreference",
+        "SettingsLibActivityEmbedding",
+        "SettingsLibSettingsSpinner",
+        "androidx.core_core",
+        "guava",
+        "hilt_android",
+        "healthfitness-ui-statsd",
+    ],
+    kotlincflags: ["-Xjvm-default=all"],
+    apex_available: ["com.android.healthfitness"],
+}
+
+android_app {
+    name: "HealthConnectController",
+    srcs: ["src/**/HealthConnectApplication.kt"],
+    sdk_version: "module_current",
+    min_sdk_version: "34",
+    privileged: true,
+    privapp_allowlist: ":privapp_allowlist_com.android.healthconnect.controller.xml",
+    rename_resources_package: false,
+    updatable: true,
+    additional_manifests: [
+      "HealthPermissionsManifest.xml",
+      "ManageHealthPermissionsManifest.xml",
+      "ManageHealthDataManifest.xml",
+      "StartOnboardingManifest.xml"
+    ],
+    certificate: ":com.android.healthconnect.controller.certificate",
+    static_libs: [
+        "HealthConnectLibrary",
+        "HealthConnectPermissionsApis",
+        "HealthConnectMigrationApis",
+        "hilt_android"
+    ],
+    libs: [
+        "framework-healthfitness"
+    ],
+    apex_available: ["com.android.healthfitness"],
+}

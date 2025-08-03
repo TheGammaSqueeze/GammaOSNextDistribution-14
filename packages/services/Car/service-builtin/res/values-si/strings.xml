@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2015 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="car_permission_label_bind_projection_service" msgid="6976251734714662552">"ප්‍රක්ෂේපණ සේවාවකට බඳින්න"</string>
+    <string name="car_permission_desc_bind_projection_service" msgid="4610418233070289810">"ප්‍රක්ෂේපණ සේවාවක ඉහළ-මට්ටමේ අතුරු මුහුණතට බැඳීමට ධාරකයට ඉඩ දෙයි. සාමාන්‍ය යෙදුම්වලට කිසි විටෙක අවශ්‍ය නොවෙයි."</string>
+    <string name="car_permission_label_bind_vms_client" msgid="1298928874094319701">"VMS සේවාලාභී සේවාව"</string>
+    <string name="car_permission_desc_bind_vms_client" msgid="7758142590449847602">"VMS සේවාලාභීන්ට බඳින්න"</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="6723392540805279625">"උපකරණ කලප් විදහීම"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="2583711303360788080">"උපකරණ කලප් දත්ත ලබා ගන්න"</string>
+    <string name="car_permission_label_bind_input_service" msgid="6647238478703096557">"මෝටර් රථ ආදාන සේවය"</string>
+    <string name="car_permission_desc_bind_input_service" msgid="8460218104132496613">"ආදාන සිදුවීම් පරිහරණ කරන්න"</string>
+    <string name="activity_blocked_text" msgid="5991043857905412794">"රිය පදවන අතරතුර ඔබට මෙම විශේෂාංගය භාවිත කළ නොහැකිය"</string>
+    <string name="exit_button_message" msgid="5375678491245394542">"ආරක්‍ෂිත යෙදුම් විශේෂාංග සමඟ පටන් ගැනීමට, <xliff:g id="EXIT_BUTTON">%s</xliff:g> තෝරන්න."</string>
+    <string name="exit_button" msgid="3491899413031549265">"ආපසු"</string>
+    <string name="exit_button_close_application" msgid="5153716684207539041">"යෙදුම වසන්න"</string>
+    <string name="exit_button_go_back" msgid="6921595432375141935">"ආපසු"</string>
+    <string name="importance_default" msgid="8017186728206153704">"පෙරනිමි වැදගත්කම"</string>
+    <string name="importance_high" msgid="3393374688015554727">"ඉහළ වැදගත්කමකින් යුතු"</string>
+    <string name="android_system_label" msgid="9209428539477894959">"Android පද්ධතිය"</string>
+    <string name="factory_reset_notification_title" msgid="6177770995437355965">"කර්මාන්තශාලා යළි සැකසීම අවශ්‍යයි"</string>
+    <string name="factory_reset_notification_text" msgid="6051393302193696102">"තොරතුරු විනෝදාස්වාද පද්ධතියේ සියලු දත්ත මකනු ඇත. යළි සැකසීමෙන් පසුව, ඔබට නව පැතිකඩක් පිහිටුවිය හැකිය."</string>
+    <string name="factory_reset_notification_button" msgid="6926734587145351076">"තව"</string>
+    <string name="factory_reset_warning" msgid="8463356329619149262">"ඔබගේ උපාංගය මකා දැමෙනු ඇත"</string>
+    <string name="factory_reset_message" msgid="1972536809866779972">"පරිපාලක යෙදුම භාවිතා කළ නොහැකිය. ඔබගේ උපාංගය දැන් මකා දමනු ඇත.\n\nඔබට ප්‍රශ්න තිබේ නම්, ඔබගේ සංවිධානයේ පරිපාලකට අමතන්න."</string>
+    <string name="resource_overuse_notification_title" msgid="1622015333965744463">"ඔබගේ පද්ධති කාර්යසාධනයට <xliff:g id="ID_1">^1</xliff:g> බලපාමින් තිබේ"</string>
+    <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"මෙම යෙදුම පසුබිමේ ධාවනය වීම වළක්වා ඇත. පසුබිම් භාවිතය දිගටම කරගෙන යාමට යෙදුමට ප්‍රමුඛත්වය දෙන්න."</string>
+    <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"වසන්න"</string>
+    <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"යෙදුම ප්‍රමුඛ කරන්න"</string>
+</resources>

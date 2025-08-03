@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2022-2024 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="qr_upi_title">Valitse maksusovellus</string>
+    <string name="qr_upi_content_description">Avaa UPI-linkki oikeaan maksusovellukseen, jos tuettu.</string>
+    <string name="photo_ffc_mirror_title">Peilaa etukamera</string>
+    <string name="photo_ffc_mirror_summary">Tallenna etukameran kuvat kuten ne näkyvät esikatselussa.</string>
+    <string name="video_mirror_mode_title">Käytä videon peilausta</string>
+    <string name="edge_mode_title">Terävöitys</string>
+    <string name="edge_mode_summary">Reunojen parannus terävöittää ja tarkentaa kaapatun kuvan yksityiskohtia.</string>
+    <string name="edge_mode_default">Oletus</string>
+    <string name="edge_mode_off">Ei käytössä</string>
+    <string name="edge_mode_fast">Nopea</string>
+    <string name="edge_mode_high_quality">Korkealaatuinen</string>
+    <string name="noise_reduction_mode_title">Kohinan poisto</string>
+    <string name="noise_reduction_mode_default">Oletus</string>
+    <string name="noise_reduction_mode_off">Ei käytössä</string>
+    <string name="noise_reduction_mode_fast">Nopea</string>
+    <string name="noise_reduction_mode_high_quality">Korkealaatuinen</string>
+    <string name="shading_mode_default">Oletus</string>
+    <string name="shading_mode_off">Ei käytössä</string>
+    <string name="shading_mode_fast">Nopea</string>
+    <string name="shading_mode_high_quality">Korkealaatuinen</string>
+    <string name="color_correction_aberration_mode_default">Oletus</string>
+    <string name="color_correction_aberration_mode_off">Ei käytössä</string>
+    <string name="color_correction_aberration_mode_fast">Nopea</string>
+    <string name="color_correction_aberration_mode_high_quality">Korkealaatuinen</string>
+    <string name="distortion_correction_mode_default">Oletus</string>
+    <string name="distortion_correction_mode_off">Ei käytössä</string>
+    <string name="distortion_correction_mode_fast">Nopea</string>
+    <string name="distortion_correction_mode_high_quality">Korkealaatuinen</string>
+    <string name="hot_pixel_mode_default">Oletus</string>
+    <string name="hot_pixel_mode_off">Ei käytössä</string>
+    <string name="hot_pixel_mode_fast">Nopea</string>
+    <string name="hot_pixel_mode_high_quality">Korkealaatuinen</string>
+    <string name="video_mirror_mode_on_ffc_only">Vain etukamera</string>
+</resources>

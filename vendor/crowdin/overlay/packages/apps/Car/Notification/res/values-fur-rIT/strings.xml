@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (C) 2018 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label">Gjestôr notifichis automobil</string>
+    <string name="assist_action_play_label">Riprodûs</string>
+    <string name="assist_action_reply_label">Rispuint</string>
+    <string name="action_mute_short">Cidine</string>
+    <string name="action_mute_long">Cidine conversazion</string>
+    <string name="action_unmute_short">Ative il sun</string>
+    <string name="action_unmute_long">Ative il sun ae conversazion</string>
+    <string name="action_canned_reply">\"In chest moment o stoi vuidant.\"</string>
+    <string name="canned_reply_message">In chest moment o stoi vuidant.</string>
+    <string name="toast_message_sent_success">Messaç mandât cun scès.</string>
+    <string name="notification_service_label">Servizi di scolte des notifichis de auto</string>
+    <string name="notifications">Centri notifichis</string>
+    <string name="clear_all">Nete dut</string>
+    <string name="ellipsized_string">…</string>
+    <string name="show_more">Mostre altri</string>
+    <string name="notification_header">Notifichis</string>
+    <string name="notification_recents">Resints</string>
+    <string name="notification_older">Notifichis mancul resintis</string>
+    <string name="empty_notification_header">Nissune notifiche</string>
+    <string name="collapse_group">Mostre di mancul</string>
+    <string name="show_more_from_app">Altris <xliff:g id="count">%1$d</xliff:g> di <xliff:g id="app">%2$s</xliff:g></string>
+    <string name="show_count_more">Mostre ancjemò <xliff:g id="count">%d</xliff:g></string>
+    <plurals name="message_unshown_count">
+        <item quantity="one"><xliff:g id="count">%d</xliff:g> altri messaç</item>
+        <item quantity="other"><xliff:g id="count">%d</xliff:g> altris messaçs</item>
+    </plurals>
+    <plurals name="restricted_numbered_message_content">
+        <item quantity="one"><xliff:g id="count">%d</xliff:g> gnûf messaç</item>
+        <item quantity="other"><xliff:g id="count">%d</xliff:g> gnûfs messaçs</item>
+    </plurals>
+    <string name="see_more_message">Viôt di plui</string>
+    <string name="restricted_hun_message_content">Gnûf messaç</string>
+    <string name="manage_text">Gjestìs</string>
+    <string name="category_car_emergency">car_emergency</string>
+    <string name="category_navigation">navigation</string>
+    <string name="category_call">call</string>
+    <string name="category_message">msg</string>
+    <string name="pkg_car_dialer">com.android.car.dialer</string>
+    <string name="hun_suppression_channel_name">Sopression notifichis in risalt</string>
+    <string name="hun_suppression_notification_title_park">Tegniti inzornât su lis ultimis gnovis</string>
+    <string name="hun_suppression_notification_title_drive">Concentriti inte vuide</string>
+    <string name="hun_suppression_notification_description">Cualchi gnove notifiche e ven salvade tal Centri notifichis</string>
+</resources>

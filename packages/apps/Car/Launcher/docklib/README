@@ -1,0 +1,12 @@
+# AAOS Dock
+
+This library is to provide dock functionality in AAOS.
+In this reference the dock exists in SystemUI in system bar but the purpose of this library is to
+allow dock to be placed on any surface.
+
+This library provides:
+- views and controllers
+- Broadcast receiver and permissions
+
+This library should only be used by one package in the system. This means there cannot be more than
+one dock in the system.

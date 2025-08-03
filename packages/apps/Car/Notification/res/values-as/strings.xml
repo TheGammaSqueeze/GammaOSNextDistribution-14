@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    Copyright (C) 2018 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label" msgid="5911862216123243843">"গাড়ীৰ জাননীৰ পৰিচালক"</string>
+    <string name="assist_action_play_label" msgid="6278705468288338172">"প্লে\' কৰক"</string>
+    <string name="assist_action_reply_label" msgid="6946087036560525072">"উত্তৰ দিয়ক"</string>
+    <string name="action_mute_short" msgid="5239851786101022633">"মিউট কৰক"</string>
+    <string name="action_mute_long" msgid="6846675719189989477">"বার্তালাপ মিউট কৰক"</string>
+    <string name="action_unmute_short" msgid="7157822835069715986">"আনমিউট কৰক"</string>
+    <string name="action_unmute_long" msgid="22482625837159466">"বার্তালাপ আনমিউট কৰক"</string>
+    <string name="action_canned_reply" msgid="4045960823021872834">"\"মই গাড়ী চলাই আছোঁ।\""</string>
+    <string name="canned_reply_message" msgid="7959257272917598063">"মই এতিয়া গাড়ী চলাই আছোঁ।"</string>
+    <string name="toast_message_sent_success" msgid="1159956191974273064">"বাৰ্তা সফলভাৱে পঠিওৱা হ’ল।"</string>
+    <string name="notification_service_label" msgid="7512186049723777468">"গাড়ীৰ জাননী শুনা সেৱা"</string>
+    <string name="notifications" msgid="2865534625906329283">"জাননীৰ কেন্দ্ৰ"</string>
+    <string name="clear_all" msgid="1845314281571237722">"সকলো মচক"</string>
+    <string name="ellipsized_string" msgid="6993649229498857557">"…"</string>
+    <string name="show_more" msgid="7291378544926443344">"অধিক দেখুৱাওক"</string>
+    <string name="notification_header" msgid="324550431063568049">"জাননীসমূহ"</string>
+    <string name="notification_recents" msgid="5855769440781958546">"শেহতীয়া"</string>
+    <string name="notification_older" msgid="8162161020296499690">"পুৰণি জাননী"</string>
+    <string name="empty_notification_header" msgid="4928379791607839720">"কোনো জাননী নাই"</string>
+    <string name="collapse_group" msgid="3487426973871208501">"কমকৈ দেখুৱাওক"</string>
+    <string name="show_more_from_app" msgid="4270626118092846628">"<xliff:g id="APP">%2$s</xliff:g>ৰ পৰা আৰু <xliff:g id="COUNT">%1$d</xliff:g> টা"</string>
+    <string name="show_count_more" msgid="480555295700318609">"আৰু <xliff:g id="COUNT">%d</xliff:g>টা দেখুৱাওক"</string>
+    <plurals name="message_unshown_count" formatted="false" msgid="2454776257150137504">
+      <item quantity="one">আৰু <xliff:g id="COUNT_1">%d</xliff:g> টা বাৰ্তা</item>
+      <item quantity="other">আৰু <xliff:g id="COUNT_1">%d</xliff:g> টা বাৰ্তা</item>
+    </plurals>
+    <plurals name="restricted_numbered_message_content" formatted="false" msgid="232398073855919710">
+      <item quantity="one"><xliff:g id="COUNT_1">%d</xliff:g> টা নতুন বাৰ্তা</item>
+      <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> টা নতুন বাৰ্তা</item>
+    </plurals>
+    <string name="see_more_message" msgid="6343183827924395955">"অধিক চাওক"</string>
+    <string name="restricted_hun_message_content" msgid="631111937988857716">"নতুন বাৰ্তা"</string>
+    <string name="manage_text" msgid="4225197445283791757">"পৰিচালনা কৰক"</string>
+    <string name="category_navigation" msgid="4406139232918521087">"নেভিগেশ্বন"</string>
+    <string name="category_call" msgid="2249490790700877973">"কল কৰক"</string>
+    <string name="category_message" msgid="451360226248504859">"বাৰ্তা"</string>
+    <string name="hun_suppression_channel_name" msgid="8298850157350352525">"সতৰ্ক হওক সুবিধাটো জোৰকৈ অফ কৰা হৈছে"</string>
+    <string name="hun_suppression_notification_title_park" msgid="2790860076784227523">"শেহতীয়া পৰিস্থিতিৰ বিষয়ে অৱগত হৈ থাকক"</string>
+    <string name="hun_suppression_notification_title_drive" msgid="4403363470548899844">"গাড়ী চলোৱাত মনোনিৱেশ কৰক"</string>
+    <string name="hun_suppression_notification_description" msgid="5269238832987802104">"কিছুমান নতুন জাননী জাননী কেন্দ্ৰত ছেভ কৰা হৈছে"</string>
+</resources>

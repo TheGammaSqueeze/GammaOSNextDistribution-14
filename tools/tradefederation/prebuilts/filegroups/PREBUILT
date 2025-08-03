@@ -1,0 +1,7 @@
+The object in this prebuilt directory can be built from
+        platform/tools/tradefederation/core
+        platform/tools/tradefederation/contrib
+	platform/test/suite
+
+Files are obtained from git_main:test_suites_x86_64-trunk_staging tradefed.zip
+See version.txt for build id.

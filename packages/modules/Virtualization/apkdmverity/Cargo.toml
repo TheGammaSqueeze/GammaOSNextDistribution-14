@@ -1,0 +1,20 @@
+[package]
+name = "apkdmverity"
+version = "0.1.0"
+authors = ["Jiyong Park <jiyong@google.com>"]
+edition = "2018"
+
+[dependencies]
+anyhow = "1.0"
+scopeguard = "1.1"
+bitflags = "1.2"
+clap = "2.33"
+libc = "0.2"
+nix = "0.21"
+num-derive = "0.3"
+num-traits = "0.2"
+uuid = { version = "0.8", features = ["v1"] }
+data_model = "0.1"
+
+[dev-dependencies]
+tempfile = "3.2"

@@ -1,0 +1,20 @@
+syntax = "proto2";
+
+package permission_test;
+
+option java_package = "com.google.android.chre.nanoapp.proto";
+option java_outer_classname = "PermissionTest";
+
+// Nanoapp message type can be either host to chre (H2C) or chre to host (C2H)
+enum MessageType {
+  // Reserved for corrupted messages
+  UNDEFINED = 0;
+
+  // H2C: A message to start the test. No payload.
+  TEST_COMMAND = 1;
+
+  // C2H: A message indicating the test result. The ping test nanoapp will only
+  // use this message to report a failure.
+  // Payload must be chre_test_common.TestResult.
+  TEST_RESULT = 2;
+}

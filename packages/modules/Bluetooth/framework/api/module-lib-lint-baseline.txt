@@ -1,0 +1,53 @@
+// Baseline format: 1.0
+BroadcastBehavior: android.bluetooth.BluetoothAdapter#ACTION_BLE_STATE_CHANGED:
+    Field 'ACTION_BLE_STATE_CHANGED' is missing @BroadcastBehavior
+BroadcastBehavior: android.bluetooth.BluetoothAdapter#ACTION_DISCOVERY_FINISHED:
+    Field 'ACTION_DISCOVERY_FINISHED' is missing @BroadcastBehavior
+BroadcastBehavior: android.bluetooth.BluetoothAdapter#ACTION_DISCOVERY_STARTED:
+    Field 'ACTION_DISCOVERY_STARTED' is missing @BroadcastBehavior
+BroadcastBehavior: android.bluetooth.BluetoothAdapter#ACTION_LOCAL_NAME_CHANGED:
+    Field 'ACTION_LOCAL_NAME_CHANGED' is missing @BroadcastBehavior
+BroadcastBehavior: android.bluetooth.BluetoothAdapter#ACTION_SCAN_MODE_CHANGED:
+    Field 'ACTION_SCAN_MODE_CHANGED' is missing @BroadcastBehavior
+BroadcastBehavior: android.bluetooth.BluetoothAdapter#ACTION_STATE_CHANGED:
+    Field 'ACTION_STATE_CHANGED' is missing @BroadcastBehavior
+BroadcastBehavior: android.bluetooth.BluetoothDevice#ACTION_ACL_CONNECTED:
+    Field 'ACTION_ACL_CONNECTED' is missing @BroadcastBehavior
+BroadcastBehavior: android.bluetooth.BluetoothDevice#ACTION_ACL_DISCONNECTED:
+    Field 'ACTION_ACL_DISCONNECTED' is missing @BroadcastBehavior
+BroadcastBehavior: android.bluetooth.BluetoothDevice#ACTION_ACL_DISCONNECT_REQUESTED:
+    Field 'ACTION_ACL_DISCONNECT_REQUESTED' is missing @BroadcastBehavior
+BroadcastBehavior: android.bluetooth.BluetoothDevice#ACTION_ALIAS_CHANGED:
+    Field 'ACTION_ALIAS_CHANGED' is missing @BroadcastBehavior
+BroadcastBehavior: android.bluetooth.BluetoothDevice#ACTION_BATTERY_LEVEL_CHANGED:
+    Field 'ACTION_BATTERY_LEVEL_CHANGED' is missing @BroadcastBehavior
+BroadcastBehavior: android.bluetooth.BluetoothDevice#ACTION_BOND_STATE_CHANGED:
+    Field 'ACTION_BOND_STATE_CHANGED' is missing @BroadcastBehavior
+BroadcastBehavior: android.bluetooth.BluetoothDevice#ACTION_CLASS_CHANGED:
+    Field 'ACTION_CLASS_CHANGED' is missing @BroadcastBehavior
+BroadcastBehavior: android.bluetooth.BluetoothDevice#ACTION_CONNECTION_ACCESS_CANCEL:
+    Field 'ACTION_CONNECTION_ACCESS_CANCEL' is missing @BroadcastBehavior
+BroadcastBehavior: android.bluetooth.BluetoothDevice#ACTION_CONNECTION_ACCESS_REPLY:
+    Field 'ACTION_CONNECTION_ACCESS_REPLY' is missing @BroadcastBehavior
+BroadcastBehavior: android.bluetooth.BluetoothDevice#ACTION_CONNECTION_ACCESS_REQUEST:
+    Field 'ACTION_CONNECTION_ACCESS_REQUEST' is missing @BroadcastBehavior
+BroadcastBehavior: android.bluetooth.BluetoothDevice#ACTION_FOUND:
+    Field 'ACTION_FOUND' is missing @BroadcastBehavior
+BroadcastBehavior: android.bluetooth.BluetoothDevice#ACTION_NAME_CHANGED:
+    Field 'ACTION_NAME_CHANGED' is missing @BroadcastBehavior
+BroadcastBehavior: android.bluetooth.BluetoothDevice#ACTION_PAIRING_CANCEL:
+    Field 'ACTION_PAIRING_CANCEL' is missing @BroadcastBehavior
+BroadcastBehavior: android.bluetooth.BluetoothDevice#ACTION_PAIRING_REQUEST:
+    Field 'ACTION_PAIRING_REQUEST' is missing @BroadcastBehavior
+BroadcastBehavior: android.bluetooth.BluetoothDevice#ACTION_SWITCH_BUFFER_SIZE:
+    Field 'ACTION_SWITCH_BUFFER_SIZE' is missing @BroadcastBehavior
+BroadcastBehavior: android.bluetooth.BluetoothDevice#ACTION_UUID:
+    Field 'ACTION_UUID' is missing @BroadcastBehavior
+
+
+RequiresPermission: android.bluetooth.BluetoothA2dp#setCodecConfigPreference(android.bluetooth.BluetoothDevice, android.bluetooth.BluetoothCodecConfig):
+    Method 'setCodecConfigPreference' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.bluetooth.BluetoothAdapter#getAddress():
+    Method 'getAddress' documentation mentions permissions without declaring @RequiresPermission
+RequiresPermission: android.bluetooth.BluetoothDevice#setAlias(String):
+    Method 'setAlias' documentation mentions permissions already declared by @RequiresPermission

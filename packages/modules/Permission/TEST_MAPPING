@@ -1,0 +1,72 @@
+{
+  "presubmit" : [
+    {
+      "name" : "PermissionApexTests"
+    }
+  ],
+  "carpermission-presubmit" : [
+    {
+      "name" : "CtsPermissionUiTestCases",
+      "options": [
+        {
+          "exclude-annotation": "androidx.test.filters.FlakyTest"
+        }
+      ]
+    }
+  ],
+  "carpermission-postsubmit" : [
+    {
+      "name" : "CtsPermissionUiTestCases",
+      "options": [
+        {
+          "include-annotation": "androidx.test.filters.FlakyTest"
+        }
+      ]
+    }
+  ],
+  "alltests" : [
+    {
+      "name" : "PermissionControllerMockingTests"
+    },
+    {
+      "name" : "CtsPermissionTestCases"
+    },
+    {
+      "name" : "CtsPermissionUiTestCases"
+    },
+    {
+      "name" : "CtsPermissionPolicyTestCases"
+    },
+    {
+      "name" : "CtsAppOpsTestCases"
+    },
+    {
+      "name" : "CtsAppOps2TestCases"
+    },
+    {
+      "name": "PermissionControllerOutOfProcessTests"
+    },
+    {
+      "name" : "CtsRoleTestCases"
+    },
+    {
+      "name" : "CtsPermissionMultiUserTestCases"
+    },
+    {
+      "name": "CtsBackupTestCases",
+      "options": [
+        {
+          "include-filter": "android.backup.cts.PermissionTest"
+        }
+      ]
+    },
+    {
+      "name": "CtsDevicePolicyManagerTestCases",
+      "options": [
+        {
+          "include-annotation": "com.android.cts.devicepolicy.annotations.PermissionsTest"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2021 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="whichApplication">Complete la azion doprant</string>
+    <string name="whichApplicationNamed">Complete la azion doprant <xliff:g id="app" example="YouTube">%1$s</xliff:g></string>
+    <string name="whichApplicationLabel">Complete la azion</string>
+    <string name="whichViewApplication">Vierç cun</string>
+    <string name="whichViewApplicationNamed">Vierç cun <xliff:g id="app" example="YouTube">%1$s</xliff:g></string>
+    <string name="whichViewApplicationLabel">Vierç</string>
+    <string name="whichOpenHostLinksWith">Vierç i colegaments <xliff:g id="host" example="mail.google.com">%1$s</xliff:g> cun</string>
+    <string name="whichOpenLinksWith">Vierç i colegaments cun</string>
+    <string name="whichOpenLinksWithApp">Vierç i colegaments cun <xliff:g id="application" example="Chrome">%1$s</xliff:g></string>
+    <string name="whichOpenHostLinksWithApp">Vierç i colegaments <xliff:g id="host" example="mail.google.com">%1$s</xliff:g> cun <xliff:g id="application" example="Chrome">%2$s</xliff:g></string>
+    <string name="whichGiveAccessToApplicationLabel">Consint acès</string>
+    <string name="whichEditApplication">Modifiche cun</string>
+    <string name="whichEditApplicationNamed">Modifiche cun <xliff:g id="app" example="YouTube">%1$s</xliff:g></string>
+    <string name="whichEditApplicationLabel">Modifiche</string>
+    <string name="whichSendApplication">Condivît</string>
+    <string name="whichSendApplicationNamed">Condivît cun <xliff:g id="app" example="YouTube">%1$s</xliff:g></string>
+    <string name="whichSendApplicationLabel">Condivît</string>
+    <string name="whichSendToApplication">Mande doprant</string>
+    <string name="whichSendToApplicationNamed">Mande doprant <xliff:g id="app" example="YouTube">%1$s</xliff:g></string>
+    <string name="whichSendToApplicationLabel">Mande</string>
+    <string name="whichHomeApplication">Selezione une aplicazion pal inizi</string>
+    <string name="whichHomeApplicationNamed">Dopre <xliff:g id="app" example="YouTube">%1$s</xliff:g> tant che pagjine di inizi</string>
+    <string name="whichHomeApplicationLabel">Cature imagjin</string>
+    <string name="whichImageCaptureApplication">Cature imagjin cun</string>
+    <string name="whichImageCaptureApplicationNamed">Cature imagjin cun <xliff:g id="app" example="YouTube">%1$s</xliff:g></string>
+    <string name="whichImageCaptureApplicationLabel">Cature imagjin</string>
+    <string name="use_a_different_app">Dopre une altre aplicazion</string>
+    <string name="chooseActivity">Sielç une azion</string>
+    <string name="noApplications">Nissune aplicazion e pues eseguî cheste azion.</string>
+    <string name="forward_intent_to_owner">Tu stâs doprant cheste aplicazion fûr dal to profîl di lavôr</string>
+    <string name="forward_intent_to_work">Tu stâs doprant cheste aplicazion tal to profîl di lavôr</string>
+    <string name="activity_resolver_use_always">Simpri</string>
+    <string name="activity_resolver_use_once">Dome une volte</string>
+    <string name="activity_resolver_work_profiles_support"><xliff:g id="app" example="YouTube">%1$s</xliff:g> nol supuarte il profîl di lavôr</string>
+    <string name="pin_specific_target">Fisse <xliff:g id="label" example="Tweet">%1$s</xliff:g></string>
+    <string name="unpin_specific_target">Mole <xliff:g id="label" example="Tweet">%1$s</xliff:g></string>
+    <string name="screenshot_edit">Modifiche</string>
+    <string name="other_files">{count, plural,
+        one {}=1    {+ # file}
+        other {+ # files}
+    }
+    </string>
+    <string name="more_files">{count, plural,
+        one {}=1    {+ # altri file}
+        other {+ altris # files}
+        }
+    </string>
+    <string name="sharing_text">Condivision dal test</string>
+    <string name="sharing_link">Condivision dal colegament</string>
+    <string name="sharing_images">{count, plural,
+        one {}=1    {Condivision de imagjin}
+        other {Condivision di # imagjins}
+    }
+    </string>
+    <string name="sharing_videos">{count, plural,
+        one {}=1    {Daûr a condividi un video}
+        other {Daûr a condividi # videos}
+        }
+    </string>
+    <string name="sharing_files">{count, plural,
+        one {}=1    {Daûr a condividi # file}
+        other {Daûr a condividi # files}
+        }
+    </string>
+    <string name="sharing_images_with_text">{count, plural,
+        one {}=1    {Daûr a condividi une imagjin cun test}
+        other {Daûr a condividi # imagjins cun test}
+        }
+    </string>
+    <string name="sharing_images_with_link">{count, plural,
+        one {}=1    {Daûr a condividi une imagjin cun colegament}
+        other {Daûr a condividi # imagjins cun colegament}
+        }
+    </string>
+    <string name="sharing_videos_with_text">{count, plural,
+        one {}=1    {Daûr a condividi un video cun test}
+        other {Daûr a condividi # videos cun test}
+        }
+    </string>
+    <string name="sharing_videos_with_link">{count, plural,
+        one {}=1    {Daûr a condividi un video cun colegament}
+        other {Daûr a condividi # videos cun colegament}
+        }
+    </string>
+    <string name="sharing_files_with_text">{count, plural,
+        one {}=1    {Daûr a condividi un file cun test}
+        other {Daûr a condividi # files cun test}
+        }
+    </string>
+    <string name="sharing_files_with_link">{count, plural,
+        one {}=1    {Daûr a condividi un file cun colegament}
+        other {Daûr a condividi # files cun colegament}
+        }
+    </string>
+    <string name="sharing_album">Daûr a condividi un album</string>
+    <string name="sharing_images_only">{count, plural,
+        one {}=1    {Nome imagjin}
+        other {Nome imagjins}
+        }
+    </string>
+    <string name="sharing_videos_only">{count, plural,
+        one {}=1    {Nome video}
+        other {Nome videos}
+        }
+    </string>
+    <string name="sharing_files_only">{count, plural,
+        one {}=1    {Nome file}
+        other {Nome files}
+        }
+    </string>
+    <string name="image_preview_a11y_description">Miniature di anteprime de imagjin</string>
+    <string name="video_preview_a11y_description">Miniature di anteprime dal video</string>
+    <string name="file_preview_a11y_description">Miniature di anteprime dal file</string>
+    <string name="chooser_no_direct_share_targets">Nissune persone conseade pe condivision</string>
+    <string name="usb_device_resolve_prompt_warn">A cheste aplicazion no je stade dade la autorizazion par regjistrâ, ma e podarès caturâ audio midiant chest dispositîf USB.</string>
+    <string name="resolver_personal_tab">Personâl</string>
+    <string name="resolver_work_tab">Lavôr</string>
+    <string name="resolver_private_tab">Privât</string>
+    <string name="resolver_personal_tab_accessibility">Viodude personâl</string>
+    <string name="resolver_work_tab_accessibility">Viodude di lavôr</string>
+    <string name="resolver_private_tab_accessibility">Viodude privade</string>
+    <string name="resolver_cross_profile_blocked">Blocâts dal tô aministradôr di IT</string>
+    <string name="resolver_cant_share_with_work_apps_explanation">Nol è pussibil condividi chest contignût cu lis aplicazions di lavôr</string>
+    <string name="resolver_cant_access_work_apps_explanation">Nol è pussibil vierzi chest contignût cu lis aplicazions di lavôr</string>
+    <string name="resolver_cant_share_with_personal_apps_explanation">Nol è pussibil condividi chest contignût cu lis aplicazions personâls</string>
+    <string name="resolver_cant_access_personal_apps_explanation">Nol è pussibil vierzi chest contignût cu lis aplicazions personâls</string>
+    <string name="resolver_turn_on_work_apps">Lis aplicazions di lavôr a son in pause</string>
+    <string name="resolver_switch_on_work">Termine pause</string>
+    <string name="resolver_no_work_apps_available">Nissune aplicazion di lavôr</string>
+    <string name="resolver_no_personal_apps_available">Nissune aplicazion personâl</string>
+    <string name="miniresolver_open_in_personal">Vierzi <xliff:g id="app" example="YouTube">%s</xliff:g> tal to profîl personâl?</string>
+    <string name="miniresolver_open_in_work">Vierzi <xliff:g id="app" example="YouTube">%s</xliff:g> tal to profîl di lavôr?</string>
+    <string name="miniresolver_use_personal_browser">Dopre il navigadôr personâl</string>
+    <string name="miniresolver_use_work_browser">Dopre il navigadôr di lavôr</string>
+    <string name="exclude_text">Esclût test</string>
+    <string name="include_text">Inclût test</string>
+    <string name="exclude_link">Esclût colegament</string>
+    <string name="include_link">Inclût colegament</string>
+    <string name="pinned">Fissât</string>
+</resources>

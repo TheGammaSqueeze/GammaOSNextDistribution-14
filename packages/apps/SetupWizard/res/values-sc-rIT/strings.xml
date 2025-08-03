@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2013-2015 The CyanogenMod Project
+     SPDX-FileCopyrightText: 2017-2024 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="skip">Brinca</string>
+    <string name="start">Incumintza</string>
+    <string name="done">Fatu</string>
+    <string name="ok">AB</string>
+    <string name="setup_managed_profile_welcome_message">Cunfigura su profilu de traballu tuo</string>
+    <string name="setup_locale">Limba</string>
+    <string name="intro_restore_subtitle">Si tenes una còpia de seguresa cun Seedvault dae <xliff:g id="name" example="LineageOS">%s</xliff:g> o cale si siat àteru sistema operativu, dda podes recuperare inoghe.</string>
+    <string name="setup_theme">Tema</string>
+    <string name="theme_summary">Su tema iscuru impreat un\'isfundu nieddu pro agiudare chi sa bateria abarret biva prus a longu in tzertos ischermos</string>
+    <string name="dark">Iscuru</string>
+    <string name="light">Craru</string>
+</resources>

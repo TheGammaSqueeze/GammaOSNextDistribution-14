@@ -1,0 +1,97 @@
+// Copyright (C) 2019 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_team: "trendy_team_updatable_sdk_apis",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+apex_test {
+    name: "test_com.android.sdkext",
+    defaults: ["com.android.sdkext-defaults"],
+    bootclasspath_fragments: ["test_com.android.sdkext-bootclasspath-fragment"],
+    manifest: "test_manifest.json",
+    prebuilts: [
+        "sdkinfo_45",
+        "test_extensions_db",
+    ],
+    file_contexts: ":com.android.sdkext-file_contexts",
+    installable: false, // Should never be installed on the systemimage
+    multilib: {
+        prefer32: {
+            binaries: [
+                "derive_classpath_prefer32",
+                "derive_sdk_prefer32",
+            ],
+        },
+    },
+    // The automated test infra ends up building this apex for 64+32-bit and
+    // then installs it on a 32-bit-only device. Work around this weirdness
+    // by preferring 32-bit.
+    compile_multilib: "prefer32",
+}
+
+// Encapsulate the contributions made by the test_com.android.sdkext to the
+// bootclasspath.
+bootclasspath_fragment_test {
+    name: "test_com.android.sdkext-bootclasspath-fragment",
+    contents: [
+        "framework-sdkextensions",
+        "test_framework-sdkextensions",
+    ],
+    apex_available: ["test_com.android.sdkext"],
+
+    // The bootclasspath_fragments that provide APIs on which this depends.
+    fragments: [
+        {
+            apex: "com.android.art",
+            module: "art-bootclasspath-fragment",
+        },
+    ],
+}
+
+genrule {
+    name: "sdkinfo_45_src",
+    out: ["sdkinfo.pb"],
+    tools: ["gen_sdkinfo"],
+    cmd: "$(location) -v 45 -o $(out)",
+}
+
+prebuilt_etc {
+    name: "sdkinfo_45",
+    src: ":sdkinfo_45_src",
+    filename: "sdkinfo.pb",
+    installable: false,
+    visibility: [
+        ":__pkg__",
+        "//frameworks/av/apex/testing",
+    ],
+}
+
+genrule {
+    name: "test_extensions_db.pb",
+    srcs: ["test_extensions_db.textpb"],
+    out: ["test_extensions_db.pb"],
+    tools: ["gen_sdk"],
+    cmd: "$(location gen_sdk) --action print_binary --database $(location test_extensions_db.textpb) > $(out)",
+    visibility: ["//visibility:private"],
+}
+
+prebuilt_etc {
+    name: "test_extensions_db",
+    src: ":test_extensions_db.pb",
+    filename: "extensions_db.pb",
+    installable: false,
+    visibility: ["//visibility:private"],
+}

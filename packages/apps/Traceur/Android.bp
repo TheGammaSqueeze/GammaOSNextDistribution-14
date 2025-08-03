@@ -1,0 +1,39 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_app {
+    name: "Traceur",
+    platform_apis: true,
+    certificate: "platform",
+    optimize: {
+        shrink_resources: true,
+    },
+    static_libs: [
+        "androidx.leanback_leanback",
+        "androidx.leanback_leanback-preference",
+        "androidx.legacy_legacy-preference-v14",
+        "androidx.appcompat_appcompat",
+        "androidx.preference_preference",
+        "androidx.recyclerview_recyclerview",
+        "androidx.legacy_legacy-support-v4",
+        "TraceurCommon",
+    ],
+    resource_dirs: ["res"],
+    srcs: ["src/**/*.java"],
+    defaults: [
+        "SettingsLibDefaults",
+    ],
+}
+
+android_library {
+    name: "TraceurCommon",
+    static_libs: [
+        "androidx.appcompat_appcompat",
+        "androidx.legacy_legacy-support-v4",
+        "perfetto_config_java_protos",
+    ],
+    manifest: "AndroidManifest-common.xml",
+    resource_dirs: [],
+    srcs: ["src_common/**/*.java"],
+}

@@ -1,0 +1,13 @@
+<table>
+    <entry>
+        <rat>LTE</rat>
+        <band>27</band>
+        <powerCapDbm>-50</powerCapDbm>
+        <params>
+            <harmonicParams2g>
+                <N>3</N>
+                <overlap>100</overlap>
+            </harmonicParams2g>
+        </params>
+    </entry>
+</table>

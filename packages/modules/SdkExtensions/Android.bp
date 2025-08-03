@@ -1,0 +1,133 @@
+// Copyright (C) 2019 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_team: "trendy_team_updatable_sdk_apis",
+    default_visibility: [":__subpackages__"],
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+apex {
+    name: "com.android.sdkext",
+    defaults: ["com.android.sdkext-defaults"],
+    bootclasspath_fragments: ["com.android.sdkext-bootclasspath-fragment"],
+    binaries: [
+        "derive_classpath",
+        "derive_sdk",
+    ],
+    prebuilts: [
+        "current_sdkinfo",
+        "extensions_db",
+    ],
+    manifest: "manifest.json",
+}
+
+apex_defaults {
+    name: "com.android.sdkext-defaults",
+    defaults: ["r-launched-apex-module"],
+    prebuilts: [
+        "derive_classpath.rc",
+        "derive_sdk.rc",
+    ],
+    key: "com.android.sdkext.key",
+    certificate: ":com.android.sdkext.certificate",
+}
+
+apex_key {
+    name: "com.android.sdkext.key",
+    public_key: "com.android.sdkext.avbpubkey",
+    private_key: "com.android.sdkext.pem",
+}
+
+android_app_certificate {
+    name: "com.android.sdkext.certificate",
+    certificate: "com.android.sdkext",
+}
+
+sdk {
+    name: "sdkextensions-sdk",
+    apexes: [
+        // Adds exportable dependencies of the APEX to the sdk,
+        // e.g. *classpath_fragments.
+        "com.android.sdkext",
+    ],
+}
+
+// Encapsulate the contributions made by the com.android.sdkext to the bootclasspath.
+bootclasspath_fragment {
+    name: "com.android.sdkext-bootclasspath-fragment",
+    contents: ["framework-sdkextensions"],
+    apex_available: ["com.android.sdkext"],
+
+    // The bootclasspath_fragments that provide APIs on which this depends.
+    fragments: [
+        {
+            apex: "com.android.art",
+            module: "art-bootclasspath-fragment",
+        },
+    ],
+
+    hidden_api: {
+        // This module does not contain any split packages.
+        split_packages: [],
+
+        // The following packages and all their subpackages currently only
+        // contain classes from this bootclasspath_fragment. Listing a package
+        // here won't prevent other bootclasspath modules from adding classes in
+        // any of those packages but it will prevent them from adding those
+        // classes into an API surface, e.g. public, system, etc.. Doing so will
+        // result in a build failure due to inconsistent flags.
+        package_prefixes: [
+            "android.os.ext",
+        ],
+    },
+}
+
+filegroup {
+    name: "sdk-extensions-info",
+    srcs: ["sdk-extensions-info.xml"],
+    visibility: [
+        "//frameworks/base",
+        "//frameworks/base/api",
+    ],
+}
+
+java_test_host {
+    name: "sdkextensions_conformance_framework_tests",
+    static_libs: ["ClasspathFetcher"],
+    libs: [
+        "tradefed",
+        "truth",
+    ],
+    test_config: "sdkext-conformance-framework.xml",
+    test_suites: [
+        "mts",
+        "device-tests",
+    ],
+}
+
+// TODO: b/316383039 - Remove this module and the script when udc-mainline-prod
+// branch is removed.
+// The options passed to Metalava when generating API signature files and stubs
+// for SDK extension releases.
+genrule {
+    name: "sdkext-released-flagged-apis",
+    visibility: [
+        "//visibility:public",
+    ],
+    tool_files: ["keep-flagged-apis.sh"],
+    srcs: ["released-flagged-apis.txt"],
+    out: ["metalava-keep-flagged-apis.txt"],
+    cmd: "$(location keep-flagged-apis.sh) \"$(in)\" > \"$(out)\"",
+}

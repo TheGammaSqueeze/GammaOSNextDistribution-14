@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="content_description_overflow">Ещё</string>
+  <string name="snackbar_undo">ОТМЕНИТЬ</string>
+  <string name="ok_got_it">ОК</string>
+</resources>

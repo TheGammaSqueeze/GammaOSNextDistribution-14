@@ -1,0 +1,149 @@
+// Copyright (C) 2020 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_security_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_security_license"],
+}
+
+// List of clang-tidy checks that are reported as errors.
+// Please keep this list ordered lexicographically.
+tidy_errors = [
+  "cert-err34-c",
+  "google-default-arguments",
+  "google-runtime-int",
+  "google-runtime-member-string-references",
+  "misc-move-const-arg",
+  "misc-move-forwarding-reference",
+  "misc-unused-parameters",
+  "misc-unused-using-decls",
+  "misc-use-after-move",
+  "modernize-pass-by-value",
+  "performance-faster-string-find",
+  "performance-for-range-copy",
+  "performance-implicit-conversion-in-loop",
+  "performance-inefficient-vector-operation",
+  "performance-move-const-arg",
+  "performance-move-constructor-init",
+  "performance-noexcept-move-constructor",
+  "performance-unnecessary-value-param",
+]
+
+cc_defaults {
+  cpp_std: "experimental",
+  name: "odsign_flags_defaults",
+  cflags: [
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-Wno-unused-parameter",
+
+    // Some extra flags.
+    "-fstrict-aliasing",
+    "-Wredundant-decls",
+    "-Wshadow",
+    "-Wstrict-aliasing",
+    "-Wthread-safety",
+    "-Wthread-safety-negative",
+    "-Wunreachable-code",
+    "-Wunreachable-code-break",
+    "-Wunreachable-code-return",
+    "-Wunused",
+    "-Wused-but-marked-unused",
+  ],
+  tidy: true,
+  tidy_checks: tidy_errors,
+  tidy_checks_as_errors: tidy_errors,
+  tidy_flags: [
+    "-format-style=file",
+  ],
+}
+
+cc_library {
+  name: "libsigningutils",
+  defaults: [
+    "odsign_flags_defaults",
+  ],
+  cpp_std: "experimental",
+  srcs: [
+    "CertUtils.cpp",
+    "VerityUtils.cpp",
+  ],
+
+  static_libs: [
+    "libc++fs",
+  ],
+
+  shared_libs: [
+    "libbase",
+    "libcrypto",
+    "libcrypto_utils",
+    "libfsverity",
+    "libprotobuf-cpp-lite",
+    "libutils",
+  ],
+  export_include_dirs: ["include"],
+  recovery_available: true,
+}
+
+genrule {
+  name: "statslog_odsign.h",
+  tools: ["stats-log-api-gen"],
+  cmd: "$(location stats-log-api-gen) --header $(genDir)/statslog_odsign.h --module art --namespace art,metrics,statsd",
+  out: [
+    "statslog_odsign.h",
+  ],
+}
+
+cc_binary {
+  name: "odsign",
+  defaults: [
+    "odsign_flags_defaults",
+  ],
+  cpp_std: "experimental",
+  init_rc: ["odsign.rc"],
+  srcs: [
+    "KeystoreKey.cpp",
+    "KeystoreHmacKey.cpp",
+    "odsign_main.cpp",
+    "StatsReporter.cpp",
+  ],
+  generated_headers: ["statslog_odsign.h"],
+
+  header_libs: ["odrefresh_headers"],
+
+  static_libs: [
+    "libc++fs",
+    "libsigningutils",
+    "lib_odsign_proto",
+  ],
+  shared_libs: [
+    "android.system.keystore2-V1-cpp",
+    "android.hardware.security.keymint-V1-cpp",
+    "libbase",
+    "libbinder",
+    "libcrypto",
+    "libcrypto_utils",
+    "libfsverity",
+    "liblogwrap",
+    "libprotobuf-cpp-lite",
+    "libstatspull",
+    "libstatssocket",
+    "libutils",
+  ],
+}

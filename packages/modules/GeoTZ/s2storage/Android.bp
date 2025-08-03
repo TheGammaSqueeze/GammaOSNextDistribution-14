@@ -1,0 +1,73 @@
+// Copyright (C) 2020 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Library for read-only access to TZ S2 data files.
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+// Generic read-only storage classes
+java_library {
+    name: "s2storage_ro",
+    sdk_version: "31",
+    min_sdk_version: "31",
+    host_supported: true,
+    srcs: [
+        "src/readonly/java/**/*.java",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.geotz",
+    ],
+}
+
+// Generic read/write storage classes
+java_library {
+    name: "s2storage_rw",
+    host_supported: true,
+    srcs: [
+        "src/write/java/**/*.java",
+    ],
+    static_libs: [
+        "s2storage_ro",
+    ],
+}
+
+// Generic read-only storage classes
+java_library_host {
+    name: "s2storage_testing",
+    srcs: [
+        "src/testing/java/**/*.java",
+    ],
+    libs: [
+        "junit",
+    ],
+}
+
+// Tests for the generic storage classes
+java_test_host {
+    name: "s2storage_tests",
+
+    srcs: ["src/test/java/**/*.java"],
+    static_libs: [
+        "s2storage_rw",
+        "s2storage_testing",
+        "junit",
+        "mockito",
+        "objenesis",
+    ],
+    test_options: {
+        unit_test: true,
+    },
+}

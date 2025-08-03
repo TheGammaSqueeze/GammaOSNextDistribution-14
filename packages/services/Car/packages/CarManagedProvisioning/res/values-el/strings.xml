@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    Copyright (C) 2021 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="brand_screen_header" msgid="4382251935798018352">"Αυτό το όχημα ανήκει στον οργανισμό"</string>
+    <string name="contact_device_provider" msgid="338577979231875837">"Για να μάθετε περισσότερα, επικοινωνήστε με τον διαχειριστή <xliff:g id="IT_ADMIN">%1$s</xliff:g>."</string>
+    <string name="organization_admin" msgid="6551608903069550652">"διαχειριστής οργανισμού"</string>
+    <string name="if_questions_contact_admin" msgid="4645510019575736238">"Εάν έχετε ερωτήσεις, επικοινωνήστε με τον διαχειριστή οργανισμού"</string>
+    <string name="admin_has_ability_to_monitor_device" msgid="3132155961508293345">"Ο διαχειριστής του οργανισμού έχει τη δυνατότητα να παρακολουθεί και να διαχειρίζεται τις ρυθμίσεις, την εταιρική πρόσβαση, τις εφαρμογές, τις άδειες και τα δεδομένα που συσχετίζονται με αυτό το όχημα, συμπεριλαμβανομένης της δραστηριότητας δικτύου, καθώς και της τοποθεσίας αυτού του οχήματος.<xliff:g id="LINE_BREAK">
+
+</xliff:g>Επικοινωνήστε με τον διαχειριστή του οργανισμού για περισσότερες πληροφορίες, μεταξύ άλλων τις πολιτικές απορρήτου του οργανισμού."</string>
+    <string name="contact_your_admin_for_more_info" msgid="1419852317652804536">"Επικοινωνήστε με τον διαχειριστή του οργανισμού για περισσότερες πληροφορίες, συμπεριλαμβανομένων των πολιτικών απορρήτου του οργανισμού."</string>
+    <string name="managed_device_info" msgid="2134697391634083944">"Αυτό το όχημα είναι διαχειριζόμενο"</string>
+    <string name="contact_your_admin_for_help" msgid="1741496631607502730">"Επικοινωνήστε με τον διαχειριστή του οργανισμού για βοήθεια"</string>
+    <string name="fully_managed_device_provisioning_accept_header" msgid="8767138982035307813">"Ρύθμιση του διαχειριζόμενου οχήματος"</string>
+    <string name="fully_managed_device_provisioning_step_1_header" msgid="8704166635032524345">"Πρόσβαση στις εφαρμογές του οργανισμού σας"</string>
+    <string name="fully_managed_device_provisioning_step_1_description" msgid="5960961281295355254">"Ρύθμιση συστήματος ενημέρωσης και ψυχαγωγίας…"</string>
+    <string name="fully_managed_device_provisioning_step_2_header" msgid="5888602026900289468">"Τα δεδομένα του συστήματος ενημέρωσης και ψυχαγωγίας δεν είναι ιδιωτικά"</string>
+    <string name="fully_managed_device_provisioning_step_2_subheader_title" msgid="1421575203782743214">"Τα δεδομένα και η δραστηριότητά σας"</string>
+    <string name="fully_managed_device_provisioning_step_2_subheader" msgid="4881961368653838979">"Ο διαχειριστής του οργανισμού μπορεί να έχει τη δυνατότητα προβολής της δραστηριότητας και των δεδομένων σας σε αυτό το όχημα."</string>
+    <string name="fully_managed_device_provisioning_permissions_secondary_subheader" msgid="8955791361423166123">"Ο διαχειριστής του οργανισμού σας μπορεί να ορίσει άδειες για εφαρμογές σε αυτό το όχημα, όπως τις άδειες τοποθεσίας και μικροφώνου."</string>
+    <string name="fully_managed_device_with_permission_control_provisioning_summary" msgid="2503568673345133100">"Χρησιμοποιήστε το σύστημα ενημέρωσης και ψυχαγωγίας αυτού του οχήματος για εύκολη πρόσβαση στις εφαρμογές εργασιών σας. Αυτό το όχημα δεν είναι ιδιωτικό. Ο διαχειριστής του οργανισμού μπορεί να έχει τη δυνατότητα προβολής της δραστηριότητας και των δεδομένων σας σε αυτό το όχημα. Ο διαχειριστής του οργανισμού σας μπορεί επίσης να ορίσει άδειες για εφαρμογές σε αυτό το όχημα, όπως τις άδειες τοποθεσίας και μικροφώνου."</string>
+    <string name="fully_managed_device_provisioning_summary" msgid="4323948058344613817">"Χρησιμοποιήστε το σύστημα ενημέρωσης και ψυχαγωγίας αυτού του οχήματος για εύκολη πρόσβαση στις εφαρμογές εργασιών σας. Τα δεδομένα αυτού του οχήματος δεν είναι ιδιωτικά. Ο διαχειριστής του οργανισμού σας μπορεί να έχει τη δυνατότητα προβολής των δεδομένων και της δραστηριότητάς σας."</string>
+    <string name="fully_managed_device_provisioning_progress_label" msgid="988594700479673633">"Ρύθμιση διαχειριζόμενου οχήματος"</string>
+    <string name="fully_managed_device_provisioning_return_device_title" msgid="1578111657911434819">"Ακύρωση ρύθμισης και επιστροφή οχήματος"</string>
+    <string name="fully_managed_device_provisioning_return_device_subheader" msgid="5809488930429106172">"Επαναφορά και επιστροφή αυτού του οχήματος στον διαχειριστή του οργανισμού ή επιστροφή στην προηγούμενη οθόνη για συνέχιση της ρύθμισης."</string>
+    <string name="fully_managed_device_cancel_setup_button" msgid="4113790677940440998">"Ακύρωση ρύθμισης"</string>
+    <string name="fully_managed_device_reset_and_return_button" msgid="4951274590516561428">"Επαναφορά και επιστροφή"</string>
+    <string name="fully_managed_device_provisioning_privacy_title" msgid="4789425994893472324">"Σημείωση απορρήτου"</string>
+    <string name="fully_managed_device_provisioning_privacy_body" msgid="5549745709511179391">"Ο διαχειριστής του οργανισμού σας μπορεί να έχει τη δυνατότητα προβολής των δεδομένων και της δραστηριότητάς σας σε αυτό το όχημα."</string>
+</resources>

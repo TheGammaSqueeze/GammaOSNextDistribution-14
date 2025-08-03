@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="safetyCenterResourcesAppLabel" msgid="4043334186295695930">"ආරක්ෂක මධ්‍යස්ථාන සම්පත්"</string>
+    <string name="lock_screen_sources_title" msgid="3317906280484627707">"උපාංග අගුල"</string>
+    <string name="lock_screen_sources_summary" msgid="7220439741282516496"></string>
+    <string name="lock_screen_title" msgid="4069104894527169877">"තිර අගුල"</string>
+    <string name="lock_screen_summary_disabled" msgid="354071230916616692">"තවම තොරතුරු නැත"</string>
+    <string name="lock_screen_search_terms" msgid="2678486357779794826">"උපාංග අගුල, තිර අගුල, අගුළු තිරය, අගුළු තිරය, මුරපදය, Pin, රටාව"</string>
+    <string name="biometrics_title" msgid="5859504610285212938">"ජෛවමිතික"</string>
+    <string name="biometrics_search_terms" msgid="6040319118762671981">"ඇඟිලි සලකුණ, ඇඟිල්ල, ඇඟිලි සලකුණ එක් කරන්න, මුහුණෙන් අගුළු හැරීම, මුහුණ"</string>
+    <string name="privacy_sources_title" msgid="4061110826457365957">"පෞද්ගලිකත්වය"</string>
+    <string name="privacy_sources_summary" msgid="4089719981155120864">"උපකරණ පුවරුව, අවසර, පාලන"</string>
+    <string name="permission_usage_title" msgid="3633779688945350407">"පෞද්ගලිකත්ව උපකරණ පුවරුව"</string>
+    <string name="permission_usage_summary" msgid="5323079206029964468">"මෑතකදී අවසර භාවිත කළ යෙදුම් පෙන්වන්න"</string>
+    <string name="permission_usage_search_terms" msgid="3852343592870257104">"පෞද්ගලිකත්වය, පෞද්ගලිකත්ව උපකරණ පුවරුව"</string>
+    <string name="permission_manager_title" msgid="5277347862821255015">"අවසර කළමනාකරු"</string>
+    <string name="permission_manager_summary" msgid="8099852107340970790">"ඔබ‍ගේ දත්ත වෙත යෙදුම් ප්‍රවේශය පාලනය කරන්න"</string>
+    <string name="permission_manager_search_terms" msgid="2895147613099694722">"අවසර, අවසර කළමනාකරු"</string>
+    <string name="privacy_controls_title" msgid="5322875777945432395">"පෞද්ගලිකත්ව පාලන"</string>
+    <string name="privacy_controls_summary" msgid="2402066941190435424">"මයික්‍රෆෝනය, කැමරාව සහ තවත් දේ වෙත උපාංග ප්‍රවේශය පාලනය කරන්න"</string>
+    <string name="privacy_controls_search_terms" msgid="3774472175934304165">"පෞද්ගලිකත්වය, පෞද්ගලිකත්ව පාලන"</string>
+    <string name="advanced_title" msgid="8745436380690561172">"තව සැකසීම්"</string>
+    <string name="advanced_security_title" msgid="1126833338772188155">"තවත් ආරක්ෂක සැකසීම්"</string>
+    <string name="advanced_security_summary" msgid="6172253327022425123">"සංකේතනය, අක්තපත්‍ර සහ තවත් දේ"</string>
+    <string name="advanced_security_search_terms" msgid="3350609555814362075"></string>
+    <string name="advanced_privacy_title" msgid="1117725225706176643">"තවත් පෞද්ගලිකත්ව සැකසීම්"</string>
+    <string name="advanced_privacy_summary" msgid="2281203390575069543">"ස්වයං පිරවුම, ක්‍රියාකාරකම් පාලන සහ තවත් දේ"</string>
+    <string name="advanced_privacy_search_terms" msgid="5044404599789175222"></string>
+</resources>

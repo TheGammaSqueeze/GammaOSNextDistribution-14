@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="pbap_session_key_dialog_title" msgid="5103201901254778256">"%1$s க்கான அமர்வு விசையை உள்ளிடவும்"</string>
+    <string name="pbap_session_key_dialog_header" msgid="5073165544713355581">"புளூடூத் அமர்வு விசை தேவை"</string>
+    <string name="pbap_acceptance_timeout_message" msgid="3071798915563151284">"%1$s உடனான இணைப்பை ஏற்பதற்கான நேரம் முடிந்தது"</string>
+    <string name="pbap_authentication_timeout_message" msgid="2089914949828656737">"%1$s உடனான அமர்வு விசையை உள்ளிடுவதற்கான நேரம் முடிந்தது"</string>
+    <string name="auth_notif_ticker" msgid="7344125635314034621">"Obex அங்கீகரிப்பு கோரிக்கை"</string>
+    <string name="auth_notif_title" msgid="6639277119990416473">"அமர்வு விசை"</string>
+    <string name="auth_notif_message" msgid="7044369885874418693">"%1$s க்கான அமர்வு விசையை உள்ளிடவும்"</string>
+    <string name="defaultname" msgid="6200530814398805541">"கார்கிட்"</string>
+    <string name="unknownName" msgid="6755061296103155293">"அறியப்படாத பெயர்"</string>
+    <string name="localPhoneName" msgid="9119254982537191352">"எனது பெயர்"</string>
+    <string name="defaultnumber" msgid="5348816189286607406">"000000"</string>
+    <string name="pbap_notification_group" msgid="4215789331721465381">"புளூடூத் தொடர்புப் பகிர்தல்"</string>
+    <string name="phonebook_advance_feature_support" msgid="8129553051734505128">"ஃபோன்புக் தொடர்பான மேம்பட்ட அம்சம் ஆதரிக்கப்படுகிறது"</string>
+    <string name="repair_for_adv_phonebook_feature" msgid="3489797973131684927">"மேம்பட்ட ஃபோன்புக் அம்சத்திற்காக மீண்டும் இணைத்தல்"</string>
+</resources>

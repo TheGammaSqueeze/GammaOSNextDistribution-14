@@ -1,0 +1,18 @@
+{
+  "mocks": [
+    {
+      "request": {
+        "path": "bidding/daily/shoes"
+      },
+      "response": {
+        "body": "DailyUpdateResponse.json"
+      },
+      "verify_called": true
+    }
+  ],
+  "substitutions": {
+    "<ad-render-uri-1>": "{base_url}/render_ad/1",
+    "<ad-render-uri-2>": "{base_url}/render_ad/2",
+    "<buyer-trusted-signal-uri>": "{base_url}/bidding/trusted"
+  }
+}

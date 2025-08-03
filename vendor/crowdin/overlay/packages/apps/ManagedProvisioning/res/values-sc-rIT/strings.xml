@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/**
+ * Copyright (C) 2014 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="provisioning_error_title">Oops!</string>
+  <string name="company_controls_workspace">S\'organizatzione tua controllat custu profilu e ddu mantenet a su seguru. Tue controllas totu su restu de su dispositivu.</string>
+  <string name="company_controls_device">S\'organizatzione tua at a controllare custu dispositivu e ddu mantènnere seguru.</string>
+  <string name="the_following_is_your_mdm">S\'aplicatzione sighente tenet bisòngiu de atzèdere a custu profilu:</string>
+  <string name="the_following_is_your_mdm_for_device">S\'aplicatzione in fatu at a gestire su dispositivu tuo:</string>
+  <string name="learn_more_link">Àteras informatziones </string>
+  <string name="default_managed_profile_name">Profilu de traballu</string>
+  <string name="read_more_delete_profile">In antis de sighire, <a href="#read_this_link">leghe custu</a>.</string>
+  <string name="continue_provisioning_notify_title">Tzifradura cumpleta</string>
+  <string name="managed_provisioning_error_text">No at fatu a impostare su profilu de traballu. Cuntata a su dipartimentu IT tuo e torra a proare.</string>
+  <string name="default_owned_device_username">Utentes de dispositivu de traballu</string>
+  <string name="device_owner_cancel_message">Boles firmare sa cunfiguratzione e cantzellare is datos de su dispositivu?</string>
+  <string name="error_wifi">No at fatu a si collegare a su Wi-Fi</string>
+  <string name="frp_clear_progress_title">Cantzellende</string>
+  <string name="frp_clear_progress_text">Iseta...</string>
+  <string name="error_hash_mismatch">No at fatu a impreare s\'aplicatzione de amministratzione pro neghe de un\'errore de sa summa de controllu. Pro agiudu, cuntata a s\'amministradore IT tuo.</string>
+  <string name="error_download_failed">No at fatu a iscarrigare s\'aplicatzione de amministratzione</string>
+  <string name="error_package_invalid">Non faghet a impreare s\'aplicatzione de amministratzione. Pro agiudu, cuntata su s\'amministradore IT tuo.</string>
+  <string name="error_installation_failed">No at fatu a iscarrigare s\'aplicatzione de amministratzione</string>
+  <string name="profile_owner_cancel_message">Boles firmare sa cunfiguratzione?</string>
+  <string name="profile_owner_cancelling">Annullende\u2026</string>
+  <string name="work_profile_setup_later_title">Boles cunfigurare su profilu?</string>
+  <string name="set_up_your_device">Cunfigura su dispositivu tuo</string>
+  <string name="provisioning">Frunidura</string>
+  <string name="copying_certs">Impostende tzertificados CA</string>
+  <string name="setup_profile">Cunfigura su profilu tuo</string>
+  <string name="setup_profile_encryption">Imposta su profilu tuo. Tzifradura</string>
+  <string name="setup_profile_progress">Imposta su profilu tuo. Mustrende progressu</string>
+  <string name="learn_more_label">Butone àteras informatziones</string>
+  <string name="mdm_icon_label">Icona <xliff:g id="icon_label" example="Test App">%1$s</xliff:g> </string>
+  <string name="work_profile_provisioning_progress_label">Impostende su profilu de traballu tuo\u2026</string>
+</resources>

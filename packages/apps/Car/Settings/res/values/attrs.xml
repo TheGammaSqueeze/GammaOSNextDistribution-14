@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright 2018 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<resources>
+    <declare-styleable name="carVolumeItems"/>
+
+    <declare-styleable name="carVolumeItems_item">
+        <!-- Align with AudioAttributes.USAGE_* -->
+        <attr name="usage">
+            <enum name="unknown" value="0"/>
+            <enum name="media" value="1"/>
+            <enum name="voice_communication" value="2"/>
+            <enum name="voice_communication_signalling" value="3"/>
+            <enum name="alarm" value="4"/>
+            <enum name="notification" value="5"/>
+            <enum name="notification_ringtone" value="6"/>
+            <enum name="notification_communication_request" value="7"/>
+            <enum name="notification_communication_instant" value="8"/>
+            <enum name="notification_communication_delayed" value="9"/>
+            <enum name="notification_event" value="10"/>
+            <enum name="assistance_accessibility" value="11"/>
+            <enum name="assistance_navigation_guidance" value="12"/>
+            <enum name="assistance_sonification" value="13"/>
+            <enum name="game" value="14"/>
+
+            <!-- hidden, do not use -->
+            <!-- enum name="virtual_source" value="15"/ -->
+            <enum name="assistant" value="16"/>
+
+            <!-- system usages -->
+            <enum name="call_assistant" value="17"/>
+            <enum name="emergency" value="1000"/>
+            <enum name="safety" value="1001"/>
+            <enum name="vehicle_status" value="1002"/>
+            <enum name="announcement" value="1003"/>
+        </attr>
+
+        <!-- Title and icon resource ids to render on UI -->
+        <attr name="titleText" format="reference"/>
+        <attr name="icon" format="reference"/>
+        <attr name="mute_icon" format="reference"/>
+    </declare-styleable>
+
+    <declare-styleable name="PinPadView">
+        <attr name="layout" format="reference"/>
+    </declare-styleable>
+
+    <declare-styleable name="Preference">
+        <!-- Classname of a PreferenceController corresponding to the preference -->
+        <attr name="controller" format="string"/>
+        <!-- Whether or not the preference is searchable, by default it's true. -->
+        <attr name="searchable" format="boolean" />
+
+        <!-- Availability of a setting for each zone. This string must be one of
+             three values: write, read and hidden. -->
+        <attr name="occupant_driver" format="string"/>
+        <attr name="occupant_front_passenger" format="string"/>
+        <attr name="occupant_rear_passenger" format="string"/>
+    </declare-styleable>
+
+    <declare-styleable name="PreferenceGroup">
+        <attr name="showChevron" format="boolean"/>
+    </declare-styleable>
+
+    <declare-styleable name="ProgressBarPreference">
+        <attr name="min" format="integer"/>
+        <attr name="max" format="integer"/>
+        <attr name="progress" format="integer"/>
+        <attr name="minLabel" format="string"/>
+        <attr name="maxLabel" format="string"/>
+    </declare-styleable>
+
+    <declare-styleable name="ColoredPreference">
+        <attr name="titleColor" format="color"/>
+        <attr name="iconColor" format="color"/>
+    </declare-styleable>
+
+    <declare-styleable name="ColoredSwitchPreference">
+        <attr name="disabledTitleColor" format="color"/>
+        <attr name="enabledTitleColor" format="color"/>
+    </declare-styleable>
+
+    <declare-styleable name="MultiActionPreference">
+        <!-- Determines the first action item -->
+        <attr name="action_item_one" format="enum">
+            <enum name="toggleButton" value="0"/>
+        </attr>
+        <!-- Determines the second action item -->
+        <attr name="action_item_two" format="enum">
+            <enum name="toggleButton" value="0"/>
+        </attr>
+        <!-- Determines the third action item -->
+        <attr name="action_item_three" format="enum">
+            <enum name="toggleButton" value="0"/>
+        </attr>
+        <!-- Determines if the first action item is initially shown -->
+        <attr name="action_item_one_shown" format="boolean"/>
+        <!-- Determines if the first action item is initially enabled -->
+        <attr name="action_item_one_enabled" format="boolean"/>
+        <!-- Determines if the second action item is initially shown -->
+        <attr name="action_item_two_shown" format="boolean"/>
+        <!-- Determines if the second action item is initially enabled -->
+        <attr name="action_item_two_enabled" format="boolean"/>
+        <!-- Determines if the third action item is initially shown -->
+        <attr name="action_item_three_shown" format="boolean"/>
+        <!-- Determines if the third action item is initially enabled -->
+        <attr name="action_item_three_enabled" format="boolean"/>
+    </declare-styleable>
+
+    <attr name="wifiSignalColor" format="color"/>
+    <attr name="dividerColor" format="color"/>
+    <attr name="profileSwitcherBackground" format="reference"/>
+    <attr name="profileSwitcherCurrentProfileColor" format="color"/>
+    <attr name="profileSwitcherAddIconColor" format="color"/>
+    <attr name="profileSwitcherNameTextAppearance" format="reference"/>
+    <attr name="profileSwitcherAddIconBackgroundColor" format="color"/>
+    <attr name="suggestionsPrimaryColor" format="color"/>
+    <attr name="suggestionsSecondaryColor" format="color"/>
+</resources>

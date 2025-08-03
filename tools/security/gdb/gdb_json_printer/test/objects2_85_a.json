@@ -1,0 +1,22 @@
+{
+    "type": "pointer",
+    "ctype": "Bar *",
+    "address": "0x7fffffffd748",
+    "reference": {
+        "type": "struct",
+        "ctype": "Bar",
+        "address": "0x55555556af29",
+        "fields": [
+            {
+                "field": "e",
+                "value": {
+                    "type": "int",
+                    "ctype": "uint8_t",
+                    "address": "0x55555556af29",
+                    "value": "5"
+                }
+            }
+        ],
+        "base_classes": []
+    }
+}

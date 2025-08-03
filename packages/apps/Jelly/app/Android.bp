@@ -1,0 +1,76 @@
+//
+// SPDX-FileCopyrightText: 2017-2024 The LineageOS Project
+// SPDX-License-Identifier: Apache-2.0
+//
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_app {
+    name: "Jelly",
+
+    srcs: [
+        "src/main/java/**/*.kt",
+    ],
+    resource_dirs: ["src/main/res"],
+    manifest: "src/main/AndroidManifest.xml",
+
+    product_specific: true,
+
+    overrides: [
+        "Browser2",
+        "CarHTMLViewer",
+    ],
+
+    required: [
+        "initial-package-stopped-states-org.lineageos.jelly",
+        "preinstalled-packages-org.lineageos.jelly",
+    ],
+
+    plugins: [
+        "androidx.room_room-compiler-plugin",
+    ],
+
+    static_libs: [
+        // DO NOT EDIT THIS SECTION MANUALLY
+        "androidx.annotation_annotation",
+        "Jelly_androidx.appcompat_appcompat",
+        "androidx.cardview_cardview",
+        "androidx.core_core-ktx",
+        "androidx.palette_palette",
+        "androidx.preference_preference",
+        "androidx.recyclerview_recyclerview",
+        "androidx.room_room-ktx",
+        "androidx.room_room-runtime",
+        "androidx.transition_transition",
+        "Jelly_com.google.android.material_material",
+        "kotlin-stdlib",
+        "kotlinx-coroutines-android",
+        "kotlinx-coroutines-core",
+    ],
+
+    sdk_version: "34",
+
+    optimize: {
+        optimize: true,
+        proguard_flags_files: ["proguard-rules.pro"],
+        shrink_resources: true,
+    },
+}
+
+prebuilt_etc {
+    name: "initial-package-stopped-states-org.lineageos.jelly",
+    product_specific: true,
+    sub_dir: "sysconfig",
+    src: "initial-package-stopped-states-org.lineageos.jelly.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
+    name: "preinstalled-packages-org.lineageos.jelly",
+    product_specific: true,
+    sub_dir: "sysconfig",
+    src: "preinstalled-packages-org.lineageos.jelly.xml",
+    filename_from_src: true,
+}

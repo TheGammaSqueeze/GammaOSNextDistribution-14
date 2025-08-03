@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2019 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- CMAS dialog title for national level alert. [CHAR LIMIT=50] -->
+    <string name="cmas_presidential_level_alert">National Emergency Alert</string>
+    <!-- Show CMAS opt-out dialog on first non-national alert. [CHAR LIMIT=100] -->
+    <string name="show_cmas_opt_out_summary">Show an opt-out dialog after displaying the first alert (other than National alert).</string>
+    <!-- Preference title for enable National threat alerts checkbox. [CHAR LIMIT=40] -->
+    <string name="enable_cmas_presidential_alerts_title">National Emergency Alerts</string>
+    <!-- CMAS dialog title for extreme alert. [CHAR LIMIT=50] -->
+    <string name="cmas_extreme_alert">Emergency Alert</string>
+    <!-- CMAS dialog title for extreme alert with extreme severity, immediate urgency, and observed certainty. [CHAR LIMIT=50] -->
+    <string name="cmas_extreme_immediate_observed_alert">Emergency Alert</string>
+    <!-- CMAS dialog title for extreme alert with extreme severity, immediate urgency,  and likely certainty. [CHAR LIMIT=50] -->
+    <string name="cmas_extreme_immediate_likely_alert">Emergency Alert</string>
+    <!-- CMAS dialog title for severe alert. [CHAR LIMIT=50] -->
+    <string name="cmas_severe_alert">Emergency Alert</string>
+    <!-- CMAS dialog title for child abduction emergency (Amber Alert). [CHAR LIMIT=50] -->
+    <string name="cmas_amber_alert">Warning Alert</string>
+    <!-- CMAS dialog title for required monthly test. [CHAR LIMIT=50] -->
+    <string name="cmas_required_monthly_test">Test Alert</string>
+    <!-- CMAS dialog title for CMAS Exercise. [CHAR LIMIT=50] -->
+    <string name="cmas_exercise_alert">Exercise</string>
+    <!-- Dialog title for all public safety message broadcasts. [CHAR LIMIT=50] -->
+    <string name="public_safety_message">Public Safety Alert</string>
+    <!-- Dialog title for all state/local test alerts. [CHAR LIMIT=50] -->
+    <string name="state_local_test_alert">Test Alert</string>
+
+    <!-- Preference title for enable CMAS amber alerts checkbox. [CHAR LIMIT=50] -->
+    <string name="enable_cmas_amber_alerts_title">Warning alerts</string>
+    <!-- Preference title for enable public safety messages checkbox. [CHAR LIMIT=100] -->
+    <string name="enable_public_safety_messages_title">Public safety alerts</string>
+    <!-- Preference title for other test alerts checkbox. [CHAR LIMIT=50] -->
+    <string name="enable_cmas_test_alerts_title">Test alerts</string>
+</resources>

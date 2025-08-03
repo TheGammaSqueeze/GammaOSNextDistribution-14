@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (c) 2009, 2011-2013 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2014-2015 The CyanogenMod Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *    * Neither the name of The Linux Foundation nor
+ *      the names of its contributors may be used to endorse or promote
+ *      products derived from this software without specific prior written
+ *      permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NON-INFRINGEMENT ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">ಎಫ್ಎಂ ರೇಡಿಯೋ</string>
+    <string name="tx_app_name">ಎಫ್ಎಂ ಪ್ರಸಾರಕ</string>
+    <string name="menu_scan_start">ಸ್ಕ್ಯಾನ್</string>
+    <string name="menu_scan_stop">ಹುಡುಕುವುದನ್ನು ನಿಲ್ಲಿಸಿ</string>
+    <string name="menu_record_start">ರಿಕಾರ್ಡ್</string>
+    <string name="menu_record_stop">ರಿಕಾರ್ಡಿಂಗ್ ನಿಲ್ಲಿಸಿ</string>
+    <string name="menu_settings">ಸೆಟ್ಟಿಂಗ್‌ಗಳು</string>
+    <string name="menu_sleep">ಸ್ಲೀಪ್</string>
+    <string name="menu_sleep_cancel">ಸ್ಲೀಪ್ ರದ್ದುಮಾಡಿ</string>
+    <string name="menu_all_channels">ಎಲ್ಲಾ ಚಾನೆಲ್ಸ್</string>
+    <string name="menu_display_tags">ಟ್ಯಾಗ್ಸ್ ಪ್ರದರ್ಶಿಸು</string>
+    <string name="button_text_stop">ನಿಲ್ಲಿಸಿ</string>
+    <string name="msg_seeking">ಎಫ್ಎಂ ಕೇಂದ್ರಗಳಿಗಾಗಿ ಹುಡುಕಲಾಗುತ್ತಿದೆ\u2026</string>
+    <string name="msg_scanning">ಎಲ್ಲಾ ಎಫ್ಎಂ ಕೇದ್ರಗಳಿಗಾಗಿ ಸ್ಕ್ಯಾನ್ ಮಾಡಲಾಗುತ್ತಿದೆ\u2026</string>
+    <string name="msg_scanning_pty">\'<xliff:g id="pty_name">%1$s</xliff:g>\'ಗಾಗಿ ಹುಡುಕಲಾಗುತ್ತಿದೆ\u2026</string>
+    <string name="msg_search_title"><xliff:g id="frequency_string">%1$s</xliff:g> MHz</string>
+    <string name="msg_searching_title">ಪೂರ್ವನಿಗದಿಗಳನ್ನು ಸ್ವಯಂ-ಆಯ್ಕೆಮಾಡುತ್ತಿದೆ</string>
+    <string name="msg_searching">ಪೂರ್ವನಿಗದಿಗಳ ಪಟ್ಟಿ ರಚಿಸಲು ಪ್ರಬಲ ಕೇಂದ್ರಗಳಿಗಾಗಿ ಹುಡುಕಲಾಗುತ್ತಿದೆ\u2026</string>
+    <string name="msg_noantenna">ಎಫ್ಎಂ ರೇಡಿಯೋ ಉಪಯೋಗಿಸಲು ದಯವಿಟ್ಟು ಹೆಡ್‍ಸೆಟ್ ಪ್ಲಗ್ ಇನ್ ಮಾಡಿ</string>
+    <string name="dialog_sleep_title">ಸ್ವಯಂ-ಆಫ್ ಸ್ಲೀಪ್ ಅವಧಿ</string>
+    <string name="presetlist_select_name">\'<xliff:g id="presetlist_name">%1$s</xliff:g>\' ಆಯ್ಕೆಮಾಡಿ</string>
+    <string name="presetlist_add_new">ಹೊಸ ಪಟ್ಟಿಯನ್ನು ಸೇರಿಸಿ</string>
+    <string name="dialog_presetlist_rename_title">ಹೆಸರು ಬರೆಯಿರಿ</string>
+    <string name="presetlist_autoselect_title">ಸ್ವಯಂ-ಆಯ್ಕೆ ಖಚಿತಪಡಿಸಿ</string>
+    <string name="preset_replace">ಬದಲಾಯಿಸಿ</string>
+    <string name="preset_tune">ಟ್ಯೂನ್</string>
+    <string name="preset_rename">ಮರುಹೆಸರಿಸಿ</string>
+    <string name="preset_delete">ಅಳಿಸಿ</string>
+    <string name="preset_search">\'<xliff:g id="preset_pi">%1$s</xliff:g>\'ಗಾಗಿ ಹುಡುಕು</string>
+    <string name="stat_notif_frequency">\'<xliff:g id="frequency">%1$s</xliff:g>\' MHz</string>
+    <string name="regional_band">ಪ್ರಾದೇಶಿಕ ಬ್ಯಾಂಡ್</string>
+    <string name="regional_band_entry_north_america">ಉತ್ತರ ಅಮೇರಿಕಾ</string>
+    <string name="regional_band_entry_europe">ಯುರೋಪ್</string>
+    <string name="regional_band_entry_japan">ಜಪಾನ್</string>
+    <string name="regional_band_entry_japan_wide">ಜಪಾನ್ (ವ್ಯಾಪಕ)</string>
+    <string name="regional_band_entry_australia">ಆಸ್ಟ್ರೇಲಿಯಾ</string>
+    <string name="regional_band_entry_austria">ಆಸ್ಟ್ರಿಯಾ</string>
+    <string name="regional_band_entry_belgium">ಬೆಲ್ಜಿಯಂ</string>
+    <string name="regional_band_entry_brazil">ಬ್ರೆಜಿಲ್</string>
+    <string name="regional_band_entry_china">ಚೀನಾ</string>
+    <string name="regional_band_entry_czech_republic">ಜೆಕ್ ಗಣರಾಜ್ಯ</string>
+    <string name="regional_band_entry_denmark">ಡೆನ್ಮಾರ್ಕ್</string>
+    <string name="regional_band_entry_finland">ಫಿನ್ಲ್ಯಾಂಡ್</string>
+    <string name="regional_band_entry_france">ಫ್ರಾನ್ಸ್</string>
+    <string name="regional_band_entry_germany">ಜರ್ಮನಿ</string>
+    <string name="regional_band_entry_greece">ಗ್ರೀಸ್</string>
+    <string name="regional_band_entry_hong_kong">ಹಾಂಗ್ ಕಾಂಗ್</string>
+    <string name="regional_band_entry_india">ಭಾರತ</string>
+    <string name="regional_band_entry_indonesia">ಇಂಡೋನೇಷ್ಯಾ</string>
+    <string name="regional_band_entry_ireland">ಐರ್ಲೆಂಡ್</string>
+    <string name="regional_band_entry_italy">ಇಟಲಿ</string>
+    <string name="regional_band_entry_korea">ಕೋರಿಯಾ</string>
+    <string name="regional_band_entry_mexico">ಮೆಕ್ಸಿಕೋ</string>
+    <string name="regional_band_entry_netherlands">ನೆದರ್ಲ್ಯಾಂಡ್ಸ್</string>
+    <string name="regional_band_entry_new_zealand">ನ್ಯೂಜಿಲ್ಯಾಂಡ್</string>
+    <string name="regional_band_entry_norway">ನಾರ್ವೆ</string>
+    <string name="regional_band_entry_poland">ಪೋಲೆಂಡ್</string>
+    <string name="regional_band_entry_portugal">ಪೋರ್ಚುಗಲ್</string>
+    <string name="regional_band_entry_russia">ರಷ್ಯಾ</string>
+    <string name="regional_band_entry_singapore">ಸಿಂಗಾಪೂರ್</string>
+    <string name="regional_band_entry_slovakia">ಸ್ಲೊವಾಕಿಯಾ</string>
+    <string name="regional_band_entry_spain">ಸ್ಪೇನ್</string>
+    <string name="regional_band_entry_switzerland">ಸ್ವಿಜರ್ಲ್ಯಾಂಡ್</string>
+    <string name="regional_band_entry_sweden">ಸ್ವೀಡನ್</string>
+    <string name="regional_band_entry_taiwan">ತೈವಾನ್</string>
+    <string name="regional_band_entry_turkey">ಟರ್ಕಿ</string>
+    <string name="regional_band_entry_united_kingdom">ಯುನೈಟೆಡ್ ಕಿಂಗ್ಡಮ್</string>
+    <string name="regional_band_entry_united_states">ಯುನೈಟೆಡ್ ಸ್ಟೇಟ್ಸ್</string>
+    <string name="regional_band_entry_user_defined">ಬಳಕೆದಾರ ವ್ಯಾಕ್ಯಾನಿಸಿದ ಬ್ಯಾಂಡ್</string>
+    <string name="regional_band_summary_switzerland">ಸ್ವಿಜರ್ಲ್ಯಾಂಡ್ (೮೭.೫ - ೧೦೮.೦ MHz, ೧೦೦ kHz ಹಂತಗಳಲ್ಲಿ)</string>
+    <string name="regional_band_summary_user_defined">ಬಳಕೆದಾರ ವ್ಯಾಖ್ಯಾನಿಸಿದ ಬ್ಯಾಂಡ್</string>
+    <string name="aud_output_mode">ಆಡಿಯೋ ಔಟ್‍ಪುಟ್ ಮೋಡ್</string>
+    <string name="audio_type_stereo">ಸ್ಟಿರಿಯೋ</string>
+    <string name="audio_type_mono">ಮೊನೊ</string>
+    <string name="record_dur">ರಿಕಾರ್ಡ್ ಅವಧಿ</string>
+    <string name="auto_select_af">ಪರ್ಯಾಯ ಆವರ್ತನ</string>
+    <string name="settings_revert_defaults_title">ಫ್ಯಾಕ್ಟರಿ ಡೀಫಾಲ್ಟ್ಸ್ ಗೆ ಹಿಂತಿರುಗಿಸು</string>
+    <string name="settings_revert_defaults_summary">ಎಲ್ಲಾ ಸೆಟ್ಟಿಂಗ್ಸ್ ಮರುಹೊಂದಿಸಿ</string>
+    <string name="settings_revert_confirm_title">ಮರುಹೊಂದಿಕೆ ಖಚಿತಪಡಿಸಿ</string>
+    <string name="settings_revert_confirm_msg">ಇದು ಎಲ್ಲಾ ಅಪ್ಲಿಕೇಶನ್ ಸೆಟ್ಟಿಂಗ್ಸನ್ನು ತೆರವುಗೊಳಿಸುತ್ತದೆ, ಉಳಿಸಿದ ಪೂರ್ವನಿಗದಿಗಳನ್ನೂ ಓಳಗೊಂಡು. ಮುಂದುವರೆ?</string>
+    <string name="no_storage">ರಿಕಾರ್ಡಿಂಗ್ ಪ್ರಾರಂಭಿಸುವ ಮುನ್ನ SD ಕಾರ್ಡ್ ಮೌಂಟ್ ಮಾಡಿ.</string>
+    <string name="preparing_sd">SD ಕಾರ್ಡನ್ನು ಸಿದ್ಧಗೊಳಿಸುತ್ತಿದೆ\u2026</string>
+    <string name="access_sd_fail">SD ಕಾರ್ಡನ್ನು ಪ್ರವೇಶಿಸಲಾಗಲಿಲ್ಲ.</string>
+    <string name="spaceIsLow_content">ನಿಮ್ಮ SD ಕಾರ್ಡ್ ಸಂಗ್ರಹಣೆಯಲ್ಲಿ ಹೆಚ್ಚು ಖಾಲಿಜಾಗ ಇಲ್ಲ. ಜಾಗ ಮಾಡಲು ಗುಣಮಟ್ಟ ಸೆಟ್ಟಿಂಗ್ ಬದಲಾಯಿಸಿ ಅಥವ ಇತರೆ ಕಡತಗಳನ್ನು ಅಳಿಸಿ.</string>
+    <string name="menu_scan_for_preset">ಪೂರ್ವನಿಗದಿಗಳಿಗಾಗಿ ಸ್ಕ್ಯಾನ್ ಮಾಡಿ</string>
+    <string name="fm_off">ಎಫ್ಎಂ ಆಫ್ ಆಗಿದೆ.</string>
+    <string name="fm_call">ಕರೆ ಮಾಡುವಾಗ ಎಫ್ಎಂ ಬಳಸುವಂತಿಲ್ಲ.</string>
+    <string name="alert_dialog_hint">ಒಂದು ಹೆಸರನ್ನು ಬರೆಯಿರಿ</string>
+    <string name="search_dialog_title">ಕೇಂದ್ರಗಳನ್ನು ಸ್ಕ್ಯಾನ್ ಮಾಡಿ</string>
+    <string name="fm_command_timeout_title">ಅವಧಿಮುಗಿದಿದೆ</string>
+    <string name="fm_tune_timeout_msg">FM ಕೇಂದ್ರವನ್ನು ಟ್ಯೂನ್ ಮಾಡಲು ಯಾವುದೇ ಪ್ರತಿಕ್ರಿಯೆ ಸ್ವೀಕರಿಸಲಿಲ್ಲ. ತೊಂದರೆಯು ಹಾಗೇ ಇದ್ದಲ್ಲಿ, ದಯವಿಟ್ಟು FM ಆಫ್ ಮಾಡಿ ಮತ್ತು ಪುನಃ ಆನ್ ಮಾಡಿ.</string>
+    <string name="fm_command_failed_title">ಎಫ್ಎಂ ಕಾರ್ಯಾಚರಣೆ ವಿಫಲಗೊಂಡಿದೆ</string>
+    <string name="fm_cmd_failed_msg">ಎಫ್ಎಂ ಕಾರ್ಯಾಚರಣೆ ವಿಫಲಗೊಂಡಿದೆ. ತೊಂದರೆಯು ಹಾಗೇ ಇದ್ದಲ್ಲಿ, ದಯವಿಟ್ಟು ಎಫ್ಎಂ ಆಫ್ ಮಾಡಿ ಮತ್ತು ಪುನಃ ಆನ್ ಮಾಡಿ.</string>
+    <string name="fm_cmd_failed_msg_hdmi">ಎಫ್ಎಂ ಕಾರ್ಯಾಚರಣೆ ವಿಫಲಗೊಂಡಿದೆ. ಎಫ್ಎಂ ಮತ್ತು HDMI ಒಪ್ಪಂದ ಬೆಂಬಲಿತವಾಗಿಲ್ಲ.</string>
+    <string name="fm_cmd_failed_call_on">ಎಫ್ಎಂ ಕಾರ್ಯಾಚರಣೆ ವಿಫಲಗೊಂಡಿದೆ. ಕರೆ ಮಾಡುವಾಗ ಎಫ್ಎಂ ಆಡಿಯೋಗೆ ಅನುಮತಿ ಇಲ್ಲ.</string>
+    <string name="station_name">ಕೇಂದ್ರ:</string>
+    <string name="station_exists">ಈ ಆವರ್ತನ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ!</string>
+    <string name="station_list_delete_station">ಅಳಿಸು: <xliff:g id="name">%s</xliff:g></string>
+    <string name="station_list_delete_station_prompt">ನೀವು ಖಚಿತವೇ ನೀವು \'<xliff:g id="name">%s</xliff:g>\' ಅಳಿಸಲು ಬಯಸುತ್ತೀರಾ?</string>
+    <string name="station_name_empty">ಕೇಂದ್ರದ ಹೆಸರು ಖಾಲಿಯಾಗಿದೆ, ದಯವಿಟ್ಟು ಇನ್ನೊಮ್ಮೆ ಬರೆಯಿರಿ.</string>
+    <string name="rt_plus_tags">ಟ್ಯಾಗ್ಸ್</string>
+    <string name="usr_def_band_min">ಕನಿಷ್ಠ ಆವರ್ತನ (MHz)</string>
+    <string name="usr_def_band_max">ಗರಿಷ್ಠ ಆವರ್ತನ (MHz)</string>
+    <string name="chanl_spacing">ಚಾನೆಲ್ ಸ್ಪೇಸಿಂಗ್</string>
+    <string name="set">ಹೊಂದಿಸಿ</string>
+    <string name="fm_search_no_results">ಯಾವುದೇ ಹೊಂದಾಣಿಕೆಯಾಗುವ ಕೇಂದ್ರಗಳು ಪತ್ತೆಯಾಗಲಿಲ್ಲ</string>
+    <string name="typ_All_stations">ಎಲ್ಲಾ ಕೇಂದ್ರಗಳು</string>
+    <string name="typ_Culture">ಸಂಸ್ಕೃತಿ</string>
+    <string name="typ_Current_affairs">ಪ್ರಸಕ್ತ ವಿದ್ಯಮಾನಗಳು</string>
+    <string name="typ_Children">ಮಕ್ಕಳ ಕಾರ್ಯಕ್ರಮಗಳು</string>
+    <string name="typ_Country">ದೇಶ ಸಂಗೀತ</string>
+    <string name="typ_Documentary">ಡಾಕ್ಯುಮೆಂಟರಿ</string>
+    <string name="typ_Drama">ನಾಟಕ</string>
+    <string name="typ_Easy_listening">ಸುಲಭವಾಗಿ ಕೇಳುವ ಸಂಗೀತ</string>
+    <string name="typ_Education">ಶಿಕ್ಷಣ</string>
+    <string name="typ_Emergency_test">ತುರ್ತುಪರೀಸ್ಥಿತಿ ಪರೀಕ್ಷೆ</string>
+    <string name="typ_Finance">ಹಣಕಾಸು</string>
+    <string name="typ_Folk">ಜಾನಪದ ಸಂಗೀತ</string>
+    <string name="typ_Information">ಮಾಹಿತಿ</string>
+    <string name="typ_Jazz">ಜಾಝ್ ಸಂಗೀತ</string>
+    <string name="typ_Light_classical">ಲಘು ಶಾಸ್ತ್ರೀಯ</string>
+    <string name="typ_Leisure">ಆರಾಮ</string>
+    <string name="typ_News">ವಾರ್ತೆ</string>
+    <string name="typ_National">ರಾಷ್ಟ್ರೀಯ ಸಂಗೀತ</string>
+    <string name="typ_Other">ಇತರೆ ಸಂಗೀತ</string>
+    <string name="typ_Oldies">ಓಲ್ಡೀಸ್ ಸಂಗೀತ</string>
+    <string name="typ_Phone_in">ಫೋನ್ ಇನ್</string>
+    <string name="typ_Pop">ಪಾಪ್ ಸಂಗೀತ</string>
+    <string name="typ_Religion">ಧಾರ್ಮಿಕ</string>
+    <string name="typ_Rock">ರಾಕ್ ಸಂಗೀತ</string>
+    <string name="typ_Science">ವಿಜ್ಞಾನ</string>
+    <string name="typ_Serious_classical">ಗಂಭೀರ ಶಾಸ್ತ್ರೀಯ</string>
+    <string name="typ_Social_affairs">ಸಮಾಜ ಕಲ್ಯಾಣ</string>
+    <string name="typ_Sport">ಕ್ರೀಡೆ</string>
+    <string name="typ_Travel">ಪ್ರವಾಸ</string>
+    <string name="typ_Varied">ವೈವಿಧ್ಯ</string>
+    <string name="typ_Weather">ಹವಾಮಾನ</string>
+    <string name="typ_Adult_hits">ವಯಸ್ಕರ ಹಿಟ್ಸ್</string>
+    <string name="typ_Classical">ಶಾಸ್ತ್ರೀಯ</string>
+    <string name="typ_Classic_Rock">ಕ್ಲಾಸಿಕ್ ರಾಕ್</string>
+    <string name="typ_College">ಕಾಲೇಜು</string>
+    <string name="typ_Foreign_language">ವಿದೇಶೀ ಭಾಷೆ</string>
+    <string name="typ_Hiphop">ಹಿಪ್ ಹಾಪ್</string>
+    <string name="typ_Nostalgia">ವಿರಹ</string>
+    <string name="typ_Personality">ವ್ಯಕ್ತಿತ್ವ</string>
+    <string name="typ_Public">ಸಾರ್ವಜನಿಕ</string>
+    <string name="typ_Religious_music">ಧಾರ್ಮಿಕ ಸಂಗೀತ</string>
+    <string name="typ_Religious_talk">ಧಾರ್ಮಿಕ ಚರ್ಚೆ</string>
+    <string name="typ_Rhythm_and_Blues">ರಿದಮ್ ಮತ್ತು ಬ್ಲೂಸ್</string>
+    <string name="typ_Spanish_music">ಸ್ಪ್ಯಾನಿಷ್ ಸಂಗೀತ</string>
+    <string name="typ_Spanish_talk">ಸ್ಪ್ಯಾನಿಷ್ ಚರ್ಚೆ</string>
+    <string name="typ_Soft">ಮೃದು</string>
+    <string name="typ_Soft_Rock">ಮೃದು ರಾಕ್</string>
+    <string name="typ_Soft_Rhythm_and_Blues">ಮೃದು ರಿದಮ್ ಹಾಗು ಬ್ಲೂಸ್</string>
+    <string name="typ_Sports">ಕ್ರೀಡೆ</string>
+    <string name="typ_Talk">ಚರ್ಚೆ</string>
+    <string name="typ_Top_40">ಟಾಪ್ 40</string>
+</resources>

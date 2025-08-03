@@ -1,0 +1,117 @@
+
+method Base.<init>():void
+{
+	.src "Target.java"
+	.line 1
+	.prologue_end
+	.line 1
+	    0| invoke-direct {v0}, java.lang.Object.<init>():void
+	    3| return-void
+}
+
+method Base.foo(int, java.lang.String):int
+{
+	.params "?", "?"
+	.src "Target.java"
+	.line 3
+	.prologue_end
+	.line 3
+	    0| const/4 v0, #+0 (0x00000000 | 0.00000)
+	    1| return v0
+}
+
+method IBase.bar(java.lang.String):void
+{
+}
+
+method Target.<init>(Base, IBase):void
+{
+	.params "?", "?"
+	.src "Target.java"
+	.line 15
+	.prologue_end
+	.line 15
+	    0| invoke-direct {v0}, java.lang.Object.<init>():void
+	.line 16
+	    3| iput-object v1, v0, Target.base
+	.line 17
+	    5| iput-object v2, v0, Target.iBase
+	.line 18
+	    7| return-void
+}
+
+method Target.foo(int, java.lang.String):int
+{
+	.params "?", "?"
+	.src "Target.java"
+	.line 21
+	.prologue_end
+	.line 21
+	    0| const v0, #+4 (0x00000004 | 5.60519e-45)
+	    3| new-array v1, v0, java.lang.Object[]
+	    5| const-string v2, "Target->foo(ILjava/lang/String;)I"
+	    7| const v0, #+0 (0x00000000 | 0.00000)
+	   10| aput-object v2, v1, v0
+	   12| const v0, #+1 (0x00000001 | 1.40130e-45)
+	   15| aput-object v3, v1, v0
+	   17| invoke-static/range {v4..v4}, java.lang.Integer.valueOf(int):java.lang.Integer
+	   20| move-result-object v2
+	   21| const v0, #+2 (0x00000002 | 2.80260e-45)
+	   24| aput-object v2, v1, v0
+	   26| const v0, #+3 (0x00000003 | 4.20390e-45)
+	   29| aput-object v5, v1, v0
+	   31| invoke-static/range {v1..v1}, Tracer.onFooEntry(java.lang.Object[]):void
+	   34| const v0, #-16843010 (0xfefefefe | -1.69474e+38)
+	   37| const v1, #-16843010 (0xfefefefe | -1.69474e+38)
+	   40| const v2, #-16843010 (0xfefefefe | -1.69474e+38)
+	   43| move-object/16 v2, v3
+	   46| move/16 v3, v4
+	   49| move-object/16 v4, v5
+	   52| iget-object v0, v2, Target.base
+	   54| invoke-virtual {v0,v3,v4}, Base.foo(int, java.lang.String):int
+	   57| move-result v0
+	.line 22
+	   58| iget-object v1, v2, Target.iBase
+	   60| invoke-interface {v1,v4}, IBase.bar(java.lang.String):void
+	.line 23
+	   63| return v0
+}
+
+method Target.foo(int, java.lang.String[][]):java.lang.Integer
+{
+	.params "?", "?"
+	.src "Target.java"
+	.line 27
+	.prologue_end
+	.line 27
+	    0| const v0, #+4 (0x00000004 | 5.60519e-45)
+	    3| new-array v1, v0, java.lang.Object[]
+	    5| const-string v2, "Target->foo(I[[Ljava/lang/String;)Ljava/lang/Integer;"
+	    7| const v0, #+0 (0x00000000 | 0.00000)
+	   10| aput-object v2, v1, v0
+	   12| const v0, #+1 (0x00000001 | 1.40130e-45)
+	   15| aput-object v3, v1, v0
+	   17| invoke-static/range {v4..v4}, java.lang.Integer.valueOf(int):java.lang.Integer
+	   20| move-result-object v2
+	   21| const v0, #+2 (0x00000002 | 2.80260e-45)
+	   24| aput-object v2, v1, v0
+	   26| const v0, #+3 (0x00000003 | 4.20390e-45)
+	   29| aput-object v5, v1, v0
+	   31| invoke-static/range {v1..v1}, Tracer.onFooEntry(java.lang.Object[]):void
+	   34| const v0, #-16843010 (0xfefefefe | -1.69474e+38)
+	   37| const v1, #-16843010 (0xfefefefe | -1.69474e+38)
+	   40| const v2, #-16843010 (0xfefefefe | -1.69474e+38)
+	   43| move-object/16 v2, v3
+	   46| move/16 v3, v4
+	   49| move-object/16 v4, v5
+	   52| iget-object v0, v2, Target.base
+	   54| const-string v1, "foo"
+	   56| invoke-virtual {v0,v3,v1}, Base.foo(int, java.lang.String):int
+	.line 28
+	   59| iget-object v0, v2, Target.iBase
+	   61| const-string v1, "bar"
+	   63| invoke-interface {v0,v1}, IBase.bar(java.lang.String):void
+	.line 29
+	   66| const/4 v0, #+0 (0x00000000 | 0.00000)
+	   67| return-object v0
+}

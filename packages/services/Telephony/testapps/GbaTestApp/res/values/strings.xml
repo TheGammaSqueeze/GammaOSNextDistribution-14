@@ -1,0 +1,30 @@
+<resources>
+    <string name="app_name">GbaTestApp</string>
+    <string name="label_settings">Settings</string>
+    <string name="label_carrier">Carrier Config</string>
+    <string name="label_service">Service Config</string>
+    <string name="label_test">Test Config</string>
+    <string name="button_name_running">Running</string>
+    <string name="button_name_exit">Exit</string>
+    <string name="label_test_result">Test Result</string>
+    <string name="button_name_clear">Reset</string>
+    <string name="button_name_done">Done</string>
+    <string name="title_activity_carrier_config">CarrierConfigActivity</string>
+    <string name="title_activity_service_config">ServiceConfigActivity</string>
+    <string name="title_activity_test_config">TestConfigActivity</string>
+    <string name="service_package_name">Package name of GBA service</string>
+    <string name="service_release_time">How long to release service after calling</string>
+    <string name="request_app_type">UICC App Type</string>
+    <string name="request_naf_url">Network application function (NAF) URL</string>
+    <string name="request_force_bootstrapping">Force Bootstrapping?</string>
+    <string name="request_org">Organization Code</string>
+    <string name="request_security_protocol">UA Security Protocol ID</string>
+    <string name="request_tls_cipher_suite">TLS Cipher Suite ID</string>
+    <string name="response_success">GBA Auth Success?</string>
+    <string name="response_fail_reason">Fail Reason ID</string>
+    <string name="response_key">GBA Key (CK + IK)</string>
+    <string name="response_btid">Bootstrapping Transaction Identifier (B-TID)</string>
+    <string name="sample_naf">3GPP-bootstrapping@naf1.operator.com</string>
+    <string name="sample_btid">(B-TID)</string>
+    <string name="sample_key">6629fae49393a05397450978507c4ef1</string>
+</resources>

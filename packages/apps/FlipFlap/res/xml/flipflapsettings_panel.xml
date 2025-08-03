@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  Copyright (c) 2017-2019 The LineageOS Project
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ Also add information on how to contact you by electronic and paper mail.
+
+-->
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:persistent="true"
+    android:title="@string/settings_name">
+
+    <com.android.settingslib.widget.MainSwitchPreference
+        android:defaultValue="false"
+        android:key="flipflap_enable"
+        android:title="@string/settings_enable" />
+
+    <PreferenceCategory
+        android:title="@string/category_behaviour"
+        android:key="category_behaviour">
+
+        <SwitchPreference
+            android:key="pass_to_security_view"
+            android:defaultValue="false"
+            android:title="@string/pass_to_security_view_title"
+            android:summary="@string/pass_to_security_view_summary"
+            android:dependency="flipflap_enable" />
+
+        <SwitchPreference
+            android:key="use_high_touch_sensitivity"
+            android:defaultValue="false"
+            android:title="@string/use_high_touch_sensitivity_title"
+            android:summary="@string/use_high_touch_sensitivity_summary"
+            android:dependency="flipflap_enable" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/category_design"
+        android:key="category_design">
+
+        <SwitchPreference
+            android:key="battery_indication"
+            android:defaultValue="true"
+            android:title="@string/switch_charging_status_title"
+            android:summary="@string/switch_charging_status_summary"
+            android:dependency="flipflap_enable" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/category_timeouts" >
+
+        <ListPreference
+            android:key="timeout_plugged"
+            android:title="@string/timeout_plugged_title"
+            android:summary=""
+            android:entries="@array/timeout_entries"
+            android:entryValues="@array/timeout_values"
+            android:defaultValue="5"
+            android:dependency="flipflap_enable" />
+
+        <ListPreference
+            android:key="timeout_unplugged"
+            android:title="@string/timeout_unplugged_title"
+            android:summary=""
+            android:entries="@array/timeout_entries"
+            android:entryValues="@array/timeout_values"
+            android:defaultValue="5"
+            android:dependency="flipflap_enable" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

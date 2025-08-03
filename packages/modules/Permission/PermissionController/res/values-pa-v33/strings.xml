@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="role_dialer_request_description" msgid="6188305064871543419">"ਇਸ ਐਪ ਨੂੰ ਤੁਹਾਨੂੰ ਸੂਚਨਾਵਾਂ ਭੇਜਣ ਦੀ ਆਗਿਆ ਦਿੱਤੀ ਜਾਵੇਗੀ, ਅਤੇ ਤੁਹਾਡੇ ਕੈਮਰੇ, ਸੰਪਰਕਾਂ, ਮਾਈਕ੍ਰੋਫ਼ੋਨ, ਫ਼ੋਨ ਅਤੇ SMS ਤੱਕ ਪਹੁੰਚ ਦਿੱਤੀ ਜਾਵੇਗੀ"</string>
+    <string name="role_sms_request_description" msgid="1506966389698625395">"ਇਸ ਐਪ ਨੂੰ ਤੁਹਾਨੂੰ ਸੂਚਨਾਵਾਂ ਭੇਜਣ ਦੀ ਆਗਿਆ ਦਿੱਤੀ ਜਾਵੇਗੀ ਅਤੇ ਤੁਹਾਡੇ ਕੈਮਰੇ, ਸੰਪਰਕਾਂ, ਫ਼ਾਈਲਾਂ, ਮਾਈਕ੍ਰੋਫ਼ੋਨ, ਫ਼ੋਨ ਅਤੇ SMS ਤੱਕ ਪਹੁੰਚ ਦਿੱਤੀ ਜਾਵੇਗੀ"</string>
+    <string name="permission_description_summary_storage" msgid="1917071243213043858">"ਇਸ ਇਜਾਜ਼ਤ ਵਾਲੀਆਂ ਐਪਾਂ ਇਸ ਡੀਵਾਈਸ \'ਤੇ ਸਾਰੀਆਂ ਫ਼ਾਈਲਾਂ ਤੱਕ ਪਹੁੰਚ ਕਰ ਸਕਦੀਆਂ ਹਨ"</string>
+    <string name="work_policy_title" msgid="832967780713677409">"ਤੁਹਾਡੀ ਕਾਰਜ ਨੀਤੀ ਸੰਬੰਧੀ ਜਾਣਕਾਰੀ"</string>
+    <string name="work_policy_summary" msgid="3886113358084963931">"ਤੁਹਾਡੇ ਆਈ.ਟੀ. ਪ੍ਰਸ਼ਾਸਕ ਵੱਲੋਂ ਸੈਟਿੰਗਾਂ ਦਾ ਪ੍ਰਬੰਧਨ ਕੀਤਾ ਜਾਂਦਾ ਹੈ"</string>
+    <string name="safety_center_entry_group_expand_action" msgid="5358289574941779652">"ਵਿਸਤਾਰ ਕਰ ਕੇ ਸੂਚੀ ਦਿਖਾਓ"</string>
+    <string name="safety_center_entry_group_collapse_action" msgid="1525710152244405656">"ਸੂਚੀ ਸਮੇਟੋ ਅਤੇ ਸੈਟਿੰਗਾਂ ਲੁਕਾਓ"</string>
+    <string name="safety_center_entry_group_content_description" msgid="7048420958214443333">"ਸੂਚੀ। <xliff:g id="ENTRY_TITLE">%1$s</xliff:g>. <xliff:g id="ENTRY_SUMMARY">%2$s</xliff:g>"</string>
+    <string name="safety_center_entry_group_with_actions_needed_content_description" msgid="2708884606775932657">"ਸੂਚੀ। <xliff:g id="ENTRY_TITLE">%1$s</xliff:g>. ਕਾਰਵਾਈਆਂ ਦੀ ਲੋੜ ਹੈ। <xliff:g id="ENTRY_SUMMARY">%2$s</xliff:g>"</string>
+    <string name="safety_center_entry_group_item_content_description" msgid="7348298582877249787">"ਸੂਚੀ ਆਈਟਮ। <xliff:g id="ENTRY_ITEM_TITLE">%1$s</xliff:g>. <xliff:g id="ENTRY_ITEM_SUMMARY">%2$s</xliff:g>"</string>
+    <string name="safety_center_entry_content_description" msgid="3639565652938224321">"<xliff:g id="ENTRY_ITEM_TITLE">%1$s</xliff:g>. <xliff:g id="ENTRY_ITEM_SUMMARY">%2$s</xliff:g>"</string>
+    <string name="safety_center_more_issues_card_title" msgid="7425844746197493312">"ਹੋਰ ਅਲਰਟ"</string>
+    <string name="safety_center_dismissed_issues_card_title" msgid="2340129842725145733">"ਖਾਰਜ ਕੀਤੇ ਅਲਰਟ"</string>
+    <string name="safety_center_more_issues_card_expand_action" msgid="7109451851052272946">"{count,plural, =1{ਵਿਸਤਾਰ ਕਰੋ ਅਤੇ ਇੱਕ ਹੋਰ ਅਲਰਟ ਦੇਖੋ}one{ਵਿਸਤਾਰ ਕਰੋ ਅਤੇ # ਹੋਰ ਅਲਰਟ ਦੇਖੋ}other{ਵਿਸਤਾਰ ਕਰੋ ਅਤੇ # ਹੋਰ ਅਲਰਟ ਦੇਖੋ}}"</string>
+    <string name="safety_center_issue_card_prefix_content_description" msgid="1447445289637043544">"ਅਲਰਟ। <xliff:g id="ISSUE_CARD_TITLE">%1$s</xliff:g>"</string>
+    <string name="safety_center_resolved_issue_fallback" msgid="8548932070610766651">"ਕਾਰਵਾਈ ਪੂਰੀ ਹੋਈ"</string>
+    <string name="safety_center_qs_status_summary" msgid="5193925895830451177">"ਉਨ੍ਹਾਂ ਸੈਟਿੰਗਾਂ ਦੀ ਜਾਂਚ ਕਰੋ ਜੋ ਤੁਹਾਡੇ ਡੀਵਾਈਸ ਵਿੱਚ ਸੁਰੱਖਿਆ ਸ਼ਾਮਲ ਕਰ ਸਕਦੀਆਂ ਹਨ"</string>
+    <string name="safety_center_qs_page_landing" msgid="1717368301679228128">"ਸੁਰੱਖਿਆ ਅਤੇ ਪਰਦੇਦਾਰੀ ਸੰਬੰਧੀ ਤਤਕਾਲ ਸੈਟਿੰਗਾਂ"</string>
+    <string name="safety_center_qs_close_button" msgid="1352313308176244599">"ਬੰਦ ਕਰੋ"</string>
+    <string name="safety_center_qs_expand_action" msgid="2193190557696484169">"ਵਿਸਤਾਰ ਕਰੋ ਅਤੇ ਵਿਕਲਪ ਦਿਖਾਓ"</string>
+    <string name="safety_center_qs_collapse_action" msgid="5809657430125309183">"ਸਮੇਟੋ"</string>
+    <string name="safety_center_qs_privacy_control" msgid="1160682635058529673">"ਸਵਿੱਚ ਕਰੋ। <xliff:g id="PRIVACY_CONTROL_TITLE">%1$s</xliff:g>. <xliff:g id="PRIVACY_CONTROL_STATUS">%2$s</xliff:g>"</string>
+    <string name="safety_center_qs_toggle_action" msgid="5920465736488119255">"ਟੌਗਲ ਕਰੋ"</string>
+    <string name="safety_center_qs_open_action" msgid="2760200829912423728">"ਖੋਲ੍ਹੋ"</string>
+    <string name="safety_center_review_settings_button" msgid="938981137942443930">"ਸੈਟਿੰਗਾਂ ਦੀ ਸਮੀਖਿਆ ਕਰੋ"</string>
+    <string name="safety_center_gear_label" msgid="5175877094379694098">"ਸੈਟਿੰਗਾਂ"</string>
+    <string name="safety_center_info_label" msgid="8993181584061825412">"ਜਾਣਕਾਰੀ"</string>
+</resources>

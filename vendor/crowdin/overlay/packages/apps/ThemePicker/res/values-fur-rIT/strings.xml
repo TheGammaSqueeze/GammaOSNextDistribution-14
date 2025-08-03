@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2018 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Fonts e stîl</string>
+    <string name="theme_title">Stîl</string>
+    <string name="clock_title">Orloi personalizât</string>
+    <string name="clock_description">Sielç un orloi personalizât</string>
+    <string name="clock_picker_entry_content_description">Cambie un orloi personalizât</string>
+    <string name="select_clock_action_description">Opzion de muse dal orloi: <xliff:g name="clock_face_description">%1$s</xliff:g></string>
+    <string name="clock_settings_title">Colôr e dimension dal orloi</string>
+    <string name="clock_color_and_size_title">Colôr e dimension dal orloi</string>
+    <string name="clock_color_and_size_description"><xliff:g name="color">%1$s</xliff:g>, <xliff:g name="size">%2$s</xliff:g></string>
+    <string name="clock_color">Colôr</string>
+    <string name="clock_color_red">Ros</string>
+    <string name="clock_color_orange">Naranç</string>
+    <string name="clock_color_yellow">Zâl</string>
+    <string name="clock_color_green">Vert</string>
+    <string name="clock_color_blue">Blu</string>
+    <string name="clock_color_indigo">Perlin</string>
+    <string name="clock_color_violet">Viole</string>
+    <string name="clock_color_gray">Grîs</string>
+    <string name="clock_color_teal">Vert aghe</string>
+    <string name="clock_size">Dimension</string>
+    <string name="clock_size_dynamic">Dinamiche</string>
+    <string name="clock_size_dynamic_description">La dimension dal orloi e cambie in base al contignût de schermade di bloc</string>
+    <string name="clock_size_large">Grande</string>
+    <string name="clock_size_small">Piçule</string>
+    <string name="clock_size_small_description">Un piçul orloi mostrât tal cjanton dal to schermi</string>
+    <string name="grid_title">Gridele aplic.</string>
+    <string name="apply_theme_btn">Apliche</string>
+    <string name="edit_custom_theme_lbl">Tocje par modificâ</string>
+    <string name="keep_my_wallpaper">Ten il fonts atuâl</string>
+    <string name="theme_preview_card_content_description">Anteprime dal stîl</string>
+    <string name="grid_preview_card_content_description">Anteprime de gridele</string>
+    <string name="font_preview_content_description">Anteprime dal caratar</string>
+    <string name="icon_preview_content_description">Anteprime de icone</string>
+    <string name="color_preview_content_description">Anteprime dal colôr</string>
+    <string name="shape_preview_content_description">Anteprime de forme</string>
+    <string name="option_applied_description"><xliff:g name="style_name">%1$s</xliff:g>, in chest moment aplicade</string>
+    <string name="option_applied_previewed_description"><xliff:g name="style_name">%1$s</xliff:g>, in chest moment aplicade e visualizade in anteprime</string>
+    <string name="option_previewed_description"><xliff:g name="style_name">%1$s</xliff:g>, in chest moment visualizade in anteprime</string>
+    <string name="option_change_applied_previewed_description"><xliff:g name="style_name">%1$s</xliff:g>, modifiche selezionade e viodude in anteprime</string>
+    <string name="theme_description">Caratar: <xliff:g name="font_name">%1$s</xliff:g>, iconis: <xliff:g name="icon_name">%2$s</xliff:g>, forme: <xliff:g name="shape_name">%3$s</xliff:g>, colôr: <xliff:g name="color_name">%4$s</xliff:g> </string>
+    <string name="default_theme_title">Predefinît</string>
+    <string name="preview_name_font">Caratar</string>
+    <string name="preview_name_icon">Icone</string>
+    <string name="preview_name_color">Colôr</string>
+    <string name="preview_name_shape">Forme</string>
+    <string name="preview_name_wallpaper">Fonts</string>
+    <string name="font_card_title">ABC • abc • 123</string>
+    <string name="font_card_body">Zonte i tiei caratars preferîts a ogni schermade</string>
+    <string name="grid_options_title">Sielç une dimension de gridele</string>
+    <string name="grid_title_pattern"><xliff:g name="num_cols" example="1">%1$d</xliff:g>x<xliff:g name="num_rows" example="1">%2$d</xliff:g></string>
+    <string name="apply_grid_btn_note">Cambiant la dimension de gridele tu tornarâs a cjariâ il spazi di lavôr, chest al puartarà vie cualchi secont.</string>
+    <string name="toast_of_changing_grid">Daûr a tornâ a cjariâ il spazi di lavôr cu la gridele %1$s</string>
+    <string name="toast_of_failure_to_change_grid">Impussibil tornâ a cjariâ il spazi di lavôr cu la gridele %1$s</string>
+    <string name="applied_theme_msg">Stîl stabilît cun sucès</string>
+    <string name="applied_clock_msg">Ore configurade cun sucès</string>
+    <string name="applied_grid_msg">Gridele stabilide cun sucès</string>
+    <string name="apply_theme_error_msg">Al è vignût fûr un probleme tal aplicâ il stîl</string>
+    <string name="custom_theme_next">Indenant</string>
+    <string name="custom_theme_previous">Indaûr</string>
+    <string name="custom_theme">Personalizât</string>
+    <string name="custom_theme_title">Personalizât <xliff:g name="custom_num" example="1">%1$d</xliff:g></string>
+    <string name="custom_theme_fragment_title">Stîl personalizât</string>
+    <string name="custom_theme_delete">Elimine</string>
+    <string name="font_component_title">Sielç il caratar</string>
+    <string name="icon_component_title">Sielç lis iconis</string>
+    <string name="color_component_title">Sielç il colôr</string>
+    <string name="shape_component_title">Sielç la forme</string>
+    <string name="name_component_title">Da un non al to stîl</string>
+    <string name="icon_component_label">Iconis <xliff:g name="component_number" example="1">%1$d</xliff:g></string>
+    <string name="delete_custom_theme_confirmation">Eliminâ il stîl personalizât?</string>
+    <string name="delete_custom_theme_button">Elimine</string>
+    <string name="cancel">Anule</string>
+    <string name="set_theme_wallpaper_dialog_message">Stabilìs il fonts dal stîl</string>
+    <string name="use_style_instead_title">Vûstu invezit doprâ <xliff:g name="style_name">%1$s</xliff:g>?</string>
+    <string name="use_style_instead_body">I components che tu âs sielt a corispuindin al stîl <xliff:g name="style_name">%1$s</xliff:g>. Desideristu invezit doprâ <xliff:g name="style_name">%1$s</xliff:g>?</string>
+    <string name="use_style_button">Dopre <xliff:g name="style_name">%1$s</xliff:g></string>
+    <string name="no_thanks">No, graciis</string>
+    <string name="clock_preview_content_description">Anteprime orloi <xliff:g name="clock_name">%1$s</xliff:g></string>
+    <string name="something_went_wrong">Orpo! Alc al è lât strucj.</string>
+    <string name="theme_preview_icons_section_title">Colôr / Iconis</string>
+    <string name="style_info_description">Anteprime di caratar, iconis, forme de aplicazion e colôr</string>
+    <string name="accessibility_custom_font_title">Caratar personalizât</string>
+    <string name="accessibility_custom_icon_title">Icone personalizade</string>
+    <string name="accessibility_custom_color_title">Colôr personalizât</string>
+    <string name="accessibility_custom_shape_title">Forme personalizade</string>
+    <string name="accessibility_custom_name_title">Non di stîl personalizât</string>
+    <string name="accessibility_clock_slider_description">Intensitât dai colôrs</string>
+    <string name="mode_title" msgid="1000319159005403986">Teme scûr</string>
+    <string name="mode_disabled_msg" msgid="1926077857799715086">Disativât in mût temporani par vie dal sparagn energjetic</string>
+    <string name="mode_changed">Teme cambiât</string>
+    <string name="themed_icon_title" msgid="4305612684940220645">Iconis a teme</string>
+    <string name="beta_title">Beta</string>
+    <string name="gird_picker_entry_content_description" msgid="7538418512525897691">Cambie gridele aplicazions</string>
+    <string name="wallpaper_color_tab">Colôrs dal fonts</string>
+    <string name="wallpaper_color_subheader">Iconis, test e altri a cumbinin i colôrs cul to fonts</string>
+    <string name="wallpaper_color_title">Colôr dal fonts</string>
+    <string name="preset_color_tab">Colôrs di base</string>
+    <string name="preset_color_tab_2">Altris colôrs</string>
+    <string name="preset_color_subheader">Sielç cualsisei colôr par iconis, orloi e altri</string>
+    <string name="color_changed">Colôr cambiât</string>
+    <string name="adaptive_color_title">Dinamic</string>
+    <string name="color_picker_title">Colôrs di sisteme</string>
+    <string name="keyguard_slot_name_bottom_start">Scurte di çampe</string>
+    <string name="keyguard_slot_name_bottom_end">Scurte di diestre</string>
+    <string name="keyguard_affordance_none">Nissun</string>
+    <string name="keyguard_affordance_enablement_dialog_headline">Impussibil zontâ la scurte</string>
+    <string name="keyguard_affordance_enablement_dialog_action_template">Vierç <xliff:g id="appName" example="Wallet">%1$s</xliff:g></string>
+    <string name="keyguard_affordance_enablement_dialog_message">Par zontâ come scurte la aplicazion <xliff:g id="appName" example="Wallet">%1$s</xliff:g>, controle che:</string>
+    <string name="keyguard_affordance_enablement_dialog_dismiss_button">Fat</string>
+    <string name="keyguard_quick_affordance_title">Scurtis</string>
+    <string name="keyguard_quick_affordance_section_title">Scurtis</string>
+    <string name="keyguard_quick_affordance_two_selected_template"><xliff:g id="first">%1$s</xliff:g>, <xliff:g id="second">%2$s</xliff:g></string>
+    <string name="keyguard_quick_affordance_none_selected">Nissun element</string>
+    <string name="show_notifications_on_lock_screen">Mostre lis notifichis su la schermade di bloc</string>
+    <string name="more_settings_section_title">Altris opzions</string>
+    <string name="more_settings_section_description">Riservatece, Cumò in riproduzion e altri</string>
+    <string name="more_colors">Altris colôrs</string>
+    <string name="content_description_dynamic_color_option">Teme dinamic primari</string>
+    <string name="content_description_neutral_color_option">Teme neutrâl primari</string>
+    <string name="content_description_vibrant_color_option">Teme vivarôs primari</string>
+    <string name="content_description_expressive_color_option">Teme espressîf primari</string>
+    <string name="content_description_default_color_option">Opzion predefinide pal colôr</string>
+    <string name="content_description_color_option">Opzion colôr <xliff:g name="color_number" example="1">%1$d</xliff:g></string>
+    <string name="scroll_forward_and_select">Scor a çampe par sielzi une muse dal orloi divierse</string>
+    <string name="scroll_backward_and_select">Scor a diestre par sielzi une muse dal orloi divierse</string>
+    <string name="custom_clocks_label">Orlois personalizâts</string>
+</resources>

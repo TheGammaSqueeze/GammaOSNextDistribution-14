@@ -1,0 +1,62 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "ff1dfbefcbd959a154b6f8eaaa6a152c",
+    "entities": [
+      {
+        "tableName": "ad_selection_debug_report",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ad_selection_debug_report_id` INTEGER PRIMARY KEY AUTOINCREMENT, `debug_report_uri` TEXT, `dev_options_enabled` INTEGER NOT NULL, `creation_timestamp` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "adSelectionDebugReportId",
+            "columnName": "ad_selection_debug_report_id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "debugReportUri",
+            "columnName": "debug_report_uri",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "devOptionsEnabled",
+            "columnName": "dev_options_enabled",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "creationTimestamp",
+            "columnName": "creation_timestamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "ad_selection_debug_report_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_ad_selection_debug_report_creation_timestamp",
+            "unique": false,
+            "columnNames": [
+              "creation_timestamp"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ad_selection_debug_report_creation_timestamp` ON `${TABLE_NAME}` (`creation_timestamp`)"
+          }
+        ],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ff1dfbefcbd959a154b6f8eaaa6a152c')"
+    ]
+  }
+}

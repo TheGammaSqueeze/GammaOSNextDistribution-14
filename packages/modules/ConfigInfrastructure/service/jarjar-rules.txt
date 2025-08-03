@@ -1,0 +1,6 @@
+rule com.android.modules.utils.** com.android.server.deviceconfig.internal.modules.utils.@1
+rule com.google.protobuf.** com.android.server.deviceconfig.internal.protobuf.@1
+rule com.google.common.** com.android.server.deviceconfig.internal.common.@1
+rule javax.annotation.** com.android.server.deviceconfig.javax.annotation.@1
+rule com.google.thirdparty.publicsuffix.** com.android.server.deviceconfig.publicsuffix.@1
+rule android.aconfig.** com.android.server.deviceconfig.internal.aconfig.@1

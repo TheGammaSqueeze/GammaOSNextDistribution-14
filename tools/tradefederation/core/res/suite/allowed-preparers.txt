@@ -1,0 +1,11 @@
+com.android.tradefed.targetprep.AoaTargetPreparer
+com.android.tradefed.targetprep.DeviceCleaner
+com.android.tradefed.targetprep.RootTargetPreparer
+com.android.tradefed.targetprep.RunCommandTargetPreparer
+com.android.tradefed.targetprep.WifiPreparer
+com.android.compatibility.common.tradefed.targetprep.StayAwakePreparer
+com.android.compatibility.common.tradefed.targetprep.PackageDisabler
+com.android.compatibility.common.tradefed.targetprep.SettingsPreparer
+com.android.compatibility.common.tradefed.targetprep.ApkPreconditionCheck
+com.android.compatibility.common.tradefed.targetprep.WifiCheck
+com.android.compatibility.targetprep.AppSetupPreparer

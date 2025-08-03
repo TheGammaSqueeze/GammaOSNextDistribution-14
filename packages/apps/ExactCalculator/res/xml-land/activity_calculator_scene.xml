@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2023 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<MotionScene xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:motion="http://schemas.android.com/apk/res-auto">
+
+    <Transition
+        motion:constraintSetEnd="@+id/end_state"
+        motion:constraintSetStart="@+id/start_state"
+        motion:duration="1000"
+        motion:layoutDuringTransition="honorRequest">
+        <OnSwipe
+            motion:dragDirection="dragDown"
+            motion:limitBoundsTo="@id/display"
+            motion:touchAnchorId="@id/display"
+            motion:touchAnchorSide="bottom" />
+    </Transition>
+
+    <ConstraintSet android:id="@+id/start_state" />
+
+    <ConstraintSet android:id="@+id/end_state">
+        <Constraint
+            android:id="@id/history_frame"
+            android:layout_width="match_parent"
+            motion:layout_constraintBottom_toTopOf="@id/display"
+            motion:layout_constraintTop_toTopOf="parent" />
+        <Constraint
+            android:id="@id/display"
+            android:layout_width="match_parent"
+            motion:layout_constraintBottom_toTopOf="@id/advanced_pad"
+            motion:layout_constraintHeight_percent="@dimen/layout_display_ratio" />
+        <Constraint
+            android:id="@id/advanced_pad"
+            motion:layout_constraintBottom_toBottomOf="@id/animation_helper"
+            motion:layout_constraintEnd_toStartOf="@id/layout_vertical_guideline"
+            motion:layout_constraintHeight_percent="@dimen/layout_pads_ratio"
+            motion:layout_constraintStart_toStartOf="parent" />
+        <Constraint
+            android:id="@id/input_pad"
+            motion:layout_constraintBottom_toBottomOf="@id/animation_helper"
+            motion:layout_constraintEnd_toEndOf="parent"
+            motion:layout_constraintHeight_percent="@dimen/layout_pads_ratio"
+            motion:layout_constraintStart_toEndOf="@id/layout_vertical_guideline" />
+    </ConstraintSet>
+</MotionScene>

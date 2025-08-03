@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="1265450418387661962">"TestSliceApp"</string>
+    <string name="hello_blank_fragment" msgid="1245093642770491175">"Hallo leeg fragment"</string>
+    <string name="request_network" msgid="8945235490804849914">"Netwerk aanvragen"</string>
+    <string name="release_network" msgid="174252378593535238">"Netwerk vrijgeven"</string>
+    <string name="ping" msgid="7890607576220714932">"Ping"</string>
+    <string name="result_prefix" msgid="3522796186427501399">"Resultaat:"</string>
+    <string name="latency_title" msgid="963052613947017009">"Vertraging prioriteit geven"</string>
+    <string name="bw_title" msgid="3902162973688221344">"Bandbreedte prioriteit geven"</string>
+    <string name="cbs_title" msgid="5234410535569935600">"CBS"</string>
+    <string name="purchase" msgid="7843181995697372128">"Netwerkpremium kopen"</string>
+    <string name="network_available" msgid="4780293262690730734">"Resultaat: Het gevraagde netwerk is nu beschikbaar."</string>
+    <string name="network_requested" msgid="5646123922691865991">"Resultaat: Het netwerk is aangevraagd."</string>
+    <string name="network_released" msgid="2992280481133877025">"Resultaat: Het netwerk is vrijgegeven."</string>
+    <string name="network_release_failed" msgid="256471231420029151">"Resultaat: Het netwerk kan niet worden vrijgegeven."</string>
+    <string name="purchase_exception" msgid="8876841120055716671">"Resultaat: Uitzondering bij kopen van netwerkpremium."</string>
+    <string name="purchase_empty_result" msgid="7497824191649973928">"Resultaat: Er is een leeg resultaat geretourneerd bij het kopen van netwerkpremium."</string>
+    <string name="premium_not_available" msgid="7346368693802644748">"Resultaat: Het netwerkpremium kan niet worden gekocht."</string>
+    <string name="purchase_in_progress" msgid="5450288183685032424">"Resultaat: Netwerkpremium wordt gekocht..."</string>
+</resources>

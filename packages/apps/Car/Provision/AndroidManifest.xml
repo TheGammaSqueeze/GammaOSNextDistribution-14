@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ Copyright (C) 2020 The Android Open Source Project
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ -->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+     package="com.android.car.provision">
+
+    <!-- For miscellaneous settings -->
+    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS"/>
+
+    <!-- To query if DPC app exists for user 0 -->
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS"/>
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"/>
+
+    <!-- To listen to UX restriction events -->
+    <uses-permission android:name="android.car.permission.CAR_POWERTRAIN"/>
+
+    <!-- To show the exited setup notification -->
+    <uses-permission android:name="android.permission.SEND_CATEGORY_CAR_NOTIFICATIONS"/>
+
+    <!-- To start the new DPC provisioning workflow  -->
+    <uses-permission android:name="android.permission.DISPATCH_PROVISIONING_MESSAGE"/>
+
+    <!-- To factory reset -->
+    <uses-permission android:name="android.permission.MASTER_CLEAR"/>
+
+    <!-- To set user_setup_complete for system user-->
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL"/>
+
+    <!-- To check if device is managed by a device owner -->
+    <uses-permission android:name="android.permission.MANAGE_USERS"/>
+
+    <!-- To send notifications -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <application android:label="@string/app_name">
+
+        <activity android:name="DefaultActivity"
+             android:excludeFromRecents="true"
+             android:exported="true">
+            <intent-filter android:priority="1">
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.HOME"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.SETUP_WIZARD"/>
+            </intent-filter>
+        </activity>
+
+        <service android:name="UserNoticeUiService"
+            android:directBootAware="true"/>
+
+    </application>
+</manifest>

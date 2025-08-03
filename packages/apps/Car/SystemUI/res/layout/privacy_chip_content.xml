@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+       xmlns:app="http://schemas.android.com/apk/res-auto">
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/max_width_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="@dimen/privacy_chip_width" />
+
+    <View
+        android:id="@+id/inactive_background"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:alpha="0.0"
+        android:background="@drawable/privacy_chip_inactive_background_pill"
+        android:focusable="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="parent" />
+
+    <View
+        android:id="@+id/inactive_selected_background"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:alpha="0.0"
+        android:background="@drawable/privacy_chip_inactive_selected_background_pill"
+        android:focusable="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="parent" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/circular_active_indicator_vertical_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="@dimen/privacy_chip_indicator_circle_diameter" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/circular_active_indicator_horizontal_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="@dimen/privacy_chip_indicator_circle_diameter" />
+
+    <View
+        android:id="@+id/active_background"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:alpha="0.0"
+        android:background="@drawable/privacy_chip_active_background_pill"
+        android:focusable="false"
+        app:layout_constraintBottom_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/light_muted_icon"
+        android:visibility="gone"
+        android:layout_width="@dimen/privacy_chip_icon_size"
+        android:layout_height="@dimen/privacy_chip_icon_size"
+        android:alpha="0.0"
+        android:gravity="center"
+        android:scaleType="centerInside"
+        android:focusable="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="parent"
+    />
+
+    <ImageView
+        android:id="@+id/dark_muted_icon"
+        android:visibility="gone"
+        android:layout_width="@dimen/privacy_chip_icon_size"
+        android:layout_height="@dimen/privacy_chip_icon_size"
+        android:alpha="0.0"
+        android:gravity="center"
+        android:scaleType="centerInside"
+        android:focusable="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="parent"
+    />
+
+    <ImageView
+        android:id="@+id/light_icon"
+        android:visibility="gone"
+        android:layout_width="@dimen/privacy_chip_icon_size"
+        android:layout_height="@dimen/privacy_chip_icon_size"
+        android:alpha="0.0"
+        android:gravity="center"
+        android:scaleType="centerInside"
+        android:focusable="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="parent"
+    />
+
+    <ImageView
+        android:id="@+id/dark_icon"
+        android:visibility="gone"
+        android:layout_width="@dimen/privacy_chip_icon_size"
+        android:layout_height="@dimen/privacy_chip_icon_size"
+        android:alpha="0.0"
+        android:gravity="center"
+        android:scaleType="centerInside"
+        android:focusable="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="parent"
+    />
+
+    <!-- Vew to properly show rotary focus highlight for camera privacy chip. -->
+    <View
+        android:id="@+id/focus_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:alpha="0.0"
+        android:background="@drawable/system_bar_pill_rotary_background"
+        android:focusable="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="parent" />
+</merge>

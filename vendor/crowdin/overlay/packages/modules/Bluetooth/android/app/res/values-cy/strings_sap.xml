@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="bluetooth_sap_notif_title">Mynediad Bluetooth at SIM</string>
+    <string name="bluetooth_sap_notif_ticker">Mynediad Bluetooth at SIM</string>
+    <string name="bluetooth_sap_notif_message">Gofyn i\u2019r cleient ddatgysylltu?</string>
+    <string name="bluetooth_sap_notif_disconnecting">Yn aros i\u2019r cleient ddatgysylltu</string>
+    <string name="bluetooth_sap_notif_disconnect_button">Datgysylltu</string>
+    <string name="bluetooth_sap_notif_force_disconnect_button">Gorfodi datgysylltu</string>
+</resources>

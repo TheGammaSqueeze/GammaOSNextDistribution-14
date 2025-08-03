@@ -1,0 +1,39 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_defaults {
+    name: "encryptedstore.defaults",
+    defaults: ["avf_build_flags_rust"],
+    srcs: ["src/main.rs"],
+    edition: "2021",
+    prefer_rlib: true,
+    rustlibs: [
+        "libandroid_logger",
+        "libanyhow",
+        "liblibc",
+        "libclap",
+        "libhex",
+        "liblog_rust",
+        "libmicrodroid_uids",
+        "libnix",
+        "libdm_rust",
+    ],
+    multilib: {
+        lib32: {
+            enabled: false,
+        },
+    },
+}
+
+rust_binary {
+    name: "encryptedstore",
+    defaults: ["encryptedstore.defaults"],
+    bootstrap: true,
+}
+
+rust_test {
+    name: "encryptedstore.test",
+    defaults: ["encryptedstore.defaults"],
+    test_suites: ["general-tests"],
+}

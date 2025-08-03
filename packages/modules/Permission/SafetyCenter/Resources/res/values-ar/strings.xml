@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="safetyCenterResourcesAppLabel" msgid="4043334186295695930">"مَراجع مركز الأمان"</string>
+    <string name="lock_screen_sources_title" msgid="3317906280484627707">"قفل الجهاز"</string>
+    <string name="lock_screen_sources_summary" msgid="7220439741282516496"></string>
+    <string name="lock_screen_title" msgid="4069104894527169877">"قفل الشاشة"</string>
+    <string name="lock_screen_summary_disabled" msgid="354071230916616692">"ما مِن معلومات بعد."</string>
+    <string name="lock_screen_search_terms" msgid="2678486357779794826">"قفل الجهاز، قفل الشاشة، شاشة القفل، شاشة قفل، كلمة المرور، رقم التعريف الشخصي، نقش"</string>
+    <string name="biometrics_title" msgid="5859504610285212938">"المقاييس الحيوية"</string>
+    <string name="biometrics_search_terms" msgid="6040319118762671981">"بصمة الإصبع، إصبع، إضافة بصمة إصبع، فتح الجهاز بالتعرف على الوجه، وجه"</string>
+    <string name="privacy_sources_title" msgid="4061110826457365957">"الخصوصية"</string>
+    <string name="privacy_sources_summary" msgid="4089719981155120864">"لوحة البيانات والأذونات وعناصر التحكّم"</string>
+    <string name="permission_usage_title" msgid="3633779688945350407">"لوحة بيانات الخصوصية"</string>
+    <string name="permission_usage_summary" msgid="5323079206029964468">"عرض التطبيقات التي استخدمت الأذونات مؤخرًا"</string>
+    <string name="permission_usage_search_terms" msgid="3852343592870257104">"الخصوصية، لوحة بيانات الخصوصية"</string>
+    <string name="permission_manager_title" msgid="5277347862821255015">"إدارة الأذونات"</string>
+    <string name="permission_manager_summary" msgid="8099852107340970790">"التحكُّم في وصول التطبيقات إلى بياناتك"</string>
+    <string name="permission_manager_search_terms" msgid="2895147613099694722">"الأذونات، مدير الأذونات"</string>
+    <string name="privacy_controls_title" msgid="5322875777945432395">"عناصر التحكّم في الخصوصية"</string>
+    <string name="privacy_controls_summary" msgid="2402066941190435424">"التحكُّم في وصول الجهاز إلى الميكروفون والكاميرا وغير ذلك"</string>
+    <string name="privacy_controls_search_terms" msgid="3774472175934304165">"الخصوصية، عناصر التحكّم في الخصوصية"</string>
+    <string name="advanced_title" msgid="8745436380690561172">"الإعدادات المتقدّمة"</string>
+    <string name="advanced_security_title" msgid="1126833338772188155">"المزيد من إعدادات الأمان"</string>
+    <string name="advanced_security_summary" msgid="6172253327022425123">"التشفير وبيانات الاعتماد وغير ذلك"</string>
+    <string name="advanced_security_search_terms" msgid="3350609555814362075"></string>
+    <string name="advanced_privacy_title" msgid="1117725225706176643">"المزيد من إعدادات الخصوصية"</string>
+    <string name="advanced_privacy_summary" msgid="2281203390575069543">"الملء التلقائي وعناصر التحكُّم في النشاط وغير ذلك"</string>
+    <string name="advanced_privacy_search_terms" msgid="5044404599789175222"></string>
+</resources>

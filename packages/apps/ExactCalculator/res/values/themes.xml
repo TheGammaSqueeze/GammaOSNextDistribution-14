@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2016 The Android Open Source Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+
+    <style name="Theme" parent="Theme.Material3.DayNight">
+        <item name="android:statusBarColor">@color/display_background_color</item>
+        <item name="android:windowLightStatusBar">?isLightTheme</item>
+        <item name="android:navigationBarColor">?colorSurface</item>
+        <item name="android:windowLightNavigationBar">?isLightTheme</item>
+    </style>
+
+    <style name="Theme.Calculator">
+        <item name="windowActionModeOverlay">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:layoutDirection">ltr</item>
+    </style>
+
+    <style name="Theme.Licenses" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:statusBarColor">?colorSurface</item>
+        <item name="android:windowLightStatusBar">?isLightTheme</item>
+        <item name="android:navigationBarColor">?colorSurface</item>
+        <item name="android:windowLightNavigationBar">?isLightTheme</item>
+    </style>
+
+    <style name="Theme.Button" parent="ThemeOverlay.Material3.Button.TextButton">
+    </style>
+
+    <style name="Theme.Button.Advanced">
+        <item name="colorContainer">?colorSurface</item>
+        <item name="colorOnContainer">?colorOnSurface</item>
+    </style>
+
+    <style name="Theme.Button.Numeric">
+        <item name="colorContainer">?colorSurfaceContainer</item>
+        <item name="colorOnContainer">?colorOnSurface</item>
+    </style>
+
+    <style name="Theme.Button.Operator">
+        <item name="colorContainer">?colorSecondaryContainer</item>
+        <item name="colorOnContainer">?colorOnSecondaryContainer</item>
+    </style>
+
+    <style name="Theme.Button.Clear">
+        <item name="colorContainer">?colorTertiaryContainer</item>
+        <item name="colorOnContainer">?colorOnTertiaryContainer</item>
+    </style>
+
+    <style name="Theme.Button.Action">
+        <item name="colorContainer">?colorPrimaryContainer</item>
+        <item name="colorOnContainer">?colorOnPrimaryContainer</item>
+    </style>
+
+</resources>

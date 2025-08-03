@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  Copyright (c) 2017 The LineageOS Project
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ Also add information on how to contact you by electronic and paper mail.
+
+-->
+<resources>
+    <string name="app_name">FlipFlap</string>
+    <string name="notification_title">Smart cover registreret</string>
+    <string name="alarm_label">ALARM</string>
+    <string name="abbrev_wday_month_day_no_year">EEE, d MMMM</string>
+    <string name="answer_call">BESVAR</string>
+    <string name="ignore_call">IGNORÉR</string>
+    <string name="end_call">AFSLUT OPKALD</string>
+    <string name="settings_name">Smart cover</string>
+    <string name="settings_enable">Aktiver smart cover kontrol</string>
+    <string name="settings_summary">Kontrollér dit tilbehørs opførsel</string>
+    <string name="category_behaviour">Adfærd</string>
+    <string name="pass_to_security_view_title">Gå direkte til indtastning af adgangskode</string>
+    <string name="pass_to_security_view_summary">Åbning af coveret viser skærmlåsen direkte</string>
+    <string name="use_high_touch_sensitivity_title">Høj berøringsfølsomhed</string>
+    <string name="use_high_touch_sensitivity_summary">Forøg berøringsfølsomhed mens etui er lukket</string>
+    <string name="category_design">Design</string>
+    <string name="switch_charging_status_title">Vis opladningsstatus</string>
+    <string name="switch_charging_status_summary">Skift farve afhængig af den aktuelle batteriopladning</string>
+    <string name="category_timeouts">Timeouts</string>
+    <string name="timeout_plugged_title">Under opladning</string>
+    <string name="timeout_unplugged_title">Frakoblet</string>
+    <string name="timeout_summary">Vis cover-app i %s, efter at du har lukket låget</string>
+    <string name="timeout_summary_never">Efter du har lukket låget, vil cover-appen forblive aktiv</string>
+    <string name="timeout_summary_immediately">Skærmen bliver slukket, når du lukker coveret</string>
+    <string name="timeout_entry_immediately">Omgående</string>
+    <string name="timeout_entry_5s">5 sekunder</string>
+    <string name="timeout_entry_10s">10 sekunder</string>
+    <string name="timeout_entry_30s">30 sekunder</string>
+    <string name="timeout_entry_1min">1 minut</string>
+    <string name="timeout_entry_5min">5 minutter</string>
+    <string name="timeout_entry_never">Aldrig</string>
+</resources>

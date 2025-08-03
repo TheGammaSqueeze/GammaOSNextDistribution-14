@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2011 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:android="http://schemas.android.com/apk/res/android" xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="button_dismiss">باشه‌</string>
+    <string name="menu_delete_all">سڕینەوەی بڵاوکراوەکان</string>
+    <string name="message_options">بەربژاردەکانی نامە</string>
+    <string name="menu_view_details">بینینی وردەکارییەکان</string>
+    <string name="menu_delete">سڕینەوەی بڵاوکراوە</string>
+    <string name="view_details_title">وردەکارییەکانی زەنگی وریاکردنەوە</string>
+    <string name="confirm_delete_broadcast">ئەم بڵاوکراوەیە ئەسڕیتەوە؟</string>
+    <string name="confirm_delete_all_broadcasts">هەموو نامە بڵاوکراوەکان ئەسڕیتەوە؟</string>
+    <string name="button_delete">سڕینه‌وه‌</string>
+    <string name="button_cancel">هەڵوەشاندنەوە</string>
+    <string name="etws_earthquake_warning">ئاگاداری بوومەلەرزە</string>
+    <string name="etws_tsunami_warning">ئاگاداری تێسونامی</string>
+    <string name="etws_earthquake_and_tsunami_warning">ئاگاداری بوومەلەرزە و تێسونامی</string>
+    <string name="etws_test_message">نامەی تاقیکاری سیستەمی ئاگادارکردنەوەی بوومەلەرزە و تێسونامی</string>
+    <string name="etws_other_emergency_type">ئاگاداری فریاکەوتن</string>
+    <string name="cmas_presidential_level_alert">زەنگی ئاگادارکردنەوەی سەرۆکایەتی</string>
+    <string name="cmas_extreme_alert">زەنگی فریاکەوتن: زۆرکراوە</string>
+    <string name="cmas_extreme_immediate_observed_alert">زەنگی فریاکەوتن: زۆرکراوە</string>
+    <string name="cmas_extreme_immediate_likely_alert">زەنگی فریاکەوتن: زۆرکراوە</string>
+    <string name="cmas_severe_alert">زەنگی فریاکەوتن: بێ کۆتایی</string>
+    <string name="cmas_amber_alert">ڕفاندنی مناڵ (ئەمبەر ئەلێرت)</string>
+    <string name="cmas_exercise_alert">زەنگی فریاکەوتن (بۆ ڕاهێنان)</string>
+    <string name="cmas_operator_defined_alert">زەنگی فریاکەوتن (بۆ ئۆپەراتۆر)</string>
+    <string name="emergency_alert">زەنگی فریاکەوتن</string>
+    <string name="alert_reminder_interval_title">بەیادهێنەری وریاکردنەوە</string>
+    <string name="enable_alert_speech_title">نامەی زاری وریاکردنەوە</string>
+    <string name="cmas_category_heading">هاوپۆلەکانی ئاگادارکردنەوە:</string>
+    <string name="cmas_category_geo">جیوفیزیایی</string>
+    <string name="cmas_category_met">کەشناسییانە</string>
+    <string name="cmas_category_safety">دڵنیایی</string>
+    <string name="cmas_category_security">ئاساییش</string>
+    <string name="cmas_category_rescue">ڕزگارکردن</string>
+    <string name="cmas_category_fire">ئاگر کەوتنەوە</string>
+    <string name="cmas_category_health">تەندروستی</string>
+    <string name="cmas_category_env">ژینگەیی</string>
+    <string name="cmas_category_transport">گواستنەوە</string>
+    <string name="cmas_category_infra">ژێرخانی ئابووری</string>
+    <string name="cmas_category_cbrne">کیمیایی\زیندەوەری\ناوەکی\تەقەمەنی</string>
+    <string name="cmas_category_other">دیکە</string>
+    <string name="cmas_response_heading">شێوازی وەڵامدانەوە:</string>
+    <string name="cmas_response_shelter">په‌نابردن</string>
+    <string name="cmas_response_evacuate">کشانه‌وه‌</string>
+    <string name="cmas_response_prepare">ئامادەکردن</string>
+    <string name="cmas_response_execute">بەجێهێنان</string>
+    <string name="cmas_response_monitor">ڕوونما</string>
+    <string name="cmas_response_avoid">ده‌وروبه‌ر</string>
+    <string name="cmas_response_assess">نرخاندن</string>
+    <string name="cmas_response_none">هیچیان</string>
+    <string name="cmas_severity_heading">پارێزگاری:</string>
+    <string name="cmas_severity_extreme">زۆر</string>
+    <string name="cmas_severity_severe">توند</string>
+    <string name="cmas_urgency_heading">پێویستی:</string>
+    <string name="cmas_urgency_immediate">یه‌کسه‌ری</string>
+    <string name="cmas_urgency_expected">چاوه‌ڕوانکراو</string>
+    <string name="cmas_certainty_heading">باوه‌ڕ:</string>
+    <string name="cmas_certainty_observed">تێبینیکراو</string>
+    <string name="cmas_certainty_likely">ئاره‌زوویی</string>
+    <string name="delivery_time_heading">وەرگیراو:</string>
+    <string name="notification_multiple"><xliff:g id="count">%s</xliff:g> ئاگاداری نه‌خوێنراوه‌ هه‌یه‌.</string>
+    <string name="notification_multiple_title">ئاگاداری نوێ</string>
+    <string name="show_cmas_opt_out_title">نیشاندانی دایه‌لۆگی دیده‌نه‌ بچوک</string>
+    <string name="cmas_opt_out_button_yes">بەڵێ</string>
+    <string name="cmas_opt_out_button_no">نا</string>
+    <string name="action_delete">سڕینه‌وه‌</string>
+    <string-array name="alert_reminder_interval_entries">
+        <item>یەکجار</item>
+        <item>هەر 2 خۆلەک</item>
+        <item>Every 5 minutes</item>
+        <item>هەر 15 خولەک</item>
+        <item>Never</item>
+    </string-array>
+</resources>

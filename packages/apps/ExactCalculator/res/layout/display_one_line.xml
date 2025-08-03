@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2016 The Android Open Source Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<com.android.calculator2.CalculatorDisplay
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/display"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/rounded_bottom"
+    android:clipChildren="false"
+    android:orientation="vertical">
+
+    <include layout="@layout/toolbar" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <com.android.calculator2.CalculatorScrollView
+            android:id="@+id/formula_scroll_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:overScrollMode="never"
+            android:scrollbars="none">
+
+            <com.android.calculator2.CalculatorFormula
+                android:id="@+id/formula"
+                style="@style/DisplayTextStyle.Formula"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:ellipsize="none"
+                android:longClickable="true"
+                android:singleLine="true"
+                android:textColor="@color/display_formula_text_color"
+                android:textIsSelectable="false" />
+
+        </com.android.calculator2.CalculatorScrollView>
+
+        <com.android.calculator2.CalculatorResult
+            android:id="@+id/result"
+            style="@style/DisplayTextStyle.Result"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:bufferType="spannable"
+            android:singleLine="true"
+            android:textColor="@color/display_result_text_color"
+            android:visibility="invisible" />
+    </FrameLayout>
+
+    <include layout="@layout/drag_handle" />
+
+</com.android.calculator2.CalculatorDisplay>

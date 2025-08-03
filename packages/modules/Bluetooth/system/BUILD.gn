@@ -1,0 +1,223 @@
+#
+#  Copyright 2015 Google, Inc.
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at:
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#
+
+# This is the root build file for GN. GN will start processing by loading this
+# file, and recursively load all dependencies until all dependencies are either
+# resolved or known not to exist (which will cause the build to fail). So if
+# you add a new build file, there must be some path of dependencies from this
+# file to your new one or GN won't know about it.
+
+group("all") {
+  deps = [ ":bluetooth" ]
+
+  #if (use.test) {
+    #deps += [ ":bluetooth_tests" ]
+  #}
+}
+
+# This pulls in main/BUILD.gn and all of its dependencies.
+group("bluetooth") {
+  deps = [
+    "//bt/system/main:bluetooth",
+    "//bt/system/main:bluetooth-static",
+    #"//bt/system/service:bluetoothtbd",
+  ]
+}
+
+# TODO(b/190750167) - Re-enable once we're fully Bazel build
+#if (use.test) {
+  #group("bluetooth_tests") {
+    #deps = [
+      #"//bt/system/btcore:net_test_btcore",
+      #"//bt/system/common:bluetooth_test_common",
+      #"//bt/system/profile/avrcp:net_test_avrcp",
+      #"//bt/system/service:bluetoothtbd_test",
+      #"//bt/system/stack:net_test_btm_iso",
+      #"//bt/system/types:net_test_types",
+
+      ##"//bt/system/packet:net_test_btpackets",
+    #]
+  #}
+#}
+
+group("tools") {
+  deps = [
+    "//bt/system/gd/dumpsys/bundler:bluetooth_flatbuffer_bundler",
+    "//bt/system/gd/packet/parser:bluetooth_packetgen",
+  ]
+}
+
+if (defined(use.android) && use.android) {
+  group("android_bluetooth_tests") {
+    deps = [
+      "//bt/system/device:net_test_device",
+      "//bt/system/device:net_test_device_iot_config",
+      "//bt/system/hci:net_test_hci",
+      "//bt/system/osi:net_test_osi",
+      "//bt/system/test/suite:net_test_bluetooth",
+    ]
+  }
+}
+
+config("target_defaults") {
+  include_dirs = [
+    "//bt/system",
+    "//bt/flags/exported_include",
+    "//bt/sysprop/exported_include",
+    "//bt/system/linux_include",
+    "//bt/system/types",
+    "//bt/system/include",
+    "//bt/system/gd",
+
+    # For flatbuffer generated headers
+    "${root_gen_dir}/bt/system/gd/",
+    "${root_gen_dir}/bt/system/gd/dumpsys/bundler",
+  ]
+
+  cflags = [
+    "-fPIC",
+    "-Wno-non-c-typedef-for-linkage",
+    "-Wno-unreachable-code-return",
+    "-Wno-defaulted-function-deleted",
+    "-Wno-gnu-variable-sized-type-not-at-end",
+    "-Wno-format-nonliteral",
+    "-Wno-inconsistent-missing-override",
+    "-Wno-unreachable-code",
+    "-Wno-range-loop-construct",
+    "-Wno-reorder-init-list",
+    "-Wno-unused-function",
+    "-Wno-unused-result",
+    "-Wno-unused-variable",
+    "-Wno-unused-const-variable",
+    "-Wno-format",
+    "-Wno-pessimizing-move",
+    "-Wno-unknown-warning-option",
+    "-Wno-final-dtor-non-final-class",
+
+    string_join("",
+                [
+                  "-ffile-prefix-map=",
+                  rebase_path(".", "${root_build_dir}", "."),
+                  "/= ",
+                ]),
+  ]
+
+  cflags_cc = [ "-std=c++20" ]
+
+  defines = [
+    "TARGET_FLOSS",
+    "EXPORT_SYMBOL=__attribute__((visibility(\"default\")))",
+    "FALLTHROUGH_INTENDED=[[clang::fallthrough]]",
+  ]
+
+  if (!(defined(use.bt_nonstandard_codecs) && use.bt_nonstandard_codecs)) {
+    defines += [ "EXCLUDE_NONSTANDARD_CODECS" ]
+  }
+
+  configs = [ ":external_libchrome" ]
+
+  if (target_os == "chromeos") {
+    configs += [ ":external_chromeos" ]
+  }
+}
+
+group("libbt-platform-protos-lite") {
+  deps = [
+    "//external/proto_logging/stats/enums/bluetooth:libbt-platform-protos-lite",
+  ]
+}
+
+# Configurations to use as dependencies for GN build
+config("external_gtest") {
+  configs = [
+    ":pkg_gtest",
+    ":pkg_gmock",
+  ]
+}
+
+config("external_gtest_main") {
+  configs = [ ":pkg_gtest_main" ]
+}
+
+config("external_gmock_main") {
+  configs = [ ":pkg_gmock_main" ]
+}
+
+config("external_libchrome") {
+  configs = [ ":pkg_libchrome" ]
+}
+
+config("external_modp_b64") {
+  configs = [ ":pkg_modp_b64" ]
+}
+
+config("external_tinyxml2") {
+  configs = [ ":pkg_tinyxml2" ]
+}
+
+config("external_flatbuffers") {
+  lib_dirs = [ "${libdir}" ]
+
+  libs = [ "flatbuffers" ]
+}
+
+config("external_fmtlib") {
+  configs = [ ":pkg_fmtlib" ]
+}
+
+# Package configurations to extract dependencies from env
+pkg_config("pkg_gtest") {
+  pkg_deps = [ "gtest" ]
+}
+
+pkg_config("pkg_gtest_main") {
+  pkg_deps = [ "gtest_main" ]
+}
+
+pkg_config("pkg_gmock") {
+  pkg_deps = [ "gmock" ]
+}
+
+pkg_config("pkg_gmock_main") {
+  pkg_deps = [ "gmock_main" ]
+}
+
+pkg_config("pkg_libchrome") {
+  pkg_deps = [ "libchrome" ]
+}
+
+pkg_config("pkg_modp_b64") {
+  pkg_deps = [ "libmodp_b64" ]
+}
+
+pkg_config("pkg_tinyxml2") {
+  pkg_deps = [ "tinyxml2" ]
+}
+
+pkg_config("pkd_fmtlib") {
+  pkg_deps = [ "fmt" ]
+}
+
+# To include ChroemOS-specific libraries and build dependencies.
+if (target_os == "chromeos") {
+  config("external_chromeos") {
+    configs = [ ":pkgpkg_libstructuredmetrics" ]
+  }
+
+  pkg_config("pkgpkg_libstructuredmetrics") {
+    pkg_deps = [ "libstructuredmetrics" ]
+  }
+}

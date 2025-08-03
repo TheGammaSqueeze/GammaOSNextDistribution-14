@@ -1,0 +1,32 @@
+// Signature format: 2.0
+package android.app.ecm {
+
+  @FlaggedApi("android.permission.flags.enhanced_confirmation_mode_apis_enabled") public class EnhancedConfirmationFrameworkInitializer {
+    method public static void registerServiceWrappers();
+  }
+
+}
+
+package android.app.role {
+
+  public class RoleFrameworkInitializer {
+    method public static void registerServiceWrappers();
+  }
+
+  public final class RoleManager {
+    method @Nullable public String getBrowserRoleHolder(int);
+    method @FlaggedApi("android.permission.flags.get_emergency_role_holder_api_enabled") @Nullable @RequiresPermission(android.Manifest.permission.READ_PRIVILEGED_PHONE_STATE) public String getEmergencyRoleHolder(int);
+    method @Nullable public String getSmsRoleHolder(int);
+    method @Nullable @RequiresPermission(android.Manifest.permission.SET_PREFERRED_APPLICATIONS) public boolean setBrowserRoleHolder(@Nullable String, int);
+  }
+
+}
+
+package android.safetycenter {
+
+  public final class SafetyCenterFrameworkInitializer {
+    method public static void registerServiceWrappers();
+  }
+
+}
+

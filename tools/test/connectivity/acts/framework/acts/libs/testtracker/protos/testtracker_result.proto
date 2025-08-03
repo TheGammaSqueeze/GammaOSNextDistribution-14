@@ -1,0 +1,74 @@
+syntax = "proto2";
+
+// Modified form of proto used for TestTracker.
+
+// The Result is the base proto for describing Results that can be stored
+// for writing to disk or uploading to a system.
+
+// Example:
+// name: "Test Case"
+// uuid: "d9e80ae6-dfa9-4713-9cc6-26231ff58f4b"
+// description: "This is sample test case"
+// detail: "This is really long text blob (test tracker test case text)"
+// status: PASSED
+
+// Each Property a key/value pair with a type based on the oneof field.
+// The default should be a string.
+message Property {
+  optional string name = 1;
+  // Reserved <100 for use with concrete fields.
+  oneof value {
+    // String representation of the property.
+    string string_value = 101;
+    // Integer(always use int64) representation of the property.
+    int64 int_value = 102;
+    // Floating(always use double) point representation of the property.
+    double double_value = 103;
+    // The json_value is a special case of string - this just signals the caller
+    // that the value should be parsable via json.
+    string json_value = 104;
+    // Boolean representation of the property.
+    bool bool_value = 105;
+    // Byte representation of the property.
+    bytes byte_value = 106;
+  }
+}
+
+// A Result contains information about the each piece of the report.
+// Status enum's define the state of a particular result.
+// In a perfect world everything will be PASSED.
+//
+message Result {
+  enum Status {
+    STATUS_UNKNOWN = 0;
+    PASSED = 1;       // Completed and all operators are evaluated to True.
+    FAILED = 2;       // Completed and at least one operator has failed.
+    ERROR = 3;        // Completed but there was an error reported.
+                      // 'code' should be assigned with the exact status.
+    INTERRUPTED = 4;  // The operation was initiated but did not complete.
+                      // This could be caused by a timeout or
+                      // by a user requesting cancellation mid-way.
+    CANCELLED = 5;    // Same as interrupted but did not start.
+    FILTERED = 6;     // Scheduled but some precondition caused it to be
+                      // removed from schedule.
+    SKIPPED = 7;      // Scheduled but was administratively skipped.
+    SUPPRESSED = 8;   // Flaky and we don't want it be official.
+    BLOCKED = 9;      // Test blocked by other test(s).
+    TBR = 17;         // To be reviewed, test requires additional result
+                      // assessment.
+  }
+
+  // Name of the result in the tree.
+  optional string name = 1;
+  optional string uuid = 2;         // uuid
+  optional string description = 3;  // Text blob about the result.
+  optional string detail = 4;       // Detailed text about the result.
+  // Key/Value Property pairs.
+  // If duplicate keys are presented the last value is taken.
+  repeated Property property = 5;  // Key/Value Property pairs.
+  // Time in ISO UTC (http://en.wikipedia.org/wiki/ISO_8601).
+  // This is the start of the result.
+  optional string timestamp = 10;
+  // Status defines the current state of this result.
+  optional Status status = 13 [default = STATUS_UNKNOWN];
+}

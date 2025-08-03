@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+
+    <!-- Default size and spacing for an icon on the Dock  -->
+    <dimen name="dock_item_size">72dp</dimen>
+    <dimen name="dock_item_spacing">2dp</dimen>
+
+    <dimen name="icon_stroke_width_static">0dp</dimen>
+    <dimen name="icon_stroke_width_dynamic">6dp</dimen>
+    <dimen name="icon_stroke_width_excited">20dp</dimen>
+
+    <item name="icon_colorFilter_alpha_excited" format="float" type="dimen">0.3</item>
+
+    <!-- Width to scale down the drop animation before scaling it back to required size  -->
+    <dimen name="drop_animation_scale_down_width">6dp</dimen>
+</resources>

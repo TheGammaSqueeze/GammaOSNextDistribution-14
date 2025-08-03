@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  Copyright (c) 2017 The LineageOS Project
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ Also add information on how to contact you by electronic and paper mail.
+
+-->
+<resources>
+    <string name="app_name">FlipFlap</string>
+    <string name="notification_title">Detectóse una carcaxa intelixente</string>
+    <string name="alarm_label">ALARMA</string>
+    <string name="abbrev_wday_month_day_no_year">EEE, d MMMM</string>
+    <string name="answer_call">CONTESTAR</string>
+    <string name="ignore_call">INORAR</string>
+    <string name="end_call">FINAR LA LLAMADA</string>
+    <string name="settings_name">Carcaxa intelixente</string>
+    <string name="settings_enable">Activar el control de la carcaxa intelixente</string>
+    <string name="settings_summary">Controla\'l comportamientu del accesoriu</string>
+    <string name="category_behaviour">Comportamientu</string>
+    <string name="pass_to_security_view_title">Dir direutamente a la introducción de contraseñes</string>
+    <string name="pass_to_security_view_summary">Al abrir la carcaxa, amuésase direutamente la pantalla de bloquéu</string>
+    <string name="use_high_touch_sensitivity_title">Sensibilidá alta al tactu</string>
+    <string name="use_high_touch_sensitivity_summary">Aumenta la sensibilidá al táctu mentanto la carcaxa ta zarrada</string>
+    <string name="category_design">Diseñu</string>
+    <string name="switch_charging_status_title">Amosar l\'estáu de la carga</string>
+    <string name="switch_charging_status_summary">Camuda\'l color según el nivel de carga actual de la batería</string>
+    <string name="category_timeouts">Tiempos d\'espera</string>
+    <string name="timeout_plugged_title">Mentanto se carga</string>
+    <string name="timeout_summary">Amuesa l\'aplicación de la carcaxa demientres %s darréu de zarrar la tapa</string>
+    <string name="timeout_summary_never">Dempués de zarrar la tapa, l\'aplicación de la carcaxa va tar activada siempre</string>
+    <string name="timeout_summary_immediately">La pantalla va apagase al zarrar la carcaxa</string>
+    <string name="timeout_entry_immediately">Darréu</string>
+    <string name="timeout_entry_5s">5 segundos</string>
+    <string name="timeout_entry_10s">10 segundos</string>
+    <string name="timeout_entry_30s">30 segundos</string>
+    <string name="timeout_entry_1min">1 minutu</string>
+    <string name="timeout_entry_5min">5 minutos</string>
+    <string name="timeout_entry_never">Enxamás</string>
+</resources>

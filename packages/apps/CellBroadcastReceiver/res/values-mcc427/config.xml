@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2021 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources>
+    <!-- 4380, 4393 -->
+    <string-array name="required_monthly_test_range_strings" translatable="false">
+        <item>0x111C:type=info, rat=gsm, emergency=true</item>
+        <!-- additional language -->
+        <item>0x1129:type=info, rat=gsm, emergency=true</item>
+    </string-array>
+    <!-- Channels to receive public safety messages 4396, 4397-->
+    <string-array name="public_safety_messages_channels_range_strings" translatable="false">
+        <!-- Public safety messages -->
+        <item>0x112C:type=info, rat=gsm, emergency=true</item>
+        <!-- Public safety messages for additional language -->
+        <item>0x112D:type=info, rat=gsm, emergency=true</item>
+    </string-array>
+    <!-- Channels to receive state/local test messages 4398, 4399-->
+    <string-array name="state_local_test_alert_range_strings" translatable="false">
+        <!-- state/local test -->
+        <item>0x112E:type=info, rat=gsm, emergency=true</item>
+        <!-- state/local test additional language -->
+        <item>0x112F:type=info, rat=gsm, emergency=true</item>
+    </string-array>
+
+    <!-- Whether to show extreme alert settings -->
+    <bool name="show_extreme_alert_settings">false</bool>
+    <!-- Whether to show severe alert settings -->
+    <bool name="show_severe_alert_settings">false</bool>
+    <!-- Whether to display state/local test settings, some countries/carriers want to enable it by default and not allow users to disable -->
+    <bool name="show_state_local_test_settings">false</bool>
+    <!-- Whether to display exercise test settings when testing mode is off. -->
+    <bool name="show_exercise_settings">true</bool>
+    <!-- State local test alerts toggle default value -->
+    <bool name="state_local_test_alerts_enabled_default">true</bool>
+    <!-- Exercise test alerts toggle default value -->
+    <bool name="test_exercise_alerts_enabled_default">false</bool>
+    <!-- whether to display a separate exercise test settings. today, most of time, exercise channels was controlled by the main test toggle. -->
+    <bool name="show_separate_exercise_settings">true</bool>
+</resources>

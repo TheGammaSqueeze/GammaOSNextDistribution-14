@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017-2024 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="system_reboot_confirm_cm">راه‌اندازی مجدد در:</string>
+    <string name="global_action_restart_system">سیستم</string>
+    <string name="global_action_restart_recovery">بازیابی</string>
+    <string name="global_action_restart_bootloader">بوت لودر</string>
+    <plurals name="show_dev_countdown_cm">
+        <item quantity="one">شما اکنون <xliff:g id="step_count">%1$d</xliff:g> ضربه با فعال‌سازی ابزارهای توسعه فاصله دارید.</item>
+        <item quantity="other">شما اکنون <xliff:g id="step_count">%1$d</xliff:g> ضربه با فعال‌سازی ابزارهای توسعه فاصله دارید.</item>
+    </plurals>
+    <string name="show_dev_on_cm">شما ابزارهای توسعه را فعال کرده‌اید!</string>
+    <string name="show_dev_already_cm">نیازی نیست، ابزارهای توسعه قبلا فعال شده‌اند.</string>
+    <string name="system_buttons">دکمه‌ها</string>
+    <string name="power_button_long_press_action_title">عملکرد فشار طولانی دکمه نیرو</string>
+    <string name="power_button_long_press_for_power_menu_action">دسترسی به منوی نیرو</string>
+    <string name="power_button_long_press_for_assistant_action">بازگشایی دستیار</string>
+    <string name="inputs_volume_control_enabled">کنترل صدا CEC</string>
+    <string name="inputs_volume_control_enabled_desc">صدای تلویزیون/AVR را به جای صدای داخلی کنترل کنید</string>
+    <string name="enable_adb_root">اشکال‌زدایی با روت</string>
+    <string name="enable_adb_root_summary">اجازه دادن به اشکال‌زدایی اندروید که به صورت روت اجرا شود</string>
+    <string name="advanced_restart_title">راه‌اندازی مجدد پیشرفته</string>
+    <string name="advanced_restart_summary">گزینه هایی برای راه‌اندازی مجدد به بازیابی، بوت لودر یا اجرای یک راه‌اندازی مجدد نرم را نشان دهید</string>
+    <string name="adb_over_network">ADB از طریق شبکه</string>
+    <string name="adb_over_network_summary">فعال‌کردن اشکال‌زدایی TCP/IP از طریق رابط‌های شبکه (شبکه‌های وای‌فای، یواس‌بی). این تنظیمات در راه‌اندازی گوشی مجددا تنظیم خواهند شد</string>
+    <string name="adb_over_network_warning">هشدار: هنگامی که ADB از طریق شبکه فعال باشد، تلفن همراه شما در معرض تجاوز از طرف تمام شبکه‌های متصل قرار خواهد گرفت!\n\nتنها زمانی که به شبکه‌های مورد اعتماد متصل هستید از این قابلیت استفاده کنید.\n\nآیا واقعا می‌خواهید این قابلیت را فعال کنید؟</string>
+    <string name="trust_category_features">وضعیت</string>
+    <string name="trust_feature_selinux">SELinux</string>
+    <string name="trust_feature_selinux_value_enforcing">اجرایی</string>
+    <string name="trust_feature_selinux_value_disabled">غیرفعال</string>
+    <string name="trust_feature_selinux_explain">SELinux دستور می دهد که چه فرایندهایی به کدام پرونده ها / مسیرهای دستگاه شما دسترسی دارند. \n این از دسترسی برنامه ها و سرویس ها به پرونده هایی که قرار نیست باشند جلوگیری می کند: از این طریق یک روند مخرب بالقوه محدود می شود و امنیت شما حفظ می شود.</string>
+    <string name="trust_feature_security_patches">وصله های امنیتی اندروید</string>
+    <string name="trust_feature_security_patches_value_base">پلتفرم: %1$s\nفروشنده: %2$s</string>
+    <string name="trust_feature_security_patches_value_new">به روز</string>
+    <string name="trust_feature_security_patches_value_medium">چند ماه گذشته</string>
+    <string name="trust_feature_security_patches_value_old">قدیمی</string>
+    <string name="trust_feature_security_patches_explain">وصله های امنیتی ماهانه توسط Google و با همکاری فروشندگان SoC منتشر می شود تا اشکالاتی را که می تواند توسط برنامه های مخرب مورد سو استفاده قرار گیرد برای دور زدن محدودیت های امنیتی و آسیب رساندن دائمی به دستگاه شما ، برطرف کند. وصله های ارائه شده توسط Google هر ماه روی همه دستگاههای پشتیبانی شده اعمال می شود ، اما وصله های کد اختصاصی را فقط سازنده دستگاه شما می تواند اعمال کند. برای ایمن نگه داشتن دستگاه خود اطمینان حاصل کنید که ساخت LineageOS شما همیشه به روز بوده و (در صورت وجود) اطمینان حاصل کنید که تصویر فروشنده خود را به جدیدترین نسخه توصیه شده توسط LineageOS به روز کنید.</string>
+    <string name="trust_feature_encryption">رمزنگاری</string>
+    <string name="trust_feature_encryption_value_enabled">فعال</string>
+    <string name="trust_feature_encryption_value_nolock">به یک صفحه قفل امن نیاز دارد</string>
+    <string name="trust_feature_encryption_value_disabled">غیرفعال</string>
+    <string name="trust_feature_encryption_explain">رمزگذاری دستگاه شما، از دسترسی به داده شما هنگامی که با اندروید بوت نشود جلوگیری می‌کند. این به ویژه هنگامی که گوشی شما دزدیده شده مهم است، زیرا از خوانده شدن پیام‌ها، مخاطبین، و اطلاعات خصوصی دیگر شما بدون گذرواژه توسط دیگران جلوگیری می‌کند.\n برای اینکه رمزنگاری موثرتر واقع شود شما باید یک گذواژه صفحه قفل تنظیم کنید.</string>
+    <string name="trust_category_tools">حریم خصوصی</string>
+    <string name="trust_notification_alerts_title">هشدارهای امنیتی</string>
+    <string name="trust_restrict_usb_title">محدود کردن USB</string>
+    <string name="trust_restrict_usb_summary">کنترل پشتیبانی از اتصالات USB مانند هدفون، دستگاه های ذخیره‌سازی، ورودی (ماوس، صفحه کلید، جوی استیک) و ADB</string>
+    <string name="trust_restrict_usb_always">رد کردن اتصالات USB</string>
+    <string name="trust_restrict_usb_disabled">همیشه اتصالات USB مجاز باشد</string>
+    <string name="trust_onboarding_description">اعتماد به شما کمک می کند تا دستگاه خود را ایمن نگه داشته و از حریم خصوصی خود محافظت کنید. \n نماد اعتماد فقط در صورت تأیید محتوای صفحه نشان داده می شود.</string>
+    <string name="trust_warnings_alerts_intro">می توانید موارد امنیتی را که می خواهید درباره آنها هشدار داده شود انتخاب کنید. برای ایمنی شما، توصیه می شود همه هشدارها را فعال کنید</string>
+    <string name="trust_warnings_selinux">وضعیت SELinux</string>
+    <string name="trust_warnings_keys">امضا ساخت</string>
+    <string name="sleep_button_label">خواب</string>
+    <string name="system_sleep_confirm">الان بخوابد؟</string>
+    <string name="shutdown_button_label">خاموش کردن</string>
+    <string name="system_shutdown_confirm">الان خاموش بشه؟</string>
+    <string name="convertible_port_busy_title">پورت USB 1 در حال استفاده است</string>
+    <string name="convertible_port_busy_warning">هر دستگاه یا لوازم جانبی را از برق جدا کنید و دوباره امتحان کنید</string>
+    <string name="mtp_enable_title">دسترسی به پوشه های SHIELD در رایانه با استفاده از USB</string>
+    <string name="mtp_enable_warning">پورت USB 1 اکنون برای SHIELD پیکربندی شده است تا به عنوان یک دستگاه رسانه به رایانه متصل شود.\n\nاین درگاه دیگر رسانه ذخیره‌سازی USB یا لوازم جانبی USB را شناسایی نمی کند و نمی توان از آن برای شارژ دستگاه ها استفاده کرد.</string>
+    <string name="mtp_retry_error">شکست خورد. لطفا دوباره تلاش کنید.</string>
+    <string name="mtp_summary">در این حالت، پورت USB برای استفاده های دیگر کاربردی نیست</string>
+    <string name="mtp_title">انتقال فایل ها به کامپیوتر با استفاده از USB</string>
+    <string name="mtp_unexpected_error">خطای غیرمنتظره. لطفاً بعداً دوباره امتحان کنید.</string>
+    <string name="usb_debugging_enable_title">اشکال زدایی USB فعال شد</string>
+    <string name="usb_debugging_enable_warning">پورت USB 1 اکنون برای SHIELD پیکربندی شده است تا به عنوان یک دستگاه رسانه به رایانه متصل شود.\n\nاین درگاه دیگر رسانه ذخیره‌سازی USB یا لوازم جانبی USB را شناسایی نمی کند و نمی توان از آن برای شارژ دستگاه ها استفاده کرد.</string>
+</resources>

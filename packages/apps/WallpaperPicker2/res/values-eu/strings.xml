@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+     Copyright (C) 2017 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="wallpaper_app_name" msgid="1719889291772891695">"Horma-paperak"</string>
+    <!-- no translation found for app_name (8773648973927541493) -->
+    <skip />
+    <string name="select_wallpaper_label" msgid="6989581259339646085">"Horma-paperen kategoriak"</string>
+    <string name="set_wallpaper_button_text" msgid="5445978864530156290">"Ezarri horma-papera"</string>
+    <string name="set_wallpaper_progress_message" msgid="7986528287618716715">"Horma-papera ezartzen…"</string>
+    <string name="try_again" msgid="8278874823700921234">"Saiatu berriro"</string>
+    <string name="set_wallpaper_error_message" msgid="6819986999041085130">"Ezin da ezarri horma-papera."</string>
+    <string name="load_wallpaper_error_message" msgid="7913278480467707374">"Ezin da kargatu horma-papera. Irudia hondatuta dago edo ezin da eskuratu."</string>
+    <string name="static_wallpaper_presentation_mode_message" msgid="417940227049360906">"Hau dago ezarrita:"</string>
+    <string name="rotating_wallpaper_presentation_mode_message" msgid="3361676041605733288">"Eguneko horma-papera"</string>
+    <string name="wallpaper_destination_both" msgid="1124197176741944063">"Hasieran eta pantaila blokeatuan"</string>
+    <string name="choose_a_wallpaper_section_title" msgid="1009823506890453891">"Hautatu horma-paper bat"</string>
+    <string name="creative_wallpaper_title" msgid="3581650238648981372">"Sortu horma-papera"</string>
+    <string name="home_screen_message" msgid="106444102822522813">"Orri nagusia"</string>
+    <string name="lock_screen_message" msgid="1534506081955058013">"Pantaila blokeatua"</string>
+    <string name="home_and_lock_short_label" msgid="2937922943541927983">"Hasieran + pantaila blokeatuan"</string>
+    <string name="set_wallpaper_dialog_message" msgid="2110475703996853076">"Ezarri horma-papera"</string>
+    <string name="set_wallpaper_home_screen_destination" msgid="7315594722013109354">"Orri nagusia"</string>
+    <string name="set_wallpaper_lock_screen_destination" msgid="6224685559375417945">"Pantaila blokeatua"</string>
+    <string name="set_wallpaper_both_destination" msgid="2536004558738350775">"Hasierako pantaila eta pantaila blokeatua"</string>
+    <string name="no_backup_image_wallpaper_label" msgid="6316627676107284851">"Txandakako irudidun horma-papera"</string>
+    <string name="permission_needed_explanation" msgid="139166837541426823">"Oraingo horma-papera hemen bistaratzeko, zure gailuaren memoria atzitu behar du <xliff:g id="APP_NAME">%1$s</xliff:g> aplikazioak."</string>
+    <string name="permission_needed_explanation_go_to_settings" msgid="3923551582092599609">"Oraingo horma-papera hemen ager dadin, gailuaren memoriarako sarbidea behar du Horma-paperak aplikazioak.\n\nEzarpena aldatzeko, joan Horma-paperak aplikazioaren informazioko Baimenak atalera."</string>
+    <string name="permission_needed_allow_access_button_label" msgid="1943133660612924306">"Eman baimena"</string>
+    <string name="no_backup_image_wallpaper_description" msgid="8303268619408738057">"Txandakako irudietarako horma-paper dinamikoen zerbitzua"</string>
+    <string name="daily_refresh_tile_title" msgid="3270456074558525091">"Eguneko horma-papera"</string>
+    <string name="daily_refresh_tile_subtitle" msgid="3976682014885446443">"Sakatu aktibatzeko"</string>
+    <string name="start_rotation_dialog_body_live_wallpaper_needed" msgid="5132580257563846082">"Horma-papera automatikoki aldatuko da egunero. Konfiguratzen amaitzeko, hurrengo pantailan, sakatu &lt;strong&gt;Ezarri horma-papera&lt;/strong&gt;."</string>
+    <string name="start_rotation_dialog_wifi_only_option_message" msgid="3126269859713666225">"Aurrerantzean, deskargatu wifi bidez soilik horma-paperak"</string>
+    <string name="start_rotation_dialog_continue" msgid="276678987852274872">"Egin aurrera"</string>
+    <string name="start_rotation_progress_message" msgid="7872623873682262083">"Lehen horma-papera deskargatzen…"</string>
+    <string name="start_rotation_error_message" msgid="3053799836719618972">"Ezin da deskargatu lehen horma-papera. Egiaztatu sarearen ezarpenak zuzenak direla eta saiatu berriro."</string>
+    <string name="start_rotation_dialog_body" msgid="7903554799046364916">"Horma-papera automatikoki aldatuko da egunero"</string>
+    <string name="settings_button_label" msgid="8724734130079207955">"Ezarpenak"</string>
+    <string name="explore" msgid="7468719504199497281">"Arakatu"</string>
+    <string name="next_wallpaper" msgid="3911873152952596232">"Hurrengo horma-papera"</string>
+    <string name="wallpaper_disabled_message" msgid="7309484130562148185">"Gailu honetan desgaituta dago horma-papera ezartzeko aukera"</string>
+    <string name="wallpaper_disabled_by_administrator_message" msgid="1551430406714747884">"Gailuaren administratzaileak desgaituta dauka horma-papera ezartzeko aukera"</string>
+    <string name="wallpaper_set_successfully_message" msgid="2958998799111688578">"Ezarri da horma-papera"</string>
+    <string name="wallpapers_unavailable_offline_message" msgid="8136405438621689532">"Internetera konektatu behar duzu horma-paperak ikusteko. Konekta zaitez eta saiatu berriro."</string>
+    <string name="currently_set_home_wallpaper_thumbnail" msgid="4022381436821898917">"Orri nagusian ezarrita dagoen horma-paperaren irudi txikia"</string>
+    <string name="currently_set_lock_wallpaper_thumbnail" msgid="2094209303934569997">"Pantaila blokeatuan ezarrita dagoen horma-paperaren irudi txikia"</string>
+    <string name="currently_set_wallpaper_thumbnail" msgid="8651887838745545107">"Ezarrita dagoen horma-paperaren irudi txikia"</string>
+    <string name="wallpaper_thumbnail" msgid="569931475923605974">"Horma-paperaren irudi txikia"</string>
+    <string name="explore_home_screen" msgid="8756346794535765482">"Arakatu orri nagusiaren horma-papera"</string>
+    <string name="explore_lock_screen" msgid="268938342103703665">"Arakatu pantaila blokeatuaren horma-papera"</string>
+    <string name="refresh_daily_wallpaper_home_content_description" msgid="2770445044556164259">"Freskatu orri nagusiaren eguneko horma-papera"</string>
+    <string name="refresh_daily_wallpaper_content_description" msgid="4362142658237147583">"Freskatu eguneko horma-papera"</string>
+    <string name="preview_screen_description" msgid="3386387053327775919">"Horma-paperaren aurrebistaren pantaila"</string>
+    <string name="refreshing_daily_wallpaper_dialog_message" msgid="1975910873362855761">"Eguneko horma-papera freskatzen…"</string>
+    <string name="refresh_daily_wallpaper_failed_message" msgid="4749879993812557166">"Ezin izan da freskatu eguneko horma-papera. Egiaztatu sarera konektatuta zaudela eta saiatu berriro."</string>
+    <string name="on_device_wallpapers_category_title" msgid="805819102071369004">"Gailuko horma-paperak"</string>
+    <string name="on_device_wallpapers_category_title_desktop" msgid="316919420410065369">"Gailukoak"</string>
+    <string name="on_device_wallpaper_title" msgid="5262564748034629524">"Android horma-papera"</string>
+    <string name="live_wallpapers_category_title" msgid="1814374812192366349">"Horma-paper dinamikoak"</string>
+    <string name="my_photos_category_title" msgid="4294567122144565273">"Nire argazkiak"</string>
+    <string name="my_photos_generic_wallpaper_title" msgid="7002867526154631172">"Nire argazkia"</string>
+    <string name="fallback_wallpaper_title" msgid="6154655421012506001">"Horma-papera"</string>
+    <string name="app_not_found" msgid="4431461707854088231">"Ez dago instalatuta aplikazio hori."</string>
+    <string name="center_wallpaper_position" msgid="4166894762352288883">"Erdian"</string>
+    <string name="center_crop_wallpaper_position" msgid="1681980019815343348">"Erdian, moztuta"</string>
+    <string name="stretch_wallpaper_position" msgid="5002680983147456935">"Pantailara egokituta"</string>
+    <string name="preview" msgid="1774602101743861071">"Aurreikusi"</string>
+    <string name="tab_info" msgid="818614080690111416">"Informazioa"</string>
+    <string name="tab_customize" msgid="2533745409174959960">"Pertsonalizatu"</string>
+    <string name="tab_effects" msgid="3213606157589233901">"Efektuak"</string>
+    <string name="tab_share" msgid="6676269624804601227">"Partekatu"</string>
+    <string name="my_photos" msgid="8613021349284084982">"Nire argazkiak"</string>
+    <string name="configure_wallpaper" msgid="849882179182976621">"Ezarpenak…"</string>
+    <string name="delete_live_wallpaper" msgid="589212696102662329">"Ezabatu"</string>
+    <string name="edit_live_wallpaper" msgid="3132060073690558045">"Editatu"</string>
+    <string name="delete_wallpaper_confirmation" msgid="1905114562243802354">"Horma-papera ezabatu nahi duzu gailutik?"</string>
+    <string name="bottom_action_bar_back" msgid="2620581414970740784">"Joan gora"</string>
+    <string name="bottom_action_bar_edit" msgid="1214742990893082138">"Editatu"</string>
+    <string name="bottom_action_bar_download" msgid="3983122338076389421">"Deskargatu"</string>
+    <string name="bottom_action_bar_slideshow_wallpaper" msgid="509770525179533154">"Diapositiba-aurkezpenaren horma-papera"</string>
+    <string name="bottom_action_bar_apply" msgid="2983308349819178932">"Aplikatu"</string>
+    <string name="accessibility_preview_pager" msgid="1839869637405028575">"<xliff:g id="ID_1">%1$d</xliff:g>/<xliff:g id="ID_2">%2$d</xliff:g> orria"</string>
+    <string name="next_page_content_description" msgid="6268461446679584152">"Hurrengoa"</string>
+    <string name="previous_page_content_description" msgid="1138597031571078429">"Aurrekoa"</string>
+    <string name="wallpaper_title" msgid="6754214682228331092">"Horma-papera"</string>
+    <string name="wallpaper_preview_card_content_description" msgid="6049261033541034584">"Horma-paperaren aurrebista"</string>
+    <string name="lock_wallpaper_preview_card_content_description" msgid="5236839857695985498">"Pantaila blokeatuko horma-paperaren aurrebista"</string>
+    <string name="home_wallpaper_preview_card_content_description" msgid="4059418716070821630">"Orri nagusiko horma-paperaren aurrebista"</string>
+    <string name="collection_not_exist_msg" msgid="3504852962885064842">"Ez dago bildumarik"</string>
+    <string name="wallpaper_exit_split_screen" msgid="1928870664619591636">"Irten pantaila zatituaren modutik eta saiatu berriro"</string>
+    <string name="set_wallpaper_dialog_set_button" msgid="5760149969510325088">"Ezarri"</string>
+    <string name="cancel" msgid="4970902691067201584">"Utzi"</string>
+    <string name="hide_ui_preview_text" msgid="6766076482511252295">"Ezkutatu EIaren aurrebista"</string>
+    <string name="hint_hide_ui_preview" msgid="4527603797714586070">"Interfazea ezkutatuta dago aurrebistan. Ager dadin, sakatu pantaila birritan."</string>
+    <string name="show_ui_preview_text" msgid="5993063062417070806">"Erakutsi EIaren aurrebista"</string>
+    <string name="hide_preview_controls_content_description" msgid="894958599274977655">"Aurrebista kontrolatzeko aukerak ikusgai daude. Haiek ezkutatzeko, sakatu pantaila birritan."</string>
+    <string name="hide_preview_controls_action" msgid="3419260118386783295">"Ezkutatu aurrebista kontrolatzeko aukerak"</string>
+    <string name="show_preview_controls_content_description" msgid="908147864005440602">"Aurrebista kontrolatzeko aukerak ezkutatuta daude. Haiek erakusteko, sakatu pantaila birritan."</string>
+    <string name="show_preview_controls_action" msgid="7700775001986890400">"Erakutsi aurrebista kontrolatzeko aukerak"</string>
+    <string name="hide_wallpaper_info_action" msgid="6572492484253895374">"Ezkutatu horma-paperari buruzko informazioa"</string>
+    <string name="hint_show_ui_preview" msgid="2744155435325318349">"Interfazea ikusgai dago aurrebistan. Hura ezkutatzeko, sakatu pantaila birritan."</string>
+    <string name="wallpaper_picker_entry_title" msgid="5185793991582084891">"Aldatu horma-papera"</string>
+    <string name="lockscreen_wallpaper_preview_card_content_description" msgid="2244890820627302245">"Pantaila blokeatuko horma-paperaren aurrebista"</string>
+    <string name="apply_btn" msgid="5764555565943538528">"Aplikatu"</string>
+    <string name="accessibility_customize_hidden" msgid="6320568529768181691">"Pertsonalizatzeko panela ezkutatuta dago"</string>
+    <string name="accessibility_customize_shown" msgid="590964727831547651">"Pertsonalizatzeko panela ikusgai dago"</string>
+    <string name="accessibility_info_hidden" msgid="2288603712350168107">"Informazio-panela ezkutatuta dago"</string>
+    <string name="accessibility_info_shown" msgid="6626025722456105632">"Informazio-panela ikusgai dago"</string>
+    <string name="settings_snackbar_description" msgid="890168814524778486">"Gaitu fitxategiak eta multimedia-edukia Ezarpenak atalean."</string>
+    <string name="settings_snackbar_enable" msgid="5992112808061426068">"Gaitu"</string>
+    <string name="open_my_photos" msgid="4107196465713868381">"Ireki nire argazkiak"</string>
+    <string name="lock_screen_tab" msgid="6672930765010407652">"Pantaila blokeatua"</string>
+    <string name="home_screen_tab" msgid="1080445697837877526">"Orri nagusia"</string>
+    <string name="reset" msgid="4945445169532850631">"Berrezarri"</string>
+    <string name="reset_confirmation_dialog_title" msgid="3391905685838213712">"Aldaketak berrezarri?"</string>
+    <string name="reset_confirmation_dialog_message" msgid="888669268626289603">"Ez dira gordeko aldaketak"</string>
+    <string name="more_wallpapers" msgid="8116268433411881705">"Horma-paper gehiago"</string>
+    <string name="recents_wallpaper_label" msgid="8653165542635660222">"%1$s, %2$d"</string>
+    <string name="default_wallpaper_title" msgid="2541071182656978180">"Horma-papera"</string>
+    <string name="small_preview_tooltip" msgid="1920430079013352071">"Sakatu hau argazkia editatzeko"</string>
+    <string name="full_preview_tooltip" msgid="4648994028015322759">"Doitu argazkien posizioa, eskala eta angelua"</string>
+</resources>

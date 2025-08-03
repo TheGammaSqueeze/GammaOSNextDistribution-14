@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2006 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="applicationLabel">Kontaktoj</string>
+    <string name="contactsList">Kontaktoj</string>
+    <string name="shortcutContact">Kontakto</string>
+    <string name="menu_editContact">Redakti</string>
+    <string name="menu_deleteContact">Forigi</string>
+    <string name="separatorJoinAggregateAll">Ĉiuj kontaktoj</string>
+    <string name="deleteConfirmation_positive_button">Forigi</string>
+    <string name="menu_sendMessageOption">Sendi mesaĝon</string>
+    <string name="menu_share">Konigi</string>
+    <string name="menu_add_contact">Aldoni al kontaktoj</string>
+    <string name="activity_title_settings">Agordoj</string>
+    <string name="menu_settings" msgid="377929915873428211">Agordoj</string>
+    <string name="non_phone_caption">Telefonnumero</string>
+    <string name="non_phone_add_to_contacts">Aldoni al kontaktoj</string>
+    <string name="non_phone_close">Fermi</string>
+    <string name="header_website_entry">Retejo</string>
+    <string name="header_event_entry">Evento</string>
+    <string name="header_name_entry">Nomo</string>
+    <string name="header_phone_entry">Telefono</string>
+    <string name="local_search_label">Ĉiuj kontaktoj</string>
+    <string name="nameLabelsGroup">Nomo</string>
+    <string name="phoneLabelsGroup">Telefono</string>
+    <string name="label_custom_field">Propra</string>
+    <string name="websiteLabelsGroup">Retejo</string>
+    <string name="list_filter_all_accounts">Ĉiuj kontaktoj</string>
+    <string name="list_filter_single">Kontakto</string>
+    <string name="display_all_contacts">Ĉiuj kontaktoj</string>
+    <string name="select_account_dialog_title">Konto</string>
+    <string name="description_delete_contact">Forigi</string>
+</resources>

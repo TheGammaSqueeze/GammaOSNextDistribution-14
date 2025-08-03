@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ Copyright 2019 The Android Open Source Project
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="ime_name">Meur-chlàr <xliff:g id="app_name">Leanback</xliff:g></string>
+    <string name="ime_service_name">Meur-chlàr <xliff:g id="app_name">Leanback</xliff:g></string>
+    <string name="word_separators">\u0020.,;:!?\n()[]*&amp;@{}/&lt;&gt;_+=|"</string>
+    <string name="label_go_key">Siuthad</string>
+    <string name="label_next_key">Air adhart</string>
+    <string name="label_send_key">Cuir</string>
+    <string name="label_search_key">Lorg</string>
+    <string name="label_done_key">Deiseil</string>
+    <string name="settings_title">Roghainnean a’ mheur-chlàir</string>
+    <string name="title_movement_sensitivity">Mothalachd a’ ghluasaid</string>
+    <string name="btn_on">Air</string>
+    <string name="btn_off">Dheth</string>
+    <string name="keyboardview_keycode_space">Space</string>
+    <string name="keyboardview_keycode_delete">Delete</string>
+    <string name="keyboardview_keycode_mode_change">Atharrachadh modha</string>
+    <string name="keyboardview_keycode_shift">Shift</string>
+    <string name="keyboardview_keycode_caps">Caps Lock</string>
+    <string name="keyboardview_keycode_left">Clì</string>
+    <string name="keyboardview_keycode_right">Deas</string>
+    <string name="keyboard_headset_required_to_hear_password">Ceangail seata-cinn ris ach an cluinn thu iuchraichean an fhacail-fhaire ’gan cantainn riut.</string>
+    <string name="keyboard_password_character_no_headset">Dotag.</string>
+</resources>

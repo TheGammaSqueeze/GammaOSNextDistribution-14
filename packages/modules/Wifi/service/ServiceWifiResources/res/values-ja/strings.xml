@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2019 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="wifiResourcesAppLabel" product="default" msgid="3120115613525263696">"システム Wi-Fi リソース"</string>
+    <string name="wifi_available_title" msgid="3899472737467127635">"Wi-Fi オープン ネットワークに接続"</string>
+    <string name="wifi_available_title_connecting" msgid="7233590022728579868">"Wi-Fi ネットワークに接続中"</string>
+    <string name="wifi_available_title_connected" msgid="6329493859989844201">"Wi-Fi ネットワークに接続しました"</string>
+    <string name="wifi_available_title_failed_to_connect" msgid="4840833680513368639">"Wi‑Fi ネットワークに接続できませんでした"</string>
+    <string name="wifi_available_content_failed_to_connect" msgid="4330035988269701861">"すべてのネットワークを表示するにはタップします"</string>
+    <string name="wifi_available_action_connect" msgid="5636634933476946222">"接続"</string>
+    <string name="wifi_available_action_all_networks" msgid="8491109932336522211">"すべてのネットワーク"</string>
+    <string name="notification_channel_network_status" msgid="1631786866932924838">"ネットワークのステータス"</string>
+    <string name="notification_channel_network_alerts" msgid="1391603215241200880">"ネットワーク通知"</string>
+    <string name="notification_channel_network_available" msgid="8454366142428864948">"ネットワークを利用できます"</string>
+    <string name="notification_channel_apm_alerts" msgid="6775293475896473489">"APM アラート"</string>
+    <string name="wifi_suggestion_title" msgid="2564179935989099139">"Wi‑Fi ネットワーク候補を許可しますか？"</string>
+    <string name="wifi_suggestion_content" msgid="6985149577828091835">"<xliff:g id="NAME">%s</xliff:g> からのネットワーク候補に、デバイスが自動的に接続される可能性があります。"</string>
+    <string name="wifi_suggestion_action_allow_app" msgid="7757859972144671588">"許可"</string>
+    <string name="wifi_suggestion_action_disallow_app" msgid="4565857699629860726">"許可しない"</string>
+    <string name="wifi_suggestion_imsi_privacy_title" msgid="8969261812845304079">"<xliff:g id="CARRIERNAME">%s</xliff:g> のWi-Fi に接続しますか？"</string>
+    <string name="wifi_suggestion_imsi_privacy_content" msgid="4266931269306079184">"これらのネットワークは SIM ID を受信します。この ID を使ってデバイスの位置情報が追跡される可能性があります"</string>
+    <string name="wifi_suggestion_action_allow_imsi_privacy_exemption_carrier" msgid="3888538126440442636">"接続"</string>
+    <string name="wifi_suggestion_action_disallow_imsi_privacy_exemption_carrier" msgid="3225397664735676024">"接続しない"</string>
+    <string name="wifi_suggestion_imsi_privacy_exemption_confirmation_title" msgid="4407415300707014525">"接続を確認しますか？"</string>
+    <string name="wifi_suggestion_imsi_privacy_exemption_confirmation_content" msgid="9211241189147807136">"接続すると、<xliff:g id="CARRIERNAME">%s</xliff:g> の Wi‑Fi ネットワークが、SIM に関連付けられている一意の ID にアクセスしたりその ID を共有したりする可能性があります。これにより、デバイスの位置情報が追跡される可能性もあります。"</string>
+    <string name="wifi_suggestion_action_allow_imsi_privacy_exemption_confirmation" msgid="2168947026413431603">"接続"</string>
+    <string name="wifi_suggestion_action_disallow_imsi_privacy_exemption_confirmation" msgid="5156881939985876066">"接続しない"</string>
+    <string name="wifi_wakeup_onboarding_title" msgid="3868826648004934540">"Wi-Fi は自動的にオンになります"</string>
+    <string name="wifi_wakeup_onboarding_subtext" msgid="5705886295837387430">"高品質の保存済みネットワークの検出時"</string>
+    <string name="wifi_wakeup_onboarding_action_disable" msgid="6209706680391785825">"再度オンにしない"</string>
+    <string name="wifi_wakeup_enabled_title" msgid="5043486751612595850">"Wi‑Fi が自動的に ON になりました"</string>
+    <string name="wifi_wakeup_enabled_content" msgid="3911262526267025882">"保存済みネットワーク「<xliff:g id="NETWORK_SSID">%1$s</xliff:g>」の近くにいます"</string>
+    <string name="wifi_watchdog_network_disabled" msgid="5769226742956006362">"Wi-Fiに接続できませんでした"</string>
+    <string name="wifi_watchdog_network_disabled_detailed" msgid="1725243835135539125">" はインターネット接続に問題があります。"</string>
+    <string name="wifi_connect_alert_title" msgid="2368200646665663612">"接続を許可しますか？"</string>
+    <string name="wifi_connect_alert_message" msgid="7226456300982080746">"アプリ%1$sがWi-Fiネットワーク%2$sへの接続を希望しています"</string>
+    <string name="wifi_connect_default_application" msgid="8917703737222707062">"アプリ"</string>
+    <string name="accept" msgid="8346431649376483879">"同意する"</string>
+    <string name="decline" msgid="4172251727603762084">"同意しない"</string>
+    <string name="ok" msgid="847575529546290102">"OK"</string>
+    <string name="wifi_p2p_invitation_sent_title" msgid="6552639940428040869">"招待状を送信しました"</string>
+    <string name="wifi_p2p_invitation_to_connect_title" msgid="8917157937652519251">"接続への招待"</string>
+    <string name="wifi_p2p_invitation_seconds_remaining" msgid="4214101104506918344">"{0,plural, =1{# 秒以内に承諾してください。}other{# 秒以内に承諾してください。}}"</string>
+    <string name="wifi_p2p_from_message" msgid="5921308150192756898">"送信側:"</string>
+    <string name="wifi_p2p_to_message" msgid="3809923305696994787">"受信側:"</string>
+    <string name="wifi_p2p_enter_pin_message" msgid="5200220251738047620">"必要なPINを入力してください:"</string>
+    <string name="wifi_p2p_show_pin_message" msgid="1000091690967930798">"PIN:"</string>
+    <string name="wifi_p2p_frequency_conflict_message" msgid="8535404941723941766">"デバイスが <xliff:g id="DEVICE_NAME">%1$s</xliff:g> に接続されている間は一時的に Wi-Fi 接続が解除されます"</string>
+    <string name="dlg_ok" msgid="254496739491689405">"OK"</string>
+    <string name="wifi_cannot_connect_with_randomized_mac_title" msgid="2344570489693915253">"<xliff:g id="SSID">%1$s</xliff:g> に接続できません"</string>
+    <string name="wifi_cannot_connect_with_randomized_mac_message" msgid="4834133226521813352">"タップしてプライバシー設定を変更し、もう一度お試しください"</string>
+    <string name="wifi_disable_mac_randomization_dialog_title" msgid="2054540994993681606">"プライバシー設定を変更しますか？"</string>
+    <string name="wifi_disable_mac_randomization_dialog_message" msgid="8874064864332248988">"<xliff:g id="SSID">%1$s</xliff:g> は接続のために、あなたのデバイスの MAC アドレス（固有の識別番号）を使用する必要があります。現在、このネットワークのプライバシー設定では、ランダム ID を使用しています。\n\nこの変更により、付近のデバイスがあなたのデバイスの位置情報を追跡できるようになる可能性があります。"</string>
+    <string name="wifi_disable_mac_randomization_dialog_confirm_text" msgid="6954419863076751626">"設定を変更"</string>
+    <string name="wifi_disable_mac_randomization_dialog_success" msgid="5849155828154391387">"設定を更新しました。もう一度接続してみてください。"</string>
+    <string name="wifi_disable_mac_randomization_dialog_failure" msgid="2894643619143813096">"プライバシー設定を変更できません"</string>
+    <string name="wifi_disable_mac_randomization_dialog_network_not_found" msgid="7359256966900782004">"ネットワークが見つかりません"</string>
+    <string name="wifi_eap_error_message_code_32756" msgid="2620877003804313434">"<xliff:g id="SSID">%1$s</xliff:g> : EAP 認証エラー 32756"</string>
+    <!-- no translation found for wifi_eap_error_message_code_32756_carrier_overrides:0 (9114567205305206743) -->
+    <string name="wifi_eap_error_message_code_32760" msgid="5258191595973470188">"<xliff:g id="SSID">%1$s</xliff:g>: EAP 認証エラー 32760"</string>
+  <string-array name="wifi_eap_error_message_code_32760_carrier_overrides">
+    <item msgid="7582366019846559418">"<xliff:g id="CARRIER_ID_PREFIX">:::1839:::</xliff:g><xliff:g id="SSID">%1$s</xliff:g> : Verizon のサービスエリア外から Verizon Wi-Fi Access に接続することはできません（エラー = 32760）。"</item>
+  </string-array>
+    <string name="wifi_eap_error_message_code_32761" msgid="3962610712123291591">"<xliff:g id="SSID">%1$s</xliff:g>: EAP 認証エラー 32761"</string>
+  <string-array name="wifi_eap_error_message_code_32761_carrier_overrides">
+    <item msgid="5173744897521799785">"<xliff:g id="CARRIER_ID_PREFIX">:::1839:::</xliff:g><xliff:g id="SSID">%1$s</xliff:g> : Verizon Wi-Fi Access に登録されていません。800-922-0204 までお電話でお問い合わせください（エラー = 32761）。"</item>
+  </string-array>
+    <string name="wifi_eap_error_message_code_32762" msgid="2381670648753465737">"<xliff:g id="SSID">%1$s</xliff:g>: EAP 認証エラー 32762"</string>
+  <string-array name="wifi_eap_error_message_code_32762_carrier_overrides">
+    <item msgid="2911560823350042826">"<xliff:g id="CARRIER_ID_PREFIX">:::1839:::</xliff:g><xliff:g id="SSID">%1$s</xliff:g> : お使いの Verizon Wi-Fi Access アカウントに問題があります。800-922-0204 までお電話でお問い合わせください（エラー = 32762）。"</item>
+  </string-array>
+    <string name="wifi_eap_error_message_code_32763" msgid="4467733260757049969">"<xliff:g id="SSID">%1$s</xliff:g>: EAP 認証エラー 32763"</string>
+  <string-array name="wifi_eap_error_message_code_32763_carrier_overrides">
+    <item msgid="591026649262091217">"<xliff:g id="CARRIER_ID_PREFIX">:::1839:::</xliff:g><xliff:g id="SSID">%1$s</xliff:g> : Verizon Wi-Fi Access にすでに接続しています（エラー = 32763）。"</item>
+  </string-array>
+    <string name="wifi_eap_error_message_code_32764" msgid="7349538467012877101">"<xliff:g id="SSID">%1$s</xliff:g>: EAP 認証エラー 32764"</string>
+  <string-array name="wifi_eap_error_message_code_32764_carrier_overrides">
+    <item msgid="3909719534712787947">"<xliff:g id="CARRIER_ID_PREFIX">:::1839:::</xliff:g><xliff:g id="SSID">%1$s</xliff:g> : Verizon Wi-Fi Access への接続中に問題が発生しました。800-922-0204 までお電話でお問い合わせください（エラー = 32764）。"</item>
+  </string-array>
+    <string name="wifi_eap_error_message_code_32765" msgid="2167528358066037980">"<xliff:g id="SSID">%1$s</xliff:g>: EAP 認証エラー 32765"</string>
+  <string-array name="wifi_eap_error_message_code_32765_carrier_overrides">
+    <item msgid="7454136618636618962">"<xliff:g id="CARRIER_ID_PREFIX">:::1839:::</xliff:g><xliff:g id="SSID">%1$s</xliff:g> : お使いの Verizon Wi-Fi Access アカウントに問題があります。800-922-0204 までお電話でお問い合わせください（エラー = 32765）。"</item>
+  </string-array>
+    <string name="wifi_eap_error_message_code_32766" msgid="2335996367705677670">"<xliff:g id="SSID">%1$s</xliff:g>: EAP 認証エラー 32766"</string>
+  <string-array name="wifi_eap_error_message_code_32766_carrier_overrides">
+    <item msgid="5876210184761573755">"<xliff:g id="CARRIER_ID_PREFIX">:::1839:::</xliff:g><xliff:g id="SSID">%1$s</xliff:g> : 現在地では Verizon Wi-Fi Access はご利用いただけません。しばらくしてからもう一度お試しいただくか、場所を変えてお試しください（エラー = 32766）。"</item>
+  </string-array>
+    <string name="wifi_eap_error_message_code_32767" msgid="7094289719914089006">"<xliff:g id="SSID">%1$s</xliff:g> : EAP 認証エラー 32767"</string>
+  <string-array name="wifi_eap_error_message_code_32767_carrier_overrides">
+    <item msgid="3756793972687282940">"<xliff:g id="CARRIER_ID_PREFIX">:::1839:::</xliff:g><xliff:g id="SSID">%1$s</xliff:g> : Verizon Wi-Fi Access への接続中に問題が発生しました。しばらくしてからもう一度お試しいただくか、場所を変えてお試しください（エラー = 32767）。"</item>
+  </string-array>
+    <string name="wifi_eap_error_message_code_16384" msgid="575394783233092922">"<xliff:g id="SSID">%1$s</xliff:g> : EAP 認証エラー 16384"</string>
+  <string-array name="wifi_eap_error_message_code_16384_carrier_overrides">
+    <item msgid="270219697600808218">"<xliff:g id="CARRIER_ID_PREFIX">:::1839:::</xliff:g><xliff:g id="SSID">%1$s</xliff:g> : Verizon Wi-Fi への接続中に問題が発生しました（エラー = 16384）。"</item>
+  </string-array>
+    <string name="wifi_eap_error_message_code_16385" msgid="8392878664662215609">"<xliff:g id="SSID">%1$s</xliff:g> : EAP 認証エラー 16385"</string>
+  <string-array name="wifi_eap_error_message_code_16385_carrier_overrides">
+    <item msgid="50575315771146940">"<xliff:g id="CARRIER_ID_PREFIX">:::1839:::</xliff:g><xliff:g id="SSID">%1$s</xliff:g> : Verizon Wi-Fi への接続中に問題が発生しました（エラー = 16385）。"</item>
+  </string-array>
+    <string name="wifi_eap_error_message_unknown_error_code" msgid="4480884285384231323">"<xliff:g id="SSID">%1$s</xliff:g> : EAP 認証エラー、エラーコード不明"</string>
+  <string-array name="wifi_eap_error_message_unknown_error_code_carrier_overrides">
+    <item msgid="2705387186478280792">"<xliff:g id="CARRIER_ID_PREFIX">:::1839:::</xliff:g><xliff:g id="SSID">%1$s</xliff:g> : Verizon Wi-Fi への接続中に問題が発生しました（エラー = 不明）。"</item>
+  </string-array>
+    <string name="wifi_softap_auto_shutdown_timeout_expired_title" msgid="4896534374569504484">"アクセス ポイントが OFF になりました"</string>
+    <string name="wifi_softap_auto_shutdown_timeout_expired_summary" msgid="7975476698140267728">"デバイスは接続されていません。タップで変更できます。"</string>
+    <string name="wifi_sim_required_title" msgid="2262227800991155459">"Wi-Fi が切断されました"</string>
+    <string name="wifi_sim_required_message" msgid="284812212346125745">"<xliff:g id="SSID">%1$s</xliff:g> に接続するには、<xliff:g id="CARRIER_NAME">%2$s</xliff:g> の SIM を挿入します"</string>
+    <string name="wifi_interface_priority_title" msgid="5117627874976875544">"<xliff:g id="APP">%1$s</xliff:g> がネットワーク リソースの使用を求めています"</string>
+    <string name="wifi_interface_priority_message" msgid="4253391172756140313">"このために <xliff:g id="APPS">%3$s</xliff:g> で問題が発生することがあります。"</string>
+    <string name="wifi_interface_priority_message_plural" msgid="8178086373318831859">"次のアプリに問題が発生する可能性があります。<xliff:g id="APPS">%3$s</xliff:g>。"</string>
+    <string name="wifi_interface_priority_approve" msgid="7877379614986261096">"許可"</string>
+    <string name="wifi_interface_priority_reject" msgid="1378461018835886777">"許可しない"</string>
+    <string name="wifi_interface_priority_interface_name_sta" msgid="5107477901500010776">"STA"</string>
+    <string name="wifi_interface_priority_interface_name_ap" msgid="161777054136866061">"Wi-Fi アクセス ポイント"</string>
+    <string name="wifi_interface_priority_interface_name_ap_bridge" msgid="1270364818879977821">"Wi-Fi アクセス ポイント"</string>
+    <string name="wifi_interface_priority_interface_name_p2p" msgid="1278122698099149708">"Wi-Fi Direct"</string>
+    <string name="wifi_interface_priority_interface_name_nan" msgid="8812888073122966870">"Wi-Fi Aware"</string>
+    <string name="wifi_ca_cert_dialog_title" msgid="3872340345882915806">"このネットワークは信頼できますか？"</string>
+    <string name="wifi_ca_cert_dialog_continue_text" msgid="1674156611893471003">"はい、接続します"</string>
+    <string name="wifi_ca_cert_dialog_abort_text" msgid="1303170595421648059">"いいえ、接続しません"</string>
+    <string name="wifi_ca_cert_dialog_message_hint" msgid="5969214285536370126">"以下の情報が正しい場合にのみ、このネットワークの接続を許可します。\n\n"</string>
+    <string name="wifi_ca_cert_dialog_message_server_name_text" msgid="3707809865604348289">"サーバー名:\n<xliff:g id="VALUE">%1$s</xliff:g>\n\n"</string>
+    <string name="wifi_ca_cert_dialog_message_issuer_name_text" msgid="1147216922475192304">"発行者の名前:\n<xliff:g id="VALUE">%1$s</xliff:g>\n\n"</string>
+    <string name="wifi_ca_cert_dialog_message_organization_text" msgid="4936354600863239487">"組織:\n<xliff:g id="VALUE">%1$s</xliff:g>\n\n"</string>
+    <string name="wifi_ca_cert_dialog_message_expiration_text" msgid="1612917217606436217">"証明書の期限切れ:\n<xliff:g id="VALUE">%1$s</xliff:g>\n\n"</string>
+    <string name="wifi_ca_cert_dialog_message_signature_name_text" msgid="8455163626514894233">"SHA-256 フィンガープリント:\n<xliff:g id="VALUE">%1$s</xliff:g>\n\n"</string>
+    <string name="wifi_ca_cert_dialog_message_contact_text" msgid="5799083318641183815">"連絡先:\n<xliff:g id="VALUE">%1$s</xliff:g>\n\n"</string>
+    <string name="wifi_ca_cert_notification_title" msgid="537569884930429796">"ネットワークの確認が必要です"</string>
+    <string name="wifi_ca_cert_notification_message" msgid="6413248690626616961">"接続する前に <xliff:g id="SSID">%1$s</xliff:g> のネットワークの詳細を確認してください。タップして続行します。"</string>
+    <string name="wifi_ca_cert_failed_to_install_ca_cert" msgid="4864192219789736195">"証明書をインストールできませんでした。"</string>
+    <string name="wifi_tofu_invalid_cert_chain_title" msgid="332710627417595752">"<xliff:g id="VALUE">%1$s</xliff:g> に接続できません"</string>
+    <string name="wifi_tofu_invalid_cert_chain_message" msgid="7047987920029432392">"サーバー証明書チェーンが無効です。"</string>
+    <string name="wifi_tofu_invalid_cert_chain_ok_text" msgid="9098567577510279854">"OK"</string>
+    <string name="wifi_ca_cert_dialog_preT_title" msgid="6916320484037009061">"このネットワークを確認できません"</string>
+    <string name="wifi_ca_cert_dialog_preT_continue_text" msgid="9118713368838029797">"接続を維持する"</string>
+    <string name="wifi_ca_cert_dialog_preT_abort_text" msgid="1331309662999405224">"切断"</string>
+    <string name="wifi_ca_cert_dialog_preT_message_hint" msgid="5682518783200852031">"ネットワーク <xliff:g id="SSID">%1$s</xliff:g> に証明書がありません。"</string>
+    <string name="wifi_ca_cert_dialog_preT_message_link" msgid="6325483132538546884">"証明書を追加する方法"</string>
+    <string name="wifi_ca_cert_notification_preT_title" msgid="7255129934648316663">"このネットワークを確認できません"</string>
+    <string name="wifi_ca_cert_notification_preT_message" msgid="4565553176090475724">"ネットワーク <xliff:g id="SSID">%1$s</xliff:g> に証明書がありません。タップして、証明書を追加する方法を参照してください。"</string>
+    <string name="wifi_ca_cert_notification_preT_continue_text" msgid="1525418430746943670">"接続する"</string>
+    <string name="wifi_ca_cert_notification_preT_abort_text" msgid="8307996031461071854">"接続しない"</string>
+    <string name="wifi_enable_request_dialog_title" msgid="3577459145316177148">"Wi‑Fi を ON にすることを <xliff:g id="APP_NAME">%1$s</xliff:g> に許可しますか？"</string>
+    <string name="wifi_enable_request_dialog_message" msgid="6395169178524938278">"クイック設定で Wi‑Fi を OFF にできます"</string>
+    <string name="wifi_enable_request_dialog_positive_button" msgid="6050832555821470466">"許可"</string>
+    <string name="wifi_enable_request_dialog_negative_button" msgid="4754219902374918882">"許可しない"</string>
+    <string name="wifi_enabled_apm_first_time_title" msgid="4814302384637588804">"機内モードで Wi-Fi を ON"</string>
+    <string name="wifi_enabled_apm_first_time_message" msgid="6416193199042203037">"Wi-Fi を ON にしておくと、次に機内モードになったときも ON のままになります"</string>
+    <string name="apm_enabled_first_time_title" msgid="2534167413190488009">"Wi-Fi を ON のままにする"</string>
+    <string name="apm_enabled_first_time_message" msgid="6093911536874954410">"機内モードでも、デバイスの Wi-Fi は ON のままになります。Wi-Fi を ON にしたくない場合は OFF にしてください。"</string>
+    <string name="wifi_network_disabled_by_admin_title" msgid="9057697656855227293">"使用できないネットワーク"</string>
+    <string name="wifi_network_disabled_by_admin_message" msgid="7830360441333155462">"<xliff:g id="SSID">%1$s</xliff:g> は管理者によって無効にされています。"</string>
+    <string name="wifi_network_disabled_by_admin_button" msgid="3350310756265122689">"閉じる"</string>
+    <string name="wifi_network_switch_dialog_title_no_internet" msgid="4116969009784041242">"<xliff:g id="SSID_0">%1$s</xliff:g> がインターネットに接続できないようです。<xliff:g id="SSID_1">%2$s</xliff:g> に切り替えますか？"</string>
+    <string name="wifi_network_switch_dialog_title_bad_internet" msgid="6013385270249705547">"<xliff:g id="SSID_0">%1$s</xliff:g> は低品質です。<xliff:g id="SSID_1">%2$s</xliff:g> に切り替えますか？"</string>
+    <string name="wifi_network_switch_dialog_positive_button" msgid="7845507995422722454">"切り替える"</string>
+    <string name="wifi_network_switch_dialog_negative_button" msgid="1496665895689498806">"切り替えない"</string>
+</resources>

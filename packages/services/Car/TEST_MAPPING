@@ -1,0 +1,33 @@
+{
+  "auto-service-experimental-code-presubmit": [
+    {
+      "name": "ExperimentalCarServiceTests"
+    }
+  ],
+  "auto-postsubmit": [
+    {
+      "name": "AndroidCarApiTest",
+      "options": [
+        {
+          "include-filter": "android.car.apitest.PreInstalledPackagesTest"
+        }
+      ]
+    },
+    {
+      "name": "SampleCustomInputServiceTest"
+    },
+    {
+      "name": "vehicle_binding_integration_test"
+    }
+  ],
+  "auto-presubmit": [
+    {
+      "name": "hal_implementation_test"
+    }
+  ],
+  "ravenwood-presubmit": [
+    {
+      "name": "CarLibHostUnitTest"
+    }
+  ]
+}

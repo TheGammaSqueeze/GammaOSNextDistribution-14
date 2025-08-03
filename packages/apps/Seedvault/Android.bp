@@ -1,0 +1,80 @@
+//
+// SPDX-FileCopyrightText: 2020 The Calyx Institute
+// SPDX-License-Identifier: Apache-2.0
+//
+
+android_app {
+    name: "Seedvault",
+    srcs: [
+        "app/src/main/java/**/*.kt",
+        "app/src/main/java/**/*.java",
+    ],
+    resource_dirs: [
+        "app/src/main/res",
+    ],
+    static_libs: [
+        "kotlin-stdlib-jdk8",
+        "androidx.core_core-ktx",
+        "androidx.fragment_fragment-ktx",
+        "androidx.activity_activity-ktx",
+        "androidx.preference_preference",
+        "androidx.documentfile_documentfile",
+        "androidx.work_work-runtime-ktx",
+        "androidx.lifecycle_lifecycle-viewmodel-ktx",
+        "androidx.lifecycle_lifecycle-livedata-ktx",
+        "androidx-constraintlayout_constraintlayout",
+        "com.google.android.material_material",
+        "kotlinx-coroutines-android",
+        "kotlinx-coroutines-core",
+        // storage backup lib
+        "seedvault-lib-storage",
+        // koin
+        "seedvault-lib-koin-core-jvm", // did not manage to add this as transitive dependency
+        "seedvault-lib-koin-android",
+        // bip39
+        "seedvault-lib-kotlin-bip39",
+        // WebDAV
+        "seedvault-lib-dav4jvm",
+        "seedvault-lib-okhttp",
+        "seedvault-lib-okio",
+    ],
+    manifest: "app/src/main/AndroidManifest.xml",
+
+    platform_apis: true,
+    system_ext_specific: true,
+    certificate: "platform",
+    privileged: true,
+    required: [
+        "LocalContactsBackup",
+        "com.stevesoltys.backup_allowlist",
+        "com.stevesoltys.backup_default-permissions",
+        "com.stevesoltys.backup_privapp_allowlist"
+    ],
+    optimize: {
+        enabled: false,
+    },
+}
+
+prebuilt_etc {
+    name: "com.stevesoltys.backup_allowlist",
+    system_ext_specific: true,
+    sub_dir: "sysconfig",
+    src: "allowlist_com.stevesoltys.seedvault.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
+    name: "com.stevesoltys.backup_default-permissions",
+    system_ext_specific: true,
+    sub_dir: "default-permissions",
+    src: "default-permissions_com.stevesoltys.seedvault.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
+    name: "com.stevesoltys.backup_privapp_allowlist",
+    system_ext_specific: true,
+    sub_dir: "permissions",
+    src: "permissions_com.stevesoltys.seedvault.xml",
+    filename_from_src: true,
+}

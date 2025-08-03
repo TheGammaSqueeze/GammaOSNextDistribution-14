@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2015 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="car_permission_label_bind_projection_service" msgid="6976251734714662552">"vincula a un servei de projecció"</string>
+    <string name="car_permission_desc_bind_projection_service" msgid="4610418233070289810">"Permet que el titular vinculi a la interfície de nivell superior d\'un servei de projecció. No s\'hauria de necessitar mai per a les aplicacions normals"</string>
+    <string name="car_permission_label_bind_vms_client" msgid="1298928874094319701">"Servei de client de VMS"</string>
+    <string name="car_permission_desc_bind_vms_client" msgid="7758142590449847602">"Vincular a clients de VMS"</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="6723392540805279625">"Renderització del quadre de comandament"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="2583711303360788080">"Rebre dades del quadre de comandament"</string>
+    <string name="car_permission_label_bind_input_service" msgid="6647238478703096557">"Servei d\'entrada del cotxe"</string>
+    <string name="car_permission_desc_bind_input_service" msgid="8460218104132496613">"Gestionar els esdeveniments d\'entrada"</string>
+    <string name="activity_blocked_text" msgid="5991043857905412794">"No pots fer servir aquesta funció mentre condueixes"</string>
+    <string name="exit_button_message" msgid="5375678491245394542">"Per tornar a començar amb unes funcions d\'aplicació segures, selecciona <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
+    <string name="exit_button" msgid="3491899413031549265">"Enrere"</string>
+    <string name="exit_button_close_application" msgid="5153716684207539041">"Tanca l\'aplicació"</string>
+    <string name="exit_button_go_back" msgid="6921595432375141935">"Enrere"</string>
+    <string name="importance_default" msgid="8017186728206153704">"Importància predeterminada"</string>
+    <string name="importance_high" msgid="3393374688015554727">"Molt important"</string>
+    <string name="android_system_label" msgid="9209428539477894959">"Sistema Android"</string>
+    <string name="factory_reset_notification_title" msgid="6177770995437355965">"Cal restablir les dades de fàbrica"</string>
+    <string name="factory_reset_notification_text" msgid="6051393302193696102">"Totes les dades del sistema d\'informació i entreteniment s\'esborraran. Després del restabliment, podràs configurar un perfil nou."</string>
+    <string name="factory_reset_notification_button" msgid="6926734587145351076">"Més"</string>
+    <string name="factory_reset_warning" msgid="8463356329619149262">"El contingut del dispositiu s\'esborrarà"</string>
+    <string name="factory_reset_message" msgid="1972536809866779972">"No es pot utilitzar l\'aplicació d\'administració. Ara s\'esborraran les dades del dispositiu.\n\nSi tens cap dubte, contacta amb l\'administrador de la teva organització."</string>
+    <string name="resource_overuse_notification_title" msgid="1622015333965744463">"<xliff:g id="ID_1">^1</xliff:g> està afectant el rendiment del sistema"</string>
+    <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"S\'ha evitat que aquesta aplicació s\'executi en segon pla. Prioritiza l\'aplicació per continuar utilitzant-la en segon pla."</string>
+    <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"Tanca"</string>
+    <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"Prioritza l\'aplicació"</string>
+</resources>

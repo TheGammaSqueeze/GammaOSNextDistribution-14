@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  Copyright (c) 2017 The LineageOS Project
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ Also add information on how to contact you by electronic and paper mail.
+
+-->
+<resources>
+    <string name="app_name">כיסוי חכם</string>
+    <string name="notification_title">כיסוי חכם זוהה</string>
+    <string name="alarm_label">שעון מעורר</string>
+    <string name="abbrev_wday_month_day_no_year">EEE, MMMM d</string>
+    <string name="answer_call">ענה</string>
+    <string name="ignore_call">התעלם</string>
+    <string name="end_call">סיים שיחה</string>
+    <string name="settings_name">כיסוי חכם</string>
+    <string name="settings_summary">שלוט בהתנהגות האביזרים שלך</string>
+    <string name="category_behaviour">התנהגות</string>
+    <string name="pass_to_security_view_title">עבור ישירות אל הזנת הסיסמה</string>
+    <string name="pass_to_security_view_summary">פתיחת הכיסוי תראה ישירות את מסך הנעילה</string>
+    <string name="use_high_touch_sensitivity_title">רגישות גבוהה למגע</string>
+    <string name="use_high_touch_sensitivity_summary">מגדיל את הרגישות למגע כאשר הכיסוי סגור</string>
+    <string name="category_design">עיצוב</string>
+    <string name="switch_charging_status_title">הראה מצב טעינה</string>
+    <string name="switch_charging_status_summary">שינוי צבע בהתאם לאחוז הסוללה הנוכחי</string>
+    <string name="category_timeouts">זמן להצגה</string>
+    <string name="timeout_plugged_title">במהלך טעינה</string>
+    <string name="timeout_unplugged_title">כשלא נטען</string>
+    <string name="timeout_summary">הצג את יישום הכיסוי ל־%s לאחר סגירת הכיסוי</string>
+    <string name="timeout_summary_never">לאחר סגירת הכיסוי, יישום הכיסוי תמיד ישאר דולק</string>
+    <string name="timeout_summary_immediately">המסך תמיד ישאר דולק כשסוגרים את הכיסוי</string>
+    <string name="timeout_entry_immediately">מיידית</string>
+    <string name="timeout_entry_5s">5 שניות</string>
+    <string name="timeout_entry_10s">10 שניות</string>
+    <string name="timeout_entry_30s">30 שניות</string>
+    <string name="timeout_entry_1min">דקה</string>
+    <string name="timeout_entry_5min">5 דקות</string>
+    <string name="timeout_entry_never">אף פעם</string>
+</resources>

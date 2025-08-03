@@ -1,0 +1,113 @@
+// Copyright 2021 Google Inc. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: [
+        "Android-Apache-2.0",
+    ],
+}
+
+java_library {
+    name: "adservices-test-scenarios",
+    platform_apis: true,
+    static_libs: [
+        "adservices-assets",
+        "adservices-clients",
+        "mockwebserver",
+        "platform-test-annotations",
+        "adservices-test-fixtures",
+        "adservices-test-utility",
+        "adservices-ui-cts-root-test-lib",
+        "adservices-profile-text-protos-genrule",
+        "adservices-concurrent-profile-text-protos-genrule",
+        "longevity-device-lib",
+        "concurrent-longevity-device-lib",
+    ],
+    libs: [
+        "framework-adservices-lib",
+        "androidx.test.rules",
+        "androidx.test.runner",
+        "app-helpers-handheld-interfaces",
+        "guava",
+        "gson",
+        "platform-test-rules",
+        "health-testing-utils",
+        "microbenchmark-device-lib",
+        "ub-uiautomator",
+        "common-platform-scenarios",
+        "launcher-aosp-tapl",
+        "platform-test-options",
+        "hamcrest-library",
+        "androidx.media_media",
+        "modules-utils-testable-device-config",
+        "adservices-profile-text-protos-genrule",
+        "adservices-concurrent-profile-text-protos-genrule",
+    ],
+
+    srcs: ["src/**/*.java"],
+}
+
+java_genrule {
+    name: "adservices-profile-text-protos-genrule",
+    host_supported: true,
+    tools: ["aprotoc"],
+    srcs: [
+        ":profile-proto-def",
+        "assets/topics_profile.textpb",
+    ],
+    out: ["google-profiles.jar"],
+    /*
+     * Loops over all *.textpb files under res/ and serializes them into binary protos with ".pb"
+     * extension using aprotoc. The generated *.pb files are put under an assets/ directory, which
+     * gets packed into a .jar file and ends being under the assets/ directory in the apk package,
+     * which can then be read by the app's asset manager.
+     *
+     * If a profile fails to parse, an error is thrown and the build will fail.
+     */
+    cmd: "out_dir=$$(dirname $(out)) && assets_dir=\"assets\" && mkdir -p $$out_dir/$$assets_dir " +
+        "&& src_protos=($(locations assets/topics_profile.textpb)) && red='\033[0;31m' " +
+        "&& no_color='\033[0m' && for file in $${src_protos[@]} ; do fname=$$(basename $$file) " +
+        "&& if ! ($(location aprotoc) --encode=longevity.profile.Configuration " +
+        "$(location :profile-proto-def) < $$file > " +
+        "$$out_dir/$$assets_dir/$${fname//.textpb/.pb}) ; then " +
+        "echo \"$${red}Failed to parse profile $$file. See above for errors.$${no_color}\" " +
+        "&& exit 1 ; fi ; done && jar cf $(out) -C $$(dirname $(out)) $$assets_dir",
+}
+
+java_genrule {
+    name: "adservices-concurrent-profile-text-protos-genrule",
+    host_supported: true,
+    tools: ["aprotoc"],
+    srcs: [
+        ":concurrent-profile-proto-def",
+        "assets/concurrent-configs/*.textpb",
+    ],
+    out: ["google-profiles.jar"],
+    /*
+     * Loops over all *.textpb files under res/ and serializes them into binary protos with ".pb"
+     * extension using aprotoc. The generated *.pb files are put under an assets/ directory, which
+     * gets packed into a .jar file and ends being under the assets/ directory in the apk package,
+     * which can then be read by the app's asset manager.
+     *
+     * If a profile fails to parse, an error is thrown and the build will fail.
+     */
+    cmd: "out_dir=$$(dirname $(out)) && assets_dir=\"assets\" && mkdir -p $$out_dir/$$assets_dir " +
+        "&& src_protos=($(locations assets/concurrent-configs/*.textpb)) && red='\033[0;31m' " +
+        "&& no_color='\033[0m' && for file in $${src_protos[@]} ; do fname=$$(basename $$file) " +
+        "&& if ! ($(location aprotoc) --encode=adservices.longevity.profile.concurrent.Configuration " +
+        "$(location :concurrent-profile-proto-def) < $$file > " +
+        "$$out_dir/$$assets_dir/$${fname//.textpb/.pb}) ; then " +
+        "echo \"$${red}Failed to parse profile $$file. See above for errors.$${no_color}\" " +
+        "&& exit 1 ; fi ; done && jar cf $(out) -C $$(dirname $(out)) $$assets_dir",
+}

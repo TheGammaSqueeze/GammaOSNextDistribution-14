@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2012-2016 The CyanogenMod Project
+     Copyright (C) 2017-2025 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="flip_action_title">设备翻转行为</string>
+    <string name="shake_action_title">设备摇晃行为</string>
+    <string-array name="action_setting_entries">
+        <item>稍后提醒</item>
+        <item>忽略</item>
+        <item>无</item>
+    </string-array>
+    <string name="firing_alarms_timers_channel">触发闹钟和计时器</string>
+    <string name="alarm_missed_channel">错过的闹钟</string>
+    <string name="alarm_snooze_channel">暂停的闹钟</string>
+    <string name="alarm_upcoming_channel">即将响铃的闹钟</string>
+    <string name="stopwatch_channel">计时器</string>
+    <string name="timer_channel">计时器</string>
+    <string name="add_label">添加标签</string>
+    <string name="dialog_permissions_title">权限</string>
+    <string name="dialog_permissions_ask">再次询问</string>
+    <string name="dialog_permissions_dismiss">忽略</string>
+    <string name="dialog_permissions_settings">设置</string>
+    <string name="dialog_permissions_power_off_alarm">若没有此权限，您的设备将无法自行启动以触发警报。</string>
+    <string name="dialog_permissions_no_permission">所需的权限被拒绝，请在“设置”应用中启用。</string>
+    <string name="dialog_permissions_post_notifications">此应用依赖于通知，若没有它就无法运行！</string>
+    <string name="selected">已选择</string>
+    <string name="more_options">更多选项</string>
+    <string name="widget_choice_title">选择您喜欢的外观</string>
+    <string name="widget_name_transparent">透明</string>
+    <string name="widget_name_solid">纯色</string>
+    <string name="clock_brightness_percentage">%s%%</string>
+    <string name="night_mode_enabled_title">启用</string>
+    <string name="night_mode_dnd_title">跟随勿扰模式</string>
+    <string name="night_mode_dnd_summary">夜间模式跟随勿扰模式设置</string>
+    <string name="show_ampm_title">显示 上午/下午 指示器</string>
+    <string name="bold_text_title">加粗时钟文本</string>
+    <string name="night_mode_brightness_text_title">亮度</string>
+    <string name="clock_color_title">颜色</string>
+    <string-array name="clock_color_entries">
+        <item>白</item>
+        <item>红</item>
+        <item>绿</item>
+        <item>蓝</item>
+    </string-array>
+    <string name="screensaver_settings_title">屏幕保护程序</string>
+    <string name="screensaver_preview">预览</string>
+    <string name="screensaver_preview_summary">立即启动屏幕保护程序</string>
+    <string name="screensaver_change_settings">设置</string>
+    <string name="screensaver_change_settings_summary">打开时钟屏幕保护设置</string>
+    <string name="screensaver_daydream_settings">选择/启用屏幕保护程序</string>
+    <string name="screensaver_daydream_settings_summary">打开屏幕保护程序设置菜单</string>
+</resources>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <item name="android.graphics.RuntimeShader RuntimeShader(java.lang.String) 0">
+    <annotation name="org.intellij.lang.annotations.Language">
+      <val name="value" val="&quot;AGSL&quot;" />
+    </annotation>
+  </item>
+</root>
+

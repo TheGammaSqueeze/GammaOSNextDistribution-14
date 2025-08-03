@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2013-2015 The CyanogenMod Project
+     SPDX-FileCopyrightText: 2017-2024 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Майстер налаштування</string>
+    <string name="next">Далі</string>
+    <string name="skip">Пропустити</string>
+    <string name="start">Почати</string>
+    <string name="done">Готово</string>
+    <string name="ok">Так</string>
+    <string name="loading">Хвилинку\u2026</string>
+    <string name="setup_welcome_message">Вас вітає <xliff:g id="name" example="LineageOS">%1$s</xliff:g></string>
+    <string name="emergency_call">Екстрений виклик</string>
+    <string name="setup_locale">Мова</string>
+    <string name="sim_locale_changed">%1$s SIM-карту виявлено</string>
+    <string name="setup_sim_missing">SIM-карта відсутня</string>
+    <string name="sim_missing_summary" product="tablet">У вашому планшеті не виявлено SIM-карти. Щоб дізнатися як вставити SIM-карту, ознайомтеся з інструкціями до вашого пристрою.</string>
+    <string name="sim_missing_summary" product="default">У вашому телефоні не виявлено SIM-карти. Щоб дізнатися як вставити SIM-карту, ознайомтеся з інструкціями до вашого пристрою.</string>
+    <string name="setup_datetime">Дата й час</string>
+    <string name="date_time_summary">Оберіть часовий пояс і виправте за потреби дату й час</string>
+    <string name="setup_current_date">Поточна дата</string>
+    <string name="setup_current_time">Поточний час</string>
+    <string name="intro_restore_title">Відновіть застосунки й дані</string>
+    <string name="setup_location">Служби позиціювання</string>
+    <string name="location_access_summary"><b>Дозволити програмам, котрі запитали вашого дозволу</b> використовувати інформацію, щодо вашого місцезнаходження. Це може бути як ваше поточне, так і минулі розташування.</string>
+    <string name="update_recovery_title">Оновлювати режим відновлення Lineage</string>
+    <string name="update_recovery_description">Оновлює режим відновлення Lineage за першого запуску після кожного оновлення.</string>
+    <string name="update_recovery_warning">Режим відновлення оновиться, щойно ви завершите налаштування. Якщо ви хочете зберегти наявний режим оновлення, вимкніть цю функцію.</string>
+    <string name="update_recovery_setting">Оновлювати режим відновлення Lineage разом з ОС</string>
+    <string name="update_recovery_full_description"><xliff:g id="recovery_update_description">%1$s</xliff:g>\n<xliff:g id="recovery_update_warning">%2$s</xliff:g></string>
+    <string name="setup_services">Функції LineageOS</string>
+    <string name="services_pp_explanation">Ці служби працюють задля розширення підтримки вашого пристрою. Використання даних обмежується політикою приватності <xliff:g id="name" example="LineageOS">%1$s</xliff:g>.</string>
+    <string name="services_metrics_label"><xliff:g id="name" example="Допомогти поліпшити LineageOS">%1$s</xliff:g>, дозволивши надсилання діагностичних даних у <xliff:g id="name" example="LineageOS">%2$s</xliff:g>. Відстежити вас за ними неможливо; вони допоможуть удосконалити автономність, швидкодію та нові можливості <xliff:g id="name" example="LineageOS">%3$s</xliff:g>.</string>
+    <string name="services_os_nav_keys_label"><b>Використовувати навігаційні кнопки на екрані
+</b> замість апаратних.</string>
+    <string name="services_full_description"><xliff:g id="pp_explanation">%1$s</xliff:g>\n<xliff:g id="pp_find">%2$s</xliff:g></string>
+    <string name="setup_navigation">Навігація</string>
+    <string name="navigation_summary">Оберіть бажаний спосіб навігації</string>
+    <string name="gesture_navigation">Навігація жестами</string>
+    <string name="two_button_navigation">Навігація двома кнопками</string>
+    <string name="navbar_navigation">Навігація трьома кнопками</string>
+    <string name="hide_gesture_hint">Ховати панель навігації жестами</string>
+</resources>

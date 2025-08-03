@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017-2024 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="system_reboot_confirm_cm">Repornește la:</string>
+    <string name="global_action_restart_system">Sistem</string>
+    <string name="global_action_restart_recovery">Recovery</string>
+    <string name="global_action_restart_bootloader">Bootloader</string>
+    <plurals name="show_dev_countdown_cm">
+        <item quantity="one">Ești la <xliff:g id="step_count">%1$d</xliff:g> pas distanță de a activa opțiunile de dezvoltator.</item>
+        <item quantity="few">Ești la <xliff:g id="step_count">%1$d</xliff:g> pași distanță de a activa opțiunile de dezvoltator.</item>
+        <item quantity="other">Ești la <xliff:g id="step_count">%1$d</xliff:g> pași distanță de a activa opțiunile de dezvoltator.</item>
+    </plurals>
+    <string name="show_dev_on_cm">Ați deblocat setările de dezvoltator!</string>
+    <string name="show_dev_already_cm">Nu mai este nevoie, aţi activat deja setările dezvoltator.</string>
+    <string name="system_buttons">Butoane</string>
+    <string name="power_button_long_press_action_title">Acțiunea apăsării lungi a butonului de pornire</string>
+    <string name="power_button_long_press_for_power_menu_action">Acces Meniu Power</string>
+    <string name="power_button_long_press_for_assistant_action">Deschide Asistentul</string>
+    <string name="inputs_volume_control_enabled">Control volum CEC</string>
+    <string name="inputs_volume_control_enabled_desc">Controlează volumul TV/AVR în locul volumului intern</string>
+    <string name="enable_adb_root">Depanare ca root</string>
+    <string name="enable_adb_root_summary">Permiteți depanării sistemului Android să ruleze ca root</string>
+    <string name="advanced_restart_title">Repornire avansată</string>
+    <string name="advanced_restart_summary">Arată opțiuni pentru repornirea în recovery, bootloader sau efectuarea unei reporniri ușoare</string>
+    <string name="adb_over_network">ADB prin rețea</string>
+    <string name="adb_over_network_summary">Activează depanarea TCP/IP prin interfețele de rețea (Wi\u2011Fi, rețele USB). Această setare este resetată la repornire</string>
+    <string name="adb_over_network_warning">AVERTISMENT: Când ADB prin reţea este activat, telefonul dvs. este deschis pentru intruziuni pe toate reţelele conectate!\n\nUtilizaţi această caracteristică doar atunci când sunteţi conectat la rețele de încredere.\n\nDoriţi cu adevărat să activaţi această funcţie?</string>
+    <string name="trust_category_features">Stare</string>
+    <string name="trust_feature_selinux">SELinux</string>
+    <string name="trust_feature_selinux_value_enforcing">Enforcing</string>
+    <string name="trust_feature_selinux_value_disabled">Dezactivat</string>
+    <string name="trust_feature_selinux_explain">SELinux dictează ce procese au acces la fișiere/căi de fișiere pe dispozitivul dvs.\nAceasta previne ca aplicațiile și serviciile să aibă acces la fișiere la care nu ar trebui să îl aibă: prin aceasta, un potențial proces malițios are acces limitat, așa că se menține securitatea dvs.</string>
+    <string name="trust_feature_security_patches">Corecții de securitate Android</string>
+    <string name="trust_feature_security_patches_value_base">Platform: %1$s\nVendor: %2$s</string>
+    <string name="trust_feature_security_patches_value_new">La zi</string>
+    <string name="trust_feature_security_patches_value_medium">Expirate de câteva luni</string>
+    <string name="trust_feature_security_patches_value_old">Expirate</string>
+    <string name="trust_feature_security_patches_explain">Corecțiile de securitate sunt lansate lunar de către Google în cooperare cu vânzătorii SoC pentru a remedia problemele care pot fi exploatate de aplicațiile malițioase pentru a trece peste restricțiile de securitate și să cauzeze daune permanente în dispozitivul dvs. Patch-urile făcute disponibile de Google sunt aplicate lunar pe toate dispozitivele compatibile, dar patch-urile la codul proprietar pot fi aplicate numai de către producătorul dispozitivului. Pentru a vă menține dispozitivul în siguranță, asigurați-vă că build-ul LineageOS al dvs. este la zi și (dacă se aplică) asigurați-vă că imaginea vendor-ului este actualizată la cea recomandată de LineageOS.</string>
+    <string name="trust_feature_encryption">Criptare</string>
+    <string name="trust_feature_encryption_value_enabled">Activat</string>
+    <string name="trust_feature_encryption_value_nolock">Necesită un ecran de blocare securizat</string>
+    <string name="trust_feature_encryption_value_disabled">Dezactivat</string>
+    <string name="trust_feature_encryption_explain">Criptarea dispozitivului previne accesul la datele dvs. când telefonul nu este boot-at în Android. Aceasta este importantă în special dacă telefonul vă este furat și previne oamenii de la a vă citi mesajele, contactele și alte date private fără a utiliza vreo parolă.\nPentru a face criptarea mai eficientă trebuie să setați o parolă într-un ecran de blocare securizat.</string>
+    <string name="trust_category_tools">Confidențialitate</string>
+    <string name="trust_notification_alerts_title">Alerte de securitate</string>
+    <string name="trust_restrict_usb_title">Restricționare USB</string>
+    <string name="trust_restrict_usb_summary">Controlează suportul pentru conexiunile USB, cum ar fi căștile, dispozitivele de stocare, intrare (mouse-uri, tastaturi, joystick-uri) și ADB</string>
+    <string name="trust_restrict_usb_always">Blochează conexiunile USB</string>
+    <string name="trust_restrict_usb_disabled">Permiteţi întotdeauna conexiunile USB</string>
+    <string name="trust_onboarding_description">Trust vă ajută să vă păstrați telefonul în siguranță și să vă protejați confidențialitatea.\nIconița Trust va apărea numai când conținutul paginii a fost verificat.</string>
+    <string name="trust_warnings_alerts_intro">Puteți selecta problemele de securitate despre care să fiți atenționat(ă). Pentru siguranța dvs. este recomandat să activați toate alertele</string>
+    <string name="trust_warnings_selinux">Stare SELinux</string>
+    <string name="trust_warnings_keys">Semnătură build</string>
+    <string name="sleep_button_label">Somn</string>
+    <string name="system_sleep_confirm">Somn de sistem acum?</string>
+    <string name="shutdown_button_label">Închidere</string>
+    <string name="system_shutdown_confirm">Închideți acum?</string>
+    <string name="convertible_port_busy_title">Portul 1 USB este în uz</string>
+    <string name="convertible_port_busy_warning">Deconectaţi orice dispozitiv sau accesorii şi încercaţi din nou</string>
+    <string name="mtp_enable_title">Accesarea dosarelor SHIELD pe PC folosind USB</string>
+    <string name="mtp_enable_warning">Portul 1 USB este acum configurat pentru SHIELD pentru a se conecta la un PC ca dispozitiv media.\n\nAcest port nu va mai detecta mediul de stocare USB sau accesoriile USB şi nu poate fi folosit pentru încărcarea dispozitivelor.</string>
+    <string name="mtp_retry_error">Eșuat. Vă rugăm reîncercați.</string>
+    <string name="mtp_summary">În acest mod, portul USB nu este funcţional pentru alte utilizări</string>
+    <string name="mtp_title">Transferați fișiere pe calculator folosind USB</string>
+    <string name="mtp_unexpected_error">Eroare neașteptată. Reîncercați mai târziu.</string>
+    <string name="usb_debugging_enable_title">Depanare USB activată</string>
+    <string name="usb_debugging_enable_warning">Portul 1 USB este acum configurat pentru SHIELD pentru a se conecta la un PC ca dispozitiv media.\n\nAcest port nu va mai detecta mediul de stocare USB sau accesoriile USB şi nu poate fi folosit pentru încărcarea dispozitivelor.</string>
+</resources>

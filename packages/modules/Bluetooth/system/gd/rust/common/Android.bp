@@ -1,0 +1,216 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_bt_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_bt_license"],
+}
+
+rust_library {
+    name: "libbt_common",
+    defaults: ["libbt_common_defaults"],
+    rustlibs: [
+        "libcxx",
+        "libgrpcio",
+        "liblazy_static",
+        "liblog_rust",
+        "libnix",
+        "libtokio",
+    ],
+    target: {
+        android: {
+            rustlibs: [
+                "libandroid_logger",
+                "librustutils",
+            ],
+            shared_libs: [
+                "libcutils",
+            ],
+        },
+        host: {
+            rustlibs: [
+                "libenv_logger",
+            ],
+        },
+    },
+    min_sdk_version: "Tiramisu",
+}
+
+rust_library {
+    name: "libbt_common_only_init_flags",
+    defaults: ["gd_rust_defaults"],
+    crate_name: "bt_common",
+    srcs: ["src/lib_only_init_flags.rs"],
+    rustlibs: [
+        "liblazy_static",
+        "liblog_rust",
+    ],
+    target: {
+        android: {
+            rustlibs: [
+                "libandroid_logger",
+            ],
+        },
+        host: {
+            rustlibs: [
+                "libenv_logger",
+            ],
+        },
+    },
+    proc_macros: [
+        "libpaste",
+    ],
+    apex_available: [
+        "com.android.btservices",
+    ],
+    min_sdk_version: "Tiramisu",
+}
+
+rust_defaults {
+    name: "libbt_common_defaults",
+    defaults: ["gd_rust_defaults"],
+    crate_name: "bt_common",
+    srcs: ["src/lib.rs"],
+    rustlibs: [
+        "libbt_facade_helpers",
+        "libbt_packets",
+        "libcxx",
+        "libenv_logger",
+        "libfutures",
+        "libgrpcio",
+        "liblazy_static",
+        "liblog_rust",
+        "liblog_rust",
+        "libnix",
+        "libnix",
+        "libnum_traits",
+        "libtokio",
+    ],
+    proc_macros: [
+        "libpaste",
+    ],
+    whole_static_libs: [
+        "libbt_keystore_cc",
+    ],
+}
+
+rust_ffi_static {
+    name: "libbt_common_ffi",
+    defaults: ["libbt_common_defaults"],
+    target: {
+        android: {
+            rustlibs: [
+                "libandroid_logger",
+                "librustutils",
+            ],
+        },
+    },
+    min_sdk_version: "30",
+}
+
+cc_library_static {
+    name: "libbt_common_bridge",
+    defaults: ["gd_ffi_defaults"],
+    generated_headers: [
+        "cxx-bridge-header",
+        "libbt_common_bridge_header",
+    ],
+    generated_sources: [
+        "libbt_common_bridge_code",
+    ],
+    export_generated_headers: [
+        "cxx-bridge-header",
+        "libbt_common_bridge_header",
+    ],
+    include_dirs: [
+        "packages/modules/Bluetooth/system/gd",
+        "packages/modules/Bluetooth/system/gd/rust/common",
+    ],
+    header_libs: ["libbt_keystore_cc_headers"],
+    export_header_lib_headers: ["libbt_keystore_cc_headers"],
+    cflags: [
+        "-Wno-unused-const-variable",
+    ],
+    host_supported: true,
+    shared_libs: [
+        "libchrome",
+    ],
+    min_sdk_version: "30",
+}
+
+cc_library_static {
+    name: "libbt_keystore_cc",
+    defaults: [
+        "gd_ffi_defaults",
+        "rust_static_cc_lib_defaults",
+    ],
+    header_libs: ["libbt_keystore_cc_headers"],
+    srcs: ["keystore/fake_bt_keystore.cc"],
+    generated_headers: [
+        "cxx-bridge-header",
+        "libbt_common_bridge_header",
+    ],
+    generated_sources: ["libbt_common_bridge_code"],
+    shared_libs: [
+        "libchrome",
+    ],
+    host_supported: true,
+    min_sdk_version: "30",
+}
+
+cc_library_headers {
+    name: "libbt_keystore_cc_headers",
+    local_include_dirs: ["keystore"],
+    host_supported: true,
+    min_sdk_version: "30",
+}
+
+cc_library_static {
+    name: "libbluetooth_common_rust_interop",
+    defaults: ["gd_ffi_defaults"],
+    whole_static_libs: [
+        "libbt_common_bridge",
+        "libbt_common_ffi",
+    ],
+    host_supported: true,
+    min_sdk_version: "30",
+}
+
+genrule {
+    name: "libbt_common_bridge_header",
+    tools: ["cxxbridge"],
+    cmd: "$(location cxxbridge) $(in) --header > $(out)",
+    srcs: ["src/bridge.rs"],
+    out: ["src/bridge.rs.h"],
+}
+
+genrule {
+    name: "libbt_common_bridge_code",
+    tools: ["cxxbridge"],
+    cmd: "$(location cxxbridge) $(in) >> $(out)",
+    srcs: ["src/bridge.rs"],
+    out: ["bridge.cc"],
+}
+
+rust_test_host {
+    name: "libbt_common_inline_tests",
+    defaults: ["gd_rust_defaults"],
+    srcs: ["src/lib.rs"],
+    test_suites: ["general-tests"],
+    auto_gen_config: true,
+    rustlibs: [
+        "libbt_common",
+        "libcxx",
+        "libenv_logger",
+        "libfutures",
+        "libgrpcio",
+        "liblazy_static",
+        "liblog_rust",
+        "libnix",
+        "libtokio",
+    ],
+    proc_macros: [
+        "libpaste",
+    ],
+}

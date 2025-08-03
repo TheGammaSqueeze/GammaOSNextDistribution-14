@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string-array name="reminder_methods_labels">
+        <item>Notificació</item>
+        <item>Correu electrònic</item>
+        <item>SMS</item>
+        <item>Alarma</item>
+    </string-array>
+    <string-array name="preferences_week_start_day_labels">
+        <item>Regió predeterminada</item>
+        <item>Dissabte</item>
+        <item>Diumenge</item>
+        <item>Dilluns</item>
+    </string-array>
+    <string-array name="availability">
+        <item>Ocupat</item>
+        <item>Disponible</item>
+        <item>Provisional</item>
+    </string-array>
+    <string-array name="response_labels1">
+        <item>Cap resposta</item>
+        <item>Sí</item>
+        <item>Potser</item>
+        <item>No</item>
+    </string-array>
+    <string-array name="delete_repeating_labels">
+        <item>Només aquest esdeveniment</item>
+        <item>Aquest esdeveniment i esdeveniments futurs</item>
+        <item>Tots els esdeveniments</item>
+    </string-array>
+    <string-array name="change_response_labels">
+        <item>Només aquest esdeveniment</item>
+        <item>Tots els esdeveniments de la sèrie</item>
+    </string-array>
+    <string-array name="buttons_list">
+        <item>Dia</item>
+        <item>Setmana</item>
+        <item>Mes</item>
+        <item>Agenda</item>
+    </string-array>
+    <string-array name="preferences_skip_reminders_labels">
+        <item>Només si es rebutja</item>
+        <item>Si es rebutja o no es contesta</item>
+    </string-array>
+    <string-array name="recurrence_freq">
+        <item>REPETEIX DIÀRIAMENT</item>
+        <item>REPETEIX SETMANALMENT</item>
+        <item>REPETEIX MENSUALMENT</item>
+        <item>REPETEIX ANUALMENT</item>
+    </string-array>
+    <string-array name="repeat_by_nth_sun">
+        <item>primer diumenge de cada mes</item>
+        <item>segon diumenge de cada mes</item>
+        <item>tercer diumenge de cada mes</item>
+        <item>quart diumenge de cada mes</item>
+        <item>últim diumenge de cada mes</item>
+    </string-array>
+    <string-array name="repeat_by_nth_mon">
+        <item>primer dilluns de cada mes</item>
+        <item>segon dilluns de cada mes</item>
+        <item>tercer dilluns de cada mes</item>
+        <item>quart dilluns de cada mes</item>
+        <item>últim dilluns de cada mes</item>
+    </string-array>
+    <string-array name="repeat_by_nth_tues">
+        <item>primer dimarts de cada mes</item>
+        <item>segon dimarts de cada mes</item>
+        <item>tercer dimarts de cada mes</item>
+        <item>quart dimarts de cada mes</item>
+        <item>últim dimarts de cada mes</item>
+    </string-array>
+    <string-array name="repeat_by_nth_wed">
+        <item>primer dimecres de cada mes</item>
+        <item>segon dimecres de cada mes</item>
+        <item>tercer dimecres de cada mes</item>
+        <item>quart dimecres de cada mes</item>
+        <item>últim dimecres de cada mes</item>
+    </string-array>
+    <string-array name="repeat_by_nth_thurs">
+        <item>primer dijous de cada mes</item>
+        <item>segon dijous de cada mes</item>
+        <item>tercer dijous de cada mes</item>
+        <item>quart dijous de cada mes</item>
+        <item>últim dijous de cada mes</item>
+    </string-array>
+    <string-array name="repeat_by_nth_fri">
+        <item>primer divendres de cada mes</item>
+        <item>segon divendres de cada mes</item>
+        <item>tercer divendres de cada mes</item>
+        <item>quart divendres de cada mes</item>
+        <item>últim divendres de cada mes</item>
+    </string-array>
+    <string-array name="repeat_by_nth_sat">
+        <item>primer dissabte de cada mes</item>
+        <item>segon dissabte de cada mes</item>
+        <item>tercer dissabte de cada mes</item>
+        <item>quart dissabte de cada mes</item>
+        <item>últim dissabte de cada mes</item>
+    </string-array>
+</resources>

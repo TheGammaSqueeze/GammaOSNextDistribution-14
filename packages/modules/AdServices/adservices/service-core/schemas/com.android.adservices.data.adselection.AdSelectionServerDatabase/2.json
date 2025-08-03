@@ -1,0 +1,229 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 2,
+    "identityHash": "1aad9c7f3ae84929760cd4e1efb58329",
+    "entities": [
+      {
+        "tableName": "reporting_uris",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ad_selection_id` INTEGER NOT NULL, `seller_reporting_uri` TEXT NOT NULL, `buyer_reporting_uri` TEXT NOT NULL, PRIMARY KEY(`ad_selection_id`))",
+        "fields": [
+          {
+            "fieldPath": "adSelectionId",
+            "columnName": "ad_selection_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sellerReportingUri",
+            "columnName": "seller_reporting_uri",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "buyerReportingUri",
+            "columnName": "buyer_reporting_uri",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "ad_selection_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_reporting_uris_ad_selection_id",
+            "unique": false,
+            "columnNames": [
+              "ad_selection_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_reporting_uris_ad_selection_id` ON `${TABLE_NAME}` (`ad_selection_id`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "encryption_key",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`encryption_key_type` INTEGER NOT NULL, `key_identifier` TEXT NOT NULL, `public_key` TEXT NOT NULL, `creation_instant` INTEGER, `expiry_ttl_seconds` INTEGER NOT NULL, `expiry_instant` INTEGER NOT NULL, PRIMARY KEY(`encryption_key_type`, `key_identifier`))",
+        "fields": [
+          {
+            "fieldPath": "encryptionKeyType",
+            "columnName": "encryption_key_type",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "keyIdentifier",
+            "columnName": "key_identifier",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "publicKey",
+            "columnName": "public_key",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "creationInstant",
+            "columnName": "creation_instant",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "expiryTtlSeconds",
+            "columnName": "expiry_ttl_seconds",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "expiryInstant",
+            "columnName": "expiry_instant",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "encryption_key_type",
+            "key_identifier"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_encryption_key_encryption_key_type_expiry_instant",
+            "unique": false,
+            "columnNames": [
+              "encryption_key_type",
+              "expiry_instant"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_encryption_key_encryption_key_type_expiry_instant` ON `${TABLE_NAME}` (`encryption_key_type`, `expiry_instant`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "encryption_context",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`context_id` INTEGER NOT NULL, `encryption_key_type` INTEGER NOT NULL, `key_config` BLOB, `shared_secret` BLOB, `seed` BLOB, PRIMARY KEY(`context_id`, `encryption_key_type`))",
+        "fields": [
+          {
+            "fieldPath": "contextId",
+            "columnName": "context_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "encryptionKeyType",
+            "columnName": "encryption_key_type",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "keyConfig",
+            "columnName": "key_config",
+            "affinity": "BLOB",
+            "notNull": false
+          },
+          {
+            "fieldPath": "sharedSecret",
+            "columnName": "shared_secret",
+            "affinity": "BLOB",
+            "notNull": false
+          },
+          {
+            "fieldPath": "seed",
+            "columnName": "seed",
+            "affinity": "BLOB",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "context_id",
+            "encryption_key_type"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "auction_server_ad_selection",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ad_selection_id` INTEGER NOT NULL, `seller` TEXT NOT NULL, `winner_buyer` TEXT, `winner_ad_render_uri` TEXT, `ad_counter_int_keys` TEXT, `seller_win_reporting_uri` TEXT, `buyer_win_reporting_uri` TEXT, PRIMARY KEY(`ad_selection_id`))",
+        "fields": [
+          {
+            "fieldPath": "adSelectionId",
+            "columnName": "ad_selection_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "seller",
+            "columnName": "seller",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "winnerBuyer",
+            "columnName": "winner_buyer",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "winnerAdRenderUri",
+            "columnName": "winner_ad_render_uri",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "adCounterIntKeys",
+            "columnName": "ad_counter_int_keys",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "sellerReportingUri",
+            "columnName": "seller_win_reporting_uri",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "buyerReportingUri",
+            "columnName": "buyer_win_reporting_uri",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "ad_selection_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_auction_server_ad_selection_ad_selection_id",
+            "unique": false,
+            "columnNames": [
+              "ad_selection_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_auction_server_ad_selection_ad_selection_id` ON `${TABLE_NAME}` (`ad_selection_id`)"
+          }
+        ],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1aad9c7f3ae84929760cd4e1efb58329')"
+    ]
+  }
+}

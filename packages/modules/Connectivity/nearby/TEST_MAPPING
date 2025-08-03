@@ -1,0 +1,24 @@
+{
+  "presubmit": [
+    {
+      "name": "NearbyUnitTests"
+    }
+  ],
+  "postsubmit": [
+    {
+      "name": "NearbyUnitTests"
+    },
+    {
+      "name": "NearbyIntegrationPrivilegedTests"
+    },
+    {
+      "name": "NearbyIntegrationUntrustedTests"
+    }
+  ]
+  // TODO(b/193602229): uncomment once it's supported.
+  //"mainline-presubmit": [
+  //  {
+  //    "name": "NearbyUnitTests[com.google.android.nearby.apex]"
+  //  }
+  //]
+}

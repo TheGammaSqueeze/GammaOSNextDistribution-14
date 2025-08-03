@@ -1,0 +1,7 @@
+{
+  "postsubmit": [
+    {
+      "name": "libauthgraph_core_unit_test"
+    }
+  ]
+}

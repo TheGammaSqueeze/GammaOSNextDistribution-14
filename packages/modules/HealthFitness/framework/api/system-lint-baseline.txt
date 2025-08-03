@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+BroadcastBehavior: android.health.connect.HealthConnectManager#ACTION_HEALTH_CONNECT_MIGRATION_READY:
+    Field 'ACTION_HEALTH_CONNECT_MIGRATION_READY' is missing @BroadcastBehavior

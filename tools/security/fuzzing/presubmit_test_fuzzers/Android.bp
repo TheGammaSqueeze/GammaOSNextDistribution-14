@@ -1,0 +1,36 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_fuzz {
+    name: "test_fuzzer_1",
+    srcs: [
+        "test_fuzzer_1.cpp",
+        "test_code.cpp"
+    ],
+    host_supported: true,
+    fuzz_config: {
+        description: "Test Fuzzer 1",
+        critical: false,
+        fuzz_on_haiku_device: true,
+        fuzz_on_haiku_host: true,
+        triage_assignee: "davfu@google.com",
+        use_for_presubmit: true,
+    },
+}
+cc_fuzz {
+    name: "test_fuzzer_2",
+    srcs: [
+        "test_fuzzer_2.cpp",
+        "test_code.cpp"
+    ],
+    host_supported: true,
+    fuzz_config: {
+        description: "Test Fuzzer 2",
+        critical: false,
+        fuzz_on_haiku_device: true,
+        fuzz_on_haiku_host: true,
+        triage_assignee: "davfu@google.com",
+        use_for_presubmit: true,
+    },
+}

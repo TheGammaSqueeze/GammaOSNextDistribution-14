@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2019 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
+    <!-- The name of the Cell Broadcast Receiver app. [CHAR LIMIT=NONE] -->
+    <string name="app_label">Wireless Emergency Alerts</string>
+    <!-- Label for settings screen. [CHAR LIMIT=NONE] -->
+    <string name="sms_cb_settings">Wireless Emergency Alerts</string>
+    <!-- Label to open emergencyNotifications dialog [CHAR LIMIT=40] -->
+    <string name="emergency_alert_settings_title_watches">Wireless Emergency Alerts</string>
+
+    <!-- Show additional language on/off switch in settings -->
+    <!-- Preference title for enable CMAS second language checkbox. [CHAR LIMIT=50] -->
+    <string name="receive_cmas_in_second_language_title">Spanish</string>
+    <!-- Preference summary for enable CMAS second language checkbox. [CHAR LIMIT=100] -->
+    <string name="receive_cmas_in_second_language_summary">Receive emergency alerts in Spanish when possible</string>
+    <!-- Delete alert confirmation dialog message. [CHAR LIMIT=NONE] -->
+    <string name="confirm_delete_broadcast">Delete this alert?</string>
+    <!-- Delete all alerts confirmation dialog message. [CHAR LIMIT=NONE] -->
+    <string name="confirm_delete_all_broadcasts">Delete all received alerts?</string>
+    <!-- Context menu item to delete a previously received alert. [CHAR LIMIT=30] -->
+    <string name="menu_delete">Delete alert</string>
+    <!-- Menu item for deleting all alerts. [CHAR LIMIT=30] -->
+    <string name="menu_delete_all">Delete alerts</string>
+    <!-- Preference title for required monthly alerts checkbox. [CHAR LIMIT=50] -->
+    <!-- U.S. carriers want to show separate toggles for required month test, operator defined and exercise rather than a combined "Other test" toggle -->
+    <string name="enable_cmas_test_alerts_title">@string/cmas_required_monthly_test</string>
+    <!-- Preference summary for other test alerts checkbox. [CHAR LIMIT=125] -->
+    <string name="enable_cmas_test_alerts_summary">Receive required monthly tests from the safety alert system</string>
+    <!-- CMAS dialog title for national level alert. [CHAR LIMIT=50] -->
+    <string name="cmas_presidential_level_alert">National alert</string>
+    <!-- Show CMAS opt-out dialog on first non-national alert. [CHAR LIMIT=100] -->
+    <string name="show_cmas_opt_out_summary">Show an opt-out dialog after displaying the first alert (other than National alert).</string>
+    <!-- Show checkbox for National alerts in settings -->
+    <!-- Preference title for enable National threat alerts checkbox. [CHAR LIMIT=40] -->
+    <string name="enable_cmas_presidential_alerts_title">National alerts</string>
+    <!-- Preference summary for enable national threat alerts checkbox. [CHAR LIMIT=100] -->
+    <string name="enable_cmas_presidential_alerts_summary">National warning messages. Can\'t be turned off.</string>
+</resources>

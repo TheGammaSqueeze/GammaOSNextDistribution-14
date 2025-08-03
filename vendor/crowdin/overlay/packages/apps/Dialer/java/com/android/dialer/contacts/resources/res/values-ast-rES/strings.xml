@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2012 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="call_custom">Llamar al
+        <xliff:g id="custom">%s</xliff:g>
+    </string>
+    <string name="call_home">Llamar a casa</string>
+    <string name="call_mobile">Llamar al móvil</string>
+    <string name="call_work">Llamar al trabayu</string>
+    <string name="call_fax_work">Llamar al fax del trabayu</string>
+    <string name="call_fax_home">Llamar al fax de casa</string>
+    <string name="call_pager">Llamar al busca</string>
+    <string name="call_other">Llamar</string>
+    <string name="call_callback">Llamar al númberu de rellamada</string>
+    <string name="call_car">Llamar al coche</string>
+    <string name="call_company_main">Llamar al teléfonu principal de la empresa</string>
+    <string name="call_isdn">Llamar a la RDSI</string>
+    <string name="call_main">Llamar al teléfonu principal</string>
+    <string name="call_other_fax">Llamar al fax</string>
+    <string name="call_radio">Llamar al radioteléfonu</string>
+    <string name="call_telex">Llamar al télex</string>
+    <string name="call_tty_tdd">Llamar al númberu del TTY/TDD</string>
+    <string name="call_work_mobile">Llamar al móvil del trabayu</string>
+    <string name="call_work_pager">Llamar al busca del trabayu</string>
+    <string name="call_assistant">Llamar al
+        <xliff:g id="assistant">%s</xliff:g>
+    </string>
+    <string name="call_mms">Llamar al númberu de MMS</string>
+    <string name="sms_custom">Unviar un SMS al
+        <xliff:g id="custom">%s</xliff:g>
+    </string>
+    <string name="sms_home">Unviar un SMS a casa</string>
+    <string name="sms_mobile">Unviar un SMS al teléfonu</string>
+    <string name="sms_work">Unviar un SMS al trabayu</string>
+    <string name="sms_fax_work">Unviar un SMS al fax del trabayu</string>
+    <string name="sms_fax_home">Unviar un SMS al fax de casa</string>
+    <string name="sms_pager">Unviar un SMS al busca</string>
+    <string name="sms_other">Unviar un SMS</string>
+    <string name="sms_callback">Unviar un SMS al númberu de rellamada</string>
+    <string name="sms_car">Unviar un SMS al coche</string>
+    <string name="sms_company_main">Unviar un SMS al teléfonu principal de la empresa</string>
+    <string name="sms_isdn">Unviar un SMS a la RDSI</string>
+    <string name="sms_main">Unviar un SMS al teléfonu principal</string>
+    <string name="sms_other_fax">Unviar un SMS al fax</string>
+    <string name="sms_radio">Unviar un SMS al radioteléfonu</string>
+    <string name="sms_telex">Unviar un SMS al télex</string>
+    <string name="sms_tty_tdd">Unviar un SMS al númberu del TTY/TDD</string>
+    <string name="sms_work_mobile">Unviar un SMS al móvil del trabayu</string>
+    <string name="sms_work_pager">Unviar un SMS al busca del trabayu</string>
+    <string name="sms_assistant">Unviar un SMS al
+        <xliff:g id="assistant">%s</xliff:g>
+    </string>
+    <string name="sms_mms">Unviar un SMS al númberu de MMS</string>
+    <string name="clearFrequentsConfirmation_title">¿Borrar los contautos frecuentes?</string>
+    <string name="clearFrequentsConfirmation">Vas borrar la llista de contautos frecuentes de
+        les aplicaciones Contautos y Teléfonu, y tamién vas forciar a que les aplicaciones de
+        corréu electrónicu vuelvan memorizar les direiciones de los contautos.
+    </string>
+    <string name="clearFrequentsProgress_title">Borrando los contautos frecuentes\u2026</string>
+    <string name="directory_search_label">Direutoriu</string>
+    <string name="directory_search_label_work">Direutoriu del trabayu</string>
+    <string name="missing_name">(Ensin nome)</string>
+    <string name="view_updates_from_group">Ver los anovamientos</string>
+    <string name="account_phone">Namás nel preséu, ensin sincronizar</string>
+    <string name="nameLabelsGroup">Nome</string>
+    <string name="nicknameLabelsGroup">Nomatu</string>
+    <string name="full_name">Nome</string>
+    <string name="name_given">Nome</string>
+    <string name="name_family">Apellíos</string>
+    <string name="name_prefix">Prefixu del nome</string>
+    <string name="name_middle">Segundu nome</string>
+    <string name="name_suffix">Sufixu del nome</string>
+    <string name="name_phonetic">Nome fonéticu</string>
+    <string name="name_phonetic_given">Nome fonéticu</string>
+    <string name="name_phonetic_middle">Segundu nome fonéticu</string>
+    <string name="name_phonetic_family">Apellíos fonéticos</string>
+    <string name="phoneLabelsGroup">Teléfonu</string>
+    <string name="emailLabelsGroup">Corréu electrónicu</string>
+    <string name="postalLabelsGroup">Señes</string>
+    <string name="imLabelsGroup">MI</string>
+    <string name="organizationLabelsGroup">Organización</string>
+    <string name="relationLabelsGroup">Rellación</string>
+    <string name="eventLabelsGroup">Data especial</string>
+    <string name="sms">Mensaxe de testu</string>
+    <string name="postal_address">Señes</string>
+    <string name="ghostData_company">Empresa</string>
+    <string name="ghostData_title">Cargu</string>
+    <string name="label_notes">Notes</string>
+    <string name="label_sip_address">SIP</string>
+    <string name="websiteLabelsGroup">Sitiu web</string>
+    <string name="groupsLabel">Grupos</string>
+    <string name="email_home">Unviar un corréu a casa</string>
+    <string name="email_mobile">Unviar un corréu al teléfonu</string>
+    <string name="email_work">Unviar un corréu al trabayu</string>
+    <string name="email_other">Unviar un corréu</string>
+    <string name="email_custom">Unviar un corréu a <xliff:g id="custom">%s</xliff:g></string>
+    <string name="email">Unviar un corréu</string>
+    <string name="postal_street">Cai</string>
+    <string name="postal_city">Ciudá</string>
+    <string name="postal_region">Estáu</string>
+    <string name="postal_postcode">Códigu postal</string>
+    <string name="postal_country">País</string>
+    <string name="map_home">Ver les señes de casa</string>
+    <string name="map_work">Ver les señes del trabayu</string>
+    <string name="map_other">Ver les señes</string>
+    <string name="map_custom">Ver les señes de: <xliff:g id="custom">%s</xliff:g></string>
+    <string name="chat_aim">Charrar con AIM</string>
+    <string name="chat_msn">Charrar con Windows Live</string>
+    <string name="chat_yahoo">Charrar con Yahoo!</string>
+    <string name="chat_skype">Charrar con Skype</string>
+    <string name="chat_qq">Charrar con QQ</string>
+    <string name="chat_gtalk">Charrar con Google Talk</string>
+    <string name="chat_icq">Charrar con ICQ</string>
+    <string name="chat_jabber">Charrar con Jabber</string>
+    <string name="chat">Charrar</string>
+    <string name="display_options_sort_list_by">Ordenar</string>
+    <string name="display_options_sort_by_given_name">Pol nome</string>
+    <string name="display_options_sort_by_family_name">Polos apellíos</string>
+    <string name="display_options_view_names_as">Formatu de los nomes</string>
+    <string name="display_options_view_given_name_first">Primero\'l nome</string>
+    <string name="display_options_view_family_name_first">Primero los apellíos</string>
+    <string name="menu_clear_frequents">Borrar lo frecuente</string>
+    <string name="action_menu_back_from_search">dexar de buscar</string>
+    <string name="description_clear_search">Borrar la busca</string>
+    <string name="select_account_dialog_title">Cuenta</string>
+    <string name="set_default_account">Usar siempre esta pa les llamaes</string>
+    <string name="call_with_a_note">Llamar con una nota</string>
+    <string name="call_subject_hint">Teclexa una nota pa unviala cola llamada…</string>
+    <string name="send_and_call_button">UNVIAR Y LLAMAR</string>
+    <string name="call_subject_limit"><xliff:g example="4" id="count">%1$s</xliff:g>/<xliff:g example="64" id="limit">%2$s</xliff:g></string>
+    <string name="tab_title">Llingüeta «<xliff:g id="title">%1$s</xliff:g>».</string>
+    <plurals name="tab_title_with_unread_items">
+        <item quantity="one">            Llingüeta «<xliff:g id="title">%1$s</xliff:g>». <xliff:g id="count">%2$d</xliff:g> elementu ensin lleer.
+        </item>
+        <item quantity="other">            Llingüeta «<xliff:g id="title">%1$s</xliff:g>». <xliff:g id="count">%2$d</xliff:g> elementos ensin lleer.
+        </item>
+    </plurals>
+    <string name="description_search_video_call">Videollamar</string>
+</resources>

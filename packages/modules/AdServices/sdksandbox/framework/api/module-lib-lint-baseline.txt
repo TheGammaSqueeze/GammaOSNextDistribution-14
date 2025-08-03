@@ -1,0 +1,13 @@
+// Baseline format: 1.0
+UnflaggedApi: android.app.sdksandbox.sandboxactivity.ActivityContextInfo:
+    New API must be flagged with @FlaggedApi: class android.app.sdksandbox.sandboxactivity.ActivityContextInfo
+UnflaggedApi: android.app.sdksandbox.sandboxactivity.ActivityContextInfo#CONTEXT_FLAGS:
+    New API must be flagged with @FlaggedApi: field android.app.sdksandbox.sandboxactivity.ActivityContextInfo.CONTEXT_FLAGS
+UnflaggedApi: android.app.sdksandbox.sandboxactivity.ActivityContextInfo#getSdkApplicationInfo():
+    New API must be flagged with @FlaggedApi: method android.app.sdksandbox.sandboxactivity.ActivityContextInfo.getSdkApplicationInfo()
+UnflaggedApi: android.app.sdksandbox.sandboxactivity.ActivityContextInfoProvider:
+    New API must be flagged with @FlaggedApi: class android.app.sdksandbox.sandboxactivity.ActivityContextInfoProvider
+UnflaggedApi: android.app.sdksandbox.sandboxactivity.ActivityContextInfoProvider#getActivityContextInfo(android.content.Intent):
+    New API must be flagged with @FlaggedApi: method android.app.sdksandbox.sandboxactivity.ActivityContextInfoProvider.getActivityContextInfo(android.content.Intent)
+UnflaggedApi: android.app.sdksandbox.sandboxactivity.ActivityContextInfoProvider#getInstance():
+    New API must be flagged with @FlaggedApi: method android.app.sdksandbox.sandboxactivity.ActivityContextInfoProvider.getInstance()

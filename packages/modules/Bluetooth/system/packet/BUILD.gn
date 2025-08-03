@@ -1,0 +1,107 @@
+#
+#  Copyright 2018 Android Open Source Project
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at:
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#
+
+config("packet_config") {
+  include_dirs = [
+    "//bt/system/",
+    "//bt/system/include",
+    "//bt/system/stack/include",
+    "//bt/system/profile/avrcp",
+  ]
+
+  configs = [
+    "//bt/system:target_defaults",
+    "//bt/system/log:log_defaults",
+  ]
+}
+
+static_library("packet") {
+  sources = [
+    "avrcp/get_folder_items.cc",
+    "avrcp/register_notification_packet.cc",
+    "avrcp/change_path.cc",
+    "avrcp/get_total_number_of_items.cc",
+    "avrcp/capabilities_packet.cc",
+    "avrcp/pass_through_packet.cc",
+    "avrcp/set_browsed_player.cc",
+    "avrcp/avrcp_reject_packet.cc",
+    "avrcp/set_absolute_volume.cc",
+    "avrcp/avrcp_packet.cc",
+    "avrcp/get_current_player_application_setting_value.cc",
+    "avrcp/get_element_attributes_packet.cc",
+    "avrcp/get_play_status_packet.cc",
+    "avrcp/general_reject_packet.cc",
+    "avrcp/avrcp_browse_packet.cc",
+    "avrcp/get_item_attributes.cc",
+    "avrcp/list_player_application_setting_attributes.cc",
+    "avrcp/list_player_application_setting_values.cc",
+    "avrcp/play_item.cc",
+    "avrcp/vendor_packet.cc",
+    "avrcp/set_addressed_player.cc",
+    "avrcp/set_player_application_setting_value.cc",
+    "base/iterator.cc",
+    "base/packet.cc",
+    "base/packet_builder.cc",
+ ]
+
+  configs += [":packet_config"]
+}
+
+if (use.test) {
+  executable("net_test_btpackets") {
+    sources = [
+      "tests/avrcp/avrcp_browse_packet_test.cc",
+      "tests/avrcp/avrcp_packet_test.cc",
+      "tests/avrcp/avrcp_reject_packet_test.cc",
+      "tests/avrcp/change_path_packet_test.cc",
+      "tests/avrcp/general_reject_packet_test.cc",
+      "tests/avrcp/get_capabilities_packet_test.cc",
+      "tests/avrcp/get_element_attributes_packet_test.cc",
+      "tests/avrcp/get_folder_items_packet_test.cc",
+      "tests/avrcp/get_item_attributes_packet_test.cc",
+      "tests/avrcp/get_play_status_packet_test.cc",
+      "tests/avrcp/get_total_number_of_items_packet_test.cc",
+      "tests/avrcp/pass_through_packet_test.cc",
+      "tests/avrcp/play_item_packet_test.cc",
+      "tests/avrcp/register_notification_packet_test.cc",
+      "tests/avrcp/set_absolute_volume_packet_test.cc",
+      "tests/avrcp/set_addressed_player_packet_test.cc",
+      "tests/avrcp/set_browsed_player_packet_test.cc",
+      "tests/avrcp/vendor_packet_test.cc",
+      "tests/base/iterator_test.cc",
+      "tests/base/packet_builder_test.cc",
+      "tests/base/packet_test.cc",
+    ]
+
+    include_dirs = [
+      "//bt/system/packet/avrcp",
+      "//bt/system/packet/base",
+      "//bt/system/packet/include",
+      "//bt/system/packet/tests",
+      "//bt/system/packet/tests/avrcp",
+      "//bt/system/packet/tests/base",
+    ]
+
+    deps = [
+      ":packet",
+    ]
+
+    configs += [
+      ":packet_config",
+      "//bt/system:external_gmock_main",
+    ]
+  }
+}

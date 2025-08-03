@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2014 The CyanogenMod Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              android:paddingStart="20dip"
+              android:paddingEnd="20dip"
+              android:gravity="center_horizontal">
+
+    <CheckBox
+            android:id="@+id/checkbox"
+            android:text="@string/profile_volume_override_checkbox_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dip" />
+
+    <SeekBar android:id="@+id/seekbar"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:layout_marginTop="20dip"
+             android:layout_marginBottom="20dip" />
+
+</LinearLayout>

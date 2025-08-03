@@ -1,0 +1,58 @@
+package {
+    // http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // the below license kinds from "system_media_license":
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_media_license"],
+}
+
+cc_library_headers {
+    name: "libaudio_system_headers",
+    host_supported: true,
+    vendor_available: true,
+    product_available: true,
+    // TODO(b/153609531): remove when no longer needed.
+    native_bridge_supported: true,
+
+    header_libs: ["libcutils_headers"],
+    export_header_lib_headers: ["libcutils_headers"],
+
+    export_include_dirs: ["include"],
+
+    target: {
+        linux_bionic: {
+            enabled: true,
+        },
+        windows: {
+            enabled: true,
+        },
+        vendor: {
+            // product variant does not require this flag
+            cflags: ["-DAUDIO_NO_SYSTEM_DECLARATIONS"],
+        },
+    },
+    min_sdk_version: "29",
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.media",
+        "com.android.media.swcodec",
+        "com.android.btservices",
+    ],
+}
+
+filegroup {
+    name: "libaudio_system_audio_base",
+    srcs: [
+        "include/system/audio-hal-enums.h",
+    ],
+    path: "include",
+}
+
+
+filegroup {
+    name: "libaudio_system_audio_common_base",
+    srcs: [
+        "include/system/audio_common-base.h",
+    ],
+    path: "include",
+}

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright (C) 2021 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+    <overlayable name="ServiceConnectivityResourcesConfig">
+        <policy type="product|system|vendor">
+            <!-- Configuration values for ConnectivityService -->
+            <item type="array" name="config_legacy_networktype_restore_timers"/>
+            <item type="string" name="config_networkCaptivePortalServerUrl"/>
+            <item type="integer" name="config_networkTransitionTimeout"/>
+            <item type="array" name="config_wakeonlan_supported_interfaces"/>
+            <item type="integer" name="config_networkMeteredMultipathPreference"/>
+            <item type="array" name="config_networkSupportedKeepaliveCount"/>
+            <item type="integer" name="config_networkAvoidBadWifi"/>
+            <item type="integer" name="config_activelyPreferBadWifi"/>
+            <item type="array" name="config_protectedNetworks"/>
+            <item type="bool" name="config_vehicleInternalNetworkAlwaysRequested"/>
+            <item type="integer" name="config_networkWakeupPacketMark"/>
+            <item type="integer" name="config_networkWakeupPacketMask"/>
+            <item type="integer" name="config_networkNotifySwitchType"/>
+            <item type="array" name="config_networkNotifySwitches"/>
+            <item type="array" name="config_nsdOffloadServicesPriority"/>
+            <item type="bool" name="config_ongoingSignInNotification"/>
+            <item type="bool" name="config_autoCancelNetworkNotifications"/>
+            <item type="bool" name="config_notifyNoInternetAsDialogWhenHighPriority"/>
+            <item type="bool" name="config_partialConnectivityNotifiedAsNoInternet"/>
+            <item type="drawable" name="stat_notify_wifi_in_range"/>
+            <item type="drawable" name="stat_notify_rssi_in_range"/>
+            <item type="bool" name="config_cellular_radio_timesharing_capable" />
+            <item type="string" name="config_ethernet_tcp_buffers"/>
+            <item type="array" name="config_ethernet_interfaces"/>
+            <item type="string" name="config_ethernet_iface_regex"/>
+            <item type="integer" name="config_validationFailureAfterRoamIgnoreTimeMillis" />
+            <item type="integer" name="config_netstats_validate_import" />
+
+            <!-- Configuration values for ThreadNetworkService -->
+            <item type="bool" name="config_thread_default_enabled" />
+            <item type="bool" name="config_thread_location_use_for_country_code_enabled" />
+        </policy>
+    </overlayable>
+</resources>

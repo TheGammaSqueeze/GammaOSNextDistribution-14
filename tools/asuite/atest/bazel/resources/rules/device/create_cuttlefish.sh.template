@@ -1,0 +1,41 @@
+#!/bin/bash
+
+DEVICE_IMAGE_PATH="{img_path}"
+DEVICE_IMAGE_DIR=$(dirname "$DEVICE_IMAGE_PATH")
+CVD_HOST_PACKAGE_PATH="{cvd_host_package_path}"
+
+PATH_ADDITIONS="{path_additions}"
+TEST_EXECUTABLE="$1"
+shift
+
+LOCAL_TOOL="$(dirname "$CVD_HOST_PACKAGE_PATH")"
+
+user="$(whoami)"
+
+su - << EOF
+export PATH="${LOCAL_TOOL}:${PATH_ADDITIONS}:${PATH}"
+/usr/sbin/service rsyslog restart
+/etc/init.d/cuttlefish-common start
+/usr/sbin/usermod -aG kvm "${USER}"
+
+pushd "${LOCAL_TOOL}"
+tar xvf "${CVD_HOST_PACKAGE_PATH}"
+popd
+
+pushd "${DEVICE_IMAGE_DIR}"
+unzip -o "${DEVICE_IMAGE_PATH}"
+popd
+
+HOME="${LOCAL_TOOL}" "${LOCAL_TOOL}"/bin/launch_cvd \
+  -daemon \
+  -config=phone \
+  -system_image_dir "${DEVICE_IMAGE_DIR}" \
+  -undefok=report_anonymous_usage_stats,config \
+  -report_anonymous_usage_stats=y \
+  -instance_dir=/tmp/cvd \
+  -guest_enforce_security=false
+adb connect localhost:6520
+exit
+EOF
+
+"${TEST_EXECUTABLE}" "$@"

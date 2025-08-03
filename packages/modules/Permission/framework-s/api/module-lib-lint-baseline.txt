@@ -1,0 +1,39 @@
+// Baseline format: 1.0
+BroadcastBehavior: android.safetycenter.SafetyCenterManager#ACTION_REFRESH_SAFETY_SOURCES:
+    Field 'ACTION_REFRESH_SAFETY_SOURCES' is missing @BroadcastBehavior
+BroadcastBehavior: android.safetycenter.SafetyCenterManager#ACTION_SAFETY_CENTER_ENABLED_CHANGED:
+    Field 'ACTION_SAFETY_CENTER_ENABLED_CHANGED' is missing @BroadcastBehavior
+
+
+MissingPermission: android.app.role.RoleManager#addRoleHolderFromController(String, String):
+    Permission PERMISSION_MANAGE_ROLES_FROM_CONTROLLER required by method android.app.role.RoleManager.addRoleHolderFromController(String, String) is hidden or removed
+MissingPermission: android.app.role.RoleManager#getHeldRolesFromController(String):
+    Permission PERMISSION_MANAGE_ROLES_FROM_CONTROLLER required by method android.app.role.RoleManager.getHeldRolesFromController(String) is hidden or removed
+MissingPermission: android.app.role.RoleManager#removeRoleHolderFromController(String, String):
+    Permission PERMISSION_MANAGE_ROLES_FROM_CONTROLLER required by method android.app.role.RoleManager.removeRoleHolderFromController(String, String) is hidden or removed
+MissingPermission: android.app.role.RoleManager#setRoleNamesFromController(java.util.List<java.lang.String>):
+    Permission PERMISSION_MANAGE_ROLES_FROM_CONTROLLER required by method android.app.role.RoleManager.setRoleNamesFromController(java.util.List<java.lang.String>) is hidden or removed
+
+
+RequiresPermission: android.app.role.RoleManager#addOnRoleHoldersChangedListenerAsUser(java.util.concurrent.Executor, android.app.role.OnRoleHoldersChangedListener, android.os.UserHandle):
+    Method 'addOnRoleHoldersChangedListenerAsUser' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.app.role.RoleManager#addRoleHolderAsUser(String, String, int, android.os.UserHandle, java.util.concurrent.Executor, java.util.function.Consumer<java.lang.Boolean>):
+    Method 'addRoleHolderAsUser' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.app.role.RoleManager#addRoleHolderFromController(String, String):
+    Method 'addRoleHolderFromController' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.app.role.RoleManager#clearRoleHoldersAsUser(String, int, android.os.UserHandle, java.util.concurrent.Executor, java.util.function.Consumer<java.lang.Boolean>):
+    Method 'clearRoleHoldersAsUser' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.app.role.RoleManager#getRoleHolders(String):
+    Method 'getRoleHolders' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.app.role.RoleManager#getRoleHoldersAsUser(String, android.os.UserHandle):
+    Method 'getRoleHoldersAsUser' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.app.role.RoleManager#removeOnRoleHoldersChangedListenerAsUser(android.app.role.OnRoleHoldersChangedListener, android.os.UserHandle):
+    Method 'removeOnRoleHoldersChangedListenerAsUser' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.app.role.RoleManager#removeRoleHolderAsUser(String, String, int, android.os.UserHandle, java.util.concurrent.Executor, java.util.function.Consumer<java.lang.Boolean>):
+    Method 'removeRoleHolderAsUser' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.app.role.RoleManager#removeRoleHolderFromController(String, String):
+    Method 'removeRoleHolderFromController' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.app.role.RoleManager#setBrowserRoleHolder(String, int):
+    Method 'setBrowserRoleHolder' documentation mentions permissions already declared by @RequiresPermission
+RequiresPermission: android.app.role.RoleManager#setRoleNamesFromController(java.util.List<java.lang.String>):
+    Method 'setRoleNamesFromController' documentation mentions permissions already declared by @RequiresPermission

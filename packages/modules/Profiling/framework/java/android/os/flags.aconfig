@@ -1,0 +1,9 @@
+package: "android.os.profiling"
+
+flag {
+     name: "telemetry_apis"
+     namespace: "system_performance"
+     description: "Control API portion of telemetry APIs feature."
+     is_fixed_read_only: true
+     bug: "293957254"
+}

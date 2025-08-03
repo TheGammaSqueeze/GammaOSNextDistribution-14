@@ -1,0 +1,48 @@
+#
+#  Copyright 2021 Google, Inc.
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at:
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
+[package]
+name = "bluetooth_with_facades"
+version = "0.0.1"
+edition = "2018"
+
+[dependencies]
+# GD bluetooth deps
+bt_facade_proto = { path = "../facade_proto" }
+bt_packets = { path = "../packets" }
+
+# External deps
+bytes = "1.0"
+cxx = "1.0"
+futures = "0.3"
+grpcio = { version = "0.13.0", default-features = false, features = ["protobufv3-codec", "openssl"] }
+log = "0.4"
+protobuf = "3.2"
+tokio = "1.0"
+
+# Binary-only deps
+clap = "3.0"
+lazy_static = "1.0"
+nix = "0.23"
+bt_common = { path = "../common" }
+
+
+[[bin]]
+name = "bluetooth_with_facades"
+path = "src/main.rs"
+
+[lib]
+path = "src/lib.rs"
+crate-type = ["rlib"]

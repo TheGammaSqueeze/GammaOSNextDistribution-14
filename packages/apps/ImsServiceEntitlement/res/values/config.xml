@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (C) 2021 Google Inc.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<resources>
+    <!-- Required for Firebase functionality to initialize FirebaseApp instance.
+         These parameters can be found on this page:
+         https://firebase.google.com/support/privacy/init-options
+    -->
+    <!-- Project ID -->
+    <string name="fcm_project_id" translatable="false">wfcactivation-e5dd9</string>
+    <!-- App ID -->
+    <string name="fcm_app_id" translatable="false">1:202982214007:android:57f812ebf3faca7cc33972</string>
+    <!-- API Key (client)-->
+    <string name="fcm_api_key" translatable="false">AIzaSyCj8FavhUY66av7wm-EcYKD8xW6LiEEqqo</string>
+</resources>

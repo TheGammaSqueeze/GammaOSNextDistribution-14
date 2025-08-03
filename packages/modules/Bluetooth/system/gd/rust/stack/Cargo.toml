@@ -1,0 +1,49 @@
+#
+#  Copyright 2021 Google, Inc.
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at:
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
+[package]
+name = "bluetooth_rs"
+version = "0.0.1"
+edition = "2018"
+
+[dependencies]
+# BT dependencies
+bt_common = { path = "../common" }
+bt_facade_helpers = { path = "../facade/helpers" }
+bt_facade_proto = { path = "../facade_proto" }
+bt_packets = { path = "../packets" }
+gddi = { path = "../gddi" }
+
+# External dependencies
+bytes = "1.0"
+cxx = "1.0"
+futures = "0.3"
+grpcio = { version = "0.13.0", default-features = false, features = ["protobufv3-codec", "openssl"] }
+lazy_static = "1.4"
+log = "0.4"
+nix = "0.23"
+num-traits = "0.2"
+pdl-runtime = "0.2.2"
+protobuf = "3.2"
+thiserror = "1.0"
+tokio = "1.0"
+tokio-stream = "0.1"
+walkdir = "2.2"
+
+# Macro dependencies
+num-derive = "0.3"
+
+[lib]
+crate-type = ["rlib"]

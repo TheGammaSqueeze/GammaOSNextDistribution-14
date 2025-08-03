@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2018 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License
+  -->
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include layout="@layout/set_background"
+             android:id="@+id/setBackground"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_marginTop="20dp"
+             app:layout_constraintBottom_toTopOf="@+id/text_sample_list"
+             app:layout_constraintEnd_toEndOf="parent"
+             app:layout_constraintStart_toStartOf="parent"
+             app:layout_constraintTop_toTopOf="parent"/>
+
+    <ScrollView
+        android:id="@+id/text_sample_list"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/setBackground">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/unset"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Text Appearance Not Set (thus textAppearanceSmall)"/>
+
+            <TextView
+                android:id="@+id/textAppearanceLarge"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="textAppearanceLarge"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
+            <TextView
+                android:id="@+id/textAppearanceLargeInverse"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="textAppearanceLargeInverse"
+                android:textAppearance="?android:attr/textAppearanceLargeInverse" />
+
+            <TextView
+                android:id="@+id/textAppearanceMedium"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="TextApperanceMedium"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <TextView
+                android:id="@+id/textAppearanceMediumInverse"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="textAppearanceMediumInverse"
+                android:textAppearance="?android:attr/textAppearanceMediumInverse" />
+
+            <TextView
+                android:id="@+id/textAppearance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="textAppearance"
+                android:textAppearance="?android:attr/textAppearance" />
+
+            <TextView
+                android:id="@+id/textAppearanceInverse"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="textAppearanceInverse"
+                android:textAppearance="?android:attr/textAppearanceInverse" />
+
+            <TextView
+                android:id="@+id/small"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="TextApperanceSmall"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
+            <TextView
+                android:id="@+id/textAppearanceSmallInverse"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="textAppearanceSmallInverse"
+                android:textAppearance="?android:attr/textAppearanceSmallInverse" />
+
+            <TextView
+                android:id="@+id/textAppearanceListItem"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="textAppearanceListItem"
+                android:textAppearance="?android:attr/textAppearanceListItem" />
+
+            <TextView
+                android:id="@+id/textAppearanceListItemSmall"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="textAppearanceListItemSmall"
+                android:textAppearance="?android:attr/textAppearanceListItemSmall" />
+
+            <TextView
+                android:id="@+id/textAppearanceListItemSecondary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="textAppearanceListItemSecondary"
+                android:textAppearance="?android:attr/textAppearanceListItemSecondary" />
+
+            <TextView
+                android:id="@+id/textAppearanceSearchResultTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="textAppearanceSearchResultTitle"
+                android:textAppearance="?android:attr/textAppearanceSearchResultTitle" />
+
+            <TextView
+                android:id="@+id/textAppearanceSearchResultSubtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="textAppearanceSearchResultSubtitle"
+                android:textAppearance="?android:attr/textAppearanceSearchResultSubtitle" />
+
+            <TextView
+                android:id="@+id/textAppearanceButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="textAppearanceButton"
+                android:textAppearance="?android:attr/textAppearanceButton" />
+
+            <TextView
+                android:id="@+id/textAppearanceLargePopupMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="textAppearanceLargePopupMenu"
+                android:textAppearance="?android:attr/textAppearanceLargePopupMenu" />
+
+            <TextView
+                android:id="@+id/textAppearanceSmallPopupMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="textAppearanceSmallPopupMenu"
+                android:textAppearance="?android:attr/textAppearanceSmallPopupMenu" />
+
+            <TextView
+                android:id="@+id/textAppearancePopupMenuHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="textAppearancePopupMenuHeader"
+                android:textAppearance="?android:attr/textAppearancePopupMenuHeader" />
+
+            <TextView
+                android:id="@+id/panelTextAppearance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="panelTextAppearance"
+                android:textAppearance="?android:attr/panelTextAppearance" />
+
+            <TextView
+                android:id="@+id/actionMenuTextAppearance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="actionMenuTextAppearance"
+                android:textAppearance="?android:attr/actionMenuTextAppearance" />
+
+            <TextView
+                android:id="@+id/itemTextAppearance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="itemTextAppearance"
+                android:textAppearance="?android:attr/itemTextAppearance" />
+
+            <TextView
+                android:id="@+id/yearListItemTextAppearance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="yearListItemTextAppearance"
+                android:textAppearance="?android:attr/yearListItemTextAppearance" />
+
+            <TextView
+                android:id="@+id/headerMonthTextAppearance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="headerMonthTextAppearance"
+                android:textAppearance="?android:attr/headerMonthTextAppearance" />
+
+            <TextView
+                android:id="@+id/headerDayOfMonthTextAppearance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="headerDayOfMonthTextAppearance"
+                android:textAppearance="?android:attr/headerDayOfMonthTextAppearance" />
+
+            <TextView
+                android:id="@+id/headerYearTextAppearance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="headerYearTextAppearance"
+                android:textAppearance="?android:attr/headerYearTextAppearance" />
+
+            <TextView
+                android:id="@+id/dayOfWeekTextAppearance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="dayOfWeekTextAppearance"
+                android:textAppearance="?android:attr/dayOfWeekTextAppearance" />
+
+            <TextView
+                android:id="@+id/weekDayTextAppearance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="weekDayTextAppearance"
+                android:textAppearance="?android:attr/weekDayTextAppearance" />
+
+            <TextView
+                android:id="@+id/dateTextAppearance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="dateTextAppearance"
+                android:textAppearance="?android:attr/dateTextAppearance" />
+
+            <TextView
+                android:id="@+id/headerAmPmTextAppearance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="headerAmPmTextAppearance"
+                android:textAppearance="?android:attr/headerAmPmTextAppearance" />
+
+            <TextView
+                android:id="@+id/headerTimeTextAppearance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="headerTimeTextAppearance"
+                android:textAppearance="?android:attr/headerTimeTextAppearance" />
+
+            <TextView
+                android:id="@+id/switchTextAppearance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="switchTextAppearance"
+                android:textAppearance="?android:attr/switchTextAppearance" />
+
+            <TextView
+                android:id="@+id/titleTextAppearance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="titleTextAppearance"
+                android:textAppearance="?android:attr/titleTextAppearance" />
+
+            <TextView
+                android:id="@+id/subtitleTextAppearance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="subtitleTextAppearance"
+                android:textAppearance="?android:attr/subtitleTextAppearance" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="windowTitleStyle"
+                style="?android:attr/windowTitleStyle" />
+
+        </LinearLayout>
+    </ScrollView>
+    <include layout="@layout/menu_button"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

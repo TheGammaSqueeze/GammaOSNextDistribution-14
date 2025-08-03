@@ -1,0 +1,33 @@
+# Bug component: 1316886
+
+# AppFocus
+per-file src/com/android/car/AppFocusTest.java = ycheo@google.com
+
+# Audio
+per-file src/com/android/car/audio/* = oscarazu@google.com, ericjeong@google.com
+
+# Cluster
+per-file src/com/android/car/cluster/* = ycheo@google.com
+
+# Input
+per-file src/com/android/car/input/* = ycheo@google.com, kanant@google.com
+
+# HAL
+per-file src/com/android/car/hal/test/*MockedVehiclHal.java = ericjeong@google.com
+
+# PackageManager
+per-file src/com/android/car/CarPackageManagerTest.java = ycheo@google.com
+per-file src/com/android/car/pm/* = ycheo@google.com
+
+# Power
+per-file src/com/android/car/garagemode/* = ericjeong@google.com
+per-file src/com/android/car/power/* = ericjeong@google.com
+
+# Property
+per-file src/com/android/car/CarProperty* = ericjeong@google.com, tylertrephan@google.com, shanyu@google.com
+
+# StorageMonitoring
+per-file src/com/android/car/CarStorageMonitoringTest.java = lakshmana@google.com
+
+# Watchdog
+per-file src/com/android/car/watchdog/* = lakshmana@google.com, jahdiel@google.com

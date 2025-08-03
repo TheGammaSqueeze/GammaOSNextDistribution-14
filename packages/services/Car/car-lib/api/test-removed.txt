@@ -1,0 +1,30 @@
+// Signature format: 2.0
+package android.car.cluster.renderer {
+
+  @UiThread public abstract class NavigationRenderer {
+    method public void onEvent(int, android.os.Bundle);
+  }
+
+}
+
+package android.car.input {
+
+  @Deprecated public abstract class CarInputHandlingService extends android.app.Service {
+    ctor protected CarInputHandlingService(android.car.input.CarInputHandlingService.InputFilter[]);
+    method @CallSuper public android.os.IBinder onBind(android.content.Intent);
+    method @MainThread protected abstract void onKeyEvent(android.view.KeyEvent, int);
+    field public static final int INPUT_CALLBACK_BINDER_CODE = 1; // 0x1
+    field public static final String INPUT_CALLBACK_BINDER_KEY = "callback_binder";
+  }
+
+  public static final class CarInputHandlingService.InputFilter implements android.os.Parcelable {
+    ctor public CarInputHandlingService.InputFilter(int, int);
+    method public int describeContents();
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator CREATOR;
+    field public final int mKeyCode;
+    field public final int mTargetDisplay;
+  }
+
+}
+

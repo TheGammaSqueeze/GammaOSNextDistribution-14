@@ -1,0 +1,50 @@
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <style name="SafetyCenterActionButton.Responsive">
+        <item name="android:paddingStart">@dimen/sc_button_horizontal_padding_large_screen</item>
+        <item name="android:paddingEnd">@dimen/sc_button_horizontal_padding_large_screen</item>
+    </style>
+
+    <style name="SecondarySafetyCenterActionButton.Responsive">
+        <item name="android:paddingStart">@dimen/sc_button_horizontal_padding_large_screen</item>
+        <item name="android:paddingEnd">@dimen/sc_button_horizontal_padding_large_screen</item>
+    </style>
+
+    <!-- START SAFETY STATUS CARD -->
+    <style name="SafetyCenterStatusTitleAndSummaryContainer.Responsive">
+        <item name="layout_constraintEnd_toStartOf">@id/sc_status_buttons_start_barrier</item>
+        <!-- Clear the base style constraints so they don't conflict with this style's constraints
+        on the same sides. -->
+        <item name="layout_constraintEnd_toEndOf">@null</item>
+    </style>
+
+    <style name="SafetyCenterStatusButton.Responsive">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="layout_constraintTop_toTopOf">parent</item>
+        <item name="layout_constraintStart_toEndOf">@id/status_title_and_summary</item>
+        <item name="layout_constraintEnd_toEndOf">parent</item>
+        <item name="android:layout_marginTop">@dimen/sc_spacing_xxsmall</item>
+        <item name="android:paddingStart">@dimen/sc_button_horizontal_padding_large_screen</item>
+        <item name="android:paddingEnd">@dimen/sc_button_horizontal_padding_large_screen</item>
+        <!-- Clear the base style constraints so they don't conflict with this style's constraints
+         on the same sides. -->
+        <item name="layout_constraintTop_toBottomOf">@null</item>
+        <item name="layout_constraintStart_toStartOf">@null</item>
+    </style>
+</resources>

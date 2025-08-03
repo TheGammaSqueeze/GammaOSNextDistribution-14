@@ -1,0 +1,13 @@
+{
+  "name": "com.android.resolv",
+  "version": 299900000,
+  "provideNativeLibs": [
+    "libnetd_resolv.so"
+  ],
+  "requireNativeLibs": [
+    "libbinder_ndk.so",
+    "libc.so",
+    "libdl.so",
+    "libm.so"
+  ]
+}

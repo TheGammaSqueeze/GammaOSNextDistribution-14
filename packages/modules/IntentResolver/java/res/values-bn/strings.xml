@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2021 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="whichApplication" msgid="2309561338625872614">"এটি ব্যবহার করে ক্রিয়াকলাপ সম্পূর্ণ করুন"</string>
+    <string name="whichApplicationNamed" msgid="8514249643796783492">"<xliff:g id="APP">%1$s</xliff:g> ব্যবহার করে অ্যাকশন সম্পূর্ণ করুন"</string>
+    <string name="whichApplicationLabel" msgid="4312929689807826793">"ক্রিয়াকলাপ সম্পূর্ণ করুন"</string>
+    <string name="whichViewApplication" msgid="7660051361612888119">"এর মাধ্যমে খুলুন"</string>
+    <string name="whichViewApplicationNamed" msgid="8231810543224200555">"<xliff:g id="APP">%1$s</xliff:g> দিয়ে খুলুন"</string>
+    <string name="whichViewApplicationLabel" msgid="9123647023323311663">"খুলুন"</string>
+    <string name="whichOpenHostLinksWith" msgid="6664206254809230738">"এই ব্রাউজারে <xliff:g id="HOST">%1$s</xliff:g> লিঙ্কটি খুলুন"</string>
+    <string name="whichOpenLinksWith" msgid="3468042265545684416">"এই ব্রাউজারে লিঙ্কটি খুলুন"</string>
+    <string name="whichOpenLinksWithApp" msgid="8832514962474825330">"<xliff:g id="APPLICATION">%1$s</xliff:g>-এ লিঙ্ক খুলুন"</string>
+    <string name="whichOpenHostLinksWithApp" msgid="6626134603937682461">"<xliff:g id="APPLICATION">%2$s</xliff:g>-এ <xliff:g id="HOST">%1$s</xliff:g> লিঙ্কটি খুলুন"</string>
+    <string name="whichGiveAccessToApplicationLabel" msgid="5120142857844152131">"অ্যাক্সেস দিন"</string>
+    <string name="whichEditApplication" msgid="5097563012157950614">"এর মাধ্যমে সম্পাদনা করুন"</string>
+    <string name="whichEditApplicationNamed" msgid="3150137489226219100">"<xliff:g id="APP">%1$s</xliff:g> দিয়ে এডিট করুন"</string>
+    <string name="whichEditApplicationLabel" msgid="5992662938338600364">"সম্পাদনা করুন"</string>
+    <string name="whichSendApplication" msgid="59510564281035884">"শেয়ার করুন"</string>
+    <string name="whichSendApplicationNamed" msgid="495577664218765855">"<xliff:g id="APP">%1$s</xliff:g>-এর সাথে শেয়ার করুন"</string>
+    <string name="whichSendApplicationLabel" msgid="2391198069286568035">"শেয়ার করুন"</string>
+    <string name="whichSendToApplication" msgid="2724450540348806267">"এটি ব্যবহার করে পাঠান"</string>
+    <string name="whichSendToApplicationNamed" msgid="1996548940365954543">"<xliff:g id="APP">%1$s</xliff:g> ব্যবহার করে পাঠান"</string>
+    <string name="whichSendToApplicationLabel" msgid="6909037198280591110">"পাঠান"</string>
+    <string name="whichHomeApplication" msgid="8797832422254564739">"একটি হোম অ্যাপ্লিকেশন বেছে নিন"</string>
+    <string name="whichHomeApplicationNamed" msgid="3943122502791761387">"হোম হিসেবে <xliff:g id="APP">%1$s</xliff:g> ব্যবহার করুন"</string>
+    <string name="whichHomeApplicationLabel" msgid="2066319585322981524">"ছবি তুলুন"</string>
+    <string name="whichImageCaptureApplication" msgid="7830965894804399333">"এই দিয়ে ছবি তুলুন"</string>
+    <string name="whichImageCaptureApplicationNamed" msgid="5927801386307049780">"<xliff:g id="APP">%1$s</xliff:g> দিয়ে ছবি তুলুন"</string>
+    <string name="whichImageCaptureApplicationLabel" msgid="987153638235357094">"ছবি তুলুন"</string>
+    <string name="use_a_different_app" msgid="2062380818535918975">"আলাদা কোনো অ্যাপ্লিকেশান ব্যবহার করুন"</string>
+    <string name="chooseActivity" msgid="6659724877523973446">"একটি অ্যাকশন বেছে নিন"</string>
+    <string name="noApplications" msgid="1139487441772284671">"কোনো অ্যাপ্লিকেশানই এই ক্রিয়া সঞ্চালন করতে পারবে না৷"</string>
+    <string name="forward_intent_to_owner" msgid="6454987608971162379">"আপনি এই অ্যাপ্লিকেশানটি আপনার কর্মস্থলের প্রোফাইলের বাইরে ব্যবহার করছেন"</string>
+    <string name="forward_intent_to_work" msgid="2906094223089139419">"আপনি এই অ্যাপ্লিকেশানটি আপনার কর্মস্থলের প্রোফাইলে ব্যবহার করছেন"</string>
+    <string name="activity_resolver_use_always" msgid="8674194687637555245">"সবসময়"</string>
+    <string name="activity_resolver_use_once" msgid="594173435998892989">"শুধু একবার"</string>
+    <string name="activity_resolver_work_profiles_support" msgid="8228711455685203580">"অফিস প্রোফাইলে <xliff:g id="APP">%1$s</xliff:g> কাজ করে না"</string>
+    <string name="pin_specific_target" msgid="5057063421361441406">"<xliff:g id="LABEL">%1$s</xliff:g> অ্যাপ পিন করুন"</string>
+    <string name="unpin_specific_target" msgid="3115158908159857777">"<xliff:g id="LABEL">%1$s</xliff:g> অ্যাপ আনপিন করুন"</string>
+    <string name="screenshot_edit" msgid="3857183660047569146">"এডিট করুন"</string>
+    <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{আরও #টি ফাইল}one{আরও #টি ফাইল}other{আরও #টি ফাইল}}"</string>
+    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{আরও #টি ফাইল}one{আরও #টি ফাইল}other{আরও #টি ফাইল}}"</string>
+    <string name="sharing_text" msgid="8137537443603304062">"টেক্সট শেয়ার করা হচ্ছে"</string>
+    <string name="sharing_link" msgid="2307694372813942916">"শেয়ার করা লিঙ্ক"</string>
+    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{ছবি শেয়ার করা হচ্ছে}one{#টি ছবি শেয়ার করা হচ্ছে}other{#টি ছবি শেয়ার করা হচ্ছে}}"</string>
+    <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{ভিডিও শেয়ার করা হচ্ছে}one{#টি ভিডিও শেয়ার করা হচ্ছে}other{#টি ভিডিও শেয়ার করা হচ্ছে}}"</string>
+    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{#টি ফাইল শেয়ার করা হচ্ছে}one{#টি ফাইল শেয়ার করা হচ্ছে}other{#টি ফাইল শেয়ার করা হচ্ছে}}"</string>
+    <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{টেক্সট সহ ছবি শেয়ার করা হচ্ছে}one{টেক্সট সহ #টি ছবি শেয়ার করা হচ্ছে}other{টেক্সট সহ #টি ছবি শেয়ার করা হচ্ছে}}"</string>
+    <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{লিঙ্ক সহ ছবি শেয়ার করা হচ্ছে}one{লিঙ্ক সহ #টি ছবি শেয়ার করা হচ্ছে}other{লিঙ্ক সহ #টি ছবি শেয়ার করা হচ্ছে}}"</string>
+    <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{টেক্সট সহ ভিডিও শেয়ার করা হচ্ছে}one{টেক্সট সহ #টি ভিডিও শেয়ার করা হচ্ছে}other{টেক্সট সহ #টি ভিডিও শেয়ার করা হচ্ছে}}"</string>
+    <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{লিঙ্ক সহ ভিডিও শেয়ার করা হচ্ছে}one{লিঙ্ক সহ #টি ভিডিও শেয়ার করা হচ্ছে}other{লিঙ্ক সহ #টি ভিডিও শেয়ার করা হচ্ছে}}"</string>
+    <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{টেক্সট সহ ফাইল শেয়ার করা হচ্ছে}one{টেক্সট সহ #টি ফাইল শেয়ার করা হচ্ছে}other{টেক্সট সহ #টি ফাইল শেয়ার করা হচ্ছে}}"</string>
+    <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{লিঙ্ক সহ ফাইল শেয়ার করা হচ্ছে}one{লিঙ্ক সহ #টি ফাইল শেয়ার করা হচ্ছে}other{লিঙ্ক সহ #টি ফাইল শেয়ার করা হচ্ছে}}"</string>
+    <string name="sharing_album" msgid="191743129899503345">"অ্যালবাম শেয়ার করা হচ্ছে"</string>
+    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{শুধু ছবি}one{শুধু ছবি}other{শুধু ছবি}}"</string>
+    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{শুধু ভিডিও}one{শুধু ভিডিও}other{শুধু ভিডিও}}"</string>
+    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{শুধু ফাইল}one{শুধু ফাইল}other{শুধু ফাইল}}"</string>
+    <string name="image_preview_a11y_description" msgid="297102643932491797">"ছবির প্রিভিউ থাম্বনেল"</string>
+    <string name="video_preview_a11y_description" msgid="683440858811095990">"ভিডিওর প্রিভিউ থাম্বনেল"</string>
+    <string name="file_preview_a11y_description" msgid="7397224827802410602">"ফাইলের প্রিভিউ থাম্বনেল"</string>
+    <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"শেয়ার করার জন্য সাজেস্ট করার মতো কেউ নেই"</string>
+    <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"এই অ্যাপকে রেকর্ড করার অনুমতি দেওয়া হয়নি কিন্তু USB ডিভাইসের মাধ্যমে সেটি অডিও রেকর্ড করতে পারে।"</string>
+    <string name="resolver_personal_tab" msgid="1381052735324320565">"ব্যক্তিগত"</string>
+    <string name="resolver_work_tab" msgid="3588325717455216412">"অফিস"</string>
+    <string name="resolver_private_tab" msgid="3707548826254095157">"ব্যক্তিগত"</string>
+    <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"ব্যক্তিগত ভিউ"</string>
+    <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"অফিসের ভিউ"</string>
+    <string name="resolver_private_tab_accessibility" msgid="2513122834337197252">"ব্যক্তিগত ভিউ"</string>
+    <string name="resolver_cross_profile_blocked" msgid="3515194063758605377">"আপনার আইটি অ্যাডমিন ব্লক করেছেন"</string>
+    <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"অফিসের অ্যাপে এই কন্টেন্ট শেয়ার করা যাবে না"</string>
+    <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"অফিসের অ্যাপে এই খোলা যাবে না"</string>
+    <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"ব্যক্তিগত অ্যাপে এই কন্টেন্ট শেয়ার করা যাবে না"</string>
+    <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"ব্যক্তিগত অ্যাপে এই কন্টেন্ট খোলা যাবে না"</string>
+    <string name="resolver_turn_on_work_apps" msgid="7115260573975624516">"অফিসের অ্যাপ পজ করা আছে"</string>
+    <string name="resolver_switch_on_work" msgid="8678893259344318807">"আনপজ করুন"</string>
+    <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"এর জন্য কোনও অফিস অ্যাপ নেই"</string>
+    <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"ব্যক্তিগত অ্যাপে দেখা যাবে না"</string>
+    <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"আপনার ব্যক্তিগত প্রোফাইল থেকে <xliff:g id="APP">%s</xliff:g> খুলবেন?"</string>
+    <string name="miniresolver_open_in_work" msgid="4271638122142624693">"আপনার অফিস প্রোফাইল থেকে <xliff:g id="APP">%s</xliff:g> খুলবেন?"</string>
+    <string name="miniresolver_use_personal_browser" msgid="1428911732509069292">"ব্যক্তিগত ব্রাউজার ব্যবহার করুন"</string>
+    <string name="miniresolver_use_work_browser" msgid="7892699758493230342">"অফিস ব্রাউজার ব্যবহার করুন"</string>
+    <string name="exclude_text" msgid="5508128757025928034">"টেক্সট বাদ দিন"</string>
+    <string name="include_text" msgid="642280283268536140">"টেক্সট যোগ করুন"</string>
+    <string name="exclude_link" msgid="1332778255031992228">"লিঙ্ক বাদ দিন"</string>
+    <string name="include_link" msgid="827855767220339802">"লিঙ্ক যোগ করুন"</string>
+    <string name="pinned" msgid="7623664001331394139">"পিন করা হয়েছে"</string>
+</resources>

@@ -1,0 +1,37 @@
+package: "com.android.bluetooth.flags"
+container: "com.android.btservices"
+
+flag {
+    name: "synchronous_bta_sec"
+    namespace: "bluetooth"
+    description: "Make BTA_DmXXX security APIs synchronous"
+    bug: "311196228"
+}
+
+flag {
+    name: "connect_hid_after_service_discovery"
+    namespace: "bluetooth"
+    description: "Don't initiate HID connection before pairing and service discovery"
+    bug: "314707251"
+}
+
+flag {
+    name: "bta_dm_disc_stuck_in_cancelling_fix"
+    namespace: "bluetooth"
+    description: "Fix being stuck in BTA_DM_SEARCH_CANCELLING"
+    bug: "319890673"
+}
+
+flag {
+    name: "bta_dm_defer_device_discovery_state_change_until_rnr_complete"
+    namespace: "bluetooth"
+    description: "Fix double-sending device discovery state change when canceling RNR"
+    bug: "321170442"
+}
+
+flag {
+    name: "bt_system_context_report"
+    namespace: "bluetooth"
+    description: "Report Bluetooth system context through bta_ble_energy_info_cmpl"
+    bug: "323083457"
+}

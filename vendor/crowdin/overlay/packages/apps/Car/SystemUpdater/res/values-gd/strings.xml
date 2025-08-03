@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (c) 2016, The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<resources>
+    <string name="title">Ùrachadh ionadail an t-siostaim</string>
+    <string name="invalid_file_type">Chan e faidhle dligheach a tha seo airson ùrachadh</string>
+    <string name="unknown_file">Faidhle nach aithne dhuinn</string>
+    <string name="cannot_access_storage">Chan urrainn dhuinn an t-uidheam-stòrais inntrigeadh</string>
+    <string name="update_in_progress">A’ cur an sàs ùrachadh an t-siostaim</string>
+    <string name="update_file_name">Faidhle: %s\"</string>
+    <string name="update_file_size">Meud: \"</string>
+    <string name="install_now">Stàlaich an-dràsta</string>
+    <string name="update_failed">Dh’fhàillig leis an ùrachadh</string>
+    <string name="verify_in_progress">A’ dearbhadh an ùrachaidh…</string>
+    <string name="verify_failure">Tagh faidhle ùrachaidh dligheach.</string>
+    <string name="install_ready">Tha an t-ùrachadh deiseil ri stàladh.</string>
+    <string name="install_in_progress">’Ga stàladh…</string>
+    <string name="install_success">Chaidh ùrachadh.</string>
+    <string name="install_failed">Dh’fhàillig ùrachadh an t-siostaim.</string>
+    <string name="rebooting">Chaidh ùrachadh. ’Ga ath-thòiseachadh an-dràsta…</string>
+    <string name="volumes">Iom-dhraibhean (%d)</string>
+    <string name="path">Slighe: %s</string>
+</resources>

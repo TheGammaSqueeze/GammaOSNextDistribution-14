@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  Copyright (c) 2017 The LineageOS Project
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ Also add information on how to contact you by electronic and paper mail.
+
+-->
+
+<!-- digital clock for the digital widget -->
+<org.lineageos.flipflap.ClockPanel xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_gravity="center"
+    android:baselineAligned="false"
+    android:background="@android:color/transparent" >
+
+    <!-- Digital clock -->
+    <LinearLayout
+        android:id="@+id/digital_clock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:baselineAligned="true"
+        android:layoutDirection="ltr"
+        android:layout_gravity="center_horizontal|top" >
+
+        <!-- Time -->
+        <TextClock
+            android:id="@+id/the_clock"
+            style="@style/widget_medium_light"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:baselineAligned="true"
+            android:maxLines="1"
+            android:layout_gravity="top|center"
+            android:textColor="@color/clock_white" />
+    </LinearLayout>
+</org.lineageos.flipflap.ClockPanel>

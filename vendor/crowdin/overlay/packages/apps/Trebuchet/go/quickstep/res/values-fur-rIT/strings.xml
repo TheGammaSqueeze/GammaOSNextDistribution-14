@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_share_drop_target_label">Condivît aplicazion</string>
+    <string name="action_listen">Scolte</string>
+    <string name="action_translate">Tradûs</string>
+    <string name="action_search">Lint</string>
+    <string name="dialog_acknowledge">CAPÎT</string>
+    <string name="dialog_cancel">ANULE</string>
+    <string name="dialog_settings">IMPOSTAZIONS</string>
+    <string name="niu_actions_confirmation_title">Tradusi o scoltâ il test sul schermi</string>
+    <string name="niu_actions_confirmation_text">A podaressin vignî condividudis cun Google lis informazions come par esempli il test su schermi, lis direzions web e lis schermadis.\n\nPar modificâ lis informazions che tu condividis, va su <b>Impostazions &gt; Aplicazions &gt; Aplicazions predefinidis &gt; Aplicazion assistent digjitâl</b>.</string>
+    <string name="assistant_not_selected_title">Sielç un assistent par doprâ cheste funzion</string>
+    <string name="assistant_not_selected_text">Par scoltâ o tradusi test su schermi, sielç in Impostazions une aplicazion pal assistent digjitâl</string>
+    <string name="assistant_not_supported_title">Cambie il to assistent par doprâ cheste funzion</string>
+    <string name="assistant_not_supported_text">Par scoltâ o tradusi test su schermi, cambie in Impostazions la tô aplicazion pal assistent digjitâl</string>
+    <string name="tooltip_listen">Tocje achì par scoltâ il test su chest schermi</string>
+    <string name="tooltip_translate">Tocje achì par tradusi il test su chest schermi</string>
+    <string name="toast_p2p_app_not_shareable">Nol è pussibil condividi cheste aplicazion</string>
+</resources>

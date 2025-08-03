@@ -1,0 +1,24 @@
+main: {
+  multithreading: {
+    threads: [
+      {
+        instruction: {
+          binder_request: {
+            generic_service: {
+              name: "time_zone_detector",
+              code: 6,
+              parcel_input: [{
+                type: STRING_16,
+                data: "Asia/Calcutta"
+              }]
+            },
+          },
+          repeat: 2,
+          period_us: 1000,
+        }
+        spawn: 2,
+      }
+    ]
+  }
+},
+global {}

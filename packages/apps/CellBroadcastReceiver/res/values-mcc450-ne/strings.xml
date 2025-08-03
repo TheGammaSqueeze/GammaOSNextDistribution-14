@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2018 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="cmas_presidential_level_alert" msgid="6968323372438785870">"महत्वपूर्ण आपातकालीन चेतावनी"</string>
+    <string name="alerts_header_summary" msgid="8898082819299479687">"तपाईंको फोनले तपाईंलाई प्राकृतिक प्रकोपका बेला खतरापूर्ण ठाउँबाट सुरक्षित रूपमा निस्कने निर्देशनहरू जस्ता अलर्टहरू पठाउन सक्छ। यो सेवा राष्ट्रिय आपत्‌काल व्यस्थापन निकाय, नेटवर्क सेवा प्रदायक र यन्त्र उत्पादक कम्पनीहरूबिच सहकार्य गरेर सुरु गरिएको हो।\n\nतपाईंको डिभाइसमा कुनै समस्या छ वा नेटवर्क राम्रो छैन भने तपाईं अलर्टहरू प्राप्त नगर्न पनि सक्नुहुन्छ।"</string>
+</resources>

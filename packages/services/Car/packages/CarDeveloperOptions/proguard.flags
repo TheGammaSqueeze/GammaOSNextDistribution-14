@@ -1,0 +1,4 @@
+-keep public class com.android.car.developeroptions.CarDevelopmentSettingsDashboardFragment
+-keep public class com.android.settings.applications.RunningServices
+-keep public class com.android.settings.development.compat.PlatformCompatDashboard
+-keep public class com.android.settings.fuelgauge.InactiveApps

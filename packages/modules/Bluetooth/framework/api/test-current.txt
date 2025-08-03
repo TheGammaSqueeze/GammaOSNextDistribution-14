@@ -1,0 +1,9 @@
+// Signature format: 2.0
+package android.bluetooth {
+
+  public final class BluetoothClass implements android.os.Parcelable {
+    method public int getClassOfDevice();
+  }
+
+}
+

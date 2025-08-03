@@ -1,0 +1,40 @@
+//############################################################
+// ManagedProvisioning Robolectric test target.              #
+//############################################################
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_robolectric_test {
+
+    name: "ManagedProvisioningRoboTests",
+
+    srcs: [
+        "src/**/*.java",
+        "src/**/*.kt",
+    ],
+
+    java_resource_dirs: ["config"],
+
+    // Include the testing libraries
+    libs: [
+        "mockito-robolectric-prebuilt",
+        "truth",
+        "androidx.test.core",
+        "androidx.test.rules",
+        "androidx.core_core",
+        "testng", // used only for assertThrows
+        "android_onboarding.contracts.testing",
+        "hilt_android_testing",
+    ],
+
+    static_libs: [
+        "managedprovisioning_protoslite",
+        "flag-junit",
+        "platform-test-annotations",
+    ],
+
+    instrumentation_for: "ManagedProvisioning",
+
+    upstream: true,
+}

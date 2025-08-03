@@ -1,0 +1,12 @@
+# Bug component: 20868
+# Owners for Telephony
+seheele@google.com
+vithalangarkar@google.com
+mkoon@google.com
+schie@google.com
+younsung@google.com
+hwangoo@google.com
+sewookseo@google.com
+sangyun@google.com
+
+include platform/packages/modules/common:/MODULES_OWNERS  # see go/mainline-owners-policy

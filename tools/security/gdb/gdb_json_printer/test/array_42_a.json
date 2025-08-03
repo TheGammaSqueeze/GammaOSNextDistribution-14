@@ -1,0 +1,36 @@
+{
+    "type": "array",
+    "element_type": "int16_t",
+    "values": [
+        {
+            "type": "int",
+            "ctype": "int16_t",
+            "address": "0x7fffffffd766",
+            "value": "1"
+        },
+        {
+            "type": "int",
+            "ctype": "int16_t",
+            "address": "0x7fffffffd768",
+            "value": "2"
+        },
+        {
+            "type": "int",
+            "ctype": "int16_t",
+            "address": "0x7fffffffd76a",
+            "value": "3"
+        },
+        {
+            "type": "int",
+            "ctype": "int16_t",
+            "address": "0x7fffffffd76c",
+            "value": "4"
+        },
+        {
+            "type": "int",
+            "ctype": "int16_t",
+            "address": "0x7fffffffd76e",
+            "value": "5"
+        }
+    ]
+}

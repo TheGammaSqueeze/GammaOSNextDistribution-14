@@ -1,0 +1,15 @@
+{
+    "header": "ipc_unittest_uuid_consts.h",
+    "constants":[
+        {
+            "name": "IPC_UNITTEST_MAIN_APP_UUID",
+            "value": "766072e8-414e-48fc-9f8f-fb9a6f144124",
+            "type": "uuid"
+        },
+        {
+            "name": "IPC_UNITTEST_SRV_APP_UUID",
+            "value": "fee67f9f-e1b1-4e3d-8455-047f6001afef",
+            "type": "uuid"
+        }
+    ]
+}

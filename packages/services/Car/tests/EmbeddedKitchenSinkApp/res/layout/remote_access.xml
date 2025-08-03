@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
+
+    <LinearLayout
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:orientation="horizontal">
+        <Spinner
+            android:id="@+id/remote_task_type_spinner"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content" />
+        <TextView
+            android:id="@+id/remote_task_data_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/remote_task_data_title" />
+        <EditText
+             android:id="@+id/remote_task_data"
+             android:layout_height="wrap_content"
+             android:layout_width="wrap_content"
+             android:inputType="text" />
+    </LinearLayout>
+
+    <LinearLayout
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:orientation="horizontal">
+        <TextView
+            android:id="@+id/task_delay_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/task_delay_title" />
+        <EditText
+             android:id="@+id/task_delay"
+             android:layout_height="wrap_content"
+             android:layout_width="40dp"
+             android:inputType="number"
+             android:text="10" />
+        <TextView
+            android:id="@+id/task_repeat_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/task_repeat_title"/>
+        <EditText
+             android:id="@+id/task_repeat"
+             android:layout_height="wrap_content"
+             android:layout_width="40dp"
+             android:inputType="number"
+             android:text="1" />
+        <TextView
+            android:id="@+id/task_interval_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/task_interval_title"/>
+        <EditText
+             android:id="@+id/task_interval"
+             android:layout_height="wrap_content"
+             android:layout_width="40dp"
+             android:inputType="number" />
+    </LinearLayout>
+
+    <LinearLayout
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:orientation="horizontal">
+        <Button
+            android:id="@+id/schedule_task_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/schedule_task"/>
+    </LinearLayout>
+
+    <LinearLayout
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:orientation="horizontal">
+        <Button
+            android:id="@+id/refresh_remote_task_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/refresh_remote_task"/>
+        <Button
+            android:id="@+id/clear_remote_task_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/clear_remote_task"/>
+    </LinearLayout>
+
+    <TableLayout
+        android:id="@+id/remote_task_list"
+        android:layout_width="900dp"
+        android:layout_height="wrap_content">
+
+        <TableRow
+            android:id="@+id/task_list_title"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                android:id="@+id/task_time_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/task_time" />
+            <TextView
+                android:id="@+id/task_id_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/task_id" />
+            <TextView
+                android:id="@+id/task_data_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/task_data" />
+            <TextView
+                android:id="@+id/remaining_time_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/remaining_time_sec" />
+        </TableRow>
+    </TableLayout>
+
+</LinearLayout>

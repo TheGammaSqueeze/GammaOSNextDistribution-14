@@ -1,0 +1,491 @@
+// simulation library for testing virtual devices
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_bt_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_bt_license"],
+    default_visibility: [
+        "//device:__subpackages__",
+        "//packages/modules/Bluetooth:__subpackages__",
+        "//tools/netsim:__subpackages__",
+    ],
+}
+
+cc_defaults {
+    name: "rootcanal_defaults",
+    tidy: true,
+    tidy_checks: [
+        "-*",
+        "readability-*",
+
+        "-readability-function-size",
+        "-readability-identifier-length",
+        "-readability-implicit-bool-conversion",
+        "-readability-magic-numbers",
+        "-readability-use-anyofallof",
+    ],
+    tidy_checks_as_errors: [
+        "readability-*",
+    ],
+    tidy_flags: [
+        "--header-filter=^.*tools\\/rootcanal\\/(model|include|net|desktop)\\/(.(?!\\.pb\\.h))*$",
+    ],
+    sanitize: {
+        address: true,
+        all_undefined: true,
+        misc_undefined: ["bounds"],
+    },
+    c_std: "c99",
+    cpp_std: "c++20",
+    cflags: [
+        "-DGOOGLE_PROTOBUF_NO_RTTI",
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+        "-fvisibility=hidden",
+    ],
+    include_dirs: [
+        "packages/modules/Bluetooth/tools/rootcanal/include",
+    ],
+    header_libs: [
+        "libbase_headers",
+        "pdl_cxx_packet_runtime",
+    ],
+    generated_headers: [
+        "rootcanal_bredr_bb_packets_cxx_gen",
+        "rootcanal_hci_packets_cxx_gen",
+        "rootcanal_link_layer_packets_cxx_gen",
+    ],
+}
+
+filegroup {
+    name: "lib_sources",
+    srcs: [
+        "lib/crypto/crypto.cc",
+        "lib/hci/address.cc",
+        "lib/hci/pcap_filter.cc",
+        "lib/log.cc",
+    ],
+}
+
+// This library should be added as `whole_static_libs`
+// as it uses static registration and all object
+// files needs to be linked
+cc_library_static {
+    name: "libbt-rootcanal",
+    defaults: ["rootcanal_defaults"],
+    host_supported: true,
+    proprietary: true,
+    srcs: [
+        ":lib_sources",
+        "model/controller/acl_connection.cc",
+        "model/controller/acl_connection_handler.cc",
+        "model/controller/controller_properties.cc",
+        "model/controller/dual_mode_controller.cc",
+        "model/controller/le_advertiser.cc",
+        "model/controller/link_layer_controller.cc",
+        "model/controller/sco_connection.cc",
+        "model/controller/vendor_commands/le_apcf.cc",
+        "model/devices/baseband_sniffer.cc",
+        "model/devices/beacon.cc",
+        "model/devices/beacon_swarm.cc",
+        "model/devices/device.cc",
+        "model/devices/hci_device.cc",
+        "model/devices/link_layer_socket_device.cc",
+        "model/devices/scripted_beacon.cc",
+        "model/devices/sniffer.cc",
+        "model/hci/h4_data_channel_packetizer.cc",
+        "model/hci/h4_parser.cc",
+        "model/hci/hci_sniffer.cc",
+        "model/hci/hci_socket_transport.cc",
+        "model/setup/async_manager.cc",
+        "model/setup/device_boutique.cc",
+        "model/setup/phy_device.cc",
+        "model/setup/phy_layer.cc",
+        "model/setup/test_channel_transport.cc",
+        "model/setup/test_command_handler.cc",
+        "model/setup/test_model.cc",
+        "net/posix/posix_async_socket.cc",
+        "net/posix/posix_async_socket_connector.cc",
+        "net/posix/posix_async_socket_server.cc",
+    ],
+    export_header_lib_headers: [
+        "pdl_cxx_packet_runtime",
+    ],
+    export_include_dirs: [
+        ".",
+        "include",
+    ],
+    export_generated_headers: [
+        "rootcanal_hci_packets_cxx_gen",
+        "rootcanal_link_layer_packets_cxx_gen",
+    ],
+    export_static_lib_headers: [
+        "librootcanal_config",
+    ],
+    whole_static_libs: [
+        "librootcanal_config",
+        "librootcanal_rs",
+    ],
+    shared_libs: [
+        "libbase",
+        "libcrypto",
+    ],
+    static_libs: [
+        "libscriptedbeaconpayload-protos-lite",
+    ],
+}
+
+// This library implements a foreigh function interface over DualModeController
+// compatible with Python or Rust.
+cc_library_host_shared {
+    name: "lib_rootcanal_ffi",
+    defaults: [
+        "rootcanal_defaults",
+    ],
+    sanitize: {
+        address: false,
+    },
+    srcs: [
+        ":lib_sources",
+        "model/controller/acl_connection.cc",
+        "model/controller/acl_connection_handler.cc",
+        "model/controller/controller_properties.cc",
+        "model/controller/dual_mode_controller.cc",
+        "model/controller/ffi.cc",
+        "model/controller/le_advertiser.cc",
+        "model/controller/link_layer_controller.cc",
+        "model/controller/sco_connection.cc",
+        "model/controller/vendor_commands/le_apcf.cc",
+        "model/devices/device.cc",
+        "model/setup/async_manager.cc",
+    ],
+    export_include_dirs: [
+        ".",
+        "include",
+    ],
+    stl: "libc++_static",
+    static_libs: [
+        "libcrypto",
+        "libprotobuf-cpp-full",
+        "librootcanal_config",
+    ],
+    whole_static_libs: [
+        "libbase",
+        "liblog",
+        "librootcanal_rs",
+    ],
+    cflags: [
+        "-fexceptions",
+    ],
+}
+
+// Generate the python parser+serializer backend for
+// packets/link_layer_packets.pdl.
+genrule {
+    name: "link_layer_packets_python3_gen",
+    defaults: ["pdl_python_generator_defaults"],
+    cmd: "$(location :pdlc) $(in) |" +
+        " $(location :pdl_python_generator)" +
+        " --output $(out) --custom-type-location py.bluetooth",
+    srcs: [
+        "packets/link_layer_packets.pdl",
+    ],
+    out: [
+        "link_layer_packets.py",
+    ],
+}
+
+// Generate the python parser+serializer backend for
+// rust/llcp_packets.pdl.
+genrule {
+    name: "llcp_packets_python3_gen",
+    defaults: ["pdl_python_generator_defaults"],
+    cmd: "$(location :pdlc) $(in) |" +
+        " $(location :pdl_python_generator)" +
+        " --output $(out) --custom-type-location py.bluetooth",
+    srcs: [
+        "rust/llcp_packets.pdl",
+    ],
+    out: [
+        "llcp_packets.py",
+    ],
+}
+
+// Generate the python parser+serializer backend for
+// hci_packets.pdl.
+genrule {
+    name: "hci_packets_python3_gen",
+    defaults: ["pdl_python_generator_defaults"],
+    cmd: "$(location :pdlc) $(in) |" +
+        " $(location :pdl_python_generator)" +
+        " --output $(out) --custom-type-location py.bluetooth",
+    srcs: [
+        "packets/hci_packets.pdl",
+    ],
+    out: [
+        "hci_packets.py",
+    ],
+}
+
+cc_library_static {
+    name: "libscriptedbeaconpayload-protos-lite",
+    host_supported: true,
+    proprietary: true,
+    proto: {
+        export_proto_headers: true,
+        type: "lite",
+    },
+    srcs: ["model/devices/scripted_beacon_ble_payload.proto"],
+}
+
+cc_test_host {
+    name: "rootcanal_hci_test",
+    defaults: [
+        "rootcanal_defaults",
+    ],
+    srcs: [
+        "test/controller/le/le_add_device_to_filter_accept_list_test.cc",
+        "test/controller/le/le_add_device_to_periodic_advertiser_list_test.cc",
+        "test/controller/le/le_add_device_to_resolving_list_test.cc",
+        "test/controller/le/le_clear_filter_accept_list_test.cc",
+        "test/controller/le/le_clear_periodic_advertiser_list_test.cc",
+        "test/controller/le/le_clear_resolving_list_test.cc",
+        "test/controller/le/le_create_connection_cancel_test.cc",
+        "test/controller/le/le_create_connection_test.cc",
+        "test/controller/le/le_extended_create_connection_test.cc",
+        "test/controller/le/le_periodic_advertising_create_sync_cancel_test.cc",
+        "test/controller/le/le_periodic_advertising_create_sync_test.cc",
+        "test/controller/le/le_remove_device_from_filter_accept_list_test.cc",
+        "test/controller/le/le_remove_device_from_periodic_advertiser_list_test.cc",
+        "test/controller/le/le_remove_device_from_resolving_list_test.cc",
+        "test/controller/le/le_scanning_filter_duplicates_test.cc",
+        "test/controller/le/le_set_address_resolution_enable_test.cc",
+        "test/controller/le/le_set_advertising_enable_test.cc",
+        "test/controller/le/le_set_advertising_parameters_test.cc",
+        "test/controller/le/le_set_extended_advertising_data_test.cc",
+        "test/controller/le/le_set_extended_advertising_enable_test.cc",
+        "test/controller/le/le_set_extended_advertising_parameters_test.cc",
+        "test/controller/le/le_set_extended_scan_enable_test.cc",
+        "test/controller/le/le_set_extended_scan_parameters_test.cc",
+        "test/controller/le/le_set_extended_scan_response_data_test.cc",
+        "test/controller/le/le_set_periodic_advertising_data_test.cc",
+        "test/controller/le/le_set_periodic_advertising_enable_test.cc",
+        "test/controller/le/le_set_periodic_advertising_parameters_test.cc",
+        "test/controller/le/le_set_random_address_test.cc",
+        "test/controller/le/le_set_scan_enable_test.cc",
+        "test/controller/le/le_set_scan_parameters_test.cc",
+        "test/controller/le/rpa_generation_test.cc",
+    ],
+    header_libs: [
+        "libbluetooth_headers",
+    ],
+    local_include_dirs: [
+        ".",
+    ],
+    shared_libs: [
+        "libbase",
+        "libcrypto",
+        "libprotobuf-cpp-full",
+    ],
+    static_libs: [
+        "libbt-rootcanal",
+    ],
+}
+
+// Implement the Bluetooth official LL test suite for root-canal.
+python_test_host {
+    name: "rootcanal_ll_test",
+    main: "test/main.py",
+    srcs: [
+        ":hci_packets_python3_gen",
+        ":link_layer_packets_python3_gen",
+        ":llcp_packets_python3_gen",
+        "py/bluetooth.py",
+        "py/controller.py",
+        "test/LL/*.py",
+        "test/LL/CIS/CEN/*.py",
+        "test/LL/CIS/PER/*.py",
+        "test/LL/CON_/CEN/*.py",
+        "test/LL/CON_/INI/*.py",
+        "test/LL/CON_/PER/*.py",
+        "test/LL/DDI/ADV/*.py",
+        "test/LL/DDI/SCN/*.py",
+        "test/LL/SEC/ADV/*.py",
+        "test/LMP/*.py",
+        "test/LMP/LIH/*.py",
+        "test/main.py",
+    ],
+    data: [
+        ":lib_rootcanal_ffi",
+    ],
+    libs: [
+        "typing_extensions",
+    ],
+    test_options: {
+        unit_test: true,
+    },
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+}
+
+// test-vendor unit tests for host
+cc_test_host {
+    name: "rootcanal_test_host",
+    defaults: [
+        "bluetooth_cflags",
+    ],
+    // TODO(b/231993739): Reenable isolated:true by deleting the explicit disable below
+    isolated: false,
+    srcs: [
+        "test/async_manager_unittest.cc",
+        "test/h4_parser_unittest.cc",
+        "test/invalid_packet_handler_unittest.cc",
+        "test/pcap_filter_unittest.cc",
+        "test/posix_socket_unittest.cc",
+    ],
+    header_libs: [
+        "libbluetooth_headers",
+    ],
+    local_include_dirs: [
+        "include",
+    ],
+    shared_libs: [
+        "libbase",
+        "libcrypto",
+        "libprotobuf-cpp-full",
+    ],
+    static_libs: [
+        "libbt-rootcanal",
+    ],
+    cflags: [
+        "-fvisibility=hidden",
+    ],
+    target: {
+        darwin: {
+            enabled: false,
+        },
+    },
+}
+
+// Linux RootCanal Executable
+cc_binary_host {
+    name: "root-canal",
+    defaults: ["rootcanal_defaults"],
+    srcs: [
+        "desktop/root_canal_main.cc",
+        "desktop/test_environment.cc",
+    ],
+    header_libs: [
+        "libbluetooth_headers",
+    ],
+    shared_libs: [
+        "libbase",
+        "libunwindstack",
+    ],
+    whole_static_libs: [
+        "libbt-rootcanal",
+    ],
+    static_libs: [
+        "breakpad_client",
+        "libc++fs",
+        "libcrypto",
+        "libgflags",
+        "libprotobuf-cpp-full",
+        "libscriptedbeaconpayload-protos-lite",
+    ],
+    target: {
+        // TODO(b/181290178) remove it when sanitize option is supported by linux_bionic as well
+        linux_bionic: {
+            sanitize: {
+                address: false,
+                cfi: false,
+                all_undefined: false,
+            },
+        },
+        darwin: {
+            enabled: false,
+        },
+    },
+}
+
+genrule {
+    name: "rootcanal_hci_packets_cxx_gen",
+    tools: [
+        ":pdl_cxx_generator",
+        ":pdlc",
+    ],
+    cmd: "set -o pipefail;" +
+        " $(location :pdlc) $(in) |" +
+        " $(location :pdl_cxx_generator)" +
+        " --namespace bluetooth::hci" +
+        " --include-header hci/address.h" +
+        " --output $(out)",
+    srcs: [
+        "packets/hci_packets.pdl",
+    ],
+    out: [
+        "packets/hci_packets.h",
+    ],
+}
+
+genrule {
+    name: "rootcanal_link_layer_packets_cxx_gen",
+    tools: [
+        ":pdl_cxx_generator",
+        ":pdlc",
+    ],
+    cmd: "set -o pipefail;" +
+        " $(location :pdlc) $(in) |" +
+        " $(location :pdl_cxx_generator)" +
+        " --namespace model::packets" +
+        " --include-header hci/address.h" +
+        " --using-namespace bluetooth::hci" +
+        " --output $(out)",
+    srcs: [
+        "packets/link_layer_packets.pdl",
+    ],
+    out: [
+        "packets/link_layer_packets.h",
+    ],
+}
+
+genrule {
+    name: "rootcanal_link_layer_packets_rust_gen",
+    defaults: ["pdl_rust_generator_defaults"],
+    srcs: ["packets/link_layer_packets.pdl"],
+    out: ["link_layer_packets.rs"],
+}
+
+genrule {
+    name: "rootcanal_bredr_bb_packets_cxx_gen",
+    tools: [
+        ":pdl_cxx_generator",
+        ":pdlc",
+    ],
+    cmd: "set -o pipefail;" +
+        " $(location :pdlc) $(in) |" +
+        " $(location :pdl_cxx_generator)" +
+        " --namespace bredr_bb" +
+        " --include-header hci/address.h" +
+        " --using-namespace bluetooth::hci" +
+        " --output $(out)",
+    srcs: [
+        "packets/bredr_bb.pdl",
+    ],
+    out: [
+        "bredr_bb.h",
+    ],
+}
+
+genrule {
+    name: "rootcanal_hci_packets_rust_gen",
+    defaults: ["pdl_rust_generator_defaults"],
+    srcs: ["packets/hci_packets.pdl"],
+    out: ["hci_packets.rs"],
+}

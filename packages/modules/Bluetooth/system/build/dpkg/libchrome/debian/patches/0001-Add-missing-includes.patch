@@ -1,0 +1,50 @@
+diff --git a/libchrome/base/hash/md5_nacl.cc b/libchrome/base/hash/md5_nacl.cc
+index 7de4b43520..d540b24642 100644
+--- a/libchrome/base/hash/md5_nacl.cc
++++ b/libchrome/base/hash/md5_nacl.cc
+@@ -22,6 +22,7 @@
+  */
+ 
+ #include <stddef.h>
++#include <string.h>
+ 
+ #include "base/hash/md5.h"
+ 
+diff --git a/libchrome/crypto/p224_spake.cc b/libchrome/crypto/p224_spake.cc
+index 09f179b24a..9f651de0cf 100644
+--- a/libchrome/crypto/p224_spake.cc
++++ b/libchrome/crypto/p224_spake.cc
+@@ -8,6 +8,7 @@
+ #include <crypto/p224_spake.h>
+ 
+ #include <algorithm>
++#include <string.h>
+ 
+ #include <base/logging.h>
+ #include <crypto/p224.h>
+ 
+diff --git a/libchrome/base/functional/function_ref.h b/libchrome/base/functional/function_ref.h
+index d6442d3532..6dc03da85c 100644
+--- a/libchrome/base/functional/function_ref.h
++++ b/libchrome/base/functional/function_ref.h
+@@ -5,6 +5,8 @@
+ #ifndef BASE_FUNCTIONAL_FUNCTION_REF_H_
+ #define BASE_FUNCTIONAL_FUNCTION_REF_H_
+ 
++#include <limits>
++
+ #include <type_traits>
+ #include <utility>
+ 
+diff --git a/libchrome/base/memory/ref_counted.h b/libchrome/base/memory/ref_counted.h
+index 9ef94d8476..f70e30748a 100644
+--- a/libchrome/base/memory/ref_counted.h
++++ b/libchrome/base/memory/ref_counted.h
+@@ -7,6 +7,7 @@
+ 
+ #include <stddef.h>
+ 
++#include <limits>
+ #include <utility>
+ 
+ #include "base/atomic_ref_count.h"

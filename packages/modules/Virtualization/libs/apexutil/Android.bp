@@ -1,0 +1,40 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_defaults {
+    name: "libapexutil_rust.defaults",
+    crate_name: "apexutil",
+    defaults: ["avf_build_flags_rust"],
+    srcs: ["src/lib.rs"],
+    edition: "2021",
+    rustlibs: [
+        "libapex_manifest_rs",
+        "liblog_rust",
+        "libprotobuf",
+        "libthiserror",
+        "libvbmeta_rust",
+        "libzip",
+    ],
+}
+
+rust_library {
+    name: "libapexutil_rust",
+    defaults: ["libapexutil_rust.defaults"],
+}
+
+rust_test {
+    name: "libapexutil_rust.test",
+    defaults: ["libapexutil_rust.defaults"],
+    prefer_rlib: true,
+    test_suites: ["general-tests"],
+    // We're reusing test APEXes from system/apex/apexd
+    data: [
+        ":apex.apexd_test",
+        ":apex.apexd_test_v2_no_pb",
+        ":gen_key_mismatch_with_image_apex",
+    ],
+    rustlibs: [
+        "libhex",
+    ],
+}

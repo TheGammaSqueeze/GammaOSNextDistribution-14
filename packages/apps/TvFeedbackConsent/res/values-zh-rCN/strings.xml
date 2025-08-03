@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="feedback_system_logs_title_text" msgid="8162964763101361628">"含所有设备日志（系统和应用）"</string>
+    <string name="feedback_system_logs_legal_text" msgid="4770068793128503597">"如果您分享所有系统和应用设备日志，Google 可能会收到用户名、位置信息、设备 ID、网络信息等详情。Google 会使用这些信息修正技术问题和改进服务。如需了解详情，请访问 g.co/android/devicelogs。"</string>
+    <string name="feedback_bugreport_title_text" msgid="8863884817986711122">"包含错误报告"</string>
+    <string name="feedback_bugreport_legal_display_text" msgid="4486929548753044585">"错误报告（来自：%1$s）包含用户名、位置信息、设备 ID、网络信息等数据，可以帮助 Google 了解和修正问题。"</string>
+    <string name="next" msgid="3308587969183798652">"继续"</string>
+    <string name="feedback_view_system_logs_button_text" msgid="1889709679017124924">"查看系统日志"</string>
+    <string name="feedback_view_logs_dialog_title" msgid="1937861449450135462">"系统日志"</string>
+    <string name="feedback_view_logs_dialog_body" msgid="2496560711853644250">"我们需要这些日志所包含的信息，才能解决您反馈的问题。"</string>
+    <string name="annotated_back_indicator_string" msgid="3197935392074998004">"按“返回”键即可返回。"</string>
+    <string name="loading" msgid="1709842456101615353">"正在加载"</string>
+</resources>

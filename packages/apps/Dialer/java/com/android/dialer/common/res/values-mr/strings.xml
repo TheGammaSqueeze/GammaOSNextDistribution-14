@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="content_description_overflow">आणखी पर्याय</string>
+  <string name="snackbar_undo">पहिल्यासारखे करा</string>
+  <string name="ok_got_it">ओके, समजले</string>
+</resources>

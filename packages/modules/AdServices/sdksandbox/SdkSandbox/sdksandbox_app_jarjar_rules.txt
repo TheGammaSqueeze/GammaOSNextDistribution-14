@@ -1,0 +1,6 @@
+# Jarjar aidl interfaces provided by the SdkSandbox app apk
+rule android.app.sdksandbox.ILoadSdkCallback** com.android.sdksandbox.ILoadSdkCallback@1
+rule android.app.sdksandbox.IRequestSurfacePackageCallback** com.android.sdksandbox.IRequestSurfacePackageCallback@1
+rule android.app.sdksandbox.ISdkSandboxLifecycleCallback** com.android.sdksandbox.ISdkSandboxLifecycleCallback@1
+rule android.app.sdksandbox.ISdkSandboxManager** com.android.sdksandbox.ISdkSandboxManager@1
+rule android.app.sdksandbox.ISdkToServiceCallback** com.android.sdksandbox.ISdkToServiceCallback@1

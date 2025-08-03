@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+option java_outer_classname = "PanProto";
+
+package pandora;
+
+import "pandora/host.proto";
+
+service PAN {
+	rpc EnableTethering(EnableTetheringRequest) returns (EnableTetheringResponse);
+	rpc ConnectPan(ConnectPanRequest) returns (ConnectPanResponse);
+}
+
+// Request for the `EnableTethering` rpc.
+message EnableTetheringRequest {
+}
+
+// Response for the `EnableTethering` rpc.
+message EnableTetheringResponse {
+}
+
+// Request for the `ConnectPan` rpc.
+message ConnectPanRequest {
+	bytes address = 1;
+}
+
+// Response for the `ConnectPan` rpc.
+message ConnectPanResponse {
+	Connection connection = 1;
+}

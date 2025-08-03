@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<!--
+  The purpose of this file and its XML format is described in the javadoc for
+  ApiToExtensionsMap.fromXml in metalava.
+-->
+<sdk-extensions-info>
+  <!-- SDK definitions -->
+  <sdk
+    id="30"
+    shortname="R-ext"
+    name="R Extensions"
+    reference="android/os/Build$VERSION_CODES$R" />
+  <sdk
+    id="31"
+    shortname="S-ext"
+    name="S Extensions"
+    reference="android/os/Build$VERSION_CODES$S" />
+  <sdk
+    id="33"
+    shortname="T-ext"
+    name="T Extensions"
+    reference="android/os/Build$VERSION_CODES$TIRAMISU" />
+  <sdk
+    id="34"
+    shortname="U-ext"
+    name="U Extensions"
+    reference="android/os/Build$VERSION_CODES$UPSIDE_DOWN_CAKE" />
+  <sdk
+    id="1000000"
+    shortname="AD_SERVICES-ext"
+    name="Ad Services Extensions"
+    reference="android/os/ext/SdkExtensions$AD_SERVICES" />
+
+  <!-- SDK_EXTENSIONS -->
+  <symbol
+    jar="framework-sdkextensions"
+    pattern="*"
+    sdks="R-ext,S-ext,T-ext,U-ext" />
+
+  <!-- APPSEARCH -->
+  <symbol
+    jar="framework-appsearch"
+    pattern="android.app.appsearch.AppSearchSchema.Builder.addParentType"
+    sdks="T-ext,U-ext" />
+  <symbol
+    jar="framework-appsearch"
+    pattern="android.app.appsearch.AppSearchSchema.DocumentPropertyConfig.Builder
+            .addIndexableNestedProperties"
+    sdks="T-ext,U-ext" />
+
+  <!-- MEDIA_PROVIDER -->
+  <symbol
+    jar="framework-mediaprovider"
+    pattern="android.provider.MediaStore.PickerMediaColumns"
+    sdks="R-ext,S-ext,T-ext,U-ext" />
+  <symbol
+    jar="framework-mediaprovider"
+    pattern="android.provider.MediaStore.ACTION_PICK_IMAGES"
+    sdks="R-ext,S-ext,T-ext,U-ext" />
+  <symbol
+    jar="framework-mediaprovider"
+    pattern="android.provider.MediaStore.ACTION_PICK_IMAGES_SETTINGS"
+    sdks="R-ext,S-ext,T-ext,U-ext" />
+  <symbol
+    jar="framework-mediaprovider"
+    pattern="android.provider.MediaStore.EXTRA_PICK_IMAGES_MAX"
+    sdks="R-ext,S-ext,T-ext,U-ext" />
+  <symbol
+      jar="framework-mediaprovider"
+      pattern="android.provider.MediaStore.EXTRA_PICK_IMAGES_IN_ORDER"
+      sdks="R-ext,S-ext,T-ext,U-ext" />
+  <symbol
+      jar="framework-mediaprovider"
+      pattern="android.provider.MediaStore.EXTRA_PICK_IMAGES_LAUNCH_TAB"
+      sdks="R-ext,S-ext,T-ext,U-ext" />
+  <symbol
+      jar="framework-mediaprovider"
+      pattern="android.provider.MediaStore.EXTRA_PICK_IMAGES_ACCENT_COLOR"
+      sdks="R-ext,S-ext,T-ext,U-ext" />
+  <symbol
+    jar="framework-mediaprovider"
+    pattern="android.provider.MediaStore.getPickImagesMaxLimit"
+    sdks="R-ext,S-ext,T-ext,U-ext" />
+  <symbol
+    jar="framework-mediaprovider"
+    pattern="android.provider.MediaStore.getGeneration"
+    sdks="R-ext,S-ext,T-ext,U-ext" />
+  <symbol
+    jar="framework-mediaprovider"
+    pattern="android.provider.MediaStore.getVersion"
+    sdks="R-ext,S-ext,T-ext,U-ext" />
+  <symbol
+    jar="framework-mediaprovider"
+    pattern="android.provider.MediaStore.VOLUME_EXTERNAL"
+    sdks="R-ext,S-ext,T-ext,U-ext" />
+  <symbol
+    jar="framework-mediaprovider"
+    pattern="android.provider.CloudMediaProvider"
+    sdks="R-ext,S-ext,T-ext,U-ext" />
+  <symbol
+    jar="framework-mediaprovider"
+    pattern="android.provider.CloudMediaProviderContract"
+    sdks="R-ext,S-ext,T-ext,U-ext" />
+  <symbol
+    jar="framework-mediaprovider"
+    pattern="android.provider.MediaStore.isCurrentCloudMediaProviderAuthority"
+    sdks="R-ext,S-ext,T-ext,U-ext" />
+  <symbol
+    jar="framework-mediaprovider"
+    pattern="android.provider.MediaStore.isSupportedCloudMediaProviderAuthority"
+    sdks="R-ext,S-ext,T-ext,U-ext" />
+  <symbol
+    jar="framework-mediaprovider"
+    pattern="android.provider.MediaStore.notifyCloudMediaChangedEvent"
+    sdks="R-ext,S-ext,T-ext,U-ext" />
+
+  <!-- CONNECTIVITY -->
+  <symbol
+    jar="framework-connectivity"
+    pattern="android.net.http"
+    sdks="S-ext,T-ext,U-ext" />
+  <symbol
+    jar="framework-connectivity-t"
+    pattern="android.net.nsd"
+    sdks="T-ext,U-ext" />
+  <symbol
+    jar="framework-connectivity"
+    pattern="android.net.thread"
+    sdks="U-ext" />
+  <symbol
+    jar="framework-connectivity"
+    pattern="android.net"
+    sdks="U-ext" />
+
+  <!-- AD_SERVICES -->
+  <!--
+    Currently derive_sdk's database versions depend on both the dessert
+    extensions and the AD_SERVICES extensions, and technically
+    framework-adservices and framework-sdksandbox are part of the
+    AD_SERVICES-ext and T-ext SDKs, but this is an implementation detail we do
+    not want to expose. For this reason, only include AD_SERVICES-ext in the
+    list of SDKs.
+  -->
+  <symbol
+    jar="framework-adservices"
+    pattern="*"
+    sdks="AD_SERVICES-ext" />
+  <symbol
+    jar="framework-sdksandbox"
+    pattern="*"
+    sdks="AD_SERVICES-ext" />
+
+  <!-- HEALTH_FITNESS -->
+  <symbol
+    jar="framework-healthfitness"
+    pattern="android.health.connect.AggregateRecordsGroupedByDurationResponse.getDataOrigins"
+    sdks="U-ext" />
+
+  <symbol
+    jar="framework-healthfitness"
+    pattern="android.health.connect.AggregateRecordsGroupedByPeriodResponse.getDataOrigins"
+    sdks="U-ext" />
+
+  <symbol
+    jar="framework-healthfitness"
+    pattern="android.health.connect.datatypes.BloodPressureRecord.DIASTOLIC_AVG"
+    sdks="U-ext" />
+
+  <symbol
+    jar="framework-healthfitness"
+    pattern="android.health.connect.datatypes.BloodPressureRecord.DIASTOLIC_MAX"
+    sdks="U-ext" />
+
+  <symbol
+    jar="framework-healthfitness"
+    pattern="android.health.connect.datatypes.BloodPressureRecord.DIASTOLIC_MIN"
+    sdks="U-ext" />
+
+  <symbol
+    jar="framework-healthfitness"
+    pattern="android.health.connect.datatypes.BloodPressureRecord.SYSTOLIC_AVG"
+    sdks="U-ext" />
+
+  <symbol
+    jar="framework-healthfitness"
+    pattern="android.health.connect.datatypes.BloodPressureRecord.SYSTOLIC_MIN"
+    sdks="U-ext" />
+
+  <symbol
+    jar="framework-healthfitness"
+    pattern="android.health.connect.datatypes.BloodPressureRecord.SYSTOLIC_MAX"
+    sdks="U-ext" />
+
+  <symbol
+    jar="framework-healthfitness"
+    pattern="android.health.connect.datatypes.CyclingPedalingCadenceRecord.RPM_AVG"
+    sdks="U-ext" />
+
+  <symbol
+    jar="framework-healthfitness"
+    pattern="android.health.connect.datatypes.CyclingPedalingCadenceRecord.RPM_MAX"
+    sdks="U-ext" />
+
+  <symbol
+    jar="framework-healthfitness"
+    pattern="android.health.connect.datatypes.CyclingPedalingCadenceRecord.RPM_MIN"
+    sdks="U-ext" />
+
+  <symbol
+    jar="framework-healthfitness"
+    pattern="android.health.connect.datatypes.NutritionRecord.TRANS_FAT_TOTAL"
+    sdks="U-ext" />
+
+  <symbol
+    jar="framework-healthfitness"
+    pattern="android.health.connect.datatypes.SpeedRecord.SPEED_AVG"
+    sdks="U-ext" />
+
+  <symbol
+    jar="framework-healthfitness"
+    pattern="android.health.connect.datatypes.SpeedRecord.SPEED_MAX"
+    sdks="U-ext" />
+
+  <symbol
+    jar="framework-healthfitness"
+    pattern="android.health.connect.datatypes.SpeedRecord.SPEED_MIN"
+    sdks="U-ext" />
+
+  <symbol
+    jar="framework-healthfitness"
+    pattern="android.health.connect.datatypes.StepsCadenceRecord.STEPS_CADENCE_RATE_AVG"
+    sdks="U-ext" />
+
+  <symbol
+    jar="framework-healthfitness"
+    pattern="android.health.connect.datatypes.StepsCadenceRecord.STEPS_CADENCE_RATE_MAX"
+    sdks="U-ext" />
+
+  <symbol
+    jar="framework-healthfitness"
+    pattern="android.health.connect.datatypes.StepsCadenceRecord.STEPS_CADENCE_RATE_MIN"
+    sdks="U-ext" />
+
+</sdk-extensions-info>

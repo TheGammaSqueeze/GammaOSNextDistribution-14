@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".BottomSheetDialer">
+
+  <LinearLayout
+      android:id="@+id/dialerParentLayout"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:gravity="center_horizontal"
+      android:orientation="vertical"
+      app:layout_behavior="@string/bottom_sheet_behavior"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:paddingTop="15dp"
+        android:orientation="horizontal">
+
+      <TextView
+          android:id="@+id/dtmfInputTextView"
+          android:layout_width="250dp"
+          android:layout_height="50dp"
+          android:text="@string/dtmfInputPlaceholder"
+          android:layout_gravity="center_vertical"
+          android:layout_marginStart="15dp"
+          android:autoSizeTextType="uniform"/>
+
+      <View android:layout_width="0dp"
+          android:layout_height="match_parent"
+          android:layout_weight="1" />
+
+      <Button
+          android:id="@+id/clearDtmfInputButton"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:backgroundTint="@color/coral_red"
+          android:layout_gravity="center_vertical"
+          android:text="@string/clear_dtmf_input_button"
+          android:onClick="clearDtmfInputOnClick"
+          android:textColor="@color/black" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="15dp"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
+
+      <Button
+          android:id="@+id/dtmfButton1"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_margin="5dp"
+          style="?android:attr/buttonBarButtonStyle"
+          app:autoSizeTextType="uniform"
+          android:onClick="sendDtmfOnClick"
+          android:text="@string/dialer_button_1_text" />
+
+      <View android:layout_width="0dp"
+          android:layout_height="match_parent"
+          android:layout_weight="1" />
+
+      <Button
+          android:id="@+id/dtmfButton2"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_margin="5dp"
+          style="?android:attr/buttonBarButtonStyle"
+          app:autoSizeTextType="uniform"
+          android:onClick="sendDtmfOnClick"
+          android:text="@string/dialer_button_2_text" />
+
+      <View android:layout_width="0dp"
+          android:layout_height="match_parent"
+          android:layout_weight="1" />
+
+      <Button
+          android:id="@+id/dtmfButton3"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_margin="5dp"
+          style="?android:attr/buttonBarButtonStyle"
+          app:autoSizeTextType="uniform"
+          android:onClick="sendDtmfOnClick"
+          android:text="@string/dialer_button_3_text" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
+
+      <Button
+          android:id="@+id/dtmfButton4"
+          style="?android:attr/buttonBarButtonStyle"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_margin="5dp"
+          android:autoSizeTextType="uniform"
+          android:onClick="sendDtmfOnClick"
+          android:text="@string/dialer_button_4_text" />
+
+      <View android:layout_width="0dp"
+          android:layout_height="match_parent"
+          android:layout_weight="1" />
+
+      <Button
+          android:id="@+id/dtmfButton5"
+          style="?android:attr/buttonBarButtonStyle"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_margin="5dp"
+          android:autoSizeTextType="uniform"
+          android:onClick="sendDtmfOnClick"
+          android:text="@string/dialer_button_5_text" />
+
+      <View android:layout_width="0dp"
+          android:layout_height="match_parent"
+          android:layout_weight="1" />
+
+      <Button
+          android:id="@+id/dtmfButton6"
+          style="?android:attr/buttonBarButtonStyle"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_margin="5dp"
+          android:autoSizeTextType="uniform"
+          android:onClick="sendDtmfOnClick"
+          android:text="@string/dialer_button_6_text" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
+
+      <Button
+          android:id="@+id/dtmfButton7"
+          style="?android:attr/buttonBarButtonStyle"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_margin="5dp"
+          android:autoSizeTextType="uniform"
+          android:onClick="sendDtmfOnClick"
+          android:text="@string/dialer_button_7_text" />
+
+      <View android:layout_width="0dp"
+          android:layout_height="match_parent"
+          android:layout_weight="1" />
+
+      <Button
+          android:id="@+id/dtmfButton8"
+          style="?android:attr/buttonBarButtonStyle"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_margin="5dp"
+          android:autoSizeTextType="uniform"
+          android:onClick="sendDtmfOnClick"
+          android:text="@string/dialer_button_8_text" />
+
+      <View android:layout_width="0dp"
+          android:layout_height="match_parent"
+          android:layout_weight="1" />
+
+      <Button
+          android:id="@+id/dtmfButton9"
+          style="?android:attr/buttonBarButtonStyle"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_margin="5dp"
+          android:autoSizeTextType="uniform"
+          android:onClick="sendDtmfOnClick"
+          android:text="@string/dialer_button_9_text" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
+
+      <Button
+          android:id="@+id/dtmfStarButton"
+          style="?android:attr/buttonBarButtonStyle"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_margin="5dp"
+          android:autoSizeTextType="uniform"
+          android:onClick="sendDtmfOnClick"
+          android:text="@string/dialer_button_star_text" />
+
+      <View android:layout_width="0dp"
+          android:layout_height="match_parent"
+          android:layout_weight="1" />
+
+      <Button
+          android:id="@+id/dtmfButton0"
+          style="?android:attr/buttonBarButtonStyle"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_margin="5dp"
+          android:autoSizeTextType="uniform"
+          android:onClick="sendDtmfOnClick"
+          android:text="@string/dialer_button_0_text" />
+
+      <View android:layout_width="0dp"
+          android:layout_height="match_parent"
+          android:layout_weight="1" />
+
+      <Button
+          android:id="@+id/dtmfPoundButton"
+          style="?android:attr/buttonBarButtonStyle"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_margin="5dp"
+          android:autoSizeTextType="uniform"
+          android:onClick="sendDtmfOnClick"
+          android:text="@string/dialer_button_pound_text" />
+
+    </LinearLayout>
+
+  </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

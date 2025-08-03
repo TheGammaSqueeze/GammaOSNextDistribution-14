@@ -1,0 +1,117 @@
+//
+// Copyright (C) 2019 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_team: "trendy_team_fwk_core_networking",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_sdk_library {
+    name: "framework-tethering",
+    defaults: [
+        "framework-tethering-defaults",
+    ],
+    impl_library_visibility: [
+        "//packages/modules/Connectivity/Tethering:__subpackages__",
+        "//packages/modules/Connectivity/framework",
+        "//packages/modules/Connectivity/framework-t",
+        "//packages/modules/Connectivity/service",
+        "//packages/modules/Connectivity/service-t",
+
+        // Using for test only
+        "//cts/tests/netlegacy22.api",
+        "//external/sl4a:__subpackages__",
+        "//frameworks/base/core/tests/bandwidthtests",
+        "//frameworks/base/core/tests/benchmarks",
+        "//frameworks/base/core/tests/utillib",
+        "//frameworks/base/services/tests/VpnTests",
+        "//frameworks/base/tests/vcn",
+        "//frameworks/opt/telephony/tests/telephonytests",
+        "//packages/modules/CaptivePortalLogin/tests",
+        "//packages/modules/Connectivity/staticlibs/testutils",
+        "//packages/modules/Connectivity/staticlibs/tests:__subpackages__",
+        "//packages/modules/Connectivity/Tethering/tests:__subpackages__",
+        "//packages/modules/Connectivity/tests:__subpackages__",
+        "//packages/modules/Connectivity/thread/tests:__subpackages__",
+        "//packages/modules/IPsec/tests/iketests",
+        "//packages/modules/NetworkStack/tests:__subpackages__",
+        "//packages/modules/Wifi/service/tests/wifitests",
+    ],
+    stub_only_libs: ["framework-connectivity.stubs.module_lib"],
+
+    jarjar_rules: ":framework-tethering-jarjar-rules",
+    installable: true,
+
+    hostdex: true, // for hiddenapi check
+    permitted_packages: ["android.net"],
+    lint: {
+        strict_updatability_linting: true,
+    },
+    aconfig_declarations: [
+        "com.android.net.flags-aconfig",
+    ],
+}
+
+java_library {
+    name: "framework-tethering-pre-jarjar",
+    defaults: [
+        "framework-tethering-defaults",
+    ],
+}
+
+java_genrule {
+    name: "framework-tethering-jarjar-rules",
+    tool_files: [
+        ":framework-tethering-pre-jarjar{.jar}",
+        ":framework-tethering.stubs.module_lib{.jar}",
+        "jarjar-excludes.txt",
+    ],
+    tools: [
+        "jarjar-rules-generator",
+    ],
+    out: ["framework_tethering_jarjar_rules.txt"],
+    cmd: "$(location jarjar-rules-generator) " +
+        "$(location :framework-tethering-pre-jarjar{.jar}) " +
+        "--apistubs $(location :framework-tethering.stubs.module_lib{.jar}) " +
+        "--prefix android.net.http.internal " +
+        "--excludes $(location jarjar-excludes.txt) " +
+        "--output $(out)",
+}
+
+java_defaults {
+    name: "framework-tethering-defaults",
+    defaults: ["framework-module-defaults"],
+    srcs: [
+        ":framework-tethering-srcs",
+    ],
+    libs: ["framework-connectivity.stubs.module_lib"],
+    aidl: {
+        include_dirs: [
+            "packages/modules/Connectivity/framework/aidl-export",
+        ],
+    },
+    apex_available: ["com.android.tethering"],
+    min_sdk_version: "30",
+}
+
+filegroup {
+    name: "framework-tethering-srcs",
+    defaults: ["framework-sources-module-defaults"],
+    srcs: [
+        "src/**/*.aidl",
+        "src/**/*.java",
+    ],
+    path: "src",
+}

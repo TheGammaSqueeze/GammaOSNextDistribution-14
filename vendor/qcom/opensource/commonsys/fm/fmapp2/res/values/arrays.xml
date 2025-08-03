@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (c) 2009, 2011-2014 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2014-2015 The CyanogenMod Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *    * Neither the name of The Linux Foundation nor
+ *      the names of its contributors may be used to endorse or promote
+ *      products derived from this software without specific prior written
+ *      permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NON-INFRINGEMENT ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<resources>
+
+  <string-array name="ster_mon_entries">
+    <item>Stereo</item>
+    <item>Mono</item>
+  </string-array>
+
+  <string-array name="ster_mon_values" translatable="false">
+    <item>0</item>
+    <item>1</item>
+  </string-array>
+
+  <string-array name="ster_entries">
+    <item>Stereo</item>
+  </string-array>
+
+  <string-array name="ster_values" translatable="false">
+    <item>0</item>
+  </string-array>
+
+  <string-array name="record_durations_entries">
+    <item>5 minutes</item>
+    <item>15 minutes</item>
+    <item>30 minutes</item>
+    <item>Until stopped</item>
+  </string-array>
+
+  <string-array name="record_duration_values" translatable="false">
+    <item>5</item>
+    <item>15</item>
+    <item>30</item>
+    <item>-1</item>
+  </string-array>
+
+  <string-array name="sleep_duration_values">
+    <item>15 minutes</item>
+    <item>30 minutes</item>
+    <item>45 minutes</item>
+    <item>1 hour</item>
+  </string-array>
+
+  <string-array name="search_category_rbds_entries" translatable="false">
+    <item>@string/typ_All_stations</item>
+    <item>@string/typ_Adult_hits</item>
+    <item>@string/typ_Classical</item>
+    <item>@string/typ_Classic_Rock</item>
+    <item>@string/typ_College</item>
+    <item>@string/typ_Country</item>
+    <item>@string/typ_Emergency</item>
+    <item>@string/typ_Emergency_test</item>
+    <item>@string/typ_Foreign_language</item>
+    <item>@string/typ_Information</item>
+    <item>@string/typ_Jazz</item>
+    <item>@string/typ_News</item>
+    <item>@string/typ_Nostalgia</item>
+    <item>@string/typ_Oldies</item>
+    <item>@string/typ_Personality</item>
+    <item>@string/typ_Public</item>
+    <item>@string/typ_Religious_music</item>
+    <item>@string/typ_Religious_talk</item>
+    <item>@string/typ_Rhythm_and_Blues</item>
+    <item>@string/typ_Rock</item>
+    <item>@string/typ_Soft</item>
+    <item>@string/typ_Soft_Rock</item>
+    <item>@string/typ_Soft_Rhythm_and_Blues</item>
+    <item>@string/typ_Sports</item>
+    <item>@string/typ_Talk</item>
+    <item>@string/typ_Top_40</item>
+    <item>@string/typ_Weather</item>
+  </string-array>
+
+  <string-array name="search_category_rbds_values" translatable="false">
+    <item>0</item>
+    <item>7</item>
+    <item>15</item>
+    <item>6</item>
+    <item>23</item>
+    <item>10</item>
+    <item>31</item>
+    <item>30</item>
+    <item>18</item>
+    <item>2</item>
+    <item>14</item>
+    <item>1</item>
+    <item>13</item>
+    <item>11</item>
+    <item>21</item>
+    <item>22</item>
+    <item>19</item>
+    <item>20</item>
+    <item>16</item>
+    <item>5</item>
+    <item>12</item>
+    <item>8</item>
+    <item>17</item>
+    <item>3</item>
+    <item>4</item>
+    <item>9</item>
+    <item>29</item>
+  </string-array>
+
+  <string-array name="search_category_rds_entries" translatable="false">
+    <item>@string/typ_All_stations</item>
+    <item>@string/typ_Culture</item>
+    <item>@string/typ_Current_affairs</item>
+    <item>@string/typ_Children</item>
+    <item>@string/typ_Country</item>
+    <item>@string/typ_Documentary</item>
+    <item>@string/typ_Drama</item>
+    <item>@string/typ_Easy_listening</item>
+    <item>@string/typ_Education</item>
+    <item>@string/typ_Emergency</item>
+    <item>@string/typ_Emergency_test</item>
+    <item>@string/typ_Finance</item>
+    <item>@string/typ_Folk</item>
+    <item>@string/typ_Information</item>
+    <item>@string/typ_Jazz</item>
+    <item>@string/typ_Light_classical</item>
+    <item>@string/typ_Leisure</item>
+    <item>@string/typ_News</item>
+    <item>@string/typ_National</item>
+    <item>@string/typ_Other</item>
+    <item>@string/typ_Oldies</item>
+    <item>@string/typ_Phone_in</item>
+    <item>@string/typ_Pop</item>
+    <item>@string/typ_Religion</item>
+    <item>@string/typ_Rock</item>
+    <item>@string/typ_Science</item>
+    <item>@string/typ_Serious_classical</item>
+    <item>@string/typ_Social_affairs</item>
+    <item>@string/typ_Sport</item>
+    <item>@string/typ_Travel</item>
+    <item>@string/typ_Varied</item>
+    <item>@string/typ_Weather</item>
+  </string-array>
+
+  <string-array name="search_category_rds_values" translatable="false">
+    <item>0</item>
+    <item>7</item>
+    <item>2</item>
+    <item>18</item>
+    <item>25</item>
+    <item>29</item>
+    <item>6</item>
+    <item>12</item>
+    <item>5</item>
+    <item>31</item>
+    <item>30</item>
+    <item>17</item>
+    <item>28</item>
+    <item>3</item>
+    <item>24</item>
+    <item>13</item>
+    <item>23</item>
+    <item>1</item>
+    <item>26</item>
+    <item>15</item>
+    <item>27</item>
+    <item>21</item>
+    <item>10</item>
+    <item>20</item>
+    <item>11</item>
+    <item>8</item>
+    <item>14</item>
+    <item>19</item>
+    <item>4</item>
+    <item>22</item>
+    <item>9</item>
+    <item>16</item>
+  </string-array>
+
+  <string-array name="regional_band_entries" translatable="false">
+    <item>@string/regional_band_entry_north_america</item>
+    <item>@string/regional_band_entry_europe</item>
+    <item>@string/regional_band_entry_japan</item>
+    <item>@string/regional_band_entry_japan_wide</item>
+    <item>@string/regional_band_entry_australia</item>
+    <item>@string/regional_band_entry_austria</item>
+    <item>@string/regional_band_entry_belgium</item>
+    <item>@string/regional_band_entry_brazil</item>
+    <item>@string/regional_band_entry_china</item>
+    <item>@string/regional_band_entry_czech_republic</item>
+    <item>@string/regional_band_entry_denmark</item>
+    <item>@string/regional_band_entry_finland</item>
+    <item>@string/regional_band_entry_france</item>
+    <item>@string/regional_band_entry_germany</item>
+    <item>@string/regional_band_entry_greece</item>
+    <item>@string/regional_band_entry_hong_kong</item>
+    <item>@string/regional_band_entry_india</item>
+    <item>@string/regional_band_entry_ireland</item>
+    <item>@string/regional_band_entry_italy</item>
+    <item>@string/regional_band_entry_korea</item>
+    <item>@string/regional_band_entry_mexico</item>
+    <item>@string/regional_band_entry_netherlands</item>
+    <item>@string/regional_band_entry_new_zealand</item>
+    <item>@string/regional_band_entry_norway</item>
+    <item>@string/regional_band_entry_poland</item>
+    <item>@string/regional_band_entry_portugal</item>
+    <item>@string/regional_band_entry_russia</item>
+    <item>@string/regional_band_entry_singapore</item>
+    <item>@string/regional_band_entry_slovakia</item>
+    <item>@string/regional_band_entry_spain</item>
+    <item>@string/regional_band_entry_switzerland</item>
+    <item>@string/regional_band_entry_sweden</item>
+    <item>@string/regional_band_entry_taiwan</item>
+    <item>@string/regional_band_entry_turkey</item>
+    <item>@string/regional_band_entry_united_kingdom</item>
+    <item>@string/regional_band_entry_united_states</item>
+    <item>@string/regional_band_entry_user_defined</item>
+    <item>@string/regional_band_entry_indonesia</item>
+  </string-array>
+
+  <string-array name="regional_band_values" translatable="false">
+    <item>0</item>
+    <item>1</item>
+    <item>2</item>
+    <item>3</item>
+    <item>4</item>
+    <item>5</item>
+    <item>6</item>
+    <item>7</item>
+    <item>8</item>
+    <item>9</item>
+    <item>10</item>
+    <item>11</item>
+    <item>12</item>
+    <item>13</item>
+    <item>14</item>
+    <item>15</item>
+    <item>16</item>
+    <item>17</item>
+    <item>18</item>
+    <item>19</item>
+    <item>20</item>
+    <item>21</item>
+    <item>22</item>
+    <item>23</item>
+    <item>24</item>
+    <item>25</item>
+    <item>26</item>
+    <item>27</item>
+    <item>28</item>
+    <item>29</item>
+    <item>30</item>
+    <item>31</item>
+    <item>32</item>
+    <item>33</item>
+    <item>34</item>
+    <item>35</item>
+    <item>36</item>
+    <item>37</item>
+  </string-array>
+
+  <string-array name="regional_band_summary" translatable="false">
+    <item>@string/regional_band_summary_north_america</item>
+    <item>@string/regional_band_summary_europe</item>
+    <item>@string/regional_band_summary_japan</item>
+    <item>@string/regional_band_summary_japan_wide</item>
+    <item>@string/regional_band_summary_australia</item>
+    <item>@string/regional_band_summary_austria</item>
+    <item>@string/regional_band_summary_belgium</item>
+    <item>@string/regional_band_summary_brazil</item>
+    <item>@string/regional_band_summary_china</item>
+    <item>@string/regional_band_summary_czech_republic</item>
+    <item>@string/regional_band_summary_denmark</item>
+    <item>@string/regional_band_summary_finland</item>
+    <item>@string/regional_band_summary_france</item>
+    <item>@string/regional_band_summary_germany</item>
+    <item>@string/regional_band_summary_greece</item>
+    <item>@string/regional_band_summary_hong_kong</item>
+    <item>@string/regional_band_summary_india</item>
+    <item>@string/regional_band_summary_ireland</item>
+    <item>@string/regional_band_summary_italy</item>
+    <item>@string/regional_band_summary_korea</item>
+    <item>@string/regional_band_summary_mexico</item>
+    <item>@string/regional_band_summary_netherlands</item>
+    <item>@string/regional_band_summary_new_zealand</item>
+    <item>@string/regional_band_summary_norway</item>
+    <item>@string/regional_band_summary_poland</item>
+    <item>@string/regional_band_summary_portugal</item>
+    <item>@string/regional_band_summary_russia</item>
+    <item>@string/regional_band_summary_singapore</item>
+    <item>@string/regional_band_summary_slovakia</item>
+    <item>@string/regional_band_summary_spain</item>
+    <item>@string/regional_band_summary_switzerland</item>
+    <item>@string/regional_band_summary_sweden</item>
+    <item>@string/regional_band_summary_taiwan</item>
+    <item>@string/regional_band_summary_turkey</item>
+    <item>@string/regional_band_summary_united_kingdom</item>
+    <item>@string/regional_band_summary_united_states</item>
+    <item>@string/regional_band_summary_user_defined</item>
+    <item>@string/regional_band_summary_indonesia</item>
+  </string-array>
+
+  <string-array name="channel_spacing_val" translatable="false">
+      <item>2</item>
+      <item>1</item>
+      <item>0</item>
+  </string-array>
+
+  <string-array name="channel_spacing_entries">
+      <item>50 kHz</item>
+      <item>100 kHz</item>
+      <item>200 kHz</item>
+  </string-array>
+
+</resources>

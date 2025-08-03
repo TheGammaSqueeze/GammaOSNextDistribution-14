@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="storage_check_fragment_backup_error">Wystąpił błąd podczas uzyskiwania dostępu do lokalizacji kopii zapasowej.</string>
+    <string name="storage_check_fragment_restore_title">Szukanie kopii zapasowych…</string>
+    <string name="storage_check_fragment_backup_title">Inicjowanie lokalizacji kopii zapasowej…</string>
+    <string name="storage_fake_nextcloud_summary_installed">Stuknij, aby skonfigurować konto</string>
+    <string name="storage_fake_nextcloud_summary">Stuknij, aby zainstalować</string>
+    <string name="storage_fragment_backup_title">Wybierz miejsce przechowywania kopii zapasowych</string>
+    <string name="settings_backup_now">Utwórz kopię zapasową teraz</string>
+    <string name="settings_backup_exclude_apps">Wyklucz aplikacje</string>
+    <string name="settings_backup_status_summary">Ostatnia kopia zapasowa: %1$s</string>
+    <string name="settings_backup_apk_dialog_disable">Wyłączanie tworzenia kopii zapasowych aplikacji</string>
+    <string name="settings_backup_apk_dialog_cancel">Anuluj</string>
+    <string name="settings_backup_apk_dialog_title">Naprawdę wyłączyć kopię zapasową aplikacji\?</string>
+    <string name="settings_backup_apk_title">Kopia zapasowa aplikacji</string>
+    <string name="settings_category_app_data_backup">Kopia zapasowa danych aplikacji</string>
+    <string name="settings_auto_restore_summary">Podczas ponownej instalacji aplikacji przywróć ustawienia i dane z kopii zapasowej.</string>
+    <string name="settings_auto_restore_title">Automatyczne przywracanie</string>
+    <string name="settings_info">Wszystkie kopie zapasowe w telefonie są zaszyfrowane. Aby przywrócić dane z kopii zapasowej, będziesz potrzebować 12-słowowego kodu odzyskiwania.</string>
+    <string name="settings_backup_last_backup_never">Nigdy</string>
+    <string name="settings_backup_location_internal">Pamięć wewnętrzna</string>
+    <string name="settings_backup_location_none">Brak</string>
+    <string name="settings_backup_location">Lokalizacja kopii zapasowych</string>
+    <string name="settings_backup">Tworzenie kopii zapasowej aplikacji</string>
+    <string name="restore_backup_button">Przywróć kopię zapasową</string>
+    <string name="storage_fake_drive_summary">Musi być podłączona</string>
+    <string name="storage_fake_drive_title">Pamięć USB</string>
+    <string name="storage_fragment_restore_title">Gdzie znaleźć kopie zapasowe\?</string>
+    <string name="settings_backup_apk_summary">Utwórz kopie zapasowe aplikacji. W przeciwnym razie utworzona zostanie kopia zapasowa tylko danych aplikacji.</string>
+    <string name="settings_auto_restore_summary_usb">Uwaga: Twój %1$s musi być podłączony, aby to zadziałało.</string>
+    <string name="backup">Kopia zapasowa</string>
+    <string name="settings_backup_status_title">Status kopii zapasowej</string>
+    <string name="settings_backup_apk_dialog_message">Wyłączona kopia zapasowa aplikacji w dalszym ciągu zapisuje kopie danych aplikacji. Nie przywróci ich jednak automatycznie.
+\n
+\nBędziesz musiał ręcznie zainstalować wszystkie swoje aplikacje jednocześnie mając funkcję \"Przywracania Automatycznego\" włączoną.</string>
+    <string name="current_destination_string">Kopia zapasowa statusu i ustawień</string>
+    <string name="data_management_label">Kopia zapasowa Seedvault</string>
+    <string name="recovery_code_verification_new_dialog_message">Wygenerowanie nowego kodu sprawi, że istniejące kopie zapasowe przestaną być dostępne. Spróbujemy je usunąć, jeśli będzie to możliwe.
+\n
+\nCzy na pewno chcesz to zrobić\?</string>
+    <string name="recovery_code_verification_new_dialog_title">Poczekaj sekundę…</string>
+    <string name="recovery_code_verification_generate_new">Wygeneruj nowy kod</string>
+    <string name="recovery_code_verification_try_again">Spróbuj ponownie</string>
+    <string name="recovery_code_verification_error_message">Wprowadzono nieprawidłowy kod przywracania. Spróbuj ponownie!
+\n
+\nJeśli nie pamiętasz kodu, dotknij „Wygeneruj nowy kod” poniżej.</string>
+    <string name="recovery_code_verification_error_title">Nieprawidłowy kod przywracania</string>
+    <string name="recovery_code_verification_ok_message">Twój kod jest prawidłowy i będzie działał przy przywracaniu kopii zapasowej.</string>
+    <string name="recovery_code_verification_ok_title">Zweryfikowano kod przywracania</string>
+    <string name="recovery_code_error_checksum_word">Twój kod jest nieprawidłowy. Sprawdź wszystkie słowa, ich pozycje i spróbuj ponownie!</string>
+    <string name="recovery_code_error_invalid_word">Nieprawidłowe słowo.</string>
+    <string name="recovery_code_error_empty_word">Nie wpisano tego słowa.</string>
+    <string name="recovery_code_input_hint_12">Słowo 12</string>
+    <string name="recovery_code_input_hint_11">Słowo 11</string>
+    <string name="recovery_code_input_hint_10">Słowo 10</string>
+    <string name="recovery_code_input_hint_9">Słowo 9</string>
+    <string name="recovery_code_input_hint_8">Słowo 8</string>
+    <string name="recovery_code_input_hint_7">Słowo 7</string>
+    <string name="recovery_code_input_hint_6">Słowo 6</string>
+    <string name="recovery_code_input_hint_5">Słowo 5</string>
+    <string name="recovery_code_input_hint_4">Słowo 4</string>
+    <string name="recovery_code_input_hint_3">Słowo 3</string>
+    <string name="recovery_code_input_hint_2">Słowo 2</string>
+    <string name="recovery_code_input_hint_1">Słowo 1</string>
+    <string name="recovery_code_done_button">Weryfikuj</string>
+    <string name="recovery_code_input_intro">Wprowadź swój kod przywracania składający się z 12 słów, zapisany podczas konfigurowania kopii zapasowej.</string>
+    <string name="recovery_code_confirm_intro">Wprowadź swód kod przywracania składający się z 12 słów, aby upewnić się, że będzie on działał, gdy będziesz go potrzebować.</string>
+    <string name="recovery_code_confirm_button">Potwierdź kod</string>
+    <string name="recovery_code_write_it_down">Zapisz je teraz na kartce!</string>
+    <string name="recovery_code_12_word_intro">Potrzebujesz swojego kodu przywracania składającego się z 12 słów, aby przywrócić zapisane dane.</string>
+    <string name="recovery_code_title">Kod przywracania</string>
+    <string name="storage_check_fragment_error_button">Wróć</string>
+    <string name="storage_check_fragment_permission_error">Nie udało się uzyskać pozwolenia na zapis w lokalizacji kopii zapasowej.</string>
+    <string name="storage_available_bytes"><xliff:g example="1 GB" id="size">%1$s</xliff:g> wolne</string>
+    <string name="storage_fragment_warning">Osoby z dostępem do pamięci mogą dowiedzieć się, jakich aplikacji używasz, ale nie uzyskają dostępu do danych aplikacji.</string>
+    <string name="settings_backup_recovery_code_summary">Weryfikuj istniejący kod lub wygeneruj nowy</string>
+    <string name="settings_backup_recovery_code">Kod odzyskiwania</string>
+    <string name="about_version">Wersja: %s</string>
+    <string name="restore_restoring_error_message">Możesz zainstalować te aplikacje ręcznie, a Automatyczne przywracanie spróbuje przywrócić ich dane (jeżeli włączone).</string>
+    <string name="restore_restoring_error_title">Nie udało się przywrócić niektórych aplikacji</string>
+    <string name="restore_installing_tap_to_install">Dotknij, aby zainstalować</string>
+    <string name="restore_installing_error_message">Dane mogą być przywrócone tylko jeżeli aplikacja jest zainstalowana.
+\n
+\nNaciśnij na nieudane aplikacje, aby spróbować zainstalować je ręcznie, zanim przejdziesz dalej.</string>
+    <string name="restore_installing_error_title">Nie zainstalowano niektórych aplikacji</string>
+    <string name="restore_set_empty_result">Nie znaleziono pasujących kopii zapasowych w podanej lokalizacji.
+\n
+\nPrawdopodobnie jest to związane z brakiem kodu przywracania lub błędem pamięci.</string>
+    <string name="backup_section_not_allowed">Aplikacje, które nie pozwalają na kopię zapasową danych</string>
+    <string name="backup_app_quota_exceeded">Przekroczono powierzchnię na kopie zapasowe</string>
+    <string name="backup_app_no_data">Aplikacja zgłosiła brak danych do zachowania</string>
+    <string name="restore_app_was_stopped">Nie utworzono kopii zapasowej, ponieważ ostatnio nie używano</string>
+    <string name="backup_app_was_stopped">Nie utworzono kopii zapasowej, ponieważ ostatnio nie używano</string>
+    <string name="restore_app_not_yet_backed_up">Nie utworzono jeszcze kopii zapasowej</string>
+    <string name="backup_app_not_yet_backed_up">Oczekiwanie na kopię zapasową…</string>
+    <string name="backup_section_user">Zainstalowane aplikacje</string>
+    <string name="backup_contacts">Lokalne kontakty</string>
+    <string name="backup_call_log">Historia połączeń</string>
+    <string name="backup_settings">Ustawienia urządzenia</string>
+    <string name="backup_sms">Wiadomości tekstowe SMS</string>
+    <string name="backup_section_system">Aplikacje systemowe</string>
+    <string name="notification_success_text">Skopiowano %1$d z %2$d aplikacji (%3$s). Naciśnij, aby dowiedzieć się więcej.</string>
+    <string name="notification_backup_already_running">Kopia zapasowa jest już tworzona</string>
+    <string name="storage_fake_nextcloud_summary_unavailable">Konto nie jest dostępne. Skonfiguruj jakieś (lub wyłącz hasło).</string>
+    <string name="about_summary">Aplikacja do tworzenia kopii zapasowych wykorzystująca wewnętrzny interfejs API systemu Android. To Wolne Oprogramowanie, wydane na licencji Apache 2.
+\n
+\nJak każde oprogramowanie, Seedvault może zawierać błędy i luki w zabezpieczeniach.</string>
+    <string name="about_title">Informacje</string>
+    <string name="storage_internal_warning_use_anyway">Użyj mimo tego</string>
+    <string name="storage_internal_warning_choose_other">Wybierz inną</string>
+    <string name="storage_internal_warning_message">Wybrano pamięć wewnętrzną dla kopii zapasowej. Nie będzie ona dostępna, gdy zgubisz lub uszkodzisz telefon.</string>
+    <string name="storage_internal_warning_title">Ostrzeżenie</string>
+    <string name="restore_finished_button">Zakończ</string>
+    <string name="restore_finished_error">Wystąpił błąd podczas przywracania kopii zapasowej.</string>
+    <string name="restore_finished_success">Zakończono przywracanie</string>
+    <string name="restore_magic_package">Menedżer pakietów systemu</string>
+    <string name="restore_restoring">Przywracanie kopii zapasowej</string>
+    <string name="restore_next">Dalej</string>
+    <string name="restore_installing_packages">Ponowna instalacja aplikacja</string>
+    <string name="restore_set_error">Wystąpił błąd podczas ładowania kopii zapasowych.</string>
+    <string name="restore_invalid_location_message">Nie udało się znaleźć żadnych kopii zapasowych w tym miejscu.
+\n
+\nWybierz inne położenie, które zawiera katalog %s.</string>
+    <string name="restore_invalid_location_title">Nie odnaleziono kopii zapasowych</string>
+    <string name="restore_skip">Nie przywracaj</string>
+    <string name="restore_restore_set_times">Ostatnia kopia zapasowa %1$s · Pierwsza %2$s.</string>
+    <string name="restore_choose_restore_set">Wybierz kopię zapasową do przywrócenia</string>
+    <string name="restore_title">Przywróć z kopii zapasowej</string>
+    <string name="restore_app_not_installed">Nie zainstalowano aplikacji</string>
+    <string name="restore_app_quota_exceeded">Przekroczono przestrzeń na kopię zapasową</string>
+    <string name="restore_app_not_allowed">Aplikacja nie zezwoliła na kopię zapasową</string>
+    <string name="notification_restore_error_action">Odinstaluj aplikację</string>
+    <string name="notification_restore_error_text">Podłącz %1$s przed instalacją aplikacji, aby przywrócić jej dane z kopii zapasowej.</string>
+    <string name="notification_restore_error_title">Nie udało się przywrócić danych dla %1$s</string>
+    <string name="notification_restore_error_channel_title">Błąd automatycznego przywracania pamięci flash</string>
+    <string name="notification_error_action">Napraw</string>
+    <string name="notification_error_text">Nie udało się uruchomić kopii zapasowej urządzenia.</string>
+    <string name="notification_error_title">Błąd kopii zapasowej</string>
+    <string name="notification_error_channel_title">Powiadomienie o błędzie</string>
+    <string name="notification_failed_title">Kopia zapasowa nie powiodła się</string>
+    <string name="notification_success_title">Ukończono kopię zapasową</string>
+    <string name="notification_title">Trwa kopia zapasowa</string>
+    <string name="notification_channel_title">Powiadomienie o kopii zapasowej</string>
+    <string name="recovery_code_recreated">Pomyślnie utworzono nowy kod przywracania</string>
+    <string name="settings_category_apps">Kopia zapasowa aplikacji</string>
+    <string name="settings_backup_storage_dialog_message">Tworzenie kopii zapasowych plików jest w wersji beta i może nie działać. Nie należy na niej polegać w przypadku ważnych danych.</string>
+    <string name="settings_backup_files_title">Dodane pliki i foldery</string>
+    <string name="settings_category_storage">Kopia zapasowa pamięci masowej (beta)</string>
+    <string name="settings_backup_storage_title">Kopia zapasowa plików</string>
+    <string name="settings_backup_files_summary">Żadne</string>
+    <string name="settings_backup_storage_dialog_title">Funkcja w wersji beta</string>
+    <string name="settings_backup_storage_dialog_ok">Włącz mimo wszystko</string>
+    <string name="settings_backup_storage_battery_optimization">Uwaga: Brak automatycznych kopii zapasowych, ponieważ optymalizacja baterii jest włączona.</string>
+    <string name="settings_backup_new_code_dialog_title">Wymagany nowy kod odzyskiwania</string>
+    <string name="settings_backup_new_code_dialog_message">Aby dalej używać kopii zapasowych aplikacji należy wygenerować nowy kod odzyskiwania.
+\n
+\nPrzepraszamy za niedogodności.</string>
+    <string name="settings_backup_new_code_code_dialog_ok">Nowy kod</string>
+    <string name="restore_app_status_install_error">Nie można zainstalować</string>
+    <string name="restore_app_status_restored">Przywrócone dane</string>
+    <string name="restore_app_status_failed">Przywracanie nie powiodło się</string>
+    <string name="error_no_store">Błąd: Nie zainstalowano sklepu z aplikacjami</string>
+    <string name="restore_storage_in_progress_title">Pliki są przywracane…</string>
+    <string name="settings_expert_title">Ustawienia eksportu</string>
+    <string name="restore_skip_apps">Pomiń odzyskiwanie aplikacji</string>
+    <string name="notification_backup_disabled">Kopia zapasowa nie jest włączona</string>
+    <string name="restore_app_status_installing">Instalowanie ponownie</string>
+    <string name="restore_app_status_installed">Zainstaluj ponownie</string>
+    <string name="storage_fragment_warning_delete">Istniejące kopie zapasowe w tym położeniu zostaną usunięte.</string>
+    <string name="storage_not_recommended"><xliff:g example="Skynet">%1$s</xliff:g> (Nie zalecane)</string>
+    <string name="storage_fake_nextcloud_summary_unavailable_market">Nie zainstalowano</string>
+    <string name="storage_check_fragment_patience">Może to zająć trochę czasu…</string>
+    <string name="recovery_code_auth_title">Wprowadź ponownie swój kod odblokowywania</string>
+    <string name="notification_error_no_main_key_title">Kopie zapasowe wyłączone</string>
+    <string name="notification_error_no_main_key_text">Wygeneruj nowy kod odzyskiwania, aby zakończyć aktualizację i kontynuować używanie kopii zapasowych.</string>
+    <string name="backup_app_in_progress">Tworzenie kopii zapasowej</string>
+    <string name="backup_app_success">Utworzono kopię zapasową</string>
+    <string name="backup_app_warning">Ostrzeżenie o kopii zapasowej</string>
+    <string name="restore_app_status_warning">Ostrzeżenie o przywracaniu</string>
+    <string name="restore_storage_skip">Pomiń odzyskiwanie plików</string>
+    <string name="settings_backup_dialog_title">Na pewno wyłączyć kopie zapasowe aplikacji\?</string>
+    <string name="settings_backup_dialog_disable">Wyłącz mimo to</string>
+    <string name="settings_expert_quota_title">Nieograniczona liczba aplikacji</string>
+    <string name="settings_expert_logcat_title">Zapisz dziennik aplikacji</string>
+    <string name="settings_expert_logcat_error">Błąd: Nie można zapisać dziennika aplikacji</string>
+    <string name="storage_user_selected_location_title">Lokalizacja wybrana przez użytkownika</string>
+    <string name="restore_storage_got_it">Zrozumiano</string>
+    <string name="restore_storage_choose_snapshot">Wybierz kopię zapasową do przywrócenia (beta)</string>
+    <string name="restore_storage_in_progress_info">Twoje pliki są przywracanę w tle. Możesz używać telefonu w trakcie przywracania.
+\n
+\nNiektóre aplikacje (np. Signal czy WhatsApp) mogę wymagać by pliki były w pełni przywrócona aby zaimportować kopię zapasową. Postaraj się nie włączć tych aplikacji przed zakończeniem przywracania.</string>
+    <string name="about_contributor_headline">Współautorzy</string>
+    <string name="settings_backup_dialog_message">Kiedy ponownie włączysz kopię zapasową, proces kopiowanie może zająć więcej czasu niż zwykle, oraz wykożystać dodatkową przestrzeń na dysku.</string>
+    <string name="settings_expert_quota_summary">Nie limituj wielkości kopi zapasowej aplikacji.
+\n
+\nUwaga: Ta opcja może w krótkim czasie zapełnić miejsce na dysku. Niepotrzebne większości aplikacji.</string>
+    <string name="storage_fake_davx5_summary_installed">Dotknij, aby ustawić punkt montażu WebDAV</string>
+    <string name="storage_fake_davx5_summary_unavailable">Punkt montażu WebDAV niedostępny. Ustaw go.</string>
+    <string name="settings_expert_logcat_summary">Deweloperzy mogą zdiagnozować błędy za pomocą informacji zawartych w raportach błędów.
+\n
+\nUwaga: Plik z raportem błędów może zawierać informacje na podstawie których można cię zidentyfikować. Zapoznaj się z nim i usuń go gdy nie będzie ci już potrzebny!</string>
+    <string name="recovery_code_auth_description">Wprowadź informacje swojego urządzenia aby kontynuować</string>
+    <string name="settings_backup_status_next_backup_usb">Kopie zapasowe będą tworzone automatycznie po podłączeniu dysku USB</string>
+    <string name="settings_backup_status_next_backup_past">po spełnieniu warunków</string>
+    <string name="settings_backup_scheduling_title">Harmonogram tworzenia kopii zapasowych</string>
+    <string name="about_contributor_content">Wejdź na stronę GitHuba <a href="https://github.com/seedvault-app/seedvault/graphs/contributors">lista współautorów</a>.</string>
+    <string name="about_contributing_organizations_content"><a href="https://www.calyxinstitute.org">Calyx Institute</a>do użytku w<a href="https://calyxos.org">CalyxOS</a>
+\n<a href="https://nlnet.nl/project/Seedvault/">NGI0 PET sfinansowany przez NLnet</a></string>
+    <string name="about_contributing_organizations_title">Organizacje współpracujące</string>
+    <string name="settings_backup_status_next_backup">Kolejna kopia zapasowa: %1$s</string>
+    <string name="settings_backup_status_next_backup_estimate">Kolejna kopia zapasowa (szacunkowo):%1$s</string>
+    <string name="settings_scheduling_frequency_title">Częstotliwość tworzenia kopii zapasowych</string>
+    <string name="settings_scheduling_frequency_12_hours">Co 12 godzin</string>
+    <string name="settings_scheduling_frequency_daily">Codziennie</string>
+    <string name="settings_scheduling_frequency_3_days">Co 3 dni</string>
+    <string name="settings_scheduling_frequency_weekly">Tygodniowo</string>
+    <string name="settings_scheduling_category_conditions_title">Warunki</string>
+    <string name="settings_scheduling_metered_title">Tworzenie kopii zapasowych podczas korzystania z danych mobilnych</string>
+    <string name="settings_scheduling_charging_title">Tworzenie kopii zapasowej tylko podczas ładowania</string>
+    <string name="notification_success_channel_title">Powiadomienie o powodzeniu</string>
+    <string name="notification_apk_text">Tworzenie kopii zapasowej APK %s</string>
+    <string name="notification_apk_not_backed_up">Zapisywanie listy aplikacji, których kopii zapasowej nie możemy utworzyć.</string>
+    <string name="settings_expert_d2d_title">Kopie zapasowe między urządzeniami</string>
+    <string name="settings_expert_d2d_summary">Wymusza to tworzenie kopii zapasowych dla większości aplikacji, nawet jeśli na to nie zezwalają. Funkcja w wersji alfa, używasz na własne ryzyko.</string>
+    <string name="storage_webdav_option_summary">Zintegrowany bezpośredni dostęp WebDAV</string>
+    <string name="storage_webdav_config_button">Używaj chmury WebDAV</string>
+    <string name="storage_webdav_config_malformed_url">Nieprawidłowy adres URL WebDAV</string>
+    <string name="storage_webdav_name">WebDAV %s</string>
+    <string name="storage_webdav_option_title">Chmura WebDAV (wersja beta)</string>
+    <string name="storage_webdav_config_url">Adres URL WebDAV</string>
+    <string name="storage_webdav_config_user">Nazwa użytkownika</string>
+    <string name="storage_webdav_config_pass">Hasło</string>
+    <string name="storage_webdav_config_url_helper">Pamiętaj, aby podać tutaj pełny adres URL. Np. dla Nextcloud ma on postać https://twojserwer.com/remote.php/webdav</string>
+    <string name="notification_space_error_text">W lokalizacji kopii zapasowej brakuje miejsca. Zwolnij miejsce, aby umożliwić tworzenie kopii zapasowych.</string>
+    <string name="restore_restore_set_size">Rozmiar: <xliff:g example="1 GB" id="size">%1$s</xliff:g></string>
+    <string name="notification_space_error_title">Niewystarczająca ilość miejsca na kopię zapasową</string>
+</resources>

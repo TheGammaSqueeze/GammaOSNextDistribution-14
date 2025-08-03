@@ -1,0 +1,38 @@
+// Copyright 2022 The Android Open Source Project
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_fuzz {
+    name: "libufdt_fuzzer",
+    srcs: [
+        "libufdt_fuzzer.cpp",
+    ],
+    static_libs: [
+        "libfdt",
+        "libufdt_silent",
+        "libufdt_sysdeps",
+    ],
+    corpus: ["corpus/*"],
+    fuzz_config: {
+        cc: [ "mikemcternan@google.com" ],
+        target_modules: [ "libufdt", "libufdt_sysdeps" ],
+        description:
+            "Fuzzer that checks parsing of faulty FDT blobs and " +
+            "application of overlays to ensure no undefined or OOB " +
+            "behaviours.",
+        acknowledgement: [ "Mike McTernan of Google" ],
+    },
+    host_supported: true,
+}
+
+cc_binary {
+    name: "mkcorpus",
+    srcs: [
+        "mkcorpus.c",
+    ],
+    cflags: [
+        "-Wall",
+    ],
+    host_supported: true,
+}

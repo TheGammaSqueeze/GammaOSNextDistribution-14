@@ -1,0 +1,38 @@
+schedule: INDEXED
+scenarios [
+  {
+    index: 1
+    journeys [
+      {
+        journey: "android.adservices.test.scenario.adservices.topics.GetTopicsApiCall"
+        methodName: "testTopicsManager"
+        extras {
+          key: "sdk_name"
+          value: "sdk3"
+        }
+      },
+      {
+        journey: "android.adservices.test.scenario.adservices.topics.GetTopicsApiCall"
+        methodName: "testTopicsManager"
+        extras {
+          key: "sdk_name"
+          value: "sdk3"
+        }
+      }
+    ]
+    after_test: STAY_IN_APP
+  },
+  {
+    index: 2
+    journeys [
+      {
+        journey: "android.adservices.test.scenario.adservices.topics.GetTopicsApiCall"
+        extras {
+          key: "sdk_name"
+          value: "sdk4"
+        }
+      }
+    ]
+    after_test: STAY_IN_APP
+  }
+]

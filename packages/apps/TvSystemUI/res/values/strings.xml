@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- Title and subtitle for AudioRecordingIndicator -->
+
+    <string name="notification_vpn_connected">VPN is connected</string>
+    <string name="notification_vpn_disconnected">VPN is disconnected</string>
+    <!-- Disclosure text in the connected notification that indicates that the device is connected to a VPN. The placeholder is the VPN name. [CHAR LIMIT=40] -->
+    <string name="notification_disclosure_vpn_text">Via <xliff:g id="vpn_app" example="Foo VPN App">%1$s</xliff:g></string>
+
+    <string name="notification_panel_title">Notifications</string>
+    <string name="notification_panel_no_notifications">No Notifications</string>
+
+    <string name="mic_recording_announcement">Microphone is recording</string>
+    <string name="camera_recording_announcement">Camera is recording</string>
+    <string name="mic_and_camera_recording_announcement">Camera and Microphone are recording</string>
+    <string name="mic_stopped_recording_announcement">Microphone stopped recording</string>
+    <string name="camera_stopped_recording_announcement">Camera stopped recording</string>
+    <string name="mic_camera_stopped_recording_announcement">Camera and Microphone stopped recording</string>
+    <string name="screen_recording_announcement">Screen recording started</string>
+    <string name="screen_stopped_recording_announcement">Screen recording stopped</string>
+
+    <string name="media_output_dialog_title">Audio output</string>
+    <string name="media_output_dialog_other_devices">Other devices</string>
+    <string name="media_output_dialog_pairing_new">Connect another device</string>
+
+    <string name="font_display_large" translatable="false">sans-serif</string>
+    <string name="font_display_medium" translatable="false">sans-serif</string>
+    <string name="font_display_small" translatable="false">sans-serif</string>
+
+    <string name="font_headline_large" translatable="false">sans-serif</string>
+    <string name="font_headline_medium" translatable="false">sans-serif</string>
+    <string name="font_headline_small" translatable="false">sans-serif</string>
+
+    <string name="font_title_large" translatable="false">sans-serif</string>
+    <string name="font_title_medium" translatable="false">roboto-medium</string>
+    <string name="font_title_small" translatable="false">roboto-medium</string>
+
+    <string name="font_label_extra_large" translatable="false">roboto-medium</string>
+    <string name="font_label_large" translatable="false">roboto-medium</string>
+    <string name="font_label_medium" translatable="false">roboto-medium</string>
+    <string name="font_label_small" translatable="false">roboto-medium</string>
+
+    <string name="font_body_large" translatable="false">roboto</string>
+    <string name="font_body_medium" translatable="false">roboto</string>
+    <string name="font_body_small" translatable="false">roboto</string>
+    <string name="font_body_extra_small" translatable="false">roboto</string>
+
+    <string name="font_overline" translatable="false">sans-serif</string>
+</resources>

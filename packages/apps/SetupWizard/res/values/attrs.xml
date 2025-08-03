@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2014 Google Inc. All rights reserved.
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <declare-styleable name="ScrimInsetsView">
+        <attr name="insetForeground" format="reference|color" />
+    </declare-styleable>
+
+    <attr name="localePickerStyle" format="reference" />
+
+    <declare-styleable name="LocalePicker">
+        <attr name="solidColor" format="color|reference" />
+        <attr name="selectionDivider" format="reference" />
+        <attr name="selectionDividerHeight" format="dimension" />
+        <attr name="selectionDividersDistance" format="dimension" />
+        <attr name="internalMinHeight" format="dimension" />
+        <attr name="internalMaxHeight" format="dimension" />
+        <attr name="internalMinWidth" format="dimension" />
+        <attr name="internalMaxWidth" format="dimension" />
+        <attr name="internalLayout" format="reference" />
+        <attr name="virtualButtonPressedDrawable" format="reference" />
+    </declare-styleable>
+
+    <declare-styleable name="NavigationLayout">
+        <attr name="showSkipButton" format="boolean" />
+    </declare-styleable>
+</resources>

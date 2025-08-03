@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2021 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="whichApplication" msgid="2309561338625872614">"إكمال الإجراء باستخدام"</string>
+    <string name="whichApplicationNamed" msgid="8514249643796783492">"إكمال الإجراء باستخدام \"<xliff:g id="APP">%1$s</xliff:g>\""</string>
+    <string name="whichApplicationLabel" msgid="4312929689807826793">"إكمال الإجراء"</string>
+    <string name="whichViewApplication" msgid="7660051361612888119">"فتح باستخدام"</string>
+    <string name="whichViewApplicationNamed" msgid="8231810543224200555">"فتح باستخدام \"<xliff:g id="APP">%1$s</xliff:g>\""</string>
+    <string name="whichViewApplicationLabel" msgid="9123647023323311663">"فتح"</string>
+    <string name="whichOpenHostLinksWith" msgid="6664206254809230738">"فتح روابط <xliff:g id="HOST">%1$s</xliff:g> باستخدام"</string>
+    <string name="whichOpenLinksWith" msgid="3468042265545684416">"فتح الروابط باستخدام"</string>
+    <string name="whichOpenLinksWithApp" msgid="8832514962474825330">"فتح الروابط باستخدام <xliff:g id="APPLICATION">%1$s</xliff:g>"</string>
+    <string name="whichOpenHostLinksWithApp" msgid="6626134603937682461">"فتح روابط <xliff:g id="HOST">%1$s</xliff:g> باستخدام <xliff:g id="APPLICATION">%2$s</xliff:g>"</string>
+    <string name="whichGiveAccessToApplicationLabel" msgid="5120142857844152131">"منح إذن الوصول"</string>
+    <string name="whichEditApplication" msgid="5097563012157950614">"تعديل باستخدام"</string>
+    <string name="whichEditApplicationNamed" msgid="3150137489226219100">"التعديل باستخدام \"<xliff:g id="APP">%1$s</xliff:g>\""</string>
+    <string name="whichEditApplicationLabel" msgid="5992662938338600364">"تعديل"</string>
+    <string name="whichSendApplication" msgid="59510564281035884">"مشاركة"</string>
+    <string name="whichSendApplicationNamed" msgid="495577664218765855">"مشاركة مع \"<xliff:g id="APP">%1$s</xliff:g>\""</string>
+    <string name="whichSendApplicationLabel" msgid="2391198069286568035">"مشاركة"</string>
+    <string name="whichSendToApplication" msgid="2724450540348806267">"إرسال باستخدام"</string>
+    <string name="whichSendToApplicationNamed" msgid="1996548940365954543">"إرسال باستخدام \"<xliff:g id="APP">%1$s</xliff:g>\""</string>
+    <string name="whichSendToApplicationLabel" msgid="6909037198280591110">"إرسال"</string>
+    <string name="whichHomeApplication" msgid="8797832422254564739">"اختيار تطبيق شاشة رئيسية"</string>
+    <string name="whichHomeApplicationNamed" msgid="3943122502791761387">"استخدام \"<xliff:g id="APP">%1$s</xliff:g>\" كتطبيق الشاشة الرئيسية"</string>
+    <string name="whichHomeApplicationLabel" msgid="2066319585322981524">"التقاط صورة"</string>
+    <string name="whichImageCaptureApplication" msgid="7830965894804399333">"التقاط صورة باستخدام"</string>
+    <string name="whichImageCaptureApplicationNamed" msgid="5927801386307049780">"التقاط صورة باستخدام \"<xliff:g id="APP">%1$s</xliff:g>\""</string>
+    <string name="whichImageCaptureApplicationLabel" msgid="987153638235357094">"التقاط صورة"</string>
+    <string name="use_a_different_app" msgid="2062380818535918975">"استخدام تطبيق آخر"</string>
+    <string name="chooseActivity" msgid="6659724877523973446">"اختيار إجراء"</string>
+    <string name="noApplications" msgid="1139487441772284671">"ليست هناك تطبيقات يمكنها تنفيذ هذا الإجراء."</string>
+    <string name="forward_intent_to_owner" msgid="6454987608971162379">"أنت تستخدم هذا التطبيق خارج ملفك الشخصي للعمل"</string>
+    <string name="forward_intent_to_work" msgid="2906094223089139419">"أنت تستخدم هذا التطبيق في ملفك الشخصي للعمل"</string>
+    <string name="activity_resolver_use_always" msgid="8674194687637555245">"دائمًا"</string>
+    <string name="activity_resolver_use_once" msgid="594173435998892989">"مرة واحدة فقط"</string>
+    <string name="activity_resolver_work_profiles_support" msgid="8228711455685203580">"لا يتوافق تطبيق \"<xliff:g id="APP">%1$s</xliff:g>\" مع الملف الشخصي للعمل."</string>
+    <string name="pin_specific_target" msgid="5057063421361441406">"تثبيت <xliff:g id="LABEL">%1$s</xliff:g>"</string>
+    <string name="unpin_specific_target" msgid="3115158908159857777">"إزالة تثبيت <xliff:g id="LABEL">%1$s</xliff:g>"</string>
+    <string name="screenshot_edit" msgid="3857183660047569146">"تعديل"</string>
+    <string name="other_files" msgid="4501185823517473875">"{count,plural, =1{+ ملف واحد}zero{+ # ملف}two{+ ملفان}few{+ # ملفات}many{+ # ملفًا}other{+ # ملف}}"</string>
+    <string name="more_files" msgid="1043875756612339842">"{count,plural, =1{وملف واحد آخر}zero{و# ملف آخر}two{وملفان آخران}few{و# ملفات أخرى}many{و# ملفًا آخر}other{و# ملف آخر}}"</string>
+    <string name="sharing_text" msgid="8137537443603304062">"جارٍ مشاركة النص"</string>
+    <string name="sharing_link" msgid="2307694372813942916">"جارٍ مشاركة الرابط"</string>
+    <string name="sharing_images" msgid="5251443722186962006">"{count,plural, =1{جارٍ مشاركة صورة واحدة}zero{جارٍ مشاركة # صورة}two{جارٍ مشاركة صورتَين}few{جارٍ مشاركة # صور}many{جارٍ مشاركة # صورة}other{جارٍ مشاركة # صورة}}"</string>
+    <string name="sharing_videos" msgid="3583423190182877434">"{count,plural, =1{جارٍ مشاركة فيديو واحد}zero{جارٍ مشاركة # فيديو}two{جارٍ مشاركة فيديوهَين}few{جارٍ مشاركة # فيديوهات}many{جارٍ مشاركة # فيديو}other{جارٍ مشاركة # فيديو}}"</string>
+    <string name="sharing_files" msgid="1275646542246028823">"{count,plural, =1{مشاركة ملف واحد}zero{مشاركة # ملف}two{مشاركة ملفَّين}few{مشاركة # ملفات}many{مشاركة # ملفًّا}other{مشاركة # ملف}}"</string>
+    <string name="sharing_images_with_text" msgid="9005717434461730242">"{count,plural, =1{مشاركة صورة واحدة ونص}zero{مشاركة # صورة ونص}two{مشاركة صورتَين ونص}few{مشاركة # صور ونص}many{مشاركة # صورة ونص}other{مشاركة # صورة ونص}}"</string>
+    <string name="sharing_images_with_link" msgid="8907893266387877733">"{count,plural, =1{مشاركة صورة واحدة ورابط}zero{مشاركة # صورة ورابط}two{مشاركة # صورتَين ورابط}few{مشاركة # صور ورابط}many{مشاركة # صورة ورابط}other{مشاركة # صورة ورابط}}"</string>
+    <string name="sharing_videos_with_text" msgid="4169898442482118146">"{count,plural, =1{مشاركة فيديو واحد ونص}zero{مشاركة # فيديو ونص}two{مشاركة فيديوهَين ونص}few{مشاركة # فيديوهات ونص}many{مشاركة # فيديو ونص}other{مشاركة # فيديو ونص}}"</string>
+    <string name="sharing_videos_with_link" msgid="6383290441403042321">"{count,plural, =1{مشاركة فيديو واحد ورابط}zero{مشاركة # فيديو ورابط}two{مشاركة فيديوهَين ورابط}few{مشاركة # فيديوهات ورابط}many{مشاركة # فيديو ورابط}other{مشاركة # فيديو ورابط}}"</string>
+    <string name="sharing_files_with_text" msgid="7331187260405018080">"{count,plural, =1{مشاركة ملف واحد ونص}zero{مشاركة # ملف ونص}two{مشاركة # ملفَّين ونص}few{مشاركة # ملفات ونص}many{مشاركة # ملفًا ونص}other{مشاركة # ملف ونص}}"</string>
+    <string name="sharing_files_with_link" msgid="6052797122358827239">"{count,plural, =1{مشاركة ملف واحد ورابط}zero{مشاركة # ملف ورابط}two{مشاركة ملفَّين ورابط}few{مشاركة # ملفات ورابط}many{مشاركة # ملفًا ورابط}other{مشاركة # ملف ورابط}}"</string>
+    <string name="sharing_album" msgid="191743129899503345">"مشاركة الألبوم"</string>
+    <string name="sharing_images_only" msgid="7762589767189955438">"{count,plural, =1{الصورة فقط}zero{الصور فقط}two{الصورتان فقط}few{الصور فقط}many{الصور فقط}other{الصور فقط}}"</string>
+    <string name="sharing_videos_only" msgid="5549729252364968606">"{count,plural, =1{الفيديو فقط}zero{الفيديوهات فقط}two{الفيديوهان فقط}few{الفيديوهات فقط}many{الفيديوهات فقط}other{الفيديوهات فقط}}"</string>
+    <string name="sharing_files_only" msgid="6603666533766964768">"{count,plural, =1{الملف فقط}zero{الملفات فقط}two{الملفان فقط}few{الملفات فقط}many{الملفات فقط}other{الملفات فقط}}"</string>
+    <string name="image_preview_a11y_description" msgid="297102643932491797">"صورة مصغّرة لمعاينة صورة"</string>
+    <string name="video_preview_a11y_description" msgid="683440858811095990">"صورة مصغّرة لمعاينة فيديو"</string>
+    <string name="file_preview_a11y_description" msgid="7397224827802410602">"صورة مصغّرة لمعاينة ملف"</string>
+    <string name="chooser_no_direct_share_targets" msgid="4233416657754261844">"ما مِن أشخاص مقترحين للمشاركة معهم."</string>
+    <string name="usb_device_resolve_prompt_warn" msgid="4254493957548169620">"‏لم يتم منح هذا التطبيق إذن تسجيل، ولكن يمكنه تسجيل الصوت من خلال جهاز USB هذا."</string>
+    <string name="resolver_personal_tab" msgid="1381052735324320565">"شخصي"</string>
+    <string name="resolver_work_tab" msgid="3588325717455216412">"للعمل"</string>
+    <string name="resolver_private_tab" msgid="3707548826254095157">"المساحة الخاصّة"</string>
+    <string name="resolver_personal_tab_accessibility" msgid="4467784352232582574">"عرض المحتوى الشخصي"</string>
+    <string name="resolver_work_tab_accessibility" msgid="7581878836587799920">"عرض محتوى العمل"</string>
+    <string name="resolver_private_tab_accessibility" msgid="2513122834337197252">"عرض المساحة الخاصّة"</string>
+    <string name="resolver_cross_profile_blocked" msgid="3515194063758605377">"حظر مشرف تكنولوجيا المعلومات مشاركة المحتوى"</string>
+    <string name="resolver_cant_share_with_work_apps_explanation" msgid="2984105853145456723">"لا يمكن مشاركة هذا المحتوى مع تطبيقات العمل."</string>
+    <string name="resolver_cant_access_work_apps_explanation" msgid="1463093773348988122">"لا يمكن فتح هذا المحتوى باستخدام تطبيقات العمل."</string>
+    <string name="resolver_cant_share_with_personal_apps_explanation" msgid="6406971348929464569">"لا يمكن مشاركة هذا المحتوى مع التطبيقات الشخصية."</string>
+    <string name="resolver_cant_access_personal_apps_explanation" msgid="6209543716289792706">"لا يمكن فتح هذا المحتوى باستخدام التطبيقات الشخصية."</string>
+    <string name="resolver_turn_on_work_apps" msgid="7115260573975624516">"تطبيقات العمل متوقفة مؤقتًا."</string>
+    <string name="resolver_switch_on_work" msgid="8678893259344318807">"إلغاء الإيقاف المؤقت"</string>
+    <string name="resolver_no_work_apps_available" msgid="6139818641313189903">"ما مِن تطبيقات عمل."</string>
+    <string name="resolver_no_personal_apps_available" msgid="8479033344701050767">"ما مِن تطبيقات شخصية."</string>
+    <string name="miniresolver_open_in_personal" msgid="8397377137465016575">"هل تريد فتح <xliff:g id="APP">%s</xliff:g> في ملفك الشخصي؟"</string>
+    <string name="miniresolver_open_in_work" msgid="4271638122142624693">"هل تريد فتح <xliff:g id="APP">%s</xliff:g> في ملفك الشخصي للعمل؟"</string>
+    <string name="miniresolver_use_personal_browser" msgid="1428911732509069292">"استخدام المتصفّح الشخصي"</string>
+    <string name="miniresolver_use_work_browser" msgid="7892699758493230342">"استخدام متصفّح العمل"</string>
+    <string name="exclude_text" msgid="5508128757025928034">"استثناء النص"</string>
+    <string name="include_text" msgid="642280283268536140">"تضمين النص"</string>
+    <string name="exclude_link" msgid="1332778255031992228">"استثناء الرابط"</string>
+    <string name="include_link" msgid="827855767220339802">"تضمين الرابط"</string>
+    <string name="pinned" msgid="7623664001331394139">"مثبَّت"</string>
+</resources>

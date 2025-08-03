@@ -1,0 +1,23 @@
+{
+    "header": "nxp_hwcrypto_consts.h",
+    "constants": [
+        {
+            "name": "CAAM_MMIO_ID",
+            "value": 8,
+            "type": "int",
+            "unsigned": false
+        },
+        {
+            "name": "CAAM_SEC_RAM_MMIO_ID",
+            "value": 9,
+            "type": "int",
+            "unsigned": false
+        },
+        {
+            "name": "CCM_MMIO_ID",
+            "value": 10,
+            "type": "int",
+            "unsigned": false
+        }
+    ]
+}

@@ -1,0 +1,109 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto3";
+
+package test.screenshot.proto;
+option java_package = "platform.test.screenshot.proto";
+option java_outer_classname = "ScreenshotResultProto";
+
+message ComparisonOptions {
+  // Given an RGBA color, a failure will trigger if any channel changes beyond
+  // this specified threshold.
+  // Please only set this when actual inconsistencies are encountered.
+  // To find a reasonable value, consult the logs and see what real
+  // differences were encountered.  Anything above 4 is probably too much.
+  // Default: 0
+  int32 allowable_per_channel_difference = 5;
+
+  // Default: 0
+  int32 allowable_number_pixels_different = 3;
+
+  // Only compare pixels that have a nonzero alpha value in the reference image.
+  // Default: false
+  bool use_masking = 4;
+}
+
+message DiffRequest {
+  // PNG encoded image.
+  bytes image_test = 1;
+  oneof reference {
+    // Absolute file path, e.g.
+    // <RUNFILES>/google3/net/hostdatapath/common/statusz/scuba_goldens/header-1.png
+    // Use this when comparing a generated image against a golden image.
+    // An "Approve Changes" button will appear in the web UI.
+    string image_location_golden = 2;
+
+    // PNG encoded image. Use when comparing two generated images against each
+    // other.
+    bytes image_reference = 3;
+  }
+  ComparisonOptions options = 4;
+
+  // Additional metadata that will be copied verbatim to the DiffResult.
+  repeated Metadata metadata = 5;
+}
+
+message DiffResult {
+  enum Status {
+    UNSPECIFIED = 0;
+    PASSED = 1;  // number_pixels_different <= allowable_number_pixels_different
+    FAILED = 2;
+    // There was no file at the golden location or it was unreadable.
+    MISSING_REFERENCE = 3;
+    FLAKY = 4;  // undefined behavior for single DiffResult
+  }
+
+  message ComparisonStatistics {
+    // Copy of the ComparisonOptions from the DiffRequest.
+    ComparisonOptions comparison_options = 1;
+
+    uint32 number_pixels_compared = 2;
+
+    uint32 number_pixels_identical = 3;
+    uint32 number_pixels_similar = 4;  // within color_allowance
+    // When use_masking in DiffRequest is true, number of pixels that had zero
+    // alpha in the reference image. Otherwise zero.
+    uint32 number_pixels_ignored = 5;
+    uint32 number_pixels_different = 6;
+  }
+
+  Status result_type = 1;
+
+  // See DiffRequest.image_location_golden
+  string image_location_golden = 2;
+
+  // Locations relative to output folder.
+  string image_location_test = 3;
+  string image_location_reference = 4;
+  string image_location_diff = 5;
+
+  ComparisonStatistics comparison_statistics = 6;
+  repeated Metadata metadata = 7;
+
+  // MD5 hash of the difference image.
+  string hash_diff_image = 8;
+  string unique_id = 9;
+}
+
+message Metadata {
+  string key = 1;
+  string value = 2;
+}
+
+message DiffResultList {
+  repeated DiffResult results = 1;
+}

@@ -1,0 +1,43 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_bt_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_bt_license"],
+}
+
+cc_fuzz {
+    name: "bluetooth_gd_l2cap_fuzzer",
+    defaults: ["gd_fuzz_defaults"],
+    include_dirs: [
+        "hardware/interfaces/keymaster/4.0/support/include",
+        "packages/modules/Bluetooth/system",
+        "packages/modules/Bluetooth/system/bta/dm",
+        "packages/modules/Bluetooth/system/bta/include",
+        "packages/modules/Bluetooth/system/bta/sys",
+        "packages/modules/Bluetooth/system/btif/co",
+        "packages/modules/Bluetooth/system/embdrv/sbc/decoder/include",
+        "packages/modules/Bluetooth/system/embdrv/sbc/encoder/include",
+        "packages/modules/Bluetooth/system/gd",
+        "packages/modules/Bluetooth/system/stack/a2dp",
+        "packages/modules/Bluetooth/system/stack/avdt",
+        "packages/modules/Bluetooth/system/stack/btm",
+        "packages/modules/Bluetooth/system/stack/include",
+        "packages/modules/Bluetooth/system/stack/l2cap",
+        "packages/modules/Bluetooth/system/udrv/include",
+        "system/security/keystore/include",
+    ],
+    srcs: [
+        "channel_fuzz_controller.cc",
+        "fuzz_l2cap.cc",
+    ],
+    static_libs: [
+        "libbte",
+    ],
+    fuzz_config: {
+        cc: ["android-bluetooth-security@google.com"],
+        componentid: 27441,
+    },
+    cflags: ["-Wno-unused-parameter"],
+}

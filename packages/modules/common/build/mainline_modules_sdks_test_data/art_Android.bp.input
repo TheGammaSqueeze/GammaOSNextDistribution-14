@@ -1,0 +1,79 @@
+// This is auto-generated. DO NOT EDIT.
+
+package {
+    // A default list here prevents the license LSC from adding its own list which would
+    // be unnecessary as every module in the sdk already has its own licenses property.
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+prebuilt_bootclasspath_fragment {
+    name: "art-bootclasspath-fragment",
+    prefer: false,
+    visibility: [
+        "//art/build/apex",
+        "//art/build/boot",
+        "//art/build/sdk",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.art",
+    ],
+    licenses: ["art-module-sdk_art_license"],
+    image_name: "art",
+    contents: [
+        "core-oj",
+        "core-libart",
+        "okhttp",
+        "bouncycastle",
+        "apache-xml",
+    ],
+    api: {
+        stub_libs: ["art.module.public.api"],
+    },
+    core_platform_api: {
+        stub_libs: ["art.module.public.api.stubs.module_lib"],
+    },
+    hidden_api: {
+        max_target_o_low_priority: ["hiddenapi/hiddenapi-max-target-o-low-priority.txt"],
+        blocked: ["hiddenapi/hiddenapi-blocked.txt"],
+        unsupported_packages: ["hiddenapi/hiddenapi-unsupported-packages.txt"],
+        stub_flags: "hiddenapi/stub-flags.csv",
+        annotation_flags: "hiddenapi/annotation-flags.csv",
+        metadata: "hiddenapi/metadata.csv",
+        index: "hiddenapi/index.csv",
+        all_flags: "hiddenapi/all-flags.csv",
+    },
+}
+
+prebuilt_platform_compat_config {
+    name: "libcore-platform-compat-config",
+    prefer: false,
+    visibility: [
+        "//art/build/apex",
+        "//art/build/sdk",
+        "//libcore",
+        "//prebuilts:__subpackages__",
+    ],
+    licenses: ["art-module-sdk_libcore_license"],
+    metadata: "compat_configs/libcore-platform-compat-config/libcore-platform-compat-config_meta.xml",
+}
+
+java_import {
+    name: "core-oj",
+    prefer: false,
+    visibility: [
+        "//art/build/apex",
+        "//art/build/sdk",
+        "//external/wycheproof",
+        "//libcore",
+        "//libcore/benchmarks",
+        "//packages/modules/ArtPrebuilt",
+        "//prebuilts:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+    licenses: ["art-module-sdk_libcore_license"],
+    jars: ["java/core-oj.jar"],
+}

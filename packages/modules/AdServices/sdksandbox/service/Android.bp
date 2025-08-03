@@ -1,0 +1,119 @@
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_team: "trendy_team_rubidium_sdk_runtime",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+genrule {
+    name: "statslog-sdksandbox-java-gen",
+    tools: ["stats-log-api-gen"],
+    cmd: "$(location stats-log-api-gen) --java $(out) --module sdksandbox" +
+        " --javaPackage com.android.sdksandbox.service.stats --javaClass SdkSandboxStatsLog" +
+        " --minApiLevel 33",
+    out: ["com/android/sdksandbox/service/stats/SdkSandboxStatsLog.java"],
+}
+
+java_library {
+    name: "sdksandbox-statsd",
+    sdk_version: "system_server_current",
+    min_sdk_version: "33",
+    srcs: [
+        ":statslog-sdksandbox-java-gen",
+    ],
+    libs: [
+        "framework-statsd.stubs.module_lib",
+    ],
+    apex_available: [
+        "com.android.adservices",
+    ],
+}
+
+filegroup {
+    name: "service-sdksandbox-sources",
+    srcs: [
+        "java/**/*.java",
+    ],
+    path: "java",
+    visibility: ["//visibility:private"],
+}
+
+java_sdk_library {
+    name: "service-sdksandbox",
+    srcs: [
+        ":framework-sdksandbox-aidl-sources",
+        ":service-sdksandbox-sources",
+        ":sdksandbox_aidl",
+    ],
+    aidl: {
+        // TODO(b/161393989): Enable when TRACE_TAG_AIDL is exposed to mainline modules
+        generate_traces: false,
+    },
+    sdk_version: "system_server_current",
+    permitted_packages: [
+        "android.app.sdksandbox",
+        "com.android.sdksandbox",
+        "com.android.server.sdksandbox",
+    ],
+    jarjar_rules: "jarjar_rules.txt",
+    libs: [
+        "androidx.annotation_annotation",
+        "framework-configinfrastructure",
+        "framework-adservices.impl",
+        "framework-sdksandbox.impl",
+        "framework-statsd.stubs.module_lib",
+        "jsr305",
+        "keepanno-annotations",
+    ],
+    static_libs: [
+        "sdksandbox-statsd",
+        "modules-utils-build",
+        "modules-utils-backgroundthread",
+        "modules-utils-build",
+        "modules-utils-shell-command-handler",
+        "sdksandbox-service-proto-lite",
+        "sdk_sandbox_flags_lib",
+    ],
+    defaults: [
+        "framework-system-server-module-defaults",
+        "framework-system-server-module-optimize-defaults",
+        "sdksandbox-java-defaults",
+    ],
+    java_resources: [
+        ":platform_api_allowlist_per_target_sdk_version_current.binarypb",
+    ],
+    visibility: [
+        "//packages/modules/AdServices:__subpackages__",
+    ],
+    impl_library_visibility: [
+        "//packages/modules/AdServices/adservices/service",
+        "//packages/modules/AdServices/adservices/tests/unittest/system-service",
+        "//packages/modules/AdServices/sdksandbox/tests/unittest",
+        "//packages/modules/AdServices/sdksandbox/tests/testutils",
+        "//frameworks/base/services/tests/mockingservicestests",
+        "//frameworks/base/services/tests/wmtests",
+    ],
+    installable: true,
+    apex_available: ["com.android.adservices"],
+    jacoco: {
+        exclude_filter: [
+            "android.app.sdksandbox.**",
+            "com.android.sdksandbox.**",
+        ],
+    },
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
+}

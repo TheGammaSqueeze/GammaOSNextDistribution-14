@@ -1,0 +1,159 @@
+{
+  "testCases": [
+    {
+      "name": "No aggregate encryption keys in datastore.",
+      "input": {
+        "aggregate_encryption_keys": []
+      },
+      "output": {
+        "aggregate_encryption_keys": [
+          {
+            "id": "ignored",
+            "keyId": "38b1d571-f924-4dc0-abe1-e2bac9b6a6be",
+            "publicKey": "/amqBgfDOvHAIuatDyoHxhfHaMoYA4BDxZxwtWBRQhc=",
+            "expiry": 1654285612892,
+            "aggregation_coordinator_origin": "https://not-going-to-be-visited.test"
+          },
+          {
+            "id": "ignored",
+            "keyId": "e52dbbda-4e3a-4380-a7c8-14db3e08ef33",
+            "publicKey": "dU3hTbFy1RgCddQIQIZjoVNPJ3KScryj8BSREFr9yW8=",
+            "expiry": 1654285612892,
+            "aggregation_coordinator_origin": "https://not-going-to-be-visited.test"
+          }
+        ]
+      }
+    },
+    {
+      "name": "No aggregate encryption keys in datastore for the coordinator origin.",
+      "input": {
+        "aggregate_encryption_keys": [
+          {
+            "id": "ignored_1",
+            "keyId": "will-not-be-used-1",
+            "publicKey": "/amqBgfDOvHAIuatDyoHxhfHaMoYA4BDxZxwtWBRQhc=",
+            "expiry": 1654285612892,
+            "aggregation_coordinator_origin": "https://again-not-going-to-be-visited.test"
+          },
+          {
+            "id": "ignored_2",
+            "keyId": "will-not-be-used-2",
+            "publicKey": "dU3hTbFy1RgCddQIQIZjoVNPJ3KScryj8BSREFr9yW8=",
+            "expiry": 1654285612892,
+            "aggregation_coordinator_origin": "https://again-not-going-to-be-visited.test"
+          }
+        ]
+      },
+      "output": {
+        "aggregate_encryption_keys": [
+          {
+            "id": "ignored",
+            "keyId": "38b1d571-f924-4dc0-abe1-e2bac9b6a6be",
+            "publicKey": "/amqBgfDOvHAIuatDyoHxhfHaMoYA4BDxZxwtWBRQhc=",
+            "expiry": 1654285612892,
+            "aggregation_coordinator_origin": "https://not-going-to-be-visited.test"
+          },
+          {
+            "id": "ignored",
+            "keyId": "e52dbbda-4e3a-4380-a7c8-14db3e08ef33",
+            "publicKey": "dU3hTbFy1RgCddQIQIZjoVNPJ3KScryj8BSREFr9yW8=",
+            "expiry": 1654285612892,
+            "aggregation_coordinator_origin": "https://not-going-to-be-visited.test"
+          },
+          {
+            "id": "ignored_1",
+            "keyId": "will-not-be-used-1",
+            "publicKey": "/amqBgfDOvHAIuatDyoHxhfHaMoYA4BDxZxwtWBRQhc=",
+            "expiry": 1654285612892,
+            "aggregation_coordinator_origin": "https://again-not-going-to-be-visited.test"
+          },
+          {
+            "id": "ignored_2",
+            "keyId": "will-not-be-used-2",
+            "publicKey": "dU3hTbFy1RgCddQIQIZjoVNPJ3KScryj8BSREFr9yW8=",
+            "expiry": 1654285612892,
+            "aggregation_coordinator_origin": "https://again-not-going-to-be-visited.test"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Non-expired aggregate encryption keys in datastore.",
+      "input": {
+        "aggregate_encryption_keys": [
+          {
+            "id": "ignored_1",
+            "keyId": "38b1d571-f924-4dc0-abe1-e2bac9b6a6be",
+            "publicKey": "/amqBgfDOvHAIuatDyoHxhfHaMoYA4BDxZxwtWBRQhc=",
+            "expiry": 1654285612892,
+            "aggregation_coordinator_origin": "https://not-going-to-be-visited.test"
+          },
+          {
+            "id": "ignored_2",
+            "keyId": "e52dbbda-4e3a-4380-a7c8-14db3e08ef33",
+            "publicKey": "dU3hTbFy1RgCddQIQIZjoVNPJ3KScryj8BSREFr9yW8=",
+            "expiry": 1654285612892,
+            "aggregation_coordinator_origin": "https://not-going-to-be-visited.test"
+          }
+        ]
+      },
+      "output": {
+        "aggregate_encryption_keys": [
+          {
+            "id": "ignored_1",
+            "keyId": "38b1d571-f924-4dc0-abe1-e2bac9b6a6be",
+            "publicKey": "/amqBgfDOvHAIuatDyoHxhfHaMoYA4BDxZxwtWBRQhc=",
+            "expiry": 1654285612892,
+            "aggregation_coordinator_origin": "https://not-going-to-be-visited.test"
+          },
+          {
+            "id": "ignored_2",
+            "keyId": "e52dbbda-4e3a-4380-a7c8-14db3e08ef33",
+            "publicKey": "dU3hTbFy1RgCddQIQIZjoVNPJ3KScryj8BSREFr9yW8=",
+            "expiry": 1654285612892,
+            "aggregation_coordinator_origin": "https://not-going-to-be-visited.test"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Expired encryption keys in datastore.",
+      "input": {
+        "aggregate_encryption_keys": [
+          {
+            "id": "ignored_1",
+            "keyId": "expired-key1-4dc0-abe1-e2bac9b6a6be",
+            "publicKey": "/AMQBGFDOVHAIUATDYOHXHFHAMOYA4BDXZXWTWBRQHC=",
+            "expiry": 1653681612891,
+            "aggregation_coordinator_origin": "https://not-going-to-be-visited.test"
+          },
+          {
+            "id": "ignored_2",
+            "keyId": "expired-key2-4380-a7c8-14db3e08ef33",
+            "publicKey": "DU3HTBFY1RGCDDQIQIZJOVNPJ3KSCRYJ8BSREFR9YW8=",
+            "expiry": 1653681612891,
+            "aggregation_coordinator_origin": "https://not-going-to-be-visited.test"
+          }
+        ]
+      },
+      "output": {
+        "aggregate_encryption_keys": [
+          {
+            "id": "ignored_1",
+            "keyId": "38b1d571-f924-4dc0-abe1-e2bac9b6a6be",
+            "publicKey": "/amqBgfDOvHAIuatDyoHxhfHaMoYA4BDxZxwtWBRQhc=",
+            "expiry": 1654285612892,
+            "aggregation_coordinator_origin": "https://not-going-to-be-visited.test"
+          },
+          {
+            "id": "ignored_2",
+            "keyId": "e52dbbda-4e3a-4380-a7c8-14db3e08ef33",
+            "publicKey": "dU3hTbFy1RgCddQIQIZjoVNPJ3KScryj8BSREFr9yW8=",
+            "expiry": 1654285612892,
+            "aggregation_coordinator_origin": "https://not-going-to-be-visited.test"
+          }
+        ]
+      }
+    }
+  ]
+}

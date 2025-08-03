@@ -1,0 +1,81 @@
+plugins {
+    id 'java-library'
+}
+apply plugin: AarDepsPlugin
+
+final String GIT_BRANCH = ""
+final int BUILD_ID = -1
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+sourceSets {
+  main {
+    java.srcDirs = [
+            "src",
+            "${ANDROID_TOP}/external/robolectric/utils/src/main/java/",
+            "${ANDROID_TOP}/external/robolectric/resources/src/main/java/",
+            "${ANDROID_TOP}/external/robolectric/nativeruntime/src/main/java/",
+            "${ANDROID_TOP}/external/robolectric/sandbox/src/main/java/",
+            "${ANDROID_TOP}/external/robolectric/robolectric/src/main/java/",
+            //shadow jar code
+            "${ANDROID_TOP}/external/robolectric/shadows/framework/src/main/java/",
+            //android specific robolectric extensions
+            "${ANDROID_TOP}/test/robolectric-extensions/plugins/src/main/java/"
+    ]
+    resources.srcDirs = [
+            "${ANDROID_TOP}/test/robolectric-extensions/resources/",
+            "${ANDROID_TOP}/prebuilts/misc/common/robolectric-native-prebuilt/resources/"
+      ]
+  }
+}
+
+task generateBuildConfig {
+    ext.outputDir = "$buildDir/generated/java"
+    inputs.property('version', project.version)
+    outputs.dir outputDir
+    doLast {
+        mkdir "$outputDir/com/google/android/sysui"
+        file("$outputDir/com/google/android/sysui/BuildConfig.java").text =
+                """|package com.google.android.sysui;
+               |class BuildConfig {
+               |    public static final String OUT_PATH = "$buildDir";
+               |}""".stripMargin()
+    }
+}
+
+task downloadAndroidAll(type: RoboJarFetcherTask) {
+    rootPath = ANDROID_TOP
+    outPath = buildDir
+    suggestedGitBranch = GIT_BRANCH
+    buildId = BUILD_ID
+}
+
+compileJava {
+    options.compilerArgs << '-Aorg.robolectric.annotation.processing.shadowPackage=org.robolectric'
+    dependsOn generateBuildConfig
+    dependsOn downloadAndroidAll
+}
+sourceSets.main.java.srcDir generateBuildConfig.outputDir
+
+dependencies {
+    api libs.robolectric
+    // Dependencies for shadow jar code:
+    api 'androidx.annotation:annotation-jvm:1.6.0@jar'
+    annotationProcessor 'com.google.auto.service:auto-service:1.0.1'
+    compileOnly 'com.google.auto.service:auto-service-annotations:1.0.1'
+    // Robolectic specific configurations for code generation (of shadow jar code)
+    annotationProcessor 'org.robolectric:processor:4.11-SNAPSHOT'
+    annotationProcessor 'com.google.auto.service:auto-service:1.0.1'
+    implementation 'com.google.auto.service:auto-service-annotations:1.0.1'
+    implementation 'junit:junit:4.13.2'
+    implementation 'org.conscrypt:conscrypt-openjdk-uber:2.5.2'
+    api 'androidx.test.espresso:espresso-core:3.6.0-alpha1@aar'
+    api 'androidx.test.espresso:espresso-idling-resource:3.6.0-alpha1@aar'
+
+
+    // Android-all jar
+    implementation fileTree(dir: "${buildDir}/android_all/", include: '*.jar')
+}

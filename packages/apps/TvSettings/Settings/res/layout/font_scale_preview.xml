@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  android:id="@+id/preview_frame"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:transitionGroup="false">
+
+    <TextView
+      android:id="@+id/preview_header"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignParentTop="true"
+      android:layout_alignWithParentIfMissing="true"
+      android:layout_marginTop="@dimen/preference_pane_extra_padding_start"
+      android:maxLines="1"
+      android:ellipsize="end"
+      android:text="@string/font_scale_sample_text_title"
+      style="@style/TextAppearance.TwoPanelPreference.Category"/>
+
+    <TextView
+      android:id="@+id/preview_title"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_below="@id/preview_header"
+      android:layout_marginTop="@dimen/settings_info_row_margin_top"
+      android:maxLines="3"
+      android:ellipsize="end"
+      android:text="@string/font_scale_preview_text_title"
+      style="@style/TextAppearance.TwoPanelPreference.Title"/>
+
+    <TextView
+      android:id="@+id/preview_subtitle"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_below="@id/preview_title"
+      android:layout_marginTop="@dimen/settings_info_row_margin_top"
+      android:maxLines="3"
+      android:ellipsize="end"
+      android:text="@string/font_scale_preview_text_subtitle"
+      style="@style/TextAppearance.TwoPanelPreference.ListItem"/>
+
+    <TextView
+      android:id="@+id/preview_content"
+      android:layout_width="@dimen/edit_text_width_default"
+      android:layout_height="wrap_content"
+      android:layout_below="@id/preview_subtitle"
+      android:layout_marginTop="@dimen/settings_info_row_margin_top"
+      android:layout_marginBottom="@dimen/preference_pane_extra_padding_start"
+      android:ellipsize="end"
+      android:text="@string/font_scale_preview_text_body"
+      style="@style/TextAppearance.TwoPanelPreference.ListItem"/>
+
+</RelativeLayout>

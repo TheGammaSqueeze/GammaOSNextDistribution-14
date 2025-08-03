@@ -1,0 +1,341 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
+{
+  "uae": {
+    "mccmnc": ["42403"],
+    "imsi": "424030123456789"
+  },
+  "japan_kddi": {
+    "mccmnc": ["44050", "44051", "44052"],
+    "imsi": "440500123456789",
+    "language": "ja",
+    "check_setting_with_main_lang": "false",
+    "fullscreen": "true"
+  },
+  "japan_emobile": {
+    "mccmnc": ["44000"],
+    "imsi": "440000123456789",
+    "language": "ja",
+    "check_setting_with_main_lang": "false",
+    "fullscreen": "true"
+  },
+  "japan_wirelesscityplanning": {
+    "mccmnc": ["44100"],
+    "imsi": "441000123456789",
+    "language": "ja",
+    "check_setting_with_main_lang": "false",
+    "fullscreen": "true"
+  },
+  "japan_docomo": {
+    "mccmnc": ["44010"],
+    "imsi": "440100123456789",
+    "language": "ja",
+    "check_setting_with_main_lang": "false",
+    "fullscreen": "true"
+  },
+  "japan_rakuten": {
+    "mccmnc": ["44011"],
+    "imsi": "440110123456789",
+    "language": "ja",
+    "check_setting_with_main_lang": "false",
+    "fullscreen": "true"
+  },
+  "newzealand": {
+    "mccmnc": ["53001"],
+    "imsi": "530010123456789"
+  },
+  "norway": {
+    "mccmnc": ["24201"],
+    "imsi": "242010123456789"
+  },
+  "hongkong": {
+    "mccmnc": ["45406"],
+    "imsi": "454060123456789"
+  },
+  "denmark": {
+    "mccmnc": ["23801"],
+    "imsi": "238010123456789"
+  },
+  "chile": {
+    "mccmnc": ["73001"],
+    "imsi": "730010123456789",
+    "disable_navigation": "true",
+    "fullscreen": "true"
+  },
+  "mexico_telefonica": {
+    "mccmnc": ["334030"],
+    "imsi": "334030012345678"
+  },
+  "elsalvador": {
+    "mccmnc": ["70601"],
+    "imsi": "706010123456789"
+  },
+  "peru_entel": {
+    "mccmnc": ["71617"],
+    "imsi": "716170123456789",
+    "language": "es",
+    "check_setting_with_main_lang": "false",
+    "fullscreen": "true"
+  },
+  "peru": {
+    "mccmnc": ["71606"],
+    "imsi": "716060123456789",
+    "language": "es",
+    "check_setting_with_main_lang": "false",
+    "fullscreen": "true"
+  },
+  "spain_telefonica": {
+    "mccmnc": ["21407"],
+    "imsi": "214070123456789",
+    "language": "es"
+  },
+  "korea": {
+    "mccmnc": ["45002"],
+    "imsi": "450020123456789",
+    "language": "ko"
+  },
+  "korea_skt": {
+    "mccmnc": ["45005"],
+    "imsi": "450050123456789",
+    "language": "ko"
+  },
+  "korea_lgu": {
+    "mccmnc": ["45006"],
+    "imsi": "450060123456789",
+    "language": "ko"
+  },
+  "canada": {
+    "mccmnc": ["302720"],
+    "imsi": "302720012345678"
+  },
+  "taiwan": {
+    "mccmnc": ["46601"],
+    "imsi": "466010123456789"
+  },
+  "brazil": {
+    "mccmnc": ["72406"],
+    "imsi": "724060123456789"
+  },
+  "columbia": {
+    "mccmnc": ["732101"],
+    "imsi": "732101012345678"
+  },
+  "columbia_telefonica": {
+    "mccmnc": ["732123"],
+    "imsi": "732123012345678"
+  },
+  "ecuador_telefonica": {
+    "mccmnc": ["74000"],
+    "imsi": "740000123456789",
+    "language": "es",
+    "fullscreen": "true"
+  },
+  "ecuador": {
+    "mccmnc": ["74001"],
+    "imsi": "740010123456789",
+    "language": "es",
+    "fullscreen": "true"
+  },
+  "puertorico": {
+    "mccmnc": ["33011"],
+    "imsi": "330110123456789"
+  },
+  "netherlands": {
+    "mccmnc": ["20416"],
+    "imsi": "204160123456789"
+  },
+  "romania": {
+    "mccmnc": ["22605"],
+    "imsi": "226050123456789"
+  },
+  "estonia": {
+    "mccmnc": ["24801"],
+    "imsi": "248010123456789"
+  },
+  "lithuania": {
+    "mccmnc": ["24602"],
+    "imsi": "246020123456789"
+  },
+  "latvia": {
+    "mccmnc": ["24702"],
+    "imsi": "247020123456789"
+  },
+  "bulgaria": {
+    "mccmnc": ["28401"],
+    "imsi": "284010123456789"
+  },
+  "greece": {
+    "mccmnc": ["20201"],
+    "imsi": "202010123456789"
+  },
+  "italy": {
+    "mccmnc": ["22288"],
+    "imsi": "222880123456789"
+  },
+  "uk": {
+    "mccmnc": ["23402"],
+    "imsi": "234020123456789"
+  },
+  "israel": {
+    "mccmnc": ["42501"],
+    "imsi": "425010123456789"
+  },
+  "oman": {
+    "mccmnc": ["42202"],
+    "imsi": "422020123456789",
+    "language": "ar"
+  },
+  "japan_softbank": {
+    "mccmnc": ["44020"],
+    "imsi": "440200123456789",
+    "language": "ja",
+    "check_setting_with_main_lang": "false",
+    "fullscreen": "true"
+  },
+  "france": {
+    "mccmnc": ["20820", "30801", "34001", "54601", "54720", "64710"],
+    "imsi": "208200123456789",
+    "language": "fr"
+  },
+  "us_vzw": {
+    "mccmnc": ["310012", "310590", "311480"],
+    "imsi": "310012012345678"
+  },
+  "us_att": {
+    "mccmnc": ["310410", "310150", "310170", "310280", "310380", "310560", "310680", "310950", "311180", "312670", "313100", "313110", "313120", "313130", "313140", "313790", "330110"],
+    "imsi": "310410012345678"
+  },
+  "us_tmo": {
+    "mccmnc": ["310160", "310260", "310200", "310210", "310220", "310230", "310240", "310250", "31026", "310260", "310270", "310300", "310310", "310490", "310530", "310660", "310800", "311660", "311882", "312250"],
+    "imsi": "310160012345678"
+  },
+  "us_dish": {
+    "mccmnc": ["313340"],
+    "imsi": "313340012345678"
+  },
+  "ukraine": {
+    "mccmnc": ["25502"],
+    "imsi": "255020123456789"
+  },
+  "venezuela": {
+    "mccmnc": ["73404"],
+    "imsi": "734040123456789"
+  },
+  "australia": {
+    "mccmnc": ["50501"],
+    "imsi": "505010123456789"
+  },
+  "qatar_vodafone": {
+    "mccmnc": ["42702"],
+    "imsi": "427020123456789"
+  },
+  "saudiarabia": {
+    "mccmnc": ["42001"],
+    "imsi": "420010123456789"
+  },
+  "russia": {
+    "mccmnc": ["25001"],
+    "imsi": "250010123456789"
+  },
+  "russia_megafon": {
+    "mccmnc": ["25002"],
+    "imsi": "250020123456789"
+  },
+  "turkey": {
+    "mccmnc": ["28602"],
+    "imsi": "286020123456789"
+  },
+  "us": {
+    "mccmnc": ["310450", "311120", "312420"],
+    "imsi": "3104500123456789"
+  },
+  "us_sprint": {
+    "mccmnc": ["310120", "312530"],
+    "imsi": "3101200123456789"
+  },
+  "us_usc": {
+    "mccmnc": ["311220", "311580"],
+    "imsi": "3112200123456789"
+  },
+  "azerbaijan": {
+    "mccmnc": ["40001"],
+    "imsi": "400010123456789"
+  },
+  "china": {
+    "mccmnc": ["46002"],
+    "imsi": "460020123456789"
+  },
+  "southafrica": {
+    "mccmnc": ["65502"],
+    "imsi": "655020123456789"
+  },
+  "guatemala_telefonica": {
+    "mccmnc": ["70403"],
+    "imsi": "704030123456789"
+  },
+  "india": {
+    "mccmnc": ["40401", "40501"],
+    "imsi": "404010123456789",
+    "disable_navigation": "true",
+    "fullscreen": "true"
+  },
+  "hungary_telekom": {
+    "mccmnc": ["21630"],
+    "imsi": "216300123456789"
+  },
+  "croatia_hrvatski": {
+    "mccmnc": ["21901", "21920"],
+    "imsi": "219010123456789"
+  },
+  "czech_tmobile": {
+    "mccmnc": ["23001"],
+    "imsi": "230010123456789"
+  },
+  "slovakia_telekom": {
+    "mccmnc": ["23102"],
+    "imsi": "231020123456789"
+  },
+  "poland_tmobile": {
+    "mccmnc": ["26002"],
+    "imsi": "260020123456789"
+  },
+  "austria_tmobile": {
+    "mccmnc": ["23207"],
+    "imsi": "232070123456789"
+  },
+  "macedonia_telekom": {
+    "mccmnc": ["29401"],
+    "imsi": "294010123456789"
+  },
+  "montenegro_telekom": {
+    "mccmnc": ["29702"],
+    "imsi": "297020123456789"
+  },
+  "germany_telekom": {
+    "mccmnc": ["26201"],
+    "imsi": "262010123456789",
+    "language": "de"
+  },
+  "mexico": {
+    "mccmnc": ["334090"],
+    "imsi": "3340900123456789"
+  },
+  "bahamas": {
+    "mccmnc": ["36449"],
+    "imsi": "364490123456789"
+  }
+}

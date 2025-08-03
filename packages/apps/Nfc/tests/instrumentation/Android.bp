@@ -1,0 +1,38 @@
+package {
+    default_team: "trendy_team_fwk_nfc",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "NfcNciInstrumentationTests",
+
+    certificate: "platform",
+
+    libs: [
+        "android.test.runner",
+        "android.test.base",
+        "android.test.mock",
+        "framework-nfc.impl",
+        "unsupportedappusage",
+    ],
+
+    static_libs: [
+        "androidx.test.core",
+        "androidx.test.rules",
+        "androidx.test.ext.junit",
+        "truth",
+    ],
+
+    // Include all test java files.
+    srcs: [
+        "src/**/*.java",
+        // TODO(b/263565193): Temp hack until NFC APK can link against module_current.
+        ":framework-nfc-updatable-sources",
+    ],
+
+    platform_apis: true,
+
+    test_suites: ["device-tests"],
+
+    instrumentation_for: "NfcNci",
+}

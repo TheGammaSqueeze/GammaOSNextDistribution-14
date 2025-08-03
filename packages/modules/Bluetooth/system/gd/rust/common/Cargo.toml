@@ -1,0 +1,42 @@
+#
+#  Copyright 2021 Google, Inc.
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at:
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
+[package]
+name = "bt_common"
+version = "0.0.1"
+edition = "2018"
+
+[dependencies]
+cxx = "1.0"
+env_logger = "0.8"
+futures = "0.3.13"
+grpcio = { version = "0.13.0", default-features = false, features = ["protobufv3-codec", "openssl"] }
+lazy_static = "1.4"
+log = "0.4"
+nix = { version = "0.27.1", features = ["time", "user"] }
+tokio = { version = "1.0", features = ['bytes', 'macros', 'net', 'rt-multi-thread', 'time'] }
+
+# Proc Macro dependency
+paste = "1.0"
+
+[dev-dependencies]
+tokio = { version = "1.0", features = ['bytes', 'macros', 'net', 'rt-multi-thread', 'time', 'sync'] }
+
+[lib]
+crate-type = ["rlib"]
+
+[features]
+default = ["keystore"]
+keystore = []

@@ -1,0 +1,165 @@
+//
+// Copyright (C) 2018 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+// =========================================================================
+// Native library to write stats log to statsd socket on Android R and later
+// =========================================================================
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_defaults {
+    name: "libstatssocket_defaults",
+    srcs: [
+        "stats_buffer_writer.c",
+        "stats_buffer_writer_queue.cpp",
+        "stats_event.c",
+        "stats_socket.c",
+        "statsd_writer.cpp",
+        "stats_socket_loss_reporter.cpp",
+        "utils.cpp",
+    ],
+    generated_sources: ["stats_statsdsocketlog.cpp"],
+    generated_headers: ["stats_statsdsocketlog.h"],
+    export_include_dirs: ["include"],
+    header_libs: [
+        "libcutils_headers",
+        "liblog_headers",
+    ],
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wthread-safety",
+
+        // for local testing & benchmarking with statsd_benchmark
+        // "-DENABLE_BENCHMARK_SUPPORT",
+    ],
+    static_libs: [
+        "libbase",
+    ],
+}
+
+cc_library_shared {
+    name: "libstatssocket",
+    defaults: [
+        "libstatssocket_defaults",
+    ],
+    host_supported: true,
+    stl: "libc++_static",
+
+    // enumerate stable entry points for APEX use
+    stubs: {
+        symbol_file: "libstatssocket.map.txt",
+        versions: [
+            "30",
+        ],
+    },
+    apex_available: [
+        "com.android.os.statsd",
+        "test_com.android.os.statsd",
+    ],
+    min_sdk_version: "30",
+}
+
+//TODO (b/149842105): Figure out if there is a better solution for this.
+cc_test_library {
+    name: "libstatssocket_private",
+    defaults: [
+        "libstatssocket_defaults",
+    ],
+    visibility: [
+        "//packages/modules/StatsD/apex/tests/libstatspull",
+        "//packages/modules/StatsD/statsd",
+    ],
+}
+
+cc_library_headers {
+    name: "libstatssocket_headers",
+    export_include_dirs: ["include"],
+    apex_available: [
+        "com.android.resolv",
+        "//apex_available:platform",
+    ],
+    min_sdk_version: "29",
+}
+
+cc_test {
+    name: "libstatssocket_test",
+    srcs: [
+        "tests/stats_event_test.cpp",
+        "tests/stats_writer_test.cpp",
+        "tests/stats_buffer_writer_queue_test.cpp",
+        "tests/stats_socketlog_test.cpp",
+    ],
+    generated_sources: ["stats_statsdsocketlog.cpp"],
+    generated_headers: ["stats_statsdsocketlog.h"],
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wthread-safety",
+    ],
+    static_libs: [
+        "libbase",
+        "libgmock",
+        "libstatssocket_private",
+    ],
+    shared_libs: [
+        "libutils",
+    ],
+    test_suites: [
+        "device-tests",
+        "mts-statsd",
+    ],
+    test_config: "libstatssocket_test.xml",
+    //TODO(b/153588990): Remove when the build system properly separates.
+    //32bit and 64bit architectures.
+    compile_multilib: "both",
+    multilib: {
+        lib64: {
+            suffix: "64",
+        },
+        lib32: {
+            suffix: "32",
+        },
+    },
+    require_root: true,
+    min_sdk_version: "30",
+}
+
+genrule {
+    name: "stats_statsdsocketlog.h",
+    tools: ["stats-log-api-gen"],
+    cmd: "$(location stats-log-api-gen) " +
+        "--header $(genDir)/stats_statsdsocketlog.h " +
+        "--module statsdsocket " +
+        "--namespace android,os,statsdsocket",
+    out: [
+        "stats_statsdsocketlog.h",
+    ],
+}
+
+genrule {
+    name: "stats_statsdsocketlog.cpp",
+    tools: ["stats-log-api-gen"],
+    cmd: "$(location stats-log-api-gen) " +
+        "--cpp $(genDir)/stats_statsdsocketlog.cpp " +
+        "--module statsdsocket " +
+        "--namespace android,os,statsdsocket " +
+        "--importHeader stats_statsdsocketlog.h",
+    out: [
+        "stats_statsdsocketlog.cpp",
+    ],
+}

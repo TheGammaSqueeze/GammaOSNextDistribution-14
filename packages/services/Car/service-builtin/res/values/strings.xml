@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2015 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_title" translatable="false">Car service</string>
+
+    <!-- Permission text: allows framework to bind to the services in projection apps[CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_bind_projection_service">bind to a projection service</string>
+    <!-- Permission text: allows framework to bind to the services in projection apps[CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_bind_projection_service">Allows the holder to bind to the top-level interface of a projection service. Should never be needed for normal apps."</string>
+
+    <!-- Permission text: apps can act as VMS router core [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_bind_vms_client">VMS Client Service</string>
+    <!-- Permission text: apps can act as VMS router core [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_bind_vms_client">Bind to VMS clients</string>
+
+    <string name="car_permission_label_bind_instrument_cluster_rendering">Instrument Cluster Rendering</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering">Receive instrument cluster data</string>
+
+    <!-- Permission text: apps can handle input events [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_bind_input_service">Car Input Service</string>
+    <!-- Permission text: apps can handle input events [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_bind_input_service">Handle input events</string>
+
+    <!-- Blocking activity: Message to show to user when a feature of current application is not allowed. [CHAR LIMIT=120] -->
+    <string name="activity_blocked_text">You can\u2019t use this feature while driving</string>
+    <!-- Blocking activity: Message to accompany the exit_button that restarts the blocked app. [CHAR LIMIT=120] -->
+    <string name="exit_button_message">To start over with safe app features, select <xliff:g id="exit_button" example="Back">%s</xliff:g>.</string>
+    <!-- Blocking activity: Text for button that restarts the current blocked application. [CHAR LIMIT=15] -->
+    <string name="exit_button">Back</string>
+    <!-- Blocking activity: Text for button that closes current blocked application. [CHAR LIMIT=20] -->
+    <string name="exit_button_close_application">Close app</string>
+    <!-- Blocking activity: Text for button that closes current blocked application. [CHAR LIMIT=15] -->
+    <string name="exit_button_go_back">Back</string>
+    <!-- Blocking activity: Text for button that shows debug info in non-user build. -->
+    <string name="debug_button_text" translatable="false">Debug Info</string>
+
+    <!-- Name of the default-importance notification channel [CHAR LIMIT=40] -->
+    <string name="importance_default">Default importance</string>
+    <!-- Name of the high-importance notification channel [CHAR LIMIT=40] -->
+    <string name="importance_high">High importance</string>
+
+    <!--  TODO(b/175214581): STOPSHIP use proper sentence and remove translatable=false -->
+    <!--  Button on screen that warns the user that device is owned and managed by an enterprise
+          (like a car rental company), asking user to accept [CHAR_LIMIT=20] -->
+    <string name="new_user_managed_device_acceptance" translatable="false">Accept and continue</string>
+    <!-- Title of the notification shown when the device with a device policy switches to a new
+         user. -->
+    <string name="new_user_managed_notification_title" translatable="false">Managed device</string>
+
+    <!-- Label for the Android system components when they are shown to the user. -->
+    <string name="android_system_label">Android System</string>
+
+    <!-- Factory reset warning dialog strings--> <skip />
+    <!-- Title of notification shown when factory reset is required [CHAR_LIMIT=50] -->
+    <string name="factory_reset_notification_title">Factory reset required</string>
+    <!-- Message of notification shown when factory reset is required [CHAR LIMIT=NONE] -->
+    <string name="factory_reset_notification_text">All data in the infotainment system will be erased. After reset, you can set up a new profile.</string>
+    <!-- Label for the button that will show more information on delayed factory reset [CHAR_LIMIT=20] -->
+    <string name="factory_reset_notification_button">More</string>
+    <!-- Shows up in the dialog's title to warn about an impeding factory reset. [CHAR LIMIT=NONE] -->
+    <string name="factory_reset_warning">Your device will be erased</string>
+    <!-- Text message in the factory reset warning dialog. This says that the device admin app is
+         missing or corrupted. As a result the device will be erased. [CHAR LIMIT=NONE]-->
+    <string name="factory_reset_message">The admin app can\'t be used. Your device will now be
+        erased.\n\nIf you have questions, contact your organization\'s admin.</string>
+
+    <!-- Title of notification shown when an app overuses system resources [CHAR LIMIT=100] -->
+    <string name="resource_overuse_notification_title"><xliff:g name="app_name" example="Maps">^1</xliff:g> is affecting your system performance</string>
+    <!-- Message of notification shown when an app overuses system resources [CHAR LIMIT=NONE] -->
+    <string name="resource_overuse_notification_text_disabled_app">This app has been prevented from running in the background. Prioritize app to continue background usage.</string>
+    <!-- Label for button that will disable the app now [CHAR LIMIT=30] -->
+    <string name="resource_overuse_notification_button_close_app">Close</string>
+    <!-- Label for button that will redirect user to prioritize app setting [CHAR LIMIT=30] -->
+    <string name="resource_overuse_notification_button_prioritize_app">Prioritize app</string>
+</resources>

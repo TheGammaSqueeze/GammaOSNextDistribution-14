@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Servizi NFC</string>
+    <string name="nfcUserLabel">NFC</string>
+    <string name="accessibility_nfc_enabled">NFC abilitât.</string>
+    <string name="tap_to_beam">Tocje par trasmeti</string>
+    <string name="beam_progress">Trasmission in jentrade...</string>
+    <string name="beam_outgoing">Trasmission...</string>
+    <string name="beam_complete">Trasmission completade</string>
+    <string name="beam_failed">La trasmission no je stade completade</string>
+    <string name="beam_canceled">Trasmission anulade</string>
+    <string name="cancel">Anule</string>
+    <string name="beam_tap_to_view">Tocje par viodi</string>
+    <string name="beam_handover_not_supported">Il dispositîf dal destinatari nol supuarte il trasferiment di file grancj midiant Android Beam.</string>
+    <string name="beam_try_again">Torne svicine i dispositîfs</string>
+    <string name="beam_busy">Beam in chest moment al è ocupât. Torne prove cuant che il trasferiment precedent al finìs.</string>
+    <string name="device">dispositîf</string>
+    <string name="connecting_peripheral">Daûr a coneti <xliff:g id="device_name">%1$s</xliff:g></string>
+    <string name="connected_peripheral"><xliff:g id="device_name">%1$s</xliff:g> conetût</string>
+    <string name="connect_peripheral_failed">Impussibil coneti <xliff:g id="device_name">%1$s</xliff:g></string>
+    <string name="disconnecting_peripheral">Daûr a disconeti <xliff:g id="device_name">%1$s</xliff:g></string>
+    <string name="disconnected_peripheral"><xliff:g id="device_name">%1$s</xliff:g> disconetût</string>
+    <string name="pairing_peripheral">Associazion di <xliff:g id="device_name">%1$s</xliff:g></string>
+    <string name="pairing_peripheral_failed">Impussibil associâ <xliff:g id="device_name">%1$s</xliff:g></string>
+    <string name="failed_to_enable_bt">Impussibil ativâ il Bluetooth</string>
+    <string name="confirm_pairing">Associâ pardabon il dispositîf Bluetoth <xliff:g id="device_name">%1$s</xliff:g>?</string>
+    <string name="pair_yes">Sì</string>
+    <string name="pair_no">No</string>
+    <string name="tap_again_to_pay">Tocje di gnûf par paiâ cun <xliff:g id="app">%1$s</xliff:g></string>
+    <string name="tap_again_to_complete">Tocje di gnûf par completâ cun <xliff:g id="app">%1$s</xliff:g></string>
+    <string name="tap_again_description">Ten fer sul letôr</string>
+    <string name="appchooser_description">Sielç la aplicazion par scansionâ</string>
+    <string name="transaction_failure">Nol è pussibil completâ cheste transazion cun <xliff:g id="app">%1$s</xliff:g>.</string>
+    <string name="could_not_use_app">Nol è stât pussibil doprâ <xliff:g id="app">%1$s</xliff:g>.</string>
+    <string name="pay_with">Paie cun</string>
+    <string name="complete_with">Complete cun</string>
+    <string name="default_pay_app_removed">Il to servizi preferît par tocjâ e paiâ al è stât gjavât. Sielzi un altri?</string>
+    <string name="ask_nfc_tap">Tocje un altri dispositîf par completâ</string>
+    <string name="wifi_connect">Conet</string>
+    <string name="status_unable_to_connect">Impussibil conetisi ae rêt</string>
+    <string name="status_wifi_connected">Conetût</string>
+    <string name="title_connect_to_network">Conet ae rêt</string>
+    <string name="prompt_connect_to_network">Coneti ae rêt <xliff:g id="network_ssid">%1$s</xliff:g>?</string>
+    <string name="beam_requires_nfc_enabled">Android Beam al domande che il NFC al sedi abilitât. Desideristu abilitâlu?</string>
+    <string name="android_beam">Android Beam</string>
+    <string name="beam_requires_external_storage_permission">La aplicazion no à i permès pe memorie esterne. Chest al è necessari par trasmeti chest file</string>
+    <string name="title_confirm_url_open">Vierzi il colegament?</string>
+    <string name="summary_confirm_url_open">Il to telefon al à ricevût un colegament midiant NFC:</string>
+    <string name="summary_confirm_url_open_tablet">Il to tablet al à ricevût un colegament midiant NFC:</string>
+    <string name="action_confirm_url_open">Vierç il colegament</string>
+    <string name="tag_read_error">Erôr di leture NFC. Torne prove.</string>
+    <string name="tag_dispatch_failed">Nissune aplicazion supuartade par cheste etichete NFC</string>
+    <string name="nfc_blocking_alert_title">Il NFC al podarès jessi blocât</string>
+    <string name="nfc_blocking_alert_message">Tocje par scuvierzi cemût comedâ.</string>
+    <string name="nfc_logging_alert_title">E je in cors la regjistrazion dai dâts NFC.</string>
+    <string name="nfc_logging_alert_message">Tocje par fermâ la regjistrazion.</string>
+</resources>

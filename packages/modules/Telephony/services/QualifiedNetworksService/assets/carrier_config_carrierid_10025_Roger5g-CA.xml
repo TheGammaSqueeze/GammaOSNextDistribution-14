@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<carrier_config>
+    <int name="qns.sos_transport_type_int" value="2"/>
+    <string-array name="qns.ims_cellular_allowed_rat_string_array" num="4">
+        <item value="LTE" />
+        <item value="NR" />
+        <item value="3G" />
+        <item value="2G" />
+    </string-array>
+    <int name="qns.xcap_rat_preference_int" value="2"/>
+    <int-array name="qns.choose_wfc_preferred_transport_in_both_bad_condition_int_array" num="2">
+        <item value="1"/>
+        <item value="1"/>
+    </int-array>
+    <int name="qns.mms_rat_preference_int" value="2"/>
+    <int name="qns.mms_transport_type_int" value="2"/>
+    <int-array name="qns.video_wifi_rssi_int_array" num="2">
+        <item value="-65"/>
+        <item value="-78"/>
+    </int-array>
+    <int-array name="qns.voice_wifi_rssi_int_array" num="2">
+        <item value="-65"/>
+        <item value="-78"/>
+    </int-array>
+</carrier_config>

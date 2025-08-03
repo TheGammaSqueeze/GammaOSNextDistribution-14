@@ -1,0 +1,102 @@
+# Copyright (C) 2021 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+module: "android.sysprop.InputProperties"
+owner: Platform
+
+# A debug flag that converts all touch pointers to stylus pointers.
+prop {
+    api_name: "simulate_stylus_with_touch"
+    type: Boolean
+    scope: Internal
+    access: Readonly
+    prop_name: "debug.input.simulate_stylus_with_touch"
+}
+
+# A flag to enable the new touchpad input mapper introduced in Android U, based around the ChromeOS
+# gestures library.
+prop {
+    api_name: "enable_touchpad_gestures_library"
+    type: Boolean
+    scope: Internal
+    access: Readonly
+    prop_name: "persist.input.touchpad.gestures_library.enabled"
+}
+
+# A flag to enable or disable system motion prediction.
+prop {
+    api_name: "enable_motion_prediction"
+    type: Boolean
+    scope: Internal
+    access: Readonly
+    prop_name: "persist.input.enable_motion_prediction"
+}
+
+# A flag to enable the new Keyboard backlight controller introduced in Android U, that allows
+# Framework to control keyboard backlight on supported devices.
+prop {
+    api_name: "enable_keyboard_backlight_control"
+    type: Boolean
+    scope: Internal
+    access: Readonly
+    prop_name: "persist.input.keyboard.backlight_control.enabled"
+}
+
+# A flag to force showing a pointer icon for stylus pointers, even when the device is not
+# configured for it. Used for debugging stylus pointer icons. Requires restart.
+prop {
+    api_name: "force_enable_stylus_pointer_icon"
+    type: Boolean
+    scope: Internal
+    access: Readonly
+    prop_name: "persist.debug.input.force_enable_stylus_pointer_icon"
+}
+
+# A flag to enable the Keyboard backlight animations introduced in Android U-QPR.
+prop {
+    api_name: "enable_keyboard_backlight_animation"
+    type: Boolean
+    scope: Internal
+    access: Readonly
+    prop_name: "persist.input.keyboard.backlight_animation.enabled"
+}
+
+# A flag to start logging atoms relating into input device usage metrics. Requires restart.
+prop {
+    api_name: "enable_input_device_usage_metrics"
+    type: Boolean
+    scope: Internal
+    access: Readonly
+    prop_name: "persist.debug.input.enable_input_device_usage_metrics"
+}
+
+# A flag to enable the Custom levels provided via IDC files for Keyboard backlight
+# introduced in Android U-QPR1.
+prop {
+    api_name: "enable_keyboard_backlight_custom_levels"
+    type: Boolean
+    scope: Internal
+    access: Readonly
+    prop_name: "persist.input.keyboard.backlight_custom_levels.enabled"
+}
+
+
+# A flag to enable ALS based keyboard backlight control introduced in Android U-QPR1.
+prop {
+    api_name: "enable_ambient_keyboard_backlight_control"
+    type: Boolean
+    scope: Internal
+    access: Readonly
+    prop_name: "persist.input.keyboard.ambient_backlight_control.enabled"
+}

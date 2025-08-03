@@ -1,0 +1,22 @@
+{
+  "mocks": [
+    {
+      "request": {
+        "path": "signalsFirst"
+      },
+      "response": {
+        "body": "ProtectedSignalsFirst.json"
+      },
+      "verify_called": true
+    },
+    {
+      "request": {
+        "path": "signalsSecond"
+      },
+      "response": {
+        "body": "ProtectedSignalsSecond.json"
+      },
+      "verify_called": true
+    }
+  ]
+}

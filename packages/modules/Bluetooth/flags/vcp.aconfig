@@ -1,0 +1,9 @@
+package: "com.android.bluetooth.flags"
+container: "com.android.btservices"
+
+flag {
+    name: "vcp_mute_unmute"
+    namespace: "bluetooth"
+    description: "Allow muting/unmuting the remote device"
+    bug: "318775507"
+}

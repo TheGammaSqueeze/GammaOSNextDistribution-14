@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.android.microdroid.empty_payload">
+
+    <uses-permission android:name="android.permission.MANAGE_VIRTUAL_MACHINE" />
+    <uses-feature android:name="android.software.virtualization_framework" android:required="true" />
+    <application android:testOnly="true" android:hasCode="false" />
+
+</manifest>

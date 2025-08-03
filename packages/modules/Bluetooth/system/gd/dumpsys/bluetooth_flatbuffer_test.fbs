@@ -1,0 +1,17 @@
+// Bluetooth module test schema
+
+attribute "privacy";
+
+table TestTable {
+    string_private:string; // no privacy attribute implies private
+    string_opaque:string (privacy:"Opaque");
+    string_anonymized:string (privacy:"Anonymized");
+    string_any:string (privacy:"Any");
+
+    int_private:int32 (privacy:"Private"); // Explicitly private
+    int_opaque:int32 (privacy:"Opaque");
+    int_anonymized:int32 (privacy:"Anonymized");
+    int_any:int32 (privacy:"Any");
+}
+
+root_type TestTable;

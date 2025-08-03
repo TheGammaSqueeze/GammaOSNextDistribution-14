@@ -1,0 +1,53 @@
+// Bluetooth SBC decoder static library for target
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "system_bt_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["system_bt_license"],
+}
+
+cc_library_static {
+    name: "libbt-sbc-decoder",
+    defaults: ["fluoride_defaults"],
+    srcs: [
+        "srce/alloc.c",
+        "srce/bitalloc-sbc.c",
+        "srce/bitalloc.c",
+        "srce/bitstream-decode.c",
+        "srce/decoder-oina.c",
+        "srce/decoder-private.c",
+        "srce/decoder-sbc.c",
+        "srce/dequant.c",
+        "srce/framing-sbc.c",
+        "srce/framing.c",
+        "srce/oi_codec_version.c",
+        "srce/synthesis-8-generated.c",
+        "srce/synthesis-dct8.c",
+        "srce/synthesis-sbc.c",
+    ],
+    local_include_dirs: [
+        "include",
+        "srce",
+    ],
+    host_supported: true,
+    apex_available: [
+        "com.android.btservices",
+    ],
+    min_sdk_version: "Tiramisu",
+}
+
+cc_fuzz {
+    name: "sbcdecoder_fuzzer",
+    srcs: [
+        "sbcdecoder_fuzzer.c",
+    ],
+    static_libs: [
+        "libbt-sbc-decoder",
+    ],
+    local_include_dirs: [
+        "include",
+    ],
+    host_supported: true,
+}

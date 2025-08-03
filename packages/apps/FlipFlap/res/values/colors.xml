@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  Copyright (c) 2017 The LineageOS Project
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ Also add information on how to contact you by electronic and paper mail.
+
+-->
+
+<resources>
+    <color name="circle_background">#002B24</color>
+    <color name="full_bat_bg">#01487f</color> <!-- blue-->
+    <color name="low_bat_bg">#841515</color> <!-- red-->
+    <color name="charge_bat_bg">#ffc107</color> <!-- yellow-->
+    <color name="clock_text_color">@android:color/white</color>
+
+    <color name="clock_white">#ffffff</color>
+    <color name="clock_gray">#80ffffff</color>
+    <color name="text_shadow">#dd000000</color>
+    <color name="text_shadow_opaque">#3f000000</color>
+    <color name="list_selector_focused">#cc33b5e5</color>
+    <color name="list_selector_activated">#4d33b5e5</color>
+
+    <!-- Dotcase colors -->
+    <color name="dotcase_color_orange">#ffffa500</color>
+</resources>

@@ -1,0 +1,82 @@
+// Copyright (C) 2020 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_binary {
+    name: "noop",
+    srcs: ["noop.cc"],
+    shared_libs: [
+      "libsharedlibtest",
+    ],
+    multilib: {
+        lib32: {
+            suffix: "32",
+        },
+        lib64: {
+            suffix: "64",
+        },
+    },
+
+    compile_multilib: "both",
+
+    apex_available: [
+      "com.android.apex.test.sharedlibs_stub",
+      "com.android.apex.test.sharedlibs_secondary_stub",
+    ],
+}
+
+python_binary_host {
+    name: "shared_libs_repack",
+    srcs: [
+        "shared_libs_repack.py",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+    libs: [
+        "apex_build_info_proto",
+        "apex_manifest_proto",
+    ],
+    required: [
+        "apexer",
+        "signapk",
+    ],
+}
+
+cc_library_shared {
+    name: "libsharedlibtest",
+    srcs: [ "sharedlibstest.cpp", ],
+
+    local_include_dirs: [
+        "include",
+    ],
+
+    export_include_dirs: [
+        "include",
+    ],
+    apex_available: [
+        "com.android.apex.test.bar",
+        "com.android.apex.test.baz",
+        "com.android.apex.test.foo",
+        "com.android.apex.test.pony",
+        "com.android.apex.test.sharedlibs_stub",
+        "com.android.apex.test.sharedlibs_secondary_stub",
+    ],
+}

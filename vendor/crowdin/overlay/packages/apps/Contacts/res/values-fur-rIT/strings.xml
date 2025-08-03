@@ -1,0 +1,543 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2006 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="applicationLabel">Contats</string>
+    <string name="contactsList">Contats</string>
+    <string name="shortcut_add_contact">Zonte contat</string>
+    <string name="shortcutContact">Contat</string>
+    <string name="shortcutDialContact">Composizion direte</string>
+    <string name="shortcutMessageContact">Messaç diret</string>
+    <string name="shortcutActivityTitle">Sielç contat</string>
+    <string name="contactInsertOrEditActivityTitle">Zonte al contat</string>
+    <string name="contactPickerActivityTitle">Sielç un contat</string>
+    <string name="groupMemberPickerActivityTitle">Selezione</string>
+    <string name="header_entry_contact_list_adapter_header_title">Cree un gnûf contat</string>
+    <string name="searchHint">Cîr contats</string>
+    <string name="menu_addStar">Zonte tai preferîts</string>
+    <string name="menu_removeStar">Gjave dai preferîts</string>
+    <string name="description_action_menu_remove_star">Gjavât dai preferîts</string>
+    <string name="description_action_menu_add_star">Zontât tai preferîts</string>
+    <string name="menu_editContact">Modifiche</string>
+    <string name="menu_deleteContact">Elimine</string>
+    <string name="menu_change_photo">Cambie foto</string>
+    <string name="menu_create_contact_shortcut">Cree une scurte</string>
+    <string name="menu_splitAggregate">Discubie</string>
+    <string name="menu_editGroup">Gjave contat</string>
+    <string name="menu_renameGroup">Torne a nomenâ la etichete</string>
+    <string name="menu_deleteGroup">Elimine etichete</string>
+    <string name="menu_addToGroup">Zonte contat</string>
+    <string name="menu_selectForGroup">Selezione contats</string>
+    <string name="menu_addContactsToGroup">Zonte contats</string>
+    <string name="menu_removeFromGroup">Gjave de etichete</string>
+    <string name="menu_new_group_action_bar">Cree etichete</string>
+    <string name="splitConfirmation">Discubiâ chest contat in plui contats?</string>
+    <string name="splitConfirmation_positive_button">Discubie</string>
+    <string name="splitConfirmationWithPendingChanges">Desideristu salvâ lis modifichis che tu âs za fat e discubiâ chest contat in plui contats?</string>
+    <string name="splitConfirmationWithPendingChanges_positive_button">Salve e discubie</string>
+    <string name="joinConfirmation">Desideristu salvâ lis modifichis che tu âs za fatis e colegâ cul contat selezionât?</string>
+    <string name="joinConfirmation_positive_button">Salve e coleghe</string>
+    <string name="contacts_linking_progress_bar">Daûr a colegâ</string>
+    <string name="contacts_unlinking_progress_bar">Daûr a discubiâ</string>
+    <string name="menu_joinAggregate">Coleghe</string>
+    <string name="menu_linkedContacts">Visualize i contats colegâts</string>
+    <string name="menu_save">Salve</string>
+    <string name="titleJoinContactDataWith">Coleghe contats</string>
+    <string name="blurbJoinContactDataWith">Sielç il contat che tu desideris colegâ cun <xliff:g id="name">%s</xliff:g>:</string>
+    <string name="separatorJoinAggregateSuggestions">Contats sugjerîts</string>
+    <string name="separatorJoinAggregateAll">Ducj i contats</string>
+    <string name="contactsJoinedNamedMessage"><xliff:g id="name">%s</xliff:g> colegât</string>
+    <string name="contactsJoinedMessage">Contats colegâts</string>
+    <string name="contacts_deleted_one_named_toast"><xliff:g id="name">%1$s</xliff:g> eliminâts</string>
+    <string name="contacts_deleted_two_named_toast"><xliff:g id="name">%1$s</xliff:g> e <xliff:g id="name">%2$s</xliff:g> eliminâts</string>
+    <string name="contacts_deleted_many_named_toast"><xliff:g id="name">%1$s</xliff:g>, <xliff:g id="name">%2$s</xliff:g>, <xliff:g id="name">%3$s</xliff:g>\u2026 eliminâts</string>
+    <string name="contacts_deleted_toast"> {count, plural,
+        one {}=1    {Contat eliminât}
+        other {Contats eliminâts}
+    }</string>
+    <string name="contacts_count"> {count, plural,
+        one {}=1    {# contat}
+        other {# contats}
+    }</string>
+    <string name="contacts_count_with_account"> {count, plural,
+        one {}=1    {# contat · {account}}
+        other {# contats · {account}}
+    }</string>
+    <string name="title_from_google">Di Google</string>
+    <string name="title_from_other_accounts">Di <xliff:g id="account">%s</xliff:g></string>
+    <string name="menu_set_ring_tone">Stabilìs sunarie</string>
+    <string name="menu_redirect_calls_to_vm">Indrece ae segretarie</string>
+    <string name="menu_unredirect_calls_to_vm">Disindrece de segratarie</string>
+    <string name="readOnlyContactWarning">Chest contat al è in dome-leture. Nol è pussibil eliminâlu, ma tu puedis platâlu.</string>
+    <string name="readOnlyContactWarning_positive_button">Plate contat</string>
+    <string name="readOnlyContactDeleteConfirmation">I accounts in dome-leture in chest contat a vignaran platâts, no eliminâts.</string>
+    <string name="single_delete_confirmation">Eliminâ chest contat?</string>
+    <string name="batch_delete_confirmation">Eliminâ i contats selezionâts?</string>
+    <string name="batch_delete_read_only_contact_confirmation">Nol è pussibil eliminâ i contats dai tiei accounts in dome-leture, ma al è pussibil platâju.</string>
+    <string name="batch_delete_multiple_accounts_confirmation">I contats di eliminâ a àn detais che a rivin di plui accounts. I detais dai accounts in dome-leture a vignaran platâts, no eliminâts.</string>
+    <string name="multipleContactDeleteConfirmation">Eliminant chest contat tu eliminarâs i detais che a rivin di plui accounts.</string>
+    <string name="deleteConfirmation">Eliminâ chest contat?</string>
+    <string name="deleteConfirmation_positive_button">Elimine</string>
+    <string name="invalidContactMessage">Il contat nol esist.</string>
+    <string name="createContactShortcutSuccessful_NoName">Contat zontât ae schermade di inizi.</string>
+    <string name="createContactShortcutSuccessful">Contat <xliff:g id="name">%s</xliff:g> zontât ae schermade di inizi.</string>
+    <string name="photoPickerNotFoundText">Nissune imagjin disponibile sul dispositîf.</string>
+    <string name="attach_photo_dialog_title">Foto dal contat</string>
+    <string name="customLabelPickerTitle">Non de etichete personalizât</string>
+    <string name="removePhoto">Gjave foto</string>
+    <string name="noContacts">La liste dai tiei contats e je vueide</string>
+    <string name="emptyGroup">Nissun contat cun cheste etichete</string>
+    <string name="emptyAccount">Nissun contat in chest account</string>
+    <string name="emptyMainList">La liste dai tiei contats e je vueide</string>
+    <string name="contactSavedNamedToast">Contat <xliff:g id="display_name">%s</xliff:g> salvât</string>
+    <string name="contactSavedToast">Contat salvât</string>
+    <string name="contactUnlinkedToast">Contats discubiâts</string>
+    <string name="contactSavedErrorToast">Nol è stât pussibil salvâ lis modifichis al contat</string>
+    <string name="contactUnlinkErrorToast">Nol è stât pussibil discubiâ il contat</string>
+    <string name="contactJoinErrorToast">Nol è stât pussibil colegâ il contat</string>
+    <string name="contactGenericErrorToast">Erôr tal salvâ il contat</string>
+    <string name="contactPhotoSavedErrorToast">Nol è stât pussibil salvâ lis modifichis ae foto dal contat</string>
+    <string name="groupLoadErrorToast">Nol è stât pussibil cjariâ la etichete</string>
+    <string name="groupDeletedToast">Etichete eliminade</string>
+    <string name="groupCreatedToast">Etichete creade</string>
+    <string name="groupCreateFailedToast">Impussibil creâ la etichete</string>
+    <string name="groupUpdatedToast">Etichete inzornade</string>
+    <string name="groupMembersRemovedToast">Gjavât(s) de etichete</string>
+    <string name="groupMembersAddedToast">Zontât(s) ae etichete</string>
+    <string name="groupSavedErrorToast">Nol è stât pussibil salvâ lis modifichis ae etichete</string>
+    <string name="groupExistsErrorMessage">Chê etichete e esist bielzà</string>
+    <string name="groupSomeContactsNoEmailsToast">Cualchi contat nol à la e-mail.</string>
+    <string name="groupSomeContactsNoPhonesToast">Cualchi contat nol à il numar di telefon.</string>
+    <string name="menu_sendEmailOption">Mande e-mail</string>
+    <string name="menu_sendMessageOption">Mande messaç</string>
+    <string name="pickerSelectContactsActivityTitle">Sielç contats</string>
+    <string name="send_to_selection">Mande</string>
+    <string name="listFoundAllContactsZero">Nissun contat</string>
+    <string name="add_contact_dlg_message_fmt">Zontâ \"<xliff:g id="email">%s</xliff:g>\" ai contats?</string>
+    <string name="search_settings_description">Nons dai tiei contats</string>
+    <string name="quickcontact_transparent_view_description">Fâs clic part tornâ ae schermade precedente</string>
+    <string name="quickcontact_add_phone_number">Zonte numar di telefon</string>
+    <string name="quickcontact_add_email">Zonte e-mail</string>
+    <string name="missing_app">No je stade cjatade nissune aplicazion par gjestî cheste azion.</string>
+    <string name="menu_share">Condivît</string>
+    <string name="menu_add_contact">Zonte ai contats</string>
+    <string name="menu_add_contacts">Zonte</string>
+    <string name="title_share_via"> {count, plural,
+        one {}=1    {Condivît contat vie}
+        other {Condivît contats vie}
+    }</string>
+    <string name="dialog_new_group_account">Sielç account</string>
+    <string name="group_name_dialog_insert_title">Cree etichete</string>
+    <string name="group_name_dialog_update_title">Torne a nomenâ etichete</string>
+    <string name="group_name_dialog_hint">Non de etichete</string>
+    <string name="label_name_dialog_hint">Non de etichete</string>
+    <string name="audio_chat">Chat vocâl</string>
+    <string name="video_chat">Chat video</string>
+    <string name="account_type_format">Contat di <xliff:g id="source" example="Gmail">%1$s</xliff:g></string>
+    <string name="google_account_type_format">Account di <xliff:g id="source" example="Google">%1$s</xliff:g></string>
+    <string name="take_photo">Fâs une foto</string>
+    <string name="take_new_photo">Fâs une gnove foto</string>
+    <string name="pick_photo">Sielç foto</string>
+    <string name="pick_new_photo">Selezione une gnove foto</string>
+    <string name="search_results_searching">Daûr a cirî\u2026</string>
+    <string name="event_edit_field_hint_text">Date</string>
+    <string name="group_edit_field_hint_text">Etichete</string>
+    <string name="editor_uneditable_section_title">Impussibil inzornâ cheste informazion</string>
+    <string name="cancel_button_content_description">Anule</string>
+    <string name="back_arrow_content_description">Indaûr</string>
+    <string name="action_menu_back_from_edit_select">siere</string>
+    <string name="aggregation_suggestion_edit_dialog_message">Passâ ae modifiche
+        dal contat selezionât? Lis informazions inseridis fin cumò a vignaran copiadis.</string>
+    <string name="contact_directory_description">Cartele <xliff:g id="type" example="Corporate Directory">%1$s</xliff:g></string>
+    <string name="activity_title_settings">Impostazions</string>
+    <string name="menu_settings" msgid="377929915873428211">Impostazions</string>
+    <string name="menu_help">Jutori e valutazions</string>
+    <string name="organization_entry_two_field">        <xliff:g id="first" example="Google">%1$s</xliff:g>
+         •
+         <xliff:g id="second" example="Developer">%2$s</xliff:g>
+    </string>
+    <string name="organization_entry_all_field">        <xliff:g id="company" example="Google">%1$s</xliff:g>
+         •
+         <xliff:g id="department" example="People">%2$s</xliff:g>
+         •
+         <xliff:g id="title" example="Developer">%3$s</xliff:g>
+    </string>
+    <string name="non_phone_caption">Numar telefonic</string>
+    <string name="non_phone_add_to_contacts">Zonte ai contats</string>
+    <string name="non_phone_close">Siere</string>
+    <string name="date_year_toggle">Inclût an</string>
+    <string name="contacts_unavailable_add_account">Zonte account</string>
+    <string name="contacts_unavailable_import_contacts">Impuarte</string>
+    <string name="create_group_item_label">Cree gnûf…</string>
+    <string name="delete_group_dialog_message">Eliminâ la etichete
+      \"<xliff:g id="group_label" example="Friends">%1$s</xliff:g>\"?
+      (I contats no vignaran eliminâts.)
+    </string>
+    <string name="toast_join_with_empty_contact">Scrîf il non dal contat prime di colegâlu
+      cuntun altri.
+    </string>
+    <string name="copy_text">Copie intes notis</string>
+    <string name="set_default">Met come predefinît</string>
+    <string name="clear_default">Nete impostazion predefinide</string>
+    <string name="toast_text_copied">Test copiât</string>
+    <string name="cancel_confirmation_dialog_message">Scartâ lis modifichis?</string>
+    <string name="cancel_confirmation_dialog_cancel_editing_button">Scarte</string>
+    <string name="cancel_confirmation_dialog_keep_editing_button">Anule</string>
+    <string name="leave_customize_confirmation_dialog_message">Scartâ lis personalizazions?</string>
+    <string name="enter_contact_name">Cîr contats</string>
+    <string name="title_edit_group">Gjave contats</string>
+    <string name="local_profile_title">Gno profîl locâl</string>
+    <string name="external_profile_title">Gno profîl <xliff:g id="external_source">%1$s</xliff:g></string>
+    <string name="contact_editor_prompt_zero_accounts">Cjapiti un minût par zontâ un account che al tignarà il backup dai tiei contats su Google.</string>
+    <string name="contact_editor_prompt_one_account">I gnûfs contats a vignaran salvâts su <xliff:g id="account_name">%1$s</xliff:g>.</string>
+    <string name="contact_editor_prompt_multiple_accounts">Sielç un account predefinît pai gnûfs contats:</string>
+    <string name="contact_editor_title_new_contact">Cree gnûf contat</string>
+    <string name="contact_editor_title_existing_contact">Modifiche contat</string>
+    <string name="contact_editor_title_read_only_contact">Dome viôt</string>
+    <string name="contact_editor_pick_raw_contact_to_edit_dialog_title">Sielç il contat di modificâ</string>
+    <string name="contact_editor_pick_linked_contact_dialog_title">Contats colegâts</string>
+    <string name="contact_editor_add_linked_contact">Zonte</string>
+    <string name="contact_editor_unlink_contacts">Discubie</string>
+    <string name="add_account">Zonte account</string>
+    <string name="add_new_account">Zonte gnûf account</string>
+    <string name="menu_export_database">Espuarte i files de base di dâts</string>
+    <string name="action_menu_add_new_contact_button">Cree un gnûf contat</string>
+    <string name="expanding_entry_card_view_see_more">Viôt di plui</string>
+    <string name="expanding_entry_card_view_see_less">Viôt di mancul</string>
+    <string name="about_card_title">Informazions</string>
+    <string name="toast_making_personal_copy">Daûr a creâ une copie personâl…</string>
+    <string name="date_time_set">Apliche</string>
+    <string name="header_im_entry">Messaçs istantanis</string>
+    <string name="header_organization_entry">Organizazion</string>
+    <string name="header_nickname_entry">Sorenon</string>
+    <string name="header_note_entry">Notis</string>
+    <string name="header_website_entry">Sît web</string>
+    <string name="header_event_entry">Event</string>
+    <string name="header_relation_entry">Relazion</string>
+    <string name="header_name_entry">Non</string>
+    <string name="header_email_entry">E-mail</string>
+    <string name="header_phone_entry">Telefon</string>
+    <string name="content_description_directions">direzions pe posizion</string>
+    <string name="editor_more_fields">Plui cjamps</string>
+    <string name="editor_change_photo_content_description">Cambie la foto dal contat</string>
+    <string name="editor_add_photo_content_description">Zonte une foto al contat</string>
+    <string name="editor_contact_photo_content_description">Foto dal contat</string>
+    <string name="editor_failed_to_load">Nol è stât pussibil vierzi l\'editôr.</string>
+    <string name="editor_account_selector_title">Daûr a salvâ su</string>
+    <string name="editor_account_selector_read_only_title">Nol è pussibil modificâ lis informazions dal contat di <xliff:g id="account">%s</xliff:g></string>
+    <string name="quickcontact_suggestion_link_button">COLEGHE CONTATS</string>
+    <string name="quickcontact_suggestion_cancel_button">ANULE</string>
+    <string name="suggestion_card_this_contact_title">Chest contat</string>
+    <string name="suggestion_card_duplicates_title">Pussibii doplis</string>
+    <string name="suggestion_card_help_message">Chescj contats a podaressin jessi la stesse persone. Tu puedis colegâju adun come singul contat.</string>
+    <string name="editor_delete_view_description">Elimine <xliff:g id="data_kind">%2$s</xliff:g> di <xliff:g id="data_type">%1$s</xliff:g></string>
+    <string name="editor_delete_view_description_short">Elimine <xliff:g id="data_kind">%s</xliff:g></string>
+    <string name="menu_assistant">Sugjeriments</string>
+    <string name="menu_assistant_new_badge">Gnûf</string>
+    <string name="navigation_drawer_open">Vierç il scansel di navigazion</string>
+    <string name="navigation_drawer_close">Siere il scansel di navigazion</string>
+    <string name="navigation_drawer_label">Etichete <xliff:g id="label_name">%s</xliff:g></string>
+    <string name="menu_title_groups">Etichetis</string>
+    <string name="menu_title_filters">Accounts</string>
+    <string name="hamburger_feature_highlight_header">Sugjeriments</string>
+    <string name="hamburger_feature_highlight_body">Ten i tiei contats organizâts e utii</string>
+    <string name="undo">Disfe</string>
+    <string name="call_custom">Clame
+        <xliff:g id="custom_label" example="business">%s</xliff:g>
+    </string>
+    <string name="call_home">Clame a cjase</string>
+    <string name="call_mobile">Clame il celulâr</string>
+    <string name="call_work">Clame a vore</string>
+    <string name="call_fax_work">Clame il fax di vore</string>
+    <string name="call_fax_home">Clame il fax di cjase</string>
+    <string name="call_pager">Clame il ciridôr</string>
+    <string name="call_other">Clame</string>
+    <string name="call_callback">Clame il numar di clamade di rispueste</string>
+    <string name="call_car">Clame la machine</string>
+    <string name="call_company_main">Clame il telefon principâl de societât</string>
+    <string name="call_isdn">Clame il numar ISDN</string>
+    <string name="call_main">Clame il telefon principâl</string>
+    <string name="call_other_fax">Clame il fax</string>
+    <string name="call_radio">Clame la radio</string>
+    <string name="call_telex">Clame il telex</string>
+    <string name="call_tty_tdd">Clame TTY/TDD</string>
+    <string name="call_work_mobile">Clame il celulâr di vore</string>
+    <string name="call_work_pager">Clame il ciridôr di vore</string>
+    <string name="call_assistant">Clame
+        <xliff:g id="custom_label" example="assistant">%s</xliff:g>
+    </string>
+    <string name="call_mms">Clame un MMS</string>
+    <string name="call_by_shortcut"><xliff:g id="contact_name">%s</xliff:g> (Clame)</string>
+    <string name="sms_custom">Test
+        <xliff:g id="custom_label" example="business">%s</xliff:g>
+    </string>
+    <string name="sms_home">Mande SMS a cjase</string>
+    <string name="sms_mobile">Mande SMS al celulâr</string>
+    <string name="sms_work">Mande SMS a vore</string>
+    <string name="sms_fax_work">Mande SMS al fax di vore</string>
+    <string name="sms_fax_home">Mande SMS al fax di cjase</string>
+    <string name="sms_pager">Mande SMS al ciridôr</string>
+    <string name="sms_other">Test</string>
+    <string name="sms_callback">Mande SMS al numar de clamade di rispueste</string>
+    <string name="sms_car">Mande SMS ae machine</string>
+    <string name="sms_company_main">Mande SMS al telefon principâl de societât</string>
+    <string name="sms_isdn">Mande SMS al numar ISDN</string>
+    <string name="sms_main">Mande SMS al telefon principâl</string>
+    <string name="sms_other_fax">Mande SMS al fax</string>
+    <string name="sms_radio">Mande SMS ae radio</string>
+    <string name="sms_telex">Mande SMS al telex</string>
+    <string name="sms_tty_tdd">Mande SMS a TTY/TDD</string>
+    <string name="sms_work_mobile">Mande SMS a celulâr di vore</string>
+    <string name="sms_work_pager">Mande SMS al ciridôr di vore</string>
+    <string name="sms_assistant">Mande SMS a
+        <xliff:g id="assistant">%s</xliff:g>
+    </string>
+    <string name="sms_mms">Mande SMS a MMS</string>
+    <string name="sms_by_shortcut"><xliff:g id="contact_name">%s</xliff:g> (Mande messaç)</string>
+    <string name="description_video_call">Fâs une videoclamade</string>
+    <string name="clearFrequentsConfirmation_title">Netâ i contatâts dispès?</string>
+    <string name="clearFrequentsConfirmation">Tu netarâs la liste dai contatâts dispès tes
+        aplicazions Contats e Telefon e tu oblearâs lis aplicazions pes e-mail a imparâ di zero lis
+        tôs preferencis pes direzions.
+    </string>
+    <string name="clearFrequentsProgress_title">Daûr a netâ i contatâts dispès\u2026</string>
+    <string name="status_available">Disponibil</string>
+    <string name="status_away">Assent</string>
+    <string name="status_busy">Impegnât</string>
+    <string name="local_invisible_directory">Altri</string>
+    <string name="directory_search_label">Cartele</string>
+    <string name="directory_search_label_work">Cartele di lavôr</string>
+    <string name="local_search_label">Ducj i contats</string>
+    <string name="description_quick_contact_for">Contat rapit par <xliff:g id="name">%1$s</xliff:g></string>
+    <string name="missing_name">(Cence non)</string>
+    <string name="favoritesFrequentContacted">Contatâts dispès</string>
+    <string name="list_filter_phones">Ducj i contats cun numars di telefon</string>
+    <string name="list_filter_phones_work">Contats dal profîl di lavôr</string>
+    <string name="view_updates_from_group">Viôt inzornaments</string>
+    <string name="account_phone">Dispositîf</string>
+    <string name="account_sim">SIM</string>
+    <string name="nameLabelsGroup">Non</string>
+    <string name="nicknameLabelsGroup">Sorenon</string>
+    <string name="name_given">Non</string>
+    <string name="name_family">Cognon</string>
+    <string name="name_prefix">Prefìs dal non</string>
+    <string name="name_middle">Secont non</string>
+    <string name="name_suffix">Sufìs dal non</string>
+    <string name="name_phonetic">Non fonetic</string>
+    <string name="name_phonetic_given">Non fonetic</string>
+    <string name="name_phonetic_middle">Secont non fonetic</string>
+    <string name="name_phonetic_family">Cognon fonetic</string>
+    <string name="phoneLabelsGroup">Telefon</string>
+    <string name="emailLabelsGroup">E-mail</string>
+    <string name="postalLabelsGroup">Recapit</string>
+    <string name="imLabelsGroup">Messaçs istantanis</string>
+    <string name="organizationLabelsGroup">Organizazion</string>
+    <string name="relationLabelsGroup">Relazion</string>
+    <string name="eventLabelsGroup">Date speciâl</string>
+    <string name="sms">Messaç di test</string>
+    <string name="postal_address">Recapit</string>
+    <string name="ghostData_company">Societât</string>
+    <string name="ghostData_department">Dipartiment</string>
+    <string name="ghostData_title">Titul</string>
+    <string name="label_notes">Notis</string>
+    <string name="label_custom_field">Personalize</string>
+    <string name="label_sip_address">SIP</string>
+    <string name="websiteLabelsGroup">Sît web</string>
+    <string name="groupsLabel">Etichetis</string>
+    <string name="email_home">Mande e-mail a cjase</string>
+    <string name="email_mobile">Mande e-mail al celulâr</string>
+    <string name="email_work">Mande e-mail a vore</string>
+    <string name="email_other">Mande e-mail</string>
+    <string name="email_custom">Mande e-mail a <xliff:g id="custom_label" example="business">%s</xliff:g></string>
+    <string name="email">Mande e-mail</string>
+    <string name="postal_street">Vie</string>
+    <string name="postal_city">Citât</string>
+    <string name="postal_region">Stât/regjon</string>
+    <string name="postal_postcode">Codiç postâl</string>
+    <string name="postal_country">Paîs</string>
+    <string name="map_home">Viôt recapit di cjase</string>
+    <string name="map_work">Viôt recapit di vore</string>
+    <string name="map_other">Viôt recapit</string>
+    <string name="map_custom">Viôt recapit di <xliff:g id="custom_label" example="vacation">%s</xliff:g></string>
+    <string name="chat_aim">Chate doprant AIM</string>
+    <string name="chat_msn">Chate doprant Windows Live</string>
+    <string name="chat_yahoo">Chate doprant Yahoo</string>
+    <string name="chat_skype">Chate doprant Skype</string>
+    <string name="chat_qq">Chate doprant QQ</string>
+    <string name="chat_gtalk">Chate doprant Google Talk</string>
+    <string name="chat_icq">Chate doprant ICQ</string>
+    <string name="chat_jabber">Chate doprant Jabber</string>
+    <string name="chat">Chate</string>
+    <string name="description_minus_button">elimine</string>
+    <string name="expand_name_fields_description">Mostre plui cjamps pal non</string>
+    <string name="collapse_name_fields_description">Strenç i cjamps pal non</string>
+    <string name="expand_phonetic_name_fields_description">Mostre plui cjamps pal non fonetic</string>
+    <string name="collapse_phonetic_name_fields_description">Strenç i cjamps pal non fonetic</string>
+    <string name="expand_fields_description">Slargje</string>
+    <string name="collapse_fields_description">Strenç</string>
+    <string name="announce_expanded_fields">Slargjât</string>
+    <string name="announce_collapsed_fields">Strenzût</string>
+    <string name="list_filter_all_accounts">Ducj i contats</string>
+    <string name="list_filter_all_starred">Speciâi</string>
+    <string name="list_filter_customize">Personalize</string>
+    <string name="list_filter_single">Contat</string>
+    <string name="display_ungrouped">Ducj chei altris contats</string>
+    <string name="display_all_contacts">Ducj i contats</string>
+    <string name="menu_sync_remove">Gjave grup di sincronizazion</string>
+    <string name="dialog_sync_add">Zonte grup di sincronizazion</string>
+    <string name="display_more_groups">Altris grups\u2026</string>
+    <string name="display_warn_remove_ungrouped">La rimozion di \"<xliff:g id="group" example="Starred">%s</xliff:g>\" de sincronizazion e gjavarà de sincronizazion ancje cualsisei contat cence grup.</string>
+    <string name="savingDisplayGroups">Daûr a salvâ lis opzions di visualizazion\u2026</string>
+    <string name="listCustomView">Viodude personalizade</string>
+    <string name="dialog_new_contact_account">Salve i contats impuartâts in:</string>
+    <string name="import_from_sim">Schede SIM</string>
+    <string name="import_from_sim_summary_fmt">SIM <xliff:g id="sim_name">%1$s</xliff:g></string>
+    <string name="import_from_sim_secondary_contact_count_fmt"> {count, plural,
+        one {}=1    {# contat}
+        other {# contats}
+    }</string>
+    <string name="import_from_sim_secondary_template"> {count, plural,
+        one {}=1    {# contat • <xliff:g id="phone_number">^1</xliff:g>}
+        other {# contats • <xliff:g id="phone_number">^1</xliff:g>}
+    }</string>
+    <string name="import_from_vcf_file">file .vcf</string>
+    <string name="nothing_to_import_message">Nuie di impuartâ</string>
+    <string name="import_from_vcf_file_confirmation_message">Impuartâ i contats de vCard?</string>
+    <string name="cancel_import_confirmation_message">Anulâ la importazion di <xliff:g id="filename" example="import.vcf">%s</xliff:g>?</string>
+    <string name="cancel_export_confirmation_message">Anulâ la esportazion di <xliff:g id="filename" example="export.vcf">%s</xliff:g>?</string>
+    <string name="cancel_vcard_import_or_export_failed">Nol è stât pussibil anulâ la importazion/esportazion de vCard</string>
+    <string name="fail_reason_unknown">Erôr no cognossût.</string>
+    <string name="fail_reason_could_not_open_file">Nol è stât pussibil vierzi \"<xliff:g id="file_name">%1$s</xliff:g>\": <xliff:g id="exact_reason">%2$s</xliff:g>.</string>
+    <string name="fail_reason_could_not_initialize_exporter">Nol è stât pussibil inviâ l\'esportadôr: \"<xliff:g id="exact_reason">%s</xliff:g>\".</string>
+    <string name="fail_reason_no_exportable_contact">No\'nd è nissun di contat che si pues espuartâ.</string>
+    <string name="missing_required_permission">Tu âs disativât un permès necessari.</string>
+    <string name="fail_reason_error_occurred_during_export">Al è capitât un erôr dulinvie de esportazion: \"<xliff:g id="exact_reason">%s</xliff:g>\".</string>
+    <string name="fail_reason_io_error">Erôr di I/O</string>
+    <string name="fail_reason_low_memory_during_import">No vonde memorie. Al è pussibil che il file al sedi masse grant.</string>
+    <string name="fail_reason_not_supported">Il formât nol è supuartât.</string>
+    <string name="exporting_vcard_finished_title">Esportazion di <xliff:g id="filename" example="export.vcf">%s</xliff:g> completade.</string>
+    <string name="exporting_vcard_finished_title_fallback">Esportazion dai contats completade.</string>
+    <string name="exporting_vcard_finished_toast">Esportazions dai contats completade, fâs clic su la notifiche par condividi i contats.</string>
+    <string name="touch_to_share_contacts">Tocje par condividi i contats.</string>
+    <string name="exporting_vcard_canceled_title">Esportazion di <xliff:g id="filename" example="export.vcf">%s</xliff:g> anulade.</string>
+    <string name="exporting_contact_list_title">Daûr a espuartâ i dâts dal contat</string>
+    <string name="exporting_contact_list_message">E je in cors la esportazion dai dâts dal contat.</string>
+    <string name="composer_failed_to_get_database_infomation">Nol è stât pussibil otignî informazions de base di dâts.</string>
+    <string name="composer_has_no_exportable_contact">No\'nt son di contats che si puedin espuartâ.</string>
+    <string name="composer_not_initialized">Il composidôr di vCard nol è partît ben.</string>
+    <string name="exporting_contact_failed_title">Nol è stât pussibil espuartâ</string>
+    <string name="exporting_contact_failed_message">I dâts dal contat no son stâts espuartâts.\nMotîf: \"<xliff:g id="fail_reason">%s</xliff:g>\"</string>
+    <string name="importing_vcard_description">Daûr a impuartâ <xliff:g id="name" example="Joe Due">%s</xliff:g></string>
+    <string name="reading_vcard_failed_title">Nol è stât pussibil lei i dâts de vCard</string>
+    <string name="importing_vcard_finished_title">Importazion de vCard <xliff:g id="filename" example="import.vcf">%s</xliff:g> completade</string>
+    <string name="importing_vcard_canceled_title">Importazion di <xliff:g id="filename" example="import.vcf">%s</xliff:g> anulade</string>
+    <string name="vcard_import_will_start_message"><xliff:g id="filename" example="import.vcf">%s</xliff:g> al vignarà impuartât chi di pôc.</string>
+    <string name="vcard_import_will_start_message_with_default_name">Il file al vignarà impuartât chi di pôc.</string>
+    <string name="vcard_import_request_rejected_message">La richieste di importazion de vCard e je stade refudade. Torne prove plui indenant.</string>
+    <string name="contacts_export_will_start_message">I contats a vignaran espuartâts chi di pôc.</string>
+    <string name="vcard_export_request_rejected_message">La richieste di esportazion de vCard e je stade refudade. Torne prove plui indenant.</string>
+    <string name="vcard_unknown_filename">contat</string>
+    <string name="caching_vcard_message">Daûr a meti te memorie temporanie locâl come cache la/lis vCard(s). La importazion efetive e scomençarà subit.</string>
+    <string name="vcard_import_failed">Nol è stât pussibil impuartâ la vCard.</string>
+    <string name="nfc_vcard_file_name">Contat ricevût vie NFC</string>
+    <string name="caching_vcard_title">Daûr a meti te cache</string>
+    <string name="progress_notifier_message">Daûr a impuartâ <xliff:g id="current_number">%1$s</xliff:g>/<xliff:g id="total_number">%2$s</xliff:g>: <xliff:g id="name" example="Joe Due">%3$s</xliff:g></string>
+    <string name="export_to_vcf_file">Espuarte su file .vcf</string>
+    <string name="display_options_sort_list_by">Ordene par</string>
+    <string name="display_options_phonetic_name_fields">Non fonetic</string>
+    <string name="editor_options_always_show_phonetic_names">Mostre simpri</string>
+    <string name="editor_options_hide_phonetic_names_if_empty">Plate se vueit</string>
+    <string name="display_options_sort_by_given_name">Non</string>
+    <string name="display_options_sort_by_family_name">Cognon</string>
+    <string name="display_options_view_names_as">Formât non</string>
+    <string name="display_options_view_given_name_first">Prime il non</string>
+    <string name="display_options_view_family_name_first">Prime il cognon</string>
+    <string name="settings_accounts">Accounts</string>
+    <string name="default_editor_account">Account predefinît pai gnûfs contats</string>
+    <string name="settings_my_info_title">Mês informazions</string>
+    <string name="set_up_profile">Configure il to profîl</string>
+    <string name="setting_about">Informazions su Contats</string>
+    <string name="share_favorite_contacts">Condivît i contats preferîts</string>
+    <string name="share_contacts">Condivît ducj i contats</string>
+    <string name="share_contacts_failure">Nol è stât pussibil condividi i contats.</string>
+    <string name="dialog_export">Espuarte contats</string>
+    <string name="dialog_import">Impuarte contats di</string>
+    <string name="share_error">Nol è pussibil condividi chest contat.</string>
+    <string name="no_contact_to_share">Nol è nissun contat di condividi.</string>
+    <string name="menu_contacts_filter">Contats di mostrâ</string>
+    <string name="activity_title_contacts_filter">Contats di mostrâ</string>
+    <string name="custom_list_filter">Personalize viodude</string>
+    <string name="menu_custom_filter_save">Salve</string>
+    <string name="hint_findContacts">Cîr contats</string>
+    <string name="contactsFavoritesLabel">Preferîts</string>
+    <string name="menu_import">Impuarte</string>
+    <string name="menu_export">Espuarte</string>
+    <string name="menu_blocked_numbers">Numars blocâts</string>
+    <string name="contact_status_update_attribution">vie <xliff:g id="source" example="Google Talk">%1$s</xliff:g></string>
+    <string name="contact_status_update_attribution_with_date"><xliff:g id="date" example="3 hours ago">%1$s</xliff:g> vie <xliff:g id="source" example="Google Talk">%2$s</xliff:g></string>
+    <string name="letter_tile_letter_font_family">sans-serif-medium</string>
+    <string name="action_menu_back_from_search">ferme di cirî</string>
+    <string name="description_clear_search">Nete la ricercje</string>
+    <string name="search_font_family">sans-serif</string>
+    <string name="select_account_dialog_title">Account</string>
+    <string name="set_default_account">Dopre simpri cheste pes clamadis</string>
+    <string name="call_with_a_note">Clamade cuntune note</string>
+    <string name="call_subject_hint">Scrîf une note di mandâ cu la clamade…</string>
+    <string name="send_and_call_button">MANDE E CLAME</string>
+    <string name="call_subject_limit"><xliff:g id="count" example="4">%1$s</xliff:g> / <xliff:g id="limit" example="64">%2$s</xliff:g></string>
+    <string name="call_subject_type_and_number"><xliff:g id="type" example="Mobile">%1$s</xliff:g> • <xliff:g id="number" example="(650) 555-1212">%2$s</xliff:g></string>
+    <string name="about_build_version">Version di compilazion</string>
+    <string name="about_open_source_licenses">Licencis di codiç viert</string>
+    <string name="about_open_source_licenses_summary">Detais de licence pal software a codiç viert</string>
+    <string name="about_privacy_policy">Informative su la riservatece</string>
+    <string name="about_terms_of_service">Tiermins dal servizi</string>
+    <string name="activity_title_licenses">Licencis di codiç viert</string>
+    <string name="url_open_error_toast">Nol è stât pussibil vierzi l\'url.</string>
+    <string name="account_filter_view_checked"><xliff:g id="account_info">%s</xliff:g> segnât</string>
+    <string name="account_filter_view_not_checked"><xliff:g id="account_info">%s</xliff:g> no segnât</string>
+    <string name="description_search_video_call">Scomence une videoclamade</string>
+    <string name="description_delete_contact">Elimine</string>
+    <string name="description_no_name_header">Elissi</string>
+    <string name="dynamic_shortcut_disabled_message">Cheste scurte e je stade disabilitade</string>
+    <string name="dynamic_shortcut_contact_removed_message">Il contat al è stât gjavât</string>
+    <string name="sim_import_button_text">Impuarte</string>
+    <string name="sim_import_title_none_selected">Selezione contats</string>
+    <string name="sim_import_empty_message">Nissun contat su la schede SIM</string>
+    <string name="sim_import_contact_exists_toast">Il contat al esist za te tô liste</string>
+    <string name="sim_import_success_toast_fmt"> {count, plural,
+        one {}=1    {# contat de SIM impuartât}
+        other {# contats de SIM impuartâts}
+    }</string>
+    <string name="sim_import_failed_toast">Nol è stât pussibil impuartâ i contats de SIM</string>
+    <string name="sim_import_title">Impuarte de SIM</string>
+    <string name="sim_import_cancel_content_description">Anule</string>
+    <string name="auto_sync_off">La sincronizazion automatiche e je disativade. Tocje par ativâle.</string>
+    <string name="dismiss_sync_alert">Siere</string>
+    <string name="account_sync_off">La sincronizazion dal account e je disativade. Tocje par ativâle.</string>
+    <string name="turn_auto_sync_on_dialog_title">Ativâ la sincronizazion automatiche?</string>
+    <string name="turn_auto_sync_on_dialog_body">Lis modifichis che tu fasis a dutis lis aplicazions e ai accounts, no dome a Contats di Google, a vignaran tignudis inzornadis tra il web e i tiei dispositîfs.</string>
+    <string name="turn_auto_sync_on_dialog_confirm_btn">Ative</string>
+    <string name="connection_error_message">Nissune conession</string>
+    <string name="single_sim_display_label">SIM</string>
+    <string name="show_more_content_description">Mostre altri</string>
+    <string name="importing_sim_finished_title">Importazion de schede SIM completade</string>
+    <string name="importing_sim_failed_title">Importazion falide</string>
+    <string name="importing_sim_failed_message">Nol è stât pussibil impuartâ i contats de schede SIM</string>
+    <string name="importing_sim_in_progress_title">Daûr a impuartâ la SIM</string>
+    <string name="contacts_default_notification_channel">Notifichis</string>
+    <string name="yes_button">Sì</string>
+    <string name="no_button">No</string>
+    <string name="sdn_contacts_directory_search_label">Numars di servizi dal operadôr</string>
+</resources>

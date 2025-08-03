@@ -1,0 +1,15 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_binary {
+    name: "microdroid_init_debug_policy",
+    defaults: ["avf_build_flags_rust"],
+    srcs: ["src/init_debug_policy.rs"],
+    stem: "init_debug_policy",
+    rustlibs: [
+        "librustutils",
+    ],
+    bootstrap: true,
+    prefer_rlib: true,
+}

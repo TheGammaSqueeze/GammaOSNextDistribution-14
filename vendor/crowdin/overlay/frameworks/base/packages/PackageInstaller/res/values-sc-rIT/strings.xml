@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="uninstall_all_blocked_profile_owner">Cust\'aplicatzione est netzessària pro unos cantos utentes o
+        profilos e est istada disinstallada pro àtere</string>
+    <string name="uninstall_blocked_profile_owner">Cust\'aplicatzione est netzessària pro
+        su profilu tuo e non si podet disinstallare.</string>
+    <string name="uninstall_blocked_device_owner">Custa aplicatzione est pedida
+        dae s\'amministradore de su dispositivu tuo e non faghet a dda disinstallare.</string>
+    <string name="cloned_app_label">Clone de <xliff:g id="package_label">%1$s</xliff:g></string>
+    <string name="archiving_app_label">Boles archiviare <xliff:g id="package_label">%1$s</xliff:g>?</string>
+    <string name="unarchive_application_title">Boles ripristinare <xliff:g id="appname" example="Bird Game">%1$s</xliff:g> dae <xliff:g id="installername" example="App Store">%2$s</xliff:g>?</string>
+    <string name="unarchive_body_text">S\'at a aviare s\'iscarrigamentu de custa aplicatzione in segundu pranu</string>
+    <string name="restore">Riprìstina</string>
+    <string name="unarchive_error_offline_title">Ses foras de lìnia</string>
+    <string name="unarchive_error_offline_body">        Pro ripristinare custa aplicatzione, controlla sa connessione a internet e torra·nce a proare
+    </string>
+    <string name="unarchive_error_generic_title">Calicuna cosa est andada male</string>
+    <string name="unarchive_error_generic_body">        Errore provende a ripristinare custa aplicatzione
+    </string>
+    <string name="unarchive_error_storage_title">Non nc\'at logu in s\'archiviatzione</string>
+    <string name="unarchive_error_storage_body">        Pro ripristinare custa aplicatzione, podes fàghere logu in custu dispositivu.
+        Memòria netzessària: <xliff:g id="bytes" example="100 MB">%1$s</xliff:g>
+    
+    </string>
+    <string name="unarchive_action_required_title">Atzione netzessària</string>
+    <string name="unarchive_action_required_body">        Sighi is passos imbenientes pro ripristinare custa aplicatzione
+    </string>
+    <string name="unarchive_error_installer_disabled_title">        <xliff:g id="installername" example="App Store">%1$s</xliff:g> disativadu
+    </string>
+    <string name="unarchive_error_installer_disabled_body">        Pro ripristinare custa aplicatzione, ativa
+        <xliff:g id="installername" example="App Store">%1$s</xliff:g> dae sa Cunfiguratzione
+    </string>
+    <string name="unarchive_error_installer_uninstalled_title">        <xliff:g id="installername" example="App Store">%1$s</xliff:g> est disinstalladu
+    </string>
+    <string name="unarchive_error_installer_uninstalled_body">        Pro ripristinare custa aplicatzione, depes installare
+        <xliff:g id="installername" example="App Store">%1$s</xliff:g>
+    </string>
+    <string name="unarchive_clear_storage_button">Lìmpia archiviatzione</string>
+    <string name="close">Serra</string>
+</resources>

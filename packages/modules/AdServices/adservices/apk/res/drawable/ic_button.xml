@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+        android:color="?android:attr/colorControlHighlight">
+    <item android:id="@android:id/mask">
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/primary_text_light" />
+            <corners android:radius="50dp" />
+        </shape>
+    </item>
+    <item android:drawable="@drawable/button_round_corners"
+            android:tint="?android:attr/colorControlNormal" />
+</ripple>

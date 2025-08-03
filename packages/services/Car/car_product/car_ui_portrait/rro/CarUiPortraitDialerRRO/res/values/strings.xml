@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="add_favorite_button_text">Add favorite</string>
+    <string name="restricted_dialing_mode_label">Dialpad usage is restricted while driving</string>
+    <string name="emergency_button_text">Emergency</string>
+    <string name="connect_bluetooth_button_text">Connect to Bluetooth</string>
+    <string name="decline_call"></string>
+    <string name="answer_call"></string>
+    <string name="no_hfp">
+        To complete your call, first connect your phone to your car via Bluetooth.
+    </string>
+    <!-- Titles -->
+    <!-- Title for the call history [CHAR LIMIT=30] -->
+    <string name="call_history_title">Recents</string>
+    <!-- Title for the contacts [CHAR LIMIT=30] -->
+    <string name="contacts_title">Contacts</string>
+    <!-- Title for the favorites [CHAR LIMIT=30] -->
+    <string name="favorites_title">Favorites</string>
+    <!-- Title for the dialpad [CHAR LIMIT=30] -->
+    <string name="dialpad_title">Dialpad</string>
+    <!-- Title of the search page [CHAR LIMIT=30]-->
+    <string name="search_title">Search</string>
+    <!-- Title of the settings page [CHAR LIMIT=30]-->
+    <string name="setting_title">Settings</string>
+
+    <!-- String constants for tabs -->
+    <!-- String constant for the call history -->
+    <string name="tab_config_call_history" translatable="false">CALL_HISTORY</string>
+    <!-- String constant for the contacts -->
+    <string name="tab_config_contacts" translatable="false">CONTACTS</string>
+    <!-- String constant for the favorites -->
+    <string name="tab_config_favorites" translatable="false">FAVORITE</string>
+    <!-- String constant for the dialpad -->
+    <string name="tab_config_dial_pad" translatable="false">DIAL_PAD</string>
+    <!-- String constant for the search -->
+    <string name="tab_config_search" translatable="false">SEARCH</string>
+    <!-- String constant for the settings -->
+    <string name="tab_config_settings" translatable="false">SETTINGS</string>
+</resources>

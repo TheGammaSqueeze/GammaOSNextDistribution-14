@@ -1,0 +1,39 @@
+/*
+ * Copyright (C) 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * This file contains all the CarData messages used in EVS related processes.
+ * It's preferred to group CarData messages used in a single process or service
+ * to improve performance and memory usage.
+ *
+ * All the messages must be defined in the CarData message and given a unique
+ * ID.
+ */
+
+syntax = "proto2";
+
+package android.automotive.telemetry;
+option java_package = "com.android.automotive.telemetry";
+option java_outer_classname = "EvsProto";
+
+message EvsFirstFrameLatency {
+  // Latency measurement start time since boot.
+  optional int64 start_timestamp_millis = 1;
+
+  // end-2-end latency since gear shifted to reverse and the
+  // first frame from camera is displayed on the screen.
+  optional int64 latency_millis = 2;
+}

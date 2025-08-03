@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="1265450418387661962">"TestSliceApp"</string>
+    <string name="hello_blank_fragment" msgid="1245093642770491175">"Boş salamlama fraqmenti"</string>
+    <string name="request_network" msgid="8945235490804849914">"Şəbəkə sorğusu göndərin"</string>
+    <string name="release_network" msgid="174252378593535238">"Şəbəkə ilə əlaqəni kəsin"</string>
+    <string name="ping" msgid="7890607576220714932">"Ping"</string>
+    <string name="result_prefix" msgid="3522796186427501399">"Nəticə:"</string>
+    <string name="latency_title" msgid="963052613947017009">"Gecikməni prioritetləşdirin"</string>
+    <string name="bw_title" msgid="3902162973688221344">"Ötürmə sürətini prioritetləşdirin"</string>
+    <string name="cbs_title" msgid="5234410535569935600">"CBS"</string>
+    <string name="purchase" msgid="7843181995697372128">"Premium şəbəkə satın alın"</string>
+    <string name="network_available" msgid="4780293262690730734">"Nəticə: Tələb olunan şəbəkə indi əlçatandır!"</string>
+    <string name="network_requested" msgid="5646123922691865991">"Nəticə: Şəbəkə sorğusu göndərildi!"</string>
+    <string name="network_released" msgid="2992280481133877025">"Nəticə: Şəbəkə ilə əlaqə kəsildi!"</string>
+    <string name="network_release_failed" msgid="256471231420029151">"Nəticə: Şəbəkə ilə əlaqəni kəsmək alınmadı!!!"</string>
+    <string name="purchase_exception" msgid="8876841120055716671">"Nəticə: Premium şəbəkə satın alan zaman istisna baş verdi!!!"</string>
+    <string name="purchase_empty_result" msgid="7497824191649973928">"Nəticə: Premium şəbəkə satın alan zaman boş nəticə əldə edildi!!!"</string>
+    <string name="premium_not_available" msgid="7346368693802644748">"Nəticə: Premium şəbəkə satın almaq mümkün deyil!!!"</string>
+    <string name="purchase_in_progress" msgid="5450288183685032424">"Nəticə: Premium şəbəkə satın almaq prosesi davam edir ..."</string>
+</resources>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+     <!-- Apps that are authorized to access shared accounts -->
+     <string name="config_appsAuthorizedForSharedAccounts" translatable="false">;com.android.vending;com.android.settings;</string>
+
+    <!-- Default service to enable with accessibility shortcut [DO NOT TRANSLATE] -->
+    <string name="config_defaultAccessibilityService" translatable="false">com.google.android.marvin.talkback/.TalkBackService</string>
+
+    <!-- The name of the package that will hold the speech recognizer role by default. -->
+    <string name="config_systemSpeechRecognizer" translatable="false">com.google.android.tts</string>
+
+    <!-- The name of the package that will hold the wellbeing role. -->
+    <string name="config_systemWellbeing" translatable="false">com.google.android.apps.wellbeing</string>
+
+    <!-- The package name for the default wellbeing application. [DO NOT TRANSLATE] -->
+    <string name="config_defaultWellbeingPackage" translatable="false">com.google.android.apps.wellbeing</string>
+
+    <!-- An array of packages that can make sound on the ringer stream in priority-only DND mode -->
+    <string-array name="config_priorityOnlyDndExemptPackages" translatable="false">
+        <item>com.android.dialer</item>
+        <item>com.google.android.dialer</item>
+        <item>com.android.server.telecom</item>
+        <item>android</item>
+        <item>com.android.systemui</item>
+    </string-array>
+
+    <!-- Colon separated list of package names that should be granted DND access -->
+    <string name="config_defaultDndAccessPackages" translatable="false">com.google.android.gms:com.google.android.apps.wellbeing</string>
+
+    <!-- Names of packages that should not be suspended when personal use is blocked by policy. -->
+    <string-array name="config_packagesExemptFromSuspension" translatable="false">
+        <item>com.google.android.apps.wellbeing</item>
+    </string-array>
+
+    <!-- List containing the allowed install sources for accessibility service. -->
+    <string-array name="config_accessibility_allowed_install_source" translatable="false">
+        <item>com.android.vending</item>
+    </string-array>
+
+    <!-- The names of the packages that will hold the system automotive projection role. -->
+    <string name="config_systemAutomotiveProjection" translatable="false">com.google.android.projection.gearhead</string>
+
+    <!-- The component name for the default profile supervisor, which can be set as a profile owner
+    even after user setup is complete. The defined component should be used for supervision purposes
+    only. The component must be part of a system app. -->
+    <string name="config_defaultSupervisionProfileOwnerComponent" translatable="false">com.google.android.gms/.kids.account.receiver.ProfileOwnerReceiver</string>
+
+    <string name="config_systemSupervision" translatable="false">com.google.android.gms.supervision</string>
+
+    <!-- The set of system packages on device that are queryable by any app regardless of the
+         contents of its manifest. -->
+    <string-array name="config_forceQueryablePackages" translatable="false">
+        <item>com.android.settings</item>
+        <item>com.android.providers.settings</item>
+        <!-- Add packages here -->
+        <item>com.android.vending</item>
+        <item>com.google.android.gms</item>
+    </string-array>
+
+    <!-- The name of the package that will hold the assistant role by default. -->
+    <string name="config_defaultAssistant" translatable="false">com.google.android.googlequicksearchbox</string>
+
+    <!-- Component name that accepts settings intents for saved devices.
+         Used by FastPairSettingsFragment. -->
+    <string translatable="false" name="config_defaultNearbyFastPairSettingsDevicesComponent">com.google.android.gms/com.google.android.gms.nearby.discovery.devices.SavedDevicesSettingsActivity</string>
+
+    <!-- The name of the package that will hold the game service role. -->
+    <string name="config_systemGameService" translatable="false">com.google.android.gms</string>
+
+    <!-- The name of the package that will hold the device management role and its certificate's SHA256. -->
+    <string name="config_devicePolicyManagement" translatable="false">com.google.android.apps.work.clouddpc:23962F4B43B9857638EA66F4D419518EAE282491ACDA4B94707BD59003C45E58</string>
+
+    <!-- The name of the package that will handle updating the device management role. -->
+    <string name="config_devicePolicyManagementUpdater" translatable="false">com.google.android.gms</string>
+
+    <!-- Flag indicating which package name can access the persistent data partition -->
+    <string name="config_persistentDataPackageName" translatable="false">com.google.android.gms</string>
+</resources>

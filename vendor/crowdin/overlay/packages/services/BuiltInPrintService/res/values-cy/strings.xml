@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2016 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Gwasanaeth Argraffu Rhagosodedig</string>
+    <string name="printer_busy">Yn brysur</string>
+    <string name="printer_out_of_paper">Allan o bapur</string>
+    <string name="printer_out_of_ink">Dim inc</string>
+    <string name="printer_out_of_toner">Allan o inc neu bwdr argraffu</string>
+    <string name="printer_low_on_ink">Dim llawer o inc</string>
+    <string name="printer_low_on_toner">Yn brin o inc neu bwdr argraffu</string>
+    <string name="printer_door_open">Drws ar agor</string>
+    <string name="printer_jammed">Yn sownd</string>
+    <string name="printer_offline">All-lein</string>
+    <string name="printer_bad_certificate">Tystysgrif ddrwg</string>
+    <string name="printer_not_encrypted">Heb ei amgryptio</string>
+    <string name="printer_check">Gwiria\'r argraffydd</string>
+    <string name="waiting_to_send">Yn aros i anfon</string>
+    <string name="unreadable_input">Methwyd â darllen y ddogfen</string>
+    <string name="media_size_l">M</string>
+    <string name="media_size_5x7in">5x7 mod</string>
+    <string name="media_size_89x119mm">89x119 mm</string>
+    <string name="media_size_54x86mm">54x86 mm</string>
+    <string name="media_size_8x10in">8x10 mod</string>
+    <string name="media_size_4x6in">4x6 mod</string>
+    <string name="printer_description">%1$s – %2$s</string>
+    <string name="title_activity_add_printer">Ychwanegu argraffydd</string>
+    <string name="add_printer_by_ip">Ychwanegu argraffydd gyda\'i gyfeiriad IP</string>
+    <string name="hostname_or_ip">Enw gwestai neu gyfeiriad IP</string>
+    <string name="ip_hint">192.168.0.4</string>
+    <string name="add">Ychwanegu</string>
+    <string name="add_named">Ychwanegu
+        <xliff:g example="Epson XP-610" id="printer">%1$s</xliff:g>
+    </string>
+    <string name="no_printer_found">Ni chanfuwyd argraffydd yn y cyfeiriad hwn</string>
+    <string name="printer_not_supported">Ni chefnogir yr argraffydd</string>
+    <string name="wifi_direct">Wi-Fi Direct</string>
+    <string name="find_wifi_direct">Canfod argraffwyr Wi-Fi Direct</string>
+    <string name="wifi_direct_printing">Argraffu Wi-Fi Uniongyrchol</string>
+    <string name="wifi_direct_printers">Argraffwyr Wi-Fi Direct</string>
+    <string name="searching">Yn chwilio\u2026</string>
+    <string name="connect_hint_text">Mae\'n bosib bydd yn rhaid caniatáu’r cysylltiad hwn ar banel dy argraffydd    </string>
+    <string name="connecting_to">Yn cysylltu â 
+        <xliff:g example="Epson XP-610" id="printer">%1$s</xliff:g>
+    </string>
+    <string name="failed_printer_connection">Methwyd â chysylltu â\'r argraffydd</string>
+    <string name="failed_connection">Methwyd â chysylltu â
+        <xliff:g example="Epson XP-610" id="printer">%1$s</xliff:g>
+    </string>
+    <string name="saved_printers">Argraffyddion wedi\'u cofio</string>
+    <string name="forget">Anghofio</string>
+    <string name="connects_via_wifi_direct">Mae\'n cysylltu â Wi-Fi Direct</string>
+    <string name="connects_via_network">Mae\'n cysylltu trwy\'r rhwydwaith cyfredol ar 
+        <xliff:g example="192.168.0.101" id="ip_address">%1$s</xliff:g>
+    </string>
+    <string name="recommendation_summary">Mae\'r Gwasanaeth Argraffu Rhagosodedig yn cynnig dewisiadau sylfaenol. Gall fod rhagor o ddewisiadau ar gyfer yr argraffydd hwn ar gael gan wasanaeth argraffu arall.</string>
+    <string name="recommendations_heading">Gwasanaethau argymelledig</string>
+    <string name="recommendation_install_summary">Dewisa i osod</string>
+    <string name="recommendation_enable_summary">Dewisa i alluogi</string>
+    <string name="recommendation_manage">Rheoli gwasanaethau</string>
+    <string name="security">Diogelwch</string>
+    <string name="certificate_update_request">Darparodd yr argraffydd hwn dystysgrif diogelwch newydd, neu mae dyfais arall yn ei ddynwared. Derbyn y dystysgrif newydd?</string>
+    <string name="not_encrypted_request">Dyw\'r argraffydd hwn ddim bellach yn derbyn gwaith wedi\'i amgryptio. Parhau i argraffu?</string>
+    <string name="accept">Derbyn</string>
+    <string name="reject">Gwrthod</string>
+    <string name="connections">Cysylltiadau</string>
+    <string name="wifi_direct_problem">Ni all y Gwasanaeth Argraffwyr Rhagosodedig ganfod argrafydd Wi-Fi Direct</string>
+    <string name="disable_wifi_direct">Analluogi Wi-Fi Direct</string>
+    <string name="wifi_direct_permission_rationale">Mae ar y Gwasanaeth Argraffu Rhagosodedig angen caniatâd dyfeisiau gerllaw i ganfod argraffwyr gerllaw.</string>
+    <string name="fix">Adolygu caniatâd</string>
+    <string name="print">Argraffu</string>
+</resources>

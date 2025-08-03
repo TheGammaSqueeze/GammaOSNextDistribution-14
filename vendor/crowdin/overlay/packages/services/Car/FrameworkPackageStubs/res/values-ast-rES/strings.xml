@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Stub d\'actividá</string>
+    <string name="message_not_supported">Nenguna aplicación pue remanar esta aición</string>
+    <string name="pip_not_supported">El mou «Imaxe superpuesta» nun ye compatible con esti preséu</string>
+    <string name="manage_unknown_app_sources_not_supported">La xestión de fontes d\'aplicaciones desconocíes de nun ye compatible con esti preséu</string>
+    <string name="documentsui_not_supported">La xestión de ficheros nun ye compatible con esti preséu</string>
+    <string name="stub_name">Nada</string>
+</resources>

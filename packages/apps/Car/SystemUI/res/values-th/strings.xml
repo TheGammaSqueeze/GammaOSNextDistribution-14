@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (c) 2018 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="hvac_min_text" msgid="866677328637088715">"Min"</string>
+    <string name="hvac_max_text" msgid="7627950157128770380">"Max"</string>
+    <string name="fan_speed_max" msgid="956683571700419211">"แรงสุด"</string>
+    <string name="fan_speed_off" msgid="3860115181014880798">"ปิด"</string>
+    <string name="hvac_temperature_off" msgid="8370977023494579242">"ปิด"</string>
+    <string name="voice_recognition_toast" msgid="7579725862117020349">"ตอนนี้อุปกรณ์บลูทูธที่เชื่อมต่อจะจัดการการจดจำเสียง"</string>
+    <string name="car_add_user" msgid="6182764665687382136">"เพิ่มโปรไฟล์"</string>
+    <string name="end_session" msgid="2765206020435441421">"จบเซสชัน"</string>
+    <string name="car_new_user" msgid="6766334721724989964">"โปรไฟล์ใหม่"</string>
+    <string name="user_add_profile_title" msgid="828371911076521952">"เพิ่มโปรไฟล์ใหม่ใช่ไหม"</string>
+    <string name="user_add_user_message_setup" msgid="1639791240776969175">"หลังจากที่คุณเพิ่มโปรไฟล์ใหม่แล้ว เจ้าของบัญชีดังกล่าวจะปรับแต่งได้"</string>
+    <string name="user_add_user_message_update" msgid="4507063398890966360">"ทุกโปรไฟล์สามารถติดตั้งอัปเดตแอป ซึ่งจะพร้อมให้โปรไฟล์ทั้งหมดใช้งานได้ในภายหลัง"</string>
+    <string name="profile_limit_reached_title" msgid="7891779218496729653">"มีโปรไฟล์ถึงขีดจำกัดแล้ว"</string>
+    <string name="profile_limit_reached_message" msgid="1534369584753840606">"{count,plural, =1{สร้างได้เพียงโปรไฟล์เดียวเท่านั้น}other{คุณเพิ่มโปรไฟล์ได้สูงสุด # โปรไฟล์}}"</string>
+    <string name="car_loading_profile" msgid="458961191993686065">"กำลังโหลด"</string>
+    <string name="car_loading_profile_developer_message" msgid="737810794567935702">"กำลังโหลดผู้ใช้ (จาก <xliff:g id="FROM_USER">%1$d</xliff:g> ถึง <xliff:g id="TO_USER">%2$d</xliff:g>)"</string>
+    <string name="privacy_chip_off_content" msgid="8406415098507955316">"<xliff:g id="SENSOR">%1$s</xliff:g>ปิดอยู่"</string>
+    <string name="privacy_chip_use_sensor" msgid="7688230720803089653">"ใช้<xliff:g id="SENSOR">%1$s</xliff:g>"</string>
+    <string name="privacy_chip_use_sensor_subtext" msgid="5655148288310815742">"สำหรับแอปที่มีสิทธิ์"</string>
+    <string name="privacy_chip_settings" msgid="8028897999244574288">"การตั้งค่าความเป็นส่วนตัว"</string>
+    <string name="privacy_chip_app_using_sensor_suffix" msgid="7921315376271490004">"<xliff:g id="APP">%1$s</xliff:g> กำลังใช้<xliff:g id="SENSOR">%2$s</xliff:g>"</string>
+    <string name="mic_privacy_chip_apps_using_mic_suffix" msgid="6656026041668305817">"<xliff:g id="APP_LIST">%s</xliff:g> กำลังใช้ไมค์"</string>
+    <string name="privacy_chip_app_recently_used_sensor_suffix" msgid="4632772067170022529">"<xliff:g id="APP">%1$s</xliff:g> ใช้<xliff:g id="SENSOR">%2$s</xliff:g>เมื่อเร็วๆ นี้"</string>
+    <string name="privacy_chip_apps_recently_used_sensor_suffix" msgid="2715537466314464047">"<xliff:g id="APP_0">%1$s</xliff:g> และอีก <xliff:g id="ADDITIONAL_APP_COUNT">%2$d</xliff:g> แอปใช้<xliff:g id="SENSOR">%3$s</xliff:g>เมื่อเร็วๆ นี้"</string>
+    <string name="mic_privacy_chip_on_toast" msgid="7003896860896586181">"เปิดไมโครโฟนแล้ว"</string>
+    <string name="mic_privacy_chip_off_toast" msgid="8718743873640788032">"ปิดไมโครโฟนแล้ว"</string>
+    <string name="mic_privacy_chip_dialog_ok" msgid="2298690833121720237">"ตกลง"</string>
+    <string name="sensor_privacy_start_use_mic_dialog_title" msgid="8774244900043105266">"เปิดไมโครโฟนในรถไหม"</string>
+    <string name="sensor_privacy_start_use_mic_dialog_content" msgid="8382980879434990801">"หากต้องการดำเนินการต่อ ให้เปิดไมโครโฟนของระบบสาระบันเทิง ซึ่งจะเป็นการจะเปิดไมโครโฟนสำหรับทุกแอปที่มีสิทธิ์"</string>
+    <string name="camera_privacy_chip_app_using_camera_suffix" msgid="2591363552459967509">"<xliff:g id="APP">%s</xliff:g> กำลังใช้กล้อง"</string>
+    <string name="camera_privacy_chip_apps_using_camera_suffix" msgid="8033118959615498419">"<xliff:g id="APP_LIST">%s</xliff:g> กำลังใช้กล้อง"</string>
+    <string name="camera_privacy_chip_app_recently_used_camera_suffix" msgid="4534950658276502559">"<xliff:g id="APP">%s</xliff:g> ใช้กล้องเมื่อเร็วๆ นี้"</string>
+    <string name="camera_privacy_chip_apps_recently_used_camera_suffix" msgid="3094973410349692954">"<xliff:g id="APP_0">%1$s</xliff:g> และอีก <xliff:g id="ADDITIONAL_APP_COUNT">%2$d</xliff:g> แอปใช้กล้องเมื่อเร็วๆ นี้"</string>
+    <string name="camera_privacy_chip_on_toast" msgid="7901274903678512207">"เปิดกล้องอยู่"</string>
+    <string name="camera_privacy_chip_off_toast" msgid="7135472255099347229">"ปิดกล้องอยู่"</string>
+    <string name="camera_privacy_chip_dialog_ok" msgid="7285467760928137765">"ตกลง"</string>
+    <string name="sensor_privacy_start_use_camera_dialog_title" msgid="4787836783010823885">"เปิดกล้องของรถยนต์ใช่ไหม"</string>
+    <string name="sensor_privacy_start_use_camera_dialog_content" msgid="7749639131326657668">"หากต้องการดำเนินการต่อ ให้เปิดกล้องของระบบสาระบันเทิง ซึ่งจะเป็นการเปิดกล้องสำหรับทุกแอปที่มีสิทธิ์"</string>
+    <string name="system_bar_home_label" msgid="8413273833405495948">"หน้าจอหลัก"</string>
+    <string name="system_bar_phone_label" msgid="5664288201806823777">"โทรศัพท์"</string>
+    <string name="system_bar_applications_label" msgid="7081862804211786227">"แอปพลิเคชัน"</string>
+    <string name="system_bar_climate_control_label" msgid="4091187805919276017">"การควบคุมการปรับอากาศ"</string>
+    <string name="system_bar_notifications_label" msgid="6039158514903928210">"การแจ้งเตือน"</string>
+    <string name="system_bar_maps_label" msgid="7883864993280235380">"แผนที่"</string>
+    <string name="system_bar_media_label" msgid="6156112139796274847">"สื่อ"</string>
+    <string name="system_bar_control_center_label" msgid="5269256399167811590">"ศูนย์ควบคุม"</string>
+    <string name="system_bar_assistant_label" msgid="7312821609046711200">"Assistant"</string>
+    <string name="system_bar_mic_privacy_chip" msgid="2494035034004728597">"ชิปความเป็นส่วนตัวของไมค์"</string>
+    <string name="system_bar_user_avatar" msgid="4122817348016746322">"รูปโปรไฟล์ผู้ใช้"</string>
+    <string name="system_bar_user_name_text" msgid="5859605302481171746">"ข้อความชื่อผู้ใช้"</string>
+    <string name="hvac_decrease_button_label" msgid="5628481079099995286">"ลดอุณหภูมิ"</string>
+    <string name="hvac_increase_button_label" msgid="2855688290787396792">"เพิ่มอุณหภูมิ"</string>
+    <string name="status_icon_bluetooth_disconnected" msgid="6773447522499007010">"การตั้งค่าบลูทูธ: ยกเลิกการเชื่อมต่อแล้ว"</string>
+    <string name="status_icon_bluetooth_connected" msgid="4548446117525711779">"การตั้งค่าบลูทูธ: เชื่อมต่อแล้ว"</string>
+    <string name="status_icon_bluetooth_off" msgid="5435041393564635821">"การตั้งค่าบลูทูธ: บลูทูธปิดอยู่"</string>
+    <string name="status_icon_signal_mobile" msgid="7264721079060179783">"การตั้งค่าสัญญาณ: ใช้อินเทอร์เน็ตมือถืออยู่"</string>
+    <string name="status_icon_signal_wifi" msgid="1257569337648058522">"การตั้งค่าสัญญาณ: Wi-Fi เปิดอยู่"</string>
+    <string name="status_icon_signal_hotspot" msgid="1023039120452006880">"การตั้งค่าสัญญาณ: ฮอตสปอตเปิดอยู่"</string>
+    <string name="status_icon_display_status" msgid="2970020923181359144">"การตั้งค่าการแสดงผล"</string>
+    <string name="status_icon_drive_mode" msgid="3938622431486261076">"โหมดขับรถ"</string>
+    <string name="activity_blocked_text" msgid="5353157279548801554">"คุณใช้ฟีเจอร์นี้ขณะขับรถไม่ได้"</string>
+    <string name="exit_button_close_application" msgid="112227710467017144">"ปิดแอป"</string>
+    <string name="exit_button_go_back" msgid="7988866855775300902">"กลับ"</string>
+    <string name="drive_mode_modes_comfort" msgid="628724737960743004">"สบาย"</string>
+    <string name="drive_mode_modes_eco" msgid="7694931508925737653">"อีโค"</string>
+    <string name="drive_mode_modes_sport" msgid="7664603138389270601">"สปอร์ต"</string>
+    <string name="qc_drive_mode_active_subtitle" msgid="3667965966971747414">"ใช้งานอยู่"</string>
+    <string name="qc_footer_settings" msgid="5471523941092316743">"การตั้งค่า"</string>
+    <string name="qc_footer_bluetooth_settings" msgid="2870204430643762847">"การตั้งค่าบลูทูธ"</string>
+    <string name="qc_footer_network_internet_settings" msgid="2480582764252681575">"การตั้งค่าเครือข่ายและอินเทอร์เน็ต"</string>
+    <string name="qc_footer_display_settings" msgid="2950539240110437704">"การตั้งค่าการแสดงผล"</string>
+    <string name="qc_footer_network_sound_settings" msgid="5117011034908775097">"การตั้งค่าเสียง"</string>
+    <string name="qc_footer_profiles_accounts_settings" msgid="4456419248123950232">"การตั้งค่าโปรไฟล์และบัญชี"</string>
+    <string name="lockpattern_does_not_support_rotary" msgid="4605787900312103476">"รูปแบบไม่รองรับปุ่มหมุน โปรดใช้หน้าจอสัมผัส"</string>
+    <string name="display_input_lock_text" msgid="1671197665816822205">"หน้าจอล็อกอยู่"</string>
+    <string name="display_input_lock_started_text" msgid="2434054522800802134">"หน้าจอล็อกอยู่"</string>
+    <string name="display_input_lock_stopped_text" msgid="5944577827512246808">"หน้าจอปลดล็อกแล้ว"</string>
+    <string name="user_logout_title" msgid="5534754139319586681">"คุณแน่ใจไหมว่าต้องการออกจากระบบ"</string>
+    <string name="user_logout_message" msgid="7804089876692575056">"การดำเนินการนี้จะปิดแอปพลิเคชันที่เปิดอยู่ทั้งหมด"</string>
+    <string name="user_logout" msgid="2934184154258330491">"ออกจากระบบ"</string>
+    <string name="car_guest" msgid="768913000117469596">"ผู้ใช้ชั่วคราว"</string>
+    <string name="user_switching_message" msgid="5346172662613832946">"กำลังสลับโปรไฟล์…"</string>
+    <string name="user_adding_message" msgid="4700853604381151415">"กำลังเพิ่มโปรไฟล์ใหม่…"</string>
+    <string name="max_user_limit_reached_title" msgid="7319012467112549458"></string>
+    <string name="max_user_limit_reached_message" msgid="1445188223628919167">"คุณเพิ่มได้สูงสุด <xliff:g id="USER_LIMIT">%d</xliff:g> โปรไฟล์"</string>
+    <string name="confirm_add_user_title" msgid="75853419607883551">"เพิ่มโปรไฟล์ใหม่ใช่ไหม"</string>
+    <string name="already_logged_in_message" msgid="3657131706472825219">"<xliff:g id="USER_NAME">%1$s</xliff:g> ควรออกจากระบบหน้าจอของ<xliff:g id="SEAT_LOCATION">%2$s</xliff:g>เพื่อดำเนินการต่อ"</string>
+    <string name="header_bar_text_in_logged_out_state" msgid="3903097856063608991">"เลือกโปรไฟล์เพื่อเริ่ม"</string>
+    <string name="logged_in_text" msgid="742324514947999718">"ลงชื่อเข้าใช้แล้ว"</string>
+    <string name="prefix_logged_in_info_for_other_seat" msgid="7438545665671460955">"ลงชื่อเข้าใช้หน้าจอของ<xliff:g id="SEAT_LOCATION">%s</xliff:g>แล้ว"</string>
+    <string name="create_user_failed_message" msgid="4539847475822170735">"เพิ่มโปรไฟล์ใหม่ไม่ได้ ลองอีกครั้งในภายหลัง"</string>
+    <string name="guest_creation_failed_message" msgid="8198126434029601949">"เริ่มโปรไฟล์ผู้ใช้ชั่วคราวไม่ได้ ลองอีกครั้งในภายหลัง"</string>
+    <string name="stopping_user_text" msgid="4946464635279894684">"กำลังออกจากระบบ…"</string>
+    <string name="wait_for_until_stopped_message" msgid="4964287657737020726">"<xliff:g id="USER_NAME">%s</xliff:g> กำลังออกจากระบบ ลองอีกครั้งในภายหลัง"</string>
+    <string name="seat_driver" msgid="4502591979520445677">"คนขับ"</string>
+    <string name="seat_front" msgid="836133281052793377">"ด้านหน้า"</string>
+    <string name="seat_rear" msgid="403133444964528577">"ด้านหลัง"</string>
+    <string name="seat_left_side" msgid="7460757956924015769">"ด้านซ้าย"</string>
+    <string name="seat_center_side" msgid="6661501442901282386">"ตรงกลาง"</string>
+    <string name="seat_right_side" msgid="6735434879559763096">"ด้านขวา"</string>
+    <string name="keyguard_enter_your_pin" msgid="141736439348916894"></string>
+    <string name="keyguard_enter_your_pattern" msgid="4004401928097798697"></string>
+    <string name="keyguard_enter_your_password" msgid="1345546935461513721"></string>
+    <string name="car_keyguard_enter_your_pin" msgid="6306637610891409860">"ป้อน PIN"</string>
+    <string name="car_keyguard_enter_your_pattern" msgid="7314854851472119334">"ป้อนรูปแบบ"</string>
+    <string name="car_keyguard_enter_your_password" msgid="2084173625085820354">"ป้อนรหัสผ่าน"</string>
+    <string name="backspace_key" msgid="5570862528655375412">"แป้น Backspace"</string>
+    <string name="enter_key" msgid="747962923921283095">"แป้น Enter"</string>
+    <string name="user_tos_activity_intent" msgid="6076292178025090081">"intent:#Intent;action=com.android.car.SHOW_USER_TOS_ACTIVITY;B.show_value_prop=false;end"</string>
+    <string name="back_btn" msgid="7774349944465667391">"กลับ"</string>
+    <string name="fullscreen" msgid="7648956467442135844">"เต็มหน้าจอ"</string>
+</resources>

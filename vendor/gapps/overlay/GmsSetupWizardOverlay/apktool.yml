@@ -1,0 +1,23 @@
+!!brut.androlib.apk.ApkInfo
+apkFileName: GmsSetupWizardOverlay.apk
+doNotCompress:
+- resources.arsc
+isFrameworkApk: false
+packageInfo:
+  forcedPackageId: '127'
+  renameManifestPackage: null
+resourcesAreCompressed: false
+sdkInfo:
+  minSdkVersion: '34'
+  targetSdkVersion: '34'
+sharedLibrary: false
+sparseResources: true
+unknownFiles: {}
+usesFramework:
+  ids:
+  - 1
+  tag: null
+version: 2.8.1
+versionInfo:
+  versionCode: '1'
+  versionName: '1.0'

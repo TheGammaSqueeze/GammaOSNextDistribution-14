@@ -1,0 +1,9 @@
+package: "android.embedded.chre.flags"
+
+flag {
+  name: "post_release_24q1"
+  namespace: "context_hub"
+  description: "Indidicates if this build targets releases beyond 24Q1"
+  bug: "287644619"
+  is_fixed_read_only: true
+}

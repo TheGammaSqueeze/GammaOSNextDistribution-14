@@ -1,0 +1,36 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_fuzz {
+    name: "example_java_jni_fuzzer",
+    srcs: [
+        "ExampleJavaJniFuzzer.java",
+    ],
+    host_supported: true,
+    static_libs: [
+        "jazzer",
+    ],
+    fuzz_config: {
+        fuzz_on_haiku_device: false,
+        fuzz_on_haiku_host: false,
+    },
+    jni_libs: [
+        "libnative_asan",
+        "libc++",
+    ],
+}
+
+cc_library_shared {
+    name: "libnative_asan",
+    host_supported: true,
+    srcs: [
+        "example_jni.cpp",
+    ],
+    static_libs: [
+        "libnativehelper_lazy",
+    ],
+    cflags: [
+        "-Wno-unused-parameter",
+    ],
+}

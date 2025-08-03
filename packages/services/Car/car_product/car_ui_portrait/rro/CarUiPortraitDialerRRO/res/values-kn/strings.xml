@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="add_favorite_button_text" msgid="769405423070740622">"ಮೆಚ್ಚಿನದನ್ನು ಸೇರಿಸಿ"</string>
+    <string name="restricted_dialing_mode_label" msgid="7172816353849537731">"ಡ್ರೈವ್ ಮಾಡುವಾಗ ಡಯಲ್‌ಪ್ಯಾಡ್ ಬಳಕೆಯನ್ನು ನಿರ್ಬಂಧಿಸಲಾಗಿದೆ"</string>
+    <string name="emergency_button_text" msgid="5012352862848993348">"ತುರ್ತು"</string>
+    <string name="connect_bluetooth_button_text" msgid="3404373747160373407">"ಬ್ಲೂಟೂತ್‌ಗೆ ಸಂಪರ್ಕಿಸಿ"</string>
+    <string name="decline_call" msgid="3593508497959313142"></string>
+    <string name="answer_call" msgid="5688982198411188640"></string>
+    <string name="no_hfp" msgid="2403350988312998712">"ನಿಮ್ಮ ಕರೆಯನ್ನು ಪೂರ್ಣಗೊಳಿಸಲು, ಮೊದಲು ನಿಮ್ಮ ಫೋನ್‌ ಅನ್ನು ಬ್ಲೂಟೂತ್ ಮೂಲಕ ಕಾರ್‌ಗೆ ಸಂಪರ್ಕಿಸಿ."</string>
+    <string name="call_history_title" msgid="2665386600747022608">"ಇತ್ತೀಚಿನವು"</string>
+    <string name="contacts_title" msgid="1240631807791315855">"ಸಂಪರ್ಕಗಳು"</string>
+    <string name="favorites_title" msgid="8714933097892306747">"ಮೆಚ್ಚಿನವುಗಳು"</string>
+    <string name="dialpad_title" msgid="8608224919862313238">"ಡಯಲ್‌ಪ್ಯಾಡ್"</string>
+    <string name="search_title" msgid="148494519593103958">"ಹುಡುಕಿ"</string>
+    <string name="setting_title" msgid="3060304451826880116">"ಸೆಟ್ಟಿಂಗ್‌ಗಳು"</string>
+</resources>

@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2018 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License
+  -->
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- colors for user switcher -->
+    <color name="car_user_switcher_background_color">@color/car_background</color>
+    <color name="car_user_switcher_name_text_color">@color/car_on_surface</color>
+    <color name="car_user_switcher_add_user_background_color">@color/car_surface_variant</color>
+    <color name="car_user_switcher_add_user_add_sign_color">@color/car_on_surface_variant</color>
+    <color name="car_managed_device_icon_color">@color/car_on_background</color>
+    <!-- colors for volume dialog tint -->
+    <color name="car_volume_dialog_tint">@color/car_on_surface</color>
+
+    <color name="docked_divider_background">@color/car_on_background</color>
+    <color name="system_bar_background_opaque">@color/car_background</color>
+
+    <!-- colors for status bar -->
+    <color name="system_bar_background_pill_color">@color/car_surface_3</color>
+    <color name="privacy_chip_indicator_color">@color/car_green_tint</color>
+    <color name="privacy_chip_dark_icon_color">@color/car_on_surface</color>
+    <color name="privacy_chip_light_icon_color">@color/car_nav_icon_fill_color_selected</color>
+    <color name="privacy_chip_indicator_outside_stroke_color">@android:color/black</color>
+    <color name="system_bar_icon_color">@android:color/white</color>
+    <color name="system_bar_icon_selected_color">@color/car_on_primary</color>
+    <color name="system_bar_text_color">@color/car_on_background</color>
+    <color name="system_bar_text_selected_color">@color/car_on_primary</color>
+    <drawable name="nav_bar_background">@android:color/black</drawable>
+    <drawable name="status_bar_background">@android:color/black</drawable>
+
+    <!-- colors for nav bar -->
+    <color name="car_nav_icon_fill_color">@color/car_on_surface</color>
+    <color name="car_nav_icon_background_color">@color/car_surface</color>
+    <color name="car_nav_icon_background_color_selected">@color/car_primary</color>
+
+    <!-- colors for quick controls entry points icon   -->
+    <color name="car_quick_controls_icon_drawable_color">@color/car_on_surface</color>
+
+    <!-- The background color of the notification shade -->
+    <color name="notification_shade_background_color">#D6000000</color>
+
+    <!-- The background color of the car volume dialog -->
+    <color name="car_volume_dialog_background_color">@color/system_bar_background_opaque</color>
+
+    <!-- The color of the dividing line between grouped notifications. -->
+    <color name="notification_divider_color">@*android:color/notification_action_list</color>
+
+    <!-- The color for the unseen indicator. -->
+    <color name="car_nav_unseen_indicator_color">@color/car_icon_indicator_color</color>
+
+    <!-- The color of the ripples on the untinted notifications -->
+    <color name="notification_ripple_untinted_color">@color/car_control_highlight</color>
+
+    <!-- The color of the notification handle bar -->
+    <color name="notification_handle_bar_color">@color/car_surface_variant</color>
+
+    <color name="keyguard_keypad_image_color">@android:color/white</color>
+
+    <color name="list_divider_color">@color/car_outline</color>
+    <color name="car_volume_item_divider_color">@color/car_outline</color>
+    <color name="car_volume_item_background_color">@color/car_surface</color>
+
+    <color name="car_user_switching_dialog_background_color">@color/car_surface</color>
+    <color name="car_user_switching_dialog_loading_text_color">@color/car_on_surface</color>
+
+    <!-- colors for the HVAC application. -->
+
+    <color name="hvac_panel_handle_bar_color">@color/car_surface_variant</color>
+
+    <color name="hvac_module_background_color">@color/car_secondary_container</color>
+
+    <color name="hvac_icon_color">@color/car_on_secondary_container</color>
+    <color name="hvac_master_switch_color">@color/hvac_icon_color</color>
+    <color name="hvac_icon_off_foreground_color">@color/car_on_secondary_container</color>
+    <color name="hvac_icon_on_foreground_color">@color/car_on_primary</color>
+    <color name="hvac_icon_on_background_color">@color/car_primary</color>
+    <color name="hvac_background_color">@color/car_background</color>
+    <color name="hvac_temperature_default_bg_color">@color/car_error</color>
+    <color name="hvac_temperature_off_text_bg_color">@color/car_primary</color>
+    <color name="hvac_fanspeed_bg_color">@color/car_surface</color>
+    <color name="hvac_fanspeed_segment_color">@color/car_primary</color>
+    <color name="hvac_seat_heat_level_drawable_off_fill_color">@color/car_surface_2</color>
+    <color name="hvac_seat_heat_level_drawable_on_fill_color">@color/car_primary</color>
+    <color name="hvac_temperature_control_icon_fill_color">@color/car_on_primary</color>
+    <color name="hvac_fanspeed_off_active_bg">@color/car_primary</color>
+    <color name="hvac_fanspeed_off_active_text_color">@color/car_on_primary</color> <!-- TODO: CHANGE -->
+    <color name="hvac_fanspeed_off_inactive_text_color">@color/car_secondary</color> <!-- TODO: CHANGE -->
+
+    <!-- Semi-transparent background color of blocking activity. -->
+    <color name="activity_blocking_activity_background">#c7000000</color>
+    <color name="activity_blocking_action_button_background_color">
+        @*android:color/car_grey_868
+    </color>
+
+    <!-- Color of text in blocking activity. -->
+    <color name="blocking_text">@android:color/white</color>
+    <color name="ic_ux_restricted_color">@android:color/white</color>
+
+    <!-- Color for status icon panel background. -->
+    <color name="status_icon_panel_bg_color">@color/car_background</color>
+
+    <!-- Color for highlighting the status icon button that is currently selected. -->
+    <color name="status_icon_selected_button_color">@color/car_primary</color>
+    <!-- Color for status icon that is currently highlighted. -->
+    <color name="status_icon_highlighted_color">@color/car_on_primary</color>
+    <!-- Color for status icon that is not highlighted. -->
+    <color name="status_icon_not_highlighted_color">@color/car_on_surface</color>
+
+    <!-- Color for clock text -->
+    <color name="system_bar_clock_text_color">@color/car_on_surface</color>
+
+    <!-- Colors for display input lock icon and text -->
+    <color name="display_input_lock_icon_color">@android:color/white</color>
+    <color name="display_input_lock_background_color">@*android:color/car_grey_868</color>
+
+    <!-- Color for user picker -->
+    <color name="user_picker_bottom_bar_color">@android:color/black</color>
+    <color name="user_picker_snack_bar_transparent_color">@android:color/white</color>
+    <color name="user_picker_snack_bar_background_color">@color/car_surface_3</color>
+    <color name="user_picker_user_name_color">@color/car_on_background</color>
+    <color name="user_picker_current_login_state_color">@color/car_primary</color>
+    <color name="user_picker_other_login_state_color">@color/car_on_background</color>
+    <color name="user_picker_background_pill_color">@color/car_surface_3</color>
+    <drawable name="user_picker_splash_icon">@android:color/transparent</drawable>
+
+    <!-- Color for button background in the quick controls panel. -->
+    <color name="car_quick_controls_pill_button_background_color">@color/car_surface_5</color>
+
+    <!-- Color for PIN Pad icon.-->
+    <color name="pin_pad_icon_color">@color/car_ui_text_color_primary</color>
+</resources>

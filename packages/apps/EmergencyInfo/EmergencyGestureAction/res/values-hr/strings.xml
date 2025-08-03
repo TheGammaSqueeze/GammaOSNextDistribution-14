@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="cancel" msgid="1942863792086990604">"Odustani"</string>
+    <string name="emergency_action_title" msgid="4329795972111990414">"SOS poziv"</string>
+    <string name="emergency_action_subtitle" msgid="5667616628096114616">"Priprema za pozivanje broja <xliff:g id="EMERGENCY_NUMBER">%1$s</xliff:g>"</string>
+    <string name="count_down_unit" msgid="7461042666268976220">"s"</string>
+    <string name="countdown_text_content_description" msgid="322778383478285712">"{seconds_left,plural, =1{1 s}one{# s}few{# s}other{# s}}"</string>
+    <string name="slider_seek_bar_content_description" msgid="811285658152645524">"Kliznite s dva prsta za aktivaciju"</string>
+</resources>

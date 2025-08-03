@@ -1,0 +1,24 @@
+{
+  "presubmit": [
+    {
+      "name": "vts_treble_vintf_framework_test"
+    },
+    {
+      "name": "vts_treble_vintf_vendor_test"
+    },
+    {
+      "name": "vts_treble_no_hidl"
+    }
+  ],
+  "hwasan-postsubmit": [
+    {
+      "name": "vts_treble_vintf_framework_test"
+    },
+    {
+      "name": "vts_treble_vintf_vendor_test"
+    },
+    {
+      "name": "vts_treble_no_hidl"
+    }
+  ]
+}

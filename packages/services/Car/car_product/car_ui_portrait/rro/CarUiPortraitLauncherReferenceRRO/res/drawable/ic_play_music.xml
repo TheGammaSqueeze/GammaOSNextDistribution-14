@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<vector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="@dimen/default_audio_icon_inner_icon_size"
+    android:height="@dimen/default_audio_icon_inner_icon_size"
+    android:viewportWidth="40"
+    android:viewportHeight="40">
+    <path
+        android:pathData="M40,20C40,8.96 31.04,0 20,0C8.96,0 0,8.96 0,20C0,31.04 8.96,40 20,40C31.04,40 40,31.04 40,20ZM28,14H22V25C22,27.76 19.76,30 17,30C14.24,30 12,27.76 12,25C12,22.24 14.24,20 17,20C18.14,20 19.16,20.38 20,21.02V10H28V14Z"
+        android:fillColor="@color/default_audio_background_image_color"/>
+</vector>

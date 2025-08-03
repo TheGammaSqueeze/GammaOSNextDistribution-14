@@ -1,0 +1,6 @@
+{
+  "name": "com.android.ipsec",
+  "version": 1,
+  "provideNativeLibs": [],
+  "requireNativeLibs": []
+}

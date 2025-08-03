@@ -1,0 +1,153 @@
+/*
+ * Copyright 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// The protobuf messages for lab host to export metadata and reosurce metrics.
+syntax = "proto3";
+
+package dual_home_lab.monitoring_agent.resource_monitoring;
+
+import "google/protobuf/timestamp.proto";
+
+option java_package = "com.google.dualhomelab.monitoringagent.resourcemonitoring";
+option java_multiple_files = true;
+option java_generic_services = true;
+
+// A tag-value pair message represents the metric value.
+// For example:
+// To represent device disk used percentage.
+// metric {
+//   tag: "/data"
+//   value: 20.5
+// }
+message Metric {
+  // A string tag associates to the value.
+  string tag = 1;
+  // A float value represents the resource value.
+  float value = 2;
+}
+
+// A message that describes the resource and its metrics.
+// For example:
+// To represent disk space usage values at certain moment.
+// resource {
+//   resource_name: "disk_space"
+//   resource_instance: "/data"
+//   timestamp {
+//     seconds: 1589342214
+//   }
+//   metric: {
+//     tag: "avail"
+//     value: 20.5
+//   }
+//   metric: {
+//     tag: "used"
+//     value: 18.7
+//   }
+//   metric: {
+//     tag: "reserved for root"
+//     value: 16.2
+//   }
+// }
+message Resource {
+  // A string resource name. ex. "cpu", "memory", "disk_space".
+  string resource_name = 1;
+  // A string reperesent the sub resource name.
+  string resource_instance = 2;
+  // The Metric describe the host or device resource usages.
+  repeated Metric metric = 3;
+  // The collecting timestamp.
+  google.protobuf.Timestamp timestamp = 4;
+}
+
+// A name-value message to represent the metadata attribute.
+// For example:
+// To represent the run target.
+// attribute {
+//   name: "run_target"
+//   value: "atom-userdebug"
+// }
+// To reperent the pools.
+// attribute {
+//   name: "pool"
+//   value: "asit"
+// }
+// attribute {
+//   name: "pool"
+//   value: "apct"
+// }
+message Attribute {
+  string name = 1;
+  string value = 2;
+}
+
+// A message that describes the device state and resource usages.
+// For example:
+// To represent a monitored host
+// host {
+//   identifier: {
+//     key: "lab_name"
+//     value: "us-mtv43"
+//   }
+//   identifier: {
+//     key: "host_name"
+//     value: "foo.bar.com"
+//   }
+//   identifier: {
+//     key: "test_harness"
+//     value: "tradefed"
+//   }
+//   attribute: {... check the attribute example above ...}
+//   resource: {... check the resource example abobe ...}
+// }
+// To represent a monitored device
+// device {
+//   identifier: {
+//     key: "device_serial"
+//     value: "VVEG-GIDSAN"
+//   }
+//   attribute: {... check the attribute example above ...}
+//   resource: {... check the resource example abobe ...}
+// }
+message MonitoredEntity {
+  // The string map that helps identify the monitored entity
+  map<string, string> identifier = 1;
+  // The attribute messages that describe the device metadata.
+  repeated Attribute attribute = 2;
+  // The resource messages that describe the device state and resource metrics.
+  repeated Resource resource = 3;
+}
+
+// A message that describe the state and resource usages for a lab host and its
+// connected devices.
+message LabResource {
+  MonitoredEntity host = 1;
+  repeated MonitoredEntity device = 2;
+}
+
+// The request message to query the LabResource.
+message LabResourceRequest {}
+
+// The service which is intend to export device metrics and metadata to the host
+// monitoring agent. The host monitoring agent is responsible for
+// collecting host/device metrics and exporting the metrics to user defined
+// cloud PubSub topics.
+service LabResourceService {
+  // Queries lab resource message.
+  rpc GetLabResource(LabResourceRequest) returns (LabResource) {
+    // The http equivalent is curl http://ADDRESS/v1/lab_resource_message
+    // (Assuming your service is hosted at the given 'ADDRESS')
+  }
+}

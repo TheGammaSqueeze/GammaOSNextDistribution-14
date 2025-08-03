@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (c) 2009, 2011-2013 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2014-2015 The CyanogenMod Project
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *    * Neither the name of The Linux Foundation nor
+ *      the names of its contributors may be used to endorse or promote
+ *      products derived from this software without specific prior written
+ *      permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NON-INFRINGEMENT ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Radio FM</string>
+    <string name="tx_app_name">Transmisor FM</string>
+    <string name="menu_scan_start">Explorar</string>
+    <string name="menu_scan_stop">Detener búsqueda</string>
+    <string name="menu_record_start">Grabar</string>
+    <string name="menu_record_stop">Detener grabación</string>
+    <string name="menu_settings">Ajustes</string>
+    <string name="menu_sleep">Suspender</string>
+    <string name="menu_sleep_cancel">Cancelar suspensión</string>
+    <string name="menu_all_channels">Todos los canales</string>
+    <string name="menu_display_tags">Mostrar etiquetas</string>
+    <string name="button_text_stop">Detener</string>
+    <string name="msg_seeking">Buscando estación FM\u2026</string>
+    <string name="msg_scanning">Explorando todas las estaciones FM\u2026</string>
+    <string name="msg_scanning_pty">Explorando «<xliff:g id="pty_name">%1$s</xliff:g>»\u2026</string>
+    <string name="msg_search_title"><xliff:g id="frequency_string">%1$s</xliff:g> MHz</string>
+    <string name="msg_searching_title">Selección automática de estaciones</string>
+    <string name="msg_searching">Buscando las estaciones con mejor señal para crear una lista de predefinidas\u2026</string>
+    <string name="msg_noantenna">Conectar auriculares para usar la radio FM</string>
+    <string name="dialog_sleep_title">Tiempo de suspensión automática</string>
+    <string name="presetlist_select_name">Seleccionar «<xliff:g id="presetlist_name">%1$s</xliff:g>»</string>
+    <string name="presetlist_add_new">Añadir nueva lista</string>
+    <string name="dialog_presetlist_rename_title">Ingresar nombre</string>
+    <string name="presetlist_autoselect_title">Confirmar selección automática</string>
+    <string name="preset_replace">Reemplazar</string>
+    <string name="preset_tune">Sintonizar</string>
+    <string name="preset_rename">Renombrar</string>
+    <string name="preset_delete">Borrar</string>
+    <string name="preset_search">Buscar «<xliff:g id="preset_pi">%1$s</xliff:g>»</string>
+    <string name="stat_notif_frequency">«<xliff:g id="frequency">%1$s</xliff:g>» MHz</string>
+    <string name="regional_band">Banda regional</string>
+    <string name="regional_band_entry_north_america">América del Norte</string>
+    <string name="regional_band_entry_europe">Europa</string>
+    <string name="regional_band_entry_japan">Japón</string>
+    <string name="regional_band_entry_japan_wide">Japón (todo)</string>
+    <string name="regional_band_entry_australia">Australia</string>
+    <string name="regional_band_entry_austria">Austria</string>
+    <string name="regional_band_entry_belgium">Bélgica</string>
+    <string name="regional_band_entry_brazil">Brasil</string>
+    <string name="regional_band_entry_china">China</string>
+    <string name="regional_band_entry_czech_republic">República Checa</string>
+    <string name="regional_band_entry_denmark">Dinamarca</string>
+    <string name="regional_band_entry_finland">Finlandia</string>
+    <string name="regional_band_entry_france">Francia</string>
+    <string name="regional_band_entry_germany">Alemania</string>
+    <string name="regional_band_entry_greece">Grecia</string>
+    <string name="regional_band_entry_hong_kong">Hong Kong</string>
+    <string name="regional_band_entry_india">India</string>
+    <string name="regional_band_entry_indonesia">Indonesia</string>
+    <string name="regional_band_entry_ireland">Irlanda</string>
+    <string name="regional_band_entry_italy">Italia</string>
+    <string name="regional_band_entry_korea">Corea</string>
+    <string name="regional_band_entry_mexico">México</string>
+    <string name="regional_band_entry_netherlands">Países Bajos</string>
+    <string name="regional_band_entry_new_zealand">Nueva Zelanda</string>
+    <string name="regional_band_entry_norway">Noruega</string>
+    <string name="regional_band_entry_poland">Polonia</string>
+    <string name="regional_band_entry_portugal">Portugal</string>
+    <string name="regional_band_entry_russia">Rusia</string>
+    <string name="regional_band_entry_singapore">Singapur</string>
+    <string name="regional_band_entry_slovakia">Eslovaquia</string>
+    <string name="regional_band_entry_spain">España</string>
+    <string name="regional_band_entry_switzerland">Suiza</string>
+    <string name="regional_band_entry_sweden">Suecia</string>
+    <string name="regional_band_entry_taiwan">Taiwán</string>
+    <string name="regional_band_entry_turkey">Turquía</string>
+    <string name="regional_band_entry_united_kingdom">Reino Unido</string>
+    <string name="regional_band_entry_united_states">Estados Unidos</string>
+    <string name="regional_band_entry_user_defined">Banda definida por el usuario</string>
+    <string name="regional_band_summary_north_america">Norteamérica (87.5 MHz a 108.0 MHz en intervalos de 200 KHz)</string>
+    <string name="regional_band_summary_europe">Europa (87.5 MHz a 108.0 MHz en intervalos de 100 KHz)</string>
+    <string name="regional_band_summary_japan">Japón (76.0 MHz a 90.0 MHz en intervalos de 100 KHz)</string>
+    <string name="regional_band_summary_japan_wide">Japón (amplio) (90.0 MHz a 108.0 MHz en intervalos de 50 KHz)</string>
+    <string name="regional_band_summary_australia">Australia (87.7 MHz a 108.0 MHz en intervalos de 100 KHz)</string>
+    <string name="regional_band_summary_austria">Austria (87.5 MHz a 108.0 MHz en intervalos de 50 KHz)</string>
+    <string name="regional_band_summary_belgium">Bélgica (87.5 MHz a 108.0 MHz en intervalos de 100 KHz)</string>
+    <string name="regional_band_summary_brazil">Brasil (87.5 MHz a 108.0 MHz en intervalos de 200 KHz)</string>
+    <string name="regional_band_summary_china">China (87.0 MHz a 108.0 MHz en intervalos de 100 KHz)</string>
+    <string name="regional_band_summary_czech_republic">República Checa (87.5 MHz a 108.0 MHz en intervalos de 100 KHz)</string>
+    <string name="regional_band_summary_denmark">Dinamarca (87.5 MHz a 108.0 MHz en intervalos de 50 KHz)</string>
+    <string name="regional_band_summary_finland">Finlandia (87.5 MHz a 108.0 MHz en intervalos de 100 KHz)</string>
+    <string name="regional_band_summary_france">Francia (87.5 MHz a 108.0 MHz en intervalos de 100 KHz)</string>
+    <string name="regional_band_summary_germany">Alemania (87.5 MHz a 108.0 MHz en intervalos de 50 KHz)</string>
+    <string name="regional_band_summary_greece">Grecia (87.5 MHz a 108.0 MHz en intervalos de 50 KHz)</string>
+    <string name="regional_band_summary_hong_kong">Hong Kong (87.5 MHz a 108.0 MHz en intervalos de 100 KHz)</string>
+    <string name="regional_band_summary_india">India (87.5 MHz a 108.0 MHz en intervalos de 100 KHz)</string>
+    <string name="regional_band_summary_indonesia">Indonesia (87.5 MHz a 108.0 MHz en intervalos de 100 KHz)</string>
+    <string name="regional_band_summary_ireland">Irlanda (87.5 MHz a 108.0 MHz en intervalos de 50 KHz)</string>
+    <string name="regional_band_summary_italy">Italia (87.5 MHz a 108.0 MHz en intervalos de 50 KHz)</string>
+    <string name="regional_band_summary_korea">Corea (87.5 MHz a 108.0 MHz en intervalos de 200 KHz)</string>
+    <string name="regional_band_summary_mexico">México (88.1 MHz a 107.9 MHz en intervalos de 200 KHz)</string>
+    <string name="regional_band_summary_netherlands">Países Bajos (87.5 MHz a 108.0 MHz en intervalos de 100 KHz)</string>
+    <string name="regional_band_summary_new_zealand">Nueva Zelanda (88.0 MHz a 107.0 MHz en intervalos de 100 KHz)</string>
+    <string name="regional_band_summary_norway">Noruega (87.5 MHz a 108.0 MHz en intervalos de 100 KHz)</string>
+    <string name="regional_band_summary_poland">Polonia (87.5 MHz a 108.0 MHz en intervalos de 100 KHz)</string>
+    <string name="regional_band_summary_portugal">Portugal (87.5 MHz a 108.0 MHz en intervalos de 50 KHz)</string>
+    <string name="regional_band_summary_russia">Rusia (87.5 MHz a 108.0 MHz en intervalos de 100 KHz)</string>
+    <string name="regional_band_summary_singapore">Singapur (88.0 MHz a 108.0 MHz en intervalos de 100 KHz)</string>
+    <string name="regional_band_summary_slovakia">Eslovaquia (87.5 MHz a 108.0 MHz en intervalos de 100 KHz)</string>
+    <string name="regional_band_summary_spain">España (87.5 MHz a 108.0 MHz en intervalos de 100 KHz)</string>
+    <string name="regional_band_summary_switzerland">Suiza (87.5 MHz a 108.0 MHz en intervalos de 100 KHz)</string>
+    <string name="regional_band_summary_sweden">Suecia (87.5 MHz a 108.0 MHz en intervalos de 100 KHz)</string>
+    <string name="regional_band_summary_taiwan">Taiwán (87.5 MHz a 108.0 MHz en segmentos de 100 KHz)</string>
+    <string name="regional_band_summary_turkey">Turquía (87.5 MHz a 108.0 MHz en intervalos de 100 KHz)</string>
+    <string name="regional_band_summary_united_kingdom">Reino Unido (87.5 MHz a 108.0 MHz en intervalos de 100 KHz)</string>
+    <string name="regional_band_summary_united_states">Estados Unidos (88.1 MHz a 107.9 MHz en intervalos de 200 KHz)</string>
+    <string name="regional_band_summary_user_defined">Banda definida por el usuario</string>
+    <string name="aud_output_mode">Modo de salida de audio</string>
+    <string name="audio_type_stereo">Estéreo</string>
+    <string name="audio_type_mono">Mono</string>
+    <string name="record_dur">Duración de grabación</string>
+    <string name="auto_select_af">Frecuencia alternativa</string>
+    <string name="settings_revert_defaults_title">Restablecer ajustes de fábrica</string>
+    <string name="settings_revert_defaults_summary">Restablecer todos los ajustes</string>
+    <string name="settings_revert_confirm_title">Confirmar restablecimiento</string>
+    <string name="settings_revert_confirm_msg">Esta acción borrará todos los ajustes de la aplicación, incluidas las emisoras almacenadas. ¿Continuar?</string>
+    <string name="no_storage">Montar la tarjeta SD antes de iniciar la grabación.</string>
+    <string name="preparing_sd">Preparando tarjeta SD…</string>
+    <string name="access_sd_fail">No se pudo acceder a la tarjeta SD.</string>
+    <string name="spaceIsLow_content">La tarjeta SD se está quedando sin espacio. Cambiar el ajuste de calidad o borrar algunas imágenes o archivos.</string>
+    <string name="FMRecording_reach_size_limit">Se alcanzó el límite de tamaño.</string>
+    <string name="menu_scan_for_preset">Explorar preseleccionadas</string>
+    <string name="fm_off">La radio FM está apagada.</string>
+    <string name="fm_call">La radio FM no se puede utilizar durante una llamada.</string>
+    <string name="alert_dialog_hint">Ingresa un nombre</string>
+    <string name="search_dialog_title">Explorar estaciones</string>
+    <string name="fm_command_timeout_title">Tiempo de espera</string>
+    <string name="fm_tune_timeout_msg">No se ha recibido respuesta de la emisora FM. Si el problema persiste, apaga la radio y vuelve a encenderla.</string>
+    <string name="fm_command_failed_title">Error en la operación FM</string>
+    <string name="fm_cmd_failed_msg">Error en la operación FM. Si el problema persiste, apaga la radio y vuelve a encenderla.</string>
+    <string name="fm_cmd_failed_msg_hdmi">Error en la operación FM. No se soporta el uso de la radio y el HDMI simultáneamente.</string>
+    <string name="fm_cmd_failed_call_on">Error en la operación FM. El audio FM no está permitido durante una llamada.</string>
+    <string name="audio_db_title_format"><xliff:g id="format">yyyy-MM-dd HH:mm:ss</xliff:g></string>
+    <string name="audio_db_artist_name">Mis grabaciones FM</string>
+    <string name="audio_db_album_name">Grabaciones FM</string>
+    <string name="audio_db_playlist_name">Grabaciones FM</string>
+    <string name="station_name">Emisora:</string>
+    <string name="station_exists">¡Esta frecuencia ya existe!</string>
+    <string name="station_list_delete_station">Eliminar:<xliff:g id="name">%s</xliff:g></string>
+    <string name="station_list_delete_station_prompt">¿Quieres borrar «<xliff:g id="name">%s</xliff:g>»?</string>
+    <string name="station_name_empty">Nombre de estación vacío. Escribe uno de nuevo.</string>
+    <string name="station_name_exist">«<xliff:g id="name">%s</xliff:g>» ya está en uso. Ingresa un nombre distinto.</string>
+    <string name="rt_plus_tags">Etiquetas</string>
+    <string name="usr_def_band_min">Frecuencia más baja (MHz)</string>
+    <string name="usr_def_band_max">Frecuencia más alta (MHz)</string>
+    <string name="chanl_spacing">Espaciado de canales</string>
+    <string name="set">Establecer</string>
+    <string name="user_defind_band_msg">Ingresa una frecuencia entre 76.0 MHz y 108.0 MHz con al menos 1 canal de espacio y 100KHz entre la frecuencia mínima y máxima</string>
+    <string name="save_record_file">Archivo de grabación de FM guardado en «<xliff:g id="record_file">%1$s</xliff:g>»</string>
+    <string name="fm_search_no_results">No se encontraron emisoras compatibles</string>
+    <string name="typ_All_stations">Todas las estaciones</string>
+    <string name="typ_Culture">Cultura</string>
+    <string name="typ_Current_affairs">Temas de actualidad</string>
+    <string name="typ_Children">Programas infantiles</string>
+    <string name="typ_Country">Música country</string>
+    <string name="typ_Documentary">Documental</string>
+    <string name="typ_Drama">Drama</string>
+    <string name="typ_Easy_listening">Música ligera</string>
+    <string name="typ_Education">Educación</string>
+    <string name="typ_Emergency">Emergencia</string>
+    <string name="typ_Emergency_test">Prueba de emergencia</string>
+    <string name="typ_Finance">Finanzas</string>
+    <string name="typ_Folk">Música folklórica</string>
+    <string name="typ_Information">Información</string>
+    <string name="typ_Jazz">Música jazz</string>
+    <string name="typ_Light_classical">Clásica ligera</string>
+    <string name="typ_Leisure">Ocio</string>
+    <string name="typ_News">Noticias</string>
+    <string name="typ_National">Música nacional</string>
+    <string name="typ_Other">Otra música</string>
+    <string name="typ_Oldies">Éxitos musicales</string>
+    <string name="typ_Phone_in">Por teléfono</string>
+    <string name="typ_Pop">Música pop</string>
+    <string name="typ_Religion">Religión</string>
+    <string name="typ_Rock">Música rock</string>
+    <string name="typ_Science">Ciencia</string>
+    <string name="typ_Serious_classical">Clásica tradicional</string>
+    <string name="typ_Social_affairs">Temas sociales</string>
+    <string name="typ_Sport">Deporte</string>
+    <string name="typ_Travel">Viajes</string>
+    <string name="typ_Varied">Variado</string>
+    <string name="typ_Weather">Clima</string>
+    <string name="typ_Adult_hits">Éxitos de siempre</string>
+    <string name="typ_Classical">Clásica</string>
+    <string name="typ_Classic_Rock">Rock clásico</string>
+    <string name="typ_College">Estudiantil</string>
+    <string name="typ_Foreign_language">Idioma extranjero</string>
+    <string name="typ_Hiphop">Hip-Hop</string>
+    <string name="typ_Nostalgia">Nostalgia</string>
+    <string name="typ_Personality">Personalidades</string>
+    <string name="typ_Public">Público</string>
+    <string name="typ_Religious_music">Música religiosa</string>
+    <string name="typ_Religious_talk">Conversaciones religiosas</string>
+    <string name="typ_Rhythm_and_Blues">Rhythm and Blues</string>
+    <string name="typ_Spanish_music">Música en español</string>
+    <string name="typ_Spanish_talk">Tertulia en español</string>
+    <string name="typ_Soft">Ligera</string>
+    <string name="typ_Soft_Rock">Rock ligero</string>
+    <string name="typ_Soft_Rhythm_and_Blues">Rhythm and Blues ligero</string>
+    <string name="typ_Sports">Deportes</string>
+    <string name="typ_Talk">Conversaciones</string>
+    <string name="typ_Top_40">Top 40</string>
+</resources>

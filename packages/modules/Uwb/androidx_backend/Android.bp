@@ -1,0 +1,104 @@
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_team: "trendy_team_fwk_uwb",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+aidl_interface {
+    name: "androidx.core.uwb.backend.aidl_interface",
+    owner: "Google",
+    local_include_dir: "interface",
+    srcs: [
+        "interface/**/*.aidl",
+    ],
+    backend: {
+        java: {
+            enabled: true,
+            min_sdk_version: "30",
+            apex_available: [
+                "com.android.tethering",
+                "//apex_available:platform",
+            ],
+        },
+    },
+    visibility: ["//visibility:public"],
+    versions_with_info: [
+        {
+            version: "1",
+            imports: [],
+        },
+    ],
+
+}
+
+java_library {
+    name: "uwb_androidx_backend",
+    sdk_version: "system_UpsideDownCake",
+    min_sdk_version: "30",
+    installable: false,
+    srcs: [
+        "src/**/*.java",
+    ],
+    libs: ["android-support-annotations"],
+    static_libs: [
+        "androidx.annotation_annotation",
+        "androidx.concurrent_concurrent-futures",
+        "androidx.core.uwb.backend.aidl_interface-V2-java",
+        "com.uwb.support.fira",
+        "com.uwb.support.multichip",
+        "com.uwb.support.dltdoa",
+        "guava",
+    ],
+    apex_available: [
+        "com.android.tethering",
+        "//apex_available:platform",
+    ],
+    visibility: [
+        ":__subpackages__",
+        "//packages/modules/Connectivity/remoteauth:__subpackages__",
+    ],
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
+}
+
+android_app {
+    name: "uwb_androidx_backend_app",
+    sdk_version: "system_UpsideDownCake",
+    min_sdk_version: "32",
+    certificate: "platform",
+    privileged: true,
+    manifest: "AndroidManifest.xml",
+    libs: ["android-support-annotations"],
+    static_libs: [
+        "androidx.annotation_annotation",
+        "androidx.concurrent_concurrent-futures",
+        "androidx.core.uwb.backend.aidl_interface-V2-java",
+        "com.uwb.support.fira",
+        "guava",
+        "uwb_androidx_backend",
+    ],
+    required: ["privapp_allowlist_androidx.core.uwb.backend.xml"],
+    apex_available: [
+        "//apex_available:platform",
+    ],
+}
+
+prebuilt_etc {
+    name: "privapp_allowlist_androidx.core.uwb.backend.xml",
+    sub_dir: "permissions",
+    src: "androidx.core.uwb.backend.xml",
+}

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Mewngofnodi Porthol Caeth</string>
+    <string name="action_use_network">Defnyddio\'r rhwydwaith hwn fel y mae</string>
+    <string name="action_do_not_use_network">Peidio â defnyddio\'r rhwydwaith hwn</string>
+    <string name="action_bar_label">Mewngofnodi i\'r rhwydwaith</string>
+    <string name="action_bar_title">Mewngofnodi i %1$s</string>
+    <string name="ssl_error_warning">Mae yna broblemau diogelwch gyda’r rhwydwaith rwyt yn ceisio ymuno â fo.</string>
+    <string name="ssl_error_example">Er enghraifft, efallai nad yw’r dudalen mewngofnodi yn perthyn i’r mudiad a ddangosir.</string>
+    <string name="no_bypass_error_vpnwarning">Hefyd, nid yw\'n bosib osgoi\'r gwall hwn am fod y ddyfais ar hyn o bryd yn rhedeg VPN.</string>
+    <string name="error_continue_via_browser">Parhau trwy’r porwr beth bynnag</string>
+    <string name="ssl_error_untrusted">Dyw’r dystysgrif hon ddim oddi wrth awdurdod dibynadwy.</string>
+    <string name="ssl_error_mismatch">Dyw enw\'r wefan ddim yr un fath a\'r enw ar y dystysgrif.</string>
+    <string name="ssl_error_expired">Mae\'r dystysgrif wedi dod i ben.</string>
+    <string name="ssl_error_not_yet_valid">Dyw\'r dystysgrif hon ddim yn ddilys eto.</string>
+    <string name="ssl_error_date_invalid">Mae gan y dystysgrif hon dyddiad annilys.</string>
+    <string name="ssl_error_invalid">Mae\'r dystysgrif hon yn annilys.</string>
+    <string name="ssl_error_unknown">Gwall tystysgrif anhysbys.</string>
+    <string name="ssl_security_warning_title">Rhybudd diogelwch</string>
+    <string name="ssl_error_view_certificate">Gweld y dystysgrif</string>
+    <string name="custom_scheme_warning">Mae\'r rhwydwaith rwyt yn ceisio ymuno â fo yn gwneud cais i agor ap arall.</string>
+    <string name="custom_scheme_example">Er enghraifft, gall y dudalen mewngofnodi fod angen ap penodol er mwyn dilysu.</string>
+    <string name="ok">Iawn</string>
+    <string name="page_info_address">Cyfeiriad:</string>
+    <string name="page_info">Gwybodaeth tudalen</string>
+    <string name="downloading_paramfile">Yn lawrlwytho %1$s</string>
+    <string name="download_completed">Lawrlwytho wedi\'i gwblhau</string>
+    <string name="error_downloading_paramfile">Methwyd lawrlwytho %1$s</string>
+    <string name="channel_name_downloads">Wedi eu lawrlwytho</string>
+    <string name="channel_description_downloads">Hysbysiadau yn dangos llwythi wedi eu cwblhau neu diddymu</string>
+    <string name="channel_name_download_progress">Cynnydd lawrlwytho</string>
+    <string name="channel_description_download_progress">Hysbysiadau yn dangos cynnydd llwytho ffeiliau i lawr</string>
+    <string name="cancel_pending_downloads">Llwytho wedi\u2019i diddymu</string>
+    <string name="file_too_large_cancel_download">Ffeil yn rhy fawr. Llwytho wedi\u2019i diddymu</string>
+</resources>

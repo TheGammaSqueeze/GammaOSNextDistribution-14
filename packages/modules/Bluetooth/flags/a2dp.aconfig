@@ -1,0 +1,16 @@
+package: "com.android.bluetooth.flags"
+container: "com.android.btservices"
+
+flag {
+    name: "a2dp_offload_codec_extensibility"
+    namespace: "bluetooth"
+    description: "Enable a2dp offload codec extensibility"
+    bug: "308686081"
+}
+
+flag {
+    name: "a2dp_concurrent_source_sink"
+    namespace: "bluetooth"
+    description: "Support for concurrent A2DP source and sink"
+    bug : "321806163"
+}

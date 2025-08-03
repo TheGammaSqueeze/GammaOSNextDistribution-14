@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2013-2015 The CyanogenMod Project
+     SPDX-FileCopyrightText: 2017-2024 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Kurulum Sihirbazı</string>
+    <string name="next">Sonraki</string>
+    <string name="skip">Atla</string>
+    <string name="start">Başla</string>
+    <string name="done">Bitti</string>
+    <string name="ok">Tamam</string>
+    <string name="loading">Bir saniye\u2026</string>
+    <string name="setup_welcome_message"><xliff:g id="name" example="LineageOS">%1$s</xliff:g> hoş geldiniz</string>
+    <string name="setup_managed_profile_welcome_message">İş profilini ayarla</string>
+    <string name="emergency_call">Acil durum araması</string>
+    <string name="accessibility_settings">Erişilebilirlik ayarları</string>
+    <string name="setup_locale">Dil</string>
+    <string name="sim_locale_changed">%1$s SIM tespit edildi</string>
+    <string name="setup_sim_missing">SIM kart yok</string>
+    <string name="sim_missing_summary" product="tablet">Tabletinizde bir SIM kart bulunamadı. SIM kart takmak için, cihazınız ile gelen talimatları okuyun.</string>
+    <string name="sim_missing_summary" product="default">Telefonunuzda bir SIM kart bulunamadı. SIM kart takmak için, cihazınız ile gelen talimatları okuyun.</string>
+    <string name="setup_datetime">Tarih &amp; zaman</string>
+    <string name="date_time_summary">Zaman diliminizi seçin ve gerekirse geçerli tarih ve saati ayarlayın</string>
+    <string name="setup_current_date">Şimdiki tarih</string>
+    <string name="setup_current_time">Şimdiki saat</string>
+    <string name="intro_restore_title">Uygulamaları ve verileri geri yükleyin</string>
+    <string name="intro_restore_subtitle"><xliff:g id="name" example="LineageOS">%s</xliff:g> veya başka bir işletim sisteminden bir Seedvault yedeğiniz varsa, buradan geri yükleyebilirsiniz.</string>
+    <string name="intro_restore_button">Yedekten geri yükle</string>
+    <string name="setup_location">Konum servisleri</string>
+    <string name="location_access_summary"><b>Konum bilginizi isteyen uygulamalara izin ver.</b> Bu geçerli konumunuzu ve geçmiş konumlarınızı içerebilir.</string>
+    <string name="location_agps_access_summary">GPS\'inizin başlama süresini büyük ölçüde hızlandırmak için &lt;b&gt;internetten uydu yardım verilerini indirin.&lt;b&gt;</string>
+    <string name="update_recovery_title">Lineage Kurtarma Modunu Güncelle</string>
+    <string name="update_recovery_description">Her güncellemeden sonraki ilk açılışta Lineage Kurtarma Modunu günceller.</string>
+    <string name="update_recovery_warning">Kurulum tamamlanır tamamlanmaz kurtarma modu güncellenecektir. Olduğu gibi kalmasını istiyorsanız, bu özelliği devre dışı bırakın.</string>
+    <string name="update_recovery_setting">İşletim Sistemi ile birlikte Lineage Kurtarma Modunu güncelleyin</string>
+    <string name="update_recovery_full_description"><xliff:g id="recovery_update_description">%1$s</xliff:g>\n<xliff:g id="recovery_update_warning">%2$s</xliff:g></string>
+    <string name="setup_services">LineageOS özellikleri</string>
+    <string name="services_pp_explanation">Bu hizmetler, cihazınızın özelliklerini genişletmeniz için çalışır. Veri <xliff:g id="name" example="LineageOS">%1$s</xliff:g>\'un gizlilik politikası ile kullanılacaktır.</string>
+    <string name="services_find_privacy_policy">Gizlilik politikasını farklı cihazla <xliff:g id="uri" example="https://lineageos.org/legal">%1$s</xliff:g> adresini ziyaret ederek okuyabilirsiniz</string>
+    <string name="services_help_improve_cm"><xliff:g id="name" example="LineageOS">%s</xliff:g>\'u geliştirmeye yardımcı olun</string>
+    <string name="services_metrics_label"><xliff:g id="name" example="Help improve LineageOS">%1$s</xliff:g> teşhis ve kullanım verilerini otomatik olarak <xliff:g id="name" example="LineageOS">%2$s</xliff:g>\'a gönderir. Bu bilgiler kimliğinizi belirlemek için kullanılamaz ve pil ömrü, uygulama performansı ve yeni <xliff:g id="name" example="LineageOS">%3$s</xliff:g> özellikler gibi konularda çalışan ekiplere yardımcı olur.</string>
+    <string name="services_os_nav_keys_label">Donanımsal tuşlar yerine <b>yazılımsal gezinme tuşlarını kullanın</b>.</string>
+    <string name="services_full_description"><xliff:g id="pp_explanation">%1$s</xliff:g>\n<xliff:g id="pp_find"/></string>
+    <string name="setup_navigation">Gezinme</string>
+    <string name="navigation_summary">Tercih edilen gezinme yöntemini seçin</string>
+    <string name="gesture_navigation">Hareketle gezinme</string>
+    <string name="two_button_navigation">2 düğmeli gezinme</string>
+    <string name="navbar_navigation">3 düğmeli gezinme</string>
+    <string name="hide_gesture_hint">Hareketle gezinme ipucunu gizle</string>
+    <string name="setup_theme">Tema</string>
+    <string name="theme_summary">Karanlık tema, siyah bir arka plan kullanarak bazı ekranlarda pilin daha uzun süre dayanmasına yardımcı olur</string>
+    <string name="dark">Karanlık</string>
+    <string name="light">Aydınlık</string>
+</resources>

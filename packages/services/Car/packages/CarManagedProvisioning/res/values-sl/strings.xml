@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    Copyright (C) 2021 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="brand_screen_header" msgid="4382251935798018352">"To vozilo pripada organizaciji."</string>
+    <string name="contact_device_provider" msgid="338577979231875837">"Če želite izvedeti več, se obrnite na: <xliff:g id="IT_ADMIN">%1$s</xliff:g>."</string>
+    <string name="organization_admin" msgid="6551608903069550652">"upravitelj organizacije"</string>
+    <string name="if_questions_contact_admin" msgid="4645510019575736238">"Če imate vprašanja, se obrnite na upravitelja organizacije."</string>
+    <string name="admin_has_ability_to_monitor_device" msgid="3132155961508293345">"Upravitelj organizacije lahko nadzira in upravlja nastavitve, dostop za podjetje, aplikacije, dovoljenja in podatke, povezane s tem vozilom, vključno z omrežno dejavnostjo in podatki o lokaciji tega vozila.<xliff:g id="LINE_BREAK">
+
+</xliff:g>Če želite več informacij, vključno z informacijami o pravilnikih o zasebnosti organizacije, se obrnite na upravitelja organizacije."</string>
+    <string name="contact_your_admin_for_more_info" msgid="1419852317652804536">"Če želite več informacij, vključno z informacijami o pravilnikih o zasebnosti, se obrnite na upravitelja organizacije."</string>
+    <string name="managed_device_info" msgid="2134697391634083944">"To je upravljano vozilo"</string>
+    <string name="contact_your_admin_for_help" msgid="1741496631607502730">"Če želite pomoč, se obrnite na upravitelja organizacije."</string>
+    <string name="fully_managed_device_provisioning_accept_header" msgid="8767138982035307813">"Nastavitev upravljanega vozila"</string>
+    <string name="fully_managed_device_provisioning_step_1_header" msgid="8704166635032524345">"Dostop do aplikacij organizacije"</string>
+    <string name="fully_managed_device_provisioning_step_1_description" msgid="5960961281295355254">"Nastavljanje informativno-razvedrilnega sistema …"</string>
+    <string name="fully_managed_device_provisioning_step_2_header" msgid="5888602026900289468">"Podatki informativno-razvedrilnega sistema niso zasebni"</string>
+    <string name="fully_managed_device_provisioning_step_2_subheader_title" msgid="1421575203782743214">"Vaša dejavnost in podatki"</string>
+    <string name="fully_managed_device_provisioning_step_2_subheader" msgid="4881961368653838979">"Upravitelj organizacije si morda lahko ogleda vašo dejavnost in podatke v tem vozilu."</string>
+    <string name="fully_managed_device_provisioning_permissions_secondary_subheader" msgid="8955791361423166123">"Upravitelj organizacije lahko nastavi dovoljenja za aplikacije v tem vozilu, na primer dovoljenji za mikrofon in lokacijo."</string>
+    <string name="fully_managed_device_with_permission_control_provisioning_summary" msgid="2503568673345133100">"Uporabite informativno-razvedrilni sistem v tem vozilu za preprost dostop do delovnih aplikacij. To vozilo ni zasebno, zato si upravitelj organizacije morda lahko ogleda vašo dejavnost in podatke. Upravitelj organizacije prav tako lahko nastavi dovoljenja za aplikacije v tem vozilu, na primer dovoljenji za mikrofon in lokacijo."</string>
+    <string name="fully_managed_device_provisioning_summary" msgid="4323948058344613817">"Uporabite informativno-razvedrilni sistem v tem vozilu za preprost dostop do delovnih aplikacij. To vozilo ni zasebno, zato si upravitelj organizacije morda lahko ogleda vaše podatke in dejavnost v tem vozilu."</string>
+    <string name="fully_managed_device_provisioning_progress_label" msgid="988594700479673633">"Nastavljanje upravljanega vozila"</string>
+    <string name="fully_managed_device_provisioning_return_device_title" msgid="1578111657911434819">"Prekličite nastavitev in vrnite vozilo"</string>
+    <string name="fully_managed_device_provisioning_return_device_subheader" msgid="5809488930429106172">"Ponastavite to vozilo in ga vrnite upravitelju organizacije ali se vrnite na prejšnji zaslon, če želite nadaljevati nastavitev."</string>
+    <string name="fully_managed_device_cancel_setup_button" msgid="4113790677940440998">"Prekliči nastavitev"</string>
+    <string name="fully_managed_device_reset_and_return_button" msgid="4951274590516561428">"Ponastavi in vrni"</string>
+    <string name="fully_managed_device_provisioning_privacy_title" msgid="4789425994893472324">"Obvestilo o zasebnosti"</string>
+    <string name="fully_managed_device_provisioning_privacy_body" msgid="5549745709511179391">"Upravitelj organizacije si morda lahko ogleda vaše podatke in dejavnost v tem vozilu."</string>
+</resources>

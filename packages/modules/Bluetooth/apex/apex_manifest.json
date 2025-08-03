@@ -1,0 +1,14 @@
+{
+  // Placeholder module version to be replaced during build.
+  // Do not change!
+  "version": 0,
+
+  "provideNativeLibs": [
+  ],
+  "provideSharedApexLibs": false,
+  "requireSharedApexLibs": [
+  ],
+  "name": "com.android.btservices",
+  "requireNativeLibs": [
+  ]
+}
